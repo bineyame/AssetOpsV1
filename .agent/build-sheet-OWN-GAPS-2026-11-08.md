@@ -5091,3 +5091,22 @@ Decisions logged for owner review: **D-SR.55**.
   - Backlog, after the freeze: add `gateway_diagnostic` (and `gateway` and `source` for registration flags) to the watermark input tables. That is a migration-level change to 0047's inputs plus a watermark test.
 
 Decisions logged for owner review: **D-SR.56**.
+
+## D-SR.57 SR-4c review L2, L3 and the two-declarer risk (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-4c-review.md` (5b1eba3b1, `/opt/assetecon/AssetOpsV1-sr4`).
+- **L2: intended. S15's cutoff pin gives way to the shared range.**
+  - Scenarios reads under the shared range's `known_at` when the address has one. Otherwise it reads live, like every other range page.
+  - It does **not** adopt the server's `known_at` into the address. An adopted `known_at` would travel on the rail to every other tab (D-SR.2) and silently turn the whole Site historical.
+  - Cursor pages keep the body's bound, as now. `miniDecisions.test.tsx:309-311` ("no adoption") stays.
+  - Fix: rewrite the header at `MiniScenarios.tsx:4-7` to say this. The adoption branch stays only for the address-free case, which happens outside the shell. Cite D-SR.57.
+- **L3: corrected to per key.** `withRange` adds the address `known_at` to a target that names `from`/`to` but no `known_at`. The target's own `from`, `to` and `known_at` still win.
+  - Reason: a drill-in from a range pinned to a cutoff must read at the same cutoff. The SR-10/11 `hour_link` and the SR-5/6/7 day links name `from`/`to` only, so otherwise they would read live and could disagree with the row the user clicked.
+  - Change `sharedRange.ts:160`: keep the target's `from`/`to`, and when the target has no `known_at`, append the address `known_at` if the address has one. Update `rangeLink.test.tsx:67-72` to the new expectation; do not delete the case. Add one case: a target with its own `known_at` keeps it.
+  - Size about 0.03 units; SR-4 fix round.
+- **Two declarers: one declarer per view.**
+  - In the hour view of Service, Backup and Fuel, FocusPicker is the only declarer. `WindowSpan` keeps its visible text but stops declaring into the focus slot.
+  - Its range-without-hour declaration (D-SR.42a) is removed when that page's range view lands: SR-10c for Fuel, SR-11 for Backup, SR-7's page for Service. The range view then declares nothing (rev 10b.2).
+  - Each of those slices adds one vitest that the focus slot is declared once in the hour view.
+
+Decisions logged for owner review: **D-SR.57**.
