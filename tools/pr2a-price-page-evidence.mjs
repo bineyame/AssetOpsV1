@@ -6,6 +6,7 @@
      node tools/pr2a-price-page-evidence.mjs <web-base> <api-port> <out-dir>
    Captures are PNGs from headless Chrome; the script also reports horizontal overflow of the page at each width.
    A measured claim needs a non-empty set: the script asserts the price table has rows before it reports overflow. */
+import { widthGuard } from "./evidence-checks.mjs";
 import { createServer } from "node:http";
 import { spawn, spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
@@ -117,17 +118,21 @@ async function waitFor(expression, ms = 30000) {
   while (Date.now() < end) { if (await js(`Boolean(${expression})`)) return true; await sleep(200); }
   return false;
 }
+const requireWidth = widthGuard({ send });
 /** Open `url` at `w` px, wait for `ready`, save a full-height PNG and return the measurements. */
 async function capture(url, file, w, ready) {
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: 900, deviceScaleFactor: 1, mobile: false });
+  await requireWidth(w, 900, `resize to ${w}`, { record: false });
   await send("Page.navigate", { url });
   const ok = await waitFor(ready);
   await sleep(500);
+  await requireWidth(w, 900, `loaded ${url}`, { record: false });
   const m = await js(`(() => ({ rows: document.querySelectorAll('[data-price-row]').length,
     scrollW: document.documentElement.scrollWidth, innerW: window.innerWidth, h: document.documentElement.scrollHeight,
     tableScroll: (() => { const t = document.querySelector('[data-site-prices] table'); return t ? t.getBoundingClientRect().width : null; })() }))()`);
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(m.h, 6000), deviceScaleFactor: 1, mobile: false });
   await sleep(300);
+  await requireWidth(w, null, `capture ${file}`, { record: false });
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(file, Buffer.from(r.data, "base64"));
   return { ok, ...m };
