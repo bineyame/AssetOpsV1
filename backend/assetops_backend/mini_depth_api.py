@@ -17,9 +17,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy.exc import DBAPIError
 
 from assetops_backend import perf
+from assetops_backend.infra import is_transient
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.chain.read import window_days
 from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish
@@ -247,8 +247,10 @@ def build_day_range_router(domain: str, period_reader: Callable[[], Any], chain_
                 result = periods.read(site.tenant_id, [SiteRef(site.tenant_id, sid, site.site_code, MINIGRID, tz)],
                                       [kind], days[0], days[-1], known)
                 grades = day_summary.day_grades(chain.request(site.tenant_id, known).day(sid, MINIGRID, days))
-            except (SiteStoreUnavailable, DBAPIError, *unavailable) as error:
-                raise _day_range_refuse(unavailable_code) from error
+            except Exception as error:  # a store failure or a connection error (no driver import: `infra`)
+                if isinstance(error, (SiteStoreUnavailable, *unavailable)) or is_transient(error):
+                    raise _day_range_refuse(unavailable_code) from error
+                raise
             body = day_summary.compose(
                 domain, {"id": sid, "site_code": site.site_code, "site_name": getattr(site, "name", None),
                          "timezone": tz},
