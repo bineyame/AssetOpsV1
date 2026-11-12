@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
@@ -324,7 +324,6 @@ describe("PR-3 inline price form", () => {
     [422, "APPLIES_FROM_OUT_OF_RANGE", "The date must be within 400 days before and 366 days after today at this site.", []],
     [422, "CURRENCY_DIFFERS", "This site's diesel price is kept in USD.", []],
     [422, "REASON_REQUIRED", "This date changes figures already shown. Say why.", []],
-    [409, "IDEMPOTENCY_KEY_REUSED", "This idempotency key was already used for a different price.", []],
   ];
 
   it.each(REFUSALS)("refused on save (%s %s): the server's words and 'Nothing was saved.'", async (status, code, message, fields) => {
@@ -380,6 +379,105 @@ describe("PR-3 inline price form", () => {
     await screen.findByRole("status");
     expect(entries.saveCalls).toHaveLength(2);
     expect(entries.saveCalls[1].idempotency_key).toBe(entries.saveCalls[0].idempotency_key);
+  });
+
+  it("502 on save (not the route's 503): 'lost', never 'Nothing was saved.'", async () => {
+    vi.stubGlobal("fetch", vi.fn(async (_url: string, init?: RequestInit) => {
+      const sent = JSON.parse(String(init?.body)) as PriceEntryRequest;
+      if (sent.dry_run) return new Response(JSON.stringify(DRY), { status: 200 });
+      return new Response("Bad gateway", { status: 502 });
+    }));
+    renderPage("/sites/KOBO-001/financials/prices", pageClient([PAGE]).client, createPriceEntryClient());
+    await settledScreen();
+    await openAndContinue();
+    fireEvent.click(screen.getByRole("button", { name: PRICE_ENTRY_WORDS.save }));
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("We could not confirm the save. Saving again is safe.");
+    expect(alert).not.toHaveTextContent("Nothing was saved");
+  });
+
+  it("409 key reused (the store's real words): an honest sentence, no key, no uuid, no 'Nothing was saved.'", async () => {
+    const message = "Idempotency key 'price-entry-0123456789abcdef0123456789abcdef' already published revision 7c1f2d3e-0000-4000-8000-000000000001 with a different request; nothing was written.";
+    vi.stubGlobal("fetch", vi.fn(async (_url: string, init?: RequestInit) => {
+      const sent = JSON.parse(String(init?.body)) as PriceEntryRequest;
+      if (sent.dry_run) return new Response(JSON.stringify(DRY), { status: 200 });
+      return new Response(JSON.stringify({ detail: { code: "IDEMPOTENCY_KEY_REUSED", message } }), { status: 409 });
+    }));
+    renderPage("/sites/KOBO-001/financials/prices", pageClient([PAGE]).client, createPriceEntryClient());
+    await settledScreen();
+    await openAndContinue();
+    fireEvent.click(screen.getByRole("button", { name: PRICE_ENTRY_WORDS.save }));
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("An earlier save from this form may already have been recorded.");
+    expect(alert).toHaveTextContent("check History");
+    expect(alert.textContent).not.toMatch(/Nothing was saved|Idempotency|price-entry-|7c1f2d3e/);
+  });
+
+  it("Change after a lost save starts a new idempotency key", async () => {
+    const entries = entryClient(undefined, [{ status: "lost" }, { status: "ok", value: SAVED }]);
+    renderPage("/sites/KOBO-001/financials/prices", pageClient([PAGE]).client, entries.client);
+    await settledScreen();
+    await openAndContinue();
+    fireEvent.click(screen.getByRole("button", { name: PRICE_ENTRY_WORDS.save }));
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByRole("button", { name: PRICE_ENTRY_WORDS.change }));
+    expect(within(form()).getByLabelText(PRICE_ENTRY_WORDS.amount)).toHaveFocus();
+    fireEvent.change(within(form()).getByLabelText(PRICE_ENTRY_WORDS.amount), { target: { value: "2.50" } });
+    fireEvent.click(within(form()).getByRole("button", { name: PRICE_ENTRY_WORDS.continue }));
+    fireEvent.click(await screen.findByRole("button", { name: PRICE_ENTRY_WORDS.save }));
+    await screen.findByRole("status");
+    expect(entries.saveCalls[1].idempotency_key).not.toBe(entries.saveCalls[0].idempotency_key);
+    expect(entries.dryCalls[1].idempotency_key).toBe(entries.saveCalls[1].idempotency_key);
+  });
+
+  it("focus: Amount on open, the summary on confirm, Reason when required, the invalid field on a refusal, the note after save", async () => {
+    const entries = entryClient(
+      [{ status: "ok", value: DRY }, { status: "refused", code: "PRICE_ENTRY_INVALID", message: "Some fields are missing or not valid.", fields: ["source"] }],
+    );
+    renderPage("/sites/KOBO-001/financials/prices", pageClient([PAGE, PAGE]).client, entries.client);
+    await settledScreen();
+    fireEvent.click(within(slot("diesel_price_per_litre")!).getByRole("button", { name: PRICE_ENTRY_WORDS.open }));
+    expect(within(form()).getByLabelText(PRICE_ENTRY_WORDS.amount)).toHaveFocus();
+    fill(form(), {});
+    fireEvent.click(within(form()).getByRole("button", { name: PRICE_ENTRY_WORDS.continue }));
+    await screen.findByRole("button", { name: PRICE_ENTRY_WORDS.save });
+    expect(document.activeElement).toBe(document.querySelector("[data-price-entry-summary]"));
+    fireEvent.click(screen.getByRole("button", { name: PRICE_ENTRY_WORDS.change }));
+    fireEvent.click(within(form()).getByRole("button", { name: PRICE_ENTRY_WORDS.continue }));
+    await screen.findByRole("alert");
+    expect(within(form()).getByLabelText(PRICE_ENTRY_WORDS.source)).toHaveFocus();
+  });
+
+  it("focus: Reason on confirm when required; the success note after save", async () => {
+    const entries = entryClient([{ status: "ok", value: { ...DRY, change_kind: "CORRECTION", reason_required: true, summary: "Correction." } }]);
+    renderPage("/sites/KOBO-001/financials/prices", pageClient([PAGE, PAGE]).client, entries.client);
+    await settledScreen();
+    await openAndContinue("diesel_price_per_litre", { date: "2026-10-01" });
+    const reason = within(form()).getByLabelText(PRICE_ENTRY_WORDS.reason);
+    expect(reason).toHaveFocus();
+    fireEvent.change(reason, { target: { value: "Supplier invoice" } });
+    fireEvent.click(screen.getByRole("button", { name: PRICE_ENTRY_WORDS.save }));
+    const note = await screen.findByRole("status");
+    expect(note).toHaveFocus();
+  });
+
+  it("the re-read after a save fails: the success note and Back link stay", async () => {
+    let pagesCalls = 0;
+    const pages = {
+      async getPrices() {
+        return pagesCalls++ === 0 ? { status: "loaded", value: PAGE } : { status: "unavailable" };
+      },
+    } as PricePageClient;
+    renderPage("/sites/KOBO-001/financials/prices?return=%2Fsites%2FKOBO-001%2Fperformance", pages, entryClient().client);
+    await settledScreen();
+    await openAndContinue();
+    fireEvent.click(screen.getByRole("button", { name: PRICE_ENTRY_WORDS.save }));
+    const note = await screen.findByRole("status");
+    expect(note).toHaveTextContent(SAVED.summary);
+    await waitFor(() => expect(pagesCalls).toBe(2));
+    expect(screen.getByRole("status")).toHaveTextContent(SAVED.summary);
+    expect(within(screen.getByRole("status")).getByRole("link", { name: "← Back to where you were" })).toBeInTheDocument();
+    expect(document.querySelector("[data-prices-refused]")).toBeNull();
   });
 
   it("the client maps a dropped connection to 'lost' and sends dry_run per step", async () => {

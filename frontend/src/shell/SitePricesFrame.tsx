@@ -79,7 +79,13 @@ function usePricePage(client: PricePageClient, siteId: string, need: string | nu
   useEffect(() => {
     let live = true;
     void client.getPrices(siteId, { need, knownAt }).then((result) => {
-      if (live) setState({ key, result });
+      if (!live) return;
+      // A failed re-read after a save keeps the body (and the success note) already on screen.
+      setState((was) =>
+        result.status !== "loaded" && was !== null && was.key === key && was.result.status === "loaded"
+          ? was
+          : { key, result },
+      );
     });
     return () => {
       live = false;

@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import type { PriceEntryBlock, PriceRowBody } from "./pricePageClient";
 import {
@@ -40,6 +40,8 @@ export const PRICE_ENTRY_WORDS = {
   check: "Check:",
   unavailable: "Prices cannot be saved right now. Nothing was saved.",
   lost: "We could not confirm the save. Saving again is safe.",
+  keyReused:
+    "An earlier save from this form may already have been recorded. Reload the page and check History before saving again.",
 } as const;
 
 const BASES: [PriceBasis, string][] = [
@@ -77,10 +79,16 @@ export interface PriceEntrySlotProps {
 export function PriceEntrySlot(props: PriceEntrySlotProps) {
   const { row, savedSummary, back, backWords } = props;
   const [open, setOpen] = useState(props.openOnArrival && savedSummary === null);
+  const noteRef = useRef<HTMLDivElement>(null);
+  const showNote = savedSummary !== null && !open;
+  // After a save the form unmounts: keyboard focus moves to the success note.
+  useEffect(() => {
+    if (showNote) noteRef.current?.focus();
+  }, [showNote]);
   return (
     <div className="price-entry" data-price-entry={row.key}>
-      {savedSummary === null || open ? null : (
-        <div className="price-entry__saved" role="status" data-price-entry-saved>
+      {!showNote ? null : (
+        <div className="price-entry__saved" role="status" tabIndex={-1} ref={noteRef} data-price-entry-saved>
           <p>{savedSummary}</p>
           {back ? (
             <Link to={back} data-price-entry-back>
@@ -117,7 +125,25 @@ function PriceEntryForm({
 }: PriceEntrySlotProps & { onClose: () => void }) {
   const id = useId();
   // One idempotency key per opened form, reused on every retry (rev 5 §5.3).
-  const idempotencyKey = useRef(freshPriceEntryKey()).current;
+  // "Change" starts a new key (an edited request must not reuse the key of a save that may have landed).
+  const keyRef = useRef(freshPriceEntryKey());
+  const idempotencyKey = keyRef.current;
+  const formRef = useRef<HTMLFormElement>(null);
+  const [focusOn, setFocusOn] = useState<{ what: "amount" | "confirm" | "problem" } | null>({ what: "amount" });
+  // Focus follows the step: Amount on open, the summary (or Reason) on confirm, the first invalid field on a refusal.
+  useEffect(() => {
+    const root = formRef.current;
+    if (focusOn === null || root === null) return;
+    let target: HTMLElement | null = null;
+    if (focusOn.what === "amount") target = root.querySelector<HTMLElement>('input[name="value"]');
+    else if (focusOn.what === "confirm") {
+      target = root.querySelector<HTMLElement>('textarea[name="reason"]') ?? root.querySelector<HTMLElement>("[data-price-entry-summary]");
+    } else {
+      const bad = root.querySelector<HTMLElement>('[aria-invalid="true"]');
+      target = bad instanceof HTMLFieldSetElement ? bad.querySelector<HTMLElement>("input") : bad;
+    }
+    target?.focus();
+  }, [focusOn]);
   const fixedCurrency = row.current?.currency ?? null;
   const [value, setValue] = useState("");
   const [currency, setCurrency] = useState(
@@ -159,11 +185,13 @@ function PriceEntryForm({
       setDry(result.value);
       setReasonRequired(result.value.reason_required);
       setPhase("confirm");
+      setFocusOn({ what: "confirm" });
       return;
     }
     setPhase("editing");
     if (result.status === "refused") setProblem({ text: refusedText(result.message, result.fields), fields: result.fields });
     else setProblem({ text: PRICE_ENTRY_WORDS.unavailable, fields: [] });
+    setFocusOn({ what: "problem" });
   }
 
   async function onSave(event: FormEvent) {
@@ -185,12 +213,21 @@ function PriceEntryForm({
       setProblem({ text: PRICE_ENTRY_WORDS.unavailable, fields: [] });
       return;
     }
+    if (result.code === "IDEMPOTENCY_KEY_REUSED") {
+      // The store's own words carry the key and a revision id, and "nothing was written" may be false for the
+      // earlier save: say what is honest instead.
+      setPhase("confirm");
+      setProblem({ text: PRICE_ENTRY_WORDS.keyReused, fields: [] });
+      return;
+    }
     const text = refusedText(result.message, result.fields);
     if (result.code === "REASON_REQUIRED") {
       setReasonRequired(true);
       setPhase("confirm");
+      setFocusOn({ what: "confirm" });
     } else {
       setPhase("editing");
+      setFocusOn({ what: "problem" });
     }
     setProblem({ text, fields: result.fields });
   }
@@ -204,6 +241,7 @@ function PriceEntryForm({
     <form
       className="price-entry__form"
       aria-labelledby={titleId}
+      ref={formRef}
       data-price-entry-form={phase}
       onSubmit={editing ? onContinue : onSave}
       noValidate
@@ -289,7 +327,7 @@ function PriceEntryForm({
       {editing ? null : (
         <div className="price-entry__confirm" data-price-entry-confirm>
           <h4>{PRICE_ENTRY_WORDS.confirmTitle}</h4>
-          <p data-price-entry-summary>{dry?.summary}</p>
+          <p data-price-entry-summary tabIndex={-1}>{dry?.summary}</p>
           {reasonRequired ? (
             <div className="price-entry__field price-entry__reason">
               <label htmlFor={`${id}-reason`}>{PRICE_ENTRY_WORDS.reason}</label>
@@ -333,8 +371,10 @@ function PriceEntryForm({
               className="button"
               disabled={phase === "saving"}
               onClick={() => {
+                keyRef.current = freshPriceEntryKey();
                 setPhase("editing");
                 setProblem(null);
+                setFocusOn({ what: "amount" });
               }}
             >
               {PRICE_ENTRY_WORDS.change}

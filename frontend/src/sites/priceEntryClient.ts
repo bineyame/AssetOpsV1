@@ -105,7 +105,13 @@ export function createPriceEntryClient(basePath: string = SITES_API_PATH): Price
       body = null;
     }
     if (response.ok && ok(body)) return { status: "ok", value: body };
-    if (response.status >= 500) return { status: "unavailable" };
+    if (response.status >= 500) {
+      // Only the route's 503 ASSUMPTION_STORE_UNAVAILABLE means nothing was written. Any other 5xx on a save may
+      // follow a landed write, so it is "lost" (saving again is safe: same key). A dry run writes nothing.
+      const code = refusal(body).code;
+      const nothingWritten = request.dry_run || response.status === 503 || code === "ASSUMPTION_STORE_UNAVAILABLE";
+      return nothingWritten ? { status: "unavailable" } : { status: "lost" };
+    }
     if (response.ok) return { status: "lost" };
     return { status: "refused", ...refusal(body) };
   }
