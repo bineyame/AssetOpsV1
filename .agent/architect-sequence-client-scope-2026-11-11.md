@@ -149,6 +149,20 @@ Source: `AssetOpsV1-sr4` 01f4d3981 `.agent/SR-4-live-check.md`; SR-8 223783035 /
   - 11-06 shows an assessed hour with no readings (no figures).
   - Neither shows a number. Making the two days read the same is **Low, backlog** (demo-critical scope only). It is not a 17 Nov item.
 
+### 10e.5 SR-10/11 parity findings: pre-data days, the precise head gate, one NO_DATA state (D-SR.70-72)
+
+- Evidence: SR-10 parity 2dac39de2, SR-11 parity 75abd816a, DB `assetops_polish_vps1_test`, read only. Both JSONs passed. These rulings close the two honesty gaps the runner found.
+- **Pre-data days (D-SR.70, option b).** A day with no readings reads **NO_DATA ("No readings this day")**, whether a row is stored or not.
+  - "No readings" means every applicable mini measure grade of the day is NO_DATA. A missing snapshot counts (Q9).
+  - In `mini_depth/day_summary.py`, new `no_reading_days(facts)` and `day_state(..., no_readings, pending)`. The order is NOT_EXPECTED → pending → NO_DATA → absent row → the rest.
+  - Not counted, figures null. The prepare is unchanged: a client Site always has days before its first reading, and only the route can be honest about them.
+- **Head gate (D-SR.71).** The flagged Kobo hours (local 00:00 and fuel 14:00 on the Tuesday partial days) hold only boundary rows: intervals ending at the hour's start, and backup-only instants at 14:00:00. The 0029 trigger rightly enqueues no job for them. **No head is missing.**
+  - The gate now mirrors the trigger: the domain's `DOMAIN_ROLES` and the half-open intersection with `+1 µs` instants, gated at 0.
+  - `ineligible_hours` and `heads_without_evidence` are reported, not gated.
+  - A cross-check, gated at 0: no NO_DATA day has a matching hour.
+- **One state (D-SR.72).** 10-31 (NO_ASSESSMENT), 11-06 backup (NO_SEQUENCE, counted) and 11-06 fuel (ASSESSED, counted) all become NO_DATA, as on SR-5 to SR-8. NO_SEQUENCE on a gateway-offline day claimed that nothing happened, from no readings.
+- **Order.** A Sonnet fix round on SR-10 (about 0.15), merged into SR-11, with a fresh Claude re-review. Then a parity rerun with the D-SR.71 harness: NO_DATA days are Kobo 10-11, 10-12, 10-31 and 11-06, and Kisiwa 10-11 to 10-31. Then the pages, then merge.
+
 ## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8**; later D-SR.47-54 (10d.7-10d.11) (build sheet), owner-delegated, logged for owner review.

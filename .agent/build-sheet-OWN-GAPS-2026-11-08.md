@@ -5286,3 +5286,60 @@ Decisions logged for owner review: **D-SR.64-68**.
 - The one-day wording difference between 10-31 (not assessed) and 11-06 (assessed with no readings) is Low and goes to the backlog.
 
 Decisions logged for owner review: **D-SR.69**.
+
+## D-SR.70-72 SR-10/11 parity findings: pre-data days, the precise head gate, one NO_DATA state (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10e.5. Evidence: `AssetOpsV1-sr10` 2dac39de2 `SR-10-parity.json`, `AssetOpsV1-sr11` 75abd816a `SR-11-parity.json`; `assetops_polish_vps1_test`, read only.
+
+### D-SR.70 A day with no readings reads NO_DATA, stored row or not (finding 1: option b).
+- **Option (b), not (a) or (c).** A real client Site has days before its first reading in almost any range, and no backfill can build rows for every past day. The route must be honest without a row. A prepare that builds from the window start would only hide the demo case.
+- **The test of "no readings": the Site's chain day, not one measure.** No mini measure maps to fuel or backup alone, so D-SR.69's "the domain's measure" is refined. A day has no readings when every applicable mini measure grade of the day is NO_DATA (`days_of` entry `measures`, minus `none_declared` and NOT_EXPECTED, at least one left). A missing snapshot counts as NO_DATA (Q9), so a day before the first reading qualifies. A day with only one weak measure does not.
+- **File and function.** `backend/assetops_backend/mini_depth/day_summary.py`:
+  - new `no_reading_days(facts) -> frozenset[date]` beside `day_grades`, from the same `days_of` read (no second chain read);
+  - `day_state(domain, summary, grade, *, no_readings: bool, pending: bool)`, first match wins:
+    1. `NOT_EXPECTED`: the day grade is NOT_EXPECTED.
+    2. `STILL_PROCESSING`: the row is pending at k (`read.pending` or `result.is_pending`) or `hours_pending > 0`. A day being reprocessed may just have received readings.
+    3. **`NO_DATA`** (new): `no_readings`, whether the row is stored or absent.
+    4. `STILL_PROCESSING`: the row is absent (D-SR.51.3 unchanged for every other day).
+    5. `NO_ASSESSMENT`, then the fuel/backup states, as 10b.1.
+  - `range_days` passes both flags. A NO_DATA entry is `absent_day(domain, d)` with `stored` set to whether a row exists; every count and figure is null, `partial` is false, and `hour_link` stays. D-SR.51.3's "stored rows never carry null counts" is amended for this one state.
+  - `NO_DATA` is not in `COUNTED_STATES`, so the day never enters a total and `totals.partial` turns true.
+- **Words (SR-10c/SR-11 pages).** State words "No readings this day", spanning the row like "Still being prepared". Status line: "Fuel use modelled on 5 of 7 days · 31 Oct: no readings" (backup alike). One wording for a gateway-offline day and a day before readings began: both are true as "no readings".
+- **Tests.**
+  - Pure (`test_sr10_day_summary.py`): NO_DATA beats an absent row and a stored row with 0 or 24 heads; pending beats NO_DATA; one NO_DATA measure among PARTIAL ones is not NO_DATA; `none_declared` and NOT_EXPECTED measures are left out; a NO_DATA day is not counted and nulls its figures.
+  - Postgres (`test_sr10_day_kinds_postgres.py`): a Site-local day before the Site's first accepted reading, with no row built, reads NO_DATA on both routes.
+  - Route stubs (`test_sr10_fuel_range_route.py`, `test_sr11_backup_range_route.py`): the state string and null figures in the body.
+- **Prepare: unchanged.** `period_backfill build` keeps its first-evidence-day start. The pre-data rows the runner built on the test DB with `--from 2026-10-11` are harmless; parity shows stored and absent pre-data days read the same.
+
+### D-SR.71 The head gate follows the enqueue rule exactly (finding 2: expected, not a gap).
+- **Seen in the DB.** The KOBO-001 Tuesday partial days run from local 06:00 to 14:00. The flagged hours hold only boundary rows:
+  - local 00:00 (21:00Z): 11 interval rows of the previous run, `[20:55Z, 21:00Z)`. They end at the hour's start and cover none of it.
+  - local 14:00 (11:00Z): interval rows `[10:55Z, 11:00Z)` plus instants stamped 11:00:00 (`generator_state`, `battery_soc`). Fuel's roles are `generator_power` and `fuel_level` only (no instant), so fuel has no job. Backup's roles include `generator_state`, so backup has a job and a head (`recompute_job`: `mini_backup` 11:00-12:00 DONE; no `mini_fuel`).
+- **The enqueue rule** (`0029_w4_mini_depth.py`, accepted-row trigger): each row whose role maps to the domain (`DOMAIN_ROLES`) enqueues every Site-local hour that intersects `[coalesce(interval_start, source_time), coalesce(interval_end, source_time + 1 µs))`. Heads exist exactly where this rule says. **No head is missing.**
+- **Precise gate** (parity harness, `hours_with_evidence_no_head`, **gated at 0**). An hour expects a head when an accepted row:
+  - has a role in the 0029 `DOMAIN_ROLES` entry for `mini_fuel` / `mini_backup`; load it from the migration file, do not retype it;
+  - satisfies `coalesce(interval_start, source_time) < hour_end AND coalesce(interval_end, source_time + interval '1 microsecond') > hour_start`;
+  - and the hour is not on a day in `no_data_days`.
+- An hour that matches but has no `minigrid-roles-4` binding set in force for the whole hour (the trigger's no-op) goes to `ineligible_hours`: reported, not gated.
+- Report `heads_without_evidence` (for example 11-06's configuration re-enqueue): reported, not gated. D-SR.70 reads such days NO_DATA.
+- Cross-check, gated at 0: no day in `no_data_days` has an hour matching the precise predicate.
+
+### D-SR.72 NO_DATA days read one state (finding 3).
+- **Today they read three ways, and two are not honest.**
+  - 10-31: NO_ASSESSMENT, an empty stored row.
+  - 11-06 backup: NO_SEQUENCE, "No backup start recorded" over a gateway-offline day. That is a claim of nothing happening, from no readings. It is counted in `days_counted`.
+  - 11-06 fuel: ASSESSED, also counted.
+- **Ruling: one state, `NO_DATA`, by D-SR.70's rule ahead of any row content.** This matches SR-5/6/7/8, which show both days as NO_DATA (D-SR.69). D-SR.47 Q4's "the grade wins first" now holds on Fuel and Backup too.
+- NO_ASSESSMENT stays only for a day with readings but no assessed hour, which the D-SR.71 gate keeps at 0 on the demo DB.
+- The one-hour pages are unchanged: the D-SR.69 wording difference stays Low, backlog.
+
+### Sequencing
+- One Sonnet fix round on `task/SR-10-fuel-range` (about 0.15), then merged into `task/SR-11-backup-range`, with a fresh Claude re-review.
+- Then a parity rerun of both JSONs with the D-SR.71 harness. The gates:
+  - `no_data_days` read NO_DATA: Kobo 10-11, 10-12, 10-31 and 11-06; Kisiwa every day before 11-01;
+  - `hours_with_evidence_no_head` = 0;
+  - the cross-check = 0;
+  - every earlier gate unchanged.
+- The pages (SR-10c/SR-11 page) use the D-SR.70 words. SR-10/11 merge only after this passes.
+
+Decisions logged for owner review: **D-SR.70-72**.
