@@ -329,9 +329,10 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
 
   it("the hour bar sends one site-local clock hour as UTC bounds", () => {
     expect(localHourWindow(TZ, "2026-10-06", 0)).toEqual({ from: "2026-10-05T21:00:00.000Z", to: "2026-10-05T22:00:00.000Z" });
+    // D-SR.61 (35e8a8b59): a negative-offset zone reads the range's own date string, 12:00 local on 6 Oct.
     expect(serviceWindowFromParams(new URLSearchParams("date=2026-10-06"), "America/New_York")).toEqual({
-      from: "2026-10-05T16:00:00.000Z",
-      to: "2026-10-05T17:00:00.000Z",
+      from: "2026-10-06T16:00:00.000Z",
+      to: "2026-10-06T17:00:00.000Z",
       known_at: null,
     });
     const params = new URLSearchParams("from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-07T00:00:00Z");
