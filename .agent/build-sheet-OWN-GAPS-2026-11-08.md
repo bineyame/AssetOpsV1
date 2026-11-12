@@ -4507,3 +4507,128 @@ Decisions logged for owner review: **D-17N.1-7**.
 - **Honest timing report.** The AR-4 packet states that its remaining 1.7-6.8 s of dispatch lookups is DISP-1's, fixed on this branch, not in D-ANY.9's backlog. Rev-7 7.1's custom-range figures (about 8 s a week, 25-30 s a month) are replaced by the DISP-1 after-timings once measured. ≤2 s stays reported, not gated (D-ANY.8); custom ranges stay outside the ≤2 s claim.
 
 Decision logged for owner review: **D-ANY.11**.
+
+## D-UP.1-11 UP-1 pre-flight questions Q1-Q9 and the guard fix (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/UP-1-reading-upload` head `ce24acbcb`, packet `.agent/UP-1-packet.md`; spec rev 7 §7.5 (D-17N.5) and §7.6 (MB-1) of `architect-sequence-client-scope-2026-11-11.md`.
+- Code read for these rulings: `analytics/assessment_worker.py` (`run_once`: every non-EMPTY day window gets a run), `scheduling/stages.py` (`s3`, `mini`), `evidence/adapters/postgres_evidence_ledger.py` `_coalesce_job`, migration 0005 `recompute_job`, 0007 `analytic_run`, `host/tests/test_field_modbus_tcp_acceptance_postgres.py` (TEL-05 Q-T50, TEL-05b, TEL-06b), `evidence/adapters/postgres_gateway_access.py` `issue_credential`, `tools/demo_combined_kobo.py:240-330`.
+
+### D-UP.1 (Q1) The field checker runs as a separate process. Confirmed; no guard exception.
+- `python -m assetops_field.csv_upload check|send`, started by the host per request, is correct. It follows TEL-01 D4 (field adapters are separate processes) and the dependency-direction guard. §7.5's "validate with `CsvCollector.reports` (no IPC)" is a spec error, corrected here: the meaning (validate the whole file before anything is admitted; a dry run admits nothing) is kept, and the process boundary is the means.
+- The backend never imports `assetops_field`. The host passes the child's JSON result to the service through the port the builder already has.
+
+### D-UP.2 (Q2) The demo upload gateway: real `serve_tls`, one Kobo edge gateway shared with MB-1.
+- (a) **Central:** `tools/demo_combined.py serve` starts `python -m assetops_backend.serve_tls` on `127.0.0.1:8443` against the demo DB, only when `ASSETOPS_READING_UPLOAD_SITES` is set (else nothing new starts). Cert and key: self-signed, generated once into `<work>/tls/` the way the TEL-05/TEL-06b tests generate theirs; the gateway's `ca_file` is that cert. No in-process responder: §7.5 says nothing new is admitted inside the API process, and MB-1 (§7.6) needs the same TLS central.
+- **Credential:** at serve start, `PostgresGatewayAccess.issue_credential("demo", "KOBO-001", <Kobo gateway external id from the basis in (c)>, ..., actor="service:demo-upload", enable_sources=<the CSV profile's sources>)`, written to the gateway state's `upload.credential` (`restrict_to_current_user`). Issue once per state dir; reissue only if the file is missing (issuing rotates and revokes the earlier credential).
+- (b) **State and epoch:** one state dir `<work>/gateways/kobo-edge/`, persistent across serve restarts. It is the Kobo edge gateway for both UP-1 and MB-1: the CSV field process and MB-1's `modbus_poller` both admit to it over its IPC link (one edge box, several field adapters, as a real site has). One sequence epoch, created with the state dir by the same epoch generator `rp._gateway` / `provisioning_from_snapshot(..., epoch=)` use, stored in the state dir, and never equal to any per-day state's epoch (assert at creation against the per-day states under `<work>`). MB-1 must not start a second gateway for Kobo.
+- (c) **Activation basis:** the registered basis of the latest prepared Kobo day run already in the demo DB (the snapshot the per-day gateway states were provisioned from). No new draft run is written to the demo DB. If that snapshot cannot be read back from the DB or `<work>`, the fallback is TEL-06b's `registered.setup_service(store).create_draft_run(...).registered_basis` on the demo DB, stated in the packet.
+- (d) **Delivery:** after `send` exits 0, the host calls the gateway's delivery over its IPC link (the `RegisteredGatewayPublisher(link).deliver(50)` loop until `attempted` is 0, bounded at 30 s). Backstop: the demo gateway's `upload.interval_seconds` is **60**, not 3600. A failed delivery leaves the row SENT, and the backstop delivers it.
+- Serve writes the `ASSETOPS_READING_UPLOAD_GATEWAY` JSON file (read by the host) after the gateway is ready.
+- Units: about +0.25 on UP-1's flow-and-demo-file 0.5. MB-1 saves the same amount, because it reuses this gateway and central.
+
+### D-UP.3 (Q3) "Analysed" is reachable. Positive binding is not required for assessment. The proof row is `analytic_run`.
+- **Why it is reachable (cited).**
+  - Ingestion enqueues `recompute_job` rows for the upload's windows (`_coalesce_job`).
+  - The serve tick's `s3` stage runs `DispatchAssessmentWorker.run_site`. `run_once` records a run for every day window whose cohort is not EMPTY. It does not look at provenance.
+  - TEL-05 gate Q-T50 proved an assessment completes over UNKNOWN / NO_POSITIVE_BINDING gateway evidence and records NO_GENERATOR_STATE. TEL-05b proved Findings are raised with money withheld.
+  - Provenance UNKNOWN therefore withholds **money only** (D1(c), D5). It does not block the assessment.
+  - With only `pv_power` and `feeder_demand`, the run exists and records what is missing (NO_GENERATOR_STATE and the role coverage). The board shows the existing missing-role words for that day. That is honest and is not a defect.
+- **Stored proof, `analysed(row)` in the Postgres store, all true:**
+  1. The row is ACCEPTED with all m readings, or ACCEPTED n of m with the rest HELD.
+  2. **An assessment run exists.** An `analytic_run` row exists for the Site with `analytic_id = dispatch_v3.ANALYTIC_ID`, `selection = 'DEFAULT'` and `job_id IS NOT NULL`, its window covers the upload's first interval start, and its `knowledge_cutoff` ≥ the latest decision time (`accepted_at`) of the upload's accepted evidence (found from the row's `message_ids` → the receipts' evidence IDs).
+  3. **No work is left.** No `recompute_job` for the Site in **any** domain (dispatch and the `mini_*` domains) overlapping [first interval start, last interval end) is PENDING or LEASED.
+  - Do not key on `cause_evidence_id`. Jobs coalesce, so an upload's evidence can widen a job caused by other evidence.
+- **A FAILED job overlapping the span** is not "Still processing". It gets the state `NOT_ANALYSED`, with the message key `reading_upload.state.not_analysed`: "Received, but the analysis did not finish. The readings are kept." The row is not changed; the state is derived at GET as the others are. Test it no-DB with a fake store.
+- **"Analysed" links to** the `/sites/KOBO-001` board for the upload's local day (the existing `?date=` form).
+- **Risk, and the proof that closes it.** On the demo DB, the DEFAULT cohort might not include the CSV profile's devices (`pv-inverter-controller`, `clinic-meter`, `mill-meter`, `residential-meter`). The cohort is then EMPTY: no run, and the page never leaves "Still processing".
+  - The Postgres flow test on a `*_test` DB built like Kobo's demo (resume point 4) must show the `analytic_run` row and record the time from send to Analysed.
+  - The first VPS heavy slot runs the same flow once on a client4 copy.
+- **Reduced honest version, if the flow shows no run by Sat 20:00.**
+  - Drop the ANALYSED and NOT_ANALYSED states.
+  - The page ends at "Accepted n of m readings" with the sentence key `reading_upload.after_accept`: "Readings are stored. Analysis of uploaded readings is not switched on in this demo."
+  - "Still processing" is never shown in that version.
+  - The presenter shows the TEL-05 assessment proof on the slide.
+  - Do **not** fake a run, use an explicit cohort from the API, or bind positively. Each of those is a product change outside 17 Nov.
+  - This version fits inside 2.25 u. The full version needs the 2.25 u plus D-UP.2's +0.25.
+
+### D-UP.4 (Q4) Entry: Kobo **Health**, as the mockup draws it. The mockup is the layout spec. The Health tab is also where MB-1 shows the gateway's last upload, so both field beats sit on one tab. Shown only when the switch names the Site.
+
+### D-UP.5 (Q5) The body is raw `text/csv`, with `?file_name=`. Accepted; no new dependency.
+- Labelled **SPEC DEVIATION (transport)**: §7.5 said multipart.
+- The browser sends `fetch(url, {method: "POST", body: file, headers: {"Content-Type": "text/csv"}})`.
+- The server refuses:
+  - over 2 MB, by `Content-Length` and by a bounded read (never buffer more than 2 MB + 1);
+  - any other content type, with 415 and a message key;
+  - a missing `file_name`, or one longer than 200 characters.
+- `file_name` is display-only and is never used as a path.
+
+### D-UP.6 (Q6) The Excel BOM stays refused. The TEL-06 `ENCODING` rule is the format contract (merged), and the presenter's file is generated without a BOM. The refusal words must name the fix: "Save as 'CSV (Comma delimited)', not 'CSV UTF-8'." The template text says the same.
+
+### D-UP.7 (Q7) The path takes the Site code (`/api/sites/KOBO-001/reading-uploads`), as every Site route does. §7.5's `{site_id}` was loose wording; this is not a deviation.
+
+### D-UP.8 (Q8) Migration `0061_reading_upload` with `down_revision = 0059_site_period_read` on the branch. Accepted. Whichever of PR-3 and UP-1 merges second repoints its `down_revision` to the other's revision. The merge gate includes a single `alembic heads` result on the merged tree. The number stays 0061 if PR-3's 0060 lands first.
+
+### D-UP.9 (Q9) The extra columns are accepted, all append-only.
+- The extra columns are `file_name`, the refusal field and detail, the period, the per-kind counts, `message_ids` (jsonb) and `session_ref`.
+- The file's bytes and reading values are never stored, only the SHA-256. The message IDs are what D-UP.3 needs.
+
+### D-UP.10 The guard fix is correct: register the store, no exception.
+- Move the store to `reading_upload/adapters/postgres_reading_upload_store.py`.
+- Make the INSERT column list a literal.
+- Register the store in `tools/checks/configuration-persistence.ps1` as the sole, INSERT-only writer of `reading_upload`, on the `$periodWriter` / `$fuelBalanceWriter` pattern (driver allowlist plus anti-vacuity).
+- Prove the guard is non-vacuous: add a second writer, watch it fail, then revert.
+- The estate self-test failures are expected to clear. If any remain after the fix, they are reported with output, not assumed.
+- The `node_modules` failures are environment: run `npm ci` in the worktree before `check-all`.
+
+### D-UP.11 Process note and lane order
+- The Python heredoc edit to `service.py` breaks the lane's Write/Edit-only rule. The reviewer re-reads that file in full; no other action.
+- Lane F order: guard fix (D-UP.10) → D-UP.2 gateway → template route → Postgres flow (D-UP.3 proof) → `analysed` read → page after the mockup approval → MB-1 on the shared gateway.
+
+Decisions logged for owner review: **D-UP.1-11**.
+
+## D-WARM.1-6 WARM-1 packet questions (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: Architect = Claude. Context: `task/WARM-1-range-warm` head `5da936ccf`, packet `.agent/WARM-1-packet.md`, spec rev 7 §7.1 (D-17N.1).
+
+### D-WARM.1 (Q1) The data window starts at the **earliest** Site's first day. Confirmed.
+- The presenter can click those ranges, and each later Site's board states its own missing days honestly.
+- No range starts before the estate's first reading day. That is the meaning of §7.1's "no range before a Site's first day"; the test name says so.
+
+### D-WARM.2 (Q2) Unstored reads are measured, reported, and not gated.
+- `--verify` also replays the unstored reads the script pages send, for the 5 presets and the story ranges only:
+  - `/api/estate/scope`;
+  - the Site Overview read;
+  - `/api/sites/{code}/findings`;
+  - estate actions, evidence and financials.
+- They go under `unstored` in `warm-report.json` with their ms. They do not enter `pass`.
+- Any of them over 2 s on a script page is listed in the presenter notes and sent to the Architect as a finding. It is not a merge blocker.
+- The claim wording is "≤2 s on every stored request of every clickable range". "Every page" is used only where `unstored` is all under 2 s.
+
+### D-WARM.3 (Q3) Expiry and the 17 Nov schedule.
+- Live bodies expire at the earliest next Site-local midnight, and the demo Sites are at or ahead of UTC. The final warm therefore runs **on the session morning**, after 00:00 UTC and after that morning's add-dates or drain. Its bodies then hold until the first Site-local midnight of 17 Nov, which is after the session.
+- `--verify` must pass within 60 minutes before the session starts. The coordinator checklist records its time and `wall_seconds`.
+- No data change between that verify and the field beats.
+- Serve's per-tick re-warm stays; when nothing changed it is all hits, under 1 min.
+
+### D-WARM.4 (Q4) MB-1: the feed is off until its beat. The estate key is not changed.
+- No live feed or upload runs before the field beats. They come last in the script (D-17N.7), and the presenter starts MB-1's `live-field` at that beat.
+- Taking the feed out of the estate `cic:` scope is refused. It would make the Portfolio hide new readings (D-E4.8), which is a product change.
+- A Portfolio visit after the field beats is unprepared, as §7.5 risk 1 states.
+
+### D-WARM.5 (Q5) The not-warmed list is accepted, with one addition.
+- **Addition:** warm the Findings lens pages (`lens=cost|risks|opportunities`) on `/api/estate/findings` for the presets and the story ranges. They are stored routes, and they can be reached from the Findings page by one click.
+- Accepted as not warmed:
+  - `known_at` ranges;
+  - Portfolio page 2 and later;
+  - chain "Why?" routes outside `prebuilt-routes.json` (the story ones are already part 3);
+  - `7dwork`.
+- The packet lists them under "outside the ≤2 s claim".
+
+### D-WARM.6 (Q6) Retries on `race`, `unstored` and `composed` are accepted, as a recorded spec addition.
+- They get the same schedule (2, 5, 10 s) as 503 and `stale`.
+- A request still not stored after the retries fails the run: on a stored route it would be a miss at the demo.
+- `warm-report.json` names the reason per request.
+
+- Lane A next: build the D-WARM.2 and D-WARM.5 additions first (small, no DB), then run the VPS gate (packet resume points 1-4). Fresh Claude reviewer.
+
+Decisions logged for owner review: **D-WARM.1-6**.
