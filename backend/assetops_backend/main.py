@@ -115,7 +115,7 @@ from assetops_backend.financials.composition import (
 )
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.mini_depth.read import MiniDepthRead
-from assetops_backend.mini_depth_api import build_mini_depth_router
+from assetops_backend.mini_depth_api import build_mini_depth_router, build_service_range_router
 from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.opportunities import OpportunityService
 from assetops_backend.mini_decisions.work_links import WorkLinkService
@@ -127,7 +127,7 @@ from assetops_backend.mini_decisions_api import (
     deny_decision_writes,
     no_decision_principal,
 )
-from assetops_backend.claim_limit_api import build_claim_limit_router
+from assetops_backend.claim_limit_api import build_claim_limit_range_router, build_claim_limit_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
 from assetops_backend.config import (
@@ -702,6 +702,15 @@ def create_app(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
         policy_versions=chain_policy_versions, lifecycle=thread_lifecycle_policy, responses=responses))
+    # SR-7 (rev 10 §10.3, D-SR.23): the mini-grid Service and claim-limit range reads, included after `responses` and
+    # `estate_portfolio` exist. Service reads the board service's chain reader (as `/chain`); the claim-limit range
+    # reads one estate snapshot (the evidence-money claim-day pattern) behind the one-day route's Performance gate.
+    app.include_router(build_service_range_router(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    app.include_router(build_claim_limit_range_router(
+        estate_portfolio, registry, access=development_access, gate=performance_gate,
+        unavailable=(SiteStoreUnavailable,), responses=responses))
     # CH-5a2b (§B14 Q7/Q8): the Portfolio and estate Findings `summary.claims` call the one count computation
     # `/estate/chain` calls, over the same board reads and the same Site registry.
     estate_claims = build_estate_claims(
