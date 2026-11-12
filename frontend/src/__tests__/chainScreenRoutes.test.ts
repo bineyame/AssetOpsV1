@@ -27,11 +27,14 @@ function constant(name: string): string {
 
 function appRoutePatterns(): string[] {
   const found = new Set<string>();
-  const attributes = [...APP.matchAll(/\bpath=(\{[^}]*\}|"[^"]*"|'[^']*')/g)].map((m) => m[1]);
+  const attributes = [...APP.matchAll(/\bpath=(\{`[^`]*`\}|\{[^}]*\}|"[^"]*"|'[^']*')/g)].map((m) => m[1]);
   for (const attribute of attributes) {
     const literal = /^["'](.*)["']$/.exec(attribute);
     const named = /^\{([A-Z][A-Z0-9_]*)\}$/.exec(attribute);
-    if (literal) found.add(literal[1]);
+    const template = /^\{`([^`]*)`\}$/.exec(attribute);
+    if (template) {
+      found.add(template[1].replace(/\$\{([A-Z][A-Z0-9_]*)\}/g, (_m, name: string) => constant(name)));
+    } else if (literal) found.add(literal[1]);
     else if (named) found.add(constant(named[1]));
     else if (attribute !== "{path}" && attribute !== "{route.path}") {
       throw new Error(`unrecognised Route path form ${attribute}`);
@@ -44,6 +47,15 @@ function appRoutePatterns(): string[] {
   for (const route of labRouteModule.simulatorLabRoutes(featureFlagsWith(true))) found.add(route.path);
   found.delete("*");
   found.delete("/");
+  // A trailing optional param (`/portfolio/:tab?`) matches both the bare path and the path with the param; the
+  // checker's matcher has no `?`, so the list carries both forms.
+  for (const pattern of [...found]) {
+    if (pattern.endsWith("?")) {
+      found.delete(pattern);
+      found.add(pattern.slice(0, pattern.lastIndexOf("/")));
+      found.add(pattern.slice(0, -1));
+    }
+  }
   return [...found].sort();
 }
 
