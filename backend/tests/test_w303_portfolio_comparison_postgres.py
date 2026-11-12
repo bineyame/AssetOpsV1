@@ -253,7 +253,7 @@ def test_operating_cost_first_match_wins_across_partitions(portfolio_fixture) ->
                     "currency": w1["amount"]["currency"], "line_keys": [w1["line_key"]],
                     "group_key": parts[0]["group_key"], "basis": None, "destination": card["destination"],
                     "detail": None, "basis_text": card["basis_text"], "tone": card["tone"],
-                    "link_ref": card["link_ref"]}
+                    "link_ref": card["link_ref"], "price_action": None}
     foreign = {x["line_key"] for c, xs in by_cat.items() if c != OPERATING_COST for x in xs}
     assert not foreign & set(card["line_keys"]) and foreign
     assert card["group_key"] not in {g["group_key"] for g in financial["groups"] if g["category"] != OPERATING_COST}

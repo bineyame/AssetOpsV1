@@ -97,3 +97,18 @@ These touch changed bodies or the changed SELECT:
 
 - The draft and choices 1-6 in `.agent/PR-draft-notes.md`. Choice 6 answers the owner's 18:10 "where do I enter the price" question.
 - Whether "Set a cost per visit for GreenHarvest →" reads right on the Portfolio early warnings.
+
+## Fix round 2026-11-12 (after review ACCEPT WITH NOTES; revision after `24e6728d4`)
+
+- Merged main (`86490b07b`, clean, no conflicts).
+- Default 4: a `SET_PRICE` key outside `STORED_KEYS` now links "What pricing this needs →" (`FUTURE_KEY_LABEL`, `price_action.py`); stored keys keep "Set a … →". `_shape_ok` asserts it; label tests in `test_pr1_price_action.py`, `test_out_c2_board.py` and the frontend fixture updated.
+- Sign-in sentence (`SitePricesFrame.tsx`): rev-5 read-only wording exactly, "Prices are set by your AssetOps administrator until sign-in is available." (second sentence dropped).
+- New frontend tests: Finding cost tile link (`siteFinding.test.tsx`), estate money row link (`estateFinancials.test.tsx`); both files now use `LinkedMemoryRouter`. tsc clean; the 3 touched vitest files: 105 passed.
+- Postgres run (one file at a time, `tools/run-host-tests.ps1`), results:
+  - k6b_fuel_verification 6 passed (hand-edited `k6b_mill_pins.json` pin passes); ch9b3_mill_verdict 8; wd1m_mill_source 3; ch9b2_midday_plan 6; out_c3_repeat_visits 1;
+  - fx_cold_linked: 1 failed on the first run, 1 passed on an alone rerun (no code change; load from other lanes, not reproduced);
+  - w302_money_comparability 6; w302_financials_links 3; w303_portfolio_fixture 2; w303_portfolio_scope_snapshot 10; cov_partial 1; lr01_money_eligibility 3; s4_finding_read 3; k8_estate_fuel 1 (run alone).
+  - w303_portfolio_comparison: `test_operating_cost_first_match_wins_across_partitions` failed for real (the pinned card dict lacked the new `price_action` key). Fixed in the test (`"price_action": None`); see the final count below.
+  - w303_portfolio_comparison rerun after the test fix: 4 passed (480 s).
+- Not covered by this round: `test_k8_estate_fuel` run alone as instructed (the `main.py:685` `day_grades_provider` leak is FR-B, not fixed).
+- `tools\check-all.ps1`: All 19 guards passed. Frontend: tsc clean; siteFinding, estateFinancials, priceAction vitest files 105 passed. No-DB backend: test_pr1_price_action, test_out_c2_board, test_out_c_rules 40 passed.
