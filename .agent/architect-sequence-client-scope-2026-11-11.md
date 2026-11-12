@@ -90,6 +90,65 @@
   - The SR-10/11 day kinds read rows whatever the switch says (D-SR.52), so their own parity does not gate the six kinds. Their merge does change the prepare's row step, though, which is why the one final parity run comes after them.
   - If that run fails for a kind, only that kind is left out of the list, the failure is logged, and the coordinator is told. No silent fallback.
 
+### 10e.3 SR-4 live check and the SR-8 empty day (D-SR.64-68)
+
+Source: `AssetOpsV1-sr4` 01f4d3981 `.agent/SR-4-live-check.md`; SR-8 223783035 / 1a4d94dd5.
+
+- **F2, Cold/EV Finding detail (D-SR.64): fix in both the page and the reader.**
+  - **Cause.** `ColdReadService.finding` (`postgres_assessment_store.py:2645`) and the EV `finding` (`:3672`) look the Finding up inside the requested window: the anchor must lie in `[from,to)`. SR-4 carries the range into the address, and `ColdFindingFrame` and `EvFindingFrame` pass `coldWindowFromParams(params)` to `getFinding`. So under range B the reader answers 404, and under A or Y the header shows the range as the Finding's window. Both break 10.5 N: one record, its own episode.
+  - **Page.** The Cold and EV Finding detail frames send **only `known_at`** to `getFinding`. They never send `from` or `to`. The range stays in the address, for onward links only. The header window comes from the response.
+  - **Reader.** On the two detail routes, when the request has **no `from`/`to`**, the reader no longer takes "the latest selected window". It takes **the Finding's own window**: the window of the analytic run that wrote the Finding's latest revision known at k. This is the rule `linked_finding` (D-E5.8) already uses for its links.
+    - An explicit `from`/`to` keeps today's anchor-in-window rule, so API links stay valid.
+    - Pre-flight: if EV runs store no window, stop and ask.
+  - **Tag.** `RangeNotUsedNote` gains `"own period"`, so the tag reads **"Range not used · this record's own period"**. Finding detail on all four Site types declares it. Kobo and Kisiwa currently say "All pages", which is the same overclaim as F1.
+  - **Tests.**
+    - Postgres, Cold and EV each: a Finding outside the latest window, read with no window, returns 200 with its run's window. An explicit window that misses the anchor still returns 404.
+    - Vitest: a detail address carrying range B sends no `from`/`to`, shows the Finding's own window, and shows the new tag.
+  - Size about 0.2. **This goes into SR-4 before it merges**: it is an SR-4 regression on demo pages.
+- **F1, Kisiwa Fuel nights (D-SR.65): both.**
+  - SR-4 carries the honest tag for what the page actually shows. The nights view declares `useDeclareRangeFocus(<the night shown>)`, so under B the tag reads "Showing 10 Nov · range not used" and never "All pages" (about 0.02).
+  - **SR-10k is the next merge after SR-4**, with nothing merged between them. It replaces the view and the tag with the range content.
+  - The tag protects the page if SR-10k slips. The merge order limits how long the page is wrong.
+- **F3, Cold/EV financial assumptions (D-SR.66).** This corrects the D-SR.44 row.
+  - The page shows range content ("Analysed periods in this range … showing 5 Nov"), so "Range not used" is false.
+  - Remove the two `<RangeNotUsed note="prices valid now" />` declarations (`evSiteRoutes.tsx:109`, `SiteAnalyticsFrames.tsx:1515`). The assumptions view then declares exactly what the same Site's Financials view declares; Financials passed as R.
+  - The price values keep their in-page wording. Nothing is trimmed.
+  - Pin one Cold and one EV case in `siteRangeTags.test.tsx`. Size about 0.03, inside SR-4.
+- **409 `AWAITING_EVIDENCE_MIGRATION` (D-SR.67): a demo prepare gap, plus one surface that is 409 by design.**
+  - **The Kisiwa and EV `/evidence` ledgers.**
+    - `ledger_reads.scope` opens an imported Site only after a passing legacy comparison bound to this DB and store root (`permits_cutover`).
+    - `demo_combined.finish()` runs `evidence_migration run` for **KOBO-001 only** (since dd08df077). `performance_and_prebuild` runs `performance_migration` for Kobo and Kisiwa.
+    - So the laptop builds, which use the same code, must also have shown Kisiwa and EV ledgers as "Awaiting evidence migration". This is from code, not seen on a laptop. It is not an SR-4 regression.
+  - **`/analytics`.** It is the legacy file-backed declaration. `LegacySiteGate` refuses it for every imported Site, Kobo included, by design. The pages use the durable reads instead (`SitePerformance` `performance`).
+  - **17 Nov prepare (about 0.1):**
+    - `finish()` runs `evidence_migration run` for **every imported Site in the story** (KOBO-001, KISIWA-001, EV-LAB-001, and COLD-LAB-001 if its Evidence page uses the ledger). Then `performance_migration` runs for each Site that has the dispatch Performance surface.
+    - A Site that exits 2 ("cannot be compared", for example no legacy store) stops the prepare and comes to the Architect. It is never served as "awaiting".
+  - **Serve.** The comparison is bound to the store root. The demo is served from the build tree. Any other serve tree (a worktree check) reruns the comparison there first.
+  - **Gate.** After the prepare, a live check (the SR-4 method) must show no `AWAITING_EVIDENCE_MIGRATION` panel on any page a client sees.
+    - `/analytics` 409s may stay only where the page does not show that panel.
+    - Any visible panel is a defect card, not an accepted state. That wording is system vocabulary on client pages.
+- **SR-8 day with no solar reading at all (D-SR.68): the builder is confirmed.**
+  - When every hour of the day is missing, the stored measure has no headed hour. `RenewableHeadroom.inputs` returns no IDs, no spans and no payload, so the row is **NO_DATA**.
+  - The range row shows **NO_DATA**, with the D-SR.27 words for a day with no readings. It is not counted. NO_DATA wins (D-SR.47 Q4).
+  - The one-day read keeps that day as a missing day: UNKNOWN, with null cards.
+  - D-SR.62's rule is clarified: a missing hour is left out only when **at least one** hour of that day has a stored result. A day with none is a missing day, as before.
+  - Add a pure pin for an all-missing day (UNKNOWN). The parity JSON shows such days under NO_DATA, and they are never compared.
+
+### 10e.4 KOBO-001 10-31 has no mini heads: a story gap, not a build defect (D-SR.69)
+
+- **Story.** `days.json` (polish_vps1) entry 49 is Kobo 2026-10-31, kind `missing`: "gateway offline: no run, no delivery". **11-06 (entry 68) is the same kind.** The 11 accepted rows on each day are the previous day's run ending at local 00:00, and they enqueued no hour on either day (`cause_evidence_id` count 0).
+- **Why 11-06 has heads anyway.** All 72 of its fuel, backup and service jobs have no cause and were created at **2026-11-10 14:00Z**, the moment the Kobo Action was APPLIED (`kobo.json` `apply_at`). That is a configuration re-enqueue (`mini_enqueue_configuration`), so those heads were computed over no readings. 11-06 renewable has no heads, just like 10-31. Nothing re-enqueued 10-31. **The hole is the expected result of a gateway-offline day. The 11-06 heads are a side effect.**
+- **Chain grades are NO_DATA on both days for every measure** (`avoidable_gen_min`, `critical_served`, `daylight_headroom_kw`, `productive_kwh`; covered 0). So SR-5/6/7/8, which read the grades, show 10-31 and 11-06 as NO_DATA. That is honest, and the two days match.
+- **Ruling:**
+  - **No heads are built for 10-31** (D-SR.36 stands).
+  - SR-10/11 pre-flight and parity gate: a day whose chain grade is NO_DATA for that domain's measure expects 0 heads. The parity JSON lists such days under `no_data_days`, and each must read NO_DATA on the range page, never STILL_PROCESSING. (The grade wins first, D-SR.47 Q4. An absent day-kind row on a NO_DATA day is not a "missing row".)
+  - The head gate becomes: no hour with a live or FAILED job, and no hour holding accepted evidence for the domain's roles without a head.
+  - The partial days (10-13, 10-20, 10-27, 11-03, 11-10) have heads only where readings exist. That is expected, and their grade is PARTIAL.
+- **One-day pages.** They are not wrong; the two days differ only in wording.
+  - 10-31 shows the hour as not assessed (UNKNOWN, no figures).
+  - 11-06 shows an assessed hour with no readings (no figures).
+  - Neither shows a number. Making the two days read the same is **Low, backlog** (demo-critical scope only). It is not a 17 Nov item.
+
 ## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8**; later D-SR.47-54 (10d.7-10d.11) (build sheet), owner-delegated, logged for owner review.
