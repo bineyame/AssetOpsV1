@@ -31,9 +31,9 @@ KIND = "mini_depth.backup_day"
 ROUTE = DAY_RANGE_ROUTES["backup"]
 
 
-def _chain(cid: str, result: str, seconds: int | None, start: str) -> dict:
+def _chain(cid: str, result: str, seconds: int | None, start: str, target: int = 120) -> dict:
     return {"chain_id": cid, "outage_start": start, "steps": [], "service_outcome": "RESTORED", "result": result,
-            "critical_recovery": None if seconds is None else {"seconds": seconds, "target_seconds": 120},
+            "critical_recovery": None if seconds is None else {"seconds": seconds, "target_seconds": target},
             "coverage": None, "evidence_ids": []}
 
 
@@ -59,13 +59,19 @@ def _d(i: int) -> date:
     return D0 + timedelta(i)
 
 
-#: D0 c1 INCOMPLETE at 02:00 then PASS at 03:00 (latest wins) + c2 PASS; D1 c3 FAIL with a LIMITED hour;
-#: D2 c4 INCOMPLETE with one hour missing; D3 absent; D4 pending at k; D5 no sequence; D6 not expected (grade).
+#: D0 c1 INCOMPLETE at 02:00 then PASS at 03:00 (latest hour wins) + c2 PASS (c1 and c2 tie on 90 s: the earliest
+#: start wins, D-SR.51.2) + cX PASS starting 23:50 local, which D1's 00:00 hour reports again (crosses midnight);
+#: D1 c3 FAIL, c6 PASS with no recovery (skipped), a LIMITED hour; D2 c4 INCOMPLETE with one hour missing;
+#: D3 absent; D4 pending at k; D5 no sequence; D6 not expected (grade).
+CROSS = "2026-11-01T20:50:00Z"  # 23:50 Nairobi on D0
 ROWS = [
     _row(_d(0), {2: _hour(_d(0), 2, [_chain("c1", "INCOMPLETE", None, "2026-10-31T23:10:00Z")]),
-                 3: _hour(_d(0), 3, [_chain("c1", "PASS", 60, "2026-10-31T23:10:00Z"),
-                                     _chain("c2", "PASS", 90, "2026-11-01T00:30:00Z")], successes=1)}),
-    _row(_d(1), {5: _hour(_d(1), 5, [_chain("c3", "FAIL", 600, "2026-11-02T02:00:00Z")], successes=0),
+                 3: _hour(_d(0), 3, [_chain("c1", "PASS", 90, "2026-10-31T23:10:00Z", 120),
+                                     _chain("c2", "PASS", 90, "2026-11-01T00:30:00Z", 150)], successes=1),
+                 23: _hour(_d(0), 23, [_chain("cX", "PASS", 40, CROSS)])}),
+    _row(_d(1), {0: _hour(_d(1), 0, [_chain("cX", "PASS", 40, CROSS)]),
+                 5: _hour(_d(1), 5, [_chain("c3", "FAIL", 600, "2026-11-02T02:00:00Z"),
+                                     _chain("c6", "PASS", None, "2026-11-02T02:20:00Z")], successes=0),
                  6: _hour(_d(1), 6, status="LIMITED")}),
     _row(_d(2), {8: _hour(_d(2), 8, [_chain("c4", "INCOMPLETE", None, "2026-11-03T05:00:00Z")])}, missing=(23,)),
     _row(_d(4), {9: _hour(_d(4), 9, [_chain("c5", "PASS", 30, "2026-11-05T06:00:00Z")], successes=1)}),
@@ -127,20 +133,38 @@ def test_each_day_reads_its_stored_backup_day_row_and_state():
     assert (days[2]["hours_assessed"], days[2]["hours_missing"]) == (23, 1)
     assert days[1]["limitations"] == ["BACKUP_BUS_PARTIAL"] and days[1]["status_counts"]["LIMITED"] == 1
     assert days[4]["hours_pending"] == 24 and days[4]["sequences"] == []  # a pending hour's head is not summed
-    assert days[3]["hours_expected"] == 0 and days[3]["sequences"] == []  # absent row: the zero-hour summary
+    assert [d["stored"] for d in days] == [True, True, True, False, True, True, True]
+
+
+def test_an_absent_day_is_unknown_not_zero():
+    """D-SR.51.3: the absent row's counts and figures are null; stored rows never carry null counts."""
+    days = _body()["days"]
+    absent = days[3]
+    for key in ("hours_expected", "hours_assessed", "hours_pending", "hours_missing", "status_counts",
+                "sequence_counts", "start_success_count", "slowest_recovery"):
+        assert absent[key] is None, key
+    for d in days[:3] + days[4:]:
+        assert None not in (d["hours_expected"], d["hours_assessed"], d["status_counts"], d["sequence_counts"])
 
 
 def test_sequences_are_deduplicated_by_chain_latest_hour_wins():
     d0 = _body()["days"][0]
-    assert [(s["chain_id"], s["result"]) for s in d0["sequences"]] == [("c1", "PASS"), ("c2", "PASS")]
+    assert [(s["chain_id"], s["result"]) for s in d0["sequences"]] == [("c1", "PASS"), ("c2", "PASS"),
+                                                                        ("cX", "PASS")]
     assert set(d0["sequences"][0]) == {"chain_id", "outage_start", "result", "service_outcome", "critical_recovery"}
-    assert d0["sequence_counts"] == {"PASS": 2, "FAIL": 0, "INCOMPLETE": 0}
-    assert d0["slowest_recovery"] == {"seconds": 90, "target_seconds": 120}
+    assert d0["sequence_counts"] == {"PASS": 3, "FAIL": 0, "INCOMPLETE": 0}
+
+
+def test_slowest_recovery_skips_nulls_and_ties_go_to_the_earliest_start():
+    days = _body()["days"]
+    assert days[0]["slowest_recovery"] == {"seconds": 90, "target_seconds": 120}  # c1 (23:10) over c2 (00:30)
+    assert days[1]["slowest_recovery"] == {"seconds": 600, "target_seconds": 120}  # c6's null is skipped
 
 
 def test_start_successes_sum_non_null_hours_and_are_null_when_all_are():
     days = _body()["days"]
-    assert [d["start_success_count"] for d in days] == [1, 0, None, None, None, None, None]
+    assert [d["start_success_count"] for d in days][:3] == [1, 0, None]
+    assert [d["start_success_count"] for d in days][4:] == [None, None, None]
     assert days[2]["slowest_recovery"] is None  # an INCOMPLETE sequence has no recovery
 
 
@@ -153,8 +177,20 @@ def test_never_an_outage_count():
 
 def test_totals_sum_counted_days_only():
     assert _body()["totals"] == {"days_counted": 4, "days_requested": 7, "partial": True,
-                                 "sequence_counts": {"PASS": 2, "FAIL": 1, "INCOMPLETE": 1},
+                                 "sequence_counts": {"PASS": 4, "FAIL": 1, "INCOMPLETE": 1},
                                  "start_success_count": 1}
+
+
+def test_a_sequence_crossing_local_midnight_counts_once_in_the_totals():
+    """D-SR.51.4: cX is reported by D0's 23:00 hour and D1's 00:00 hour; each day lists it, the window counts it
+    once (de-duplicated by chain_id, latest day wins). Non-vacuous: the per-day PASS counts sum to 5."""
+    body = _body()
+    days = body["days"]
+    assert "cX" in [s["chain_id"] for s in days[0]["sequences"]]
+    assert "cX" in [s["chain_id"] for s in days[1]["sequences"]]
+    assert sum(d["sequence_counts"]["PASS"] for d in days if d["state"] in (
+        "SEQUENCES_PASSED", "SEQUENCE_FAILED", "SEQUENCE_INCOMPLETE", "NO_SEQUENCE")) == 5
+    assert body["totals"]["sequence_counts"]["PASS"] == 4
 
 
 def test_one_period_read_and_one_chain_read_over_window_days_with_known_at():
