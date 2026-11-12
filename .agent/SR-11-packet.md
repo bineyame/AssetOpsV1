@@ -45,12 +45,15 @@ Spec: rev 10b.1/10b.3, 10d.4 (D-SR.45 `window_days`), D-SR.31/33/36/51-54.
 - Pending/assessed/missing hour classes and "assessed hours only" sums (51.1).
 - `days_counted` over the four backup states (51.4); totals `partial` = a requested day not counted or a counted day partial.
 
-## Questions (not designed around)
-1. Absent day `sequences`: D-SR.51.3 nulls the counts and figures but does not name `sequences`; tests do not pin it.
-2. Window `start_success_count` with a sequence crossing midnight: it is a sum of hour cards, not per sequence, so
-   "de-duplicate by chain_id" has no handle on it. The test keeps successes off the crossing hours and pins 1.
-3. The Postgres test grades days with SR-10b's stub snapshot port (all COMPLETE), not a real `PostgresChainRead`;
-   the grade order is pinned in the stubs. Say if the real chain port is wanted here.
+## D-SR.58 (merged from main)
+- Q1 applied: SR-10's ee97829ef already nulls `sequences` on an absent day; pinned in `test_an_absent_day_is_unknown_not_zero`
+  (absent `sequences` null, stored NO_SEQUENCE day `[]`). 17 no-DB passed.
+- Q3: accepted, no change.
+- **Q2 STOPPED (per the ruling):** the stored backup head does not carry a per-chain `start_pair`. `projection._backup`
+  (`mini_depth/projection.py:181-188`) writes each row as chain_id, outage_start, steps, service_outcome, result,
+  critical_recovery, coverage, evidence_ids; `start_pair` exists only on `rules` chains (`rules.py:825`) and in the
+  hour card count (`rules.py:1072`). Start successes are still the hour-card sum. Awaiting a ruling (e.g. add
+  `start_pair` to the projection rows, which changes stored heads and may need a builder/projection version bump).
 
 ## Residual risk
 - `main.py`: SR-8's renewable range router lands next to the same block; the second merger resolves.

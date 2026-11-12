@@ -137,12 +137,14 @@ def test_each_day_reads_its_stored_backup_day_row_and_state():
 
 
 def test_an_absent_day_is_unknown_not_zero():
-    """D-SR.51.3: the absent row's counts and figures are null; stored rows never carry null counts."""
+    """D-SR.51.3 / D-SR.58 Q1: the absent row's counts, figures and `sequences` are null; stored rows never carry
+    null counts, and a stored day without a sequence lists `[]`."""
     days = _body()["days"]
     absent = days[3]
     for key in ("hours_expected", "hours_assessed", "hours_pending", "hours_missing", "status_counts",
-                "sequence_counts", "start_success_count", "slowest_recovery"):
+                "sequence_counts", "start_success_count", "slowest_recovery", "sequences"):
         assert absent[key] is None, key
+    assert days[5]["stored"] is True and days[5]["sequences"] == []  # D-SR.58 Q1: a stored day with none has []
     for d in days[:3] + days[4:]:
         assert None not in (d["hours_expected"], d["hours_assessed"], d["status_counts"], d["sequence_counts"])
 
