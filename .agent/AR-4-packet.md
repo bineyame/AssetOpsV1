@@ -68,6 +68,24 @@ the merge). Kill switch: `ASSETOPS_PERIOD_READ_KINDS` without `evidence.claim` =
 
 Checks: `test_ar4_money_lines.py` 15 passed; `test_ar4_evidence_period_rows.py` 17 passed; adjacent no-DB set after both merges and the switch (any1, ar2, ar3, ar4, ar6, ch1b, ch6, cov_partial, dd1b2b, fix_cold_drain, hon1, out_c, partial_money, pfc, qw2, w302, w303, walk1_productive; 41 files) `805 passed, 5 skipped` [`36d15fd70`]; ch5a1/ch5b/ch6_contract/ch6b/k10/pb3/demo_combined_finish_rows 188 passed, 1 skipped [`e265813b0`]; `check-architecture.ps1` "Architecture check passed." (needs `ASSETOPS_GUARD_PYTHON`). `tools/checks/test_estate_guard.py` from Git Bash: 16 failed, all `_common.ps1 cannot be loaded because running scripts is disabled` (execution policy, environment); launched from PowerShell (tree as of `714650582`/`e265813b0`): **16 passed in 2038 s** - the earlier 3 failures are closed.
 
+## Session 2026-11-12 06:00 (D-ANY.8 17 Nov minimum evidence, client4 `assetops_polish_client4_test`, head `ba227df16`)
+
+- `tools/checks/test_estate_guard.py` from PowerShell (plan2 venv, `ASSETOPS_GUARD_PYTHON` set): **16 passed**, 1980 s.
+- client4 rows already current, nothing rebuilt: `evidence.claim` `estate-evidence-rows-2` (33 SELECTED + 16 UNASSESSED), `dispatch.day` `dispatch-day-rows-1` (33 CURRENT + 29 UNASSESSED, 10-10..11-09, built 2026-11-12 00:03).
+- **Parity** `--kinds evidence.claim,dispatch.day --seed 20261111 --random 16`, e3c polish_client4 work/story, prebuilt routes, wall 1815 s: **FAIL (61 cases, 1 mismatch, 0 unstable)**. Every case passes except `any.claim_rows.before_build` (known_at 2026-11-11T23:35Z): oracle has `selection_id`, candidate has `selection_id null / match_state MISSING` (byte 1118). `any.claim_rows.after_build` and `any.between_revisions.*` PASS.
+  - Cause (read from `dispatch_day_rows.py`, not yet proven by a mutation): the dispatch.day rows were built at 00:03 on 11-12, AFTER that known_at, so the explicit-k read finds no row and `absent_day` renders "nothing stored" (D-ANY.5, no fallback compose by AR-3's design), while compose sees the assessment that existed at k. The case's known_at is tied to the claim build (23:40); dispatch rows were built later, so no known_at exists between the two builds. Architect options: (a) set the case k after the dispatch build and document "k before any row" as a backfill-age effect; (b) give the dispatch.day read a compose fallback for no-row-at-explicit-k when a revision is selected (as D-ANY.7 does for claims).
+  - Step-3 deviation (D-ANY.9): `note_page_days` (`36d15fd70`) accepted. The Portfolio cases whose claim days follow AR-3 rows (the `any.portfolio.*` cases and `any.claim_rows.after_build`) exercise it and PASS byte-equal; the 22-day perf child shows `claim_no_revision=21`, `period_row_absent=16`.
+- **Timings** (cold, fresh process, store off, `/api/estate/portfolio?...&lens=all`, aligned UTC windows, one run each, about +-15% noise):
+
+| Request | rows off | claim + dispatch.day rows on |
+|---|---|---|
+| week 10-19..10-26 | 10.9 s | 9.3 s |
+| 22 days 10-14..11-05 | 27.0 s | 24.8 s |
+| 31 days 10-10..11-10 | 33.0 s | 29.0 s |
+
+  Gain is 1.7-4 s, not the ~13 s the earlier profile promised.
+- **Why (cProfile, week, rows on, 41 s under profile):** `claims._data_gaps` -> `data_gap_provider` -> `evidence_money.py:577` `data_gap_days(snap.dispatch_days(...))` composes the dispatch days again, 16.1 s cumulative. It is a second caller `36d15fd70` did not switch (it switched only `mini_grid_rows`). Next: `_mini_grid_basis` 8.7 s (3 calls), `_mini_grid_money` 6.2 s, `consequence_provenance` 0.5 s (profile). **The ~4 s in `_mini_grid_money`/`consequence_provenance` stays unstored for 17 Nov (backlog `evidence.consequence_money`, D-ANY.9).** Likely fix, not done here: point `evidence_money.py:577` at `coverage.dispatch_days`, then re-measure.
+
 ## Not built (resume here, D-ANY.8 order)
 
 1. **money.lines read side (MN-2 rest):** `site_outcomes/mini.py` -> `NodeInputs` gains the stored day line; `OutcomeEvaluator._potential` uses it only when the row is current at k (not PENDING) and its `study`/`price` equal the page's item and `sales["price"]`, else today's compose (D-ANY.6a). Kill switch: `money.lines` in `ASSETOPS_PERIOD_READ_KINDS`.
