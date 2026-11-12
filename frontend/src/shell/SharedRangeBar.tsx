@@ -54,10 +54,24 @@ export const OWN_DATES = "This page's own dates";
 /** SR-1 review (Medium): the tag on a page whose content does not follow the shared range (`readsSharedRange`). */
 export const NOT_THIS_PAGE = "Not used on this page";
 const NOT_THIS_PAGE_SPOKEN = "This page shows its own dates, not this range";
-/** SR-2: the tag on a page that shows one day (FocusPicker): "Day shown: 8 Nov", or "Showing 8 Nov · range not used". */
-export const FOCUS_INSIDE = "Day shown:";
+/**
+ * SR-2 / SR-4c (D-SR.6, R718/R719): the tag on a page that shows one day or part of the range: "Showing 9 Nov of the
+ * range" / "Showing 5–9 Nov of the range"; outside the range "Showing 24 Oct · range not used". On a point-in-time
+ * page: "Range not used · shows now" (or "· current settings", "· prices valid now").
+ */
+export const FOCUS_INSIDE = "of the range";
 export const FOCUS_OUTSIDE = "range not used";
+export const RANGE_NOT_USED = "Range not used";
 const focusDayLabel = (day: string): string => formatDay(`${day}T00:00:00Z`, { year: false });
+/** `9 Nov` or `5–9 Nov` (`30 Oct – 2 Nov` across months). */
+const focusSpanLabel = (from: string, to: string): string => {
+  if (from === to) return focusDayLabel(from);
+  const last = focusDayLabel(to);
+  const first = focusDayLabel(from);
+  return from.slice(0, 7) === to.slice(0, 7) ? `${first.split(" ")[0]}–${last}` : `${first} – ${last}`;
+};
+const focusSpanSpoken = (from: string, to: string): string =>
+  from === to ? formatDay(`${from}T00:00:00Z`) : `${formatDay(`${from}T00:00:00Z`)} to ${formatDay(`${to}T00:00:00Z`)}`;
 const LATEST_ANNOUNCEMENT = "Every page now shows the latest information";
 
 /** `30 Sep – 6 Oct 2026` (one day: `6 Oct 2026`). */
@@ -136,7 +150,9 @@ export function SharedRangeBar() {
   // SR-2: a page showing one day inside the range (FocusPicker) is never "All pages": the tag names its day, and says
   // the range is not used when the day lies outside it.
   const focus = useRangeFocus();
-  const focusInside = focus !== null && set !== null && dayInRange(focus.day, set);
+  const span = focus?.kind === "span" ? focus : null;
+  const now = focus?.kind === "now" ? focus : null;
+  const focusInside = span !== null && set !== null && dayInRange(span.from, set) && dayInRange(span.to, set);
   const here = focus === null && readsSharedRange(location.pathname, params);
 
   const close = (returnFocus: boolean) => {
@@ -212,12 +228,16 @@ export function SharedRangeBar() {
     dates = longLabel(set);
     short = shortLabel(set);
     spoken = `${presetLabel(set.preset)}, ${spokenLabel(set)}${set.known_at ? `, as known at ${formatDayTime(set.known_at)}` : ""}`;
-    if (focus !== null) {
+    if (span !== null) {
       spoken = `${spoken}. ${
         focusInside
-          ? `This page shows one day of it: ${formatDay(`${focus.day}T00:00:00Z`)}`
-          : `This page shows ${formatDay(`${focus.day}T00:00:00Z`)}, outside this range; the range is not used here`
+          ? span.from === span.to
+            ? `This page shows one day of it: ${focusSpanSpoken(span.from, span.to)}`
+            : `This page shows part of it: ${focusSpanSpoken(span.from, span.to)}`
+          : `This page shows ${focusSpanSpoken(span.from, span.to)}, outside this range; the range is not used here`
       }`;
+    } else if (now !== null) {
+      spoken = `${spoken}. This page shows ${now.note}; the range is not used here`;
     } else if (!here) spoken = `${spoken}. ${NOT_THIS_PAGE_SPOKEN}`;
   } else if (state.status === "invalid") {
     dates = short = spoken = WINDOW_NOT_VALID;
@@ -250,12 +270,18 @@ export function SharedRangeBar() {
         {name === null ? null : <span className="shared-range__name">{name}</span>}
         <span className="shared-range__dates">{dates}</span>
         <span className="shared-range__short">{short}</span>
-        {set === null ? null : focus !== null ? (
+        {set === null ? null : span !== null ? (
           <span
             className={focusInside ? "shared-range__tag" : "shared-range__tag shared-range__tag--elsewhere"}
             data-shared-range-focus={focusInside ? "inside" : "outside"}
           >
-            {focusInside ? `${FOCUS_INSIDE} ${focusDayLabel(focus.day)}` : `Showing ${focusDayLabel(focus.day)} · ${FOCUS_OUTSIDE}`}
+            {focusInside
+              ? `Showing ${focusSpanLabel(span.from, span.to)} ${FOCUS_INSIDE}`
+              : `Showing ${focusSpanLabel(span.from, span.to)} · ${FOCUS_OUTSIDE}`}
+          </span>
+        ) : now !== null ? (
+          <span className="shared-range__tag shared-range__tag--elsewhere" data-shared-range-focus="now">
+            {`${RANGE_NOT_USED} · ${now.note}`}
           </span>
         ) : here ? (
           <span className="shared-range__tag">All pages</span>

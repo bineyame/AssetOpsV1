@@ -23,6 +23,7 @@ import { coldSiteRoutes, coldTabSearch } from "./coldSiteRoutes";
 import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref } from "./operatorSiteRoutes";
 import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { RangeNotUsed } from "../ui/rangeFocus";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 const DEFAULT_HEALTH = createHealthClient();
@@ -103,7 +104,11 @@ export function SiteHealthFrame({
               /* W5-03b E4 (R60 withdrawn): v69 ev-health ends at Condition and evidence; no Data sources panel. */
               <EvHealthWithTabs siteId={site.site_id} window={coldWindowFromParams(params)} client={evDepth} />
             ) : (
-              <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
+              <>
+                {/* SR-4c (D-SR.6, R719): mini-grid Health reads the server clock; the bar says the range is not used. */}
+                <RangeNotUsed note="shows now" />
+                <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
+              </>
             )}
           </HealthLinksContext.Provider>
         </main>
