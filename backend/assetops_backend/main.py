@@ -63,7 +63,7 @@ from assetops_backend.chain.composition import build_response_store, install_han
 from assetops_backend.estate_api import build_estate_router
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
-from assetops_backend.source_health_api import build_source_health_router
+from assetops_backend.source_health_api import build_health_range_router, build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.analytics.cold_depth import ColdDepthReadService
 from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
@@ -115,7 +115,8 @@ from assetops_backend.financials.composition import (
 )
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.mini_depth.read import MiniDepthRead
-from assetops_backend.mini_depth_api import build_day_range_router, build_mini_depth_router
+from assetops_backend.mini_depth_api import (build_day_range_router, build_mini_depth_router,
+                                            build_renewable_range_router, build_service_range_router)
 from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.opportunities import OpportunityService
 from assetops_backend.mini_decisions.work_links import WorkLinkService
@@ -127,7 +128,7 @@ from assetops_backend.mini_decisions_api import (
     deny_decision_writes,
     no_decision_principal,
 )
-from assetops_backend.claim_limit_api import build_claim_limit_router
+from assetops_backend.claim_limit_api import build_claim_limit_range_router, build_claim_limit_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
 from assetops_backend.config import (
@@ -137,6 +138,7 @@ from assetops_backend.config import (
     load_feature_flags,
 )
 from assetops_backend.evidence.composition import (
+    health_registration,
     build_cold_replay_reader,
     build_ev_replay_reader,
     build_link_rows_reader,
@@ -181,6 +183,7 @@ from assetops_backend.scheduling.composition import SCHEDULE_UNAVAILABLE
 from assetops_backend.site_overview.composition import build_site_overview_read
 from assetops_backend.site_overview.route import SiteOverviewRoute
 from assetops_backend.sites.composition import (
+    health_range_counts,
     build_foundation_store,
     build_site_repository,
     build_site_template_catalog,
@@ -619,6 +622,11 @@ def create_app(
     app.include_router(build_estate_portfolio_router(
         estate_portfolio, registry_tenant(registry),
         access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    # SR-6a (rev 10 §10.2, D-SR.23): mini-grid Health over a range, a stored route on the estate snapshot; included
+    # here because it needs `responses` and `estate_portfolio` (the point-in-time source-health route stays above).
+    app.include_router(build_health_range_router(
+        estate_portfolio, registry, responses, registration=health_registration(), counts=health_range_counts(),
+        access=development_access))
     # W4-01 commit 3 (Lane A): Site work commands and the case detail read. No server SERVICE principal is
     # injected here, so a write is 403; the detail read is available under Site read access.
     work_lists = build_work_index_service(database_url()) if database_url() else None
@@ -695,6 +703,19 @@ def create_app(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
         policy_versions=chain_policy_versions, lifecycle=thread_lifecycle_policy, responses=responses))
+    # SR-7 (rev 10 §10.3, D-SR.23): the mini-grid Service and claim-limit range reads, included after `responses` and
+    # `estate_portfolio` exist. Service reads the board service's chain reader (as `/chain`); the claim-limit range
+    # reads one estate snapshot (the evidence-money claim-day pattern) behind the one-day route's Performance gate.
+    app.include_router(build_service_range_router(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    app.include_router(build_claim_limit_range_router(
+        estate_portfolio, registry, access=development_access, gate=performance_gate,
+        unavailable=(SiteStoreUnavailable,), responses=responses))
+    # SR-8 (rev 10 §10.4, D-SR.23): Renewable over the whole range, from the board's chain reader; a stored route.
+    app.include_router(build_renewable_range_router(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # SR-10b (rev 10b.2, D-SR.23/31/32): Fuel over the range, from the stored `mini_depth.fuel_day` rows; a stored
     # route. Grades come from the board's chain reader.
     app.include_router(build_day_range_router(

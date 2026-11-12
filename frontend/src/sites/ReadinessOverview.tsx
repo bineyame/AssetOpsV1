@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import {
   AttentionList,

@@ -15,11 +15,16 @@ Order of checks, so no refusal leaks a gateway, count or current claim:
 
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime
 from typing import Any, Callable
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
+
+from assetops_backend import perf
+from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish
+from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable, estate_request
 
 from assetops_backend.evidence.ledger import LedgerUnavailable
 from assetops_backend.evidence.source_health import (
@@ -28,8 +33,14 @@ from assetops_backend.evidence.source_health import (
     source_health_document,
 )
 from assetops_backend.finding_api import ACCESS_BASIS, Access, Scope, development_access
+from assetops_backend.outcome_api import _instant, _public, _refuse
+from assetops_backend.sites import site_health_range
+from assetops_backend.sites.cutover import ImportedSiteRegistry
+from assetops_backend.sites.ports import SiteStoreUnavailable
 
 ROUTE = "/api/sites/{site_code}/source-health"
+HEALTH_RANGE_ROUTE = "/api/sites/{site_code}/health-range"
+_UNAVAILABLE = "SITE_HEALTH_RANGE_UNAVAILABLE"
 
 
 def build_source_health_router(store: SourceHealthStore | None, scope: Scope, clock: Callable[[], datetime],
@@ -69,5 +80,79 @@ def build_source_health_router(store: SourceHealthStore | None, scope: Scope, cl
                 "code": "SOURCE_HEALTH_SELECTION_INCONSISTENT", "message": error.reason, "gateways": None,
                 "note": "Registration and diagnostic selection disagree; no current contact or fact claim is made."
             }) from error
+
+    return router
+
+
+def build_health_range_router(estate: Any, registry: ImportedSiteRegistry, responses: ResponseStore | None = None,
+                              registration: site_health_range.Registration | None = None,
+                              counts: site_health_range.Counts | None = None,
+                              access: Access = development_access, access_basis: str = ACCESS_BASIS,
+                              unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
+    """SR-6a (rev 10 §10.2, D-SR.23): `GET /api/sites/{site_code}/health-range?from&to[&known_at]`,
+    `site-health-range-1`, a stored route. Admission as `source-health` (401/403, then the tenant Site scope: 503 when
+    it cannot be asked, 404); the window is the estate's (midnight UTC, at most 31 days, 422 INVALID_WINDOW); a Cold
+    or EV Site is 404 HEALTH_RANGE_NOT_APPLICABLE (its Health reads the range already); a store failure is 503
+    SITE_HEALTH_RANGE_UNAVAILABLE. Included late in `main.py`, after `responses` and the estate service exist."""
+    router = APIRouter()
+
+    def not_applicable(site_code: str) -> HTTPException:
+        return _refuse(404, "HEALTH_RANGE_NOT_APPLICABLE", f"Site {site_code!r} reads its date range on its own Health.")
+
+    @router.get(HEALTH_RANGE_ROUTE)
+    def health_range(site_code: str, request: Request, response: Response) -> Any:
+        with perf.route(HEALTH_RANGE_ROUTE, response):  # QW-1: one `assetops.perf` line per request
+            out = _health_range(site_code, request)
+        return finish(out, response) if isinstance(out, Response) else out
+
+    def _health_range(site_code: str, request: Request) -> Any:
+        refusal = access(request, site_code)
+        if refusal == 401:
+            raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
+                                detail={"code": "UNAUTHENTICATED", "message": "Sign in to read Site health."})
+        if refusal == 403:
+            raise _refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site {site_code!r}.")
+        try:
+            tenant = registry.tenant()
+            site = registry.imported(site_code) if tenant is not None else None
+        except Exception as error:  # noqa: BLE001 - the Site store could not be asked: no claim
+            raise _refuse(503, _UNAVAILABLE, str(error)) from error
+        if tenant is None or site is None:
+            raise HTTPException(status_code=404, detail=f"No imported Site {site_code!r} in this tenant.")
+        if site.site_type != "MINIGRID":
+            raise not_applicable(site_code)
+        params = request.query_params
+        lo, hi, known_at = _instant(params, "from"), _instant(params, "to"), _instant(params, "known_at")
+        if lo is None or hi is None:
+            raise _refuse(422, "INVALID_WINDOW", "Give both 'from' and 'to' (UTC midnights, at most 31 days).")
+        try:
+            req = replace(estate_request("portfolio", lo, hi, known_at), lens="all")
+        except EstateRefusal as error:
+            raise _refuse(error.status, error.code, error.detail["message"]) from error
+        if estate is None or registration is None or counts is None:
+            raise _refuse(503, _UNAVAILABLE, "No product database is configured.")
+
+        def compose() -> dict[str, Any]:
+            try:
+                body = site_health_range.health_range_body(estate, tenant.id, site.site_code, req,
+                                                           registration, counts)
+            except site_health_range.HealthRangeNotApplicable as error:
+                raise not_applicable(site_code) from error
+            except (EstateStoreUnavailable, SiteStoreUnavailable, *unavailable) as error:
+                raise _refuse(503, _UNAVAILABLE, str(error)) from error
+            except EstateRefusal as error:
+                if error.status == 503:
+                    raise _refuse(503, _UNAVAILABLE, error.detail["message"]) from error
+                raise _refuse(error.status, error.code, error.detail["message"]) from error
+            if body is None:
+                raise _refuse(404, "SITE_NOT_FOUND", f"No imported Site {site_code!r} with a health range.")
+            return {HEALTH_RANGE_ROUTE: _public(body)}
+
+        if responses is None:
+            return compose()[HEALTH_RANGE_ROUTE]
+        site_id = UUID(str(site.id))
+        key = {"site": site.id, "from": lo, "to": hi, "known_at": known_at}
+        return responses.serve(StoredRoute(HEALTH_RANGE_ROUTE, tenant.id, key, sites=(site_id,),
+                                           watermark_sites=(site_id,)), compose)
 
     return router

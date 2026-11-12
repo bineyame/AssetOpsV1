@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -296,7 +297,7 @@ describe("W2-01: cold Foundation routes keep the v69 panel structure", () => {
     expect(link?.getAttribute("href")).toBe("/sites/COLD-001/evidence#cold-site-sources-heading");
     fireEvent.click(link as HTMLElement);
     await settledScreen();
-    expect(screen.getByTestId("location").textContent).toBe("/sites/COLD-001/evidence");
+    expect(rangeless(screen.getByTestId("location").textContent)).toBe("/sites/COLD-001/evidence");
     expect(coldSite.getEvidence).toHaveBeenCalled();
     const target = document.getElementById("cold-site-sources-heading") as HTMLElement;
     expect(target).not.toBeNull();

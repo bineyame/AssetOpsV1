@@ -4,7 +4,7 @@
  * limitation sentence and the refusal view. Nothing here reads a mock value.
  */
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { Notice } from "../ui";
 import { formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";

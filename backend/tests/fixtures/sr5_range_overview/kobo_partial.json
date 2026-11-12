@@ -1,0 +1,174 @@
+{
+  "actions": {
+    "awaiting_verification": 0,
+    "open": 0,
+    "verified_resolution_count": 0
+  },
+  "coverage": {
+    "committed_watermark": "2026-10-06T00:00:00Z",
+    "days": {
+      "checked": 5,
+      "gaps": [
+        {
+          "day": "2026-10-18",
+          "reason": "NO_ASSESSED_SELECTION",
+          "state": "UNASSESSED"
+        },
+        {
+          "day": "2026-10-19",
+          "reason": "NO_ASSESSED_SELECTION",
+          "state": "UNASSESSED"
+        }
+      ],
+      "policy": "estate-coverage/2",
+      "requested": 7,
+      "text": "5 of 7 days assessed \u00b7 2 days not available yet",
+      "withheld": false
+    },
+    "job_state": "SETTLED",
+    "match_state": "COMPLETE",
+    "selection_id": "w4",
+    "site_id": "10000000-0000-4000-8000-000000000011",
+    "source_freshness": "RECENT",
+    "state": "PARTIAL"
+  },
+  "days": [
+    {
+      "accepted_readings": null,
+      "day": "2026-10-13",
+      "finding_count": 1,
+      "money": null,
+      "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
+      "state": "FINDINGS"
+    },
+    {
+      "accepted_readings": null,
+      "day": "2026-10-14",
+      "finding_count": 0,
+      "money": null,
+      "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
+      "state": "CLEAR"
+    },
+    {
+      "accepted_readings": null,
+      "day": "2026-10-15",
+      "finding_count": 0,
+      "money": null,
+      "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
+      "state": "CLEAR"
+    },
+    {
+      "accepted_readings": null,
+      "day": "2026-10-16",
+      "finding_count": 0,
+      "money": null,
+      "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
+      "state": "CLEAR"
+    },
+    {
+      "accepted_readings": null,
+      "day": "2026-10-17",
+      "finding_count": 0,
+      "money": null,
+      "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
+      "state": "CLEAR"
+    },
+    {
+      "accepted_readings": null,
+      "day": "2026-10-18",
+      "finding_count": null,
+      "money": null,
+      "money_state": "WITHHELD",
+      "retired_finding_count": null,
+      "state": "NOT_ANALYSED"
+    },
+    {
+      "accepted_readings": null,
+      "day": "2026-10-19",
+      "finding_count": null,
+      "money": null,
+      "money_state": "WITHHELD",
+      "retired_finding_count": null,
+      "state": "NOT_ANALYSED"
+    }
+  ],
+  "dispatch": {
+    "accepted_readings": null,
+    "days_analysed": 5,
+    "days_requested": 7,
+    "days_with_findings": 1,
+    "days_with_retired_findings": 0
+  },
+  "findings": {
+    "awaiting_verification": 0,
+    "confirmed": 1,
+    "count": 1,
+    "not_confirmed": 0
+  },
+  "links": {
+    "day": "/sites/KOBO-001?day={day}",
+    "findings": "/sites/KOBO-001/findings"
+  },
+  "money": {
+    "card": {
+      "basis": null,
+      "basis_text": "No value line",
+      "currency": null,
+      "destination": "/financials",
+      "detail": "No selected operating-cost consequence",
+      "display_value": "No supported value",
+      "group_key": null,
+      "key": "OPERATING_COST",
+      "line_keys": [],
+      "link_ref": {
+        "kind": "ESTATE",
+        "view": "financials"
+      },
+      "price_action": null,
+      "state": "NO_LINE",
+      "tone": "neutral"
+    },
+    "partial": {
+      "amount": null,
+      "analysed_days": 5,
+      "gaps": [
+        {
+          "day": "2026-10-18",
+          "reason": "NO_ASSESSED_SELECTION",
+          "state": "UNASSESSED"
+        },
+        {
+          "day": "2026-10-19",
+          "reason": "NO_ASSESSED_SELECTION",
+          "state": "UNASSESSED"
+        }
+      ],
+      "line_count": 0,
+      "requested_days": 7,
+      "site_code": "KOBO-001",
+      "site_id": "10000000-0000-4000-8000-000000000011",
+      "site_name": "KOBO-001 name",
+      "state": "NO_ELIGIBLE_LINES"
+    },
+    "quantity": null
+  },
+  "schema_version": "site-range-overview-1",
+  "site": {
+    "site_code": "KOBO-001",
+    "site_name": "KOBO-001 name",
+    "site_type": "MINIGRID",
+    "timezone": null
+  },
+  "status": "PARTIAL",
+  "window": {
+    "basis": "CURRENT",
+    "from": "2026-10-13T00:00:00Z",
+    "known_at": "2026-10-20T12:00:00Z",
+    "to": "2026-10-20T00:00:00Z"
+  }
+}

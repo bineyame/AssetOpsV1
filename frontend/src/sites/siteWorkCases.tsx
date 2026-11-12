@@ -26,7 +26,8 @@ import { displayCode } from "../ui/displayCode";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { formatDay, formatDayTime } from "../ui/time";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
 import { globalWorkRequestHref } from "../work/globalWorkClient";

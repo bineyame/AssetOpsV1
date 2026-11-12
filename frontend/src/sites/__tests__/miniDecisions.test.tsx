@@ -1,4 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { entryRange } from "../../ui/sharedRange";
+import { rangeless } from "../../test/rangeless";
 import { act } from "react";
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -293,8 +295,10 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     ]);
     await settledScreen();
     await screen.findByText("Grain mill one-hour trial");
-    // The first GET omits both bounds and the cutoff; the page states the effective creation-time end.
-    expect(client.getScenarios).toHaveBeenNthCalledWith(1, CODE, { from: null, to: null, known_at: null, cursor: null });
+    // SR-4 (D-SR.40): the first GET carries the shared range (the bare address opens on the entry range) and no
+    // cutoff; the page states the effective creation-time end.
+    const entry = entryRange();
+    expect(client.getScenarios).toHaveBeenNthCalledWith(1, CODE, { from: entry.get("from"), to: entry.get("to"), known_at: null, cursor: null });
     expect(document.querySelector("[data-scenarios-through]")?.textContent).toBe(
       "Scenarios created through 21 Oct 2026, 07:59:59 Times in UTC",
     );
@@ -302,10 +306,9 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
     expect(document.querySelector("[data-scenarios-through] time")).toHaveAttribute("datetime", "2026-10-21T07:59:59.999999Z");
     expect(microsecondBefore("2026-10-21T08:00:00.000000Z")).toBe("2026-10-21T07:59:59.999999Z");
     expect(microsecondBefore("2026-10-21T08:00:00.000123Z")).toBe("2026-10-21T08:00:00.000122Z");
-    // The returned bounds and cutoff go into the address (reload reads the same set) without a second read.
-    expect(location()).toBe(
-      `/sites/${CODE}/financials/scenarios?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`,
-    );
+    // SR-4: the address already names the shared range, so the page adopts nothing into it (no second read); the
+    // address stays the shared range.
+    expect(location()).toBe(`/sites/${CODE}/financials/scenarios?${entry.toString()}`);
     expect(client.getScenarios).toHaveBeenCalledTimes(1);
     // Null destinations are plain text: no link, button or focus stop.
     noControl(document.querySelector("[data-scenario-detail-unavailable]"));
@@ -442,10 +445,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       ["Prices", null],
       ["Scenarios", "page"],
     ]);
-    expect(document.querySelector('[data-financials-section="scenarios"]')).toHaveAttribute(
-      "href",
-      `/sites/${CODE}/financials/scenarios`,
-    );
+    expect(rangeless((document.querySelector('[data-financials-section="scenarios"]'))?.getAttribute("href") ?? "")).toBe(`/sites/${CODE}/financials/scenarios`);
     expect(document.querySelector("[data-tab-unavailable]")).toBeNull();
     expect(main().textContent).toContain("Financials · scenarios");
     expect(main().textContent).not.toContain("(placeholder)");

@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -1355,7 +1356,7 @@ describe("W2-cold unit 2: cold Overview", () => {
     await settledScreen();
     const sld = panelTitled("Chamber temperature").querySelector("[data-cold-sld-link]")!;
     expect(sld.textContent).toBe("Single line diagram →");
-    expect(sld.getAttribute("href")).toBe("/sites/COLD-001/foundation/sld");
+    expect(rangeless(sld.getAttribute("href"))).toBe("/sites/COLD-001/foundation/sld");
     const bodies = Array.from(panelTitled("Needs attention").querySelectorAll("[data-attention-item]")).map((i) => text(i));
     expect(bodies).toHaveLength(2);
     expect(bodies[0]).toMatch(/Not observed: transfer to backup/i);

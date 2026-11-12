@@ -122,3 +122,9 @@ def build_performance_comparison_reports() -> ComparisonReportFiles:
 CredentialFileRefused = gateway_credential_file.CredentialFileRefused
 prepare_gateway_credential_file = gateway_credential_file.prepare
 discard_gateway_credential_file = gateway_credential_file.discard
+
+
+def health_registration():
+    """SR-6a (D-SR.23): the source-health registration read (`_health_registration(c, tenant_id, site_id)`), called
+    on the caller's connection (the estate snapshot's), not copied."""
+    return PostgresGatewayAccess._health_registration

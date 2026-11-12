@@ -79,7 +79,8 @@ def test_compose_renewable_status_and_counts() -> None:
     supported = compose_renewable(five)
     assert supported["status"] == "SUPPORTED"
     assert supported["cards"] == {"capability_kw": {"low": 41, "high": 43}, "used_kw": {"low": 21, "high": 21},
-                                  "headroom_kw": {"low": 11, "high": 16}, "eligible_days": 4, "assessed_days": 5}
+                                  "headroom_kw": {"low": 11, "high": 16},
+                                  "all_hours_headroom_kw": {"low": 11, "high": 13}, "eligible_days": 4, "assessed_days": 5}
     limited = compose_renewable([*five[:2], (five[2][0], five[2][1], _hour("LIMITED")), *five[3:]])
     assert limited["status"] == "LIMITED" and limited["cards"]["assessed_days"] == 4
     conflict = compose_renewable([*five[:4], (five[4][0], five[4][1], _hour("CONFLICT"))])
@@ -88,8 +89,90 @@ def test_compose_renewable_status_and_counts() -> None:
     assert missing["status"] == "UNKNOWN" and missing["cards"]["assessed_days"] == 4
     nothing = compose_renewable([(d, x, None) for d, x in w])
     assert nothing["status"] == "UNKNOWN"
-    assert nothing["cards"] == dict.fromkeys(("capability_kw", "used_kw", "headroom_kw", "eligible_days",
-                                              "assessed_days"))
+    assert nothing["cards"] == dict.fromkeys(("capability_kw", "used_kw", "headroom_kw", "all_hours_headroom_kw",
+                                              "eligible_days", "assessed_days"))
+
+
+# --- D-SR.62: the one-day read follows the stored measure's missing-hour rule ------------------------------------
+
+FINDING_DAY = date(2026, 10, 27)
+DAYLIGHT = range(7, 14)  # 7 measured daylight hours (local), as on the Kobo Finding days
+MISSING = [*range(0, 6), *range(14, 24)]  # 16 hours with no full PV coverage, never assessed
+
+
+def _finding_day(day: date = FINDING_DAY, *, headless: int | None = None
+                 ) -> tuple[list[tuple[date, object, dict | None]], frozenset]:
+    """The 27 Oct shape: 5 EXCLUDED and 2 ELIGIBLE (25-31 kW) daylight hours plus 16 missing hours (no head)."""
+    from assetops_backend.mini_depth.read import local_hour
+
+    daylight = [(day, local_hour(day, h, ZONE), _hour("ELIGIBLE" if h in (12, 13) else "EXCLUDED", 25, 31))
+                for h in DAYLIGHT]
+    if headless is not None:
+        daylight[headless] = (daylight[headless][0], daylight[headless][1], None)
+    missing = [(day, local_hour(day, h, ZONE), None) for h in MISSING]
+    return sorted([*daylight, *missing], key=lambda x: x[1].start), frozenset((day, w.start) for day, w, _ in missing)
+
+
+def test_partial_finding_day_reads_supported_over_its_daylight_hours() -> None:
+    hours, missing = _finding_day()
+    got = compose_renewable(hours, missing=missing)
+    assert got["status"] == "SUPPORTED"
+    assert got["cards"]["headroom_kw"] == got["cards"]["all_hours_headroom_kw"] == {"low": 25, "high": 31}
+    assert (got["cards"]["eligible_days"], got["cards"]["assessed_days"]) == (1, 1)
+    assert compose_renewable(hours)["status"] == "UNKNOWN"  # without the flag the day reads missing (the bug)
+    envelope = renewable_envelope([
+        _Hour(d, w, None if r is None else _Head(1, uuid4(), LO, "sha", {**r, "rows": []}, ()), "SETTLED", "CURRENT",
+              None, (), (d, w.start) in missing) for d, w, r in hours])
+    assert envelope["missing_hours"] == 16 and envelope["status"] == "SUPPORTED"
+    assert envelope["cards"]["all_hours_headroom_kw"] == {"low": 25, "high": 31}
+
+
+def test_headless_daylight_hour_still_reads_unknown() -> None:
+    hours, missing = _finding_day(headless=6)  # an ELIGIBLE daylight hour with no selected revision
+    got = compose_renewable(hours, missing=missing)
+    assert got["status"] == "UNKNOWN"
+    assert got["cards"] == dict.fromkeys(("capability_kw", "used_kw", "headroom_kw", "all_hours_headroom_kw",
+                                          "eligible_days", "assessed_days"))
+
+
+def test_day_with_only_missing_hours_reads_unknown() -> None:
+    """A day with no measured daylight hour (no pv reading at all) is a missing day, never dropped silently."""
+    hours, missing = _finding_day()
+    dark = [(DAYS[0], local_noon(DAYS[0], ZONE), None)]
+    got = compose_renewable([*dark, *hours], missing=missing | {(DAYS[0], dark[0][1].start)})
+    assert got["status"] == "UNKNOWN" and got["cards"]["assessed_days"] == 1
+
+
+def test_partial_day_never_establishes_recurrence() -> None:
+    from assetops_backend.mini_depth.read import _stored_hour
+
+    hours = [_stored_hour(d, local_noon(d, ZONE), _hour("ELIGIBLE")) for d in DAYS]
+    assert rules.summarize_renewable(hours, requested_days=5).recurrence_established is True
+    partial = rules.summarize_renewable(hours, requested_days=5, partial_days={DAYS[2]})
+    assert partial.recurrence_established is False and partial.assessed_days == 5
+
+
+@pytest.mark.parametrize("shape", ["complete", "partial", "headless_daylight"])
+def test_read_and_stored_measure_share_the_day_rule(shape: str) -> None:
+    """Shared-rule pin: `RenewableHeadroom.measure` (low_kw, high_kw) equals the read's `all_hours_headroom_kw`."""
+    from decimal import Decimal
+
+    from assetops_backend.chain.measure_impls import RenewableHeadroom
+    from assetops_backend.chain.ports import InputSet
+
+    hours, missing = _finding_day(headless=6 if shape == "headless_daylight" else None)
+    if shape == "complete":
+        hours, missing = [h for h in hours if (h[0], h[1].start) not in missing], frozenset()
+    daylight = [r for d, w, r in hours if (d, w.start) not in missing]
+    heads = [r for r in daylight if r is not None]
+    payload = {"hours": [r["hour"] for r in heads], "complete": len(heads) == len(daylight)}
+    value = RenewableHeadroom(None).measure(None, "site", InputSet((), [], False, payload))
+    card = compose_renewable(hours, missing=missing)["cards"]["all_hours_headroom_kw"]
+    measured = (value["low_kw"], value["high_kw"])
+    if shape == "headless_daylight":
+        assert measured == (None, None) and card is None
+    else:
+        assert tuple(Decimal(x) for x in measured) == (Decimal(card["low"]), Decimal(card["high"])) == (25, 31)
 
 
 class _Reader:

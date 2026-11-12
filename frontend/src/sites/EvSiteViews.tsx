@@ -1,6 +1,6 @@
 import { ROADMAP_WORDS } from "../ui/productWords";
 import { useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { selectedClassification } from "./sourceProvenance";
 import { classificationWord, plainCode } from "./coldAssessmentWords";
 import { TechnicalDetails, TechnicalReferenceList } from "../ui/TechnicalDetails";

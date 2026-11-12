@@ -408,6 +408,7 @@ def performance_due(site: str, mark: str | None, marks: dict[str, str], report_d
         return True
     return mark is None or marks.get(site) != mark
 PREBUILT_ROUTES_ENV = "ASSETOPS_PREBUILT_ROUTES"
+PREBUILD_BASE_ENV = "ASSETOPS_PREBUILD_BASE_URL"  # WARM-1: `chain/prebuild.py` BASE_URL_ENV
 PREBUILT_SCHEMA = "chain-prebuilt-routes-1"
 #: The Sites whose board link carries `date=` (local day); the others open a whole UTC day by `from`/`to`.
 DATE_BOARD_SITES = ("kobo", "kisiwa")
@@ -737,6 +738,7 @@ def plain_lines(added: list[dict], skipped: list[dict], no_session: list[dict], 
 
 class Demo:
     step = ""  # DD1b2-R8 C2: the label of the last child started (the manifest's `failed_at`)
+    prebuild_base: str | None = None  # WARM-1: set by `serve` once its API answers
     defer_drain = False  # DD1b2-R8 C1: inside `prepare` a drain failure is recorded and the prepare goes on
     drain_failures: tuple = ()
 
@@ -780,7 +782,21 @@ class Demo:
         routes = self.work / PREBUILT_ROUTES_FILE
         if routes.is_file():  # E4 D-E4.1: the tool's and the serve loop's prebuild read the story's own list
             out[PREBUILT_ROUTES_ENV] = str(routes)
+        if self.prebuild_base:  # WARM-1 (BL-71 part 2): while serve runs, the tick's prebuild goes over HTTP to it
+            out[PREBUILD_BASE_ENV] = self.prebuild_base
         return out
+
+    def start_warm(self, port: int) -> subprocess.Popen:
+        """WARM-1 (rev 7 §7.1, a labelled workaround): `tools/warm_ranges.py` against the running serve, in the
+        background, after a tick's prebuild. Its report is `<work>/warm-report.json`; its log `logs/warm-{port}.log`."""
+        script = self.tree / "tools" / "warm_ranges.py"
+        if not script.is_file():  # a tree copied before WARM-1 merged
+            script = REPO / "tools" / "warm_ranges.py"
+        log = open(self.work / "logs" / f"warm-{port}.log", "w", encoding="utf-8")
+        return subprocess.Popen([str(PY), str(script), "--base-url", f"http://127.0.0.1:{port}", "--work",
+                                 str(self.work), "--db-url", self.url], cwd=str(self.tree), env=self.env(),
+                                stdout=log, stderr=subprocess.STDOUT,
+                                start_new_session=(os.name == "posix"))  # L4: `_kill_tree` must not reach serve
 
     def write_prebuilt_routes(self) -> Path | None:
         """E4 D-E4.1 (C2): (re)write `<work>/prebuilt-routes.json` from the story links and each Site's dates after S
@@ -1619,7 +1635,7 @@ class Demo:
                          for r in sorted((r for r in current if r.site == site), key=lambda r: r.offset)]
                 say(f"  {SITE_CODE[site]}: " + "; ".join(cells))
 
-    def serve(self, port: int, web: int) -> None:
+    def serve(self, port: int, web: int, warm: bool = True) -> None:
         self.story()
         self.write_prebuilt_routes()  # E4 D-E4.1: before the serve env is built
         logs = self.work / "logs"
@@ -1641,6 +1657,7 @@ class Demo:
         else:
             _kill_tree(api.pid)
             raise SystemExit(f"API did not answer on port {port}")
+        self.prebuild_base = f"http://127.0.0.1:{port}"  # WARM-1: after the API env was built; ticks use HTTP
         say(f"API on http://127.0.0.1:{port} (PID {api.pid}). Walkthrough-only schedule loop: one tick every "
             f"{TICK_EVERY_SECONDS} s, then the Performance comparison; it stops with serve.")
         say(f'Frontend, from frontend/:  $env:ASSETOPS_API_PORT="{port}"; npm.cmd run dev -- --port {web} --strictPort')
@@ -1648,6 +1665,7 @@ class Demo:
         if (self.work / "days.json").is_file():
             say("Bring every Site up to yesterday (adds the missing dates, then checks the build):")
             say(f"  {self.add_dates_line()}")
+        ranges: subprocess.Popen | None = None
         try:
             warmed = False
             while api.poll() is None:
@@ -1659,6 +1677,11 @@ class Demo:
                     # Review item 8: after the first tick, warm the story-week Portfolio once before "ready:".
                     warmed = True
                     prewarm(port, self.story())
+                if ranges is not None and ranges.poll() is not None:
+                    say(f"  warm ranges: exit {ranges.returncode} (WARM-1 workaround; <work>/warm-report.json)")
+                    ranges = None
+                if warm and ranges is None and api.poll() is None:  # WARM-1: after each tick's prebuild
+                    ranges = self.start_warm(port)
                 for _ in range(TICK_EVERY_SECONDS):
                     if api.poll() is not None:
                         break
@@ -1666,6 +1689,8 @@ class Demo:
         except KeyboardInterrupt:
             pass
         finally:
+            if ranges is not None and ranges.poll() is None:
+                _kill_tree(ranges.pid)
             if api.poll() is None:
                 _kill_tree(api.pid)
 
@@ -1731,6 +1756,7 @@ def main(argv: list[str] | None = None) -> None:
     s = sub.add_parser("serve")
     s.add_argument("--port", type=int, default=API_PORT)
     s.add_argument("--web-port", type=int, default=WEB_PORT)
+    s.add_argument("--no-warm", action="store_true", help="WARM-1: do not prepare the date-bar ranges after a tick")
     tk = sub.add_parser("tick")
     tk.add_argument("--until-drained", action="store_true",
                     help="DD1b2-R6 O2: raw ticks until the R8 counts are 0 (a live add: run this, then show the board)")
@@ -1769,7 +1795,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "links":
         demo.links(args.web_port)
     elif args.cmd == "serve":
-        demo.serve(args.port, args.web_port)
+        demo.serve(args.port, args.web_port, warm=not args.no_warm)
     elif args.cmd == "add-day":
         demo.add_day(args.site, args.kind, day=args.day, as_kind=args.as_kind, assess_now=args.assess_now)
     elif args.cmd == "add-dates":

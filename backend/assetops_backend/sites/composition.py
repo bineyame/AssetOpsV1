@@ -32,6 +32,7 @@ from assetops_backend.sites.adapters.import_files import (
 from assetops_backend.sites.adapters.postgres_foundation_store import (
     PostgresFoundationStore,
 )
+from assetops_backend.sites.adapters import postgres_health_range
 from assetops_backend.sites.adapters.yaml_shipped_site_store import SHIPPED_SITE_ROOT
 from assetops_backend.sites.adapters.yaml_user_site_store import USER_SITE_STORE_ROOT
 from assetops_backend.sites.foundation_records import FoundationStore
@@ -98,3 +99,8 @@ def write_site_import_report(path: str, report: str, *, source: str) -> str:
 def read_binding_conversion_fixture(path: str) -> tuple[dict, str, str]:
     """A binding conversion fixture read byte for byte (S1-02)."""
     return read_binding_conversion(path)
+
+
+def health_range_counts():
+    """SR-6a (D-SR.23): the grouped per-day diagnostics and accepted-readings read, on the caller's connection."""
+    return postgres_health_range.health_range_counts

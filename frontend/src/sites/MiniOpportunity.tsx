@@ -8,7 +8,7 @@
  * missing source reads as its exact gap copy (u4 value mapping, u6 dry-read).
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, BigClaim, KeyValues, MetricCard, MetricCards, Panel, StatusBar } from "../ui";
 import { localDateOf, addDays, localMidnightUtc } from "./miniDepthClient";

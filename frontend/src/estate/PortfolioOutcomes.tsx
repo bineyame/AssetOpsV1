@@ -1,5 +1,5 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { EvidenceTrace, WhyButton } from "../blocks/EvidenceTrace";
 import { OutcomeCardValue } from "../blocks/OutcomeRow";
 import { defaultChainClient, type ChainClient } from "../sites/chainClient";

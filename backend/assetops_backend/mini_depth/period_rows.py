@@ -30,7 +30,7 @@ from assetops_backend.evidence.source_provenance import LinkRow
 
 KIND_PREFIX = "mini_depth."
 #: One version for the four kinds: their provenance blocks share it (`revision_provenance` key).
-BUILDER_VERSION = "mini-depth-rows-1"
+BUILDER_VERSION = "mini-depth-rows-2"  # 2: the stored hour carries `missing` (D-SR.62)
 #: SR-10a (rev 10b.1, D-SR.31): every Site-local hour of a local day, for the Fuel and Backup range reads. The
 #: noon-hour `fuel`/`backup` kinds above stay unchanged (the board reads them).
 DAY_KINDS: dict[str, str] = {"mini_depth.fuel_day": "fuel", "mini_depth.backup_day": "backup"}
@@ -94,7 +94,8 @@ def hour_json(h: Any, *, pending_link_rows: Mapping[str, Any] | None = None) -> 
     return {"local_day": h.day.isoformat(), "window_start": iso(h.window.start), "window_end": iso(h.window.end),
             "head": head, "job_state": h.job_state, "state": h.state,
             "pending_ids": None if h.pending_ids is None else list(h.pending_ids), "job_ids": list(h.job_ids),
-            "pending_link_rows": None if h.pending_ids is None else dict(pending_link_rows or {})}
+            "pending_link_rows": None if h.pending_ids is None else dict(pending_link_rows or {}),
+            "missing": bool(h.missing)}
 
 
 def _instant(value: str) -> datetime:
@@ -122,7 +123,7 @@ def hour_from_json(value: Mapping[str, Any], *, historical: bool, pending: bool)
     return _Hour(date.fromisoformat(value["local_day"]),
                  rules.Window(_instant(value["window_start"]), _instant(value["window_end"])), h,
                  value["job_state"], state, None if pending_ids is None else tuple(pending_ids),
-                 tuple(value.get("job_ids") or ()))
+                 tuple(value.get("job_ids") or ()), bool(value.get("missing")))
 
 
 def absent_hour(day: date, window: Any) -> Any:
