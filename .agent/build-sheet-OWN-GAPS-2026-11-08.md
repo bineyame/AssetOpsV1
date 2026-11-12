@@ -4762,3 +4762,56 @@ Decision logged for owner review: **D-PRICE.4**.
 5. Send it to a fresh Claude reviewer. Merge only after the Sat-night rehearsal finish check is green.
 
 Decisions logged for owner review: **D-DATA.1-6**.
+
+
+## D-SR.1-8 Site pages on the shared date range, SR-4 (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+Source: the owner's report "when i navigate into sites, it appears the date range is not used to inform the content, verify this", which the verifier confirmed. Full spec: `architect-sequence-client-scope-2026-11-11.md`, Revision 8.
+
+### D-SR.1 Three classes of Site page.
+- **R (follows the range):** Findings, Work, the Evidence ledger, Scenarios, Renewable up to 5 days, and every Cold and EV content page.
+- **D (one day or part, inside the range, defaulting to its last day):** the Kobo/Kisiwa Overview, Dispatch, the Kisiwa night window, Service, the claim limit, and Renewable over 5 days.
+- **N (point in time):** mini-grid Health, mini-grid Financials and Prices, Foundation, and the Sites index.
+- Why: the mini-grid Overview is one UTC day by server contract, and the stored day rows (ANY-1) make that day fast. A range board is SR-5 (backlog, about 1.5 units, read path plus parity, after the freeze).
+
+### D-SR.2 Every Site link carries the range, through one component.
+- `RangeLink` plus `carryRange`, and a codemod of every `Link` import.
+- Guard `site-links-carry-range.ps1`, with a runtime DOM test as the second guard.
+- Why: 136 call sites build Site hrefs. One component plus a guard is the only way the rule survives new code. Per-frame `search` props are how the Kobo/Kisiwa gap arose.
+
+### D-SR.3 Safety net in `SharedRangeOutlet`.
+- A Site content address with no range takes, in order:
+  1. the previous in-app range;
+  2. else the 7 days ending on `day`;
+  3. else `entryRange()`.
+- The page is replaced before it mounts.
+- Why: `navigate()` calls and data-built links are not all visible to the guard. Filling before mount means one request, and the preset strings match WARM-1.
+- Consequence: Site Work pages adopt the shared range instead of R338's own default.
+
+### D-SR.4 `pageDay`.
+- The day is `day`, else the range's last day, else today only when the address has no range.
+- Previous/Next stop at the range's edges with text, unless the shown day is already outside the range (story links).
+
+### D-SR.5 Service and Renewable under a long range.
+- Service uses the 12:00 local hour of `pageDay` unless the address window is exactly one hour or one day.
+- Renewable uses the last 5 Site-local days of the range when the range is longer than 5 days.
+- Both declare what they show.
+
+### D-SR.6 Honest tags.
+- "Showing 9 Nov of the range" and "Showing 5–9 Nov of the range" for D pages.
+- "Range not used · shows now", "· current settings" and "· prices valid now" for N pages.
+- "All pages" only where the content follows the range.
+- Declarations are set in a layout effect.
+- MOCK DEVIATION R718/R719: v71 Change 0b shows only "All pages". Its text, "A page that needs a finer view ... picks it inside this range", is what R718 makes visible.
+
+### D-SR.7 EV on generic paths.
+- `/sites/<EV>/financials` redirects to the EV financials page.
+- The generic Evidence page's rejections and analytics panels get the range if their routes accept it. Otherwise they say "All dates, not only the date range".
+
+### D-SR.8 IN for 17 Nov.
+- 1.5 units, lane G (frontend only, Opus), one branch `task/SR-4-site-range`.
+- Core freeze Sat 20:00: ACCEPT by Sat 16:00.
+- Priority: after WARM-1, before UQ-FI-1/2.
+- The owner said "fix it now": start immediately in the order a, b, c. Only SR-4d (the day strip, which needs owner approval by Fri 12:00) can drop.
+
+Decisions logged for owner review: **D-SR.1-8**.

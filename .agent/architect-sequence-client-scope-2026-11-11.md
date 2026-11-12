@@ -1,5 +1,175 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 8 (Architect, Claude, 2026-11-12): Site pages on the date range (SR-4)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Owner-delegated rulings **D-SR.1-8** (`build-sheet-OWN-GAPS-2026-11-08.md`), logged for owner review. Register rows R718-R719.
+- Owner, verbatim: "when i navigate into sites, it appears the date range is not used to inform the content, verify this".
+- **Verified: true.** Evidence: the verifier's run on the demo build (two ranges, 56 page loads; `results2.json` in the coordinator scratchpad). Code cited from main `feea059b0`.
+  1. **The range is lost on the way in.** No Site link carries the range: the Sites index, breadcrumbs, Kobo/Kisiwa tabs (0/9 to 0/15), and most in-page links. Cold and EV keep it on 11/13 to 21/22 links because their frames pass a window `search`. `/ev/financials` keeps it on 3/12. `OperatorSiteTabs` only appends a `search` a frame passes in. Kobo/Kisiwa frames pass none.
+  2. **The Kobo/Kisiwa Overview shows today.** `SiteOverview.tsx:132` sends `getOverview(siteId, {}, selection)`. `selectionOf` (:84-93) reads only `day`. With no `day`, the server serves today (11-12), outside both ranges.
+  3. **Kobo/Kisiwa Performance shows today.** `PerformanceDispatch.tsx:108` defaults to `todayUtc()`, so the request is `dispatch/windows/2026-11-12`. Kisiwa `finding-windows/<day>` does the same. `miniDepthClient.ts:341/365` falls back to today when there is no range. When there is a range, Service sends the whole range as its "hour" window and Renewable sends more than its 5-day limit.
+  4. **Health and Financials on Kobo/Kisiwa are point-in-time by nature.** `/source-health` and `/battery` are read on the server clock. Financials is the price list `valid_at=now`.
+  5. **The bar overclaims.** `readsSharedRange` (`ui/sharedRange.ts:195`) returns true for any `/sites/<id>...` address that has from/to. So Health, Financials and Overview say "All pages" over content that ignores the range.
+- **Not affected:** Findings and Work on every Site type, and Cold and EV content pages (their requests carry from/to).
+
+### 8.1 Which Site pages should follow the range (D-SR.1)
+
+| Class | Meaning on screen | Pages |
+|---|---|---|
+| **R: follows the range** | The content covers the range's days. Tag "All pages" (mock v71 Change 0b). | Every Site type: Findings, Work (Actions, Incidents, Maintenance), Evidence ledger. Kobo/Kisiwa: Scenarios, Renewable (range up to 5 days). Cold: Overview, Performance, Findings, Health, Financials, Evidence and event pages, where the selected event lies inside the range. EV: every `/ev/...` page, Performance, Findings, Health. |
+| **D: one day or one part of the range** | The page shows a day (or part) **inside** the range. It defaults to the range's last day, never to today when today is outside the range. Tag "Showing 9 Nov of the range" or "Showing 5–9 Nov of the range". | Kobo/Kisiwa: Overview (the board is one UTC day by server contract, `site_overview/route.py:13`), Performance/Dispatch, Kisiwa night window, Service (one hour of the focus day), Evidence claim limit, Renewable when the range is longer than 5 days (its last 5 days). |
+| **N: point in time** | The page shows "now" by nature. Tag "Range not used · shows now", "· current settings" or "· prices valid now". | Kobo/Kisiwa Health (server clock); Kobo/Kisiwa Financials and every Prices page (valid now); Foundation for every type; Foundation changes; the Sites index (a directory). These keep the old tag "Not used on this page". |
+
+- **Honest limit, called one:** the Kobo/Kisiwa Overview stays **one day of the range** for 17 Nov. A board that totals the range needs a new server composition over the stored day rows, then parity and WARM-1 work. That is about 1.5 units of read-path work, and it falls under the core freeze. It goes to the backlog as **SR-5 range board for mini-grid Sites**. Range totals for these Sites are on the Portfolio and estate Financials today.
+
+### 8.2 The fixes (D-SR.2-7)
+
+**SR-4a: every Site link carries the range (D-SR.2, D-SR.3).**
+- **New `frontend/src/ui/RangeLink.tsx`:** `RangeLink` is `forwardRef<HTMLAnchorElement, LinkProps>`. It renders react-router `Link` with `to={carryRange(to, params)}`, where `params` comes from `useSearchParams()`.
+- **New `carryRange(to, params)` in `ui/sharedRange.ts`:**
+  - A string or `{pathname, search}` target whose pathname matches `SITE_PATH = /^\/(?:sites(?:\/.*)?|performance\/.+)$/` gets `withRange` applied. Split off `#hash` first and re-append it.
+  - A target that names its own `from`/`to` keeps them (existing `withRange` rule).
+  - Relative targets, non-Site targets and an invalid or absent address range are returned unchanged.
+  - Page-only parameters (`day`, `hour`, `event`, `cursor`) never travel.
+- **Codemod:** in every non-test `.tsx` under `frontend/src`, `Link` from `react-router-dom` becomes `RangeLink` (alias `RangeLink as Link` is allowed). Exempt: `ui/RangeLink.tsx`, `ui/NavRail.tsx` and the rail `NavLink` in `shell/OperatorShellLayout.tsx`, which already carry through `railSearch`.
+  - This one change covers `OperatorSiteTabs`, `Breadcrumbs`, the `SitesIndex` cards (`siteDetailHref`) and in-page links.
+  - The tab `search` that Cold and EV frames pass still wins, because it names its own range.
+- **Navigation safety net in `SharedRangeOutlet`** (`shell/SharedRangeBar.tsx:86`). It covers `navigate()` calls and data-built links. Before the page mounts, when the address has **no** from/to and the pathname is a Site content route (see the pre-flight list), it renders `<Navigate replace>` to the same path and hash, the existing params, and a range chosen in this order:
+  1. The range of the previous in-app address. Keep a `useRef` updated on every render where `readSharedRange` is `set`, including `known_at`.
+  2. Else, when the address names `day`/`date`: the 7 days ending on that day.
+  3. Else `entryRange()`, which is byte-identical to the bar's presets, so WARM-1's stored answers still hit.
+  - An `invalid` range is left alone, as today: the page explains it.
+  - **Consequence, intended:** Site Work pages now open on the shared range, not on R338's own default. This closes SR-2b item 3 for Site pages. Global Work pages are unchanged.
+- **Guard** `tools/checks/site-links-carry-range.ps1`, registered in `tools/check-architecture.ps1` as "Site links carry the shared range".
+  - It fails any non-test `.tsx` under `frontend/src` that imports `Link` or `NavLink` from `react-router-dom`, outside the three exempt files.
+  - Built-in self-test: a violating fixture fails, the exempt file passes, and an aliased `RangeLink as Link` passes.
+  - Non-vacuous: it must fail on main's `shell/operatorSiteTabs.tsx`.
+
+**SR-4b: day pages default inside the range (D-SR.4, D-SR.5).**
+- **New `pageDay(params, now = Date.now())` in `ui/sharedRange.ts`:** a valid `focusDayOf(params)`, else the address range's `to` day when `readSharedRange` is `set`, else today's UTC day (reached only when the address has no valid range).
+- **Uses:**
+  - `SiteOverview.selectionOf`: `date: pageDay(params)`. The request now always names a day. The served-day write-back to `day=` is unchanged. Remove the dead `?? params.get(...)` fallbacks.
+  - `PerformanceDispatch.tsx:108`: `pageDay(params)` replaces `todayUtc()`. Delete `todayUtc`.
+  - The Kisiwa `finding-windows/<day>` read takes the same day.
+  - `miniDepthClient.ts:341/365`: `pageDay(params, now)` replaces `focusDayOf(params) ?? today`.
+  - Every other `new Date().toISOString().slice(0, 10)` used as a page day under `sites/` and `shell/` (the pre-flight lists them, e.g. `SiteAnalyticsFrames.tsx:456 todayWindow`).
+- **Service** (`serviceWindowFromParams`): it uses the address from/to only when they span exactly one hour or exactly one day (story links). Otherwise it uses the 12:00-13:00 local hour of `pageDay`. It declares that day.
+- **Renewable** (`renewableWindowFromParams`): it uses the address from/to when they span at most 5 days. Otherwise it uses the 5 Site-local days ending on the local date of the range's last UTC day (`localDaysWindow(tz, addDays(lastLocal, -4), 5)`). It declares that span. The pre-flight confirms the 5-day server limit (`MINI_RENEWABLE_DAYS`).
+- **Previous/Next day on the Kobo/Kisiwa board** (`SiteWindowOverview`):
+  - When the shown day is inside the range, they stay inside it. At an edge, the link is replaced by plain text "First day of the range" or "Last day of the range", with `data-day-step-edge`.
+  - When the shown day is outside the range (an explicit story `day=`), they behave as today, and FocusPicker's "Show <day>" stays.
+
+**SR-4c: the bar says what each page does (D-SR.6, D-SR.7).**
+- **`ui/rangeFocus.tsx`:**
+  - `RangeFocus` becomes `{ kind: "span"; from: string; to: string } | { kind: "now"; note: "shows now" | "current settings" | "prices valid now" }`.
+  - `useDeclareRangeFocus(day)` stays as a wrapper for `span(day, day)`.
+  - Add `useDeclareRangeSpan(from, to)` and `useDeclareRangeNotUsed(note)`.
+  - All declarations use `useLayoutEffect`, so the bar never paints "All pages" first.
+- **`SharedRangeBar` tag** (constants in the file):
+
+| Page state | Tag | Spoken name of the button |
+|---|---|---|
+| span inside the range, one day | `Showing 9 Nov of the range` | "Date range: … This page shows one day of it: 9 November 2026" |
+| span inside the range, several days | `Showing 5–9 Nov of the range` | "… This page shows part of it: 5 to 9 November 2026" |
+| span outside the range | `Showing 24 Oct · range not used` (unchanged) | unchanged |
+| now | `Range not used · shows now` / `· current settings` / `· prices valid now` (class `shared-range__tag--elsewhere`, `data-shared-range-focus="now"`) | "Date range for the other pages: … This page shows <note>; the range is not used here" |
+| a Site content page that follows the range | `All pages` (unchanged) | unchanged |
+| the Sites index, record pages | `Not used on this page` (unchanged) | unchanged |
+
+- **Declarations** (the pre-flight confirms the frame for each):
+  - `now` / "shows now": the mini-grid branch of `SiteHealthFrames`.
+  - "prices valid now": the mini-grid Financials frame and `SitePricesFrame`.
+  - "current settings": every Foundation frame (`SiteFoundationFrame` and `SiteAnalyticsFrames` ~2151/2180) and Foundation changes.
+  - span: Renewable (long range) and Service (its day).
+  - Pages already on FocusPicker keep declaring through it.
+- **EV on the generic paths:**
+  - `/sites/<EV>/financials` (a diesel price page that does not apply to EV) renders `<Navigate replace>` to the EV financials route, keeping the query.
+  - On the generic Site Evidence page, the rejections panel and the analytics panel get `from`/`to` when the pre-flight shows their routes accept them. Otherwise each panel heading gains the line "All dates, not only the date range" (`data-panel-range="all-dates"`).
+
+**SR-4d (optional, needs owner approval by Fri 12:00): a day strip on the Kobo/Kisiwa board.**
+- A row of the range's days as links (`day=`), with the current day marked (`aria-current="date"`). It goes under the board heading, next to FocusPicker.
+- MOCK DEVIATION: v69 `site-overview` has no strip. It would be register R720 if built. 0.25 units.
+- Without approval it is OUT; FocusPicker already lets the presenter pick any day of the range.
+
+### 8.3 Tests (vitest one file at a time; no full suites, D-17N freeze rules)
+- `ui/__tests__/rangeLink.test.tsx` (new). `carryRange` cases:
+  - a Site path gains the range;
+  - `/performance/...` gains the range;
+  - a target that names its own range keeps it;
+  - a `#hash` is kept after the query;
+  - an object `to`;
+  - relative and non-Site paths are untouched;
+  - an absent or invalid range adds nothing;
+  - `day`, `cursor` and `event` never travel;
+  - `known_at` travels.
+  - `RangeLink` renders the carried href.
+- `shell/__tests__/siteRangeCarry.test.tsx` (new, **the runtime guard**). Whole `App` in a memory router, real clients over a stub fetch, with Site-detail fixtures for KOBO-001 (MINIGRID), KISIWA-001 (MINIGRID), COLD-LAB-001 and EV-LAB-001. Other reads may answer 503: the test is about links.
+  - Start at `/portfolio?from=…&to=…`, open the Sites rail item, and check that every Site card href carries the range.
+  - For each Site type and each tab on its tab row: open the page, then check that **every** `a[href]` whose path matches `SITE_PATH` carries `from` and `to`, or names its own range.
+  - Click each tab: the address keeps the range.
+  - Safety net:
+    - a fresh `/sites/KOBO-001` gets the 7-day preset;
+    - `/sites/KOBO-001?day=2026-10-24` gets 18-24 Oct and keeps `day`;
+    - `navigate("/sites/KISIWA-001/performance")` from a ranged page carries the range;
+    - an invalid range is left alone.
+- `ui/__tests__/sharedRange.test.tsx` (extend):
+  - `pageDay`: day wins; else `range.to`; else today only with no range.
+  - Service with a 7-day range gives the 12:00 hour of the last day; with a story one-hour window it is unchanged.
+  - Renewable with a 7-day range gives the last 5 local days; with 3 days it is unchanged.
+- `shell/__tests__/sharedRange.test.tsx` (extend): the tag and spoken name per row of the 8.2 table, for each Site type's Overview, Performance, Health, Financials, Prices and Foundation, with a range in the address.
+- Per page:
+  - `SiteOverview` and `s502OverviewFindingList`: the request sends `date=<range.to>`, `day=` wins, the write-back is unchanged.
+  - `PerformanceDispatch`: `windows/<range.to>`.
+  - `SiteWindowOverview`: the edge text at the first and last range day, and unclamped stepping outside the range.
+  - The EV generic financials redirect.
+  - The Evidence panels' range or their "All dates" line.
+- `sr2RequestUrls.test.tsx`: update the pins for Kobo/Kisiwa with a range and no `day` (board `date=<range.to>`, Dispatch `windows/<range.to>`). Every other pin stays byte-identical.
+- Existing tests that assert bare Site hrefs: compare the path part, as SR-2 did. Never delete an assertion.
+- Guard self-test plus `tools\check-architecture.ps1` (19 → 20 checks). `tsc --noEmit` clean.
+- Captures: none in this slice. The tag wording changes are in UQ-FI's after-captures if UQ-FI merges later; otherwise the coordinator recaptures the four Site Overviews once before the freeze.
+
+### 8.4 Size, lane, order, and the 17 Nov verdict (D-SR.8)
+
+| Unit | What | Units |
+|---|---|---|
+| SR-4a | RangeLink, codemod, safety net, guard, runtime guard test | 0.75 |
+| SR-4b | `pageDay`, Overview/Dispatch/Service/Renewable defaults, edge stepping | 0.4 |
+| SR-4c | Declarations, tags, EV generic redirect, Evidence panels | 0.35 |
+| **SR-4** | one branch, one review | **1.5** |
+| SR-4d | day strip, only on approval | +0.25 |
+
+- **Lane G, frontend only, no Postgres.**
+  - Opus builder, wt `AssetOpsV1-sr4`, branch `task/SR-4-site-range` from main. Commits in the order a → b → c.
+  - Start on the first free laptop lane today; otherwise on the VPS at Thu 16:00.
+  - Fresh Claude reviewer; a Sonnet fix round.
+- **Collisions:**
+  - UQ-FI-1 and UQ-FI-2 (lanes D/E) touch the same frames, for copy and classes.
+  - SR-4a's codemod changes only import lines, so whichever merges second merges main and resolves.
+  - No AR-4, WARM-1 or DATA file is touched. Mini-grid board days are stored rows (ANY-1), so `date=<range.to>` is under 2 s with no WARM-1 change.
+  - WARM-1's preset strings are reused by the safety net, so they are unchanged.
+- **Priority** (replaces 7.7's line): AR-4 > WARM-1 > **SR-4** > UQ-FI-1/2 > UP-1 > MB-1 > DATA-5/4/8 > UQ-FI-3 > DATA-10/13 > FR-B > BL-ANY-absent. PR-3 and CLEAN-1 have merged.
+- **Capacity:** PR-3 and CLEAN-1 merged after rev 7. That frees about 0.75 of the 4.2 committed units. With SR-4, the package is about 11.75 units, inside the 11-13 window.
+- **Verdict: IN for 17 Nov**, under the **core freeze Sat 20:00**, because it changes existing requests (the Overview and Dispatch day).
+  - Review ACCEPT by Sat 16:00, merge by Sat 20:00, then the Sat-night rehearsal build.
+  - **Owner, relayed: "fix it now".** SR-4 starts immediately, in the owner's order: (1) links carry the range, including the Sites index (4a); (2) the Overview day comes from the range; (3) the focus day defaults to the range's last day (4b); (4) honest tags (4c). Only SR-4d can drop; a, b and c all ship. If time runs short, merge each commit as it is ACCEPTed (a, then b, then c). Every commit leaves the screen honest.
+- **OUT, backlog:**
+  - **SR-5**, a range board for Kobo/Kisiwa (about 1.5 units, read path plus parity).
+  - Range money on mini-grid Site Financials (about 0.75).
+  - The Cold/EV "No event in <range>" wording (SR-2b item 4), unless the pre-flight shows a Cold/EV page blank or misleading on a range with no event. In that case it joins SR-4 at +0.25.
+
+### 8.5 Builder steps (SR-4)
+1. **Pre-flight, one batch to the Architect, before any code:**
+   - (a) every route under `/sites` and `/performance` in `App.tsx`, classed R/D/N per 8.1, with its frame file;
+   - (b) every today-default page day under `sites/` and `shell/`;
+   - (c) whether `/evidence/rejections` and `/analytics` accept from/to;
+   - (d) Renewable's server day limit;
+   - (e) the list of files the codemod changes;
+   - (f) a Cold and an EV Site page opened on a range with no event: what they show.
+2. **SR-4a:** `carryRange` + `RangeLink` + test → codemod → safety net → guard + registration → runtime guard test. Commit.
+3. **SR-4b:** `pageDay` + uses + Service/Renewable windows + edge stepping + tests + `sr2RequestUrls` pins. Commit.
+4. **SR-4c:** focus kinds + bar tags + declarations + EV redirect + Evidence panels + tests. Commit.
+5. Run `tsc`, the named vitest files one at a time and `check-architecture`. Write the packet with outcome, files, checks and register rows R718/R719. Then a fresh Claude review.
+
 ## Revision 7 (Architect, Claude, 2026-11-12 ~07:10): the owner's 17 Nov expectations, answered item by item
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).
