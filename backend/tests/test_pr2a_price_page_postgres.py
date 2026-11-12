@@ -8,7 +8,6 @@ recorded by the PR-3 entry actor reads "Entered by site admin"; a Site without a
 from __future__ import annotations
 
 import os
-from datetime import timedelta
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
@@ -87,10 +86,12 @@ def test_fixture_history_reads_as_one_row_with_plain_word_history(page) -> None:
 
 def test_known_at_reads_the_history_as_recorded_then(page) -> None:
     client, prices, result, _ = page
-    # The cutoff comes from the stored rows: one second before the correction (v3) was recorded.
+    # The cutoff comes from the stored rows: midway between v2's and v3's recorded instants (the fixture records
+    # them within one second, so "one second before v3" would precede them all).
     snap = prices.snapshot(result.tenant.id, result.site.id, "diesel_price_per_litre", None, 0, 10)
-    v3_recorded = max(r["recorded_at"] for r in snap["revisions"])
-    before = body(client, known_at=(v3_recorded - timedelta(seconds=1)).isoformat())
+    by_no = {r["revision_no"]: r["recorded_at"] for r in snap["revisions"]}
+    assert by_no[2] < by_no[3]
+    before = body(client, known_at=(by_no[2] + (by_no[3] - by_no[2]) / 2).isoformat())
     diesel = before["prices"][0]
     assert [h["revision_no"] for h in diesel["history"]] == [2, 1]
     assert before["cutoff"]["text"].startswith("Prices as known at ")
