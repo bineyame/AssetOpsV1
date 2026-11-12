@@ -76,6 +76,75 @@ Rule for every "update": replace the superseded assertion with a positive test o
 - **Still outside the claim:** scope-ids page 2 and later, and lens × state chip combinations.
 - Size: about 3 requests per warmed range, about 0.02 units, inside WARM-1's fix round.
 
+### 10d.7 SR-8 builder questions Q2-Q5 (D-SR.47)
+
+SR-8 server: `task/SR-8-renewable-range` 2fc5ffdf6. Q1 (`window_days`) is covered by D-SR.45.
+
+| Q | Ruling |
+|---|---|
+| Q2 A graded row with no value, or an unknown decision, reads NO_VALUE | **Confirmed.** NO_VALUE is added to D-SR.27's state list with the words "No headroom figure for this day". It is never counted. |
+| Q3 Averages rounded to 0.01 kW, half-up | **Confirmed.** This applies only to the two totals (mean `low_kw`, mean `high_kw`). The per-day `low_kw`/`high_kw` are the stored values, unrounded. The page formats both with the Renewable tab's existing kW formatter. |
+| Q4 Grade precedence | **Corrected for LOW.** A PENDING, NO_DATA or NOT_EXPECTED grade wins, as built. **A LOW grade reads NOT_ENOUGH_READINGS and is never counted, even with a value**, as D-SR.45 J2 and SR-5a's `GAP_STATES` rule. A PARTIAL-grade ELIGIBLE day is COUNTED and carries `partial: true`, so the page shows the D-E5.45 PARTIAL label, as SR-7a does. COMPLETE reads the value. Add a test for a LOW day that has a value. |
+| Q5 Codes and `known_at` | **Confirmed.** `RENEWABLE_RANGE_NOT_APPLICABLE` (404) and `SITE_RENEWABLE_RANGE_UNAVAILABLE` (503) match SR-6/SR-7. The optional `known_at` is required in practice: the shared range carries it (D-SR.2), and the StoredRoute key is `{site, from, to, known_at}`, as SR-6/7. Spec 10.4 is amended to `?from&to[&known_at]`. |
+
+### 10d.8 SR-8 Q6: which headroom figure the range shows (D-SR.48)
+
+- **Facts** (SR-8 packet, 909affc1d):
+  - The one-day depth card `observed_headroom_range` is min low and **max** high over the ELIGIBLE hours: the envelope across hours.
+  - The stored `daylight_headroom_kw` day value is min low and **min** high: the headroom available in *every* eligible hour.
+  - The lows match. The stored high can be lower.
+- **Ruling.**
+  - **The range page shows the stored day figure.** D-SR.15 allows stored rows only. The chain measure feeds day grades and the Portfolio, so it is not changed (10b ruled out chain-measure changes).
+  - Range page wording, per day and in the totals: **"Headroom available in every eligible hour: low–high kW"**. The totals read "average headroom available in every eligible hour".
+  - **The one-day page adds the same figure, so the drill-in matches.** The backend depth envelope gains `all_hours_headroom_kw: {low, high}`: min low and min high over the same ELIGIBLE hours. It is null when the card is null.
+  - The page shows one line under the existing card, with the same wording as the range row.
+  - The existing card keeps its envelope, renamed in words only to "Range across eligible hours". The card is not trimmed. This is an addition inside the v69 `renewable` card, recorded under MOCK DEVIATION R726: the mock element is kept, and a second figure is needed so that the range and the day agree.
+- **Tests and parity.**
+  - Postgres: for each sampled day, stored low = `all_hours_headroom_kw.low` = card low; stored high = `all_hours_headroom_kw.high` (exact equality); card high ≥ stored high.
+  - The parity JSON compares the stored day value to `all_hours_headroom_kw`, and the gate is 0 mismatches.
+  - Vitest pins the one-day line and the range wording.
+- **Size:** about 0.1 (backend field 0.04, page line 0.03, tests 0.03). SR-8 goes to about 0.6, and the package to about 18.3.
+
+### 10d.9 SR-6a builder questions (D-SR.49)
+
+SR-6 server: `task/SR-6-health-range` 4f450d065.
+
+| Q | Ruling |
+|---|---|
+| Q1 `days_without_readings` | **Corrected.** Health reports whether readings arrived, so its summary counts readings, not analysis states. `days_with_readings` = days with at least one accepted reading from any source (step 3), as built. **`days_without_readings` = the expected days with zero accepted readings**: days not NOT_EXPECTED and not AFTER_CUTOFF (Q4), whatever their SR-5a state. Add `days_not_expected` and `days_after_cutoff`, so with + without + not expected + after cutoff = requested. Status-line wording: "Readings on 1 of 4 days · 3 days with no readings" (the not-expected and after-cutoff days are named separately when non-zero). `days[].state` keeps the SR-5a state, so a day can read "no readings" in the summary and "Not analysed" in its state cell. Both are true, and the page shows both. Test: on the 4-day Postgres world, with = 1 and without = 3. |
+| Q2 `gateways_in_contact_all_days` | **Confirmed with one refinement.** Every **expected** day must be IN_CONTACT. NOT_EXPECTED (before registration) and AFTER_CUTOFF days are skipped, and they do not break the count. NO_CONTACT, PARTIAL_CONTACT and READINGS_ONLY break it. A gateway with no expected day is not counted. Wording: "Gateways in contact on every expected day: n of m". |
+| Q3 `days[].accepted_readings` | **Confirmed:** the SR-5a dispatch row's `accepted_reading_count` (null on gap states), so Health and the range Overview agree day by day (the spec's pin). **Yes, it can differ** from the per-source sum: non-dispatch-role sources and source-time vs dispatch-day framing. So the page never shows the two under one name. The day row reads "Readings used for analysis", and the source cells read "Readings received". Parity reports the difference per day, explained by role (not gated, as 10.2). |
+| Q4 Days wholly after the cutoff | **Its own state.** A day whose start is at or after `min(to, known_at or now)` reads **AFTER_CUTOFF** in gateway `contact` and source `state`, worded "Not reached yet". It is never NO_CONTACT or NO_READINGS. `days[].state` keeps the SR-5a value, so Overview parity holds. A day partly after the cutoff already uses the seconds inside `[from, min(to, k))` for contact (10.2 rule). Test: a window ending after k has AFTER_CUTOFF days, and the summary excludes them. |
+| Q5 Battery block | **Drop `battery` from the body.** The SR-6b page renders "Battery (current settings)" from the existing `/battery` read, which it already makes today. The block is configuration, not ranged (D-SR.39/43). This removes the stale-under-watermark risk and the whole-route 409: the route no longer reads Foundation for battery, and it has no `FOUNDATION_BASIS_UNAVAILABLE`. Registration refusals keep their existing codes. Size −0.02. |
+| Guard policy | **Confirmed, as the sanctioned pattern** (W3-01/W4-01 precedent). The single read-only adapter file is named in `$pgReaders`; the SQL-write refusal still applies to it; and reads reach the module through `evidence/composition.py` / `sites/composition.py`, not by direct import. Reviewer checks: the `$pgReaders` entry is that one file path (no glob or directory), the guard self-test still fails a write in a listed reader, and no other guard line changed. |
+
+- SR-6 size is unchanged at about 1.1.
+
+### 10d.10 SR-5 rulings: the 10-21 drill-in conflict and unreachable Postgres cases (D-SR.50)
+
+SR-5: `task/SR-5-range-board` 3178766d6.
+
+**1. Range CLEAR vs the drill-in Finding on 10-21 (F05, NO_LONGER_SUPPORTED).**
+- **Both are kept, and the range day is made to say what the drill-in shows.**
+  - The member count is right. It is the Portfolio's selector (§9.4), so it must stay equal to the Portfolio, and a no-longer-supported Finding is not a current finding.
+  - The S5-01 board is also right to show the Finding with its lifecycle, since it is the record of that day. It is not changed.
+  - What is wrong is that the range says "nothing to report" with no trace of a Finding the user will meet one click later.
+- **Change (SR-5 server and page).**
+  - Each day gains `retired_finding_count`: Findings whose latest revision at the cutoff is not a member (NO_LONGER_SUPPORTED, or any other non-member lifecycle) and whose episode intersects the day. It uses the same Finding read and the same `intersects` rule as `finding_count`. If that read does not expose non-member lifecycles, stop and ask; do not add a second Finding query.
+  - The state stays CLEAR, so the coverage, totals and Portfolio parity are unchanged.
+  - Page wording when `retired_finding_count > 0`: "Checked: no current findings · 1 finding no longer supported" (plural as needed). A FINDINGS day appends the same suffix.
+  - Totals gain `days_with_retired_findings` (shown only when > 0).
+- **Test.** Replace the "disagreement set == {10-21}" pin with an agreement pin. For every day, the board's selected Findings = members (`finding_count`) + non-members (`retired_finding_count`), and on 10-21 the board shows F05's Finding labelled no longer supported.
+- Size about 0.1. No MOCK DEVIATION beyond SR-5's existing range-table row.
+
+**2. Postgres cases with no existing world.** No new fixture is designed now (freeze, demo-critical scope).
+
+| Case | Ruling |
+|---|---|
+| (a) NOT_EXPECTED | **No-DB coverage is enough**, plus the demo parity report. It is a chain-grade pass-through (`readings_began`), and the precedence is a pure function: the no-DB file pins NOT_EXPECTED first in the precedence. The demo parity JSON lists any NOT_EXPECTED days it meets per Site and window. None is acceptable, and none is reported as "not exercised on real data". |
+| (b) READINGS_CONFLICT with day grades on | **The MD-0 `--variant states` template is not built for this.** Coverage: the existing Postgres coverage-wins pin (F08 10-19 READINGS_CONFLICT), the no-DB precedence tests, and the demo parity gate (gap set == `coverage.days.gaps` on real data, with the mismatch log count, gate 0). The template run is allowed later only as backlog (it is `*_test` named, so it is authorised), and only when the coordinator has an idle machine slot after the freeze. |
+| (c) SUMMED / OVERLAPPING day money | **No-DB stubs are required, and the demo parity covers real data.** The no-DB file pins the SUMMED and OVERLAPPING day compositions, including the D-ANY.10 absent-run compose, with stub rows. The demo parity checks range money totals == Portfolio money for KOBO-001/KISIWA-001 (priced after SR-5d) and reports the count of OVERLAPPING days. If the count is 0, the overlap path is recorded as stub-only in the parity JSON, as a named test limit, not a gate failure. |
+
 ### 10d.6 Sizes and order
 
 - SR-4 grows by about 0.12 (10d.1 +0.1, asset tags +0.02). WARM-1 grows by about 0.02. The package stays at **about 18.2 units**.

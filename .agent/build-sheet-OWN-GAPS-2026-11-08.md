@@ -4997,3 +4997,44 @@ Decisions logged for owner review: **D-SR.31-38**.
 - `scope-ids` with `lens=cost|risks|opportunities` is added for every warmed range, using the client's exact query. It is covered by the URL-equality test and `--verify`. Page 2 and later, and lens × state, stay outside the claim. About 0.02 units.
 
 Decisions logged for owner review: **D-SR.40-46, D-WARM.8**.
+
+## D-SR.47 SR-8 Q2-Q5 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.7.
+- Q2: NO_VALUE is confirmed ("No headroom figure for this day"; never counted).
+- Q3: rounding to 0.01 kW, half-up, applies to the two averages only; daily values are stored, unrounded.
+- Q4 is corrected: LOW → NOT_ENOUGH_READINGS, never counted (as D-SR.45). PENDING, NO_DATA and NOT_EXPECTED win. A PARTIAL ELIGIBLE day is counted, with `partial: true`.
+- Q5: the codes and the optional `known_at` (in the stored key) are confirmed.
+
+Decisions logged for owner review: **D-SR.47**.
+
+## D-SR.48 SR-8 Q6: the range shows the stored "every eligible hour" headroom; the day page adds the same figure (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.8.
+- Range page: the stored `daylight_headroom_kw` (min low, min high), worded "Headroom available in every eligible hour". The chain measure is unchanged.
+- One-day page: the envelope adds `all_hours_headroom_kw` (min low, min high over ELIGIBLE hours), shown as one line with the same words. The existing card keeps its envelope, worded "Range across eligible hours" (inside R726).
+- Parity: the stored day value equals `all_hours_headroom_kw` exactly, and the card high is at least the stored high. About +0.1 units.
+
+Decisions logged for owner review: **D-SR.48**.
+
+## D-SR.49 SR-6a Q1-Q5 and guard policy (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.9.
+- Q1: corrected. `days_without_readings` = expected days with zero accepted readings, whatever the SR-5a state. `days_not_expected` and `days_after_cutoff` are added, and the four sum to `days_requested`. The status line counts readings.
+- Q2: confirmed, over expected days only (NOT_EXPECTED and AFTER_CUTOFF are skipped).
+- Q3: confirmed: the dispatch-row count. It can differ from the per-source sum, so the labels are "Readings used for analysis" and "Readings received".
+- Q4: new state AFTER_CUTOFF ("Not reached yet") for gateway and source days wholly after `min(to, k)`. `days[].state` is unchanged.
+- Q5: `battery` is dropped from the body. The page uses the existing `/battery` read. There is no Foundation 409 on the route.
+- Guard: the one read-only adapter in `$pgReaders`, with the write refusal kept and reads through the compositions, is the sanctioned pattern.
+
+Decisions logged for owner review: **D-SR.49**.
+
+## D-SR.50 SR-5: the range names retired Findings; Postgres cases without a world (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.10.
+- 1: the member count (Portfolio parity) and the S5-01 drill-in are both kept. Each day adds `retired_finding_count` (non-member latest revisions intersecting the day, from the same Finding read; stop and ask if that read lacks lifecycles). The wording is "Checked: no current findings · 1 finding no longer supported". The state stays CLEAR. The test pins agreement: board = members + retired. About 0.1 units.
+- 2a NOT_EXPECTED: covered by the no-DB precedence pin and the parity report.
+- 2b: the MD-0 states template is not built now. It is covered by the F08 coverage-wins pin, no-DB tests and the parity gaps == coverage gate; the template is backlog after the freeze.
+- 2c: no-DB stubs for SUMMED/OVERLAPPING are required. Parity checks money == Portfolio and reports the OVERLAPPING count; 0 is recorded as stub-only.
+
+Decisions logged for owner review: **D-SR.50**.
