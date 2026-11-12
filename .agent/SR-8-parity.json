@@ -1,0 +1,200 @@
+{
+ "branch": "task/SR-8-renewable-range",
+ "db": "assetops_polish_vps1_test",
+ "window_end_day": "2026-11-10",
+ "results": [
+  {
+   "case": "KOBO-001/7",
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "cold_compose_seconds_store_off_rows_on": 0.3,
+   "cold_compose_seconds_rows_off": 0.3,
+   "stored": {
+    "s": 200,
+    "first": 0.55,
+    "hits": [
+     0.09,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "case": "KISIWA-001/7",
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "cold_compose_seconds_store_off_rows_on": 0.0,
+   "cold_compose_seconds_rows_off": 0.0,
+   "stored": {
+    "s": 200,
+    "first": 0.19,
+    "hits": [
+     0.08,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "case": "KOBO-001/14",
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "cold_compose_seconds_store_off_rows_on": 0.0,
+   "cold_compose_seconds_rows_off": 0.0,
+   "stored": {
+    "s": 200,
+    "first": 0.19,
+    "hits": [
+     0.09,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "case": "KISIWA-001/14",
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "cold_compose_seconds_store_off_rows_on": 0.0,
+   "cold_compose_seconds_rows_off": 0.0,
+   "stored": {
+    "s": 200,
+    "first": 0.15,
+    "hits": [
+     0.07,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "case": "KOBO-001/31",
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "cold_compose_seconds_store_off_rows_on": 0.0,
+   "cold_compose_seconds_rows_off": 0.0,
+   "stored": {
+    "s": 200,
+    "first": 0.17,
+    "hits": [
+     0.08,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "case": "KISIWA-001/31",
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "cold_compose_seconds_store_off_rows_on": 0.0,
+   "cold_compose_seconds_rows_off": 0.0,
+   "stored": {
+    "s": 200,
+    "first": 0.18,
+    "hits": [
+     0.07,
+     0.1
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  }
+ ],
+ "stored_day_vs_all_hours_headroom_kw": {
+  "KOBO-001": {
+   "counted_days_compared": 25,
+   "mismatches": [
+    {
+     "day": "2026-10-27",
+     "stored": [
+      "25",
+      "31"
+     ],
+     "all_hours_headroom_kw": null
+    },
+    {
+     "day": "2026-11-03",
+     "stored": [
+      "25",
+      "31"
+     ],
+     "all_hours_headroom_kw": null
+    },
+    {
+     "day": "2026-11-10",
+     "stored": [
+      "25",
+      "31"
+     ],
+     "all_hours_headroom_kw": null
+    }
+   ],
+   "excluded_days": [
+    {
+     "day": "2026-10-13",
+     "stored": [
+      "0",
+      "0"
+     ],
+     "all_hours": null
+    },
+    {
+     "day": "2026-10-20",
+     "stored": [
+      "0",
+      "0"
+     ],
+     "all_hours": null
+    }
+   ],
+   "headroom_high_ge_all_hours_high_days": 22,
+   "headroom_low_equals_all_hours_low_days": 22,
+   "state_counts": {
+    "COUNTED": 25,
+    "EXCLUDED": 2,
+    "NO_DATA": 4
+   },
+   "totals": {
+    "days_requested": 31,
+    "days_counted": 25,
+    "average_low_kw": "3.56",
+    "average_high_kw": "7.16",
+    "average_label": "average daylight headroom",
+    "partial": true
+   }
+  },
+  "KISIWA-001": {
+   "counted_days_compared": 0,
+   "mismatches": [],
+   "excluded_days": [],
+   "headroom_high_ge_all_hours_high_days": 0,
+   "headroom_low_equals_all_hours_low_days": 0,
+   "state_counts": {
+    "LIMITED": 10,
+    "NO_DATA": 21
+   },
+   "totals": {
+    "days_requested": 31,
+    "days_counted": 0,
+    "average_low_kw": null,
+    "average_high_kw": null,
+    "average_label": "average daylight headroom",
+    "partial": true
+   }
+  }
+ },
+ "gates": {
+  "rows_on_equals_rows_off": true,
+  "stored_hit_max_seconds": 0.1,
+  "stored_day_equals_all_hours_headroom_kw_mismatches": 3,
+  "gate_stored_day_equals_card": "FAIL"
+ },
+ "failure_evidence": "KOBO-001 days 2026-10-27, 2026-11-03, 2026-11-10 (the Finding days): the range row is COUNTED, decision ELIGIBLE, grade PARTIAL, low_kw 25 / high_kw 31, covered 8 h of 24; the one-day depth read for the same Site-local day (from=previous-day 21:00Z, to=+24 h, link window) returns status UNKNOWN, cards.all_hours_headroom_kw null (headroom_kw null), 7 hourly rows all EXCLUDED with constraint CHARGE_OBLIGATION_ACTIVE, coverage observed 25200 s of 82800 s required. 22 other counted Kobo days equal exactly. Kisiwa has 0 counted days (10 LIMITED, 21 NO_DATA), so nothing compared there.",
+ "note": "Cold = store-off compose; stored first serve is a hit (store warm). Compared days = COUNTED rows; EXCLUDED rows (Kobo 10-13, 10-20: 0/0) have card null."
+}
