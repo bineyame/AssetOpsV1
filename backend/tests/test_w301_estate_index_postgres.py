@@ -423,6 +423,15 @@ def pin_read_at(monkeypatch, present) -> None:
             super().__init__(owner, c, present())
 
     monkeypatch.setattr(postgres_estate_read, "EstateSnapshot", Pinned)
+    # FR-B: `EvidenceMoneySnapshot(EstateSnapshot)` binds its base when its module is first imported, so patching the
+    # module attribute above reaches the Portfolio only when that import came after the patch. Pin it explicitly too.
+    from assetops_backend.estate.adapters import postgres_evidence_money_read as money_read
+
+    class PinnedMoney(money_read.EvidenceMoneySnapshot):
+        def __init__(self, owner, c, read_at) -> None:
+            super().__init__(owner, c, present())
+
+    monkeypatch.setattr(money_read, "EvidenceMoneySnapshot", PinnedMoney)
     monkeypatch.setattr(PostgresAssessmentStore, "_transaction_time", staticmethod(lambda c: present()))
 
 

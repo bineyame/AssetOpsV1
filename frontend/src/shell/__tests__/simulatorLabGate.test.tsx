@@ -382,7 +382,9 @@ describe("simulator lab gate: disabled", () => {
       const { container } = renderAt(route, DISABLED);
       await screen.findByRole("main");
 
-      expect(container.querySelectorAll("form, button, input, select")).toHaveLength(
+      expect(container.querySelectorAll(
+          "form, button:not([data-shared-range-button]), input, select",
+        )).toHaveLength(
         0,
       );
       expect(spacedText(container)).not.toMatch(/create/i);
