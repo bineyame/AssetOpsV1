@@ -87,3 +87,13 @@ acceptable, but it is worth a no-DB case when M1's test is added.
   counts, and stored <= 2.0 s are later gates (packet resume step 7).
 - The WARM-1 `range-overview` entry is pending: `tools/warm_ranges.py` is not on main.
 - Kisiwa has no dedicated test. Its path is identical by construction, and the parity run will exercise it.
+
+## Re-review (fix round 95f5f0f52..083e4db26, fresh Claude reviewer, 2026-11-12)
+
+**Verdict: ACCEPT.** No findings.
+
+- M1 closed: `test_day_money_composes_per_day_through_the_body` feeds priced lines through `site_range_body`. In a scratch copy (git archive, not the worktree) with `day_lines = []` at site_range.py:138 it fails; on the branch it passes.
+- M2 closed: `findings.confirmed` / `not_confirmed` are null when `count` is null; the test pins it.
+- L1 closed (malformed `known_at` -> 422 `INVALID_KNOWN_AT`, tested). L2 closed (retired-day test now non-zero, guard removed). L3 closed (no-gap -> ANALYSED, logged, pinned).
+- D-SR.56: state stays NOT_EXPECTED (Portfolio parity); `note` key only when readings > 0, carried server-side. Acceptable: the page is not built and the key is absent otherwise, so the golden is unchanged; SR-5b/d must render `note` in place of "Before readings began". Packet parity spec (`not_expected_with_readings` fields, one day per Site, last-local-day rule, 12 x offset readings cap) matches D-SR.56. The test checks note presence/absence only; the parity gate itself is a later real-data run.
+- Regressions: none seen. No-DB run of test_sr5_range_overview, test_cov_partial_portfolio and the non-Postgres test_ch5a1_* files (incl. board_contract): 100 passed. test_ch5a1_reader_postgres.py fails collection (NameError `measures_for`), but it is a Postgres file and was not run; not in the diff. Not run: check-all, Postgres, frontend.
