@@ -102,3 +102,72 @@ No High or Medium findings. Three Low notes, none blocking.
   `__all__` and router inclusion. The second merger resolves this, as the packet says.
 - A whole-day backfill without `--from/--to` builds up to today. Today's row is partial, and it is refreshed only
   by dirtying events or job completions. That is harmless for the historical demo windows (D-SR.29).
+
+## D-SR.70-72 review (fresh Claude reviewer, 2026-11-12)
+
+Scope: SR-10 fix commit 347d9765a (round `2dac39de2..347d9765a`; the other commits in that range are main's
+architect/frontend commits brought in by merge 90f140ee8, not this round) and SR-11 d99445bfa (merge 6532eba6d plus
+the backup NO_DATA route test). Judged against D-SR.70-72 (build sheet) and sequence doc 10e.4-10e.5.
+
+**Verdict: ACCEPT WITH FINDINGS FIXED ON BRANCH** (M-1 before merge; Lows at the Implementer's discretion).
+
+### Findings
+
+- **M-1 (Medium, ruling gap) `backend/assetops_backend/mini_depth/day_summary.py:177-179`.** `pending` is computed
+  only when a row is stored (`if read is not None`). D-SR.70 step 2 makes "pending at k (`read.pending` or
+  `result.is_pending`)" win over NO_DATA, because "a day being reprocessed may just have received readings", and
+  `PeriodReadResult.pending` is documented to hold pending days *with or without* a stored row. So a no-row day with an
+  unconsumed reading event (a pre-data day or gateway-offline day whose first readings just arrived; the chain
+  snapshot not yet regraded) now reads "No readings this day" instead of "Still being prepared". Before this round the
+  absent-row branch caught it, so this is a regression introduced by the reorder. Fix: start with
+  `pending = result.is_pending(site_id, d, kind)` and OR `read.pending` when `read` exists; add a pure/stub pin
+  (absent row + `is_pending` + `no_readings` -> STILL_PROCESSING). The parity harness passes `pending=False` and is
+  unaffected on the static demo DB.
+- **L-1 (Low, test gap) `backend/tests/test_sr10_day_summary.py:221-235`.** The ruling asks that `none_declared` and
+  NOT_EXPECTED measures be shown left out. No fixture has a NOT_EXPECTED measure on a NO_DATA candidate day, so
+  deleting `and g != NOT_EXPECTED` keeps every test green. The `none_declared` lines are vacuous: `days_of` only drops
+  `productive_kwh` with no row (`applicable_measures`), so `(keys[1],)` and `tuple(keys)` drop nothing, and line 235
+  is empty because of the PARTIAL measure, not because "none is left" as the comment says. Fix: pin a day with one
+  measure NOT_EXPECTED and the rest NO_DATA/missing (-> in the set); correct the comment.
+- **L-2 (Low, test) `AssetOpsV1-sr11 backend/tests/test_sr11_backup_range_route.py:148`.** The last assertion is a
+  tautology over a literal tuple and tests nothing; the docstring says "uncounted" but `totals` is never asserted.
+  Fix: assert `body["totals"]["days_counted"]` and `partial is True`, and that the backup totals exclude D3/D5.
+- **L-3 (Low, harness) `.agent/SR-10-parity-script.py:135`.** The D-SR.71 cross-check is "no NO_DATA day has an hour
+  matching the precise predicate" (role + overlap). The script also requires `eligible`, so a NO_DATA day holding
+  domain evidence under a missing/partial binding passes silently. Fix: gate `cross` on `match` alone (or list
+  ineligible matches separately). Nit, same query (lines 88-90): no `tenant_id` filter, unlike the trigger; harmless
+  with one tenant.
+
+### Checked and found correct
+
+- `no_reading_days`: same `days_of` entry as `day_grades`; `measures` minus `none_declared` and NOT_EXPECTED, at least
+  one left, all NO_DATA; a missing snapshot is NO_DATA via `read.day_grade` (Q9); a PENDING measure disqualifies.
+- `day_state` order NOT_EXPECTED -> pending -> NO_DATA -> absent -> rest, as ruled (apart from M-1's input).
+- NO_DATA entry = `absent_day` + real `stored`, nulls, `partial` false, `hour_link` kept; not in `COUNTED_STATES`,
+  so `totals.partial` turns true, which D-SR.70 states explicitly.
+- Route: one `chain.request(...).day(...)` read feeds both grades and `no_readings`; no extra query per day; the same
+  `known` snapshot for periods and chain.
+- D-SR.72 cases have faithful equivalents: stored 24-head fuel row graded NO_DATA (11-06 fuel ASSESSED) -> NO_DATA in
+  pure `day_state` and `compose`; stored no-assessment row (10-31 NO_ASSESSMENT) and stored backup row without a
+  sequence (11-06 NO_SEQUENCE) -> NO_DATA in the fuel and backup route stubs; the Postgres test pins a real pre-data
+  day with no row through the real chain reader.
+- Parity D-SR.71 SQL against the migrations: `accepted_evidence.role`, `interval_start`, `interval_end`,
+  `source_time` (0005, no later rename) and `signal_binding_set_revision.role_set`, `valid_from`, `valid_to`,
+  `superseded_at`, `site_id` (0002) all exist. The binding query is the same as `mini_enqueue_hour`'s gate (count = 1
+  and `bool_and` covers). Half-open overlap with `+ interval '1 microsecond'` equals the trigger's hour loop (it starts
+  at the hour that holds `lo`, so `hour_end > lo` always holds). `DOMAIN_ROLES` is loaded from 0029 (verified:
+  `mini_fuel` = `generator_power, fuel_level`); 0048/0049 do not change the fuel/backup pairs. String hour bounds bind
+  as they already did in `evid()`. The `AssetOpsV1-build/var/polish_vps1/parity/sr10_sr11_parity.py` working copy is
+  byte-identical to the committed copy. The SQL has not been run (the base `assetops_sr10_test` has no schema), so
+  not verified against a live schema.
+- No regression in existing states: the original 7-day stub sequence and every earlier test still pass. No stray
+  files: 347d9765a touches 7 files, d99445bfa 2, all in scope. The build sheet diff is additions only.
+
+### Checks run
+
+- SR-10 at 347d9765a, worktree PYTHONPATH: `pytest test_sr10_day_summary.py test_sr10_fuel_range_route.py` -> 33
+  passed.
+- SR-11 at d99445bfa: `pytest test_sr11_backup_range_route.py test_sr10_day_summary.py` -> 35 passed.
+- `pytest test_sr10_day_kinds_postgres.py`, base `assetops_sr10_test` (harness run DBs) -> 5 passed, 140.8 s.
+- Not run: check-all (coordinator), the parity rerun (coordinator; D-SR.71 gates and the named NO_DATA day list are
+  still unproven), frontend (no page in this round).
