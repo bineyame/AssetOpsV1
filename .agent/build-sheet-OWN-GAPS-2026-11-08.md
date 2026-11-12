@@ -4874,3 +4874,44 @@ Decisions logged for owner review: **D-SR.9-12**.
 - Lanes I (SR-6), J (SR-7), K (SR-8; VPS if no fourth laptop lane). Protected: SR-4 to SR-8. Drop order: DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1. Package about 15.65 units.
 
 Decisions logged for owner review: **D-SR.13-18**.
+
+## D-SR.19-30 SR-5 and SR-6/7/8 pre-flight rulings (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Detail and evidence: sequence doc **Revision 10a**. Inputs: `.agent/SR-678-preflight.md` (4db92b874), `.agent/SR-5-packet.md` (7ae69039b).
+
+### D-SR.19 SR-6 reading cutoff is the disposition time.
+- Accepted readings join `ingestion_disposition` (ACCEPTED, `accepted_evidence_id = e.id`, `decided_at <= k`) with `tenant_id`, bucketed on `COALESCE(interval_start, source_time)`, as the dispatch read does. Diagnostics stay on `received_at <= k`.
+
+### D-SR.20 READINGS_ONLY contact state; no demo diagnostics work.
+- A gateway with no diagnostics on a day but readings through it reads "Readings received; no status reports". NOT_EXPECTED applies only when nothing arrived. Parity reports diagnostic counts per Site.
+
+### D-SR.21 Dead SR-6 branches dropped.
+- No file-import text, no null-cadence rule (gateway ids and cadence are NOT NULL).
+
+### D-SR.22 One day-state rule in `estate/range_days.py`.
+- Lane H extracts `range_day_states` (SR-5a precedence + coverage-wins, step 6 = ANALYSED). SR-5a maps ANALYSED to FINDINGS/CLEAR; SR-6 shows ANALYSED and calls `select_finding_scope` only for coverage. If SR-5 core is held, the module merges with SR-6.
+
+### D-SR.23 SR-6 read shape and late router wiring.
+- One `read_snapshot`; `_health_registration(snap._c, ...)` called; new adapter for the two grouped queries; source NOT_EXPECTED from the day state. New range routers are new builder functions included after `responses` and `estate_portfolio` in `main.py`.
+
+### D-SR.24 SR-7b reuses the evidence-money claim-day pattern; no `claim_days`.
+
+### D-SR.25 SR-7b day row is `reduce_day`; link `/sites/{code}/evidence?day=&revision=`.
+- No invented day ceiling; null revision → NO_SELECTION. The table lives in Site Evidence's claim-limit section.
+
+### D-SR.26 SR-7a hours from row seconds; NO_CRITICAL_LOAD dropped; NO_VALUE state.
+
+### D-SR.27 SR-8 shows the low–high band.
+- States COUNTED/EXCLUDED/CONFLICT/LIMITED/MISSING_HOUR; averages of low and high separately over ELIGIBLE days; hours over operating hours.
+
+### D-SR.28 SR-5 safe readings.
+- Confirmed: evidence scope in the snapshot, `actions.open` (import `CLOSED_LABELS`), local→UTC day mapping, unmatched = STILL_PROCESSING, coverage-wins → FINDINGS/CLEAR (logged, counted in parity), route tests in one file. Corrected: `findings.count` follows the Portfolio's `finding_known` null rule.
+
+### D-SR.29 Demo Sites and parity windows.
+- KOBO-001, KISIWA-001; windows end at the last complete UTC day with accepted readings after the VPS prepare; 7/14/31 days; recorded in each parity JSON.
+
+### D-SR.30 Route classes.
+- N: opportunity, action, verification, fuel-verification, fuel-finding, foundation change and maintenance-request detail pages. Work subtabs covered by the Work row (matrix test proves; else SR-9). Cold/EV performance subtabs R. Mini-grid Fuel and Backup subtabs D with honest tag; range form is an owner item (Fuel ~0.5 via `avoidable_gen_min`; Backup needs chain work). Cold/EV asset pages pending the SR-4 route list.
+- Sizes: SR-5 2.1, SR-6 1.1, SR-7 0.75, SR-8 0.5; package about 15.8.
+
+Decisions logged for owner review: **D-SR.19-30**.
