@@ -177,7 +177,27 @@ saved."; network loss on save "We could not confirm the save. Saving again is sa
   (b) Architecture seams, SR-2 `page-range-forms.ps1`: "SitePriceEntry.tsx renders its own date range form (1 date
   inputs)". The one date is rev 5 §5.3's "Applies from" value recorded on the price, not a page range; added a
   **narrow, commented exemption for that one file** (Q3). `check-architecture.ps1` then passes (needs
-  `ASSETOPS_GUARD_PYTHON`). The other 17 guards were not rerun (no file they read changed). → 19/19 after the fixes.
+  `ASSETOPS_GUARD_PYTHON`). The other 17 guards were not rerun (no file they read changed). Stated exactly (review L4):
+  17 pass on `bb61216fb` + 2 rerun pass on `528b7c8f6`; a full 19 run is recorded in the form fix round below.
+
+### Form fix round (review `.agent/PR-3-form-review.md`; D-PRICE.4), 2026-11-12, commit `aeee70160`
+
+- **M1** `priceEntryClient.ts`: on save only 503 / `ASSUMPTION_STORE_UNAVAILABLE` is `unavailable` ("Nothing was
+  saved."); any other 5xx and network loss is `lost` ("Saving again is safe."). Dry run keeps 5xx = unavailable.
+  vitest: 502 on save.
+- **M2** `SitePriceEntry.tsx`: focus Amount on open and after Change; the confirm summary (Reason when required) on
+  confirm; the success note after save (`tabIndex=-1`); the first `aria-invalid` field on a refusal. vitest asserts
+  `document.activeElement` in each case.
+- **L1** "Change" starts a new idempotency key (the dry run for the edit and its save share it). 409
+  `IDEMPOTENCY_KEY_REUSED` shows "An earlier save from this form may already have been recorded. Reload the page and
+  check History before saving again." (no store text, no "Nothing was saved."). Fixture uses the store's real shape.
+- **L3** `SitePricesFrame.tsx`: a failed re-read after a save keeps the loaded body, so the note and Back link stay.
+- **D-PRICE.4**: exemption comment in `page-range-forms.ps1` cites D-PRICE.4. Q3 is answered.
+- **L2 not done (known limit):** `price_entry.py:_series_revisions` still finds a retry by scanning the series page
+  (1000 revisions). A direct key lookup needs a new store method on the protocol, Postgres adapter and fake; beyond
+  1000 revisions a retry can be wrongly refused 409 (never a duplicate write). Unreachable for a demo series.
+- Checks: vitest sitePriceEntry + sitePrices 37 pass (23 + 14); tsc clean; no-DB pr3 files (entry, page_entry,
+  pr2a) 107 pass; Postgres `test_pr3_price_entry_postgres.py` via run-host-tests 4 pass; check-all result below.
 
 ### Questions for the Architect (form half)
 
