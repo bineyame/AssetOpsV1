@@ -68,3 +68,11 @@ Branch `task/SR-6-health-range`. Spec: rev 10 §10.2, rev 10a §10a.1, D-SR.19-2
 - Q4: `AFTER_CUTOFF` for gateway `contact` and source `state` on days wholly at or after `min(to, k)`; `days[].state` unchanged.
 - Q5: `battery` and the route's Foundation 409 removed (`source_health_api.py`); the page uses `/battery`.
 - Tests: route (no-DB) 31 passed incl. new AFTER_CUTOFF/no-battery tests; `test_sr6_health_range_postgres.py` 5 passed on assetops_sr6_test. check-all: All 19 guards passed.
+
+## Server review fix round (2026-11-12)
+- M1: `gateways_in_contact_all_days` now uses each gateway's own non-NOT_EXPECTED/AFTER_CUTOFF days (intersected with Site expected days); test `test_gateway_registered_mid_window_counts_when_in_contact_after` (edge-2 registered day 2, in contact after, counts 1).
+- M2: accepted readings > 0 win in `source_state` and the summary class (D-SR.56); route test rewritten, probe case (288 readings on a NOT_EXPECTED day, with=3) and a `source_state` param added. `range_days.py` untouched.
+- L2: `test_health_range_reader_write_rejected` in `tools/checks/test_estate_guard.py`.
+- L1 named limit (D-SR.56): `gateway_diagnostic`, `gateway`, `source` are not watermark inputs, so a stored live body's contact state or `disabled` flag may lag until local midnight or a readings arrival. Comment in `site_health_range.py`.
+- L3: unchanged (merge SR-5 first). Main merged (D-SR.56).
+- Checks: no-DB SR-6/SR-5/S7 files 70 passed; `test_sr6_health_range_postgres.py` + route on assetops_sr6_test 38 passed, 0 skipped; test_estate_guard.py: see report. check-all: for coordinator.
