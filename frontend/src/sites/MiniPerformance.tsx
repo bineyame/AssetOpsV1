@@ -55,6 +55,7 @@ import "../ui/mock-deviation.css";
 import "./w4-mini-performance.css";
 import { formatDayTime, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
+import { rangeWindow, useSharedRange } from "../ui/sharedRange";
 
 /* ---------- sibling tabs ---------- */
 
@@ -1594,7 +1595,8 @@ export function MiniFuel({
 }): ReactNode {
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
-  const nights = useFuelNights(fuelBalance, siteCode);
+  const shared = useSharedRange();
+  const nights = useFuelNights(fuelBalance, siteCode, shared.status === "set" ? rangeWindow(shared) : null);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<FuelRead>(
     () => (window === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getFuel(siteCode, window)),

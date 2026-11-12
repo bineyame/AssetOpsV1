@@ -276,21 +276,32 @@ export function FuelNightView({ night }: { night: FuelNightBody }) {
  * page shows its loading line, not hour mode); null for `NONE`, for a failed read and with no client, so the hour mode
  * renders exactly as before in each of those cases.
  */
-export function useFuelNights(client: FuelBalanceClient | undefined, siteCode: string): FuelNightSummary[] | "loading" | null {
-  const [state, setState] = useState<{ code: string; nights: FuelNightSummary[] | null } | null>(null);
+export function useFuelNights(
+  client: FuelBalanceClient | undefined,
+  siteCode: string,
+  range: { from: string; to: string } | null = null,
+): FuelNightSummary[] | "loading" | null {
+  // SR-10k: the list is the date range's nights; the read is keyed by the Site and the range.
+  const key = `${siteCode}|${range?.from ?? ""}|${range?.to ?? ""}`;
+  const [state, setState] = useState<{ key: string; nights: FuelNightSummary[] | null } | null>(null);
+  const from = range?.from ?? null;
+  const to = range?.to ?? null;
   useEffect(() => {
     if (client === undefined) return undefined;
     let active = true;
-    void client.getNights(siteCode).then((read) => {
-      if (active) setState({ code: siteCode, nights: read.status === "loaded" && read.value.mode === "NIGHTS" ? read.value.nights : null });
+    void client.getNights(siteCode, from !== null && to !== null ? { from, to } : null).then((read) => {
+      if (active) setState({ key: `${siteCode}|${from ?? ""}|${to ?? ""}`, nights: read.status === "loaded" && read.value.mode === "NIGHTS" ? read.value.nights : null });
     });
     return () => {
       active = false;
     };
-  }, [client, siteCode]);
+  }, [client, siteCode, from, to]);
   if (client === undefined) return null;
-  return state !== null && state.code === siteCode ? state.nights : "loading";
+  return state !== null && state.key === key ? state.nights : "loading";
 }
+
+/** SR-10k: the empty state of the nights list when the date range holds no fuel check. */
+export const FUEL_NIGHTS_EMPTY = "No fuel checks in this date range";
 
 export function MiniFuelNightsPage({
   client,
@@ -315,6 +326,7 @@ export function MiniFuelNightsPage({
     copy.set("night", next);
     setParams(copy);
   };
+  if (nights.length === 0) return <p data-fuel-nights-empty>{FUEL_NIGHTS_EMPTY}</p>;
   return (
     <>
       {current === null ? null : <NightSelector nights={nights} current={current} onPick={pick} />}

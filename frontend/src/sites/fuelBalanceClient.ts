@@ -127,7 +127,8 @@ export interface FuelFindingBody {
 }
 
 export interface FuelBalanceClient {
-  getNights(siteCode: string): Promise<MiniRead<FuelNightsBody>>;
+  /** SR-10k: with `range` (the date range's UTC instants, `to` excluded) the list holds that range's nights only. */
+  getNights(siteCode: string, range?: { from: string; to: string } | null): Promise<MiniRead<FuelNightsBody>>;
   getNight(siteCode: string, nightDate: string): Promise<MiniRead<FuelNightBody>>;
   getFuelFindings(siteCode: string, window: { from: string; to: string }): Promise<MiniRead<FuelFindingsBody>>;
   getFuelFinding(siteCode: string, findingId: string, revisionId?: string | null): Promise<MiniRead<FuelFindingBody>>;
@@ -163,7 +164,8 @@ async function read<T>(url: string, shape: (value: Record<string, unknown>) => b
 export function createFuelBalanceClient(basePath: string = SITES_API_PATH): FuelBalanceClient {
   const site = (code: string) => `${basePath}/${encodeURIComponent(code)}`;
   return {
-    getNights: (code) => read(`${site(code)}/fuel-balance/nights`, (b) => (b.mode === "NIGHTS" || b.mode === "NONE") && Array.isArray(b.nights)),
+    getNights: (code, range) =>
+      read(`${site(code)}/fuel-balance/nights${range ? `?${new URLSearchParams({ from: range.from, to: range.to }).toString()}` : ""}`, (b) => (b.mode === "NIGHTS" || b.mode === "NONE") && Array.isArray(b.nights)),
     getNight: (code, nightDate) =>
       read(`${site(code)}/fuel-balance/nights/${encodeURIComponent(nightDate)}`, (b) => Array.isArray(b.cards) && Array.isArray(b.bridge)),
     getFuelFindings: (code, window) =>
