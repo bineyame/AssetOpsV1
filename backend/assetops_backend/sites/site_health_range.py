@@ -75,6 +75,9 @@ def source_state(day_state: str, readings: int, after_cutoff: bool = False) -> s
     return NO_READINGS
 
 
+# D-SR.56 (L1, known limit): `gateway_diagnostic`, `gateway` and `source` are not watermark input tables, so a live
+# stored body (no `known_at`) can show a stale contact state or `disabled` flag until the next local midnight
+# (`valid_until`) or a readings arrival moves the watermark. Accepted; the point-in-time "Contact now" panel is the live view.
 def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateRequest,
                       registration: Registration, counts: Counts) -> dict[str, Any] | None:
     """The `site-health-range-1` body without `battery`, or None when the Site is not in the authorized imported set
