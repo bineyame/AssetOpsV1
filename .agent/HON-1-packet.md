@@ -79,6 +79,15 @@ Use `ASSETOPS_TEST_DATABASE_URL=...assetops_hon1_test`, one file at a time, and 
 These exercise `site_data_gap_days_many` on a real estate snapshot, and the extra snapshot read in the summary
 (statement-count or ledger budgets).
 
+## Postgres run after `git merge main` (2026-11-12, merge 2a6ab99d7, clean, no conflicts)
+DB `assetops_hon1_test` (created for this run), one file at a time, machine shared with other runs:
+- no-DB: the 17 files above, 494 passed, 0 failed (one pytest run). vitest `s5SiteWindowOverview` + `s502OverviewFindingList` 105 passed; `tsc --noEmit` clean.
+- Postgres, all passed: `test_cov_partial_portfolio` 13, `test_w303_portfolio_api` 7, `test_w303_portfolio_scope_snapshot_postgres` 10 (35:54),
+  `test_w302_money_api` 12, `test_qw2_many_postgres` 1 (4:22), `test_out_c3_repeat_visits_postgres` 1, `test_mb1_site_actions_postgres` 1,
+  `test_w303_selectors_postgres` 3 (the 2 known main failures did not occur on this revision), `test_s4_finding_index_postgres` 11.
+- `tools\check-all.ps1 -Python <plan2 venv>` on the merged revision: All 19 guards passed (estate guard self-tests 36:52 under load).
+- A first attempt failed on every DB file only because `assetops_hon1_test` did not exist; no code change.
+
 ## Known deviations / residual risk
 - The demotion uses the Site day grade. If a conflict day is graded PARTIAL for the Site but COMPLETE for the
   measure a claim reads, that claim still counts it. The coverage line and cards are not affected.
