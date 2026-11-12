@@ -154,6 +154,7 @@ async function shot(file, w, target) {
   const r = await send("Page.captureScreenshot", { format: "png" });
   writeFileSync(file, Buffer.from(r.data, "base64"));
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: 900, deviceScaleFactor: 1, mobile: false });
+  await requireWidth(w, 900, `reset after ${file}`, { record: false });
   return m;
 }
 
@@ -168,7 +169,9 @@ for (const w of [1440, 390]) {
   await send("Emulation.setDeviceMetricsOverride", { width: w, height: 900, deviceScaleFactor: 1, mobile: false });
   await requireWidth(w, 900, `resize to ${w}`, { record: false });
   await send("Page.navigate", { url: `${WEB}/sites/KOBO-001/financials/prices?key=diesel_price_per_litre&return=%2Fsites%2FKOBO-001` });
-  if (!(await waitFor("document.querySelector('[data-price-entry-form]')"))) { failed = true; console.log(`FAIL form @${w}: not open`); continue; }
+  const opened = await waitFor("document.querySelector('[data-price-entry-form]')");
+  await requireWidth(w, 900, `loaded @${w}`, { record: false });
+  if (!opened) { failed = true; console.log(`FAIL form @${w}: not open`); continue; }
   await js(FILL);
   await sleep(300);
   report("open", w, await shot(resolve(OUT, `open-${w}.png`), w, "[data-price-entry-form]"));
