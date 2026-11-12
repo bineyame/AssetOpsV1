@@ -5076,3 +5076,18 @@ Decisions logged for owner review: **D-SR.51-54**.
 - Size about +0.05 units (page only). Package about 18.35 units.
 
 Decisions logged for owner review: **D-SR.55**.
+
+## D-SR.56 SR-6 review M2 and L1: the local-day grade on UTC days, and Health's watermark (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-6-review-server.md` (04e468a60), M2 and L1.
+- **M2: the mapping stays as ruled.** `estate/range_days.py` gives a UTC dispatch day the chain grade of the Site-local day with the same date. That is coverage's D-E5.42 rule (`estate/coverage.py:194-211`). The range Overview's whole job is to equal the Portfolio day by day (D-SR.22, SR-5 parity), so changing the mapping in `range_days` alone would break that parity. Changing it estate-wide is a coverage change, which is out of scope for the freeze. So there is no code change to the mapping.
+- **Where it can show.** NOT_EXPECTED is a grade only for local days before readings began. For a UTC+3 Site, the UTC day whose date is the last local NOT_EXPECTED day holds at most the 3 hours `[21:00, 24:00) UTC` of the next local day. So **at most one day per Site** is affected: the day readings began, and only if they began between local 00:00 and 03:00. At 5-minute cadence that day has at most about 36 accepted readings. The review probe's 288 readings cannot occur on real data. The SR-6 fix ("readings above 0 win" in the cell and the summary) stays, because Health counts readings (D-SR.49 Q1).
+- **SR-5 change (wording only, about 0.02 units).** The state stays NOT_EXPECTED, so the Portfolio parity holds. When the day's dispatch row has `accepted_reading_count > 0`, the Overview day cell reads "Readings began late this day · not counted", not "Before readings began". Add one no-DB test.
+- **Parity must catch it.** The SR-5 and SR-6 parity JSONs gain `not_expected_with_readings: [{site, day, accepted_readings, readings_began_local, readings_began_utc}]`.
+  - **Gate:** at most one such day per Site, and it must be the UTC day whose date is the last local day before `readings_began`. Any other day, or more than `12 x UTC offset hours` readings on it (36 for UTC+3), fails the gate: that would mean the mapping is wrong beyond the zone edge.
+  - The existing comparisons stay as they are. They are the gap set == coverage gaps and members == Portfolio (SR-5), and the per-day `accepted_readings` == the SR-5a dispatch row (SR-6). They cannot detect this, because both sides use the same mapping. That is why the new check is added.
+- **L1: accepted as a known limit for the demo.** The demo windows are historical (D-SR.29), and diagnostics do not change after the prepare, so no stale contact can show in the demo. The "Contact now" panel stays the point-in-time view.
+  - The packet and the Health range code name the limit. Without `known_at`, contact and registration flags refresh at `valid_until` (the next local midnight) or on the next readings arrival.
+  - Backlog, after the freeze: add `gateway_diagnostic` (and `gateway` and `source` for registration flags) to the watermark input tables. That is a migration-level change to 0047's inputs plus a watermark test.
+
+Decisions logged for owner review: **D-SR.56**.
