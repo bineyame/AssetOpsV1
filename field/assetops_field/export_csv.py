@@ -135,6 +135,10 @@ class CsvCollector:
         """Validate the whole file, then build one report per cell; raises `CsvRefused`; no IPC."""
         return self._reports(path.read_bytes())
 
+    def reports_from_bytes(self, data: bytes) -> list[DeviceReport]:
+        """`reports()` over bytes already read (UP-1's dry run); raises `CsvRefused`; no IPC."""
+        return self._reports(data)
+
     def _reports(self, data: bytes) -> list[DeviceReport]:
         lines = list(csv.reader(io.StringIO(self._text(data), newline="")))
         if not lines:
