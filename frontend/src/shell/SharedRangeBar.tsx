@@ -58,7 +58,7 @@ const NOT_THIS_PAGE_SPOKEN = "This page shows its own dates, not this range";
  * MOCK DEVIATION R718/R719 (v71 Change 0b shows only "All pages"; build sheet D-SR.6/SR-4c).
  * SR-2 / SR-4c (D-SR.6, R718/R719): the tag on a page that shows one day or part of the range: "Showing 9 Nov of the
  * range" / "Showing 5–9 Nov of the range"; outside the range "Showing 24 Oct · range not used". On a point-in-time
- * page: "Range not used · shows now" (or "· current settings", "· prices valid now").
+ * page: "Range not used · shows now" (or "· current settings", "· prices valid now", "· this record's own period").
  */
 export const FOCUS_INSIDE = "of the range";
 export const FOCUS_OUTSIDE = "range not used";
@@ -68,6 +68,14 @@ const NOW_SPOKEN: Record<RangeNotUsedNote, string> = {
   "shows now": "the present state",
   "current settings": "the current settings",
   "prices valid now": "the prices valid now",
+  "own period": "this record's own period",
+};
+/** The tag's words for each note (D-SR.64: "Range not used · this record's own period"). */
+const NOW_TAG: Record<RangeNotUsedNote, string> = {
+  "shows now": "shows now",
+  "current settings": "current settings",
+  "prices valid now": "prices valid now",
+  "own period": "this record's own period",
 };
 const focusDayLabel = (day: string): string => formatDay(`${day}T00:00:00Z`, { year: false });
 /** `9 Nov` or `5–9 Nov` (`30 Oct – 2 Nov` across months). */
@@ -291,7 +299,7 @@ export function SharedRangeBar() {
           </span>
         ) : now !== null ? (
           <span className="shared-range__tag shared-range__tag--elsewhere" data-shared-range-focus="now">
-            {`${RANGE_NOT_USED} · ${now.note}`}
+            {`${RANGE_NOT_USED} · ${NOW_TAG[now.note]}`}
           </span>
         ) : here ? (
           <span className="shared-range__tag">All pages</span>

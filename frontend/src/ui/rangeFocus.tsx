@@ -10,7 +10,8 @@
  */
 import { createContext, useContext, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
 
-export type RangeNotUsedNote = "shows now" | "current settings" | "prices valid now";
+/** D-SR.64: "own period" is one record read at its own period (a Finding), never re-cut by the range. */
+export type RangeNotUsedNote = "shows now" | "current settings" | "prices valid now" | "own period";
 
 export type RangeFocus =
   /** The calendar days the page shows (`YYYY-MM-DD`, `to` included; one day when equal). */

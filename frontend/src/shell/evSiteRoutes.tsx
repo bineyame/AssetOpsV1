@@ -1,6 +1,5 @@
 import { useSearchParams, useParams } from "react-router-dom";
 
-import { RangeNotUsed } from "../ui/rangeFocus";
 import { Panel } from "../ui";
 import { coldWindowFromParams, coldWindowSearch } from "../sites/coldAssessmentClient";
 import { invalidScope, isUtcInstant } from "../sites/domainActionClient";
@@ -105,8 +104,7 @@ export function SiteEvFrame({
           </main>
         ) : (
           <>
-          {/* SR-4c (D-SR.44): assumption facts are not ranged; range money already applies each day's value. */}
-          {view === "assumptions" ? <RangeNotUsed note="prices valid now" /> : null}
+          {/* D-SR.66 (corrects D-SR.44): the assumptions view shows range content; it declares what Financials does. */}
           <EvSiteFrame
             view={view}
             siteId={site.site_id}

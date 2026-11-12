@@ -22,6 +22,7 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { windowText } from "../coldFormat";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { F130 } from "./outcomeFixtures";
 import { plural } from "../EvAssessmentViews";
@@ -1045,5 +1046,20 @@ describe("post-W6 W2-EV R284: the Finding inherits the common window refusal cop
     await settledScreen();
     expectOneRefusal(422, copy, "ev-conclusion");
     expect(strip()).not.toContain("Confidence");
+  });
+});
+
+describe("D-SR.64 (F2): an EV Finding detail reads its own period, whatever range the address carries", () => {
+  it("range B in the address: the read sends only known_at, the strip shows the Finding's window, the tag says so", async () => {
+    const client = renderEv(
+      `/sites/${CODE}/findings/${FINDING}?from=2026-11-01T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&known_at=${encodeURIComponent(KNOWN)}`,
+      ok(STATES.interrupted),
+    );
+    await settledScreen();
+    expect(client.getFinding).toHaveBeenCalledTimes(1);
+    expect(client.getFinding).toHaveBeenCalledWith(CODE, FINDING, { from: null, to: null, known_at: KNOWN });
+    expect(main().getAttribute("data-ev-view")).toBe("ev-finding");
+    expect(strip()).toContain(windowText(FROM, TO));
+    expect(document.querySelector(".shared-range__tag")?.textContent).toBe("Range not used · this record's own period");
   });
 });

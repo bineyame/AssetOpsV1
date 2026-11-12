@@ -890,3 +890,25 @@ def test_public_selected_ev_class_mismatch_unknown(chain) -> None:  # noqa: F811
                          {"v": json.dumps(original), "r": head})
     with built.engine.connect() as conn:
         assert conn.execute(text("SELECT result FROM assessment_revision WHERE id = :r"), {"r": head}).scalar_one() == original
+
+
+def test_finding_detail_without_window_reads_its_own_period(chain) -> None:  # noqa: F811
+    """D-SR.64 (F2): a detail read with no `from`/`to` takes the window of the run that wrote the Finding's latest
+    revision, not the latest selected window; an explicit window missing the anchor still answers 404."""
+    built, c = _settled(chain, "interrupted")
+    body = get(c, "sessions")
+    item = next(x for x in body["items"] if x["finding_id"] is not None)
+    with built.engine.begin() as conn:  # re-select the same run one day later: the latest window holds no Finding
+        conn.execute(text(
+            "INSERT INTO analytic_run_selection (tenant_id, site_id, analytic_id, window_start, window_end, run_id, "
+            "job_id, selected_at) SELECT tenant_id, site_id, analytic_id, window_start + interval '1 day', "
+            "window_end + interval '1 day', run_id, job_id, selected_at FROM analytic_run_selection "
+            "WHERE site_id = :s"), {"s": built.site_id})
+    lo, hi = _at(body["window"]["from"]), _at(body["window"]["to"])
+    assert get(c, "sessions")["window"]["from"] == _iso(lo + timedelta(days=1))  # the latest window moved
+    own = get(c, f"findings/{item['finding_id']}")
+    assert own["finding_id"] == item["finding_id"]
+    assert (own["window"]["from"], own["window"]["to"]) == (body["window"]["from"], body["window"]["to"])
+    later = f"from={_iso(lo + timedelta(days=1))}&to={_iso(hi + timedelta(days=1))}"
+    assert error(c, f"findings/{item['finding_id']}?{later}", 404) == "EV_RECORD_NOT_FOUND"
+    assert error(c, f"findings/{uuid4()}", 404) == "EV_RECORD_NOT_FOUND"
