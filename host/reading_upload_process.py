@@ -17,6 +17,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -33,6 +34,8 @@ SUPPORTED_SITES = frozenset({"KOBO-001"})
 GATEWAY_KEYS = ("gateway_address", "ipc_credential", "snapshot_sha256", "expect_identity")
 TIMEOUT_SECONDS = 120
 EXIT_OK, EXIT_REFUSED = 0, 2
+#: D-UP.2 (d): the host's delivery after a send; the gateway's 60 s upload interval is the backstop.
+DELIVER_BOUND_SECONDS, DELIVER_BATCHES = 30.0, 50
 
 
 def sites_from_environment(environ: Mapping[str, str] = os.environ) -> frozenset[str]:
@@ -103,9 +106,35 @@ class ProcessFileChecker:
         raise RuntimeError(f"the field check failed (exit {code}): {document}")
 
 
+def deliver_now(gateway: Mapping[str, str], *, bound_seconds: float = DELIVER_BOUND_SECONDS,
+                link_factory: Any = None, clock: Any = time.monotonic) -> int:
+    """D-UP.2 (d): after a send, ask the upload gateway (over its IPC link) to deliver its sealed batches now:
+    `deliver` 50 at a time until a pass attempts none, bounded at `bound_seconds`. Never raises: a failed or
+    unfinished delivery leaves the upload SENT, and the gateway's 60 s upload interval (the backstop) delivers it.
+    Returns the number of batches attempted."""
+    attempted_total = 0
+    try:
+        if link_factory is None:
+            from assetops_gateway.ipc import GatewayLink
+
+            link_factory = GatewayLink
+        link = link_factory(gateway["gateway_address"], Path(gateway["ipc_credential"]))
+        deadline = clock() + bound_seconds
+        while clock() < deadline:
+            attempted = int(link.call("deliver", {"max_batches": DELIVER_BATCHES})["batches"]["attempted"])
+            if not attempted:
+                break
+            attempted_total += attempted
+    except Exception:  # noqa: BLE001 - the backstop delivers; the upload row is already SENT
+        pass
+    return attempted_total
+
+
 class ProcessReadingSender:
-    def __init__(self, gateway: Mapping[str, str], profile: Path = PROFILE, runner: Any = subprocess.run) -> None:
+    def __init__(self, gateway: Mapping[str, str], profile: Path = PROFILE, runner: Any = subprocess.run,
+                 deliver: Any = deliver_now) -> None:
         self._gateway, self._profile, self._runner = dict(gateway), profile, runner
+        self._deliver = deliver
 
     def send(self, data: bytes) -> Sent | FileRefusal:
         g = self._gateway
@@ -117,6 +146,7 @@ class ProcessReadingSender:
         if code != EXIT_OK or not document.get("ok"):
             raise GatewayUnavailable(f"the field send failed (exit {code}): {document.get('error')}")
         sent = document["sent"]
+        self._deliver(g)
         outcomes = sent["outcomes"]
         held_by_column: dict[str, int] = {}
         for key, count in sent["held"].items():

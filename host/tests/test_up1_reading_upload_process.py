@@ -83,9 +83,11 @@ def test_send_reads_the_field_summary():
         return SimpleNamespace(returncode=0, stdout=json.dumps(sent_doc), stderr="")
 
     gateway = {k: "x" for k in up.GATEWAY_KEYS}
-    sent = up.ProcessReadingSender(gateway, runner=runner).send(b"data")
+    delivered: list = []
+    sent = up.ProcessReadingSender(gateway, runner=runner, deliver=delivered.append).send(b"data")
     assert (sent.admitted, sent.held, sent.message_ids) == (156, 4, ("m1", "m2"))
     assert sent.held_by_column == {"pv-ac-power": 4}
+    assert delivered == [gateway]  # D-UP.2 (d): the host delivers once the send exits 0
 
 
 @pytest.mark.parametrize("code,error", [(4, "GATEWAY_UNAVAILABLE"), (5, "IDENTITY_MISMATCH"), (3, "CONFIGURATION")])
@@ -93,8 +95,11 @@ def test_a_failed_send_is_gateway_unavailable(code, error):
     def runner(argv, **kw):
         return SimpleNamespace(returncode=code, stdout=json.dumps({"ok": False, "error": error}), stderr="")
 
+    delivered: list = []
     with pytest.raises(svc.GatewayUnavailable):
-        up.ProcessReadingSender({k: "x" for k in up.GATEWAY_KEYS}, runner=runner).send(b"data")
+        up.ProcessReadingSender({k: "x" for k in up.GATEWAY_KEYS}, runner=runner,
+                                deliver=delivered.append).send(b"data")
+    assert delivered == []  # nothing was sent, so nothing is delivered
 
 
 def test_the_host_never_imports_the_field_adapters():

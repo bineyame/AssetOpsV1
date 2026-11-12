@@ -47,6 +47,7 @@ from typing import Any
 
 import demo_combined_rows as demo_rows
 import demo_story_days as sd
+import demo_upload_gateway as upload_gateway
 
 REPO = Path(__file__).resolve().parents[1]
 PY = Path(sys.executable)
@@ -879,7 +880,9 @@ class Demo:
         (self.work / ".busy").write_text(f"prepare pid={os.getpid()}\n", encoding="utf-8")
         self.holds_busy = True
         self.tree.mkdir()
-        parts = ("backend", "gateway", "host", "simulator", "contracts", "config", "contract-fixtures", "tools")
+        # UP-1: `field` holds the CSV collector the served host runs per reading upload (D-UP.1).
+        parts = ("backend", "gateway", "host", "simulator", "contracts", "config", "contract-fixtures", "tools",
+                 "field")
         archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", *parts], cwd=REPO, capture_output=True,
                                  check=False) if shutil.which("git") else None
         if archive is not None and archive.returncode == 0:
@@ -1574,10 +1577,55 @@ class Demo:
         self.write_prebuilt_routes()  # E4 D-E4.1: before the serve env is built
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
+        upload_env, helpers = (self.start_upload_gateway(logs) if upload_gateway.upload_switched_on()
+                               else ({}, []))
         log = open(logs / f"api-{port}.log", "w", encoding="utf-8")
         api = subprocess.Popen([str(PY), "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", str(port)],
-                               cwd=str(self.tree / "host"), env=self.serve_env(), stdout=log,
+                               cwd=str(self.tree / "host"), env={**self.serve_env(), **upload_env}, stdout=log,
                                stderr=subprocess.STDOUT)
+        try:
+            self._serve_api(api, log, port, web)
+        finally:
+            for helper in helpers:
+                if helper.poll() is None:
+                    _kill_tree(helper.pid)
+
+    def start_upload_gateway(self, logs: Path) -> tuple[dict[str, str], list[subprocess.Popen]]:
+        """UP-1 D-UP.2: the TLS central on :8443 and the persistent Kobo edge gateway, then its activation; returns the
+        API's `ASSETOPS_READING_UPLOAD_GATEWAY` and the two processes (stopped with serve)."""
+        ug = upload_gateway
+        self.py("tools/demo_upload_gateway.py", "prepare", "--work", str(self.work), serve_env=True,
+                label="upload-gateway-prepare")
+        cert, key = ug.tls_files(self.work)
+        state = ug.state_dir(self.work)
+        helpers: list[subprocess.Popen] = []
+        try:
+            tls_log = open(logs / "upload-central-tls.log", "w", encoding="utf-8")
+            tls = subprocess.Popen([str(PY), "-m", "assetops_backend.serve_tls", "--cert", str(cert), "--key", str(key),
+                                    "--host", ug.TLS_HOST, "--port", str(ug.TLS_PORT)], cwd=str(self.tree),
+                                   env=self.serve_env(), stdout=tls_log, stderr=subprocess.STDOUT)
+            helpers.append(tls)
+            ug.wait_for_port(ug.TLS_HOST, ug.TLS_PORT, lambda: tls.poll() is None)
+            gateway_log_path = logs / "upload-gateway-kobo-edge.log"
+            gateway_log = open(gateway_log_path, "w", encoding="utf-8")
+            gateway = subprocess.Popen([str(PY), "-m", "assetops_gateway", "serve", "--config",
+                                        str(state / ug.CONFIG_FILE)], cwd=str(state), env=self.env(),
+                                       stdout=gateway_log, stderr=subprocess.STDOUT)
+            helpers.append(gateway)
+            ug.wait_for_line(gateway_log_path, "READY", lambda: gateway.poll() is None)
+            self.py("tools/demo_upload_gateway.py", "activate", "--work", str(self.work), serve_env=True,
+                    label="upload-gateway-activate")
+        except BaseException:
+            for helper in helpers:
+                if helper.poll() is None:
+                    _kill_tree(helper.pid)
+            raise
+        say(f"Reading upload: central https://{ug.TLS_HOST}:{ug.TLS_PORT} (PID {tls.pid}), Kobo edge gateway "
+            f"(PID {gateway.pid}, state {state}); uploads deliver at once, backstop every "
+            f"{ug.UPLOAD_INTERVAL_SECONDS} s.")
+        return {"ASSETOPS_READING_UPLOAD_GATEWAY": str(self.work / ug.GATEWAY_FILE)}, helpers
+
+    def _serve_api(self, api: subprocess.Popen, log: Any, port: int, web: int) -> None:
         import urllib.request
 
         for _ in range(240):
