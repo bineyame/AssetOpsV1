@@ -134,6 +134,21 @@ Source: `AssetOpsV1-sr4` 01f4d3981 `.agent/SR-4-live-check.md`; SR-8 223783035 /
   - D-SR.62's rule is clarified: a missing hour is left out only when **at least one** hour of that day has a stored result. A day with none is a missing day, as before.
   - Add a pure pin for an all-missing day (UNKNOWN). The parity JSON shows such days under NO_DATA, and they are never compared.
 
+### 10e.4 KOBO-001 10-31 has no mini heads: a story gap, not a build defect (D-SR.69)
+
+- **Story.** `days.json` (polish_vps1) entry 49 is Kobo 2026-10-31, kind `missing`: "gateway offline: no run, no delivery". **11-06 (entry 68) is the same kind.** The 11 accepted rows on each day are the previous day's run ending at local 00:00, and they enqueued no hour on either day (`cause_evidence_id` count 0).
+- **Why 11-06 has heads anyway.** All 72 of its fuel, backup and service jobs have no cause and were created at **2026-11-10 14:00Z**, the moment the Kobo Action was APPLIED (`kobo.json` `apply_at`). That is a configuration re-enqueue (`mini_enqueue_configuration`), so those heads were computed over no readings. 11-06 renewable has no heads, just like 10-31. Nothing re-enqueued 10-31. **The hole is the expected result of a gateway-offline day. The 11-06 heads are a side effect.**
+- **Chain grades are NO_DATA on both days for every measure** (`avoidable_gen_min`, `critical_served`, `daylight_headroom_kw`, `productive_kwh`; covered 0). So SR-5/6/7/8, which read the grades, show 10-31 and 11-06 as NO_DATA. That is honest, and the two days match.
+- **Ruling:**
+  - **No heads are built for 10-31** (D-SR.36 stands).
+  - SR-10/11 pre-flight and parity gate: a day whose chain grade is NO_DATA for that domain's measure expects 0 heads. The parity JSON lists such days under `no_data_days`, and each must read NO_DATA on the range page, never STILL_PROCESSING. (The grade wins first, D-SR.47 Q4. An absent day-kind row on a NO_DATA day is not a "missing row".)
+  - The head gate becomes: no hour with a live or FAILED job, and no hour holding accepted evidence for the domain's roles without a head.
+  - The partial days (10-13, 10-20, 10-27, 11-03, 11-10) have heads only where readings exist. That is expected, and their grade is PARTIAL.
+- **One-day pages.** They are not wrong; the two days differ only in wording.
+  - 10-31 shows the hour as not assessed (UNKNOWN, no figures).
+  - 11-06 shows an assessed hour with no readings (no figures).
+  - Neither shows a number. Making the two days read the same is **Low, backlog** (demo-critical scope only). It is not a 17 Nov item.
+
 ## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8**; later D-SR.47-54 (10d.7-10d.11) (build sheet), owner-delegated, logged for owner review.

@@ -5271,3 +5271,18 @@ Decisions logged for owner review: **D-SR.63**.
 - D-SR.62 is clarified: missing hours are left out only when the day has at least one stored hour result. Add a pure pin.
 
 Decisions logged for owner review: **D-SR.64-68**.
+
+## D-SR.69 KOBO-001 10-31: a story gap; the SR-10/11 head gate on NO_DATA days (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10e.4.
+- **10-31 and 11-06 are both story `missing` days** (gateway offline; `days.json` entries 49 and 68). Chain grades are NO_DATA on both, for every measure.
+- **11-06's heads have no cause.** Its jobs were created at 2026-11-10 14:00Z, when the Kobo Action was APPLIED: a configuration re-enqueue over no readings. 10-31 was never re-enqueued.
+- **Not a build defect.** No heads are built (D-SR.36 stands).
+- **SR-10/11 gate:**
+  - a NO_DATA day expects 0 heads, is listed under `no_data_days`, and must read NO_DATA, never STILL_PROCESSING;
+  - the head check is: no live or FAILED job, and no hour holding the domain's evidence without a head.
+  - The partial days are expected.
+- SR-5/6/7/8 range pages show both days as NO_DATA, which is honest.
+- The one-day wording difference between 10-31 (not assessed) and 11-06 (assessed with no readings) is Low and goes to the backlog.
+
+Decisions logged for owner review: **D-SR.69**.
