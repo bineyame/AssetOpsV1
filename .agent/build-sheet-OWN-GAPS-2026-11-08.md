@@ -4420,3 +4420,23 @@ Decision logged for owner review: **D-ANY.9**.
   - `unavailable` maps only to 503 `ASSUMPTION_STORE_UNAVAILABLE`, for store, zone and scope failures. Turning a scope outage into 503 instead of 500 is correct.
 
 Decision logged for owner review: **D-PRICE.2**.
+
+## D-ANY.10 AR-4 client4 evidence: the `before_build` mismatch and the second dispatch-day compose (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/ANY-2-AR4` head `917a90724`, packet `.agent/AR-4-packet.md`. Parity (`--kinds evidence.claim,dispatch.day`) 61 cases, 1 mismatch `any.claim_rows.before_build` (k 11-11T23:35Z, dispatch.day rows built 00:03): oracle has a `selection_id`, candidate has null.
+
+### (1) Option (b): an absent `dispatch.day` row is composed, never rendered as "nothing stored". Option (a) is refused.
+- **Why.** D-ANY.5's "absent = nothing known" holds only if a row exists from the moment its input exists. Rows built later by the backfill CLI (or a lagging tick) break that: at a k before the build the input is known, the row is not. Rendering UNASSESSED there is a false answer a real user can get on a historical read. Moving the case's k (a) would hide the defect, not fix it. This is the same case D-ANY.7 ruled for claims: "cannot be proven equal", not "nothing known".
+- **Amends D-ANY.5 for `dispatch.day`.** "There is no fallback compose" no longer applies to this kind. A day with no row at k (explicit or live) is served by today's compose for that day only.
+- **Shape.** `DispatchDayRows` marks absent days instead of calling `absent_day`; `coverage.dispatch_days` (it holds the snapshot) calls `snapshot.dispatch_days` once per contiguous run of absent days over that run's window at the same k, and splices the composed days in. Each run logs `period_row_absent` (kind, Site, days) and is counted in perf. PENDING-at-k on a composed day is whatever compose says (no synthetic job added). `absent_day`/`ABSENT_REASON` stay only if a test still needs them; the module doc's "There is no fallback compose" line becomes "Ruled D-ANY.10".
+- **Where.** The defect is on main (AR-3) and ships whether or not AR-4 merges, so it is fixed on main: branch `fix/AR-3-absent-compose` off current main, about 0.2 unit (Sonnet). AR-4 does not carry it; AR-4 rebases onto main after it merges. Fresh Claude reviewer; it does not wait for AR-4's review.
+- **AR-2 kinds (mini depth day grades) have the same latent hole** at a k between an input and a later row build. Not 17 Nov: the demo reads live or post-prepare k. Backlog `BL-ANY-absent`: apply the same per-run compose to every AR-2 kind, with a before-build parity case each.
+
+### (2) Make the second switch, on AR-4.
+- `evidence_money.site_data_gap_days_many` (line ~577) reads `coverage.dispatch_days(snap, tenant_id, site["site_id"], req.from_, req.to, scope["k"])` instead of `snap.dispatch_days(...)`. Same rule as D-ANY.8: one day source for the whole Portfolio read. It is an AR-4 file; list it as a deviation beside the D-ANY.9 hook. No other serve-path caller remains (`period_rows.fragment` is a builder and must keep composing; `measure_impls`/`postgres_work_read` are other reads, out of scope).
+
+### Evidence required
+- Fix branch: no-DB tests first. (i) an explicit k with no row but a compose selection returns the composed day, byte-equal, and logs `period_row_absent`; (ii) two absent runs split by a stored day compose twice, once per run; (iii) a stored day is never composed; (iv) kill switch unchanged. Then one Postgres test: k between a revision's `computed_at` and its row's `computed_at` reads the selection. client4 parity `--kinds dispatch.day` 0 mismatches including `before_build`.
+- AR-4 after rebase: client4 parity `--kinds evidence.claim,dispatch.day` 0 mismatches over the 61 cases, keeping `before_build`, the no-revision day and the selected-revision-without-row day (D-ANY.7/8). Timings cold, store off, with profiles, for the week, 22 days and 31 days, before (`917a90724`) and after; the profile must show no `snapshot.dispatch_days` under `_data_gaps` on a fully built range. ≤2 s stays reported, not gated (D-ANY.8).
+
+Decision logged for owner review: **D-ANY.10**.
