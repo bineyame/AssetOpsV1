@@ -2,7 +2,7 @@
 
 ## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
 
-- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8** (build sheet), owner-delegated, logged for owner review.
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8**; later D-SR.47-54 (10d.7-10d.11) (build sheet), owner-delegated, logged for owner review.
 - Basis: D-SR.2/3 (every Site link carries the range; safety net), D-SR.9 and D-SR.39 (the range covers telemetry and its consequences; configuration and assumption facts are not ranged), D-SR.30/35 (one record and configuration are N).
 - Evidence: the 18 files re-run on `task/SR-4-site-range` 582019b0e (16 files: 29 failed / 383 passed; `globalIncidents` + `globalMaintenance`: 2 failed). 31 failures, as the packet says.
 - **Process defect found and repaired here (D-SR.46).** The rev 10b, 10b.6 and 10c commits (d7288e5d6, ef18dad9d, 23459a1f9) each *replaced* `build-sheet-OWN-GAPS-2026-11-08.md` instead of appending to it: main held 7 lines, not ~4,960. This branch restores the 13dbe4cab content, then D-SR.31-38, D-WARM.7 and D-SR.39 in order, then appends D-SR.40+. Rulings are appended, never written over the sheet. A reviewer checks `git diff --stat` on the build sheet: only additions.
@@ -119,6 +119,46 @@ SR-6 server: `task/SR-6-health-range` 4f450d065.
 | Guard policy | **Confirmed, as the sanctioned pattern** (W3-01/W4-01 precedent). The single read-only adapter file is named in `$pgReaders`; the SQL-write refusal still applies to it; and reads reach the module through `evidence/composition.py` / `sites/composition.py`, not by direct import. Reviewer checks: the `$pgReaders` entry is that one file path (no glob or directory), the guard self-test still fails a write in a listed reader, and no other guard line changed. |
 
 - SR-6 size is unchanged at about 1.1.
+
+### 10d.10 SR-5 rulings: the 10-21 drill-in conflict and unreachable Postgres cases (D-SR.50)
+
+SR-5: `task/SR-5-range-board` 3178766d6.
+
+**1. Range CLEAR vs the drill-in Finding on 10-21 (F05, NO_LONGER_SUPPORTED).**
+- **Both are kept, and the range day is made to say what the drill-in shows.**
+  - The member count is right. It is the Portfolio's selector (§9.4), so it must stay equal to the Portfolio, and a no-longer-supported Finding is not a current finding.
+  - The S5-01 board is also right to show the Finding with its lifecycle, since it is the record of that day. It is not changed.
+  - What is wrong is that the range says "nothing to report" with no trace of a Finding the user will meet one click later.
+- **Change (SR-5 server and page).**
+  - Each day gains `retired_finding_count`: Findings whose latest revision at the cutoff is not a member (NO_LONGER_SUPPORTED, or any other non-member lifecycle) and whose episode intersects the day. It uses the same Finding read and the same `intersects` rule as `finding_count`. If that read does not expose non-member lifecycles, stop and ask; do not add a second Finding query.
+  - The state stays CLEAR, so the coverage, totals and Portfolio parity are unchanged.
+  - Page wording when `retired_finding_count > 0`: "Checked: no current findings · 1 finding no longer supported" (plural as needed). A FINDINGS day appends the same suffix.
+  - Totals gain `days_with_retired_findings` (shown only when > 0).
+- **Test.** Replace the "disagreement set == {10-21}" pin with an agreement pin. For every day, the board's selected Findings = members (`finding_count`) + non-members (`retired_finding_count`), and on 10-21 the board shows F05's Finding labelled no longer supported.
+- Size about 0.1. No MOCK DEVIATION beyond SR-5's existing range-table row.
+
+**2. Postgres cases with no existing world.** No new fixture is designed now (freeze, demo-critical scope).
+
+| Case | Ruling |
+|---|---|
+| (a) NOT_EXPECTED | **No-DB coverage is enough**, plus the demo parity report. It is a chain-grade pass-through (`readings_began`), and the precedence is a pure function: the no-DB file pins NOT_EXPECTED first in the precedence. The demo parity JSON lists any NOT_EXPECTED days it meets per Site and window. None is acceptable, and none is reported as "not exercised on real data". |
+| (b) READINGS_CONFLICT with day grades on | **The MD-0 `--variant states` template is not built for this.** Coverage: the existing Postgres coverage-wins pin (F08 10-19 READINGS_CONFLICT), the no-DB precedence tests, and the demo parity gate (gap set == `coverage.days.gaps` on real data, with the mismatch log count, gate 0). The template run is allowed later only as backlog (it is `*_test` named, so it is authorised), and only when the coordinator has an idle machine slot after the freeze. |
+| (c) SUMMED / OVERLAPPING day money | **No-DB stubs are required, and the demo parity covers real data.** The no-DB file pins the SUMMED and OVERLAPPING day compositions, including the D-ANY.10 absent-run compose, with stub rows. The demo parity checks range money totals == Portfolio money for KOBO-001/KISIWA-001 (priced after SR-5d) and reports the count of OVERLAPPING days. If the count is 0, the overlap path is recorded as stub-only in the parity JSON, as a named test limit, not a gate failure. |
+
+### 10d.11 SR-10 builder interpretations, kill switch, rebuild test, day-kind build time (D-SR.51-54)
+
+SR-10: `task/SR-10-fuel-range` (core 7f928edb2, route 3fc8c4c23, pins 3ed855559). Packet `.agent/SR-10-packet.md`.
+
+| # | Ruling |
+|---|---|
+| 1 Pending hours | **Confirmed.** Pending = `PENDING_RECOMPUTE` or a live job; sums cover assessed hours only. |
+| 2 `slowest_recovery` | **Confirmed.** It is taken over the de-duplicated sequences. A null is skipped, the target comes from the same sequence, and a tie goes to the earliest `outage_start`. |
+| 3 Absent day | **Corrected.** Unknown is not zero: `stored: false` with null counts and figures; `hours_expected: 0` is removed. Page: "Still being prepared" across the row. |
+| 4 Totals | **Confirmed, plus a fix.** Window totals de-duplicate sequences by `chain_id` across days (a sequence over midnight counts once). |
+| 5 Kill switch | **Accepted.** There is no compose to fall back to, so the safety behaviour is STILL_PROCESSING plus the live hour drill-in. A stub test pins rows read with the switch empty. |
+| 6 Rebuild test | **Enough** (AR-1 precedent, plus parity on real readings). Add the ingest's own event helper if one exists, and a Site-local 00:30 boundary case; stop and ask if the register keys days otherwise. |
+
+**Build time (D-SR.54).** At AR-2's rate (0.55-0.75 s per hour read) the two day kinds need about 2,100 hour reads, about 15-20 minutes, which breaches the shared 15-minute cap and would push the board rows out. `build_period_rows` builds the board kinds first (explicit `--kind`, 15-minute cap unchanged), then the day kinds in their own step (cap **30 minutes for both Sites**). The step's failure line names the rerun command, not the kill switch. On the VPS (D-SR.36): head-count pre-flight, then time per Site; stop and ask if KOBO's first 3 days exceed 1.0 s per hour read. One dirty-day tick rebuild is timed in the parity JSON, reported above 60 s, not gated. The fix round is about 0.1 units (Sonnet); the package is about **18.3 units**.
 
 ### 10d.6 Sizes and order
 
