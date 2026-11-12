@@ -99,3 +99,19 @@ row already grades NOT_EXPECTED, so `none_declared` exclusion in `no_reading_day
 exclusion (tests say so). L-3: parity NO_DATA cross-check is role + overlap only (committed and working copies).
 Pure + route tests: 35 passed.
 Postgres file (assetops_sr10_test): 5 passed in 144s after the fix round.
+
+## Main merge (SR-4..SR-8), 2026-11-12 — merge commit ce6bcbefa
+
+- Conflicts resolved, both sides kept, no new logic: `main.py` imports and includes all range routers (service,
+  claim-limit, renewable, then the fuel day-range router); `mini_depth_api.py` = main's file plus SR-10's
+  `DAY_RANGE_*`/`_day_range_refuse`/`build_day_range_router` block and its two imports, one combined `__all__`
+  (main had two `__all__` assignments, the second shadowing the first); `period_rows.py` = one
+  `BUILDER_VERSION = "mini-depth-rows-2"` (SR-8, D-SR.62) for all kinds including `DAY_KINDS`. `read.py`
+  auto-merged: `build_period` keeps the `whole_day` fuel/backup branch and the renewable `missing` collection;
+  `hour_json`/`hour_from_json` carry `missing`.
+- **Rebuild needed.** The demo DB's `mini_depth.fuel_day`/`backup_day` rows were built at `mini-depth-rows-1`.
+  `PeriodReadBuilder.read` now marks each such row pending with reason `builder_version` (period_read.py, the
+  `self._versions.get(r.kind) != r.builder_version` check), so every day reads STILL_PROCESSING on the Fuel/Backup
+  range until the rows are rebuilt at v2 (the day kinds are not gated by the period-read switch, D-SR.52). The
+  D-SR.63 switch's builder-version check will also see them as stale. Rebuild all `mini_depth.*` rows (day kinds
+  included) after this merge lands.
