@@ -8,8 +8,10 @@ Per day (D-SR.27): the stored low-high kW band, the decision, `window_hours` (th
 row's covered / required seconds over the declared **operating** hours, as hours. Day state:
 
 - a grade gap first: no row, NO_DATA, PENDING or NOT_EXPECTED (a missing row reads NO_DATA, as `chain.read.day_gaps`);
+  a LOW grade reads NOT_ENOUGH_READINGS and is never counted, even with a value (D-SR.47 Q4);
 - else the stored value: ELIGIBLE -> COUNTED, EXCLUDED -> EXCLUDED (bounds shown), `result_state` CONFLICT,
-  LIMITED or MISSING_HOUR ("Partial: an hour is missing"); a graded row with no value -> NO_VALUE.
+  LIMITED or MISSING_HOUR ("Partial: an hour is missing"); a graded row with no value -> NO_VALUE. A PARTIAL-grade
+  COUNTED or EXCLUDED day carries `partial: true` (D-SR.47 Q4). Per-day bounds are the stored values, unrounded.
 
 Totals: `days_counted` = COUNTED days with both bounds; the average daylight headroom is the mean of `low_kw` and the
 mean of `high_kw`, separately, over those days only; `partial` when `days_counted < days_requested`.
@@ -22,7 +24,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any, Mapping, Sequence
 from urllib.parse import quote
 
-from assetops_backend.chain.grading import NO_DATA, NOT_EXPECTED, PENDING
+from assetops_backend.chain.grading import LOW, NO_DATA, NOT_EXPECTED, PARTIAL, PENDING
 from assetops_backend.chain.read import board_day
 
 SCHEMA_VERSION = "site-renewable-range-1"
@@ -31,9 +33,11 @@ SUBJECT = "SITE"
 COUNTED = "COUNTED"
 EXCLUDED = "EXCLUDED"
 NO_VALUE = "NO_VALUE"
+#: D-SR.47 Q4: a LOW grade is never counted, even with a value (D-SR.45 J2, SR-5a `GAP_STATES`).
+NOT_ENOUGH_READINGS = "NOT_ENOUGH_READINGS"
 VALUE_STATES = ("CONFLICT", "LIMITED", "MISSING_HOUR")
 GAP_GRADES = (NO_DATA, PENDING, NOT_EXPECTED)
-STATES = (COUNTED, EXCLUDED, *VALUE_STATES, NO_VALUE, *GAP_GRADES)
+STATES = (COUNTED, EXCLUDED, *VALUE_STATES, NO_VALUE, NOT_ENOUGH_READINGS, *GAP_GRADES)
 AVERAGE_LABEL = "average daylight headroom"
 #: The averages are decimal text rounded to this step (kW).
 AVERAGE_STEP = Decimal("0.01")
@@ -70,6 +74,8 @@ def day_state(grade: str | None, value: Mapping[str, Any] | None) -> str:
         return NO_DATA
     if grade in GAP_GRADES:
         return grade
+    if grade == LOW:
+        return NOT_ENOUGH_READINGS
     if not value:
         return NO_VALUE
     result_state = value.get("result_state")
@@ -104,7 +110,7 @@ def range_days(site_code: str, tz: str | None, days: Sequence[date], facts: Any)
             "decision": v.get("decision"), "window_hours": v.get("window_hours"),
             "covered_hours": None if row is None else _hours(row.covered_seconds),
             "operating_hours": None if row is None else _hours(row.required_seconds),
-            "state": state, "link": day_link(site_code, d, tz)})
+            "state": state, "partial": shown and grade == PARTIAL, "link": day_link(site_code, d, tz)})
     return out
 
 

@@ -177,7 +177,8 @@ def test_counted_day_without_both_bounds_is_not_averaged():
     ("NOT_EXPECTED", None, "NOT_EXPECTED"),
     ("NO_DATA", None, "NO_DATA"),
     ("COMPLETE", None, "NO_VALUE"),
-    ("LOW", _band("1", "2"), "COUNTED"),
+    ("LOW", _band("1", "2"), "NOT_ENOUGH_READINGS"),
+    ("PARTIAL", _band("1", "2"), "COUNTED"),
     (None, None, "NO_DATA"),
 ])
 def test_day_state_rule(grade, value, state):
@@ -253,3 +254,17 @@ def test_the_route_writes_a_perf_line(caplog):
     response = client().get(URL, params=WEEK)
     assert response.status_code == 200
     assert any(RENEWABLE_RANGE_ROUTE in r.getMessage() for r in caplog.records)
+
+
+def test_a_low_day_with_a_value_is_never_counted_and_a_partial_eligible_day_counts_as_partial():
+    """D-SR.47 Q4: LOW reads NOT_ENOUGH_READINGS even with a band; a PARTIAL-grade ELIGIBLE day is COUNTED with
+    `partial: true`; per-day bounds stay the stored text, unrounded."""
+    rows = [_row(D0, "LOW", _band("5", "9")), _row(D0 + timedelta(1), "PARTIAL", _band("1.234", "3.456")),
+            _row(D0 + timedelta(2), "COMPLETE", _band("2", "4"))]
+    body = _body(port=Port(rows))
+    low, part, full = body["days"][:3]
+    assert (low["state"], low["low_kw"], low["partial"]) == ("NOT_ENOUGH_READINGS", None, False)
+    assert (part["state"], part["partial"], part["low_kw"], part["high_kw"]) == ("COUNTED", True, "1.234", "3.456")
+    assert (full["state"], full["partial"]) == ("COUNTED", False)
+    totals = body["totals"]
+    assert (totals["days_counted"], totals["average_low_kw"], totals["average_high_kw"]) == (2, "1.62", "3.73")

@@ -39,6 +39,7 @@ if URL:
     from assetops_backend.chain.measure_impls import build_measure_set
     from assetops_backend.chain.ports import SiteRef, SnapshotRow
     from assetops_backend.chain.read import ChainReader
+    from assetops_backend.chain.reader import SnapshotReader
     from assetops_backend.mini_depth_api import build_renewable_range_router
 
 
@@ -82,7 +83,8 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
     w402._ingest(engine, installed)
     w402._reconcile(engine, w402.DAYS)
     snaps, inputs = PostgresSnapshotStore(URL), build_chain_inputs(URL)
-    chain = PostgresChainRead(URL, action_window=lambda *a, **k: {"actions": (), "events": ()})
+    chain = PostgresChainRead(URL, snapshots=SnapshotReader(snaps),
+                              action_window=lambda *a, **k: {"actions": (), "events": ()})
     try:
         builder = SnapshotBuilder(snaps, build_measure_set(inputs), load_coverage_policy(),
                                   load_operating_calendar())
@@ -108,8 +110,12 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
             got = days[day]
             assert got["grade"] == row.grade
             assert got["decision"] == row.value["decision"] and got["window_hours"] == row.value["window_hours"]
-            assert (got["low_kw"], got["high_kw"]) == (row.value["low_kw"], row.value["high_kw"])
-            assert got["state"] == ("COUNTED" if row.value["decision"] == "ELIGIBLE" else "EXCLUDED")
+            if row.grade == "LOW":  # D-SR.47 Q4: never counted, even with a value
+                assert (got["state"], got["low_kw"], got["high_kw"]) == ("NOT_ENOUGH_READINGS", None, None)
+            else:
+                assert (got["low_kw"], got["high_kw"]) == (row.value["low_kw"], row.value["high_kw"])
+                assert got["state"] == ("COUNTED" if row.value["decision"] == "ELIGIBLE" else "EXCLUDED")
+                assert got["partial"] is (row.grade == "PARTIAL")
             assert (got["covered_hours"], got["operating_hours"]) == \
                 (round(row.covered_seconds / 3600, 2), round(row.required_seconds / 3600, 2))
 
@@ -118,13 +124,25 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
         assert (days[absent]["state"], days[absent]["grade"], days[absent]["covered_hours"]) == \
             ("NO_DATA", "NO_DATA", None)
 
-        for day in (w402.DAYS[0], w402.DAYS[2], w402.DAYS[4]):  # range -> one-day drill-in agreement
+        # Range -> one-day drill-in agreement on 3 sampled days. The depth card is the observed range over ELIGIBLE
+        # hours (`rules.observed_headroom_range`: min low, MAX high) and is null on an EXCLUDED day; the stored
+        # snapshot is the room on every ELIGIBLE hour (min low, MIN high). So low agrees and the stored high is at
+        # most the card's high (SR-8 packet question Q6: rev 10 §10.4's "equals" holds for low only).
+        sampled = 0
+        for day in (w402.DAYS[0], w402.DAYS[2], w402.DAYS[4]):
             depth = w402._read(engine, t, s, "renewable", w402._midnight(day),
                                w402._midnight(day + timedelta(days=1)))
-            card = depth["cards"]["headroom_kw"]
-            assert card is not None, depth["cards"]
-            assert _same(days[day]["low_kw"], card["low"]) and _same(days[day]["high_kw"], card["high"]), \
-                (day, days[day], card)
+            card, got = depth["cards"]["headroom_kw"], days[day]
+            if got["state"] == "EXCLUDED":
+                assert card is None and depth["cards"]["eligible_days"] == 0, (day, depth["cards"])
+                continue
+            if got["state"] != "COUNTED":
+                continue
+            sampled += 1
+            assert card is not None, (day, depth["cards"])
+            assert _same(got["low_kw"], card["low"]), (day, got, card)
+            assert Decimal(got["high_kw"]) <= Decimal(str(card["high"])), (day, got, card)
+        assert sampled >= 1, [days[d]["state"] for d in w402.DAYS]
 
         counted = [d for d in body["days"] if d["state"] == "COUNTED"]
         totals = body["totals"]
