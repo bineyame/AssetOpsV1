@@ -919,6 +919,13 @@ function Invoke-ConfigurationPersistenceCheck {
     $periodTables = @('site_period_read', 'revision_provenance')
     $periodInsertsSeen = @{}
     foreach ($table in $periodTables) { $periodInsertsSeen[$table] = 0 }
+    # UP-1 (D-UP.10; migration 0061): the reading-upload store is the sole runtime writer of reading_upload,
+    # INSERT-only (the 0061 trigger refuses UPDATE/DELETE; no upsert, TRUNCATE, MERGE, COPY or DDL), and it writes no
+    # other table. The table keeps one owner INSERT (anti-vacuity below).
+    $uploadWriter = "$backendRoot/reading_upload/adapters/postgres_reading_upload_store.py"
+    $uploadTables = @('reading_upload')
+    $uploadInsertsSeen = @{}
+    foreach ($table in $uploadTables) { $uploadInsertsSeen[$table] = 0 }
     # CH-1b (build sheet CH-1b section 7; migration 0044; ruling CH1b-R Q2): the event store is the sole runtime writer of
     # the event tables, and it runs exactly four statement shapes: INSERT INTO event_consumption (insert-only, no
     # ON CONFLICT); the snapshot_dirty mark (INSERT ... ON CONFLICT (pk) DO UPDATE SET marked_at = clock_timestamp(),
@@ -978,7 +985,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $pgWriters = @($pgWriter, $ledgerWriter, $accessWriter, $assessWriter, $findingWriter, $assumptionWriter,
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
         $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $threadWriter, $snapshotWriter, $eventWriter,
-        $responseWriter, $fuelBalanceWriter, $trialComparisonWriter, $periodWriter)
+        $responseWriter, $fuelBalanceWriter, $trialComparisonWriter, $periodWriter, $uploadWriter)
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -1046,13 +1053,14 @@ function Invoke-ConfigurationPersistenceCheck {
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
         $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0
         $snapshotWriter = 0; $threadWriter = 0; $eventWriter = 0; $responseWriter = 0; $fuelBalanceWriter = 0
-        $periodWriter = 0 }
+        $periodWriter = 0; $uploadWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
         $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false
         $trialComparisonWriter = $false; $snapshotWriter = $false; $threadWriter = $false
-        $eventWriter = $false; $responseWriter = $false; $fuelBalanceWriter = $false; $periodWriter = $false }
+        $eventWriter = $false; $responseWriter = $false; $fuelBalanceWriter = $false; $periodWriter = $false
+        $uploadWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -1144,6 +1152,10 @@ function Invoke-ConfigurationPersistenceCheck {
             }
             if ($module.Path -eq $periodWriter -and $line -match $actionForbidden) {
                 $failures.Add("The period read store never updates, deletes, truncates, upserts or runs DDL; " +
+                    "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
+            }
+            if ($module.Path -eq $uploadWriter -and $line -match $actionForbidden) {
+                $failures.Add("The reading-upload store never updates, deletes, truncates, upserts or runs DDL; " +
                     "$($module.Path):${lineNumber}: $($line.Trim()).") | Out-Null
             }
             if ($line -match $miniEnqueueSql) {
@@ -1442,6 +1454,22 @@ function Invoke-ConfigurationPersistenceCheck {
                             "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                     } else {
                         $periodInsertsSeen[$target]++
+                    }
+                }
+                if ($module.Path -eq $uploadWriter -and -not (
+                        $line -match '(?i)\bINSERT\s+INTO\s+([a-z_]+)\s*\(' -and $uploadTables -contains $Matches[1].ToLowerInvariant())) {
+                    $failures.Add(("The reading-upload store only inserts into $($uploadTables -join ', ') " +
+                        "(append-only); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($null -ne $target -and $uploadTables -contains $target) {
+                    if ($module.Path -ne $uploadWriter) {
+                        $failures.Add(("Only $uploadWriter writes reading-upload table '$target'; " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } elseif ($line -notmatch '(?i)^INSERT\s+INTO\b' -or $line -match '(?i)\bON\s+CONFLICT\b') {
+                        $failures.Add(("Reading-upload table '$target' is insert-only: no UPDATE, DELETE, TRUNCATE, " +
+                            "MERGE, COPY or upsert from any module; $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $uploadInsertsSeen[$target]++
                     }
                 }
                 if ($module.Path -eq $eventWriter) {
@@ -1753,6 +1781,12 @@ function Invoke-ConfigurationPersistenceCheck {
     foreach ($table in $periodTables) {
         if ($extractorRan -and $periodInsertsSeen[$table] -lt 1) {
             $failures.Add(("Rule 8 found no INSERT INTO $table in $periodWriter, so the stored read-period insert-only " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($table in $uploadTables) {
+        if ($extractorRan -and $uploadInsertsSeen[$table] -lt 1) {
+            $failures.Add(("Rule 8 found no INSERT INTO $table in $uploadWriter, so the reading-upload insert-only " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }

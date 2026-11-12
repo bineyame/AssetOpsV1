@@ -93,7 +93,7 @@ def reading_uploads_from_environment(overrides: dict[str, object]) -> None:
     sites = upload_process.sites_from_environment()
     if not sites or "reading_uploads" in overrides:
         return
-    from assetops_backend.reading_upload.postgres_store import PostgresReadingUploadStore
+    from assetops_backend.reading_upload.adapters.postgres_reading_upload_store import PostgresReadingUploadStore
     from assetops_backend.reading_upload.service import ReadingUploadService
 
     gateway = upload_process.gateway_from_environment()
