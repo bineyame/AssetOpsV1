@@ -696,11 +696,13 @@ def create_app(
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
         policy_versions=chain_policy_versions, lifecycle=thread_lifecycle_policy, responses=responses))
     # SR-10b (rev 10b.2, D-SR.23/31/32): Fuel over the range, from the stored `mini_depth.fuel_day` rows; a stored
-    # route. Grades come from the board's chain reader.
-    app.include_router(build_day_range_router(
-        "fuel", lambda: None if mini_period_rows is None else mini_period_rows[0],
-        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
-        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    # route. Grades come from the board's chain reader. SR-11 (rev 10b.3): Backup over the range, the same builder
+    # over the stored `mini_depth.backup_day` rows.
+    for range_domain in ("fuel", "backup"):
+        app.include_router(build_day_range_router(
+            range_domain, lambda: None if mini_period_rows is None else mini_period_rows[0],
+            lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+            access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # CH-5a2b (§B14 Q7/Q8): the Portfolio and estate Findings `summary.claims` call the one count computation
     # `/estate/chain` calls, over the same board reads and the same Site registry.
     estate_claims = build_estate_claims(
