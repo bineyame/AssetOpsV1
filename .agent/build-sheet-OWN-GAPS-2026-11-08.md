@@ -4454,3 +4454,38 @@ Decision logged for owner review: **D-ANY.10**.
 - **Builder actions before review (required).** The packet says layout evidence was not run. Capture the price page at 1440 and 390 px (mini, cold with `?key=repair_visit_cost`, EV), compare with `price-it.html` Part B/C, and add the captures to the packet. Any stacking mismatch is fixed in this slice. Label deviations 1, 2, 3 and 8 in code and packet as "MOCK DEVIATION (D-PRICE.3)". No other code change.
 
 Decision logged for owner review: **D-PRICE.3**.
+
+## D-17N.1-7 The owner's 17 Nov expectations: 2 s, modern UI, performance, data coverage, upload, Modbus (Architect, Claude, 2026-11-12, owner-directed, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Owner, verbatim: `.agent/owner-17nov-expectations-2026-11-12.md`. Full reasoning, designs and lanes: `architect-sequence-client-scope-2026-11-11.md` revision 7.
+- **D-17N.1 Speed.** ≤2 s computed live for any range is OUT for 17 Nov. One request is one sequential process, so a larger machine does not shorten it. The AR-4 profile after the second switch is 8.1 s for a week: about 2.2 s of dispatch lookups, about 4 s of consequence money and provenance, and about 1.9 s not yet profiled. The remainder, ANY-3 (`evidence.consequence_money` 1.5 plus the rest 0.5-1.0), is serial after AR-4 and goes to the backlog, first after the demo. IN for 17 Nov:
+  - AR-4 (D-ANY.8 unchanged);
+  - DISP-1 (0.3);
+  - SPEED-0: every passed kind in `ASSETOPS_PERIOD_READ_KINDS` on the final build;
+  - **WARM-1 (0.6), a labelled workaround:** it prepares every date-bar preset and every day-aligned 7/14/30/31-day range in the data window over HTTP. Its gate is 100% store hits, maximum ≤2.0 s and 0 degraded.
+  - **D-ANY.3 is reversed for the 17 Nov build only. D-ANY.4 is narrowed to custom ranges on the Portfolio.**
+- **D-17N.2 UI.** UQ-FI-1/2 stand (rev 6). New **UQ-FI-3** (0.75) is IN-if the owner approves its two v7.2 sheet panels by Fri 09:00: the one-figure Portfolio card and the reading-state `StatusPill` (light theme only). It is held whole if not ACCEPTed by Sat 20:00. Stages 1-2 of BL-69 (about 8 units plus 7 unbuilt page mockups), the dark theme and the axe pass are OUT.
+- **D-17N.3 Performance list.**
+  - IN: AR-4, DISP-1, WARM-1 with BL-71 part 2 (prebuild over HTTP), SPEED-0.
+  - IN-if: money.lines (Sat 12:00 parity, D-ANY.8); BL-ANY-absent (0.5, Sonnet) if lane A is free.
+  - OUT: ANY-3, `evidence.provenance`, AR-5 (it contradicts WARM-1 until every kind is stored), AR-7, BL-71 part 1.
+- **D-17N.4 Data coverage.**
+  - IN: DATA-5 and DATA-10/13.
+  - IN-if approved by Fri 09:00: DATA-4 (EV buyer present) and DATA-8.
+  - OUT: DATA-7 (it re-proves the Kisiwa story two days out, at +15-25 min per prepare), FCF-1 and BL-48.
+  - Each data merge is gated by the Sat-night rehearsal finish check; a failure reverts that merge.
+  - The measure is the before/after gap-line count per script page from UQ-FI's `measure.json`.
+- **D-17N.5 Upload, UP-1 (2.25).** Kobo only, the illustrative `assetops-generic-interval-csv/1` format.
+  - Route: `POST /api/sites/{site_id}/reading-uploads?dry_run=`. It refuses the whole file on any of the 8 CSV codes, on `ALREADY_RECORDED`, or when too large.
+  - It admits through a demo upload gateway process (never inside the API process), with the states Checked, Sent, Accepted, Still processing, Analysed, Refused and Held. It records "Uploaded by site admin" (as D-PRICE.1), with no sign-in.
+  - It is behind `ASSETOPS_READING_UPLOAD_SITES`, off by default, and mockup-first (one page, approved by Fri 09:00).
+  - Column mapping, other formats, history import (BL-59) and new Sites are OUT.
+- **D-17N.6 Modbus.** MB-1 (1.0): emulator → `modbus_poller` → gateway → `serve_tls` → demo DB, feeding Kobo's today live. It builds TEL-08's `setup`, `activate` and `read`, has a no-overlap finish check with UP-1, and uses TEL-05's gates plus the 5-minute uplink-stop test. The BeagleBone (+0.5 and one 1-hour heavy slot) is IN-if the board is reachable by Fri 12:00. It uploads to the VPS on 8443 and is shown as a recorded clip, never live in the room.
+- **D-17N.7 Lanes and freeze.**
+  - Six VPS lanes (C speed, A tools, B price+data, D/E UI frontend-only, F field). One heavy job at a time.
+  - Priority: AR-4 > PR-3 > WARM-1 > UQ-FI-1/2 > UP-1 > MB-1 > DATA-5/4/8 > UQ-FI-3 > DATA-10/13 > FR-B > CLEAN-1 > BL-ANY-absent.
+  - **The core freeze stays Sat 20:00.** A late window to **Sun 12:00** is open only for the additive, switched-off-by-default UP-1 and MB-1. Their named risk: they miss Saturday's full suite; their own tests, the Postgres flow and Monday's live checks are their proof, and a failed live check leaves the switch off.
+  - Upload and Modbus beats go last in the script, because new readings move the estate watermark and void every warmed page until a re-warm (estimated 20-25 min, to be measured).
+  - "Everything" (about 21 units) does not fit even with a Mon 12:00 freeze, and is not recommended.
+
+Decisions logged for owner review: **D-17N.1-7**.
