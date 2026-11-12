@@ -36,15 +36,13 @@ EVENT_FIXTURES = {
         "EV_CHARGING", "UTC", {(D(2026, 11, 1), "charging_kwh"), (D(2026, 11, 2), "charging_kwh")}, ("snapshots",)),
     "price.revised@1": (
         {"key": "productive_use_price_per_kwh", "valid": ["2026-10-29T21:00:00Z", None]},
-        # AR-4 contract line (rev 5): an open price revision restates money.lines from its valid date to today.
-        "MINIGRID", ADDIS, {(D(2026, 10, 30) + timedelta(days=i), m) for i in range(5)
-                            for m in ("productive_kwh", "money.lines")},
+        "MINIGRID", ADDIS, {(D(2026, 10, 30) + timedelta(days=i), "productive_kwh") for i in range(5)},
         ("snapshots",)),
     "foundation.revised@1": (
         {"valid_from": "2026-11-02T00:00:00Z"}, "MINIGRID", "UTC",
         {(d, m) for d in (D(2026, 11, 2), D(2026, 11, 3))
          for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min", *MINI_KINDS,
-                   "money.lines")}  # AR-4: money lines are a Site-local day kind
+                   )}
         # AR-3: UTC days from valid_from - 6 h through today + 1 (a UTC day can be one past the Site-local today);
         # AR-4's `evidence.claim` is an s3_day kind too, so it takes the same UTC days
         | {(d, m) for d in (D(2026, 11, 1), D(2026, 11, 2), D(2026, 11, 3), D(2026, 11, 4))
@@ -81,8 +79,7 @@ def test_mini_depth_assessment_dirties_headroom_only() -> None:
     subject = {"domain": "renewable", "windows": [["2026-11-01T09:00:00Z", "2026-11-01T10:00:00Z"]]}
     marks = resolve(load_event_register(), _event("assessment.revised@1", subject), site_type="MINIGRID", tz="UTC",
                     today=TODAY)
-    assert marks == [(D(2026, 11, 1), "daylight_headroom_kw"), (D(2026, 11, 1), "mini_depth.renewable"),
-                     (D(2026, 11, 1), "money.lines")]  # AR-4 MN-2: the potential's study reads renewable
+    assert marks == [(D(2026, 11, 1), "daylight_headroom_kw"), (D(2026, 11, 1), "mini_depth.renewable")]
 
 
 def test_a_measure_of_another_site_type_is_never_marked() -> None:

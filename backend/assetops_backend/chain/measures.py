@@ -43,7 +43,7 @@ class MeasureSpec:
 MEASURES: dict[str, MeasureSpec] = {
     "productive_kwh": MeasureSpec(
         "productive_kwh", "MINIGRID", "ASSET", "MEASURED", PERIOD_OPERATING_HOURS, 0.8,
-        "mini.productive_energy@2"),  # MN-1 (AR-4): the day money carries its basis and receipt
+        "mini.productive_energy@1"),
     # CH-9 (§9 R5, CH9-R2 Q2): the day's measured daylight hours inside the declared operating hours; any
     # missing hour leaves the day PARTIAL. Replaces the one-noon-hour `noon_headroom_kw`.
     "daylight_headroom_kw": MeasureSpec(

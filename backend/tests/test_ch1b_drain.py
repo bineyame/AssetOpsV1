@@ -253,9 +253,7 @@ def test_today_is_read_once_per_run_and_a_given_today_is_used() -> None:
     open_ended = _ev("price.revised", {"key": "productive_use_price_per_kwh", "valid": ["2026-10-26T00:00:00Z", None]})
     port = Counting([open_ended])
     consume(port, load_event_register(), "snapshots", TENANT, SITE_ID, MINI, 10, today=DAY)
-    # AR-4 MN-2: the open price revision also restates the `money.lines` days, from its valid date to today
-    assert Counting.reads == 1 and sorted(port.marks) == sorted(
-        (d, m) for d in (date(2026, 10, 26), DAY) for m in ("productive_kwh", "money.lines"))
+    assert Counting.reads == 1 and port.marks == [(date(2026, 10, 26), "productive_kwh"), (DAY, "productive_kwh")]
 
 
 def test_consume_exactly_records_only_the_events_read_before_the_run() -> None:

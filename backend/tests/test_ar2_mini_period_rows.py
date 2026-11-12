@@ -322,13 +322,13 @@ def test_kind_builder_fragment_and_versions() -> None:
             return hours[0].window.start, hours[0].window.end, facts, prov
 
     builders = period_kind_builders(type("I", (), {"mini": Mini()})())
-    # AR-4 adds `evidence.claim` and `money.lines` (built lazily over the estate reader) beside the mini kinds.
-    assert sorted(builders) == sorted((*pr.KINDS, "evidence.claim", "money.lines")) and period_kind_builders(None) == {}
+    # AR-4 adds `evidence.claim` (built lazily over the estate Evidence reader) beside the mini kinds.
+    assert sorted(builders) == sorted((*pr.KINDS, "evidence.claim")) and period_kind_builders(None) == {}
     from assetops_backend.chain import dispatch_day_rows  # AR-3's kind joins the reader's version map
-    from assetops_backend.estate import money_rows, period_rows as er
+    from assetops_backend.estate import period_rows as er
     assert period_kind_versions() == {**{k: pr.BUILDER_VERSION for k in pr.KINDS},
                                       dispatch_day_rows.KIND: dispatch_day_rows.BUILDER_VERSION,
-                                      **er.kind_versions(), **money_rows.kind_versions()}
+                                      **er.kind_versions()}
     site = SiteRef(T, S, CODE, "MINIGRID", TZ)
     ctx = DayCtx(T, S, CODE, "MINIGRID", TZ, D0, None, None, None)
     (frag,) = builders["mini_depth.fuel"].fragments(ctx, site)
