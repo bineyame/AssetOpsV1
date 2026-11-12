@@ -28,7 +28,8 @@ Branch `task/FR-B-test-hygiene` (worktree AssetOpsV1-frb), from main adf869b08. 
 ## Not done (resume)
 - Carry: wrapper fixes, T6 w301 golden, L2 (assert kpi not None before ch6b S equality), L3 (w207 exclusion only at :288),
   I1 docstring - not located/attempted (L2/L3 greps found no matching text in test_out_*; need the FR-A review file for anchors).
-- Not run: check-all (19 guards) and the full vitest suite; Postgres `test_w301_estate_index_postgres.py` run - see below.
+- Postgres `test_w301_estate_index_postgres.py` via run-host-tests.ps1: 21 passed, 442 s (with the pin_read_at change).
+- Not run: check-all (19 guards) and the full vitest suite.
 - `create_app` other globals (count_claims, data_gap_provider) not isolated.
 
 ## Process notes
