@@ -350,12 +350,12 @@ export function renewableWindowFromParams(params: URLSearchParams, timeZone: str
     const n = rangeDays(range);
     if (n <= MINI_RENEWABLE_DAYS) return { ...localDaysWindow(timeZone, range.from, n), known_at };
     // A longer range with no day named: its last 5 Site-local days, ending on the local date of its last UTC day.
-    const lastLocal = localDateOf(timeZone, Date.parse(`${range.to}T00:00:00Z`));
+    const lastLocal = range.to;
     return { ...localDaysWindow(timeZone, addDays(lastLocal, -(MINI_RENEWABLE_DAYS - 1)), MINI_RENEWABLE_DAYS), known_at };
   }
   // A named day (a story link; the shell adds the 7 days ending on it), or no range: that day, one Site-local day.
   const utcDay = pageDay(params, now.getTime());
-  const first = localDateOf(timeZone, Date.parse(`${utcDay}T00:00:00Z`));
+  const first = utcDay;
   return { ...localDaysWindow(timeZone, first, 1), known_at };
 }
 
@@ -408,7 +408,7 @@ export function serviceWindowFromParams(params: URLSearchParams, timeZone: strin
   }
   // D-SR.59 L-4: the day comes from `readSharedRange` (`pageDay`), never the raw bounds.
   const utcDay = pageDay(params, now.getTime());
-  const day = localDateOf(timeZone, Date.parse(`${utcDay}T00:00:00Z`));
+  const day = utcDay;
   return { ...localHourWindow(timeZone, day, DEFAULT_SERVICE_HOUR), known_at };
 }
 

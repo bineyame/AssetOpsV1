@@ -358,10 +358,10 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     const board = new URLSearchParams("from=2026-10-27T21:00:00Z&to=2026-11-01T21:00:00Z");
     const w = renewableWindowFromParams(board, TZ);
     expect(selectedLocalDays(TZ, w.from, w.to)).toEqual({ first: "2026-10-28", last: "2026-11-01", days: 5 });
-    // A zone behind UTC: the UTC day start is the previous local date.
+    // D-SR.61: a zone behind UTC uses the date string itself as the local date.
     expect(renewableWindowFromParams(new URLSearchParams("date=2026-10-06"), "America/New_York")).toEqual({
-      from: "2026-10-05T04:00:00.000Z",
-      to: "2026-10-06T04:00:00.000Z",
+      from: "2026-10-06T04:00:00.000Z",
+      to: "2026-10-07T04:00:00.000Z",
       known_at: null,
     });
   });
