@@ -5165,3 +5165,26 @@ Decisions logged for owner review: **D-SR.58**.
 - Size about 0.15 units, in the SR-4 fix round, then a fresh review. SR-4 stays first in the merge order.
 
 Decisions logged for owner review: **D-SR.59**.
+
+## D-SR.60 SR-11: start successes stay the hour-card sum; D-SR.58 Q2's change is withdrawn (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- The SR-11 builder stopped correctly: stored backup rows have no per-chain `start_pair` (`mini_depth/projection.py:181-188`).
+- **D-SR.58 Q2 rested on a wrong premise and is withdrawn.**
+  - `rules.assess_backup_hour` (`rules.py:1029-1043`) opens a chain only for a LOST transition **inside** the hour.
+  - It bounds that chain at `min(restoration, hour end)`.
+  - So every chain belongs to exactly one hour, the hour that holds its LOSS. No chain spans hours or crosses midnight.
+  - The hour-card `start_success_count` (`rules.py:1072`) therefore counts each chain's witnessed start once. Summing the cards over a day or a window is exact, so there is no double count to label.
+- **Ruling (option c, without a label):**
+  - Keep the hour-card sum for the day and the window, with its null rule (null when every counted hour is null).
+  - No `start_pair` field, no projection or `BUILDER_VERSION` bump, and no re-backfill.
+  - The 30-minute day-kinds step (D-SR.54) and parity are unaffected.
+  - Option (a) would have meant a projection change plus re-running every backup head, with no gain.
+  - Option (b) cannot work: `start_pair` comes from observation outcomes, which are not stored.
+- **Pin the premise:**
+  - a pure test that one stored day's `rows[].chain_id`s are unique across its hours;
+  - the SR-11 parity JSON reports `duplicate_chain_ids` per Site and window, gate 0.
+  - If it is ever non-zero, the hour rule has changed: stop and ask.
+  - The D-SR.51.4 chain_id de-duplication of `sequence_counts` stays, as a harmless guard.
+- Size: the 0.05 from D-SR.58 Q2 becomes about 0.01, for the pin.
+
+Decisions logged for owner review: **D-SR.60**.
