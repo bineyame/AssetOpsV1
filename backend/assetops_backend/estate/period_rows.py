@@ -45,7 +45,7 @@ KIND_CLAIM = "evidence.claim"
 #: Declared for the next phase (cold/EV pinned-window provenance, money lines with receipts); not built here.
 KIND_PROVENANCE, KIND_MONEY = "evidence.provenance", "money.lines"
 KINDS: tuple[str, ...] = (KIND_CLAIM,)
-BUILDER_VERSION = "estate-evidence-rows-1"
+BUILDER_VERSION = "estate-evidence-rows-2"  # 2: the detail keeps only the claim projection's Evidence fields
 MINIGRID = "MINIGRID"
 _MISSES = [0]
 _NO_REVISION = [0]
@@ -91,15 +91,26 @@ def encode(value: Any) -> Any:
     raise ValueError(f"A {type(value).__name__} cannot be stored in a period row.")
 
 
+_DECODERS: dict[str, Callable[[Any], Any]] = {"$t": datetime.fromisoformat, "$d": date.fromisoformat, "$u": UUID,
+                                              "$n": Decimal}
+_CONTAINERS = (list, dict)
+
+
 def decode(value: Any) -> Any:
-    if isinstance(value, list):
-        return [decode(v) for v in value]
-    if isinstance(value, dict):
-        if len(value) == 1 and next(iter(value)) in _TAGS:
-            tag, v = next(iter(value.items()))
-            return {"$t": datetime.fromisoformat, "$d": date.fromisoformat, "$u": UUID, "$n": Decimal,
-                    "$l": lambda xs: tuple(decode(x) for x in xs)}[tag](v)
-        return {k: decode(v) for k, v in value.items()}
+    """The inverse of `encode`. A stored detail holds about 10^5 nodes per claim day, so scalars are never recursed
+    into and the tag table is built once (the Portfolio reads every claim day of the range through this)."""
+    kind = type(value)
+    if kind is list:
+        return [decode(v) if type(v) in _CONTAINERS else v for v in value]
+    if kind is dict:
+        if len(value) == 1:
+            ((tag, v),) = value.items()
+            convert = _DECODERS.get(tag)
+            if convert is not None:
+                return convert(v)
+            if tag == "$l":
+                return tuple(decode(x) if type(x) in _CONTAINERS else x for x in v)
+        return {k: decode(v) if type(v) in _CONTAINERS else v for k, v in value.items()}
     return value
 
 
@@ -154,6 +165,32 @@ def interval_evidence_ids(detail: Mapping[str, Any] | None) -> list[str]:
                    for e in r.get("evidence_ids") or ()})
 
 
+#: The Evidence fields `ClaimLimitReadService.project_claim_limit` reads (its `accepted` map, the late-acceptance
+#: check and the `{role, at}` Evidence map). Only ACCEPTED entries are kept: the projection drops every other one.
+CLAIM_EVIDENCE_FIELDS = ("evidence_id", "disposition", "role", "interval_end", "source_time", "accepted_at")
+
+
+def claim_inputs(detail: Mapping[str, Any] | None) -> dict[str, Any] | None:
+    """The revision detail as the claim projection reads it: every field kept except that the Evidence lists (the
+    run's holds every reading of the window, about 4 MB a day on client4) keep only their ACCEPTED entries and only
+    `CLAIM_EVIDENCE_FIELDS`. The projection keys Evidence by ID and reads nothing else of it, so its output is
+    unchanged (proven by `test_claim_inputs_keep_the_projection_byte_equal` and the client4 parity)."""
+    if detail is None:
+        return None
+
+    def kept(entries: Any) -> list[dict[str, Any]]:
+        return [{k: e[k] for k in CLAIM_EVIDENCE_FIELDS if k in e} for e in entries or ()
+                if e.get("disposition") == "ACCEPTED"]
+
+    out = dict(detail)
+    if "evidence" in out:
+        out["evidence"] = kept(out["evidence"])
+    run = out.get("run")
+    if isinstance(run, Mapping) and "evidence" in run:
+        out["run"] = {**run, "evidence": kept(run["evidence"])}
+    return out
+
+
 # --- the builder --------------------------------------------------------------------------------------------------
 
 class EvidenceClaimKindBuilder:
@@ -192,7 +229,7 @@ class EvidenceClaimKindBuilder:
                     grouped.setdefault(str(row.requested_id).lower(), []).append(link_row_encode(row))
                 provenance[UUID(str(rid))] = {"link_rows": grouped}
         state = "NO_DAY" if not found else "UNASSESSED" if rid is None else "SELECTED"
-        body = {"day": day.isoformat(), "revision_id": _key(rid), "detail": encode(detail)}
+        body = {"day": day.isoformat(), "revision_id": _key(rid), "detail": encode(claim_inputs(detail))}
         return PeriodFragment(lo, hi, state, body, inputs=body, provenance=provenance, local_day=day)
 
 
