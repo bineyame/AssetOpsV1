@@ -155,6 +155,9 @@ class _NoSites:
 
 #: DD1a1-R5: the demo child sets this to a Site-day's one gateway state directory (None: each chain its own).
 GATEWAY_STATE = None
+#: DATA-5: the demo child sets this to the day's story clock; the central then stores the gateway's diagnostics through
+#: the product ingestion (None: diagnostic posts are not routed, as in the ordinary tests).
+DIAGNOSTIC_CLOCK = None
 
 
 @dataclass
@@ -225,6 +228,10 @@ class Chain:
             IngestionService(None, _NoSites()), _NoSites(),  # type: ignore[arg-type]
             batch_ingestion=BatchIngestionService(PostgresEvidenceLedger(URL), lambda: datetime.now(timezone.utc)),
             gateway_principals=StoreGatewayPrincipals(PostgresGatewayAccess(URL))))
+        if DIAGNOSTIC_CLOCK is not None:
+            from story_diagnostics import diagnostics_router
+
+            central_app.include_router(diagnostics_router(URL, DIAGNOSTIC_CLOCK))
         central = TestClient(central_app, base_url="https://testserver")
 
         def forward(path, headers, body):

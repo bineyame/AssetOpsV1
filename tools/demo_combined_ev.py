@@ -111,12 +111,13 @@ def _swaps(registered, P, day: "sd.DayRun", install_at: datetime) -> dict:
     delta = at(day.day + "T00:00:00Z") - BASE_DAY
     lo, hi = story_window(day)
     names = ("INSTALL_AT", "SETUP_AT", "WINDOW", "RELEASE", "ATTEST_FROM", "ATTEST_TO", "FIRST_DECISION",
-             "LATE_DECISION", "ATTESTED_AT")
+             "LATE_DECISION", "ATTESTED_AT", "FORWARD_DIAGNOSTICS")
     saved = {n: getattr(registered, n) for n in names}
     saved.update({"_EV_WINDOW": ev_parsing.EV_WINDOW, "_E": (P.E_START, P.E_END),
                   "_RunSetupService": registered.RunSetupService})
     longer = hi - (at(saved["WINDOW"]["end"]) + delta)
     registered.INSTALL_AT, registered.SETUP_AT = install_at, install_at + timedelta(hours=1)
+    registered.FORWARD_DIAGNOSTICS = True  # DATA-5: the day's gateway diagnostics are stored (EV Health)
     registered.WINDOW = {**saved["WINDOW"], "start": iso(lo), "end": iso(hi)}
     registered.RELEASE = _shift_text(saved["RELEASE"], delta + longer)
     for n in ("ATTEST_FROM", "ATTEST_TO"):

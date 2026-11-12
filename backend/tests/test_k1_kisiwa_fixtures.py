@@ -234,14 +234,17 @@ def test_data1_every_night_publish_gets_one_epoch_and_one_gateway_dir(tmp_path: 
     import demo_combined_kisiwa as kis
 
     calls: list[tuple] = []
-    rp = SimpleNamespace(_publish_and_accept=lambda tmp, run, epoch, received, *, gateway_dir=None, keep=None:
-                         calls.append((tmp, epoch, gateway_dir, keep)) or {})
+    diagnosed: list[bool] = []
+    rp = SimpleNamespace(_publish_and_accept=lambda tmp, run, epoch, received, *, gateway_dir=None, keep=None,
+                         diagnostics=False: calls.append((tmp, epoch, gateway_dir, keep)) or diagnosed.append(diagnostics)
+                         or {})
     received = datetime(2026, 11, 1, 10, 0, tzinfo=timezone.utc)
     kisiwa = dc.resolve_story(datetime(2026, 11, 8, 10, 0, tzinfo=timezone.utc), kisiwa=True)["kisiwa"]
     for k in range(1, len(kisiwa["runs"]) + 1):  # the story's nights as `build` publishes them
         kis.publish_night(rp, tmp_path / "kisiwa-replay" / f"r{k:02d}", tmp_path, object(), received,
                           kis.story_previous_end(kisiwa, k))
     assert {(epoch, gw) for _, epoch, gw, _ in calls} == {("kisiwa-gw-1", tmp_path / "kisiwa-gateway")}, calls[:2]
+    assert diagnosed == [True] * len(kisiwa["runs"])  # DATA-5: every night stores its gateway diagnostics
     assert len({c[0] for c in calls}) == len(kisiwa["runs"])
     # DATA-1 fix H1: each night's 5-minute instants [start, end] filtered by its `keep`: every instant of the story is
     # sent exactly once (the shared boundary by the earlier night), none twice, none lost

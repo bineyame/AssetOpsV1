@@ -251,9 +251,10 @@ def story_previous_end(kisiwa: dict, k: int) -> datetime | None:
 def publish_night(rp, tmp: Path, work: Path, run, received_at: datetime, previous_end: datetime | None) -> dict:
     """D-E5.30: one night's readings through the real gateway on Kisiwa's one session (`KISIWA_EPOCH`, reopening
     `kisiwa_gateway(work)`); `tmp` keeps the night's own host and replay files. `previous_end`: the end of the
-    night published before it on the session (None for the session's first), see `after_previous_night`."""
+    night published before it on the session (None for the session's first), see `after_previous_night`.
+    DATA-5: the gateway's diagnostics are stored through the product ingestion, so Kisiwa Health has a report."""
     return rp._publish_and_accept(tmp, run, KISIWA_EPOCH, received_at, gateway_dir=kisiwa_gateway(work),
-                                  keep=after_previous_night(previous_end))
+                                  keep=after_previous_night(previous_end), diagnostics=True)
 
 
 def wire(value: datetime) -> str:

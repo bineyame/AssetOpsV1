@@ -193,9 +193,10 @@ def _gateway(tmp_path: Path, run, epoch: str, upload: dict, *, state_dir: Path |
 
 
 def _publish_and_accept(tmp_path: Path, run, epoch: str, received_at: datetime, *, gateway_dir: Path | None = None,
-                        keep=None) -> dict:
+                        keep=None, diagnostics: bool = False) -> dict:
     """One registered run through a real gateway: run to end, register its STAGED batches as REGISTERED_SIMULATION
-    publications, release, and deliver every sealed batch into the ordinary S2 batch ingestion.
+    publications, release, and deliver every sealed batch into the ordinary S2 batch ingestion. DATA-5:
+    `diagnostics=True` also stores the gateway's diagnostic posts through the product ingestion.
 
     DD1a1-R5 (demo full days): `gateway_dir` is the Site-day's one gateway state, reused by each of that day's runs,
     so the epoch's sequence continues across separately sealed runs; `keep` filters the reports by source time."""
@@ -216,8 +217,16 @@ def _publish_and_accept(tmp_path: Path, run, epoch: str, received_at: datetime, 
     received = pub.registered.Clock(received_at)
     ingestion = BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=received), received)
     statuses: list[str] = []
+    # DATA-5: the story prepare forwards the gateway's diagnostics to the product ingestion (story clock).
+    forwarded = None
+    if diagnostics:
+        from story_diagnostics import diagnostic_gateway, diagnostics_service, forward_diagnostic
+
+        forwarded = diagnostics_service(URL, received)
 
     def respond(path, headers, body):
+        if forwarded is not None and diagnostic_gateway(path) is not None:
+            return forward_diagnostic(forwarded, principal, path, body)
         if path.split("?")[0] != "/api/ingestion/batches":  # gateway diagnostics: not evidence
             return 201, b"{}"
         answer = ingestion.submit(principal, body)
