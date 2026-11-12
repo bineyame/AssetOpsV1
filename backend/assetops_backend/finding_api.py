@@ -30,7 +30,9 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.finding_read import FindingReadService
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable as FileAssessmentStoreUnavailable
+from assetops_backend.chain import refs
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
+from assetops_backend.outcomes import price_action
 
 Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 # (request, site_code) -> None to admit, else 401 or 403.
@@ -308,7 +310,7 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
             "source_provenance": {"finding_revision": body.get("source_provenance"),
                                   "consequence_revision": None if result is None
                                   else (result.get("source_provenance") or {}).get("consequence_revision")},
-            "consequence": bridge_consequence(result),
+            "consequence": with_price_action(bridge_consequence(result), code),
             "links": links})
 
     def bridge(tenant_id: UUID, site_id: UUID, finding_id: UUID, selection: dict[str, Any],
@@ -362,6 +364,13 @@ REASONS = {
     "MIXED_OR_UNKNOWN_SOURCE": "The source of the records behind this cost is not established, so no current cost "
                                "is shown. The recorded cost stays available for the record.",
 }
+
+
+def with_price_action(consequence: dict[str, Any], site_code: str) -> dict[str, Any]:
+    """PR-1: an UNPRICED fuel cost (no diesel price covers the window) links the Site price page; any other state
+    has no `price_action`. The Finding page is the Site's own, so the words say "this site"."""
+    spec = price_action.FINDING_FUEL_SPEC if consequence.get("state") == "UNPRICED" else None
+    return {**consequence, "price_action": price_action.wire(spec, site_code, None, refs)}
 
 
 def bridge_consequence(result: dict[str, Any] | None) -> dict[str, Any]:

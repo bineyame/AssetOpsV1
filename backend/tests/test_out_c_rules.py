@@ -242,6 +242,7 @@ def test_wire_keys() -> None:
     body = w.wire("S1", "Kobo Mini-grid")
     assert list(body) == ["key", "kind", "badge", "badge_label", "lens", "title", "seen", "persistence",
                           "persistence_label", "price_needs", "status_effect", "categories", "site_code",
-                          "site_name", "href", "link_ref", "evidence_refs", "count", "subject_label", "fault_name"]
+                          "site_name", "href", "link_ref", "evidence_refs", "count", "subject_label", "fault_name",
+                          "price_action"]  # PR-1
     assert "subject" not in body and "visit_ids" not in body and "source_label" not in body
     assert (body["badge_label"], body["persistence_label"]) == ("Early warning", "Observed")

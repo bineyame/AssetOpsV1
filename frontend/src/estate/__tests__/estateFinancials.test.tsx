@@ -5,7 +5,8 @@
  * reviewed `estate-financials-1` wire; IDs are synthetic, and no mock Site, value or basis survives.
  */
 import { render, screen, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
@@ -233,6 +234,18 @@ describe("CC-R1 estate Financials beneficiary line", () => {
       expect.arrayContaining(["Benefits: mini-grid operator", "Benefits: goods owner", "Benefits: charging service"]),
     );
     for (const t of texts) expect(t).not.toMatch(/saving|saved/i);
+  });
+
+  it("PR-1: an unpriced money row carries the server's price link under its value", async () => {
+    const action = {
+      kind: "NEEDS_MODEL" as const, need_key: "stock_record", text: "The product loss needs the stock in the chamber.",
+      label: "What is needed to price this →", href: "/sites/COLD-LAB-001/financials/prices?need=stock_record",
+      link_ref: { kind: "PRICES" as const, site: "COLD-LAB-001", need: "stock_record" },
+    };
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body({ rows: [{ ...COLD_LINE, price_action: action }] }))));
+    await settledScreen();
+    const link = within(registerRows()[0]).getByRole("link", { name: "What is needed to price this →" });
+    expect(link.getAttribute("href")).toMatch(/^\/sites\/COLD-LAB-001\/financials\/prices\?need=stock_record&.*return=%2Ffinancials/);
   });
 
   it("shows no beneficiary line when the row carries none", async () => {

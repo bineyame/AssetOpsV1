@@ -211,6 +211,17 @@
    "currency": null,
    "per_day": null,
    "price": null,
+   "price_action": {
+    "href": "/sites/MG-W402-001/financials/prices?key=productive_use_price_per_kwh",
+    "key": "productive_use_price_per_kwh",
+    "kind": "SET_PRICE",
+    "label": "Set a productive-use price for this site →",
+    "link_ref": {
+     "key": "productive_use_price_per_kwh",
+     "kind": "PRICES",
+     "site": "MG-W402-001"
+    }
+   },
    "reason": "PRICE_UNREADABLE",
    "state": "UNPRICED",
    "text": "No sales estimate: the declared price per kWh could not be read"

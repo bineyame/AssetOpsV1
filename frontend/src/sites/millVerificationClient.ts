@@ -7,6 +7,7 @@
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { isObject } from "./evidenceRead";
+import type { PriceAction } from "./PriceAction";
 
 export const MILL_STATES = ["VERIFIED", "INEFFECTIVE", "INCONCLUSIVE", "NOT_JUDGED", "NO_PLAN"] as const;
 export type MillState = (typeof MILL_STATES)[number];
@@ -35,6 +36,8 @@ export interface MillValue {
   price: { revision_id: string; value: string; currency: string } | null;
   text: string;
   cost_text: string;
+  /** PR-1 (BL-68): an UNPRICED line's link to the Site price page (server words); absent when PRICED. */
+  price_action?: PriceAction | null;
 }
 
 export interface MillVerification {

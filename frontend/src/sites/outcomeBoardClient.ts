@@ -1,4 +1,5 @@
 import type { Ref } from "./chainRef";
+import type { PriceAction } from "./PriceAction";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { TEMPORARILY_UNAVAILABLE, fetchRetrying, isTemporarilyUnavailable } from "./temporarilyUnavailable";
 
@@ -114,6 +115,8 @@ export interface OutcomeWarning {
   subject_label: string | null;
   /** Rulings C final review F1: the open linked fault's noun phrase; non-null only on REPEATED warnings. */
   fault_name?: string | null;
+  /** PR-1 (BL-68): the server's "Set a …" / "What is needed to price this" link; absent on older bodies. */
+  price_action?: PriceAction | null;
 }
 
 export interface OutcomeLinkItem {

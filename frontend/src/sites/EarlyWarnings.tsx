@@ -6,6 +6,7 @@ import { ExplainerDialog } from "../blocks/Dialog";
 import { ISSUE_KIND } from "./OutcomeBoard";
 import type { OutcomeBoardClient, OutcomeBoardQuery, OutcomeBoardRead, OutcomeWarning } from "./outcomeBoardClient";
 import { useLinkFor, type Ref } from "./chainRef";
+import { PriceActionLink } from "./PriceAction";
 import "./outcomes.css";
 
 /**
@@ -70,6 +71,7 @@ export function EarlyWarningList({
                   <strong>{w.title}</strong>
                 </To>
                 <small>{small}</small>
+                {w.price_action ? <PriceActionLink action={w.price_action} /> : null}
               </div>
             </li>
           );

@@ -42,6 +42,7 @@ import type {
 } from "./findingClient";
 import { findingRefusalWords, localView, localViewSearch, type LocalView } from "./findingPresentation";
 import type { FinancialReadResult, FinancialsClient, FindingFinancialsBody } from "./financialsClient";
+import { PriceActionLink, type PriceAction } from "./PriceAction";
 import { consequenceWords } from "./FindingConsequence";
 import {
   findingCurrentnessWords,
@@ -778,7 +779,9 @@ function useFindingCost(client: FindingCostClient | undefined, siteId: string, f
 }
 
 /** The cost card's words: an amount only for the loaded exact-version current PRICED answer. */
-function costCard(cost: FindingCost): { priced: true; value: string; revisionId: string } | { priced: false; state: string; note: string } {
+function costCard(
+  cost: FindingCost,
+): { priced: true; value: string; revisionId: string } | { priced: false; state: string; note: string; priceAction?: PriceAction | null } {
   if (cost.status === "none") return { priced: false, state: "none", note: "No fuel or money estimate is made on this page" };
   if (cost.status === "loading") return { priced: false, state: "loading", note: "Reading the cost for this finding version" };
   const { result, revisionId } = cost;
@@ -796,7 +799,8 @@ function costCard(cost: FindingCost): { priced: true; value: string; revisionId:
     // Architect ruling 4: a priced answer that is not current is never shown as an amount, and the reason names it.
     return { priced: false, state: c.state, note: pricedNotCurrentNote(c.currentness) };
   }
-  return { priced: false, state: c.state, note: consequenceWords(c, false).label };
+  // PR-1: an UNPRICED cost carries the server's link to the Site price page.
+  return { priced: false, state: c.state, note: consequenceWords(c, false).label, priceAction: c.price_action };
 }
 
 function pricedNotCurrentNote(currentness: string | null): string {
@@ -855,6 +859,7 @@ function FindingMetrics({ body, cost, links }: { body: FindingDetailBody; cost: 
           note={card.note}
           tone="muted"
           word
+          link={card.priceAction ? <PriceActionLink action={card.priceAction} /> : undefined}
           data={{ "data-finding-card": "MONEY", "data-finding-cost": card.state }}
         />
       )}

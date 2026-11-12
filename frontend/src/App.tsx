@@ -21,6 +21,7 @@ import {
   SitePerformanceFrame,
   SiteOpportunityFrame,
 } from "./shell/SiteAnalyticsFrames";
+import { SitePricesFrame } from "./shell/SitePricesFrame";
 import { SiteAssetFrame, SiteAssetsFrame, SiteHealthFrame } from "./shell/SiteHealthFrames";
 import { SiteDetailFrame } from "./shell/SiteDetailFrame";
 import { SiteFoundationFrame } from "./shell/SiteFoundationFrame";
@@ -54,6 +55,7 @@ import {
   SITE_FUEL_VERIFICATION_ROUTE_PATH,
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIAL_SCENARIOS_ROUTE_PATH,
+  SITE_PRICES_ROUTE_PATH,
   SITE_OPPORTUNITY_ROUTE_PATH,
   SITE_FINANCIALS_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
@@ -471,6 +473,8 @@ export function App({
             path={SITE_FINANCIAL_SCENARIOS_ROUTE_PATH}
             element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="scenarios" miniDecisions={miniDecisions} coldScenarioList={coldScenarioList} />}
           />
+          {/* PR-1: the target of every price_action link; the read-only price page itself is PR-2a. */}
+          <Route path={SITE_PRICES_ROUTE_PATH} element={<SitePricesFrame detail={siteDetail} />} />
           <Route
             path={SITE_OPPORTUNITY_ROUTE_PATH}
             element={<SiteOpportunityFrame detail={siteDetail} sitesPath={SITES_PATH} miniDecisions={miniDecisions} />}

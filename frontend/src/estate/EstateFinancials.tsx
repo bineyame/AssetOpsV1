@@ -33,6 +33,7 @@ import {
 } from "./estateFinancialsWords";
 import { EstateCutoffLine, EstateRefusal, Pager, estateHref, queryFromParams, utcInstant } from "./estateShared";
 import { BENEFICIARY_WORDS, type Beneficiary } from "../sites/actionPresentation";
+import { PriceActionLink } from "../sites/PriceAction";
 import { partialMoneyText } from "./portfolioWords";
 import "./estateEvidence.css";
 import "./estateFinancials.css";
@@ -209,6 +210,8 @@ function RegisterRow({ row, asOf }: { row: FinancialRow; asOf: string }) {
       </td>
       <td>
         <ValueCell row={row} asOf={asOf} />
+        {/* PR-1: an unpriced line says how it gets a price (server words). */}
+        {row.price_action ? <PriceActionLink action={row.price_action} /> : null}
       </td>
       <td>
         <span className="estate-cell__primary" data-estate-limit>
