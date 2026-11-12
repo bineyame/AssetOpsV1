@@ -147,6 +147,16 @@ After SR-4 to SR-14 (and SR-9 if any), no data tab is left with a label instead 
   5. the units left per lane against the hours to 20:00.
 - **Candidates to put to the owner then, in the order I would defer them** (the owner decides; nothing moves before): DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1, then the range tail SR-14, SR-13, SR-12b. Each one is either "after the freeze" or "before 17 Nov with the freeze moved to Sun 15 Nov 20:00". The owner also confirms the N list in 10b.4.
 
+### 10b.6 WARM-1 review L2: state chips and scope-ids are warmed (D-WARM.7)
+
+- Both are stored routes one click away, like the lens pages D-WARM.5 added, so they are **warmed**, not listed as outside the claim.
+- In `tools/warm_ranges.py`, for every preset and story range already warmed:
+  - `/api/estate/findings` once per "Workflow state" chip value (the four `state=` values of `frontend/src/estate/findingIndex.tsx:275-290`), with exactly the query the chip's href sends, so `parsed_key` matches;
+  - `/api/estate/portfolio/scope-ids` with exactly the query `EstatePortfolio.tsx:623` sends for the range's first page.
+- `--verify` covers them. A test pins that each warmed URL equals the URL the frontend builds (the same pattern as the lens pages).
+- **Outside the claim, added to D-WARM.5's list:** a lens × state chip combination, and `scope-ids` for page 2 and later.
+- Size about 0.05, on lane A (WARM-1's own fix round). This does not change the 18.6 total in any material way.
+
 ## Revision 10a (Architect, Claude, 2026-11-12 evening): SR-5 and SR-6/7/8 pre-flight rulings
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.19-30** (`build-sheet-OWN-GAPS-2026-11-08.md`), owner-delegated, logged for owner review. Inputs: `task/SR-6-health-range` 4db92b874 `.agent/SR-678-preflight.md` (Q1-Q9); `task/SR-5-range-board` 7ae69039b `.agent/SR-5-packet.md` (safe readings, (d), (f)) and the coordinator's two added questions (demo window, route classes). No new scope: every ruling below uses existing tables, functions and rows.

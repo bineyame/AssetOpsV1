@@ -31,3 +31,7 @@
 - Sat 14 Nov 12:00. Inputs: merged and ACCEPTed units, High/Medium findings, the parity/timing JSONs, the rehearsal check, and units left per lane. Candidates to the owner, in deferral order: DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1, SR-14, SR-13, SR-12b. The options are after the freeze, or the freeze moved to Sun 15 Nov 20:00.
 
 Decisions logged for owner review: **D-SR.31-38**.
+
+### D-WARM.7 WARM-1 review L2: warm the Findings state chips and Portfolio `scope-ids` (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+- They are one-click stored routes, so they are warmed, like D-WARM.5's lens pages. Per warmed range: `/api/estate/findings` per chip `state=` value (`findingIndex.tsx:275-290`), and `/api/estate/portfolio/scope-ids` for the first page (`EstatePortfolio.tsx:623`), each with exactly the frontend's query. `--verify` covers them, and a URL-equality test pins them.
+- Outside the claim (added to D-WARM.5): lens × state combinations, and `scope-ids` page 2 and later. Detail: sequence doc 10b.6. Size about 0.05, lane A fix round.
