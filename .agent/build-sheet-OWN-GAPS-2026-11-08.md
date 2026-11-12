@@ -5028,3 +5028,13 @@ Decisions logged for owner review: **D-SR.48**.
 - Guard: the one read-only adapter in `$pgReaders`, with the write refusal kept and reads through the compositions, is the sanctioned pattern.
 
 Decisions logged for owner review: **D-SR.49**.
+
+## D-SR.50 SR-5: the range names retired Findings; Postgres cases without a world (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.10.
+- 1: the member count (Portfolio parity) and the S5-01 drill-in are both kept. Each day adds `retired_finding_count` (non-member latest revisions intersecting the day, from the same Finding read; stop and ask if that read lacks lifecycles). The wording is "Checked: no current findings · 1 finding no longer supported". The state stays CLEAR. The test pins agreement: board = members + retired. About 0.1 units.
+- 2a NOT_EXPECTED: covered by the no-DB precedence pin and the parity report.
+- 2b: the MD-0 states template is not built now. It is covered by the F08 coverage-wins pin, no-DB tests and the parity gaps == coverage gate; the template is backlog after the freeze.
+- 2c: no-DB stubs for SUMMED/OVERLAPPING are required. Parity checks money == Portfolio and reports the OVERLAPPING count; 0 is recorded as stub-only.
+
+Decisions logged for owner review: **D-SR.50**.

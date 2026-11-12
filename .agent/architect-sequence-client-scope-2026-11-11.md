@@ -120,6 +120,31 @@ SR-6 server: `task/SR-6-health-range` 4f450d065.
 
 - SR-6 size is unchanged at about 1.1.
 
+### 10d.10 SR-5 rulings: the 10-21 drill-in conflict and unreachable Postgres cases (D-SR.50)
+
+SR-5: `task/SR-5-range-board` 3178766d6.
+
+**1. Range CLEAR vs the drill-in Finding on 10-21 (F05, NO_LONGER_SUPPORTED).**
+- **Both are kept, and the range day is made to say what the drill-in shows.**
+  - The member count is right. It is the Portfolio's selector (§9.4), so it must stay equal to the Portfolio, and a no-longer-supported Finding is not a current finding.
+  - The S5-01 board is also right to show the Finding with its lifecycle, since it is the record of that day. It is not changed.
+  - What is wrong is that the range says "nothing to report" with no trace of a Finding the user will meet one click later.
+- **Change (SR-5 server and page).**
+  - Each day gains `retired_finding_count`: Findings whose latest revision at the cutoff is not a member (NO_LONGER_SUPPORTED, or any other non-member lifecycle) and whose episode intersects the day. It uses the same Finding read and the same `intersects` rule as `finding_count`. If that read does not expose non-member lifecycles, stop and ask; do not add a second Finding query.
+  - The state stays CLEAR, so the coverage, totals and Portfolio parity are unchanged.
+  - Page wording when `retired_finding_count > 0`: "Checked: no current findings · 1 finding no longer supported" (plural as needed). A FINDINGS day appends the same suffix.
+  - Totals gain `days_with_retired_findings` (shown only when > 0).
+- **Test.** Replace the "disagreement set == {10-21}" pin with an agreement pin. For every day, the board's selected Findings = members (`finding_count`) + non-members (`retired_finding_count`), and on 10-21 the board shows F05's Finding labelled no longer supported.
+- Size about 0.1. No MOCK DEVIATION beyond SR-5's existing range-table row.
+
+**2. Postgres cases with no existing world.** No new fixture is designed now (freeze, demo-critical scope).
+
+| Case | Ruling |
+|---|---|
+| (a) NOT_EXPECTED | **No-DB coverage is enough**, plus the demo parity report. It is a chain-grade pass-through (`readings_began`), and the precedence is a pure function: the no-DB file pins NOT_EXPECTED first in the precedence. The demo parity JSON lists any NOT_EXPECTED days it meets per Site and window. None is acceptable, and none is reported as "not exercised on real data". |
+| (b) READINGS_CONFLICT with day grades on | **The MD-0 `--variant states` template is not built for this.** Coverage: the existing Postgres coverage-wins pin (F08 10-19 READINGS_CONFLICT), the no-DB precedence tests, and the demo parity gate (gap set == `coverage.days.gaps` on real data, with the mismatch log count, gate 0). The template run is allowed later only as backlog (it is `*_test` named, so it is authorised), and only when the coordinator has an idle machine slot after the freeze. |
+| (c) SUMMED / OVERLAPPING day money | **No-DB stubs are required, and the demo parity covers real data.** The no-DB file pins the SUMMED and OVERLAPPING day compositions, including the D-ANY.10 absent-run compose, with stub rows. The demo parity checks range money totals == Portfolio money for KOBO-001/KISIWA-001 (priced after SR-5d) and reports the count of OVERLAPPING days. If the count is 0, the overlap path is recorded as stub-only in the parity JSON, as a named test limit, not a gate failure. |
+
 ### 10d.6 Sizes and order
 
 - SR-4 grows by about 0.12 (10d.1 +0.1, asset tags +0.02). WARM-1 grows by about 0.02. The package stays at **about 18.2 units**.
