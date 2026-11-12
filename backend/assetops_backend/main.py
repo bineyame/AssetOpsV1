@@ -115,7 +115,8 @@ from assetops_backend.financials.composition import (
 )
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.mini_depth.read import MiniDepthRead
-from assetops_backend.mini_depth_api import build_mini_depth_router, build_service_range_router
+from assetops_backend.mini_depth_api import (build_mini_depth_router, build_renewable_range_router,
+                                            build_service_range_router)
 from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.opportunities import OpportunityService
 from assetops_backend.mini_decisions.work_links import WorkLinkService
@@ -711,6 +712,10 @@ def create_app(
     app.include_router(build_claim_limit_range_router(
         estate_portfolio, registry, access=development_access, gate=performance_gate,
         unavailable=(SiteStoreUnavailable,), responses=responses))
+    # SR-8 (rev 10 §10.4, D-SR.23): Renewable over the whole range, from the board's chain reader; a stored route.
+    app.include_router(build_renewable_range_router(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # CH-5a2b (§B14 Q7/Q8): the Portfolio and estate Findings `summary.claims` call the one count computation
     # `/estate/chain` calls, over the same board reads and the same Site registry.
     estate_claims = build_estate_claims(
