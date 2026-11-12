@@ -43,3 +43,9 @@ Not required (lane rules: merge on review ACCEPT).
 - Q3: `known_at` sent on list and detail (`fuelBalanceClient.ts`, `MiniFuelNights.tsx`, `MiniPerformance.tsx`); vitest pins in `miniFuelNights.test.tsx`. Unchanged request without one.
 - Q4: `?night=` opens the named night even outside the range; list stays on range; line "This night (4 Nov) is outside the selected date range"; range not widened; vitest pin.
 - Checks: no-DB route test 9 passed; Postgres SR-10k + K5 files on assetops_sr10k_test 7 passed, 0 skipped; vitest miniFuelNights + sr2RequestUrls 33 passed; tsc clean. check-all not run (coordinator).
+
+## Merge with main (SR-4), ad698a383
+- Conflicts: `MiniFuelNights.tsx`, `MiniPerformance.tsx` (imports, union), `sr2RequestUrls.test.tsx` (both describe blocks kept).
+- Tag: no ruling states the post-SR-10k text, so SR-4's one-day convention applies (D-SR.57 single declarer: the nights page's `useDeclareRangeFocus(current)`). Default night = latest night of the range: "Showing <night> of the range". "Showing <night> · range not used" only for a `?night=` outside the range, beside the outside-range line. Empty range: no declaration.
+- Re-pins: `siteRangeTags` D-SR.65 test replaced by an SR-10k test (inside: "Showing 4 Nov of the range"; `?night=2026-11-10`: outside line + "range not used"). `SITE_KISIWA_FUEL_RANGE` hour read moved to SR-4's Site-local hour (D-SR.59), as on Service.
+- Checks: vitest miniFuelNights, sr2RequestUrls, siteRangeTags, siteRangeCarry, siteFuelFinding, miniFuelRoutes 79/79; tsc clean; no-DB `test_sr10k_fuel_nights_range.py test_k5_fuel_night_text.py` 33 passed. check-all: for coordinator.
