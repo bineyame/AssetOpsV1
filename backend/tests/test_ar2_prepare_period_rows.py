@@ -73,12 +73,15 @@ def test_finish_calls_the_row_build_after_drain_2() -> None:
         < body.index("self-check")
 
 
-def _serve_demo(tmp_path: Path, ok):
+def _serve_demo(tmp_path: Path, ok, versions=None):
     demo = dc.Demo.__new__(dc.Demo)
     demo.work = tmp_path
     demo.env = lambda keys=False: {}
     if ok is not None:
-        (tmp_path / "period-rows.json").write_text(json.dumps({"ok": ok}))
+        doc = {"ok": ok}
+        if versions is not False:
+            doc["builder_versions"] = dc.row_builder_versions() if versions is None else versions
+        (tmp_path / "period-rows.json").write_text(json.dumps(doc))
     return demo
 
 
@@ -102,3 +105,18 @@ def test_serve_env_operator_value_wins_including_empty(tmp_path, monkeypatch) ->
     assert demo.serve_env()["ASSETOPS_PERIOD_READ_KINDS"] == "dispatch.day"
     monkeypatch.setenv("ASSETOPS_PERIOD_READ_KINDS", "")
     assert demo.serve_env()["ASSETOPS_PERIOD_READ_KINDS"] == ""
+
+
+def test_serve_env_mini_kinds_off_when_rows_built_by_an_old_version(tmp_path, monkeypatch, capsys) -> None:
+    monkeypatch.delenv("ASSETOPS_PERIOD_READ_KINDS", raising=False)
+    running = dc.row_builder_versions()
+    old = dict(running, mini_depth="mini-depth-rows-0")
+    got = _serve_demo(tmp_path, True, old).serve_env()["ASSETOPS_PERIOD_READ_KINDS"].split(",")
+    assert got == ["dispatch.day", "evidence.claim"]
+    assert f"rebuild mini_depth rows: built by mini-depth-rows-0, code is {running['mini_depth']}" in capsys.readouterr().out
+
+
+def test_serve_env_kinds_off_when_the_version_field_is_missing(tmp_path, monkeypatch) -> None:
+    monkeypatch.delenv("ASSETOPS_PERIOD_READ_KINDS", raising=False)
+    got = _serve_demo(tmp_path, True, False).serve_env()["ASSETOPS_PERIOD_READ_KINDS"]
+    assert not any(k.startswith("mini_depth.") for k in got.split(","))

@@ -735,6 +735,15 @@ def plain_lines(added: list[dict], skipped: list[dict], no_session: list[dict], 
     return lines
 
 
+def row_builder_versions() -> dict[str, str]:
+    """D-SR.63: the running code's row builder versions (imported, never hard-coded)."""
+    from assetops_backend.chain import dispatch_day_rows as dd
+    from assetops_backend.estate import period_rows as ev
+    from assetops_backend.mini_depth import period_rows as md
+
+    return {"mini_depth": md.BUILDER_VERSION, "dispatch_day": dd.BUILDER_VERSION, "evidence": ev.BUILDER_VERSION}
+
+
 PERIOD_READ_KINDS_ENV = "ASSETOPS_PERIOD_READ_KINDS"
 PERIOD_READ_KINDS = ("dispatch.day", "evidence.claim", "mini_depth.renewable", "mini_depth.fuel",
                      "mini_depth.service", "mini_depth.backup")
@@ -800,7 +809,22 @@ class Demo:
             doc = json.loads((self.work / "period-rows.json").read_text(encoding="utf-8"))
         except (OSError, ValueError):
             return ()
-        return PERIOD_READ_KINDS if isinstance(doc, dict) and doc.get("ok") is True else ()
+        if not (isinstance(doc, dict) and doc.get("ok") is True):
+            return ()
+        built = doc.get("builder_versions")
+        built = built if isinstance(built, dict) else {}
+        running = row_builder_versions()
+        out: list[str] = []
+        for kind in PERIOD_READ_KINDS:
+            group = kind.split(".")[0] if kind.startswith("mini_depth.") else kind
+            group = "mini_depth" if group == "mini_depth" else {"dispatch.day": "dispatch_day",
+                                                                  "evidence.claim": "evidence"}[kind]
+            if built.get(group) == running[group]:
+                out.append(kind)
+        for group in sorted({g for g in running if built.get(g) != running[g]}):
+            say(f"  rebuild {group} rows: built by {built.get(group)}, code is {running[group]}"
+                f" ({group} kinds left off)")
+        return tuple(out)
 
     def write_prebuilt_routes(self) -> Path | None:
         """E4 D-E4.1 (C2): (re)write `<work>/prebuilt-routes.json` from the story links and each Site's dates after S
@@ -1126,6 +1150,7 @@ class Demo:
             + ("" if ok else "  NOT COMPLETE"))
         (self.work / "period-rows.json").write_text(json.dumps(
             {"ok": ok, "seconds": steps["period-rows"], "sites": codes,
+             "builder_versions": row_builder_versions(),
              "cap_seconds": self.PERIOD_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
         return ok
 
