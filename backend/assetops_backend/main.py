@@ -137,6 +137,7 @@ from assetops_backend.config import (
     load_feature_flags,
 )
 from assetops_backend.evidence.composition import (
+    health_registration,
     build_cold_replay_reader,
     build_ev_replay_reader,
     build_link_rows_reader,
@@ -181,6 +182,7 @@ from assetops_backend.scheduling.composition import SCHEDULE_UNAVAILABLE
 from assetops_backend.site_overview.composition import build_site_overview_read
 from assetops_backend.site_overview.route import SiteOverviewRoute
 from assetops_backend.sites.composition import (
+    health_range_counts,
     build_foundation_store,
     build_site_repository,
     build_site_template_catalog,
@@ -621,7 +623,9 @@ def create_app(
         access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # SR-6a (rev 10 §10.2, D-SR.23): mini-grid Health over a range, a stored route on the estate snapshot; included
     # here because it needs `responses` and `estate_portfolio` (the point-in-time source-health route stays above).
-    app.include_router(build_health_range_router(estate_portfolio, registry, responses, access=development_access))
+    app.include_router(build_health_range_router(
+        estate_portfolio, registry, responses, registration=health_registration(), counts=health_range_counts(),
+        access=development_access))
     # W4-01 commit 3 (Lane A): Site work commands and the case detail read. No server SERVICE principal is
     # injected here, so a write is 403; the detail read is available under Site read access.
     work_lists = build_work_index_service(database_url()) if database_url() else None

@@ -88,6 +88,8 @@ def build_source_health_router(store: SourceHealthStore | None, scope: Scope, cl
 
 
 def build_health_range_router(estate: Any, registry: ImportedSiteRegistry, responses: ResponseStore | None = None,
+                              registration: site_health_range.Registration | None = None,
+                              counts: site_health_range.Counts | None = None,
                               access: Access = development_access, access_basis: str = ACCESS_BASIS,
                               unavailable: tuple[type[BaseException], ...] = ()) -> APIRouter:
     """SR-6a (rev 10 §10.2, D-SR.23): `GET /api/sites/{site_code}/health-range?from&to[&known_at]`,
@@ -140,12 +142,13 @@ def build_health_range_router(estate: Any, registry: ImportedSiteRegistry, respo
             req = replace(estate_request("portfolio", lo, hi, known_at), lens="all")
         except EstateRefusal as error:
             raise _refuse(error.status, error.code, error.detail["message"]) from error
-        if estate is None:
+        if estate is None or registration is None or counts is None:
             raise _refuse(503, _UNAVAILABLE, "No product database is configured.")
 
         def compose() -> dict[str, Any]:
             try:
-                body = site_health_range.health_range_body(estate, tenant.id, site.site_code, req)
+                body = site_health_range.health_range_body(estate, tenant.id, site.site_code, req,
+                                                           registration, counts)
                 if body is not None:
                     body["battery"] = battery(site, tenant)
             except site_health_range.HealthRangeNotApplicable as error:

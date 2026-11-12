@@ -39,9 +39,15 @@ if URL:
     from assetops_backend.estate.range_days import ANALYSED
     from assetops_backend.estate.scope import PORTFOLIO_CURSOR_KEY_ENV, estate_request
     from assetops_backend.estate.site_range import CLEAR, FINDINGS, site_range_body
+    from assetops_backend.evidence.composition import health_registration
     from assetops_backend.sites.adapters.postgres_health_range import health_range_counts
+    from assetops_backend.sites import site_health_range
     from assetops_backend.sites.site_health_range import (
-        IN_CONTACT, NO_CONTACT, NOT_EXPECTED, PARTIAL_CONTACT, READINGS_ONLY, health_range_body)
+        IN_CONTACT, NO_CONTACT, NOT_EXPECTED, PARTIAL_CONTACT, READINGS_ONLY)
+
+    def health_range_body(service, tenant_id, code, req):
+        return site_health_range.health_range_body(service, tenant_id, code, req, health_registration(),
+                                                   health_range_counts)
 
 D5 = datetime(2026, 10, 5, tzinfo=timezone.utc)
 DAYS = ["2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08"]

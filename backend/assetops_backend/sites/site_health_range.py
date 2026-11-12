@@ -2,8 +2,10 @@
 
 `health_range_body(service, tenant_id, site_code, req)` composes the body on ONE estate snapshot
 (`EstatePortfolioService.read_snapshot`, one REPEATABLE READ, READ ONLY transaction), reading in order:
-1. registration: `PostgresGatewayAccess._health_registration(snap._c, t, s)` (called, not copied; D-SR.23);
-2-3. the grouped diagnostics and accepted readings per UTC day (`sites/adapters/postgres_health_range.py`);
+1. registration: `PostgresGatewayAccess._health_registration(snap._c, t, s)` (called, not copied; D-SR.23), injected
+   as `registration` (`evidence.composition.health_registration`);
+2-3. the grouped diagnostics and accepted readings per UTC day (`sites/adapters/postgres_health_range.py`), injected as
+   `counts` (`sites.composition.health_range_counts`).
 4. day states: `select_finding_scope` once, for the coverage only, then `estate.range_days.range_day_states` (D-SR.22,
    the SR-5a rule with step 6 = ANALYSED; Health shows no finding counts).
 
@@ -24,8 +26,6 @@ from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE, MINI_GRID
 from assetops_backend.estate.index import select_finding_scope
 from assetops_backend.estate.range_days import GAP_STATES, NO_READINGS, NOT_EXPECTED, range_day_states
 from assetops_backend.estate.scope import EstateRequest, wire_time
-from assetops_backend.evidence.adapters.postgres_gateway_access import PostgresGatewayAccess
-from assetops_backend.sites.adapters.postgres_health_range import health_range_counts
 
 SCHEMA = "site-health-range-1"
 IN_CONTACT, PARTIAL_CONTACT, READINGS_ONLY, NO_CONTACT = (
@@ -68,8 +68,7 @@ def source_state(day_state: str, readings: int) -> str:
 
 
 def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateRequest,
-                      registration: Registration = PostgresGatewayAccess._health_registration,
-                      counts: Counts = health_range_counts) -> dict[str, Any] | None:
+                      registration: Registration, counts: Counts) -> dict[str, Any] | None:
     """The `site-health-range-1` body without `battery`, or None when the Site is not in the authorized imported set
     (route 404). Raises `HealthRangeNotApplicable` for a Site that is not a mini-grid Site."""
     admit = lambda code: code == site_code  # noqa: E731 - one-Site admit, the Portfolio's own scope rule

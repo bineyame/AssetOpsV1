@@ -63,9 +63,6 @@ class Calls:
 def health(world, monkeypatch):
     world.service.store.outcomes[0]._c = CONN  # the snapshot's one connection
     calls = Calls()
-    real = health_range_body
-    monkeypatch.setattr(site_health_range, "health_range_body", lambda *a: real(
-        *a, registration=calls.registration, counts=calls.counts))
     monkeypatch.setattr(source_health_api, "battery_entry", lambda view, at, basis: BATTERY)
     return SimpleNamespace(service=world.service, calls=calls)
 
@@ -76,7 +73,7 @@ def _req(**kw) -> EstateRequest:
 
 
 def _body(health) -> dict:
-    return site_health_range.health_range_body(health.service, T, KOBO, _req())
+    return health_range_body(health.service, T, KOBO, _req(), health.calls.registration, health.calls.counts)
 
 
 class Registry:
@@ -89,9 +86,11 @@ class Registry:
         return SITES.get(code)
 
 
-def _client(service, responses=None, access=lambda request, code: None) -> TestClient:
+def _client(service, responses=None, access=lambda request, code: None, calls=None) -> TestClient:
+    calls = calls or Calls()
     app = FastAPI()
-    app.include_router(build_health_range_router(service, Registry(), responses, access=access))
+    app.include_router(build_health_range_router(service, Registry(), responses, registration=calls.registration,
+                                                 counts=calls.counts, access=access))
     return TestClient(app)
 
 
@@ -228,7 +227,7 @@ def test_unknown_site_and_site_outside_the_scope_are_404(health, monkeypatch) ->
 
 @pytest.mark.parametrize("refusal", [401, 403])
 def test_admission_as_source_health(health, refusal) -> None:
-    r = _get(_client(health.service, access=lambda request, code: refusal))
+    r = _get(_client(health.service, access=lambda request, code: refusal, calls=health.calls))
     assert r.status_code == refusal
     assert not health.calls.seen
 
