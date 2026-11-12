@@ -474,6 +474,28 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expectLatestCheckedLine(objectiveCard());
   });
 
+  it.each([
+    ["READINGS_CONFLICT", "Readings for this day conflict (duplicate or overlapping reports), so it can't be analysed"],
+    ["NOT_ENOUGH_READINGS", "Not enough readings received to analyse this day"],
+  ])("HON-1: a %s day never reads 'Latest complete readings'; the line names the reason", async (reason, label) => {
+    const base = summary();
+    const { client } = clientOf(() => summary("2026-10-23", { freshness: { ...base.freshness, data_gap_reason: reason } }));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    const status = objectiveCard().querySelector("[data-product-status]");
+    expect(status?.querySelector("[data-product-status-label]")?.textContent).toBe(label);
+    expect(status?.getAttribute("data-product-status")).toBe("limited");
+    expect(document.querySelector("main")?.textContent).not.toContain("Latest complete readings");
+  });
+
+  it("HON-1: an analysed day keeps 'Latest complete readings'", async () => {
+    const base = summary();
+    const { client } = clientOf(() => summary("2026-10-23", { freshness: { ...base.freshness, data_gap_reason: null } }));
+    renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client);
+    await settledScreen();
+    expectLatestCheckedLine(objectiveCard());
+  });
+
   it("DIESEL-1-R3p R-LOAD: a Site with no clinic or health load states its own loads, in product vocabulary", async () => {
     const { client } = clientOf(() => summary());
     const { container } = renderAt(`/sites/${SITE_ID}?date=2026-10-23`, client, detailOf(withLoadNames(HYBRID_MINI_GRID_SITE, KISIWA_LOAD_NAMES)));
