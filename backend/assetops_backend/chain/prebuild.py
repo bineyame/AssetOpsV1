@@ -109,50 +109,17 @@ def _is_degraded(response: Any) -> bool:
 #: serve over HTTP instead of composing them in this process through an in-process ASGI client. The in-process path
 #: opened a second set of connection pools beside the serve's (D-E5.47); over HTTP the serve's own pools answer.
 BASE_URL_ENV = "ASSETOPS_PREBUILD_BASE_URL"
-HTTP_TIMEOUT_SECONDS = 900
 
 
-class _Headers(dict):
-    """Response headers with a case-insensitive `get` (HTTP header names are case-insensitive)."""
-
-    def get(self, key: str, default: Any = None) -> Any:  # type: ignore[override]
-        return super().get(key.lower(), default)
-
-
-class HttpResponse:
-    """The two fields the pre-build reads from a response: the status and the headers."""
-
-    def __init__(self, status_code: int, headers: Any) -> None:
-        self.status_code = int(status_code)
-        self.headers = _Headers((str(k).lower(), v) for k, v in (headers or []))
-
-
-class HttpClient:
-    """`get(path)` against a running serve; a non-2xx status is returned, never raised (the retry rule reads it)."""
-
-    def __init__(self, base_url: str, timeout: float = HTTP_TIMEOUT_SECONDS, opener: Any = None) -> None:
-        import urllib.request
-
-        self.base_url = base_url.rstrip("/")
-        self.timeout = timeout
-        self._open = opener or urllib.request.urlopen
-
-    def get(self, path: str) -> HttpResponse:
-        import urllib.error
-
-        try:
-            with self._open(self.base_url + path, timeout=self.timeout) as response:
-                response.read()
-                out = HttpResponse(response.status, response.headers.items())
-        except urllib.error.HTTPError as error:
-            out = HttpResponse(error.code, error.headers.items() if error.headers else [])
-        return out
-
-
-def http_client() -> HttpClient | None:
-    """The HTTP client when `ASSETOPS_PREBUILD_BASE_URL` names a serve; None keeps the in-process client."""
+def http_client() -> Any:
+    """The HTTP client (`chain/adapters/http_prebuild_client.py`) when `ASSETOPS_PREBUILD_BASE_URL` names a serve;
+    None keeps the in-process client."""
     base = os.environ.get(BASE_URL_ENV, "").strip()
-    return HttpClient(base) if base else None
+    if not base:
+        return None
+    from assetops_backend.chain.adapters.http_prebuild_client import HttpClient
+
+    return HttpClient(base)
 
 
 def _connections(store: Any) -> int | None:

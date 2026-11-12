@@ -195,14 +195,16 @@ def test_prebuild_http_mode_reads_status_and_header(monkeypatch):
         def __exit__(self, *a):
             return False
 
-    client = prebuild.HttpClient("http://h:1/", opener=lambda url, timeout: Resp(b"{}"))
+    from assetops_backend.chain.adapters.http_prebuild_client import HttpClient
+
+    client = HttpClient("http://h:1/", opener=lambda url, timeout: Resp(b"{}"))
     response = client.get("/api/x?a=1")
     assert response.status_code == 200 and response.headers.get(prebuild.HEADER) == "stored"
 
     def refuse(url, timeout):
         raise urllib.error.HTTPError(url, 503, "x", {"X-AssetOps-Stored": "unavailable"}, None)
 
-    response = prebuild.HttpClient("http://h:1", opener=refuse).get("/api/x")
+    response = HttpClient("http://h:1", opener=refuse).get("/api/x")
     assert response.status_code == 503 and prebuild._is_degraded(response)
     monkeypatch.delenv(prebuild.BASE_URL_ENV, raising=False)
     assert prebuild.http_client() is None
