@@ -40,5 +40,8 @@ main at 506e035e1 (AR-4 + PR-2a), so `git diff 118866a17` also shows PR-2a files
 ## Checks run
 - No-DB: `test_disp1_money_eligibility_select_days.py`, `test_lr01_money_eligibility.py`,
   `test_estate_coverage_local_days.py`: 22 passed (1.8 s), worktree PYTHONPATH.
-- check-architecture: see coordinator report (run by reviewer; result recorded there).
+- check-architecture (`powershell -NoProfile -File tools/check-architecture.ps1`, exit 0; last lines only): Rule 8
+  "vacuous EV consequence insert-only check" notes on `postgres_consequence_store.py` (not touched by DISP-1,
+  pre-existing); chain-structure guard could not run (no `.venv` in this worktree). Coordinator's `check-all.ps1 -Python
+  <plan2 venv>` is the authoritative guard run.
 - Not verified: parity 61/0/0, timings and the profile claim (DB jobs, not run per lane rules); frontend not touched by DISP-1.
