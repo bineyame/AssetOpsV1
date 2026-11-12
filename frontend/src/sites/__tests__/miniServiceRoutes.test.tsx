@@ -380,8 +380,17 @@ describe("post-W6 W4 R309/R313/R316/R318: service tones, heading, word values an
     }
     expect(cards.some((card) => card.classList.contains("v69-metric--word"))).toBe(true);
   });
+  it("SR-4b (D-SR.5): a window that is neither one hour nor one day reads the 12:00 local hour of its day", async () => {
+    // Was the "two hours" refused row: since SR-4b the page sends one hour of the page's day instead.
+    const client = renderService([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message: "x" }], `/sites/${CODE}/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z`);
+    await settledScreen();
+    const [, query] = (client.getService as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(Date.parse(query.to) - Date.parse(query.from)).toBe(3_600_000);
+    expect(query.from.slice(0, 10)).toBe("2026-10-06");
+    expect(screen.queryByText("Choose one complete Site-local hour or one day.")).toBeNull();
+  });
+
   const CASES: Array<[string, string, string]> = [
-    ["two hours", "from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z", "Choose one complete Site-local hour or one day."],
     ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
     ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
   ];

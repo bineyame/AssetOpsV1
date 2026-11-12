@@ -252,6 +252,23 @@ export function focusDayOf(params: URLSearchParams): string | null {
   return legacy !== null && validDay(legacy) ? legacy : null;
 }
 
+/**
+ * SR-4b (D-SR.4): the day a one-day page shows: a valid `day` (or legacy `date`), else the address range's last day,
+ * else today's UTC day (reached only when the address has no valid range).
+ */
+export function pageDay(params: URLSearchParams, now: number = Date.now()): string {
+  const focus = focusDayOf(params);
+  if (focus !== null) return focus;
+  const state = readSharedRange(params, now);
+  return state.status === "set" ? state.to : dayOf(now);
+}
+
+/** SR-4b: the address range when it is valid, else `null`. */
+export function addressRange(params: URLSearchParams, now: number = Date.now()): DayRange | null {
+  const state = readSharedRange(params, now);
+  return state.status === "set" ? { from: state.from, to: state.to } : null;
+}
+
 /** The address with the page's day set (as `day`, the legacy `date` dropped); `null` removes it. */
 export function withFocusDay(params: URLSearchParams, day: string | null): URLSearchParams {
   const next = new URLSearchParams(params);

@@ -24,7 +24,7 @@ import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
-import { LEGACY_FOCUS_DAY, focusDayOf, withFocusDay } from "../ui/sharedRange";
+import { LEGACY_FOCUS_DAY, pageDay, withFocusDay } from "../ui/sharedRange";
 import { SiteWindowOverview, type OverviewMiniReads, type WindowOverviewLinks } from "./SiteWindowOverview";
 import type { FindingIndexClient } from "./findingIndexClient";
 
@@ -87,8 +87,8 @@ const SELECTION_KEYS = ["date", "finding_id", "finding_revision_id"] as const;
 function selectionOf(params: URLSearchParams): OverviewSelection {
   return {
     // SR-2: the address names the day as `day=` (an old `date=` link still reads the same day); the read's own
-    // parameter stays `date`, so the API request is unchanged.
-    date: focusDayOf(params) ?? params.get("day") ?? params.get(LEGACY_FOCUS_DAY),
+    // parameter stays `date`. SR-4b (D-SR.4): with no day the request names the range's last day, never today.
+    date: pageDay(params),
     finding_id: params.get("finding_id"),
     finding_revision_id: params.get("finding_revision_id"),
   };

@@ -133,6 +133,19 @@ function mount(client: PerformanceDispatchClient, search: string) {
   );
 }
 
+describe("SR-4b Dispatch defaults to the shared range's last day", () => {
+  it("a range with no day reads windows/<range.to>; day= wins", async () => {
+    const client = fake({ status: "loaded", value: OPEN }, { status: "loaded", value: window() });
+    const first = mount(client, "?from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z");
+    await settledScreen();
+    expect(client.windows).toEqual(["2026-11-08"]);
+    first.unmount();
+    mount(client, "?from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z&day=2026-11-04");
+    await settledScreen();
+    expect(client.windows).toEqual(["2026-11-08", "2026-11-04"]);
+  });
+});
+
 describe("durable Performance > Dispatch (S3-01 phase 3b)", () => {
   it("keeps the window read closed while the cutover is closed and shows why with the comparison", async () => {
     const client = fake({ status: "loaded", value: { ...OPEN, permitted: false, read: "CLOSED", reason: "The newest report is EXCEPTIONS",

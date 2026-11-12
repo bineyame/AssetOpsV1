@@ -38,6 +38,7 @@ import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } f
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { rangeless } from "../../test/rangeless";
 import { expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
 
@@ -105,9 +106,37 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     renderAt(`/sites/${SITE_ID}`, client);
     await settledScreen();
     expect(screen.getByText("0.00 to 15.82 USD")).toBeTruthy();
-    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`);
+    expect(rangeless(where())).toBe(`/sites/${SITE_ID}?day=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`);
     expect(getOverview).toHaveBeenCalledTimes(1);
-    expect(getOverview.mock.calls[0][2]).toEqual({ date: null, finding_id: null, finding_revision_id: null });
+    // SR-4b (D-SR.4): the shell fills the entry range, so the first read names its last day (yesterday), never null.
+    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    expect(getOverview.mock.calls[0][2]).toEqual({ date: yesterday, finding_id: null, finding_revision_id: null });
+  });
+
+  it("SR-4b: with a range and no day the board reads the range's last day; the day steps stop at the range's edges", async () => {
+    const RANGE = "from=2026-10-20T00:00:00Z&to=2026-10-27T00:00:00Z"; // 20-26 Oct
+    const last = clientOf((s) => summary(s.date ?? "2026-11-12"));
+    const a = renderAt(`/sites/${SITE_ID}?${RANGE}`, last.client);
+    await settledScreen();
+    expect(last.getOverview.mock.calls[0][2]).toEqual({ date: "2026-10-26", finding_id: null, finding_revision_id: null });
+    expect(document.querySelector('[data-day-step-edge="last"]')?.textContent).toBe("Last day of the range");
+    expect(document.querySelector('[data-window-day-link="next"]')).toBeNull();
+    expect(document.querySelector('[data-window-day-link="previous"]')).not.toBeNull();
+    a.unmount();
+    const first = clientOf((s) => summary(s.date ?? "2026-11-12"));
+    const b = renderAt(`/sites/${SITE_ID}?${RANGE}&day=2026-10-20`, first.client);
+    await settledScreen();
+    expect(first.getOverview.mock.calls[0][2]).toEqual({ date: "2026-10-20", finding_id: null, finding_revision_id: null });
+    expect(document.querySelector('[data-day-step-edge="first"]')?.textContent).toBe("First day of the range");
+    expect(document.querySelector('[data-window-day-link="previous"]')).toBeNull();
+    b.unmount();
+    // A story day outside the range steps freely, both ways.
+    const outside = clientOf((s) => summary(s.date ?? "2026-11-12"));
+    renderAt(`/sites/${SITE_ID}?${RANGE}&day=2026-10-10`, outside.client);
+    await settledScreen();
+    expect(document.querySelector("[data-day-step-edge]")).toBeNull();
+    expect(document.querySelector('[data-window-day-link="previous"]')?.getAttribute("href")).toContain("day=2026-10-09");
+    expect(document.querySelector('[data-window-day-link="next"]')?.getAttribute("href")).toContain("day=2026-10-11");
   });
 
   it("reloads with the day and the pinned Finding version from the address", async () => {
@@ -123,11 +152,14 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     const { client, getOverview } = clientOf((s) => summary(s.date ?? "2026-10-23"));
     renderAt(`/sites/${SITE_ID}?date=2026-10-23&finding_id=${FID}&finding_revision_id=${RID}`, client);
     await settledScreen();
-    fireEvent.click(screen.getByRole("link", { name: "Next day" }));
+    // SR-4a/4b: the shell gives the story link the 7 days ending on its day, so the day is the range's last day and
+    // "Next day" is the edge text; the step goes back a day.
+    expect(document.querySelector('[data-day-step-edge="last"]')).not.toBeNull();
+    fireEvent.click(screen.getByRole("link", { name: "Previous day" }));
     await settledScreen();
-    expect(getOverview.mock.calls.at(-1)?.[2]).toEqual({ date: "2026-10-24", finding_id: null, finding_revision_id: null });
+    expect(getOverview.mock.calls.at(-1)?.[2]).toEqual({ date: "2026-10-22", finding_id: null, finding_revision_id: null });
     // SR-2: the address names the day as `day=` (the old `date=` link was rewritten on the first read).
-    expect(where()).toContain("day=2026-10-24");
+    expect(where()).toContain("day=2026-10-22");
     expect(where()).not.toContain("date=");
     fireEvent.change(document.querySelector("[data-window-date-input]") as HTMLInputElement, {
       target: { value: "2026-11-10" },
@@ -220,7 +252,7 @@ describe("S5-01 selected-window Overview: money states", () => {
       `record=${EVIDENCE}`,
     );
     const finding = document.querySelector(`[data-window-finding-link="${FID}"]`)?.getAttribute("href");
-    expect(finding).toBe(`/sites/${SITE_ID}/findings/${FID}?revision_id=${RID}`);
+    expect(rangeless(finding ?? "")).toBe(`/sites/${SITE_ID}/findings/${FID}?revision_id=${RID}`);
     expect(document.querySelector(`[data-window-evidence-link="${EVIDENCE}"]`)?.getAttribute("href")).toContain(
       `record=${EVIDENCE}`,
     );
@@ -399,7 +431,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-overview-finding-list="unavailable"]')?.textContent).toContain("no count is given");
     expect(document.body.textContent).not.toMatch(/no findings (for|in) this/i);
     expect(document.querySelector('[data-overview-finding-list="current-empty"]')).toBeNull();
-    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-11-10`);
+    expect(rangeless(where())).toBe(`/sites/${SITE_ID}?day=2026-11-10`);
   });
 
   it("states the server's gap reason in plain words, never verbatim (review fix M5a)", async () => {
@@ -424,7 +456,7 @@ describe("S5-01 selected-window Overview: day states and the Finding list", () =
     expect(document.querySelector('[data-previous-pin="NOT_IN_SELECTED_DAY"]')?.textContent).toContain(
       "does not overlap this day",
     );
-    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-24`);
+    expect(rangeless(where())).toBe(`/sites/${SITE_ID}?day=2026-10-24`);
   });
 
   it("a failed day reads Failed", async () => {
@@ -611,7 +643,7 @@ describe("W1-UX-02: the selected-day Overview (mini) on the W1 set", () => {
     expect(figure.querySelector("[data-window-timeline-legend]")?.textContent).toContain("Generator possibly avoidable");
     expect(figure.querySelector("[data-window-timeline-legend]")?.textContent).toContain("Readings received");
     // Exact links still work.
-    expect(document.querySelector(`[data-window-finding-link="${FID}"]`)?.getAttribute("href")).toBe(
+    expect(rangeless(document.querySelector(`[data-window-finding-link="${FID}"]`)?.getAttribute("href") ?? "")).toBe(
       `/sites/${SITE_ID}/findings/${FID}?revision_id=${RID}`,
     );
   });
@@ -1029,7 +1061,7 @@ describe("post-W6 W1-a: Overview crumbs, card links and tones, SLD link, failed-
     await settledScreen();
     const trail = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(Array.from(trail.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Sites", HYBRID_MINI_GRID_SITE.display_name, "Overview"]);
-    expect(within(trail).getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["/sites", `/sites/${SITE_ID}`]);
+    expect(within(trail).getAllByRole("link").map((a) => rangeless(a.getAttribute("href") ?? ""))).toEqual(["/sites", `/sites/${SITE_ID}`]);
     expect(trail.querySelector('[aria-current="page"]')?.textContent).toBe("Overview");
   });
 
@@ -1070,7 +1102,7 @@ describe("post-W6 W1-a: Overview crumbs, card links and tones, SLD link, failed-
     const link = document.querySelector("[data-overview-sld-link]") as HTMLAnchorElement;
     expect(link.textContent).toBe("Single line diagram →");
     expect(link.closest("section")?.querySelector("h2")?.textContent).toBe("Operating context");
-    expect(link.getAttribute("href")).toBe(`/sites/${SITE_ID}/foundation/sld?at=${encodeURIComponent("2026-10-23T23:59:59Z")}`);
+    expect(rangeless(link.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/foundation/sld?at=${encodeURIComponent("2026-10-23T23:59:59Z")}`);
   });
 
   it("Q3: without a selected window the link is the bare mounted route", () => {
