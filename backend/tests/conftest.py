@@ -224,3 +224,17 @@ def _choose_basetemp(config: pytest.Config) -> None:
     unique = REPOSITORY_ROOT / f".pytest-basetemp-{os.getpid()}"
     if _is_writable(unique):
         config.option.basetemp = str(unique)
+
+
+# FR-B: `create_app` assigns the module global `estate.coverage.day_grades_provider` (main.py) and nothing reset it,
+# so an app built in one test changed estate-coverage results in every later test (test_k8_estate_fuel failed 14
+# after test_out_b4_main_binding). Importing `assetops_backend.main` also builds the module-level `app`, which sets it,
+# so the baseline for every test is None (the unit tests' own premise); a test that wants a provider sets it itself
+# (or builds an app), and it is put back to None afterwards.
+@pytest.fixture(autouse=True)
+def _isolate_day_grades_provider():
+    from assetops_backend.estate import coverage
+
+    coverage.day_grades_provider = None
+    yield
+    coverage.day_grades_provider = None

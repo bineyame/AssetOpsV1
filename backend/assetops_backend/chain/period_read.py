@@ -220,6 +220,9 @@ class PeriodFragment:
     body: dict[str, Any]
     inputs: Any = None
     provenance: Mapping[UUID, dict[str, Any]] = field(default_factory=dict)
+    #: AR-4: the row's register day when it is not the built day (a UTC-day period such as an `evidence.claim`
+    #: claim day is keyed by its own date, whichever Site-local day dirtied it); None = the built day.
+    local_day: date | None = None
 
 
 class KindBuilder(Protocol):
@@ -284,6 +287,7 @@ class PeriodReadBuilder:
             self._store.append_provenance(ProvenanceBlock(tenant_id, rev_id, builder.builder_version, block))
         fp = period_fp(builder.kind, builder.builder_version, frag.inputs, frag.body)
         key = PeriodKey(tenant_id, site.site_id, builder.kind, frag.period_start)
+        local_day = frag.local_day or local_day
         latest = self._store.latest(key)
         row = PeriodRow(tenant_id=tenant_id, site_id=site.site_id, kind=builder.kind,
                         period_start=frag.period_start, period_end=frag.period_end, local_day=local_day,
@@ -323,7 +327,8 @@ _ABSENT_SEEN = [0]
 
 
 def absent_count() -> int:
-    """Live absent (Site, day, kind) reads since process start (perf reports it; D-ANY.5 M1)."""
+    """Live absent reads since process start (perf reports it; D-ANY.5 M1). Units differ by kind: one per absent
+    (Site, day) for the other kinds, one per contiguous run of absent days for dispatch.day (D-ANY.10)."""
     return _ABSENT_SEEN[0]
 
 

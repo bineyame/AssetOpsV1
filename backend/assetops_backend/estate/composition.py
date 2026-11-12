@@ -62,12 +62,15 @@ def build_estate_evidence_service(database_url: str | None) -> Any:
     from assetops_backend.estate.adapters.postgres_evidence_money_read import PostgresEvidenceMoneyRead
     from assetops_backend.estate.evidence_money import EstateEvidenceService
 
+    from assetops_backend.chain.composition import build_estate_evidence_rows
+
     base = build_estate_read(database_url)
     keys = ("findings", "assessments", "actions", "consequences", "eligibility", "cold", "ev", "provenance_reads",
             "inconsistent", "unavailable", "cold_site", "ev_site", "ev_money", "link_rows_many", "fuel")
+    # ANY-2 AR-4: stored `evidence.claim` days, served only for the kinds in ASSETOPS_PERIOD_READ_KINDS.
     return EstateEvidenceService(PostgresEvidenceMoneyRead(
         database_url, claim_limits=ClaimLimitReadService(base.assessments), claim_limit_refused=(ClaimLimitRefusal,),
-        **{k: getattr(base, k) for k in keys}))
+        period_rows=build_estate_evidence_rows(database_url), **{k: getattr(base, k) for k in keys}))
 
 
 def build_estate_portfolio_service(database_url: str | None) -> Any:

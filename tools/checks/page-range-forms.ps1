@@ -74,7 +74,10 @@ function Invoke-PageRangeFormsCheck {
 
     $exempt = @(
         "frontend/src/shell/SharedRangeBar.tsx",
-        "frontend/src/ui/FocusPicker.tsx"
+        "frontend/src/ui/FocusPicker.tsx",
+        # PR-3 (rev 5 §5.3): the price form's one "Applies from" date is the value recorded on the price, not a range
+        # or a day the page shows. Narrow exemption for this one file; ruled in D-PRICE.4.
+        "frontend/src/sites/SitePriceEntry.tsx"
     )
     # SR-2b emptied this list: every page reads the shared range. Keep it empty; the self-test still proves the ratchet.
     $pending = @{}

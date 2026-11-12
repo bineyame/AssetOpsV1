@@ -198,6 +198,11 @@ class PostgresAssumptionStore:
                 {"t": tenant_id, "s": site_id, "k": key})]
         return self._run(work, "REPEATABLE READ")
 
+    def site_name(self, tenant_id: UUID, site_id: UUID) -> str | None:
+        """The Site's display name (`site.name`, the column the estate Financials read serves as `site_name`)."""
+        return self._run(lambda c: c.execute(text("SELECT name FROM site WHERE tenant_id = :t AND id = :s"),
+                                             {"t": tenant_id, "s": site_id}).scalar_one_or_none(), "REPEATABLE READ")
+
     # ---- phase 2 reads: exact, at a recorded cutoff, bounded ------------------------------------------------
 
     def snapshot(self, tenant_id: UUID, site_id: UUID, key: str, recorded_at: datetime | None,

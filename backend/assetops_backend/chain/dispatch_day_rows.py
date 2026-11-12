@@ -111,7 +111,9 @@ def day_from_body(body: Mapping[str, Any], known_at: datetime, pending: bool) ->
 
 
 def absent_day(day: date, known_at: datetime, pending: bool = False) -> dict[str, Any]:
-    """D-ANY.5 M1: no row at k renders as a dispatch day with nothing stored by k (no selection, no run, no job)."""
+    """The fallback day for a requested day with no row at k (marked by the provider): `estate.coverage` composes such
+    runs (D-ANY.10) and uses this day only when compose returns none for it (nothing stored by k: no selection, run
+    or job; D-ANY.5 M1)."""
     window = day_window(day)
     return {"day": day, "window_start": window.start, "window_end": window.end, "known_at": known_at,
             "available": True, "unavailable_reasons": [], "status": UNASSESSED, "status_reasons": [ABSENT_REASON],

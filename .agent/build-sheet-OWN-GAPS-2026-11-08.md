@@ -4489,3 +4489,429 @@ Decision logged for owner review: **D-PRICE.3**.
   - "Everything" (about 21 units) does not fit even with a Mon 12:00 freeze, and is not recommended.
 
 Decisions logged for owner review: **D-17N.1-7**.
+
+## D-ANY.11 DISP-1: the remaining dispatch-day lookups are Finding money eligibility; read them through `coverage.dispatch_days` (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/ANY-2-AR4` head `786d2293a`, packet `.agent/AR-4-packet.md`. Parity 61/0/0 after the AR-3 absent fix. Timings cold, store off, rows on: week 8.7 s, 22 days 22.2 s, 31 days 27.1 s. Every remaining `select_dispatch_days_on` call comes from `financials/money_eligibility.py:192` `for_finding_on` (one per Finding day bracket: 4 calls / 1.7-2.3 s a week, 12 / 6.5 s at 22 days, 16 / 6.8 s at 31 days), reached from the snapshot adapter `postgres_estate_read.eligibility` (line ~211), its only caller.
+- **Yes: this is the D-ANY.8/10 rule for a third caller, not D-ANY.9.** D-ANY.9 (`evidence.consequence_money`) is about storing consequence money and its provenance (~4 s); these calls are dispatch-day reads, and the `dispatch.day` rows already hold exactly what `select_dispatch_days_on` returns (`dispatch_day_rows.day_from_body`). One day source for the whole Portfolio read. No new kind, no new invalidation.
+- **Shape (builders do not design).**
+  - `MoneyEligibility.for_finding_on(..., known_at, *, select_days=None)`: when `select_days` is given, the bracket's days come from `select_days(from_, to)`; otherwise `self.days.select_dispatch_days_on(c, ...)` exactly as today. The `self.days is None` fail-closed check applies only when `select_days` is None. All other logic unchanged; `for_finding` (live Site pages) untouched. `financials` must not import `estate`.
+  - `postgres_estate_read` `eligibility(t, s, finding_id, k)` passes `select_days=lambda f, to: coverage.dispatch_days(self, t, s, f, to, k)` (local import if a cycle appears). The snapshot's own `basis_historical`/`continuation` decide explicit vs live rows, the same as the coverage read in the same request; absent days compose per D-ANY.10; with the kind not served (D-ANY.6 kill switch) it falls back to `self.dispatch_days`, i.e. today's call.
+  - Guard: if the returned days do not cover every bracket day, `for_finding_on` returns `unavailable(fid, "HISTORICAL_DAY_UNAVAILABLE: ...")` (fail closed), never a KeyError.
+- **Where: its own branch `fix/DISP-1-money-eligibility` off current main, not AR-4.** These are not AR-4's files, and putting them on AR-4 would void its finished 61/0/0 parity two days before the freeze. AR-4 (priority 1) merges on its present evidence. Build and no-DB tests start now; parity and timings run after AR-4 merges, with main merged in.
+- **Units 0.25** (inside DISP-1's 0.3). Lane C; a Sonnet builder is enough. **IN for 17 Nov under rev 7** (DISP-1 was IN); merge by the Sat 20:00 core freeze. Heavy-job queue: after AR-4 parity; if money.lines parity is ready first it goes first (Sat 12:00 deadline). If DISP-1 misses the freeze it drops with no other change: WARM-1 covers every preset either way.
+- **Evidence required.**
+  - No-DB: (i) with `select_days` given, `select_dispatch_days_on` is never called; (ii) stored days give the same `evaluate` result as compose (ELIGIBLE and one PENDING_REASSESSMENT via an unavailable day); (iii) a short day list fails closed, no exception; (iv) `select_days=None` is byte-identical to today.
+  - client4 parity `--kinds evidence.claim,dispatch.day` 0 mismatches over the 61 cases, plus, if not already there, Finding money cases: one ELIGIBLE Finding with a current amount, one PENDING_REASSESSMENT, one Finding whose bracket runs outside the request range, and one at the `before_build` k. List which existing cases already cover these.
+  - Timings cold, store off, rows on, with profiles, week / 22 / 31 days, before (`786d2293a` + main) and after. The profile must show zero `select_dispatch_days_on` under `for_finding_on` on a fully built range. Saving is reported as measured.
+- **Honest timing report.** The AR-4 packet states that its remaining 1.7-6.8 s of dispatch lookups is DISP-1's, fixed on this branch, not in D-ANY.9's backlog. Rev-7 7.1's custom-range figures (about 8 s a week, 25-30 s a month) are replaced by the DISP-1 after-timings once measured. ≤2 s stays reported, not gated (D-ANY.8); custom ranges stay outside the ≤2 s claim.
+
+Decision logged for owner review: **D-ANY.11**.
+
+## D-UP.1-11 UP-1 pre-flight questions Q1-Q9 and the guard fix (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/UP-1-reading-upload` head `ce24acbcb`, packet `.agent/UP-1-packet.md`; spec rev 7 §7.5 (D-17N.5) and §7.6 (MB-1) of `architect-sequence-client-scope-2026-11-11.md`.
+- Code read for these rulings: `analytics/assessment_worker.py` (`run_once`: every non-EMPTY day window gets a run), `scheduling/stages.py` (`s3`, `mini`), `evidence/adapters/postgres_evidence_ledger.py` `_coalesce_job`, migration 0005 `recompute_job`, 0007 `analytic_run`, `host/tests/test_field_modbus_tcp_acceptance_postgres.py` (TEL-05 Q-T50, TEL-05b, TEL-06b), `evidence/adapters/postgres_gateway_access.py` `issue_credential`, `tools/demo_combined_kobo.py:240-330`.
+
+### D-UP.1 (Q1) The field checker runs as a separate process. Confirmed; no guard exception.
+- `python -m assetops_field.csv_upload check|send`, started by the host per request, is correct. It follows TEL-01 D4 (field adapters are separate processes) and the dependency-direction guard. §7.5's "validate with `CsvCollector.reports` (no IPC)" is a spec error, corrected here: the meaning (validate the whole file before anything is admitted; a dry run admits nothing) is kept, and the process boundary is the means.
+- The backend never imports `assetops_field`. The host passes the child's JSON result to the service through the port the builder already has.
+
+### D-UP.2 (Q2) The demo upload gateway: real `serve_tls`, one Kobo edge gateway shared with MB-1.
+- (a) **Central:** `tools/demo_combined.py serve` starts `python -m assetops_backend.serve_tls` on `127.0.0.1:8443` against the demo DB, only when `ASSETOPS_READING_UPLOAD_SITES` is set (else nothing new starts). Cert and key: self-signed, generated once into `<work>/tls/` the way the TEL-05/TEL-06b tests generate theirs; the gateway's `ca_file` is that cert. No in-process responder: §7.5 says nothing new is admitted inside the API process, and MB-1 (§7.6) needs the same TLS central.
+- **Credential:** at serve start, `PostgresGatewayAccess.issue_credential("demo", "KOBO-001", <Kobo gateway external id from the basis in (c)>, ..., actor="service:demo-upload", enable_sources=<the CSV profile's sources>)`, written to the gateway state's `upload.credential` (`restrict_to_current_user`). Issue once per state dir; reissue only if the file is missing (issuing rotates and revokes the earlier credential).
+- (b) **State and epoch:** one state dir `<work>/gateways/kobo-edge/`, persistent across serve restarts. It is the Kobo edge gateway for both UP-1 and MB-1: the CSV field process and MB-1's `modbus_poller` both admit to it over its IPC link (one edge box, several field adapters, as a real site has). One sequence epoch, created with the state dir by the same epoch generator `rp._gateway` / `provisioning_from_snapshot(..., epoch=)` use, stored in the state dir, and never equal to any per-day state's epoch (assert at creation against the per-day states under `<work>`). MB-1 must not start a second gateway for Kobo.
+- (c) **Activation basis:** the registered basis of the latest prepared Kobo day run already in the demo DB (the snapshot the per-day gateway states were provisioned from). No new draft run is written to the demo DB. If that snapshot cannot be read back from the DB or `<work>`, the fallback is TEL-06b's `registered.setup_service(store).create_draft_run(...).registered_basis` on the demo DB, stated in the packet.
+- (d) **Delivery:** after `send` exits 0, the host calls the gateway's delivery over its IPC link (the `RegisteredGatewayPublisher(link).deliver(50)` loop until `attempted` is 0, bounded at 30 s). Backstop: the demo gateway's `upload.interval_seconds` is **60**, not 3600. A failed delivery leaves the row SENT, and the backstop delivers it.
+- Serve writes the `ASSETOPS_READING_UPLOAD_GATEWAY` JSON file (read by the host) after the gateway is ready.
+- Units: about +0.25 on UP-1's flow-and-demo-file 0.5. MB-1 saves the same amount, because it reuses this gateway and central.
+
+### D-UP.3 (Q3) "Analysed" is reachable. Positive binding is not required for assessment. The proof row is `analytic_run`.
+- **Why it is reachable (cited).**
+  - Ingestion enqueues `recompute_job` rows for the upload's windows (`_coalesce_job`).
+  - The serve tick's `s3` stage runs `DispatchAssessmentWorker.run_site`. `run_once` records a run for every day window whose cohort is not EMPTY. It does not look at provenance.
+  - TEL-05 gate Q-T50 proved an assessment completes over UNKNOWN / NO_POSITIVE_BINDING gateway evidence and records NO_GENERATOR_STATE. TEL-05b proved Findings are raised with money withheld.
+  - Provenance UNKNOWN therefore withholds **money only** (D1(c), D5). It does not block the assessment.
+  - With only `pv_power` and `feeder_demand`, the run exists and records what is missing (NO_GENERATOR_STATE and the role coverage). The board shows the existing missing-role words for that day. That is honest and is not a defect.
+- **Stored proof, `analysed(row)` in the Postgres store, all true:**
+  1. The row is ACCEPTED with all m readings, or ACCEPTED n of m with the rest HELD.
+  2. **An assessment run exists.** An `analytic_run` row exists for the Site with `analytic_id = dispatch_v3.ANALYTIC_ID`, `selection = 'DEFAULT'` and `job_id IS NOT NULL`, its window covers the upload's first interval start, and its `knowledge_cutoff` ≥ the latest decision time (`accepted_at`) of the upload's accepted evidence (found from the row's `message_ids` → the receipts' evidence IDs).
+  3. **No work is left.** No `recompute_job` for the Site in **any** domain (dispatch and the `mini_*` domains) overlapping [first interval start, last interval end) is PENDING or LEASED.
+  - Do not key on `cause_evidence_id`. Jobs coalesce, so an upload's evidence can widen a job caused by other evidence.
+- **A FAILED job overlapping the span** is not "Still processing". It gets the state `NOT_ANALYSED`, with the message key `reading_upload.state.not_analysed`: "Received, but the analysis did not finish. The readings are kept." The row is not changed; the state is derived at GET as the others are. Test it no-DB with a fake store.
+- **"Analysed" links to** the `/sites/KOBO-001` board for the upload's local day (the existing `?date=` form).
+- **Risk, and the proof that closes it.** On the demo DB, the DEFAULT cohort might not include the CSV profile's devices (`pv-inverter-controller`, `clinic-meter`, `mill-meter`, `residential-meter`). The cohort is then EMPTY: no run, and the page never leaves "Still processing".
+  - The Postgres flow test on a `*_test` DB built like Kobo's demo (resume point 4) must show the `analytic_run` row and record the time from send to Analysed.
+  - The first VPS heavy slot runs the same flow once on a client4 copy.
+- **Reduced honest version, if the flow shows no run by Sat 20:00.**
+  - Drop the ANALYSED and NOT_ANALYSED states.
+  - The page ends at "Accepted n of m readings" with the sentence key `reading_upload.after_accept`: "Readings are stored. Analysis of uploaded readings is not switched on in this demo."
+  - "Still processing" is never shown in that version.
+  - The presenter shows the TEL-05 assessment proof on the slide.
+  - Do **not** fake a run, use an explicit cohort from the API, or bind positively. Each of those is a product change outside 17 Nov.
+  - This version fits inside 2.25 u. The full version needs the 2.25 u plus D-UP.2's +0.25.
+
+### D-UP.4 (Q4) Entry: Kobo **Health**, as the mockup draws it. The mockup is the layout spec. The Health tab is also where MB-1 shows the gateway's last upload, so both field beats sit on one tab. Shown only when the switch names the Site.
+
+### D-UP.5 (Q5) The body is raw `text/csv`, with `?file_name=`. Accepted; no new dependency.
+- Labelled **SPEC DEVIATION (transport)**: §7.5 said multipart.
+- The browser sends `fetch(url, {method: "POST", body: file, headers: {"Content-Type": "text/csv"}})`.
+- The server refuses:
+  - over 2 MB, by `Content-Length` and by a bounded read (never buffer more than 2 MB + 1);
+  - any other content type, with 415 and a message key;
+  - a missing `file_name`, or one longer than 200 characters.
+- `file_name` is display-only and is never used as a path.
+
+### D-UP.6 (Q6) The Excel BOM stays refused. The TEL-06 `ENCODING` rule is the format contract (merged), and the presenter's file is generated without a BOM. The refusal words must name the fix: "Save as 'CSV (Comma delimited)', not 'CSV UTF-8'." The template text says the same.
+
+### D-UP.7 (Q7) The path takes the Site code (`/api/sites/KOBO-001/reading-uploads`), as every Site route does. §7.5's `{site_id}` was loose wording; this is not a deviation.
+
+### D-UP.8 (Q8) Migration `0061_reading_upload` with `down_revision = 0059_site_period_read` on the branch. Accepted. Whichever of PR-3 and UP-1 merges second repoints its `down_revision` to the other's revision. The merge gate includes a single `alembic heads` result on the merged tree. The number stays 0061 if PR-3's 0060 lands first.
+
+### D-UP.9 (Q9) The extra columns are accepted, all append-only.
+- The extra columns are `file_name`, the refusal field and detail, the period, the per-kind counts, `message_ids` (jsonb) and `session_ref`.
+- The file's bytes and reading values are never stored, only the SHA-256. The message IDs are what D-UP.3 needs.
+
+### D-UP.10 The guard fix is correct: register the store, no exception.
+- Move the store to `reading_upload/adapters/postgres_reading_upload_store.py`.
+- Make the INSERT column list a literal.
+- Register the store in `tools/checks/configuration-persistence.ps1` as the sole, INSERT-only writer of `reading_upload`, on the `$periodWriter` / `$fuelBalanceWriter` pattern (driver allowlist plus anti-vacuity).
+- Prove the guard is non-vacuous: add a second writer, watch it fail, then revert.
+- The estate self-test failures are expected to clear. If any remain after the fix, they are reported with output, not assumed.
+- The `node_modules` failures are environment: run `npm ci` in the worktree before `check-all`.
+
+### D-UP.11 Process note and lane order
+- The Python heredoc edit to `service.py` breaks the lane's Write/Edit-only rule. The reviewer re-reads that file in full; no other action.
+- Lane F order: guard fix (D-UP.10) → D-UP.2 gateway → template route → Postgres flow (D-UP.3 proof) → `analysed` read → page after the mockup approval → MB-1 on the shared gateway.
+
+Decisions logged for owner review: **D-UP.1-11**.
+
+## D-WARM.1-6 WARM-1 packet questions (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: Architect = Claude. Context: `task/WARM-1-range-warm` head `5da936ccf`, packet `.agent/WARM-1-packet.md`, spec rev 7 §7.1 (D-17N.1).
+
+### D-WARM.1 (Q1) The data window starts at the **earliest** Site's first day. Confirmed.
+- The presenter can click those ranges, and each later Site's board states its own missing days honestly.
+- No range starts before the estate's first reading day. That is the meaning of §7.1's "no range before a Site's first day"; the test name says so.
+
+### D-WARM.2 (Q2) Unstored reads are measured, reported, and not gated.
+- `--verify` also replays the unstored reads the script pages send, for the 5 presets and the story ranges only:
+  - `/api/estate/scope`;
+  - the Site Overview read;
+  - `/api/sites/{code}/findings`;
+  - estate actions, evidence and financials.
+- They go under `unstored` in `warm-report.json` with their ms. They do not enter `pass`.
+- Any of them over 2 s on a script page is listed in the presenter notes and sent to the Architect as a finding. It is not a merge blocker.
+- The claim wording is "≤2 s on every stored request of every clickable range". "Every page" is used only where `unstored` is all under 2 s.
+
+### D-WARM.3 (Q3) Expiry and the 17 Nov schedule.
+- Live bodies expire at the earliest next Site-local midnight, and the demo Sites are at or ahead of UTC. The final warm therefore runs **on the session morning**, after 00:00 UTC and after that morning's add-dates or drain. Its bodies then hold until the first Site-local midnight of 17 Nov, which is after the session.
+- `--verify` must pass within 60 minutes before the session starts. The coordinator checklist records its time and `wall_seconds`.
+- No data change between that verify and the field beats.
+- Serve's per-tick re-warm stays; when nothing changed it is all hits, under 1 min.
+
+### D-WARM.4 (Q4) MB-1: the feed is off until its beat. The estate key is not changed.
+- No live feed or upload runs before the field beats. They come last in the script (D-17N.7), and the presenter starts MB-1's `live-field` at that beat.
+- Taking the feed out of the estate `cic:` scope is refused. It would make the Portfolio hide new readings (D-E4.8), which is a product change.
+- A Portfolio visit after the field beats is unprepared, as §7.5 risk 1 states.
+
+### D-WARM.5 (Q5) The not-warmed list is accepted, with one addition.
+- **Addition:** warm the Findings lens pages (`lens=cost|risks|opportunities`) on `/api/estate/findings` for the presets and the story ranges. They are stored routes, and they can be reached from the Findings page by one click.
+- Accepted as not warmed:
+  - `known_at` ranges;
+  - Portfolio page 2 and later;
+  - chain "Why?" routes outside `prebuilt-routes.json` (the story ones are already part 3);
+  - `7dwork`.
+- The packet lists them under "outside the ≤2 s claim".
+
+### D-WARM.6 (Q6) Retries on `race`, `unstored` and `composed` are accepted, as a recorded spec addition.
+- They get the same schedule (2, 5, 10 s) as 503 and `stale`.
+- A request still not stored after the retries fails the run: on a stored route it would be a miss at the demo.
+- `warm-report.json` names the reason per request.
+
+- Lane A next: build the D-WARM.2 and D-WARM.5 additions first (small, no DB), then run the VPS gate (packet resume points 1-4). Fresh Claude reviewer.
+
+Decisions logged for owner review: **D-WARM.1-6**.
+
+## D-PRICE.4 PR-3 form half: the "Applies from" date exemption, extra `entry` fields, no default basis, button under the row (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/PR-3-price-entry` head `d4c0935c0`, packet `.agent/PR-3-packet.md` (form-half deviations 7-10, Q3-Q4). D-PRICE.1-3 stand.
+- **Q3 keep the SR-2 exemption for `SitePriceEntry.tsx`.** SR-2 stops a page from choosing its own date range. "Applies from" is a value typed into a record (rev 5 §5.3), like an amount; it never changes what the page shows. FocusPicker would be wrong: it is range-scoped and would declare a "Day shown". Conditions: the comment in `page-range-forms.ps1` cites D-PRICE.4 instead of "pending Architect confirmation"; the file keeps exactly one date input. A second date input or any range control in that file needs a new ruling. No other guard change.
+- **Q4 deviations 7-9 confirmed.**
+  - 7: the extra `entry` fields `today`, `unit_text`, `currencies` and `live_view` are confirmed beside `enabled` and `keys`. The browser has no Site zone, so `today` must come from the server, and the honest-state words stay server-side. All of them are empty or None when entry is off.
+  - 8: no default basis is confirmed. A preselected basis would let a typed price be saved under a basis nobody chose. The server refusal "Check: Basis." is the guard.
+  - 9: the "Set a new price" button and form sit in the row slot under the row. This is owner default 6 (form inline under the row) and keeps the PR-2a seam the only change to the table.
+  - 10 (MOCK DEVIATION D-PRICE.3, no form in v7.1) stands as labelled.
+- Not blocking: the AR-4 rerun of the Postgres flow happens after AR-4 merges to main. Next: fresh Claude reviewer on the form half.
+
+Decision logged for owner review: **D-PRICE.4**.
+
+## D-DATA.1-6 DATA-17N packet Q1-Q6: diagnostics clocks, due dates, the Kisiwa plan date, the DATA-4 spec, Kisiwa productive users (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/DATA-17N-coverage` head `18cdea7ea`, packet `.agent/DATA-17N-packet.md`. Owner approved DATA-4 and DATA-8 ("both", `.agent/owner-17nov-package-2026-11-12.md`). D-17N.4 gate stands: the Sat-night rehearsal finish check gates each data merge, and a failure reverts that merge. Honesty rules D-E5.46 and D-E5.47 apply to every line below.
+
+### D-DATA.1 (Q1) Kobo diagnostics forwarding stays off.
+- Kobo already has `gateway_diagnostic` rows from its own path, and MB-1 posts live Kobo diagnostics at the field beat. A second, harness-built diagnostic stream on the same Site would compete with both for "latest report".
+- `demo_combined_kobo` is unchanged. The card's "recapture Kobo Health" becomes a no-change check: Kobo Health pairs are recaptured and must match the previous capture.
+
+### D-DATA.2 (Q2) Health reads the real server clock; a forwarded diagnostic is received on the clock that sealed it.
+- **Health "now" is the real server clock** (`source_health_api`'s `clock()`). There is no demo "now". A demo override would make Health claim contact that did not happen.
+- **Defect in the built version.** The gateway seals each diagnostic on its own clock (`observed_at`, device contacts), but the harness stores it with a story `received_at` days earlier. Every forwarded row is then `observed_at` > `received_at` + 5 s, so `fact_age` returns `OBSERVED_AFTER_RECEIPT`. Health would read "Unknown age: its reported time is later than the server received it". That is a harness artefact shown as a data fact (D-E5.47). Separately, a story `received_at` later than the read time makes `check_consistent` refuse the whole read with 409.
+- **Rule.** The forwarding service's clock is the harness gateway's own clock (its `_clock`, the clock that sets `observed_at`), for all three paths:
+  - Cold `w202.DIAGNOSTIC_CLOCK`;
+  - EV `w205b.FORWARD_DIAGNOSTICS`;
+  - the Kisiwa replay `_publish_and_accept(..., diagnostics=True)`.
+
+  Do not use the story `received` clock or the chain decision clock. The packet reports that clock as the real wall clock, so `received_at` becomes the real time of the prepare.
+- **"Stale" on demo day is accepted. It is the fact.** The last report was received when the data was loaded. The existing words state it in plain terms: "Stale: nothing received for {age} (limit {limit}); when it stopped is not known". Do not build anything to make it read "Current".
+- Presenter line: "These sites are replayed recordings; their gateways last reported when the recording was loaded."
+- **VPS gate (added to resume point 2).**
+  - For Cold, EV and Kisiwa: `SELECT count(*) FROM gateway_diagnostic WHERE observed_at > received_at + interval '5 seconds'` = 0, and no `received_at` is later than the real time of the query.
+  - Health on each of the three Sites returns 200, with no "Unknown age" line and no clock-untrusted line.
+  - If the harness gateway's clock turns out to be a story clock, the same rule holds (`received_at` = that clock). Report the observed receipt lag in the packet.
+- Test (no DB): one `test_data5_story_diagnostics.py` case. The forwarded receipt's `received_at` equals the injected gateway clock, not the story instant. Replace the current assertion that pins `received_at` to the story clock.
+
+### D-DATA.3 (Q3) Due = raised + 14 days, confirmed. Kobo's Actions are unchanged.
+- One explainable rule: "due two weeks after it was agreed". It applies to the Cold, EV and Kisiwa story Actions.
+- Kobo's battery and mill Actions keep no due date. That story is proven, and re-proving it is out of scope (owner 2026-11-05, demo-critical only). Their rows keep the honest "no due date set" state.
+- An Action whose due date falls before the demo day reads overdue. That is a fact of the story data, and it stays.
+- The VPS proof lists each story Action's `raised_at`, `due_at` and its state on Mon 17 Nov. The coordinator copies any overdue Action into the presenter notes.
+- No clamp or special case.
+
+### D-DATA.4 (Q4) Kisiwa service plan: written S-8d 09:00 is confirmed; due moves to S+10d 00:00 Site-local, CALENDAR.
+- `plan_due.py` makes a plan OVERDUE when it is due strictly before the range end `to`.
+- S is the prepare date minus 2 days, so a Sat-night prepare gives S = 12 Nov and the demo on Mon 17 Nov is S+5d. With due S+5d 00:00, any range that ends after the start of the demo day (the "today" preset after add-dates) would read OVERDUE.
+- S+10d keeps DUE_SOON for every range end from S-3d through S+10d. That covers the story week `[S-6d, S+1d)` and every demo day up to S+9d, and stays "within the story month" (the test's S+30d bound).
+- RUN_HOURS ("not assessed") is refused. It removes the K14 value the item exists to show.
+- Update the story doc `service_plan.due_at` and its test expectation.
+
+### D-DATA.5 (Q5) DATA-4 spec: Charger use from declared ratings; the diagram's feeder meter from config; no new Foundation vocabulary. About 0.5 unit, Sonnet, lane B, before the Sat 20:00 freeze.
+
+**Why the scope is this size.** The Foundation vocabulary (`sites/models.py` `COMPONENT_TYPES`) has no grid-connection, circuit-breaker, load-manager or auxiliary-feeder component. Feeding the Grid supply, Main CB, Feeder CB, Load manager and Depot auxiliary slots from config needs a schema change (component types, validation, import, read model). That is a BL item, not a two-day item. Those slots keep "Not declared", which is true. What the config already declares (charger 60 kW, connectors c1/c2 60 kW each with meter properties, the site import meter, the 80 kW import limit, the connector enable schedules) is now read.
+
+**A. Backend: the availability read carries ratings** (`analytics/ev_availability.py` `availability()`, same selected Foundation revision as the schedules).
+- Each connector row gains:
+  - `connector_rated_kw` (`ev-connector-max-power`, decimal text or null);
+  - `charger_asset_id` (the EV_CHARGER that has a SIGNAL edge to this connector, or null);
+  - `charger_rated_kw` (`ev-charger-max-power`, or null).
+- The fields are additive. Existing keys and values are unchanged.
+
+**B. Backend: the Charger use rule** (`site_outcomes/ev.py`, new pure `charger_use(kwh, availability_body, limit_kw, rc)`, replacing the constant `CHARGER_USE` contributor).
+- Capacity kWh: sum over chargers of `rating_kw x hours`.
+  - `rating_kw` is `charger_rated_kw` when declared, otherwise the sum of its connectors' `connector_rated_kw`.
+  - `hours` is the largest `scheduled_seconds` among that charger's connectors, divided by 3600. In the declared case all connectors share one schedule, so this is exact. The docstring says so.
+  - Connectors with no charger count individually as `connector_rated_kw x scheduled_seconds / 3600`.
+  - If the sum of charger ratings is above the declared import limit, the import limit replaces that sum (one line, `site_power.configured_limit_kw`).
+- Share: `kwh / capacity x 100`. The kWh is the one printed on the same response's "Charging delivered" line: the overview's `complete_kwh` in `compose`, and the EV-3 claim's `parts["kwh"]` in `_charging_from_claim`, which replaces the charger_use contributor as it replaces charging_delivered.
+- Words (label "Charger use"; one decimal for kWh as `num`; hours via `duration_text`; whole percent):
+  - normal: `{p}% of declared charging capacity · {kwh} kWh with a complete meter record in {h} of scheduled charging at {r} kW`. `{r}` is the single rating when all chargers share one; otherwise the words read "at the declared ratings". Confidence `rc`.
+  - 0 < share < 1: `{p}` reads `under 1`, giving "under 1% of declared charging capacity …". A share of 0 reads `0%`.
+  - availability read failed: `NOT_LOADED`.
+  - no kWh (`kwh is None`, or the claim is not known): `NO_SESSION_ASSESSMENT`.
+  - no rating declared on any scheduled charger or connector: `Not available yet · charger rating not declared`.
+  - total scheduled seconds 0 or null: `Not available yet · no scheduled charging hours in this window`.
+  - share above 100: `Not available yet · delivered energy is more than the declared rating allows in the scheduled hours`. This is a data fact, never "error".
+- Charger use is a contributor only. It enters no verdict, money or objective.
+
+**C. Frontend: `SiteSingleLineDiagram.tsx` `EvSingleLineDiagram`** (no read-model change; `chargers[].connectors[].meter_resolution_kwh` already exists).
+- Feeder meter slot `j`: when the group has at least one connector and every connector's `meter_resolution_kwh` is not null, the box drops `ev-sld__box--missing`, gets `data-ev-declared="yes"`, and the line under "kWh" reads `At each connector`. Otherwise it stays `Not declared` with `data-ev-declared="no"`.
+- Empty feeder slot (no charger in the group): the label stays `Charger {n} · Not declared` and the second line (`Rating not declared · No connector declared`) is not drawn. It repeated the label. The slot, box and position are unchanged.
+- Footnote `data-ev-sld-undeclared`, plain words: "Grid supply, circuit breakers, the load manager and depot auxiliary are not part of this site's declared configuration, so they are drawn as empty slots. Energy is metered at each connector and at the site import meter where declared. Reporting is not assessed on this diagram."
+- **MOCK DEVIATION D-DATA.5:** none in layout. Every v6.9 slot keeps its place, and only the slot words change.
+
+**D. Tests.**
+- `test_data4_charger_use.py` (pure): one case per state above. Also:
+  - the charger rating taking precedence over the connector sum (60, not 120);
+  - the import-limit cap;
+  - the claim-path kWh replacing the overview kWh;
+  - the fixture `ev-lab-001.yaml` read through `availability()` giving `charger_rated_kw` "60.0" and `connector_rated_kw` "60.0" for c1 and c2.
+- Frontend `SiteSingleLineDiagram` test:
+  - feeder 1 meter `At each connector` and `data-ev-declared="yes"`;
+  - feeder 2 has no "Rating not declared" text;
+  - the new footnote;
+  - every v6.9 slot is still present (`data-ev-slot` count unchanged).
+- Run the guards and `check-all`.
+- VPS:
+  - EV Overview › Grow on the story day shows a percentage line;
+  - recapture the EV Overview and Foundation pairs;
+  - the finish check is green (no EV row reads this contributor; if one does, it is updated from stored data in the same branch, citing D-DATA.5).
+
+### D-DATA.6 (Q6) Cold store and water pump PRODUCTIVE: accepted. Kisiwa does **not** declare MG-1 for 17 Nov.
+- **Supply use.** The cold store (ice and fish) is a business, so PRODUCTIVE is the accurate supply use. The water pump moving off HOUSEHOLD corrects the template.
+- Its critical status is not lost. Its first place in `critical-load-priority` and its `critical_load_requested/delivered_power` bindings (roles4 config) are unchanged, so MG-5 and Assure are unchanged.
+- The Foundation's displayed supply use changes from "Essential service" to "Productive". Both feeders have `feeder_demand` bindings, so the productive kWh is measured on both. The Grow copy names the measured hours (`productive_use.py`), so night-only runs are stated, not scaled.
+- **Price.** The fixture is neutral (it names no Site) and its idempotency is Site-scoped (`financial_assumption_publication_key_unique`), so reusing it is correct.
+- **Finish rows.**
+  - KIS-7 item 3 already asserts (`KIS7_ITEM3_REPORT_ONLY = False`, R3u U8). It was waiting for exactly this `productive_kwh` subject, and DATA-8 is what makes it pass. A failure there is a real defect: revert DATA-8 per D-17N.4. Never set report-only.
+  - KIS-6 derives from data: no change.
+  - KIS-1: before the VPS run, confirm `kis1` reads diesel prices by assumption key. If it counts every Kisiwa price, filter it to the diesel key (its subject). Do not raise a literal count.
+  - CO-6 is unchanged, because no objective is added.
+- **MG-1 not declared.** MG-1 is a month-to-date productive kWh target. Kisiwa has night runs only (DATA-7 full-day runs are OUT, D-17N.4), so a monthly target would be judged on a fraction of the hours, and a "behind pace" verdict would describe the recording, not the Site.
+- The Grow row shows the measured productive kWh and estimated sales, and keeps "No objective declared". That is true, and it is now one line, not three (D-E5.33).
+- MG-1 for Kisiwa goes to the backlog with DATA-7.
+
+**Builder order (lane B, VPS).**
+1. D-DATA.2 clock fix and its test, then the D-DATA.4 date and its test (no DB).
+2. Build D-DATA.5 as a separate commit (no DB, plus the frontend test).
+3. On the VPS, merge main and run a scratch prepare on `<prefix>_audit*`, then:
+   - packet resume point 2 plus the D-DATA.2 gate;
+   - the D-DATA.3 due list;
+   - the KIS-1 check;
+   - the EV Charger use line.
+4. Run the packet's Postgres files one at a time.
+5. Send it to a fresh Claude reviewer. Merge only after the Sat-night rehearsal finish check is green.
+
+Decisions logged for owner review: **D-DATA.1-6**.
+
+
+## D-SR.1-8 Site pages on the shared date range, SR-4 (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+Source: the owner's report "when i navigate into sites, it appears the date range is not used to inform the content, verify this", which the verifier confirmed. Full spec: `architect-sequence-client-scope-2026-11-11.md`, Revision 8.
+
+### D-SR.1 Three classes of Site page.
+- **R (follows the range):** Findings, Work, the Evidence ledger, Scenarios, Renewable up to 5 days, and every Cold and EV content page.
+- **D (one day or part, inside the range, defaulting to its last day):** the Kobo/Kisiwa Overview, Dispatch, the Kisiwa night window, Service, the claim limit, and Renewable over 5 days.
+- **N (point in time):** mini-grid Health, mini-grid Financials and Prices, Foundation, and the Sites index.
+- Why: the mini-grid Overview is one UTC day by server contract, and the stored day rows (ANY-1) make that day fast. A range board is SR-5 (backlog, about 1.5 units, read path plus parity, after the freeze).
+
+### D-SR.2 Every Site link carries the range, through one component.
+- `RangeLink` plus `carryRange`, and a codemod of every `Link` import.
+- Guard `site-links-carry-range.ps1`, with a runtime DOM test as the second guard.
+- Why: 136 call sites build Site hrefs. One component plus a guard is the only way the rule survives new code. Per-frame `search` props are how the Kobo/Kisiwa gap arose.
+
+### D-SR.3 Safety net in `SharedRangeOutlet`.
+- A Site content address with no range takes, in order:
+  1. the previous in-app range;
+  2. else the 7 days ending on `day`;
+  3. else `entryRange()`.
+- The page is replaced before it mounts.
+- Why: `navigate()` calls and data-built links are not all visible to the guard. Filling before mount means one request, and the preset strings match WARM-1.
+- Consequence: Site Work pages adopt the shared range instead of R338's own default.
+
+### D-SR.4 `pageDay`.
+- The day is `day`, else the range's last day, else today only when the address has no range.
+- Previous/Next stop at the range's edges with text, unless the shown day is already outside the range (story links).
+
+### D-SR.5 Service and Renewable under a long range.
+- Service uses the 12:00 local hour of `pageDay` unless the address window is exactly one hour or one day.
+- Renewable uses the last 5 Site-local days of the range when the range is longer than 5 days.
+- Both declare what they show.
+
+### D-SR.6 Honest tags.
+- "Showing 9 Nov of the range" and "Showing 5–9 Nov of the range" for D pages.
+- "Range not used · shows now", "· current settings" and "· prices valid now" for N pages.
+- "All pages" only where the content follows the range.
+- Declarations are set in a layout effect.
+- MOCK DEVIATION R718/R719: v71 Change 0b shows only "All pages". Its text, "A page that needs a finer view ... picks it inside this range", is what R718 makes visible.
+
+### D-SR.7 EV on generic paths.
+- `/sites/<EV>/financials` redirects to the EV financials page.
+- The generic Evidence page's rejections and analytics panels get the range if their routes accept it. Otherwise they say "All dates, not only the date range".
+
+### D-SR.8 IN for 17 Nov.
+- 1.5 units, lane G (frontend only, Opus), one branch `task/SR-4-site-range`.
+- Core freeze Sat 20:00: ACCEPT by Sat 16:00.
+- Priority: after WARM-1, before UQ-FI-1/2.
+- The owner said "fix it now": start immediately in the order a, b, c. Only SR-4d (the day strip, which needs owner approval by Fri 12:00) can drop.
+
+Decisions logged for owner review: **D-SR.1-8**.
+
+
+## D-SR.9-12 Data in the range means output for the range, on every Site type; SR-5 IN (Architect, Claude, 2026-11-12, owner-directed, logged for owner review)
+
+Source, owner verbatim (`.agent/owner-range-output-rule-2026-11-12.md`): "this should not have been the case to begin with, if there is data in the range, then there should be corresponding output, why was such a site specific disparity in design introduced to being with?" and earlier "fix it now". Full spec: `architect-sequence-client-scope-2026-11-11.md`, Revision 9.
+
+### D-SR.9 Standing product rule.
+- Every Site page with data in the selected range shows output for that range, the same way on every Site type.
+- A single day, hour or night view is only a drill-in from a range view, with a link back. It is never the default.
+- Point-in-time pages (Health now, Prices valid now, Foundation, the Sites index) say so.
+- Gaps use the D-E5.46 words.
+- Supersedes S5-01's one-day default for what the Site Overview shows by default. The one-day read stays as the drill-in. It also supersedes rev 8's class D for the Overview and Dispatch, and rev 8's "Honest limit".
+- Why: the owner's rule. A cross-Site disparity in range behaviour is a defect, not a design choice.
+
+### D-SR.10 Process fix.
+- Every UI plan, packet and review that touches a Site page carries its page × Site-type range row (R/D/N with the reason).
+- `RANGE_MATRIX` (`frontend/src/ui/rangeMatrix.ts`) plus `siteRangeMatrix.test.tsx` fail any Site route that is unclassified, or whose requests ignore the range while it claims "All pages".
+- Why: the root cause was that no plan or review compared the same page across Site types. Each slice was checked only against its own contract.
+
+### D-SR.11 SR-5 range board for mini-grid Sites: IN for 17 Nov, lane H (VPS, from tonight).
+- **Server:** `GET /api/sites/{code}/range-overview?from&to[&known_at]`, schema `site-range-overview-1`. It is composed in the new `estate/site_range.py` on one estate snapshot from the Portfolio's own selectors, so it equals the Portfolio by construction. Its per-day states come from the `dispatch.day` rows with the D-ANY.10 absent compose and the D-E5.46 reasons. The response is stored per Site (ResponseStore), and WARM-1 lists the route.
+- **Pages:** the mini-grid Overview defaults to the range view, and `?day=` is the S5-01 drill-in. Performance/Dispatch and the Kisiwa nights get a day table, and the day becomes the drill-in. Mini-grid Financials adds the range money.
+- **Units:** core (a+b+e) 1.4, c 0.35, d 0.3; 2.05 in all.
+- **Gates:** parity 0 mismatches against the Portfolio, rows on/off and the one-day board; stored response ≤2.0 s.
+- **Deadline:** core ACCEPTed by Sat 16:00 or held whole (SR-4b's last-day Overview stays). c and d each drop alone.
+- **Mock deviations:** R721-R723.
+- Why: the owner's rule and "fix it now". Reusing the Portfolio selectors avoids a second money or coverage rule, and needs no edit to AR-4's files.
+
+### D-SR.12 Audit dispositions and capacity.
+- **Fixed:** SR-4 fixes links, tags, the EV redirect and the Evidence panels. SR-5 fixes the mini-grid Overview, Dispatch, nights and Financials.
+- **Known gaps for 17 Nov**, honestly tagged: mini-grid Health (SR-6, 1.0), Service and the claim limit (SR-7, 0.5), Renewable over 5 days (SR-8, 0.5). Backlog first after 17 Nov.
+- **Moves:**
+  - SR-4d OUT (subsumed by SR-5's day table).
+  - BL-ANY-absent OUT.
+  - DATA-10/13 becomes IN-if-free.
+- **Package:** about 13.4 units, slightly over the 11-13 window. The drop order is DATA-10/13, SR-5d, SR-5c, UQ-FI-3.
+- **Priority:** AR-4 > WARM-1 > SR-4 > SR-5 core > UQ-FI-1/2 > UP-1 > MB-1 > DATA-5/4/8 > SR-5c > SR-5d > UQ-FI-3 > FR-B > DATA-10/13.
+
+Decisions logged for owner review: **D-SR.9-12**.
+
+### D-SR.13 SR-6, SR-7, SR-8 are IN now (owner-directed, 2026-11-12).
+- Owner: "Everything must be fixed now, demo today is called off because of this". Rev 9's known-gap list is withdrawn. Designs: sequence doc rev 10, 10.2-10.4.
+
+### D-SR.14 What is point-in-time by nature.
+- Foundation (with changes and SLD), battery configuration, Prices, the Sites index and single-record pages (Finding detail) are N: configuration, an instant's price, a directory or one record. Every page with readings over time follows the range. Battery condition is never invented over a range.
+
+### D-SR.15 Range reads reuse stored per-day rows only.
+- Health: `gateway_diagnostic` and `accepted_evidence` grouped per UTC day, plus SR-5a day states. Service and Renewable: chain day snapshots (`critical_served`, `daylight_headroom_kw`). Claim limit: `evidence.claim` rows. The hour and 5-day depth reads stay as drill-ins.
+
+### D-SR.16 BL-ANY-absent returns as a test, not code.
+- Each new range read is tested with an absent historical-k row; fallback code is added only if that test fails (0.25).
+
+### D-SR.17 Unlisted Site routes go to the Architect.
+- Any route in the SR-4 pre-flight list missing from rev 10.5 is a pre-flight question. Asset pages showing readings without from/to become SR-9.
+
+### D-SR.18 Lanes and drop order.
+- Lanes I (SR-6), J (SR-7), K (SR-8; VPS if no fourth laptop lane). Protected: SR-4 to SR-8. Drop order: DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1. Package about 15.65 units.
+
+Decisions logged for owner review: **D-SR.13-18**.
+
+## D-SR.19-30 SR-5 and SR-6/7/8 pre-flight rulings (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Detail and evidence: sequence doc **Revision 10a**. Inputs: `.agent/SR-678-preflight.md` (4db92b874), `.agent/SR-5-packet.md` (7ae69039b).
+
+### D-SR.19 SR-6 reading cutoff is the disposition time.
+- Accepted readings join `ingestion_disposition` (ACCEPTED, `accepted_evidence_id = e.id`, `decided_at <= k`) with `tenant_id`, bucketed on `COALESCE(interval_start, source_time)`, as the dispatch read does. Diagnostics stay on `received_at <= k`.
+
+### D-SR.20 READINGS_ONLY contact state; no demo diagnostics work.
+- A gateway with no diagnostics on a day but readings through it reads "Readings received; no status reports". NOT_EXPECTED applies only when nothing arrived. Parity reports diagnostic counts per Site.
+
+### D-SR.21 Dead SR-6 branches dropped.
+- No file-import text, no null-cadence rule (gateway ids and cadence are NOT NULL).
+
+### D-SR.22 One day-state rule in `estate/range_days.py`.
+- Lane H extracts `range_day_states` (SR-5a precedence + coverage-wins, step 6 = ANALYSED). SR-5a maps ANALYSED to FINDINGS/CLEAR; SR-6 shows ANALYSED and calls `select_finding_scope` only for coverage. If SR-5 core is held, the module merges with SR-6.
+
+### D-SR.23 SR-6 read shape and late router wiring.
+- One `read_snapshot`; `_health_registration(snap._c, ...)` called; new adapter for the two grouped queries; source NOT_EXPECTED from the day state. New range routers are new builder functions included after `responses` and `estate_portfolio` in `main.py`.
+
+### D-SR.24 SR-7b reuses the evidence-money claim-day pattern; no `claim_days`.
+
+### D-SR.25 SR-7b day row is `reduce_day`; link `/sites/{code}/evidence?day=&revision=`.
+- No invented day ceiling; null revision → NO_SELECTION. The table lives in Site Evidence's claim-limit section.
+
+### D-SR.26 SR-7a hours from row seconds; NO_CRITICAL_LOAD dropped; NO_VALUE state.
+
+### D-SR.27 SR-8 shows the low–high band.
+- States COUNTED/EXCLUDED/CONFLICT/LIMITED/MISSING_HOUR; averages of low and high separately over ELIGIBLE days; hours over operating hours.
+
+### D-SR.28 SR-5 safe readings.
+- Confirmed: evidence scope in the snapshot, `actions.open` (import `CLOSED_LABELS`), local→UTC day mapping, unmatched = STILL_PROCESSING, coverage-wins → FINDINGS/CLEAR (logged, counted in parity), route tests in one file. Corrected: `findings.count` follows the Portfolio's `finding_known` null rule.
+
+### D-SR.29 Demo Sites and parity windows.
+- KOBO-001, KISIWA-001; windows end at the last complete UTC day with accepted readings after the VPS prepare; 7/14/31 days; recorded in each parity JSON.
+
+### D-SR.30 Route classes.
+- N: opportunity, action, verification, fuel-verification, fuel-finding, foundation change and maintenance-request detail pages. Work subtabs covered by the Work row (matrix test proves; else SR-9). Cold/EV performance subtabs R. Mini-grid Fuel and Backup subtabs D with honest tag; range form is an owner item (Fuel ~0.5 via `avoidable_gen_min`; Backup needs chain work). Cold/EV asset pages pending the SR-4 route list.
+- Sizes: SR-5 2.1, SR-6 1.1, SR-7 0.75, SR-8 0.5; package about 15.8.
+
+Decisions logged for owner review: **D-SR.19-30**.

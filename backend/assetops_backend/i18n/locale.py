@@ -69,8 +69,12 @@ class LocaleMiddleware:
                 break
         locale = resolve(header)
 
+        started = False
+
         async def send_with_language(event: Any) -> None:
+            nonlocal started
             if event["type"] == "http.response.start":
+                started = True
                 headers = list(event.get("headers") or [])
                 if not any(n.lower() == b"content-language" for n, _ in headers):
                     headers.append((b"content-language", locale.encode("latin-1")))
@@ -78,4 +82,14 @@ class LocaleMiddleware:
             await send(event)
 
         with using(locale):
-            await self.app(scope, receive, send_with_language)
+            try:
+                await self.app(scope, receive, send_with_language)
+            except Exception:
+                # An unhandled exception leaves this middleware before Starlette's outer error handler answers, so
+                # that 500 would carry no `Content-Language`. Answer it here (Starlette's own body), then re-raise so
+                # the error is still logged and visible to the server.
+                if not started:
+                    await send_with_language({"type": "http.response.start", "status": 500, "headers": [
+                        (b"content-type", b"text/plain; charset=utf-8"), (b"content-length", b"21")]})
+                    await send_with_language({"type": "http.response.body", "body": b"Internal Server Error"})
+                raise

@@ -495,8 +495,8 @@ def test_kobo_guardrail_two_board_days(kobo_guardrail, monkeypatch) -> None:
     assert checked and all(i["text"].endswith(SAFEGUARD) for i in checked), protect["issues"]
 
 
-@pytest.mark.xfail(strict=True, reason="BL-63: a Finding-driven state on a day whose moved measure has no counted "
-                                       "evidence")
+@pytest.mark.xfail(strict=True, raises=AssertionError,
+                   reason="BL-63: a Finding-driven state on a day whose moved measure has no counted evidence")
 def test_kobo_s602b_no_judgement_on_unchecked_day(kobo_guardrail, monkeypatch) -> None:
     """D-E2.9 / BL-63: on a Site-local day whose latest `avoidable_gen_min` grade is NO_DATA or PENDING (or has no
     row), no outcome may carry a Finding or objective verdict. Today s602b does; when BL-63 lands this XPASSes (a
@@ -508,7 +508,7 @@ def test_kobo_s602b_no_judgement_on_unchecked_day(kobo_guardrail, monkeypatch) -
     _serve(monkeypatch, url, work)
     _pin_kobo(monkeypatch, spec)
     judged = ("PRIMARY_FINDING_", "SECONDARY_FINDING_")
-    verdicts = ("OBJECTIVE_MET", "OBJECTIVE_MISSED", "OBJECTIVE_ON_PACE")
+    verdicts = ("OBJECTIVE_MET", "OBJECTIVE_MISSED", "OBJECTIVE_ON_PACE", "OBJECTIVE_BEHIND_PACE")
     with _client() as c:
         boards = {day: _board(c, "KOBO-001", f"kobo_s602b_unchecked_{day}", date=day)[0]
                   for day in ("2026-10-06", "2026-11-02")}
