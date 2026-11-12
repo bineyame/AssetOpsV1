@@ -421,11 +421,13 @@ def day_decision(decisions: Iterable[str]) -> str:
     return "UNKNOWN"
 
 
-def summarize_renewable(hours: Sequence[RenewableHour], *, requested_days: int) -> RenewableCards:
+def summarize_renewable(hours: Sequence[RenewableHour], *, requested_days: int,
+                        partial_days: Iterable[date] = ()) -> RenewableCards:
     """Closure 1 Q4/Q19, closure 2: cards over complete eligible days; the denominator is complete days only.
 
     CH-9 (CH9-R2 Q5): `hours` may hold several daylight hours per day. Days are counted by their day decision;
-    the kW ranges are over the ELIGIBLE hours of ELIGIBLE days. One hour per day reads exactly as before."""
+    the kW ranges are over the ELIGIBLE hours of ELIGIBLE days. One hour per day reads exactly as before.
+    D-SR.62: a `partial_days` day (one with missing hours) is assessed but never establishes recurrence."""
     by_day: dict[date, list[RenewableHour]] = {}
     for h in hours:
         by_day.setdefault(h.day, []).append(h)
@@ -445,7 +447,8 @@ def summarize_renewable(hours: Sequence[RenewableHour], *, requested_days: int) 
                                if headrooms else None),
         eligible_days=len(eligible_days) if assessed else None,
         assessed_days=len(assessed) if assessed else None,
-        recurrence_established=requested_days == 5 and len(by_day) == 5 and len(assessed) == 5,
+        recurrence_established=(requested_days == 5 and len(by_day) == 5 and len(assessed) == 5
+                                and not set(partial_days)),
     )
 
 

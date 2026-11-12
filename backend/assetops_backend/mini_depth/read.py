@@ -111,12 +111,14 @@ def _local_midnight(day: date, tz_name: str) -> datetime:
 
 
 def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None,
-                 daylight: Callable[[date], DaylightHours] | None = None) -> list[tuple[date, rules.Window]]:
+                 daylight: Callable[[date], DaylightHours] | None = None,
+                 missing: set[tuple[date, datetime]] | None = None) -> list[tuple[date, rules.Window]]:
     """The requested `(local_day, hour)` windows, or `INVALID_WINDOW` (Q4/Q5; an unknown zone refuses, S8).
 
     Renewable (CH-9 §9 R3, CH9-R2 Q2): each day's measured daylight hours and its missing hours from `daylight`
     (`store.daylight_hours` at the read's cutoff), so a missing hour reads as missing; without it, the
-    `store.NO_PV_BINDING` hours."""
+    `store.NO_PV_BINDING` hours. D-SR.62: `missing`, when given, collects the `(day, window.start)` of each
+    `daylight(...).missing` hour, so the flag reaches `_Hour.missing`."""
     try:
         tz = zone(tz_name)
         if not lo < hi:
@@ -135,6 +137,8 @@ def hour_windows(domain: str, lo: datetime, hi: datetime, tz_name: str | None,
                 for d in days[:n]:
                     found = daylight(d) if daylight is not None else NO_PV_BINDING
                     out += [(d, local_hour(d, h, tz_name or "")) for h in sorted({*found.hours, *found.missing})]
+                    if missing is not None:
+                        missing.update((d, local_hour(d, h, tz_name or "").start) for h in found.missing)
                 return out
         raise MiniReadRefused("INVALID_WINDOW")
     except MiniInputsRefused as error:
@@ -160,6 +164,7 @@ class _Hour:
     state: str
     pending_ids: tuple[str, ...] | None
     job_ids: tuple[str, ...] = ()
+    missing: bool = False  # D-SR.62: a `daylight_hours(...).missing` hour (no PV coverage), not a daylight hour
 
 
 _HEAD = text(
@@ -258,16 +263,23 @@ def _stored_hour(day: date, window: rules.Window, result: dict[str, Any]) -> rul
         coverage=rules.Coverage(3600, 0, 0, ()), evidence_ids=())
 
 
-def compose_renewable(hours: Sequence[tuple[date, rules.Window, dict[str, Any] | None]]) -> dict[str, Any]:
+def compose_renewable(hours: Sequence[tuple[date, rules.Window, dict[str, Any] | None]], *,
+                      missing: frozenset[tuple[date, datetime]] | set[tuple[date, datetime]] = frozenset()
+                      ) -> dict[str, Any]:
     """q6 ruling 1: the page `status` and five `cards` over the requested days' selected hours only.
 
-    CH-9 (CH9-R2 Q2/Q5): a day may hold several daylight hours; a day with any unselected (missing) hour is a
-    missing day, so only complete days feed the cards, and days are counted by their day decision."""
-    missing_days = {d for d, _w, r in hours if r is None}
-    selected = [_stored_hour(d, w, r) for d, w, r in hours if r is not None and d not in missing_days]
-    cards = rules.summarize_renewable(selected, requested_days=len({d for d, _w, _r in hours}))
+    CH-9 (CH9-R2 Q2/Q5): a day may hold several daylight hours; a day with any unselected daylight hour is a
+    missing day, so only complete days feed the cards, and days are counted by their day decision.
+    D-SR.62 (the stored measure's rule, `RenewableHeadroom`): the `missing` hours, keyed `(day, window.start)`,
+    are left out of the decision, the cards and the UNKNOWN test; a day holding one is partial and never
+    establishes recurrence."""
+    counted = [(d, w, r) for d, w, r in hours if (d, w.start) not in missing]
+    missing_days = {d for d, _w, r in counted if r is None}
+    selected = [_stored_hour(d, w, r) for d, w, r in counted if r is not None and d not in missing_days]
+    cards = rules.summarize_renewable(selected, requested_days=len({d for d, _w, _r in hours}),
+                                      partial_days={d for d, w, _r in hours if (d, w.start) in missing})
     decisions = [h.decision for h in selected]
-    if len(selected) < len(hours):
+    if len(selected) < len(counted):
         status = "UNKNOWN"
     elif any(d in ("LIMITED", "CONFLICT") for d in decisions):
         status = "LIMITED"
@@ -348,13 +360,15 @@ def renewable_envelope(hours: Sequence[_Hour]) -> dict[str, Any]:
     """q9 ruling 6: status/cards over selected noon hours, their stored rows sorted `(day, from)`, row constraints as
     limitations citing that row's IDs, and coverage over every requested day (`source_count` is the maximum per
     assessed hour, not a distinct-source count across days)."""
-    composed = compose_renewable([(h.day, h.window, h.head.result if h.head else None) for h in hours])
+    missing = frozenset((h.day, h.window.start) for h in hours if h.missing)
+    composed = compose_renewable([(h.day, h.window, h.head.result if h.head else None) for h in hours],
+                                 missing=missing)
     rows = sorted((row for h in hours if h.head for row in h.head.result["rows"]),
                   key=lambda r: (r["day"], r["from"]))
     limitations = [{"code": code, "evidence_ids": row["evidence_ids"]}
                    for row in rows for code in row["constraints"]]
     return {"status": composed["status"], "cards": composed["cards"], "rows": rows, "limitations": limitations,
-            "coverage": _renewable_coverage(hours), "basis": None}
+            "coverage": _renewable_coverage(hours), "basis": None, "missing_hours": len(missing)}
 
 
 def check_lineage(domain: str, window: rules.Window, row: Sequence[Any]) -> None:
@@ -472,8 +486,10 @@ class MiniDepthRead:
         if from_rows is not None:  # ANY-1 AR-2: stored hour facts; no raw reading, no on-read `_cutoff_sha`
             hours, link_rows = from_rows
         else:
-            windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known))
-            hours = [self._hour(c, t, s, domain, d, w, known, historical) for d, w in windows]
+            missing: set[tuple[date, datetime]] = set()
+            windows = hour_windows(domain, lo, hi, tz_name, lambda d: daylight_hours(c, t, s, d, known), missing)
+            hours = [self._hour(c, t, s, domain, d, w, known, historical, (d, w.start) in missing)
+                     for d, w in windows]
             link_rows = self._link_rows
         return self._envelope(c, link_rows, t, s, code, domain, lo, hi, known, tz_name, hours)
 
@@ -492,8 +508,9 @@ class MiniDepthRead:
         if domain == "renewable":
             env = renewable_envelope(hours)
             status, cards, rows, coverage, basis = (env[k] for k in ("status", "cards", "rows", "coverage", "basis"))
-            limitations = env["limitations"]
+            limitations, missing_hours = env["limitations"], env["missing_hours"]
         else:
+            missing_hours = 0
             head = hours[0].head
             stored = head.result if head else {}
             status = stored.get("status", "UNKNOWN") if head else "UNKNOWN"
@@ -519,13 +536,15 @@ class MiniDepthRead:
             **blocks,
             "status": status, "coverage": coverage, "cards": cards, "rows": rows,
             "limitations": limitations, "basis": basis, "links": links(code, hours),
+            # D-SR.62: renewable only; the count of `daylight_hours(...).missing` hours (the PARTIAL label).
+            **({"missing_hours": missing_hours} if domain == "renewable" else {}),
             # Final review ruling 2 (M2): Service only; the stored pinned critical series' coverage, else null.
             **({"critical_delivered_coverage": (hours[0].head.result.get("critical_delivered_coverage")
                                                 if hours[0].head else None)} if domain == "service" else {}),
         }
 
     def _hour(self, c: Connection, t: UUID, s: UUID, domain: str, day: date, window: rules.Window, known: datetime,
-              historical: bool) -> _Hour:
+              historical: bool, missing: bool = False) -> _Hour:
         p = {"t": t, "s": s, "d": domain, "jd": JOB_DOMAIN[domain], "lo": window.start, "hi": window.end, "k": known}
         row = c.execute(_HEAD, p).one_or_none()
         head = None
@@ -545,7 +564,8 @@ class MiniDepthRead:
             state = "STALE_SOURCE"
         else:
             state = "HISTORICAL" if historical else "CURRENT"
-        return _Hour(day, window, head, job_state, state, pending_ids, tuple(sorted(str(j[0]) for j in jobs)))
+        return _Hour(day, window, head, job_state, state, pending_ids, tuple(sorted(str(j[0]) for j in jobs)),
+                     missing)
 
     # --- ANY-1 AR-2: the board's hours from stored read-period rows (`mini_depth/period_rows.py`) ---------------
 
@@ -627,7 +647,8 @@ class MiniDepthRead:
             statuses = {st for _, st in jobs}
             if ids == tuple(h.job_ids) and (not statuses or _job_state(statuses, h.head is not None) == h.job_state):
                 continue
-            hours[i] = self._hour(c, t, s, domain, h.day, h.window, known, historical)
+            fresh = self._hour(c, t, s, domain, h.day, h.window, known, historical)
+            hours[i] = replace(fresh, missing=True) if h.missing else fresh  # D-SR.62: the flag is the row's
             replaced.append(h)
         if replaced:
             _JOB_FALLBACK_SEEN[0] += len(replaced)
@@ -648,18 +669,20 @@ class MiniDepthRead:
                                 {"t": tenant_id, "s": site_id}).scalar_one_or_none()
             if not tz_name:
                 return None
+            missing: set[tuple[date, datetime]] = set()
             try:
                 if domain == "renewable":
                     start = _local_midnight(local_day, tz_name)
                     end = _local_midnight(local_day + timedelta(days=1), tz_name)
                     windows = hour_windows(domain, start, end, tz_name,
-                                           lambda d: daylight_hours(c, tenant_id, site_id, d, known))
+                                           lambda d: daylight_hours(c, tenant_id, site_id, d, known), missing)
                 else:
                     w = local_hour(local_day, 12, tz_name)
                     start, end, windows = w.start, w.end, [(local_day, w)]
             except (MiniReadRefused, MiniInputsRefused):
                 return None
-            hours = [self._hour(c, tenant_id, site_id, domain, d, w, known, False) for d, w in windows]
+            hours = [self._hour(c, tenant_id, site_id, domain, d, w, known, False, (d, w.start) in missing)
+                     for d, w in windows]
             ids = sorted({str(i).lower() for h in hours if h.head for i in h.head.evidence_ids}
                          | {str(i).lower() for h in hours for i in (h.pending_ids or ())})
             grouped = pr.group_link_rows(self._link_rows(c, tenant_id, site_id, ids)) if ids else {}
