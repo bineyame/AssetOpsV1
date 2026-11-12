@@ -998,7 +998,9 @@ function Invoke-ConfigurationPersistenceCheck {
         "$backendRoot/chain/adapters/postgres_thread_sources.py",
         # CH-5a1 §A2 (pre-flight P4): the read-only ChainReader SQL (snapshots, Finding heads, R8, has_change); the SQL-write
         # refusal still applies to it.
-        "$backendRoot/chain/adapters/postgres_chain_read.py")
+        "$backendRoot/chain/adapters/postgres_chain_read.py",
+        # SR-6a (D-SR.23): the read-only Health-over-a-range grouped counts; the SQL-write refusal still applies to it.
+        "$backendRoot/sites/adapters/postgres_health_range.py")
     # OPS-02 (S4-02d phase-2 review F-B): the writer policy below applies to SQL statements, not source lines.
     # tools/checks/sql_statements.py parses each backend module with Python's ast and returns every write-shaped
     # clause with its path and line: implicit concatenation, triple-quoted text, escaped newlines and SQL comments
