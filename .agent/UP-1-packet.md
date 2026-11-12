@@ -1,92 +1,90 @@
-# UP-1 packet (lane F) - client reading upload, Kobo only - PARTIAL (Thu: server + no-DB tests)
+# UP-1 packet (lane F) - client reading upload, Kobo only - PARTIAL (Thu 12 Nov: guard, gateway, template, store test)
 
-Branch `task/UP-1-reading-upload` (worktree `AssetOpsV1-up1`, from main e42af8411). Spec: rev 7 section 7.5 of
-`.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 in `.agent/build-sheet-OWN-GAPS-2026-11-08.md`.
-MB-1 follows in this lane after UP-1's server.
+Branch `task/UP-1-reading-upload` (worktree `AssetOpsV1-up1`; main 506eae7fc merged in at a77a870bd). Spec: rev 7
+section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 and rulings **D-UP.1-11** in
+`.agent/build-sheet-OWN-GAPS-2026-11-08.md`. MB-1 follows in this lane after UP-1's server.
 
 ## Landed (commits)
-- 2dde422db mockup `frontend/mockups/v72/upload-readings.html` (owner approval draft; font sizes are UQ-FI tokens).
-- e331827ba `field/assetops_field/csv_upload.py`: `preview()` (period, rows, per-column readings/blanks/unit match,
-  first interval end per role) and a CLI `check` / `send` (send = `CsvCollector.collect` through the gateway
-  channel, held readings named per column). `CsvCollector.reports_from_bytes` added (additive).
-- eb05fa18f server:
-  - `backend/assetops_backend/reading_upload/service.py` - order size > file rules > `ALREADY_RECORDED` > send >
-    one row; dry run writes nothing; refused confirm recorded as REFUSED; states derived at GET
-    (SENT / ACCEPTED n of m / PROCESSING / ANALYSED; REFUSED; `held` alongside). Entered by `service:operator-entry`,
-    label "Uploaded by site admin".
-  - `backend/assetops_backend/reading_upload_api.py` - `POST/GET /api/sites/{site_code}/reading-uploads[/{id}]`;
-    wired in `main.py` (403 `READING_UPLOAD_OFF` unless host injects the service).
-  - `backend/assetops_backend/reading_upload/postgres_store.py` (untested: no DB today).
-  - `backend/migrations/versions/0061_reading_upload.py` (append-only, `ledger_append_only()` trigger).
-  - words: `reading_upload.*` keys in `backend/assetops_backend/i18n/messages.py`.
-  - `host/reading_upload_process.py` (field-process ports, switch parsing) + `host/lab_app.py`
-    `reading_uploads_from_environment` (`ASSETOPS_READING_UPLOAD_SITES`, Kobo only, else startup refused;
-    `ASSETOPS_READING_UPLOAD_GATEWAY` = JSON file with gateway_address, ipc_credential, snapshot_sha256,
-    expect_identity).
+- 2dde422db mockup `frontend/mockups/v72/upload-readings.html` (owner approval draft).
+- e331827ba `field/assetops_field/csv_upload.py`: `preview()` and the CLI `check` / `send` (D-UP.1: the host runs it
+  as a separate process; no guard exception).
+- eb05fa18f server: `reading_upload/service.py`, `reading_upload_api.py`, migration `0061_reading_upload`
+  (`down_revision = 0059_site_period_read`, D-UP.8), words, `host/reading_upload_process.py`, `host/lab_app.py`
+  (`ASSETOPS_READING_UPLOAD_SITES`, `ASSETOPS_READING_UPLOAD_GATEWAY`).
+- 6fdd4d62a **guard fix (D-UP.10)**: store moved to
+  `backend/assetops_backend/reading_upload/adapters/postgres_reading_upload_store.py`, INSERT column list literal;
+  `tools/checks/configuration-persistence.ps1` registers `$uploadWriter` as the sole INSERT-only writer of
+  `reading_upload` (driver allowlist, action-forbidden line rule, only-inserts rule, sole-writer rule, anti-vacuity),
+  on the `$periodWriter` pattern.
+- 10be5c277 **demo upload gateway (D-UP.2)**: `tools/demo_upload_gateway.py` (`prepare` / `activate`) and
+  `Demo.start_upload_gateway` in `tools/demo_combined.py serve`, only when `ASSETOPS_READING_UPLOAD_SITES` is set:
+  - (a) `python -m assetops_backend.serve_tls` on 127.0.0.1:8443, self-signed cert generated once into `<work>/tls/`
+    (openssl, SAN 127.0.0.1); the credential issued once via `provision_gateway issue` (actor
+    `service:demo-upload`, the CSV profile's sources enabled), reissued only when the file it names is missing.
+  - (b) one persistent state `<work>/gateways/kobo-edge/`; epoch `kobo-edge-<hex>` minted once into
+    `sequence_epoch.txt`, refused if equal to any `<work>/kobo-*/gw-*` epoch; a changed provisioning is refused
+    (never re-provisioned).
+  - (c) basis: `RegisteredLabBasis(...).select("KOBO-001", <latest prepared Kobo day in days.json>)` - the same
+    `select_registered_basis` the day's run used; no draft run written. Saved as `basis.json` (snapshot + claimed).
+  - (d) `host/reading_upload_process.deliver_now`: after `send` exits 0 the host calls `deliver` (50 per pass)
+    over the IPC link until a pass attempts none, bounded at 30 s, never raises; gateway `interval_seconds` = 60.
+  - Serve writes `<work>/reading-upload-gateway.json` after activation and passes it to the API; both helpers are
+    killed with serve. The demo tree's `git archive` now includes `field` (the host runs the collector from it).
+- f985c179e **template route and D-UP.5/6**: `GET /api/sites/{site_code}/reading-uploads/template` (declared before
+  `/{upload_id}`), body = the profile header row built by the host (`template_csv`, ASCII, no BOM, CRLF),
+  `text/csv`, `attachment; filename="KOBO-001-readings-template.csv"`; 503 `READING_UPLOAD_TEMPLATE_UNAVAILABLE` when
+  no template is wired. POST: 415 `READING_UPLOAD_UNSUPPORTED_TYPE` for any media type but `text/csv`;
+  `file_name` at most 200. Words: `reading_upload.refused.encoding` and `reading_upload.template_note` both say
+  "save as 'CSV (Comma delimited)', not 'CSV UTF-8'".
+- 831d1b354 `backend/tests/test_up1_reading_upload_postgres.py` (resume point 3).
+- a8c948551 estate self-test probe anchor follows `$uploadWriter` in `$pgWriters`.
 
-## Checks (no DB)
-- `field/tests/test_field_csv_upload.py` + `test_field_export_csv.py`: 61 passed.
-- `backend/tests/test_up1_reading_upload.py` + `test_uq6a_message_seam.py`: 62 passed.
-- `host/tests/test_up1_reading_upload_process.py`: 16 passed (runs the real field process on the fixture).
-- `tools/check-all.ps1` on eb05fa18f: **4 of 19 FAIL**.
-  - Architecture seams (UP-1's fault): `configuration-persistence.ps1` refuses the database driver in
-    `reading_upload/postgres_store.py`; the new store is not registered as the sole INSERT-only writer of
-    `reading_upload`.
-  - Estate guard self-tests (3 of 16, 26 min): they run the architecture check, so this is probably the same cause.
-    Not proven.
-  - Missing-claim orphan scan and its fixtures: node `Cannot find module` (the fresh worktree has no
-    `node_modules`). This is the environment, not UP-1.
-- Postgres: none run (lane rule: server + no-DB only today).
-
-## Questions (batched; not designed around)
-- **Q1 import seam.** The spec says the API validates with `CsvCollector.reports` (no IPC). The
-  dependency-direction guard forbids backend and non-test host modules importing `assetops_field`. Built: the
-  host runs `python -m assetops_field.csv_upload check|send` per request (field adapters as separate processes,
-  TEL-01 D4). Confirm, or rule a guard exception.
-- **Q2 demo upload gateway (blocks the send path).** `demo_combined.py serve` starts no gateway and no
-  `serve_tls` today. Kobo's demo data goes through per-Site-day gateway states with an in-process FakeCentral that
-  calls `BatchIngestionService` (`demo_combined_kobo.py:240-330`, `rp._publish_and_accept`). Name: (a) the central
-  for the upload gateway (serve_tls :8443 with a provisioned credential in the demo DB, or the in-process
-  responder pattern); (b) its state dir and sequence epoch (distinct from the per-day states); (c) the activation
-  basis (TEL-06b used `registered.setup_service(store).create_draft_run(...).registered_basis`); (d) delivery: the
-  Bench config uploads every 3600 s, so who calls `deliver` after a send.
-- **Q3 "Analysed" (highest risk).** Which stored row proves "that day assessed" for an upload? Kobo's demo days are
-  registered Lab runs; TEL-06b's CSV evidence had provenance UNKNOWN / NO_POSITIVE_BINDING and no consequence
-  rows, and the file carries only `pv_power` and `feeder_demand` at 15 min. If S3 does not assess such evidence,
-  the page stays at "Still processing" (`PostgresReadingUploadStore(analysed=...)` defaults to never).
-- **Q4** Entry point: mockup puts "Upload readings" on Kobo Health; Health or Evidence?
-- **Q5** Transport: python-multipart is not installed; built a raw `text/csv` body plus `?file_name=`. Accept, or
-  add the dependency for multipart?
-- **Q6** Excel's "CSV UTF-8" writes a BOM, which `ENCODING` refuses (TEL-06 rule kept). Template text says so.
-- **Q7** The path takes the Site code (`KOBO-001`), as every other Site route; the spec wrote `{site_id}`.
-- **Q8** Migration is `0061_reading_upload` with `down_revision = 0059_site_period_read` so the branch migrates
-  alone; repoint to `0060_site_admin_price_entry` when PR-3 merges (one line).
-- **Q9** Table columns beyond the spec's list (file_name, refusal field/detail, period, per-kind counts,
-  `message_ids`, session_ref): needed for "Accepted n of m" by message ID and the refusal words on re-read.
+## Checks (Thu 12 Nov)
+- No DB: `backend/tests/test_up1_reading_upload.py` + `test_uq6a_message_seam.py` +
+  `host/tests/test_up1_reading_upload_process.py` + `host/tests/test_up1_demo_upload_gateway.py`: **103 passed**.
+  Adjacent serve tests `test_dd1b2b_drain_failure.py` + `test_e4_prebuilt_routes_generator.py`: pass (38 with the
+  gateway file).
+- Postgres (own DB `assetops_up1_test`, via `tools/run-host-tests.ps1`): `test_up1_reading_upload_postgres.py`
+  **2 passed** in 18 s (0061 objects, round trip, UPDATE/DELETE refused, three CHECK refusals, empty-ledger reads,
+  downgrade refused with rows then allowed).
+- Guard non-vacuity: a second writer (`INSERT INTO reading_upload` in `postgres_period_read_store.py`) gave 2
+  failures ("Only ...postgres_reading_upload_store.py writes reading-upload table" and the period store's
+  only-inserts rule); reverted with `git checkout`. Clean run: 0 failures (48 s).
+- `tools/check-all.ps1` on a8c948551: **All 19 guards passed** (1784 s; estate self-tests 16 passed in 1433 s).
+  The first run (on 6fdd4d62a + WIP) failed 1 of 19: `test_estate_guard.py::test_trial_comparison_writer_registered`
+  patches the literal `$pgWriters` tail `, $trialComparisonWriter, $periodWriter)`, which the new `$uploadWriter`
+  entry changed; a8c948551 moves the probe's anchor (as ANY-1 AR-1 did). The node `Cannot find module` failures are
+  gone with `node_modules` present.
+- `frontend/node_modules` is an untracked junction to plan2's (identical `package-lock.json`).
 
 ## Known deviations
-- Q5 (raw body), Q7 (site code), Q9 (extra columns). Template download route not built yet.
-- Process: one edit to `service.py` was applied by a Python heredoc (lane rule: Write/Edit only); the file was
-  re-checked by its tests afterwards.
+- **SPEC DEVIATION (transport, D-UP.5)**: raw `text/csv` body with `?file_name=`, not multipart (stated in the
+  `reading_upload_api.py` docstring).
+- D-UP.9: `message_ids` is `text[]`, not jsonb (the ruling's word); same content, append-only.
+- Process: one earlier `service.py` edit was by a Python heredoc (D-UP.11: reviewer re-reads that file).
+
+## Open risks (state, not designed around)
+- **Not run against a real demo build**: `prepare`/`activate` need a demo DB with prepared Kobo days; no demo DB may
+  be touched today. The serve wiring is tested with every process faked.
+- `--actor service:demo-upload` is not proven accepted by `issue_credential` (first real run shows it).
+- Analysed risk (D-UP.3) has a second edge: `field_bench.cohort_members` keys cohort members by
+  `gateway:source:epoch`, so the new `kobo-edge-*` epoch's sources may be outside the DEFAULT cohort. The flow test
+  must show the `analytic_run`.
+- A work folder prepared before 10be5c277 has no `field` in its tree: re-prepare (or copy `field/` into the tree)
+  before serving with the switch on.
+- If the gateway's `activate` is not idempotent across a serve restart, the second serve's activation fails loudly.
 
 ## Resume points (VPS, after ~16:00)
-0. **Fix the guard first.**
-   - Move the store to `backend/assetops_backend/reading_upload/adapters/postgres_reading_upload_store.py`.
-   - Make its INSERT column list literal: the f-string renders as `{?}`, which the policy refuses.
-   - Register it in `tools/checks/configuration-persistence.ps1`, following the `$periodWriter` /
-     `$fuelBalanceWriter` pattern: driver allowlist, sole writer of `reading_upload`, INSERT-only, anti-vacuity.
-   - Prove the guard is non-vacuous: add a second writer, watch it fail, revert.
-   - Rerun `tools/check-all.ps1` with `node_modules` present.
-1. Get Q1-Q3 answers (Q2/Q3 gate the send and the Analysed state).
-2. `GET /api/sites/{code}/reading-uploads/template` (header row from the profile, via the host).
-3. Demo upload gateway in `tools/demo_combined.py serve` writing the `ASSETOPS_READING_UPLOAD_GATEWAY` file (per Q2);
-   `--day` option on `host/tests/field_observation_fixtures.py interval-csv`.
-4. Postgres on its own `*_test` DB, one file at a time via `tools/run-host-tests.ps1`:
-   `test_up1_reading_upload_postgres.py` (0061 upgrade, insert/get, immutability, `latest_accepted_by_role`,
-   `progress`); then the flow (upload -> accepted evidence -> drain -> day assessed; byte-equal to the TEL-06b path).
-5. The `analysed(row)` read (per Q3).
-6. Frontend `/sites/:id/uploads` after the owner approves the mockup.
-7. MB-1 (`task/MB-1-live-modbus`).
+1. The `analysed(row)` read (D-UP.3): `analytic_run` (dispatch_v3 `ANALYTIC_ID`, `DEFAULT`, `job_id IS NOT NULL`,
+   window covers first interval start, `knowledge_cutoff` >= latest `accepted_at` of the upload's evidence) and no
+   PENDING/LEASED `recompute_job` in any domain over [first start, last end); FAILED -> `NOT_ANALYSED` with
+   `reading_upload.state.not_analysed` (no-DB test with a fake store); "Analysed" links to `/sites/KOBO-001?date=`.
+2. Postgres flow test on a `*_test` DB built like Kobo's demo: upload -> accepted evidence -> drain -> the
+   `analytic_run` row; record send-to-Analysed time. Fallback by Sat 20:00 if no run: the reduced version in D-UP.3.
+3. The same flow once on a client4 copy (first VPS heavy slot), with `demo_combined.py serve` and the switch on.
+4. Frontend `/sites/:id/uploads` from Kobo **Health** (D-UP.4) after the owner approves the mockup (Fri 09:00).
+5. When PR-3 merges: repoint `0061.down_revision` if PR-3 lands second-to-UP-1 (D-UP.8); one `alembic heads`.
+6. MB-1 on the same `kobo-edge` gateway and central.
 
 ## User review
 Mockup needs owner approval (Fri 09:00). Slice not ready for review; the switch is off by default.
