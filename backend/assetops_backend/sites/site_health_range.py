@@ -14,7 +14,7 @@ Rules (D-SR.20/D-SR.21):
   the day inside `[from, min(to, k))`, else PARTIAL_CONTACT; else readings through the gateway > 0 -> READINGS_ONLY;
   else a day before the gateway's `registered_at` UTC day -> NOT_EXPECTED; else NO_CONTACT;
 - source-day: the day's `days[].state == NOT_EXPECTED` -> NOT_EXPECTED; readings > 0 -> READINGS; else NO_READINGS.
-The battery entry is added by the route (Foundation configuration, point-in-time, D-SR.14).
+D-SR.49: AFTER_CUTOFF for days wholly after the cutoff; the body has no `battery` (the page reads `/battery`).
 """
 
 from __future__ import annotations
@@ -30,6 +30,8 @@ from assetops_backend.estate.scope import EstateRequest, wire_time
 SCHEMA = "site-health-range-1"
 IN_CONTACT, PARTIAL_CONTACT, READINGS_ONLY, NO_CONTACT = (
     "IN_CONTACT", "PARTIAL_CONTACT", "READINGS_ONLY", "NO_CONTACT")
+#: D-SR.49 Q4: a day wholly at or after `min(to, k)` ("Not reached yet"), never NO_CONTACT / NO_READINGS.
+AFTER_CUTOFF = "AFTER_CUTOFF"
 READINGS = "READINGS"
 #: IN_CONTACT when the received diagnostics cover at least this share of the day's seconds in the window.
 CONTACT_SHARE = 0.9
@@ -58,12 +60,16 @@ def gateway_contact(d: date, diagnostics: int, readings: int, cadence_seconds: i
         return READINGS_ONLY
     if d < registered_at.astimezone(timezone.utc).date():
         return NOT_EXPECTED
+    if datetime.combine(d, time(0), tzinfo=timezone.utc) >= hi:
+        return AFTER_CUTOFF
     return NO_CONTACT
 
 
-def source_state(day_state: str, readings: int) -> str:
+def source_state(day_state: str, readings: int, after_cutoff: bool = False) -> str:
     if day_state == NOT_EXPECTED:
         return NOT_EXPECTED
+    if after_cutoff and readings == 0:
+        return AFTER_CUTOFF
     return READINGS if readings > 0 else NO_READINGS
 
 
@@ -87,6 +93,7 @@ def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateR
         day_rule = range_day_states(snap, tenant_id, site, req, scope, f_sites[0][2])  # D-SR.22
         days = list(day_rule)
         contact_hi = min(req.to, k)
+        after = {d: datetime.combine(d, time(0), tzinfo=timezone.utc) >= contact_hi for d in days}
 
         sources_out, per_gateway = [], {}
         for src in sources:
@@ -96,7 +103,7 @@ def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateR
                 per_gateway[(str(src.gateway_id), d)] = per_gateway.get((str(src.gateway_id), d), 0) + got["n"]
                 row_days.append({"day": d.isoformat(), "accepted_readings": got["n"],
                                  "last_received_at": wire_time(got["last_at"]),
-                                 "state": source_state(day_rule[d]["state"], got["n"])})
+                                 "state": source_state(day_rule[d]["state"], got["n"], after[d])})
             sources_out.append({"source_external_id": src.source_external_id, "disabled": src.disabled,
                                 "days": row_days})
 
@@ -121,6 +128,15 @@ def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateR
             days_out.append({"day": d.isoformat(), "state": state,
                              "accepted_readings": None if state in GAP_STATES else readings})
         totals = {d: sum(got["n"] for (_, day), got in reads.items() if day == d) for d in days}
+        # D-SR.49 Q1: one class per day; with + without + not expected + after cutoff = requested.
+        klass = {d: ("not_expected" if day_rule[d]["state"] == NOT_EXPECTED else
+                     "after_cutoff" if after[d] else "with" if totals[d] > 0 else "without") for d in days}
+        expected = {d for d in days if klass[d] in ("with", "without")}
+        n = lambda c: sum(1 for d in days if klass[d] == c)  # noqa: E731
+        in_contact_all = sum(
+            1 for g in gateways_out
+            if any(date.fromisoformat(x["day"]) in expected for x in g["days"])
+            and all(x["contact"] == IN_CONTACT for x in g["days"] if date.fromisoformat(x["day"]) in expected))
         return {
             "schema_version": SCHEMA,
             "site": {"site_code": site["site_code"], "site_name": site["site_name"], "timezone": site.get("timezone")},
@@ -130,10 +146,11 @@ def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateR
             "sources": sources_out,
             "days": days_out,
             "summary": {"days_requested": len(days),
-                        "days_with_readings": sum(1 for d in days if totals[d] > 0),
-                        "days_without_readings": sum(1 for x in days_out if x["state"] == NO_READINGS),
-                        "gateways_in_contact_all_days": sum(
-                            1 for g in gateways_out if all(x["contact"] == IN_CONTACT for x in g["days"]))},
+                        "days_with_readings": n("with"),
+                        "days_without_readings": n("without"),
+                        "days_not_expected": n("not_expected"),
+                        "days_after_cutoff": n("after_cutoff"),
+                        "gateways_in_contact_all_days": in_contact_all},
             "links": {"day": f"/sites/{site['site_code']}/health?day={{day}}"},
         }
 

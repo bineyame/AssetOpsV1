@@ -102,8 +102,8 @@ def test_health_range_on_persisted_rows(world) -> None:
     assert [(d["day"], d["state"]) for d in out["days"]] == [
         ("2026-10-05", "NOT_ANALYSED"), ("2026-10-06", ANALYSED), ("2026-10-07", "NOT_ANALYSED"),
         ("2026-10-08", "NOT_ANALYSED")]
-    assert out["summary"] == {"days_requested": 4, "days_with_readings": 1, "days_without_readings": 0,
-                              "gateways_in_contact_all_days": 0}
+    assert out["summary"] == {"days_requested": 4, "days_with_readings": 1, "days_without_readings": 3,
+                              "days_not_expected": 0, "days_after_cutoff": 0, "gateways_in_contact_all_days": 0}
 
 
 def test_readings_without_diagnostics_read_readings_only(world) -> None:

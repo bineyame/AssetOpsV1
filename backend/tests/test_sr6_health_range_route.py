@@ -24,7 +24,7 @@ from assetops_backend.estate.site_range import CLEAR, FINDINGS, site_range_body
 from assetops_backend.evidence.source_health import RegisteredGateway, RegisteredSource
 from assetops_backend.sites import site_health_range
 from assetops_backend.sites.site_health_range import (
-    IN_CONTACT, NO_CONTACT, PARTIAL_CONTACT, READINGS, READINGS_ONLY, gateway_contact, health_range_body,
+    AFTER_CUTOFF, IN_CONTACT, NO_CONTACT, PARTIAL_CONTACT, READINGS, READINGS_ONLY, gateway_contact, health_range_body,
     source_state)
 from assetops_backend.source_health_api import HEALTH_RANGE_ROUTE, build_health_range_router
 from test_sr5_range_overview import KOBO, SITES, Responses, _cursor_key, world  # noqa: F401 - pytest fixtures
@@ -43,7 +43,6 @@ DIAG = {(str(G1), DAY[0]): {"n": FULL, "first_at": D0, "last_at": D0 + timedelta
 READS = {(str(S1), DAY[0]): {"n": 288, "last_at": D0 + timedelta(hours=23)},
          (str(S1), DAY[2]): {"n": 100, "last_at": D0 + timedelta(days=2, hours=9)},
          (str(S2), DAY[3]): {"n": 5, "last_at": D0 + timedelta(days=3, hours=1)}}
-BATTERY = {"configuration": "NOT_CONFIGURED", "batteries": []}
 
 
 class Calls:
@@ -63,7 +62,6 @@ class Calls:
 def health(world, monkeypatch):
     world.service.store.outcomes[0]._c = CONN  # the snapshot's one connection
     calls = Calls()
-    monkeypatch.setattr(source_health_api, "battery_entry", lambda view, at, basis: BATTERY)
     return SimpleNamespace(service=world.service, calls=calls)
 
 
@@ -146,8 +144,27 @@ def test_gateway_and_source_days(health) -> None:
     assert s2["days"][3]["accepted_readings"] == 5
     summary = body["summary"]
     assert summary["days_requested"] == 7 and summary["days_with_readings"] == 3
-    assert summary["days_without_readings"] == sum(1 for d in body["days"] if d["state"] == NO_READINGS)
+    # D-SR.49 Q1: readings, not analysis states; the four classes sum to the requested days
+    assert summary["days_without_readings"] == 4 - summary["days_not_expected"] - summary["days_after_cutoff"]
+    assert (summary["days_with_readings"] + summary["days_without_readings"] + summary["days_not_expected"]
+            + summary["days_after_cutoff"]) == summary["days_requested"]
     assert summary["gateways_in_contact_all_days"] == 0
+    assert "battery" not in body
+
+
+def test_days_after_the_cutoff_are_their_own_state(health) -> None:
+    """D-SR.49 Q4: a window ending after `known_at` has AFTER_CUTOFF days; the summary excludes them from `without`."""
+    body = health_range_body(health.service, T, KOBO, _req(known_at=D0 + timedelta(days=4, hours=6)),
+                             health.calls.registration, health.calls.counts)
+    g1, _ = body["gateways"]
+    assert [x["contact"] for x in g1["days"]][5:] == [AFTER_CUTOFF, AFTER_CUTOFF]
+    assert [x["contact"] for x in g1["days"]][4] == NO_CONTACT  # partly before the cutoff
+    assert [x["state"] for x in body["sources"][0]["days"]][5:] == [AFTER_CUTOFF, AFTER_CUTOFF]
+    assert body["summary"]["days_after_cutoff"] == 2
+    s = body["summary"]
+    assert s["days_with_readings"] + s["days_without_readings"] + s["days_not_expected"] + 2 == 7
+    assert s["days_with_readings"] == 3 and s["days_without_readings"] == 2
+    assert [d["state"] for d in body["days"]] == [d["state"] for d in _body(health)["days"]]  # analysis unchanged
 
 
 def test_source_day_not_expected_follows_the_day_state(health, monkeypatch) -> None:
@@ -191,11 +208,11 @@ def test_not_a_mini_grid_site_in_scope_is_refused(health, monkeypatch) -> None:
 
 # --- the route ----------------------------------------------------------------------------------------------------
 
-def test_route_body_carries_the_battery_entry(health) -> None:
+def test_route_body_has_no_battery_and_no_foundation_409(health) -> None:
     r = _get(_client(health.service))
     assert r.status_code == 200
     body = r.json()
-    assert body["battery"] == BATTERY and body["schema_version"] == "site-health-range-1"
+    assert "battery" not in body and body["schema_version"] == "site-health-range-1"
     assert [d["day"] for d in body["days"]] == [d.isoformat() for d in DAY]
 
 
@@ -250,3 +267,9 @@ def test_stored_response_key_watermark_and_perf_line(health, caplog) -> None:
     assert route.sites == (MG,) and route.watermark_sites == (MG,)
     lines = [json.loads(x.getMessage()) for x in caplog.records if x.name == "assetops.perf"]
     assert [x["route"] for x in lines] == [HEALTH_RANGE_ROUTE] and lines[0]["status"] == "ok"
+
+
+def test_source_state_after_cutoff() -> None:
+    assert source_state(ANALYSED, 0, True) == AFTER_CUTOFF
+    assert source_state(NOT_EXPECTED, 0, True) == NOT_EXPECTED
+    assert gateway_contact(H.date() + timedelta(days=1), 0, 0, 60, REG, H, H + timedelta(days=1)) == AFTER_CUTOFF

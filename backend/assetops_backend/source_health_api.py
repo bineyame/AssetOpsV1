@@ -35,10 +35,7 @@ from assetops_backend.evidence.source_health import (
 from assetops_backend.finding_api import ACCESS_BASIS, Access, Scope, development_access
 from assetops_backend.outcome_api import _instant, _public, _refuse
 from assetops_backend.sites import site_health_range
-from assetops_backend.sites.battery_boundary import battery_entry
 from assetops_backend.sites.cutover import ImportedSiteRegistry
-from assetops_backend.sites.foundation_records import FoundationStoreError
-from assetops_backend.sites.foundation_service import FoundationRefused
 from assetops_backend.sites.ports import SiteStoreUnavailable
 
 ROUTE = "/api/sites/{site_code}/source-health"
@@ -102,16 +99,6 @@ def build_health_range_router(estate: Any, registry: ImportedSiteRegistry, respo
     def not_applicable(site_code: str) -> HTTPException:
         return _refuse(404, "HEALTH_RANGE_NOT_APPLICABLE", f"Site {site_code!r} reads its date range on its own Health.")
 
-    def battery(site: Any, tenant: Any) -> dict[str, Any]:
-        """The existing `/battery` entry body, unchanged (Foundation configuration, point-in-time, D-SR.14)."""
-        if registry.service is None:
-            raise _refuse(503, _UNAVAILABLE, "No product Foundation store is configured.")
-        try:
-            view = registry.service.read(site, tenant, None, None)
-        except FoundationRefused as error:
-            raise _refuse(409, "FOUNDATION_BASIS_UNAVAILABLE", str(error)) from error
-        return battery_entry(view, view.now, access_basis)
-
     @router.get(HEALTH_RANGE_ROUTE)
     def health_range(site_code: str, request: Request, response: Response) -> Any:
         with perf.route(HEALTH_RANGE_ROUTE, response):  # QW-1: one `assetops.perf` line per request
@@ -149,11 +136,9 @@ def build_health_range_router(estate: Any, registry: ImportedSiteRegistry, respo
             try:
                 body = site_health_range.health_range_body(estate, tenant.id, site.site_code, req,
                                                            registration, counts)
-                if body is not None:
-                    body["battery"] = battery(site, tenant)
             except site_health_range.HealthRangeNotApplicable as error:
                 raise not_applicable(site_code) from error
-            except (EstateStoreUnavailable, SiteStoreUnavailable, FoundationStoreError, *unavailable) as error:
+            except (EstateStoreUnavailable, SiteStoreUnavailable, *unavailable) as error:
                 raise _refuse(503, _UNAVAILABLE, str(error)) from error
             except EstateRefusal as error:
                 if error.status == 503:

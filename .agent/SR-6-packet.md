@@ -60,3 +60,11 @@ Branch `task/SR-6-health-range`. Spec: rev 10 §10.2, rev 10a §10a.1, D-SR.19-2
    409 `FOUNDATION_BASIS_UNAVAILABLE`, a store outage 503. The stored response's watermark is the Site's chain
    watermark, so a Foundation battery change may serve a stale battery block until the watermark moves. Accept, or
    should the page fetch `/battery` itself (drop `battery` from the body)?
+
+## Fix round: D-SR.49 (Q1-Q5) applied
+- Q1: `days_without_readings` = expected days with no accepted readings; added `days_not_expected`, `days_after_cutoff`; the four sum to `days_requested` (one class per day). 4-day Postgres world: with 1, without 3.
+- Q2: `gateways_in_contact_all_days` over expected days only; a gateway with no expected day is not counted.
+- Q3: labels are page wording (SR-6b); the body is unchanged.
+- Q4: `AFTER_CUTOFF` for gateway `contact` and source `state` on days wholly at or after `min(to, k)`; `days[].state` unchanged.
+- Q5: `battery` and the route's Foundation 409 removed (`source_health_api.py`); the page uses `/battery`.
+- Tests: route (no-DB) 31 passed incl. new AFTER_CUTOFF/no-battery tests; `test_sr6_health_range_postgres.py` 5 passed on assetops_sr6_test. check-all: All 19 guards passed.
