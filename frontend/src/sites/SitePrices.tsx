@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from "react";
-import { Panel } from "../ui";
+import { DataTable, Panel } from "../ui";
 import type { NeedBlock, PricePage, PriceRowBody } from "./pricePageClient";
 import "./sitePrices.css";
 
@@ -22,19 +22,14 @@ export interface SitePricesBodyProps {
   renderBelow?: (row: PriceRowBody) => ReactNode;
 }
 
-function LockIcon() {
-  return (
-    <svg className="site-prices__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 11h12v10H6z M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
-}
-
-/** The sign-in line: plain words, no error colour, no disabled Save (mock `.signin`). */
+/**
+ * The sign-in line: plain words, no error colour, no disabled Save (mock `.signin`).
+ * MOCK DEVIATION (PR-2a D4): no lock icon; an inline svg outside the diagram modules is refused by the shell-overflow
+ * guard, so the note carries its words only.
+ */
 export function PricesSignIn({ text }: { text: string }) {
   return (
     <div className="site-prices__signin" role="note" data-prices-sign-in>
-      <LockIcon />
       <p>
         <b>{text}</b>
       </p>
@@ -160,8 +155,8 @@ export function SitePricesBody({ page, focusKey = null, renderBelow }: SitePrice
         description={page.table_note}
         actions={<span className="badge site-prices__count">{page.count_text}</span>}
       >
-        <div className="site-prices__wrap" role="region" aria-labelledby={SITE_PRICES_TABLE_HEADING_ID}>
-          <table className="site-prices__table data-table">
+        <div className="site-prices__table">
+          <DataTable labelledBy={SITE_PRICES_TABLE_HEADING_ID}>
             <thead>
               <tr>
                 {COLUMNS.map((h) => (
@@ -178,7 +173,7 @@ export function SitePricesBody({ page, focusKey = null, renderBelow }: SitePrice
                 </Fragment>
               ))}
             </tbody>
-          </table>
+          </DataTable>
         </div>
       </Panel>
     </>
