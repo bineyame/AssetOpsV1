@@ -1033,6 +1033,26 @@ class Demo:
         (self.work / "after-children.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
         return out
 
+    EVIDENCE_TREE_MARK = "evidence-comparison-tree.txt"
+
+    def evidence_comparisons(self, story: dict) -> None:
+        """D-SR.67: `evidence_migration run` for EVERY imported story Site (the ledger opens only after a passing
+        comparison bound to this DB and store root). Exit 2 ("cannot be compared") stops the prepare; it is never
+        served as "awaiting". The Performance comparison follows in `performance_and_prebuild`."""
+        say("  S2 evidence comparison, every story Site")
+        for site in story["sites"]:
+            code = SITE_CODE[site]
+            done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", code,
+                           label=f"s2-comparison {code}", check=False)
+            tail = (done.stdout.strip().splitlines() or ["(no output)"])[-1]
+            if done.returncode == 2:
+                raise SystemExit(f"STOPPED: the evidence comparison for {code} cannot be compared (exit 2): {tail[:300]}"
+                                 " Do not serve it; send this to the Architect (D-SR.67).")
+            if done.returncode != 0:
+                raise SystemExit(f"FAILED: the evidence comparison for {code} (exit {done.returncode}): {tail[:300]}")
+            say(f"  {code}: {tail}")
+        (self.work / self.EVIDENCE_TREE_MARK).write_text(str(self.tree), encoding="utf-8")
+
     def finish(self, story: dict, steps: dict[str, float] | None = None) -> None:
         steps = steps if steps is not None else {}
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
@@ -1045,10 +1065,7 @@ class Demo:
                 lines += [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
             (self.work / "objectives.json").write_text(json.dumps(lines, indent=2), encoding="utf-8")
             say(f"  objectives: {len(lines)} lines")
-        if "kobo" in story["sites"]:
-            done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", "KOBO-001",
-                           label="s2-comparison")
-            say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
+        self.evidence_comparisons(story)
         if {"kobo", "kisiwa"} & set(story["sites"]):
             self.drain_mini()
         t0 = time.monotonic()
@@ -1590,7 +1607,11 @@ class Demo:
                 say(f"  {SITE_CODE[site]}: " + "; ".join(cells))
 
     def serve(self, port: int, web: int) -> None:
-        self.story()
+        story = self.story()
+        mark = self.work / self.EVIDENCE_TREE_MARK
+        if not mark.is_file() or mark.read_text(encoding="utf-8").strip() != str(self.tree):
+            say("Evidence comparison was not built in this tree: rerunning it first (D-SR.67).")
+            self.evidence_comparisons(story)
         self.write_prebuilt_routes()  # E4 D-E4.1: before the serve env is built
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
