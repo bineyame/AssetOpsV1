@@ -4,7 +4,7 @@
  * the `story_links` web link with `URLSearchParams` encoding) and the demo-script links keep matching. Each case opens
  * a story-link address in the whole App with the real clients and records the URLs the page fetches.
  */
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,6 +17,9 @@ import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import { summary } from "./s5WindowFixtures";
+import { MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_RENEWABLE_DAYS, MINI_REVERSED_WINDOW } from "../../sites/MiniPerformance";
+import { localDateOf, localDaysWindow, localHourWindow } from "../../sites/miniDepthClient";
+import { presetRange, rangeParams } from "../../ui/sharedRange";
 
 let urls: string[] = [];
 
@@ -40,11 +43,12 @@ const SITE_KISIWA_FINDINGS = [
   `/api/sites/KISIWA-001/finding-index?domain=mini-grid-dispatch&${NIGHTS}`,
   `/api/sites/KISIWA-001/fuel-findings?${NIGHTS}`,
 ];
-// SR-10k: the Kisiwa Fuel tab's nights list reads the date range (rev 10b.4); the hour read is unchanged.
+// SR-10k: the Kisiwa Fuel tab's nights list reads the date range (rev 10b.4). The hour read is SR-4's (D-SR.59):
+// one Site-local hour of the range's last day, as on Service.
 const SITE_KISIWA_FUEL_RANGE = [
   "/api/sites/KISIWA-001/fuel-balance/nights?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
   "/api/sites/KISIWA-001/performance/mini/capabilities",
-  "/api/sites/KISIWA-001/performance/mini/fuel?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  "/api/sites/KISIWA-001/performance/mini/fuel?from=2026-10-31T09%3A00%3A00.000Z&to=2026-10-31T10%3A00%3A00.000Z",
 ];
 const SITE_KISIWA_SERVICE = [
   "/api/sites/KISIWA-001/performance/mini/capabilities",
@@ -149,6 +153,18 @@ describe("SR-2b old date= links on Renewable and Service read the same day as da
   });
 });
 
+describe("SR-4b Kobo/Kisiwa with a range and no day read the range's last day, never today", () => {
+  const RANGED = "from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z"; // 2-8 Nov
+  // Dispatch (`windows/<range.to>`) sits behind the analytics and cutover reads; its pin is in performanceDispatch.test.
+  it.each([
+    ["Kobo board", "/sites/KOBO-001", "KOBO-001", ["/api/sites/KOBO-001/overview?date=2026-11-08"]],
+    ["Kisiwa board", "/sites/KISIWA-001", "KISIWA-001", ["/api/sites/KISIWA-001/overview?date=2026-11-08"]],
+  ])("%s", async (_label, path, code, expected) => {
+    const got = await siteRequestsAt(`${path}?${RANGED}`, as(HYBRID_MINI_GRID_SITE, code));
+    expect(got.filter((u) => u.includes("/overview"))).toEqual(expected);
+  });
+});
+
 describe("SR-2b the Kobo board's outcome-board request is byte-identical", () => {
   // The overview read answers (s5 window fixture for the served day) so the board reaches its outcome-board read.
   beforeEach(() => {
@@ -192,5 +208,44 @@ describe("SR-10k the Kisiwa Fuel tab reads the range's fuel-check nights", () =>
   it("a 7-day range sends its instants on the nights request", async () => {
     const path = "/sites/KISIWA-001/performance/fuel?from=2026-10-25T00:00:00Z&to=2026-11-01T00:00:00Z";
     expect(await siteRequestsAt(path, as(HYBRID_MINI_GRID_SITE, "KISIWA-001"))).toEqual(SITE_KISIWA_FUEL_RANGE);
+  });
+});
+
+describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send Site-local bounds and show no refusal", () => {
+  // The stub refuses (INVALID_WINDOW, like `hour_windows`) every mini read except the pinned Site-local window, so a
+  // client that sends the raw UTC day gets the refusal on screen and a different URL.
+  const site = as(HYBRID_MINI_GRID_SITE, "KOBO-001");
+  const tz = site.timezone as string;
+  const yesterday = presetRange("yesterday");
+  const address = rangeParams({ ...yesterday, known_at: null }).toString();
+  const mini = (page: string, w: { from: string; to: string }) =>
+    `/api/sites/KOBO-001/performance/mini/${page}?${new URLSearchParams(w).toString()}`;
+  it.each([
+    ["renewable", mini("renewable", localDaysWindow(tz, yesterday.from, 1))],
+    ["service", mini("service", localHourWindow(tz, localDateOf(tz, Date.parse(`${yesterday.to}T00:00:00Z`)), 12))],
+  ])("%s", async (page, expected) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        urls.push(url);
+        if (url.includes(`/performance/mini/${page}?`) && url !== expected) {
+          return Promise.resolve(new Response(JSON.stringify({ detail: { code: "INVALID_WINDOW" } }), { status: 422, headers: { "Content-Type": "application/json" } }));
+        }
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site }) };
+    const view = render(
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/performance/${page}?${address}`]}>
+        <App flags={featureFlagsWith(false)} siteDetail={detail} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(urls.filter((u) => u.includes(`/performance/mini/${page}?`))).toEqual([expected]);
+    for (const copy of [MINI_RENEWABLE_DAYS, MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_REVERSED_WINDOW]) {
+      expect(screen.queryByText(copy)).toBeNull();
+    }
+    view.unmount();
   });
 });

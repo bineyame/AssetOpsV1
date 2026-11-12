@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import type { PriceEntryBlock, PriceRowBody } from "./pricePageClient";
 import {
   freshPriceEntryKey,

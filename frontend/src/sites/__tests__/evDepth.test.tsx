@@ -173,7 +173,9 @@ describe("W5-03a E2: EV Availability", () => {
     // Heading = Site name; breadcrumb Sites › Site › Performance (linked); subtitle from SITE_SCREEN_DESCRIPTIONS.
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("EV lab depot");
     const crumbs = Array.from(document.querySelectorAll(".breadcrumbs a, nav[aria-label='Breadcrumb'] a")).map((a) => [a.textContent, a.getAttribute("href")]);
-    expect(crumbs).toContainEqual(["Performance", `/sites/${CODE}/performance`]);
+    // SR-4 (D-SR.2): the breadcrumb links carry the address range (as days), exactly.
+    expect(crumbs).toContainEqual(["Performance", `/sites/${CODE}/performance?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`]);
+    expect(crumbs.every(([, href]) => (href ?? "").includes("from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z"))).toBe(true);
     expect(main().textContent).toContain("Performance · connector availability and unknown time");
     // Subtabs: Availability selected and live (E3 also made Energy / site power live: no inert entry remains).
     const tab = document.querySelector('[data-performance-subtab="availability"]') as HTMLElement;
@@ -228,7 +230,7 @@ describe("W5-03a E2: EV Availability", () => {
     expect(document.querySelector("[data-ev-lineage]")?.getAttribute("href")).toBe(
       `/sites/${CODE}/ev/evidence/analysis?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}&known_at=${encodeURIComponent(KNOWN)}`,
     );
-    for (const a of Array.from(main().querySelectorAll("a"))) expect(a.getAttribute("href")).toMatch(/^\/sites(\/|$)/);
+    for (const a of Array.from(main().querySelectorAll("a"))) expect(a.getAttribute("href")).toMatch(/^\/sites(\/|\?|$)/);
     for (const literal of ["93.75", "16 connector-hours", "08:00–16:00", "12:00"]) expect(main().textContent).not.toContain(literal);
   });
 
@@ -333,7 +335,7 @@ describe("W5-03a E2: EV Availability", () => {
     const link = document.querySelector("[data-ev-depth-correction]");
     expect(link === null).toBe(!windowRefusal);
     if (link !== null) {
-      expect(link.textContent).toBe("Read without a selected window");
+      expect(link.textContent).toBe("Open with the default date range");
       expect(link.getAttribute("href")).toBe(`/sites/${CODE}/performance/availability?known_at=${encodeURIComponent(KNOWN)}`);
     }
     expect(screen.queryByRole("button", { name: "Retry" })).toBeNull();
@@ -369,7 +371,15 @@ describe("W5-03a E2: EV Availability", () => {
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${carried}`);
     expect(tabs().Financials).toBe(`/sites/${CODE}/ev/financials${carried}`);
     cleanup();
+    // SR-4 (D-SR.40, R347 kept in purpose): a refused read leaks nothing of its own body. With a valid address range
+    // the tabs carry exactly the address range (the bar's, as days); with an invalid (reversed) one they carry none.
+    const addressRange = "?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
     renderAvailability({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${FROM}&to=${TO}`);
+    await settledScreen();
+    expect(tabs().Overview).toBe(`/sites/${CODE}/ev${addressRange}`);
+    expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence${addressRange}`);
+    cleanup();
+    renderAvailability({ status: "refused", httpStatus: 503, code: "EV_UNAVAILABLE", message: null }, `?from=${TO}&to=${FROM}`);
     await settledScreen();
     expect(tabs().Overview).toBe(`/sites/${CODE}/ev`);
     expect(tabs().Evidence).toBe(`/sites/${CODE}/ev/evidence`);

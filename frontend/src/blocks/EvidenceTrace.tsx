@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { useLinkFor } from "../sites/chainRef";
 import type { WhyRead } from "../sites/chainClient";
 import { isSheetWidth, ModalDialog } from "./Dialog";

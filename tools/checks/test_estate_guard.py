@@ -225,6 +225,23 @@ def test_chain_reader_write_rejected() -> None:
     assert not any("Database driver imported outside" in line and CHAIN_READER in line for line in found), found
 
 
+HEALTH_RANGE_READER = "backend/assetops_backend/sites/adapters/postgres_health_range.py"
+
+
+def test_health_range_reader_write_rejected() -> None:
+    """SR-6 (L2): the Site health-range reader is a `$pgReaders` module; a write in it is refused."""
+    real = (ROOT / HEALTH_RANGE_READER).read_text(encoding="utf-8")
+    assert "from sqlalchemy" in real and "SELECT" in real
+
+    def edit(copy: Path) -> None:
+        file = copy / HEALTH_RANGE_READER
+        file.write_text(file.read_text(encoding="utf-8") +
+                        '\n_PROBE_WRITE = text("INSERT INTO gateway_diagnostic (id) VALUES (:i)")\n', encoding="utf-8")
+    found = failures(isolated_copy(edit))
+    assert any(HEALTH_RANGE_READER in line for line in found), found
+    assert not any("Database driver imported outside" in line and HEALTH_RANGE_READER in line for line in found), found
+
+
 SNAPSHOT_WRITER = "backend/assetops_backend/chain/adapters/postgres_snapshot_store.py"
 SNAPSHOT_INSERT = "INSERT INTO site_day_snapshot ("
 

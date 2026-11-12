@@ -1,4 +1,5 @@
 import { cleanup, render } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -20,6 +21,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { windowText } from "../coldFormat";
 import { F118, F119 } from "./outcomeFixtures";
 
 /*
@@ -357,7 +359,7 @@ describe("W2-03: temperature", () => {
     renderCold(ROUTES[0][1], STOCKED);
     await settledScreen();
     const link = panelTitled("Excursion context").querySelector(`[data-finding-link="${EXC_FINDING}"]`);
-    expect(link?.getAttribute("href")).toBe(`/sites/COLD-001/findings/${EXC_FINDING}`);
+    expect(rangeless(link?.getAttribute("href"))).toBe(`/sites/COLD-001/findings/${EXC_FINDING}`);
     cleanup();
     renderCold(ROUTES[0][1], { ...STOCKED, findings: ok({ ...STOCKED_FINDINGS, items: [] }) });
     await settledScreen();
@@ -842,17 +844,17 @@ describe("W2-F 1b: cold truth on the assessment screens", () => {
     expect(main().querySelector('[data-panel-gap="cold-next-step-heading"]')?.textContent).toBe("Not assessed");
     const disclosure = main().querySelector('[data-disclosure="cold-refusal-references"]') as HTMLElement;
     expect(disclosure.textContent).toContain("COLD_WINDOW_INVALID");
-    expect(disclosure.textContent).toContain("2026-10-06T20:05:00Z");
-    expect(disclosure.textContent).toContain("2026-10-06T19:00:00Z");
+    // D-SR.64: the detail read sends no from/to (its own period), so the disclosure carries no address bounds.
+    expect(disclosure.textContent).not.toContain("2026-10-06T20:05:00Z");
+    expect(disclosure.textContent).not.toContain("2026-10-06T19:00:00Z");
     expect(main().querySelector("[data-cold-date-bar]")).toBeNull();
     expect(main().querySelectorAll('[aria-label="Finding state"]')).toHaveLength(1);
     cleanup();
-    // A non-window refusal keeps its own title in the strip, the requested-window line, and the same single alert.
+    // A non-window refusal keeps its own title in the strip and the same single alert. D-SR.64: the detail read
+    // requests no window (the Finding's own period), so no requested-window line names the address range.
     renderCold(`${ROUTES[2][1]}?from=2026-10-06T19%3A00%3A00Z&to=2026-10-06T20%3A05%3A00Z`, { ...STOCKED, finding: () => DOWN });
     await settledScreen();
-    const bar = main().querySelector("[data-cold-date-bar-requested]") as HTMLElement;
-    expect(bar).not.toBeNull();
-    expect(bar.nextElementSibling).toBe(strip());
+    expect(main().querySelector("[data-cold-date-bar-requested]")).toBeNull();
     expect(strip().textContent).toBe("Assessment unavailable");
     expect(main().querySelectorAll('[role="alert"]')).toHaveLength(1);
     expect(main().querySelector("[data-page-refusal]")).toBeNull();
@@ -974,3 +976,18 @@ describe("W2-cold unit 1: temperature and backup", () => {
 });
 
 const strip = (label: string) => document.querySelector(`[aria-label="${label}"]`) as HTMLElement;
+
+describe("D-SR.64 (F2): a Cold Finding detail reads its own period, whatever range the address carries", () => {
+  it("range B in the address: the read sends only known_at, the strip shows the Finding's window, the tag says so", async () => {
+    const client = renderCold(
+      `/sites/COLD-001/findings/${EXC_FINDING}?from=2026-11-01T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z&known_at=${encodeURIComponent(KNOWN)}`,
+      STOCKED,
+    );
+    await settledScreen();
+    expect(client.getFinding).toHaveBeenCalledTimes(1);
+    expect(client.getFinding).toHaveBeenCalledWith(expect.any(String), EXC_FINDING, { from: null, to: null, known_at: KNOWN });
+    expect(main().getAttribute("data-cold-view")).toBe("cold-finding-excursion");
+    expect(strip("Finding state").textContent).toContain(windowText(FROM, TO));
+    expect(document.querySelector(".shared-range__tag")?.textContent).toBe("Range not used · this record's own period");
+  });
+});

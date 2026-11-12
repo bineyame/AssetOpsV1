@@ -8,10 +8,12 @@
  * v69 `fuel`'s hour bar (index.html:623-630 shows Kobo's selected hour).
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, ChartNote, DataTable, MetricCard, MetricCards, Notice, Panel, ShowAll, StatusBar, ValueBars } from "../ui";
 import { sourceQualification } from "../ui/productWords";
+import { useDeclareRangeFocus } from "../ui/rangeFocus";
 import { useLinkFor } from "./chainRef";
 import type { FuelBalanceClient, FuelBridgeRow, FuelNightBody, FuelNightSummary, FuelProvenance, FuelRecordRow } from "./fuelBalanceClient";
 import type { MiniRead } from "./miniDepthClient";
@@ -330,6 +332,10 @@ export function MiniFuelNightsPage({
   const current = asked !== null && /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : latest;
   const hasRange = params.has("from") || params.has("to");
   const outside = hasRange && current !== null && !nights.some((n) => n.night_date === current);
+  // SR-10k supersedes D-SR.65's interim tag: the list follows the range, and the bar declares the night opened (SR-4's
+  // one-day convention, as on the hour view): "Showing <night> of the range", or "· range not used" only for a `?night=`
+  // outside the range (the outside-range line says the same). No night (empty range) declares nothing.
+  useDeclareRangeFocus(current);
   const key = `${siteCode}|${current ?? ""}|${knownAt ?? ""}`;
   const night = useRead<FuelNightBody>(
     () => (current === null ? Promise.resolve({ status: "unavailable", message: null }) : (knownAt === null ? client.getNight(siteCode, current) : client.getNight(siteCode, current, knownAt))),

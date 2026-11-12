@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 /**
  * The Foundation view row (S1-03).

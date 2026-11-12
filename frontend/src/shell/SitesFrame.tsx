@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import type { FeatureFlags } from "../config/featureFlags";
 import { Breadcrumbs, PageHeader } from "../ui";

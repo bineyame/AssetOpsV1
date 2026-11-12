@@ -6,7 +6,8 @@
  * is opened.
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, DataTable, Fact, FactList, readResultWords, type ProductWords } from "../ui";
 import { formatDayTime, formatRange } from "../ui/time";

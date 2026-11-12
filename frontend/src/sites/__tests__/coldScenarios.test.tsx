@@ -30,6 +30,7 @@ import {
   SCENARIOS_STATE_NOTICE,
   SCENARIOS_UNREACHABLE,
 } from "../ColdScenarios";
+import { entryRange } from "../../ui/sharedRange";
 import { siteFinancialScenariosHref } from "../../shell/operatorSiteRoutes";
 
 const SITE_CODE = "COLD-001";
@@ -274,7 +275,7 @@ describe("cold Scenarios page states", () => {
     expect(root.textContent).not.toContain("No scenario defined yet");
     // F2: no dead Retry for a window refusal; the correcting link and the panel frame stay.
     expect(refusal.querySelector("button[data-cold-retry]")).toBeNull();
-    expect(refusal.querySelector("a[data-cold-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(refusal.querySelector("a[data-cold-depth-correction]")?.textContent).toBe("Open with the default date range");
     expect(root.querySelectorAll("section.panel")).toHaveLength(1);
     expect(invalid.list.mock.calls[0]).toEqual([SITE_CODE, { ...WINDOW, scenario_at: AT }, null]);
     cleanup();
@@ -654,8 +655,11 @@ describe("post-W6 final-fix L4/L5: the cold Scenarios Site tab row", () => {
     expect(all).toContain(`known_at=${encodeURIComponent(KNOWN)}`);
   });
 
-  it("propagates nothing when the address has no selection", async () => {
+  it("a bare address reaches the entry range, and every tab carries it", async () => {
+    // SR-4 (D-SR.3, D-SR.40): the shell fills a bare Site address with the entry range (Last 7 days), so no tab is bare.
     await renderPage(stub(() => loaded(body([]))).client, "");
-    expect(tabHrefs().join(" ")).not.toContain("?");
+    const entry = entryRange().toString();
+    expect(tabHrefs().length).toBeGreaterThan(0);
+    for (const href of tabHrefs()) expect(href.endsWith(`?${entry}`), href).toBe(true);
   });
 });

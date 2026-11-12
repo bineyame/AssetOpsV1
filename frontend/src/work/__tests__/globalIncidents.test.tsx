@@ -3,6 +3,7 @@
  * Typed responses only: the persisted positive, zero, historical, refused and cursor-changed states are captured
  * against the real API in `.agent/W6-01-evidence/A2/`; `No accessible Sites.` is proven here only (A1Q2 R4).
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -28,6 +29,7 @@ import {
 const FROM = "2026-10-14T00:00:00Z";
 const TO = "2026-10-21T00:00:00Z";
 const KNOWN = "2026-10-21T12:00:00Z";
+const RANGE_Q = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 const PAGE = `/incidents?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 const SITE_INCIDENTS = `/sites/KOBO-001/work/incidents?from=2026-10-14T00%3A00%3A00Z&to=2026-10-21T00%3A00%3A00Z&known_at=2026-10-21T12%3A00%3A00Z`;
 const TITLE200 = "Backupgeneratorautomaticstartfailure".repeat(6).slice(0, 200);
@@ -243,7 +245,7 @@ describe("W6-01a A2: global Incidents", () => {
     const source = cell(first, 0).querySelector("[data-global-work-source]") as HTMLDetailsElement;
     expect(text(source.querySelector("summary"))).toBe("Source not checked");
     expect(text(source)).toContain("The origin of this authored work record is not established. No work outcome is verified.");
-    expect(within(cell(first, 1)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
+    expect(rangeless((within(cell(first, 1)).getByRole("link", { name: "Kobo" }))?.getAttribute("href") ?? "")).toBe("/sites/KOBO-001");
     expect(text(cell(first, 2))).toBe("19 Oct 2026, 09:00");
     expect(text(cell(first, 3))).toBe("Not recorded");
     expect(text(cell(first, 4))).toBe("In progress");
@@ -261,7 +263,7 @@ describe("W6-01a A2: global Incidents", () => {
     expect(text(cell(second, 6))).toBe("Finding a1b2c3d4 · Action e5f6a7b8 / WR-000007 · WR-000008");
     // Post-W6 W6 Q4 (R359): a linked request code with a destination opens that request; one without stays text.
     expect(within(cell(second, 6)).getAllByRole("link").map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
-      ["Finding a1b2c3d4", "/sites/KOBO-001/findings/f1?revision_id=r1"],
+      ["Finding a1b2c3d4", `/sites/KOBO-001/findings/f1?revision_id=r1&${RANGE_Q}`], // SR-4 (D-SR.2): a Site link carries the page's range
       ["WR-000007", "/maintenance/requests/00000000-0000-4000-8000-000000000707?site_id=KOBO-001"],
     ]);
     expect(text(cell(second, 0).querySelector("[data-global-work-source] summary"))).toBe("Prepared example data");
@@ -505,7 +507,7 @@ describe("Post-W6 W6: global Incidents corrections", () => {
     mount(PAGE, client({ "page-one": loaded(body(rows)) }));
     await settled();
     const trs = Array.from(document.querySelectorAll("tbody tr"));
-    expect(within(cell(trs[0], 6)).getByRole("link", { name: "Finding a1b2c3d4" })).toHaveAttribute("href", finding.href);
+    expect(rangeless((within(cell(trs[0], 6)).getByRole("link", { name: "Finding a1b2c3d4" }))?.getAttribute("href") ?? "")).toBe(finding.href);
     for (const tr of [trs[1], trs[2]]) {
       expect(text(cell(tr, 6))).toBe("Finding a1b2c3d4");
       expect(within(cell(tr, 6)).queryByRole("link")).toBeNull();

@@ -8,7 +8,7 @@
  * revision` while its stored disposition stays in the data. The notice is always shown.
  */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, Panel } from "../ui";
 import { Notice } from "../ui/V69Layout";
 import {

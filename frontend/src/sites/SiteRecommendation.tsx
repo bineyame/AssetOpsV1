@@ -40,7 +40,8 @@
  */
 import { displayCode } from "../ui/displayCode";
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { asOfText, Badge, ChartNote, Disclosure, ExactReferences, Fact, FactList, KeyValues, Panel } from "../ui";
 import { SOURCE_WORDS, SourceProvenanceNotice, sourceState } from "./sourceProvenance";

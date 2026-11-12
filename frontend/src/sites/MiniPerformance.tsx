@@ -5,7 +5,8 @@
  * Every number is the selected read's; a missing value reads `Unknown`, never a mock literal.
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
 
 import {
@@ -55,7 +56,8 @@ import "../ui/mock-deviation.css";
 import "./w4-mini-performance.css";
 import { formatDayTime, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { rangeWindow, useSharedRange } from "../ui/sharedRange";
+import { RangeSpan } from "../ui/rangeFocus";
+import { addressRange, rangeWindow, useSharedRange } from "../ui/sharedRange";
 
 /* ---------- sibling tabs ---------- */
 
@@ -435,6 +437,27 @@ function MiniNotLoaded({
 }
 
 /* ---------- period selector (Q5, q9-1: site-local days, sent as UTC bounds) ---------- */
+
+/**
+ * SR-4c (rev 8 8.2): the Site-local days a mini page reads, declared to the date-range bar when they are not the whole
+ * range (Renewable over 5 days reads its last 5 days). The bar then says "Showing <days> of the range" instead of
+ * "All pages". D-SR.57: Service, Backup and Fuel show one hour of one day; there the FocusPicker is the only declarer.
+ */
+function WindowSpan({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
+  const [params] = useSearchParams();
+  const range = addressRange(params);
+  const fromMs = window.from === null ? Number.NaN : Date.parse(window.from);
+  const toMs = window.to === null ? Number.NaN : Date.parse(window.to);
+  const known = !Number.isNaN(fromMs) && !Number.isNaN(toMs) && toMs > fromMs;
+  const first = known ? localDateOf(timeZone, fromMs) : null;
+  const last = known ? localDateOf(timeZone, toMs - 1) : null;
+  // The address window read as it is (a range of at most 5 days on Renewable) is the whole range.
+  const whole =
+    range !== null &&
+    ((Date.parse(rangeWindow(range).from) === fromMs && Date.parse(rangeWindow(range).to) === toMs) ||
+      (first === range.from && last === range.to));
+  return <RangeSpan from={whole ? null : first} to={whole ? null : last} />;
+}
 
 function MiniPeriodBar({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
   const fromMs = window.from === null ? Number.NaN : Date.parse(window.from);
@@ -883,6 +906,7 @@ export function MiniRenewable({
   return (
     <>
       <MiniPeriodBar key={key} timeZone={timeZone} window={window} />
+      <WindowSpan timeZone={timeZone} window={window} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
@@ -1283,6 +1307,7 @@ export function MiniService({
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
+      {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
@@ -1612,6 +1637,7 @@ export function MiniFuel({
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
+      {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
@@ -1958,6 +1984,7 @@ export function MiniBackup({
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>
+      {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>

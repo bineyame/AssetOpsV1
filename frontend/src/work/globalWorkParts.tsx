@@ -11,7 +11,8 @@
  */
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import {
   GLOBAL_WORK_FIRST_PAGE_CODES,
   GLOBAL_WORK_PAGE_LIMIT,

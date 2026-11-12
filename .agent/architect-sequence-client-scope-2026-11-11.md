@@ -1,5 +1,168 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 10e addendum (Architect, Claude, 2026-11-12 night): SR-8 parity failure diagnosed; the rows-on switch for 17 Nov
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.62-63** (build sheet), owner-delegated, logged for owner review.
+- Evidence: `AssetOpsV1-sr8` 26fd97b7a `.agent/SR-8-parity.json`. DB `assetops_polish_vps1_test`, read only.
+
+### 10e.1 SR-8: why 3 Kobo days fail, and the fix (D-SR.62)
+
+**What the database shows (KOBO-001, 27 Oct; 3 and 10 Nov are the same).**
+- The stored day row reads ELIGIBLE, 25-31 kW, `window_hours` 2, covered 28,800 of 86,400 s (PARTIAL).
+- The day has 7 daylight hours with a selected revision (04:00-10:00Z). Of these, 5 are EXCLUDED (CHARGE_OBLIGATION_ACTIVE). Two are **ELIGIBLE**: 09:00Z (seq 1081) and 10:00Z (seq 1094), both 25-31 kW.
+- The other **16 hours are "missing"**: they have no full `pv_available_power` coverage. That is 21:00-03:00Z and 11:00-21:00Z, the story's truncated readings on its Finding days. None of them has a revision.
+- The stored `mini_depth.renewable` period row has the same 23 windows and the same 7 heads (2 ELIGIBLE).
+- **The parity JSON's "all 7 hourly rows EXCLUDED" is wrong.** The read's `rows` are the heads' stored rows, and two of them are ELIGIBLE. The harness most likely read `limitations` (5 CHARGE_OBLIGATION_ACTIVE entries). The builder corrects the harness.
+
+**Root cause: two day rules for the same day.**
+- Stored measure (`chain/measure_impls.py` `RenewableHeadroom`, CH9-R2 Q2/Q4):
+  - the value comes from the day's **daylight** hours;
+  - missing hours only reduce coverage, so the grade is PARTIAL;
+  - the value is null (MISSING_HOUR) only when a *daylight* hour has no selected revision.
+- One-day read (`mini_depth/read.py` `compose_renewable`, CH9-R2 Q5):
+  - any window with no head marks the whole day as missing;
+  - so `status` is UNKNOWN and every card is null;
+  - it cannot tell a missing hour (no PV coverage, never assessed) from a daylight hour that has no revision yet. `hour_windows` merges `found.hours` and `found.missing`, and the flag is dropped.
+
+**The stored side is right.**
+- Two of the measured hours were assessed ELIGIBLE at 25-31 kW. D-SR.9 says data in the range gives output, so the day must show them.
+- D-SR.47 Q4 already counts a PARTIAL ELIGIBLE day, with `partial: true`.
+- The chain measure feeds day grades and the Portfolio, and 10b ruled it unchanged.
+- The read is fixed to use the measure's rule.
+
+**The fix (one rule everywhere):**
+- **Carry the missing flag.**
+  - `read._Hour` gains `missing: bool = False`. It is true exactly for the hours in `daylight_hours(...).missing` at the read's cutoff.
+  - The compose path sets it where `hour_windows` builds the renewable windows.
+  - The rows path reads it from the stored hour: `period_rows.hour_json` writes `"missing"` and `hour_from_json` reads it.
+  - `BUILDER_VERSION` becomes `mini-depth-rows-2`, because the stored hour body changes.
+- **`compose_renewable(hours, *, missing=frozenset())`**, keyed by `(day, window.start)`:
+  - Missing hours are left out of the decision, the cards and the `len(selected) < len(hours)` UNKNOWN test.
+  - A day is a missing day only when a **non-missing** hour has no head. This is the measure's MISSING_HOUR, unchanged.
+  - The cards (`headroom_kw`, `all_hours_headroom_kw`, `eligible_days`, `assessed_days`) are then over the same hours as the measure.
+  - So for 27 Oct the read returns SUPPORTED, `headroom_kw` 25-31, and `all_hours_headroom_kw` 25-31.
+- **Recurrence stays strict.** `summarize_renewable` gains `partial_days`. `recurrence_established` also needs no day with missing hours. A partial day is assessed, but it never establishes recurrence.
+- **The envelope gains `missing_hours`** (the count of missing windows).
+  - The one-day page shows the D-E5.45 PARTIAL label when it is above 0, with the words the range row uses.
+  - Range row `missing_hours` = (required − covered)/3600 = 16 = one-day `missing_hours`.
+  - This is inside R726: the v69 `renewable` card is kept whole.
+- **D-SR.48's "null when the card is null" still holds.** The card and the line now fill together.
+
+**The Grow board.**
+- `site_outcomes/mini.py` reads the same `compose_renewable` over 5 days. Its fixtures pass `None` hours as daylight hours with no head, so the existing tests are unchanged.
+- On real data, a 5-day board window that holds a Finding day now counts that day as assessed and partial, with no recurrence. This is the intended consistency. Any board pin that changes is recorded as expected in the packet, not re-pinned silently.
+
+**Tests:**
+- Pure, `test_w402_reads.py`:
+  - (a) the 27 Oct shape (7 headed hours with 2 ELIGIBLE at 25-31, plus 16 missing) gives SUPPORTED, both cards 25-31, eligible/assessed 1/1, `missing_hours` 16;
+  - (b) a non-missing hour with no head still gives UNKNOWN and null cards;
+  - (c) recurrence is false over 5 days when one day is partial.
+- Shared-rule pin: the same fixtures go through `RenewableHeadroom.measure`. For the complete, partial and headless-daylight days, `(low_kw, high_kw)` equals `all_hours_headroom_kw`, with both null on the headless-daylight day.
+- `hour_json`/`hour_from_json` round-trip `missing`. A `mini-depth-rows-1` row reads PENDING_RECOMPUTE (existing rule).
+- Postgres SR-8: one sampled day has missing hours.
+- Parity rerun:
+  - gate 0 mismatches over COUNTED days;
+  - the `missing_hours` of each compared day must be equal;
+  - the harness reports the per-hour decisions from `rows[].decision`.
+- **Size:** about 0.3 units (Sonnet fix round, then a fresh Claude re-review). SR-8 merges only after the parity rerun passes.
+
+**Rebuilds on the demo DB:**
+- **Stored day rows (`site_day_snapshot` `daylight_headroom_kw`): no rebuild.** The measure is unchanged and they are right.
+- **`mini_depth.*` period rows: yes, rebuild.** The version bump makes all four mini kinds read PENDING_RECOMPUTE until they are rebuilt.
+  - Run `python -m assetops_backend.chain.period_backfill build --site KOBO-001` and then `--site KISIWA-001` (the board-kinds step, 15-minute cap).
+  - Then rerun the SR-8 parity on that DB.
+  - `dispatch.day` and `evidence.claim` rows are unchanged: their fingerprint is the same, so nothing is written.
+
+### 10e.2 The rows-on switch for the 17 Nov build (D-SR.63)
+
+- **The code lands now** (about 0.05, in the SR-8 fix round or as its own tiny branch):
+  - `tools/demo_combined.py` `serve_env()` sets `ASSETOPS_PERIOD_READ_KINDS=dispatch.day,evidence.claim,mini_depth.renewable,mini_depth.fuel,mini_depth.service,mini_depth.backup` **only when** the work dir's `period-rows.json` reads `"ok": true`.
+  - Otherwise it stays empty and the prepare prints the existing failure line.
+  - An operator's own value in the parent environment wins.
+  - Stub test: ok → six kinds; not ok or no file → empty; override → kept.
+- **On the current demo DB, now:**
+  - `dispatch.day` and `evidence.claim` may be switched on: their rows are built, their parity passed (SR-5/6/7), and the SR-8 fix does not touch them.
+  - The four `mini_depth.*` kinds stay off until the SR-8 fix merges, the mini rows are rebuilt (10e.1) and the parity is rerun with the six kinds (`tools/checks/period_read_parity.py`, 0 differences).
+- **For the 17 Nov build: all six on**, with three conditions:
+  1. SR-8 (with D-SR.62), SR-10 and SR-11 are merged.
+  2. The final prepare's row steps report ok (board kinds, then day kinds, D-SR.54).
+  3. **One** final parity run with the six kinds on the final DB gives 0 differences.
+  - The SR-10/11 day kinds read rows whatever the switch says (D-SR.52), so their own parity does not gate the six kinds. Their merge does change the prepare's row step, though, which is why the one final parity run comes after them.
+  - If that run fails for a kind, only that kind is left out of the list, the failure is logged, and the coordinator is told. No silent fallback.
+
+### 10e.3 SR-4 live check and the SR-8 empty day (D-SR.64-68)
+
+Source: `AssetOpsV1-sr4` 01f4d3981 `.agent/SR-4-live-check.md`; SR-8 223783035 / 1a4d94dd5.
+
+- **F2, Cold/EV Finding detail (D-SR.64): fix in both the page and the reader.**
+  - **Cause.** `ColdReadService.finding` (`postgres_assessment_store.py:2645`) and the EV `finding` (`:3672`) look the Finding up inside the requested window: the anchor must lie in `[from,to)`. SR-4 carries the range into the address, and `ColdFindingFrame` and `EvFindingFrame` pass `coldWindowFromParams(params)` to `getFinding`. So under range B the reader answers 404, and under A or Y the header shows the range as the Finding's window. Both break 10.5 N: one record, its own episode.
+  - **Page.** The Cold and EV Finding detail frames send **only `known_at`** to `getFinding`. They never send `from` or `to`. The range stays in the address, for onward links only. The header window comes from the response.
+  - **Reader.** On the two detail routes, when the request has **no `from`/`to`**, the reader no longer takes "the latest selected window". It takes **the Finding's own window**: the window of the analytic run that wrote the Finding's latest revision known at k. This is the rule `linked_finding` (D-E5.8) already uses for its links.
+    - An explicit `from`/`to` keeps today's anchor-in-window rule, so API links stay valid.
+    - Pre-flight: if EV runs store no window, stop and ask.
+  - **Tag.** `RangeNotUsedNote` gains `"own period"`, so the tag reads **"Range not used · this record's own period"**. Finding detail on all four Site types declares it. Kobo and Kisiwa currently say "All pages", which is the same overclaim as F1.
+  - **Tests.**
+    - Postgres, Cold and EV each: a Finding outside the latest window, read with no window, returns 200 with its run's window. An explicit window that misses the anchor still returns 404.
+    - Vitest: a detail address carrying range B sends no `from`/`to`, shows the Finding's own window, and shows the new tag.
+  - Size about 0.2. **This goes into SR-4 before it merges**: it is an SR-4 regression on demo pages.
+- **F1, Kisiwa Fuel nights (D-SR.65): both.**
+  - SR-4 carries the honest tag for what the page actually shows. The nights view declares `useDeclareRangeFocus(<the night shown>)`, so under B the tag reads "Showing 10 Nov · range not used" and never "All pages" (about 0.02).
+  - **SR-10k is the next merge after SR-4**, with nothing merged between them. It replaces the view and the tag with the range content.
+  - The tag protects the page if SR-10k slips. The merge order limits how long the page is wrong.
+- **F3, Cold/EV financial assumptions (D-SR.66).** This corrects the D-SR.44 row.
+  - The page shows range content ("Analysed periods in this range … showing 5 Nov"), so "Range not used" is false.
+  - Remove the two `<RangeNotUsed note="prices valid now" />` declarations (`evSiteRoutes.tsx:109`, `SiteAnalyticsFrames.tsx:1515`). The assumptions view then declares exactly what the same Site's Financials view declares; Financials passed as R.
+  - The price values keep their in-page wording. Nothing is trimmed.
+  - Pin one Cold and one EV case in `siteRangeTags.test.tsx`. Size about 0.03, inside SR-4.
+- **409 `AWAITING_EVIDENCE_MIGRATION` (D-SR.67): a demo prepare gap, plus one surface that is 409 by design.**
+  - **The Kisiwa and EV `/evidence` ledgers.**
+    - `ledger_reads.scope` opens an imported Site only after a passing legacy comparison bound to this DB and store root (`permits_cutover`).
+    - `demo_combined.finish()` runs `evidence_migration run` for **KOBO-001 only** (since dd08df077). `performance_and_prebuild` runs `performance_migration` for Kobo and Kisiwa.
+    - So the laptop builds, which use the same code, must also have shown Kisiwa and EV ledgers as "Awaiting evidence migration". This is from code, not seen on a laptop. It is not an SR-4 regression.
+  - **`/analytics`.** It is the legacy file-backed declaration. `LegacySiteGate` refuses it for every imported Site, Kobo included, by design. The pages use the durable reads instead (`SitePerformance` `performance`).
+  - **17 Nov prepare (about 0.1):**
+    - `finish()` runs `evidence_migration run` for **every imported Site in the story** (KOBO-001, KISIWA-001, EV-LAB-001, and COLD-LAB-001 if its Evidence page uses the ledger). Then `performance_migration` runs for each Site that has the dispatch Performance surface.
+    - A Site that exits 2 ("cannot be compared", for example no legacy store) stops the prepare and comes to the Architect. It is never served as "awaiting".
+  - **Serve.** The comparison is bound to the store root. The demo is served from the build tree. Any other serve tree (a worktree check) reruns the comparison there first.
+  - **Gate.** After the prepare, a live check (the SR-4 method) must show no `AWAITING_EVIDENCE_MIGRATION` panel on any page a client sees.
+    - `/analytics` 409s may stay only where the page does not show that panel.
+    - Any visible panel is a defect card, not an accepted state. That wording is system vocabulary on client pages.
+- **SR-8 day with no solar reading at all (D-SR.68): the builder is confirmed.**
+  - When every hour of the day is missing, the stored measure has no headed hour. `RenewableHeadroom.inputs` returns no IDs, no spans and no payload, so the row is **NO_DATA**.
+  - The range row shows **NO_DATA**, with the D-SR.27 words for a day with no readings. It is not counted. NO_DATA wins (D-SR.47 Q4).
+  - The one-day read keeps that day as a missing day: UNKNOWN, with null cards.
+  - D-SR.62's rule is clarified: a missing hour is left out only when **at least one** hour of that day has a stored result. A day with none is a missing day, as before.
+  - Add a pure pin for an all-missing day (UNKNOWN). The parity JSON shows such days under NO_DATA, and they are never compared.
+
+### 10e.4 KOBO-001 10-31 has no mini heads: a story gap, not a build defect (D-SR.69)
+
+- **Story.** `days.json` (polish_vps1) entry 49 is Kobo 2026-10-31, kind `missing`: "gateway offline: no run, no delivery". **11-06 (entry 68) is the same kind.** The 11 accepted rows on each day are the previous day's run ending at local 00:00, and they enqueued no hour on either day (`cause_evidence_id` count 0).
+- **Why 11-06 has heads anyway.** All 72 of its fuel, backup and service jobs have no cause and were created at **2026-11-10 14:00Z**, the moment the Kobo Action was APPLIED (`kobo.json` `apply_at`). That is a configuration re-enqueue (`mini_enqueue_configuration`), so those heads were computed over no readings. 11-06 renewable has no heads, just like 10-31. Nothing re-enqueued 10-31. **The hole is the expected result of a gateway-offline day. The 11-06 heads are a side effect.**
+- **Chain grades are NO_DATA on both days for every measure** (`avoidable_gen_min`, `critical_served`, `daylight_headroom_kw`, `productive_kwh`; covered 0). So SR-5/6/7/8, which read the grades, show 10-31 and 11-06 as NO_DATA. That is honest, and the two days match.
+- **Ruling:**
+  - **No heads are built for 10-31** (D-SR.36 stands).
+  - SR-10/11 pre-flight and parity gate: a day whose chain grade is NO_DATA for that domain's measure expects 0 heads. The parity JSON lists such days under `no_data_days`, and each must read NO_DATA on the range page, never STILL_PROCESSING. (The grade wins first, D-SR.47 Q4. An absent day-kind row on a NO_DATA day is not a "missing row".)
+  - The head gate becomes: no hour with a live or FAILED job, and no hour holding accepted evidence for the domain's roles without a head.
+  - The partial days (10-13, 10-20, 10-27, 11-03, 11-10) have heads only where readings exist. That is expected, and their grade is PARTIAL.
+- **One-day pages.** They are not wrong; the two days differ only in wording.
+  - 10-31 shows the hour as not assessed (UNKNOWN, no figures).
+  - 11-06 shows an assessed hour with no readings (no figures).
+  - Neither shows a number. Making the two days read the same is **Low, backlog** (demo-critical scope only). It is not a 17 Nov item.
+
+### 10e.5 SR-10/11 parity findings: pre-data days, the precise head gate, one NO_DATA state (D-SR.70-72)
+
+- Evidence: SR-10 parity 2dac39de2, SR-11 parity 75abd816a, DB `assetops_polish_vps1_test`, read only. Both JSONs passed. These rulings close the two honesty gaps the runner found.
+- **Pre-data days (D-SR.70, option b).** A day with no readings reads **NO_DATA ("No readings this day")**, whether a row is stored or not.
+  - "No readings" means every applicable mini measure grade of the day is NO_DATA. A missing snapshot counts (Q9).
+  - In `mini_depth/day_summary.py`, new `no_reading_days(facts)` and `day_state(..., no_readings, pending)`. The order is NOT_EXPECTED → pending → NO_DATA → absent row → the rest.
+  - Not counted, figures null. The prepare is unchanged: a client Site always has days before its first reading, and only the route can be honest about them.
+- **Head gate (D-SR.71).** The flagged Kobo hours (local 00:00 and fuel 14:00 on the Tuesday partial days) hold only boundary rows: intervals ending at the hour's start, and backup-only instants at 14:00:00. The 0029 trigger rightly enqueues no job for them. **No head is missing.**
+  - The gate now mirrors the trigger: the domain's `DOMAIN_ROLES` and the half-open intersection with `+1 µs` instants, gated at 0.
+  - `ineligible_hours` and `heads_without_evidence` are reported, not gated.
+  - A cross-check, gated at 0: no NO_DATA day has a matching hour.
+- **One state (D-SR.72).** 10-31 (NO_ASSESSMENT), 11-06 backup (NO_SEQUENCE, counted) and 11-06 fuel (ASSESSED, counted) all become NO_DATA, as on SR-5 to SR-8. NO_SEQUENCE on a gateway-offline day claimed that nothing happened, from no readings.
+- **Order.** A Sonnet fix round on SR-10 (about 0.15), merged into SR-11, with a fresh Claude re-review. Then a parity rerun with the D-SR.71 harness: NO_DATA days are Kobo 10-11, 10-12, 10-31 and 11-06, and Kisiwa 10-11 to 10-31. Then the pages, then merge.
+
 ## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8**; later D-SR.47-54 (10d.7-10d.11) (build sheet), owner-delegated, logged for owner review.

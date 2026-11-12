@@ -404,7 +404,7 @@ describe("health_states_and_loading", () => {
     expect(container.querySelector("[data-health-card]")).toBeNull();
     // F2: a window refusal has no dead Retry; it offers the page without the window and keeps the panel.
     expect(container.querySelector("[data-cold-retry]")).toBeNull();
-    expect(container.querySelector("a[data-cold-depth-correction]")?.textContent).toBe("Read without a selected window");
+    expect(container.querySelector("a[data-cold-depth-correction]")?.textContent).toBe("Open with the default date range");
     expect(container.querySelectorAll("section.panel")).toHaveLength(1);
     expect(getHealth).toHaveBeenCalledTimes(1);
     cleanup();
