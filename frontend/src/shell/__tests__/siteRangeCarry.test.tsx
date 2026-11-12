@@ -27,7 +27,8 @@ const RANGE = `from=${FROM}&to=${TO}`;
 const as = (site: SiteDetailReadModel, code: string): SiteDetailReadModel => ({ ...site, site_id: code }) as SiteDetailReadModel;
 const SITES: Record<string, SiteDetailReadModel> = {
   "KOBO-001": as(HYBRID_MINI_GRID_SITE, "KOBO-001"),
-  "KISIWA-001": as(HYBRID_MINI_GRID_SITE, "KISIWA-001"),
+  // SR-4ab L-3: Kisiwa's own fixture (its zone, and a mini capabilities read with Fuel below), not Kobo's.
+  "KISIWA-001": { ...as(HYBRID_MINI_GRID_SITE, "KISIWA-001"), display_name: "Kisiwa", timezone: "Africa/Nairobi" } as SiteDetailReadModel,
   "COLD-LAB-001": as(COLD_SITE as SiteDetailReadModel, "COLD-LAB-001"),
   "EV-LAB-001": as(EV_SITE as SiteDetailReadModel, "EV-LAB-001"),
 };
@@ -37,6 +38,13 @@ const DETAIL: SiteDetailClient = {
 const DIRECTORY: SiteDirectoryClient = {
   listSites: () => Promise.resolve({ status: "loaded", sites: Object.values(SITES) }),
 } as SiteDirectoryClient;
+
+const KISIWA_CAPS = [
+  { id: "service", display_name: "Service" },
+  { id: "fuel", display_name: "Fuel" },
+  { id: "renewable", display_name: "Renewable" },
+  { id: "backup", display_name: "Backup" },
+];
 
 let where = "";
 let go: NavigateFunction | null = null;
@@ -56,7 +64,13 @@ beforeEach(() => {
   window.sessionStorage.clear();
   vi.stubGlobal(
     "fetch",
-    vi.fn(() => Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }))),
+    vi.fn((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      if (url === "/api/sites/KISIWA-001/performance/mini/capabilities") {
+        return Promise.resolve(new Response(JSON.stringify(KISIWA_CAPS), { status: 200, headers: { "Content-Type": "application/json" } }));
+      }
+      return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+    }),
   );
 });
 
@@ -165,6 +179,25 @@ describe("SR-4a the safety net completes a Site content address with no range", 
     view.unmount();
   });
 
+  it("SR-4ab L-3: the previous range wins over the address's day; day is kept", async () => {
+    const view = await open(`/sites/KOBO-001?${RANGE}`);
+    (go as NavigateFunction)("/sites/KISIWA-001/performance?day=2026-10-24");
+    await settledScreen();
+    const at = paramsOf(where);
+    expect([at.get("from"), at.get("to"), at.get("day")]).toEqual([FROM, TO, "2026-10-24"]);
+    view.unmount();
+  });
+
+  it("D-SR.59 L-1: per key, the address's own known_at wins over the previous range's; never two", async () => {
+    const view = await open(`/sites/KOBO-001?${RANGE}&known_at=2026-11-05T00:00:00Z`);
+    (go as NavigateFunction)("/sites/KISIWA-001/performance?known_at=2026-11-07T12:00:00Z");
+    await settledScreen();
+    const at = paramsOf(where);
+    expect([at.get("from"), at.get("to")]).toEqual([FROM, TO]);
+    expect(at.getAll("known_at")).toEqual(["2026-11-07T12:00:00Z"]);
+    view.unmount();
+  });
+
   it("an invalid range is left alone", async () => {
     const view = await open(`/sites/KOBO-001?from=${TO}&to=${FROM}`);
     const at = paramsOf(where);
@@ -178,6 +211,25 @@ describe("SR-4a the safety net completes a Site content address with no range", 
     view.unmount();
     view = await open("/sites");
     expect(where).toBe("/sites");
+    view.unmount();
+  });
+});
+
+describe("SR-4ab L-3: Kisiwa's own Performance tab row (Fuel) carries the range", () => {
+  it("the Fuel subtab link carries the range and a click on it keeps it", async () => {
+    const view = await open(`/sites/KISIWA-001/performance/service?${RANGE}`);
+    const fuel = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]")).filter(
+      (a) => pathOf(a.getAttribute("href") ?? "") === "/sites/KISIWA-001/performance/fuel",
+    );
+    // Non-vacuous: Kisiwa's capabilities read gives a Fuel subtab.
+    expect(fuel.length).toBeGreaterThan(0);
+    for (const a of fuel) expect([paramsOf(a.getAttribute("href") ?? "").get("from"), paramsOf(a.getAttribute("href") ?? "").get("to")]).toEqual([FROM, TO]);
+    expect(bareSiteHrefs()).toEqual([]);
+    fireEvent.click(fuel[0]);
+    await settledScreen();
+    expect(pathOf(where)).toBe("/sites/KISIWA-001/performance/fuel");
+    expect([paramsOf(where).get("from"), paramsOf(where).get("to")]).toEqual([FROM, TO]);
+    expect(bareSiteHrefs()).toEqual([]);
     view.unmount();
   });
 });

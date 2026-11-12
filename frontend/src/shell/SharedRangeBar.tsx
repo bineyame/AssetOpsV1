@@ -55,6 +55,7 @@ export const OWN_DATES = "This page's own dates";
 export const NOT_THIS_PAGE = "Not used on this page";
 const NOT_THIS_PAGE_SPOKEN = "This page shows its own dates, not this range";
 /**
+ * MOCK DEVIATION R718/R719 (v71 Change 0b shows only "All pages"; build sheet D-SR.6/SR-4c).
  * SR-2 / SR-4c (D-SR.6, R718/R719): the tag on a page that shows one day or part of the range: "Showing 9 Nov of the
  * range" / "Showing 5–9 Nov of the range"; outside the range "Showing 24 Oct · range not used". On a point-in-time
  * page: "Range not used · shows now" (or "· current settings", "· prices valid now").
@@ -129,6 +130,9 @@ export function SharedRangeOutlet() {
   } else {
     return <Outlet />;
   }
+  // D-SR.59 L-1 (D-SR.42d/D-SR.57): per key, the address's own `from`/`to`/`known_at` wins over the copied range, so
+  // the result never holds a key twice.
+  for (const key of ["from", "to", "known_at"]) if (params.has(key)) next.delete(key);
   for (const [key, value] of params) next.append(key, value);
   return <Navigate replace to={`${location.pathname}?${next.toString()}${location.hash}`} state={location.state} />;
 }

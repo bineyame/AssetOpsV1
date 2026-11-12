@@ -66,7 +66,7 @@ export interface SiteEvidenceProps {
   timezone?: string | null;
 }
 
-/** SR-4c (D-SR.7): under a panel whose read takes no date range (`/evidence/rejections`, `/analytics`). */
+/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7). SR-4c (D-SR.7): under a panel whose read takes no date range (`/evidence/rejections`, `/analytics`). */
 export const PANEL_ALL_DATES = "All dates, not only the date range";
 
 /** Shown for a rejection when the backend serves no plain reason; never its code. */

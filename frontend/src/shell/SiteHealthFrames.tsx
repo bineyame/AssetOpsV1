@@ -105,7 +105,7 @@ export function SiteHealthFrame({
               <EvHealthWithTabs siteId={site.site_id} window={coldWindowFromParams(params)} client={evDepth} />
             ) : (
               <>
-                {/* SR-4c (D-SR.6, R719): mini-grid Health reads the server clock; the bar says the range is not used. */}
+                {/* MOCK DEVIATION R718/R719 (v71 Change 0b shows only "All pages"). SR-4c (D-SR.6, R719): mini-grid Health reads the server clock; the bar says the range is not used. */}
                 <RangeNotUsed note="shows now" />
                 <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
               </>
