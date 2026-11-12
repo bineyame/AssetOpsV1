@@ -94,6 +94,7 @@ def test_day_states_values_and_hours() -> None:
     assert (first["served_kwh"], first["unserved_kwh"], first["demand_kwh"]) == ("40.5", "1.5", "42.0")
     assert (first["covered_hours"], first["operating_hours"], first["grade"]) == (10.0, 12.0, "COMPLETE")
     assert second["covered_hours"] == 6.0 and second["grade"] == "PARTIAL"
+    assert [d["partial"] for d in body["days"]] == [False, True] + [False] * 5
     assert third["served_kwh"] is None and third["covered_hours"] == 10.0
     absent = body["days"][6]
     assert absent["grade"] is None and absent["covered_hours"] is None and absent["served_kwh"] is None

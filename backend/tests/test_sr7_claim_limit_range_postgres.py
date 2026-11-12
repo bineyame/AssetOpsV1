@@ -113,3 +113,34 @@ def test_rows_on_with_absent_runs_equals_rows_off(world, monkeypatch) -> None:
         coverage.dispatch_rows_provider = before
     assert served and all(days is not None for days in served)  # the rows path ran, not the kill switch
     assert on == off
+
+
+def test_each_row_link_opens_to_a_200(world) -> None:
+    """D-SR.45 J4: the drill-in of every selected day opens the one-day claim-limit read for the same day and
+    revision (the data route behind the `/sites/{code}/evidence?day=&revision=` page link)."""
+    from assetops_backend.analytics.adapters.postgres_assessment_store import PostgresAssessmentStore
+    from assetops_backend.analytics.claim_limit_read import ClaimLimitReadService
+    from assetops_backend.claim_limit_api import build_claim_limit_router
+
+    runner, _, body = world
+    out = body()
+    code = out["site"]["site_code"]
+    assessments = PostgresAssessmentStore(URL)
+    try:
+        app = FastAPI()
+        app.include_router(build_claim_limit_router(
+            ClaimLimitReadService(assessments), {code: (code, runner.tenant, runner.site)}.get,
+            gate=lambda c, t, s: (True, "test: gate open")))
+        client = TestClient(app)
+        opened = 0
+        for row in out["days"]:
+            if row["link"] is None:
+                continue
+            assert row["link"] == f"/sites/{code}/evidence?day={row['day']}&revision={row['revision_id']}"
+            response = client.get(f"/api/sites/{code}/performance/dispatch/windows/{row['day']}/claim-limit",
+                                  params={"revision": row["revision_id"]})
+            assert response.status_code == 200, response.text
+            opened += 1
+        assert opened >= 1
+    finally:
+        assessments._connect_engine().dispose()

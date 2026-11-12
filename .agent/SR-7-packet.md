@@ -78,3 +78,9 @@ Spec: sequence doc rev 10 §10.3 + rev 10a §10a.2; D-SR.15/16/23-26. Pages not 
   cutoff. Acceptable, or should it also compare named fields of the one-day route body?
 - **Q-J5 (SR-7b window kind).** Built with `estate_request("evidence", ...)` (same window rule); `"portfolio"`
   makes `_scope` require the Portfolio cursor key env for a one-Site read. Confirm.
+
+## D-SR.45 folded (Q-J1-5 confirmed)
+
+- J2: service-range day rows carry `partial` (true for a counted PARTIAL day); pinned in the no-DB test (13 passed) and the Postgres test (2 passed, 111 s).
+- J4: `test_each_row_link_opens_to_a_200` added to the claim-limit Postgres test (3 passed, 22 s): each selected-day link's one-day claim-limit data route returns 200. The page link itself (`/sites/{code}/evidence?...`) is a frontend route and is not fetched.
+- Parity must report per Site the days with readings but no `critical_served` row (not yet run; waits for the DB slot).

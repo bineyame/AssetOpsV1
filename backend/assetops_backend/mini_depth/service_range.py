@@ -10,7 +10,7 @@ Day state (D-SR.26; gap states are the SR-5a names, read from the chain grade):
 - no snapshot row reads as NO_DATA (the chain's own missing-row rule, `chain.read.day_gaps`) -> NO_READINGS;
 - NOT_EXPECTED -> NOT_EXPECTED; PENDING -> STILL_PROCESSING; LOW -> NOT_ENOUGH_READINGS ("not counted",
   `chain.vocabulary.READINGS_TERMS`);
-- COMPLETE / PARTIAL with a value: SHORTFALL when `unserved_kwh` > 0, else SERVED_ALL (these are the counted days);
+- COMPLETE / PARTIAL with a value (D-SR.45: PARTIAL carries `partial: true`): SHORTFALL when `unserved_kwh` > 0, else SERVED_ALL (these are the counted days);
 - COMPLETE / PARTIAL without a value: NO_VALUE ("No critical-load figure for this day").
 """
 
@@ -102,7 +102,7 @@ def service_range_body(site: Mapping[str, Any], facts: Any, days: Iterable[date]
             **{key: None if shown is None else shown.get(key) for key in ("served_kwh", "unserved_kwh", "demand_kwh")},
             "covered_hours": None if row is None else _hours(row.covered_seconds),
             "operating_hours": None if row is None else _hours(row.required_seconds),
-            "state": state, "hour_link": hour_link(code, d, tz)})
+            "state": state, "partial": state in COUNTED and grade == PARTIAL, "hour_link": hour_link(code, d, tz)})
     return {
         "schema_version": SCHEMA,
         "site": {"site_code": code, "site_name": site.get("site_name"), "timezone": tz},

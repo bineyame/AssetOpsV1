@@ -149,6 +149,7 @@ def test_counted_day_hours_no_value_low_and_totals(world) -> None:
         "SHORTFALL", "144", "12.0", "156.0")
     assert (served["covered_hours"], served["operating_hours"]) == (world.covered / 3600, 24.0) == (24.0, 24.0)
     assert (partial["state"], partial["covered_hours"], partial["operating_hours"]) == ("SERVED_ALL", 5.5, 8.0)
+    assert (served["partial"], partial["partial"], novalue["partial"], low["partial"]) == (False, True, False, False)
     assert served["hour_link"] == hour_link(world.code, DAYS[0], TZ)
     # NO_VALUE: analysed, no figure
     assert (novalue["state"], novalue["served_kwh"], novalue["covered_hours"]) == ("NO_VALUE", None, 24.0)
