@@ -101,7 +101,8 @@ def reading_uploads_from_environment(overrides: dict[str, object]) -> None:
     overrides["reading_uploads"] = ReadingUploadService(
         upload_process.ProcessFileChecker(),
         None if gateway is None else upload_process.ProcessReadingSender(gateway),
-        PostgresReadingUploadStore(database_url()), entered_by=ENTRY_PRINCIPAL)
+        PostgresReadingUploadStore(database_url()), entered_by=ENTRY_PRINCIPAL,
+        template=upload_process.template_csv)
 
 
 def build_app(flags: FeatureFlags | None = None, **overrides: object) -> FastAPI:

@@ -150,9 +150,15 @@ def _row_number(field_text: str) -> str:
 
 class ReadingUploadService:
     def __init__(self, checker: FileChecker, sender: ReadingSender | None, store: ReadingUploadStore,
-                 entered_by: str, new_id: Callable[[], UUID] = uuid4) -> None:
+                 entered_by: str, new_id: Callable[[], UUID] = uuid4,
+                 template: Callable[[], bytes] | None = None) -> None:
         self._checker, self._sender, self._store = checker, sender, store
         self._entered_by, self._new_id = entered_by, new_id
+        self._template = template
+
+    def template_csv(self) -> bytes | None:
+        """The upload template (the profile's header row), from the host; None when none is configured."""
+        return None if self._template is None else self._template()
 
     # --- POST -----------------------------------------------------------------------------------------------
 

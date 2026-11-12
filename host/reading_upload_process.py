@@ -70,6 +70,18 @@ def _env() -> dict[str, str]:
     return env
 
 
+TIMESTAMP_HEADER = "timestamp_utc"
+
+
+def template_csv(profile: Path = PROFILE) -> bytes:
+    """The upload template: the CSV profile's header row (`timestamp_utc`, then `<column> [<unit>]` per profile row,
+    in profile order; the collector's header rule). Plain ASCII, no byte-order mark, no data rows. Read from the
+    profile document only (no field-adapter import)."""
+    document = json.loads(profile.read_text(encoding="utf-8"))
+    cells = [TIMESTAMP_HEADER] + [f"{row['csv']['column']} [{row['source_unit']}]" for row in document["rows"]]
+    return (",".join(cells) + "\r\n").encode("ascii")
+
+
 def run_field(argv: list[str], data: bytes, runner: Any = subprocess.run) -> tuple[int, dict]:
     """Write `data` to a private temp file, run the field process with `--file <it>`; its exit code and JSON line."""
     handle, name = tempfile.mkstemp(prefix="reading-upload-", suffix=".csv")

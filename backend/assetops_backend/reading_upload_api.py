@@ -6,11 +6,16 @@
   words; on confirm the refusal is recorded and nothing is admitted.
 - `GET /api/sites/{site_code}/reading-uploads/{upload_id}`: the upload's state (Sent, Accepted n of m, Still
   processing, Analysed; Refused; Held alongside).
+- `GET /api/sites/{site_code}/reading-uploads/template`: the CSV template (the profile's header row, built by the
+  host), `text/csv`, downloaded as `<SITE>-readings-template.csv`. The page shows `reading_upload.template_note`.
+
+SPEC DEVIATION (transport, D-UP.5): section 7.5 said multipart; the body is the raw file (`text/csv`) with
+`?file_name=` (display-only, at most 200 characters), so no multipart dependency is added.
 
 Refusal order: Site read access (401/403), Site scope (404 `SITE_NOT_FOUND`), the switch (403 `READING_UPLOAD_OFF`
 when no service is wired, i.e. `ASSETOPS_READING_UPLOAD_SITES` unset), the Site list (403
-`READING_UPLOAD_NOT_THIS_SITE`), the request (422 `READING_UPLOAD_BAD_REQUEST`), size (413 `FILE_TOO_LARGE`), then
-the service. Every refusal carries `code`, `message` (rendered for the request's locale) and `words` (the key).
+`READING_UPLOAD_NOT_THIS_SITE`), the request (422 `READING_UPLOAD_BAD_REQUEST`), the media type (415
+`READING_UPLOAD_UNSUPPORTED_TYPE`), size (413 `FILE_TOO_LARGE`), then the service. Every refusal carries `code`, `message` (rendered for the request's locale) and `words` (the key).
 """
 
 from __future__ import annotations
@@ -19,12 +24,16 @@ from typing import Any, Callable
 from uuid import UUID
 
 from fastapi import APIRouter, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from assetops_backend.finding_api import Access, Scope, development_access
 from assetops_backend.i18n import Message, message, render
 from assetops_backend.reading_upload.service import (MAX_BYTES, GatewayUnavailable, ReadingUploadService,
                                                      UploadRefused, refusal_words)
+
+#: D-UP.5: `file_name` is display-only (never a path) and at most 200 characters.
+MAX_FILE_NAME = 200
+
 
 def _refusal(status: int, code: str, words: Message, **extra: Any) -> JSONResponse:
     return JSONResponse(status_code=status, content={"code": code, "message": render(words), "words": words,
@@ -102,14 +111,32 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
             return _refusal(422, "READING_UPLOAD_BAD_REQUEST",
                             message("reading_upload.bad_request", detail="dry_run must be true or false"))
         file_name = (request.query_params.get("file_name") or "").strip()
-        if not 1 <= len(file_name) <= 255 or "/" in file_name or "\\" in file_name:
+        if not 1 <= len(file_name) <= MAX_FILE_NAME or "/" in file_name or "\\" in file_name:
             return _refusal(422, "READING_UPLOAD_BAD_REQUEST",
                             message("reading_upload.bad_request", detail="file_name names one file"))
+        media_type = (request.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
+        if media_type != "text/csv":
+            return _refusal(415, "READING_UPLOAD_UNSUPPORTED_TYPE", message("reading_upload.unsupported_type"))
         data = await _body_within(request, MAX_BYTES)
         if data is None:
             return _refusal(413, "FILE_TOO_LARGE", refusal_words("FILE_TOO_LARGE", limit_mb=MAX_BYTES // 2**20))
         assert service is not None  # open_site refused otherwise
         return run(lambda: service.upload(tenant_id, site_id, file_name, data, dry == "true"))
+
+    # Declared before `/{upload_id}`, so "template" is never read as an upload reference.
+    @router.get("/api/sites/{site_code}/reading-uploads/template")
+    async def get_template(request: Request, site_code: str) -> Response:
+        opened = open_site(request, site_code)
+        if isinstance(opened, JSONResponse):
+            return opened
+        assert service is not None
+        body = service.template_csv()
+        if body is None:
+            return _refusal(503, "READING_UPLOAD_TEMPLATE_UNAVAILABLE", message("reading_upload.template_unavailable"))
+        name = f"{site_code.upper()}-readings-template.csv"
+        return Response(content=body, media_type="text/csv; charset=utf-8",
+                        headers={"Content-Disposition": f'attachment; filename="{name}"',
+                                 "Cache-Control": "no-store"})
 
     @router.get("/api/sites/{site_code}/reading-uploads/{upload_id}")
     async def get_upload(request: Request, site_code: str, upload_id: str) -> JSONResponse:

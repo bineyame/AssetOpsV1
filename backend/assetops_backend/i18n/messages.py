@@ -50,8 +50,8 @@ CATALOGUE: dict[str, dict[str, str]] = {
             "{accepted} of {total} sent readings accepted and analysed; {held} held because their unit is not the "
             "unit this meter reports."),
         "reading_upload.refused.encoding": (
-            "The file was not saved: it is not plain CSV text (UTF-8). Save it as CSV without a byte-order mark "
-            "and try again."),
+            "The file was not saved: it is not plain CSV text. In Excel, save as 'CSV (Comma delimited)', not "
+            "'CSV UTF-8', and try again."),
         "reading_upload.refused.empty_file": "The file was not saved: it has no readings in it.",
         "reading_upload.refused.header_mismatch": (
             "The file was not saved: the column headings do not match the template ({field})."),
@@ -72,5 +72,11 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "reading_upload.role.pv_power": "solar",
         "reading_upload.role.feeder_demand": "feeder meter",
         "reading_upload.refused.file_too_large": "The file was not saved: it is larger than {limit_mb} MB.",
+        # D-UP.5 (raw text/csv body) and D-UP.6 (the BOM fix named in the template words).
+        "reading_upload.unsupported_type": "The file was not saved: send it as a CSV file (text/csv).",
+        "reading_upload.template_note": (
+            "One row per 15 minutes, times in UTC ending in Z, power in kW. Leave a cell empty when there is no "
+            "reading. In Excel, save as 'CSV (Comma delimited)', not 'CSV UTF-8'."),
+        "reading_upload.template_unavailable": "The upload template is not available for this site just now.",
     },
 }

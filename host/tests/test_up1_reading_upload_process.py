@@ -102,6 +102,16 @@ def test_a_failed_send_is_gateway_unavailable(code, error):
     assert delivered == []  # nothing was sent, so nothing is delivered
 
 
+def test_the_template_is_the_profile_header_and_passes_the_field_check():
+    template = up.template_csv()
+    assert not template.startswith(b"\xef\xbb\xbf") and template.endswith(b"\r\n")
+    header = template.decode("ascii").strip()
+    fixture_lines = FIXTURE.read_text(encoding="utf-8").splitlines()
+    assert header == fixture_lines[0]  # the collector's own fixture carries the same header row
+    filled = template + "\r\n".join(fixture_lines[1:4]).encode("ascii") + b"\r\n"
+    assert isinstance(up.ProcessFileChecker().check(filled), svc.Preview)  # the real field process accepts it
+
+
 def test_the_host_never_imports_the_field_adapters():
     source = Path(up.__file__).read_text(encoding="utf-8")
     assert "import assetops_field" not in source and "from assetops_field" not in source

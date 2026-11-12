@@ -250,3 +250,56 @@ def test_an_unknown_or_other_site_upload_is_404():
     assert client.get(f"{URL}/{uuid4()}").status_code == 404
     assert client.get(f"{URL}/not-a-uuid").status_code == 404
     assert client.get(f"/api/sites/COLD-LAB-001/reading-uploads/{upload_id}").status_code == 404
+
+
+TEMPLATE = b"timestamp_utc,pv_ac_power [kW]\r\n"
+
+
+def _template_client(template=lambda: TEMPLATE, sites=frozenset({"KOBO-001"}), on=True):
+    service = ReadingUploadService(FakeChecker(), FakeSender(), FakeStore(), entered_by=ENTRY,
+                                   template=template) if on else None
+    app = FastAPI()
+    app.add_middleware(LocaleMiddleware)
+    app.include_router(build_reading_upload_router(service, SITES.get, sites))
+    return TestClient(app)
+
+
+def test_the_template_downloads_as_csv_named_for_the_site():
+    answer = _template_client().get(f"{URL}/template")
+    assert answer.status_code == 200 and answer.content == TEMPLATE
+    assert answer.headers["content-type"].startswith("text/csv")
+    assert answer.headers["content-disposition"] == 'attachment; filename="KOBO-001-readings-template.csv"'
+
+
+def test_the_template_follows_the_switch_and_the_site_list():
+    assert _template_client(on=False).get(f"{URL}/template").json()["code"] == "READING_UPLOAD_OFF"
+    other = _template_client().get("/api/sites/COLD-LAB-001/reading-uploads/template")
+    assert other.status_code == 403 and other.json()["code"] == "READING_UPLOAD_NOT_THIS_SITE"
+    missing = _template_client(template=None).get(f"{URL}/template")
+    assert missing.status_code == 503 and missing.json()["code"] == "READING_UPLOAD_TEMPLATE_UNAVAILABLE"
+
+
+@pytest.mark.parametrize("content_type", [None, "multipart/form-data; boundary=x", "application/octet-stream"])
+def test_a_body_that_is_not_text_csv_is_415(content_type):
+    client, checker, sender, store = _client()
+    headers = {} if content_type is None else {"Content-Type": content_type}
+    answer = client.post(URL, params={"dry_run": "true", "file_name": "a.csv"}, content=b"x", headers=headers)
+    assert answer.status_code == 415 and answer.json()["code"] == "READING_UPLOAD_UNSUPPORTED_TYPE"
+    assert answer.json()["words"]["key"] == "reading_upload.unsupported_type"
+    assert checker.calls == 0 and sender.calls == 0 and store.rows == {}
+    ok = client.post(URL, params={"dry_run": "true", "file_name": "a.csv"}, content=b"x",
+                     headers={"Content-Type": "text/csv; charset=utf-8"})
+    assert ok.status_code != 415
+
+
+def test_a_file_name_is_at_most_200_characters():
+    client, *_ = _client()
+    assert _post(client, name="a" * 196 + ".csv").status_code == 200
+    answer = _post(client, name="a" * 197 + ".csv")
+    assert answer.status_code == 422 and answer.json()["code"] == "READING_UPLOAD_BAD_REQUEST"
+
+
+def test_the_bom_refusal_and_the_template_note_name_the_excel_fix():
+    fix = "save as 'CSV (Comma delimited)', not 'CSV UTF-8'"
+    assert fix in CATALOGUE["en"]["reading_upload.refused.encoding"]
+    assert fix in CATALOGUE["en"]["reading_upload.template_note"]
