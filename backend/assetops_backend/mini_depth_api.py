@@ -12,9 +12,16 @@ details. `site_code` is the public Site code resolved inside the tenant (S9).
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Callable
+from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi.encoders import jsonable_encoder
+
+from assetops_backend import perf
+from assetops_backend.chain.read import window_days
+from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish
+from assetops_backend.estate.scope import EstateRefusal, estate_request
 
 from assetops_backend.finding_api import Access, development_access
 from assetops_backend.mini_depth.read import (
@@ -30,10 +37,13 @@ from assetops_backend.mini_depth.read import (
 )
 from assetops_backend.mini_depth.store import DOMAINS
 from assetops_backend.sites.cutover import ImportedSiteRegistry
+from assetops_backend.sites import renewable_range
 from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.sites.ports import SiteStoreUnavailable
 
 ROUTE = "/api/sites/{site_code}/performance/mini"
+#: SR-8 (rev 10 §10.4): Renewable over the whole date range, from the stored chain day snapshots.
+RENEWABLE_RANGE_ROUTE = "/api/sites/{site_code}/renewable-range"
 #: S6: the served mini tabs in this order; the frontend merges Dispatch to `service,dispatch,fuel,renewable,backup`.
 CAPABILITIES = (("service", "Service"), ("fuel", "Fuel"), ("renewable", "Renewable"), ("backup", "Backup"))
 REFUSALS = {
@@ -149,4 +159,91 @@ def build_mini_depth_router(reader: MiniDepthRead | None, registry: ImportedSite
     return router
 
 
-__all__ = ["CAPABILITIES", "REFUSALS", "build_mini_depth_router", "unsupported_envelope"]
+RANGE_REFUSALS = {
+    "UNAUTHENTICATED": REFUSALS["UNAUTHENTICATED"],
+    "SITE_SCOPE_FORBIDDEN": REFUSALS["SITE_SCOPE_FORBIDDEN"],
+    "SITE_NOT_FOUND": REFUSALS["SITE_NOT_FOUND"],
+    "RENEWABLE_RANGE_NOT_APPLICABLE": (404, "Renewable headroom over a range is read for mini-grid sites only."),
+    "INVALID_WINDOW": (422, "'from' and 'to' must be UTC midnights, 'from' before 'to', at most 31 days apart."),
+    "INVALID_KNOWN_AT": (422, MESSAGES["INVALID_KNOWN_AT"]),
+    "SITE_RENEWABLE_RANGE_UNAVAILABLE": (503, "The renewable range read is unavailable right now."),
+}
+
+
+def _range_refuse(code: str) -> HTTPException:
+    status, message = RANGE_REFUSALS[code]
+    headers = {"WWW-Authenticate": "Bearer"} if status == 401 else None
+    return HTTPException(status_code=status, headers=headers, detail={"code": code, "message": message})
+
+
+def build_renewable_range_router(chain_reader: Callable[[], Any], registry: ImportedSiteRegistry, *,
+                                 access: Access = development_access,
+                                 unavailable: tuple[type[BaseException], ...] = (),
+                                 responses: ResponseStore | None = None) -> APIRouter:
+    """SR-8 (rev 10 §10.4, D-SR.23/27): included in `main.py` after the response store and the outcome board.
+    `chain_reader()` returns the board service's `ChainReader` (None: 503). Order: authentication -> Site grant ->
+    Site lookup (outage 503) -> Site type (404) -> window (422, the estate rule: UTC midnights, at most 31 days) ->
+    `known_at` (422) -> chain read (503). One `ChainRequest.day` read over `window_days(from, to, tz)`."""
+    router = APIRouter()
+
+    def site_of(request: Request, site_code: str) -> Any:
+        refusal = access(request, site_code)
+        if refusal == 401:
+            raise _range_refuse("UNAUTHENTICATED")
+        if refusal == 403:
+            raise _range_refuse("SITE_SCOPE_FORBIDDEN")
+        try:
+            tenant = registry.tenant()
+            site = registry.imported(site_code) if tenant is not None else None
+        except (SiteStoreUnavailable, FoundationStoreError) as error:
+            raise _range_refuse("SITE_RENEWABLE_RANGE_UNAVAILABLE") from error
+        if tenant is None or site is None:
+            raise _range_refuse("SITE_NOT_FOUND")
+        return site
+
+    @router.get(RENEWABLE_RANGE_ROUTE)
+    def renewable_range_route(request: Request, response: Response, site_code: str) -> Any:
+        with perf.route(RENEWABLE_RANGE_ROUTE, response):
+            out = _renewable_range(request, site_code)
+        return finish(out, response) if isinstance(out, Response) else out
+
+    def _renewable_range(request: Request, site_code: str) -> Any:
+        site = site_of(request, site_code)
+        if site.site_type != MINIGRID:
+            raise _range_refuse("RENEWABLE_RANGE_NOT_APPLICABLE")
+        lo, hi = _instant(request, "from", "INVALID_WINDOW"), _instant(request, "to", "INVALID_WINDOW")
+        if lo is None or hi is None:
+            raise _range_refuse("INVALID_WINDOW")
+        known = _instant(request, "known_at", "INVALID_KNOWN_AT")
+        try:
+            window = estate_request("portfolio", lo, hi, known)
+        except EstateRefusal as refused:
+            raise _range_refuse("INVALID_WINDOW") from refused
+        reader = chain_reader()
+        if reader is None:
+            raise _range_refuse("SITE_RENEWABLE_RANGE_UNAVAILABLE")
+        tz = getattr(site, "timezone", None)
+        days = window_days(window.from_, window.to, tz)
+
+        def compose() -> dict[str, Any]:
+            try:
+                facts = reader.request(site.tenant_id, known).day(site.id, MINIGRID, days)
+            except (SiteStoreUnavailable, *unavailable) as error:
+                raise _range_refuse("SITE_RENEWABLE_RANGE_UNAVAILABLE") from error
+            body = renewable_range.compose(
+                {"site_code": site.site_code, "site_name": getattr(site, "name", None), "timezone": tz},
+                {"from": iso(window.from_), "to": iso(window.to), "known_at": iso(known)}, days, facts)
+            return {RENEWABLE_RANGE_ROUTE: jsonable_encoder(body)}
+
+        if responses is None:
+            return compose()[RENEWABLE_RANGE_ROUTE]
+        sid = UUID(str(site.id))
+        key = {"site": str(site.id), "from": iso(window.from_), "to": iso(window.to), "known_at": iso(known)}
+        return responses.serve(StoredRoute(RENEWABLE_RANGE_ROUTE, site.tenant_id, key, sites=(sid,),
+                                           watermark_sites=(sid,)), compose, request.headers.get("if-none-match"))
+
+    return router
+
+
+__all__ = ["CAPABILITIES", "REFUSALS", "RANGE_REFUSALS", "RENEWABLE_RANGE_ROUTE", "build_mini_depth_router",
+           "build_renewable_range_router", "unsupported_envelope"]
