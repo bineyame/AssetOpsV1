@@ -57,3 +57,11 @@ That is `estate/site_range.py`, the range-overview route in `outcome_api.py`, SR
 - `test_sr6_health_range_postgres.py` on `assetops_sr6_test`: **5 passed**, 0 skipped, 27.8 s.
 - Probe tests for M1 and M2: both failed as described (temporary file, removed). The guard write-refusal probe for L2 was refused as expected.
 - Not run, per the dispatch: check-all (cited as 19/19 on head by the implementer), the full backend suite, and the frontend (no frontend change in SR-6a). Parity and timing (`SR-6-parity.json`) are still pending, as the packet states.
+
+## Re-review (04e468a60..9e1fb4c29)
+
+Verdict: ACCEPT.
+- M1: `own_days(g)` skips each gateway's NOT_EXPECTED/AFTER_CUTOFF days; positive test `test_gateway_registered_mid_window_counts_when_in_contact_after` (edge-2 counts 1).
+- M2: readings>0 win in `source_state` and in the day class (cell + summary); old pin rewritten to READINGS/288 with `days_with_readings == 3` (with=3 case); `(NOT_EXPECTED, 288, READINGS)` added to the rule table.
+- L2: `test_health_range_reader_write_rejected` appends an INSERT to the reader and asserts the guard flags it (not run here: 12 min; builder reported 17 passed). L1: D-SR.56 comment present above `health_range_body`.
+- `range_days.py` untouched; only backend/tests/tools + .agent docs changed; no stray files. No-DB SR-6 route tests: 33 passed. Not run: check-all, Postgres, test_estate_guard.py.
