@@ -74,7 +74,8 @@
   | preset lens pages removed | 1 failed |
 
 - **`check-all.ps1`, first run (07:59, pre-fix):** 4 of 19 failed.
-  - Architecture seams and the estate guard self-tests: both flagged `urlopen` in `chain/prebuild.py`. Fixed: the client moved to `chain/adapters`, then wired through composition. The re-run result is in the final report.
+  - Architecture seams and the estate guard self-tests: both flagged `urlopen` in `chain/prebuild.py`. Fixed: the client moved to `chain/adapters`, then wired through composition.
+  - Re-run after the fix: `check-architecture.ps1` passed (with `ASSETOPS_GUARD_PYTHON` set); `tools/checks/test_estate_guard.py` 16 passed (21m53s).
   - Missing-claim scan and its fixtures: `frontend/node_modules` is absent in this new worktree (`Cannot find module 'typescript'`). That is environment, not code. On the VPS, run it after `npm ci`.
 - **Postgres:** none run. **Gate run: not run** (VPS).
 
