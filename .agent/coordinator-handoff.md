@@ -1,6 +1,37 @@
 # Coordinator handoff — 2026-11-09 (replaces all earlier versions; older text is in git history)
 
-Read this first on resume. Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-plan2` (branch `main`). The session start dir `AssetOpsV1` is a stale detached checkout; do not work there.
+## >>> VPS RESUME — read this section first (written 2026-11-12 ~14:00, laptop → Ubuntu VPS) <<<
+
+**Where the work is.** Everything is on GitHub `git@github.com:bineyame/AssetOpsV1.git`: `main` plus the unfinished branches listed below (owner: "everything merged to main and pushed, no separate file transfer of code"; "prepare moving to vps, work resumes there"). Laptop paths in older sections (`C:\Users\assef\...`) become `~/AssetOps` (main clone) and `~/AssetOps-<name>` (worktrees) on the VPS. Setup: `tools/vps-setup-ubuntu.sh`, then `.agent/vps-migration-plan.md` (setup steps 1–6 and "Things that change on Linux"; ignore its old bundle step).
+
+**Owner state (today, verbatim files in `.agent/`):**
+- The 14:00 technical demo was **called off** because Site pages ignore the shared date range: `owner-everything-fixed-now-demo-off-2026-11-12.md` — "Everything must be fixed now, demo today is called off because of this". Standing rule **D-SR.9** (`owner-range-output-rule-2026-11-12.md`): if there is data in the range there must be output for the range, the same way for every Site type. TOP PRIORITY = range correctness (SR-4 … SR-8 and anything the rev-10 audit adds).
+- Client demo still **Tue 17 Nov**; core freeze **Sat 14 Nov 20:00** (SR-4 and SR-5 core ACCEPT by Sat 16:00); UP-1/MB-1 till Sun 12:00 switched off by default; owner walkthrough Sun 15:00; final build Mon 16.
+- Approved package: rev 7 (`owner-17nov-package-2026-11-12.md`; DATA-4 and DATA-8 in), price entry (done), UI pass UQ-FI (option 1, needs the v7.2 sheet shown to the owner — `frontend/mockups/v72/foundation-sheet.html` on `task/UQ-0-v72-sheet` — and the UQ-FI-3 panels approved by Fri 09:00), UP-1 upload mockup (`frontend/mockups/v72/upload-readings.html` on `task/UP-1-reading-upload`) to show the owner.
+- Plans: `.agent/architect-sequence-client-scope-2026-11-11.md` revisions 10 (being written at hand-off; SR-6/7/8 designs + full audit), 9 (SR-5, D-SR.9), 8 (SR-4), 7 (17 Nov package), 6 (UQ-FI), 5 (PR-3). Rulings in `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (D-SR.*, D-ANY.5–11, D-PRICE.1–4, D-UP.*, D-WARM.*, D-DATA.*, D-17N.*). Lane rules: `.agent/lane-rules-2026-11-12.md` (laptop paths; on Linux use `pwsh` and `:` PYTHONPATH incl. gateway and field).
+
+**Merged on main today (all reviewed; check-all 19/19 at f4850ee2c, CLEAN-1 after it 19/19 on its branch):** HON-1, OPEN-NOW, PR-1, PR-2a (price page), PR-3 (site-admin price entry), AR-3+AR-6, fix/AR-3-absent-compose (D-ANY.10), AR-4 (claim rows + Portfolio switches; money.lines split to `task/ANY-2-AR4b`), DISP-1 (D-ANY.11), FR-B part 1, CLEAN-1. Portfolio unprepared timings on the laptop (client4, cold): week 8.6 s, 22 d 17.4 s, 31 d 21.2 s. The new stored kinds are OFF by default (ASSETOPS_PERIOD_READ_KINDS); enable `evidence.claim,dispatch.day` only on a DB whose rows are built and after parity.
+
+**Unfinished branches (pushed) and their next step — packets are in each branch's `.agent/`:**
+| Branch | State | Next |
+|---|---|---|
+| `task/SR-4-site-range` | 4a+4b committed (59bccda4d+), 4c in progress | finish 4c; run all App-level Site vitest; fresh Opus review of 4a+4b together, then 4c; merge per part |
+| `task/SR-5-range-board` | server part in progress (`/api/sites/{code}/range-overview`) | finish server + Postgres + gates (0 mismatch vs Portfolio, rows on/off, vs one-day board, stored ≤2 s); page parts after SR-4 |
+| SR-6/7/8 (+ audit additions) | designs in rev 10 | start lanes per rev 10 |
+| `task/WARM-1-range-warm` | code done (7699a2b23) | VPS gate: warm then `--verify` (100% hits, max ≤2.0 s, 0 degraded); fresh review |
+| `task/UP-1-reading-upload` | server + gateway + template (4a6658417), 19/19 | Analysed read, Postgres flow (must show analytic_run), client4-copy run, frontend after mockup approval, then MB-1 |
+| `task/DATA-17N-coverage` | DATA-5/10/13/8 (18cdea7ea), no DB | D-DATA.1-6 fixes (gateway clock, plan due S+10d), DATA-4 per D-DATA.5, scratch prepare, finish check; merge only after the Sat-night check |
+| `task/ANY-2-AR4b` | money.lines + MN-1 parked | only if time: read side + parity with price-save |
+| `task/UQ-0-v72-sheet` | parked v7.2 sheet | show owner; UQ-FI lanes after approval |
+| `task/E3e-demo-build`, `task/FIX-cold-ev-fixtures` | records only | none |
+
+**Demo data.** Laptop DBs (client7 etc.) do NOT move. On the VPS: `docker compose up -d`, set `max_connections=300`, then a fresh scratch prepare (`tools/demo_combined.py --db <x>_test --work var/<x> prepare`, ≈2h40m on the laptop) is the first heavy job; it also proves DATA-* and WARM-1. One heavy DB job at a time. Measure first on the VPS: one cold Portfolio week and the WARM-1 re-warm time.
+
+**Lessons today:** (1) verify range behaviour in the running app with two ranges for every page × Site type before calling a range feature done (memory `range-output-consistent-across-sites`); (2) PYTHONPATH must include gateway and field or chain fixtures fail falsely; (3) background jobs on the laptop were reaped under memory pressure — on the VPS use nohup/systemd-run.
+
+---
+
+Read this first on resume (older laptop-era notes below). Main checkout: `C:\Users\assef\Bineyame\AssetOpsV1-plan2` (branch `main`). The session start dir `AssetOpsV1` is a stale detached checkout; do not work there.
 
 ## Role
 Coordinator: report to the owner in plain language, short (1–2 lines on routine events; full status on "where are we overall"). Route decisions to a lane Architect (fresh assetops-architect Claude subagent; reuse via SendMessage only while under ~170k tokens). Builders: Opus first build, Sonnet fix rounds/procedural runs; first reviews Opus, re-reviews Sonnet; the coordinator verifies mechanical closures by reading the diff. Merge `git merge --no-ff` on ACCEPT, then `tools\check-all.ps1 -Python C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe` in the background (log to scratchpad; now **18 guards** — read `All 18 guards passed.`). Never merge while check-all runs on main.
