@@ -23,7 +23,7 @@ from assetops_backend.mini_depth.inputs import local_hour
 from assetops_backend.mini_depth.read import _Head, _Hour
 from assetops_backend.mini_depth_api import DAY_RANGE_ROUTES, build_day_range_router
 from assetops_backend.sites.ports import SiteStoreUnavailable
-from test_sr10_fuel_range_route import D0, SITE, TENANT, TZ, Port, Registry, Store
+from test_sr10_fuel_range_route import D0, SITE, TENANT, TZ, NoDataPort, Port, Registry, Store
 
 URL = "/api/sites/KOBO-001/backup-range"
 WEEK = {"from": "2026-11-01T00:00:00Z", "to": "2026-11-08T00:00:00Z"}
@@ -134,6 +134,18 @@ def test_each_day_reads_its_stored_backup_day_row_and_state():
     assert days[1]["limitations"] == ["BACKUP_BUS_PARTIAL"] and days[1]["status_counts"]["LIMITED"] == 1
     assert days[4]["hours_pending"] == 24 and days[4]["sequences"] == []  # a pending hour's head is not summed
     assert [d["stored"] for d in days] == [True, True, True, False, True, True, True]
+
+
+def test_no_reading_days_read_no_data_not_no_sequence_and_are_not_counted():
+    """D-SR.70/72: D3 (absent row) and D5 (stored row, was NO_SEQUENCE) have no readings: NO_DATA, nulls, uncounted."""
+    body = _body(port=NoDataPort())
+    days = body["days"]
+    assert [d["state"] for d in days][3:] == ["NO_DATA", "STILL_PROCESSING", "NO_DATA", "NOT_EXPECTED"]
+    assert (days[3]["stored"], days[5]["stored"]) == (False, True)
+    for d in (days[3], days[5]):
+        assert d["partial"] is False and d["sequences"] is None and d["sequence_counts"] is None
+        assert d["hours_assessed"] is None and d["hour_link"]
+    assert "NO_DATA" not in {s for s in ("SEQUENCES_PASSED", "SEQUENCE_FAILED", "SEQUENCE_INCOMPLETE", "NO_SEQUENCE")}
 
 
 def test_an_absent_day_is_unknown_not_zero():

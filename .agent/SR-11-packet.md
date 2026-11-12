@@ -68,3 +68,6 @@ Spec: rev 10b.1/10b.3, 10d.4 (D-SR.45 `window_days`), D-SR.31/33/36/51-54.
 - `main.py`: SR-8's renewable range router lands next to the same block; the second merger resolves.
 
 USER_REVIEW_REQUIRED: no (server slice; the page waits for SR-4).
+
+## Merge of SR-10 D-SR.70-72 (2026-11-12)
+Merged task/SR-10-fuel-range (347d9765a): NO_DATA day state, no_reading_days, parity gate. No merge conflicts; added route test for backup NO_DATA (D3 absent, D5 stored). No-DB tests: 51+ passed (sr11 route 19, sr10 summary/route 32). Parity rerun and Postgres: pending (coordinator). check-all: for coordinator.
