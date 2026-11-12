@@ -17,7 +17,9 @@
 |---|---|---|
 | `task/SR-4-site-range` | 4a+4b committed (59bccda4d+), 4c in progress | finish 4c; run all App-level Site vitest; fresh Opus review of 4a+4b together, then 4c; merge per part |
 | `task/SR-5-range-board` | server part in progress (`/api/sites/{code}/range-overview`) | finish server + Postgres + gates (0 mismatch vs Portfolio, rows on/off, vs one-day board, stored ≤2 s); page parts after SR-4 |
-| SR-6/7/8 (+ audit additions) | designs in rev 10 | start lanes per rev 10 |
+| SR-6/7/8 (+ audit additions) | rev 10 + D-SR.13-18 (44a160437); 3 spots "TO FINISH ON VPS" closed by each builder's pre-flight | lane I SR-6 `task/SR-6-health-range` (1.0, GET /api/sites/{code}/health-range); lane J SR-7 `task/SR-7-service-claim-range` (0.75); lane K SR-8 `task/SR-8-renewable-range` (0.5); Cold/EV asset pages → SR-9 if they show readings without the range. Merge order SR-4, SR-5 core, SR-6, SR-7, SR-8, SR-5c/d. Capacity ≈15.65 u vs 11–13: SR-4..8 protected; drop first DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1 (Architect confirms at Fri 12:00) |
+| SR-4 | 4a 59acd65c4, 4b 59bccda4d, 4c WIP 77924b3ff → e7c103b4a | finish 4c per packet; set ASSETOPS_GUARD_PYTHON; run 86 App-level Site vitest files |
+| SR-5 | WIP 2b363c429 (`estate/site_range.py`) | fix `_status` evidence_unit domain bug first; route in outcome_api.py; packet has the plan |
 | `task/WARM-1-range-warm` | code done (7699a2b23) | VPS gate: warm then `--verify` (100% hits, max ≤2.0 s, 0 degraded); fresh review |
 | `task/UP-1-reading-upload` | server + gateway + template (4a6658417), 19/19 | Analysed read, Postgres flow (must show analytic_run), client4-copy run, frontend after mockup approval, then MB-1 |
 | `task/DATA-17N-coverage` | DATA-5/10/13/8 (18cdea7ea), no DB | D-DATA.1-6 fixes (gateway clock, plan due S+10d), DATA-4 per D-DATA.5, scratch prepare, finish check; merge only after the Sat-night check |
