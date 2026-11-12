@@ -77,22 +77,54 @@ def build_snapshot_builder(database_url: str, inputs: Any = None,
 def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     """ANY-1: the declared stored read-period kind builders (`chain.period_read.KindBuilder`), keyed by kind.
     AR-2: the four `mini_depth.*` kinds over the chain inputs' read-only `MiniDepthRead` (none without one);
-    ANY-2 AR-3: `dispatch.day` over the chain inputs' S3 assessment store."""
+    ANY-2 AR-3: `dispatch.day` over the chain inputs' S3 assessment store.
+    AR-4: `evidence.claim` over the read-only estate reader (built on first use; none without
+    inputs)."""
+    if inputs is None:
+        return {}
     out: dict[str, Any] = dict(dispatch_day_builders(inputs))
     mini = getattr(inputs, "mini", None)
     if mini is not None:
         from assetops_backend.mini_depth.period_rows import kind_builders
 
         out.update(kind_builders(mini))
+    from assetops_backend.estate.period_rows import kind_builders as estate_kind_builders
+
+    out.update(estate_kind_builders(_estate_evidence_read))
     return out
 
 
 def period_kind_versions() -> dict[str, str]:
     """The current builder version of every declared kind (the reader's PENDING rule), without building inputs."""
     from assetops_backend.chain import dispatch_day_rows
+    from assetops_backend.estate.period_rows import kind_versions as estate_kind_versions
     from assetops_backend.mini_depth.period_rows import BUILDER_VERSION, KINDS
 
-    return {**{k: BUILDER_VERSION for k in KINDS}, dispatch_day_rows.KIND: dispatch_day_rows.BUILDER_VERSION}
+    return {**{k: BUILDER_VERSION for k in KINDS}, dispatch_day_rows.KIND: dispatch_day_rows.BUILDER_VERSION,
+            **estate_kind_versions()}
+
+
+@lru_cache(maxsize=1)
+def _estate_evidence_read() -> Any:
+    """AR-4: the estate Evidence reader the `evidence.claim` builder reads through."""
+    from assetops_backend.config import database_url
+    from assetops_backend.estate.composition import build_estate_evidence_service
+
+    service = build_estate_evidence_service(database_url())
+    if service is None:
+        raise RuntimeError("No product database is configured; evidence.claim rows cannot be built.")
+    return service.store
+
+
+def build_estate_evidence_rows(database_url: str | None) -> Any:
+    """AR-4: the `EvidenceRows` the estate Evidence reader serves `evidence.claim` days from (None without a
+    database); the store's engine connects on first use only."""
+    store = build_period_read_store(database_url)
+    if store is None:
+        return None
+    from assetops_backend.estate.period_rows import EvidenceRows
+
+    return EvidenceRows(PeriodReader(store, load_event_register(), period_kind_versions()), store)
 
 
 def dispatch_day_builders(inputs: Any = None) -> dict[str, Any]:

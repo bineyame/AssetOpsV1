@@ -41,9 +41,12 @@ EVENT_FIXTURES = {
     "foundation.revised@1": (
         {"valid_from": "2026-11-02T00:00:00Z"}, "MINIGRID", "UTC",
         {(d, m) for d in (D(2026, 11, 2), D(2026, 11, 3))
-         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min", *MINI_KINDS)}
-        # AR-3: UTC days from valid_from - 6 h through today + 1 (a UTC day can be one past the Site-local today)
-        | {(d, "dispatch.day") for d in (D(2026, 11, 1), D(2026, 11, 2), D(2026, 11, 3), D(2026, 11, 4))},
+         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min", *MINI_KINDS,
+                   )}
+        # AR-3: UTC days from valid_from - 6 h through today + 1 (a UTC day can be one past the Site-local today);
+        # AR-4's `evidence.claim` is an s3_day kind too, so it takes the same UTC days
+        | {(d, m) for d in (D(2026, 11, 1), D(2026, 11, 2), D(2026, 11, 3), D(2026, 11, 4))
+           for m in ("dispatch.day", "evidence.claim")},
         ("snapshots",)),
     "objective.revised@1": ({"ids": ["o1"]}, "MINIGRID", "UTC", set(), ()),
     "finding.revised@1": ({"ids": ["f1"]}, "COLDCHAIN", "UTC", set(), ("threads",)),

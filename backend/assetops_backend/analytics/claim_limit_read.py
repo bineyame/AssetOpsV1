@@ -371,8 +371,17 @@ class ClaimLimitReadService:
         Evidence the stored records cannot reconstruct at `known_at` gives `available=False` with
         `HISTORICAL_SELECTION_UNAVAILABLE` and no ceiling. Refusals mirror `read()`: unknown/foreign revision 404,
         another window 422, unsupported model 422, absent accepted lineage 409."""
-        window = day_window(day)
         selected, revision = self.store.claim_limit_snapshot_on(c, tenant_id, site_id, day, revision_id, known_at)
+        return self.project_claim_limit(tenant_id, site_id, day, revision_id, known_at, selected, revision,
+                                        basis_mode=basis_mode)
+
+    def project_claim_limit(self, tenant_id: UUID, site_id: UUID, day: date, revision_id: UUID | None,
+                            known_at: datetime, selected: dict[str, Any], revision: dict[str, Any] | None, *,
+                            basis_mode: str | None = None) -> dict[str, Any]:
+        """ANY-2 AR-4: the pure part of `claim_limit_on` over its two stored inputs (`claim_limit_snapshot_on`'s
+        day selection and exact revision detail), with no read of its own: the estate serves those inputs from
+        stored `evidence.claim` rows and projects them at the request's `known_at` and `basis_mode`."""
+        window = day_window(day)
         body: dict[str, Any] = {
             "schema": SCHEMA, "schema_version": SCHEMA_VERSION, "rule_id": RULE_ID,
             "tenant_id": str(tenant_id), "site_id": str(site_id), "domain": DOMAIN, "day": day.isoformat(),
