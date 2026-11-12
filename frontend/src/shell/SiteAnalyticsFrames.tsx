@@ -1449,6 +1449,7 @@ export function SiteFinancialsFrame({
   return (
     <SiteScoped siteId={siteId} detail={detail} title={title} headingId={SITE_FINANCIALS_HEADING_ID}>
       {(site) => {
+        const mini = site.site_type === "MINIGRID";
         if (view === "scenarios") {
           // W5-01b C5: a COLDCHAIN Site's Scenarios is live; its back-links carry `from,to,known_at` and drop the
           // authored-only `scenario_at`, which its own Scenarios link keeps.
@@ -1488,12 +1489,12 @@ export function SiteFinancialsFrame({
                 <FinancialsSections
                   siteId={site.site_id}
                   view="scenarios"
-                  scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
+                  scenarios={mini ? "live" : "unavailable"}
                 />
               )}
               {site.site_type === "COLDCHAIN" ? (
                 <ColdScenarios siteCode={site.site_id} window={coldWindow} scenarioAt={scenarioAt} client={coldScenarioList} />
-              ) : site.site_type === "MINIGRID" ? (
+              ) : mini ? (
                 <MiniScenarios siteCode={site.site_id} client={miniDecisions} scope={scope} timeZone={site.timezone ?? null} onScope={onScope} />
               ) : (
                 <Panel heading="Financial scenarios" headingId="site-scenarios-unsupported-heading">
@@ -1576,12 +1577,12 @@ export function SiteFinancialsFrame({
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
             {/* SR-4c (D-SR.6): mini-grid Financials values the prices valid now; the bar says the range is not used. */}
-            {site.site_type === "MINIGRID" ? <RangeNotUsed note="prices valid now" /> : null}
+            {mini ? <RangeNotUsed note="prices valid now" /> : null}
             <OperatorSiteTabs siteId={siteId} current="Financials" />
             <FinancialsSections
               siteId={site.site_id}
               view={view}
-              scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
+              scenarios={mini ? "live" : "unavailable"}
             />
             {view === "assumptions" ? (
               <SiteAssumptions siteId={site.site_id} client={financials} links={links} />

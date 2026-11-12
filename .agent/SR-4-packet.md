@@ -36,22 +36,26 @@ Review plan: review 4a and 4b together. 4a alone makes Service/Renewable worse: 
   - Replaced rows, not deleted: the Renewable "six days" refusal and the Service "two hours" refusal are now positive tests of the new rule. "Next day" story steps now use "Previous day", because a story day is the last day of its 7-day range.
 - **4c (WIP).** `ui/rangeFocus.tsx` now has the span/now kinds, `useDeclareRangeSpan`, `useDeclareRangeNotUsed`, `RangeNotUsed`, `RangeSpan`, and uses layout effects. The `SharedRangeBar` tags follow the 8.2 table. Mini-grid Health declares "shows now".
 
-## Resume points (4c), in order
-1. Declarations still to add:
-   - "prices valid now": the mini-grid Financials branch of `SiteFinancialsFrame` (`shell/SiteAnalyticsFrames.tsx:1404`, overview and assumptions views, `site_type === "MINIGRID"`) and `SitePricesFrame` (`shell/SitePricesFrame.tsx:145`).
-   - "current settings": `SiteFoundationFrame` (`shell/SiteFoundationFrame.tsx:64`), `SiteFoundationChangesFrame` and `SiteFoundationChangeFrame` (`SiteAnalyticsFrames.tsx` ~2127/2166).
-   - Span: Renewable over 5 days and the Service day. Use `<RangeSpan>` in `sites/MiniPerformance.tsx` near the window use (~451/878); the span is the local days or the service day.
-2. EV `/sites/<EV>/financials`: `<Navigate replace>` to `siteEvFinancialsHref`, keeping the query, in `SiteFinancialsFrame` when `site_type === "EV_CHARGING"`.
-3. Evidence panels (D-SR.7), the pre-flight item (c) still to check:
-   - Do `/evidence/rejections` and `/analytics` accept from/to? Check the backend routes.
-   - If not, add the panel line "All dates, not only the date range" (`data-panel-range="all-dates"`) in `SiteEvidenceFrame`.
-4. Tests:
-   - Update `shell/__tests__/sharedRange.test.tsx` "the label is true per route class". It currently FAILS: `/sites/MG-002` is now filled, so assert "Showing <yesterday> of the range" instead of "This page's own dates".
-   - Update `s5SiteWindowOverview` "SR-2: a one-day board ..." (expects "Day shown: 24 Oct", which is now "Showing 24 Oct of the range").
-   - Add tag/spoken-name cases per 8.2 row (Overview, Performance, Health, Financials, Prices, Foundation for each type), the EV redirect, and the Evidence panels.
-5. **Not yet run:** the 86 App-level test files that render `/sites/...` (`grep -rl "<App\b" --include=*.test.tsx src | xargs grep -l "/sites/"`). Expect href-exactness failures; fix them with `rangeless(...)`. Also expect Next-day failures on story `day=` links (now the edge). Run them one file at a time, or as a normal suite now that the demo app is stopped.
-6. `tools/check-architecture.ps1`: every check except two passes. Those two need `ASSETOPS_GUARD_PYTHON=C:\Users\assef\Bineyame\AssetOpsV1\.venv\Scripts\python.exe` (no .venv in this worktree); on the VPS, use its venv.
+## 4c done on the VPS (commits de0375733, e885670f4 and the next one)
+- Declarations: "prices valid now" on mini-grid generic Financials (overview + assumptions) and `SitePricesFrame` (every Site type); "current settings" on `SiteFoundationFrame` (every view, every type), Foundation changes and change. Span (`WindowSpan` in `sites/MiniPerformance.tsx`): Renewable, Service, and also Backup and Fuel's hour view (same `serviceWindowFromParams` window; labelled extension), declared only when the read window is not the whole range.
+- Spoken name for "now": "This page shows the present state / the current settings / the prices valid now" (labelled reading: "shows shows now" read badly).
+- EV `/sites/<EV>/financials` (overview view only) → `<Navigate replace>` to `/ev/financials`, query kept.
+- Evidence (D-SR.7): backend `/evidence/rejections` reads only `batch`, `/analytics` reads no query → line "All dates, not only the date range" (`data-panel-range="all-dates"`, `data-panel-range-for=rejections|analytics`) under Rejected records and in "How each limit is set" (only when a declaration loaded). `PANEL_ALL_DATES` in `sites/SiteEvidence.tsx`.
+- Defect found and fixed (SR-4a): `withRange` added a second `known_at` to a target that named its own; now it keeps the target's. Test in `rangeLink.test.tsx`.
+- Tests: new `shell/__tests__/siteRangeTags.test.tsx` 7/7 (tags + spoken name for mini/Cold/EV Health, Financials, Prices, Foundation, Performance, Service, Renewable; EV redirect); `siteEvidenceScreen` 16/16 (2 new); `sharedRange` (shell) 23/23 and `s5SiteWindowOverview` 69/69 updated; `rangeLink` 9/9. `test/rangeless.ts` now also takes arrays/nullables. tsc clean.
+- Mini Overview/Dispatch tag needs a loaded board (FocusPicker): pinned in `s5SiteWindowOverview` only.
 
+## App-level Site vitest (87 files, batches of 8)
+- First pass: 11 batches, 45 failing tests in 26 files. Fixed so far: all of batches 0-3 (t028Screens, siteOverviewScreen, siteFoundationRoute, operatorSiteTabs, siteDetailRoute, siteDetailScreen) and the href-exactness lines elsewhere.
+- **Still failing: 31 tests in 18 files** (list: rerun `grep -rl "<App\b" --include=*.test.tsx src | xargs grep -l "/sites/"`, or the files below). They are not href exactness; each tests behaviour the SR-4a safety net or 4b defaults superseded, and needs a per-test ruling, not a mechanical rewrite:
+  - "no range / no window chosen / bare address" cases now get the 7-day range: `s404SiteFindingIndex` (4), `coldScenarios` (1), `w1f4ChangesWorkStructure` (2), `siteWorkCases` (3), `coldFindingIndex` (1), `evSiteMoneyRoutes` (2).
+  - "a refused read carries no window on the tabs" (R347/Q14): tabs now carry the address range: `evDepth` (4), `evEnergy`, `evHealthDepth` (2), `evScenarios`, `evAssessmentRoutes` (3).
+  - Mini refused window "two hours" (R313) now replaced by the 4b hour rule: `miniBackupRoutes`, `miniFuelRoutes` (same as the Service row already replaced in 4b).
+  - `coldDepth` 422 invalid window, `miniDecisions` scenario time bounds (spy args), `evFoundation` source control "only a valid window", `globalIncidents`/`globalMaintenance` (global Work links to `/incidents`/`/maintenance` expected the range; check whether RangeLink should carry on non-Site Work paths — it does not today).
+
+## Resume point
+1. Fix the 31 above one file at a time (replace superseded assertions with positive tests of the new rule; never delete).
+2. Guards: check-all result below.
 ## Pre-flight answers (8.5)
 - (a) Route classes, every route under `/sites` in `App.tsx` (no operator `/performance/...` routes exist):
   - R: Findings, Work, Evidence, Scenarios, Cold/EV pages, Renewable ≤5 days.
@@ -66,4 +70,6 @@ Review plan: review 4a and 4b together. 4a alone makes Service/Renewable worse: 
 - (c) Rejections/analytics range params: open (resume point 3).
 - (d) The Renewable server limit is 1-5 whole Site-local days (`backend/assetops_backend/mini_depth/read.py:7`).
 - (e) Codemod file list: `git show --stat 59acd65c4`.
-- (f) Cold/EV on a range with no event: not yet checked.
+- (f) Cold/EV on a range with no event, and EV `/ev/financials` same fingerprint: NOT checked (needs the DB/demo serve; this lane ran without a DB). Pending.
+- (f, rev 10 10.5 "Assets list, battery page"): `/sites/:id/assets` (`SiteAssetsFrame`) and `/sites/:id/assets/:assetId` (`SiteAssetFrame`) are generic for every Site type; they read `/api/sites/{code}/battery` and `/assets/{id}/battery` (`asset_boundary_api.py`), which take no query and return Foundation configuration with condition always UNKNOWN (no SOC/readings, `battery_boundary.py`). So for Cold and EV too: **N (configuration), no readings, no SR-9 card needed.** Cold/EV have no other asset routes (their unit/charger detail lives inside windowed Health). Open: the asset pages declare nothing to the bar.
+- Routes under `/sites` not in the rev 10 10.5 table (Architect question, D-SR.17): Performance Backup and Fuel (mini; same hour window as Service, now declared as a span), Fuel finding (`SITE_FUEL_FINDING_ROUTE_PATH`), Mill/Fuel verification, Opportunity detail (five-day, from the Renewable CTA), Action pages, EV evidence/analysis, EV and Cold financial assumptions, EV/Cold scenarios.
