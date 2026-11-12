@@ -88,3 +88,18 @@ Otherwise 4a/4b are sound. The codemod changes imports only, and links that are 
 - `tsc --noEmit`: clean at both revisions.
 - Guard: run on its own, passes at both revisions and fails on the pre-4a file.
 - Not run: check-all and full suites (the coordinator runs them); the DB and live-serve checks in the packet's pre-flight (f). H-1 is shown from the backend source, not from a live request.
+
+## Re-review (fix round 2) - ACCEPT WITH NOTES
+
+Reviewed b3ed3db95 (fix round bd1670482..b3ed3db95; H-1 itself landed in bd1670482). Rulings D-SR.57, D-SR.59.
+
+Verified:
+- H-1 closed per D-SR.59 in `miniDepthClient.ts`: Renewable passes through only exact local midnights 1-5 days apart, else `localDaysWindow(range.from, n)` for <=5 days, last-5 rule beyond; Service/Backup/Fuel pass through only an exact one-local-hour instant window, "Yesterday" gives 12:00 local of `pageDay`; reversed/unparseable pass-through kept (R313). L-4: ranges measured through `addressRange`/`pageDay`; raw parses remain only in the two exact pass-through checks.
+- Contract fixture feeds both sides: vitest `ui/__tests__/sharedRange.test.tsx` and `backend/tests/test_sr4_mini_windows_contract.py` (66 passed, incl. a non-vacuous refusal test). Scratch-copy mutations: the pre-fix client (7f9a0bd9e) fails 14 tests; a tampered fixture value fails the vitest side. The pytest side fails if the server loosens or the fixture window is invalid.
+- sr2RequestUrls "Yesterday" pin present and passes; L-1 per-key safety net (`SharedRangeBar.tsx`) + test (exactly one known_at); D-SR.57 `withRange` per-key known_at + `rangeLink` tests (own known_at kept; no-address-known_at adds nothing); Scenarios header rewritten; WindowSpan removed from Service/Backup/Fuel hour views (FocusPicker the sole declarer); MOCK DEVIATION labels added; L-2 guard covers single quotes, re-export, namespace, with self-test fixtures expecting exact flagged set (non-vacuous); L-3 tests present.
+- Both re-pins match the rulings: miniRenewableRoutes label "Site-local days 2026-10-16 to 2026-10-20 (Africa/Addis_Ababa)" (D-SR.59 point 2); shell sharedRange withRange adds address known_at (D-SR.57 L3).
+- Ran: pytest contract file 66 passed; vitest on sharedRange (ui+shell), rangeLink, sr2RequestUrls, miniRenewableRoutes, siteRangeCarry, miniDecisions: 7 files / 168 passed; `tsc --noEmit` clean. check-all and the full suite not run (as instructed). No stray/untracked files (only ignored __pycache__).
+
+Notes (non-blocking):
+- N1 (Low now, Medium for any negative-offset Site; answers the builder's question): yes, a D-SR.9/D-SR.59 defect for -5 zones. Service default hour and the long-range Renewable rule use `localDateOf(tz, <UTC midnight>)`, which lands one local day early (fixture: Bogota "Yesterday" 11 Nov gives service 17:00Z = 12:00 local on 10 Nov; ruling text says 12:00 local of `pageDay`). The short-range Renewable path correctly uses the date string. Fix: use the date string directly (`pageDay`, `range.to`) and regenerate the fixture's Bogota service/7d/30d windows deliberately. The +3 demo Sites are unaffected, but the fixture currently pins the wrong -5 behaviour, so a future correct fix will fail it until re-pinned. Architect should confirm.
+- N2: the frontend vitest and the pytest side run independently, so the pair is enforced by the shared fixture, not by one command; acceptable per D-SR.59.
