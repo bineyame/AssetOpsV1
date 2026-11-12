@@ -148,6 +148,10 @@ def _q(*pairs: tuple[str, str]) -> str:
     return urlencode(list(pairs))
 
 
+# `findingIndex.tsx` STATE_CHIPS, less "all" (which `estateQueryString` omits).
+STATE_CHIPS = ("supported", "unconfirmed", "no_longer_supported", "merged")
+
+
 def range_requests(r: Range, sites: dict[str, tuple[date, date]]) -> list[Req]:
     """The stored-route requests the pages make for one range. `sites`: Site code -> (first day, last day)."""
     f, t = r.window()
@@ -158,6 +162,10 @@ def range_requests(r: Range, sites: dict[str, tuple[date, date]]) -> list[Req]:
             for lens in PORTFOLIO_LENSES]
     out.append(Req(f"summary.{tag}", "/api/estate/outcome-summary", _q(("from", f), ("to", t))))
     out.append(Req(f"findings.{tag}", "/api/estate/findings", _q(("from", f), ("to", t))))
+    # D-WARM.7: the Findings state chips (`state=` values; "all" sends none) and the Portfolio scope-ids page 1.
+    out += [Req(f"findings.state.{state}.{tag}", "/api/estate/findings", _q(("from", f), ("to", t), ("state", state)))
+            for state in STATE_CHIPS]
+    out.append(Req(f"scope-ids.{tag}", "/api/estate/portfolio/scope-ids", _q(("from", f), ("to", t))))
     for code in sorted(sites):
         path = f"/api/sites/{code}/outcome-board"
         if code in MINI_GRID:  # `miniBoardDay(to)`: the range's last day

@@ -65,7 +65,10 @@ def test_requests_per_range_and_board_forms():
     assert f"/api/estate/portfolio?{f}&{t}&lens=risks&limit=50" in reqs
     assert f"/api/sites/COLD-LAB-001/outcome-board?{f}&{t}" in reqs
     assert "/api/sites/KOBO-001/outcome-board?date=2026-11-09" in reqs  # miniBoardDay(to)
-    assert len(reqs) == 10
+    for state in ("supported", "unconfirmed", "no_longer_supported", "merged"):  # D-WARM.7
+        assert f"/api/estate/findings?{f}&{t}&state={state}" in reqs
+    assert f"/api/estate/portfolio/scope-ids?{f}&{t}" in reqs
+    assert len(reqs) == 15
 
 
 def test_plan_dedupes_and_adds_mini_days_and_story():
@@ -291,3 +294,12 @@ def test_verify_report_has_its_own_default_file(tmp_path):
     assert wr.report_path(tmp_path, True).name == "warm-verify.json"
     assert wr.report_path(tmp_path, False).name == "warm-report.json"
     assert wr.report_path(None, True) == Path("warm-verify.json")
+
+
+def test_state_chip_and_scope_ids_urls_equal_the_frontend_request():
+    # D-WARM.7: the same literals are asserted against `estateQueryString` in frontend/src/estate/warmUrls.test.ts.
+    r = wr.Range("7d", D("2026-11-02"), D("2026-11-08"))
+    targets = {q.target for q in wr.range_requests(r, SITES)}
+    w = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"
+    assert f"/api/estate/findings?{w}&state=no_longer_supported" in targets
+    assert f"/api/estate/portfolio/scope-ids?{w}" in targets
