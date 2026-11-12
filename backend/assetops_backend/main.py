@@ -115,8 +115,8 @@ from assetops_backend.financials.composition import (
 )
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.mini_depth.read import MiniDepthRead
-from assetops_backend.mini_depth_api import (build_mini_depth_router, build_renewable_range_router,
-                                            build_service_range_router)
+from assetops_backend.mini_depth_api import (build_day_range_router, build_mini_depth_router,
+                                            build_renewable_range_router, build_service_range_router)
 from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.opportunities import OpportunityService
 from assetops_backend.mini_decisions.work_links import WorkLinkService
@@ -714,6 +714,12 @@ def create_app(
         unavailable=(SiteStoreUnavailable,), responses=responses))
     # SR-8 (rev 10 §10.4, D-SR.23): Renewable over the whole range, from the board's chain reader; a stored route.
     app.include_router(build_renewable_range_router(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    # SR-10b (rev 10b.2, D-SR.23/31/32): Fuel over the range, from the stored `mini_depth.fuel_day` rows; a stored
+    # route. Grades come from the board's chain reader.
+    app.include_router(build_day_range_router(
+        "fuel", lambda: None if mini_period_rows is None else mini_period_rows[0],
         lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
         access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # CH-5a2b (§B14 Q7/Q8): the Portfolio and estate Findings `summary.claims` call the one count computation

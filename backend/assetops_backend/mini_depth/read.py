@@ -659,11 +659,14 @@ class MiniDepthRead:
                 "count": len(replaced), "first": iso(replaced[0].window.start), "known_at": iso(known)})
         return len(replaced)
 
-    def build_period(self, *, tenant_id: UUID, site_id: UUID, domain: str, local_day: date
+    def build_period(self, *, tenant_id: UUID, site_id: UUID, domain: str, local_day: date, whole_day: bool = False
                      ) -> tuple[datetime, datetime, list[dict[str, Any]], dict[str, dict[str, Any]]] | None:
         """AR-2 builder: one stored period of a kind at this transaction's clock, through `_hour` (the compose's own
         head, job, `_cutoff_sha` and pending logic). Returns `(start, end, hour facts, {revision_id: link rows})`;
-        None when the day has no such period (an unknown zone or a nonexistent local hour)."""
+        None when the day has no such period (an unknown zone or a nonexistent local hour).
+
+        SR-10a (rev 10b.1, D-SR.31): `whole_day` with `fuel`/`backup` stores every Site-local hour of `local_day`
+        (`worker.hours_within` over [local midnight, next local midnight); a nonexistent local hour is skipped)."""
         from assetops_backend.mini_depth import period_rows as pr
 
         def work(c: Connection, known: datetime) -> Any:
@@ -673,7 +676,13 @@ class MiniDepthRead:
                 return None
             missing: set[tuple[date, datetime]] = set()
             try:
-                if domain == "renewable":
+                if whole_day and domain in ("fuel", "backup"):
+                    from assetops_backend.mini_depth.worker import hours_within
+
+                    start = _local_midnight(local_day, tz_name)
+                    end = _local_midnight(local_day + timedelta(days=1), tz_name)
+                    windows = [(local_day, w) for w in hours_within(start, end, tz_name)]
+                elif domain == "renewable":
                     start = _local_midnight(local_day, tz_name)
                     end = _local_midnight(local_day + timedelta(days=1), tz_name)
                     windows = hour_windows(domain, start, end, tz_name,

@@ -69,7 +69,7 @@ SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001", "ki
 #: DD1b2-R11 O18: `mill` is the measured 18.7 s; `drain` is drain-1 278.4 + drain-2 58.3 = 336.7 s, rounded up to 10 s.
 # DIESEL-1-R3n: measured in K7-D's scratch prepare (3568 s build step)
 EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "kisiwa": 3600, "finish": 90, "mill": 20,
-                    "drain": 340}
+                    "drain": 340, "day_rows": 900}
 KISIWA_STORY_FILE = REPO / "backend" / "conversions" / "demo-kisiwa-story-v1.json"
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
 #: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
@@ -874,7 +874,7 @@ class Demo:
         expected = {**EXPECTED_SECONDS, "kobo": kobo_expected_seconds(days_doc)}
         # DD1b2-R6 O3: `--cap-seconds` replaces the 2x-sum cap (the whole-list rehearsal runs on 10800 s)
         cap = (cap_seconds if cap_seconds is not None
-               else 2 * (expected["tree"] + sum(expected[s] for s in sites) + (expected["finish"] if finish else 0)))
+               else 2 * (expected["tree"] + sum(expected[s] for s in sites) + ((expected["finish"] + expected["day_rows"]) if finish else 0)))
         self.deadline = time.monotonic() + cap
         began = time.monotonic()
         if (self.work / ".busy").exists():
@@ -1057,6 +1057,7 @@ class Demo:
         if set(CORE_SITES) <= set(story["sites"]):
             self.drain("drain-2")  # R8 drain 2: F-DRAIN reads after it
             self.build_period_rows(story, steps)
+            self.build_day_rows(story, steps)  # D-SR.54: after the board rows, its own cap
             t0 = time.monotonic()
             done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
                            cwd=self.tree / "backend" / "tests", label="self-check", check=False)
@@ -1069,6 +1070,12 @@ class Demo:
 
     #: ANY-1 AR-2 (D-ANY.6): the board's stored mini depth rows are built within this many seconds.
     PERIOD_ROWS_CAP_SECONDS = 15 * 60
+    #: D-SR.54: the board kinds are built with an explicit list (unchanged 15-minute cap); the two day kinds follow in
+    #: their own step, 30 minutes for both Sites (about 2,100 hour reads at 0.55-0.75 s each).
+    BOARD_KINDS = tuple(f"mini_depth.{d}" for d in ("renewable", "fuel", "service", "backup"))
+    DAY_KINDS = ("mini_depth.fuel_day", "mini_depth.backup_day")
+    DAY_ROWS_CAP_SECONDS = 30 * 60
+    DAY_ROWS_RERUN = ("period_backfill build --kind mini_depth.fuel_day --kind mini_depth.backup_day")
 
     def build_period_rows(self, story: dict, steps: dict[str, float]) -> bool:
         """AR-2: build the `mini_depth.*` read-period rows of every mini Site after the last drain (the backfill CLI;
@@ -1084,6 +1091,7 @@ class Demo:
             for code in codes:
                 t0 = time.monotonic()
                 done = self.py("-m", "assetops_backend.chain.period_backfill", "build", "--site", code, "--quiet",
+                               *(a for k in self.BOARD_KINDS for a in ("--kind", k)),
                                label=f"period-rows {code}", check=False)
                 steps[f"period-rows {code}"] = round(time.monotonic() - t0, 1)
                 tail = (done.stdout.strip().splitlines() or ["(no output)"])[-1][:200]
@@ -1106,6 +1114,48 @@ class Demo:
         (self.work / "period-rows.json").write_text(json.dumps(
             {"ok": ok, "seconds": steps["period-rows"], "sites": codes,
              "cap_seconds": self.PERIOD_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
+        return ok
+
+    def build_day_rows(self, story: dict, steps: dict[str, float]) -> bool:
+        """D-SR.54: build `mini_depth.fuel_day` / `mini_depth.backup_day` for every mini Site, after the board rows,
+        under their own 30-minute cap for both Sites. Over the cap or on failure it prints the rerun command and the
+        prepare goes on (the board kinds are unaffected). Records each Site's seconds and seconds per hour read."""
+        say("=== Stored range rows (SR-10: fuel and backup days) ===")
+        codes = [SITE_CODE[s] for s in ("kobo", "kisiwa") if s in story["sites"]]
+        began, saved, ok = time.monotonic(), self.deadline, True
+        cap = began + self.DAY_ROWS_CAP_SECONDS
+        self.deadline = cap if saved is None else min(saved, cap)
+        per_site: dict[str, dict] = {}
+        rerun = f"Fuel/Backup range rows incomplete: rerun `{self.DAY_ROWS_RERUN}`"
+        try:
+            for code in codes:
+                t0 = time.monotonic()
+                done = self.py("-m", "assetops_backend.chain.period_backfill", "build", "--site", code, "--quiet",
+                               *(a for k in self.DAY_KINDS for a in ("--kind", k)),
+                               label=f"day-rows {code}", check=False)
+                secs = round(time.monotonic() - t0, 1)
+                steps[f"day-rows {code}"] = secs
+                summary = demo_rows.last_json_object(done.stdout) or {}
+                hours = int(summary.get("considered") or 0) * 24  # period rows (day x kind) x 24 hour reads
+                per_site[code] = {"seconds": secs, "hour_reads": hours,
+                                  "seconds_per_hour_read": round(secs / hours, 3) if hours else None}
+                say(f"  day-rows {code}: {(done.stdout.strip().splitlines() or ['(no output)'])[-1][:200]}  [{secs} s]")
+                if done.returncode != 0:
+                    ok = False
+                    say(f"  {rerun}")
+        except SystemExit as stopped:
+            ok = False
+            say(f"  DAY ROW BUILD INCOMPLETE ({stopped}): {rerun}")
+            if saved is not None and time.monotonic() >= saved:
+                self.deadline = saved
+                raise
+        finally:
+            self.deadline = saved
+        steps["day-rows"] = round(time.monotonic() - began, 1)
+        say(f"  day-rows total: {steps['day-rows']} s (cap {self.DAY_ROWS_CAP_SECONDS} s)" + ("" if ok else "  NOT COMPLETE"))
+        (self.work / "day-rows.json").write_text(json.dumps(
+            {"ok": ok, "seconds": steps["day-rows"], "sites": codes, "per_site": per_site,
+             "cap_seconds": self.DAY_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
         return ok
 
     def drain_mini(self, limit: int = 500) -> None:
