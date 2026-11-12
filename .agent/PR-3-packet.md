@@ -197,7 +197,8 @@ saved."; network loss on save "We could not confirm the save. Saving again is sa
   (1000 revisions). A direct key lookup needs a new store method on the protocol, Postgres adapter and fake; beyond
   1000 revisions a retry can be wrongly refused 409 (never a duplicate write). Unreachable for a demo series.
 - Checks: vitest sitePriceEntry + sitePrices 37 pass (23 + 14); tsc clean; no-DB pr3 files (entry, page_entry,
-  pr2a) 107 pass; Postgres `test_pr3_price_entry_postgres.py` via run-host-tests 4 pass; check-all result below.
+  pr2a) 107 pass; Postgres `test_pr3_price_entry_postgres.py` via run-host-tests 4 pass; check-all
+  (`tools\check-all.ps1 -Python plan2 venv`, on `aeee70160`): **All 19 guards passed** (estate guard 13:53).
 
 ### Questions for the Architect (form half)
 
