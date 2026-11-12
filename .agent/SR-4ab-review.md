@@ -103,3 +103,14 @@ Verified:
 Notes (non-blocking):
 - N1 (Low now, Medium for any negative-offset Site; answers the builder's question): yes, a D-SR.9/D-SR.59 defect for -5 zones. Service default hour and the long-range Renewable rule use `localDateOf(tz, <UTC midnight>)`, which lands one local day early (fixture: Bogota "Yesterday" 11 Nov gives service 17:00Z = 12:00 local on 10 Nov; ruling text says 12:00 local of `pageDay`). The short-range Renewable path correctly uses the date string. Fix: use the date string directly (`pageDay`, `range.to`) and regenerate the fixture's Bogota service/7d/30d windows deliberately. The +3 demo Sites are unaffected, but the fixture currently pins the wrong -5 behaviour, so a future correct fix will fail it until re-pinned. Architect should confirm.
 - N2: the frontend vitest and the pytest side run independently, so the pair is enforced by the shared fixture, not by one command; acceptable per D-SR.59.
+
+## Re-review (fix round 3) — 01f4d3981..3c11492f8
+
+Verdict: ACCEPT. No findings.
+
+- D-SR.64: Cold/EV detail sends only known_at (`ownPeriodRead`); `_finding_own_window` applies only when lo and hi are both None, uses the run window of the latest revision known at k (same rule as linked_finding); explicit windows unchanged. Other callers (site_outcomes/read.py cold/EV ports, finding_api) pass typed non-None windows or other readers: no behaviour change. EV 404 test uses a window with no stored selection of that Finding (narrowed by 1 min), which is faithful to the anchor rule. Tag "Range not used · this record's own period" pinned on all four Site types.
+- D-SR.65: Kisiwa nights declares the night shown; test pins "Showing 10 Nov · range not used" under range 1-5 Nov.
+- D-SR.66: "All pages" is honest: the assumptions view requests with the range and its "Analysed periods in this range" text follows it (the contradiction in F3 was the old "not used" tag). Test pins assumptions and Financials to the same tag on Cold and EV.
+- coldRoutes refusal edits: the detail read now sends no from/to, so the address bounds and requested-window line correctly disappear; refusal code, title, single alert and strip still asserted. Not weakened.
+- miniServiceRoutes New York re-pin (06T16:00Z) matches D-SR.61. No stray files.
+- Run: vitest coldRoutes, evAssessmentRoutes, siteRangeTags, miniServiceRoutes: 141 passed; tsc clean; pytest test_w203 + test_w206 (incl. the 2 new) on assetops_sr4_test: 31 passed.
