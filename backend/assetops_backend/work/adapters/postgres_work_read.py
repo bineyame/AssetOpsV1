@@ -17,6 +17,8 @@ writes: the work store (`postgres_work_store.py`) remains the sole writer of the
 
 from __future__ import annotations
 
+import copy
+
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Callable
@@ -132,6 +134,9 @@ class _ReadTx:
         self._c, self._t, self._s, self._code = c, tenant_id, site_id, site_code
         self.read_at = read_at
         self._link_rows, self._ports = link_rows, ports
+        # ANY-2 AR-6: answers that depend only on their arguments within this one snapshot, kept for its life (a
+        # batched board read lists several windows of one Site here; the same pinned Finding is resolved once).
+        self._memo: dict[tuple[Any, ...], Any] = {}
 
     def _p(self, **extra: Any) -> dict[str, Any]:
         return {"t": self._t, "s": self._s, **extra}
@@ -219,7 +224,10 @@ class _ReadTx:
     # ---- the list selection (commit 4) ---------------------------------------------------------------------
 
     def site_name(self) -> str | None:
-        return self._c.execute(text("SELECT name FROM site WHERE tenant_id = :t AND id = :s"), self._p()).scalar()
+        if ("site_name",) not in self._memo:
+            self._memo[("site_name",)] = self._c.execute(
+                text("SELECT name FROM site WHERE tenant_id = :t AND id = :s"), self._p()).scalar()
+        return self._memo[("site_name",)]
 
     def eligible_cases(self, kind: str, from_: datetime, to: datetime, known_at: datetime) -> list[dict[str, Any]]:
         return _rows(self._c.execute(text(_ELIGIBLE.format(member=_MEMBER[kind])),
@@ -305,11 +313,18 @@ class _ReadTx:
             raise WorkStoreUnavailable("The work read has no linked selection reader.")
         if fr["domain"] == "mini_grid":
             return self._minigrid(fr, from_, to, known_at)
-        if fr["domain"] == "cold_chain" and fr["analytic_id"] in self._ports.cold_analytics:
-            return self._cold_ev(fr, known_at, self._ports.cold_snapshot, self._ports.cold_analytics, cold=True)
-        if fr["domain"] == "ev_charging" and fr["analytic_id"] in self._ports.ev_analytics:
-            return self._cold_ev(fr, known_at, self._ports.ev_snapshot, self._ports.ev_analytics, cold=False)
-        return None  # an unrecognized domain is UNKNOWN
+        cold = fr["domain"] == "cold_chain" and fr["analytic_id"] in self._ports.cold_analytics
+        ev = fr["domain"] == "ev_charging" and fr["analytic_id"] in self._ports.ev_analytics
+        if not (cold or ev):
+            return None  # an unrecognized domain is UNKNOWN
+        # AR-6: a cold/EV pin reads no request window, so it is the same answer for the same pinned row and cutoff.
+        key = ("pin", cold, known_at, tuple(sorted((k, repr(v)) for k, v in fr.items())))
+        if key not in self._memo:
+            self._memo[key] = (self._cold_ev(fr, known_at, self._ports.cold_snapshot, self._ports.cold_analytics,
+                                             cold=True) if cold else
+                               self._cold_ev(fr, known_at, self._ports.ev_snapshot, self._ports.ev_analytics,
+                                             cold=False))
+        return copy.deepcopy(self._memo[key])
 
     def _minigrid(self, fr: dict[str, Any], from_: datetime | None, to: datetime | None,
                   known_at: datetime) -> dict[str, Any] | None:

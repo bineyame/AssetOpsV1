@@ -80,8 +80,9 @@ def test_register_accepts_kinds_and_the_live_register_parses() -> None:
     from assetops_backend.chain.adapters.file_chain_config import load_event_register
 
     live = load_event_register()
-    assert sorted(live.kinds) == ["mini_depth.backup", "mini_depth.fuel", "mini_depth.renewable",
-                                  "mini_depth.service"]  # AR-2 declares the board's mini depth kinds
+    assert sorted(live.kinds) == ["dispatch.day", "mini_depth.backup", "mini_depth.fuel", "mini_depth.renewable",
+                                  "mini_depth.service"]  # AR-3 + AR-2 declared kinds
+    assert live.kinds["dispatch.day"].grain == "s3_day"
     assert live.kinds["mini_depth.renewable"].grain == "local_day" and live.kinds["mini_depth.fuel"].grain == "hour"
     assert "productive_kwh" in live.inputs
 

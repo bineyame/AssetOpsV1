@@ -4378,3 +4378,65 @@ Decision logged for owner review: **D-HON.1**.
 - **Builder change:** none now. Backlog item: add one fixture with complete readings that asserts F05 placement, so the placement path is again covered by a test with readings.
 
 Decision logged for owner review: **D-F05.1**.
+
+## D-ANY.8 Order of the remaining any-range speed work for 17 Nov (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Owner priority: "the speedup for any date range prioritised". Freeze: AR-4 held unmerged if not ACCEPTed by Sat 14 Nov 20:00.
+- **Why this order.** The AR-4 profile (client4, cold, store off, unlisted week with claim rows) puts ~13 s of 11.7-14.5 s in dispatch-day compose reached through `evidence_money.mini_grid_rows` → `coverage._mini_grid_basis`, then `_mini_grid_money` 4.1 s and `consequence_provenance` 3.3 s. The dispatch-day cost is already solved by AR-3's `dispatch.day` rows (127-360 ms per Site-range, parity 59/0/0). So the Portfolio switch to those rows is the largest single cut, money.lines is next, and provenance is last.
+- **1. AR-3 + AR-6 merges as it is (lane A, by Fri 14:00).** Do not add the Portfolio switch to AR-3. It is under review, and a new line would reopen the review.
+- **2. The switch goes on AR-4 (`task/ANY-2-AR4`), after AR-3 is on main.** AR-4 does not merge the AR-3 branch in. It rebases onto main once AR-3 merges, so the reviewed AR-3 code is carried once and fix rounds are not duplicated. The switch is the one-line change in `evidence_money.mini_grid_rows` to read `coverage.dispatch_days` (AR-3's row reader). `estate/coverage` stays untouched (AR-3's files).
+- **3. Until AR-3 merges, the AR-4 builder builds money.lines (MN-1/2/3)** with code and no-DB tests only, including the rev-5 contract: declare `price.revised@1` (`by_assumption_key`, days from the valid date to today) and rebuild those rows when a price is saved (PR-3).
+- **4. Order of Postgres work on AR-4 (priority 2, after AR-3):** (a) rebase + switch, then parity and timings; (b) money.lines parity and timings.
+- **Minimum to call AR-4 done for 17 Nov:** evidence.claim (built) + the dispatch.day switch, with the evidence below. **money.lines is IN only if** its parity, including the price-save case, passes by **Sat 12:00**. If it does not, its commits move to `task/ANY-2-AR4b` (backlog), and AR-4 goes to review as claim + switch. The review starts Sat by 12:00 and AR-4 merges by 16:00 (rev-5 lane C).
+- **Backlog (not 17 Nov):** evidence.provenance (cold/EV pinned windows), AR-5 (the pre-load list stays as the safety net), and money.lines if it misses Sat 12:00.
+- **If AR-3 is held:** AR-4 merges as claim-only without the switch, provided its own parity passes. That is still faster (week 17.6-19.4 s → 11.7-14.5 s).
+- **Evidence required for merge:**
+  - Byte-equal parity on client4 over the combined path that ships (claim rows + dispatch.day rows + money.lines if IN), 0 mismatches. It must keep the D-ANY.5/D-ANY.7 cases: a no-revision day, and a selected-revision-without-row day.
+  - If money.lines is IN, it must also pass a price-save case. A price revision whose valid date falls mid-range rebuilds rows from the valid date to today and stays byte-equal to compose before and after the save. PR-3's Postgres flow test is rerun by whichever of AR-4 and PR-3 merges second.
+  - Timings on client4, cold, store off, with a profile of each: the unlisted week, the 22 days, and a 31-day month, each before and after.
+  - The ≤2 s target (rev 4 / ANY-1) is reported, not gated: the gate is parity + no regression. A miss is stated honestly in the packet, with what remains (provenance, money if out). Presenter rule D-ANY.4 still holds for Portfolio ranges over 2 s.
+
+Decision logged for owner review: **D-ANY.8**.
+
+## D-ANY.9 AR-4: Portfolio consequence money, receipt-less productive rows, the `note_page_days` hook (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: branch `task/ANY-2-AR4` head `ba227df16`, packet `.agent/AR-4-packet.md` (Not built 7, deviations 5-6). D-ANY.8 stands unchanged.
+- **Q1 Portfolio consequence money (`_mini_grid_money` + `consequence_provenance`, ~4 s on a client4 week): backlog, not 17 Nov.** Storing it per (consequence revision, Finding revision), like the claim provenance, is the likely shape, but it is a new stored kind with its own invalidation (Finding recompute, consequence revision, price revision). It cannot be built and pass parity by Sat 12:00 next to money.lines, and D-ANY.8 already puts provenance last. The builder does not start it. The packet states the remaining ~4 s honestly in the ≤2 s report (D-ANY.8: reported, not gated). The backlog entry is `evidence.consequence_money`: per (Site, consequence revision, Finding revision), body = today's `_mini_grid_money` line + provenance. Its shape is confirmed by the Architect after a post-switch profile, not before.
+- **Q2 old productive rows without a receipt: acceptable, with no PENDING gate on the amount.** The amount is unchanged under `mini.productive_energy@2`, and readers use only `amount`/`currency`/`assumption_revision_id`. So a PENDING gate would cost speed and change no value. MN-1's wording "read PENDING until the backfill" is corrected to: "an old row serves its amount; its receipt is absent until it is rebuilt". Conditions:
+  - Any reader that shows the receipt treats a row without `receipt` as "receipt not available yet" or composes it. It never shows an empty or partial receipt.
+  - The client4 build at step 4b rebuilds the productive rows to @2, so the demo data carries receipts.
+  - Add one no-DB test: a receipt-less row reads the same amount as compose.
+- **`note_page_days` hook (commit `36d15fd70`): accepted.** The claim rows must be matched against exactly the days the page reads. Without the hook, the switch would select claim days from a different day set. It is optional through `getattr`, so other snapshots keep their earlier behaviour. Conditions: the parity run covers it, and the packet lists it as a step-3 deviation from the "one-line change".
+
+Decision logged for owner review: **D-ANY.9**.
+
+## D-PRICE.2 PR-3 server half: Site name in the first-price summary, dry-run reason, two router keywords (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Context: branch `task/PR-3-price-entry` head `99d4b6f24`, packet `.agent/PR-3-packet.md` (deviations 1, 3, 4; Q1-Q2). D-PRICE.1 stands.
+- **Q1 Site in the INITIAL summary: use the Site's display name.** The client reads History, and a code like `KOBO-001` is system vocabulary. Take the name from the same estate Site record the Financials read uses (`site["site_name"]`). Do not add a new table or a new scope field. Fall back to the code only when the name is null. A lookup failure follows the 503 `ASSUMPTION_STORE_UNAVAILABLE` path, not a 500. Already-stored summaries are not rewritten. Add a test for the name and one for the null-name fallback.
+- **Q2 dry run returns 200 with `reason_required: true`: confirmed.** The form needs the dry run to tell it to show the Reason field. The save refuses 422 `REASON_REQUIRED` without a reason, which keeps the guard. Rev 5 §5.3 "dry run runs steps 1-9" is read as: step 9 *reports* on the dry run and *refuses* on the save.
+- **Router keywords `unavailable` and `clock`: confirmed**, provided that:
+  - `clock` is a server-side injection only, with the server's now as default. No request field or header can set it.
+  - `unavailable` maps only to 503 `ASSUMPTION_STORE_UNAVAILABLE`, for store, zone and scope failures. Turning a scope outage into 503 instead of 500 is correct.
+
+Decision logged for owner review: **D-PRICE.2**.
+
+## D-ANY.10 AR-4 client4 evidence: the `before_build` mismatch and the second dispatch-day compose (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: `task/ANY-2-AR4` head `917a90724`, packet `.agent/AR-4-packet.md`. Parity (`--kinds evidence.claim,dispatch.day`) 61 cases, 1 mismatch `any.claim_rows.before_build` (k 11-11T23:35Z, dispatch.day rows built 00:03): oracle has a `selection_id`, candidate has null.
+
+### (1) Option (b): an absent `dispatch.day` row is composed, never rendered as "nothing stored". Option (a) is refused.
+- **Why.** D-ANY.5's "absent = nothing known" holds only if a row exists from the moment its input exists. Rows built later by the backfill CLI (or a lagging tick) break that: at a k before the build the input is known, the row is not. Rendering UNASSESSED there is a false answer a real user can get on a historical read. Moving the case's k (a) would hide the defect, not fix it. This is the same case D-ANY.7 ruled for claims: "cannot be proven equal", not "nothing known".
+- **Amends D-ANY.5 for `dispatch.day`.** "There is no fallback compose" no longer applies to this kind. A day with no row at k (explicit or live) is served by today's compose for that day only.
+- **Shape.** `DispatchDayRows` marks absent days instead of calling `absent_day`; `coverage.dispatch_days` (it holds the snapshot) calls `snapshot.dispatch_days` once per contiguous run of absent days over that run's window at the same k, and splices the composed days in. Each run logs `period_row_absent` (kind, Site, days) and is counted in perf. PENDING-at-k on a composed day is whatever compose says (no synthetic job added). `absent_day`/`ABSENT_REASON` stay only if a test still needs them; the module doc's "There is no fallback compose" line becomes "Ruled D-ANY.10".
+- **Where.** The defect is on main (AR-3) and ships whether or not AR-4 merges, so it is fixed on main: branch `fix/AR-3-absent-compose` off current main, about 0.2 unit (Sonnet). AR-4 does not carry it; AR-4 rebases onto main after it merges. Fresh Claude reviewer; it does not wait for AR-4's review.
+- **AR-2 kinds (mini depth day grades) have the same latent hole** at a k between an input and a later row build. Not 17 Nov: the demo reads live or post-prepare k. Backlog `BL-ANY-absent`: apply the same per-run compose to every AR-2 kind, with a before-build parity case each.
+
+### (2) Make the second switch, on AR-4.
+- `evidence_money.site_data_gap_days_many` (line ~577) reads `coverage.dispatch_days(snap, tenant_id, site["site_id"], req.from_, req.to, scope["k"])` instead of `snap.dispatch_days(...)`. Same rule as D-ANY.8: one day source for the whole Portfolio read. It is an AR-4 file; list it as a deviation beside the D-ANY.9 hook. No other serve-path caller remains (`period_rows.fragment` is a builder and must keep composing; `measure_impls`/`postgres_work_read` are other reads, out of scope).
+
+### Evidence required
+- Fix branch: no-DB tests first. (i) an explicit k with no row but a compose selection returns the composed day, byte-equal, and logs `period_row_absent`; (ii) two absent runs split by a stored day compose twice, once per run; (iii) a stored day is never composed; (iv) kill switch unchanged. Then one Postgres test: k between a revision's `computed_at` and its row's `computed_at` reads the selection. client4 parity `--kinds dispatch.day` 0 mismatches including `before_build`.
+- AR-4 after rebase: client4 parity `--kinds evidence.claim,dispatch.day` 0 mismatches over the 61 cases, keeping `before_build`, the no-revision day and the selected-revision-without-row day (D-ANY.7/8). Timings cold, store off, with profiles, for the week, 22 days and 31 days, before (`917a90724`) and after; the profile must show no `snapshot.dispatch_days` under `_data_gaps` on a fully built range. ≤2 s stays reported, not gated (D-ANY.8).
+
+Decision logged for owner review: **D-ANY.10**.

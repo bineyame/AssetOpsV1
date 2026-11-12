@@ -26,7 +26,7 @@ EVENT_FIXTURES = {
     "reading.accepted@1": (
         {"roles": ["feeder_demand"], "asset_ids": [], "span": ["2026-10-30T20:30:00Z", "2026-10-30T21:30:00Z"]},
         "MINIGRID", ADDIS, {(d, m) for d in (D(2026, 10, 30), D(2026, 10, 31))
-                            for m in ("productive_kwh", *MINI_KINDS)},  # AR-2: every mini role dirties the kinds
+                            for m in ("productive_kwh", *MINI_KINDS, "dispatch.day")},  # AR-2 mini kinds; AR-3: the UTC days of [20:30Z - 6 h, 21:30Z + 6 h)
         ("snapshots",)),
     "assessment.revised@1": (
         {"analytic_ids": ["cold-start-response"], "windows": [["2026-10-31T00:00:00Z", "2026-10-31T01:00:00Z"]]},
@@ -41,7 +41,9 @@ EVENT_FIXTURES = {
     "foundation.revised@1": (
         {"valid_from": "2026-11-02T00:00:00Z"}, "MINIGRID", "UTC",
         {(d, m) for d in (D(2026, 11, 2), D(2026, 11, 3))
-         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min", *MINI_KINDS)},
+         for m in ("productive_kwh", "daylight_headroom_kw", "critical_served", "avoidable_gen_min", *MINI_KINDS)}
+        # AR-3: UTC days from valid_from - 6 h through today + 1 (a UTC day can be one past the Site-local today)
+        | {(d, "dispatch.day") for d in (D(2026, 11, 1), D(2026, 11, 2), D(2026, 11, 3), D(2026, 11, 4))},
         ("snapshots",)),
     "objective.revised@1": ({"ids": ["o1"]}, "MINIGRID", "UTC", set(), ()),
     "finding.revised@1": ({"ids": ["f1"]}, "COLDCHAIN", "UTC", set(), ("threads",)),
