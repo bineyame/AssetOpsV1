@@ -4997,3 +4997,71 @@ Decisions logged for owner review: **D-SR.31-38**.
 - `scope-ids` with `lens=cost|risks|opportunities` is added for every warmed range, using the client's exact query. It is covered by the URL-equality test and `--verify`. Page 2 and later, and lens × state, stay outside the claim. About 0.02 units.
 
 Decisions logged for owner review: **D-SR.40-46, D-WARM.8**.
+
+## D-SR.47 SR-8 Q2-Q5 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.7.
+- Q2: NO_VALUE is confirmed ("No headroom figure for this day"; never counted).
+- Q3: rounding to 0.01 kW, half-up, applies to the two averages only; daily values are stored, unrounded.
+- Q4 is corrected: LOW → NOT_ENOUGH_READINGS, never counted (as D-SR.45). PENDING, NO_DATA and NOT_EXPECTED win. A PARTIAL ELIGIBLE day is counted, with `partial: true`.
+- Q5: the codes and the optional `known_at` (in the stored key) are confirmed.
+
+Decisions logged for owner review: **D-SR.47**.
+
+## D-SR.48 SR-8 Q6: the range shows the stored "every eligible hour" headroom; the day page adds the same figure (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.8.
+- Range page: the stored `daylight_headroom_kw` (min low, min high), worded "Headroom available in every eligible hour". The chain measure is unchanged.
+- One-day page: the envelope adds `all_hours_headroom_kw` (min low, min high over ELIGIBLE hours), shown as one line with the same words. The existing card keeps its envelope, worded "Range across eligible hours" (inside R726).
+- Parity: the stored day value equals `all_hours_headroom_kw` exactly, and the card high is at least the stored high. About +0.1 units.
+
+Decisions logged for owner review: **D-SR.48**.
+
+## D-SR.49 SR-6a Q1-Q5 and guard policy (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.9.
+- Q1: corrected. `days_without_readings` = expected days with zero accepted readings, whatever the SR-5a state. `days_not_expected` and `days_after_cutoff` are added, and the four sum to `days_requested`. The status line counts readings.
+- Q2: confirmed, over expected days only (NOT_EXPECTED and AFTER_CUTOFF are skipped).
+- Q3: confirmed: the dispatch-row count. It can differ from the per-source sum, so the labels are "Readings used for analysis" and "Readings received".
+- Q4: new state AFTER_CUTOFF ("Not reached yet") for gateway and source days wholly after `min(to, k)`. `days[].state` is unchanged.
+- Q5: `battery` is dropped from the body. The page uses the existing `/battery` read. There is no Foundation 409 on the route.
+- Guard: the one read-only adapter in `$pgReaders`, with the write refusal kept and reads through the compositions, is the sanctioned pattern.
+
+Decisions logged for owner review: **D-SR.49**.
+
+## D-SR.50 SR-5: the range names retired Findings; Postgres cases without a world (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.10.
+- 1: the member count (Portfolio parity) and the S5-01 drill-in are both kept. Each day adds `retired_finding_count` (non-member latest revisions intersecting the day, from the same Finding read; stop and ask if that read lacks lifecycles). The wording is "Checked: no current findings · 1 finding no longer supported". The state stays CLEAR. The test pins agreement: board = members + retired. About 0.1 units.
+- 2a NOT_EXPECTED: covered by the no-DB precedence pin and the parity report.
+- 2b: the MD-0 states template is not built now. It is covered by the F08 coverage-wins pin, no-DB tests and the parity gaps == coverage gate; the template is backlog after the freeze.
+- 2c: no-DB stubs for SUMMED/OVERLAPPING are required. Parity checks money == Portfolio and reports the OVERLAPPING count; 0 is recorded as stub-only.
+
+Decisions logged for owner review: **D-SR.50**.
+
+## D-SR.51-54 SR-10 builder interpretations, the kill switch, the rebuild test, and the day-kind build time (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.11. Branch `task/SR-10-fuel-range` (core 7f928edb2, route 3fc8c4c23, Postgres pins 3ed855559).
+
+### D-SR.51 Interpretations 1-4.
+- 1 confirmed: pending = `PENDING_RECOMPUTE` or a live job (PENDING/LEASED); every sum, count, limitation and sequence covers assessed hours only.
+- 2 confirmed: `slowest_recovery` = the largest `critical_recovery.seconds` over the de-duplicated sequences; a null is skipped; `target_seconds` comes from the same sequence; a tie goes to the earliest `outage_start`.
+- 3 corrected: an absent row is unknown, not zero. Its entry has `stored: false`, and its hour counts, `status_counts`, `expected_use_l` / `sequence_counts` / `start_success_count` / `slowest_recovery` are null (`hours_expected: 0` is removed). Stored rows carry `stored: true` and never null counts. The page shows "Still being prepared" for the whole row, never "0 of 0 hours".
+- 4 confirmed, plus one fix: totals `sequence_counts` and `start_success_count` de-duplicate sequences by `chain_id` across the window (latest day wins), so a sequence that crosses local midnight counts once. Backup `days_counted` counts its four states; fuel counts ASSESSED.
+
+### D-SR.52 The kill switch (interpretation 5).
+- Accepted. `ASSETOPS_PERIOD_READ_KINDS` selects stored rows over a compose; the day kinds have no compose (D-SR.31), so honouring it would only blank the range. The safety behaviour is the honest STILL_PROCESSING row plus the hour drill-in, which composes live when the switch is empty.
+- Required: a stub test pins that the fuel range reads rows with the switch empty, and a code comment names D-SR.52. The prepare's failure line for the day kinds names the rerun command, not the switch (D-SR.54).
+
+### D-SR.53 The rebuild test (interpretation 6).
+- Enough, as AR-1's precedent: ingest-to-event is pinned elsewhere, and the parity run (3 days x 24 hours per Site) checks real readings. Two additions: the event is built with the ingest path's own event helper if one exists (otherwise named as hand-built in the test docstring); and one boundary case: a reading at Site-local 00:30 (UTC the previous day for Nairobi) dirties the local day, not the UTC day. If the register keys the dirty day another way, stop and ask.
+
+### D-SR.54 Day-kind build time in the prepare and the D-SR.36 backfill.
+- A timing check is needed. Estimate from AR-2 (KOBO 128 periods 69.1 s, KISIWA 52 periods 38.7 s, about 0.55-0.75 s per hour read): about 1,500 hour reads for KOBO and 600 for KISIWA, so about 15-20 minutes, which would breach the shared 15-minute cap and push the board rows out.
+- `build_period_rows` builds the board kinds first with an explicit `--kind` list, unchanged under the 15-minute cap, then the two day kinds in a separate step with their own cap: **30 minutes for both Sites** (twice the 15-minute estimate). `period-rows.json` records each step's seconds and the seconds per hour read. The prepare's wall cap adds the step's expected 900 s.
+- Over the cap or on failure: "Fuel/Backup range rows incomplete: rerun `period_backfill build --kind mini_depth.fuel_day --kind mini_depth.backup_day`"; the prepare goes on and the board kinds are unaffected.
+- D-SR.36 on the VPS: run the head-count pre-flight first, then time per Site. If KOBO's first 3 days run over 1.0 s per hour read, stop before the whole window and ask.
+- Tick: the parity JSON records one dirty-day rebuild (both kinds, one Site-day). If it takes over 60 s, report it; it does not gate.
+- SR-10 fix round about 0.1 units (51.3, 51.4, 52, 53, 54 prepare split), on a Sonnet builder. Package about 18.3 units.
+
+Decisions logged for owner review: **D-SR.51-54**.
