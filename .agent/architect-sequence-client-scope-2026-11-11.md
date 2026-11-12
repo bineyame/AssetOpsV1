@@ -1,5 +1,95 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 10e addendum (Architect, Claude, 2026-11-12 night): SR-8 parity failure diagnosed; the rows-on switch for 17 Nov
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.62-63** (build sheet), owner-delegated, logged for owner review.
+- Evidence: `AssetOpsV1-sr8` 26fd97b7a `.agent/SR-8-parity.json`. DB `assetops_polish_vps1_test`, read only.
+
+### 10e.1 SR-8: why 3 Kobo days fail, and the fix (D-SR.62)
+
+**What the database shows (KOBO-001, 27 Oct; 3 and 10 Nov are the same).**
+- The stored day row reads ELIGIBLE, 25-31 kW, `window_hours` 2, covered 28,800 of 86,400 s (PARTIAL).
+- The day has 7 daylight hours with a selected revision (04:00-10:00Z). Of these, 5 are EXCLUDED (CHARGE_OBLIGATION_ACTIVE). Two are **ELIGIBLE**: 09:00Z (seq 1081) and 10:00Z (seq 1094), both 25-31 kW.
+- The other **16 hours are "missing"**: they have no full `pv_available_power` coverage. That is 21:00-03:00Z and 11:00-21:00Z, the story's truncated readings on its Finding days. None of them has a revision.
+- The stored `mini_depth.renewable` period row has the same 23 windows and the same 7 heads (2 ELIGIBLE).
+- **The parity JSON's "all 7 hourly rows EXCLUDED" is wrong.** The read's `rows` are the heads' stored rows, and two of them are ELIGIBLE. The harness most likely read `limitations` (5 CHARGE_OBLIGATION_ACTIVE entries). The builder corrects the harness.
+
+**Root cause: two day rules for the same day.**
+- Stored measure (`chain/measure_impls.py` `RenewableHeadroom`, CH9-R2 Q2/Q4):
+  - the value comes from the day's **daylight** hours;
+  - missing hours only reduce coverage, so the grade is PARTIAL;
+  - the value is null (MISSING_HOUR) only when a *daylight* hour has no selected revision.
+- One-day read (`mini_depth/read.py` `compose_renewable`, CH9-R2 Q5):
+  - any window with no head marks the whole day as missing;
+  - so `status` is UNKNOWN and every card is null;
+  - it cannot tell a missing hour (no PV coverage, never assessed) from a daylight hour that has no revision yet. `hour_windows` merges `found.hours` and `found.missing`, and the flag is dropped.
+
+**The stored side is right.**
+- Two of the measured hours were assessed ELIGIBLE at 25-31 kW. D-SR.9 says data in the range gives output, so the day must show them.
+- D-SR.47 Q4 already counts a PARTIAL ELIGIBLE day, with `partial: true`.
+- The chain measure feeds day grades and the Portfolio, and 10b ruled it unchanged.
+- The read is fixed to use the measure's rule.
+
+**The fix (one rule everywhere):**
+- **Carry the missing flag.**
+  - `read._Hour` gains `missing: bool = False`. It is true exactly for the hours in `daylight_hours(...).missing` at the read's cutoff.
+  - The compose path sets it where `hour_windows` builds the renewable windows.
+  - The rows path reads it from the stored hour: `period_rows.hour_json` writes `"missing"` and `hour_from_json` reads it.
+  - `BUILDER_VERSION` becomes `mini-depth-rows-2`, because the stored hour body changes.
+- **`compose_renewable(hours, *, missing=frozenset())`**, keyed by `(day, window.start)`:
+  - Missing hours are left out of the decision, the cards and the `len(selected) < len(hours)` UNKNOWN test.
+  - A day is a missing day only when a **non-missing** hour has no head. This is the measure's MISSING_HOUR, unchanged.
+  - The cards (`headroom_kw`, `all_hours_headroom_kw`, `eligible_days`, `assessed_days`) are then over the same hours as the measure.
+  - So for 27 Oct the read returns SUPPORTED, `headroom_kw` 25-31, and `all_hours_headroom_kw` 25-31.
+- **Recurrence stays strict.** `summarize_renewable` gains `partial_days`. `recurrence_established` also needs no day with missing hours. A partial day is assessed, but it never establishes recurrence.
+- **The envelope gains `missing_hours`** (the count of missing windows).
+  - The one-day page shows the D-E5.45 PARTIAL label when it is above 0, with the words the range row uses.
+  - Range row `missing_hours` = (required − covered)/3600 = 16 = one-day `missing_hours`.
+  - This is inside R726: the v69 `renewable` card is kept whole.
+- **D-SR.48's "null when the card is null" still holds.** The card and the line now fill together.
+
+**The Grow board.**
+- `site_outcomes/mini.py` reads the same `compose_renewable` over 5 days. Its fixtures pass `None` hours as daylight hours with no head, so the existing tests are unchanged.
+- On real data, a 5-day board window that holds a Finding day now counts that day as assessed and partial, with no recurrence. This is the intended consistency. Any board pin that changes is recorded as expected in the packet, not re-pinned silently.
+
+**Tests:**
+- Pure, `test_w402_reads.py`:
+  - (a) the 27 Oct shape (7 headed hours with 2 ELIGIBLE at 25-31, plus 16 missing) gives SUPPORTED, both cards 25-31, eligible/assessed 1/1, `missing_hours` 16;
+  - (b) a non-missing hour with no head still gives UNKNOWN and null cards;
+  - (c) recurrence is false over 5 days when one day is partial.
+- Shared-rule pin: the same fixtures go through `RenewableHeadroom.measure`. For the complete, partial and headless-daylight days, `(low_kw, high_kw)` equals `all_hours_headroom_kw`, with both null on the headless-daylight day.
+- `hour_json`/`hour_from_json` round-trip `missing`. A `mini-depth-rows-1` row reads PENDING_RECOMPUTE (existing rule).
+- Postgres SR-8: one sampled day has missing hours.
+- Parity rerun:
+  - gate 0 mismatches over COUNTED days;
+  - the `missing_hours` of each compared day must be equal;
+  - the harness reports the per-hour decisions from `rows[].decision`.
+- **Size:** about 0.3 units (Sonnet fix round, then a fresh Claude re-review). SR-8 merges only after the parity rerun passes.
+
+**Rebuilds on the demo DB:**
+- **Stored day rows (`site_day_snapshot` `daylight_headroom_kw`): no rebuild.** The measure is unchanged and they are right.
+- **`mini_depth.*` period rows: yes, rebuild.** The version bump makes all four mini kinds read PENDING_RECOMPUTE until they are rebuilt.
+  - Run `python -m assetops_backend.chain.period_backfill build --site KOBO-001` and then `--site KISIWA-001` (the board-kinds step, 15-minute cap).
+  - Then rerun the SR-8 parity on that DB.
+  - `dispatch.day` and `evidence.claim` rows are unchanged: their fingerprint is the same, so nothing is written.
+
+### 10e.2 The rows-on switch for the 17 Nov build (D-SR.63)
+
+- **The code lands now** (about 0.05, in the SR-8 fix round or as its own tiny branch):
+  - `tools/demo_combined.py` `serve_env()` sets `ASSETOPS_PERIOD_READ_KINDS=dispatch.day,evidence.claim,mini_depth.renewable,mini_depth.fuel,mini_depth.service,mini_depth.backup` **only when** the work dir's `period-rows.json` reads `"ok": true`.
+  - Otherwise it stays empty and the prepare prints the existing failure line.
+  - An operator's own value in the parent environment wins.
+  - Stub test: ok → six kinds; not ok or no file → empty; override → kept.
+- **On the current demo DB, now:**
+  - `dispatch.day` and `evidence.claim` may be switched on: their rows are built, their parity passed (SR-5/6/7), and the SR-8 fix does not touch them.
+  - The four `mini_depth.*` kinds stay off until the SR-8 fix merges, the mini rows are rebuilt (10e.1) and the parity is rerun with the six kinds (`tools/checks/period_read_parity.py`, 0 differences).
+- **For the 17 Nov build: all six on**, with three conditions:
+  1. SR-8 (with D-SR.62), SR-10 and SR-11 are merged.
+  2. The final prepare's row steps report ok (board kinds, then day kinds, D-SR.54).
+  3. **One** final parity run with the six kinds on the final DB gives 0 differences.
+  - The SR-10/11 day kinds read rows whatever the switch says (D-SR.52), so their own parity does not gate the six kinds. Their merge does change the prepare's row step, though, which is why the one final parity run comes after them.
+  - If that run fails for a kind, only that kind is left out of the list, the failure is logged, and the coordinator is told. No silent fallback.
+
 ## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8**; later D-SR.47-54 (10d.7-10d.11) (build sheet), owner-delegated, logged for owner review.
