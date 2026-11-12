@@ -5110,3 +5110,26 @@ Decisions logged for owner review: **D-SR.56**.
   - Each of those slices adds one vitest that the focus slot is declared once in the hour view.
 
 Decisions logged for owner review: **D-SR.57**.
+
+## D-SR.58 SR-11 Q1-Q3 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-11-packet.md` (`task/SR-11-backup-range` 713bbf7d8).
+- **Q1: yes.** On an absent day (`stored: false`) `sequences` is null, like every other D-SR.51.3 figure. A stored day with no sequence has `[]`. Pin both cases in the pure test.
+- **Q2: count start successes from the sequences, not from the hour cards.**
+  - Why: the hour card (`mini_depth/rules.py:1072`) counts SUCCEEDED `start_pair`s over that hour's chains. A sequence that spans hours is counted in every hour, so the sum double-counts within a day as well as across midnight.
+  - Change (shared `day_summary.py`):
+    - Each `sequences` entry gains `start_pair`, copied from the head's chain.
+    - The day `start_success_count` is the number of de-duplicated sequences with `start_pair == "SUCCEEDED"`. It is null when every sequence's `start_pair` is null or there is no sequence.
+    - The window total counts the same thing over the sequences de-duplicated across the window (D-SR.51.4).
+  - If the stored head result does not carry a per-chain `start_pair`, stop and ask; do not recompute.
+  - Tests:
+    - one sequence over two hours gives 1;
+    - one sequence over midnight gives 1 in the window total, while each day's own count still shows it;
+    - the null rule.
+  - The UI wording stays "backup starts". About 0.05 units, SR-11 fix round.
+- **Q3: acceptable.** The grade order is pure and pinned in the stubs. The day rows in the Postgres test are real. The real grade path is closed by parity:
+  - the SR-10 and SR-11 parity runs call each live range route (real `PostgresChainRead`) for KOBO-001 and KISIWA-001;
+  - they compare every `days[].state` NOT_EXPECTED / grade-derived outcome with `chain.read.day_grade` for the same day;
+  - the gate is 0 mismatches.
+
+Decisions logged for owner review: **D-SR.58**.
