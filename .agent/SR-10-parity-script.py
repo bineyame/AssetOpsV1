@@ -132,7 +132,7 @@ def main() -> int:
                                        "ok": d["state"] == "NO_DATA"})
                     for h in live_hours:
                         match, eligible = trigger_match(domain, h["window_start"], h["window_end"])
-                        if nd and match and eligible:
+                        if nd and match:
                             cross.append({"day": d["local_day"], "hour": h["window_start"]})
                         if not nd and match and h.get("head") is None:
                             (edge if eligible else inelig).append({"day": d["local_day"], "hour": h["window_start"]})

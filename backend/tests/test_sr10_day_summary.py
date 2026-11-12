@@ -231,8 +231,42 @@ def test_no_reading_days_every_applicable_measure_no_data() -> None:
     facts = _facts([d0, d1, d2, d3], {d0: nd, d1: mixed, d2: half, d3: {}},
                    {d1: (keys[1],)})
     assert ds.no_reading_days(facts) == {d0, d2, d3}
-    # none_declared measures are left out: only the PARTIAL one remains on d1, so not NO_DATA; declare it and none is left
-    assert ds.no_reading_days(_facts([d1], {d1: mixed}, {d1: tuple(keys)})) == frozenset()
+    # none_declared (only productive_kwh, only when it has no row, R3t) is left out of "applicable". A measure with no
+    # row already grades NOT_EXPECTED, so the declared exclusion and the NOT_EXPECTED exclusion agree: declared or not,
+    # the day is NO_DATA while another measure reads NO_DATA, and neither leaves a measure to read when the rest are
+    # NOT_EXPECTED.
+    pk = keys[0]
+    no_pk_row = {pk: {}, **{k: {"i": "NO_DATA"} for k in keys[1:]}}
+    assert ds.no_reading_days(_facts([d1], {d1: no_pk_row}, {d1: (pk,)})) == {d1}
+    assert ds.no_reading_days(_facts([d1], {d1: no_pk_row})) == {d1}
+    only_pk = {pk: {}, **{k: {"i": "NOT_EXPECTED"} for k in keys[1:]}}
+    assert ds.no_reading_days(_facts([d1], {d1: only_pk}, {d1: (pk,)})) == frozenset()
+    assert ds.no_reading_days(_facts([d1], {d1: only_pk})) == frozenset()
+
+
+def test_not_expected_measures_are_left_out_of_applicable() -> None:
+    from assetops_backend.chain.measures import measures_for
+
+    keys = [m.key for m in measures_for("MINIGRID")]
+    d0 = DAY
+    ne = {k: {"i": "NO_DATA"} for k in keys}
+    ne[keys[0]] = {"i": "NOT_EXPECTED"}
+    assert ds.no_reading_days(_facts([d0], {d0: ne})) == {d0}           # NOT_EXPECTED is not a reading, not applicable
+    weak = dict(ne)
+    weak[keys[1]] = {"i": "PARTIAL"}
+    assert ds.no_reading_days(_facts([d0], {d0: weak})) == frozenset()  # a real weak measure still blocks NO_DATA
+    only_ne = {k: {"i": "NOT_EXPECTED"} for k in keys}
+    assert ds.no_reading_days(_facts([d0], {d0: only_ne})) == frozenset()  # none applicable left
+
+
+def test_pending_without_stored_row_reads_still_processing_not_no_data() -> None:
+    """D-SR.70 step 2: pending beats NO_DATA even when no row is stored."""
+    site = uuid4()
+    result = SimpleNamespace(rows=[], is_pending=lambda s, d, k: True)
+    for domain in ("fuel", "backup"):
+        body = ds.compose(domain, {"id": site, "site_code": "K", "site_name": None, "timezone": "Africa/Nairobi"},
+                          {}, [DAY], result, {DAY: "NO_DATA"}, historical=False, no_readings=frozenset({DAY}))
+        assert body["days"][0]["state"] == "STILL_PROCESSING"
 
 
 def test_no_data_beats_absent_and_stored_rows_and_pending_beats_no_data() -> None:

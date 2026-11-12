@@ -174,9 +174,9 @@ def range_days(domain: str, site_code: str, tz: str, site_id: Any, days: Sequenc
     for d in days:
         read = by_day.get(d)
         summary = None
-        pending = False
+        pending = result.is_pending(site_id, d, kind)   # D-SR.70 step 2: whether or not a row is stored
         if read is not None:
-            pending = bool(read.pending) or result.is_pending(site_id, d, kind)
+            pending = pending or bool(read.pending)
             summary = reduce(d, hours_of(read.row.body, historical=historical, pending=pending))
         state, partial = day_state(domain, summary, grades.get(d), no_readings=d in no_readings, pending=pending)
         if state == NO_DATA:   # D-SR.70: no counts, no figures, whether or not a row is stored
