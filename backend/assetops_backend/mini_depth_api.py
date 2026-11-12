@@ -246,7 +246,9 @@ def build_day_range_router(domain: str, period_reader: Callable[[], Any], chain_
             try:
                 result = periods.read(site.tenant_id, [SiteRef(site.tenant_id, sid, site.site_code, MINIGRID, tz)],
                                       [kind], days[0], days[-1], known)
-                grades = day_summary.day_grades(chain.request(site.tenant_id, known).day(sid, MINIGRID, days))
+                facts = chain.request(site.tenant_id, known).day(sid, MINIGRID, days)
+                grades = day_summary.day_grades(facts)
+                no_readings = day_summary.no_reading_days(facts)
             except Exception as error:  # a store failure or a connection error (no driver import: `infra`)
                 if isinstance(error, (SiteStoreUnavailable, *unavailable)) or is_transient(error):
                     raise _day_range_refuse(unavailable_code) from error
@@ -255,7 +257,7 @@ def build_day_range_router(domain: str, period_reader: Callable[[], Any], chain_
                 domain, {"id": sid, "site_code": site.site_code, "site_name": getattr(site, "name", None),
                          "timezone": tz},
                 {"from": iso(window.from_), "to": iso(window.to), "known_at": iso(known)}, days, result, grades,
-                historical=known is not None and known < clock())
+                historical=known is not None and known < clock(), no_readings=no_readings)
             return {route: jsonable_encoder(body)}
 
         if responses is None:

@@ -124,6 +124,35 @@ def test_absent_day_row_reads_still_processing(store, engine) -> None:  # noqa: 
         assert body["days"][0]["state"] != "STILL_PROCESSING" and body["days"][0]["partial"] is True
 
 
+def test_pre_data_day_with_no_row_reads_no_data(store, engine) -> None:  # noqa: F811
+    """D-SR.70: a Site-local day before the Site's first reading, with no day row built, reads NO_DATA (not
+    STILL_PROCESSING) on both domains, with every figure null and the day not counted."""
+    from assetops_backend.chain.adapters.postgres_chain_read import PostgresChainRead
+    from assetops_backend.chain.reader import SnapshotReader
+    from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnapshotStore
+    from assetops_backend.chain.read import ChainReader
+
+    t, s, day = _fixture(store, engine)
+    pre = w402.DAYS[0] - timedelta(days=3)
+    days = [pre, day]
+    url = engine.url.render_as_string(hide_password=False)
+    port = PostgresChainRead(url, snapshots=SnapshotReader(PostgresSnapshotStore(url)))
+    facts = ChainReader(port).request(t, None).day(s, "MINIGRID", days)
+    assert pre in ds.no_reading_days(facts)
+    for kind in DAY_KINDS:
+        _builder(engine).build(t, _site(t, s), day, kind)
+    _consume_all(engine)
+    for kind, domain in pr.DAY_KINDS.items():
+        result = _periods(engine).read(t, [_site(t, s)], [kind], days[0], days[-1])
+        assert result.is_absent(s, pre, kind)
+        body = ds.compose(domain, {"id": s, "site_code": w402.CODE, "site_name": None, "timezone": w402.ZONE}, {},
+                          days, result, ds.day_grades(facts), historical=False,
+                          no_readings=ds.no_reading_days(facts))
+        first = body["days"][0]
+        assert first["state"] == "NO_DATA" and first["stored"] is False and first["status_counts"] is None
+        assert body["totals"]["days_counted"] <= 1
+
+
 def test_a_new_accepted_reading_dirties_and_the_tick_rebuilds_the_day_rows(store, engine) -> None:  # noqa: F811
     t, s, day = _fixture(store, engine)
     for kind in DAY_KINDS:

@@ -180,6 +180,32 @@ def test_each_day_reads_its_stored_day_row_and_state():
                                             "status_counts", "expected_use_l", "hours_with_use"))
 
 
+class NoDataPort(Port):
+    """D3 (absent row) has no snapshots (Q9: NO_DATA) and D5 (stored row, no assessment) grades NO_DATA."""
+
+    def snapshots(self, tenant_id, site_id, lo, hi, measures, known_at):
+        rows = super().snapshots(tenant_id, site_id, lo, hi, measures, known_at)
+        out = []
+        for r in rows:
+            if r.local_day == D0 + timedelta(3):
+                continue
+            out.append(_snap(r.local_day, "NO_DATA", r.measure) if r.local_day == D0 + timedelta(5) else r)
+        return tuple(out)
+
+
+def test_no_reading_days_read_no_data_with_or_without_a_row_and_are_not_counted():
+    """D-SR.70/72: a day whose every measure is NO_DATA reads NO_DATA, stored row or not; pending still wins."""
+    body = _body(port=NoDataPort())
+    days = body["days"]
+    assert [d["state"] for d in days] == ["ASSESSED", "ASSESSED", "ASSESSED", "NO_DATA", "STILL_PROCESSING",
+                                          "NO_DATA", "NOT_EXPECTED"]
+    assert (days[3]["stored"], days[5]["stored"]) == (False, True)
+    for d in (days[3], days[5]):
+        assert d["partial"] is False and d["expected_use_l"] is None and d["hours_assessed"] is None
+        assert d["hour_link"]
+    assert body["totals"]["days_counted"] == 3 and body["totals"]["partial"] is True
+
+
 def test_range_reads_rows_with_the_kill_switch_empty(monkeypatch):
     """D-SR.52: ASSETOPS_PERIOD_READ_KINDS selects stored rows over a compose, but the day kinds have no compose, so the
     range still reads the stored rows with the switch empty."""
