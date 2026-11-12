@@ -52,7 +52,7 @@ Branch merged with main bbec56c26. Rulings applied as written; no design.
 - **D-SR.42 (d):** pinned in `ui/__tests__/rangeLink.test.tsx` (3 cases). Implementation reading: a target that names its own `from` or `to` is returned as written (the address's other bound is never mixed in; a half range is the link's own choice); an own `known_at` wins and is not added twice; with none named, from/to/known_at are all added.
 - **D-SR.43:** `SiteAssetsFrame` and `SiteAssetFrame` declare "current settings"; pinned in `siteRangeTags.test.tsx` for mini, Cold and EV.
 - **D-SR.44:** Backup/Fuel keep the day tag (tests above). EV evidence and analysis reads: `evSiteClient` `getEvidence` and `getAnalysis` (`ev/evidence`, `ev/evidence/analysis`) send `from`/`to`/`known_at` from the address through `coldWindowSearch`, so **no SR-9 card is needed**. Cold and EV financial assumptions declare "prices valid now" (`evSiteRoutes.tsx`, `SiteAnalyticsFrames.tsx` cold branch); pinned in `siteRangeTags.test.tsx`; their range-money pages still say "All pages".
-- Checks: results at the end of this section.
+- Checks: App-level Site vitest, 87 files in 11 batches of 8 (`grep -rl "<App\b" ... | xargs grep -l "/sites/"`): 0 failures (103+143+197+380+231+148+90+318+155+149+181 tests). `tsc --noEmit` clean. `check-all.ps1 -Python /opt/assetecon/AssetOpsV1/.venv/bin/python`: 19/19 PASS (the Estate self-test failure noted earlier is gone with the merged main). Commit 286dd3237.
 
 ## Pre-flight answers (8.5)
 - (a) Route classes, every route under `/sites` in `App.tsx` (no operator `/performance/...` routes exist):
