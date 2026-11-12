@@ -75,4 +75,4 @@ Branch `task/SR-6-health-range`. Spec: rev 10 §10.2, rev 10a §10a.1, D-SR.19-2
 - L2: `test_health_range_reader_write_rejected` in `tools/checks/test_estate_guard.py`.
 - L1 named limit (D-SR.56): `gateway_diagnostic`, `gateway`, `source` are not watermark inputs, so a stored live body's contact state or `disabled` flag may lag until local midnight or a readings arrival. Comment in `site_health_range.py`.
 - L3: unchanged (merge SR-5 first). Main merged (D-SR.56).
-- Checks: no-DB SR-6/SR-5/S7 files 70 passed; `test_sr6_health_range_postgres.py` + route on assetops_sr6_test 38 passed, 0 skipped; test_estate_guard.py: see report. check-all: for coordinator.
+- Checks: no-DB SR-6/SR-5/S7 files 70 passed; `test_sr6_health_range_postgres.py` + route on assetops_sr6_test 38 passed, 0 skipped; test_estate_guard.py 17 passed (745 s). check-all: for coordinator.
