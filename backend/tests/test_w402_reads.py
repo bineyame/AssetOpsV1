@@ -135,6 +135,14 @@ def test_headless_daylight_hour_still_reads_unknown() -> None:
                                           "eligible_days", "assessed_days"))
 
 
+def test_day_with_only_missing_hours_reads_unknown() -> None:
+    """A day with no measured daylight hour (no pv reading at all) is a missing day, never dropped silently."""
+    hours, missing = _finding_day()
+    dark = [(DAYS[0], local_noon(DAYS[0], ZONE), None)]
+    got = compose_renewable([*dark, *hours], missing=missing | {(DAYS[0], dark[0][1].start)})
+    assert got["status"] == "UNKNOWN" and got["cards"]["assessed_days"] == 1
+
+
 def test_partial_day_never_establishes_recurrence() -> None:
     from assetops_backend.mini_depth.read import _stored_hour
 

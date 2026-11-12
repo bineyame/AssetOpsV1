@@ -274,12 +274,14 @@ def compose_renewable(hours: Sequence[tuple[date, rules.Window, dict[str, Any] |
     are left out of the decision, the cards and the UNKNOWN test; a day holding one is partial and never
     establishes recurrence."""
     counted = [(d, w, r) for d, w, r in hours if (d, w.start) not in missing]
-    missing_days = {d for d, _w, r in counted if r is None}
+    # A day is missing when a non-missing hour has no head, or when it has no non-missing hour at all (no daylight
+    # hour measured: the stored measure has no input and no value for it, so it is never silently dropped).
+    missing_days = {d for d, _w, r in counted if r is None} | ({d for d, _w, _r in hours} - {d for d, _w, _r in counted})
     selected = [_stored_hour(d, w, r) for d, w, r in counted if r is not None and d not in missing_days]
     cards = rules.summarize_renewable(selected, requested_days=len({d for d, _w, _r in hours}),
                                       partial_days={d for d, w, _r in hours if (d, w.start) in missing})
     decisions = [h.decision for h in selected]
-    if len(selected) < len(counted):
+    if len(selected) < len(counted) or missing_days:
         status = "UNKNOWN"
     elif any(d in ("LIMITED", "CONFLICT") for d in decisions):
         status = "LIMITED"
