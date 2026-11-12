@@ -5188,3 +5188,13 @@ Decisions logged for owner review: **D-SR.59**.
 - Size: the 0.05 from D-SR.58 Q2 becomes about 0.01, for the pin.
 
 Decisions logged for owner review: **D-SR.60**.
+
+## D-SR.61 SR-4: negative-offset zones use the range's date strings everywhere (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Source: `.agent/SR-4ab-review.md` re-review (f039e5d56).
+- **Confirmed: this is a D-SR.59 implementation defect.** The rule is that a UTC date names the Site-local day of the same date. So no path may take `localDateOf(tz, <UTC midnight>)`, because west of UTC that lands one local day early.
+- **The fix:** the long-range Renewable rule (the last 5 local days) and the Service/Backup/Fuel default hour (12:00 local of `pageDay`) use the date string itself, `range.to` / `pageDay`, as the short-range Renewable path already does.
+- **The fixture:** re-pin the Bogota windows deliberately. For example, Bogota "Yesterday" = 11 Nov gives 12:00 local on 11 Nov (17:00Z on 11 Nov). The +3 rows are unchanged, so the vitest and the backend contract test stay green on them.
+- **Before SR-4 merges: yes.** The demo Sites (+3) are unaffected. But the change is a few lines, and merging would put a wrong expectation into the contract fixture that is meant to stop this class of defect.
+
+Decisions logged for owner review: **D-SR.61**.
