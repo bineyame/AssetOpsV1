@@ -80,3 +80,57 @@ Fix H1 on the branch and this becomes ACCEPT WITH NOTES. No re-review of the cod
   reachable if every ELIGIBLE hour carries a bound; parity (0 mismatches) is the gate that would catch it.
 - Future `known_at` is not refused (only malformed is); the spec names no rule for it. Parity and the page are later
   gates.
+
+## D-SR.62 fix review (fresh Claude reviewer, 2026-11-12)
+
+Scope: 6377fea9e, b28fec415, 1a4d94dd5, 223783035 (`26c4845a7..HEAD`, 8 files). Basis: D-SR.62 in the build sheet,
+sequence doc §10e.1, packet "D-SR.62 fix".
+
+**Verdict: ACCEPT WITH NOTES.** The fix matches the ruling. Nothing blocks the merge. The notes are below.
+
+Verified:
+- The `missing` flag is carried through `hour_windows` (collector), `_Hour.missing` (last field, default False),
+  `_hour`, `_read`, `_job_fallback` (keeps the row's flag through `replace`), `build_period` (renewable branch only)
+  and `hour_json`/`hour_from_json`. A body with no `missing` key reads False. `BUILDER_VERSION` is `mini-depth-rows-2`.
+- `compose_renewable` leaves missing hours out of the decision, the cards and the UNKNOWN test. A headless daylight
+  hour still gives UNKNOWN. `partial_days` blocks `recurrence_established`. `missing_hours` is present on the
+  renewable envelope only.
+- 1a4d94dd5 (a day where every hour is missing stays UNKNOWN) is right on its merits. `RenewableHeadroom.inputs`
+  returns payload None when there are no heads, so `measure` gives MISSING_HOUR and null. Dropping that day would
+  invent a value the stored side does not have. The `test_w402_reads_postgres` expectations are unchanged.
+- Fuel, service and backup: `hour_windows` and the envelope are unchanged apart from the shared version bump. The
+  Grow board fixtures are unchanged and the board tests pass.
+- Tests are not vacuous. The Finding-day test asserts the flagless call is UNKNOWN. The pin calls the real
+  `RenewableHeadroom.measure`. The Postgres partial day asserts `missing_hours` 4, equal to the range row's uncovered
+  hours, and value equality.
+- No stray or ignored files: the worktree is clean and only the 8 named files changed.
+
+Checks I ran (PYTHONPATH = this worktree):
+- No-DB: sr8 route, w402 rules and reads, ar2 mini period rows, ch9 measures, and 8 board files (ch5a1, out_b1, out_c2,
+  out_d4, mb1, idx_gaps, k10, polish_pa1): **208 passed, 3 skipped**.
+- Postgres on `assetops_sr8_test`: `test_w402_reads_postgres.py` + `test_sr8_renewable_range_postgres.py`:
+  **8 passed** (4 m 03 s).
+- I did not run check-all (coordinator) or the parity rerun (needs the rebuild).
+
+Notes (none blocking):
+1. **Low. The packet says something inaccurate about old rows, and there is a risk for D-SR.63.** Packet line 67 says
+   a `-1` row "reads PENDING_RECOMPUTE". It does not. `hour_from_json` reads it safely (missing=False). But
+   `_from_rows` then looks up provenance under `pr.BUILDER_VERSION` (read.py:622). Stored blocks are keyed by builder
+   version (`_PROVENANCE ... AND builder_version = :v`), so any v1 row that has a head raises `MiniReadUnavailable`
+   (read.py:626), which is a 503. That is loud, not silent, and the mini kinds are off today. But the D-SR.63
+   `serve_env` switch, which is not built yet, keys on `period-rows.json ok: true`. A DB whose rows were built at v1
+   would turn the mini kinds on and 503 every stored mini read. Fix:
+   - correct the packet line;
+   - have the D-SR.63 switch also require no stale `mini_depth.*` rows (`stale_rows`) or the current builder version;
+   - otherwise, the rebuild in §10e.1 must come before any switch-on.
+2. **Low. The non-MINIGRID renewable envelope has no `missing_hours`.** `mini_depth_api.unsupported_envelope`
+   (mini_depth_api.py:88-105) builds a renewable envelope without the key, so the shape differs by Site type. When the
+   page work adds the field to `miniDepthClient.ts`, it must be optional, or the server should send
+   `"missing_hours": 0` there.
+3. **Residual risk (note only). A missing hour that still has a stored head.** This could happen when a revision was
+   written while the hour was covered and coverage was later withdrawn. The cards exclude such an hour, as the stored
+   measure does, but `renewable_envelope` still lists its rows and limitations. Rare. Watch for it in the parity rerun.
+4. **Residual risk (note only). Absent-row days.** An absent row renders the NO_PV_BINDING noon hour with
+   `missing_hours` 0. A live compose of a day with a binding but no readings gives 0 daylight hours plus N missing
+   hours. The status is UNKNOWN on both paths, but `missing_hours` differs. The parity runs after the rebuild, so it
+   should see no absent rows.
