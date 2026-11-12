@@ -20,7 +20,12 @@ Branch `task/SR-6-health-range`. Spec: rev 10 §10.2, rev 10a §10a.1, D-SR.19-2
   `{site, from, to, known_at}`, `sites`/`watermark_sites` = the Site; `perf.route` line. `battery` = the existing
   `battery_entry` body. `main.py`: included right after `estate_portfolio` (D-SR.23); source-health router unchanged.
 
-## Tests (commits 5bf2a45a9, 89f7b5866)
+- Guard fit (ae2759e59): the module receives `registration` (`evidence.composition.health_registration`) and
+  `counts` (`sites.composition.health_range_counts`) by injection (adapter imports only from compositions); the new
+  adapter is named as a read-only reader in `configuration-persistence.ps1` `$pgReaders` (the W3-01/W4-01 precedent;
+  the SQL-write refusal still applies to it). No guard loosened.
+
+## Tests (commits 5bf2a45a9, 89f7b5866, ae2759e59)
 
 - `backend/tests/test_sr6_health_range_route.py` (no DB): **29 passed** (with `test_sr5_range_overview.py`: 60 passed).
   Day pin vs SR-5a body on SR-5a's world; contact/source rule tables; 422 x5, 404 Cold/EV/unknown/out-of-scope,
@@ -30,7 +35,8 @@ Branch `task/SR-6-health-range`. Spec: rev 10 §10.2, rev 10a §10a.1, D-SR.19-2
   10-07); D-SR.19 cutoffs (all readings at max `decided_at`, none before the first, diagnostics cut at receipt);
   days equal SR-5a; rows on (absent `dispatch.day` rows) == rows off (D-SR.16).
 - Adjacent: `test_s7_source_health_rules.py` 6 passed.
-- Guards: see report (`check-all`, 19 guards).
+- Guards: `check-all` on ae2759e59: **All 19 guards passed** (first run failed 2 guards on the direct adapter
+  imports; fixed as above).
 
 ## Pending / resume
 
