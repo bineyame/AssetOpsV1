@@ -96,16 +96,25 @@ Env: venv of plan2; `PYTHONPATH` = this worktree's `contracts;backend;simulator`
 5. **Direct parity + timing on client4** (`scratchpad/probe_dd.py`, both Sites, `2026-10-11..2026-11-09`, 29 days,
    `ASSETOPS_PERIOD_READ_KINDS=dispatch.day`): rows == `select_dispatch_days_on` for all 29 days on both Sites
    (0 differing); rows read 360 ms (KOBO-001) / 127 ms (KISIWA-001) vs compose 20.4 s / 5.5 s.
-6. **Full parity harness on client4 (`--kinds dispatch.day`): NOT COMPLETE.** Started 03:07, killed by PID at 03:47
-   (40 min, past the 2x-of-13-min cap): the machine was running several other lanes' pytest/parity jobs (a second
-   parity started 03:37), so wall time is not representative. First attempt failed immediately with
-   `ModuleNotFoundError: lab_app` (needs `host` and `tools` on `PYTHONPATH`; fixed in the command). No result either way.
-   `perf_budget.py --any-range` not run. See resume point.
-7. check-all: see below (appended when finished).
+6. **Full parity harness on client4, `--kinds dispatch.day`** (rev `47a65f7eb` code, seed 20261111, random 16, prebuilt
+   routes, `--work/--story` e3c polish_client4): first try 03:07, killed at 40 min (machine contended by other lanes'
+   jobs); second try 04:00:53 -> ~04:34 (~33 min wall, machine still contended; over the 26 min cap, left to finish
+   because it was progressing): **`period_read_parity: PASS (59 cases, 0 mismatch, 0 unstable)`**, incl.
+   `any.between_revisions.site_day_snapshot` PASS. Portfolio cases are NOT faster in this run (e.g. story.39 51.5 s
+   oracle vs 53.7 s candidate; any.portfolio.3 54.2 vs 54.9 s) because `evidence_money.mini_grid_rows` still composes
+   the dispatch days (Known deviation 4, waits for AR-4); this run proves equality, not speed. The direct probe (5)
+   shows the read itself is 127-360 ms against 5.5-20 s. Not run: AR-2 kinds + dispatch.day together;
+   `perf_budget.py --any-range` before/after; the Site-local-week and cursor-page parity additions (item 4 of Thursday
+   list).
+7. **check-all** (`-Python` plan2 venv): 17 of 19 guards PASS; 2 FAIL, both frontend-tool guards ("Missing-claim orphan
+   scan", "Missing-claim scan fixtures"): `MODULE_NOT_FOUND` from `frontend/package.json` - this worktree has no
+   `frontend/node_modules` (environment, not this branch's code; not installed here). Run time 56 min under load.
+   Passed include: Event register guard 12, Chain coherence 182, Fuel wording 21, Period read parity self-test, Perf
+   budget fixtures, architecture checks.
 
 Known deviation (new): none beyond 1-7 above; note 4 (AR-4's `evidence_money` still composes) unchanged.
 
-Resume point: rerun parity when the machine is quiet:
+Resume point (only for the not-run items above; parity itself passed):
 `cd AssetOpsV1-ar3; PYTHONPATH=<ar3>/contracts;backend;simulator;host;tools; ASSETOPS_PREBUILT_ROUTES=<e3c>/var/polish_client4/prebuilt-routes.json;
 python tools/checks/period_read_parity.py --database-url <client4> --work <e3c>/var/polish_client4 --story <same>/story.json
 --seed 20261111 --random 16 --kinds dispatch.day` (client4 already has the dispatch.day rows), then perf_budget.
