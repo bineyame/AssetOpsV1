@@ -4378,3 +4378,22 @@ Decision logged for owner review: **D-HON.1**.
 - **Builder change:** none now. Backlog item: add one fixture with complete readings that asserts F05 placement, so the placement path is again covered by a test with readings.
 
 Decision logged for owner review: **D-F05.1**.
+
+## D-ANY.8 Order of the remaining any-range speed work for 17 Nov (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Owner priority: "the speedup for any date range prioritised". Freeze: AR-4 held unmerged if not ACCEPTed by Sat 14 Nov 20:00.
+- **Why this order.** The AR-4 profile (client4, cold, store off, unlisted week with claim rows) puts ~13 s of 11.7-14.5 s in dispatch-day compose reached through `evidence_money.mini_grid_rows` → `coverage._mini_grid_basis`, then `_mini_grid_money` 4.1 s and `consequence_provenance` 3.3 s. The dispatch-day cost is already solved by AR-3's `dispatch.day` rows (127-360 ms per Site-range, parity 59/0/0). So the Portfolio switch to those rows is the largest single cut, money.lines is next, and provenance is last.
+- **1. AR-3 + AR-6 merges as it is (lane A, by Fri 14:00).** Do not add the Portfolio switch to AR-3. It is under review, and a new line would reopen the review.
+- **2. The switch goes on AR-4 (`task/ANY-2-AR4`), after AR-3 is on main.** AR-4 does not merge the AR-3 branch in. It rebases onto main once AR-3 merges, so the reviewed AR-3 code is carried once and fix rounds are not duplicated. The switch is the one-line change in `evidence_money.mini_grid_rows` to read `coverage.dispatch_days` (AR-3's row reader). `estate/coverage` stays untouched (AR-3's files).
+- **3. Until AR-3 merges, the AR-4 builder builds money.lines (MN-1/2/3)** with code and no-DB tests only, including the rev-5 contract: declare `price.revised@1` (`by_assumption_key`, days from the valid date to today) and rebuild those rows when a price is saved (PR-3).
+- **4. Order of Postgres work on AR-4 (priority 2, after AR-3):** (a) rebase + switch, then parity and timings; (b) money.lines parity and timings.
+- **Minimum to call AR-4 done for 17 Nov:** evidence.claim (built) + the dispatch.day switch, with the evidence below. **money.lines is IN only if** its parity, including the price-save case, passes by **Sat 12:00**. If it does not, its commits move to `task/ANY-2-AR4b` (backlog), and AR-4 goes to review as claim + switch. The review starts Sat by 12:00 and AR-4 merges by 16:00 (rev-5 lane C).
+- **Backlog (not 17 Nov):** evidence.provenance (cold/EV pinned windows), AR-5 (the pre-load list stays as the safety net), and money.lines if it misses Sat 12:00.
+- **If AR-3 is held:** AR-4 merges as claim-only without the switch, provided its own parity passes. That is still faster (week 17.6-19.4 s → 11.7-14.5 s).
+- **Evidence required for merge:**
+  - Byte-equal parity on client4 over the combined path that ships (claim rows + dispatch.day rows + money.lines if IN), 0 mismatches. It must keep the D-ANY.5/D-ANY.7 cases: a no-revision day, and a selected-revision-without-row day.
+  - If money.lines is IN, it must also pass a price-save case. A price revision whose valid date falls mid-range rebuilds rows from the valid date to today and stays byte-equal to compose before and after the save. PR-3's Postgres flow test is rerun by whichever of AR-4 and PR-3 merges second.
+  - Timings on client4, cold, store off, with a profile of each: the unlisted week, the 22 days, and a 31-day month, each before and after.
+  - The ≤2 s target (rev 4 / ANY-1) is reported, not gated: the gate is parity + no regression. A miss is stated honestly in the packet, with what remains (provenance, money if out). Presenter rule D-ANY.4 still holds for Portfolio ranges over 2 s.
+
+Decision logged for owner review: **D-ANY.8**.
