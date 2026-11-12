@@ -39,6 +39,7 @@
       "finding_count": 1,
       "money": null,
       "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
       "state": "FINDINGS"
     },
     {
@@ -47,6 +48,7 @@
       "finding_count": 0,
       "money": null,
       "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
       "state": "CLEAR"
     },
     {
@@ -55,6 +57,7 @@
       "finding_count": 0,
       "money": null,
       "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
       "state": "CLEAR"
     },
     {
@@ -63,6 +66,7 @@
       "finding_count": 0,
       "money": null,
       "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
       "state": "CLEAR"
     },
     {
@@ -71,6 +75,7 @@
       "finding_count": 0,
       "money": null,
       "money_state": "NO_ELIGIBLE_LINES",
+      "retired_finding_count": 0,
       "state": "CLEAR"
     },
     {
@@ -79,6 +84,7 @@
       "finding_count": null,
       "money": null,
       "money_state": "WITHHELD",
+      "retired_finding_count": null,
       "state": "NOT_ANALYSED"
     },
     {
@@ -87,6 +93,7 @@
       "finding_count": null,
       "money": null,
       "money_state": "WITHHELD",
+      "retired_finding_count": null,
       "state": "NOT_ANALYSED"
     }
   ],
@@ -94,7 +101,8 @@
     "accepted_readings": null,
     "days_analysed": 5,
     "days_requested": 7,
-    "days_with_findings": 1
+    "days_with_findings": 1,
+    "days_with_retired_findings": 0
   },
   "findings": {
     "awaiting_verification": 0,

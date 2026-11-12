@@ -129,6 +129,8 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
             lo = datetime.combine(d, time(0), tzinfo=timezone.utc)
             hi = lo + timedelta(days=1)
             count = sum(1 for r in members if intersects(r["_at"], r.get("_episode_end"), lo, hi))
+            retired = sum(1 for r in f_rows if r["lifecycle"] not in MEMBERS
+                          and intersects(r["_at"], r.get("_episode_end"), lo, hi))
             if state == ANALYSED:
                 state = FINDINGS if count > 0 else CLEAR
             gap = state in GAP_STATES or state in (STILL_PROCESSING, NOT_EXPECTED)
@@ -140,6 +142,7 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
             readings = None if row is None else row.get("accepted_reading_count")
             days_out.append({"day": d.isoformat(), "state": state,
                              "finding_count": None if state in GAP_STATES else count,
+                             "retired_finding_count": None if state in GAP_STATES else retired,
                              "money": amount, "money_state": money_state,
                              "accepted_readings": None if state in GAP_STATES else readings})
 
@@ -184,6 +187,7 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
                         "verified_resolution_count": prog["verified_resolution_count"]},
             "dispatch": {"days_requested": requested, "days_analysed": checked,
                          "days_with_findings": sum(1 for x in days_out if x["state"] == FINDINGS),
+                         "days_with_retired_findings": sum(1 for x in days_out if x["retired_finding_count"]),
                          "accepted_readings": None if any(v is None for v in values) else sum(values)},
             "days": days_out,
             "links": {"findings": f"/sites/{site['site_code']}/findings",

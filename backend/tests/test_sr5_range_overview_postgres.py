@@ -192,6 +192,7 @@ def test_all_s4_cases_day_states_totals_portfolio_and_drill_in(mini, monkeypatch
     analysed = [d for d in out["days"] if d["state"] in (FINDINGS, CLEAR)]
     assert out["dispatch"] == {"days_requested": 21, "days_analysed": len(analysed),
                                "days_with_findings": sum(1 for d in analysed if d["state"] == FINDINGS),
+                               "days_with_retired_findings": sum(1 for d in analysed if d["retired_finding_count"]),
                                "accepted_readings": sum(d["accepted_readings"] for d in analysed)}
     assert out["dispatch"]["days_analysed"] == 9 and out["dispatch"]["days_with_findings"] == 6
     assert out["money"]["card"]["state"] == "NO_LINE" and out["money"]["quantity"] is None
@@ -214,10 +215,13 @@ def test_all_s4_cases_day_states_totals_portfolio_and_drill_in(mini, monkeypatch
         response = client.get(f"/api/sites/KOBO-001/overview?date={d['day']}")
         assert response.status_code == 200, response.text
         selected[d["day"]] = response.json()["known_finding"]
-    differ = {day for day, kf in selected.items() if (kf is not None) != (ALL_CASES_DAYS[day] == FINDINGS)}
-    # Recorded spec conflict (packet, question to the Architect): F05's 10-21 Finding is NO_LONGER_SUPPORTED. The day
-    # count takes MEMBERS only (rev 9 §9.4), the one-day board selects the latest revision of every canonical Finding.
-    assert differ == {"2026-10-21"}, differ
+    # D-SR.50: agreement. The board's Findings on a day = members (finding_count) + retired (retired_finding_count);
+    # F05's 10-21 Finding is NO_LONGER_SUPPORTED, so 10-21 reads CLEAR with one retired Finding.
+    by_day = {d["day"]: d for d in analysed}
+    for day, kf in selected.items():
+        assert (kf is not None) == (by_day[day]["finding_count"] + by_day[day]["retired_finding_count"] > 0), day
+    assert by_day["2026-10-21"]["state"] == "CLEAR" and by_day["2026-10-21"]["retired_finding_count"] == 1
+    assert by_day["2026-10-21"]["finding_count"] == 0
     with runner.engine.connect() as c:
         lifecycle = c.execute(text("SELECT lifecycle FROM finding_revision WHERE id = :r"),
                               {"r": selected["2026-10-21"]["revision_id"]}).scalar_one()

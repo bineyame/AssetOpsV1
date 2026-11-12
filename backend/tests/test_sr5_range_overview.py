@@ -265,3 +265,29 @@ def test_finding_count_follows_the_portfolio_finding_known_rule(world, monkeypat
     monkeypatch.setattr(site_range, "_status", lambda *a: "UNKNOWN")
     findings = site_range_body(world.service, T, KOBO, _req())["findings"]
     assert findings["count"] is None and findings["confirmed"] == 1
+
+
+# --- SUMMED / OVERLAPPING day money, stub rows (D-SR.50 2c; the demo parity covers real data) ---------------------
+
+def _line(low, high, currency="USD", group=None, eligibility=None):
+    return {"eligibility": eligibility or site_range.ELIGIBLE, "overlap_group": group,
+            "amount": {"low": low, "high": high, "currency": currency}}
+
+
+def test_day_money_summed_and_overlapping_stubs() -> None:
+    total, state = site_range._sum_lines([_line("1.50", "2.00"), _line("3.00", "4.25")])
+    assert state == "SUMMED" and total == {"low": "4.50", "high": "6.25", "currency": "USD"}
+    # distinct overlap groups still sum; a shared group is OVERLAPPING and shows no total
+    assert site_range._sum_lines([_line("1", "2", group="a"), _line("3", "4", group="b")])[1] == "SUMMED"
+    assert site_range._sum_lines([_line("1", "2", group="a"), _line("3", "4", group="a")]) == (None, "OVERLAPPING")
+    # ineligible lines never enter the sum; none eligible reads NO_ELIGIBLE_LINES; mixed currency is withheld
+    assert site_range._sum_lines([_line("1", "2"), _line("9", "9", eligibility="X")])[0]["high"] == "2"
+    assert site_range._sum_lines([_line("9", "9", eligibility="X")]) == (None, "NO_ELIGIBLE_LINES")
+    assert site_range._sum_lines([_line("1", "2"), _line("1", "2", currency="EUR")]) == (None, "CURRENCY_MIXED")
+
+
+def test_every_day_carries_retired_count_and_totals(world) -> None:
+    body = site_range_body(world.service, T, KOBO, _req())
+    for day in body["days"]:
+        assert isinstance(day["retired_finding_count"], int) == isinstance(day["finding_count"], int)
+    assert body["dispatch"]["days_with_retired_findings"] == sum(1 for d in body["days"] if d["retired_finding_count"])

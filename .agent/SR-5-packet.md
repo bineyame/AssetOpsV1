@@ -106,3 +106,10 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
   (mill), domain-actions/:id/fuel-verification, fuel-findings/:findingId, work/incidents + work/maintenance
   subtabs, foundation/changes/:changeId, performance/:capabilityId subtabs other than Dispatch/Service/Renewable,
   /maintenance/requests/:caseId(/record|/history), Cold/EV assets ("TO FINISH ON VPS").
+
+## Fix round D-SR.50 / 10d.10 (server)
+- `site_range.py`: each day gains `retired_finding_count` (non-member latest revisions from the same `f_rows` read and `intersects` rule; null on gap days); `dispatch.days_with_retired_findings` added. State stays CLEAR. `f_rows` carries lifecycles, no second query.
+- Postgres 10-21 pin now asserts agreement (board Findings = finding_count + retired_finding_count; 10-21 CLEAR, finding_count 0, retired 1; F05 NO_LONGER_SUPPORTED). Dispatch totals pin gained the new key.
+- No-DB stubs: `_sum_lines` SUMMED / OVERLAPPING / NO_ELIGIBLE_LINES / CURRENCY_MIXED; retired-count shape test. Golden `kobo_partial.json` regenerated (new keys only).
+- Results: no-DB file 33 passed; Postgres file (assetops_sr5_test) 5 passed, 66 s.
+- Not done (page): row wording "Checked: no current findings · 1 finding no longer supported" and the totals line live in the range page, which is not in this server round; the API fields it needs are in place.
