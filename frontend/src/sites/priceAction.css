@@ -1,0 +1,8 @@
+/* PR-1 (BL-68): the server's "Set a …" / "What is needed to price this" link under an unpriced item. */
+.price-action-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}

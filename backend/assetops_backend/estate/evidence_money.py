@@ -30,7 +30,7 @@ from assetops_backend.analytics.cold_site_reads import (  # noqa: F401 (re-expor
 from assetops_backend.ev_site_reads import CLAIMS as EV_CLAIMS, NEXT_EVIDENCE as EV_NEXT, TARIFF_ROLE, EvSiteReads
 from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PENDING, STALE, UNKNOWN,
-    local_day_grades_kw, not_applicable, site_coverage)
+    data_gap_days, local_day_grades_kw, not_applicable, site_coverage)
 from assetops_backend.estate.period_rows import day_revision
 from assetops_backend.estate.index import (
     EstateIndexService, _coverage_site, _coverage_state, _status, _token_site)
@@ -548,6 +548,29 @@ class EstateEvidenceService(EstateIndexService):
                 per_site, _ = select_evidence_scope(snap, tenant_id, req, scope)
                 for site, domain, cov, site_rows in per_site:
                     out[site["site_code"]] = evidence_cell_state(domain, cov, site_rows, bool(snap.basis_historical))
+            return out
+
+        return work(snap) if snap is not None else self._read(work)
+
+    def site_data_gap_days_many(self, tenant_id: Any, site_codes: Iterable[str], from_: datetime, to: datetime,
+                                known_at: datetime | None = None, *, snap: Any = None
+                                ) -> dict[str, dict[Any, str]]:
+        """HON-1: each authorized mini-grid Site's D-E5.46 data-fact gap days over `[from_, to)` (day -> READINGS_CONFLICT
+        | NOT_ENOUGH_READINGS), by the estate coverage's own rule (`coverage.data_gap_days` over the same
+        `snap.dispatch_days` read at the scope cutoff), on ONE snapshot. A Site with none, a Site of another domain
+        or outside the authorized set is absent. `chain.claims.data_gap_provider` (wired in `main.py`)."""
+        codes = list(dict.fromkeys(site_codes))
+        req = estate_request("evidence", from_, to, known_at)
+
+        def work(snap: Any) -> dict[str, dict[Any, str]]:
+            out: dict[str, dict[Any, str]] = {}
+            scope = self._scope(snap, tenant_id, req, _admit_any(codes))
+            for site in scope["sites"]:
+                if DOMAIN_OF_SITE_TYPE.get(site["site_type"]) != MINI_GRID:
+                    continue
+                gaps = data_gap_days(snap.dispatch_days(tenant_id, site["site_id"], req.from_, req.to, scope["k"]))
+                if gaps:
+                    out[site["site_code"]] = gaps
             return out
 
         return work(snap) if snap is not None else self._read(work)

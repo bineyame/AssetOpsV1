@@ -1,5 +1,223 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 5a (Architect, Claude, 2026-11-12): order of the remaining any-range speed work
+
+- Ruling **D-ANY.8** (`build-sheet-OWN-GAPS-2026-11-08.md`). Lanes and the freeze in 5.5 are unchanged.
+- **Order:**
+  1. AR-3 + AR-6 merge as they are.
+  2. AR-4 rebases onto main (it does not merge the AR-3 branch) and switches `evidence_money.mini_grid_rows` to `coverage.dispatch_days`.
+  3. money.lines (MN-1/2/3, with the PR-3 price-save refresh) is built meanwhile, code and no-DB tests first.
+  4. evidence.provenance goes to the backlog.
+- **AR-4 minimum for 17 Nov:** claim rows + the switch. money.lines is IN only if its parity passes by Sat 12:00; otherwise it moves to `task/ANY-2-AR4b`. The ≤2 s target is reported, not gated.
+
+## Revision 5 (Architect, Claude, 2026-11-12): price entry back IN, saved as "Entered by site admin"
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).
+- Owner, verbatim (`.agent/owner-price-entry-in-scope-2026-11-12.md`): "yes, price entry in scope as site admin"
+- Supersedes revision 4's "PR-3 out" line only. AR-3+AR-6, AR-4, PR-1 and PR-2a stand as written. The attribution rule is **D-PRICE.1** (`build-sheet-OWN-GAPS-2026-11-08.md`).
+
+### 5.1 What PR-3 is for 17 Nov (scope ruling)
+
+- **IN:** a price form on the Site price page that saves one of the **three stored keys** (`diesel_price_per_litre`, `ev_gross_tariff_per_kwh`, `productive_use_price_per_kwh`, `financials/assumptions.py:30`), recorded as "Entered by site admin". It uses the dip-form precedent, and the same entry service and switch.
+- **OUT of PR-3, kept out:**
+  - New keys (`repair_visit_cost`, `planned_service_cost`, `charger_repair_cost`, `interrupted_session_cost`, `stock_value_at_risk`). No figure reads them. Saving one would change nothing on screen, and the page would then say something untrue ("the figures update once it is set"). Early warnings carry no money today (`test_out_c1_never_money`), so pricing a warning is a new money consumer, not a form.
+  - Roles, sign-in and the human route. `POST /financial-assumptions` stays refused (`HUMAN_PRINCIPAL_REQUIRED`), and its tests are unchanged.
+  - The "N figures change" preview count.
+- **PR-4: not needed.** The recalculation path already exists:
+  - a revision insert raises `price.revised` in `event_outbox` (trigger, migration `0044_chain_events.py:57-60`; register `config/chain/event-register-v1.yaml:13`, `by_assumption_key`);
+  - diesel and EV publications queue consequence work (0011/0026 triggers);
+  - the demo serve's tick (every 120 s, `tools/demo_combined.py:23`) drains `consequence`, `ev_consequence` and `chain_snapshots`;
+  - affected figures read the existing `PENDING_RECOMPUTE` "Updating…" until then;
+  - the productive-use price is read at request time (0040), so it shows at once.
+  "Priced on" and "Restated on" notes (BL-67c) stay out.
+- **PR-5: not needed** for a stored key; stays out.
+- **Owner option, not the default (needs sign-off and pushes FR-B out): PR-3b, "price the visits warning", +0.75.** It adds the key `repair_visit_cost` (migration and unit), a priced part on REPEATED ("3 visits × 120 USD (your price)", never summed with the open part), and a ruling that relaxes never-money for that one warning. Only if the owner asks.
+
+### 5.2 Where the dip form writes and how it is attributed (precedent, cited)
+
+- Route: `POST /api/sites/{site_code}/work/operational-entries` (`backend/assetops_backend/work_api.py:198-216`).
+- Actor: the server-configured entry service `ENTRY_PRINCIPAL = "service:operator-entry"` with attestation `service=operator-entry;job=site-admin-entry;rule=oprec-entry/1` (`backend/assetops_backend/work/operational_entry.py:25-27`). The browser never sends an actor.
+- Switch: `ASSETOPS_OPERATIONAL_ENTRY=on`, read in `host/lab_app.py:77-97` (`operational_entry_from_environment`) and injected as `operational_entry_principal` (`main.py:248, 627`). The demo serve sets it (`tools/demo_combined.py:779`).
+- Label: `OPERATOR_ENTRY_LABEL = "Entered by site admin"` (`frontend/src/work/OperationalRecords.tsx:89-90`; owner Q3, build sheet §3.1 line ~686).
+
+### 5.3 PR-3 technical design (builders do not design)
+
+**Server constants (new, in `financials/assumptions.py`):**
+- `SITE_ADMIN_CHANNEL = "SITE_ADMIN_ENTRY"`; `SYSTEM_CHANNELS` becomes `("SYSTEM_CLI", "SYSTEM_FIXTURE", "SITE_ADMIN_ENTRY")`.
+- `SITE_ADMIN_PRICE_PUBLISHER = SystemPrincipal(actor_id="service:operator-entry", authorization_basis="SITE_ADMIN_ENTRY: entered on screen through the server-configured entry service, labelled 'Entered by site admin'; no signed-in person (D-PRICE.1)", actor_kind="SYSTEM")`. The actor id is `ENTRY_PRINCIPAL` imported from `work/operational_entry.py`, not retyped.
+- Provenance on every entry: `{"service": "operator-entry", "job": "site-admin-price-entry", "rule": "price-entry/1"}`, plus `"entry_note": <reason>` only when a reason is sent for a non-correction (below).
+
+**Migration (next free number; `0060_site_admin_price_entry` expected).**
+- Widen the `financial_assumption_revision` channel CHECK to `('SYSTEM_CLI','SYSTEM_FIXTURE','HUMAN_API','SITE_ADMIN_ENTRY')`. Guard on the installed constraint name, as 0040 does.
+- The actor CHECK (`0010:76-78`) is unchanged and still holds: SYSTEM actor, no `author_id`, channel ≠ `HUMAN_API`.
+- Downgrade refuses while any row has channel `SITE_ADMIN_ENTRY`, then restores the 0010 CHECK.
+- No new table. If AR-4 or another branch takes the number first, whoever merges second renumbers and re-chains `down_revision`.
+
+**Route.** `POST /api/sites/{site_code}/financial-assumptions/entries`, in `financial_api.py` `build_financial_assumption_router`. New keywords: `entry_principal: Principal = no_service_principal` (the same injected `operational_entry_principal`, so the one switch `ASSETOPS_OPERATIONAL_ENTRY` covers dips and prices), `store` (the assumption store or None), `site_zone` (`(tenant_id, site_id) -> ZoneInfo`, using the Site time-zone lookup that `entry_site_context` uses) and `read_access` (the price read's access). The existing human route is untouched.
+
+Request, a closed JSON object; any other key gives 422 `PRICE_ENTRY_INVALID` with `fields`:
+
+```json
+{"key": "diesel_price_per_litre" | "ev_gross_tariff_per_kwh" | "productive_use_price_per_kwh",
+ "value": "1.45", "currency": "USD",
+ "basis": "AUTHORED_ESTIMATE" | "CONTRACT_RATE" | "RECORDED_PURCHASE",
+ "source": "Supplier contract SC-88", "applies_from": "2026-11-10",
+ "reason": "Contract rate replaces the estimate" | null,
+ "dry_run": false, "idempotency_key": "price-entry-<32 lowercase hex>"}
+```
+
+Refusal order (fixed and tested); every refusal is `{"detail": {"code", "message"}}` and nothing is written:
+1. 404 when `scope(site_code)` is None.
+2. 403 `SITE_SCOPE_FORBIDDEN` from `read_access`.
+3. 403 `PRICE_ENTRY_OFF`, "Saving prices is switched off on this server.", when `entry_principal` is None.
+4. 422 `BODY_NOT_JSON`.
+5. 422 `CLIENT_ACTOR_FORBIDDEN` (the existing `_client_actor_fields`).
+6. 422 `PRICE_ENTRY_INVALID` for shape:
+   - `key` one of the three;
+   - `value` matches `^[0-9]{1,6}(\.[0-9]{1,4})?$` and is > 0;
+   - `currency` in `ISO_4217`;
+   - `basis` one of `BASES`;
+   - `source` 1-120 characters after trimming, with no control characters;
+   - `applies_from` an ISO date;
+   - `reason` null or 1-200 characters;
+   - `dry_run` a boolean, optional (default false);
+   - `idempotency_key` matches `^price-entry-[0-9a-f]{32}$`.
+7. 422 `PRICE_KEY_NOT_ENTERABLE` for a known future key (the PR-1 `PRICE_NOUN` keys outside `STORED_KEYS`): "No figure uses this price yet, so it cannot be saved here."
+8. 503 `ASSUMPTION_STORE_UNAVAILABLE` when there is no store.
+9. Derivation (below), then 422 `APPLIES_FROM_OUT_OF_RANGE`, `CURRENCY_DIFFERS` or `REASON_REQUIRED`.
+10. The store's own `PublicationRefused` status and code pass through unchanged (409 overlap codes, idempotency conflict).
+
+**Derivation (server only; the browser never sends a change kind, an instant or an actor).**
+- `valid_from` is Site-local midnight of `applies_from`, as UTC. `valid_to` is None.
+- Bounds: from Site-local today − 400 days to today + 366 days.
+- The current series is read once (`store.snapshot`, current). `expected_prior_revision_id` is the series' highest revision, or None.
+- Change kind:
+  - no current assignment overlaps `[valid_from, ∞)` → `INITIAL`;
+  - an overlap, and `valid_from` ≥ server now → `SUCCESSION`;
+  - an overlap, and `valid_from` < server now (today or earlier) → `CORRECTION`. `reason` is required here, else 422 `REASON_REQUIRED`: "This date changes figures already shown. Say why."
+- A reason sent with INITIAL or SUCCESSION is kept as `provenance.entry_note`, never as `correction_reason` (the store refuses that, `assumptions.py:147`).
+- Currency must equal the series' current currency when a series exists ("This site's {noun} is kept in {CUR}."). With no series, any active ISO code is allowed.
+
+**Dry run** (`"dry_run": true`). Runs steps 1-9 and `plan_assignments` (pure). It never calls `publish`. The response is 200:
+`{"dry_run": true, "change_kind", "applies_from", "reason_required": bool, "summary"}`. The summary is server words:
+- INITIAL: "First {noun} for {Site}: {value} {CUR} per {unit} from {d MMM yyyy}. Figures from that date get a price."
+- SUCCESSION: "New {noun} from {date}. Earlier figures keep the current price."
+- CORRECTION: "Correction from {date}. Figures from {date} are recalculated with this price; the earlier version is kept in the history."
+
+**Save.** `store.publish(tenant_id, site_id, Publication(..., channel="SITE_ADMIN_ENTRY", source_reference=source, provenance=...), SITE_ADMIN_PRICE_PUBLISHER)`.
+- The response is 201 for new, or 200 when `replayed` (same idempotency key and digest):
+  `{"revision_id", "revision_no", "change_kind", "applies_from", "recorded_at", "replayed", "set_by": "Entered by site admin", "summary"}`.
+- The summary reads: "Saved. {Noun} {value} {CUR} per {unit} from {date}. Figures that use it read "Updating…" for a few minutes, then show the new price."
+- No recompute runs inline. The tick does it (5.1).
+
+**How a saved price reaches PR-1 and PR-2a reads.** No new read code:
+- PR-1 `price_action` is attached only to UNPRICED items. Once the price covers the window, the item reads priced and the link disappears.
+- PR-2a's page read lists the new revision in History. It must map `actor_id` to `set_by_label`: `service:assetops-assumption-publisher` → "AssetOps administrator"; `service:operator-entry` → "Entered by site admin". The words are the server's. If PR-2a merges first, it ships the map with both entries.
+- PR-2a's page read gains `entry: {"enabled": bool, "keys": [the stored keys this Site uses]}`. `enabled` is false when the principal is not configured, or when the request carries `known_at`.
+- **AR-4 contract line:** the `money.lines` kind must declare `price.revised@1` (`by_assumption_key`, days from the valid date to today) in the register. PR-3's Postgres flow test must pass on whichever path is live, and whichever of AR-4 and PR-3 merges second reruns it.
+- The response store needs nothing new. The outbox insert moves the watermark, and a test pins that a stored Financials body is not served after a save.
+
+**UI (on the PR-2a page; `price-it.html` Part B is the base layout).**
+- Rows of entry keys gain a **"Set a new price"** button. When the page opens with `?key=` set to an entry key, that row's form is open on arrival.
+- The form opens **inline under its row** and stacks to one column at 390 px. Fields, all words from the server or one words file:
+  - **Amount**, with its unit suffix ("USD per litre");
+  - **Currency**: read-only text when a series exists, otherwise a select;
+  - **Basis**: three radios, "An estimate", "A contract rate", "A recorded purchase";
+  - **Where this price comes from** (required);
+  - **Applies from**: date, default Site-local today;
+  - **Reason**: shown when the dry run says `reason_required`.
+- Two steps: **Continue** sends the dry run and shows its `summary` in a confirm panel; **Save price** posts.
+- One idempotency key per opened form, reused on every retry.
+- After save: the page stays, shows the server `summary` as a success note, re-reads the page (the row shows the new value; History's top entry reads "Entered by site admin"), and keeps "← Back to where you were" prominent.
+- The sign-in sentence becomes: "Prices saved here are recorded as entered by site admin until sign-in is available."
+- PR-1 label, server words in `price_action.wire`: a `SET_PRICE` key outside `STORED_KEYS` reads **"What pricing this needs →"** instead of "Set a {noun} …", so no link promises a save that cannot happen.
+
+**Honest states.**
+
+| State | What the user sees |
+|---|---|
+| Entry off (`enabled` false, no `known_at`) | The draft's sentence, "Prices are set by your AssetOps administrator until sign-in is available.", and no form |
+| `known_at` view | "You are viewing prices as known at {k}. Set a price from the live view →" (the link drops `known_at`); no form |
+| Future key row | "Not set" and "Saving this price comes once a figure uses it."; no button |
+| 422 or 409 | The server message inline, and "Nothing was saved." |
+| 503 | "Prices cannot be saved right now. Nothing was saved." |
+| Network loss on save | "We could not confirm the save. Saving again is safe." (same key) |
+| After save | Affected figures elsewhere show the existing "Updating…" until the tick; no new state |
+
+**Tests.**
+- **Backend, no DB** (`test_pr3_price_entry.py`):
+  - each refusal in order;
+  - each shape field;
+  - a future key refused;
+  - the change-kind table (none → INITIAL; tomorrow → SUCCESSION; today and past → CORRECTION, with REASON_REQUIRED);
+  - `valid_from` at Site-local midnight for a non-UTC zone;
+  - a dry run never calls `publish` (spy);
+  - the actor, channel, attestation and provenance literals;
+  - `entry_note`;
+  - `set_by` and summary words;
+  - the PR-1 label for future keys;
+  - `entry.enabled` false under `known_at`.
+- **Postgres** (own `*_test` DB, `test_pr3_price_entry_postgres.py`):
+  - 0060 up and down, and down refused while a row exists;
+  - a saved row has channel `SITE_ADMIN_ENTRY`, actor `service:operator-entry` and no `author_id`;
+  - a `price.revised` outbox row;
+  - a diesel CORRECTION queues consequence work, and after one drain (`recompute.run`, plus the chain snapshot consume and drain) the fuel-cost money line reads the new price, while the same read "as known at" before the save reads the old one;
+  - a replay returns 200 with one row;
+  - a productive-use INITIAL on a Site without one makes the mill value priced on the next read, and its `price_action` disappears;
+  - a stored Financials response is not served after a save.
+- **Frontend** (`sitePriceEntry.test.tsx`):
+  - the form shows only on entry keys and only when `enabled`;
+  - `?key=` opens the form;
+  - Continue → dry run → summary;
+  - the reason field appears on `reason_required`;
+  - the save body has no actor field and reuses the key on retry;
+  - the success note and re-read;
+  - each honest state.
+- **Guards:** hardwiring, missing-claim, mock-deviation labels and architecture check.
+- Layout evidence at 1440 and 390 px for the open form and the success note.
+
+**Units: 1.0 agent unit.** Server, migration and tests 0.55; frontend form and states 0.35; the Postgres flow test 0.1. Opus for the first build, Sonnet for fix rounds.
+
+### 5.4 Defaults: owner sign-off needed, and which can stand
+
+| # | Default | Owner sign-off? |
+|---|---|---|
+| 1 | Address `/sites/:code/financials/prices` (draft choice 1; PR-1 built it) | yes, draft choice |
+| 2 | "Assumptions" subtab becomes "Prices"; the old address forwards (choice 2) | yes, draft choice |
+| 3 | Future keys listed as "Not set", with "Saving this price comes once a figure uses it." and no button (choice 3, sharpened) | **yes** |
+| 4 | Half-simple warnings link their simple part (choice 4). Their keys are future keys, so the link reads "What pricing this needs →" for 17 Nov | **yes** (changes PR-1 words) |
+| 5 | Model items open Part C, with no "Tell your contact" (choice 5) | yes, draft choice |
+| 6 | Form inline under the row; Continue → confirm → Save price; stay on the page with the success note and Back link | **yes** |
+| 7 | Sentence: "Prices saved here are recorded as entered by site admin until sign-in is available." | **yes** (copy) |
+| 8 | Preview is the change-kind sentence only, with no "N figures change" count (spec §4.2 reduced) | **yes** |
+| 9 | Applies-from defaults to today; today or earlier over an existing price is a correction and needs a reason | no (follows spec §4.2, §4.5) |
+| 10 | Demo beat: the presenter corrects Kobo's diesel price from a past story day with a reason, on the live view (no `known_at`), waits for "Updating…" (2-4 min), then shows the fuel cost and History "Entered by site admin". The save persists in that database, so it goes last in the session. | **yes** (script) |
+| 11 | PR-3b (price the visits warning) stays out | **yes**, only if the owner wants warnings priced |
+
+The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message, with the draft's choices 1, 2 and 5. Nothing waits on them before Friday morning: the server half needs no sign-off.
+
+### 5.5 Lanes and order, from Thu 12 Nov ~12:30 to the freeze (last merge Sat 14 Nov 20:00)
+
+| Lane | Thu pm | Fri | Sat (to 20:00) |
+|---|---|---|---|
+| A | AR-3 + AR-6: Postgres and client4 parity | review, merge by 14:00; then CLEAN-1 (0.25), moved from B | FR-B trimmed (0.5), moved from B; buffer gone |
+| C | AR-4 (2.0): code; Postgres after AR-3's slot | Postgres and parity on client4 | review, merge by 16:00; held if not ACCEPTed by 20:00 |
+| B | PR-1 Postgres files, review, merge; **PR-3 server** (0.55) code and no-DB tests on `task/PR-3-price-entry` from PR-1 | owner signs the draft (needed by Fri 09:00) → PR-2a (0.4) → review, merge Fri evening; **PR-3 frontend** (0.35) stacked on PR-2a; PR-3 Postgres flow test (slot after AR-4) | PR-3 review by 12:00, Sonnet fix round, merge by 18:00; held if not ACCEPTed by 20:00 |
+
+- **Postgres priority:** AR-3 > AR-4 > PR-1/PR-2a/PR-3 > FR-B. PR-3's migration test is one short slot, never beside a parity run.
+- **What moves:** FR-B (0.5) and CLEAN-1 (0.25) go from lane B to lane A. Lane A's buffer (EV-HB gate slack, Sunday fix-round prep) is used up. **Nothing new is pushed out of 17 Nov.** If AR-3 + AR-6 slips past Fri 14:00, FR-B drops first, then CLEAN-1. PR-3 does not touch AR files and does not compete with AR-4, except for the one register line in 5.3.
+- **If the owner's draft sign-off slips past Fri 12:00:** PR-2a and PR-3's frontend build to the defaults above, labelled MOCK DEVIATION where they differ from the draft. The owner checks them at the Sunday walkthrough, and the Sunday Sonnet round fixes the words.
+- **Hold rule for PR-3:** not ACCEPTed by Sat 20:00 means held unmerged, server and frontend together (a route with no screen is not shown, so there is no partial merge). PR-2a's read-only page then stands, with the administrator sentence, and the presenter says that prices are set by the AssetOps administrator. If PR-2a is also held, PR-1's honest "not available yet" target stands. PR-3 is stacked on PR-2a and never merges without it.
+- **Walkthrough and final build:** PR-3 is in the Sat rehearsal build and the Sun 15:00 walkthrough. Saves made during the walkthrough stay in that database only. The Mon 16 final build is fresh, so they do not carry into 17 Nov. The prepare applies 0060 like any migration.
+
+### Dispatch brief (revision 5)
+
+**PR-3 site-admin price entry.** Opus. Wt `AssetOpsV1-pr3`, branch `task/PR-3-price-entry` from `task/PR-1-price-action` (rebase onto main after PR-1 merges, then onto PR-2a for the frontend). 1.0 unit.
+- Spec: this revision, 5.2-5.4; D-PRICE.1; `.agent/architect-answer-price-it-2026-11-10.md` §4.2 and §4.5 (form fields, change kinds); precedent `work/operational_entry.py`, `work_api.py:198-216`.
+- Thu pm: server, migration and no-DB tests only. Postgres only on the coordinator's go, own `*_test` DB, never client4, client6 or client7.
+- Pre-flight questions (one batch, before code): the Site time-zone lookup to reuse; whether `store.snapshot` gives the current assignments the derivation needs; the migration number free at that moment.
+- Packet: the refusal table as tested, the derivation table, the Postgres flow output (the before and after money line, and as-known-at), layout evidence, and any MOCK DEVIATION labels.
+
 ## Revision 4 (Architect, Claude, 2026-11-11 ~18:00): any-range speed first, "price it" next
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.

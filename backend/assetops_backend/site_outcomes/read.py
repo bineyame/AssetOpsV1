@@ -785,7 +785,11 @@ def _own_days(sites: list[dict[str, Any]], days_of: Callable[[dict[str, Any]], A
     A card over only some Sites (`all_sites` given: Grow, the income Sites) names just those Sites' days, so its
     "Why?" days never name a Site its figure does not use (PF-C review Low)."""
     shared = (lambda s: None) if counted is None else (lambda s: counted.days.get(s["site_code"]))
-    if counted is not None and all(day_counts(days_of(s)) == day_counts(shared(s)) for s in sites):
+    # HON-1: a claim over the line's arrival days is the line's day set, so it reads the line's count (a data-gap
+    # day out), never a second "7 of 7" beside the line's "6 of 7".
+    arrived = getattr(counted, "arrived", None) or {}
+    same = (lambda s: day_counts(arrived.get(s["site_code"], shared(s))))
+    if counted is not None and all(day_counts(days_of(s)) in (day_counts(shared(s)), same(s)) for s in sites):
         return None if all_sites is None or len(sites) == len(all_sites) else _site_days(sites, shared, full=True)
     return _site_days(sites, days_of)
 

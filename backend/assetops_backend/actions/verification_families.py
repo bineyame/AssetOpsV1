@@ -38,7 +38,9 @@ from assetops_backend.actions.lifecycle import SYSTEM_DEMO
 from assetops_backend.actions.ports import ActionRefused
 from assetops_backend.chain.grading import COMPLETE, NO_DATA
 from assetops_backend.chain.reader import _day_grade
+from assetops_backend.chain import refs
 from assetops_backend.chain.vocabulary import money2
+from assetops_backend.outcomes import price_action
 
 LOG = logging.getLogger(__name__)
 
@@ -412,9 +414,11 @@ def _price_text(value: Any) -> str | None:
     return f"{cents:f}" if cents == d else f"{d.normalize():f}"
 
 
-def mill_value(details: Mapping[str, Any], outcome: str, price: Any) -> dict[str, Any] | None:
+def mill_value(details: Mapping[str, Any], outcome: str, price: Any,
+               site_code: str | None = None) -> dict[str, Any] | None:
     """MV-1 (FUEL-1 §2.2(e)): the estimated-sales value line of a VERIFIED outcome, from the stored shown means and
-    the declared productive-use price (`PriceSelection`); None for any other outcome. Pure."""
+    the declared productive-use price (`PriceSelection`); None for any other outcome. Pure. PR-1: an UNPRICED line
+    carries `price_action` (the Site price page at the productive-use price) when the Site code is known."""
     if outcome != VERIFIED:
         return None
     b, a = details["baseline"].get("mean_kwh_per_day"), details["later"].get("mean_kwh_per_day")
@@ -427,7 +431,9 @@ def mill_value(details: Mapping[str, Any], outcome: str, price: Any) -> dict[str
         why = VALUE_UNPRICED_WHY.get(reason, VALUE_UNPRICED_OTHER)
         return {"state": "UNPRICED", "reason": reason or "PRICE_UNREADABLE", "basis": VALUE_BASIS, "per_day": None,
                 "before_per_day": None, "after_per_day": None, "currency": None, "price": None,
-                "text": VALUE_UNPRICED_TEXT.format(why=why), "cost_text": VALUE_COST_TEXT}
+                "text": VALUE_UNPRICED_TEXT.format(why=why), "cost_text": VALUE_COST_TEXT,
+                "price_action": None if site_code is None else price_action.wire(
+                    price_action.MILL_VALUE_SPEC, site_code, None, refs)}
     p = Decimal(str(price.value))
     p_txt = _price_text(price.value)
     per_day = money2((Decimal(a) - Decimal(b)) * p)
@@ -462,7 +468,7 @@ def summary_wire(ctx: Mapping[str, Any], outcomes: Sequence[Mapping[str, Any]],
                    threshold=d.get("threshold_kwh_per_day"), days_before=len(d["baseline"]["days"]),
                    days_after=len(d["later"]["days"]), state=cmp.get("state", "UNKNOWN"))
         recorded = o["recorded_at"]
-        head["value"] = mill_value(d, o["outcome"], price)
+        head["value"] = mill_value(d, o["outcome"], price, action.get("site_code"))
         return {**head, "state": o["outcome"], "reasons": list(o["reasons"]), "sentence": d.get("sentence"),
                 "line": d.get("line"), "not_judged_text": None,
                 "outcome": {"outcome_id": str(o["id"]), "outcome": o["outcome"], "reasons": list(o["reasons"]),

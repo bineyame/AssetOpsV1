@@ -30,6 +30,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { DataTable, Disclosure, Fact, FactList, Notice, Panel, ProductStatus, RailIcon, type ProductWords } from "../ui";
 import { globalWorkRequestHref } from "../work/globalWorkClient";
+import { OpenNowLine } from "../work/openNow";
 import { READ_FULL_TEXT, coldCurrentnessNotice, coldCurrentnessTone, isLongText } from "./coldWorkPresentation";
 import { siteDateTimeText, siteLocalDate, siteLocalLastDay, siteLocalParts, siteZoneDisplayLabel } from "./siteTime";
 import type { DomainStatus } from "./domainActionClient";
@@ -1119,6 +1120,7 @@ function Loaded({
   if (body.total_count === 0) {
     return (
       <>
+        <OpenNowLine openNow={body.open_now} />
         <div className="work-cases-empty" data-work-empty>
           <span className="work-cases-empty__icon" data-work-empty-icon aria-hidden="true">
             <RailIcon name="evidence" />
@@ -1134,6 +1136,7 @@ function Loaded({
   }
   return (
     <div data-work-loaded>
+      <OpenNowLine openNow={body.open_now} />
       {/* K3 pre-flight ruling 4: COLDCHAIN and EV hide the coverage line; the currentness notice sits above the panel. */}
       {cells === null ? <CoverageLine body={body} /> : null}
       <Rows copy={copy} body={body} links={links} overlay={overlay} cells={cells} timeZone={timeZone} />

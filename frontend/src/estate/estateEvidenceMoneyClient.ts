@@ -5,6 +5,7 @@
  * Commit 4 adds the Financials read (`GET /api/estate/financials`, `estate-financials-1`) as its own
  * `EstateFinancialsClient`. The cursor is opaque and passed back unchanged.
  */
+import type { PriceAction } from "../sites/PriceAction";
 import { estateQueryString, invalidWindowCopy, type EstateCoverageSite, type EstateQuery, type EstateSourceBlock } from "./estateClient";
 
 export const ESTATE_EVIDENCE_API_PATH = "/api/estate/evidence";
@@ -152,6 +153,8 @@ export interface FinancialRow {
   links: { site: string; bridge: string | null; evidence: string | null; current_view_label: string | null };
   disclosure: { pinned_amount?: FinancialAmount | null; [key: string]: unknown };
   group_key: string | null;
+  /** PR-1 (BL-68): on an UNPRICED line, the server's link to the Site price page; null or absent otherwise. */
+  price_action?: PriceAction | null;
 }
 
 export interface FinancialGroup {

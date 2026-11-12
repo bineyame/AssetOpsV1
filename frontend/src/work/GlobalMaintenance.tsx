@@ -40,6 +40,7 @@ import {
   requestCount,
   useGlobalWorkPage,
 } from "./globalWorkParts";
+import { OpenNowLine } from "./openNow";
 import "./globalWork.css";
 
 /** The page path; the route constant `MAINTENANCE_PATH` in `shell/operatorSiteRoutes.ts` has the same value. */
@@ -363,6 +364,7 @@ export function GlobalMaintenancePage({ client, estate = NO_SUMMARY }: { client?
         cards={(value) => <Cards body={value} query={query} estate={estate} />}
       />
       <Panel heading="Corrective work requests" headingId={TABLE_HEADING_ID} description={CORRECTIVE_REQUESTS_FOOTER}>
+        {shown && body !== null ? <OpenNowLine openNow={body.open_now} /> : null}
         {shown && body !== null ? (
           body.total_count === 0 ? (
             <div className="global-work-empty" data-global-work-zero>

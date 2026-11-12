@@ -1,5 +1,6 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { expectV69Panels, panelTitled } from "../../test/panelStructure";
@@ -1105,6 +1106,22 @@ describe("post-W6 W1-a: Finding overview time, links and the exact-version cost 
     ["missing", () => ({ status: "not_found", message: null }), "missing"],
     ["another version", () => ({ status: "loaded", value: costBody("rev-1", {}) }), "mismatch"],
   ];
+  it("PR-1: an unpriced cost tile carries the server's price link, and a priced one does not", async () => {
+    const action = {
+      kind: "SET_PRICE" as const, key: "diesel_price_per_litre", label: "Set a diesel price for Kobo →",
+      href: "/sites/KOBO-001/financials/prices?key=diesel_price_per_litre",
+      link_ref: { kind: "PRICES" as const, site: "KOBO-001", key: "diesel_price_per_litre" },
+    };
+    const { client } = costClient((rid) => ({
+      status: "loaded", value: costBody(rid as string, { state: "UNPRICED", amount: null, price_action: action }),
+    }));
+    mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });
+    await settledScreen();
+    await screen.findByText((_t, el) => el?.getAttribute("data-finding-cost") === "UNPRICED");
+    const link = within(moneyCard()).getByRole("link", { name: "Set a diesel price for Kobo →" });
+    expect(link.getAttribute("href")).toMatch(/^\/sites\/KOBO-001\/financials\/prices\?key=diesel_price_per_litre&return=/);
+  });
+
   it.each(UNAVAILABLE_CASES)("Q12: a %s answer shows Not available with its own reason and no amount or money link", async (_name, answer, state) => {
     const { client } = costClient((rid) => answer(rid as string));
     mount(loaded(), "", F, true, { financials: client, links: W1A_LINKS });

@@ -763,8 +763,8 @@ class PostgresActionStore:
         event of a case linked to it (the APPLIED anchor, CH9b1-R Q3) and its existing plan; None: no such Action."""
         def work(c):
             action = c.execute(text(
-                "SELECT d.id, d.action_code, d.title, d.domain, d.origin_opportunity_revision_id, s.timezone "
-                "FROM domain_action d JOIN site s ON s.tenant_id = d.tenant_id AND s.id = d.site_id "
+                "SELECT d.id, d.action_code, d.title, d.domain, d.origin_opportunity_revision_id, s.timezone, "
+                "s.site_code FROM domain_action d JOIN site s ON s.tenant_id = d.tenant_id AND s.id = d.site_id "
                 "WHERE d.tenant_id = :t AND d.site_id = :s AND d.id = :a"),
                 {"t": tenant_id, "s": site_id, "a": domain_action_id}).first()
             if action is None:

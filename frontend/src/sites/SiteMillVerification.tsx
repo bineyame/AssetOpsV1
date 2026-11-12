@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { DataTable, Panel } from "../ui";
 import type { MillVerification, MillVerificationClient, MillVerificationResult } from "./millVerificationClient";
 import { LABEL_INCONCLUSIVE, LABEL_TARGET_MISS, stateSentence } from "./verificationWords";
+import { PriceActionLink } from "./PriceAction";
 
 export const MILL_LOADING = "Loading the Action's verification.";
 export const MILL_NOT_FOUND = "No such Action for this site.";
@@ -88,6 +89,11 @@ export function MillVerificationPanel({ body }: { body: MillVerification }) {
       {body.value === null ? null : (
         <>
           <p data-mill-value={body.value.state}>{body.value.text}</p>
+          {body.value.price_action ? (
+            <p>
+              <PriceActionLink action={body.value.price_action} />
+            </p>
+          ) : null}
           <p data-mill-cost>{body.value.cost_text}</p>
         </>
       )}

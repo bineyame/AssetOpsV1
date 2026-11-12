@@ -39,9 +39,11 @@ Owner decision: `.agent/owner-vps-move-2026-11-11.md`. Cutover Thursday 12 Nov a
 - Paths in briefs: worktrees under `~/AssetOps-<name>`; `PYTHONPATH` built from the worktree root with `:` separators.
 - Serving the demo app from the VPS needs either an SSH tunnel (`ssh -L 5490:localhost:5490 -L 8990:localhost:8990`) or a reverse proxy with auth â€” never expose the dev ports publicly.
 
-## Cutover sequence (Thursday ~12:30, after the demo)
+## Cutover sequence (Thursday 12 Nov ~16:00, after the 14:00 demo — `.agent/owner-vps-move-after-thursday-demo-2026-11-12.md`)
 
-1. Pause all lanes; let running agents commit (or stop them; they re-start on the VPS from git).
-2. Merge every ACCEPTed branch; run check-all on main; push `main`.
-3. Bundle the remaining in-flight branches; copy bundle + memory folder + uncommitted owner files + (optional) demo DB dump to the VPS.
+SUPERSEDES the bundle step above: in-flight branches travel by `git push` (owner-authorized), no bundle, no code file copy.
+
+1. Lanes already stopped at 12:00 with packets carrying resume points.
+2. Merge every ACCEPTed branch; run check-all on main; push `main` and every unfinished `task/*` branch in flight (AR-3+AR-6, AR-4, PR-1, OPEN-NOW, HON-1, PR-3 if started, UQ-0 parked) to origin.
+3. Copy memory folder + the two uncommitted owner files (scp, not code). Demo DB: not copied — the 17 Nov builds run fresh on the VPS; client7 stays on the laptop as fallback until the VPS's first build passes its self-check.
 4. On the VPS: setup steps 1â€“6, verification, then resume the 17 Nov plan (revision 4 of `.agent/architect-sequence-client-scope-2026-11-11.md`) â€” first item: the EV-HB gate prepare (must be green by Fri 18:00).

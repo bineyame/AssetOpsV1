@@ -27,6 +27,8 @@ import { withFocusDay } from "../ui/sharedRange";
 
 import {
   currentnessWords,
+  DATA_GAP_REASONS,
+  dayGapWords,
   DataTable,
   Disclosure,
   Fact,
@@ -237,10 +239,15 @@ export const LATEST_CHECKED_READINGS = "Latest complete readings";
 function DayStateLine({ words, summary }: { words: ProductWords; summary: SiteWindowSummary }) {
   if (words.code !== "CURRENT") return <ProductStatus inline words={words} scope={dayScope(summary)} asOf={summary.db_now} />;
   const updated = plainTime(summary.db_now);
+  // HON-1 (D-E5.46): a day the analysis could not use for a data fact is not "complete readings"; the line names
+  // the reason in the one day-gap word table instead (server code `freshness.data_gap_reason`).
+  const reason = summary.freshness.data_gap_reason;
+  const gap = reason && DATA_GAP_REASONS.has(reason) ? dayGapWords(reason) : null;
+  const tone = gap ? gap.tone : words.tone;
   return (
-    <span className={`product-status product-status--inline product-status--${words.tone}`} data-product-status={words.tone}>
-      <span className="product-status__label" data-product-status-label>
-        {LATEST_CHECKED_READINGS}
+    <span className={`product-status product-status--inline product-status--${tone}`} data-product-status={tone}>
+      <span className="product-status__label" data-product-status-label data-day-gap-reason={gap ? gap.code : undefined}>
+        {gap ? gap.label : LATEST_CHECKED_READINGS}
       </span>
       <span className="product-status__bound">
         <span aria-hidden="true"> · </span>

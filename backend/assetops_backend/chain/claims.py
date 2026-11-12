@@ -19,7 +19,7 @@ Pure apart from the `ChainRequest` reads and the injected opportunity port.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime
 from typing import Any, Callable, Mapping, Sequence
 
@@ -27,6 +27,7 @@ from assetops_backend import read_scope
 from assetops_backend.chain import site_chain
 from assetops_backend.chain.measures import measures_for
 from assetops_backend.chain.read import MINI_DOMAIN, SITE_TYPE_OF_DOMAIN, day_grade, lifecycle_cutoff, window_day, window_days
+from assetops_backend.chain.grading import COMPLETE
 from assetops_backend.chain.reader import grade_counts_of
 from assetops_backend.chain.threads import classify
 from assetops_backend.chain.vocabulary import Claim, count_claim, sum_days
@@ -51,6 +52,9 @@ class EstateCounts:
     threads: Mapping[str, Any]       # site_code -> {"open", "in_hand", "verified", "verified_actions"} | None
     #: CH6b2-R Q2: site_code -> the Site's disrupting threads (None: the read failed); the card's "Why?" names them.
     disrupted: Mapping[str, Any] = field(default_factory=dict)
+    #: HON-1: site_code -> the readings-arrival `GradeCounts` before `without_data_gap_days`, only for a Site that had
+    #: a day taken out (absent: `days` is the arrival count). A claim over the same arrival days is the same day set.
+    arrived: Mapping[str, Any] = field(default_factory=dict)
 
     def claims_json(self, keys: Sequence[str] = CLAIM_KEYS) -> dict[str, dict[str, Any]]:
         return {k: self.claims[k].to_json() for k in keys}
@@ -74,6 +78,47 @@ def claim_days(req: Any, site: Any, lo: datetime, hi: datetime) -> Any:
     """§B14 Q8: one Site's `GradeCounts` over the estate window's days (`window_days`, the summary card's frame)."""
     facts = req.day(site.site_id, SITE_TYPE_OF_DOMAIN[site.domain], window_days(lo, hi, site.timezone))
     return grade_counts_of(facts, _measures(site.domain))
+
+
+def site_day_grades(req: Any, site: Any, lo: datetime, hi: datetime) -> dict[date, str]:
+    """DATA-12 (D-E5.38): the Site's chain day grade per `window_days` day (weakest expected row, `day_grade`; a day
+    with no expected row is NOT_EXPECTED), from the same memoised `req.day` read `claim_days` makes."""
+    facts = req.day(site.site_id, SITE_TYPE_OF_DOMAIN[site.domain], window_days(lo, hi, site.timezone))
+    measures = _measures(site.domain)
+    return {d: day_grade({m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures},
+                         measures, none_declared=facts.none_declared.get(d, ()))
+            for d in facts.days}
+
+
+#: HON-1 (architect sequence 2026-11-11 rev 3): injected by `main.py` (the estate evidence service's
+#: `site_data_gap_days_many`): `(tenant_id, site_codes, lo, hi, known_at)` -> {site_code: {Site-local day: reason}},
+#: the D-E5.46 data-fact gap days (READINGS_CONFLICT / NOT_ENOUGH_READINGS) the estate coverage names. None -> no
+#: day is taken out (the counts read readings arrival only, as before).
+data_gap_provider: Callable[..., Mapping[str, Mapping[date, str]] | None] | None = None
+
+
+def without_data_gap_days(counts: Any, grades: Mapping[date, str], gaps: Mapping[date, str] | None) -> Any:
+    """HON-1 ruling, the ONE rule: a day graded READINGS_CONFLICT or NOT_ENOUGH_READINGS is not a "complete readings"
+    day. A data-gap day the chain graded COMPLETE (every reading arrived) leaves `complete`, so the count reads "6 of
+    7" and the Site is not complete; it joins no other bucket (the gap clause names the day and its reason). A gap
+    day already graded below COMPLETE is not taken twice. Unchanged (the same object) when nothing is taken out."""
+    if counts is None or not gaps:
+        return counts
+    n = sum(1 for d in gaps if grades.get(d) == COMPLETE)
+    return counts if n == 0 else replace(counts, complete=counts.complete - n)
+
+
+def _data_gaps(req: Any, sites: Sequence[Any], lo: datetime, hi: datetime) -> Mapping[str, Mapping[date, str]]:
+    """The mini-grid Sites' data-gap days, one memoised provider read per request; {} without a provider, without a
+    mini-grid Site, or when the read fails (noted, never silent)."""
+    codes = tuple(s.site_code for s in sites if s.domain == MINI_DOMAIN)
+    if data_gap_provider is None or not codes:
+        return {}
+    try:
+        return read_scope.memo("chain.data_gaps", data_gap_provider, req.tenant_id, codes, lo, hi, req.k) or {}
+    except Exception as error:  # noqa: BLE001 - the counts keep readings arrival; the failure is recorded
+        read_scope.note_failure("chain.data_gaps", error)
+        return {}
 
 
 def counted_threads(req: Any, site: Any, lo: datetime, hi: datetime) -> list[dict[str, Any]]:
@@ -136,14 +181,19 @@ def estate_count_claims(req: Any, sites: Sequence[Any], lo: datetime, hi: dateti
                         unavailable: tuple[type[BaseException], ...] = ()) -> EstateCounts:
     """The three count claims over `sites` (SiteRefs) in `[lo, hi)` at the request's cutoff (module doc)."""
     days: dict[str, Any] = {}
+    arrived: dict[str, Any] = {}
     threads: dict[str, Any] = {}
     disrupted: dict[str, Any] = {}
+    gaps = _data_gaps(req, sites, lo, hi)
     for site in sites:
         try:
-            days[site.site_code] = claim_days(req, site, lo, hi)
+            arrived[site.site_code] = claim_days(req, site, lo, hi)
+            mine = gaps.get(site.site_code) if site.domain == MINI_DOMAIN else None
+            days[site.site_code] = without_data_gap_days(
+                arrived[site.site_code], site_day_grades(req, site, lo, hi) if mine else {}, mine)
         except unavailable as error:
             read_scope.note_failure("chain.claim_days", error)
-            days[site.site_code] = None
+            days[site.site_code] = arrived[site.site_code] = None
         try:
             counted = counted_threads(req, site, lo, hi)
             threads[site.site_code] = {**classify(t["state"] for t in counted),
@@ -164,7 +214,8 @@ def estate_count_claims(req: Any, sites: Sequence[Any], lo: datetime, hi: dateti
               VERIFIED_RESULTS: count_claim(VERIFIED_RESULTS, verified_n, summed),
               OPPORTUNITIES: count_claim(OPPORTUNITIES, opp_n, summed),
               SITES_DISRUPTED: count_claim(SITES_DISRUPTED, disrupted_n, summed)}
-    return EstateCounts(claims, days, threads, disrupted)
+    return EstateCounts(claims, days, threads, disrupted,
+                        {c: a for c, a in arrived.items() if a is not days[c]})
 
 
 class EstateClaims:
@@ -189,16 +240,11 @@ class EstateClaims:
             site = self._resolve(site_code)
             if site is None:
                 return None
-            domain = SITE_TYPE_OF_DOMAIN[site.domain]
-            facts = reader.request(tenant_id, known_at).day(site.site_id, domain,
-                                                             window_days(lo, hi, site.timezone))
+            grades = site_day_grades(reader.request(tenant_id, known_at), site, lo, hi)
         except self._unavailable as error:
             read_scope.note_failure("chain.day_grades", error)
             return None
-        measures = _measures(site.domain)
-        return ({d: day_grade({m: list((facts.grades.get(d) or {}).get(m, {}).values()) for m in measures},
-                              measures, none_declared=facts.none_declared.get(d, ()))
-                 for d in facts.days}, site.timezone)
+        return grades, site.timezone
 
     def __call__(self, tenant_id: Any, site_codes: Sequence[str], lo: datetime, hi: datetime,
                  known_at: datetime | None) -> EstateCounts | None:

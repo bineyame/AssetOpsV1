@@ -11,6 +11,7 @@
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { hasKeys, isObject } from "./evidenceRead";
 import type { SourceProvenance } from "./sourceProvenance";
+import type { OpenNow } from "../work/openNow";
 
 export type WorkKind = "incidents" | "maintenance";
 
@@ -89,6 +90,8 @@ export interface WorkIndexBody {
   rows: WorkRow[];
   next_cursor: string | null;
   selection_token: string;
+  /** OPEN-NOW: open requests and incidents at the same cutoff and Site, whatever the dates. */
+  open_now?: OpenNow;
 }
 
 export type WorkRefusalStatus =

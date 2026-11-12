@@ -25,6 +25,7 @@ from typing import Any
 from uuid import UUID
 
 from assetops_backend import read_scope
+from assetops_backend.analytics.finding_index import data_gap_reason
 from assetops_backend.evidence.provenance_read import PROVENANCE_NOT_WIRED, source_gate, unresolved
 from assetops_backend.site_overview import money_state as ms
 
@@ -205,6 +206,9 @@ class SiteOverviewRead:
             "freshness": {"state": state, "stage": upstream_elig["stage"], "reasons": list(dict.fromkeys(f_reasons)),
                           "errors": upstream_elig["errors"], "source_open": source_open,
                           "source_reason": source_reason,
+                          # HON-1 (D-E5.46): a selected day the analysis could not use for a data fact; the day
+                          # line then names it, never "Latest complete readings" (`finding_index.data_gap_reason`).
+                          "data_gap_reason": data_gap_reason(detail),
                           "schedule": up["schedule"], "s3_jobs": up["s3_jobs"],
                           "consequence_work": up["consequence_work"]},
             "watermarks": {

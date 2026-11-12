@@ -4319,3 +4319,81 @@ Decision logged for owner review: **D-ANY.6a**.
   - Rerun CO-10 on the Monday build.
 
 Decision logged for owner review: **D-ANY.6b / D-E5.49a**.
+
+## D-PRICE.1 Prices typed on screen are saved as "Entered by site admin" (Architect, Claude, 2026-11-12, owner-directed, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+- Owner, verbatim (`.agent/owner-price-entry-in-scope-2026-11-12.md`): "yes, price entry in scope as site admin"
+- Design: `.agent/architect-sequence-client-scope-2026-11-11.md` revision 5 (card PR-3).
+
+**Rule.** A price saved from the Site price page is written by the same server-configured entry service as the dip form (§3.1 above, owner Q3): actor `service:operator-entry` (`ENTRY_PRINCIPAL`, `work/operational_entry.py:25`), labelled **"Entered by site admin"**.
+- The browser never sends an actor, a change kind or an instant. A body naming an actor stays 422 `CLIENT_ACTOR_FORBIDDEN`.
+- It is stored as `actor_kind = 'SYSTEM'` with no `author_id`, on the new channel **`SITE_ADMIN_ENTRY`** (a migration widens the channel CHECK).
+  - `authorization_basis` reads: "entered on screen through the server-configured entry service … no signed-in person (D-PRICE.1)".
+  - Provenance: `{"service": "operator-entry", "job": "site-admin-price-entry", "rule": "price-entry/1"}`.
+- It is switched on by the same `ASSETOPS_OPERATIONAL_ENTRY=on` (`host/lab_app.py:77-97`). Off: 403 `PRICE_ENTRY_OFF`, and no form is shown.
+- The label names the role of the entry point, not a person. In the demo, the presenter is the site admin.
+- After the demo, a signed-in pricing editor (BL-54, spec §4.3) replaces it. Revisions already saved keep their stored actor and label; nothing is rewritten.
+- The tool path `SYSTEM_PUBLISHER` stays, labelled "AssetOps administrator".
+- The human route `POST /financial-assumptions` stays refused (`HUMAN_PRINCIPAL_REQUIRED`).
+- Only the three stored keys may be saved for 17 Nov. A future key is refused with 422 `PRICE_KEY_NOT_ENTERABLE`, because no figure reads it.
+
+Decision logged for owner review: **D-PRICE.1**.
+
+## D-OPEN.1, D-ANY.7, D-HON.1, D-F05.1 Batched rulings (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
+
+### D-OPEN.1 What "open now" means on the Work lists (OPEN-NOW review, `task/OPEN-NOW-work-read` a2e792ddb)
+
+- **Definition.** An item is "open now" when it is an incident or a maintenance request whose reduced W4 case state at the read's `known_at` is OPEN or IN_PROGRESS, at the list's admitted Sites, with no date-window filter. This is what the code does (`work_open_now.py:15`, `work/open_now.py:23-29`). Accepted as built.
+- **Actions are not counted.** An Action's lifecycle (ACCEPTED, PENDING, APPLIED) has no "open" state, and the Action index has no `known_at` cutoff, so any count would be invented. The Site Actions subtab carries no open-now line. The card wording "requests, actions … 1 action" is amended to "incidents, requests".
+- **Exact copy (as built, no change):** "Open now: {n} incident(s), {n} request(s), whatever the dates"; a zero kind is left out; nothing open reads "Nothing open now".
+- **Low 1, fix before merge (about 0.1 unit).** The open-now line must never take down the list it sits on. In `global_index.py:537-542` and the Site list (`site_index.py` ~390), a reduction failure in the open-now count omits `open_now` from the wire, logs `open_now_unavailable`, and the list is served as before. The frontend already shows no line when `open_now` is absent. Add one no-DB test per list.
+- **Low 2, no change.** The count uses the list's own Site scope (`imported_sites(.., request.to)`); "whatever the dates" refers to the cases' dates, not Site import. Accepted.
+- **Low 3, fix before merge.** Add a real cursor page-two read (non-empty window, `limit=1`, next cursor) to `test_open_now_postgres.py`, in the same pending Postgres run.
+- **Low 4 (one events query per case):** backlog; demo scale.
+- Merge condition: Lows 1 and 3 done, the packet's 8 Postgres files pass, fresh-reviewer re-check of the diff.
+
+Decision logged for owner review: **D-OPEN.1**.
+
+### D-ANY.7 AR-4 claim-day rows vs D-ANY.5 (commit 5f82f5fa0, `task/ANY-2-AR4`)
+
+- **Confirmed.** A day whose page selection names no revision is projected with no stored input and no compose (D-ANY.5). A row that exists but is not provably equal (other revision, older builder, PENDING on a touched local day) is read as today for that day only, logged and counted (D-ANY.6a / D-ANY.1).
+- **Open question ruled: the page selected a revision but no row is known at k.** The page's own live selection proves a revision exists at k, so the missing row means the row build has not caught up. That is "cannot be proven equal", not "nothing known": read that day as today (`_miss(..., "absent")`), logged `period_row_absent` and counted. Never render NO_DATA against the page's own selection. The builder's code is right.
+- **Builder change:** none to the logic. Replace the module-doc line "OPEN Architect question" with "Ruled D-ANY.7". Parity must include one no-revision day and one selected-revision-without-row day (a k between the revision's `computed_at` and the row's `computed_at`), both byte-equal to today's compose.
+
+Decision logged for owner review: **D-ANY.7**.
+
+### D-HON.1 HON-1 Low: the Site Overview card's "Why?" days
+
+- **Backlog, with a rehearsal trigger.** A card's own days line is still read from claim days when its day set differs from the coverage line's (packet, Known deviations). This is honest per card (its own days), and the Site Overview day line now names the gap.
+- **Trigger:** if the 17 Nov rehearsal shows a card's "Why?" day count contradicting the coverage line for the same days on a demo Site (for example "7 of 7" beside "6 of 7"), apply the same `_own_days` arrival-day rule to the Site Overview cards (about 0.1 unit, Sonnet) before the demo. Otherwise it stays in the backlog. HON-1 merges without it.
+
+Decision logged for owner review: **D-HON.1**.
+
+### D-F05.1 F05 placement test coverage after the s602b estate assertions moved to PARTIAL
+
+- **Backlog; not required before 17 Nov.** It is a test-coverage gap, not a product behaviour change, and no 17 Nov card depends on new F05 placement logic. The demo build's live checks are the demo-time guard.
+- **Builder change:** none now. Backlog item: add one fixture with complete readings that asserts F05 placement, so the placement path is again covered by a test with readings.
+
+Decision logged for owner review: **D-F05.1**.
+
+## D-ANY.8 Order of the remaining any-range speed work for 17 Nov (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Owner priority: "the speedup for any date range prioritised". Freeze: AR-4 held unmerged if not ACCEPTed by Sat 14 Nov 20:00.
+- **Why this order.** The AR-4 profile (client4, cold, store off, unlisted week with claim rows) puts ~13 s of 11.7-14.5 s in dispatch-day compose reached through `evidence_money.mini_grid_rows` → `coverage._mini_grid_basis`, then `_mini_grid_money` 4.1 s and `consequence_provenance` 3.3 s. The dispatch-day cost is already solved by AR-3's `dispatch.day` rows (127-360 ms per Site-range, parity 59/0/0). So the Portfolio switch to those rows is the largest single cut, money.lines is next, and provenance is last.
+- **1. AR-3 + AR-6 merges as it is (lane A, by Fri 14:00).** Do not add the Portfolio switch to AR-3. It is under review, and a new line would reopen the review.
+- **2. The switch goes on AR-4 (`task/ANY-2-AR4`), after AR-3 is on main.** AR-4 does not merge the AR-3 branch in. It rebases onto main once AR-3 merges, so the reviewed AR-3 code is carried once and fix rounds are not duplicated. The switch is the one-line change in `evidence_money.mini_grid_rows` to read `coverage.dispatch_days` (AR-3's row reader). `estate/coverage` stays untouched (AR-3's files).
+- **3. Until AR-3 merges, the AR-4 builder builds money.lines (MN-1/2/3)** with code and no-DB tests only, including the rev-5 contract: declare `price.revised@1` (`by_assumption_key`, days from the valid date to today) and rebuild those rows when a price is saved (PR-3).
+- **4. Order of Postgres work on AR-4 (priority 2, after AR-3):** (a) rebase + switch, then parity and timings; (b) money.lines parity and timings.
+- **Minimum to call AR-4 done for 17 Nov:** evidence.claim (built) + the dispatch.day switch, with the evidence below. **money.lines is IN only if** its parity, including the price-save case, passes by **Sat 12:00**. If it does not, its commits move to `task/ANY-2-AR4b` (backlog), and AR-4 goes to review as claim + switch. The review starts Sat by 12:00 and AR-4 merges by 16:00 (rev-5 lane C).
+- **Backlog (not 17 Nov):** evidence.provenance (cold/EV pinned windows), AR-5 (the pre-load list stays as the safety net), and money.lines if it misses Sat 12:00.
+- **If AR-3 is held:** AR-4 merges as claim-only without the switch, provided its own parity passes. That is still faster (week 17.6-19.4 s → 11.7-14.5 s).
+- **Evidence required for merge:**
+  - Byte-equal parity on client4 over the combined path that ships (claim rows + dispatch.day rows + money.lines if IN), 0 mismatches. It must keep the D-ANY.5/D-ANY.7 cases: a no-revision day, and a selected-revision-without-row day.
+  - If money.lines is IN, it must also pass a price-save case. A price revision whose valid date falls mid-range rebuilds rows from the valid date to today and stays byte-equal to compose before and after the save. PR-3's Postgres flow test is rerun by whichever of AR-4 and PR-3 merges second.
+  - Timings on client4, cold, store off, with a profile of each: the unlisted week, the 22 days, and a 31-day month, each before and after.
+  - The ≤2 s target (rev 4 / ANY-1) is reported, not gated: the gate is parity + no regression. A miss is stated honestly in the packet, with what remains (provenance, money if out). Presenter rule D-ANY.4 still holds for Portfolio ranges over 2 s.
+
+Decision logged for owner review: **D-ANY.8**.

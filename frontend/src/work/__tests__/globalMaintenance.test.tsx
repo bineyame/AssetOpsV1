@@ -373,6 +373,22 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(document.querySelector("table")).toBeNull();
   });
 
+  it("OPEN-NOW: names what is open now above the requests, whatever the dates", async () => {
+    const line = "Open now: 3 requests, whatever the dates";
+    const reads = client({
+      "page-one": loaded(body([], {
+        state_counts: { OPEN: 0, IN_PROGRESS: 0, COMPLETED: 0, CANCELLED: 0 },
+        open_now: { incidents: 0, requests: 3, line },
+      })),
+    });
+    mount(PAGE, reads);
+    await settled();
+    const shown = document.querySelector("[data-work-open-now='some']");
+    expect(text(shown)).toBe(line);
+    const zero = document.querySelector("[data-global-work-zero]")!;
+    expect(shown!.compareDocumentPosition(zero) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("states no accessible Sites without cards or a zero (typed EMPTY_SCOPE only)", async () => {
     const reads = client({
       "page-one": loaded(

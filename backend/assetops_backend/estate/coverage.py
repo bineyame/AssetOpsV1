@@ -156,7 +156,7 @@ def _mini_grid_basis(snapshot: Any, t: Any, s: Any, from_: datetime, to: datetim
         # readings is checked only if the dispatch day with D's date has an available selection, else a NOT_ANALYSED
         # gap. Selection, match-pass and S3-status rules above are unchanged.
         analysed = {_day_of(d) for d in days if d.get("available") and d.get("selection") is not None}
-        data_reasons = _data_gap_reasons(days)
+        data_reasons = data_gap_days(days)
         gap_reasons = {}
         for d, g in day_grades.items():
             if g == _NOT_EXPECTED:
@@ -275,10 +275,11 @@ def _requested_days(from_: datetime, to: datetime) -> int:
     return 0 if first >= to else (to - first - timedelta(microseconds=1)) // timedelta(days=1) + 1
 
 
-def _data_gap_reasons(days: list[dict[str, Any]]) -> dict[date, str]:
+def data_gap_days(days: list[dict[str, Any]]) -> dict[date, str]:
     """D-E5.46 (GAP-REASONS): per dispatch day, READINGS_CONFLICT or NOT_ENOUGH_READINGS from the selected window's
     claim and limitation prefixes (`finding_index.data_gap_reason`, the one rule the Finding index uses). Only a
-    selected CURRENT day with no open work: system work keeps its NOT_ANALYSED/PENDING precedence."""
+    selected CURRENT day with no open work: system work keeps its NOT_ANALYSED/PENDING precedence. HON-1: the chain
+    counts take the same days out of "complete readings" (`EstateEvidenceService.site_data_gap_days_many`)."""
     out: dict[date, str] = {}
     for d in days:
         if not d.get("available") or d.get("selection") is None or d.get("status") != _S3_CURRENT:

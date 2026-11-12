@@ -9,6 +9,7 @@
  */
 
 import { formatDayTime } from "../ui/time";
+import type { OpenNow } from "./openNow";
 
 export const GLOBAL_WORK_API_PATH = "/api/work";
 export const GLOBAL_WORK_SCHEMA = "global-work-index-1";
@@ -201,8 +202,13 @@ export interface GlobalWorkEnvelope<Row, Counts> {
   selection_token: string;
 }
 
-export type GlobalIncidentsBody = GlobalWorkEnvelope<GlobalIncidentRow, Record<GlobalIncidentState, number>>;
-export type GlobalMaintenanceBody = GlobalWorkEnvelope<GlobalMaintenanceRow, Record<GlobalMaintenanceState, number>>;
+/** OPEN-NOW: the incidents and maintenance lists also carry what is open now at the same cutoff, whatever the dates. */
+export type GlobalIncidentsBody = GlobalWorkEnvelope<GlobalIncidentRow, Record<GlobalIncidentState, number>> & {
+  open_now?: OpenNow;
+};
+export type GlobalMaintenanceBody = GlobalWorkEnvelope<GlobalMaintenanceRow, Record<GlobalMaintenanceState, number>> & {
+  open_now?: OpenNow;
+};
 export type GlobalPreventiveBody = GlobalWorkEnvelope<GlobalPreventiveRow, null> & { summary?: GlobalPreventiveSummary };
 export type GlobalOperationalBody = GlobalWorkEnvelope<GlobalOperationalRow, null>;
 

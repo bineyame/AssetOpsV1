@@ -10,6 +10,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
+from assetops_backend.outcomes import price_action
 from assetops_backend.outcomes.display_code import display_code
 from assetops_backend.outcomes.outcome_map import categories_for, outcome_roles
 from assetops_backend.outcomes.plan_due import CALENDAR, DUE_SOON, OVERDUE, plan_due_state
@@ -130,6 +131,7 @@ class Warning:
     visit_ids: tuple[str, ...] = ()      # not on the wire
     fault_name: str | None = None        # REPEATED only
     href: str | None = None              # `links.href_for(link_ref)`, set by `_make`
+    links: Any = field(default=None, compare=False, repr=False)  # the injected `chain.refs`, set by `_make` (PR-1)
 
     def wire(self, site_code: str, site_name: str) -> dict[str, Any]:
         return {"key": self.key, "kind": self.kind, "badge": self.badge, "badge_label": BADGE_LABEL[self.badge],
@@ -139,7 +141,10 @@ class Warning:
                 "site_name": site_name, "href": self.href,
                 "link_ref": None if self.link_ref is None else dict(self.link_ref),
                 "evidence_refs": [dict(r) for r in self.evidence_refs],
-                "count": self.count, "subject_label": self.subject_label, "fault_name": self.fault_name}
+                "count": self.count, "subject_label": self.subject_label, "fault_name": self.fault_name,
+                # PR-1: how this warning gets a price (one price, or what is needed); the words are the server's.
+                "price_action": None if self.links is None else price_action.wire(
+                    price_action.WARNING_SPEC[self.kind], site_code, site_name, self.links)}
 
 
 def day_text(day: Any) -> str:
@@ -169,7 +174,7 @@ def _make(f: WarningFacts, kind: str, subject: str, title: str, seen: str, link_
                    price_needs=PRICE_NEEDS[kind], status_effect=effect,
                    categories=categories_for("WARNING:" + kind, f.domain, linked), link_ref=link_ref,
                    evidence_refs=tuple(refs or ()), count=count, subject_label=subject_label, visit_ids=visit_ids,
-                   fault_name=fault_name, href=links.href_for(link_ref))
+                   fault_name=fault_name, href=links.href_for(link_ref), links=links)
 
 
 def _links(f: WarningFacts) -> Any:
