@@ -32,6 +32,7 @@ from assetops_backend.site_overview.read import intersects
 
 SCHEMA = "site-range-overview-1"
 FINDINGS, CLEAR = "FINDINGS", "CLEAR"
+LATE_READINGS_NOTE = "Readings began late this day \u00b7 not counted"  # D-SR.56 (state stays NOT_EXPECTED)
 
 
 class RangeOverviewNotApplicable(Exception):
@@ -140,11 +141,13 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
             else:
                 amount, money_state = _sum_lines(day_lines)
             readings = None if row is None else row.get("accepted_reading_count")
+            began_late = state == NOT_EXPECTED and (readings or 0) > 0  # D-SR.56: state kept, wording only
             days_out.append({"day": d.isoformat(), "state": state,
                              "finding_count": None if state in GAP_STATES else count,
                              "retired_finding_count": None if state in GAP_STATES else retired,
                              "money": amount, "money_state": money_state,
-                             "accepted_readings": None if state in GAP_STATES else readings})
+                             "accepted_readings": None if state in GAP_STATES else readings,
+                             **({"note": LATE_READINGS_NOTE} if began_late else {})})
 
         prog, _ = progress(a_sites, a_rows, k, {(r["finding_id"], r["finding_revision_id"]) for r in f_rows}, f_rows)
         thread_counts = thread_progress(f_rows)
@@ -178,8 +181,11 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
                       "partial": partial_money(site, m_cov, m_site_lines),
                       "quantity": _quantity(site_lines)},
             "findings": {"count": len(members) if finding_known else None,
-                         "confirmed": sum(1 for r in members if r["lifecycle"] == "SUPPORTED"),
-                         "not_confirmed": sum(1 for r in members if r["lifecycle"] == "UNCONFIRMED"),
+                         # D-SR.28 / 10a.4: the breakdown is null with the count, as the Portfolio's is
+                         "confirmed": sum(1 for r in members if r["lifecycle"] == "SUPPORTED")
+                         if finding_known else None,
+                         "not_confirmed": sum(1 for r in members if r["lifecycle"] == "UNCONFIRMED")
+                         if finding_known else None,
                          "awaiting_verification": awaiting},
             "actions": {"open": sum(1 for a in a_rows if workflow_label(a) not in CLOSED_LABELS)
                         if complete_actions else None,

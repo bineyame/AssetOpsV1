@@ -241,7 +241,11 @@ def build_outcome_router(service: SiteOutcomeBoardService | None, registry: Impo
             raise _refuse(403, DISCLOSURE_REFUSAL[ref.domain],
                           f"The source provenance of Site {site_code!r} may not be disclosed to this caller.")
         params = request.query_params
-        lo, hi, known_at = _instant(params, "from"), _instant(params, "to"), _instant(params, "known_at")
+        lo, hi = _instant(params, "from"), _instant(params, "to")
+        try:
+            known_at = _instant(params, "known_at")
+        except HTTPException as error:  # the estate's code for the same input (estate/scope.py INVALID_KNOWN_AT)
+            raise _refuse(422, "INVALID_KNOWN_AT", "known_at must be a UTC instant such as 2026-10-06T00:00:00Z.") from error
         if lo is None or hi is None:
             raise _refuse(422, "INVALID_WINDOW", "Give both 'from' and 'to' (UTC midnights, at most 31 days).")
         try:

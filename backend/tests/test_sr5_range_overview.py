@@ -27,7 +27,7 @@ from assetops_backend.estate.range_days import (
 from assetops_backend.estate.site_range import CLEAR, FINDINGS, site_range_body
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
 from assetops_backend.outcome_api import RANGE_ROUTE, build_outcome_router
-from test_cov_partial import PRICED, Snap
+from test_cov_partial import PRICED, Snap, head
 from test_cov_partial_portfolio import PARTIAL_DAYS, PARTIAL_HEAD
 from test_w302_evidence_api import CUT, D0, MG, T, WINDOW, FakeStore
 from test_w302_money_api import MoneySnapshot
@@ -98,7 +98,7 @@ def world(monkeypatch):
             return snap_days.finding_index(t, s, k)
 
     service = EstatePortfolioService(FakeStore(PortfolioSnap()))
-    return SimpleNamespace(service=service)
+    return SimpleNamespace(service=service, snap_days=snap_days)
 
 
 def _req(**kw) -> EstateRequest:
@@ -151,8 +151,8 @@ def test_findings_counted_on_the_episode_day(world) -> None:
     body = site_range_body(world.service, T, KOBO, _req())
     by_day = {d["day"]: d for d in body["days"]}
     episode_day = PARTIAL_HEAD["episode_start"].date().isoformat()
-    if body["findings"]["count"]:
-        assert by_day[episode_day]["state"] == FINDINGS and by_day[episode_day]["finding_count"] >= 1
+    assert body["findings"]["count"]
+    assert by_day[episode_day]["state"] == FINDINGS and by_day[episode_day]["finding_count"] >= 1
     assert body["findings"]["count"] == body["findings"]["confirmed"] + body["findings"]["not_confirmed"]
     assert body["links"] == {"findings": "/sites/KOBO-001/findings", "day": "/sites/KOBO-001?day={day}"}
 
@@ -264,7 +264,8 @@ def test_finding_count_follows_the_portfolio_finding_known_rule(world, monkeypat
     assert site_range_body(world.service, T, KOBO, _req())["findings"]["count"] == 1  # PARTIAL: checked days
     monkeypatch.setattr(site_range, "_status", lambda *a: "UNKNOWN")
     findings = site_range_body(world.service, T, KOBO, _req())["findings"]
-    assert findings["count"] is None and findings["confirmed"] == 1
+    # 10a.4: the breakdown is null with the count (the Portfolio nulls its member breakdowns the same way)
+    assert findings["count"] is None and findings["confirmed"] is None and findings["not_confirmed"] is None
 
 
 # --- SUMMED / OVERLAPPING day money, stub rows (D-SR.50 2c; the demo parity covers real data) ---------------------
@@ -287,7 +288,75 @@ def test_day_money_summed_and_overlapping_stubs() -> None:
 
 
 def test_every_day_carries_retired_count_and_totals(world) -> None:
+    # L2: a non-zero case. A retired head on day 1 is counted there, not in `findings.count`.
+    retired = {**head(D0 + timedelta(days=1, hours=2), D0 + timedelta(days=1, hours=3), n=1),
+               "lifecycle": "NO_LONGER_SUPPORTED"}
+    world.snap_days._heads.append(retired)
     body = site_range_body(world.service, T, KOBO, _req())
     for day in body["days"]:
         assert isinstance(day["retired_finding_count"], int) == isinstance(day["finding_count"], int)
-    assert body["dispatch"]["days_with_retired_findings"] == sum(1 for d in body["days"] if d["retired_finding_count"])
+    assert [d["retired_finding_count"] for d in body["days"]][:3] == [0, 1, 0]
+    assert body["dispatch"]["days_with_retired_findings"] == 1 and body["findings"]["count"] == 1
+
+
+# --- review fix round: D-SR.50 2c day composition, L1, L3, D-SR.56 ----------------------------------------------------
+
+def _priced_world(world, monkeypatch, lines):
+    """`select_financial_scope` as the Portfolio reads it, plus stub money lines of the Kobo Site (priced rows)."""
+    real = site_range.select_financial_scope
+
+    def wrapped(*a, **kw):
+        out = list(real(*a, **kw))
+        out[1] = list(out[1]) + [{**x, "site_id": str(MG)} for x in lines]
+        return tuple(out)
+    monkeypatch.setattr(site_range, "select_financial_scope", wrapped)
+    monkeypatch.setattr(site_range, "operating_cost_card", lambda *a: {})  # the card is pinned elsewhere
+
+
+def test_day_money_composes_per_day_through_the_body(world, monkeypatch) -> None:
+    """M1 (D-SR.50 2c): SUMMED on day 0, OVERLAPPING on day 1, no eligible line on day 2, WITHHELD on a gap day
+    that holds a line; the dispatch rows are the absent-run compose (`dispatch_days` patched by `world`)."""
+    gap_day = (D0 + timedelta(days=5)).date().isoformat()
+    day = lambda n: (D0 + timedelta(days=n)).date().isoformat() + "T08:00:00Z"  # noqa: E731
+    lines = [{**_line("1.50", "2.00"), "window_start": day(0)}, {**_line("3.00", "4.25"), "window_start": day(0)},
+             {**_line("1", "2", group="g"), "window_start": day(1)}, {**_line("3", "4", group="g"), "window_start": day(1)},
+             {**_line("9", "9"), "window_start": gap_day + "T08:00:00Z"}]
+    _priced_world(world, monkeypatch, lines)
+    by_day = {d["day"]: d for d in site_range_body(world.service, T, KOBO, _req())["days"]}
+    d0, d1, d2, d5 = (by_day[(D0 + timedelta(days=n)).date().isoformat()] for n in (0, 1, 2, 5))
+    assert (d0["money_state"], d0["money"]) == ("SUMMED", {"low": "4.50", "high": "6.25", "currency": "USD"})
+    assert (d1["money_state"], d1["money"]) == ("OVERLAPPING", None)
+    assert d2["money_state"] == "NO_ELIGIBLE_LINES"
+    assert d5["state"] == NOT_ANALYSED and (d5["money_state"], d5["money"]) == ("WITHHELD", None)
+
+
+def test_malformed_known_at_is_invalid_known_at(world) -> None:
+    r = _range(_client(world.service), known_at="tomorrow")
+    assert r.status_code == 422 and r.json()["detail"]["code"] == "INVALID_KNOWN_AT"
+
+
+def test_coverage_names_no_gap_makes_the_day_analysed_and_logs(world, monkeypatch, caplog) -> None:
+    """L3: the rule says NOT_ANALYSED, the coverage names no gap -> ANALYSED (FINDINGS/CLEAR), logged."""
+    real = range_days.day_state
+    monkeypatch.setattr(range_days, "day_state", lambda row, grade, reason: NOT_ANALYSED if row and row.get(
+        "selection") and not row.get("_unmatched") else real(row, grade, reason))
+    with caplog.at_level(logging.WARNING, logger="assetops.site_range"):
+        body = site_range_body(world.service, T, KOBO, _req())
+    assert [d["state"] for d in body["days"]][:5] != [NOT_ANALYSED] * 5
+    assert any("coverage=none" in r.getMessage() for r in caplog.records)
+    assert all(d["state"] in (FINDINGS, CLEAR) for d in body["days"][:5] if d["accepted_readings"] is not None)
+
+
+def test_not_expected_day_with_readings_reads_began_late(world, monkeypatch) -> None:
+    """D-SR.56: the state stays NOT_EXPECTED (Portfolio parity); only the wording says readings began late."""
+    world.snap_days._days[0]["accepted_reading_count"] = 12  # day 0 holds readings, day 1 holds none
+    real = range_days.day_state
+    first = D0.date()
+    monkeypatch.setattr(range_days, "day_state", lambda row, grade, reason: NOT_EXPECTED if row and row.get(
+        "day") in (first, first + timedelta(days=1))
+        else real(row, grade, reason))
+    days = site_range_body(world.service, T, KOBO, _req())["days"]
+    with_readings = [d for d in days if d["state"] == NOT_EXPECTED and (d["accepted_readings"] or 0) > 0]
+    assert [d["day"] for d in with_readings] == [first.isoformat()]  # day 1 is NOT_EXPECTED without readings
+    assert all(d["note"] == "Readings began late this day \u00b7 not counted" for d in with_readings)
+    assert all("note" not in d for d in days if d not in with_readings)
