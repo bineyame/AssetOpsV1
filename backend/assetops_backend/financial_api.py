@@ -35,7 +35,6 @@ from zoneinfo import ZoneInfo
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from assetops_backend.finding_api import development_access
 from assetops_backend.financials import price_entry as pe
 from assetops_backend.financials.assumptions import (
     SITE_ADMIN_CHANNEL, SITE_ADMIN_PRICE_PUBLISHER, Publication, PublicationRefused, unit_for)
@@ -82,14 +81,15 @@ def build_financial_assumption_router(scope: Scope, access: Access = no_verified
                                       entry_principal: Principal = no_service_principal,
                                       store: Any | None = None,
                                       site_zone: SiteZone | None = None,
-                                      read_access: Access = development_access,
+                                      read_access: Access = no_verified_principal,
                                       unavailable: tuple[type, ...] = (),
                                       clock: Callable[[], datetime] = _now) -> APIRouter:
     """The human write route (always refused) and PR-3's site-admin entry route (D-PRICE.1).
 
     `entry_principal` is the injected `operational_entry_principal` (`ASSETOPS_OPERATIONAL_ENTRY=on`, the dip form's
     one switch); `store` the assumption store (`snapshot`, `publish`) or None; `site_zone` the Site's time zone;
-    `read_access` the price read's access; `unavailable` the store failures served as 503."""
+    `read_access` the price read's access, injected by the composition (this module still never names the
+    development context; by default nobody is admitted); `unavailable` the store failures served as 503."""
     router = APIRouter()
 
     def store_down(message: str) -> HTTPException:
@@ -100,7 +100,10 @@ def build_financial_assumption_router(scope: Scope, access: Access = no_verified
         """PR-3 refusal order (revision 5 §5.3, fixed and tested): 404 Site, 403 read access, 403 entry off, 422 body
         not JSON, 422 client actor, 422 shape, 422 future key, 503 store, then the derivation's 422s and the store's own
         refusals unchanged. Nothing is written on any refusal; a dry run never publishes."""
-        found = scope(site_code)
+        try:
+            found = scope(site_code)
+        except unavailable as error:
+            raise store_down(str(error)) from error
         if found is None:
             raise HTTPException(status_code=404, detail=f"No imported Site {site_code!r} in this tenant.")
         code, tenant_id, site_id = found

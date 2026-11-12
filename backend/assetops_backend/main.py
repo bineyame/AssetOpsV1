@@ -655,7 +655,8 @@ def create_app(
     app.include_router(build_financial_assumption_router(
         registry.ledger_scope, entry_principal=operational_entry_principal, store=entry_store,
         site_zone=(lambda t, s: ZoneInfo(entry_site(t, s)[0])) if entry_site is not None else None,
-        read_access=development_access, unavailable=(AssumptionStoreUnavailable, WorkStoreUnavailable)))
+        read_access=development_access,
+        unavailable=(AssumptionStoreUnavailable, WorkStoreUnavailable, SiteStoreUnavailable)))
     # S4-08: the Site consequence history at one recorded cutoff (read-only). Included before the price reads so
     # `/financial-assumptions/consequences` is not taken for a price revision ID.
     app.include_router(build_consequence_history_router(
