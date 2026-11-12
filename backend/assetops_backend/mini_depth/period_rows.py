@@ -31,7 +31,10 @@ from assetops_backend.evidence.source_provenance import LinkRow
 KIND_PREFIX = "mini_depth."
 #: One version for the four kinds: their provenance blocks share it (`revision_provenance` key).
 BUILDER_VERSION = "mini-depth-rows-1"
-KINDS: tuple[str, ...] = tuple(f"{KIND_PREFIX}{d}" for d in ("renewable", "fuel", "service", "backup"))
+#: SR-10a (rev 10b.1, D-SR.31): every Site-local hour of a local day, for the Fuel and Backup range reads. The
+#: noon-hour `fuel`/`backup` kinds above stay unchanged (the board reads them).
+DAY_KINDS: dict[str, str] = {"mini_depth.fuel_day": "fuel", "mini_depth.backup_day": "backup"}
+KINDS: tuple[str, ...] = (*(f"{KIND_PREFIX}{d}" for d in ("renewable", "fuel", "service", "backup")), *DAY_KINDS)
 _LINK_FIELDS = tuple(f.name for f in fields(LinkRow))
 _TUPLE_FIELDS = frozenset({"evidence_gateway_source", "batch", "link", "publication"})
 
@@ -158,9 +161,11 @@ class MiniDepthKindBuilder:
         self.kind = kind_of(domain)
         self._mini = mini
 
+    whole_day = False
+
     def fragments(self, ctx: Any, site: Any) -> Sequence[PeriodFragment]:
         built = self._mini.build_period(tenant_id=ctx.tenant_id, site_id=site.site_id, domain=self.domain,
-                                        local_day=ctx.local_day)
+                                        local_day=ctx.local_day, **({"whole_day": True} if self.whole_day else {}))
         if built is None:
             return []
         start, end, hours, provenance = built
@@ -172,16 +177,29 @@ class MiniDepthKindBuilder:
                                provenance={UUID(k): {"link_rows": v} for k, v in provenance.items()})]
 
 
+class MiniDepthDayKindBuilder(MiniDepthKindBuilder):
+    """SR-10a: `mini_depth.fuel_day` / `mini_depth.backup_day`, the same body as `MiniDepthKindBuilder.fragments` over
+    every Site-local hour of the day (`build_period(..., whole_day=True)`)."""
+
+    whole_day = True
+
+    def __init__(self, domain: str, mini: Any) -> None:
+        super().__init__(domain, mini)
+        self.kind = next(k for k, d in DAY_KINDS.items() if d == domain)
+
+
 def kind_builders(mini: Any) -> dict[str, MiniDepthKindBuilder]:
     from assetops_backend.mini_depth.store import DOMAINS
 
-    return {kind_of(d): MiniDepthKindBuilder(d, mini) for d in DOMAINS}
+    out: dict[str, MiniDepthKindBuilder] = {kind_of(d): MiniDepthKindBuilder(d, mini) for d in DOMAINS}
+    out.update({k: MiniDepthDayKindBuilder(d, mini) for k, d in DAY_KINDS.items()})
+    return out
 
 
 def day_span(first: date, n: int) -> list[date]:
     return [first + timedelta(days=i) for i in range(n)]
 
 
-__all__ = ["BUILDER_VERSION", "KINDS", "MiniDepthKindBuilder", "StoredLinkRows", "absent_hour",
+__all__ = ["BUILDER_VERSION", "DAY_KINDS", "KINDS", "MiniDepthDayKindBuilder", "MiniDepthKindBuilder", "StoredLinkRows", "absent_hour",
            "absent_renewable_windows", "group_link_rows", "hour_from_json", "hour_json", "kind_builders", "kind_of",
            "link_row_from_json", "link_row_json"]

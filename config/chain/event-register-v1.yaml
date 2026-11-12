@@ -42,6 +42,10 @@ kinds:
   mini_depth.fuel:      {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [fuel], job_domains: [mini_fuel], foundation: true}}
   mini_depth.service:   {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [service], job_domains: [mini_service], foundation: true}}
   mini_depth.backup:    {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [backup], job_domains: [mini_backup], foundation: true}}
+# SR-10a (rev 10b.1, D-SR.31): every Site-local hour of a local day for the Fuel and Backup range reads; the same
+# inputs as the noon-hour kinds above.
+  mini_depth.fuel_day:   {grain: local_day, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [fuel], job_domains: [mini_fuel], foundation: true}}
+  mini_depth.backup_day: {grain: local_day, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [backup], job_domains: [mini_backup], foundation: true}}
 # ANY-2 AR-3 (chain/dispatch_day_rows.py): the Portfolio's S3 dispatch day per UTC day (grain s3_day: events resolve
 # to the UTC days of the window plus its 6 h bracket). Its accepted basis (assessment_worker.DISPATCH_ROLES), its
 # selection and jobs (analytic and job domain dispatch) and Foundation (configuration sha) dirty it.
