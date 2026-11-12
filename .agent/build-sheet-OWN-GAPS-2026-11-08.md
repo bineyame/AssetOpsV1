@@ -4815,3 +4815,42 @@ Source: the owner's report "when i navigate into sites, it appears the date rang
 - The owner said "fix it now": start immediately in the order a, b, c. Only SR-4d (the day strip, which needs owner approval by Fri 12:00) can drop.
 
 Decisions logged for owner review: **D-SR.1-8**.
+
+
+## D-SR.9-12 Data in the range means output for the range, on every Site type; SR-5 IN (Architect, Claude, 2026-11-12, owner-directed, logged for owner review)
+
+Source, owner verbatim (`.agent/owner-range-output-rule-2026-11-12.md`): "this should not have been the case to begin with, if there is data in the range, then there should be corresponding output, why was such a site specific disparity in design introduced to being with?" and earlier "fix it now". Full spec: `architect-sequence-client-scope-2026-11-11.md`, Revision 9.
+
+### D-SR.9 Standing product rule.
+- Every Site page with data in the selected range shows output for that range, the same way on every Site type.
+- A single day, hour or night view is only a drill-in from a range view, with a link back. It is never the default.
+- Point-in-time pages (Health now, Prices valid now, Foundation, the Sites index) say so.
+- Gaps use the D-E5.46 words.
+- Supersedes S5-01's one-day default for what the Site Overview shows by default. The one-day read stays as the drill-in. It also supersedes rev 8's class D for the Overview and Dispatch, and rev 8's "Honest limit".
+- Why: the owner's rule. A cross-Site disparity in range behaviour is a defect, not a design choice.
+
+### D-SR.10 Process fix.
+- Every UI plan, packet and review that touches a Site page carries its page × Site-type range row (R/D/N with the reason).
+- `RANGE_MATRIX` (`frontend/src/ui/rangeMatrix.ts`) plus `siteRangeMatrix.test.tsx` fail any Site route that is unclassified, or whose requests ignore the range while it claims "All pages".
+- Why: the root cause was that no plan or review compared the same page across Site types. Each slice was checked only against its own contract.
+
+### D-SR.11 SR-5 range board for mini-grid Sites: IN for 17 Nov, lane H (VPS, from tonight).
+- **Server:** `GET /api/sites/{code}/range-overview?from&to[&known_at]`, schema `site-range-overview-1`. It is composed in the new `estate/site_range.py` on one estate snapshot from the Portfolio's own selectors, so it equals the Portfolio by construction. Its per-day states come from the `dispatch.day` rows with the D-ANY.10 absent compose and the D-E5.46 reasons. The response is stored per Site (ResponseStore), and WARM-1 lists the route.
+- **Pages:** the mini-grid Overview defaults to the range view, and `?day=` is the S5-01 drill-in. Performance/Dispatch and the Kisiwa nights get a day table, and the day becomes the drill-in. Mini-grid Financials adds the range money.
+- **Units:** core (a+b+e) 1.4, c 0.35, d 0.3; 2.05 in all.
+- **Gates:** parity 0 mismatches against the Portfolio, rows on/off and the one-day board; stored response ≤2.0 s.
+- **Deadline:** core ACCEPTed by Sat 16:00 or held whole (SR-4b's last-day Overview stays). c and d each drop alone.
+- **Mock deviations:** R721-R723.
+- Why: the owner's rule and "fix it now". Reusing the Portfolio selectors avoids a second money or coverage rule, and needs no edit to AR-4's files.
+
+### D-SR.12 Audit dispositions and capacity.
+- **Fixed:** SR-4 fixes links, tags, the EV redirect and the Evidence panels. SR-5 fixes the mini-grid Overview, Dispatch, nights and Financials.
+- **Known gaps for 17 Nov**, honestly tagged: mini-grid Health (SR-6, 1.0), Service and the claim limit (SR-7, 0.5), Renewable over 5 days (SR-8, 0.5). Backlog first after 17 Nov.
+- **Moves:**
+  - SR-4d OUT (subsumed by SR-5's day table).
+  - BL-ANY-absent OUT.
+  - DATA-10/13 becomes IN-if-free.
+- **Package:** about 13.4 units, slightly over the 11-13 window. The drop order is DATA-10/13, SR-5d, SR-5c, UQ-FI-3.
+- **Priority:** AR-4 > WARM-1 > SR-4 > SR-5 core > UQ-FI-1/2 > UP-1 > MB-1 > DATA-5/4/8 > SR-5c > SR-5d > UQ-FI-3 > FR-B > DATA-10/13.
+
+Decisions logged for owner review: **D-SR.9-12**.
