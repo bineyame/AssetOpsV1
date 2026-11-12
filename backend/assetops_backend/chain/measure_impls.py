@@ -14,6 +14,7 @@ from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any, Iterable
 
 from assetops_backend.analytics.dispatch_read import dispatch_minutes
+from assetops_backend.financials.money_lines import priced_line
 from assetops_backend.site_outcomes.productive_use import GOOD, productive_energy
 
 from .ports import ChainInputReader, DayCtx, InputSet
@@ -121,7 +122,7 @@ class _Cached:
 
 
 class ProductiveEnergy(_Cached):
-    key = "mini.productive_energy@1"
+    key = "mini.productive_energy@2"  # MN-1: @2 stores the receipt, so a rebuild appends a revision (new input_fp)
 
     def __init__(self, reader: ChainInputReader) -> None:
         super().__init__()
@@ -156,9 +157,10 @@ class ProductiveEnergy(_Cached):
         rate = _dec(price.get("value"))
         if sel.get("state") != "PRICED" or rate is None:
             return None
-        amount = (kwh * rate).quantize(CENT, rounding=ROUND_HALF_UP)
-        return {"amount": f"{amount:f}", "currency": str(price.get("currency")),
-                "assumption_revision_id": str(sel["revision_id"]).lower()}
+        # MN-1 (AR-4): the same amount (unrounded kWh x rate, half-up to the cent) plus its basis and receipt, so a
+        # rebuild reproduces it (`money_lines.reproduces`) and the receipt names the price revision.
+        line = priced_line(kwh, "kWh", rate, str(price.get("currency")), sel["revision_id"])
+        return {**line, "assumption_revision_id": str(sel["revision_id"]).lower()}
 
 
 class RenewableHeadroom:

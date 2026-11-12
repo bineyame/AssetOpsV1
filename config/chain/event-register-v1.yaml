@@ -36,8 +36,13 @@ inputs:
 # AR-4 (estate/period_rows.py): the Portfolio's mini-grid Evidence claim day (a UTC S3 day; stored with its own date,
 # rebuilt from every Site-local day it touches). The selected window revision comes from the S3 dispatch analytic and
 # its jobs, as for avoidable_gen_min.
+# AR-4 MN-2 (estate/money_rows.py): the Site-local day's potential money line with its receipt. price.revised@1
+# (by_assumption_key; valid_local runs an open revision from its valid date to the Site's today) rebuilds it, so a
+# saved price (PR-3) restates every day from its applies-from date; the study's renewable inputs dirty it as for
+# daylight_headroom_kw.
 kinds:
   evidence.claim: {grain: s3_day, site_types: [MINIGRID], inputs: {analytics: [dispatch], job_domains: [dispatch]}}
+  money.lines: {grain: local_day, site_types: [MINIGRID], inputs: {assumption_keys: [productive_use_price_per_kwh], roles: [pv_available_power], mini_depth: [renewable], job_domains: [mini_renewable]}}
   mini_depth.renewable: {grain: local_day, site_types: [MINIGRID], inputs: {roles: &mini_roles [generator_state, generator_power, feeder_demand, battery_soc, pv_power, pv_irradiance, battery_power, fuel_level, pv_available_power, pcs_discharge_capability, critical_load_requested_power, critical_load_delivered_power, storage_charge_requested_power, feeder_requested_power, site_supply_state, mini_backup_start_event, mini_backup_bus_state], mini_depth: [renewable], job_domains: [mini_renewable], foundation: true}}
   mini_depth.fuel:      {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [fuel], job_domains: [mini_fuel], foundation: true}}
   mini_depth.service:   {grain: hour, site_types: [MINIGRID], inputs: {roles: *mini_roles, mini_depth: [service], job_domains: [mini_service], foundation: true}}

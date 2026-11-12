@@ -81,7 +81,7 @@ def test_register_accepts_kinds_and_the_live_register_parses() -> None:
 
     live = load_event_register()
     assert sorted(live.kinds) == ["evidence.claim", "mini_depth.backup", "mini_depth.fuel", "mini_depth.renewable",
-                                  "mini_depth.service"]  # AR-2 declares the board's mini depth kinds; AR-4 the claim day
+                                  "mini_depth.service", "money.lines"]  # AR-2: mini depth; AR-4: claim day, money
     assert live.kinds["mini_depth.renewable"].grain == "local_day" and live.kinds["mini_depth.fuel"].grain == "hour"
     assert live.kinds["evidence.claim"].grain == "s3_day"
     assert "productive_kwh" in live.inputs

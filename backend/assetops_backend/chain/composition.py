@@ -89,15 +89,28 @@ def period_kind_builders(inputs: Any = None) -> dict[str, Any]:
     from assetops_backend.estate.period_rows import kind_builders as estate_kind_builders
 
     builders.update(estate_kind_builders(_estate_evidence_read))
+    from assetops_backend.estate.money_rows import kind_builders as money_kind_builders
+
+    builders.update(money_kind_builders(_estate_evidence_read, _assumption_read))  # AR-4 MN-2
     return builders
 
 
 def period_kind_versions() -> dict[str, str]:
     """The current builder version of every declared kind (the reader's PENDING rule), without building inputs."""
+    from assetops_backend.estate.money_rows import kind_versions as money_kind_versions
     from assetops_backend.estate.period_rows import kind_versions as estate_kind_versions
     from assetops_backend.mini_depth.period_rows import BUILDER_VERSION, KINDS
 
-    return {**{k: BUILDER_VERSION for k in KINDS}, **estate_kind_versions()}
+    return {**{k: BUILDER_VERSION for k in KINDS}, **estate_kind_versions(), **money_kind_versions()}
+
+
+@lru_cache(maxsize=1)
+def _assumption_read() -> Any:
+    """AR-4 MN-2: the assumption read service the `money.lines` builder reads the day's price through."""
+    from assetops_backend.config import database_url
+    from assetops_backend.financials.composition import build_assumption_read_service
+
+    return build_assumption_read_service(database_url())
 
 
 @lru_cache(maxsize=1)

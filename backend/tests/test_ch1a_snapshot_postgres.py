@@ -12,6 +12,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from assetops_backend.financials.money_lines import reproduces
+
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
@@ -129,7 +131,9 @@ def test_productive_builder_idempotent_and_revision_two(store, engine) -> None: 
         a, b, c = (rows[d] for d in DAYS3)
         assert (a.grade, a.covered_seconds, a.required_seconds, a.coverage_pct) == ("PARTIAL", 28800, 86400, "33.33")
         assert a.value == {"kwh": "80.000", "measured_seconds": 28800}
-        assert a.money == {"amount": "20.00", "currency": "USD", "assumption_revision_id": PRICE_REV}
+        assert {k: a.money[k] for k in ("amount", "currency", "assumption_revision_id", "basis")} == {
+            "amount": "20.00", "currency": "USD", "assumption_revision_id": PRICE_REV, "basis": "MEASURED"}
+        assert a.money["receipt"]["rate_ref"] == PRICE_REV and reproduces(a.money)  # MN-1
         assert (b.grade, b.value["kwh"], b.money["amount"]) == ("COMPLETE", "240.000", "60.00")
         assert (c.grade, c.value, c.money) == ("NO_DATA", None, None)
         assert all(r.subject_kind == "ASSET" and r.subject_ref == ASSET and r.revision == 1 for r in rows.values())
@@ -144,7 +148,8 @@ def test_productive_builder_idempotent_and_revision_two(store, engine) -> None: 
         assert [w.written for w in third] == [False, False, True]
         late = third[-1].row
         assert (late.revision, late.grade, late.value) == (2, "LOW", {"kwh": "0.000", "measured_seconds": 1800})
-        assert late.money == {"amount": "0.00", "currency": "USD", "assumption_revision_id": PRICE_REV}  # Q7
+        assert (late.money["amount"], late.money["currency"], late.money["assumption_revision_id"]) == (
+            "0.00", "USD", PRICE_REV) and reproduces(late.money)  # Q7
 
         reader = SnapshotReader(snaps)
         counts = reader.grade_counts(t, s, DAYS3[0], DAYS3[-1], ["productive_kwh"]).to_json()

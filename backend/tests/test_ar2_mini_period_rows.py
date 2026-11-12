@@ -323,7 +323,7 @@ def test_kind_builder_fragment_and_versions() -> None:
 
     builders = period_kind_builders(type("I", (), {"mini": Mini()})())
     # AR-4 adds `evidence.claim` (built lazily over the estate Evidence reader) beside the mini kinds.
-    assert sorted(builders) == sorted((*pr.KINDS, "evidence.claim")) and period_kind_builders(None) == {}
+    assert sorted(builders) == sorted((*pr.KINDS, "evidence.claim", "money.lines")) and period_kind_builders(None) == {}
     assert {k: v for k, v in period_kind_versions().items() if k in pr.KINDS} == {k: pr.BUILDER_VERSION
                                                                                  for k in pr.KINDS}
     site = SiteRef(T, S, CODE, "MINIGRID", TZ)
