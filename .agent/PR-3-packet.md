@@ -105,11 +105,22 @@ this idempotency key, re-derive that save's kind and prior; unit test `test_a_re
    this file: productive-use INITIAL making the mill value priced and its `price_action` disappearing; "stored
    Financials response not served after a save". Both listed as resume points.
 
-## Questions (batched)
+## Fix round (review L1, L2, D-PRICE.2 #4), 2026-11-12
 
-- Q1: Should the INITIAL summary name the Site by its display name? The route would need a name lookup (scope gives
-  only the code).
-- Q2: Confirm deviation 1 (dry run reports, does not refuse, a missing reason).
+- **L1** `price_entry.derive` finds the idempotency key anywhere in the series (`_series_revisions`; the route reads
+  `SERIES_LIMIT = 1000` revisions), so a retry after a later save replays (200). Tests: no-DB
+  `test_a_retry_replays_when_another_save_followed_it`; Postgres flow extended (second save on another key, then
+  the retry of the first returns 200, same revision id, 3 revisions).
+- **D-PRICE.2 #4** new router keyword `site_name(tenant, site)`, composed in `main.py` as
+  `PostgresAssumptionStore.site_name` (`site.name`, the column the estate Financials read serves as `site_name`);
+  null name falls back to the code; a failed lookup is 503 `ASSUMPTION_STORE_UNAVAILABLE`. Tests: name, null
+  fallback, failure 503. Q1 and Q2 are answered by D-PRICE.2 (deviation 4 resolved).
+- **L2** two Postgres tests added to `test_pr3_price_entry_postgres.py`: (a) mill (productive-use) value UNPRICED with a
+  SET_PRICE `price_action`, then an INITIAL price saved through the route, then the verdict reads PRICED 17.00 with
+  no `price_action`; (b) the response watermark (`chain_input_change`) moves after a save, a body stored under the
+  old watermark is not found under the new one (non-vacuous: found under the old), and the fresh price read lists
+  the saved revision.
+- Results: no-DB `test_pr3_price_entry.py` 88 passed; Postgres file 4 passed, 0 skipped (41 s, main merged first).
 
 ## Resume points for the form half (Friday, on PR-2a)
 

@@ -10,7 +10,7 @@ ASSETOPS_TEST_DATABASE_URL.
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from uuid import UUID
 from zoneinfo import ZoneInfo
@@ -29,6 +29,9 @@ if URL:
     from test_s4_consequence_recompute_postgres import Rig
     from test_s4_consequence_store_postgres import KEY, POWER_DAY, site  # noqa: F401
     from test_w203_cold_migration_postgres import constraint, head
+    from test_ch2_thread_store_postgres import seeded  # noqa: F401
+    from test_ch9b1_opportunity_actions_postgres import mill  # noqa: F401
+    from test_ch9b3_mill_verdict_postgres import _after, _close, _frozen, _later, _with_productive_price
 
     from assetops_backend.financial_api import build_financial_assumption_router
     from assetops_backend.financials import fuel_cost as fc
@@ -148,6 +151,16 @@ def test_a_saved_price_reaches_the_fuel_cost_after_one_drain(site, engine) -> No
     assert (old.value, new.value) == (Decimal("1.25"), Decimal("2.00"))
     print("PR-3 window price: as known before", old.value, "current", new.value)
 
+    # L1: another save on the same key follows; a retry of the first save (lost response) still replays, not 409.
+    later = client.post("/api/sites/KOBO-001/financial-assumptions/entries", json={
+        "key": KEY, "value": "2.10", "currency": "USD", "basis": "RECORDED_PURCHASE", "source": "Receipt KOBO-R-1002",
+        "applies_from": "2026-11-20", "idempotency_key": "price-entry-" + "b2" * 16})
+    assert later.status_code == 201 and later.json()["change_kind"] == "SUCCESSION", later.text
+    retry = client.post("/api/sites/KOBO-001/financial-assumptions/entries", json=correction())
+    assert (retry.status_code, retry.json()["replayed"], retry.json()["revision_id"]) == (
+        200, True, body["revision_id"]), retry.text
+    assert len(site.prices.revisions(site.tenant, site.site, KEY)) == 3
+
     # With a site-admin row the downgrade refuses and changes nothing.
     from alembic import command
 
@@ -157,3 +170,72 @@ def test_a_saved_price_reaches_the_fuel_cost_after_one_drain(site, engine) -> No
     with pytest.raises(DBAPIError, match=REFUSED):
         command.downgrade(_alembic(), PREVIOUS)
     assert head(engine) == THIS and constraint(engine, NAME) == CHECK_0060
+
+
+def test_a_saved_price_moves_the_response_watermark_and_the_fresh_read_shows_it(site, engine) -> None:  # noqa: F811
+    from assetops_backend.chain.adapters.postgres_response_store import PostgresResponseRows
+    from assetops_backend.financial_read_api import build_financial_read_router
+    from assetops_backend.financials.assumption_read import AssumptionReadService
+
+    site.publish("v1")
+    rows = PostgresResponseRows(engine=engine)
+    old_mark = rows.read(lambda r: r.watermark(site.tenant, [site.site]))
+    old_estate = rows.read(lambda r: r.watermark(site.tenant, None))
+    rows.insert(site.tenant, old_mark, "pr3-test", 1, None, [("financials", "k", "etag-old", b'{"old": true}')])
+    assert rows.read(lambda r: r.lookup("financials", "k", old_mark, "pr3-test", datetime.now(timezone.utc))) is not None
+
+    client = entry_client(site)
+    saved = client.post("/api/sites/KOBO-001/financial-assumptions/entries", json=correction(
+        applies_from="2026-11-20", reason=None, value="2.00"))
+    assert saved.status_code == 201, saved.text
+
+    new_mark = rows.read(lambda r: r.watermark(site.tenant, [site.site]))
+    assert new_mark != old_mark and rows.read(lambda r: r.watermark(site.tenant, None)) != old_estate
+    # The body stored under the old watermark is not served: the lookup under the new one finds nothing.
+    assert rows.read(lambda r: r.lookup("financials", "k", new_mark, "pr3-test", datetime.now(timezone.utc))) is None
+
+    read_app = FastAPI()
+    read_app.include_router(build_financial_read_router(
+        AssumptionReadService(site.prices), lambda code: ("KOBO-001", site.tenant, site.site) if code == "KOBO-001"
+        else None, access=lambda r, c: None))
+    fresh = TestClient(read_app).get("/api/sites/KOBO-001/financial-assumptions", params={"key": KEY})
+    assert fresh.status_code == 200 and saved.json()["revision_id"] in [r["revision_id"] for r in fresh.json()["revisions"]]
+
+
+def test_a_productive_use_first_price_prices_the_mill_value_and_drops_its_price_action(mill) -> None:  # noqa: F811
+    from assetops_backend.actions import verification_families as vf
+    from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
+
+    svc, clock, aid, eff, tz = _frozen(mill, "pr3-mill", baseline_kwh="42")
+    prices = PostgresAssumptionStore(URL)
+    mill.disposables.append(prices)
+    try:
+        _with_productive_price(svc, mill)
+        _later(mill, eff, "110")
+        clock.at = _after(eff, tz, 5)
+        port = svc.actions.verification_ports.productive_price
+        start = datetime.combine(eff - timedelta(days=3), datetime.min.time(), ZoneInfo(tz)).astimezone(timezone.utc)
+        end = start + timedelta(days=7)
+        details = {"baseline": {"mean_kwh_per_day": "42", "days": [1, 2, 3]},
+                   "later": {"mean_kwh_per_day": "110", "days": [1, 2, 3]}}
+
+        # Before any price: the value reads UNPRICED and carries the set-price action.
+        before = vf.mill_value(details, vf.VERIFIED, port(mill.t, mill.s, start, end, clock.at), "MILL-1")
+        assert before["state"] == "UNPRICED" and before["price_action"]["kind"] == "SET_PRICE", before
+
+        app = FastAPI()
+        app.include_router(build_financial_assumption_router(
+            lambda code: ("MILL-1", mill.t, mill.s) if code == "MILL-1" else None,
+            entry_principal=lambda r, c: ENTRY_PRINCIPAL, store=prices, read_access=lambda r, c: None,
+            site_zone=lambda t, s: ZoneInfo(tz)))
+        saved = TestClient(app).post("/api/sites/MILL-1/financial-assumptions/entries", json={
+            "key": "productive_use_price_per_kwh", "value": "0.25", "currency": "USD", "basis": "CONTRACT_RATE",
+            "source": "Mill customer price list", "applies_from": "2026-01-01", "idempotency_key": IDEM})
+        assert saved.status_code == 201 and saved.json()["change_kind"] == "INITIAL", saved.text
+
+        assert svc.evaluate_domain_plan(mill.t, mill.s, aid)["state"] == "VERIFIED"
+        value = svc.domain_summary(mill.t, mill.s, aid)["value"]
+        assert value["state"] == "PRICED" and value["per_day"] == "17.00", value
+        assert value["price"]["revision_id"] == saved.json()["revision_id"] and "price_action" not in value
+    finally:
+        _close(mill)

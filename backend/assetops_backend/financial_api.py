@@ -45,6 +45,8 @@ Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 Access = Callable[[Request, str], "int | None"]
 # (tenant_id, site_id) -> the Site's time zone (PR-3: the lookup `entry_site_context` uses).
 SiteZone = Callable[[UUID, UUID], ZoneInfo]
+# (tenant_id, site_id) -> the Site's display name (`site.name`, as the Financials read's `site_name`), or None.
+SiteName = Callable[[UUID, UUID], "str | None"]
 _NOT_JSON = object()
 
 _CLIENT_ACTOR_MARKERS = ("actor", "author", "principal")
@@ -83,6 +85,7 @@ def build_financial_assumption_router(scope: Scope, access: Access = no_verified
                                       site_zone: SiteZone | None = None,
                                       read_access: Access = no_verified_principal,
                                       unavailable: tuple[type, ...] = (),
+                                      site_name: SiteName | None = None,
                                       clock: Callable[[], datetime] = _now) -> APIRouter:
     """The human write route (always refused) and PR-3's site-admin entry route (D-PRICE.1).
 
@@ -139,7 +142,8 @@ def build_financial_assumption_router(scope: Scope, access: Access = no_verified
         now = clock()
         try:
             zone = site_zone(tenant_id, site_id)
-            snapshot = store.snapshot(tenant_id, site_id, entry.key, None, 0, 1)
+            snapshot = store.snapshot(tenant_id, site_id, entry.key, None, 0, pe.SERIES_LIMIT)
+            name = site_name(tenant_id, site_id) if site_name is not None else None
         except unavailable as error:
             raise store_down(str(error)) from error
         try:
@@ -156,7 +160,7 @@ def build_financial_assumption_router(scope: Scope, access: Access = no_verified
             return JSONResponse(status_code=200, content={
                 "dry_run": True, "change_kind": derived.change_kind, "applies_from": applies,
                 "reason_required": derived.reason_required,
-                "summary": pe.dry_run_summary(entry, derived.change_kind, unit, code)})
+                "summary": pe.dry_run_summary(entry, derived.change_kind, unit, name or code)})
         correction_reason, provenance = pe.correction_and_provenance(entry, derived.change_kind)
         publication = Publication(
             assumption_key=entry.key, currency=entry.currency, value=entry.value, basis=entry.basis,
@@ -174,7 +178,7 @@ def build_financial_assumption_router(scope: Scope, access: Access = no_verified
             "revision_id": str(published.revision_id), "revision_no": published.revision_no,
             "change_kind": published.change_kind, "applies_from": applies,
             "recorded_at": published.recorded_at.isoformat(), "replayed": published.replayed,
-            "set_by": pe.SET_BY, "summary": pe.saved_summary(entry, unit, code)})
+            "set_by": pe.SET_BY, "summary": pe.saved_summary(entry, unit, name or code)})
 
     @router.post("/api/sites/{site_code}/financial-assumptions")
     async def publish_assumption(request: Request, site_code: str) -> dict[str, Any]:

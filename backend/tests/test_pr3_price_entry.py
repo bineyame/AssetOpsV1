@@ -81,12 +81,14 @@ class Store:
         return Published(uuid4(), 4, NOW, p.change_kind, self.replayed)
 
 
-def client(store=None, *, entry=True, access=None, zone=NAIROBI, scope=SCOPE.get, no_store=False):
+def client(store=None, *, entry=True, access=None, zone=NAIROBI, scope=SCOPE.get, no_store=False,
+           site_name=None):
     app = FastAPI()
     app.include_router(build_financial_assumption_router(
         scope, entry_principal=(lambda r, c: ENTRY_PRINCIPAL) if entry else (lambda r, c: None),
         store=None if no_store else (store or Store()), site_zone=lambda t, s: zone,
-        read_access=access or (lambda r, c: None), unavailable=(Down,), clock=lambda: NOW))
+        read_access=access or (lambda r, c: None), unavailable=(Down,), site_name=site_name,
+        clock=lambda: NOW))
     return TestClient(app)
 
 
@@ -280,6 +282,20 @@ class TestDerivation:
         p = store.published[0][2]
         assert (p.change_kind, p.expected_prior_revision_id) == ("INITIAL", None)
 
+    def test_a_retry_replays_when_another_save_followed_it(self):
+        # KEY made revision 1; revision 2 (another key) is now the head. The retry of KEY still replays (200), not 409.
+        first = (datetime(2026, 11, 9, 21, tzinfo=timezone.utc), datetime(2026, 11, 20, tzinfo=timezone.utc))
+        snap = series(first, (datetime(2026, 11, 20, tzinfo=timezone.utc), None))
+        older, head = sorted(snap["cited"].values(), key=lambda r: r["revision_no"])
+        older.update(idempotency_key=KEY, change_kind="INITIAL", prior_revision_id=None)
+        head.update(idempotency_key="price-entry-" + "1" * 32, change_kind="SUCCESSION", prior_revision_id=older["id"])
+        snap["revisions"] = [older]
+        store = Store(snap, replayed=True)
+        r = post(client(store), body(applies_from="2026-11-10"))
+        assert (r.status_code, r.json()["change_kind"], r.json()["replayed"]) == (200, "INITIAL", True)
+        p = store.published[0][2]
+        assert (p.change_kind, p.expected_prior_revision_id) == ("INITIAL", None)
+
     def test_any_active_currency_without_a_series(self):
         assert post(client(), body(currency="KES")).status_code == 201
 
@@ -301,6 +317,22 @@ class TestDryRun:
         assert r.json()["reason_required"] is False
         r = post(client(Store(series((FAR_PAST, None)))), body(dry_run=True))
         assert r.json()["summary"] == "New diesel price from 13 Nov 2026. Earlier figures keep the current price."
+
+    def test_first_price_summary_uses_the_site_display_name(self):
+        r = post(client(site_name=lambda t, s: "Kobo Solar Mini-grid"), body(dry_run=True, applies_from="2026-11-10"))
+        assert r.json()["summary"].startswith("First diesel price for Kobo Solar Mini-grid: 1.45 USD")
+        r = post(client(site_name=lambda t, s: "Kobo Solar Mini-grid"), body(applies_from="2026-11-10", key="ev_gross_tariff_per_kwh"))
+        assert r.status_code == 201
+
+    def test_null_site_name_falls_back_to_the_code(self):
+        r = post(client(site_name=lambda t, s: None), body(dry_run=True, applies_from="2026-11-10"))
+        assert r.json()["summary"].startswith("First diesel price for KOBO-001: ")
+
+    def test_failed_name_lookup_is_503(self):
+        def broken(t, s):
+            raise Down("name lookup failed")
+        r = post(client(site_name=broken), body(dry_run=True))
+        assert (r.status_code, code(r)) == (503, "ASSUMPTION_STORE_UNAVAILABLE")
 
     def test_dry_run_still_refuses_shape_and_conflicts(self):
         assert code(post(client(), body(dry_run=True, value="0"))) == "PRICE_ENTRY_INVALID"
