@@ -5,7 +5,7 @@
  * browser's); `known_at` is optional.
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
-import { addressRange, focusDayOf, pageDay } from "../ui/sharedRange";
+import { addressRange, focusDayOf, pageDay, rangeDays } from "../ui/sharedRange";
 
 /** The served mini tabs, in the backend's order (S6). */
 export const MINI_DOMAINS = ["service", "fuel", "renewable", "backup"] as const;
@@ -329,19 +329,24 @@ export function localDaysWindow(timeZone: string, first: string, days: number): 
 }
 
 /**
- * The renewable page's window (Q5, q9-1): the address's `from`/`to`/`known_at` when both bounds are present;
- * otherwise one site-local day, the local date of the shell's UTC day start (`?day=`, else the legacy `?date=`, else
- * today's UTC day; SR.3).
+ * The renewable page's window (Q5, q9-1; D-SR.59). The server reads 1-5 exact Site-local days (`hour_windows`), so:
+ * an address that already is exact local midnights 1-5 days apart goes as it is (story links, FocusPicker); a shared
+ * range of at most 5 days names the Site-local days of the same dates (`window_days` rule: `range.from` is the date
+ * string itself); a longer range with no day named keeps its last 5 Site-local days; a named day, or no range, reads
+ * one Site-local day, the local date of the shell's UTC day start (`?day=`, else the legacy `?date=`, else today; SR.3).
+ * `known_at` is carried unchanged.
  */
 export function renewableWindowFromParams(params: URLSearchParams, timeZone: string, now: Date = new Date()): MiniWindowQuery {
   const from = params.get("from");
   const to = params.get("to");
   const known_at = params.get("known_at");
   const focus = focusDayOf(params);
-  // SR-4b (D-SR.5): the address window when it spans at most the server's 5 days (`MINI_RENEWABLE_DAYS`).
-  if (from !== null && to !== null && spanMs(from, to) <= MINI_RENEWABLE_DAYS * DAY_MS) return { from, to, known_at };
+  if (from !== null && to !== null && exactLocalDays(timeZone, from, to) !== null) return { from, to, known_at };
+  // D-SR.59 L-4: the range is measured through `readSharedRange`, never the raw bounds.
   const range = addressRange(params, now.getTime());
   if (range !== null && focus === null) {
+    const n = rangeDays(range);
+    if (n <= MINI_RENEWABLE_DAYS) return { ...localDaysWindow(timeZone, range.from, n), known_at };
     // A longer range with no day named: its last 5 Site-local days, ending on the local date of its last UTC day.
     const lastLocal = localDateOf(timeZone, Date.parse(`${range.to}T00:00:00Z`));
     return { ...localDaysWindow(timeZone, addDays(lastLocal, -(MINI_RENEWABLE_DAYS - 1)), MINI_RENEWABLE_DAYS), known_at };
@@ -352,13 +357,25 @@ export function renewableWindowFromParams(params: URLSearchParams, timeZone: str
   return { ...localDaysWindow(timeZone, first, 1), known_at };
 }
 
+/** An instant bound (`...T..Z`); a day-form bound is measured as a range, never passed through. */
+const INSTANT_TOKEN = /^\d{4}-\d{2}-\d{2}T[\d:.]+Z$/;
+
+/** D-SR.59: the day count when `from`/`to` are exact Site-local midnights 1-5 days apart (as `hour_windows` checks), else `null`. */
+function exactLocalDays(timeZone: string, from: string, to: string): number | null {
+  if (!INSTANT_TOKEN.test(from) || !INSTANT_TOKEN.test(to)) return null;
+  const lo = Date.parse(from);
+  const hi = Date.parse(to);
+  if (!(lo < hi)) return null;
+  const first = localDateOf(timeZone, lo);
+  if (localMidnightUtc(timeZone, first) !== lo) return null;
+  for (let n = 1; n <= MINI_RENEWABLE_DAYS; n++) {
+    if (localMidnightUtc(timeZone, addDays(first, n)) === hi) return n;
+  }
+  return null;
+}
+
 /** SR-4b: the server's renewable read limit in days (backend `MINI_RENEWABLE_DAYS`). */
 export const MINI_RENEWABLE_DAYS = 5;
-
-/** The length of an instant window in ms (`NaN` when a bound does not parse). */
-function spanMs(from: string, to: string): number {
-  return Date.parse(to) - Date.parse(from);
-}
 
 /** `[local hour, local hour + 1 h)` of a site-local date as UTC tokens (one Site-local clock hour, Q4/Q5). */
 export function localHourWindow(timeZone: string, day: string, hour: number): { from: string; to: string } {
@@ -370,19 +387,24 @@ export function localHourWindow(timeZone: string, day: string, hour: number): { 
 export const DEFAULT_SERVICE_HOUR = 12;
 
 /**
- * The service page's window (Q5): the address's `from`/`to`/`known_at` when both bounds are present; otherwise the
- * local 12:00-13:00 hour of the local date of the shell's UTC day start (`?day=`, else the legacy `?date=`, else
- * today's UTC day; SR.3).
+ * The service page's window (Q5; D-SR.59), also Backup and Fuel. The server reads exactly one Site-local clock hour
+ * (`hour_windows`), so only such an address goes as it is (story links, FocusPicker); a reversed or unparseable pair
+ * also goes as it is, so the page names why it is refused. Any shared range, one day ("Yesterday") included, gives the
+ * 12:00-13:00 local hour of the local date of the page's UTC day (`?day=`, else the range's last day, else today; SR.3).
+ * `known_at` is carried unchanged.
  */
 export function serviceWindowFromParams(params: URLSearchParams, timeZone: string, now: Date = new Date()): MiniWindowQuery {
   const from = params.get("from");
   const to = params.get("to");
   const known_at = params.get("known_at");
-  // SR-4b (D-SR.5): the address window only when it is exactly one hour or one day (story links); otherwise the
-  // 12:00 local hour of the page's day (`day=`, else the range's last day).
-  const span = from !== null && to !== null ? spanMs(from, to) : NaN;
-  // A window that cannot be a range (reversed or unparseable) goes as it is, so the page names why it is refused.
-  if (from !== null && to !== null && (span === 3_600_000 || span === DAY_MS || !(span > 0))) return { from, to, known_at };
+  if (from !== null && to !== null) {
+    const lo = Date.parse(from);
+    const hi = Date.parse(to);
+    if (INSTANT_TOKEN.test(from) && INSTANT_TOKEN.test(to) && hi - lo === 3_600_000 && lo % 60_000 === 0 &&
+        localTimeOf(timeZone, lo).endsWith(":00")) return { from, to, known_at };
+    if (!(hi > lo) && addressRange(params, now.getTime()) === null) return { from, to, known_at };
+  }
+  // D-SR.59 L-4: the day comes from `readSharedRange` (`pageDay`), never the raw bounds.
   const utcDay = pageDay(params, now.getTime());
   const day = localDateOf(timeZone, Date.parse(`${utcDay}T00:00:00Z`));
   return { ...localHourWindow(timeZone, day, DEFAULT_SERVICE_HOUR), known_at };
