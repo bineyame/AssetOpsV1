@@ -1,5 +1,15 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 5a (Architect, Claude, 2026-11-12): order of the remaining any-range speed work
+
+- Ruling **D-ANY.8** (`build-sheet-OWN-GAPS-2026-11-08.md`). Lanes and the freeze in 5.5 are unchanged.
+- **Order:**
+  1. AR-3 + AR-6 merge as they are.
+  2. AR-4 rebases onto main (it does not merge the AR-3 branch) and switches `evidence_money.mini_grid_rows` to `coverage.dispatch_days`.
+  3. money.lines (MN-1/2/3, with the PR-3 price-save refresh) is built meanwhile, code and no-DB tests first.
+  4. evidence.provenance goes to the backlog.
+- **AR-4 minimum for 17 Nov:** claim rows + the switch. money.lines is IN only if its parity passes by Sat 12:00; otherwise it moves to `task/ANY-2-AR4b`. The ≤2 s target is reported, not gated.
+
 ## Revision 5 (Architect, Claude, 2026-11-12): price entry back IN, saved as "Entered by site admin"
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).

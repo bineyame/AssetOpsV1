@@ -1051,6 +1051,19 @@ class PostgresAssessmentStore:
         return [self._dispatch_day_on(c, tenant_id, site_id, d, w, known_at, live, basis, prefetched=pf)
                 for d, w in spans]
 
+    def dispatch_day_now(self, tenant_id: UUID, site_id: UUID, day: date) -> dict[str, Any] | None:
+        """AR-3: the S3 dispatch day of UTC `day` exactly as `select_dispatch_days_on` composes it for a live read,
+        in a read-only REPEATABLE READ transaction of its own at its clock (the `dispatch.day` row builder)."""
+        window = day_window(day)
+
+        def work(c: Connection) -> dict[str, Any] | None:
+            c.execute(text("SET TRANSACTION READ ONLY"))
+            k = c.execute(text("SELECT clock_timestamp()")).scalar_one()
+            days = self.select_dispatch_days_on(c, tenant_id, site_id, window.start, window.end, k)
+            return days[0] if days else None
+
+        return self._snapshot(work)
+
     @staticmethod
     def _transaction_time(c: Connection) -> datetime:
         """The caller's transaction time: at or after it, a job's present status is its status at the cutoff."""
