@@ -8,7 +8,10 @@ and the last day of the window has no row at all. Through the route over the rea
 - the missing-hour day reads MISSING_HOUR (the rev 10 PARTIAL day) with no band;
 - the absent-row day reads the chain's NO_DATA grade (D-SR.16), never "nothing known";
 - for 3 sampled days, the row's band equals the one-day depth envelope's `headroom_kw` card (range -> drill-in);
-- the totals average the COUNTED days only.
+- the totals average the COUNTED days only;
+- D-SR.62: one sampled day (DAYS[2]) has 4 operating hours with no `pv_available_power` reading (missing hours):
+  the range row is PARTIAL with 4 uncovered hours, and the one-day read leaves those hours out (`missing_hours` 4)
+  and still equals the stored value (before D-SR.62 it read UNKNOWN with null cards).
 """
 from __future__ import annotations
 
@@ -78,8 +81,16 @@ def _same(text, number):
     return (text is None and number is None) or Decimal(str(text)) == Decimal(str(number))
 
 
-def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engine) -> None:  # noqa: F811
+PARTIAL_DAY_MISSING = 4  # D-SR.62: local 14:00-18:00 on DAYS[2] carry no pv reading
+
+
+def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engine, monkeypatch) -> None:  # noqa: F811
     installed, t, s = w402._setup(store, engine)
+    gap_lo = w402._midnight(w402.DAYS[2]) + timedelta(hours=14)
+    gap = {gap_lo + timedelta(hours=i) for i in range(PARTIAL_DAY_MISSING)}
+    seeded = w402._dark_hours
+    monkeypatch.setattr(w402, "_dark_hours", lambda *a, **k: [p for p in seeded(*a, **k)
+                                                               if p.interval_start not in gap])
     w402._ingest(engine, installed)
     w402._reconcile(engine, w402.DAYS)
     snaps, inputs = PostgresSnapshotStore(URL), build_chain_inputs(URL)
@@ -133,6 +144,11 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
             depth = w402._read(engine, t, s, "renewable", w402._midnight(day),
                                w402._midnight(day + timedelta(days=1)))
             card, got = depth["cards"]["headroom_kw"], days[day]
+            # D-SR.62: one-day `missing_hours` = the range row's uncovered operating hours (no gaps on these days).
+            expect_missing = PARTIAL_DAY_MISSING if day == w402.DAYS[2] else 0
+            assert depth["missing_hours"] == expect_missing, (day, depth["missing_hours"])
+            assert got["operating_hours"] - got["covered_hours"] == expect_missing, (day, got)
+            assert got["partial"] is (expect_missing > 0), (day, got)
             if got["state"] == "EXCLUDED":
                 assert card is None and depth["cards"]["eligible_days"] == 0, (day, depth["cards"])
                 continue
@@ -148,6 +164,7 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
                 (day, got, allh)
             assert Decimal(got["high_kw"]) <= Decimal(str(card["high"])), (day, got, card)
         assert sampled >= 1, [days[d]["state"] for d in w402.DAYS]
+        assert days[w402.DAYS[2]]["state"] == "COUNTED"  # the partial sampled day was compared above
 
         counted = [d for d in body["days"] if d["state"] == "COUNTED"]
         totals = body["totals"]
