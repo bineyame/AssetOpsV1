@@ -43,12 +43,19 @@ Spec: rev 10 §10.4, rev 10a §10a.3, D-SR.15/16/23/27. Page not started (waits 
 - D-SR.45: `window_days` (Q1). D-SR.47: NO_VALUE, 0.01 rounding on averages only, codes and `known_at` in the key
   confirmed; LOW grade -> NOT_ENOUGH_READINGS, never counted; PARTIAL-grade COUNTED/EXCLUDED day has `partial: true`.
 
-## Open question
+## Q6 resolved by D-SR.48 (server part built)
 
-- Q6 The one-day depth `headroom_kw` card is `observed_headroom_range` (min low, MAX high over ELIGIBLE hours; null
-  on an EXCLUDED day); the stored snapshot is min low, MIN high. Rev 10 §10.4's "row equals the depth card" holds
-  for low only. The Postgres test asserts low equal and stored high <= card high. The page shows the two figures
-  differently on range vs drill-in for the same day; Architect to rule which wording/figure.
+- Depth `cards.all_hours_headroom_kw` {low, high} (`mini_depth/rules.py summarize_renewable`, `read.py compose_renewable`
+  and `NULL_CARDS`): min low and min high over ELIGIBLE hours of ELIGIBLE days; null when `headroom_kw` is null. The
+  existing `headroom_kw` card is unchanged. The stored day value equals it exactly (Postgres test); card high >= stored high.
+- Tests: `test_w402_rules.py` (field, low==card low, high<=card high, null on excluded), `test_w402_reads.py`
+  (compose value and null cards), `test_sr8_renewable_range_postgres.py` (exact equality on sampled days).
+- Server bodies carry no label text for this figure; wording lives in the page.
+- Page resume points (frontend, after SR-4): range per-day and totals wording "Headroom available in every eligible
+  hour: low-high kW" / totals "average headroom available in every eligible hour"; one-day Renewable line under the
+  card with the same words from `cards.all_hours_headroom_kw`; relabel the existing card "Range across eligible
+  hours"; record MOCK DEVIATION R726; vitest pins the one-day line and range wording; parity JSON compares stored day
+  value to `all_hours_headroom_kw`, gate 0 mismatches. Add `all_hours_headroom_kw` to `miniDepthClient.ts` cards type.
 
 ## Questions (Architect, answered by D-SR.45/47)
 
@@ -66,3 +73,5 @@ Spec: rev 10 §10.4, rev 10a §10a.3, D-SR.15/16/23/27. Page not started (waits 
 ## Resume
 
 Run pending 1-2 when the DB is free; then the page after SR-4 merges (rev 10 §10.4 page bullet).
+
+Checks (D-SR.48 follow-up): no-DB neighbours 58 passed/3 skipped; Postgres SR-8 file 1 passed (assetops_sr8_test); w402_reads_postgres + w501_cold_depth_postgres 19 passed; check-all: All 19 guards passed.

@@ -390,6 +390,8 @@ class RenewableCards:
     eligible_days: int | None
     assessed_days: int | None
     recurrence_established: bool
+    #: D-SR.48: room available in every eligible hour (min low, min high); null whenever `headroom_kw` is null.
+    all_hours_headroom_kw: Bound | None = None
 
 
 def observed_headroom_range(values: Sequence[Bound]) -> Bound | None:
@@ -434,10 +436,13 @@ def summarize_renewable(hours: Sequence[RenewableHour], *, requested_days: int) 
     span = observed_headroom_range
 
     used = [h.used_kw for h in eligible if h.used_kw is not None]
+    headrooms = [h.headroom_kw for h in eligible if h.headroom_kw is not None]
     return RenewableCards(
         capability_kw=span([h.capability_kw for h in eligible if h.capability_kw is not None]),
         used_kw=Bound(min(used), max(used)) if used else None,
-        headroom_kw=span([h.headroom_kw for h in eligible if h.headroom_kw is not None]),
+        headroom_kw=span(headrooms),
+        all_hours_headroom_kw=(Bound(min(b.low for b in headrooms), min(b.high for b in headrooms))
+                               if headrooms else None),
         eligible_days=len(eligible_days) if assessed else None,
         assessed_days=len(assessed) if assessed else None,
         recurrence_established=requested_days == 5 and len(by_day) == 5 and len(assessed) == 5,

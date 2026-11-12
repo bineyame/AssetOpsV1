@@ -79,7 +79,8 @@ def test_compose_renewable_status_and_counts() -> None:
     supported = compose_renewable(five)
     assert supported["status"] == "SUPPORTED"
     assert supported["cards"] == {"capability_kw": {"low": 41, "high": 43}, "used_kw": {"low": 21, "high": 21},
-                                  "headroom_kw": {"low": 11, "high": 16}, "eligible_days": 4, "assessed_days": 5}
+                                  "headroom_kw": {"low": 11, "high": 16},
+                                  "all_hours_headroom_kw": {"low": 11, "high": 13}, "eligible_days": 4, "assessed_days": 5}
     limited = compose_renewable([*five[:2], (five[2][0], five[2][1], _hour("LIMITED")), *five[3:]])
     assert limited["status"] == "LIMITED" and limited["cards"]["assessed_days"] == 4
     conflict = compose_renewable([*five[:4], (five[4][0], five[4][1], _hour("CONFLICT"))])
@@ -88,8 +89,8 @@ def test_compose_renewable_status_and_counts() -> None:
     assert missing["status"] == "UNKNOWN" and missing["cards"]["assessed_days"] == 4
     nothing = compose_renewable([(d, x, None) for d, x in w])
     assert nothing["status"] == "UNKNOWN"
-    assert nothing["cards"] == dict.fromkeys(("capability_kw", "used_kw", "headroom_kw", "eligible_days",
-                                              "assessed_days"))
+    assert nothing["cards"] == dict.fromkeys(("capability_kw", "used_kw", "headroom_kw", "all_hours_headroom_kw",
+                                              "eligible_days", "assessed_days"))
 
 
 class _Reader:

@@ -141,6 +141,11 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
             sampled += 1
             assert card is not None, (day, depth["cards"])
             assert _same(got["low_kw"], card["low"]), (day, got, card)
+            # D-SR.48: the stored day value equals the day page's `all_hours_headroom_kw` exactly; the card's high
+            # (the envelope) is at least the stored high.
+            allh = depth["cards"]["all_hours_headroom_kw"]
+            assert allh is not None and _same(got["low_kw"], allh["low"]) and _same(got["high_kw"], allh["high"]), \
+                (day, got, allh)
             assert Decimal(got["high_kw"]) <= Decimal(str(card["high"])), (day, got, card)
         assert sampled >= 1, [days[d]["state"] for d in w402.DAYS]
 

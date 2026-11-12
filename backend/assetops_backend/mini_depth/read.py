@@ -66,7 +66,8 @@ MESSAGES = {
     "MINI_DEPTH_STORE_UNAVAILABLE": "Mini-grid evidence is unavailable right now. Try again.",
 }
 NULL_CARDS: dict[str, dict[str, None]] = {
-    "renewable": dict.fromkeys(("capability_kw", "used_kw", "headroom_kw", "eligible_days", "assessed_days")),
+    "renewable": dict.fromkeys(("capability_kw", "used_kw", "headroom_kw", "all_hours_headroom_kw", "eligible_days",
+                              "assessed_days")),
     "service": dict.fromkeys(("delivered_load_kw", "interruptions_seen", "critical_delivered_kw", "unserved_kwh")),
     "fuel": dict.fromkeys(("opening_l", "deliveries_l", "expected_use_l", "closing_l", "residual_l")),
     "backup": dict.fromkeys(("outage_count", "start_success_count", "last_witnessed_test_at", "critical_recovery")),
@@ -276,7 +277,8 @@ def compose_renewable(hours: Sequence[tuple[date, rules.Window, dict[str, Any] |
         status = "UNKNOWN"
     return {"status": status, "cards": {
         "capability_kw": _bound_json(cards.capability_kw), "used_kw": _bound_json(cards.used_kw),
-        "headroom_kw": _bound_json(cards.headroom_kw), "eligible_days": cards.eligible_days,
+        "headroom_kw": _bound_json(cards.headroom_kw),
+        "all_hours_headroom_kw": _bound_json(cards.all_hours_headroom_kw), "eligible_days": cards.eligible_days,
         "assessed_days": cards.assessed_days}}
 
 
