@@ -98,3 +98,4 @@ M-1: `range_days` starts `pending` from `result.is_pending(...)` and ORs `read.p
 row already grades NOT_EXPECTED, so `none_declared` exclusion in `no_reading_days` is redundant with the NOT_EXPECTED
 exclusion (tests say so). L-3: parity NO_DATA cross-check is role + overlap only (committed and working copies).
 Pure + route tests: 35 passed.
+Postgres file (assetops_sr10_test): 5 passed in 144s after the fix round.
