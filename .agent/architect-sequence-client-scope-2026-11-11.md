@@ -1,5 +1,178 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 6 (Architect, Claude, 2026-11-12): UQ-FI, a first-impression UI pass for 17 Nov
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).
+- Owner, verbatim (`.agent/owner-ui-first-impression-2026-11-12.md`): "option 1, show me the design sheet after the demo". Option 1 = UQ-1-level type, spacing and Inter across the app, plus one headline per demo page and repeated "not available" lines collapsed to one per section; own lane from Fri; starts only after the owner approves the parked v7.2 sheet; held whole if not ACCEPTed by Sat 20:00.
+- Supersedes revision 3's "UQ-1 out" line for this subset only. UQ-0's other parts, UQ-2 (dark), UQ-3, UQ-4 and UQ-5..8 stay in the backlog (BL-69). Rulings **D-UQFI.1-5** below, logged for owner review.
+- Basis: `.agent/architect-answer-ui-quality-2026-11-10.md` problems 1-3 (type, no headline, honesty wording crowding the page). Problems 4 (charts) and 5 (i18n) are not touched.
+
+### 6.1 Scope: UQ-FI, 1.9 units (D-UQFI.1)
+
+| Card | What | Units |
+|---|---|---|
+| UQ-FI-0 | One extra panel on the v7.2 sheet, "One headline, one gap line per section": a before/after of the Kobo Finding header and the Cold board's empty lower half, drawn from today's words. Optional; only if it can reach the owner with the sheet tonight | 0.1 |
+| UQ-FI-1 | (a) Tokens across the whole app: the 8-step type scale, a 12 px floor, 14 px body, Inter self-hosted, tabular figures, the 4 px spacing scale (tokens defined; snapped only on demo-path files); every raw `font-size` in `frontend/src` moved onto the scale by a committed codemod; the style ratchet | 0.9 |
+| UQ-FI-2 | (b) Demo-path pages only: one headline per page; repeated gap lines collapsed to one per section through one shared component | 0.7 |
+| Evidence | Before/after captures of every demo-path page at 1440 and 1280 px, with measurements; packet | 0.2 |
+| **Total** | | **1.9** (1.8 without UQ-FI-0) |
+
+**Rules that bound it:**
+- Light theme only (today's colours). English only.
+- No layout restructure: no grid, column or panel moves, no new panels, tabs or controls, no new charts, no new words. Two moves only: the headline element goes first in its page header, and a section's repeated gap lines become one line.
+- Gap wording keeps D-E5.46: the fact is stated once per section, with every subject it applies to named; never hidden, softened, re-worded or merged across different facts.
+- Tables, the Portfolio outcome matrix and tab rows are out of the collapse: each cell and each "Label · Not available yet" tab keeps its own words (collapsing them would change layout).
+
+**Demo-path pages (from DS-1f `demo-script-client.html` checklist and DS-1b; both are on branch `task/DS-1f-fill`, not on main):**
+
+| # | Page (frame) | Script step | Headline (existing text, moved first; nothing new) |
+|---|---|---|---|
+| P1 | Portfolio, all tabs (`EstatePortfolioFrame`) | 0, 1 | page title "Portfolio" + its existing subtitle sentence |
+| P2 | Site board / Overview, Kobo, Cold room, EV depot, Kisiwa (Site board frame under `SiteDetailFrame`) | 2, 3, 3b, 4, 5, K, 7 | Site name + the board's day line |
+| P3 | Finding detail: Kobo generator, Kisiwa unexplained fuel (incl. `SiteFuelFindingFrame`) | 2, K | the Finding's title (what happened), then its first sentence; the "Priority · Confidence · Earlier version n of m" line moves under them |
+| P4 | Verification ("check") pages: Kobo ACT-001, Kisiwa ACT-004 (`SiteMillVerificationFrame`, `SiteFuelVerificationFrame`, or the action verification frame the pre-flight confirms) | 2, K | the page title; the verdict chip stays in the header |
+| P5 | Daytime solar opportunity page | 3 | "Daytime solar unused at Kobo mini-grid" |
+| P6 | Findings index, all lenses and the Opportunities tab (`EstateFindingsFrame`); Kisiwa Site Findings | 3, 6, K | "Findings across the estate" / the Site Findings title |
+| P7 | Kisiwa Fuel night page; Kisiwa Service page; Operational records (live dip) | K | each page's title |
+| P8 | Maintenance (optional step 4); Site price page (PR-2a/PR-3, if merged; demo beat 5.4 #10) | 4, price beat | page title; tokens only, no collapse work on the price page |
+
+### 6.2 What the owner approves on the v7.2 sheet for UQ-FI (the coordinator presents these, in plain words)
+
+1. **Inter** becomes the app's font, stored with the app (no internet needed), with the computer's own font as fallback; numbers in tables and money line up (tabular figures).
+2. **Type sizes:** one scale of 8 sizes (12, 13, 14, 16, 18, 20, 24, 30 px); nothing smaller than 12 px; normal text 14 px.
+3. **Headings:** page titles 24 px (today 27), section titles 16 px (today 15). Table text 13 px with 12 px column heads, and table rows keep today's height; the sheet's taller 44 px rows come after 17 Nov.
+4. **Spacing:** the sheet's 4 px spacing steps, applied to the demo pages only.
+5. **Colours stay as today, light theme only.**
+6. **Left menu:** same items and order; group names 12 px (today 9 px), items 13 px.
+7. **Not on the sheet, approved as a rule (or from the UQ-FI-0 panel):** one headline per demo page, and a repeated "not available / not assessed / no assessment" line said once per section, naming everything it applies to. You see the before/after pictures on Saturday.
+8. **Not for 17 Nov (after the demo, from the same sheet):** the dark theme and the System/Light/Dark switch, the new colour palette, the reading-state colours and symbols, the outcome-category colours, new corners and shadows, the one-figure outcome card, taller table rows, and the French and Swahili samples.
+
+### 6.3 Technical design (builders do not design)
+
+**D-UQFI.2 Type scale and mapping.**
+- New file `frontend/src/ui/fonts.css`, imported in `main.tsx` **before** `ui/tokens.css`:
+  - `@font-face { font-family: "Inter"; src: url("/fonts/InterVariable.woff2") format("woff2-variations"), url("/fonts/InterVariable.woff2") format("woff2"); font-weight: 100 900; font-style: normal; font-display: swap; }`.
+  - Files: `frontend/public/fonts/InterVariable.woff2` and `frontend/public/fonts/OFL.txt`, from the rsms/inter v4.1 GitHub release zip (fetched on the VPS). The packet records the release URL and the SHA-256 of both files. No CDN at runtime, no npm dependency.
+- `ui/tokens.css`, primitive tier (new):
+  - `--font-size-100: 0.75rem` (12), `-200: 0.8125rem` (13), `-300: 0.875rem` (14), `-400: 1rem` (16), `-500: 1.125rem` (18), `-600: 1.25rem` (20), `-700: 1.5rem` (24), `-800: 1.875rem` (30).
+  - `--space-1: 4px` … `--space-2: 8px`, `-3: 12px`, `-4: 16px`, `-5: 20px`, `-6: 24px`, `-8: 32px`, `-10: 40px`, `-12: 48px`, `-16: 64px`.
+  - `--font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;` `--font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;` `--leading-body: 1.5`.
+- Existing role tokens are **re-pointed, not renamed** (no call-site churn):
+
+| Token | Today | UQ-FI |
+|---|---|---|
+| `--text-xs` | 11 | `--font-size-100` (12) |
+| `--text-sm` | 13 | `--font-size-200` (13) |
+| `--text-base` | 14 | `--font-size-300` (14) |
+| `--text-lg` | 17 | `--font-size-400` (16) |
+| `--text-xl` | 22 | `--font-size-600` (20) |
+| `--text-2xl` | 28 | `--font-size-700` (24) |
+| `--text-page-title` | 27 | `--font-size-700` (24) |
+| `--text-panel-title` | 15 | `--font-size-400` (16) |
+| `--text-subsection-title` | 13 | `--font-size-300` (14) |
+| `--text-panel-note` | 11 | `--font-size-200` (13) |
+| `--text-table` | 11 | `--font-size-200` (13) |
+| `--text-table-head` | 9 | `--font-size-100` (12) |
+| `--text-cell-secondary` | 10 | `--font-size-100` (12) |
+| `--text-tab` | 12 | `--font-size-300` (14) |
+| `--text-subtab` | 11 | `--font-size-200` (13) |
+| `--text-rail` | 12 | `--font-size-200` (13) |
+| `--text-rail-eyebrow` | 9 | `--font-size-100` (12) |
+
+- `body` (in `ui/primitives.css`): `font-size: var(--text-base); line-height: var(--leading-body); font-family: var(--font-sans);`. Tabular figures: `font-variant-numeric: tabular-nums` on `table`, money and figure classes (`.money`, `[data-figure]`, card figure classes; the pre-flight lists the exact selectors).
+- **Codemod** `tools/uqfi-type-codemod.mjs` (committed, idempotent, rerun by any branch that merges after it). Over `frontend/src/**/*.css` except `ui/tokens.css` and `ui/fonts.css`, each `font-size` value becomes a role or primitive variable:
+  - any px value ≤ 12 (7, 8, 9, 9.5, 10, 10.5, 11, 12), `0.75rem`, `var(--text-xs, …)`, `var(--font-size-sm, 0.85em)` → `var(--font-size-100)`;
+  - 13 px, `0.8125rem` → `-200`; 14 px, `0.875rem` → `-300`; 15, 16 px, `1rem` → `-400`; 17, 18, 19 px → `-500`; 20, 22 px → `-600`; 23, 24, 25, 27 px → `-700`;
+  - an existing `var(--text-*)` stays (its token was re-pointed); `inherit`, `1em` and `100%` stay;
+  - a fallback inside `var(…, x)` is dropped;
+  - any value it cannot map is printed and fails the run (the builder maps it by this table's nearest-step rule, ties go up, and adds it to the script).
+  - The one inline `fontSize` in TSX (outside tests) uses the variable.
+  - Monospace literals (`Consolas, monospace`, `ui-monospace, …`) become `var(--font-mono)`.
+- **Spacing, demo-path files only:** padding, margin and gap px values in the CSS files the P1-P8 frames load are snapped to the nearest `--space-*` (ties down, so nothing grows by more than 2 px); 1 px and 2 px hairlines stay. Other files keep their values (the ratchet does not count spacing for 17 Nov).
+
+**D-UQFI.3 Style ratchet (shrink-only), `tools/checks/style-ratchet.mjs`.**
+- Same contract and code shape as `frontend-hardwiring.mjs`: per-file counts compared with `tools/checks/fixtures/style-ratchet-baseline.json`; any cell above baseline fails; a file outside the baseline counts from 0; the baseline changes only by `--shrink` (refused while any cell has risen); `--print` shows counts.
+- Scan: `frontend/src/**/*.css` and `frontend/src/**/*.tsx` (not `__tests__`), excluding `ui/tokens.css` and `ui/fonts.css`. Cells per file:
+  - `rawFontSize`: `font-size` values that are not `var(--text-*)`/`var(--font-size-*)`/`inherit`/`1em`/`100%`, plus inline TSX `fontSize`;
+  - `rawFontFamily`: `font-family` not `var(--font-*)` or `inherit`;
+  - `rawHex`: hex colour literals.
+- **Wall, not ratchet (whole tree, tokens.css included):** any font-size resolving below 12 px fails. After the codemod, `rawFontSize` and `rawFontFamily` are 0 in every file, so those two baselines hold no rows; `rawHex` gets today's per-file counts (to shrink later, stage 1).
+- `tools/checks/test_style_ratchet.mjs` (node test, like `test_frontend_hardwiring.mjs`): a rise fails, a new file counts from 0, `--shrink` refused on a rise, the 12 px wall, the allowed relative values.
+- Wire into `tools/check-all.ps1` beside the hard-wiring guard: `Invoke-Guard "Style ratchet (UQ-FI)" $Node @("tools/checks/style-ratchet.mjs")`.
+
+**D-UQFI.4 One headline, one gap line per section.**
+- **Headline:** each P1-P8 page has exactly one `h1`, rendered through `PageHeader` (or `V69Layout`'s title slot) at `--text-page-title`, and it is the headline text in the 6.1 table. No other element on the page uses `--text-page-title` or a larger size. Elements that are visually headline-sized today (outcome row titles, card titles) drop to `--text-panel-title`. On P3 the status line moves below the title and first sentence; nothing is removed.
+- **Gap grouping**, new `frontend/src/ui/gapGroup.ts` (pure) and `frontend/src/ui/GapGroup.tsx`:
+  - `groupGaps(items: GapItem[]): GapGroupLine[]`, where `GapItem = { subject: string; fact: string; reason?: string; gapId?: string }` and `GapGroupLine = { fact: string; reason?: string; subjects: { subject: string; gapId?: string }[] }`.
+  - Group key is `(reason ?? fact)` with exact string equality on `fact`; different facts or reasons never merge. Lines keep D-E5.46 precedence order (no readings, conflicting, not enough, not analysed yet, still processing), then other facts in first-seen order. Subjects keep their original order.
+  - A group with one subject renders exactly as today (no change for single gaps).
+  - `<GapGroup items={…} />` renders one `<p class="gap-group">` per line: `<span class="gap-group__fact">{fact}</span>` followed by `<ul class="gap-group__subjects">` with one `<li data-gap-id={gapId}>{subject}</li>` per subject (separators in CSS). The words are the server's or the page's existing words; the component concatenates no strings.
+  - A section is one panel or card. Grouping never crosses sections. Where every block of a section says only a gap (for example the Cold board's lower-half cards "No cold assessment for this window"), those blocks become one `GapGroup` line in that section, naming each block's title as a subject.
+  - Where the gap words come from `MissingClaim`, the subject `<li>` renders `MissingClaim` for that gap, so `missing-claim-scan.mjs` and the gap ids still see every gap.
+- Site-type agnostic: no `site_type` or outcome-id branch (hard-wiring ratchet). Words never composed from codes.
+- Collapse targets the pre-flight confirms on the live pages (at least): the Finding header's "Priority: not assessed · Confidence: not assessed"; the Cold board's four "No cold assessment for this window" cards; repeated "Not available yet"/"Unknown"/"not worked out yet" lines inside one Portfolio card or one board outcome row. Not: tables, the outcome matrix, tab rows, lens chips.
+- **MOCK DEVIATION:** the type sizes need no label once the owner approves the sheet (the v7.2 sheet replaces the v6.9 type scale for what it covers). Each collapsed section carries a MOCK DEVIATION label citing D-UQFI.4 unless the UQ-FI-0 panel is approved (then it cites the sheet).
+
+**Tests.**
+- Frontend (vitest, named files only):
+  - `ui/__tests__/gapGroup.test.tsx`: grouping by fact; different reasons never merge; D-E5.46 order; subject order; a single gap unchanged; gap ids preserved on every subject; no text composed (fact and subjects appear as separate nodes).
+  - One test per P1-P7 frame (added to its existing test file, named in the pre-flight): exactly one `h1`, with the headline text; the set of gap ids and gap facts on the page is the same before and after (no gap lost).
+  - `ui/__tests__/tokens.test.ts`: every `--text-*` and `--font-size-*` resolves to ≥ 0.75rem; `main.tsx` imports `fonts.css` before `tokens.css`.
+  - Existing tests that assert removed duplicate lines are updated; each is listed in the packet with the reason.
+- Guards: style ratchet (new), hard-wiring, missing-claim, mock-deviation labels, architecture check.
+- **Visual evidence (required for review)**, new `tools/uqfi-captures.mjs`, the CDP approach of `tools/layout-evidence.mjs` (no new dependency):
+  - `capture <links.json> <out-dir> [web-base] --widths 1440,1280` takes full-page PNGs of every P1-P8 URL (the DS-1f links output for the chosen DB) into `Docs/demo-sprint/uqfi-img/{before,after}/{nn}-{page}-{width}.png`.
+  - Per page and width it records in `measure.json`: the smallest computed font-size of visible text (must be ≥ 12), page-level sideways scroll (must be none), the `h1` count (must be 1 after), the count of visible gap-fact lines before and after, and whether Inter is the rendered font (`document.fonts.check`).
+  - **Before** captures from main at the lane's start, **after** from the branch; same DB, same serve, same URLs, light theme.
+  - Also measured, no picture: sideways scroll at 390 px on P1-P3 (no regression).
+- Packet: the codemod output (counts per file), distinct font-size values before and after (62 strings today, target the 8 steps plus `inherit`/`1em`/`100%`), the ratchet baseline, font SHA-256, the before/after index (an HTML page pairing the pictures), and the list of collapsed sections per page.
+
+**D-UQFI.5 Collisions with work merging this week.**
+- **Already merged** (PF-T, PF-C/PF-W, SR-1, SR-2, SR-2b, C1, PB-1c): UQ-FI is cut from main after them; nothing to do.
+- **PR-2a / PR-3** (`sites/SitePrices.tsx`, `sitePrices.css`, `priceAction.css`, the PR-3 form):
+  - From now, PR-2a and PR-3 CSS uses `var(--text-*)` only, no px font sizes (the coordinator relays this to both builders today).
+  - Whichever merges first, the other rebases. If PR-2a/PR-3 merges first, UQ-FI reruns the codemod and the ratchet after the rebase and retakes the P8 price-page capture. If UQ-FI merges first, PR-3 runs the codemod on its own CSS and must pass the ratchet (new files count from 0).
+  - UQ-FI does no collapse or headline work on the price page and does not touch PR-3's TSX.
+  - Sat order: PR-3 merges first if ACCEPTed by 15:00; otherwise UQ-FI merges first (by 18:00) and PR-3 rebases.
+- **AR-4:** backend only, no collision. If AR-4 changes a server word that a P-page groups, the grouping still works (exact fact match), and the before/after gap-count check in `measure.json` shows any change.
+- **Any other branch merging after UQ-FI** that touches frontend CSS reruns the codemod and passes the ratchet.
+
+### 6.4 Lane and order
+
+| When | What |
+|---|---|
+| Thu evening (after the 14:00 demo) | The coordinator shows the owner the sheet with the 6.2 bullets (+ the UQ-FI-0 panel, if a Sonnet builder adds it on `task/UQ-0-v72-sheet` by then). |
+| Fri 07:00, VPS | **Starts only on owner approval.** Lane D: UQ-FI-1, Opus, branch `task/UQ-FI-1-tokens` from main. First job: the before captures (one serve, read-only, the DB the coordinator names; not beside AR-4 parity). Then tokens, Inter, codemod, ratchet. |
+| Fri 09:00, VPS | Lane E: UQ-FI-2, Opus, branch `task/UQ-FI-2-declutter`, stacked on UQ-FI-1's first commit (its logic and tests do not depend on token values). Pre-flight first: the frames, test files and collapse targets per page, in one batch. |
+| Fri ~20:00 | UQ-FI-1 done; UQ-FI-2 rebases onto it. Rebase onto PR-2a if merged. |
+| Sat 08:00 | After captures, `measure.json`, packet; both branches reviewed as one diff by one fresh Claude reviewer. |
+| **Sat 14:00** | Review verdict. Sonnet fix round and re-review follow. |
+| **Sat 18:00** | Merge, UQ-FI-1 then UQ-FI-2, together. |
+| **Sat 20:00** | Not ACCEPTed → **held whole**, both branches unmerged. 17 Nov uses today's look; Saturday's suites and Sunday's recapture run on today's look. |
+
+- **No approval by Fri 12:00:** UQ-FI does not start and returns to BL-69. There is not enough time left for a build and a review.
+- Saturday's suites (from 20:00) and Sunday's recapture and DS-1f picture refresh then run on whatever look merged. The recapture is light theme only.
+- VPS jobs: captures are one serve and one Chrome at a time, never beside a Postgres parity run or a prepare. UQ-FI needs no Postgres.
+
+### 6.5 What it pushes out
+
+- **Nothing.** Lanes A (CLEAN-1, FR-B trimmed), B (PR-2a, PR-3) and C (AR-4) stand as in 5.5. UQ-FI takes lanes D and E on the VPS, which has room for 4-5 lanes.
+- What it costs instead: Saturday review load (AR-4, PR-3 and UQ-FI all reviewed Sat; separate fresh reviewers), and the VPS RAM during the before and after captures.
+- **If they clash, priority:** AR-4 > PR-3 > UQ-FI > FR-B > CLEAN-1. FR-B drops first, as already ruled.
+
+**Risks, stated plainly.**
+1. **Bigger type breaks fits.** 11→13 px table text and 9→12 px heads can push a wide table (the Findings index was fitted at desktop width in W1-F5b) into sideways scroll at 1280 px. The fix is wrapping inside the cell, never a size under 12 px and never a layout change; `measure.json` catches it.
+2. **The codemod touches 37 CSS files.** Snapshot and text tests that read CSS may fail. Only CSS-reading tests should change; any other failing test is a defect, not a golden to update.
+3. **Owner approval is the gate.** If it slips past Fri 12:00, UQ-FI is off for 17 Nov.
+4. **Collapse can hide a fact by accident.** The gap-id and gap-fact set test per page and the before/after counts guard it; a lost gap is High in review.
+5. **DS-1f pictures** are from the old look. If UQ-FI merges, Sunday's recapture refreshes them (already planned); if held, nothing changes.
+
+### Dispatch briefs (revision 6)
+
+**UQ-FI-1 tokens, type, Inter, ratchet.** Opus. VPS wt `AssetOpsV1-uqfi1`, branch `task/UQ-FI-1-tokens` from main. 0.9 unit plus the before captures. Spec: 6.1, 6.3 (D-UQFI.2, D-UQFI.3), the approved v7.2 sheet (type section), 6.4. Pre-flight: unmappable font-size values, the money/figure selectors for tabular figures, the demo-path CSS file list. Vitest and node tests on named files only.
+
+**UQ-FI-2 headline and gap lines.** Opus. VPS wt `AssetOpsV1-uqfi2`, branch `task/UQ-FI-2-declutter` stacked on UQ-FI-1. 0.7 unit plus the after captures and the packet (0.2). Spec: 6.1 page table, 6.3 (D-UQFI.4), D-E5.46. Pre-flight: per page, the frame, the test file, and the exact sections and lines to group, in one batch, before code.
+
 ## Revision 5a (Architect, Claude, 2026-11-12): order of the remaining any-range speed work
 
 - Ruling **D-ANY.8** (`build-sheet-OWN-GAPS-2026-11-08.md`). Lanes and the freeze in 5.5 are unchanged.
