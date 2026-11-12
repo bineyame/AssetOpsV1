@@ -46,7 +46,9 @@ export type Ref =
   | { kind: "CASE"; site: string; id: string }
   | { kind: "EVIDENCE"; site: string; capability?: string; window?: RefWindow }
   | { kind: "SITE"; site: string; view?: RefSiteView; window?: RefWindow }
-  | { kind: "ESTATE"; view: RefEstateView };
+  | { kind: "ESTATE"; view: RefEstateView }
+  /** PR-1 (BL-68): the Site price page, opened at one price key or one model/data need. */
+  | { kind: "PRICES"; site: string; key?: string; need?: string };
 
 /** The shell's `linkFor`: a Ref's screen path, or null when the Ref has no screen (or is absent). */
 export type LinkFor = (ref: Ref | null | undefined) => string | null;

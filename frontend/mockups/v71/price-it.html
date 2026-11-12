@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Price It Draft</title>
+<!-- v7.1 DRAFT for owner approval (2026-11-11). Not the layout spec until the owner approves it.
+     Spec: .agent/architect-answer-price-it-2026-11-10.md sections 3, 4.1, 4.2, 5 and 7 (BL-68); card PR-1 + PR-2a in
+     .agent/architect-sequence-client-scope-2026-11-11.md revision 4. Owner walkthrough item 10.
+     Reuses the v7.0 stylesheet unchanged; only the additions below are new. Data is v7.0's illustrative data
+     (GreenHarvest, Kobo, Depot), not demo-build numbers. Nothing here saves a price: saving needs sign-in (BL-54). -->
+<link rel="stylesheet" href="../v70/mockups.css">
+<style>
+/* v7.1 additions only */
+:root{--draft:#7552ab}
+body{background:var(--page)}
+.draftbar{position:sticky;top:0;z-index:20;min-height:46px;padding:8px 20px;background:#f3eefc;border-bottom:1px solid #dccff5;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#40306b}
+.draftbar strong{letter-spacing:.4px}
+.notes-toggle{font-size:12px;display:inline-flex;align-items:center;gap:6px}
+.note-pin{display:none;margin:0 0 12px;padding:8px 12px;border-left:3px solid var(--draft);background:#f7f3fe;color:#40306b;font-size:12px;line-height:1.55;border-radius:0 8px 8px 0}
+body.show-notes .note-pin{display:block}
+.part{margin:0 0 28px}
+.part > .eyebrow{display:block;margin:0 0 10px;color:var(--draft)}
+
+/* Part A: where "Price it" appears */
+.pi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.pi-card{background:#fff;border:1px solid var(--line);border-radius:7px;padding:15px 16px;min-width:0}
+.pi-card h3{margin:0 0 8px}
+.pi-card .where{font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:8px}
+.pi-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;font-size:12px;line-height:1.6;padding:8px 0;border-top:1px solid #edf1f6}
+.pi-row:first-of-type{border-top:0}
+.pi-row .needs{color:var(--muted);font-size:11px;flex-basis:100%}
+.price-link{font-size:12px;font-weight:650;white-space:nowrap}
+.price-link.model{font-weight:550}
+.kind{font-size:10px;font-weight:650;border-radius:4px;padding:2px 6px;background:#fff1d9;color:#8e580c}
+.kind.risk{background:#fcebea;color:#a13838}
+.tile{border:1px solid var(--line);border-radius:6px;padding:11px 12px;background:#fbfcfe}
+.tile .metric-label{margin-bottom:6px}
+.tile b{font-size:15px;font-weight:600}
+
+/* Part B: the Site price page */
+.return-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:9px 14px;margin:0 0 16px;background:#f0f5fd;border:1px solid #dce6f5;border-radius:6px;font-size:12px;color:#456080}
+.return-bar a{font-weight:650}
+.signin{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin:0 0 18px;background:#f7f9fc;border:1px solid #dfe6f0;border-radius:6px;font-size:12px;line-height:1.65;color:#3c4d66}
+.signin .icon{width:16px;height:16px;margin-top:2px;color:#607087}
+.focus-item{border:1px solid #cbdafa;border-left:4px solid var(--blue);border-radius:7px;background:#fff;padding:16px 18px;margin:0 0 18px}
+.focus-item h2{margin:2px 0 10px}
+.fi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.fi-grid h3{font-size:11px;color:var(--muted);font-weight:650;margin:0 0 6px;text-transform:uppercase;letter-spacing:.6px}
+.fi-grid ul{margin:0;padding-left:16px;font-size:12px;line-height:1.7}
+.receipt{margin-top:14px;padding:10px 12px;background:#f8fafd;border:1px dashed #cfd9e8;border-radius:6px;font-size:12px;line-height:1.7}
+.receipt .line{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.receipt .line span:last-child{font-variant-numeric:tabular-nums;color:#3c4d66}
+.prices td .value{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.prices tr.focused td{background:#f4f8ff}
+.prices tr.focused td:first-child{box-shadow:inset 3px 0 0 var(--blue)}
+.notset{color:var(--muted);font-style:normal}
+details.hist summary{cursor:pointer;font-size:11px;font-weight:650;color:var(--blue)}
+details.hist ol{margin:8px 0 2px;padding-left:18px;font-size:11px;line-height:1.7}
+details.hist li small{display:inline;font-size:10px}
+.need-box{border:1px solid var(--line);border-radius:7px;background:#fff;padding:16px 18px;margin:0 0 18px}
+.need-box ol{margin:8px 0 0;padding-left:18px;font-size:12px;line-height:1.75}
+.later{font-size:12px;line-height:1.7;color:#46566e}
+.later li{margin:2px 0}
+.site-subtabs-proposed{display:flex;gap:24px;border-bottom:1px solid var(--line);margin:-3px 0 18px}
+.site-subtabs-proposed a{font-size:11px;color:#58667f;padding:7px 0 10px;border-bottom:2px solid transparent}
+.site-subtabs-proposed a.active{color:var(--blue);border-color:var(--blue);font-weight:650}
+@media(max-width:1000px){.pi-grid,.fi-grid{grid-template-columns:1fr}}
+@media(max-width:760px){
+ .shell{grid-template-columns:1fr}
+ .rail{display:none}
+ .topbar{padding:0 16px}
+ .canvas{padding:16px}
+ .prices thead{display:none}
+ .prices tr{display:block;border-bottom:1px solid var(--line);padding:6px 0}
+ .prices td{display:block;border:0;padding:4px 0}
+ .prices tr.focused{background:#f4f8ff}
+ .price-link{white-space:normal}
+}
+</style>
+</head>
+<body class="show-notes">
+<div class="draftbar" role="region" aria-label="Draft controls">
+ <div><strong>v7.1 DRAFT · Price it</strong> · for owner approval · where "Price it" appears, and the Site price page</div>
+ <label class="notes-toggle"><input type="checkbox" id="notes" checked> Show change notes</label>
+</div>
+
+<div class="shell">
+ <aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div><div class="rail-group"><div class="eyebrow">OPERATIONS</div><a href="portfolio-tabs.html">Portfolio</a><a class="active" href="../v70/index.html#/sites">Sites</a><a href="../v70/index.html#/assets">Assets</a></div><div class="rail-group"><div class="eyebrow">INTELLIGENCE</div><a href="../v70/index.html#/findings">Findings</a></div><div class="rail-group"><div class="eyebrow">WORK</div><a href="../v70/index.html#/actions">Actions</a><a href="../v70/index.html#/incidents">Incidents</a><a href="../v70/index.html#/maintenance">Maintenance</a><a href="../v70/index.html#/oprecords">Operational records</a></div><div class="rail-group"><div class="eyebrow">ASSURANCE</div><a href="../v70/index.html#/globalevidence">Evidence</a></div><div class="rail-group"><div class="eyebrow">BUSINESS</div><a href="../v70/index.html#/globalfinancials">Financials</a></div><div class="rail-group"><div class="eyebrow">ADMIN</div><a href="../v70/index.html#/settings-policies">Settings</a></div><div class="rail-footer"><div class="eyebrow">WORKSPACE</div><div style="margin-top:6px">Demo workspace<br>3 sites · illustrative records</div></div></aside>
+ <main class="workspace">
+  <header class="topbar"><div class="portfolio-name">Bineyame Operations <span class="muted">/ Demo estate</span></div><div class="right"><span>30 Sep – 6 Oct 2026 · All pages</span><span class="avatar">BY</span></div></header>
+  <div class="canvas">
+
+   <!-- ============ PART A ============ -->
+   <section class="part" aria-labelledby="h-a">
+    <span class="eyebrow">Part A · where "Price it" appears</span>
+    <div class="page-heading"><div><h1 id="h-a">Every unpriced item says how it gets a price</h1><p>A link on each unpriced item, in the words the server writes. Nothing is hidden and no amount is guessed.</p></div></div>
+    <p class="note-pin">Change: today these items say only what they need ("A cost per visit is not set for this site"). The draft adds one link under each. Two kinds: <b>"Set a …"</b> when one price would fix it, and <b>"What is needed to price this"</b> when it needs a model, data or a connection to another system. Both open the Site price page below, and both bring you back where you were.</p>
+    <div class="pi-grid">
+     <div class="pi-card">
+      <div class="where">Portfolio · Early warnings · not priced yet</div>
+      <div class="pi-row"><span class="kind risk">Risk</span><b>Visits without a result</b> · GreenHarvest · 3 visits to the backup generator, fault still open<span class="needs">A cost per visit is not set for this site</span><a class="price-link" href="#page">Set a cost per visit for GreenHarvest →</a></div>
+      <div class="pi-row"><span class="kind">Early warning</span><b>Charger fault and overdue inspection</b> · Depot · connector 2 fault on 6 Oct<span class="needs">Needs repair cost and fault history</span><a class="price-link" href="#page">Set a repair cost for Depot →</a></div>
+      <div class="pi-row"><span class="kind">Early warning</span><b>Battery below its reserve</b> · Kobo · 5 of the last 30 days · lowest 22%<span class="needs">Needs a tested battery wear model</span><a class="price-link model" href="#need">What is needed to price this →</a></div>
+     </div>
+     <div class="pi-card">
+      <div class="where">Site Financials · money lines</div>
+      <div class="pi-row"><b>Fuel cost</b> · Kobo · 1–6 Oct<span class="needs">Price not established: no diesel price applies to these days</span><a class="price-link" href="#page">Set a diesel price for Kobo →</a></div>
+      <div class="where" style="margin-top:12px">Finding · cost tile</div>
+      <div class="tile"><div class="metric-label"><span>Cost exposure</span><span class="badge">Not available</span></div><b>Charging session interrupted</b><p class="small" style="margin:4px 0 6px">Depot · F-130 · 1 interrupted session, measured</p><a class="price-link" href="#page">Set a cost per interrupted session for Depot →</a></div>
+      <div class="where" style="margin-top:12px">Action · verification value</div>
+      <div class="pi-row"><b>ACT-044 · Shift productive load to midday</b> · Kobo<span class="needs">No sales estimate: no productive-use price is set</span><a class="price-link" href="#page">Set a productive-use price for Kobo →</a></div>
+     </div>
+    </div>
+   </section>
+
+   <!-- ============ PART B ============ -->
+   <section class="part" id="page" aria-labelledby="h-b">
+    <span class="eyebrow">Part B · the Site price page (opened from "Set a cost per visit for GreenHarvest")</span>
+    <div class="breadcrumbs"><a href="../v70/index.html#/sites">Sites</a><span>›</span><a href="../v70/index.html#/cold">GreenHarvest</a><span>›</span><span>Financials</span><span>›</span><span>Prices</span></div>
+    <div class="page-heading"><div><h1 id="h-b">GreenHarvest · Prices</h1><p>Every price this site's figures use: the current value, where it came from, and every earlier version.</p></div></div>
+    <nav class="tabs" aria-label="Site sections"><a href="#">Overview</a><a href="#">Foundation</a><a href="#">Health</a><a href="#">Performance</a><a href="#">Findings</a><a href="#">Work</a><a class="active" href="#" aria-current="page">Financials</a><a href="#">Evidence</a></nav>
+    <nav class="site-subtabs-proposed" aria-label="Financials sections"><a href="#">Overview</a><a class="active" href="#" aria-current="page">Prices</a><a href="#">Scenarios</a></nav>
+    <p class="note-pin">Change: the Financials subtab "Assumptions" becomes <b>"Prices"</b> and lists every price the site can use, set or not. Address: <span class="mono">/sites/GH-01/financials/prices?key=repair_visit_cost&amp;return=…</span>. The page's date range is the shared one.</p>
+
+    <div class="return-bar"><a href="#h-a">← Back to Portfolio · Early warnings</a><span>You came from "Visits without a result". Your date range is kept.</span></div>
+
+    <div class="signin" role="note"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11h12v10H6z M8 11V7a4 4 0 0 1 8 0v4"></path></svg><p><b>Prices are set by your AssetOps administrator until sign-in is available.</b> Saving a price from this page comes with sign-in. Until then, ask your AssetOps contact to set a cost per visit; the figures update once it is set.</p></div>
+    <p class="note-pin">This is the honest line the owner asked for: plain words, no error colour, no disabled "Save" button. It says what happens today and what is coming.</p>
+
+    <div class="focus-item" aria-labelledby="h-focus">
+     <div class="eyebrow">The item you came to price</div>
+     <h2 id="h-focus">Visits without a result · backup generator</h2>
+     <div class="fi-grid">
+      <div><h3>Already known (measured)</h3><ul><li>3 completed visits: 2, 9 and 16 Oct</li><li>F-118 "Backup response failed" is still open</li><li>Work records WO-212, WO-219, WO-226</li></ul></div>
+      <div><h3>The price it needs</h3><ul><li><b>Cost per visit</b>: call-out plus labour</li><li>In USD per visit</li><li>Basis: an estimate, a contract rate or a recorded purchase</li><li>Applies from a date (earlier dates restate past figures, with a reason)</li></ul></div>
+      <div><h3>What it shows today</h3><ul><li>"A cost per visit is not set for this site"</li><li>The visit count, never an amount</li></ul></div>
+     </div>
+     <div class="receipt" aria-label="How the price will be used">
+      <div class="eyebrow" style="margin-bottom:4px">How the figure will be worked out, once a price is set</div>
+      <div class="line"><span>Visits in range</span><span>3 visits (measured)</span></div>
+      <div class="line"><span>× Cost per visit</span><span class="notset">not set</span></div>
+      <div class="line"><span><b>= Cost of visits without a result</b></span><span><b>not priced</b></span></div>
+      <small>Each priced figure names the price version it used (the money receipt), so "Why?" always shows which price, who set it and from when.</small>
+     </div>
+    </div>
+    <p class="note-pin">The money-receipt idea (D-MONEY): the page shows the sum the figure will use, with the missing part named. No amount appears until a price exists.</p>
+
+    <section class="panel" aria-labelledby="h-prices">
+     <div class="panel-head"><div><h2 id="h-prices">All prices for GreenHarvest</h2><p>One row per price. "Not set" means the figures that need it read "not priced".</p></div><span class="badge">5 prices · 2 set</span></div>
+     <div class="table-wrap"><table class="prices">
+      <thead><tr><th>Price</th><th>Current value</th><th>Basis</th><th>Applies from</th><th>Set by</th><th>Used by</th></tr></thead>
+      <tbody>
+       <tr class="focused"><td><strong>Cost per visit</strong><small>call-out plus labour</small></td><td><span class="notset">Not set</span></td><td>—</td><td>—</td><td>—</td><td>1 early warning<small>Visits without a result</small></td></tr>
+       <tr><td><strong>Diesel price</strong><small>backup generator fuel</small></td><td><span class="value">1.42 USD</span> per litre</td><td>A contract rate<small>Supplier contract SC-88</small></td><td>1 Sep 2026</td><td>AssetOps administrator<small>recorded 2 Sep 2026, 09:14</small></td><td>Fuel cost<small>Backup running days</small></td></tr>
+       <tr><td colspan="6"><details class="hist"><summary>History of the diesel price · 3 versions</summary><ol><li><b>Correction from 1 Sep 2026</b>: 1.42 USD per litre, a contract rate. Reason: "supplier contract rate replaces the estimate" <small>· AssetOps administrator · recorded 2 Sep 2026, 09:14</small></li><li><b>New price from 1 Sep 2026</b>: 1.40 USD per litre, an estimate <small>· AssetOps administrator · recorded 28 Aug 2026, 16:02 · replaced by the correction above</small></li><li><b>First price</b> from 1 Aug 2026: 1.38 USD per litre, an estimate <small>· AssetOps administrator · recorded 1 Aug 2026, 10:30</small></li></ol></details></td></tr>
+       <tr><td><strong>Planned service cost</strong><small>per planned job</small></td><td><span class="notset">Not set</span></td><td>—</td><td>—</td><td>—</td><td>Plan due soon, plan overdue<small>the planned part only</small></td></tr>
+       <tr><td><strong>Stock value at risk</strong><small>per chamber load, an upper bound</small></td><td><span class="notset">Not set</span></td><td>—</td><td>—</td><td>—</td><td>Temperature excursion<small>"up to … at risk", never a loss</small></td></tr>
+       <tr><td><strong>Productive-use price</strong><small>per kWh sold</small></td><td><span class="value">0.21 USD</span> per kWh</td><td>An estimate</td><td>1 Aug 2026</td><td>AssetOps administrator<small>recorded 1 Aug 2026, 10:30</small></td><td>Verification value</td></tr>
+      </tbody>
+     </table></div>
+    </section>
+    <p class="note-pin">Read-only for everyone in this step. "Set by" shows "AssetOps administrator" because, without sign-in, only the administrator's tool can publish a price. The history uses the stored change kinds in plain words: first price, new price from a date, correction with its reason.</p>
+   </section>
+
+   <!-- ============ PART C ============ -->
+   <section class="part" id="need" aria-labelledby="h-c">
+    <span class="eyebrow">Part C · when one price cannot fix it (opened from "What is needed to price this")</span>
+    <div class="need-box">
+     <div class="eyebrow">Kobo · Battery below its reserve</div>
+     <h2 id="h-c" style="margin:4px 0 8px">What is needed to price this</h2>
+     <p class="prose">Battery wear is measured, not priced. Pricing it needs a tested wear model for this battery type and its replacement cost. Meanwhile: cycles, depth of discharge and time at low charge.</p>
+     <ol><li><b>Measured, and still shown:</b> 5 of the last 30 days below the reserve, lowest 22%.</li><li><b>What pricing needs:</b> a tested wear model for this battery type, and its replacement cost.</li><li><b>What AssetOps shows meanwhile:</b> the measurements, never an amount, a range or "≈".</li></ol>
+    </div>
+    <p class="note-pin">Same page, same return link; this block replaces the price table's focus when the item needs a model, data or an integration (battery wear, demand forecast, bus roster, fault history). The words are the server's. A "Tell your AssetOps contact" button is a later step (PR-5) and is not in this draft.</p>
+   </section>
+
+   <section class="part" aria-labelledby="h-d">
+    <span class="eyebrow">Not in this step</span>
+    <h2 id="h-d" style="margin-bottom:8px">Comes with sign-in</h2>
+    <ul class="later"><li>The price form (amount, currency, basis, applies from, reason), its "what will change" preview, and Save.</li><li>Who may set prices (a pricing editor role per site or portfolio).</li><li>Figures reading "Updating…" after a save, and "Priced on" / "Restated on … was …" notes.</li></ul>
+   </section>
+
+  </div>
+ </main>
+</div>
+<script>
+document.getElementById('notes').addEventListener('change',function(e){document.body.classList.toggle('show-notes',e.target.checked)});
+</script>
+</body>
+</html>
