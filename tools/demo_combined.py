@@ -1120,7 +1120,7 @@ class Demo:
                 secs = round(time.monotonic() - t0, 1)
                 steps[f"day-rows {code}"] = secs
                 summary = demo_rows.last_json_object(done.stdout) or {}
-                hours = int(summary.get("considered") or 0) * 24 // max(1, len(self.DAY_KINDS))
+                hours = int(summary.get("considered") or 0) * 24  # period rows (day x kind) x 24 hour reads
                 per_site[code] = {"seconds": secs, "hour_reads": hours,
                                   "seconds_per_hour_read": round(secs / hours, 3) if hours else None}
                 say(f"  day-rows {code}: {(done.stdout.strip().splitlines() or ['(no output)'])[-1][:200]}  [{secs} s]")

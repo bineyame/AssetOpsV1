@@ -73,8 +73,15 @@ USER_REVIEW_REQUIRED: no (server slice; the page waits for SR-4).
 - D-SR.53: no Python ingest event helper exists (0044 SQL producer), so the Postgres event stays hand-built (docstring says so);
   new no-DB `test_reading_at_site_local_0030...` (register keys Site-local days; no stop needed).
 - D-SR.54: `demo_combined.build_period_rows` now passes explicit board `--kind`s (15 min cap); new `build_day_rows` (30 min cap,
-  `day-rows.json` with seconds per hour read, rerun line on failure); prepare cap adds `day_rows: 900`. Tests in `test_ar2_prepare_period_rows.py`.
+  `day-rows.json` (under the prepare work dir) with `per_site.<code>.seconds_per_hour_read`, rerun line on failure); prepare cap adds `day_rows: 900`. Tests in `test_ar2_prepare_period_rows.py`.
 - Arch guard: removed `sqlalchemy.exc.DBAPIError` import from `mini_depth_api.py`; route uses `infra.is_transient` + `unavailable=`.
 - Checks: no-DB 33+ passed; Postgres `test_sr10_day_kinds_postgres.py` 4 passed (172 s), `test_ar2_mini_period_rows_postgres.py` 3 passed
   (208 s) on assetops_sr10_test; `check-architecture.ps1` passed. Full check-all not run by me (timed out at 580 s on a busy machine; coordinator runs it).
 - Public names unchanged (added: `absent_day`, `slowest_recovery`, `Demo.build_day_rows`); no renames.
+
+## Fix round 2 (review L-1..L-3)
+- L-3: `build_day_rows` hour reads = `considered * 24` (period rows are day x kind; was halved by `len(DAY_KINDS)`, doubling
+  `seconds_per_hour_read`). Figure lands in `day-rows.json` (`per_site.<code>.seconds_per_hour_read`), the D-SR.54 1.0 s stop reads it.
+  Test now pins `hour_reads == 192` for 8 periods.
+- L-1: `test_transient_error_is_503_and_a_programming_error_propagates` (`test_sr10_fuel_range_route.py`).
+- L-2 (page resume points): range pages treat `SITE_*_RANGE_UNAVAILABLE` as "Temporarily unavailable. Retrying...", never as data.

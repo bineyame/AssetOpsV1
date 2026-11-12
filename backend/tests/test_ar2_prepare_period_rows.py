@@ -91,7 +91,7 @@ def test_day_kinds_build_in_their_own_step_with_a_30_minute_cap(tmp_path, monkey
     assert [a[-4:] for a in calls] == [("--kind", "mini_depth.fuel_day", "--kind", "mini_depth.backup_day")] * 2
     assert all(d is not None and d <= time.monotonic() + 1800 for d in deadlines) and demo.deadline is None
     doc = json.loads((tmp_path / "day-rows.json").read_text())
-    assert doc["ok"] is True and doc["per_site"]["KOBO-001"]["hour_reads"] == 96 and "day-rows" in steps
+    assert doc["ok"] is True and doc["per_site"]["KOBO-001"]["hour_reads"] == 192 and "day-rows" in steps
 
 
 def test_day_rows_failure_prints_the_rerun_command_and_goes_on(tmp_path, monkeypatch) -> None:
