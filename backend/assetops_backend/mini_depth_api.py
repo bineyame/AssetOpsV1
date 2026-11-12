@@ -240,6 +240,9 @@ def build_day_range_router(domain: str, period_reader: Callable[[], Any], chain_
 
         def compose() -> dict[str, Any]:
             kind = day_summary.DAY_KIND[domain]
+            # D-SR.52: deliberately NOT gated on ASSETOPS_PERIOD_READ_KINDS. The day kinds have no compose to fall
+            # back to (D-SR.31), so honouring the switch would only blank the range; the safety behaviour is the
+            # STILL_PROCESSING row plus the live hour drill-in.
             try:
                 result = periods.read(site.tenant_id, [SiteRef(site.tenant_id, sid, site.site_code, MINIGRID, tz)],
                                       [kind], days[0], days[-1], known)

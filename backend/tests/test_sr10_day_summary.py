@@ -159,3 +159,57 @@ def test_day_kinds_are_registered_with_whole_day_builders() -> None:
     from assetops_backend.chain.composition import period_kind_versions
 
     assert {period_kind_versions()[k] for k in pr.DAY_KINDS} == {pr.BUILDER_VERSION}  # no version bump
+
+
+def test_absent_day_is_unknown_not_zero() -> None:
+    """D-SR.51 (3)."""
+    site = uuid4()
+    result = SimpleNamespace(rows=[], is_pending=lambda s, d, k: False)
+    for domain in ("fuel", "backup"):
+        body = ds.compose(domain, {"id": site, "site_code": "K", "site_name": None, "timezone": "Africa/Nairobi"},
+                          {}, [DAY], result, {DAY: "COMPLETE"}, historical=False)
+        day = body["days"][0]
+        assert day["stored"] is False and day["state"] == "STILL_PROCESSING" and day["partial"] is False
+        assert all(v is None for k, v in day.items()
+                   if k not in ("local_day", "stored", "state", "partial", "hour_link"))
+    assert ds.fuel_day_summary(DAY, [_hour(0, _fuel())])["stored"] is True
+
+
+def test_slowest_recovery_skips_null_takes_same_sequence_target_and_ties_to_earliest_start() -> None:
+    """D-SR.51 (2)."""
+    def seq(cid, start, seconds, target):
+        return {"chain_id": cid, "outage_start": start, "critical_recovery":
+                None if seconds is None else {"seconds": seconds, "target_seconds": target}}
+    assert ds.slowest_recovery([seq("a", "2026-11-03T01:00:00Z", None, 1)]) is None
+    got = ds.slowest_recovery([seq("late", "2026-11-03T05:00:00Z", 300, 111), seq("n", "2026-11-03T02:00:00Z", None, 9),
+                               seq("early", "2026-11-03T01:00:00Z", 300, 222), seq("fast", "2026-11-03T00:00:00Z", 10, 5)])
+    assert got == {"seconds": 300, "target_seconds": 222}
+
+
+def test_totals_count_a_sequence_crossing_midnight_once_by_chain_id() -> None:
+    """D-SR.51 (4): the same chain_id on two days' rows counts once (the latest day wins)."""
+    site, d2 = uuid4(), DAY + timedelta(days=1)
+    rows = [_row(site, DAY, "mini_depth.backup_day", [_hour(23, _backup([_chain("x", "INCOMPLETE")], successes=1))]),
+            _row(site, d2, "mini_depth.backup_day", [_hour(0, _backup([_chain("x", "PASS", 60), _chain("y", "FAIL", 90)],
+                                                                      successes=2))])]
+    result = SimpleNamespace(rows=rows, is_pending=lambda s, d, k: False)
+    body = ds.compose("backup", {"id": site, "site_code": "K", "site_name": None, "timezone": "Africa/Nairobi"},
+                      {}, [DAY, d2], result, {DAY: "COMPLETE", d2: "COMPLETE"}, historical=False)
+    assert body["totals"]["sequence_counts"] == {"PASS": 1, "FAIL": 1, "INCOMPLETE": 0}
+    assert body["totals"]["start_success_count"] == 3
+
+
+def test_reading_at_site_local_0030_dirties_the_local_day_not_the_utc_day() -> None:
+    """D-SR.53: the register keys the dirty day by the Site-local day (`span_local`), so a reading at Nairobi 00:30 on
+    2026-11-03 (UTC 21:30 on 2026-11-02) dirties both day kinds of 2026-11-03 and not of 2026-11-02. The event is built by
+    hand here (the ingest path has no Python event helper: its `reading.accepted` rows come from the 0044 SQL producer on
+    `accepted_evidence`, pinned in the Postgres file by an outbox insert of the same shape)."""
+    from assetops_backend.chain.adapters.file_chain_config import load_event_register
+    from assetops_backend.chain.events import Event, resolve
+
+    at = datetime(2026, 11, 2, 21, 30, tzinfo=timezone.utc)
+    event = Event(uuid4(), "reading.accepted", 1, at, at, "accepted_evidence", uuid4(), uuid4(),
+                  {"roles": ["fuel_level"], "asset_ids": [], "span": ["2026-11-02T21:30:00Z", "2026-11-02T21:30:00Z"]})
+    marks = resolve(load_event_register(), event, site_type="MINIGRID", tz="Africa/Nairobi", today=date(2026, 11, 4))
+    for kind in pr.DAY_KINDS:
+        assert (date(2026, 11, 3), kind) in marks and (date(2026, 11, 2), kind) not in marks

@@ -174,6 +174,20 @@ def test_each_day_reads_its_stored_day_row_and_state():
     assert days[0]["hour_link"] == ("/sites/KOBO-001/performance/fuel"
                                     "?from=2026-11-01T09%3A00%3A00Z&to=2026-11-01T10%3A00%3A00Z")
     assert not any(k.startswith("residual") for d in days for k in d)
+    # D-SR.51 (3): an absent day is unknown, not zero
+    assert days[3]["stored"] is False and days[0]["stored"] is True
+    assert all(days[3][k] is None for k in ("hours_expected", "hours_assessed", "hours_pending", "hours_missing",
+                                            "status_counts", "expected_use_l", "hours_with_use"))
+
+
+def test_range_reads_rows_with_the_kill_switch_empty(monkeypatch):
+    """D-SR.52: ASSETOPS_PERIOD_READ_KINDS selects stored rows over a compose, but the day kinds have no compose, so the
+    range still reads the stored rows with the switch empty."""
+    monkeypatch.setenv("ASSETOPS_PERIOD_READ_KINDS", "")
+    periods = Periods()
+    body = _body(periods=periods)
+    assert periods.calls and periods.calls[0][2] == [KIND]
+    assert body["days"][0]["state"] == "ASSESSED" and body["days"][0]["stored"] is True
 
 
 def test_totals_sum_counted_days_only():

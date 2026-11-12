@@ -53,7 +53,7 @@ def _base(local_day: date, hours: Sequence[Any]) -> tuple[dict[str, Any], list[A
         if status in counts:
             counts[status] += 1
         codes.update(str(l["code"]) for l in h.head.result.get("limitations") or ())
-    return {"local_day": local_day.isoformat(), "hours_expected": len(hours), "hours_assessed": len(assessed),
+    return {"local_day": local_day.isoformat(), "stored": True, "hours_expected": len(hours), "hours_assessed": len(assessed),
             "hours_pending": len(pending), "hours_missing": len(hours) - len(assessed) - len(pending),
             "status_counts": counts, "limitations": sorted(codes)}, assessed
 
@@ -80,14 +80,33 @@ def backup_day_summary(local_day: date, hours: Sequence[Any]) -> dict[str, Any]:
                                           "result": r.get("result"), "service_outcome": r.get("service_outcome"),
                                           "critical_recovery": r.get("critical_recovery")}
     sequences = sorted(chains.values(), key=lambda s: (str(s["outage_start"]), str(s["chain_id"])))
-    recoveries = [s["critical_recovery"] for s in sequences
-                  if s["critical_recovery"] is not None and s["critical_recovery"].get("seconds") is not None]
     out["sequences"] = sequences
     out["sequence_counts"] = {r: sum(1 for s in sequences if s["result"] == r) for r in SEQUENCE_RESULTS}
     out["start_success_count"] = sum(successes) if successes else None
-    slowest = max(recoveries, key=lambda r: _dec(r["seconds"]), default=None)
-    out["slowest_recovery"] = None if slowest is None else {"seconds": slowest["seconds"],
-                                                            "target_seconds": slowest.get("target_seconds")}
+    out["slowest_recovery"] = slowest_recovery(sequences)
+    return out
+
+
+def slowest_recovery(sequences: Sequence[Mapping[str, Any]]) -> dict[str, Any] | None:
+    """D-SR.51 (2): the largest `critical_recovery.seconds` over the de-duplicated sequences; a null recovery is
+    skipped, the target comes from the same sequence, and a tie goes to the earliest `outage_start`."""
+    timed = [s for s in sequences if (s.get("critical_recovery") or {}).get("seconds") is not None]
+    if not timed:
+        return None
+    best = min(timed, key=lambda s: (-_dec(s["critical_recovery"]["seconds"]), str(s["outage_start"])))
+    return {"seconds": best["critical_recovery"]["seconds"],
+            "target_seconds": best["critical_recovery"].get("target_seconds")}
+
+
+def absent_day(domain: str, local_day: date) -> dict[str, Any]:
+    """D-SR.51 (3): an absent day row is unknown, not zero: `stored: false` and every count and figure null."""
+    out: dict[str, Any] = {"local_day": local_day.isoformat(), "stored": False, "hours_expected": None,
+                           "hours_assessed": None, "hours_pending": None, "hours_missing": None,
+                           "status_counts": None, "limitations": None}
+    if domain == "fuel":
+        out.update(expected_use_l=None, hours_with_use=None)
+    else:
+        out.update(sequences=None, sequence_counts=None, start_success_count=None, slowest_recovery=None)
     return out
 
 
@@ -150,7 +169,7 @@ def range_days(domain: str, site_code: str, tz: str, site_id: Any, days: Sequenc
             pending = bool(read.pending) or result.is_pending(site_id, d, kind)
             summary = reduce(d, hours_of(read.row.body, historical=historical, pending=pending))
         state, partial = day_state(domain, summary, grades.get(d))
-        out.append({**(summary if summary is not None else reduce(d, [])), "state": state, "partial": partial,
+        out.append({**(summary if summary is not None else absent_day(domain, d)), "state": state, "partial": partial,
                     "hour_link": hour_link(domain, site_code, d, tz)})
     return out
 
@@ -170,7 +189,13 @@ def totals(domain: str, days: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     if domain == "fuel":
         out["expected_use_l"] = _band_sum([d["expected_use_l"] for d in counted if d["expected_use_l"] is not None])
     else:
-        out["sequence_counts"] = {r: sum(d["sequence_counts"][r] for d in counted) for r in SEQUENCE_RESULTS}
+        # D-SR.51 (4): a sequence that crosses local midnight is on two days' rows; count it once by chain_id
+        # (the latest day wins).
+        chains: dict[str, Mapping[str, Any]] = {}
+        for d in sorted(counted, key=lambda d: d["local_day"]):
+            for seq in d["sequences"] or ():
+                chains[str(seq["chain_id"])] = seq
+        out["sequence_counts"] = {r: sum(1 for s in chains.values() if s["result"] == r) for r in SEQUENCE_RESULTS}
         successes = [d["start_success_count"] for d in counted if d["start_success_count"] is not None]
         out["start_success_count"] = sum(successes) if successes else None
     return out
@@ -199,5 +224,5 @@ def compose(domain: str, site: Mapping[str, Any], window: Mapping[str, Any], day
 
 __all__ = ["ASSESSED", "COUNTED_STATES", "DAY_KIND", "SCHEMA_VERSION", "compose", "day_grades", "hour_link", "range_days",
            "totals", "NOT_EXPECTED", "NO_ASSESSMENT", "NO_SEQUENCE", "SEQUENCES_PASSED", "SEQUENCE_FAILED",
-           "SEQUENCE_INCOMPLETE", "STILL_PROCESSING", "backup_day_summary", "day_state", "fuel_day_summary",
+           "SEQUENCE_INCOMPLETE", "STILL_PROCESSING", "absent_day", "backup_day_summary", "slowest_recovery", "day_state", "fuel_day_summary",
            "hours_of"]
