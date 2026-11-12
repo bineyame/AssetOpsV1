@@ -24,7 +24,14 @@ or `limit` shares its key either way):
 it waits while `pg_stat_activity` is above `--max-connections` (150). A 503 or a `stale` copy (and a body served
 but not stored: `race`, `unstored`, `composed`) is retried 2, 5 and 10 s later (D-E5.47); one that stays so fails
 the run (exit 1). `--verify` replays every request once and passes only when every answer is a stored `hit` and
-the slowest is at most 2.0 s. Both write `--report` (`warm-report.json`). `--dry-run` only counts.
+the slowest is at most 2.0 s. Both write `--report` (`warm-report.json`), with a reason per failing request
+(D-WARM.6). `--dry-run` only counts.
+
+Architect rulings D-WARM.1-6 (`build-sheet-OWN-GAPS-2026-11-08.md`): the Findings lens pages
+(`lens=cost|risks|opportunities`) are warmed for the presets and the story ranges (D-WARM.5); `--verify` also times
+the unstored reads of the presets and story ranges (estate scope, actions, evidence, financials; each Site's
+Overview and Site Findings read) under `unstored`, outside `pass` (D-WARM.2). The claim is "<=2 s on every stored
+request of every clickable range".
 
     python tools/warm_ranges.py --base-url http://127.0.0.1:8990 --work var/polish_client4 --db-url postgresql://...
     python tools/warm_ranges.py --base-url http://127.0.0.1:8990 --work var/polish_client4 --verify
@@ -173,6 +180,55 @@ def day_requests(sites: dict[str, tuple[date, date]]) -> list[Req]:
     return out
 
 
+def findings_lens_requests(f: str, t: str, tag: str) -> list[Req]:
+    """D-WARM.5: the Findings lens pages (`/findings/{cost,risks,opportunities}`), page 1 (`estateQueryString`)."""
+    return [Req(f"findings.{lens}.{tag}", "/api/estate/findings", _q(("from", f), ("to", t), ("lens", lens)))
+            for lens in PORTFOLIO_LENSES]
+
+
+def mini_board_day(t: str) -> str:
+    """`miniBoardDay(to)`: the UTC day of `to`, the day before when `to` is a UTC midnight (an exclusive end)."""
+    end = datetime.fromisoformat(t.replace("Z", "+00:00")).astimezone(timezone.utc)
+    if (end.hour, end.minute, end.second, end.microsecond) == (0, 0, 0, 0):
+        end -= timedelta(days=1)
+    return end.date().isoformat()
+
+
+def unstored_requests(f: str, t: str, tag: str, sites: dict[str, tuple[date, date]]) -> list[Req]:
+    """D-WARM.2: the unstored reads the script pages send for one window; timed by `--verify`, never gated.
+    Estate: the Findings page's scope, Actions, Evidence, Financials. Per Site: its Overview read (mini-grid:
+    `overview?date=`; Cold/EV: `cold|ev/overview?from&to`) and its Site Findings read (mini-grid:
+    `findings?from&to`; Cold/EV: `cold|ev/findings?from&to`)."""
+    window = _q(("from", f), ("to", t))
+    out = [Req(f"unstored.{name}.{tag}", f"/api/estate/{name}", window)
+           for name in ("scope", "actions", "evidence", "financials")]
+    for code in sorted(sites):
+        if code in MINI_GRID:
+            out.append(Req(f"unstored.overview.{code}.{tag}", f"/api/sites/{code}/overview",
+                           _q(("date", mini_board_day(t)))))
+            out.append(Req(f"unstored.findings.{code}.{tag}", f"/api/sites/{code}/findings", window))
+        else:
+            kind = "ev" if code.startswith("EV") else "cold"
+            out.append(Req(f"unstored.overview.{code}.{tag}", f"/api/sites/{code}/{kind}/overview", window))
+            out.append(Req(f"unstored.findings.{code}.{tag}", f"/api/sites/{code}/{kind}/findings", window))
+    return out
+
+
+def story_windows(routes: dict | None) -> list[tuple[str, str]]:
+    """The story ranges: each distinct `from`/`to` of the pre-built list's estate requests, in list order."""
+    from urllib.parse import parse_qsl
+
+    out: list[tuple[str, str]] = []
+    for r in (routes or {}).get("requests", []):
+        if not r["path"].startswith("/api/estate/"):
+            continue
+        params = dict(parse_qsl(r["query"]))
+        pair = (params.get("from", ""), params.get("to", ""))
+        if all(pair) and pair not in out:
+            out.append(pair)
+    return out
+
+
 def story_requests(routes: dict | None) -> list[Req]:
     """The pre-built route list's requests, as they are (`chain-prebuilt-routes-1`)."""
     return [Req(f"story.{r['id']}", r["path"], r["query"]) for r in (routes or {}).get("requests", [])]
@@ -183,17 +239,41 @@ def data_window(sites: dict[str, tuple[date, date]]) -> tuple[date, date]:
     return min(v[0] for v in sites.values()), max(v[1] for v in sites.values())
 
 
-def plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None = None) -> tuple[list[Range], list[Req]]:
-    """The ordered, de-duplicated request list: presets, then windows newest first, then days, then the story."""
-    first, last = data_window(sites)
-    rs = ranges(today, first, last)
+def _dedupe(reqs: Iterable[Req]) -> list[Req]:
     out: list[Req] = []
     seen: set[tuple[str, str]] = set()
-    for req in [q for r in rs for q in range_requests(r, sites)] + day_requests(sites) + story_requests(routes):
+    for req in reqs:
         if (req.path, req.query) not in seen:
             seen.add((req.path, req.query))
             out.append(req)
-    return rs, out
+    return out
+
+
+def plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None = None) -> tuple[list[Range], list[Req]]:
+    """The ordered, de-duplicated stored-request list: presets (with the Findings lens pages, D-WARM.5), then windows
+    newest first, then mini-grid days, then the story list and the story ranges' Findings lens pages."""
+    first, last = data_window(sites)
+    rs = ranges(today, first, last)
+    reqs: list[Req] = []
+    for i, r in enumerate(rs):
+        reqs += range_requests(r, sites)
+        if i < len(PRESETS):  # `ranges` lists the five presets first
+            reqs += findings_lens_requests(*r.window(), f"{r.name}:{r.first}..{r.last}")
+    reqs += day_requests(sites) + story_requests(routes)
+    for f, t in story_windows(routes):
+        reqs += findings_lens_requests(f, t, f"story:{f}..{t}")
+    return rs, _dedupe(reqs)
+
+
+def unstored_plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None = None) -> list[Req]:
+    """D-WARM.2: the unstored reads for the 5 presets and the story ranges (timed by `--verify`, not gated)."""
+    reqs: list[Req] = []
+    for p in PRESETS:
+        r = Range(p, *preset_range(p, today))
+        reqs += unstored_requests(*r.window(), f"{p}:{r.first}..{r.last}", sites)
+    for f, t in story_windows(routes):
+        reqs += unstored_requests(f, t, f"story:{f}..{t}", sites)
+    return _dedupe(reqs)
 
 
 def sites_from_work(work: Path) -> dict[str, tuple[date, date]]:
@@ -335,11 +415,29 @@ def summarise(results: list[Result], *, verify: bool, wall_s: float) -> dict[str
         slow = []
         ok = not (still_degraded or failed or misses)
     hits = states.get("hit", 0)
+    reasons: dict[str, str] = {}  # D-WARM.6: the reason per failing request
+    for r in results:
+        if degraded(r.status, r.state):
+            reasons[r.url] = f"degraded after {r.attempts} attempts: HTTP {r.status} {r.state}"
+        elif r.status != 200:
+            reasons[r.url] = f"failed: HTTP {r.status}"
+        elif r.url in misses:
+            reasons[r.url] = (f"miss: {r.state}" if verify else f"not stored after {r.attempts} attempts: {r.state}")
+        elif r.url in slow:
+            reasons[r.url] = f"over 2 s: {r.ms} ms"
     return {"mode": "verify" if verify else "warm", "pass": ok, "requests": len(results), "states": states,
             "hit_percent": round(100.0 * hits / len(results), 2) if results else 0.0,
             "max_ms": max_ms, "wall_seconds": round(wall_s, 1), "degraded": still_degraded, "failed": failed,
-            "not_stored" if not verify else "misses": misses, "over_2s": slow,
+            "not_stored" if not verify else "misses": misses, "over_2s": slow, "reasons": reasons,
             "results": [asdict(r) for r in results]}
+
+
+def unstored_section(results: list[Result]) -> dict[str, Any]:
+    """D-WARM.2: the unstored reads' times. Reported, never part of `pass`; any over 2 s goes to the presenter notes."""
+    return {"gated": False, "requests": len(results), "max_ms": max((r.ms for r in results), default=0),
+            "over_2s": [{"url": r.url, "ms": r.ms} for r in results if r.ms > VERIFY_MAX_MS],
+            "non_200": [{"url": r.url, "status": r.status} for r in results if r.status != 200],
+            "results": [{"id": r.id, "url": r.url, "status": r.status, "ms": r.ms} for r in results]}
 
 
 def pg_connections(db_url: str) -> Callable[[], int | None]:
@@ -405,6 +503,9 @@ def main(argv: list[str] | None = None) -> int:
     results = run(reqs, http_fetch(a.base_url), workers=workers, verify=a.verify,
                   connections=pg_connections(a.db_url) if a.db_url else None)
     report = summarise(results, verify=a.verify, wall_s=time.perf_counter() - started)
+    if a.verify:  # D-WARM.2: the unstored reads of the presets and story ranges, timed and reported, never gated
+        report["unstored"] = unstored_section(run(unstored_plan(today, sites, routes), http_fetch(a.base_url),
+                                                  workers=workers, verify=True))
     report.update({"workaround": "WARM-1 (D-17N.1; reverses D-ANY.3 for the 17 Nov build only)", "today": str(today),
                    "data_window": [str(first), str(last)], "ranges": len(rs), "workers": workers,
                    "base_url": a.base_url})
@@ -413,6 +514,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{report['mode']}: {'PASS' if report['pass'] else 'FAIL'} - {report['requests']} requests, "
           f"{report['hit_percent']}% hits, max {report['max_ms']} ms, {len(report['degraded'])} degraded, "
           f"{len(report['failed'])} failed, wall {report['wall_seconds']} s; report {out}")
+    if "unstored" in report:
+        u = report["unstored"]
+        print(f"unstored (not gated, D-WARM.2): {u['requests']} requests, max {u['max_ms']} ms, "
+              f"{len(u['over_2s'])} over 2 s")
     return 0 if report["pass"] else 1
 
 

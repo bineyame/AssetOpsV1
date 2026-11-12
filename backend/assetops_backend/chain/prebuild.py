@@ -25,7 +25,8 @@ import time
 from collections import Counter
 from typing import Any
 
-from assetops_backend.chain.composition import build_response_store, code_version, prebuilt_requests
+from assetops_backend.chain.composition import (build_prebuild_http_client, build_response_store, code_version,
+                                                prebuilt_requests)
 from assetops_backend.chain.response_store import HEADER, mode
 from assetops_backend.chain.watermark import SERVE_KEYS
 
@@ -117,9 +118,7 @@ def http_client() -> Any:
     base = os.environ.get(BASE_URL_ENV, "").strip()
     if not base:
         return None
-    from assetops_backend.chain.adapters.http_prebuild_client import HttpClient
-
-    return HttpClient(base)
+    return build_prebuild_http_client(base)
 
 
 def _connections(store: Any) -> int | None:

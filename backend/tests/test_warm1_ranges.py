@@ -76,7 +76,65 @@ def test_plan_dedupes_and_adds_mini_days_and_story():
     assert len(keys) == len(set(keys))
     days = [q for q in reqs if q.path == "/api/sites/KISIWA-001/outcome-board"]
     assert {q.query for q in days} >= {f"date=2026-10-{d}" for d in (30, 31)}
-    assert reqs[-1].id == "story.x"
+    assert [q.id for q in reqs[-4:]] == ["story.x"] + [f"findings.{lens}.story:a..b" for lens in wr.PORTFOLIO_LENSES]
+
+
+STORY = {"requests": [
+    {"id": "portfolio.week", "path": "/api/estate/portfolio",
+     "query": "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z&lens=all"},
+    {"id": "summary.week", "path": "/api/estate/outcome-summary",
+     "query": "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"},
+    {"id": "board.day:kobo:2026-11-08", "path": "/api/sites/KOBO-001/outcome-board", "query": "date=2026-11-08"}]}
+
+
+def test_findings_lens_pages_for_presets_and_story_ranges_only():
+    # D-WARM.5
+    rs, reqs = wr.plan(D("2026-11-17"), SITES, STORY)
+    lens = [q for q in reqs if q.path == "/api/estate/findings" and "lens=" in q.query]
+    assert wr.story_windows(STORY) == [("2026-11-02T00:00:00Z", "2026-11-09T00:00:00Z")]
+    assert len(lens) == 3 * (len(wr.PRESETS) + 1)
+    assert ("/api/estate/findings?from=2026-11-10T00%3A00%3A00Z&to=2026-11-17T00%3A00%3A00Z&lens=cost"
+            in {q.target for q in lens})  # the 7d preset on 17 Nov
+    assert "/api/estate/findings?from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z&lens=opportunities" in {
+        q.target for q in lens}
+    window = wr.Range("14d", D("2026-10-27"), D("2026-11-09"))
+    f, t = window.window()
+    assert not any(f in q.query.replace("%3A", ":") and t in q.query.replace("%3A", ":") for q in lens)
+
+
+def test_unstored_plan_covers_presets_and_story_ranges():
+    # D-WARM.2: estate scope, actions, evidence, financials; each Site's Overview and Site Findings read
+    reqs = wr.unstored_plan(D("2026-11-17"), SITES, STORY)
+    # 6 windows x 12 reads, less the mini-grid Overviews four presets share (all end 16 Nov): 2 Sites x 3 repeats
+    assert len(reqs) == (4 + 2 * len(SITES)) * (len(wr.PRESETS) + 1) - 2 * 3
+    targets = {q.target for q in reqs}
+    w = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"
+    assert {f"/api/estate/{n}?{w}" for n in ("scope", "actions", "evidence", "financials")} <= targets
+    assert "/api/sites/KOBO-001/overview?date=2026-11-08" in targets  # miniBoardDay(to)
+    assert f"/api/sites/COLD-LAB-001/cold/overview?{w}" in targets
+    assert f"/api/sites/EV-LAB-001/ev/findings?{w}" in targets
+    assert f"/api/sites/KISIWA-001/findings?{w}" in targets
+    stored = {q.target for q in wr.plan(D("2026-11-17"), SITES, STORY)[1]}
+    assert not targets & stored
+
+
+def test_unstored_times_are_reported_but_never_gate():
+    section = wr.unstored_section([wr.Result("u", "/api/estate/scope?x", 200, "none", 5400),
+                                   wr.Result("v", "/api/estate/actions?x", 200, "none", 300)])
+    assert section["gated"] is False and section["max_ms"] == 5400
+    assert section["over_2s"] == [{"url": "/api/estate/scope?x", "ms": 5400}]
+    assert wr.summarise([wr.Result("a", "/a", 200, "hit", 100)], verify=True, wall_s=0)["pass"] is True
+
+
+def test_report_names_the_reason_per_failing_request():
+    # D-WARM.6
+    warm = wr.summarise([wr.Result("a", "/a", 200, "race", 10, attempts=4), wr.Result("b", "/b", 503, "unavailable", 1, 4),
+                         wr.Result("c", "/c", 404, "none", 1)], verify=False, wall_s=0)
+    assert warm["reasons"] == {"/a": "not stored after 4 attempts: race",
+                               "/b": "degraded after 4 attempts: HTTP 503 unavailable", "/c": "failed: HTTP 404"}
+    verify = wr.summarise([wr.Result("d", "/d", 200, "stored", 1), wr.Result("e", "/e", 200, "hit", 2500)],
+                          verify=True, wall_s=0)
+    assert verify["reasons"] == {"/d": "miss: stored", "/e": "over 2 s: 2500 ms"}
 
 
 class Clock:
