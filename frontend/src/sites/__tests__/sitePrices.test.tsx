@@ -1,10 +1,12 @@
 import { render, screen, within } from "@testing-library/react";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { settledScreen } from "../../test/settled";
+import { SiteFinancialsFrame } from "../../shell/SiteAnalyticsFrames";
 import { PRICES_SIGN_IN_TEXT, SitePricesFrame } from "../../shell/SitePricesFrame";
-import { SITE_PRICES_ROUTE_PATH } from "../../shell/operatorSiteRoutes";
+import { SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH, SITE_PRICES_ROUTE_PATH } from "../../shell/operatorSiteRoutes";
+import type { FinancialsClient } from "../financialsClient";
 import { createPricePageClient, type PricePage, type PricePageClient, type PriceRowBody } from "../pricePageClient";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 
@@ -259,6 +261,45 @@ describe("PR-2a Site price page", () => {
     const dieselRow = row("diesel_price_per_litre");
     expect(dieselRow.nextElementSibling).toHaveAttribute("data-price-slot", "diesel_price_per_litre");
     expect(dieselRow.nextElementSibling?.nextElementSibling).toHaveAttribute("data-price-history", "diesel_price_per_litre");
+  });
+});
+
+function Probe() {
+  const location = useLocation();
+  return <p data-probe={`${location.pathname}${location.search}`}>probe</p>;
+}
+
+describe("PR-2a old Assumptions address (default 2)", () => {
+  const financials = new Proxy({}, { get: () => async () => ({ status: "unavailable", message: null }) }) as unknown as FinancialsClient;
+  function mountAt(entry: string) {
+    return render(
+      <MemoryRouter initialEntries={[entry]}>
+        <Routes>
+          <Route
+            path={SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH}
+            element={<SiteFinancialsFrame detail={detail} sitesPath="/sites" view="assumptions" financials={financials} forwardBareAssumptions />}
+          />
+          <Route path={SITE_PRICES_ROUTE_PATH} element={<Probe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("forwards the bare address to the price page and keeps the shared range", async () => {
+    mountAt("/sites/KOBO-001/financials/assumptions?from=2026-10-01&to=2026-10-07&known_at=2026-10-08T00%3A00%3A00Z");
+    const probe = await screen.findByText("probe");
+    expect(probe).toHaveAttribute(
+      "data-probe",
+      "/sites/KOBO-001/financials/prices?from=2026-10-01&to=2026-10-07&known_at=2026-10-08T00%3A00%3A00Z",
+    );
+  });
+
+  it("keeps a pinned price version (the money 'Why?' target) on its own screen, under the Prices subtab", async () => {
+    mountAt("/sites/KOBO-001/financials/assumptions?revision_id=r1");
+    await settledScreen();
+    expect(document.querySelector("[data-probe]")).toBeNull();
+    const sections = screen.getByRole("navigation", { name: "Financials sections" });
+    expect(within(sections).getByRole("link", { name: "Prices" })).toHaveAttribute("aria-current", "page");
   });
 });
 

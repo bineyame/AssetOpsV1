@@ -129,6 +129,7 @@ import {
   siteFinancialScenariosHref,
   siteFinancialsHref,
   siteOpportunityHref,
+  sitePricesHref,
   siteFoundationChangeHref,
   siteFoundationHref,
   siteFoundationViewHref,
@@ -1176,9 +1177,12 @@ export function FinancialsSections({
   /** W5-01b C5: a cold Site's live Scenarios link carries the selected window (and, on Scenarios, `scenario_at`). */
   scenariosQuery?: { from: string | null; to: string | null; known_at: string | null; scenario_at?: string | null };
 }) {
+  // PR-2a default 2: "Assumptions" becomes "Prices" (the Site price page). A pinned price version (the "Why?" target)
+  // and a cold Site's declarations still open at the assumptions address; they sit under Prices.
+  const current = view === "assumptions" ? "prices" : view;
   const links: [string, string, string][] = [
     ["overview", "Overview", `${siteFinancialsHref(siteId)}${search}`],
-    ["assumptions", "Assumptions", `${siteFinancialAssumptionsHref(siteId)}${search}`],
+    ["prices", "Prices", `${sitePricesHref(siteId)}${search}`],
   ];
   if (scenarios === "live") links.push(["scenarios", "Scenarios", siteFinancialScenariosHref(siteId, scenariosQuery)]);
   return (
@@ -1186,7 +1190,7 @@ export function FinancialsSections({
       <ol className="site-tabs__list">
         {links.map(([id, label, href]) => (
           <li className="site-tabs__item" key={id}>
-            <Link className="site-tabs__link" to={href} data-financials-section={id} aria-current={id === view ? "page" : undefined}>
+            <Link className="site-tabs__link" to={href} data-financials-section={id} aria-current={id === current ? "page" : undefined}>
               {label}
             </Link>
           </li>
@@ -1198,6 +1202,8 @@ export function FinancialsSections({
 }
 
 const DEFAULT_MINI_DECISIONS = createMiniDecisionsClient();
+/** PR-2a: the query names that pin one price version on the assumptions address (`siteFinancialAssumptionsHref`). */
+const ASSUMPTION_PINS = ["revision_id", "recorded_at", "history_after", "history_limit", "history_back"] as const;
 const DEFAULT_COLD_SCENARIOS: ColdScenariosClient = new HttpColdScenariosClient();
 
 
@@ -1403,10 +1409,17 @@ export function SiteFinancialsFrame({
   coldAssessment,
   miniDecisions = DEFAULT_MINI_DECISIONS,
   coldScenarioList = DEFAULT_COLD_SCENARIOS,
+  forwardBareAssumptions = false,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   view: "overview" | "assumptions" | "scenarios";
+  /**
+   * PR-2a default 2: the app's old `/financials/assumptions` address forwards to the Site price page when it carries
+   * no price-version pin. A pinned address (`revision_id`, `recorded_at`, `history_*`: the money "Why?" targets) and
+   * a cold Site's declarations keep their screen.
+   */
+  forwardBareAssumptions?: boolean;
   financials?: FinancialsClient;
   /** W2-04: a COLDCHAIN Site renders `cold-financials` / `cold-assumptions` from these reads (read-only). */
   coldSite?: ColdSiteClient;
@@ -1506,6 +1519,15 @@ export function SiteFinancialsFrame({
             tabs: <OperatorSiteTabs siteId={siteId} current="Financials" search={coldTabSearch(site, params)} />,
             sitesPath,
           });
+        }
+        if (forwardBareAssumptions && view === "assumptions" && !ASSUMPTION_PINS.some((name) => params.has(name))) {
+          const range = new URLSearchParams();
+          for (const name of ["from", "to", "known_at"]) {
+            const value = params.get(name);
+            if (value) range.set(name, value);
+          }
+          const text = range.toString();
+          return <Navigate replace to={`${sitePricesHref(site.site_id)}${text ? `?${text}` : ""}`} />;
         }
         const links: FinancialsLinks = {
           finding: (findingId, rev) => siteFindingHref(site.site_id, findingId, rev),
