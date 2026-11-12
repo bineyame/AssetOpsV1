@@ -5239,3 +5239,35 @@ Decisions logged for owner review: **D-SR.62**.
   - A kind that fails parity is left out alone, logged and reported. Nothing falls back silently.
 
 Decisions logged for owner review: **D-SR.63**.
+
+## D-SR.64-68 SR-4 live check (F1-F3, the migration 409) and the SR-8 empty day (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10e.3. Source: `AssetOpsV1-sr4` 01f4d3981 `SR-4-live-check.md`; SR-8 223783035.
+
+### D-SR.64 F2: Cold/EV Finding detail reads its own episode.
+- The page sends only `known_at` to `getFinding`. The range stays in the address, for onward links.
+- With no `from`/`to`, the detail reader takes the window of the analytic run that wrote the latest revision known at k, as `linked_finding` (D-E5.8) does. An explicit window keeps the anchor rule.
+- A new tag note: "Range not used · this record's own period", on Finding detail for every Site type.
+- Tests: Postgres for Cold and EV, plus vitest. About 0.2, inside SR-4 before it merges. If EV runs store no window, stop and ask.
+
+### D-SR.65 F1: Kisiwa Fuel nights.
+- SR-4 declares the day of the night shown: "Showing 10 Nov · range not used", never "All pages" (about 0.02).
+- SR-10k is the next merge after SR-4, with nothing between them.
+
+### D-SR.66 F3: Cold/EV financial assumptions. Corrects the D-SR.44 row.
+- Remove the `RangeNotUsed "prices valid now"` declaration. The view declares what the same Site's Financials declares.
+- The price values keep their in-page wording. Two tag pins (about 0.03, inside SR-4).
+
+### D-SR.67 The evidence-migration 409.
+- **This is a prepare gap.** `finish()` runs `evidence_migration` for Kobo only. The Kisiwa and EV ledgers therefore stay closed (`permits_cutover`), and the laptop builds were the same; that is from code, not seen.
+- `/analytics` is the legacy surface and is 409 for every imported Site by design.
+- **17 Nov.** The prepare runs `evidence_migration` for every imported story Site, then `performance_migration` where the Site has that surface. An exit 2 stops the prepare and goes to the Architect.
+- **Serve** from the build tree, or rerun the comparison in any other serve tree first.
+- **Gate:** no "Awaiting evidence migration" panel on any client-visible page (live check). About 0.1.
+
+### D-SR.68 SR-8: a day with no solar reading at all.
+- The builder (1a4d94dd5) is confirmed: the day stays a missing day in the one-day read (UNKNOWN, null cards).
+- The stored measure has no headed hour, so the range row is NO_DATA and the day is not counted.
+- D-SR.62 is clarified: missing hours are left out only when the day has at least one stored hour result. Add a pure pin.
+
+Decisions logged for owner review: **D-SR.64-68**.
