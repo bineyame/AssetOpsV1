@@ -1,8 +1,157 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 10e addendum (Architect, Claude, 2026-11-12 night): SR-8 parity failure diagnosed; the rows-on switch for 17 Nov
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.62-63** (build sheet), owner-delegated, logged for owner review.
+- Evidence: `AssetOpsV1-sr8` 26fd97b7a `.agent/SR-8-parity.json`. DB `assetops_polish_vps1_test`, read only.
+
+### 10e.1 SR-8: why 3 Kobo days fail, and the fix (D-SR.62)
+
+**What the database shows (KOBO-001, 27 Oct; 3 and 10 Nov are the same).**
+- The stored day row reads ELIGIBLE, 25-31 kW, `window_hours` 2, covered 28,800 of 86,400 s (PARTIAL).
+- The day has 7 daylight hours with a selected revision (04:00-10:00Z). Of these, 5 are EXCLUDED (CHARGE_OBLIGATION_ACTIVE). Two are **ELIGIBLE**: 09:00Z (seq 1081) and 10:00Z (seq 1094), both 25-31 kW.
+- The other **16 hours are "missing"**: they have no full `pv_available_power` coverage. That is 21:00-03:00Z and 11:00-21:00Z, the story's truncated readings on its Finding days. None of them has a revision.
+- The stored `mini_depth.renewable` period row has the same 23 windows and the same 7 heads (2 ELIGIBLE).
+- **The parity JSON's "all 7 hourly rows EXCLUDED" is wrong.** The read's `rows` are the heads' stored rows, and two of them are ELIGIBLE. The harness most likely read `limitations` (5 CHARGE_OBLIGATION_ACTIVE entries). The builder corrects the harness.
+
+**Root cause: two day rules for the same day.**
+- Stored measure (`chain/measure_impls.py` `RenewableHeadroom`, CH9-R2 Q2/Q4):
+  - the value comes from the day's **daylight** hours;
+  - missing hours only reduce coverage, so the grade is PARTIAL;
+  - the value is null (MISSING_HOUR) only when a *daylight* hour has no selected revision.
+- One-day read (`mini_depth/read.py` `compose_renewable`, CH9-R2 Q5):
+  - any window with no head marks the whole day as missing;
+  - so `status` is UNKNOWN and every card is null;
+  - it cannot tell a missing hour (no PV coverage, never assessed) from a daylight hour that has no revision yet. `hour_windows` merges `found.hours` and `found.missing`, and the flag is dropped.
+
+**The stored side is right.**
+- Two of the measured hours were assessed ELIGIBLE at 25-31 kW. D-SR.9 says data in the range gives output, so the day must show them.
+- D-SR.47 Q4 already counts a PARTIAL ELIGIBLE day, with `partial: true`.
+- The chain measure feeds day grades and the Portfolio, and 10b ruled it unchanged.
+- The read is fixed to use the measure's rule.
+
+**The fix (one rule everywhere):**
+- **Carry the missing flag.**
+  - `read._Hour` gains `missing: bool = False`. It is true exactly for the hours in `daylight_hours(...).missing` at the read's cutoff.
+  - The compose path sets it where `hour_windows` builds the renewable windows.
+  - The rows path reads it from the stored hour: `period_rows.hour_json` writes `"missing"` and `hour_from_json` reads it.
+  - `BUILDER_VERSION` becomes `mini-depth-rows-2`, because the stored hour body changes.
+- **`compose_renewable(hours, *, missing=frozenset())`**, keyed by `(day, window.start)`:
+  - Missing hours are left out of the decision, the cards and the `len(selected) < len(hours)` UNKNOWN test.
+  - A day is a missing day only when a **non-missing** hour has no head. This is the measure's MISSING_HOUR, unchanged.
+  - The cards (`headroom_kw`, `all_hours_headroom_kw`, `eligible_days`, `assessed_days`) are then over the same hours as the measure.
+  - So for 27 Oct the read returns SUPPORTED, `headroom_kw` 25-31, and `all_hours_headroom_kw` 25-31.
+- **Recurrence stays strict.** `summarize_renewable` gains `partial_days`. `recurrence_established` also needs no day with missing hours. A partial day is assessed, but it never establishes recurrence.
+- **The envelope gains `missing_hours`** (the count of missing windows).
+  - The one-day page shows the D-E5.45 PARTIAL label when it is above 0, with the words the range row uses.
+  - Range row `missing_hours` = (required − covered)/3600 = 16 = one-day `missing_hours`.
+  - This is inside R726: the v69 `renewable` card is kept whole.
+- **D-SR.48's "null when the card is null" still holds.** The card and the line now fill together.
+
+**The Grow board.**
+- `site_outcomes/mini.py` reads the same `compose_renewable` over 5 days. Its fixtures pass `None` hours as daylight hours with no head, so the existing tests are unchanged.
+- On real data, a 5-day board window that holds a Finding day now counts that day as assessed and partial, with no recurrence. This is the intended consistency. Any board pin that changes is recorded as expected in the packet, not re-pinned silently.
+
+**Tests:**
+- Pure, `test_w402_reads.py`:
+  - (a) the 27 Oct shape (7 headed hours with 2 ELIGIBLE at 25-31, plus 16 missing) gives SUPPORTED, both cards 25-31, eligible/assessed 1/1, `missing_hours` 16;
+  - (b) a non-missing hour with no head still gives UNKNOWN and null cards;
+  - (c) recurrence is false over 5 days when one day is partial.
+- Shared-rule pin: the same fixtures go through `RenewableHeadroom.measure`. For the complete, partial and headless-daylight days, `(low_kw, high_kw)` equals `all_hours_headroom_kw`, with both null on the headless-daylight day.
+- `hour_json`/`hour_from_json` round-trip `missing`. A `mini-depth-rows-1` row reads PENDING_RECOMPUTE (existing rule).
+- Postgres SR-8: one sampled day has missing hours.
+- Parity rerun:
+  - gate 0 mismatches over COUNTED days;
+  - the `missing_hours` of each compared day must be equal;
+  - the harness reports the per-hour decisions from `rows[].decision`.
+- **Size:** about 0.3 units (Sonnet fix round, then a fresh Claude re-review). SR-8 merges only after the parity rerun passes.
+
+**Rebuilds on the demo DB:**
+- **Stored day rows (`site_day_snapshot` `daylight_headroom_kw`): no rebuild.** The measure is unchanged and they are right.
+- **`mini_depth.*` period rows: yes, rebuild.** The version bump makes all four mini kinds read PENDING_RECOMPUTE until they are rebuilt.
+  - Run `python -m assetops_backend.chain.period_backfill build --site KOBO-001` and then `--site KISIWA-001` (the board-kinds step, 15-minute cap).
+  - Then rerun the SR-8 parity on that DB.
+  - `dispatch.day` and `evidence.claim` rows are unchanged: their fingerprint is the same, so nothing is written.
+
+### 10e.2 The rows-on switch for the 17 Nov build (D-SR.63)
+
+- **The code lands now** (about 0.05, in the SR-8 fix round or as its own tiny branch):
+  - `tools/demo_combined.py` `serve_env()` sets `ASSETOPS_PERIOD_READ_KINDS=dispatch.day,evidence.claim,mini_depth.renewable,mini_depth.fuel,mini_depth.service,mini_depth.backup` **only when** the work dir's `period-rows.json` reads `"ok": true`.
+  - Otherwise it stays empty and the prepare prints the existing failure line.
+  - An operator's own value in the parent environment wins.
+  - Stub test: ok → six kinds; not ok or no file → empty; override → kept.
+- **On the current demo DB, now:**
+  - `dispatch.day` and `evidence.claim` may be switched on: their rows are built, their parity passed (SR-5/6/7), and the SR-8 fix does not touch them.
+  - The four `mini_depth.*` kinds stay off until the SR-8 fix merges, the mini rows are rebuilt (10e.1) and the parity is rerun with the six kinds (`tools/checks/period_read_parity.py`, 0 differences).
+- **For the 17 Nov build: all six on**, with three conditions:
+  1. SR-8 (with D-SR.62), SR-10 and SR-11 are merged.
+  2. The final prepare's row steps report ok (board kinds, then day kinds, D-SR.54).
+  3. **One** final parity run with the six kinds on the final DB gives 0 differences.
+  - The SR-10/11 day kinds read rows whatever the switch says (D-SR.52), so their own parity does not gate the six kinds. Their merge does change the prepare's row step, though, which is why the one final parity run comes after them.
+  - If that run fails for a kind, only that kind is left out of the list, the failure is logged, and the coordinator is told. No silent fallback.
+
+### 10e.3 SR-4 live check and the SR-8 empty day (D-SR.64-68)
+
+Source: `AssetOpsV1-sr4` 01f4d3981 `.agent/SR-4-live-check.md`; SR-8 223783035 / 1a4d94dd5.
+
+- **F2, Cold/EV Finding detail (D-SR.64): fix in both the page and the reader.**
+  - **Cause.** `ColdReadService.finding` (`postgres_assessment_store.py:2645`) and the EV `finding` (`:3672`) look the Finding up inside the requested window: the anchor must lie in `[from,to)`. SR-4 carries the range into the address, and `ColdFindingFrame` and `EvFindingFrame` pass `coldWindowFromParams(params)` to `getFinding`. So under range B the reader answers 404, and under A or Y the header shows the range as the Finding's window. Both break 10.5 N: one record, its own episode.
+  - **Page.** The Cold and EV Finding detail frames send **only `known_at`** to `getFinding`. They never send `from` or `to`. The range stays in the address, for onward links only. The header window comes from the response.
+  - **Reader.** On the two detail routes, when the request has **no `from`/`to`**, the reader no longer takes "the latest selected window". It takes **the Finding's own window**: the window of the analytic run that wrote the Finding's latest revision known at k. This is the rule `linked_finding` (D-E5.8) already uses for its links.
+    - An explicit `from`/`to` keeps today's anchor-in-window rule, so API links stay valid.
+    - Pre-flight: if EV runs store no window, stop and ask.
+  - **Tag.** `RangeNotUsedNote` gains `"own period"`, so the tag reads **"Range not used · this record's own period"**. Finding detail on all four Site types declares it. Kobo and Kisiwa currently say "All pages", which is the same overclaim as F1.
+  - **Tests.**
+    - Postgres, Cold and EV each: a Finding outside the latest window, read with no window, returns 200 with its run's window. An explicit window that misses the anchor still returns 404.
+    - Vitest: a detail address carrying range B sends no `from`/`to`, shows the Finding's own window, and shows the new tag.
+  - Size about 0.2. **This goes into SR-4 before it merges**: it is an SR-4 regression on demo pages.
+- **F1, Kisiwa Fuel nights (D-SR.65): both.**
+  - SR-4 carries the honest tag for what the page actually shows. The nights view declares `useDeclareRangeFocus(<the night shown>)`, so under B the tag reads "Showing 10 Nov · range not used" and never "All pages" (about 0.02).
+  - **SR-10k is the next merge after SR-4**, with nothing merged between them. It replaces the view and the tag with the range content.
+  - The tag protects the page if SR-10k slips. The merge order limits how long the page is wrong.
+- **F3, Cold/EV financial assumptions (D-SR.66).** This corrects the D-SR.44 row.
+  - The page shows range content ("Analysed periods in this range … showing 5 Nov"), so "Range not used" is false.
+  - Remove the two `<RangeNotUsed note="prices valid now" />` declarations (`evSiteRoutes.tsx:109`, `SiteAnalyticsFrames.tsx:1515`). The assumptions view then declares exactly what the same Site's Financials view declares; Financials passed as R.
+  - The price values keep their in-page wording. Nothing is trimmed.
+  - Pin one Cold and one EV case in `siteRangeTags.test.tsx`. Size about 0.03, inside SR-4.
+- **409 `AWAITING_EVIDENCE_MIGRATION` (D-SR.67): a demo prepare gap, plus one surface that is 409 by design.**
+  - **The Kisiwa and EV `/evidence` ledgers.**
+    - `ledger_reads.scope` opens an imported Site only after a passing legacy comparison bound to this DB and store root (`permits_cutover`).
+    - `demo_combined.finish()` runs `evidence_migration run` for **KOBO-001 only** (since dd08df077). `performance_and_prebuild` runs `performance_migration` for Kobo and Kisiwa.
+    - So the laptop builds, which use the same code, must also have shown Kisiwa and EV ledgers as "Awaiting evidence migration". This is from code, not seen on a laptop. It is not an SR-4 regression.
+  - **`/analytics`.** It is the legacy file-backed declaration. `LegacySiteGate` refuses it for every imported Site, Kobo included, by design. The pages use the durable reads instead (`SitePerformance` `performance`).
+  - **17 Nov prepare (about 0.1):**
+    - `finish()` runs `evidence_migration run` for **every imported Site in the story** (KOBO-001, KISIWA-001, EV-LAB-001, and COLD-LAB-001 if its Evidence page uses the ledger). Then `performance_migration` runs for each Site that has the dispatch Performance surface.
+    - A Site that exits 2 ("cannot be compared", for example no legacy store) stops the prepare and comes to the Architect. It is never served as "awaiting".
+  - **Serve.** The comparison is bound to the store root. The demo is served from the build tree. Any other serve tree (a worktree check) reruns the comparison there first.
+  - **Gate.** After the prepare, a live check (the SR-4 method) must show no `AWAITING_EVIDENCE_MIGRATION` panel on any page a client sees.
+    - `/analytics` 409s may stay only where the page does not show that panel.
+    - Any visible panel is a defect card, not an accepted state. That wording is system vocabulary on client pages.
+- **SR-8 day with no solar reading at all (D-SR.68): the builder is confirmed.**
+  - When every hour of the day is missing, the stored measure has no headed hour. `RenewableHeadroom.inputs` returns no IDs, no spans and no payload, so the row is **NO_DATA**.
+  - The range row shows **NO_DATA**, with the D-SR.27 words for a day with no readings. It is not counted. NO_DATA wins (D-SR.47 Q4).
+  - The one-day read keeps that day as a missing day: UNKNOWN, with null cards.
+  - D-SR.62's rule is clarified: a missing hour is left out only when **at least one** hour of that day has a stored result. A day with none is a missing day, as before.
+  - Add a pure pin for an all-missing day (UNKNOWN). The parity JSON shows such days under NO_DATA, and they are never compared.
+
+### 10e.4 KOBO-001 10-31 has no mini heads: a story gap, not a build defect (D-SR.69)
+
+- **Story.** `days.json` (polish_vps1) entry 49 is Kobo 2026-10-31, kind `missing`: "gateway offline: no run, no delivery". **11-06 (entry 68) is the same kind.** The 11 accepted rows on each day are the previous day's run ending at local 00:00, and they enqueued no hour on either day (`cause_evidence_id` count 0).
+- **Why 11-06 has heads anyway.** All 72 of its fuel, backup and service jobs have no cause and were created at **2026-11-10 14:00Z**, the moment the Kobo Action was APPLIED (`kobo.json` `apply_at`). That is a configuration re-enqueue (`mini_enqueue_configuration`), so those heads were computed over no readings. 11-06 renewable has no heads, just like 10-31. Nothing re-enqueued 10-31. **The hole is the expected result of a gateway-offline day. The 11-06 heads are a side effect.**
+- **Chain grades are NO_DATA on both days for every measure** (`avoidable_gen_min`, `critical_served`, `daylight_headroom_kw`, `productive_kwh`; covered 0). So SR-5/6/7/8, which read the grades, show 10-31 and 11-06 as NO_DATA. That is honest, and the two days match.
+- **Ruling:**
+  - **No heads are built for 10-31** (D-SR.36 stands).
+  - SR-10/11 pre-flight and parity gate: a day whose chain grade is NO_DATA for that domain's measure expects 0 heads. The parity JSON lists such days under `no_data_days`, and each must read NO_DATA on the range page, never STILL_PROCESSING. (The grade wins first, D-SR.47 Q4. An absent day-kind row on a NO_DATA day is not a "missing row".)
+  - The head gate becomes: no hour with a live or FAILED job, and no hour holding accepted evidence for the domain's roles without a head.
+  - The partial days (10-13, 10-20, 10-27, 11-03, 11-10) have heads only where readings exist. That is expected, and their grade is PARTIAL.
+- **One-day pages.** They are not wrong; the two days differ only in wording.
+  - 10-31 shows the hour as not assessed (UNKNOWN, no figures).
+  - 11-06 shows an assessed hour with no readings (no figures).
+  - Neither shows a number. Making the two days read the same is **Low, backlog** (demo-critical scope only). It is not a 17 Nov item.
+
 ## Revision 10d (Architect, Claude, 2026-11-12 night): SR-4 test and builder rulings, unlisted routes, SR-7 Q-J1-5, WARM-1 lens scope-ids
 
-- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8** (build sheet), owner-delegated, logged for owner review.
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.40-46** and **D-WARM.8**; later D-SR.47-54 (10d.7-10d.11) (build sheet), owner-delegated, logged for owner review.
 - Basis: D-SR.2/3 (every Site link carries the range; safety net), D-SR.9 and D-SR.39 (the range covers telemetry and its consequences; configuration and assumption facts are not ranged), D-SR.30/35 (one record and configuration are N).
 - Evidence: the 18 files re-run on `task/SR-4-site-range` 582019b0e (16 files: 29 failed / 383 passed; `globalIncidents` + `globalMaintenance`: 2 failed). 31 failures, as the packet says.
 - **Process defect found and repaired here (D-SR.46).** The rev 10b, 10b.6 and 10c commits (d7288e5d6, ef18dad9d, 23459a1f9) each *replaced* `build-sheet-OWN-GAPS-2026-11-08.md` instead of appending to it: main held 7 lines, not ~4,960. This branch restores the 13dbe4cab content, then D-SR.31-38, D-WARM.7 and D-SR.39 in order, then appends D-SR.40+. Rulings are appended, never written over the sheet. A reviewer checks `git diff --stat` on the build sheet: only additions.
@@ -75,6 +224,90 @@ Rule for every "update": replace the superseded assertion with a positive test o
 - In `tools/warm_ranges.py`, beside `scope-ids.{tag}`, add `scope-ids.{lens}.{tag}` for `PORTFOLIO_LENSES`, with exactly the client's `estateQueryString({from, to, known_at, lens})` order. The URL-equality test covers all four, and `--verify` times them.
 - **Still outside the claim:** scope-ids page 2 and later, and lens × state chip combinations.
 - Size: about 3 requests per warmed range, about 0.02 units, inside WARM-1's fix round.
+
+### 10d.7 SR-8 builder questions Q2-Q5 (D-SR.47)
+
+SR-8 server: `task/SR-8-renewable-range` 2fc5ffdf6. Q1 (`window_days`) is covered by D-SR.45.
+
+| Q | Ruling |
+|---|---|
+| Q2 A graded row with no value, or an unknown decision, reads NO_VALUE | **Confirmed.** NO_VALUE is added to D-SR.27's state list with the words "No headroom figure for this day". It is never counted. |
+| Q3 Averages rounded to 0.01 kW, half-up | **Confirmed.** This applies only to the two totals (mean `low_kw`, mean `high_kw`). The per-day `low_kw`/`high_kw` are the stored values, unrounded. The page formats both with the Renewable tab's existing kW formatter. |
+| Q4 Grade precedence | **Corrected for LOW.** A PENDING, NO_DATA or NOT_EXPECTED grade wins, as built. **A LOW grade reads NOT_ENOUGH_READINGS and is never counted, even with a value**, as D-SR.45 J2 and SR-5a's `GAP_STATES` rule. A PARTIAL-grade ELIGIBLE day is COUNTED and carries `partial: true`, so the page shows the D-E5.45 PARTIAL label, as SR-7a does. COMPLETE reads the value. Add a test for a LOW day that has a value. |
+| Q5 Codes and `known_at` | **Confirmed.** `RENEWABLE_RANGE_NOT_APPLICABLE` (404) and `SITE_RENEWABLE_RANGE_UNAVAILABLE` (503) match SR-6/SR-7. The optional `known_at` is required in practice: the shared range carries it (D-SR.2), and the StoredRoute key is `{site, from, to, known_at}`, as SR-6/7. Spec 10.4 is amended to `?from&to[&known_at]`. |
+
+### 10d.8 SR-8 Q6: which headroom figure the range shows (D-SR.48)
+
+- **Facts** (SR-8 packet, 909affc1d):
+  - The one-day depth card `observed_headroom_range` is min low and **max** high over the ELIGIBLE hours: the envelope across hours.
+  - The stored `daylight_headroom_kw` day value is min low and **min** high: the headroom available in *every* eligible hour.
+  - The lows match. The stored high can be lower.
+- **Ruling.**
+  - **The range page shows the stored day figure.** D-SR.15 allows stored rows only. The chain measure feeds day grades and the Portfolio, so it is not changed (10b ruled out chain-measure changes).
+  - Range page wording, per day and in the totals: **"Headroom available in every eligible hour: low–high kW"**. The totals read "average headroom available in every eligible hour".
+  - **The one-day page adds the same figure, so the drill-in matches.** The backend depth envelope gains `all_hours_headroom_kw: {low, high}`: min low and min high over the same ELIGIBLE hours. It is null when the card is null.
+  - The page shows one line under the existing card, with the same wording as the range row.
+  - The existing card keeps its envelope, renamed in words only to "Range across eligible hours". The card is not trimmed. This is an addition inside the v69 `renewable` card, recorded under MOCK DEVIATION R726: the mock element is kept, and a second figure is needed so that the range and the day agree.
+- **Tests and parity.**
+  - Postgres: for each sampled day, stored low = `all_hours_headroom_kw.low` = card low; stored high = `all_hours_headroom_kw.high` (exact equality); card high ≥ stored high.
+  - The parity JSON compares the stored day value to `all_hours_headroom_kw`, and the gate is 0 mismatches.
+  - Vitest pins the one-day line and the range wording.
+- **Size:** about 0.1 (backend field 0.04, page line 0.03, tests 0.03). SR-8 goes to about 0.6, and the package to about 18.3.
+
+### 10d.9 SR-6a builder questions (D-SR.49)
+
+SR-6 server: `task/SR-6-health-range` 4f450d065.
+
+| Q | Ruling |
+|---|---|
+| Q1 `days_without_readings` | **Corrected.** Health reports whether readings arrived, so its summary counts readings, not analysis states. `days_with_readings` = days with at least one accepted reading from any source (step 3), as built. **`days_without_readings` = the expected days with zero accepted readings**: days not NOT_EXPECTED and not AFTER_CUTOFF (Q4), whatever their SR-5a state. Add `days_not_expected` and `days_after_cutoff`, so with + without + not expected + after cutoff = requested. Status-line wording: "Readings on 1 of 4 days · 3 days with no readings" (the not-expected and after-cutoff days are named separately when non-zero). `days[].state` keeps the SR-5a state, so a day can read "no readings" in the summary and "Not analysed" in its state cell. Both are true, and the page shows both. Test: on the 4-day Postgres world, with = 1 and without = 3. |
+| Q2 `gateways_in_contact_all_days` | **Confirmed with one refinement.** Every **expected** day must be IN_CONTACT. NOT_EXPECTED (before registration) and AFTER_CUTOFF days are skipped, and they do not break the count. NO_CONTACT, PARTIAL_CONTACT and READINGS_ONLY break it. A gateway with no expected day is not counted. Wording: "Gateways in contact on every expected day: n of m". |
+| Q3 `days[].accepted_readings` | **Confirmed:** the SR-5a dispatch row's `accepted_reading_count` (null on gap states), so Health and the range Overview agree day by day (the spec's pin). **Yes, it can differ** from the per-source sum: non-dispatch-role sources and source-time vs dispatch-day framing. So the page never shows the two under one name. The day row reads "Readings used for analysis", and the source cells read "Readings received". Parity reports the difference per day, explained by role (not gated, as 10.2). |
+| Q4 Days wholly after the cutoff | **Its own state.** A day whose start is at or after `min(to, known_at or now)` reads **AFTER_CUTOFF** in gateway `contact` and source `state`, worded "Not reached yet". It is never NO_CONTACT or NO_READINGS. `days[].state` keeps the SR-5a value, so Overview parity holds. A day partly after the cutoff already uses the seconds inside `[from, min(to, k))` for contact (10.2 rule). Test: a window ending after k has AFTER_CUTOFF days, and the summary excludes them. |
+| Q5 Battery block | **Drop `battery` from the body.** The SR-6b page renders "Battery (current settings)" from the existing `/battery` read, which it already makes today. The block is configuration, not ranged (D-SR.39/43). This removes the stale-under-watermark risk and the whole-route 409: the route no longer reads Foundation for battery, and it has no `FOUNDATION_BASIS_UNAVAILABLE`. Registration refusals keep their existing codes. Size −0.02. |
+| Guard policy | **Confirmed, as the sanctioned pattern** (W3-01/W4-01 precedent). The single read-only adapter file is named in `$pgReaders`; the SQL-write refusal still applies to it; and reads reach the module through `evidence/composition.py` / `sites/composition.py`, not by direct import. Reviewer checks: the `$pgReaders` entry is that one file path (no glob or directory), the guard self-test still fails a write in a listed reader, and no other guard line changed. |
+
+- SR-6 size is unchanged at about 1.1.
+
+### 10d.10 SR-5 rulings: the 10-21 drill-in conflict and unreachable Postgres cases (D-SR.50)
+
+SR-5: `task/SR-5-range-board` 3178766d6.
+
+**1. Range CLEAR vs the drill-in Finding on 10-21 (F05, NO_LONGER_SUPPORTED).**
+- **Both are kept, and the range day is made to say what the drill-in shows.**
+  - The member count is right. It is the Portfolio's selector (§9.4), so it must stay equal to the Portfolio, and a no-longer-supported Finding is not a current finding.
+  - The S5-01 board is also right to show the Finding with its lifecycle, since it is the record of that day. It is not changed.
+  - What is wrong is that the range says "nothing to report" with no trace of a Finding the user will meet one click later.
+- **Change (SR-5 server and page).**
+  - Each day gains `retired_finding_count`: Findings whose latest revision at the cutoff is not a member (NO_LONGER_SUPPORTED, or any other non-member lifecycle) and whose episode intersects the day. It uses the same Finding read and the same `intersects` rule as `finding_count`. If that read does not expose non-member lifecycles, stop and ask; do not add a second Finding query.
+  - The state stays CLEAR, so the coverage, totals and Portfolio parity are unchanged.
+  - Page wording when `retired_finding_count > 0`: "Checked: no current findings · 1 finding no longer supported" (plural as needed). A FINDINGS day appends the same suffix.
+  - Totals gain `days_with_retired_findings` (shown only when > 0).
+- **Test.** Replace the "disagreement set == {10-21}" pin with an agreement pin. For every day, the board's selected Findings = members (`finding_count`) + non-members (`retired_finding_count`), and on 10-21 the board shows F05's Finding labelled no longer supported.
+- Size about 0.1. No MOCK DEVIATION beyond SR-5's existing range-table row.
+
+**2. Postgres cases with no existing world.** No new fixture is designed now (freeze, demo-critical scope).
+
+| Case | Ruling |
+|---|---|
+| (a) NOT_EXPECTED | **No-DB coverage is enough**, plus the demo parity report. It is a chain-grade pass-through (`readings_began`), and the precedence is a pure function: the no-DB file pins NOT_EXPECTED first in the precedence. The demo parity JSON lists any NOT_EXPECTED days it meets per Site and window. None is acceptable, and none is reported as "not exercised on real data". |
+| (b) READINGS_CONFLICT with day grades on | **The MD-0 `--variant states` template is not built for this.** Coverage: the existing Postgres coverage-wins pin (F08 10-19 READINGS_CONFLICT), the no-DB precedence tests, and the demo parity gate (gap set == `coverage.days.gaps` on real data, with the mismatch log count, gate 0). The template run is allowed later only as backlog (it is `*_test` named, so it is authorised), and only when the coordinator has an idle machine slot after the freeze. |
+| (c) SUMMED / OVERLAPPING day money | **No-DB stubs are required, and the demo parity covers real data.** The no-DB file pins the SUMMED and OVERLAPPING day compositions, including the D-ANY.10 absent-run compose, with stub rows. The demo parity checks range money totals == Portfolio money for KOBO-001/KISIWA-001 (priced after SR-5d) and reports the count of OVERLAPPING days. If the count is 0, the overlap path is recorded as stub-only in the parity JSON, as a named test limit, not a gate failure. |
+
+### 10d.11 SR-10 builder interpretations, kill switch, rebuild test, day-kind build time (D-SR.51-54)
+
+SR-10: `task/SR-10-fuel-range` (core 7f928edb2, route 3fc8c4c23, pins 3ed855559). Packet `.agent/SR-10-packet.md`.
+
+| # | Ruling |
+|---|---|
+| 1 Pending hours | **Confirmed.** Pending = `PENDING_RECOMPUTE` or a live job; sums cover assessed hours only. |
+| 2 `slowest_recovery` | **Confirmed.** It is taken over the de-duplicated sequences. A null is skipped, the target comes from the same sequence, and a tie goes to the earliest `outage_start`. |
+| 3 Absent day | **Corrected.** Unknown is not zero: `stored: false` with null counts and figures; `hours_expected: 0` is removed. Page: "Still being prepared" across the row. |
+| 4 Totals | **Confirmed, plus a fix.** Window totals de-duplicate sequences by `chain_id` across days (a sequence over midnight counts once). |
+| 5 Kill switch | **Accepted.** There is no compose to fall back to, so the safety behaviour is STILL_PROCESSING plus the live hour drill-in. A stub test pins rows read with the switch empty. |
+| 6 Rebuild test | **Enough** (AR-1 precedent, plus parity on real readings). Add the ingest's own event helper if one exists, and a Site-local 00:30 boundary case; stop and ask if the register keys days otherwise. |
+
+**Build time (D-SR.54).** At AR-2's rate (0.55-0.75 s per hour read) the two day kinds need about 2,100 hour reads, about 15-20 minutes, which breaches the shared 15-minute cap and would push the board rows out. `build_period_rows` builds the board kinds first (explicit `--kind`, 15-minute cap unchanged), then the day kinds in their own step (cap **30 minutes for both Sites**). The step's failure line names the rerun command, not the kill switch. On the VPS (D-SR.36): head-count pre-flight, then time per Site; stop and ask if KOBO's first 3 days exceed 1.0 s per hour read. One dirty-day tick rebuild is timed in the parity JSON, reported above 60 s, not gated. The fix round is about 0.1 units (Sonnet); the package is about **18.3 units**.
 
 ### 10d.6 Sizes and order
 
