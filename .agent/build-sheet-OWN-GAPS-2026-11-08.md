@@ -4397,3 +4397,26 @@ Decision logged for owner review: **D-F05.1**.
   - The ≤2 s target (rev 4 / ANY-1) is reported, not gated: the gate is parity + no regression. A miss is stated honestly in the packet, with what remains (provenance, money if out). Presenter rule D-ANY.4 still holds for Portfolio ranges over 2 s.
 
 Decision logged for owner review: **D-ANY.8**.
+
+## D-ANY.9 AR-4: Portfolio consequence money, receipt-less productive rows, the `note_page_days` hook (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Context: branch `task/ANY-2-AR4` head `ba227df16`, packet `.agent/AR-4-packet.md` (Not built 7, deviations 5-6). D-ANY.8 stands unchanged.
+- **Q1 Portfolio consequence money (`_mini_grid_money` + `consequence_provenance`, ~4 s on a client4 week): backlog, not 17 Nov.** Storing it per (consequence revision, Finding revision), like the claim provenance, is the likely shape, but it is a new stored kind with its own invalidation (Finding recompute, consequence revision, price revision). It cannot be built and pass parity by Sat 12:00 next to money.lines, and D-ANY.8 already puts provenance last. The builder does not start it. The packet states the remaining ~4 s honestly in the ≤2 s report (D-ANY.8: reported, not gated). The backlog entry is `evidence.consequence_money`: per (Site, consequence revision, Finding revision), body = today's `_mini_grid_money` line + provenance. Its shape is confirmed by the Architect after a post-switch profile, not before.
+- **Q2 old productive rows without a receipt: acceptable, with no PENDING gate on the amount.** The amount is unchanged under `mini.productive_energy@2`, and readers use only `amount`/`currency`/`assumption_revision_id`. So a PENDING gate would cost speed and change no value. MN-1's wording "read PENDING until the backfill" is corrected to: "an old row serves its amount; its receipt is absent until it is rebuilt". Conditions:
+  - Any reader that shows the receipt treats a row without `receipt` as "receipt not available yet" or composes it. It never shows an empty or partial receipt.
+  - The client4 build at step 4b rebuilds the productive rows to @2, so the demo data carries receipts.
+  - Add one no-DB test: a receipt-less row reads the same amount as compose.
+- **`note_page_days` hook (commit `36d15fd70`): accepted.** The claim rows must be matched against exactly the days the page reads. Without the hook, the switch would select claim days from a different day set. It is optional through `getattr`, so other snapshots keep their earlier behaviour. Conditions: the parity run covers it, and the packet lists it as a step-3 deviation from the "one-line change".
+
+Decision logged for owner review: **D-ANY.9**.
+
+## D-PRICE.2 PR-3 server half: Site name in the first-price summary, dry-run reason, two router keywords (Architect, Claude, 2026-11-12, owner-delegated, logged for owner review)
+
+- Context: branch `task/PR-3-price-entry` head `99d4b6f24`, packet `.agent/PR-3-packet.md` (deviations 1, 3, 4; Q1-Q2). D-PRICE.1 stands.
+- **Q1 Site in the INITIAL summary: use the Site's display name.** The client reads History, and a code like `KOBO-001` is system vocabulary. Take the name from the same estate Site record the Financials read uses (`site["site_name"]`). Do not add a new table or a new scope field. Fall back to the code only when the name is null. A lookup failure follows the 503 `ASSUMPTION_STORE_UNAVAILABLE` path, not a 500. Already-stored summaries are not rewritten. Add a test for the name and one for the null-name fallback.
+- **Q2 dry run returns 200 with `reason_required: true`: confirmed.** The form needs the dry run to tell it to show the Reason field. The save refuses 422 `REASON_REQUIRED` without a reason, which keeps the guard. Rev 5 §5.3 "dry run runs steps 1-9" is read as: step 9 *reports* on the dry run and *refuses* on the save.
+- **Router keywords `unavailable` and `clock`: confirmed**, provided that:
+  - `clock` is a server-side injection only, with the server's now as default. No request field or header can set it.
+  - `unavailable` maps only to 503 `ASSUMPTION_STORE_UNAVAILABLE`, for store, zone and scope failures. Turning a scope outage into 503 instead of 500 is correct.
+
+Decision logged for owner review: **D-PRICE.2**.
