@@ -90,10 +90,16 @@ class EvidenceMoneySnapshot(EstateSnapshot):
 
     def dispatch_days(self, t: UUID, s: UUID, from_: datetime, to: datetime, k: datetime) -> list[dict[str, Any]]:
         days = super().dispatch_days(t, s, from_, to, k)
-        rows = self._period_rows()
-        if rows is not None:  # AR-4: the page's own dispatch days are the claim days' selection
-            rows.note_days(t, s, from_, to, k, days)
+        self.note_page_days(t, s, from_, to, k, days)
         return days
+
+    def note_page_days(self, t: UUID, s: UUID, from_: datetime, to: datetime, k: datetime,
+                       days: list[dict[str, Any]]) -> None:
+        """AR-4: the page's own dispatch days (composed, or AR-3's `dispatch.day` rows through
+        `coverage.dispatch_days`) are the claim days' selection."""
+        rows = self._period_rows()
+        if rows is not None:
+            rows.note_days(t, s, from_, to, k, days)
 
     def cited_provenance(self, t: UUID, s: UUID, cited: list[str], selected: list[str]) -> dict[str, Any]:
         """AR-4: today's projection over the stored link rows when every cited ID's rows are stored."""

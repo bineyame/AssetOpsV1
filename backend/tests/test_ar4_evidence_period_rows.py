@@ -314,3 +314,41 @@ def test_unassessed_projection_is_pure_and_equals_compose() -> None:
     projected = svc.project_claim_limit(T, S, DAY, None, NOW, {**stored, "transaction_time": NOW}, None,
                                         basis_mode="live")
     assert json.dumps(projected, default=str, sort_keys=True) == json.dumps(composed, default=str, sort_keys=True)
+
+
+class _Stop(Exception):
+    pass
+
+
+@pytest.mark.parametrize("provided", [True, False])
+def test_mini_grid_rows_reads_the_coverage_dispatch_days_and_notes_them(monkeypatch, provided: bool) -> None:
+    """D-ANY.8 step 3: the Evidence rows read the same S3 days the coverage reads (AR-3's `dispatch.day` rows when
+    the provider serves them, else the snapshot compose) and note exactly those days for the claim rows."""
+    from assetops_backend.estate import coverage, evidence_money
+    from assetops_backend.estate.scope import estate_request
+
+    row_day = {"day": DAY, "window_assessment_revision_id": None, "source": "rows"}
+    composed = {"day": DAY, "window_assessment_revision_id": None, "source": "compose"}
+    asked: list = []
+    monkeypatch.setattr(coverage, "dispatch_rows_provider",
+                        (lambda t, s, lo, hi, k, explicit: asked.append(explicit) or [row_day]) if provided else None)
+    noted: list = []
+
+    class Snap:
+        basis_historical = False
+
+        def dispatch_days(self, t, s, lo, hi, k):
+            assert not provided, "the snapshot compose is not read when the rows serve the days"
+            return [composed]
+
+        def note_page_days(self, t, s, lo, hi, k, days):
+            noted.append(days)
+
+        def claim_limit_on(self, t, s, day, revision, k, mode):
+            raise _Stop(day)
+
+    req = estate_request("evidence", datetime(2026, 11, 1, tzinfo=UTC), datetime(2026, 11, 2, tzinfo=UTC), None)
+    with pytest.raises(_Stop):
+        evidence_money.mini_grid_rows(Snap(), T, {"site_id": S, "site_code": "KOBO-001"}, req, NOW)
+    expected = row_day if provided else composed
+    assert noted == [[expected]] and asked == ([False] if provided else [])
