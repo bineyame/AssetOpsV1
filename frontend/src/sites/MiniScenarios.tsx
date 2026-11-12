@@ -1,11 +1,15 @@
 /**
  * W4-03 unit 6a: mini Site > Financials > Scenarios (`/sites/:siteId/financials/scenarios`, v69 `scenarios`).
  *
- * Read-only (closure 1): the persisted authored what-ifs of this Site from `mini-scenarios-1`. The first request
- * omits both bounds; the page then shows `Scenarios created through {read time}` (the returned effective `window.to`
- * minus one microsecond) and carries the returned `from`/`to`/`known_at` in its address for every cursor page and
- * reload (closure 4 S15). A row's `url:null` is the noninteractive `Scenario detail unavailable`; creation is the
- * noninteractive `Scenario creation unavailable`. The notice is always shown.
+ * Read-only (closure 1): the persisted authored what-ifs of this Site from `mini-scenarios-1`. D-SR.57 L2: S15's
+ * cutoff pin gives way to the shared range. In the shell the address always carries the shared range, so the page reads
+ * under that range and its `known_at` when the address has one, else live, like every other range page; it never
+ * writes the server's returned `known_at` into the address (an adopted cutoff would travel on the rail and turn the
+ * whole Site historical). Cursor pages keep the body's bound. The S15 adoption of the returned `from`/`to`/`known_at`
+ * runs only when the address has no `from`, `to` or `known_at`, which happens outside the shell. The page shows
+ * `Scenarios created through {read time}` (the returned effective `window.to` minus one microsecond). A row's
+ * `url:null` is the noninteractive `Scenario detail unavailable`; creation is the noninteractive
+ * `Scenario creation unavailable`. The notice is always shown.
  */
 import { useEffect, useRef, useState } from "react";
 import { DataTable, Panel, RailIcon } from "../ui";

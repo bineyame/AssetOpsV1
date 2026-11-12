@@ -13,7 +13,7 @@
  */
 import { formatTime } from "../ui/time";
 import { useId, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { DataTable } from "../ui";
 import { readablePeriod, readableTime } from "./findingPresentation";

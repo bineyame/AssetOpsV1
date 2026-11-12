@@ -3,6 +3,7 @@
  * A2Q1-A2Q10/X1-X8/CL3-1 and the "B1-B3 pre-flight rulings" P-B3-1..11). Typed responses only: the persisted DRAFT,
  * corrected historical, zero, 503 and long-PM states are captured against the real API in `.agent/W6-01-evidence/B3/`.
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -238,7 +239,7 @@ describe("W6-01b B3: global Maintenance (Preventive)", () => {
     expect(text(cell(trs[0], 0).querySelector("[data-global-work-source] summary"))).toBe("Source not checked");
     expect(cell(trs[0], 0).querySelector("[data-global-work-correction]")).toBeNull();
     expect(text(cell(trs[0], 1))).toBe("No asset recorded · Kobo");
-    expect(within(cell(trs[0], 1)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
+    expect(rangeless((within(cell(trs[0], 1)).getByRole("link", { name: "Kobo" }))?.getAttribute("href") ?? "")).toBe("/sites/KOBO-001");
     expect([2, 3, 4, 5, 6].map((i) => text(cell(trs[0], i)))).toEqual([
       "Calendar",
       "Not linked",

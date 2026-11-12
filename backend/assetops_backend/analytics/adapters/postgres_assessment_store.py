@@ -2187,6 +2187,24 @@ def shown_analysed_period(c: Connection, t: UUID, s: UUID, domain: str, periods:
     return (flagged or recent)[-1]
 
 
+def _finding_own_window(c: Connection, t: UUID, s: UUID, domain: str, finding_id: UUID,
+                        known_at: datetime | None) -> tuple[datetime | None, datetime | None]:
+    """D-SR.64: a single-Finding read with no `from`/`to` reads the Finding's own period: the window of the analytic
+    run that wrote its latest revision known at `known_at` (else the ingestion watermark), the rule `linked_finding`
+    (D-E5.8) uses for its links. (None, None) when this Site has no such Finding or no revision known by then."""
+    p = {"t": t, "s": s}
+    known = known_at or c.execute(text("SELECT max(decided_at) FROM ingestion_disposition WHERE tenant_id = :t "
+                                       "AND site_id = :s"), p).scalar()
+    if known is None:
+        return None, None
+    row = c.execute(text(
+        "SELECT ar.window_start, ar.window_end FROM finding f JOIN finding_revision r ON r.tenant_id = f.tenant_id "
+        "AND r.site_id = f.site_id AND r.finding_id = f.id JOIN analytic_run ar ON ar.id = r.analytic_run_id "
+        "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = :d AND f.id = :f AND ar.knowledge_cutoff <= :k "
+        "ORDER BY r.revision_no DESC LIMIT 1"), {**p, "d": domain, "f": finding_id, "k": known}).first()
+    return (None, None) if row is None else (row[0], row[1])
+
+
 class ColdReadService:
     def __init__(self, database_url: str | None = None, *, engine=None,
                  clock: Callable[[], datetime] = lambda: read_scope.clock(),
@@ -2646,7 +2664,11 @@ class ColdReadService:
                 hi: datetime | None, known_at: datetime | None) -> dict[str, Any] | None:
         def work(c):
             # PB-1a: a Finding link keeps its requested window (the Finding is found by its anchor, not a period).
-            snap = self._snapshot(c, tenant_id, site_id, code, lo, hi, known_at, analysed_periods=False)
+            # D-SR.64: with no window, the Finding's own period (its latest revision's run window).
+            wlo, whi = lo, hi
+            if lo is None and hi is None:
+                wlo, whi = _finding_own_window(c, tenant_id, site_id, "cold_chain", finding_id, known_at)
+            snap = self._snapshot(c, tenant_id, site_id, code, wlo, whi, known_at, analysed_periods=False)
             body = self._envelope(c, snap, (cold.EXCURSION_ANALYTIC, cold.START_RESPONSE_ANALYTIC))
             if snap["lo"] is None:
                 return None
@@ -3672,7 +3694,11 @@ class EvReadService:
     def finding(self, tenant_id: UUID, site_id: UUID, code: str, finding_id: UUID, lo: datetime | None,
                 hi: datetime | None, known_at: datetime | None) -> dict[str, Any] | None:
         def work(c):
-            snap, body = self._open(c, tenant_id, site_id, code, lo, hi, known_at)
+            # D-SR.64: with no window, the Finding's own period (its latest revision's run window).
+            wlo, whi = lo, hi
+            if lo is None and hi is None:
+                wlo, whi = _finding_own_window(c, tenant_id, site_id, "ev_charging", finding_id, known_at)
+            snap, body = self._open(c, tenant_id, site_id, code, wlo, whi, known_at)
             found = self._findings(c, snap, finding_id)
             if not found:
                 return None

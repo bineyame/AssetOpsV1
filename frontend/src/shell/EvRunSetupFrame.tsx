@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Fact, FactList, PageHeader, Panel } from "../ui";
 import type {

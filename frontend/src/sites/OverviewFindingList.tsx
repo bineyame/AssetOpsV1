@@ -13,7 +13,7 @@
  * and no equality is claimed. Index rows are never hidden or replaced because of a parity outcome.
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import {
   currentnessWords,

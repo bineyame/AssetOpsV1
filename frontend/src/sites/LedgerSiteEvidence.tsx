@@ -24,7 +24,8 @@ import { SITE_ZONE_UNAVAILABLE_LABEL, siteTime, siteZoneLabel } from "./siteTime
 import { findingLocalTime } from "./findingTime";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import {
   Badge,

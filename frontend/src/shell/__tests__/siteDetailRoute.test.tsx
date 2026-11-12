@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -230,7 +231,7 @@ describe("a site is opened from a Sites row", () => {
     expect(
       within(main)
         .getAllByRole("link")
-        .map((link) => [link.getAttribute("href"), link.textContent]),
+        .map((link) => [rangeless(link.getAttribute("href") ?? ""), link.textContent]),
     ).toEqual([
       ["/sites", "Sites"],
       ["/sites/MG-002", "Kalangala Mini-Grid"],
@@ -419,7 +420,7 @@ describe("operator navigation lost an item and gained none", () => {
     });
     const destinations = within(navigation)
       .getAllByRole("link")
-      .map((link) => link.getAttribute("href") ?? "");
+      .map((link) => rangeless(link.getAttribute("href") ?? "") ?? "");
 
     expect(destinations).not.toContain("/site-details");
     expect(destinations).not.toContain("/site-configuration");

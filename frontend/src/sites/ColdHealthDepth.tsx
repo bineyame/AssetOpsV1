@@ -7,7 +7,7 @@
  * otherwise positive physical condition; gateway contact never decides any of it.
  */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, MetricCard, MetricCards, Notice, Panel } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import type { ColdDepthClient, ColdHealthCondition, ColdHealthRead, ColdHealthRow } from "./ColdDepthClient";

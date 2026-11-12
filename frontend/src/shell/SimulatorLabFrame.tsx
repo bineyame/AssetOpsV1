@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { PageHeader, Panel } from "../ui";
 import type { WorkspaceEntryPoint } from "./simulatorLabRoutes";

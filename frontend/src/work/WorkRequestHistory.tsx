@@ -20,7 +20,7 @@
 // MOCK DEVIATION (D1, register R41): Undated visit and verification gaps follow authored history; MOCK DEVIATION (D4, register R42): completion does not establish a witness test.
 import { useState, type ReactNode } from "react";
 import { formatDayTime } from "../ui/time";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, Panel } from "../ui";
 import {
   isKnownWorkCaseEvent,

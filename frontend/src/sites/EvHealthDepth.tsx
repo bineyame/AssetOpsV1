@@ -19,7 +19,7 @@
  * MOCK DEVIATION (D2) R15/R16: the amber currentness notice above the cards and the condition notice below the table.
  */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { useReportSelectedWindow } from "./evSelectedWindow";
 import { DataTable, MetricCard, MetricCards, Notice, Panel } from "../ui";
 import { type ColdRead, type ColdWindowQuery, coldWindowSearch } from "./coldAssessmentClient";

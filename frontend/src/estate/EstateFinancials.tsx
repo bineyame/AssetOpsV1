@@ -8,7 +8,8 @@
  * server field: the page groups, sums and scores nothing, builds no Site route and shows no estate total.
  */
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, Disclosure, Notice, PageHeader, Panel, StatusBar } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import type { EstateEnvelope } from "./estateClient";

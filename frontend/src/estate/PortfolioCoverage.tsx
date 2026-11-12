@@ -11,7 +11,7 @@
  * MOCK DEVIATION MD-PFC-2: v71's `aria-label="Days checked"` becomes "Readings coverage" (owner item 3: no
  * "checked" for data).
  */
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { Disclosure } from "../ui";
 import type { EstateCoverageDays, EstateCoverageLine } from "./estateClient";
 import { gapReasonClause, incompleteSites, READINGS_GLOSSARY_NOTE, READINGS_TERMS } from "./portfolioWords";
