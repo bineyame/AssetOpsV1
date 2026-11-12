@@ -187,6 +187,7 @@ function NightSelector({ nights, current, onPick }: { nights: FuelNightSummary[]
       <label className="v69-chip-field">
         Night{" "}
         <select className="v69-chip-control" value={current} onChange={(e) => onPick(e.target.value)}>
+          {index < 0 ? <option value={current}>{shortDay(current)}</option> : null}
           {nights.map((n) => (
             <option key={n.night_date} value={n.night_date}>
               {`${n.label} · ${n.status}`}
@@ -279,25 +280,33 @@ export function FuelNightView({ night }: { night: FuelNightBody }) {
 export function useFuelNights(
   client: FuelBalanceClient | undefined,
   siteCode: string,
-  range: { from: string; to: string } | null = null,
+  range: { from: string; to: string; known_at?: string } | null = null,
 ): FuelNightSummary[] | "loading" | null {
   // SR-10k: the list is the date range's nights; the read is keyed by the Site and the range.
-  const key = `${siteCode}|${range?.from ?? ""}|${range?.to ?? ""}`;
+  const key = `${siteCode}|${range?.from ?? ""}|${range?.to ?? ""}|${range?.known_at ?? ""}`;
   const [state, setState] = useState<{ key: string; nights: FuelNightSummary[] | null } | null>(null);
   const from = range?.from ?? null;
   const to = range?.to ?? null;
+  const knownAt = range?.known_at ?? null;
   useEffect(() => {
     if (client === undefined) return undefined;
     let active = true;
-    void client.getNights(siteCode, from !== null && to !== null ? { from, to } : null).then((read) => {
-      if (active) setState({ key: `${siteCode}|${from ?? ""}|${to ?? ""}`, nights: read.status === "loaded" && read.value.mode === "NIGHTS" ? read.value.nights : null });
+    void client.getNights(siteCode, from !== null && to !== null ? { from, to, ...(knownAt !== null ? { known_at: knownAt } : {}) } : null).then((read) => {
+      if (active) setState({ key: `${siteCode}|${from ?? ""}|${to ?? ""}|${knownAt ?? ""}`, nights: read.status === "loaded" && read.value.mode === "NIGHTS" ? read.value.nights : null });
     });
     return () => {
       active = false;
     };
-  }, [client, siteCode, from, to]);
+  }, [client, siteCode, from, to, knownAt]);
   if (client === undefined) return null;
   return state !== null && state.key === key ? state.nights : "loading";
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "2026-11-04" as "4 Nov". */
+function shortDay(isoDay: string): string {
+  const [, month, day] = isoDay.split("-");
+  return `${Number(day)} ${MONTHS[Number(month) - 1] ?? month}`;
 }
 
 /** SR-10k: the empty state of the nights list when the date range holds no fuel check. */
@@ -307,18 +316,22 @@ export function MiniFuelNightsPage({
   client,
   siteCode,
   nights,
+  knownAt = null,
 }: {
   client: FuelBalanceClient;
   siteCode: string;
   nights: FuelNightSummary[];
+  knownAt?: string | null;
 }) {
   const [params, setParams] = useSearchParams();
   const asked = params.get("night");
   const latest = nights.length === 0 ? null : nights[nights.length - 1].night_date;
-  const current = asked !== null && nights.some((n) => n.night_date === asked) ? asked : latest;
-  const key = `${siteCode}|${current ?? ""}`;
+  // D-SR.55: a `?night=` link names one night and opens it, even outside the range; the list stays on the range.
+  const current = asked !== null && /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : latest;
+  const outside = current !== null && !nights.some((n) => n.night_date === current);
+  const key = `${siteCode}|${current ?? ""}|${knownAt ?? ""}`;
   const night = useRead<FuelNightBody>(
-    () => (current === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getNight(siteCode, current)),
+    () => (current === null ? Promise.resolve({ status: "unavailable", message: null }) : (knownAt === null ? client.getNight(siteCode, current) : client.getNight(siteCode, current, knownAt))),
     key,
   );
   const pick = (next: string) => {
@@ -330,6 +343,11 @@ export function MiniFuelNightsPage({
   return (
     <>
       {current === null ? null : <NightSelector nights={nights} current={current} onPick={pick} />}
+      {outside && current !== null ? (
+        <p className="prose" data-fuel-night-outside-range>
+          This night ({shortDay(current)}) is outside the selected date range
+        </p>
+      ) : null}
       {night === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : night.status !== "loaded" ? (

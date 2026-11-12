@@ -37,3 +37,9 @@ Branch `task/SR-10k-kisiwa-fuel-nights` (merged main e5a033a3b). Spec: architect
 
 ## User review
 Not required (lane rules: merge on review ACCEPT).
+
+## Fix round (D-SR.55)
+- Q1: route docstring names both forms and the `T` rule; mixed forms refused `INVALID_WINDOW`, pinned by `test_mixing_the_two_forms_is_invalid_window`. Q2 confirmed (RANGE_WINDOW_INVALID uses the nights sentence).
+- Q3: `known_at` sent on list and detail (`fuelBalanceClient.ts`, `MiniFuelNights.tsx`, `MiniPerformance.tsx`); vitest pins in `miniFuelNights.test.tsx`. Unchanged request without one.
+- Q4: `?night=` opens the named night even outside the range; list stays on range; line "This night (4 Nov) is outside the selected date range"; range not widened; vitest pin.
+- Checks: no-DB route test 9 passed; Postgres SR-10k + K5 files on assetops_sr10k_test 7 passed, 0 skipped; vitest miniFuelNights + sr2RequestUrls 33 passed; tsc clean. check-all not run (coordinator).

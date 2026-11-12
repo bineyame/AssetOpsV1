@@ -1,8 +1,10 @@
 """DIESEL-K5 (`.agent/build-sheet-DIESEL-1.md` §9l.2, ruling DIESEL-1-R3l): the fuel-balance night and fuel Finding
 reads.
 
-- `GET /api/sites/{site_code}/fuel-balance/nights?from=&to=&known_at=` (dates `[from, to)`, at most 31 nights; SR-10k:
-  or the date range's UTC instants, listing the nights of its Site-local days, `INVALID_WINDOW` otherwise)
+- `GET /api/sites/{site_code}/fuel-balance/nights?from=&to=&known_at=` has two forms (D-SR.55), told apart by a `T`
+  in either value: night dates `[from, to)`, at most 31 nights (K5, `FUEL_BALANCE_RANGE_INVALID`), or SR-10k the date
+  range's UTC instants, listing the nights of its Site-local days (`INVALID_WINDOW`). Mixing the two is refused with
+  422 `INVALID_WINDOW`.
 - `GET /api/sites/{site_code}/fuel-balance/nights/{night_date}?known_at=`
 - `GET /api/sites/{site_code}/fuel-findings?from=&to=&known_at=` (UTC instants)
 - `GET /api/sites/{site_code}/fuel-findings/{finding_id}?revision_id=&known_at=`

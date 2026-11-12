@@ -128,8 +128,9 @@ export interface FuelFindingBody {
 
 export interface FuelBalanceClient {
   /** SR-10k: with `range` (the date range's UTC instants, `to` excluded) the list holds that range's nights only. */
-  getNights(siteCode: string, range?: { from: string; to: string } | null): Promise<MiniRead<FuelNightsBody>>;
-  getNight(siteCode: string, nightDate: string): Promise<MiniRead<FuelNightBody>>;
+  getNights(siteCode: string, range?: { from: string; to: string; known_at?: string } | null): Promise<MiniRead<FuelNightsBody>>;
+  /** D-SR.55: `knownAt` is the range's `known_at`, sent on the detail as on the list. */
+  getNight(siteCode: string, nightDate: string, knownAt?: string | null): Promise<MiniRead<FuelNightBody>>;
   getFuelFindings(siteCode: string, window: { from: string; to: string }): Promise<MiniRead<FuelFindingsBody>>;
   getFuelFinding(siteCode: string, findingId: string, revisionId?: string | null): Promise<MiniRead<FuelFindingBody>>;
 }
@@ -165,9 +166,9 @@ export function createFuelBalanceClient(basePath: string = SITES_API_PATH): Fuel
   const site = (code: string) => `${basePath}/${encodeURIComponent(code)}`;
   return {
     getNights: (code, range) =>
-      read(`${site(code)}/fuel-balance/nights${range ? `?${new URLSearchParams({ from: range.from, to: range.to }).toString()}` : ""}`, (b) => (b.mode === "NIGHTS" || b.mode === "NONE") && Array.isArray(b.nights)),
-    getNight: (code, nightDate) =>
-      read(`${site(code)}/fuel-balance/nights/${encodeURIComponent(nightDate)}`, (b) => Array.isArray(b.cards) && Array.isArray(b.bridge)),
+      read(`${site(code)}/fuel-balance/nights${range ? `?${new URLSearchParams({ from: range.from, to: range.to, ...(range.known_at ? { known_at: range.known_at } : {}) }).toString()}` : ""}`, (b) => (b.mode === "NIGHTS" || b.mode === "NONE") && Array.isArray(b.nights)),
+    getNight: (code, nightDate, knownAt) =>
+      read(`${site(code)}/fuel-balance/nights/${encodeURIComponent(nightDate)}${knownAt ? `?${new URLSearchParams({ known_at: knownAt }).toString()}` : ""}`, (b) => Array.isArray(b.cards) && Array.isArray(b.bridge)),
     getFuelFindings: (code, window) =>
       read(
         `${site(code)}/fuel-findings?${new URLSearchParams({ from: window.from, to: window.to }).toString()}`,

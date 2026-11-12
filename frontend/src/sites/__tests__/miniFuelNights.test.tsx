@@ -343,4 +343,50 @@ describe("SR-10k: the nights list is the date range's nights", () => {
       vi.unstubAllGlobals();
     }
   });
+
+  it("D-SR.55: the list and the night detail carry the same known_at", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        urls.push(String(input));
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+    try {
+      const real = createFuelBalanceClient();
+      const known = "2026-10-09T00:00:00Z";
+      await real.getNights(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z", known_at: known });
+      await real.getNight(CODE, "2026-10-06", known);
+      await real.getNight(CODE, "2026-10-06");
+      expect(urls.map((u) => new URL(u, "http://x").searchParams.get("known_at"))).toEqual([known, known, null]);
+      expect(urls[2]).toBe(`/api/sites/${CODE}/fuel-balance/nights/2026-10-06`);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("D-SR.55: the page sends the range's known_at on both reads", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&known_at=2026-10-09T00:00:00Z`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(client.getNights).toHaveBeenCalledWith(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z", known_at: "2026-10-09T00:00:00Z" });
+    expect(client.getNight).toHaveBeenLastCalledWith(CODE, expect.any(String), "2026-10-09T00:00:00Z");
+  });
+
+  it("D-SR.55: a ?night= link outside the range opens that night, says so, and keeps the range", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&night=2026-11-04`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(client.getNight).toHaveBeenLastCalledWith(CODE, "2026-11-04");
+    expect(document.querySelector("[data-fuel-night-outside-range]")?.textContent).toBe("This night (4 Nov) is outside the selected date range");
+    expect(client.getNights).toHaveBeenCalledWith(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" });
+  });
+
+  it("D-SR.55: a night inside the range shows no outside-range line", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&night=2026-10-06`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(document.querySelector("[data-fuel-night-outside-range]")).toBeNull();
+  });
 });

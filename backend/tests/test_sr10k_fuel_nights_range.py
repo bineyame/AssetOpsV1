@@ -131,3 +131,11 @@ def test_known_at_still_checked_in_range_form() -> None:
     r = client(Store(NIGHTS)).get(URL, params={"from": "2026-10-05T00:00:00Z", "to": "2026-10-08T00:00:00Z",
                                                "known_at": "not-a-time"})
     assert r.status_code == 422 and r.json()["detail"]["code"] == "INVALID_KNOWN_AT"
+
+
+def test_mixing_the_two_forms_is_invalid_window() -> None:
+    c = client(Store(NIGHTS))
+    for params in ({"from": "2026-10-05", "to": "2026-10-08T00:00:00Z"},
+                   {"from": "2026-10-05T00:00:00Z", "to": "2026-10-08"}):
+        r = c.get(URL, params=params)
+        assert r.status_code == 422 and r.json()["detail"]["code"] == "INVALID_WINDOW", params
