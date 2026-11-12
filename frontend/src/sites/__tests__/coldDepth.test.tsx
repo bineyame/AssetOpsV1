@@ -399,8 +399,17 @@ describe("cooling_state_copy", () => {
     expect(main().querySelectorAll("section.panel")).toHaveLength(3);
     expect(main().querySelector("[data-cold-refused-strip]")).not.toBeNull();
     const fix = main().querySelector("a[data-cold-depth-correction]") as HTMLAnchorElement;
-    expect(fix.textContent).toBe("Read without a selected window");
-    expect(fix.getAttribute("href")).not.toContain("from=");
+    expect(fix.textContent).toBe("Open with the default date range");
+    // SR-4 (D-SR.40/41): with a valid address range the link lands on the same page carrying that range (the Site's
+    // shared range, not the refused body's window); with a reversed address (invalid, D-SR.41a) it carries none.
+    expect(fix.getAttribute("href")).toBe(`/sites/${SITE_CODE}/performance/cooling?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`);
+    cleanup();
+    renderCooling(
+      `/sites/${SITE_CODE}/performance/cooling?from=2026-10-06T20%3A05%3A00Z&to=2026-10-06T19%3A00%3A00Z`,
+      () => Promise.resolve<ColdRead<ColdCoolingRead>>({ status: "refused", httpStatus: 422, code: "COLD_WINDOW_INVALID", message: "from must be before to" }),
+    );
+    await settledCooling();
+    expect(main().querySelector("a[data-cold-depth-correction]")?.getAttribute("href")).toBe(`/sites/${SITE_CODE}/performance/cooling`);
     cleanup();
     renderCooling(COOLING_PATH, () => Promise.resolve<ColdRead<ColdCoolingRead>>({ status: "unavailable", message: null }));
     await settledCooling();

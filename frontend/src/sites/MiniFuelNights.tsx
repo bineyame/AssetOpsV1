@@ -8,10 +8,12 @@
  * v69 `fuel`'s hour bar (index.html:623-630 shows Kobo's selected hour).
  */
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, ChartNote, DataTable, MetricCard, MetricCards, Notice, Panel, ShowAll, StatusBar, ValueBars } from "../ui";
 import { sourceQualification } from "../ui/productWords";
+import { useDeclareRangeFocus } from "../ui/rangeFocus";
 import { useLinkFor } from "./chainRef";
 import type { FuelBalanceClient, FuelBridgeRow, FuelNightBody, FuelNightSummary, FuelProvenance, FuelRecordRow } from "./fuelBalanceClient";
 import type { MiniRead } from "./miniDepthClient";
@@ -305,6 +307,9 @@ export function MiniFuelNightsPage({
   const asked = params.get("night");
   const latest = nights.length === 0 ? null : nights[nights.length - 1].night_date;
   const current = asked !== null && nights.some((n) => n.night_date === asked) ? asked : latest;
+  // D-SR.65 (F1): the bar declares the night shown ("Showing 10 Nov · range not used" outside the range), never
+  // "All pages"; SR-10k replaces this view with the range's nights.
+  useDeclareRangeFocus(current);
   const key = `${siteCode}|${current ?? ""}`;
   const night = useRead<FuelNightBody>(
     () => (current === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getNight(siteCode, current)),

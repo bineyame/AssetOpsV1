@@ -17,7 +17,7 @@
  */
 
 import { Fragment, useMemo, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, Breadcrumbs, DataTable, Disclosure, Fact, FactList, KeyValues, MissingClaim, Notice, Panel, SITE_SCREEN_DESCRIPTIONS, SitePageHeader, type Crumb } from "../ui";
 import {

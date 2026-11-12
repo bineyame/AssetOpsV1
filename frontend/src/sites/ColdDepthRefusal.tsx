@@ -5,7 +5,8 @@
  * sentence in the first and `Not assessed` in the rest, and the exact technical disclosure. A window refusal offers
  * the same page without the selected window (never a dead Retry); Reload shows only where retrying can help.
  */
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { MetricCard, MetricCards, Panel } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import { RefusalReferences, refusalText } from "./ColdAssessmentViews";
@@ -67,7 +68,7 @@ export function ColdDepthRefusal({ read, window, label, tiles, panels, unavailab
         <p className="ev-depth-refusal__actions" data-cold-depth-refusal-actions="">
           {correction === null ? null : (
             <Link to={correction} className="ev-depth-refusal__link" data-cold-depth-correction="">
-              Read without a selected window
+              Open with the default date range
             </Link>
           )}
           {recoverable ? (

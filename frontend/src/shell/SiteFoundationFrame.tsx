@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { SITE_CONFIGURATION_HEADING_ID, SiteConfiguration } from "../sites/SiteConfiguration";
 import { FOUNDATION_SUBTABS, FoundationSubtabs, foundationViewFor, type FoundationView } from "../sites/FoundationSubtabs";
@@ -19,6 +20,7 @@ import { Breadcrumbs, PageHeader, plainTime, ProductStatus, readResultWords, SIT
 import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
+import { useDeclareRangeNotUsed } from "../ui/rangeFocus";
 import {
   FOUNDATION_COMPONENT_PARAM,
   siteDetailHref,
@@ -69,6 +71,8 @@ export function SiteFoundationFrame({
   templateLineage,
   gatewayHealth,
 }: SiteFoundationFrameProps) {
+  // SR-4c (D-SR.6): every Foundation view shows the current settings; the bar says the range is not used.
+  useDeclareRangeNotUsed("current settings");
   const { siteId, foundationView } = useParams<{ siteId: string; foundationView?: string }>();
   const view: FoundationView | null = foundationViewFor(foundationView);
   const [params, setParams] = useSearchParams();

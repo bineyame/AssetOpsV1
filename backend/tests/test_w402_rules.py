@@ -365,6 +365,11 @@ def test_renewable_daily_denominator() -> None:
     assert cards.used_kw == Bound(Decimal("15"), Decimal("30"))
     assert cards.headroom_kw == Bound(Decimal("8"), Decimal("25"))
     assert cards.capability_kw == Bound(Decimal("41"), Decimal("43"))
+    # D-SR.48: the every-eligible-hour figure is min low and min high; it never exceeds the envelope.
+    elig = [h.headroom_kw for h in hours if h.decision == "ELIGIBLE"]
+    assert cards.all_hours_headroom_kw == Bound(min(b.low for b in elig), min(b.high for b in elig))
+    assert cards.all_hours_headroom_kw.low == cards.headroom_kw.low
+    assert cards.all_hours_headroom_kw.high <= cards.headroom_kw.high
     assert cards.recurrence_established is False
     assert [h.day for h in rules.renewable_rows(reversed(hours))] == days
 
@@ -377,6 +382,7 @@ def test_renewable_daily_denominator() -> None:
     excluded = summarize_renewable([hours[2]], requested_days=1)
     assert (excluded.eligible_days, excluded.assessed_days) == (0, 1)
     assert (excluded.capability_kw, excluded.used_kw, excluded.headroom_kw) == (None, None, None)
+    assert excluded.all_hours_headroom_kw is None   # D-SR.48: null whenever the card is null
     # q2 ruling 10: five complete EXCLUDED days are a reportable 0/5 denominator, not a recurring opportunity.
     all_excluded = [assess_renewable_hour(d, w, positive_hour(b, charge="2"), INPUTS)
                     for d, w, b in zip(days, windows, bases)]

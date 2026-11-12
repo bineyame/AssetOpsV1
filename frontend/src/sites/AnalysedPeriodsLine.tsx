@@ -9,7 +9,8 @@
  * `href` in the read is an API route (PB-1a review M1), so each link is built here: the page's own address with its
  * `from` and `to` replaced by the period's instants (the shared-range instant form, `ui/sharedRange.ts`).
  */
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { analysedPeriodsLead, NO_ANALYSED_PERIOD } from "../ui/productWords";
 import type { AnalysedPeriodsRead } from "./coldAssessmentClient";

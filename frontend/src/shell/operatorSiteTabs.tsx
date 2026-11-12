@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 import "../ui/mock-deviation.css";

@@ -21,9 +21,10 @@ import { useEffect, useState } from "react";
 import { formatDay, formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { WorkedOut } from "../ui/TechnicalDetails";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
-import { withFocusDay } from "../ui/sharedRange";
+import { addressRange, dayInRange, withFocusDay } from "../ui/sharedRange";
 
 import {
   currentnessWords,
@@ -272,6 +273,10 @@ function dayPercent(instant: string | null, start: string): number | null {
   return Math.min(100, Math.max(0, ((t - s) / 86_400_000) * 100));
 }
 
+/** SR-4b (D-SR.4): the plain text that replaces a day step at the shared range's edge. */
+export const FIRST_DAY_OF_RANGE = "First day of the range";
+export const LAST_DAY_OF_RANGE = "Last day of the range";
+
 function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onSelectDay: (day: string) => void }) {
   const day = summary.window.utc_date;
   const [params] = useSearchParams();
@@ -282,6 +287,8 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
     query.delete("finding_revision_id");
     return `?${query.toString()}`;
   };
+  const range = addressRange(params);
+  const inside = range !== null && dayInRange(day, range);
   return (
     <>
     <div className="v69-chips window-day" data-window-date={day}>
@@ -299,13 +306,26 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
           },
         }}
       />
-      {/* Day navigation is navigation: links to the same page with another `day` (and no Finding pin). */}
-      <Link className="button" to={dayHref(shiftDay(day, -1))} data-window-day-link="previous">
-        Previous day
-      </Link>
-      <Link className="button" to={dayHref(shiftDay(day, 1))} data-window-day-link="next">
-        Next day
-      </Link>
+      {/* Day navigation is navigation: links to the same page with another `day` (and no Finding pin). SR-4b (D-SR.4):
+          inside the shared range the steps stop at its edges; a day outside it (a story link) steps freely. */}
+      {inside && range !== null && day <= range.from ? (
+        <span className="window-day__edge" data-day-step-edge="first">
+          {FIRST_DAY_OF_RANGE}
+        </span>
+      ) : (
+        <Link className="button" to={dayHref(shiftDay(day, -1))} data-window-day-link="previous">
+          Previous day
+        </Link>
+      )}
+      {inside && range !== null && day >= range.to ? (
+        <span className="window-day__edge" data-day-step-edge="last">
+          {LAST_DAY_OF_RANGE}
+        </span>
+      ) : (
+        <Link className="button" to={dayHref(shiftDay(day, 1))} data-window-day-link="next">
+          Next day
+        </Link>
+      )}
       {/* POLISH §3.1 Kobo row (done in PB-1): the day's bounds sentence is deleted; one page note names the zone. */}
       <TimeZoneNote />
     </div>

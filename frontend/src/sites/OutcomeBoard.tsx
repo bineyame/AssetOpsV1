@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { ExplainerDialog } from "../blocks/Dialog";
 import { EvidenceTrace, WhyButton } from "../blocks/EvidenceTrace";

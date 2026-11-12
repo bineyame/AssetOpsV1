@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -171,11 +172,9 @@ describe("Site Overview, populated", () => {
     expect(text).toContain(
       "329 accepted records from 1 source and gateway pair",
     );
-    expect(
-      within(document.querySelector("[data-overview-objective]") as HTMLElement).getByRole("link", {
+    expect(rangeless((within(document.querySelector("[data-overview-objective]") as HTMLElement).getByRole("link", {
         name: "Open Site evidence",
-      }),
-    ).toHaveAttribute("href", `/sites/${SITE_ID}/evidence`);
+      }))?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/evidence`);
   });
 
   it("names an uncovered card's coverage gap and shows no value for it", async () => {
@@ -200,14 +199,11 @@ describe("Site Overview, populated", () => {
     const link = within(contextFor("Dispatch")).getByRole("link", {
       name: /GEN-1\/active_power/,
     });
-    expect(link).toHaveAttribute(
-      "href",
-      `/sites/${SITE_ID}/evidence?signal=GEN-1/active_power&record=msg-gen-72`,
-    );
+    expect(rangeless((link)?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/evidence?signal=GEN-1/active_power&record=msg-gen-72`);
     fireEvent.click(link);
     await settledScreen();
 
-    expect(document.querySelector("[data-location]")?.textContent).toBe(
+    expect(rangeless(document.querySelector("[data-location]")?.textContent)).toBe(
       `/sites/${SITE_ID}/evidence?signal=GEN-1/active_power&record=msg-gen-72`,
     );
     expect(

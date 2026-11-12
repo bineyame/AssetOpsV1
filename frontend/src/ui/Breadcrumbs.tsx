@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "./RangeLink";
 
 /**
  * The breadcrumb trail.

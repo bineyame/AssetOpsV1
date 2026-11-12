@@ -163,7 +163,10 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     // post-W6 W4 R312: one assessed day does not establish recurrence (five completely assessed days are needed).
     expect(strip()).toContain("Recurrence is not established for this selection.");
     const dispatch = document.querySelector("[data-mini-dispatch-link] a") as HTMLAnchorElement;
-    expect(dispatch.getAttribute("href")).toBe(`/sites/${CODE}/performance/dispatch?day=2026-10-06`);
+    // SR-4a: the link also carries the shared range the shell gave the story link (the 7 days ending on its day).
+    const dispatchUrl = new URL(dispatch.getAttribute("href") ?? "", "http://x");
+    expect(dispatchUrl.pathname).toBe(`/sites/${CODE}/performance/dispatch`);
+    expect(dispatchUrl.searchParams.get("day")).toBe("2026-10-06");
     expect(cardValues()).toEqual(["41–43 kW", "20 kW", "18–20 kW", "Not established"]);
     expect(main().textContent).toContain("Accepted power over 60/60 min");
     const headroom = panelTitled("From physical headroom to an opportunity");
@@ -236,11 +239,12 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe(`Site-local days 2026-10-06 to 2026-10-08 (${TZ})`);
   });
 
-  it("SR-2 M2: bounds the bar writes (UTC midnights) are named as UTC days; the page has no range form", async () => {
-    renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-14T00:00:00Z&to=2026-10-21T00:00:00Z`);
+  it("SR-2 M2 / D-SR.59: a range the bar writes (UTC midnights) reads the Site-local days of the same dates; no range form", async () => {
+    // D-SR.59: a range of up to 5 days reads the Site-local days of its dates; a longer one its last 5 Site-local days (below).
+    renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-16T00:00:00Z&to=2026-10-21T00:00:00Z`);
     await settledScreen();
     await screen.findByText("Watch");
-    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("UTC days 2026-10-14 to 2026-10-20");
+    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("Site-local days 2026-10-16 to 2026-10-20 (Africa/Addis_Ababa)");
     expect(document.querySelector("[data-mini-period] input, [data-mini-period] select, [data-mini-period] button")).toBeNull();
     expect(document.querySelector("[data-mini-range-note]")?.textContent).toBe("Choose the days in the date range at the top.");
   });
@@ -354,10 +358,10 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     const board = new URLSearchParams("from=2026-10-27T21:00:00Z&to=2026-11-01T21:00:00Z");
     const w = renewableWindowFromParams(board, TZ);
     expect(selectedLocalDays(TZ, w.from, w.to)).toEqual({ first: "2026-10-28", last: "2026-11-01", days: 5 });
-    // A zone behind UTC: the UTC day start is the previous local date.
+    // D-SR.61: a zone behind UTC uses the date string itself as the local date.
     expect(renewableWindowFromParams(new URLSearchParams("date=2026-10-06"), "America/New_York")).toEqual({
-      from: "2026-10-05T04:00:00.000Z",
-      to: "2026-10-06T04:00:00.000Z",
+      from: "2026-10-06T04:00:00.000Z",
+      to: "2026-10-07T04:00:00.000Z",
       known_at: null,
     });
   });
@@ -443,8 +447,17 @@ describe("post-W6 W4 R309/R310/R312/R313: renewable tones, confidence, recurrenc
     expect(document.querySelector("[data-mini-currentness]")).toBeNull();
   });
 
+  it("SR-4b (D-SR.5): a window longer than five days is no longer sent; the page reads the range's last 5 Site-local days", async () => {
+    // Was the "six days" refused row: since SR-4b the page never requests more than the server's 5 days.
+    const client = renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-11T21:00:00Z`);
+    await settledScreen();
+    const [, query] = (client.getRenewable as ReturnType<typeof vi.fn>).mock.calls[0];
+    const span = Date.parse(query.to) - Date.parse(query.from);
+    expect(span).toBe(5 * 86_400_000);
+    expect(screen.queryByText("Choose one to five complete Site-local days.")).toBeNull();
+  });
+
   it.each([
-    ["six days", "from=2026-10-05T21:00:00Z&to=2026-10-11T21:00:00Z", "Choose one to five complete Site-local days."],
     ["a reversed range", "from=2026-10-08T21:00:00Z&to=2026-10-05T21:00:00Z", "The end must be after the start."],
     ["an unprovable cause", "from=2026-10-05T21:00:00Z&to=2026-10-06T22:00:00Z", "Choose a valid Site-local window."],
   ])("R313: a refused window (%s) keeps strip, muted tiles and the named panels with one client reason", async (_name, query, reason) => {

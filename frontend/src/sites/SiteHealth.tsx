@@ -18,7 +18,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { formatDayTime, formatTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import {
   Badge,

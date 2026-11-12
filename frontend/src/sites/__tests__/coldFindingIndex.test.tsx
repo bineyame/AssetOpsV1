@@ -202,8 +202,12 @@ describe("W2-cold unit 4: cold Site Findings index", () => {
     const { cold, findingIndex } = renderIndex(ok(STOCKED), `/sites/COLD-001/findings${Q}`, "MINIGRID");
     await waitFor(() => expect(findingIndex.getFindingIndex).toHaveBeenCalled(), { timeout: 5000 });
     expect(cold.listFindings).not.toHaveBeenCalled();
-    // A mini Site's main tabs carry no cold window query.
-    for (const a of Array.from(document.querySelectorAll("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"))) expect(a.getAttribute("href")).not.toContain("known_at");
+    // SR-4 (D-SR.2, D-SR.40): a valid address `known_at` travels with the shared range on every main tab.
+    const tabs = Array.from(document.querySelectorAll("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"));
+    expect(tabs.length).toBeGreaterThan(0);
+    const known = new URLSearchParams(Q.replace(/^\?/, "")).get("known_at");
+    expect(known).not.toBeNull();
+    for (const a of tabs) expect(new URLSearchParams((a.getAttribute("href") ?? "").split("?")[1] ?? "").get("known_at")).toBe(known);
     expect(document.querySelector("[data-cold-finding-row]")).toBeNull();
   });
 
