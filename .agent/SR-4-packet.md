@@ -55,7 +55,7 @@ Review plan: review 4a and 4b together. 4a alone makes Service/Renewable worse: 
 
 ## Resume point
 1. Fix the 31 above one file at a time (replace superseded assertions with positive tests of the new rule; never delete).
-2. Guards: check-all result below.
+2. Guards (b6d7124fe): 18 of 19 pass. The one failure is "Estate guard self-tests", because `powershell` is not found on Linux (being fixed on main). The CH-5b1 ratchet was shrunk by `--shrink` (SiteAnalyticsFrames cmp 27->26, lit 31->30). tsc is clean.
 ## Pre-flight answers (8.5)
 - (a) Route classes, every route under `/sites` in `App.tsx` (no operator `/performance/...` routes exist):
   - R: Findings, Work, Evidence, Scenarios, Cold/EV pages, Renewable ≤5 days.
