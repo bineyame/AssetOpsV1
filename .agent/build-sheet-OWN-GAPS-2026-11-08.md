@@ -5065,3 +5065,14 @@ Decisions logged for owner review: **D-SR.50**.
 - SR-10 fix round about 0.1 units (51.3, 51.4, 52, 53, 54 prepare split), on a Sonnet builder. Package about 18.3 units.
 
 Decisions logged for owner review: **D-SR.51-54**.
+
+## D-SR.55 SR-10k Q1-Q4 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Branch `task/SR-10k-kisiwa-fuel-nights` (server 931c4b783, page bf9ca80e6), packet `.agent/SR-10k-packet.md`.
+- Q1: **keep both forms.** The K5 night-date form (`FUEL_BALANCE_RANGE_INVALID`, pinned by K5 B2) stays for its existing callers. The instant form is the range form. The route docstring names both and the rule that tells them apart (a `T` in either value). A mix of the two forms is refused with 422 `INVALID_WINDOW`, and a stub test pins this.
+- Q2: **confirmed.** `INVALID_WINDOW` uses the nights sentence ("Choose up to 31 nights, with the first night before the last.").
+- Q3: **both send `known_at` when the range has one**, through `rangeParams` as every other range read does (SR-6/7a/8/10b keep `known_at` in the stored key). Without one, the request is unchanged. The server already accepts `known_at` on the list and on the detail, so this is a page change only. Add a vitest pin that the list and detail URLs carry the same `known_at`.
+- Q4: **corrected.** A `?night=` link names one record (N, D-SR.44), so it opens that night and never swaps it silently. The list stays filtered to the range. Above the detail, one line reads "This night (4 Nov) is outside the selected date range", without widening the range. A night that does not exist keeps the existing NIGHT_NOT_FOUND refusal. Add a vitest pin.
+- Size about +0.05 units (page only). Package about 18.35 units.
+
+Decisions logged for owner review: **D-SR.55**.
