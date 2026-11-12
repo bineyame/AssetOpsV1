@@ -145,7 +145,9 @@ def test_no_reading_days_read_no_data_not_no_sequence_and_are_not_counted():
     for d in (days[3], days[5]):
         assert d["partial"] is False and d["sequences"] is None and d["sequence_counts"] is None
         assert d["hours_assessed"] is None and d["hour_link"]
-    assert "NO_DATA" not in {s for s in ("SEQUENCES_PASSED", "SEQUENCE_FAILED", "SEQUENCE_INCOMPLETE", "NO_SEQUENCE")}
+    totals = body["totals"]   # NO_DATA is not a counted state: only D0-D2 count; the rest of the 7 make it partial
+    assert (totals["days_counted"], totals["days_requested"], totals["partial"]) == (3, 7, True)
+    assert totals["sequence_counts"] == _body()["totals"]["sequence_counts"]  # the NO_DATA days add no sequences
 
 
 def test_an_absent_day_is_unknown_not_zero():
