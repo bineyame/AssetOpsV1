@@ -1,5 +1,137 @@
 # Architect: one sequenced view of walkthrough comments and backlog, for the client-demo scope (2026-11-11)
 
+## Revision 10 (Architect, Claude, 2026-11-12 ~14:30): SR-6, SR-7, SR-8 IN now; every range disparity fixed; lanes for today
+
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.13-18** (`build-sheet-OWN-GAPS-2026-11-08.md`), owner-directed, logged for owner review.
+- Owner, verbatim (`.agent/owner-everything-fixed-now-demo-off-2026-11-12.md`): "Everything must be fixed now, demo today is called off because of this".
+- **What this revision changes.** Rev 9's 9.3 "GAP" rows and its "Known gaps for 17 Nov" list are superseded: SR-6, SR-7 and SR-8 are **IN, starting now**. The rule stays D-SR.9. Written under a 10-minute cut (work moving to the VPS). Sections marked **TO FINISH ON VPS** are closed by the builder's pre-flight answer to the Architect, never by the builder designing.
+
+### 10.1 Stored data every SR-6/7/8 read reuses (code on main, cited)
+
+- **Chain day snapshots** (`chain/read.py` `ChainRequest.day(site_id, "MINIGRID", days)`): one memoised read (`chain.day`) per Site and day range, returning per Site-local day the grade and stored value of each mini-grid measure: `productive_kwh`, `daylight_headroom_kw` (all measured daylight hours of the day, CH-9 R5), `critical_served` (all declared operating hours of the day, from the stored hourly `mini_service` heads, CH-9 R9), `avoidable_gen_min`. This is the range source. No hour is recomputed on read.
+- **`mini_depth.*` rows (AR-2, `mini_depth/period_rows.py`)**: renewable is one row per local day; fuel, service and backup hold the local-noon hour only. They stay the **drill-in** source (one hour, or up to 5 days), unchanged.
+- **`dispatch.day` rows (AR-3)** through `estate/coverage.dispatch_days` (D-ANY.10 absent-run compose), plus `local_day_grades_kw` and `data_gap_days` (D-E5.46): the per-day state and gap words, exactly as SR-5a uses them.
+- **`evidence.claim` rows (AR-4, `estate/period_rows.py`)**: the claim limit per UTC day.
+- **Gateway contact and readings**: `gateway_diagnostic` (index `gateway_diagnostic_gateway_received (gateway_id, received_at DESC)`) and `accepted_evidence` (index `accepted_evidence_site_time (site_id, source_time DESC)`).
+- **BL-ANY-absent comes back IN, as a test (D-SR.16):** every new range read is tested with an absent historical-k row inside the range. It must read through D-ANY.10's compose (dispatch) or the chain read's own NO_DATA/PENDING grade (chain), never as "nothing known". New fallback code is added only if that test fails (then 0.25, in the failing read's branch).
+
+### 10.2 SR-6: mini-grid Health over the range (1.0)
+
+**SR-6a server (0.6, Postgres).** New module `backend/assetops_backend/sites/site_health_range.py`. New route in the router file that serves `/api/sites/{site}/source-health`: `GET /api/sites/{site_code}/health-range?from&to[&known_at]`, schema `site-health-range-1`.
+- Admission as `source-health`. Window by `estate.scope.estate_request("portfolio", ...)` (midnight UTC, at most 31 days; else 422 `INVALID_WINDOW`). Cold/EV: 404 `HEALTH_RANGE_NOT_APPLICABLE` (their Health already reads the range). Store failure: 503 `SITE_HEALTH_RANGE_UNAVAILABLE`. Stored response: `ResponseStore.serve(StoredRoute("health-range", tenant, key={site, from, to, known_at}, sites=(site,), watermark_sites=(site,)), compose)`.
+- One REPEATABLE READ, READ ONLY transaction. Reads, in order:
+  1. registration: `_health_registration` (gateways, sources; called, not copied);
+  2. per gateway per UTC day: `SELECT gateway_id, date_trunc('day', received_at AT TIME ZONE 'UTC') AS d, count(*), min(received_at), max(received_at) FROM gateway_diagnostic WHERE tenant_id=:t AND site_id=:s AND received_at >= :from AND received_at < :to AND received_at <= :k GROUP BY 1, 2`;
+  3. per source per UTC day: `SELECT <source column>, date_trunc('day', source_time AT TIME ZONE 'UTC') AS d, count(*), max(received_at) FROM accepted_evidence WHERE site_id=:s AND source_time >= :from AND source_time < :to AND received_at <= :k GROUP BY 1, 2`. **TO FINISH ON VPS:** pre-flight (a) names the source and receipt columns; no join to reading bodies;
+  4. day states: `dispatch_days` + `local_day_grades_kw` + `data_gap_days`, called as SR-5a steps 5-6.
+- Body:
+```
+{ "schema_version": "site-health-range-1",
+  "site": {"site_code", "site_name", "timezone"}, "window": {"from", "to", "known_at", "basis"},
+  "gateways": [ {"gateway_external_id", "mode", "disabled", "cadence_seconds",
+                 "days": [ {"day", "diagnostics": int, "first_received_at", "last_received_at",
+                            "contact": "IN_CONTACT" | "PARTIAL_CONTACT" | "NO_CONTACT" | "NOT_EXPECTED"} ] } ],
+  "sources": [ {"source_external_id", "disabled",
+                "days": [ {"day", "accepted_readings": int, "last_received_at",
+                           "state": "READINGS" | "NO_READINGS" | "NOT_EXPECTED"} ] } ],
+  "days": [ {"day", "state": <the SR-5a day state set>, "accepted_readings": int | null} ],
+  "summary": {"days_requested", "days_with_readings", "days_without_readings", "gateways_in_contact_all_days"},
+  "battery": <the existing battery entry body, unchanged>,
+  "links": {"day": "/sites/{code}/health?day={day}"} }
+```
+- Rules:
+  - Gateway-day `contact`: NOT_EXPECTED before the gateway's `registered_at` day; NO_CONTACT at 0 diagnostics; IN_CONTACT when `diagnostics x cadence_seconds >= 0.9 x` the seconds of the day inside `[from, min(to, k))`; else PARTIAL_CONTACT. With no cadence: IN_CONTACT when at least one, and the limitation text says the cadence is not configured.
+  - Source-day: NOT_EXPECTED before the Site's readings began (`ChainRequest.readings_began`); READINGS when the count is above 0; else NO_READINGS.
+  - `days[]` and `summary` use the SR-5a day rules, so Health and the range Overview agree day by day (test pin).
+  - A Site with no gateway (file import): `gateways: []`, and the page says "This site's readings arrive by file import, so there is no gateway contact to report."
+- **Battery (D-SR.14):** the battery entry is Foundation configuration, and its condition is always Unknown (no read supplies condition inputs; `sites/battery_boundary.py`). It is point-in-time by nature. The section is headed "Battery (current settings)". No battery figure over the range is invented.
+
+**SR-6b page (0.4).** In `sites/SiteHealth.tsx`, MINIGRID branch: with a range and no `day`, render new `sites/SiteHealthRange.tsx` (client `sites/healthRangeClient.ts`, refusals mapped like `outcomeBoardClient.ts`):
+1. status line, for example "Readings on 6 of 7 days · 4 Nov: no readings" (D-E5.46 words);
+2. gateway table: one row per gateway, one cell per day (`aria-label` "Gateway G1, 4 Nov: no contact"), words In contact / Partial contact / No contact / Before it was registered;
+3. source table, same shape, with reading counts;
+4. "Battery (current settings)": the existing `ConditionStrip`/`ConditionBody`, unchanged.
+- With `day=`: the drill-in is the same range page for that one day (request `from=day&to=day+1`, `day` kept in the address), with "Back to the whole range". The existing `source-health` panel stays below, headed "Contact now" and labelled point-in-time.
+- Bar: the range view declares nothing ("All pages"); the drill-in declares `span(day, day)`. SR-4c's `now` declaration on mini-grid Health is removed.
+- MOCK DEVIATION R724 (v69 `health:1/2` is current contact only). The builder adds the register row.
+
+**SR-6 tests.**
+- `backend/tests/test_sr6_health_range_route.py` (stubs): 422, 404, 401/403, stored-response key and watermark Site, perf line.
+- `backend/tests/test_sr6_health_range_postgres.py` (`assetops_test`): a gateway with full, partial and no-contact days; a pre-registration day; sources with and without readings; a reading received after `known_at` excluded; `days[]` equal to SR-5a's days on the same fixture; the absent-row test (10.1).
+- Vitest `sites/__tests__/siteHealthRange.test.tsx`; `sr2RequestUrls` pin (mini-grid Health with a range requests `health-range?from&to`); the SR-5e `RANGE_MATRIX` entry for mini-grid Health changes N to R (the range-ignore test then covers it).
+- Parity and timing, on the `<prefix>_audit` copy, one heavy job: KOBO-001 and KISIWA-001 x (7, 14, 31 days). Per-day `accepted_readings` for dispatch-role sources against the `dispatch.day` `accepted_reading_count` (reported; any difference is explained by role, not gated). Gate: stored response at most 2.0 s; cold recorded. Output `.agent/SR-6-parity.json`.
+
+### 10.3 SR-7: Service and the claim limit over the range (0.75)
+
+**SR-7a Service range (0.4).** Route `GET /api/sites/{site_code}/service-range?from&to[&known_at]`, schema `site-service-range-1`, in `mini_depth_api.py` beside the depth router. Admission, window, 404/503 and StoredRoute as SR-6. Read: `ChainRequest.day(site_id, "MINIGRID", local_days(from, to, tz))` (`chain/read.py`), measure `critical_served` only; ChainRequest built with the `chain_api.py` `opened(ref)` pattern.
+```
+{ "schema_version": "site-service-range-1", "site": {...}, "window": {...},
+  "days": [ {"local_day", "grade", "served_kwh", "unserved_kwh", "demand_kwh", "covered_hours", "operating_hours",
+             "state": "SERVED_ALL" | "SHORTFALL" | "NO_CRITICAL_LOAD" | <the SR-5a gap states>,
+             "hour_link": "/sites/{code}/performance/service?from=<local noon>&to=<+1 h>"} ],
+  "totals": {"served_kwh", "unserved_kwh", "demand_kwh", "days_counted", "days_requested"} }
+```
+- Values are the stored `critical_served` snapshot value only (served, unserved, covered span, the `CriticalServed.inputs` shape). NO_CRITICAL_LOAD where the measure is declared absent (K10 v2 `none_declared`), words "No critical load declared". Totals sum counted days only; `days_counted < days_requested` gives the D-E5.45 PARTIAL label.
+- No all-load or interruption figure is invented over the range (those cards exist per hour only). The page says "Delivered load and interruptions: open a day".
+- Page (`MiniPerformance.tsx` Service tab): a range without `hour`/`day` shows the day table (served, unserved, state, "Open the 12:00 hour"). A one-hour story link keeps the existing page, with "Back to the whole range". SR-4b's 12:00-hour default is removed from the range view. MOCK DEVIATION R725.
+
+**SR-7b claim limit range (0.35).** Route `GET /api/sites/{site_code}/claim-limit-range?from&to`, schema `site-claim-limit-range-1`, in the claim-limit router file.
+- Read: for each UTC day of the range, the `evidence.claim` stored row (AR-4 reader). A row miss falls back to today's `claim_limit_on` compose for that day, counted by `row_misses` (the existing rule).
+- Body: `days[{day, window_status, ceiling, current_positive_claim, reasons[], revision_id, link: "/sites/{code}/evidence/claim-limit?day={day}"}]` and `summary {days_with_positive_claim, days_indeterminate, days_without_selection}`.
+- Page `EvidenceClaimLimit.tsx`: a range shows the day table; `day=` shows the existing one-day page with a back link.
+- **TO FINISH ON VPS:** the pre-flight names the AR-4 reader for one Site's claim rows over a day list. If none exists without editing AR-4's files, one public function `claim_days(snap, t, s, days, k)` is added to `estate/period_rows.py`, and that is the only change there.
+
+**SR-7 tests.** Route stubs; `test_sr7_service_range_postgres.py` (a shortfall day, a fully served day, a declared-none day, a gap day, a PENDING day, the absent-row test, totals; and for 3 sampled hours, the stored day value agrees with the hourly `mini_service` CRITICAL rows read through the one-hour route: the range-to-drill-in link); `test_sr7_claim_limit_range_postgres.py` (each day equals the one-day route's fields; rows on and off identical). Vitest for both pages; `sr2RequestUrls` pins; `RANGE_MATRIX` Service and claim-limit entries D to R. Parity and timing as SR-6, output `.agent/SR-7-parity.json`.
+
+### 10.4 SR-8: Renewable over the whole range (0.5)
+
+- `MAX_DAYS = 5` stays for the drill-in depth read (its envelope is per hour).
+- New route `GET /api/sites/{site_code}/renewable-range?from&to`, schema `site-renewable-range-1`, in `mini_depth_api.py`. One `ChainRequest.day` read, measure `daylight_headroom_kw`. Per local day: `{local_day, grade, headroom_kw (stored value), measured_hours, missing_hours, state, link: "/sites/{code}/performance/renewable?from=<local midnight>&to=<+1 day>"}`. Totals: days counted, and the mean headroom over counted days, labelled "average daylight headroom"; the PARTIAL label when days are missing. Up to 31 days (estate window rule).
+- Page (Renewable tab): a range of any length shows the day table and a per-day headroom bar chart (the chart component the Renewable tab already uses; no new library). A day opens the existing one-day depth page. A story window of at most 5 days keeps the existing page. SR-4b's "last 5 days" clamp and its span declaration are removed. MOCK DEVIATION R726.
+- Tests: Postgres (each day's value equals the stored snapshot; a missing-hour day reads PARTIAL; the absent-row test; for 3 sampled days, the row equals the one-day depth envelope's headroom card). Vitest; pins; `RANGE_MATRIX` Renewable D to R. Parity and timing, output `.agent/SR-8-parity.json`.
+
+### 10.5 Re-audit: every Site page x Site type (supersedes 9.3's GAP rows)
+
+| Page | Kobo / Kisiwa | Cold | EV | Disposition |
+|---|---|---|---|---|
+| Overview, Dispatch, Kisiwa nights, Financials | SR-5 | OK | OK | as rev 9 |
+| Health | **SR-6** | OK | OK | fixed |
+| Service, claim limit | **SR-7** | n/a | n/a | fixed |
+| Renewable | **SR-8** | n/a | n/a | fixed |
+| Scenarios, Findings, Work, Evidence ledger | OK | OK | OK | as rev 9 |
+| Evidence rejections and analytics panels | SR-4c | SR-4c | SR-4c | as rev 8 |
+| EV `/ev/financials` same fingerprint | n/a | n/a | SR-4 pre-flight (f) | as rev 9 |
+| Finding detail | N: one Finding's own episode | N | N | one record, not a period; links carry the range (SR-4a); its claim-limit panel is the Finding's own day, which is correct |
+| Assets list, battery page | N (configuration) | **TO FINISH ON VPS** | **TO FINISH ON VPS** | the SR-4 pre-flight route list classifies each asset page; any asset page that shows readings without from/to becomes card **SR-9** (frontend, existing route params, at most 0.25 each) |
+| Foundation, Foundation changes, `foundation/sld` | N | N | N | the configuration in force; the changes page is an edit history, not a measured period; the SLD is a drawing of configuration |
+| Prices | N | N | N | a price is in force at an instant; range money already uses each day's price (SR-5d) |
+| Sites index | N | N | N | a directory, not data |
+
+- After SR-4 to SR-8 (and SR-9 if any), nothing is a labelled gap except the N rows, each point-in-time by nature for the reason given.
+- The SR-4 pre-flight route list (8.5 step 1a) is the completeness check. Any route it lists that is not in this table goes to the Architect as a pre-flight question, never a builder choice (D-SR.17).
+
+### 10.6 Lanes, order, capacity (D-SR.18)
+
+| Lane | Work | Branch | Worktree | Depends on |
+|---|---|---|---|---|
+| G (running) | SR-4 | `task/SR-4-site-range` | AssetOpsV1-sr4 | none |
+| H (running) | SR-5 server, core, then c, d | `task/SR-5-range-board` | AssetOpsV1-sr5 | SR-4 for b, c, d |
+| **I** (now) | **SR-6** a then b | `task/SR-6-health-range` | AssetOpsV1-sr6 | 6a none (calls `estate/coverage` functions directly, not SR-5a's module); 6b on SR-4 (`RangeLink`, `rangeFocus`) |
+| **J** (now) | **SR-7** a then b | `task/SR-7-service-claim-range` | AssetOpsV1-sr7 | servers none; pages on SR-4 |
+| **K** (now if a 4th lane is free, else VPS) | **SR-8** | `task/SR-8-renewable-range` | AssetOpsV1-sr8 | server none; page on SR-4 |
+
+- Heavy DB jobs one at a time, queue order: SR-5a parity, SR-6 parity, SR-7 parity, SR-8 parity. Short `*_test` Postgres runs are queued by the coordinator.
+- Reviews: a fresh Claude reviewer per branch per round; Sonnet fix rounds. Each server unit may be reviewed before its page so pages build on ACCEPTed servers.
+- Merge order: SR-4, SR-5 core, SR-6, SR-7, SR-8, SR-5c, SR-5d. `sr2RequestUrls.test.tsx` and `ui/rangeMatrix.ts` are shared: the second merger resolves. SR-5e's matrix lands with SR-5 core; SR-6/7/8 each flip their own entries.
+- **Capacity:** 13.4 + SR-6 1.0 + SR-7 0.75 + SR-8 0.5 = **about 15.65 units**, over the 11-13 window. The owner's priority is range correctness, so SR-4 to SR-8 are protected and the drop order (first dropped first) is **DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1**. With the VPS lanes tonight, the range set plus AR-4, WARM-1 and UQ-FI-1/2 is expected to fit by the Sat 20:00 freeze; UP-1 and MB-1 are at risk, confirmed or dropped by the Architect at Fri 12:00 from merged units.
+- **Priority line:** AR-4 > WARM-1 > SR-4 > SR-5 core > SR-6 > SR-7 > SR-8 > SR-5c > SR-5d > UQ-FI-1/2 > UP-1 > MB-1 > DATA-5/4/8 > UQ-FI-3 > FR-B > DATA-10/13.
+
+### 10.7 First builder steps
+
+- **Lane I (SR-6):** worktree from main. Pre-flight batch to the Architect: (a) `accepted_evidence` source and receipt column names; (b) the Health router file and its admission helper; (c) whether the demo mini-grid Sites have gateways (`registered_at`, cadence) or arrive by file import; (d) the mini-grid Health frame file. Then SR-6a, commit, server review; then SR-6b.
+- **Lane J (SR-7):** pre-flight: (a) building a `ChainRequest` in a route (`chain_api.py` `opened(ref)`); (b) the stored `critical_served` value shape; (c) the AR-4 claim-day reader (10.3); (d) the Service and claim-limit page files. Then SR-7a, SR-7b, pages.
+- **Lane K (SR-8):** pre-flight: (a) as J (a); (b) the stored `daylight_headroom_kw` value shape (measured and missing hours); (c) the Renewable page and chart files. Then server, page.
+
 ## Revision 9 (Architect, Claude, 2026-11-12 ~13:30): data in the range means output for the range, on every Site type (SR-5 IN)
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.9-12** (`build-sheet-OWN-GAPS-2026-11-08.md`), owner-directed or owner-delegated, logged for owner review.

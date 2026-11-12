@@ -4854,3 +4854,23 @@ Source, owner verbatim (`.agent/owner-range-output-rule-2026-11-12.md`): "this s
 - **Priority:** AR-4 > WARM-1 > SR-4 > SR-5 core > UQ-FI-1/2 > UP-1 > MB-1 > DATA-5/4/8 > SR-5c > SR-5d > UQ-FI-3 > FR-B > DATA-10/13.
 
 Decisions logged for owner review: **D-SR.9-12**.
+
+### D-SR.13 SR-6, SR-7, SR-8 are IN now (owner-directed, 2026-11-12).
+- Owner: "Everything must be fixed now, demo today is called off because of this". Rev 9's known-gap list is withdrawn. Designs: sequence doc rev 10, 10.2-10.4.
+
+### D-SR.14 What is point-in-time by nature.
+- Foundation (with changes and SLD), battery configuration, Prices, the Sites index and single-record pages (Finding detail) are N: configuration, an instant's price, a directory or one record. Every page with readings over time follows the range. Battery condition is never invented over a range.
+
+### D-SR.15 Range reads reuse stored per-day rows only.
+- Health: `gateway_diagnostic` and `accepted_evidence` grouped per UTC day, plus SR-5a day states. Service and Renewable: chain day snapshots (`critical_served`, `daylight_headroom_kw`). Claim limit: `evidence.claim` rows. The hour and 5-day depth reads stay as drill-ins.
+
+### D-SR.16 BL-ANY-absent returns as a test, not code.
+- Each new range read is tested with an absent historical-k row; fallback code is added only if that test fails (0.25).
+
+### D-SR.17 Unlisted Site routes go to the Architect.
+- Any route in the SR-4 pre-flight list missing from rev 10.5 is a pre-flight question. Asset pages showing readings without from/to become SR-9.
+
+### D-SR.18 Lanes and drop order.
+- Lanes I (SR-6), J (SR-7), K (SR-8; VPS if no fourth laptop lane). Protected: SR-4 to SR-8. Drop order: DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1. Package about 15.65 units.
+
+Decisions logged for owner review: **D-SR.13-18**.
