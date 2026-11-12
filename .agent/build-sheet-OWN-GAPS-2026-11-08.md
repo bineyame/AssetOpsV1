@@ -4997,3 +4997,13 @@ Decisions logged for owner review: **D-SR.31-38**.
 - `scope-ids` with `lens=cost|risks|opportunities` is added for every warmed range, using the client's exact query. It is covered by the URL-equality test and `--verify`. Page 2 and later, and lens × state, stay outside the claim. About 0.02 units.
 
 Decisions logged for owner review: **D-SR.40-46, D-WARM.8**.
+
+## D-SR.47 SR-8 Q2-Q5 (Architect, Claude, 2026-11-12 night, owner-delegated, logged for owner review)
+
+- Detail: sequence doc 10d.7.
+- Q2: NO_VALUE is confirmed ("No headroom figure for this day"; never counted).
+- Q3: rounding to 0.01 kW, half-up, applies to the two averages only; daily values are stored, unrounded.
+- Q4 is corrected: LOW → NOT_ENOUGH_READINGS, never counted (as D-SR.45). PENDING, NO_DATA and NOT_EXPECTED win. A PARTIAL ELIGIBLE day is counted, with `partial: true`.
+- Q5: the codes and the optional `known_at` (in the stored key) are confirmed.
+
+Decisions logged for owner review: **D-SR.47**.
