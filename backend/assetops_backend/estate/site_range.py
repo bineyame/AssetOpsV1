@@ -91,11 +91,12 @@ def _quantity(lines: list[dict[str, Any]]) -> dict[str, Any] | None:
             "unit": units.pop()}
 
 
-def _status(historical: bool, cov: dict, e_cov: dict, e_rows: list, m_domain: str, m_cov: dict, m_lines: list,
-            domain: str) -> str:
-    """`_portfolio`'s status rule over this one Site (count 1)."""
+def _status(historical: bool, domain: str, cov: dict, e_domain: str, e_cov: dict, e_rows: list, m_domain: str,
+            m_cov: dict, m_lines: list) -> str:
+    """`_portfolio`'s status rule over this one Site (count 1); each unit uses its own scope tuple's domain and
+    the money unit the Site's own per-site lines, as `_portfolio` does (`portfolio.py:801-818`)."""
     f = finding_unit(domain, cov)
-    e = evidence_unit(domain, e_cov, e_rows)  # WIP: _portfolio passes the evidence tuple's own domain
+    e = evidence_unit(e_domain, e_cov, e_rows)
     m = list(money_units(m_domain, m_cov, m_lines).values())
     all_g = all(c != U for c in (f, e, *m))
     partial = cov["state"] == e_cov["state"] == m_cov["state"] == PARTIAL
@@ -153,8 +154,8 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
         e_sites, _ = select_evidence_scope(snap, tenant_id, req, scope)
         m_sites, m_lines, applicable, groups, _, _ = select_financial_scope(snap, tenant_id, req, scope)
         _, domain, cov = f_sites[0]
-        _, _, e_cov, e_rows = e_sites[0]
-        _, m_domain, m_cov, _ = m_sites[0]
+        _, e_domain, e_cov, e_rows = e_sites[0]
+        _, m_domain, m_cov, m_site_lines = m_sites[0]  # the per-site tuple lines `_portfolio` passes on
         site_lines = [x for x in m_lines if x["site_id"] == sid]
 
         rows = dispatch_days(snap, tenant_id, site["site_id"], req.from_, req.to, k)
@@ -227,10 +228,11 @@ def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateReq
                      "timezone": site.get("timezone")},
             "window": {"from": wire_time(req.from_), "to": wire_time(req.to), "known_at": wire_time(k),
                        "basis": "HISTORICAL" if snap.basis_historical else "CURRENT"},
-            "status": _status(bool(snap.basis_historical), cov, e_cov, e_rows, m_domain, m_cov, site_lines, domain),
+            "status": _status(bool(snap.basis_historical), domain, cov, e_domain, e_cov, e_rows, m_domain, m_cov,
+                              m_site_lines),
             "coverage": coverage_entry,
             "money": {"card": public(operating_cost_card(site_lines, applicable, groups)),
-                      "partial": partial_money(site, m_cov, site_lines),
+                      "partial": partial_money(site, m_cov, m_site_lines),
                       "quantity": _quantity(site_lines)},
             "findings": {"count": len(members),
                          "confirmed": sum(1 for r in members if r["lifecycle"] == "SUPPORTED"),
