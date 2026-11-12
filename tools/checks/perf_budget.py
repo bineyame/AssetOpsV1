@@ -195,7 +195,7 @@ def measure_any_range(url: str, work: Path, runs: int, cases: list, kinds: str =
     record: dict = {"params": {"runs": runs, "store": "off", "cases": len(cases), "kinds": kinds}, "cases": {}}
     env = {**os.environ, "ASSETOPS_PERIOD_READ_KINDS": kinds}
     for case in cases:
-        cold, status, absent = [], [], []
+        cold, status, absent, misses = [], [], [], []
         for _ in range(runs):
             cmd = [sys.executable, __file__, "--database-url", url, "--work", str(work), "--child-path", case.path]
             out = subprocess.run(cmd, capture_output=True, text=True, env=env)
@@ -208,8 +208,9 @@ def measure_any_range(url: str, work: Path, runs: int, cases: list, kinds: str =
             cold.append(res["ms"])
             status.append(res["status"])
             absent.append(res.get("period_row_absent", 0))
+            misses.append(res.get("claim_row_misses", 0))
         record["cases"][case.id] = {"family": case.family, "path": case.path, "cold_ms": cold, "status": status,
-                                    "period_row_absent": absent}
+                                    "period_row_absent": absent, "claim_row_misses": misses}
     return record
 
 
@@ -221,7 +222,11 @@ def _child_path(url: str, work: Path, path: str) -> int:
     c = probe.client(url, work)
     res = probe.one(c, kept, path)
     # D-ANY.5 M1: live (Site, day, kind) reads with no stored row; never a fallback compose, so counted here
-    print("RESULT " + json.dumps({**res, "period_row_absent": absent_count()}))
+    from assetops_backend.estate.period_rows import no_revision_days, row_misses
+
+    # AR-4: claim days a row could not serve (read as today, D-ANY.6a/7) and no-revision days (D-ANY.5)
+    print("RESULT " + json.dumps({**res, "period_row_absent": absent_count(), "claim_row_misses": row_misses(),
+                                  "claim_no_revision": no_revision_days()}))
     return 0
 
 

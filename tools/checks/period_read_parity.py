@@ -186,6 +186,34 @@ def between_revisions_case(url: str) -> Case | None:
     return None
 
 
+_CLAIM_ROW_BUILD = (
+    "SELECT min(local_day), max(local_day), min(computed_at), max(computed_at) FROM site_period_read "
+    "WHERE kind = 'evidence.claim'"
+)
+
+
+def claim_row_cases(url: str) -> list[Case]:
+    """AR-4: a 7-day Portfolio known just before the first `evidence.claim` row was built (the page selects
+    revisions no row holds at k: read as today) and just after the last (every day served from its row)."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(url)
+    try:
+        with engine.connect() as c:
+            r = c.execute(text(_CLAIM_ROW_BUILD)).first()
+    finally:
+        engine.dispose()
+    if r is None or r[0] is None:
+        return []
+    hi = datetime.combine(r[1], datetime.min.time(), UTC) + timedelta(days=1)
+    lo = max(datetime.combine(r[0], datetime.min.time(), UTC), hi - timedelta(days=7))
+    base = f"/api/estate/portfolio?from={_q(lo)}&to={_q(hi)}&lens=all&known_at="
+    return [Case("any.claim_rows.before_build", base + _q(r[2] - timedelta(seconds=1)),
+                 "historical_between_revisions"),
+            Case("any.claim_rows.after_build", base + _q(r[3] + timedelta(seconds=1)),
+                 "historical_between_revisions")]
+
+
 def _first_difference(a: bytes, b: bytes) -> str:
     n = next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
     return (f"first difference at byte {n} (lengths {len(a)} vs {len(b)}): "
@@ -401,6 +429,8 @@ def run(url: str, work: Path, story: Path | None, seed: int, count: int, kinds: 
     between = between_revisions_case(url)
     if between is not None:
         cases.append(between)
+    if "evidence.claim" in kinds.split(","):
+        cases.extend(claim_row_cases(url))
 
     def fetch(value: str) -> Fetch:
         def go(path: str) -> tuple[int, bytes]:
