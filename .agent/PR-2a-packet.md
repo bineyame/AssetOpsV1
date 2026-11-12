@@ -37,9 +37,9 @@
 
 ## Known deviations
 
-1. **MOCK DEVIATION (Part B focus block and receipt):** the mock's "The item you came to price" block (what is already measured, the price it needs, what it shows today, the worked receipt) is not built. The link carries only `key`/`need`, not the item, so the page highlights the row instead. Part C likewise shows only the server's sentence, with no measured list.
-2. **MOCK DEVIATION (return bar):** the bar reads "← Back to where you were" rather than "← Back to Portfolio · Early warnings / You came from 'Visits without a result'", because `return` is a path with no item name.
-3. **MOCK DEVIATION (sign-in note):** it shows rev 5's single sentence. The mock's second and third sentences were dropped in the PR-1 fix round. The mock's "Not in this step / Comes with sign-in" section is not built: it is a draft note, and PR-3 would contradict it.
+1. **MOCK DEVIATION (D-PRICE.3) (Part B focus block and receipt):** the mock's "The item you came to price" block (what is already measured, the price it needs, what it shows today, the worked receipt) is not built. The link carries only `key`/`need`, not the item, so the page highlights the row instead. Part C likewise shows only the server's sentence, with no measured list.
+2. **MOCK DEVIATION (D-PRICE.3) (return bar):** the bar reads "← Back to where you were" rather than "← Back to Portfolio · Early warnings / You came from 'Visits without a result'", because `return` is a path with no item name.
+3. **MOCK DEVIATION (D-PRICE.3) (sign-in note):** it shows rev 5's single sentence. The mock's second and third sentences were dropped in the PR-1 fix round. The mock's "Not in this step / Comes with sign-in" section is not built: it is a draft note, and PR-3 would contradict it.
 4. **Old address, partly forwarded:**
    - A pinned assumptions address (`revision_id`, `recorded_at`, `history_*`) still opens the existing exact-version screen, now under the Prices subtab. This is the money "Why?" receipt target, and the price page has no pin.
    - A COLDCHAIN Site's `/financials/assumptions` keeps its cold declarations screen (stock quantity, unit value, exposure rule), reached by "Review assumptions".
@@ -48,7 +48,9 @@
 6. The per-Site-type key list (`SITE_KEYS`) and the "Used by" words are not in the spec. They are derived from `price_action.WARNING_SPEC`, the §3 table and the mock rows (Q3).
 7. **Lane rule slip:** one in-place edit of `price_page.py` used a Python heredoc instead of Edit. The content was then checked with Edit and tests. Noted for honesty.
 
-8. **MOCK DEVIATION (PR-2a D4), lock icon:** the sign-in note has no lock icon. The shell-overflow guard refuses an inline `<svg>` outside the diagram modules, so the note carries its words only.
+8. **MOCK DEVIATION (D-PRICE.3) (PR-2a D4), lock icon:** the sign-in note has no lock icon. The shell-overflow guard refuses an inline `<svg>` outside the diagram modules, so the note carries its words only.
+10. **MOCK DEVIATION (D-PRICE.3) (History wording, review L3):** the server says "replaced by a later correction" (`price_page.py`), where the mock says "replaced by the correction above". "Above" is wrong once History is filtered or capped, so the wording is kept.
+11. **Fix round (2026-11-12), more heredoc slips:** this round again used Python/bash heredocs for one in-place edit of `price_page.py` (comment only) plus two empty no-op heredocs. Content verified by tests.
 9. **Font sizes:** per Architect rev 6 (UQ-FI), `sitePrices.css` sets font sizes only through `var(--text-*)` tokens. Weights, spacing and borders are literal.
 
 ## Checks (revision after the merge of main `49c0ca628`)
@@ -73,7 +75,12 @@
 - **Not run:**
   - full suites (owner test policy);
   - production build;
-  - **layout evidence:** not run, so the 390/1440 px stacking of the price table is **unverified**.
+  - production build.
+- **Layout evidence (fix round, D-PRICE.3 action 1 / review L5), run:** `node tools/pr2a-price-page-evidence.mjs http://localhost:5495 8995 var/pr2a-evidence` (new script). It serves fixture API JSON on 8995 (no DB; the `assetops_pr2a_test` DB holds no Sites), `vite` on 5495, headless Chrome over CDP; captures in `var/pr2a-evidence/` (not committed).
+  - Matrix: mini Site with `?key=repair_visit_cost`, cold Site with `?key=repair_visit_cost`, EV Site, and a cold `?need=` page, each at 1440, 760 and 390 px: 12 captures, plus `frontend/mockups/v71/price-it.html` at the same widths.
+  - Result: 12 of 12 PASS. Each has rows > 0 (non-empty set) and no horizontal page overflow (page scrollWidth <= viewport).
+  - Stacking: at 1440 the table reads as six columns with the highlighted `key` row; at 760 and 390 it stacks one cell per line with the header hidden, exactly as the mock's `@media (max-width:760px)` rule does (mock also drops the column labels). **No mismatch found; no CSS change made.**
+  - Caveat: the data is fixture JSON, so real-DB content length is untested. The mock's Part B focus block is not built (deviation 1), so the mock page is taller.
 
 ## Questions (batched, for the Architect)
 
