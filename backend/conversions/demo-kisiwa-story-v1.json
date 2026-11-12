@@ -34,5 +34,8 @@
     "effective_at": "S-4d 12:00"
   },
   "plan": {"freeze_at": "S-4d 12:30"},
-  "evaluate_at": "S-1d 13:00"
+  "evaluate_at": "S-1d 13:00",
+  "service_plan": {"key": "kisiwa-gen-250h", "asset_code": "generator", "at": "S-8d 09:00",
+                   "title": "Generator 250-hour service", "trigger_kind": "CALENDAR", "due_hours": null,
+                   "due_at": "S+5d 00:00"}
 }
