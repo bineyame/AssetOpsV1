@@ -220,3 +220,18 @@ Restart only when no agents are running. On resume: read this file, `git log --o
   3. Page×Site smoke check.
   4. Access note.
 - Owner access: Tailscale, server 100.107.18.77 (owner device 100.118.230.76); SSH tunnel for 5490, or rebind Vite on owner request.
+
+## UPDATE ~22:00 UTC 2026-11-13
+- Main is 5e1a37e39. Merged since 17:50: D-SR.82 (pre-import ranges answer 200 with no-readings days) and D-SR.83/83a/83b (overview, finding-index page 1 and estate/scope stored and prebuilt over every reachable mini-grid day; schedule facts plus store term).
+- Walk worktree 0b1af9e10; tree refreshed; serve restart8 is running.
+- Checks:
+  - prebuild 193/193 OK;
+  - warm 1611, 0 failed, 0 over 2 s;
+  - six-kind parity (on 33649e5c6) PASS, 42/0/0;
+  - AP-1 live check PASS.
+- Smoke 2 (var/polish_walk1113/smoke-check-2.md): 388/388 200, bodies clean; 11 first hits over 2 s.
+  - Kobo overview 10-25 at 5.9 s, plus several Kobo days at 2–3.4 s; on repeat about 0.8 s. The perf log shows a store hit with lookup about 160 ms but a total of about 960 ms, so the extra cost is outside the lookup (likely the term or gate).
+  - The Kobo finding financials route is about 2.6 s even warm.
+  - Open: why the prebuilt Kobo entries were cold at first hit (invalidated after prebuild by tick writes?).
+- Pre-existing failures on main: test_w302_evidence_api (2 tests: "Opens this range" vs "Current view"); test_s5_overview_postgres late_power and test_s4_schedule_health_postgres (STALE_PROJECTION, environmental?).
+- Low notes to backlog: D-SR.82 docstring "<=" vs the actual "<"; D-SR.83 L2 (gate result not in the key).
