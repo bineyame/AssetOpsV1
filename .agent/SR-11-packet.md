@@ -76,3 +76,23 @@ Merged task/SR-10-fuel-range (347d9765a): NO_DATA day state, no_reading_days, pa
 Merged task/SR-10-fuel-range (M-1: pending computed with no stored row). L-2: the tautology in
 `test_no_reading_days_read_no_data...` is replaced by a `totals` assertion (3 counted of 7, partial, sequence_counts
 unchanged). SR-11 route tests: 19 passed.
+
+## Page (lane J, branch `task/SR-7-11-pages`, commit 8e8bb73d8; Lows in f7ea60304)
+- `sites/MiniBackupRange.tsx` (MOCK DEVIATION R728); `MiniBackup` branches on `miniRangeView` exactly as Service (SR-7
+  packet). Status line "{n} backup starts: p passed, f failed, i incomplete, for n of m days analysed · <gap days>"
+  (server totals, D-SR.51.4) plus "Start successes: x" (D-SR.60; null → "No witnessed start request and result").
+  Day table: "n backup starts: p passed, f failed, i incomplete" / "Slowest recovery m min (target t)" / state words /
+  "Open the 12:00 hour". STILL_PROCESSING "Still being prepared" and NO_DATA "No readings this day" span the row with no
+  figures (D-SR.51.3, D-SR.70-72); NOT_EXPECTED, NO_ASSESSMENT likewise. Partial counted day: "· Partial day: a of e hours
+  assessed". Never an outage word or count.
+- "Sequences in this range": the counted days' sequences once each by `chain_id` (latest day wins, as the totals),
+  columns When / Outcome for service / Recovery / Result. **Deviation (question Q-J6):** 10b.3 says "the existing backup
+  chain table component fed with the days' sequences", but the stored day rows carry no `steps`, so the hour table's
+  six step columns would read "No accepted record" falsely; the range table shows only the fields the rows carry.
+- D-SR.57: range view declares nothing; hour view declares once (`miniBackupRange.test.tsx`); Back as SR-7.
+- Tests: new `miniBackupRange.test.tsx` 6; `miniBackupRoutes` two-hour + off-clock-hour cases re-pinned to the range view;
+  `sr2RequestUrls` pins Kobo and Kisiwa Backup 7 days → `backup-range?from&to`.
+- Review Lows: Low 1 the D-SR.60 pin now includes a witnessed request/result pair (`correlation_id` "corr-1" in the
+  ids, hour-card start successes sum 1); Low 2 `absent["sequences"] is None` added to the Postgres test (not run: DB
+  slot). No-DB SR-11 + SR-10 route/summary: 54 passed.
+- Not done: `RANGE_MATRIX` (not on main); Postgres run of the Low 2 line (coordinator DB slot).
