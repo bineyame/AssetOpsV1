@@ -19,7 +19,7 @@
  * the assessed periods follow it; the backend's `scope` words say which).
  */
 
-import { Badge, DataTable, Fact, FactList } from "../ui";
+import { Badge, DataTable, Fact, FactList, MissingClaim } from "../ui";
 import { Part } from "./panelPart";
 import type { DomainPresentationProfile } from "./presentationProfile";
 import { awaitingMigration } from "./evidenceRead";
@@ -62,22 +62,23 @@ function served(
 }
 
 /** D-SR.74: an imported Site's refusal is never shown as the server's migration wording. */
-export const NOT_ASSESSABLE_YET = "What can be assessed from these records is not available yet for this site.";
-
-function refusalMessage(declaration: EvidenceRead<SiteAnalytics> | null): string | null {
-  if (awaitingMigration(declaration)) {
-    return NOT_ASSESSABLE_YET;
-  }
-  return declaration?.status === "unavailable" ? declaration.message : null;
-}
-
-function Unavailable({ message }: { message: string | null }) {
+function Unavailable({ declaration }: { declaration: EvidenceRead<SiteAnalytics> | null }) {
+  const awaiting = awaitingMigration(declaration);
+  const message = !awaiting && declaration?.status === "unavailable" ? declaration.message : null;
   return (
     <Part heading={QUESTION} headingId={CAPABILITY_HEADING_ID}>
-      <p data-capability-state="unavailable">
-        {message ??
-          "What can be assessed for this site could not be read, so nothing is said here about it."}
-      </p>
+      {awaiting ? (
+        <p data-capability-state="unavailable">
+          <MissingClaim gapId="G-readiness-capability-assessable" placement="readiness.capability.assessable">
+            What can be assessed from these records is not available yet for this site.
+          </MissingClaim>
+        </p>
+      ) : (
+        <p data-capability-state="unavailable">
+          {message ??
+            "What can be assessed for this site could not be read, so nothing is said here about it."}
+        </p>
+      )}
     </Part>
   );
 }
@@ -113,7 +114,7 @@ export function CapabilityReadinessTable({
   }
   if (rows === "unavailable") {
     return (
-      <Unavailable message={refusalMessage(declaration)} />
+      <Unavailable declaration={declaration} />
     );
   }
   const scored = rows.find((row) => row.analytic.readiness)?.analytic.readiness;
@@ -235,7 +236,7 @@ export function CapabilityReadinessAnalysis({
   }
   if (rows === "unavailable") {
     return (
-      <Unavailable message={refusalMessage(declaration)} />
+      <Unavailable declaration={declaration} />
     );
   }
   return (
