@@ -5416,3 +5416,16 @@ Decisions logged for owner review: **D-SR.74**.
 - Database: stay on PostgreSQL; no change before 17 Nov. Later: measure, then time partitions on readings, then a TimescaleDB trial on a clone. No document or wide-column store.
 
 Decisions logged for owner review: **D-SR.75**.
+
+## D-SR.76 Lane K SR-8/SR-10 page questions (Architect, Claude, 2026-11-14, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-sr8` `task/SR-8-10-pages`, `.agent/SR-8-packet.md`, `.agent/SR-10-packet.md`.
+- **Q1 Yes.** Any shared range longer than one Site-local day opens the whole-range Renewable view, 2-5 days included (range in, range out). Exactly one Site-local day, for example a UTC Site's midnight-to-midnight range, keeps the one-day page. As built.
+- **Q2 Keep the title "Usable headroom".** It is the mock's card title (`index.html:446` `metric('Usable headroom', ...)`). "Range across eligible hours" goes in the card's note, as built. That is what D-SR.48's "worded" means. No relabel.
+- **Q3 Yes.** "Partial: n hours missing" (singular "1 hour") is the shared wording on the range row and the one-day page. For a day with no missing hours but limited hours, use "Partial: some hours have too few readings", not "some hours limited" ("limited" alone says nothing to a client).
+- **Q4 Back link: yes, the same pattern as Fuel** ("Back to the whole range", only when the page was opened from the range). **No Opportunity detail link** in SR-8: it is a single record (D-SR.44 N) and new scope. Existing Finding links stay.
+- **Q5 Acceptable for the demo**, because the walkthrough clicks from the range. Backlog (not demo-critical): derive the back link from the shared range already in the URL.
+- **Q6 No total card now.** It is not in 10b.2's page list, and a sum over partial days needs an "n of m days" qualifier and a ruling. The per-day modelled bands stay. Backlog.
+- Size: Q3 copy and Q4 back link, about 0.05 together, lane K.
+
+Decisions logged for owner review: **D-SR.76**.
