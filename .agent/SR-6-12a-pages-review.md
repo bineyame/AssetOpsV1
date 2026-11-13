@@ -75,3 +75,11 @@ correct form. Run `tools/layout-evidence.mjs` (or capture in the walkthrough) at
 - The address range is passed raw to `/rejections` (as `/evidence` already is); a day-only `from`/`to` typed by hand
   gives 422 and "could not be read". Same as the existing overview read; the app writes instants.
 - `RANGE_MATRIX` N→R for mini-grid Health is pending the SR-5 merge (second merger), as the packet names.
+
+## Re-review (fix round 80d678f8f)
+Verdict: ACCEPT.
+- List, conflicts, duplicates and total filter on source time in [from, to) in `ledger_reads.rejections`; no source time falls back to receipt (list and the untimed count both). Duplicates use the first accepted reading's source time. File-backed path uses receipt by Q9 (no source time exists), half-open. Heading, empty line and untimed row text match Q8.
+- L1 fixed (no count when the ranged read fails; vitest case added). L2 comment fixed.
+- Tests: unit edges (source = from in, = to out, untimed in/out by receipt, duplicates); Postgres line-equals-list per row (not run by me: needs DB).
+- Ran: test_sr12a_rejections_range.py 9 passed; vitest siteEvidenceScreen + siteHealthRange 24 passed; tsc clean. No stray files.
+Note (Low): the Postgres test fixture was not rerun in this re-review.
