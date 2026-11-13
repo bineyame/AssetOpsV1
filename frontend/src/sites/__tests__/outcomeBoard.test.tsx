@@ -6,7 +6,7 @@ import { boardBody, boardRows, fakeOutcomeBoard } from "../../test/outcomeBoardF
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import { boardMoneyText, countsText, OutcomeBoard } from "../OutcomeBoard";
-import type { OutcomeBoardRead } from "../outcomeBoardClient";
+import type { OutcomeBoardRead, OutcomeBoardRow } from "../outcomeBoardClient";
 
 async function renderBoard(read?: OutcomeBoardRead, query = { date: "2026-10-06" }) {
   const fake = fakeOutcomeBoard(read);
@@ -33,6 +33,18 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(rowEl("OPTIMIZE_COST").textContent).toContain("Eliminate avoidable expenditure");
   });
 
+  it("uqfi3EveryRowStateIsTheOneStatusPill", async () => {
+    await renderBoard();
+    const rows = Array.from(document.querySelectorAll("[data-outcome-row]"));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      const pills = row.querySelectorAll("[data-status-pill]");
+      expect(pills).toHaveLength(1);
+      expect(pills[0].getAttribute("data-status-pill")).toBe(row.getAttribute("data-outcome-state"));
+      expect(pills[0].className).toMatch(/^status-pill s-[a-z]+$/);
+    }
+  });
+
   it("opensOnlyNeedsAttentionRows", async () => {
     await renderBoard();
     expect(rowEl("OPTIMIZE_COST").tagName).toBe("DETAILS");
@@ -48,7 +60,7 @@ describe("OUT-B B5 Site outcome board", () => {
     const later = rowEl("ASSURE_PERFORMANCE");
     expect(later.tagName).toBe("DIV");
     expect(later.className).toBe("ob ob-later");
-    expect(later.querySelector(".oc-chip.tone-none")?.textContent).toBe("Not measured yet");
+    expect(later.querySelector('[data-status-pill="NOT_MEASURED"]')?.textContent).toBe("Not measured yet");
     expect(later.querySelector(".ob-head")?.textContent).toBe("Targets are not declared for this site");
     expect(later.querySelector(".ob-grid")).toBeNull();
     expect(later.querySelector(".ob-counts")).toBeNull();
@@ -255,6 +267,35 @@ describe("OUT-B B5 Site outcome board", () => {
     const scan = scanProductVocabulary(board(), "site-overview", { set: "w1" });
     expect(describeViolations(scan.violations)).toBe("");
   });
+
+  it("uqfi2_a_rows_repeated_gap_line_is_said_once_naming_each_contributor", async () => {
+    // UQ-FI-2 (D-UQFI.4): inside one board row, a gap line two contributors share is one line naming both (each
+    // keeps its link); a different reason, a chip-carrying gap and a value keep their own lines; nothing is lost.
+    const LOST = "Not available yet · this record could not be loaded";
+    const OTHER = "Not available yet · no target declared for this site";
+    const extra: OutcomeBoardRow["contributors"] = [
+      { key: "a", label: "Generator running", text: LOST, confidence: null, link_ref: { kind: "EVIDENCE", site: "KOBO-001", capability: "generator" }, href: null },
+      { key: "b", label: "Declared target", text: OTHER, confidence: null, href: null },
+      { key: "c", label: "Fuel use", text: LOST, confidence: null, href: null },
+      { key: "d", label: "Battery", text: LOST, confidence: { label: "Limited", tone: "amber" }, href: null },
+    ];
+    const rows = boardRows().map((r) => (r.category !== "OPTIMIZE_COST" ? r : { ...r, contributors: [...r.contributors, ...extra] }));
+    await renderBoard({ status: "loaded", value: boardBody({ rows }) } as OutcomeBoardRead);
+    const drives = rowEl("OPTIMIZE_COST").querySelector("[data-outcome-col='drives']") as HTMLElement;
+    const groups = drives.querySelectorAll("[data-gap-group]");
+    expect(groups).toHaveLength(1);
+    expect(groups[0].querySelector(".gap-group__fact")?.textContent).toBe(LOST);
+    const subjects = Array.from(groups[0].querySelectorAll(".gap-group__subject"));
+    expect(subjects.map((li) => li.textContent)).toEqual(["Generator running", "Fuel use"]);
+    expect(subjects[0].querySelector("a")).not.toBeNull();
+    // The fact is said once in the group; the chip-carrying contributor keeps its own line and chip.
+    const lines = Array.from(drives.querySelectorAll(".ob-contrib > li")).map((li) => li.textContent);
+    expect(lines.filter((t) => t?.includes(LOST))).toHaveLength(2);
+    expect(lines.some((t) => t === `Declared target${OTHER}`)).toBe(true);
+    expect(lines.some((t) => t === `Battery${LOST}Limited`)).toBe(true);
+    // Every contributor of the row is still named, in its first-seen place.
+    for (const c of rows.find((r) => r.category === "OPTIMIZE_COST")!.contributors) expect(drives.textContent).toContain(c.label);
+  });
 });
 
 describe("WALK1-3b Grow row: KPI state, performance and potential apart", () => {
@@ -284,7 +325,7 @@ describe("WALK1-3b Grow row: KPI state, performance and potential apart", () => 
     );
     await renderBoard({ status: "loaded", value: boardBody({ rows }) });
     const summary = rowEl("GROW_REVENUE").querySelector(".ob-sum") as HTMLElement;
-    const chips = Array.from(summary.querySelectorAll(".oc-chip")).map((c) => c.textContent);
+    const chips = Array.from(summary.querySelectorAll("[data-status-pill], .oc-chip")).map((c) => c.textContent);
     expect(chips).toEqual(["On track", "Opportunity"]);
     const potential = summary.querySelector("[data-outcome-potential]") as HTMLElement;
     expect(potential.className).toContain("tone-green");
@@ -300,7 +341,7 @@ describe("WALK1-3b Grow row: KPI state, performance and potential apart", () => 
     await renderBoard({ status: "loaded", value: boardBody({ rows }) });
     for (const row of [rowEl("GROW_REVENUE"), rowEl("OPTIMIZE_COST")]) {
       const summary = row.querySelector(".ob-sum") as HTMLElement;
-      expect(summary.querySelectorAll(".oc-chip")).toHaveLength(1);
+      expect(summary.querySelectorAll("[data-status-pill], .oc-chip")).toHaveLength(1);
       expect(summary.querySelector("[data-outcome-potential]")).toBeNull();
     }
   });
@@ -410,7 +451,7 @@ describe("CH-6a3 Grow parts", () => {
     const g = rowEl("GROW_REVENUE");
     const body = g.querySelector(".ob-body") as HTMLElement;
     expect(body.firstElementChild?.querySelectorAll("[data-outcome-part]")).toHaveLength(3);
-    expect(g.querySelectorAll("summary .oc-chip")).toHaveLength(1); // the state chip only; no second Grow chip (v70)
+    expect(g.querySelectorAll("summary [data-status-pill], summary .oc-chip")).toHaveLength(1); // the state chip only; no second Grow chip (v70)
   });
 
   it("alwaysShowsTheTargetPartWithNoTargetAndItsDaysLine", async () => {

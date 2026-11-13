@@ -2,7 +2,7 @@
    such a line (SiteAnalyticsFrames, SiteActionVerification), not through a Mini page's stylesheet. */
 .mock-deviation-line {
   margin: 4px 0 0;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.4;
   color: var(--text-muted);
 }

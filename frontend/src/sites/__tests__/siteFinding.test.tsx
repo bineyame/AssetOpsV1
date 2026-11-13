@@ -16,7 +16,7 @@ import {
   type FindingReadResult,
   type RevisionSummary,
 } from "../findingClient";
-import { SiteFinding, type FindingCostClient, type SiteFindingLinks } from "../SiteFinding";
+import { findingHeadline, SiteFinding, type FindingCostClient, type SiteFindingLinks } from "../SiteFinding";
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
@@ -670,8 +670,11 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     await settledScreen();
     expectV69Panels("finding");
     // W1-F3 review H2: the mock's Priority and Confidence chips, as honest unknowns.
-    expect(document.querySelector("[data-finding-statusbar] [data-chip='priority']")?.textContent).toBe("Priority: not assessed");
-    expect(document.querySelector("[data-finding-statusbar] [data-chip='confidence']")?.textContent).toBe("Confidence: not assessed");
+    // UQ-FI-2 (D-UQFI.4): the two chips' one fact is said once, naming both subjects (was two chips).
+    const notAssessed = document.querySelectorAll("[data-finding-statusbar] [data-gap-group]");
+    expect(notAssessed).toHaveLength(1);
+    expect(notAssessed[0].querySelector(".gap-group__fact")?.textContent).toBe("not assessed");
+    expect([...notAssessed[0].querySelectorAll(".gap-group__subject")].map((li) => li.textContent)).toEqual(["Priority", "Confidence"]);
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     const answer = happened();
     expect(answer.querySelector("[data-finding-claim]")?.textContent).toBe("Open: 45 min of generator time possibly avoidable");
@@ -690,7 +693,7 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(main().textContent).not.toMatch(/\$|USD|saved|savings/);
     const limits = panelTitled("What limits this conclusion");
     expect(limits.querySelector("[data-finding-could-change]")?.textContent).toMatch(/What could change it/);
-    expect(limits.querySelector("[data-finding-lifecycle-sentence]")).not.toBeNull();
+    expect(limits.querySelector("[data-finding-lifecycle-sentence]")).toBeNull(); // D-UQFI.18: the first sentence moved to the header
     expect(limits.querySelector("[data-finding-bounded]")?.textContent).toMatch(/not proof of wasted fuel/);
     // W1-F3 review H1: every material limit is visible; only the access note and the SUPPORTED lifecycle
     // sentence sit behind the closed "Access and review context" expander.
@@ -1197,5 +1200,93 @@ describe("OUT-A A5: the mini Finding frame's Affects line", () => {
     await settledScreen();
     await waitFor(() => expect(document.querySelector("[data-finding-section]")).not.toBeNull());
     expect(document.querySelector("[data-affects-line]")).toBeNull();
+  });
+});
+
+describe("UQ-FI-2 P3 (D-UQFI.18): the first sentence is said once, under the title", () => {
+  const MINI = {
+    site_id: "KOBO-001", display_name: "Kobo", site_type: "MINIGRID", location: { country: "Kenya", locality: "Nairobi" },
+    timezone: "Africa/Nairobi", lifecycle_status: "PLANNED", origin: "USER", source: { mode: "SIMULATED" }, template: null,
+    configuration_store: "POSTGRES",
+  } as unknown as SiteDetailReadModel;
+  function frame(path: string, client: FindingClient) {
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: MINI }) };
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/sites/:siteId/findings/:findingId" element={<SiteFindingFrame detail={detail} sitesPath="/sites" findings={client} />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+  // The generic Finding page's gap lines are the grouped "not assessed" chips (no registry id on them); both kinds count.
+  const gaps = () =>
+    Array.from(document.querySelectorAll("[data-gap-id], .badge--not-assessed"))
+      .map((n) => n.getAttribute("data-gap-id") ?? n.textContent)
+      .sort();
+  const count = (text: string) => (document.body.textContent ?? "").split(text).length - 1;
+
+  for (const [name, revs, lifecycle] of [
+    ["SUPPORTED", [summary(1, "CREATED")], "SUPPORTED"],
+    ["non-SUPPORTED", [summary(1, "CREATED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")], "UNCONFIRMED"],
+  ] as const) {
+    it(`uqfi2_p3_${name}_sentence_once_and_gap_set_unchanged`, async () => {
+      vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("offline in tests"))));
+      const value = body([...revs], revs.length);
+      const first = findingHeadline(value).sentence as string;
+      const path = `/sites/KOBO-001/findings/${F}?revision_id=rev-${revs.length}`;
+      // The page's own body, mounted bare: the reference gap set.
+      const bare = render(
+        <MemoryRouter initialEntries={[path]}>
+          <Routes><Route path="/sites/:siteId/findings/:findingId" element={<main><SiteFinding siteId="KOBO-001" findingId={F} client={fake({ status: "loaded", value })} links={{ finding: () => "/x", dispatch: () => "/d", evidence: "/e" } as SiteFindingLinks} /></main>} /></Routes>
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      const bareGaps = gaps();
+      bare.unmount();
+      frame(path, fake({ status: "loaded", value }));
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("h1")?.textContent).toBe(findingHeadline(value).title));
+      expect(document.querySelectorAll("h1")).toHaveLength(1);
+      await waitFor(() => expect(count(first), document.querySelector(".page-header__subtitle")?.textContent ?? "NOSUB").toBe(1));
+      expect(document.querySelector(".page-header__subtitle")?.textContent).toBe(first);
+      if (lifecycle === "UNCONFIRMED") expect(document.querySelector("[data-finding-lifecycle-sentence]")?.textContent).toMatch(/not a new issue/);
+      else expect(document.querySelector("[data-finding-lifecycle-sentence]")).toBeNull();
+      expect(bareGaps.length).toBeGreaterThan(0);
+      expect(gaps()).toEqual(bareGaps);
+    });
+  }
+});
+
+describe("UQ-FI-2 P3: the Finding headline (title then first sentence; D-UQFI.8, D-UQFI.18)", () => {
+  it("uqfi2_headline_is_the_title_then_the_first_sentence_as_written", () => {
+    expect(findingHeadline(body([summary(1, "CREATED")]))).toEqual({
+      title: "Generator may have been on longer than needed",
+      sentence:
+        "The assessment supports this: for part of this period the generator stayed on while solar power and the " +
+        "battery reported enough capacity to meet site demand.",
+    });
+    // A two-sentence lifecycle sentence gives its first sentence only, unchanged.
+    expect(findingHeadline(body([summary(1, "CREATED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")])).sentence).toBe(
+      "This assessment of the period cannot confirm the earlier result.",
+    );
+  });
+
+  it("uqfi2_on_headline_reports_the_loaded_headline", async () => {
+    const seen: { title: string; sentence: string | null }[] = [];
+    const client = fake({ status: "loaded", value: body([summary(1, "CREATED")]) });
+    render(
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/findings/${F}`]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/findings/:findingId"
+            element={<main><SiteFinding siteId="KOBO-001" findingId={F} client={client} onHeadline={(h) => seen.push(h)} links={{ finding: () => "/x", dispatch: () => "/d", evidence: "/e" } as SiteFindingLinks} /></main>}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(seen.at(-1)?.title).toBe("Generator may have been on longer than needed");
+    expect(seen.at(-1)?.sentence).toMatch(/^The assessment supports this: .*meet site demand\.$/);
   });
 });

@@ -1,6 +1,8 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import type { SiteAnalyticsClient } from "../../sites/siteAnalyticsClient";
+import { createSiteAnalyticsClient } from "../../sites/siteAnalyticsClient";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
@@ -279,6 +281,35 @@ describe("Site > Evidence, empty and unavailable", () => {
     expect(currentTab()).toBe("Evidence");
   });
 
+  it("an imported Site's Evidence pages carry no migration or legacy word (D-SR.74)", async () => {
+    const refused: SiteAnalyticsClient = {
+      ...EMPTY_ANALYTICS_CLIENT,
+      getDeclaration: () =>
+        Promise.resolve({
+          status: "unavailable",
+          transition: "AWAITING_EVIDENCE_MIGRATION",
+          message: "This legacy file-backed surface is awaiting evidence migration.",
+        }),
+    };
+    for (const url of [EVIDENCE_URL, ANALYSIS_URL]) {
+      render(
+        <MemoryRouter initialEntries={[url]}>
+          <App
+            flags={featureFlagsWith(false)}
+            siteDirectory={DIRECTORY}
+            siteDetail={DETAIL}
+            siteEvidence={populated()}
+            siteAnalytics={refused}
+          />
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      expect(document.querySelector('[data-capability-state="unavailable"]')).not.toBeNull();
+      expect(spacedText(screen.getByRole("main"))).not.toMatch(/migration|legacy/i);
+      cleanup();
+    }
+  });
+
   it("names an unreadable evidence store as unavailable, not empty", async () => {
     renderAt(
       EVIDENCE_URL,
@@ -320,33 +351,42 @@ describe("W1-F2: legacy evidence panel structure", () => {
 });
 
 /**
- * SR-4c (D-SR.7, rev 8 8.2): `/analytics` takes no from/to (`analytics_api.py` `get_declaration` reads no query), so
- * its panel says it covers all dates. SR-12a (rev 10b.4): `/evidence/rejections` takes the range, so the rejections
- * panel reads it and the all-dates line is gone there.
+ * SR-4c (D-SR.7, rev 8 8.2) closed by SR-12a / SR-12b: `/evidence/rejections` (SR-12a, rev 10b.4) and `/analytics`
+ * (SR-12b, D-SR.34/39) both take `from`/`to`, so neither panel carries an all-dates line; which analytics apply
+ * stays unranged on the server.
  */
-describe("SR-4c/SR-12a: Evidence panels and the date range", () => {
+describe("SR-4c / SR-12a / SR-12b: Evidence panels and the date range", () => {
+  const FROM = "2026-11-03T00:00:00Z";
+  const TO = "2026-11-10T00:00:00Z";
   const RANGED = `${ANALYSIS_URL}&from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`;
 
-  it("L1: a failed ranged rejections read shows no count rather than the all-dates count", async () => {
-    const evidence = populated();
-    evidence.listRejections = async () => ({ status: "unavailable", message: null });
+  function renderWith(url: string, evidence: SiteEvidenceClient = populated()) {
+    const analytics = analyticsClient(SITE_ID);
+    const getDeclaration = vi.fn(analytics.getDeclaration);
     render(
-      <MemoryRouter initialEntries={[`${EVIDENCE_URL}?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`]}>
+      <MemoryRouter initialEntries={[url]}>
         <App
           flags={featureFlagsWith(false)}
           siteDirectory={DIRECTORY}
           siteDetail={DETAIL}
           siteEvidence={evidence}
-          siteAnalytics={analyticsClient(SITE_ID)}
+          siteAnalytics={{ ...analytics, getDeclaration }}
         />
       </MemoryRouter>,
     );
+    return getDeclaration;
+  }
+
+  it("L1: a failed ranged rejections read shows no count rather than the all-dates count", async () => {
+    const evidence = populated();
+    evidence.listRejections = async () => ({ status: "unavailable", message: null });
+    renderWith(`${EVIDENCE_URL}?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`, evidence);
     await settledScreen();
     expect(screen.getByRole("heading", { name: /Data sources/ })).toBeInTheDocument();
     expect(document.querySelector("[data-evidence-rejection-count]")).toBeNull();
   });
 
-  it("SR-12a: the rejections panel reads the range; the analytics panel keeps the all-dates line (SR-12b)", async () => {
+  it("SR-12a / SR-12b: both panels read the range and neither carries the all-dates line", async () => {
     const evidence = populated();
     const calls: unknown[][] = [];
     const listRejections = evidence.listRejections.bind(evidence);
@@ -354,29 +394,31 @@ describe("SR-4c/SR-12a: Evidence panels and the date range", () => {
       calls.push(args);
       return listRejections(...args);
     };
-    render(
-      <MemoryRouter initialEntries={[RANGED]}>
-        <App
-          flags={featureFlagsWith(false)}
-          siteDirectory={DIRECTORY}
-          siteDetail={DETAIL}
-          siteEvidence={evidence}
-          siteAnalytics={analyticsClient(SITE_ID)}
-        />
-      </MemoryRouter>,
-    );
+    const getDeclaration = renderWith(RANGED, evidence);
     await settledScreen();
-    expect(calls).toContainEqual([SITE_ID, null, { from: "2026-11-03T00:00:00Z", to: "2026-11-10T00:00:00Z" }]);
+    expect(calls).toContainEqual([SITE_ID, null, { from: FROM, to: TO }]);
     const rejections = document.querySelector('[data-panel-range-for="rejections"]');
-    const analytics = document.querySelector('[data-panel-range-for="analytics"]');
     expect(rejections).not.toHaveTextContent(PANEL_ALL_DATES);
     expect(rejections?.getAttribute("data-panel-range")).toBe("range");
     expect(rejections).toHaveTextContent(/received in this date range/);
-    expect(analytics).toHaveTextContent(PANEL_ALL_DATES);
-    expect(analytics?.getAttribute("data-panel-range")).toBe("all-dates");
     // The line sits under its own panel heading.
     const rejectionsPart = screen.getByRole("heading", { name: "Rejected records" }).closest("section, div");
     expect(rejectionsPart?.contains(rejections)).toBe(true);
+    // SR-12b: the declaration loaded (its readiness table rendered) and was read over the range, with no line.
+    expect(document.querySelector("[data-capability-analysis]")).not.toBeNull();
+    expect(getDeclaration).toHaveBeenCalledWith(SITE_ID, { from: FROM, to: TO });
+    expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
+    expect(screen.queryAllByText(PANEL_ALL_DATES)).toHaveLength(0);
+  });
+
+  it("an address without a range reads the declaration over the range the page settles on", async () => {
+    // SR-4 gives a Site page without from/to the default range, so the declaration is never read with one end only.
+    const getDeclaration = renderWith(ANALYSIS_URL);
+    await settledScreen();
+    const windows = getDeclaration.mock.calls.map((c) => c[1]);
+    expect(windows.length).toBeGreaterThan(0);
+    for (const w of windows) expect(w).toEqual({ from: expect.stringMatching(/Z$/), to: expect.stringMatching(/Z$/) });
+    expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
   });
 
   it("no all-dates line on the analytics panel when no analytic is declared, nor on rejections", async () => {
@@ -384,5 +426,20 @@ describe("SR-4c/SR-12a: Evidence panels and the date range", () => {
     await settledScreen();
     expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
     expect(document.querySelector('[data-panel-range-for="rejections"]')).not.toHaveTextContent(PANEL_ALL_DATES);
+  });
+
+  it("the analytics client sends the range on /analytics", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}", { status: 500 }));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      await createSiteAnalyticsClient().getDeclaration("KOBO-001", { from: FROM, to: TO });
+      await createSiteAnalyticsClient().getDeclaration("KOBO-001");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(fetchMock.mock.calls.map((c) => String((c as unknown[])[0]))).toEqual([
+      "/api/sites/KOBO-001/analytics?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z",
+      "/api/sites/KOBO-001/analytics",
+    ]);
   });
 });

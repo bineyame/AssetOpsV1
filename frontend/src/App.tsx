@@ -110,6 +110,7 @@ import { createColdAssessmentClient, type ColdAssessmentClient } from "./sites/c
 import { createEvAssessmentClient, type EvAssessmentClient } from "./sites/evAssessmentClient";
 import { createMiniDepthClient, type MiniDepthClient } from "./sites/miniDepthClient";
 import { createOutcomeBoardClient, type OutcomeBoardClient } from "./sites/outcomeBoardClient";
+import { createRangeOverviewClient, type RangeOverviewClient } from "./sites/rangeOverviewClient";
 import { createColdDepthClient, type ColdDepthClient } from "./sites/ColdDepthClient";
 import { createEvDepthClient, type EvDepthClient } from "./sites/evDepthClient";
 import { createMiniDecisionsClient, type MiniDecisionsClient } from "./sites/miniDecisionsClient";
@@ -175,6 +176,7 @@ const defaultColdAssessment = createColdAssessmentClient();
 const defaultEvAssessment = createEvAssessmentClient();
 const defaultMiniDepth = createMiniDepthClient();
 const defaultOutcomeBoard = createOutcomeBoardClient();
+const defaultRangeOverview = createRangeOverviewClient();
 const defaultColdDepth = createColdDepthClient();
 const defaultEvDepth = createEvDepthClient();
 const defaultMiniDecisions = createMiniDecisionsClient();
@@ -275,6 +277,8 @@ export interface AppProps {
   coldSite?: ColdSiteClient;
   /** OUT-B B5: the Site outcome board read behind the three overviews. */
   outcomeBoard?: OutcomeBoardClient;
+  /** SR-5: the mini-grid Site range read (Overview, Dispatch, Financials). */
+  rangeOverview?: RangeOverviewClient;
   /** Overrides the gated template-lineage client; still gated by `flags`. */
   siteTemplateLineage?: SiteTemplateLineageClient;
   /** Injected so a test can pin the day the run setup defaults derive from. */
@@ -318,6 +322,7 @@ export function App({
   coldSite = defaultColdSite,
   evSite = defaultEvSite,
   outcomeBoard = defaultOutcomeBoard,
+  rangeOverview = defaultRangeOverview,
   evScenarioList = defaultEvScenarioList,
   siteTemplateLineage,
   now,
@@ -365,6 +370,7 @@ export function App({
                 coldAssessment={coldAssessment}
                 miniDepth={miniDepth}
                 outcomeBoard={outcomeBoard}
+                rangeOverview={rangeOverview}
               />
             }
           />
@@ -444,6 +450,7 @@ export function App({
                   miniDecisions={miniDecisions}
                   coldDepth={coldDepth}
                   evDepth={evDepth}
+                  rangeOverview={rangeOverview}
                 />
               }
             />
@@ -464,7 +471,7 @@ export function App({
           />
           <Route
             path={SITE_FINANCIALS_ROUTE_PATH}
-            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="overview" coldSite={coldSite} coldAssessment={coldAssessment} />}
+            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="overview" coldSite={coldSite} coldAssessment={coldAssessment} rangeOverview={rangeOverview} />}
           />
           <Route
             path={SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH}

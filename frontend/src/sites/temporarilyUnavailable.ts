@@ -30,6 +30,8 @@ export async function fetchRetrying(
   path: string,
   onRetrying?: () => void | boolean,
   delays: readonly number[] = RETRY_DELAYS_MS,
+  /** SR-5b: a route whose own 503 code also means "try again" (`SITE_RANGE_OVERVIEW_UNAVAILABLE`) widens this. */
+  retryable: (status: number, body: unknown) => boolean = isTemporarilyUnavailable,
 ): Promise<{ response: Response; body: unknown }> {
   for (let attempt = 0; ; attempt += 1) {
     const response = await fetch(path, { headers: { Accept: "application/json" } });
@@ -39,7 +41,7 @@ export async function fetchRetrying(
     } catch {
       body = null;
     }
-    if (!isTemporarilyUnavailable(response.status, body) || attempt >= delays.length) return { response, body };
+    if (!retryable(response.status, body) || attempt >= delays.length) return { response, body };
     if (onRetrying?.() === false) return { response, body }; // the caller unmounted: no further attempts
     await wait(delays[attempt]);
   }

@@ -14,6 +14,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { MAINTENANCE_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { coveringUtcDays, GlobalMaintenanceFrame } from "../GlobalMaintenance";
 import type { EstateClient, EstateOutcomeSummaryBody, EstateOutcomeSummaryRow, EstateResult } from "../../estate/estateClient";
@@ -191,6 +192,8 @@ describe("W6-01b B2: global Maintenance (Corrective)", () => {
     expect(document.querySelector("table")).toBeNull();
     release();
     await settled();
+    // UQ-FI-2 (rev 6 6.1 P8): one h1, the page title, first in its header.
+    expectOneHeadline("Maintenance");
 
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: null, cursor: null }]);
     expectV69Panels("maintenance");

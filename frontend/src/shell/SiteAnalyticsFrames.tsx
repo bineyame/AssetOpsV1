@@ -75,14 +75,16 @@ import {
 } from "../sites/MiniOpportunity";
 import { ALTERNATIVES_FINDING_UNAVAILABLE, MiniAlternatives } from "../sites/MiniAlternatives";
 import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type OpportunityDetailBody, type ScenarioScope } from "../sites/miniDecisionsClient";
-import { SiteFinding, type FindingCostClient } from "../sites/SiteFinding";
+import { SiteFinding, type FindingCostClient, type FindingHeadline } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
+import type { RangeOverviewClient } from "../sites/rangeOverviewClient";
 import { BUILT_MINI_PAGES, MiniBackup, MiniFuel, MiniPerformanceSubtabs, MiniRenewable, MiniService } from "../sites/MiniPerformance";
 import {
   createMiniDepthClient,
   isMiniDomain,
+  miniRangeWindowFromParams,
   renewableWindowFromParams,
   serviceWindowFromParams,
   type MiniDepthClient,
@@ -244,10 +246,13 @@ export function SitePerformanceFrame({
   coldDepth = DEFAULT_COLD_DEPTH,
   evDepth = DEFAULT_EV_DEPTH,
   fuelBalance = DEFAULT_FUEL_BALANCE,
+  rangeOverview,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
+  /** SR-5c: the mini-grid range read; Dispatch with a range and no day shows "Dispatch by day". */
+  rangeOverview?: RangeOverviewClient;
   /** DIESEL-K5: the fuel-balance nights; a MINIGRID Site with stored windows renders the Fuel page in night mode. */
   fuelBalance?: FuelBalanceClient;
   /** W2-03: the selected cold assessment reads; a COLDCHAIN Site renders `temperature` / `coldbackup` from them. */
@@ -384,6 +389,7 @@ export function SitePerformanceFrame({
                   window={timeZone === null ? null : serviceWindowFromParams(params, timeZone)}
                   pageHref={pageHref}
                   fuelBalance={fuelBalance}
+                  range={timeZone === null ? null : miniRangeWindowFromParams("fuel", params, timeZone)}
                 />
               ) : (
                 <MiniRenewable
@@ -393,6 +399,8 @@ export function SitePerformanceFrame({
                   siteCode={site.site_id}
                   timeZone={timeZone}
                   window={timeZone === null ? null : renewableWindowFromParams(params, timeZone)}
+                  range={timeZone === null ? null : miniRangeWindowFromParams("renewable", params, timeZone)}
+                  pageHref={pageHref}
                 />
               )}
             </main>
@@ -426,7 +434,7 @@ export function SitePerformanceFrame({
           <SitePerformance
             siteId={site.site_id}
             client={analytics}
-            miniDepth={site.site_type === "MINIGRID" ? miniDepth : undefined}
+            {...(site.site_type === "MINIGRID" ? { miniDepth, rangeOverview } : {})}
             profile={presentationProfileFor(site.site_type)}
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}
@@ -769,6 +777,9 @@ export function SiteFindingFrame({
   const revisionId = params.get("revision_id");
   const [title, setTitle] = useState("Finding");
   const onTitle = useCallback((next: string) => setTitle(next), []);
+  // UQ-FI-2 (D-UQFI.18): the Finding's first sentence sits under its title in the header.
+  const [headline, setHeadline] = useState<FindingHeadline | null>(null);
+  const onHeadline = useCallback((next: FindingHeadline) => setHeadline(next), []);
   // D-SR.64: one record, its own period; the range stays in the address for onward links only.
   useDeclareRangeNotUsed("own period");
   const view: FindingChildView | "finding" | null =
@@ -851,7 +862,7 @@ export function SiteFindingFrame({
                 view === "finding" ? { label: "Finding" } : { label: "Finding", to: root },
               ]}
             />
-            <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={`${site.display_name} · finding`} />
+            <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={view === "finding" ? (headline?.sentence ?? `${site.display_name} · finding`) : `${site.display_name} · finding`} />
             {/* post-W6 W2-EV (Q14): an EV child address's main tabs open the EV pages (no read, so no window). */}
             <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={site.site_type === "EV_CHARGING" ? EV_SITE_TAB_HREFS : undefined} />
             {domainSite && domainRoot ? (
@@ -864,6 +875,7 @@ export function SiteFindingFrame({
                 findingId={id}
                 client={findings}
                 onTitle={onTitle}
+                onHeadline={onHeadline}
                 links={{
                   finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                   dispatch: (day) => `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}`,
@@ -925,6 +937,8 @@ function CanonicalMiniFinding({
   financials: FindingCostClient;
 }) {
   const navigate = useNavigate();
+  const [headline, setHeadline] = useState<FindingHeadline | null>(null);
+  const onHeadline = useCallback((next: FindingHeadline) => setHeadline(next), []);
   const [params] = useSearchParams();
   // post-W6 W1-a Q7 / R184: the Finding's Analysis is the root's `?view=analysis`, a live section tab.
   const analysisView = view === "finding" && params.get("view") === "analysis";
@@ -1036,7 +1050,7 @@ function CanonicalMiniFinding({
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
         // MOCK DEVIATION D2 (R389): the child subtitle names the Site and Finding kind; the code stays D1 (R65/R74).
-        subtitle={`${site.display_name} · generator support finding`}
+        subtitle={view === null || view === "finding" ? (headline?.sentence ?? `${site.display_name} · generator support finding`) : `${site.display_name} · generator support finding`}
         // H3 (final review; build-spec ledger l.186) and post-W6 W1-a Q9 / R186: every Finding section (overview,
         // analysis, evidence, history, alternatives, recommendation) carries the v69 `Open site` header action to the
         // authorized Site Overview.
@@ -1145,6 +1159,7 @@ function CanonicalMiniFinding({
               findingId={id}
               client={findings}
               onTitle={onTitle}
+              onHeadline={onHeadline}
               timeZone={site.timezone}
               financials={financials}
               links={{
@@ -1242,6 +1257,8 @@ export function SiteOpportunityFrame({
   financials?: FinancialsClient;
 }) {
   const { siteId, opportunityId } = useParams<{ siteId: string; opportunityId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   // PR-12.6: `?known_at=` is parsed and preserved as given; no query means current time.
   const [params] = useSearchParams();
   const knownAt = params.getAll("known_at");
@@ -1423,10 +1440,13 @@ export function SiteFinancialsFrame({
   miniDecisions = DEFAULT_MINI_DECISIONS,
   coldScenarioList = DEFAULT_COLD_SCENARIOS,
   forwardBareAssumptions = false,
+  rangeOverview,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   view: "overview" | "assumptions" | "scenarios";
+  /** SR-5d: the mini-grid range read; the Financials overview adds the range money. */
+  rangeOverview?: RangeOverviewClient;
   /**
    * PR-2a default 2: the app's old `/financials/assumptions` address forwards to the Site price page when it carries
    * no price-version pin. A pinned address (`revision_id`, `recorded_at`, `history_*`: the money "Why?" targets) and
@@ -1589,8 +1609,9 @@ export function SiteFinancialsFrame({
               description={SITE_SCREEN_DESCRIPTIONS[view === "assumptions" ? "assumptions" : "financials"]}
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
-            {/* SR-4c (D-SR.6): mini-grid Financials values the prices valid now; the bar says the range is not used. */}
-            {mini ? <RangeNotUsed note="prices valid now" /> : null}
+            {/* SR-4c (D-SR.6): the mini-grid assumptions value the prices valid now. SR-5d: the Overview declares for itself
+                (the range money with a range, else prices valid now). */}
+            {mini && view !== "overview" ? <RangeNotUsed note="prices valid now" /> : null}
             <OperatorSiteTabs siteId={siteId} current="Financials" />
             <FinancialsSections
               siteId={site.site_id}
@@ -1600,7 +1621,13 @@ export function SiteFinancialsFrame({
             {view === "assumptions" ? (
               <SiteAssumptions siteId={site.site_id} client={financials} links={links} />
             ) : (
-              <SiteFinancialsOverview siteId={site.site_id} client={financials} links={links} />
+              <SiteFinancialsOverview
+                siteId={site.site_id}
+                client={financials}
+                links={links}
+                rangeOverview={mini ? rangeOverview : undefined}
+                rangeDayHref={(d) => `${siteDetailHref(site.site_id)}?day=${encodeURIComponent(d)}`}
+              />
             )}
           </main>
         );
@@ -1965,6 +1992,8 @@ export function SiteActionFrame({
   domainActions?: DomainActionClient;
 }) {
   const { siteId, actionId, actionView: rawActionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   // post-W6 W1-b Q33 / R222 (pre-flight ruling 9): `/overview` is an alias of the canonical bare Action route, for
   // every Site type, with no selected state of its own.
   const actionView = rawActionView === "overview" ? undefined : rawActionView;
@@ -2642,6 +2671,8 @@ export function SiteFuelFindingFrame({
   client?: FuelBalanceClient;
 }) {
   const { siteId, findingId } = useParams<{ siteId: string; findingId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   const [params] = useSearchParams();
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Findings" headingId={SITE_FUEL_FINDING_HEADING_ID}>
@@ -2679,13 +2710,18 @@ function SiteFuelFindingPage({
           ...(title === null ? [] : [{ label: title }]),
         ]}
       />
-      <SitePageHeader
-        siteName={site.display_name}
-        siteId={site.site_id}
-        mode={siteSourceModeLabel(site)}
-        description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
-        headingId={SITE_FUEL_FINDING_HEADING_ID}
-      />
+      {read?.status === "loaded" ? (
+        // UQ-FI-2 P3 (D-UQFI.18): the Finding's title, then its first lifecycle sentence once, like the mini Finding frames.
+        <PageHeader title={read.value.lines.title} headingId={SITE_FUEL_FINDING_HEADING_ID} subtitle={read.value.lines.claim ?? read.value.lines.no_longer ?? undefined} />
+      ) : (
+        <SitePageHeader
+          siteName={site.display_name}
+          siteId={site.site_id}
+          mode={siteSourceModeLabel(site)}
+          description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
+          headingId={SITE_FUEL_FINDING_HEADING_ID}
+        />
+      )}
       <OperatorSiteTabs siteId={siteId} current="Findings" />
       <SiteFuelFindingBody
         read={read}
@@ -2713,6 +2749,8 @@ export function SiteMillVerificationFrame({
   client?: MillVerificationClient;
 }) {
   const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_MILL_VERIFICATION_HEADING_ID}>
       {(site) => <MillVerificationPage site={site} actionId={actionId ?? ""} client={client} />}
@@ -2781,6 +2819,8 @@ export function SiteFuelVerificationFrame({
   client?: FuelVerificationClient;
 }) {
   const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_FUEL_VERIFICATION_HEADING_ID}>
       {(site) => <FuelVerificationPage site={site} actionId={actionId ?? ""} client={client} />}

@@ -34,3 +34,12 @@ Branch `task/FR-B-test-hygiene` (worktree AssetOpsV1-frb), from main adf869b08. 
 
 ## Process notes
 - One python heredoc via bash was used for the two vitest test edits (lane rule says Write/Edit only); content verified by tests.
+
+## Part 2 (task/FR-B-part2, from bd4c0086e)
+Anchors: `.agent/review-E2-fix-A.md` (L2, L3, I1), `.agent/architect-combined-pass-2026-11-08.md` (T6).
+- **L2 still needed, done:** `test_ch6b_estate_postgres.py` asserts `day_s["nodes"].get("kpi") is not None` before the S equality.
+- **L3 still needed, done:** `financial_constraints(engine, with_0053=False)`; head round-trip check now compares the full set (`at_head_full`); 0053 excluded only on the 0025 comparison.
+- **I1 still needed, done:** `test_idx_gaps_postgres.py` docstring reworded (K10 v2: settles).
+- **T6 w301 golden: probably already fixed**, not proven: the manifest was regenerated after the T6 note (CH-5a2a a543c4aa2, CH-6b3 R3 c60bd8c07, FC-2 d65e90aa1). Needs a Postgres run of `test_w301_estate_golden_postgres.py` to confirm; not run (DB not assigned).
+- **"Wrapper fixes": unlocated.** No FR-A review anchor names them; QUESTION for coordinator/Architect: which wrapper (run-host-tests.ps1 / Linux .sh)? Not touched.
+- Pending (DB): run test_w207, test_ch6b (L2m, ~11 min), test_idx_gaps, test_w301 golden. Only py_compile run.

@@ -4,14 +4,14 @@
 
 .w1f4-recommendation__claim {
   max-width: 790px;
-  font-size: 19px;
+  font-size: var(--font-size-500);
   line-height: 1.5;
   font-weight: 550;
   color: #273e5d;
 }
 
 .w1f4-recommendation__claim .action-ref {
-  font-size: 15px;
+  font-size: var(--font-size-400);
 }
 
 .w1f4-recommendation .v69-key-values {
@@ -26,27 +26,27 @@
   border: 0;
   background: none;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
 .w1f4-recommendation .action-command-unavailable {
   margin: 8px 0 0;
   padding: 0;
-  font-size: 10px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
 /* "How this was worked out": closed by default, one summary line. */
 .w1f4-recommendation .panel .disclosure {
   margin-top: 10px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 .w1f4-recommendation .panel .disclosure .source-provenance .notice {
   margin: 8px 0 0;
   padding: 6px 10px;
-  font-size: 10px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
@@ -57,7 +57,7 @@
 
 .w1f4-recommendation [data-trial-verification-name="recommendation"] .verify-chip {
   padding: 1px 7px;
-  font-size: 10px;
+  font-size: var(--font-size-100);
 }
 
 .w1f4-recommendation .form-footer {
@@ -67,12 +67,12 @@
 .w1f4-recommendation__prior-list {
   margin: 6px 0 0;
   padding-left: 18px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
 .w1f4-recommendation__gap {
-  font-size: 12px;
+  font-size: var(--font-size-100);
   font-weight: 550;
   color: var(--text-primary);
 }
@@ -84,7 +84,7 @@
   border-radius: 5px;
   background: #f0f5fd;
   color: #456080;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   line-height: 1.65;
 }
 
@@ -94,7 +94,7 @@
 
 .w1f4-recommendation .action-command-refusal {
   margin-top: 10px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 /* Mock density for the held and unavailable states: the hold sentence as a
@@ -103,7 +103,7 @@
 .w1f4-recommendation .panel p.action-command-unavailable {
   margin: 6px 0 0;
   padding: 4px 8px;
-  font-size: 10px;
+  font-size: var(--font-size-100);
   line-height: 1.5;
 }
 
@@ -116,7 +116,7 @@
 
 .w1f4-recommendation .panel [data-disclosure="recommendation-method"] > .disclosure__summary {
   padding: 2px 0;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   font-weight: 500;
   color: var(--link, #1d4ed8);
 }

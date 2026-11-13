@@ -22,8 +22,8 @@
 .mini-scenarios-pinned {
   max-height: 96px;
   overflow-y: auto;
-  margin-top: 6px;
-  padding: 6px 8px;
+  margin-top: var(--space-1);
+  padding: var(--space-1) var(--space-2);
   border: 1px solid var(--line, #e3e8ef);
   border-radius: 5px;
 }
@@ -33,7 +33,7 @@
 }
 
 .mini-scenarios-inspect {
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .mini-scenarios-table th[scope="row"] {
@@ -48,26 +48,26 @@
 }
 
 .mini-scenarios-pins code {
-  font-size: 11px;
+  font-size: var(--font-size-100);
   overflow-wrap: anywhere;
 }
 
 .mini-scenarios-gap {
   display: block;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }
 
 .mini-scenarios-through {
-  margin: 6px 0;
-  font-size: 12px;
+  margin: var(--space-1) 0;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }
 
 /* The mock's `.empty` block (`mockups.css`), no fake row. */
 .mini-scenarios-empty {
-  margin: 15px 0;
-  padding: 20px 20px;
+  margin: var(--space-4) 0;
+  padding: var(--space-5) var(--space-5);
   border: 1px dashed #cdd7e5;
   border-radius: 6px;
   background: #fbfcfe;
@@ -78,7 +78,7 @@
   display: block;
   width: 28px;
   height: 28px;
-  margin: 0 auto 14px;
+  margin: 0 auto var(--space-3);
   color: #8a9bb3;
 }
 
@@ -88,24 +88,24 @@
 }
 
 .mini-scenarios-empty h3 {
-  margin: 0 0 8px;
-  font-size: 14px;
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-300);
 }
 
 .mini-scenarios-empty p {
   max-width: 480px;
-  margin: 4px auto 0;
-  font-size: 12px;
+  margin: var(--space-1) auto 0;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }
 
 .mini-scenarios-pages {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 14px;
+  gap: 0 var(--space-3);
   align-items: baseline;
-  margin-top: 6px;
-  font-size: 12px;
+  margin-top: var(--space-1);
+  font-size: var(--font-size-100);
 }
 
 @media (max-width: 600px) {
@@ -136,21 +136,21 @@
 }
 
 .mini-alternatives-cited {
-  margin: 4px 0 0;
+  margin: var(--space-1) 0 0;
   padding: 0;
   list-style: none;
 }
 
 .mini-alternatives-cited code {
-  font-size: 11px;
+  font-size: var(--font-size-100);
   overflow-wrap: anywhere;
 }
 
 .mini-alternatives-note,
 .finding-sections__helper {
   display: block;
-  margin: 6px 0;
-  font-size: 12px;
+  margin: var(--space-1) 0;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }
 
@@ -172,7 +172,7 @@ nav.mini-finding-crumbs .breadcrumbs__item {
 }
 
 nav.mini-finding-crumbs .breadcrumbs__item::before {
-  margin: 0 8px;
+  margin: 0 var(--space-2);
 }
 
 .mini-finding-crumbs__lead {
@@ -180,7 +180,7 @@ nav.mini-finding-crumbs .breadcrumbs__item::before {
 }
 
 .mini-finding-crumbs__site {
-  margin-left: 8px;
+  margin-left: var(--space-2);
   color: var(--text-secondary);
 }
 
@@ -216,10 +216,10 @@ nav.mini-finding-crumbs .breadcrumbs__item::before {
 }
 
 /* PR-12.2: this Opportunity card row only; the shared four-column desktop / two-column narrow grid is unchanged. */
-.v69-cards[data-opportunity-cards] .v69-metric { padding: 10px 12px; }
+.v69-cards[data-opportunity-cards] .v69-metric { padding: var(--space-2) var(--space-3); }
 
 .v69-cards[data-opportunity-cards] .v69-metric__value,
-.v69-cards[data-opportunity-cards] .v69-metric--word .v69-metric__value { margin: 5px 0 4px; }
+.v69-cards[data-opportunity-cards] .v69-metric--word .v69-metric__value { margin: var(--space-1) 0 var(--space-1); }
 
 .mini-opportunity-drawer {
   max-height: 96px;
@@ -232,13 +232,13 @@ nav.mini-finding-crumbs .breadcrumbs__item::before {
 
 /* post-W6 W4 R325 (Q14), D2 R450: the compact page-local Window row after the subtabs. */
 .mini-scenarios-window-row {
-  margin: 0 0 var(--v69-gap, 18px);
+  margin: 0 0 var(--v69-gap, var(--space-4));
 }
 
 .mini-scenarios-window {
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 14px;
+  gap: var(--space-2) var(--space-3);
 }
 
 .mini-scenarios-window__lead {

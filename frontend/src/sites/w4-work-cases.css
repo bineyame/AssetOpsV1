@@ -30,13 +30,13 @@
 
 .work-cases-empty h3 {
   margin: 0 0 8px;
-  font-size: 14px;
+  font-size: var(--font-size-300);
 }
 
 .work-cases-empty p {
   max-width: 480px;
   margin: auto;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }
 
@@ -50,7 +50,7 @@
 
 .work-cases-coverage {
   margin: 0 0 8px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 /* Fixed desktop columns (spec copy table); cells wrap inside them. */
@@ -80,7 +80,7 @@
   -webkit-line-clamp: 2;
   overflow: hidden;
   margin-top: 4px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 /* post-W6 W4 R324 (Q12): the mini decision context with its own Read full text disclosure; the preview inside keeps
@@ -88,7 +88,7 @@
 .work-cases-context-wrap {
   display: block;
   margin-top: 4px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 /* PR-12.3: the single refused-overlay line beside the Incident table. */
@@ -117,7 +117,7 @@
 
 .work-cases-scroll-hint {
   display: none;
-  font-size: 10px;
+  font-size: var(--font-size-100);
 }
 
 /* 390 px: only the table scrolls, with a minimum width, a visible hint and the first column kept in view. */
@@ -171,7 +171,7 @@
     flex-direction: column;
     align-items: stretch;
     gap: 2px;
-    font-size: 10px;
+    font-size: var(--font-size-100);
   }
 
   .work-cases .w1f4-work-window input {
@@ -213,6 +213,6 @@
 
 .work-cases-vscroll-hint {
   margin: var(--space-1, 4px) 0 0;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   color: var(--text-muted);
 }

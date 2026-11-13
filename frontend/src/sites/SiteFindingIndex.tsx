@@ -548,9 +548,18 @@ function DomainCell({ row, links }: { row: FindingIndexRow; links: FindingIndexL
   );
 }
 
-function RowTable({ rows, links }: { rows: FindingIndexBody["rows"]; links: FindingIndexLinks }) {
+/** The Finding rows table; SR-5b reuses it for the range Overview's "Findings in this range" (its own heading id). */
+export function RowTable({
+  rows,
+  links,
+  labelledBy = HEADING_ID,
+}: {
+  rows: FindingIndexBody["rows"];
+  links: FindingIndexLinks;
+  labelledBy?: string;
+}) {
   return (
-    <DataTable labelledBy={HEADING_ID}>
+    <DataTable labelledBy={labelledBy}>
       <thead>
         <tr>
           <th scope="col">Finding</th>

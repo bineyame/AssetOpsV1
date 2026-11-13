@@ -59,7 +59,7 @@ describe("post-W6 shell CSS contracts", () => {
     expect(media).toBeGreaterThanOrEqual(0);
     const rule = block(CSS, "  .sld-key", media);
     expect(rule).toContain("display: flex;");
-    expect(rule).toContain("font-size: 12px;");
+    expect(rule).toContain("font-size: var(--font-size-100);"); // UQ-FI-1 codemod: 12px -> the 12px scale step
   });
 
   it("closeout ruling 3 (R382): the key's MOCK DEVIATION D2 label is hidden at desktop and visible with the phone key", () => {
@@ -68,7 +68,7 @@ describe("post-W6 shell CSS contracts", () => {
     expect(media).toBeGreaterThanOrEqual(0);
     const rule = block(CSS, "  .sld-key__deviation", media);
     expect(rule).toContain("display: block;");
-    expect(rule).toContain("font-size: 12px;");
+    expect(rule).toContain("font-size: var(--font-size-100);"); // UQ-FI-1 codemod: 12px -> the 12px scale step
   });
 
   it("Q23: long Identity values stack full width; the opened reading scrolls inside itself; phone rows wrap wider", () => {

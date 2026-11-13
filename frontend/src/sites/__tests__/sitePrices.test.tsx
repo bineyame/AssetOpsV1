@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { SiteFinancialsFrame } from "../../shell/SiteAnalyticsFrames";
 import { PRICES_SIGN_IN_TEXT, SitePricesFrame } from "../../shell/SitePricesFrame";
 import { SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH, SITE_PRICES_ROUTE_PATH } from "../../shell/operatorSiteRoutes";
@@ -158,6 +159,8 @@ describe("PR-2a Site price page", () => {
     renderPrices("/sites/KOBO-001/financials/prices");
     await settledScreen();
     expect(screen.getByRole("heading", { level: 1, name: "Kobo · Prices" })).toBeInTheDocument();
+    // UQ-FI-2 (rev 6 6.1 P8): one h1, the page title, first in its header (tokens only on this page).
+    expectOneHeadline("Kobo · Prices");
     expect(screen.getByRole("heading", { name: "All prices for Kobo" })).toBeInTheDocument();
     expect(screen.getByText("3 prices · 1 set")).toBeInTheDocument();
     expect(document.querySelector("[data-prices-sign-in]")).toHaveTextContent(PRICES_SIGN_IN_TEXT);

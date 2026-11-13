@@ -13,7 +13,7 @@ row's covered / required seconds over the declared **operating** hours, as hours
   LIMITED or MISSING_HOUR ("Partial: an hour is missing"); a graded row with no value -> NO_VALUE. A PARTIAL-grade
   COUNTED or EXCLUDED day carries `partial: true` (D-SR.47 Q4). Per-day bounds are the stored values, unrounded.
 
-Totals: `days_counted` = COUNTED days with both bounds; the average daylight headroom is the mean of `low_kw` and the
+Totals: `days_counted` = COUNTED days with both bounds; the average headroom available in every eligible hour (D-SR.48) is the mean of `low_kw` and the
 mean of `high_kw`, separately, over those days only; `partial` when `days_counted < days_requested`.
 """
 
@@ -38,7 +38,7 @@ NOT_ENOUGH_READINGS = "NOT_ENOUGH_READINGS"
 VALUE_STATES = ("CONFLICT", "LIMITED", "MISSING_HOUR")
 GAP_GRADES = (NO_DATA, PENDING, NOT_EXPECTED)
 STATES = (COUNTED, EXCLUDED, *VALUE_STATES, NO_VALUE, NOT_ENOUGH_READINGS, *GAP_GRADES)
-AVERAGE_LABEL = "average daylight headroom"
+AVERAGE_LABEL = "average headroom available in every eligible hour"  # D-SR.48 (SR-8 review L1)
 #: The averages are decimal text rounded to this step (kW).
 AVERAGE_STEP = Decimal("0.01")
 

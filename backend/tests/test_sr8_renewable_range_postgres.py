@@ -7,7 +7,8 @@ and the last day of the window has no row at all. Through the route over the rea
 - each day's band, decision and hours equal the stored snapshot row;
 - the missing-hour day reads MISSING_HOUR (the rev 10 PARTIAL day) with no band;
 - the absent-row day reads the chain's NO_DATA grade (D-SR.16), never "nothing known";
-- for 3 sampled days, the row's band equals the one-day depth envelope's `headroom_kw` card (range -> drill-in);
+- for 3 sampled days, the row's band equals the one-day depth envelope's `all_hours_headroom_kw` (D-SR.48); its low
+  equals the `headroom_kw` card's low and its high is at most the card's high (range -> drill-in);
 - the totals average the COUNTED days only;
 - D-SR.62: one sampled day (DAYS[2]) has 4 operating hours with no `pv_available_power` reading (missing hours):
   the range row is PARTIAL with 4 uncovered hours, and the one-day read leaves those hours out (`missing_hours` 4)
@@ -19,7 +20,7 @@ import hashlib
 import os
 from dataclasses import dataclass
 from datetime import date, timedelta
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from types import SimpleNamespace
 from uuid import UUID
 
@@ -151,6 +152,7 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
             assert got["partial"] is (expect_missing > 0), (day, got)
             if got["state"] == "EXCLUDED":
                 assert card is None and depth["cards"]["eligible_days"] == 0, (day, depth["cards"])
+                assert depth["cards"]["all_hours_headroom_kw"] is None, (day, depth["cards"])
                 continue
             if got["state"] != "COUNTED":
                 continue
@@ -171,6 +173,6 @@ def test_range_days_equal_the_stored_rows_and_the_one_day_depth_card(store, engi
         assert totals["days_requested"] == 7 and totals["days_counted"] == len(counted) and totals["partial"]
         if counted:
             mean = sum(Decimal(d["low_kw"]) for d in counted) / len(counted)
-            assert Decimal(totals["average_low_kw"]) == mean.quantize(Decimal("0.01"))
+            assert Decimal(totals["average_low_kw"]) == mean.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     finally:
         pg_harness.dispose(chain, inputs, snaps)

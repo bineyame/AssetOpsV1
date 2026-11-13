@@ -177,8 +177,8 @@ class TestMovingAndBoard:
         """CH-5a1 (deleted read: the board no longer reads `finding_index`; base R4, gaps R8/Q9 from the chain
         snapshots via `ChainRequest.day`). Adapted, not loosened: the index-era p5 settled 10-06 on the dispatch
         assessment; the chain grades measure readings, and this S4 case delivers dispatch blocks only, so step (a)
-        writes NO_DATA snapshots and every window day - 10-06 included - is a "no complete readings" gap and the
-        board day is unsettled. Gap lines over real readings are the L2m mechanism_db cases (MD-0).
+        writes NO_DATA snapshots and every window day - 10-06 included - is a "no complete readings" gap (before K10 v2 the
+        board day was unsettled; see below). Gap lines over real readings are the L2m mechanism_db cases (MD-0).
         K10 v2 (56256bbc9, E2 FR-A): a declared-absent measure no longer blocks settling, so 10-06 (NO_DATA rows for
         every applicable measure, `productive_kwh` declared absent) settles but still reads NONE and a gap."""
         from datetime import timedelta
