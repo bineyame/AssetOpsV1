@@ -4043,7 +4043,7 @@ ul.evidence-notes li { font-size: inherit; }
 /* SR-6b: the Health range day cells. The word is always the content; the tone only reinforces it. */
 .health-day {
   white-space: nowrap;
-  font-size: 0.85em;
+  font-size: var(--font-size-100);
 }
 .health-day--good {
   background: var(--status-green-bg);
