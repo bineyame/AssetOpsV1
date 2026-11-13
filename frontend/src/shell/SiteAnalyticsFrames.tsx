@@ -84,6 +84,7 @@ import { BUILT_MINI_PAGES, MiniBackup, MiniFuel, MiniPerformanceSubtabs, MiniRen
 import {
   createMiniDepthClient,
   isMiniDomain,
+  miniRangeWindowFromParams,
   renewableWindowFromParams,
   serviceWindowFromParams,
   type MiniDepthClient,
@@ -388,6 +389,7 @@ export function SitePerformanceFrame({
                   window={timeZone === null ? null : serviceWindowFromParams(params, timeZone)}
                   pageHref={pageHref}
                   fuelBalance={fuelBalance}
+                  range={timeZone === null ? null : miniRangeWindowFromParams("fuel", params, timeZone)}
                 />
               ) : (
                 <MiniRenewable
@@ -397,6 +399,8 @@ export function SitePerformanceFrame({
                   siteCode={site.site_id}
                   timeZone={timeZone}
                   window={timeZone === null ? null : renewableWindowFromParams(params, timeZone)}
+                  range={timeZone === null ? null : miniRangeWindowFromParams("renewable", params, timeZone)}
+                  pageHref={pageHref}
                 />
               )}
             </main>

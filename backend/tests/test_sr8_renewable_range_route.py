@@ -155,7 +155,7 @@ def test_absent_row_inside_the_range_reads_the_chain_no_data_grade():
 def test_averages_are_over_counted_days_only_and_partial_is_labelled():
     totals = _body()["totals"]
     assert totals == {"days_requested": 7, "days_counted": 2, "average_low_kw": "10.75",
-                      "average_high_kw": "20.63", "average_label": "average daylight headroom", "partial": True}
+                      "average_high_kw": "20.63", "average_label": "average headroom available in every eligible hour", "partial": True}
 
 
 def test_a_full_counted_range_is_not_partial_and_an_empty_one_has_no_average():
@@ -217,6 +217,18 @@ def test_thirty_one_days_is_allowed():
 def test_window_refusals(params, status, code):
     response = client().get(URL, params=params)
     assert (response.status_code, response.json()["detail"]["code"]) == (status, code)
+
+
+def test_window_rule_runs_before_known_at_and_refuses_in_range_words():
+    """SR-8 review L2: a reversed window with a malformed `known_at` is INVALID_WINDOW (the window first, as the
+    estate parser), and a malformed bound refuses with the range message, not the one-day one."""
+    from assetops_backend.mini_depth_api import RANGE_REFUSALS
+
+    reversed_ = client().get(URL, params={"from": "2026-11-08T00:00:00Z", "to": "2026-11-01T00:00:00Z",
+                                          "known_at": "yesterday"})
+    assert (reversed_.status_code, reversed_.json()["detail"]["code"]) == (422, "INVALID_WINDOW")
+    malformed = client().get(URL, params={"from": "soon", "to": "2026-11-08T00:00:00Z"})
+    assert malformed.json()["detail"] == {"code": "INVALID_WINDOW", "message": RANGE_REFUSALS["INVALID_WINDOW"][1]}
 
 
 def test_admission_lookup_and_type_refusals():

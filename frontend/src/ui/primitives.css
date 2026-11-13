@@ -4540,6 +4540,10 @@ ul.evidence-notes li { font-size: inherit; }
   }
 }
 
+.v69-cards--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .v69-cards--three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

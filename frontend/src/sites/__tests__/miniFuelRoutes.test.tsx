@@ -312,22 +312,19 @@ describe("W4-02 unit 6: fuel keeps the v69 panels, strip, cards, bars, bridge, n
 });
 
 describe("post-W6 W4 R313: fuel refused frame", () => {
-  it("SR-4b (D-SR.40, D-SR.42a): a two-hour address reads the 12:00 local hour of its day; the bar says it shows one day of the range", async () => {
-    // Was the "two hours" refused row: the page now sends one hour of `pageDay`. The refused frame stays pinned below
-    // with a reversed window. SR-10/SR-11 later replace this with a range view.
+  it("SR-10c (rev 10b.2): a two-hour address is a range without an hour: the range view, no hour read, and the bar declares nothing", async () => {
+    // Was SR-4b's 12:00 hour of `pageDay` with "Showing 6 Oct of the range"; the noon default is gone from the range view.
     const client = renderFuel([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message: "x" }], `/sites/${CODE}/performance/fuel?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z`);
     await settledScreen();
-    const [, query] = (client.getFuel as ReturnType<typeof vi.fn>).mock.calls[0];
-    expect(Date.parse(query.to) - Date.parse(query.from)).toBe(3_600_000);
-    expect(query.from.slice(0, 10)).toBe("2026-10-06");
-    expect(new Date(query.from).getUTCHours()).toBe(9); // 12:00 Site-local (EAT), as a UTC instant
+    expect(client.getFuel).not.toHaveBeenCalled();
     expect(screen.queryByText("Choose one complete Site-local hour or one day.")).toBeNull();
-    expect(document.querySelector(".shared-range__tag")?.textContent).toMatch(/^Showing 6 Oct of the range/);
+    expect(document.querySelector(".shared-range__tag")?.textContent).toMatch(/^All pages/);
   });
 
   const CASES: Array<[string, string, string]> = [
     ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
-    ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
+    // SR-10c: a valid shared range opens the range view, so the unprovable cause is a named day the server refuses.
+    ["an unprovable cause", "day=2026-10-06", "Choose a valid Site-local window."],
   ];
   // unit-5 capture: the refused frame keeps every v69 panel of the screen, in page order.
   const REFUSED_PANELS = ["Fuel balance at a glance", "Balance bridge", "Inspect existing generator fuel interpretation"];

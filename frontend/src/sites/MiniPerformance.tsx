@@ -52,6 +52,8 @@ import type { MiniDecisionsClient } from "./miniDecisionsClient";
 import type { FuelBalanceClient } from "./fuelBalanceClient";
 import { MiniFuelNightsPage, useFuelNights } from "./MiniFuelNights";
 import { OpportunityDecisionEntry } from "./MiniOpportunity";
+import { ALL_HOURS_HEADROOM, MiniRenewableRange, partialHoursText } from "./MiniRenewableRange";
+import { BackToWholeRange, MiniFuelRange } from "./MiniFuelRange";
 import { performanceSubtabs, type DomainPresentationProfile } from "./presentationProfile";
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
 import "../ui/mock-deviation.css";
@@ -319,6 +321,9 @@ function MiniRefusal({ read, onRetry }: { read: Exclude<MiniRead<unknown>, { sta
   );
 }
 
+/** SR-8 page / SR-10c: a range read's access, lookup and availability refusals keep the one-day pages' words. */
+export const MiniRangeRefusal = MiniRefusal;
+
 /* ---------- refused window frame (post-W6 W4 R313, Q7) ---------- */
 
 export type MiniScreen = "renewable" | "service" | "fuel" | "backup";
@@ -446,8 +451,9 @@ function MiniNotLoaded({
 
 /**
  * SR-4c (rev 8 8.2): the Site-local days a mini page reads, declared to the date-range bar when they are not the whole
- * range (Renewable over 5 days reads its last 5 days). The bar then says "Showing <days> of the range" instead of
- * "All pages". D-SR.57: Service, Backup and Fuel show one hour of one day; there the FocusPicker is the only declarer.
+ * range (the one-day Renewable page opened on a named day). The bar then says "Showing <days> of the range" instead of
+ * "All pages". SR-8 page: a shared range opens the range view, which declares nothing, so SR-4b's "last 5 days" span is
+ * gone. D-SR.57: Service, Backup and Fuel show one hour of one day; there the FocusPicker is the only declarer.
  */
 function WindowSpan({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
   const [params] = useSearchParams();
@@ -465,7 +471,16 @@ function WindowSpan({ timeZone, window }: { timeZone: string; window: MiniWindow
   return <RangeSpan from={whole ? null : first} to={whole ? null : last} />;
 }
 
-function MiniPeriodBar({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
+function MiniPeriodBar({
+  timeZone,
+  window,
+  siteLocalDays = false,
+}: {
+  timeZone: string;
+  window: MiniWindowQuery;
+  /** The range views list Site-local days (D-SR.45 window_days rule) for the bar's dates, so the bar says so. */
+  siteLocalDays?: boolean;
+}) {
   const fromMs = window.from === null ? Number.NaN : Date.parse(window.from);
   const toMs = window.to === null ? Number.NaN : Date.parse(window.to);
   const firstDay = Number.isNaN(fromMs) ? "" : localDateOf(timeZone, fromMs);
@@ -480,12 +495,13 @@ function MiniPeriodBar({ timeZone, window }: { timeZone: string; window: MiniWin
     localDaysWindow(timeZone, firstDay, span).to === new Date(toMs).toISOString();
   const utcFirst = Number.isNaN(fromMs) ? "" : new Date(fromMs).toISOString().slice(0, 10);
   const utcLast = Number.isNaN(toMs) ? "" : new Date(toMs - 1).toISOString().slice(0, 10);
+  const [shownFirst, shownLast] = siteLocalDays && !aligned ? [utcFirst, utcLast] : [firstDay, lastDay];
   return (
     <div className="site-date-bar mini-period-bar" data-mini-period>
       <span className="site-date-bar__window" data-mini-local-period>
         {firstDay && lastDay
-          ? aligned
-            ? `Site-local ${firstDay === lastDay ? `day ${firstDay}` : `days ${firstDay} to ${lastDay}`} (${timeZone})`
+          ? aligned || siteLocalDays
+            ? `Site-local ${shownFirst === shownLast ? `day ${shownFirst}` : `days ${shownFirst} to ${shownLast}`} (${timeZone})`
             : `UTC ${utcFirst === utcLast ? `day ${utcFirst}` : `days ${utcFirst} to ${utcLast}`}`
           : "No period selected"}
       </span>
@@ -570,6 +586,12 @@ function RenewableStatus({ read }: { read: RenewableRead }) {
       ))}
       <CurrentnessChip state={read.currentness.state} selected={read.rows.length > 0} />
       <StripLimitations limits={limits} />
+      {/* D-SR.62, inside R726: missing hours (no solar reading) leave the day partial, in the range row's words. */}
+      {(read.missing_hours ?? 0) > 0 ? (
+        <span className="status-strip__item" data-mini-partial-hours>
+          <Badge tone="neutral" className="mini-tone--amber">{partialHoursText(read.missing_hours ?? 0)}</Badge>
+        </span>
+      ) : null}
       <span className="status-strip__item">{fact}</span>
       {read.currentness.state === "HISTORICAL" ? (
         <span className="status-strip__item" data-mini-historical>
@@ -601,7 +623,22 @@ function RenewableCardsRow({ read }: { read: RenewableRead }) {
     <MetricCards label="Renewable summary" data={{ "data-mini-cards": "renewable" }}>
       <MetricCard label="PV capability" value={boundText(cards?.capability_kw ?? null, "kW")} word={isWordValue(boundText(cards?.capability_kw ?? null, "kW"))} note="Reported PV capability and selected uncertainty" />
       <MetricCard label="PV used" value={boundText(cards?.used_kw ?? null, "kW")} word={isWordValue(boundText(cards?.used_kw ?? null, "kW"))} note={usedNote} />
-      <MetricCard label="Usable headroom" value={boundText(cards?.headroom_kw ?? null, "kW")} word={isWordValue(boundText(cards?.headroom_kw ?? null, "kW"))} note="After retained margin and service checks" />
+      {/* D-SR.48, MOCK DEVIATION R726: the card keeps its envelope, named in words "Range across eligible hours"; one
+          line under it gives the stored day figure in the range view's words, so the range and the day agree. */}
+      <MetricCard
+        label="Usable headroom"
+        value={boundText(cards?.headroom_kw ?? null, "kW")}
+        word={isWordValue(boundText(cards?.headroom_kw ?? null, "kW"))}
+        note={
+          <>
+            <span data-mini-headroom-range-label>Range across eligible hours, after retained margin and service checks</span>
+            <span className="mini-all-hours-line" data-mini-all-hours-headroom>
+              {`${ALL_HOURS_HEADROOM}: ${boundText(cards?.all_hours_headroom_kw ?? null, "kW")}`}
+            </span>
+            <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R726">MOCK DEVIATION R726</span>
+          </>
+        }
+      />
       <MetricCard
         label="Recurring opportunity"
         value={days}
@@ -892,6 +929,8 @@ export function MiniRenewable({
   siteCode,
   timeZone,
   window,
+  range,
+  pageHref,
 }: {
   client: MiniDepthClient;
   /** W4-03 unit 7: the opportunity list read and the typed detail address for the exact five-day CTA. */
@@ -900,17 +939,32 @@ export function MiniRenewable({
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;
+  /** SR-8 page: the whole shared range (`miniRangeWindowFromParams`), or null for the one-day page. */
+  range?: MiniWindowQuery | null;
+  /** D-SR.76 Q4: the page address for "Back to the whole range" on the one-day page. */
+  pageHref?: (search: string) => string;
 }): ReactNode {
   const [attempt, setAttempt] = useState(0);
+  const ranged = range !== undefined && range !== null;
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<RenewableRead>(
-    () => (window === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getRenewable(siteCode, window)),
-    key,
+    () =>
+      window === null || ranged ? Promise.resolve({ status: "unavailable", message: null }) : client.getRenewable(siteCode, window),
+    ranged ? `range|${key}` : key,
     attempt,
   );
   if (timeZone === null || window === null) return <NoTimeZone />;
+  if (range !== undefined && range !== null) {
+    return (
+      <>
+        <MiniPeriodBar timeZone={timeZone} window={range} siteLocalDays />
+        <MiniRenewableRange client={client} siteCode={siteCode} window={range} />
+      </>
+    );
+  }
   return (
     <>
+      {pageHref === undefined ? null : <BackToWholeRange pageHref={pageHref} deviation="R726" />}
       <MiniPeriodBar key={key} timeZone={timeZone} window={window} />
       <WindowSpan timeZone={timeZone} window={window} />
       {read === null ? (
@@ -1634,6 +1688,7 @@ export function MiniFuel({
   window,
   pageHref,
   fuelBalance,
+  range,
 }: {
   client: MiniDepthClient;
   siteCode: string;
@@ -1642,6 +1697,8 @@ export function MiniFuel({
   pageHref: (search: string) => string;
   /** DIESEL-K5 (DIESEL-1-R3l): with stored fuel-balance windows the page is in night mode; otherwise hour mode. */
   fuelBalance?: FuelBalanceClient;
+  /** SR-10c (rev 10b.2): the whole shared range when the address names no hour (`miniRangeWindowFromParams`), else null. */
+  range?: MiniWindowQuery | null;
 }): ReactNode {
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
@@ -1652,16 +1709,29 @@ export function MiniFuel({
     shared.status === "set" ? { ...rangeWindow(shared), ...(shared.known_at ? { known_at: shared.known_at } : {}) } : null,
   );
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
+  const ranged = range !== undefined && range !== null;
+  // SR-10c: the hour read is not made for the range view.
   const read = useMiniRead<FuelRead>(
-    () => (window === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getFuel(siteCode, window)),
-    key,
+    () =>
+      window === null || ranged ? Promise.resolve({ status: "unavailable", message: null }) : client.getFuel(siteCode, window),
+    ranged ? `range|${key}` : key,
     attempt,
   );
   if (nights === "loading") return <p role="status">{MINI_LOADING}</p>;
   if (fuelBalance !== undefined && nights !== null) return <MiniFuelNightsPage client={fuelBalance} siteCode={siteCode} nights={nights} knownAt={shared.status === "set" ? shared.known_at : null} />;
   if (timeZone === null || window === null) return <NoTimeZone />;
+  // SR-10c (rev 10b.2): a range without an hour reads the whole range; the range view declares nothing.
+  if (range !== undefined && range !== null) {
+    return (
+      <>
+        <MiniPeriodBar timeZone={timeZone} window={range} siteLocalDays />
+        <MiniFuelRange client={client} siteCode={siteCode} window={range} />
+      </>
+    );
+  }
   return (
     <>
+      <BackToWholeRange pageHref={pageHref} />
       {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
       {read === null ? (
