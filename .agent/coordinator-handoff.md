@@ -7,7 +7,9 @@
 - **Walkthrough DB build RUNNING**: wt `/opt/assetecon/AssetOpsV1-walk` (task/WALK-1113-build @6b7c75601), DB `assetops_polish_walk1113_test`, work `var/polish_walk1113`, log `var/polish_walk1113-prepare.log`; started 08:51 detached; expect ~11:00; cap 2x. Then: self-check, add-dates, warm, serve, smoke, access note by ~12:30.
 - UP-1: main merged in (935024a3b); check-all 3/21 fail (bare table -> DataTable, raw font-family, ratchet fixtures) — Sonnet fix round running. Has migration 0061 (apply to the walk DB after merge).
 - MB-1: re-review ACCEPT (ff13c2b69); merge main after UP-1 lands, then check-all.
-- AP-1: re-review ACCEPT + parity note (Kisiwa 409 on clone); read-path only; merge after the build.
+- AP-1: main merged (c03a8eeb2), check-all 21/21. HELD on D-SR.80: after walk1113 self-check, run AP-1 HEAD served on walk1113 (build tree store roots, scheduler off): Kobo+Kisiwa story days /analytics 200, not-available roles = claim-limit missing_role gaps, Evidence shows table; Cold/EV analytics []; first read <2 s; no "Awaiting evidence migration". Any miss -> hold + Architect.
+- UP-1 MERGED 85a332314 (migration 0061 -> apply to walk1113). fix/foundation-revision-test merged. MB-1: main merged (c7358f710), check-all queued.
+- OWNER: walkthrough must be clean on a good DB; time flexible; no fallback to vps1 (owner-clean-walkthrough-over-time-2026-11-13.md).
 - Scratchpad for this session: /tmp/claude-1001/-opt-assetecon-AssetOpsV1/c6d26aed-1fa9-4f4e-a150-d6f87dd20a07/scratchpad (checkall-queue.sh, results).
 
 ## >>> VPS STATE — 2026-11-13 ~00:30 UTC (read this first; supersedes the "VPS RESUME" section below) <<<
