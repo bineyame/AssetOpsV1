@@ -70,7 +70,12 @@ def test_requests_per_range_and_board_forms():
     assert f"/api/estate/portfolio/scope-ids?{f}&{t}" in reqs
     for lens in ("cost", "risks", "opportunities"):  # D-WARM.8
         assert f"/api/estate/portfolio/scope-ids?{f}&{t}&lens={lens}" in reqs
-    assert len(reqs) == 18
+    for site in ("KOBO-001", "KISIWA-001"):  # SR-12: the mini-grid range routes
+        for name in ("range-overview", "health-range", "service-range", "claim-limit-range", "renewable-range",
+                     "fuel-range", "backup-range"):
+            assert f"/api/sites/{site}/{name}?{f}&{t}" in reqs
+    assert not any(x.startswith(("/api/sites/COLD-LAB-001/", "/api/sites/EV-LAB-001/")) and "-range" in x for x in reqs)
+    assert len(reqs) == 18 + 2 * 7
 
 
 def test_plan_dedupes_and_adds_mini_days_and_story():
@@ -110,8 +115,11 @@ def test_findings_lens_pages_for_presets_and_story_ranges_only():
 def test_unstored_plan_covers_presets_and_story_ranges():
     # D-WARM.2: estate scope, actions, evidence, financials; each Site's Overview and Site Findings read
     reqs = wr.unstored_plan(D("2026-11-17"), SITES, STORY)
-    # 6 windows x 12 reads, less the mini-grid Overviews four presets share (all end 16 Nov): 2 Sites x 3 repeats
-    assert len(reqs) == (4 + 2 * len(SITES)) * (len(wr.PRESETS) + 1) - 2 * 3
+    # 6 windows x 14 reads (SR-12: + each mini-grid Site's Fuel nights list), less the mini-grid Overviews four
+    # presets share (all end 16 Nov): 2 Sites x 3 repeats
+    assert len(reqs) == (4 + 2 * len(SITES) + 2) * (len(wr.PRESETS) + 1) - 2 * 3
+    assert ("/api/sites/KISIWA-001/fuel-balance/nights?from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"
+            in {q.target for q in reqs})
     targets = {q.target for q in reqs}
     w = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"
     assert {f"/api/estate/{n}?{w}" for n in ("scope", "actions", "evidence", "financials")} <= targets
@@ -308,3 +316,69 @@ def test_state_chip_and_scope_ids_urls_equal_the_frontend_request():
     assert f"/api/estate/portfolio/scope-ids?{w}" in targets
     for lens in ("cost", "risks", "opportunities"):  # D-WARM.8
         assert f"/api/estate/portfolio/scope-ids?{w}&lens={lens}" in targets
+
+
+def test_fuel_nights_url_equals_the_frontend_request():
+    # SR-12: the same literal is asserted against `fuelBalanceClient.getNights` in frontend/src/estate/warmUrls.test.ts.
+    # The other SR-12 range routes have no page client on main yet: re-check after SR-5..SR-11 pages merge.
+    targets = {q.target for q in wr.unstored_requests("2026-11-02T00:00:00Z", "2026-11-09T00:00:00Z", "7d", SITES)}
+    assert "/api/sites/KISIWA-001/fuel-balance/nights?from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z" in targets
+
+
+def test_claim_limit_range_is_sent_only_where_the_performance_gate_is_open():
+    # D-SR.74: the route's own answer decides; a closed Site's gated requests are listed, not planned.
+    _, reqs = wr.plan(date(2026, 11, 10), SITES)
+    probed: list[str] = []
+
+    def fetch(target: str):
+        probed.append(target)
+        return (409, wr.CLOSED_CODE) if "/KOBO-001/" in target else (200, "")
+
+    kept, excluded = wr.exclude_closed_gate(reqs, fetch)
+    assert excluded == [{"site": "KOBO-001", "route": "claim-limit-range"}]
+    assert not [q for q in kept if q.path == "/api/sites/KOBO-001/claim-limit-range"]
+    assert [q for q in kept if q.path == "/api/sites/KISIWA-001/claim-limit-range"]
+    assert len(probed) == 2  # one probe per gated Site, not one per range
+    open_plan, none = wr.exclude_closed_gate(reqs, lambda t: (200, ""))
+    assert open_plan == reqs and none == []
+
+
+def test_only_the_cutover_closed_code_excludes_a_site():
+    _, reqs = wr.plan(date(2026, 11, 10), SITES)
+    for answer in ((409, ""), (409, "OTHER_CONFLICT"), (500, wr.CLOSED_CODE), (404, "")):
+        kept, excluded = wr.exclude_closed_gate(reqs, lambda t, a=answer: a if "/KOBO-001/" in t else (200, ""))
+        assert excluded == [] and kept == reqs  # stays planned, so the run reports it as a failure
+
+
+def test_main_applies_the_gate_filter_and_prints_the_excluded(monkeypatch, tmp_path, capsys):
+    sent: list[str] = []
+
+    def fake_fetch(base):
+        def fetch(target):
+            sent.append(target)
+            return 200, "hit"
+        return fetch
+
+    monkeypatch.setattr(wr, "http_fetch", fake_fetch)
+    monkeypatch.setattr(wr, "http_probe", lambda base: lambda t: (409, wr.CLOSED_CODE) if "/KOBO-001/" in t else (200, ""))
+    rc = wr.main(["--base-url", "http://x", "--site", "KOBO-001:2026-09-01:2026-11-01",
+                  "--site", "KISIWA-001:2026-09-01:2026-11-01", "--today", "2026-11-10", "--report", str(tmp_path / "r.json")])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert not [t for t in sent if "/KOBO-001/claim-limit-range" in t]
+    assert [t for t in sent if "/KISIWA-001/claim-limit-range" in t]
+    assert "excluded (closed Performance gate): KOBO-001 claim-limit-range" in out
+
+
+def test_a_409_on_a_planned_request_fails_warm_and_verify():
+    ok = wr.Result("a", "/a", 200, "hit", 10)
+    shut = wr.Result("b", "/api/sites/X/claim-limit-range", 409, "", 10)
+    for verify in (False, True):
+        report = wr.summarise([ok, shut], verify=verify, wall_s=0)
+        assert report["pass"] is False and "/api/sites/X/claim-limit-range" in report["failed"]
+
+
+def test_kisiwa_nights_stay_unstored_and_are_timed():
+    _, reqs = wr.plan(date(2026, 11, 10), SITES)
+    assert not [q for q in reqs if "fuel-balance/nights" in q.path]
+    assert [q for q in wr.unstored_plan(date(2026, 11, 10), SITES) if "KISIWA-001/fuel-balance/nights" in q.path]

@@ -24,6 +24,7 @@ export const UI_GAP_CATALOGUE = {
   "G-financials-realised-savings": { status: "open", placements: ["financials.metrics.realised-savings"] },
   "G-financials-revenue-service": { status: "open", placements: ["financials.metrics.revenue-service"] },
   "G-foundation-productive-use": { status: "open", placements: ["foundation.identity.productive-use"] },
+  "G-readiness-capability-assessable": { status: "open", placements: ["readiness.capability.assessable"] },
   "G-readiness-commissioning": { status: "open", placements: ["readiness.commissioning.definition", "readiness.commissioning.confirmed", "readiness.commissioning.needed", "readiness.commissioning.declared", "readiness.commissioning.next-step"] },
   "G-readiness-gateway-completeness": { status: "open", placements: ["readiness.gateway.completeness"] },
   "G-readiness-gateway-firmware": { status: "open", placements: ["readiness.gateway.firmware"] },

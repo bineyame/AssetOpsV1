@@ -66,7 +66,7 @@ export interface SiteEvidenceProps {
   timezone?: string | null;
 }
 
-/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7). SR-4c (D-SR.7): the line under a panel whose read takes no date range (`/analytics`); `/evidence/rejections` now follows the range (SR-12a). */
+/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7): both closed. Rejections follow the range (SR-12a) and readiness follows the range (SR-12b), so no panel renders this line now; kept only as the text the tests assert is absent. */
 export const PANEL_ALL_DATES = "All dates, not only the date range";
 
 /** Shown for a rejection when the backend serves no plain reason; never its code. */
@@ -114,7 +114,8 @@ export function SiteEvidence({
       client.getEvidence(siteId, { from, to }),
       // SR-12a (rev 10b.4): the rejections read follows the date range (file-backed rows have no source time, so they are placed by receipt in `[from, to)`).
       client.listRejections(siteId, null, from !== null && to !== null ? { from, to } : null),
-      analytics === undefined ? Promise.resolve(null) : analytics.getDeclaration(siteId),
+      // SR-12b: readiness follows the range (both ends, or none: the route refuses one end alone).
+      analytics === undefined ? Promise.resolve(null) : analytics.getDeclaration(siteId, from !== null && to !== null ? { from, to } : null),
     ]).then(([overview, rejections, declaration]) => {
       if (active) {
         setLoaded({ overview, rejections, declaration });
@@ -300,12 +301,6 @@ export function SiteEvidence({
             )}
           </Panel>
           <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
-            {/* SR-4c (D-SR.7): the analytics declaration route takes no from/to; the line says so. */}
-            {loaded.declaration?.status !== "loaded" ? null : (
-              <p className="muted" data-panel-range="all-dates" data-panel-range-for="analytics">
-                {PANEL_ALL_DATES}
-              </p>
-            )}
             <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
             <EvidenceClaimLimit siteId={siteId} client={client.claimLimit} assessmentHref={assessmentHref} />
             {analytics === undefined || params.get("assessment") === null ? null : (

@@ -16,6 +16,7 @@ import {
   arrayOf,
   hasKeys,
   isObject,
+  query,
   read,
   type EvidenceRead,
 } from "./siteEvidenceClient";
@@ -330,10 +331,13 @@ export interface SiteAnalytics {
   site_type: string;
   statement: string;
   analytics: AnalyticDeclaration[];
+  /** SR-12b: the range readiness was scored over (`[from, to)`), or null (site-wide). Absent from older servers. */
+  readiness_window?: { from: string; to: string } | null;
 }
 
 export interface SiteAnalyticsClient {
-  getDeclaration(siteId: string): Promise<EvidenceRead<SiteAnalytics>>;
+  /** SR-12b (D-SR.34/39): with `window`, only readiness follows the range; which analytics apply stays unranged. */
+  getDeclaration(siteId: string, window?: { from: string; to: string } | null): Promise<EvidenceRead<SiteAnalytics>>;
   getDispatch(siteId: string): Promise<EvidenceRead<DispatchAssessments>>;
   getSiteFindings(siteId: string): Promise<EvidenceRead<SiteFindings>>;
   getAssessment(
@@ -430,8 +434,9 @@ export function createSiteAnalyticsClient(
 ): SiteAnalyticsClient {
   const site = (siteId: string) => `${basePath}/${encodeURIComponent(siteId)}`;
   return {
-    getDeclaration(siteId) {
-      return read(`${site(siteId)}/analytics`, isDeclaration);
+    getDeclaration(siteId, window = null) {
+      const search = window === null ? "" : query({ from: window.from, to: window.to });
+      return read(`${site(siteId)}/analytics${search}`, isDeclaration);
     },
     getDispatch(siteId) {
       return read(`${site(siteId)}/dispatch`, isDispatch);
