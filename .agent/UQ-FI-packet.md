@@ -1,4 +1,4 @@
-# UQ-FI-1 / UQ-FI-2 packet (lane D, branch task/UQ-FI-1-2) - built except the P3 frame (held, D-UQFI.8) and captures (coordinator)
+# UQ-FI-1 / UQ-FI-2 packet (lane D, branch task/UQ-FI-1-2) - P3 frames built (fix round); captures (coordinator)
 
 Spec: `architect-sequence-client-scope-2026-11-11.md` Revision 6 (6.1-6.4, D-UQFI.1-5). Owner go: `owner-proceed-waiting-items-2026-11-13.md` (provisional).
 Commits: `a42dee64b` UQ-FI-1, `8b2d1e61a` UQ-FI-2 part 1; session 2 (2026-11-13): merge of main `e028515df` (SR-5/6/7/11/12; no conflicts), `c358a6f79` codemod rerun (D-UQFI.10: `sites/rangeOverview.css` 12px, `ui/primitives.css` 0.85em -> `--font-size-100`; `--spacing`: 0 files), `8acf207a5` P1-P2 + board-row collapse, `fc2d007a3` P3-P5 + Finding headline prep, `ec7b22d56` P6-P8, `82420ed3e` captures script.
@@ -61,3 +61,8 @@ Commits: `a42dee64b` UQ-FI-1, `8b2d1e61a` UQ-FI-2 part 1; session 2 (2026-11-13)
 5. P1: the only Portfolio card with repeated gap lines is the outcome card, which this lane must not touch (UQ-FI-3). Collapse it in UQ-FI-3, or not for 17 Nov?
 6. P3 (after SR-8): moving the first sentence into the header leaves `LifecycleSentence` repeating it in the body on non-SUPPORTED versions. Remove that copy (a move) or keep both?
 - For lanes merging after this: rerun `node tools/uqfi-type-codemod.mjs` (add `--spacing` only for the 14 listed files) and the style ratchet.
+
+## Fix round (after review 5068fe5a0; supersedes "Not built 1" and open question 6)
+- P3 is built in all three frames after a56b29c70: generic and mini Finding frames (title, then the first lifecycle sentence as subtitle, once; `LifecycleSentence` body copy removed) and now the Kisiwa fuel Finding (`SiteFuelFindingPage`: `PageHeader` title = `lines.title`, subtitle = `lines.claim ?? lines.no_longer`; the body's `BigClaim` removed so it is said once). `siteFuelFinding.test.tsx` pins exact h1, subtitle and once-only for SUPPORTED and NO_LONGER_SUPPORTED.
+- Generic frame subtitle now view-guarded (`SiteAnalyticsFrames.tsx` ~865). P3 gap test now asserts a non-empty set (the generic page's gap lines are the grouped "not assessed" chips, which carry no registry id, so the set includes them).
+- Register: R389, R392 amended; R741 added for the board-row collapse. Stale comments fixed.

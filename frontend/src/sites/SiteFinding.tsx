@@ -108,8 +108,7 @@ export function SiteFinding({
   onTitle?: (title: string) => void;
   /**
    * UQ-FI-2 (rev 6 6.1 P3, D-UQFI.8): the page headline, the Finding's title then its first sentence, for the
-   * frame's page header (the status strip then sits under them). Prepared here; the frame takes it once SR-5 and
-   * SR-8 have merged.
+   * frame's page header (the status strip then sits under them). Both Finding frames take it.
    */
   onHeadline?: (headline: FindingHeadline) => void;
   /**

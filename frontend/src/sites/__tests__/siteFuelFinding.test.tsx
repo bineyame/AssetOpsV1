@@ -187,11 +187,21 @@ describe("DIESEL-K5 F8: the Site Findings Fuel checks panel", () => {
 
 describe("UQ-FI-2 P3: the fuel Finding page", () => {
   it("uqfi2_one_headline", async () => {
-    // Rev 6 6.1 P3: one h1. Its text becomes the Finding title and first sentence in the frame change held by
-    // D-UQFI.8 (SiteAnalyticsFrames.tsx, after SR-8); until then it is the Site heading.
+    // Rev 6 6.1 P3 (D-UQFI.18): one h1, the Finding title; the first lifecycle sentence is the subtitle, said once.
     renderPage(client(), siteFuelFindingHref(CODE, FID));
     await screen.findByText(CLAIM);
     await settledScreen();
-    expectOneHeadline(/\S/);
+    expectOneHeadline("Unexplained fuel overnight");
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toBe(CLAIM);
+    expect((document.body.textContent ?? "").split(CLAIM).length - 1).toBe(1);
+  });
+
+  it("uqfi2_no_longer_supported_sentence_is_the_subtitle", async () => {
+    renderPage(client(), siteFuelFindingHref(CODE, FID, R2));
+    await screen.findByText(NO_LONGER);
+    await settledScreen();
+    expectOneHeadline("Unexplained fuel overnight");
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toBe(NO_LONGER);
+    expect((document.body.textContent ?? "").split(NO_LONGER).length - 1).toBe(1);
   });
 });

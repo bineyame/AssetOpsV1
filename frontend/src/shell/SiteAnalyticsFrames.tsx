@@ -862,7 +862,7 @@ export function SiteFindingFrame({
                 view === "finding" ? { label: "Finding" } : { label: "Finding", to: root },
               ]}
             />
-            <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={headline?.sentence ?? `${site.display_name} · finding`} />
+            <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={view === "finding" ? (headline?.sentence ?? `${site.display_name} · finding`) : `${site.display_name} · finding`} />
             {/* post-W6 W2-EV (Q14): an EV child address's main tabs open the EV pages (no read, so no window). */}
             <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={site.site_type === "EV_CHARGING" ? EV_SITE_TAB_HREFS : undefined} />
             {domainSite && domainRoot ? (
@@ -2710,13 +2710,18 @@ function SiteFuelFindingPage({
           ...(title === null ? [] : [{ label: title }]),
         ]}
       />
-      <SitePageHeader
-        siteName={site.display_name}
-        siteId={site.site_id}
-        mode={siteSourceModeLabel(site)}
-        description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
-        headingId={SITE_FUEL_FINDING_HEADING_ID}
-      />
+      {read?.status === "loaded" ? (
+        // UQ-FI-2 P3 (D-UQFI.18): the Finding's title, then its first lifecycle sentence once, like the mini Finding frames.
+        <PageHeader title={read.value.lines.title} headingId={SITE_FUEL_FINDING_HEADING_ID} subtitle={read.value.lines.claim ?? read.value.lines.no_longer ?? undefined} />
+      ) : (
+        <SitePageHeader
+          siteName={site.display_name}
+          siteId={site.site_id}
+          mode={siteSourceModeLabel(site)}
+          description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
+          headingId={SITE_FUEL_FINDING_HEADING_ID}
+        />
+      )}
       <OperatorSiteTabs siteId={siteId} current="Findings" />
       <SiteFuelFindingBody
         read={read}

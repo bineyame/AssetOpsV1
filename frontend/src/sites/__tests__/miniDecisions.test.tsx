@@ -644,7 +644,7 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       "Candidate runtime is not proof that stopping the generator would have preserved service.",
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(TITLE);
-    // UQ-FI-2 (rev 6 6.1 P3): one h1, the Finding title (its first sentence joins it once D-UQFI.8 lands).
+    // UQ-FI-2 (rev 6 6.1 P3): one h1, the Finding title (the mini Finding frames carry the first sentence under it).
     expectOneHeadline(TITLE);
     cleanup();
 

@@ -1219,7 +1219,11 @@ describe("UQ-FI-2 P3 (D-UQFI.18): the first sentence is said once, under the tit
       </MemoryRouter>,
     );
   }
-  const gaps = () => Array.from(document.querySelectorAll("[data-gap-id]")).map((n) => n.getAttribute("data-gap-id")).sort();
+  // The generic Finding page's gap lines are the grouped "not assessed" chips (no registry id on them); both kinds count.
+  const gaps = () =>
+    Array.from(document.querySelectorAll("[data-gap-id], .badge--not-assessed"))
+      .map((n) => n.getAttribute("data-gap-id") ?? n.textContent)
+      .sort();
   const count = (text: string) => (document.body.textContent ?? "").split(text).length - 1;
 
   for (const [name, revs, lifecycle] of [
@@ -1248,12 +1252,13 @@ describe("UQ-FI-2 P3 (D-UQFI.18): the first sentence is said once, under the tit
       expect(document.querySelector(".page-header__subtitle")?.textContent).toBe(first);
       if (lifecycle === "UNCONFIRMED") expect(document.querySelector("[data-finding-lifecycle-sentence]")?.textContent).toMatch(/not a new issue/);
       else expect(document.querySelector("[data-finding-lifecycle-sentence]")).toBeNull();
+      expect(bareGaps.length).toBeGreaterThan(0);
       expect(gaps()).toEqual(bareGaps);
     });
   }
 });
 
-describe("UQ-FI-2 P3: the Finding headline (prepared; the frame takes it after SR-5 and SR-8, D-UQFI.8)", () => {
+describe("UQ-FI-2 P3: the Finding headline (title then first sentence; D-UQFI.8, D-UQFI.18)", () => {
   it("uqfi2_headline_is_the_title_then_the_first_sentence_as_written", () => {
     expect(findingHeadline(body([summary(1, "CREATED")]))).toEqual({
       title: "Generator may have been on longer than needed",
