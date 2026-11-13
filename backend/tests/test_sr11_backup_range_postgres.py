@@ -90,5 +90,6 @@ def test_backup_range_over_stored_day_rows(store, engine) -> None:  # noqa: F811
 
     assert absent["stored"] is False and absent["state"] == "STILL_PROCESSING"
     assert absent["hours_expected"] is None and absent["sequence_counts"] is None
+    assert absent["sequences"] is None  # SR-11 review Low 2 (D-SR.58 Q1): unknown, not an empty list
     assert body["totals"]["days_counted"] == 1 and body["totals"]["days_requested"] == 2
     assert not any("outage" in k for k in _keys(body) - {"outage_start"})
