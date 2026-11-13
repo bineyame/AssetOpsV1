@@ -9,6 +9,7 @@ import { describe, expect, it } from "vitest";
 import { leadingIntruders, panelTitled, renderedPanelTitles, strayBetweenPanels, strayOutsidePanels, stripIntruders } from "../../test/panelStructure";
 import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline, gapIds } from "../../test/headline";
 import type {
   EstateCheckedDays,
   EstateClient,
@@ -781,6 +782,23 @@ describe("estate Portfolio page", () => {
     expect(main.querySelector("[data-portfolio-scroll='objectives'] .oc-matrix")).not.toBeNull();
     expect(main.querySelector(".objective-matrix")).toBeNull();
     expect(COLD_ROW.links.finding).toBeNull();
+  });
+
+  it("uqfi2_every_tab_has_one_headline_and_keeps_its_gaps", async () => {
+    // UQ-FI-2 (D-UQFI.4, rev 6 6.1 P1): one h1 on every tab, the page title, first in its header; the subtitle
+    // sentence under it. The Portfolio outcome card and matrix are out of the collapse (D-UQFI.12, rev 6 6.1).
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    await settledScreen();
+    const ids = gapIds();
+    for (const label of ["Overview", "Act first", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"]) {
+      if (label !== "Overview") showTab(label);
+      const h1 = expectOneHeadline("Portfolio Value & Operations");
+      expect(h1.closest(".page-header")?.querySelector(".page-header__subtitle")?.textContent).toBe(
+        "Operating decisions across the estate: cost, service, productive use and asset value",
+      );
+    }
+    showTab("Overview");
+    expect(gapIds()).toEqual(ids);
   });
 });
 

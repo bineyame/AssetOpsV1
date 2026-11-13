@@ -6,7 +6,7 @@ import { boardBody, boardRows, fakeOutcomeBoard } from "../../test/outcomeBoardF
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import { boardMoneyText, countsText, OutcomeBoard } from "../OutcomeBoard";
-import type { OutcomeBoardRead } from "../outcomeBoardClient";
+import type { OutcomeBoardRead, OutcomeBoardRow } from "../outcomeBoardClient";
 
 async function renderBoard(read?: OutcomeBoardRead, query = { date: "2026-10-06" }) {
   const fake = fakeOutcomeBoard(read);
@@ -254,6 +254,35 @@ describe("OUT-B B5 Site outcome board", () => {
     for (const code of ["MG-2", "MISSED", "declared_objective", "avoidable_generator_minutes"]) expect(board().textContent).not.toContain(code);
     const scan = scanProductVocabulary(board(), "site-overview", { set: "w1" });
     expect(describeViolations(scan.violations)).toBe("");
+  });
+
+  it("uqfi2_a_rows_repeated_gap_line_is_said_once_naming_each_contributor", async () => {
+    // UQ-FI-2 (D-UQFI.4): inside one board row, a gap line two contributors share is one line naming both (each
+    // keeps its link); a different reason, a chip-carrying gap and a value keep their own lines; nothing is lost.
+    const LOST = "Not available yet · this record could not be loaded";
+    const OTHER = "Not available yet · no target declared for this site";
+    const extra: OutcomeBoardRow["contributors"] = [
+      { key: "a", label: "Generator running", text: LOST, confidence: null, link_ref: { kind: "EVIDENCE", site: "KOBO-001", capability: "generator" }, href: null },
+      { key: "b", label: "Declared target", text: OTHER, confidence: null, href: null },
+      { key: "c", label: "Fuel use", text: LOST, confidence: null, href: null },
+      { key: "d", label: "Battery", text: LOST, confidence: { label: "Limited", tone: "amber" }, href: null },
+    ];
+    const rows = boardRows().map((r) => (r.category !== "OPTIMIZE_COST" ? r : { ...r, contributors: [...r.contributors, ...extra] }));
+    await renderBoard({ status: "loaded", value: boardBody({ rows }) } as OutcomeBoardRead);
+    const drives = rowEl("OPTIMIZE_COST").querySelector("[data-outcome-col='drives']") as HTMLElement;
+    const groups = drives.querySelectorAll("[data-gap-group]");
+    expect(groups).toHaveLength(1);
+    expect(groups[0].querySelector(".gap-group__fact")?.textContent).toBe(LOST);
+    const subjects = Array.from(groups[0].querySelectorAll(".gap-group__subject"));
+    expect(subjects.map((li) => li.textContent)).toEqual(["Generator running", "Fuel use"]);
+    expect(subjects[0].querySelector("a")).not.toBeNull();
+    // The fact is said once in the group; the chip-carrying contributor keeps its own line and chip.
+    const lines = Array.from(drives.querySelectorAll(".ob-contrib > li")).map((li) => li.textContent);
+    expect(lines.filter((t) => t?.includes(LOST))).toHaveLength(2);
+    expect(lines.some((t) => t === `Declared target${OTHER}`)).toBe(true);
+    expect(lines.some((t) => t === `Battery${LOST}Limited`)).toBe(true);
+    // Every contributor of the row is still named, in its first-seen place.
+    for (const c of rows.find((r) => r.category === "OPTIMIZE_COST")!.contributors) expect(drives.textContent).toContain(c.label);
   });
 });
 

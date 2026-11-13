@@ -8,6 +8,8 @@ import { defaultChainClient, type ChainClient } from "./chainClient";
 
 import { OutcomeGlyph, type OutcomeGlyphName } from "./componentIcons";
 import { DataTable } from "../ui";
+import { GapGroup } from "../ui/GapGroup";
+import { groupGaps } from "../ui/gapGroup";
 import { OutcomeIcon } from "./outcomeCategories";
 import { money2 } from "../ui/money";
 import type {
@@ -182,6 +184,37 @@ function ItemList({
   );
 }
 
+type Contributor = OutcomeBoardRow["contributors"][number];
+type ContributorGap = { subject: string; fact: string; c: Contributor };
+
+/**
+ * UQ-FI-2 (D-UQFI.4, rev 6 6.3 collapse targets): the gap words a board outcome row repeats ("Not available yet",
+ * "Unknown", "not worked out yet"). Only these server lines are grouped, and only by exact equality of the whole
+ * line, so different reasons never merge (D-E5.46); a contributor with a confidence chip keeps its own line.
+ */
+const GAP_WORDS = /^(?:Not available yet\b|Unknown$)|not worked out yet/;
+
+/** The drives column in order: each contributor as today, except that a gap line two or more share is one line,
+ * placed where its first contributor was. */
+type ContributorLine = { kind: "one"; c: Contributor } | { kind: "group"; members: ContributorGap[] };
+
+function contributorLines(contributors: Contributor[]): ContributorLine[] {
+  const gaps = contributors.filter((c) => !c.confidence && GAP_WORDS.test(c.text));
+  const shared = new Set(
+    groupGaps(gaps.map((c) => ({ subject: c.label, fact: c.text })))
+      .filter((line) => line.subjects.length > 1)
+      .map((line) => line.fact),
+  );
+  const placed = new Set<string>();
+  return contributors.flatMap((c): ContributorLine[] => {
+    if (c.confidence || !shared.has(c.text)) return [{ kind: "one", c }];
+    if (placed.has(c.text)) return [];
+    placed.add(c.text);
+    const members = gaps.filter((g) => g.text === c.text).map((g) => ({ subject: g.label, fact: g.text, c: g }));
+    return [{ kind: "group", members }];
+  });
+}
+
 type OnWhy = (row: OutcomeBoardRow, button: HTMLButtonElement) => void;
 
 function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolean | "withheld"; onWhy?: OnWhy }) {
@@ -240,17 +273,29 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
           <div className="ob-col" data-outcome-col="drives">
             <ColHead icon="drives">{COLUMN.drives}</ColHead>
             <ul className="ob-list ob-contrib">
-              {row.contributors.map((c, i) => (
-                <li key={`${c.key}-${i}`}>
-                  <div>
-                    <b>
-                      <To link={c.link_ref}>{c.label}</To>
-                    </b>
-                    <small>{c.text}</small>
-                  </div>
-                  {c.confidence ? <span className={`oc-conf tone-${c.confidence.tone}`}>{c.confidence.label}</span> : null}
-                </li>
-              ))}
+              {contributorLines(row.contributors).map((line, i) =>
+                line.kind === "group" ? (
+                  // MOCK DEVIATION (D-UQFI.4, rev 6 6.3): one row's repeated gap line is said once, naming each
+                  // contributor it applies to (each keeps its link); the v69 row repeats it per contributor.
+                  <li key={`gap-${i}`} className="ob-gap" data-outcome-gap-line>
+                    <GapGroup
+                      items={line.members}
+                      renderSingle={() => null}
+                      renderSubject={(m) => <To link={m.c.link_ref}>{m.c.label}</To>}
+                    />
+                  </li>
+                ) : (
+                  <li key={`${line.c.key}-${i}`}>
+                    <div>
+                      <b>
+                        <To link={line.c.link_ref}>{line.c.label}</To>
+                      </b>
+                      <small>{line.c.text}</small>
+                    </div>
+                    {line.c.confidence ? <span className={`oc-conf tone-${line.c.confidence.tone}`}>{line.c.confidence.label}</span> : null}
+                  </li>
+                ),
+              )}
             </ul>
           </div>
           <div className="ob-col" data-outcome-col="issues">
