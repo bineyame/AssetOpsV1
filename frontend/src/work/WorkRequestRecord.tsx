@@ -15,7 +15,8 @@
  */
 import { displayCode } from "../ui/displayCode";
 import type { ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, Notice, Panel } from "../ui";
 import {
   globalWorkUtc,

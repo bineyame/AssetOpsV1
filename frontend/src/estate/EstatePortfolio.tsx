@@ -16,7 +16,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
 import { formatDayRange, formatDayTime } from "../ui/time";
-import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { linkFor } from "../shell/operatorSiteRoutes";
 import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";

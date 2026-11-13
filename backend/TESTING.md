@@ -108,6 +108,21 @@ CASCADE reports. `ASSETOPS_TEST_CLEANUP=truncate` restores TRUNCATE.
   development server's `assetops_test` as before. The tests still change no
   server-wide setting; the server is started that way.
 
+## Fresh worktrees: install the frontend first
+
+The estate-guard and missing-claim guards (and the frontend suite) read `frontend/node_modules`, which a new
+`git worktree add` does not have. In a fresh worktree they fail until you run, once:
+
+```
+cd frontend; npm ci
+```
+
+The guards are not changed for this: a missing install is a setup gap, not a pass.
+
+Also: tests that need a mini-grid day-grade provider set `estate.coverage.day_grades_provider` themselves; the
+backend `conftest.py` resets it to `None` around every test, so building an app in one test (`create_app`, or
+importing `assetops_backend.main`) can no longer leak into later tests.
+
 ## Commands (PowerShell, from the repository root)
 
 Run the tools scripts directly from a PowerShell prompt that may run local

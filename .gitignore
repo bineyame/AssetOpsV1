@@ -27,6 +27,8 @@ venv/
 
 # Node / frontend
 node_modules/
+# VPS worktrees symlink frontend/node_modules to the main checkout: a file, not a directory.
+node_modules
 dist/
 coverage/
 

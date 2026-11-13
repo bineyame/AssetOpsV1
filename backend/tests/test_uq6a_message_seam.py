@@ -88,6 +88,21 @@ def _probe_app() -> FastAPI:
     return app
 
 
+def test_an_unhandled_500_carries_content_language() -> None:
+    app = _probe_app()
+
+    @app.get("/boom")
+    def boom() -> None:
+        raise RuntimeError("boom")
+
+    client = TestClient(app, raise_server_exceptions=False)
+    response = client.get("/boom", headers={"Accept-Language": "sw"})
+    assert response.status_code == 500 and response.text == "Internal Server Error"
+    assert response.headers["content-language"] == "en"
+    with pytest.raises(RuntimeError):  # still raised to the server, so it is logged
+        TestClient(app).get("/boom")
+
+
 @pytest.mark.parametrize("headers", [{}, {"Accept-Language": "en"}, {"Accept-Language": "en-US,en;q=0.9"},
                                      {"Accept-Language": "sw"}])
 def test_every_response_carries_content_language(headers) -> None:

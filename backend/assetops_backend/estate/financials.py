@@ -27,7 +27,7 @@ from assetops_backend.estate.coverage import (
     COLD, COVERED, CURRENT, DOMAIN_OF_SITE_TYPE, EV, HISTORICAL, MINI_GRID, NOT_APPLICABLE, PARTIAL, PENDING, STALE,
     local_day_grades_kw, not_applicable, site_coverage)
 from assetops_backend.estate.evidence_money import (
-    CURRENT_VIEW, EMPTY, EMPTY_SCOPE, _ids, _window_state, group_key_for_partition, site_home_ref,
+    EMPTY, EMPTY_SCOPE, _ids, _window_state, view_label, group_key_for_partition, site_home_ref,
     window_link_refs)
 from assetops_backend.estate.index import _coverage_site, _coverage_state, _status, _token_site
 from assetops_backend.estate.scope import EstateRequest, resume_after, selection_token, wire_time
@@ -157,10 +157,10 @@ def money_link_refs(code: str, domain: str, pin: dict[str, Any] | None, cutoff: 
     home = site_home_ref(code, domain)
     if domain == MINI_GRID:
         return {"site": home, "bridge": refs.site_ref(code, "financials"), "evidence": refs.evidence_ref(code),
-                "current_view_label": CURRENT_VIEW}
+                "current_view_label": view_label(refs.site_ref(code, "financials"))}
     shown = window_link_refs(code, domain, pin, cutoff, k)
     if shown["site_readiness_label"] is not None:
-        return {"site": home, "bridge": home, "evidence": home, "current_view_label": CURRENT_VIEW}
+        return {"site": home, "bridge": home, "evidence": home, "current_view_label": view_label(home)}
     bridge = refs.site_ref(code, "financials" if domain == COLD else "ev_financials", shown["site_readiness"]["window"])
     return {"site": home, "bridge": bridge, "evidence": shown["site_readiness"], "current_view_label": None}
 

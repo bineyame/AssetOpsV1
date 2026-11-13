@@ -186,7 +186,9 @@ describe("the gated way into the create flow", () => {
     expect(links[0]).toHaveTextContent(CREATE_SITE_ENTRY_POINT_LABEL);
     expect(links[0]).toHaveAttribute("href", "/simulator-lab/create-site");
     expect(
-      container.querySelectorAll("button, input, select, textarea, form"),
+      container.querySelectorAll(
+        "button:not([data-shared-range-button]), input, select, textarea, form",
+      ),
     ).toHaveLength(0);
   });
 
@@ -215,7 +217,9 @@ describe("the gated way into the create flow", () => {
 
     expect(within(main).queryAllByRole("link")).toHaveLength(0);
     expect(
-      container.querySelectorAll("button, input, select, textarea, form"),
+      container.querySelectorAll(
+        "button:not([data-shared-range-button]), input, select, textarea, form",
+      ),
     ).toHaveLength(0);
     expect(spacedText(main)).not.toMatch(/simulat/i);
     expect(spacedText(main)).not.toMatch(/create/i);

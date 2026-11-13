@@ -208,7 +208,9 @@ class EstateSnapshot:
                                                                             finding_revision_id))
 
     def eligibility(self, t: UUID, s: UUID, finding_id: Any, k: datetime) -> dict[str, Any]:
-        return self._o.eligibility.for_finding_on(self._c, t, s, UUID(str(finding_id)), k)
+        from ..coverage import dispatch_days  # DISP-1 (D-ANY.11): one day source for the whole read
+        return self._o.eligibility.for_finding_on(
+            self._c, t, s, UUID(str(finding_id)), k, select_days=lambda f, to: dispatch_days(self, t, s, f, to, k))
 
     def awaiting_verification(self, t: UUID, s: UUID, pairs: list[tuple[str, str]], k: datetime) -> int:
         """Actions of these exact (Finding, selected revision) pairs with a frozen verification window open at `k`

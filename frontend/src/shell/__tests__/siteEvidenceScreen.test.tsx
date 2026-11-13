@@ -12,10 +12,12 @@ import {
   RECORD_DETAIL,
   evidenceClient,
 } from "../../sites/__tests__/evidenceFixtures";
-import { EMPTY_ANALYTICS_CLIENT } from "../../sites/__tests__/analyticsFixtures";
+import { EMPTY_ANALYTICS_CLIENT, analyticsClient } from "../../sites/__tests__/analyticsFixtures";
+import { PANEL_ALL_DATES } from "../../sites/SiteEvidence";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { rangeless } from "../../test/rangeless";
 import { spacedText } from "../../test/text";
 import { OPERATOR_SITE_TABS_LABEL } from "../operatorSiteTabs";
 
@@ -175,7 +177,7 @@ describe("the record inspector is a drill-down", () => {
       screen.getByRole("button", { name: "Inspect records for GEN-1 / active_power" }),
     );
     await settledScreen();
-    expect(location()).toBe(`${EVIDENCE_URL}?view=analysis&signal=GEN-1%2Factive_power`);
+    expect(rangeless(location())).toBe(`${EVIDENCE_URL}?view=analysis&signal=GEN-1%2Factive_power`);
     expect(client.recordQueries.at(-1)).toMatchObject({
       device: "GEN-1",
       signal: "active_power",
@@ -227,7 +229,7 @@ describe("the record inspector is a drill-down", () => {
       screen.getByRole("button", { name: "Inspect records from kobo-gw-1" }),
     );
     await settledScreen();
-    expect(location()).toBe(`${EVIDENCE_URL}?source=kobo-gw-1`);
+    expect(rangeless(location())).toBe(`${EVIDENCE_URL}?source=kobo-gw-1`);
     expect(client.recordQueries.at(-1)).toMatchObject({
       device: null,
       signal: null,
@@ -239,7 +241,7 @@ describe("the record inspector is a drill-down", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Close records" }));
     await settledScreen();
-    expect(location()).toBe(EVIDENCE_URL);
+    expect(rangeless(location())).toBe(EVIDENCE_URL);
     expect(document.getElementById("site-evidence-inspector")).toBeNull();
     expect(region("Where the records come from")).toBeInTheDocument();
   });
@@ -313,5 +315,45 @@ describe("W1-F2: legacy evidence panel structure", () => {
     renderAt(ANALYSIS_URL, client());
     await settledScreen();
     expectV69Panels("evidence-analysis");
+  });
+});
+
+/**
+ * SR-4c (D-SR.7, rev 8 8.2): `/evidence/rejections` and `/analytics` take no from/to (backend `evidence_api.py`
+ * `get_rejections` reads only `batch`; `analytics_api.py` `get_declaration` reads no query), so each panel says it
+ * covers all dates, not only the date range in the address.
+ */
+describe("SR-4c: Evidence panels that do not follow the date range say so", () => {
+  const RANGED = `${ANALYSIS_URL}&from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`;
+
+  it("the rejections panel and the analytics panel each carry the all-dates line", async () => {
+    render(
+      <MemoryRouter initialEntries={[RANGED]}>
+        <App
+          flags={featureFlagsWith(false)}
+          siteDirectory={DIRECTORY}
+          siteDetail={DETAIL}
+          siteEvidence={populated()}
+          siteAnalytics={analyticsClient(SITE_ID)}
+        />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const rejections = document.querySelector('[data-panel-range-for="rejections"]');
+    const analytics = document.querySelector('[data-panel-range-for="analytics"]');
+    expect(rejections).toHaveTextContent(PANEL_ALL_DATES);
+    expect(rejections?.getAttribute("data-panel-range")).toBe("all-dates");
+    expect(analytics).toHaveTextContent(PANEL_ALL_DATES);
+    expect(analytics?.getAttribute("data-panel-range")).toBe("all-dates");
+    // The line sits under its own panel heading.
+    const rejectionsPart = screen.getByRole("heading", { name: "Rejected records" }).closest("section, div");
+    expect(rejectionsPart?.contains(rejections)).toBe(true);
+  });
+
+  it("no all-dates line on the analytics panel when no analytic is declared", async () => {
+    renderAt(ANALYSIS_URL, populated());
+    await settledScreen();
+    expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
+    expect(document.querySelector('[data-panel-range-for="rejections"]')).toHaveTextContent(PANEL_ALL_DATES);
   });
 });

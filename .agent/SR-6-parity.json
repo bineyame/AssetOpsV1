@@ -1,0 +1,528 @@
+{
+ "branch": "task/SR-6-health-range",
+ "db": "assetops_polish_vps1_test",
+ "window_end_day": "2026-11-10",
+ "gateway_diagnostic_rows_by_site": {},
+ "results": [
+  {
+   "site": "KOBO-001",
+   "days": 7,
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "days_vs_sr5_range_overview_mismatches": [],
+   "summary": {
+    "days_requested": 7,
+    "days_with_readings": 7,
+    "days_without_readings": 0,
+    "days_not_expected": 0,
+    "days_after_cutoff": 0,
+    "gateways_in_contact_all_days": 0
+   },
+   "summary_classes_sum_equals_days_requested": true,
+   "gateway_contact_histogram": {
+    "READINGS_ONLY": 7
+   },
+   "source_state_histogram": {
+    "READINGS": 42,
+    "NO_READINGS": 14
+   },
+   "dispatch_row_vs_source_sum_differences_reported": [
+    {
+     "day": "2026-11-04",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-11-05",
+     "dispatch_row": 2598,
+     "source_sum": 3108
+    },
+    {
+     "day": "2026-11-07",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-11-08",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-11-09",
+     "dispatch_row": 2892,
+     "source_sum": 3108
+    },
+    {
+     "day": "2026-11-10",
+     "dispatch_row": 1364,
+     "source_sum": 1197
+    }
+   ],
+   "dispatch_row_vs_source_sum_difference_days": 6,
+   "not_expected_days": [],
+   "not_expected_source_days_with_readings": [],
+   "cold_compose_seconds_rows_on": 0.8,
+   "cold_compose_seconds_rows_off": 2.9,
+   "stored": {
+    "s": 200,
+    "first": 0.96,
+    "hits": [
+     0.08,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "site": "KISIWA-001",
+   "days": 7,
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "days_vs_sr5_range_overview_mismatches": [],
+   "summary": {
+    "days_requested": 7,
+    "days_with_readings": 7,
+    "days_without_readings": 0,
+    "days_not_expected": 0,
+    "days_after_cutoff": 0,
+    "gateways_in_contact_all_days": 0
+   },
+   "summary_classes_sum_equals_days_requested": true,
+   "gateway_contact_histogram": {
+    "READINGS_ONLY": 7
+   },
+   "source_state_histogram": {
+    "READINGS": 49,
+    "NO_READINGS": 7
+   },
+   "dispatch_row_vs_source_sum_differences_reported": [
+    {
+     "day": "2026-11-04",
+     "dispatch_row": 3462,
+     "source_sum": 3640
+    },
+    {
+     "day": "2026-11-05",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-06",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-07",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-08",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-09",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-10",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    }
+   ],
+   "dispatch_row_vs_source_sum_difference_days": 7,
+   "not_expected_days": [],
+   "not_expected_source_days_with_readings": [],
+   "cold_compose_seconds_rows_on": 1.5,
+   "cold_compose_seconds_rows_off": 5.1,
+   "stored": {
+    "s": 200,
+    "first": 1.69,
+    "hits": [
+     0.07,
+     0.07
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "site": "KOBO-001",
+   "days": 14,
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "days_vs_sr5_range_overview_mismatches": [],
+   "summary": {
+    "days_requested": 14,
+    "days_with_readings": 14,
+    "days_without_readings": 0,
+    "days_not_expected": 0,
+    "days_after_cutoff": 0,
+    "gateways_in_contact_all_days": 0
+   },
+   "summary_classes_sum_equals_days_requested": true,
+   "gateway_contact_histogram": {
+    "READINGS_ONLY": 14
+   },
+   "source_state_histogram": {
+    "READINGS": 84,
+    "NO_READINGS": 28
+   },
+   "dispatch_row_vs_source_sum_differences_reported": [
+    {
+     "day": "2026-10-28",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-29",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-30",
+     "dispatch_row": 2598,
+     "source_sum": 3108
+    },
+    {
+     "day": "2026-11-01",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-11-02",
+     "dispatch_row": 2892,
+     "source_sum": 3108
+    },
+    {
+     "day": "2026-11-03",
+     "dispatch_row": 1934,
+     "source_sum": 1641
+    },
+    {
+     "day": "2026-11-04",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-11-05",
+     "dispatch_row": 2598,
+     "source_sum": 3108
+    },
+    {
+     "day": "2026-11-07",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-11-08",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    }
+   ],
+   "dispatch_row_vs_source_sum_difference_days": 12,
+   "not_expected_days": [],
+   "not_expected_source_days_with_readings": [],
+   "cold_compose_seconds_rows_on": 0.4,
+   "cold_compose_seconds_rows_off": 4.5,
+   "stored": {
+    "s": 200,
+    "first": 0.55,
+    "hits": [
+     0.08,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "site": "KISIWA-001",
+   "days": 14,
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "days_vs_sr5_range_overview_mismatches": [],
+   "summary": {
+    "days_requested": 14,
+    "days_with_readings": 10,
+    "days_without_readings": 4,
+    "days_not_expected": 0,
+    "days_after_cutoff": 0,
+    "gateways_in_contact_all_days": 0
+   },
+   "summary_classes_sum_equals_days_requested": true,
+   "gateway_contact_histogram": {
+    "NOT_EXPECTED": 2,
+    "NO_CONTACT": 2,
+    "READINGS_ONLY": 10
+   },
+   "source_state_histogram": {
+    "NO_READINGS": 42,
+    "READINGS": 70
+   },
+   "dispatch_row_vs_source_sum_differences_reported": [
+    {
+     "day": "2026-11-01",
+     "dispatch_row": 1734,
+     "source_sum": 1833
+    },
+    {
+     "day": "2026-11-02",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-03",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-04",
+     "dispatch_row": 3462,
+     "source_sum": 3640
+    },
+    {
+     "day": "2026-11-05",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-06",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-07",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-08",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-09",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-10",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    }
+   ],
+   "dispatch_row_vs_source_sum_difference_days": 10,
+   "not_expected_days": [],
+   "not_expected_source_days_with_readings": [],
+   "cold_compose_seconds_rows_on": 1.9,
+   "cold_compose_seconds_rows_off": 6.2,
+   "stored": {
+    "s": 200,
+    "first": 2.1,
+    "hits": [
+     0.07,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "site": "KOBO-001",
+   "days": 31,
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "days_vs_sr5_range_overview_mismatches": [],
+   "summary": {
+    "days_requested": 31,
+    "days_with_readings": 29,
+    "days_without_readings": 2,
+    "days_not_expected": 0,
+    "days_after_cutoff": 0,
+    "gateways_in_contact_all_days": 0
+   },
+   "summary_classes_sum_equals_days_requested": true,
+   "gateway_contact_histogram": {
+    "NOT_EXPECTED": 1,
+    "NO_CONTACT": 1,
+    "READINGS_ONLY": 29
+   },
+   "source_state_histogram": {
+    "NO_READINGS": 74,
+    "READINGS": 174
+   },
+   "dispatch_row_vs_source_sum_differences_reported": [
+    {
+     "day": "2026-10-13",
+     "dispatch_row": 1640,
+     "source_sum": 1641
+    },
+    {
+     "day": "2026-10-14",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-15",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-16",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-17",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-18",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-19",
+     "dispatch_row": 2892,
+     "source_sum": 3108
+    },
+    {
+     "day": "2026-10-20",
+     "dispatch_row": 1934,
+     "source_sum": 1641
+    },
+    {
+     "day": "2026-10-21",
+     "dispatch_row": 3168,
+     "source_sum": 3552
+    },
+    {
+     "day": "2026-10-22",
+     "dispatch_row": 3462,
+     "source_sum": 3552
+    }
+   ],
+   "dispatch_row_vs_source_sum_difference_days": 27,
+   "not_expected_days": [],
+   "not_expected_source_days_with_readings": [],
+   "cold_compose_seconds_rows_on": 0.6,
+   "cold_compose_seconds_rows_off": 10.3,
+   "stored": {
+    "s": 200,
+    "first": 0.81,
+    "hits": [
+     0.09,
+     0.09
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  },
+  {
+   "site": "KISIWA-001",
+   "days": 31,
+   "status": 200,
+   "rows_on_equals_rows_off": true,
+   "days_vs_sr5_range_overview_mismatches": [],
+   "summary": {
+    "days_requested": 31,
+    "days_with_readings": 10,
+    "days_without_readings": 21,
+    "days_not_expected": 0,
+    "days_after_cutoff": 0,
+    "gateways_in_contact_all_days": 0
+   },
+   "summary_classes_sum_equals_days_requested": true,
+   "gateway_contact_histogram": {
+    "NOT_EXPECTED": 19,
+    "NO_CONTACT": 2,
+    "READINGS_ONLY": 10
+   },
+   "source_state_histogram": {
+    "NO_READINGS": 178,
+    "READINGS": 70
+   },
+   "dispatch_row_vs_source_sum_differences_reported": [
+    {
+     "day": "2026-11-01",
+     "dispatch_row": 1734,
+     "source_sum": 1833
+    },
+    {
+     "day": "2026-11-02",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-03",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-04",
+     "dispatch_row": 3462,
+     "source_sum": 3640
+    },
+    {
+     "day": "2026-11-05",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-06",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-07",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-08",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-09",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    },
+    {
+     "day": "2026-11-10",
+     "dispatch_row": 3462,
+     "source_sum": 3645
+    }
+   ],
+   "dispatch_row_vs_source_sum_difference_days": 10,
+   "not_expected_days": [],
+   "not_expected_source_days_with_readings": [],
+   "cold_compose_seconds_rows_on": 2.0,
+   "cold_compose_seconds_rows_off": 6.3,
+   "stored": {
+    "s": 200,
+    "first": 2.26,
+    "hits": [
+     0.08,
+     0.08
+    ],
+    "equal": true
+   },
+   "stored_hit_le_2s": true
+  }
+ ],
+ "failed_cases": [],
+ "gates": {
+  "rows_on_equals_rows_off": true,
+  "day_states_vs_sr5a_mismatches": 0,
+  "stored_hit_max_seconds": 0.09,
+  "not_expected_with_readings": []
+ },
+ "note": "Day pin compares days[].state and accepted_readings with the SR-5 branch range-overview bodies on the same DB/windows (SR-6 branch has no range-overview route). Stored first-serve is a hit (store already warm); cold = store-off compose. SR-5 FINDINGS/CLEAR map to ANALYSED here.",
+ "gateway_diagnostic_note": "gateway_diagnostic holds 0 rows for KOBO-001 and KISIWA-001 on this DB (psql count); every expected gateway day reads READINGS_ONLY / NOT_EXPECTED / NO_CONTACT, never IN_CONTACT or PARTIAL"
+}

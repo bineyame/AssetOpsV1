@@ -38,6 +38,8 @@ if URL:
     from assetops_backend.mini_depth.read import MiniDepthRead
 
 ALL = ",".join(pr.KINDS) if URL else ""
+#: The board's four kinds (SR-10a's whole-day kinds are built and pinned by `test_sr10_day_kinds_postgres.py`).
+BOARD = tuple(k for k in pr.KINDS if k not in pr.DAY_KINDS) if URL else ()
 
 
 def _consume_all(engine) -> None:
@@ -51,7 +53,7 @@ def _build(engine, t, s, days) -> list:
     builder = PeriodReadBuilder(PostgresPeriodReadStore(engine=engine),
                                 pr.kind_builders(MiniDepthRead(engine, link_rows_on)))
     site = SiteRef(t, s, w402.CODE, "MINIGRID", w402.ZONE)
-    return [w for day in days for kind in pr.KINDS for w in builder.build(t, site, day, kind)]
+    return [w for day in days for kind in BOARD for w in builder.build(t, site, day, kind)]
 
 
 def _reader(engine) -> MiniDepthRead:

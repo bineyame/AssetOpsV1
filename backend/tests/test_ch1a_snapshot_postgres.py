@@ -73,8 +73,9 @@ def _builder(adapters_from, snapshot_store):
                            load_operating_calendar())
 
 
-def _site(t, s, code=w402.CODE):
-    return SiteRef(t, s, code, "MINIGRID", w402.ZONE)
+def _site(t, s, code=None):
+    # Default resolved at call time: `w402` is only imported when a DB URL is set (collection must not NameError).
+    return SiteRef(t, s, code if code is not None else w402.CODE, "MINIGRID", w402.ZONE)
 
 
 def test_0043_catalogue_and_insert_only(store, engine) -> None:  # noqa: F811

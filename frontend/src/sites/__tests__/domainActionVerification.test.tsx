@@ -686,6 +686,20 @@ describe("ev-action window (R348)", () => {
     expect(main.querySelector('[data-domain-action-panel="window-invalid"]')).toBeNull();
     expect(main.querySelector('[data-action-section="verification"]')?.getAttribute("href")).not.toContain("from=");
   });
+
+  // D-SR.73 R350: from/to on the link are for onward navigation only; the record is not re-cut by the range.
+  it("cold verification record is identical with and without from/to on its link", async () => {
+    const known = `known_at=${encodeURIComponent(EV_KNOWN)}`;
+    const withRange = await mount(() => loaded(positive()), `?${known}&from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}`);
+    // Links carry the range for onward navigation only (hrefs ignored); every rendered record value must match.
+    const record = (el: HTMLElement) => el.innerHTML.replace(/ href="[^"]*"/g, "");
+    const recordWith = record(withRange.main);
+    expect(withRange.calls).toEqual([{ id: DOMAIN_ID, knownAt: EV_KNOWN }]);
+    cleanup();
+    const without = await mount(() => loaded(positive()), `?${known}`);
+    expect(without.calls).toEqual(withRange.calls);
+    expect(record(without.main)).toBe(recordWith);
+  });
 });
 
 describe("Action section addresses (R350, cold and EV)", () => {
@@ -712,7 +726,8 @@ describe("Action section addresses (R350, cold and EV)", () => {
     expect(calls.length).toBeGreaterThan(0);
   });
 
-  it.each(["plan", "history"])("cold `/%s` is the same not-served state with only a valid known_at kept", async (section) => {
+  // SR-4 D-SR.2: the verification link now carries the address range too, each key once, like EV's.
+  it.each(["plan", "history"])("cold `/%s` is the same not-served state; its verification link carries the address range", async (section) => {
     const d = domain(() => loaded(positive()));
     render(
       <MemoryRouter initialEntries={[`/sites/${SITE}/actions/${DOMAIN_ID}/${section}?known_at=${encodeURIComponent(EV_KNOWN)}&from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}`]}>
@@ -726,7 +741,9 @@ describe("Action section addresses (R350, cold and EV)", () => {
     const main = document.querySelector("main") as HTMLElement;
     expect(text(main.querySelector("h1"))).toBe("Page not available");
     expect(text(main.querySelector("section.panel h2"))).toBe("This address is not served");
-    expect(main.querySelector("[data-action-open-verification]")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification?known_at=${encodeURIComponent(EV_KNOWN)}`);
+    expect(main.querySelector("[data-action-open-verification]")?.getAttribute("href")).toBe(
+      `/sites/${SITE}/actions/${DOMAIN_ID}/verification?known_at=${encodeURIComponent(EV_KNOWN)}&from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}`,
+    );
   });
 });
 

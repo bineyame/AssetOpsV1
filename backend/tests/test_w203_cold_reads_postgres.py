@@ -334,3 +334,33 @@ def test_historical_cutoff_precedes_pending_job(chain) -> None:  # noqa: F811
     finally:
         with built.engine.begin() as conn:
             conn.execute(text("UPDATE recompute_job SET status = 'DONE' WHERE id = :j"), {"j": job})
+
+
+def _later_selection(built) -> None:
+    """D-SR.64 fixture: re-select the same runs one day later, so the latest selected cold window holds no Finding."""
+    with built.engine.begin() as conn:
+        conn.execute(text(
+            "INSERT INTO analytic_run_selection (tenant_id, site_id, analytic_id, window_start, window_end, run_id, "
+            "job_id, selected_at) SELECT tenant_id, site_id, analytic_id, window_start + interval '1 day', "
+            "window_end + interval '1 day', run_id, job_id, selected_at FROM analytic_run_selection "
+            "WHERE site_id = :s"), {"s": built.site_id})
+
+
+@needs_db
+def test_finding_detail_without_window_reads_its_own_period(chain) -> None:  # noqa: F811
+    """D-SR.64 (F2): a detail read with no `from`/`to` takes the window of the run that wrote the Finding's latest
+    revision, not the latest selected window; an explicit window missing the anchor still answers 404."""
+    built = opened("excursion", chain)
+    run(built)
+    c = client(built)
+    [finding] = [i for i in get(c, f"findings?{W}")["items"] if i["kind"] == "EXCURSION"]
+    _later_selection(built)
+    assert get(c, "temperature")["window"]["from"] == "2026-10-07T19:00:00.000000Z"  # the latest window moved
+    own = get(c, f"findings/{finding['finding_id']}")
+    assert own["finding_id"] == finding["finding_id"] and own["revision_id"] == finding["revision_id"]
+    assert (own["window"]["from"], own["window"]["to"]) == ("2026-10-06T19:00:00.000000Z",
+                                                            "2026-10-06T20:05:00.000000Z")
+    later = "from=2026-10-07T19:00:00Z&to=2026-10-07T20:05:00Z"
+    assert error(c, f"findings/{finding['finding_id']}?{later}", 404) == "COLD_FINDING_NOT_FOUND"
+    assert get(c, f"findings/{finding['finding_id']}?{W}")["finding_id"] == finding["finding_id"]
+    assert error(c, f"findings/{uuid4()}", 404) == "COLD_FINDING_NOT_FOUND"

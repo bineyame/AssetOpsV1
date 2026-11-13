@@ -28,6 +28,7 @@ from __future__ import annotations
 import os
 
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from assetops_backend.i18n import LocaleMiddleware
 
@@ -62,7 +63,7 @@ from assetops_backend.chain.composition import build_response_store, install_han
 from assetops_backend.estate_api import build_estate_router
 from assetops_backend.estate_evidence_money_api import build_estate_evidence_money_router
 from assetops_backend.estate_portfolio_api import build_estate_portfolio_router
-from assetops_backend.source_health_api import build_source_health_router
+from assetops_backend.source_health_api import build_health_range_router, build_source_health_router
 from assetops_backend.asset_boundary_api import build_asset_boundary_router
 from assetops_backend.analytics.cold_depth import ColdDepthReadService
 from assetops_backend.analytics.cold_site_reads import ColdSiteReadService
@@ -92,6 +93,7 @@ from assetops_backend.work.composition import (WORK_UNAVAILABLE, build_domain_ac
                                                build_domain_intent_service, build_global_work_detail_service,
                                                build_global_work_index_service, build_work_detail_service,
                                                build_work_index_service, build_work_service)
+from assetops_backend.work.model import WorkStoreUnavailable
 from assetops_backend.work.operational_entry import entry_site_context
 from assetops_backend.work_api import Principal, WorkGate, build_work_router, no_service_principal
 from assetops_backend.domain_work_api import build_domain_work_router
@@ -104,6 +106,7 @@ from assetops_backend.financials.composition import (
     CONSEQUENCE_UNAVAILABLE,
     AssumptionStoreUnavailable,
     build_assumption_read_service,
+    build_assumption_store,
     build_cold_consequence_store,
     build_consequence_history_service,
     build_consequence_read_service,
@@ -112,7 +115,8 @@ from assetops_backend.financials.composition import (
 )
 from assetops_backend.performance_api import build_performance_router
 from assetops_backend.mini_depth.read import MiniDepthRead
-from assetops_backend.mini_depth_api import build_mini_depth_router
+from assetops_backend.mini_depth_api import (build_day_range_router, build_mini_depth_router,
+                                            build_renewable_range_router, build_service_range_router)
 from assetops_backend.mini_decisions.alternatives import AlternativeService
 from assetops_backend.mini_decisions.opportunities import OpportunityService
 from assetops_backend.mini_decisions.work_links import WorkLinkService
@@ -124,7 +128,7 @@ from assetops_backend.mini_decisions_api import (
     deny_decision_writes,
     no_decision_principal,
 )
-from assetops_backend.claim_limit_api import build_claim_limit_router
+from assetops_backend.claim_limit_api import build_claim_limit_range_router, build_claim_limit_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
 from assetops_backend.config import (
@@ -134,6 +138,7 @@ from assetops_backend.config import (
     load_feature_flags,
 )
 from assetops_backend.evidence.composition import (
+    health_registration,
     build_cold_replay_reader,
     build_ev_replay_reader,
     build_link_rows_reader,
@@ -178,6 +183,7 @@ from assetops_backend.scheduling.composition import SCHEDULE_UNAVAILABLE
 from assetops_backend.site_overview.composition import build_site_overview_read
 from assetops_backend.site_overview.route import SiteOverviewRoute
 from assetops_backend.sites.composition import (
+    health_range_counts,
     build_foundation_store,
     build_site_repository,
     build_site_template_catalog,
@@ -621,6 +627,11 @@ def create_app(
     app.include_router(build_estate_portfolio_router(
         estate_portfolio, registry_tenant(registry),
         access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    # SR-6a (rev 10 §10.2, D-SR.23): mini-grid Health over a range, a stored route on the estate snapshot; included
+    # here because it needs `responses` and `estate_portfolio` (the point-in-time source-health route stays above).
+    app.include_router(build_health_range_router(
+        estate_portfolio, registry, responses, registration=health_registration(), counts=health_range_counts(),
+        access=development_access))
     # W4-01 commit 3 (Lane A): Site work commands and the case detail read. No server SERVICE principal is
     # injected here, so a write is 403; the detail read is available under Site read access.
     work_lists = build_work_index_service(database_url()) if database_url() else None
@@ -654,7 +665,17 @@ def create_app(
         access=site_read_access, unavailable=(SiteStoreUnavailable,),
         details=build_global_work_detail_service(database_url()), scope=registry.ledger_scope))
     # S4-02a: the human price write route has no success path (no verified human principal yet).
-    app.include_router(build_financial_assumption_router(registry.ledger_scope))
+    # PR-3 (D-PRICE.1): the site-admin price entry route on the same router, behind the dip form's one switch
+    # (`operational_entry_principal`), the price read's access and the Site time zone the entry route reads.
+    entry_store = build_assumption_store(database_url()) if database_url() else None
+    if entry_store is not None:
+        app.router.on_shutdown.append(entry_store.dispose)
+    entry_site = entry_site_context(fuel_store.night_context) if fuel_store is not None else None
+    app.include_router(build_financial_assumption_router(
+        registry.ledger_scope, entry_principal=operational_entry_principal, store=entry_store,
+        site_zone=(lambda t, s: ZoneInfo(entry_site(t, s)[0])) if entry_site is not None else None,
+        read_access=development_access, site_name=entry_store.site_name if entry_store is not None else None,
+        unavailable=(AssumptionStoreUnavailable, WorkStoreUnavailable, SiteStoreUnavailable)))
     # S4-08: the Site consequence history at one recorded cutoff (read-only). Included before the price reads so
     # `/financial-assumptions/consequences` is not taken for a price revision ID.
     app.include_router(build_consequence_history_router(
@@ -667,7 +688,8 @@ def create_app(
         registry.ledger_scope, (AssumptionStoreUnavailable,)))
     # PR-2a (BL-68): the read-only Site price page over the same price reads.
     app.include_router(build_price_page_router(
-        assumption_reads, registry_site_facts(registry), (AssumptionStoreUnavailable, SiteStoreUnavailable)))
+        assumption_reads, registry_site_facts(registry), (AssumptionStoreUnavailable, SiteStoreUnavailable),
+        entry_principal=operational_entry_principal))
     # OUT-B4 (§B.3): the Site outcome board and the estate outcome summary over the instances composed above
     # (no new store except the preventive-plan global work read, disposed at shutdown).
     outcome_board, outcome_board_dispose = build_outcome_board_service(
@@ -691,6 +713,27 @@ def create_app(
         outcome_board, registry, estate=estate_portfolio, tenant=registry_tenant(registry),
         access=development_access, work_access=site_read_access, unavailable=(SiteStoreUnavailable,),
         policy_versions=chain_policy_versions, lifecycle=thread_lifecycle_policy, responses=responses))
+    # SR-7 (rev 10 §10.3, D-SR.23): the mini-grid Service and claim-limit range reads, included after `responses` and
+    # `estate_portfolio` exist. Service reads the board service's chain reader (as `/chain`); the claim-limit range
+    # reads one estate snapshot (the evidence-money claim-day pattern) behind the one-day route's Performance gate.
+    app.include_router(build_service_range_router(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    app.include_router(build_claim_limit_range_router(
+        estate_portfolio, registry, access=development_access, gate=performance_gate,
+        unavailable=(SiteStoreUnavailable,), responses=responses))
+    # SR-8 (rev 10 §10.4, D-SR.23): Renewable over the whole range, from the board's chain reader; a stored route.
+    app.include_router(build_renewable_range_router(
+        lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+        access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
+    # SR-10b (rev 10b.2, D-SR.23/31/32): Fuel over the range, from the stored `mini_depth.fuel_day` rows; a stored
+    # route. Grades come from the board's chain reader. SR-11 (rev 10b.3): Backup over the range, the same builder
+    # over the stored `mini_depth.backup_day` rows.
+    for range_domain in ("fuel", "backup"):
+        app.include_router(build_day_range_router(
+            range_domain, lambda: None if mini_period_rows is None else mini_period_rows[0],
+            lambda: getattr(getattr(outcome_board, "s", None), "chain_reader", None), registry,
+            access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))
     # CH-5a2b (§B14 Q7/Q8): the Portfolio and estate Findings `summary.claims` call the one count computation
     # `/estate/chain` calls, over the same board reads and the same Site registry.
     estate_claims = build_estate_claims(

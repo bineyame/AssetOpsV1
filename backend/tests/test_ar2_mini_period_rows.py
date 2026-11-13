@@ -194,6 +194,20 @@ def _by_day(facts: list[dict]) -> dict[date, list[dict]]:
     return out
 
 
+def test_hour_missing_flag_round_trips_through_json() -> None:
+    """D-SR.62: the stored hour carries `missing` (builder `mini-depth-rows-2`); a version-1 body reads False."""
+    from dataclasses import replace
+
+    assert pr.BUILDER_VERSION == "mini-depth-rows-2"
+    for h in (replace(_hour(D0, 3, 1, head=False), missing=True), _hour(D0, 12, 2)):
+        value = _round_trip(pr.hour_json(h))
+        assert value["missing"] is h.missing
+        assert pr.hour_from_json(value, historical=False, pending=False) == h
+    old = _round_trip(pr.hour_json(_hour(D0, 12, 2)))
+    del old["missing"]
+    assert pr.hour_from_json(old, historical=False, pending=False).missing is False
+
+
 def test_link_rows_round_trip_through_json() -> None:
     row = _link(3)
     assert pr.link_row_from_json(_round_trip(pr.link_row_json(row))) == row

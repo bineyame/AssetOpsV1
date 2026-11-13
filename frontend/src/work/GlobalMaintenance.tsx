@@ -11,7 +11,7 @@
  * `View detail →` link live, both to `/maintenance/preventive` with the effective window and cutoff, never a cursor. A refusal, a read failure, an empty scope or a changed list is stated, never zero.
  */
 import { displayCode } from "../ui/displayCode";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import type { EstateClient, EstateOutcomeSummarySite } from "../estate/estateClient";
 import { useOutcomeSummary } from "../estate/useOutcomeSummary";
 import { CellDisclosure } from "./CellDisclosure";

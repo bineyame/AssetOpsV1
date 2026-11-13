@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, readResultWords, type ProductWords } from "../ui";
 import type { ConsequenceHistoryBody, ConsequenceHistoryResult, ConsequenceHistoryRow } from "./financialsClient";

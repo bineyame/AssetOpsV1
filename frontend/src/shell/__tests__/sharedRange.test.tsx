@@ -115,6 +115,10 @@ describe("SR-1 useSharedRange reads both address forms", () => {
     });
   });
 
+  it("SR-4 D-SR.41a: an hour inside one day is a valid range (the raw instants are compared before rounding to days)", () => {
+    expect(readSharedRange(new URLSearchParams("from=2026-10-06T08:00:00Z&to=2026-10-06T09:00:00Z"), NOW)).toMatchObject({ status: "set", from: "2026-10-06", to: "2026-10-06" });
+  });
+
   it("an address without a range is absent; a bad range is invalid and never echoes dates", () => {
     expect(hookAt("/portfolio")).toEqual({ status: "absent" });
     for (const bad of [
@@ -123,6 +127,9 @@ describe("SR-1 useSharedRange reads both address forms", () => {
       "from=2026-08-01&to=2026-10-01",
       "from=yesterday&to=2026-10-01",
       "from=2026-10-01&to=2026-10-02&known_at=noon",
+      // SR-4 D-SR.41a: a first instant that is not before the last is invalid, though both round to one valid day.
+      "from=2026-10-06T09:00:00Z&to=2026-10-06T08:00:00Z",
+      "from=2026-10-06T09:00:00Z&to=2026-10-06T09:00:00Z",
     ]) {
       expect(readSharedRange(new URLSearchParams(bad), NOW)).toEqual({ status: "invalid" });
     }
@@ -165,7 +172,8 @@ describe("SR-1 withRange and the rail search", () => {
     expect(withRange("/findings", params)).toBe(`/findings?${carried}`);
     expect(withRange("/findings?state=merged", params)).toBe(`/findings?state=merged&${carried}`);
     // A link that names its own range keeps it.
-    expect(withRange("/sites/X?from=2026-01-01&to=2026-01-02", params)).toBe("/sites/X?from=2026-01-01&to=2026-01-02");
+    // D-SR.57 L3: a link's own from/to are kept; the address known_at is added when the link names none.
+    expect(withRange("/sites/X?from=2026-01-01&to=2026-01-02", params)).toBe("/sites/X?from=2026-01-01&to=2026-01-02&known_at=2026-10-04T12%3A00%3A00Z");
     // No range, or a bad one, carries nothing.
     expect(withRange("/findings", new URLSearchParams(""))).toBe("/findings");
     expect(withRange("/findings", new URLSearchParams("from=2026-10-06"))).toBe("/findings");
@@ -349,11 +357,14 @@ describe("SR-1 review notes closed in SR-2", () => {
     expect(within(rangeButton()).getByText("All pages")).toBeTruthy();
     expect(within(rangeButton()).queryByText("Not used on this page")).toBeNull();
     story.unmount();
-    // Site day board with no range in the address: no claim of a shared range, and no self-contradiction.
+    // Site day board with no range in the address: SR-4a's safety net gives it the 7-day range, so the bar names that
+    // range and never says the page has its own dates or ignores the range. (With its board read, the tag names the
+    // day it shows as "Showing <day> of the range": `s5SiteWindowOverview.test.tsx`.)
     const board = renderApp("/sites/MG-002");
     await settledScreen();
-    expect(rangeButton().textContent).toContain("This page's own dates");
-    expect(within(rangeButton()).queryByText("All pages")).toBeNull();
+    expect(where()).toMatch(/^\/sites\/MG-002\?from=2026-09-30T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z/);
+    expect(rangeButton().textContent).not.toContain("This page's own dates");
+    expect(rangeButton().textContent).toContain("30 Sep – 6 Oct");
     expect(within(rangeButton()).queryByText("Not used on this page")).toBeNull();
     board.unmount();
     // Record page that ignores the range.

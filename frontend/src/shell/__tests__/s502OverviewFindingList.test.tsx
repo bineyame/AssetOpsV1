@@ -23,6 +23,7 @@ import { OVERVIEW_FINDING_PREVIEW_LIMIT } from "../../sites/OverviewFindingList"
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
+import { rangeless } from "../../test/rangeless";
 import { FID, RID, WA, summary } from "./s5WindowFixtures";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
@@ -172,7 +173,7 @@ describe("S5-02 Overview Finding list: request scope", () => {
     ]);
     // The served day, not the browser clock, is the window; the address keeps S5-01's keys.
     // SR-2: the board names its day as `day=` (an old `date=` link reads the same day and is rewritten).
-    expect(where()).toBe(`/sites/${SITE_ID}?day=2026-10-25&finding_id=${FID}&finding_revision_id=${RID}`);
+    expect(rangeless(where())).toBe(`/sites/${SITE_ID}?day=2026-10-25&finding_id=${FID}&finding_revision_id=${RID}`);
   });
 
   it("a legacy (not imported) Overview issues no index request and shows no list", async () => {
@@ -277,7 +278,7 @@ describe("S5-02 Overview Finding list: positive rows and parity (mini:3#b)", () 
     await settledScreen();
     expect(listState()).toBe("current-rows");
     expect(rowIds()).toEqual([FID, OTHER_FID]);
-    const links = Array.from(document.querySelectorAll("[data-overview-finding-link]")).map((a) => a.getAttribute("href"));
+    const links = Array.from(document.querySelectorAll("[data-overview-finding-link]")).map((a) => rangeless(a.getAttribute("href") ?? ""));
     expect(links).toEqual([
       `/sites/${SITE_ID}/findings/${FID}?revision_id=${RID}`,
       `/sites/${SITE_ID}/findings/${OTHER_FID}?revision_id=${OTHER_RID}`,
@@ -394,12 +395,13 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     const overview = overviewOf((sel) => day(sel.date ?? DAY));
     renderAt(`/sites/${SITE_ID}?date=${DAY}`, overview.client, { getFindingIndex });
     await screen.findByText(/Loading the findings for this day/);
-    fireEvent.click(document.querySelector('[data-window-day-link="next"]') as HTMLElement);
+    // SR-4b: the story day is the last day of the 7 days the shell gave it, so the step goes back a day.
+    fireEvent.click(document.querySelector('[data-window-day-link="previous"]') as HTMLElement);
     // Review fix M4: no "Findings for {date}" subheading; the list section names its day.
-    await vi.waitFor(() => expect(document.querySelector('[data-overview-finding-list-for="2026-10-16"]')).not.toBeNull());
+    await vi.waitFor(() => expect(document.querySelector('[data-overview-finding-list-for="2026-10-14"]')).not.toBeNull());
     // The old day answers last, after the new day.
     await act(async () => {
-      pending.get("2026-10-16")!({ status: "loaded", value: aligned("2026-10-16") });
+      pending.get("2026-10-14")!({ status: "loaded", value: aligned("2026-10-14") });
     });
     await act(async () => {
       pending.get(DAY)!({ status: "loaded", value: positive(DAY) });
@@ -407,9 +409,9 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     await settledScreen();
     expect(listState()).toBe("current-empty");
     expect(rowIds()).toEqual([]);
-    expect(where()).toContain("day=2026-10-16");
+    expect(where()).toContain("day=2026-10-14");
     // The date change dropped the old day's Finding pin from the request.
-    expect(overview.getOverview.mock.calls[1][2]).toMatchObject({ date: "2026-10-16", finding_id: null });
+    expect(overview.getOverview.mock.calls[1][2]).toMatchObject({ date: "2026-10-14", finding_id: null });
   });
 
   it("a row link opens the exact revision and Back returns to the selected Overview day", async () => {
@@ -422,7 +424,7 @@ describe("S5-02 Overview Finding list: date change, late answers and navigation"
     link.focus();
     expect(document.activeElement).toBe(link);
     fireEvent.click(link);
-    expect(where()).toBe(`/sites/${SITE_ID}/findings/${OTHER_FID}?revision_id=${OTHER_RID}`);
+    expect(rangeless(where())).toBe(`/sites/${SITE_ID}/findings/${OTHER_FID}?revision_id=${OTHER_RID}`);
     fireEvent.click(document.querySelector("[data-back]") as HTMLElement);
     await settledScreen();
     expect(where()).toBe(before);

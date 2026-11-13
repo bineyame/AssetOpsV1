@@ -6,7 +6,8 @@
  * honestly empty until a stored eligible kind exists. No mock ID, count, price or savings is rendered.
  */
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { SOURCE_WORDS, sourceState, type SourceProvenance } from "../sites/sourceProvenance";

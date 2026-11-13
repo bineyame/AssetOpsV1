@@ -190,7 +190,7 @@ class MoneyEligibility:
         return evaluate(str(finding_id), latest, asset, days)
 
     def for_finding_on(self, c: Any, tenant_id: UUID, site_id: UUID, finding_id: UUID,
-                       known_at: datetime) -> dict[str, Any]:
+                       known_at: datetime, *, select_days: Any = None) -> dict[str, Any]:
         """W3-01 Run 6 `0b`: `for_finding` as of `known_at`, on the caller's connection and transaction.
 
         The Finding's latest revision created by `known_at` and its cited assessments come from
@@ -201,7 +201,7 @@ class MoneyEligibility:
         an unwired selector or a day the stored records cannot reconstruct at the cutoff is
         `PENDING_REASSESSMENT` with its reason, never `ELIGIBLE`."""
         fid = str(finding_id)
-        if self.days is None or not hasattr(self.findings, "index_snapshot_on"):
+        if (select_days is None and self.days is None) or not hasattr(self.findings, "index_snapshot_on"):
             return {**unavailable(fid, "AS_OF_GATE_NOT_WIRED"), "known_at": _iso(known_at)}
         index = self.findings.index_snapshot_on(c, tenant_id, site_id, DOMAIN, self.analytic_id, known_at)
         head = next((h for h in index["heads"] if str(h["finding_id"]) == fid), None)
@@ -219,8 +219,16 @@ class MoneyEligibility:
                   "assessments": lineage["assessments"]}
         lo, hi = _utc(head["episode_start"]) - BRACKET, _utc(head["episode_end"]) + BRACKET
         spans = days_over(lo, hi)
-        selected = {d["day"]: d for d in self.days.select_dispatch_days_on(
-            c, tenant_id, site_id, _start(spans[0]), _start(spans[-1]) + timedelta(days=1), known_at)}
+        lo_t, hi_t = _start(spans[0]), _start(spans[-1]) + timedelta(days=1)
+        # DISP-1 (D-ANY.11): a caller that already holds the request's stored dispatch days passes `select_days`.
+        rows = (select_days(lo_t, hi_t) if select_days is not None
+                else self.days.select_dispatch_days_on(c, tenant_id, site_id, lo_t, hi_t, known_at))
+        selected = {d["day"]: d for d in rows}
+        if select_days is not None:
+            gap = [d.isoformat() for d in spans if d not in selected]
+            if gap:
+                return {**unavailable(fid, "HISTORICAL_DAY_UNAVAILABLE: DAY " + ", ".join(gap)
+                                      + " not in the supplied dispatch days"), "known_at": _iso(known_at)}
         match_pass, deferred = index["match_pass"], set(index["deferred_windows"])
         days: list[dict[str, Any]] = []
         unproven: list[str] = []

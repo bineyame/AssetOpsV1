@@ -18,7 +18,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any, Mapping
 from zoneinfo import ZoneInfo
 
-from assetops_backend.financials.assumptions import SYSTEM_PUBLISHER
+from assetops_backend.financials.assumptions import ISO_4217, SYSTEM_PUBLISHER, unit_for
 from assetops_backend.outcomes.price_action import NEED_TEXT, NEEDS_LABEL, PRICE_NOUN, STORED_KEYS
 
 #: Rev 5 §5.3: actor id -> "Set by" words. The second entry is PR-3's site-admin entry service (D-PRICE.1),
@@ -31,6 +31,10 @@ UNKNOWN_SETTER = "Recorded by the server"
 
 #: The sign-in sentence (rev 4 card; PR-1 fix round wording). PR-3 replaces it when entry is enabled.
 SIGN_IN_TEXT = "Prices are set by your AssetOps administrator until sign-in is available."
+#: PR-3 (rev 5 §5.3, default 7): the sentence when the site-admin entry service is configured on this server.
+ENTRY_SIGN_IN_TEXT = "Prices saved here are recorded as entered by site admin until sign-in is available."
+#: PR-3 honest state "known_at view": no form at a recorded cutoff; the link drops `known_at`.
+LIVE_VIEW_LINK = "Set a price from the live view →"
 INTRO_TEXT = "Every price this site's figures use: the current value, where it came from, and every earlier version."
 TABLE_NOTE = "One row per price. \"Not set\" means the figures that need it read \"not priced\"."
 NOT_SET = "Not set"
@@ -212,16 +216,40 @@ def need_block(need: str | None) -> dict[str, Any] | None:
             "link_label": NEEDS_LABEL}
 
 
+def entry_block(*, site_type: str, entry_on: bool, known_at: datetime | None, now: datetime | None,
+                zone: ZoneInfo) -> dict[str, Any]:
+    """PR-3 (rev 5 §5.3): which rows take the inline price form.
+
+    `enabled` is true only when the site-admin entry service is configured and the page is the live view (no
+    `known_at`). `keys` are the stored keys this Site type uses (never a future key). `today` is the Site-local date
+    the form's "Applies from" defaults to; `unit_text` names each key's unit for the Amount suffix; `currencies` is the
+    select for a key with no series yet. Under `known_at` with entry on, `live_view` carries the honest-state words.
+    """
+    enabled = entry_on and known_at is None
+    keys = list(stored_keys(site_type))
+    live_view = None
+    if entry_on and known_at is not None:
+        live_view = {"text": f"You are viewing prices as known at {moment_text(known_at, zone)}.",
+                     "link_label": LIVE_VIEW_LINK}
+    return {"enabled": enabled, "keys": keys,
+            "today": None if not enabled or now is None else now.astimezone(zone).date().isoformat(),
+            "unit_text": {k: UNIT_WORDS.get(unit_for(k), unit_for(k)) for k in keys} if enabled else {},
+            "currencies": sorted(ISO_4217) if enabled else [],
+            "live_view": live_view}
+
+
 def compose(*, site_code: str, site_name: str, site_type: str, timezone: str,
             series: Mapping[str, Mapping[str, Any]], need: str | None, known_at: datetime | None,
-            access_basis: str) -> dict[str, Any]:
+            access_basis: str, entry_on: bool = False, now: datetime | None = None) -> dict[str, Any]:
     """The page body. `series` holds one `AssumptionReadService.series` body per stored key of the Site type."""
     zone = ZoneInfo(timezone)
     rows = [row(k, series.get(k), zone) for k in site_keys(site_type)]
     set_count = sum(1 for r in rows if r["state"] == "SET")
     return {
         "site_code": site_code, "site_name": site_name, "access_basis": access_basis,
-        "title": f"{site_name} · Prices", "intro": INTRO_TEXT, "sign_in_text": SIGN_IN_TEXT,
+        "title": f"{site_name} · Prices", "intro": INTRO_TEXT,
+        "sign_in_text": ENTRY_SIGN_IN_TEXT if entry_on else SIGN_IN_TEXT,
+        "entry": entry_block(site_type=site_type, entry_on=entry_on, known_at=known_at, now=now, zone=zone),
         "table_title": f"All prices for {site_name}", "table_note": TABLE_NOTE,
         "count_text": f"{len(rows)} price{'' if len(rows) == 1 else 's'} · {set_count} set",
         "cutoff": {"known_at": known_at,

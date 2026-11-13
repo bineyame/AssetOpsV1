@@ -27,7 +27,8 @@
  */
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { formatDayTime } from "../ui/time";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import {
   DataTable,

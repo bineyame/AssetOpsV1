@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { DataTable, Fact, FactList, PageHeader, Panel } from "../ui";
 import type {

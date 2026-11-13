@@ -63,3 +63,61 @@ def test_three_site_prepare_finishes_with_the_plan_days(monkeypatch) -> None:
     assert manifest["sites"] == ["kobo", "cold", "ev"]
     objectives = [c for c in calls if c and str(c[0]).endswith("demo_declare_objectives.py")]
     assert len(objectives) == 3
+
+
+def _evidence_demo(monkeypatch, tmp_path, codes_exit=None):
+    demo = tool.Demo("assetops_polish_dsr67_test", "var/polish_dsr67")
+    calls: list[tuple] = []
+
+    def py(*argv, **kw):
+        calls.append(argv)
+        site = argv[argv.index("--site") + 1] if "--site" in argv else ""
+        return subprocess.CompletedProcess(argv, (codes_exit or {}).get(site, 0), "", "")
+
+    monkeypatch.setattr(demo, "py", py)
+    monkeypatch.setattr(demo, "work", tmp_path)
+    return demo, calls
+
+
+def test_d_sr67_evidence_comparison_runs_for_every_story_site(monkeypatch, tmp_path) -> None:
+    demo, calls = _evidence_demo(monkeypatch, tmp_path)
+    demo.evidence_comparisons({"sites": ["kobo", "kisiwa", "ev", "cold"]})
+    sites = [c[c.index("--site") + 1] for c in calls if "evidence_migration" in " ".join(c)]
+    assert sites == ["KOBO-001", "KISIWA-001", "EV-LAB-001", "COLD-LAB-001"]
+
+
+def test_d_sr67_exit_2_stops_the_prepare(monkeypatch, tmp_path) -> None:
+    import pytest
+
+    demo, calls = _evidence_demo(monkeypatch, tmp_path, {"KISIWA-001": 2})
+    with pytest.raises(SystemExit) as exc:
+        demo.evidence_comparisons({"sites": ["kobo", "kisiwa", "ev"]})
+    assert "KISIWA-001" in str(exc.value) and "exit 2" in str(exc.value)
+    assert len(calls) == 2  # EV never ran
+
+
+def test_d_sr67_finish_runs_the_comparison_before_the_ticks(monkeypatch, tmp_path) -> None:
+    demo, calls = _evidence_demo(monkeypatch, tmp_path)
+    order: list[str] = []
+    monkeypatch.setattr(demo, "evidence_comparisons", lambda story: order.append("evidence"))
+    monkeypatch.setattr(demo, "drain_mini", lambda: order.append("mini"))
+    monkeypatch.setattr(demo, "tick", lambda times=1: order.append("tick") or {})
+    demo.finish({"sites": ["kobo", "ev"], "days": []})
+    assert order[0] == "evidence" and order.index("tick") > order.index("evidence")
+
+
+def test_d_sr67_serve_reruns_the_comparison_in_another_tree(monkeypatch, tmp_path) -> None:
+    import pytest
+
+    demo, calls = _evidence_demo(monkeypatch, tmp_path)
+    (tmp_path / "story.json").write_text('{"sites": ["kobo"]}', encoding="utf-8")
+    (tmp_path / demo.EVIDENCE_TREE_MARK).write_text("/some/other/tree", encoding="utf-8")
+    monkeypatch.setattr(demo, "write_prebuilt_routes", lambda: (_ for _ in ()).throw(RuntimeError("past")))
+    with pytest.raises(RuntimeError):
+        demo.serve(1, 2)
+    assert any("evidence_migration" in " ".join(c) for c in calls)
+    calls.clear()
+    (tmp_path / demo.EVIDENCE_TREE_MARK).write_text(str(demo.tree), encoding="utf-8")
+    with pytest.raises(RuntimeError):
+        demo.serve(1, 2)
+    assert not calls

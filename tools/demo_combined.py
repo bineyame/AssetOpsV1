@@ -70,7 +70,7 @@ SITE_CODE = {"kobo": "KOBO-001", "cold": "COLD-LAB-001", "ev": "EV-LAB-001", "ki
 #: DD1b2-R11 O18: `mill` is the measured 18.7 s; `drain` is drain-1 278.4 + drain-2 58.3 = 336.7 s, rounded up to 10 s.
 # DIESEL-1-R3n: measured in K7-D's scratch prepare (3568 s build step)
 EXPECTED_SECONDS = {"tree": 30, "kobo": 250, "cold": 300, "ev": 200, "kisiwa": 3600, "finish": 90, "mill": 20,
-                    "drain": 340}
+                    "drain": 340, "day_rows": 900}
 KISIWA_STORY_FILE = REPO / "backend" / "conversions" / "demo-kisiwa-story-v1.json"
 KEY_NAMES = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
 #: WALK1-2 §3.1: the tariff is recorded at the configuration knowledge instant, `ev.install_at` + 30 min.
@@ -409,6 +409,7 @@ def performance_due(site: str, mark: str | None, marks: dict[str, str], report_d
         return True
     return mark is None or marks.get(site) != mark
 PREBUILT_ROUTES_ENV = "ASSETOPS_PREBUILT_ROUTES"
+PREBUILD_BASE_ENV = "ASSETOPS_PREBUILD_BASE_URL"  # WARM-1: `chain/prebuild.py` BASE_URL_ENV
 PREBUILT_SCHEMA = "chain-prebuilt-routes-1"
 #: The Sites whose board link carries `date=` (local day); the others open a whole UTC day by `from`/`to`.
 DATE_BOARD_SITES = ("kobo", "kisiwa")
@@ -736,8 +737,23 @@ def plain_lines(added: list[dict], skipped: list[dict], no_session: list[dict], 
     return lines
 
 
+def row_builder_versions() -> dict[str, str]:
+    """D-SR.63: the running code's row builder versions (imported, never hard-coded)."""
+    from assetops_backend.chain import dispatch_day_rows as dd
+    from assetops_backend.estate import period_rows as ev
+    from assetops_backend.mini_depth import period_rows as md
+
+    return {"mini_depth": md.BUILDER_VERSION, "dispatch_day": dd.BUILDER_VERSION, "evidence": ev.BUILDER_VERSION}
+
+
+PERIOD_READ_KINDS_ENV = "ASSETOPS_PERIOD_READ_KINDS"
+PERIOD_READ_KINDS = ("dispatch.day", "evidence.claim", "mini_depth.renewable", "mini_depth.fuel",
+                     "mini_depth.service", "mini_depth.backup")
+
+
 class Demo:
     step = ""  # DD1b2-R8 C2: the label of the last child started (the manifest's `failed_at`)
+    prebuild_base: str | None = None  # WARM-1: set by `serve` once its API answers
     defer_drain = False  # DD1b2-R8 C1: inside `prepare` a drain failure is recorded and the prepare goes on
     drain_failures: tuple = ()
 
@@ -781,7 +797,51 @@ class Demo:
         routes = self.work / PREBUILT_ROUTES_FILE
         if routes.is_file():  # E4 D-E4.1: the tool's and the serve loop's prebuild read the story's own list
             out[PREBUILT_ROUTES_ENV] = str(routes)
+        if self.prebuild_base:  # WARM-1 (BL-71 part 2): while serve runs, the tick's prebuild goes over HTTP to it
+            out[PREBUILD_BASE_ENV] = self.prebuild_base
+        # D-SR.63: the stored-row read kinds are on only when the prepare's row step reported ok; an operator's own
+        # value (including empty = off) wins; no file or not ok = off (the existing failure line already said why).
+        if PERIOD_READ_KINDS_ENV in os.environ:
+            out[PERIOD_READ_KINDS_ENV] = os.environ[PERIOD_READ_KINDS_ENV]
+        else:
+            out[PERIOD_READ_KINDS_ENV] = ",".join(self.period_read_kinds())
         return out
+
+    def start_warm(self, port: int) -> subprocess.Popen:
+        """WARM-1 (rev 7 §7.1, a labelled workaround): `tools/warm_ranges.py` against the running serve, in the
+        background, after a tick's prebuild. Its report is `<work>/warm-report.json`; its log `logs/warm-{port}.log`."""
+        script = self.tree / "tools" / "warm_ranges.py"
+        if not script.is_file():  # a tree copied before WARM-1 merged
+            script = REPO / "tools" / "warm_ranges.py"
+        log = open(self.work / "logs" / f"warm-{port}.log", "w", encoding="utf-8")
+        return subprocess.Popen([str(PY), str(script), "--base-url", f"http://127.0.0.1:{port}", "--work",
+                                 str(self.work), "--db-url", self.url], cwd=str(self.tree), env=self.env(),
+                                stdout=log, stderr=subprocess.STDOUT,
+                                start_new_session=(os.name == "posix"))  # L4: `_kill_tree` must not reach serve
+
+    def period_read_kinds(self) -> tuple[str, ...]:
+        """D-SR.63: the six board kinds when `period-rows.json` reads `ok: true`, else none. The day kinds
+        (fuel_day/backup_day) read rows regardless (D-SR.52), so `day-rows.json` does not gate this list."""
+        try:
+            doc = json.loads((self.work / "period-rows.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return ()
+        if not (isinstance(doc, dict) and doc.get("ok") is True):
+            return ()
+        built = doc.get("builder_versions")
+        built = built if isinstance(built, dict) else {}
+        running = row_builder_versions()
+        out: list[str] = []
+        for kind in PERIOD_READ_KINDS:
+            group = kind.split(".")[0] if kind.startswith("mini_depth.") else kind
+            group = "mini_depth" if group == "mini_depth" else {"dispatch.day": "dispatch_day",
+                                                                  "evidence.claim": "evidence"}[kind]
+            if built.get(group) == running[group]:
+                out.append(kind)
+        for group in sorted({g for g in running if built.get(g) != running[g]}):
+            say(f"  rebuild {group} rows: built by {built.get(group)}, code is {running[group]}"
+                f" ({group} kinds left off)")
+        return tuple(out)
 
     def write_prebuilt_routes(self) -> Path | None:
         """E4 D-E4.1 (C2): (re)write `<work>/prebuilt-routes.json` from the story links and each Site's dates after S
@@ -859,7 +919,7 @@ class Demo:
         expected = {**EXPECTED_SECONDS, "kobo": kobo_expected_seconds(days_doc)}
         # DD1b2-R6 O3: `--cap-seconds` replaces the 2x-sum cap (the whole-list rehearsal runs on 10800 s)
         cap = (cap_seconds if cap_seconds is not None
-               else 2 * (expected["tree"] + sum(expected[s] for s in sites) + (expected["finish"] if finish else 0)))
+               else 2 * (expected["tree"] + sum(expected[s] for s in sites) + ((expected["finish"] + expected["day_rows"]) if finish else 0)))
         self.deadline = time.monotonic() + cap
         began = time.monotonic()
         if (self.work / ".busy").exists():
@@ -1016,6 +1076,26 @@ class Demo:
         (self.work / "after-children.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
         return out
 
+    EVIDENCE_TREE_MARK = "evidence-comparison-tree.txt"
+
+    def evidence_comparisons(self, story: dict) -> None:
+        """D-SR.67: `evidence_migration run` for EVERY imported story Site (the ledger opens only after a passing
+        comparison bound to this DB and store root). Exit 2 ("cannot be compared") stops the prepare; it is never
+        served as "awaiting". The Performance comparison follows in `performance_and_prebuild`."""
+        say("  S2 evidence comparison, every story Site")
+        for site in story["sites"]:
+            code = SITE_CODE[site]
+            done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", code,
+                           label=f"s2-comparison {code}", check=False)
+            tail = (done.stdout.strip().splitlines() or ["(no output)"])[-1]
+            if done.returncode == 2:
+                raise SystemExit(f"STOPPED: the evidence comparison for {code} cannot be compared (exit 2): {tail[:300]}"
+                                 " Do not serve it; send this to the Architect (D-SR.67).")
+            if done.returncode != 0:
+                raise SystemExit(f"FAILED: the evidence comparison for {code} (exit {done.returncode}): {tail[:300]}")
+            say(f"  {code}: {tail}")
+        (self.work / self.EVIDENCE_TREE_MARK).write_text(str(self.tree), encoding="utf-8")
+
     def finish(self, story: dict, steps: dict[str, float] | None = None) -> None:
         steps = steps if steps is not None else {}
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
@@ -1028,10 +1108,7 @@ class Demo:
                 lines += [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
             (self.work / "objectives.json").write_text(json.dumps(lines, indent=2), encoding="utf-8")
             say(f"  objectives: {len(lines)} lines")
-        if "kobo" in story["sites"]:
-            done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", "KOBO-001",
-                           label="s2-comparison")
-            say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
+        self.evidence_comparisons(story)
         if {"kobo", "kisiwa"} & set(story["sites"]):
             self.drain_mini()
         t0 = time.monotonic()
@@ -1044,6 +1121,7 @@ class Demo:
         if set(CORE_SITES) <= set(story["sites"]):
             self.drain("drain-2")  # R8 drain 2: F-DRAIN reads after it
             self.build_period_rows(story, steps)
+            self.build_day_rows(story, steps)  # D-SR.54: after the board rows, its own cap
             t0 = time.monotonic()
             done = self.py(str(self.tree / "tools" / "demo_combined_finish.py"), "check", self.url, str(self.work),
                            cwd=self.tree / "backend" / "tests", label="self-check", check=False)
@@ -1056,6 +1134,12 @@ class Demo:
 
     #: ANY-1 AR-2 (D-ANY.6): the board's stored mini depth rows are built within this many seconds.
     PERIOD_ROWS_CAP_SECONDS = 15 * 60
+    #: D-SR.54: the board kinds are built with an explicit list (unchanged 15-minute cap); the two day kinds follow in
+    #: their own step, 30 minutes for both Sites (about 2,100 hour reads at 0.55-0.75 s each).
+    BOARD_KINDS = tuple(f"mini_depth.{d}" for d in ("renewable", "fuel", "service", "backup"))
+    DAY_KINDS = ("mini_depth.fuel_day", "mini_depth.backup_day")
+    DAY_ROWS_CAP_SECONDS = 30 * 60
+    DAY_ROWS_RERUN = ("period_backfill build --kind mini_depth.fuel_day --kind mini_depth.backup_day")
 
     def build_period_rows(self, story: dict, steps: dict[str, float]) -> bool:
         """AR-2: build the `mini_depth.*` read-period rows of every mini Site after the last drain (the backfill CLI;
@@ -1071,6 +1155,7 @@ class Demo:
             for code in codes:
                 t0 = time.monotonic()
                 done = self.py("-m", "assetops_backend.chain.period_backfill", "build", "--site", code, "--quiet",
+                               *(a for k in self.BOARD_KINDS for a in ("--kind", k)),
                                label=f"period-rows {code}", check=False)
                 steps[f"period-rows {code}"] = round(time.monotonic() - t0, 1)
                 tail = (done.stdout.strip().splitlines() or ["(no output)"])[-1][:200]
@@ -1092,7 +1177,50 @@ class Demo:
             + ("" if ok else "  NOT COMPLETE"))
         (self.work / "period-rows.json").write_text(json.dumps(
             {"ok": ok, "seconds": steps["period-rows"], "sites": codes,
+             "builder_versions": row_builder_versions(),
              "cap_seconds": self.PERIOD_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
+        return ok
+
+    def build_day_rows(self, story: dict, steps: dict[str, float]) -> bool:
+        """D-SR.54: build `mini_depth.fuel_day` / `mini_depth.backup_day` for every mini Site, after the board rows,
+        under their own 30-minute cap for both Sites. Over the cap or on failure it prints the rerun command and the
+        prepare goes on (the board kinds are unaffected). Records each Site's seconds and seconds per hour read."""
+        say("=== Stored range rows (SR-10: fuel and backup days) ===")
+        codes = [SITE_CODE[s] for s in ("kobo", "kisiwa") if s in story["sites"]]
+        began, saved, ok = time.monotonic(), self.deadline, True
+        cap = began + self.DAY_ROWS_CAP_SECONDS
+        self.deadline = cap if saved is None else min(saved, cap)
+        per_site: dict[str, dict] = {}
+        rerun = f"Fuel/Backup range rows incomplete: rerun `{self.DAY_ROWS_RERUN}`"
+        try:
+            for code in codes:
+                t0 = time.monotonic()
+                done = self.py("-m", "assetops_backend.chain.period_backfill", "build", "--site", code, "--quiet",
+                               *(a for k in self.DAY_KINDS for a in ("--kind", k)),
+                               label=f"day-rows {code}", check=False)
+                secs = round(time.monotonic() - t0, 1)
+                steps[f"day-rows {code}"] = secs
+                summary = demo_rows.last_json_object(done.stdout) or {}
+                hours = int(summary.get("considered") or 0) * 24  # period rows (day x kind) x 24 hour reads
+                per_site[code] = {"seconds": secs, "hour_reads": hours,
+                                  "seconds_per_hour_read": round(secs / hours, 3) if hours else None}
+                say(f"  day-rows {code}: {(done.stdout.strip().splitlines() or ['(no output)'])[-1][:200]}  [{secs} s]")
+                if done.returncode != 0:
+                    ok = False
+                    say(f"  {rerun}")
+        except SystemExit as stopped:
+            ok = False
+            say(f"  DAY ROW BUILD INCOMPLETE ({stopped}): {rerun}")
+            if saved is not None and time.monotonic() >= saved:
+                self.deadline = saved
+                raise
+        finally:
+            self.deadline = saved
+        steps["day-rows"] = round(time.monotonic() - began, 1)
+        say(f"  day-rows total: {steps['day-rows']} s (cap {self.DAY_ROWS_CAP_SECONDS} s)" + ("" if ok else "  NOT COMPLETE"))
+        (self.work / "day-rows.json").write_text(json.dumps(
+            {"ok": ok, "seconds": steps["day-rows"], "sites": codes, "per_site": per_site,
+             "cap_seconds": self.DAY_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
         return ok
 
     def drain_mini(self, limit: int = 500) -> None:
@@ -1572,8 +1700,12 @@ class Demo:
                          for r in sorted((r for r in current if r.site == site), key=lambda r: r.offset)]
                 say(f"  {SITE_CODE[site]}: " + "; ".join(cells))
 
-    def serve(self, port: int, web: int) -> None:
-        self.story()
+    def serve(self, port: int, web: int, warm: bool = True) -> None:
+        story = self.story()
+        mark = self.work / self.EVIDENCE_TREE_MARK
+        if not mark.is_file() or mark.read_text(encoding="utf-8").strip() != str(self.tree):
+            say("Evidence comparison was not built in this tree: rerunning it first (D-SR.67).")
+            self.evidence_comparisons(story)
         self.write_prebuilt_routes()  # E4 D-E4.1: before the serve env is built
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
@@ -1639,6 +1771,7 @@ class Demo:
         else:
             _kill_tree(api.pid)
             raise SystemExit(f"API did not answer on port {port}")
+        self.prebuild_base = f"http://127.0.0.1:{port}"  # WARM-1: after the API env was built; ticks use HTTP
         say(f"API on http://127.0.0.1:{port} (PID {api.pid}). Walkthrough-only schedule loop: one tick every "
             f"{TICK_EVERY_SECONDS} s, then the Performance comparison; it stops with serve.")
         say(f'Frontend, from frontend/:  $env:ASSETOPS_API_PORT="{port}"; npm.cmd run dev -- --port {web} --strictPort')
@@ -1646,6 +1779,7 @@ class Demo:
         if (self.work / "days.json").is_file():
             say("Bring every Site up to yesterday (adds the missing dates, then checks the build):")
             say(f"  {self.add_dates_line()}")
+        ranges: subprocess.Popen | None = None
         try:
             warmed = False
             while api.poll() is None:
@@ -1657,6 +1791,11 @@ class Demo:
                     # Review item 8: after the first tick, warm the story-week Portfolio once before "ready:".
                     warmed = True
                     prewarm(port, self.story())
+                if ranges is not None and ranges.poll() is not None:
+                    say(f"  warm ranges: exit {ranges.returncode} (WARM-1 workaround; <work>/warm-report.json)")
+                    ranges = None
+                if warm and ranges is None and api.poll() is None:  # WARM-1: after each tick's prebuild
+                    ranges = self.start_warm(port)
                 for _ in range(TICK_EVERY_SECONDS):
                     if api.poll() is not None:
                         break
@@ -1664,6 +1803,8 @@ class Demo:
         except KeyboardInterrupt:
             pass
         finally:
+            if ranges is not None and ranges.poll() is None:
+                _kill_tree(ranges.pid)
             if api.poll() is None:
                 _kill_tree(api.pid)
 
@@ -1729,6 +1870,7 @@ def main(argv: list[str] | None = None) -> None:
     s = sub.add_parser("serve")
     s.add_argument("--port", type=int, default=API_PORT)
     s.add_argument("--web-port", type=int, default=WEB_PORT)
+    s.add_argument("--no-warm", action="store_true", help="WARM-1: do not prepare the date-bar ranges after a tick")
     tk = sub.add_parser("tick")
     tk.add_argument("--until-drained", action="store_true",
                     help="DD1b2-R6 O2: raw ticks until the R8 counts are 0 (a live add: run this, then show the board)")
@@ -1767,7 +1909,7 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "links":
         demo.links(args.web_port)
     elif args.cmd == "serve":
-        demo.serve(args.port, args.web_port)
+        demo.serve(args.port, args.web_port, warm=not args.no_warm)
     elif args.cmd == "add-day":
         demo.add_day(args.site, args.kind, day=args.day, as_kind=args.as_kind, assess_now=args.assess_now)
     elif args.cmd == "add-dates":

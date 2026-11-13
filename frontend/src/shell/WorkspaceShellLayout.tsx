@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import type { FeatureFlags } from "../config/featureFlags";
 import { RailIcon } from "../ui";

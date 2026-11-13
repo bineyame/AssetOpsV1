@@ -20,7 +20,8 @@ TODAY = date(2026, 11, 3)
 D = date
 
 #: ANY-1 AR-2: the board's stored mini depth kinds (`config/chain/event-register-v1.yaml` kinds).
-MINI_KINDS = ("mini_depth.backup", "mini_depth.fuel", "mini_depth.renewable", "mini_depth.service")
+MINI_KINDS = ("mini_depth.backup", "mini_depth.backup_day", "mini_depth.fuel", "mini_depth.fuel_day", "mini_depth.renewable",
+              "mini_depth.service")  # SR-10a: the two whole-day kinds
 #: type@version -> (subject, site type, timezone, expected (day, measure) marks, consumers)
 EVENT_FIXTURES = {
     "reading.accepted@1": (

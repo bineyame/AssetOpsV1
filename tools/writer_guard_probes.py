@@ -62,6 +62,7 @@ Sets:
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -1028,9 +1029,9 @@ def run_guard(seam: bool) -> subprocess.CompletedProcess[str]:
                   '. (Join-Path $PWD "tools/checks/configuration-persistence.ps1"); '
                   '$f = @(Invoke-ConfigurationPersistenceCheck); '
                   'if ($f.Count -gt 0) { $f | ForEach-Object { Write-Output "- $_" }; exit 1 }; Write-Output "passed"')
-        cmd = ["powershell", "-NoProfile", "-Command", script]
+        cmd = [shutil.which("powershell") or "pwsh", "-NoProfile", "-Command", script]
     else:
-        cmd = ["powershell", "-NoProfile", "-File", "tools/check-architecture.ps1"]
+        cmd = [shutil.which("powershell") or "pwsh", "-NoProfile", "-File", "tools/check-architecture.ps1"]
     return subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, env=env)
 
 

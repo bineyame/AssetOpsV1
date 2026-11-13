@@ -7,7 +7,8 @@
  */
 import { displayCode } from "../ui/displayCode";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { linkFor, siteDetailHref } from "../shell/operatorSiteRoutes";
 import { DataTable, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import {

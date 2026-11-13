@@ -719,7 +719,7 @@ def is_recorded_server(command_line: str | None, port: int) -> bool:
 def _command_line(pid: int) -> str | None:
     if os.name == "nt":
         done = subprocess.run(
-            ["powershell", "-NoProfile", "-NonInteractive", "-Command",
+            [shutil.which("powershell") or "pwsh", "-NoProfile", "-NonInteractive", "-Command",
              f"(Get-CimInstance Win32_Process -Filter 'ProcessId={int(pid)}').CommandLine"],
             capture_output=True, text=True)
         return done.stdout.strip() or None

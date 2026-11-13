@@ -12,7 +12,7 @@
 import { useEffect, useState } from "react";
 import { formatTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { useReportSelectedWindow } from "./evSelectedWindow";
 import { Badge, DataTable, KeyValues, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
 import { Disclosure } from "../ui/Disclosure";

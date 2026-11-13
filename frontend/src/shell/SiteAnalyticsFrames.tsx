@@ -3,7 +3,8 @@ import { displayCode } from "../ui/displayCode";
 import { useLegacyFocusDayRewrite } from "../ui/sharedRange";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { FindingDetail, type FindingDetailTab } from "../sites/FindingDetail";
 import { SiteFindings } from "../sites/FindingsIndexes";
@@ -116,6 +117,7 @@ import {
   findingHref,
   siteActionHref,
   siteDetailHref,
+  siteEvHref,
   siteEvidenceHref,
   siteEvidenceAssessmentHref,
   siteEvidenceRecordHref,
@@ -142,6 +144,7 @@ import {
   type FindingChildView,
   type FindingTab,
 } from "./operatorSiteRoutes";
+import { RangeNotUsed, useDeclareRangeNotUsed } from "../ui/rangeFocus";
 import { createFuelBalanceClient, type FuelBalanceClient } from "../sites/fuelBalanceClient";
 import { SiteFuelChecks, SiteFuelFindingBody, useFuelFinding } from "../sites/SiteFuelFinding";
 import { AffectsLine, type OutcomeCategories } from "../sites/outcomeCategories";
@@ -730,6 +733,14 @@ export const FINDING_SECTION_UNAVAILABLE = "This Finding section is not availabl
 /** u6b ruling 13: a cold/EV Finding root whose domain read is not composed; never the generic W1 read. */
 export const FINDING_DOMAIN_UNAVAILABLE = "This site's Finding view is unavailable.";
 
+/**
+ * D-SR.64 (F2): a Cold or EV Finding detail read sends only `known_at`; the reader then answers the Finding's own
+ * period (its latest revision's run window), never a re-cut by the shared range.
+ */
+function ownPeriodRead(params: URLSearchParams): ColdWindowQuery {
+  return { from: null, to: null, known_at: params.get("known_at") };
+}
+
 export function SiteFindingFrame({
   detail,
   sitesPath,
@@ -758,6 +769,8 @@ export function SiteFindingFrame({
   const revisionId = params.get("revision_id");
   const [title, setTitle] = useState("Finding");
   const onTitle = useCallback((next: string) => setTitle(next), []);
+  // D-SR.64: one record, its own period; the range stays in the address for onward links only.
+  useDeclareRangeNotUsed("own period");
   const view: FindingChildView | "finding" | null =
     findingView === undefined
       ? "finding"
@@ -777,7 +790,7 @@ export function SiteFindingFrame({
               siteId={site.site_id}
               siteName={site.display_name}
               findingId={id}
-              window={coldWindowFromParams(params)}
+              window={ownPeriodRead(params)}
               client={evAssessment}
               analysisHref={(search) => `${evSiteRoutes(site.site_id).analysis}${search}`}
               tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
@@ -796,7 +809,7 @@ export function SiteFindingFrame({
               siteId={site.site_id}
               siteName={site.display_name}
               findingId={id}
-              window={window}
+              window={ownPeriodRead(params)}
               client={coldAssessment}
               links={coldLinks(site.site_id, window)}
               tabs={<OperatorSiteTabs siteId={siteId} current="Findings" search={coldWindowSearch(window)} />}
@@ -1446,6 +1459,7 @@ export function SiteFinancialsFrame({
   return (
     <SiteScoped siteId={siteId} detail={detail} title={title} headingId={SITE_FINANCIALS_HEADING_ID}>
       {(site) => {
+        const mini = site.site_type === "MINIGRID";
         if (view === "scenarios") {
           // W5-01b C5: a COLDCHAIN Site's Scenarios is live; its back-links carry `from,to,known_at` and drop the
           // authored-only `scenario_at`, which its own Scenarios link keeps.
@@ -1485,12 +1499,12 @@ export function SiteFinancialsFrame({
                 <FinancialsSections
                   siteId={site.site_id}
                   view="scenarios"
-                  scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
+                  scenarios={mini ? "live" : "unavailable"}
                 />
               )}
               {site.site_type === "COLDCHAIN" ? (
                 <ColdScenarios siteCode={site.site_id} window={coldWindow} scenarioAt={scenarioAt} client={coldScenarioList} />
-              ) : site.site_type === "MINIGRID" ? (
+              ) : mini ? (
                 <MiniScenarios siteCode={site.site_id} client={miniDecisions} scope={scope} timeZone={site.timezone ?? null} onScope={onScope} />
               ) : (
                 <Panel heading="Financial scenarios" headingId="site-scenarios-unsupported-heading">
@@ -1506,19 +1520,28 @@ export function SiteFinancialsFrame({
             site,
             params,
             sections: (
-              <FinancialsSections
-                siteId={site.site_id}
-                view={view}
-                search={coldWindowSearch(coldWindowFromParams(params))}
-                scenarios="live"
-                scenariosQuery={coldWindowFromParams(params)}
-              />
+              <>
+                {/* D-SR.66 (corrects D-SR.44): the assumptions view shows range content; it declares what Financials does. */}
+                <FinancialsSections
+                  siteId={site.site_id}
+                  view={view}
+                  search={coldWindowSearch(coldWindowFromParams(params))}
+                  scenarios="live"
+                  scenariosQuery={coldWindowFromParams(params)}
+                />
+              </>
             ),
             coldSite,
             coldAssessment,
             tabs: <OperatorSiteTabs siteId={siteId} current="Financials" search={coldTabSearch(site, params)} />,
             sitesPath,
           });
+        }
+        if (site.site_type === "EV_CHARGING" && view === "overview") {
+          // SR-4c (rev 8 8.2): the generic Financials page is the diesel price page, which does not apply to an EV
+          // Site; it forwards to the EV financials route and keeps the query (range, known_at).
+          const text = params.toString();
+          return <Navigate replace to={`${siteEvHref(site.site_id, "financials")}${text ? `?${text}` : ""}`} />;
         }
         if (forwardBareAssumptions && view === "assumptions" && !ASSUMPTION_PINS.some((name) => params.has(name))) {
           const range = new URLSearchParams();
@@ -1566,11 +1589,13 @@ export function SiteFinancialsFrame({
               description={SITE_SCREEN_DESCRIPTIONS[view === "assumptions" ? "assumptions" : "financials"]}
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
+            {/* SR-4c (D-SR.6): mini-grid Financials values the prices valid now; the bar says the range is not used. */}
+            {mini ? <RangeNotUsed note="prices valid now" /> : null}
             <OperatorSiteTabs siteId={siteId} current="Financials" />
             <FinancialsSections
               siteId={site.site_id}
               view={view}
-              scenarios={site.site_type === "MINIGRID" ? "live" : "unavailable"}
+              scenarios={mini ? "live" : "unavailable"}
             />
             {view === "assumptions" ? (
               <SiteAssumptions siteId={site.site_id} client={financials} links={links} />
@@ -2149,6 +2174,8 @@ export function SiteFoundationChangeFrame({
           {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
+          <RangeNotUsed note="current settings" />
           <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           <SiteFoundationChange
             siteId={site.site_id}
@@ -2178,6 +2205,8 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
           />
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
           <OperatorSiteTabs siteId={siteId} current="Foundation" />
+          {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
+          <RangeNotUsed note="current settings" />
           <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           {/* W1-F5b: the changes screen's two v69 slots, with the no-selection gap inside each. */}
           <NoChangeSelected foundationHref={siteFoundationHref(site.site_id)} />

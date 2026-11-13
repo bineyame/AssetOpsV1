@@ -12,6 +12,9 @@ seconds against the EX-3 "at most 50% of the tick limit" rule.
 The tick's environment must equal the server's (the cursor keys and manifests are in `code_version`), or the
 pre-built rows are never hit. CH5c-R6: the result carries the 16-hex `code_version` prefix, and a process without
 every serve key (`watermark.SERVE_KEYS`) stores nothing and reports `SKIPPED_NO_SERVE_ENV`.
+
+WARM-1 (BL-71 part 2, rev 7 §7.1): with `ASSETOPS_PREBUILD_BASE_URL` set, the same requests go over HTTP to that
+running serve (`HttpClient`), so the bodies are composed and stored by the serve itself under its own pools.
 """
 from __future__ import annotations
 
@@ -22,7 +25,8 @@ import time
 from collections import Counter
 from typing import Any
 
-from assetops_backend.chain.composition import build_response_store, code_version, prebuilt_requests
+from assetops_backend.chain.composition import (build_prebuild_http_client, build_response_store, code_version,
+                                                prebuilt_requests)
 from assetops_backend.chain.response_store import HEADER, mode
 from assetops_backend.chain.watermark import SERVE_KEYS
 
@@ -51,6 +55,8 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
     store = build_response_store(url)
     if store is None:
         return {"code": "OK", "skipped": "no database", "code_version": version}
+    if client is None:
+        client = http_client()  # WARM-1 (BL-71 part 2): the running serve, when one is named
     if client is None:
         from fastapi.testclient import TestClient
 
@@ -98,6 +104,21 @@ _sleep = time.sleep  # a test moves it
 def _is_degraded(response: Any) -> bool:
     """A 503 (`TEMPORARILY_UNAVAILABLE`) or a stale copy served in place of a degraded compose."""
     return response.status_code == 503 or response.headers.get(HEADER) == "stale"
+
+
+#: WARM-1 (BL-71 part 2): when set (e.g. `http://127.0.0.1:8990`), the pre-build sends its requests to that running
+#: serve over HTTP instead of composing them in this process through an in-process ASGI client. The in-process path
+#: opened a second set of connection pools beside the serve's (D-E5.47); over HTTP the serve's own pools answer.
+BASE_URL_ENV = "ASSETOPS_PREBUILD_BASE_URL"
+
+
+def http_client() -> Any:
+    """The HTTP client (`chain/adapters/http_prebuild_client.py`) when `ASSETOPS_PREBUILD_BASE_URL` names a serve;
+    None keeps the in-process client."""
+    base = os.environ.get(BASE_URL_ENV, "").strip()
+    if not base:
+        return None
+    return build_prebuild_http_client(base)
 
 
 def _connections(store: Any) -> int | None:

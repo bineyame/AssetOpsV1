@@ -7,7 +7,8 @@
  */
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatRange } from "../ui/time";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { UnavailableInline } from "../ui/UnavailableEntry";

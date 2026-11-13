@@ -32,8 +32,8 @@
    "href": 1
   },
   "shell/SiteAnalyticsFrames.tsx": {
-   "cmp": 27,
-   "lit": 31
+   "cmp": 26,
+   "lit": 30
   },
   "shell/SiteDetailFrame.tsx": {
    "cmp": 3,
@@ -131,8 +131,8 @@
  "totals": {
   "api": 12,
   "href": 24,
-  "lit": 70,
-  "cmp": 51,
+  "lit": 69,
+  "cmp": 50,
   "code": 3
  }
 }

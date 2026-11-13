@@ -13,7 +13,8 @@
 import { displayCode } from "../ui/displayCode";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { MetricHeader, PageHeader, Panel } from "../ui";
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { useCurrentTabInView } from "../ui/useCurrentTabInView";

@@ -33,6 +33,9 @@ const POSITIVE = D.positive as ActionIndexBody;
 const ZERO = D.zero as ActionIndexBody;
 const WINDOW = D.positive_window as { from: string; to: string };
 const ZERO_WINDOW = D.zero_window as { from: string; to: string };
+/** SR-4 D-SR.2: a Site link carries the address range; a server link with its own window keeps it (D-SR.42(d)). */
+const ranged = (href: string, w: { from: string; to: string } = WINDOW) =>
+  /[?&]from=/.test(href) ? href : `${href}${href.includes("?") ? "&" : "?"}${new URLSearchParams({ from: w.from, to: w.to }).toString()}`;
 const PAGE1 = D.page1 as ActionIndexBody;
 const PAGE2 = D.page2 as ActionIndexBody;
 
@@ -118,10 +121,10 @@ describe("Site Work Actions list", () => {
       const tr = rows[i];
       expect(tr.getAttribute("data-site-work-event")).toBe(row.selected_event.id);
       expect(tr.querySelector("[data-site-work-action-link]")?.getAttribute("href")).toBe(
-        `/sites/KOBO-001/actions/${row.action_id}`,
+        ranged(`/sites/KOBO-001/actions/${row.action_id}`),
       );
-      expect(tr.querySelector("[data-site-work-finding-link]")?.getAttribute("href")).toBe(row.links.origin_finding);
-      expect(tr.querySelector("[data-site-work-event-link]")?.getAttribute("href")).toBe(row.links.history_at_event);
+      expect(tr.querySelector("[data-site-work-finding-link]")?.getAttribute("href")).toBe(ranged(row.links.origin_finding));
+      expect(tr.querySelector("[data-site-work-event-link]")?.getAttribute("href")).toBe(ranged(row.links.history_at_event));
       expect(tr.textContent).toContain(displayCode(row.action_code));
     });
     // Same lifecycle words as recorded state, never a verdict; owner, due and criterion are stated gaps (W1-F4 fix: mock's six columns).

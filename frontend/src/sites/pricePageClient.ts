@@ -80,6 +80,22 @@ export interface PricePage {
   cutoff: { known_at: string | null; text: string | null };
   prices: PriceRowBody[];
   need: NeedBlock | null;
+  /** PR-3: which rows take the inline price form. Absent from an older server: no form. */
+  entry?: PriceEntryBlock;
+}
+
+/** PR-3 (rev 5 §5.3): `enabled` only with the entry service on and no `known_at`; `keys` are stored keys only. */
+export interface PriceEntryBlock {
+  enabled: boolean;
+  keys: string[];
+  /** The Site-local date "Applies from" defaults to. */
+  today: string | null;
+  /** Unit words per key for the Amount suffix ("per litre"). */
+  unit_text: Record<string, string>;
+  /** Currency codes for a key with no price yet. */
+  currencies: string[];
+  /** Under `known_at` with entry on: the honest-state words and the live-view link label. */
+  live_view: { text: string; link_label: string } | null;
 }
 
 /** A 422 (a `known_at` without an offset) is its own refusal: it is not a missing Site (PR-2a review L1). */

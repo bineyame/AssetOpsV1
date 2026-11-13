@@ -4,6 +4,8 @@
  * the scope in the address and every non-current or refused read showing no
  * rows, no count and no "no Findings" claim.
  */
+import { rangeless } from "../../test/rangeless";
+import { entryRange } from "../../ui/sharedRange";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
@@ -38,6 +40,7 @@ import type { OutcomeBoardClient } from "../../sites/outcomeBoardClient";
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
 const WINDOW = "from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z&domain=mini-grid-dispatch";
+const RANGE_Q = "from=2026-10-25T00%3A00%3A00Z&to=2026-10-26T00%3A00%3A00Z";
 const PATH = `/sites/${SITE_ID}/findings?${WINDOW}`;
 
 function LocationProbe() {
@@ -134,15 +137,16 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     expect(violations, describeViolations(violations)).toEqual([]);
   });
 
-  it("defaults to today's UTC day and the supported domain when the address names none", async () => {
+  it("a bare address opens on the entry range (SR-4) and reads it with the supported domain", async () => {
     const { client, getFindingIndex } = indexClient(() => ({ status: "loaded", value: indexBody() }));
     renderAt(`/sites/${SITE_ID}/findings`, client);
     await settledScreen();
     const scope = getFindingIndex.mock.calls[0][1];
-    const today = new Date().toISOString().slice(0, 10);
+    const entry = entryRange();
     expect(scope.domain).toBe("mini-grid-dispatch");
-    expect(scope.from).toBe(`${today}T00:00:00Z`);
-    expect(new Date(scope.to).getTime() - new Date(scope.from).getTime()).toBe(86400000);
+    expect(scope.from).toBe(entry.get("from"));
+    expect(scope.to).toBe(entry.get("to"));
+    expect(new Date(scope.to).getTime() - new Date(scope.from).getTime()).toBe(7 * 86400000);
   });
 
   it("SR-2: reads the shared range in the address, names its days and renders no date form of its own", async () => {
@@ -157,13 +161,13 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     expect(screen.queryByRole("button", { name: "Show Findings" })).toBeNull();
   });
 
-  it("SR-2: with no range, says the days are the page default and points to the date range at the top", async () => {
+  it("SR-4: a bare address ends on the shared range; the page names its days and has no page-default sentence", async () => {
     const { client } = indexClient(() => ({ status: "loaded", value: indexBody() }));
     renderAt(`/sites/${SITE_ID}/findings`, client);
     await settledScreen();
-    expect(document.querySelector("[data-finding-index-window='default']")?.textContent).toMatch(
-      /this page's default\. Choose other days in the date range at the top/,
-    );
+    expect(document.querySelector("[data-finding-index-window='default']")).toBeNull();
+    expect(document.querySelector("[data-finding-index-window='range']")?.textContent).toMatch(/Days shown: .*from the date range at the top/);
+    expect(document.body.textContent).not.toContain("this page's default");
   });
 });
 
@@ -177,13 +181,14 @@ describe("S4-04 Site Findings index: positive rows (sitefindings:1#b)", () => {
     const rows = Array.from(document.querySelectorAll("[data-finding-index-row]"));
     expect(rows.map((r) => r.getAttribute("data-finding-index-row"))).toEqual([FID_B, FID_A]);
     const links = Array.from(document.querySelectorAll("[data-finding-index-link]"));
-    expect(links.map((a) => a.getAttribute("href"))).toEqual([
+    expect(rangeless(links.map((a) => a.getAttribute("href")))).toEqual([
       `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,
       `/sites/${SITE_ID}/findings/${FID_A}?revision_id=${RID_A}`,
     ]);
+    for (const a of links) expect(a.getAttribute("href")).toContain(RANGE_Q); // SR-4: every row link carries the range
     // W1-UX-02: the related-Finding link reads in words; it still opens the exact related Finding.
     const related = within(rows[0] as HTMLElement).getByRole("link", { name: "Recurs after an earlier Finding" });
-    expect(related).toHaveAttribute("href", `/sites/${SITE_ID}/findings/${FID_A}`);
+    expect(related).toHaveAttribute("href", `/sites/${SITE_ID}/findings/${FID_A}?${RANGE_Q}`);
     expect(related.getAttribute("data-finding-index-related")).toBe(FID_A);
     expect(within(rows[1] as HTMLElement).getByText("No longer supported")).toBeInTheDocument();
     for (const cell of document.querySelectorAll("[data-finding-index-amount]")) {
@@ -401,10 +406,7 @@ describe("W1-UX-02: Site Findings index (sitefindings) answer card", () => {
       expect(row.querySelector("[data-finding-index-confidence]")?.textContent).toBe("Not assessed");
       expect(row.querySelector("[data-finding-index-lens]")?.textContent).toBe("Not assessed");
     }
-    expect(within(card()).getByRole("link", { name: "Open the newest Finding" })).toHaveAttribute(
-      "href",
-      `/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`,
-    );
+    expect(rangeless((within(card()).getByRole("link", { name: "Open the newest Finding" }))?.getAttribute("href") ?? "")).toBe(`/sites/${SITE_ID}/findings/${FID_B}?revision_id=${RID_B}`);
     // Opaque page and list references live only in the closed disclosure, not in the default reading.
     expect(exactValue("Next page reference")).toBe("cursor-page-2");
     expect(exactValue("List reference")).toBe(TOKEN);
@@ -653,10 +655,10 @@ describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)
     const { client } = indexClient(() => ({ status: "loaded", value: BODY }));
     renderAt(PATH, client);
     await settledScreen();
-    expect(within(domain(FID_B)).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-25&revision=iv-1`);
+    expect(rangeless((within(domain(FID_B)).getByRole("link", { name: "Dispatch" }))?.getAttribute("href") ?? "")).toBe(`${dispatch}?day=2026-10-25&revision=iv-1`);
     // 23:30 at +03:00 is 20:30 UTC on the same day; the whole-window primary is never selected.
-    expect(within(domain(FID_A)).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-25`);
-    expect(within(domain("f-missing-list")).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-24`);
+    expect(within(domain(FID_A)).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-25&${RANGE_Q}`);
+    expect(within(domain("f-missing-list")).getByRole("link", { name: "Dispatch" })).toHaveAttribute("href", `${dispatch}?day=2026-10-24&${RANGE_Q}`);
     expect(domain("f-invalid").querySelector("a")).toBeNull();
     expect(domain("f-invalid").textContent).toBe("Dispatch");
     expect(card().textContent).toContain("Domain links back to the Performance view that produced the finding.");
@@ -670,7 +672,7 @@ describe("post-W6 W1-b: Site Findings index Domain and renewable links (Q19/Q20)
     expect(helper.textContent).toBe("Opportunities for this site are listed under Findings › Opportunities. The five-day solar study is on the renewable page.");
     expect(within(helper).getByRole("link", { name: "Findings › Opportunities" })).toHaveAttribute("href", "/findings/opportunities");
     const link = within(helper).getByRole("link", { name: "renewable page" });
-    expect(link).toHaveAttribute("href", sitePerformanceHref(SITE_ID, "renewable"));
+    expect(rangeless((link)?.getAttribute("href") ?? "")).toBe(sitePerformanceHref(SITE_ID, "renewable"));
     expect(within(helper).getAllByRole("link")).toHaveLength(2);
   });
 });
