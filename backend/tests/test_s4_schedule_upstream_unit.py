@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 from assetops_backend.recompute_consequences import main as consequence_main
-from assetops_backend.scheduling.health import HealthThresholds, environment_health, site_observation
+from assetops_backend.scheduling.health import HealthThresholds, environment_health, schedule_facts, site_observation
 from assetops_backend.scheduling.upstream import UpstreamCurrentness
 
 UTC = timezone.utc
@@ -166,3 +166,31 @@ def test_an_amount_is_permitted_only_when_the_gate_is_eligible_and_upstream_is_c
     stale, _ = _seam_with_finding("ELIGIBLE", consequence_state="STALE")
     assert stale["current_amount_permitted"] is False
     assert stale["upstream_status"]["reasons"] == [{"stage": "CONSEQUENCE", "code": "CONSEQUENCE_STALE"}]
+
+
+# ---- D-SR.83b: the schedule facts the stored Overview keys on ----
+
+TH = HealthThresholds()
+
+
+def test_schedule_facts_ignore_a_healthy_tick_and_change_on_stopped_and_visit_stale() -> None:
+    quiet = Schedule()
+    base = schedule_facts(quiet.tick, quiet.head, NOW, TH)
+    assert base == {"stopped": False, "site_observation_codes": [], "errors": []}
+    later = Schedule(heartbeat_age=1, completed_age=1)  # a new heartbeat and visit, RUNNING to IDLE
+    later.tick["claim_token"] = "t"
+    later.tick["lease_until"] = NOW + timedelta(seconds=30)
+    assert schedule_facts(later.tick, later.head, NOW, TH) == base
+    stopped = Schedule(heartbeat_age=TH.stop_after_seconds + 1)
+    assert schedule_facts(stopped.tick, stopped.head, NOW, TH)["stopped"] is True
+    stale = Schedule(completed_age=TH.site_stop_after_seconds + 1)
+    assert "SITE_VISIT_STALE" in schedule_facts(stale.tick, stale.head, NOW, TH)["site_observation_codes"]
+
+
+def test_schedule_term_is_the_hash_of_the_facts_and_stable_across_a_healthy_tick() -> None:
+    def term(schedule) -> str:
+        return UpstreamCurrentness(schedule, None, None, None, None, analytic_id="dispatch").schedule_term(
+            uuid4(), uuid4())
+
+    assert term(Schedule()) == term(Schedule(heartbeat_age=1, completed_age=1))
+    assert term(Schedule(heartbeat_age=TH.stop_after_seconds + 1)) != term(Schedule())

@@ -106,7 +106,11 @@ def test_no_date_falls_outside_the_story_calendar_or_the_added_dates() -> None:
     added = {(site, (S + timedelta(days=n)).isoformat()) for site, hi in last.items() if hi
              for n in range(1, (hi - S).days + 1)}
     got = _board_dates(requests)
-    assert got - story - added == set()
+    # D-SR.83: Kobo and Kisiwa also get every day from the earliest story-link day (the date bar's start) to the last
+    first = min(d for site, d in got if site == "kisiwa")
+    span = {(site, (date.fromisoformat(first) + timedelta(days=n)).isoformat()) for site, hi in last.items()
+            if hi and site in ("kobo", "kisiwa") for n in range((hi - date.fromisoformat(first)).days + 1)}
+    assert got - story - added - span == set()
     assert added <= got  # every added date's board is warmed
     assert not any(site == "ev" and d > S.isoformat() for site, d in got)
     # Kobo and Kisiwa by `date`; Cold on the whole UTC day
@@ -233,3 +237,54 @@ def test_no_story_day_writes_nothing_and_sets_no_variable(tmp_path) -> None:
     (tmp_path / "keys.json").write_text(json.dumps({}), encoding="utf-8")
     assert demo.write_prebuilt_routes() is None
     assert tool.PREBUILT_ROUTES_ENV not in demo.serve_env()
+
+
+# ---- D-SR.83: the Overview and the day Finding index over the date bar's whole span, and the estate scope ----
+
+def _span_routes():
+    first = tool.sites_first_day(STORY, DAYS, [])
+    last = tool.sites_last_day(STORY, DAYS, [])
+    return tool.prebuilt_routes(STORY, DAYS, KISIWA, last, first), first, last
+
+
+def test_sites_first_day_is_the_earliest_core_day_and_kisiwas_first_night() -> None:
+    first = tool.sites_first_day(STORY, DAYS, [{"night_date": "2026-10-20", "status": "DONE"}])
+    assert first["kobo"] == date(2026, 11, 3) and first["cold"] == date(2026, 11, 4)
+    assert first["kisiwa"] == date(2026, 10, 20)  # an added night earlier than the story's first run
+    assert tool.sites_first_day(STORY, DAYS, [])["kisiwa"] == S - timedelta(days=9)
+
+
+def test_overview_and_day_index_are_prebuilt_for_every_board_day_of_kobo_and_kisiwa() -> None:
+    requests, first, last = _span_routes()
+    by_id = {r["id"]: r for r in requests}
+    for site in ("kobo", "kisiwa"):
+        code = tool.SITE_CODE[site]
+        d = first[site]
+        assert d < S  # the span reaches back before S+1
+        while d <= last[site]:
+            iso = d.isoformat()
+            assert by_id[f"board.day:{site}:{iso}"]["path"] == f"/api/sites/{code}/outcome-board"
+            overview = by_id[f"overview.day:{site}:{iso}"]
+            assert (overview["path"], overview["query"]) == (f"/api/sites/{code}/overview", f"date={iso}")
+            index = by_id[f"index.day:{site}:{iso}"]
+            nxt = (d + timedelta(days=1)).isoformat()
+            assert index["path"] == f"/api/sites/{code}/finding-index"
+            assert index["query"] == (f"domain=mini-grid-dispatch&from={iso}T00%3A00%3A00Z&"
+                                      f"to={nxt}T00%3A00%3A00Z&limit=2")
+            d += timedelta(days=1)
+    assert not [i for i in by_id if i.startswith(("overview.", "index.")) and i.split(":")[1] in ("cold", "ev")]
+
+
+def test_estate_scope_sits_beside_each_estate_findings_and_window_request() -> None:
+    requests, _, _ = _span_routes()
+    scopes = [r for r in requests if r["path"] == "/api/estate/scope"]
+    assert {r["id"] for r in scopes} >= {"scope.week", "scope.S", "scope.month"}
+    findings = next(r for r in requests if r["path"] == "/api/estate/findings")
+    week = next(r for r in scopes if r["id"] == "scope.week")
+    assert dict(parse_qsl(week["query"])) == {k: v for k, v in parse_qsl(findings["query"]) if k in ("from", "to")}
+
+
+def test_each_site_findings_link_adds_its_finding_index_range() -> None:
+    requests, _, _ = _span_routes()
+    ranges = [r for r in requests if r["id"].startswith("index.range:")]
+    assert ranges and all(r["path"].endswith("/finding-index") and "limit" not in r["query"] for r in ranges)

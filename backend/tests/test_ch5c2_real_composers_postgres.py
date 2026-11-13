@@ -263,3 +263,28 @@ def test_f4_a_planted_read_is_recorded_on_every_route(kobo, monkeypatch, tmp_pat
     assert routes == {BOARD_ROUTE, SUMMARY_ROUTE, "/api/estate/findings", PORTFOLIO, SCOPE_IDS,
                       "/api/sites/{site_id}/overview", "/api/sites/{site_code}/finding-index",
                       "/api/estate/scope"}, audit.violations
+
+
+def test_overview_second_get_is_stored_and_a_stale_schedule_misses_with_schedule_stopped(kobo, monkeypatch) -> None:
+    """D-SR.83b: the Overview keys on the live schedule term. Same facts: a hit. The heartbeat planted stale: a
+    miss whose body reads SCHEDULE_STOPPED (the schedule heads move no change-log row)."""
+    from sqlalchemy import create_engine, text
+
+    url, work = kobo
+    path = f"/api/sites/{CODE}/overview?date=2026-10-06"
+    with _app(monkeypatch, url, work, "on") as c:
+        engine = create_engine(url)
+        try:
+            with engine.begin() as conn:  # a live heartbeat first, so the planted stale one is a real state flip
+                conn.execute(text("INSERT INTO schedule_tick_head (environment, heartbeat_at, created_at) VALUES "
+                                  "('default', now(), now()) ON CONFLICT (environment) DO UPDATE SET heartbeat_at = now()"))
+            first, body = _get(c, path)
+            again, _ = _get(c, path)
+            assert again == "hit", (first, again)
+            with engine.begin() as conn:
+                conn.execute(text("UPDATE schedule_tick_head SET heartbeat_at = now() - interval '2 hours'"))
+        finally:
+            engine.dispose()
+        after, stale = _get(c, path)
+        assert after != "hit" and stale["freshness"]["schedule"]["stopped"] is True
+        assert "SCHEDULE_STOPPED" in stale["freshness"]["reasons"]

@@ -224,6 +224,8 @@ def test_late_power_day_through_the_overview_route(store, engine, capsys, monkey
         assert stopped["money"]["eligibility"]["state"] == "ELIGIBLE"
         no_amount(stopped["money"], "UPSTREAM_STALE")
         assert "SCHEDULE_STOPPED" in stopped["freshness"]["reasons"]
+        assert stopped["freshness"]["schedule"]["stopped"] is True  # D-SR.83b: the facts, not the clocks
+        assert "heartbeat_at" not in stopped["freshness"]["schedule"]
 
         # Performance closed with the comparison passed: no current claim; only a pinned Finding as audit.
         gates.performance = False

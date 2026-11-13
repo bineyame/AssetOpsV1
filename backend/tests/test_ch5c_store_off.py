@@ -110,3 +110,37 @@ def test_the_demo_combined_serve_env_passes_the_store_choice_through(tmp_path, m
 def test_exactly_one_alembic_head() -> None:
     head = file_code_version.alembic_head()
     assert head and "," not in head, f"alembic heads: {head!r}"
+
+
+def test_overview_route_without_a_store_composes_as_before() -> None:
+    """D-SR.83: `responses=None` (store off or no database) serves the Overview body through no store at all."""
+    import types
+
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from assetops_backend.evidence.ledger_reads import AwaitingComparison  # noqa: F401
+    from assetops_backend.evidence_api import build_evidence_router
+    from assetops_backend.site_overview.route import SiteOverviewRoute
+    from assetops_backend.sites.ports import SiteNotFound
+
+    class Read:
+        def db_today(self):
+            from datetime import date
+            return date(2026, 10, 24)
+
+        def read(self, *a, **k):
+            return {"ok": True}
+
+    class Legacy:
+        def get_site(self, code):
+            raise SiteNotFound(code)
+
+    route = SiteOverviewRoute(Read(), {"K": ("K", "t", "s")}.get, lambda c, t, s: (True, "open"),
+                              lambda r, c: None, "B", responses=None)
+    route.no_legacy_basis = lambda t, s: True
+    app = FastAPI()
+    app.include_router(build_evidence_router(types.SimpleNamespace(store=None), Legacy(),
+                                             imported_reads=types.SimpleNamespace(scope=lambda c: None),
+                                             site_overview=route))
+    assert TestClient(app).get("/api/sites/K/overview").json() == {"ok": True}
