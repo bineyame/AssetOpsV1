@@ -12,6 +12,7 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 
 /*
  * W4-02 unit 6: a MINIGRID Site's Performance/Service route renders the v69 `service` panels from the q9 public
@@ -161,6 +162,8 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
     const client = renderService([ok(read())]);
     await settledScreen();
     await screen.findByText("Service assessment: Supported");
+    // UQ-FI-2 (rev 6 6.1 P7): the Service page has one h1 (the v69 Site heading), first in its header.
+    expectOneHeadline("W4-02 mini-grid");
     expectV69Panels("service");
     expectPlantedPanelRejected("service");
     expect(subtabs()).toEqual([
