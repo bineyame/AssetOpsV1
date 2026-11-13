@@ -155,6 +155,31 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
   4. EV `ev/financial-assumptions` reads the window and shows "All pages"; classified R by analogy with D-SR.66 (D-SR.44 said N).
   5. `evidence/rejections` unranged on mini and EV (SR-12a) is listed as `knownUnranged`; the cold evidence page does not read it.
   6. Mini Service/Renewable/Fuel/Backup and Health are D/N in the matrix: the SR-6/7/8/10/11 pages are not on main.
-- **Resume:** SR-5c (Dispatch day table from `RangeDayTable` with the same `range-overview` read; `day=` → existing detail +
-  back link; flip matrix rows mini `/performance` + `/performance/dispatch` D → R; sr2 pin), then SR-5d (Financials money block,
-  "Prices valid now" heading, drop `RangeNotUsed` for mini, matrix mini `/financials` N → R; R722/R723 rows).
+- **SR-5c** 2a523e59d. `PerformanceDispatch` is a switch: valid range + no `day`/`date`/`revision`/`block`/`interval`/Analysis view →
+  "Dispatch by day" (`RangeDayTable` from the same `useRangeOverview` read, `name="dispatch"`, "Open day" → same path `?day=`);
+  else the one-day page (`DispatchDay`), with "← Back to the whole range" first in the day chip row on a drill-in. No cutover,
+  window or `finding-windows` read in the range view (Kisiwa nights only on the drill-in). 404 → one-day page, its FocusPicker
+  names the day (D-SR.77 1); 503 → "Temporarily unavailable. Retrying…"; 422 → its own refusal. Client threaded
+  App → `SitePerformanceFrame` (MINIGRID only) → `SitePerformance` → `PerformanceDispatch`. R722.
+- **D-SR.77** (same commits). 1: 404-fallback pins (Overview + Dispatch: bar names the served day; 422 shows its own refusal).
+  2 (889ab00d8): Opportunity, Action, mill/fuel Verification, fuel Finding frames call `useDeclareRangeNotUsed("own period")`
+  first thing; `declaresOnLoad` removed. 3: matrix fixture answers mini `/analytics` with the real 409; `blockedBy` removed
+  (no legacy-fixture row needs it); mini `/performance` + `/performance/dispatch` R with a `drillIn` check (`first-render`:
+  `?day=` → "Showing 5 Nov of the range", no range read; Overview row `on-load`: the refused board names no day under the
+  all-503 fixture, so only "never now" — named limit, its own test pins the day). 4: EV assumptions R (why cites D-SR.77).
+- **SR-5d** ae03198b3. `SiteFinancialsOverview` takes `rangeOverview` + `rangeDayHref` (Overview `?day=`): with a valid range,
+  `RangeMoneyBlock` ("Fuel cost at stake in this range": the money card's `display_value`, the PARTIAL label/quantity as the
+  Overview tile, days with non-null money each "Open day") at the top of the page, and the price panel headed "Prices valid
+  now"; it now declares for itself (range shown → nothing, "All pages"; 404 → `RangeNotUsed` "prices valid now", as before).
+  The frame's mini `RangeNotUsed` stays for assumptions/scenarios views only. Matrix mini `/financials` N → R with
+  `knownUnranged` `/financial-assumptions` (the "Prices valid now" read, `valid_at` now; SR-14 OUT). siteRangeTags SR-4c pin
+  updated to "All pages". R722/R723 register rows; guard 12 OK.
+- **Tests (2026-11-13):** every Site-href file (`grep -rlE "/sites/[A-Z]|from=20"`) + matrix + performanceDispatch +
+  siteFinancials: 89 files, 2517/2518 (the one failure was the SR-4c financials pin, updated; siteRangeTags 11/11 after).
+  siteRangeOverview 19/19, siteRangeMatrix 94/94, sr2RequestUrls 23/23 (new SR-5c Kobo/Kisiwa pins), tsc clean.
+  Non-vacuous: no client on the Performance route fails mini `/performance` + `/performance/dispatch` R; no client on the
+  Financials route fails mini `/financials` R; removing the opportunity frame's declaration fails its N row; all reverted.
+  check-all: for coordinator.
+- **Placement readings (Architect may move):** the range money block is the first panel of the Financials page (spec: "above
+  the price section"); with the money block, the page's v69 panel list differs (R723; the v69 panel tests run without range).
+- **Resume:** SR-5 pages done; remaining are the DB gates (resume points 5 and 7 above).
