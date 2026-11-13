@@ -1128,6 +1128,11 @@ function Rejected({
   technical?: ReactNode;
 }) {
   const [loaded, setLoaded] = useState<EvidenceRead<LedgerRejections> | null>(null);
+  // SR-12a (rev 10b.4): the list follows the address's date range (batches received in `[from, to)`).
+  const [params] = useSearchParams();
+  const from = params.get("from");
+  const to = params.get("to");
+  const ranged = from !== null && to !== null;
   useEffect(() => {
     if (ledger === undefined) {
       setLoaded({ status: "unavailable", message: null });
@@ -1135,13 +1140,13 @@ function Rejected({
     }
     let active = true;
     setLoaded(null);
-    void ledger.listRejections(siteId).then((value) => {
+    void ledger.listRejections(siteId, null, ranged ? { from, to } : null).then((value) => {
       if (active) setLoaded(value);
     });
     return () => {
       active = false;
     };
-  }, [ledger, siteId]);
+  }, [ledger, siteId, ranged, from, to]);
 
   const untimed = evidence.counts.rejected_without_source_time;
   const refused = notAccepted(evidence);
@@ -1167,13 +1172,15 @@ function Rejected({
       <Advanced name="evidence-records-technical" summary="Advanced details — readings not accepted, clocks, sources, deliveries and readings by input">
       <Advanced name="evidence-not-accepted" summary="Advanced details — readings not accepted">
         {evidence.state === "NO_DATA" ? null : <OutcomeBars evidence={evidence} />}
-        <h3 id="site-evidence-rejected-table-heading">Readings not accepted (all periods)</h3>
+        <h3 id="site-evidence-rejected-table-heading" data-panel-range={ranged ? "range" : "all-dates"} data-panel-range-for="rejections">
+          {ranged ? "Readings not accepted (received in this date range)" : "Readings not accepted (all periods)"}
+        </h3>
         {loaded === null ? (
           <p>Loading the refused readings.</p>
         ) : loaded.status !== "loaded" ? (
           <p data-rejections-unavailable>The list of refused readings could not be read.</p>
         ) : loaded.value.rejections.length === 0 && loaded.value.duplicates.length === 0 ? (
-          <p>No reading has been refused or repeated for this site.</p>
+          <p>{ranged ? "No reading received in this date range was refused or repeated." : "No reading has been refused or repeated for this site."}</p>
         ) : (
           <>
             {loaded.value.rejections.length === 0 ? null : (

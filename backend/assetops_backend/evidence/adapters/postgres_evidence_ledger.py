@@ -83,6 +83,12 @@ _REREAD_SESSION_SQL = (
 )
 #: Collision precedence (design section 2; rule 8 pins this exact line): message, then event, then session.
 _REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_EVENT_SQL, _REREAD_SESSION_SQL)
+#: SR-12a (rev 10b.4): the rejections read over a date range keeps the batches received in `[from, to)`.
+_RECEIVED_IN_WINDOW = "AND b.received_at >= :w_from AND b.received_at < :w_to "
+
+
+def _window_binds(window: tuple[datetime, datetime] | None) -> dict:
+    return {} if window is None else {"w_from": window[0], "w_to": window[1]}
 
 
 def _constraint(error: IntegrityError) -> str | None:
@@ -826,7 +832,8 @@ class PostgresEvidenceLedger:
 
         return self._run(work)
 
-    def _rejection_rows(self, c: Connection, tenant_id: UUID, site_id: UUID, batch: str | None) -> list[dict]:
+    def _rejection_rows(self, c: Connection, tenant_id: UUID, site_id: UUID, batch: str | None,
+                        window: tuple[datetime, datetime] | None = None) -> list[dict]:
         found = [dict(r._mapping) for r in c.execute(
             text(
                 "SELECT r.id AS rejection_id, r.batch_id, b.external_batch_id, b.source_id, r.ordinal, r.message_id, "
@@ -837,9 +844,10 @@ class PostgresEvidenceLedger:
                 "LEFT JOIN accepted_evidence ce ON ce.id = r.conflicts_with_evidence_id "
                 "WHERE r.tenant_id = :t AND r.site_id = :site "
                 "AND (CAST(:batch AS text) IS NULL OR b.external_batch_id = :batch) "
+                f"{_RECEIVED_IN_WINDOW if window is not None else ''}"
                 "ORDER BY r.received_at, b.external_batch_id, r.ordinal"
             ),
-            {"t": tenant_id, "site": site_id, "batch": batch},
+            {"t": tenant_id, "site": site_id, "batch": batch, **_window_binds(window)},
         ).all()]
         texts = self._batch_texts(c, {row["batch_id"] for row in found})
         for row in found:
@@ -952,7 +960,9 @@ class PostgresEvidenceLedger:
 
         return self._run(work)
 
-    def rejections(self, tenant_id: UUID, site_id: UUID, batch: str | None) -> dict:
+    def rejections(self, tenant_id: UUID, site_id: UUID, batch: str | None,
+                   window: tuple[datetime, datetime] | None = None) -> dict:
+        """SR-12a (rev 10b.4): with `window`, every list holds the batches received in `[from, to)` only."""
         def work(c: Connection) -> dict:
             duplicates = [dict(r._mapping) for r in c.execute(
                 text("SELECT b.external_batch_id, d.ordinal, d.message_id, d.accepted_evidence_id, "
@@ -960,10 +970,12 @@ class PostgresEvidenceLedger:
                      "JOIN ingestion_batch b ON b.id = d.batch_id "
                      "WHERE d.tenant_id = :t AND d.site_id = :site AND d.decision = 'DUPLICATE' "
                      "AND (CAST(:batch AS text) IS NULL OR b.external_batch_id = :batch) "
+                     f"{_RECEIVED_IN_WINDOW if window is not None else ''}"
                      "ORDER BY b.received_at, b.external_batch_id, d.ordinal"),
-                {"t": tenant_id, "site": site_id, "batch": batch},
+                {"t": tenant_id, "site": site_id, "batch": batch, **_window_binds(window)},
             ).all()]
-            return {"rejections": self._rejection_rows(c, tenant_id, site_id, batch), "duplicates": duplicates}
+            return {"rejections": self._rejection_rows(c, tenant_id, site_id, batch, window),
+                    "duplicates": duplicates}
 
         return self._run(work)
 

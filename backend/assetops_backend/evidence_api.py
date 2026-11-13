@@ -489,12 +489,20 @@ def build_evidence_router(
 
     @router.get(SITE_EVIDENCE_REJECTIONS_ROUTE)
     def get_rejections(site_id: str, request: Request) -> dict:
+        # SR-12a (rev 10b.4): optional `from`/`to`, both or neither; the lists keep what was received in the range.
+        start, end = _window_params(request)
+        if (start is None) != (end is None):
+            raise HTTPException(
+                status_code=422,
+                detail={"code": "INVALID_WINDOW", "message": "from and to are given together, or neither"},
+            )
+        window = None if start is None or end is None else (start, end)
         scope = imported_scope(site_id)
         if scope is not None:
-            return from_ledger(lambda: imported_reads.rejections(scope, request.query_params.get("batch")))
+            return from_ledger(lambda: imported_reads.rejections(scope, request.query_params.get("batch"), window))
         site = site_or_404(site_id)
         try:
-            return read_model.rejections(site.site_id, request.query_params.get("batch"))
+            return read_model.rejections(site.site_id, request.query_params.get("batch"), window)
         except EvidenceStoreUnavailable as error:
             raise unavailable(error) from error
 

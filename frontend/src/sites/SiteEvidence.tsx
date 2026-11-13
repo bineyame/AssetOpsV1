@@ -112,7 +112,8 @@ export function SiteEvidence({
     setLoaded(null);
     void Promise.all([
       client.getEvidence(siteId, { from, to }),
-      client.listRejections(siteId),
+      // SR-12a (rev 10b.4): the rejections read follows the date range (received in `[from, to)`).
+      client.listRejections(siteId, null, from !== null && to !== null ? { from, to } : null),
       analytics === undefined ? Promise.resolve(null) : analytics.getDeclaration(siteId),
     ]).then(([overview, rejections, declaration]) => {
       if (active) {
@@ -202,6 +203,9 @@ export function SiteEvidence({
   const empty = evidence.sources.length === 0;
   const rejections =
     loaded.rejections.status === "loaded" ? loaded.rejections.value : null;
+  // SR-12a: over a range the count is the ranged list's own total, so the line and the list agree.
+  const ranged = from !== null && to !== null;
+  const rejectedCount = rejections !== null && ranged ? rejections.total : evidence.rejection_count;
   const hasBasis =
     evidence.basis.mappings.length > 0 ||
     evidence.basis.configurations.length > 0;
@@ -255,11 +259,13 @@ export function SiteEvidence({
             <Panel heading="Data sources · data quality, not equipment condition" headingId="site-evidence-sources-panel-heading">
               {empty ? emptyPart : <SourceSummary evidence={evidence} onInspect={(source) => inspect("source", source)} />}
               {evidence.coverage.length === 0 ? null : <CoverageSummary evidence={evidence} />}
-              {evidence.rejection_count === 0 && empty ? null : (
-                <p data-evidence-rejection-count={evidence.rejection_count}>
-                  {evidence.rejection_count === 0
-                    ? "No record has been rejected for this site."
-                    : `${evidence.rejection_count} ${evidence.rejection_count === 1 ? "record was" : "records were"} rejected; the reasons are on the Analysis view.`}
+              {rejectedCount === 0 && empty ? null : (
+                <p data-evidence-rejection-count={rejectedCount}>
+                  {rejectedCount === 0
+                    ? ranged
+                      ? "No record received in this date range was rejected."
+                      : "No record has been rejected for this site."
+                    : `${rejectedCount} ${rejectedCount === 1 ? "record" : "records"}${ranged ? " received in this date range" : ""} ${rejectedCount === 1 ? "was" : "were"} rejected; the reasons are on the Analysis view.`}
                 </p>
               )}
               {inspector}
@@ -287,8 +293,8 @@ export function SiteEvidence({
             )}
             {inspector}
             {hasBasis ? <Basis evidence={evidence} /> : null}
-            {evidence.rejection_count === 0 && empty ? null : (
-              <Rejections count={evidence.rejection_count} rejections={rejections} />
+            {rejectedCount === 0 && empty ? null : (
+              <Rejections count={rejectedCount} rejections={rejections} ranged={ranged} />
             )}
           </Panel>
           <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
@@ -650,19 +656,22 @@ function Basis({ evidence }: { evidence: EvidenceOverview }) {
 function Rejections({
   count,
   rejections,
+  ranged,
 }: {
   count: number;
   rejections: EvidenceRejections | null;
+  /** SR-12a: the list holds the records received in the date range (SR-4c's "All dates" line is gone). */
+  ranged: boolean;
 }) {
   return (
     <Part heading="Rejected records" headingId="site-evidence-rejections-heading">
-      {/* SR-4c (D-SR.7): the rejections route takes no from/to; the line says so. */}
-      <p className="muted" data-panel-range="all-dates" data-panel-range-for="rejections">
-        {PANEL_ALL_DATES}
-      </p>
-      <p data-evidence-rejection-count={count}>
+      <p data-evidence-rejection-count={count} data-panel-range={ranged ? "range" : undefined} data-panel-range-for="rejections">
         {count === 0
-          ? "No record has been rejected for this site."
+          ? ranged
+            ? "No record received in this date range was rejected."
+            : "No record has been rejected for this site."
+          : ranged
+            ? `${count} ${count === 1 ? "record" : "records"} received in this date range ${count === 1 ? "was" : "were"} rejected and never accepted.`
           : `${count} ${count === 1 ? "record was" : "records were"} rejected and never accepted.`}
       </p>
       {count === 0 ? null : rejections === null ? (

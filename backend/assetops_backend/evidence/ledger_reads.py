@@ -27,8 +27,9 @@ GET /api/sites/{id}/evidence/records    -> {store, site_id, window, total, limit
   next_cursor|null, records[RECORD]}
 GET /api/sites/{id}/evidence/records/{evidence_id|message_id}
   -> RECORD + {envelope, accepted_as, receipt, sequence, duplicates[], conflicts[]}
-GET /api/sites/{id}/evidence/rejections?batch= -> {store, site_id, total,
+GET /api/sites/{id}/evidence/rejections?batch=[&from&to] -> {store, site_id, total,
   rejected_without_source_time, rejections[], conflicts[], duplicates[]}
+  SR-12a: `from`/`to` (both or neither) keep the batches received in `[from, to)`.
   A rejection's `source_time` is its own envelope's (null when unreadable);
   a conflict also carries `conflicts_with_source_time` (the original, lineage only).
 """
@@ -62,7 +63,8 @@ class LedgerReads(Protocol):
     def site_window(self, tenant_id: UUID, site_id: UUID, start, end) -> dict: ...
     def records_page(self, tenant_id: UUID, site_id: UUID, **filters) -> dict: ...
     def record_detail(self, tenant_id: UUID, site_id: UUID, key: str) -> list[dict]: ...
-    def rejections(self, tenant_id: UUID, site_id: UUID, batch: str | None) -> dict: ...
+    def rejections(self, tenant_id: UUID, site_id: UUID, batch: str | None,
+                   window: tuple[datetime, datetime] | None = None) -> dict: ...
 
 
 class AwaitingComparison(Exception):
@@ -375,8 +377,11 @@ class ImportedEvidenceReads:
         })
         return payload
 
-    def rejections(self, scope: ImportedScope, batch: str | None) -> dict:
-        rows = self._ledger.rejections(scope.tenant_id, scope.site_id, batch)
+    def rejections(self, scope: ImportedScope, batch: str | None,
+                   window: tuple[datetime, datetime] | None = None) -> dict:
+        """SR-12a: with `window`, every list (and `total`) holds the batches received in `[from, to)` only."""
+        rows = (self._ledger.rejections(scope.tenant_id, scope.site_id, batch) if window is None
+                else self._ledger.rejections(scope.tenant_id, scope.site_id, batch, window))
         rejections = [_rejection(r) for r in rows["rejections"]]
         return {
             "store": "POSTGRES", "site_id": scope.site_code, "total": len(rejections),
