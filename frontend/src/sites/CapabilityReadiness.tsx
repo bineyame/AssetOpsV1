@@ -217,9 +217,14 @@ function CapabilityRow({
 }
 
 function requirementText(row: EvidenceRequirement): string {
-  return row.available
-    ? `${row.usable_records} usable record${row.usable_records === 1 ? "" : "s"}${row.last_source_time === null ? "" : `, latest ${row.last_source_time}`}`
-    : "No usable record";
+  if (!row.available) {
+    return "No usable record";
+  }
+  const latest = row.last_source_time === null ? "" : `, latest ${row.last_source_time}`;
+  // AP-1: a stored Site's read states presence and the latest record, not a count.
+  return row.usable_records === null
+    ? `Usable records received${latest}`
+    : `${row.usable_records} usable record${row.usable_records === 1 ? "" : "s"}${latest}`;
 }
 
 /** Evidence > Analysis: how readiness is scored and what each row was scored on. */

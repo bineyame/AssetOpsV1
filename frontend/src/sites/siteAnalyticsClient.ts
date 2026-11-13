@@ -270,7 +270,8 @@ export interface EvidenceRequirement {
   /** The role in plain words (backend `plain.role`), read time. */
   plain_role?: string;
   available: boolean;
-  usable_records: number;
+  /** AP-1: null for a stored Site, whose read probes the latest usable record and states no count. */
+  usable_records: number | null;
   last_source_time: string | null;
 }
 
