@@ -5723,3 +5723,23 @@ Decisions logged for owner review: **D-SR.82**.
 - **No DB rebuild.** Only `chain_response` cache rows are written, by the serve itself, as WARM-1 already does. The changed code moves `code_version`, so every stored row misses until it is rebuilt. Merge gate: a fresh Claude review ACCEPT plus the five test files. Then the coordinator fast-forwards the walk1113 tree, restarts the serve (`write_prebuilt_routes` runs at start), runs the full prebuild and `tools/warm_ranges.py` (0 failed), and re-runs the smoke check. Pass: every row reads under 2 s on first hit after prebuild, and there are still 388 × 200.
 
 Decisions logged for owner review: **D-SR.83**.
+
+## D-SR.83a The Overview's wall-clock fields go through the read-instant seam (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Blocker (WIP `9ffd7416b`): the C4 sweep finds that the stored Overview differs from a compose at t0. The cause is in `scheduling/upstream.py:100`: `now = self.schedule.db_now()` is the one uncaptured DB clock read. Every wall-clock field in the Overview comes from that `now`: `db_now` and `built_at` (`read.py:211`), `consequence_work[*].age_seconds` (`upstream.py:174`), and the ages and states in `environment_health`/`site_observation` (`HEARTBEAT_STALE`, `SITE_VISIT_STALE`, `*_age_seconds`).
+- **Ruling: (a), at that single capture.**
+  - In `upstream.py:100`, replace the line with `now = read_scope.read_instant(_utc(self.schedule.db_now()))`, the same form as `site_overview/read.py:115`. All the fields above then derive from one instant that the store and the sweep both see. The compose's liveness floor counts that instant (`response_store.valid_until`, M-A).
+  - Also add, in `upstream.py` right after `env`/`observation` are computed, `read_scope.within(None, X, now)` for each `X` that is not None:
+    - `tick.heartbeat_at + th.stop_after_seconds` and `tick.lease_until`;
+    - `tick.retry_due_at`;
+    - `max(visits) + th.site_stop_after_seconds`, `head.last_completed_at + th.site_stop_after_seconds` and `head.lease_until`.
+  - Reason for the boundaries: a schedule that stops writes nothing, so the watermark never moves. Without these boundaries a stored body could keep reading "running" after the threshold has passed. `health.py` stays pure.
+  - About 0.1 unit, on the same branch.
+- **Rejected options.**
+  - (b) Masking would hide a real stale-state bug and make the sweep stop guarding these fields.
+  - (c) Dropping the fields would remove the Overview's "Updated" time and the `asOf` of `ProductStatus`: `SiteWindowOverview.tsx:243-244,965,1091` read `db_now`. Recomputing at serve time would break the "ETag = stored body bytes" contract (`response_store.py`).
+- **What the viewer sees.** A stored `db_now` is the instant of the compose, which is when the read was made: "Updated 14:02" stays true. Other stored routes already carry their `read_at` this way. No frontend renders `consequence_work.age_seconds` or the schedule ages from the Overview (checked `siteOverviewClient.ts` and `SiteWindowOverview.tsx`), so a frozen age misleads no one, and the boundaries above end the body before any state they encode flips.
+- **Finding index and estate scope:** no change is expected. Their only wall-clock reads already go through the seam: `read_at` in `postgres_assessment_store.py:966`, which feeds `finding_index.py:342,426`, and `postgres_estate_read.py:96`, which `estate/findings` shares and which already passes C4. Both stay in `PATHS`. If the sweep flags either one, apply the same rule (capture through `read_instant` and register the boundary) and never use the WALL mask.
+- Tests: the C4 and F4 sweeps go green with the overview, index and scope in `PATHS`. In addition, one stub test in `test_s5_overview_read.py` checks that a `heartbeat_at` near the threshold registers `heartbeat_at + stop_after` as a boundary.
+
+Decisions logged for owner review: **D-SR.83a**.
