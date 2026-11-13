@@ -1368,7 +1368,7 @@ def coh17_fuel(w: str, summary: dict, files: list[str], tally: dict[str, int]) -
         rows = _rows_by_category(s.get("rows"))
         for e in ((rows.get(PROTECT) or {}).get("nodes") or {}).get("unexplained_fuel") or ():
             want.append(voc.card_text("protect.fuel_line", site=_site_name(s), text=e.get("text")))
-            fuel += _amounts(e.get("currency"), e.get("amount_low"), e.get("amount_high"))
+            fuel.append(_amounts(e.get("currency"), e.get("amount_low"), e.get("amount_high")))
         claim = ((rows.get(COST) or {}).get("nodes") or {}).get("earnings") or {}
         value = claim.get("value") or {}
         other += _amounts(value.get("currency"), value.get("low"), value.get("high"), value.get("amount"))
@@ -1376,7 +1376,10 @@ def coh17_fuel(w: str, summary: dict, files: list[str], tally: dict[str, int]) -
             other += _amounts(e.get("currency"), e.get("amount"))
     lines = list(card.get("fuel_lines") or ())
     check(lines == want, f"Protect card fuel_lines {lines!r}, rebuilt from the Sites' nodes {want!r}")
-    pairs = [(a, b) for i, a in enumerate(fuel) for b in fuel[i + 1:]] + [(a, b) for a in fuel for b in other]
+    # The low and high ends of ONE range are not a total of anything: pair only across different fuel entries.
+    flat = [a for grp in fuel for a in grp]
+    pairs = [(a, b) for i, g in enumerate(fuel) for a in g for h in fuel[i + 1:] for b in h]
+    pairs += [(a, b) for a in flat for b in other]
     sums = nonzero_pair_sums(pairs)
     strings = list(_strings(cards))
     held = sorted(x for x in sums if any(x in t for t in strings))
