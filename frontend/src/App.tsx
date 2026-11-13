@@ -470,7 +470,7 @@ export function App({
           />
           <Route
             path={SITE_FINANCIALS_ROUTE_PATH}
-            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="overview" coldSite={coldSite} coldAssessment={coldAssessment} />}
+            element={<SiteFinancialsFrame detail={siteDetail} sitesPath={SITES_PATH} view="overview" coldSite={coldSite} coldAssessment={coldAssessment} rangeOverview={rangeOverview} />}
           />
           <Route
             path={SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH}

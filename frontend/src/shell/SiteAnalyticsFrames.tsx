@@ -1430,10 +1430,13 @@ export function SiteFinancialsFrame({
   miniDecisions = DEFAULT_MINI_DECISIONS,
   coldScenarioList = DEFAULT_COLD_SCENARIOS,
   forwardBareAssumptions = false,
+  rangeOverview,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   view: "overview" | "assumptions" | "scenarios";
+  /** SR-5d: the mini-grid range read; the Financials overview adds the range money. */
+  rangeOverview?: RangeOverviewClient;
   /**
    * PR-2a default 2: the app's old `/financials/assumptions` address forwards to the Site price page when it carries
    * no price-version pin. A pinned address (`revision_id`, `recorded_at`, `history_*`: the money "Why?" targets) and
@@ -1596,8 +1599,9 @@ export function SiteFinancialsFrame({
               description={SITE_SCREEN_DESCRIPTIONS[view === "assumptions" ? "assumptions" : "financials"]}
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
-            {/* SR-4c (D-SR.6): mini-grid Financials values the prices valid now; the bar says the range is not used. */}
-            {mini ? <RangeNotUsed note="prices valid now" /> : null}
+            {/* SR-4c (D-SR.6): the mini-grid assumptions value the prices valid now. SR-5d: the Overview declares for itself
+                (the range money with a range, else prices valid now). */}
+            {mini && view !== "overview" ? <RangeNotUsed note="prices valid now" /> : null}
             <OperatorSiteTabs siteId={siteId} current="Financials" />
             <FinancialsSections
               siteId={site.site_id}
@@ -1607,7 +1611,13 @@ export function SiteFinancialsFrame({
             {view === "assumptions" ? (
               <SiteAssumptions siteId={site.site_id} client={financials} links={links} />
             ) : (
-              <SiteFinancialsOverview siteId={site.site_id} client={financials} links={links} />
+              <SiteFinancialsOverview
+                siteId={site.site_id}
+                client={financials}
+                links={links}
+                rangeOverview={mini ? rangeOverview : undefined}
+                rangeDayHref={(d) => `${siteDetailHref(site.site_id)}?day=${encodeURIComponent(d)}`}
+              />
             )}
           </main>
         );

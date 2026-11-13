@@ -83,7 +83,9 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/findings/:findingId`, "/findings/f1", ALL, "N", "one Finding at its own episode (D-SR.64)"),
   ...rows(`${S}/findings/:findingId/:findingView`, "/findings/f1/analysis", ALL, "N", "one Finding at its own episode (D-SR.64)"),
   // Financials
-  ...rows(`${S}/financials`, "/financials", ["mini"], "N", "prices valid now until SR-5d adds the range money (D-SR.6)"),
+  ...rows(`${S}/financials`, "/financials", ["mini"], "R", "SR-5d: range money from range-overview above \"Prices valid now\" (rev 9 §9.4)", {
+    knownUnranged: [{ read: "/financial-assumptions", card: "the \"Prices valid now\" section, a price in force now (SR-14 OUT, D-SR.39)" }],
+  }),
   ...rows(`${S}/financials`, "/financials", ["cold"], "R", "the cold Financials read the window (rev 8 8.1)"),
   ...rows(`${S}/financials`, "/financials", ["ev"], "R", "forwards to the EV Financials, which read the window (SR-4c)"),
   ...rows(`${S}/financials/assumptions`, "/financials/assumptions", ["mini", "ev"], "N", "forwards to the Site prices: prices valid now (PR-2a, D-SR.39)"),

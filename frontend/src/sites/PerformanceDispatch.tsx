@@ -113,6 +113,7 @@ export interface PerformanceDispatchProps {
  * the day table from the same `range-overview` read the range Overview makes, under "Dispatch by day"; each day opens
  * this page at `?day=` (the drill-in, with a link back). The Kisiwa night window is read only on the drill-in. A 404
  * (a Site the range read does not know) keeps the one-day page (D-SR.77 1); a 503/422 shows its own refusal.
+ * MOCK DEVIATION R722: v69 `performance-dispatch` is one window; the range form is the day table (D-SR.9).
  */
 export function PerformanceDispatch(props: PerformanceDispatchProps) {
   const [params] = useSearchParams();

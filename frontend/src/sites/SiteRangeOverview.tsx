@@ -254,6 +254,62 @@ export function RangeDayTable({
   );
 }
 
+export const RANGE_MONEY_HEADING = "Fuel cost at stake in this range";
+export const PRICES_VALID_NOW = "Prices valid now";
+const RANGE_MONEY_LOADING = "Loading the fuel cost at stake for this date range.";
+
+/**
+ * SR-5d (rev 9 §9.4): mini-grid Financials' range money: the `range-overview` money card (the Portfolio card's words,
+ * with the PARTIAL label) and the days that carry money, each linking to its drill-in day. Refusals in the read's words.
+ * MOCK DEVIATION R723: v69 `site-financials` (mini-grid) shows assumptions only; this block and the "Prices valid now"
+ * heading are the range form (D-SR.9).
+ */
+export function RangeMoneyBlock({ state, dayHref }: { state: RangeOverviewState; dayHref: (day: string) => string }) {
+  const { read, retrying } = state;
+  const headingId = "site-financials-range-money-heading";
+  if (read?.status !== "loaded" || retrying) {
+    return (
+      <Panel heading={RANGE_MONEY_HEADING} headingId={headingId}>
+        <RangeReadState read={read} retrying={retrying} loading={RANGE_MONEY_LOADING} title="Fuel cost at stake unavailable" />
+      </Panel>
+    );
+  }
+  const body = read.value;
+  const empty = rangeHasNoReadings(body);
+  const note = empty ? null : [moneyNote(body), quantityText(body)].filter(Boolean).join(" · ") || null;
+  const priced = body.days.filter((d) => d.money !== null);
+  return (
+    <Panel heading={RANGE_MONEY_HEADING} headingId={headingId}>
+      <div data-range-money data-range-money-state={body.money.card.state}>
+        <MetricCards label="Fuel cost at stake in this date range">
+          <MetricCard
+            label="Fuel cost at stake"
+            value={empty ? NO_VALUE : body.money.card.display_value ?? "No supported value"}
+            note={note ?? undefined}
+            data={{ "data-range-tile": "money" }}
+          />
+        </MetricCards>
+        {empty ? (
+          <p data-range-money-days="none">{RANGE_NO_READINGS}</p>
+        ) : priced.length === 0 ? (
+          <p data-range-money-days="none">No day in this range has a fuel cost at stake.</p>
+        ) : (
+          <ul className="range-money-days" aria-label="Fuel cost at stake by day">
+            {priced.map((d) => (
+              <li key={d.day} data-range-money-day={d.day}>
+                {rangeDayLabel(d.day)}: {rangeDayMoney(d)} ·{" "}
+                <Link to={dayHref(d.day)} data-range-open-day={d.day}>
+                  {OPEN_DAY}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </Panel>
+  );
+}
+
 export interface RangeOverviewLinks {
   /** The one-day board for a day (`?day=`); `RangeLink` carries the range. */
   day: (day: string) => string;

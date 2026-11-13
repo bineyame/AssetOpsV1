@@ -35,6 +35,10 @@ import type {
 } from "./financialsClient";
 import { FinancialsNotice, FinancialsStatusBar, FindingBridge, NotEstablishedCards, TradeoffsPanel } from "./FindingConsequence";
 import { formatInstant } from "./FoundationRevisionPanel";
+import { PRICES_VALID_NOW, RangeMoneyBlock, rangeNotKnown, useRangeOverview } from "./SiteRangeOverview";
+import type { RangeOverviewClient } from "./rangeOverviewClient";
+import { RangeNotUsed } from "../ui/rangeFocus";
+import { readSharedRange } from "../ui/sharedRange";
 import "./w1ux02-money.css";
 
 /**
@@ -946,12 +950,29 @@ export function SiteFinancialsOverview({
   siteId,
   client,
   links,
+  rangeOverview,
+  rangeDayHref,
 }: {
   siteId: string;
   client: FinancialsClient;
   links: FinancialsLinks;
+  /** SR-5d: the mini-grid range read; with a valid range the page adds the range money above the prices. */
+  rangeOverview?: RangeOverviewClient;
+  /** SR-5d: the drill-in day (the Site Overview at `?day=`). */
+  rangeDayHref?: (day: string) => string;
 }) {
   const [params, setParams] = useSearchParams();
+  // SR-5d (rev 9 §9.4): with a valid range, "Fuel cost at stake in this range" above "Prices valid now", and the bar
+  // declares nothing ("All pages"). Without a range, or when the range read does not know the Site (404, D-SR.77 1),
+  // the page is as before: prices valid now, declared as such (SR-4c).
+  const range = readSharedRange(params);
+  const rangeOn = rangeOverview !== undefined && rangeDayHref !== undefined && range.status === "set";
+  const rangeState = useRangeOverview(
+    rangeOn ? rangeOverview : null,
+    siteId,
+    range.status === "set" ? { from: range.from, to: range.to, known_at: range.known_at } : null,
+  );
+  const rangeShown = rangeOn && !rangeNotKnown(rangeState);
   const findingId = params.get("finding_id");
   const revisionId = params.get("revision_id");
   const consequenceRevisionId = params.get("consequence_revision_id");
@@ -981,10 +1002,17 @@ export function SiteFinancialsOverview({
     consequences === null || (consequences.status === "loaded" && consequences.value === null)
       ? null
       : (consequences as FinancialReadResult<FindingConsequencesBody>);
-  const assumptions = <AssumptionsInUse siteId={siteId} client={client} links={links} />;
+  const assumptions = (
+    <AssumptionsInUse siteId={siteId} client={client} links={links} heading={rangeShown ? PRICES_VALID_NOW : undefined} />
+  );
 
   return (
     <div className="site-financials">
+      {rangeShown && rangeDayHref !== undefined ? (
+        <RangeMoneyBlock state={rangeState} dayHref={rangeDayHref} />
+      ) : (
+        <RangeNotUsed note="prices valid now" />
+      )}
       {bridge === null ? (
         <p>Loading the finding's money view.</p>
       ) : bridge.status !== "loaded" ? (
@@ -1050,12 +1078,23 @@ export function SiteFinancialsOverview({
  * W1-F3: "Assumptions in use" (`financials:2`): the site diesel price in use today, its version and basis, as the
  * mock's key values. A missing price stays unpriced; no default is used.
  */
-function AssumptionsInUse({ siteId, client, links }: { siteId: string; client: FinancialsClient; links: FinancialsLinks }) {
+function AssumptionsInUse({
+  siteId,
+  client,
+  links,
+  heading = "Assumptions in use",
+}: {
+  siteId: string;
+  client: FinancialsClient;
+  links: FinancialsLinks;
+  /** SR-5d: "Prices valid now" under the range money. */
+  heading?: string;
+}) {
   const [validAt] = useState(() => new Date().toISOString());
   const read = useRead(() => client.getAssumptions(siteId, { validAt, limit: 1 }), [client, siteId, validAt]);
   const selection = read !== null && read.status === "loaded" ? read.value.selection : null;
   return (
-    <Panel heading="Assumptions in use" headingId="site-financials-price-heading">
+    <Panel heading={heading} headingId="site-financials-price-heading">
       {read === null ? (
         <p>Loading the site's prices.</p>
       ) : read.status !== "loaded" ? (

@@ -81,9 +81,10 @@ const NOW = (spokenNote: string) =>
   new RegExp(`^Date range for the other pages: .*\\. This page shows ${spokenNote}; the range is not used here\\. Change$`);
 
 describe("SR-4c: the bar tag and spoken name per page and Site type (rev 8 §8.2)", () => {
-  it("mini-grid: Health shows now, Financials and Prices the prices valid now, Foundation the current settings", async () => {
+  it("mini-grid: Health shows now, Financials follows the range (SR-5d), Prices the prices valid now, Foundation the current settings", async () => {
     await expectTag("/sites/KOBO-001/health", "Range not used · shows now", "now", NOW("the present state"));
-    await expectTag("/sites/KOBO-001/financials", "Range not used · prices valid now", "now", NOW("the prices valid now"));
+    // SR-5d (rev 9 §9.4): the range money makes the Financials overview declare nothing ("All pages").
+    await expectTag("/sites/KOBO-001/financials", "All pages", null, FOLLOWS);
     await expectTag("/sites/KOBO-001/financials/assumptions", "Range not used · prices valid now", "now", NOW("the prices valid now"));
     await expectTag("/sites/KOBO-001/financials/prices", "Range not used · prices valid now", "now", NOW("the prices valid now"));
     await expectTag("/sites/KOBO-001/foundation", "Range not used · current settings", "now", NOW("the current settings"));

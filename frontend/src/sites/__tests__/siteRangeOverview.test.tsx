@@ -25,6 +25,8 @@ import {
   CHECKED_NOTHING,
   RANGE_NO_READINGS,
   RANGE_NOT_SHOWN,
+  RANGE_MONEY_HEADING,
+  PRICES_VALID_NOW,
   rangeDayWords,
   rangeStatusLine,
 } from "../SiteRangeOverview";
@@ -323,8 +325,9 @@ describe("SR-5c Performance › Dispatch over the range", () => {
   it.each([DISPATCH, "/sites/KOBO-001/performance"])("%s with a range and no day: Dispatch by day from the same range-overview read", async (path) => {
     serveBoard();
     await open(`${path}?${RANGE}`, stubClient({ status: "loaded", value: body() }));
+    // The frame reads the analytics declaration first; wait for the range table itself.
+    expect(await screen.findByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeTruthy();
     expect(calls).toEqual([{ code: "KOBO-001", from: FROM, to: TO, known_at: null }]);
-    expect(screen.getByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeTruthy();
     expect(document.querySelector('[data-range-days="dispatch"]')).not.toBeNull();
     // No one-day read: no dispatch window, no Kisiwa night window (read only on the drill-in).
     expect(urls.filter((u) => u.includes("/dispatch/windows/") || u.includes("/finding-windows/"))).toEqual([]);
@@ -341,14 +344,14 @@ describe("SR-5c Performance › Dispatch over the range", () => {
   it("day= is the drill-in: the one-day dispatch, a link back to the whole range, the bar names the day", async () => {
     serveBoard();
     await open(`${DISPATCH}?${RANGE}&day=2026-11-05`, stubClient({ status: "loaded", value: body() }));
-    expect(calls).toEqual([]);
-    expect(screen.queryByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeNull();
-    const back = screen.getByRole("link", { name: `← ${BACK_TO_RANGE}` });
+    const back = await screen.findByRole("link", { name: `← ${BACK_TO_RANGE}` });
     const href = back.getAttribute("href") ?? "";
     expect(href.split("?")[0]).toBe(DISPATCH);
     expect(query(href).get("day")).toBeNull();
     expect(query(href).get("from")).toBe(FROM);
     expect(barTag()?.textContent).toBe("Showing 5 Nov of the range");
+    expect(calls).toEqual([]);
+    expect(screen.queryByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeNull();
   });
 
   it("503 unavailable reads as \"Temporarily unavailable. Retrying…\", never as data", async () => {
@@ -370,5 +373,56 @@ describe("SR-5c Performance › Dispatch over the range", () => {
     expect(screen.queryByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeNull();
     await waitFor(() => expect(barTag()?.textContent).toBe("Showing 9 Nov of the range"));
     expect(screen.queryByRole("link", { name: `← ${BACK_TO_RANGE}` })).toBeNull();
+  });
+});
+
+const FINANCIALS = "/sites/KOBO-001/financials";
+
+describe("SR-5d mini-grid Financials over the range", () => {
+  it("a range: the range money above \"Prices valid now\", days with money link to the drill-in day; the bar says All pages", async () => {
+    serveBoard();
+    await open(`${FINANCIALS}?${RANGE}`, stubClient({ status: "loaded", value: body() }));
+    await screen.findByRole("heading", { name: PRICES_VALID_NOW });
+    expect(calls).toEqual([{ code: "KOBO-001", from: FROM, to: TO, known_at: null }]);
+    const headings = screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent);
+    expect(headings).toContain(RANGE_MONEY_HEADING);
+    expect(headings).toContain(PRICES_VALID_NOW);
+    expect(headings).not.toContain("Assumptions in use");
+    expect(headings.indexOf(RANGE_MONEY_HEADING)).toBeLessThan(headings.indexOf(PRICES_VALID_NOW));
+    const block = document.querySelector("[data-range-money]") as HTMLElement;
+    expect(block.getAttribute("data-range-money-state")).toBe("SITE_OWNED");
+    expect(within(block).getByText("$12.50–$14.00")).toBeTruthy();
+    // The PARTIAL label (the Overview tile's words) and the at-stake litres.
+    expect(block.textContent).toContain("3 of 7 days analysed");
+    expect(block.textContent).toContain("10–12 L at stake");
+    // Only the days with money are listed (5 Nov), each opening the Overview drill-in with the range carried.
+    expect([...block.querySelectorAll("[data-range-money-day]")].map((e) => e.getAttribute("data-range-money-day"))).toEqual(["2026-11-05"]);
+    const href = block.querySelector('[data-range-open-day="2026-11-05"]')?.getAttribute("href") ?? "";
+    expect(href.split("?")[0]).toBe("/sites/KOBO-001");
+    expect(query(href).get("day")).toBe("2026-11-05");
+    expect(query(href).get("from")).toBe(FROM);
+    expect(barTag()?.textContent).toBe("All pages");
+  });
+
+  it("a 404 keeps the page as before and says prices valid now (D-SR.77 1)", async () => {
+    serveBoard();
+    await open(`${FINANCIALS}?${RANGE}`, stubClient({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }));
+    expect(await screen.findByRole("heading", { name: "Assumptions in use" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: RANGE_MONEY_HEADING })).toBeNull();
+    expect(barTag()?.textContent).toBe("Range not used · prices valid now");
+  });
+
+  it("503 unavailable reads as \"Temporarily unavailable. Retrying…\" in the money block, never as data", async () => {
+    serveBoard();
+    await open(
+      `${FINANCIALS}?${RANGE}`,
+      stubClient((onRetrying) => {
+        onRetrying?.();
+        return new Promise<RangeOverviewRead>(() => undefined);
+      }),
+    );
+    expect(await screen.findByText(RETRYING_COPY)).toBeTruthy();
+    expect(document.querySelector("[data-range-money]")).toBeNull();
+    expect(screen.getByRole("heading", { name: RANGE_MONEY_HEADING })).toBeTruthy();
   });
 });
