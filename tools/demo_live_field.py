@@ -15,7 +15,7 @@
 - The poller (`assetops_field.modbus_poller`, profile `gx-system-illustrative-2`, wall clock) reads it over Modbus
   TCP and admits to the edge gateway over its IPC link; the gateway uploads over TLS to `serve_tls` every 60 s.
 - Overlap rule: `start` refuses when any profile source already holds accepted evidence after `from` (a UP-1 file or
-  a story day); `check` is the finish check: no overlapping (Site, source, interval) where either row came through
+  a story day); `check` is the finish check: no overlapping (Site, source signal, interval) where either row came through
   the edge gateway's epoch.
 - The profile's sources that are still disabled are enabled through `provision_gateway enable-source` (the
   credential is not re-issued, so UP-1's upload credential stays valid).
@@ -200,7 +200,8 @@ def disabled_sources(expect: Mapping[str, Any]) -> list[str]:
 
 OVERLAP_SQL = (
     "SELECT a.device_id, a.signal_id, a.role, count(*) AS pairs FROM accepted_evidence a JOIN accepted_evidence b "
-    "ON b.tenant_id = a.tenant_id AND b.site_id = a.site_id AND b.source_id = a.source_id AND b.id <> a.id "
+    "ON b.tenant_id = a.tenant_id AND b.site_id = a.site_id AND b.source_id = a.source_id "
+    "AND b.device_id = a.device_id AND b.signal_id = a.signal_id AND b.id <> a.id "
     "AND ((a.interval_start IS NOT NULL AND b.interval_start IS NOT NULL "
     "      AND a.interval_start < b.interval_end AND b.interval_start < a.interval_end) "
     "  OR (a.interval_start IS NULL AND b.interval_start IS NULL AND a.source_time = b.source_time)) "
