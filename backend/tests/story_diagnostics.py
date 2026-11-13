@@ -9,6 +9,10 @@ E14, K16). The ingestion is the one behind `POST /api/gateways/{gateway_id}/diag
 - `diagnostics_router`: for the Cold and EV harnesses, whose centrals are real FastAPI apps with issued credentials.
 
 Each is opt-in (the demo prepare turns it on); the ordinary Postgres tests keep their centrals unchanged.
+
+D-DATA.2: a forwarded diagnostic is received on the clock that sealed it, the harness gateway's own clock
+(`gateway_clock`), never a story or decision clock. Otherwise every row has `observed_at` after `received_at` and
+Health reads "Unknown age" (a harness artefact shown as a data fact), or a future `received_at` makes the read 409.
 """
 
 from __future__ import annotations
@@ -50,15 +54,24 @@ def forward_diagnostic(service, principal, path: str, body: bytes) -> tuple[int,
     }).encode("utf-8")
 
 
-def diagnostics_service(url: str, clock: Callable[[], datetime]):
-    """The product's diagnostics ingestion on the Postgres gateway-access store at `url`."""
+def gateway_clock() -> datetime:
+    """The harness gateway's own clock: the gateway process seals each diagnostic (`observed_at`, device contacts)
+    on the real UTC wall clock (`assetops_gateway.service._utc_now`, the `GatewayService` default; the harness
+    starts the process without a clock override). Backend tests do not import the gateway package, so it is
+    restated here; `test_data5_story_diagnostics` pins the two together."""
+    return datetime.now(timezone.utc)
+
+
+def diagnostics_service(url: str, clock: Callable[[], datetime] = gateway_clock):
+    """The product's diagnostics ingestion on the Postgres gateway-access store at `url`, receiving on `clock`
+    (D-DATA.2: the gateway's own clock, which is the default)."""
     from assetops_backend.evidence.adapters.postgres_gateway_access import PostgresGatewayAccess
     from assetops_backend.evidence.gateway_access import DiagnosticIngestionService
 
     return DiagnosticIngestionService(PostgresGatewayAccess(url), clock)
 
 
-def diagnostics_router(url: str, clock: Callable[[], datetime]):
+def diagnostics_router(url: str, clock: Callable[[], datetime] = gateway_clock):
     """The product's gateway router (`build_gateway_router`) with diagnostics ingestion and credential principals
     on `url`; no Site health read is mounted (the harness central serves gateway posts only)."""
     from assetops_backend.evidence.adapters.postgres_gateway_access import PostgresGatewayAccess

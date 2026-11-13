@@ -80,7 +80,10 @@ def _day_swaps(P, w202, base, day: "sd.DayRun", tmp: Path):
     w202.PostgresEvidenceLedger = lambda u, **kw: PostgresEvidenceLedger(
         u, **{"test_decision_clock_override": lambda: received, **kw})
     w202.BatchIngestionService = lambda ledger, _clock: BatchIngestionService(ledger, lambda: received)
-    w202.DIAGNOSTIC_CLOCK = lambda: received  # DATA-5: the day's gateway diagnostics are stored (Cold Health)
+    # DATA-5: the day's gateway diagnostics are stored (Cold Health), received on the gateway's own clock (D-DATA.2)
+    from story_diagnostics import gateway_clock
+
+    w202.DIAGNOSTIC_CLOCK = gateway_clock
     recorded = day.start - timedelta(hours=1)
 
     class _RecordedNow(datetime):

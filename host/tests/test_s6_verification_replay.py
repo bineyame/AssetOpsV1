@@ -217,12 +217,13 @@ def _publish_and_accept(tmp_path: Path, run, epoch: str, received_at: datetime, 
     received = pub.registered.Clock(received_at)
     ingestion = BatchIngestionService(PostgresEvidenceLedger(URL, test_decision_clock_override=received), received)
     statuses: list[str] = []
-    # DATA-5: the story prepare forwards the gateway's diagnostics to the product ingestion (story clock).
+    # DATA-5: the story prepare forwards the gateway's diagnostics to the product ingestion, received on the
+    # gateway's own clock (D-DATA.2), not the story `received`.
     forwarded = None
     if diagnostics:
-        from story_diagnostics import diagnostic_gateway, diagnostics_service, forward_diagnostic
+        from story_diagnostics import diagnostic_gateway, diagnostics_service, forward_diagnostic, gateway_clock
 
-        forwarded = diagnostics_service(URL, received)
+        forwarded = diagnostics_service(URL, gateway_clock)
 
     def respond(path, headers, body):
         if forwarded is not None and diagnostic_gateway(path) is not None:
