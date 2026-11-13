@@ -130,6 +130,7 @@ def _serve(monkeypatch, url: str, work: Path, *, s2_stand_in: bool = True) -> No
     from assetops_backend.estate.scope import PORTFOLIO_CURSOR_KEY_ENV
 
     monkeypatch.setenv("DATABASE_URL", url)
+    product_db_reset()
     monkeypatch.setenv(PORTFOLIO_CURSOR_KEY_ENV, "0" * 64)
     _evidence_root(monkeypatch, work / "evidence")
     if s2_stand_in:  # addendum 5 #1: the S5 Overview Postgres test's stand-in, once, on the scope create_app uses
@@ -341,6 +342,14 @@ def _build_kobo(url: str, work: Path, case: str) -> tuple[dict, list]:
     return json.loads((work / f"case-{case}.json").read_text(encoding="utf-8")), imported
 
 
+def product_db_reset() -> None:
+    """AR-4: the `evidence.claim` row builder caches its reader (lru_cache) on the `DATABASE_URL` of its first use;
+    drop it so the next build reads this case database's current `DATABASE_URL`."""
+    from assetops_backend.chain import composition
+
+    composition._estate_evidence_read.cache_clear()
+
+
 def _settle_chain(url: str, code: str) -> None:
     """CH-5a1: the board reads the chain (thread occurrences, snapshots, R8). Backfill steps a-d, then consume this
     Site's outbox (the tick's `chain_threads` stage) so R8 is settled - the CH-2/CH-3 L2 settle path."""
@@ -352,6 +361,7 @@ def _settle_chain(url: str, code: str) -> None:
 
     with pytest.MonkeyPatch.context() as mp:
         mp.setenv("DATABASE_URL", url)
+        product_db_reset()
         assert backfill(["--site", code, "--steps", "a,b,c,d"]) == 0
         engine = create_engine(url, poolclass=NullPool)
         try:
