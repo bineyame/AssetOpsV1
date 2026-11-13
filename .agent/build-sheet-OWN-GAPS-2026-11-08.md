@@ -5538,3 +5538,27 @@ Decisions logged for owner review: **D-SR.78**.
 - Size about 0.1, before merge. Also run the review's `SELECT status, count(*) FROM recompute_job` check for KOBO-001 on the client4 copy in the first heavy slot, as planned.
 
 Decisions logged for owner review: **D-UP.12**.
+
+## D-UQFI.11-12 UQ-FI-3 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-uqfi3` `task/UQ-FI-3`, `.agent/UQ-FI-3-packet.md` (questions 1-2). Spec: rev 7 UQ-FI-3 row and its `StatusPill` line ("maps the six existing state codes").
+- **D-UQFI.11 State set: the outcome state codes, as built. Looks for the undrawn ones are below.**
+  - Rev 7's "six reading states" was loose wording. Its own design line says "the six existing state codes", and the codes both call sites show are the outcome states (Portfolio key, board outcome rows). The eight readings-coverage words on the sheet are not shown at either call site, so they are not mapped in UQ-FI-3. Confirmed as built, including NO_OBJECTIVE and NOT_APPLICABLE, which the board can carry.
+  - Drawn in portfolio-hifi, kept exactly, with no added symbol: NEEDS_ATTENTION `s-partial` look; OPPORTUNITY `s-accent`; WATCH `s-neutral`; NOT_MEASURED `s-notanalysed` (dashed).
+  - Not drawn, ruled:
+    - **ON_TRACK** takes the sheet's Complete chip look and symbol (`s-complete`, filled circle). It is the one positive state, and that is the sheet's positive look.
+    - **UNKNOWN**, **NO_OBJECTIVE** and **NOT_APPLICABLE** take `s-neutral` with no symbol. The word tells them apart.
+  - Reasons:
+    - Do not use `s-noreadings` for Unknown. That look means "No readings received", a readings fact the outcome state does not claim.
+    - Do not use the dashed `s-notanalysed` for N/A. Dashed means "not yet", and not applicable is not pending.
+    - Unrecognised codes stay neutral.
+  - The packet lists these four as "undrawn on the sheet, ruled by D-UQFI.11", for the owner's sheet review. `statusPill.test.tsx` pins them.
+- **D-UQFI.12 Portfolio card foot pill: leave it out for 17 Nov. MOCK DEVIATION.**
+  - Mock element: the portfolio-hifi `.kpi` card foot state chip.
+  - Reason: `EstatePortfolioCard` carries a tone, not a state code. An estate-level state needs a server roll-up rule: which Site state wins, and with what words. That is new semantics needing an owner decision, not a field copy.
+  - Alternatives considered:
+    - Derive it in the client from the tone or the per-Site states. Rejected: it invents semantics, and colour would be read as a claim.
+    - Add a server `state`/`state_label` with a roll-up rule. This is about 0.3 unit, backend, contract and tests. It goes to BL-69 after 17 Nov, and only once the owner rules the roll-up.
+  - The per-Site states stay behind "Why?" as built, so nothing is hidden. Record the label in code beside the card foot and in the packet, citing D-UQFI.12.
+
+Decisions logged for owner review: **D-UQFI.11-12**.
