@@ -5440,3 +5440,15 @@ Decisions logged for owner review: **D-SR.76**.
 - **Q9 Confirmed.** The file-backed path is filtered too, by the Q8 rule (source time; receipt only when there is no source time). The page must not list all dates beside a range.
 
 Decisions logged for owner review: **D-SR.76** (Q1-Q9).
+
+### D-SR.76 (continued) Lane J SR-7/SR-11 Q10-Q11 and the hour addresses (`AssetOpsV1-sr7` `task/SR-7-11-pages`)
+- **Q10 (Q-J6) Confirmed as built.** The table has only the fields the stored day rows carry: When, Outcome for service, Recovery, Result. A step column with "No accepted record" in every row would be false.
+  - 10b.3's "existing backup chain table" line is withdrawn. Record this table under MOCK DEVIATION R728 (stored day rows carry no step records; alternatives: the step table, rejected as dishonest, or new step rows, out of scope).
+  - Each row's one-day link keeps the full step chain.
+- **Q11 (Q-J7) Confirmed.** A 503 on the one-day claim-limit read keeps its existing plain sentence with no retry.
+  - **Hide** the claim-limit section on Cold/EV Evidence pages instead of showing "...read for mini-grid sites only". The mock's `cold-evidence`/`ev-evidence` carry no claim-limit section (`SiteEvidenceMatrix`, `AcceptedEvidenceIndex`), so hiding it keeps the mock.
+  - The not-applicable string stays only as a guard for an unexpected 404. Size about 0.05, one vitest.
+- **Hour addresses: confirmed.** Only an address that is exactly one clock hour opens the hour page. Any other address, including one hour off the clock hour or two hours, is a range and opens the day table. Never a refusal.
+  - The frame must say "Whole days that include the selected time" so a short range is not read as a full-day claim. This supersedes D-SR.40's interim "two hours reads the 12:00 hour" test; update that test to the new behaviour, never delete it.
+
+Decisions logged for owner review: **D-SR.76** (Q1-Q11 and the hour addresses).
