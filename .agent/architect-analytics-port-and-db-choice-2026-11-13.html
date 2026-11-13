@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Analytics Port and Database Choice</title>
+<style>
+:root{
+  --bg:#f7f7f5;--surface:#ffffff;--ink:#1d1f23;--muted:#5b6170;--line:#d9dbe0;
+  --accent:#2f5fb3;--accent-soft:#e6eefb;--good:#1f7a4d;--good-soft:#e3f3ea;
+  --warn:#9a5b00;--warn-soft:#fbf0dc;--bad:#a8322d;--bad-soft:#f8e3e1;--code:#f0f1f4;
+  --est:#8a8f9c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15171b;--surface:#1d2026;--ink:#e8e9ec;--muted:#a3a9b6;--line:#343944;
+    --accent:#7ea6f0;--accent-soft:#22304a;--good:#5cc28f;--good-soft:#1c3328;
+    --warn:#e2a64a;--warn-soft:#3a2e1a;--bad:#ec7b74;--bad-soft:#3d2221;--code:#262a31;--est:#7c8290;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15171b;--surface:#1d2026;--ink:#e8e9ec;--muted:#a3a9b6;--line:#343944;
+  --accent:#7ea6f0;--accent-soft:#22304a;--good:#5cc28f;--good-soft:#1c3328;
+  --warn:#e2a64a;--warn-soft:#3a2e1a;--bad:#ec7b74;--bad-soft:#3d2221;--code:#262a31;--est:#7c8290;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:960px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.7rem;margin:.2em 0 .1em;line-height:1.2}
+h2{font-size:1.3rem;margin:2.2em 0 .5em;padding-top:.6em;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.6em 0 .4em}
+p,li{max-width:72ch}
+.sub{color:var(--muted);margin:0 0 1.2em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:14px 0}
+.summary{border-left:5px solid var(--accent)}
+.summary ol{margin:.3em 0;padding-left:1.3em}
+.rec{border-left:5px solid var(--good);background:var(--good-soft)}
+.warnbox{border-left:5px solid var(--warn);background:var(--warn-soft)}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.88em;word-break:break-word}
+.tag{display:inline-block;font-size:.75rem;font-weight:600;padding:1px 8px;border-radius:999px;vertical-align:middle}
+.m{background:var(--good-soft);color:var(--good)}
+.e{background:var(--code);color:var(--est)}
+.y{background:var(--good-soft);color:var(--good)}
+.p{background:var(--warn-soft);color:var(--warn)}
+.n{background:var(--bad-soft);color:var(--bad)}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:560px;background:var(--surface);font-size:.92rem}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft)}
+figure{margin:16px 0}
+figcaption{color:var(--muted);font-size:.88rem;margin-top:6px}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+svg .mut{fill:var(--muted)}
+svg .box{fill:var(--surface);stroke:var(--line);stroke-width:1.5}
+svg .acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+svg .gd{fill:var(--good-soft);stroke:var(--good);stroke-width:1.5}
+svg .bd{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.5}
+svg .wn{fill:var(--warn-soft);stroke:var(--warn);stroke-width:1.5}
+svg .ln{stroke:var(--muted);stroke-width:1.6;fill:none}
+svg .lnb{stroke:var(--bad);stroke-width:2;fill:none;stroke-dasharray:5 4}
+svg .lng{stroke:var(--good);stroke-width:2;fill:none}
+svg .barm{fill:var(--accent)}
+svg .bare{fill:var(--est)}
+svg .grid{stroke:var(--line);stroke-width:1}
+.toc a{color:var(--accent)}
+.toc{columns:2;column-gap:24px;font-size:.92rem}
+@media (max-width:640px){.toc{columns:1} h1{font-size:1.4rem}}
+</style>
+</head>
+<body>
+<main>
+<p class="sub">AssetOps Architect (Claude) · 13 Nov 2026 · for the owner's Saturday 14 Nov 12:00 reassessment (D-SR.38)</p>
+<h1>Analytics readiness port, and which database suits AssetOps</h1>
+<p class="sub">Two questions from the owner: how big is moving the "What we can conclude now" panel onto the stored Sites, and should AssetOps be on SQL or NoSQL. No code was changed.</p>
+
+<div class="card summary">
+<strong>In plain words</strong>
+<ol>
+<li>The panel that says what each analysis can conclude from the records only works for old file-based Sites. All four demo Sites are stored Sites, so today it shows "not available yet" (SR-12b's honest wording).</li>
+<li>It only applies to the two mini-grids (Kobo, Kisiwa). The cold room and EV hub have no such panel in the mockup.</li>
+<li>Moving it is about <strong>1.3 lane-units</strong> (estimate, range 1.1 to 1.6). It reuses data and checks that already exist. It needs no new data build, so it would not touch the 3-hour demo prepare.</li>
+<li>It does not fit before the Sat 20:00 freeze without pushing something else out. It could fit if the freeze moves to Sun 20:00, or a lane runs out of work early.</li>
+<li>My advice: put it <strong>first in the deferral list</strong>. Without it the client sees an honest "not available yet" line. With it they see one row ("Generator support": Full or Limited, plus what is missing).</li>
+<li>Database: <strong>stay on PostgreSQL</strong>. AssetOps is a records-and-proof system: evidence, money, audit and assessments must agree with each other at one moment. That is exactly what SQL databases guarantee and NoSQL stores mostly do not.</li>
+<li>Today's speed is fine (stored range reads 0.3 s or less on the VPS, measured). When readings grow, add time partitioning, and later possibly TimescaleDB. Both are still PostgreSQL. No database change before 17 Nov.</li>
+</ol>
+</div>
+
+<nav class="card toc" aria-label="Contents">
+<a href="#a">Part A: the analytics port</a><br>
+<a href="#a1">A1 What happens today</a><br>
+<a href="#a2">A2 What already exists for stored Sites</a><br>
+<a href="#a3">A3 Port design</a><br>
+<a href="#a4">A4 Size</a><br>
+<a href="#a5">A5 Risks</a><br>
+<a href="#a6">A6 Timing, client view, deferral place</a><br>
+<a href="#b">Part B: SQL or NoSQL</a><br>
+<a href="#b1">B1 What AssetOps stores</a><br>
+<a href="#b2">B2 Measured speed today</a><br>
+<a href="#b3">B3 Options compared</a><br>
+<a href="#b4">B4 Recommendation</a><br>
+<a href="#b5">B5 Now, later, and what would change my mind</a><br>
+<a href="#r">Ruling D-SR.75</a>
+</nav>
+
+<!-- ============================ PART A ============================ -->
+<h2 id="a">Part A: porting the analytics readiness panel to stored Sites</h2>
+
+<h3 id="a1">A1 What happens today</h3>
+<p>The Site Evidence page asks <code>GET /api/sites/{id}/analytics</code> for the readiness of each analysis. That route (<code>backend/assetops_backend/analytics_api.py</code>) is given the <code>LegacySiteGate</code> (<code>main.py:530</code>, <code>sites/cutover.py:122</code>). The gate refuses every Site that has moved into PostgreSQL, so every demo Site gets <code>409 AWAITING_EVIDENCE_MIGRATION</code>. SR-12b (in review, D-SR.74) turns that refusal into the plain line "What can be assessed from these records is not available yet for this site."</p>
+
+<figure>
+<svg viewBox="0 0 900 300" role="img" aria-label="Today's data flow: the Evidence page reads most panels from PostgreSQL, but the analytics panel goes through the legacy gate and is refused for stored Sites.">
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+  <rect class="acc" x="20" y="110" width="170" height="80" rx="10"/>
+  <text x="105" y="143" text-anchor="middle" font-weight="600">Site Evidence page</text>
+  <text x="105" y="165" text-anchor="middle" class="mut" font-size="13">Kobo, Kisiwa (mini-grid)</text>
+
+  <rect class="box" x="290" y="30" width="250" height="64" rx="10"/>
+  <text x="415" y="58" text-anchor="middle" font-weight="600">Evidence, sources, claim limit</text>
+  <text x="415" y="78" text-anchor="middle" class="mut" font-size="13">ledger_scope → stored branch</text>
+  <rect class="gd" x="640" y="30" width="230" height="64" rx="10"/>
+  <text x="755" y="58" text-anchor="middle" font-weight="600">PostgreSQL</text>
+  <text x="755" y="78" text-anchor="middle" class="mut" font-size="13">ledger, runs, period rows</text>
+
+  <rect class="box" x="290" y="200" width="250" height="64" rx="10"/>
+  <text x="415" y="226" text-anchor="middle" font-weight="600">/analytics (readiness)</text>
+  <text x="415" y="246" text-anchor="middle" class="mut" font-size="13">analytics_api.py</text>
+  <rect class="bd" x="640" y="200" width="230" height="64" rx="10"/>
+  <text x="755" y="224" text-anchor="middle" font-weight="600">LegacySiteGate</text>
+  <text x="755" y="244" text-anchor="middle" font-size="13">refuses stored Sites: 409</text>
+
+  <path class="ln" d="M190,140 C240,120 250,62 288,62" marker-end="url(#ar)"/>
+  <path class="ln" d="M540,62 L636,62" marker-end="url(#ar)"/>
+  <path class="ln" d="M190,165 C240,185 250,232 288,232" marker-end="url(#ar)"/>
+  <path class="lnb" d="M540,232 L636,232"/>
+  <text x="590" y="222" text-anchor="middle" font-size="12" class="mut">blocked</text>
+  <text x="105" y="225" text-anchor="middle" font-size="13" class="mut">panel shows</text>
+  <text x="105" y="243" text-anchor="middle" font-size="13" class="mut">"not available yet"</text>
+</svg>
+<figcaption>Today. Every other Evidence panel already reads PostgreSQL through <code>registry.ledger_scope</code>. Only the readiness panel still goes through the file-era gate.</figcaption>
+</figure>
+
+<h3 id="a2">A2 What the readiness read needs, and what already exists for stored Sites</h3>
+<div class="tablewrap"><table>
+<tr><th>Ingredient</th><th>File-backed source today</th><th>Stored-Site equivalent (exists today)</th></tr>
+<tr><td>Which analyses apply, and what each needs</td><td><code>analytics/declaration.py</code> <code>DECLARATIONS</code> (only Dispatch, mini-grid only)</td><td>Same static declaration. It is code, not data. Its evidence rows name file-era device/signal ids, so a role map is needed.</td></tr>
+<tr><td>"Is there any usable accepted record of this input?"</td><td><code>evidence.load_site(id)</code> scans every file record (<code>_requirement</code>)</td><td>The accepted readings ledger, keyed by canonical roles (<code>DISPATCH_ROLES</code> in <code>assessment_worker.py</code>: generator_state, generator_power, feeder_demand, pv_available_power, pcs_discharge_capability, battery_soc), plus the Foundation reserve control.</td></tr>
+<tr><td>Coverage of the active assessments</td><td>File dispatch-2 assessments: <code>coverage.inputs</code>, <code>segments[].missing</code>, <code>unobserved_generator_state</code></td><td>Stored dispatch-3.2 interval revisions: <code>selected_intervals</code> (<code>postgres_assessment_store.py:1252</code>), segment <code>missing</code> lists. Per-role coverage is already computed by <code>claim_limit_read.role_coverage</code> / <code>segment_roles</code> (S3-02a), fail-closed on unknown text.</td></tr>
+<tr><td>Scoring Full / Limited / None and plain words</td><td><code>score_readiness</code> + <code>plain.readiness</code></td><td>Reused unchanged. It takes plain rows and (id, assessment) pairs, so the port only has to feed it.</td></tr>
+<tr><td>Date range (SR-12b)</td><td><code>in_window</code>, half-open (D-SR.74)</td><td>Reused unchanged once SR-12b merges.</td></tr>
+<tr><td>Stored/legacy routing</td><td>—</td><td><code>registry.ledger_scope(code)</code>: None means legacy. Same pattern as Overview (S5-01), Performance, claim limit, Findings, Work.</td></tr>
+<tr><td>Performance cutover gate</td><td>—</td><td><code>performance_gate</code> in <code>main.py</code> (the claim-limit and Performance routes use it)</td></tr>
+</table></div>
+<p>How earlier surfaces were ported (git history): S2-02 phase 3a put Site Evidence reads on the ledger behind a legacy comparison gate; S3-01 phase 3a/3b put Performance on stored dispatch-3 with a comparison report and cutover gate; S5-01 added the stored Overview delegate; W4-02 q12-6 recorded Kisiwa's "no legacy evidence" cutover basis. Each port added a stored branch beside the legacy one, chosen by <code>ledger_scope</code>, and never removed the legacy branch. This port follows the same pattern.</p>
+
+<h3 id="a3">A3 Port design</h3>
+<figure>
+<svg viewBox="0 0 900 360" role="img" aria-label="Port design: the analytics route asks ledger_scope; legacy Sites keep the file path; stored mini-grid Sites go through a new stored declaration read that feeds the unchanged scoring function.">
+  <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+  <rect class="acc" x="20" y="140" width="160" height="70" rx="10"/>
+  <text x="100" y="170" text-anchor="middle" font-weight="600">/analytics</text>
+  <text x="100" y="190" text-anchor="middle" class="mut" font-size="13">?from&amp;to (SR-12b)</text>
+  <rect class="box" x="230" y="140" width="140" height="70" rx="10"/>
+  <text x="300" y="170" text-anchor="middle" font-weight="600">ledger_scope</text>
+  <text x="300" y="190" text-anchor="middle" class="mut" font-size="13">stored or legacy?</text>
+
+  <rect class="box" x="430" y="20" width="200" height="64" rx="10"/>
+  <text x="530" y="48" text-anchor="middle" font-weight="600">Legacy branch</text>
+  <text x="530" y="68" text-anchor="middle" class="mut" font-size="13">unchanged (file Sites)</text>
+
+  <rect class="wn" x="430" y="120" width="200" height="64" rx="10"/>
+  <text x="530" y="146" text-anchor="middle" font-weight="600">Performance gate</text>
+  <text x="530" y="166" text-anchor="middle" font-size="13">closed → "not available yet"</text>
+
+  <rect class="gd" x="430" y="230" width="200" height="100" rx="10"/>
+  <text x="530" y="256" text-anchor="middle" font-weight="600">NEW stored_declaration</text>
+  <text x="530" y="278" text-anchor="middle" font-size="13">1 role presence query</text>
+  <text x="530" y="296" text-anchor="middle" font-size="13">2 v3 coverage adapter</text>
+  <text x="530" y="314" text-anchor="middle" font-size="13">one snapshot</text>
+
+  <rect class="box" x="690" y="230" width="190" height="100" rx="10"/>
+  <text x="785" y="262" text-anchor="middle" font-weight="600">score_readiness</text>
+  <text x="785" y="282" text-anchor="middle" class="mut" font-size="13">+ plain.readiness</text>
+  <text x="785" y="302" text-anchor="middle" class="mut" font-size="13">unchanged</text>
+
+  <rect class="acc" x="690" y="120" width="190" height="64" rx="10"/>
+  <text x="785" y="148" text-anchor="middle" font-weight="600">Same JSON shape</text>
+  <text x="785" y="168" text-anchor="middle" class="mut" font-size="13">no frontend change</text>
+
+  <path class="ln" d="M180,175 L226,175" marker-end="url(#ar2)"/>
+  <path class="ln" d="M370,165 C400,120 400,52 426,52" marker-end="url(#ar2)"/>
+  <path class="ln" d="M370,175 L426,155" marker-end="url(#ar2)"/>
+  <path class="lng" d="M530,184 L530,226" marker-end="url(#ar2)"/>
+  <path class="lng" d="M630,280 L686,280" marker-end="url(#ar2)"/>
+  <path class="lng" d="M785,230 L785,188" marker-end="url(#ar2)"/>
+  <text x="404" y="100" class="mut" font-size="12">legacy</text>
+  <text x="380" y="210" class="mut" font-size="12">stored mini-grid</text>
+</svg>
+<figcaption>The port adds one stored branch. The scoring code and the JSON shape do not change, so the panel needs no frontend work.</figcaption>
+</figure>
+
+<h3>Files and functions</h3>
+<ol>
+<li><strong>New <code>backend/assetops_backend/analytics/stored_declaration.py</code></strong>
+  <ul>
+  <li><code>ROLE_OF_REQUIREMENT</code>: each Dispatch requirement row mapped to its canonical role. Generator state → generator_state; Generator state and output → generator_power; each Load row → feeder_demand (per bound feeder asset); PV capability → pv_available_power; Battery state → battery_soc; Battery capability → pcs_discharge_capability; Reserve policy → the Foundation battery-reserve control. The optional rows (min runtime, stop threshold, operator overrides) map to their controls, or read "not observed" when the stored model has no such record (dispatch_read <code>UNAVAILABLE</code> already says so). A row with no mapping fails closed (not available), never "available".</li>
+  <li><code>stored_requirements(snapshot, tenant_id, site_id)</code>: one query per Site for whether each bound role has at least one accepted GOOD reading, and its latest source time. Use <code>EXISTS</code>/<code>max</code>, not a full count. <code>device_id</code>/<code>signal_id</code> are filled from the selected binding's public asset and signal ids.</li>
+  <li><code>v3_assessment_view(revision)</code>: turns one stored dispatch-3.2 interval revision into the dict that <code>score_readiness</code> reads. It uses <code>claim_limit_read.segment_roles</code>/<code>role_coverage</code> for <code>coverage.inputs</code> (usable vs evaluated segments per role), turns the generator-state missing spans into <code>unobserved_generator_state</code>, and keeps <code>segments[].missing</code> labels. It sets <code>assessed_window</code> so SR-12b's <code>in_window</code> works unchanged. A model other than dispatch-3.2 is refused, as in <code>claim_limit_read.SUPPORTED_MODELS</code>.</li>
+  <li><code>stored_site_declaration(...)</code>: the same output as <code>site_declaration</code>, read in one REPEATABLE READ snapshot.</li>
+  </ul></li>
+<li><strong>Store method</strong> in <code>analytics/adapters/postgres_assessment_store.py</code>: <code>role_presence(c, tenant_id, site_id, roles)</code> on the caller's connection. The selected intervals are read by the existing <code>selected_intervals</code>, with a range filter added for <code>[from, to)</code>.</li>
+<li><strong>Route</strong> <code>analytics_api.py</code>: <code>build_analytics_router(..., scope=registry.ledger_scope, stored=..., gate=performance_gate)</code>. In <code>get_declaration</code>, a stored code takes the stored branch. Legacy codes are unchanged. A closed gate answers the existing 409, which SR-12b already shows as "not available yet". Cold/EV stored Sites answer <code>analytics: []</code>, which the panel already renders as nothing. That matches the mock: <code>cold-evidence</code>/<code>ev-evidence</code> use <code>SiteEvidenceMatrix</code>, not <code>CapabilityReadiness</code>.</li>
+<li><strong>Sibling routes</strong> (<code>/dispatch</code>, <code>/findings</code>, <code>/assessments/…</code>, <code>/api/findings</code>) stay on the gate. Stored Sites already have their own Performance and Finding routes, and no client page calls these for a stored Site. Porting them would duplicate those routes.</li>
+<li><strong><code>main.py</code></strong>: pass the scope, the stored read and the gate (about 3 lines).</li>
+</ol>
+
+<h3>Tests</h3>
+<ul>
+<li>Unit: role map completeness (every Dispatch requirement maps or fails closed); <code>v3_assessment_view</code> on fixture revisions (covered, a missing PCS span, an unobserved generator span, an unknown problem text that stays not covered); SR-12b's four edge cases through the stored path.</li>
+<li>Route: stored mini Site → 200 with the T028 shape; legacy Site unchanged; closed gate → 409; cold/EV → empty list; store down → 503.</li>
+<li>Consistency: on one fixture day, the panel's "missing" roles equal the gaps in the claim-limit section for the same revision. The page must not contradict itself.</li>
+<li>PostgreSQL integration on a <code>*_test</code> DB fixture (imported mini Site with readings and a selected dispatch-3.2 run).</li>
+<li>Frontend: one vitest that a stored-Site 200 renders the table (existing component, new fixture).</li>
+</ul>
+
+<h3>Parity against the file-backed version</h3>
+<p><strong>Kobo</strong> has a legacy document and legacy evidence (W4-03 u9b, S2 comparison report), so a parity probe is possible. Run it on a scratch clone. Read the file-backed declaration directly from the file store (bypassing the gate inside the probe only) and the stored declaration, then compare:</p>
+<ul>
+<li>Per-requirement <code>available</code>: <strong>must match</strong>. The S2 comparison already proved the evidence is the same.</li>
+<li>Readiness level, ceiling and coverage gaps: <strong>may differ</strong>, because the stored side scores dispatch-3.2 runs and the file side scored dispatch-2. Each difference is classified (model change, cohort rule, record only in one store), as the S3-01 comparison did. An unexplained difference blocks the merge.</li>
+</ul>
+<p><strong>Kisiwa</strong> has no legacy evidence (NO_LEGACY_EVIDENCE basis), so there is no parity. It gets fixture expectations and one live read.</p>
+
+<h3 id="a4">A4 Size</h3>
+<div class="tablewrap"><table>
+<tr><th>Piece</th><th>Lane-units <span class="tag e">estimate</span></th></tr>
+<tr><td>stored_declaration module: role map + v3 coverage adapter</td><td>0.35</td></tr>
+<tr><td>Store method (role presence; range filter on selected intervals)</td><td>0.15</td></tr>
+<tr><td>Route branch, gate, main.py wiring</td><td>0.15</td></tr>
+<tr><td>Tests (unit, route, consistency, Postgres, one vitest)</td><td>0.30</td></tr>
+<tr><td>Kobo parity probe on a scratch clone + Kisiwa live read</td><td>0.15</td></tr>
+<tr><td>Fresh review + one small fix round</td><td>0.20</td></tr>
+<tr><th>Total</th><th>about 1.3 (range 1.1 to 1.6)</th></tr>
+</table></div>
+<p>Dependency: <strong>after SR-12b merges</strong>, because it uses <code>in_window</code> and the same route. No data rebuild, no new period-row kind, no migration. If the read is 2 s or less unwarmed on the VPS it stays unstored (D-WARM.2: measured, not gated). Otherwise it gets one warm entry (+0.05).</p>
+
+<h3 id="a5">A5 Risks</h3>
+<div class="tablewrap"><table>
+<tr><th>Risk</th><th>Effect</th><th>Guard</th></tr>
+<tr><td>Role map gets one input wrong (e.g. treats a configured value as an observed reading)</td><td>A row shows Full when it should not</td><td>Fail-closed map; a test per requirement; configured capability is never counted as observed (S3-02a rule)</td></tr>
+<tr><td>Panel disagrees with the claim-limit section on the same page</td><td>Client sees two answers</td><td>Both read the same stored revisions; consistency test</td></tr>
+<tr><td>Kobo readiness level differs from the old file-era level</td><td>Looks like a regression</td><td>Expected (dispatch-2 vs 3.2). Each difference is classified in the parity report</td></tr>
+<tr><td>Site-wide presence query slow on a large ledger</td><td>Panel over 2 s</td><td>EXISTS per role; measure on the VPS DB; warm entry if needed</td></tr>
+<tr><td>Only one row ("Generator support") while the mock shows five</td><td>Looks thin</td><td>Existing gap on every Site, file or stored. The other rows have no backend declaration. Not part of this port (see A6)</td></tr>
+<tr><td>Time squeeze before the freeze</td><td>Displaces a protected item</td><td>Placed first in the deferral order (ruling D-SR.75)</td></tr>
+</table></div>
+
+<h3 id="a6">A6 Can it land, what the client sees, and where it sits in the deferral order</h3>
+<div class="card warnbox">
+<strong>Timing.</strong> The package is about 18.1 units and the freeze tail is already at risk (D-SR.37/39). Adding 1.3 units before <strong>Sat 20:00</strong> is not realistic without pushing out a protected item. It <strong>can</strong> land before the <strong>17 Nov build</strong> if either (a) the freeze moves to Sun 15 Nov 20:00 and a lane is free from Saturday afternoon, or (b) a lane finishes its list early. It needs no re-prepare, so it can merge after the final data prepare with only a live check on Kobo and Kisiwa. Code after the freeze still carries the usual late-change risk.
+</div>
+<figure>
+<svg viewBox="0 0 900 250" role="img" aria-label="What the client sees on the Kobo Evidence page: without the port, one honest line; with the port, the Generator support row with its level and what is missing.">
+  <rect class="box" x="15" y="15" width="425" height="220" rx="10"/>
+  <text x="35" y="45" font-weight="700">Without the port (SR-12b only)</text>
+  <text x="35" y="80" font-weight="600" font-size="14">What we can conclude now</text>
+  <rect class="wn" x="35" y="95" width="385" height="60" rx="6"/>
+  <text x="50" y="120" font-size="13">What can be assessed from these records is</text>
+  <text x="50" y="139" font-size="13">not available yet for this site.</text>
+  <text x="35" y="185" class="mut" font-size="13">Honest. Claim limit, sources and accepted</text>
+  <text x="35" y="203" class="mut" font-size="13">evidence on the same page still work.</text>
+
+  <rect class="box" x="460" y="15" width="425" height="220" rx="10"/>
+  <text x="480" y="45" font-weight="700">With the port</text>
+  <text x="480" y="80" font-weight="600" font-size="14">What we can conclude now</text>
+  <rect class="gd" x="480" y="95" width="385" height="80" rx="6"/>
+  <text x="495" y="118" font-size="13" font-weight="600">Generator support · Limited</text>
+  <text x="495" y="138" font-size="13">Avoidable only where readings are complete</text>
+  <text x="495" y="158" font-size="13">Missing: battery output limit, 2 periods</text>
+  <text x="480" y="203" class="mut" font-size="13">Illustration of the shape, not real values.</text>
+  <text x="480" y="221" class="mut" font-size="13">Only mini-grids (Kobo, Kisiwa) have this row.</text>
+</svg>
+<figcaption>Mock reference: <code>frontend/mockups/v69/index.html</code> <code>SITE_EVIDENCE.mini.caps</code> (the "What we can conclude now" table). The mock has five rows (Generator support, Service to customers, Battery condition, Fuel balance, Backup readiness). The backend declares only Dispatch (= Generator support) on every Site, so the port fills the first row. The other four rows are an existing gap that this port does not cover. That gap is not a mock deviation introduced here.</figcaption>
+</figure>
+<p><strong>Place in the deferral order.</strong> D-SR.38's candidates, deferred first to last: DATA-10/13, FR-B, UQ-FI-3, DATA-5/4/8, MB-1, UP-1, SR-14, SR-13, SR-12b. I put the port (named <strong>AP-1</strong>) <strong>ahead of DATA-10/13</strong>, so it is the first to defer. Reasons: it is new scope, the page is already honest without it, and it shows the client one row. It is also the lowest-risk late item, because it is read-only with no data build. So it is the best candidate if the owner moves the freeze and wants one more visible improvement.</p>
+<p><strong>Options for Saturday</strong> (all include the owner's ask that it be sized and weighed):</p>
+<ol>
+<li><strong>Defer to after the demo</strong> (recommended). The client sees the honest line.</li>
+<li><strong>Build if a lane is free</strong> after its protected items. Merge only on review ACCEPT, Kobo parity classified, and a live check by Sun 20:00 (needs the freeze moved).</li>
+<li><strong>Promote it over another candidate</strong> (e.g. ahead of SR-13/SR-14). This is the owner's call: it swaps 1.3 units of visible range work for one panel row.</li>
+</ol>
+
+<!-- ============================ PART B ============================ -->
+<h2 id="b">Part B: SQL or NoSQL for AssetOps</h2>
+
+<div class="card rec">
+<strong>Recommendation: stay on PostgreSQL (relational SQL).</strong> Add time partitioning on the readings tables when they grow. Test TimescaleDB, a PostgreSQL extension, on a copy when readings reach the hundreds of millions. Do not move to MongoDB, a wide-column store or a separate time-series database. Each of those would weaken the one thing AssetOps sells: every conclusion traceable to accepted evidence, at one consistent moment, with money and audit that add up. Nothing changes before 17 Nov.
+</div>
+
+<h3 id="b1">B1 What AssetOps stores, and why the links matter</h3>
+<figure>
+<svg viewBox="0 0 900 330" role="img" aria-label="AssetOps data chain: gateway readings become accepted evidence, which feeds assessments, then findings, actions and money, all tied to configuration revisions and an append-only audit.">
+  <defs><marker id="ar3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+  <rect class="wn" x="10" y="40" width="150" height="72" rx="10"/>
+  <text x="85" y="70" text-anchor="middle" font-weight="600">Gateway readings</text>
+  <text x="85" y="90" text-anchor="middle" font-size="12">many, time-stamped</text>
+  <rect class="acc" x="190" y="40" width="150" height="72" rx="10"/>
+  <text x="265" y="70" text-anchor="middle" font-weight="600">Accepted evidence</text>
+  <text x="265" y="90" text-anchor="middle" font-size="12">append-only ledger</text>
+  <rect class="acc" x="370" y="40" width="150" height="72" rx="10"/>
+  <text x="445" y="70" text-anchor="middle" font-weight="600">Assessments</text>
+  <text x="445" y="90" text-anchor="middle" font-size="12">runs, revisions</text>
+  <rect class="acc" x="550" y="40" width="150" height="72" rx="10"/>
+  <text x="625" y="70" text-anchor="middle" font-weight="600">Findings</text>
+  <text x="625" y="90" text-anchor="middle" font-size="12">episodes, claims</text>
+  <rect class="acc" x="730" y="40" width="160" height="72" rx="10"/>
+  <text x="810" y="70" text-anchor="middle" font-weight="600">Actions, money</text>
+  <text x="810" y="90" text-anchor="middle" font-size="12">consequences, work</text>
+  <path class="ln" d="M160,76 L186,76" marker-end="url(#ar3)"/>
+  <path class="ln" d="M340,76 L366,76" marker-end="url(#ar3)"/>
+  <path class="ln" d="M520,76 L546,76" marker-end="url(#ar3)"/>
+  <path class="ln" d="M700,76 L726,76" marker-end="url(#ar3)"/>
+
+  <rect class="box" x="190" y="170" width="330" height="60" rx="10"/>
+  <text x="355" y="196" text-anchor="middle" font-weight="600">Configuration revisions</text>
+  <text x="355" y="216" text-anchor="middle" class="mut" font-size="12">Foundation, role bindings, prices, assumptions</text>
+  <rect class="box" x="550" y="170" width="340" height="60" rx="10"/>
+  <text x="720" y="196" text-anchor="middle" font-weight="600">Stored period rows, response store</text>
+  <text x="720" y="216" text-anchor="middle" class="mut" font-size="12">fast range reads, rebuilt from the chain</text>
+  <rect class="box" x="10" y="260" width="880" height="54" rx="10"/>
+  <text x="450" y="284" text-anchor="middle" font-weight="600">Append-only audit and lineage: every arrow above is a stored reference</text>
+  <text x="450" y="303" text-anchor="middle" class="mut" font-size="12">"why" = follow the references back to the exact evidence ids and revisions</text>
+  <path class="ln" d="M355,170 L430,116" marker-end="url(#ar3)"/>
+  <path class="ln" d="M720,170 L640,116" marker-end="url(#ar3)"/>
+</svg>
+<figcaption>Only the first box is "big data" shaped. Everything to its right is linked records that must agree with each other. That is the classic relational case.</figcaption>
+</figure>
+<p>What the current design relies on: 57 Alembic migrations; SQLAlchemy Core; append-only tables with insert-only writer rules; REPEATABLE READ snapshots so one page reads one consistent moment (about 110 places in the backend code refer to them); exact decimal money; joins across evidence, runs, revisions and findings for lineage ("why"); and stored period rows plus a response store for range reads. No table is partitioned yet.</p>
+
+<h3 id="b2">B2 Measured speed today</h3>
+<figure>
+<svg viewBox="0 0 900 330" role="img" aria-label="Bar chart of read times in seconds. VPS measured: unwarmed Portfolio week 0.07 s, stored range reads up to 0.3 s. Target 2 s. Laptop before stored rows: week 8.6 s, 22 days 17.4 s, 31 days 21.2 s.">
+  <text x="20" y="22" font-weight="600">Read time, seconds (lower is better)</text>
+  <line class="grid" x1="250" y1="35" x2="250" y2="290"/>
+  <line class="grid" x1="400" y1="35" x2="400" y2="290"/>
+  <line class="grid" x1="550" y1="35" x2="550" y2="290"/>
+  <line class="grid" x1="700" y1="35" x2="700" y2="290"/>
+  <line class="grid" x1="850" y1="35" x2="850" y2="290"/>
+  <text x="250" y="308" text-anchor="middle" class="mut" font-size="12">0</text>
+  <text x="400" y="308" text-anchor="middle" class="mut" font-size="12">5</text>
+  <text x="550" y="308" text-anchor="middle" class="mut" font-size="12">10</text>
+  <text x="700" y="308" text-anchor="middle" class="mut" font-size="12">15</text>
+  <text x="850" y="308" text-anchor="middle" class="mut" font-size="12">20</text>
+
+  <text x="240" y="62" text-anchor="end" font-size="13">VPS Portfolio week, unwarmed</text>
+  <rect class="barm" x="250" y="50" width="3" height="18"/><text x="260" y="64" font-size="12">0.07 s</text>
+  <text x="240" y="97" text-anchor="end" font-size="13">VPS stored range reads (max)</text>
+  <rect class="barm" x="250" y="85" width="9" height="18"/><text x="266" y="99" font-size="12">≤ 0.3 s</text>
+  <text x="240" y="132" text-anchor="end" font-size="13">Demo gate (target, not a reading)</text>
+  <rect x="250" y="120" width="60" height="18" fill="none" stroke="var(--good)" stroke-width="2" stroke-dasharray="4 3"/><text x="318" y="134" font-size="12">2 s</text>
+  <text x="240" y="182" text-anchor="end" font-size="13">Laptop week, before stored rows</text>
+  <rect class="bare" x="250" y="170" width="258" height="18"/><text x="515" y="184" font-size="12">8.6 s</text>
+  <text x="240" y="217" text-anchor="end" font-size="13">Laptop 22 days, before rows</text>
+  <rect class="bare" x="250" y="205" width="522" height="18"/><text x="779" y="219" font-size="12">17.4 s</text>
+  <text x="240" y="252" text-anchor="end" font-size="13">Laptop 31 days, before rows</text>
+  <rect class="bare" x="250" y="240" width="636" height="18"/><text x="820" y="236" font-size="12">21.2 s</text>
+  <text x="20" y="325" class="mut" font-size="11">Blue: VPS today. Grey: laptop (client4, cold) before stored period rows. Both measured. The 2 s line is a target.</text>
+</svg>
+<figcaption>All bars are measured (VPS numbers from this week's handoff; laptop numbers from the 12 Nov handoff). The jump from 8 to 21 s down to 0.3 s or less came from <em>how</em> the data is read (stored period rows, a response store), not from a database change. The demo prepare takes about 3 h on the VPS (measured; 2 h 40 m on the laptop; four-Site rehearsal 8489 s). I have not measured how that time splits between assessment computing and database work, so it is not evidence for or against any database.</figcaption>
+</figure>
+
+<h3 id="b3">B3 Options compared</h3>
+<p><span class="tag y">good</span> fits well · <span class="tag p">partial</span> works with extra effort or a trade-off · <span class="tag n">poor</span> works against the design</p>
+<div class="tablewrap"><table>
+<tr><th>Need</th><th>PostgreSQL (today) + partitioning</th><th>PostgreSQL + TimescaleDB</th><th>Document store (MongoDB)</th><th>Time-series DB (InfluxDB, QuestDB) or columnar (ClickHouse)</th><th>Wide-column (Cassandra, ScyllaDB)</th></tr>
+<tr><td>Evidence, audit and money must agree at one moment (transactions, snapshots)</td><td><span class="tag y">good</span> full ACID, REPEATABLE READ in use</td><td><span class="tag y">good</span> same engine</td><td><span class="tag p">partial</span> multi-document transactions exist but are costlier and limited; no cross-collection constraints</td><td><span class="tag n">poor</span> append/analytics engines; weak or no multi-row transactions</td><td><span class="tag n">poor</span> tunable/eventual consistency; lightweight transactions only per partition</td></tr>
+<tr><td>Lineage joins ("why": finding → run → evidence ids → revisions)</td><td><span class="tag y">good</span> SQL joins, foreign keys</td><td><span class="tag y">good</span></td><td><span class="tag p">partial</span> <code>$lookup</code> or app-side joins; duplication risk</td><td><span class="tag n">poor</span> not built for relational joins</td><td><span class="tag n">poor</span> no joins; one table per query shape</td></tr>
+<tr><td>Append-only enforcement, exact decimal money</td><td><span class="tag y">good</span> triggers, privileges, NUMERIC</td><td><span class="tag y">good</span></td><td><span class="tag p">partial</span> Decimal128; append-only by app convention</td><td><span class="tag p">partial</span> append is natural; money/decimals vary</td><td><span class="tag p">partial</span> append natural; no triggers</td></tr>
+<tr><td>High-frequency readings and range reads</td><td><span class="tag p">partial</span> good with time partitions, BRIN, stored rows; very large volumes need care</td><td><span class="tag y">good</span> hypertables, compression, continuous aggregates</td><td><span class="tag p">partial</span> time-series collections exist</td><td><span class="tag y">good</span> best raw ingest and aggregation speed</td><td><span class="tag y">good</span> very high write scale</td></tr>
+<tr><td>Operations on one VPS (backup, restore, monitoring)</td><td><span class="tag y">good</span> one engine, known tools</td><td><span class="tag y">good</span> same backups; one extension to keep updated</td><td><span class="tag p">partial</span> second skill set</td><td><span class="tag n">poor</span> a <em>second</em> database next to Postgres; two backups, two failure modes</td><td><span class="tag n">poor</span> needs a cluster to be worth it</td></tr>
+<tr><td>Cost</td><td><span class="tag y">good</span> free, runs today</td><td><span class="tag y">good</span> free self-hosted (check the Timescale licence before any hosted resale)</td><td><span class="tag p">partial</span> free community / paid Atlas</td><td><span class="tag p">partial</span> free cores; extra server and ops time</td><td><span class="tag p">partial</span> extra nodes</td></tr>
+<tr><td>Migration effort from today</td><td><span class="tag y">good</span> none; partitioning is a migration per table</td><td><span class="tag y">good</span> small: extension + convert reading tables; SQL unchanged</td><td><span class="tag n">poor</span> rewrite 57 migrations, every query and snapshot rule: months</td><td><span class="tag n">poor</span> new ingest path + dual-write consistency between two stores</td><td><span class="tag n">poor</span> full data-model redesign: months</td></tr>
+<tr><td>Risk to the evidence story</td><td><span class="tag y">good</span> proven in this codebase</td><td><span class="tag y">good</span> low; verify on a clone</td><td><span class="tag n">poor</span> integrity moves into app code</td><td><span class="tag n">poor</span> two sources of truth</td><td><span class="tag n">poor</span> consistency becomes a design problem</td></tr>
+<tr><th>Verdict</th><th><span class="tag y">keep</span></th><th><span class="tag y">next step when readings grow</span></th><th><span class="tag n">no</span></th><th><span class="tag p">only as an optional raw archive, later</span></th><th><span class="tag n">no</span></th></tr>
+</table></div>
+
+<h3 id="b4">B4 Recommendation and reasons</h3>
+<ol>
+<li><strong>The product is proof, not just storage.</strong> A Finding is only worth money if it points to exact accepted evidence and revisions that were true together. Relational transactions and snapshots give that by default. NoSQL makes it the application's job.</li>
+<li><strong>The speed problem is already solved inside PostgreSQL.</strong> Stored period rows and the response store took reads from 8–21 s to 0.3 s or less (measured). The database engine was not the bottleneck.</li>
+<li><strong>Growth has a PostgreSQL path.</strong> Time partitioning of the readings tables first. TimescaleDB later, if compression or aggregates are needed. Both keep SQL, Alembic, transactions and the existing code.</li>
+<li><strong>A switch would cost months and add risk</strong> to exactly the parts (evidence, money, audit) that the client is being shown.</li>
+</ol>
+
+<h3 id="b5">B5 Now, later, and what would change the recommendation</h3>
+<div class="tablewrap"><table>
+<tr><th>When</th><th>Do</th></tr>
+<tr><td>Now, to 17 Nov</td><td>Nothing. No database change, no migration.</td></tr>
+<tr><td>After the demo</td><td>Measure table sizes, readings per day per Site, index sizes and vacuum health on the VPS DB. Measure how the 3 h prepare splits between computing and database work.</td></tr>
+<tr><td>When the readings tables near ~100 M rows <span class="tag e">estimate</span></td><td>Monthly time partitions plus BRIN indexes on source time. Keep accepted evidence and everything to its right unpartitioned unless measured.</td></tr>
+<tr><td>When raw high-frequency data arrives</td><td>Trial TimescaleDB on a scratch clone (hypertables + compression), compared with plain partitions on the same data. Optional: archive raw sub-minute data to files or object storage, keeping only accepted evidence in PostgreSQL.</td></tr>
+</table></div>
+<p><strong>Rough growth arithmetic</strong> <span class="tag e">estimate, not measured</span>: 50 signals per Site at 15-minute cadence is about 4,800 readings a day, so 1,000 Sites is about 1.75 billion a year. That is comfortable for partitioned PostgreSQL. At 1-minute cadence it becomes about 26 billion a year, which is where compression (TimescaleDB) or a raw archive is needed.</p>
+<p><strong>Evidence that would change my recommendation:</strong></p>
+<ul>
+<li>Sustained ingest that partitioned PostgreSQL on suitable hardware cannot keep up with (measured on a clone, not assumed).</li>
+<li>Stored range reads going over 2 s at the 95th percentile with correct partitions and indexes.</li>
+<li>Hot readings past a few terabytes, where compression is no longer enough.</li>
+<li>A product need for analytics over raw telemetry across thousands of Sites at once. A columnar store such as ClickHouse <em>beside</em> PostgreSQL could then serve that analysis. PostgreSQL would stay the system of record.</li>
+</ul>
+<p>None of these points to a document or wide-column store as the main database.</p>
+
+<h2 id="r">Ruling logged</h2>
+<p><strong>D-SR.75</strong> (appended to <code>.agent/build-sheet-OWN-GAPS-2026-11-08.md</code>). AP-1, the stored-Site analytics readiness port, is about 1.3 units, after SR-12b. It enters D-SR.38's candidate list first in the deferral order. The sibling routes stay gated. Database: stay on PostgreSQL, with no change before 17 Nov. The owner decides AP-1 at Sat 12:00.</p>
+</main>
+</body>
+</html>
