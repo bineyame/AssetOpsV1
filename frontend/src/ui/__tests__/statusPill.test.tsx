@@ -58,6 +58,8 @@ describe("UQ-FI-3 StatusPill", () => {
       expect(css).toContain(`.status-pill.s-${look} {`);
       for (const part of ["bg", "text", "border"]) expect(tokens).toContain(`--color-status-${look}-${part}:`);
     }
+    // UQ-FI review H1: the On track check glyph is sized on its own rule (a dangling selector left it unsized).
+    expect(css).toMatch(/(^|\n)\.status-pill__glyph \{[^}]*width: 12px;[^}]*height: 12px;/);
     // The sheet's "not analysed" chip is dashed: colour is never the only signal.
     expect(css).toMatch(/\.s-notanalysed \{[^}]*border-style: dashed/);
   });
