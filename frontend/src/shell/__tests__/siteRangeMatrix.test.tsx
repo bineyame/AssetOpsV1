@@ -147,7 +147,10 @@ describe("SR-5b/5c R drill-ins: `day=` opens one day, and the bar names it", () 
 });
 
 describe("SR-5e D rows: a day inside the range is named in the bar", () => {
-  it.each(RANGE_MATRIX.filter((e) => e.class === "D").map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
+  const dRows = RANGE_MATRIX.filter((e) => e.class === "D");
+  // SR-8/10/11 pages: every mini performance page now reads the range, so no D row remains; a new one runs below.
+  if (dRows.length === 0) it("no Site page stands a day in for the range", () => expect(dRows).toEqual([]));
+  else it.each(dRows.map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
     const day = await open(entry, "&day=2026-11-05");
     expect(day.focus).not.toBeNull();
     expect(day.focus).not.toBe("now");

@@ -349,3 +349,9 @@
   border-bottom: 0;
   background: linear-gradient(var(--series-1), var(--series-1)) center / 100% 2px no-repeat;
 }
+
+/* SR-8 page (D-SR.48, MOCK DEVIATION R726): the headroom card's envelope label and the stored day figure, one line each. */
+.v69-metric__note [data-mini-headroom-range-label],
+.v69-metric__note .mini-all-hours-line {
+  display: block;
+}
