@@ -44,6 +44,7 @@ import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClie
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 
 /*
@@ -643,6 +644,8 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       "Candidate runtime is not proof that stopping the generator would have preserved service.",
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(TITLE);
+    // UQ-FI-2 (rev 6 6.1 P3): one h1, the Finding title (its first sentence joins it once D-UQFI.8 lands).
+    expectOneHeadline(TITLE);
     cleanup();
 
     // Empty: the exact empty copy, the notice still shown; a historical read says so.
@@ -1617,6 +1620,9 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
 
     // Header, description, Open site, one selected Overview tab and the disabled Findings root.
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Productive-use headroom at MINIGRID site");
+    // UQ-FI-2 (rev 6 6.1 P5): one h1, first in its header. Rev 6 names "Daytime solar unused at ..." as the
+    // headline, but that title is not in this page's read (it comes from the estate opportunities read): question.
+    expectOneHeadline("Productive-use headroom at MINIGRID site");
     expect(main().textContent).toContain(
       "Can recurring renewable headroom support useful additional demand?",
     );

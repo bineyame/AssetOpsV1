@@ -6,6 +6,7 @@ import { SiteFuelFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import { SITE_FUEL_FINDING_ROUTE_PATH, routeFor, siteFuelFindingHref } from "../../shell/operatorSiteRoutes";
 import { refOfHref } from "../../test/linkRefs";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import type { FuelBalanceClient, FuelFindingBody, FuelNightBody } from "../fuelBalanceClient";
 import type { MiniRead } from "../miniDepthClient";
 import { SiteFuelChecks } from "../SiteFuelFinding";
@@ -181,5 +182,16 @@ describe("DIESEL-K5 F8: the Site Findings Fuel checks panel", () => {
     await vi.waitFor(() => expect(c.getFuelFindings).toHaveBeenCalled());
     await act(() => new Promise((r) => setTimeout(r, 0)));
     expect(container.innerHTML).toBe("");
+  });
+});
+
+describe("UQ-FI-2 P3: the fuel Finding page", () => {
+  it("uqfi2_one_headline", async () => {
+    // Rev 6 6.1 P3: one h1. Its text becomes the Finding title and first sentence in the frame change held by
+    // D-UQFI.8 (SiteAnalyticsFrames.tsx, after SR-8); until then it is the Site heading.
+    renderPage(client(), siteFuelFindingHref(CODE, FID));
+    await screen.findByText(CLAIM);
+    await settledScreen();
+    expectOneHeadline(/\S/);
   });
 });

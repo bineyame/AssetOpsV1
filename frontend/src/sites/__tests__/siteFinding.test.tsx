@@ -16,7 +16,7 @@ import {
   type FindingReadResult,
   type RevisionSummary,
 } from "../findingClient";
-import { SiteFinding, type FindingCostClient, type SiteFindingLinks } from "../SiteFinding";
+import { findingHeadline, SiteFinding, type FindingCostClient, type SiteFindingLinks } from "../SiteFinding";
 import { SiteFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
@@ -1200,5 +1200,38 @@ describe("OUT-A A5: the mini Finding frame's Affects line", () => {
     await settledScreen();
     await waitFor(() => expect(document.querySelector("[data-finding-section]")).not.toBeNull());
     expect(document.querySelector("[data-affects-line]")).toBeNull();
+  });
+});
+
+describe("UQ-FI-2 P3: the Finding headline (prepared; the frame takes it after SR-5 and SR-8, D-UQFI.8)", () => {
+  it("uqfi2_headline_is_the_title_then_the_first_sentence_as_written", () => {
+    expect(findingHeadline(body([summary(1, "CREATED")]))).toEqual({
+      title: "Generator may have been on longer than needed",
+      sentence:
+        "The assessment supports this: for part of this period the generator stayed on while solar power and the " +
+        "battery reported enough capacity to meet site demand.",
+    });
+    // A two-sentence lifecycle sentence gives its first sentence only, unchanged.
+    expect(findingHeadline(body([summary(1, "CREATED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")])).sentence).toBe(
+      "This assessment of the period cannot confirm the earlier result.",
+    );
+  });
+
+  it("uqfi2_on_headline_reports_the_loaded_headline", async () => {
+    const seen: { title: string; sentence: string | null }[] = [];
+    const client = fake({ status: "loaded", value: body([summary(1, "CREATED")]) });
+    render(
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/findings/${F}`]}>
+        <Routes>
+          <Route
+            path="/sites/:siteId/findings/:findingId"
+            element={<main><SiteFinding siteId="KOBO-001" findingId={F} client={client} onHeadline={(h) => seen.push(h)} links={{ finding: () => "/x", dispatch: () => "/d", evidence: "/e" } as SiteFindingLinks} /></main>}
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(seen.at(-1)?.title).toBe("Generator may have been on longer than needed");
+    expect(seen.at(-1)?.sentence).toMatch(/^The assessment supports this: .*meet site demand\.$/);
   });
 });

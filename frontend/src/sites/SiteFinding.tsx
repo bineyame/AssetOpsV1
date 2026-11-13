@@ -98,6 +98,7 @@ export function SiteFinding({
   client,
   links,
   onTitle,
+  onHeadline,
   financials,
 }: {
   siteId: string;
@@ -105,6 +106,12 @@ export function SiteFinding({
   client: FindingClient;
   links: SiteFindingLinks;
   onTitle?: (title: string) => void;
+  /**
+   * UQ-FI-2 (rev 6 6.1 P3, D-UQFI.8): the page headline, the Finding's title then its first sentence, for the
+   * frame's page header (the status strip then sits under them). Prepared here; the frame takes it once SR-5 and
+   * SR-8 have merged.
+   */
+  onHeadline?: (headline: FindingHeadline) => void;
   /**
    * The Site's timezone. Accepted for the frames' shared props; PB-3 L4 (Addendum 13): this page shows clock times
    * in UTC like every other screen, so it is not used for display.
@@ -137,6 +144,11 @@ export function SiteFinding({
   useEffect(() => {
     onTitle?.(title);
   }, [onTitle, title]);
+  const headline = read?.status === "loaded" ? findingHeadline(read.value) : null;
+  const sentence = headline?.sentence ?? null;
+  useEffect(() => {
+    onHeadline?.({ title, sentence });
+  }, [onHeadline, title, sentence]);
 
   if (read === null) {
     return <p>Loading the finding.</p>;
@@ -177,6 +189,18 @@ export function SiteFinding({
       <WhereToLook body={body} links={links} params={params} />
     </div>
   );
+}
+
+export interface FindingHeadline {
+  title: string;
+  /** The first sentence of the Finding's lifecycle sentence, as written; null when nothing is loaded. */
+  sentence: string | null;
+}
+
+/** UQ-FI-2 (rev 6 6.1 P3): the Finding's title, then its first sentence (existing words, cut at the first full stop). */
+export function findingHeadline(body: FindingDetailBody): FindingHeadline {
+  const sentence = LIFECYCLE_WORDS[body.revision.lifecycle]?.sentence ?? null;
+  return { title: titleOf(body), sentence: sentence === null ? null : sentence.split(/(?<=\.)\s/)[0] };
 }
 
 function titleOf(body: FindingDetailBody): string {
