@@ -273,3 +273,28 @@ def test_t6_always_503_is_degraded_and_demo_combined_exits_non_zero(prebuild_env
 
     monkeypatch.setattr(stages, "prebuild", lambda url, args: out)
     assert run_cli.main(["prebuild"]) == 1
+
+
+def test_the_pinned_board_follow_up_of_an_overview_gets_the_same_retries(prebuild_env, monkeypatch) -> None:
+    """D-SR.83 L1: a degraded 503 on the pinned board is retried and, once it answers, is not counted as failed."""
+    overview = "/api/sites/KOBO-001/overview?date=2026-10-24"
+    monkeypatch.setattr(prebuild, "paths", lambda: [overview])
+
+    class Pinned:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+            self.board = [(503, "unavailable"), (200, "stored")]
+
+        def get(self, path):
+            self.calls.append(path)
+            if "/overview" in path:
+                return SimpleNamespace(status_code=200, headers={HEADER: "stored"},
+                                       json=lambda: {"known_finding": {"id": "f1", "revision_id": "r1"}})
+            status, state = self.board.pop(0)
+            return SimpleNamespace(status_code=status, headers={HEADER: state})
+
+    client = Pinned()
+    out = prebuild.run("postgresql://x", client)
+    board = "/api/sites/KOBO-001/outcome-board?date=2026-10-24&finding_id=f1&finding_revision_id=r1"
+    assert client.calls == [overview, board, board] and prebuild_env == [2]
+    assert out["code"] == "OK" and out["non_200"] == {} and out["degraded"] == {board: 2} and out["requests"] == 2

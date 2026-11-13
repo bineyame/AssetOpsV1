@@ -73,10 +73,12 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
     connections = _connections(store)
     LOG.info(json.dumps({"event": "prebuild_start", "pg_stat_activity": connections}))
     try:
-        for path in paths():
+        def fetch(path: str) -> Any:
+            """One request with the INFRA-1 (D-E5.47) rule 5 retries (a 503 or a stale copy after 2, 5, 10 s),
+            recorded as `degraded`, `still_degraded`, `non_200` or a state. Returns the response when it was a 200."""
             response = client.get(path)
             attempts = 1
-            for wait in RETRY_WAITS:  # INFRA-1 (D-E5.47) rule 5: a 503 or a stale copy is retried after 2, 5, 10 s
+            for wait in RETRY_WAITS:
                 if not _is_degraded(response):
                     break
                 _sleep(wait)
@@ -90,14 +92,16 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
                 failed[path] = response.status_code
             else:
                 states[response.headers.get(HEADER, "none")] += 1
+                return response
+            return None
+
+        for path in paths():
+            response = fetch(path)
+            if response is not None:
                 pinned = pinned_board_path(path, response)
                 if pinned is not None:  # D-SR.83: the board the Overview page opens next, that Finding pinned
                     extra += 1
-                    follow = client.get(pinned)
-                    if follow.status_code == 200:
-                        states[follow.headers.get(HEADER, "none")] += 1
-                    else:
-                        failed[pinned] = follow.status_code
+                    fetch(pinned)
         pruned = store.prune()
     finally:
         store.dispose()
