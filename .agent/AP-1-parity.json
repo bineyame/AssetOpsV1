@@ -1,0 +1,124 @@
+{
+  "site": "KOBO-001",
+  "stored_read_seconds_unwarmed": 0.231,
+  "available_mismatch": {
+    "Battery capability": [
+      false,
+      true
+    ],
+    "Battery state": [
+      false,
+      true
+    ],
+    "Generator state": [
+      false,
+      true
+    ],
+    "Generator state and output": [
+      false,
+      true
+    ],
+    "Load|clinic-meter": [
+      false,
+      true
+    ],
+    "Load|mill-meter": [
+      false,
+      true
+    ],
+    "Load|residential-meter": [
+      false,
+      true
+    ],
+    "Minimum runtime policy": [
+      false,
+      true
+    ],
+    "PV capability": [
+      false,
+      true
+    ],
+    "Reserve policy": [
+      false,
+      true
+    ]
+  },
+  "id_differences": {
+    "Minimum runtime policy": {
+      "file": [
+        "generator-controller|policy-minimum-runtime"
+      ],
+      "stored": [
+        "None|None"
+      ]
+    },
+    "Operator override": {
+      "file": [
+        "battery-pcs-controller|override-command",
+        "generator-controller|override-command"
+      ],
+      "stored": [
+        "None|None",
+        "None|None"
+      ]
+    },
+    "Reserve policy": {
+      "file": [
+        "battery-pcs-controller|policy-reserve-soc"
+      ],
+      "stored": [
+        "None|None"
+      ]
+    },
+    "Stop threshold policy (context)": {
+      "file": [
+        "generator-controller|policy-stop-soc-threshold"
+      ],
+      "stored": [
+        "None|None"
+      ]
+    }
+  },
+  "file_score": [
+    {
+      "level": "NONE",
+      "ceiling": null,
+      "gaps": [
+        "NOT_ACCEPTED:Battery capability",
+        "NOT_ACCEPTED:Battery state",
+        "NOT_ACCEPTED:Generator state",
+        "NOT_ACCEPTED:Generator state and output",
+        "NOT_ACCEPTED:Load",
+        "NOT_ACCEPTED:Load",
+        "NOT_ACCEPTED:Load",
+        "NOT_ACCEPTED:PV capability",
+        "NOT_ACCEPTED:Reserve policy"
+      ],
+      "assessed_intervals": 0
+    }
+  ],
+  "stored_score": [
+    {
+      "level": "FULL",
+      "ceiling": "CANDIDATE_AVOIDABLE",
+      "gaps": [],
+      "assessed_intervals": 27
+    }
+  ],
+  "run": {
+    "branch_head": "00d235abc",
+    "db": "assetops_ap1_audit_parity (clone of assetops_polish_vps1_test, dropped)",
+    "file_roots": "copy of AssetOpsV1-build/var/polish_vps1/tree/var (only var/sites/kobo-001.yaml + var/evidence/migration*; NO legacy evidence readings)",
+    "classification": "every available/level/ceiling/gap difference = record only in one store: the file side has zero Kobo evidence (level NONE, NOT_ACCEPTED on all roles), the readings live only in Postgres. Not an independent parity: no populated file baseline exists in this tree.",
+    "verdict": "INCONCLUSIVE as parity (no unexplained difference, but file baseline empty); needs coordinator ruling",
+    "kisiwa": {
+      "route_200": false,
+      "route": "409 AWAITING_EVIDENCE_MIGRATION (clone's newest Performance comparison report is for another tenant/environment; same for KOBO-001)",
+      "stored_read_direct": "KISIWA-001: 1 analytic, 13 rows, 10 available, level FULL, 0.117 s"
+    },
+    "timing": {
+      "kobo_unwarmed_s": 0.231,
+      "warm_entry_needed": false
+    }
+  }
+}
