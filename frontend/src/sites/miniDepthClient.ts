@@ -411,6 +411,15 @@ export function miniRangeView(
   return state.status === "set" ? { ...rangeWindow(state), known_at: state.known_at } : null;
 }
 
+/** D-SR.76: the address names a `from`/`to` that is not whole UTC days, so the day table says it shows whole days. */
+export function isPartialDayAddress(params: URLSearchParams): boolean {
+  const from = params.get("from");
+  const to = params.get("to");
+  if (from === null || to === null) return false;
+  const day = 86_400_000;
+  return Date.parse(from) % day !== 0 || Date.parse(to) % day !== 0;
+}
+
 /** The service page's local hour when the address names none: 12:00-13:00 local (handoff Run 15, Q5). */
 export const DEFAULT_SERVICE_HOUR = 12;
 

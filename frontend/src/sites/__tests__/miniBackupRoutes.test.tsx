@@ -365,6 +365,8 @@ describe("post-W6 W4 R309/R313: backup result tones and refused frame", () => {
       expect(fetched).toEqual([`/api/sites/${CODE}/backup-range?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`]);
       expect(document.querySelector('[data-mini-range="backup"]')).not.toBeNull();
       expect(document.querySelector(".shared-range__tag")?.textContent).toBe("All pages");
+      // D-SR.76: not whole days, so the table is framed as whole days that include the selected time.
+      expect(document.querySelector("[data-range-frame]")?.textContent).toBe("Whole days that include the selected time");
     } finally {
       vi.unstubAllGlobals();
     }

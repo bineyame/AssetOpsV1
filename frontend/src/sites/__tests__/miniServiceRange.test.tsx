@@ -194,6 +194,18 @@ describe("SR-7a Service over the range", () => {
     expect(ranges.calls).toHaveLength(2);
   });
 
+  it("SR-7 L-2: changing the hour with the picker keeps the carried range for Back", async () => {
+    mount(`/sites/${CODE}/performance/service?${RANGE}`, rangeStub({ status: "loaded", value: BODY }));
+    await settledScreen();
+    fireEvent.click(screen.getAllByRole("link", { name: OPEN_NOON_HOUR })[0]);
+    await settledScreen();
+    fireEvent.change(document.querySelector("[data-mini-period] select") as HTMLSelectElement, { target: { value: "14" } });
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    await settledScreen();
+    expect(screen.getByTestId("where").textContent).toContain("from=2026-11-02T11%3A00%3A00.000Z");
+    expect(screen.getByRole("link", { name: BACK_TO_RANGE }).getAttribute("href")).toBe(`/sites/${CODE}/performance/service?${RANGE}`);
+  });
+
   it("a story hour reached directly goes back to its own day", async () => {
     mount(hourLink("2026-11-02"), rangeStub({ status: "loaded", value: BODY }));
     await settledScreen();

@@ -132,3 +132,14 @@ Commits: 5a3767899 (SR-7 pages), f7ea60304 (review L1-L3 pins). SR-11 page: 8e8b
   existing plain sentence ("The assessment store could not be read…"), not a retry: retrying the one-day read is outside
   this slice; confirm or rule. Cold/EV Evidence pages that render this section would show the range read's 404 words
   ("…read for mini-grid sites only") if any reaches it with a range; confirm whether to hide instead.
+
+## Fix round (review SR-7-11-pages-review.md; D-SR.76)
+- M-1: register rows R725 and R728 added to `.agent/mock-departure-register.md`.
+- Q11: the one-day 503 sentence stays, no retry. A 404 `CLAIM_LIMIT_RANGE_NOT_APPLICABLE` (Cold/EV) now hides the claim-limit
+  section (`EvidenceClaimLimit` `hidden`, `ClaimLimitRange` `onNotApplicable`); the not-applicable string stays only for other 404s.
+  Vitest in `claimLimitRange.test.tsx`.
+- Hour addresses: a non-whole-day address (two hours, off the clock hour) opens the day table with the frame "Whole days that
+  include the selected time" (`WHOLE_DAYS_FRAME`, `isPartialDayAddress`); D-SR.40's two-hour tests re-pinned with the frame, none deleted.
+- L-2: hour picker Apply keeps `location.state` (Service and Backup); test in `miniServiceRange.test.tsx`.
+- L-3: backup fields removed from the service-range test stub.
+- Checks: vitest 9 files / 123 tests pass (touched + miniService*/miniBackup*/siteEvidence*/sr2RequestUrls/siteRangeTags/v01bEvidenceVisual/miniFuelRoutes); tsc clean. check-all: for coordinator.

@@ -5,7 +5,7 @@
  * Every number is the selected read's; a missing value reads `Unknown`, never a mock literal.
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
 
@@ -28,6 +28,7 @@ import {
   localDaysWindow,
   localHourWindow,
   localTimeOf,
+  isPartialDayAddress,
   miniRangeView,
   miniWindowSearch,
   type MiniBound,
@@ -1307,13 +1308,14 @@ interface MiniTabProps {
 export function MiniService(props: MiniTabProps): ReactNode {
   const [params] = useSearchParams();
   const range = props.timeZone === null ? null : miniRangeView(params, props.timeZone);
-  if (range !== null) return <MiniServiceRange siteCode={props.siteCode} window={range} client={props.rangeClient} />;
+  if (range !== null) return <MiniServiceRange siteCode={props.siteCode} window={range} framed={isPartialDayAddress(params)} client={props.rangeClient} />;
   return <MiniServiceHour {...props} />;
 }
 
 /** The Service hour page body: the hour bar, then the selected read or its refusal. */
 function MiniServiceHour({ client, siteCode, timeZone, window, pageHref }: MiniTabProps): ReactNode {
   const navigate = useNavigate();
+  const location = useLocation();
   const [attempt, setAttempt] = useState(0);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<ServiceRead>(
@@ -1329,7 +1331,7 @@ function MiniServiceHour({ client, siteCode, timeZone, window, pageHref }: MiniT
         key={key}
         timeZone={timeZone}
         window={window}
-        onApply={(next) => navigate(pageHref(miniWindowSearch(next)))}
+        onApply={(next) => navigate(pageHref(miniWindowSearch(next)), { state: location.state })}
         back={<BackToRange path={pageHref("")} />}
       />
       {read === null ? (
@@ -1989,13 +1991,14 @@ export function MiniBackupPage({ read, timeZone }: { read: BackupRead; timeZone:
 export function MiniBackup(props: MiniTabProps): ReactNode {
   const [params] = useSearchParams();
   const range = props.timeZone === null ? null : miniRangeView(params, props.timeZone);
-  if (range !== null) return <MiniBackupRange siteCode={props.siteCode} window={range} client={props.rangeClient} />;
+  if (range !== null) return <MiniBackupRange siteCode={props.siteCode} window={range} framed={isPartialDayAddress(params)} client={props.rangeClient} />;
   return <MiniBackupHour {...props} />;
 }
 
 /** The Backup hour page body: the hour bar, then the selected read or its refusal. */
 function MiniBackupHour({ client, siteCode, timeZone, window, pageHref }: MiniTabProps): ReactNode {
   const navigate = useNavigate();
+  const location = useLocation();
   const [attempt, setAttempt] = useState(0);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<BackupRead>(
@@ -2011,7 +2014,7 @@ function MiniBackupHour({ client, siteCode, timeZone, window, pageHref }: MiniTa
         key={key}
         timeZone={timeZone}
         window={window}
-        onApply={(next) => navigate(pageHref(miniWindowSearch(next)))}
+        onApply={(next) => navigate(pageHref(miniWindowSearch(next)), { state: location.state })}
         back={<BackToRange path={pageHref("")} />}
       />
       {read === null ? (

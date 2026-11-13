@@ -24,7 +24,7 @@ import {
   type SequenceCounts,
   type SiteRangeClient,
 } from "./siteRangeClient";
-import { OPEN_NOON_HOUR, RangeNotLoaded, dayWords, gapDaysText, useRangeRead, useWholeRangeState } from "./SiteRangeParts";
+import { OPEN_NOON_HOUR, RangeNotLoaded, dayWords, gapDaysText, useRangeRead, useWholeRangeState, WHOLE_DAYS_FRAME } from "./SiteRangeParts";
 
 export const BACKUP_RANGE_NOT_APPLICABLE = "Backup starts over a range are read for mini-grid sites only.";
 export const BACKUP_NO_READINGS_DAY = "No readings this day";
@@ -238,16 +238,20 @@ export function MiniBackupRangePage({ body }: { body: BackupRangeBody }) {
 export function MiniBackupRange({
   siteCode,
   window,
+  framed = false,
   client = DEFAULT_SITE_RANGE_CLIENT,
 }: {
   siteCode: string;
   window: RangeWindowQuery;
+  /** D-SR.76: the address was not whole days. */
+  framed?: boolean;
   client?: SiteRangeClient;
 }): ReactNode {
   const key = `${siteCode}|${window.from}|${window.to}|${window.known_at ?? ""}`;
   const { read, retrying } = useRangeRead((onRetrying) => client.getBackupRange(siteCode, window, onRetrying), key);
   return (
     <div className="mini-range" data-mini-range="backup">
+      {framed ? <p className="mini-cited" data-range-frame>{WHOLE_DAYS_FRAME}</p> : null}
       {read !== null && read.status === "loaded" ? (
         <MiniBackupRangePage body={read.value} />
       ) : (

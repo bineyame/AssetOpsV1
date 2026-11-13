@@ -394,8 +394,7 @@ describe("post-W6 W4 R309/R313/R316/R318: service tones, heading, word values an
         const url = String(input);
         fetched.push(url);
         const body = { schema_version: "site-service-range-1", site: { site_code: CODE, timezone: "Africa/Nairobi" }, window: {}, days: [],
-          totals: { days_counted: 0, days_requested: 0, partial: false, sequence_counts: { PASS: 0, FAIL: 0, INCOMPLETE: 0 }, start_success_count: null,
-            served_kwh: null, unserved_kwh: null, demand_kwh: null } };
+          totals: { days_counted: 0, days_requested: 0, partial: false, served_kwh: null, unserved_kwh: null, demand_kwh: null } };
         return Promise.resolve(new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } }));
       }),
     );
@@ -406,6 +405,8 @@ describe("post-W6 W4 R309/R313/R316/R318: service tones, heading, word values an
       expect(fetched).toEqual([`/api/sites/${CODE}/service-range?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z`]);
       expect(document.querySelector('[data-mini-range="service"]')).not.toBeNull();
       expect(document.querySelector(".shared-range__tag")?.textContent).toBe("All pages");
+      // D-SR.76: not whole days, so the table is framed as whole days that include the selected time.
+      expect(document.querySelector("[data-range-frame]")?.textContent).toBe("Whole days that include the selected time");
     } finally {
       vi.unstubAllGlobals();
     }

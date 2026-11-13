@@ -16,7 +16,7 @@
  * "Technical details" disclosure.
  */
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
@@ -285,6 +285,9 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarg
   // When a refused or unread answer arrived: the only instant such an answer has (it bounds the refusal, not any data).
   const [answeredAt, setAnsweredAt] = useState<string | null>(null);
   const [assessed, setAssessed] = useState<ClaimLimitResult<AssessedDay> | null>(null);
+  // D-SR.76 Q11: a Cold or EV Site has no claim limit; the section is hidden, not explained.
+  const [hidden, setHidden] = useState(false);
+  const hide = useCallback(() => setHidden(true), []);
 
   useEffect(() => {
     if (client === undefined || day === null) {
@@ -338,6 +341,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarg
       )}
     </div>
   );
+  if (hidden) return null;
   return (
       <div
         className="claim-limit"
@@ -351,6 +355,7 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarg
         <Body
           range={range}
           rangeClient={rangeClient}
+          onNotApplicable={hide}
           siteId={siteId}
           client={client}
           day={day}
@@ -459,6 +464,7 @@ function AssessedPeriods({
 function Body({
   range,
   rangeClient,
+  onNotApplicable,
   siteId,
   client,
   day,
@@ -472,6 +478,7 @@ function Body({
 }: {
   range: RangeWindowQuery | null;
   rangeClient?: SiteRangeClient;
+  onNotApplicable?: () => void;
   detailTarget?: HTMLElement | null;
   siteId: string;
   answeredAt: string | null;
@@ -484,7 +491,7 @@ function Body({
   periods: AssessedPeriodItem[];
 }) {
   if (day === null && range !== null) {
-    return <ClaimLimitRange siteCode={siteId} window={range} client={rangeClient} />;
+    return <ClaimLimitRange siteCode={siteId} window={range} client={rangeClient} onNotApplicable={onNotApplicable} />;
   }
   if (day === null) {
     return (

@@ -5,7 +5,7 @@
  * selected window revision is "No assessment for this day" and has no link (NO_SELECTION). Each other row opens the
  * existing one-day section (`day=&revision=`, on the Analysis view), which carries "Back to the whole range".
  */
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable } from "../ui";
@@ -87,13 +87,21 @@ export function ClaimLimitRange({
   siteCode,
   window,
   client = DEFAULT_SITE_RANGE_CLIENT,
+  onNotApplicable,
 }: {
   siteCode: string;
   window: RangeWindowQuery;
   client?: SiteRangeClient;
+  /** D-SR.76 Q11: called when the Site is not a mini-grid Site, so the section can be hidden. */
+  onNotApplicable?: () => void;
 }): ReactNode {
   const key = `${siteCode}|${window.from}|${window.to}|${window.known_at ?? ""}`;
   const { read, retrying } = useRangeRead((onRetrying) => client.getClaimLimitRange(siteCode, window, onRetrying), key);
+  const notApplicable = read !== null && read.status === "refused" && read.httpStatus === 404 && read.code === "CLAIM_LIMIT_RANGE_NOT_APPLICABLE";
+  useEffect(() => {
+    if (notApplicable) onNotApplicable?.();
+  }, [notApplicable, onNotApplicable]);
+  if (notApplicable && onNotApplicable !== undefined) return null;
   return read !== null && read.status === "loaded" ? (
     <ClaimLimitRangeTable body={read.value} />
   ) : (

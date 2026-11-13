@@ -128,6 +128,13 @@ describe("SR-7b the claim limit over the range", () => {
     expect(back).toBe(`/sites/KOBO-001/evidence?view=analysis&${RANGE}`);
   });
 
+  it("D-SR.76 Q11: a Cold or EV Site (404 CLAIM_LIMIT_RANGE_NOT_APPLICABLE) hides the whole claim-limit section", async () => {
+    mount(`?${RANGE}`, stub({ status: "refused", httpStatus: 404, code: "CLAIM_LIMIT_RANGE_NOT_APPLICABLE", message: "x" }));
+    await settledScreen();
+    await vi.waitFor(() => expect(document.querySelector("[data-claim-limit-section]")).toBeNull());
+    expect(document.body.textContent).not.toContain(CLAIM_LIMIT_RANGE_NOT_APPLICABLE);
+  });
+
   it("no day and no range keeps the old no-day line; no range read", async () => {
     const client = stub({ status: "loaded", value: BODY });
     mount("?view=analysis", client);
@@ -137,7 +144,7 @@ describe("SR-7b the claim limit over the range", () => {
   });
 
   it.each([
-    [404, "CLAIM_LIMIT_RANGE_NOT_APPLICABLE", CLAIM_LIMIT_RANGE_NOT_APPLICABLE],
+    [404, "SOME_OTHER_NOT_FOUND", CLAIM_LIMIT_RANGE_NOT_APPLICABLE],
     [404, "SITE_NOT_FOUND", "This site was not found."],
     [409, "PERFORMANCE_CUTOVER_CLOSED", "Assessment results are not released for this site yet, so no limit is shown."],
     [422, "INVALID_WINDOW", "Choose a valid date range of at most 31 days."],

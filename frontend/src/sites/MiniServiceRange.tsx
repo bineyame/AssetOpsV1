@@ -14,7 +14,7 @@ import type { ReactNode } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { DataTable, Panel, StatusBar } from "../ui";
 import { DEFAULT_SITE_RANGE_CLIENT, type RangeWindowQuery, type ServiceRangeBody, type ServiceRangeDay, type SiteRangeClient } from "./siteRangeClient";
-import { OPEN_NOON_HOUR, RangeNotLoaded, dayWords, gapDaysText, useRangeRead, useWholeRangeState } from "./SiteRangeParts";
+import { OPEN_NOON_HOUR, RangeNotLoaded, dayWords, gapDaysText, useRangeRead, useWholeRangeState, WHOLE_DAYS_FRAME } from "./SiteRangeParts";
 
 export const SERVICE_RANGE_NOT_APPLICABLE = "Critical service over a range is read for mini-grid sites only.";
 export const SERVICE_RANGE_OPEN_A_DAY = "Delivered load and interruptions: open a day.";
@@ -146,16 +146,20 @@ export function MiniServiceRangePage({ body }: { body: ServiceRangeBody }) {
 export function MiniServiceRange({
   siteCode,
   window,
+  framed = false,
   client = DEFAULT_SITE_RANGE_CLIENT,
 }: {
   siteCode: string;
   window: RangeWindowQuery;
+  /** D-SR.76: the address was not whole days. */
+  framed?: boolean;
   client?: SiteRangeClient;
 }): ReactNode {
   const key = `${siteCode}|${window.from}|${window.to}|${window.known_at ?? ""}`;
   const { read, retrying } = useRangeRead((onRetrying) => client.getServiceRange(siteCode, window, onRetrying), key);
   return (
     <div className="mini-range" data-mini-range="service">
+      {framed ? <p className="mini-cited" data-range-frame>{WHOLE_DAYS_FRAME}</p> : null}
       {read !== null && read.status === "loaded" ? (
         <MiniServiceRangePage body={read.value} />
       ) : (

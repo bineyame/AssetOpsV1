@@ -96,3 +96,7 @@ unchanged). SR-11 route tests: 19 passed.
   ids, hour-card start successes sum 1); Low 2 `absent["sequences"] is None` added to the Postgres test (not run: DB
   slot). No-DB SR-11 + SR-10 route/summary: 54 passed.
 - Not done: `RANGE_MATRIX` (not on main); Postgres run of the Low 2 line (coordinator DB slot).
+
+## Fix round (D-SR.76)
+- Q10 confirmed. 10b.3's "existing backup chain table" line is WITHDRAWN; the table is recorded as MOCK DEVIATION R728 in the register.
+- Non-whole-day address (two hours, off the clock hour) shows the day table framed "Whole days that include the selected time"; L-2 fix shared with SR-7. See SR-7-packet.md fix round.

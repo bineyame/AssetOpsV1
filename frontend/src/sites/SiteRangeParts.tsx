@@ -14,6 +14,9 @@ import type { RangeRead } from "./siteRangeClient";
 
 export const RANGE_LOADING = "Loading the days of the date range.";
 export const BACK_TO_RANGE = "Back to the whole range";
+/** D-SR.76: an address that is not whole days opens the day table with this frame, so a short range is not read as a full-day claim. */
+export const WHOLE_DAYS_FRAME = "Whole days that include the selected time";
+
 export const OPEN_NOON_HOUR = "Open the 12:00 hour";
 
 /** `4 Nov` for a `YYYY-MM-DD` Site-local day (the date as written, never shifted by a zone). */
