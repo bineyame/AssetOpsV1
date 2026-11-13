@@ -5562,3 +5562,56 @@ Decisions logged for owner review: **D-UP.12**.
   - The per-Site states stay behind "Why?" as built, so nothing is hidden. Record the label in code beside the card foot and in the packet, citing D-UQFI.12.
 
 Decisions logged for owner review: **D-UQFI.11-12**.
+
+## D-SR.79 AP-1 review H1 and Lows: where the stored readiness table goes (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-ap1` `.agent/AP-1-review.md` (`ae4a34eaf`, REJECT on H1).
+- The gap is in the design premise of D-SR.75 Part A1, which assumed `SiteEvidence` renders the panel for stored Sites. It is not a builder error. The backend stands as reviewed.
+- **(a) Placement: the ledger Overview's existing "What we can conclude now" panel.**
+  - Mock: v69 `siteEvidenceScreen('mini')`, `panel('What we can conclude now', table([...], SITE_EVIDENCE.mini.caps))`. `LedgerSiteEvidence` `OverviewBody` already renders that panel (`site-evidence-state-heading`).
+  - How:
+    - `SiteEvidence.tsx` passes `declaration={loaded.declaration}` and `profile={profile}` to `LedgerSiteEvidence`, which hands them to `OverviewBody`.
+    - When `capabilityTableShown(declaration, profile)` is true, `CapabilityReadinessTable` renders **in place of** the `NotAvailableYet name="capability-conclusions"` line, the honest placeholder for exactly this table. Everything else in the panel stays as it is.
+    - In that case only, the status bar badge "No capability conclusion yet" becomes "Evidence · Overview", the Analysis view's existing badge form, because the old words would be false. Otherwise both stay unchanged.
+    - On any non-200 (409 closed gate, 422, 503) or `analytics: []` (cold/EV), the existing `NotAvailableYet` line and badge stay. No other words are added.
+  - Analysis view: no change. Its "How each limit is set" panel already shows the stored claim-limit section from the same revisions. Adding `CapabilityReadinessAnalysis` would duplicate it.
+  - The other four mock rows stay the pre-existing gap recorded in D-SR.75, outside AP-1.
+- **(b) No skip.** The fix makes the read displayed, so there is nothing to skip. H1 and this fix land together, and main keeps the cheap 409 until then.
+  - The page still waits for all three reads (`Promise.all`), so the parity probe's unwarmed timing now gates the Evidence page. If the read takes over 2 s, it gets one warm entry before merge (D-SR.75 pass rule). Do not restructure the effect for 17 Nov.
+- **(c) Size and what the client sees.**
+  - The fix round is about +0.25: prop pass-through, the swap and badge, the vitest and the Lows. AP-1 becomes about 1.8 units (1.55 + 0.25). Its deferral place is unchanged.
+  - 17 Nov, Kobo and Kisiwa (stored mini-grids), with the Performance gate open and a selected dispatch-3.2 revision in the period: one row in "What we can conclude now", the Dispatch requirement with Full, Limited or None and what is missing, in the existing table form.
+  - With the gate closed, the read refused, or no revision: today's "Not available yet" line.
+  - The probe's Kobo result and the Kisiwa live read decide which of the two the client sees. Cold room and EV hub are unchanged.
+- **Test: the ledger shape.**
+  - Replace the impossible fixture in `ap1StoredAnalytics.test.tsx` with `LedgerEvidence` (store `POSTGRES`) through `SiteEvidence`.
+  - A stored 200 gives the table inside `site-evidence-state-heading`, no `capability-conclusions` line, and the badge "Evidence · Overview".
+  - A 409 gives the line and "No capability conclusion yet".
+  - A 422 gives the line, with no revision UUID or model id in the DOM.
+  - Cold `analytics: []` gives the line.
+- **(d) Lows, all fixed in this round.**
+  - **L1:** `stored_site_declaration` raises a dedicated `StoredSiteNotFound` when `site_type_on` is None. The route catches only that for 404 `SITE_NOT_FOUND`; any `KeyError`/`IndexError` stays a 500. One test.
+  - **L2:** resolved by (a). The ledger page never renders a refusal message; the UUID message stays for logs. The file path is unchanged, because 422 comes only from the stored branch.
+  - **L3:**
+    - The probe uses `build_assessment_store(persistent=False)` and writes nothing under `var/`.
+    - `available` is compared by role, and by feeder for Load. Id differences, including D-SR.78 null ids, are listed separately and are not a mismatch.
+    - `UnsupportedModel` is caught and emitted as `{"refused": "UNSUPPORTED_RULE_VERSION", "revision": …, "model": …}` (D-SR.78 Q3). The pass rule becomes: role-keyed `available_mismatch` empty.
+  - **N1:** "(Not bound)" replaces the whole "(reference …)" suffix. D-SR.78 Q2 is amended to this wording.
+- Re-review by a fresh Claude reviewer on the fix-round diff, plus the probe JSON once the DB slot runs.
+
+Decisions logged for owner review: **D-SR.79**.
+
+## D-MB.1-2 MB-1 packet questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-mb1` `task/MB-1-modbus`, `.agent/MB-1-packet.md` (questions 2 and 4). Spec: rev 7 section 7.6 / D-17N.6, D-UP.2.
+- **D-MB.1 (Q2) Acceptable: the live window comes from the prolonged dispatch scenario, generated in memory.**
+  - The beat's claim is "a field device's readings arrive live through the gateway and are accepted". It is not "the live readings continue the uploaded file". UP-1's file and MB-1's window are separate periods, and the overlap rule plus `live-field check` prove no reading is doubled.
+  - A step in battery charge or feeder levels where the file ends and the live window starts is what the two sources recorded. Do not smooth, seed or splice it; that would fabricate continuity.
+  - The demo script and presenter notes must not say or imply continuity. The live beat is described as a simulated field device (illustrative values), as rev 7 7.6 states.
+  - Seeding the scenario from the file's last values is out of scope for 17 Nov. It goes to the backlog if the owner asks.
+- **D-MB.2 (Q4) No delivery loop; keep the gateway's 60 s backstop.**
+  - The backstop is the product's real delivery behaviour. A per-instant `deliver` loop would demo a path the field gateway does not run, and it adds scope and VPS load.
+  - The script line reads "readings arrive within about two minutes", with the presenter waiting on the Kobo board's "today".
+  - The demo-copy bench run records the time from the emulator's source time to its first appearance on the board. If that exceeds 3 min, report it to the coordinator; do not add a loop.
+
+Decisions logged for owner review: **D-MB.1-2**.
