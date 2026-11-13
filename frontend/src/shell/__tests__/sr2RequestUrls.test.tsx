@@ -18,7 +18,7 @@ import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import { summary } from "./s5WindowFixtures";
 import { MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_RENEWABLE_DAYS, MINI_REVERSED_WINDOW } from "../../sites/MiniPerformance";
-import { localDateOf, localDaysWindow, localHourWindow } from "../../sites/miniDepthClient";
+import { localDateOf, localHourWindow } from "../../sites/miniDepthClient";
 import { presetRange, rangeParams } from "../../ui/sharedRange";
 
 let urls: string[] = [];
@@ -220,8 +220,28 @@ describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send
   const address = rangeParams({ ...yesterday, known_at: null }).toString();
   const mini = (page: string, w: { from: string; to: string }) =>
     `/api/sites/KOBO-001/performance/mini/${page}?${new URLSearchParams(w).toString()}`;
+  // SR-8 page: Renewable under a shared range reads the whole range (`renewable-range`, UTC midnights, D-SR.45) and
+  // never the one-day read; Service keeps the 12:00 local hour of the range's last day.
+  it("renewable reads the range route once over the range's UTC-midnight window", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        urls.push(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site }) };
+    const view = render(
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/performance/renewable?${address}`]}>
+        <App flags={featureFlagsWith(false)} siteDetail={detail} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(urls.filter((u) => u.includes("/performance/mini/renewable"))).toEqual([]);
+    expect(urls.filter((u) => u.includes("/renewable-range"))).toEqual([`/api/sites/KOBO-001/renewable-range?${address}`]);
+    view.unmount();
+  });
   it.each([
-    ["renewable", mini("renewable", localDaysWindow(tz, yesterday.from, 1))],
     ["service", mini("service", localHourWindow(tz, localDateOf(tz, Date.parse(`${yesterday.to}T00:00:00Z`)), 12))],
   ])("%s", async (page, expected) => {
     vi.stubGlobal(

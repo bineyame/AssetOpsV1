@@ -5,7 +5,7 @@
  * browser's); `known_at` is optional.
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
-import { addressRange, focusDayOf, pageDay, rangeDays } from "../ui/sharedRange";
+import { addressRange, focusDayOf, pageDay, rangeDays, rangeWindow } from "../ui/sharedRange";
 
 /** The served mini tabs, in the backend's order (S6). */
 export const MINI_DOMAINS = ["service", "fuel", "renewable", "backup"] as const;
@@ -81,12 +81,16 @@ export interface MiniEnvelope<Cards, Row> {
   limitations: MiniLimitation[];
   basis: Record<string, unknown> | null;
   links: MiniLinks;
+  /** D-SR.62: the count of missing (never assessed) hour windows; renewable only, so optional on the other domains. */
+  missing_hours?: number;
 }
 
 export interface RenewableCards {
   capability_kw: MiniBound | null;
   used_kw: MiniBound | null;
   headroom_kw: MiniBound | null;
+  /** D-SR.48: min low and min high over the ELIGIBLE hours (headroom available in every eligible hour); null with the card. */
+  all_hours_headroom_kw?: MiniBound | null;
   eligible_days: number | null;
   assessed_days: number | null;
 }
@@ -152,6 +156,91 @@ export interface FuelRow {
 
 export type FuelRead = MiniEnvelope<FuelCards, FuelRow>;
 
+/* ---------- range reads (SR-8 `site-renewable-range-1`, SR-10b `site-fuel-range-1`) ---------- */
+
+export interface MiniRangeSite {
+  site_code: string;
+  site_name: string | null;
+  timezone: string | null;
+}
+
+export interface MiniRangeWindow {
+  from: string;
+  to: string;
+  known_at: string | null;
+}
+
+/** One Site-local day of the renewable range (`sites/renewable_range.py range_days`, D-SR.27/47). */
+export interface RenewableRangeDay {
+  local_day: string;
+  grade: string;
+  /** The stored day value, decimal text, unrounded; null when the state shows no band. */
+  low_kw: string | number | null;
+  high_kw: string | number | null;
+  decision: string | null;
+  window_hours: number | null;
+  covered_hours: number | null;
+  operating_hours: number | null;
+  state: string;
+  partial: boolean;
+  link: string;
+}
+
+export interface RenewableRangeTotals {
+  days_requested: number;
+  days_counted: number;
+  average_low_kw: string | null;
+  average_high_kw: string | null;
+  average_label: string;
+  partial: boolean;
+}
+
+export interface RenewableRangeRead {
+  schema_version: string;
+  site: MiniRangeSite;
+  window: MiniRangeWindow;
+  days: RenewableRangeDay[];
+  totals: RenewableRangeTotals;
+}
+
+/** A summed band; `low`/`high` are numbers (`mini_depth/day_summary.py _band_sum`). */
+export interface MiniBand {
+  low: number;
+  high: number;
+}
+
+/** One Site-local day of the fuel range (`mini_depth/day_summary.py range_days`, D-SR.51/70). Absent or NO_DATA days null every count. */
+export interface FuelRangeDay {
+  local_day: string;
+  stored: boolean;
+  hours_expected: number | null;
+  hours_assessed: number | null;
+  hours_pending: number | null;
+  hours_missing: number | null;
+  status_counts: Record<string, number> | null;
+  limitations: string[] | null;
+  expected_use_l: MiniBand | null;
+  hours_with_use: number | null;
+  state: string;
+  partial: boolean;
+  hour_link: string;
+}
+
+export interface FuelRangeTotals {
+  days_counted: number;
+  days_requested: number;
+  partial: boolean;
+  expected_use_l: MiniBand | null;
+}
+
+export interface FuelRangeRead {
+  schema_version: string;
+  site: MiniRangeSite;
+  window: MiniRangeWindow;
+  days: FuelRangeDay[];
+  totals: FuelRangeTotals;
+}
+
 /** A judged recovery time against the pinned target (`mini_depth/projection.py:_backup.recovery`). */
 export interface BackupRecovery {
   seconds: number | null;
@@ -208,6 +297,10 @@ export interface MiniDepthClient {
   getService(siteCode: string, window: MiniWindowQuery): Promise<MiniRead<ServiceRead>>;
   getFuel(siteCode: string, window: MiniWindowQuery): Promise<MiniRead<FuelRead>>;
   getBackup(siteCode: string, window: MiniWindowQuery): Promise<MiniRead<BackupRead>>;
+  /** SR-8: `GET /api/sites/{code}/renewable-range`. Optional so older fakes compile; a client without it reads unavailable. */
+  getRenewableRange?(siteCode: string, window: MiniWindowQuery): Promise<MiniRead<RenewableRangeRead>>;
+  /** SR-10b: `GET /api/sites/{code}/fuel-range`. Optional as above. */
+  getFuelRange?(siteCode: string, window: MiniWindowQuery): Promise<MiniRead<FuelRangeRead>>;
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
@@ -254,6 +347,8 @@ async function read<T>(url: string, shape: (value: unknown) => boolean): Promise
 const isEnvelope = (value: unknown): boolean =>
   isObject(value) && Array.isArray(value.rows) && isObject(value.currentness) && isObject(value.links);
 
+const isRangeBody = (value: unknown): boolean => isObject(value) && Array.isArray(value.days) && isObject(value.totals);
+
 export function createMiniDepthClient(basePath: string = SITES_API_PATH): MiniDepthClient {
   const base = (code: string) => `${basePath}/${encodeURIComponent(code)}/performance/mini`;
   return {
@@ -263,6 +358,9 @@ export function createMiniDepthClient(basePath: string = SITES_API_PATH): MiniDe
     getService: (code, window) => read(`${base(code)}/service${miniWindowSearch(window)}`, isEnvelope),
     getFuel: (code, window) => read(`${base(code)}/fuel${miniWindowSearch(window)}`, isEnvelope),
     getBackup: (code, window) => read(`${base(code)}/backup${miniWindowSearch(window)}`, isEnvelope),
+    getRenewableRange: (code, window) =>
+      read(`${basePath}/${encodeURIComponent(code)}/renewable-range${miniWindowSearch(window)}`, isRangeBody),
+    getFuelRange: (code, window) => read(`${basePath}/${encodeURIComponent(code)}/fuel-range${miniWindowSearch(window)}`, isRangeBody),
   };
 }
 
@@ -374,6 +472,40 @@ function exactLocalDays(timeZone: string, from: string, to: string): number | nu
     if (localMidnightUtc(timeZone, addDays(first, n)) === hi) return n;
   }
   return null;
+}
+
+/**
+ * SR-8 page / SR-10c (rev 10 §10.4, rev 10b.2): the whole-range window a range view reads, or `null` when the page
+ * shows its one-day (Renewable) or one-hour (Fuel) view instead: the address names a day (`?day=`, a story link), the
+ * address is a story window the one-day/one-hour read takes as it is (Renewable: exact Site-local midnights 1-5 days
+ * apart; Fuel: one Site-local clock hour, the range rows' `hour_link`), or there is no valid shared range. Otherwise
+ * the shared range's UTC-midnight window (the server reads its days by the `window_days` rule, D-SR.45), with the
+ * address `known_at`.
+ */
+export function miniRangeWindowFromParams(
+  screen: "renewable" | "fuel",
+  params: URLSearchParams,
+  timeZone: string,
+  now: Date = new Date(),
+): MiniWindowQuery | null {
+  if (focusDayOf(params) !== null) return null;
+  const from = params.get("from");
+  const to = params.get("to");
+  if (from !== null && to !== null) {
+    if (screen === "renewable" && exactLocalDays(timeZone, from, to) !== null) return null;
+    if (screen === "fuel" && exactLocalHour(timeZone, from, to)) return null;
+  }
+  const range = addressRange(params, now.getTime());
+  if (range === null) return null;
+  return { ...rangeWindow(range), known_at: params.get("known_at") };
+}
+
+/** One Site-local clock hour exactly (the one-hour read's pass-through, D-SR.59). */
+function exactLocalHour(timeZone: string, from: string, to: string): boolean {
+  if (!INSTANT_TOKEN.test(from) || !INSTANT_TOKEN.test(to)) return false;
+  const lo = Date.parse(from);
+  const hi = Date.parse(to);
+  return hi - lo === 3_600_000 && lo % 60_000 === 0 && localTimeOf(timeZone, lo).endsWith(":00");
 }
 
 /** SR-4b: the server's renewable read limit in days (backend `MINI_RENEWABLE_DAYS`). */

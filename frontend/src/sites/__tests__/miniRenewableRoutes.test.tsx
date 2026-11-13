@@ -239,11 +239,12 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe(`Site-local days 2026-10-06 to 2026-10-08 (${TZ})`);
   });
 
-  it("SR-2 M2 / D-SR.59: a range the bar writes (UTC midnights) reads the Site-local days of the same dates; no range form", async () => {
-    // D-SR.59: a range of up to 5 days reads the Site-local days of its dates; a longer one its last 5 Site-local days (below).
-    renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-16T00:00:00Z&to=2026-10-21T00:00:00Z`);
+  it("SR-2 M2 / D-SR.59: a story window (exact Site-local midnights, at most 5 days) keeps the one-day page; no range form", async () => {
+    // SR-8 page: a shared range (UTC midnights) opens the range view instead (miniRenewableRange.test.tsx).
+    const client = renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-15T21:00:00Z&to=2026-10-20T21:00:00Z`);
     await settledScreen();
     await screen.findByText("Watch");
+    expect(client.getRenewable).toHaveBeenCalledTimes(1);
     expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("Site-local days 2026-10-16 to 2026-10-20 (Africa/Addis_Ababa)");
     expect(document.querySelector("[data-mini-period] input, [data-mini-period] select, [data-mini-period] button")).toBeNull();
     expect(document.querySelector("[data-mini-range-note]")?.textContent).toBe("Choose the days in the date range at the top.");
@@ -447,19 +448,18 @@ describe("post-W6 W4 R309/R310/R312/R313: renewable tones, confidence, recurrenc
     expect(document.querySelector("[data-mini-currentness]")).toBeNull();
   });
 
-  it("SR-4b (D-SR.5): a window longer than five days is no longer sent; the page reads the range's last 5 Site-local days", async () => {
-    // Was the "six days" refused row: since SR-4b the page never requests more than the server's 5 days.
+  it("SR-8 page (rev 10 §10.4): a range longer than five days is read whole by the range route, never clamped to 5 days", async () => {
+    // Was SR-4b's "last 5 Site-local days" clamp; the one-day read is not called at all.
     const client = renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-11T21:00:00Z`);
     await settledScreen();
-    const [, query] = (client.getRenewable as ReturnType<typeof vi.fn>).mock.calls[0];
-    const span = Date.parse(query.to) - Date.parse(query.from);
-    expect(span).toBe(5 * 86_400_000);
+    expect(client.getRenewable).not.toHaveBeenCalled();
     expect(screen.queryByText("Choose one to five complete Site-local days.")).toBeNull();
   });
 
   it.each([
     ["a reversed range", "from=2026-10-08T21:00:00Z&to=2026-10-05T21:00:00Z", "The end must be after the start."],
-    ["an unprovable cause", "from=2026-10-05T21:00:00Z&to=2026-10-06T22:00:00Z", "Choose a valid Site-local window."],
+    // SR-8 page: a valid shared range opens the range view, so the unprovable cause is a named day the server refuses.
+    ["an unprovable cause", "day=2026-10-06", "Choose a valid Site-local window."],
   ])("R313: a refused window (%s) keeps strip, muted tiles and the named panels with one client reason", async (_name, query, reason) => {
     const message = "SERVER MESSAGE `INVALID_WINDOW` must not show";
     renderRenewable([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message }], `/sites/${CODE}/performance/renewable?${query}`);

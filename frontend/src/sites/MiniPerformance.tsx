@@ -50,6 +50,7 @@ import type { MiniDecisionsClient } from "./miniDecisionsClient";
 import type { FuelBalanceClient } from "./fuelBalanceClient";
 import { MiniFuelNightsPage, useFuelNights } from "./MiniFuelNights";
 import { OpportunityDecisionEntry } from "./MiniOpportunity";
+import { ALL_HOURS_HEADROOM, MiniRenewableRange, partialHoursText } from "./MiniRenewableRange";
 import { performanceSubtabs, type DomainPresentationProfile } from "./presentationProfile";
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
 import "../ui/mock-deviation.css";
@@ -313,6 +314,9 @@ function MiniRefusal({ read, onRetry }: { read: Exclude<MiniRead<unknown>, { sta
   );
 }
 
+/** SR-8 page / SR-10c: a range read's access, lookup and availability refusals keep the one-day pages' words. */
+export const MiniRangeRefusal = MiniRefusal;
+
 /* ---------- refused window frame (post-W6 W4 R313, Q7) ---------- */
 
 export type MiniScreen = "renewable" | "service" | "fuel" | "backup";
@@ -440,8 +444,9 @@ function MiniNotLoaded({
 
 /**
  * SR-4c (rev 8 8.2): the Site-local days a mini page reads, declared to the date-range bar when they are not the whole
- * range (Renewable over 5 days reads its last 5 days). The bar then says "Showing <days> of the range" instead of
- * "All pages". D-SR.57: Service, Backup and Fuel show one hour of one day; there the FocusPicker is the only declarer.
+ * range (the one-day Renewable page opened on a named day). The bar then says "Showing <days> of the range" instead of
+ * "All pages". SR-8 page: a shared range opens the range view, which declares nothing, so SR-4b's "last 5 days" span is
+ * gone. D-SR.57: Service, Backup and Fuel show one hour of one day; there the FocusPicker is the only declarer.
  */
 function WindowSpan({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
   const [params] = useSearchParams();
@@ -564,6 +569,12 @@ function RenewableStatus({ read }: { read: RenewableRead }) {
       ))}
       <CurrentnessChip state={read.currentness.state} selected={read.rows.length > 0} />
       <StripLimitations limits={limits} />
+      {/* D-SR.62, inside R726: missing hours (no solar reading) leave the day partial, in the range row's words. */}
+      {(read.missing_hours ?? 0) > 0 ? (
+        <span className="status-strip__item" data-mini-partial-hours>
+          <Badge tone="neutral" className="mini-tone--amber">{partialHoursText(read.missing_hours ?? 0)}</Badge>
+        </span>
+      ) : null}
       <span className="status-strip__item">{fact}</span>
       {read.currentness.state === "HISTORICAL" ? (
         <span className="status-strip__item" data-mini-historical>
@@ -595,7 +606,21 @@ function RenewableCardsRow({ read }: { read: RenewableRead }) {
     <MetricCards label="Renewable summary" data={{ "data-mini-cards": "renewable" }}>
       <MetricCard label="PV capability" value={boundText(cards?.capability_kw ?? null, "kW")} word={isWordValue(boundText(cards?.capability_kw ?? null, "kW"))} note="Reported PV capability and selected uncertainty" />
       <MetricCard label="PV used" value={boundText(cards?.used_kw ?? null, "kW")} word={isWordValue(boundText(cards?.used_kw ?? null, "kW"))} note={usedNote} />
-      <MetricCard label="Usable headroom" value={boundText(cards?.headroom_kw ?? null, "kW")} word={isWordValue(boundText(cards?.headroom_kw ?? null, "kW"))} note="After retained margin and service checks" />
+      {/* D-SR.48, MOCK DEVIATION R726: the card keeps its envelope, named in words "Range across eligible hours"; one
+          line under it gives the stored day figure in the range view's words, so the range and the day agree. */}
+      <MetricCard
+        label="Usable headroom"
+        value={boundText(cards?.headroom_kw ?? null, "kW")}
+        word={isWordValue(boundText(cards?.headroom_kw ?? null, "kW"))}
+        note={
+          <>
+            <span data-mini-headroom-range-label>Range across eligible hours, after retained margin and service checks</span>
+            <span className="mini-all-hours-line" data-mini-all-hours-headroom>
+              {`${ALL_HOURS_HEADROOM}: ${boundText(cards?.all_hours_headroom_kw ?? null, "kW")}`}
+            </span>
+          </>
+        }
+      />
       <MetricCard
         label="Recurring opportunity"
         value={days}
@@ -886,6 +911,7 @@ export function MiniRenewable({
   siteCode,
   timeZone,
   window,
+  range,
 }: {
   client: MiniDepthClient;
   /** W4-03 unit 7: the opportunity list read and the typed detail address for the exact five-day CTA. */
@@ -894,15 +920,27 @@ export function MiniRenewable({
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;
+  /** SR-8 page: the whole shared range (`miniRangeWindowFromParams`), or null for the one-day page. */
+  range?: MiniWindowQuery | null;
 }): ReactNode {
   const [attempt, setAttempt] = useState(0);
+  const ranged = range !== undefined && range !== null;
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<RenewableRead>(
-    () => (window === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getRenewable(siteCode, window)),
-    key,
+    () =>
+      window === null || ranged ? Promise.resolve({ status: "unavailable", message: null }) : client.getRenewable(siteCode, window),
+    ranged ? `range|${key}` : key,
     attempt,
   );
   if (timeZone === null || window === null) return <NoTimeZone />;
+  if (range !== undefined && range !== null) {
+    return (
+      <>
+        <MiniPeriodBar timeZone={timeZone} window={range} />
+        <MiniRenewableRange client={client} siteCode={siteCode} window={range} />
+      </>
+    );
+  }
   return (
     <>
       <MiniPeriodBar key={key} timeZone={timeZone} window={window} />

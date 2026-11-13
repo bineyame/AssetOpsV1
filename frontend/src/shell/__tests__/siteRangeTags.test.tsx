@@ -144,19 +144,15 @@ describe("SR-4c: the bar tag and spoken name per page and Site type (rev 8 §8.2
     outside.unmount();
   });
 
-  it("mini-grid: Service shows one day of the range, Renewable over 5 days its last 5 days", async () => {
+  it("mini-grid: Service shows one day of the range; Renewable over a range follows it whole (SR-8 page)", async () => {
     await expectTag(
       "/sites/KOBO-001/performance/service",
       "Showing 9 Nov of the range",
       "inside",
       /\. This page shows one day of it: 9 Nov 2026\. Change$/,
     );
-    await expectTag(
-      "/sites/KOBO-001/performance/renewable",
-      "Showing 5–9 Nov of the range",
-      "inside",
-      /\. This page shows part of it: 5 Nov 2026 to 9 Nov 2026\. Change$/,
-    );
+    // Was "Showing 5–9 Nov of the range" (SR-4b's last 5 days); the range view reads every day and declares nothing.
+    await expectTag("/sites/KOBO-001/performance/renewable", "All pages", null, FOLLOWS);
   });
 
   it("mini-grid: a Renewable range of at most 5 days is read whole, so the page follows the range", async () => {
