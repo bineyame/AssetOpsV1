@@ -5491,3 +5491,23 @@ Decisions logged for owner review: **D-SR.77**.
 - Accepted from the packet, no change: the GapGroup line is a `div` (inline form `span`), because `<ul>` cannot sit inside `<p>`. The page title is 20 px below 760 px.
 
 Decisions logged for owner review: **D-UQFI.6-10**.
+
+## D-SR.78 AP-1 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-ap1` `task/AP-1-analytics-port`, `.agent/AP-1-packet.md` (questions 1-4). Design: `architect-analytics-port-and-db-choice-2026-11-13.html` Part A; D-SR.75, D-SR.77.
+- **Q1 Acceptable as built; no count.**
+  - Design A3 asks only for presence (EXISTS, latest), not a count. A count over the whole Kobo ledger adds read cost against the 2 s budget and adds nothing to readiness.
+  - "Usable records received, latest …" is true when a latest GOOD accepted reading exists. With no such reading, the row stays not available with its gap words.
+  - The TS type stays `number | null`. The file path keeps its count. Never show 0 or a dash for null.
+- **Q2 Show "Not bound", not the file-era ids.**
+  - A file-era device/signal id beside an unbound role names a reference that the stored configuration does not have, which is a false source.
+  - On the stored path, a row's `device_id`/`signal_id` are filled only from a stored binding, and are null otherwise.
+  - `CapabilityReadiness`/`SiteEvidence` render "Not bound" (the existing `FoundationBindingsPanel` word for `UNBOUND`) where the reference sits, for an unbound role. Policy rows and not-stored rows with null ids show no reference; their gap words stay. Availability stays false.
+  - The file path is unchanged. Tests: one backend test (unbound role gives null ids) and one vitest test ("Not bound" shown, no file-era id in the DOM). Size about 0.1, before merge.
+- **Q3 Confirmed: a whole-read 422, fail closed.**
+  - This matches `claim_limit_read.SUPPORTED_MODELS`, which refuses the same revision in the claim-limit section on the same page. Skipping would let the panel and that section disagree (design risk "Panel disagrees with the claim-limit section").
+  - The page shows its existing refusal sentence, with no retry.
+  - The Kobo parity probe records whether any demo Site's selected revisions trip it. If one does, that is a finding for the coordinator, not a reason to skip.
+- **Q4 Confirmed.** A closed gate returns the existing 409 `AWAITING_EVIDENCE_MIGRATION`, so SR-12b's "not available yet" line applies unchanged. No new code, and no `PERFORMANCE_CUTOVER_CLOSED`. The gate reason stays in the message for logs; the page does not render it as raw text. D-SR.77's store branch is unchanged: the 409 is the imported-Site signal only when the store is unstated.
+
+Decisions logged for owner review: **D-SR.78**.
