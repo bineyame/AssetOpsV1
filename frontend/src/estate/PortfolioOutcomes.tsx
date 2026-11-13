@@ -288,7 +288,7 @@ export function CategoryCards({
               {/* MOCK DEVIATION R740 (D-UQFI.12): portfolio-hifi's `.kpi` card foot state chip is left out. The server card
                   carries a tone, not a state code; an estate-level state needs an owner-ruled roll-up (BL-69). The per-Site
                   states stay behind "Why?". */}
-              <p data-mock-deviation="R740">MOCK DEVIATION D1 (R740)</p>
+              <p className="mock-deviation-line" data-mock-deviation="R740">MOCK DEVIATION D1 (R740)</p>
             </div>
           );
         })}

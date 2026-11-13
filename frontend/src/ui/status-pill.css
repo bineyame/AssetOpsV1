@@ -15,7 +15,7 @@
   white-space: nowrap;
   box-sizing: border-box;
 }
-.status-pill__glyph,
+.status-pill__glyph { width: 12px; height: 12px; flex: none; }
 .status-pill.s-complete { --status-pill-bg: var(--color-status-complete-bg); --status-pill-text: var(--color-status-complete-text); --status-pill-border: var(--color-status-complete-border); }
 .status-pill.s-partial { --status-pill-bg: var(--color-status-partial-bg); --status-pill-text: var(--color-status-partial-text); --status-pill-border: var(--color-status-partial-border); }
 .status-pill.s-noreadings { --status-pill-bg: var(--color-status-noreadings-bg); --status-pill-text: var(--color-status-noreadings-text); --status-pill-border: var(--color-status-noreadings-border); }
