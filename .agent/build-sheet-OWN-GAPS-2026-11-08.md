@@ -5404,3 +5404,15 @@ Decisions logged for owner review: **D-SR.73**.
 - Size: about 0.05 (planner filter, report key, two tests).
 
 Decisions logged for owner review: **D-SR.74**.
+
+## D-SR.75 AP-1 analytics readiness port sized; database stays PostgreSQL (Architect, Claude, 2026-11-13, owner request, for the Sat 14 Nov 12:00 reassessment)
+
+- Source: `.agent/owner-analytics-port-and-db-choice-2026-11-13.md`; detail `.agent/architect-analytics-port-and-db-choice-2026-11-13.html`.
+- **AP-1** = `/api/sites/{id}/analytics` on stored mini-grid Sites (Kobo, Kisiwa): a `registry.ledger_scope` stored branch with the Performance gate; new `analytics/stored_declaration.py` (fail-closed role map, role presence query, dispatch-3.2 coverage adapter over `claim_limit_read.role_coverage`), feeding `score_readiness` unchanged; same JSON, no frontend change; cold/EV answer `analytics: []` (mock `cold-evidence`/`ev-evidence` carry no CapabilityReadiness).
+- Siblings (`/dispatch`, `/findings`, `/assessments/...`, `/api/findings`) stay gated: stored Sites have their own Performance and Finding routes.
+- Size about 1.3 units (1.1-1.6), after SR-12b. No data rebuild or migration. Kobo parity: per-requirement `available` must match; level differences classified (dispatch-2 vs 3.2). Kisiwa: fixture + live read.
+- Deferral order: AP-1 enters D-SR.38's list **first** (ahead of DATA-10/13). Owner options: defer (recommended), build if a lane is free with the freeze moved to Sun 20:00, or promote over another candidate.
+- Mock: `SITE_EVIDENCE.mini.caps` has five rows; the backend declares only Dispatch on every Site. That pre-existing gap is outside AP-1.
+- Database: stay on PostgreSQL; no change before 17 Nov. Later: measure, then time partitions on readings, then a TimescaleDB trial on a clone. No document or wide-column store.
+
+Decisions logged for owner review: **D-SR.75**.
