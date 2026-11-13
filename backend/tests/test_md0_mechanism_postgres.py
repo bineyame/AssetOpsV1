@@ -69,12 +69,19 @@ def _derived_clone(tmp_path, day_set: str):
     clone_s = round(time.perf_counter() - t0, 1)
     url = md.database_url(URL, target)
     eng = create_engine(url, poolclass=NullPool)
+    from test_out_b4_board_postgres import product_db_reset
+
+    old_url = os.environ.get("DATABASE_URL")
     try:
+        os.environ["DATABASE_URL"] = url  # AR-4: the derive's evidence.claim builder reads the product DB from env
+        product_db_reset()
         manifest = md.derive_clone(url, tag, tmp_path / "work")
         manifest["timings"]["clone"] = clone_s
         record("manifest" if day_set == "states" else f"manifest_{day_set}", manifest)
         yield eng, manifest
     finally:
+        os.environ.pop("DATABASE_URL", None) if old_url is None else os.environ.update(DATABASE_URL=old_url)
+        product_db_reset()
         eng.dispose()
         md.drop_database(admin, target)
         admin.dispose()
