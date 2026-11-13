@@ -5491,3 +5491,50 @@ Decisions logged for owner review: **D-SR.77**.
 - Accepted from the packet, no change: the GapGroup line is a `div` (inline form `span`), because `<ul>` cannot sit inside `<p>`. The page title is 20 px below 760 px.
 
 Decisions logged for owner review: **D-UQFI.6-10**.
+
+## D-SR.78 AP-1 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-ap1` `task/AP-1-analytics-port`, `.agent/AP-1-packet.md` (questions 1-4). Design: `architect-analytics-port-and-db-choice-2026-11-13.html` Part A; D-SR.75, D-SR.77.
+- **Q1 Acceptable as built; no count.**
+  - Design A3 asks only for presence (EXISTS, latest), not a count. A count over the whole Kobo ledger adds read cost against the 2 s budget and adds nothing to readiness.
+  - "Usable records received, latest …" is true when a latest GOOD accepted reading exists. With no such reading, the row stays not available with its gap words.
+  - The TS type stays `number | null`. The file path keeps its count. Never show 0 or a dash for null.
+- **Q2 Show "Not bound", not the file-era ids.**
+  - A file-era device/signal id beside an unbound role names a reference that the stored configuration does not have, which is a false source.
+  - On the stored path, a row's `device_id`/`signal_id` are filled only from a stored binding, and are null otherwise.
+  - `CapabilityReadiness`/`SiteEvidence` render "Not bound" (the existing `FoundationBindingsPanel` word for `UNBOUND`) where the reference sits, for an unbound role. Policy rows and not-stored rows with null ids show no reference; their gap words stay. Availability stays false.
+  - The file path is unchanged. Tests: one backend test (unbound role gives null ids) and one vitest test ("Not bound" shown, no file-era id in the DOM). Size about 0.1, before merge.
+- **Q3 Confirmed: a whole-read 422, fail closed.**
+  - This matches `claim_limit_read.SUPPORTED_MODELS`, which refuses the same revision in the claim-limit section on the same page. Skipping would let the panel and that section disagree (design risk "Panel disagrees with the claim-limit section").
+  - The page shows its existing refusal sentence, with no retry.
+  - The Kobo parity probe records whether any demo Site's selected revisions trip it. If one does, that is a finding for the coordinator, not a reason to skip.
+- **Q4 Confirmed.** A closed gate returns the existing 409 `AWAITING_EVIDENCE_MIGRATION`, so SR-12b's "not available yet" line applies unchanged. No new code, and no `PERFORMANCE_CUTOVER_CLOSED`. The gate reason stays in the message for logs; the page does not render it as raw text. D-SR.77's store branch is unchanged: the 409 is the imported-Site signal only when the store is unstated.
+
+Decisions logged for owner review: **D-SR.78**.
+
+## D-UP.12 UP-1 review L2: a stale FAILED job must not pin "Not analysed" (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-up1` `.agent/UP-1-review.md` L2; code `reading_upload/adapters/postgres_reading_upload_store.py` `_ANALYSIS` and `progress`. This refines D-UP.3; it does not replace it.
+- **Yes: a later successful run supersedes a FAILED job for the same period.** The proof in D-UP.3 is the run itself. A run whose `knowledge_cutoff` is at or after the upload's decision time has read the upload, whatever failed before or beside it.
+- **State order at GET:** Still processing > Analysed > Not analysed > Still processing (fallback).
+  1. **Still processing** if any `recompute_job` for the Site, in any domain, overlapping [first interval start, last interval end) is PENDING or LEASED. This is unchanged: D-UP.3's "no work is left" holds.
+  2. **Analysed** if the qualifying run exists (D-UP.3 item 2, unchanged).
+     - It is an `analytic_run` for the Site with `analytic_id = dispatch_v3.ANALYTIC_ID`, `selection = 'DEFAULT'` and `job_id IS NOT NULL`, its window covers the first interval start, and its `knowledge_cutoff` ≥ `decided`.
+     - `decided` = max `ingestion_disposition.decided_at` over the upload's ACCEPTED dispositions.
+     - No FAILED job overrides it.
+  3. **Not analysed** only if no qualifying run exists and a **relevant** FAILED job overlaps the span.
+     - A FAILED job is relevant when `created_at ≥ decided`, or `lease_until ≥ decided` when that column is set. Either way it was created or still leased after the upload was decided, so it could have carried the upload.
+     - Jobs coalesce, so `created_at` alone would miss an older job that was widened to take the upload. Never key on `cause_evidence_id` (D-UP.3).
+     - A FAILED job created and last leased before `decided` is ignored.
+  4. Otherwise **Still processing**. This is the existing state when no run and no relevant failure exist.
+- **What is compared:** each FAILED job's `created_at`/`lease_until` with the upload's `decided` time (the same database clock, S4-07). The run is compared with `decided` through `knowledge_cutoff`. A job is never compared with a run.
+- **Wording is right, unchanged:** `reading_upload.state.not_analysed` "Received, but the analysis did not finish. The readings are kept." It is now shown only for a relevant failure, where it is true.
+- **Tests, no-DB fake store plus one Postgres flow case:**
+  - an old FAILED job and a later qualifying run gives Analysed;
+  - an old FAILED job (created and leased before `decided`) and no run gives Still processing;
+  - a FAILED job created after `decided` and no run gives Not analysed;
+  - an older job with `lease_until ≥ decided` that is FAILED, and no run, gives Not analysed;
+  - PENDING beside a qualifying run gives Still processing.
+- Size about 0.1, before merge. Also run the review's `SELECT status, count(*) FROM recompute_job` check for KOBO-001 on the client4 copy in the first heavy slot, as planned.
+
+Decisions logged for owner review: **D-UP.12**.

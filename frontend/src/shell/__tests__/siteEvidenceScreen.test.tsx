@@ -141,12 +141,13 @@ describe("Site > Evidence, populated", () => {
     await settledScreen();
     // Overview: the count, with the reasons one view away.
     expect(document.querySelector("[data-evidence-rejection-count]")).toHaveTextContent(
-      "2 records were rejected; the reasons are on the Analysis view.",
+      // SR-12a: the App fills the address range on entry, so the count is the ranged read's.
+      "2 records received in this date range were rejected; the reasons are on the Analysis view.",
     );
     cleanup();
     renderAt(ANALYSIS_URL, populated());
     await settledScreen();
-    expect(screen.getByText("2 records were rejected and never accepted.")).toBeInTheDocument();
+    expect(screen.getByText("2 records received in this date range were rejected and never accepted.")).toBeInTheDocument();
     const items = document.querySelectorAll("[data-evidence-rejection]");
     expect(items).toHaveLength(2);
     expect(spacedText(items[0] as HTMLElement)).toMatch(
@@ -319,30 +320,58 @@ describe("W1-F2: legacy evidence panel structure", () => {
 });
 
 /**
- * SR-4c (D-SR.7, rev 8 8.2): `/evidence/rejections` and `/analytics` take no from/to (backend `evidence_api.py`
- * `get_rejections` reads only `batch`; `analytics_api.py` `get_declaration` reads no query), so each panel says it
- * covers all dates, not only the date range in the address.
+ * SR-4c (D-SR.7, rev 8 8.2): `/analytics` takes no from/to (`analytics_api.py` `get_declaration` reads no query), so
+ * its panel says it covers all dates. SR-12a (rev 10b.4): `/evidence/rejections` takes the range, so the rejections
+ * panel reads it and the all-dates line is gone there.
  */
-describe("SR-4c: Evidence panels that do not follow the date range say so", () => {
+describe("SR-4c/SR-12a: Evidence panels and the date range", () => {
   const RANGED = `${ANALYSIS_URL}&from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`;
 
-  it("the rejections panel and the analytics panel each carry the all-dates line", async () => {
+  it("L1: a failed ranged rejections read shows no count rather than the all-dates count", async () => {
+    const evidence = populated();
+    evidence.listRejections = async () => ({ status: "unavailable", message: null });
+    render(
+      <MemoryRouter initialEntries={[`${EVIDENCE_URL}?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`]}>
+        <App
+          flags={featureFlagsWith(false)}
+          siteDirectory={DIRECTORY}
+          siteDetail={DETAIL}
+          siteEvidence={evidence}
+          siteAnalytics={analyticsClient(SITE_ID)}
+        />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(screen.getByRole("heading", { name: /Data sources/ })).toBeInTheDocument();
+    expect(document.querySelector("[data-evidence-rejection-count]")).toBeNull();
+  });
+
+  it("SR-12a: the rejections panel reads the range; the analytics panel keeps the all-dates line (SR-12b)", async () => {
+    const evidence = populated();
+    const calls: unknown[][] = [];
+    const listRejections = evidence.listRejections.bind(evidence);
+    evidence.listRejections = (...args: Parameters<SiteEvidenceClient["listRejections"]>) => {
+      calls.push(args);
+      return listRejections(...args);
+    };
     render(
       <MemoryRouter initialEntries={[RANGED]}>
         <App
           flags={featureFlagsWith(false)}
           siteDirectory={DIRECTORY}
           siteDetail={DETAIL}
-          siteEvidence={populated()}
+          siteEvidence={evidence}
           siteAnalytics={analyticsClient(SITE_ID)}
         />
       </MemoryRouter>,
     );
     await settledScreen();
+    expect(calls).toContainEqual([SITE_ID, null, { from: "2026-11-03T00:00:00Z", to: "2026-11-10T00:00:00Z" }]);
     const rejections = document.querySelector('[data-panel-range-for="rejections"]');
     const analytics = document.querySelector('[data-panel-range-for="analytics"]');
-    expect(rejections).toHaveTextContent(PANEL_ALL_DATES);
-    expect(rejections?.getAttribute("data-panel-range")).toBe("all-dates");
+    expect(rejections).not.toHaveTextContent(PANEL_ALL_DATES);
+    expect(rejections?.getAttribute("data-panel-range")).toBe("range");
+    expect(rejections).toHaveTextContent(/received in this date range/);
     expect(analytics).toHaveTextContent(PANEL_ALL_DATES);
     expect(analytics?.getAttribute("data-panel-range")).toBe("all-dates");
     // The line sits under its own panel heading.
@@ -350,10 +379,10 @@ describe("SR-4c: Evidence panels that do not follow the date range say so", () =
     expect(rejectionsPart?.contains(rejections)).toBe(true);
   });
 
-  it("no all-dates line on the analytics panel when no analytic is declared", async () => {
+  it("no all-dates line on the analytics panel when no analytic is declared, nor on rejections", async () => {
     renderAt(ANALYSIS_URL, populated());
     await settledScreen();
     expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
-    expect(document.querySelector('[data-panel-range-for="rejections"]')).toHaveTextContent(PANEL_ALL_DATES);
+    expect(document.querySelector('[data-panel-range-for="rejections"]')).not.toHaveTextContent(PANEL_ALL_DATES);
   });
 });
