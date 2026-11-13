@@ -5364,3 +5364,43 @@ Decisions logged for owner review: **D-SR.70-72**.
 - **R350 confirmed right.** The verification link carries `from`/`to` for onward navigation only. The Action/verification record read stays on its own period, with no re-cut by the range (as D-SR.64). Where the page shows the range, it declares "Range not used · this record's own period". One pin: the record body is the same with and without `from`/`to`.
 
 Decisions logged for owner review: **D-SR.73**.
+
+## D-SR.74 Lane G: SR-12b Q1-Q3 and WARM-1 gate refusals (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-sr4` `task/SR-12-warm-routes`, `.agent/SR-12b-packet.md` (f978798bb) and `.agent/WARM-1-packet.md`.
+
+### Q1: the ranged copy. Confirmed, with one correction.
+- "Meets" is system vocabulary, and "those in the selected date range" is wrong for a window that only overlaps the range.
+- Statement: "...the coverage of its active assessments that overlap the selected date range."
+- Scope: "Only assessments that overlap the selected date range are counted. Whether each required input has a usable record is checked against all of this site's accepted records. It is not a rating of the site's health and not permission to act."
+- The unranged words are unchanged.
+
+### Q2: the edge. Corrected: half-open, as everywhere else (D-SR.9 windows, the 0029 hour rule, D-SR.71).
+- `analytics/declaration.py` `in_window`, for a stated `assessed_window` `[start, end)`: count it when `start < hi and end > lo`. A window ending exactly at `from` belongs to the period before and is **not** counted.
+  - A zero-length window counts when `lo <= start < hi`.
+- The running-bounds fallback (`first_running_observed` / `last_running_observed`) is a pair of observed instants, so it stays closed: `first < hi and last >= lo`. An observation at `from` is inside the range.
+- Pin the four edges: end = from (out), start = to (out), an instant at from (in), last observed = from (in).
+
+### Q3: SR-12b closes as built, plus one copy fix. It is not deferred.
+- The change is small, correct and tested for every Site the file-backed declaration serves. Merging it costs nothing.
+- **The refusal as shown is not honest enough for a client page.**
+  - On an imported Site, `/analytics` answers 409 `AWAITING_EVIDENCE_MIGRATION`. `evidenceRead` makes that `unavailable` and carries the server message, and `CapabilityReadiness` `Unavailable` prints it.
+  - Read from code; confirm it on the live page. The demo Evidence page would then say "legacy file-backed surface is awaiting evidence migration" about a Site whose evidence is migrated. That breaks the D-SR.67 gate (no "Awaiting evidence migration" panel on a client-visible page) and the plain-language rule.
+- **Fix (about 0.05, lane G, before merge).**
+  - In `frontend/src/sites/CapabilityReadiness.tsx` (`served` / `Unavailable`): when `awaitingMigration(declaration)` is true, show the fixed words "What can be assessed from these records is not available yet for this site." Never show the server message.
+  - Add one vitest.
+  - Live check: the Kobo and Kisiwa Evidence pages carry no "migration" or "legacy" word.
+
+### WARM-1: 409 gate refusals and the Kisiwa nights read.
+- **The plan stores only what can be stored.**
+  - The warm planner sends `claim-limit-range` only for Sites whose Performance gate is open at plan time. It uses the route's own gate predicate, not a copy.
+  - It lists the others in `warm-report.json` / `warm-verify.json` under `excluded_closed_gate: [{site, route}]`.
+  - `--verify` replays the same plan, so the 100% hit gate is over stored requests only.
+  - Any 409 on a request **in** the plan fails `--verify`. Nothing passes silently.
+- **A closed gate on a demo Site is itself a prepare failure.** D-SR.67 runs `performance_migration` wherever the Site has that surface. On the final DB, a non-empty `excluded_closed_gate` stops the session check and goes to the Architect; the warm and verify do not hide it.
+- **Kisiwa `/fuel-balance/nights` stays unstored for the demo** (D-WARM.2: measured, not gated).
+  - It must still read in 2 s or less on the VPS verify run.
+  - If it does not, report it. Storing it then needs a ruling; do not store it now.
+- Size: about 0.05 (planner filter, report key, two tests).
+
+Decisions logged for owner review: **D-SR.74**.
