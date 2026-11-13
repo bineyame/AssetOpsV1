@@ -28,6 +28,7 @@ import {
   rangeStatusLine,
 } from "../SiteRangeOverview";
 import { BACK_TO_RANGE } from "../SiteOverview";
+import { summary } from "../../shell/__tests__/s5WindowFixtures";
 import { RETRYING_COPY, STILL_UNAVAILABLE_COPY } from "../temporarilyUnavailable";
 
 const SITE = { ...HYBRID_MINI_GRID_SITE, site_id: "KOBO-001" } as SiteDetailReadModel;
@@ -247,6 +248,16 @@ describe("SR-5b the range view", () => {
 
 describe("SR-5b the drill-in", () => {
   it("day= reads the one-day board and links back to the whole range", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        urls.push(url);
+        const d = /\/overview\?date=(\d{4}-\d{2}-\d{2})/.exec(url)?.[1];
+        if (d) return Promise.resolve(new Response(JSON.stringify(summary(d)), { status: 200, headers: { "Content-Type": "application/json" } }));
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
     await open(`/sites/KOBO-001?${RANGE}&day=2026-11-05`, stubClient({ status: "loaded", value: body() }));
     expect(calls).toEqual([]);
     expect(urls).toContain("/api/sites/KOBO-001/overview?date=2026-11-05");

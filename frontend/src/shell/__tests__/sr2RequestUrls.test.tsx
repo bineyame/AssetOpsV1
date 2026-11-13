@@ -164,7 +164,7 @@ describe("SR-5b Kobo/Kisiwa Overview with a range and no day read the range (ran
     ["Kisiwa board", "/sites/KISIWA-001", "KISIWA-001", [`/api/sites/KISIWA-001/range-overview?${RANGE_READ}`]],
   ])("%s", async (_label, path, code, expected) => {
     const got = await siteRequestsAt(`${path}?${RANGED}`, as(HYBRID_MINI_GRID_SITE, code));
-    expect(got.filter((u) => u.includes("/overview"))).toEqual(expected);
+    expect(got.filter((u) => u.includes("/overview") || u.includes("range-overview"))).toEqual(expected);
   });
 });
 

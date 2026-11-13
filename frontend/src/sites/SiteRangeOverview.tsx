@@ -384,17 +384,29 @@ function Loaded({
 }
 
 /** Reads `range-overview` for a range; `retrying` is set while a 503 unavailable answer is being retried. */
-export function useRangeOverview(client: RangeOverviewClient, siteCode: string, range: DayRange & { known_at: string | null }) {
+export interface RangeOverviewState {
+  read: RangeOverviewRead | null;
+  retrying: boolean;
+  window: { from: string; to: string };
+}
+
+/** Reads `range-overview` for a range; nothing is read while `range` or `client` is null (the hook stays mounted). */
+export function useRangeOverview(
+  client: RangeOverviewClient | null | undefined,
+  siteCode: string,
+  range: (DayRange & { known_at: string | null }) | null,
+): RangeOverviewState {
   const [read, setRead] = useState<RangeOverviewRead | null>(null);
   const [retrying, setRetrying] = useState(false);
-  const query = rangeParams(range);
-  const from = query.get("from") ?? "";
-  const to = query.get("to") ?? "";
-  const knownAt = query.get("known_at");
+  const query = range === null ? null : rangeParams(range);
+  const from = query?.get("from") ?? "";
+  const to = query?.get("to") ?? "";
+  const knownAt = query?.get("known_at") ?? null;
   useEffect(() => {
     let active = true;
     setRead(null);
     setRetrying(false);
+    if (client === null || client === undefined || from === "") return undefined;
     void client
       .getRangeOverview(siteCode, { from, to, known_at: knownAt }, () => {
         if (active) setRetrying(true);
@@ -448,19 +460,20 @@ export function RangeReadState({
   );
 }
 
+/** A 404 answer: the range read does not know this Site (e.g. one that is not imported); the page keeps its one-day form. */
+export const rangeNotKnown = (state: RangeOverviewState): boolean =>
+  !state.retrying && state.read?.status === "refused" && state.read.httpStatus === 404;
+
 export interface SiteRangeOverviewProps {
   siteCode: string;
-  client: RangeOverviewClient;
-  range: DayRange & { known_at: string | null };
+  /** The `useRangeOverview` state (the caller owns the read, so a 404 can fall back without remounting the page). */
+  state: RangeOverviewState;
   links: RangeOverviewLinks;
   findingIndex?: FindingIndexClient;
-  /** Rendered when the read answers 404 (a Site with no range read, e.g. one that is not imported). */
-  fallback: ReactNode;
 }
 
-export function SiteRangeOverview({ siteCode, client, range, links, findingIndex, fallback }: SiteRangeOverviewProps) {
-  const { read, retrying, window } = useRangeOverview(client, siteCode, range);
-  if (!retrying && read?.status === "refused" && read.httpStatus === 404) return <>{fallback}</>;
+export function SiteRangeOverview({ siteCode, state, links, findingIndex }: SiteRangeOverviewProps) {
+  const { read, retrying, window } = state;
   if (read?.status === "loaded" && !retrying) {
     return <Loaded body={read.value} siteCode={siteCode} window={window} findingIndex={findingIndex} links={links} />;
   }
