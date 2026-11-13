@@ -5600,3 +5600,18 @@ Decisions logged for owner review: **D-UQFI.11-12**.
 - Re-review by a fresh Claude reviewer on the fix-round diff, plus the probe JSON once the DB slot runs.
 
 Decisions logged for owner review: **D-SR.79**.
+
+## D-MB.1-2 MB-1 packet questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-mb1` `task/MB-1-modbus`, `.agent/MB-1-packet.md` (questions 2 and 4). Spec: rev 7 section 7.6 / D-17N.6, D-UP.2.
+- **D-MB.1 (Q2) Acceptable: the live window comes from the prolonged dispatch scenario, generated in memory.**
+  - The beat's claim is "a field device's readings arrive live through the gateway and are accepted". It is not "the live readings continue the uploaded file". UP-1's file and MB-1's window are separate periods, and the overlap rule plus `live-field check` prove no reading is doubled.
+  - A step in battery charge or feeder levels where the file ends and the live window starts is what the two sources recorded. Do not smooth, seed or splice it; that would fabricate continuity.
+  - The demo script and presenter notes must not say or imply continuity. The live beat is described as a simulated field device (illustrative values), as rev 7 7.6 states.
+  - Seeding the scenario from the file's last values is out of scope for 17 Nov. It goes to the backlog if the owner asks.
+- **D-MB.2 (Q4) No delivery loop; keep the gateway's 60 s backstop.**
+  - The backstop is the product's real delivery behaviour. A per-instant `deliver` loop would demo a path the field gateway does not run, and it adds scope and VPS load.
+  - The script line reads "readings arrive within about two minutes", with the presenter waiting on the Kobo board's "today".
+  - The demo-copy bench run records the time from the emulator's source time to its first appearance on the board. If that exceeds 3 min, report it to the coordinator; do not add a loop.
+
+Decisions logged for owner review: **D-MB.1-2**.
