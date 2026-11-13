@@ -140,3 +140,23 @@
 - L4: the warm child starts with `start_new_session=True` on POSIX. The API Popen on main has the same group pattern (a kill of the API's group would reach serve); left alone, noted for the coordinator.
 - **L2 -> D-WARM.7 (coordinator ruling):** `range_requests` now also warms `/api/estate/findings?from&to&state=<v>` for the four chip values and `/api/estate/portfolio/scope-ids?from&to` page 1 (the all-lens disclosure), per warmed range; `--verify` replays them. URL equality: `test_state_chip_and_scope_ids_urls_equal_the_frontend_request` and `frontend/src/estate/__tests__/warmUrls.test.ts` (the real client, same literals).
 - **Added to outside the claim:** lens x state combinations, `scope-ids` page 2+, (`scope-ids` under each lens is now warmed per D-WARM.8; page 2+ stays outside).
+
+## SR-12 warm routes (lane G, branch `task/SR-12-warm-routes`, commit 16de6596c)
+
+- Why: on the demo DB a cold `range-overview` took 5.4 s; `warm_ranges.py` did not warm the new Site range routes.
+- `SITE_RANGE_ROUTES` (`tools/warm_ranges.py`): per warmed range (presets, windows, story ranges) and per mini-grid
+  Site (KOBO-001, KISIWA-001): `/api/sites/{code}/{range-overview,health-range,service-range,claim-limit-range,
+  renewable-range,fuel-range,backup-range}?from&to`. Every one is a stored route keyed `{site, from, to, known_at}` and
+  404 `*_NOT_APPLICABLE` for Cold/EV, so Cold/EV get none. Query from the server's documented params (no page client
+  on main): **re-check each against its page client after the SR-5..SR-11 pages merge** (key is the parsed
+  request, so param order cannot miss; an extra param such as `known_at` or `date` would).
+- `/api/sites/{code}/fuel-balance/nights?from&to` (SR-10k, `fuelBalanceClient.getNights`, sent by the Fuel subtab of
+  every mini-grid Site): **not a stored route** (`fuel_balance_api.py` serves it live), so it cannot be warmed; it is
+  timed under `unstored` for the presets and story ranges (D-WARM.2), never gated.
+- Size: on the test Sites (`--today 2026-11-17`) the plan grows from 823 to 1481 stored requests (+658, ~+80%):
+  expect the warm's wall time to grow about as much. Not measured on the demo DB (no DB in this unit).
+- Risk for the gate: `claim-limit-range` answers 409 `PERFORMANCE_CUTOVER_CLOSED` (not stored) where the one-day
+  Performance gate is closed; a Site with it closed would fail `--verify`. Check KISIWA-001 on the first VPS warm.
+- Tests (no DB): `backend/tests/test_warm1_ranges.py` 22 passed (per-range count 18 -> 32; unstored count + nights;
+  new `test_fuel_nights_url_equals_the_frontend_request`); mutation (drop `backup-range`) -> 1 failed, reverted.
+  `frontend/src/estate/__tests__/warmUrls.test.ts` 2 passed (nights URL from the real client, same literal).
