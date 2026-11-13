@@ -153,12 +153,15 @@ describe("SR-2b old date= links on Renewable and Service read the same day as da
   });
 });
 
-describe("SR-4b Kobo/Kisiwa with a range and no day read the range's last day, never today", () => {
+describe("SR-5b Kobo/Kisiwa Overview with a range and no day read the range (range-overview), never one day", () => {
+  // Replaces SR-4b's `overview?date=<range.to>` pins (rev 9 §9.4 "sr2RequestUrls.test.tsx pins"). The range's
+  // instants are the bar's (`rangeParams`), so the warmed stored response matches.
   const RANGED = "from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z"; // 2-8 Nov
+  const RANGE_READ = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z";
   // Dispatch (`windows/<range.to>`) sits behind the analytics and cutover reads; its pin is in performanceDispatch.test.
   it.each([
-    ["Kobo board", "/sites/KOBO-001", "KOBO-001", ["/api/sites/KOBO-001/overview?date=2026-11-08"]],
-    ["Kisiwa board", "/sites/KISIWA-001", "KISIWA-001", ["/api/sites/KISIWA-001/overview?date=2026-11-08"]],
+    ["Kobo board", "/sites/KOBO-001", "KOBO-001", [`/api/sites/KOBO-001/range-overview?${RANGE_READ}`]],
+    ["Kisiwa board", "/sites/KISIWA-001", "KISIWA-001", [`/api/sites/KISIWA-001/range-overview?${RANGE_READ}`]],
   ])("%s", async (_label, path, code, expected) => {
     const got = await siteRequestsAt(`${path}?${RANGED}`, as(HYBRID_MINI_GRID_SITE, code));
     expect(got.filter((u) => u.includes("/overview"))).toEqual(expected);

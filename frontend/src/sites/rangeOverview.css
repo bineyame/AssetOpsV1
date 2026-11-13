@@ -1,0 +1,25 @@
+/*
+ * SR-5b: the range Overview's day strip and day table (tokens only). Tones: amber findings, green checked, blue system
+ * work (still processing, not analysed yet), gray a data gap, none before readings began.
+ */
+.range-days { display: grid; gap: 12px; }
+.range-strip { display: grid; gap: 4px; }
+.range-strip__row { display: flex; flex-wrap: wrap; gap: 4px; }
+.range-strip__cell {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 32px; height: 28px; padding: 0 6px; border-radius: 6px;
+  font-size: 12px; font-weight: 600; text-decoration: none;
+  border: 1px solid var(--status-neutral-border);
+}
+.range-strip__cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.range-strip__cell.tone-amber { background: var(--status-amber-bg); color: var(--status-amber-text); border-color: var(--status-amber-border); }
+.range-strip__cell.tone-green { background: var(--status-green-bg); color: var(--status-green-text); border-color: var(--status-green-border); }
+.range-strip__cell.tone-blue { background: var(--accent-weak); color: var(--accent); }
+.range-strip__cell.tone-gray { background: var(--status-neutral-bg); color: var(--status-neutral-text); }
+.range-strip__cell.tone-none { background: var(--surface-raised); color: var(--text-secondary); border-style: dashed; }
+.range-days__table { width: 100%; }
+.range-state { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; background: var(--status-neutral-text); }
+.range-state.tone-amber { background: var(--status-amber-text); }
+.range-state.tone-green { background: var(--status-green-text); }
+.range-state.tone-blue { background: var(--accent); }
+.range-state.tone-none { background: transparent; border: 1px dashed var(--status-neutral-text); }
