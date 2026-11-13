@@ -1716,9 +1716,10 @@ class Demo:
         log = open(logs / f"api-{port}.log", "w", encoding="utf-8")
         api = subprocess.Popen([str(PY), "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", str(port)],
                                cwd=str(self.tree / "host"), env={**self.serve_env(), **upload_env}, stdout=log,
-                               stderr=subprocess.STDOUT)
+                               stderr=subprocess.STDOUT,
+                               start_new_session=(os.name == "posix"))  # `_kill_tree(api)` must not reach serve
         try:
-            self._serve_api(api, log, port, web)
+            self._serve_api(api, log, port, web, warm)
         finally:
             for helper in helpers:
                 if helper.poll() is None:
@@ -1770,7 +1771,7 @@ class Demo:
         if done.returncode != 0:
             raise SystemExit(done.returncode)
 
-    def _serve_api(self, api: subprocess.Popen, log: Any, port: int, web: int) -> None:
+    def _serve_api(self, api: subprocess.Popen, log: Any, port: int, web: int, warm: bool = True) -> None:
         import urllib.request
 
         for _ in range(240):
