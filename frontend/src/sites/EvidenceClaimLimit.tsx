@@ -18,7 +18,7 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
 
@@ -26,6 +26,10 @@ import { ChartNote, currentnessWords, readResultWords, DataTable, Disclosure, Fa
 import { PeriodStrip, type StripTone } from "./periodStrip";
 import { isDay } from "./dispatchWords";
 import { formatDay } from "../ui/time";
+import { rangeWindow, readSharedRange } from "../ui/sharedRange";
+import { ClaimLimitRange } from "./ClaimLimitRange";
+import { BackToRange } from "./SiteRangeParts";
+import type { RangeWindowQuery, SiteRangeClient } from "./siteRangeClient";
 import type {
   AssessedDay,
   AssessedPeriod,
@@ -260,13 +264,23 @@ export interface EvidenceClaimLimitProps {
    * advanced row) receives the content through a portal, without a disclosure wrapper; null renders it nowhere yet.
    */
   detailTarget?: HTMLElement | null;
+  /** SR-7b: the claim-limit range read (defaults to the real client). */
+  rangeClient?: SiteRangeClient;
 }
 
-export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarget, detailTarget }: EvidenceClaimLimitProps) {
+/** SR-7b (D-SR.25): with no `day`, a valid address range shows the claim limit day by day. */
+function claimRangeOf(params: URLSearchParams): RangeWindowQuery | null {
+  const state = readSharedRange(params);
+  return state.status === "set" ? { ...rangeWindow(state), known_at: state.known_at } : null;
+}
+
+export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarget, detailTarget, rangeClient }: EvidenceClaimLimitProps) {
   const [params] = useSearchParams();
+  const { pathname } = useLocation();
   const rawDay = params.get("day");
   const day = isDay(rawDay) ? rawDay : null;
   const revision = params.get("revision");
+  const range = day === null ? claimRangeOf(params) : null;
   const [read, setRead] = useState<ClaimLimitResult<ClaimLimitRead> | null>(null);
   // When a refused or unread answer arrived: the only instant such an answer has (it bounds the refusal, not any data).
   const [answeredAt, setAnsweredAt] = useState<string | null>(null);
@@ -333,7 +347,10 @@ export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarg
         id={CLAIM_LIMIT_HEADING_ID}
       >
         {chooserTarget === undefined ? chooser : chooserTarget === null ? null : createPortal(chooser, chooserTarget)}
+        {day === null ? null : <BackToRange path={pathname} drop={["revision"]} />}
         <Body
+          range={range}
+          rangeClient={rangeClient}
           siteId={siteId}
           client={client}
           day={day}
@@ -440,6 +457,8 @@ function AssessedPeriods({
 }
 
 function Body({
+  range,
+  rangeClient,
   siteId,
   client,
   day,
@@ -451,6 +470,8 @@ function Body({
   periods,
   detailTarget,
 }: {
+  range: RangeWindowQuery | null;
+  rangeClient?: SiteRangeClient;
   detailTarget?: HTMLElement | null;
   siteId: string;
   answeredAt: string | null;
@@ -462,6 +483,9 @@ function Body({
   assessmentHref?: (day: string, revisionId: string) => string;
   periods: AssessedPeriodItem[];
 }) {
+  if (day === null && range !== null) {
+    return <ClaimLimitRange siteCode={siteId} window={range} client={rangeClient} />;
+  }
   if (day === null) {
     return (
       <p className="claim-limit__result" data-claim-limit-state="no-day" data-currentness="UNASSESSED">

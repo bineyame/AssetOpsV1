@@ -18,7 +18,7 @@ import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import { summary } from "./s5WindowFixtures";
 import { MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_RENEWABLE_DAYS, MINI_REVERSED_WINDOW } from "../../sites/MiniPerformance";
-import { localDateOf, localDaysWindow, localHourWindow } from "../../sites/miniDepthClient";
+import { localDaysWindow } from "../../sites/miniDepthClient";
 import { presetRange, rangeParams } from "../../ui/sharedRange";
 
 let urls: string[] = [];
@@ -222,7 +222,6 @@ describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send
     `/api/sites/KOBO-001/performance/mini/${page}?${new URLSearchParams(w).toString()}`;
   it.each([
     ["renewable", mini("renewable", localDaysWindow(tz, yesterday.from, 1))],
-    ["service", mini("service", localHourWindow(tz, localDateOf(tz, Date.parse(`${yesterday.to}T00:00:00Z`)), 12))],
   ])("%s", async (page, expected) => {
     vi.stubGlobal(
       "fetch",
@@ -247,5 +246,24 @@ describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send
       expect(screen.queryByText(copy)).toBeNull();
     }
     view.unmount();
+  });
+});
+
+describe("SR-7 / SR-11: Service and Backup over a range send one range read with the range's instants", () => {
+  // Rev 10 §10.3 / 10b.3: a range without an hour reads `service-range` / `backup-range` (was SR-4 H-1's Service hour
+  // under "Yesterday"); Site Evidence's claim-limit section with no day reads `claim-limit-range`. No hour read is sent.
+  const site = as(HYBRID_MINI_GRID_SITE, "KOBO-001");
+  const yesterday = presetRange("yesterday");
+  const Y = rangeParams({ ...yesterday, known_at: null }).toString();
+  const W = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z";
+  const K = "known_at=2026-11-09T06%3A00%3A00Z";
+  it.each([
+    ["Service, Yesterday", `/sites/KOBO-001/performance/service?${Y}`, `/api/sites/KOBO-001/service-range?${Y}`],
+    ["Service, 7 days at a cutoff", `/sites/KOBO-001/performance/service?${W}&${K}`, `/api/sites/KOBO-001/service-range?${W}&${K}`],
+  ])("%s", async (_label, path, expected) => {
+    const code = path.split("/")[2];
+    const got = await siteRequestsAt(path, code === "KOBO-001" ? site : as(HYBRID_MINI_GRID_SITE, code));
+    expect(got.filter((u) => u.includes("-range?"))).toEqual([expected]);
+    expect(got.filter((u) => /\/performance\/mini\/(service|backup)\?/.test(u))).toEqual([]);
   });
 });
