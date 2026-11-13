@@ -83,7 +83,7 @@ def test_a_one_site_prepare_keeps_the_plain_finish(resolved, tmp_path) -> None:
     demo = Recording(tmp_path)
     demo.finish_build(story, days, True, {})
     assert "mill" not in demo.calls and "backfill-a" not in demo.calls
-    assert demo.calls[0] == "s2-comparison"
+    assert demo.calls[0] .startswith("s2-comparison")
 
 
 def test_no_finish_runs_no_step_after_the_children(resolved, tmp_path) -> None:

@@ -210,6 +210,23 @@ describe("Site Evidence from the central ledger: analysis", () => {
     expect(document.body.textContent).not.toMatch(/healthy|dispatch/i);
   });
 
+  it("SR-12a: the refused-readings list reads the date range and says so", async () => {
+    const client = ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE });
+    const calls: unknown[][] = [];
+    const ledger = client.ledger!;
+    const list = ledger.listRejections.bind(ledger);
+    ledger.listRejections = (...args: Parameters<typeof ledger.listRejections>) => {
+      calls.push(args);
+      return list(...args);
+    };
+    renderAt(`${ANALYSIS_URL}&from=2026-09-22T00%3A00%3A00Z&to=2026-09-23T00%3A00%3A00Z`, client);
+    await settledScreen();
+    expect(calls).toContainEqual([SITE_ID, null, { from: "2026-09-22T00:00:00Z", to: "2026-09-23T00:00:00Z" }]);
+    const heading = document.getElementById("site-evidence-rejected-table-heading");
+    expect(heading?.textContent).toBe("Readings not accepted (from this date range)");
+    expect(heading?.getAttribute("data-panel-range")).toBe("range");
+  });
+
   it("names the clocks and lists refused readings, including those with no readable time", async () => {
     renderAt(ANALYSIS_URL, ledgerClient({ status: "loaded", value: LEDGER_EVIDENCE }));
     await settledScreen();
@@ -227,7 +244,7 @@ describe("Site Evidence from the central ledger: analysis", () => {
       expect(th.textContent).not.toMatch(/ \/ | · |_/);
       expect(th.getAttribute("title")).toMatch(/ · .+ \/ /);
     }
-    expect(document.querySelector("[data-evidence-rejection]")?.textContent).toMatch(/No readable time/);
+    expect(document.querySelector("[data-evidence-rejection]")?.textContent).toMatch(/No reading time; received in this date range/);
     expect(document.querySelector("[data-evidence-delivery='batch-0001']")?.getAttribute("data-delivery-partial")).toBe("false");
   });
 

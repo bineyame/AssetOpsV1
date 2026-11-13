@@ -211,6 +211,24 @@ describe("SR-10k the Kisiwa Fuel tab reads the range's fuel-check nights", () =>
   });
 });
 
+describe("SR-6b mini-grid Health with a range reads health-range over the range's instants", () => {
+  it("the range page and its one-day drill-in", async () => {
+    const range = "from=2026-10-25T00:00:00Z&to=2026-11-01T00:00:00Z";
+    // Sorted: the point-in-time battery and source-health reads stay, beside the one range read.
+    expect(await siteRequestsAt(`/sites/KOBO-001/health?${range}`, as(HYBRID_MINI_GRID_SITE, "KOBO-001"))).toEqual([
+      "/api/sites/KOBO-001/battery",
+      "/api/sites/KOBO-001/health-range?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+      "/api/sites/KOBO-001/source-health",
+    ]);
+    urls = [];
+    expect(await siteRequestsAt(`/sites/KOBO-001/health?${range}&day=2026-10-28`, as(HYBRID_MINI_GRID_SITE, "KOBO-001"))).toEqual([
+      "/api/sites/KOBO-001/battery",
+      "/api/sites/KOBO-001/health-range?from=2026-10-28T00%3A00%3A00Z&to=2026-10-29T00%3A00%3A00Z",
+      "/api/sites/KOBO-001/source-health",
+    ]);
+  });
+});
+
 describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send Site-local bounds and show no refusal", () => {
   // The stub refuses (INVALID_WINDOW, like `hour_windows`) every mini read except the pinned Site-local window, so a
   // client that sends the raw UTC day gets the refusal on screen and a different URL.
