@@ -48,6 +48,7 @@ import type { SiteOverviewReadModel } from "../../sites/siteOverviewClient";
 import { expectV69Panels } from "../../test/panelStructure";
 import { SITE_SCREEN_DESCRIPTIONS } from "../../ui";
 import { settledScreen } from "../../test/settled";
+import type { RangeOverviewClient } from "../../sites/rangeOverviewClient";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = {
@@ -70,6 +71,16 @@ function Location() {
   );
 }
 
+/**
+ * SR-5b (D-SR.9, D-SR.11): a MINIGRID Overview with a range and no `day` now shows the range view. These cases pin
+ * the one-day board's own behaviour, so the range read answers 404 (a Site it does not know) and the switch keeps the
+ * one-day page, as in `s5SiteWindowOverview.test.tsx`. The range view and the drill-in are pinned in
+ * `sites/__tests__/siteRangeOverview.test.tsx`.
+ */
+const ONE_DAY_FALLBACK: RangeOverviewClient = {
+  getRangeOverview: () => Promise.resolve({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }),
+};
+
 function renderAt(
   path: string,
   options: { analytics?: SiteAnalyticsClient; overview?: SiteOverviewReadModel } = {},
@@ -87,6 +98,7 @@ function renderAt(
           value: options.overview ?? populatedOverview(SITE_ID),
         })}
         siteAnalytics={options.analytics ?? analyticsClient(SITE_ID)}
+        rangeOverview={ONE_DAY_FALLBACK}
       />
       <Location />
     </MemoryRouter>,
