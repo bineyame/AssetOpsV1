@@ -170,9 +170,18 @@
 .estate-portfolio .value-grid.oc-pfgrid{grid-template-columns:repeat(4,minmax(0,1fr))}
 .estate-portfolio .oc-pfcard .value-number{font-size:var(--font-size-600)}
 .estate-portfolio .value-label .oc-cat{width:26px;height:26px;padding:var(--space-1)}
-.estate-portfolio .oc-pfcard .oc-pfdef{font-size:var(--font-size-100);color:var(--text-secondary);line-height:1.45;margin:2px 0 var(--space-1)}
-.estate-portfolio .oc-pfcard .oc-sitedots{display:flex;flex-wrap:wrap;gap:var(--space-1) var(--space-2);margin:0 0 var(--space-2);font-size:var(--font-size-100);color:var(--text-secondary)}
-.estate-portfolio .oc-pfcard .oc-sitedots:empty{display:none}
+/* UQ-FI-3 (v7.2 sheet "Outcome card", portfolio-hifi .kpi): label + "Why?" on one line, one figure at --text-figure
+   (D-UQFI.7: this card only), one sentence, the basis line. */
+.estate-portfolio .oc-pftop{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)}
+.estate-portfolio .oc-pftop .value-label{min-width:0}
+.estate-portfolio .oc-pfcard .value-number.oc-pffig{font-size:var(--text-figure);line-height:var(--leading-figure);letter-spacing:-.02em;margin:var(--space-2) 0 var(--space-1)}
+.estate-portfolio .oc-pfcard .value-number.oc-pffig small{font-size:var(--font-size-300);font-weight:500;color:var(--text-secondary);margin-left:6px;letter-spacing:0}
+.estate-portfolio .oc-pfcard p.oc-pfsent{font-size:var(--font-size-200);color:var(--text-secondary);margin:0 0 var(--space-3)}
+.oc-pfwhy{display:flex;flex-direction:column;gap:var(--space-2)}
+.oc-pfwhy .oc-pfdef{color:var(--text-secondary);line-height:1.45}
+.oc-pfwhy .oc-sitedots{display:flex;flex-direction:column;gap:var(--space-1);color:var(--text-primary)}
+.oc-pfwhy .oc-sitedots span[data-portfolio-dot]{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)}
+.oc-pfwhy .oc-sitedots:empty{display:none}
 @media screen and (max-width:1200px){.estate-portfolio .value-grid.oc-pfgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* COV-PARTIAL (MOCK DEVIATION R620): the partly checked Site note in the context row; wraps with the row. */
 .estate-portfolio .portfolio-context .portfolio-partial{color:#916220;min-width:0;overflow-wrap:anywhere}

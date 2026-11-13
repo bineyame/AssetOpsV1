@@ -232,6 +232,33 @@
 
   /* Layout ---------------------------------------------------------------- */
   --rail-width: 13.5rem;
+
+  /* UQ-FI-3 (D-UQFI.7): the one-figure Portfolio outcome card's figure, the v7.2
+     sheet's --text-figure (30 / 38). One token; nothing else uses it. */
+  --text-figure: var(--font-size-800);
+  --leading-figure: 2.375rem;
+
+  /* UQ-FI-3: the v7.2 sheet's status chip colours (light theme only), from the
+     sheet's primitive palette. Used by ui/StatusPill only. */
+  --color-status-complete-bg: #e5f5ed;
+  --color-status-complete-text: #166b50;
+  --color-status-complete-border: #a9dcc4;
+  --color-status-partial-bg: #fff4e0;
+  --color-status-partial-text: #8a5a00;
+  --color-status-partial-border: #f0d08a;
+  --color-status-noreadings-bg: #e9eef5;
+  --color-status-noreadings-text: #4b5870;
+  --color-status-noreadings-border: #c2ccd9;
+  --color-status-notanalysed-bg: #ffffff;
+  --color-status-notanalysed-text: #4b5870;
+  --color-status-notanalysed-border: #7f8ba1;
+  --color-status-neutral-bg: #e9eef5;
+  --color-status-neutral-text: #4b5870;
+  --color-status-neutral-border: #d9e0ea;
+  --color-status-accent-bg: #eef3ff;
+  --color-status-accent-text: #1d4ed8;
+  --color-status-accent-border: #dce6ff;
+  --chip-height: 24px;
 }
 
 /* The mock narrows the tab gap below 1100px. */

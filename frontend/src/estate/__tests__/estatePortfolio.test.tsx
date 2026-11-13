@@ -60,6 +60,18 @@ const ranged = (href: string, q: string = RANGE) => `${href}${href.includes("?")
 const tabEntry = (segment: string) => ENTRY.replace("/portfolio?", `/portfolio/${segment}?`);
 const ACT = tabEntry("act-first");
 
+const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
+const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
+const readSrc = (rel: string) => NODE_FS.readFileSync(`${CWD}/src/${rel}`, "utf8");
+
+/** UQ-FI-3: open a Portfolio card's "Why?" (closing any open one) and return the card's qualifiers behind it. */
+function whyOf(key: string): HTMLElement {
+  const close = document.querySelector("[data-why-dialog] .why-close") as HTMLElement | null;
+  if (close) fireEvent.click(close);
+  fireEvent.click(document.querySelector(`[data-portfolio-card='${key}'] [data-why-button]`) as HTMLElement);
+  return document.querySelector(`[data-portfolio-card-why='${key}']`) as HTMLElement;
+}
+
 function Where() {
   const location = useLocation();
   return <output data-testid="where">{`${location.pathname}${location.search}`}</output>;
@@ -98,10 +110,10 @@ const panel = (title: string) => {
   return panelTitled(title);
 };
 const text = (el: Element | null) => (el?.textContent ?? "").replace(/\s+/g, " ").trim();
-/** Leaf-element texts joined by one space (a cell's stacked lines). */
+/** Leaf-element texts joined by one space (a cell's stacked lines); a symbol (svg) does not make a line. */
 const lines = (el: Element) =>
   Array.from(el.querySelectorAll("*"))
-    .filter((e) => e.children.length === 0)
+    .filter((e) => e.closest("svg") === null && Array.from(e.children).every((c) => c.tagName.toLowerCase() === "svg"))
     .map(text)
     .join(" ");
 
@@ -285,13 +297,14 @@ describe("estate Portfolio page", () => {
     // A Site whose board read failed: Unknown, no lead outcome line.
     expect(lines(cell("EV-LAB-002", "PROTECT_ASSET"))).toBe("Unknown");
     expect(cell("EV-LAB-002", "PROTECT_ASSET").querySelector("small")).toBeNull();
-    expect(Array.from(outcomes.querySelectorAll("[data-portfolio-outcome-key] > span")).map((k) => [text(k), k.querySelector("i")?.className])).toEqual([
-      ["Needs attention", "tone-amber"],
-      ["Watch", "tone-blue"],
-      ["Opportunity", "tone-green"],
-      ["On track", "tone-green"],
-      ["Unknown", "tone-gray"],
-      ["Not measured yet", "tone-none"],
+    expect(Array.from(outcomes.querySelectorAll("[data-portfolio-outcome-key] > span")).map((k) => [text(k), k.getAttribute("data-status-pill")])).toEqual([
+      // UQ-FI-3: each key entry is the state's StatusPill, the same look as the cells.
+      ["Needs attention", "NEEDS_ATTENTION"],
+      ["Watch", "WATCH"],
+      ["Opportunity", "OPPORTUNITY"],
+      ["On track", "ON_TRACK"],
+      ["Unknown", "UNKNOWN"],
+      ["Not measured yet", "NOT_MEASURED"],
     ]);
     // The old objectives wire is not rendered, and no outcome code reaches the screen.
     expect(outcomes.querySelectorAll("[data-portfolio-cell], [data-portfolio-objective]")).toHaveLength(0);
@@ -312,8 +325,9 @@ describe("estate Portfolio page", () => {
     const matrix = screen.getByRole("table", { name: "Outcomes across the estate" }).cloneNode(true) as HTMLElement;
     showTab("Overview");
     for (const cat of ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
-      const dots = Array.from(document.querySelectorAll(`[data-portfolio-card-dots='${cat}'] > span`));
-      expect(dots.map((d) => text(d))).toEqual(["Kobo: ", "GreenHarvest: ", "Depot: ", "Harbour: "].map((n, i) => n + text(matrix.querySelectorAll(`[data-portfolio-outcome-row='${cat}'] [data-portfolio-outcome-cell] b`)[i]).replace("No objective declared", "No target for this outcome")));
+      // UQ-FI-3: the per-Site states sit behind the card's "Why?", each a StatusPill like the matrix cell's.
+      const dots = Array.from(whyOf(cat).querySelectorAll(`[data-portfolio-card-dots='${cat}'] > span`));
+      expect(dots.map((d) => text(d))).toEqual(["Kobo: ", "GreenHarvest: ", "Depot: ", "Harbour: "].map((n, i) => n + text(matrix.querySelectorAll(`[data-portfolio-outcome-row='${cat}'] [data-portfolio-outcome-cell] [data-status-pill]`)[i]).replace("No objective declared", "No target for this outcome")));
       // Each dot's tone is the matrix cell's tone for the same Site.
       for (const d of dots) {
         const [code, tone] = (d.getAttribute("data-portfolio-dot") ?? "").split("|");
@@ -321,7 +335,7 @@ describe("estate Portfolio page", () => {
         expect(matrix.querySelector(`[data-portfolio-outcome-cell='${code}|${cat}|${tone}']`)).not.toBeNull();
       }
     }
-    const kobo = document.querySelector("[data-portfolio-card-dots='OPTIMIZE_COST'] > span") as HTMLElement;
+    const kobo = whyOf("OPTIMIZE_COST").querySelector("[data-portfolio-card-dots='OPTIMIZE_COST'] > span") as HTMLElement;
     expect(kobo.getAttribute("title")).toBe("Kobo: Needs attention");
     // CH-6b2: the Grow value is the server card's text and small, joined only as markup; the tone is the server's.
     const grow = document.querySelector("[data-portfolio-card='GROW_REVENUE']") as HTMLElement;
@@ -1287,7 +1301,7 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       cards.map((c) => [
         c.getAttribute("data-portfolio-card"),
         text(c.querySelector("[data-portfolio-card-name]")),
-        text(c.querySelector("[data-portfolio-card-definition]")),
+        text(whyOf(c.getAttribute("data-portfolio-card") ?? "").querySelector("[data-portfolio-card-definition]")),
         c.querySelector("svg[role='img']")?.getAttribute("aria-label"),
       ]),
     ).toEqual([
@@ -1347,6 +1361,51 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
       expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent ?? null).toBe(small);
       view.unmount();
     }
+  });
+
+  it("uqfi3OneFigureOneSentenceTheBasisAndTheQualifiersBehindWhy", async () => {
+    // UQ-FI-3 (rev 7, 7.2; v7.2 sheet "Outcome card"): a card shows one figure, one sentence and the basis line; every
+    // other server line is behind its "Why?", none lost and none added.
+    const cards = serverCards({
+      GROW_REVENUE: serverCard({
+        value: { text: "4.20 USD", small: "estimated" },
+        detail: "Depot 4.20 USD · each site's latest assessed period",
+        basis_text: "Declared price × measured kWh · not billed or collected",
+        days_line: "Kobo: Complete readings on 5 of 7 days",
+        parts: { target: "Not declared", potential: "18–20 kW unused", income: "4.20 USD estimated", income_note: "Not billed or collected" },
+      }),
+      PROTECT_ASSET: PROTECT_WITH_FUEL,
+      ASSURE_PERFORMANCE: ASSURE_WITH_VALUES,
+    });
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ cards }) }));
+    await settledScreen();
+    const hooks = (root: Element) =>
+      [...new Set([...root.querySelectorAll("*")].flatMap((n) => [...n.attributes].map((a) => a.name)).filter((a) => a.startsWith("data-portfolio-")))].sort();
+    const onCard = ["data-portfolio-card-basis", "data-portfolio-card-detail", "data-portfolio-card-link", "data-portfolio-card-name", "data-portfolio-card-value"];
+    const behind: Record<string, string[]> = {
+      GROW_REVENUE: ["data-portfolio-card-days", "data-portfolio-card-definition", "data-portfolio-card-dots", "data-portfolio-dot", "data-portfolio-grow-note", "data-portfolio-grow-part", "data-portfolio-grow-parts"],
+      OPTIMIZE_COST: ["data-portfolio-card-definition", "data-portfolio-card-dots", "data-portfolio-dot"],
+      PROTECT_ASSET: ["data-portfolio-card-definition", "data-portfolio-card-dots", "data-portfolio-card-fuel-line", "data-portfolio-card-fuel-note", "data-portfolio-dot"],
+      ASSURE_PERFORMANCE: ["data-portfolio-card-definition", "data-portfolio-card-dots", "data-portfolio-card-value-line", "data-portfolio-card-value-note", "data-portfolio-dot"],
+    };
+    for (const key of Object.keys(behind)) {
+      const c = card(key);
+      expect(c.querySelectorAll("[data-portfolio-card-value]")).toHaveLength(1);
+      expect(c.querySelector("[data-portfolio-card-value]")?.classList.contains("oc-pffig")).toBe(true);
+      expect(c.querySelectorAll("[data-why-button]")).toHaveLength(1);
+      expect(hooks(c)).toEqual(onCard);
+      const why = whyOf(key);
+      expect(hooks(why)).toEqual(behind[key]);
+      expect(why.querySelectorAll("[data-portfolio-dot] [data-status-pill]")).toHaveLength(4);
+    }
+    // The Why? lines are the server's, verbatim.
+    expect([...whyOf("PROTECT_ASSET").querySelectorAll("[data-portfolio-card-fuel-line]")].map((n) => n.textContent)).toEqual(PROTECT_WITH_FUEL.fuel_lines);
+    expect([...whyOf("ASSURE_PERFORMANCE").querySelectorAll("[data-portfolio-card-value-line]")].map((n) => n.textContent)).toEqual(ASSURE_WITH_VALUES.value_lines);
+    expect(text(whyOf("GROW_REVENUE").querySelector("[data-portfolio-card-days]"))).toBe("Different days: Kobo: Complete readings on 5 of 7 days");
+    // D-UQFI.7: the card figure is the one --text-figure (30 px) element.
+    const css = readSrc("estate/estatePortfolio.css");
+    expect(css).toMatch(/\.oc-pfcard \.value-number\.oc-pffig\{font-size:var\(--text-figure\)/);
+    expect(readSrc("ui/tokens.css")).toContain("--text-figure: var(--font-size-800);");
   });
 
   it("optimizeValueIsTheServerCardNotTheBodyMoneyLine", async () => {
@@ -1696,8 +1755,8 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     const { page, answer } = serverBody(...args);
     return renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(page)), answer));
   };
-  const dayText = (key: string) => text(card(key).querySelector("[data-portfolio-card-days]"));
-  const noteText = (key: string) => text(card(key).querySelector("[data-portfolio-card-note]"));
+  const dayText = (key: string) => text(whyOf(key).querySelector("[data-portfolio-card-days]"));
+  const noteText = (key: string) => text(whyOf(key).querySelector("[data-portfolio-card-note]"));
 
   it("serverTextsRenderVerbatimOnCheckedDaysOneSite", async () => {
     const clause = "Kobo: Complete readings on 5 of 7 days";
@@ -1721,16 +1780,16 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")?.textContent).toBe("on days with complete readings");
     expect(card("PROTECT_ASSET").className).toContain("neutral");
     expect(dayText("PROTECT_ASSET")).toBe(`Different days: ${clause}`);   // PF-C2: the exception label
-    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")?.className).toContain("oc-pfdays");
+    expect(whyOf("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")?.className).toContain("oc-pfdays");
     // CH6b2-R Q1: the Portfolio-body clause is its own line; the detail is the server's detail, not joined with it.
     expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
     expect(detail("PROTECT_ASSET")).not.toContain("not shown yet");
     expect(detail("ASSURE_PERFORMANCE")).toBe("No verified result yet · no targets declared · no evidence gaps on the days assessed");
-    expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-note]")).toBeNull();
+    expect(whyOf("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-note]")).toBeNull();
     // CH5d1-R: Optimize is the server cost card; a stored consequence has no days line, and no body note.
     expect(detail("OPTIMIZE_COST")).toBe("At Kobo · not added across sites");
-    expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-days]")).toBeNull();
-    expect(card("OPTIMIZE_COST").querySelector("[data-portfolio-card-note]")).toBeNull();
+    expect(whyOf("OPTIMIZE_COST").querySelector("[data-portfolio-card-days]")).toBeNull();
+    expect(whyOf("OPTIMIZE_COST").querySelector("[data-portfolio-card-note]")).toBeNull();
     // The pulse strip keeps its own (non-card) checked-days wording.
     expect(pulse()).toContain("0 opportunities");
     expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");
@@ -1771,8 +1830,8 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     renderServer({ PROTECT_ASSET: serverCard({ value: { text: "No sites disrupted", small: null } }) }, {}, { count_basis: "COMPLETE", checked_days: [kobo] });
     await settledScreen();
     expect(value("PROTECT_ASSET")).toBe("No sites disrupted");
-    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")).toBeNull();
-    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-note]")).toBeNull();
+    expect(whyOf("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")).toBeNull();
+    expect(whyOf("PROTECT_ASSET").querySelector("[data-portfolio-card-note]")).toBeNull();
     expect(pulse()).toContain("0 opportunities");
   });
 
@@ -1780,19 +1839,21 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     // PV-1-R §2/§4: one server line per verified result (never a total), then the card's clause, then the body note.
     renderServer({ ASSURE_PERFORMANCE: ASSURE_WITH_VALUES }, { ASSURE_PERFORMANCE: "evidence gap at 1 site" });
     await settledScreen();
-    const assure = card("ASSURE_PERFORMANCE");
+    // UQ-FI-3: the detail is the card's one sentence; the value lines, their note and the body note sit behind "Why?".
+    expect(detail("ASSURE_PERFORMANCE")).toBe(ASSURE_WITH_VALUES.detail);
+    const assure = whyOf("ASSURE_PERFORMANCE");
     const lines = [...assure.querySelectorAll("[data-portfolio-card-value-line]")];
     expect(lines.map((n) => n.textContent)).toEqual(ASSURE_WITH_VALUES.value_lines);
     expect(lines.every((n) => n.className === "oc-pfnote")).toBe(true);
     expect(text(assure.querySelector("[data-portfolio-card-value-note]"))).toBe(ASSURE_WITH_VALUES.value_note);
-    expect(noteText("ASSURE_PERFORMANCE")).toBe("evidence gap at 1 site");
-    // Render order: detail, value lines, value note, body note.
+    expect(text(assure.querySelector("[data-portfolio-card-note]"))).toBe("evidence gap at 1 site");
+    // Render order behind "Why?": value lines, value note, body note.
     const order = [...assure.querySelectorAll("[data-portfolio-card-detail], [data-portfolio-card-value-line], [data-portfolio-card-value-note], [data-portfolio-card-note]")]
       .map((n) => [...n.attributes].map((a) => a.name).find((a) => a.startsWith("data-portfolio-card-")));
-    expect(order).toEqual(["data-portfolio-card-detail", "data-portfolio-card-value-line", "data-portfolio-card-value-line", "data-portfolio-card-value-note", "data-portfolio-card-note"]);
+    expect(order).toEqual(["data-portfolio-card-value-line", "data-portfolio-card-value-line", "data-portfolio-card-value-note", "data-portfolio-card-note"]);
     // No other card carries value lines.
     for (const key of ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET"]) {
-      expect(card(key).querySelector("[data-portfolio-card-value-line], [data-portfolio-card-value-note]")).toBeNull();
+      expect(whyOf(key).querySelector("[data-portfolio-card-value-line], [data-portfolio-card-value-note]")).toBeNull();
     }
     expect(scanCards()).toBe("");
   });
@@ -1801,16 +1862,18 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     // DIESEL-1-R3j: one server line per unexplained-fuel Finding (never a total), then its clause.
     renderServer({ PROTECT_ASSET: PROTECT_WITH_FUEL });
     await settledScreen();
-    const protect = card("PROTECT_ASSET");
+    // UQ-FI-3: the detail is the card's one sentence; the fuel lines and their clause sit behind "Why?".
+    expect(detail("PROTECT_ASSET")).toBe(PROTECT_WITH_FUEL.detail);
+    const protect = whyOf("PROTECT_ASSET");
     const lines = [...protect.querySelectorAll("[data-portfolio-card-fuel-line]")];
     expect(lines.map((n) => n.textContent)).toEqual(PROTECT_WITH_FUEL.fuel_lines);
     expect(lines.every((n) => n.className === "oc-pfnote")).toBe(true);
     expect(text(protect.querySelector("[data-portfolio-card-fuel-note]"))).toBe(PROTECT_WITH_FUEL.fuel_note);
     const order = [...protect.querySelectorAll("[data-portfolio-card-detail], [data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")]
       .map((n) => [...n.attributes].map((a) => a.name).find((a) => a.startsWith("data-portfolio-card-")));
-    expect(order).toEqual(["data-portfolio-card-detail", "data-portfolio-card-fuel-line", "data-portfolio-card-fuel-line", "data-portfolio-card-fuel-note"]);
+    expect(order).toEqual(["data-portfolio-card-fuel-line", "data-portfolio-card-fuel-line", "data-portfolio-card-fuel-note"]);
     for (const key of ["GROW_REVENUE", "OPTIMIZE_COST", "ASSURE_PERFORMANCE"]) {
-      expect(card(key).querySelector("[data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")).toBeNull();
+      expect(whyOf(key).querySelector("[data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")).toBeNull();
     }
     expect(scanCards()).toBe("");
   });
@@ -1818,13 +1881,13 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
   it("k4bProtectCardWithoutOrWithEmptyKeysRendersNoFuelLine", async () => {
     renderServer({ PROTECT_ASSET: serverCard({ detail: "Service disruptions recorded as findings · loss not priced", fuel_lines: [], fuel_note: null }) });
     await settledScreen();
-    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")).toBeNull();
+    expect(whyOf("PROTECT_ASSET").querySelector("[data-portfolio-card-fuel-line], [data-portfolio-card-fuel-note]")).toBeNull();
   });
 
   it("pv1AssureCardWithoutTheKeysRendersNeitherLinesNorClause", async () => {
     renderServer({ ASSURE_PERFORMANCE: serverCard({ detail: "no targets declared" }) });
     await settledScreen();
-    expect(card("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-value-line], [data-portfolio-card-value-note]")).toBeNull();
+    expect(whyOf("ASSURE_PERFORMANCE").querySelector("[data-portfolio-card-value-line], [data-portfolio-card-value-note]")).toBeNull();
   });
 
   it("notKnownBasisRendersWithoutAnyClauseAndTheServerWordsStand", async () => {
@@ -1836,7 +1899,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     );
     await settledScreen();
     expect(value("PROTECT_ASSET")).toBe("Not assessed");
-    expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-days], [data-portfolio-card-note]")).toBeNull();
+    expect(whyOf("PROTECT_ASSET").querySelector("[data-portfolio-card-days], [data-portfolio-card-note]")).toBeNull();
     expect(document.querySelector("[data-portfolio-cards]")).not.toBeNull();
   });
 
@@ -1877,12 +1940,12 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     // WALK1-6 D4 (R697): the fixture's Kobo Protect row is NO_OBJECTIVE; its card dot reads per outcome.
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody()))));
     await settledScreen();
-    const dot = card("PROTECT_ASSET").querySelector('[data-portfolio-dot^="KOBO-001|"]') as HTMLElement;
+    const dot = whyOf("PROTECT_ASSET").querySelector('[data-portfolio-dot^="KOBO-001|"]') as HTMLElement;
     expect(dot.getAttribute("title")).toBe("Kobo: No target for this outcome");
-    expect(text(dot.querySelector(".oc-hidden"))).toContain("No target for this outcome");
+    expect(text(dot.querySelector("[data-status-pill]"))).toBe("No target for this outcome");
     expect(text(card("PROTECT_ASSET"))).not.toContain("No objective declared");
     // Other states keep the server word.
-    const other = card("PROTECT_ASSET").querySelector('[data-portfolio-dot^="COLD-001|"]') as HTMLElement;
+    const other = whyOf("PROTECT_ASSET").querySelector('[data-portfolio-dot^="COLD-001|"]') as HTMLElement;
     expect(other.getAttribute("title")).toContain(": Needs attention");
   });
 
@@ -1914,7 +1977,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     income_note: null,
     ...over,
   });
-  const part = (name: string) => text(card("GROW_REVENUE").querySelector(`[data-portfolio-grow-part='${name}']`));
+  const part = (name: string) => text(whyOf("GROW_REVENUE").querySelector(`[data-portfolio-grow-part='${name}']`));
 
   it("growOneSiteEstimateRendersTheServerHeadlineAndThreeParts", async () => {
     renderServer({
@@ -1934,7 +1997,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(card("GROW_REVENUE").className).toContain("green");
     expect(card("GROW_REVENUE").querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
     // Mock v70 `pfGrowParts`: Target, Potential, Estimated income (+ its note), all server text.
-    const parts = card("GROW_REVENUE").querySelector("dl.oc-pfgrow") as HTMLElement;
+    const parts = whyOf("GROW_REVENUE").querySelector("dl.oc-pfgrow") as HTMLElement;
     expect(Array.from(parts.querySelectorAll("dt")).map((d) => d.textContent)).toEqual(["Target", "Potential", "Estimated income"]);
     expect(part("target")).toBe("Not declared");
     expect(part("potential")).toBe("18–20 kW unused");
@@ -1955,7 +2018,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(value("GROW_REVENUE")).toBe("2 sites with an estimate");
     expect(detail("GROW_REVENUE")).toBe("Kobo 1.50 USD · Depot 4.20 USD · each site's latest assessed period");
     expect(text(card("GROW_REVENUE"))).not.toContain("5.70");
-    expect(card("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).toBeNull();
+    expect(whyOf("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).toBeNull();
     expect(scanCards()).toBe("");
   });
 
@@ -1970,7 +2033,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
       }),
     });
     await settledScreen();
-    const grow = card("GROW_REVENUE");
+    const grow = whyOf("GROW_REVENUE");
     const dl = grow.querySelector("dl.oc-pfgrow") as HTMLElement;
     expect(Array.from(dl.children).map((row) => row.querySelector("dt")?.textContent)).toEqual([
       "Target",
@@ -1985,13 +2048,14 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     ]);
     expect(grow.querySelector("[data-portfolio-card-days]")?.className).toContain("oc-pfdays");
     expect(grow.querySelector(".oc-chip")).toBeNull();
+    expect(card("GROW_REVENUE").querySelector(".oc-chip")).toBeNull();
   });
 
   it("growIncomeNoteIsOmittedWhenTheServerSendsNone", async () => {
     renderServer({ GROW_REVENUE: serverCard({ value: { text: "18–20 kW", small: "unused" }, parts: growParts() }) });
     await settledScreen();
-    expect(card("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).not.toBeNull();
-    expect(card("GROW_REVENUE").querySelector("dd.oc-pfnote")).toBeNull();
+    expect(whyOf("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).not.toBeNull();
+    expect(whyOf("GROW_REVENUE").querySelector("dd.oc-pfnote")).toBeNull();
   });
 
   it("growMissingKeepsTheGapAndNoPartsAndNoSummaryReadsNotKnown", async () => {
@@ -1999,7 +2063,7 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     await settledScreen();
     expect(value("GROW_REVENUE")).toBe("Not available yet");
     expect(basis("GROW_REVENUE")).toBe("Opportunities · revenue not measured yet");
-    expect(card("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).toBeNull();
+    expect(whyOf("GROW_REVENUE").querySelector("[data-portfolio-grow-parts]")).toBeNull();
     view.unmount();
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
