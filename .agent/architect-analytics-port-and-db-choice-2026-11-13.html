@@ -79,7 +79,7 @@ svg .grid{stroke:var(--line);stroke-width:1}
 <ol>
 <li>The panel that says what each analysis can conclude from the records only works for old file-based Sites. All four demo Sites are stored Sites, so today it shows "not available yet" (SR-12b's honest wording).</li>
 <li>It only applies to the two mini-grids (Kobo, Kisiwa). The cold room and EV hub have no such panel in the mockup.</li>
-<li>Moving it is about <strong>1.3 lane-units</strong> (estimate, range 1.1 to 1.6). It reuses data and checks that already exist. It needs no new data build, so it would not touch the 3-hour demo prepare.</li>
+<li>Moving it is about <strong>1.55 lane-units</strong> (estimate, range 1.3 to 1.9; corrected 14 Nov, D-SR.77). It reuses data and checks that already exist. It needs no new data build, so it would not touch the 3-hour demo prepare.</li>
 <li>It does not fit before the Sat 20:00 freeze without pushing something else out. It could fit if the freeze moves to Sun 20:00, or a lane runs out of work early.</li>
 <li>My advice: put it <strong>first in the deferral list</strong>. Without it the client sees an honest "not available yet" line. With it they see one row ("Generator support": Full or Limited, plus what is missing).</li>
 <li>Database: <strong>stay on PostgreSQL</strong>. AssetOps is a records-and-proof system: evidence, money, audit and assessments must agree with each other at one moment. That is exactly what SQL databases guarantee and NoSQL stores mostly do not.</li>
@@ -187,7 +187,7 @@ svg .grid{stroke:var(--line);stroke-width:1}
 
   <rect class="acc" x="690" y="120" width="190" height="64" rx="10"/>
   <text x="785" y="148" text-anchor="middle" font-weight="600">Same JSON shape</text>
-  <text x="785" y="168" text-anchor="middle" class="mut" font-size="13">no frontend change</text>
+  <text x="785" y="168" text-anchor="middle" class="mut" font-size="13">+ frontend branch fix</text>
 
   <path class="ln" d="M180,175 L226,175" marker-end="url(#ar2)"/>
   <path class="ln" d="M370,165 C400,120 400,52 426,52" marker-end="url(#ar2)"/>
@@ -198,7 +198,7 @@ svg .grid{stroke:var(--line);stroke-width:1}
   <text x="404" y="100" class="mut" font-size="12">legacy</text>
   <text x="380" y="210" class="mut" font-size="12">stored mini-grid</text>
 </svg>
-<figcaption>The port adds one stored branch. The scoring code and the JSON shape do not change, so the panel needs no frontend work.</figcaption>
+<figcaption>The port adds one stored branch. The scoring code and the JSON shape do not change. <strong>Correction (14 Nov, D-SR.77):</strong> the frontend still needs one change. <code>SitePerformance.tsx</code> (and the other <code>/analytics</code> readers: <code>SiteAnalyticsFrames</code>, <code>FindingsIndexes</code>, <code>FindingDetail</code>, <code>SiteEvidenceFrame</code>) treat the 409 as the sign of an imported Site and switch to the stored Dispatch reads. A 200 would send imported Sites down the file-era path. They must branch on the Site's store instead (about +0.25).</figcaption>
 </figure>
 
 <h3>Files and functions</h3>
@@ -242,7 +242,8 @@ svg .grid{stroke:var(--line);stroke-width:1}
 <tr><td>Tests (unit, route, consistency, Postgres, one vitest)</td><td>0.30</td></tr>
 <tr><td>Kobo parity probe on a scratch clone + Kisiwa live read</td><td>0.15</td></tr>
 <tr><td>Fresh review + one small fix round</td><td>0.20</td></tr>
-<tr><th>Total</th><th>about 1.3 (range 1.1 to 1.6)</th></tr>
+<tr><td>Frontend: branch the /analytics readers on the Site's store, not on the 409 (D-SR.77)</td><td>0.25</td></tr>
+<tr><th>Total</th><th>about 1.55 (range 1.3 to 1.9)</th></tr>
 </table></div>
 <p>Dependency: <strong>after SR-12b merges</strong>, because it uses <code>in_window</code> and the same route. No data rebuild, no new period-row kind, no migration. If the read is 2 s or less unwarmed on the VPS it stays unstored (D-WARM.2: measured, not gated). Otherwise it gets one warm entry (+0.05).</p>
 
@@ -413,7 +414,7 @@ svg .grid{stroke:var(--line);stroke-width:1}
 <p>None of these points to a document or wide-column store as the main database.</p>
 
 <h2 id="r">Ruling logged</h2>
-<p><strong>D-SR.75</strong> (appended to <code>.agent/build-sheet-OWN-GAPS-2026-11-08.md</code>). AP-1, the stored-Site analytics readiness port, is about 1.3 units, after SR-12b. It enters D-SR.38's candidate list first in the deferral order. The sibling routes stay gated. Database: stay on PostgreSQL, with no change before 17 Nov. The owner decides AP-1 at Sat 12:00.</p>
+<p><strong>D-SR.75</strong> (appended to <code>.agent/build-sheet-OWN-GAPS-2026-11-08.md</code>). AP-1, the stored-Site analytics readiness port, is about 1.55 units (corrected by D-SR.77), after SR-12b. It enters D-SR.38's candidate list first in the deferral order. The sibling routes stay gated. Database: stay on PostgreSQL, with no change before 17 Nov. The owner decides AP-1 at Sat 12:00.</p>
 </main>
 </body>
 </html>
