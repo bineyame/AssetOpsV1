@@ -153,9 +153,33 @@ def test_available_and_disabled_count_as_known_status(state: str) -> None:
            "received_at": _t(8) + timedelta(seconds=1), "evidence_id": "e1"}
     assert ev_availability.status_spans(foundation, [("c1", "A1")], [row], _t(8), _t(9)) == {
         "A1": [(_t(8), _t(8, 1), state)]}
-    # availability classification is unchanged: AVAILABLE is available, DISABLED unavailable
+    # D-SR.81: AVAILABLE is in service, DISABLED out of service
     assert ev_availability.CATEGORY[state] == (ev_availability.AVAILABLE if state == "AVAILABLE"
                                               else ev_availability.UNAVAILABLE)
+
+
+def test_availability_category_maps_all_seven_states_per_d_sr_81() -> None:
+    assert ev_availability.CATEGORY == {
+        **{k: ev_availability.AVAILABLE for k in ("AVAILABLE", "UNPLUGGED", "PLUGGED", "AUTHORIZING", "CHARGING")},
+        **{k: ev_availability.UNAVAILABLE for k in ("FAULTED", "DISABLED")}}
+    assert set(ev_availability.CATEGORY) == set(EV_CONNECTOR_STATES)
+
+
+def test_co10_shape_authorizing_charging_faulted_has_no_unknown() -> None:
+    foundation = {"content": {"components": [{"component_id": "c1", "component_type": "EV_CONNECTOR", "properties": [
+        {"property_key": "ev-status-cadence", "value": "1", "unit": "min"}]}]}}
+
+    def row(i: int, m: int, v: str) -> dict:
+        return {"role": "ev_connector_state", "asset_id": "A1", "connector_id": None, "value": v, "use": "SUPPORT",
+                "quality": "GOOD", "reason": None, "source_time": _t(8, m), "sent_at": _t(8, m),
+                "received_at": _t(8, m) + timedelta(seconds=1), "evidence_id": f"e{i}"}
+    rows = [row(0, 0, "AUTHORIZING")] + [row(m, m, "CHARGING") for m in range(1, 16)] + [row(16, 16, "FAULTED")]
+    spans = ev_availability.status_spans(foundation, [("c1", "A1")], rows, _t(8), _t(8, 17))["A1"]
+    cat = [(a, b, ev_availability.CATEGORY.get(v, ev_availability.UNKNOWN)) for a, b, v in spans]
+    assert cat[0][0] == _t(8) and cat[-1][1] == _t(8, 17)
+    avail = sum((b - a).total_seconds() for a, b, c in cat if c == ev_availability.AVAILABLE)
+    unav = sum((b - a).total_seconds() for a, b, c in cat if c == ev_availability.UNAVAILABLE)
+    assert (avail, unav) == (16 * 60, 60) and all(c != ev_availability.UNKNOWN for _, _, c in cat)
 
 
 # ---- Postgres: the producer's run_day on an 8-hour ordinary and fault day ------------------------------------

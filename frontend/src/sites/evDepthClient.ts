@@ -76,7 +76,7 @@ export interface AvailabilityConnector {
 }
 
 export interface EvAvailability {
-  calculation_version: "ev-availability/1";
+  calculation_version: "ev-availability/2";
   schedule_state: ScheduleState;
   scheduled_seconds: number | null;
   known_available_seconds: number | null;
@@ -281,7 +281,7 @@ function isConnector(value: unknown): boolean {
 export function isEvAvailability(value: unknown): value is EvAvailability {
   return (
     keysExactly(value, AVAILABILITY_KEYS) &&
-    value.calculation_version === "ev-availability/1" &&
+    value.calculation_version === "ev-availability/2" &&
     oneOf(value.schedule_state, SCHEDULE_STATES) &&
     SECONDS_KEYS.every((key) => isNullableSeconds(value[key])) &&
     ["known_time_ratio", "full_lower", "full_upper"].every((key) => isNullableDecimal(value[key])) &&
