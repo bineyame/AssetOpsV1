@@ -48,7 +48,7 @@ ROOT = Path(__file__).resolve().parents[2]
 #: DD0c-R Q1: the demo prepare / add-day child sets this True (L1 batching); the tests keep the per-group seal.
 SEAL_ONCE = False
 #: DATA-5: the demo prepare / add-day child sets this True; the central then stores the gateway's diagnostics through
-#: the product ingestion on the chain's decision clock (False: diagnostic posts are not routed, as in the tests).
+#: the product ingestion on the gateway's own clock (False: diagnostic posts are not routed, as in the tests).
 FORWARD_DIAGNOSTICS = False
 sys.path.insert(0, str(ROOT / "host"))
 sys.path.insert(0, str(ROOT / "host" / "tests"))

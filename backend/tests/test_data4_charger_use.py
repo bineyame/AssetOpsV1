@@ -50,9 +50,21 @@ def test_connector_sum_when_the_charger_rating_is_not_declared() -> None:
 def test_import_limit_caps_the_rating_sum() -> None:
     body = _body(_c("c1", H8, charger="a", charger_kw="60"), _c("c2", H8, charger="b", charger_kw="60"))
     assert _text("320", body, "80").startswith("50% of declared charging capacity")  # 80 kW x 8 h = 640
-    assert _text("320", body, "80").endswith("in 16 h of scheduled charging at the 80 kW import limit")
+    assert _text("320", body, "80").endswith("in 8 h of scheduled charging at the 80 kW import limit")  # 80 x 8 = 640, the capacity behind 50%
     assert _text("320", body, "200").startswith("33% ")  # 2 x 60 x 8 = 960, no cap
     assert _text("320", body, "200").endswith("at 60 kW")
+    assert _text("320", body, "200").count("in 16 h") == 1  # uncapped: 60 kW x 16 charger-hours = 960
+
+
+def test_import_limit_with_one_charger_and_with_unequal_hours() -> None:
+    one = _body(_c("c1", H8, charger="a", charger_kw="100"))
+    text = _text("200", one, "80")  # 100 kW > 80 kW: capacity 80 x 8 = 640 -> 31%
+    assert text.startswith("31% ") and text.endswith("in 8 h of scheduled charging at the 80 kW import limit")
+    assert _text("200", one, None).endswith("in 8 h of scheduled charging at 100 kW")
+    two = _body(_c("c1", H8, charger="a", charger_kw="60"), _c("c2", H8 // 2, charger="b", charger_kw="60"))
+    # capacity 60x8 + 60x4 = 720, scaled by 80/120 = 480 = 80 kW x 6 h
+    assert _text("240", two, "80").startswith("50% ") and _text("240", two, "80").endswith(
+        "in 6 h of scheduled charging at the 80 kW import limit")
 
 
 def test_connectors_without_a_charger_count_on_their_own_rating() -> None:

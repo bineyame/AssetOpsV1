@@ -329,7 +329,8 @@ def charger_use(kwh: str | None, availability_body: Any, limit_kw: Any, rc: Any)
     `hours` is the largest `scheduled_seconds` among that charger's connectors / 3600: the declared connectors of one
     charger share one schedule, so this is exact there. A connector with no charger counts on its own rating and
     hours. When the sum of ratings is above the declared import limit, the limit replaces that sum (the capacity is
-    scaled by limit / sum, which is `limit x hours` when the hours are equal). `kwh` is the one printed on the same
+    scaled by limit / sum, and the printed hours are then capacity / limit, so "limit x hours" is the capacity
+    behind the percentage; uncapped, the printed hours are the sum of the chargers' hours). `kwh` is the one printed on the same
     response's "Charging delivered" line."""
     def line(text: str, confidence: Any = None) -> Contributor:
         return Contributor("charger_use", "Charger use", text, confidence)
@@ -380,7 +381,9 @@ def charger_use(kwh: str | None, availability_body: Any, limit_kw: Any, rc: Any)
         p = "under 1"
     else:
         p = str(share.quantize(Decimal(1), rounding=ROUND_HALF_UP))
-    hours = duration_text(sum((h for _, h in plan), Decimal(0)))
+    # One basis for the hours and the percentage: summed charger-hours, or, when the import limit caps the sum, the
+    # hours that the limit alone would need for the same capacity ("capacity = limit x hours").
+    hours = duration_text(capacity * 3600 / limit if capped else sum((h for _, h in plan), Decimal(0)))
     distinct = {r for r, _ in plan}
     if capped:
         at = f"the {num(limit)} kW import limit"

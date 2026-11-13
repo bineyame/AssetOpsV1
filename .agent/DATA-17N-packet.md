@@ -110,3 +110,9 @@ Cap the run at 2x its expected time and stop and report if it runs past that. Th
   opportunity may change, and only the finish check proves them.
 - DATA-5 adds one diagnostic post per cadence slot to each delivery pass. The added prepare time is not measured.
 - No EV finish row reads "Charger use": a grep found the old text only in the CH-5a1 golden.
+
+## Fix round (review L1-L3)
+
+- L1 fixed: `charger_use` (ev.py) prints, when the import limit caps the sum, the hours the limit alone would need for the same capacity (capacity / limit), so "limit x hours" is the capacity behind the percentage; uncapped it prints summed charger-hours. Tests: one charger, several chargers with equal and unequal hours, with and without the limit (`test_data4_charger_use.py`).
+- L2 fixed: the two stale comments now say "the gateway's own clock".
+- **Architect question (L3, unchanged):** `SiteSingleLineDiagram.tsx:1722` footnote always says "Energy is metered at each connector", but the feeder meter slot says "At each connector" only when every connector declares a meter. Should the footnote be conditional, or is it acceptable as verbatim Architect words?
