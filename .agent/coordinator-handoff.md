@@ -204,3 +204,19 @@ Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (Rev 1–3, R4, R5, R6). Owner
 
 ## Restart guidance
 Restart only when no agents are running. On resume: read this file, `git log --oneline -20` on main, then the latest OWN-GAPS build-sheet rulings (R5, R6). Lesson 2026-11-09: tell builders to wait in place with Monitor on long jobs (one handed back while waiting and stalled).
+
+## UPDATE ~17:50 UTC 2026-11-13
+- walk1113 add-dates self-check 54/54 at 13:42 (the waiter self-matched pgrep, so about 2h45m idle; use PIDs only).
+- Main is 33649e5c6:
+  - fix/SERVE-warm-arg: since UP-1 serve crashed after the first tick (warm not passed); the API was in serve's process group, so _kill_tree SIGKILLed serve silently.
+  - fix/BOARD-today-wording r1+r2: on a day with 0 dispatch intervals and no COMPLETE avoidable_gen_min grade, Generator use reads "Not checked yet · no generator period assessed on this day"; the Readings source falls back to the Site's source. Changes Kobo 14/21/28 Oct, 4/12 Nov and Kisiwa 2/13 Nov wording.
+  - AP-1 merged (D-SR.80 live check PASS 4/4, .agent/AP-1-live-check.md).
+- Walk worktree 4808e3ab4; tree refreshed to 33649e5c6; no new migrations.
+- Serve: start with `setsid -f <scratchpad>/walk-serve.sh` (log var/polish_walk1113-serve.log); Vite: frontend `npm run dev -- --port 5490 --strictPort --host 127.0.0.1` with ASSETOPS_API_PORT=8990.
+- New worktrees need frontend/node_modules symlinked to the main one, or the 2 missing-claim guards fail.
+- Next steps:
+  1. warm verify.
+  2. Six-kind parity on the final state.
+  3. Page×Site smoke check.
+  4. Access note.
+- Owner access: Tailscale, server 100.107.18.77 (owner device 100.118.230.76); SSH tunnel for 5490, or rebind Vite on owner request.
