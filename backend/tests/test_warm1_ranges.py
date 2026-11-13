@@ -332,15 +332,42 @@ def test_claim_limit_range_is_sent_only_where_the_performance_gate_is_open():
 
     def fetch(target: str):
         probed.append(target)
-        return (409, "") if "/KOBO-001/" in target else (200, "hit")
+        return (409, wr.CLOSED_CODE) if "/KOBO-001/" in target else (200, "")
 
     kept, excluded = wr.exclude_closed_gate(reqs, fetch)
     assert excluded == [{"site": "KOBO-001", "route": "claim-limit-range"}]
     assert not [q for q in kept if q.path == "/api/sites/KOBO-001/claim-limit-range"]
     assert [q for q in kept if q.path == "/api/sites/KISIWA-001/claim-limit-range"]
     assert len(probed) == 2  # one probe per gated Site, not one per range
-    open_plan, none = wr.exclude_closed_gate(reqs, lambda t: (200, "hit"))
+    open_plan, none = wr.exclude_closed_gate(reqs, lambda t: (200, ""))
     assert open_plan == reqs and none == []
+
+
+def test_only_the_cutover_closed_code_excludes_a_site():
+    _, reqs = wr.plan(date(2026, 11, 10), SITES)
+    for answer in ((409, ""), (409, "OTHER_CONFLICT"), (500, wr.CLOSED_CODE), (404, "")):
+        kept, excluded = wr.exclude_closed_gate(reqs, lambda t, a=answer: a if "/KOBO-001/" in t else (200, ""))
+        assert excluded == [] and kept == reqs  # stays planned, so the run reports it as a failure
+
+
+def test_main_applies_the_gate_filter_and_prints_the_excluded(monkeypatch, tmp_path, capsys):
+    sent: list[str] = []
+
+    def fake_fetch(base):
+        def fetch(target):
+            sent.append(target)
+            return 200, "hit"
+        return fetch
+
+    monkeypatch.setattr(wr, "http_fetch", fake_fetch)
+    monkeypatch.setattr(wr, "http_probe", lambda base: lambda t: (409, wr.CLOSED_CODE) if "/KOBO-001/" in t else (200, ""))
+    rc = wr.main(["--base-url", "http://x", "--site", "KOBO-001:2026-09-01:2026-11-01",
+                  "--site", "KISIWA-001:2026-09-01:2026-11-01", "--today", "2026-11-10", "--report", str(tmp_path / "r.json")])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert not [t for t in sent if "/KOBO-001/claim-limit-range" in t]
+    assert [t for t in sent if "/KISIWA-001/claim-limit-range" in t]
+    assert "excluded (closed Performance gate): KOBO-001 claim-limit-range" in out
 
 
 def test_a_409_on_a_planned_request_fails_warm_and_verify():

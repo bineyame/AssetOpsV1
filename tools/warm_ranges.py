@@ -318,15 +318,21 @@ def plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None =
 GATED_ROUTE = "claim-limit-range"  # 409 PERFORMANCE_CUTOVER_CLOSED while the Site's Performance gate is closed
 
 
-def exclude_closed_gate(reqs: list[Req], fetch: Fetch) -> tuple[list[Req], list[dict[str, str]]]:
+CLOSED_CODE = "PERFORMANCE_CUTOVER_CLOSED"
+
+
+def exclude_closed_gate(reqs: list[Req], probe: Fetch) -> tuple[list[Req], list[dict[str, str]]]:
     """D-SR.74: send `claim-limit-range` only for Sites whose Performance gate is open. The route's own gate
-    answers: the Site's first planned request is the probe, and a 409 closes that Site (no copy of the predicate).
+    answers: the Site's first planned request is the probe (`probe` returns (status, error code)); only a 409 whose
+    code is PERFORMANCE_CUTOVER_CLOSED closes that Site. Any other answer keeps the requests in the plan, so a
+    failing probe is reported by the run, never hidden as an exclusion.
     Returns (the plan without the closed Sites' gated requests, `[{site, route}]` for each closed Site)."""
     sites: dict[str, bool] = {}
     for q in reqs:
         parts = q.path.split("/")
         if len(parts) == 5 and parts[4] == GATED_ROUTE and parts[3] not in sites:
-            sites[parts[3]] = fetch(q.target)[0] != 409
+            status, code = probe(q.target)
+            sites[parts[3]] = not (status == 409 and code == CLOSED_CODE)
     closed = {code for code, open_ in sites.items() if not open_}
     kept = [q for q in reqs if not (q.path.split("/")[-1] == GATED_ROUTE and q.path.split("/")[3] in closed)]
     return kept, [{"site": code, "route": GATED_ROUTE} for code in sorted(closed)]
@@ -381,6 +387,24 @@ class Result:
 
 
 Fetch = Callable[[str], tuple[int, str]]
+
+
+def http_probe(base_url: str, timeout: float = TIMEOUT_SECONDS) -> Fetch:
+    """GET base_url + target; returns (status, the error body's `detail.code` or "")."""
+    base = base_url.rstrip("/")
+
+    def probe(target: str) -> tuple[int, str]:
+        try:
+            with urllib.request.urlopen(base + target, timeout=timeout) as response:
+                response.read()
+                return response.status, ""
+        except urllib.error.HTTPError as error:
+            try:
+                detail = json.loads(error.read().decode("utf-8")).get("detail")
+                return error.code, str(detail.get("code", "")) if isinstance(detail, dict) else ""
+            except (ValueError, AttributeError):
+                return error.code, ""
+    return probe
 
 
 def http_fetch(base_url: str, timeout: float = TIMEOUT_SECONDS) -> Fetch:
@@ -553,7 +577,7 @@ def main(argv: list[str] | None = None) -> int:
     rs, reqs = plan(today, sites, routes)
     excluded: list[dict[str, str]] = []
     if a.base_url and not a.dry_run:  # the same plan for warm and --verify: closed-gate Sites are listed, not sent
-        reqs, excluded = exclude_closed_gate(reqs, http_fetch(a.base_url))
+        reqs, excluded = exclude_closed_gate(reqs, http_probe(a.base_url))
     first, last = data_window(sites)
     print(f"WARM-1 (workaround): today {today}, data window {first}..{last}, {len(rs)} ranges, {len(reqs)} requests "
           f"({sum(1 for r in reqs if r.path.startswith('/api/estate/'))} estate, "
@@ -584,6 +608,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{report['mode']}: {'PASS' if report['pass'] else 'FAIL'} - {report['requests']} requests, "
           f"{report['hit_percent']}% hits, max {report['max_ms']} ms, {len(report['degraded'])} degraded, "
           f"{len(report['failed'])} failed, wall {report['wall_seconds']} s; report {out}")
+    if excluded:
+        print("excluded (closed Performance gate): " + ", ".join(f"{e['site']} {e['route']}" for e in excluded))
     if "unstored" in report:
         u = report["unstored"]
         print(f"unstored (not gated, D-WARM.2): {u['requests']} requests, max {u['max_ms']} ms, "
