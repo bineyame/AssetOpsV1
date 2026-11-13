@@ -481,14 +481,19 @@ function FindingAnswer({
   );
 }
 
-function LifecycleSentence({ body }: { body: FindingDetailBody }) {
+/** UQ-FI-2 (D-UQFI.18): the first sentence now sits under the title in the header (a move); the body keeps the rest. */
+function lifecycleRest(body: FindingDetailBody): string {
   const selected = body.revision;
-  return (
-    <p data-finding-lifecycle-sentence>
-      {LIFECYCLE_WORDS[selected.lifecycle].sentence}
-      {selected.lifecycle === "UNCONFIRMED" ? ` ${unconfirmedCause(selected.indeterminate_cause)}` : ""}
-    </p>
-  );
+  const full = LIFECYCLE_WORDS[selected.lifecycle].sentence;
+  const first = findingHeadline(body).sentence ?? "";
+  const cause = selected.lifecycle === "UNCONFIRMED" ? unconfirmedCause(selected.indeterminate_cause) : "";
+  return [full.slice(first.length).trim(), cause].filter((part) => part !== "").join(" ");
+}
+
+function LifecycleSentence({ body }: { body: FindingDetailBody }) {
+  const text = lifecycleRest(body);
+  if (text === "") return null;
+  return <p data-finding-lifecycle-sentence>{text}</p>;
 }
 
 function CouldChange({ body }: { body: FindingDetailBody }) {
@@ -972,7 +977,7 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
       <ShowAll name="finding-limits-context" summary="Access and review context">
         <ul className="site-finding__limits v69-prose" data-finding-limits-context>
           <li>Shown under the pilot&apos;s development access; sign-in and per-person access are not installed yet.</li>
-          {selected.lifecycle === "SUPPORTED" ? (
+          {selected.lifecycle === "SUPPORTED" && lifecycleRest(body) !== "" ? (
             <li className="site-finding__meaning-item">
               <LifecycleSentence body={body} />
             </li>

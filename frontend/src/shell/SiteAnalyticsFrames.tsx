@@ -75,7 +75,7 @@ import {
 } from "../sites/MiniOpportunity";
 import { ALTERNATIVES_FINDING_UNAVAILABLE, MiniAlternatives } from "../sites/MiniAlternatives";
 import { createMiniDecisionsClient, scenarioScopeSearch, type MiniDecisionsClient, type OpportunityDetailBody, type ScenarioScope } from "../sites/miniDecisionsClient";
-import { SiteFinding, type FindingCostClient } from "../sites/SiteFinding";
+import { SiteFinding, type FindingCostClient, type FindingHeadline } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
@@ -777,6 +777,9 @@ export function SiteFindingFrame({
   const revisionId = params.get("revision_id");
   const [title, setTitle] = useState("Finding");
   const onTitle = useCallback((next: string) => setTitle(next), []);
+  // UQ-FI-2 (D-UQFI.18): the Finding's first sentence sits under its title in the header.
+  const [headline, setHeadline] = useState<FindingHeadline | null>(null);
+  const onHeadline = useCallback((next: FindingHeadline) => setHeadline(next), []);
   // D-SR.64: one record, its own period; the range stays in the address for onward links only.
   useDeclareRangeNotUsed("own period");
   const view: FindingChildView | "finding" | null =
@@ -859,7 +862,7 @@ export function SiteFindingFrame({
                 view === "finding" ? { label: "Finding" } : { label: "Finding", to: root },
               ]}
             />
-            <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={`${site.display_name} · finding`} />
+            <PageHeader title={title} headingId={SITE_FINDING_HEADING_ID} subtitle={headline?.sentence ?? `${site.display_name} · finding`} />
             {/* post-W6 W2-EV (Q14): an EV child address's main tabs open the EV pages (no read, so no window). */}
             <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={site.site_type === "EV_CHARGING" ? EV_SITE_TAB_HREFS : undefined} />
             {domainSite && domainRoot ? (
@@ -872,6 +875,7 @@ export function SiteFindingFrame({
                 findingId={id}
                 client={findings}
                 onTitle={onTitle}
+                onHeadline={onHeadline}
                 links={{
                   finding: (other, rev) => siteFindingHref(site.site_id, other, rev),
                   dispatch: (day) => `${sitePerformanceHref(site.site_id, "dispatch")}?day=${encodeURIComponent(day)}`,
@@ -933,6 +937,8 @@ function CanonicalMiniFinding({
   financials: FindingCostClient;
 }) {
   const navigate = useNavigate();
+  const [headline, setHeadline] = useState<FindingHeadline | null>(null);
+  const onHeadline = useCallback((next: FindingHeadline) => setHeadline(next), []);
   const [params] = useSearchParams();
   // post-W6 W1-a Q7 / R184: the Finding's Analysis is the root's `?view=analysis`, a live section tab.
   const analysisView = view === "finding" && params.get("view") === "analysis";
@@ -1044,7 +1050,7 @@ function CanonicalMiniFinding({
         title={title}
         headingId={SITE_FINDING_HEADING_ID}
         // MOCK DEVIATION D2 (R389): the child subtitle names the Site and Finding kind; the code stays D1 (R65/R74).
-        subtitle={`${site.display_name} · generator support finding`}
+        subtitle={view === null || view === "finding" ? (headline?.sentence ?? `${site.display_name} · generator support finding`) : `${site.display_name} · generator support finding`}
         // H3 (final review; build-spec ledger l.186) and post-W6 W1-a Q9 / R186: every Finding section (overview,
         // analysis, evidence, history, alternatives, recommendation) carries the v69 `Open site` header action to the
         // authorized Site Overview.
@@ -1153,6 +1159,7 @@ function CanonicalMiniFinding({
               findingId={id}
               client={findings}
               onTitle={onTitle}
+              onHeadline={onHeadline}
               timeZone={site.timezone}
               financials={financials}
               links={{

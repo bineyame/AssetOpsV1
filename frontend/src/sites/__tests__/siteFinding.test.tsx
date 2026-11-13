@@ -693,7 +693,7 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     expect(main().textContent).not.toMatch(/\$|USD|saved|savings/);
     const limits = panelTitled("What limits this conclusion");
     expect(limits.querySelector("[data-finding-could-change]")?.textContent).toMatch(/What could change it/);
-    expect(limits.querySelector("[data-finding-lifecycle-sentence]")).not.toBeNull();
+    expect(limits.querySelector("[data-finding-lifecycle-sentence]")).toBeNull(); // D-UQFI.18: the first sentence moved to the header
     expect(limits.querySelector("[data-finding-bounded]")?.textContent).toMatch(/not proof of wasted fuel/);
     // W1-F3 review H1: every material limit is visible; only the access note and the SUPPORTED lifecycle
     // sentence sit behind the closed "Access and review context" expander.
@@ -1201,6 +1201,56 @@ describe("OUT-A A5: the mini Finding frame's Affects line", () => {
     await waitFor(() => expect(document.querySelector("[data-finding-section]")).not.toBeNull());
     expect(document.querySelector("[data-affects-line]")).toBeNull();
   });
+});
+
+describe("UQ-FI-2 P3 (D-UQFI.18): the first sentence is said once, under the title", () => {
+  const MINI = {
+    site_id: "KOBO-001", display_name: "Kobo", site_type: "MINIGRID", location: { country: "Kenya", locality: "Nairobi" },
+    timezone: "Africa/Nairobi", lifecycle_status: "PLANNED", origin: "USER", source: { mode: "SIMULATED" }, template: null,
+    configuration_store: "POSTGRES",
+  } as unknown as SiteDetailReadModel;
+  function frame(path: string, client: FindingClient) {
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: MINI }) };
+    return render(
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/sites/:siteId/findings/:findingId" element={<SiteFindingFrame detail={detail} sitesPath="/sites" findings={client} />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+  const gaps = () => Array.from(document.querySelectorAll("[data-gap-id]")).map((n) => n.getAttribute("data-gap-id")).sort();
+  const count = (text: string) => (document.body.textContent ?? "").split(text).length - 1;
+
+  for (const [name, revs, lifecycle] of [
+    ["SUPPORTED", [summary(1, "CREATED")], "SUPPORTED"],
+    ["non-SUPPORTED", [summary(1, "CREATED"), summary(2, "UNCONFIRMED", "UNCONFIRMED")], "UNCONFIRMED"],
+  ] as const) {
+    it(`uqfi2_p3_${name}_sentence_once_and_gap_set_unchanged`, async () => {
+      vi.stubGlobal("fetch", vi.fn(() => Promise.reject(new Error("offline in tests"))));
+      const value = body([...revs], revs.length);
+      const first = findingHeadline(value).sentence as string;
+      const path = `/sites/KOBO-001/findings/${F}?revision_id=rev-${revs.length}`;
+      // The page's own body, mounted bare: the reference gap set.
+      const bare = render(
+        <MemoryRouter initialEntries={[path]}>
+          <Routes><Route path="/sites/:siteId/findings/:findingId" element={<main><SiteFinding siteId="KOBO-001" findingId={F} client={fake({ status: "loaded", value })} links={{ finding: () => "/x", dispatch: () => "/d", evidence: "/e" } as SiteFindingLinks} /></main>} /></Routes>
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      const bareGaps = gaps();
+      bare.unmount();
+      frame(path, fake({ status: "loaded", value }));
+      await settledScreen();
+      await waitFor(() => expect(document.querySelector("h1")?.textContent).toBe(findingHeadline(value).title));
+      expect(document.querySelectorAll("h1")).toHaveLength(1);
+      await waitFor(() => expect(count(first), document.querySelector(".page-header__subtitle")?.textContent ?? "NOSUB").toBe(1));
+      expect(document.querySelector(".page-header__subtitle")?.textContent).toBe(first);
+      if (lifecycle === "UNCONFIRMED") expect(document.querySelector("[data-finding-lifecycle-sentence]")?.textContent).toMatch(/not a new issue/);
+      else expect(document.querySelector("[data-finding-lifecycle-sentence]")).toBeNull();
+      expect(gaps()).toEqual(bareGaps);
+    });
+  }
 });
 
 describe("UQ-FI-2 P3: the Finding headline (prepared; the frame takes it after SR-5 and SR-8, D-UQFI.8)", () => {
