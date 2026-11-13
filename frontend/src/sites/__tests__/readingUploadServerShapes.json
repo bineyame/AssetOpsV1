@@ -1,0 +1,89 @@
+{
+ "row": {
+  "status": 422,
+  "body": {
+   "code": "SPAN_MISMATCH",
+   "message": "The file was not saved: a time is not on a 15-minute step (:00, :15, :30, :45). Row 7.",
+   "dry_run": true,
+   "state": "REFUSED",
+   "refusal": {
+    "code": "SPAN_MISMATCH",
+    "where": "row 7 · timestamp_utc"
+   },
+   "words": {
+    "key": "reading_upload.refused.span_mismatch",
+    "params": {
+     "row": "7",
+     "where": "row 7 · timestamp_utc"
+    }
+   },
+   "text": "The file was not saved: a time is not on a 15-minute step (:00, :15, :30, :45). Row 7."
+  }
+ },
+ "header": {
+  "status": 422,
+  "body": {
+   "code": "HEADER_MISMATCH",
+   "message": "The file was not saved: the column headings do not match the template (column 3).",
+   "dry_run": true,
+   "state": "REFUSED",
+   "refusal": {
+    "code": "HEADER_MISMATCH",
+    "where": "column 3"
+   },
+   "words": {
+    "key": "reading_upload.refused.header_mismatch",
+    "params": {
+     "row": "",
+     "where": "column 3"
+    }
+   },
+   "text": "The file was not saved: the column headings do not match the template (column 3)."
+  }
+ },
+ "recorded": {
+  "status": 422,
+  "body": {
+   "code": "ALREADY_RECORDED",
+   "message": "The file was not saved: this site already has solar readings up to 17 Nov, 02:45 (site time). Only readings after that can be uploaded.",
+   "dry_run": true,
+   "state": "REFUSED",
+   "refusal": {
+    "code": "ALREADY_RECORDED",
+    "where": "Solar power"
+   },
+   "words": {
+    "key": "reading_upload.refused.already_recorded",
+    "params": {
+     "role": "solar",
+     "latest": "17 Nov, 02:45"
+    }
+   },
+   "text": "The file was not saved: this site already has solar readings up to 17 Nov, 02:45 (site time). Only readings after that can be uploaded."
+  }
+ },
+ "toolarge": {
+  "status": 422,
+  "body": {
+   "code": "INVALID_VALUE",
+   "message": "The file was not saved: a single cell is far too long to be a reading. Check the file and try again.",
+   "dry_run": true,
+   "state": "REFUSED",
+   "refusal": {
+    "code": "INVALID_VALUE",
+    "where": null
+   },
+   "words": {
+    "key": "reading_upload.refused.file_unreadable",
+    "params": {}
+   },
+   "text": "The file was not saved: a single cell is far too long to be a reading. Check the file and try again."
+  }
+ },
+ "entry": {
+  "enabled": true,
+  "template_note": "One row per 15 minutes, times in UTC ending in Z, power in kW. Leave a cell empty when there is no reading. In Excel, save as 'CSV (Comma delimited)', not 'CSV UTF-8'.",
+  "health_text": "When the site's connection is down, its readings can be sent as a file in the AssetOps template: solar output and the three feeder meters, every 15 minutes.",
+  "template_step": "A CSV with the time in UTC and the site's four meters, each with its unit."
+ }
+}

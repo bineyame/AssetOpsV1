@@ -953,17 +953,20 @@ class PostgresEvidenceLedger:
         return self._run(work)
 
     def rejections(self, tenant_id: UUID, site_id: UUID, batch: str | None) -> dict:
+        """Unwindowed; the range (D-SR.76 Q8, source time) is applied in `ledger_reads`."""
         def work(c: Connection) -> dict:
             duplicates = [dict(r._mapping) for r in c.execute(
                 text("SELECT b.external_batch_id, d.ordinal, d.message_id, d.accepted_evidence_id, "
-                     "d.decided_at, b.received_at FROM ingestion_disposition d "
+                     "d.decided_at, b.received_at, ae.source_time FROM ingestion_disposition d "
                      "JOIN ingestion_batch b ON b.id = d.batch_id "
+                     "LEFT JOIN accepted_evidence ae ON ae.id = d.accepted_evidence_id "
                      "WHERE d.tenant_id = :t AND d.site_id = :site AND d.decision = 'DUPLICATE' "
                      "AND (CAST(:batch AS text) IS NULL OR b.external_batch_id = :batch) "
                      "ORDER BY b.received_at, b.external_batch_id, d.ordinal"),
                 {"t": tenant_id, "site": site_id, "batch": batch},
             ).all()]
-            return {"rejections": self._rejection_rows(c, tenant_id, site_id, batch), "duplicates": duplicates}
+            return {"rejections": self._rejection_rows(c, tenant_id, site_id, batch),
+                    "duplicates": duplicates}
 
         return self._run(work)
 

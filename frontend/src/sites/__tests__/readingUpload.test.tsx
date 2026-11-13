@@ -46,7 +46,7 @@ function fakeClient(over: Partial<ReadingUploadClient> & { states?: UploadStatus
   const states = [...(over.states ?? [])];
   const calls = { check: 0, save: 0, status: 0 };
   const client: ReadingUploadClient = {
-    entry: over.entry ?? (async (): Promise<UploadEntry> => ({ status: "on", templateNote: "One row per 15 minutes, times in UTC." })),
+    entry: over.entry ?? (async (): Promise<UploadEntry> => ({ status: "on", templateNote: "One row per 15 minutes, times in UTC.", healthText: "Send readings as a file.", templateStep: "A CSV with the time in UTC and the site's four meters." })),
     check: over.check ?? (async (): Promise<UploadResult<UploadChecked>> => { calls.check += 1; return { status: "ok", value: CHECKED }; }),
     save: over.save ?? (async (): Promise<UploadResult<UploadStatus>> => { calls.save += 1; return { status: "ok", value: status("SENT") }; }),
     status: async () => {
@@ -72,6 +72,9 @@ function choose(file: File = FILE) {
 }
 
 afterEach(() => vi.restoreAllMocks());
+
+import SHAPES_JSON from "./readingUploadServerShapes.json";
+const SHAPES = SHAPES_JSON as unknown as Record<"row" | "header" | "recorded" | "toolarge", { status: number; body: unknown }>;
 
 describe("UP-1 Health entry panel (D-UP.4)", () => {
   it("shows the panel and its link only when the server's switch names the Site", async () => {
@@ -166,28 +169,55 @@ describe("UP-1 upload page", () => {
     expect(screen.queryByRole("link", { name: /board for/ })).toBeNull();
   });
 
-  it("shows a refused file in the server's words with the row and column, and saves nothing", async () => {
-    const { client, calls } = fakeClient({
-      check: async () => ({ status: "refused", refusal: { code: "SPAN_MISMATCH", field: "row 7 timestamp_utc", upload_id: null,
-        message: "The file was not saved: a time is not on a 15-minute step (:00, :15, :30, :45). Row 7." } }),
-    });
+  it.each([
+    ["row", "row 7 · timestamp_utc"],
+    ["header", "column 3"],
+    ["recorded", "Solar power"],
+  ])("shows the REAL server refusal (%s) in plain words with its place, and saves nothing", async (name, where) => {
+    const shape = SHAPES[name as "row"];
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(shape.body), { status: shape.status })));
+    const { client, calls } = fakeClient({ check: createReadingUploadClient().check });
     renderPage(client);
     await settledScreen();
     choose();
     const alert = await screen.findByRole("alert");
-    expect(within(alert).getByRole("heading", { name: /a time is not on a 15-minute step/ })).toBeTruthy();
-    expect(within(alert).getByText("row 7 timestamp_utc")).toBeTruthy();
+    expect(within(alert).getByText(where)).toBeTruthy();
     expect(within(alert).getByText("Refused")).toBeTruthy();
+    expect(alert.textContent).not.toMatch(/rows\[|header\[|pv_power|T\d\d:\d\d:\d\dZ/);
     expect(calls.save).toBe(0);
+    if (name === "recorded") expect(alert.textContent).toContain("(site time)");
     fireEvent.click(within(alert).getByRole("button", { name: "Choose the corrected file" }));
     expect(screen.getByLabelText("Choose a CSV file of Kobo's readings")).toBeTruthy();
+    vi.unstubAllGlobals();
+  });
+
+  it("shows a plain refusal for a cell that is too large, and a sentence when the check gives none", async () => {
+    const big = SHAPES.toolarge;
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify(big.body), { status: big.status })));
+    const { client } = fakeClient({ check: createReadingUploadClient().check });
+    renderPage(client);
+    await settledScreen();
+    choose();
+    expect((await screen.findByRole("alert")).textContent).toContain("far too long");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 500 })));
+    fireEvent.click(screen.getByRole("button", { name: "Choose the corrected file" }));
+    choose();
+    expect((await screen.findByRole("alert")).textContent).toContain("could not be checked");
+    vi.unstubAllGlobals();
+  });
+
+  it("takes the Site-specific sentences from the entry read", async () => {
+    const { client } = fakeClient();
+    renderPage(client);
+    await settledScreen();
+    expect(screen.getByText("A CSV with the time in UTC and the site's four meters.")).toBeTruthy();
   });
 });
 
 describe("UP-1 client (D-UP.5)", () => {
   it("sends the file as a raw text/csv body with dry_run and file_name, and reads a refusal", async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
-      code: "SPAN_MISMATCH", message: "The file was not saved.", state: "REFUSED", refusal: { code: "SPAN_MISMATCH", field: "row 7", detail: "" },
+      code: "SPAN_MISMATCH", message: "The file was not saved.", state: "REFUSED", refusal: { code: "SPAN_MISMATCH", where: "row 7 · timestamp_utc" },
     }), { status: 422 }));
     vi.stubGlobal("fetch", fetchMock);
     const result = await createReadingUploadClient().check("KOBO-001", FILE);
@@ -196,7 +226,7 @@ describe("UP-1 client (D-UP.5)", () => {
     expect(init.method).toBe("POST");
     expect(init.body).toBe(FILE);
     expect((init.headers as Record<string, string>)["Content-Type"]).toBe("text/csv");
-    expect(result).toEqual({ status: "refused", refusal: { code: "SPAN_MISMATCH", message: "The file was not saved.", field: "row 7", upload_id: null } });
+    expect(result).toEqual({ status: "refused", refusal: { code: "SPAN_MISMATCH", message: "The file was not saved.", where: "row 7 · timestamp_utc", upload_id: null } });
     vi.unstubAllGlobals();
   });
 

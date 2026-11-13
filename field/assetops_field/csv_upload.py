@@ -17,6 +17,7 @@ not the one configured (identity mismatch), 6 the gateway refused the request.
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import re
@@ -134,6 +135,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         checked = preview(profile, data)
     except CsvRefused as refused:
         _emit({"ok": False, "refusal": refusal(refused)})
+        return EXIT_REFUSED
+    except (csv.Error, UnicodeError):
+        # A cell over the csv module's 128 KB limit (or undecodable text) is a refusal, never a crash: nothing is sent.
+        _emit({"ok": False, "refusal": {"code": "INVALID_VALUE", "field": "", "detail": "FIELD_TOO_LARGE",
+                                        "profile_sha256": ""}})
         return EXIT_REFUSED
     if args.command == "check":
         _emit({"ok": True, "preview": checked})

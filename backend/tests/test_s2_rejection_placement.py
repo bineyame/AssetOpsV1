@@ -41,7 +41,7 @@ class _Ledger:
                 "extent": {"first_source_time": None, "last_source_time": None, "last_received_at": None,
                            "accepted_total": 0}}
 
-    def rejections(self, tenant_id, site_id, batch):
+    def rejections(self, tenant_id, site_id, batch, window=None):
         return {"rejections": ROWS, "duplicates": []}
 
 

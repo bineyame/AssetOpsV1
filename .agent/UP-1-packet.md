@@ -91,6 +91,20 @@ section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 a
   gone with `node_modules` present.
 - `frontend/node_modules` is an untracked junction to plan2's (identical `package-lock.json`).
 
+## Review fix round (13 Nov, REJECT M1/M2 + L1/L3 + D-UP.12)
+- M1: the server sends `refusal: {code, where}` only (`row 7 · timestamp_utc`, `column 3`, or the meter role in words); no path,
+  no ISO time. ALREADY_RECORDED words give the latest reading in Site time ("17 Nov, 02:45 (site time)"), from the new
+  store method `site_timezone`. The page chip shows `where`; MOCK DEVIATION note corrected. Vitest feeds the real server
+  shapes (`__tests__/readingUploadServerShapes.json`, generated from the backend test client).
+- M2: `run_in_threadpool` for upload and status; tests: delegation spy, and a GET served while an upload is inside its check.
+- L1: `csv_upload` maps `csv.Error`/`UnicodeError` to INVALID_VALUE/FIELD_TOO_LARGE (422, plain words); a port `RuntimeError` is
+  a 503 in words; the page shows a fallback sentence when a 5xx has none. Tests: field, backend, page.
+- Site sentences (Health panel text, "four meters") come from the entry read (`health_text`, `template_step`).
+- D-UP.12: `_ANALYSIS` counts a FAILED job only when `created_at` or `lease_until` is at/after the upload's decision, and a
+  qualifying run wins over any FAILED job (PENDING/LEASED still first). Five Postgres cases in `test_up1_reading_upload_postgres.py`.
+- Merged main (SR-6b Health range): `SiteHealthFrames.tsx` conflict resolved; the entry panel sits in both Health branches.
+- NOT BUILT (L3): the demo-file `--day` option, and the TEL-06b byte-equal comparison of the template/demo file.
+
 ## Known deviations
 - MOCK DEVIATIONs (labelled in `ReadingUpload.tsx` / `SiteHealthFrames.tsx`): no per-step clock times in the tracker
   (one stored time, shown in the head); refusal = the server's one sentence + field, not headline + explanation; the

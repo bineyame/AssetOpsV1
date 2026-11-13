@@ -66,7 +66,8 @@ _ANALYSIS = text(
     "EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s "
     "AND j.status IN ('PENDING', 'LEASED') AND j.window_start < :hi AND j.window_end > :lo) AS pending, "
     "EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s "
-    "AND j.status = 'FAILED' AND j.window_start < :hi AND j.window_end > :lo) AS failed, "
+    "AND j.status = 'FAILED' AND j.window_start < :hi AND j.window_end > :lo "
+    "AND (j.created_at >= (SELECT at FROM decided) OR j.lease_until >= (SELECT at FROM decided))) AS failed, "
     "(SELECT to_char(:lo AT TIME ZONE z.timezone, 'YYYY-MM-DD') FROM site z WHERE z.tenant_id = :t AND z.id = :s) "
     "AS board_day"
 ).bindparams(bindparam("ids", type_=ARRAY(Text)))
@@ -85,6 +86,13 @@ class PostgresReadingUploadStore:
         with self._engine.connect() as c:
             found = c.execute(_LATEST_BY_ROLE, {"t": tenant_id, "s": site_id, "roles": list(roles)})
             return {r.role: r.latest for r in found}
+
+    def site_timezone(self, tenant_id: UUID, site_id: UUID) -> str:
+        """The Site's IANA zone (the refusal words give the latest reading in Site time); UTC when none."""
+        with self._engine.connect() as c:
+            found = c.execute(text("SELECT timezone FROM site WHERE tenant_id = :t AND id = :s"),
+                              {"t": tenant_id, "s": site_id}).scalar()
+        return found or "UTC"
 
     def insert(self, row: UploadRow) -> UploadRow:
         values = {name: getattr(row, name) for name in _COLUMNS}
@@ -114,5 +122,5 @@ class PostgresReadingUploadStore:
                                           "hi": row.period_end}).one()
         if found.pending:
             return Progress(accepted=accepted, analysed=False, board_day=found.board_day)
-        return Progress(accepted=accepted, analysed=bool(found.ran) and not found.failed, failed=bool(found.failed),
+        return Progress(accepted=accepted, analysed=bool(found.ran), failed=bool(found.failed) and not found.ran,
                         board_day=found.board_day)

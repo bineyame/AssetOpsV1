@@ -8,7 +8,8 @@
  *
  * MOCK DEVIATIONs (labelled where they apply):
  * - Part D: the tracker shows no per-step clock times; the server records one time (the save), shown in the head.
- * - Part E: the refusal is the server's one sentence (it already names the rule and the row) plus "row · column";
+ * - Part E: the refusal is the server's one sentence plus the place the server names ("row 7 · timestamp_utc",
+ *   "column 3" for a heading, the meter's role for an already-recorded file); the page never builds it from a path;
  *   the mock's separate explanation line and its "Every refusal" table are review aids, not page content.
  * - The drop zone's review-only state bar (Idle / Hover / Keyboard focus / Dragging) is not built; the states are.
  */
@@ -70,10 +71,13 @@ export function ReadingUploadEntry({ siteId, uploadsHref, client = DEFAULT_CLIEN
   client?: ReadingUploadClient;
 }) {
   const [on, setOn] = useState(false);
+  const [text, setText] = useState("");
   useEffect(() => {
     let live = true;
     void client.entry(siteId).then((entry) => {
-      if (live) setOn(entry.status === "on");
+      if (!live) return;
+      setOn(entry.status === "on");
+      if (entry.status === "on") setText(entry.healthText);
     });
     return () => {
       live = false;
@@ -85,10 +89,7 @@ export function ReadingUploadEntry({ siteId, uploadsHref, client = DEFAULT_CLIEN
       <span className="upload-entry__tile" aria-hidden="true" />
       <div className="upload-entry__text">
         <h2 id="upload-entry-heading">Readings from a file</h2>
-        <p>
-          When the site's connection is down, its readings can be sent as a file in the AssetOps template: solar output
-          and the three feeder meters, every 15 minutes.
-        </p>
+        <p>{text}</p>
       </div>
       <Link className="button primary" to={uploadsHref}>Upload readings</Link>
     </section>
@@ -210,6 +211,7 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
 }) {
   const [step, setStep] = useState<Step>({ kind: "loading" });
   const [templateNote, setTemplateNote] = useState("");
+  const [templateStep, setTemplateStep] = useState("");
   const [drag, setDrag] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
@@ -219,6 +221,7 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
       if (!live) return;
       if (entry.status === "on") {
         setTemplateNote(entry.templateNote);
+        setTemplateStep(entry.templateStep);
         setStep({ kind: "choose" });
       } else {
         setStep({ kind: "off" });
@@ -252,7 +255,7 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
     const result = await client.check(siteId, file);
     if (result.status === "ok") setStep({ kind: "checked", file, checked: result.value, saving: false });
     else if (result.status === "refused") setStep({ kind: "refused", fileName: file.name, refusal: result.refusal });
-    else setStep({ kind: "choose", note: result.status === "unavailable" ? result.message : null });
+    else setStep({ kind: "choose", note: result.status === "unavailable" ? result.message ?? CHECK_LOST : null });
   }, [client, siteId]);
 
   const save = useCallback(async (file: File, checked: UploadChecked) => {
@@ -260,7 +263,7 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
     const result = await client.save(siteId, file);
     if (result.status === "ok") setStep({ kind: "following", status: result.value, lost: false });
     else if (result.status === "refused") setStep({ kind: "refused", fileName: file.name, refusal: result.refusal });
-    else setStep({ kind: "choose", note: result.status === "unavailable" ? result.message : SAVE_LOST });
+    else setStep({ kind: "choose", note: result.status === "unavailable" ? result.message ?? CHECK_LOST : SAVE_LOST });
   }, [client, siteId]);
 
   const again = () => {
@@ -285,7 +288,7 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
               <span className="upload-stepper__dot">1</span>
               <div>
                 <h3>Get the template</h3>
-                <p>A CSV with the time in UTC and {siteName}'s four meters, each with its unit.</p>
+                <p>{templateStep}</p>
                 <a href={readingTemplateHref(siteId)} download data-upload-template="">Download the template (CSV)</a>
               </div>
             </li>
@@ -391,9 +394,9 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
       {step.kind === "refused" ? (
         <div className="upload-refusal" role="alert" data-upload-state="REFUSED">
           <span className="badge status-tone--red">Refused</span>
-          <h2>{step.refusal.message ?? "The file was not saved."}</h2>
+          <h2>{step.refusal.message ?? NOT_SAVED}</h2>
           <p>Nothing from this file was saved; correct it and choose it again.</p>
-          {step.refusal.field ? <span className="upload-where">{step.refusal.field}</span> : null}
+          {step.refusal.where ? <span className="upload-where">{step.refusal.where}</span> : null}
           <div><button type="button" className="button" onClick={again}>Choose the corrected file</button></div>
         </div>
       ) : null}
@@ -405,6 +408,8 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
   );
 }
 
+const CHECK_LOST = "The file could not be checked just now. Nothing was saved; try again.";
+const NOT_SAVED = "The file was not saved. Check it and try again.";
 const SAVE_LOST =
   "The page lost contact while saving, so it cannot tell whether the readings were sent. Sending the same file again " +
   "is safe: readings already saved are refused, never doubled.";

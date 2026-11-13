@@ -27,8 +27,9 @@ GET /api/sites/{id}/evidence/records    -> {store, site_id, window, total, limit
   next_cursor|null, records[RECORD]}
 GET /api/sites/{id}/evidence/records/{evidence_id|message_id}
   -> RECORD + {envelope, accepted_as, receipt, sequence, duplicates[], conflicts[]}
-GET /api/sites/{id}/evidence/rejections?batch= -> {store, site_id, total,
+GET /api/sites/{id}/evidence/rejections?batch=[&from&to] -> {store, site_id, total,
   rejected_without_source_time, rejections[], conflicts[], duplicates[]}
+  SR-12a: `from`/`to` (both or neither) keep the batches received in `[from, to)`.
   A rejection's `source_time` is its own envelope's (null when unreadable);
   a conflict also carries `conflicts_with_source_time` (the original, lineage only).
 """
@@ -62,7 +63,8 @@ class LedgerReads(Protocol):
     def site_window(self, tenant_id: UUID, site_id: UUID, start, end) -> dict: ...
     def records_page(self, tenant_id: UUID, site_id: UUID, **filters) -> dict: ...
     def record_detail(self, tenant_id: UUID, site_id: UUID, key: str) -> list[dict]: ...
-    def rejections(self, tenant_id: UUID, site_id: UUID, batch: str | None) -> dict: ...
+    def rejections(self, tenant_id: UUID, site_id: UUID, batch: str | None,
+                   window: tuple[datetime, datetime] | None = None) -> dict: ...
 
 
 class AwaitingComparison(Exception):
@@ -235,7 +237,8 @@ class ImportedEvidenceReads:
         rows = self._ledger.site_window(scope.tenant_id, scope.site_id, start, end)
         rejections = [_rejection(r) for r in rows["rejections"]]
         everything = start is None and end is None
-        placed = [r for r in rejections if everything or _in(_parse(r["source_time"]), start, end)]
+        placed = [r for r in rejections
+                  if everything or _in(_parse(r["source_time"]) or _parse(r["received_at"]), start, end)]
         conflicts = [r for r in placed if r["kind"] in CONFLICT_KINDS]
         rejected = [r for r in placed if r["kind"] not in CONFLICT_KINDS]
         rejected_batches = {r["batch_id"] for r in placed}
@@ -307,7 +310,7 @@ class ImportedEvidenceReads:
             "sources": sources, "batches": batches, "coverage": coverage,
             "counts": {"accepted": accepted, "duplicates": sum(s["duplicates_in_window"] for s in sources),
                        "rejected": len(rejected), "conflicts": len(conflicts),
-                       "rejected_without_source_time": sum(1 for r in rejections if r["source_time"] is None)},
+                       "rejected_without_source_time": sum(1 for r in placed if r["source_time"] is None)},
             "projection": projection, "migration": migration_summary(scope.comparison),
             "limits": [PROJECTION_STATEMENT,
                        "This view shows accepted evidence and its receipts only; it states no dispatch, "
@@ -375,20 +378,28 @@ class ImportedEvidenceReads:
         })
         return payload
 
-    def rejections(self, scope: ImportedScope, batch: str | None) -> dict:
+    def rejections(self, scope: ImportedScope, batch: str | None,
+                   window: tuple[datetime, datetime] | None = None) -> dict:
+        """SR-12a / D-SR.76 Q8: with `window`, every list and `total` holds the readings whose SOURCE time is in
+        `[from, to)`; a rejection with no source time is placed by its batch receipt time."""
         rows = self._ledger.rejections(scope.tenant_id, scope.site_id, batch)
         rejections = [_rejection(r) for r in rows["rejections"]]
+        if window is not None:
+            rejections = [r for r in rejections if _in(_parse(r["source_time"]) or _parse(r["received_at"]),
+                                                       window[0], window[1])]
+        duplicates = [
+            {"batch_id": d["external_batch_id"], "ordinal": d["ordinal"], "message_id": d["message_id"],
+             "first_accepted_evidence_id": str(d["accepted_evidence_id"]),
+             "received_at": _z(d["received_at"], micro=True), "decided_at": _z(d["decided_at"], micro=True)}
+            for d in rows["duplicates"]
+            if window is None or _in(d.get("source_time") or d["received_at"], window[0], window[1])
+        ]
         return {
             "store": "POSTGRES", "site_id": scope.site_code, "total": len(rejections),
             "rejections": rejections,
             "rejected_without_source_time": sum(1 for r in rejections if r["source_time"] is None),
             "conflicts": [r for r in rejections if r["kind"] in CONFLICT_KINDS],
-            "duplicates": [
-                {"batch_id": d["external_batch_id"], "ordinal": d["ordinal"], "message_id": d["message_id"],
-                 "first_accepted_evidence_id": str(d["accepted_evidence_id"]),
-                 "received_at": _z(d["received_at"], micro=True), "decided_at": _z(d["decided_at"], micro=True)}
-                for d in rows["duplicates"]
-            ],
+            "duplicates": duplicates,
         }
 
 
