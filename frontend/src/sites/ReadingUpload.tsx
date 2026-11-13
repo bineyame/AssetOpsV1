@@ -16,6 +16,7 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent } from "react";
 
 import { RangeLink as Link } from "../ui/RangeLink";
+import { DataTable } from "../ui/DataTable";
 import {
   createReadingUploadClient,
   readingTemplateHref,
@@ -349,8 +350,7 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
               <div><dt>Readings</dt><dd>{step.checked.preview.cells}</dd><small>{step.checked.preview.rows} rows × {step.checked.preview.columns.length} meters</small></div>
               <div><dt>Empty cells</dt><dd>{step.checked.preview.blanks}</dd><small>saved as "no reading"</small></div>
             </dl>
-            <div className="data-table__scroll">
-              <table className="data-table upload-columns">
+            <DataTable>
                 <thead>
                   <tr>
                     <th scope="col">Column in your file</th>
@@ -376,8 +376,7 @@ export function ReadingUploadPage({ siteId, siteName, timeZone, boardHref, clien
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+            </DataTable>
           </div>
           <div className="upload-confirm">
             <button type="button" className="button primary" disabled={step.saving} onClick={() => void save(step.file, step.checked)}>
