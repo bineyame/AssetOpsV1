@@ -18,7 +18,6 @@ import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import { summary } from "./s5WindowFixtures";
 import { MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_RENEWABLE_DAYS, MINI_REVERSED_WINDOW } from "../../sites/MiniPerformance";
-import { localDateOf, localHourWindow } from "../../sites/miniDepthClient";
 import { presetRange, rangeParams } from "../../ui/sharedRange";
 
 let urls: string[] = [];
@@ -154,15 +153,48 @@ describe("SR-2b old date= links on Renewable and Service read the same day as da
   });
 });
 
-describe("SR-4b Kobo/Kisiwa with a range and no day read the range's last day, never today", () => {
+describe("SR-5b Kobo/Kisiwa Overview with a range and no day read the range (range-overview), never one day", () => {
+  // Replaces SR-4b's `overview?date=<range.to>` pins (rev 9 §9.4 "sr2RequestUrls.test.tsx pins"). The range's
+  // instants are the bar's (`rangeParams`), so the warmed stored response matches.
   const RANGED = "from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z"; // 2-8 Nov
+  const RANGE_READ = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z";
   // Dispatch (`windows/<range.to>`) sits behind the analytics and cutover reads; its pin is in performanceDispatch.test.
   it.each([
-    ["Kobo board", "/sites/KOBO-001", "KOBO-001", ["/api/sites/KOBO-001/overview?date=2026-11-08"]],
-    ["Kisiwa board", "/sites/KISIWA-001", "KISIWA-001", ["/api/sites/KISIWA-001/overview?date=2026-11-08"]],
+    ["Kobo board", "/sites/KOBO-001", "KOBO-001", [`/api/sites/KOBO-001/range-overview?${RANGE_READ}`]],
+    ["Kisiwa board", "/sites/KISIWA-001", "KISIWA-001", [`/api/sites/KISIWA-001/range-overview?${RANGE_READ}`]],
   ])("%s", async (_label, path, code, expected) => {
     const got = await siteRequestsAt(`${path}?${RANGED}`, as(HYBRID_MINI_GRID_SITE, code));
-    expect(got.filter((u) => u.includes("/overview"))).toEqual(expected);
+    expect(got.filter((u) => u.includes("/overview") || u.includes("range-overview"))).toEqual(expected);
+  });
+});
+
+describe("SR-5c Kobo/Kisiwa Dispatch with a range and no day read the range (range-overview), never one day", () => {
+  // The imported Site's analytics declaration answers the server's 409, so Performance takes the stored Dispatch path.
+  const RANGED = "from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z"; // 2-8 Nov
+  const RANGE_READ = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z";
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        urls.push(url);
+        if (/^\/api\/sites\/[A-Z0-9-]+\/analytics$/.test(url)) {
+          const detail = { code: "AWAITING_EVIDENCE_MIGRATION", message: "Imported site." };
+          return Promise.resolve(new Response(JSON.stringify({ detail }), { status: 409, headers: { "Content-Type": "application/json" } }));
+        }
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+  });
+  it.each([
+    ["Kobo Dispatch", "/sites/KOBO-001/performance/dispatch", "KOBO-001"],
+    ["Kisiwa Dispatch", "/sites/KISIWA-001/performance/dispatch", "KISIWA-001"],
+    ["Kisiwa Performance", "/sites/KISIWA-001/performance", "KISIWA-001"],
+  ])("%s", async (_label, path, code) => {
+    const got = await siteRequestsAt(`${path}?${RANGED}`, as(HYBRID_MINI_GRID_SITE, code));
+    expect(got.filter((u) => /range-overview|\/dispatch\/windows\/|\/finding-windows\//.test(u))).toEqual([
+      `/api/sites/${code}/range-overview?${RANGE_READ}`,
+    ]);
   });
 });
 
@@ -212,17 +244,32 @@ describe("SR-10k the Kisiwa Fuel tab reads the range's fuel-check nights", () =>
   });
 });
 
+describe("SR-6b mini-grid Health with a range reads health-range over the range's instants", () => {
+  it("the range page and its one-day drill-in", async () => {
+    const range = "from=2026-10-25T00:00:00Z&to=2026-11-01T00:00:00Z";
+    // Sorted: the point-in-time battery and source-health reads stay, beside the one range read.
+    expect(await siteRequestsAt(`/sites/KOBO-001/health?${range}`, as(HYBRID_MINI_GRID_SITE, "KOBO-001"))).toEqual([
+      "/api/sites/KOBO-001/battery",
+      "/api/sites/KOBO-001/health-range?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+      "/api/sites/KOBO-001/source-health",
+    ]);
+    urls = [];
+    expect(await siteRequestsAt(`/sites/KOBO-001/health?${range}&day=2026-10-28`, as(HYBRID_MINI_GRID_SITE, "KOBO-001"))).toEqual([
+      "/api/sites/KOBO-001/battery",
+      "/api/sites/KOBO-001/health-range?from=2026-10-28T00%3A00%3A00Z&to=2026-10-29T00%3A00%3A00Z",
+      "/api/sites/KOBO-001/source-health",
+    ]);
+  });
+});
+
 describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send Site-local bounds and show no refusal", () => {
   // The stub refuses (INVALID_WINDOW, like `hour_windows`) every mini read except the pinned Site-local window, so a
   // client that sends the raw UTC day gets the refusal on screen and a different URL.
   const site = as(HYBRID_MINI_GRID_SITE, "KOBO-001");
-  const tz = site.timezone as string;
   const yesterday = presetRange("yesterday");
   const address = rangeParams({ ...yesterday, known_at: null }).toString();
-  const mini = (page: string, w: { from: string; to: string }) =>
-    `/api/sites/KOBO-001/performance/mini/${page}?${new URLSearchParams(w).toString()}`;
   // SR-8 page: Renewable under a shared range reads the whole range (`renewable-range`, UTC midnights, D-SR.45) and
-  // never the one-day read; Service keeps the 12:00 local hour of the range's last day.
+  // never the one-day read. (Service over a range: SR-7 below.)
   it("renewable reads the range route once over the range's UTC-midnight window", async () => {
     vi.stubGlobal(
       "fetch",
@@ -241,33 +288,30 @@ describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send
     await settledScreen();
     expect(urls.filter((u) => u.includes("/performance/mini/renewable"))).toEqual([]);
     expect(urls.filter((u) => u.includes("/renewable-range"))).toEqual([`/api/sites/KOBO-001/renewable-range?${address}`]);
-    view.unmount();
-  });
-  it.each([
-    ["service", mini("service", localHourWindow(tz, localDateOf(tz, Date.parse(`${yesterday.to}T00:00:00Z`)), 12))],
-  ])("%s", async (page, expected) => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn((input: RequestInfo | URL) => {
-        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-        urls.push(url);
-        if (url.includes(`/performance/mini/${page}?`) && url !== expected) {
-          return Promise.resolve(new Response(JSON.stringify({ detail: { code: "INVALID_WINDOW" } }), { status: 422, headers: { "Content-Type": "application/json" } }));
-        }
-        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
-      }),
-    );
-    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site }) };
-    const view = render(
-      <MemoryRouter initialEntries={[`/sites/KOBO-001/performance/${page}?${address}`]}>
-        <App flags={featureFlagsWith(false)} siteDetail={detail} />
-      </MemoryRouter>,
-    );
-    await settledScreen();
-    expect(urls.filter((u) => u.includes(`/performance/mini/${page}?`))).toEqual([expected]);
     for (const copy of [MINI_RENEWABLE_DAYS, MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_REVERSED_WINDOW]) {
       expect(screen.queryByText(copy)).toBeNull();
     }
     view.unmount();
+  });
+});
+
+describe("SR-7 / SR-11: Service and Backup over a range send one range read with the range's instants", () => {
+  // Rev 10 §10.3 / 10b.3: a range without an hour reads `service-range` / `backup-range` (was SR-4 H-1's Service hour
+  // under "Yesterday"); Site Evidence's claim-limit section with no day reads `claim-limit-range`. No hour read is sent.
+  const site = as(HYBRID_MINI_GRID_SITE, "KOBO-001");
+  const yesterday = presetRange("yesterday");
+  const Y = rangeParams({ ...yesterday, known_at: null }).toString();
+  const W = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z";
+  const K = "known_at=2026-11-09T06%3A00%3A00Z";
+  it.each([
+    ["Service, Yesterday", `/sites/KOBO-001/performance/service?${Y}`, `/api/sites/KOBO-001/service-range?${Y}`],
+    ["Service, 7 days at a cutoff", `/sites/KOBO-001/performance/service?${W}&${K}`, `/api/sites/KOBO-001/service-range?${W}&${K}`],
+    ["Backup, 7 days", `/sites/KOBO-001/performance/backup?${W}`, `/api/sites/KOBO-001/backup-range?${W}`],
+    ["Backup, Kisiwa 7 days", `/sites/KISIWA-001/performance/backup?${W}`, `/api/sites/KISIWA-001/backup-range?${W}`],
+  ])("%s", async (_label, path, expected) => {
+    const code = path.split("/")[2];
+    const got = await siteRequestsAt(path, code === "KOBO-001" ? site : as(HYBRID_MINI_GRID_SITE, code));
+    expect(got.filter((u) => u.includes("-range?"))).toEqual([expected]);
+    expect(got.filter((u) => /\/performance\/mini\/(service|backup)\?/.test(u))).toEqual([]);
   });
 });

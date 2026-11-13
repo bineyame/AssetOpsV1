@@ -5,7 +5,7 @@
  * browser's); `known_at` is optional.
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
-import { addressRange, focusDayOf, pageDay, rangeDays, rangeWindow } from "../ui/sharedRange";
+import { addressRange, focusDayOf, pageDay, rangeDays, rangeWindow, readSharedRange } from "../ui/sharedRange";
 
 /** The served mini tabs, in the backend's order (S6). */
 export const MINI_DOMAINS = ["service", "fuel", "renewable", "backup"] as const;
@@ -517,6 +517,41 @@ export function localHourWindow(timeZone: string, day: string, hour: number): { 
   return { from: new Date(start).toISOString(), to: new Date(start + 3_600_000).toISOString() };
 }
 
+/** D-SR.59: `from`/`to` are instants exactly one Site-local clock hour apart (a story link or the hour picker). */
+export function isOneLocalHour(timeZone: string, from: string, to: string): boolean {
+  const lo = Date.parse(from);
+  const hi = Date.parse(to);
+  return INSTANT_TOKEN.test(from) && INSTANT_TOKEN.test(to) && hi - lo === 3_600_000 && lo % 60_000 === 0 &&
+    localTimeOf(timeZone, lo).endsWith(":00");
+}
+
+/**
+ * SR-7a / SR-11 (rev 10 §10.3, rev 10b.3): the range a Service or Backup tab shows as a day table. A valid shared range
+ * with no page day (`day=`) and not one Site-local clock hour is the range view; anything else (a story hour, a
+ * `day=` link, a reversed or one-sided pair, no range) keeps the one-hour page and its window rule.
+ */
+export function miniRangeView(
+  params: URLSearchParams,
+  timeZone: string,
+  now: Date = new Date(),
+): { from: string; to: string; known_at: string | null } | null {
+  if (focusDayOf(params) !== null) return null;
+  const from = params.get("from");
+  const to = params.get("to");
+  if (from !== null && to !== null && isOneLocalHour(timeZone, from, to)) return null;
+  const state = readSharedRange(params, now.getTime());
+  return state.status === "set" ? { ...rangeWindow(state), known_at: state.known_at } : null;
+}
+
+/** D-SR.76: the address names a `from`/`to` that is not whole UTC days, so the day table says it shows whole days. */
+export function isPartialDayAddress(params: URLSearchParams): boolean {
+  const from = params.get("from");
+  const to = params.get("to");
+  if (from === null || to === null) return false;
+  const day = 86_400_000;
+  return Date.parse(from) % day !== 0 || Date.parse(to) % day !== 0;
+}
+
 /** The service page's local hour when the address names none: 12:00-13:00 local (handoff Run 15, Q5). */
 export const DEFAULT_SERVICE_HOUR = 12;
 
@@ -532,11 +567,8 @@ export function serviceWindowFromParams(params: URLSearchParams, timeZone: strin
   const to = params.get("to");
   const known_at = params.get("known_at");
   if (from !== null && to !== null) {
-    const lo = Date.parse(from);
-    const hi = Date.parse(to);
-    if (INSTANT_TOKEN.test(from) && INSTANT_TOKEN.test(to) && hi - lo === 3_600_000 && lo % 60_000 === 0 &&
-        localTimeOf(timeZone, lo).endsWith(":00")) return { from, to, known_at };
-    if (!(hi > lo) && addressRange(params, now.getTime()) === null) return { from, to, known_at };
+    if (isOneLocalHour(timeZone, from, to)) return { from, to, known_at };
+    if (!(Date.parse(to) > Date.parse(from)) && addressRange(params, now.getTime()) === null) return { from, to, known_at };
   }
   // D-SR.59 L-4: the day comes from `readSharedRange` (`pageDay`), never the raw bounds.
   const utcDay = pageDay(params, now.getTime());

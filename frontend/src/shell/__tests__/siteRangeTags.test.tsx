@@ -81,9 +81,12 @@ const NOW = (spokenNote: string) =>
   new RegExp(`^Date range for the other pages: .*\\. This page shows ${spokenNote}; the range is not used here\\. Change$`);
 
 describe("SR-4c: the bar tag and spoken name per page and Site type (rev 8 §8.2)", () => {
-  it("mini-grid: Health shows now, Financials and Prices the prices valid now, Foundation the current settings", async () => {
-    await expectTag("/sites/KOBO-001/health", "Range not used · shows now", "now", NOW("the present state"));
-    await expectTag("/sites/KOBO-001/financials", "Range not used · prices valid now", "now", NOW("the prices valid now"));
+  it("mini-grid: Health and Financials follow the range, Prices the prices valid now, Foundation the current settings", async () => {
+    // SR-6b (rev 10 §10.2) supersedes SR-4c's "shows now" on mini-grid Health: the range page declares nothing.
+    await expectTag("/sites/KOBO-001/health", "All pages", null, FOLLOWS);
+    await expectTag("/sites/KISIWA-001/health", "All pages", null, FOLLOWS);
+    // SR-5d (rev 9 §9.4): the range money makes the Financials overview declare nothing ("All pages").
+    await expectTag("/sites/KOBO-001/financials", "All pages", null, FOLLOWS);
     await expectTag("/sites/KOBO-001/financials/assumptions", "Range not used · prices valid now", "now", NOW("the prices valid now"));
     await expectTag("/sites/KOBO-001/financials/prices", "Range not used · prices valid now", "now", NOW("the prices valid now"));
     await expectTag("/sites/KOBO-001/foundation", "Range not used · current settings", "now", NOW("the current settings"));
@@ -144,13 +147,21 @@ describe("SR-4c: the bar tag and spoken name per page and Site type (rev 8 §8.2
     outside.unmount();
   });
 
-  it("mini-grid: Service shows one day of the range; Renewable over a range follows it whole (SR-8 page)", async () => {
-    await expectTag(
-      "/sites/KOBO-001/performance/service",
-      "Showing 9 Nov of the range",
-      "inside",
-      /\. This page shows one day of it: 9 Nov 2026\. Change$/,
-    );
+  it("SR-6b: the mini-grid Health drill-in declares its one day", async () => {
+    const view = await open(`/sites/KOBO-001/health?${RANGE}&day=2026-11-05`);
+    expect(tag()?.textContent).toBe("Showing 5 Nov of the range");
+    expect(tag()?.getAttribute("data-shared-range-focus")).toBe("inside");
+    view.unmount();
+  });
+
+  it("mini-grid: Service over the range follows it (SR-7a), its hour shows one day; Renewable over a range follows it whole (SR-8 page)", async () => {
+    // SR-7a (rev 10 §10.3, D-SR.57): a range without an hour is the day table, which declares nothing.
+    await expectTag("/sites/KOBO-001/performance/service", "All pages", null, FOLLOWS);
+    const hour = await open("/sites/KOBO-001/performance/service?from=2026-11-09T09:00:00Z&to=2026-11-09T10:00:00Z");
+    expect(tag()?.textContent).toBe("Showing 9 Nov of the range");
+    expect(tag()?.getAttribute("data-shared-range-focus")).toBe("inside");
+    expect(button().getAttribute("aria-label")).toMatch(/\. This page shows one day of it: 9 Nov 2026\. Change$/);
+    hour.unmount();
     // Was "Showing 5–9 Nov of the range" (SR-4b's last 5 days); the range view reads every day and declares nothing.
     await expectTag("/sites/KOBO-001/performance/renewable", "All pages", null, FOLLOWS);
   });

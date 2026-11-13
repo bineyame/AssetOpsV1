@@ -159,6 +159,7 @@
     {
       "id": "readiness",
       "gap_ids": [
+        "G-readiness-capability-assessable",
         "G-readiness-commissioning",
         "G-readiness-confidence-effect",
         "G-readiness-evidence-capability",

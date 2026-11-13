@@ -5,7 +5,7 @@
  * Every number is the selected read's; a missing value reads `Unknown`, never a mock literal.
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
 
@@ -28,6 +28,8 @@ import {
   localDaysWindow,
   localHourWindow,
   localTimeOf,
+  isPartialDayAddress,
+  miniRangeView,
   miniWindowSearch,
   type MiniBound,
   type MiniCapability,
@@ -60,6 +62,10 @@ import { formatDayTime, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { RangeSpan } from "../ui/rangeFocus";
 import { addressRange, rangeWindow, useSharedRange } from "../ui/sharedRange";
+import { MiniServiceRange } from "./MiniServiceRange";
+import { MiniBackupRange } from "./MiniBackupRange";
+import { BackToRange } from "./SiteRangeParts";
+import type { SiteRangeClient } from "./siteRangeClient";
 
 /* ---------- sibling tabs ---------- */
 
@@ -1058,10 +1064,13 @@ function MiniHourBar({
   timeZone,
   window,
   onApply,
+  back,
 }: {
   timeZone: string;
   window: MiniWindowQuery;
   onApply: (next: MiniWindowQuery) => void;
+  /** SR-7a / SR-11: "Back to the whole range", inside the period bar. */
+  back?: ReactNode;
 }) {
   const fromMs = window.from === null ? Number.NaN : Date.parse(window.from);
   const toMs = window.to === null ? Number.NaN : Date.parse(window.to);
@@ -1106,6 +1115,7 @@ function MiniHourBar({
       <button type="submit" className="v69-chip-control">
         Apply
       </button>
+      {back}
     </form>
   );
 }
@@ -1336,21 +1346,30 @@ export function MiniServicePage({ read }: { read: ServiceRead }) {
   );
 }
 
-/** The Service page body: the hour bar, then the selected read or its refusal. */
-export function MiniService({
-  client,
-  siteCode,
-  timeZone,
-  window,
-  pageHref,
-}: {
+interface MiniTabProps {
   client: MiniDepthClient;
   siteCode: string;
   timeZone: string | null;
   window: MiniWindowQuery | null;
   pageHref: (search: string) => string;
-}): ReactNode {
+  rangeClient?: SiteRangeClient;
+}
+
+/**
+ * The Service tab: over a date range, the day table (SR-7a, `MiniServiceRange`); for one Site-local hour (a story link,
+ * the hour picker, a `day=` drill-in) the existing hour page with "Back to the whole range" (rev 10 §10.3).
+ */
+export function MiniService(props: MiniTabProps): ReactNode {
+  const [params] = useSearchParams();
+  const range = props.timeZone === null ? null : miniRangeView(params, props.timeZone);
+  if (range !== null) return <MiniServiceRange siteCode={props.siteCode} window={range} framed={isPartialDayAddress(params)} client={props.rangeClient} />;
+  return <MiniServiceHour {...props} />;
+}
+
+/** The Service hour page body: the hour bar, then the selected read or its refusal. */
+function MiniServiceHour({ client, siteCode, timeZone, window, pageHref }: MiniTabProps): ReactNode {
   const navigate = useNavigate();
+  const location = useLocation();
   const [attempt, setAttempt] = useState(0);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<ServiceRead>(
@@ -1362,7 +1381,13 @@ export function MiniService({
   return (
     <>
       {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
-      <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
+      <MiniHourBar
+        key={key}
+        timeZone={timeZone}
+        window={window}
+        onApply={(next) => navigate(pageHref(miniWindowSearch(next)), { state: location.state })}
+        back={<BackToRange path={pageHref("")} />}
+      />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (
@@ -2029,21 +2054,21 @@ export function MiniBackupPage({ read, timeZone }: { read: BackupRead; timeZone:
   );
 }
 
-/** The Backup page body: the hour bar, then the selected read or its refusal. */
-export function MiniBackup({
-  client,
-  siteCode,
-  timeZone,
-  window,
-  pageHref,
-}: {
-  client: MiniDepthClient;
-  siteCode: string;
-  timeZone: string | null;
-  window: MiniWindowQuery | null;
-  pageHref: (search: string) => string;
-}): ReactNode {
+/**
+ * The Backup tab: over a date range, the day table (SR-11, `MiniBackupRange`); for one Site-local hour the existing hour
+ * page with "Back to the whole range" (rev 10b.3).
+ */
+export function MiniBackup(props: MiniTabProps): ReactNode {
+  const [params] = useSearchParams();
+  const range = props.timeZone === null ? null : miniRangeView(params, props.timeZone);
+  if (range !== null) return <MiniBackupRange siteCode={props.siteCode} window={range} framed={isPartialDayAddress(params)} client={props.rangeClient} />;
+  return <MiniBackupHour {...props} />;
+}
+
+/** The Backup hour page body: the hour bar, then the selected read or its refusal. */
+function MiniBackupHour({ client, siteCode, timeZone, window, pageHref }: MiniTabProps): ReactNode {
   const navigate = useNavigate();
+  const location = useLocation();
   const [attempt, setAttempt] = useState(0);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<BackupRead>(
@@ -2055,7 +2080,13 @@ export function MiniBackup({
   return (
     <>
       {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
-      <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
+      <MiniHourBar
+        key={key}
+        timeZone={timeZone}
+        window={window}
+        onApply={(next) => navigate(pageHref(miniWindowSearch(next)), { state: location.state })}
+        back={<BackToRange path={pageHref("")} />}
+      />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : read.status !== "loaded" ? (

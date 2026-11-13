@@ -79,6 +79,7 @@ import { SiteFinding, type FindingCostClient } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
+import type { RangeOverviewClient } from "../sites/rangeOverviewClient";
 import { BUILT_MINI_PAGES, MiniBackup, MiniFuel, MiniPerformanceSubtabs, MiniRenewable, MiniService } from "../sites/MiniPerformance";
 import {
   createMiniDepthClient,
@@ -245,10 +246,13 @@ export function SitePerformanceFrame({
   coldDepth = DEFAULT_COLD_DEPTH,
   evDepth = DEFAULT_EV_DEPTH,
   fuelBalance = DEFAULT_FUEL_BALANCE,
+  rangeOverview,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
+  /** SR-5c: the mini-grid range read; Dispatch with a range and no day shows "Dispatch by day". */
+  rangeOverview?: RangeOverviewClient;
   /** DIESEL-K5: the fuel-balance nights; a MINIGRID Site with stored windows renders the Fuel page in night mode. */
   fuelBalance?: FuelBalanceClient;
   /** W2-03: the selected cold assessment reads; a COLDCHAIN Site renders `temperature` / `coldbackup` from them. */
@@ -430,7 +434,7 @@ export function SitePerformanceFrame({
           <SitePerformance
             siteId={site.site_id}
             client={analytics}
-            miniDepth={site.site_type === "MINIGRID" ? miniDepth : undefined}
+            {...(site.site_type === "MINIGRID" ? { miniDepth, rangeOverview } : {})}
             profile={presentationProfileFor(site.site_type)}
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}
@@ -1246,6 +1250,8 @@ export function SiteOpportunityFrame({
   financials?: FinancialsClient;
 }) {
   const { siteId, opportunityId } = useParams<{ siteId: string; opportunityId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   // PR-12.6: `?known_at=` is parsed and preserved as given; no query means current time.
   const [params] = useSearchParams();
   const knownAt = params.getAll("known_at");
@@ -1427,10 +1433,13 @@ export function SiteFinancialsFrame({
   miniDecisions = DEFAULT_MINI_DECISIONS,
   coldScenarioList = DEFAULT_COLD_SCENARIOS,
   forwardBareAssumptions = false,
+  rangeOverview,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   view: "overview" | "assumptions" | "scenarios";
+  /** SR-5d: the mini-grid range read; the Financials overview adds the range money. */
+  rangeOverview?: RangeOverviewClient;
   /**
    * PR-2a default 2: the app's old `/financials/assumptions` address forwards to the Site price page when it carries
    * no price-version pin. A pinned address (`revision_id`, `recorded_at`, `history_*`: the money "Why?" targets) and
@@ -1593,8 +1602,9 @@ export function SiteFinancialsFrame({
               description={SITE_SCREEN_DESCRIPTIONS[view === "assumptions" ? "assumptions" : "financials"]}
               headingId={SITE_FINANCIALS_HEADING_ID}
             />
-            {/* SR-4c (D-SR.6): mini-grid Financials values the prices valid now; the bar says the range is not used. */}
-            {mini ? <RangeNotUsed note="prices valid now" /> : null}
+            {/* SR-4c (D-SR.6): the mini-grid assumptions value the prices valid now. SR-5d: the Overview declares for itself
+                (the range money with a range, else prices valid now). */}
+            {mini && view !== "overview" ? <RangeNotUsed note="prices valid now" /> : null}
             <OperatorSiteTabs siteId={siteId} current="Financials" />
             <FinancialsSections
               siteId={site.site_id}
@@ -1604,7 +1614,13 @@ export function SiteFinancialsFrame({
             {view === "assumptions" ? (
               <SiteAssumptions siteId={site.site_id} client={financials} links={links} />
             ) : (
-              <SiteFinancialsOverview siteId={site.site_id} client={financials} links={links} />
+              <SiteFinancialsOverview
+                siteId={site.site_id}
+                client={financials}
+                links={links}
+                rangeOverview={mini ? rangeOverview : undefined}
+                rangeDayHref={(d) => `${siteDetailHref(site.site_id)}?day=${encodeURIComponent(d)}`}
+              />
             )}
           </main>
         );
@@ -1969,6 +1985,8 @@ export function SiteActionFrame({
   domainActions?: DomainActionClient;
 }) {
   const { siteId, actionId, actionView: rawActionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   // post-W6 W1-b Q33 / R222 (pre-flight ruling 9): `/overview` is an alias of the canonical bare Action route, for
   // every Site type, with no selected state of its own.
   const actionView = rawActionView === "overview" ? undefined : rawActionView;
@@ -2646,6 +2664,8 @@ export function SiteFuelFindingFrame({
   client?: FuelBalanceClient;
 }) {
   const { siteId, findingId } = useParams<{ siteId: string; findingId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   const [params] = useSearchParams();
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Findings" headingId={SITE_FUEL_FINDING_HEADING_ID}>
@@ -2717,6 +2737,8 @@ export function SiteMillVerificationFrame({
   client?: MillVerificationClient;
 }) {
   const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_MILL_VERIFICATION_HEADING_ID}>
       {(site) => <MillVerificationPage site={site} actionId={actionId ?? ""} client={client} />}
@@ -2785,6 +2807,8 @@ export function SiteFuelVerificationFrame({
   client?: FuelVerificationClient;
 }) {
   const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_FUEL_VERIFICATION_HEADING_ID}>
       {(site) => <FuelVerificationPage site={site} actionId={actionId ?? ""} client={client} />}
