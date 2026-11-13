@@ -33,6 +33,7 @@ import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { expectStateLineVisible, visibleOutsideClosedDisclosure } from "../../test/productPresentation";
 import { describeViolations, scanDisclosureVocabulary, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { F104 } from "../../sites/__tests__/outcomeFixtures";
 import { boardBody, fakeOutcomeBoard, planWarning } from "../../test/outcomeBoardFixture";
 import type { OutcomeBoardClient } from "../../sites/outcomeBoardClient";
@@ -127,6 +128,8 @@ describe("S4-04 Site Findings index: assessed empty (sitefindings:1#a)", () => {
     ]);
     expect(state()).toBe("current-empty");
     expect(claim()).toBe("No Findings in this window");
+    // UQ-FI-2 (rev 6 6.1 P6): the Site Findings page has one h1 (the v69 Site heading), first in its header.
+    expectOneHeadline("Kalangala Mini-Grid");
     // W1-UX-02: the list reference moved into the labelled exact-reference disclosure, and the
     // per-day basis into the day strip (checked and matched).
     expect(exactValue("List reference")).toBe(TOKEN);

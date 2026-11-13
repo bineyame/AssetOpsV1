@@ -35,7 +35,7 @@
 
 .estate-evidence .estate-cell__secondary {
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .estate-evidence-table .data-table__scroll {
@@ -74,7 +74,7 @@
 .estate-evidence-meta {
   display: block;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--font-size-100);
   white-space: nowrap;
 }
 
@@ -83,7 +83,7 @@
 }
 
 .estate-evidence-table .disclosure--inline > .disclosure__summary {
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .estate-evidence-table--coverage .data-table__scroll {
@@ -104,7 +104,7 @@
 .estate-evidence-note {
   margin: 4px 0 0;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.4;
 }
 
@@ -114,7 +114,7 @@
   align-items: baseline;
   gap: 2px 12px;
   margin-top: 8px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .estate-evidence-examples__label {
@@ -132,7 +132,7 @@
   grid-template-columns: max-content 1fr;
   gap: 2px 8px;
   margin: 4px 0;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .estate-evidence-facts dd {

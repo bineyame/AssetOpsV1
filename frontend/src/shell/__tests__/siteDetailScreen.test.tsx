@@ -14,6 +14,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { spacedText } from "../../test/text";
 
 /**
@@ -312,6 +313,13 @@ describe("Quick actions obey the gate rule and the sequencing rule separately", 
     expect(
       within(container).getByRole("heading", { level: 1 }).textContent,
     ).toBe("Kalangala Mini-Grid"); // W1-F2: the v69 Site heading is the site name (still the same site, no navigation)
+  });
+
+  it("uqfi2_site_board_has_one_headline_the_site_name", async () => {
+    // UQ-FI-2 (rev 6 6.1 P2): one h1 on the mini Site board, the Site name, first in its page header.
+    renderAt(SITE_PATH, ENABLED, countingDetailClient());
+    await settledScreen();
+    expectOneHeadline("Kalangala Mini-Grid");
   });
 });
 

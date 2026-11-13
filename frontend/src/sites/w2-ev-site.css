@@ -16,13 +16,13 @@
 }
 
 [data-ev-site-view] .ev-site-strip-note {
-  margin-left: 6px;
+  margin-left: var(--space-1);
 }
 
 [data-ev-site-view] .ev-site-detail {
   display: block;
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   font-weight: 400;
   color: var(--text-muted, #5f6b7a);
 }
@@ -36,21 +36,21 @@
 }
 
 [data-ev-site-view] .ev-site-link {
-  margin-top: 10px;
+  margin-top: var(--space-2);
 }
 
 [data-ev-site-view] .ev-site-list {
   margin: 0;
-  padding-left: 18px;
+  padding-left: var(--space-4);
   overflow-wrap: anywhere;
 }
 
 [data-ev-site-view] .ev-site-list li + li {
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 
 [data-ev-site-view] .ev-site-group + .ev-site-group {
-  margin-top: 10px;
+  margin-top: var(--space-2);
 }
 
 [data-ev-site-view] .data-table th,
@@ -79,7 +79,7 @@
 }
 
 [data-ev-site-view] .ev-site-chart__tick {
-  font-size: 10px;
+  font-size: var(--font-size-100);
   fill: var(--text-muted, #5f6b7a);
 }
 
@@ -103,9 +103,9 @@
 [data-ev-site-view] .ev-site-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px 12px;
-  margin-top: 4px;
-  font-size: 12px;
+  gap: 2px var(--space-3);
+  margin-top: var(--space-1);
+  font-size: var(--font-size-100);
   color: var(--text-muted, #5f6b7a);
 }
 
@@ -114,7 +114,7 @@
   display: inline-block;
   width: 10px;
   height: 3px;
-  margin-right: 4px;
+  margin-right: var(--space-1);
   vertical-align: middle;
 }
 

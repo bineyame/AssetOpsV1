@@ -1,0 +1,86 @@
+{
+ "note": "UQ-FI-1 (D-UQFI.3): per-file raw style counts; shrink-only via --shrink. rawFontSize and rawFontFamily are 0 everywhere after tools/uqfi-type-codemod.mjs, so only rawHex has rows.",
+ "files": {
+  "estate/estate.css": {
+   "rawHex": 15
+  },
+  "estate/estateEvidence.css": {
+   "rawHex": 10
+  },
+  "estate/estatePortfolio.css": {
+   "rawHex": 103
+  },
+  "shell/runIngestion.css": {
+   "rawHex": 4
+  },
+  "sites/coldScenarios.css": {
+   "rawHex": 4
+  },
+  "sites/evHealthDepth.css": {
+   "rawHex": 1
+  },
+  "sites/outcomes.css": {
+   "rawHex": 9
+  },
+  "sites/periodStrip.css": {
+   "rawHex": 1
+  },
+  "sites/w1f3-finding-history.css": {
+   "rawHex": 1
+  },
+  "sites/w1f4-action.css": {
+   "rawHex": 15
+  },
+  "sites/w1f4-changes-work.css": {
+   "rawHex": 5
+  },
+  "sites/w1f4-recommendation.css": {
+   "rawHex": 5
+  },
+  "sites/w1f4-verification.css": {
+   "rawHex": 7
+  },
+  "sites/w1ux02-finding.css": {
+   "rawHex": 2
+  },
+  "sites/w1ux02-money.css": {
+   "rawHex": 5
+  },
+  "sites/w2-cold-assessment.css": {
+   "rawHex": 30
+  },
+  "sites/w2-cold-foundation.css": {
+   "rawHex": 14
+  },
+  "sites/w2-cold-site.css": {
+   "rawHex": 14
+  },
+  "sites/w2-ev-assessment.css": {
+   "rawHex": 9
+  },
+  "sites/w2-ev-foundation.css": {
+   "rawHex": 29
+  },
+  "sites/w2-ev-site.css": {
+   "rawHex": 20
+  },
+  "sites/w4-mini-decisions.css": {
+   "rawHex": 17
+  },
+  "sites/w4-mini-performance.css": {
+   "rawHex": 4
+  },
+  "sites/w4-work-cases.css": {
+   "rawHex": 6
+  },
+  "ui/primitives.css": {
+   "rawHex": 111
+  },
+  "work/globalWork.css": {
+   "rawHex": 17
+  }
+ },
+ "totals": {
+  "rawHex": 458
+ }
+}

@@ -1,12 +1,12 @@
 /* CH-5b3: shared blocks (mock v70 index.html :31, :207-222, :239). Colours from the app tokens, so dark mode follows. */
 
 /* The "Why?" button (mock .why-btn, min-height 24px). */
-.why-btn { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 9px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); color: var(--accent); font: inherit; font-size: 11px; font-weight: 600; cursor: pointer; vertical-align: middle; }
+.why-btn { display: inline-flex; align-items: center; min-height: 24px; padding: 2px var(--space-2); border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-raised); color: var(--accent); font: inherit; font-size: var(--font-size-100); font-weight: 600; cursor: pointer; vertical-align: middle; }
 .why-btn:hover { filter: brightness(0.97); }
 .why-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* The board row head: the value then the button (mock .ob-head > .ob-val + .why-btn). */
-.ob-head .ob-val { margin-right: 8px; }
+.ob-head .ob-val { margin-right: var(--space-2); }
 .ob-head .why-btn { font-weight: 600; }
 
 /* The Portfolio card: a div card with a stretched label link; the button sits above the link (mock .oc-pfcard). */
@@ -16,26 +16,28 @@
 .oc-cardlink::after { content: ""; position: absolute; inset: 0; border-radius: 7px; }
 .oc-cardlink:focus-visible { outline: none; }
 .oc-cardlink:focus-visible::after { outline: 2px solid var(--accent); outline-offset: -2px; }
-.oc-pfval { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.oc-pfval .value-number { margin-bottom: 4px; }
 .oc-pfcard .why-btn { position: relative; z-index: 2; }
 
 /* The trace dialog (mock .conf-pop.why-pop): a native modal <dialog>, placed under the button above 600px. */
-.conf-pop.why-pop { position: absolute; inset: auto; margin: 0; max-width: none; max-height: none; box-sizing: border-box; z-index: 1000; background: var(--surface-raised); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 14px 34px rgba(22, 35, 63, .18); padding: 13px 14px; display: flex; flex-direction: column; gap: 9px; font-size: 11px; }
+.conf-pop.why-pop { position: absolute; inset: auto; margin: 0; max-width: none; max-height: none; box-sizing: border-box; z-index: 1000; background: var(--surface-raised); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 14px 34px rgba(22, 35, 63, .18); padding: var(--space-3) var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--font-size-100); }
 .conf-pop.why-pop:not([open]) { display: none; }
 .conf-pop.why-pop::backdrop { background: transparent; }
-.why-pop .conf-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; }
-.why-pop [data-why-state] { display: flex; flex-direction: column; gap: 9px; }
-.why-pop .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-secondary); }
-.why-pop .why-say { font-size: 12px; font-weight: 600; line-height: 1.5; margin: 0; }
-.why-pop .why-from { margin: 0; padding-left: 16px; line-height: 1.55; }
+.why-pop .conf-head { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; font-weight: 600; }
+.why-pop [data-why-state] { display: flex; flex-direction: column; gap: var(--space-2); }
+.why-pop .eyebrow { font-size: var(--font-size-100); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-secondary); }
+.why-pop .why-say { font-size: var(--font-size-100); font-weight: 600; line-height: 1.5; margin: 0; }
+.why-pop .why-from { margin: 0; padding-left: var(--space-4); line-height: 1.55; }
 .why-pop .why-from li { margin: 2px 0; }
 .why-pop .why-p { margin: 0; line-height: 1.55; }
 .why-pop .conf-cta a { color: var(--accent); font-weight: 600; }
 /* MOCK DEVIATION MD-CH5b-5: the mock shows Close only on the sheet; the modal shows it at every width. */
-.why-close { margin-left: auto; border: 1px solid var(--border-subtle); background: var(--surface-raised); border-radius: 6px; padding: 3px 10px; min-height: 24px; font: inherit; font-size: 11px; font-weight: 600; color: var(--accent); cursor: pointer; }
+.why-close { margin-left: auto; border: 1px solid var(--border-subtle); background: var(--surface-raised); border-radius: 6px; padding: var(--space-1) var(--space-2); min-height: 24px; font: inherit; font-size: var(--font-size-100); font-weight: 600; color: var(--accent); cursor: pointer; }
 .why-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .conf-pop.why-pop.sheet .why-close { display: inline-flex; align-items: center; min-height: 32px; }
 /* At 600px or less: the bottom sheet (mock .why-pop.sheet). */
-.conf-pop.why-pop.sheet { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: 72vh; overflow: auto; border-radius: 12px 12px 0 0; padding: 16px 16px 20px; font-size: 12px; }
+.conf-pop.why-pop.sheet { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: 72vh; overflow: auto; border-radius: 12px 12px 0 0; padding: var(--space-4) var(--space-4) var(--space-5); font-size: var(--font-size-100); }
 .conf-pop.why-pop.sheet::backdrop { background: rgba(23, 36, 59, .25); }
+
+/* UQ-FI-3: a Portfolio card's qualifiers, behind its "Why?" (under the server's words). */
+.why-more { border-top: 1px solid var(--border-subtle); margin-top: var(--space-3); padding-top: var(--space-3); display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--font-size-200); color: var(--text-secondary); }
+.why-more p, .why-more dl { margin: 0; }

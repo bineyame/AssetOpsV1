@@ -61,6 +61,8 @@ import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
 import { formatDayTime, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
+import { GapGroup } from "../ui/GapGroup";
+import type { GapItem } from "../ui/gapGroup";
 
 export const FINDING_VIEWS_LABEL = "Finding views";
 /** The v69 `finding` screen question (W1-UX-02). */
@@ -96,6 +98,7 @@ export function SiteFinding({
   client,
   links,
   onTitle,
+  onHeadline,
   financials,
 }: {
   siteId: string;
@@ -103,6 +106,11 @@ export function SiteFinding({
   client: FindingClient;
   links: SiteFindingLinks;
   onTitle?: (title: string) => void;
+  /**
+   * UQ-FI-2 (rev 6 6.1 P3, D-UQFI.8): the page headline, the Finding's title then its first sentence, for the
+   * frame's page header (the status strip then sits under them). Both Finding frames take it.
+   */
+  onHeadline?: (headline: FindingHeadline) => void;
   /**
    * The Site's timezone. Accepted for the frames' shared props; PB-3 L4 (Addendum 13): this page shows clock times
    * in UTC like every other screen, so it is not used for display.
@@ -135,6 +143,11 @@ export function SiteFinding({
   useEffect(() => {
     onTitle?.(title);
   }, [onTitle, title]);
+  const headline = read?.status === "loaded" ? findingHeadline(read.value) : null;
+  const sentence = headline?.sentence ?? null;
+  useEffect(() => {
+    onHeadline?.({ title, sentence });
+  }, [onHeadline, title, sentence]);
 
   if (read === null) {
     return <p>Loading the finding.</p>;
@@ -175,6 +188,18 @@ export function SiteFinding({
       <WhereToLook body={body} links={links} params={params} />
     </div>
   );
+}
+
+export interface FindingHeadline {
+  title: string;
+  /** The first sentence of the Finding's lifecycle sentence, as written; null when nothing is loaded. */
+  sentence: string | null;
+}
+
+/** UQ-FI-2 (rev 6 6.1 P3): the Finding's title, then its first sentence (existing words, cut at the first full stop). */
+export function findingHeadline(body: FindingDetailBody): FindingHeadline {
+  const sentence = LIFECYCLE_WORDS[body.revision.lifecycle]?.sentence ?? null;
+  return { title: titleOf(body), sentence: sentence === null ? null : sentence.split(/(?<=\.)\s/)[0] };
 }
 
 function titleOf(body: FindingDetailBody): string {
@@ -455,14 +480,19 @@ function FindingAnswer({
   );
 }
 
-function LifecycleSentence({ body }: { body: FindingDetailBody }) {
+/** UQ-FI-2 (D-UQFI.18): the first sentence now sits under the title in the header (a move); the body keeps the rest. */
+function lifecycleRest(body: FindingDetailBody): string {
   const selected = body.revision;
-  return (
-    <p data-finding-lifecycle-sentence>
-      {LIFECYCLE_WORDS[selected.lifecycle].sentence}
-      {selected.lifecycle === "UNCONFIRMED" ? ` ${unconfirmedCause(selected.indeterminate_cause)}` : ""}
-    </p>
-  );
+  const full = LIFECYCLE_WORDS[selected.lifecycle].sentence;
+  const first = findingHeadline(body).sentence ?? "";
+  const cause = selected.lifecycle === "UNCONFIRMED" ? unconfirmedCause(selected.indeterminate_cause) : "";
+  return [full.slice(first.length).trim(), cause].filter((part) => part !== "").join(" ");
+}
+
+function LifecycleSentence({ body }: { body: FindingDetailBody }) {
+  const text = lifecycleRest(body);
+  if (text === "") return null;
+  return <p data-finding-lifecycle-sentence>{text}</p>;
 }
 
 function CouldChange({ body }: { body: FindingDetailBody }) {
@@ -547,6 +577,11 @@ function StatusChips({ body }: { body: FindingDetailBody }) {
   );
 }
 
+const NOT_ASSESSED_CHIPS: GapItem[] = [
+  { subject: "Priority", fact: "not assessed" },
+  { subject: "Confidence", fact: "not assessed" },
+];
+
 /** The mock's statusbar: the state, currentness, version and period badges in one line. */
 function FindingStatusBar({ body }: { body: FindingDetailBody }) {
   const selected = body.revision;
@@ -555,12 +590,18 @@ function FindingStatusBar({ body }: { body: FindingDetailBody }) {
     <StatusBar items label="Finding status" data={{ "data-finding-statusbar": "" }}>
       {/* W1-F3 review H2: the mock's Priority and Confidence chips; no read assesses either yet. */}
       {/* MOCK DEVIATION D1 (R390): the mock's Priority, Confidence, Claim and Lens chips have no stored read. */}
-      <span className="badge badge--not-assessed" data-chip="priority" data-not-assessed>
-        Priority: not assessed
-      </span>
-      <span className="badge badge--not-assessed" data-chip="confidence" data-not-assessed>
-        Confidence: not assessed
-      </span>
+      {/* UQ-FI-2 (D-UQFI.4): the two "not assessed" chips are one line naming both subjects.
+          MOCK DEVIATION D-UQFI.4: the mock draws two chips; one gap line per section. */}
+      <GapGroup
+        inline
+        className="badge badge--not-assessed"
+        items={NOT_ASSESSED_CHIPS}
+        renderSingle={(item) => (
+          <span className="badge badge--not-assessed" data-chip={item.subject.toLowerCase()} data-not-assessed>
+            {item.subject}: {item.fact}
+          </span>
+        )}
+      />
       <span className="badge badge--lifecycle" data-chip="state">
         State: {LIFECYCLE_WORDS[selected.lifecycle].label}
       </span>
@@ -935,7 +976,7 @@ function WhatLimits({ body, links }: { body: FindingDetailBody; links: SiteFindi
       <ShowAll name="finding-limits-context" summary="Access and review context">
         <ul className="site-finding__limits v69-prose" data-finding-limits-context>
           <li>Shown under the pilot&apos;s development access; sign-in and per-person access are not installed yet.</li>
-          {selected.lifecycle === "SUPPORTED" ? (
+          {selected.lifecycle === "SUPPORTED" && lifecycleRest(body) !== "" ? (
             <li className="site-finding__meaning-item">
               <LifecycleSentence body={body} />
             </li>

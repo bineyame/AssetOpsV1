@@ -6,6 +6,7 @@ import { SiteFuelFindingFrame } from "../../shell/SiteAnalyticsFrames";
 import { SITE_FUEL_FINDING_ROUTE_PATH, routeFor, siteFuelFindingHref } from "../../shell/operatorSiteRoutes";
 import { refOfHref } from "../../test/linkRefs";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import type { FuelBalanceClient, FuelFindingBody, FuelNightBody } from "../fuelBalanceClient";
 import type { MiniRead } from "../miniDepthClient";
 import { SiteFuelChecks } from "../SiteFuelFinding";
@@ -181,5 +182,26 @@ describe("DIESEL-K5 F8: the Site Findings Fuel checks panel", () => {
     await vi.waitFor(() => expect(c.getFuelFindings).toHaveBeenCalled());
     await act(() => new Promise((r) => setTimeout(r, 0)));
     expect(container.innerHTML).toBe("");
+  });
+});
+
+describe("UQ-FI-2 P3: the fuel Finding page", () => {
+  it("uqfi2_one_headline", async () => {
+    // Rev 6 6.1 P3 (D-UQFI.18): one h1, the Finding title; the first lifecycle sentence is the subtitle, said once.
+    renderPage(client(), siteFuelFindingHref(CODE, FID));
+    await screen.findByText(CLAIM);
+    await settledScreen();
+    expectOneHeadline("Unexplained fuel overnight");
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toBe(CLAIM);
+    expect((document.body.textContent ?? "").split(CLAIM).length - 1).toBe(1);
+  });
+
+  it("uqfi2_no_longer_supported_sentence_is_the_subtitle", async () => {
+    renderPage(client(), siteFuelFindingHref(CODE, FID, R2));
+    await screen.findByText(NO_LONGER);
+    await settledScreen();
+    expectOneHeadline("Unexplained fuel overnight");
+    expect(document.querySelector(".page-header__subtitle")?.textContent).toBe(NO_LONGER);
+    expect((document.body.textContent ?? "").split(NO_LONGER).length - 1).toBe(1);
   });
 });

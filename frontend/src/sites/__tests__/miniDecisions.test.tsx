@@ -44,6 +44,7 @@ import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClie
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 
 /*
@@ -406,7 +407,7 @@ describe("W4-03 unit 6a: mini Financials > Scenarios", () => {
       // Sticky header at every width; 720 px grid and sticky 144 px Scenario column at 390.
       expect(MINI_CSS).toContain(".mini-scenarios-table thead th { position: sticky; top: 0;");
       expect(MINI_CSS.indexOf("thead th { position: sticky")).toBeLessThan(narrow);
-      expect(MINI_CSS).toContain("padding: 20px 20px;");
+      expect(MINI_CSS).toContain("padding: var(--space-5) var(--space-5);"); // UQ-FI-1 spacing snap: 20px = --space-5
       expect(MINI_CSS).toContain(".mini-scenarios-table .data-table { min-width: 720px; }");
       expect(MINI_CSS).toContain(".mini-scenarios-table col:first-child { width: 144px !important; }");
       expect(MINI_CSS).toContain(".mini-scenarios-table td:first-child { position: sticky; left: 0;");
@@ -643,6 +644,8 @@ describe("W4-03 unit 6b: canonical mini Alternatives", () => {
       "Candidate runtime is not proof that stopping the generator would have preserved service.",
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(TITLE);
+    // UQ-FI-2 (rev 6 6.1 P3): one h1, the Finding title (the mini Finding frames carry the first sentence under it).
+    expectOneHeadline(TITLE);
     cleanup();
 
     // Empty: the exact empty copy, the notice still shown; a historical read says so.
@@ -1617,6 +1620,9 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
 
     // Header, description, Open site, one selected Overview tab and the disabled Findings root.
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Productive-use headroom at MINIGRID site");
+    // UQ-FI-2 (rev 6 6.1 P5): one h1, first in its header. Rev 6 names "Daytime solar unused at ..." as the
+    // headline, but that title is not in this page's read (it comes from the estate opportunities read): question.
+    expectOneHeadline("Productive-use headroom at MINIGRID site");
     expect(main().textContent).toContain(
       "Can recurring renewable headroom support useful additional demand?",
     );
@@ -1770,8 +1776,9 @@ describe("W4-03 unit 7: typed Opportunity detail and the exact renewable CTA", (
     ]);
     expect(page.querySelectorAll("[data-opportunity-cards] > li")).toHaveLength(4);
     // PR-12.2: compact spacing scoped to this card row; the shared grid rules are not overridden here.
-    expect(MINI_CSS).toContain(".v69-cards[data-opportunity-cards] .v69-metric { padding: 10px 12px; }");
-    expect(MINI_CSS).toContain(".v69-cards[data-opportunity-cards] .v69-metric--word .v69-metric__value { margin: 5px 0 4px; }");
+    // UQ-FI-1 spacing snap (D-UQFI.2, ties down): 10px 12px -> 8px 12px; 5px 0 4px -> 4px 0 4px.
+    expect(MINI_CSS).toContain(".v69-cards[data-opportunity-cards] .v69-metric { padding: var(--space-2) var(--space-3); }");
+    expect(MINI_CSS).toContain(".v69-cards[data-opportunity-cards] .v69-metric--word .v69-metric__value { margin: var(--space-1) 0 var(--space-1); }");
     expect(MINI_CSS).not.toMatch(/data-opportunity-cards\][^{]*\{[^}]*grid-template-columns/);
     const pair = page.querySelector(".panel-pair")!;
     expect(Array.from(pair.querySelectorAll(".panel h2, .panel h3")).map((h) => h.textContent)).toEqual(["Next decision", "Consequence basis"]);

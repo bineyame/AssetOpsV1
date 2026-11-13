@@ -2,8 +2,8 @@
    mock's sizes (`.statusbar`, `.chart-note`, `.key-values`, `.two-col`). */
 
 .w1f4-verification-strip .verify-chip {
-  font-size: 10px;
-  padding: 2px 8px;
+  font-size: var(--font-size-100);
+  padding: 2px var(--space-2);
 }
 
 .w1f4-verification-strip .verify-strip__term {
@@ -17,8 +17,8 @@
 
 /* Chart-note lists: the mock's small caption lines, without bullets' body size. */
 .w1f4-verification-list {
-  margin: 10px 0 0;
-  padding-left: 16px;
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
 }
 
 .w1f4-verification-list li + li {
@@ -30,18 +30,18 @@
 }
 
 .w1f4-verification-gap {
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: var(--text-primary);
 }
 
 .w1f4-verification-outcome {
-  margin: 0 0 10px;
-  font-size: 11px;
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-100);
   color: var(--text-primary);
 }
 
 .w1f4-verification-outcome .verify-historical-tag {
-  margin-right: 4px;
+  margin-right: var(--space-1);
 }
 
 .w1f4-verification-inline-list {
@@ -55,57 +55,57 @@
 }
 
 .w1f4-verification-action {
-  margin: 13px 0 0;
+  margin: var(--space-3) 0 0;
 }
 
 .w1f4-verification-notice {
-  margin-top: 10px;
+  margin-top: var(--space-2);
 }
 
 /* Inside the Evidence panel's closed disclosure: one block per window. */
 .w1f4-verification-window {
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--border-subtle, #e3e8f0);
 }
 
 .w1f4-verification-window__title {
-  margin: 0 0 8px;
-  font-size: 12px;
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-100);
 }
 
 /* W1-F4 trimming pass: panels at the mock's height. One-line table cells, the
    mock's 10px notes, a compact closed disclosure and inline problem text. */
 .site-verification .panel .data-table th,
 .site-verification .panel .data-table td {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
   line-height: 1.5;
 }
 
 .site-verification .panel .data-table thead th {
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
 }
 
 .site-verification .panel .data-table .verify-chip {
-  font-size: 10px;
-  padding: 2px 7px;
+  font-size: var(--font-size-100);
+  padding: 2px var(--space-2);
 }
 
 .site-verification .panel > .disclosure,
 .site-verification .panel .disclosure {
-  margin: 10px 0 0;
+  margin: var(--space-2) 0 0;
 }
 
 .site-verification .panel .disclosure__summary {
-  padding: 5px 10px;
-  font-size: 11px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-100);
   font-weight: 600;
 }
 
 .w1f4-verification-lede {
-  margin: 0 0 10px;
+  margin: 0 0 var(--space-2);
 }
 
 .w1f4-verification-problem {
@@ -121,27 +121,27 @@
 }
 
 .site-verification .panel .w1f4-verification-action {
-  margin: 10px 0 0;
+  margin: var(--space-2) 0 0;
 }
 
 /* Pair panels at mock density: labels take their own width, values one line,
    inline badges at chip size. */
 .site-verification .panel .v69-key-values {
   grid-template-columns: max-content minmax(0, 1fr);
-  column-gap: 16px;
+  column-gap: var(--space-4);
 }
 
 .site-verification .panel .v69-key-values dd .badge,
 .site-verification .panel .v69-key-values dd .v69-badge {
   padding-top: 1px;
   padding-bottom: 1px;
-  font-size: 10px;
+  font-size: var(--font-size-100);
 }
 
 .site-verification .panel .v69-key-values dt,
 .site-verification .panel .v69-key-values dd {
-  padding-top: 9px;
-  padding-bottom: 9px;
+  padding-top: var(--space-2);
+  padding-bottom: var(--space-2);
 }
 
 /* The plan's recorded reasons on one note line, and every in-panel
@@ -161,7 +161,7 @@
 }
 
 .site-verification .panel details[data-disclosure^="verification-"] {
-  margin-top: 6px;
+  margin-top: var(--space-1);
   border: 0;
   background: none;
   padding: 0;
@@ -169,7 +169,7 @@
 
 .site-verification .panel details[data-disclosure^="verification-"] > .disclosure__summary {
   padding: 2px 0;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   font-weight: 500;
   color: var(--link, #1d4ed8);
 }

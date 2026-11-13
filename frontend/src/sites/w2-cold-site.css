@@ -6,7 +6,7 @@
 .cold-site-detail {
   display: block;
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   font-weight: 400;
   color: var(--text-muted, #5f6b7a);
 }
@@ -20,22 +20,22 @@
 }
 
 .cold-site-rule + .cold-site-rule {
-  margin-top: 14px;
-  padding-top: 12px;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--border, #e3e6ea);
 }
 
 .cold-site-rule .prose {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .cold-site-list {
   margin: 0;
-  padding-left: 18px;
+  padding-left: var(--space-4);
 }
 
 .cold-site-list li + li {
-  margin-top: 6px;
+  margin-top: var(--space-1);
 }
 
 /* At phone width the cold tables scroll in their own region instead of wrapping each cell into a tall column. */
@@ -53,9 +53,9 @@
 .site-date-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 16px;
-  margin: 0 0 12px;
-  font-size: 13px;
+  gap: var(--space-1) var(--space-4);
+  margin: 0 0 var(--space-3);
+  font-size: var(--font-size-200);
   color: var(--text, #1f2933);
 }
 
@@ -71,12 +71,12 @@
 }
 
 .cold-site-group + .cold-site-group {
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 
 .cold-site-group h4 {
-  margin: 0 0 4px;
-  font-size: 13px;
+  margin: 0 0 var(--space-1);
+  font-size: var(--font-size-200);
 }
 
 /*
@@ -117,8 +117,8 @@
   [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td):nth-child(6) { width: 16%; }
 
   [data-cold-view="cold-evidence-analysis"] table[aria-labelledby="cold-site-records-heading"] :is(th, td) {
-    padding-top: 6px;
-    padding-bottom: 6px;
+    padding-top: var(--space-1);
+    padding-bottom: var(--space-1);
   }
 
   /* Run-9 D2: a two-line Record cell stays within the ruled panel height (line spacing only; no text scaling). */
@@ -128,7 +128,7 @@
 
   [data-cold-view="cold-evidence-analysis"] .cold-panel-link,
   [data-cold-view="cold-evidence-analysis"] [data-disclosure="cold-site-record-details"] {
-    margin-top: 6px;
+    margin-top: var(--space-1);
   }
 
   /* How a claim limit is set: the gap before Claim details is 2 px tighter. */

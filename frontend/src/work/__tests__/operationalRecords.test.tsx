@@ -14,6 +14,7 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { OPERATIONAL_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { disclosureNames, stubCellOverflow } from "./cellDisclosureStub";
 import { OperationalRecordsFrame, operationalKindOf, readingLine } from "../OperationalRecords";
 import {
@@ -205,6 +206,8 @@ describe("W6-01e E2: global Operational records", () => {
     expect(cards()).toBeNull();
     release();
     await settled();
+    // UQ-FI-2 (rev 6 6.1 P7): one h1, the page title, first in its header.
+    expectOneHeadline("Operational records");
 
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: null, cursor: null }]);
     expectV69Panels("oprecords");

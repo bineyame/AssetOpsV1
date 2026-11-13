@@ -28,7 +28,7 @@
 
 .mini-ids {
   overflow-wrap: anywhere;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-mono);
   font-size: var(--text-sm);
 }
 
@@ -186,7 +186,7 @@
 }
 
 .v69-metric .mini-more > summary {
-  font-size: 10px;
+  font-size: var(--font-size-100);
 }
 
 /* Region budgets (1440 / 390). */
@@ -235,15 +235,15 @@
 
 /* Compact card note spacing (values unchanged) for the bounded card rows. */
 .mini-cards-bound .v69-metric {
-  padding: 13px 15px 11px;
+  padding: var(--space-3) var(--space-4) var(--space-3);
 }
 
 .mini-cards-bound .v69-metric__value {
-  margin: 8px 0 5px;
+  margin: var(--space-2) 0 var(--space-1);
 }
 
 .mini-cards-bound .v69-metric--word .v69-metric__value {
-  margin: 8px 0;
+  margin: var(--space-2) 0;
 }
 
 /* Fuel interpretation: compact paragraph spacing so the sentence and the basis control stay visible. */
@@ -257,7 +257,7 @@
 
 @media (max-width: 760px) {
   .mini-max--fuel-interpretation > .panel__header {
-    margin-bottom: 8px;
+    margin-bottom: var(--space-2);
   }
 }
 
@@ -273,7 +273,7 @@
 /* Mini status strips at narrow width: tighter row gap between wrapped chips (one strip line budget). */
 @media (max-width: 760px) {
   .status-strip[data-mini-status] {
-    row-gap: 4px;
+    row-gap: var(--space-1);
   }
 }
 

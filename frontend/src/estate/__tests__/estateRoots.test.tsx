@@ -9,6 +9,7 @@ import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectV69Panels } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { F104, NOT_MAPPED } from "../../sites/__tests__/outcomeFixtures";
 import { EstateActionsPage, ESTATE_ACTIONS_PATH, ACTIONS_LIFECYCLE, ACTIONS_NOTICE } from "../actionIndex";
@@ -106,6 +107,8 @@ describe("W3-01 estate roots", () => {
       await settledScreen();
       expectV69Panels(SCREEN[lens]);
       expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Findings");
+      // UQ-FI-2 (rev 6 6.1 P6): one h1 on every lens, Opportunities included, first in its header.
+      expectOneHeadline("Findings");
       // W3-02 c2b: a root without an eyebrow prop draws no empty eyebrow node.
       expect(screen.getByRole("heading", { level: 1 }).closest("header")?.querySelector(".page-header__eyebrow")).toBeNull();
       // Four live lens tabs keep window and state, drop the cursor; the active one is the page.

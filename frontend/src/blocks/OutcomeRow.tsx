@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import "./blocks.css";
 
 /**
- * CH-5b3 (SCOPE-1, CH5b-R R9): the shared outcome value line, used by the board row (`ob-head`) and the Portfolio
- * card (`oc-pfval`), with the "Why?" button beside the value as the mock places it.
+ * CH-5b3 (SCOPE-1, CH5b-R R9): the shared outcome value line, used by the board row (`ob-head`) (UQ-FI-3: the
+ * Portfolio card's "Why?" now sits in its top line), with the "Why?" button beside the value as the mock places it.
  *
  * The three slots (earnings, KPI, potential) are filled by CH-6. MOCK DEVIATION MD-CH5b-2: until then no caller passes
  * a slot and the row shows the CH-5a2 headline.
@@ -48,15 +48,5 @@ export function OutcomeRowHead({
       </span>
       {why}
     </span>
-  );
-}
-
-/** The Portfolio card's value line: `div.oc-pfval > value + why-btn` (mock `pfCard`, `index.html:494`). */
-export function OutcomeCardValue({ children, why }: { children: ReactNode; why?: ReactNode }) {
-  return (
-    <div className="oc-pfval">
-      {children}
-      {why}
-    </div>
   );
 }

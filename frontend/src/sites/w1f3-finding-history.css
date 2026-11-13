@@ -9,13 +9,13 @@
 
 .site-finding-history__summary {
   margin: 0 0 12px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
 .site-finding-history__version td {
   vertical-align: top;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .site-finding-history__line {
@@ -26,7 +26,7 @@
 /* The basis reads as one flowing line of labelled values, as the mock's short Basis cell. */
 .site-finding-history__basis {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
@@ -52,7 +52,7 @@
 
 .site-finding-history__related {
   margin: 12px 0 0;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .site-finding-history .v69-gap-line {
@@ -62,7 +62,7 @@
 .site-finding-history__gap p {
   margin: 8px 0 0;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
@@ -75,7 +75,7 @@
    short Basis cell; the labelled times and references sit in a closed per-row disclosure. */
 .site-finding-history__basis-line {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
@@ -84,7 +84,7 @@
 }
 
 .site-finding-history__version .disclosure__summary {
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 /* W1-F3 height phase: two short lines per cell, as the mock's compact rows. */
@@ -123,7 +123,7 @@
 }
 .site-finding-history__scroll-cue {
   margin: 0 0 4px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 .site-finding-history__scroll-cue[hidden] {
   display: none;

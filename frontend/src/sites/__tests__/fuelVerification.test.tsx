@@ -14,6 +14,7 @@ import { refOfHref } from "../../test/linkRefs";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { LinkedMemoryRouter } from "../../test/refLinks";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import {
@@ -206,6 +207,8 @@ describe("fuel verdict page", () => {
     await loadedPage();
     const root = main();
     expect(root.querySelector("[data-fuel-state]")?.getAttribute("data-fuel-state")).toBe(state);
+    // UQ-FI-2 (rev 6 6.1 P4): one h1, the page title, first in its header.
+    expectOneHeadline("ACT-003 · Seal the tank cap and sign the dip log");
     expect(root.querySelector(".v69-statusbar")?.textContent).toContain(`ACT-003 · ${HEADLINE[state]}`);
     expect(root.querySelector("[data-fuel-fixed-line]")?.textContent).toBe(FIXED);
     expect([...root.querySelectorAll("[data-fuel-card] .v69-metric__value")].map((c) => c.textContent)).toEqual(body.cards.map((c) => c.value));
