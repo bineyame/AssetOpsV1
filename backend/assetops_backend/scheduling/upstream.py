@@ -51,6 +51,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
+from assetops_backend import read_scope
 from assetops_backend.scheduling.health import HealthThresholds, environment_health, release, site_observation
 
 BRACKET = timedelta(hours=6)
@@ -97,7 +98,9 @@ class UpstreamCurrentness:
         before = self._match(t, s, bracket_days)
         reads = {d: self.dispatch_read.window(t, s, d) for d in days}
         after = self._match(t, s, bracket_days)
-        now = self.schedule.db_now()
+        raw_now = self.schedule.db_now()
+        # D-SR.83a: the one wall-clock capture, through the read-instant seam, so a stored body and the sweep see it.
+        now = read_scope.read_instant(raw_now if raw_now.tzinfo else raw_now.replace(tzinfo=timezone.utc))
 
         blockers: list[tuple[str, str]] = []
         errors: list[dict[str, Any]] = []
@@ -173,9 +176,11 @@ class UpstreamCurrentness:
                                  else str(w["finding_revision_id"]),
                                  "age_seconds": round((now - w["enqueued_at"]).total_seconds(), 3)})
 
-        env = environment_health(self.schedule.tick_head(environment), now, self.th)
+        tick = self.schedule.tick_head(environment)
+        env = environment_health(tick, now, self.th)
         head = self.schedule.site_head(t, s)
         observation = site_observation(head, now, self.th)
+        _register_schedule_flips(tick, head, now, self.th)
         if env["state"] == "STOPPED":
             blockers.append(("SCHEDULE", "SCHEDULE_STOPPED"))
         for o in observation:
@@ -224,3 +229,23 @@ class UpstreamCurrentness:
         else:
             status = "PENDING"
         return {"status": status, "stage": stage, "reasons": reasons, "errors": errors}
+
+
+def _register_schedule_flips(tick: dict[str, Any] | None, head: dict[str, Any] | None, now: datetime,
+                             th: HealthThresholds) -> None:
+    """D-SR.83a: a schedule that stops writes nothing, so no watermark moves; each instant at which a schedule
+    state above can flip is registered as a boundary, so a stored body ends before it reads a stale "running"."""
+    tick = tick or {}
+    ends: list[datetime | None] = [tick.get("lease_until"), tick.get("retry_due_at")]
+    if tick.get("heartbeat_at") is not None:
+        ends.append(tick["heartbeat_at"] + timedelta(seconds=th.stop_after_seconds))
+    if head:
+        ends.append(head.get("lease_until"))
+        done = head.get("last_completed_at")
+        visits = [x for x in (done, head.get("last_failed_at")) if x is not None]
+        for anchor in (max(visits) if visits else None, done):
+            if anchor is not None:
+                ends.append(anchor + timedelta(seconds=th.site_stop_after_seconds))
+    for end in ends:
+        if end is not None:
+            read_scope.within(None, end, now)
