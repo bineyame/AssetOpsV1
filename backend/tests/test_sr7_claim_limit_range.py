@@ -19,6 +19,7 @@ from assetops_backend.claim_limit_api import RANGE_ROUTE, build_claim_limit_rang
 from assetops_backend.estate import claim_limit_range as clr
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.scope import EstateStoreUnavailable, estate_request
+from assetops_backend.sites.ports import SiteStoreUnavailable
 
 T = UUID("00000000-0000-4000-8000-000000000001")
 MG = UUID("00000000-0000-4000-8000-0000000000a1")
@@ -155,7 +156,12 @@ def test_cold_site_is_not_applicable() -> None:
 # --- route --------------------------------------------------------------------------------------------------------
 
 class Registry:
+    def __init__(self, fail=False):
+        self.fail = fail
+
     def tenant(self):
+        if self.fail:
+            raise SiteStoreUnavailable("down")
         return SimpleNamespace(id=T)
 
     def imported(self, code):
@@ -175,10 +181,10 @@ def _open(code, t, s):
     return True, "Cutover open"
 
 
-def _client(estate, access=None, gate=_open, responses=None):
+def _client(estate, access=None, gate=_open, responses=None, registry=None):
     app = FastAPI()
     kwargs = {k: v for k, v in (("access", access), ("gate", gate)) if v is not None}
-    app.include_router(build_claim_limit_range_router(estate, Registry(), responses=responses, **kwargs))
+    app.include_router(build_claim_limit_range_router(estate, registry or Registry(), responses=responses, **kwargs))
     return TestClient(app)
 
 
@@ -192,7 +198,19 @@ def test_route_serves_the_body_through_the_stored_route() -> None:
     assert r.status_code == 200 and r.json()["summary"]["days_requested"] == 4
     (route,) = responses.routes
     assert route.route == RANGE_ROUTE and route.sites == (MG,) and route.watermark_sites == (MG,)
-    assert set(route.request) == {"site", "from", "to", "known_at"}
+    # SR-7 review L3: the key's values, not only its names.
+    assert {**route.request, "site": str(route.request["site"])} == {"site": str(MG), "from": LO, "to": HI, "known_at": None}
+
+
+def test_known_at_takes_part_in_the_stored_route_key() -> None:
+    """SR-7 review L3: a second request with `known_at` is a different stored key carrying that instant."""
+    responses = Responses()
+    assert _get(_client(Service(), responses=responses)).status_code == 200
+    assert _get(_client(Service(), responses=responses), query=f"{WINDOW}&known_at=2026-11-05T06:00:00Z").status_code == 200
+    live, pinned = responses.routes
+    assert live.request["known_at"] is None
+    assert pinned.request["known_at"] == datetime(2026, 11, 5, 6, tzinfo=timezone.utc)
+    assert {k: v for k, v in live.request.items() if k != "known_at"} == {k: v for k, v in pinned.request.items() if k != "known_at"}
 
 
 @pytest.mark.parametrize("query", ["from=2026-11-01T00:00:00Z", "from=2026-11-01T06:00:00Z&to=2026-11-05T00:00:00Z",
@@ -204,7 +222,10 @@ def test_bad_windows_are_422(query) -> None:
 
 def test_refusals() -> None:
     assert _get(_client(Service()), code="COLD-1").json()["detail"]["code"] == "CLAIM_LIMIT_RANGE_NOT_APPLICABLE"
-    assert _get(_client(Service()), code="NOPE").status_code == 404
+    nope = _get(_client(Service()), code="NOPE")
+    assert nope.status_code == 404 and nope.json()["detail"]["code"] == "SITE_NOT_FOUND"  # SR-7 review L1
+    store = _get(_client(Service(), registry=Registry(fail=True)))
+    assert store.status_code == 503 and store.json()["detail"]["code"] == "SITE_STORE_UNAVAILABLE"
     assert _get(_client(Service(), access=lambda req, code: 401)).status_code == 401
     assert _get(_client(Service(), access=lambda req, code: 403)).status_code == 403
     none = _get(_client(None))
@@ -213,6 +234,7 @@ def test_refusals() -> None:
     assert down.status_code == 503 and down.json()["detail"]["code"] == "SITE_CLAIM_LIMIT_RANGE_UNAVAILABLE"
     closed = _get(_client(Service(), gate=lambda code, t, s: (False, "Cutover closed")))
     assert closed.status_code == 409 and closed.json()["detail"]["claim_limit"] is None
+    assert closed.json()["detail"]["code"] == "PERFORMANCE_CUTOVER_CLOSED"  # SR-7 review L1
 
 
 def test_one_perf_line_per_request(caplog) -> None:

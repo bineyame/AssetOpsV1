@@ -153,13 +153,14 @@ describe("SR-4c: the bar tag and spoken name per page and Site type (rev 8 §8.2
     view.unmount();
   });
 
-  it("mini-grid: Service shows one day of the range, Renewable over 5 days its last 5 days", async () => {
-    await expectTag(
-      "/sites/KOBO-001/performance/service",
-      "Showing 9 Nov of the range",
-      "inside",
-      /\. This page shows one day of it: 9 Nov 2026\. Change$/,
-    );
+  it("mini-grid: Service over the range follows it (SR-7a), its hour shows one day; Renewable over 5 days its last 5 days", async () => {
+    // SR-7a (rev 10 §10.3, D-SR.57): a range without an hour is the day table, which declares nothing.
+    await expectTag("/sites/KOBO-001/performance/service", "All pages", null, FOLLOWS);
+    const hour = await open("/sites/KOBO-001/performance/service?from=2026-11-09T09:00:00Z&to=2026-11-09T10:00:00Z");
+    expect(tag()?.textContent).toBe("Showing 9 Nov of the range");
+    expect(tag()?.getAttribute("data-shared-range-focus")).toBe("inside");
+    expect(button().getAttribute("aria-label")).toMatch(/\. This page shows one day of it: 9 Nov 2026\. Change$/);
+    hour.unmount();
     await expectTag(
       "/sites/KOBO-001/performance/renewable",
       "Showing 5–9 Nov of the range",
