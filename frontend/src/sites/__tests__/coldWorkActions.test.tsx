@@ -151,6 +151,8 @@ async function mountCases(kind: "incidents" | "maintenance", path: string, domai
 
 
 const workPath = (query = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`) => `/sites/${SITE}/work?${query}`;
+/** SR-4 D-SR.2: a Site link carries the address range (workPath's default has no known_at). */
+const WINDOW_Q = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 const text = (el: Element | null | undefined) => (el?.textContent ?? "").replace(/\s+/g, " ").trim();
 
 let fetchRecord: string[] = [];
@@ -307,7 +309,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const dom = main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"]`) as HTMLElement;
     const cells = Array.from(dom.querySelectorAll("td"));
     expect(text(cells[0].querySelector("a"))).toBe("ACT-051 · Witness automatic-start test");
-    expect(cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`);
+    expect(cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification?${WINDOW_Q}`);
     expect(text(cells[2])).toBe("Maintenance lead");
     expect(text(cells[3])).toBe("Not set");
     expect(cells[4].querySelector(".w1f4-action-badge--amber")?.textContent).toBe("Open");
@@ -316,7 +318,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     const w1 = main.querySelector(`[data-cold-work-row="${W1_ID}"]`) as HTMLElement;
     const w1Cells = Array.from(w1.querySelectorAll("td"));
     expect(text(w1Cells[0].querySelector("a"))).toBe("ACT-050");
-    expect(w1Cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${W1_ID}`);
+    expect(w1Cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${W1_ID}?${WINDOW_Q}`);
     expect(text(w1Cells[2])).toBe("Not assigned");
     expect(text(w1Cells[3])).toBe("Not set");
     expect(text(w1Cells[4])).toBe("Accepted · not applied");
@@ -373,7 +375,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(main.querySelector('details[data-disclosure^="cold-work-source-"]')).not.toBeNull();
     expect(main.querySelector('details[data-disclosure^="domain-work-"]')).toBeNull();
     // The cold row keeps its K2 live `/verification` link and no EV unavailable note.
-    expect(main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"] td a`)?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification`);
+    expect(main.querySelector(`[data-cold-work-row="${DOMAIN_ID}"] td a`)?.getAttribute("href")).toBe(`/sites/${SITE}/actions/${DOMAIN_ID}/verification?${WINDOW_Q}`);
     expect(main.querySelector("[data-domain-work-source-unavailable]")).toBeNull();
     for (const call of vi.mocked(client.getIndex).mock.calls) expect(call).toHaveLength(2);
     // V2a review Low-1: the K2 presence-only cold attributes keep their `="true"` rendering byte-for-byte.
@@ -993,11 +995,12 @@ describe("W5-cold R339: Site tabs on cold Work carry from/to/known_at", () => {
     for (const h of hrefs) expect(h).not.toContain("?");
   });
 
-  it("a mini-grid Site keeps bare tabs even with a window in the address", async () => {
+  // SR-4 D-SR.2 supersedes R339's mini-grid exception: every Site tab carries the range, once per key.
+  it("a mini-grid Site's tabs also carry the triple from the address", async () => {
     const mini = { ...HYBRID_MINI_GRID_SITE, site_id: SITE } as SiteDetailReadModel;
     await mountCases("incidents", `/sites/${SITE}/work/incidents?${tripleQuery}`, empty(), mini);
     const hrefs = tabHrefs();
     expect(hrefs.length).toBeGreaterThan(3);
-    for (const h of hrefs) expect(h).not.toContain("known_at");
+    for (const h of hrefs) expect(h.slice(h.indexOf("?") + 1)).toBe(tripleQuery);
   });
 });

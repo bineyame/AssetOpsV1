@@ -45,6 +45,8 @@ const MINI = "10000000-0000-4000-8000-000000000011";
 const COLD = "10000000-0000-4000-8000-000000000012";
 const EV = "10000000-0000-4000-8000-000000000013";
 const WINDOW = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
+/** SR-4 D-SR.2: every Site link carries the address range; a server link with its own window keeps it (D-SR.42(d)). */
+const ranged = (href: string) => `${href}${href.includes("?") ? "&" : "?"}${WINDOW}`;
 const COLD_LINK = "/sites/COLD-LAB-001/evidence?from=2026-10-14T08%3A00%3A00.000000Z&to=2026-10-14T16%3A00%3A00.000000Z&known_at=2026-10-20T09%3A00%3A00.000000Z";
 
 function coverageSite(siteId: string, state: EstateCoverageSite["state"] = "CURRENT"): EstateCoverageSite {
@@ -505,7 +507,7 @@ describe("W3-02 estate Evidence root", () => {
     await settledScreen();
     const links = Array.from(panelTitled(COVERAGE_PANEL).querySelectorAll("[data-estate-site-link]"));
     // The server owns `links.*`: the cold row opens its own window; the others open the current Site view.
-    expect(links.map((a) => a.getAttribute("href"))).toEqual(["/sites/KOBO-001", COLD_LINK, "/sites/EV-LAB-001/ev"]);
+    expect(links.map((a) => a.getAttribute("href"))).toEqual([ranged("/sites/KOBO-001"), COLD_LINK, ranged("/sites/EV-LAB-001/ev")]);
     const rows = within(panelTitled(COVERAGE_PANEL)).getAllByRole("row").slice(1);
     expect(rows.map((r) => r.querySelector("[data-estate-current-view]")?.textContent ?? null)).toEqual([
       "Opens current Site view",
