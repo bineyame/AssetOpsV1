@@ -25,6 +25,7 @@ in both gate states beside them. No configuration editing is served.
 
 from __future__ import annotations
 
+import functools
 import os
 
 from datetime import datetime
@@ -131,6 +132,7 @@ from assetops_backend.mini_decisions_api import (
 from assetops_backend.claim_limit_api import build_claim_limit_range_router, build_claim_limit_router
 from assetops_backend.performance_migration import legacy_dispatch_claims
 from assetops_backend.analytics_api import build_analytics_router
+from assetops_backend.analytics.stored_declaration import stored_site_declaration
 from assetops_backend.config import (
     DEVELOPMENT_TENANT_SLUG,
     FeatureFlags,
@@ -532,7 +534,10 @@ def create_app(
     app.include_router(build_cold_scenarios_router(
         registry, None if cold_scenario_store is None else ColdScenarioService(cold_scenario_store, cold_reads),
         command_access=mini_decision_command_access, principal=mini_decision_principal))
-    app.include_router(build_analytics_router(assessments, ingestion.store, repository))
+    # AP-1 (D-SR.75): `/analytics` for a stored Site reads the stored declaration behind the Performance gate.
+    app.include_router(build_analytics_router(
+        assessments, ingestion.store, repository, scope=registry.ledger_scope, gate=performance_gate,
+        stored=None if lineage is None else functools.partial(stored_site_declaration, lineage)))
     def performance_report(site_code: str) -> dict | None:
         return None if performance_reports is None else comparison_summary(performance_reports.latest(site_code))
 

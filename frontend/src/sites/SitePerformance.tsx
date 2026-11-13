@@ -90,6 +90,12 @@ export interface SitePerformanceProps {
   findingAlternativesHref?: (findingId: string, revisionId: string) => string;
   /** W4-02: the mini-depth reads whose capabilities join the imported Site's subtab row (S6). */
   miniDepth?: MiniDepthClient;
+  /**
+   * AP-1 (D-SR.77): the Site's configuration store (`SiteSummary.configuration_store`). A `POSTGRES` Site takes the
+   * durable reads whatever `/analytics` answers (it now answers 200 for a stored mini-grid); the
+   * AWAITING_EVIDENCE_MIGRATION refusal stays the signal only when the store is not stated (an older backend).
+   */
+  configurationStore?: string;
   /** SR-5c: the mini-grid range read, passed to Dispatch. */
   rangeOverview?: RangeOverviewClient;
 }
@@ -111,13 +117,21 @@ export function SitePerformance({
   siteFindingHref,
   findingAlternativesHref,
   miniDepth,
+  configurationStore,
   rangeOverview,
 }: SitePerformanceProps) {
+  const stored = configurationStore === "POSTGRES";
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
 
   useEffect(() => {
     let active = true;
     setDeclaration(null);
+    if (stored) {
+      // The file-backed declaration is not this Site's; the durable reads below need no declaration.
+      return () => {
+        active = false;
+      };
+    }
     void client.getDeclaration(siteId).then((loaded) => {
       if (active) {
         setDeclaration(loaded);
@@ -126,12 +140,12 @@ export function SitePerformance({
     return () => {
       active = false;
     };
-  }, [client, siteId]);
+  }, [client, siteId, stored]);
 
-  if (declaration === null) {
+  if (!stored && declaration === null) {
     return <p>Loading the site&apos;s assessments.</p>;
   }
-  if (awaitingMigration(declaration)) {
+  if (stored || awaitingMigration(declaration)) {
     // An imported Site: the file-backed declaration is retired; Dispatch reads the durable
     // assessment through its cutover gate (S3-01). It is the only Performance section served.
     return (
@@ -158,13 +172,13 @@ export function SitePerformance({
       </div>
     );
   }
-  if (declaration.status !== "loaded") {
+  if (declaration === null || declaration.status !== "loaded") {
     return (
       <LegacyRefused
         name="performance-unavailable"
         title="Performance unavailable"
         reason={
-          declaration.status === "unavailable" && declaration.message !== null
+          declaration?.status === "unavailable" && declaration.message !== null
             ? declaration.message
             : "The site's assessments could not be read."
         }

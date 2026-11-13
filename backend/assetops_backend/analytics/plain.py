@@ -18,7 +18,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from . import dispatch
+from . import dispatch, dispatch_v3
 
 CANDIDATE, NECESSARY, INDETERMINATE = dispatch.CANDIDATE, dispatch.NECESSARY, dispatch.INDETERMINATE
 
@@ -37,6 +37,11 @@ INPUT_NAMES = {
     dispatch.INPUT_LABELS["reserve"]: "Minimum battery reserve",
     dispatch.INPUT_LABELS["discharge_capability"]: "Available battery output",
     "Generator state (status or output)": "Generator operation",
+    # AP-1: the stored dispatch-3.2 input labels a stored Site's readiness gaps name.
+    dispatch_v3.LABELS[dispatch_v3.LOAD]: "Site demand",
+    dispatch_v3.LABELS[dispatch_v3.PV_AVAILABLE]: "Available solar power",
+    dispatch_v3.LABELS[dispatch_v3.DISCHARGE]: "Available battery output",
+    dispatch_v3.LABELS[dispatch_v3.SOC]: "Battery charge",
 }
 
 #: Plain names of the evidence roles a declaration and readiness name.

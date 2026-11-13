@@ -50,6 +50,9 @@ import { CountBars } from "./assessmentGraphics";
 import type { ClaimLimitClient } from "./claimLimitClient";
 import { idWords, qualityWords, roleWords } from "./dispatchWords";
 import { EvidenceClaimLimit } from "./EvidenceClaimLimit";
+import { CapabilityReadinessTable, capabilityTableShown } from "./CapabilityReadiness";
+import type { DomainPresentationProfile } from "./presentationProfile";
+import type { SiteAnalytics } from "./siteAnalyticsClient";
 import { LocalViews, localView, localViewSearch, readablePeriod, readableTime } from "./findingPresentation";
 import type { EvidenceRead } from "./evidenceRead";
 import type { GatewayHealth, GatewayHealthClient } from "./gatewayHealthClient";
@@ -163,6 +166,17 @@ export interface LedgerSiteEvidenceProps {
   assessmentHref?: (day: string, revisionId: string) => string;
   /** post-W6 shell R170: the selected Site's stored IANA timezone; absent or unknown falls back to UTC. */
   timezone?: string | null;
+  /** AP-1 (D-SR.79): the stored `/analytics` read; a 200 with rows fills "What we can conclude now". */
+  declaration?: EvidenceRead<SiteAnalytics> | null;
+  profile?: DomainPresentationProfile | null;
+}
+
+/** D-SR.79: the stored readiness table shows only on a 200 with rows; any refusal or `[]` keeps the line. */
+function storedReadinessShown(
+  declaration: EvidenceRead<SiteAnalytics> | null,
+  profile: DomainPresentationProfile | null,
+): boolean {
+  return declaration !== null && declaration.status === "loaded" && capabilityTableShown(declaration, profile);
 }
 
 export function LedgerSiteEvidence({
@@ -173,6 +187,8 @@ export function LedgerSiteEvidence({
   claimLimit,
   assessmentHref,
   timezone = null,
+  declaration = null,
+  profile = null,
 }: LedgerSiteEvidenceProps) {
   const [params, setParams] = useSearchParams();
   const view = localView(params);
@@ -227,7 +243,14 @@ export function LedgerSiteEvidence({
         }
       />
       {view === "overview" ? (
-        <OverviewBody evidence={evidence} health={health} params={params} onInspect={(source) => inspect("source", source)} />
+        <OverviewBody
+          evidence={evidence}
+          health={health}
+          params={params}
+          onInspect={(source) => inspect("source", source)}
+          declaration={declaration}
+          profile={profile}
+        />
       ) : (
         <>
           <StatusBar view="analysis" badge="Evidence · Analysis">
@@ -481,20 +504,25 @@ function OverviewBody({
   health,
   params,
   onInspect,
+  declaration,
+  profile,
 }: {
   evidence: LedgerEvidence;
   health: EvidenceRead<GatewayHealth> | null;
   params: URLSearchParams;
   onInspect: (source: string) => void;
+  declaration: EvidenceRead<SiteAnalytics> | null;
+  profile: DomainPresentationProfile | null;
 }) {
   const analysis = localViewSearch(params, "analysis");
+  const readiness = storedReadinessShown(declaration, profile);
   const refused = notAccepted(evidence);
   const notes = evidence.states.filter((state) => state in STATE_NOTES);
   return (
     <>
       <StatusBar
         view="overview"
-        badge="No capability conclusion yet"
+        badge={readiness ? "Evidence · Overview" : "No capability conclusion yet"}
         link={<Link to={{ search: analysis }}>Analysis →</Link>}
       >
         <span className="evidence-statusbar__facts">
@@ -542,9 +570,13 @@ function OverviewBody({
             This page shows the readings received and what happened to each. It draws no conclusion about how the
             site or its equipment is operating.
           </ChartNote>
-          <NotAvailableYet name="capability-conclusions">
-            Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
-          </NotAvailableYet>
+          {readiness ? (
+            <CapabilityReadinessTable declaration={declaration} profile={profile} />
+          ) : (
+            <NotAvailableYet name="capability-conclusions">
+              Not available yet: capability-by-capability conclusions (what can be said, what is missing and the next step for each). They need a reviewed capability assessment over accepted Evidence, which does not exist yet.
+            </NotAvailableYet>
+          )}
           <ExactReferences
             name="evidence-conclusion-references"
             references={[

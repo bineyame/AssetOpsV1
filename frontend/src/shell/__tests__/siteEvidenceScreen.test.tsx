@@ -404,7 +404,6 @@ describe("SR-4c / SR-12a / SR-12b: Evidence panels and the date range", () => {
     // The line sits under its own panel heading.
     const rejectionsPart = screen.getByRole("heading", { name: "Rejected records" }).closest("section, div");
     expect(rejectionsPart?.contains(rejections)).toBe(true);
-    // SR-12b: the declaration loaded (its readiness table rendered) and was read over the range, with no line.
     expect(document.querySelector("[data-capability-analysis]")).not.toBeNull();
     expect(getDeclaration).toHaveBeenCalledWith(SITE_ID, { from: FROM, to: TO });
     expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
@@ -412,7 +411,6 @@ describe("SR-4c / SR-12a / SR-12b: Evidence panels and the date range", () => {
   });
 
   it("an address without a range reads the declaration over the range the page settles on", async () => {
-    // SR-4 gives a Site page without from/to the default range, so the declaration is never read with one end only.
     const getDeclaration = renderWith(ANALYSIS_URL);
     await settledScreen();
     const windows = getDeclaration.mock.calls.map((c) => c[1]);

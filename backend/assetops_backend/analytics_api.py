@@ -8,13 +8,16 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable
+from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
 
 from assetops_backend.analytics.declaration import applicable, site_declaration
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.service import AssessmentService
+from assetops_backend.analytics.stored_declaration import StoredSiteNotFound, UnsupportedModel
 from assetops_backend.evidence.ports import EvidenceStore, EvidenceStoreUnavailable
 from assetops_backend.i18n import message, render
 from assetops_backend.sites.models import SiteRecord
@@ -54,10 +57,29 @@ def _window(request: Request) -> tuple[datetime, datetime] | None:
     return lo, hi
 
 
+#: AP-1: `(site_code, tenant_id, site_id)` of a stored Site, else None (`ImportedSiteRegistry.ledger_scope`).
+Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
+#: AP-1: the Performance cutover gate (`main.performance_gate`): `(permitted, reason)`.
+Gate = Callable[[str, UUID, UUID], "tuple[bool, str]"]
+#: AP-1: the stored readiness read `(tenant_id, site_id, site_code, window, gate) -> body`
+#: (`stored_declaration.stored_site_declaration` over the assessment store).
+StoredRead = Callable[..., dict[str, Any]]
+
+
+class _GateClosed(Exception):
+    pass
+
+
 def build_analytics_router(
-    service: AssessmentService, evidence: EvidenceStore, sites: SiteRepository
+    service: AssessmentService, evidence: EvidenceStore, sites: SiteRepository, *,
+    scope: Scope | None = None, stored: StoredRead | None = None, gate: Gate | None = None,
+    unavailable: tuple[type[BaseException], ...] = (),
 ) -> APIRouter:
+    """`scope`/`stored`/`gate` (AP-1, D-SR.75): `/analytics` for a stored Site reads the stored declaration behind
+    the Performance cutover gate; legacy Sites and every sibling route keep the file-backed, `LegacySiteGate` path.
+    `unavailable`: further store errors the stored branch answers 503."""
     router = APIRouter()
+    down = (EvidenceStoreUnavailable, AssessmentStoreUnavailable, SiteStoreUnavailable, *unavailable)
 
     def site_or_404(site_id: str) -> SiteRecord:
         try:
@@ -122,9 +144,45 @@ def build_analytics_router(
 
         return guarded(read)
 
+    def stored_declaration(found: tuple[str, UUID, UUID], window) -> dict[str, Any]:
+        code, tenant_id, site_id = found
+        if stored is None:
+            raise HTTPException(status_code=503, detail={
+                "code": "ASSESSMENT_UNAVAILABLE", "message": "No product database is configured."})
+
+        def check_gate() -> None:
+            permitted, reason = (True, "") if gate is None else gate(code, tenant_id, site_id)
+            if not permitted:
+                raise _GateClosed(reason)
+
+        try:
+            return jsonable_encoder(stored(tenant_id, site_id, code, window, gate=check_gate))
+        except _GateClosed as closed:
+            # The existing refusal (SR-12b shows it as "not available yet"); never a partial readiness row.
+            raise HTTPException(status_code=409, detail={
+                "code": SiteAwaitingMigration.code, "message": str(closed)}) from closed
+        except UnsupportedModel as error:
+            raise HTTPException(status_code=422, detail={
+                "code": "UNSUPPORTED_RULE_VERSION", "message": str(error)}) from error
+        except StoredSiteNotFound as error:
+            raise HTTPException(status_code=404, detail={
+                "code": "SITE_NOT_FOUND", "message": render(message("analytics.site_not_found", site_id=code))
+            }) from error
+        except down as error:
+            raise HTTPException(status_code=503, detail={
+                "code": "ASSESSMENT_UNAVAILABLE", "message": str(error)}) from error
+
     @router.get(SITE_ANALYTICS_ROUTE)
     def get_declaration(site_id: str, request: Request) -> dict[str, Any]:
         window = _window(request)
+        if scope is not None:
+            try:
+                found = scope(site_id)
+            except SiteStoreUnavailable as error:
+                raise HTTPException(status_code=503, detail={
+                    "code": "SITE_STORE_UNAVAILABLE", "message": str(error)}) from error
+            if found is not None:
+                return stored_declaration(found, window)
         site = site_or_404(site_id)
 
         def read() -> dict[str, Any]:

@@ -197,6 +197,8 @@ export function SiteEvidence({
         claimLimit={client.claimLimit}
         assessmentHref={assessmentHref}
         timezone={timezone}
+        declaration={loaded.declaration}
+        profile={profile}
       />
     );
   }

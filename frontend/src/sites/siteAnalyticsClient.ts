@@ -263,14 +263,18 @@ export interface ClaimLevelDeclaration {
 }
 
 export interface EvidenceRequirement {
-  device_id: string;
-  signal_id: string;
+  /** AP-1 (D-SR.78): null on the stored path unless a stored binding gives it. */
+  device_id: string | null;
+  signal_id: string | null;
+  /** AP-1: true for a reading role with no stored binding (shown "Not bound"). */
+  unbound?: boolean;
   family: string;
   role: string;
   /** The role in plain words (backend `plain.role`), read time. */
   plain_role?: string;
   available: boolean;
-  usable_records: number;
+  /** AP-1: null for a stored Site, whose read probes the latest usable record and states no count. */
+  usable_records: number | null;
   last_source_time: string | null;
 }
 
