@@ -291,6 +291,11 @@ export { BATTERY_TEXTS };
 
 const CONDITION_HEADING = "Physical asset condition";
 const SOURCES_HEADING = "Data sources · data quality, not equipment condition";
+/** SR-6b: the point-in-time panels under the range page (rev 10 §10.2, D-SR.14). */
+export const BATTERY_CURRENT_HEADING = "Battery (current settings)";
+export const CONTACT_NOW_HEADING = "Contact now";
+const CONTACT_NOW_NOTE =
+  "Point in time: contact as of now, not over the date range. Contact means the server received a gateway's report; it says nothing about the equipment.";
 
 /** `09:10` from the read's UTC instant, for the mock's "Status at" column (the page note names the zone). */
 function clockTime(value: string): string {
@@ -302,12 +307,18 @@ export function SiteHealth({
   siteName,
   client,
   selectedGateway,
+  underRange = false,
 }: {
   siteId: string;
   /** The site's display name, for the status strip's scope. */
   siteName: string;
   client: HealthClient;
   selectedGateway: string | null;
+  /**
+   * SR-6b (rev 10 §10.2, D-SR.49 Q5): below the range page the battery reads "Battery (current settings)" and the
+   * source-health panel reads "Contact now", labelled point-in-time. The reads and bodies are unchanged.
+   */
+  underRange?: boolean;
 }) {
   const links = useHealthLinks();
   const health = useRead(() => client.getSourceHealth(siteId), `health:${siteId}`);
@@ -316,16 +327,16 @@ export function SiteHealth({
     return <p>Loading the site's gateway contact.</p>;
   }
   return (
-    <div className="site-health" data-health-site={siteId}>
+    <div className="site-health" data-health-site={siteId} data-health-under-range={underRange ? "true" : undefined}>
       <ConditionStrip siteName={siteName} read={battery} batteryHref={links.assets(siteId)} />
       <Panel
-        heading={CONDITION_HEADING}
+        heading={underRange ? BATTERY_CURRENT_HEADING : CONDITION_HEADING}
         headingId="site-health-condition-heading"
         description="Opening an asset moves you to the battery page; the breadcrumb keeps this site"
       >
         <ConditionBody siteId={siteId} read={battery} />
       </Panel>
-      <SourcesPanel siteId={siteId} read={health} selectedGateway={selectedGateway} />
+      <SourcesPanel siteId={siteId} read={health} selectedGateway={selectedGateway} underRange={underRange} />
       <V69Notice tone="blue">
         A gateway being heard from does not make equipment healthy. Gateway contact, what gateways report about
         themselves, and battery condition are separate, and none of them is a statement about equipment condition.
@@ -341,16 +352,22 @@ function SourcesPanel({
   siteId,
   read,
   selectedGateway,
+  underRange = false,
 }: {
   siteId: string;
   read: HealthRead<SourceHealthDocument> | null;
   selectedGateway: string | null;
+  underRange?: boolean;
 }) {
   return (
     <Panel
-      heading={SOURCES_HEADING}
+      heading={underRange ? CONTACT_NOW_HEADING : SOURCES_HEADING}
       headingId="site-health-sources-heading"
-      description="Current · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment."
+      description={
+        underRange
+          ? CONTACT_NOW_NOTE
+          : "Current · Stale · Never received · Disabled. Contact means the server received a gateway's report; it says nothing about the equipment."
+      }
     >
       {read === null ? (
         <p>{SOURCES_LOADING}</p>

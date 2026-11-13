@@ -498,9 +498,22 @@ class EvidenceReadModel:
         progress = find_batch(self._store, batch_id)
         return None if progress is None else batch_payload(progress)
 
-    def rejections(self, site_id: str, batch_id: str | None = None) -> dict[str, Any]:
+    def rejections(self, site_id: str, batch_id: str | None = None,
+                   window: tuple[datetime, datetime] | None = None) -> dict[str, Any]:
+        """SR-12a / D-SR.76 Q9: with `window`, the rejections and conflicts in `[from, to)`. File-backed rows carry
+        no source time, so they are placed by receipt time (the Q8 fallback)."""
         evidence = self._store.load_site(site_id)
-        rows = [r for r in evidence.rejections if batch_id is None or r.batch_id == batch_id]
+
+        def received_in(at: str | None) -> bool:
+            if window is None:
+                return True
+            if at is None:
+                return False
+            when = datetime.fromisoformat(at.replace("Z", "+00:00"))
+            return window[0] <= when < window[1]
+
+        rows = [r for r in evidence.rejections
+                if (batch_id is None or r.batch_id == batch_id) and received_in(r.received_at)]
         return {
             "site_id": site_id,
             "total": len(rows),
@@ -527,6 +540,6 @@ class EvidenceReadModel:
                     "received_at": c.received_at,
                 }
                 for c in evidence.conflicts
-                if batch_id is None or c.batch_id == batch_id
+                if (batch_id is None or c.batch_id == batch_id) and received_in(c.received_at)
             ],
         }
