@@ -134,6 +134,10 @@ function quantityText(body: SiteRangeOverviewBody): string | null {
   return q.low === q.high ? `${q.low} ${q.unit} at stake` : `${q.low}–${q.high} ${q.unit} at stake`;
 }
 
+/** "3 of 7", or an honest "Not available yet" when either count is missing (never "null of null"). */
+const analysedOfRequested = (a: number | null | undefined, r: number | null | undefined): string =>
+  a === null || a === undefined || r === null || r === undefined ? "Not available yet" : `${a} of ${r}`;
+
 const known = (n: number | null | undefined): string => (n === null || n === undefined ? "Not known yet" : String(n));
 
 function Tiles({ body }: { body: SiteRangeOverviewBody }) {
@@ -164,7 +168,9 @@ function Tiles({ body }: { body: SiteRangeOverviewBody }) {
       />
       <MetricCard
         label="Days analysed"
-        value={empty ? NO_VALUE : `${body.dispatch.days_analysed} of ${body.dispatch.days_requested}`}
+        value={
+          empty ? NO_VALUE : analysedOfRequested(body.dispatch.days_analysed, body.dispatch.days_requested)
+        }
         note={
           empty || (body.dispatch.days_with_retired_findings ?? 0) === 0
             ? undefined

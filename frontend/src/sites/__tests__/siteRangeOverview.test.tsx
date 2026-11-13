@@ -194,6 +194,20 @@ describe("SR-5b the range view", () => {
     expect(tile("days").textContent).toContain("1 day with a finding no longer supported");
   });
 
+  it("days requested/analysed missing: the tile says not available yet, never \"null of null\"", async () => {
+    const b = body();
+    await open(
+      `/sites/KOBO-001?${RANGE}`,
+      stubClient({
+        status: "loaded",
+        value: { ...b, dispatch: { ...b.dispatch, days_requested: null, days_analysed: null } },
+      }),
+    );
+    const text = (document.querySelector('[data-range-tile="days"]') as HTMLElement).textContent ?? "";
+    expect(text).toContain("Not available yet");
+    expect(text).not.toContain("null");
+  });
+
   it("words every day state, links each day keeping the range, and labels each strip cell", async () => {
     await open(`/sites/KOBO-001?${RANGE}`, stubClient({ status: "loaded", value: body() }));
     const words = Array.from(document.querySelectorAll("[data-range-day-words]")).map((n) => n.textContent);

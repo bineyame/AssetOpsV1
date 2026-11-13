@@ -271,7 +271,12 @@ export interface LedgerRecordQuery extends EvidenceWindowQuery {
 export interface LedgerEvidenceClient {
   listRecords(siteId: string, request: LedgerRecordQuery): Promise<EvidenceRead<LedgerRecordPage>>;
   getRecord(siteId: string, evidenceId: string): Promise<EvidenceRead<LedgerRecordDetail>>;
-  listRejections(siteId: string, batch?: string | null): Promise<EvidenceRead<LedgerRejections>>;
+  /** SR-12a: with `window` (the date range's UTC instants) every list holds the batches received in it. */
+  listRejections(
+    siteId: string,
+    batch?: string | null,
+    window?: { from?: string | null; to?: string | null } | null,
+  ): Promise<EvidenceRead<LedgerRejections>>;
 }
 
 const POSTGRES = "POSTGRES";
@@ -366,8 +371,8 @@ export function createLedgerEvidenceClient(basePath: string = SITES_API_PATH): L
     getRecord(siteId, evidenceId) {
       return read(`${evidencePath(siteId)}/records/${encodeURIComponent(evidenceId)}`, isRecordDetail);
     },
-    listRejections(siteId, batch) {
-      return read(`${evidencePath(siteId)}/rejections${query({ batch })}`, isRejections);
+    listRejections(siteId, batch, window) {
+      return read(`${evidencePath(siteId)}/rejections${query({ batch, from: window?.from, to: window?.to })}`, isRejections);
     },
   };
 }

@@ -122,6 +122,7 @@ describe("SR-5e R rows: every data read carries the range, and the bar says All 
     const got = await open(entry);
     expect(got.focus, "the bar declares nothing").toBeNull();
     expect(got.text).toBe("All pages");
+    expect(got.requests.filter((u) => !unranged(u)).length, "an R row whose page sends no ranged request").toBeGreaterThan(0);
     const allowed = (entry.knownUnranged ?? []).map((g) => g.read);
     const bad = got.requests.filter(unranged).filter((u) => !allowed.some((read) => u.split("?", 1)[0].endsWith(read)));
     expect(bad, "data reads without the range").toEqual([]);

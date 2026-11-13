@@ -183,3 +183,4 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
 - **Placement readings (Architect may move):** the range money block is the first panel of the Financials page (spec: "above
   the price section"); with the money block, the page's v69 panel list differs (R723; the v69 panel tests run without range).
 - **Resume:** SR-5 pages done; remaining are the DB gates (resume points 5 and 7 above).
+- **Layout evidence:** not run: no browser on the VPS lane; covered by the coordinator's pre-walkthrough smoke.

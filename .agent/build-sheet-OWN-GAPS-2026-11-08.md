@@ -5465,3 +5465,49 @@ Decisions logged for owner review: **D-SR.76** (Q1-Q11 and the hour addresses).
 - **AP-1 correction (D-SR.75).** `SitePerformance.tsx` and the other `/analytics` readers (`SiteAnalyticsFrames`, `FindingsIndexes`, `FindingDetail`, `SiteEvidenceFrame`) use the 409 as the "imported Site" signal. AP-1 must switch them to branch on the Site's store before its 200 ships. +0.25, so AP-1 is about 1.55 (1.3-1.9). The HTML was corrected in the same commit. The deferral place is unchanged.
 
 Decisions logged for owner review: **D-SR.77**.
+
+## D-UQFI.6-10 UQ-FI builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-uqfi` `task/UQ-FI-1-2`, `.agent/UQ-FI-packet.md` (questions 1-4 and the merge note). Spec: rev 6 (6.1-6.4, D-UQFI.1-5) in `architect-sequence-client-scope-2026-11-11.md`; owner go `owner-proceed-waiting-items-2026-11-13.md` (provisional).
+- **D-UQFI.6 Cold board: the panel rule wins; no collapse there.**
+  - Rev 6's "no layout restructure, no panel moves" and the mock-fidelity rule outrank the Cold board example in D-UQFI.4. That example was a factual error: the six "No cold assessment for this window" lines sit in six separate v6.9 `Panel`s (`coldSiteViews.tsx` what-happened, temperature, needs attention, what we can conclude, sources, most useful next evidence), not in blocks of one section.
+  - Shown: all six panels stay, each with its heading and its own one `Gap` line "No cold assessment for this window", with its id unchanged. A one-subject group renders as today, so no `GapGroup` is needed there. No banner, no new words, no `details` element.
+  - The v7.2 sheet's EmptyState with "Not shown yet, and why" is not in the 6.2 approved list. It is a stage-1 (BL-69) component, after 17 Nov, and needs its own ruling then.
+  - Remove the Cold board from the collapse targets. The packet's collapse list says "Cold board: none (D-UQFI.6)". `measure.json` records its gap-line count, which stays the same before and after.
+- **D-UQFI.7 Figures: 20 px confirmed for UQ-FI-1/2; 30 px is UQ-FI-3's, on its card only.**
+  - Today's figure classes (`.v69-metric__value`, `.v69-money`, `.v69-panel-value`, `.window-money__amount`, Portfolio `.value-number`, `.opportunity-quantity`) use `--font-size-600` (20). The D-UQFI.4 headline rule stands for them, and a smaller figure cannot break a fit (risk 1).
+  - UQ-FI-1 defines `--text-figure: var(--font-size-800)` (30) as a token, used by nothing yet. UQ-FI-3 applies it to the one-figure Portfolio card only, the sheet element that carries it (sheet `.card .fig`, portfolio-hifi `.kpi .fig`/`.bigfig`). There it is the stated exception to "nothing at page-title size or larger".
+  - The Site board's 30 px tiles (site-overview-hifi `.tile-k .fig`) are after 17 Nov (BL-69). If UQ-FI-3 is held, figures stay at 20 px. No MOCK DEVIATION label is needed: the sheet replaces the v6.9 type scale, and the 30 px element ships with its card.
+- **D-UQFI.8 P3 headline: yes, build it only after SR-5 and SR-8 merge.**
+  - The `SiteAnalyticsFrames.tsx` frame change (the h1 is the Finding title, then the first sentence, with the status strip under them) is made on a rebase onto main that has both. The `SiteFinding.tsx` side may be prepared now.
+  - If either SR branch has not merged by Sat 15:00, P3's headline is held alone. UQ-FI merges without it, and the packet lists P3 headline as held. This is not a reason to hold UQ-FI whole.
+- **D-UQFI.9 `primitives.css` spacing: no, not for 17 Nov.**
+  - Rev 6 snaps the demo-path files only. `primitives.css` styles every page, and SR-8-10 is editing it now, so a whole-file snap means merge conflicts and uncaptured changes on non-demo pages.
+  - Its type pass (done) stays, and so do the tabular-figure selectors. Spacing snap of `primitives.css` goes to BL-69 stage 1. The packet's "Known deviations" line stands as a ruling, not a deviation.
+- **D-UQFI.10 Merge order: confirmed, with two additions.**
+  - UQ-FI merges after the SR range pages (SR-5, SR-8-10 and any lane touching frontend CSS that is ACCEPTed by then), UQ-FI-1 then UQ-FI-2, by Sat 18:00 (rev 6.4). The rev 6 PR-3 rule stands: PR-3 first if ACCEPTed by 15:00.
+  - Any branch merging after UQ-FI reruns `node tools/uqfi-type-codemod.mjs` (type pass) and `tools/checks/style-ratchet.mjs` and passes the ratchet. It uses `--spacing` only on the 14 demo-path files it touches, never on others.
+  - UQ-FI, rebased onto the SR merges, reruns both itself and retakes the after captures of any P-page those branches changed.
+- Accepted from the packet, no change: the GapGroup line is a `div` (inline form `span`), because `<ul>` cannot sit inside `<p>`. The page title is 20 px below 760 px.
+
+Decisions logged for owner review: **D-UQFI.6-10**.
+
+## D-SR.78 AP-1 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-ap1` `task/AP-1-analytics-port`, `.agent/AP-1-packet.md` (questions 1-4). Design: `architect-analytics-port-and-db-choice-2026-11-13.html` Part A; D-SR.75, D-SR.77.
+- **Q1 Acceptable as built; no count.**
+  - Design A3 asks only for presence (EXISTS, latest), not a count. A count over the whole Kobo ledger adds read cost against the 2 s budget and adds nothing to readiness.
+  - "Usable records received, latest …" is true when a latest GOOD accepted reading exists. With no such reading, the row stays not available with its gap words.
+  - The TS type stays `number | null`. The file path keeps its count. Never show 0 or a dash for null.
+- **Q2 Show "Not bound", not the file-era ids.**
+  - A file-era device/signal id beside an unbound role names a reference that the stored configuration does not have, which is a false source.
+  - On the stored path, a row's `device_id`/`signal_id` are filled only from a stored binding, and are null otherwise.
+  - `CapabilityReadiness`/`SiteEvidence` render "Not bound" (the existing `FoundationBindingsPanel` word for `UNBOUND`) where the reference sits, for an unbound role. Policy rows and not-stored rows with null ids show no reference; their gap words stay. Availability stays false.
+  - The file path is unchanged. Tests: one backend test (unbound role gives null ids) and one vitest test ("Not bound" shown, no file-era id in the DOM). Size about 0.1, before merge.
+- **Q3 Confirmed: a whole-read 422, fail closed.**
+  - This matches `claim_limit_read.SUPPORTED_MODELS`, which refuses the same revision in the claim-limit section on the same page. Skipping would let the panel and that section disagree (design risk "Panel disagrees with the claim-limit section").
+  - The page shows its existing refusal sentence, with no retry.
+  - The Kobo parity probe records whether any demo Site's selected revisions trip it. If one does, that is a finding for the coordinator, not a reason to skip.
+- **Q4 Confirmed.** A closed gate returns the existing 409 `AWAITING_EVIDENCE_MIGRATION`, so SR-12b's "not available yet" line applies unchanged. No new code, and no `PERFORMANCE_CUTOVER_CLOSED`. The gate reason stays in the message for logs; the page does not render it as raw text. D-SR.77's store branch is unchanged: the 409 is the imported-Site signal only when the store is unstated.
+
+Decisions logged for owner review: **D-SR.78**.

@@ -46,7 +46,6 @@ function rows(route: string, path: string, sites: readonly MatrixSite[], cls: Ra
   return sites.map((site) => ({ route, path, site, class: cls, why, ...extra }));
 }
 
-const EVIDENCE_GAPS = [{ read: "/evidence/rejections", card: "SR-12a" }] as const;
 /** An R page whose `?day=` is a one-day drill-in (SR-5b/5c): with a day the bar names it. */
 const DRILL_IN = { drillIn: "first-render" } as const;
 
@@ -62,7 +61,7 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/foundation/changes/:changeId`, "/foundation/changes/c1", ALL, "N", "one record (D-SR.30)"),
   ...rows(`${S}/configuration`, "/configuration", ALL, "N", "legacy address; forwards to the Foundation (configuration)", { forwards: true }),
   // Evidence
-  ...rows(`${S}/evidence`, "/evidence", ["mini", "ev"], "R", "the evidence ledger reads the range (rev 10.5)", { knownUnranged: EVIDENCE_GAPS }),
+  ...rows(`${S}/evidence`, "/evidence", ["mini", "ev"], "R", "the evidence ledger reads the range (rev 10.5)"),
   ...rows(`${S}/evidence`, "/evidence", ["cold"], "R", "the cold evidence page reads the window (rev 10.5)"),
   // Performance
   ...rows(`${S}/performance`, "/performance", ["mini"], "R", "SR-5c: Dispatch by day from range-overview; one day is the ?day= drill-in (D-SR.9)", DRILL_IN),
@@ -90,7 +89,8 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/financials`, "/financials", ["ev"], "R", "forwards to the EV Financials, which read the window (SR-4c)"),
   ...rows(`${S}/financials/assumptions`, "/financials/assumptions", ["mini", "ev"], "N", "forwards to the Site prices: prices valid now (PR-2a, D-SR.39)"),
   ...rows(`${S}/financials/assumptions`, "/financials/assumptions", ["cold"], "R", "the cold assumptions view shows range content (D-SR.66)"),
-  ...rows(`${S}/financials/scenarios`, "/financials/scenarios", ALL, "R", "scenarios are computed over the range's telemetry (D-SR.44)"),
+  ...rows(`${S}/financials/scenarios`, "/financials/scenarios", ["mini", "cold"], "R", "scenarios are computed over the range's telemetry (D-SR.44)"),
+  ...rows(`${S}/financials/scenarios`, "/financials/scenarios", ["ev"], "N", "mini-grid only page; no range read", { forwards: true }),
   ...rows(`${S}/financials/prices`, "/financials/prices", ALL, "N", "prices in force now; SR-14 OUT (D-SR.39)"),
   // One record (D-SR.30, D-SR.44)
   ...rows(`${S}/opportunities/:opportunityId`, "/opportunities/o1", ["mini"], "N", "one record with its own five days (D-SR.44)"),
@@ -100,7 +100,12 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/domain-actions/:actionId/fuel-verification`, "/domain-actions/a1/fuel-verification", ["mini"], "N", "one verification record with its own windows (D-SR.44)"),
   ...rows(`${S}/fuel-findings/:findingId`, "/fuel-findings/f1", ["mini"], "N", "one fuel Finding at its own night (D-SR.44)"),
   // Health
-  ...rows(`${S}/health`, "/health", ["mini"], "N", "gateway contact now until the SR-6 page (D-SR.12)"),
+  ...rows(`${S}/health`, "/health", ["mini"], "R", "SR-6b: the Health range page (rev 10 §10.2)", {
+    knownUnranged: [
+      { read: "/source-health", card: "the current gateway contact panel, a state now (rev 10 §10.2)" },
+      { read: "/battery", card: "the current asset condition panel, a state now (rev 10 §10.2)" },
+    ],
+  }),
   ...rows(`${S}/health`, "/health", ["cold", "ev"], "R", "reads the window (rev 10b.4)"),
   // Assets: configuration (D-SR.43)
   ...rows(`${S}/assets`, "/assets", ALL, "N", "Foundation configuration; condition never invented (D-SR.43)"),

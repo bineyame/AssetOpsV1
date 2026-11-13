@@ -82,8 +82,8 @@ export interface SiteRangeOverviewBody {
   findings: { count: number | null; confirmed: number | null; not_confirmed: number | null; awaiting_verification: number | null };
   actions: { open: number | null; awaiting_verification: number | null; verified_resolution_count: number | null };
   dispatch: {
-    days_requested: number;
-    days_analysed: number;
+    days_requested: number | null;
+    days_analysed: number | null;
     days_with_findings: number;
     days_with_retired_findings?: number;
     accepted_readings: number | null;
