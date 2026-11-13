@@ -129,3 +129,32 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
   local day before `readings_began`; any other day, or more than `12 x UTC offset hours` readings on it (36 for UTC+3), fails the
   gate (the mapping would be wrong beyond the zone edge). The existing comparisons (gap set == coverage gaps, members == Portfolio)
   stay; they cannot see this, as both sides share the mapping.
+
+## Pages (lane H, branch `task/SR-5-pages` from main e8f2bdea5)
+- **SR-5b** 98bdf7ded + 5c9ca582f. `sites/rangeOverviewClient.ts` (typed `site-range-overview-1`; 503 `SITE_RANGE_OVERVIEW_UNAVAILABLE`
+  or `TEMPORARILY_UNAVAILABLE` retried 2/4/8 s via `fetchRetrying`'s new `retryable` predicate, reported as TEMPORARILY_UNAVAILABLE →
+  "Temporarily unavailable. Retrying…" then "Still unavailable…", never data). `sites/SiteRangeOverview.tsx` (status line, 4 tiles,
+  `RangeDayTable` strip+table exported for SR-5c, Findings in this range via exported `SiteFindingIndex` `RowTable`, limit 5, Next step).
+  Day words: D-E5.46 (`dayGapWords`), CLEAR "Checked: nothing to report", D-SR.50 retired suffix, D-SR.56 `note`. Switch in
+  `SiteOverview.tsx` (mini + client + valid range + no `day`/`date` → range view; `day=` → S5-01 board with "← Back to the whole
+  range" as the first chip of its day row; a 404 keeps the one-day page without remounting). App/SiteDetailFrame take `rangeOverview`.
+  MOCK DEVIATION R721 (register row added).
+- **SR-5e** 2969c9d69. `ui/rangeMatrix.ts` + `shell/__tests__/siteRangeMatrix.test.tsx` (91 cases; route list = `operatorSiteRoutes`
+  constants used in `App.tsx`). Non-vacuous: wrong `to` on the range client fails `mini / (R)`; deleting the health rows fails the
+  route-completeness case; both reverted.
+- Tests: siteRangeOverview 10/10; sr2RequestUrls SR-4b pins replaced by `range-overview` pins; s5SiteWindowOverview and
+  s502OverviewFindingList cases with no `day` now run on a 404 range client (one-day fallback) and say so. Site-href set: see report.
+- **Deviations / questions (Architect):**
+  1. Back link sits in the drill-in's day chip row, not "above the board heading": a `<p>` above panel 1 fails `expectV69Panels`
+     (leading intruder). Placement only; nothing trimmed.
+  2. 404 fallback (Site the range read does not know, e.g. not imported) keeps the one-day page — not in §9.4; safe reading.
+  3. Matrix test limits: record pages (opportunity, action, verification, fuel finding) declare "own period" only after their
+     record loads, so under the all-refused fixture the bar shows "All pages" (`declaresOnLoad`). Should they declare before
+     the read (D-SR.64)? Mini Dispatch is blocked by the refused analytics declaration (`blockedBy`), so its D/R check is
+     limited to that; its component test pins the rest.
+  4. EV `ev/financial-assumptions` reads the window and shows "All pages"; classified R by analogy with D-SR.66 (D-SR.44 said N).
+  5. `evidence/rejections` unranged on mini and EV (SR-12a) is listed as `knownUnranged`; the cold evidence page does not read it.
+  6. Mini Service/Renewable/Fuel/Backup and Health are D/N in the matrix: the SR-6/7/8/10/11 pages are not on main.
+- **Resume:** SR-5c (Dispatch day table from `RangeDayTable` with the same `range-overview` read; `day=` → existing detail +
+  back link; flip matrix rows mini `/performance` + `/performance/dispatch` D → R; sr2 pin), then SR-5d (Financials money block,
+  "Prices valid now" heading, drop `RangeNotUsed` for mini, matrix mini `/financials` N → R; R722/R723 rows).
