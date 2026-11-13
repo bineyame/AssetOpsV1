@@ -327,6 +327,25 @@ describe("W1-F2: legacy evidence panel structure", () => {
 describe("SR-4c/SR-12a: Evidence panels and the date range", () => {
   const RANGED = `${ANALYSIS_URL}&from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`;
 
+  it("L1: a failed ranged rejections read shows no count rather than the all-dates count", async () => {
+    const evidence = populated();
+    evidence.listRejections = async () => ({ status: "unavailable", message: null });
+    render(
+      <MemoryRouter initialEntries={[`${EVIDENCE_URL}?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`]}>
+        <App
+          flags={featureFlagsWith(false)}
+          siteDirectory={DIRECTORY}
+          siteDetail={DETAIL}
+          siteEvidence={evidence}
+          siteAnalytics={analyticsClient(SITE_ID)}
+        />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    expect(screen.getByRole("heading", { name: /Data sources/ })).toBeInTheDocument();
+    expect(document.querySelector("[data-evidence-rejection-count]")).toBeNull();
+  });
+
   it("SR-12a: the rejections panel reads the range; the analytics panel keeps the all-dates line (SR-12b)", async () => {
     const evidence = populated();
     const calls: unknown[][] = [];

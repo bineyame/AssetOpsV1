@@ -66,7 +66,7 @@ export interface SiteEvidenceProps {
   timezone?: string | null;
 }
 
-/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7). SR-4c (D-SR.7): under a panel whose read takes no date range (`/evidence/rejections`, `/analytics`). */
+/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7). SR-4c (D-SR.7): the line under a panel whose read takes no date range (`/analytics`); `/evidence/rejections` now follows the range (SR-12a). */
 export const PANEL_ALL_DATES = "All dates, not only the date range";
 
 /** Shown for a rejection when the backend serves no plain reason; never its code. */
@@ -112,7 +112,7 @@ export function SiteEvidence({
     setLoaded(null);
     void Promise.all([
       client.getEvidence(siteId, { from, to }),
-      // SR-12a (rev 10b.4): the rejections read follows the date range (received in `[from, to)`).
+      // SR-12a (rev 10b.4): the rejections read follows the date range (file-backed rows have no source time, so they are placed by receipt in `[from, to)`).
       client.listRejections(siteId, null, from !== null && to !== null ? { from, to } : null),
       analytics === undefined ? Promise.resolve(null) : analytics.getDeclaration(siteId),
     ]).then(([overview, rejections, declaration]) => {
@@ -205,7 +205,9 @@ export function SiteEvidence({
     loaded.rejections.status === "loaded" ? loaded.rejections.value : null;
   // SR-12a: over a range the count is the ranged list's own total, so the line and the list agree.
   const ranged = from !== null && to !== null;
-  const rejectedCount = rejections !== null && ranged ? rejections.total : evidence.rejection_count;
+  // L1: if the ranged read failed there is no honest count for the range, so none is shown.
+  const rejectedCount: number | null =
+    ranged ? (rejections !== null ? rejections.total : null) : evidence.rejection_count;
   const hasBasis =
     evidence.basis.mappings.length > 0 ||
     evidence.basis.configurations.length > 0;
@@ -259,7 +261,7 @@ export function SiteEvidence({
             <Panel heading="Data sources · data quality, not equipment condition" headingId="site-evidence-sources-panel-heading">
               {empty ? emptyPart : <SourceSummary evidence={evidence} onInspect={(source) => inspect("source", source)} />}
               {evidence.coverage.length === 0 ? null : <CoverageSummary evidence={evidence} />}
-              {rejectedCount === 0 && empty ? null : (
+              {rejectedCount === null || (rejectedCount === 0 && empty) ? null : (
                 <p data-evidence-rejection-count={rejectedCount}>
                   {rejectedCount === 0
                     ? ranged
@@ -293,7 +295,7 @@ export function SiteEvidence({
             )}
             {inspector}
             {hasBasis ? <Basis evidence={evidence} /> : null}
-            {rejectedCount === 0 && empty ? null : (
+            {rejectedCount === null || (rejectedCount === 0 && empty) ? null : (
               <Rejections count={rejectedCount} rejections={rejections} ranged={ranged} />
             )}
           </Panel>

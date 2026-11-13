@@ -223,7 +223,7 @@ describe("Site Evidence from the central ledger: analysis", () => {
     await settledScreen();
     expect(calls).toContainEqual([SITE_ID, null, { from: "2026-09-22T00:00:00Z", to: "2026-09-23T00:00:00Z" }]);
     const heading = document.getElementById("site-evidence-rejected-table-heading");
-    expect(heading?.textContent).toBe("Readings not accepted (received in this date range)");
+    expect(heading?.textContent).toBe("Readings not accepted (from this date range)");
     expect(heading?.getAttribute("data-panel-range")).toBe("range");
   });
 
@@ -244,7 +244,7 @@ describe("Site Evidence from the central ledger: analysis", () => {
       expect(th.textContent).not.toMatch(/ \/ | · |_/);
       expect(th.getAttribute("title")).toMatch(/ · .+ \/ /);
     }
-    expect(document.querySelector("[data-evidence-rejection]")?.textContent).toMatch(/No readable time/);
+    expect(document.querySelector("[data-evidence-rejection]")?.textContent).toMatch(/No reading time; received in this date range/);
     expect(document.querySelector("[data-evidence-delivery='batch-0001']")?.getAttribute("data-delivery-partial")).toBe("false");
   });
 

@@ -1,13 +1,13 @@
 """SR-12a (rev 10b.4): the imported Site's rejections over the date range, against real PostgreSQL.
 
-Accepted, duplicate and rejected readings received at the S2 receipt, and a conflict received two days later. Each list in the body keeps the batches received in `[from, to)`; no range is
+Accepted, duplicate and rejected readings received at the S2 receipt, and a conflict received two days later. Each list in the body keeps the readings whose SOURCE time is in `[from, to)` (D-SR.76 Q8); no range is
 the whole history, as before.
 """
 
 from __future__ import annotations
 
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
 
@@ -24,6 +24,7 @@ if URL:
     from test_s2_site_evidence_postgres import client, empty_set_report, kit  # noqa: F401
 
     from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+    from assetops_backend.evidence.ledger_reads import CONFLICT_KINDS
     from assetops_backend.evidence.ledger_service import BatchIngestionService
 
 
@@ -50,23 +51,34 @@ def test_each_list_keeps_the_batches_received_in_the_range(kit, engine) -> None:
     whole = http.get("/api/sites/KOBO-001/evidence/rejections").json()
     assert len(whole["conflicts"]) == 1 and len(whole["duplicates"]) == 1 and whole["total"] == 2
 
-    day = RECEIVED.replace(hour=0, minute=0, second=0, microsecond=0)
-    first = http.get(f"/api/sites/KOBO-001/evidence/rejections?{_range(day, day + timedelta(days=1))}")
-    assert first.status_code == 200
-    first_body = first.json()
-    assert first_body["conflicts"] == []
-    assert len(first_body["duplicates"]) == 1
-    assert first_body["total"] == whole["total"] - 1
-    assert {r["batch_id"] for r in first_body["rejections"]} == {
-        r["batch_id"] for r in whole["rejections"]} - {receipts["conflict"].batch_id}
+    def ranged(lo, hi) -> dict:
+        r = http.get(f"/api/sites/KOBO-001/evidence/rejections?{_range(lo, hi)}")
+        assert r.status_code == 200
+        return r.json()
 
-    moved = http.get(f"/api/sites/KOBO-001/evidence/rejections?{_range(later - timedelta(hours=1), later + timedelta(hours=1))}")
-    moved_body = moved.json()
-    assert [r["batch_id"] for r in moved_body["rejections"]] == [receipts["conflict"].batch_id]
-    assert len(moved_body["conflicts"]) == 1 and moved_body["duplicates"] == []
+    # Source time decides, not receipt: the conflict was received two days later but describes its own reading time.
+    by_kind = {r["kind"]: r for r in whole["rejections"]}
+    for row in whole["rejections"]:
+        assert row["source_time"] is not None
+        src = datetime.fromisoformat(row["source_time"].replace("Z", "+00:00"))
+        one = timedelta(seconds=1)
+        inside = ranged(src, src + one)  # source == from: in
+        assert row["rejection_id"] in {r["rejection_id"] for r in inside["rejections"]}
+        outside = ranged(src - one, src)  # source == to: out
+        assert row["rejection_id"] not in {r["rejection_id"] for r in outside["rejections"]}
+        # The overview count line agrees with the list at the same edge.
+        counts = http.get(f"/api/sites/KOBO-001/evidence?from={_instant(src)}&to={_instant(src + one)}").json()["counts"]
+        assert counts["rejected"] + counts["conflicts"] == inside["total"] == len(inside["rejections"])
+        assert len(inside["conflicts"]) == len([r for r in inside["rejections"] if r["kind"] in CONFLICT_KINDS])
+    assert by_kind  # the fixture produced rows
 
-    # `to` is excluded: a range ending at the moved batch's receipt does not hold it.
-    edge = http.get(f"/api/sites/KOBO-001/evidence/rejections?{_range(later - timedelta(hours=1), later)}").json()
-    assert edge["total"] == 0 and edge["conflicts"] == [] and edge["duplicates"] == []
+    # Receipt does not place a timed reading: a range around the conflict's receipt holds none of the readings.
+    away = ranged(later - timedelta(hours=1), later + timedelta(hours=1))
+    assert away["total"] == 0 and away["conflicts"] == [] and away["duplicates"] == []
 
-    assert http.get(f"/api/sites/KOBO-001/evidence/rejections?from={_instant(day)}").status_code == 422
+    # Duplicates follow the first accepted reading's source time (start + 0 minutes here).
+    hour = ranged(kit.start, kit.start + timedelta(hours=1))
+    assert len(hour["duplicates"]) == len(whole["duplicates"]) == 1
+    assert hour["total"] == whole["total"]
+
+    assert http.get(f"/api/sites/KOBO-001/evidence/rejections?from={_instant(RECEIVED)}").status_code == 422

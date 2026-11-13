@@ -6,12 +6,7 @@ D-SR.34. Commits 2e5119535 (server + pages), a1ec625d9 (guard order).
 ## Pre-flight: lists in the rejections body and their time column
 | Path | List | Time column used |
 |---|---|---|
-| Postgres (`PostgresEvidenceLedger.rejections` → `ImportedEvidenceReads.rejections`) | `rejections` (and `total`, `rejected_without_source_time`) | batch `ingestion_batch.received_at` |
-| same | `conflicts` (a subset of `rejections`) | batch `received_at` (same rows) |
-| same | `duplicates` | batch `received_at` |
-| File-backed (`EvidenceReadModel.rejections`) | `rejections`, `conflicts` | their own `received_at` (no batch table) |
 
-**No recompute-job list exists in this body** (spec names one on `created_at`). Nothing to filter; question Q1.
 
 ## Done
 - `evidence_api.py` `get_rejections`: cutover gate first (`imported_scope`), then optional `from`/`to` via the existing
@@ -41,11 +36,14 @@ D-SR.34. Commits 2e5119535 (server + pages), a1ec625d9 (guard order).
 - Guards run singly: configuration-persistence 0 (after a1ec625d9; first run caught the gate order),
   site-links-carry-range, ui-primitives, page-range-forms, dependency-direction 0. check-all: for coordinator.
 
-## Questions for the Architect
-1. The spec's "recompute-job list on `created_at`" has no list in `/evidence/rejections` (lists: rejections, conflicts,
-   duplicates). Nothing was filtered for it. Confirm, or name the list meant.
-2. Two time bases on one Evidence page: the ledger overview counts ("N readings in this period were not accepted",
-   `counts.rejected/conflicts`) place rejections by their own **source time** (S2 Q19), while the ranged list uses the
-   **batch receipt** (this ruling). On the ledger page the line and the list can differ near range edges, and an untimed
-   rejection is counted in the line's untimed note but listed only if received in the range. Accept, or align one side?
-3. File-backed path filtered too (builder call above). Confirm.
+## Fix round (D-SR.76 Q7-Q9, ruled)
+- Q7: the recompute-list spec line is withdrawn; nothing to filter (note removed from this packet).
+- Q8: every ranged list, `conflicts`, `duplicates` and `total` are placed by the reading's SOURCE time in `[from, to)`; a rejection with
+  no source time is placed by batch receipt, on the list and the count line's untimed note (`ledger_reads.py`). The ledger read is
+  unwindowed; duplicates carry the first accepted reading's source time (`LEFT JOIN accepted_evidence`). Heading "Readings not accepted
+  (from this date range)"; empty line "No reading from this date range was refused or repeated."; untimed row "No reading time; received in this date range".
+- Q9: file-backed rows carry no source time, so they are placed by receipt (the Q8 fallback) in `EvidenceReadModel.rejections`.
+- L1: a failed ranged rejections read shows no count (`SiteEvidence.tsx`). L2: stale comment at `PANEL_ALL_DATES` fixed.
+- Tests: no-DB `test_sr12a_rejections_range.py` (9 pass; source edges from=in / to=out, untimed by receipt, duplicates);
+  Postgres on `assetops_sr12a_test`: `test_sr12a_rejections_postgres.py` + `test_s2_site_evidence_postgres.py` 16 pass (edges per row, line = list,
+  receipt does not place a timed reading); vitest siteEvidenceScreen, s2LedgerEvidence, siteHealthRange pass; tsc clean.

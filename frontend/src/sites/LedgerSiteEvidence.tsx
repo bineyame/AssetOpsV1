@@ -1128,7 +1128,7 @@ function Rejected({
   technical?: ReactNode;
 }) {
   const [loaded, setLoaded] = useState<EvidenceRead<LedgerRejections> | null>(null);
-  // SR-12a (rev 10b.4): the list follows the address's date range (batches received in `[from, to)`).
+  // SR-12a (rev 10b.4): the list follows the address's date range (readings by source time in `[from, to)`; untimed ones by receipt).
   const [params] = useSearchParams();
   const from = params.get("from");
   const to = params.get("to");
@@ -1173,14 +1173,14 @@ function Rejected({
       <Advanced name="evidence-not-accepted" summary="Advanced details — readings not accepted">
         {evidence.state === "NO_DATA" ? null : <OutcomeBars evidence={evidence} />}
         <h3 id="site-evidence-rejected-table-heading" data-panel-range={ranged ? "range" : "all-dates"} data-panel-range-for="rejections">
-          {ranged ? "Readings not accepted (received in this date range)" : "Readings not accepted (all periods)"}
+          {ranged ? "Readings not accepted (from this date range)" : "Readings not accepted (all periods)"}
         </h3>
         {loaded === null ? (
           <p>Loading the refused readings.</p>
         ) : loaded.status !== "loaded" ? (
           <p data-rejections-unavailable>The list of refused readings could not be read.</p>
         ) : loaded.value.rejections.length === 0 && loaded.value.duplicates.length === 0 ? (
-          <p>{ranged ? "No reading received in this date range was refused or repeated." : "No reading has been refused or repeated for this site."}</p>
+          <p>{ranged ? "No reading from this date range was refused or repeated." : "No reading has been refused or repeated for this site."}</p>
         ) : (
           <>
             {loaded.value.rejections.length === 0 ? null : (
@@ -1202,7 +1202,7 @@ function Rejected({
                       <th scope="row" {...REF}>{r.message_id ?? `${r.batch_id} #${r.ordinal ?? "?"}`}</th>
                       <td>{r.kind === "MESSAGE_CONFLICT" ? "Arrived again with different contents" : "Not accepted"}</td>
                       <td {...REF}>{r.detail}</td>
-                      <td>{r.source_time === null ? "No readable time" : when(r.source_time)}</td>
+                      <td>{r.source_time === null ? (ranged ? "No reading time; received in this date range" : "No readable time") : when(r.source_time)}</td>
                       <td>
                         {r.kind !== "MESSAGE_CONFLICT" ? (
                           "Not applicable"

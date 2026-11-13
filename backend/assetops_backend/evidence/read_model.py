@@ -500,7 +500,8 @@ class EvidenceReadModel:
 
     def rejections(self, site_id: str, batch_id: str | None = None,
                    window: tuple[datetime, datetime] | None = None) -> dict[str, Any]:
-        """SR-12a: with `window`, the rejections and conflicts received in `[from, to)` only."""
+        """SR-12a / D-SR.76 Q9: with `window`, the rejections and conflicts in `[from, to)`. File-backed rows carry
+        no source time, so they are placed by receipt time (the Q8 fallback)."""
         evidence = self._store.load_site(site_id)
 
         def received_in(at: str | None) -> bool:
