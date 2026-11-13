@@ -182,6 +182,7 @@ def _serve(tmp_path, monkeypatch, switch: str | None) -> dict:
     demo = object.__new__(dc.Demo)
     demo.work = demo.tree = tmp_path
     demo.story = lambda: {}
+    demo.evidence_comparisons = lambda story: None  # D-SR.67 serve step (main), not under test here
     demo.write_prebuilt_routes = lambda: None
     demo.serve_env = lambda: {"DATABASE_URL": "x"}
     demo.env = lambda **kw: {}

@@ -232,7 +232,8 @@ def test_no_gateway_configured_still_allows_the_dry_run():
 
 
 @pytest.mark.parametrize("progress,state", [(Progress(0, False), "SENT"), (Progress(80, False), "ACCEPTED"),
-                                            (Progress(160, False), "PROCESSING"), (Progress(160, True), "ANALYSED")])
+                                            (Progress(160, False), "PROCESSING"), (Progress(160, True), "ANALYSED"),
+                                            (Progress(160, False, failed=True), "NOT_ANALYSED")])
 def test_the_read_derives_the_state_from_the_ledger(progress, state):
     client, _, _, store = _client()
     upload_id = _post(client, dry="false").json()["upload_id"]
@@ -242,6 +243,23 @@ def test_the_read_derives_the_state_from_the_ledger(progress, state):
     assert body["counts"]["accepted_of"] == 160
     if state == "ACCEPTED":
         assert body["text"] == "Accepted 80 of 160 readings."
+
+
+def test_a_failed_analysis_is_not_analysed_and_analysed_links_the_board_day():
+    """D-UP.3: a FAILED recompute job over the span is "Not analysed", not "Still processing"; the row is unchanged.
+    "Analysed" carries the Site-local day of the first interval start for the board link (`?date=`)."""
+    client, _, _, store = _client()
+    upload_id = _post(client, dry="false").json()["upload_id"]
+    store.progress_of = Progress(160, False, failed=True, board_day="2026-11-16")
+    body = client.get(f"{URL}/{upload_id}").json()
+    assert body["state"] == "NOT_ANALYSED" and "board_day" not in body
+    assert body["text"] == "Received, but the analysis did not finish. The readings are kept."
+    assert [r.state for r in store.rows.values()] == ["SENT"]
+    store.progress_of = Progress(160, True, board_day="2026-11-16")
+    body = client.get(f"{URL}/{upload_id}").json()
+    assert body["state"] == "ANALYSED" and body["board_day"] == "2026-11-16"
+    store.progress_of = Progress(160, False, board_day="2026-11-16")
+    assert "board_day" not in client.get(f"{URL}/{upload_id}").json()
 
 
 def test_an_unknown_or_other_site_upload_is_404():

@@ -49,6 +49,7 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "reading_upload.state.analysed_with_held": (
             "{accepted} of {total} sent readings accepted and analysed; {held} held because their unit is not the "
             "unit this meter reports."),
+        "reading_upload.state.not_analysed": "Received, but the analysis did not finish. The readings are kept.",
         "reading_upload.refused.encoding": (
             "The file was not saved: it is not plain CSV text. In Excel, save as 'CSV (Comma delimited)', not "
             "'CSV UTF-8', and try again."),

@@ -6,20 +6,24 @@ This adapter is the sole runtime writer of `reading_upload`, INSERT-only (D-UP.1
 - `latest_accepted_by_role`: the Site's latest `accepted_evidence.source_time` per role (the overlap rule).
 - `insert` / `get`: the append-only upload row.
 - `progress`: "Accepted n of m" counts the Site's `accepted_evidence` rows carrying the upload's message IDs.
-  "Analysed" is the injected `analysed(row)` read (D-UP.3); until that read is built the default never reports
-  Analysed.
+  Once every admitted reading is accepted, the analysis read (D-UP.3) decides Analysed / Still processing / Not
+  analysed: an `analytic_run` (dispatch, DEFAULT, `job_id IS NOT NULL`) whose window covers the first interval start
+  and whose `knowledge_cutoff` is at or after the latest ACCEPTED disposition `decided_at` of the upload's message
+  IDs; no PENDING/LEASED `recompute_job` in any domain over [period_start, period_end); a FAILED one there is "Not
+  analysed". Jobs are never keyed on `cause_evidence_id` (they coalesce).
 """
 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Callable, Sequence
+from typing import Sequence
 from uuid import UUID
 
 from sqlalchemy import bindparam, create_engine, text
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.types import Text
 
+from assetops_backend.analytics.dispatch import ANALYTIC_ID
 from assetops_backend.reading_upload.service import Progress, UploadRow
 
 _COLUMNS = ("id", "tenant_id", "site_id", "file_name", "file_sha256", "profile_sha256", "state", "refusal_code",
@@ -52,15 +56,25 @@ _ACCEPTED_COUNT = text(
     "SELECT count(*) FROM accepted_evidence WHERE tenant_id = :t AND site_id = :s AND message_id = ANY(:ids)"
 ).bindparams(bindparam("ids", type_=ARRAY(Text)))
 
-
-def _never_analysed(row: UploadRow) -> bool:
-    return False
+_ANALYSIS = text(
+    "WITH decided AS (SELECT max(d.decided_at) AS at FROM ingestion_disposition d "
+    "JOIN accepted_evidence e ON e.tenant_id = d.tenant_id AND e.site_id = d.site_id AND e.id = d.accepted_evidence_id "
+    "WHERE d.tenant_id = :t AND d.site_id = :s AND d.decision = 'ACCEPTED' AND e.message_id = ANY(:ids)) "
+    "SELECT EXISTS (SELECT 1 FROM analytic_run r, decided WHERE r.tenant_id = :t AND r.site_id = :s "
+    "AND r.analytic_id = :a AND r.selection = 'DEFAULT' AND r.job_id IS NOT NULL "
+    "AND r.window_start <= :lo AND r.window_end > :lo AND r.knowledge_cutoff >= decided.at) AS ran, "
+    "EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s "
+    "AND j.status IN ('PENDING', 'LEASED') AND j.window_start < :hi AND j.window_end > :lo) AS pending, "
+    "EXISTS (SELECT 1 FROM recompute_job j WHERE j.tenant_id = :t AND j.site_id = :s "
+    "AND j.status = 'FAILED' AND j.window_start < :hi AND j.window_end > :lo) AS failed, "
+    "(SELECT to_char(:lo AT TIME ZONE z.timezone, 'YYYY-MM-DD') FROM site z WHERE z.tenant_id = :t AND z.id = :s) "
+    "AS board_day"
+).bindparams(bindparam("ids", type_=ARRAY(Text)))
 
 
 class PostgresReadingUploadStore:
-    def __init__(self, url: str, analysed: Callable[[UploadRow], bool] = _never_analysed) -> None:
+    def __init__(self, url: str) -> None:
         self._engine = create_engine(url, pool_pre_ping=True)
-        self._analysed = analysed
 
     def dispose(self) -> None:
         self._engine.dispose()
@@ -91,8 +105,14 @@ class PostgresReadingUploadStore:
     def progress(self, row: UploadRow) -> Progress:
         if not row.message_ids:
             return Progress(accepted=0, analysed=False)
+        keys = {"t": row.tenant_id, "s": row.site_id, "ids": list(row.message_ids)}
         with self._engine.connect() as c:
-            accepted = int(c.execute(_ACCEPTED_COUNT, {"t": row.tenant_id, "s": row.site_id,
-                                                       "ids": list(row.message_ids)}).scalar_one())
-        done = accepted >= len(row.message_ids) and self._analysed(row)
-        return Progress(accepted=accepted, analysed=done)
+            accepted = int(c.execute(_ACCEPTED_COUNT, keys).scalar_one())
+            if accepted < len(row.message_ids) or row.period_start is None or row.period_end is None:
+                return Progress(accepted=accepted, analysed=False)
+            found = c.execute(_ANALYSIS, {**keys, "a": ANALYTIC_ID, "lo": row.period_start,
+                                          "hi": row.period_end}).one()
+        if found.pending:
+            return Progress(accepted=accepted, analysed=False, board_day=found.board_day)
+        return Progress(accepted=accepted, analysed=bool(found.ran) and not found.failed, failed=bool(found.failed),
+                        board_day=found.board_day)

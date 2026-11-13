@@ -29,7 +29,7 @@ CSV_CODES = ("ENCODING", "EMPTY_FILE", "HEADER_MISMATCH", "INVALID_TIMING", "SPA
              "DUPLICATE_ROW", "UNSORTED_ROWS", "INVALID_VALUE")
 REFUSAL_CODES = CSV_CODES + ("ALREADY_RECORDED", "FILE_TOO_LARGE")
 #: The read states, in order (spec 7.5): Checked is the dry run's answer; Refused and Held are outcomes.
-STATES = ("CHECKED", "SENT", "ACCEPTED", "PROCESSING", "ANALYSED")
+STATES = ("CHECKED", "SENT", "ACCEPTED", "PROCESSING", "ANALYSED", "NOT_ANALYSED")
 UPLOADED_BY_LABEL_KEY = "reading_upload.uploaded_by_site_admin"
 STORED_STATES = ("SENT", "HELD", "REFUSED")
 
@@ -107,7 +107,9 @@ class UploadRow:
 @dataclass(frozen=True)
 class Progress:
     accepted: int  # the Site's accepted_evidence rows carrying this upload's message IDs
-    analysed: bool  # the upload's Site-local days are assessed (pre-flight Q3 names the read)
+    analysed: bool  # D-UP.3: an assessment run covers the upload and no work is left
+    failed: bool = False  # D-UP.3: a FAILED recompute job overlaps the upload's span, none pending ("Not analysed")
+    board_day: str | None = None  # the Site-local day of the first interval start (the "Analysed" link's ?date=)
 
 
 class FileChecker(Protocol):
@@ -238,6 +240,8 @@ class ReadingUploadService:
             return "SENT"
         if progress.accepted < len(row.message_ids):
             return "ACCEPTED"
+        if progress.failed:
+            return "NOT_ANALYSED"
         return "ANALYSED" if progress.analysed else "PROCESSING"
 
     def _status_view(self, row: UploadRow, progress: Progress, checked: Preview | None = None,
@@ -254,6 +258,8 @@ class ReadingUploadService:
             "uploaded_by": message(UPLOADED_BY_LABEL_KEY), "entered_at": _iso(row.entered_at),
             "words": self._state_words(row, state, progress, total),
         }
+        if state == "ANALYSED" and progress.board_day:
+            view["board_day"] = progress.board_day
         if row.state == "REFUSED":
             view["refusal"] = {"code": row.refusal_code, "field": row.refusal_field, "detail": row.refusal_detail}
         if held_by_column:
