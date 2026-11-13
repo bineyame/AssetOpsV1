@@ -333,3 +333,5 @@ Do not use: Kisiwa Fuel night 2026-11-10 and the 402 L live dip (night does not 
 3. Confirm on screen: Portfolio start-failure rows read Pending and the temperature row reads "No action agreed yet"; EV row reads Pending.
 4. Decide on the CHECK items above; at minimum, skip the live tank dip, skip Step 7's "arrival", and avoid opening Kisiwa's generator rows.
 5. Do not change the date range; do not run add-dates in the session.
+
+D-SR.81 note (2026-11-13): charging and authorizing now count as in service (ev-availability/2); every "16 min unknown" line above is stale and the 3 Nov connector reads 0 min unknown, so the CO-10 self-check row passes as written.
