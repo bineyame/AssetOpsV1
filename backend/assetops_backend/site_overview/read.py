@@ -24,7 +24,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
-from assetops_backend import read_scope
+from assetops_backend import perf, read_scope
 from assetops_backend.analytics.finding_index import data_gap_reason
 from assetops_backend.evidence.provenance_read import PROVENANCE_NOT_WIRED, source_gate, unresolved
 from assetops_backend.site_overview import money_state as ms
@@ -120,7 +120,8 @@ class SiteOverviewRead:
 
     def _fingerprint(self, t: UUID, s: UUID, lo: datetime, hi: datetime) -> tuple[dict[str, Any] | None, str | None]:
         try:
-            fp = self.ledger.accepted_fingerprint(t, s, lo, hi)
+            with perf.timed("overview.fingerprint"):
+                fp = self.ledger.accepted_fingerprint(t, s, lo, hi)
         except Exception as exc:  # noqa: BLE001 - fail closed: no ledger fence, never CURRENT
             return None, f"ACCEPTED_SOURCE_UNREADABLE: {type(exc).__name__}"
         return {**fp, "bracket": {"start": _iso(lo), "end": _iso(hi)}, "order": "accepted evidence ID"}, None
@@ -134,10 +135,13 @@ class SiteOverviewRead:
         reasons: list[str] = []
 
         fp_before, fp_error = self._fingerprint(t, s, lo, hi)
-        up = self.upstream.window(t, s, start, end, self.environment)
+        with perf.timed("overview.upstream"):
+            up = self.upstream.window(t, s, start, end, self.environment)
         [up_day] = up["days"]
-        detail = self.upstream.dispatch_read.window(t, s, day)
-        context = self._context(t, s, start, end, code)
+        with perf.timed("overview.dispatch"):
+            detail = self.upstream.dispatch_read.window(t, s, day)
+        with perf.timed("overview.context"):
+            context = self._context(t, s, start, end, code)
         fp_after, fp_error_after = self._fingerprint(t, s, lo, hi)
 
         moved: list[str] = []
@@ -163,7 +167,8 @@ class SiteOverviewRead:
         for f in up["findings"]:
             if not intersects(f["episode_start"], f["episode_end"], start, end):
                 continue
-            root = self.findings.finding_detail(t, s, UUID(f["finding_id"]))
+            with perf.timed("overview.finding_detail"):
+                root = self.findings.finding_detail(t, s, UUID(f["finding_id"]))
             if root is None:  # review L7: unreadable is not the same as merged
                 excluded.append({"finding_id": f["finding_id"], "reason": "FINDING_NOT_READABLE"})
                 discovery_complete = False  # slice review L1: cannot rule out a merge, so never ABSENT
@@ -185,9 +190,10 @@ class SiteOverviewRead:
         if not source_open and chosen is None:
             reasons.append("SOURCE_CLOSED_NO_UNPINNED_FINDING")
 
-        money = self._money(code, t, s, chosen, seam, source_open=source_open, upstream=upstream_elig,
-                            moved=moved or ([fp_error or fp_error_after] if fp_error or fp_error_after else []),
-                            discovery_complete=discovery_complete)
+        with perf.timed("overview.money"):
+            money = self._money(code, t, s, chosen, seam, source_open=source_open, upstream=upstream_elig,
+                                moved=moved or ([fp_error or fp_error_after] if fp_error or fp_error_after else []),
+                                discovery_complete=discovery_complete)
 
         # ---- freshness ----
         state = upstream_elig["status"]

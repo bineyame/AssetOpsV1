@@ -18,29 +18,39 @@ from __future__ import annotations
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query, Request, Response
 from fastapi.encoders import jsonable_encoder
 
+from assetops_backend import perf
 from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.finding_index import FindingIndexService, IndexRefusal, parse_request
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable as FileAssessmentStoreUnavailable
+from assetops_backend.chain.response_store import ResponseStore, StoredRoute, finish
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 from assetops_backend.finding_api import ACCESS_BASIS, Access, Gate, Scope, development_access, no_gate
+
+INDEX_ROUTE = "/api/sites/{site_code}/finding-index"
 
 
 def build_finding_index_router(index: FindingIndexService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                                access: Access = development_access, access_basis: str = ACCESS_BASIS,
-                               gate: Gate = no_gate) -> APIRouter:
+                               gate: Gate = no_gate, responses: ResponseStore | None = None) -> APIRouter:
     router = APIRouter()
     down = (AssessmentStoreUnavailable, FileAssessmentStoreUnavailable, EvidenceStoreUnavailable, *unavailable)
 
     def store_down(error: Exception) -> HTTPException:
         return HTTPException(status_code=503, detail={"code": "FINDING_STORE_UNAVAILABLE", "message": str(error)})
 
-    @router.get("/api/sites/{site_code}/finding-index")
-    def finding_index(request: Request, site_code: str, domain: str | None = None,
+    @router.get(INDEX_ROUTE)
+    def finding_index(request: Request, response: Response, site_code: str, domain: str | None = None,
                       from_: str | None = Query(None, alias="from"), to: str | None = None,
                       limit: str | None = None, cursor: str | None = None) -> dict[str, Any]:
+        with perf.route(INDEX_ROUTE, response):  # D-SR.83: one `assetops.perf` line per request
+            out = _finding_index(request, site_code, domain, from_, to, limit, cursor)
+        return finish(out, response) if isinstance(out, Response) else out
+
+    def _finding_index(request: Request, site_code: str, domain: str | None, from_: str | None, to: str | None,
+                       limit: str | None, cursor: str | None) -> Any:
         refusal = access(request, site_code)
         if refusal == 401:
             raise HTTPException(status_code=401, headers={"WWW-Authenticate": "Bearer"},
@@ -70,12 +80,21 @@ def build_finding_index_router(index: FindingIndexService | None, scope: Scope, 
                 "note": "The Finding index's authority is the selected S3 assessment, which is closed for this Site; "
                         "no Finding rows, count or no-Findings verdict is shown. An exact revision_id Finding "
                         "link reads audit material."})
-        try:
+        def compose() -> dict[str, Any]:
             body = index.read(UUID(str(tenant_id)), UUID(str(site_id)), code, parsed, access_basis=access_basis)
+            return {INDEX_ROUTE: jsonable_encoder({**body, "source_gate": {"permitted": True, "reason": reason}})}
+
+        try:
+            # D-SR.83: page 1 only is stored (Q11); a cursor request composes as before. Refusals never store.
+            if responses is None or cursor is not None:
+                return compose()[INDEX_ROUTE]
+            site = UUID(str(site_id))
+            key = {"site": str(site), "domain": domain, "from": from_, "to": to, "limit": limit}
+            return responses.serve(StoredRoute(INDEX_ROUTE, UUID(str(tenant_id)), key, sites=(site,),
+                                               watermark_sites=(site,)), compose)
         except IndexRefusal as error:
             raise HTTPException(status_code=error.status, detail=error.detail) from error
         except down as error:
             raise store_down(error) from error
-        return jsonable_encoder({**body, "source_gate": {"permitted": True, "reason": reason}})
 
     return router

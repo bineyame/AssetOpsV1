@@ -33,7 +33,11 @@ BOARD = f"/api/sites/{CODE}/outcome-board?date=2026-10-06"
 SUMMARY = f"/api/estate/outcome-summary?{DAYS}"
 #: Every stored route; the board dated and dateless (`db_today`).
 PATHS = [BOARD, f"/api/sites/{CODE}/outcome-board", SUMMARY, f"/api/estate/findings?{DAYS}", f"/api/estate/portfolio?{DAYS}&lens=all",
-         f"/api/estate/portfolio/scope-ids?{DAYS}&lens=all"]
+         f"/api/estate/portfolio/scope-ids?{DAYS}&lens=all",
+         # D-SR.83: the Site Overview, the day Finding index and the estate scope are stored routes too
+         f"/api/sites/{CODE}/overview?date=2026-10-06", f"/api/sites/{CODE}/overview",
+         f"/api/sites/{CODE}/finding-index?domain=mini-grid-dispatch&from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&limit=2",
+         f"/api/estate/scope?{DAYS}"]
 
 
 @pytest.fixture(scope="module")

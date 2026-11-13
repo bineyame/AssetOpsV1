@@ -21,9 +21,11 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import time
 from collections import Counter
 from typing import Any
+from urllib.parse import parse_qsl, urlencode
 
 from assetops_backend.chain.composition import (build_prebuild_http_client, build_response_store, code_version,
                                                 prebuilt_requests)
@@ -67,6 +69,7 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
     failed: dict[str, int] = {}
     degraded: dict[str, int] = {}  # INFRA-1: path -> attempts, for every path that was degraded at least once
     still: list[str] = []  # INFRA-1: the paths still degraded after every retry
+    extra = 0  # D-SR.83: the pinned boards built after their Overview
     connections = _connections(store)
     LOG.info(json.dumps({"event": "prebuild_start", "pg_stat_activity": connections}))
     try:
@@ -87,13 +90,41 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
                 failed[path] = response.status_code
             else:
                 states[response.headers.get(HEADER, "none")] += 1
+                pinned = pinned_board_path(path, response)
+                if pinned is not None:  # D-SR.83: the board the Overview page opens next, that Finding pinned
+                    extra += 1
+                    follow = client.get(pinned)
+                    if follow.status_code == 200:
+                        states[follow.headers.get(HEADER, "none")] += 1
+                    else:
+                        failed[pinned] = follow.status_code
         pruned = store.prune()
     finally:
         store.dispose()
     code = "DEGRADED" if still else ("FAILED" if failed else "OK")
-    return {"code": code, "requests": len(paths()), "states": dict(states), "non_200": failed,
+    return {"code": code, "requests": len(paths()) + extra, "states": dict(states), "non_200": failed,
             "degraded": degraded, "still_degraded": still, "pg_stat_activity": connections,
             "pruned": pruned, "code_version": version, "prebuild_ms": int((time.perf_counter() - started) * 1000)}
+
+
+_OVERVIEW = re.compile(r"^/api/sites/([^/?]+)/overview\?(.*)$")
+
+
+def pinned_board_path(path: str, response: Any) -> str | None:
+    """D-SR.83: after a 200 Overview that names a `known_finding`, the pinned board request the Overview page then
+    opens (`date`, `finding_id`, `finding_revision_id`); None for any other path or an Overview without a Finding."""
+    hit = _OVERVIEW.match(path)
+    if hit is None:
+        return None
+    day = dict(parse_qsl(hit.group(2))).get("date")
+    try:
+        finding = response.json().get("known_finding")
+    except Exception:  # noqa: BLE001 - a body that cannot be read has no Finding to pin
+        return None
+    if not day or not finding or not finding.get("id") or not finding.get("revision_id"):
+        return None
+    query = urlencode([("date", day), ("finding_id", finding["id"]), ("finding_revision_id", finding["revision_id"])])
+    return f"/api/sites/{hit.group(1)}/outcome-board?{query}"
 
 
 #: INFRA-1 (D-E5.47) rule 5: the waits before each of the 3 retries of a degraded path.
