@@ -5639,3 +5639,28 @@ Decisions logged for owner review: **D-MB.1-2**.
   - Wire P3 now on a rebase onto b514c02c1, then rerun the codemod and ratchet (D-UQFI.10).
 
 Decisions logged for owner review: **D-UQFI.13-18**.
+
+## D-SR.80 AP-1 parity: what replaces it, the Kisiwa 409, merge timing (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-ap1` `task/AP-1-analytics-port` (c03a8eeb2, re-review ACCEPT), `.agent/AP-1-parity.md`/`.json`. Rulings D-SR.67, D-SR.75, D-SR.78, D-SR.79; owner 2026-11-13 (`owner-clean-walkthrough-over-time-2026-11-13.md`); D-SR.9.
+- **Q1 The clone parity is not met and cannot be met. A live consistency check on walk1113 replaces it.**
+  - On a migrated DB the legacy Kobo readings live only in PostgreSQL, so the file side is empty (NONE, 0 intervals). All 10 mismatches are "record in one store only". A file-vs-stored parity has no baseline on any migrated tree. It is withdrawn as an AP-1 gate, and it is not a defect.
+  - **Replacement (the AP-1 merge gate).** Run it after the walk1113 build passes its self-check. Use AP-1 HEAD code over the walk1113 DB and the build tree's store roots, served as the walkthrough serves, with the scheduler off. The check is read-only HTTP; no DB writes.
+    - For KOBO-001 and KISIWA-001, on every story day that has a selected dispatch-3.2 revision:
+      - `/analytics` returns 200, never 409/422/503;
+      - the panel's not-available role set (Load per feeder) equals the claim-limit section's `missing_role` gap set (`claim_limit_on` -> `reduce_day`) for the same day and revisions, with no role available where the section names a gap;
+      - the Evidence page shows `CapabilityReadinessTable` in "What we can conclude now", not the `capability-conclusions` line (D-SR.9).
+    - Cold room and EV hub: `analytics: []`, with the existing line.
+    - The first unwarmed read of each Site is under 2 s.
+    - No Site shows "Awaiting evidence migration" (D-SR.67 gate).
+  - **Pass rule:** every item holds on every listed day. Any miss holds AP-1 and comes to the Architect; it is not accepted as ruled. AP-1's fixture test (panel gaps equal claim-limit gaps) stays, but it is not a substitute for this check.
+- **Q2 The Kisiwa 409 is an artefact of the clone, not a defect, and not AP-1's.**
+  - `permits_cutover` binds each report to `environment_identity`, which is the DB host, port and name, and to `store_root`. The clone's DB name differs from the one the report was made on, so every Site is closed by design, Kobo included, as the probe saw.
+  - Separately, vps1 never ran the comparison for Kisiwa; that is the D-SR.67 prepare gap. `tools/demo_combined.py` on main now runs it for every imported story Site.
+  - On walk1113, served from its own build tree, the gate is open. If Kisiwa still returns 409 there, it is a prepare failure (D-SR.67), not an AP-1 change. No code fix.
+- **Q3 Merge AP-1 before the walkthrough, gated on the Q1 check.**
+  - AP-1 adds no migration, so walk1113 needs no rebuild; only the serve restarts on the merged code.
+  - The owner then walks what 17 Nov shows.
+  - If the check fails, hold AP-1. Main keeps the honest "Not available yet" line, and the walkthrough does not wait for AP-1.
+
+Decisions logged for owner review: **D-SR.80**.
