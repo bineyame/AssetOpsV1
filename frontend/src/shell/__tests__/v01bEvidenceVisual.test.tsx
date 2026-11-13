@@ -270,9 +270,10 @@ describe("V-01b Site Evidence analysis", () => {
     expect((top[0] as HTMLElement).dataset.disclosure).toBe("evidence-limit-details");
     expect(top[0].querySelector("[data-evidence-claim-limit-list]")).not.toBeNull();
     expect(limit.querySelector("[data-not-available='claim-limit-rule']")?.closest("details")).toBeNull();
-    expect(limit.textContent?.match(/nothing is concluded/gi) ?? []).toHaveLength(1);
-    expect(limit.textContent).toContain("No assessment selected");
-    expect(limit.textContent).toContain("Choose a day, then one of its assessed periods.");
+    // SR-7b (D-SR.25): with a range and no day the section reads the claim limit day by day (was the one no-selection
+    // line "No assessment selected ... Choose a day, then one of its assessed periods.").
+    expect(limit.querySelector("[data-range-read='claim-limit-range'], [data-claim-limit-range]")).not.toBeNull();
+    expect(limit.textContent).not.toContain("No assessment selected");
     expect(limit.textContent).not.toContain("No assessment exists");
     expect(limit.querySelector(".product-status:not(.product-status--inline)")).toBeNull();
     expect(limit.textContent).toContain("Each conclusion lists the readings it needs.");

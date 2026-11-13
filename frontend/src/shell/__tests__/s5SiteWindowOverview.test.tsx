@@ -41,6 +41,7 @@ import { settledScreen } from "../../test/settled";
 import { rangeless } from "../../test/rangeless";
 import { expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 import { FID, RID, RID_NEW, CID, PRICE, EVIDENCE, WA, money, summary } from "./s5WindowFixtures";
+import type { RangeOverviewClient } from "../../sites/rangeOverviewClient";
 
 const KISIWA_LOAD_NAMES = ["Households", "Cold store (ice and fish)", "Water pump"] as const;
 const SITE = withLoadNames(HYBRID_MINI_GRID_SITE, KOBO_LOAD_NAMES);
@@ -72,6 +73,15 @@ const NO_MINI: MiniDepthClient = (() => {
   return { getCapabilities: no, getService: no, getFuel: no, getRenewable: no, getBackup: no };
 })();
 
+/**
+ * SR-5b: these cases pin the one-day board's own behaviour with no `day` in the address, so the range read answers
+ * 404 (a Site it does not know) and the switch keeps the one-day page. The range view and the drill-in are pinned in
+ * `sites/__tests__/siteRangeOverview.test.tsx`.
+ */
+const ONE_DAY_FALLBACK: RangeOverviewClient = {
+  getRangeOverview: () => Promise.resolve({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }),
+};
+
 function renderAt(path: string, overview: SiteOverviewClient, detail: SiteDetailClient = DETAIL) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -84,6 +94,7 @@ function renderAt(path: string, overview: SiteOverviewClient, detail: SiteDetail
         siteFindingIndex={NO_INDEX}
         miniDepth={NO_MINI}
         outcomeBoard={fakeOutcomeBoard().client}
+        rangeOverview={ONE_DAY_FALLBACK}
       />
       <LocationProbe />
     </MemoryRouter>,
@@ -113,7 +124,7 @@ describe("S5-01 selected-window Overview: date and selection in the address", ()
     expect(getOverview.mock.calls[0][2]).toEqual({ date: yesterday, finding_id: null, finding_revision_id: null });
   });
 
-  it("SR-4b: with a range and no day the board reads the range's last day; the day steps stop at the range's edges", async () => {
+  it("SR-4b (SR-5b one-day fallback): with a range and no day the board reads the range's last day; the day steps stop at the range's edges", async () => {
     const RANGE = "from=2026-10-20T00:00:00Z&to=2026-10-27T00:00:00Z"; // 20-26 Oct
     const last = clientOf((s) => summary(s.date ?? "2026-11-12"));
     const a = renderAt(`/sites/${SITE_ID}?${RANGE}`, last.client);

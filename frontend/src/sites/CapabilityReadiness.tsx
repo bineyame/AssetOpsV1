@@ -15,12 +15,14 @@
  * The profile only labels and orders the rows (rules 1 and 2 through
  * `servedCapabilities`). With no declared assessment the table renders
  * nothing: no row appears before a real conclusion exists. The readiness
- * scope is site-wide, never the selected window.
+ * scope is site-wide unless the read named a date range (SR-12b: then only
+ * the assessed periods follow it; the backend's `scope` words say which).
  */
 
-import { Badge, DataTable, Fact, FactList } from "../ui";
+import { Badge, DataTable, Fact, FactList, MissingClaim } from "../ui";
 import { Part } from "./panelPart";
 import type { DomainPresentationProfile } from "./presentationProfile";
+import { awaitingMigration } from "./evidenceRead";
 import { servedCapabilities } from "./presentationProfile";
 import type { EvidenceRead } from "./siteEvidenceClient";
 import type {
@@ -59,13 +61,24 @@ function served(
   ).map((row) => ({ ...row, analytic: byId.get(row.id) as AnalyticDeclaration }));
 }
 
-function Unavailable({ message }: { message: string | null }) {
+/** D-SR.74: an imported Site's refusal is never shown as the server's migration wording. */
+function Unavailable({ declaration }: { declaration: EvidenceRead<SiteAnalytics> | null }) {
+  const awaiting = awaitingMigration(declaration);
+  const message = !awaiting && declaration?.status === "unavailable" ? declaration.message : null;
   return (
     <Part heading={QUESTION} headingId={CAPABILITY_HEADING_ID}>
-      <p data-capability-state="unavailable">
-        {message ??
-          "What can be assessed for this site could not be read, so nothing is said here about it."}
-      </p>
+      {awaiting ? (
+        <p data-capability-state="unavailable">
+          <MissingClaim gapId="G-readiness-capability-assessable" placement="readiness.capability.assessable">
+            What can be assessed from these records is not available yet for this site.
+          </MissingClaim>
+        </p>
+      ) : (
+        <p data-capability-state="unavailable">
+          {message ??
+            "What can be assessed for this site could not be read, so nothing is said here about it."}
+        </p>
+      )}
     </Part>
   );
 }
@@ -101,9 +114,7 @@ export function CapabilityReadinessTable({
   }
   if (rows === "unavailable") {
     return (
-      <Unavailable
-        message={declaration?.status === "unavailable" ? declaration.message : null}
-      />
+      <Unavailable declaration={declaration} />
     );
   }
   const scored = rows.find((row) => row.analytic.readiness)?.analytic.readiness;
@@ -225,9 +236,7 @@ export function CapabilityReadinessAnalysis({
   }
   if (rows === "unavailable") {
     return (
-      <Unavailable
-        message={declaration?.status === "unavailable" ? declaration.message : null}
-      />
+      <Unavailable declaration={declaration} />
     );
   }
   return (

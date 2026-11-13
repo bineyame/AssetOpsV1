@@ -25,6 +25,7 @@ import { expectStateLineVisible } from "../../test/productPresentation";
 import { settledScreen } from "../../test/settled";
 import { rangeless } from "../../test/rangeless";
 import { FID, RID, WA, summary } from "./s5WindowFixtures";
+import type { RangeOverviewClient } from "../../sites/rangeOverviewClient";
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
@@ -117,6 +118,15 @@ function Probe() {
   );
 }
 
+/**
+ * SR-5b: these cases pin the one-day board's own behaviour with no `day` in the address, so the range read answers
+ * 404 (a Site it does not know) and the switch keeps the one-day page. The range view and the drill-in are pinned in
+ * `sites/__tests__/siteRangeOverview.test.tsx`.
+ */
+const ONE_DAY_FALLBACK: RangeOverviewClient = {
+  getRangeOverview: () => Promise.resolve({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }),
+};
+
 function renderAt(path: string, overview: SiteOverviewClient, index: FindingIndexClient) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -127,6 +137,7 @@ function renderAt(path: string, overview: SiteOverviewClient, index: FindingInde
         siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })}
         siteOverview={overview}
         siteFindingIndex={index}
+        rangeOverview={ONE_DAY_FALLBACK}
       />
       <Probe />
     </MemoryRouter>,
