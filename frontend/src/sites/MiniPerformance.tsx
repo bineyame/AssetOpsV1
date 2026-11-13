@@ -57,7 +57,7 @@ import "./w4-mini-performance.css";
 import { formatDayTime, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { RangeSpan } from "../ui/rangeFocus";
-import { addressRange, rangeWindow } from "../ui/sharedRange";
+import { addressRange, rangeWindow, useSharedRange } from "../ui/sharedRange";
 
 /* ---------- sibling tabs ---------- */
 
@@ -1620,7 +1620,12 @@ export function MiniFuel({
 }): ReactNode {
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
-  const nights = useFuelNights(fuelBalance, siteCode);
+  const shared = useSharedRange();
+  const nights = useFuelNights(
+    fuelBalance,
+    siteCode,
+    shared.status === "set" ? { ...rangeWindow(shared), ...(shared.known_at ? { known_at: shared.known_at } : {}) } : null,
+  );
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const read = useMiniRead<FuelRead>(
     () => (window === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getFuel(siteCode, window)),
@@ -1628,7 +1633,7 @@ export function MiniFuel({
     attempt,
   );
   if (nights === "loading") return <p role="status">{MINI_LOADING}</p>;
-  if (fuelBalance !== undefined && nights !== null) return <MiniFuelNightsPage client={fuelBalance} siteCode={siteCode} nights={nights} />;
+  if (fuelBalance !== undefined && nights !== null) return <MiniFuelNightsPage client={fuelBalance} siteCode={siteCode} nights={nights} knownAt={shared.status === "set" ? shared.known_at : null} />;
   if (timeZone === null || window === null) return <NoTimeZone />;
   return (
     <>

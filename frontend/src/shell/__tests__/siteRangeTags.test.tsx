@@ -115,24 +115,33 @@ describe("SR-4c: the bar tag and spoken name per page and Site type (rev 8 §8.2
     }
   });
 
-  it("D-SR.65: Kisiwa's Fuel nights view names the night it shows, never All pages", async () => {
+  // SR-10k (D-SR.55) supersedes D-SR.65's interim "range not used" tag: the list holds the range's nights, and the bar
+  // declares the night opened by SR-4's one-day convention. "range not used" remains only for a `?night=` outside it.
+  it("SR-10k: Kisiwa's Fuel nights view declares the range's night it shows, never All pages", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn((input: RequestInfo | URL) => {
-        const nights = String(input).endsWith("/fuel-balance/nights");
+        const nights = String(input).includes("/fuel-balance/nights?");
         const body = nights
           ? { site_code: "KISIWA-001", mode: "NIGHTS", time_zone: "Africa/Dar_es_Salaam", known_at: "2026-11-11T00:00:00Z", provenance: null,
-              nights: [{ night_date: "2026-11-10", label: "Night of 10 Nov · 6 pm to noon", state: "WITHIN_MARGIN", status: "Fuel balance: accounted for within the margin", tone: "neutral", revision: 1 }] }
+              nights: [{ night_date: "2026-11-04", label: "Night of 4 Nov · 6 pm to noon", state: "WITHIN_MARGIN", status: "Fuel balance: accounted for within the margin", tone: "neutral", revision: 1 }] }
           : {};
         return Promise.resolve(new Response(JSON.stringify(body), { status: nights ? 200 : 503, headers: { "Content-Type": "application/json" } }));
       }),
     );
-    // Range B (1-5 Nov): the night shown, 10 Nov, lies outside it.
-    const view = await open("/sites/KISIWA-001/performance/fuel?from=2026-11-01T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z");
-    expect(screen.getByText("Night of 10 Nov · 6 pm to noon", { exact: false })).toBeTruthy();
+    const B = "from=2026-11-01T00%3A00%3A00Z&to=2026-11-06T00%3A00%3A00Z";
+    // Range B (1-5 Nov): the list's latest night, 4 Nov, is the night shown.
+    const inside = await open(`/sites/KISIWA-001/performance/fuel?${B}`);
+    expect(screen.getByText("Night of 4 Nov · 6 pm to noon", { exact: false })).toBeTruthy();
+    expect(tag()?.textContent).toBe("Showing 4 Nov of the range");
+    expect(tag()?.getAttribute("data-shared-range-focus")).toBe("inside");
+    inside.unmount();
+    // A `?night=` link to 10 Nov, outside B: the page says so and the tag says the range is not used.
+    const outside = await open(`/sites/KISIWA-001/performance/fuel?${B}&night=2026-11-10`);
+    expect(document.querySelector("[data-fuel-night-outside-range]")).not.toBeNull();
     expect(tag()?.textContent).toBe("Showing 10 Nov · range not used");
     expect(tag()?.getAttribute("data-shared-range-focus")).toBe("outside");
-    view.unmount();
+    outside.unmount();
   });
 
   it("mini-grid: Service shows one day of the range, Renewable over 5 days its last 5 days", async () => {

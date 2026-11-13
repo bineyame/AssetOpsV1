@@ -43,6 +43,13 @@ const SITE_KISIWA_FINDINGS = [
   `/api/sites/KISIWA-001/finding-index?domain=mini-grid-dispatch&${NIGHTS}`,
   `/api/sites/KISIWA-001/fuel-findings?${NIGHTS}`,
 ];
+// SR-10k: the Kisiwa Fuel tab's nights list reads the date range (rev 10b.4). The hour read is SR-4's (D-SR.59):
+// one Site-local hour of the range's last day, as on Service.
+const SITE_KISIWA_FUEL_RANGE = [
+  "/api/sites/KISIWA-001/fuel-balance/nights?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  "/api/sites/KISIWA-001/performance/mini/capabilities",
+  "/api/sites/KISIWA-001/performance/mini/fuel?from=2026-10-31T09%3A00%3A00.000Z&to=2026-10-31T10%3A00%3A00.000Z",
+];
 const SITE_KISIWA_SERVICE = [
   "/api/sites/KISIWA-001/performance/mini/capabilities",
   "/api/sites/KISIWA-001/performance/mini/service?from=2026-10-31T09%3A00%3A00Z&to=2026-10-31T10%3A00%3A00Z",
@@ -194,6 +201,13 @@ describe("SR-2 the demo's API requests are byte-identical", () => {
     for (const url of expected) expect(got).toContain(url);
     // Nothing else on the estate or Work APIs: no second read for a reshaped range.
     expect(got.filter((u) => u.startsWith("/api/estate/") || u.startsWith("/api/work/")).sort()).toEqual([...expected].sort());
+  });
+});
+
+describe("SR-10k the Kisiwa Fuel tab reads the range's fuel-check nights", () => {
+  it("a 7-day range sends its instants on the nights request", async () => {
+    const path = "/sites/KISIWA-001/performance/fuel?from=2026-10-25T00:00:00Z&to=2026-11-01T00:00:00Z";
+    expect(await siteRequestsAt(path, as(HYBRID_MINI_GRID_SITE, "KISIWA-001"))).toEqual(SITE_KISIWA_FUEL_RANGE);
   });
 });
 

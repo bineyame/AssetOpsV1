@@ -16,6 +16,7 @@ from urllib.parse import quote
 from uuid import UUID
 
 from assetops_backend.chain import refs
+from assetops_backend.chain.read import window_days
 from assetops_backend.fuel_balance import finding_text, night_text
 
 #: Nights list: the default span and the most a request may ask for.
@@ -83,8 +84,16 @@ class FuelNightRead:
     # --- route 1: the nights list ------------------------------------------------------------------------------
 
     def nights(self, *, tenant_id: UUID, site_id: UUID, code: str, lo: date | None, hi: date | None,
-               known_at: datetime | None) -> dict[str, Any]:
+               known_at: datetime | None, window: tuple[datetime, datetime] | None = None) -> dict[str, Any]:
+        """`lo`/`hi` are the night dates `[lo, hi)`. SR-10k: `window` is the date range's UTC instants `[from, to)`;
+        the nights listed are those whose `night_date` is one of `window_days(from, to, tz)` (D-SR.45), at most
+        `MAX_NIGHTS`, else `FuelNightRefused("INVALID_WINDOW")`."""
         tz, tank, known = self._context(tenant_id, site_id, known_at)
+        if window is not None:
+            days = window_days(window[0], window[1], tz)
+            if not days or len(days) > MAX_NIGHTS:
+                raise FuelNightRefused("INVALID_WINDOW")
+            lo, hi = days[0], days[-1] + timedelta(days=1)
         listed: list[Any] = []
         has = tank is not None and self._guard(lambda: self._store.has_windows(tenant_id, site_id, known))
         if has:

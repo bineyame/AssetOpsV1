@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import type { FuelBalanceClient, FuelNightBody, FuelNightSummary, FuelNightsBody } from "../fuelBalanceClient";
+import { createFuelBalanceClient, type FuelBalanceClient, type FuelNightBody, type FuelNightSummary, type FuelNightsBody } from "../fuelBalanceClient";
 import type { FuelRead, MiniDepthClient, MiniRead } from "../miniDepthClient";
 import { FUEL_NOTICE, MiniFuel } from "../MiniPerformance";
 import nightsSource from "../MiniFuelNights.tsx?raw";
@@ -286,5 +286,123 @@ describe("PB-8: the Fuel tab shows loading, not hour mode, while the nights read
     release(nightsBody("NIGHTS"));
     await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
     expect(screen.queryByText("Fuel balance: Unknown")).toBeNull();
+  });
+});
+
+describe("SR-10k: the nights list is the date range's nights", () => {
+  const RANGE = "from=2026-10-01T00:00:00Z&to=2026-10-08T00:00:00Z";
+
+  it("sends the address range's UTC instants, and no range without one", async () => {
+    const ranged = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(ranged, `/sites/${CODE}/performance/fuel?${RANGE}`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(ranged.getNights).toHaveBeenCalledWith(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" });
+    cleanup();
+    const plain = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(plain);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(plain.getNights).toHaveBeenCalledWith(CODE, null);
+  });
+
+  it("the day form of the range is sent in the instant form, `to` excluded", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?from=2026-10-01&to=2026-10-07`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(client.getNights).toHaveBeenCalledWith(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" });
+  });
+
+  it("a range with no fuel check reads 'No fuel checks in this date range' and opens no night", async () => {
+    const client = fuelClient(nightsBody("NIGHTS", []));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}`);
+    await settledScreen();
+    await flush();
+    expect(document.querySelector("[data-fuel-nights-empty]")?.textContent).toBe("No fuel checks in this date range");
+    expect(client.getNight).not.toHaveBeenCalled();
+    expect(document.querySelector("[data-mini-period]")).toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("the client puts the range on the nights request", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        urls.push(String(input));
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+    try {
+      const real = createFuelBalanceClient();
+      await real.getNights(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" });
+      await real.getNights(CODE);
+      expect(urls).toEqual([
+        `/api/sites/${CODE}/fuel-balance/nights?from=2026-10-01T00%3A00%3A00Z&to=2026-10-08T00%3A00%3A00Z`,
+        `/api/sites/${CODE}/fuel-balance/nights`,
+      ]);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("D-SR.55: the list and the night detail carry the same known_at", async () => {
+    const urls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        urls.push(String(input));
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+    try {
+      const real = createFuelBalanceClient();
+      const known = "2026-10-09T00:00:00Z";
+      await real.getNights(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z", known_at: known });
+      await real.getNight(CODE, "2026-10-06", known);
+      await real.getNight(CODE, "2026-10-06");
+      expect(urls.map((u) => new URL(u, "http://x").searchParams.get("known_at"))).toEqual([known, known, null]);
+      expect(urls[2]).toBe(`/api/sites/${CODE}/fuel-balance/nights/2026-10-06`);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("D-SR.55: the page sends the range's known_at on both reads", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&known_at=2026-10-09T00:00:00Z`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(client.getNights).toHaveBeenCalledWith(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z", known_at: "2026-10-09T00:00:00Z" });
+    expect(client.getNight).toHaveBeenLastCalledWith(CODE, expect.any(String), "2026-10-09T00:00:00Z");
+  });
+
+  it("D-SR.55: a ?night= link outside the range opens that night, says so, and keeps the range", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&night=2026-11-04`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(client.getNight).toHaveBeenLastCalledWith(CODE, "2026-11-04");
+    expect(document.querySelector("[data-fuel-night-outside-range]")?.textContent).toBe("This night (4 Nov) is outside the selected date range");
+    expect(client.getNights).toHaveBeenCalledWith(CODE, { from: "2026-10-01T00:00:00Z", to: "2026-10-08T00:00:00Z" });
+  });
+
+  it("D-SR.55: a night inside the range shows no outside-range line", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&night=2026-10-06`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(document.querySelector("[data-fuel-night-outside-range]")).toBeNull();
+  });
+
+  it("SR-10k fix: with no range in the address, a night outside the list shows no outside-range line", async () => {
+    const client = fuelClient(nightsBody("NIGHTS"));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?night=2026-11-04`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(document.querySelector("[data-fuel-night-outside-range]")).toBeNull();
+  });
+
+  it("SR-10k fix: an empty range with a ?night= link opens the named night; no night named shows the empty page", async () => {
+    const client = fuelClient(nightsBody("NIGHTS", []));
+    renderFuel(client, `/sites/${CODE}/performance/fuel?${RANGE}&night=2026-11-04`);
+    await screen.findByText("95.7–144.3 L", { selector: ".v69-metric__value" });
+    expect(client.getNight).toHaveBeenLastCalledWith(CODE, "2026-11-04");
+    expect(document.querySelector("[data-fuel-nights-empty]")).toBeNull();
+    expect(document.querySelector("[data-fuel-night-outside-range]")).not.toBeNull();
   });
 });

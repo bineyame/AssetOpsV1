@@ -189,6 +189,7 @@ function NightSelector({ nights, current, onPick }: { nights: FuelNightSummary[]
       <label className="v69-chip-field">
         Night{" "}
         <select className="v69-chip-control" value={current} onChange={(e) => onPick(e.target.value)}>
+          {index < 0 ? <option value={current}>{shortDay(current)}</option> : null}
           {nights.map((n) => (
             <option key={n.night_date} value={n.night_date}>
               {`${n.label} · ${n.status}`}
@@ -278,41 +279,66 @@ export function FuelNightView({ night }: { night: FuelNightBody }) {
  * page shows its loading line, not hour mode); null for `NONE`, for a failed read and with no client, so the hour mode
  * renders exactly as before in each of those cases.
  */
-export function useFuelNights(client: FuelBalanceClient | undefined, siteCode: string): FuelNightSummary[] | "loading" | null {
-  const [state, setState] = useState<{ code: string; nights: FuelNightSummary[] | null } | null>(null);
+export function useFuelNights(
+  client: FuelBalanceClient | undefined,
+  siteCode: string,
+  range: { from: string; to: string; known_at?: string } | null = null,
+): FuelNightSummary[] | "loading" | null {
+  // SR-10k: the list is the date range's nights; the read is keyed by the Site and the range.
+  const key = `${siteCode}|${range?.from ?? ""}|${range?.to ?? ""}|${range?.known_at ?? ""}`;
+  const [state, setState] = useState<{ key: string; nights: FuelNightSummary[] | null } | null>(null);
+  const from = range?.from ?? null;
+  const to = range?.to ?? null;
+  const knownAt = range?.known_at ?? null;
   useEffect(() => {
     if (client === undefined) return undefined;
     let active = true;
-    void client.getNights(siteCode).then((read) => {
-      if (active) setState({ code: siteCode, nights: read.status === "loaded" && read.value.mode === "NIGHTS" ? read.value.nights : null });
+    void client.getNights(siteCode, from !== null && to !== null ? { from, to, ...(knownAt !== null ? { known_at: knownAt } : {}) } : null).then((read) => {
+      if (active) setState({ key: `${siteCode}|${from ?? ""}|${to ?? ""}|${knownAt ?? ""}`, nights: read.status === "loaded" && read.value.mode === "NIGHTS" ? read.value.nights : null });
     });
     return () => {
       active = false;
     };
-  }, [client, siteCode]);
+  }, [client, siteCode, from, to, knownAt]);
   if (client === undefined) return null;
-  return state !== null && state.code === siteCode ? state.nights : "loading";
+  return state !== null && state.key === key ? state.nights : "loading";
 }
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "2026-11-04" as "4 Nov". */
+function shortDay(isoDay: string): string {
+  const [, month, day] = isoDay.split("-");
+  return `${Number(day)} ${MONTHS[Number(month) - 1] ?? month}`;
+}
+
+/** SR-10k: the empty state of the nights list when the date range holds no fuel check. */
+export const FUEL_NIGHTS_EMPTY = "No fuel checks in this date range";
 
 export function MiniFuelNightsPage({
   client,
   siteCode,
   nights,
+  knownAt = null,
 }: {
   client: FuelBalanceClient;
   siteCode: string;
   nights: FuelNightSummary[];
+  knownAt?: string | null;
 }) {
   const [params, setParams] = useSearchParams();
   const asked = params.get("night");
   const latest = nights.length === 0 ? null : nights[nights.length - 1].night_date;
-  const current = asked !== null && nights.some((n) => n.night_date === asked) ? asked : latest;
-  // D-SR.65 (F1): the bar declares the night shown ("Showing 10 Nov · range not used" outside the range), never
-  // "All pages"; SR-10k replaces this view with the range's nights.
+  // D-SR.55: a `?night=` link names one night and opens it, even outside the range; the list stays on the range.
+  const current = asked !== null && /^\d{4}-\d{2}-\d{2}$/.test(asked) ? asked : latest;
+  const hasRange = params.has("from") || params.has("to");
+  const outside = hasRange && current !== null && !nights.some((n) => n.night_date === current);
+  // SR-10k supersedes D-SR.65's interim tag: the list follows the range, and the bar declares the night opened (SR-4's
+  // one-day convention, as on the hour view): "Showing <night> of the range", or "· range not used" only for a `?night=`
+  // outside the range (the outside-range line says the same). No night (empty range) declares nothing.
   useDeclareRangeFocus(current);
-  const key = `${siteCode}|${current ?? ""}`;
+  const key = `${siteCode}|${current ?? ""}|${knownAt ?? ""}`;
   const night = useRead<FuelNightBody>(
-    () => (current === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getNight(siteCode, current)),
+    () => (current === null ? Promise.resolve({ status: "unavailable", message: null }) : (knownAt === null ? client.getNight(siteCode, current) : client.getNight(siteCode, current, knownAt))),
     key,
   );
   const pick = (next: string) => {
@@ -320,9 +346,15 @@ export function MiniFuelNightsPage({
     copy.set("night", next);
     setParams(copy);
   };
+  if (nights.length === 0 && current === null) return <p data-fuel-nights-empty>{FUEL_NIGHTS_EMPTY}</p>;
   return (
     <>
-      {current === null ? null : <NightSelector nights={nights} current={current} onPick={pick} />}
+      {current === null || nights.length === 0 ? null : <NightSelector nights={nights} current={current} onPick={pick} />}
+      {outside && current !== null ? (
+        <p className="prose" data-fuel-night-outside-range>
+          This night ({shortDay(current)}) is outside the selected date range
+        </p>
+      ) : null}
       {night === null ? (
         <p role="status">{MINI_LOADING}</p>
       ) : night.status !== "loaded" ? (
