@@ -31,6 +31,21 @@ def test_the_plan_is_one_250_hour_service_due_within_the_story_month() -> None:
     assert S - timedelta(days=30) <= written and due <= S + timedelta(days=30), (p, S)
 
 
+def test_the_plan_is_written_s_minus_8d_and_due_s_plus_10d_site_local_midnight() -> None:
+    """D-DATA.4: written S-8d 09:00; due S+10d 00:00 Site-local (CALENDAR), so it reads DUE_SOON, not OVERDUE
+    (`plan_due`: overdue when due strictly before the range end), for every range end S-3d through S+10d local."""
+    from zoneinfo import ZoneInfo
+
+    k = _kisiwa()
+    p = k["service_plan"]
+    S = dc.story_day(DB_NOW)
+    assert kis.at(p["at"]) == S - timedelta(days=8) + timedelta(hours=9)
+    local = kis.at(p["due_at"]).astimezone(ZoneInfo(kis.ZONE))
+    assert (local.date(), local.timetz().replace(tzinfo=None).isoformat()) == ((S + timedelta(days=10)).date(), "00:00:00")
+    demo_monday = S + timedelta(days=5)  # Sat-night prepare: S = 12 Nov, demo Mon 17 Nov
+    assert kis.at(p["due_at"]) > demo_monday + timedelta(days=1)  # the whole demo day's range ends before it is due
+
+
 def test_the_body_is_the_story_plan_shape_on_the_generator() -> None:
     k, asset = _kisiwa(), str(uuid4())
     body = kis.service_plan_body(k, asset)
