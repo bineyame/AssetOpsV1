@@ -5,6 +5,7 @@ non-2xx status is returned, never raised, so the INFRA-1 retry rule can read a 5
 """
 from __future__ import annotations
 
+import json
 import urllib.error
 import urllib.request
 from typing import Any
@@ -20,9 +21,14 @@ class _Headers(dict):
 
 
 class HttpResponse:
-    def __init__(self, status_code: int, headers: Any) -> None:
+    def __init__(self, status_code: int, headers: Any, body: bytes = b"") -> None:
         self.status_code = int(status_code)
+        self.body = body
         self.headers = _Headers((str(k).lower(), v) for k, v in (headers or []))
+
+    def json(self) -> Any:
+        """D-SR.83: the body, for the pinned-board follow-up of an Overview."""
+        return json.loads(self.body or b"null")
 
 
 class HttpClient:
@@ -34,7 +40,7 @@ class HttpClient:
     def get(self, path: str) -> HttpResponse:
         try:
             with self._open(self.base_url + path, timeout=self.timeout) as response:
-                response.read()
-                return HttpResponse(response.status, response.headers.items())
+                body = response.read()
+                return HttpResponse(response.status, response.headers.items(), body if isinstance(body, bytes) else b"")
         except urllib.error.HTTPError as error:
             return HttpResponse(error.code, error.headers.items() if error.headers else [])

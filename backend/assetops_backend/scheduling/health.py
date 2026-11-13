@@ -148,6 +148,19 @@ def site_observation(head: dict[str, Any] | None, now: datetime, th: HealthThres
     return out
 
 
+def schedule_facts(tick: dict[str, Any] | None, head: dict[str, Any] | None, now: datetime,
+                   th: HealthThresholds) -> dict[str, Any]:
+    """D-SR.83b (pure): exactly the schedule inputs that decide an upstream read's SCHEDULE blockers and errors.
+    RUNNING/IDLE, ages and timestamps are left out: they change every tick and decide nothing."""
+    codes = sorted(o["code"] for o in site_observation(head, now, th))
+    errors: list[dict[str, Any]] = []
+    if head and head.get("last_failure_code") and int(head.get("consecutive_failures") or 0) > 0:
+        errors.append({"stage": head.get("last_failure_stage"), "code": head["last_failure_code"],
+                       "error": head.get("last_failure_detail"), "source": "SCHEDULE"})
+    return {"stopped": environment_health(tick, now, th)["state"] == "STOPPED", "site_observation_codes": codes,
+            "errors": errors}
+
+
 _STOPPING = {"SITE_NOT_OBSERVED", "SITE_VISIT_STALE", "SITE_CLAIM_STALE", "SITE_CLAIM_SKIPS"}
 
 

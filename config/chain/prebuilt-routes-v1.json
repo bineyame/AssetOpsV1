@@ -101,6 +101,21 @@
    "id": "board.day:kobo:trial-after:2026-11-01",
    "path": "/api/sites/KOBO-001/outcome-board",
    "query": "date=2026-11-01"
+  },
+  {
+   "id": "overview.day:kobo:2026-10-03",
+   "path": "/api/sites/KOBO-001/overview",
+   "query": "date=2026-10-03"
+  },
+  {
+   "id": "index.day:kobo:2026-10-03",
+   "path": "/api/sites/KOBO-001/finding-index",
+   "query": "domain=mini-grid-dispatch&from=2026-10-03T00%3A00%3A00Z&to=2026-10-04T00%3A00%3A00Z&limit=2"
+  },
+  {
+   "id": "scope.week",
+   "path": "/api/estate/scope",
+   "query": "from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z"
   }
  ]
 }

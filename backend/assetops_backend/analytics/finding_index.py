@@ -34,6 +34,7 @@ from typing import Any, Callable, Protocol
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
+from assetops_backend import perf
 from assetops_backend.analytics import dispatch as dispatch_contract
 from assetops_backend.analytics.dispatch_read import CURRENT, FAILED, PENDING, STALE, UNASSESSED, DispatchReadService
 from assetops_backend.analytics.dispatch_v3 import CONTINUITY_TOLERANCE
@@ -350,7 +351,8 @@ class FindingIndexService:
 
         def window(day: date) -> dict[str, Any]:
             if day not in reads:
-                reads[day] = self.dispatch.window(t, s, day)
+                with perf.timed("index.dispatch"):
+                    reads[day] = self.dispatch.window(t, s, day)
             return reads[day]
 
         days = discover(canonical, request.start, request.end, self.continuity_limit,

@@ -119,6 +119,8 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, Response
 
+from assetops_backend import perf
+from assetops_backend.chain.response_store import finish
 from assetops_backend.evidence.overview import CardAssessments, OverviewReadModel
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 from assetops_backend.evidence.read_model import EvidenceReadModel, batch_payload
@@ -391,11 +393,12 @@ def build_evidence_router(
             raise unavailable(error) from error
 
     @router.get(SITE_OVERVIEW_ROUTE)
-    def get_site_overview(site_id: str, request: Request) -> dict:
+    def get_site_overview(site_id: str, request: Request, response: Response) -> dict:
         if site_overview is not None:
-            body = site_overview.serve(request, site_id, imported_scope)
+            with perf.route(SITE_OVERVIEW_ROUTE, response):  # D-SR.83: one `assetops.perf` line per request
+                body = site_overview.serve(request, site_id, imported_scope)
             if body is not None:
-                return body
+                return finish(body, response) if isinstance(body, Response) else body
         site = site_or_404(site_id)
         legacy = None if site_overview is None else site_overview.legacy_window(request.query_params)
         if legacy is not None:

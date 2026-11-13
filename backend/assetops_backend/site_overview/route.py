@@ -32,6 +32,7 @@ from fastapi import HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 
 from assetops_backend.analytics.performance_comparison import basis_reason
+from assetops_backend.chain.response_store import StoredRoute
 from assetops_backend.site_overview.read import PinNotFound
 from assetops_backend.sites.ports import SiteStoreUnavailable
 
@@ -39,6 +40,8 @@ Access = Callable[[Request, str], "int | None"]
 Scope = Callable[[str], "tuple[str, UUID, UUID] | None"]
 Gate = Callable[[str, UUID, UUID], "tuple[bool, str]"]
 
+#: D-SR.83: the stored-route name, the same string as `evidence_api.SITE_OVERVIEW_ROUTE`.
+OVERVIEW_ROUTE = "/api/sites/{site_id}/overview"
 _DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
 _INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 
@@ -112,6 +115,8 @@ class SiteOverviewRoute:
     scope_unavailable: tuple[type, ...] = (SiteStoreUnavailable,)
     #: q12-6: True only for a persisted empty-legacy cutover basis; the default keeps the S2 comparison required.
     no_legacy_basis: Callable[[UUID, UUID], bool] = None  # type: ignore[assignment]  # set in __post_init__
+    #: D-SR.83: the CH-5c stored-route store; None (no database, or the store off) composes every request.
+    responses: Any = None
     legacy_window = staticmethod(legacy_window)
 
     def __post_init__(self) -> None:
@@ -158,13 +163,24 @@ class SiteOverviewRoute:
             reason = basis_reason(bool(permitted), reason, empty_legacy)  # final review ruling 3 (M4)
             if day is None:
                 day = self.read.db_today()
-            body = self.read.read(code, tenant_id, site_id, day, access_basis=self.access_basis,
-                                  source_open=bool(permitted), source_reason=reason,
-                                  pinned=None if fid is None else (fid, rid))
+            pinned = None if fid is None else (fid, rid)
+
+            def compose() -> dict[str, Any]:
+                body = self.read.read(code, tenant_id, site_id, day, access_basis=self.access_basis,
+                                      source_open=bool(permitted), source_reason=reason, pinned=pinned)
+                return {OVERVIEW_ROUTE: jsonable_encoder(body)}
+
+            if self.responses is None:
+                return compose()[OVERVIEW_ROUTE]
+            # D-SR.83: keyed on the Site, its resolved day and the pin (the board's pattern); refusals never store.
+            site = UUID(str(site_id))
+            key = {"site": str(site), "day": day.isoformat(), "pin": None if pinned is None else [str(fid), str(rid)]}
+            return self.responses.serve(StoredRoute(
+                OVERVIEW_ROUTE, tenant_id, key, sites=(site,), watermark_sites=(site,),
+                term=lambda: self.read.upstream.schedule_term(tenant_id, site_id, self.read.environment)), compose)
         except PinNotFound as error:
             raise HTTPException(status_code=404, detail={"code": "FINDING_PIN_NOT_FOUND",
                                                          "message": str(error)}) from error
         except self.unavailable as error:
             raise HTTPException(status_code=503, detail={"code": "SITE_OVERVIEW_UNAVAILABLE",
                                                          "message": str(error)}) from error
-        return jsonable_encoder(body)

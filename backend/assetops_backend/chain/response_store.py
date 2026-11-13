@@ -114,6 +114,9 @@ class StoredRoute:
     watermark_sites: tuple[UUID, ...] | None = None
     #: UQ-6a: the request's locale (`i18n.current_locale` when built), part of the stored key.
     locale: str = field(default_factory=current_locale)
+    #: D-SR.83b: a live term appended to W (`|s:{term()}`), for inputs that move no change-log row (the schedule
+    #: heads of the Site Overview). Read in `_state`, so lookup and the recheck both include it.
+    term: Callable[[], str] | None = None
 
 
 class ResponseStore:
@@ -145,6 +148,8 @@ class ResponseStore:
         if self._files is not None:
             codes = [r[1] for r in rows if req.sites is None or r[0] in chosen]
             w = f"{w}|f:{self._files(codes)}"
+        if req.term is not None:
+            w = f"{w}|s:{req.term()}"
         return w, sites, zones
 
     def watermark(self, req: StoredRoute) -> str:

@@ -442,10 +442,15 @@ def create_app(
     if site_overview_read is not None:
         # FastAPI 0.141 has no add_event_handler; the router's shutdown list runs under the default lifespan.
         app.router.on_shutdown.append(site_overview_read.dispose)
+    # CH-5c: the stored route responses (`chain/response_store.py`) of the Portfolio, its scope ids, the Findings
+    # index, the outcome summary, the board, the Site Overview, the Site Finding index and the estate scope; None without a database or when ASSETOPS_RESPONSE_STORE opts out (off).
+    responses = build_response_store(database_url())
+    if responses is not None:
+        app.router.on_shutdown.append(responses.dispose)
     site_overview = SiteOverviewRoute(site_overview_read, registry.ledger_scope, performance_gate,
                                       development_access, ACCESS_BASIS,
                                       (LedgerUnavailable, AssessmentStoreUnavailable, SCHEDULE_UNAVAILABLE,
-                                       *finding_store_unavailable(), *CONSEQUENCE_UNAVAILABLE))
+                                       *finding_store_unavailable(), *CONSEQUENCE_UNAVAILABLE), responses=responses)
     # W4-02 q12-6: the persisted empty-legacy cutover basis (Postgres Foundation store only); any other store keeps
     # the S2 comparison requirement.
     basis_reader = getattr(foundation_store, "no_legacy_evidence_basis", None)
@@ -600,7 +605,7 @@ def create_app(
         finding_index,
         registry.ledger_scope, finding_store_unavailable(),
         # Final review ruling 3 (M4): the Overview's Finding list states the empty-legacy reason, never inferred.
-        gate=finding_index_gate))
+        gate=finding_index_gate, responses=responses))
     # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
     actions = (build_action_service(database_url(), finding_reads, registry=registry)
                if finding_reads is not None else None)
@@ -614,11 +619,6 @@ def create_app(
     # W3-01 commit 2 (q5 ruling 5): the read-only estate roots `/api/estate/{scope,findings,actions}`; tenant from the
     # server registry only, per-Site admission through the Finding-route access seam; typed 503 without a database.
     estate_index = build_estate_index_service(database_url())
-    # CH-5c: the stored route responses (`chain/response_store.py`) of the Portfolio, its scope ids, the Findings
-    # index, the outcome summary and the board; None without a database or when ASSETOPS_RESPONSE_STORE opts out (off).
-    responses = build_response_store(database_url())
-    if responses is not None:
-        app.router.on_shutdown.append(responses.dispose)
     app.include_router(build_estate_router(
         estate_index, registry_tenant(registry),
         access=development_access, unavailable=(SiteStoreUnavailable,), responses=responses))

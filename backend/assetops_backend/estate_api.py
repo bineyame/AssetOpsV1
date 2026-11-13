@@ -27,6 +27,7 @@ from assetops_backend.estate.scope import EstateRefusal, EstateStoreUnavailable,
 from assetops_backend.finding_api import Access, development_access
 
 FINDINGS = "/api/estate/findings"
+SCOPE = "/api/estate/scope"
 
 # request -> None to admit, else 401.
 Authenticate = Callable[[Request], "int | None"]
@@ -40,7 +41,7 @@ def build_estate_router(service: EstateIndexService | None, tenant: Callable[[],
                         authenticate: Authenticate = development_authenticate, access: Access = development_access,
                         unavailable: tuple[type[BaseException], ...] = (),
                         responses: ResponseStore | None = None) -> APIRouter:
-    """`responses` (CH-5c) stores the Findings index; the scope and Action roots are not stored routes."""
+    """`responses` (CH-5c) stores the Findings index; the scope (D-SR.83) is stored too; the Action root is not."""
     router = APIRouter()
     down = (EstateStoreUnavailable, *unavailable)
 
@@ -72,9 +73,11 @@ def build_estate_router(service: EstateIndexService | None, tenant: Callable[[],
             raise store_down() from error
         return jsonable_encoder(body)
 
-    @router.get("/api/estate/scope")
-    def estate_scope(request: Request) -> dict[str, Any]:
-        return serve("scope", request)
+    @router.get(SCOPE)
+    def estate_scope(request: Request, response: Response) -> dict[str, Any]:
+        with perf.route(SCOPE, response):  # D-SR.83: stored, one `assetops.perf` line per request
+            out = serve("scope", request, SCOPE)
+        return finish(out, response) if isinstance(out, Response) else out
 
     @router.get(FINDINGS)
     def estate_findings(request: Request, response: Response) -> dict[str, Any]:

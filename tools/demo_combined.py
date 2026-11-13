@@ -423,6 +423,16 @@ def _api_query(text: str, *extra: tuple[str, str]) -> str:
     return urlencode(parse_qsl(text, keep_blank_values=True) + list(extra))
 
 
+MINI_DOMAIN = "mini-grid-dispatch"
+
+
+def _scope_query(text: str) -> str:
+    """`/api/estate/scope` carries only the window of the page that asks (`estateClient.ts` `scope`)."""
+    from urllib.parse import parse_qsl, urlencode
+
+    return urlencode([(k, v) for k, v in parse_qsl(text, keep_blank_values=True) if k in ("from", "to", "known_at")])
+
+
 def _mini_board_day(to: str | None) -> str | None:
     """`frontend/src/sites/EarlyWarnings.tsx` `miniBoardDay`: the UTC day of `to`, the day before when `to` is a UTC
     midnight (an exclusive end); None without a readable `to`."""
@@ -445,14 +455,18 @@ PORTFOLIO_LENSES = ("cost", "risks", "opportunities")  # D-E5.23: the Portfolio 
 
 
 def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
-                    sites_last_day: dict[str, Any]) -> list[dict[str, str]]:
+                    sites_last_day: dict[str, Any],
+                    sites_first_day: dict[str, Any] | None = None) -> list[dict[str, str]]:
     """E4 D-E4.1 (C2), pure: the pre-built route list for this build, derived from `story_links`'s own rows, so what
     is warmed is what the script opens. Each web link maps to the stored-route API request(s) its page issues, with
     the frontend's query: Portfolio -> `portfolio` (`lens=all`) and `outcome-summary`; Findings -> `findings`
     (`lens=all&state=all`); each `/sites/{code}` board (the EV page's too) -> `/api/sites/{code}/outcome-board` with
     the same `date=` or `from`/`to`. Then the S and month estate requests (the CH-5c Q8 list's), and each Site's
     board for every date from S+1 to its last added date (`sites_last_day`: Site name -> date or ISO date; Kobo and
-    Kisiwa by `date`, Cold and EV on the whole UTC day). Duplicates keep the first id."""
+    Kisiwa by `date`, Cold and EV on the whole UTC day). D-SR.83: Kobo and Kisiwa also get the stored Overview and
+    the one-day Finding index for every day the date bar reaches (`sites_first_day` to the last day), the board over
+    that same span, each Site Findings link's index range, and `/api/estate/scope` beside each estate Findings
+    request. Duplicates keep the first id."""
     from urllib.parse import parse_qsl, urlsplit
 
     S = at(story["S"])
@@ -475,6 +489,7 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
             add("summary.week", "/api/estate/outcome-summary", _api_query(parts.query))
         elif segs == ["findings"]:
             add("findings.week", "/api/estate/findings", _api_query(parts.query, ("lens", "all"), ("state", "all")))
+            add("scope.week", "/api/estate/scope", _scope_query(parts.query))
         elif len(segs) in (2, 3) and segs[0] == "sites" and (len(segs) == 2 or segs[2] == "ev"):
             params = dict(parse_qsl(parts.query))
             day = params.get("date") or params.get("from", "")[:10]
@@ -492,6 +507,10 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
                 day = _mini_board_day(params.get("to"))
                 if day is not None:
                     add(f"board.day:{site}:{day}", f"/api/sites/{segs[1]}/outcome-board", _api_query(f"date={day}"))
+                if params.get("from") and params.get("to"):  # D-SR.83: the Site Findings page's index range
+                    add(f"index.range:{site}:{params['from'][:10]}:{params['to'][:10]}",
+                        f"/api/sites/{segs[1]}/finding-index",
+                        _api_query("", ("domain", MINI_DOMAIN), ("from", params["from"]), ("to", params["to"])))
             else:
                 window = [(k, params[k]) for k in ("from", "to", "known_at") if params.get(k)]
                 if window:
@@ -504,6 +523,7 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
         for lens in PORTFOLIO_LENSES:
             add(f"portfolio.{name}.{lens}", "/api/estate/portfolio", _api_query(q, ("lens", lens)))
         add(f"summary.{name}", "/api/estate/outcome-summary", q)
+        add(f"scope.{name}", "/api/estate/scope", _scope_query(q))
     if "kobo" in story["sites"]:  # the "KOBO-001 Overview, day S" link (printed once `kobo.json` exists)
         add(f"board.day:kobo:{story['S_date']}", "/api/sites/KOBO-001/outcome-board",
             _api_query(f"date={story['S_date']}"))
@@ -512,13 +532,46 @@ def prebuilt_routes(story: dict, days: list[dict], kisiwa: dict | None,
         if last is None:
             continue
         code = SITE_CODE[site]
-        for d in _days(S.date() + timedelta(days=1), last):
+        first = S.date() + timedelta(days=1)
+        if site in DATE_BOARD_SITES:  # D-SR.83: the date bar's whole span, or the earliest story-link day if earlier
+            reach = [_as_date((sites_first_day or {}).get(site))]
+            reach += [date.fromisoformat(r["id"].rsplit(":", 1)[1]) for r in out
+                      if r["id"].startswith(f"board.day:{site}:")]
+            first = min([first] + [d for d in reach if d is not None])
+        for d in _days(first, last):
             if site in DATE_BOARD_SITES:
                 query = _api_query(f"date={d.isoformat()}")
+                add(f"overview.day:{site}:{d.isoformat()}", f"/api/sites/{code}/overview", query)
+                day = datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
+                add(f"index.day:{site}:{d.isoformat()}", f"/api/sites/{code}/finding-index",
+                    _api_query("", ("domain", MINI_DOMAIN), ("from", iso(day)), ("to", iso(day + timedelta(days=1))),
+                                ("limit", "2")))
             else:
                 day = datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
                 query = _api_query(f"from={iso(day)}&to={iso(day + timedelta(days=1))}")
             add(f"board.day:{site}:{d.isoformat()}", f"/api/sites/{code}/outcome-board", query)
+    return out
+
+
+def sites_first_day(story: dict, days: list[dict], kisiwa_entries: list[dict]) -> dict[str, Any]:
+    """D-SR.83: each Site's earliest date, the other end of the date bar: the core Sites' earliest `days.json` day,
+    Kisiwa's first story night (`run1_start`, else its earliest run night) or earlier added night."""
+    out: dict[str, Any] = {}
+    for site in story["sites"]:
+        if site == "kisiwa":
+            kis = story.get("kisiwa") or {}
+            nights = [date.fromisoformat(str(e["night_date"])[:10]) for e in kisiwa_entries
+                      if e.get("status") in ("DONE", "PUBLISHED")]
+            if kis.get("run1_start"):
+                nights.append(date.fromisoformat(str(kis["run1_start"])[:10]))
+            nights += [date.fromisoformat(str(r["night_date"])[:10]) for r in kis.get("runs", [])
+                       if r.get("night_date")]
+            if nights:
+                out[site] = min(nights)
+            continue
+        mine = [date.fromisoformat(d["day"]) for d in days if d["site"] == site]
+        if mine:
+            out[site] = min(mine)
     return out
 
 
@@ -858,7 +911,8 @@ class Demo:
         kis_file = self.work / "kisiwa.json"
         kisiwa = json.loads(kis_file.read_text(encoding="utf-8")) if kis_file.is_file() else None
         last = sites_last_day(story, days, kis.read_days(self.work))
-        doc = prebuilt_routes_doc(prebuilt_routes(story, days, kisiwa, last), story["S_date"])
+        first = sites_first_day(story, days, kis.read_days(self.work))
+        doc = prebuilt_routes_doc(prebuilt_routes(story, days, kisiwa, last, first), story["S_date"])
         path = self.work / PREBUILT_ROUTES_FILE
         temp = path.with_name(PREBUILT_ROUTES_FILE + ".tmp")  # C2 review L3: a reader never sees a half-written file
         temp.write_text(json.dumps(doc, indent=1), encoding="utf-8")

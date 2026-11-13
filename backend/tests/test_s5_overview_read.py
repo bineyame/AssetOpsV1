@@ -72,7 +72,8 @@ class World:
 
     def window(self, t, s, start, end, env):
         return {"db_now": D0, "eligibility": self.eligibility, "findings": self.findings_list, "s3_jobs": [],
-                "consequence_work": [], "schedule": {"state": "RUNNING"},
+                "consequence_work": [], "schedule": {"state": "RUNNING", "environment": "default"},
+                "schedule_facts": {"stopped": False, "site_observation_codes": [], "errors": []},
                 "match": [{"day": DAY.isoformat(), "match_pass_id": "m-1", "matched_through_selection_seq": 4}],
                 "days": [{"day": DAY.isoformat(), "s3_status": "CURRENT" if self.day_run else "UNASSESSED",
                           "s3_status_reasons": [], "limitations": [], "run_id": self.day_run,
@@ -538,3 +539,57 @@ def test_selected_day_and_legacy_translation() -> None:
     assert selected_day({"date": "2026-10-24"}) == DAY
     assert SiteOverviewRoute.legacy_window({"date": "2026-10-24"}) == ("2026-10-24T00:00:00Z", "2026-10-25T00:00:00Z")
     assert SiteOverviewRoute.legacy_window({}) is None
+
+
+# ---- D-SR.83: the stored route (a stub store with the board's `serve(StoredRoute, compose)` contract) ----
+
+class StubStore:
+    """Stores a composed body under its request key; a refusal raised by `compose` stores nothing."""
+
+    def __init__(self) -> None:
+        self.rows: dict[str, object] = {}
+        self.requests: list = []
+        self.composed = 0
+
+    def serve(self, req, compose):
+        from fastapi.responses import JSONResponse
+
+        self.requests.append(req)
+        key = repr(sorted(req.request.items()))
+        if key not in self.rows:
+            self.composed += 1
+            self.rows[key] = compose()[req.route]
+        return JSONResponse(self.rows[key], headers={"x-test": "hit" if self.composed == 1 else "x"})
+
+
+def stored_client(world: World, store: StubStore) -> TestClient:
+    overview = SiteOverviewRoute(world.service(), {"KOBO-001": ("KOBO-001", T, S)}.get, lambda c, t, s: (True, "open"),
+                                 lambda request, code: None, "DEV-BASIS", responses=store)
+    app = FastAPI()
+    app.include_router(build_evidence_router(types.SimpleNamespace(store=None), LegacySites(),
+                                             imported_reads=Imported(True), site_overview=overview))
+    return TestClient(app)
+
+
+def test_stored_route_second_identical_get_is_served_from_the_store() -> None:
+    store = StubStore()
+    c = stored_client(World(), store)
+    first = c.get("/api/sites/KOBO-001/overview?date=2026-10-24").json()
+    assert c.get("/api/sites/KOBO-001/overview?date=2026-10-24").json() == first
+    assert store.composed == 1 and store.requests[0].route == "/api/sites/{site_id}/overview"
+    assert store.requests[0].term is not None  # D-SR.83b: the live schedule term rides on the request
+
+
+def test_stored_route_undated_request_keys_on_the_resolved_day() -> None:
+    store = StubStore()
+    c = stored_client(World(), store)
+    c.get("/api/sites/KOBO-001/overview")
+    assert store.requests[0].request["day"] == "2026-10-24"  # the DB-clock day, never `None`
+
+
+def test_stored_route_pin_not_found_is_a_404_and_never_stored() -> None:
+    store = StubStore()
+    c = stored_client(World(), store)
+    response = c.get(f"/api/sites/KOBO-001/overview?date=2026-10-24&finding_id={uuid4()}")
+    assert response.status_code == 404 and response.json()["detail"]["code"] == "FINDING_PIN_NOT_FOUND"
+    assert store.rows == {}
