@@ -462,9 +462,10 @@ describe("EV case-row Action link in `UTC and IDs` (ruling 71)", () => {
 });
 
 describe("cold case-row Action link stays the server href (ruling 71)", () => {
-  it("a COLDCHAIN Incident row keeps the server `links.action` href byte-identical", async () => {
+  // SR-4 D-SR.2: the client never rewrites the server path; the shared range is carried on it like every Site link.
+  it("a COLDCHAIN Incident row keeps the server `links.action` path and carries the address range", async () => {
     const { main } = await mountCases("incidents", loaded(evCaseBody([evIncident(1)])), COLD_SITE as unknown as SiteDetailReadModel);
-    expect(main.querySelector(`[data-work-action-link="${EV_ACTION_ID}"] a`)?.getAttribute("href")).toBe(EV_DETAIL);
+    expect(main.querySelector(`[data-work-action-link="${EV_ACTION_ID}"] a`)?.getAttribute("href")).toBe(`${EV_DETAIL}${SELECTED}`);
   });
 });
 
