@@ -509,6 +509,12 @@ READINESS_SCOPE = (
     "Based on all of this site's accepted records, not only the selected window. It is not a "
     "rating of the site's health and not permission to act."
 )
+# SR-12b (D-SR.74): the scope when readiness is read over a date range.
+READINESS_SCOPE_RANGED = (
+    "Only assessments that overlap the selected date range are counted. Whether each required input has a usable "
+    "record is checked against all of this site's accepted records. It is not a rating of the site's health and "
+    "not permission to act."
+)
 READINESS_METHOD = (
     "How this is scored: Full means every required input has at least one usable accepted "
     "record and no assessed part of a period was left undetermined by a missing record. "
@@ -545,7 +551,7 @@ def _gap(gap: dict[str, Any]) -> str:
 
 
 def readiness(level: str, ceiling: dict[str, Any], missing: list[dict[str, Any]],
-              capped_roles: list[str]) -> dict[str, Any]:
+              capped_roles: list[str], *, ranged: bool = False) -> dict[str, Any]:
     """Plain fields for one readiness row: its meaning, scope, method, the
     conclusion available and each gap."""
     if level == "NONE":
@@ -565,7 +571,7 @@ def readiness(level: str, ceiling: dict[str, Any], missing: list[dict[str, Any]]
     return {
         "question": READINESS_QUESTION,
         "meaning": READINESS_MEANINGS[level],
-        "scope": READINESS_SCOPE,
+        "scope": READINESS_SCOPE_RANGED if ranged else READINESS_SCOPE,
         "method": READINESS_METHOD,
         "conclusion": conclusion,
         "gaps": [_gap(g) for g in missing],

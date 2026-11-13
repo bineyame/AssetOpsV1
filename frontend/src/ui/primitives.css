@@ -4040,6 +4040,29 @@ ul.evidence-notes li { font-size: inherit; }
 .health-nowrap {
   white-space: nowrap;
 }
+/* SR-6b: the Health range day cells. The word is always the content; the tone only reinforces it. */
+.health-day {
+  white-space: nowrap;
+  font-size: 0.85em;
+}
+.health-day--good {
+  background: var(--status-green-bg);
+  color: var(--status-green-text);
+}
+.health-day--partial {
+  background: var(--status-amber-bg);
+  color: var(--status-amber-text);
+}
+.health-day--none {
+  background: var(--status-red-bg);
+  color: var(--status-red-text);
+}
+.health-day--muted {
+  color: var(--text-muted);
+}
+.health-range-back {
+  margin: 0 0 var(--space-3, 12px);
+}
 /* At phone width the mock's tables keep readable columns and scroll inside their own scroller
    (`.table-wrap`), rather than squeezing every cell into a tall wrapped column. */
 .site-health .data-table,

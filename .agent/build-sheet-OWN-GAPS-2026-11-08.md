@@ -5465,3 +5465,153 @@ Decisions logged for owner review: **D-SR.76** (Q1-Q11 and the hour addresses).
 - **AP-1 correction (D-SR.75).** `SitePerformance.tsx` and the other `/analytics` readers (`SiteAnalyticsFrames`, `FindingsIndexes`, `FindingDetail`, `SiteEvidenceFrame`) use the 409 as the "imported Site" signal. AP-1 must switch them to branch on the Site's store before its 200 ships. +0.25, so AP-1 is about 1.55 (1.3-1.9). The HTML was corrected in the same commit. The deferral place is unchanged.
 
 Decisions logged for owner review: **D-SR.77**.
+
+## D-UQFI.6-10 UQ-FI builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-uqfi` `task/UQ-FI-1-2`, `.agent/UQ-FI-packet.md` (questions 1-4 and the merge note). Spec: rev 6 (6.1-6.4, D-UQFI.1-5) in `architect-sequence-client-scope-2026-11-11.md`; owner go `owner-proceed-waiting-items-2026-11-13.md` (provisional).
+- **D-UQFI.6 Cold board: the panel rule wins; no collapse there.**
+  - Rev 6's "no layout restructure, no panel moves" and the mock-fidelity rule outrank the Cold board example in D-UQFI.4. That example was a factual error: the six "No cold assessment for this window" lines sit in six separate v6.9 `Panel`s (`coldSiteViews.tsx` what-happened, temperature, needs attention, what we can conclude, sources, most useful next evidence), not in blocks of one section.
+  - Shown: all six panels stay, each with its heading and its own one `Gap` line "No cold assessment for this window", with its id unchanged. A one-subject group renders as today, so no `GapGroup` is needed there. No banner, no new words, no `details` element.
+  - The v7.2 sheet's EmptyState with "Not shown yet, and why" is not in the 6.2 approved list. It is a stage-1 (BL-69) component, after 17 Nov, and needs its own ruling then.
+  - Remove the Cold board from the collapse targets. The packet's collapse list says "Cold board: none (D-UQFI.6)". `measure.json` records its gap-line count, which stays the same before and after.
+- **D-UQFI.7 Figures: 20 px confirmed for UQ-FI-1/2; 30 px is UQ-FI-3's, on its card only.**
+  - Today's figure classes (`.v69-metric__value`, `.v69-money`, `.v69-panel-value`, `.window-money__amount`, Portfolio `.value-number`, `.opportunity-quantity`) use `--font-size-600` (20). The D-UQFI.4 headline rule stands for them, and a smaller figure cannot break a fit (risk 1).
+  - UQ-FI-1 defines `--text-figure: var(--font-size-800)` (30) as a token, used by nothing yet. UQ-FI-3 applies it to the one-figure Portfolio card only, the sheet element that carries it (sheet `.card .fig`, portfolio-hifi `.kpi .fig`/`.bigfig`). There it is the stated exception to "nothing at page-title size or larger".
+  - The Site board's 30 px tiles (site-overview-hifi `.tile-k .fig`) are after 17 Nov (BL-69). If UQ-FI-3 is held, figures stay at 20 px. No MOCK DEVIATION label is needed: the sheet replaces the v6.9 type scale, and the 30 px element ships with its card.
+- **D-UQFI.8 P3 headline: yes, build it only after SR-5 and SR-8 merge.**
+  - The `SiteAnalyticsFrames.tsx` frame change (the h1 is the Finding title, then the first sentence, with the status strip under them) is made on a rebase onto main that has both. The `SiteFinding.tsx` side may be prepared now.
+  - If either SR branch has not merged by Sat 15:00, P3's headline is held alone. UQ-FI merges without it, and the packet lists P3 headline as held. This is not a reason to hold UQ-FI whole.
+- **D-UQFI.9 `primitives.css` spacing: no, not for 17 Nov.**
+  - Rev 6 snaps the demo-path files only. `primitives.css` styles every page, and SR-8-10 is editing it now, so a whole-file snap means merge conflicts and uncaptured changes on non-demo pages.
+  - Its type pass (done) stays, and so do the tabular-figure selectors. Spacing snap of `primitives.css` goes to BL-69 stage 1. The packet's "Known deviations" line stands as a ruling, not a deviation.
+- **D-UQFI.10 Merge order: confirmed, with two additions.**
+  - UQ-FI merges after the SR range pages (SR-5, SR-8-10 and any lane touching frontend CSS that is ACCEPTed by then), UQ-FI-1 then UQ-FI-2, by Sat 18:00 (rev 6.4). The rev 6 PR-3 rule stands: PR-3 first if ACCEPTed by 15:00.
+  - Any branch merging after UQ-FI reruns `node tools/uqfi-type-codemod.mjs` (type pass) and `tools/checks/style-ratchet.mjs` and passes the ratchet. It uses `--spacing` only on the 14 demo-path files it touches, never on others.
+  - UQ-FI, rebased onto the SR merges, reruns both itself and retakes the after captures of any P-page those branches changed.
+- Accepted from the packet, no change: the GapGroup line is a `div` (inline form `span`), because `<ul>` cannot sit inside `<p>`. The page title is 20 px below 760 px.
+
+Decisions logged for owner review: **D-UQFI.6-10**.
+
+## D-SR.78 AP-1 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-ap1` `task/AP-1-analytics-port`, `.agent/AP-1-packet.md` (questions 1-4). Design: `architect-analytics-port-and-db-choice-2026-11-13.html` Part A; D-SR.75, D-SR.77.
+- **Q1 Acceptable as built; no count.**
+  - Design A3 asks only for presence (EXISTS, latest), not a count. A count over the whole Kobo ledger adds read cost against the 2 s budget and adds nothing to readiness.
+  - "Usable records received, latest …" is true when a latest GOOD accepted reading exists. With no such reading, the row stays not available with its gap words.
+  - The TS type stays `number | null`. The file path keeps its count. Never show 0 or a dash for null.
+- **Q2 Show "Not bound", not the file-era ids.**
+  - A file-era device/signal id beside an unbound role names a reference that the stored configuration does not have, which is a false source.
+  - On the stored path, a row's `device_id`/`signal_id` are filled only from a stored binding, and are null otherwise.
+  - `CapabilityReadiness`/`SiteEvidence` render "Not bound" (the existing `FoundationBindingsPanel` word for `UNBOUND`) where the reference sits, for an unbound role. Policy rows and not-stored rows with null ids show no reference; their gap words stay. Availability stays false.
+  - The file path is unchanged. Tests: one backend test (unbound role gives null ids) and one vitest test ("Not bound" shown, no file-era id in the DOM). Size about 0.1, before merge.
+- **Q3 Confirmed: a whole-read 422, fail closed.**
+  - This matches `claim_limit_read.SUPPORTED_MODELS`, which refuses the same revision in the claim-limit section on the same page. Skipping would let the panel and that section disagree (design risk "Panel disagrees with the claim-limit section").
+  - The page shows its existing refusal sentence, with no retry.
+  - The Kobo parity probe records whether any demo Site's selected revisions trip it. If one does, that is a finding for the coordinator, not a reason to skip.
+- **Q4 Confirmed.** A closed gate returns the existing 409 `AWAITING_EVIDENCE_MIGRATION`, so SR-12b's "not available yet" line applies unchanged. No new code, and no `PERFORMANCE_CUTOVER_CLOSED`. The gate reason stays in the message for logs; the page does not render it as raw text. D-SR.77's store branch is unchanged: the 409 is the imported-Site signal only when the store is unstated.
+
+Decisions logged for owner review: **D-SR.78**.
+
+## D-UP.12 UP-1 review L2: a stale FAILED job must not pin "Not analysed" (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-up1` `.agent/UP-1-review.md` L2; code `reading_upload/adapters/postgres_reading_upload_store.py` `_ANALYSIS` and `progress`. This refines D-UP.3; it does not replace it.
+- **Yes: a later successful run supersedes a FAILED job for the same period.** The proof in D-UP.3 is the run itself. A run whose `knowledge_cutoff` is at or after the upload's decision time has read the upload, whatever failed before or beside it.
+- **State order at GET:** Still processing > Analysed > Not analysed > Still processing (fallback).
+  1. **Still processing** if any `recompute_job` for the Site, in any domain, overlapping [first interval start, last interval end) is PENDING or LEASED. This is unchanged: D-UP.3's "no work is left" holds.
+  2. **Analysed** if the qualifying run exists (D-UP.3 item 2, unchanged).
+     - It is an `analytic_run` for the Site with `analytic_id = dispatch_v3.ANALYTIC_ID`, `selection = 'DEFAULT'` and `job_id IS NOT NULL`, its window covers the first interval start, and its `knowledge_cutoff` ≥ `decided`.
+     - `decided` = max `ingestion_disposition.decided_at` over the upload's ACCEPTED dispositions.
+     - No FAILED job overrides it.
+  3. **Not analysed** only if no qualifying run exists and a **relevant** FAILED job overlaps the span.
+     - A FAILED job is relevant when `created_at ≥ decided`, or `lease_until ≥ decided` when that column is set. Either way it was created or still leased after the upload was decided, so it could have carried the upload.
+     - Jobs coalesce, so `created_at` alone would miss an older job that was widened to take the upload. Never key on `cause_evidence_id` (D-UP.3).
+     - A FAILED job created and last leased before `decided` is ignored.
+  4. Otherwise **Still processing**. This is the existing state when no run and no relevant failure exist.
+- **What is compared:** each FAILED job's `created_at`/`lease_until` with the upload's `decided` time (the same database clock, S4-07). The run is compared with `decided` through `knowledge_cutoff`. A job is never compared with a run.
+- **Wording is right, unchanged:** `reading_upload.state.not_analysed` "Received, but the analysis did not finish. The readings are kept." It is now shown only for a relevant failure, where it is true.
+- **Tests, no-DB fake store plus one Postgres flow case:**
+  - an old FAILED job and a later qualifying run gives Analysed;
+  - an old FAILED job (created and leased before `decided`) and no run gives Still processing;
+  - a FAILED job created after `decided` and no run gives Not analysed;
+  - an older job with `lease_until ≥ decided` that is FAILED, and no run, gives Not analysed;
+  - PENDING beside a qualifying run gives Still processing.
+- Size about 0.1, before merge. Also run the review's `SELECT status, count(*) FROM recompute_job` check for KOBO-001 on the client4 copy in the first heavy slot, as planned.
+
+Decisions logged for owner review: **D-UP.12**.
+
+## D-UQFI.11-12 UQ-FI-3 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-uqfi3` `task/UQ-FI-3`, `.agent/UQ-FI-3-packet.md` (questions 1-2). Spec: rev 7 UQ-FI-3 row and its `StatusPill` line ("maps the six existing state codes").
+- **D-UQFI.11 State set: the outcome state codes, as built. Looks for the undrawn ones are below.**
+  - Rev 7's "six reading states" was loose wording. Its own design line says "the six existing state codes", and the codes both call sites show are the outcome states (Portfolio key, board outcome rows). The eight readings-coverage words on the sheet are not shown at either call site, so they are not mapped in UQ-FI-3. Confirmed as built, including NO_OBJECTIVE and NOT_APPLICABLE, which the board can carry.
+  - Drawn in portfolio-hifi, kept exactly, with no added symbol: NEEDS_ATTENTION `s-partial` look; OPPORTUNITY `s-accent`; WATCH `s-neutral`; NOT_MEASURED `s-notanalysed` (dashed).
+  - Not drawn, ruled:
+    - **ON_TRACK** takes the sheet's Complete chip look and symbol (`s-complete`, filled circle). It is the one positive state, and that is the sheet's positive look.
+    - **UNKNOWN**, **NO_OBJECTIVE** and **NOT_APPLICABLE** take `s-neutral` with no symbol. The word tells them apart.
+  - Reasons:
+    - Do not use `s-noreadings` for Unknown. That look means "No readings received", a readings fact the outcome state does not claim.
+    - Do not use the dashed `s-notanalysed` for N/A. Dashed means "not yet", and not applicable is not pending.
+    - Unrecognised codes stay neutral.
+  - The packet lists these four as "undrawn on the sheet, ruled by D-UQFI.11", for the owner's sheet review. `statusPill.test.tsx` pins them.
+- **D-UQFI.12 Portfolio card foot pill: leave it out for 17 Nov. MOCK DEVIATION.**
+  - Mock element: the portfolio-hifi `.kpi` card foot state chip.
+  - Reason: `EstatePortfolioCard` carries a tone, not a state code. An estate-level state needs a server roll-up rule: which Site state wins, and with what words. That is new semantics needing an owner decision, not a field copy.
+  - Alternatives considered:
+    - Derive it in the client from the tone or the per-Site states. Rejected: it invents semantics, and colour would be read as a claim.
+    - Add a server `state`/`state_label` with a roll-up rule. This is about 0.3 unit, backend, contract and tests. It goes to BL-69 after 17 Nov, and only once the owner rules the roll-up.
+  - The per-Site states stay behind "Why?" as built, so nothing is hidden. Record the label in code beside the card foot and in the packet, citing D-UQFI.12.
+
+Decisions logged for owner review: **D-UQFI.11-12**.
+
+## D-SR.79 AP-1 review H1 and Lows: where the stored readiness table goes (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-ap1` `.agent/AP-1-review.md` (`ae4a34eaf`, REJECT on H1).
+- The gap is in the design premise of D-SR.75 Part A1, which assumed `SiteEvidence` renders the panel for stored Sites. It is not a builder error. The backend stands as reviewed.
+- **(a) Placement: the ledger Overview's existing "What we can conclude now" panel.**
+  - Mock: v69 `siteEvidenceScreen('mini')`, `panel('What we can conclude now', table([...], SITE_EVIDENCE.mini.caps))`. `LedgerSiteEvidence` `OverviewBody` already renders that panel (`site-evidence-state-heading`).
+  - How:
+    - `SiteEvidence.tsx` passes `declaration={loaded.declaration}` and `profile={profile}` to `LedgerSiteEvidence`, which hands them to `OverviewBody`.
+    - When `capabilityTableShown(declaration, profile)` is true, `CapabilityReadinessTable` renders **in place of** the `NotAvailableYet name="capability-conclusions"` line, the honest placeholder for exactly this table. Everything else in the panel stays as it is.
+    - In that case only, the status bar badge "No capability conclusion yet" becomes "Evidence · Overview", the Analysis view's existing badge form, because the old words would be false. Otherwise both stay unchanged.
+    - On any non-200 (409 closed gate, 422, 503) or `analytics: []` (cold/EV), the existing `NotAvailableYet` line and badge stay. No other words are added.
+  - Analysis view: no change. Its "How each limit is set" panel already shows the stored claim-limit section from the same revisions. Adding `CapabilityReadinessAnalysis` would duplicate it.
+  - The other four mock rows stay the pre-existing gap recorded in D-SR.75, outside AP-1.
+- **(b) No skip.** The fix makes the read displayed, so there is nothing to skip. H1 and this fix land together, and main keeps the cheap 409 until then.
+  - The page still waits for all three reads (`Promise.all`), so the parity probe's unwarmed timing now gates the Evidence page. If the read takes over 2 s, it gets one warm entry before merge (D-SR.75 pass rule). Do not restructure the effect for 17 Nov.
+- **(c) Size and what the client sees.**
+  - The fix round is about +0.25: prop pass-through, the swap and badge, the vitest and the Lows. AP-1 becomes about 1.8 units (1.55 + 0.25). Its deferral place is unchanged.
+  - 17 Nov, Kobo and Kisiwa (stored mini-grids), with the Performance gate open and a selected dispatch-3.2 revision in the period: one row in "What we can conclude now", the Dispatch requirement with Full, Limited or None and what is missing, in the existing table form.
+  - With the gate closed, the read refused, or no revision: today's "Not available yet" line.
+  - The probe's Kobo result and the Kisiwa live read decide which of the two the client sees. Cold room and EV hub are unchanged.
+- **Test: the ledger shape.**
+  - Replace the impossible fixture in `ap1StoredAnalytics.test.tsx` with `LedgerEvidence` (store `POSTGRES`) through `SiteEvidence`.
+  - A stored 200 gives the table inside `site-evidence-state-heading`, no `capability-conclusions` line, and the badge "Evidence · Overview".
+  - A 409 gives the line and "No capability conclusion yet".
+  - A 422 gives the line, with no revision UUID or model id in the DOM.
+  - Cold `analytics: []` gives the line.
+- **(d) Lows, all fixed in this round.**
+  - **L1:** `stored_site_declaration` raises a dedicated `StoredSiteNotFound` when `site_type_on` is None. The route catches only that for 404 `SITE_NOT_FOUND`; any `KeyError`/`IndexError` stays a 500. One test.
+  - **L2:** resolved by (a). The ledger page never renders a refusal message; the UUID message stays for logs. The file path is unchanged, because 422 comes only from the stored branch.
+  - **L3:**
+    - The probe uses `build_assessment_store(persistent=False)` and writes nothing under `var/`.
+    - `available` is compared by role, and by feeder for Load. Id differences, including D-SR.78 null ids, are listed separately and are not a mismatch.
+    - `UnsupportedModel` is caught and emitted as `{"refused": "UNSUPPORTED_RULE_VERSION", "revision": …, "model": …}` (D-SR.78 Q3). The pass rule becomes: role-keyed `available_mismatch` empty.
+  - **N1:** "(Not bound)" replaces the whole "(reference …)" suffix. D-SR.78 Q2 is amended to this wording.
+- Re-review by a fresh Claude reviewer on the fix-round diff, plus the probe JSON once the DB slot runs.
+
+Decisions logged for owner review: **D-SR.79**.
+
+## D-MB.1-2 MB-1 packet questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-mb1` `task/MB-1-modbus`, `.agent/MB-1-packet.md` (questions 2 and 4). Spec: rev 7 section 7.6 / D-17N.6, D-UP.2.
+- **D-MB.1 (Q2) Acceptable: the live window comes from the prolonged dispatch scenario, generated in memory.**
+  - The beat's claim is "a field device's readings arrive live through the gateway and are accepted". It is not "the live readings continue the uploaded file". UP-1's file and MB-1's window are separate periods, and the overlap rule plus `live-field check` prove no reading is doubled.
+  - A step in battery charge or feeder levels where the file ends and the live window starts is what the two sources recorded. Do not smooth, seed or splice it; that would fabricate continuity.
+  - The demo script and presenter notes must not say or imply continuity. The live beat is described as a simulated field device (illustrative values), as rev 7 7.6 states.
+  - Seeding the scenario from the file's last values is out of scope for 17 Nov. It goes to the backlog if the owner asks.
+- **D-MB.2 (Q4) No delivery loop; keep the gateway's 60 s backstop.**
+  - The backstop is the product's real delivery behaviour. A per-instant `deliver` loop would demo a path the field gateway does not run, and it adds scope and VPS load.
+  - The script line reads "readings arrive within about two minutes", with the presenter waiting on the Kobo board's "today".
+  - The demo-copy bench run records the time from the emulator's source time to its first appearance on the board. If that exceeds 3 min, report it to the coordinator; do not add a loop.
+
+Decisions logged for owner review: **D-MB.1-2**.
