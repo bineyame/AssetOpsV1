@@ -99,6 +99,15 @@ def replace_fake(fake: b2.Fake, **over: Any) -> b2.Fake:
     return fake
 
 
+def test_unassessed_unsettled_day_objective_is_not_judged() -> None:
+    """BOARD-today-wording: no assessed interval on an unfinished day never claims "0 min longer than needed"."""
+    _, rows = run_mini(replace_fake(no_finding(), day={"settled": False},
+                                    dispatch={"status": "LIMITED", "limitations": (), "intervals": ()}))
+    assert not any("longer than needed on this day" in l["text"] for l in declared(rows[COST]))
+    assert state(rows[COST], "MG-2")[0] != "ON_TRACK"
+    assert declared(rows[COST])[0]['confidence']['label'] == 'Not judged yet'
+
+
 def test_mg2_zero_minutes_complete_is_on_track() -> None:
     _, rows = run_mini(replace_fake(no_finding(), dispatch=dispatch("0", "0"), day=complete_day()))
     assert state(rows[COST], "MG-2") == ("ON_TRACK", "OBJECTIVE_MET")
