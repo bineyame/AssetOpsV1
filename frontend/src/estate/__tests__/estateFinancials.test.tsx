@@ -81,7 +81,7 @@ function line(over: Partial<FinancialRow> & Pick<FinancialRow, "line_key">): Fin
     reason_codes: [],
     limit: "Generator fuel quantity is modelled from accepted power readings",
     source_provenance: { state: "CURRENT" },
-    links: { site: "/sites/KOBO-001", bridge: "/sites/KOBO-001/financials", evidence: "/sites/KOBO-001/evidence", current_view_label: "Opens current Site view" },
+    links: { site: "/sites/KOBO-001", bridge: "/sites/KOBO-001/financials", evidence: "/sites/KOBO-001/evidence", current_view_label: "Current view \u00b7 range not used" },
     disclosure: { pinned_amount: null },
     group_key: KEY(1),
     ...over,
@@ -499,7 +499,7 @@ describe("W3-02 estate Financials root", () => {
     // Mini-grid: the server's current-view bridge, labelled as such. SR-4 D-SR.2: the link carries the range;
     // mini-grid Financials is an N page (D-SR.1), so it still shows the current view.
     expect(source(rows[0])?.getAttribute("href")).toBe(ranged("/sites/KOBO-001/financials"));
-    expect(rows[0].querySelector("[data-estate-current-view]")?.textContent).toBe("Opens current Site view");
+    expect(rows[0].querySelector("[data-estate-current-view]")?.textContent).toBe("Current view \u00b7 range not used");
     // Cold: Site evidence with the row's own window and cutoff; EV: the Site bridge with its own query.
     expect(source(rows[1])?.textContent).toBe("Site evidence →");
     expect(source(rows[1])?.getAttribute("href")).toBe(COLD_EVIDENCE);
@@ -511,10 +511,20 @@ describe("W3-02 estate Financials root", () => {
     expect(rows[3].querySelector("[data-estate-source='unavailable']")?.textContent).toBe(SOURCE_UNAVAILABLE);
     expect(rows[3].querySelector("[data-estate-site-link]")?.textContent).toBe("KOBO-001");
     // SR-4 D-SR.42(d): a Site link holds each range key once (its own window, or the carried one).
-    for (const link of main().querySelectorAll("a")) {
+    for (const link of rows.flatMap((r) => Array.from(r.querySelectorAll("[data-estate-site-link], [data-estate-source-link]")))) {
       const q = new URL(link.getAttribute("href") ?? "", "http://x").searchParams;
-      expect([q.getAll("from").length, q.getAll("to").length, q.getAll("known_at").length].every((n) => n <= 1)).toBe(true);
+      expect([q.getAll("from").length, q.getAll("to").length], link.getAttribute("href") ?? "").toEqual([1, 1]);
+      expect(q.getAll("known_at").length).toBeLessThanOrEqual(1);
     }
+  });
+
+  it("showsTheServerViewLabelForARangeFollowingDestination", async () => {
+    const follows = line({ ...COLD_LINE, links: { site: "/sites/COLD-LAB-001", bridge: "/sites/COLD-LAB-001", evidence: "/sites/COLD-LAB-001", current_view_label: "Opens this range" } });
+    renderAt(`${ESTATE_FINANCIALS_PATH}?${WINDOW}`, fake(loaded(body({ rows: [MINI_LINE, follows], total_count: 2 }))));
+    await settledScreen();
+    const rows = registerRows();
+    expect(rows[0].querySelector("[data-estate-current-view]")?.textContent).toBe("Current view \u00b7 range not used");
+    expect(rows[1].querySelector("[data-estate-current-view]")?.textContent).toBe("Opens this range");
   });
 
   it("readsTheFinancialsWireAndMapsRefusals", async () => {

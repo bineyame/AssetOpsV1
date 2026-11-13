@@ -124,7 +124,7 @@ def test_no_action_agreed_yet_keeps_its_reason_and_in_hand_label() -> None:
 
 def test_portfolio_and_estate_labels() -> None:
     assert portfolio.DISPLAYED_VALUE["WITHHELD"] == "Can't be compared across these sites yet"
-    assert evidence_money.CURRENT_VIEW == "Current view"
+    assert evidence_money.view_label(None) == "Current view \u00b7 range not used"
 
 
 def test_cold_read_copy_and_transfer_observation() -> None:

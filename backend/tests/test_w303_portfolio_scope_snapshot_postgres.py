@@ -16,7 +16,7 @@ from uuid import uuid4
 import pytest
 
 from test_w301_estate_index_postgres import URL
-from assetops_backend.estate.evidence_money import CURRENT_VIEW
+CURRENT_VIEW = "Opens this range"
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 

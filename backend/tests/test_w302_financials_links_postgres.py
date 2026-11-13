@@ -37,7 +37,7 @@ if URL:
     from assetops_backend.ev_site_api import build_ev_site_router
     from assetops_backend.financials.composition import build_cold_consequence_store, build_ev_site_read_service
 
-CURRENT_VIEW = "Current view"
+CURRENT_VIEW = "Opens this range"
 
 
 def at(value: str) -> datetime:

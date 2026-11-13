@@ -11,7 +11,7 @@ from assetops_backend.chain import refs as R
 from datetime import datetime, timedelta, timezone
 
 from assetops_backend.estate.evidence_money import (
-    CURRENT_VIEW, finding_window_href, site_home_href, window_links)
+    OPENS_RANGE as CURRENT_VIEW, RANGE_NOT_USED, view_label, finding_window_href, site_home_href, window_links)
 from assetops_backend.estate.financials import _money_links
 from assetops_backend.estate.index import _finding_links, _WindowRecorder
 from assetops_backend.estate.portfolio import objective_destinations
@@ -148,3 +148,20 @@ def test_unprovable_cold_ev_finding_link_is_null_on_the_wire() -> None:
     wire = json.loads(json.dumps(_finding_links("C1", "cold_chain", FID, FRID, None, K)))
     assert wire == {"finding": None, "site": "/sites/C1"}
     assert "revision_id" not in json.dumps(wire)
+
+
+def test_d_sr73_view_label_follows_the_destination() -> None:
+    """D-SR.73: one pin per destination class; the label is null when the link carries the row's own window."""
+    assert view_label(R.site_ref("K1", "financials")) == RANGE_NOT_USED  # mini Financials bridge
+    assert view_label(R.site_ref("K1")) == CURRENT_VIEW == "Opens this range"  # mini / cold home
+    assert view_label(R.site_ref("C1", "home")) == "Opens this range"
+    assert view_label(R.site_ref("EV-1", "ev")) == "Opens this range"  # EV home
+    assert view_label(R.evidence_ref("K1")) == "Opens this range"
+    assert view_label(R.site_ref("EV-1", "ev_financials")) == RANGE_NOT_USED == "Current view · range not used"
+    # Money rows: mini bridge is Financials (range not used); cold/EV home fallbacks follow the range.
+    assert _money_links("K1", "mini_grid", None, None, K)["current_view_label"] == RANGE_NOT_USED
+    for code, domain in (("C1", "cold_chain"), ("EV-1", "ev_charging")):
+        assert _money_links(code, domain, None, CUT, K)["current_view_label"] == "Opens this range"
+        assert _money_links(code, domain, pin(), CUT, K)["current_view_label"] is None  # proven own window
+        assert window_links(code, domain, None, CUT, K)["site_readiness_label"] == "Opens this range"
+        assert window_links(code, domain, pin(), CUT, K)["site_readiness_label"] is None

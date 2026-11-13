@@ -71,7 +71,7 @@ function row(over: Partial<EvidenceRow> & Pick<EvidenceRow, "capability_key" | "
     gap_codes: [],
     selected_revision_ids: ["10000000-0000-4000-8000-000000000501"],
     source_provenance: { state: "UNKNOWN" },
-    links: { site: "/sites/KOBO-001", site_readiness: "/sites/KOBO-001", site_readiness_label: "Opens current Site view" },
+    links: { site: "/sites/KOBO-001", site_readiness: "/sites/KOBO-001", site_readiness_label: "Opens this range" },
     disclosure: { capability_key: over.capability_key, constituents: [], reasons: [], historical: null },
     ...over,
   };
@@ -112,7 +112,7 @@ const EV_ROW = row({
   raw_state: "UNASSESSED",
   readiness: "UNKNOWN",
   selected_revision_ids: [],
-  links: { site: "/sites/EV-LAB-001/ev", site_readiness: "/sites/EV-LAB-001/ev", site_readiness_label: "Opens current Site view" },
+  links: { site: "/sites/EV-LAB-001/ev", site_readiness: "/sites/EV-LAB-001/ev", site_readiness_label: "Opens this range" },
 });
 
 const GAPS: EvidenceGap[] = [
@@ -510,9 +510,9 @@ describe("W3-02 estate Evidence root", () => {
     expect(links.map((a) => a.getAttribute("href"))).toEqual([ranged("/sites/KOBO-001"), COLD_LINK, ranged("/sites/EV-LAB-001/ev")]);
     const rows = within(panelTitled(COVERAGE_PANEL)).getAllByRole("row").slice(1);
     expect(rows.map((r) => r.querySelector("[data-estate-current-view]")?.textContent ?? null)).toEqual([
-      "Opens current Site view",
+      "Opens this range",
       null,
-      "Opens current Site view",
+      "Opens this range",
     ]);
     // The pager keeps the window and passes the opaque cursor back unchanged.
     const next = within(panelTitled(COVERAGE_PANEL)).getByRole("link", { name: "Next page" });

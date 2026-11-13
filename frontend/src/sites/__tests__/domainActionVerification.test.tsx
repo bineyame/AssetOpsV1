@@ -686,6 +686,20 @@ describe("ev-action window (R348)", () => {
     expect(main.querySelector('[data-domain-action-panel="window-invalid"]')).toBeNull();
     expect(main.querySelector('[data-action-section="verification"]')?.getAttribute("href")).not.toContain("from=");
   });
+
+  // D-SR.73 R350: from/to on the link are for onward navigation only; the record is not re-cut by the range.
+  it("cold verification record is identical with and without from/to on its link", async () => {
+    const known = `known_at=${encodeURIComponent(EV_KNOWN)}`;
+    const withRange = await mount(() => loaded(positive()), `?${known}&from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}`);
+    // Links carry the range for onward navigation only (hrefs ignored); every rendered record value must match.
+    const record = (el: HTMLElement) => el.innerHTML.replace(/ href="[^"]*"/g, "");
+    const recordWith = record(withRange.main);
+    expect(withRange.calls).toEqual([{ id: DOMAIN_ID, knownAt: EV_KNOWN }]);
+    cleanup();
+    const without = await mount(() => loaded(positive()), `?${known}`);
+    expect(without.calls).toEqual(withRange.calls);
+    expect(record(without.main)).toBe(recordWith);
+  });
 });
 
 describe("Action section addresses (R350, cold and EV)", () => {
