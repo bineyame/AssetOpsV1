@@ -1168,6 +1168,15 @@ def test_coh17_uf1_a_zero_addend_is_no_sum_but_a_planted_nonzero_sum_is_found() 
     assert [f["subject"] for f in got] == ["UF1"] and "'134.70'" in got[0]["detail"]
 
 
+def test_coh17_uf1_low_plus_high_of_one_range_is_not_a_total() -> None:
+    # 119.57 + 180.43 = 300.00 is a coincidence with a separate 300.00 productive-use income
+    got, _ = _uf1(_uf1_rehearsal_summary("0.00", "0.00", detail="300.00 USD income"))
+    assert got == [], got
+    # a real combined total (fuel low + another amount shown on a card) still fails
+    got, _ = _uf1(_uf1_rehearsal_summary("0.00", "15.13", detail="134.70 USD"))
+    assert [f["subject"] for f in got] == ["UF1"] and "'134.70'" in got[0]["detail"]
+
+
 def test_coh17_uf1_another_card_holding_a_fuel_plus_fuel_sum_fails() -> None:
     summary = _uf1_summary()
     summary["cards"]["ASSURE_PERFORMANCE"]["detail"] = "86.55 USD in all"  # 76.55 + 10.00

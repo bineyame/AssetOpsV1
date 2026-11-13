@@ -115,3 +115,28 @@ Postgres file (assetops_sr10_test): 5 passed in 144s after the fix round.
   range until the rows are rebuilt at v2 (the day kinds are not gated by the period-read switch, D-SR.52). The
   D-SR.63 switch's builder-version check will also see them as stale. Rebuild all `mini_depth.*` rows (day kinds
   included) after this merge lands.
+
+## SR-10c page (branch `task/SR-8-10-pages`, commit 64cf051a8)
+
+- `MiniFuel` (`MiniPerformance.tsx`): nights mode first (unchanged); then a valid shared range whose address is not one
+  Site-local clock hour and names no `?day=` → `sites/MiniFuelRange.tsx` over `rangeWindow(range)` + `known_at`
+  (`miniRangeWindowFromParams("fuel", ...)`); the hour read is not made. Else the hour page as before.
+- Range view: "Fuel use modelled on n of m days · {days}: {reason}" (D-SR.70 words, D-E5.46 grouping), Partial chip,
+  R727 label; `ValueBars` of the modelled band per day; table: day, "Expected use (modelled) x–y L", "n of 24 hours
+  assessed", state words (+ "· Partial: n hours missing" / "· Partial: some hours limited"), "Open the 12:00 hour"
+  (`hour_link`, known_at appended by D-SR.57 L3); absent and NO_DATA rows span "Still being prepared" / "No readings
+  this day" (never "0 of 0"); "Residual: not available". Declares nothing; SR-4b's noon default no longer applies.
+  503 `SITE_FUEL_RANGE_UNAVAILABLE` → "Temporarily unavailable. Retrying…" then "Still unavailable…".
+- Hour view: "Back to the whole range" when opened from the range table (router `state.wholeRange` = the range search);
+  none on a directly opened hour address. D-SR.57: FocusPicker is the only declarer (vitest records declarations).
+- Tests: new `miniFuelRange.test.tsx` (5); `sr2RequestUrls` Kisiwa no-nights pin → `fuel-range` (was the 12:00 hour read); `miniFuelRoutes.test.tsx` re-pinned (two-hour address → range view, "All
+  pages"; unprovable cause via `?day=`). tsc clean. `RANGE_MATRIX` absent on main (no entry to flip).
+- Questions: (a) "Back to the whole range" uses router state, so a reloaded or shared hour URL has no back link -
+  acceptable, or carry the range in a page-only param? (b) totals `expected_use_l` is not shown (not in 10b.2's page
+  list); add a summed card? (c) partial wording for a LIMITED-only day ("Partial: some hours limited").
+- Range/link vitest sweep (lane rule 2026-11-13, 89 files from the grep): 89 files, 2413 tests passed after the
+  Kisiwa pin re-pin (first run 1 failed: that pin, expected). Guards run singly: site-links-carry-range,
+  page-range-forms, mock-deviation-labels (R726/R727 rows added) all pass. check-all: for coordinator.
+
+## Fix round (D-SR.76, review L1-L6)
+Shared with `.agent/SR-8-packet.md` Fix round: Fuel cell no longer repeats its header; Partial wording "Partial: some hours have too few readings"; R727 label on the hour page's Back link; Still-unavailable test. layout evidence: not run (no Chrome on lane).

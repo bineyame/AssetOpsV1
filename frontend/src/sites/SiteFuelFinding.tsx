@@ -9,7 +9,7 @@
 import { useEffect, useState } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
 
-import { Badge, BigClaim, Panel, StatusBar } from "../ui";
+import { Badge, Panel, StatusBar } from "../ui";
 import type { FuelBalanceClient, FuelFindingBody, FuelFindingRow } from "./fuelBalanceClient";
 import { FuelNightBridge, FuelNightRecords, fuelProvenanceChips } from "./MiniFuelNights";
 import type { MiniRead } from "./miniDepthClient";
@@ -70,7 +70,7 @@ export function SiteFuelFindingBody({
           </span>
         ))}
       </StatusBar>
-      <BigClaim data={{ "data-fuel-finding-claim": "" }}>{lines.claim ?? lines.no_longer}</BigClaim>
+      {/* UQ-FI-2 P3 (D-UQFI.18): the first lifecycle sentence (claim / no-longer line) is the page subtitle, said once. */}
       {facts.length === 0 ? null : (
         <ul className="prose" data-fuel-finding-facts>
           {facts.map((line) => (

@@ -25,6 +25,7 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import type { OutcomeBoardClient } from "../outcomeBoardClient";
 import { boardBody, boardRows, expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 import koboDetail from "../../shell/__tests__/kobo-site-detail.json";
@@ -1003,6 +1004,8 @@ describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", ()
     await waitFor(() => expect(main().getAttribute("data-ev-site-view")).toBe("ev"));
     await settledScreen();
     expect(evSite.getOverview).toHaveBeenCalledWith(CODE, { from: FROM, to: TO, known_at: KNOWN });
+    // UQ-FI-2 (rev 6 6.1 P2): the EV Site board has one h1, the Site name.
+    expectOneHeadline("EV lab depot");
   });
 
   it("bare /sites/:id keeps the mini Overview for a MINIGRID Site", async () => {

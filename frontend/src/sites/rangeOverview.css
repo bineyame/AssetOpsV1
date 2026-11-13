@@ -8,7 +8,7 @@
 .range-strip__cell {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 32px; height: 28px; padding: 0 6px; border-radius: 6px;
-  font-size: 12px; font-weight: 600; text-decoration: none;
+  font-size: var(--font-size-100); font-weight: 600; text-decoration: none;
   border: 1px solid var(--status-neutral-border);
 }
 .range-strip__cell:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

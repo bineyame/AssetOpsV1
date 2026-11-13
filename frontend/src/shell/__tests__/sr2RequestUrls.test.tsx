@@ -18,7 +18,6 @@ import type { SiteDetailClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
 import { summary } from "./s5WindowFixtures";
 import { MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_RENEWABLE_DAYS, MINI_REVERSED_WINDOW } from "../../sites/MiniPerformance";
-import { localDaysWindow } from "../../sites/miniDepthClient";
 import { presetRange, rangeParams } from "../../ui/sharedRange";
 
 let urls: string[] = [];
@@ -47,8 +46,9 @@ const SITE_KISIWA_FINDINGS = [
 // one Site-local hour of the range's last day, as on Service.
 const SITE_KISIWA_FUEL_RANGE = [
   "/api/sites/KISIWA-001/fuel-balance/nights?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  // SR-10c: with no stored nights the tab reads the whole range (was the 12:00 hour of the range's last day).
+  "/api/sites/KISIWA-001/fuel-range?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
   "/api/sites/KISIWA-001/performance/mini/capabilities",
-  "/api/sites/KISIWA-001/performance/mini/fuel?from=2026-10-31T09%3A00%3A00.000Z&to=2026-10-31T10%3A00%3A00.000Z",
 ];
 const SITE_KISIWA_SERVICE = [
   "/api/sites/KISIWA-001/performance/mini/capabilities",
@@ -266,33 +266,28 @@ describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send
   // The stub refuses (INVALID_WINDOW, like `hour_windows`) every mini read except the pinned Site-local window, so a
   // client that sends the raw UTC day gets the refusal on screen and a different URL.
   const site = as(HYBRID_MINI_GRID_SITE, "KOBO-001");
-  const tz = site.timezone as string;
   const yesterday = presetRange("yesterday");
   const address = rangeParams({ ...yesterday, known_at: null }).toString();
-  const mini = (page: string, w: { from: string; to: string }) =>
-    `/api/sites/KOBO-001/performance/mini/${page}?${new URLSearchParams(w).toString()}`;
-  it.each([
-    ["renewable", mini("renewable", localDaysWindow(tz, yesterday.from, 1))],
-  ])("%s", async (page, expected) => {
+  // SR-8 page: Renewable under a shared range reads the whole range (`renewable-range`, UTC midnights, D-SR.45) and
+  // never the one-day read. (Service over a range: SR-7 below.)
+  it("renewable reads the range route once over the range's UTC-midnight window", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn((input: RequestInfo | URL) => {
-        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-        urls.push(url);
-        if (url.includes(`/performance/mini/${page}?`) && url !== expected) {
-          return Promise.resolve(new Response(JSON.stringify({ detail: { code: "INVALID_WINDOW" } }), { status: 422, headers: { "Content-Type": "application/json" } }));
-        }
-        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+        urls.push(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
+        // L4: a non-retryable 404 keeps the test independent of the 2/4/8 s retry timers.
+        return Promise.resolve(new Response("{}", { status: 404, headers: { "Content-Type": "application/json" } }));
       }),
     );
     const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site }) };
     const view = render(
-      <MemoryRouter initialEntries={[`/sites/KOBO-001/performance/${page}?${address}`]}>
+      <MemoryRouter initialEntries={[`/sites/KOBO-001/performance/renewable?${address}`]}>
         <App flags={featureFlagsWith(false)} siteDetail={detail} />
       </MemoryRouter>,
     );
     await settledScreen();
-    expect(urls.filter((u) => u.includes(`/performance/mini/${page}?`))).toEqual([expected]);
+    expect(urls.filter((u) => u.includes("/performance/mini/renewable"))).toEqual([]);
+    expect(urls.filter((u) => u.includes("/renewable-range"))).toEqual([`/api/sites/KOBO-001/renewable-range?${address}`]);
     for (const copy of [MINI_RENEWABLE_DAYS, MINI_HOUR_OR_DAY, MINI_INVALID_WINDOW, MINI_REVERSED_WINDOW]) {
       expect(screen.queryByText(copy)).toBeNull();
     }

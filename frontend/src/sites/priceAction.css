@@ -2,7 +2,7 @@
 .price-action-link {
   display: inline-block;
   margin-top: 4px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   font-weight: 650;
   overflow-wrap: anywhere;
 }

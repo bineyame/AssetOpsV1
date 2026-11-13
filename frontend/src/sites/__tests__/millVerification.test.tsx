@@ -11,6 +11,7 @@ import { SiteMillVerificationFrame } from "../../shell/SiteAnalyticsFrames";
 import { siteMillVerificationHref } from "../../shell/operatorSiteRoutes";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import type { SiteDetailClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import {
@@ -119,6 +120,8 @@ describe("mill verdict page", () => {
     renderAt(client({ status: "loaded", body: VERIFIED }));
     await settledScreen();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("ACT-002 · Run the mill at midday");
+    // UQ-FI-2 (rev 6 6.1 P4): one h1, the page title, first in its header.
+    expectOneHeadline("ACT-002 · Run the mill at midday");
     expect(main().querySelector("[data-mill-state]")?.textContent).toBe("Target met");
     expect(screen.getByText(VERIFIED.sentence as string)).toBeTruthy();
     expect(screen.getByText(VERIFIED.line as string)).toBeTruthy();

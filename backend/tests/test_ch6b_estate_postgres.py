@@ -256,5 +256,6 @@ def test_optimize_card_is_the_one_builder_over_the_summary_rows_and_equals_the_b
     (kobo_s,) = one_day["sites"]
     row_s = next(r for r in kobo_s["rows"] if r["category"] == "OPTIMIZE_COST")
     day_s = next(r for r in day["rows"] if r["category"] == "OPTIMIZE_COST")
+    assert day_s["nodes"].get("kpi") is not None, day_s["nodes"]  # V4 non-vacuity: the KPI node is really compared
     assert row_s["nodes"] == day_s["nodes"], (row_s["nodes"], day_s["nodes"])
     print("CH5D1_L2M", card, claim)

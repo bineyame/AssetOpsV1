@@ -46,7 +46,7 @@
 }
 
 .shared-range__tag {
-  font-size: 10px;
+  font-size: var(--font-size-100);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.3px;
   color: var(--text-secondary);
