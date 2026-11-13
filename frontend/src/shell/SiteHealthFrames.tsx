@@ -165,7 +165,7 @@ function MiniGridHealth({
       <>
         {/* MOCK DEVIATION R718/R719 (v71 Change 0b shows only "All pages"). SR-4c (D-SR.6, R719): without a range, mini-grid Health reads the server clock; the bar says the range is not used. */}
         <RangeNotUsed note="shows now" />
-      {/* UP-1 (D-UP.4, mockup v72 Part A): "Readings from a file", only when the switch names this Site. */}
+        {/* UP-1 (D-UP.4, mockup v72 Part A): "Readings from a file", only when the switch names this Site. */}
         {gateway === null ? <ReadingUploadEntry siteId={siteId} uploadsHref={siteUploadsHref(siteId)} client={uploads} /> : null}
         <SiteHealth siteId={siteId} siteName={siteName} client={health} selectedGateway={gateway} />
       </>
@@ -189,7 +189,7 @@ function MiniGridHealth({
         drill={day !== null}
         client={healthRange}
       />
-      {/* UP-1 (D-UP.4, mockup v72 Part A): "Readings from a file", only when the switch names this Site. */}
+        {/* UP-1 (D-UP.4, mockup v72 Part A): "Readings from a file", only when the switch names this Site. */}
       {gateway === null ? <ReadingUploadEntry siteId={siteId} uploadsHref={siteUploadsHref(siteId)} client={uploads} /> : null}
       <SiteHealth siteId={siteId} siteName={siteName} client={health} selectedGateway={gateway} underRange />
     </>

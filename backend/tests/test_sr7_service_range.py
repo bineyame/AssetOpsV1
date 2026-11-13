@@ -172,8 +172,25 @@ def test_route_serves_the_body_through_the_stored_route() -> None:
     (route,) = responses.routes
     assert route.route == SERVICE_RANGE_ROUTE and route.tenant_id == T
     assert route.sites == (MG,) and route.watermark_sites == (MG,)
-    assert set(route.request) == {"site", "from", "to", "known_at"}
+    # SR-7 review L3: the key's values, not only its names.
+    utc = timezone.utc
+    assert {**route.request, "site": str(route.request["site"])} == {
+        "site": str(MG), "from": datetime(2026, 11, 1, tzinfo=utc), "to": datetime(2026, 11, 8, tzinfo=utc), "known_at": None}
     assert len(reader.ports.snapshots.calls) == 1  # one chain day read for the whole range
+    # SR-7 review L2 (D-SR.45 J1): a 7-day Nairobi window is 7 rows, 1 to 7 Nov (`window_days`; `local_days` gives 8).
+    days = r.json()["days"]
+    assert len(days) == 7 and (days[0]["local_day"], days[-1]["local_day"]) == ("2026-11-01", "2026-11-07")
+
+
+def test_known_at_takes_part_in_the_stored_route_key() -> None:
+    """SR-7 review L3: a second request with `known_at` is a different stored key carrying that instant."""
+    responses = Responses()
+    assert _get(_client(Reader(), responses=responses)).status_code == 200
+    assert _get(_client(Reader(), responses=responses), query=f"{WINDOW}&known_at=2026-11-08T06:00:00Z").status_code == 200
+    live, pinned = responses.routes
+    assert live.request["known_at"] is None
+    assert pinned.request["known_at"] == datetime(2026, 11, 8, 6, tzinfo=timezone.utc)
+    assert {k: v for k, v in live.request.items() if k != "known_at"} == {k: v for k, v in pinned.request.items() if k != "known_at"}
 
 
 @pytest.mark.parametrize("query", [
@@ -190,10 +207,12 @@ def test_bad_windows_are_422(query) -> None:
 
 def test_refusals() -> None:
     assert _get(_client(Reader()), code="COLD-1").json()["detail"]["code"] == "SERVICE_RANGE_NOT_APPLICABLE"
-    assert _get(_client(Reader()), code="NOPE").status_code == 404
+    nope = _get(_client(Reader()), code="NOPE")
+    assert nope.status_code == 404 and nope.json()["detail"]["code"] == "SITE_NOT_FOUND"  # SR-7 review L1
     assert _get(_client(Reader(), access=lambda req, code: 401)).status_code == 401
     assert _get(_client(Reader(), access=lambda req, code: 403)).status_code == 403
-    assert _get(_client(Reader(), registry=Registry(fail=True))).status_code == 503
+    store = _get(_client(Reader(), registry=Registry(fail=True)))
+    assert store.status_code == 503 and store.json()["detail"]["code"] == "SITE_STORE_UNAVAILABLE"
     none = _get(_client(None))
     assert none.status_code == 503 and none.json()["detail"]["code"] == "SITE_SERVICE_RANGE_UNAVAILABLE"
     down = _get(_client(Reader(fail=SiteStoreUnavailable("x"))))
