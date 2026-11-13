@@ -54,9 +54,10 @@ function ClaimLimitRangeTable({ body }: { body: ClaimLimitRangeBody }) {
       <p className="claim-limit__summary" data-claim-limit-range-summary>
         {`${summary.days_with_positive_claim} of ${summary.days_requested} days support a conclusion · ${summary.days_indeterminate} undetermined · ${summary.days_without_selection} without an assessment`}
       </p>
-      <h3 className="claim-limit-range__heading" id="claim-limit-range-heading">
+      {/* A caption line, not a heading: the panel keeps one heading (v69 `evidence-analysis`). */}
+      <p className="claim-limit-range__caption" id="claim-limit-range-heading">
         Claim limit by day
-      </h3>
+      </p>
       <DataTable labelledBy="claim-limit-range-heading">
         <thead>
           <tr>

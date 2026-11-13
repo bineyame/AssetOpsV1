@@ -521,7 +521,8 @@ function Body({
         </p>
         {"message" in read && read.message !== null ? (
           <Disclosure name="claim-limit-refusal-technical" summary="Technical details">
-            <p>{`${"code" in read && read.code !== null ? `${read.code}: ` : ""}${read.message}`}</p>
+            {/* Client pages show plain words only: the server's message, never its code (coordinator, SR-7 pages). */}
+            <p>{read.message}</p>
           </Disclosure>
         ) : null}
       </div>

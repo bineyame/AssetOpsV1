@@ -279,8 +279,7 @@ describe("SR-11 Backup over the range", () => {
 
   it("BACKUP_RANGE_NOT_APPLICABLE is named in words", async () => {
     mount(`/sites/${CODE}/performance/backup?${RANGE}`, rangeStub({ status: "refused", httpStatus: 404, code: "BACKUP_RANGE_NOT_APPLICABLE", message: "x" }));
-    await settledScreen();
-    expect(screen.getByText(BACKUP_RANGE_NOT_APPLICABLE)).toBeTruthy();
+    expect(await screen.findByText(BACKUP_RANGE_NOT_APPLICABLE)).toBeTruthy();
     expect(document.body.textContent).not.toContain("BACKUP_RANGE_NOT_APPLICABLE");
   });
 });

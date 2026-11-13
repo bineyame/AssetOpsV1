@@ -145,8 +145,7 @@ describe("SR-7b the claim limit over the range", () => {
     [403, "FORBIDDEN", "Your account does not have access to this site."],
   ])("refusal %s %s is named in words, never the code", async (httpStatus, code, words) => {
     mount(`?${RANGE}`, stub({ status: "refused", httpStatus, code, message: "SERVER TEXT" }));
-    await settledScreen();
-    expect(screen.getByText(words)).toBeTruthy();
+    expect(await screen.findByText(words)).toBeTruthy();
     expect(document.body.textContent).not.toContain(code);
     expect(document.body.textContent).not.toContain("SERVER TEXT");
   });
@@ -181,8 +180,7 @@ describe("SR-7b the claim limit over the range", () => {
       vi.fn(() => Promise.resolve(new Response(JSON.stringify({ detail: { code: "SITE_CLAIM_LIMIT_RANGE_UNAVAILABLE" } }), { status: 503 }))),
     );
     mount(`?${RANGE}`, createSiteRangeClient("/api/sites", []));
-    await settledScreen();
-    expect(screen.getByText(STILL_UNAVAILABLE_COPY)).toBeTruthy();
+    expect(await screen.findByText(STILL_UNAVAILABLE_COPY)).toBeTruthy();
     expect(document.querySelector("[data-claim-limit-range]")).toBeNull();
   });
 });

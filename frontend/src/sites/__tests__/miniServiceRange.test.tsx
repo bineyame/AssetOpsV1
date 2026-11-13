@@ -228,8 +228,7 @@ describe("SR-7a Service over the range", () => {
 
   it("SERVICE_RANGE_NOT_APPLICABLE is named in words", async () => {
     mount(`/sites/${CODE}/performance/service?${RANGE}`, rangeStub({ status: "refused", httpStatus: 404, code: "SERVICE_RANGE_NOT_APPLICABLE", message: "x" }));
-    await settledScreen();
-    expect(screen.getByText(SERVICE_RANGE_NOT_APPLICABLE)).toBeTruthy();
+    expect(await screen.findByText(SERVICE_RANGE_NOT_APPLICABLE)).toBeTruthy();
     expect(document.body.textContent).not.toContain("SERVICE_RANGE_NOT_APPLICABLE");
   });
 });
