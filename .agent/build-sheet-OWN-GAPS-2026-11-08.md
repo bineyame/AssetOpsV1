@@ -5452,3 +5452,16 @@ Decisions logged for owner review: **D-SR.76** (Q1-Q9).
   - The frame must say "Whole days that include the selected time" so a short range is not read as a full-day claim. This supersedes D-SR.40's interim "two hours reads the 12:00 hour" test; update that test to the new behaviour, never delete it.
 
 Decisions logged for owner review: **D-SR.76** (Q1-Q11 and the hour addresses).
+
+## D-SR.77 Lane H SR-5 questions; AP-1 size corrected (Architect, Claude, 2026-11-14, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-sr5` `task/SR-5-pages`, `.agent/SR-5-packet.md` (deviations 2-4).
+- **1 Confirmed.** A 404 from `range-overview` keeps the one-day page, a safe reading. The bar declares the one day it shows, never the range. Only a 404 falls back. A 503 or 422 keeps its own refusal; it never falls back.
+- **2 Declare before the read.** The page's period comes from the page type, not from the data. Opportunity, Action, Verification and fuel Finding pages declare "Range not used · this record's own period" (D-SR.64 words) from the first render, also when every read is refused. Drop `declaresOnLoad`. About 0.05.
+- **3 Not as the only check.** The real answer on an imported mini Site is 409 `AWAITING_EVIDENCE_MIGRATION`, and `SitePerformance.tsx:130` then takes the stored Dispatch reads.
+  - The matrix fixture must give `/analytics` that 409, so the row checks the stored path's D/R class (R once SR-5c lands).
+  - Keep `blockedBy` only for a legacy-fixture row, if any.
+- **4 Confirmed R.** D-SR.66 corrects D-SR.44: the view declares what the same Site's Financials declares.
+- **AP-1 correction (D-SR.75).** `SitePerformance.tsx` and the other `/analytics` readers (`SiteAnalyticsFrames`, `FindingsIndexes`, `FindingDetail`, `SiteEvidenceFrame`) use the 409 as the "imported Site" signal. AP-1 must switch them to branch on the Site's store before its 200 ships. +0.25, so AP-1 is about 1.55 (1.3-1.9). The HTML was corrected in the same commit. The deferral place is unchanged.
+
+Decisions logged for owner review: **D-SR.77**.
