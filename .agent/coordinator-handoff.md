@@ -12,6 +12,13 @@
 - OWNER: walkthrough must be clean on a good DB; time flexible; no fallback to vps1 (owner-clean-walkthrough-over-time-2026-11-13.md).
 - Scratchpad for this session: /tmp/claude-1001/-opt-assetecon-AssetOpsV1/c6d26aed-1fa9-4f4e-a150-d6f87dd20a07/scratchpad (checkall-queue.sh, results).
 
+## >>> UPDATE 2026-11-13 ~12:45 UTC <<<
+- walk1113 build DONE 10:50 (1h59m). Self-check 53/54: CO-10 only. Session was disconnected ~10:00-12:20.
+- CO-10 root cause: ev_availability CATEGORY counted AUTHORIZING/CHARGING as UNKNOWN (not a data gap). D-SR.81 (merged): those count as in service, ev-availability/2; NO re-prepare (EV availability computed at read). Sonnet implementing on fix/CO-10-ev-c1-status (wt -co10) -> fresh review -> check-all -> merge.
+- Then on walk1113: fast-forward build tree to final main, apply migration 0061 (UP-1), rebuild frontend, restart serve, prebuild + warm_ranges, self-check must be 54/54, six-kind parity, AP-1 D-SR.80 live check (merge AP-1 if pass), smoke every range page, access note to owner.
+- MB-1 MERGED ab816f68c (Postgres flow test 1/1). Six-kind parity dry run on walk1113 running (scratchpad parity.sh/parity.log).
+- Owner to review D-SR.81 (changes meaning of every EV availability figure; may overrule for option 2).
+
 ## >>> VPS STATE — 2026-11-13 ~00:30 UTC (read this first; supersedes the "VPS RESUME" section below) <<<
 
 **Where.** Repo `/opt/assetecon/AssetOpsV1` (main), worktrees `/opt/assetecon/AssetOpsV1-<lane>`; each worktree's `frontend/node_modules` is a symlink to main's. Python `/opt/assetecon/AssetOpsV1/.venv/bin/python`. Docker via `sg docker -c "…"` until a fresh login (deploy is in the docker group). Postgres `assetopsv1-postgres-1`, max_connections 300 (compose file). Lane rules: `.agent/lane-rules-vps-2026-11-12.md` (coordinator runs check-all centrally; builders run Site-href tests; long jobs `setsid nohup`). check-all helper scripts: scratchpad `checkall-queue.sh <lanes…>`, `main-checkall.sh` (results appended to `checkall-queue.results`). Nothing pushed to GitHub since the move (owner asked: not yet answered).
