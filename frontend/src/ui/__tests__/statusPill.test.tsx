@@ -13,17 +13,17 @@ function pill(state: string, label: string): HTMLElement {
   return container.querySelector("[data-status-pill]") as HTMLElement;
 }
 
-// UQ-FI-3: the six outcome states of the Portfolio key, plus the two the server also sends. Look and symbol per
+// UQ-FI-3, D-UQFI.11: the six outcome states of the Portfolio key, plus the two the server also sends. Look and symbol per
 // state; the word is always the caller's (the server's `state_label`).
 const CASES: readonly [state: string, label: string, look: string, glyph: string | null][] = [
-  ["NEEDS_ATTENTION", "Needs attention", "partial", "alert"],
+  ["NEEDS_ATTENTION", "Needs attention", "partial", null],
   ["WATCH", "Watch", "neutral", null],
-  ["OPPORTUNITY", "Opportunity", "accent", "trend"],
+  ["OPPORTUNITY", "Opportunity", "accent", null],
   ["ON_TRACK", "On track", "complete", "check"],
-  ["UNKNOWN", "Unknown", "noreadings", "ring"],
+  ["UNKNOWN", "Unknown", "neutral", null],
   ["NOT_MEASURED", "Not measured yet", "notanalysed", null],
   ["NO_OBJECTIVE", "No target for this outcome", "neutral", null],
-  ["NOT_APPLICABLE", "N/A", "notanalysed", null],
+  ["NOT_APPLICABLE", "N/A", "neutral", null],
 ];
 
 describe("UQ-FI-3 StatusPill", () => {

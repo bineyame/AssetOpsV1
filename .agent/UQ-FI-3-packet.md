@@ -10,8 +10,8 @@ Commits: `fc838d529` build; `4ba7cff0d` main merged (bd4c0086e); `499e9245a` typ
 - **`ui/StatusPill.tsx`** + `ui/status-pill.css`: state code -> sheet look (colour + symbol), word = caller's (server `state_label`); no `site_type` branch. Light tokens `--color-status-{complete,partial,noreadings,notanalysed,neutral,accent}-{bg,text,border}` + `--chip-height` in `tokens.css` (sheet palette values). Used by: Site board outcome rows (`sites/OutcomeBoard.tsx`, both state chips), Portfolio matrix cells, matrix key, per-Site states behind "Why?".
 - Matrix cells are now neutral (the pill carries the state colour); dead `.oc-cell.tone-*`, `.oc-key i`, `.oc-sitedots i` rules removed. `OutcomeCardValue` (now unused) removed from `blocks/OutcomeRow.tsx`.
 
-## Mapping (Q1 below)
-NEEDS_ATTENTION partial+alert, OPPORTUNITY accent+trend, WATCH neutral, NOT_MEASURED notanalysed (dashed) - as portfolio-hifi draws them. Provisional (not drawn anywhere): ON_TRACK complete+check, UNKNOWN noreadings+ring, NO_OBJECTIVE neutral, NOT_APPLICABLE notanalysed; unrecognised -> neutral.
+## Mapping (D-UQFI.11, round 2)
+Outcome state codes kept. hifi looks, no added symbol: NEEDS_ATTENTION partial, OPPORTUNITY accent, WATCH neutral, NOT_MEASURED notanalysed (dashed). Undrawn on the sheet, ruled by D-UQFI.11 (for the owner's sheet review): ON_TRACK complete + filled-circle check; UNKNOWN, NO_OBJECTIVE, NOT_APPLICABLE plain neutral, no symbol; unrecognised neutral. `statusPill.test.tsx` pins each look.
 
 ## Tests and checks (revision 499e9245a unless noted)
 - `npx tsc --noEmit`: exit 0.
@@ -24,10 +24,9 @@ NEEDS_ATTENTION partial+alert, OPPORTUNITY accent+trend, WATCH neutral, NOT_MEAS
 
 ## Known deviations
 - "Why?" was a server-chain dialog; it now also carries the card's qualifiers below the chain text (rev 7: "Anything else moves behind the existing Why? disclosure").
-- Portfolio card has no state pill in its foot (hifi shows one): the server card has a tone, not a state code; inventing one would be new semantics.
+- Portfolio card has no state pill in its foot (hifi shows one): MOCK DEVIATION R740 (D-UQFI.12), labelled in `PortfolioOutcomes.tsx` and the register; estate roll-up state is BL-69 after 17 Nov.
 - Board "potential" chip (`oc-chip tone-green`) unchanged: it is not a state code.
 - hifi per-card charts not built (out of scope; hifi's own MOCK DEVIATION).
 
 ## Questions for the Architect
-1. Rev 7 says "the six reading states (on the sheet)", but the sheet's reading words are eight readings-coverage states (Complete ... Not analysed yet) and neither call site shows a reading state. Built on the six outcome states (the Portfolio key: Needs attention, Watch, Opportunity, On track, Unknown, Not measured yet), which both call sites show. Confirm, and rule the looks for On track / Unknown / No objective / N/A (not drawn), and whether Watch / Not measured get a symbol (hifi draws none).
-2. Should the estate card carry an estate-level state pill (hifi foot)? Needs a server state on `EstatePortfolioCard`.
+Q1-Q2 answered: D-UQFI.11-12.

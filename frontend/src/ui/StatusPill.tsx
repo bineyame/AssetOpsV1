@@ -5,23 +5,22 @@ import "./status-pill.css";
  * the Portfolio and the Site board outcome rows. It maps the state code to the v7.2 sheet's chip look (colour + symbol);
  * the word is the server's `state_label`, never one written here. No `site_type` branch.
  *
- * Looks, from `frontend/mockups/v72/portfolio-hifi.html` where it draws the state: Needs attention = partial (amber) with
- * the alert symbol, Opportunity = accent with the trend symbol, Watch = neutral, Not measured yet = not-analysed (dashed).
- * On track, Unknown, No objective and N/A are not drawn there: provisional looks below, a question for the Architect
- * (UQ-FI-3 packet Q1).
+ * Looks (D-UQFI.11): Needs attention, Opportunity, Watch and Not measured take exactly portfolio-hifi's looks, no added
+ * symbol. On track takes the sheet's Complete look (filled circle). Unknown, No objective and N/A are plain neutral, no
+ * symbol; the word tells them apart.
  */
 export type StatusLook = "complete" | "partial" | "noreadings" | "notanalysed" | "neutral" | "accent";
-type Glyph = "alert" | "trend" | "check" | "ring" | null;
+type Glyph = "check" | null;
 
 const LOOKS: Readonly<Record<string, { look: StatusLook; glyph: Glyph }>> = {
-  NEEDS_ATTENTION: { look: "partial", glyph: "alert" },
+  NEEDS_ATTENTION: { look: "partial", glyph: null },
   WATCH: { look: "neutral", glyph: null },
-  OPPORTUNITY: { look: "accent", glyph: "trend" },
+  OPPORTUNITY: { look: "accent", glyph: null },
   ON_TRACK: { look: "complete", glyph: "check" },
-  UNKNOWN: { look: "noreadings", glyph: "ring" },
+  UNKNOWN: { look: "neutral", glyph: null },
   NOT_MEASURED: { look: "notanalysed", glyph: null },
   NO_OBJECTIVE: { look: "neutral", glyph: null },
-  NOT_APPLICABLE: { look: "notanalysed", glyph: null },
+  NOT_APPLICABLE: { look: "neutral", glyph: null },
 };
 const FALLBACK = { look: "neutral" as StatusLook, glyph: null };
 
@@ -32,29 +31,11 @@ export function statusLook(state: string): { look: StatusLook; glyph: Glyph } {
 
 function GlyphSvg({ glyph }: { glyph: Glyph }) {
   switch (glyph) {
-    case "alert":
-      return (
-        <svg className="status-pill__icon" viewBox="0 0 24 24" aria-hidden="true" data-status-glyph="alert">
-          <path d="M10.3 4.2L2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z M12 9.5v4.5 M12 17.2v.01" />
-        </svg>
-      );
-    case "trend":
-      return (
-        <svg className="status-pill__icon" viewBox="0 0 24 24" aria-hidden="true" data-status-glyph="trend">
-          <path d="M3 17l6-6 4 4 8-8 M15 7h6v6" />
-        </svg>
-      );
     case "check":
       return (
         <svg className="status-pill__glyph" viewBox="0 0 12 12" aria-hidden="true" data-status-glyph="check">
           <circle cx="6" cy="6" r="5.5" fill="currentColor" />
           <path d="M3.5 6.2l1.7 1.6L8.6 4.4" fill="none" stroke="var(--status-pill-bg)" strokeWidth="1.6" />
-        </svg>
-      );
-    case "ring":
-      return (
-        <svg className="status-pill__glyph" viewBox="0 0 12 12" aria-hidden="true" data-status-glyph="ring">
-          <circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" strokeWidth="1.5" />
         </svg>
       );
     default:
