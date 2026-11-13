@@ -509,11 +509,11 @@ READINESS_SCOPE = (
     "Based on all of this site's accepted records, not only the selected window. It is not a "
     "rating of the site's health and not permission to act."
 )
-# SR-12b: the scope when readiness is read over a date range (wording pending Architect confirmation).
+# SR-12b (D-SR.74): the scope when readiness is read over a date range.
 READINESS_SCOPE_RANGED = (
-    "Assessed periods are those in the selected date range; whether each required input has a usable "
-    "record is checked against all of this site's accepted records. It is not a rating of the site's "
-    "health and not permission to act."
+    "Only assessments that overlap the selected date range are counted. Whether each required input has a usable "
+    "record is checked against all of this site's accepted records. It is not a rating of the site's health and "
+    "not permission to act."
 )
 READINESS_METHOD = (
     "How this is scored: Full means every required input has at least one usable accepted "

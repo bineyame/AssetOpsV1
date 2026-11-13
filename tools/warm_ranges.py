@@ -315,6 +315,23 @@ def plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None =
     return rs, _dedupe(reqs)
 
 
+GATED_ROUTE = "claim-limit-range"  # 409 PERFORMANCE_CUTOVER_CLOSED while the Site's Performance gate is closed
+
+
+def exclude_closed_gate(reqs: list[Req], fetch: Fetch) -> tuple[list[Req], list[dict[str, str]]]:
+    """D-SR.74: send `claim-limit-range` only for Sites whose Performance gate is open. The route's own gate
+    answers: the Site's first planned request is the probe, and a 409 closes that Site (no copy of the predicate).
+    Returns (the plan without the closed Sites' gated requests, `[{site, route}]` for each closed Site)."""
+    sites: dict[str, bool] = {}
+    for q in reqs:
+        parts = q.path.split("/")
+        if len(parts) == 5 and parts[4] == GATED_ROUTE and parts[3] not in sites:
+            sites[parts[3]] = fetch(q.target)[0] != 409
+    closed = {code for code, open_ in sites.items() if not open_}
+    kept = [q for q in reqs if not (q.path.split("/")[-1] == GATED_ROUTE and q.path.split("/")[3] in closed)]
+    return kept, [{"site": code, "route": GATED_ROUTE} for code in sorted(closed)]
+
+
 def unstored_plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None = None) -> list[Req]:
     """D-WARM.2: the unstored reads for the 5 presets and the story ranges (timed by `--verify`, not gated)."""
     reqs: list[Req] = []
@@ -534,6 +551,9 @@ def main(argv: list[str] | None = None) -> int:
     routes = json.loads(routes_path.read_text(encoding="utf-8")) if routes_path.is_file() else None
     today = a.today or datetime.now(timezone.utc).date()
     rs, reqs = plan(today, sites, routes)
+    excluded: list[dict[str, str]] = []
+    if a.base_url and not a.dry_run:  # the same plan for warm and --verify: closed-gate Sites are listed, not sent
+        reqs, excluded = exclude_closed_gate(reqs, http_fetch(a.base_url))
     first, last = data_window(sites)
     print(f"WARM-1 (workaround): today {today}, data window {first}..{last}, {len(rs)} ranges, {len(reqs)} requests "
           f"({sum(1 for r in reqs if r.path.startswith('/api/estate/'))} estate, "
@@ -557,7 +577,7 @@ def main(argv: list[str] | None = None) -> int:
         report["unstored"] = unstored_section(run(unstored_plan(today, sites, routes), http_fetch(a.base_url),
                                                   workers=workers, verify=True))
     report.update({"workaround": "WARM-1 (D-17N.1; reverses D-ANY.3 for the 17 Nov build only)", "today": str(today),
-                   "data_window": [str(first), str(last)], "ranges": len(rs), "workers": workers,
+                   "data_window": [str(first), str(last)], "excluded_closed_gate": excluded, "ranges": len(rs), "workers": workers,
                    "base_url": a.base_url})
     out = a.report or report_path(a.work, a.verify)
     out.write_text(json.dumps(report, indent=1), encoding="utf-8")

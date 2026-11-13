@@ -323,3 +323,35 @@ def test_fuel_nights_url_equals_the_frontend_request():
     # The other SR-12 range routes have no page client on main yet: re-check after SR-5..SR-11 pages merge.
     targets = {q.target for q in wr.unstored_requests("2026-11-02T00:00:00Z", "2026-11-09T00:00:00Z", "7d", SITES)}
     assert "/api/sites/KISIWA-001/fuel-balance/nights?from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z" in targets
+
+
+def test_claim_limit_range_is_sent_only_where_the_performance_gate_is_open():
+    # D-SR.74: the route's own answer decides; a closed Site's gated requests are listed, not planned.
+    _, reqs = wr.plan(date(2026, 11, 10), SITES)
+    probed: list[str] = []
+
+    def fetch(target: str):
+        probed.append(target)
+        return (409, "") if "/KOBO-001/" in target else (200, "hit")
+
+    kept, excluded = wr.exclude_closed_gate(reqs, fetch)
+    assert excluded == [{"site": "KOBO-001", "route": "claim-limit-range"}]
+    assert not [q for q in kept if q.path == "/api/sites/KOBO-001/claim-limit-range"]
+    assert [q for q in kept if q.path == "/api/sites/KISIWA-001/claim-limit-range"]
+    assert len(probed) == 2  # one probe per gated Site, not one per range
+    open_plan, none = wr.exclude_closed_gate(reqs, lambda t: (200, "hit"))
+    assert open_plan == reqs and none == []
+
+
+def test_a_409_on_a_planned_request_fails_warm_and_verify():
+    ok = wr.Result("a", "/a", 200, "hit", 10)
+    shut = wr.Result("b", "/api/sites/X/claim-limit-range", 409, "", 10)
+    for verify in (False, True):
+        report = wr.summarise([ok, shut], verify=verify, wall_s=0)
+        assert report["pass"] is False and "/api/sites/X/claim-limit-range" in report["failed"]
+
+
+def test_kisiwa_nights_stay_unstored_and_are_timed():
+    _, reqs = wr.plan(date(2026, 11, 10), SITES)
+    assert not [q for q in reqs if "fuel-balance/nights" in q.path]
+    assert [q for q in wr.unstored_plan(date(2026, 11, 10), SITES) if "KISIWA-001/fuel-balance/nights" in q.path]

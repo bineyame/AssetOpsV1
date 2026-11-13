@@ -22,6 +22,7 @@
 import { Badge, DataTable, Fact, FactList } from "../ui";
 import { Part } from "./panelPart";
 import type { DomainPresentationProfile } from "./presentationProfile";
+import { awaitingMigration } from "./evidenceRead";
 import { servedCapabilities } from "./presentationProfile";
 import type { EvidenceRead } from "./siteEvidenceClient";
 import type {
@@ -58,6 +59,16 @@ function served(
     profile,
     analytics.map((item) => ({ id: item.analytic_id, display_name: item.display_name })),
   ).map((row) => ({ ...row, analytic: byId.get(row.id) as AnalyticDeclaration }));
+}
+
+/** D-SR.74: an imported Site's refusal is never shown as the server's migration wording. */
+export const NOT_ASSESSABLE_YET = "What can be assessed from these records is not available yet for this site.";
+
+function refusalMessage(declaration: EvidenceRead<SiteAnalytics> | null): string | null {
+  if (awaitingMigration(declaration)) {
+    return NOT_ASSESSABLE_YET;
+  }
+  return declaration?.status === "unavailable" ? declaration.message : null;
 }
 
 function Unavailable({ message }: { message: string | null }) {
@@ -102,9 +113,7 @@ export function CapabilityReadinessTable({
   }
   if (rows === "unavailable") {
     return (
-      <Unavailable
-        message={declaration?.status === "unavailable" ? declaration.message : null}
-      />
+      <Unavailable message={refusalMessage(declaration)} />
     );
   }
   const scored = rows.find((row) => row.analytic.readiness)?.analytic.readiness;
@@ -226,9 +235,7 @@ export function CapabilityReadinessAnalysis({
   }
   if (rows === "unavailable") {
     return (
-      <Unavailable
-        message={declaration?.status === "unavailable" ? declaration.message : null}
-      />
+      <Unavailable message={refusalMessage(declaration)} />
     );
   }
   return (

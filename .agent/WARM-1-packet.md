@@ -160,3 +160,8 @@
 - Tests (no DB): `backend/tests/test_warm1_ranges.py` 22 passed (per-range count 18 -> 32; unstored count + nights;
   new `test_fuel_nights_url_equals_the_frontend_request`); mutation (drop `backup-range`) -> 1 failed, reverted.
   `frontend/src/estate/__tests__/warmUrls.test.ts` 2 passed (nights URL from the real client, same literal).
+
+## Fix round (D-SR.74, 2026-11-13)
+- `exclude_closed_gate` (tools/warm_ranges.py): before warm and `--verify`, each Site's first planned `claim-limit-range` request probes the route's own gate; a 409 removes that Site's gated requests and lists `{site, route}` under `excluded_closed_gate` in the report. Same plan in both modes. Any 409 on a planned request is a `failed` entry, so warm and verify fail. A non-empty list on the final DB is a prepare failure for the Architect (D-SR.67).
+- Kisiwa `fuel-balance/nights` stays unstored and timed under `unstored`; the VPS verify must show it at 2 s or less (not measured here).
+- Tests: three new in test_warm1_ranges.py (gate exclusion, 409 fails, nights unstored).

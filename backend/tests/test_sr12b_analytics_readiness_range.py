@@ -1,7 +1,7 @@
 """SR-12b (D-SR.34, D-SR.39; sequence doc rev 10b/10c): analytics readiness over the date range.
 
-Only the readiness score follows `from`/`to`: it counts the active assessments whose assessed window meets
-`[from, to)`. Which analytics apply (the declaration) and the accepted-record check stay unranged. No DB: the
+Only the readiness score follows `from`/`to`: it counts the active assessments that overlap
+`[from, to)` (D-SR.74: half-open). Which analytics apply (the declaration) and the accepted-record check stay unranged. No DB: the
 `/analytics` route is the file-backed declaration (`LegacySiteGate` refuses imported Sites), so there is no
 Postgres path to pin.
 """
@@ -39,13 +39,17 @@ def assessed(start: str, end: str) -> dict:
     return {"assessed_window": {"start": start, "end": end}}
 
 
-def test_an_assessment_counts_when_its_window_meets_the_half_open_range():
+def test_an_assessment_counts_when_its_window_overlaps_the_half_open_range():
     lo, hi = BASE, BASE + DAY
-    assert in_window(assessed(_z(BASE - DAY), _z(BASE)), lo, hi)  # ends exactly at `from`: the instant is inside
+    assert not in_window(assessed(_z(BASE - DAY), _z(BASE)), lo, hi)  # edge 1: ends exactly at `from`: before
+    assert not in_window(assessed(_z(BASE + DAY), _z(BASE + 2 * DAY)), lo, hi)  # edge 2: starts at `to`: after
+    assert in_window(assessed(_z(BASE), _z(BASE)), lo, hi)  # edge 3: an instant at `from` is inside
+    assert not in_window(assessed(_z(BASE + DAY), _z(BASE + DAY)), lo, hi)  # an instant at `to` is not
     assert in_window(assessed(_z(BASE + timedelta(hours=23)), _z(BASE + 2 * DAY)), lo, hi)
-    assert not in_window(assessed(_z(BASE + DAY), _z(BASE + 2 * DAY)), lo, hi)  # starts at `to`: outside
     assert not in_window(assessed(_z(BASE - 2 * DAY), _z(BASE - timedelta(seconds=1))), lo, hi)
-    # No assessed window: the interval's running bounds stand in.
+    # No assessed window: the observed running bounds stand in and stay closed.
+    assert in_window({"interval": {"first_running_observed": _z(BASE - DAY), "last_running_observed": _z(BASE)}},
+                     lo, hi)  # edge 4: last observed = from: inside
     assert in_window({"interval": {"first_running_observed": _z(BASE), "last_running_observed": None}}, lo, hi)
     assert not in_window({}, lo, hi)
 

@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
+import type { SiteAnalyticsClient } from "../../sites/siteAnalyticsClient";
 import { createSiteAnalyticsClient } from "../../sites/siteAnalyticsClient";
 
 import { App } from "../../App";
@@ -277,6 +278,35 @@ describe("Site > Evidence, empty and unavailable", () => {
       }
     }
     expect(currentTab()).toBe("Evidence");
+  });
+
+  it("an imported Site's Evidence pages carry no migration or legacy word (D-SR.74)", async () => {
+    const refused: SiteAnalyticsClient = {
+      ...EMPTY_ANALYTICS_CLIENT,
+      getDeclaration: () =>
+        Promise.resolve({
+          status: "unavailable",
+          transition: "AWAITING_EVIDENCE_MIGRATION",
+          message: "This legacy file-backed surface is awaiting evidence migration.",
+        }),
+    };
+    for (const url of [EVIDENCE_URL, ANALYSIS_URL]) {
+      render(
+        <MemoryRouter initialEntries={[url]}>
+          <App
+            flags={featureFlagsWith(false)}
+            siteDirectory={DIRECTORY}
+            siteDetail={DETAIL}
+            siteEvidence={populated()}
+            siteAnalytics={refused}
+          />
+        </MemoryRouter>,
+      );
+      await settledScreen();
+      expect(document.querySelector('[data-capability-state="unavailable"]')).not.toBeNull();
+      expect(spacedText(screen.getByRole("main"))).not.toMatch(/migration|legacy/i);
+      cleanup();
+    }
   });
 
   it("names an unreadable evidence store as unavailable, not empty", async () => {

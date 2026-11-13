@@ -51,3 +51,8 @@
   health and not permission to act."
 - Q2: intersection rule: an assessment whose assessed window ends exactly at `from` counts (closed window). OK?
 - Q3: given the Known deviation, does SR-12b stay on the Saturday deferral list as is, or is it closed?
+
+## Fix round (D-SR.74, 2026-11-13)
+- Q1 done: "meets" -> "overlap" (statement and scope as ruled). Q2 done: `in_window` half-open for a stated window (zero-length in [from,to)); observed-bounds fallback closed; four edges pinned in `test_an_assessment_counts_when_its_window_overlaps_the_half_open_range`.
+- Q3 done: `CapabilityReadiness.tsx` shows the fixed "not available yet" words on AWAITING_EVIDENCE_MIGRATION; vitests in `t028EvidenceCapability` and `siteEvidenceScreen` (no migration/legacy word). Live check of Kobo/Kisiwa pages: pending (no serve in this unit).
+- Tests: test_sr12b + test_warm1_ranges 33 passed; vitest siteEvidenceScreen, t028EvidenceCapability, warmUrls pass; tsc clean.

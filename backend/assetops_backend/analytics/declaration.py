@@ -175,24 +175,31 @@ READINESS_STATEMENT = (
     "are possible but capped or segmented by the missing evidence named. None: no "
     "claim can be made because no generator reconstruction evidence is accepted."
 )
-#: SR-12b (D-SR.34/39): the statement when readiness is read over a date range. Only the assessments follow the
-#: range; the declaration and the accepted-record check stay site-wide. Wording pending Architect confirmation.
+#: SR-12b (D-SR.34/39, D-SR.74): the statement when readiness is read over a date range. Only the assessments
+#: follow the range; the declaration and the accepted-record check stay site-wide.
 READINESS_STATEMENT_RANGED = READINESS_STATEMENT.replace(
     "the coverage of its active assessments, not the selected window.",
-    "the coverage of its active assessments whose assessed window meets the selected date range.",
+    "the coverage of its active assessments that overlap the selected date range.",
 )
 
 
 def in_window(assessment: dict[str, Any], lo: datetime, hi: datetime) -> bool:
-    """SR-12b: an assessment counts in `[lo, hi)` when its closed assessed window `[start, end]` meets it
-    (`start < hi` and `end >= lo`). The interval's running bounds stand in when no assessed window is stated."""
+    """SR-12b (D-SR.74): an assessment counts in `[lo, hi)`. A stated assessed window `[start, end)` counts when
+    `start < hi and end > lo`; a zero-length one counts when `lo <= start < hi`. The interval's running bounds are
+    observed instants and stay closed: `first < hi and last >= lo`."""
     window = assessment.get("assessed_window") or {}
     interval = assessment.get("interval") or {}
-    start = window.get("start") or interval.get("first_running_observed")
-    end = window.get("end") or interval.get("last_running_observed") or start
-    if start is None:
+    if window.get("start"):
+        start = _instant(window["start"])
+        end = _instant(window["end"]) if window.get("end") else start
+        if end == start:
+            return lo <= start < hi
+        return start < hi and end > lo
+    first = interval.get("first_running_observed")
+    if first is None:
         return False
-    return _instant(start) < hi and _instant(end) >= lo
+    last = interval.get("last_running_observed") or first
+    return _instant(first) < hi and _instant(last) >= lo
 
 
 def _instant(value: str) -> datetime:
