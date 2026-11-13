@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-theme-choice="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kobo Site Overview</title>
+<!--
+ v7.2 DRAFT, high fidelity (UQ hi-fi mockups, 2026-11-13). Kobo mini-grid Site Overview over a 7-day range.
+ Spec: SR-5b in .agent/architect-sequence-client-scope-2026-11-11.md 9.4 (range board + day table, ?day= drill-in),
+ D-SR.50 / D-SR.70 day wording; frame and tab row: v69 site-overview + v7.1. All values are illustrative.
+ Built only on the v7.2 token tiers: the five token style blocks below are copied verbatim from
+ frontend/mockups/v72/foundation-sheet.html (UQ-0). Every colour after them is a semantic or component token.
+ Self-contained: no network requests. Font: "Inter" via local() if installed, else the system fallback stack.
+-->
+<script>
+/* Resolve the theme before first paint (same pattern as the v7.2 sheet); storage wrapped in try/catch. */
+(function () {
+  var choice = "system";
+  try { choice = localStorage.getItem("assetops.theme") || "system"; } catch (e) {}
+  var dark = choice === "dark" || (choice === "system" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-theme-choice", choice);
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+})();
+</script>
+<style id="tok-primitive">
+/* TIER 1 · PRIMITIVE: raw values with no meaning. Only the semantic tier may reference these. */
+:root {
+  --p-neutral-0: #ffffff;
+  --p-neutral-25: #f8fafd;
+  --p-neutral-50: #f3f6fa;
+  --p-neutral-100: #e9eef5;
+  --p-neutral-200: #d9e0ea;
+  --p-neutral-300: #c2ccd9;
+  --p-neutral-400: #7f8ba1;
+  --p-neutral-500: #5f6c83;
+  --p-neutral-600: #4b5870;
+  --p-neutral-700: #34425a;
+  --p-neutral-750: #263247;
+  --p-neutral-800: #1f2b40;
+  --p-neutral-850: #182234;
+  --p-neutral-900: #121a29;
+  --p-neutral-950: #0c121d;
+  --p-neutral-ink: #17243b;
+  --p-neutral-mist: #e6ebf3;
+  --p-neutral-fog: #aab5c7;
+  --p-neutral-haze: #8f9bb0;
+  --p-navy-700: #2a3d63;
+  --p-navy-800: #213353;
+  --p-navy-900: #16233f;
+  --p-navy-950: #0e1729;
+  --p-navy-text: #c5cfdf;
+  --p-navy-eyebrow: #9aabc4;
+  --p-blue-50: #eef3ff;
+  --p-blue-100: #dce6ff;
+  --p-blue-300: #8fb0fb;
+  --p-blue-400: #6b93f2;
+  --p-blue-600: #1d4ed8;
+  --p-blue-700: #1740b0;
+  --p-blue-800: #234a9e;
+  --p-blue-900: #16264d;
+  --p-green-50: #e5f5ed;
+  --p-green-200: #a9dcc4;
+  --p-green-300: #7fdcae;
+  --p-green-600: #166b50;
+  --p-green-800: #1f5a43;
+  --p-green-900: #0f2c22;
+  --p-amber-50: #fff4e0;
+  --p-amber-200: #f0d08a;
+  --p-amber-300: #f2c46b;
+  --p-amber-600: #8a5a00;
+  --p-amber-800: #6b4a12;
+  --p-amber-900: #2f2410;
+  --p-orange-50: #fff0e5;
+  --p-orange-200: #f6c39f;
+  --p-orange-300: #f9a873;
+  --p-orange-600: #a3420b;
+  --p-orange-800: #74391a;
+  --p-orange-900: #36200f;
+  --p-red-50: #fdecec;
+  --p-red-200: #f2b8b5;
+  --p-red-300: #f9a19a;
+  --p-red-600: #b42318;
+  --p-red-800: #7a2b25;
+  --p-red-900: #3a1715;
+  --p-violet-50: #f2edfc;
+  --p-violet-200: #d6c8f3;
+  --p-violet-300: #c1aef7;
+  --p-violet-600: #5b34b8;
+  --p-violet-800: #4a3a7a;
+  --p-violet-900: #241b42;
+  --p-teal-300: #4fd0c4;
+  --p-teal-600: #0b6f6b;
+  --p-indigo-300: #a7aeff;
+  --p-indigo-600: #4651c8;
+  --p-plum-300: #e79bd8;
+  --p-plum-600: #8f3480;
+  --p-cyan-300: #72c6ef;
+  --p-cyan-600: #0f6a98;
+
+  --p-size-12: 12px;
+  --p-size-13: 13px;
+  --p-size-14: 14px;
+  --p-size-16: 16px;
+  --p-size-18: 18px;
+  --p-size-20: 20px;
+  --p-size-24: 24px;
+  --p-size-30: 30px;
+
+  --p-space-0: 0px;
+  --p-space-1: 4px;
+  --p-space-2: 8px;
+  --p-space-3: 12px;
+  --p-space-4: 16px;
+  --p-space-5: 20px;
+  --p-space-6: 24px;
+  --p-space-8: 32px;
+  --p-space-10: 40px;
+  --p-space-12: 48px;
+  --p-space-16: 64px;
+
+  --p-radius-sm: 4px;
+  --p-radius-md: 8px;
+  --p-radius-lg: 12px;
+  --p-radius-pill: 999px;
+
+  --p-shadow-1: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --p-shadow-2: 0 8px 24px rgba(16,24,40,.14);
+  --p-shadow-3: 0 20px 48px rgba(16,24,40,.22);
+  --p-shadow-dark-2: 0 8px 24px rgba(0,0,0,.5);
+  --p-shadow-dark-3: 0 20px 48px rgba(0,0,0,.6);
+  --p-shadow-none: none;
+
+  --p-breakpoint-phone: 390px;
+  --p-breakpoint-tablet: 760px;
+  --p-breakpoint-desktop: 1100px;
+}
+</style>
+
+<style id="tok-sem-light">
+/* TIER 2 · SEMANTIC, LIGHT: what a value means. Pages and components use only this tier and the component tier. */
+:root, .t-light {
+  --color-bg-page: var(--p-neutral-50);
+  --color-bg-surface: var(--p-neutral-0);
+  --color-bg-sunken: var(--p-neutral-25);
+  --color-bg-hover: var(--p-neutral-100);
+  --color-bg-overlay: var(--p-neutral-0);
+  --color-border-subtle: var(--p-neutral-200);
+  --color-border-control: var(--p-neutral-400);
+  --color-text-primary: var(--p-neutral-ink);
+  --color-text-secondary: var(--p-neutral-600);
+  --color-text-muted: var(--p-neutral-500);
+  --color-text-link: var(--p-blue-600);
+  --color-text-on-accent: var(--p-neutral-0);
+  --color-accent: var(--p-blue-600);
+  --color-accent-hover: var(--p-blue-700);
+  --color-accent-weak: var(--p-blue-50);
+  --color-focus: var(--p-blue-600);
+  --color-rail-bg: var(--p-navy-900);
+  --color-rail-hover: var(--p-navy-800);
+  --color-rail-text: var(--p-navy-text);
+  --color-rail-eyebrow: var(--p-navy-eyebrow);
+  --color-rail-active-bg: var(--p-blue-800);
+  --color-rail-active-text: var(--p-neutral-0);
+  --color-status-complete-bg: var(--p-green-50);
+  --color-status-complete-text: var(--p-green-600);
+  --color-status-complete-border: var(--p-green-200);
+  --color-status-partial-bg: var(--p-amber-50);
+  --color-status-partial-text: var(--p-amber-600);
+  --color-status-partial-border: var(--p-amber-200);
+  --color-status-toofew-bg: var(--p-orange-50);
+  --color-status-toofew-text: var(--p-orange-600);
+  --color-status-toofew-border: var(--p-orange-200);
+  --color-status-noreadings-bg: var(--p-neutral-100);
+  --color-status-noreadings-text: var(--p-neutral-600);
+  --color-status-noreadings-border: var(--p-neutral-300);
+  --color-status-notenough-bg: var(--p-orange-50);
+  --color-status-notenough-text: var(--p-orange-600);
+  --color-status-notenough-border: var(--p-orange-200);
+  --color-status-conflicting-bg: var(--p-red-50);
+  --color-status-conflicting-text: var(--p-red-600);
+  --color-status-conflicting-border: var(--p-red-200);
+  --color-status-processing-bg: var(--p-blue-50);
+  --color-status-processing-text: var(--p-blue-700);
+  --color-status-processing-border: var(--p-blue-100);
+  --color-status-notanalysed-bg: var(--p-neutral-0);
+  --color-status-notanalysed-text: var(--p-neutral-600);
+  --color-status-notanalysed-border: var(--p-neutral-400);
+  --color-provenance-bg: var(--p-violet-50);
+  --color-provenance-text: var(--p-violet-600);
+  --color-provenance-border: var(--p-violet-200);
+  --color-pillar-grow: var(--p-teal-600);
+  --color-pillar-cost: var(--p-indigo-600);
+  --color-pillar-protect: var(--p-plum-600);
+  --color-pillar-assure: var(--p-cyan-600);
+  --color-skeleton: var(--p-neutral-100);
+  --color-skeleton-shine: var(--p-neutral-25);
+  --elevation-card: var(--p-shadow-1);
+  --elevation-popover: var(--p-shadow-2);
+  --elevation-dialog: var(--p-shadow-3);
+  color-scheme: light;
+}
+</style>
+
+<style id="tok-sem-dark">
+/* TIER 2 · SEMANTIC, DARK: same names, dark values. Selected by System (computer setting) or by the user. */
+:root[data-theme="dark"], .t-dark {
+  --color-bg-page: var(--p-neutral-950);
+  --color-bg-surface: var(--p-neutral-900);
+  --color-bg-sunken: var(--p-neutral-950);
+  --color-bg-hover: var(--p-neutral-800);
+  --color-bg-overlay: var(--p-neutral-850);
+  --color-border-subtle: var(--p-neutral-750);
+  --color-border-control: var(--p-neutral-haze);
+  --color-text-primary: var(--p-neutral-mist);
+  --color-text-secondary: var(--p-neutral-fog);
+  --color-text-muted: var(--p-neutral-haze);
+  --color-text-link: var(--p-blue-300);
+  --color-text-on-accent: var(--p-neutral-950);
+  --color-accent: var(--p-blue-300);
+  --color-accent-hover: var(--p-blue-100);
+  --color-accent-weak: var(--p-blue-900);
+  --color-focus: var(--p-blue-300);
+  --color-rail-bg: var(--p-navy-950);
+  --color-rail-hover: var(--p-navy-900);
+  --color-rail-text: var(--p-navy-text);
+  --color-rail-eyebrow: var(--p-navy-eyebrow);
+  --color-rail-active-bg: var(--p-navy-700);
+  --color-rail-active-text: var(--p-neutral-0);
+  --color-status-complete-bg: var(--p-green-900);
+  --color-status-complete-text: var(--p-green-300);
+  --color-status-complete-border: var(--p-green-800);
+  --color-status-partial-bg: var(--p-amber-900);
+  --color-status-partial-text: var(--p-amber-300);
+  --color-status-partial-border: var(--p-amber-800);
+  --color-status-toofew-bg: var(--p-orange-900);
+  --color-status-toofew-text: var(--p-orange-300);
+  --color-status-toofew-border: var(--p-orange-800);
+  --color-status-noreadings-bg: var(--p-neutral-800);
+  --color-status-noreadings-text: var(--p-neutral-fog);
+  --color-status-noreadings-border: var(--p-neutral-700);
+  --color-status-notenough-bg: var(--p-orange-900);
+  --color-status-notenough-text: var(--p-orange-300);
+  --color-status-notenough-border: var(--p-orange-800);
+  --color-status-conflicting-bg: var(--p-red-900);
+  --color-status-conflicting-text: var(--p-red-300);
+  --color-status-conflicting-border: var(--p-red-800);
+  --color-status-processing-bg: var(--p-blue-900);
+  --color-status-processing-text: var(--p-blue-300);
+  --color-status-processing-border: var(--p-blue-800);
+  --color-status-notanalysed-bg: var(--p-neutral-900);
+  --color-status-notanalysed-text: var(--p-neutral-fog);
+  --color-status-notanalysed-border: var(--p-neutral-haze);
+  --color-provenance-bg: var(--p-violet-900);
+  --color-provenance-text: var(--p-violet-300);
+  --color-provenance-border: var(--p-violet-800);
+  --color-pillar-grow: var(--p-teal-300);
+  --color-pillar-cost: var(--p-indigo-300);
+  --color-pillar-protect: var(--p-plum-300);
+  --color-pillar-assure: var(--p-cyan-300);
+  --color-skeleton: var(--p-neutral-800);
+  --color-skeleton-shine: var(--p-neutral-750);
+  --elevation-card: var(--p-shadow-none);
+  --elevation-popover: var(--p-shadow-dark-2);
+  --elevation-dialog: var(--p-shadow-dark-3);
+  color-scheme: dark;
+}
+</style>
+
+<style id="tok-type">
+/* TIER 2 · SEMANTIC TYPE: 8 steps, 12 px floor, 14 px body. Same in both themes. */
+:root {
+  --font-sans: "Inter", "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --text-caption: 400 var(--p-size-12)/16px var(--font-sans);
+  --text-small: 400 var(--p-size-13)/18px var(--font-sans);
+  --text-body: 400 var(--p-size-14)/20px var(--font-sans);
+  --text-body-lg: 400 var(--p-size-16)/24px var(--font-sans);
+  --text-heading-sm: 600 var(--p-size-18)/26px var(--font-sans);
+  --text-heading: 600 var(--p-size-20)/28px var(--font-sans);
+  --text-page-title: 650 var(--p-size-24)/32px var(--font-sans);
+  --text-figure: 650 var(--p-size-30)/38px var(--font-sans);
+}
+</style>
+
+<style id="tok-component">
+/* TIER 3 · COMPONENT: one place per component. Declared on every theme scope so var() resolves per theme. */
+:root, .t-light, .t-dark {
+  --topbar-height: 56px;
+  --topbar-bg: var(--color-bg-surface);
+  --topbar-border: var(--color-border-subtle);
+  --rail-width: 232px;
+  --rail-item-height: 36px;
+  --card-bg: var(--color-bg-surface);
+  --card-border: var(--color-border-subtle);
+  --card-radius: var(--p-radius-lg);
+  --card-padding: var(--p-space-5);
+  --card-shadow: var(--elevation-card);
+  --chip-height: 24px;
+  --chip-radius: var(--p-radius-pill);
+  --chip-padding-x: var(--p-space-2);
+  --button-height: 36px;
+  --button-radius: var(--p-radius-md);
+  --button-padding-x: var(--p-space-4);
+  --button-primary-bg: var(--color-accent);
+  --button-primary-text: var(--color-text-on-accent);
+  --tab-gap: var(--p-space-6);
+  --tab-indicator: var(--color-accent);
+  --table-row-height: 44px;
+  --table-row-height-compact: 36px;
+  --table-head-bg: var(--color-bg-sunken);
+  --notice-bg: var(--color-status-partial-bg);
+  --notice-border: var(--color-status-partial-border);
+  --notice-text: var(--color-text-primary);
+  --skeleton-bg: var(--color-skeleton);
+  --skeleton-radius: var(--p-radius-sm);
+  --focus-ring: 0 0 0 2px var(--color-bg-surface), 0 0 0 4px var(--color-focus);
+}
+</style>
+<style id="app">
+/* ---------- App layer: semantic + component tiers only. No raw colour values below this line. ---------- */
+*{box-sizing:border-box}
+html,body{margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--color-bg-page);color:var(--color-text-primary);font:var(--text-body);-webkit-font-smoothing:antialiased;font-feature-settings:"cv11" 1,"ss01" 1;overflow-x:hidden}
+a{color:var(--color-text-link);text-decoration:none;border-radius:var(--p-radius-sm)}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+button{font:inherit;color:inherit}
+h1,h2,h3,h4,p{margin:0}
+.num,.tnum,td.n{font-variant-numeric:tabular-nums}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--p-size-12)}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.muted{color:var(--color-text-muted)}
+.sec{color:var(--color-text-secondary)}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+svg.i.sm{width:14px;height:14px}
+svg.i.md{width:16px;height:16px}
+svg.i.lg{width:24px;height:24px}
+svg.i.xl{width:32px;height:32px;stroke-width:1.4}
+.ease{transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,transform .15s ease}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* Draft strip (owner review controls; not product UI) */
+.draftbar{position:relative;z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-4);padding:var(--p-space-2) var(--p-space-6);background:var(--color-bg-overlay);border-bottom:1px solid var(--color-border-subtle);font:var(--text-small)}
+.draftbar .tag{font:var(--text-caption);font-weight:600;color:var(--color-provenance-text);background:var(--color-provenance-bg);border:1px solid var(--color-provenance-border);border-radius:var(--chip-radius);padding:2px var(--p-space-2)}
+.draftbar .ctrls{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-3)}
+.switch{display:inline-flex;align-items:center;gap:var(--p-space-2);cursor:pointer;color:var(--color-text-secondary)}
+.switch input{appearance:none;width:32px;height:18px;border-radius:var(--p-radius-pill);background:var(--color-border-control);position:relative;margin:0;cursor:pointer}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--color-bg-surface);transition:transform .15s ease}
+.switch input:checked{background:var(--color-accent)}
+.switch input:checked::after{transform:translateX(14px)}
+.seg{display:inline-flex;border:1px solid var(--color-border-subtle);border-radius:var(--button-radius);padding:2px;background:var(--color-bg-sunken)}
+.seg button{border:0;background:transparent;color:var(--color-text-secondary);font:var(--text-small);font-weight:500;padding:4px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button:hover{color:var(--color-text-primary)}
+.seg button[aria-pressed="true"]{background:var(--color-bg-surface);color:var(--color-text-primary);font-weight:600;box-shadow:var(--elevation-card);outline:1px solid var(--color-border-subtle)}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:var(--rail-width) minmax(0,1fr);min-height:100vh;background:linear-gradient(to right,var(--color-rail-bg) var(--rail-width),transparent var(--rail-width))}
+.rail{background:var(--color-rail-bg);color:var(--color-rail-text);padding:var(--p-space-4) var(--p-space-3);font:var(--text-small);position:sticky;top:0;height:100vh;overflow:auto}
+.rail .brand{display:flex;align-items:center;gap:var(--p-space-2);font:var(--text-body-lg);font-weight:700;color:var(--color-rail-active-text);margin:0 var(--p-space-1) var(--p-space-4)}
+.rail .brandmark{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:var(--p-radius-md);background:var(--color-rail-active-bg)}
+.rail .eyebrow{font:var(--text-caption);font-weight:600;letter-spacing:.08em;color:var(--color-rail-eyebrow);margin:var(--p-space-4) var(--p-space-2) var(--p-space-1)}
+.rail a{display:flex;align-items:center;gap:10px;height:var(--rail-item-height);padding:0 var(--p-space-2);border-radius:var(--p-radius-md);color:var(--color-rail-text);font-weight:500}
+.rail a:hover{background:var(--color-rail-hover);text-decoration:none}
+.rail a[aria-current="page"]{background:var(--color-rail-active-bg);color:var(--color-rail-active-text);font-weight:600}
+.rail .ws{margin-top:var(--p-space-2);padding:var(--p-space-2);border-radius:var(--p-radius-md);border:1px solid var(--color-rail-hover);font:var(--text-caption);color:var(--color-rail-eyebrow)}
+.rail .ws b{display:block;color:var(--color-rail-text);font:var(--text-small);font-weight:600}
+.work{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;min-height:var(--topbar-height);background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-3);padding:var(--p-space-2) var(--p-space-6)}
+.topbar .org{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.topbar .org span{color:var(--color-text-muted);font-weight:400}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:var(--p-space-2)}
+.menu-btn{display:none}
+.avatar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--color-accent-weak);color:var(--color-text-link);font:var(--text-caption);font-weight:700}
+.ctl{display:inline-flex;align-items:center;gap:var(--p-space-2);height:var(--button-height);padding:0 var(--p-space-3);border:1px solid var(--color-border-subtle);border-radius:var(--button-radius);background:var(--color-bg-surface);color:var(--color-text-primary);font:var(--text-small);font-weight:500;cursor:pointer;white-space:nowrap}
+.ctl:hover{background:var(--color-bg-hover);border-color:var(--color-border-control)}
+.ctl .k{color:var(--color-text-muted)}
+.ctl .shared{font:var(--text-caption);font-weight:600;color:var(--color-text-link);background:var(--color-accent-weak);border-radius:var(--chip-radius);padding:1px var(--p-space-2)}
+
+/* Shared date range */
+.range{position:relative}
+.range-pop{position:absolute;right:0;top:calc(100% + 8px);width:340px;max-width:calc(100vw - 32px);background:var(--color-bg-overlay);border:1px solid var(--color-border-subtle);border-radius:var(--p-radius-lg);box-shadow:var(--elevation-popover);padding:var(--p-space-4);z-index:40}
+.range-pop[hidden]{display:none}
+.range-pop h3{font:var(--text-caption);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 var(--p-space-2)}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:var(--p-space-1);margin:0 0 var(--p-space-3)}
+.presets button{text-align:left;border:1px solid transparent;background:transparent;border-radius:var(--p-radius-md);padding:var(--p-space-2);cursor:pointer;font:var(--text-small);color:var(--color-text-primary)}
+.presets button:hover{background:var(--color-bg-hover)}
+.presets button[aria-pressed="true"]{background:var(--color-accent-weak);border-color:var(--color-status-processing-border);color:var(--color-text-link);font-weight:600}
+.range-pop p{font:var(--text-caption);color:var(--color-text-secondary);margin:0 0 var(--p-space-3)}
+.range-pop .btns{justify-content:flex-end}
+
+/* Canvas */
+.canvas{padding:var(--p-space-8) var(--p-space-8) var(--p-space-16);width:100%;max-width:1360px;margin:0 auto;min-width:0}
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-1);font:var(--text-small);color:var(--color-text-muted);margin:0 0 var(--p-space-2)}
+.crumbs a{color:var(--color-text-secondary)}
+.crumbs svg{width:14px;height:14px}
+.page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--p-space-4);margin:0 0 var(--p-space-6)}
+.page-title{font:var(--text-page-title);letter-spacing:-.015em}
+.page-sub{color:var(--color-text-secondary);margin-top:var(--p-space-1);max-width:72ch}
+.head-meta{display:flex;flex-wrap:wrap;gap:var(--p-space-2);align-items:center}
+.eyebrow-lg{font:var(--text-caption);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 var(--p-space-2);display:block}
+.h2{font:var(--text-heading);letter-spacing:-.01em}
+.h3{font:var(--text-heading-sm)}
+.lede{color:var(--color-text-secondary);margin-top:2px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--p-space-2) var(--p-space-4);margin:0 0 var(--p-space-4)}
+.sec-head a{font:var(--text-small);font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.stack-8>*+*{margin-top:var(--p-space-8)}
+
+/* Tabs (same row on Portfolio and Site pages) */
+.tabs{border-bottom:1px solid var(--color-border-subtle);margin:0 0 var(--p-space-6)}
+.tabs ol{list-style:none;display:flex;gap:var(--tab-gap);margin:0;padding:0 2px;overflow-x:auto;scrollbar-width:none}
+.tabs ol::-webkit-scrollbar{display:none}
+.tabs a{display:inline-flex;align-items:center;gap:6px;color:var(--color-text-secondary);padding:var(--p-space-3) 0 11px;border-bottom:2px solid transparent;white-space:nowrap;border-radius:0}
+.tabs a:hover{color:var(--color-text-primary);text-decoration:none;border-color:var(--color-border-control)}
+.tabs a[aria-current="page"]{color:var(--color-text-primary);border-color:var(--tab-indicator);font-weight:600}
+.tabs .count{font:var(--text-caption);font-weight:600;background:var(--color-bg-hover);color:var(--color-text-secondary);border-radius:var(--chip-radius);padding:0 7px;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+.tabs a[aria-current="page"] .count{background:var(--color-accent-weak);color:var(--color-text-link)}
+.tabs .deep{margin-left:auto}
+
+/* Surfaces */
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);padding:var(--card-padding);box-shadow:var(--card-shadow);min-width:0}
+.card.pad-6{padding:var(--p-space-6)}
+.card-link{display:block;color:inherit}
+.card-link:hover{text-decoration:none;border-color:var(--color-border-control)}
+.notice{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-4);padding:var(--p-space-3) var(--p-space-4);background:var(--notice-bg);border:1px solid var(--notice-border);border-radius:var(--p-radius-lg);color:var(--notice-text);font:var(--text-small);margin:0 0 var(--p-space-6)}
+.notice>svg{color:var(--color-status-partial-text)}
+.notice b{font-weight:600}
+.notice .rule{color:var(--color-text-secondary)}
+.notice .go{margin-left:auto;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.notice.info{background:var(--color-bg-surface);border-color:var(--color-border-subtle)}
+.notice.info>svg{color:var(--color-text-link)}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:6px;height:var(--chip-height);padding:0 var(--chip-padding-x);border-radius:var(--chip-radius);border:1px solid var(--chip-border);background:var(--chip-bg);color:var(--chip-text);font:var(--text-caption);font-weight:600;white-space:nowrap}
+.chip svg{width:12px;height:12px;flex:none}
+.s-complete{--chip-bg:var(--color-status-complete-bg);--chip-text:var(--color-status-complete-text);--chip-border:var(--color-status-complete-border);--state:var(--color-status-complete-text)}
+.s-partial{--chip-bg:var(--color-status-partial-bg);--chip-text:var(--color-status-partial-text);--chip-border:var(--color-status-partial-border);--state:var(--color-status-partial-text)}
+.s-toofew{--chip-bg:var(--color-status-toofew-bg);--chip-text:var(--color-status-toofew-text);--chip-border:var(--color-status-toofew-border);--state:var(--color-status-toofew-text)}
+.s-noreadings{--chip-bg:var(--color-status-noreadings-bg);--chip-text:var(--color-status-noreadings-text);--chip-border:var(--color-status-noreadings-border);--state:var(--color-status-noreadings-text)}
+.s-notenough{--chip-bg:var(--color-status-notenough-bg);--chip-text:var(--color-status-notenough-text);--chip-border:var(--color-status-notenough-border);--state:var(--color-status-notenough-text)}
+.s-conflicting{--chip-bg:var(--color-status-conflicting-bg);--chip-text:var(--color-status-conflicting-text);--chip-border:var(--color-status-conflicting-border);--state:var(--color-status-conflicting-text)}
+.s-processing{--chip-bg:var(--color-status-processing-bg);--chip-text:var(--color-status-processing-text);--chip-border:var(--color-status-processing-border);--state:var(--color-status-processing-text)}
+.s-notanalysed{--chip-bg:var(--color-status-notanalysed-bg);--chip-text:var(--color-status-notanalysed-text);--chip-border:var(--color-status-notanalysed-border);--state:var(--color-status-notanalysed-text)}
+.s-notanalysed.chip{border-style:dashed}
+.s-provenance{--chip-bg:var(--color-provenance-bg);--chip-text:var(--color-provenance-text);--chip-border:var(--color-provenance-border)}
+.s-neutral{--chip-bg:var(--color-bg-hover);--chip-text:var(--color-text-secondary);--chip-border:var(--color-border-subtle);--state:var(--color-text-muted)}
+.s-accent{--chip-bg:var(--color-accent-weak);--chip-text:var(--color-text-link);--chip-border:var(--color-status-processing-border)}
+.chips{display:flex;flex-wrap:wrap;gap:var(--p-space-2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--p-space-2);height:var(--button-height);padding:0 var(--button-padding-x);border-radius:var(--button-radius);border:1px solid transparent;font:var(--text-body);font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none!important}
+.btn-primary{background:var(--button-primary-bg);color:var(--button-primary-text)}
+.btn-primary:hover{background:var(--color-accent-hover)}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-text-primary);border-color:var(--color-border-control)}
+.btn-secondary:hover{background:var(--color-bg-hover)}
+.btn-quiet{background:transparent;color:var(--color-text-link);padding:0 var(--p-space-2)}
+.btn-quiet:hover{background:var(--color-accent-weak)}
+.btns{display:flex;flex-wrap:wrap;gap:var(--p-space-2);align-items:center}
+
+/* Tables */
+.tbl-wrap{position:relative;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);overflow:auto;box-shadow:var(--card-shadow)}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font:var(--text-body)}
+.tbl th{font:var(--text-caption);font-weight:600;color:var(--color-text-secondary);text-align:left;background:var(--table-head-bg);padding:0 var(--p-space-4);height:40px;border-bottom:1px solid var(--color-border-subtle);white-space:nowrap;letter-spacing:.02em}
+.tbl td{padding:var(--p-space-3) var(--p-space-4);height:var(--table-row-height);border-bottom:1px solid var(--color-border-subtle);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl tbody tr{transition:background-color .12s ease}
+.tbl tbody tr:hover{background:var(--color-bg-hover)}
+.tbl .n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl .nowrap{white-space:nowrap}
+.tbl small,.tbl .sub{display:block;font:var(--text-caption);color:var(--color-text-muted);margin-top:2px}
+
+/* Owner change notes */
+.note-pin{display:none;margin-bottom:var(--p-space-4)!important;margin:var(--p-space-3) 0 0;padding:var(--p-space-2) var(--p-space-3);border-left:3px solid var(--color-provenance-border);background:var(--color-provenance-bg);color:var(--color-text-primary);border-radius:0 var(--p-radius-md) var(--p-radius-md) 0;font:var(--text-small);max-width:96ch}
+.note-pin::before{content:"Note";display:inline-block;margin-right:var(--p-space-2);font:var(--text-caption);font-weight:700;color:var(--color-provenance-text);text-transform:uppercase;letter-spacing:.06em;padding-top:1px}
+.note-pin.dev::before{content:"Mock deviation"}
+body.show-notes .note-pin{display:block}
+.notes-panel{display:none;margin:0 0 var(--p-space-6);border:1px solid var(--color-provenance-border);background:var(--color-bg-surface);border-radius:var(--p-radius-lg);padding:var(--p-space-4) var(--p-space-5)}
+body.show-notes .notes-panel{display:block}
+.notes-panel h2{font:var(--text-heading-sm);display:flex;align-items:center;gap:var(--p-space-2);margin:0 0 var(--p-space-2)}
+.notes-panel h2 svg{color:var(--color-provenance-text)}
+.notes-panel ul{margin:0;padding-left:var(--p-space-5);display:grid;gap:var(--p-space-2);font:var(--text-small);color:var(--color-text-secondary)}
+.notes-panel b{color:var(--color-text-primary);font-weight:600}
+.notes-panel .k{font:var(--text-caption);font-weight:700;color:var(--color-provenance-text);text-transform:uppercase;letter-spacing:.04em}
+
+/* Tooltip for charts and day cells */
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--color-bg-overlay);color:var(--color-text-primary);border:1px solid var(--color-border-subtle);box-shadow:var(--elevation-popover);border-radius:var(--p-radius-md);padding:var(--p-space-2) var(--p-space-3);font:var(--text-small);max-width:260px;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease}
+.tip.on{opacity:1;transform:none}
+.tip b{display:block;font-weight:600}
+.tip span{color:var(--color-text-secondary)}
+
+/* Charts: recessive axes, direct labels in text tokens */
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid{stroke:var(--color-border-subtle);stroke-width:1}
+.chart .base{stroke:var(--color-border-control);stroke-width:1}
+.chart .ax{fill:var(--color-text-muted);font:var(--text-caption);font-variant-numeric:tabular-nums}
+.chart .lbl{fill:var(--color-text-secondary);font:var(--text-caption);font-weight:600;font-variant-numeric:tabular-nums}
+.chart .lbl-strong{fill:var(--color-text-primary);font:var(--text-caption);font-weight:700;font-variant-numeric:tabular-nums}
+.chart .gap-mark{fill:var(--color-bg-sunken);stroke:var(--color-border-control);stroke-dasharray:3 3}
+.chart .hit{fill:transparent;cursor:default}
+.chart .hit:hover+.hl,.chart .hit:focus+.hl{opacity:1}
+.chart .hl{opacity:0;transition:opacity .12s ease;stroke:var(--color-text-muted);stroke-width:1;stroke-dasharray:2 2}
+
+@media (max-width:760px){.chart-scroll{overflow-x:auto;margin:0 calc(-1 * var(--p-space-2));padding:0 var(--p-space-2)}.chart-scroll .chart{min-width:400px}}
+@media (max-width:1100px){
+  .canvas{padding:var(--p-space-6) var(--p-space-6) var(--p-space-12)}
+}
+@media (max-width:760px){
+  .shell{grid-template-columns:minmax(0,1fr);background:none}
+  .rail{display:none;position:fixed;inset:0 auto 0 0;width:min(280px,85vw);z-index:50;height:auto;box-shadow:var(--elevation-dialog)}
+  body.rail-open .rail{display:block}
+  .menu-btn{display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border:1px solid var(--color-border-subtle);border-radius:var(--button-radius);background:var(--color-bg-surface);cursor:pointer;padding:0}
+  .topbar{padding:var(--p-space-2) var(--p-space-4)}
+  .topbar .org{flex:1 1 auto;font:var(--text-small);font-weight:600}
+  .topbar .org span{display:none}
+  .topbar .right{margin-left:0;width:100%}
+  .range{flex:1;min-width:0}
+  .range .ctl{width:100%;justify-content:flex-start}
+  .range .ctl .hide-sm{display:none}
+  .range-pop{left:0;right:auto}
+  .canvas{padding:var(--p-space-5) var(--p-space-4) var(--p-space-12)}
+  .draftbar{padding:var(--p-space-2) var(--p-space-4)}
+  .draftbar .ctrls{margin-left:0}
+  .seg button span{display:none}
+  .page-title{font:var(--text-heading)}
+  .tabs .deep{margin-left:0}
+  .tabs{margin-left:calc(-1 * var(--p-space-4));margin-right:calc(-1 * var(--p-space-4));padding:0 var(--p-space-4)}
+  .notice .go{margin-left:0}
+}
+</style>
+
+<style id="page">
+.site-id{display:flex;align-items:center;gap:var(--p-space-3)}
+.site-id .tile{display:grid;place-items:center;width:44px;height:44px;border-radius:var(--p-radius-lg);background:var(--color-accent-weak);color:var(--color-text-link);flex:none}
+.status{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-3);padding:var(--p-space-3) var(--p-space-4);border:1px solid var(--color-border-subtle);border-radius:var(--p-radius-lg);background:var(--color-bg-surface);margin:0 0 var(--p-space-6);font:var(--text-small)}
+.status b{font-weight:600}
+.status .days{color:var(--color-text-secondary);font-variant-numeric:tabular-nums}
+.status .days span+span::before{content:"·";margin:0 var(--p-space-2);color:var(--color-text-muted)}
+
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--p-space-4);margin:0 0 var(--p-space-6)}
+.tile-k{display:flex;flex-direction:column;gap:var(--p-space-1)}
+.tile-k .lab{display:flex;align-items:center;gap:var(--p-space-2);font:var(--text-small);font-weight:600;color:var(--color-text-secondary)}
+.tile-k .lab svg{color:var(--color-text-muted)}
+.tile-k .fig{font:var(--text-figure);font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:var(--p-space-2)}
+.tile-k .fig small{font:var(--text-body);color:var(--color-text-secondary);margin-left:6px;letter-spacing:0}
+.tile-k .sub{color:var(--color-text-secondary);font:var(--text-small)}
+.tile-k .foot{margin-top:auto;padding-top:var(--p-space-3)}
+.split{display:flex;gap:var(--p-space-4);font:var(--text-small);color:var(--color-text-secondary);flex-wrap:wrap}
+.split b{color:var(--color-text-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.meter{display:flex;gap:3px;margin-top:var(--p-space-3)}
+.meter i{flex:1;height:8px;border-radius:2px;background:var(--color-border-subtle)}
+.meter i.on{background:var(--color-status-complete-text)}
+
+/* Day strip */
+.days-card{padding:0;overflow:hidden;margin:0 0 var(--p-space-6)}
+.days-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--p-space-3);padding:var(--p-space-5) var(--p-space-6) var(--p-space-4)}
+.legend{display:flex;flex-wrap:wrap;gap:var(--p-space-2) var(--p-space-4);font:var(--text-caption);color:var(--color-text-secondary)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend svg{width:12px;height:12px;color:var(--state)}
+.daystrip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--p-space-2);padding:0 var(--p-space-6) var(--p-space-5)}
+.dcell{display:flex;flex-direction:column;gap:var(--p-space-1);padding:var(--p-space-3);min-height:96px;border-radius:var(--p-radius-md);border:1px solid var(--chip-border);background:var(--chip-bg);color:var(--color-text-primary);text-decoration:none!important;position:relative;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.dcell:hover{transform:translateY(-2px);box-shadow:var(--elevation-popover)}
+.dcell .dn{font:var(--text-caption);font-weight:600;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em}
+.dcell .dd{font:var(--text-heading);font-variant-numeric:tabular-nums}
+.dcell .ds{display:flex;align-items:flex-start;gap:6px;font:var(--text-caption);font-weight:600;color:var(--chip-text);margin-top:auto}
+.dcell .ds svg{width:12px;height:12px;flex:none;margin-top:2px}
+.dcell[aria-current="true"]{box-shadow:0 0 0 2px var(--color-accent)}
+
+.tbl .state{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-1) var(--p-space-2)}
+.tbl .suffix{font:var(--text-small);color:var(--color-text-secondary)}
+.tbl .open{display:inline-flex;align-items:center;gap:4px;font-weight:600;white-space:nowrap}
+.tbl tfoot td{background:var(--color-bg-sunken);font-weight:600;border-top:1px solid var(--color-border-subtle);border-bottom:0}
+.days-card .tbl-in{position:relative;border-top:1px solid var(--color-border-subtle);overflow-x:auto}
+.tbl tbody tr.rowlink{cursor:pointer}
+.dash{color:var(--color-text-muted)}
+
+.lower{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--p-space-6);align-items:start}
+.flist{list-style:none;margin:0;padding:0}
+.flist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--p-space-2) var(--p-space-4);padding:var(--p-space-4) 0;border-top:1px solid var(--color-border-subtle)}
+.flist li:first-child{border-top:0;padding-top:0}
+.flist h3{font:var(--text-body);font-weight:600}
+.flist h3 a{color:var(--color-text-primary)}
+.flist .w{font:var(--text-small);color:var(--color-text-secondary);margin-top:2px;font-variant-numeric:tabular-nums}
+.flist .v{text-align:right;font:var(--text-small);font-variant-numeric:tabular-nums}
+.flist .v b{display:block;font:var(--text-body);font-weight:600}
+.flist .chips{margin-top:var(--p-space-2)}
+.chart-card{--series:var(--color-pillar-cost)}
+.chart-card .series-key{display:flex;flex-wrap:wrap;gap:var(--p-space-4);font:var(--text-caption);color:var(--color-text-secondary);margin:var(--p-space-2) 0 var(--p-space-3)}
+.chart-card .series-key span{display:inline-flex;align-items:center;gap:6px}
+.chart-card .series-key i{width:10px;height:10px;border-radius:2px;background:var(--series)}
+.chart-card .series-key i.lt{opacity:.32}
+.chart-card .cap{font:var(--text-caption);color:var(--color-text-muted);margin-top:var(--p-space-2)}
+.next{display:flex;gap:var(--p-space-4);align-items:flex-start;margin-top:var(--p-space-4);background:var(--color-bg-sunken)}
+.next .tile{display:grid;place-items:center;width:36px;height:36px;border-radius:var(--p-radius-md);background:var(--color-accent-weak);color:var(--color-text-link);flex:none}
+.next h3{font:var(--text-body);font-weight:600}
+.next p{font:var(--text-small);color:var(--color-text-secondary);margin-top:2px}
+.next .btns{margin-top:var(--p-space-3)}
+
+@media (max-width:1240px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.daystrip{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:1100px){.lower{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+  .tiles{grid-template-columns:minmax(0,1fr)}
+  .daystrip{grid-template-columns:repeat(2,minmax(0,1fr));padding:0 var(--p-space-4) var(--p-space-4)}
+  .days-head{padding:var(--p-space-4)}
+  .dcell{min-height:84px}
+}
+
+</style>
+</head>
+<body class="show-notes">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+ <defs>
+  <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z M12 7a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z M3 8l9 5 9-5 M12 13v8"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M20 20l-4-4"/></symbol>
+  <symbol id="i-check-sq" viewBox="0 0 24 24"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3.5 17.5l3 3 5.8-5.8a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-dollar" viewBox="0 0 24 24"><path d="M12 2v20 M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 2v7L3.6 19a2 2 0 0 0 1.8 3h13.2a2 2 0 0 0 1.8-3L15 9V2 M7.5 2h9 M6.2 15h11.6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path d="M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z M4 10h16 M8 3v4 M16 3v4"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14 M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5 M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4 M7 9l5-5 5 5 M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11 M7 10l5 5 5-5 M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z M14 3v5h5 M8.5 13h7 M8.5 17h4.5"/></symbol>
+  <symbol id="i-file-csv" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z M14 3v5h5 M8 12h8v6H8z M8 15h8 M12 12v6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M8 12.5l2.8 2.8L16.5 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M9 9l6 6 M15 9l-6 6"/></symbol>
+  <symbol id="i-pause-circle" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M10 9v6 M14 9v6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.2L2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z M12 9.5v4.5 M12 17.2v.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 11v5 M12 8v.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-loader" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8a4 4 0 1 0 0 8 M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5L19 19 M19 5l-1.5 1.5 M6.5 17.5L5 19"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M8 20h8 M12 16v4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16 M4 12h16 M4 17h16"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2.5L4.5 13.5h6.5l-1 8 8.5-11h-6.5z"/></symbol>
+  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 2.5v19 M3.8 7.2l16.4 9.6 M20.2 7.2L3.8 16.8 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 2.5v4.5 M15 2.5v4.5 M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z M12 16v5.5"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8 M15 7h6v6"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V5a1 1 0 0 1 1-1z M8 9h8 M8 12h5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.6-4.5 M4.5 3v4h4 M4 13a8 8 0 0 0 14.6 4.5 M19.5 21v-4h-4"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z M3 13l9 5 9-5"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9 M12 11.5v1"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0 M12 17l4-5"/></symbol>
+  <!-- Day-state glyphs (12 px, filled; same shapes as the v7.2 sheet chips) -->
+  <symbol id="g-complete" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.5" fill="currentColor"/><path d="M3.5 6.2l1.7 1.6L8.6 4.4" fill="none" stroke="var(--chip-bg, var(--color-bg-surface))" stroke-width="1.6"/></symbol>
+  <symbol id="g-partial" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 1a5 5 0 0 1 0 10z" fill="currentColor"/></symbol>
+  <symbol id="g-toofew" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 6V1a5 5 0 0 1 5 5z" fill="currentColor"/></symbol>
+  <symbol id="g-noreadings" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="g-notenough" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 6h5" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="g-conflicting" viewBox="0 0 12 12"><path d="M6 .8L11.4 10.8H.6z" fill="currentColor"/><path d="M6 4.5v3 M6 8.8v.6" stroke="var(--chip-bg, var(--color-bg-surface))" stroke-width="1.4"/></symbol>
+  <symbol id="g-processing" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.2 1.8"/></symbol>
+  <symbol id="g-notanalysed" viewBox="0 0 12 12"><path d="M6 3v3l2 1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="g-findings" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.5" fill="currentColor"/><path d="M6 3.2v3.4 M6 8.4v.4" stroke="var(--chip-bg, var(--color-bg-surface))" stroke-width="1.5" stroke-linecap="round"/></symbol>
+ </defs>
+</svg>
+
+<div class="draftbar" role="region" aria-label="Draft controls">
+ <span class="tag">v7.2 DRAFT</span><strong>Site Overview · Kobo over a date range</strong><span class="muted">for owner approval · values are illustrative</span>
+ <div class="ctrls">
+  <label class="switch"><input type="checkbox" id="notes" checked> Show change notes</label>
+  <div class="seg" role="group" aria-label="Theme">
+   <button type="button" data-theme-set="system" aria-pressed="false" title="Follow the computer"><svg class="i sm" aria-hidden="true"><use href="#i-monitor"/></svg><span>System</span></button>
+   <button type="button" data-theme-set="light" aria-pressed="false" title="Light"><svg class="i sm" aria-hidden="true"><use href="#i-sun"/></svg><span>Light</span></button>
+   <button type="button" data-theme-set="dark" aria-pressed="false" title="Dark"><svg class="i sm" aria-hidden="true"><use href="#i-moon"/></svg><span>Dark</span></button>
+  </div>
+ </div>
+</div>
+<div class="shell">
+<aside class="rail" aria-label="Main menu">
+<div class="brand"><span class="brandmark"><svg class="i md" aria-hidden="true"><use href="#i-activity"/></svg></span>AssetOps</div>
+<nav aria-label="Main">
+<div class="eyebrow">OPERATIONS</div>
+<a href="portfolio-hifi.html"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Portfolio</a>
+<a href="site-overview-hifi.html" aria-current="page"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>Sites</a>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg>Assets</a>
+<div class="eyebrow">INTELLIGENCE</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>Findings</a>
+<div class="eyebrow">WORK</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-check-sq"/></svg>Actions</a>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-wrench"/></svg>Maintenance</a>
+<div class="eyebrow">ASSURANCE</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Evidence</a>
+<div class="eyebrow">BUSINESS</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-dollar"/></svg>Financials</a>
+<div class="eyebrow">WORKSPACE</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-flask"/></svg>Simulator Lab</a>
+</nav><div class="ws"><b>Demo workspace</b>4 simulated sites · illustrative records</div></aside>
+<div class="work">
+<header class="topbar">
+ <button type="button" class="menu-btn" aria-label="Open the menu"><svg class="i md" aria-hidden="true"><use href="#i-menu"/></svg></button>
+ <div class="org">Bineyame Operations <span>/ Demo estate</span></div>
+ <div class="right"><div class="range">
+ <button type="button" class="ctl" id="range-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="range-pop" aria-label="Date range for every page: Last 7 days, 4 to 10 November 2026. Change">
+  <svg class="i md" aria-hidden="true"><use href="#i-cal"/></svg><span class="k hide-sm">Last 7 days</span><span class="num">4 – 10 Nov 2026</span><span class="shared hide-sm">All pages</span><svg class="i sm" aria-hidden="true"><use href="#i-chev-down"/></svg>
+ </button>
+ <div class="range-pop" id="range-pop" role="dialog" aria-label="Date range for every page" hidden>
+  <h3>Date range · used by every page</h3>
+  <div class="presets">
+   <button type="button" data-preset aria-pressed="false">Yesterday</button>
+   <button type="button" data-preset aria-pressed="true">Last 7 days</button>
+   <button type="button" data-preset aria-pressed="false">Last 30 days</button>
+   <button type="button" data-preset aria-pressed="false">This month</button>
+   <button type="button" data-preset aria-pressed="false">Last month</button>
+   <button type="button" data-preset aria-pressed="false">Custom…</button>
+  </div>
+  <p>One range for the whole app. Menu links, tabs and links between pages keep it, and the page address holds it, so a copied link opens exactly this view.</p>
+  <div class="btns"><button type="button" class="btn btn-secondary" data-close>Cancel</button><button type="button" class="btn btn-primary" data-close>Apply</button></div>
+ </div>
+</div><span class="avatar" aria-label="Signed in as BY">BY</span></div>
+</header>
+<main class="canvas" id="main">
+
+ <aside class="notes-panel" aria-labelledby="np">
+  <h2 id="np"><svg class="i md" aria-hidden="true"><use href="#i-note"/></svg>Owner notes · Kobo Site Overview over a range (SR-5)</h2>
+  <ul>
+   <li><b>Spec:</b> SR-5b (rev 9 §9.4, D-SR.9–12, D-SR.70, D-SR.50 wording): status line → four tiles → "Day by day" (strip + table) → "Findings in this range" → next step. The range comes from the shared bar; "Open day" adds <span class="mono">?day=</span> and opens the existing one-day board.</li>
+   <li><b>Values are illustrative</b> (Kobo, 4 – 10 Nov 2026). They add up: day amounts $1.60–1.92 + $1.71–2.05 = $3.31–3.97, the Kobo share of the Portfolio cost card.</li>
+   <li><span class="k">Mock deviation</span> R721 (already in the spec): v69 <span class="mono">site-overview</span> is one window and has no day table; the range view keeps its skeleton and adds the day table.</li>
+   <li><span class="k">Mock deviation</span> "Fuel cost at stake by day" chart beside the findings is new in this mockup; it draws the day table's own money column, nothing else. The day strip uses large cells (weekday, date, state) rather than the spec's compact strip.</li>
+  </ul>
+ </aside>
+
+ <nav class="crumbs" aria-label="Breadcrumb"><a href="#">Sites</a><svg class="i sm" aria-hidden="true"><use href="#i-chev-right"/></svg><span aria-current="page">Kobo</span></nav>
+ <div class="page-head">
+  <div class="site-id">
+   <span class="tile"><svg class="i lg" aria-hidden="true"><use href="#i-zap"/></svg></span>
+   <div><h1 class="page-title">Kobo</h1><p class="page-sub" style="margin-top:0">Mini-grid · solar, battery and generator · clinic, mill and residential feeders</p></div>
+  </div>
+  <div class="btns"><a class="btn btn-secondary" href="upload-readings.html"><svg class="i md" aria-hidden="true"><use href="#i-upload"/></svg>Upload readings</a></div>
+ </div>
+
+ <nav class="tabs" aria-label="Site sections"><ol>
+  <li><a href="#" aria-current="page">Overview</a></li><li><a href="#">Foundation</a></li><li><a href="upload-readings.html">Health</a></li><li><a href="#">Performance</a></li><li><a href="#">Findings <span class="count">3</span></a></li><li><a href="#">Work</a></li><li><a href="#">Financials</a></li><li><a href="#">Evidence</a></li>
+ </ol></nav>
+
+ <div class="status" role="status">
+  <span class="chip s-partial"><svg aria-hidden="true"><use href="#g-partial"/></svg>Partial</span>
+  <b class="num">4 of 7 days analysed</b>
+  <span class="days"><span>6 Nov: no readings</span><span>9 Nov: not enough readings</span><span>10 Nov: still processing</span></span>
+ </div>
+
+ <div class="tiles">
+  <article class="card tile-k">
+   <h2 class="lab"><svg class="i md" aria-hidden="true"><use href="#i-dollar"/></svg>Fuel cost at stake</h2>
+   <div class="fig num">$3.31–3.97</div>
+   <p class="sub">Avoidable diesel, modelled, on the days analysed.</p>
+   <div class="foot"><span class="chip s-partial"><svg aria-hidden="true"><use href="#g-partial"/></svg>Partial: 4 of 7 days</span></div>
+  </article>
+  <article class="card tile-k">
+   <h2 class="lab"><svg class="i md" aria-hidden="true"><use href="#i-search"/></svg>Findings</h2>
+   <div class="fig num">3</div>
+   <div class="split"><span><b>2</b> confirmed</span><span><b>1</b> not yet confirmed</span></div>
+   <div class="foot"><a href="#findings" style="font:var(--text-small);font-weight:600">See findings in this range</a></div>
+  </article>
+  <article class="card tile-k">
+   <h2 class="lab"><svg class="i md" aria-hidden="true"><use href="#i-check-sq"/></svg>Actions</h2>
+   <div class="fig num">2<small>open</small></div>
+   <div class="split"><span><b>1</b> awaiting verification</span><span><b>0</b> verified</span></div>
+  </article>
+  <article class="card tile-k">
+   <h2 class="lab"><svg class="i md" aria-hidden="true"><use href="#i-cal"/></svg>Days analysed</h2>
+   <div class="fig num">4<small>of 7</small></div>
+   <div class="meter" role="img" aria-label="4 of 7 days analysed"><i class="on"></i><i class="on"></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+   <p class="sub" style="margin-top:var(--p-space-2)"><span class="num">2,044</span> readings accepted</p>
+  </article>
+ </div>
+
+ <section class="card days-card" aria-labelledby="h-days">
+  <div class="days-head">
+   <div><h2 class="h3" id="h-days">Day by day</h2><p class="lede">Each day opens on Kobo's one-day board; the date range stays.</p></div>
+   <div class="legend" aria-label="Key">
+    <span class="s-accent" style="--state:var(--color-text-link)"><svg aria-hidden="true"><use href="#g-findings"/></svg>Findings</span>
+    <span class="s-complete"><svg aria-hidden="true"><use href="#g-complete"/></svg>Checked</span>
+    <span class="s-noreadings"><svg aria-hidden="true"><use href="#g-noreadings"/></svg>No readings</span>
+    <span class="s-notenough"><svg aria-hidden="true"><use href="#g-notenough"/></svg>Not enough readings</span>
+    <span class="s-processing"><svg aria-hidden="true"><use href="#g-processing"/></svg>Still processing</span>
+   </div>
+  </div>
+  <div class="daystrip">
+   <a class="dcell s-accent" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-04" data-tip="Wed 4 Nov|2 findings · $1.60–1.92 · opens the one-day board" aria-label="Wednesday 4 November: 2 findings. Open day"><span class="dn">Wed</span><span class="dd">4</span><span class="ds"><svg aria-hidden="true"><use href="#g-findings"/></svg>2 findings</span></a>
+   <a class="dcell s-complete" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-05" data-tip="Thu 5 Nov|Checked: nothing to report" aria-label="Thursday 5 November: checked, nothing to report. Open day"><span class="dn">Thu</span><span class="dd">5</span><span class="ds"><svg aria-hidden="true"><use href="#g-complete"/></svg>Checked</span></a>
+   <a class="dcell s-noreadings" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-06" data-tip="Fri 6 Nov|No readings this day" aria-label="Friday 6 November: no readings this day. Open day"><span class="dn">Fri</span><span class="dd">6</span><span class="ds"><svg aria-hidden="true"><use href="#g-noreadings"/></svg>No readings</span></a>
+   <a class="dcell s-complete" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-07" data-tip="Sat 7 Nov|Checked: no current findings · 1 finding no longer supported" aria-label="Saturday 7 November: checked, no current findings, 1 finding no longer supported. Open day"><span class="dn">Sat</span><span class="dd">7</span><span class="ds"><svg aria-hidden="true"><use href="#g-complete"/></svg>Checked · 1 no longer supported</span></a>
+   <a class="dcell s-accent" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-08" data-tip="Sun 8 Nov|1 finding · $1.71–2.05" aria-label="Sunday 8 November: 1 finding. Open day"><span class="dn">Sun</span><span class="dd">8</span><span class="ds"><svg aria-hidden="true"><use href="#g-findings"/></svg>1 finding</span></a>
+   <a class="dcell s-notenough" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-09" data-tip="Mon 9 Nov|Not enough readings" aria-label="Monday 9 November: not enough readings. Open day"><span class="dn">Mon</span><span class="dd">9</span><span class="ds"><svg aria-hidden="true"><use href="#g-notenough"/></svg>Not enough readings</span></a>
+   <a class="dcell s-processing" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-10" data-tip="Tue 10 Nov|Still processing" aria-label="Tuesday 10 November: still processing. Open day"><span class="dn">Tue</span><span class="dd">10</span><span class="ds"><svg aria-hidden="true"><use href="#g-processing"/></svg>Still processing</span></a>
+  </div>
+  <div class="tbl-in"><table class="tbl">
+   <thead><tr><th scope="col">Day</th><th scope="col">What the day shows</th><th scope="col" class="n">Fuel cost at stake</th><th scope="col" class="n">Readings accepted</th><th scope="col"><span class="sr-only">Open</span></th></tr></thead>
+   <tbody>
+    <tr><td class="nowrap num">Wed 4 Nov</td><td><span class="state"><span class="chip s-accent"><svg aria-hidden="true"><use href="#g-findings"/></svg>2 findings</span></span></td><td class="n">$1.60–1.92</td><td class="n">384</td><td><a class="open" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-04" data-tip="Opens 4 Nov on Kobo's one-day board|The bar then reads: Showing 4 Nov of the range">Open day<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></td></tr>
+    <tr><td class="nowrap num">Thu 5 Nov</td><td><span class="state"><span class="chip s-complete"><svg aria-hidden="true"><use href="#g-complete"/></svg>Checked: nothing to report</span></span></td><td class="n dash">–</td><td class="n">384</td><td><a class="open" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-05" data-tip="Opens 5 Nov on Kobo's one-day board|The bar then reads: Showing 5 Nov of the range">Open day<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></td></tr>
+    <tr><td class="nowrap num">Fri 6 Nov</td><td><span class="state"><span class="chip s-noreadings"><svg aria-hidden="true"><use href="#g-noreadings"/></svg>No readings this day</span></span></td><td class="n dash">–</td><td class="n dash">–</td><td><a class="open" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-06" data-tip="Opens 6 Nov on Kobo's one-day board|The bar then reads: Showing 6 Nov of the range">Open day<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></td></tr>
+    <tr><td class="nowrap num">Sat 7 Nov</td><td><span class="state"><span class="chip s-complete"><svg aria-hidden="true"><use href="#g-complete"/></svg>Checked: no current findings</span><span class="suffix">· 1 finding no longer supported</span></span></td><td class="n dash">–</td><td class="n">384</td><td><a class="open" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-07" data-tip="Opens 7 Nov on Kobo's one-day board|The board shows the finding, labelled no longer supported">Open day<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></td></tr>
+    <tr><td class="nowrap num">Sun 8 Nov</td><td><span class="state"><span class="chip s-accent"><svg aria-hidden="true"><use href="#g-findings"/></svg>1 finding</span></span></td><td class="n">$1.71–2.05</td><td class="n">384</td><td><a class="open" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-08" data-tip="Opens 8 Nov on Kobo's one-day board|The bar then reads: Showing 8 Nov of the range">Open day<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></td></tr>
+    <tr><td class="nowrap num">Mon 9 Nov</td><td><span class="state"><span class="chip s-notenough"><svg aria-hidden="true"><use href="#g-notenough"/></svg>Not enough readings</span></span></td><td class="n dash">–</td><td class="n">212</td><td><a class="open" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-09" data-tip="Opens 9 Nov on Kobo's one-day board|The bar then reads: Showing 9 Nov of the range">Open day<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></td></tr>
+    <tr><td class="nowrap num">Tue 10 Nov</td><td><span class="state"><span class="chip s-processing"><svg aria-hidden="true"><use href="#g-processing"/></svg>Still processing</span></span></td><td class="n dash">–</td><td class="n">296</td><td><a class="open" href="?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-10" data-tip="Opens 10 Nov on Kobo's one-day board|The bar then reads: Showing 10 Nov of the range">Open day<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></td></tr>
+   </tbody>
+   <tfoot><tr><td>7 days</td><td class="sec" style="font-weight:500">3 findings on 2 days</td><td class="n">$3.31–3.97</td><td class="n">2,044</td><td></td></tr></tfoot>
+  </table></div>
+ </section>
+ <p class="note-pin">Drill-in: "Open day" goes to <span class="mono">/sites/KOBO-001?from=2026-11-04&amp;to=2026-11-10&amp;day=2026-11-07</span>. That is the existing one-day board, with a "Back to the whole range" link above its heading; the bar then reads "Showing 7 Nov of the range". Days are UTC calendar days, the same day the board opens. Day words: D-E5.46; "No readings this day" is D-SR.70; the 7 Nov wording is D-SR.50.</p>
+
+ <div class="lower">
+  <div>
+   <section class="card pad-6" id="findings" aria-labelledby="h-f">
+    <div class="sec-head"><div><h2 class="h3" id="h-f">Findings in this range</h2><p class="lede">Current findings at Kobo, 4 – 10 Nov.</p></div><a href="#">See all findings in this range<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+    <ol class="flist">
+     <li><div><h3><a href="#">Extended generator support</a></h3><p class="w">8 Nov, 14:20–15:20 · 30 min candidate; charging trade-off remains</p><div class="chips"><span class="chip s-partial">Not yet confirmed</span><span class="chip s-neutral">Priority high</span></div></div><div class="v"><b>$1.71–2.05</b>modelled fuel</div></li>
+     <li><div><h3><a href="#">Extended generator support</a></h3><p class="w">4 Nov, 15:00–16:00 · 30 min candidate; charging trade-off remains</p><div class="chips"><span class="chip s-complete">Confirmed</span><span class="chip s-neutral">Priority medium</span></div></div><div class="v"><b>$1.60–1.92</b>modelled fuel</div></li>
+     <li><div><h3><a href="#">Battery output-limit report missing</a></h3><p class="w">4 Nov, 14:50 · one report absent from the battery controller</p><div class="chips"><span class="chip s-complete">Confirmed</span><span class="chip s-neutral">Evidence gap</span></div></div><div class="v"><b class="dash">–</b>not priced</div></li>
+    </ol>
+   </section>
+   <section class="card next" aria-labelledby="h-n">
+    <span class="tile"><svg class="i md" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>
+    <div><h3 id="h-n">Next step: verify the policy trial</h3><p>Generator stop trial for "Extended generator support" · outcome pending</p><div class="btns"><a class="btn btn-primary" href="#">Open the action</a><a class="btn btn-quiet" href="#">Why this first?</a></div></div>
+   </section>
+  </div>
+  <section class="card pad-6 chart-card" aria-labelledby="h-c">
+   <h2 class="h3" id="h-c">Fuel cost at stake by day</h2>
+   <div class="series-key"><span><i></i>Low estimate</span><span><i class="lt"></i>Up to the high estimate</span></div>
+   <div class="chart-scroll"><svg class="chart" viewBox="0 0 480 200" role="img" aria-label="Kobo fuel cost at stake by day, 4 to 10 November">
+<line class="base" x1="36" x2="472" y1="142.0" y2="142.0"/>
+<text class="ax" x="28" y="146.0" text-anchor="end">$0</text>
+<line class="grid" x1="36" x2="472" y1="101.3" y2="101.3"/>
+<text class="ax" x="28" y="105.3" text-anchor="end">$1</text>
+<line class="grid" x1="36" x2="472" y1="60.7" y2="60.7"/>
+<text class="ax" x="28" y="64.7" text-anchor="end">$2</text>
+<line class="grid" x1="36" x2="472" y1="20.0" y2="20.0"/>
+<text class="ax" x="28" y="24.0" text-anchor="end">$3</text>
+<path d="M54.1,142.0V76.9H80.2V142.0Z" style="fill:var(--series)"/>
+<path d="M54.1,74.9V67.9q0,-4 4,-4H76.2q4,0 4,4V74.9Z" style="fill:var(--series);opacity:.32"/>
+<text class="ax" x="67.1" y="160.0" text-anchor="middle">Wed 4</text>
+<a href="?from=2026-11-04&to=2026-11-10&day=2026-11-04" tabindex="0" data-tip="4 Nov|$1.60–1.92 · 2 findings" aria-label="4 Nov: $1.60–1.92 · 2 findings"><rect class="hit" x="36.0" y="20" width="62.3" height="180.0"/></a>
+<rect x="116.3" y="140.0" width="26.2" height="2" rx="1" style="fill:var(--color-text-muted)"/>
+<text class="lbl" x="129.4" y="132.0" text-anchor="middle">$0</text>
+<text class="ax" x="129.4" y="160.0" text-anchor="middle">Thu 5</text>
+<a href="?from=2026-11-04&to=2026-11-10&day=2026-11-05" tabindex="0" data-tip="5 Nov|No avoidable fuel cost found" aria-label="5 Nov: No avoidable fuel cost found"><rect class="hit" x="98.3" y="20" width="62.3" height="180.0"/></a>
+<rect class="gap-mark" x="178.6" y="116.0" width="26.2" height="26" rx="4"/>
+<text class="lbl" x="191.7" y="175.0" text-anchor="middle"><tspan x="191.7" dy="0">no</tspan><tspan x="191.7" dy="13">readings</tspan></text>
+<text class="ax" x="191.7" y="160.0" text-anchor="middle">Fri 6</text>
+<a href="?from=2026-11-04&to=2026-11-10&day=2026-11-06" tabindex="0" data-tip="6 Nov|No readings" aria-label="6 Nov: No readings"><rect class="hit" x="160.6" y="20" width="62.3" height="180.0"/></a>
+<rect x="240.9" y="140.0" width="26.2" height="2" rx="1" style="fill:var(--color-text-muted)"/>
+<text class="lbl" x="254.0" y="132.0" text-anchor="middle">$0</text>
+<text class="ax" x="254.0" y="160.0" text-anchor="middle">Sat 7</text>
+<a href="?from=2026-11-04&to=2026-11-10&day=2026-11-07" tabindex="0" data-tip="7 Nov|No avoidable fuel cost found" aria-label="7 Nov: No avoidable fuel cost found"><rect class="hit" x="222.9" y="20" width="62.3" height="180.0"/></a>
+<path d="M303.2,142.0V72.5H329.4V142.0Z" style="fill:var(--series)"/>
+<path d="M303.2,70.5V62.6q0,-4 4,-4H325.4q4,0 4,4V70.5Z" style="fill:var(--series);opacity:.32"/>
+<text class="lbl-strong" x="316.3" y="50.6" text-anchor="middle">$1.71–2.05</text>
+<text class="ax" x="316.3" y="160.0" text-anchor="middle">Sun 8</text>
+<a href="?from=2026-11-04&to=2026-11-10&day=2026-11-08" tabindex="0" data-tip="8 Nov|$1.71–2.05 · 1 finding" aria-label="8 Nov: $1.71–2.05 · 1 finding"><rect class="hit" x="285.1" y="20" width="62.3" height="180.0"/></a>
+<rect class="gap-mark" x="365.5" y="116.0" width="26.2" height="26" rx="4"/>
+<text class="lbl" x="378.6" y="175.0" text-anchor="middle"><tspan x="378.6" dy="0">not</tspan><tspan x="378.6" dy="13">enough</tspan></text>
+<text class="ax" x="378.6" y="160.0" text-anchor="middle">Mon 9</text>
+<a href="?from=2026-11-04&to=2026-11-10&day=2026-11-09" tabindex="0" data-tip="9 Nov|Not enough" aria-label="9 Nov: Not enough"><rect class="hit" x="347.4" y="20" width="62.3" height="180.0"/></a>
+<rect class="gap-mark" x="427.8" y="116.0" width="26.2" height="26" rx="4"/>
+<text class="lbl" x="440.9" y="175.0" text-anchor="middle"><tspan x="440.9" dy="0">processing</tspan></text>
+<text class="ax" x="440.9" y="160.0" text-anchor="middle">Tue 10</text>
+<a href="?from=2026-11-04&to=2026-11-10&day=2026-11-10" tabindex="0" data-tip="10 Nov|Processing" aria-label="10 Nov: Processing"><rect class="hit" x="409.7" y="20" width="62.3" height="180.0"/></a>
+</svg></div>
+   <p class="cap">Days without a bar were not analysed; the chart names why. Select a day to open it.</p>
+  </section>
+ </div>
+
+</main>
+</div>
+</div>
+<script>
+(function () {
+  var root = document.documentElement, body = document.body;
+  var mq = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null;
+
+  /* Theme: System (default) / Light / Dark, as the v7.2 sheet. Storage wrapped; System if blocked. */
+  function resolved(c) { return c === "dark" || (c === "system" && mq && mq.matches) ? "dark" : "light"; }
+  function applyTheme(c) {
+    root.setAttribute("data-theme-choice", c);
+    root.setAttribute("data-theme", resolved(c));
+    document.querySelectorAll("[data-theme-set]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-theme-set") === c)); });
+  }
+  if (mq && mq.addEventListener) mq.addEventListener("change", function () { if (root.getAttribute("data-theme-choice") === "system") applyTheme("system"); });
+  applyTheme(root.getAttribute("data-theme-choice") || "system");
+
+  /* Owner change notes */
+  var notes = document.getElementById("notes");
+  if (notes) { var sync = function () { body.classList.toggle("show-notes", notes.checked); }; notes.addEventListener("change", sync); sync(); }
+
+  /* Shared date range popover (mock: presets only; the address holds the range in the app) */
+  var rb = document.getElementById("range-btn"), rp = document.getElementById("range-pop");
+  function closeRange(focus) { if (!rp || rp.hidden) return; rp.hidden = true; rb.setAttribute("aria-expanded", "false"); if (focus) rb.focus(); }
+  if (rb && rp) {
+    rb.addEventListener("click", function () { if (rp.hidden) { rp.hidden = false; rb.setAttribute("aria-expanded", "true"); var f = rp.querySelector('[aria-pressed="true"]') || rp.querySelector("button"); if (f) f.focus(); } else closeRange(true); });
+    rp.querySelectorAll("[data-preset]").forEach(function (b) { b.addEventListener("click", function () { rp.querySelectorAll("[data-preset]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }); });
+    rp.querySelectorAll("[data-close]").forEach(function (b) { b.addEventListener("click", function () { closeRange(true); }); });
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-theme-set]");
+    if (t) { var c = t.getAttribute("data-theme-set"); try { if (c === "system") localStorage.removeItem("assetops.theme"); else localStorage.setItem("assetops.theme", c); } catch (err) {} applyTheme(c); return; }
+    if (rp && !rp.hidden && !e.target.closest(".range")) closeRange(false);
+    if (e.target.closest(".menu-btn")) { body.classList.toggle("rail-open"); return; }
+    if (body.classList.contains("rail-open") && !e.target.closest(".rail")) body.classList.remove("rail-open");
+    var tab = e.target.closest("[data-tab]");
+    if (tab) {
+      e.preventDefault();
+      var name = tab.getAttribute("data-tab");
+      document.querySelectorAll("[data-tab]").forEach(function (a) { if (a.closest("nav") === tab.closest("nav")) { if (a.getAttribute("data-tab") === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); } });
+      document.querySelectorAll("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== name; });
+      var hint = document.getElementById("addr"); if (hint && tab.dataset.addr) hint.textContent = tab.dataset.addr;
+      var top = document.querySelector(".tabs"); if (top && top.getBoundingClientRect().top < 0) top.scrollIntoView();
+    }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeRange(true); body.classList.remove("rail-open"); } });
+
+  /* Tooltip: any element with data-tip="Title|detail" (hover and keyboard focus) */
+  var tip = document.createElement("div"); tip.className = "tip"; tip.setAttribute("role", "tooltip"); body.appendChild(tip);
+  function showTip(el) {
+    var p = el.getAttribute("data-tip").split("|");
+    tip.innerHTML = ""; var b = document.createElement("b"); b.textContent = p[0]; tip.appendChild(b);
+    if (p[1]) { var s = document.createElement("span"); s.textContent = p[1]; tip.appendChild(s); }
+    var r = el.getBoundingClientRect(); tip.classList.add("on");
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var x = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), window.innerWidth - w - 8);
+    var y = r.top - h - 8; if (y < 8) y = r.bottom + 8;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function hideTip() { tip.classList.remove("on"); }
+  document.addEventListener("mouseover", function (e) { var el = e.target.closest("[data-tip]"); if (el) showTip(el); else hideTip(); });
+  document.addEventListener("focusin", function (e) { var el = e.target.closest("[data-tip]"); if (el) showTip(el); else hideTip(); });
+  document.addEventListener("scroll", hideTip, true);
+})();
+</script>
+
+</body>
+
+</html>

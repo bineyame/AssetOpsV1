@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-theme-choice="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio</title>
+<!--
+ v7.2 DRAFT, high fidelity (UQ hi-fi mockups, 2026-11-13). The Portfolio landing on the v7.2 look.
+ Layout spec: frontend/mockups/v71/portfolio-tabs.html on the v69 frame (screen manifest: portfolio).
+ All values are illustrative (Kobo, Kisiwa, Cold store, EV depot; 4 to 10 Nov 2026).
+ Built only on the v7.2 token tiers: the five token style blocks below are copied verbatim from
+ frontend/mockups/v72/foundation-sheet.html (UQ-0). Every colour after them is a semantic or component token.
+ Self-contained: no network requests. Font: "Inter" via local() if installed, else the system fallback stack.
+-->
+<script>
+/* Resolve the theme before first paint (same pattern as the v7.2 sheet); storage wrapped in try/catch. */
+(function () {
+  var choice = "system";
+  try { choice = localStorage.getItem("assetops.theme") || "system"; } catch (e) {}
+  var dark = choice === "dark" || (choice === "system" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.setAttribute("data-theme-choice", choice);
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+})();
+</script>
+<style id="tok-primitive">
+/* TIER 1 · PRIMITIVE: raw values with no meaning. Only the semantic tier may reference these. */
+:root {
+  --p-neutral-0: #ffffff;
+  --p-neutral-25: #f8fafd;
+  --p-neutral-50: #f3f6fa;
+  --p-neutral-100: #e9eef5;
+  --p-neutral-200: #d9e0ea;
+  --p-neutral-300: #c2ccd9;
+  --p-neutral-400: #7f8ba1;
+  --p-neutral-500: #5f6c83;
+  --p-neutral-600: #4b5870;
+  --p-neutral-700: #34425a;
+  --p-neutral-750: #263247;
+  --p-neutral-800: #1f2b40;
+  --p-neutral-850: #182234;
+  --p-neutral-900: #121a29;
+  --p-neutral-950: #0c121d;
+  --p-neutral-ink: #17243b;
+  --p-neutral-mist: #e6ebf3;
+  --p-neutral-fog: #aab5c7;
+  --p-neutral-haze: #8f9bb0;
+  --p-navy-700: #2a3d63;
+  --p-navy-800: #213353;
+  --p-navy-900: #16233f;
+  --p-navy-950: #0e1729;
+  --p-navy-text: #c5cfdf;
+  --p-navy-eyebrow: #9aabc4;
+  --p-blue-50: #eef3ff;
+  --p-blue-100: #dce6ff;
+  --p-blue-300: #8fb0fb;
+  --p-blue-400: #6b93f2;
+  --p-blue-600: #1d4ed8;
+  --p-blue-700: #1740b0;
+  --p-blue-800: #234a9e;
+  --p-blue-900: #16264d;
+  --p-green-50: #e5f5ed;
+  --p-green-200: #a9dcc4;
+  --p-green-300: #7fdcae;
+  --p-green-600: #166b50;
+  --p-green-800: #1f5a43;
+  --p-green-900: #0f2c22;
+  --p-amber-50: #fff4e0;
+  --p-amber-200: #f0d08a;
+  --p-amber-300: #f2c46b;
+  --p-amber-600: #8a5a00;
+  --p-amber-800: #6b4a12;
+  --p-amber-900: #2f2410;
+  --p-orange-50: #fff0e5;
+  --p-orange-200: #f6c39f;
+  --p-orange-300: #f9a873;
+  --p-orange-600: #a3420b;
+  --p-orange-800: #74391a;
+  --p-orange-900: #36200f;
+  --p-red-50: #fdecec;
+  --p-red-200: #f2b8b5;
+  --p-red-300: #f9a19a;
+  --p-red-600: #b42318;
+  --p-red-800: #7a2b25;
+  --p-red-900: #3a1715;
+  --p-violet-50: #f2edfc;
+  --p-violet-200: #d6c8f3;
+  --p-violet-300: #c1aef7;
+  --p-violet-600: #5b34b8;
+  --p-violet-800: #4a3a7a;
+  --p-violet-900: #241b42;
+  --p-teal-300: #4fd0c4;
+  --p-teal-600: #0b6f6b;
+  --p-indigo-300: #a7aeff;
+  --p-indigo-600: #4651c8;
+  --p-plum-300: #e79bd8;
+  --p-plum-600: #8f3480;
+  --p-cyan-300: #72c6ef;
+  --p-cyan-600: #0f6a98;
+
+  --p-size-12: 12px;
+  --p-size-13: 13px;
+  --p-size-14: 14px;
+  --p-size-16: 16px;
+  --p-size-18: 18px;
+  --p-size-20: 20px;
+  --p-size-24: 24px;
+  --p-size-30: 30px;
+
+  --p-space-0: 0px;
+  --p-space-1: 4px;
+  --p-space-2: 8px;
+  --p-space-3: 12px;
+  --p-space-4: 16px;
+  --p-space-5: 20px;
+  --p-space-6: 24px;
+  --p-space-8: 32px;
+  --p-space-10: 40px;
+  --p-space-12: 48px;
+  --p-space-16: 64px;
+
+  --p-radius-sm: 4px;
+  --p-radius-md: 8px;
+  --p-radius-lg: 12px;
+  --p-radius-pill: 999px;
+
+  --p-shadow-1: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --p-shadow-2: 0 8px 24px rgba(16,24,40,.14);
+  --p-shadow-3: 0 20px 48px rgba(16,24,40,.22);
+  --p-shadow-dark-2: 0 8px 24px rgba(0,0,0,.5);
+  --p-shadow-dark-3: 0 20px 48px rgba(0,0,0,.6);
+  --p-shadow-none: none;
+
+  --p-breakpoint-phone: 390px;
+  --p-breakpoint-tablet: 760px;
+  --p-breakpoint-desktop: 1100px;
+}
+</style>
+
+<style id="tok-sem-light">
+/* TIER 2 · SEMANTIC, LIGHT: what a value means. Pages and components use only this tier and the component tier. */
+:root, .t-light {
+  --color-bg-page: var(--p-neutral-50);
+  --color-bg-surface: var(--p-neutral-0);
+  --color-bg-sunken: var(--p-neutral-25);
+  --color-bg-hover: var(--p-neutral-100);
+  --color-bg-overlay: var(--p-neutral-0);
+  --color-border-subtle: var(--p-neutral-200);
+  --color-border-control: var(--p-neutral-400);
+  --color-text-primary: var(--p-neutral-ink);
+  --color-text-secondary: var(--p-neutral-600);
+  --color-text-muted: var(--p-neutral-500);
+  --color-text-link: var(--p-blue-600);
+  --color-text-on-accent: var(--p-neutral-0);
+  --color-accent: var(--p-blue-600);
+  --color-accent-hover: var(--p-blue-700);
+  --color-accent-weak: var(--p-blue-50);
+  --color-focus: var(--p-blue-600);
+  --color-rail-bg: var(--p-navy-900);
+  --color-rail-hover: var(--p-navy-800);
+  --color-rail-text: var(--p-navy-text);
+  --color-rail-eyebrow: var(--p-navy-eyebrow);
+  --color-rail-active-bg: var(--p-blue-800);
+  --color-rail-active-text: var(--p-neutral-0);
+  --color-status-complete-bg: var(--p-green-50);
+  --color-status-complete-text: var(--p-green-600);
+  --color-status-complete-border: var(--p-green-200);
+  --color-status-partial-bg: var(--p-amber-50);
+  --color-status-partial-text: var(--p-amber-600);
+  --color-status-partial-border: var(--p-amber-200);
+  --color-status-toofew-bg: var(--p-orange-50);
+  --color-status-toofew-text: var(--p-orange-600);
+  --color-status-toofew-border: var(--p-orange-200);
+  --color-status-noreadings-bg: var(--p-neutral-100);
+  --color-status-noreadings-text: var(--p-neutral-600);
+  --color-status-noreadings-border: var(--p-neutral-300);
+  --color-status-notenough-bg: var(--p-orange-50);
+  --color-status-notenough-text: var(--p-orange-600);
+  --color-status-notenough-border: var(--p-orange-200);
+  --color-status-conflicting-bg: var(--p-red-50);
+  --color-status-conflicting-text: var(--p-red-600);
+  --color-status-conflicting-border: var(--p-red-200);
+  --color-status-processing-bg: var(--p-blue-50);
+  --color-status-processing-text: var(--p-blue-700);
+  --color-status-processing-border: var(--p-blue-100);
+  --color-status-notanalysed-bg: var(--p-neutral-0);
+  --color-status-notanalysed-text: var(--p-neutral-600);
+  --color-status-notanalysed-border: var(--p-neutral-400);
+  --color-provenance-bg: var(--p-violet-50);
+  --color-provenance-text: var(--p-violet-600);
+  --color-provenance-border: var(--p-violet-200);
+  --color-pillar-grow: var(--p-teal-600);
+  --color-pillar-cost: var(--p-indigo-600);
+  --color-pillar-protect: var(--p-plum-600);
+  --color-pillar-assure: var(--p-cyan-600);
+  --color-skeleton: var(--p-neutral-100);
+  --color-skeleton-shine: var(--p-neutral-25);
+  --elevation-card: var(--p-shadow-1);
+  --elevation-popover: var(--p-shadow-2);
+  --elevation-dialog: var(--p-shadow-3);
+  color-scheme: light;
+}
+</style>
+
+<style id="tok-sem-dark">
+/* TIER 2 · SEMANTIC, DARK: same names, dark values. Selected by System (computer setting) or by the user. */
+:root[data-theme="dark"], .t-dark {
+  --color-bg-page: var(--p-neutral-950);
+  --color-bg-surface: var(--p-neutral-900);
+  --color-bg-sunken: var(--p-neutral-950);
+  --color-bg-hover: var(--p-neutral-800);
+  --color-bg-overlay: var(--p-neutral-850);
+  --color-border-subtle: var(--p-neutral-750);
+  --color-border-control: var(--p-neutral-haze);
+  --color-text-primary: var(--p-neutral-mist);
+  --color-text-secondary: var(--p-neutral-fog);
+  --color-text-muted: var(--p-neutral-haze);
+  --color-text-link: var(--p-blue-300);
+  --color-text-on-accent: var(--p-neutral-950);
+  --color-accent: var(--p-blue-300);
+  --color-accent-hover: var(--p-blue-100);
+  --color-accent-weak: var(--p-blue-900);
+  --color-focus: var(--p-blue-300);
+  --color-rail-bg: var(--p-navy-950);
+  --color-rail-hover: var(--p-navy-900);
+  --color-rail-text: var(--p-navy-text);
+  --color-rail-eyebrow: var(--p-navy-eyebrow);
+  --color-rail-active-bg: var(--p-navy-700);
+  --color-rail-active-text: var(--p-neutral-0);
+  --color-status-complete-bg: var(--p-green-900);
+  --color-status-complete-text: var(--p-green-300);
+  --color-status-complete-border: var(--p-green-800);
+  --color-status-partial-bg: var(--p-amber-900);
+  --color-status-partial-text: var(--p-amber-300);
+  --color-status-partial-border: var(--p-amber-800);
+  --color-status-toofew-bg: var(--p-orange-900);
+  --color-status-toofew-text: var(--p-orange-300);
+  --color-status-toofew-border: var(--p-orange-800);
+  --color-status-noreadings-bg: var(--p-neutral-800);
+  --color-status-noreadings-text: var(--p-neutral-fog);
+  --color-status-noreadings-border: var(--p-neutral-700);
+  --color-status-notenough-bg: var(--p-orange-900);
+  --color-status-notenough-text: var(--p-orange-300);
+  --color-status-notenough-border: var(--p-orange-800);
+  --color-status-conflicting-bg: var(--p-red-900);
+  --color-status-conflicting-text: var(--p-red-300);
+  --color-status-conflicting-border: var(--p-red-800);
+  --color-status-processing-bg: var(--p-blue-900);
+  --color-status-processing-text: var(--p-blue-300);
+  --color-status-processing-border: var(--p-blue-800);
+  --color-status-notanalysed-bg: var(--p-neutral-900);
+  --color-status-notanalysed-text: var(--p-neutral-fog);
+  --color-status-notanalysed-border: var(--p-neutral-haze);
+  --color-provenance-bg: var(--p-violet-900);
+  --color-provenance-text: var(--p-violet-300);
+  --color-provenance-border: var(--p-violet-800);
+  --color-pillar-grow: var(--p-teal-300);
+  --color-pillar-cost: var(--p-indigo-300);
+  --color-pillar-protect: var(--p-plum-300);
+  --color-pillar-assure: var(--p-cyan-300);
+  --color-skeleton: var(--p-neutral-800);
+  --color-skeleton-shine: var(--p-neutral-750);
+  --elevation-card: var(--p-shadow-none);
+  --elevation-popover: var(--p-shadow-dark-2);
+  --elevation-dialog: var(--p-shadow-dark-3);
+  color-scheme: dark;
+}
+</style>
+
+<style id="tok-type">
+/* TIER 2 · SEMANTIC TYPE: 8 steps, 12 px floor, 14 px body. Same in both themes. */
+:root {
+  --font-sans: "Inter", "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --text-caption: 400 var(--p-size-12)/16px var(--font-sans);
+  --text-small: 400 var(--p-size-13)/18px var(--font-sans);
+  --text-body: 400 var(--p-size-14)/20px var(--font-sans);
+  --text-body-lg: 400 var(--p-size-16)/24px var(--font-sans);
+  --text-heading-sm: 600 var(--p-size-18)/26px var(--font-sans);
+  --text-heading: 600 var(--p-size-20)/28px var(--font-sans);
+  --text-page-title: 650 var(--p-size-24)/32px var(--font-sans);
+  --text-figure: 650 var(--p-size-30)/38px var(--font-sans);
+}
+</style>
+
+<style id="tok-component">
+/* TIER 3 · COMPONENT: one place per component. Declared on every theme scope so var() resolves per theme. */
+:root, .t-light, .t-dark {
+  --topbar-height: 56px;
+  --topbar-bg: var(--color-bg-surface);
+  --topbar-border: var(--color-border-subtle);
+  --rail-width: 232px;
+  --rail-item-height: 36px;
+  --card-bg: var(--color-bg-surface);
+  --card-border: var(--color-border-subtle);
+  --card-radius: var(--p-radius-lg);
+  --card-padding: var(--p-space-5);
+  --card-shadow: var(--elevation-card);
+  --chip-height: 24px;
+  --chip-radius: var(--p-radius-pill);
+  --chip-padding-x: var(--p-space-2);
+  --button-height: 36px;
+  --button-radius: var(--p-radius-md);
+  --button-padding-x: var(--p-space-4);
+  --button-primary-bg: var(--color-accent);
+  --button-primary-text: var(--color-text-on-accent);
+  --tab-gap: var(--p-space-6);
+  --tab-indicator: var(--color-accent);
+  --table-row-height: 44px;
+  --table-row-height-compact: 36px;
+  --table-head-bg: var(--color-bg-sunken);
+  --notice-bg: var(--color-status-partial-bg);
+  --notice-border: var(--color-status-partial-border);
+  --notice-text: var(--color-text-primary);
+  --skeleton-bg: var(--color-skeleton);
+  --skeleton-radius: var(--p-radius-sm);
+  --focus-ring: 0 0 0 2px var(--color-bg-surface), 0 0 0 4px var(--color-focus);
+}
+</style>
+<style id="app">
+/* ---------- App layer: semantic + component tiers only. No raw colour values below this line. ---------- */
+*{box-sizing:border-box}
+html,body{margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--color-bg-page);color:var(--color-text-primary);font:var(--text-body);-webkit-font-smoothing:antialiased;font-feature-settings:"cv11" 1,"ss01" 1;overflow-x:hidden}
+a{color:var(--color-text-link);text-decoration:none;border-radius:var(--p-radius-sm)}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+button{font:inherit;color:inherit}
+h1,h2,h3,h4,p{margin:0}
+.num,.tnum,td.n{font-variant-numeric:tabular-nums}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:var(--p-size-12)}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.muted{color:var(--color-text-muted)}
+.sec{color:var(--color-text-secondary)}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+svg.i.sm{width:14px;height:14px}
+svg.i.md{width:16px;height:16px}
+svg.i.lg{width:24px;height:24px}
+svg.i.xl{width:32px;height:32px;stroke-width:1.4}
+.ease{transition:background-color .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease,transform .15s ease}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* Draft strip (owner review controls; not product UI) */
+.draftbar{position:relative;z-index:30;display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-4);padding:var(--p-space-2) var(--p-space-6);background:var(--color-bg-overlay);border-bottom:1px solid var(--color-border-subtle);font:var(--text-small)}
+.draftbar .tag{font:var(--text-caption);font-weight:600;color:var(--color-provenance-text);background:var(--color-provenance-bg);border:1px solid var(--color-provenance-border);border-radius:var(--chip-radius);padding:2px var(--p-space-2)}
+.draftbar .ctrls{margin-left:auto;display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-3)}
+.switch{display:inline-flex;align-items:center;gap:var(--p-space-2);cursor:pointer;color:var(--color-text-secondary)}
+.switch input{appearance:none;width:32px;height:18px;border-radius:var(--p-radius-pill);background:var(--color-border-control);position:relative;margin:0;cursor:pointer}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--color-bg-surface);transition:transform .15s ease}
+.switch input:checked{background:var(--color-accent)}
+.switch input:checked::after{transform:translateX(14px)}
+.seg{display:inline-flex;border:1px solid var(--color-border-subtle);border-radius:var(--button-radius);padding:2px;background:var(--color-bg-sunken)}
+.seg button{border:0;background:transparent;color:var(--color-text-secondary);font:var(--text-small);font-weight:500;padding:4px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button:hover{color:var(--color-text-primary)}
+.seg button[aria-pressed="true"]{background:var(--color-bg-surface);color:var(--color-text-primary);font-weight:600;box-shadow:var(--elevation-card);outline:1px solid var(--color-border-subtle)}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:var(--rail-width) minmax(0,1fr);min-height:100vh;background:linear-gradient(to right,var(--color-rail-bg) var(--rail-width),transparent var(--rail-width))}
+.rail{background:var(--color-rail-bg);color:var(--color-rail-text);padding:var(--p-space-4) var(--p-space-3);font:var(--text-small);position:sticky;top:0;height:100vh;overflow:auto}
+.rail .brand{display:flex;align-items:center;gap:var(--p-space-2);font:var(--text-body-lg);font-weight:700;color:var(--color-rail-active-text);margin:0 var(--p-space-1) var(--p-space-4)}
+.rail .brandmark{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:var(--p-radius-md);background:var(--color-rail-active-bg)}
+.rail .eyebrow{font:var(--text-caption);font-weight:600;letter-spacing:.08em;color:var(--color-rail-eyebrow);margin:var(--p-space-4) var(--p-space-2) var(--p-space-1)}
+.rail a{display:flex;align-items:center;gap:10px;height:var(--rail-item-height);padding:0 var(--p-space-2);border-radius:var(--p-radius-md);color:var(--color-rail-text);font-weight:500}
+.rail a:hover{background:var(--color-rail-hover);text-decoration:none}
+.rail a[aria-current="page"]{background:var(--color-rail-active-bg);color:var(--color-rail-active-text);font-weight:600}
+.rail .ws{margin-top:var(--p-space-2);padding:var(--p-space-2);border-radius:var(--p-radius-md);border:1px solid var(--color-rail-hover);font:var(--text-caption);color:var(--color-rail-eyebrow)}
+.rail .ws b{display:block;color:var(--color-rail-text);font:var(--text-small);font-weight:600}
+.work{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;min-height:var(--topbar-height);background:var(--topbar-bg);border-bottom:1px solid var(--topbar-border);display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-3);padding:var(--p-space-2) var(--p-space-6)}
+.topbar .org{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.topbar .org span{color:var(--color-text-muted);font-weight:400}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:var(--p-space-2)}
+.menu-btn{display:none}
+.avatar{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--color-accent-weak);color:var(--color-text-link);font:var(--text-caption);font-weight:700}
+.ctl{display:inline-flex;align-items:center;gap:var(--p-space-2);height:var(--button-height);padding:0 var(--p-space-3);border:1px solid var(--color-border-subtle);border-radius:var(--button-radius);background:var(--color-bg-surface);color:var(--color-text-primary);font:var(--text-small);font-weight:500;cursor:pointer;white-space:nowrap}
+.ctl:hover{background:var(--color-bg-hover);border-color:var(--color-border-control)}
+.ctl .k{color:var(--color-text-muted)}
+.ctl .shared{font:var(--text-caption);font-weight:600;color:var(--color-text-link);background:var(--color-accent-weak);border-radius:var(--chip-radius);padding:1px var(--p-space-2)}
+
+/* Shared date range */
+.range{position:relative}
+.range-pop{position:absolute;right:0;top:calc(100% + 8px);width:340px;max-width:calc(100vw - 32px);background:var(--color-bg-overlay);border:1px solid var(--color-border-subtle);border-radius:var(--p-radius-lg);box-shadow:var(--elevation-popover);padding:var(--p-space-4);z-index:40}
+.range-pop[hidden]{display:none}
+.range-pop h3{font:var(--text-caption);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.06em;margin:0 0 var(--p-space-2)}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:var(--p-space-1);margin:0 0 var(--p-space-3)}
+.presets button{text-align:left;border:1px solid transparent;background:transparent;border-radius:var(--p-radius-md);padding:var(--p-space-2);cursor:pointer;font:var(--text-small);color:var(--color-text-primary)}
+.presets button:hover{background:var(--color-bg-hover)}
+.presets button[aria-pressed="true"]{background:var(--color-accent-weak);border-color:var(--color-status-processing-border);color:var(--color-text-link);font-weight:600}
+.range-pop p{font:var(--text-caption);color:var(--color-text-secondary);margin:0 0 var(--p-space-3)}
+.range-pop .btns{justify-content:flex-end}
+
+/* Canvas */
+.canvas{padding:var(--p-space-8) var(--p-space-8) var(--p-space-16);width:100%;max-width:1360px;margin:0 auto;min-width:0}
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-1);font:var(--text-small);color:var(--color-text-muted);margin:0 0 var(--p-space-2)}
+.crumbs a{color:var(--color-text-secondary)}
+.crumbs svg{width:14px;height:14px}
+.page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:var(--p-space-4);margin:0 0 var(--p-space-6)}
+.page-title{font:var(--text-page-title);letter-spacing:-.015em}
+.page-sub{color:var(--color-text-secondary);margin-top:var(--p-space-1);max-width:72ch}
+.head-meta{display:flex;flex-wrap:wrap;gap:var(--p-space-2);align-items:center}
+.eyebrow-lg{font:var(--text-caption);font-weight:600;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.08em;margin:0 0 var(--p-space-2);display:block}
+.h2{font:var(--text-heading);letter-spacing:-.01em}
+.h3{font:var(--text-heading-sm)}
+.lede{color:var(--color-text-secondary);margin-top:2px}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--p-space-2) var(--p-space-4);margin:0 0 var(--p-space-4)}
+.sec-head a{font:var(--text-small);font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.stack-8>*+*{margin-top:var(--p-space-8)}
+
+/* Tabs (same row on Portfolio and Site pages) */
+.tabs{border-bottom:1px solid var(--color-border-subtle);margin:0 0 var(--p-space-6)}
+.tabs ol{list-style:none;display:flex;gap:var(--tab-gap);margin:0;padding:0 2px;overflow-x:auto;scrollbar-width:none}
+.tabs ol::-webkit-scrollbar{display:none}
+.tabs a{display:inline-flex;align-items:center;gap:6px;color:var(--color-text-secondary);padding:var(--p-space-3) 0 11px;border-bottom:2px solid transparent;white-space:nowrap;border-radius:0}
+.tabs a:hover{color:var(--color-text-primary);text-decoration:none;border-color:var(--color-border-control)}
+.tabs a[aria-current="page"]{color:var(--color-text-primary);border-color:var(--tab-indicator);font-weight:600}
+.tabs .count{font:var(--text-caption);font-weight:600;background:var(--color-bg-hover);color:var(--color-text-secondary);border-radius:var(--chip-radius);padding:0 7px;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+.tabs a[aria-current="page"] .count{background:var(--color-accent-weak);color:var(--color-text-link)}
+.tabs .deep{margin-left:auto}
+
+/* Surfaces */
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);padding:var(--card-padding);box-shadow:var(--card-shadow);min-width:0}
+.card.pad-6{padding:var(--p-space-6)}
+.card-link{display:block;color:inherit}
+.card-link:hover{text-decoration:none;border-color:var(--color-border-control)}
+.notice{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-4);padding:var(--p-space-3) var(--p-space-4);background:var(--notice-bg);border:1px solid var(--notice-border);border-radius:var(--p-radius-lg);color:var(--notice-text);font:var(--text-small);margin:0 0 var(--p-space-6)}
+.notice>svg{color:var(--color-status-partial-text)}
+.notice b{font-weight:600}
+.notice .rule{color:var(--color-text-secondary)}
+.notice .go{margin-left:auto;font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.notice.info{background:var(--color-bg-surface);border-color:var(--color-border-subtle)}
+.notice.info>svg{color:var(--color-text-link)}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:6px;height:var(--chip-height);padding:0 var(--chip-padding-x);border-radius:var(--chip-radius);border:1px solid var(--chip-border);background:var(--chip-bg);color:var(--chip-text);font:var(--text-caption);font-weight:600;white-space:nowrap}
+.chip svg{width:12px;height:12px;flex:none}
+.s-complete{--chip-bg:var(--color-status-complete-bg);--chip-text:var(--color-status-complete-text);--chip-border:var(--color-status-complete-border);--state:var(--color-status-complete-text)}
+.s-partial{--chip-bg:var(--color-status-partial-bg);--chip-text:var(--color-status-partial-text);--chip-border:var(--color-status-partial-border);--state:var(--color-status-partial-text)}
+.s-toofew{--chip-bg:var(--color-status-toofew-bg);--chip-text:var(--color-status-toofew-text);--chip-border:var(--color-status-toofew-border);--state:var(--color-status-toofew-text)}
+.s-noreadings{--chip-bg:var(--color-status-noreadings-bg);--chip-text:var(--color-status-noreadings-text);--chip-border:var(--color-status-noreadings-border);--state:var(--color-status-noreadings-text)}
+.s-notenough{--chip-bg:var(--color-status-notenough-bg);--chip-text:var(--color-status-notenough-text);--chip-border:var(--color-status-notenough-border);--state:var(--color-status-notenough-text)}
+.s-conflicting{--chip-bg:var(--color-status-conflicting-bg);--chip-text:var(--color-status-conflicting-text);--chip-border:var(--color-status-conflicting-border);--state:var(--color-status-conflicting-text)}
+.s-processing{--chip-bg:var(--color-status-processing-bg);--chip-text:var(--color-status-processing-text);--chip-border:var(--color-status-processing-border);--state:var(--color-status-processing-text)}
+.s-notanalysed{--chip-bg:var(--color-status-notanalysed-bg);--chip-text:var(--color-status-notanalysed-text);--chip-border:var(--color-status-notanalysed-border);--state:var(--color-status-notanalysed-text)}
+.s-notanalysed.chip{border-style:dashed}
+.s-provenance{--chip-bg:var(--color-provenance-bg);--chip-text:var(--color-provenance-text);--chip-border:var(--color-provenance-border)}
+.s-neutral{--chip-bg:var(--color-bg-hover);--chip-text:var(--color-text-secondary);--chip-border:var(--color-border-subtle);--state:var(--color-text-muted)}
+.s-accent{--chip-bg:var(--color-accent-weak);--chip-text:var(--color-text-link);--chip-border:var(--color-status-processing-border)}
+.chips{display:flex;flex-wrap:wrap;gap:var(--p-space-2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--p-space-2);height:var(--button-height);padding:0 var(--button-padding-x);border-radius:var(--button-radius);border:1px solid transparent;font:var(--text-body);font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none!important}
+.btn-primary{background:var(--button-primary-bg);color:var(--button-primary-text)}
+.btn-primary:hover{background:var(--color-accent-hover)}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-text-primary);border-color:var(--color-border-control)}
+.btn-secondary:hover{background:var(--color-bg-hover)}
+.btn-quiet{background:transparent;color:var(--color-text-link);padding:0 var(--p-space-2)}
+.btn-quiet:hover{background:var(--color-accent-weak)}
+.btns{display:flex;flex-wrap:wrap;gap:var(--p-space-2);align-items:center}
+
+/* Tables */
+.tbl-wrap{position:relative;background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--card-radius);overflow:auto;box-shadow:var(--card-shadow)}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font:var(--text-body)}
+.tbl th{font:var(--text-caption);font-weight:600;color:var(--color-text-secondary);text-align:left;background:var(--table-head-bg);padding:0 var(--p-space-4);height:40px;border-bottom:1px solid var(--color-border-subtle);white-space:nowrap;letter-spacing:.02em}
+.tbl td{padding:var(--p-space-3) var(--p-space-4);height:var(--table-row-height);border-bottom:1px solid var(--color-border-subtle);vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl tbody tr{transition:background-color .12s ease}
+.tbl tbody tr:hover{background:var(--color-bg-hover)}
+.tbl .n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl .nowrap{white-space:nowrap}
+.tbl small,.tbl .sub{display:block;font:var(--text-caption);color:var(--color-text-muted);margin-top:2px}
+
+/* Owner change notes */
+.note-pin{display:none;margin-bottom:var(--p-space-4)!important;margin:var(--p-space-3) 0 0;padding:var(--p-space-2) var(--p-space-3);border-left:3px solid var(--color-provenance-border);background:var(--color-provenance-bg);color:var(--color-text-primary);border-radius:0 var(--p-radius-md) var(--p-radius-md) 0;font:var(--text-small);max-width:96ch}
+.note-pin::before{content:"Note";display:inline-block;margin-right:var(--p-space-2);font:var(--text-caption);font-weight:700;color:var(--color-provenance-text);text-transform:uppercase;letter-spacing:.06em;padding-top:1px}
+.note-pin.dev::before{content:"Mock deviation"}
+body.show-notes .note-pin{display:block}
+.notes-panel{display:none;margin:0 0 var(--p-space-6);border:1px solid var(--color-provenance-border);background:var(--color-bg-surface);border-radius:var(--p-radius-lg);padding:var(--p-space-4) var(--p-space-5)}
+body.show-notes .notes-panel{display:block}
+.notes-panel h2{font:var(--text-heading-sm);display:flex;align-items:center;gap:var(--p-space-2);margin:0 0 var(--p-space-2)}
+.notes-panel h2 svg{color:var(--color-provenance-text)}
+.notes-panel ul{margin:0;padding-left:var(--p-space-5);display:grid;gap:var(--p-space-2);font:var(--text-small);color:var(--color-text-secondary)}
+.notes-panel b{color:var(--color-text-primary);font-weight:600}
+.notes-panel .k{font:var(--text-caption);font-weight:700;color:var(--color-provenance-text);text-transform:uppercase;letter-spacing:.04em}
+
+/* Tooltip for charts and day cells */
+.tip{position:fixed;z-index:60;pointer-events:none;background:var(--color-bg-overlay);color:var(--color-text-primary);border:1px solid var(--color-border-subtle);box-shadow:var(--elevation-popover);border-radius:var(--p-radius-md);padding:var(--p-space-2) var(--p-space-3);font:var(--text-small);max-width:260px;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease}
+.tip.on{opacity:1;transform:none}
+.tip b{display:block;font-weight:600}
+.tip span{color:var(--color-text-secondary)}
+
+/* Charts: recessive axes, direct labels in text tokens */
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid{stroke:var(--color-border-subtle);stroke-width:1}
+.chart .base{stroke:var(--color-border-control);stroke-width:1}
+.chart .ax{fill:var(--color-text-muted);font:var(--text-caption);font-variant-numeric:tabular-nums}
+.chart .lbl{fill:var(--color-text-secondary);font:var(--text-caption);font-weight:600;font-variant-numeric:tabular-nums}
+.chart .lbl-strong{fill:var(--color-text-primary);font:var(--text-caption);font-weight:700;font-variant-numeric:tabular-nums}
+.chart .gap-mark{fill:var(--color-bg-sunken);stroke:var(--color-border-control);stroke-dasharray:3 3}
+.chart .hit{fill:transparent;cursor:default}
+.chart .hit:hover+.hl,.chart .hit:focus+.hl{opacity:1}
+.chart .hl{opacity:0;transition:opacity .12s ease;stroke:var(--color-text-muted);stroke-width:1;stroke-dasharray:2 2}
+
+@media (max-width:760px){.chart-scroll{overflow-x:auto;margin:0 calc(-1 * var(--p-space-2));padding:0 var(--p-space-2)}.chart-scroll .chart{min-width:400px}}
+@media (max-width:1100px){
+  .canvas{padding:var(--p-space-6) var(--p-space-6) var(--p-space-12)}
+}
+@media (max-width:760px){
+  .shell{grid-template-columns:minmax(0,1fr);background:none}
+  .rail{display:none;position:fixed;inset:0 auto 0 0;width:min(280px,85vw);z-index:50;height:auto;box-shadow:var(--elevation-dialog)}
+  body.rail-open .rail{display:block}
+  .menu-btn{display:inline-flex;width:36px;height:36px;align-items:center;justify-content:center;border:1px solid var(--color-border-subtle);border-radius:var(--button-radius);background:var(--color-bg-surface);cursor:pointer;padding:0}
+  .topbar{padding:var(--p-space-2) var(--p-space-4)}
+  .topbar .org{flex:1 1 auto;font:var(--text-small);font-weight:600}
+  .topbar .org span{display:none}
+  .topbar .right{margin-left:0;width:100%}
+  .range{flex:1;min-width:0}
+  .range .ctl{width:100%;justify-content:flex-start}
+  .range .ctl .hide-sm{display:none}
+  .range-pop{left:0;right:auto}
+  .canvas{padding:var(--p-space-5) var(--p-space-4) var(--p-space-12)}
+  .draftbar{padding:var(--p-space-2) var(--p-space-4)}
+  .draftbar .ctrls{margin-left:0}
+  .seg button span{display:none}
+  .page-title{font:var(--text-heading)}
+  .tabs .deep{margin-left:0}
+  .tabs{margin-left:calc(-1 * var(--p-space-4));margin-right:calc(-1 * var(--p-space-4));padding:0 var(--p-space-4)}
+  .notice .go{margin-left:0}
+}
+</style>
+
+<style id="page">
+.status-line{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2) var(--p-space-3);color:var(--color-text-secondary);font:var(--text-small)}
+.status-line .sites{display:inline-flex;align-items:center;gap:var(--p-space-3)}
+.status-line .sites span{display:inline-flex;align-items:center;gap:4px}
+.notice details{flex-basis:100%;margin-top:var(--p-space-1)}
+.notice summary{cursor:pointer;color:var(--color-text-link);font-weight:600;width:max-content;border-radius:var(--p-radius-sm)}
+.defs{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--p-space-2) var(--p-space-6);margin:var(--p-space-3) 0 0;padding:0}
+.defs div{display:flex;gap:var(--p-space-2);align-items:flex-start}
+.defs dt{display:none}
+.defs dd{margin:0;color:var(--color-text-secondary)}
+.defs .chip{flex:none}
+.site-states{display:flex;flex-wrap:wrap;gap:var(--p-space-2) var(--p-space-4)}
+.site-states>span{display:inline-flex;align-items:center;gap:6px}
+.site-states .glyph{width:12px;height:12px;color:var(--state)}
+
+/* Outcome cards */
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--p-space-4);margin:0 0 var(--p-space-4)}
+.kpi{display:flex;flex-direction:column;gap:var(--p-space-2);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--pillar)}
+.kpi .top{display:flex;align-items:center;justify-content:space-between;gap:var(--p-space-2)}
+.pillar{display:flex;align-items:center;gap:var(--p-space-2);font:var(--text-small);font-weight:600;color:var(--color-text-primary)}
+.pillar i{width:10px;height:10px;border-radius:3px;background:var(--pillar);flex:none}
+.kpi .why{font:var(--text-small);font-weight:600}
+.kpi .fig{font:var(--text-figure);font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin-top:var(--p-space-1)}
+.kpi .fig small{font:var(--text-body);color:var(--color-text-secondary);margin-left:6px;letter-spacing:0}
+.kpi .fig.na{font:var(--text-heading);color:var(--color-text-secondary)}
+.kpi .sent{color:var(--color-text-secondary);font:var(--text-small);min-height:36px}
+.kpi .viz{margin-top:auto;padding-top:var(--p-space-2);--series:var(--pillar)}
+.kpi .viz-cap{display:flex;justify-content:space-between;font:var(--text-caption);color:var(--color-text-muted);margin-top:2px}
+.kpi .foot{display:flex;flex-wrap:wrap;gap:var(--p-space-2);align-items:center;padding-top:var(--p-space-3);border-top:1px solid var(--color-border-subtle);margin-top:var(--p-space-2)}
+.kpi .basis{font:var(--text-caption);color:var(--color-text-muted);flex-basis:100%}
+.p-grow{--pillar:var(--color-pillar-grow)}.p-cost{--pillar:var(--color-pillar-cost)}.p-protect{--pillar:var(--color-pillar-protect)}.p-assure{--pillar:var(--color-pillar-assure)}
+.kpi .empty-viz{display:flex;align-items:center;gap:var(--p-space-2);padding:var(--p-space-3);border:1px dashed var(--color-border-subtle);border-radius:var(--p-radius-md);background:var(--color-bg-sunken);font:var(--text-small);color:var(--color-text-secondary)}
+.spark{max-height:56px}
+.cover-dots{display:inline-flex;gap:4px;align-items:center}
+.cover-dots .glyph{width:12px;height:12px;color:var(--state)}
+
+/* Contents strip */
+.toc{display:flex;flex-wrap:wrap;gap:var(--p-space-2);margin:0 0 var(--p-space-8);align-items:center}
+.toc a{display:inline-flex;align-items:center;gap:var(--p-space-2);height:32px;padding:0 var(--p-space-3);border-radius:var(--chip-radius);border:1px solid var(--color-border-subtle);background:var(--color-bg-surface);color:var(--color-text-primary);font:var(--text-small)}
+.toc a:hover{text-decoration:none;border-color:var(--color-border-control);background:var(--color-bg-hover)}
+.toc a b{font-variant-numeric:tabular-nums;font-weight:700}
+.toc .cap{font:var(--text-caption);color:var(--color-text-muted);margin-left:var(--p-space-2)}
+
+.two{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--p-space-6);align-items:start}
+.side{display:grid;gap:var(--p-space-4)}
+
+/* Ranked findings */
+.ranked{list-style:none;margin:0;padding:0}
+.ranked li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:var(--p-space-4);padding:var(--p-space-4) 0;border-top:1px solid var(--color-border-subtle);align-items:start}
+.ranked li:first-child{border-top:0;padding-top:0}
+.rank{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--p-radius-md);background:var(--color-bg-sunken);border:1px solid var(--color-border-subtle);font:var(--text-small);font-weight:700;font-variant-numeric:tabular-nums}
+.ranked h3{font:var(--text-body);font-weight:600}
+.ranked h3 a{color:var(--color-text-primary)}
+.ranked .where{display:block;font:var(--text-small);color:var(--color-text-secondary);margin-top:2px}
+.ranked .where svg{color:var(--color-text-muted);display:inline-block;vertical-align:-2px;margin-right:6px}
+.ranked .cons{margin-top:var(--p-space-2);font:var(--text-small)}
+.ranked .cons b{font-weight:600;font-variant-numeric:tabular-nums}
+.ranked .cons span{color:var(--color-text-muted)}
+.ranked .act{margin-top:var(--p-space-2);font:var(--text-small);font-weight:600;display:inline-flex;align-items:center;gap:4px}
+.ranked .meta{display:grid;gap:var(--p-space-2);justify-items:end;text-align:right}
+.pc{font:var(--text-caption);color:var(--color-text-muted)}
+.pc b{display:block;justify-content:flex-end;font:var(--text-small);font-weight:600;color:var(--color-text-primary)}
+.lvl{display:inline-flex;align-items:center;gap:6px}
+.lvl i{display:inline-flex;gap:2px}
+.lvl i u{display:block;width:4px;height:10px;border-radius:1px;background:var(--color-border-subtle)}
+.lvl i u.on{background:var(--color-text-secondary)}
+
+.chart-card .series-key{display:flex;flex-wrap:wrap;gap:var(--p-space-4);font:var(--text-caption);color:var(--color-text-secondary);margin:var(--p-space-1) 0 var(--p-space-3)}
+.chart-card .series-key span{display:inline-flex;align-items:center;gap:6px}
+.chart-card .series-key i{width:10px;height:10px;border-radius:2px;background:var(--series)}
+.chart-card .series-key i.lt{opacity:.32}
+.chart-card{--series:var(--color-pillar-cost)}
+.chart-card .total{font:var(--text-heading);font-variant-numeric:tabular-nums;margin-top:var(--p-space-2)}
+.chart-card .total small{font:var(--text-small);color:var(--color-text-secondary);margin-left:var(--p-space-1)}
+.chart-card .cap{font:var(--text-caption);color:var(--color-text-muted);margin-top:var(--p-space-2)}
+.evidence{display:flex;gap:var(--p-space-3);align-items:flex-start;background:var(--color-bg-sunken)}
+.evidence .tile{display:grid;place-items:center;width:36px;height:36px;border-radius:var(--p-radius-md);background:var(--color-accent-weak);color:var(--color-text-link);flex:none}
+.evidence h3{font:var(--text-body);font-weight:600}
+.evidence p{color:var(--color-text-secondary);font:var(--text-small);margin-top:2px}
+.evidence a{display:inline-flex;align-items:center;gap:4px;font:var(--text-small);font-weight:600;margin-top:var(--p-space-2)}
+
+/* Tables in tabs */
+.site-cell{display:flex;align-items:center;gap:var(--p-space-2);font-weight:600;white-space:nowrap}
+.site-cell svg{color:var(--color-text-muted)}
+.site-cell small{font-weight:400}
+.matrix td{vertical-align:top}
+.matrix .chip{margin-bottom:4px}
+.matrix .m{display:block;font:var(--text-small);color:var(--color-text-secondary)}
+.matrix th[scope="row"]{background:transparent;font:var(--text-small);font-weight:600;color:var(--color-text-primary);height:auto;padding:var(--p-space-3) var(--p-space-4);white-space:normal;min-width:200px;border-bottom:1px solid var(--color-border-subtle)}
+.matrix tbody tr:last-child th{border-bottom:0}
+.strip{display:inline-flex;gap:3px}
+.strip a{display:grid;place-items:center;width:28px;height:28px;border-radius:var(--p-radius-sm);background:var(--chip-bg);border:1px solid var(--chip-border);color:var(--chip-text);font:var(--text-caption);font-weight:600;font-variant-numeric:tabular-nums;text-decoration:none}
+.strip a:hover{border-color:var(--color-text-secondary)}
+.filters{display:flex;flex-wrap:wrap;gap:var(--p-space-2);align-items:center;margin:0 0 var(--p-space-4)}
+.filters .count{margin-left:auto;font:var(--text-small);color:var(--color-text-secondary)}
+.opp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--p-space-6)}
+.bigfig{font:var(--text-figure);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.loop{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--p-space-4)}
+.loop li b{display:block;font:var(--text-heading);font-variant-numeric:tabular-nums}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:var(--p-space-2);font:var(--text-small);color:var(--color-text-secondary);margin-top:var(--p-space-4)}
+.flow svg{color:var(--color-text-muted)}
+
+@media (max-width:1240px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1100px){.two,.opp{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+  .kpis{grid-template-columns:minmax(0,1fr)}
+  .ranked li{grid-template-columns:32px minmax(0,1fr)}
+  .ranked .meta{grid-column:2;justify-items:start;text-align:left;grid-auto-flow:column;justify-content:start;gap:var(--p-space-4)}
+  .loop{grid-template-columns:minmax(0,1fr)}
+  .toc .cap{flex-basis:100%;margin-left:0}
+}
+.sbars{display:grid;gap:var(--p-space-2)}
+.sbar{display:grid;grid-template-columns:52px minmax(0,1fr) auto;align-items:center;gap:var(--p-space-2);font:var(--text-caption);color:var(--color-text-secondary)}
+.sbar b{display:flex;gap:2px;height:10px}
+.sbar b i{display:block;height:100%;background:var(--pillar);border-radius:0 2px 2px 0}
+.sbar b i:first-child{border-radius:2px 0 0 2px}
+.sbar b i.lt{opacity:.32;border-radius:0 3px 3px 0}
+.sbar em{font-style:normal;font-weight:600;color:var(--color-text-primary)}
+.pc b.lvl{display:flex;gap:6px;align-items:center}
+.kpi .top{min-height:40px;align-items:flex-start}
+
+</style>
+</head>
+<body class="show-notes">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+ <defs>
+  <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z M12 7a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5z M3 8l9 5 9-5 M12 13v8"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><path d="M11 4a7 7 0 1 0 0 14a7 7 0 1 0 0-14 M20 20l-4-4"/></symbol>
+  <symbol id="i-check-sq" viewBox="0 0 24 24"><path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M8 12l3 3 5-6"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3.5 17.5l3 3 5.8-5.8a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-dollar" viewBox="0 0 24 24"><path d="M12 2v20 M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 2v7L3.6 19a2 2 0 0 0 1.8 3h13.2a2 2 0 0 0 1.8-3L15 9V2 M7.5 2h9 M6.2 15h11.6"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><path d="M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z M4 10h16 M8 3v4 M16 3v4"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14 M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5 M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4 M7 9l5-5 5 5 M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11 M7 10l5 5 5-5 M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z M14 3v5h5 M8.5 13h7 M8.5 17h4.5"/></symbol>
+  <symbol id="i-file-csv" viewBox="0 0 24 24"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z M14 3v5h5 M8 12h8v6H8z M8 15h8 M12 12v6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M8 12.5l2.8 2.8L16.5 9.5"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M9 9l6 6 M15 9l-6 6"/></symbol>
+  <symbol id="i-pause-circle" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M10 9v6 M14 9v6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.2L2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z M12 9.5v4.5 M12 17.2v.01"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 11v5 M12 8v.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-loader" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8a4 4 0 1 0 0 8 M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v2 M12 20v2 M2 12h2 M20 12h2 M5 5l1.5 1.5 M17.5 17.5L19 19 M19 5l-1.5 1.5 M6.5 17.5L5 19"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z M8 20h8 M12 16v4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16 M4 12h16 M4 17h16"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2.5L4.5 13.5h6.5l-1 8 8.5-11h-6.5z"/></symbol>
+  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 2.5v19 M3.8 7.2l16.4 9.6 M20.2 7.2L3.8 16.8 M9.5 4.5L12 7l2.5-2.5 M9.5 19.5L12 17l2.5 2.5"/></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 2.5v4.5 M15 2.5v4.5 M6.5 7h11v3.5a5.5 5.5 0 0 1-11 0z M12 16v5.5"/></symbol>
+  <symbol id="i-trend" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8 M15 7h6v6"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-5 4V5a1 1 0 0 1 1-1z M8 9h8 M8 12h5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.6-4.5 M4.5 3v4h4 M4 13a8 8 0 0 0 14.6 4.5 M19.5 21v-4h-4"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z M3 13l9 5 9-5"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18 M12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9 M12 11.5v1"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4 17a8 8 0 1 1 16 0 M12 17l4-5"/></symbol>
+  <!-- Day-state glyphs (12 px, filled; same shapes as the v7.2 sheet chips) -->
+  <symbol id="g-complete" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.5" fill="currentColor"/><path d="M3.5 6.2l1.7 1.6L8.6 4.4" fill="none" stroke="var(--chip-bg, var(--color-bg-surface))" stroke-width="1.6"/></symbol>
+  <symbol id="g-partial" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 1a5 5 0 0 1 0 10z" fill="currentColor"/></symbol>
+  <symbol id="g-toofew" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 6V1a5 5 0 0 1 5 5z" fill="currentColor"/></symbol>
+  <symbol id="g-noreadings" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="g-notenough" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 6h5" stroke="currentColor" stroke-width="1.6"/></symbol>
+  <symbol id="g-conflicting" viewBox="0 0 12 12"><path d="M6 .8L11.4 10.8H.6z" fill="currentColor"/><path d="M6 4.5v3 M6 8.8v.6" stroke="var(--chip-bg, var(--color-bg-surface))" stroke-width="1.4"/></symbol>
+  <symbol id="g-processing" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.2 1.8"/></symbol>
+  <symbol id="g-notanalysed" viewBox="0 0 12 12"><path d="M6 3v3l2 1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6" cy="6" r="5" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="g-findings" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5.5" fill="currentColor"/><path d="M6 3.2v3.4 M6 8.4v.4" stroke="var(--chip-bg, var(--color-bg-surface))" stroke-width="1.5" stroke-linecap="round"/></symbol>
+ </defs>
+</svg>
+
+<div class="draftbar" role="region" aria-label="Draft controls">
+ <span class="tag">v7.2 DRAFT</span><strong>Portfolio · high fidelity</strong><span class="muted">for owner approval · values are illustrative</span>
+ <div class="ctrls">
+  <label class="switch"><input type="checkbox" id="notes" checked> Show change notes</label>
+  <div class="seg" role="group" aria-label="Theme">
+   <button type="button" data-theme-set="system" aria-pressed="false" title="Follow the computer"><svg class="i sm" aria-hidden="true"><use href="#i-monitor"/></svg><span>System</span></button>
+   <button type="button" data-theme-set="light" aria-pressed="false" title="Light"><svg class="i sm" aria-hidden="true"><use href="#i-sun"/></svg><span>Light</span></button>
+   <button type="button" data-theme-set="dark" aria-pressed="false" title="Dark"><svg class="i sm" aria-hidden="true"><use href="#i-moon"/></svg><span>Dark</span></button>
+  </div>
+ </div>
+</div>
+<div class="shell">
+<aside class="rail" aria-label="Main menu">
+<div class="brand"><span class="brandmark"><svg class="i md" aria-hidden="true"><use href="#i-activity"/></svg></span>AssetOps</div>
+<nav aria-label="Main">
+<div class="eyebrow">OPERATIONS</div>
+<a href="portfolio-hifi.html" aria-current="page"><svg class="i" aria-hidden="true"><use href="#i-grid"/></svg>Portfolio</a>
+<a href="site-overview-hifi.html"><svg class="i" aria-hidden="true"><use href="#i-pin"/></svg>Sites</a>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-box"/></svg>Assets</a>
+<div class="eyebrow">INTELLIGENCE</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg>Findings</a>
+<div class="eyebrow">WORK</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-check-sq"/></svg>Actions</a>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-wrench"/></svg>Maintenance</a>
+<div class="eyebrow">ASSURANCE</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg>Evidence</a>
+<div class="eyebrow">BUSINESS</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-dollar"/></svg>Financials</a>
+<div class="eyebrow">WORKSPACE</div>
+<a href="#"><svg class="i" aria-hidden="true"><use href="#i-flask"/></svg>Simulator Lab</a>
+</nav><div class="ws"><b>Demo workspace</b>4 simulated sites · illustrative records</div></aside>
+<div class="work">
+<header class="topbar">
+ <button type="button" class="menu-btn" aria-label="Open the menu"><svg class="i md" aria-hidden="true"><use href="#i-menu"/></svg></button>
+ <div class="org">Bineyame Operations <span>/ Demo estate</span></div>
+ <div class="right"><div class="range">
+ <button type="button" class="ctl" id="range-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="range-pop" aria-label="Date range for every page: Last 7 days, 4 to 10 November 2026. Change">
+  <svg class="i md" aria-hidden="true"><use href="#i-cal"/></svg><span class="k hide-sm">Last 7 days</span><span class="num">4 – 10 Nov 2026</span><span class="shared hide-sm">All pages</span><svg class="i sm" aria-hidden="true"><use href="#i-chev-down"/></svg>
+ </button>
+ <div class="range-pop" id="range-pop" role="dialog" aria-label="Date range for every page" hidden>
+  <h3>Date range · used by every page</h3>
+  <div class="presets">
+   <button type="button" data-preset aria-pressed="false">Yesterday</button>
+   <button type="button" data-preset aria-pressed="true">Last 7 days</button>
+   <button type="button" data-preset aria-pressed="false">Last 30 days</button>
+   <button type="button" data-preset aria-pressed="false">This month</button>
+   <button type="button" data-preset aria-pressed="false">Last month</button>
+   <button type="button" data-preset aria-pressed="false">Custom…</button>
+  </div>
+  <p>One range for the whole app. Menu links, tabs and links between pages keep it, and the page address holds it, so a copied link opens exactly this view.</p>
+  <div class="btns"><button type="button" class="btn btn-secondary" data-close>Cancel</button><button type="button" class="btn btn-primary" data-close>Apply</button></div>
+ </div>
+</div><span class="avatar" aria-label="Signed in as BY">BY</span></div>
+</header>
+<main class="canvas" id="main">
+
+ <aside class="notes-panel" aria-labelledby="np">
+  <h2 id="np"><svg class="i md" aria-hidden="true"><use href="#i-note"/></svg>Owner notes · Portfolio at high fidelity</h2>
+  <ul>
+   <li><b>Layout spec:</b> v7.1 <span class="mono">portfolio-tabs.html</span> (coverage once above one tab row; Overview, Act first, Outcomes by site, Opportunity, What changed, Scope &amp; coverage) on the v69 frame. Look: v7.2 tokens only.</li>
+   <li><b>Values are illustrative</b> (4 – 10 Nov 2026, Kobo, Kisiwa, Cold store, EV depot). Sums are kept consistent: Kobo $3.31–3.97 + Kisiwa $5.81–6.97 = $9.12–10.94, the same as the bars in the day chart.</li>
+   <li><span class="k">Mock deviation</span> Each outcome card carries one small chart (spare solar per day, cost by site, disruption days). v69/v7.1 cards have none. Every chart shows only values the card already states or that the day rows already hold.</li>
+   <li><span class="k">Mock deviation</span> "Avoidable fuel cost by day" sits beside the top three findings on the Overview. It is new; v7.1 has no chart there. The per-day amounts are the same lines the Financials page prices; no new measure.</li>
+   <li><span class="k">Mock deviation</span> Four Sites instead of v7.1's three (Kisiwa added, GreenHarvest and Depot shown as Cold store and EV depot) to match the current demo estate.</li>
+  </ul>
+ </aside>
+
+ <div class="page-head">
+  <div>
+   <h1 class="page-title">Portfolio Value &amp; Operations</h1>
+   <p class="page-sub">Operating decisions across the estate: cost, service, productive use and asset value</p>
+  </div>
+  <div class="status-line">
+   <span class="chip s-partial"><svg class="i sm" aria-hidden="true"><use href="#i-alert"/></svg>Needs attention</span>
+   <span class="sites"><span><svg class="i sm" aria-hidden="true"><use href="#i-zap"/></svg>2 mini-grids</span><span><svg class="i sm" aria-hidden="true"><use href="#i-snow"/></svg>1 cold room</span><span><svg class="i sm" aria-hidden="true"><use href="#i-plug"/></svg>1 charging hub</span></span>
+  </div>
+ </div>
+
+ <div class="notice" role="note" aria-label="Days and readings">
+  <svg class="i md" aria-hidden="true"><use href="#i-info"/></svg>
+  <b>Some days have incomplete readings.</b>
+  <span class="site-states">
+   <span class="s-noreadings"><svg class="glyph" aria-hidden="true"><use href="#g-noreadings"/></svg>Kobo: 6 Nov no readings received</span>
+   <span class="s-complete"><svg class="glyph" aria-hidden="true"><use href="#g-complete"/></svg>Kisiwa, Cold store: complete readings on 7 of 7 days</span>
+   <span class="s-partial"><svg class="glyph" aria-hidden="true"><use href="#g-partial"/></svg>EV depot: 10 Nov partial readings</span>
+  </span>
+  <span class="rule">Figures on this page count days with complete readings.</span>
+  <a class="go" href="#" data-tab="scope">Which days, and why<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+  <details>
+   <summary>What these words mean</summary>
+   <dl class="defs">
+    <div><dt>Complete</dt><dd><span class="chip s-complete"><svg aria-hidden="true"><use href="#g-complete"/></svg>Complete readings</span> Readings arrived for at least 80% of the hours the day needed. The day is counted.</dd></div>
+    <div><dt>Partial</dt><dd><span class="chip s-partial"><svg aria-hidden="true"><use href="#g-partial"/></svg>Partial readings</span> 25–80% of those hours. The day is shown, and named wherever it is used.</dd></div>
+    <div><dt>Too few</dt><dd><span class="chip s-toofew"><svg aria-hidden="true"><use href="#g-toofew"/></svg>Too few readings</span> Under 25% of those hours. The day is not counted.</dd></div>
+    <div><dt>None</dt><dd><span class="chip s-noreadings"><svg aria-hidden="true"><use href="#g-noreadings"/></svg>No readings received</span> Nothing arrived from the site for that day.</dd></div>
+    <div><dt>Processing</dt><dd><span class="chip s-processing"><svg aria-hidden="true"><use href="#g-processing"/></svg>Still processing</span> Readings arrived and are being analysed; results follow.</dd></div>
+    <div><dt>Not analysed</dt><dd><span class="chip s-notanalysed"><svg aria-hidden="true"><use href="#g-notanalysed"/></svg>Not analysed yet</span> The day has not been through the site analysis yet.</dd></div>
+   </dl>
+  </details>
+ </div>
+
+ <nav class="tabs" aria-label="Portfolio sections"><ol>
+  <li><a href="#" data-tab="overview" data-addr="/portfolio?from=2026-11-04&amp;to=2026-11-10" aria-current="page">Overview</a></li>
+  <li><a href="#" data-tab="act" data-addr="/portfolio/act-first?from=2026-11-04&amp;to=2026-11-10">Act first <span class="count">6</span></a></li>
+  <li><a href="#" data-tab="outcomes" data-addr="/portfolio/outcomes?from=2026-11-04&amp;to=2026-11-10">Outcomes by site</a></li>
+  <li><a href="#" data-tab="opp" data-addr="/portfolio/opportunity?from=2026-11-04&amp;to=2026-11-10">Opportunity <span class="count">1</span></a></li>
+  <li><a href="#" data-tab="changes" data-addr="/portfolio/changes?from=2026-11-04&amp;to=2026-11-10">What changed <span class="count">3</span></a></li>
+  <li class="deep"><a href="#" data-tab="scope" data-addr="/portfolio/scope?from=2026-11-04&amp;to=2026-11-10">Scope &amp; coverage</a></li>
+ </ol></nav>
+ <p class="note-pin" style="margin:-12px 0 var(--p-space-6)">Each tab has its own address and the range travels with it: <span class="mono" id="addr">/portfolio?from=2026-11-04&amp;to=2026-11-10</span></p>
+
+ <!-- ================= OVERVIEW ================= -->
+ <section data-panel="overview" aria-label="Overview">
+  <div class="kpis">
+   <article class="card kpi p-grow">
+    <div class="top"><h2 class="pillar"><i aria-hidden="true"></i>Grow revenue</h2><a class="why" href="#" data-tab="opp">Why?</a></div>
+    <div class="fig num">18–20<small>kW unused</small></div>
+    <p class="sent">Daytime solar at Kobo that no one is using yet. Income from it is not measured yet.</p>
+    <div class="viz"><svg class="chart spark" viewBox="0 0 220 56" role="img" aria-label="Kobo daytime spare solar, peak per day, kilowatts">
+<path d="M2.0,50 L2.0,23.6 L32.7,28.6 L32.7,50 Z" style="fill:var(--series);opacity:.12"/>
+<polyline points="2.0,23.6 32.7,28.6" fill="none" style="stroke:var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M94.0,50 L94.0,21.1 L124.7,30.5 L155.3,18.6 L186.0,25.5 L186.0,50 Z" style="fill:var(--series);opacity:.12"/>
+<polyline points="94.0,21.1 124.7,30.5 155.3,18.6 186.0,25.5" fill="none" style="stroke:var(--series)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<line x1="63.3" x2="63.3" y1="6" y2="50" class="grid" stroke-dasharray="2 3"/>
+<circle cx="186.0" cy="25.5" r="3.5" style="fill:var(--series);stroke:var(--card-bg)" stroke-width="2"/>
+<text class="lbl" x="194.0" y="29.5">18.9</text>
+<rect class="hit" x="-13.3" y="0" width="30.7" height="56" data-tip="4 Nov|19.2 kW peak spare"/>
+<rect class="hit" x="17.3" y="0" width="30.7" height="56" data-tip="5 Nov|18.4 kW peak spare"/>
+<rect class="hit" x="48.0" y="0" width="30.7" height="56" data-tip="6 Nov|No readings received"/>
+<rect class="hit" x="78.7" y="0" width="30.7" height="56" data-tip="7 Nov|19.6 kW peak spare"/>
+<rect class="hit" x="109.3" y="0" width="30.7" height="56" data-tip="8 Nov|18.1 kW peak spare"/>
+<rect class="hit" x="140.0" y="0" width="30.7" height="56" data-tip="9 Nov|20.0 kW peak spare"/>
+<rect class="hit" x="170.7" y="0" width="30.7" height="56" data-tip="10 Nov|18.9 kW peak spare"/>
+</svg><div class="viz-cap"><span>Peak spare solar per day · Kobo</span><span>6 Nov: no readings</span></div></div>
+    <div class="foot"><span class="chip s-accent"><svg class="i sm" aria-hidden="true"><use href="#i-trend"/></svg>Opportunity</span><span class="chip s-notanalysed">Revenue not measured yet</span></div>
+   </article>
+   <article class="card kpi p-cost">
+    <div class="top"><h2 class="pillar"><i aria-hidden="true"></i>Optimize cost and efficiency</h2><a class="why" href="#">Why?</a></div>
+    <div class="fig num">$9.12–10.94</div>
+    <p class="sent">Estimated avoidable diesel at Kobo and Kisiwa, on days with complete readings.</p>
+    <div class="viz">
+     <div class="sbars" role="img" aria-label="By site: Kobo 3.31 to 3.97 dollars, Kisiwa 5.81 to 6.97 dollars">
+      <div class="sbar"><span>Kobo</span><b><i style="width:47%"></i><i class="lt" style="width:10%"></i></b><em class="num">$3.31–3.97</em></div>
+      <div class="sbar"><span>Kisiwa</span><b><i style="width:83%"></i><i class="lt" style="width:17%"></i></b><em class="num">$5.81–6.97</em></div>
+     </div>
+    </div>
+    <div class="foot"><span class="chip s-partial"><svg aria-hidden="true"><use href="#g-partial"/></svg>Partial: Kobo 4 of 7 days</span><span class="basis">Modelled fuel + scenario maintenance · one-hour windows</span></div>
+   </article>
+   <article class="card kpi p-protect">
+    <div class="top"><h2 class="pillar"><i aria-hidden="true"></i>Protect asset and capital</h2><a class="why" href="#">Why?</a></div>
+    <div class="fig num">2<small>sites disrupted</small></div>
+    <p class="sent">Cooling interrupted at the cold store; one charging session cut at the EV depot.</p>
+    <div class="viz"><svg class="chart spark" viewBox="0 0 220 40" role="img" aria-label="Days with a service disruption">
+<line class="grid" x1="8" x2="212" y1="14" y2="14"/>
+<circle cx="8.0" cy="14" r="3" style="fill:var(--color-border-control)"/>
+<text class="ax" x="8.0" y="36" text-anchor="middle">4</text>
+<rect class="hit" x="-9.0" y="0" width="34.0" height="40" data-tip="4 Nov|No disruption recorded"/>
+<circle cx="42.0" cy="14" r="6" style="fill:var(--series);stroke:var(--card-bg)" stroke-width="2"/>
+<text class="ax" x="42.0" y="36" text-anchor="middle">5</text>
+<rect class="hit" x="25.0" y="0" width="34.0" height="40" data-tip="5 Nov|Cold store: cooling interrupted 25–35 min"/>
+<circle cx="76.0" cy="14" r="3" style="fill:var(--color-border-control)"/>
+<text class="ax" x="76.0" y="36" text-anchor="middle">6</text>
+<rect class="hit" x="59.0" y="0" width="34.0" height="40" data-tip="6 Nov|No disruption recorded"/>
+<circle cx="110.0" cy="14" r="3" style="fill:var(--color-border-control)"/>
+<text class="ax" x="110.0" y="36" text-anchor="middle">7</text>
+<rect class="hit" x="93.0" y="0" width="34.0" height="40" data-tip="7 Nov|No disruption recorded"/>
+<circle cx="144.0" cy="14" r="6" style="fill:var(--series);stroke:var(--card-bg)" stroke-width="2"/>
+<text class="ax" x="144.0" y="36" text-anchor="middle">8</text>
+<rect class="hit" x="127.0" y="0" width="34.0" height="40" data-tip="8 Nov|EV depot: charging session interrupted"/>
+<circle cx="178.0" cy="14" r="3" style="fill:var(--color-border-control)"/>
+<text class="ax" x="178.0" y="36" text-anchor="middle">9</text>
+<rect class="hit" x="161.0" y="0" width="34.0" height="40" data-tip="9 Nov|No disruption recorded"/>
+<circle cx="212.0" cy="14" r="3" style="fill:var(--color-border-control)"/>
+<text class="ax" x="212.0" y="36" text-anchor="middle">10</text>
+<rect class="hit" x="195.0" y="0" width="34.0" height="40" data-tip="10 Nov|No disruption recorded"/>
+</svg><div class="viz-cap"><span>Days with a disruption · 4 – 10 Nov</span></div></div>
+    <div class="foot"><span class="chip s-neutral">Loss not priced</span><span class="basis">Measured events and 4 early warnings, counted separately</span></div>
+   </article>
+   <article class="card kpi p-assure">
+    <div class="top"><h2 class="pillar"><i aria-hidden="true"></i>Assure performance and returns</h2><a class="why" href="#">Why?</a></div>
+    <div class="fig na">Not established</div>
+    <p class="sent">No verified result yet, no targets declared, evidence gaps at all 4 sites.</p>
+    <div class="viz"><div class="empty-viz"><svg class="i md" aria-hidden="true"><use href="#i-clock"/></svg>Not available yet: a result appears once completed work has comparable before-and-after evidence.</div></div>
+    <div class="foot"><span class="chip s-notanalysed">Not available yet</span><span class="basis">Completed work does not establish savings</span></div>
+   </article>
+  </div>
+  <p class="note-pin">Card states are the Portfolio's own: a figure, a figure marked Partial with the days named, "not priced", or "Not available yet". No card shows a number it cannot back.</p>
+
+  <nav class="toc" aria-label="What is in the other tabs">
+   <a href="#" data-tab="act"><b>3</b> priority sites</a>
+   <a href="#" data-tab="opp"><b>1</b> opportunity: Kobo daytime solar</a>
+   <a href="#" data-tab="scope"><b>4</b> site evidence gaps</a>
+   <a href="#" data-tab="changes"><b>3</b> accepted actions</a>
+   <a href="#" data-tab="act"><b>8</b> warnings not yet priced</a>
+   <span class="cap">Distinct consequence categories · no combined savings total</span>
+  </nav>
+
+  <div class="two">
+   <section class="card pad-6" aria-labelledby="h-act">
+    <div class="sec-head"><div><h2 class="h3" id="h-act">Where management should act first</h2><p class="lede">The three highest-priority findings. Priority and confidence answer different questions.</p></div><a href="#" data-tab="act">See all 6 findings<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+    <ol class="ranked">
+     <li><span class="rank">1</span>
+      <div><h3><a href="#">Backup response failed</a></h3><div class="where"><svg class="i sm" aria-hidden="true"><use href="#i-snow"/></svg>Cold store · 5 Nov, 19:00–20:00 · Automatic start failed; cooling interrupted</div>
+       <p class="cons"><b>Product conditions exposed</b> <span>· measured peak 8.2 °C · loss unpriced</span></p>
+       <a class="act" href="#">Witness an automatic-start test<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+      <div class="meta"><span class="pc">Priority<b>High</b></span><span class="pc">Confidence<b class="lvl"><i aria-hidden="true"><u class="on"></u><u class="on"></u><u class="on"></u></i>High</b></span></div></li>
+     <li><span class="rank">2</span>
+      <div><h3><a href="#">Extended generator support</a></h3><div class="where"><svg class="i sm" aria-hidden="true"><use href="#i-zap"/></svg>Kobo · 8 Nov, 14:20–15:20 · 30 min candidate; charging trade-off remains</div>
+       <p class="cons"><b>$1.71–2.05</b> <span>· modelled fuel + scenario maintenance</span></p>
+       <a class="act" href="#">Verify the policy trial<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+      <div class="meta"><span class="pc">Priority<b>High</b></span><span class="pc">Confidence<b class="lvl"><i aria-hidden="true"><u class="on"></u><u></u><u></u></i>Low</b></span></div></li>
+     <li><span class="rank">3</span>
+      <div><h3><a href="#">Charging session interrupted</a></h3><div class="where"><svg class="i sm" aria-hidden="true"><use href="#i-plug"/></svg>EV depot · 8 Nov, 08:00–16:00 · Fault-aborted session; root cause unknown</div>
+       <p class="cons"><b>1 interrupted session</b> <span>· measured events · revenue loss unpriced</span></p>
+       <a class="act" href="#">Investigate connector 2<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+      <div class="meta"><span class="pc">Priority<b>Medium</b></span><span class="pc">Confidence<b class="lvl"><i aria-hidden="true"><u class="on"></u><u class="on"></u><u></u></i>Medium</b></span></div></li>
+    </ol>
+   </section>
+   <div class="side">
+    <section class="card pad-6 chart-card" aria-labelledby="h-fuel">
+     <h2 class="h3" id="h-fuel">Avoidable fuel cost by day</h2>
+     <p class="lede">Kobo and Kisiwa · days with complete readings</p>
+     <div class="total num">$9.12–10.94<small>4 – 10 Nov</small></div>
+     <div class="series-key"><span><i></i>Low estimate</span><span><i class="lt"></i>Up to the high estimate</span></div>
+     <div class="chart-scroll"><svg class="chart" viewBox="0 0 420 200" role="img" aria-label="Avoidable fuel cost by day, 4 to 10 November, Kobo and Kisiwa">
+<line class="base" x1="36" x2="412" y1="142.0" y2="142.0"/>
+<text class="ax" x="28" y="146.0" text-anchor="end">$0</text>
+<line class="grid" x1="36" x2="412" y1="101.3" y2="101.3"/>
+<text class="ax" x="28" y="105.3" text-anchor="end">$1</text>
+<line class="grid" x1="36" x2="412" y1="60.7" y2="60.7"/>
+<text class="ax" x="28" y="64.7" text-anchor="end">$2</text>
+<line class="grid" x1="36" x2="412" y1="20.0" y2="20.0"/>
+<text class="ax" x="28" y="24.0" text-anchor="end">$3</text>
+<path d="M51.6,142.0V76.9H74.1V142.0Z" style="fill:var(--series)"/>
+<path d="M51.6,74.9V67.9q0,-4 4,-4H70.1q4,0 4,4V74.9Z" style="fill:var(--series);opacity:.32"/>
+<text class="ax" x="62.9" y="160.0" text-anchor="middle">Wed 4</text>
+<g tabindex="0" data-tip="4 Nov|$1.60–1.92 · Kobo" aria-label="4 Nov: $1.60–1.92 · Kobo"><rect class="hit" x="36.0" y="20" width="53.7" height="180.0"/></g>
+<path d="M105.3,142.0V107.8H127.9V142.0Z" style="fill:var(--series)"/>
+<path d="M105.3,105.8V104.9q0,-4 4,-4H123.9q4,0 4,4V105.8Z" style="fill:var(--series);opacity:.32"/>
+<text class="ax" x="116.6" y="160.0" text-anchor="middle">Thu 5</text>
+<g tabindex="0" data-tip="5 Nov|$0.84–1.01 · Kisiwa" aria-label="5 Nov: $0.84–1.01 · Kisiwa"><rect class="hit" x="89.7" y="20" width="53.7" height="180.0"/></g>
+<path d="M159.0,142.0V97.3H181.6V142.0Z" style="fill:var(--series)"/>
+<path d="M159.0,95.3V92.3q0,-4 4,-4H177.6q4,0 4,4V95.3Z" style="fill:var(--series);opacity:.32"/>
+<text class="ax" x="170.3" y="160.0" text-anchor="middle">Fri 6</text>
+<g tabindex="0" data-tip="6 Nov|$1.10–1.32 · Kisiwa · Kobo: no readings" aria-label="6 Nov: $1.10–1.32 · Kisiwa · Kobo: no readings"><rect class="hit" x="143.4" y="20" width="53.7" height="180.0"/></g>
+<rect x="212.7" y="140.0" width="22.6" height="2" rx="1" style="fill:var(--color-text-muted)"/>
+<text class="lbl" x="224.0" y="132.0" text-anchor="middle">$0</text>
+<text class="ax" x="224.0" y="160.0" text-anchor="middle">Sat 7</text>
+<g tabindex="0" data-tip="7 Nov|No avoidable fuel cost found" aria-label="7 Nov: No avoidable fuel cost found"><rect class="hit" x="197.1" y="20" width="53.7" height="180.0"/></g>
+<path d="M266.4,142.0V72.5H289.0V142.0Z" style="fill:var(--series)"/>
+<path d="M266.4,70.5V62.6q0,-4 4,-4H285.0q4,0 4,4V70.5Z" style="fill:var(--series);opacity:.32"/>
+<text class="ax" x="277.7" y="160.0" text-anchor="middle">Sun 8</text>
+<g tabindex="0" data-tip="8 Nov|$1.71–2.05 · Kobo" aria-label="8 Nov: $1.71–2.05 · Kobo"><rect class="hit" x="250.9" y="20" width="53.7" height="180.0"/></g>
+<path d="M320.1,142.0V50.9H342.7V142.0Z" style="fill:var(--series)"/>
+<path d="M320.1,48.9V36.6q0,-4 4,-4H338.7q4,0 4,4V48.9Z" style="fill:var(--series);opacity:.32"/>
+<text class="lbl-strong" x="331.4" y="24.6" text-anchor="middle">$2.24–2.69</text>
+<text class="ax" x="331.4" y="160.0" text-anchor="middle">Mon 9</text>
+<g tabindex="0" data-tip="9 Nov|$2.24–2.69 · Kisiwa · Kobo: not enough readings" aria-label="9 Nov: $2.24–2.69 · Kisiwa · Kobo: not enough readings"><rect class="hit" x="304.6" y="20" width="53.7" height="180.0"/></g>
+<path d="M373.9,142.0V75.7H396.4V142.0Z" style="fill:var(--series)"/>
+<path d="M373.9,73.7V66.7q0,-4 4,-4H392.4q4,0 4,4V73.7Z" style="fill:var(--series);opacity:.32"/>
+<text class="ax" x="385.1" y="160.0" text-anchor="middle">Tue 10</text>
+<g tabindex="0" data-tip="10 Nov|$1.63–1.95 · Kisiwa · Kobo: still processing" aria-label="10 Nov: $1.63–1.95 · Kisiwa · Kobo: still processing"><rect class="hit" x="358.3" y="20" width="53.7" height="180.0"/></g>
+</svg></div>
+     <p class="cap">Kobo is counted on 4 of 7 days (6 Nov no readings, 9 Nov not enough readings, 10 Nov still processing). Hover or focus a day for its sites.</p>
+    </section>
+    <section class="card evidence" aria-labelledby="h-ev">
+     <span class="tile"><svg class="i md" aria-hidden="true"><use href="#i-search"/></svg></span>
+     <div><h3 id="h-ev">Evidence that would change a decision</h3><p>Restore Kobo's missing battery capability report to resolve two indeterminate dispatch intervals.</p><a href="#">Inspect the constraint<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+    </section>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= ACT FIRST ================= -->
+ <section data-panel="act" aria-label="Act first" hidden>
+  <div class="sec-head"><div><h2 class="h2">Where management should act first</h2><p class="lede">Findings ranked by consequence and urgency, with evidence confidence alongside.</p></div></div>
+  <div class="filters"><div class="seg" role="group" aria-label="Filter"><button type="button" aria-pressed="true">All priorities</button><button type="button" aria-pressed="false">Cost</button><button type="button" aria-pressed="false">Risks</button><button type="button" aria-pressed="false">Opportunities</button></div><span class="count num">6 findings</span></div>
+  <div class="tbl-wrap"><table class="tbl">
+   <thead><tr><th scope="col">Site</th><th scope="col">Finding</th><th scope="col">Value / consequence</th><th scope="col">When</th><th scope="col">Priority</th><th scope="col">Confidence</th><th scope="col">Next move</th></tr></thead>
+   <tbody>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-snow"/></svg>Cold store</span></td><td><b>Backup response failed</b><small>Automatic start failed; cooling interrupted</small></td><td>Product conditions exposed<small>Measured peak 8.2 °C · loss unpriced</small></td><td class="nowrap num">5 Nov<small>19:00–20:00</small></td><td>High</td><td>High</td><td><a href="#">Witness an automatic-start test</a><small>Open</small></td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-zap"/></svg>Kobo</span></td><td><b>Extended generator support</b><small>30 min candidate; charging trade-off remains</small></td><td class="num">$1.71–2.05<small>Modelled fuel + scenario maintenance</small></td><td class="nowrap num">8 Nov<small>14:20–15:20</small></td><td>High</td><td>Low</td><td><a href="#">Verify the policy trial</a><small>Outcome pending</small></td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-plug"/></svg>EV depot</span></td><td><b>Charging session interrupted</b><small>Fault-aborted session; root cause unknown</small></td><td>1 interrupted session<small>Measured events · revenue loss unpriced</small></td><td class="nowrap num">8 Nov<small>08:00–16:00</small></td><td>Medium</td><td>Medium</td><td><a href="#">Investigate connector 2</a><small>Open</small></td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-zap"/></svg>Kisiwa</span></td><td><b>Fuel balance does not close</b><small>Tank dips and generator use differ on 2 nights</small></td><td class="num">38–52 L<small>Not explained by recorded use</small></td><td class="nowrap num">5, 9 Nov<small>nights</small></td><td>Medium</td><td>Medium</td><td><a href="#">Review recommendation</a><small>No action agreed yet</small></td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-snow"/></svg>Cold store</span></td><td><b>Temperature excursion</b><small>Chamber above 4 °C after backup failed</small></td><td>25–35 min above policy<small>No spoilage determination</small></td><td class="nowrap num">5 Nov<small>19:00–20:00</small></td><td>Medium</td><td>High</td><td><a href="#">Record stock and connect the logger</a><small>No action agreed yet</small></td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-zap"/></svg>Kobo</span></td><td><b>Productive-use headroom</b><small>Recurring renewable capacity available</small></td><td class="num">18–20 kW usable<small>Modelled headroom</small></td><td class="nowrap num">4 – 10 Nov<small>daytime</small></td><td>Medium</td><td>Medium</td><td><a href="#">Evaluate a 10 kW grain mill</a><small>No action agreed yet</small></td></tr>
+   </tbody>
+  </table></div>
+  <p class="note-pin">Kisiwa's row and all amounts are illustrative. The litre range is the fuel-balance residual the Kisiwa fuel-nights page already shows; nothing is priced from it here.</p>
+ </section>
+
+ <!-- ================= OUTCOMES BY SITE ================= -->
+ <section data-panel="outcomes" aria-label="Outcomes by site" hidden>
+  <div class="sec-head"><div><h2 class="h2">Outcomes across the estate</h2><p class="lede">How each site is doing on what matters.</p></div></div>
+  <div class="tbl-wrap"><table class="tbl matrix">
+   <thead><tr><th scope="col">Outcome</th><th scope="col"><span class="site-cell"><svg class="i sm" aria-hidden="true"><use href="#i-zap"/></svg>Kobo</span></th><th scope="col"><span class="site-cell"><svg class="i sm" aria-hidden="true"><use href="#i-zap"/></svg>Kisiwa</span></th><th scope="col"><span class="site-cell"><svg class="i sm" aria-hidden="true"><use href="#i-snow"/></svg>Cold store</span></th><th scope="col"><span class="site-cell"><svg class="i sm" aria-hidden="true"><use href="#i-plug"/></svg>EV depot</span></th></tr></thead>
+   <tbody>
+    <tr class="p-grow"><th scope="row"><span class="pillar"><i aria-hidden="true"></i>Grow revenue</span></th><td><span class="chip s-accent">Opportunity</span><span class="m">Productive electricity sales</span></td><td><span class="chip s-notanalysed">Not measured yet</span><span class="m">Productive electricity sales</span></td><td><span class="chip s-notanalysed">Not measured yet</span><span class="m">Paid cold-room use</span></td><td><span class="chip s-neutral">Watch</span><span class="m">Charger use</span></td></tr>
+    <tr class="p-cost"><th scope="row"><span class="pillar"><i aria-hidden="true"></i>Optimize cost and efficiency</span></th><td><span class="chip s-partial">Needs attention</span><span class="m">Supply cost per kWh</span></td><td><span class="chip s-partial">Needs attention</span><span class="m">Fuel balance</span></td><td><span class="chip s-notanalysed">Not measured yet</span><span class="m">Cost per cooling unit</span></td><td><span class="chip s-notanalysed">Not measured yet</span><span class="m">Energy cost per km</span></td></tr>
+    <tr class="p-protect"><th scope="row"><span class="pillar"><i aria-hidden="true"></i>Protect asset and capital</span></th><td><span class="chip s-neutral">Watch</span><span class="m">Battery and generator life</span></td><td><span class="chip s-neutral">Watch</span><span class="m">Generator life</span></td><td><span class="chip s-partial">Needs attention</span><span class="m">Stock kept saleable</span></td><td><span class="chip s-partial">Needs attention</span><span class="m">Buses ready to run</span></td></tr>
+    <tr class="p-assure"><th scope="row"><span class="pillar"><i aria-hidden="true"></i>Assure performance and returns</span></th><td><span class="chip s-neutral">Watch</span><span class="m">Evidence quality</span></td><td><span class="chip s-neutral">Watch</span><span class="m">Evidence quality</span></td><td><span class="chip s-neutral">Watch</span><span class="m">Evidence quality</span></td><td><span class="chip s-neutral">Watch</span><span class="m">Evidence quality</span></td></tr>
+   </tbody>
+  </table></div>
+  <p class="note-pin">One column per site still breaks at about 25 sites (owner item 9); the scalable design stays in v7.1 <span class="mono">estate-outcomes-scale.html</span>.</p>
+ </section>
+
+ <!-- ================= OPPORTUNITY ================= -->
+ <section data-panel="opp" aria-label="Opportunity" hidden>
+  <div class="card pad-6 opp p-grow">
+   <div>
+    <span class="eyebrow-lg">Grow useful demand · scenario</span>
+    <h2 class="h2">Grain-mill evaluation at Kobo</h2>
+    <p class="lede">An opportunity beyond reducing cost.</p>
+    <div class="bigfig" style="margin-top:var(--p-space-4)">$2.50</div>
+    <p class="sec">Scenario gross sales per eligible window · 10 kW × 1 h</p>
+   </div>
+   <div>
+    <p>Within 18–20 kW headroom · $0.25/kWh assumed tariff · before costs. Validate demand and service guardrails before committing.</p>
+    <div class="btns" style="margin-top:var(--p-space-4)"><a class="btn btn-primary" href="#">Review opportunity</a><a class="btn btn-secondary" href="#">Inspect physical headroom</a></div>
+   </div>
+  </div>
+ </section>
+
+ <!-- ================= WHAT CHANGED ================= -->
+ <section data-panel="changes" aria-label="What changed" hidden>
+  <div class="card pad-6">
+   <div class="sec-head"><div><span class="eyebrow-lg">Close the loop</span><h2 class="h2">What changed in this review</h2></div><a href="#">Inspect basis<svg class="i sm" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></div>
+   <ol class="loop">
+    <li class="card"><b class="num">1</b>maintenance activity completed<p><span class="chip s-notanalysed">Outcome unverified</span></p></li>
+    <li class="card"><b class="num">1</b>policy trial awaiting outcome evidence<p><span class="chip s-partial">Guardrails incomplete</span></p></li>
+    <li class="card"><b class="num">0</b>verified resolutions in these examples<p><span class="chip s-neutral">Value not yet recovered</span></p></li>
+   </ol>
+   <p class="flow">Observed change<svg class="i sm" aria-hidden="true"><use href="#i-chev-right"/></svg>comparable evidence<svg class="i sm" aria-hidden="true"><use href="#i-chev-right"/></svg>verified outcome<svg class="i sm" aria-hidden="true"><use href="#i-chev-right"/></svg>eligible financial value</p>
+  </div>
+ </section>
+
+ <!-- ================= SCOPE ================= -->
+ <section data-panel="scope" aria-label="Scope and coverage" hidden>
+  <div class="sec-head"><div><h2 class="h2">Readings per site</h2><p class="lede">Complete readings: readings arrived for at least 80% of the hours the day needed. Figures elsewhere on this page count those days.</p></div></div>
+  <div class="tbl-wrap"><table class="tbl">
+   <thead><tr><th scope="col">Site</th><th scope="col">Type</th><th scope="col">4 – 10 Nov</th><th scope="col" class="n">Complete</th><th scope="col">Incomplete or missing</th></tr></thead>
+   <tbody>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-zap"/></svg>Kobo</span></td><td>Mini-grid</td><td><span class="strip"><a class="s-complete" href="site-overview-hifi.html" aria-label="4 Nov complete readings">4</a><a class="s-complete" href="site-overview-hifi.html" aria-label="5 Nov complete readings">5</a><a class="s-noreadings" href="site-overview-hifi.html" aria-label="6 Nov no readings received">6</a><a class="s-complete" href="site-overview-hifi.html" aria-label="7 Nov complete readings">7</a><a class="s-complete" href="site-overview-hifi.html" aria-label="8 Nov complete readings">8</a><a class="s-notenough" href="site-overview-hifi.html" aria-label="9 Nov not enough readings">9</a><a class="s-processing" href="site-overview-hifi.html" aria-label="10 Nov still processing">10</a></span></td><td class="n">4 of 7</td><td>6 Nov no readings received · 9 Nov not enough readings · 10 Nov still processing</td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-zap"/></svg>Kisiwa</span></td><td>Mini-grid</td><td><span class="strip"><a class="s-complete" href="#" aria-label="4 Nov complete">4</a><a class="s-complete" href="#" aria-label="5 Nov complete">5</a><a class="s-complete" href="#" aria-label="6 Nov complete">6</a><a class="s-complete" href="#" aria-label="7 Nov complete">7</a><a class="s-complete" href="#" aria-label="8 Nov complete">8</a><a class="s-complete" href="#" aria-label="9 Nov complete">9</a><a class="s-complete" href="#" aria-label="10 Nov complete">10</a></span></td><td class="n">7 of 7</td><td class="sec">None · fuel dips recorded on 6 of 7 nights</td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-snow"/></svg>Cold store</span></td><td>Cold room</td><td><span class="strip"><a class="s-complete" href="#" aria-label="4 Nov complete">4</a><a class="s-complete" href="#" aria-label="5 Nov complete">5</a><a class="s-complete" href="#" aria-label="6 Nov complete">6</a><a class="s-complete" href="#" aria-label="7 Nov complete">7</a><a class="s-complete" href="#" aria-label="8 Nov complete">8</a><a class="s-complete" href="#" aria-label="9 Nov complete">9</a><a class="s-complete" href="#" aria-label="10 Nov complete">10</a></span></td><td class="n">7 of 7</td><td class="sec">None · door and loading not recorded</td></tr>
+    <tr><td><span class="site-cell"><svg class="i md" aria-hidden="true"><use href="#i-plug"/></svg>EV depot</span></td><td>EV charging</td><td><span class="strip"><a class="s-complete" href="#" aria-label="4 Nov complete">4</a><a class="s-complete" href="#" aria-label="5 Nov complete">5</a><a class="s-complete" href="#" aria-label="6 Nov complete">6</a><a class="s-complete" href="#" aria-label="7 Nov complete">7</a><a class="s-complete" href="#" aria-label="8 Nov complete">8</a><a class="s-complete" href="#" aria-label="9 Nov complete">9</a><a class="s-partial" href="#" aria-label="10 Nov partial readings">10</a></span></td><td class="n">6 of 7</td><td>10 Nov partial readings · 3 of 8 operating hours missing</td></tr>
+   </tbody>
+  </table></div>
+  <div class="card" style="margin-top:var(--p-space-4)"><h3 class="h3" style="font:var(--text-body);font-weight:600">What is left out, and why</h3><p class="sec" style="margin-top:var(--p-space-1)">Categories and windows remain separate. Amounts in different currencies or from different days are never added together.</p></div>
+  <p class="note-pin dev">The day strip per site is new on this tab; v7.1 lists the same days as text only. Each cell links to that site's day.</p>
+ </section>
+
+</main>
+</div>
+</div>
+<script>
+(function () {
+  var root = document.documentElement, body = document.body;
+  var mq = window.matchMedia ? matchMedia("(prefers-color-scheme: dark)") : null;
+
+  /* Theme: System (default) / Light / Dark, as the v7.2 sheet. Storage wrapped; System if blocked. */
+  function resolved(c) { return c === "dark" || (c === "system" && mq && mq.matches) ? "dark" : "light"; }
+  function applyTheme(c) {
+    root.setAttribute("data-theme-choice", c);
+    root.setAttribute("data-theme", resolved(c));
+    document.querySelectorAll("[data-theme-set]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-theme-set") === c)); });
+  }
+  if (mq && mq.addEventListener) mq.addEventListener("change", function () { if (root.getAttribute("data-theme-choice") === "system") applyTheme("system"); });
+  applyTheme(root.getAttribute("data-theme-choice") || "system");
+
+  /* Owner change notes */
+  var notes = document.getElementById("notes");
+  if (notes) { var sync = function () { body.classList.toggle("show-notes", notes.checked); }; notes.addEventListener("change", sync); sync(); }
+
+  /* Shared date range popover (mock: presets only; the address holds the range in the app) */
+  var rb = document.getElementById("range-btn"), rp = document.getElementById("range-pop");
+  function closeRange(focus) { if (!rp || rp.hidden) return; rp.hidden = true; rb.setAttribute("aria-expanded", "false"); if (focus) rb.focus(); }
+  if (rb && rp) {
+    rb.addEventListener("click", function () { if (rp.hidden) { rp.hidden = false; rb.setAttribute("aria-expanded", "true"); var f = rp.querySelector('[aria-pressed="true"]') || rp.querySelector("button"); if (f) f.focus(); } else closeRange(true); });
+    rp.querySelectorAll("[data-preset]").forEach(function (b) { b.addEventListener("click", function () { rp.querySelectorAll("[data-preset]").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); }); });
+    rp.querySelectorAll("[data-close]").forEach(function (b) { b.addEventListener("click", function () { closeRange(true); }); });
+  }
+
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-theme-set]");
+    if (t) { var c = t.getAttribute("data-theme-set"); try { if (c === "system") localStorage.removeItem("assetops.theme"); else localStorage.setItem("assetops.theme", c); } catch (err) {} applyTheme(c); return; }
+    if (rp && !rp.hidden && !e.target.closest(".range")) closeRange(false);
+    if (e.target.closest(".menu-btn")) { body.classList.toggle("rail-open"); return; }
+    if (body.classList.contains("rail-open") && !e.target.closest(".rail")) body.classList.remove("rail-open");
+    var tab = e.target.closest("[data-tab]");
+    if (tab) {
+      e.preventDefault();
+      var name = tab.getAttribute("data-tab");
+      document.querySelectorAll("[data-tab]").forEach(function (a) { if (a.closest("nav") === tab.closest("nav")) { if (a.getAttribute("data-tab") === name) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); } });
+      document.querySelectorAll("[data-panel]").forEach(function (p) { p.hidden = p.getAttribute("data-panel") !== name; });
+      var hint = document.getElementById("addr"); if (hint && tab.dataset.addr) hint.textContent = tab.dataset.addr;
+      var top = document.querySelector(".tabs"); if (top && top.getBoundingClientRect().top < 0) top.scrollIntoView();
+    }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeRange(true); body.classList.remove("rail-open"); } });
+
+  /* Tooltip: any element with data-tip="Title|detail" (hover and keyboard focus) */
+  var tip = document.createElement("div"); tip.className = "tip"; tip.setAttribute("role", "tooltip"); body.appendChild(tip);
+  function showTip(el) {
+    var p = el.getAttribute("data-tip").split("|");
+    tip.innerHTML = ""; var b = document.createElement("b"); b.textContent = p[0]; tip.appendChild(b);
+    if (p[1]) { var s = document.createElement("span"); s.textContent = p[1]; tip.appendChild(s); }
+    var r = el.getBoundingClientRect(); tip.classList.add("on");
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var x = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), window.innerWidth - w - 8);
+    var y = r.top - h - 8; if (y < 8) y = r.bottom + 8;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  }
+  function hideTip() { tip.classList.remove("on"); }
+  document.addEventListener("mouseover", function (e) { var el = e.target.closest("[data-tip]"); if (el) showTip(el); else hideTip(); });
+  document.addEventListener("focusin", function (e) { var el = e.target.closest("[data-tip]"); if (el) showTip(el); else hideTip(); });
+  document.addEventListener("scroll", hideTip, true);
+})();
+</script>
+
+</body>
+
+</html>
