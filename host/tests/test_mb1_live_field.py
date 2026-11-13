@@ -162,7 +162,7 @@ def _serve_with_stubs(monkeypatch, tmp_path: Path, switch: str | None) -> dict:
 
     demo.start_upload_gateway = gateway
 
-    def api_fails(api, log, port, web):
+    def api_fails(api, log, port, web, warm=True):
         raise RuntimeError("api down")
 
     demo._serve_api = api_fails

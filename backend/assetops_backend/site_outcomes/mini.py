@@ -128,6 +128,9 @@ CLOSED_LABELS = ("Verified", "Resolution withdrawn")  # B-Q18
 SOURCE_TEXT = {"REGISTERED_SIMULATION": "Example data",
                "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 SOURCE_UNRESOLVED = "Source not resolved"
+#: An unfinished, unsettled day with no assessed generator interval is not checked yet (never "0 min").
+GEN_NOT_CHECKED = "Not checked yet · no generator period assessed on this day"
+OPEN_FINDING_SUBLINE = "An open finding is waiting for this day to be checked"
 #: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
 FINDING_WINDOW_DAYS = 31
 GAPS_NO_READINGS = "{g} of the last {n} days {verb} no complete readings yet"
@@ -572,6 +575,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     read_ok = gate is not None and day_facts is not None   # the reads that replace the overview read
     settled_day = bool(day_facts is not None and day_facts.settled)
     base = source_open and settled_day and dispatch is not None
+    # The day's own avoidable_gen_min grade decides (day_settled only says "not PENDING"; claim_level is cut on UTC
+    # days): no interval and no COMPLETE grade for the board day means the day is not checked yet.
+    grades = ((day_facts.grades.get(day) or {}).get("avoidable_gen_min") or {}).values() if day_facts else ()
+    unassessed = (dispatch is not None and not (dispatch.get("intervals") or ())
+                  and not any(x == "COMPLETE" for x in grades))
     assessment = {} if dispatch is None else {
         "state": assessment_state(dispatch.get("status")), "limitations": dispatch.get("limitations") or (),
         "claim_level": (dispatch.get("window_assessment") or {}).get("claim_level"),
@@ -580,7 +588,10 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                                                          pin=ports.pin, settled=settled_day)
     money_head = None if lead_money is None else reads.call(
         "money_head", ports.money, *lead_money, source_open, settled_day)
-    body = {"money": {"source_provenance": None if money_head is None else money_head.source_provenance}}
+    # No lead Finding: the Site's own source provenance, already on the depth reads (no new read).
+    site_source = next((p for p in (((b or {}).get("source_provenance") or {}) for b in depth.values())
+                        if p.get("state") in SOURCE_TEXT), None)
+    body = {"money": {"source_provenance": site_source if money_head is None else money_head.source_provenance}}
     no_run = no_run_day(base, assessment, readiness)
     settled = {"MG-1": base and depth_ok, "MG-6": base, "MG-3": base, "MG-2": base and dispatch is not None,
                "MG-5": base and depth_ok, "MG-4": base and dispatch is not None,
@@ -610,7 +621,7 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     contributors = {
         GROW: _grow(c, depth, rc, sales["contributors"],
                      renewable_ref(c, start, site_timezone)),
-        COST: _cost(c, dispatch, depth, price, lead, rc),
+        COST: _cost(c, dispatch, depth, price, lead, rc, unassessed),
         # DIESEL-1-R3j: "Fuel in the tank" after "Backup readiness", only on a Site with a stored fuel-balance window.
         PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc, end,
                           "" if tz is not None else UTC_SUFFIX) + (
@@ -658,13 +669,15 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     subline = {GROW: sales.get("subline"),
                COST: f"Generator stayed on {num(avoidable)} {plural(num(avoidable), 'minute', 'minutes')} longer "
                      "than needed"
-               if avoidable is not None and avoidable > 0 else None,
+               if avoidable is not None and avoidable > 0
+               else (lead.title if lead else OPEN_FINDING_SUBLINE
+                     if any(f.open and f.in_window for f in findings) else None) if unassessed else None,
                PROTECT: PROTECT_SUBLINE,
                ASSURE: limitation_text(limitations[0]) if limitations else None}
 
     # OUT-D U4: declared objectives, their readings, and the Assure "Actual against plan" count
     objectives = objective_facts.from_rows(objective_rows, num)
-    readings = mini_readings(dispatch, served=critical_served(day_facts, day))
+    readings = mini_readings(None if unassessed else dispatch, served=critical_served(day_facts, day))
     node_in = NodeInputs(
         site_code=c, domain=MINI, tz=zone_name or "", window=(day, day),
         rows=() if day_facts is None else day_facts.rows, objectives=objectives, readings=readings,
@@ -1134,11 +1147,13 @@ def _grow(c: str, depth: dict, rc: Any,
 
 
 def _cost(c: str, dispatch: Any, depth: dict, price: Any, lead: FindingFact | None,
-          rc: Any) -> tuple[Contributor, ...]:
+          rc: Any, unassessed: bool = False) -> tuple[Contributor, ...]:
     a, u = _dispatch_minutes(dispatch)
     gen_href = refs.evidence_ref(c, "dispatch")
     if dispatch is None:
         gen = not_available("generator_use", "Generator use", gen_href)
+    elif unassessed:  # no assessed interval on an unsettled day: not checked yet, no chip
+        gen = Contributor("generator_use", "Generator use", GEN_NOT_CHECKED, None, gen_href)
     else:
         chip = PLACEMENT_CHIP.get(lead.confidence_label) if lead and lead.confidence_label else None
         gen = Contributor("generator_use", "Generator use", f"{num(a)} min avoidable, {num(u)} min unclear",

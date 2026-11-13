@@ -96,7 +96,8 @@ class Fake:
             self.calls.append(("depth", (domain, lo, hi)))
             if "depth" in self.refuse or f"depth:{domain}" in self.refuse:
                 raise RuntimeError("refused")
-            return {"site": {"timezone": ZONE}, "cards": self.over.get("cards", DEPTH)[domain]}
+            return {"site": {"timezone": ZONE}, "cards": self.over.get("cards", DEPTH)[domain],
+                    "source_provenance": {"state": self.over.get("depth_source", "REGISTERED_SIMULATION")}}
 
         def chain_day(days, readiness_days):
             facts = replace(DayFacts(tuple(days), {}, True, "LIMITED", ()), **self.over.get("day", {}))
@@ -568,3 +569,46 @@ def test_non_generator_calendar_plan_is_not_a_generator_plan() -> None:
 def test_plans_failed_generator_contributor_is_not_available() -> None:
     _, rows = run(Fake(refuse=("plans",)))
     assert contributor(rows[PROTECT], "generator")["text"] == mini.NOT_LOADED
+
+
+# ------------------------------------------------ today's unfinished day (BOARD-today-wording)
+
+EMPTY = {"status": "LIMITED", "limitations": (), "intervals": ()}
+
+
+def grades(g: str | None) -> dict:
+    return {} if g is None else {DAY: {"avoidable_gen_min": {"asset:gen": g}}}
+
+
+def test_unassessed_unsettled_day_is_not_checked_yet() -> None:
+    _, rows = run(Fake(day={"settled": False}, dispatch=EMPTY))
+    gen = contributor(rows[COST], "generator_use")
+    assert gen["text"] == mini.GEN_NOT_CHECKED and not gen.get("confidence")
+    assert rows[COST]["subline"] == mini.FINDING_TITLE["SUPPORTED"]  # the lead Finding's own line
+    assert not any("0 min longer than needed" in str(x) for x in rows.values())
+
+
+def test_partial_grade_with_no_interval_is_not_checked_even_when_settled() -> None:
+    for g in ("PARTIAL", "PENDING", None):  # settled_day True: the newest rows are not PENDING-only
+        _, rows = run(Fake(day={"grades": grades(g), "settled": True}, dispatch=EMPTY))
+        gen = contributor(rows[COST], "generator_use")
+        assert gen["text"] == mini.GEN_NOT_CHECKED and not gen.get("confidence"), g
+        assert rows[COST]["subline"] == mini.FINDING_TITLE["SUPPORTED"], g
+
+
+def test_unassessed_without_a_finding_has_no_invented_subline() -> None:
+    _, rows = run(Fake(day={"grades": grades("PARTIAL")}, dispatch=EMPTY, chain_findings=()))
+    assert contributor(rows[COST], "generator_use")["text"] == mini.GEN_NOT_CHECKED
+    assert rows[COST]["subline"] is None
+
+
+def test_settled_complete_zero_interval_day_still_says_zero() -> None:
+    _, rows = run(Fake(day={"grades": grades("COMPLETE")}, dispatch={**EMPTY, "status": "COMPLETE"}))
+    assert contributor(rows[COST], "generator_use")["text"] == "0 min avoidable, 0 min unclear"
+
+
+def test_readings_source_falls_back_to_the_site_source_without_a_finding() -> None:
+    _, rows = run(Fake(chain_findings=()))
+    assert contributor(rows[ASSURE], "readings")["text"].startswith("Example data · readiness")
+    _, rows = run(Fake(chain_findings=(), depth_source="UNKNOWN"))
+    assert contributor(rows[ASSURE], "readings")["text"].startswith(mini.SOURCE_UNRESOLVED)
