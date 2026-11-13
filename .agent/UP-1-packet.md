@@ -103,6 +103,9 @@ section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 a
 - D-UP.12: `_ANALYSIS` counts a FAILED job only when `created_at` or `lease_until` is at/after the upload's decision, and a
   qualifying run wins over any FAILED job (PENDING/LEASED still first). Five Postgres cases in `test_up1_reading_upload_postgres.py`.
 - Merged main (SR-6b Health range): `SiteHealthFrames.tsx` conflict resolved; the entry panel sits in both Health branches.
+- Checks: backend/host no-DB (up1, uq6a, process, demo gateway) 117 passed; field csv_upload 17; vitest readingUpload + siteRangeTags 26; tsc clean;
+  Postgres on assetops_up1_test: store file 7 passed (incl. five D-UP.12 cases; mutation dropping the created/lease clause fails
+  `old-failed-no-run`), host flow 1 passed. check-all: for coordinator.
 - NOT BUILT (L3): the demo-file `--day` option, and the TEL-06b byte-equal comparison of the template/demo file.
 
 ## Known deviations
