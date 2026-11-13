@@ -79,6 +79,7 @@ import { SiteFinding, type FindingCostClient } from "../sites/SiteFinding";
 import { FindingSections, SiteFindingEvidence, type FindingSectionLink } from "../sites/SiteFindingEvidence";
 import { SiteFindingHistory } from "../sites/SiteFindingHistory";
 import { SitePerformance } from "../sites/SitePerformance";
+import type { RangeOverviewClient } from "../sites/rangeOverviewClient";
 import { BUILT_MINI_PAGES, MiniBackup, MiniFuel, MiniPerformanceSubtabs, MiniRenewable, MiniService } from "../sites/MiniPerformance";
 import {
   createMiniDepthClient,
@@ -244,10 +245,13 @@ export function SitePerformanceFrame({
   coldDepth = DEFAULT_COLD_DEPTH,
   evDepth = DEFAULT_EV_DEPTH,
   fuelBalance = DEFAULT_FUEL_BALANCE,
+  rangeOverview,
 }: {
   detail: SiteDetailClient;
   analytics: SiteAnalyticsClient;
   sitesPath: string;
+  /** SR-5c: the mini-grid range read; Dispatch with a range and no day shows "Dispatch by day". */
+  rangeOverview?: RangeOverviewClient;
   /** DIESEL-K5: the fuel-balance nights; a MINIGRID Site with stored windows renders the Fuel page in night mode. */
   fuelBalance?: FuelBalanceClient;
   /** W2-03: the selected cold assessment reads; a COLDCHAIN Site renders `temperature` / `coldbackup` from them. */
@@ -427,6 +431,7 @@ export function SitePerformanceFrame({
             siteId={site.site_id}
             client={analytics}
             miniDepth={site.site_type === "MINIGRID" ? miniDepth : undefined}
+            rangeOverview={site.site_type === "MINIGRID" ? rangeOverview : undefined}
             profile={presentationProfileFor(site.site_type)}
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}

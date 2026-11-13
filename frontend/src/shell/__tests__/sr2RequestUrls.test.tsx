@@ -168,6 +168,36 @@ describe("SR-5b Kobo/Kisiwa Overview with a range and no day read the range (ran
   });
 });
 
+describe("SR-5c Kobo/Kisiwa Dispatch with a range and no day read the range (range-overview), never one day", () => {
+  // The imported Site's analytics declaration answers the server's 409, so Performance takes the stored Dispatch path.
+  const RANGED = "from=2026-11-02T00:00:00Z&to=2026-11-09T00:00:00Z"; // 2-8 Nov
+  const RANGE_READ = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z";
+  beforeEach(() => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        urls.push(url);
+        if (/^\/api\/sites\/[A-Z0-9-]+\/analytics$/.test(url)) {
+          const detail = { code: "AWAITING_EVIDENCE_MIGRATION", message: "Imported site." };
+          return Promise.resolve(new Response(JSON.stringify({ detail }), { status: 409, headers: { "Content-Type": "application/json" } }));
+        }
+        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+      }),
+    );
+  });
+  it.each([
+    ["Kobo Dispatch", "/sites/KOBO-001/performance/dispatch", "KOBO-001"],
+    ["Kisiwa Dispatch", "/sites/KISIWA-001/performance/dispatch", "KISIWA-001"],
+    ["Kisiwa Performance", "/sites/KISIWA-001/performance", "KISIWA-001"],
+  ])("%s", async (_label, path, code) => {
+    const got = await siteRequestsAt(`${path}?${RANGED}`, as(HYBRID_MINI_GRID_SITE, code));
+    expect(got.filter((u) => /range-overview|\/dispatch\/windows\/|\/finding-windows\//.test(u))).toEqual([
+      `/api/sites/${code}/range-overview?${RANGE_READ}`,
+    ]);
+  });
+});
+
 describe("SR-2b the Kobo board's outcome-board request is byte-identical", () => {
   // The overview read answers (s5 window fixture for the served day) so the board reaches its outcome-board read.
   beforeEach(() => {

@@ -13,11 +13,14 @@
  * alternatives and Finding comparison are shown as not yet available.
  * Demonstration-data notes sit apart from the accepted-record provenance.
  */
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
-import { pageDay } from "../ui/sharedRange";
+import { FOCUS_DAY, LEGACY_FOCUS_DAY, pageDay, readSharedRange } from "../ui/sharedRange";
+import { BACK_TO_RANGE } from "./SiteWindowOverview";
+import { RangeDayTable, RangeReadState, rangeNotKnown, useRangeOverview } from "./SiteRangeOverview";
+import type { RangeOverviewClient } from "./rangeOverviewClient";
 
 import {
   ChartNote,
@@ -90,17 +93,77 @@ function outcome(level: string): string {
   return OUTCOME_WORDS[level] ?? level;
 }
 
-export function PerformanceDispatch({
-  siteId,
-  client,
-  findings,
-  findingHref,
-}: {
+export const DISPATCH_BY_DAY_HEADING = "Dispatch by day";
+const DISPATCH_RANGE_LOADING = "Loading the site's dispatch for this date range.";
+/** Address parameters that name one day's detail (or a part of it): any of them shows the one-day page. */
+const DETAIL_KEYS = ["revision", "block", "interval"] as const;
+
+export interface PerformanceDispatchProps {
   siteId: string;
   client: PerformanceDispatchClient;
   /** S4-01: the day's Findings, linked when both are given. */
   findings?: FindingClient;
   findingHref?: (findingId: string) => string;
+  /** SR-5c: the mini-grid range read; a valid range with no day shows "Dispatch by day". */
+  rangeOverview?: RangeOverviewClient;
+}
+
+/**
+ * SR-5c (rev 9 §9.4, D-SR.9): with a valid range and no `day` (nor a revision, block, interval or the Analysis view),
+ * the day table from the same `range-overview` read the range Overview makes, under "Dispatch by day"; each day opens
+ * this page at `?day=` (the drill-in, with a link back). The Kisiwa night window is read only on the drill-in. A 404
+ * (a Site the range read does not know) keeps the one-day page (D-SR.77 1); a 503/422 shows its own refusal.
+ */
+export function PerformanceDispatch(props: PerformanceDispatchProps) {
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const range = readSharedRange(params);
+  const client = props.rangeOverview;
+  const rangeOn = client !== undefined && range.status === "set";
+  const drill =
+    params.has(FOCUS_DAY) ||
+    params.has(LEGACY_FOCUS_DAY) ||
+    DETAIL_KEYS.some((key) => params.has(key)) ||
+    localView(params) === "analysis";
+  const notKnown = useRef<string | null>(null);
+  const fallback = notKnown.current === props.siteId;
+  const state = useRangeOverview(
+    rangeOn && !drill && !fallback ? client : null,
+    props.siteId,
+    range.status === "set" ? { from: range.from, to: range.to, known_at: range.known_at } : null,
+  );
+  if (rangeNotKnown(state)) notKnown.current = props.siteId;
+  const known = notKnown.current !== props.siteId;
+  if (rangeOn && !drill && known) {
+    const dayHref = (day: string) => `${location.pathname}?${FOCUS_DAY}=${encodeURIComponent(day)}`;
+    return (
+      <div className="dispatch-view durable-dispatch" data-dispatch-root data-dispatch-range>
+        {state.read?.status === "loaded" && !state.retrying ? (
+          <Panel
+            heading={DISPATCH_BY_DAY_HEADING}
+            headingId="dispatch-range-days-heading"
+            description="Each day of the range; open a day to see its dispatch"
+          >
+            <RangeDayTable body={state.read.value} dayHref={dayHref} headingId="dispatch-range-days-heading" name="dispatch" />
+          </Panel>
+        ) : (
+          <RangeReadState read={state.read} retrying={state.retrying} loading={DISPATCH_RANGE_LOADING} title="Dispatch unavailable" />
+        )}
+      </div>
+    );
+  }
+  return <DispatchDay {...props} backToRange={rangeOn && drill && known ? location.pathname : undefined} />;
+}
+
+function DispatchDay({
+  siteId,
+  client,
+  findings,
+  findingHref,
+  backToRange,
+}: PerformanceDispatchProps & {
+  /** SR-5c: set on a drill-in: the range view's address (same path, no day). */
+  backToRange?: string;
 }) {
   const [params, setParams] = useSearchParams();
   // SR-4b (D-SR.4): `day=`, else the shared range's last day, never today when today is outside the range. The
@@ -166,7 +229,7 @@ export function PerformanceDispatch({
     <div className="dispatch-view durable-dispatch" data-dispatch-root>
       {/* The day picker is the v69 chip row before panel 1 (chip-sized controls). */}
       <LocalViews label={DURABLE_DISPATCH_VIEWS_LABEL} current={view} params={params} />
-      <DayPicker day={day} onDay={(next) => choose({ day: next, revision: null, block: null })} />
+      <DayPicker day={day} onDay={(next) => choose({ day: next, revision: null, block: null })} backToRange={backToRange} />
       {cutover.status !== "loaded" ? (
         refused(
           "cutover-unreadable",
@@ -289,7 +352,7 @@ function DispatchRefused({
   );
 }
 
-function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }) {
+function DayPicker({ day, onDay, backToRange }: { day: string; onDay: (day: string) => void; backToRange?: string }) {
   const [draft, setDraft] = useState(day);
   useEffect(() => setDraft(day), [day]);
   const submit = (event: FormEvent) => {
@@ -300,6 +363,12 @@ function DayPicker({ day, onDay }: { day: string; onDay: (day: string) => void }
   };
   return (
     <form className="v69-chips dispatch-day" onSubmit={submit} aria-label="Assessed day">
+      {/* SR-5c: the drill-in's way back to the range view (same path, no day); first in the chip row. */}
+      {backToRange === undefined ? null : (
+        <Link className="button" to={backToRange} data-range-back>
+          ← {BACK_TO_RANGE}
+        </Link>
+      )}
       <button type="button" className="button" onClick={() => onDay(shiftDay(day, -1))}>
         Previous day
       </button>

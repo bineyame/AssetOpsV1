@@ -34,10 +34,11 @@ export interface RangeMatrixEntry {
   /** A legacy address that forwards to another row's page (whose row applies); the forward drops the range. */
   forwards?: boolean;
   /**
-   * The matrix fixture refuses every read, so this page stops at this read before its own content (named test limit):
-   * the test proves the page made it and that the bar does not claim "now"; the page's own test pins the rest.
+   * An R page whose `?day=` opens one day (SR-5b/5c drill-in): the test checks the bar names that day. "on-load": the
+   * page names its day once the day's own read loads (the Overview board, which may serve another day), so under the
+   * all-refused fixture the test checks only that the bar never says "now" (named test limit; its own test pins the day).
    */
-  blockedBy?: string;
+  drillIn?: "first-render" | "on-load";
 }
 
 const ALL: readonly MatrixSite[] = ["mini", "cold", "ev"];
@@ -48,12 +49,12 @@ function rows(route: string, path: string, sites: readonly MatrixSite[], cls: Ra
 }
 
 const EVIDENCE_GAPS = [{ read: "/evidence/rejections", card: "SR-12a" }] as const;
-/** The mini Performance frame reads the analytics declaration first (a refused one shows no subtab). */
-const DISPATCH_BLOCKED = { blockedBy: "/analytics" } as const;
+/** An R page whose `?day=` is a one-day drill-in (SR-5b/5c): with a day the bar names it. */
+const DRILL_IN = { drillIn: "first-render" } as const;
 
 export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   // Overview
-  ...rows(S, "", ["mini"], "R", "SR-5b: range-overview over the range; one day is the ?day= drill-in (D-SR.9)"),
+  ...rows(S, "", ["mini"], "R", "SR-5b: range-overview over the range; one day is the ?day= drill-in (D-SR.9)", { drillIn: "on-load" }),
   ...rows(S, "", ["cold"], "R", "the cold Overview reads the window (rev 8 8.1)"),
   ...rows(S, "", ["ev"], "R", "forwards to the EV Overview, which reads the window (rev 8 8.1)"),
   // Foundation: configuration in force (D-SR.39)
@@ -66,9 +67,9 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/evidence`, "/evidence", ["mini", "ev"], "R", "the evidence ledger reads the range (rev 10.5)", { knownUnranged: EVIDENCE_GAPS }),
   ...rows(`${S}/evidence`, "/evidence", ["cold"], "R", "the cold evidence page reads the window (rev 10.5)"),
   // Performance
-  ...rows(`${S}/performance`, "/performance", ["mini"], "D", "the Dispatch day board (one day of the range) until SR-5c", DISPATCH_BLOCKED),
+  ...rows(`${S}/performance`, "/performance", ["mini"], "R", "SR-5c: Dispatch by day from range-overview; one day is the ?day= drill-in (D-SR.9)", DRILL_IN),
   ...rows(`${S}/performance`, "/performance", ["cold", "ev"], "R", "temperature / sessions read the window (rev 10b.4)"),
-  ...rows(`${S}/performance/:capabilityId`, "/performance/dispatch", ["mini"], "D", "the Dispatch day board (one day of the range) until SR-5c", DISPATCH_BLOCKED),
+  ...rows(`${S}/performance/:capabilityId`, "/performance/dispatch", ["mini"], "R", "SR-5c: Dispatch by day from range-overview; one day is the ?day= drill-in (D-SR.9)", DRILL_IN),
   ...rows(`${S}/performance/:capabilityId`, "/performance/service", ["mini"], "D", "one Site-local hour of the range's last day until the SR-7 page (D-SR.59)"),
   ...rows(`${S}/performance/:capabilityId`, "/performance/renewable", ["mini"], "D", "the last 5 Site-local days of the range until the SR-8 page (D-SR.59)"),
   ...rows(`${S}/performance/:capabilityId`, "/performance/fuel", ["mini"], "D", "one hour (Kisiwa: the fuel-check nights, SR-10k) until the SR-10 page (D-SR.44)"),

@@ -3,7 +3,7 @@
  * App in a memory router with the Kobo fixture; the range read is stubbed per case; every other read is the real
  * client against a stubbed fetch.
  */
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -24,10 +24,12 @@ import {
   BEFORE_READINGS,
   CHECKED_NOTHING,
   RANGE_NO_READINGS,
+  RANGE_NOT_SHOWN,
   rangeDayWords,
   rangeStatusLine,
 } from "../SiteRangeOverview";
 import { BACK_TO_RANGE } from "../SiteOverview";
+import { DISPATCH_BY_DAY_HEADING } from "../PerformanceDispatch";
 import { summary } from "../../shell/__tests__/s5WindowFixtures";
 import { RETRYING_COPY, STILL_UNAVAILABLE_COPY } from "../temporarilyUnavailable";
 
@@ -143,6 +145,25 @@ async function open(path: string, rangeOverview: RangeOverviewClient) {
 }
 
 const query = (href: string | null) => new URL(href ?? "", "http://x").searchParams;
+const barTag = () => document.querySelector(".shared-range__tag");
+
+/** Serves the one-day board (`overview?date=`) and, for the mini Site, the imported-Site 409 on `/analytics`; else 503. */
+function serveBoard() {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      urls.push(url);
+      const d = /\/overview\?date=(\d{4}-\d{2}-\d{2})/.exec(url)?.[1];
+      if (d) return Promise.resolve(new Response(JSON.stringify(summary(d)), { status: 200, headers: { "Content-Type": "application/json" } }));
+      if (url === "/api/sites/KOBO-001/analytics") {
+        const detail = { code: "AWAITING_EVIDENCE_MIGRATION", message: "Imported site." };
+        return Promise.resolve(new Response(JSON.stringify({ detail }), { status: 409, headers: { "Content-Type": "application/json" } }));
+      }
+      return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+    }),
+  );
+}
 
 describe("SR-5b the range view", () => {
   it("a range without a day reads range-overview with the range and no one-day board", async () => {
@@ -240,24 +261,23 @@ describe("SR-5b the range view", () => {
     expect(document.querySelector("[data-range-tiles]")).toBeNull();
   });
 
-  it("a 404 keeps the one-day page (a Site the range read does not know)", async () => {
+  it("a 404 keeps the one-day page (a Site the range read does not know), and the bar names that day (D-SR.77 1)", async () => {
+    serveBoard();
     await open(`/sites/KOBO-001?${RANGE}`, stubClient({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }));
     expect(urls).toContain("/api/sites/KOBO-001/overview?date=2026-11-09");
+    expect(barTag()?.textContent).toBe("Showing 9 Nov of the range");
+  });
+
+  it("a 422 shows its own refusal, never the one-day page (D-SR.77 1)", async () => {
+    await open(`/sites/KOBO-001?${RANGE}`, stubClient({ status: "refused", httpStatus: 422, code: "INVALID_WINDOW" }));
+    expect(screen.getByText(RANGE_NOT_SHOWN)).toBeTruthy();
+    expect(urls.filter((u) => u.includes("/overview?"))).toEqual([]);
   });
 });
 
 describe("SR-5b the drill-in", () => {
   it("day= reads the one-day board and links back to the whole range", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn((input: RequestInfo | URL) => {
-        const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
-        urls.push(url);
-        const d = /\/overview\?date=(\d{4}-\d{2}-\d{2})/.exec(url)?.[1];
-        if (d) return Promise.resolve(new Response(JSON.stringify(summary(d)), { status: 200, headers: { "Content-Type": "application/json" } }));
-        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
-      }),
-    );
+    serveBoard();
     await open(`/sites/KOBO-001?${RANGE}&day=2026-11-05`, stubClient({ status: "loaded", value: body() }));
     expect(calls).toEqual([]);
     expect(urls).toContain("/api/sites/KOBO-001/overview?date=2026-11-05");
@@ -294,5 +314,61 @@ describe("SR-5b the range client", () => {
       `/api/sites/KOBO-001/range-overview?from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`,
       { headers: { Accept: "application/json" } },
     ]);
+  });
+});
+
+const DISPATCH = "/sites/KOBO-001/performance/dispatch";
+
+describe("SR-5c Performance › Dispatch over the range", () => {
+  it.each([DISPATCH, "/sites/KOBO-001/performance"])("%s with a range and no day: Dispatch by day from the same range-overview read", async (path) => {
+    serveBoard();
+    await open(`${path}?${RANGE}`, stubClient({ status: "loaded", value: body() }));
+    expect(calls).toEqual([{ code: "KOBO-001", from: FROM, to: TO, known_at: null }]);
+    expect(screen.getByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeTruthy();
+    expect(document.querySelector('[data-range-days="dispatch"]')).not.toBeNull();
+    // No one-day read: no dispatch window, no Kisiwa night window (read only on the drill-in).
+    expect(urls.filter((u) => u.includes("/dispatch/windows/") || u.includes("/finding-windows/"))).toEqual([]);
+    expect(document.querySelectorAll("[data-range-day]")).toHaveLength(7);
+    const open5 = document.querySelector('[data-range-open-day="2026-11-05"]')?.getAttribute("href") ?? "";
+    expect(open5.split("?")[0]).toBe(path);
+    expect(query(open5).get("day")).toBe("2026-11-05");
+    expect(query(open5).get("from")).toBe(FROM);
+    expect(query(open5).get("to")).toBe(TO);
+    expect(document.querySelector('[data-range-strip-day="2026-11-05"]')?.getAttribute("href")).toBe(open5);
+    expect(barTag()?.textContent).toBe("All pages");
+  });
+
+  it("day= is the drill-in: the one-day dispatch, a link back to the whole range, the bar names the day", async () => {
+    serveBoard();
+    await open(`${DISPATCH}?${RANGE}&day=2026-11-05`, stubClient({ status: "loaded", value: body() }));
+    expect(calls).toEqual([]);
+    expect(screen.queryByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeNull();
+    const back = screen.getByRole("link", { name: `← ${BACK_TO_RANGE}` });
+    const href = back.getAttribute("href") ?? "";
+    expect(href.split("?")[0]).toBe(DISPATCH);
+    expect(query(href).get("day")).toBeNull();
+    expect(query(href).get("from")).toBe(FROM);
+    expect(barTag()?.textContent).toBe("Showing 5 Nov of the range");
+  });
+
+  it("503 unavailable reads as \"Temporarily unavailable. Retrying…\", never as data", async () => {
+    serveBoard();
+    await open(
+      `${DISPATCH}?${RANGE}`,
+      stubClient((onRetrying) => {
+        onRetrying?.();
+        return new Promise<RangeOverviewRead>(() => undefined);
+      }),
+    );
+    expect(await screen.findByText(RETRYING_COPY)).toBeTruthy();
+    expect(document.querySelector('[data-range-days="dispatch"]')).toBeNull();
+  });
+
+  it("a 404 keeps the one-day dispatch, and the bar names that day (D-SR.77 1)", async () => {
+    serveBoard();
+    await open(`${DISPATCH}?${RANGE}`, stubClient({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }));
+    expect(screen.queryByRole("heading", { name: DISPATCH_BY_DAY_HEADING })).toBeNull();
+    await waitFor(() => expect(barTag()?.textContent).toBe("Showing 9 Nov of the range"));
+    expect(screen.queryByRole("link", { name: `← ${BACK_TO_RANGE}` })).toBeNull();
   });
 });

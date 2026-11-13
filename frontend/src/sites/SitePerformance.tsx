@@ -15,6 +15,7 @@
 import type { FindingClient } from "./findingClient";
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { PerformanceDispatch } from "./PerformanceDispatch";
+import type { RangeOverviewClient } from "./rangeOverviewClient";
 import { MiniPerformanceSubtabs } from "./MiniPerformance";
 import type { MiniDepthClient } from "./miniDepthClient";
 import {
@@ -89,6 +90,8 @@ export interface SitePerformanceProps {
   findingAlternativesHref?: (findingId: string, revisionId: string) => string;
   /** W4-02: the mini-depth reads whose capabilities join the imported Site's subtab row (S6). */
   miniDepth?: MiniDepthClient;
+  /** SR-5c: the mini-grid range read, passed to Dispatch. */
+  rangeOverview?: RangeOverviewClient;
 }
 
 const DEFAULT_PERFORMANCE = createPerformanceDispatchClient();
@@ -108,6 +111,7 @@ export function SitePerformance({
   siteFindingHref,
   findingAlternativesHref,
   miniDepth,
+  rangeOverview,
 }: SitePerformanceProps) {
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
 
@@ -146,6 +150,7 @@ export function SitePerformance({
             client={performance}
             findings={findings}
             findingHref={siteFindingHref}
+            rangeOverview={rangeOverview}
           />
         ) : (
           <AwaitingEvidenceMigration surface="performance" />

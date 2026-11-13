@@ -449,6 +449,7 @@ export function App({
                   miniDecisions={miniDecisions}
                   coldDepth={coldDepth}
                   evDepth={evDepth}
+                  rangeOverview={rangeOverview}
                 />
               }
             />

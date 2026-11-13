@@ -1,7 +1,8 @@
 /**
  * SR-5e (architect rev 9 §9.4, D-SR.10): every Site route, per Site type, against `RANGE_MATRIX`. Whole App with the
  * SR-4a Site fixtures (Kobo for `mini`, the cold and EV labs); every read but the Site detail answers 503, and the
- * test records each request the page makes, with the range 3–9 Nov in the address.
+ * test records each request the page makes, with the range 3–9 Nov in the address. The mini Site's `/analytics` answers
+ * the real 409 AWAITING_EVIDENCE_MIGRATION (D-SR.77 3).
  *
  * - R: every Site data request (excluding the reads in NOT_DATA) carries `from`/`to` equal to the range's instants
  *   (or is `range-overview` with them); only the row's `knownUnranged` reads may lack them. The bar says "All pages".
@@ -56,7 +57,14 @@ beforeEach(() => {
   vi.stubGlobal(
     "fetch",
     vi.fn((input: RequestInfo | URL) => {
-      urls.push(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      urls.push(url);
+      // D-SR.77 3: an imported mini-grid Site's analytics declaration answers what the server answers (409
+      // AWAITING_EVIDENCE_MIGRATION), so Performance takes the stored Dispatch path and its class is checked there.
+      if (url.split("?", 1)[0] === `/api/sites/${CODE.mini}/analytics`) {
+        const body = { detail: { code: "AWAITING_EVIDENCE_MIGRATION", message: "Imported site." } };
+        return Promise.resolve(new Response(JSON.stringify(body), { status: 409, headers: { "Content-Type": "application/json" } }));
+      }
       return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
     }),
   );
@@ -123,14 +131,22 @@ describe("SR-5e R rows: every data read carries the range, and the bar says All 
   });
 });
 
-describe("SR-5e D rows: a day inside the range is named in the bar", () => {
-  it.each(RANGE_MATRIX.filter((e) => e.class === "D").map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
+describe("SR-5b/5c R drill-ins: `day=` opens one day, and the bar names it", () => {
+  it.each(RANGE_MATRIX.filter((e) => e.drillIn).map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
     const day = await open(entry, "&day=2026-11-05");
-    if (entry.blockedBy !== undefined) {
-      expect(day.requests.some((u) => u.split("?", 1)[0].endsWith(entry.blockedBy as string))).toBe(true);
+    expect(day.requests.some((u) => u.split("?", 1)[0].endsWith("/range-overview")), "the drill-in does not read the range").toBe(false);
+    if (entry.drillIn === "on-load") {
       expect(day.focus).not.toBe("now");
       return;
     }
+    expect(day.focus).not.toBeNull();
+    expect(day.text).toBe("Showing 5 Nov of the range");
+  });
+});
+
+describe("SR-5e D rows: a day inside the range is named in the bar", () => {
+  it.each(RANGE_MATRIX.filter((e) => e.class === "D").map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
+    const day = await open(entry, "&day=2026-11-05");
     expect(day.focus).not.toBeNull();
     expect(day.focus).not.toBe("now");
     expect(day.text).toMatch(/^Showing .* of the range$/);
