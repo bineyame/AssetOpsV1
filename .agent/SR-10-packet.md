@@ -129,8 +129,11 @@ Postgres file (assetops_sr10_test): 5 passed in 144s after the fix round.
   503 `SITE_FUEL_RANGE_UNAVAILABLE` → "Temporarily unavailable. Retrying…" then "Still unavailable…".
 - Hour view: "Back to the whole range" when opened from the range table (router `state.wholeRange` = the range search);
   none on a directly opened hour address. D-SR.57: FocusPicker is the only declarer (vitest records declarations).
-- Tests: new `miniFuelRange.test.tsx` (5); `miniFuelRoutes.test.tsx` re-pinned (two-hour address → range view, "All
+- Tests: new `miniFuelRange.test.tsx` (5); `sr2RequestUrls` Kisiwa no-nights pin → `fuel-range` (was the 12:00 hour read); `miniFuelRoutes.test.tsx` re-pinned (two-hour address → range view, "All
   pages"; unprovable cause via `?day=`). tsc clean. `RANGE_MATRIX` absent on main (no entry to flip).
 - Questions: (a) "Back to the whole range" uses router state, so a reloaded or shared hour URL has no back link -
   acceptable, or carry the range in a page-only param? (b) totals `expected_use_l` is not shown (not in 10b.2's page
   list); add a summed card? (c) partial wording for a LIMITED-only day ("Partial: some hours limited").
+- Range/link vitest sweep (lane rule 2026-11-13, 89 files from the grep): 89 files, 2413 tests passed after the
+  Kisiwa pin re-pin (first run 1 failed: that pin, expected). Guards run singly: site-links-carry-range,
+  page-range-forms, mock-deviation-labels (R726/R727 rows added) all pass. check-all: for coordinator.

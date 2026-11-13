@@ -47,8 +47,9 @@ const SITE_KISIWA_FINDINGS = [
 // one Site-local hour of the range's last day, as on Service.
 const SITE_KISIWA_FUEL_RANGE = [
   "/api/sites/KISIWA-001/fuel-balance/nights?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
+  // SR-10c: with no stored nights the tab reads the whole range (was the 12:00 hour of the range's last day).
+  "/api/sites/KISIWA-001/fuel-range?from=2026-10-25T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z",
   "/api/sites/KISIWA-001/performance/mini/capabilities",
-  "/api/sites/KISIWA-001/performance/mini/fuel?from=2026-10-31T09%3A00%3A00.000Z&to=2026-10-31T10%3A00%3A00.000Z",
 ];
 const SITE_KISIWA_SERVICE = [
   "/api/sites/KISIWA-001/performance/mini/capabilities",
