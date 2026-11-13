@@ -23,7 +23,7 @@
 }
 
 .estate-financials-summary > .disclosure > .disclosure__summary {
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 16px;
 }
 
@@ -34,7 +34,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.4;
 }
 
@@ -76,13 +76,13 @@
 }
 .estate-financials__aggregation .estate-financials__aggregation-prose {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.8;
 }
 
 /* CC-R1 / R501: the beneficiary is a second line inside the category cell. */
 .line-beneficiary {
   display: block;
-  font-size: 0.85em;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }

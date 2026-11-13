@@ -1,0 +1,15 @@
+/*
+ * UQ-FI-1 (D-UQFI.2): Inter, stored with the app. The file is the rsms/inter v4.1
+ * release's web/InterVariable.woff2 (SIL OFL 1.1, public/fonts/OFL.txt); there is no
+ * CDN at runtime and no npm dependency. `--font-sans` in tokens.css falls back to the
+ * computer's own font while this loads or if it cannot.
+ */
+@font-face {
+  font-family: "Inter";
+  src:
+    url("/fonts/InterVariable.woff2") format("woff2-variations"),
+    url("/fonts/InterVariable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

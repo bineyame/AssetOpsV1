@@ -53,19 +53,19 @@
 /* W1-F2 compaction (phase B): the Overview's small link-styled disclosures and one-line action rows. */
 .site-window-overview .exact-references--tech,
 .site-window-overview .disclosure--tech {
-  margin-top: 6px;
+  margin-top: var(--space-1);
 }
 .site-window-overview .window-money__state {
-  margin: 4px 0 0;
-  font-size: 12px;
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-100);
   line-height: 1.5;
 }
 .site-window-overview .overview-next__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-top: 10px;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
 }
 .site-window-overview .window-day__bounds {
   margin: 0;

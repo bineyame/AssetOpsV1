@@ -10,7 +10,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 12px;
+  gap: var(--space-1) var(--space-3);
 }
 
 .estate-date-bar__historical {
@@ -53,11 +53,11 @@
 
 .estate-chip {
   display: inline-block;
-  margin: 0 4px 2px 0;
-  padding: 1px 7px;
+  margin: 0 var(--space-1) 2px 0;
+  padding: 1px var(--space-2);
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   white-space: nowrap;
 }
 
@@ -110,18 +110,18 @@
 .estate-cell__secondary {
   display: block;
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .estate-cell__detail {
   word-break: break-all;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .estate-empty p,
 .estate-partial,
 .estate-pager {
-  margin: 8px 0;
+  margin: var(--space-2) 0;
   color: var(--text-secondary);
 }
 
@@ -180,11 +180,11 @@
 }
 .opp-list li {
   display: flex;
-  gap: 12px;
+  gap: var(--space-3);
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
   border-top: 1px solid #edf0f5;
 }
 .opp-list li:first-child {
@@ -196,7 +196,7 @@
 }
 .opp-list small {
   display: block;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: #617087;
   margin-top: 2px;
 }

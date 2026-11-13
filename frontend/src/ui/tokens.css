@@ -19,37 +19,64 @@
 
 :root {
   /* Type ------------------------------------------------------------------ */
-  --font-sans:
-    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    sans-serif;
+  /* UQ-FI-1 (D-UQFI.2, the v7.2 foundation sheet): primitive tier. One scale of
+     eight sizes, nothing under 12px, body 14px; Inter stored with the app
+     (ui/fonts.css) with the computer's own font as fallback. */
+  --font-size-100: 0.75rem;
+  --font-size-200: 0.8125rem;
+  --font-size-300: 0.875rem;
+  --font-size-400: 1rem;
+  --font-size-500: 1.125rem;
+  --font-size-600: 1.25rem;
+  --font-size-700: 1.5rem;
+  --font-size-800: 1.875rem;
 
-  --text-xs: 0.6875rem;
-  --text-sm: 0.8125rem;
-  --text-base: 0.875rem;
-  --text-lg: 1.0625rem;
-  --text-xl: 1.375rem;
-  --text-2xl: 1.75rem;
+  --font-sans:
+    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans",
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --leading-body: 1.5;
+
+  /* 4px spacing steps (snapped on the demo-path files only, D-UQFI.2). */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Role tier: re-pointed onto the scale, not renamed (no call-site churn). */
+  --text-xs: var(--font-size-100);
+  --text-sm: var(--font-size-200);
+  --text-base: var(--font-size-300);
+  --text-lg: var(--font-size-400);
+  --text-xl: var(--font-size-600);
+  --text-2xl: var(--font-size-700);
 
   --weight-regular: 400;
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
 
-  /* V-01a round 2 (owner follow-up: "pay attention to color and font size"):
-     the v6.9 mock's type scale, in one place. Page title 27px, panel title
-     15px, subsection 13px, panel note and table text 11px, table head 9px,
-     tabs 12px and subtabs 11px, rail 12px with a 9px group eyebrow. */
-  --text-page-title: 1.6875rem;
-  --text-panel-title: 0.9375rem;
-  --text-subsection-title: 0.8125rem;
-  --text-panel-note: 0.6875rem;
-  --text-table: 0.6875rem;
-  --text-table-head: 0.5625rem;
-  --text-cell-secondary: 0.625rem;
-  --text-tab: 0.75rem;
-  --text-subtab: 0.6875rem;
-  --text-rail: 0.75rem;
-  --text-rail-eyebrow: 0.5625rem;
+  /* V-01a round 2 named the v6.9 mock's roles; UQ-FI-1 points them at the v7.2
+     scale: page title 24px, panel title 16px, subsection 14px, panel note and
+     table text 13px, table head 12px, tabs 14px, subtabs 13px, rail 13px with
+     a 12px group name. */
+  --text-page-title: var(--font-size-700);
+  --text-panel-title: var(--font-size-400);
+  --text-subsection-title: var(--font-size-300);
+  --text-panel-note: var(--font-size-200);
+  --text-table: var(--font-size-200);
+  --text-table-head: var(--font-size-100);
+  --text-cell-secondary: var(--font-size-100);
+  --text-tab: var(--font-size-300);
+  --text-subtab: var(--font-size-200);
+  --text-rail: var(--font-size-200);
+  --text-rail-eyebrow: var(--font-size-100);
   --weight-heading: 650;
 
   --leading-tight: 1.25;
@@ -214,9 +241,9 @@
   }
 }
 
-/* ...and the page title below 760px. */
+/* ...and the page title below 760px (UQ-FI-1: onto the scale, 20px). */
 @media (max-width: 760px) {
   :root {
-    --text-page-title: 1.4375rem;
+    --text-page-title: var(--font-size-600);
   }
 }

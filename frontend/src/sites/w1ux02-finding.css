@@ -15,31 +15,31 @@
 /* W1-F3: the v69 finding overview (statusbar, What happened, pair, attention list). */
 .site-finding__state,
 .site-finding__sentence {
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 
 .site-finding__meaning {
-  margin-top: 13px;
+  margin-top: var(--space-3);
 }
 
 .site-finding__limits.v69-prose {
   margin: 0;
-  padding-left: 18px;
+  padding-left: var(--space-4);
 }
 
 .site-finding__limits.v69-prose li + li {
-  margin-top: 6px;
+  margin-top: var(--space-1);
 }
 
 /* W1-F3: finding-evidence blocks inside the two v69 panels. */
 .site-finding-evidence .disclosure,
 .finding-evidence__records,
 .finding-evidence__record {
-  margin-top: 14px;
+  margin-top: var(--space-3);
 }
 
 .finding-evidence__record {
-  padding-top: 12px;
+  padding-top: var(--space-3);
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -50,8 +50,8 @@
  * small link-sized bar. Every statement stays; only the type size and padding change.
  */
 .site-finding .panel .product-status:not(.product-status--inline) {
-  padding: 8px 12px;
-  font-size: 12px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-100);
   line-height: 1.6;
   color: #46566e;
 }
@@ -66,44 +66,44 @@
 }
 
 .site-finding .panel .product-status .source-provenance .notice {
-  margin: 4px 0;
-  padding: 4px 8px;
-  font-size: 12px;
+  margin: var(--space-1) 0;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-100);
 }
 
 .site-finding .panel .product-status .disclosure {
-  margin: 4px 0;
+  margin: var(--space-1) 0;
 }
 
 .site-finding .panel .product-status .disclosure__summary {
-  padding: 3px 8px;
-  font-size: 11px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-100);
 }
 
 /* The blocks legend and its heading at the mock's caption size. */
 .site-finding .site-finding__subheading {
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .site-finding .site-finding__legend {
-  margin: 8px 0 0;
-  font-size: 10px;
+  margin: var(--space-2) 0 0;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
 /* The lineage trail strip on finding-evidence at caption size. */
 .site-finding-evidence .step-strip__step {
-  padding: 4px 8px;
-  font-size: 11px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-100);
   line-height: 1.5;
 }
 
 .site-finding-evidence .step-strip .value-bars__title {
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .site-finding .panel .product-status .product-status__bound {
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 /* finding-evidence panel notes, facts and gap lines at the mock's 12px. */
@@ -112,7 +112,7 @@
 .site-finding-evidence .panel [data-evidence-lineage-broken],
 .site-finding-evidence .panel [data-evidence-no-record-selected],
 .site-finding-evidence .panel [data-evidence-destinations] {
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.6;
 }
 
@@ -151,7 +151,7 @@
 
 .v69-state-line .source-provenance .disclosure {
   display: inline;
-  margin: 0 0 0 6px;
+  margin: 0 0 0 var(--space-1);
   border: 0;
   background: none;
 }
@@ -160,7 +160,7 @@
   display: inline;
   padding: 0;
   color: var(--accent);
-  font-size: 11px;
+  font-size: var(--font-size-100);
   font-weight: 400;
 }
 
@@ -169,19 +169,19 @@
 }
 
 .v69-step-line .step-strip {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-1);
 }
 
 .v69-step-line .step-strip .value-bars__title {
   display: inline;
-  margin-right: 8px;
-  font-size: 12px;
+  margin-right: var(--space-2);
+  font-size: var(--font-size-100);
 }
 
 .v69-step-line .step-strip .step-strip__list {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 4px 14px;
+  gap: var(--space-1) var(--space-3);
   margin: 0;
   padding: 0;
   grid-template-columns: none;
@@ -190,11 +190,11 @@
 .v69-step-line .step-strip .step-strip__step {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   padding: 0;
   border: 0;
   background: none;
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .v69-step-line .step-strip .step-strip__mark {
@@ -218,11 +218,11 @@
 
 .v69-step-line .step-strip .step-strip__detail {
   color: var(--text-secondary);
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 .site-finding-evidence .panel__actions .site-finding__note {
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 /* W1-F3 height phase: the finding pair keeps each panel's own height; limits are compact. */
@@ -231,21 +231,21 @@
 }
 
 .site-finding .v69-state-line {
-  margin: 0 0 10px;
+  margin: 0 0 var(--space-2);
 }
 
 .site-finding__limits.v69-prose {
-  font-size: 12px;
+  font-size: var(--font-size-100);
 }
 
 .site-finding [data-finding-recommendation-link] .form-footer {
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 
 /* W1-F3 height phase: a closed disclosure inside these panels reads as one small link line, not a boxed bar. */
 .site-finding .panel details.disclosure:not(.disclosure--inline),
 .site-findings-view .panel details.disclosure {
-  margin: 8px 0 0;
+  margin: var(--space-2) 0 0;
   border: 0;
   border-radius: 0;
   background: none;
@@ -255,11 +255,11 @@
 .site-findings-view .panel details.disclosure > .disclosure__summary {
   padding: 2px 0;
   color: var(--accent);
-  font-size: 12px;
+  font-size: var(--font-size-100);
   font-weight: 400;
 }
 
 .site-finding .panel details.disclosure:not(.disclosure--inline) > .disclosure__body,
 .site-findings-view .panel details.disclosure > .disclosure__body {
-  padding: 4px 0 8px;
+  padding: var(--space-1) 0 var(--space-2);
 }
