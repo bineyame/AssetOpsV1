@@ -27,7 +27,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 TOOLS = Path(__file__).resolve().parent
-WALL = ("known_at", "selection_token")
+WALL = ("known_at", "selection_token", "db_now", "built_at")
 
 
 def _client(url: str, work: Path, store: bool):

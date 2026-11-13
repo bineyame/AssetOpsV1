@@ -175,8 +175,9 @@ class SiteOverviewRoute:
             # D-SR.83: keyed on the Site, its resolved day and the pin (the board's pattern); refusals never store.
             site = UUID(str(site_id))
             key = {"site": str(site), "day": day.isoformat(), "pin": None if pinned is None else [str(fid), str(rid)]}
-            return self.responses.serve(StoredRoute(OVERVIEW_ROUTE, tenant_id, key, sites=(site,),
-                                                    watermark_sites=(site,)), compose)
+            return self.responses.serve(StoredRoute(
+                OVERVIEW_ROUTE, tenant_id, key, sites=(site,), watermark_sites=(site,),
+                term=lambda: self.read.upstream.schedule_term(tenant_id, site_id, self.read.environment)), compose)
         except PinNotFound as error:
             raise HTTPException(status_code=404, detail={"code": "FINDING_PIN_NOT_FOUND",
                                                          "message": str(error)}) from error

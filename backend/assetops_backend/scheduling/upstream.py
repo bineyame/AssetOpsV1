@@ -47,12 +47,15 @@ an advanced selection seq; a read is CURRENT only as of its `db_now`.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
 from assetops_backend import read_scope
-from assetops_backend.scheduling.health import HealthThresholds, environment_health, release, site_observation
+from assetops_backend.scheduling.health import (HealthThresholds, environment_health, release, schedule_facts,
+                                                site_observation)
 
 BRACKET = timedelta(hours=6)
 _ORDER = ("S3", "S4", "CONSEQUENCE", "SCHEDULE")
@@ -72,6 +75,10 @@ def _start(d: date) -> datetime:
 
 def _overlaps(a0, a1, b0, b1) -> bool:
     return (a0 is None or b1 is None or a0 < b1) and (a1 is None or b0 is None or b0 < a1)
+
+
+def _aware(value: datetime) -> datetime:
+    return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
 
 
 class UpstreamCurrentness:
@@ -98,9 +105,8 @@ class UpstreamCurrentness:
         before = self._match(t, s, bracket_days)
         reads = {d: self.dispatch_read.window(t, s, d) for d in days}
         after = self._match(t, s, bracket_days)
-        raw_now = self.schedule.db_now()
         # D-SR.83a: the one wall-clock capture, through the read-instant seam, so a stored body and the sweep see it.
-        now = read_scope.read_instant(raw_now if raw_now.tzinfo else raw_now.replace(tzinfo=timezone.utc))
+        now = read_scope.read_instant(_aware(self.schedule.db_now()))
 
         blockers: list[tuple[str, str]] = []
         errors: list[dict[str, Any]] = []
@@ -174,20 +180,19 @@ class UpstreamCurrentness:
                                  "last_outcome": w.get("last_outcome"),
                                  "finding_revision_id": None if w.get("finding_revision_id") is None
                                  else str(w["finding_revision_id"]),
-                                 "age_seconds": round((now - w["enqueued_at"]).total_seconds(), 3)})
+                                 "age_seconds": round((now - w["enqueued_at"]).total_seconds(), 3),
+                                 "enqueued_at": w["enqueued_at"]})
 
         tick = self.schedule.tick_head(environment)
         env = environment_health(tick, now, self.th)
         head = self.schedule.site_head(t, s)
         observation = site_observation(head, now, self.th)
-        _register_schedule_flips(tick, head, now, self.th)
+        facts = schedule_facts(tick, head, now, self.th)
         if env["state"] == "STOPPED":
             blockers.append(("SCHEDULE", "SCHEDULE_STOPPED"))
         for o in observation:
             blockers.append(("SCHEDULE", o["code"]))
-        if head and head.get("last_failure_code") and int(head.get("consecutive_failures") or 0) > 0:
-            errors.append({"stage": head.get("last_failure_stage"), "code": head["last_failure_code"],
-                           "error": head.get("last_failure_detail"), "source": "SCHEDULE"})
+        errors.extend(facts["errors"])
 
         eligibility = self._eligibility(blockers, errors, reads, jobs)
         # LR-01 (Architect ruling 2): the raw `money_eligibility` stays the read-derived gate result with its
@@ -211,7 +216,16 @@ class UpstreamCurrentness:
             "schedule": {"environment": environment, "state": env["state"], "heartbeat_at": env["heartbeat_at"],
                          "heartbeat_age_seconds": env["heartbeat_age_seconds"], "environment_alarms": env["alarms"],
                          "site_observation": observation,
-                         "site_last_completed_at": None if head is None else head.get("last_completed_at")}}
+                         "site_last_completed_at": None if head is None else head.get("last_completed_at")},
+            "schedule_facts": facts}
+
+    def schedule_term(self, tenant_id: UUID, site_id: UUID, environment: str = "default") -> str:
+        """D-SR.83b: the live term of a stored Overview's watermark (like `F`): the sha256 of the canonical JSON of
+        `schedule_facts` now. The schedule heads move no W2 watermark, so a stored row keys on this instead."""
+        now = read_scope.read_instant(_aware(self.schedule.db_now()))
+        facts = schedule_facts(self.schedule.tick_head(environment), self.schedule.site_head(tenant_id, site_id),
+                               now, self.th)
+        return hashlib.sha256(json.dumps(facts, sort_keys=True, default=str).encode()).hexdigest()
 
     @staticmethod
     def _eligibility(blockers, errors, reads, jobs) -> dict[str, Any]:
@@ -230,22 +244,3 @@ class UpstreamCurrentness:
             status = "PENDING"
         return {"status": status, "stage": stage, "reasons": reasons, "errors": errors}
 
-
-def _register_schedule_flips(tick: dict[str, Any] | None, head: dict[str, Any] | None, now: datetime,
-                             th: HealthThresholds) -> None:
-    """D-SR.83a: a schedule that stops writes nothing, so no watermark moves; each instant at which a schedule
-    state above can flip is registered as a boundary, so a stored body ends before it reads a stale "running"."""
-    tick = tick or {}
-    ends: list[datetime | None] = [tick.get("lease_until"), tick.get("retry_due_at")]
-    if tick.get("heartbeat_at") is not None:
-        ends.append(tick["heartbeat_at"] + timedelta(seconds=th.stop_after_seconds))
-    if head:
-        ends.append(head.get("lease_until"))
-        done = head.get("last_completed_at")
-        visits = [x for x in (done, head.get("last_failed_at")) if x is not None]
-        for anchor in (max(visits) if visits else None, done):
-            if anchor is not None:
-                ends.append(anchor + timedelta(seconds=th.site_stop_after_seconds))
-    for end in ends:
-        if end is not None:
-            read_scope.within(None, end, now)

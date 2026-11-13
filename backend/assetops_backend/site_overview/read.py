@@ -215,8 +215,11 @@ class SiteOverviewRead:
                           # HON-1 (D-E5.46): a selected day the analysis could not use for a data fact; the day
                           # line then names it, never "Latest complete readings" (`finding_index.data_gap_reason`).
                           "data_gap_reason": data_gap_reason(detail),
-                          "schedule": up["schedule"], "s3_jobs": up["s3_jobs"],
-                          "consequence_work": up["consequence_work"]},
+                          "schedule": {**up["schedule_facts"], "environment": up["schedule"]["environment"]},
+                          "s3_jobs": up["s3_jobs"],
+                          # D-SR.83b: `enqueued_at` (stable) replaces the per-read `age_seconds`.
+                          "consequence_work": [{k: v for k, v in w.items() if k != "age_seconds"}
+                                               for w in up["consequence_work"]]},
             "watermarks": {
                 "accepted_source": fp_after if not (fp_error or fp_error_after) else None,
                 "accepted_source_reason": fp_error or fp_error_after,

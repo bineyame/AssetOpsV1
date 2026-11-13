@@ -264,13 +264,22 @@ def triggered(c: Any) -> dict[str, int]:
     return events
 
 
-def check(c: Any, statements: Iterable[str]) -> dict[str, Any]:
+def route_terms(route: str | None = None) -> set[str]:
+    """D-SR.83b: tables a stored route keys on through its own live term (`StoredRoute.term`) instead of the W2
+    triggers, from `watermark-inputs-v1.json` `route_terms` ({route template: [table]}); `route` is a concrete path
+    (its `{x}` template parts match one segment), None the union."""
+    terms = json.loads((TOOLS.parent / "config" / "chain" / "watermark-inputs-v1.json").read_text()).get("route_terms", {})
+    return {t for tpl, tables in terms.items() for t in tables
+            if route is None or re.fullmatch(re.sub(r"\\\{[^}]*\\\}", "[^/]+", re.escape(tpl)), route)}
+
+
+def check(c: Any, statements: Iterable[str], route: str | None = None) -> dict[str, Any]:
     """The W6 verdict over captured statements, on connection `c`."""
     names: set[str] = set()
     for s in statements:
         names |= targets(s)
     bases, unresolved = resolve(c, names - EXEMPT)
-    bases -= EXEMPT
+    bases -= EXEMPT | route_terms(route)
     events = triggered(c)
     untracked = sorted(t for t in bases if events.get(t) != ALL_FOUR)
     return {"read": sorted(bases), "unresolved": sorted(unresolved), "untracked": untracked,
@@ -327,7 +336,7 @@ def _run(url: str, work: Path) -> dict[str, Any]:
     engine = create_engine(url)
     try:
         with engine.connect() as c:
-            per_route = {route: check(c, stmts) for route, stmts in captured.items()}
+            per_route = {route: check(c, stmts, route) for route, stmts in captured.items()}
             total = check(c, [s for stmts in captured.values() for s in stmts])
     finally:
         engine.dispose()

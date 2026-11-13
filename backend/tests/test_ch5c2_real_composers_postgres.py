@@ -260,4 +260,6 @@ def test_f4_a_planted_read_is_recorded_on_every_route(kobo, monkeypatch, tmp_pat
     from assetops_backend.estate_portfolio_api import PORTFOLIO, SCOPE_IDS
     from assetops_backend.outcome_api import BOARD_ROUTE, SUMMARY_ROUTE
 
-    assert routes == {BOARD_ROUTE, SUMMARY_ROUTE, "/api/estate/findings", PORTFOLIO, SCOPE_IDS}, audit.violations
+    assert routes == {BOARD_ROUTE, SUMMARY_ROUTE, "/api/estate/findings", PORTFOLIO, SCOPE_IDS,
+                      "/api/sites/{site_id}/overview", "/api/sites/{site_code}/finding-index",
+                      "/api/estate/scope"}, audit.violations

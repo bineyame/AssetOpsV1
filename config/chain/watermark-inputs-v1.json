@@ -87,5 +87,11 @@
     "work_case_finding_link",
     "work_case_revision",
     "work_event"
-  ]
+  ],
+  "route_terms": {
+    "/api/sites/{site_id}/overview": [
+      "schedule_tick_head",
+      "schedule_site_head"
+    ]
+  }
 }
