@@ -50,6 +50,15 @@ COVERAGE_ROLES = (dispatch_v3.LOAD, dispatch_v3.PV_AVAILABLE, dispatch_v3.DISCHA
 class UnsupportedModel(Exception):
     """A selected revision of a model whose stored segment vocabulary is not mapped (never guessed)."""
 
+    def __init__(self, message: str, *, revision: Any = None, model: Any = None) -> None:
+        super().__init__(message)
+        self.revision, self.model = revision, model
+
+
+class StoredSiteNotFound(Exception):
+    """The Site code resolved to a stored Site, but no stored Site row answers it (AP-1 L1: never a LookupError,
+    so a missing key in a stored row stays a 500 and is not reported as "Site not found")."""
+
 
 class StoredDeclarationStore(Protocol):
     def read_snapshot(self, work: Any) -> Any: ...
@@ -134,7 +143,7 @@ def v3_assessment_view(revision: dict[str, Any]) -> dict[str, Any]:
     if revision.get("model_version") not in SUPPORTED_MODELS:
         raise UnsupportedModel(
             f"Readiness maps {', '.join(SUPPORTED_MODELS)} results only; revision {revision.get('id')} is "
-            f"{revision.get('model_version')}.")
+            f"{revision.get('model_version')}.", revision=revision.get("id"), model=revision.get("model_version"))
     result = revision.get("result") or {}
     segments = list(result.get("segments", []))
     observed = [s for s in segments if s.get("observed")]
@@ -170,7 +179,7 @@ def stored_site_declaration(store: StoredDeclarationStore, tenant_id: UUID, site
     def work(c: Any) -> dict[str, Any]:
         site_type = store.site_type_on(c, tenant_id, site_id)
         if site_type is None:
-            raise LookupError(f"Site {site_code} is not in the stored Site table.")
+            raise StoredSiteNotFound(f"Site {site_code} is not in the stored Site table.")
         declarations = applicable(site_type)
         if not declarations:
             return declaration_payload(site_code, site_type, lambda d: ([], []), {}, window)

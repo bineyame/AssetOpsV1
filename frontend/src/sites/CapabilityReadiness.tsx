@@ -222,7 +222,7 @@ function referenceText(row: EvidenceRequirement): string | null {
 }
 
 function referenceSuffix(row: EvidenceRequirement): string {
-  if (row.unbound === true) return " (reference Not bound)";
+  if (row.unbound === true) return " (Not bound)";
   const ref = referenceText(row);
   return ref === null ? "" : ` (reference ${ref})`;
 }

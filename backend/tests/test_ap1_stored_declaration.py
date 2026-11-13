@@ -347,3 +347,17 @@ def test_route_unsupported_model_is_422():
 def test_route_bad_window_is_still_422_on_the_stored_branch():
     client, _ = app_client(FakeStore())
     assert client.get("/api/sites/KOBO-001/analytics?from=2026-10-08").json()["detail"]["code"] == "INVALID_WINDOW"
+
+
+class _KeyErrorStore(FakeStore):
+    def role_presence(self, c, t, s, roles):
+        raise KeyError("role")
+
+
+def test_route_missing_stored_site_is_404_but_a_key_error_is_never_site_not_found():
+    """AP-1 L1 (D-SR.79): only `StoredSiteNotFound` maps to 404; a programming KeyError stays a 500."""
+    client, _ = app_client(FakeStore(site_type=None))
+    response = client.get("/api/sites/KOBO-001/analytics")
+    assert response.status_code == 404 and response.json()["detail"]["code"] == "SITE_NOT_FOUND"
+    failing = TestClient(app_client(_KeyErrorStore())[0].app, raise_server_exceptions=False)
+    assert failing.get("/api/sites/KOBO-001/analytics").status_code == 500

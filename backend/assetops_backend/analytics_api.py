@@ -17,7 +17,7 @@ from fastapi.encoders import jsonable_encoder
 from assetops_backend.analytics.declaration import applicable, site_declaration
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable
 from assetops_backend.analytics.service import AssessmentService
-from assetops_backend.analytics.stored_declaration import UnsupportedModel
+from assetops_backend.analytics.stored_declaration import StoredSiteNotFound, UnsupportedModel
 from assetops_backend.evidence.ports import EvidenceStore, EvidenceStoreUnavailable
 from assetops_backend.i18n import message, render
 from assetops_backend.sites.models import SiteRecord
@@ -164,7 +164,7 @@ def build_analytics_router(
         except UnsupportedModel as error:
             raise HTTPException(status_code=422, detail={
                 "code": "UNSUPPORTED_RULE_VERSION", "message": str(error)}) from error
-        except LookupError as error:
+        except StoredSiteNotFound as error:
             raise HTTPException(status_code=404, detail={
                 "code": "SITE_NOT_FOUND", "message": render(message("analytics.site_not_found", site_id=code))
             }) from error
