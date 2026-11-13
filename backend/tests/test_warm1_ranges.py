@@ -233,6 +233,7 @@ def test_serve_ticks_over_http_then_starts_the_warm(tmp_path, monkeypatch):
     demo = object.__new__(dc.Demo)
     demo.work = demo.tree = tmp_path
     demo.story = lambda: {}
+    (tmp_path / dc.Demo.EVIDENCE_TREE_MARK).write_text(str(tmp_path), encoding="utf-8")  # D-SR.67: comparison built here
     demo.write_prebuilt_routes = lambda: None
     demo.links = lambda web: None
     demo.env = lambda keys=False: {}

@@ -736,6 +736,20 @@ def plain_lines(added: list[dict], skipped: list[dict], no_session: list[dict], 
     return lines
 
 
+def row_builder_versions() -> dict[str, str]:
+    """D-SR.63: the running code's row builder versions (imported, never hard-coded)."""
+    from assetops_backend.chain import dispatch_day_rows as dd
+    from assetops_backend.estate import period_rows as ev
+    from assetops_backend.mini_depth import period_rows as md
+
+    return {"mini_depth": md.BUILDER_VERSION, "dispatch_day": dd.BUILDER_VERSION, "evidence": ev.BUILDER_VERSION}
+
+
+PERIOD_READ_KINDS_ENV = "ASSETOPS_PERIOD_READ_KINDS"
+PERIOD_READ_KINDS = ("dispatch.day", "evidence.claim", "mini_depth.renewable", "mini_depth.fuel",
+                     "mini_depth.service", "mini_depth.backup")
+
+
 class Demo:
     step = ""  # DD1b2-R8 C2: the label of the last child started (the manifest's `failed_at`)
     prebuild_base: str | None = None  # WARM-1: set by `serve` once its API answers
@@ -784,6 +798,12 @@ class Demo:
             out[PREBUILT_ROUTES_ENV] = str(routes)
         if self.prebuild_base:  # WARM-1 (BL-71 part 2): while serve runs, the tick's prebuild goes over HTTP to it
             out[PREBUILD_BASE_ENV] = self.prebuild_base
+        # D-SR.63: the stored-row read kinds are on only when the prepare's row step reported ok; an operator's own
+        # value (including empty = off) wins; no file or not ok = off (the existing failure line already said why).
+        if PERIOD_READ_KINDS_ENV in os.environ:
+            out[PERIOD_READ_KINDS_ENV] = os.environ[PERIOD_READ_KINDS_ENV]
+        else:
+            out[PERIOD_READ_KINDS_ENV] = ",".join(self.period_read_kinds())
         return out
 
     def start_warm(self, port: int) -> subprocess.Popen:
@@ -797,6 +817,30 @@ class Demo:
                                  str(self.work), "--db-url", self.url], cwd=str(self.tree), env=self.env(),
                                 stdout=log, stderr=subprocess.STDOUT,
                                 start_new_session=(os.name == "posix"))  # L4: `_kill_tree` must not reach serve
+
+    def period_read_kinds(self) -> tuple[str, ...]:
+        """D-SR.63: the six board kinds when `period-rows.json` reads `ok: true`, else none. The day kinds
+        (fuel_day/backup_day) read rows regardless (D-SR.52), so `day-rows.json` does not gate this list."""
+        try:
+            doc = json.loads((self.work / "period-rows.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return ()
+        if not (isinstance(doc, dict) and doc.get("ok") is True):
+            return ()
+        built = doc.get("builder_versions")
+        built = built if isinstance(built, dict) else {}
+        running = row_builder_versions()
+        out: list[str] = []
+        for kind in PERIOD_READ_KINDS:
+            group = kind.split(".")[0] if kind.startswith("mini_depth.") else kind
+            group = "mini_depth" if group == "mini_depth" else {"dispatch.day": "dispatch_day",
+                                                                  "evidence.claim": "evidence"}[kind]
+            if built.get(group) == running[group]:
+                out.append(kind)
+        for group in sorted({g for g in running if built.get(g) != running[g]}):
+            say(f"  rebuild {group} rows: built by {built.get(group)}, code is {running[group]}"
+                f" ({group} kinds left off)")
+        return tuple(out)
 
     def write_prebuilt_routes(self) -> Path | None:
         """E4 D-E4.1 (C2): (re)write `<work>/prebuilt-routes.json` from the story links and each Site's dates after S
@@ -1029,6 +1073,26 @@ class Demo:
         (self.work / "after-children.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
         return out
 
+    EVIDENCE_TREE_MARK = "evidence-comparison-tree.txt"
+
+    def evidence_comparisons(self, story: dict) -> None:
+        """D-SR.67: `evidence_migration run` for EVERY imported story Site (the ledger opens only after a passing
+        comparison bound to this DB and store root). Exit 2 ("cannot be compared") stops the prepare; it is never
+        served as "awaiting". The Performance comparison follows in `performance_and_prebuild`."""
+        say("  S2 evidence comparison, every story Site")
+        for site in story["sites"]:
+            code = SITE_CODE[site]
+            done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", code,
+                           label=f"s2-comparison {code}", check=False)
+            tail = (done.stdout.strip().splitlines() or ["(no output)"])[-1]
+            if done.returncode == 2:
+                raise SystemExit(f"STOPPED: the evidence comparison for {code} cannot be compared (exit 2): {tail[:300]}"
+                                 " Do not serve it; send this to the Architect (D-SR.67).")
+            if done.returncode != 0:
+                raise SystemExit(f"FAILED: the evidence comparison for {code} (exit {done.returncode}): {tail[:300]}")
+            say(f"  {code}: {tail}")
+        (self.work / self.EVIDENCE_TREE_MARK).write_text(str(self.tree), encoding="utf-8")
+
     def finish(self, story: dict, steps: dict[str, float] | None = None) -> None:
         steps = steps if steps is not None else {}
         say("=== Objectives, S2 comparison, two ticks, Performance comparison ===")
@@ -1041,10 +1105,7 @@ class Demo:
                 lines += [json.loads(x) for x in done.stdout.splitlines() if x.startswith("{")]
             (self.work / "objectives.json").write_text(json.dumps(lines, indent=2), encoding="utf-8")
             say(f"  objectives: {len(lines)} lines")
-        if "kobo" in story["sites"]:
-            done = self.py("-m", "assetops_backend.evidence_migration", "run", "--tenant", "demo", "--site", "KOBO-001",
-                           label="s2-comparison")
-            say("  " + (done.stdout.strip().splitlines() or ["(no output)"])[-1])
+        self.evidence_comparisons(story)
         if {"kobo", "kisiwa"} & set(story["sites"]):
             self.drain_mini()
         t0 = time.monotonic()
@@ -1113,6 +1174,7 @@ class Demo:
             + ("" if ok else "  NOT COMPLETE"))
         (self.work / "period-rows.json").write_text(json.dumps(
             {"ok": ok, "seconds": steps["period-rows"], "sites": codes,
+             "builder_versions": row_builder_versions(),
              "cap_seconds": self.PERIOD_ROWS_CAP_SECONDS}, indent=2), encoding="utf-8")
         return ok
 
@@ -1636,7 +1698,11 @@ class Demo:
                 say(f"  {SITE_CODE[site]}: " + "; ".join(cells))
 
     def serve(self, port: int, web: int, warm: bool = True) -> None:
-        self.story()
+        story = self.story()
+        mark = self.work / self.EVIDENCE_TREE_MARK
+        if not mark.is_file() or mark.read_text(encoding="utf-8").strip() != str(self.tree):
+            say("Evidence comparison was not built in this tree: rerunning it first (D-SR.67).")
+            self.evidence_comparisons(story)
         self.write_prebuilt_routes()  # E4 D-E4.1: before the serve env is built
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
