@@ -271,18 +271,18 @@ def test_overview_second_get_is_stored_and_a_stale_schedule_misses_with_schedule
     from sqlalchemy import create_engine, text
 
     url, work = kobo
-    path = f"/api/sites/{CODE}/overview?date=2026-10-06"
+    path = f"/api/sites/{CODE}/overview?date=2026-10-07"  # a day the C4 sweep (its own synthetic clock) never stores
     with _app(monkeypatch, url, work, "on") as c:
         engine = create_engine(url)
         try:
             with engine.begin() as conn:  # a live heartbeat first, so the planted stale one is a real state flip
                 conn.execute(text("INSERT INTO schedule_tick_head (environment, heartbeat_at, created_at) VALUES "
-                                  "('default', now(), now()) ON CONFLICT (environment) DO UPDATE SET heartbeat_at = now()"))
+                                  "('default', clock_timestamp(), now()) ON CONFLICT (environment) DO UPDATE SET heartbeat_at = clock_timestamp()"))
             first, body = _get(c, path)
             again, _ = _get(c, path)
             assert again == "hit", (first, again)
             with engine.begin() as conn:
-                conn.execute(text("UPDATE schedule_tick_head SET heartbeat_at = now() - interval '2 hours'"))
+                conn.execute(text("UPDATE schedule_tick_head SET heartbeat_at = clock_timestamp() - interval '2 hours'"))
         finally:
             engine.dispose()
         after, stale = _get(c, path)
