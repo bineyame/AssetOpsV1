@@ -260,6 +260,8 @@ describe("SR-7 / SR-11: Service and Backup over a range send one range read with
   it.each([
     ["Service, Yesterday", `/sites/KOBO-001/performance/service?${Y}`, `/api/sites/KOBO-001/service-range?${Y}`],
     ["Service, 7 days at a cutoff", `/sites/KOBO-001/performance/service?${W}&${K}`, `/api/sites/KOBO-001/service-range?${W}&${K}`],
+    ["Backup, 7 days", `/sites/KOBO-001/performance/backup?${W}`, `/api/sites/KOBO-001/backup-range?${W}`],
+    ["Backup, Kisiwa 7 days", `/sites/KISIWA-001/performance/backup?${W}`, `/api/sites/KISIWA-001/backup-range?${W}`],
   ])("%s", async (_label, path, expected) => {
     const code = path.split("/")[2];
     const got = await siteRequestsAt(path, code === "KOBO-001" ? site : as(HYBRID_MINI_GRID_SITE, code));

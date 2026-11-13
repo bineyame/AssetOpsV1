@@ -60,6 +60,7 @@ import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { RangeSpan } from "../ui/rangeFocus";
 import { addressRange, rangeWindow, useSharedRange } from "../ui/sharedRange";
 import { MiniServiceRange } from "./MiniServiceRange";
+import { MiniBackupRange } from "./MiniBackupRange";
 import { BackToRange } from "./SiteRangeParts";
 import type { SiteRangeClient } from "./siteRangeClient";
 
@@ -1981,8 +1982,19 @@ export function MiniBackupPage({ read, timeZone }: { read: BackupRead; timeZone:
   );
 }
 
-/** The Backup page body: the hour bar, then the selected read or its refusal. */
-export function MiniBackup({ client, siteCode, timeZone, window, pageHref }: MiniTabProps): ReactNode {
+/**
+ * The Backup tab: over a date range, the day table (SR-11, `MiniBackupRange`); for one Site-local hour the existing hour
+ * page with "Back to the whole range" (rev 10b.3).
+ */
+export function MiniBackup(props: MiniTabProps): ReactNode {
+  const [params] = useSearchParams();
+  const range = props.timeZone === null ? null : miniRangeView(params, props.timeZone);
+  if (range !== null) return <MiniBackupRange siteCode={props.siteCode} window={range} client={props.rangeClient} />;
+  return <MiniBackupHour {...props} />;
+}
+
+/** The Backup hour page body: the hour bar, then the selected read or its refusal. */
+function MiniBackupHour({ client, siteCode, timeZone, window, pageHref }: MiniTabProps): ReactNode {
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
@@ -2000,6 +2012,7 @@ export function MiniBackup({ client, siteCode, timeZone, window, pageHref }: Min
         timeZone={timeZone}
         window={window}
         onApply={(next) => navigate(pageHref(miniWindowSearch(next)))}
+        back={<BackToRange path={pageHref("")} />}
       />
       {read === null ? (
         <p role="status">{MINI_LOADING}</p>
