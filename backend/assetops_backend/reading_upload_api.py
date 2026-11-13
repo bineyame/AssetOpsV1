@@ -46,6 +46,12 @@ def _rendered(body: dict) -> dict:
         body["text"] = render(body["words"])
     if isinstance(body.get("uploaded_by"), dict):
         body["uploaded_by_text"] = render(body["uploaded_by"])
+    preview = body.get("preview")
+    if isinstance(preview, dict):
+        for column in preview.get("columns") or ():
+            for name in ("meter", "role_name"):
+                if isinstance(column.get(name), dict):
+                    column[f"{name}_text"] = render(column[name])
     return body
 
 
@@ -122,6 +128,17 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
             return _refusal(413, "FILE_TOO_LARGE", refusal_words("FILE_TOO_LARGE", limit_mb=MAX_BYTES // 2**20))
         assert service is not None  # open_site refused otherwise
         return run(lambda: service.upload(tenant_id, site_id, file_name, data, dry == "true"))
+
+    @router.get("/api/sites/{site_code}/reading-uploads")
+    async def get_uploads_entry(request: Request, site_code: str) -> JSONResponse:
+        """Whether the upload page is on for this Site (the Health panel shows only on 200), with the template
+        words. Off, or another Site, is the same 403 the POST gives."""
+        opened = open_site(request, site_code)
+        if isinstance(opened, JSONResponse):
+            return opened
+        return JSONResponse(status_code=200, content={"enabled": True,
+                                                      "template_note": render(message("reading_upload.template_note"))},
+                            headers={"Cache-Control": "no-store"})
 
     # Declared before `/{upload_id}`, so "template" is never read as an upload reference.
     @router.get("/api/sites/{site_code}/reading-uploads/template")

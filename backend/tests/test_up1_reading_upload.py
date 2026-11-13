@@ -35,7 +35,7 @@ def _preview(first: datetime = D17 + timedelta(minutes=15)) -> Preview:
     return Preview(profile_sha256=P, file_sha256="b" * 64, period_start=first - timedelta(minutes=15),
                    period_end=first + timedelta(hours=10), rows=40, cells=160, readings=156, blanks=4,
                    columns=({"row_id": "pv-ac-power", "column": "pv_ac_power", "unit": "kW", "readings": 39,
-                             "blanks": 1},),
+                             "blanks": 1, "device_id": "pv-inverter-controller", "role": "pv_power"},),
                    first_interval_end_by_role={"pv_power": first, "feeder_demand": first})
 
 
@@ -260,6 +260,28 @@ def test_a_failed_analysis_is_not_analysed_and_analysed_links_the_board_day():
     assert body["state"] == "ANALYSED" and body["board_day"] == "2026-11-16"
     store.progress_of = Progress(160, False, board_day="2026-11-16")
     assert "board_day" not in client.get(f"{URL}/{upload_id}").json()
+
+
+def test_the_entry_read_is_on_only_for_the_switched_site():
+    """The Health panel and the page ask `GET .../reading-uploads`: 200 with the template words when the switch
+    names the Site; the POST's 403s otherwise (off, or another Site)."""
+    client, *_ = _client()
+    body = client.get(URL).json()
+    assert body["enabled"] is True and "'CSV (Comma delimited)', not 'CSV UTF-8'" in body["template_note"]
+    off, *_ = _client(on=False)
+    assert (off.get(URL).status_code, off.get(URL).json()["code"]) == (403, "READING_UPLOAD_OFF")
+    other, *_ = _client(sites=frozenset({"COLD-LAB-001"}))
+    assert other.get(URL).json()["code"] == "READING_UPLOAD_NOT_THIS_SITE"
+
+
+def test_the_dry_run_names_the_meters_and_the_latest_saved_reading():
+    client, *_ = _client()
+    body = _post(client).json()
+    column = body["preview"]["columns"][0]
+    assert (column["meter_text"], column["role_name_text"]) == ("Solar inverter output", "Solar power")
+    assert body["latest_saved"] == "2026-11-17T00:00:00Z"  # the later of the roles' latest readings
+    empty, *_ = _client(store=FakeStore(latest={"x": D17}))
+    assert _post(empty).json()["latest_saved"] is None
 
 
 def test_an_unknown_or_other_site_upload_is_404():

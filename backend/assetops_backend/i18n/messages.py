@@ -70,6 +70,13 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "reading_upload.refused.already_recorded": (
             "The file was not saved: this site already has {role} readings up to {latest} (UTC). Only readings "
             "after that can be uploaded."),
+        # The upload page's "Matched to" column (the CSV profile's devices and roles, Kobo only).
+        "reading_upload.meter.pv-inverter-controller": "Solar inverter output",
+        "reading_upload.meter.clinic-meter": "Clinic feeder meter",
+        "reading_upload.meter.mill-meter": "Mill feeder meter",
+        "reading_upload.meter.residential-meter": "Residential feeder meter",
+        "reading_upload.role_name.pv_power": "Solar power",
+        "reading_upload.role_name.feeder_demand": "Feeder demand",
         "reading_upload.role.pv_power": "solar",
         "reading_upload.role.feeder_demand": "feeder meter",
         "reading_upload.refused.file_too_large": "The file was not saved: it is larger than {limit_mb} MB.",

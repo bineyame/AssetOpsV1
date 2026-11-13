@@ -170,11 +170,14 @@ class ReadingUploadService:
         checked = self._checker.check(data)
         if isinstance(checked, FileRefusal):
             return self._refuse_file(tenant_id, site_id, file_name, data, checked, None, dry_run)
-        overlap = self._overlap(tenant_id, site_id, checked)
+        latest = self._store.latest_accepted_by_role(tenant_id, site_id, sorted(checked.first_interval_end_by_role))
+        overlap = self._overlap(checked, latest)
         if overlap is not None:
             return self._refuse_file(tenant_id, site_id, file_name, data, overlap, checked, dry_run)
         if dry_run:
+            # `latest_saved`: the Site's latest accepted reading over the file's roles (the page's confirm line).
             return 200, {"dry_run": True, "state": "CHECKED", "preview": self._preview_view(checked),
+                         "latest_saved": _iso(max(latest.values())) if latest else None,
                          "words": message("reading_upload.checked", readings=checked.readings + checked.blanks)}
         if self._sender is None:
             raise GatewayUnavailable("no demo upload gateway is configured")
@@ -191,10 +194,9 @@ class ReadingUploadService:
             entered_by=self._entered_by))
         return 201, self._status_view(row, Progress(accepted=0, analysed=False), checked, sent.held_by_column)
 
-    def _overlap(self, tenant_id: UUID, site_id: UUID, checked: Preview) -> FileRefusal | None:
-        roles = sorted(checked.first_interval_end_by_role)
-        latest = self._store.latest_accepted_by_role(tenant_id, site_id, roles)
-        for role in roles:
+    @staticmethod
+    def _overlap(checked: Preview, latest: Mapping[str, datetime]) -> FileRefusal | None:
+        for role in sorted(checked.first_interval_end_by_role):
             if role in latest and checked.first_interval_end_by_role[role] <= latest[role]:
                 return FileRefusal("ALREADY_RECORDED", role, _iso(latest[role]) or "")
         return None
@@ -285,7 +287,8 @@ class ReadingUploadService:
         return {"profile_sha256": checked.profile_sha256, "file_sha256": checked.file_sha256,
                 "period_start": _iso(checked.period_start), "period_end": _iso(checked.period_end),
                 "rows": checked.rows, "cells": checked.cells, "readings": checked.readings, "blanks": checked.blanks,
-                "columns": [dict(c) for c in checked.columns]}
+                "columns": [{**dict(c), "meter": message(f"reading_upload.meter.{c['device_id']}"),
+                             "role_name": message(f"reading_upload.role_name.{c['role']}")} for c in checked.columns]}
 
 
 def preview_from_document(document: Mapping[str, Any]) -> Preview:
