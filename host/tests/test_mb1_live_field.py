@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import signal
 import sys
 from datetime import datetime, timedelta, timezone
@@ -120,16 +121,70 @@ def test_stop_kills_live_children_by_pid_and_forgets_them(tmp_path: Path) -> Non
     folder.mkdir()
     ug.write_json(folder / lf.PIDS, {"emulator": 11, "poller": 12, "window": ["a", "b"]})
     killed = []
-    out = lf.stop(tmp_path, kill=lambda pid, sig: killed.append((pid, sig)), is_alive=lambda pid: pid == 12)
+    out = lf.stop(tmp_path, kill=lambda pid, sig: killed.append((pid, sig)), is_alive=lambda pid: pid == 12,
+                  ours=lambda pid, name: True)
     assert killed == [(12, signal.SIGTERM)] and out == {"stopped": [{"poller": 12}]}
     assert not (folder / lf.PIDS).exists()
     assert lf.stop(tmp_path) == {"stopped": []}
 
 
+def test_stop_does_not_signal_a_pid_that_is_no_longer_ours(tmp_path: Path) -> None:
+    folder = lf.live_dir(tmp_path)
+    folder.mkdir()
+    ug.write_json(folder / lf.PIDS, {"emulator": os.getpid(), "poller": 12})  # this process is not a gx_server
+    killed = []
+    out = lf.stop(tmp_path, kill=lambda pid, sig: killed.append(pid), is_alive=lambda pid: True)
+    assert killed == [] and out == {"stopped": []} and not (folder / lf.PIDS).exists()
+    assert lf.is_ours(os.getpid(), "emulator") is False
+
+
+def _serve_with_stubs(monkeypatch, tmp_path: Path, switch: str | None) -> dict:
+    """Run Demo.serve with every process and step stubbed; report what it started and stopped."""
+    import demo_combined
+
+    seen: dict = {"gateway": 0, "live_stop": []}
+    if switch is None:
+        monkeypatch.delenv(lf.SWITCH_ENV, raising=False)
+    else:
+        monkeypatch.setenv(lf.SWITCH_ENV, switch)
+    monkeypatch.delenv("ASSETOPS_READING_UPLOAD_SITES", raising=False)
+    demo = object.__new__(demo_combined.Demo)
+    demo.db, demo.work, demo.tree = "x_test", tmp_path, tmp_path / "tree"
+    (tmp_path / "tree").mkdir(exist_ok=True)
+    (tmp_path / demo_combined.Demo.EVIDENCE_TREE_MARK).write_text(str(demo.tree), encoding="utf-8")
+    demo.story = lambda: {}
+    demo.write_prebuilt_routes = lambda: None
+    demo.serve_env = lambda: {}
+
+    def gateway(logs):
+        seen["gateway"] += 1
+        return {}, []
+
+    demo.start_upload_gateway = gateway
+
+    def api_fails(api, log, port, web):
+        raise RuntimeError("api down")
+
+    demo._serve_api = api_fails
+    monkeypatch.setattr(demo_combined.subprocess, "Popen", lambda *a, **k: object())
+    monkeypatch.setattr(demo_combined.live_field, "stop", lambda work: seen["live_stop"].append(work))
+    with pytest.raises(RuntimeError, match="api down"):
+        demo.serve(8100, 5173, warm=False)
+    return seen
+
+
+def test_serve_with_the_switch_starts_the_gateway_and_always_stops_the_live_field(monkeypatch, tmp_path: Path) -> None:
+    seen = _serve_with_stubs(monkeypatch, tmp_path, lf.SITE)
+    assert seen["gateway"] == 1 and seen["live_stop"] == [tmp_path]  # even though the API failed
+
+
+def test_serve_without_the_switch_starts_no_gateway(monkeypatch, tmp_path: Path) -> None:
+    assert _serve_with_stubs(monkeypatch, tmp_path, None)["gateway"] == 0
+    assert _serve_with_stubs(monkeypatch, tmp_path, "OTHER-001")["gateway"] == 0
+
+
 def test_serve_starts_the_edge_gateway_for_either_switch_and_the_cli_has_live_field() -> None:
     import demo_combined
 
-    source = Path(demo_combined.__file__).read_text(encoding="utf-8")
-    assert "upload_gateway.upload_switched_on() or live_field.live_switched_on()" in source
     with pytest.raises(SystemExit):  # argparse: the step must be one of the four
         demo_combined.main(["--db", "x_test", "--work", "var/x", "live-field", "go"])

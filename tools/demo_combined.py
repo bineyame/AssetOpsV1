@@ -1723,6 +1723,7 @@ class Demo:
             for helper in helpers:
                 if helper.poll() is None:
                     _kill_tree(helper.pid)
+            live_field.stop(self.work)  # MB-1: the detached emulator and poller never outlive serve
 
     def start_upload_gateway(self, logs: Path) -> tuple[dict[str, str], list[subprocess.Popen]]:
         """UP-1 D-UP.2: the TLS central on :8443 and the persistent Kobo edge gateway, then its activation; returns the

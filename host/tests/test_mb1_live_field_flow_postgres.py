@@ -184,6 +184,24 @@ def test_live_modbus_is_accepted_across_an_uplink_stop_and_analysed(tmp_path: Pa
     assert intervals and gaps == [], gaps  # no evidence gap across the stop
     assert overlaps == [], overlaps  # the finish check
 
+    # the tool's own DB reads, on the flow's data
+    latest = lf.latest_accepted(expect)
+    assert set(latest) == set(expect["row_sources"]), latest  # every profile row, incl. sources shared by two rows
+    assert lf.overlap_refusal(latest, START) != [] and lf.overlap_refusal(latest, STOP) == []
+    assert lf.disabled_sources(expect) == []  # the flow enabled every source it feeds
+    with engine.connect() as c:  # the finish check finds a real overlap: shift one interval, then roll back
+        trans = c.begin()  # the ledger is append-only; the trigger is disabled inside this rolled-back transaction only
+        c.execute(text("ALTER TABLE accepted_evidence DISABLE TRIGGER USER"))
+        victim = c.execute(text(
+            "SELECT id FROM accepted_evidence WHERE site_id = :s AND sequence_epoch = :e AND interval_start IS NOT NULL "
+            "ORDER BY device_id, signal_id, interval_start LIMIT 1"), {"s": site_id, "e": EPOCH}).scalar_one()
+        c.execute(text("UPDATE accepted_evidence SET interval_end = interval_end + interval '150 seconds' "
+                       "WHERE id = :i"), {"i": victim})
+        shifted = c.execute(text(lf.OVERLAP_SQL), {"t": tenant_id, "site": site_id, "epoch": EPOCH,
+                                                   "lo": START - timedelta(days=1)}).all()
+        trans.rollback()
+    assert shifted, "the overlap check must see a shifted interval"
+
     capsys.readouterr()
     assert assess_dispatch.main(["process-jobs"]) == 0
     outcomes = json.loads(capsys.readouterr().out)

@@ -62,7 +62,7 @@ def switched_sites(environ: Mapping[str, str] = os.environ) -> set[str]:
 
 
 def live_switched_on(environ: Mapping[str, str] = os.environ) -> bool:
-    return bool(switched_sites(environ))
+    return SITE in switched_sites(environ)  # only KOBO-001 starts the shared gateway (as UP-1's switch does)
 
 
 def zulu(instant: datetime) -> str:
@@ -136,12 +136,26 @@ def alive(pid: int) -> bool:
     return True
 
 
+def is_ours(pid: int, name: str) -> bool:
+    """The PID still names the process we started (Linux /proc cmdline), not a reused one. Where /proc is absent the
+    check cannot be made, so liveness alone decides."""
+    marker = "gx_server" if name == "emulator" else "modbus_poller"
+    try:
+        cmdline = Path(f"/proc/{pid}/cmdline").read_bytes().decode("utf-8", "replace")
+    except FileNotFoundError:
+        return not Path("/proc/self").exists()
+    except OSError:
+        return False
+    return marker in cmdline
+
+
 def read_pids(folder: Path) -> dict[str, Any] | None:
     path = folder / PIDS
     return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
 
 
-def stop(work: Path, kill: Callable[[int, int], None] = os.killpg, is_alive: Callable[[int], bool] = alive) -> dict:
+def stop(work: Path, kill: Callable[[int, int], None] = os.killpg, is_alive: Callable[[int], bool] = alive,
+         ours: Callable[[int, str], bool] = is_ours) -> dict:
     folder = live_dir(work)
     pids = read_pids(folder)
     if pids is None:
@@ -149,7 +163,7 @@ def stop(work: Path, kill: Callable[[int, int], None] = os.killpg, is_alive: Cal
     stopped = []
     for name in ("poller", "emulator"):
         pid = pids.get(name)
-        if pid and is_alive(pid):
+        if pid and is_alive(pid) and ours(pid, name):
             try:
                 kill(pid, signal.SIGTERM)  # its own session: the group is the child alone
                 stopped.append({name: pid})
@@ -171,7 +185,9 @@ def _engine():
 def latest_accepted(expect: Mapping[str, Any]) -> dict[str, datetime]:
     from sqlalchemy import text
 
-    names = {source: signal for signal, source in expect["row_sources"].items()}
+    names: dict[str, list[str]] = {}
+    for signal, source in expect["row_sources"].items():
+        names.setdefault(source, []).append(signal)
     engine = _engine()
     try:
         with engine.connect() as c:
@@ -181,7 +197,7 @@ def latest_accepted(expect: Mapping[str, Any]) -> dict[str, datetime]:
                              {"t": expect["tenant_id"], "site": expect["site_id"], "ids": list(names)}).all()
     finally:
         engine.dispose()
-    return {names[r.s]: r.latest for r in rows}
+    return {signal: r.latest for r in rows for signal in names[r.s]}
 
 
 def disabled_sources(expect: Mapping[str, Any]) -> list[str]:
@@ -259,7 +275,7 @@ def start(work: Path, site: str, from_text: str | None, hours: int, *, environ: 
                                "first (it starts and activates the Kobo edge gateway)")
     folder = live_dir(work)
     running = read_pids(folder)
-    if running and any(alive(p) for k, p in running.items() if k in ("poller", "emulator")):
+    if running and any(alive(p) and is_ours(p, k) for k, p in running.items() if k in ("poller", "emulator")):
         raise LiveFieldRefused(f"live Modbus is already running ({running}); `stop` it first")
     start_at, end_at = live_window(from_text, hours, now())
     state = ug.state_dir(work)
@@ -286,15 +302,15 @@ def start(work: Path, site: str, from_text: str | None, hours: int, *, environ: 
                       logs / "live-field-emulator.log", env)
     pids = {"emulator": emulator.pid, "window": [zulu(start_at), zulu(end_at)]}
     ug.write_json(folder / PIDS, pids)
-    ug.wait_for_line(logs / "live-field-emulator.log", "READY", lambda: emulator.poll() is None, timeout=30)
-    poller = _spawn(poller_argv(python, gateway, folder / EXPECT, folder / "poller", end_at),
-                    logs / "live-field-poller.log", env)
-    pids["poller"] = poller.pid
-    ug.write_json(folder / PIDS, pids)
     try:
+        ug.wait_for_line(logs / "live-field-emulator.log", "READY", lambda: emulator.poll() is None, timeout=30)
+        poller = _spawn(poller_argv(python, gateway, folder / EXPECT, folder / "poller", end_at),
+                        logs / "live-field-poller.log", env)
+        pids["poller"] = poller.pid
+        ug.write_json(folder / PIDS, pids)
         ug.wait_for_line(logs / "live-field-poller.log", "FIELD-POLLER START", lambda: poller.poll() is None,
                          timeout=60)
-    except ug.GatewayPrepareRefused:
+    except Exception:  # a start that fails stops what it started (never leaves the emulator or poller behind)
         stop(work)
         raise
     return {**pids, "enabled_sources": enabled, "observations": manifest["observation_count"],

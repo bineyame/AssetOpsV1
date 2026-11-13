@@ -60,3 +60,14 @@ and main (D-MB.1-2) merged in at b2d6ebcfc. Spec: rev 7 section 7.6 / D-17N.6
 
 ## User review
 Not required before review (switched off by default); shown at the field beat walkthrough.
+
+## Fix round (review L1-L4 + nits)
+- L1 serve's `finally` calls `live_field.stop(self.work)`. L2 `start` wraps the emulator READY wait, poller spawn and poller wait
+  in one `try`; any failure calls `stop`. L3 `is_ours(pid, name)` checks `/proc/<pid>/cmdline` (`gx_server`/`modbus_poller`)
+  before any kill and before "already running"; `stop` clears `pids.json` either way.
+- L4 tests: `test_serve_with_the_switch_...` / `..._without_the_switch_...` run `Demo.serve` with stubs (behavioural, replaced
+  the source-string match); `test_stop_does_not_signal_a_pid_that_is_no_longer_ours`; the flow test now asserts
+  `latest_accepted`, `overlap_refusal` (non-empty at START, empty at STOP), `disabled_sources == []`, and that `OVERLAP_SQL`
+  finds a shifted interval (rolled back).
+- Nits: `latest_accepted` keeps every signal of a shared source; `live_switched_on` requires KOBO-001 in the switch.
+- Runs: no-DB 58 passed (6.5 s). Postgres flow on assetops_mb1_test: 1 passed, 134 s (trigger disabled only inside a rolled-back txn for the shifted-interval proof).
