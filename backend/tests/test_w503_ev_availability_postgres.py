@@ -27,7 +27,7 @@ TOP_KEYS = ["calculation_version", "schedule_state", "scheduled_seconds", "known
             "known_unavailable_seconds", "unknown_seconds", "known_time_ratio", "full_lower", "full_upper",
             "connectors"]
 ROW_KEYS = ["asset_id", "label", "scheduled_seconds", "known_available_seconds", "known_unavailable_seconds",
-            "unknown_seconds", "spans"]
+            "unknown_seconds", "spans", "connector_rated_kw", "charger_asset_id", "charger_rated_kw"]  # D-DATA.5
 SPAN_KEYS = ["from", "to", "state", "evidence_ids"]
 A1, A2 = "00000000-0000-4000-8000-0000000000a1", "00000000-0000-4000-8000-0000000000a2"
 ASSETS = {"c1": A1, "c2": A2}
