@@ -65,7 +65,8 @@ DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/as
 # 3. Kisiwa live read (no legacy evidence): GET /api/sites/<kisiwa code>/analytics on the clone-backed app; expect 200,
 #    one Dispatch row, or the 409 if its Performance gate is closed.
 ```
-Pass rule: `available_mismatch` empty; every level/ceiling/gap difference classified; read <= 2 s else +1 warm entry.
+Pass rule (D-SR.79 L3): role-keyed `available_mismatch` empty (`id_differences` listed, not a mismatch); a
+`refused: UNSUPPORTED_RULE_VERSION` JSON is a result, not a crash; every level/ceiling/gap difference classified; read <= 2 s else +1 warm entry.
 
 ## Known deviations / questions
 1. `usable_records` is null on stored rows (design A3 says EXISTS/max, not a count); TS type widened, copy
@@ -89,3 +90,32 @@ Pass rule: `available_mismatch` empty; every level/ceiling/gap difference classi
 - Q1 (no count, presence only), Q3 (whole-read 422 fail closed, matches claim_limit_read.SUPPORTED_MODELS), Q4 (closed gate returns existing 409 AWAITING_EVIDENCE_MIGRATION): confirmed as built, no change.
 - `git merge main` conflicted in SiteEvidence.tsx and siteEvidenceScreen.test.tsx (SR-12a rejections range vs SR-12b analytics range); both ranges kept, all-dates line on neither panel.
 - Runs: no-DB ap1 28 + sr12b 8 passed; Postgres ap1 file on assetops_ap1_test 6 passed; vitest ap1StoredAnalytics + siteEvidenceScreen + t028EvidenceCapability 36 passed; tsc clean. check-all: for coordinator.
+
+## Fix round (D-SR.79, review `.agent/AP-1-review.md` REJECT on H1), commit `cc6d153be` on merge of main `c6cb568ff`
+- (a) H1: `SiteEvidence.tsx` passes `declaration`/`profile` to `LedgerSiteEvidence` -> `OverviewBody`. Only a 200 with
+  rows (`storedReadinessShown`: status `loaded` + `capabilityTableShown`) renders `CapabilityReadinessTable` in place of
+  the `capability-conclusions` line inside "What we can conclude now", and the badge reads "Evidence · Overview".
+  409/422/503/`[]` keep today's line and "No capability conclusion yet"; no refusal text is rendered (L2). Analysis
+  view unchanged. (b) the read is kept.
+- L1: `StoredSiteNotFound` raised from `stored_site_declaration`; the route catches only that for 404. Test
+  `test_route_missing_stored_site_is_404_but_a_key_error_is_never_site_not_found` (KeyError -> 500); proven
+  non-vacuous: restoring `except LookupError` fails it.
+- L3: probe uses `persistent=False`; `available` keyed by role (Load by feeder id when both sides bind the same
+  feeders, else by feeder position), `id_differences` listed apart; `UnsupportedModel` (now carrying `revision`,
+  `model`) emitted as `{"refused": "UNSUPPORTED_RULE_VERSION", ...}`. Probe not run (needs the clone DB slot).
+- N1: "(Not bound)" replaces the whole "(reference ...)" suffix.
+- Vitest `ap1StoredAnalytics` now uses `LEDGER_EVIDENCE` (ledger shape) with a `POSTGRES` Site through `App`:
+  200 table + badge, 409, 422 (no UUID/model id in DOM), `[]`; Analysis/N1 rows render `CapabilityReadinessAnalysis`
+  directly (the file-path component). Proven non-vacuous: dropping the `loaded` check fails the 409 and 422 cases.
+- Copy: no new missing-claim placement; the badge reuses the Analysis badge form.
+
+### Checks (fix round, `cc6d153be`)
+- pytest no-DB + routes: `test_ap1_stored_declaration`, `test_sr12b_analytics_readiness_range`,
+  `test_t028_dispatch_analytic`, `test_t028_fix_round_1`, `test_s3_claim_limit_vocabulary`: 90 passed.
+- Postgres (`assetops_ap1_test`): `test_ap1_stored_declaration_postgres.py` 6 passed, 0 skipped (11.1 s).
+- vitest `ap1StoredAnalytics`, `siteEvidenceScreen`, `t028EvidenceCapability`, `v01bEvidenceVisual`,
+  `s2LedgerEvidence`: 5 files, 89 passed. `npx tsc --noEmit`: clean.
+- `node tools/checks/missing-claim-scan.mjs`: passed (43 tagged, 10 baselined); `test_missing_claim_scan.mjs`: pass.
+- check-all: for coordinator. Layout evidence: not run (the Overview panel now holds an existing table; unverified
+  at narrow widths). Pending unchanged: Kobo parity probe + Kisiwa live read + unwarmed timing (gates the Evidence
+  page per D-SR.79 (b): > 2 s needs one warm entry before merge).
