@@ -129,3 +129,58 @@ Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945).
   local day before `readings_began`; any other day, or more than `12 x UTC offset hours` readings on it (36 for UTC+3), fails the
   gate (the mapping would be wrong beyond the zone edge). The existing comparisons (gap set == coverage gaps, members == Portfolio)
   stay; they cannot see this, as both sides share the mapping.
+
+## Pages (lane H, branch `task/SR-5-pages` from main e8f2bdea5)
+- **SR-5b** 98bdf7ded + 5c9ca582f. `sites/rangeOverviewClient.ts` (typed `site-range-overview-1`; 503 `SITE_RANGE_OVERVIEW_UNAVAILABLE`
+  or `TEMPORARILY_UNAVAILABLE` retried 2/4/8 s via `fetchRetrying`'s new `retryable` predicate, reported as TEMPORARILY_UNAVAILABLE →
+  "Temporarily unavailable. Retrying…" then "Still unavailable…", never data). `sites/SiteRangeOverview.tsx` (status line, 4 tiles,
+  `RangeDayTable` strip+table exported for SR-5c, Findings in this range via exported `SiteFindingIndex` `RowTable`, limit 5, Next step).
+  Day words: D-E5.46 (`dayGapWords`), CLEAR "Checked: nothing to report", D-SR.50 retired suffix, D-SR.56 `note`. Switch in
+  `SiteOverview.tsx` (mini + client + valid range + no `day`/`date` → range view; `day=` → S5-01 board with "← Back to the whole
+  range" as the first chip of its day row; a 404 keeps the one-day page without remounting). App/SiteDetailFrame take `rangeOverview`.
+  MOCK DEVIATION R721 (register row added).
+- **SR-5e** 2969c9d69. `ui/rangeMatrix.ts` + `shell/__tests__/siteRangeMatrix.test.tsx` (91 cases; route list = `operatorSiteRoutes`
+  constants used in `App.tsx`). Non-vacuous: wrong `to` on the range client fails `mini / (R)`; deleting the health rows fails the
+  route-completeness case; both reverted.
+- Tests: siteRangeOverview 10/10; sr2RequestUrls SR-4b pins replaced by `range-overview` pins; s5SiteWindowOverview and
+  s502OverviewFindingList cases with no `day` now run on a 404 range client (one-day fallback) and say so. Site-href set: see report.
+- **Deviations / questions (Architect):**
+  1. Back link sits in the drill-in's day chip row, not "above the board heading": a `<p>` above panel 1 fails `expectV69Panels`
+     (leading intruder). Placement only; nothing trimmed.
+  2. 404 fallback (Site the range read does not know, e.g. not imported) keeps the one-day page — not in §9.4; safe reading.
+  3. Matrix test limits: record pages (opportunity, action, verification, fuel finding) declare "own period" only after their
+     record loads, so under the all-refused fixture the bar shows "All pages" (`declaresOnLoad`). Should they declare before
+     the read (D-SR.64)? Mini Dispatch is blocked by the refused analytics declaration (`blockedBy`), so its D/R check is
+     limited to that; its component test pins the rest.
+  4. EV `ev/financial-assumptions` reads the window and shows "All pages"; classified R by analogy with D-SR.66 (D-SR.44 said N).
+  5. `evidence/rejections` unranged on mini and EV (SR-12a) is listed as `knownUnranged`; the cold evidence page does not read it.
+  6. Mini Service/Renewable/Fuel/Backup and Health are D/N in the matrix: the SR-6/7/8/10/11 pages are not on main.
+- **SR-5c** 2a523e59d. `PerformanceDispatch` is a switch: valid range + no `day`/`date`/`revision`/`block`/`interval`/Analysis view →
+  "Dispatch by day" (`RangeDayTable` from the same `useRangeOverview` read, `name="dispatch"`, "Open day" → same path `?day=`);
+  else the one-day page (`DispatchDay`), with "← Back to the whole range" first in the day chip row on a drill-in. No cutover,
+  window or `finding-windows` read in the range view (Kisiwa nights only on the drill-in). 404 → one-day page, its FocusPicker
+  names the day (D-SR.77 1); 503 → "Temporarily unavailable. Retrying…"; 422 → its own refusal. Client threaded
+  App → `SitePerformanceFrame` (MINIGRID only) → `SitePerformance` → `PerformanceDispatch`. R722.
+- **D-SR.77** (same commits). 1: 404-fallback pins (Overview + Dispatch: bar names the served day; 422 shows its own refusal).
+  2 (889ab00d8): Opportunity, Action, mill/fuel Verification, fuel Finding frames call `useDeclareRangeNotUsed("own period")`
+  first thing; `declaresOnLoad` removed. 3: matrix fixture answers mini `/analytics` with the real 409; `blockedBy` removed
+  (no legacy-fixture row needs it); mini `/performance` + `/performance/dispatch` R with a `drillIn` check (`first-render`:
+  `?day=` → "Showing 5 Nov of the range", no range read; Overview row `on-load`: the refused board names no day under the
+  all-503 fixture, so only "never now" — named limit, its own test pins the day). 4: EV assumptions R (why cites D-SR.77).
+- **SR-5d** ae03198b3. `SiteFinancialsOverview` takes `rangeOverview` + `rangeDayHref` (Overview `?day=`): with a valid range,
+  `RangeMoneyBlock` ("Fuel cost at stake in this range": the money card's `display_value`, the PARTIAL label/quantity as the
+  Overview tile, days with non-null money each "Open day") at the top of the page, and the price panel headed "Prices valid
+  now"; it now declares for itself (range shown → nothing, "All pages"; 404 → `RangeNotUsed` "prices valid now", as before).
+  The frame's mini `RangeNotUsed` stays for assumptions/scenarios views only. Matrix mini `/financials` N → R with
+  `knownUnranged` `/financial-assumptions` (the "Prices valid now" read, `valid_at` now; SR-14 OUT). siteRangeTags SR-4c pin
+  updated to "All pages". R722/R723 register rows; guard 12 OK.
+- **Tests (2026-11-13):** every Site-href file (`grep -rlE "/sites/[A-Z]|from=20"`) + matrix + performanceDispatch +
+  siteFinancials: 89 files, 2517/2518 (the one failure was the SR-4c financials pin, updated; siteRangeTags 11/11 after).
+  siteRangeOverview 19/19, siteRangeMatrix 94/94, sr2RequestUrls 23/23 (new SR-5c Kobo/Kisiwa pins), tsc clean.
+  Non-vacuous: no client on the Performance route fails mini `/performance` + `/performance/dispatch` R; no client on the
+  Financials route fails mini `/financials` R; removing the opportunity frame's declaration fails its N row; all reverted.
+  check-all: for coordinator.
+- **Placement readings (Architect may move):** the range money block is the first panel of the Financials page (spec: "above
+  the price section"); with the money block, the page's v69 panel list differs (R723; the v69 panel tests run without range).
+- **Resume:** SR-5 pages done; remaining are the DB gates (resume points 5 and 7 above).
+- **Layout evidence:** not run: no browser on the VPS lane; covered by the coordinator's pre-walkthrough smoke.
