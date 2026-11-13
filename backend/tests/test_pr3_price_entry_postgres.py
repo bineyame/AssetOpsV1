@@ -79,15 +79,16 @@ def test_0060_widens_the_channel_check_and_downgrades_cleanly(engine) -> None:  
 
     config = _alembic()
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == [THIS] and script.get_revision(THIS).down_revision == PREVIOUS
-    assert head(engine) == THIS and constraint(engine, NAME) == CHECK_0060
+    # UP-1's 0061 follows 0060 (D-UP.8): one head, and 0060 sits directly on 0059
+    assert len(script.get_heads()) == 1 and script.get_revision(THIS).down_revision == PREVIOUS
+    assert head(engine) == script.get_heads()[0] and constraint(engine, NAME) == CHECK_0060
     engine.dispose()
     try:
         command.downgrade(config, PREVIOUS)  # no site-admin row: the 0010 CHECK text is restored exactly
         assert head(engine) == PREVIOUS and constraint(engine, NAME) == CHECK_0010
     finally:
         command.upgrade(config, "head")
-    assert head(engine) == THIS and constraint(engine, NAME) == CHECK_0060
+    assert head(engine) == script.get_heads()[0] and constraint(engine, NAME) == CHECK_0060
 
 
 def test_a_saved_price_reaches_the_fuel_cost_after_one_drain(site, engine) -> None:  # noqa: F811

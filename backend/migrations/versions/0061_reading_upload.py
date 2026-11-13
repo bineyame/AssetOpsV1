@@ -10,17 +10,16 @@
   "Uploaded by site admin"; the browser never names an actor. A dry run writes no row.
 - The `ledger_append_only()` trigger (0005) refuses UPDATE and DELETE.
 
-Numbering: 0060 is PR-3's `0060_site_admin_price_entry`. Until PR-3 merges, this revision follows 0059 so the branch
-migrates on its own; when PR-3 is on main, `down_revision` is repointed to `0060_site_admin_price_entry` at merge.
+Numbering: follows PR-3's `0060_site_admin_price_entry` (repointed from 0059 when PR-3 reached main, D-UP.8).
 
 Revision ID: 0061_reading_upload
-Revises: 0059_site_period_read
+Revises: 0060_site_admin_price_entry
 Create Date: 2026-11-12
 """
 from alembic import op
 
 revision = "0061_reading_upload"
-down_revision = "0059_site_period_read"
+down_revision = "0060_site_admin_price_entry"
 branch_labels = None
 depends_on = None
 

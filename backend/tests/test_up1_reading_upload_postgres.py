@@ -95,10 +95,10 @@ def test_downgrade_refused_with_uploads_then_allowed(store, engine) -> None:  # 
         uploads.dispose()
     cfg = pg_harness._alembic(URL)
     with pytest.raises(Exception, match="reading uploads exist"):
-        command.downgrade(cfg, "0059_site_period_read")
+        command.downgrade(cfg, "0060_site_admin_price_entry")
     with engine.begin() as c:  # TRUNCATE is not a row DELETE; the append-only trigger does not fire on it
         c.execute(text("TRUNCATE reading_upload"))
-    command.downgrade(cfg, "0059_site_period_read")
+    command.downgrade(cfg, "0060_site_admin_price_entry")
     with engine.connect() as c:
         assert c.execute(text("SELECT to_regclass('reading_upload')")).scalar_one() is None
     command.upgrade(cfg, "head")
