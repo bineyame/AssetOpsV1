@@ -161,6 +161,33 @@ def _measure(spans: list[dict[str, Any]], state: str | None = None) -> timedelta
     return sum((x["to"] - x["from"] for x in spans if state is None or x["state"] == state), _ZERO)
 
 
+def _rating(component: dict[str, Any] | None, key: str) -> str | None:
+    """D-DATA.5: a declared power rating (kW) as the decimal text of the stored value, else None (never zero)."""
+    items = [p for p in (component or {}).get("properties") or () if p.get("property_key") == key]
+    if len(items) != 1 or items[0].get("value") is None:
+        return None
+    try:
+        value = Decimal(str(items[0]["value"]))
+    except (InvalidOperation, ValueError):
+        return None
+    return str(value) if value.is_finite() and value > 0 else None
+
+
+def _parent_chargers(foundation: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """D-DATA.5: connector component ID -> the EV_CHARGER component with a SIGNAL edge to it (the declared
+    charger -> connector relation, `sites/ev_foundation`); a connector with none or several parents has none."""
+    content = foundation["content"]
+    by_id = {c.get("component_id"): c for c in content.get("components") or ()}
+    topology = content.get("topology") or {}
+    node = {n.get("node_id"): n.get("component_id") for n in topology.get("nodes") or ()}
+    parents: dict[str, list[str]] = {}
+    for e in topology.get("connections") or ():
+        source, target = node.get(e.get("from_node")), node.get(e.get("to_node"))
+        if e.get("medium") == "SIGNAL" and (by_id.get(source) or {}).get("component_type") == "EV_CHARGER":
+            parents.setdefault(target, []).append(source)
+    return {c: by_id[p[0]] for c, p in parents.items() if len(set(p)) == 1}
+
+
 def availability(foundation: dict[str, Any] | None, assets: dict[str, str], accepted: list[dict[str, Any]] | None,
                  lo: datetime | None, hi: datetime | None) -> dict[str, Any]:
     """The `availability` wire object. `foundation` is the selected time-valid revision (`selected_foundation`) or
@@ -179,13 +206,19 @@ def availability(foundation: dict[str, Any] | None, assets: dict[str, str], acce
         state = SCHEDULED
     else:
         state = DECLARED_EMPTY
+    parents = {} if foundation is None else _parent_chargers(foundation)
     rows = []
     for w in windows:
         component = components.get(w["component_id"]) or {}
         label = component.get("display_name") or w["component_id"]
+        charger = parents.get(w["component_id"])
         row: dict[str, Any] = {"asset_id": w["asset_id"], "label": label, "scheduled_seconds": None,
                                "known_available_seconds": None, "known_unavailable_seconds": None,
-                               "unknown_seconds": None, "spans": []}
+                               "unknown_seconds": None, "spans": [],
+                               # D-DATA.5: the declared ratings of the same selected revision (additive keys)
+                               "connector_rated_kw": _rating(component, "ev-connector-max-power"),
+                               "charger_asset_id": None if charger is None else assets.get(charger.get("component_id")),
+                               "charger_rated_kw": _rating(charger, "ev-charger-max-power")}
         if state != NOT_ESTABLISHED:
             mine = [r for r in accepted or () if r.get("role") == STATE_ROLE
                     and str(r.get("asset_id")).lower() == str(w["asset_id"]).lower()]

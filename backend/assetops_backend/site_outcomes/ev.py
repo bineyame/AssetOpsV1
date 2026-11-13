@@ -13,7 +13,7 @@ import math
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation
+from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
 from assetops_backend.analytics.ev import MECHANISM as EV_MECHANISM
@@ -38,7 +38,10 @@ from assetops_backend.site_outcomes.mini import (
 GROW, COST, PROTECT, ASSURE = "GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"
 
 NO_SESSION_ASSESSMENT = "Not available yet · no session assessment covers this window"
-CHARGER_USE = "Not available yet · connector capacity not read"
+CHARGER_USE_NO_RATING = "Not available yet · charger rating not declared"
+CHARGER_USE_NO_HOURS = "Not available yet · no scheduled charging hours in this window"
+CHARGER_USE_OVER = ("Not available yet · delivered energy is more than the declared rating allows in the scheduled "
+                    "hours")
 NO_SETTLEMENT = "Billing records are not connected yet"
 NO_SETTLEMENT_ASSURE = "Billing records are not connected yet · reconciles the revenue shown under Grow revenue"
 ALL_AVAILABLE = "All connectors available"
@@ -77,7 +80,7 @@ def interrupted_text(fault: Any, unknown: Any) -> str:
         f" · {unknown} {plural(unknown, 'outcome', 'outcomes')} unknown" if unknown else "")
 
 
-COPY = (NO_SESSION_ASSESSMENT, CHARGER_USE, NO_SETTLEMENT, NO_SETTLEMENT_ASSURE, ALL_AVAILABLE, NO_FAULT,
+COPY = (NO_SESSION_ASSESSMENT, CHARGER_USE_NO_RATING, CHARGER_USE_NO_HOURS, CHARGER_USE_OVER, NO_SETTLEMENT, NO_SETTLEMENT_ASSURE, ALL_AVAILABLE, NO_FAULT,
         SITE_POWER_NOT_READ, NO_WARRANTY, NO_ROSTER, EVERY_END, NO_STATUS_GAP, TARIFF_ESTIMATE, NO_TARIFF, NO_INCOME_FIGURE,
         PROTECT_SUBLINE, EVIDENCE_LIMITED, NO_VERIFIED, OPTION_WHAT_IFS,
         PRICED_SUBLINE.format(kwh="120.0", p="0.30", cur="USD"), TARIFF_DECLARED.format(p="0.30", cur="USD"),
@@ -198,7 +201,8 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
     contributors = {
         GROW: (_charging(overview is not None, kwh, completed, started, rc),
                _tariff(overview is not None, tariff, cur, c, money.get("reason")),
-               Contributor("charger_use", "Charger use", CHARGER_USE),
+               (charger_use(kwh, availability, (body.get("site_power") or {}).get("configured_limit_kw"), rc)
+                if overview is not None else Contributor("charger_use", "Charger use", NOT_LOADED)),
                Contributor("energy_billed", "Energy billed against metered", NO_SETTLEMENT)),
         COST: (),
         PROTECT: (_session_service(overview is not None, fault, unknown, rc),
@@ -279,7 +283,8 @@ def compose(ports: EvPorts, *, site_code: str, lo: datetime, hi: datetime,
         local = window_day(lo, hi, zone_name)
         one_day = local is not None and (lo, hi) == board_day(local, zone_name)   # M4
         parts = earnings_parts(earn, local if one_day else None)
-        facts = replace(facts, **_charging_from_claim(parts, facts, priced, completed, started, rc))
+        facts = replace(facts, **_charging_from_claim(parts, facts, priced, completed, started, rc, availability,
+                                                      (body.get("site_power") or {}).get("configured_limit_kw")))
     facts = replace(facts, warnings=warnings, nodes=nodes, ev_priced=priced)
     failed = tuple(reads.failed)
     return Composition(facts, "PARTIAL" if failed else "AVAILABLE", failed, unresolved_links(facts),
@@ -294,7 +299,7 @@ def _finding(r: dict[str, Any], c: str) -> FindingFact:
 
 
 def _charging_from_claim(parts: dict[str, Any], facts: Any, priced: bool, completed: Any, started: Any,
-                         rc: Any) -> dict[str, Any]:
+                         rc: Any, availability: Any = None, limit_kw: Any = None) -> dict[str, Any]:
     """CH6a3-R2 H3 (ONE-SOURCE): the Grow money, the charging subline and the "Charging delivered" line from the
     EV-3 earnings claim alone (its basis kWh and single-revision tariff). NOT_KNOWN: "Not known yet" with the claim's
     days line, no subline, no money. The session counts stay the overview's (not a money figure)."""
@@ -306,11 +311,85 @@ def _charging_from_claim(parts: dict[str, Any], facts: Any, priced: bool, comple
     else:
         sub, money = None, None
         line = Contributor("charging_delivered", "Charging delivered", parts["text"])
+    # D-DATA.5: "Charger use" reads the kWh printed on the same response's "Charging delivered" line (the claim's)
+    use = charger_use(num(parts["kwh"]) if parts["known"] else None, availability, limit_kw, rc)
+    swap = {"charging_delivered": line, "charger_use": use}
     headline = {**facts.headline, GROW: NO_INCOME_FIGURE} if priced and money is None else facts.headline
     return {"headline": headline, "headline_money": {**facts.headline_money, GROW: money},
             "subline": {**facts.subline, GROW: sub},
-            "contributors": {**facts.contributors, GROW: tuple(line if x.key == "charging_delivered" else x
-                                                               for x in facts.contributors[GROW])}}
+            "contributors": {**facts.contributors, GROW: tuple(swap.get(x.key, x) for x in facts.contributors[GROW])}}
+
+
+def charger_use(kwh: str | None, availability_body: Any, limit_kw: Any, rc: Any) -> Contributor:
+    """D-DATA.5: "Charger use", delivered kWh as a share of declared charging capacity. A contributor only: it enters
+    no verdict, money or objective.
+
+    Capacity kWh is the sum over chargers of `rating_kw x hours`. `rating_kw` is the charger's declared
+    `charger_rated_kw`, else the sum of its connectors' `connector_rated_kw` (undeclared when any is missing).
+    `hours` is the largest `scheduled_seconds` among that charger's connectors / 3600: the declared connectors of one
+    charger share one schedule, so this is exact there. A connector with no charger counts on its own rating and
+    hours. When the sum of ratings is above the declared import limit, the limit replaces that sum (the capacity is
+    scaled by limit / sum, which is `limit x hours` when the hours are equal). `kwh` is the one printed on the same
+    response's "Charging delivered" line."""
+    def line(text: str, confidence: Any = None) -> Contributor:
+        return Contributor("charger_use", "Charger use", text, confidence)
+
+    if availability_body is None:
+        return line(NOT_LOADED)
+    if kwh is None:
+        return line(NO_SESSION_ASSESSMENT)
+    connectors = list(((availability_body or {}).get("availability") or {}).get("connectors") or ())
+    units: dict[str, list[dict[str, Any]]] = {}
+    for x in connectors:
+        key = x.get("charger_asset_id") or f"connector:{x.get('asset_id')}"
+        units.setdefault(str(key), []).append(x)
+
+    def dec(value: Any) -> Decimal | None:
+        try:
+            d = Decimal(str(value))
+        except (InvalidOperation, ValueError, TypeError):
+            return None
+        return d if value is not None and d.is_finite() else None
+
+    plan: list[tuple[Decimal | None, Decimal]] = []   # (rating kW or None, scheduled seconds) per charger
+    for members in units.values():
+        seconds = [d for d in (dec(m.get("scheduled_seconds")) for m in members) if d is not None]
+        if not seconds or max(seconds) <= 0:
+            continue
+        declared = dec(members[0].get("charger_rated_kw")) if members[0].get("charger_asset_id") else None
+        if declared is None:
+            ratings = [dec(m.get("connector_rated_kw")) for m in members]
+            declared = None if any(r is None for r in ratings) else sum(ratings, Decimal(0))
+        plan.append((declared if declared and declared > 0 else None, max(seconds)))
+    if not plan:
+        return line(CHARGER_USE_NO_HOURS)
+    if any(r is None for r, _ in plan):
+        return line(CHARGER_USE_NO_RATING)
+    ratings_sum = sum((r for r, _ in plan), Decimal(0))
+    capacity = sum((r * h / 3600 for r, h in plan), Decimal(0))
+    limit = dec(limit_kw)
+    capped = limit is not None and limit > 0 and ratings_sum > limit
+    if capped:
+        capacity = capacity * limit / ratings_sum
+    share = Decimal(str(kwh)) / capacity * 100
+    if share > 100:
+        return line(CHARGER_USE_OVER)
+    if share == 0:
+        p = "0"
+    elif share < 1:
+        p = "under 1"
+    else:
+        p = str(share.quantize(Decimal(1), rounding=ROUND_HALF_UP))
+    hours = duration_text(sum((h for _, h in plan), Decimal(0)))
+    distinct = {r for r, _ in plan}
+    if capped:
+        at = f"the {num(limit)} kW import limit"
+    elif len(distinct) == 1:
+        at = f"{num(next(iter(distinct)))} kW"
+    else:
+        at = "the declared ratings"
+    return line(f"{p}% of declared charging capacity · {kwh} kWh with a complete meter record in {hours} of "
+                f"scheduled charging at {at}", rc)
 
 
 def _charging(ok: bool, kwh: str | None, completed: Any, started: Any, rc: Any) -> Contributor:

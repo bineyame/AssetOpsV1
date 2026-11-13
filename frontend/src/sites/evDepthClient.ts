@@ -69,6 +69,10 @@ export interface AvailabilityConnector {
   known_unavailable_seconds: number | null;
   unknown_seconds: number | null;
   spans: AvailabilitySpan[];
+  /* D-DATA.5: the declared ratings (kW decimal text) of the same selected Foundation revision, or null. */
+  connector_rated_kw: string | null;
+  charger_asset_id: string | null;
+  charger_rated_kw: string | null;
 }
 
 export interface EvAvailability {
@@ -189,7 +193,15 @@ const AVAILABILITY_KEYS = [
   "full_upper",
   "connectors",
 ];
-const CONNECTOR_KEYS = ["asset_id", "label", ...SECONDS_KEYS, "spans"];
+const CONNECTOR_KEYS = [
+  "asset_id",
+  "label",
+  ...SECONDS_KEYS,
+  "spans",
+  "connector_rated_kw",
+  "charger_asset_id",
+  "charger_rated_kw",
+];
 const SPAN_KEYS = ["from", "to", "state", "evidence_ids"];
 const ENERGY_KEYS = [
   "metered_complete_kwh",
@@ -259,7 +271,10 @@ function isConnector(value: unknown): boolean {
     isString(value.label) &&
     SECONDS_KEYS.every((key) => isNullableSeconds(value[key])) &&
     Array.isArray(value.spans) &&
-    value.spans.every(isSpan)
+    value.spans.every(isSpan) &&
+    isNullableDecimal(value.connector_rated_kw) &&
+    isNullableString(value.charger_asset_id) &&
+    isNullableDecimal(value.charger_rated_kw)
   );
 }
 
