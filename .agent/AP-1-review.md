@@ -112,3 +112,8 @@ cannot occur, and every stored Evidence page load now runs the stored read and d
 - H1's discarded read on every stored Evidence load, unmeasured, on the demo's main page.
 - `ledger_scope` (backend branch) and `configuration_store` (frontend branch) are two signals for "stored"; they agree
   today (both derive from `sites/cutover.py`), but nothing asserts it.
+
+## Re-review (fix round cc6d153be + 67021409a) - ACCEPT
+- H1 closed: `LedgerSiteEvidence` Overview shows the readiness table only when declaration is `loaded` with rows (`capabilityTableShown`), badge "Evidence · Overview"; 409/422/`[]` keep the old line and badge; Analysis view untouched. Vitest uses `LEDGER_EVIDENCE` + `ledgerClient` through `App`/`SiteEvidence` (the `isLedgerEvidence` branch) with a POSTGRES Site; the 200 test fails on the old `LedgerSiteEvidence` (verified by swapping it in), 409/422/[] tests assert today's line, no UUID/model id.
+- L1 `StoredSiteNotFound` -> 404, KeyError -> 500 (tested). L3 probe: `persistent=False`, role/feeder keyed compare with `id_differences`, 422 recorded (code read; probe not run, needs DB). N1 "(Not bound)" done.
+- Checks: AP-1 + sr12b + t028 pytest 71 passed; vitest ap1StoredAnalytics (8), s2LedgerEvidence, siteEvidenceScreen, v01bEvidenceVisual (68) passed; tsc clean. No stray files; worktree clean.
