@@ -132,10 +132,11 @@ export function MiniRenewableRangePage({ read }: { read: RenewableRangeRead }): 
           <tbody>
             {days.map((day) => {
               const missing = missingHours(day);
+              const { link: dayRoute } = day; // server-issued day route, read through a named binding like Fuel's hour_link
               return (
                 <tr key={day.local_day} data-mini-range-day={day.local_day} data-mini-range-state={day.state}>
                   <td>
-                    <Link to={day.link} state={origin}>{shortLocalDay(day.local_day)}</Link>
+                    <Link to={dayRoute} state={origin}>{shortLocalDay(day.local_day)}</Link>
                   </td>
                   <td data-mini-range-band>{bandText(day)}</td>
                   <td>{day.window_hours === null ? "—" : String(day.window_hours)}</td>
