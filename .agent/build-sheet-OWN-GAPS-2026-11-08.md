@@ -5429,3 +5429,14 @@ Decisions logged for owner review: **D-SR.75**.
 - Size: Q3 copy and Q4 back link, about 0.05 together, lane K.
 
 Decisions logged for owner review: **D-SR.76**.
+
+### D-SR.76 (continued) Lane I SR-12a Q7-Q9 (`AssetOpsV1-sr6` `task/SR-6-12a-pages`, `.agent/SR-12a-packet.md`)
+- **Q7 Confirmed: nothing to filter.** `/evidence/rejections` has no recompute-job list (its lists are rejections, conflicts and duplicates). The spec line in 10b.4 is an error and is withdrawn. No other list was meant.
+- **Q8 Source time is right. Align the list to it.** Range means telemetry (D-SR.39), so "rejections in this range" means readings describing this period that were not accepted. That matches the overview count line (S2 Q19).
+  - Postgres and file-backed lists, conflicts and duplicates filter on the reading's source time in `[from, to)`. `total` follows the same rule, so the line and the list agree at the edges.
+  - A rejection with no source time is placed by its batch receipt time in `[from, to)`, on **both** sides: the list and the count line's untimed note. Its row says "no reading time; received in this date range".
+  - Heading: "Readings not accepted (from this date range)". Empty line: "No reading from this date range was refused or repeated."
+  - Tests: pin the edges on both sides (source time = `to` is out, = `from` is in) and an untimed row received inside the range. Add one line-equals-list check on the Postgres fixture. Size about 0.1, lane I, before merge.
+- **Q9 Confirmed.** The file-backed path is filtered too, by the Q8 rule (source time; receipt only when there is no source time). The page must not list all dates beside a range.
+
+Decisions logged for owner review: **D-SR.76** (Q1-Q9).
