@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { createSiteAnalyticsClient } from "../../sites/siteAnalyticsClient";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
@@ -319,41 +320,71 @@ describe("W1-F2: legacy evidence panel structure", () => {
 });
 
 /**
- * SR-4c (D-SR.7, rev 8 8.2): `/evidence/rejections` and `/analytics` take no from/to (backend `evidence_api.py`
- * `get_rejections` reads only `batch`; `analytics_api.py` `get_declaration` reads no query), so each panel says it
- * covers all dates, not only the date range in the address.
+ * SR-4c (D-SR.7, rev 8 8.2): `/evidence/rejections` takes no from/to (backend `evidence_api.py` `get_rejections`
+ * reads only `batch`), so its panel says it covers all dates, not only the date range in the address.
+ * SR-12b (D-SR.34/39): `/analytics` scores readiness over `from`/`to`, so the analytics panel sends the range and
+ * carries no all-dates line; which analytics apply stays unranged on the server.
  */
-describe("SR-4c: Evidence panels that do not follow the date range say so", () => {
+describe("SR-4c / SR-12b: Evidence panels and the date range", () => {
+  const FROM = "2026-11-03T00:00:00Z";
+  const TO = "2026-11-10T00:00:00Z";
   const RANGED = `${ANALYSIS_URL}&from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`;
 
-  it("the rejections panel and the analytics panel each carry the all-dates line", async () => {
+  function renderWith(url: string) {
+    const analytics = analyticsClient(SITE_ID);
+    const getDeclaration = vi.fn(analytics.getDeclaration);
     render(
-      <MemoryRouter initialEntries={[RANGED]}>
+      <MemoryRouter initialEntries={[url]}>
         <App
           flags={featureFlagsWith(false)}
           siteDirectory={DIRECTORY}
           siteDetail={DETAIL}
           siteEvidence={populated()}
-          siteAnalytics={analyticsClient(SITE_ID)}
+          siteAnalytics={{ ...analytics, getDeclaration }}
         />
       </MemoryRouter>,
     );
+    return getDeclaration;
+  }
+
+  it("the rejections panel carries the all-dates line; the analytics panel follows the range", async () => {
+    const getDeclaration = renderWith(RANGED);
     await settledScreen();
     const rejections = document.querySelector('[data-panel-range-for="rejections"]');
-    const analytics = document.querySelector('[data-panel-range-for="analytics"]');
     expect(rejections).toHaveTextContent(PANEL_ALL_DATES);
     expect(rejections?.getAttribute("data-panel-range")).toBe("all-dates");
-    expect(analytics).toHaveTextContent(PANEL_ALL_DATES);
-    expect(analytics?.getAttribute("data-panel-range")).toBe("all-dates");
     // The line sits under its own panel heading.
     const rejectionsPart = screen.getByRole("heading", { name: "Rejected records" }).closest("section, div");
     expect(rejectionsPart?.contains(rejections)).toBe(true);
+    // SR-12b: the declaration loaded (its readiness table rendered) and was read over the range, with no line.
+    expect(document.querySelector("[data-capability-analysis]")).not.toBeNull();
+    expect(getDeclaration).toHaveBeenCalledWith(SITE_ID, { from: FROM, to: TO });
+    expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
+    expect(screen.getAllByText(PANEL_ALL_DATES)).toHaveLength(1);
   });
 
-  it("no all-dates line on the analytics panel when no analytic is declared", async () => {
-    renderAt(ANALYSIS_URL, populated());
+  it("an address without a range reads the declaration over the range the page settles on", async () => {
+    // SR-4 gives a Site page without from/to the default range, so the declaration is never read with one end only.
+    const getDeclaration = renderWith(ANALYSIS_URL);
     await settledScreen();
+    const windows = getDeclaration.mock.calls.map((c) => c[1]);
+    expect(windows.length).toBeGreaterThan(0);
+    for (const w of windows) expect(w).toEqual({ from: expect.stringMatching(/Z$/), to: expect.stringMatching(/Z$/) });
     expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
-    expect(document.querySelector('[data-panel-range-for="rejections"]')).toHaveTextContent(PANEL_ALL_DATES);
+  });
+
+  it("the analytics client sends the range on /analytics", async () => {
+    const fetchMock = vi.fn(async () => new Response("{}", { status: 500 }));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      await createSiteAnalyticsClient().getDeclaration("KOBO-001", { from: FROM, to: TO });
+      await createSiteAnalyticsClient().getDeclaration("KOBO-001");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(fetchMock.mock.calls.map((c) => String((c as unknown[])[0]))).toEqual([
+      "/api/sites/KOBO-001/analytics?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z",
+      "/api/sites/KOBO-001/analytics",
+    ]);
   });
 });

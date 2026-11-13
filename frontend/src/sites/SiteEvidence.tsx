@@ -66,7 +66,7 @@ export interface SiteEvidenceProps {
   timezone?: string | null;
 }
 
-/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7). SR-4c (D-SR.7): under a panel whose read takes no date range (`/evidence/rejections`, `/analytics`). */
+/** MOCK DEVIATION R718 (v69 shows no "All dates" line; D-SR.7). SR-4c (D-SR.7): under a panel whose read takes no date range (`/evidence/rejections`). SR-12b removed it from the analytics panel (R719 closed): `/analytics` now scores readiness over the range. */
 export const PANEL_ALL_DATES = "All dates, not only the date range";
 
 /** Shown for a rejection when the backend serves no plain reason; never its code. */
@@ -113,7 +113,8 @@ export function SiteEvidence({
     void Promise.all([
       client.getEvidence(siteId, { from, to }),
       client.listRejections(siteId),
-      analytics === undefined ? Promise.resolve(null) : analytics.getDeclaration(siteId),
+      // SR-12b: readiness follows the range (both ends, or none: the route refuses one end alone).
+      analytics === undefined ? Promise.resolve(null) : analytics.getDeclaration(siteId, from !== null && to !== null ? { from, to } : null),
     ]).then(([overview, rejections, declaration]) => {
       if (active) {
         setLoaded({ overview, rejections, declaration });
@@ -292,12 +293,6 @@ export function SiteEvidence({
             )}
           </Panel>
           <Panel heading="How each limit is set" headingId="site-evidence-claim-limit-panel-heading">
-            {/* SR-4c (D-SR.7): the analytics declaration route takes no from/to; the line says so. */}
-            {loaded.declaration?.status !== "loaded" ? null : (
-              <p className="muted" data-panel-range="all-dates" data-panel-range-for="analytics">
-                {PANEL_ALL_DATES}
-              </p>
-            )}
             <CapabilityReadinessAnalysis declaration={loaded.declaration} profile={profile} />
             <EvidenceClaimLimit siteId={siteId} client={client.claimLimit} assessmentHref={assessmentHref} />
             {analytics === undefined || params.get("assessment") === null ? null : (

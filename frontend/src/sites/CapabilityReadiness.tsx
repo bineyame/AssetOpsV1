@@ -15,7 +15,8 @@
  * The profile only labels and orders the rows (rules 1 and 2 through
  * `servedCapabilities`). With no declared assessment the table renders
  * nothing: no row appears before a real conclusion exists. The readiness
- * scope is site-wide, never the selected window.
+ * scope is site-wide unless the read named a date range (SR-12b: then only
+ * the assessed periods follow it; the backend's `scope` words say which).
  */
 
 import { Badge, DataTable, Fact, FactList } from "../ui";

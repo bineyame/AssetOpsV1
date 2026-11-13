@@ -20,6 +20,7 @@ state (AC18 rule 3); the presentation profile only labels and orders the row.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from assetops_backend.analytics import dispatch, plain
@@ -174,6 +175,28 @@ READINESS_STATEMENT = (
     "are possible but capped or segmented by the missing evidence named. None: no "
     "claim can be made because no generator reconstruction evidence is accepted."
 )
+#: SR-12b (D-SR.34/39): the statement when readiness is read over a date range. Only the assessments follow the
+#: range; the declaration and the accepted-record check stay site-wide. Wording pending Architect confirmation.
+READINESS_STATEMENT_RANGED = READINESS_STATEMENT.replace(
+    "the coverage of its active assessments, not the selected window.",
+    "the coverage of its active assessments whose assessed window meets the selected date range.",
+)
+
+
+def in_window(assessment: dict[str, Any], lo: datetime, hi: datetime) -> bool:
+    """SR-12b: an assessment counts in `[lo, hi)` when its closed assessed window `[start, end]` meets it
+    (`start < hi` and `end >= lo`). The interval's running bounds stand in when no assessed window is stated."""
+    window = assessment.get("assessed_window") or {}
+    interval = assessment.get("interval") or {}
+    start = window.get("start") or interval.get("first_running_observed")
+    end = window.get("end") or interval.get("last_running_observed") or start
+    if start is None:
+        return False
+    return _instant(start) < hi and _instant(end) >= lo
+
+
+def _instant(value: str) -> datetime:
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 def _roles(rows: list[dict[str, Any]], roles: tuple[str, ...]) -> list[dict[str, Any]]:
     return [r for r in rows if r["role"] in roles]
@@ -272,8 +295,11 @@ def score_readiness(
     required: list[dict[str, Any]],
     optional: list[dict[str, Any]],
     assessments: list[tuple[str, dict[str, Any]]],
+    *,
+    ranged: bool = False,
 ) -> dict[str, Any]:
-    """The capability row's readiness, ceiling and missing evidence (T028 AC20)."""
+    """The capability row's readiness, ceiling and missing evidence (T028 AC20). `ranged` (SR-12b): the caller
+    has already kept only the assessments inside the date range; only the statement and scope words change."""
     basis = declaration.readiness
     ceilings = {c.claim_level: c for c in declaration.claim_levels}
     missing = [_not_accepted(r) for r in required if not r["available"]]
@@ -334,9 +360,9 @@ def score_readiness(
             for r in optional if not r["available"]
         ],
         "assessed_intervals": len(assessments),
-        "statement": READINESS_STATEMENT,
+        "statement": READINESS_STATEMENT_RANGED if ranged else READINESS_STATEMENT,
         # Plain reading, read time only (D-2026-10-04-plain-language-analysis-views).
-        **plain.readiness(level, ceiling, missing, sorted({r["role"] for r in capped})),
+        **plain.readiness(level, ceiling, missing, sorted({r["role"] for r in capped}), ranged=ranged),
     }
 
 
@@ -344,13 +370,20 @@ def site_declaration(
     site: SiteRecord,
     evidence: SiteEvidence,
     assessments: dict[str, list[tuple[str, dict[str, Any]]]] | None = None,
+    window: tuple[datetime, datetime] | None = None,
 ) -> dict[str, Any]:
     """The declarations that apply to this Site's type, evaluated against its evidence.
 
     `assessments` maps an analytic id to its active assessments as
     `(assessment_id, assessment)` pairs; each row's readiness is scored against
     their coverage. Absent, readiness is scored from accepted records alone.
+    `window` (SR-12b, D-SR.34/39): `[from, to)`; readiness counts only the
+    assessments that meet it (`in_window`). Which analytics apply and the
+    accepted-record check stay unranged.
     """
+    if window is not None:
+        lo, hi = window
+        assessments = {k: [(i, a) for i, a in v if in_window(a, lo, hi)] for k, v in (assessments or {}).items()}
     analytics = []
     for d in applicable(site.site_type):
         required = [_requirement(r, evidence) for r in d.required_evidence]
@@ -371,7 +404,7 @@ def site_declaration(
             "optional_evidence": optional,
             "thresholds": [dict(t) for t in d.thresholds],
             "readiness": score_readiness(
-                d, required, optional, (assessments or {}).get(d.analytic_id, [])
+                d, required, optional, (assessments or {}).get(d.analytic_id, []), ranged=window is not None
             ),
         })
     return {
@@ -379,4 +412,7 @@ def site_declaration(
         "site_type": site.site_type,
         "statement": DECLARATION_STATEMENT,
         "analytics": analytics,
+        # SR-12b: the range readiness was scored over, or None (site-wide).
+        "readiness_window": None if window is None else {
+            "from": window[0].strftime("%Y-%m-%dT%H:%M:%SZ"), "to": window[1].strftime("%Y-%m-%dT%H:%M:%SZ")},
     }

@@ -6,9 +6,11 @@ every payload is computed from accepted evidence and the Site's Foundation.
 
 from __future__ import annotations
 
+import re
+from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from assetops_backend.analytics.declaration import applicable, site_declaration
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable
@@ -32,6 +34,24 @@ SITE_ASSESSMENT_REVISIONS_ROUTE = "/api/sites/{site_id}/assessments/{assessment_
 #: active Findings, each row naming its Site. It is the per-Site read repeated,
 #: never a second assessment: rows are the same lineage summaries.
 FINDINGS_ROUTE = "/api/findings"
+
+_INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
+
+
+def _window(request: Request) -> tuple[datetime, datetime] | None:
+    """SR-12b: optional `from`/`to` (UTC instants, both or neither, `from` before `to`); else 422 INVALID_WINDOW,
+    the evidence routes' code (`evidence_api._window_params`)."""
+    raw = (request.query_params.get("from"), request.query_params.get("to"))
+    if raw == (None, None):
+        return None
+    if None in raw or not all(_INSTANT.fullmatch(v) for v in raw):
+        raise HTTPException(status_code=422, detail={
+            "code": "INVALID_WINDOW", "message": "Give both 'from' and 'to' as UTC instants (YYYY-MM-DDTHH:MM:SSZ)."})
+    lo, hi = (datetime.fromisoformat(v.replace("Z", "+00:00")) for v in raw)
+    if lo >= hi:
+        raise HTTPException(status_code=422, detail={
+            "code": "INVALID_WINDOW", "message": "from must be before to (half-open [from, to))"})
+    return lo, hi
 
 
 def build_analytics_router(
@@ -103,19 +123,21 @@ def build_analytics_router(
         return guarded(read)
 
     @router.get(SITE_ANALYTICS_ROUTE)
-    def get_declaration(site_id: str) -> dict[str, Any]:
+    def get_declaration(site_id: str, request: Request) -> dict[str, Any]:
+        window = _window(request)
         site = site_or_404(site_id)
 
         def read() -> dict[str, Any]:
             # Readiness (T028 AC20) is scored against the active assessments'
-            # coverage: the same lineages Performance > Dispatch lists.
+            # coverage: the same lineages Performance > Dispatch lists. SR-12b:
+            # with `from`/`to`, only those meeting `[from, to)`.
             active = service.dispatch(site_id) if applicable(site.site_type) else None
             assessments = {} if active is None else {
                 active["analytic_id"]: [
                     (a["assessment_id"], a["assessment"]) for a in active["assessments"]
                 ]
             }
-            return site_declaration(site, evidence.load_site(site_id), assessments)
+            return site_declaration(site, evidence.load_site(site_id), assessments, window)
 
         return guarded(read)
 
