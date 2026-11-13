@@ -129,7 +129,7 @@ SOURCE_TEXT = {"REGISTERED_SIMULATION": "Example data",
                "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 SOURCE_UNRESOLVED = "Source not resolved"
 #: An unfinished, unsettled day with no assessed generator interval is not checked yet (never "0 min").
-GEN_NOT_CHECKED = "Not checked yet · no generator period assessed on this day so far"
+GEN_NOT_CHECKED = "Not checked yet · no generator period assessed on this day"
 OPEN_FINDING_SUBLINE = "An open finding is waiting for this day to be checked"
 #: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
 FINDING_WINDOW_DAYS = 31
