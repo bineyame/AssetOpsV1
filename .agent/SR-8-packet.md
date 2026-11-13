@@ -109,3 +109,39 @@ Spec: rev 10 §10.4, rev 10a §10a.3, D-SR.15/16/23/27. Page not started (waits 
 Run pending 1-2 when the DB is free; then the page after SR-4 merges (rev 10 §10.4 page bullet).
 
 Checks (D-SR.48 follow-up): no-DB neighbours 58 passed/3 skipped; Postgres SR-8 file 1 passed (assetops_sr8_test); w402_reads_postgres + w501_cold_depth_postgres 19 passed; check-all: All 19 guards passed.
+
+## Page (branch `task/SR-8-10-pages` from main e8f2bdea5; commits 836bce352 server L1-L3, 41da3c6a0 page)
+
+- **Review L1-L3 (server, no DB):** `AVERAGE_LABEL` = "average headroom available in every eligible hour" (D-SR.48);
+  the window rule runs before `known_at`, and malformed bounds refuse with `RANGE_REFUSALS` text (`_instant(..., refuse)`);
+  Postgres test: `ROUND_HALF_UP`, EXCLUDED asserts `all_hours_headroom_kw is None`, docstring corrected.
+  No-DB: SR-8 route + SR-10 route + w402_reads 72 passed / 3 skipped. **Pending (coordinator, DB):** rerun
+  `test_sr8_renewable_range_postgres.py` (only its assertions changed).
+- **Routing** (`miniDepthClient.miniRangeWindowFromParams`): a valid shared range with no `?day=` and not a story window
+  (exact Site-local midnights 1-5 days apart) opens the range view over `rangeWindow(range)` + address `known_at`; story
+  windows, named days and no-range addresses keep the one-day page. `renewableWindowFromParams` is unchanged (D-SR.59
+  contract fixture says do not regenerate); its "last 5 days" branch is no longer reached from the page.
+- **Range view** `sites/MiniRenewableRange.tsx` (+ shared `sites/miniRange.tsx`): strip "Headroom counted on n of m days
+  · {days}: {reason}" (D-E5.46 grouping), Partial chip, R726 label; card "Average headroom available in every eligible
+  hour" (existing `boundText`) + "Days counted"; `ValueBars` per day (value = high, text low–high kW); day table (day link
+  to the one-day page, band, eligible hours, covered of operating hours, state words incl. NO_VALUE "No headroom figure
+  for this day", NO_DATA "No readings this day"; partial COUNTED day "· Partial: n hours missing"). Declares nothing.
+  503 `SITE_RENEWABLE_RANGE_UNAVAILABLE` → "Temporarily unavailable. Retrying…" (2/4/8 s) → "Still unavailable…".
+- **One-day page:** headroom card note "Range across eligible hours, after retained margin and service checks" + line
+  "Headroom available in every eligible hour: low–high kW" from `cards.all_hours_headroom_kw`; strip
+  "Partial: n hours missing" when `missing_hours` > 0 (D-SR.62). Types: `all_hours_headroom_kw?`, `missing_hours?`.
+- **Tests:** new `miniRenewableRange.test.tsx` (6); re-pinned (not deleted): `miniRenewableRoutes` (story window, >5-day
+  no clamp, unprovable cause via `?day=`), `siteRangeTags` (Renewable "All pages"), `sr2RequestUrls` (Yesterday →
+  one `renewable-range` request, no one-day read). tsc clean.
+- **Not done:** `RANGE_MATRIX` (SR-5e `ui/rangeMatrix.ts`) does not exist on main, so no D→R entry to flip.
+
+### Interpretations / questions (Architect)
+1. "A range of any length shows the day table" + "a story window of at most 5 days keeps the existing page": read as
+   shared range → range view (also 1-5 days); exact local-midnight address → one-day page. On a UTC-zone Site a bar range
+   of ≤5 days is also exact local midnights and keeps the one-day page. Confirm.
+2. Card relabel: kept the label "Usable headroom" (v69) and put "Range across eligible hours" in the card note; the new
+   line sits under it in the same card. Confirm, or rename the label itself.
+3. Partial words "Partial: n hours missing" shared by the range row and the one-day strip (D-SR.62 "same words"). Confirm.
+4. No "Back to the whole range" on the Renewable day page (asked only for Fuel). Add for parity?
+5. 10d.3: "SR-8's range view links to [Opportunity detail] with that window" - not built (the CTA stays on the one-day
+   page); say if the range view needs it.
