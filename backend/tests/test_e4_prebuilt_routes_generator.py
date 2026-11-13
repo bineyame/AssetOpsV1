@@ -209,6 +209,8 @@ def test_the_list_is_written_before_every_prebuild_and_at_serve_start(tmp_path, 
     assert ("prebuild", True) in calls
     (tmp_path / tool.PREBUILT_ROUTES_FILE).unlink()
 
+    (tmp_path / tool.Demo.EVIDENCE_TREE_MARK).write_text(str(demo.tree), encoding="utf-8")  # D-SR.67: comparison built here
+
     class Stop(Exception):
         pass
 

@@ -76,3 +76,30 @@ Branch `task/SR-6-health-range`. Spec: rev 10 §10.2, rev 10a §10a.1, D-SR.19-2
 - L1 named limit (D-SR.56): `gateway_diagnostic`, `gateway`, `source` are not watermark inputs, so a stored live body's contact state or `disabled` flag may lag until local midnight or a readings arrival. Comment in `site_health_range.py`.
 - L3: unchanged (merge SR-5 first). Main merged (D-SR.56).
 - Checks: no-DB SR-6/SR-5/S7 files 70 passed; `test_sr6_health_range_postgres.py` + route on assetops_sr6_test 38 passed, 0 skipped; test_estate_guard.py 17 passed (745 s). check-all: for coordinator.
+
+## SR-6b page (lane I, branch task/SR-6-12a-pages, e4590b416)
+- `frontend/src/sites/healthRangeClient.ts`: `GET /health-range?from&to[&known_at]` (`site-health-range-1`); refusals keep
+  HTTP + `detail.code` (as `outcomeBoardClient.ts`); 503 `SITE_HEALTH_RANGE_UNAVAILABLE`/`TEMPORARILY_UNAVAILABLE` retried
+  2/4/8 s, page shows "Temporarily unavailable. Retrying…", then "Still unavailable. Refresh to try again.".
+- `frontend/src/sites/SiteHealthRange.tsx`: status line (D-SR.49 Q1: "Readings on 1 of 4 days · 3 days with no readings",
+  not-expected / not-reached-yet days named when non-zero) + "Gateways in contact on every expected day: n of m";
+  Days table (SR-5a state words, "Readings used for analysis"); gateway table (In contact / Partial contact / Readings
+  received; no status reports / No contact / Before it was registered / Not reached yet; `aria-label` "Gateway G1, 4 Nov:
+  no contact"); source table ("Readings received" counts, No readings / Before readings began / Not reached yet).
+  Day heads link to `links.day` (range carried by `RangeLink`).
+- `shell/SiteHealthFrames.tsx` `MiniGridHealth`: range set → range page; `day=` → same page for that day
+  (`from=day&to=day+1`), `RangeSpan(day, day)`, "Back to the whole range"; then `SiteHealth underRange` ("Battery (current
+  settings)" with the unchanged ConditionStrip/ConditionBody; "Contact now" with a point-in-time note). No/invalid range →
+  unchanged SR-4c page (`RangeNotUsed "shows now"`). Battery from the existing `/battery` read (D-SR.49 Q5).
+- Builder call: the branch sits in the frame, not in `SiteHealth.tsx`, so `SiteHealthRange` -> `SiteHealth` (HealthGap)
+  stays one-way (no import cycle). `SiteHealth.tsx` only gained `underRange`.
+- MOCK DEVIATION R724 row added to `.agent/mock-departure-register.md`.
+- Tests: `sites/__tests__/siteHealthRange.test.tsx` 7 passed; `siteRangeTags` (mini Health now "All pages"; drill-in
+  "Showing 5 Nov of the range") 12 passed; `sr2RequestUrls` pin (range + drill-in requests) 21 passed;
+  `siteHealthBoundary` 33, `siteDetailRoute` 19, `operatorSiteTabs` 56, `estatePortfolio` 89, cold/EV Health 26 passed.
+  Lane rule set (88 files from the Site-href grep): 2410 passed, 1 failed = `evEnergy.test.tsx energy_states_table_loading`
+  timed out at 10.6 s under load; alone 12/12 passed (EV Energy, not touched). tsc clean. Guards run singly:
+  site-links-carry-range, ui-primitives, page-range-forms, site-substrate 0 failures. check-all: for coordinator.
+- Not done / named: the SR-5e `RANGE_MATRIX` N→R entry — the matrix is not on main (SR-5 pages unmerged); the second
+  merger flips mini-grid Health to R. Layout evidence: not run (wide 31-column day tables scroll inside `DataTable`
+  with a sticky first column; unverified in a browser).

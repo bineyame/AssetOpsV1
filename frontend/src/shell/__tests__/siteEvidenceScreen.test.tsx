@@ -143,12 +143,13 @@ describe("Site > Evidence, populated", () => {
     await settledScreen();
     // Overview: the count, with the reasons one view away.
     expect(document.querySelector("[data-evidence-rejection-count]")).toHaveTextContent(
-      "2 records were rejected; the reasons are on the Analysis view.",
+      // SR-12a: the App fills the address range on entry, so the count is the ranged read's.
+      "2 records received in this date range were rejected; the reasons are on the Analysis view.",
     );
     cleanup();
     renderAt(ANALYSIS_URL, populated());
     await settledScreen();
-    expect(screen.getByText("2 records were rejected and never accepted.")).toBeInTheDocument();
+    expect(screen.getByText("2 records received in this date range were rejected and never accepted.")).toBeInTheDocument();
     const items = document.querySelectorAll("[data-evidence-rejection]");
     expect(items).toHaveLength(2);
     expect(spacedText(items[0] as HTMLElement)).toMatch(
@@ -350,17 +351,16 @@ describe("W1-F2: legacy evidence panel structure", () => {
 });
 
 /**
- * SR-4c (D-SR.7, rev 8 8.2): `/evidence/rejections` takes no from/to (backend `evidence_api.py` `get_rejections`
- * reads only `batch`), so its panel says it covers all dates, not only the date range in the address.
- * SR-12b (D-SR.34/39): `/analytics` scores readiness over `from`/`to`, so the analytics panel sends the range and
- * carries no all-dates line; which analytics apply stays unranged on the server.
+ * SR-4c (D-SR.7, rev 8 8.2) closed by SR-12a / SR-12b: `/evidence/rejections` (SR-12a, rev 10b.4) and `/analytics`
+ * (SR-12b, D-SR.34/39) both take `from`/`to`, so neither panel carries an all-dates line; which analytics apply
+ * stays unranged on the server.
  */
-describe("SR-4c / SR-12b: Evidence panels and the date range", () => {
+describe("SR-4c / SR-12a / SR-12b: Evidence panels and the date range", () => {
   const FROM = "2026-11-03T00:00:00Z";
   const TO = "2026-11-10T00:00:00Z";
   const RANGED = `${ANALYSIS_URL}&from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`;
 
-  function renderWith(url: string) {
+  function renderWith(url: string, evidence: SiteEvidenceClient = populated()) {
     const analytics = analyticsClient(SITE_ID);
     const getDeclaration = vi.fn(analytics.getDeclaration);
     render(
@@ -369,7 +369,7 @@ describe("SR-4c / SR-12b: Evidence panels and the date range", () => {
           flags={featureFlagsWith(false)}
           siteDirectory={DIRECTORY}
           siteDetail={DETAIL}
-          siteEvidence={populated()}
+          siteEvidence={evidence}
           siteAnalytics={{ ...analytics, getDeclaration }}
         />
       </MemoryRouter>,
@@ -377,12 +377,30 @@ describe("SR-4c / SR-12b: Evidence panels and the date range", () => {
     return getDeclaration;
   }
 
-  it("the rejections panel carries the all-dates line; the analytics panel follows the range", async () => {
-    const getDeclaration = renderWith(RANGED);
+  it("L1: a failed ranged rejections read shows no count rather than the all-dates count", async () => {
+    const evidence = populated();
+    evidence.listRejections = async () => ({ status: "unavailable", message: null });
+    renderWith(`${EVIDENCE_URL}?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`, evidence);
     await settledScreen();
+    expect(screen.getByRole("heading", { name: /Data sources/ })).toBeInTheDocument();
+    expect(document.querySelector("[data-evidence-rejection-count]")).toBeNull();
+  });
+
+  it("SR-12a / SR-12b: both panels read the range and neither carries the all-dates line", async () => {
+    const evidence = populated();
+    const calls: unknown[][] = [];
+    const listRejections = evidence.listRejections.bind(evidence);
+    evidence.listRejections = (...args: Parameters<SiteEvidenceClient["listRejections"]>) => {
+      calls.push(args);
+      return listRejections(...args);
+    };
+    const getDeclaration = renderWith(RANGED, evidence);
+    await settledScreen();
+    expect(calls).toContainEqual([SITE_ID, null, { from: FROM, to: TO }]);
     const rejections = document.querySelector('[data-panel-range-for="rejections"]');
-    expect(rejections).toHaveTextContent(PANEL_ALL_DATES);
-    expect(rejections?.getAttribute("data-panel-range")).toBe("all-dates");
+    expect(rejections).not.toHaveTextContent(PANEL_ALL_DATES);
+    expect(rejections?.getAttribute("data-panel-range")).toBe("range");
+    expect(rejections).toHaveTextContent(/received in this date range/);
     // The line sits under its own panel heading.
     const rejectionsPart = screen.getByRole("heading", { name: "Rejected records" }).closest("section, div");
     expect(rejectionsPart?.contains(rejections)).toBe(true);
@@ -390,7 +408,7 @@ describe("SR-4c / SR-12b: Evidence panels and the date range", () => {
     expect(document.querySelector("[data-capability-analysis]")).not.toBeNull();
     expect(getDeclaration).toHaveBeenCalledWith(SITE_ID, { from: FROM, to: TO });
     expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
-    expect(screen.getAllByText(PANEL_ALL_DATES)).toHaveLength(1);
+    expect(screen.queryAllByText(PANEL_ALL_DATES)).toHaveLength(0);
   });
 
   it("an address without a range reads the declaration over the range the page settles on", async () => {
@@ -401,6 +419,13 @@ describe("SR-4c / SR-12b: Evidence panels and the date range", () => {
     expect(windows.length).toBeGreaterThan(0);
     for (const w of windows) expect(w).toEqual({ from: expect.stringMatching(/Z$/), to: expect.stringMatching(/Z$/) });
     expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
+  });
+
+  it("no all-dates line on the analytics panel when no analytic is declared, nor on rejections", async () => {
+    renderAt(ANALYSIS_URL, populated());
+    await settledScreen();
+    expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
+    expect(document.querySelector('[data-panel-range-for="rejections"]')).not.toHaveTextContent(PANEL_ALL_DATES);
   });
 
   it("the analytics client sends the range on /analytics", async () => {

@@ -125,6 +125,7 @@ def test_a_degraded_prebuild_tick_does_not_stop_the_serve_loop(tmp_path, monkeyp
     demo.work = demo.tree = tmp_path
     demo.story = lambda: {}
     demo.write_prebuilt_routes = lambda: None
+    demo.evidence_comparisons = lambda story: None  # D-SR.67: serve reruns it when the tree mark is missing
     demo.serve_env = lambda: {}
     demo.links = lambda web: None
 
