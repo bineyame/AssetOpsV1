@@ -1702,6 +1702,9 @@ describe("G-01: the catalogued gateway firmware missing state", () => {
   const expectedReadinessGapIds = Object.entries(UI_GAP_CATALOGUE)
     .filter(([, entry]) => entry.placements.some((p) => p.startsWith("readiness.")))
     .map(([id]) => id)
+    // D-SR.74: renders only for an imported Site awaiting migration (CapabilityReadiness Unavailable);
+    // these fixtures are native Sites, so it is explicitly absent here, not loosened.
+    .filter((id) => id !== "G-readiness-capability-assessable")
     .sort();
 
   it("tags firmware with a populated central-contact read, with exact data-gap-id membership", async () => {

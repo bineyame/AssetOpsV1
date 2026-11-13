@@ -612,7 +612,8 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
                      renewable_ref(c, start, site_timezone)),
         COST: _cost(c, dispatch, depth, price, lead, rc),
         # DIESEL-1-R3j: "Fuel in the tank" after "Backup readiness", only on a Site with a stored fuel-balance window.
-        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc) + (
+        PROTECT: _protect(c, depth, plan_facts, plans is None, reserve, rc, end,
+                          "" if tz is not None else UTC_SUFFIX) + (
             () if has_fuel is not True else
             (not_available(FUEL_STOCK_KEY, FUEL_STOCK_LABEL, refs.evidence_ref(c, "fuel")),) if night_windows is None
             else (fuel_stock(c, night, fuel_window, FUEL_REASON_WORDS),)),
@@ -1016,7 +1017,7 @@ def plan_fact(p: dict[str, Any], tz: ZoneInfo | None) -> PlanFact:
                     None if due is None else due.astimezone(tz or timezone.utc).date(),
                     None if hours is None else float(Decimal(str(hours))), p.get("state") or "",
                     None if p.get("asset_id") is None else str(p["asset_id"]),
-                    refs.estate_ref("maintenance_preventive"), due)
+                    refs.estate_ref("maintenance_preventive"), due, p.get("asset_type"))
 
 
 # ---------------------------------------------------------------- contributors (§B.4 mini table)
@@ -1196,11 +1197,24 @@ def _battery(c: str, reserve: tuple[int, int] | None, rc: Any) -> Contributor:
 
 
 def _protect(c: str, depth: dict, plans: tuple[PlanFact, ...], plans_failed: bool,
-             reserve: tuple[int, int] | None = None, rc: Any = None) -> tuple[Contributor, ...]:
+             reserve: tuple[int, int] | None = None, rc: Any = None, to: Any = None,
+             suffix: str = "") -> tuple[Contributor, ...]:
     battery = _battery(c, reserve, rc)
-    run_hours = [p for p in sorted(plans, key=lambda p: (p.code or "", p.plan_id)) if p.trigger_kind == "RUN_HOURS"]
+    ordered = sorted(plans, key=lambda p: (p.code or "", p.plan_id))
+    run_hours = [p for p in ordered if p.trigger_kind == "RUN_HOURS"]
+    #: DATA-10 (K14, D-DATA.4): a CALENDAR plan on the Site's generator asset is a recorded preventive plan too. The
+    #: ruling made the story's plan CALENDAR ("RUN_HOURS is refused"); the plan wire admits only DRAFT, so state is no
+    #: filter. Worded as Cold's `_plan` (`cold.py`): "{title} due {d MMM}", or "overdue since" when due before `to`.
+    calendar = [p for p in ordered if p.trigger_kind == "CALENDAR" and p.asset_type == "GENERATOR"
+                and p.next_due_at is not None]
     if plans_failed:
         generator = not_available("generator", "Generator", refs.estate_ref("maintenance_preventive"))
+    elif not run_hours and calendar:
+        p = calendar[0]
+        due = (f"overdue since {day_month(p.next_due_at)}{suffix}"
+               if p.due_at is not None and to is not None and p.due_at < to else f"due {day_month(p.next_due_at)}{suffix}")
+        generator = Contributor("generator", "Generator", f"{p.title} {due}", PLAN_RECORD,
+                                refs.estate_ref("maintenance_preventive"))
     elif not run_hours:
         generator = Contributor("generator", "Generator", NO_GEN_PLAN, PLAN_RECORD,
                                 refs.estate_ref("maintenance_preventive"))

@@ -27,6 +27,7 @@ import { expectUnavailableEntry } from "../../test/unavailableEntry";
 afterEach(cleanup);
 
 const REV = "rev-ev-1";
+const SLD_SLOT_COUNT = 11; // D-DATA.5: the EV diagram's data-ev-slot count with STOCKED (unchanged by D-DATA.5)
 const BREV = "bind-ev-1";
 const GW = "gw-uuid-1";
 const node = (id: string, type: string, role: string, name: string) => ({
@@ -465,14 +466,25 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(text(source)).toContain("Site meter & load manager");
     expect(text(source)).toContain("Site import meter · 80 kW");
     expect(text(source)).toContain("Load manager · Not declared");
-    // Feeder kWh slots stay in their mock positions and are not declared; no declared AC line is dashed.
+    // Feeder kWh slots stay in their mock positions; D-DATA.5: feeder 1's connectors declare their meters, so its
+    // meter reads "At each connector"; the empty feeder 2 stays not declared. No declared AC line is dashed.
     const feederMeters = Array.from(diagram.querySelectorAll('[data-ev-slot="meter"]'));
     expect(feederMeters).toHaveLength(2);
-    for (const m of feederMeters) expect(m.getAttribute("class")).toContain("ev-sld__box--missing");
+    expect(feederMeters.map((m) => m.getAttribute("data-ev-declared"))).toEqual(["yes", "no"]);
+    expect(feederMeters[0]!.getAttribute("class")).not.toContain("ev-sld__box--missing");
+    expect(feederMeters[1]!.getAttribute("class")).toContain("ev-sld__box--missing");
+    expect(text(diagram.querySelector('[data-ev-feeder="1"]') as Element)).toContain("At each connector");
+    expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).not.toContain("At each connector");
+    expect(diagram.querySelectorAll("[data-ev-slot]")).toHaveLength(SLD_SLOT_COUNT); // every v6.9 slot is kept
     expect(diagram.querySelectorAll(".ev-sld__ac--missing")).toHaveLength(1);
     expectSldSlots(diagram, { charger2: true, rail: ["Connector 1", "Connector 2", "Site meter", "Billing system"] });
     expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).toContain("Charger 2 · Not declared");
-    expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).toContain("Rating not declared · No connector declared");
+    // D-DATA.5: the empty slot's second line repeated its label and is no longer drawn
+    expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).not.toContain("Rating not declared");
+    expect(text(diagram.querySelector('[data-ev-feeder="2"]') as Element)).not.toContain("No connector declared");
+    expect(document.querySelector("[data-ev-sld-undeclared]")?.textContent).toContain(
+      "Grid supply, circuit breakers, the load manager and depot auxiliary are not part of this site's declared configuration, so they are drawn as empty slots. Energy is metered at each connector and at the site import meter where declared. Reporting is not assessed on this diagram.",
+    );
     expect(text(diagram.querySelector('[data-ev-slot="auxiliary"]') as Element)).toContain("Depot auxiliary · Not declared");
     const parts = panelTitled("What each part does");
     expect(Array.from(parts.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual(["Part", "Role at this site", "What it reports"]);

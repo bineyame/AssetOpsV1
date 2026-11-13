@@ -66,7 +66,7 @@ export interface SiteEvidenceProps {
   timezone?: string | null;
 }
 
-/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7). Kept as an export; SR-12a made `/evidence/rejections` and SR-12b made `/analytics` follow the range. */
+/** MOCK DEVIATION R718/R719 (v69 shows no "All dates" line; D-SR.7): both closed. Rejections follow the range (SR-12a) and readiness follows the range (SR-12b), so no panel renders this line now; kept only as the text the tests assert is absent. */
 export const PANEL_ALL_DATES = "All dates, not only the date range";
 
 /** Shown for a rejection when the backend serves no plain reason; never its code. */

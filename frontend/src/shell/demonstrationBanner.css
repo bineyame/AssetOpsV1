@@ -2,7 +2,7 @@
 .demonstration-banner {
   margin: 0;
   padding: 6px 16px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.4;
   color: var(--text-muted);
   background: var(--surface-sunken);

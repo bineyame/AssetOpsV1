@@ -32,7 +32,7 @@
 
 .cold-sld__monitor-label {
   margin: 0 0 8px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -55,7 +55,7 @@
   border: 1.4px solid var(--sld-bus);
   border-radius: 5px;
   background: var(--sld-network-fill);
-  font-size: 12px;
+  font-size: var(--font-size-100);
   font-weight: 600;
   line-height: 1.3;
   color: var(--sld-ink);
@@ -70,7 +70,7 @@
   }
   .cold-sld__monitor-box {
     padding: 2px 6px;
-    font-size: 10px;
+    font-size: var(--font-size-100);
     font-weight: 600;
   }
   .cold-sld__monitor-box .gw-dot {
@@ -102,7 +102,7 @@
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 8px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: var(--text-muted, #617087);
 }
 
@@ -127,7 +127,7 @@
 .cold-readiness__detail {
   display: block;
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.35;
 }
 
@@ -144,7 +144,7 @@
   padding: 2px 8px;
   border-radius: 3px;
   background: repeating-linear-gradient(135deg, #eef1f6 0 6px, #e3e8f0 6px 12px);
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: var(--text-muted, #617087);
 }
 
@@ -153,7 +153,7 @@
   flex-wrap: wrap;
   gap: 4px 14px;
   margin-top: 6px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: var(--text-muted, #617087);
 }
 
@@ -190,7 +190,7 @@
     min-width: 9.5em;
   }
   .cold-readiness__detail {
-    font-size: 11px;
+    font-size: var(--font-size-100);
   }
   /* The short Confirmed chip and Next step link stay on one line; the table scrolls inside its own region. */
   .cold-readiness-panel .data-table td:nth-child(3),
@@ -199,6 +199,6 @@
   }
   .gw-panel .gw-src {
     padding: 3px 6px;
-    font-size: 10px;
+    font-size: var(--font-size-100);
   }
 }

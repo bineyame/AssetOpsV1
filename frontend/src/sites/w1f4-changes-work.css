@@ -7,7 +7,7 @@
 /* Change and effect: the changed-value table, then the record as key values. */
 .w1f4-changes-work .panel .data-table caption {
   text-align: left;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }
 
@@ -46,7 +46,7 @@
 }
 
 .w1f4-changes-work .w1f4-change-attempts .action-ref {
-  font-size: 10px;
+  font-size: var(--font-size-100);
 }
 
 /* Decision path: compact rows, the links inline after the one-line body. */
@@ -89,12 +89,12 @@
   align-items: center;
   gap: 6px;
   color: #5c6c86;
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 .w1f4-work-window .button {
   padding: 6px 12px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 .w1f4-work-state {
@@ -104,7 +104,7 @@
 
 .w1f4-work-state__title {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--font-size-200);
 }
 
 .w1f4-work-state .disclosure {
@@ -116,7 +116,7 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 6px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: var(--text-secondary);
 }
 
@@ -161,7 +161,7 @@
 .w1f4-work-window input {
   height: 30px;
   padding: 3px 8px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
 }
 
 .w1f4-work-window .button {
@@ -177,7 +177,7 @@
 
 .w1f4-changes-work [data-disclosure="site-work-basis"] > .disclosure__summary {
   padding: 2px 0;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   font-weight: 500;
   color: var(--link, #1d4ed8);
 }
@@ -190,7 +190,7 @@
 .w1f4-changes-work .w1f4-work-subline {
   display: block;
   margin-top: 2px;
-  font-size: 10px;
+  font-size: var(--font-size-100);
   white-space: nowrap;
 }
 
@@ -314,7 +314,7 @@
 .domain-work-actions td .disclosure:not(.disclosure--inline) > .disclosure__summary {
   display: inline-block;
   padding: 0;
-  font-size: var(--font-size-sm, 0.85em);
+  font-size: var(--font-size-100);
   line-height: 1.2;
   white-space: nowrap;
   overflow-wrap: normal;
@@ -350,7 +350,7 @@
   justify-content: flex-end;
   gap: 8px 12px;
   margin: 0 0 12px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   color: #5c6c86;
 }
 
@@ -367,7 +367,7 @@
 
 .domain-work-window .button {
   padding: 6px 12px;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   min-height: 0;
 }
 
@@ -381,7 +381,7 @@
 .domain-work-window__basis {
   flex: 1 1 100%;
   margin: 0;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.4;
   color: var(--text-secondary);
 }
@@ -476,7 +476,7 @@
 .work-cases[data-domain-cases="EV_CHARGING"] td .disclosure:not(.disclosure--inline) > .disclosure__summary {
   display: inline-block;
   padding: 0;
-  font-size: var(--font-size-sm, 0.85em);
+  font-size: var(--font-size-100);
   line-height: 1.2;
   white-space: nowrap;
   overflow-wrap: normal;

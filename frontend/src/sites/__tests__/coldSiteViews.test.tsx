@@ -22,6 +22,7 @@ import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
+import { expectOneHeadline } from "../../test/headline";
 import type { OutcomeBoardClient, OutcomeBoardRead } from "../outcomeBoardClient";
 import { boardBody, boardRows, expectOutcomeBoardReplacesCards, fakeOutcomeBoard } from "../../test/outcomeBoardFixture";
 
@@ -472,6 +473,16 @@ describe("W2-04: cold Site routes keep the v69 panel structure", () => {
     fireEvent.click(retries[0]);
     await settledScreen();
     expect(Object.values(coldSite).reduce((n, f) => n + (f as ReturnType<typeof vi.fn>).mock.calls.length, 0)).toBeGreaterThan(calls);
+  });
+
+  it("uqfi2_cold_board_one_headline_and_no_collapse", async () => {
+    // UQ-FI-2 (rev 6 6.1 P2): one h1, the Site name. D-UQFI.6: the Cold board is not collapsed; every panel keeps
+    // its own "No cold assessment for this window" line and no GapGroup line is drawn.
+    renderCold(`/sites/COLD-001${Q}`, EMPTY);
+    await settledScreen();
+    expectOneHeadline("Kobo vaccine cold store");
+    for (const t of PANELS.cold.slice(0, 3)) expect(text(panelTitled(t))).toContain(NO_COLD_ASSESSMENT);
+    expect(document.querySelector("[data-gap-group]")).toBeNull();
   });
 });
 

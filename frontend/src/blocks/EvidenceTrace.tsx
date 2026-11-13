@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { useLinkFor } from "../sites/chainRef";
 import type { WhyRead } from "../sites/chainClient";
@@ -69,12 +69,15 @@ export function EvidenceTrace({
   load,
   opener,
   onClose,
+  more,
 }: {
   /** The row or card label: the title until the server's title arrives. */
   label: string;
   load: () => Promise<WhyRead>;
   opener: HTMLElement | null;
   onClose: () => void;
+  /** UQ-FI-3: a card's own qualifiers, shown under the server's words whatever the read state. */
+  more?: ReactNode;
 }) {
   const linkFor = useLinkFor();
   const titleId = useId();
@@ -152,6 +155,7 @@ export function EvidenceTrace({
           </>
         ) : null}
       </div>
+      {more ? <div className="why-more">{more}</div> : null}
     </ModalDialog>
   );
 }

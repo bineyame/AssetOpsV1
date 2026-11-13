@@ -351,16 +351,16 @@ describe("W1-F2: legacy evidence panel structure", () => {
 });
 
 /**
- * SR-12a (rev 10b.4): `/evidence/rejections` takes the range, so its panel reads it and carries no all-dates line.
- * SR-12b (D-SR.34/39): `/analytics` scores readiness over `from`/`to`, so the analytics panel sends the range and
- * carries no all-dates line either.
+ * SR-4c (D-SR.7, rev 8 8.2) closed by SR-12a / SR-12b: `/evidence/rejections` (SR-12a, rev 10b.4) and `/analytics`
+ * (SR-12b, D-SR.34/39) both take `from`/`to`, so neither panel carries an all-dates line; which analytics apply
+ * stays unranged on the server.
  */
-describe("SR-12a / SR-12b: Evidence panels and the date range", () => {
+describe("SR-4c / SR-12a / SR-12b: Evidence panels and the date range", () => {
   const FROM = "2026-11-03T00:00:00Z";
   const TO = "2026-11-10T00:00:00Z";
   const RANGED = `${ANALYSIS_URL}&from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`;
 
-  function renderWith(url: string, evidence = populated()) {
+  function renderWith(url: string, evidence: SiteEvidenceClient = populated()) {
     const analytics = analyticsClient(SITE_ID);
     const getDeclaration = vi.fn(analytics.getDeclaration);
     render(
@@ -386,7 +386,7 @@ describe("SR-12a / SR-12b: Evidence panels and the date range", () => {
     expect(document.querySelector("[data-evidence-rejection-count]")).toBeNull();
   });
 
-  it("the rejections panel reads the range; the analytics panel follows it too; neither carries the all-dates line", async () => {
+  it("SR-12a / SR-12b: both panels read the range and neither carries the all-dates line", async () => {
     const evidence = populated();
     const calls: unknown[][] = [];
     const listRejections = evidence.listRejections.bind(evidence);
@@ -416,6 +416,12 @@ describe("SR-12a / SR-12b: Evidence panels and the date range", () => {
     const windows = getDeclaration.mock.calls.map((c) => c[1]);
     expect(windows.length).toBeGreaterThan(0);
     for (const w of windows) expect(w).toEqual({ from: expect.stringMatching(/Z$/), to: expect.stringMatching(/Z$/) });
+    expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
+  });
+
+  it("no all-dates line on the analytics panel when no analytic is declared, nor on rejections", async () => {
+    renderAt(ANALYSIS_URL, populated());
+    await settledScreen();
     expect(document.querySelector('[data-panel-range-for="analytics"]')).toBeNull();
     expect(document.querySelector('[data-panel-range-for="rejections"]')).not.toHaveTextContent(PANEL_ALL_DATES);
   });

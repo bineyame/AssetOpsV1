@@ -5615,3 +5615,27 @@ Decisions logged for owner review: **D-SR.79**.
   - The demo-copy bench run records the time from the emulator's source time to its first appearance on the board. If that exceeds 3 min, report it to the coordinator; do not add a loop.
 
 Decisions logged for owner review: **D-MB.1-2**.
+
+## D-UQFI.13-18 UQ-FI-2 session-2 questions (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-uqfi` `task/UQ-FI-1-2`, `.agent/UQ-FI-packet.md` (session 2, questions 1-6). Main is at b514c02c1, with every range page merged, including SR-8, so D-UQFI.8's hold on P3 is lifted. These rulings correct rev 6's 6.1 page table where it named text the pages do not have. The rev 6 rule stands: existing text moved first, nothing new.
+- **D-UQFI.13 (P5) Keep the page's own title, "Productive-use headroom at {site}", as the h1.**
+  - "Daytime solar unused at Kobo mini-grid" belongs to the estate opportunities read. Adding that read to the opportunity page would be a new read and new words on the page, which rev 6 excludes.
+  - The 6.1 P5 row now reads "the page's own title".
+- **D-UQFI.14 (P2) The h1 is the Site name; the subtitle stays as it is.**
+  - "The board's day line" referred to no existing element; it is withdrawn. Do not add or move any date text into the header.
+- **D-UQFI.15 (P6) Keep the h1 "Findings".** The All-lens panel keeps its title "Findings across the estate".
+  - Moving it would strip a v69 panel heading (a mock element) and make the h1 change by lens.
+  - The 6.1 P6 row now reads "Findings" / the Site Findings title.
+- **D-UQFI.16 (P7) Keep the Site name as the h1** on Fuel and Service, as the v69 Site heading. The tab names the page. The 6.1 P7 row now reads "the page's h1 as today".
+- **D-UQFI.17 (P1) No Portfolio card collapse for 17 Nov, in either lane.**
+  - UQ-FI-3 (D-UQFI.11-12) already moves the card's qualifiers and per-Site lines behind "Why?", so the card face has no repeated gap lines left to group.
+  - Grouping inside "Why?" is not needed for 17 Nov. It can be revisited after the owner's sheet review.
+  - UQ-FI-2 does not touch the card. Its P1 test asserts only the one h1.
+- **D-UQFI.18 (P3) Remove the body copy: it is a move.**
+  - Once the Finding's first sentence sits under the title in the header, `LifecycleSentence` must not repeat that sentence in the body on any version, so the fact is said once (D-UQFI.4: moved, nothing removed).
+  - If `LifecycleSentence` carries any words beyond that one sentence (for example the "earlier version n of m" wording), those words stay where they are.
+  - The P3 test asserts that the sentence appears exactly once, and that the page's gap-id and gap-fact set is unchanged, on a SUPPORTED version and a non-SUPPORTED one.
+  - Wire P3 now on a rebase onto b514c02c1, then rerun the codemod and ratchet (D-UQFI.10).
+
+Decisions logged for owner review: **D-UQFI.13-18**.

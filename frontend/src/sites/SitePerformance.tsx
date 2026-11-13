@@ -15,6 +15,7 @@
 import type { FindingClient } from "./findingClient";
 import { AwaitingEvidenceMigration } from "./AwaitingEvidenceMigration";
 import { PerformanceDispatch } from "./PerformanceDispatch";
+import type { RangeOverviewClient } from "./rangeOverviewClient";
 import { MiniPerformanceSubtabs } from "./MiniPerformance";
 import type { MiniDepthClient } from "./miniDepthClient";
 import {
@@ -95,6 +96,8 @@ export interface SitePerformanceProps {
    * AWAITING_EVIDENCE_MIGRATION refusal stays the signal only when the store is not stated (an older backend).
    */
   configurationStore?: string;
+  /** SR-5c: the mini-grid range read, passed to Dispatch. */
+  rangeOverview?: RangeOverviewClient;
 }
 
 const DEFAULT_PERFORMANCE = createPerformanceDispatchClient();
@@ -115,6 +118,7 @@ export function SitePerformance({
   findingAlternativesHref,
   miniDepth,
   configurationStore,
+  rangeOverview,
 }: SitePerformanceProps) {
   const stored = configurationStore === "POSTGRES";
   const [declaration, setDeclaration] = useState<EvidenceRead<SiteAnalytics> | null>(null);
@@ -160,6 +164,7 @@ export function SitePerformance({
             client={performance}
             findings={findings}
             findingHref={siteFindingHref}
+            rangeOverview={rangeOverview}
           />
         ) : (
           <AwaitingEvidenceMigration surface="performance" />

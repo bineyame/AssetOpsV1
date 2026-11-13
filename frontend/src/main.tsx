@@ -6,7 +6,8 @@ import { App } from "./App";
 import { applyReviewLabels } from "./ui/reviewLabels";
 
 // The one visual vocabulary, loaded once for the whole app. Tokens first: the
-// primitives read them.
+// primitives read them. UQ-FI-1 (D-UQFI.2): the Inter face loads before the tokens.
+import "./ui/fonts.css";
 import "./ui/tokens.css";
 import "./ui/primitives.css";
 // POLISH §2 (P-04): the label hide rule, app-wide (the MockDeviation component does not load it itself).

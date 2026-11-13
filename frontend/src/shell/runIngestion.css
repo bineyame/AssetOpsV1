@@ -87,7 +87,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
-  font: var(--text-sm) / 1.8 Consolas, "Courier New", monospace;
+  font: var(--text-sm) / 1.8 var(--font-mono);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   color: var(--text-secondary);

@@ -20,13 +20,13 @@
 }
 
 .ev-sld__label {
-  font-size: 12px;
+  font-size: var(--font-size-100);
   font-weight: 600;
   fill: #17243b;
 }
 
 .ev-sld__small {
-  font-size: 10px;
+  font-size: var(--font-size-100);
   fill: #617087;
 }
 
@@ -36,14 +36,14 @@
 }
 
 .ev-sld__head {
-  font-size: 11px;
+  font-size: var(--font-size-100);
   font-weight: 700;
   letter-spacing: 1px;
   fill: #1d3f6e;
 }
 
 .ev-sld__glyph {
-  font-size: 13px;
+  font-size: var(--font-size-200);
   font-weight: 700;
   fill: #16233f;
 }

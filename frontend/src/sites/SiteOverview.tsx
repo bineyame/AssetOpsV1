@@ -22,9 +22,11 @@
 import { HourNotSelected, OverviewGrid, OverviewRefused } from "./overviewSlots";
 import { awaitingMigration } from "./siteEvidenceClient";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
-import { LEGACY_FOCUS_DAY, pageDay, withFocusDay } from "../ui/sharedRange";
+import { FOCUS_DAY, LEGACY_FOCUS_DAY, pageDay, readSharedRange, withFocusDay } from "../ui/sharedRange";
+import { SiteRangeOverview, rangeNotKnown, useRangeOverview, type RangeOverviewLinks } from "./SiteRangeOverview";
+import type { RangeOverviewClient } from "./rangeOverviewClient";
 import { SiteWindowOverview, type OverviewMiniReads, type WindowOverviewLinks } from "./SiteWindowOverview";
 import type { FindingIndexClient } from "./findingIndexClient";
 
@@ -79,6 +81,42 @@ export interface SiteOverviewProps {
   deviceNames?: Readonly<Record<string, string>>;
   /** OUT-B B5: the Site outcome board read. */
   outcomeBoard?: OutcomeBoardClient;
+  /** SR-5b: the mini-grid range read; with `mini` set, a range address without a day shows the range view. */
+  rangeOverview?: RangeOverviewClient;
+  /** SR-5b: the range view's destinations. */
+  rangeLinks?: RangeOverviewLinks;
+  /** SR-5b: set by the switch on a drill-in: the range view's address. */
+  backToRange?: string;
+}
+
+export { BACK_TO_RANGE } from "./SiteWindowOverview";
+
+/**
+ * SR-5b (rev 9 §9.4, D-SR.9): the MINIGRID switch. A valid range and no `day` (nor legacy `date`) shows the range
+ * view; `day=` shows the S5-01 one-day board as the drill-in, with a link back to the whole range; no valid range
+ * leaves the page as it was (the SR-4a safety net gives one). A Site the range read does not know (404) keeps the
+ * one-day page.
+ */
+export function SiteOverview(props: SiteOverviewProps) {
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const range = readSharedRange(params);
+  const client = props.mini !== undefined && props.rangeLinks !== undefined ? props.rangeOverview : undefined;
+  const rangeOn = client !== undefined && range.status === "set";
+  const drill = params.has(FOCUS_DAY) || params.has(LEGACY_FOCUS_DAY);
+  // A Site the range read answered 404 for keeps the one-day page, also after it writes its served day.
+  const notKnown = useRef<string | null>(null);
+  const fallback = notKnown.current === props.siteId;
+  const state = useRangeOverview(
+    rangeOn && !drill && !fallback ? client : null,
+    props.siteId,
+    range.status === "set" ? { from: range.from, to: range.to, known_at: range.known_at } : null,
+  );
+  if (rangeNotKnown(state)) notKnown.current = props.siteId;
+  if (rangeOn && !drill && notKnown.current !== props.siteId && props.rangeLinks !== undefined) {
+    return <SiteRangeOverview siteCode={props.siteId} state={state} links={props.rangeLinks} findingIndex={props.findingIndex} />;
+  }
+  return <SiteDayOverview {...props} backToRange={rangeOn && drill && notKnown.current !== props.siteId ? location.pathname : undefined} />;
 }
 
 /** S5-01: the address parameters an imported Site's Overview keeps across reloads. */
@@ -107,7 +145,7 @@ function servedSelection(summary: SiteWindowSummary): OverviewSelection {
   };
 }
 
-export function SiteOverview({
+function SiteDayOverview({
   siteId,
   client,
   evidenceHref,
@@ -120,6 +158,7 @@ export function SiteOverview({
   mini,
   deviceNames,
   outcomeBoard,
+  backToRange,
 }: SiteOverviewProps) {
   const [result, setResult] =
     useState<EvidenceRead<SiteOverviewReadModel | SiteWindowSummary> | null>(null);
@@ -241,6 +280,7 @@ export function SiteOverview({
         mini={mini}
         deviceNames={deviceNames}
         outcomeBoard={outcomeBoard}
+        backToRange={backToRange}
       />
     );
   }

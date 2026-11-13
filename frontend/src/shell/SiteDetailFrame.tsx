@@ -14,6 +14,7 @@ import { createFindingIndexClient, type FindingIndexClient } from "../sites/find
 import type { SiteTemplateLineageClient } from "../sites/siteTemplateLineage";
 import { miniWindowSearch, type MiniDepthClient } from "../sites/miniDepthClient";
 import type { OutcomeBoardClient } from "../sites/outcomeBoardClient";
+import type { RangeOverviewClient } from "../sites/rangeOverviewClient";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import type { ColdAssessmentClient } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
@@ -107,6 +108,8 @@ export interface SiteDetailFrameProps {
   miniDepth?: MiniDepthClient;
   /** OUT-B B5: the Site outcome board read (mini and cold overviews). */
   outcomeBoard?: OutcomeBoardClient;
+  /** SR-5b: the mini-grid range read behind a MINIGRID Overview's range view. */
+  rangeOverview?: RangeOverviewClient;
 }
 
 const DEFAULT_FINDING_INDEX = createFindingIndexClient();
@@ -122,6 +125,7 @@ export function SiteDetailFrame({
   coldAssessment,
   miniDepth,
   outcomeBoard,
+  rangeOverview,
 }: SiteDetailFrameProps) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -209,6 +213,16 @@ export function SiteDetailFrame({
             }}
             findingIndex={findingIndex}
             outcomeBoard={outcomeBoard}
+            rangeOverview={rangeOverview}
+            rangeLinks={{
+              day: (day) => `${siteDetailHref(canonicalId)}?day=${encodeURIComponent(day)}`,
+              findings: siteFindingsHref(canonicalId),
+              finding: (findingId, revisionId) => siteFindingHref(canonicalId, findingId, revisionId),
+              dispatch: (day, revisionId) =>
+                `${sitePerformanceHref(canonicalId, "dispatch")}?day=${encodeURIComponent(day)}${
+                  revisionId ? `&revision=${encodeURIComponent(revisionId)}` : ""
+                }`,
+            }}
             analysisHref={(assessmentId, isFinding) =>
               isFinding
                 ? findingHref(canonicalId, assessmentId, "analysis")
