@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable
 
 from assetops_backend.analytics import dispatch, plain
 from assetops_backend.evidence.models import SiteEvidence
@@ -388,13 +388,29 @@ def site_declaration(
     assessments that meet it (`in_window`). Which analytics apply and the
     accepted-record check stay unranged.
     """
+    return declaration_payload(
+        site.site_id, site.site_type,
+        lambda d: ([_requirement(r, evidence) for r in d.required_evidence],
+                   [_requirement(r, evidence) for r in d.optional_evidence]),
+        assessments, window)
+
+
+def declaration_payload(
+    site_id: str,
+    site_type: str,
+    requirements: Callable[[AnalyticDeclaration], tuple[list[dict[str, Any]], list[dict[str, Any]]]],
+    assessments: dict[str, list[tuple[str, dict[str, Any]]]] | None,
+    window: tuple[datetime, datetime] | None,
+) -> dict[str, Any]:
+    """The `/analytics` body shared by the file-backed (`site_declaration`) and stored (AP-1,
+    `stored_declaration.stored_site_declaration`) reads: `requirements(d)` gives one declaration's
+    (required, optional) availability rows; scoring, the range filter and the shape are the same."""
     if window is not None:
         lo, hi = window
         assessments = {k: [(i, a) for i, a in v if in_window(a, lo, hi)] for k, v in (assessments or {}).items()}
     analytics = []
-    for d in applicable(site.site_type):
-        required = [_requirement(r, evidence) for r in d.required_evidence]
-        optional = [_requirement(r, evidence) for r in d.optional_evidence]
+    for d in applicable(site_type):
+        required, optional = requirements(d)
         for row in (*required, *optional):
             row["plain_role"] = plain.role(row["role"])
         analytics.append({
@@ -415,8 +431,8 @@ def site_declaration(
             ),
         })
     return {
-        "site_id": site.site_id,
-        "site_type": site.site_type,
+        "site_id": site_id,
+        "site_type": site_type,
         "statement": DECLARATION_STATEMENT,
         "analytics": analytics,
         # SR-12b: the range readiness was scored over, or None (site-wide).

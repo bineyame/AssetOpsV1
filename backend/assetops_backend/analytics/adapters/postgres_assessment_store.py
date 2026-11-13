@@ -1250,32 +1250,93 @@ class PostgresAssessmentStore:
             "AND e.message_id = ANY(:m)"), {"t": tenant_id, "s": site_id, "m": list(message_ids)}).all()})
 
     def selected_intervals(self, tenant_id: UUID, site_id: UUID, analytic_id: str, domain: str,
-                           bracket: timedelta) -> list[dict[str, Any]]:
+                           bracket: timedelta, window: tuple[datetime, datetime] | None = None
+                           ) -> list[dict[str, Any]]:
         """INTERVAL revisions of each window's last DEFAULT selection, with that run's window limitations
         and every unfinished or failed recompute job overlapping the window's read range (the read's
         freshness rule: a matching prior result stays stale while a job is outstanding)."""
-        def work(c: Connection) -> list[dict[str, Any]]:
-            heads = c.execute(text(
-                "SELECT DISTINCT ON (window_start, window_end) run_id, window_start, window_end "
-                "FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a "
-                "ORDER BY window_start, window_end, seq DESC"), {"t": tenant_id, "s": site_id, "a": analytic_id})
-            out = []
-            for run_id, ws, we in heads.all():
-                jobs = [{"id": str(j[0]), "status": j[1]} for j in c.execute(text(
-                    "SELECT id, status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
-                    f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
-                    "ORDER BY created_at, id"), {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "lo": ws - bracket,
-                                                 "hi": we + bracket}).all()]
-                revisions = [_revision_row(r) for r in c.execute(text(
-                    f"SELECT {_REVISION_COLUMNS}, l.scope FROM analytic_run_assessment l JOIN assessment_revision v "
-                    "ON v.id = l.assessment_revision_id WHERE l.run_id = :r"), {"r": run_id}).all()]
-                limits = [x for r in revisions if r["scope"] == "WINDOW"
-                          for x in (r["result"] or {}).get("limitations", [])]
-                out += [{**r, "window_limitations": limits, "window_jobs": jobs}
-                        for r in revisions if r["scope"] == "INTERVAL"]
-            return out
+        return self._snapshot(lambda c: self.selected_intervals_on(c, tenant_id, site_id, analytic_id, domain,
+                                                                   bracket, window))
 
+    @staticmethod
+    def selected_intervals_on(c: Connection, tenant_id: UUID, site_id: UUID, analytic_id: str, domain: str,
+                              bracket: timedelta, window: tuple[datetime, datetime] | None = None
+                              ) -> list[dict[str, Any]]:
+        """`selected_intervals` on the caller's connection. AP-1: `window` `[lo, hi)` keeps only the selected
+        assessment windows that overlap it (`window_start < hi AND window_end > lo`); the caller still applies
+        the exact per-assessment rule (`declaration.in_window`)."""
+        ranged = "" if window is None else " AND window_start < :hi AND window_end > :lo"
+        params: dict[str, Any] = {"t": tenant_id, "s": site_id, "a": analytic_id}
+        if window is not None:
+            params.update(lo=window[0], hi=window[1])
+        heads = c.execute(text(
+            "SELECT DISTINCT ON (window_start, window_end) run_id, window_start, window_end "
+            "FROM analytic_run_selection WHERE tenant_id = :t AND site_id = :s AND analytic_id = :a" + ranged +
+            " ORDER BY window_start, window_end, seq DESC"), params)
+        out = []
+        for run_id, ws, we in heads.all():
+            jobs = [{"id": str(j[0]), "status": j[1]} for j in c.execute(text(
+                "SELECT id, status FROM recompute_job WHERE tenant_id = :t AND site_id = :s AND domain = :d "
+                f"AND {_LIVE_JOBS} AND window_start < :hi AND window_end >= :lo "
+                "ORDER BY created_at, id"), {"t": tenant_id, "s": site_id, "d": domain, "a": analytic_id, "lo": ws - bracket,
+                                             "hi": we + bracket}).all()]
+            revisions = [_revision_row(r) for r in c.execute(text(
+                f"SELECT {_REVISION_COLUMNS}, l.scope FROM analytic_run_assessment l JOIN assessment_revision v "
+                "ON v.id = l.assessment_revision_id WHERE l.run_id = :r"), {"r": run_id}).all()]
+            limits = [x for r in revisions if r["scope"] == "WINDOW"
+                      for x in (r["result"] or {}).get("limitations", [])]
+            out += [{**r, "window_limitations": limits, "window_jobs": jobs}
+                    for r in revisions if r["scope"] == "INTERVAL"]
+        return out
+
+    # --- AP-1: stored-Site analytics readiness (`analytics/stored_declaration.py`) -------------------------------
+
+    def read_snapshot(self, work):
+        """Run `work(c)` in one REPEATABLE READ transaction; a store failure is `AssessmentStoreUnavailable`."""
         return self._snapshot(work)
+
+    @staticmethod
+    def site_type_on(c: Connection, tenant_id: UUID, site_id: UUID) -> str | None:
+        return c.execute(text("SELECT site_type FROM site WHERE tenant_id = :t AND id = :s"),
+                         {"t": tenant_id, "s": site_id}).scalar()
+
+    @staticmethod
+    def role_presence(c: Connection, tenant_id: UUID, site_id: UUID, roles: tuple[str, ...]) -> list[dict[str, Any]]:
+        """AP-1: per bound (role, asset) of the Site's unsuperseded bindings, its public device/signal ids and the
+        latest source time of an accepted GOOD reading with a value (None: none). One latest-row probe per binding
+        on `accepted_evidence_site_role_time`, never a full count."""
+        rows = c.execute(text(
+            "SELECT b.role, b.asset_id, b.device_id, b.signal_id, ("
+            " SELECT e.source_time FROM accepted_evidence e JOIN ingestion_disposition d"
+            " ON d.batch_id = e.batch_id AND d.ordinal = e.ordinal"
+            " WHERE e.tenant_id = :t AND e.site_id = :s AND e.role = b.role"
+            " AND e.asset_id IS NOT DISTINCT FROM b.asset_id AND e.quality = 'GOOD'"
+            " AND e.normalized_value_text IS NOT NULL AND d.decision = 'ACCEPTED' AND d.accepted_evidence_id = e.id"
+            " ORDER BY e.source_time DESC LIMIT 1) "
+            "FROM (SELECT DISTINCT ON (role, asset_id) role, asset_id, device_id, signal_id"
+            " FROM signal_binding_revision WHERE tenant_id = :t AND site_id = :s AND role = ANY(:roles)"
+            " AND superseded_at IS NULL ORDER BY role, asset_id, valid_from DESC, recorded_at DESC) b "
+            "ORDER BY b.role, b.device_id, b.signal_id"),
+            {"t": tenant_id, "s": site_id, "roles": list(roles)}).all()
+        return [{"role": r[0], "asset_id": r[1], "device_id": r[2], "signal_id": r[3], "last_source_time": r[4]}
+                for r in rows]
+
+    @staticmethod
+    def foundation_controls_on(c: Connection, tenant_id: UUID, site_id: UUID) -> set[str]:
+        """AP-1: which Dispatch Foundation controls (`battery_reserve_soc`, `minimum_runtime`) an unsuperseded
+        Foundation revision of the Site configures with a value (the same properties `_configuration` reads)."""
+        found: set[str] = set()
+        for (content,) in c.execute(text(
+                "SELECT content FROM foundation_revision WHERE tenant_id = :t AND site_id = :s "
+                "AND superseded_at IS NULL"), {"t": tenant_id, "s": site_id}).all():
+            content = content if isinstance(content, dict) else json.loads(content)
+            reserve = _property(content, "BATTERY", "reserve-state-of-charge")
+            if reserve is not None and reserve.get("value") is not None:
+                found.add(CONTROL_BATTERY_RESERVE)
+            runtime = _property(content, "GENERATOR", "minimum-runtime")
+            if runtime is not None and _minutes(runtime) is not None:
+                found.add(CONTROL_MINIMUM_RUNTIME)
+        return found
 
     # --- cold_chain (W2-03): selection and the assessment/episode projection --------------------------------
     # `.agent/W2-03-build-spec.md` commit 3. Every cold method takes the caller's connection: the cold worker owns
