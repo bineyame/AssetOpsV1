@@ -70,7 +70,12 @@ def test_requests_per_range_and_board_forms():
     assert f"/api/estate/portfolio/scope-ids?{f}&{t}" in reqs
     for lens in ("cost", "risks", "opportunities"):  # D-WARM.8
         assert f"/api/estate/portfolio/scope-ids?{f}&{t}&lens={lens}" in reqs
-    assert len(reqs) == 18
+    for site in ("KOBO-001", "KISIWA-001"):  # SR-12: the mini-grid range routes
+        for name in ("range-overview", "health-range", "service-range", "claim-limit-range", "renewable-range",
+                     "fuel-range", "backup-range"):
+            assert f"/api/sites/{site}/{name}?{f}&{t}" in reqs
+    assert not any(x.startswith(("/api/sites/COLD-LAB-001/", "/api/sites/EV-LAB-001/")) and "-range" in x for x in reqs)
+    assert len(reqs) == 18 + 2 * 7
 
 
 def test_plan_dedupes_and_adds_mini_days_and_story():
@@ -110,8 +115,11 @@ def test_findings_lens_pages_for_presets_and_story_ranges_only():
 def test_unstored_plan_covers_presets_and_story_ranges():
     # D-WARM.2: estate scope, actions, evidence, financials; each Site's Overview and Site Findings read
     reqs = wr.unstored_plan(D("2026-11-17"), SITES, STORY)
-    # 6 windows x 12 reads, less the mini-grid Overviews four presets share (all end 16 Nov): 2 Sites x 3 repeats
-    assert len(reqs) == (4 + 2 * len(SITES)) * (len(wr.PRESETS) + 1) - 2 * 3
+    # 6 windows x 14 reads (SR-12: + each mini-grid Site's Fuel nights list), less the mini-grid Overviews four
+    # presets share (all end 16 Nov): 2 Sites x 3 repeats
+    assert len(reqs) == (4 + 2 * len(SITES) + 2) * (len(wr.PRESETS) + 1) - 2 * 3
+    assert ("/api/sites/KISIWA-001/fuel-balance/nights?from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"
+            in {q.target for q in reqs})
     targets = {q.target for q in reqs}
     w = "from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z"
     assert {f"/api/estate/{n}?{w}" for n in ("scope", "actions", "evidence", "financials")} <= targets
@@ -308,3 +316,10 @@ def test_state_chip_and_scope_ids_urls_equal_the_frontend_request():
     assert f"/api/estate/portfolio/scope-ids?{w}" in targets
     for lens in ("cost", "risks", "opportunities"):  # D-WARM.8
         assert f"/api/estate/portfolio/scope-ids?{w}&lens={lens}" in targets
+
+
+def test_fuel_nights_url_equals_the_frontend_request():
+    # SR-12: the same literal is asserted against `fuelBalanceClient.getNights` in frontend/src/estate/warmUrls.test.ts.
+    # The other SR-12 range routes have no page client on main yet: re-check after SR-5..SR-11 pages merge.
+    targets = {q.target for q in wr.unstored_requests("2026-11-02T00:00:00Z", "2026-11-09T00:00:00Z", "7d", SITES)}
+    assert "/api/sites/KISIWA-001/fuel-balance/nights?from=2026-11-02T00%3A00%3A00Z&to=2026-11-09T00%3A00%3A00Z" in targets
