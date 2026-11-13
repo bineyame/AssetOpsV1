@@ -99,7 +99,7 @@ def financial_constraints(engine, *, with_0053: bool = False) -> dict:  # noqa: 
     positive CHECK: byte-identical across 0025 and 0026. Also excluded: the five `financial_consequence_revision`
     constraints migration `0053_fuel_cost_2.py` (FUEL-1 A1, 972dc747f) widens (`model_id_check`) or adds
     (`no_load_rate_check`, `no_load_basis_check`, `idle_seconds_check`, `fuel_cost_1_no_idle`); 0053 sits above 0026,
-    so a downgrade to 0025 removes them. `with_0053=True` keeps those five (the head round-trip check)."""
+    so a downgrade to 0025 removes them. Also excluded with them: `financial_assumption_revision_channel_check`, widened above 0026 (SITE_ADMIN_ENTRY). `with_0053=True` keeps all of these (the head round-trip check)."""
     with engine.connect() as c:
         return {r[0]: r[1] for r in c.execute(text(
             "SELECT conrelid::regclass::text || '.' || conname, pg_get_constraintdef(oid) FROM pg_constraint "
@@ -107,7 +107,7 @@ def financial_constraints(engine, *, with_0053: bool = False) -> dict:  # noqa: 
             "'financial_assumption_revision_assumption_key_check', 'financial_assumption_revision_unit_check', "
             "'financial_assumption_revision_ev_positive', 'financial_assumption_revision_productive_positive'"
             + ("" if with_0053 else
-               ", 'financial_consequence_revision_model_id_check', 'financial_consequence_revision_no_load_rate_check', "
+               ", 'financial_assumption_revision_channel_check', 'financial_consequence_revision_model_id_check', 'financial_consequence_revision_no_load_rate_check', "
                "'financial_consequence_revision_no_load_basis_check', 'financial_consequence_revision_idle_seconds_check', "
                "'financial_consequence_revision_fuel_cost_1_no_idle'") + ")"))}
 
