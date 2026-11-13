@@ -1,4 +1,4 @@
-"""W5-03a E1a: the selected observed connector-availability calculation, `ev-availability/1`.
+"""W5-03a E1a: the selected observed connector-availability calculation, `ev-availability/2`.
 
 A bounded observed-state proxy, labelled `Observed connector state`, never a physical availability certification.
 Two independent facts: each enabled connector's configured service seconds (the selected time-valid Foundation's
@@ -20,14 +20,16 @@ from typing import Any
 from assetops_backend.analytics.ev import plain
 from assetops_backend.ev_site_reads import _seconds, connector_service_windows
 
-CALCULATION_VERSION = "ev-availability/1"
+CALCULATION_VERSION = "ev-availability/2"
 STATE_ROLE = "ev_connector_state"
 AVAILABLE = "AVAILABLE"
 UNAVAILABLE = "UNAVAILABLE"
 UNKNOWN = "UNKNOWN"
-#: The reported connector state -> the classified category; anything else (PLUGGED, AUTHORIZING, CHARGING or an
-#: unrecognised value) is Unknown. A charging state alone does not prove the connector was available.
-CATEGORY = {"AVAILABLE": AVAILABLE, "UNPLUGGED": AVAILABLE, "FAULTED": UNAVAILABLE, "DISABLED": UNAVAILABLE}
+#: The reported connector state -> the classified category (D-SR.81): a reported in-service state (idle, plugged,
+#: authorizing or charging) is known in-service time; FAULTED and DISABLED are out of service; anything else is
+#: Unknown. Sessions, faults or the schedule alone never classify; only a reported state does.
+CATEGORY = {"AVAILABLE": AVAILABLE, "UNPLUGGED": AVAILABLE, "PLUGGED": AVAILABLE, "AUTHORIZING": AVAILABLE,
+            "CHARGING": AVAILABLE, "FAULTED": UNAVAILABLE, "DISABLED": UNAVAILABLE}
 SCHEDULED, DECLARED_EMPTY, NOT_ESTABLISHED = "SCHEDULED", "DECLARED_EMPTY", "NOT_ESTABLISHED"
 CADENCE_KEY = "ev-status-cadence"
 _QUANT = Decimal("0.000001")

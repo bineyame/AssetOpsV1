@@ -139,6 +139,26 @@ def generate_prolonged_fixture(out_dir: Path) -> dict[str, Any]:
     return write_fixture(out_dir, observations, generator="generate_prolonged_fixture", request=request)
 
 
+LIVE_WINDOW_MAX_HOURS = 8  # the prolonged scenario's longest run (96 steps of 5 minutes)
+
+
+def generate_live_window(out_dir: Path, start: str, end: str) -> dict[str, Any]:
+    """MB-1: the registered `kobo-mini-grid-prolonged` draft (in-memory store, as `prolonged_draft`) over the live
+    window `[start, end]` (at most 8 hours), written as the JSONL the GX-shaped emulator replays at real time. No
+    database is read or written: the readings are the simulator's for that window, never a stored day."""
+    import test_s6_verification_publication as s6
+
+    store, result, _ = registered.converted()
+    s6.configure(store, result)
+    draft, _ = s6.draft(store, start=start, end=end)
+    observations, _ = _execute(draft)
+    request = {"scenario_id": s6.PROLONGED.scenario_id, "scenario_version": s6.PROLONGED.version.scenario_version,
+               "interval": {"start_time": start, "end_time": end}, "timestep_minutes": 5,
+               "publication_profile": {"profile_id": s6.V4.publication_profile_id,
+                                       "profile_version": s6.V4.publication_profile_version}}
+    return write_fixture(out_dir, observations, generator="generate_live_window", request=request)
+
+
 def generate_interval_csv_fixture(out_dir: Path) -> dict[str, Any]:
     """The TEL-06 CSV fixture and its manifest, from the checked-in daytime JSONL (ruling M Q2)."""
     from datetime import datetime, timezone

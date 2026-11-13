@@ -29,6 +29,7 @@ if URL:
     from test_s4_consequence_recompute_postgres import Rig
     from test_s4_consequence_store_postgres import KEY, POWER_DAY, site  # noqa: F401
     from test_w203_cold_migration_postgres import constraint, head
+    from pg_harness import alembic_head
     from test_ch2_thread_store_postgres import seeded  # noqa: F401
     from test_ch9b1_opportunity_actions_postgres import mill  # noqa: F401
     from test_ch9b3_mill_verdict_postgres import _after, _close, _frozen, _later, _with_productive_price
@@ -79,15 +80,16 @@ def test_0060_widens_the_channel_check_and_downgrades_cleanly(engine) -> None:  
 
     config = _alembic()
     script = ScriptDirectory.from_config(config)
-    assert script.get_heads() == [THIS] and script.get_revision(THIS).down_revision == PREVIOUS
-    assert head(engine) == THIS and constraint(engine, NAME) == CHECK_0060
+    # UP-1's 0061 follows 0060 (D-UP.8): one head, and 0060 sits directly on 0059
+    assert len(script.get_heads()) == 1 and script.get_revision(THIS).down_revision == PREVIOUS
+    assert head(engine) == script.get_heads()[0] and constraint(engine, NAME) == CHECK_0060
     engine.dispose()
     try:
         command.downgrade(config, PREVIOUS)  # no site-admin row: the 0010 CHECK text is restored exactly
         assert head(engine) == PREVIOUS and constraint(engine, NAME) == CHECK_0010
     finally:
         command.upgrade(config, "head")
-    assert head(engine) == THIS and constraint(engine, NAME) == CHECK_0060
+    assert head(engine) == script.get_heads()[0] and constraint(engine, NAME) == CHECK_0060
 
 
 def test_a_saved_price_reaches_the_fuel_cost_after_one_drain(site, engine) -> None:  # noqa: F811
@@ -169,7 +171,8 @@ def test_a_saved_price_reaches_the_fuel_cost_after_one_drain(site, engine) -> No
     engine.dispose()
     with pytest.raises(DBAPIError, match=REFUSED):
         command.downgrade(_alembic(), PREVIOUS)
-    assert head(engine) == THIS and constraint(engine, NAME) == CHECK_0060
+    # Nothing changed: still at the tree's one head (UP-1's 0061 now follows 0060, D-UP.8).
+    assert head(engine) == alembic_head() and constraint(engine, NAME) == CHECK_0060
 
 
 def test_a_saved_price_moves_the_response_watermark_and_the_fresh_read_shows_it(site, engine) -> None:  # noqa: F811

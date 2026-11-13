@@ -47,6 +47,8 @@ from typing import Any
 
 import demo_combined_rows as demo_rows
 import demo_story_days as sd
+import demo_upload_gateway as upload_gateway
+import demo_live_field as live_field
 
 REPO = Path(__file__).resolve().parents[1]
 PY = Path(sys.executable)
@@ -939,7 +941,9 @@ class Demo:
         (self.work / ".busy").write_text(f"prepare pid={os.getpid()}\n", encoding="utf-8")
         self.holds_busy = True
         self.tree.mkdir()
-        parts = ("backend", "gateway", "host", "simulator", "contracts", "config", "contract-fixtures", "tools")
+        # UP-1: `field` holds the CSV collector the served host runs per reading upload (D-UP.1).
+        parts = ("backend", "gateway", "host", "simulator", "contracts", "config", "contract-fixtures", "tools",
+                 "field")
         archive = subprocess.run(["git", "archive", "--format=tar", "HEAD", *parts], cwd=REPO, capture_output=True,
                                  check=False) if shutil.which("git") else None
         if archive is not None and archive.returncode == 0:
@@ -1706,10 +1710,67 @@ class Demo:
         self.write_prebuilt_routes()  # E4 D-E4.1: before the serve env is built
         logs = self.work / "logs"
         logs.mkdir(exist_ok=True)
+        # MB-1: the live Modbus feed shares UP-1's Kobo edge gateway and central (D-UP.2), so either switch starts them
+        upload_env, helpers = (self.start_upload_gateway(logs)
+                               if upload_gateway.upload_switched_on() or live_field.live_switched_on() else ({}, []))
         log = open(logs / f"api-{port}.log", "w", encoding="utf-8")
         api = subprocess.Popen([str(PY), "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", str(port)],
-                               cwd=str(self.tree / "host"), env=self.serve_env(), stdout=log,
+                               cwd=str(self.tree / "host"), env={**self.serve_env(), **upload_env}, stdout=log,
                                stderr=subprocess.STDOUT)
+        try:
+            self._serve_api(api, log, port, web)
+        finally:
+            for helper in helpers:
+                if helper.poll() is None:
+                    _kill_tree(helper.pid)
+            live_field.stop(self.work)  # MB-1: the detached emulator and poller never outlive serve
+
+    def start_upload_gateway(self, logs: Path) -> tuple[dict[str, str], list[subprocess.Popen]]:
+        """UP-1 D-UP.2: the TLS central on :8443 and the persistent Kobo edge gateway, then its activation; returns the
+        API's `ASSETOPS_READING_UPLOAD_GATEWAY` and the two processes (stopped with serve)."""
+        ug = upload_gateway
+        self.py("tools/demo_upload_gateway.py", "prepare", "--work", str(self.work), serve_env=True,
+                label="upload-gateway-prepare")
+        cert, key = ug.tls_files(self.work)
+        state = ug.state_dir(self.work)
+        helpers: list[subprocess.Popen] = []
+        try:
+            tls_log = open(logs / "upload-central-tls.log", "w", encoding="utf-8")
+            tls = subprocess.Popen([str(PY), "-m", "assetops_backend.serve_tls", "--cert", str(cert), "--key", str(key),
+                                    "--host", ug.TLS_HOST, "--port", str(ug.TLS_PORT)], cwd=str(self.tree),
+                                   env=self.serve_env(), stdout=tls_log, stderr=subprocess.STDOUT)
+            helpers.append(tls)
+            ug.wait_for_port(ug.TLS_HOST, ug.TLS_PORT, lambda: tls.poll() is None)
+            gateway_log_path = logs / "upload-gateway-kobo-edge.log"
+            gateway_log = open(gateway_log_path, "w", encoding="utf-8")
+            gateway = subprocess.Popen([str(PY), "-m", "assetops_gateway", "serve", "--config",
+                                        str(state / ug.CONFIG_FILE)], cwd=str(state), env=self.env(),
+                                       stdout=gateway_log, stderr=subprocess.STDOUT)
+            helpers.append(gateway)
+            ug.wait_for_line(gateway_log_path, "READY", lambda: gateway.poll() is None)
+            self.py("tools/demo_upload_gateway.py", "activate", "--work", str(self.work), serve_env=True,
+                    label="upload-gateway-activate")
+        except BaseException:
+            for helper in helpers:
+                if helper.poll() is None:
+                    _kill_tree(helper.pid)
+            raise
+        say(f"Reading upload: central https://{ug.TLS_HOST}:{ug.TLS_PORT} (PID {tls.pid}), Kobo edge gateway "
+            f"(PID {gateway.pid}, state {state}); uploads deliver at once, backstop every "
+            f"{ug.UPLOAD_INTERVAL_SECONDS} s.")
+        return {"ASSETOPS_READING_UPLOAD_GATEWAY": str(self.work / ug.GATEWAY_FILE)}, helpers
+
+    def live_field(self, step: str, site: str, from_text: str | None, hours: int) -> None:
+        """MB-1: `tools/demo_live_field.py <step>` in the tree with the serve environment; its JSON line is printed."""
+        argv = ["tools/demo_live_field.py", step, "--work", str(self.work), "--site", site, "--hours", str(hours)]
+        if from_text:
+            argv += ["--from", from_text]
+        done = self.py(*argv, serve_env=True, check=False, label=f"live-field-{step}")
+        say(done.stdout.strip().splitlines()[-1] if done.stdout.strip() else f"live-field {step}: no output")
+        if done.returncode != 0:
+            raise SystemExit(done.returncode)
+
+    def _serve_api(self, api: subprocess.Popen, log: Any, port: int, web: int) -> None:
         import urllib.request
 
         for _ in range(240):
@@ -1845,6 +1906,12 @@ def main(argv: list[str] | None = None) -> None:
     adds.add_argument("--dry-run", action="store_true", help="print the plan and the refusals, add nothing. It runs the read-only preflight, so the build's DB "
                                                           "and serve environment must be reachable; it writes only the child's log under <work>/logs")
     adds.add_argument("--no-check", action="store_true", help="skip the closing finish check (not for demo days)")
+    lf = sub.add_parser("live-field", help="MB-1: live Modbus into the Kobo edge gateway (serve must be running "
+                        "with ASSETOPS_LIVE_FIELD_SITES set)")
+    lf.add_argument("step", nargs="?", default="start", choices=["start", "status", "stop", "check"])
+    lf.add_argument("--site", default=live_field.SITE)
+    lf.add_argument("--from", dest="from_text", default=None, help="UTC ...Z; default now (floored to 5 min)")
+    lf.add_argument("--hours", type=int, default=live_field.MAX_HOURS)
     sub.add_parser("drop")
     args = parser.parse_args(argv)
     demo = Demo(args.db, args.work)
@@ -1877,6 +1944,8 @@ def main(argv: list[str] | None = None) -> None:
         demo.deadline = time.monotonic() + args.cap_seconds
         built = json.loads((demo.work / "days.json").read_text(encoding="utf-8"))
         demo.after_children(demo.story(), built["days"], stop_before_mill=args.stop_before_mill)
+    elif args.cmd == "live-field":
+        demo.live_field(args.step, args.site, args.from_text, args.hours)
     else:
         demo.drop()
 

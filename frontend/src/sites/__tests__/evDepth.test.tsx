@@ -87,7 +87,7 @@ function read(overrides: Partial<EvAvailabilityRead["availability"]> = {}, state
       source_provenance: BLOCK,
     },
     availability: {
-      calculation_version: "ev-availability/1",
+      calculation_version: "ev-availability/2",
       schedule_state: "SCHEDULED",
       scheduled_seconds: scheduled,
       known_available_seconds: available,

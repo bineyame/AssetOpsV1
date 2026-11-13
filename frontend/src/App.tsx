@@ -22,7 +22,7 @@ import {
   SiteOpportunityFrame,
 } from "./shell/SiteAnalyticsFrames";
 import { SitePricesFrame } from "./shell/SitePricesFrame";
-import { SiteAssetFrame, SiteAssetsFrame, SiteHealthFrame } from "./shell/SiteHealthFrames";
+import { SiteAssetFrame, SiteAssetsFrame, SiteHealthFrame, SiteUploadsFrame } from "./shell/SiteHealthFrames";
 import { SiteDetailFrame } from "./shell/SiteDetailFrame";
 import { SiteFoundationFrame } from "./shell/SiteFoundationFrame";
 import { SitesFrame } from "./shell/SitesFrame";
@@ -56,6 +56,7 @@ import {
   SITE_FINANCIAL_ASSUMPTIONS_ROUTE_PATH,
   SITE_FINANCIAL_SCENARIOS_ROUTE_PATH,
   SITE_PRICES_ROUTE_PATH,
+  SITE_UPLOADS_ROUTE_PATH,
   SITE_OPPORTUNITY_ROUTE_PATH,
   SITE_FINANCIALS_ROUTE_PATH,
   SITE_FINDING_ROUTE_PATH,
@@ -496,6 +497,8 @@ export function App({
           {/* DIESEL-K5 (DIESEL-1-R3l): the unexplained-fuel Finding at its own address. */}
           <Route path={SITE_FUEL_FINDING_ROUTE_PATH} element={<SiteFuelFindingFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_HEALTH_ROUTE_PATH} element={<SiteHealthFrame detail={siteDetail} sitesPath={SITES_PATH} coldDepth={coldDepth} evDepth={evDepth} />} />
+          {/* UP-1 (D-UP.4): Kobo's "Upload readings", reached from the Health panel; on only behind the server switch. */}
+          <Route path={SITE_UPLOADS_ROUTE_PATH} element={<SiteUploadsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_ASSETS_ROUTE_PATH} element={<SiteAssetsFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_ASSET_ROUTE_PATH} element={<SiteAssetFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           <Route path={SITE_WORK_ROUTE_PATH} element={<SiteWorkFrame detail={siteDetail} sitesPath={SITES_PATH} />} />

@@ -1,4 +1,4 @@
-"""W5-03a E1a: `ev-availability/1`, the selected observed connector-availability calculation.
+"""W5-03a E1a: `ev-availability/2`, the selected observed connector-availability calculation.
 
 The pure tests need no database; the persisted tests replay W2-05b's registered `Chain` through
 `ev_depth_cases.py` on a private `*_test` database (window `[08:00, 09:00)`, decision clock 09:00 / 09:05).
@@ -90,23 +90,23 @@ def _conserved(body: dict) -> None:
 def test_exact_keys_cadence_bounds_and_conservation() -> None:
     rows = [_row(1, 0, "UNPLUGGED"), _row(2, 1, "UNPLUGGED"), _row(3, 10, "FAULTED"), _row(4, 30, "CHARGING")]
     body = _calc(rows)
-    assert list(body) == TOP_KEYS and body["calculation_version"] == CALCULATION_VERSION == "ev-availability/1"
+    assert list(body) == TOP_KEYS and body["calculation_version"] == CALCULATION_VERSION == "ev-availability/2"
     assert body["schedule_state"] == "SCHEDULED"
     c1 = next(r for r in body["connectors"] if r["asset_id"] == A1)
     assert list(c1) == ROW_KEYS and all(list(s) == SPAN_KEYS for s in c1["spans"])
-    # Each transition classifies only one cadence (one minute); CHARGING proves nothing; gaps are Unknown.
-    assert c1["known_available_seconds"] == 120 and c1["known_unavailable_seconds"] == 60
-    assert c1["unknown_seconds"] == 3600 - 180
+    # Each transition classifies only one cadence (one minute); CHARGING is in service (D-SR.81); gaps are Unknown.
+    assert c1["known_available_seconds"] == 180 and c1["known_unavailable_seconds"] == 60
+    assert c1["unknown_seconds"] == 3600 - 240
     assert [(s["from"][11:16], s["to"][11:16], s["state"]) for s in c1["spans"]] == [
         ("08:00", "08:02", "AVAILABLE"), ("08:02", "08:10", "UNKNOWN"), ("08:10", "08:11", "UNAVAILABLE"),
-        ("08:11", "09:00", "UNKNOWN")]
+        ("08:11", "08:30", "UNKNOWN"), ("08:30", "08:31", "AVAILABLE"), ("08:31", "09:00", "UNKNOWN")]
     assert c1["spans"][0]["evidence_ids"] == [rows[0]["evidence_id"], rows[1]["evidence_id"]]
     assert c1["spans"][1]["evidence_ids"] == []
     c2 = next(r for r in body["connectors"] if r["asset_id"] == A2)
     assert (c2["scheduled_seconds"], c2["unknown_seconds"]) == (3600, 3600)  # no status history: Unknown, not 100%
     _conserved(body)
-    assert body["known_time_ratio"] == ratio(120, 180) == "0.666667"
-    assert body["full_lower"] == "0.016667" and body["full_upper"] == ratio(120 + 3600 - 180 + 3600, 7200)
+    assert body["known_time_ratio"] == ratio(180, 240) == "0.750000"
+    assert body["full_lower"] == ratio(180, 7200) and body["full_upper"] == ratio(180 + 3600 - 240 + 3600, 7200)
 
 
 def test_state_never_carried_past_window_or_next_transition() -> None:
