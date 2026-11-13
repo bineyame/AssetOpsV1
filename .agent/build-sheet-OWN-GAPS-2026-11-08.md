@@ -5511,3 +5511,30 @@ Decisions logged for owner review: **D-UQFI.6-10**.
 - **Q4 Confirmed.** A closed gate returns the existing 409 `AWAITING_EVIDENCE_MIGRATION`, so SR-12b's "not available yet" line applies unchanged. No new code, and no `PERFORMANCE_CUTOVER_CLOSED`. The gate reason stays in the message for logs; the page does not render it as raw text. D-SR.77's store branch is unchanged: the 409 is the imported-Site signal only when the store is unstated.
 
 Decisions logged for owner review: **D-SR.78**.
+
+## D-UP.12 UP-1 review L2: a stale FAILED job must not pin "Not analysed" (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-up1` `.agent/UP-1-review.md` L2; code `reading_upload/adapters/postgres_reading_upload_store.py` `_ANALYSIS` and `progress`. This refines D-UP.3; it does not replace it.
+- **Yes: a later successful run supersedes a FAILED job for the same period.** The proof in D-UP.3 is the run itself. A run whose `knowledge_cutoff` is at or after the upload's decision time has read the upload, whatever failed before or beside it.
+- **State order at GET:** Still processing > Analysed > Not analysed > Still processing (fallback).
+  1. **Still processing** if any `recompute_job` for the Site, in any domain, overlapping [first interval start, last interval end) is PENDING or LEASED. This is unchanged: D-UP.3's "no work is left" holds.
+  2. **Analysed** if the qualifying run exists (D-UP.3 item 2, unchanged).
+     - It is an `analytic_run` for the Site with `analytic_id = dispatch_v3.ANALYTIC_ID`, `selection = 'DEFAULT'` and `job_id IS NOT NULL`, its window covers the first interval start, and its `knowledge_cutoff` ≥ `decided`.
+     - `decided` = max `ingestion_disposition.decided_at` over the upload's ACCEPTED dispositions.
+     - No FAILED job overrides it.
+  3. **Not analysed** only if no qualifying run exists and a **relevant** FAILED job overlaps the span.
+     - A FAILED job is relevant when `created_at ≥ decided`, or `lease_until ≥ decided` when that column is set. Either way it was created or still leased after the upload was decided, so it could have carried the upload.
+     - Jobs coalesce, so `created_at` alone would miss an older job that was widened to take the upload. Never key on `cause_evidence_id` (D-UP.3).
+     - A FAILED job created and last leased before `decided` is ignored.
+  4. Otherwise **Still processing**. This is the existing state when no run and no relevant failure exist.
+- **What is compared:** each FAILED job's `created_at`/`lease_until` with the upload's `decided` time (the same database clock, S4-07). The run is compared with `decided` through `knowledge_cutoff`. A job is never compared with a run.
+- **Wording is right, unchanged:** `reading_upload.state.not_analysed` "Received, but the analysis did not finish. The readings are kept." It is now shown only for a relevant failure, where it is true.
+- **Tests, no-DB fake store plus one Postgres flow case:**
+  - an old FAILED job and a later qualifying run gives Analysed;
+  - an old FAILED job (created and leased before `decided`) and no run gives Still processing;
+  - a FAILED job created after `decided` and no run gives Not analysed;
+  - an older job with `lease_until ≥ decided` that is FAILED, and no run, gives Not analysed;
+  - PENDING beside a qualifying run gives Still processing.
+- Size about 0.1, before merge. Also run the review's `SELECT status, count(*) FROM recompute_job` check for KOBO-001 on the client4 copy in the first heavy slot, as planned.
+
+Decisions logged for owner review: **D-UP.12**.
