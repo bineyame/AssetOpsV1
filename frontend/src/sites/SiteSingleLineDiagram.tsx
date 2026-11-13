@@ -1644,23 +1644,27 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
           const name = group.length === 0 ? `Charger ${j + 1} · ${NOT_DECLARED}` : group.length === 1 ? groupName(group[0], j + 1) : "Additional chargers";
           const rating = group.length === 0 || group.some((ch) => ch.max_kw === null) ? RATING_NOT_DECLARED : `${group.reduce((t, ch) => t + Number(ch.max_kw ?? 0), 0)} kW`;
           const detail = group.length > 1 ? group.map((ch, n) => groupName(ch, j + 1 + n)).join(", ") : null;
+          // D-DATA.5: the feeder's energy is metered at each connector when every connector declares its meter
+          const metered = connectors.length > 0 && connectors.every((c) => c.meter_resolution_kwh !== null);
           return (
             <g key={`feeder-${j}`} data-ev-slot="feeder" data-ev-feeder={String(j + 1)} data-ev-declared={declared ? "yes" : "no"}>
               <line x1={busX} x2={748} y1={cy} y2={cy} className="ev-sld__ac" />
               {breaker(700, cy, `Feeder ${j + 1} CB`, `cb-${j}`)}
-              <rect x={748} y={cy - 13} width={40} height={26} rx={3} className="ev-sld__meter ev-sld__box--missing" data-ev-slot="meter" />
+              <rect x={748} y={cy - 13} width={40} height={26} rx={3} className={metered ? "ev-sld__meter" : "ev-sld__meter ev-sld__box--missing"} data-ev-slot="meter" data-ev-declared={metered ? "yes" : "no"} />
               <text x={768} y={cy + 4} textAnchor="middle" className="ev-sld__small ev-sld__strong">kWh</text>
               <text x={768} y={cy + 26} textAnchor="middle" className="ev-sld__small">
-                {NOT_DECLARED}
+                {metered ? "At each connector" : NOT_DECLARED}
               </text>
               {dot(786, cy - 13, `m-${j}`)}
               <line x1={788} x2={806} y1={cy} y2={cy} className="ev-sld__ac" />
               <rect x={806} y={cy - 16} width={32} height={32} rx={4} className={declared ? "ev-sld__load" : "ev-sld__load ev-sld__box--missing"} />
               <text x={822} y={cy + 5} textAnchor="middle" className="ev-sld__glyph">{String(j + 1)}</text>
               <text x={848} y={cy - 2} className="ev-sld__label">{name}</text>
-              <text x={848} y={cy + 13} className="ev-sld__small">
-                {`${rating} · ${connectors.length === 0 ? NO_CONNECTOR_DECLARED : `${connectors.length} connector${connectors.length === 1 ? "" : "s"}`}${detail === null ? "" : ` · ${detail}`}`}
-              </text>
+              {group.length === 0 ? null : (
+                <text x={848} y={cy + 13} className="ev-sld__small">
+                  {`${rating} · ${connectors.length === 0 ? NO_CONNECTOR_DECLARED : `${connectors.length} connector${connectors.length === 1 ? "" : "s"}`}${detail === null ? "" : ` · ${detail}`}`}
+                </text>
+              )}
               {connectors.length === 0 ? null : (
                 <path d={`M822 ${cy + 16}V${cy + 36}H${848 + (connectors.length - 1) * 76}`} className="ev-sld__signal" data-ev-edge="signal" />
               )}
@@ -1715,7 +1719,10 @@ export function EvSingleLineDiagram({ read, names }: { read: EvFoundationReadMod
         <span><span className="ev-sld__legend-dot ev-sld__legend-dot--unknown" aria-hidden="true" />Reporting not assessed</span>
       </figcaption>
       <p className="not-available-yet v69-chart-note" data-ev-sld-undeclared="">
-        Grid supply, breakers, feeder meters and depot auxiliary are not declared in this version and are drawn as empty slots. The Site import meter, when declared, sits in the source-side box. Every reporting dot is unknown.
+        Grid supply, circuit breakers, the load manager and depot auxiliary are not part of this site&apos;s declared configuration, so they are drawn as empty slots. Energy is metered at each connector and at the site import meter where declared.{" "}
+        <MissingClaim gapId="G-sld-reporting-status" placement="sld.diagram.ev-undeclared-note">
+          Reporting is not assessed on this diagram.
+        </MissingClaim>
       </p>
     </figure>
   );

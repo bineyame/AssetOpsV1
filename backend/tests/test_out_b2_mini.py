@@ -536,3 +536,35 @@ def test_no_thread_keeps_the_exact_revision_rule() -> None:
     _, rows = run(Fake(action_index={"rows": [a], "next_cursor": None}))
     assert rows[COST]["must_not_harm"] is None  # LINK-LINEAGE's refresh link is gone (deleted lineage)
     assert run()[1][COST]["must_not_harm"] is not None
+
+
+# ---- DATA-10 (gate item 2): a recorded CALENDAR plan on the generator asset shows on Protect > Generator
+def _gen_text(plans, fake_kw=None) -> str:
+    _, rows = run(Fake(plans=plans, **(fake_kw or {})))
+    return contributor(rows[PROTECT], "generator")["text"]
+
+
+def _cal(due, asset_type="GENERATOR", **kw):
+    return dict(PLANS[1], canonical_plan_id="p9", code="PM-009", title="Generator 250-hour service",
+                next_due_at=iso(due), asset_type=asset_type, **kw)
+
+
+def test_calendar_generator_plan_due_after_the_window_is_shown() -> None:
+    assert _gen_text([_cal(T(30, 21))]) == "Generator 250-hour service due 31 Oct"
+
+
+def test_calendar_generator_plan_due_before_the_window_end_is_overdue() -> None:
+    assert _gen_text([_cal(T(10, 21))]) == "Generator 250-hour service overdue since 11 Oct"
+
+
+def test_run_hours_plan_still_wins_over_a_calendar_generator_plan() -> None:
+    assert _gen_text([_cal(T(30, 21)), PLANS[0]]) == "Service due at 500 operating hours · hours since service not recorded"
+
+
+def test_non_generator_calendar_plan_is_not_a_generator_plan() -> None:
+    assert _gen_text([_cal(T(30, 21), asset_type="BATTERY")]) == mini.NO_GEN_PLAN
+
+
+def test_plans_failed_generator_contributor_is_not_available() -> None:
+    _, rows = run(Fake(refuse=("plans",)))
+    assert contributor(rows[PROTECT], "generator")["text"] == mini.NOT_LOADED

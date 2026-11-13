@@ -693,8 +693,8 @@ def _fake_gateway(monkeypatch) -> list[dict]:
     monkeypatch.setattr(pg_harness, "dispose", lambda *a, **k: None)
     monkeypatch.setattr(nights, "day_document", lambda *a, **k: {})
     monkeypatch.setattr(execution_adapter, "run_to_end", lambda *a, **k: SimpleNamespace(trajectory=trajectory))
-    monkeypatch.setattr(rp, "_publish_and_accept", lambda tmp, run_, epoch, received, *, gateway_dir=None, keep=None:
-                        calls.append({"tmp": tmp, "epoch": epoch, "gateway_dir": gateway_dir, "keep": keep})
+    monkeypatch.setattr(rp, "_publish_and_accept", lambda tmp, run_, epoch, received, *, gateway_dir=None, keep=None,
+                        diagnostics=False: calls.append({"tmp": tmp, "epoch": epoch, "gateway_dir": gateway_dir, "keep": keep})
                         or {"batches": 1})
     monkeypatch.setenv(kis.ENTRY_ENV, "on")
     return calls

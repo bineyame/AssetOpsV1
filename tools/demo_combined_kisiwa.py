@@ -62,11 +62,15 @@ IMPORT_PATH = "var/sites/kisiwa-001.yaml"
 BINDINGS = json.loads((CONVERSIONS / "kisiwa-001-bindings.json").read_text(encoding="utf-8"))
 ROLES4 = json.loads((CONVERSIONS / "kisiwa-001-minigrid-roles-demo-config.json").read_text(encoding="utf-8"))
 FIXTURE_PRICES = CONVERSIONS / "demo-diesel-price-publications.json"
+#: DATA-8 (D-17N.4, K11; owner "both" 2026-11-12): the declared price per kWh for productive users, Kobo's fixture
+#: (`demo_combined_kobo.FIXTURE_PRODUCTIVE_PRICE`; the Site is named on the command line), at the diesel price's instant.
+FIXTURE_PRODUCTIVE_PRICE = CONVERSIONS / "demo-productive-price-publications.json"
 
 CONFIG_OFFSETS = {"uses": timedelta(minutes=25), "roles4": timedelta(minutes=27), "known": timedelta(minutes=30),
                   "price": timedelta(hours=1)}
 #: DIESEL-1 §2.2: what each Kisiwa feeder supplies (load-clinic is the cold store, load-mill the water pump).
-SUPPLY_USES = {"load-clinic": "ESSENTIAL_SERVICE", "load-res": "HOUSEHOLD", "load-mill": "HOUSEHOLD"}
+#: DATA-8 (K10): the cold store (ice and fish) and the water pump are productive users; households stay households.
+SUPPLY_USES = {"load-clinic": "PRODUCTIVE", "load-res": "HOUSEHOLD", "load-mill": "PRODUCTIVE"}
 SUPPLY_USE_NOTE = "Demonstration supply use declared at commissioning"
 NO_LOAD = [
     {"property_key": "generator-no-load-fuel-rate", "value": 4.9, "unit": "L/h", "source": "SITE",
@@ -149,16 +153,18 @@ def register_in(store, import_at: datetime, install_at: datetime) -> dict:
 
 
 def publish_price(url: str, recorded_at: datetime) -> None:
-    """Diesel price v1 only, recorded at `recorded_at` through the test-only recorded-time seam (Kobo's pattern)."""
+    """Diesel price v1 and (DATA-8) the productive-use price v1, recorded at `recorded_at` through the test-only
+    recorded-time seam (Kobo's pattern, `demo_combined_kobo.publish_price`)."""
     from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
     from assetops_backend.publish_assumption import main as publish
     import pg_harness
 
     store = PostgresAssumptionStore(url, test_recorded_clock_override=lambda: recorded_at)
     try:
-        code = publish(["fixture", "--site", SITE_CODE, "--file", str(FIXTURE_PRICES), "--step", "v1"], store=store)
-        if code != 0:
-            raise SystemExit(f"diesel price v1 publication failed ({code})")
+        for name, fixture in (("diesel price", FIXTURE_PRICES), ("productive-use price", FIXTURE_PRODUCTIVE_PRICE)):
+            code = publish(["fixture", "--site", SITE_CODE, "--file", str(fixture), "--step", "v1"], store=store)
+            if code != 0:
+                raise SystemExit(f"{name} v1 publication failed ({code})")
     finally:
         pg_harness.dispose(store)
 
@@ -251,9 +257,10 @@ def story_previous_end(kisiwa: dict, k: int) -> datetime | None:
 def publish_night(rp, tmp: Path, work: Path, run, received_at: datetime, previous_end: datetime | None) -> dict:
     """D-E5.30: one night's readings through the real gateway on Kisiwa's one session (`KISIWA_EPOCH`, reopening
     `kisiwa_gateway(work)`); `tmp` keeps the night's own host and replay files. `previous_end`: the end of the
-    night published before it on the session (None for the session's first), see `after_previous_night`."""
+    night published before it on the session (None for the session's first), see `after_previous_night`.
+    DATA-5: the gateway's diagnostics are stored through the product ingestion, so Kisiwa Health has a report."""
     return rp._publish_and_accept(tmp, run, KISIWA_EPOCH, received_at, gateway_dir=kisiwa_gateway(work),
-                                  keep=after_previous_night(previous_end))
+                                  keep=after_previous_night(previous_end), diagnostics=True)
 
 
 def wire(value: datetime) -> str:
@@ -313,7 +320,8 @@ def resolve(S: datetime, doc: dict | None = None) -> dict:
            "dip_recorded_after_minutes": doc["dip_recorded_after_minutes"],
            "site_visit_recorded_at": iso(at(action["site_visit"]["occurred_at"])
                                          + timedelta(minutes=doc["site_visit_recorded_after_minutes"])),
-           "action": action, "plan": r["plan"], "evaluate_at": r["evaluate_at"]}
+           "action": action, "plan": r["plan"], "evaluate_at": r["evaluate_at"],
+           "service_plan": r.get("service_plan")}
     check_order(order_chain(out))
     check_equalities(out)
     return out
@@ -600,7 +608,7 @@ def record_action(url: str, engine, tenant, site, kisiwa: dict, finding: dict) -
     from test_w401_work_service_postgres import ACTOR, PRINCIPAL, oprec
 
     from assetops_backend.work.composition import build_domain_intent_service, build_work_service
-    from demo_story_clock import StepClock
+    from demo_story_clock import StepClock, story_action_due
 
     a = kisiwa["action"]
     domain, work = build_domain_intent_service(url), build_work_service(url)
@@ -610,7 +618,8 @@ def record_action(url: str, engine, tenant, site, kisiwa: dict, finding: dict) -
         status, action = domain.create_action(tenant, site, SITE_CODE, {
             "domain": "FUEL_BALANCE", "origin_finding_id": finding["finding_id"],
             "origin_finding_revision_id": finding["revision_id"], "title": a["title"],
-            "owner_label": a["owner_label"], "due_at": None, "raised_at": wire(raised), "actor": dict(ACTOR),
+            "owner_label": a["owner_label"], "due_at": wire(story_action_due(raised)), "raised_at": wire(raised),
+            "actor": dict(ACTOR),
             "idempotency_key": "kisiwa-fuel-action"}, PRINCIPAL)
         if status != 201:
             raise SystemExit(f"ACTION_REFUSED (stop S-7; a K6a defect): create_action answered {status}: {action}")
@@ -735,6 +744,34 @@ def freeze_and_evaluate(url: str, engine, tenant, site, kisiwa: dict, action: di
             "verdict": {**judged, "evaluated_at": iso(evaluate_at)}, "summary": summary}
 
 
+def service_plan_body(kisiwa: dict, asset_id: str) -> dict:
+    """DATA-10 (D-17N.4, K14): the generator's preventive service plan, the `WorkService.post_plan` body Kobo's and the
+    Depot's story plans use (`demo_combined_kobo.write_work`); one 250-hour service due within the story month."""
+    from test_w401_work_service_postgres import plan
+
+    p = kisiwa["service_plan"]
+    return plan(p["key"], asset_id=asset_id, title=p["title"], trigger_kind=p["trigger_kind"],
+                next_due_at=p["due_at"], next_due_hours=p["due_hours"], occurred_at=p["at"])
+
+
+def write_service_plan(work_service, engine, tenant, site, kisiwa: dict) -> dict:
+    """DATA-10: post the service plan on the generator asset, recorded at its own story instant."""
+    from sqlalchemy import text
+    from test_w401_work_service_postgres import PRINCIPAL
+
+    p = kisiwa["service_plan"]
+    with engine.connect() as c:
+        asset_id = str(c.execute(text("SELECT id FROM asset WHERE site_id = :s AND asset_code = :a "
+                                      "AND retired_at IS NULL"), {"s": str(site), "a": p["asset_code"]}).scalar_one())
+    recorded = at(p["at"])
+    work_service._store.test_db_clock_override = lambda: recorded
+    status, made = work_service.post_plan(tenant, site, service_plan_body(kisiwa, asset_id), PRINCIPAL)
+    if status != 201:
+        raise SystemExit(f"PLAN_REFUSED: the generator service plan answered {status}: {made}")
+    return {"id": str(made.get("canonical_plan_id") or made.get("id")), "code": made.get("public_code"),
+            "title": p["title"], "asset_id": asset_id, "due_at": p["due_at"]}
+
+
 def threads(work: Path) -> list[dict]:
     """§9l.3 step 4: the Kisiwa-only chain backfill, as a child process in this tree (no other Site's thread)."""
     import subprocess
@@ -838,6 +875,8 @@ def build(url: str, work: Path) -> dict:
             else:
                 out["nights"][-1]["raise"] = raise_night(url, tenant_id, site_id, by_k[item]["night_date"], instant,
                                                          item)
+        # DATA-10: the generator's service plan (K14 "No preventive plan recorded")
+        out["service_plan"] = write_service_plan(work_service, engine, tenant_id, site_id, kisiwa)
         # 5. the Action and its change; 4. threads (after the Action)
         finding = next(n["raise"] for n in out["nights"] if n["k"] == 4)
         out["action"] = record_action(url, engine, tenant_id, site_id, kisiwa, finding)

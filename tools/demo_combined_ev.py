@@ -111,12 +111,13 @@ def _swaps(registered, P, day: "sd.DayRun", install_at: datetime) -> dict:
     delta = at(day.day + "T00:00:00Z") - BASE_DAY
     lo, hi = story_window(day)
     names = ("INSTALL_AT", "SETUP_AT", "WINDOW", "RELEASE", "ATTEST_FROM", "ATTEST_TO", "FIRST_DECISION",
-             "LATE_DECISION", "ATTESTED_AT")
+             "LATE_DECISION", "ATTESTED_AT", "FORWARD_DIAGNOSTICS")
     saved = {n: getattr(registered, n) for n in names}
     saved.update({"_EV_WINDOW": ev_parsing.EV_WINDOW, "_E": (P.E_START, P.E_END),
                   "_RunSetupService": registered.RunSetupService})
     longer = hi - (at(saved["WINDOW"]["end"]) + delta)
     registered.INSTALL_AT, registered.SETUP_AT = install_at, install_at + timedelta(hours=1)
+    registered.FORWARD_DIAGNOSTICS = True  # DATA-5: the day's gateway diagnostics are stored (EV Health)
     registered.WINDOW = {**saved["WINDOW"], "start": iso(lo), "end": iso(hi)}
     registered.RELEASE = _shift_text(saved["RELEASE"], delta + longer)
     for n in ("ATTEST_FROM", "ATTEST_TO"):
@@ -197,13 +198,16 @@ def declare_and_work(url: str, built, story: dict, day: "sd.DayRun", replayed: d
     import w504_ev_work_walkthrough as W
 
     tag = f"demo3-{day.epoch}"
+    from demo_story_clock import STORY_ACTION_DUE
+
     with story_commands(url, day.received_at) as (_work, domain):
-        saved = W._db_now
+        saved, saved_due = W._db_now, W.P.DEMO_ACTION_DUE
         W._db_now = lambda _url: domain()
+        W.P.DEMO_ACTION_DUE = STORY_ACTION_DUE  # DATA-13: the story Action has a due date
         try:
             declared = W._declare(url, "positive", tag, replayed)
         finally:
-            W._db_now = saved
+            W._db_now, W.P.DEMO_ACTION_DUE = saved, saved_due
         asset_id = declared["selection"]["connector_asset_id"]
         if not asset_id:
             raise SystemExit("EV fault day: the selected session names no connector asset; no plan target")
