@@ -1,4 +1,4 @@
-# UP-1 packet (lane F) - client reading upload, Kobo only - PARTIAL (Thu 12 Nov: guard, gateway, template, store test)
+# UP-1 packet (lane F) - client reading upload, Kobo only - server + frontend built (Fri 13 Nov); client4 run pending
 
 Branch `task/UP-1-reading-upload` (worktree `AssetOpsV1-up1`; main 506eae7fc merged in at a77a870bd). Spec: rev 7
 section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 and rulings **D-UP.1-11** in
@@ -39,6 +39,40 @@ section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 a
 - 831d1b354 `backend/tests/test_up1_reading_upload_postgres.py` (resume point 3).
 - a8c948551 estate self-test probe anchor follows `$uploadWriter` in `$pgWriters`.
 
+- (13 Nov) mockup v72 rebuild committed; `git merge main` (clean). **D-UP.8 done**: PR-3's 0060 is on main, so
+  `0061.down_revision = 0060_site_admin_price_entry`; one head. PR-3's migration test asserts the tree's one head
+  (`test_pr3_price_entry_postgres.py` lines 82/91/174) instead of `[0060]`.
+- **Analysed read (D-UP.3)** in `postgres_reading_upload_store.py` `_ANALYSIS` (the injected callable is gone): once
+  all admitted readings are accepted, `analytic_run` (`dispatch`, DEFAULT, `job_id IS NOT NULL`, window covers
+  `period_start`, `knowledge_cutoff >=` max ACCEPTED `ingestion_disposition.decided_at` of the message IDs - the
+  ledger has no `accepted_at` column; the disposition's decision time is that time); PENDING/LEASED job in any domain
+  over [period_start, period_end) -> Still processing; FAILED there -> `NOT_ANALYSED`
+  (`reading_upload.state.not_analysed`, the ruling's words); `board_day` (Site-local day of `period_start`) only when
+  ANALYSED. Order: pending > failed > run.
+- **Postgres flow test** `host/tests/test_up1_reading_upload_flow_postgres.py` (resume point 2): TEL-06b setup, the
+  host's real checker/sender processes, real gateway process, real ingestion behind the fake TLS central. Dry run
+  writes nothing -> SENT (196 admitted) -> PROCESSING (196/196 accepted; 1 dispatch job PENDING) ->
+  `assess_dispatch process-jobs` DONE -> `analytic_run` dispatch/DEFAULT/by job, window 2026-09-30 -> **ANALYSED**,
+  `board_day` 2026-09-30. Send-to-Analysed **2.3-4.0 s** with the test's drain (the serve tick's interval is not in it).
+- Server additions for the page: `GET /api/sites/{code}/reading-uploads` (200 `{enabled, template_note}` when the
+  switch names the Site, else the POST's 403s); dry run `latest_saved` (latest accepted reading over the file's
+  roles); per column `meter_text` / `role_name_text` (new keys `reading_upload.meter.*`, `reading_upload.role_name.*`).
+- **Frontend** (490c92fa0): `sites/readingUploadClient.ts`, `sites/ReadingUpload.tsx` (+ `readingUpload.css` on app
+  tokens), `SiteUploadsFrame` + Health panel in `shell/SiteHealthFrames.tsx`, route `SITE_UPLOADS_ROUTE_PATH`
+  (`/sites/:siteId/uploads`) in `operatorSiteRoutes.ts` / `App.tsx`; `test/settled.ts` knows "Loading the upload
+  page". Panel only when the entry read is 200 (mini-grid Health, not on the gateway detail). Polls every 3 s until
+  ANALYSED / NOT_ANALYSED / REFUSED. Links via `RangeLink`.
+
+## Checks (Fri 13 Nov, VPS)
+- No DB: `test_up1_reading_upload.py` + `test_uq6a_message_seam.py` + host `test_up1_reading_upload_process.py` +
+  `test_up1_demo_upload_gateway.py`: **108 passed**. (`test_up1_demo_upload_gateway.py` fakes main's new D-SR.67
+  `evidence_comparisons` serve step.) `test_e4_prebuilt_routes_generator.py::test_the_list_is_written_before_every_
+  prebuild_and_at_serve_start` fails **on main too** (`'Done' object has no attribute 'returncode'`), not UP-1.
+- Postgres (own `assetops_up1_test`, created today): flow test + `test_up1_reading_upload_postgres.py` 3 passed;
+  `test_pr3_price_entry_postgres.py` 4 passed.
+- vitest: `src/sites/__tests__/readingUpload.test.tsx` **10 passed**; range/link + Health set: see report.
+- tsc `--noEmit`: exit 0. Guards: check-all for coordinator.
+
 ## Checks (Thu 12 Nov)
 - No DB: `backend/tests/test_up1_reading_upload.py` + `test_uq6a_message_seam.py` +
   `host/tests/test_up1_reading_upload_process.py` + `host/tests/test_up1_demo_upload_gateway.py`: **103 passed**.
@@ -58,6 +92,11 @@ section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 a
 - `frontend/node_modules` is an untracked junction to plan2's (identical `package-lock.json`).
 
 ## Known deviations
+- MOCK DEVIATIONs (labelled in `ReadingUpload.tsx` / `SiteHealthFrames.tsx`): no per-step clock times in the tracker
+  (one stored time, shown in the head); refusal = the server's one sentence + field, not headline + explanation; the
+  mock's "Every refusal" table and drop-zone state bar are review aids, not built; breadcrumb keeps Site / Health.
+- Step descriptions for done tracker steps ("The whole file passed.", "Handed to the site's data gateway.") and the
+  Health panel copy are the mockup's words in the page, not server keys; state sentences are the server's.
 - **SPEC DEVIATION (transport, D-UP.5)**: raw `text/csv` body with `?file_name=`, not multipart (stated in the
   `reading_upload_api.py` docstring).
 - D-UP.9: `message_ids` is `text[]`, not jsonb (the ruling's word); same content, append-only.
@@ -74,7 +113,12 @@ section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 a
   before serving with the switch on.
 - If the gateway's `activate` is not idempotent across a serve restart, the second serve's activation fails loudly.
 
-## Resume points (VPS, after ~16:00)
+## Resume points (13 Nov onward)
+- Done: 1 (Analysed read), 2 (flow test), 4 (frontend), 5 (0061 repoint).
+- Next: 3 (client4 copy with `demo_combined.py serve` and the switch on: the cohort risk for `kobo-edge-*` epochs and
+  `--actor service:demo-upload` are only proven there); a page capture in each state (gate); MB-1.
+
+## Resume points (as of 12 Nov)
 1. The `analysed(row)` read (D-UP.3): `analytic_run` (dispatch_v3 `ANALYTIC_ID`, `DEFAULT`, `job_id IS NOT NULL`,
    window covers first interval start, `knowledge_cutoff` >= latest `accepted_at` of the upload's evidence) and no
    PENDING/LEASED `recompute_job` in any domain over [first start, last end); FAILED -> `NOT_ANALYSED` with
@@ -87,4 +131,5 @@ section 7.5 of `.agent/architect-sequence-client-scope-2026-11-11.md`; D-17N.5 a
 6. MB-1 on the same `kobo-edge` gateway and central.
 
 ## User review
-Mockup needs owner approval (Fri 09:00). Slice not ready for review; the switch is off by default.
+Mockup provisionally approved by the owner (13 Nov). Server + page ready for review behind the switch (off by
+default); the demo-build run (resume point 3) and state captures remain before merge.
