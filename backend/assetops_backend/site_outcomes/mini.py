@@ -129,7 +129,7 @@ SOURCE_TEXT = {"REGISTERED_SIMULATION": "Example data",
                "AUTHORED_DEMONSTRATION": "Prepared example data source", "MIXED": "Mixed sources"}
 SOURCE_UNRESOLVED = "Source not resolved"
 #: An unfinished, unsettled day with no assessed generator interval is not checked yet (never "0 min").
-GEN_NOT_CHECKED = "Not checked yet · no generator period assessed on this day so far"
+GEN_NOT_CHECKED = "Not checked yet · no generator period assessed on this day"
 OPEN_FINDING_SUBLINE = "An open finding is waiting for this day to be checked"
 #: IDX-GAPS U2: the board's Finding window in days, and the gap line under the rows (`finding_gap_line`).
 FINDING_WINDOW_DAYS = 31
@@ -575,7 +575,11 @@ def compose(ports: MiniPorts, *, site_code: str, day: date, site_timezone: str |
     read_ok = gate is not None and day_facts is not None   # the reads that replace the overview read
     settled_day = bool(day_facts is not None and day_facts.settled)
     base = source_open and settled_day and dispatch is not None
-    unassessed = (not settled_day and dispatch is not None and not (dispatch.get("intervals") or ()))
+    # The day's own avoidable_gen_min grade decides (day_settled only says "not PENDING"; claim_level is cut on UTC
+    # days): no interval and no COMPLETE grade for the board day means the day is not checked yet.
+    grades = ((day_facts.grades.get(day) or {}).get("avoidable_gen_min") or {}).values() if day_facts else ()
+    unassessed = (dispatch is not None and not (dispatch.get("intervals") or ())
+                  and not any(x == "COMPLETE" for x in grades))
     assessment = {} if dispatch is None else {
         "state": assessment_state(dispatch.get("status")), "limitations": dispatch.get("limitations") or (),
         "claim_level": (dispatch.get("window_assessment") or {}).get("claim_level"),

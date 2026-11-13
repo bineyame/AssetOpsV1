@@ -573,18 +573,37 @@ def test_plans_failed_generator_contributor_is_not_available() -> None:
 
 # ------------------------------------------------ today's unfinished day (BOARD-today-wording)
 
+EMPTY = {"status": "LIMITED", "limitations": (), "intervals": ()}
+
+
+def grades(g: str | None) -> dict:
+    return {} if g is None else {DAY: {"avoidable_gen_min": {"asset:gen": g}}}
+
+
 def test_unassessed_unsettled_day_is_not_checked_yet() -> None:
-    _, rows = run(Fake(day={"settled": False}, dispatch={"status": "LIMITED", "limitations": (), "intervals": ()}))
+    _, rows = run(Fake(day={"settled": False}, dispatch=EMPTY))
     gen = contributor(rows[COST], "generator_use")
     assert gen["text"] == mini.GEN_NOT_CHECKED and not gen.get("confidence")
-    assert "0 min" not in gen["text"]
-    assert rows[COST]["subline"]  # the open Finding keeps Needs attention, with its own line
-    assert rows[COST]["subline"] == mini.FINDING_TITLE["SUPPORTED"] or rows[COST]["subline"] == mini.OPEN_FINDING_SUBLINE
+    assert rows[COST]["subline"] == mini.FINDING_TITLE["SUPPORTED"]  # the lead Finding's own line
     assert not any("0 min longer than needed" in str(x) for x in rows.values())
 
 
-def test_settled_zero_minute_day_still_says_zero() -> None:
-    _, rows = run(Fake(dispatch={"status": "COMPLETE", "limitations": (), "intervals": ()}))
+def test_partial_grade_with_no_interval_is_not_checked_even_when_settled() -> None:
+    for g in ("PARTIAL", "PENDING", None):  # settled_day True: the newest rows are not PENDING-only
+        _, rows = run(Fake(day={"grades": grades(g), "settled": True}, dispatch=EMPTY))
+        gen = contributor(rows[COST], "generator_use")
+        assert gen["text"] == mini.GEN_NOT_CHECKED and not gen.get("confidence"), g
+        assert rows[COST]["subline"] == mini.FINDING_TITLE["SUPPORTED"], g
+
+
+def test_unassessed_without_a_finding_has_no_invented_subline() -> None:
+    _, rows = run(Fake(day={"grades": grades("PARTIAL")}, dispatch=EMPTY, chain_findings=()))
+    assert contributor(rows[COST], "generator_use")["text"] == mini.GEN_NOT_CHECKED
+    assert rows[COST]["subline"] is None
+
+
+def test_settled_complete_zero_interval_day_still_says_zero() -> None:
+    _, rows = run(Fake(day={"grades": grades("COMPLETE")}, dispatch={**EMPTY, "status": "COMPLETE"}))
     assert contributor(rows[COST], "generator_use")["text"] == "0 min avoidable, 0 min unclear"
 
 
