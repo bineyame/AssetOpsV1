@@ -125,6 +125,7 @@ class ReadingUploadStore(Protocol):
     def insert(self, row: UploadRow) -> UploadRow: ...
     def get(self, tenant_id: UUID, site_id: UUID, upload_id: UUID) -> UploadRow | None: ...
     def progress(self, row: UploadRow) -> Progress: ...
+    def site_timezone(self, tenant_id: UUID, site_id: UUID) -> str: ...
 
 
 def refusal_words(code: str, **params: Any) -> Message:
@@ -148,6 +149,51 @@ def _row_number(field_text: str) -> str:
     if field_text.startswith("rows[") and "]" in field_text:
         return str(int(field_text[5:field_text.index("]")]) + 1)
     return ""
+
+
+_MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def _site_time(iso: str | None, zone: str) -> str:
+    """`2026-11-16T20:45:00Z` -> '16 Nov, 23:45' in the Site's time zone (UTC when the zone is unknown)."""
+    from zoneinfo import ZoneInfo
+
+    if not iso:
+        return ""
+    try:
+        at = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+        local = at.astimezone(ZoneInfo(zone))
+    except (ValueError, KeyError, OSError):
+        return iso
+    return f"{local.day} {_MONTHS[local.month - 1]}, {local:%H:%M}"
+
+
+def _where(code: str, field_text: str | None) -> str | None:
+    """The refusal's place in plain words: `row 7 · timestamp_utc` (the file's data row, counted from 1, and the
+    column's name in the file), or `column 3` for a heading; a role in words for ALREADY_RECORDED. No system path."""
+    if not field_text:
+        return None
+    if code == "ALREADY_RECORDED":
+        from assetops_backend.i18n import render
+        from assetops_backend.i18n.messages import CATALOGUE
+
+        key = f"reading_upload.role_name.{field_text}"
+        return render(message(key)) if key in CATALOGUE["en"] else None
+    if field_text.startswith("rows[") and "]" in field_text:
+        row = _row_number(field_text)
+        column = field_text.split("].", 1)[1] if "]." in field_text else ""
+        return f"row {row} · {column}" if column else f"row {row}"
+    if field_text.startswith("header[") and field_text.endswith("]") and field_text[7:-1].isdigit():
+        return f"column {int(field_text[7:-1]) + 1}"
+    return None
+
+
+def _refusal_text(code: str, field_text: str | None, detail: str | None, zone: str) -> Message:
+    if code == "ALREADY_RECORDED":
+        return refusal_words(code, role=field_text or "", latest=_site_time(detail, zone))
+    if code == "INVALID_VALUE" and detail == "FIELD_TOO_LARGE":
+        return message("reading_upload.refused.file_unreadable")
+    return refusal_words(code, row=_row_number(field_text or ""), where=_where(code, field_text) or "")
 
 
 class ReadingUploadService:
@@ -205,12 +251,10 @@ class ReadingUploadService:
                      checked: Preview | None, dry_run: bool) -> tuple[int, dict]:
         import hashlib
 
-        if refusal.code == "ALREADY_RECORDED":
-            words = refusal_words(refusal.code, role=refusal.field, latest=refusal.detail)
-        else:
-            words = refusal_words(refusal.code, row=_row_number(refusal.field), field=refusal.field)
+        words = _refusal_text(refusal.code, refusal.field, refusal.detail,
+                              self._store.site_timezone(tenant_id, site_id))
         body: dict[str, Any] = {"dry_run": dry_run, "state": "REFUSED", "refusal": {
-            "code": refusal.code, "field": refusal.field, "detail": refusal.detail}, "words": words}
+            "code": refusal.code, "where": _where(refusal.code, refusal.field)}, "words": words}
         if not dry_run:
             row = self._store.insert(UploadRow(
                 id=self._new_id(), tenant_id=tenant_id, site_id=site_id, file_name=file_name,
@@ -258,12 +302,14 @@ class ReadingUploadService:
                        "accepted_of": total},
             "period_start": _iso(row.period_start), "period_end": _iso(row.period_end),
             "uploaded_by": message(UPLOADED_BY_LABEL_KEY), "entered_at": _iso(row.entered_at),
-            "words": self._state_words(row, state, progress, total),
+            "words": self._state_words(
+                row, state, progress, total,
+                self._store.site_timezone(row.tenant_id, row.site_id) if row.state == "REFUSED" else "UTC"),
         }
         if state == "ANALYSED" and progress.board_day:
             view["board_day"] = progress.board_day
         if row.state == "REFUSED":
-            view["refusal"] = {"code": row.refusal_code, "field": row.refusal_field, "detail": row.refusal_detail}
+            view["refusal"] = {"code": row.refusal_code, "where": _where(row.refusal_code or "", row.refusal_field)}
         if held_by_column:
             view["held_by_column"] = dict(held_by_column)
         if checked is not None:
@@ -271,10 +317,9 @@ class ReadingUploadService:
         return view
 
     @staticmethod
-    def _state_words(row: UploadRow, state: str, progress: Progress, total: int) -> Message:
+    def _state_words(row: UploadRow, state: str, progress: Progress, total: int, zone: str = "UTC") -> Message:
         if state == "REFUSED":
-            return refusal_words(row.refusal_code or "", row=_row_number(row.refusal_field or ""),
-                                 field=row.refusal_field or "", role=row.refusal_field or "", latest=row.refusal_detail or "")
+            return _refusal_text(row.refusal_code or "", row.refusal_field, row.refusal_detail, zone)
         if state == "ACCEPTED":
             return message("reading_upload.state.accepted", accepted=progress.accepted, total=total)
         if row.held_count and state in ("PROCESSING", "ANALYSED", "SENT"):

@@ -56,13 +56,14 @@ export interface UploadStatus {
   text: string;
   board_day?: string;
   held_by_column?: Record<string, number>;
-  refusal?: { code: string; field: string | null; detail: string | null };
+  refusal?: { code: string; where: string | null };
 }
 
 export interface UploadRefusal {
   code: string | null;
   message: string | null;
-  field: string | null;
+  /** The place in plain words ("row 7 · timestamp_utc", "column 3", "Solar power"); the server never sends a path. */
+  where: string | null;
   /** A confirmed (not dry-run) refusal is recorded; its reference. */
   upload_id: string | null;
 }
@@ -76,7 +77,7 @@ export type UploadResult<T> =
   /** No response: a save may or may not have landed. */
   | { status: "lost" };
 
-export type UploadEntry = { status: "on"; templateNote: string } | { status: "off" };
+export type UploadEntry = { status: "on"; templateNote: string; healthText: string; templateStep: string } | { status: "off" };
 
 export interface ReadingUploadClient {
   entry(siteId: string): Promise<UploadEntry>;
@@ -103,12 +104,12 @@ function isStatus(value: unknown): value is UploadStatus {
 }
 
 function refusalOf(body: unknown): UploadRefusal {
-  if (!isObject(body)) return { code: null, message: null, field: null, upload_id: null };
+  if (!isObject(body)) return { code: null, message: null, where: null, upload_id: null };
   const refusal = isObject(body.refusal) ? body.refusal : null;
   return {
     code: typeof body.code === "string" ? body.code : null,
     message: typeof body.message === "string" ? body.message : typeof body.text === "string" ? body.text : null,
-    field: refusal !== null && typeof refusal.field === "string" && refusal.field ? refusal.field : null,
+    where: refusal !== null && typeof refusal.where === "string" && refusal.where ? refusal.where : null,
     upload_id: typeof body.upload_id === "string" ? body.upload_id : null,
   };
 }
@@ -146,7 +147,8 @@ export function createReadingUploadClient(basePath: string = SITES_API_PATH): Re
         if (!response.ok) return { status: "off" };
         const body: unknown = await response.json();
         if (isObject(body) && body.enabled === true) {
-          return { status: "on", templateNote: typeof body.template_note === "string" ? body.template_note : "" };
+          const word = (v: unknown) => (typeof v === "string" ? v : "");
+          return { status: "on", templateNote: word(body.template_note), healthText: word(body.health_text), templateStep: word(body.template_step) };
         }
       } catch {
         /* no answer: the entry stays hidden */

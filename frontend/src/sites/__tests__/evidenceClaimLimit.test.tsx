@@ -416,6 +416,8 @@ describe("Evidence Analysis selected claim limit (S3-02b)", () => {
     expect(s.dataset.claimLimitState).toBe(named);
     expect(s.textContent).toContain(words);
     expect(container.querySelector("[data-claim-limit-headline]")).toBeNull();
+    // Client pages show plain words: no system code anywhere in the section's text (the technical disclosure included).
+    if (typeof body.detail === "object") expect(container.textContent).not.toContain(body.detail.code);
   });
 
   it.each([

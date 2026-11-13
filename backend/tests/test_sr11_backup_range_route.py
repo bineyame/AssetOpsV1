@@ -289,10 +289,19 @@ def test_chain_ids_are_unique_across_one_stored_days_hours():
               supply(11 * 60 + 50, "LOST"), supply(13 * 60 + 20, "ENERGIZED"),  # 11:50-13:20: spans two hours
               supply(15 * 60 + 10, "LOST"), supply(15 * 60 + 20, "ENERGIZED"),  # inside one hour
               supply(23 * 60 + 40, "LOST"), supply(24 * 60 + 30, "ENERGIZED")]  # 23:40-00:30: crosses midnight
-    ids = []
+    # SR-11 review Low 1: one witnessed request/result pair in the 11:50 outage, so its chain_id takes the
+    # `correlation_id` path (`rules._start_steps`), the one in use whenever `start_success_count` is non-null.
+    def start(minutes: float, kind: str, outcome: str) -> rules.Observation:
+        return rules.Observation(uuid4(), src, rules.START_EVENT, midnight + timedelta(minutes=minutes), "GOOD",
+                                 None, kind, outcome, "corr-1")
+
+    series += [start(11 * 60 + 52, "START_REQUEST", "REQUESTED"), start(11 * 60 + 55, "START_RESULT", "SUCCEEDED")]
+    ids, successes = [], 0
     for h in range(24):
         hour = rules.assess_backup_hour(local_hour(day, h, TZ), series, [], Decimal("5"), critical_asset_id=None)
         ids += [str(r["chain_id"]) for r in projection._backup(hour)["rows"]]
+        successes += projection._backup(hour)["cards"]["start_success_count"] or 0
+    assert "corr-1" in ids and successes == 1  # the correlation path is exercised and its success counted once
     nxt = rules.assess_backup_hour(local_hour(day + timedelta(1), 0, TZ), series, [], Decimal("5"),
                                    critical_asset_id=None)
     assert len(ids) == 3 and len(set(ids)) == 3

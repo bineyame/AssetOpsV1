@@ -20,14 +20,17 @@ URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
 if URL:
-    from sqlalchemy import text
+    from sqlalchemy import bindparam, text
+    from sqlalchemy.dialects.postgresql import ARRAY
+    from sqlalchemy.types import Text
+    from assetops_backend.analytics.dispatch import ANALYTIC_ID
     from sqlalchemy.exc import DBAPIError
     from test_s1_bindings_postgres import engine, store  # noqa: F401
 
     import pg_harness
     import test_w402_reads_postgres as w402
     from assetops_backend.reading_upload.adapters.postgres_reading_upload_store import PostgresReadingUploadStore
-    from assetops_backend.reading_upload.service import UploadRow
+    from assetops_backend.reading_upload.service import ReadingUploadService, UploadRow
 
 START = datetime(2026, 11, 17, 0, 0, tzinfo=timezone.utc)
 ENTRY = "service:operator-entry"
@@ -103,3 +106,65 @@ def test_downgrade_refused_with_uploads_then_allowed(store, engine) -> None:  # 
         assert c.execute(text("SELECT to_regclass('reading_upload')")).scalar_one() is None
     command.upgrade(cfg, "head")
     pg_harness.assert_at_head(engine)
+
+
+# --- D-UP.12: which FAILED jobs count, and the order Still processing > Analysed > Not analysed ---------------------
+
+
+def _analysis_case(store, engine, jobs, run_cutoff_after_decided):
+    """Ingest real readings, take the upload's message ids and decision time, add the given recompute jobs
+    (status, created_at offset, lease_until offset, minutes from the decision) and optionally a qualifying run."""
+    installed, t, s = w402._setup(store, engine)
+    w402._ingest(engine, installed)
+    with engine.begin() as c:
+        ids = [r[0] for r in c.execute(text("SELECT message_id FROM accepted_evidence WHERE site_id = :s ORDER BY id"),
+                                       {"s": s})][:3]
+        lo, decided = c.execute(text(
+            "SELECT min(e.source_time), (SELECT max(d.decided_at) FROM ingestion_disposition d JOIN accepted_evidence x "
+            "ON x.id = d.accepted_evidence_id AND x.site_id = d.site_id WHERE d.site_id = :s AND d.decision = 'ACCEPTED' "
+            "AND x.message_id = ANY(:ids)) FROM accepted_evidence e WHERE e.site_id = :s AND e.message_id = ANY(:ids)"
+        ).bindparams(bindparam("ids", type_=ARRAY(Text))), {"s": s, "ids": ids}).one()
+        c.execute(text("UPDATE recompute_job SET status = 'DONE', lease_until = NULL WHERE site_id = :s"), {"s": s})  # settle the ingest's own jobs
+        job_ids = []
+        for status, created, lease in jobs:
+            jid = uuid4()
+            job_ids.append(jid)
+            c.execute(text(
+                "INSERT INTO recompute_job (id, tenant_id, site_id, domain, window_start, window_end, status, "
+                "available_at, lease_until, created_at) VALUES (:i, :t, :s, 'dispatch', :lo, :hi, :st, :c, :l, :c)"),
+                {"i": jid, "t": t, "s": s, "lo": lo - timedelta(hours=1), "hi": lo + timedelta(hours=8), "st": status,
+                 "c": decided + timedelta(minutes=created),
+                 "l": None if lease is None else decided + timedelta(minutes=lease)})
+        if run_cutoff_after_decided is not None:
+            c.execute(text(
+                "INSERT INTO analytic_run (id, tenant_id, site_id, analytic_id, model_version, window_start, window_end, "
+                "knowledge_cutoff, input_sha256, cohort_status, cohort_sha256, cohort, configuration_sha256, "
+                "foundation_revision_ids, binding_set_revision_ids, role_coverage, watermarks, selection, job_id, "
+                "status, started_at, completed_at) VALUES (:i, :t, :s, :a, 'v', :lo, :hi, :k, 'x', 'c', 'x', '{}', 'x', "
+                "'[]', '[]', '{}', '{}', 'DEFAULT', :j, 'COMPLETED', :k, :k)"),
+                {"i": uuid4(), "t": t, "s": s, "a": ANALYTIC_ID, "lo": lo - timedelta(hours=1),
+                 "hi": lo + timedelta(hours=8), "k": decided + timedelta(minutes=run_cutoff_after_decided),
+                 "j": next((j for j, (st, _, _) in zip(job_ids, jobs) if st == "DONE"), None) or uuid4()})
+    row = _sent(t, s, message_ids=tuple(ids), period_start=lo, period_end=lo + timedelta(hours=6))
+    uploads = PostgresReadingUploadStore(URL)
+    try:
+        progress = uploads.progress(row)
+        return ReadingUploadService.derived_state(row, progress)
+    finally:
+        uploads.dispose()
+
+
+DAY_OLD = -600  # minutes before the decision
+CASES = [
+    # (id, jobs [(status, created, lease)], run cutoff after decided, expected state)
+    ("old-failed-and-later-run", [("FAILED", DAY_OLD, DAY_OLD), ("DONE", 5, None)], 10, "ANALYSED"),
+    ("old-failed-no-run", [("FAILED", DAY_OLD, DAY_OLD)], None, "PROCESSING"),
+    ("new-failed-no-run", [("FAILED", 5, None)], None, "NOT_ANALYSED"),
+    ("old-created-but-leased-after-decided", [("FAILED", DAY_OLD, 5)], None, "NOT_ANALYSED"),
+    ("pending-beside-qualifying-run", [("DONE", 5, None), ("PENDING", 6, None)], 10, "PROCESSING"),
+]
+
+
+@pytest.mark.parametrize("name,jobs,run,expected", CASES, ids=[c[0] for c in CASES])
+def test_the_analysis_state_follows_d_up_12(store, engine, name, jobs, run, expected) -> None:  # noqa: F811
+    assert _analysis_case(store, engine, jobs, run) == expected

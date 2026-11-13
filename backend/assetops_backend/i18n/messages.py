@@ -55,7 +55,7 @@ CATALOGUE: dict[str, dict[str, str]] = {
             "'CSV UTF-8', and try again."),
         "reading_upload.refused.empty_file": "The file was not saved: it has no readings in it.",
         "reading_upload.refused.header_mismatch": (
-            "The file was not saved: the column headings do not match the template ({field})."),
+            "The file was not saved: the column headings do not match the template ({where})."),
         "reading_upload.refused.invalid_timing": (
             "The file was not saved: a time is not written like 2026-11-17T03:15:00Z (UTC, ending in Z). "
             "Row {row}."),
@@ -66,9 +66,9 @@ CATALOGUE: dict[str, dict[str, str]] = {
             "The file was not saved: the rows are not in time order. Row {row} is earlier than the row before it."),
         "reading_upload.refused.invalid_value": (
             "The file was not saved: a reading is not a plain number (a dot for decimals, no thousands separator, "
-            "at most 3 decimals), or the row has the wrong number of cells. Row {row} ({field})."),
+            "at most 3 decimals), or the row has the wrong number of cells. Row {row}."),
         "reading_upload.refused.already_recorded": (
-            "The file was not saved: this site already has {role} readings up to {latest} (UTC). Only readings "
+            "The file was not saved: this site already has {role} readings up to {latest} (site time). Only readings "
             "after that can be uploaded."),
         # The upload page's "Matched to" column (the CSV profile's devices and roles, Kobo only).
         "reading_upload.meter.pv-inverter-controller": "Solar inverter output",
@@ -85,6 +85,14 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "reading_upload.template_note": (
             "One row per 15 minutes, times in UTC ending in Z, power in kW. Leave a cell empty when there is no "
             "reading. In Excel, save as 'CSV (Comma delimited)', not 'CSV UTF-8'."),
+        # Site-specific page sentences (the entry read returns them; the page keeps only the generic steps).
+        "reading_upload.health_panel": (
+            "When the site's connection is down, its readings can be sent as a file in the AssetOps template: solar "
+            "output and the three feeder meters, every 15 minutes."),
+        "reading_upload.template_step": "A CSV with the time in UTC and the site's four meters, each with its unit.",
+        "reading_upload.refused.file_unreadable": (
+            "The file was not saved: a single cell is far too long to be a reading. Check the file and try again."),
+        "reading_upload.check_unavailable": "The file could not be checked just now. Nothing was saved; try again.",
         "reading_upload.template_unavailable": "The upload template is not available for this site just now.",
     },
 }

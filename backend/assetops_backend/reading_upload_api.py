@@ -24,6 +24,7 @@ from typing import Any, Callable
 from uuid import UUID
 
 from fastapi import APIRouter, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, Response
 
 from assetops_backend.finding_api import Access, Scope, development_access
@@ -94,13 +95,16 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
             return _refusal(403, "READING_UPLOAD_NOT_THIS_SITE", message("reading_upload.not_this_site"))
         return tenant_id, site_id
 
-    def run(work: Callable[[], tuple[int, dict]]) -> JSONResponse:
+    async def run(work: Callable[[], tuple[int, dict]]) -> JSONResponse:
+        # The upload runs field processes and database reads: off the event loop (as `evidence_api` does).
         try:
-            status, body = work()
+            status, body = await run_in_threadpool(work)
         except UploadRefused as refused:
             return _refusal(refused.status, refused.code, refused.words, **refused.extra)
         except GatewayUnavailable:
             return _refusal(503, "READING_UPLOAD_GATEWAY_UNAVAILABLE", message("reading_upload.gateway_unavailable"))
+        except RuntimeError:  # a field process that printed no JSON: said in words, never a bare 500
+            return _refusal(503, "READING_UPLOAD_CHECK_UNAVAILABLE", message("reading_upload.check_unavailable"))
         if status == 422 and "refusal" in body:
             return JSONResponse(status_code=422, content={"code": body["refusal"]["code"],
                                                           "message": render(body["words"]), **_rendered(body)})
@@ -127,7 +131,7 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
         if data is None:
             return _refusal(413, "FILE_TOO_LARGE", refusal_words("FILE_TOO_LARGE", limit_mb=MAX_BYTES // 2**20))
         assert service is not None  # open_site refused otherwise
-        return run(lambda: service.upload(tenant_id, site_id, file_name, data, dry == "true"))
+        return await run(lambda: service.upload(tenant_id, site_id, file_name, data, dry == "true"))
 
     @router.get("/api/sites/{site_code}/reading-uploads")
     async def get_uploads_entry(request: Request, site_code: str) -> JSONResponse:
@@ -137,7 +141,9 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
         if isinstance(opened, JSONResponse):
             return opened
         return JSONResponse(status_code=200, content={"enabled": True,
-                                                      "template_note": render(message("reading_upload.template_note"))},
+                                                      "template_note": render(message("reading_upload.template_note")),
+                                                      "health_text": render(message("reading_upload.health_panel")),
+                                                      "template_step": render(message("reading_upload.template_step"))},
                             headers={"Cache-Control": "no-store"})
 
     # Declared before `/{upload_id}`, so "template" is never read as an upload reference.
@@ -166,7 +172,7 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
         except ValueError:
             return _refusal(404, "UPLOAD_NOT_FOUND", message("reading_upload.not_found"))
         assert service is not None
-        return run(lambda: service.status(tenant_id, site_id, parsed))
+        return await run(lambda: service.status(tenant_id, site_id, parsed))
 
     return router
 

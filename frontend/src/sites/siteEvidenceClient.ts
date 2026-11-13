@@ -205,9 +205,11 @@ export interface SiteEvidenceClient {
     siteId: string,
     messageId: string,
   ): Promise<EvidenceRead<EvidenceRecordDetail>>;
+  /** SR-12a: with `window` (the date range's UTC instants) the list holds what was received in it. */
   listRejections(
     siteId: string,
     batch?: string | null,
+    window?: EvidenceWindowQuery | null,
   ): Promise<EvidenceRead<EvidenceRejections>>;
   /** The central-ledger reads (records by cursor, record by evidence id). */
   ledger?: LedgerEvidenceClient;
@@ -311,9 +313,9 @@ export function createSiteEvidenceClient(
         isRecordDetail,
       );
     },
-    listRejections(siteId, batch) {
+    listRejections(siteId, batch, window) {
       return read(
-        `${evidencePath(siteId)}/rejections${query({ batch })}`,
+        `${evidencePath(siteId)}/rejections${query({ batch, from: window?.from, to: window?.to })}`,
         isRejections,
       );
     },

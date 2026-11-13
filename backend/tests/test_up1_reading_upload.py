@@ -12,6 +12,8 @@ from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
+import json
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -66,6 +68,9 @@ class FakeStore:
         self.latest = latest or {"pv_power": D17 - timedelta(minutes=15), "feeder_demand": D17}
         self.rows: dict[UUID, UploadRow] = {}
         self.progress_of = Progress(0, False)
+
+    def site_timezone(self, tenant_id, site_id):
+        return "Africa/Nairobi"
 
     def latest_accepted_by_role(self, tenant_id, site_id, roles):
         return {r: self.latest[r] for r in roles if r in self.latest}
@@ -138,14 +143,14 @@ def test_already_recorded_when_an_interval_ends_at_or_before_the_latest_reading(
     answer = _post(client, dry="false")
     body = answer.json()
     assert answer.status_code == 422 and body["code"] == "ALREADY_RECORDED"
-    assert "solar" in body["message"] and "2026-11-16T23:45:00Z" in body["message"]
+    assert "solar" in body["message"] and "17 Nov, 02:45 (site time)" in body["message"]
     assert sender.calls == 0 and [r.state for r in store.rows.values()] == ["REFUSED"]
 
 
 def test_the_feeder_role_is_checked_on_its_own_latest():
     client, *_ = _client(FakeChecker(_preview(D17)))  # pv latest 23:45 passes; feeder latest 00:00 does not
     body = _post(client).json()
-    assert body["code"] == "ALREADY_RECORDED" and body["refusal"]["field"] == "feeder_demand"
+    assert body["code"] == "ALREADY_RECORDED" and body["refusal"]["where"] == "Feeder demand"
 
 
 def test_too_large_is_413_before_the_check():
@@ -343,3 +348,93 @@ def test_the_bom_refusal_and_the_template_note_name_the_excel_fix():
     fix = "save as 'CSV (Comma delimited)', not 'CSV UTF-8'"
     assert fix in CATALOGUE["en"]["reading_upload.refused.encoding"]
     assert fix in CATALOGUE["en"]["reading_upload.template_note"]
+
+
+# --- UP-1 fix round: plain words only (M1), the threadpool (M2), huge cells (L1) ------------------------------------
+
+
+@pytest.mark.parametrize("field,where", [("rows[6].timestamp_utc", "row 7 · timestamp_utc"),
+                                         ("rows[4].mill_feeder_power", "row 5 · mill_feeder_power"),
+                                         ("header[2]", "column 3")])
+def test_no_system_path_reaches_the_client(field, where):
+    for code in ("INVALID_VALUE", "HEADER_MISMATCH", "INVALID_TIMING"):
+        client, *_ = _client(FakeChecker(FileRefusal(code, field, "d", P)))
+        body = _post(client).json()
+        assert body["refusal"] == {"code": code, "where": where}, body
+        text = json.dumps(body)
+        assert "rows[" not in text and "header[" not in text
+
+
+def test_already_recorded_gives_site_time_and_words_not_iso_or_role_code():
+    client, *_ = _client(FakeChecker(_preview(D17 - timedelta(hours=1))),
+                         store=FakeStore({"pv_power": D17 - timedelta(minutes=15)}))
+    body = _post(client).json()
+    assert body["code"] == "ALREADY_RECORDED"
+    assert "17 Nov, 02:45 (site time)" in body["message"]
+    assert "Z" not in body["message"] and "pv_power" not in json.dumps(body)
+    assert body["refusal"]["where"] == "Solar power"
+
+
+def test_the_entry_read_carries_the_site_specific_sentences():
+    client, *_ = _client(FakeChecker())
+    body = client.get(URL).json()
+    assert "feeder meters" in body["health_text"] and "four meters" in body["template_step"]
+
+
+def test_the_handlers_delegate_to_the_threadpool(monkeypatch):
+    import assetops_backend.reading_upload_api as api
+
+    seen = []
+    real = api.run_in_threadpool
+
+    async def spy(func, *args, **kwargs):
+        seen.append(func)
+        return await real(func, *args, **kwargs)
+
+    monkeypatch.setattr(api, "run_in_threadpool", spy)
+    client, _, _, store = _client(FakeChecker())
+    assert _post(client).status_code == 200
+    assert len(seen) == 1
+    client.get(f"{URL}/{uuid4()}")
+    assert len(seen) == 2
+
+
+def test_another_request_is_served_while_an_upload_runs():
+    import threading
+    import time
+
+    started, release = threading.Event(), threading.Event()
+
+    class SlowChecker(FakeChecker):
+        def check(self, data):
+            started.set()
+            release.wait(10)
+            return super().check(data)
+
+    client, *_ = _client(SlowChecker())
+    done = {}
+    worker = threading.Thread(target=lambda: done.update(r=_post(client)))
+    worker.start()
+    assert started.wait(5)
+    t0 = time.monotonic()
+    assert client.get(URL).status_code == 200  # served while the upload is still inside its check
+    assert time.monotonic() - t0 < 5 and not done
+    release.set()
+    worker.join(10)
+    assert done["r"].status_code == 200
+
+
+def test_a_port_failure_is_a_503_in_words_not_a_500():
+    class Broken(FakeChecker):
+        def check(self, data):
+            raise RuntimeError("the field process printed no JSON")
+
+    client, *_ = _client(Broken())
+    answer = _post(client)
+    assert answer.status_code == 503 and answer.json()["message"].startswith("The file could not be checked")
+
+
+def test_a_cell_too_large_is_a_plain_refusal():
+    client, *_ = _client(FakeChecker(FileRefusal("INVALID_VALUE", "", "FIELD_TOO_LARGE", "")))
+    answer = _post(client)
+    assert answer.status_code == 422 and "far too long" in answer.json()["message"]

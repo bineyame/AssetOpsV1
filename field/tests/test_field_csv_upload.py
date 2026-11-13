@@ -85,6 +85,13 @@ def test_check_refuses_each_csv_code_with_exit_2(tmp_path, capsys, code):
     assert doc["refusal"]["code"] == code and doc["refusal"]["profile_sha256"] == PROFILE.sha256
 
 
+def test_a_cell_over_the_csv_limit_is_a_refusal_not_a_crash(tmp_path, capsys):
+    big = GOOD.replace("1.25", "1" * 200_000).encode("utf-8")
+    exit_code, doc = _run(capsys, "check", "--profile", str(PROFILE_PATH), "--file", str(_write(tmp_path, big)))
+    assert exit_code == csv_upload.EXIT_REFUSED and doc["ok"] is False
+    assert (doc["refusal"]["code"], doc["refusal"]["detail"]) == ("INVALID_VALUE", "FIELD_TOO_LARGE")
+
+
 def test_every_csv_code_has_a_refused_file():
     assert set(REFUSED_FILES) == set(CSV_CODES)
 
