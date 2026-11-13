@@ -5343,3 +5343,24 @@ Decisions logged for owner review: **D-SR.69**.
 - The pages (SR-10c/SR-11 page) use the D-SR.70 words. SR-10/11 merge only after this passes.
 
 Decisions logged for owner review: **D-SR.70-72**.
+
+## D-SR.73 Estate "Current view" label after SR-4; R339 / ruling 71 / R350 tests now carry the range (Architect, Claude, 2026-11-13, owner-delegated, logged for owner review)
+
+- **Today.** The server sets one constant, `CURRENT_VIEW = "Current view"` (`estate/evidence_money.py:47`). It is written into `links.current_view_label` (`estate/financials.py` `money_link_refs`) and `site_readiness_label` (`evidence_money.window_link_refs`, `_row`). `EstateFinancials.tsx` shows it beside the source link.
+  - Since D-SR.2, every Site link carries the page's range.
+  - For a Site home that follows the range (SR-5), such as the Kobo Overview, the label is now wrong.
+- **Ruling: the label follows the destination, and the server produces it** (closure 5 B5: the server owns links and their words). Replace the constant with `view_label(ref)` in `evidence_money.py`. It is chosen from the destination's D-SR.30/D-SR.44 route class:
+  - destination follows the range (Site home/Overview, Evidence): **"Opens this range"**;
+  - destination does not use the range (mini-grid Financials bridge, and every other destination that declares "Range not used"): **"Current view · range not used"**. These are the same words the destination's own tag shows (D-SR.44, D-SR.66).
+- **Unchanged.**
+  - The field names stay as they are.
+  - The label is null when the link carries the row's own proven window. `portfolio.py:706` (r1b2 R12) keeps that meaning.
+  - The frontend renders the label and never makes up its own words.
+  - Fix the docstring "Opens current Site view" to match.
+- **Tests.** Add a backend pin per destination class: mini Financials, mini home, cold home, EV home `/sites/{code}/ev`, and the proven-window null. Add a vitest render of both words in `EstateFinancials`. About 0.1, Sonnet.
+- **Recorded: test updates on the SR-4 estate-link fix branch.**
+  - The R339 (mini bare tabs), ruling 71 (cold case-row Action link) and R350 (cold `/plan`, `/history` verification link) pins now expect `from`/`to` to be carried.
+  - This is D-SR.2 superseding the earlier "keeps only `known_at`" clauses. It is not a regression. Their register rows stay closed, with a note naming D-SR.2/D-SR.73.
+- **R350 confirmed right.** The verification link carries `from`/`to` for onward navigation only. The Action/verification record read stays on its own period, with no re-cut by the range (as D-SR.64). Where the page shows the range, it declares "Range not used · this record's own period". One pin: the record body is the same with and without `from`/`to`.
+
+Decisions logged for owner review: **D-SR.73**.
