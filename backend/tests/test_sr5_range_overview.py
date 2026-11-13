@@ -191,8 +191,37 @@ def test_not_applicable_and_unknown_sites(world, code, status, refusal) -> None:
 def test_site_outside_the_estate_scope_is_404(world, monkeypatch) -> None:
     monkeypatch.setattr(EstatePortfolioService, "_scope", staticmethod(
         lambda snap, t, req, admit: {"sites": [], "k": CUT}))
+    world.service.store.outcomes[0].imported_sites = lambda t, to: []  # D-SR.82: not imported by the cutoff either
     r = _range(_client(world.service))
     assert r.status_code == 404 and r.json()["detail"]["code"] == "SITE_NOT_FOUND"
+
+
+PRE = {"from": "2026-10-06T00:00:00Z", "to": "2026-10-13T00:00:00Z"}  # wholly before the import
+
+
+def _import_after(snap, imported_at):
+    """The Site is imported at `imported_at`: the estate admission is `imported_at < to`, the cutoff admission `<=`."""
+    sites = snap.imported_sites(T, None)
+    snap.imported_sites = lambda t, to: sites if imported_at < to else []
+
+
+def test_range_ending_before_the_import_is_200_with_no_readings_days(world, monkeypatch) -> None:
+    """D-SR.82: a range wholly before the Site's import is 200 with seven NO_READINGS days. The stub has no readings
+    rows, so the day rule is stubbed to what a pre-data day reads; the real rule runs in the Postgres case."""
+    _import_after(world.service.store.outcomes[0], CUT - timedelta(hours=3))
+    monkeypatch.setattr(site_range, "range_day_states", lambda snap, t, site, req, scope, cov: {
+        d: {"state": NO_READINGS, "row": None} for d in range_days.range_days(req.from_, req.to)})
+    r = _range(_client(world.service), **PRE)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["dispatch"]["days_requested"] == 7 and [d["state"] for d in body["days"]] == [NO_READINGS] * 7
+
+
+def test_site_not_yet_imported_at_the_known_at_is_404(world) -> None:
+    _import_after(world.service.store.outcomes[0], CUT - timedelta(hours=3))
+    r = _range(_client(world.service), **PRE, known_at="2026-10-20T01:00:00Z")
+    assert r.status_code == 404 and r.json()["detail"]["code"] == "SITE_NOT_FOUND"
+    assert _range(_client(world.service), "NOPE-9", **PRE).status_code == 404
 
 
 @pytest.mark.parametrize("refusal,status", [(401, 401), (403, 403)])

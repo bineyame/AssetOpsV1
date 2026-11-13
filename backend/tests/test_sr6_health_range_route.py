@@ -17,6 +17,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from assetops_backend import source_health_api
+from assetops_backend.estate import range_days
 from assetops_backend.estate.portfolio import EstatePortfolioService
 from assetops_backend.estate.range_days import ANALYSED, NO_READINGS, NOT_EXPECTED
 from assetops_backend.estate.scope import EstateRequest, EstateStoreUnavailable
@@ -251,8 +252,36 @@ def test_unknown_site_and_site_outside_the_scope_are_404(health, monkeypatch) ->
     assert _get(_client(health.service), "NOPE-9").status_code == 404
     monkeypatch.setattr(EstatePortfolioService, "_scope", staticmethod(
         lambda snap, t, req, admit: {"sites": [], "k": CUT}))
+    health.service.store.outcomes[0].imported_sites = lambda t, to: []  # D-SR.82: not imported by the cutoff either
     r = _get(_client(health.service))
     assert r.status_code == 404 and r.json()["detail"]["code"] == "SITE_NOT_FOUND"
+
+
+PRE = {"from": "2026-10-06T00:00:00Z", "to": "2026-10-13T00:00:00Z"}  # wholly before the import
+
+
+def _import_after(snap, imported_at) -> None:
+    sites = snap.imported_sites(T, None)
+    snap.imported_sites = lambda t, to: sites if imported_at < to else []
+
+
+def test_range_ending_before_the_import_is_200_with_no_readings_days(health, monkeypatch) -> None:
+    """D-SR.82: 200 with seven NO_READINGS days. The stub has no readings rows, so the day rule is stubbed to what a
+    pre-data day reads; the real rule runs in the Postgres case of the range overview."""
+    _import_after(health.service.store.outcomes[0], CUT - timedelta(hours=3))
+    monkeypatch.setattr(site_health_range, "range_day_states", lambda snap, t, site, req, scope, cov: {
+        d: {"state": NO_READINGS, "row": None} for d in range_days.range_days(req.from_, req.to)})
+    r = _get(_client(health.service), **PRE)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert len(body["days"]) == 7 and {d["state"] for d in body["days"]} == {NO_READINGS}
+
+
+def test_not_yet_imported_at_the_known_at_and_unknown_site_are_404(health) -> None:
+    _import_after(health.service.store.outcomes[0], CUT - timedelta(hours=3))
+    early = _get(_client(health.service), known_at="2026-10-20T01:00:00Z", **PRE)
+    assert early.status_code == 404 and early.json()["detail"]["code"] == "SITE_NOT_FOUND"
+    assert _get(_client(health.service), "NOPE-9", **PRE).status_code == 404
 
 
 @pytest.mark.parametrize("refusal", [401, 403])

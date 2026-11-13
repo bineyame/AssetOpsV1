@@ -17,6 +17,7 @@ from datetime import date, datetime, time, timedelta, timezone
 from typing import Any
 
 from assetops_backend.estate.coverage import _day_of, data_gap_days, dispatch_days, local_day_grades_kw
+from assetops_backend.estate.scope import access_basis
 
 LOG = logging.getLogger("assetops.site_range")
 
@@ -31,6 +32,20 @@ STATE_OF_REASON = {"NO_READINGS": NO_READINGS, "READINGS_CONFLICT": READINGS_CON
                    "NO_ASSESSED_SELECTION": NOT_ANALYSED}
 _OPEN_JOBS = {"PENDING", "LEASED"}
 _NO_DATA, _PENDING_GRADE, _NOT_EXPECTED = "NO_DATA", "PENDING", "NOT_EXPECTED"
+
+
+def one_site_scope(service: Any, snap: Any, tenant_id: Any, req: Any, site_code: str) -> dict[str, Any] | None:
+    """D-SR.82: the one-Site range routes admit a Site imported by the cutoff, even for a range ending before its
+    import (those days read NO_READINGS / NO_SELECTION). The Portfolio's estate admission (`imported_at < to`) is
+    unchanged. None when the Site was not imported by the cutoff k (route 404)."""
+    scope = service._scope(snap, tenant_id, req, lambda code: code == site_code)
+    if scope["sites"]:
+        return scope
+    kept = [s for s in snap.imported_sites(tenant_id, scope["k"]) if s["site_code"] == site_code][:1]
+    if not kept:
+        return None
+    ids = [str(s["site_id"]) for s in kept]
+    return {**scope, "sites": kept, "ids": ids, "access_basis": access_basis(tenant_id, ids)}
 
 
 def range_days(from_: datetime, to: datetime) -> list[date]:

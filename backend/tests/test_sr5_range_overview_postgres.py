@@ -287,3 +287,46 @@ def test_no_readings_days_from_the_stored_chain_grades(world, monkeypatch) -> No
                for d in out["days"])
     assert out["dispatch"]["days_analysed"] == 0 and portfolio["status"] == out["status"]
 
+
+
+def test_range_wholly_before_the_import_reads_no_readings_days(world, monkeypatch) -> None:
+    """D-SR.82: the Portfolio's scope leaves a Site out of a range ending at or before its import (`imported_at < to`);
+    the one-Site body admits it by the cutoff, and every day reads NO_READINGS (no 404, no analysed day)."""
+    from datetime import timezone
+
+    from test_w301_estate_index_postgres import imported_before
+
+    runner, _ok, _window, _body = world
+    imported_before(runner.engine, runner.tenant, runner.site, datetime(2026, 9, 28, tzinfo=timezone.utc))
+    service = EstatePortfolioService(evidence_read(runner.engine))
+    req = replace(estate_request("portfolio", datetime(2026, 9, 20, tzinfo=timezone.utc),
+                                 datetime(2026, 9, 27, tzinfo=timezone.utc)), lens="all")
+    scope_site = [s for s in service.read_snapshot(lambda snap: snap.imported_sites(runner.tenant, req.to))]
+    assert scope_site == []  # the estate admission still leaves the Site out
+    from sqlalchemy import text
+
+    from assetops_backend.chain.backfill import main as backfill
+    from assetops_backend.chain.composition import build_chain_reader, build_estate_claims
+    from assetops_backend.site_outcomes.read import SiteRef
+
+    monkeypatch.setenv("DATABASE_URL", URL)
+    assert backfill(["--site", "KOBO-001", "--steps", "a"]) == 0  # stored day grades, as the live chain has
+    with runner.engine.connect() as c:
+        code, name, kind, tz = c.execute(text("SELECT site_code, name, site_type, timezone FROM site "
+                                              "WHERE tenant_id = :t AND id = :s"),
+                                         {"t": runner.tenant, "s": runner.site}).one()
+    ref = SiteRef(runner.tenant, runner.site, code, name, kind, tz)
+    reader, dispose = build_chain_reader(URL)
+    before = coverage.day_grades_provider
+    try:
+        coverage.day_grades_provider = build_estate_claims(lambda: reader, lambda: None,
+                                                           lambda c: ref if c == code else None).day_grades
+        out = site_range_body(service, runner.tenant, "KOBO-001", req)
+    finally:
+        coverage.day_grades_provider = before
+        dispose()
+    assert out is not None and out["dispatch"]["days_requested"] == 7 and out["dispatch"]["days_analysed"] == 0
+    assert [d["state"] for d in out["days"]] == [NO_READINGS] * 7
+    # a Site not yet imported at an explicit cutoff is still not found
+    early = replace(req, known_at=datetime(2026, 9, 27, tzinfo=timezone.utc))
+    assert site_range_body(service, runner.tenant, "KOBO-001", early) is None

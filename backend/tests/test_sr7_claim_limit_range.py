@@ -220,6 +220,26 @@ def test_bad_windows_are_422(query) -> None:
     assert r.status_code == 422 and r.json()["detail"]["code"] == "INVALID_WINDOW"
 
 
+def test_range_ending_before_the_import_is_200_with_no_selection_days(monkeypatch) -> None:
+    """D-SR.82: the Site imported after `to` (but by the cutoff) is admitted; every day reads NO_SELECTION."""
+    service = Service()
+    imported = READ_AT - timedelta(days=1)
+    sites = service.snap.imported_sites(T, None)
+    service.snap.imported_sites = lambda t, to: sites if imported < to else []
+    empty = [{"day": d, "available": False, "selection": None, "window_assessment_revision_id": None,
+              "window_start": datetime.combine(d, datetime.min.time(), timezone.utc),
+              "window_end": datetime.combine(d, datetime.min.time(), timezone.utc) + timedelta(days=1)} for d in D]
+    monkeypatch.setattr(clr, "dispatch_days", lambda snap, t, s, lo, hi, k: list(empty))
+    r = _get(_client(service))
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["summary"]["days_requested"] == 4 and [d["state"] for d in body["days"]] == ["NO_SELECTION"] * 4
+    # not yet imported at an explicit cutoff, and an unknown code, are still 404
+    early = _get(_client(service), query=WINDOW + "&known_at=2026-11-08T00:00:00Z")
+    assert early.status_code == 404 and early.json()["detail"]["code"] == "SITE_NOT_FOUND"
+    assert _get(_client(service), code="NOPE").status_code == 404
+
+
 def test_refusals() -> None:
     assert _get(_client(Service()), code="COLD-1").json()["detail"]["code"] == "CLAIM_LIMIT_RANGE_NOT_APPLICABLE"
     nope = _get(_client(Service()), code="NOPE")

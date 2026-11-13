@@ -17,6 +17,7 @@ from urllib.parse import quote, urlencode
 from assetops_backend.analytics import claim_limit_read as w1
 from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE, MINI_GRID, dispatch_days
 from assetops_backend.estate.period_rows import day_revision
+from assetops_backend.estate.range_days import one_site_scope
 from assetops_backend.estate.scope import EstateRequest, wire_time
 
 SCHEMA = "site-claim-limit-range-1"
@@ -56,12 +57,12 @@ def day_row(site_code: str, day: str, revision_id: Any, projection: dict[str, An
 
 def claim_limit_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateRequest,
                            timezone_name: str | None = None) -> dict[str, Any] | None:
-    """None when the Site is not in the tenant's imported, admitted set (route 404). `timezone_name` is the
+    """None when the Site was not imported by the cutoff (route 404). `timezone_name` is the
     route's stored `site.timezone` (the estate Site list carries none); it is echoed only."""
 
     def work(snap: Any) -> dict[str, Any] | None:
-        scope = service._scope(snap, tenant_id, req, lambda code: code == site_code)
-        if not scope["sites"]:
+        scope = one_site_scope(service, snap, tenant_id, req, site_code)
+        if not scope:
             return None
         site = scope["sites"][0]
         if DOMAIN_OF_SITE_TYPE.get(site["site_type"]) != MINI_GRID:
