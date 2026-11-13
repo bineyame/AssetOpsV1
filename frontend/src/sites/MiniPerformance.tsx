@@ -51,6 +51,7 @@ import type { FuelBalanceClient } from "./fuelBalanceClient";
 import { MiniFuelNightsPage, useFuelNights } from "./MiniFuelNights";
 import { OpportunityDecisionEntry } from "./MiniOpportunity";
 import { ALL_HOURS_HEADROOM, MiniRenewableRange, partialHoursText } from "./MiniRenewableRange";
+import { BackToWholeRange, MiniFuelRange } from "./MiniFuelRange";
 import { performanceSubtabs, type DomainPresentationProfile } from "./presentationProfile";
 import { PERFORMANCE_SUBTABS_LABEL } from "./performanceSubtabsLabel";
 import "../ui/mock-deviation.css";
@@ -1647,6 +1648,7 @@ export function MiniFuel({
   window,
   pageHref,
   fuelBalance,
+  range,
 }: {
   client: MiniDepthClient;
   siteCode: string;
@@ -1655,6 +1657,8 @@ export function MiniFuel({
   pageHref: (search: string) => string;
   /** DIESEL-K5 (DIESEL-1-R3l): with stored fuel-balance windows the page is in night mode; otherwise hour mode. */
   fuelBalance?: FuelBalanceClient;
+  /** SR-10c (rev 10b.2): the whole shared range when the address names no hour (`miniRangeWindowFromParams`), else null. */
+  range?: MiniWindowQuery | null;
 }): ReactNode {
   const navigate = useNavigate();
   const [attempt, setAttempt] = useState(0);
@@ -1665,16 +1669,29 @@ export function MiniFuel({
     shared.status === "set" ? { ...rangeWindow(shared), ...(shared.known_at ? { known_at: shared.known_at } : {}) } : null,
   );
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
+  const ranged = range !== undefined && range !== null;
+  // SR-10c: the hour read is not made for the range view.
   const read = useMiniRead<FuelRead>(
-    () => (window === null ? Promise.resolve({ status: "unavailable", message: null }) : client.getFuel(siteCode, window)),
-    key,
+    () =>
+      window === null || ranged ? Promise.resolve({ status: "unavailable", message: null }) : client.getFuel(siteCode, window),
+    ranged ? `range|${key}` : key,
     attempt,
   );
   if (nights === "loading") return <p role="status">{MINI_LOADING}</p>;
   if (fuelBalance !== undefined && nights !== null) return <MiniFuelNightsPage client={fuelBalance} siteCode={siteCode} nights={nights} knownAt={shared.status === "set" ? shared.known_at : null} />;
   if (timeZone === null || window === null) return <NoTimeZone />;
+  // SR-10c (rev 10b.2): a range without an hour reads the whole range; the range view declares nothing.
+  if (range !== undefined && range !== null) {
+    return (
+      <>
+        <MiniPeriodBar timeZone={timeZone} window={range} />
+        <MiniFuelRange client={client} siteCode={siteCode} window={range} />
+      </>
+    );
+  }
   return (
     <>
+      <BackToWholeRange pageHref={pageHref} />
       {/* D-SR.57: in the hour view the FocusPicker in MiniHourBar is the only declarer; no WindowSpan here. */}
       <MiniHourBar key={key} timeZone={timeZone} window={window} onApply={(next) => navigate(pageHref(miniWindowSearch(next)))} />
       {read === null ? (

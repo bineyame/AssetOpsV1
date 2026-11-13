@@ -385,6 +385,7 @@ export function SitePerformanceFrame({
                   window={timeZone === null ? null : serviceWindowFromParams(params, timeZone)}
                   pageHref={pageHref}
                   fuelBalance={fuelBalance}
+                  range={timeZone === null ? null : miniRangeWindowFromParams("fuel", params, timeZone)}
                 />
               ) : (
                 <MiniRenewable
