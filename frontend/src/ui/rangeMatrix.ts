@@ -29,8 +29,6 @@ export interface RangeMatrixEntry {
    * these, so a new unranged read fails and a fixed one is removed from the list.
    */
   knownUnranged?: readonly { read: string; card: string }[];
-  /** An N record page that declares "own period" only once its record loads (the matrix fixture refuses every read). */
-  declaresOnLoad?: boolean;
   /** A legacy address that forwards to another row's page (whose row applies); the forward drops the range. */
   forwards?: boolean;
   /**
@@ -93,12 +91,12 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/financials/scenarios`, "/financials/scenarios", ALL, "R", "scenarios are computed over the range's telemetry (D-SR.44)"),
   ...rows(`${S}/financials/prices`, "/financials/prices", ALL, "N", "prices in force now; SR-14 OUT (D-SR.39)"),
   // One record (D-SR.30, D-SR.44)
-  ...rows(`${S}/opportunities/:opportunityId`, "/opportunities/o1", ["mini"], "N", "one record with its own five days (D-SR.44)", { declaresOnLoad: true }),
-  ...rows(`${S}/actions/:actionId`, "/actions/a1", ALL, "N", "one record (D-SR.30)", { declaresOnLoad: true }),
-  ...rows(`${S}/actions/:actionId/:actionView`, "/actions/a1/verification", ALL, "N", "one record (D-SR.30)", { declaresOnLoad: true }),
-  ...rows(`${S}/domain-actions/:actionId/verification`, "/domain-actions/a1/verification", ["mini"], "N", "one verification record with its own windows (D-SR.44)", { declaresOnLoad: true }),
-  ...rows(`${S}/domain-actions/:actionId/fuel-verification`, "/domain-actions/a1/fuel-verification", ["mini"], "N", "one verification record with its own windows (D-SR.44)", { declaresOnLoad: true }),
-  ...rows(`${S}/fuel-findings/:findingId`, "/fuel-findings/f1", ["mini"], "N", "one fuel Finding at its own night (D-SR.44)", { declaresOnLoad: true }),
+  ...rows(`${S}/opportunities/:opportunityId`, "/opportunities/o1", ["mini"], "N", "one record with its own five days (D-SR.44)"),
+  ...rows(`${S}/actions/:actionId`, "/actions/a1", ALL, "N", "one record (D-SR.30)"),
+  ...rows(`${S}/actions/:actionId/:actionView`, "/actions/a1/verification", ALL, "N", "one record (D-SR.30)"),
+  ...rows(`${S}/domain-actions/:actionId/verification`, "/domain-actions/a1/verification", ["mini"], "N", "one verification record with its own windows (D-SR.44)"),
+  ...rows(`${S}/domain-actions/:actionId/fuel-verification`, "/domain-actions/a1/fuel-verification", ["mini"], "N", "one verification record with its own windows (D-SR.44)"),
+  ...rows(`${S}/fuel-findings/:findingId`, "/fuel-findings/f1", ["mini"], "N", "one fuel Finding at its own night (D-SR.44)"),
   // Health
   ...rows(`${S}/health`, "/health", ["mini"], "N", "gateway contact now until the SR-6 page (D-SR.12)"),
   ...rows(`${S}/health`, "/health", ["cold", "ev"], "R", "reads the window (rev 10b.4)"),
@@ -114,6 +112,6 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/ev/evidence`, "/ev/evidence", ["ev"], "R", "telemetry and its consequences (D-SR.44)"),
   ...rows(`${S}/ev/evidence/analysis`, "/ev/evidence/analysis", ["ev"], "R", "telemetry and its consequences (D-SR.44)"),
   ...rows(`${S}/ev/financials`, "/ev/financials", ["ev"], "R", "reads the window (rev 8 8.1)"),
-  ...rows(`${S}/ev/financial-assumptions`, "/ev/financial-assumptions", ["ev"], "R", "shows range content, as the cold assumptions (D-SR.66)"),
+  ...rows(`${S}/ev/financial-assumptions`, "/ev/financial-assumptions", ["ev"], "R", "shows range content, as the cold assumptions (D-SR.66; confirmed D-SR.77 4)"),
   ...rows(`${S}/ev/financials/scenarios`, "/ev/financials/scenarios", ["ev"], "R", "scenarios over the range's telemetry (D-SR.44)"),
 ];

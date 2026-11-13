@@ -8,8 +8,7 @@
  *   (or is `range-overview` with them); only the row's `knownUnranged` reads may lack them. The bar says "All pages".
  * - D: with `day=` inside the range, the bar names that day ("Showing 5 Nov of the range"); without one, the bar never
  *   claims the range is unused.
- * - N: the bar declares "Range not used · …"; a record page that declares only once its record loads (the fixture
- *   refuses it) at least never names a span.
+ * - N: the bar declares "Range not used · …", record pages too from the first render (D-SR.77 2), every read refused.
  * - A Site route in `App.tsx` with no matrix row fails, and so does a row whose route is not in `App.tsx`.
  */
 import { render } from "@testing-library/react";
@@ -158,7 +157,7 @@ describe("SR-5e D rows: a day inside the range is named in the bar", () => {
 describe("SR-5e N rows: the bar says the range is not used", () => {
   it.each(RANGE_MATRIX.filter((e) => e.class === "N").map((e) => [label(e), e] as const))("%s", async (_l, entry) => {
     const got = await open(entry);
-    if (entry.declaresOnLoad || entry.forwards) {
+    if (entry.forwards) {
       expect(got.text ?? "").not.toMatch(/^Showing /);
       return;
     }

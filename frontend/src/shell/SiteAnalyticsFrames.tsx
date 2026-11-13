@@ -1247,6 +1247,8 @@ export function SiteOpportunityFrame({
   financials?: FinancialsClient;
 }) {
   const { siteId, opportunityId } = useParams<{ siteId: string; opportunityId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   // PR-12.6: `?known_at=` is parsed and preserved as given; no query means current time.
   const [params] = useSearchParams();
   const knownAt = params.getAll("known_at");
@@ -1970,6 +1972,8 @@ export function SiteActionFrame({
   domainActions?: DomainActionClient;
 }) {
   const { siteId, actionId, actionView: rawActionView } = useParams<{ siteId: string; actionId: string; actionView?: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   // post-W6 W1-b Q33 / R222 (pre-flight ruling 9): `/overview` is an alias of the canonical bare Action route, for
   // every Site type, with no selected state of its own.
   const actionView = rawActionView === "overview" ? undefined : rawActionView;
@@ -2647,6 +2651,8 @@ export function SiteFuelFindingFrame({
   client?: FuelBalanceClient;
 }) {
   const { siteId, findingId } = useParams<{ siteId: string; findingId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   const [params] = useSearchParams();
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Findings" headingId={SITE_FUEL_FINDING_HEADING_ID}>
@@ -2718,6 +2724,8 @@ export function SiteMillVerificationFrame({
   client?: MillVerificationClient;
 }) {
   const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_MILL_VERIFICATION_HEADING_ID}>
       {(site) => <MillVerificationPage site={site} actionId={actionId ?? ""} client={client} />}
@@ -2786,6 +2794,8 @@ export function SiteFuelVerificationFrame({
   client?: FuelVerificationClient;
 }) {
   const { siteId, actionId } = useParams<{ siteId: string; actionId: string }>();
+  // D-SR.64 / D-SR.77 2: one record at its own period, declared from the first render (also when every read is refused).
+  useDeclareRangeNotUsed("own period");
   return (
     <SiteScoped siteId={siteId} detail={detail} title="Action" headingId={SITE_FUEL_VERIFICATION_HEADING_ID}>
       {(site) => <FuelVerificationPage site={site} actionId={actionId ?? ""} client={client} />}
