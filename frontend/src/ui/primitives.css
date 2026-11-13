@@ -3946,7 +3946,7 @@ ul.evidence-notes li { font-size: inherit; }
   font-size: var(--text-sm);
 }
 .window-money__amount {
-  font-size: var(--text-2xl);
+  font-size: var(--font-size-600);
   font-weight: var(--weight-semibold);
   margin: 0.25rem 0;
 }
@@ -4557,7 +4557,7 @@ ul.evidence-notes li { font-size: inherit; }
 
 .v69-metric__value {
   margin: 10px 0 7px;
-  font-size: var(--font-size-700);
+  font-size: var(--font-size-600);
   line-height: 1.15;
   font-weight: 600;
   letter-spacing: -0.7px;
@@ -4776,7 +4776,7 @@ ul.evidence-notes li { font-size: inherit; }
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .v69-metric__value {
-    font-size: var(--font-size-700);
+    font-size: var(--font-size-600);
   }
 }
 
@@ -4787,7 +4787,7 @@ ul.evidence-notes li { font-size: inherit; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .v69-metric__value {
-    font-size: var(--font-size-700);
+    font-size: var(--font-size-600);
   }
 }
 
@@ -4865,7 +4865,7 @@ ul.evidence-notes li { font-size: inherit; }
 
 .v69-money {
   margin: 10px 0 7px;
-  font-size: var(--font-size-700);
+  font-size: var(--font-size-600);
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.7px;
@@ -5428,7 +5428,7 @@ input.v69-chip-control {
 .v69-panel-value {
   margin: 10px 0 7px;
   color: var(--text-primary, #213853);
-  font-size: var(--font-size-700);
+  font-size: var(--font-size-600);
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.5px;
@@ -5647,3 +5647,33 @@ input.v69-chip-control[type="datetime-local"] {
 
 /* W5-03a fix L7: the mock bridge first column is regular weight; the cell stays a row header for assistive tech. */
 .data-table__scroll th.ev-bridge-rowhead { font-weight: 400; }
+
+/* UQ-FI-2 (D-UQFI.4): one gap line per section: the fact once, then the subjects it applies to.
+   Separators are CSS so the component composes no words. */
+.gap-group:not(span) {
+  margin: var(--space-1) 0;
+}
+.gap-group {
+  font-size: var(--text-panel-note);
+  color: var(--text-secondary);
+  line-height: var(--leading-body);
+}
+.gap-group__fact {
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+.gap-group__fact::after {
+  content: ": ";
+}
+.gap-group__subjects {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gap-group__subject {
+  display: inline;
+}
+.gap-group__subject + .gap-group__subject::before {
+  content: " · ";
+}

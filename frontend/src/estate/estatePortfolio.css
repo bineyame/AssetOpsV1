@@ -18,7 +18,7 @@
 .estate-portfolio .value-label{display:flex;align-items:center;gap:var(--space-1);font-size:var(--font-size-100);font-weight:650;color:#52637b;min-height:27px}
 .estate-portfolio .value-label .icon{width:14px;height:14px}
 .estate-portfolio .value-label .icon:last-child{margin-left:auto;width:12px;color:#91a0b5}
-.estate-portfolio .value-number{font-size:var(--font-size-700);font-weight:650;letter-spacing:-.6px;line-height:1.2;margin:var(--space-3) 0 var(--space-2);white-space:normal}
+.estate-portfolio .value-number{font-size:var(--font-size-600);font-weight:650;letter-spacing:-.6px;line-height:1.2;margin:var(--space-3) 0 var(--space-2);white-space:normal}
 .estate-portfolio .value-number small{font-size:var(--font-size-100);letter-spacing:0;font-weight:500;display:inline}
 .estate-portfolio .value-card p{font-size:var(--font-size-100);line-height:1.6;color:#617087;margin-bottom:var(--space-3)}
 .estate-portfolio .value-basis{border-top:1px solid #e9edf3;padding-top:var(--space-2);font-size:var(--font-size-100);line-height:1.6;color:#718096;margin-top:auto}
@@ -92,7 +92,7 @@
 .estate-portfolio .portfolio-bottom h2{font-size:var(--font-size-300)}
 .estate-portfolio .opportunity-panel{border-top:2px solid #7cb8a6}
 .estate-portfolio .opportunity-story{display:flex;gap:var(--space-5);align-items:center;padding:var(--space-1) 0 1px}
-.estate-portfolio .opportunity-quantity{font-size:var(--font-size-700);letter-spacing:-.6px;color:#307e6a;font-weight:600}
+.estate-portfolio .opportunity-quantity{font-size:var(--font-size-600);letter-spacing:-.6px;color:#307e6a;font-weight:600}
 .estate-portfolio .opportunity-quantity small{font-size:var(--font-size-200);font-weight:400;letter-spacing:0}
 .estate-portfolio .opportunity-story p{font-size:var(--font-size-100);color:#758397;line-height:1.5;margin-top:var(--space-1)}
 .estate-portfolio .story-arrow{color:#96b6ac;font-size:var(--font-size-600)}

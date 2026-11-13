@@ -670,8 +670,11 @@ describe("W1-UX-02 / W1-F3: Site Finding conclusion and state line", () => {
     await settledScreen();
     expectV69Panels("finding");
     // W1-F3 review H2: the mock's Priority and Confidence chips, as honest unknowns.
-    expect(document.querySelector("[data-finding-statusbar] [data-chip='priority']")?.textContent).toBe("Priority: not assessed");
-    expect(document.querySelector("[data-finding-statusbar] [data-chip='confidence']")?.textContent).toBe("Confidence: not assessed");
+    // UQ-FI-2 (D-UQFI.4): the two chips' one fact is said once, naming both subjects (was two chips).
+    const notAssessed = document.querySelectorAll("[data-finding-statusbar] [data-gap-group]");
+    expect(notAssessed).toHaveLength(1);
+    expect(notAssessed[0].querySelector(".gap-group__fact")?.textContent).toBe("not assessed");
+    expect([...notAssessed[0].querySelectorAll(".gap-group__subject")].map((li) => li.textContent)).toEqual(["Priority", "Confidence"]);
     expect(document.querySelector("[data-headline-card]")).toBeNull();
     const answer = happened();
     expect(answer.querySelector("[data-finding-claim]")?.textContent).toBe("Open: 45 min of generator time possibly avoidable");

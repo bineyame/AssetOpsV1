@@ -61,6 +61,8 @@ import { SourceProvenanceNotice } from "./sourceProvenance";
 import "./w1ux02-finding.css";
 import { formatDayTime, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
+import { GapGroup } from "../ui/GapGroup";
+import type { GapItem } from "../ui/gapGroup";
 
 export const FINDING_VIEWS_LABEL = "Finding views";
 /** The v69 `finding` screen question (W1-UX-02). */
@@ -547,6 +549,11 @@ function StatusChips({ body }: { body: FindingDetailBody }) {
   );
 }
 
+const NOT_ASSESSED_CHIPS: GapItem[] = [
+  { subject: "Priority", fact: "not assessed" },
+  { subject: "Confidence", fact: "not assessed" },
+];
+
 /** The mock's statusbar: the state, currentness, version and period badges in one line. */
 function FindingStatusBar({ body }: { body: FindingDetailBody }) {
   const selected = body.revision;
@@ -555,12 +562,18 @@ function FindingStatusBar({ body }: { body: FindingDetailBody }) {
     <StatusBar items label="Finding status" data={{ "data-finding-statusbar": "" }}>
       {/* W1-F3 review H2: the mock's Priority and Confidence chips; no read assesses either yet. */}
       {/* MOCK DEVIATION D1 (R390): the mock's Priority, Confidence, Claim and Lens chips have no stored read. */}
-      <span className="badge badge--not-assessed" data-chip="priority" data-not-assessed>
-        Priority: not assessed
-      </span>
-      <span className="badge badge--not-assessed" data-chip="confidence" data-not-assessed>
-        Confidence: not assessed
-      </span>
+      {/* UQ-FI-2 (D-UQFI.4): the two "not assessed" chips are one line naming both subjects.
+          MOCK DEVIATION D-UQFI.4: the mock draws two chips; one gap line per section. */}
+      <GapGroup
+        inline
+        className="badge badge--not-assessed"
+        items={NOT_ASSESSED_CHIPS}
+        renderSingle={(item) => (
+          <span className="badge badge--not-assessed" data-chip={item.subject.toLowerCase()} data-not-assessed>
+            {item.subject}: {item.fact}
+          </span>
+        )}
+      />
       <span className="badge badge--lifecycle" data-chip="state">
         State: {LIFECYCLE_WORDS[selected.lifecycle].label}
       </span>
