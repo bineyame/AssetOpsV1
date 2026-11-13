@@ -16,14 +16,16 @@ import { EvHealthDepth } from "../sites/EvHealthDepth";
 import { createHealthClient, type HealthClient } from "../sites/healthClient";
 import { SiteBattery, SiteBatteryEntry, type BatteryHeader } from "../sites/SiteBattery";
 import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteHealth";
+import { ReadingUploadEntry, ReadingUploadPage } from "../sites/ReadingUpload";
+import type { ReadingUploadClient } from "../sites/readingUploadClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { siteSourceModeLabel } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { coldSiteRoutes, coldTabSearch } from "./coldSiteRoutes";
-import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref } from "./operatorSiteRoutes";
+import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref, siteUploadsHref } from "./operatorSiteRoutes";
 import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { RangeNotUsed } from "../ui/rangeFocus";
+import { RangeNotUsed, useDeclareRangeNotUsed } from "../ui/rangeFocus";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 const DEFAULT_HEALTH = createHealthClient();
@@ -32,6 +34,7 @@ const DEFAULT_EV_DEPTH = createEvDepthClient();
 const LINKS: HealthLinks = { health: siteHealthHref, assets: siteAssetsHref, asset: siteAssetHref };
 export const SITE_HEALTH_HEADING_ID = "site-health-heading";
 export const SITE_BATTERY_HEADING_ID = "site-battery-heading";
+export const SITE_UPLOADS_HEADING_ID = "site-uploads-heading";
 
 /**
  * R347 (W5-EV): the EV Health main tabs open the built EV pages and carry the loaded read's own selected window
@@ -58,10 +61,13 @@ export function SiteHealthFrame({
   health = DEFAULT_HEALTH,
   coldDepth = DEFAULT_COLD_DEPTH,
   evDepth = DEFAULT_EV_DEPTH,
+  uploads,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   health?: HealthClient;
+  /** UP-1: the reading-upload client (the panel shows only when the server's switch names the Site). */
+  uploads?: ReadingUploadClient;
   /** W5-01a C3: a COLDCHAIN Site renders `cold-health` from the selected `/cold/health` read. */
   coldDepth?: ColdDepthClient;
   /** W5-03b E4: an EV_CHARGING Site renders `ev-health` from the selected `/ev/health` read. */
@@ -107,6 +113,8 @@ export function SiteHealthFrame({
               <>
                 {/* MOCK DEVIATION R718/R719 (v71 Change 0b shows only "All pages"). SR-4c (D-SR.6, R719): mini-grid Health reads the server clock; the bar says the range is not used. */}
                 <RangeNotUsed note="shows now" />
+                {/* UP-1 (D-UP.4, mockup v72 Part A): "Readings from a file", only when the switch names this Site. */}
+                {gateway === null ? <ReadingUploadEntry siteId={site.site_id} uploadsHref={siteUploadsHref(site.site_id)} client={uploads} /> : null}
                 <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
               </>
             )}
@@ -201,6 +209,49 @@ export function SiteAssetFrame({
               onHeader={onHeader}
             />
           </HealthLinksContext.Provider>
+        </main>
+      )}
+    </SiteScoped>
+  );
+}
+
+/**
+ * UP-1 (rev 7 §7.5, D-UP.3/4): `/sites/{site}/uploads`, Kobo's "Upload readings" (mockup v72 Parts B-E). The page
+ * asks the server whether the upload is on for this Site and says so plainly when it is not.
+ * MOCK DEVIATION: the breadcrumb keeps the Site and Health steps (the mock shows "Sites / Upload readings"), so the
+ * way back to the Health tab is one click.
+ */
+export function SiteUploadsFrame({ detail, sitesPath, uploads }: {
+  detail: SiteDetailClient;
+  sitesPath: string;
+  uploads?: ReadingUploadClient;
+}) {
+  const { siteId } = useParams<{ siteId: string }>();
+  useDeclareRangeNotUsed("own period");
+  return (
+    <SiteScoped siteId={siteId} detail={detail} title="Upload readings" headingId={SITE_UPLOADS_HEADING_ID}>
+      {(site) => (
+        <main aria-labelledby={SITE_UPLOADS_HEADING_ID}>
+          <Breadcrumbs
+            trail={[
+              { label: "Sites", to: sitesPath },
+              { label: site.display_name, to: siteDetailHref(site.site_id) },
+              { label: "Health", to: siteHealthHref(site.site_id) },
+              { label: "Upload readings" },
+            ]}
+          />
+          <PageHeader
+            title="Upload readings"
+            headingId={SITE_UPLOADS_HEADING_ID}
+            subtitle={`Send ${site.display_name}'s readings as a file. You see what will be saved before anything is saved.`}
+          />
+          <ReadingUploadPage
+            siteId={site.site_id}
+            siteName={site.display_name}
+            timeZone={site.timezone}
+            boardHref={(day) => `${siteDetailHref(site.site_id)}?date=${encodeURIComponent(day)}`}
+            client={uploads}
+          />
         </main>
       )}
     </SiteScoped>

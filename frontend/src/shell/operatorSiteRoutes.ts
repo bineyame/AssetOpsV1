@@ -531,6 +531,16 @@ export function siteHealthHref(siteId: string, gatewayId?: string | null): strin
 }
 
 /**
+ * UP-1 (rev 7 §7.5, D-UP.4): Kobo's "Upload readings" page, reached from the Health tab's panel; on only when the
+ * server's `ASSETOPS_READING_UPLOAD_SITES` switch names the Site (off by default).
+ */
+export const SITE_UPLOADS_ROUTE_PATH = `${SITE_DETAIL_ROUTE_PATH}/uploads`;
+
+export function siteUploadsHref(siteId: string): string {
+  return `${siteDetailHref(siteId)}/uploads`;
+}
+
+/**
  * S7-01b battery boundary (`asset:3#a`). `/assets` is the Site's battery entry
  * (the configured battery, or "not configured" without an asset ID);
  * `/assets/{asset}` is one configured battery by its asset ID in the effective
