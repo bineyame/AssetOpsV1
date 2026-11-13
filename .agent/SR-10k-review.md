@@ -30,3 +30,11 @@ No High or Medium findings. Two Low notes, neither blocking.
 
 ## Residual risk
 - Range bounds that are neither UTC nor Site-local midnights use `window_days`' frame rule. A 31-day window that is not aligned can name 32 days and is refused. The shell writes only UTC-midnight bounds, so the bar cannot produce one. The packet already names this.
+
+## Merge review (ad698a383, main/SR-4 merged in)
+
+Verdict: ACCEPT.
+- Call 1 (nights tag): honest and consistent. `useDeclareRangeFocus(current)` is the single declarer (D-SR.57); default night is the list's latest range night, so "Showing 4 Nov of the range" matches the hour-view one-day convention. "range not used" only for a `?night=` outside the range, beside the outside-range line; empty range declares nothing. Supersedes D-SR.65's interim tag as intended; the re-pinned siteRangeTags test covers inside and outside.
+- Call 2 (hour pin): correct. Kisiwa fixture zone is UTC+3; range 25 Oct to 1 Nov gives last day 31 Oct, default hour 12:00 local = 09:00Z to 10:00Z on 31 Oct, the same as the existing Kisiwa Service pin and D-SR.59/61 (range date string names the local day; positive offset so no day shift). Note only: the fuel pin carries `.000Z` where Service's pin has none; the test passes, so it is a formatting difference of the same instants.
+- Nothing lost: MiniPerformance only adds `useSharedRange` to SR-4's imports and passes the range plus `known_at` to the nights read; MiniFuelNights keeps one declarer. No assertion weakened (sr2RequestUrls keeps both describe blocks; the D-SR.65 test was replaced by a stricter inside/outside test).
+- Ran vitest miniFuelNights, sr2RequestUrls, siteRangeTags, siteRangeCarry, miniFuelRoutes: 5 files, 74/74 pass; `tsc --noEmit` clean.
