@@ -137,3 +137,6 @@ Postgres file (assetops_sr10_test): 5 passed in 144s after the fix round.
 - Range/link vitest sweep (lane rule 2026-11-13, 89 files from the grep): 89 files, 2413 tests passed after the
   Kisiwa pin re-pin (first run 1 failed: that pin, expected). Guards run singly: site-links-carry-range,
   page-range-forms, mock-deviation-labels (R726/R727 rows added) all pass. check-all: for coordinator.
+
+## Fix round (D-SR.76, review L1-L6)
+Shared with `.agent/SR-8-packet.md` Fix round: Fuel cell no longer repeats its header; Partial wording "Partial: some hours have too few readings"; R727 label on the hour page's Back link; Still-unavailable test. layout evidence: not run (no Chrome on lane).

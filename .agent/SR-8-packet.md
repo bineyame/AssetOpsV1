@@ -145,3 +145,9 @@ Checks (D-SR.48 follow-up): no-DB neighbours 58 passed/3 skipped; Postgres SR-8 
 4. No "Back to the whole range" on the Renewable day page (asked only for Fuel). Add for parity?
 5. 10d.3: "SR-8's range view links to [Opportunity detail] with that window" - not built (the CTA stays on the one-day
    page); say if the range view needs it.
+
+## Fix round (D-SR.76 Q1-Q6, review L1-L6)
+- Q1: `miniRangeWindowFromParams` opens the whole-range view for any range longer than one Site-local day (UTC and Africa/* tested); exactly one day keeps the one-day page. Story-window tests moved to one-day windows.
+- Q3: "Partial: some hours have too few readings" (range rows, one-day strip, Fuel). Q4: "Back to the whole range" on the Renewable one-day page (router state, R726 label). No Opportunity link.
+- L1 R726/R727 inline labels; L2 partial flag without hour counts; L3 tests (NOT_ENOUGH_READINGS, NO_VALUE, PENDING, Fuel Still unavailable, too-few-readings); L4 sr2RequestUrls answers 404 (no retry timers); L5 two-card row (`v69-cards--two`), Fuel cell no longer repeats its header, range period bar says Site-local days.
+- Checks: vitest miniRenewable*/miniFuel*/sr2RequestUrls/siteRangeTags 7 files pass; tsc clean; SR-8/SR-10 route pytest 44 passed; mock-deviation-labels OK. check-all: for coordinator. layout evidence: not run (no Chrome/dev server on lane); two new dense table views unverified for layout.

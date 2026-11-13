@@ -62,7 +62,7 @@ export function MetricCards({
   data,
   boundClass,
 }: {
-  columns?: 3 | 4 | 5;
+  columns?: 2 | 3 | 4 | 5;
   /** Accessible name of the list. */
   label: string;
   children: ReactNode;
@@ -70,7 +70,7 @@ export function MetricCards({
   /** W4-02 q12-7: a height-bounded row (extra class); the row becomes a keyboard-focusable scroll region. */
   boundClass?: string;
 }) {
-  const className = ["v69-cards", columns === 3 ? "v69-cards--three" : columns === 5 ? "v69-cards--five" : "", boundClass ?? ""]
+  const className = ["v69-cards", columns === 2 ? "v69-cards--two" : columns === 3 ? "v69-cards--three" : columns === 5 ? "v69-cards--five" : "", boundClass ?? ""]
     .filter(Boolean)
     .join(" ");
   return (

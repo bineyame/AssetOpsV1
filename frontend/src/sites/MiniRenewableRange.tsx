@@ -8,6 +8,7 @@
  * hour" (min low and min high over the eligible hours, D-SR.48), never the one-day card's envelope.
  */
 import { useState, type ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 
 import { Badge, ChartNote, DataTable, MetricCard, MetricCards, Panel, StatusBar, ValueBars } from "../ui";
 import { RangeLink as Link } from "../ui/RangeLink";
@@ -49,7 +50,10 @@ const GAP_REASON: Record<string, string> = {
 };
 
 /** D-SR.62: the PARTIAL words a range row and the one-day page share. */
-export const partialHoursText = (missing: number): string => `Partial: ${missing} hour${missing === 1 ? "" : "s"} missing`;
+export const partialHoursText = (missing: number | null): string =>
+  missing !== null && missing > 0
+    ? `Partial: ${missing} hour${missing === 1 ? "" : "s"} missing`
+    : "Partial: some hours have too few readings"; // D-SR.76 Q3
 
 const band = (low: string | number | null, high: string | number | null) => ({ low: rangeNumber(low), high: rangeNumber(high) });
 
@@ -71,6 +75,8 @@ function hoursText(day: RenewableRangeDay): string {
 
 export function MiniRenewableRangePage({ read }: { read: RenewableRangeRead }): ReactNode {
   const { days, totals } = read;
+  const location = useLocation();
+  const origin = { wholeRange: location.search }; // D-SR.76 Q4: the one-day page's way back
   const line = gapLine(days, (s) => s === "COUNTED", (s) => GAP_REASON[s] ?? s.toLowerCase());
   const average = band(totals.average_low_kw, totals.average_high_kw);
   return (
@@ -84,7 +90,7 @@ export function MiniRenewableRangePage({ read }: { read: RenewableRangeRead }): 
         ) : null}
         <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R726">MOCK DEVIATION R726</span>
       </StatusBar>
-      <MetricCards label="Renewable over the range summary" columns={3} data={{ "data-mini-cards": "renewable-range" }}>
+      <MetricCards label="Renewable over the range summary" columns={2} data={{ "data-mini-cards": "renewable-range" }}>
         <MetricCard
           label={AVERAGE_ALL_HOURS_HEADROOM}
           value={average.low === null || average.high === null ? UNKNOWN : boundText(average, "kW")}
@@ -129,14 +135,14 @@ export function MiniRenewableRangePage({ read }: { read: RenewableRangeRead }): 
               return (
                 <tr key={day.local_day} data-mini-range-day={day.local_day} data-mini-range-state={day.state}>
                   <td>
-                    <Link to={day.link}>{shortLocalDay(day.local_day)}</Link>
+                    <Link to={day.link} state={origin}>{shortLocalDay(day.local_day)}</Link>
                   </td>
                   <td data-mini-range-band>{bandText(day)}</td>
                   <td>{day.window_hours === null ? "—" : String(day.window_hours)}</td>
                   <td>{hoursText(day)}</td>
                   <td>
                     {RENEWABLE_DAY_WORDS[day.state] ?? day.state}
-                    {day.partial && missing !== null && missing > 0 ? (
+                    {day.partial || (missing !== null && missing > 0) ? (
                       <span data-mini-range-day-partial>{` · ${partialHoursText(missing)}`}</span>
                     ) : null}
                   </td>

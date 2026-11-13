@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { FuelRangeDay, FuelRangeRead, FuelRead, MiniDepthClient, MiniRead } from "../miniDepthClient";
-import { MiniFuelRange } from "../MiniFuelRange";
+import { MiniFuelRange, MiniFuelRangePage } from "../MiniFuelRange";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -178,7 +178,7 @@ describe("SR-10c: Fuel over the whole range", () => {
     expect(text("[data-mini-range-line]")).toBe("Fuel use modelled on 2 of 4 days · 3 Nov: still being prepared · 4 Nov: no readings");
     expect(document.querySelector("[data-mini-range-partial]")).not.toBeNull();
     expect(document.querySelector('[data-mock-deviation="R727"]')).not.toBeNull();
-    expect(row("2026-11-01").textContent).toContain("Expected use (modelled) 10–12 L");
+    expect(row("2026-11-01").textContent).toContain("10–12 L");
     expect(row("2026-11-01").textContent).toContain("24 of 24 hours assessed");
     expect(row("2026-11-02").textContent).toContain("Assessed · Partial: 4 hours missing");
     // D-SR.51 (3) / D-SR.70: absent and no-readings rows span their words, never "0 of 0 hours".
@@ -214,6 +214,26 @@ describe("SR-10c: Fuel over the whole range", () => {
     renderApp(`/sites/${CODE}/performance/fuel?from=2026-11-01T09:00:00Z&to=2026-11-01T10:00:00Z`);
     await settledScreen();
     expect(document.querySelector("[data-mini-back-to-range]")).toBeNull();
+  });
+
+  it("D-SR.76 Q3/L3: a partial day with no missing hours reads the too-few-readings words; Still unavailable after the retries", async () => {
+    const read = rangeRead();
+    read.days[1] = { ...read.days[1], hours_missing: 0, partial: true };
+    render(
+      <MemoryRouter>
+        <MiniFuelRangePage read={read} />
+      </MemoryRouter>,
+    );
+    expect(row("2026-11-02").textContent).toContain("Partial: some hours have too few readings");
+    cleanup();
+    const refused = { status: "refused", httpStatus: 503, code: "SITE_FUEL_RANGE_UNAVAILABLE", message: null };
+    const client = { getFuelRange: vi.fn().mockResolvedValue(refused) } as unknown as MiniDepthClient;
+    render(
+      <MemoryRouter>
+        <MiniFuelRange client={client} siteCode={CODE} window={{ from: "a", to: "b", known_at: null }} retryDelays={[0, 0]} />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByText("Still unavailable. Refresh to try again.")).toBeTruthy();
   });
 
   it("503 SITE_FUEL_RANGE_UNAVAILABLE reads Temporarily unavailable. Retrying…, never as data", async () => {

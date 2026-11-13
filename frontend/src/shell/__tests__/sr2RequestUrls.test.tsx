@@ -228,7 +228,8 @@ describe("SR-4 H-1 (D-SR.59) Kobo Renewable and Service under \"Yesterday\" send
       "fetch",
       vi.fn((input: RequestInfo | URL) => {
         urls.push(typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url);
-        return Promise.resolve(new Response("{}", { status: 503, headers: { "Content-Type": "application/json" } }));
+        // L4: a non-retryable 404 keeps the test independent of the 2/4/8 s retry timers.
+        return Promise.resolve(new Response("{}", { status: 404, headers: { "Content-Type": "application/json" } }));
       }),
     );
     const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site }) };

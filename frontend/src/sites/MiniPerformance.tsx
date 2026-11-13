@@ -465,7 +465,16 @@ function WindowSpan({ timeZone, window }: { timeZone: string; window: MiniWindow
   return <RangeSpan from={whole ? null : first} to={whole ? null : last} />;
 }
 
-function MiniPeriodBar({ timeZone, window }: { timeZone: string; window: MiniWindowQuery }) {
+function MiniPeriodBar({
+  timeZone,
+  window,
+  siteLocalDays = false,
+}: {
+  timeZone: string;
+  window: MiniWindowQuery;
+  /** The range views list Site-local days (D-SR.45 window_days rule) for the bar's dates, so the bar says so. */
+  siteLocalDays?: boolean;
+}) {
   const fromMs = window.from === null ? Number.NaN : Date.parse(window.from);
   const toMs = window.to === null ? Number.NaN : Date.parse(window.to);
   const firstDay = Number.isNaN(fromMs) ? "" : localDateOf(timeZone, fromMs);
@@ -480,12 +489,13 @@ function MiniPeriodBar({ timeZone, window }: { timeZone: string; window: MiniWin
     localDaysWindow(timeZone, firstDay, span).to === new Date(toMs).toISOString();
   const utcFirst = Number.isNaN(fromMs) ? "" : new Date(fromMs).toISOString().slice(0, 10);
   const utcLast = Number.isNaN(toMs) ? "" : new Date(toMs - 1).toISOString().slice(0, 10);
+  const [shownFirst, shownLast] = siteLocalDays && !aligned ? [utcFirst, utcLast] : [firstDay, lastDay];
   return (
     <div className="site-date-bar mini-period-bar" data-mini-period>
       <span className="site-date-bar__window" data-mini-local-period>
         {firstDay && lastDay
-          ? aligned
-            ? `Site-local ${firstDay === lastDay ? `day ${firstDay}` : `days ${firstDay} to ${lastDay}`} (${timeZone})`
+          ? aligned || siteLocalDays
+            ? `Site-local ${shownFirst === shownLast ? `day ${shownFirst}` : `days ${shownFirst} to ${shownLast}`} (${timeZone})`
             : `UTC ${utcFirst === utcLast ? `day ${utcFirst}` : `days ${utcFirst} to ${utcLast}`}`
           : "No period selected"}
       </span>
@@ -619,6 +629,7 @@ function RenewableCardsRow({ read }: { read: RenewableRead }) {
             <span className="mini-all-hours-line" data-mini-all-hours-headroom>
               {`${ALL_HOURS_HEADROOM}: ${boundText(cards?.all_hours_headroom_kw ?? null, "kW")}`}
             </span>
+            <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R726">MOCK DEVIATION R726</span>
           </>
         }
       />
@@ -913,6 +924,7 @@ export function MiniRenewable({
   timeZone,
   window,
   range,
+  pageHref,
 }: {
   client: MiniDepthClient;
   /** W4-03 unit 7: the opportunity list read and the typed detail address for the exact five-day CTA. */
@@ -923,6 +935,8 @@ export function MiniRenewable({
   window: MiniWindowQuery | null;
   /** SR-8 page: the whole shared range (`miniRangeWindowFromParams`), or null for the one-day page. */
   range?: MiniWindowQuery | null;
+  /** D-SR.76 Q4: the page address for "Back to the whole range" on the one-day page. */
+  pageHref?: (search: string) => string;
 }): ReactNode {
   const [attempt, setAttempt] = useState(0);
   const ranged = range !== undefined && range !== null;
@@ -937,13 +951,14 @@ export function MiniRenewable({
   if (range !== undefined && range !== null) {
     return (
       <>
-        <MiniPeriodBar timeZone={timeZone} window={range} />
+        <MiniPeriodBar timeZone={timeZone} window={range} siteLocalDays />
         <MiniRenewableRange client={client} siteCode={siteCode} window={range} />
       </>
     );
   }
   return (
     <>
+      {pageHref === undefined ? null : <BackToWholeRange pageHref={pageHref} deviation="R726" />}
       <MiniPeriodBar key={key} timeZone={timeZone} window={window} />
       <WindowSpan timeZone={timeZone} window={window} />
       {read === null ? (
@@ -1684,7 +1699,7 @@ export function MiniFuel({
   if (range !== undefined && range !== null) {
     return (
       <>
-        <MiniPeriodBar timeZone={timeZone} window={range} />
+        <MiniPeriodBar timeZone={timeZone} window={range} siteLocalDays />
         <MiniFuelRange client={client} siteCode={siteCode} window={range} />
       </>
     );

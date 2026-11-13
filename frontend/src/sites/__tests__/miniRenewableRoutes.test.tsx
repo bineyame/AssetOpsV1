@@ -214,7 +214,7 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
       limitations: [{ code: "CRITICAL_SERVICE_MISSING", evidence_ids: [id(102)] }],
       links: { dispatch: null, evidence: `/sites/${CODE}/evidence`, financials: null, actions: "/actions" },
     });
-    renderRenewable([ok(limited)], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-08T21:00:00Z`);
+    renderRenewable([ok(limited)], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-06T21:00:00Z`);
     await settledScreen();
     await screen.findByText("Evidence limited");
     expectV69Panels("renewable");
@@ -236,16 +236,16 @@ describe("W4-02 unit 6: renewable keeps the v69 panels, strip, cards and table",
     const third = Array.from(document.querySelectorAll("tbody tr")[2].querySelectorAll("td")).map((td) => td.textContent);
     expect(third[2]).toContain("Critical service not established");
     expect(third[3]).toBe("Limited");
-    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe(`Site-local days 2026-10-06 to 2026-10-08 (${TZ})`);
+    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe(`Site-local day 2026-10-06 (${TZ})`);
   });
 
-  it("SR-2 M2 / D-SR.59: a story window (exact Site-local midnights, at most 5 days) keeps the one-day page; no range form", async () => {
+  it("SR-2 M2 / D-SR.59: D-SR.76 Q1: a story window of exactly one Site-local day keeps the one-day page; no range form", async () => {
     // SR-8 page: a shared range (UTC midnights) opens the range view instead (miniRenewableRange.test.tsx).
-    const client = renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-15T21:00:00Z&to=2026-10-20T21:00:00Z`);
+    const client = renderRenewable([ok(read())], `/sites/${CODE}/performance/renewable?from=2026-10-15T21:00:00Z&to=2026-10-16T21:00:00Z`);
     await settledScreen();
     await screen.findByText("Watch");
     expect(client.getRenewable).toHaveBeenCalledTimes(1);
-    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("Site-local days 2026-10-16 to 2026-10-20 (Africa/Addis_Ababa)");
+    expect(document.querySelector("[data-mini-local-period]")?.textContent).toBe("Site-local day 2026-10-16 (Africa/Addis_Ababa)");
     expect(document.querySelector("[data-mini-period] input, [data-mini-period] select, [data-mini-period] button")).toBeNull();
     expect(document.querySelector("[data-mini-range-note]")?.textContent).toBe("Choose the days in the date range at the top.");
   });
@@ -375,7 +375,7 @@ describe("post-W6 W4 R309/R310/R312/R313: renewable tones, confidence, recurrenc
   it("R309: chips take tones from stored enums only (Watch amber, Lens neutral, Eligible green, Limited amber, Excluded neutral) and series fills keep their identity", async () => {
     const rows = [row("2026-10-06"), row("2026-10-07", { decision: "EXCLUDED", opportunity_kwh: null }), row("2026-10-08", { decision: "LIMITED", opportunity_kwh: null })];
     const windows = [hour("2026-10-06", true, 1), hour("2026-10-07", true, 2), hour("2026-10-08", true, 3)];
-    renderRenewable([ok(read({ rows, currentness: { state: "CURRENT", job_state: "SETTLED", windows } }))], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-08T21:00:00Z`);
+    renderRenewable([ok(read({ rows, currentness: { state: "CURRENT", job_state: "SETTLED", windows } }))], `/sites/${CODE}/performance/renewable?from=2026-10-05T21:00:00Z&to=2026-10-06T21:00:00Z`);
     await settledScreen();
     await screen.findByText("Watch");
     expect(badge("Watch").className).toContain("status-tone--amber");

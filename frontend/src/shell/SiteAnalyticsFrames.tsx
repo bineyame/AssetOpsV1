@@ -396,6 +396,7 @@ export function SitePerformanceFrame({
                   timeZone={timeZone}
                   window={timeZone === null ? null : renewableWindowFromParams(params, timeZone)}
                   range={timeZone === null ? null : miniRangeWindowFromParams("renewable", params, timeZone)}
+                  pageHref={pageHref}
                 />
               )}
             </main>

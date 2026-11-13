@@ -477,8 +477,7 @@ function exactLocalDays(timeZone: string, from: string, to: string): number | nu
 /**
  * SR-8 page / SR-10c (rev 10 §10.4, rev 10b.2): the whole-range window a range view reads, or `null` when the page
  * shows its one-day (Renewable) or one-hour (Fuel) view instead: the address names a day (`?day=`, a story link), the
- * address is a story window the one-day/one-hour read takes as it is (Renewable: exact Site-local midnights 1-5 days
- * apart; Fuel: one Site-local clock hour, the range rows' `hour_link`), or there is no valid shared range. Otherwise
+ * address is a story window the one-day/one-hour read takes as it is (Renewable: exactly one Site-local day; Fuel: one Site-local clock hour, the range rows' `hour_link`), or there is no valid shared range. Otherwise
  * the shared range's UTC-midnight window (the server reads its days by the `window_days` rule, D-SR.45), with the
  * address `known_at`.
  */
@@ -492,7 +491,8 @@ export function miniRangeWindowFromParams(
   const from = params.get("from");
   const to = params.get("to");
   if (from !== null && to !== null) {
-    if (screen === "renewable" && exactLocalDays(timeZone, from, to) !== null) return null;
+    // D-SR.76 Q1: exactly one Site-local day keeps the one-day page; any longer range opens the range view.
+    if (screen === "renewable" && exactLocalDays(timeZone, from, to) === 1) return null;
     if (screen === "fuel" && exactLocalHour(timeZone, from, to)) return null;
   }
   const range = addressRange(params, now.getTime());

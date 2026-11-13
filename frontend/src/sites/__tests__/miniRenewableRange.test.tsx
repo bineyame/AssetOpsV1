@@ -5,7 +5,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
 import type { MiniDepthClient, MiniRead, RenewableRangeDay, RenewableRangeRead, RenewableRead } from "../miniDepthClient";
-import { MiniRenewableRange } from "../MiniRenewableRange";
+import { miniRangeWindowFromParams } from "../miniDepthClient";
+import { MiniRenewableRange, MiniRenewableRangePage } from "../MiniRenewableRange";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
@@ -156,6 +157,46 @@ describe("SR-8 page: Renewable over the whole range", () => {
     expect(bars).toEqual(["2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04"]);
     // The range view declares no span of its own (SR-4b's "last 5 days" is gone).
     expect(document.body.textContent).not.toContain("of the range");
+  });
+
+  it("D-SR.76 Q3/L2/L3: gap states read in words; a partial day with no hour counts still reads Partial", () => {
+    const base = rangeRead();
+    const gap = { low_kw: null, high_kw: null, decision: null, window_hours: null, covered_hours: null, operating_hours: null };
+    const read: RenewableRangeRead = {
+      ...base,
+      days: [
+        day("2026-11-05", { ...gap, grade: "NOT_ENOUGH_READINGS", state: "NOT_ENOUGH_READINGS" }),
+        day("2026-11-06", { ...gap, state: "NO_VALUE" }),
+        day("2026-11-07", { ...gap, state: "PENDING" }),
+        day("2026-11-08", { ...gap, grade: "PARTIAL", state: "COUNTED", partial: true, low_kw: "1", high_kw: "2" }),
+        day("2026-11-09", { grade: "PARTIAL", partial: true, covered_hours: 12, operating_hours: 12 }),
+        day("2026-11-10", { covered_hours: 11, operating_hours: 12, partial: true }),
+      ],
+    };
+    render(
+      <MemoryRouter>
+        <MiniRenewableRangePage read={read} />
+      </MemoryRouter>,
+    );
+    const row = (d: string) => document.querySelector(`[data-mini-range-day="${d}"]`) as HTMLElement;
+    expect(row("2026-11-05").textContent).toContain("Not enough readings");
+    expect(row("2026-11-06").textContent).toContain("No headroom figure for this day");
+    expect(row("2026-11-07").textContent).toContain("Still being prepared");
+    for (const d of ["2026-11-05", "2026-11-06", "2026-11-07"]) {
+      expect(row(d).querySelector("[data-mini-range-band]")?.textContent).toBe("—");
+    }
+    expect(row("2026-11-08").textContent).toContain("Partial: some hours have too few readings");
+    expect(row("2026-11-09").textContent).toContain("Partial: some hours have too few readings");
+    expect(row("2026-11-10").textContent).toContain("Partial: 1 hour missing");
+  });
+
+  it("D-SR.76 Q1: more than one Site-local day opens the range view, exactly one day keeps the one-day page, in both zones", () => {
+    const q = (zone: string, from: string, to: string) =>
+      miniRangeWindowFromParams("renewable", new URLSearchParams({ from, to }), zone, new Date("2026-11-20T00:00:00Z"));
+    expect(q("UTC", "2026-11-01T00:00:00Z", "2026-11-02T00:00:00Z")).toBeNull();
+    expect(q("UTC", "2026-11-01T00:00:00Z", "2026-11-04T00:00:00Z")).not.toBeNull();
+    expect(q(TZ, "2026-10-31T21:00:00Z", "2026-11-01T21:00:00Z")).toBeNull();
+    expect(q(TZ, "2026-10-31T21:00:00Z", "2026-11-03T21:00:00Z")).not.toBeNull();
   });
 
   it("503 SITE_RENEWABLE_RANGE_UNAVAILABLE reads Temporarily unavailable. Retrying… and then the range, never as data", async () => {

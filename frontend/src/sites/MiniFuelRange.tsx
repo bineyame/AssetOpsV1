@@ -15,6 +15,7 @@ import { Badge, ChartNote, DataTable, Panel, StatusBar, ValueBars } from "../ui"
 import { RangeLink as Link } from "../ui/RangeLink";
 import { boundText, MINI_LOADING, MiniRangeRefusal } from "./MiniPerformance";
 import type { FuelRangeDay, FuelRangeRead, MiniDepthClient, MiniWindowQuery } from "./miniDepthClient";
+import { partialHoursText } from "./MiniRenewableRange";
 import { gapLine, RangeRetrying, shortLocalDay, useRangeRead } from "./miniRange";
 
 export const FUEL_RANGE_UNAVAILABLE = "SITE_FUEL_RANGE_UNAVAILABLE";
@@ -47,7 +48,7 @@ const spansRow = (day: FuelRangeDay): boolean => day.state === "NO_DATA" || !day
 
 function partialText(day: FuelRangeDay): string {
   const missing = day.hours_missing ?? 0;
-  return missing > 0 ? `Partial: ${missing} hour${missing === 1 ? "" : "s"} missing` : "Partial: some hours limited";
+  return partialHoursText(missing);
 }
 
 export function MiniFuelRangePage({ read }: { read: FuelRangeRead }): ReactNode {
@@ -101,7 +102,7 @@ export function MiniFuelRangePage({ read }: { read: FuelRangeRead }): ReactNode 
                   </td>
                 ) : (
                   <>
-                    <td>{day.expected_use_l === null ? "—" : `Expected use (modelled) ${boundText(day.expected_use_l, "L")}`}</td>
+                    <td>{day.expected_use_l === null ? "—" : boundText(day.expected_use_l, "L")}</td>
                     <td>{`${day.hours_assessed} of ${day.hours_expected} hours assessed`}</td>
                     <td>
                       {FUEL_DAY_WORDS[day.state] ?? day.state}
@@ -152,13 +153,24 @@ export function MiniFuelRange({
 }
 
 /** The hour page's way back to the range it was opened from (router state from the range table); nothing otherwise. */
-export function BackToWholeRange({ pageHref }: { pageHref: (search: string) => string }): ReactNode {
+export function BackToWholeRange({
+  pageHref,
+  deviation = "R727",
+}: {
+  pageHref: (search: string) => string;
+  deviation?: "R726" | "R727";
+}): ReactNode {
   const location = useLocation();
   const origin = location.state as Partial<FuelRangeOrigin> | null;
   if (origin === null || typeof origin.wholeRange !== "string" || origin.wholeRange === "") return null;
   return (
     <p className="mini-back-to-range" data-mini-back-to-range>
       <Link to={pageHref(origin.wholeRange)}>{BACK_TO_WHOLE_RANGE}</Link>
+      {deviation === "R726" ? (
+        <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R726">MOCK DEVIATION R726</span>
+      ) : (
+        <span className="mock-deviation-line mini-inline-deviation" data-mock-deviation="R727">MOCK DEVIATION R727</span>
+      )}
     </p>
   );
 }
