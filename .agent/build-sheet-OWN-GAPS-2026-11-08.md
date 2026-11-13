@@ -5416,3 +5416,39 @@ Decisions logged for owner review: **D-SR.74**.
 - Database: stay on PostgreSQL; no change before 17 Nov. Later: measure, then time partitions on readings, then a TimescaleDB trial on a clone. No document or wide-column store.
 
 Decisions logged for owner review: **D-SR.75**.
+
+## D-SR.76 Lane K SR-8/SR-10 page questions (Architect, Claude, 2026-11-14, owner-delegated, logged for owner review)
+
+- Source: `AssetOpsV1-sr8` `task/SR-8-10-pages`, `.agent/SR-8-packet.md`, `.agent/SR-10-packet.md`.
+- **Q1 Yes.** Any shared range longer than one Site-local day opens the whole-range Renewable view, 2-5 days included (range in, range out). Exactly one Site-local day, for example a UTC Site's midnight-to-midnight range, keeps the one-day page. As built.
+- **Q2 Keep the title "Usable headroom".** It is the mock's card title (`index.html:446` `metric('Usable headroom', ...)`). "Range across eligible hours" goes in the card's note, as built. That is what D-SR.48's "worded" means. No relabel.
+- **Q3 Yes.** "Partial: n hours missing" (singular "1 hour") is the shared wording on the range row and the one-day page. For a day with no missing hours but limited hours, use "Partial: some hours have too few readings", not "some hours limited" ("limited" alone says nothing to a client).
+- **Q4 Back link: yes, the same pattern as Fuel** ("Back to the whole range", only when the page was opened from the range). **No Opportunity detail link** in SR-8: it is a single record (D-SR.44 N) and new scope. Existing Finding links stay.
+- **Q5 Acceptable for the demo**, because the walkthrough clicks from the range. Backlog (not demo-critical): derive the back link from the shared range already in the URL.
+- **Q6 No total card now.** It is not in 10b.2's page list, and a sum over partial days needs an "n of m days" qualifier and a ruling. The per-day modelled bands stay. Backlog.
+- Size: Q3 copy and Q4 back link, about 0.05 together, lane K.
+
+Decisions logged for owner review: **D-SR.76**.
+
+### D-SR.76 (continued) Lane I SR-12a Q7-Q9 (`AssetOpsV1-sr6` `task/SR-6-12a-pages`, `.agent/SR-12a-packet.md`)
+- **Q7 Confirmed: nothing to filter.** `/evidence/rejections` has no recompute-job list (its lists are rejections, conflicts and duplicates). The spec line in 10b.4 is an error and is withdrawn. No other list was meant.
+- **Q8 Source time is right. Align the list to it.** Range means telemetry (D-SR.39), so "rejections in this range" means readings describing this period that were not accepted. That matches the overview count line (S2 Q19).
+  - Postgres and file-backed lists, conflicts and duplicates filter on the reading's source time in `[from, to)`. `total` follows the same rule, so the line and the list agree at the edges.
+  - A rejection with no source time is placed by its batch receipt time in `[from, to)`, on **both** sides: the list and the count line's untimed note. Its row says "no reading time; received in this date range".
+  - Heading: "Readings not accepted (from this date range)". Empty line: "No reading from this date range was refused or repeated."
+  - Tests: pin the edges on both sides (source time = `to` is out, = `from` is in) and an untimed row received inside the range. Add one line-equals-list check on the Postgres fixture. Size about 0.1, lane I, before merge.
+- **Q9 Confirmed.** The file-backed path is filtered too, by the Q8 rule (source time; receipt only when there is no source time). The page must not list all dates beside a range.
+
+Decisions logged for owner review: **D-SR.76** (Q1-Q9).
+
+### D-SR.76 (continued) Lane J SR-7/SR-11 Q10-Q11 and the hour addresses (`AssetOpsV1-sr7` `task/SR-7-11-pages`)
+- **Q10 (Q-J6) Confirmed as built.** The table has only the fields the stored day rows carry: When, Outcome for service, Recovery, Result. A step column with "No accepted record" in every row would be false.
+  - 10b.3's "existing backup chain table" line is withdrawn. Record this table under MOCK DEVIATION R728 (stored day rows carry no step records; alternatives: the step table, rejected as dishonest, or new step rows, out of scope).
+  - Each row's one-day link keeps the full step chain.
+- **Q11 (Q-J7) Confirmed.** A 503 on the one-day claim-limit read keeps its existing plain sentence with no retry.
+  - **Hide** the claim-limit section on Cold/EV Evidence pages instead of showing "...read for mini-grid sites only". The mock's `cold-evidence`/`ev-evidence` carry no claim-limit section (`SiteEvidenceMatrix`, `AcceptedEvidenceIndex`), so hiding it keeps the mock.
+  - The not-applicable string stays only as a guard for an unexpected 404. Size about 0.05, one vitest.
+- **Hour addresses: confirmed.** Only an address that is exactly one clock hour opens the hour page. Any other address, including one hour off the clock hour or two hours, is a range and opens the day table. Never a refusal.
+  - The frame must say "Whole days that include the selected time" so a short range is not read as a full-day claim. This supersedes D-SR.40's interim "two hours reads the 12:00 hour" test; update that test to the new behaviour, never delete it.
+
+Decisions logged for owner review: **D-SR.76** (Q1-Q11 and the hour addresses).
