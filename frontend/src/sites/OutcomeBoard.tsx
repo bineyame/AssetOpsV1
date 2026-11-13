@@ -8,6 +8,7 @@ import { defaultChainClient, type ChainClient } from "./chainClient";
 
 import { OutcomeGlyph, type OutcomeGlyphName } from "./componentIcons";
 import { DataTable } from "../ui";
+import { StatusPill } from "../ui/StatusPill";
 import { OutcomeIcon } from "./outcomeCategories";
 import { money2 } from "../ui/money";
 import type {
@@ -191,7 +192,7 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
       <div className="ob ob-later" {...data}>
         <div className="ob-sum">
           <Name row={row} />
-          <span className="oc-chip tone-none">{row.state_label}</span>
+          <StatusPill state={row.state} label={row.state_label} />
           <span className="ob-head muted">{row.not_measured_text}</span>
         </div>
       </div>
@@ -208,7 +209,8 @@ function Row({ row, gaps = false, onWhy }: { row: OutcomeBoardRow; gaps?: boolea
     <details className={`ob tone-${row.tone}`} open={row.state === "NEEDS_ATTENTION"} {...data}>
       <summary className="ob-sum">
         <Name row={row} />
-        <span className={`oc-chip tone-${row.tone}`}>{row.state_label}</span>
+        {/* UQ-FI-3: the state is the one StatusPill (v7.2 sheet colour + symbol, the server word). */}
+        <StatusPill state={row.state} label={row.state_label} />
         {row.potential && !grow ? (
           // WALK1-3b (R690): the opportunity beside the KPI state, never folded into it.
           <span className="oc-chip tone-green" data-outcome-potential title={row.potential.text ?? undefined}>

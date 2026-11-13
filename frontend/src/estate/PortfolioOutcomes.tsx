@@ -1,11 +1,11 @@
 import { useState, type CSSProperties, type ReactNode } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { EvidenceTrace, WhyButton } from "../blocks/EvidenceTrace";
-import { OutcomeCardValue } from "../blocks/OutcomeRow";
 import { defaultChainClient, type ChainClient } from "../sites/chainClient";
 
 import { OutcomeIcon, type OutcomeCategoryKey } from "../sites/outcomeCategories";
 import { MissingClaim } from "../ui";
+import { StatusPill } from "../ui/StatusPill";
 import type {
   EstateOutcomeSummaryBody,
   EstateOutcomeSummaryRow,
@@ -145,7 +145,10 @@ export function dotStateWord(row: Pick<EstateOutcomeSummaryRow, "state" | "state
   return row.state === "NO_OBJECTIVE" ? DOT_NO_OBJECTIVE : row.state_label;
 }
 
-/** OUT-B B6: one dot per Site in the category's outcome state (mock `pfCard` `.oc-sitedots`, `outcomes.js:151`). */
+/**
+ * OUT-B B6: one entry per Site in the category's outcome state (mock `pfCard` `.oc-sitedots`, `outcomes.js:151`).
+ * UQ-FI-3: behind the card's "Why?"; the state is a `StatusPill` (the server word).
+ */
 function SiteDots({ category, summary }: { category: OutcomeCategoryKey; summary: EstateOutcomeSummaryBody | null }) {
   return (
     <div className="oc-sitedots" data-portfolio-card-dots={category}>
@@ -160,9 +163,9 @@ function SiteDots({ category, summary }: { category: OutcomeCategoryKey; summary
             title={`${site.site_name}: ${word}`}
             data-portfolio-dot={`${site.site_code}|${row.tone}`}
           >
-            <i aria-hidden="true"></i>
             {site.site_name}
-            <span className="oc-hidden">: {word}</span>
+            <span className="oc-hidden">: </span>
+            <StatusPill state={row.state} label={word} />
           </span>
         );
       })}
@@ -171,8 +174,64 @@ function SiteDots({ category, summary }: { category: OutcomeCategoryKey; summary
 }
 
 /**
+ * UQ-FI-3 (rev 7, 7.2): everything on a card but its figure, sentence and basis line, moved behind its "Why?" in the
+ * order the card showed it. Same server lines and data hooks as before; no new words.
+ */
+function CardQualifiers({ cardKey, definition, c, summary }: { cardKey: OutcomeCategoryKey; definition: string; c: CardContent; summary: EstateOutcomeSummaryBody | null }) {
+  return (
+    <div className="oc-pfwhy" data-portfolio-card-why={cardKey}>
+      <p className="oc-pfdef" data-portfolio-card-definition>
+        {definition}
+      </p>
+      {/* PF-C2 (v71 `.oc-pfexception`): the server sends a card's days line only when its days differ from the one
+          coverage line above the tabs, so the line is labelled as the exception. */}
+      {c.days ? (
+        <small className="ob-days oc-pfdays oc-pfexception" data-portfolio-card-days>
+          {DIFFERENT_DAYS} {c.days}
+        </small>
+      ) : null}
+      {c.grow ? <PortfolioGrowParts parts={c.grow} /> : null}
+      {/* MOCK DEVIATION MD-FUEL-K4-3 (DIESEL-1-R3j): v69 has no unexplained-fuel line on the Protect card; v69 `:131`
+          and `:482` forbid a combined total, so each Finding is its own server line (as MD-FUEL-PV1-1). */}
+      {c.fuel?.lines.map((line) => (
+        <p key={line} className="oc-pfnote" data-portfolio-card-fuel-line>
+          {line}
+        </p>
+      ))}
+      {c.fuel?.note ? (
+        <p className="oc-pfnote" data-portfolio-card-fuel-note>
+          {c.fuel.note}
+        </p>
+      ) : null}
+      {/* MOCK DEVIATION MD-FUEL-PV1-1: v69 `:129` is one "Verified value recovered" tile ("Not established") and v70
+          `:492` puts the slot on the Assure card; we show one server line per verified result (its own basis) in that
+          slot instead of one value, because v69 `:131` and `:482` forbid a combined total. */}
+      {c.values?.lines.map((line) => (
+        <p key={line} className="oc-pfnote" data-portfolio-card-value-line>
+          {line}
+        </p>
+      ))}
+      {c.values?.note ? (
+        <p className="oc-pfnote" data-portfolio-card-value-note>
+          {c.values.note}
+        </p>
+      ) : null}
+      {/* CH6b2-R Q1: the Portfolio-body clause, one server line rendered on its own (never joined here). */}
+      {c.note ? (
+        <p className="oc-pfnote" data-portfolio-card-note>
+          {c.note}
+        </p>
+      ) : null}
+      <SiteDots category={cardKey} summary={summary} />
+    </div>
+  );
+}
+
+/**
  * OUT-A A6: the Portfolio's four outcome category cards (mock `pfCard`, `outcomes.js:144-151`), replacing the five
  * value cards. OUT-B B6 fills the per-Site dots and the Grow value from the outcome summary.
+ * UQ-FI-3 (rev 7, 7.2; v7.2 sheet "Outcome card", portfolio-hifi `.kpi`): one figure (`--text-figure`, D-UQFI.7), one
+ * sentence (the server `detail`), the basis line; the rest behind "Why?" (`CardQualifiers`).
  */
 export function CategoryCards({
   body,
@@ -186,7 +245,7 @@ export function CategoryCards({
   /** CH-5b3 (CH5b3-R Q2): the "Why?" chain client; the module default unless a test passes one. */
   why?: ChainClient;
 }) {
-  const [whyOpen, setWhyOpen] = useState<{ key: OutcomeCategoryKey; name: string; button: HTMLButtonElement } | null>(null);
+  const [whyOpen, setWhyOpen] = useState<{ key: OutcomeCategoryKey; name: string; definition: string; button: HTMLButtonElement } | null>(null);
   return (
     <>
       <div className="value-grid oc-pfgrid" data-portfolio-cards>
@@ -205,62 +264,24 @@ export function CategoryCards({
           // `.oc-cardlink::after`, so the "Why?" button can sit above it (a button cannot be inside a link).
           return (
             <div key={key} className={`value-card ${c.tone} oc-pfcard`} data-portfolio-card={key}>
-              {c.destination === null ? (
-                <div className="value-label">{label}</div>
-              ) : (
-                <Link className="value-label oc-cardlink" to={estateHref(c.destination, window)} data-portfolio-card-link>
-                  {label}
-                </Link>
-              )}
-              <p className="oc-pfdef" data-portfolio-card-definition>
-                {definition}
-              </p>
-              <OutcomeCardValue why={<WhyButton label={name} onOpen={(button) => setWhyOpen({ key, name, button })} />}>
-                <div className="value-number" data-portfolio-card-value>
-                  {c.value}
-                </div>
-              </OutcomeCardValue>
-              {/* PF-C2 (v71 `.oc-pfexception`): the server sends a card's days line only when its days differ from
-                  the one coverage line above the tabs, so the line is labelled as the exception. */}
-              {c.days ? (
-                <small className="ob-days oc-pfdays oc-pfexception" data-portfolio-card-days>
-                  {DIFFERENT_DAYS} {c.days}
-                </small>
-              ) : null}
-              {c.grow ? <PortfolioGrowParts parts={c.grow} /> : null}
-              {c.detail ? <p data-portfolio-card-detail>{c.detail}</p> : null}
-              {/* MOCK DEVIATION MD-FUEL-K4-3 (DIESEL-1-R3j): v69 has no unexplained-fuel line on the Protect card; v69
-                  `:131` and `:482` forbid a combined total, so each Finding is its own server line (as MD-FUEL-PV1-1). */}
-              {c.fuel?.lines.map((line) => (
-                <p key={line} className="oc-pfnote" data-portfolio-card-fuel-line>
-                  {line}
-                </p>
-              ))}
-              {c.fuel?.note ? (
-                <p className="oc-pfnote" data-portfolio-card-fuel-note>
-                  {c.fuel.note}
+              <div className="oc-pftop">
+                {c.destination === null ? (
+                  <div className="value-label">{label}</div>
+                ) : (
+                  <Link className="value-label oc-cardlink" to={estateHref(c.destination, window)} data-portfolio-card-link>
+                    {label}
+                  </Link>
+                )}
+                <WhyButton label={name} onOpen={(button) => setWhyOpen({ key, name, definition, button })} />
+              </div>
+              <div className="value-number oc-pffig" data-portfolio-card-value>
+                {c.value}
+              </div>
+              {c.detail ? (
+                <p className="oc-pfsent" data-portfolio-card-detail>
+                  {c.detail}
                 </p>
               ) : null}
-              {/* MOCK DEVIATION MD-FUEL-PV1-1: v69 `:129` is one "Verified value recovered" tile ("Not established") and
-                  v70 `:492` puts the slot on the Assure card; we show one server line per verified result (its own
-                  basis) in that slot instead of one value, because v69 `:131` and `:482` forbid a combined total. */}
-              {c.values?.lines.map((line) => (
-                <p key={line} className="oc-pfnote" data-portfolio-card-value-line>
-                  {line}
-                </p>
-              ))}
-              {c.values?.note ? (
-                <p className="oc-pfnote" data-portfolio-card-value-note>
-                  {c.values.note}
-                </p>
-              ) : null}
-              {/* CH6b2-R Q1: the Portfolio-body clause, one server line rendered on its own (never joined here). */}
-              {c.note ? (
-                <p className="oc-pfnote" data-portfolio-card-note>
-                  {c.note}
-                </p>
-              ) : null}
-              <SiteDots category={key} summary={summary} />
               <div className="value-basis" data-portfolio-card-basis>
                 {c.basis}
               </div>
@@ -275,6 +296,7 @@ export function CategoryCards({
           load={() => why.getEstateWhy(whyOpen.key, { from: window.from, to: window.to, known_at: window.known_at })}
           opener={whyOpen.button}
           onClose={() => setWhyOpen(null)}
+          more={<CardQualifiers cardKey={whyOpen.key} definition={whyOpen.definition} c={content(whyOpen.key, body, summary)} summary={summary} />}
         />
       ) : null}
     </>
@@ -282,13 +304,13 @@ export function CategoryCards({
 }
 
 /** The six states of the matrix colour key, in the mock order (`outcomes.js:154`). */
-export const OUTCOME_KEY: readonly { label: string; tone: string }[] = [
-  { label: "Needs attention", tone: "amber" },
-  { label: "Watch", tone: "blue" },
-  { label: "Opportunity", tone: "green" },
-  { label: "On track", tone: "green" },
-  { label: "Unknown", tone: "gray" },
-  { label: "Not measured yet", tone: "none" },
+export const OUTCOME_KEY: readonly { state: string; label: string; tone: string }[] = [
+  { state: "NEEDS_ATTENTION", label: "Needs attention", tone: "amber" },
+  { state: "WATCH", label: "Watch", tone: "blue" },
+  { state: "OPPORTUNITY", label: "Opportunity", tone: "green" },
+  { state: "ON_TRACK", label: "On track", tone: "green" },
+  { state: "UNKNOWN", label: "Unknown", tone: "gray" },
+  { state: "NOT_MEASURED", label: "Not measured yet", tone: "none" },
 ];
 export const OUTCOME_MATRIX_LABEL = "Outcomes across the estate";
 export const OUTCOME_MATRIX_NOTE = "How each site is doing on what matters";
@@ -332,7 +354,7 @@ export function OutcomeMatrix({ summary }: { summary: EstateOutcomeSummaryBody }
                     title={`${site.site_name} · ${category.label}: ${row.lead_outcome?.label ?? row.state_label}`}
                     data-portfolio-outcome-cell={`${site.site_code}|${category.category}|${row.tone}`}
                   >
-                    <b>{row.state_label}</b>
+                    <StatusPill state={row.state} label={row.state_label} />
                     {row.lead_outcome === null ? null : <small>{row.lead_outcome.label}</small>}
                   </Link>
                 </span>
@@ -342,11 +364,9 @@ export function OutcomeMatrix({ summary }: { summary: EstateOutcomeSummaryBody }
         ))}
       </div>
       <div className="oc-key" data-portfolio-outcome-key>
-        {OUTCOME_KEY.map(({ label, tone }) => (
-          <span key={label}>
-            <i className={`tone-${tone}`} aria-hidden="true"></i>
-            {label}
-          </span>
+        {/* UQ-FI-3: the key shows each state's pill, the same look as the cells. */}
+        {OUTCOME_KEY.map(({ state, label }) => (
+          <StatusPill key={label} state={state} label={label} />
         ))}
       </div>
     </>

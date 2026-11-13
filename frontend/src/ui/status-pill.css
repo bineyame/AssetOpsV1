@@ -1,0 +1,26 @@
+/* UQ-FI-3: the v7.2 sheet's status chip (`.chip` + `.s-*`), light theme only. Tokens in ui/tokens.css. */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--chip-height);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--status-pill-border);
+  background: var(--status-pill-bg);
+  color: var(--status-pill-text);
+  font-size: var(--font-size-100);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.status-pill__glyph,
+.status-pill__icon { width: 12px; height: 12px; flex: none; }
+.status-pill__icon { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.status-pill.s-complete { --status-pill-bg: var(--color-status-complete-bg); --status-pill-text: var(--color-status-complete-text); --status-pill-border: var(--color-status-complete-border); }
+.status-pill.s-partial { --status-pill-bg: var(--color-status-partial-bg); --status-pill-text: var(--color-status-partial-text); --status-pill-border: var(--color-status-partial-border); }
+.status-pill.s-noreadings { --status-pill-bg: var(--color-status-noreadings-bg); --status-pill-text: var(--color-status-noreadings-text); --status-pill-border: var(--color-status-noreadings-border); }
+.status-pill.s-notanalysed { --status-pill-bg: var(--color-status-notanalysed-bg); --status-pill-text: var(--color-status-notanalysed-text); --status-pill-border: var(--color-status-notanalysed-border); border-style: dashed; }
+.status-pill.s-neutral { --status-pill-bg: var(--color-status-neutral-bg); --status-pill-text: var(--color-status-neutral-text); --status-pill-border: var(--color-status-neutral-border); }
+.status-pill.s-accent { --status-pill-bg: var(--color-status-accent-bg); --status-pill-text: var(--color-status-accent-text); --status-pill-border: var(--color-status-accent-border); }

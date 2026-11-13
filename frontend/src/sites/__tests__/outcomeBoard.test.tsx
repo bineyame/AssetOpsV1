@@ -33,6 +33,18 @@ describe("OUT-B B5 Site outcome board", () => {
     expect(rowEl("OPTIMIZE_COST").textContent).toContain("Eliminate avoidable expenditure");
   });
 
+  it("uqfi3EveryRowStateIsTheOneStatusPill", async () => {
+    await renderBoard();
+    const rows = Array.from(document.querySelectorAll("[data-outcome-row]"));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const row of rows) {
+      const pills = row.querySelectorAll("[data-status-pill]");
+      expect(pills).toHaveLength(1);
+      expect(pills[0].getAttribute("data-status-pill")).toBe(row.getAttribute("data-outcome-state"));
+      expect(pills[0].className).toMatch(/^status-pill s-[a-z]+$/);
+    }
+  });
+
   it("opensOnlyNeedsAttentionRows", async () => {
     await renderBoard();
     expect(rowEl("OPTIMIZE_COST").tagName).toBe("DETAILS");
@@ -48,7 +60,7 @@ describe("OUT-B B5 Site outcome board", () => {
     const later = rowEl("ASSURE_PERFORMANCE");
     expect(later.tagName).toBe("DIV");
     expect(later.className).toBe("ob ob-later");
-    expect(later.querySelector(".oc-chip.tone-none")?.textContent).toBe("Not measured yet");
+    expect(later.querySelector('[data-status-pill="NOT_MEASURED"]')?.textContent).toBe("Not measured yet");
     expect(later.querySelector(".ob-head")?.textContent).toBe("Targets are not declared for this site");
     expect(later.querySelector(".ob-grid")).toBeNull();
     expect(later.querySelector(".ob-counts")).toBeNull();
@@ -284,7 +296,7 @@ describe("WALK1-3b Grow row: KPI state, performance and potential apart", () => 
     );
     await renderBoard({ status: "loaded", value: boardBody({ rows }) });
     const summary = rowEl("GROW_REVENUE").querySelector(".ob-sum") as HTMLElement;
-    const chips = Array.from(summary.querySelectorAll(".oc-chip")).map((c) => c.textContent);
+    const chips = Array.from(summary.querySelectorAll("[data-status-pill], .oc-chip")).map((c) => c.textContent);
     expect(chips).toEqual(["On track", "Opportunity"]);
     const potential = summary.querySelector("[data-outcome-potential]") as HTMLElement;
     expect(potential.className).toContain("tone-green");
@@ -300,7 +312,7 @@ describe("WALK1-3b Grow row: KPI state, performance and potential apart", () => 
     await renderBoard({ status: "loaded", value: boardBody({ rows }) });
     for (const row of [rowEl("GROW_REVENUE"), rowEl("OPTIMIZE_COST")]) {
       const summary = row.querySelector(".ob-sum") as HTMLElement;
-      expect(summary.querySelectorAll(".oc-chip")).toHaveLength(1);
+      expect(summary.querySelectorAll("[data-status-pill], .oc-chip")).toHaveLength(1);
       expect(summary.querySelector("[data-outcome-potential]")).toBeNull();
     }
   });
@@ -410,7 +422,7 @@ describe("CH-6a3 Grow parts", () => {
     const g = rowEl("GROW_REVENUE");
     const body = g.querySelector(".ob-body") as HTMLElement;
     expect(body.firstElementChild?.querySelectorAll("[data-outcome-part]")).toHaveLength(3);
-    expect(g.querySelectorAll("summary .oc-chip")).toHaveLength(1); // the state chip only; no second Grow chip (v70)
+    expect(g.querySelectorAll("summary [data-status-pill], summary .oc-chip")).toHaveLength(1); // the state chip only; no second Grow chip (v70)
   });
 
   it("alwaysShowsTheTargetPartWithNoTargetAndItsDaysLine", async () => {
