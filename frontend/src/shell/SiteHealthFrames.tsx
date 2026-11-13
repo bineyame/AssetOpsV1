@@ -16,6 +16,8 @@ import { EvHealthDepth } from "../sites/EvHealthDepth";
 import { createHealthClient, type HealthClient } from "../sites/healthClient";
 import { SiteBattery, SiteBatteryEntry, type BatteryHeader } from "../sites/SiteBattery";
 import { HealthLinksContext, SiteHealth, type HealthLinks } from "../sites/SiteHealth";
+import { createHealthRangeClient, type HealthRangeClient } from "../sites/healthRangeClient";
+import { SiteHealthRange } from "../sites/SiteHealthRange";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { siteSourceModeLabel } from "../sites/siteViewModel";
 import { Breadcrumbs, PageHeader, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
@@ -23,12 +25,15 @@ import { coldSiteRoutes, coldTabSearch } from "./coldSiteRoutes";
 import { siteAssetHref, siteAssetsHref, siteDetailHref, siteHealthHref, sitePerformanceHref } from "./operatorSiteRoutes";
 import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { RangeNotUsed } from "../ui/rangeFocus";
+import { RangeNotUsed, RangeSpan } from "../ui/rangeFocus";
+import { RangeLink as Link } from "../ui/RangeLink";
+import { focusDayOf, rangeWindow, readSharedRange } from "../ui/sharedRange";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 const DEFAULT_HEALTH = createHealthClient();
 const DEFAULT_COLD_DEPTH = createColdDepthClient();
 const DEFAULT_EV_DEPTH = createEvDepthClient();
+const DEFAULT_HEALTH_RANGE = createHealthRangeClient();
 const LINKS: HealthLinks = { health: siteHealthHref, assets: siteAssetsHref, asset: siteAssetHref };
 export const SITE_HEALTH_HEADING_ID = "site-health-heading";
 export const SITE_BATTERY_HEADING_ID = "site-battery-heading";
@@ -58,10 +63,13 @@ export function SiteHealthFrame({
   health = DEFAULT_HEALTH,
   coldDepth = DEFAULT_COLD_DEPTH,
   evDepth = DEFAULT_EV_DEPTH,
+  healthRange = DEFAULT_HEALTH_RANGE,
 }: {
   detail: SiteDetailClient;
   sitesPath: string;
   health?: HealthClient;
+  /** SR-6b: a mini-grid Site with a range in its address reads `/health-range`. */
+  healthRange?: HealthRangeClient;
   /** W5-01a C3: a COLDCHAIN Site renders `cold-health` from the selected `/cold/health` read. */
   coldDepth?: ColdDepthClient;
   /** W5-03b E4: an EV_CHARGING Site renders `ev-health` from the selected `/ev/health` read. */
@@ -104,16 +112,74 @@ export function SiteHealthFrame({
               /* W5-03b E4 (R60 withdrawn): v69 ev-health ends at Condition and evidence; no Data sources panel. */
               <EvHealthWithTabs siteId={site.site_id} window={coldWindowFromParams(params)} client={evDepth} />
             ) : (
-              <>
-                {/* MOCK DEVIATION R718/R719 (v71 Change 0b shows only "All pages"). SR-4c (D-SR.6, R719): mini-grid Health reads the server clock; the bar says the range is not used. */}
-                <RangeNotUsed note="shows now" />
-                <SiteHealth siteId={site.site_id} siteName={site.display_name} client={health} selectedGateway={gateway} />
-              </>
+              <MiniGridHealth
+                siteId={site.site_id}
+                siteName={site.display_name}
+                params={params}
+                health={health}
+                healthRange={healthRange}
+                gateway={gateway}
+              />
             )}
           </HealthLinksContext.Provider>
         </main>
       )}
     </SiteScoped>
+  );
+}
+
+/**
+ * SR-6b (rev 10 §10.2): mini-grid Health. With a range in the address it is the range page (the bar declares nothing:
+ * "All pages"); with `day=` too it is the same page for that one day (request `from=day&to=day+1`, the bar declares
+ * that day, "Back to the whole range"). The point-in-time panels follow as "Battery (current settings)" and "Contact
+ * now". Without a valid range it stays the point-in-time page and the bar says the range is not used (SR-4c).
+ * MOCK DEVIATION R724 (v69 `health:1/2` is current contact only).
+ */
+function MiniGridHealth({
+  siteId,
+  siteName,
+  params,
+  health,
+  healthRange,
+  gateway,
+}: {
+  siteId: string;
+  siteName: string;
+  params: URLSearchParams;
+  health: HealthClient;
+  healthRange: HealthRangeClient;
+  gateway: string | null;
+}) {
+  const range = readSharedRange(params);
+  if (range.status !== "set") {
+    return (
+      <>
+        {/* MOCK DEVIATION R718/R719 (v71 Change 0b shows only "All pages"). SR-4c (D-SR.6, R719): without a range, mini-grid Health reads the server clock; the bar says the range is not used. */}
+        <RangeNotUsed note="shows now" />
+        <SiteHealth siteId={siteId} siteName={siteName} client={health} selectedGateway={gateway} />
+      </>
+    );
+  }
+  const day = focusDayOf(params);
+  const window = rangeWindow(day === null ? range : { from: day, to: day });
+  return (
+    <>
+      {day === null ? null : (
+        <>
+          <RangeSpan from={day} to={day} />
+          <p className="health-range-back">
+            <Link to={siteHealthHref(siteId)}>Back to the whole range</Link>
+          </p>
+        </>
+      )}
+      <SiteHealthRange
+        siteCode={siteId}
+        query={{ from: window.from, to: window.to, known_at: range.known_at }}
+        drill={day !== null}
+        client={healthRange}
+      />
+      <SiteHealth siteId={siteId} siteName={siteName} client={health} selectedGateway={gateway} underRange />
+    </>
   );
 }
 
