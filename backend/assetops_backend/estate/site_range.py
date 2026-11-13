@@ -25,7 +25,7 @@ from assetops_backend.estate.portfolio import (
     operating_cost_card, progress, public, reduce_units, thread_progress, workflow_label)
 from assetops_backend.estate.range_days import (  # noqa: F401 - the state names are this module's wire values
     ANALYSED, GAP_STATES, NO_READINGS, NOT_ANALYSED, NOT_ENOUGH_READINGS, NOT_EXPECTED, READINGS_CONFLICT,
-    STATE_OF_REASON, STILL_PROCESSING, range_day_states)
+    STATE_OF_REASON, STILL_PROCESSING, one_site_scope, range_day_states)
 from assetops_backend.estate.scope import EstateRequest, wire_time
 from assetops_backend.site_outcomes.mini import CLOSED_LABELS
 from assetops_backend.site_overview.read import intersects
@@ -96,13 +96,12 @@ def _status(historical: bool, domain: str, cov: dict, e_domain: str, e_cov: dict
 
 
 def site_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateRequest) -> dict[str, Any] | None:
-    """The `site-range-overview-1` body, or None when the Site is not in the authorized imported set (route 404).
+    """The `site-range-overview-1` body, or None when the Site was not imported by the cutoff (route 404).
     Raises `RangeOverviewNotApplicable` for a Site that is not a mini-grid Site."""
-    admit = lambda code: code == site_code  # noqa: E731 - one-Site admit, the Portfolio's own scope rule
 
     def work(snap: Any) -> dict[str, Any] | None:
-        scope = service._scope(snap, tenant_id, req, admit)
-        if not scope["sites"]:
+        scope = one_site_scope(service, snap, tenant_id, req, site_code)
+        if not scope:
             return None
         site = scope["sites"][0]
         if DOMAIN_OF_SITE_TYPE.get(site["site_type"]) != MINI_GRID:

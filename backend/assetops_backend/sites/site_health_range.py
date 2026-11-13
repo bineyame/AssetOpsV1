@@ -24,7 +24,7 @@ from typing import Any, Callable
 
 from assetops_backend.estate.coverage import DOMAIN_OF_SITE_TYPE, MINI_GRID
 from assetops_backend.estate.index import select_finding_scope
-from assetops_backend.estate.range_days import GAP_STATES, NO_READINGS, NOT_EXPECTED, range_day_states
+from assetops_backend.estate.range_days import GAP_STATES, NO_READINGS, NOT_EXPECTED, one_site_scope, range_day_states
 from assetops_backend.estate.scope import EstateRequest, wire_time
 
 SCHEMA = "site-health-range-1"
@@ -80,13 +80,12 @@ def source_state(day_state: str, readings: int, after_cutoff: bool = False) -> s
 # (`valid_until`) or a readings arrival moves the watermark. Accepted; the point-in-time "Contact now" panel is the live view.
 def health_range_body(service: Any, tenant_id: Any, site_code: str, req: EstateRequest,
                       registration: Registration, counts: Counts) -> dict[str, Any] | None:
-    """The `site-health-range-1` body without `battery`, or None when the Site is not in the authorized imported set
+    """The `site-health-range-1` body without `battery`, or None when the Site was not imported by the cutoff
     (route 404). Raises `HealthRangeNotApplicable` for a Site that is not a mini-grid Site."""
-    admit = lambda code: code == site_code  # noqa: E731 - one-Site admit, the Portfolio's own scope rule
 
     def work(snap: Any) -> dict[str, Any] | None:
-        scope = service._scope(snap, tenant_id, req, admit)
-        if not scope["sites"]:
+        scope = one_site_scope(service, snap, tenant_id, req, site_code)
+        if not scope:
             return None
         site = scope["sites"][0]
         if DOMAIN_OF_SITE_TYPE.get(site["site_type"]) != MINI_GRID:
