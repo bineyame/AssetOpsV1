@@ -21,6 +21,7 @@ import { spawn } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { widthGuard } from "./evidence-checks.mjs";
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {
@@ -135,9 +136,11 @@ const MEASURE = `(() => {
 const SETTLED = `(() => document.readyState === "complete" &&
   !/\\bLoading (?:the|how|outcomes|evidence|financials|configured|shipped|saved|persisted)\\b/.test(document.body.innerText))`;
 
+let requireWidth = null;
 async function open(cdp, url, width, height = 900) {
   await cdp.send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: false });
   await cdp.send("Page.navigate", { url });
+  await requireWidth(width, height, `loaded ${url}`);
   const deadline = Date.now() + 45000;
   while (Date.now() < deadline) {
     const r = await cdp.send("Runtime.evaluate", { expression: SETTLED, returnByValue: true });
@@ -154,6 +157,7 @@ try {
   const ws = new WebSocket(await pageSocketUrl());
   await new Promise((resolve) => ws.addEventListener("open", resolve));
   const cdp = new Cdp(ws);
+  requireWidth = widthGuard({ send: (method, params) => cdp.send(method, params), claim: (name, ok) => { failed ||= !ok; } });
   await cdp.send("Page.enable");
   await cdp.send("Runtime.enable");
   await cdp.send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
@@ -163,6 +167,7 @@ try {
     for (const width of WIDTHS) {
       const m = await open(cdp, link.url, width);
       await cdp.send("Emulation.setDeviceMetricsOverride", { width, height: Math.min(m.height, 16000), deviceScaleFactor: 1, mobile: false });
+      await requireWidth(width, null, `capture ${link.name}`, { record: false });
       const shot = await cdp.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: true }, 120000);
       const file = `${nn}-${link.name}-${width}.png`;
       writeFileSync(join(outDir, file), Buffer.from(shot.data, "base64"));

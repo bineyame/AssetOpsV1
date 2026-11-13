@@ -33,11 +33,12 @@ describe("UQ-FI-3 StatusPill", () => {
       expect(el.getAttribute("data-status-pill")).toBe(state);
       expect(el.className).toBe(`status-pill s-${look}`);
       expect(el.textContent).toBe(label);
-      const svg = el.querySelector("svg");
-      if (glyph === null) expect(svg).toBeNull();
+      const mark = el.querySelector("[data-status-glyph]");
+      expect(el.querySelector("svg")).toBeNull(); // the check is CSS-drawn, never an inline svg
+      if (glyph === null) expect(mark).toBeNull();
       else {
-        expect(svg?.getAttribute("data-status-glyph")).toBe(glyph);
-        expect(svg?.getAttribute("aria-hidden")).toBe("true");
+        expect(mark?.getAttribute("data-status-glyph")).toBe(glyph);
+        expect(mark?.getAttribute("aria-hidden")).toBe("true");
       }
       expect(statusLook(state).look).toBe(look);
     });
@@ -60,6 +61,8 @@ describe("UQ-FI-3 StatusPill", () => {
     }
     // UQ-FI review H1: the On track check glyph is sized on its own rule (a dangling selector left it unsized).
     expect(css).toMatch(/(^|\n)\.status-pill__glyph \{[^}]*width: 12px;[^}]*height: 12px;/);
+    // The check itself is a CSS-drawn ::after (borders in the pill background), not an svg.
+    expect(css).toMatch(/\.status-pill__glyph::after \{[^}]*border: solid var\(--status-pill-bg\)/);
     // The sheet's "not analysed" chip is dashed: colour is never the only signal.
     expect(css).toMatch(/\.s-notanalysed \{[^}]*border-style: dashed/);
   });

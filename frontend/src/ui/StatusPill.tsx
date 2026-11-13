@@ -29,25 +29,17 @@ export function statusLook(state: string): { look: StatusLook; glyph: Glyph } {
   return Object.prototype.hasOwnProperty.call(LOOKS, state) ? LOOKS[state] : FALLBACK;
 }
 
-function GlyphSvg({ glyph }: { glyph: Glyph }) {
-  switch (glyph) {
-    case "check":
-      return (
-        <svg className="status-pill__glyph" viewBox="0 0 12 12" aria-hidden="true" data-status-glyph="check">
-          <circle cx="6" cy="6" r="5.5" fill="currentColor" />
-          <path d="M3.5 6.2l1.7 1.6L8.6 4.4" fill="none" stroke="var(--status-pill-bg)" strokeWidth="1.6" />
-        </svg>
-      );
-    default:
-      return null;
-  }
+/** The glyph is drawn in CSS (status-pill.css), not SVG: a filled disc with a check cut in the pill background. */
+function GlyphMark({ glyph }: { glyph: Glyph }) {
+  if (glyph === null) return null;
+  return <span className="status-pill__glyph" aria-hidden="true" data-status-glyph={glyph} />;
 }
 
 export function StatusPill({ state, label, className }: { state: string; label: string; className?: string }) {
   const { look, glyph } = statusLook(state);
   return (
     <span className={`status-pill s-${look}${className ? ` ${className}` : ""}`} data-status-pill={state}>
-      <GlyphSvg glyph={glyph} />
+      <GlyphMark glyph={glyph} />
       {label}
     </span>
   );
