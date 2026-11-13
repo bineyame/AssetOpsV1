@@ -49,6 +49,14 @@ function rows(route: string, path: string, sites: readonly MatrixSite[], cls: Ra
 /** An R page whose `?day=` is a one-day drill-in (SR-5b/5c): with a day the bar names it. */
 const DRILL_IN = { drillIn: "first-render" } as const;
 
+/**
+ * The legacy Foundation address's rows. Only the route table names that address, so the caller passes its route
+ * (`operatorSiteRoutes`); the ui leaf does not import shell code.
+ */
+export function legacyFoundationRows(route: string): RangeMatrixEntry[] {
+  return rows(route, route.slice(S.length), ALL, "N", "legacy address; forwards to the Foundation (configuration)", { forwards: true });
+}
+
 export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   // Overview
   ...rows(S, "", ["mini"], "R", "SR-5b: range-overview over the range; one day is the ?day= drill-in (D-SR.9)", { drillIn: "on-load" }),
@@ -59,7 +67,6 @@ export const RANGE_MATRIX: readonly RangeMatrixEntry[] = [
   ...rows(`${S}/foundation/:foundationView`, "/foundation/sld", ALL, "N", "a drawing of the configuration (D-SR.39)"),
   ...rows(`${S}/foundation/changes`, "/foundation/changes", ALL, "N", "an edit history of configuration; SR-13 OUT (D-SR.39)"),
   ...rows(`${S}/foundation/changes/:changeId`, "/foundation/changes/c1", ALL, "N", "one record (D-SR.30)"),
-  ...rows(`${S}/configuration`, "/configuration", ALL, "N", "legacy address; forwards to the Foundation (configuration)", { forwards: true }),
   // Evidence
   ...rows(`${S}/evidence`, "/evidence", ["mini", "ev"], "R", "the evidence ledger reads the range (rev 10.5)"),
   ...rows(`${S}/evidence`, "/evidence", ["cold"], "R", "the cold evidence page reads the window (rev 10.5)"),

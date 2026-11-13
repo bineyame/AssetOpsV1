@@ -430,8 +430,7 @@ export function SitePerformanceFrame({
           <SitePerformance
             siteId={site.site_id}
             client={analytics}
-            miniDepth={site.site_type === "MINIGRID" ? miniDepth : undefined}
-            rangeOverview={site.site_type === "MINIGRID" ? rangeOverview : undefined}
+            {...(site.site_type === "MINIGRID" ? { miniDepth, rangeOverview } : {})}
             profile={presentationProfileFor(site.site_type)}
             capabilityId={capabilityId}
             subtabHref={(id) => sitePerformanceHref(site.site_id, id)}

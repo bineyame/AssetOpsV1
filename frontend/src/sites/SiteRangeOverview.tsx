@@ -136,7 +136,7 @@ function quantityText(body: SiteRangeOverviewBody): string | null {
 
 /** "3 of 7", or an honest "Not available yet" when either count is missing (never "null of null"). */
 const analysedOfRequested = (a: number | null | undefined, r: number | null | undefined): string =>
-  a === null || a === undefined || r === null || r === undefined ? "Not available yet" : `${a} of ${r}`;
+  a === null || a === undefined || r === null || r === undefined ? "Count not known yet" : `${a} of ${r}`;
 
 const known = (n: number | null | undefined): string => (n === null || n === undefined ? "Not known yet" : String(n));
 

@@ -204,7 +204,7 @@ describe("SR-5b the range view", () => {
       }),
     );
     const text = (document.querySelector('[data-range-tile="days"]') as HTMLElement).textContent ?? "";
-    expect(text).toContain("Not available yet");
+    expect(text).toContain("Count not known yet");
     expect(text).not.toContain("null");
   });
 

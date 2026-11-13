@@ -23,8 +23,10 @@ import { EV_SITE } from "../../sites/__tests__/evWorkFixtures";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import type { SiteDetailReadModel } from "../../sites/siteReadModel";
-import { RANGE_MATRIX, type MatrixSite, type RangeMatrixEntry } from "../../ui/rangeMatrix";
+import { RANGE_MATRIX as BASE_MATRIX, legacyFoundationRows, type MatrixSite, type RangeMatrixEntry } from "../../ui/rangeMatrix";
 import * as ROUTES from "../operatorSiteRoutes";
+
+const RANGE_MATRIX = [...BASE_MATRIX, ...legacyFoundationRows(ROUTES.LEGACY_SITE_CONFIGURATION_ROUTE_PATH)];
 
 const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
 const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
