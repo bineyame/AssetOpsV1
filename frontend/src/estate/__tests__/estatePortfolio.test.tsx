@@ -51,6 +51,10 @@ import {
 import { withLinkRefs } from "../../test/linkRefs";
 
 const ENTRY = "/portfolio?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z";
+/** SR-4 D-SR.2: every Site link carries the address range; D-SR.57: a target's own from/to win, the address known_at is added. */
+const RANGE = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
+const KNOWN_Q = "known_at=2026-10-07T00%3A00%3A00Z";
+const ranged = (href: string, q: string = RANGE) => `${href}${href.includes("?") ? "&" : "?"}${q}`;
 /** PF-T: the same window on a section tab. */
 const tabEntry = (segment: string) => ENTRY.replace("/portfolio?", `/portfolio/${segment}?`);
 const ACT = tabEntry("act-first");
@@ -255,25 +259,25 @@ describe("estate Portfolio page", () => {
     });
     const heads = Array.from(matrix.querySelectorAll("[data-portfolio-matrix-site] a"));
     expect(heads.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
-      ["Kobo", "/sites/KOBO-001"],
-      ["GreenHarvest", COLD_EVENT_HREF],
-      ["Depot", "/sites/EV-LAB-001/ev"],
-      ["Harbour", "/sites/EV-LAB-002/ev"],
+      ["Kobo", ranged("/sites/KOBO-001", `${RANGE}&${KNOWN_Q}`)],
+      ["GreenHarvest", ranged(COLD_EVENT_HREF, KNOWN_Q)],
+      ["Depot", ranged("/sites/EV-LAB-001/ev", `${RANGE}&${KNOWN_Q}`)],
+      ["Harbour", ranged("/sites/EV-LAB-002/ev", `${RANGE}&${KNOWN_Q}`)],
     ]);
     expect(matrix.querySelectorAll("[data-portfolio-outcome-cell]")).toHaveLength(16);
     const cell = (code: string, cat: string) => matrix.querySelector(`[data-portfolio-outcome-cell^='${code}|${cat}|']`) as HTMLElement;
     expect(lines(cell("KOBO-001", "OPTIMIZE_COST"))).toBe("Needs attention Generator fuel");
     expect(cell("KOBO-001", "OPTIMIZE_COST").className).toBe("oc-cell tone-amber");
-    expect(cell("KOBO-001", "OPTIMIZE_COST").getAttribute("href")).toBe("/sites/KOBO-001");
+    expect(cell("KOBO-001", "OPTIMIZE_COST").getAttribute("href")).toBe(ranged("/sites/KOBO-001", `${RANGE}&${KNOWN_Q}`));
     // OUT-W: GreenHarvest was judged on its latest event, so its header and every cell open the Site on that window;
     // Depot (no event, judged on the period) opens with a plain link.
     expect(COLD_EVENT_HREF).toContain("?from=");
     const coldCells = Array.from(matrix.querySelectorAll("[data-portfolio-outcome-cell^='COLD-001|']"));
     expect(coldCells).toHaveLength(4);
-    for (const el of coldCells) expect(el.getAttribute("href")).toBe(COLD_EVENT_HREF);
+    for (const el of coldCells) expect(el.getAttribute("href")).toBe(ranged(COLD_EVENT_HREF, KNOWN_Q));
     const depotCells = Array.from(matrix.querySelectorAll("[data-portfolio-outcome-cell^='EV-LAB-001|']"));
     expect(depotCells).toHaveLength(4);
-    for (const el of depotCells) expect(el.getAttribute("href")).toBe("/sites/EV-LAB-001/ev");
+    for (const el of depotCells) expect(el.getAttribute("href")).toBe(ranged("/sites/EV-LAB-001/ev", `${RANGE}&${KNOWN_Q}`));
     expect(lines(cell("COLD-001", "GROW_REVENUE"))).toBe("Not measured yet Product sales");
     expect(cell("COLD-001", "GROW_REVENUE").className).toBe("oc-cell tone-none");
     expect(cell("EV-LAB-001", "ASSURE_PERFORMANCE").className).toBe("oc-cell tone-blue");
@@ -371,9 +375,9 @@ describe("estate Portfolio page", () => {
     ]);
     const priority = panel("Where management should act first");
     const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
-    expect(w1.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe("/sites/KOBO-001");
+    expect(w1.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe(ranged("/sites/KOBO-001", `${RANGE}&${KNOWN_Q}`));
     expect(w1.querySelector("[data-portfolio-finding-link]")?.getAttribute("href")).toBe(
-      "/sites/KOBO-001/findings/f1f1f1f1-0000-4000-8000-000000000001?revision_id=e1e1e1e1-0000-4000-8000-000000000001",
+      ranged("/sites/KOBO-001/findings/f1f1f1f1-0000-4000-8000-000000000001?revision_id=e1e1e1e1-0000-4000-8000-000000000001", `${RANGE}&${KNOWN_Q}`),
     );
     expect(within(priority).getByRole("link", { name: "Open all Findings →" }).getAttribute("href")).toBe(
       "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A00%3A00Z",
@@ -487,7 +491,8 @@ describe("estate Portfolio page", () => {
     );
     let links = within(opportunity).getAllByRole("link");
     expect(links.map((l) => text(l))).toEqual(["Review opportunity Finding →", "Inspect physical headroom →"]);
-    expect(links[0].getAttribute("href")).toBe(first.links.opportunity);
+    expect(links[0].getAttribute("href")).toBe(ranged(first.links.opportunity));
+    // D-SR.42(d): the server link names its own window, which wins; the address has no known_at to add.
     expect(links[1].getAttribute("href")).toBe(first.links.evidence);
     cleanup();
     renderAt(ENTRY, portfolioClient(loadedPortfolio(found([sized, first]))));
@@ -695,7 +700,7 @@ describe("estate Portfolio page", () => {
     expect(basisText).toContain("Evidence IDs: None selected");
     expect(basisText).toContain("Basis SHA-256: ab12cd34");
     expect(basisText).toContain("Reasons: WINDOW_SELECTED");
-    expect(within(footer()).getByRole("link", { name: "Inspect energy basis →" }).getAttribute("href")).toBe("/sites/EV-LAB-001/ev/evidence");
+    expect(within(footer()).getByRole("link", { name: "Inspect energy basis →" }).getAttribute("href")).toBe(ranged("/sites/EV-LAB-001/ev/evidence"));
     expect(text(footer().querySelector("[data-portfolio-footer-coverage]"))).toBe("Categories and windows remain separate.");
     view.unmount();
     // R12: no eligible footer line, and another applicable EV Site with UNKNOWN coverage.
@@ -818,14 +823,15 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     await settledScreen();
     const outcomes = panel("Outcomes across the estate");
     expect(outcomes.querySelectorAll("[data-portfolio-cell-link]")).toHaveLength(0);
-    for (const site of objectives) for (const c of site.cells) if (c.destination !== null) expect(outcomes.querySelector(`a[href='${c.destination}']`)).toBeNull();
+    for (const site of objectives) for (const c of site.cells) if (c.destination !== null) expect(outcomes.querySelector(`a[href^='${c.destination}']`)).toBeNull();
     const summary = outcomeSummaryBody();
     for (const site of summary.sites) {
       const cells = Array.from(outcomes.querySelectorAll(`[data-portfolio-outcome-cell^='${site.site_code}|']`));
       expect(cells).toHaveLength(4);
       for (const el of cells) {
         expect(el.tagName).toBe("A");
-        expect(el.getAttribute("href")).toBe(site.overview_href);
+        // D-SR.42(d): a server href with its own window keeps it; a bare one carries the address range.
+        expect(el.getAttribute("href")).toBe(site.overview_href.includes("from=") ? site.overview_href : ranged(site.overview_href));
       }
     }
     expect(text(outcomes)).not.toContain("No configured objective");
@@ -853,7 +859,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
     const evRow = priority.querySelector("[data-portfolio-row^='f3f3f3f3']") as HTMLElement;
     expect(evRow.querySelector("[data-portfolio-finding-link]")).toBeNull();
     expect(text(evRow)).toContain("Finding detail unavailable");
-    expect(evRow.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe("/sites/EV-LAB-001/ev");
+    expect(evRow.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe(ranged("/sites/EV-LAB-001/ev"));
   });
 
   it("rowWithoutLinkRefsRendersNoLinkWhateverItsLinksSay", async () => {
@@ -1093,7 +1099,7 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(text(tr)).not.toContain("No action yet");
     expect(text(tr.querySelectorAll("td")[5] as HTMLElement)).toBe("VerifiedReview finding");
     expect(tr.querySelectorAll("[data-portfolio-workflow]").length).toBe(1);
-    const anchor = Array.from(tr.querySelectorAll("a")).find((a) => a.getAttribute("href") === href);
+    const anchor = Array.from(tr.querySelectorAll("a")).find((a) => a.getAttribute("href") === ranged(href));
     expect(anchor?.textContent).toContain("Unexplained fuel overnight");
     // K8 coordinator ruling: the mechanism line names the recorded mechanism, never "Mechanism not recorded".
     expect(mechanismWords("UNEXPLAINED_FUEL")).toBe("Unexplained fuel overnight");

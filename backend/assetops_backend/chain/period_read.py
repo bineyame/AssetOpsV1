@@ -327,7 +327,8 @@ _ABSENT_SEEN = [0]
 
 
 def absent_count() -> int:
-    """Live absent (Site, day, kind) reads since process start (perf reports it; D-ANY.5 M1)."""
+    """Live absent reads since process start (perf reports it; D-ANY.5 M1). Units differ by kind: one per absent
+    (Site, day) for the other kinds, one per contiguous run of absent days for dispatch.day (D-ANY.10)."""
     return _ABSENT_SEEN[0]
 
 

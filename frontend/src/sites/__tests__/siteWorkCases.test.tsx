@@ -8,6 +8,8 @@
  * (`backend/tests/test_w401_site_indexes_postgres.py` COMMON/MAINTENANCE). The
  * IDs are test constants, not product seed.
  */
+import { entryRange } from "../../ui/sharedRange";
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -19,7 +21,6 @@ import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../
 import { settledScreen } from "../../test/settled";
 import type { SiteDetailClient, SiteDirectoryClient } from "../siteDirectoryClient";
 import { type WorkIndexBody, type WorkRow } from "../workClient";
-import { siteSevenDayWindow } from "../siteTime";
 import { WORK_CONTEXT_NOTICE, WORK_CONTEXT_NOTICE_DOMAIN, WORK_KIND_COPY, countWords, globalWorkManageHref, shortName, siteWindowText } from "../siteWorkCases";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { HYBRID_MINI_GRID_SITE } from "./sldFixtures";
@@ -362,7 +363,7 @@ describe("W4-01: Site > Work > Incidents", () => {
     expectSlots("sitework-incidents");
     const panel = panelTitled("Incidents at this site");
     const link = within(panel).getByRole("link", { name: `Finding ${FINDING.slice(0, 8)}` });
-    expect(link.getAttribute("href")).toBe(siteFindingHref("KOBO-001", FINDING, FINDING_REV));
+    expect(rangeless(link.getAttribute("href"))).toBe(siteFindingHref("KOBO-001", FINDING, FINDING_REV));
     expect(link.getAttribute("href")).toContain(`revision_id=${FINDING_REV}`);
     // A pin without selectable lineage is plain text: no dead link.
     const unlinked = panel.querySelector("[data-work-finding-unlinked]") as HTMLElement;
@@ -443,13 +444,11 @@ describe("W4-01: Site > Work > Maintenance", () => {
   });
 
   it("narrow_mock_panels_and_unavailable_links", async () => {
-    // post-W6 final-fix M1: a mini Site's first load with no window reads the seven full Site-local (EAT) days ending
-    // yesterday (SR-2), [local midnight today−7d, local midnight today), as UTC instants.
-    const w = siteSevenDayWindow("Africa/Addis_Ababa");
+    // SR-4 (D-SR.3, D-SR.41c): a bare address opens on the shared range (the entry range, Last 7 days) and Site
+    // Maintenance (R, D-SR.9) reads exactly that range, not R338's own default window.
+    const entry = entryRange();
+    const w = { from: entry.get("from") as string, to: entry.get("to") as string };
     expect(new Date(w.to).getTime() - new Date(w.from).getTime()).toBe(7 * 86_400_000);
-    expect(w.to.endsWith("T21:00:00Z")).toBe(true);
-    const now = new Date().toISOString();
-    expect(w.to <= now && Date.parse(now) - Date.parse(w.to) < 86_400_000).toBe(true); // SR-2: ends at local midnight today
     const requests = serve({
       [api("maintenance", w)]: { status: 200, body: body([]) },
       [api("incidents", w)]: { status: 200, body: body([]) },
@@ -554,12 +553,26 @@ describe("W4-01 fix r1: subtab counts, strip words and coverage copy", () => {
     cleanup();
     vi.unstubAllGlobals();
 
-    // Actions with no selected window requests no counts at all.
+    // SR-4 (D-SR.40): a bare address opens on the shared range, so Actions reads `action-index` once, with the
+    // range's from/to (the unserved read is refused, so every count stays unknown, a dash and never 0).
     const idle = serve({});
     mount("/sites/KOBO-001/work");
     await settledScreen();
+    const entry = entryRange();
     expect(labels()).toEqual(["Actions (—)", "Incidents (—)", "Maintenance (—)"]);
-    expect(idle).toEqual([]);
+    expect(idle).toEqual([`/api/sites/KOBO-001/action-index?from=${entry.get("from")}&to=${entry.get("to")}`]);
+    const rangeQ = `from=${entry.get("from")}&to=${entry.get("to")}&limit=1`;
+    expect(countRequests.filter((r) => r.includes("action-index"))).toEqual([`/api/sites/KOBO-001/action-index?${rangeQ}`]);
+    expect([...countRequests].sort()).toEqual(
+      [`/api/sites/KOBO-001/action-index?${rangeQ}`, `/api/sites/KOBO-001/work/incidents?${rangeQ}`, `/api/sites/KOBO-001/work/maintenance?${rangeQ}`].sort(),
+    );
+    // An invalid (one-sided) address range reads nothing and requests no counts at all.
+    cleanup();
+    vi.unstubAllGlobals();
+    const none = serve({});
+    mount(`/sites/KOBO-001/work?from=${encodeURIComponent(DAY.from)}`);
+    await settledScreen();
+    expect(none).toEqual([]);
     expect(countRequests).toEqual([]);
     cleanup();
     vi.unstubAllGlobals();
@@ -673,7 +686,7 @@ describe("W4-03 unit 8: Site Work decision context", () => {
     const findingEl = linkedCell.querySelector("[data-work-finding]") as HTMLElement;
     const context = linkedCell.querySelector("[data-work-decision-context='loaded']") as HTMLElement;
     expect(findingEl.compareDocumentPosition(context) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(within(linkedCell).getByRole("link", { name: "OPP-000001" }).getAttribute("href")).toBe(
+    expect(rangeless(within(linkedCell).getByRole("link", { name: "OPP-000001" }).getAttribute("href"))).toBe(
       `/sites/KOBO-001/opportunities/${OPP}`,
     );
     expect(within(linkedCell).queryByRole("link", { name: /SCN-000002/ })).toBeNull();
@@ -865,16 +878,19 @@ describe("post-W6 W4 R320/R322/R324: mini Work in Site time, plain refusals and 
     expect(text(strip())).not.toContain("UTC+3");
   });
 
-  it("final-fix M1: a bare mini address reads and names its seven Site-local default days (this page's default)", async () => {
-    // 26 Oct 22:30Z is already 27 Oct 01:30 in EAT: today is the 27th at the Site.
+  it("final-fix M1 (SR-4, D-SR.3): a bare mini address opens on the shared range and names its days in UTC-day wording", async () => {
+    // Fixed clock: the entry range is the seven UTC days ending yesterday (19 to 25 Oct). Site Work pages now open on
+    // the shared range, not on R338's own Site-local default (rev 8, 8.2).
     vi.useFakeTimers({ toFake: ["Date"] });
     vi.setSystemTime(new Date("2026-10-26T22:30:00Z"));
     try {
-      const W = { from: "2026-10-19T21:00:00Z", to: "2026-10-26T21:00:00Z" }; // SR-2: ends at local midnight today (27 Oct)
+      const W = { from: "2026-10-19T00:00:00Z", to: "2026-10-26T00:00:00Z" };
       const requests = serve({ [api("incidents", W)]: { status: 200, body: body([]) } });
       mount("/sites/KOBO-001/work/incidents");
       await settledScreen();
-      await vi.waitFor(() => expect(text(document.querySelector(".w1f4-work-window"))).toBe("Days shown: 20 Oct to 26 Oct (EAT, last day included), this page's default. Choose other days in the date range at the top."));
+      await vi.waitFor(() =>
+        expect(text(document.querySelector(".w1f4-work-window"))).toBe("Days shown: 19 Oct to 25 Oct (UTC days, last day included), from the date range at the top."),
+      );
       expect(requests).toEqual([api("incidents", W)]);
     } finally {
       vi.useRealTimers();

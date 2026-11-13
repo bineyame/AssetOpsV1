@@ -322,7 +322,10 @@ describe("EV Site Actions tab (v69 ev-work)", () => {
     const w1 = main.querySelector(`[data-domain-work-row="${EV_W1_ID}"]`) as HTMLElement;
     const cells = Array.from(w1.querySelectorAll("td"));
     expect(text(cells[0].querySelector("a"))).toBe("ACT-060");
-    expect(cells[0].querySelector("a")?.getAttribute("href")).toBe(`/sites/${EV_SITE_CODE}/actions/${EV_W1_ID}`);
+    // SR-4 D-SR.2: the W1 link carries the address range (workPath's default triple).
+    expect(cells[0].querySelector("a")?.getAttribute("href")).toBe(
+      `/sites/${EV_SITE_CODE}/actions/${EV_W1_ID}?from=${encodeURIComponent(EV_FROM)}&to=${encodeURIComponent(EV_TO)}&known_at=${encodeURIComponent(EV_KNOWN)}`,
+    );
     expect(text(cells[4])).toBe("Accepted · not applied");
     expect(text(cells[5])).toBe("No success criterion declared");
     expect(text(main.querySelector("[data-site-work-scope]"))).toBe("Scoped to EV · 2 actions");

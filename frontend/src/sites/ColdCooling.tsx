@@ -6,7 +6,7 @@
  * recovery time or difference; `Recovery curves` lists the selected first observations only (no chart).
  */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { AttentionList, Badge, DataTable, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
 import type { ColdRead, ColdWindowQuery } from "./coldAssessmentClient";
 import {

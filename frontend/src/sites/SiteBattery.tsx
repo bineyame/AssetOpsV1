@@ -11,7 +11,7 @@
  * configuration; an ID outside it is a typed refusal, never a row.
  */
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import {
   AttentionList,

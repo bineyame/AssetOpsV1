@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { formatDay } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { siteTime, siteZoneAvailable, siteZoneLabel } from "./siteTime";
 

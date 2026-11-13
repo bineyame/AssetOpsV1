@@ -74,6 +74,51 @@ def test_select_days_works_without_a_days_store() -> None:
     assert me.for_finding_on(None, uuid4(), uuid4(), "f-1", K)["pending_reasons"] == ["AS_OF_GATE_NOT_WIRED"]
 
 
+D2 = date(2026, 10, 25)
+HEAD2 = {**HEAD, "episode_start": datetime(2026, 10, 24, 22, tzinfo=timezone.utc),
+         "episode_end": datetime(2026, 10, 25, 2, tzinfo=timezone.utc)}  # the 6 h bracket spans D and D2
+
+
+class Findings2(Findings):
+    def index_snapshot_on(self, c, t, s, domain, analytic, known_at):
+        return {**super().index_snapshot_on(c, t, s, domain, analytic, known_at), "heads": [HEAD2]}
+
+    def index_lineage_on(self, c, t, s, revs, known_at):
+        return {"assessments": [{"assessment_revision_id": "win-24", "scope": "WINDOW"},
+                                {"assessment_revision_id": "win-25", "scope": "WINDOW"}]}
+
+
+def compose_day(d):
+    start = datetime(d.year, d.month, d.day, tzinfo=timezone.utc)
+    return {**stored_day(), "day": d, "window_start": start, "window_end": start.replace(day=d.day + 1)}
+
+
+class HistoricalSnap:
+    """An `EstateSnapshot`-like stub: a historical basis whose compose gives both days."""
+    basis_historical = True
+    continuation = False
+
+    def dispatch_days(self, t, s, from_, to, k):
+        return [compose_day(D), compose_day(D2)]
+
+
+def test_absent_run_in_the_bracket_equals_compose_and_kill_switch_equals_compose(monkeypatch) -> None:
+    """DISP-1 review Low: the adapter's `select_days` (coverage.dispatch_days) over one stored day plus one absent run
+    (D-ANY.10) gives the `select_days=None` compose result; so does a provider that serves no kind (None)."""
+    from assetops_backend.chain.dispatch_day_rows import ABSENT_MARK
+    from assetops_backend.estate import coverage
+    snap, t, s = HistoricalSnap(), uuid4(), uuid4()
+    absent = {**compose_day(D2), ABSENT_MARK: True, "selection": None, "status": "UNASSESSED", "jobs": []}
+    served = [compose_day(D), absent]
+    me = MoneyEligibility(None, Findings2(), days=Days([compose_day(D), compose_day(D2)]))
+    oracle = me.for_finding_on(None, t, s, "f-1", K)
+    assert oracle["state"] == ELIGIBLE
+    for provided in (served, None):
+        monkeypatch.setattr(coverage, "dispatch_rows_provider", lambda *a, _p=provided: _p)
+        got = me.for_finding_on(None, t, s, "f-1", K, select_days=lambda f, to: coverage.dispatch_days(snap, t, s, f, to, K))
+        assert got == oracle
+
+
 def test_short_day_list_fails_closed() -> None:
     out, _, _ = gate([stored_day()], [])
     assert out["state"] == PENDING_REASSESSMENT

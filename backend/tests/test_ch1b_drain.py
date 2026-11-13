@@ -196,7 +196,8 @@ def _ev(type_: str, subject: dict) -> Event:
 
 MINI = SiteInfo("MINIGRID", "UTC")
 #: ANY-1 AR-2: the stored mini depth kinds a mini reading also dirties (`event-register-v1.yaml` kinds).
-MINI_KINDS = ("mini_depth.backup", "mini_depth.fuel", "mini_depth.renewable", "mini_depth.service")
+MINI_KINDS = ("mini_depth.backup", "mini_depth.backup_day", "mini_depth.fuel", "mini_depth.fuel_day", "mini_depth.renewable",
+              "mini_depth.service")  # SR-10a: the two whole-day kinds
 READING = {"roles": ["feeder_demand"], "span": ["2026-10-27T08:00:00Z", "2026-10-27T09:00:00Z"]}
 
 
@@ -205,7 +206,7 @@ def test_consume_is_idempotent_and_marks_once() -> None:
     register = load_event_register()
     first = consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 10)
     second = consume(port, register, "snapshots", TENANT, SITE_ID, MINI, 10)
-    assert (first.consumed, first.marked, second.consumed) == (1, 6, 0)
+    assert (first.consumed, first.marked, second.consumed) == (1, 2 + len(MINI_KINDS), 0)
     assert port.marks == [(DAY, m) for m in sorted(("dispatch.day", *MINI_KINDS, "productive_kwh"))]  # AR-2/AR-3 kinds share the queue
 
 

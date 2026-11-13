@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { safeReturn } from "../sites/PriceAction";
 import { createPriceEntryClient, type PriceEntryClient } from "../sites/priceEntryClient";
@@ -18,6 +19,7 @@ import {
   sitePricesHref,
 } from "./operatorSiteRoutes";
 import { SiteScoped } from "./SiteAnalyticsFrames";
+import { useDeclareRangeNotUsed } from "../ui/rangeFocus";
 
 export const SITE_PRICES_HEADING_ID = "site-prices-heading";
 /** The plain sign-in line (owner 2026-11-11; rev 5). The page shows the server's copy; this one is for tests. */
@@ -152,6 +154,8 @@ export function SitePricesFrame({
   entryClient?: PriceEntryClient;
   renderBelow?: (row: PriceRowBody) => ReactNode;
 }) {
+  // SR-4c (D-SR.6): the price page lists the prices valid now; the bar says the range is not used.
+  useDeclareRangeNotUsed("prices valid now");
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
   return (

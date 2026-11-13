@@ -14,8 +14,10 @@
  * Demonstration-data notes sit apart from the accepted-record provenance.
  */
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { FocusPicker } from "../ui/FocusPicker";
+import { pageDay } from "../ui/sharedRange";
 
 import {
   ChartNote,
@@ -84,10 +86,6 @@ const CLASS_FILL: Record<string, string> = {
   INDETERMINATE: "unknown",
 };
 
-function todayUtc(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function outcome(level: string): string {
   return OUTCOME_WORDS[level] ?? level;
 }
@@ -105,7 +103,9 @@ export function PerformanceDispatch({
   findingHref?: (findingId: string) => string;
 }) {
   const [params, setParams] = useSearchParams();
-  const day = isDay(params.get("day")) ? (params.get("day") as string) : todayUtc();
+  // SR-4b (D-SR.4): `day=`, else the shared range's last day, never today when today is outside the range. The
+  // Kisiwa night window (`finding-windows/<day>`) reads the same day.
+  const day = isDay(params.get("day")) ? (params.get("day") as string) : pageDay(params);
   const revisionId = params.get("revision");
   const view = localView(params);
   const [cutover, setCutover] = useState<EvidenceRead<CutoverState> | null>(null);

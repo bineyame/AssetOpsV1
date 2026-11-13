@@ -4,6 +4,7 @@
  * positive, filtered, historical, zero, 503, 409 and long-body states are captured against the real API in
  * `.agent/W6-01-evidence/E2/`.
  */
+import { rangeless } from "../../test/rangeless";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -285,7 +286,7 @@ describe("W6-01e E2: global Operational records", () => {
     expect(text(cell(first, 0).querySelector("[data-global-work-source] summary"))).toBe("Source not checked");
     expect(text(cell(first, 1))).toBe("Shift note");
     expect(cell(first, 1).querySelector(".v69-chip, .w1f4-action-badge")).toBeNull();
-    expect(within(cell(first, 2)).getByRole("link", { name: "Kobo" })).toHaveAttribute("href", "/sites/KOBO-001");
+    expect(rangeless((within(cell(first, 2)).getByRole("link", { name: "Kobo" }))?.getAttribute("href") ?? "")).toBe("/sites/KOBO-001");
     expect(text(cell(first, 3))).toBe("18 Oct 2026, 09:00");
     expect(text(cell(first, 4))).toBe("Prepared example record");
     expect(cell(first, 4).querySelector("[data-global-work-actor]")?.getAttribute("data-global-work-actor")).toBe("service:w401-fixture");

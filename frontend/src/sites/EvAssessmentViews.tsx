@@ -1,7 +1,7 @@
 import { ROADMAP_WORDS } from "../ui/productWords";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import {
   Badge,

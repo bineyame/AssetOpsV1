@@ -10,7 +10,7 @@
  * recorded on work cases. No mock case or ID is rendered.
  */
 import { displayCode } from "../ui/displayCode";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { CellDisclosure } from "./CellDisclosure";
 import { stateTone } from "../sites/siteWorkCases";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";

@@ -7,7 +7,7 @@
  * Finding and defers "theft detection" (index.html:630).
  */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, BigClaim, Panel, StatusBar } from "../ui";
 import type { FuelBalanceClient, FuelFindingBody, FuelFindingRow } from "./fuelBalanceClient";

@@ -12,7 +12,7 @@
 import { Fragment, useState, type FormEvent, type ReactNode } from "react";
 import { formatDayTime } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, DataTable, Disclosure, ExactReferences, Fact, FactList, MissingClaim, Panel } from "../ui";
 import type {

@@ -1,4 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { useLinkFor, type Ref } from "./chainRef";
 import "./priceAction.css";
 

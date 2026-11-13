@@ -318,6 +318,21 @@ def test_coverage_pending_and_absent_rows(served, monkeypatch) -> None:
     assert snap.compose_calls == 1  # all rows stored: no further compose
 
 
+def test_coverage_stored_pending_day_beside_an_absent_run(served, monkeypatch) -> None:
+    """FIX-AR3 review Low: D2 stored but dirty (PENDING) next to D3 absent: D2 keeps the synthetic pending job and is
+    never composed; D3 is composed once as its own run (D-ANY.10)."""
+    k = datetime(2026, 10, 23, 9, tzinfo=UTC)
+    store, _ = _built({D1: compose_day(D1, k=k), D2: compose_day(D2, k=k)})
+    store.dirty.append((KOBO.site_id, D2, ddr.KIND))
+    d3 = compose_day(D3, k=k)
+    snap = Snap([d3])
+    out = _coverage(snap, monkeypatch, _provider(store))
+    assert snap.compose_calls == 1
+    assert out["state"] == "PENDING_RECOMPUTE" and out["job_state"] == "PENDING"
+    oracle = _coverage(Snap([compose_day(D1, k=k), compose_day(D2, k=k, status="PENDING"), d3]), monkeypatch, None)
+    assert out["days"] == oracle["days"]
+
+
 def test_explicit_cutoff_reads_rows_by_k(served, monkeypatch) -> None:
     seen = []
 

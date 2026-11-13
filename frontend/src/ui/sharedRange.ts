@@ -11,7 +11,7 @@
  * in `SharedRangeBar.tsx`).
  */
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, type To } from "react-router-dom";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** The longest range any shared-range page accepts (estate and Work: 1-31 days). */
@@ -123,6 +123,8 @@ export function readSharedRange(params: URLSearchParams, now: number = Date.now(
   if (froms.length !== 1 || tos.length !== 1) return { status: "invalid" };
   const from = boundDay(froms[0], false);
   const to = boundDay(tos[0], true);
+  // Compare the raw instants before rounding to days: a reversed hour pair (09:00 to 08:00) rounds to one valid day.
+  if (INSTANT.test(tos[0]) && Date.parse(tos[0]) <= Date.parse(froms[0])) return { status: "invalid" };
   if (from === null || to === null || from > to || rangeDays({ from, to }) > RANGE_MAX_DAYS) return { status: "invalid" };
   const knowns = params.getAll("known_at");
   if (knowns.length > 1) return { status: "invalid" };
@@ -150,14 +152,66 @@ export function rangeSearch(params: URLSearchParams): string {
   return state.status === "set" ? `?${rangeParams(state).toString()}` : "";
 }
 
-/** An in-app path with the current shared range added. A path that names its own range keeps it. */
+/**
+ * An in-app path with the current shared range added, per key (D-SR.42d, D-SR.57 L3): a path's own `from`, `to` and
+ * `known_at` win. A path that names its own `from`/`to` keeps them and, when it names no `known_at`, gets the
+ * address's `known_at` (a drill-in from a range pinned to a cutoff reads at the same cutoff).
+ */
 export function withRange(path: string, params: URLSearchParams): string {
   const search = rangeSearch(params);
   if (search === "") return path;
   const [pathname, query = ""] = path.split("?", 2);
   const own = new URLSearchParams(query);
-  if (own.has("from") || own.has("to")) return path;
-  return query === "" ? `${pathname}${search}` : `${pathname}?${query}&${search.slice(1)}`;
+  if (own.has("from") || own.has("to")) {
+    const known = new URLSearchParams(search).get("known_at");
+    if (own.has("known_at") || known === null) return path;
+    return `${path}&${new URLSearchParams({ known_at: known }).toString()}`;
+  }
+  // A target that names its own cutoff keeps it; the range's `known_at` is not added a second time.
+  const carried = new URLSearchParams(search);
+  if (own.has("known_at")) carried.delete("known_at");
+  const add = carried.toString();
+  return query === "" ? `${pathname}?${add}` : `${pathname}?${query}&${add}`;
+}
+
+/** SR-4a (D-SR.2): the in-app paths whose links carry the shared range: the Sites index, every Site page and `/performance/...`. */
+export const SITE_PATH = /^\/(?:sites(?:\/.*)?|performance\/.+)$/;
+
+/**
+ * SR-4a (D-SR.2): a link target with the address's shared range added when it is a Site path (`SITE_PATH`). A target
+ * that names its own `from`/`to` keeps them; a relative or non-Site target, or an address without a valid range, is
+ * returned unchanged. Only `from`, `to` and `known_at` travel, never page-only parameters (`day`, `hour`, `event`,
+ * `cursor`). A `#hash` stays after the query.
+ */
+export function carryRange(to: To, params: URLSearchParams): To {
+  if (rangeSearch(params) === "") return to;
+  if (typeof to === "string") {
+    const hashAt = to.indexOf("#");
+    const head = hashAt < 0 ? to : to.slice(0, hashAt);
+    const hash = hashAt < 0 ? "" : to.slice(hashAt);
+    if (!SITE_PATH.test(head.split("?", 1)[0])) return to;
+    return `${withRange(head, params)}${hash}`;
+  }
+  const pathname = to.pathname;
+  if (pathname === undefined || !SITE_PATH.test(pathname)) return to;
+  const search = to.search ?? "";
+  const carried = withRange(`${pathname}${search.startsWith("?") || search === "" ? search : `?${search}`}`, params);
+  const at = carried.indexOf("?");
+  return { ...to, search: at < 0 ? "" : carried.slice(at) };
+}
+
+/**
+ * SR-4a (D-SR.3): the Site content pages the shell's safety net completes when their address has no range: the
+ * Site Overview, Performance, Findings, Evidence, Work, Financials, Health and every `/ev/...` page. Record pages, the
+ * Foundation, Prices and the Sites index are left as they are (their links still carry the range).
+ */
+const SITE_CONTENT_PAGES =
+  /^\/sites\/[^/]+(?:\/(?:performance(?:\/[^/]+)?|findings|evidence|work(?:\/(?:incidents|maintenance))?|financials(?:\/(?:assumptions|scenarios))?|health|ev(?:\/.*)?))?\/?$/;
+export const isSiteContentPage = (pathname: string): boolean => SITE_CONTENT_PAGES.test(pathname);
+
+/** SR-4a (D-SR.3): the 7 days ending on `day` (the safety net's range for an address that names a day and no range). */
+export function weekEnding(day: string): DayRange {
+  return { from: dayOf(dayMs(day) - 6 * DAY_MS), to: day };
 }
 
 /** SR.3: the shared range of the current address. */
@@ -210,6 +264,23 @@ export function focusDayOf(params: URLSearchParams): string | null {
   if (day !== null && validDay(day)) return day;
   const legacy = params.get(LEGACY_FOCUS_DAY);
   return legacy !== null && validDay(legacy) ? legacy : null;
+}
+
+/**
+ * SR-4b (D-SR.4): the day a one-day page shows: a valid `day` (or legacy `date`), else the address range's last day,
+ * else today's UTC day (reached only when the address has no valid range).
+ */
+export function pageDay(params: URLSearchParams, now: number = Date.now()): string {
+  const focus = focusDayOf(params);
+  if (focus !== null) return focus;
+  const state = readSharedRange(params, now);
+  return state.status === "set" ? state.to : dayOf(now);
+}
+
+/** SR-4b: the address range when it is valid, else `null`. */
+export function addressRange(params: URLSearchParams, now: number = Date.now()): DayRange | null {
+  const state = readSharedRange(params, now);
+  return state.status === "set" ? { from: state.from, to: state.to } : null;
 }
 
 /** The address with the page's day set (as `day`, the legacy `date` dropped); `null` removes it. */

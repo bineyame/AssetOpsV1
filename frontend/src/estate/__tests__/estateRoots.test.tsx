@@ -66,6 +66,12 @@ function renderAt(entry: string, client: EstateClient) {
 }
 
 const WINDOW = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
+/** SR-4 D-SR.2: every Site link carries the address range (the page address has no known_at here). */
+function ranged(href: string): string;
+function ranged(href: string | null): string | null;
+function ranged(href: string | null): string | null {
+  return href === null ? null : `${href}${href.includes("?") ? "&" : "?"}${WINDOW}`;
+}
 
 function location(): string {
   return decodeURIComponent(screen.getByTestId("location").textContent ?? "");
@@ -133,8 +139,8 @@ describe("W3-01 estate roots", () => {
     const headers = screen.getAllByRole("columnheader").map((h) => h.textContent);
     expect(headers).toEqual(["Finding", "Site", "Priority", "Confidence", "State", "Main consequence", "Lens"]);
     const links = screen.getAllByText("Stored finding title 2");
-    expect(links[0].getAttribute("href")).toBe(priced.links.finding);
-    expect(screen.getAllByText("KOBO-001")[0].getAttribute("href")).toBe("/sites/KOBO-001");
+    expect(links[0].getAttribute("href")).toBe(ranged(priced.links.finding));
+    expect(screen.getAllByText("KOBO-001")[0].getAttribute("href")).toBe(ranged("/sites/KOBO-001"));
     expect(main().textContent).toContain("120.00–180.00 USD");
     expect(main().textContent).toContain("Not in any category");
     // POLISH §3.1: "Finding <uuid> · revision <uuid>" sits only inside Technical details.
@@ -167,8 +173,8 @@ describe("W3-01 estate roots", () => {
     const actionRows = Array.from(actionsMain.querySelectorAll("tbody tr")) as HTMLElement[];
     expect(actionRows).toHaveLength(3);
     const first = actionRows[0];
-    expect(within(first).getByText("Action ACT-000001").getAttribute("href")).toBe(actionRow().links.action);
-    expect(within(first).getByText("Source finding").getAttribute("href")).toBe(actionRow().links.source);
+    expect(within(first).getByText("Action ACT-000001").getAttribute("href")).toBe(ranged(actionRow().links.action));
+    expect(within(first).getByText("Source finding").getAttribute("href")).toBe(ranged(actionRow().links.source));
     for (const [row, name, code] of [
       [actionRows[0], "Kobo Mini-grid", "KOBO-001"],
       [actionRows[1], "Cold Store", "COLD 7/a"],
@@ -176,7 +182,7 @@ describe("W3-01 estate roots", () => {
     ] as const) {
       const siteAnchor = within(row).getByText(name);
       expect(siteAnchor.tagName).toBe("A");
-      expect(siteAnchor.getAttribute("href")).toBe(`/sites/${encodeURIComponent(code)}`);
+      expect(siteAnchor.getAttribute("href")).toBe(ranged(`/sites/${encodeURIComponent(code)}`));
       expect(within(row).getByText(code).closest("a")).toBeNull();
     }
     const actionHrefs = Array.from(actionsMain.querySelectorAll("a")).map((a) => a.getAttribute("href") ?? "");
@@ -200,7 +206,7 @@ describe("W3-01 estate roots", () => {
     expect(inert.tagName).toBe("SPAN");
     expect(inert.closest("a")).toBeNull();
     expect(rows[1].querySelector("[data-estate-finding-link]")).toBeNull();
-    expect(within(rows[1]).getByText("COLD-1").getAttribute("href")).toBe("/sites/COLD-1");
+    expect(within(rows[1]).getByText("COLD-1").getAttribute("href")).toBe(ranged("/sites/COLD-1"));
     expect(rows[1].querySelector("details")).not.toBeNull();
     expect(main().querySelector("[data-estate-notice]")?.textContent).toBe(`${FINDINGS_NOTICE} ${FINDINGS_LINKED_NOTICE}`);
     view.unmount();
@@ -241,7 +247,7 @@ describe("W3-01 estate roots", () => {
     const row = main().querySelector("tbody tr") as HTMLElement;
     const title = within(row).getByText("Unexplained fuel overnight");
     expect(title.tagName).toBe("A");
-    expect(title.getAttribute("href")).toBe(href);
+    expect(title.getAttribute("href")).toBe(ranged(href));
     expect(row.textContent).toContain("41.25–57.75 USD");
     expect(row.textContent).not.toContain("Finding detail unavailable");
     const { violations } = scanProductVocabulary(main(), "estate fuel row");
@@ -582,8 +588,8 @@ describe("W3-01 estate roots", () => {
       expect(actionText).toContain(words);
     }
     expect(screen.getAllByText("Not set").length).toBeGreaterThanOrEqual(3);
-    expect(screen.getAllByText("Action ACT-000001")[0].getAttribute("href")).toBe(actionRow().links.action);
-    expect(screen.getAllByText("Source finding")[0].getAttribute("href")).toBe(actionRow().links.source);
+    expect(screen.getAllByText("Action ACT-000001")[0].getAttribute("href")).toBe(ranged(actionRow().links.action));
+    expect(screen.getAllByText("Source finding")[0].getAttribute("href")).toBe(ranged(actionRow().links.source));
     view.unmount();
 
     // Refusals through the real client: exact UI copy; a 409/422 cursor refusal offers page one.
@@ -699,7 +705,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
       await settledScreen();
       const trs = Array.from(main().querySelectorAll("tbody tr")) as HTMLElement[];
       expect(trs).toHaveLength(3);
-      expect(trs[0].querySelector("[data-estate-finding-link]")?.getAttribute("href")).toBe(rows[0].links.finding);
+      expect(trs[0].querySelector("[data-estate-finding-link]")?.getAttribute("href")).toBe(ranged(rows[0].links.finding));
       expect(trs[1].querySelector("[data-estate-finding-link]")?.getAttribute("href")).toBe(coldLink(2));
       expect(trs[1].querySelector("[data-estate-finding-unavailable]")).toBeNull();
       // The unprovable EV link is never followed (it would 404): inert title with the labelled unavailable detail.
@@ -707,7 +713,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
       expect(trs[2].querySelector("[data-estate-finding-inert]")?.textContent).toBe("Stored finding title 3");
       expect(trs[2].querySelector("[data-estate-finding-unavailable]")?.textContent).toBe("Finding detail unavailable");
       expect(main().querySelector("a[href*='revision_id=r3']")).toBeNull();
-      expect(trs[2].querySelector("[data-estate-site-link]")?.getAttribute("href")).toBe("/sites/EV-02/ev");
+      expect(trs[2].querySelector("[data-estate-site-link]")?.getAttribute("href")).toBe(ranged("/sites/EV-02/ev"));
       expect(main().querySelector("[data-estate-notice]")?.textContent).toContain(FINDINGS_LINKED_NOTICE);
       view.unmount();
     }
@@ -1058,7 +1064,7 @@ describe("CH-4 estate Findings opportunities", () => {
     const items = Array.from(list()!.querySelectorAll("li"));
     expect(items).toHaveLength(2);
     const [first, second] = items;
-    expect(within(first as HTMLElement).getByRole("link", { name: "Daytime solar unused at Kobo" })).toHaveAttribute("href", ITEM.links.opportunity);
+    expect(within(first as HTMLElement).getByRole("link", { name: "Daytime solar unused at Kobo" })).toHaveAttribute("href", ranged(ITEM.links.opportunity));
     expect(Array.from(first.querySelectorAll("small")).map((x) => x.textContent)).toEqual([
       "Seen on 2 of 4 well-observed days · 28 Oct–1 Nov",
       "Limited evidence: readings come from mixed sources, so the size is not worked out yet",
@@ -1086,8 +1092,8 @@ describe("CH-4 estate Findings opportunities", () => {
       expect(row[0]).toMatch(/^OPP-000004 · Daytime solar unused at Kobo/);
       expect(row[1]).toMatch(/^KOBO-001\s?Kobo$/);
       expect(row.slice(2)).toEqual(["Not assessed", "Limited evidence", "Open", "Size not worked out yet", "Opportunity"]);
-      expect(within(a as HTMLElement).getByRole("link", { name: "OPP-000004 · Daytime solar unused at Kobo" })).toHaveAttribute("href", ITEM.links.opportunity);
-      expect(within(a as HTMLElement).getByRole("link", { name: "KOBO-001" })).toHaveAttribute("href", ITEM.links.site);
+      expect(within(a as HTMLElement).getByRole("link", { name: "OPP-000004 · Daytime solar unused at Kobo" })).toHaveAttribute("href", ranged(ITEM.links.opportunity));
+      expect(within(a as HTMLElement).getByRole("link", { name: "KOBO-001" })).toHaveAttribute("href", ranged(ITEM.links.site));
       expect(cells(b)[3]).toBe("Supported");
       expect(cells(b)[5]).toBe("18–20 kW over 12 daylight hours on every eligible day");
       view.unmount();

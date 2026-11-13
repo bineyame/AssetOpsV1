@@ -1,0 +1,489 @@
+{
+ "branch": "task/SR-5-range-board",
+ "mode": "combined",
+ "window_end_day": "2026-11-10",
+ "readings": {
+  "KISIWA-001": {
+   "first_reading_utc": "2026-11-01T11:55:00+00:00",
+   "timezone": "Africa/Dar_es_Salaam"
+  },
+  "KOBO-001": {
+   "first_reading_utc": "2026-10-13T02:55:00+00:00",
+   "timezone": "Africa/Addis_Ababa"
+  }
+ },
+ "results": [
+  {
+   "site": "KOBO-001",
+   "days": 7,
+   "from": "2026-11-04T00:00:00Z",
+   "to": "2026-11-11T00:00:00Z",
+   "status_code": 200,
+   "coverage_entry_equals_portfolio": true,
+   "partial_money_equals_portfolio": true,
+   "gaps_equal_coverage": true,
+   "gap_diff": [],
+   "drill_in_days_checked": 6,
+   "drill_in_mismatches": [],
+   "not_expected_days": [],
+   "not_expected_with_readings": [],
+   "state_counts": {
+    "CLEAR": 5,
+    "FINDINGS": 1,
+    "NO_READINGS": 1
+   },
+   "overlapping_money_days": 0,
+   "body_digest_days": null,
+   "rows_on_equals_rows_off": true,
+   "stored": {
+    "site": "KOBO-001",
+    "days": 7,
+    "status_code": 200,
+    "first_serve_seconds": 0.44,
+    "stored_hit_seconds": [
+     0.08,
+     0.08
+    ],
+    "stored_hit_equals_first": true,
+    "stored_hit_le_2s": true
+   },
+   "cold_compose_seconds_rows_on_store_off": 1.4
+  },
+  {
+   "site": "KISIWA-001",
+   "days": 7,
+   "from": "2026-11-04T00:00:00Z",
+   "to": "2026-11-11T00:00:00Z",
+   "status_code": 200,
+   "coverage_entry_equals_portfolio": true,
+   "partial_money_equals_portfolio": true,
+   "gaps_equal_coverage": true,
+   "gap_diff": [],
+   "drill_in_days_checked": 7,
+   "drill_in_mismatches": [],
+   "not_expected_days": [],
+   "not_expected_with_readings": [],
+   "state_counts": {
+    "FINDINGS": 7
+   },
+   "overlapping_money_days": 0,
+   "body_digest_days": null,
+   "rows_on_equals_rows_off": true,
+   "stored": {
+    "site": "KISIWA-001",
+    "days": 7,
+    "status_code": 200,
+    "first_serve_seconds": 0.09,
+    "stored_hit_seconds": [
+     0.08,
+     0.07
+    ],
+    "stored_hit_equals_first": true,
+    "stored_hit_le_2s": true
+   },
+   "cold_compose_seconds_rows_on_store_off": 6.2
+  },
+  {
+   "site": "KOBO-001",
+   "days": 14,
+   "from": "2026-10-28T00:00:00Z",
+   "to": "2026-11-11T00:00:00Z",
+   "status_code": 200,
+   "coverage_entry_equals_portfolio": true,
+   "partial_money_equals_portfolio": true,
+   "gaps_equal_coverage": true,
+   "gap_diff": [],
+   "drill_in_days_checked": 12,
+   "drill_in_mismatches": [],
+   "not_expected_days": [],
+   "not_expected_with_readings": [],
+   "state_counts": {
+    "CLEAR": 10,
+    "FINDINGS": 2,
+    "NO_READINGS": 2
+   },
+   "overlapping_money_days": 0,
+   "body_digest_days": null,
+   "rows_on_equals_rows_off": true,
+   "stored": {
+    "site": "KOBO-001",
+    "days": 14,
+    "status_code": 200,
+    "first_serve_seconds": 0.08,
+    "stored_hit_seconds": [
+     0.08,
+     0.08
+    ],
+    "stored_hit_equals_first": true,
+    "stored_hit_le_2s": true
+   },
+   "cold_compose_seconds_rows_on_store_off": 2.3
+  },
+  {
+   "site": "KISIWA-001",
+   "days": 14,
+   "from": "2026-10-28T00:00:00Z",
+   "to": "2026-11-11T00:00:00Z",
+   "status_code": 200,
+   "coverage_entry_equals_portfolio": true,
+   "partial_money_equals_portfolio": true,
+   "gaps_equal_coverage": true,
+   "gap_diff": [],
+   "drill_in_days_checked": 10,
+   "drill_in_mismatches": [],
+   "not_expected_days": [],
+   "not_expected_with_readings": [],
+   "state_counts": {
+    "FINDINGS": 10,
+    "NO_READINGS": 4
+   },
+   "overlapping_money_days": 0,
+   "body_digest_days": null,
+   "rows_on_equals_rows_off": true,
+   "stored": {
+    "site": "KISIWA-001",
+    "days": 14,
+    "status_code": 200,
+    "first_serve_seconds": 0.08,
+    "stored_hit_seconds": [
+     0.09,
+     0.08
+    ],
+    "stored_hit_equals_first": true,
+    "stored_hit_le_2s": true
+   },
+   "cold_compose_seconds_rows_on_store_off": 7.5
+  },
+  {
+   "site": "KOBO-001",
+   "days": 31,
+   "from": "2026-10-11T00:00:00Z",
+   "to": "2026-11-11T00:00:00Z",
+   "status_code": 200,
+   "coverage_entry_equals_portfolio": true,
+   "partial_money_equals_portfolio": true,
+   "gaps_equal_coverage": true,
+   "gap_diff": [],
+   "drill_in_days_checked": 27,
+   "drill_in_mismatches": [],
+   "not_expected_days": [],
+   "not_expected_with_readings": [],
+   "state_counts": {
+    "CLEAR": 24,
+    "FINDINGS": 3,
+    "NO_READINGS": 4
+   },
+   "overlapping_money_days": 0,
+   "body_digest_days": [
+    [
+     "2026-10-11",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-12",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-13",
+     "CLEAR"
+    ],
+    [
+     "2026-10-14",
+     "CLEAR"
+    ],
+    [
+     "2026-10-15",
+     "CLEAR"
+    ],
+    [
+     "2026-10-16",
+     "CLEAR"
+    ],
+    [
+     "2026-10-17",
+     "CLEAR"
+    ],
+    [
+     "2026-10-18",
+     "CLEAR"
+    ],
+    [
+     "2026-10-19",
+     "CLEAR"
+    ],
+    [
+     "2026-10-20",
+     "CLEAR"
+    ],
+    [
+     "2026-10-21",
+     "CLEAR"
+    ],
+    [
+     "2026-10-22",
+     "CLEAR"
+    ],
+    [
+     "2026-10-23",
+     "CLEAR"
+    ],
+    [
+     "2026-10-24",
+     "CLEAR"
+    ],
+    [
+     "2026-10-25",
+     "CLEAR"
+    ],
+    [
+     "2026-10-26",
+     "CLEAR"
+    ],
+    [
+     "2026-10-27",
+     "FINDINGS"
+    ],
+    [
+     "2026-10-28",
+     "CLEAR"
+    ],
+    [
+     "2026-10-29",
+     "CLEAR"
+    ],
+    [
+     "2026-10-30",
+     "CLEAR"
+    ],
+    [
+     "2026-10-31",
+     "NO_READINGS"
+    ],
+    [
+     "2026-11-01",
+     "CLEAR"
+    ],
+    [
+     "2026-11-02",
+     "CLEAR"
+    ],
+    [
+     "2026-11-03",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-04",
+     "CLEAR"
+    ],
+    [
+     "2026-11-05",
+     "CLEAR"
+    ],
+    [
+     "2026-11-06",
+     "NO_READINGS"
+    ],
+    [
+     "2026-11-07",
+     "CLEAR"
+    ],
+    [
+     "2026-11-08",
+     "CLEAR"
+    ],
+    [
+     "2026-11-09",
+     "CLEAR"
+    ],
+    [
+     "2026-11-10",
+     "FINDINGS"
+    ]
+   ],
+   "rows_on_equals_rows_off": true,
+   "stored": {
+    "site": "KOBO-001",
+    "days": 31,
+    "status_code": 200,
+    "first_serve_seconds": 0.08,
+    "stored_hit_seconds": [
+     0.08,
+     0.09
+    ],
+    "stored_hit_equals_first": true,
+    "stored_hit_le_2s": true
+   },
+   "cold_compose_seconds_rows_on_store_off": 4.1
+  },
+  {
+   "site": "KISIWA-001",
+   "days": 31,
+   "from": "2026-10-11T00:00:00Z",
+   "to": "2026-11-11T00:00:00Z",
+   "status_code": 200,
+   "coverage_entry_equals_portfolio": true,
+   "partial_money_equals_portfolio": true,
+   "gaps_equal_coverage": true,
+   "gap_diff": [],
+   "drill_in_days_checked": 10,
+   "drill_in_mismatches": [],
+   "not_expected_days": [],
+   "not_expected_with_readings": [],
+   "state_counts": {
+    "FINDINGS": 10,
+    "NO_READINGS": 21
+   },
+   "overlapping_money_days": 0,
+   "body_digest_days": [
+    [
+     "2026-10-11",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-12",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-13",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-14",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-15",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-16",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-17",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-18",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-19",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-20",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-21",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-22",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-23",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-24",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-25",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-26",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-27",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-28",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-29",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-30",
+     "NO_READINGS"
+    ],
+    [
+     "2026-10-31",
+     "NO_READINGS"
+    ],
+    [
+     "2026-11-01",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-02",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-03",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-04",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-05",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-06",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-07",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-08",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-09",
+     "FINDINGS"
+    ],
+    [
+     "2026-11-10",
+     "FINDINGS"
+    ]
+   ],
+   "rows_on_equals_rows_off": true,
+   "stored": {
+    "site": "KISIWA-001",
+    "days": 31,
+    "status_code": 200,
+    "first_serve_seconds": 0.07,
+    "stored_hit_seconds": [
+     0.08,
+     0.08
+    ],
+    "stored_hit_equals_first": true,
+    "stored_hit_le_2s": true
+   },
+   "cold_compose_seconds_rows_on_store_off": 8.0
+  }
+ ],
+ "mismatch_log_lines": 0,
+ "mismatch_log_sample": [],
+ "gates": {
+  "mismatches_vs_portfolio": 0,
+  "mismatch_log_lines": 0,
+  "rows_on_equals_rows_off": "6/6 equal (separate processes, store off)",
+  "stored_hit_max_seconds": 0.09,
+  "not_expected_with_readings": []
+ },
+ "note": "Windows end 2026-11-10 (last UTC day with complete readings for both Sites; Kobo/Kisiwa have later partial-day readings to 11-11 11:00/12:00). 31-day windows start before readings began; those days read NO_READINGS, none NOT_EXPECTED. Store-hit timings; cold = store-off compose."
+}

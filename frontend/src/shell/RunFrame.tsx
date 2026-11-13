@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Badge, DataTable, Disclosure, Fact, FactList, PageHeader, Panel } from "../ui";
 import { ElectricalPanels, ExactQuantity } from "./ElectricalPanels";

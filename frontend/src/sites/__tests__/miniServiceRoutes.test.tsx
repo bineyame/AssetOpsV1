@@ -329,9 +329,10 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
 
   it("the hour bar sends one site-local clock hour as UTC bounds", () => {
     expect(localHourWindow(TZ, "2026-10-06", 0)).toEqual({ from: "2026-10-05T21:00:00.000Z", to: "2026-10-05T22:00:00.000Z" });
+    // D-SR.61 (35e8a8b59): a negative-offset zone reads the range's own date string, 12:00 local on 6 Oct.
     expect(serviceWindowFromParams(new URLSearchParams("date=2026-10-06"), "America/New_York")).toEqual({
-      from: "2026-10-05T16:00:00.000Z",
-      to: "2026-10-05T17:00:00.000Z",
+      from: "2026-10-06T16:00:00.000Z",
+      to: "2026-10-06T17:00:00.000Z",
       known_at: null,
     });
     const params = new URLSearchParams("from=2026-10-06T09:00:00Z&to=2026-10-06T10:00:00Z&known_at=2026-10-07T00:00:00Z");
@@ -380,8 +381,17 @@ describe("post-W6 W4 R309/R313/R316/R318: service tones, heading, word values an
     }
     expect(cards.some((card) => card.classList.contains("v69-metric--word"))).toBe(true);
   });
+  it("SR-4b (D-SR.5): a window that is neither one hour nor one day reads the 12:00 local hour of its day", async () => {
+    // Was the "two hours" refused row: since SR-4b the page sends one hour of the page's day instead.
+    const client = renderService([{ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", message: "x" }], `/sites/${CODE}/performance/service?from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z`);
+    await settledScreen();
+    const [, query] = (client.getService as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(Date.parse(query.to) - Date.parse(query.from)).toBe(3_600_000);
+    expect(query.from.slice(0, 10)).toBe("2026-10-06");
+    expect(screen.queryByText("Choose one complete Site-local hour or one day.")).toBeNull();
+  });
+
   const CASES: Array<[string, string, string]> = [
-    ["two hours", "from=2026-10-06T09:00:00Z&to=2026-10-06T11:00:00Z", "Choose one complete Site-local hour or one day."],
     ["a reversed range", "from=2026-10-06T10:00:00Z&to=2026-10-06T09:00:00Z", "The end must be after the start."],
     ["an unprovable cause", "from=2026-10-06T09:30:00Z&to=2026-10-06T10:30:00Z", "Choose a valid Site-local window."],
   ];

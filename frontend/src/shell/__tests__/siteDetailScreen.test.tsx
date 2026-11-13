@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
+import { rangeless } from "../../test/rangeless";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
@@ -167,7 +168,7 @@ describe("the breadcrumb trail leads from the Sites index to this Site", () => {
     expect(
       within(trail)
         .getAllByRole("link")
-        .map((link) => [link.textContent, link.getAttribute("href")]),
+        .map((link) => [link.textContent, rangeless(link.getAttribute("href") ?? "")]),
     ).toEqual([
       ["Sites", "/sites"],
       ["Kalangala Mini-Grid", "/sites/MG-002"],

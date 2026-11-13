@@ -1,0 +1,214 @@
+{
+  "_doc": "D-SR.59 contract: the mini depth client windows (renewableWindowFromParams, serviceWindowFromParams) for these addresses at `now`. frontend/src/ui/__tests__/sharedRange.test.tsx asserts the client equals it; backend/tests/test_sr4_mini_windows_contract.py asserts hour_windows accepts every window. Do not regenerate to make one side pass.",
+  "now": "2026-11-12T10:00:00Z",
+  "cases": [
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "preset yesterday",
+      "address": "from=2026-11-11T00:00:00Z&to=2026-11-12T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-10T21:00:00.000Z",
+        "to": "2026-11-11T21:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-11T09:00:00.000Z",
+        "to": "2026-11-11T10:00:00.000Z"
+      }
+    },
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "preset 7d",
+      "address": "from=2026-11-05T00:00:00Z&to=2026-11-12T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-06T21:00:00.000Z",
+        "to": "2026-11-11T21:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-11T09:00:00.000Z",
+        "to": "2026-11-11T10:00:00.000Z"
+      }
+    },
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "preset 30d",
+      "address": "from=2026-10-13T00:00:00Z&to=2026-11-12T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-06T21:00:00.000Z",
+        "to": "2026-11-11T21:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-11T09:00:00.000Z",
+        "to": "2026-11-11T10:00:00.000Z"
+      }
+    },
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "custom 2 days",
+      "address": "from=2026-11-06T00:00:00Z&to=2026-11-08T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-05T21:00:00.000Z",
+        "to": "2026-11-07T21:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-07T09:00:00.000Z",
+        "to": "2026-11-07T10:00:00.000Z"
+      }
+    },
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "custom 5 days",
+      "address": "from=2026-11-03T00:00:00Z&to=2026-11-08T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-02T21:00:00.000Z",
+        "to": "2026-11-07T21:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-07T09:00:00.000Z",
+        "to": "2026-11-07T10:00:00.000Z"
+      }
+    },
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "day form",
+      "address": "from=2026-11-08&to=2026-11-08",
+      "renewable": {
+        "from": "2026-11-07T21:00:00.000Z",
+        "to": "2026-11-08T21:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-08T09:00:00.000Z",
+        "to": "2026-11-08T10:00:00.000Z"
+      }
+    },
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "story hour",
+      "address": "from=2026-10-31T09:00:00Z&to=2026-10-31T10:00:00Z",
+      "renewable": {
+        "from": "2026-10-30T21:00:00.000Z",
+        "to": "2026-10-31T21:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-10-31T09:00:00Z",
+        "to": "2026-10-31T10:00:00Z"
+      }
+    },
+    {
+      "zone": "Africa/Addis_Ababa",
+      "label": "story 3 local days",
+      "address": "from=2026-10-28T21:00:00Z&to=2026-10-31T21:00:00Z",
+      "renewable": {
+        "from": "2026-10-28T21:00:00Z",
+        "to": "2026-10-31T21:00:00Z"
+      },
+      "service": {
+        "from": "2026-10-31T09:00:00.000Z",
+        "to": "2026-10-31T10:00:00.000Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "preset yesterday",
+      "address": "from=2026-11-11T00:00:00Z&to=2026-11-12T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-11T05:00:00.000Z",
+        "to": "2026-11-12T05:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-11T17:00:00.000Z",
+        "to": "2026-11-11T18:00:00.000Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "preset 7d",
+      "address": "from=2026-11-05T00:00:00Z&to=2026-11-12T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-07T05:00:00.000Z",
+        "to": "2026-11-12T05:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-11T17:00:00.000Z",
+        "to": "2026-11-11T18:00:00.000Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "preset 30d",
+      "address": "from=2026-10-13T00:00:00Z&to=2026-11-12T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-07T05:00:00.000Z",
+        "to": "2026-11-12T05:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-11T17:00:00.000Z",
+        "to": "2026-11-11T18:00:00.000Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "custom 2 days",
+      "address": "from=2026-11-06T00:00:00Z&to=2026-11-08T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-06T05:00:00.000Z",
+        "to": "2026-11-08T05:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-07T17:00:00.000Z",
+        "to": "2026-11-07T18:00:00.000Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "custom 5 days",
+      "address": "from=2026-11-03T00:00:00Z&to=2026-11-08T00:00:00Z",
+      "renewable": {
+        "from": "2026-11-03T05:00:00.000Z",
+        "to": "2026-11-08T05:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-07T17:00:00.000Z",
+        "to": "2026-11-07T18:00:00.000Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "day form",
+      "address": "from=2026-11-08&to=2026-11-08",
+      "renewable": {
+        "from": "2026-11-08T05:00:00.000Z",
+        "to": "2026-11-09T05:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-11-08T17:00:00.000Z",
+        "to": "2026-11-08T18:00:00.000Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "story hour",
+      "address": "from=2026-10-31T17:00:00Z&to=2026-10-31T18:00:00Z",
+      "renewable": {
+        "from": "2026-10-31T05:00:00.000Z",
+        "to": "2026-11-01T05:00:00.000Z"
+      },
+      "service": {
+        "from": "2026-10-31T17:00:00Z",
+        "to": "2026-10-31T18:00:00Z"
+      }
+    },
+    {
+      "zone": "America/Bogota",
+      "label": "story 3 local days",
+      "address": "from=2026-10-29T05:00:00Z&to=2026-11-01T05:00:00Z",
+      "renewable": {
+        "from": "2026-10-29T05:00:00Z",
+        "to": "2026-11-01T05:00:00Z"
+      },
+      "service": {
+        "from": "2026-11-01T17:00:00.000Z",
+        "to": "2026-11-01T18:00:00.000Z"
+      }
+    }
+  ]
+}

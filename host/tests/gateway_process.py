@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+import tempfile
 import uuid
 from pathlib import Path
 
@@ -20,7 +21,10 @@ from assetops_gateway.ipc import GatewayLink
 def address(state_dir: Path) -> str:
     if sys.platform == "win32":
         return rf"\\.\pipe\assetops-gateway-hosttest-{uuid.uuid4().hex}"
-    return str(state_dir / "gw.sock")
+    # A fresh socket per provisioning, as the Windows pipe name is: a reopened state directory (DD1a1-R5) would
+    # otherwise find the killed gateway's socket file still bound to its path (EADDRINUSE). Kept short for the
+    # 108-byte AF_UNIX limit.
+    return str(Path(tempfile.gettempdir()) / f"aogw-{uuid.uuid4().hex[:16]}.sock")
 
 
 def provisioning_from_snapshot(snapshot_text: str, *, epoch: str = "epoch-1", site_id: str | None = None) -> dict:

@@ -337,6 +337,13 @@ def prebuilt_requests() -> Any:
     return load_prebuilt_routes()
 
 
+def build_prebuild_http_client(base_url: str) -> Any:
+    """WARM-1 (BL-71 part 2): the pre-build's HTTP client against a running serve."""
+    from assetops_backend.chain.adapters.http_prebuild_client import HttpClient
+
+    return HttpClient(base_url)
+
+
 def build_response_store(database_url: str | None, *, engine: Any = None, keep: int = 3) -> Any:
     """CH-5c: the stored route responses (`chain/response_store.py`) over the `chain_response` adapter; None without
     a database URL or engine, or with `ASSETOPS_RESPONSE_STORE=off`. CH-5c2: `F` (`file_inputs.file_state`) joins W."""

@@ -103,6 +103,8 @@ export function SiteEvFrame({
             </Panel>
           </main>
         ) : (
+          <>
+          {/* D-SR.66 (corrects D-SR.44): the assumptions view shows range content; it declares what Financials does. */}
           <EvSiteFrame
             view={view}
             siteId={site.site_id}
@@ -121,6 +123,7 @@ export function SiteEvFrame({
               view === "overview" ? { label: site.display_name } : { label: site.display_name, to: siteDetailHref(site.site_id) },
             ]}
           />
+          </>
         )
       }
     </SiteScoped>

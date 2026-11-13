@@ -18,7 +18,8 @@
  * routes only.
  */
 import { useEffect, useState } from "react";
-import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Fact, FactList, Panel } from "../ui";
 import { AssessmentAnalysis } from "./assessmentAnalysis";

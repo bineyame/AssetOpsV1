@@ -31,7 +31,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { formatDay, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { asOfText, ChartNote, MetricHeader, outcomeWords, DataTable, Disclosure, Fact, FactList, Panel, type ExactReference, type ProductTone } from "../ui";
 import { TECHNICAL_DETAILS, WorkedOut } from "../ui/TechnicalDetails";

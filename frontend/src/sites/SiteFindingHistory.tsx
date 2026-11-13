@@ -16,7 +16,8 @@
  * shown are not a way to view the Finding as of an earlier moment.
  */
 import { useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { DataTable, Disclosure, ExactReferences, Panel, ProductStatus, ShowAll, TechnicalDetails, TechnicalReferenceList } from "../ui";
 

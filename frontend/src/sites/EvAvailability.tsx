@@ -8,7 +8,8 @@
  * chart note, bound and next-evidence prose keep their forms with selected values substituted.
  */
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 import { useReportSelectedWindow } from "./evSelectedWindow";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { Badge, MetricCard, MetricCards, Notice, Panel, StatusBar } from "../ui";
@@ -178,7 +179,7 @@ export function EvDepthRefusal({ read, window, label, tiles, panel, onRetry }: E
         <p className="ev-depth-refusal__actions" data-ev-depth-refusal-actions="">
           {correction === null ? null : (
             <Link to={correction} className="ev-depth-refusal__link" data-ev-depth-correction="">
-              Read without a selected window
+              Open with the default date range
             </Link>
           )}
           {recoverable ? (

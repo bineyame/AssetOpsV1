@@ -12,7 +12,7 @@
  * Finding.
  */
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { RangeLink as Link } from "../ui/RangeLink";
 
 import { Panel } from "../ui";
 import { FindingsTable } from "./findingPresentation";

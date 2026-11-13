@@ -44,7 +44,19 @@ EMPTY_SCOPE, EMPTY = "EMPTY_SCOPE", "EMPTY"
 FULL, LIMITED, NONE, CONTRADICTORY = "FULL", "LIMITED", "NONE", "CONTRADICTORY"
 UNASSESSED = "UNASSESSED"
 DOMAIN_LABEL = {MINI_GRID: "mini-grid", COLD: "cold-chain", EV: "EV charging"}
-CURRENT_VIEW = "Current view"
+OPENS_RANGE = "Opens this range"
+RANGE_NOT_USED = "Current view \u00b7 range not used"
+#: D-SR.73: SITE views whose destination follows the page range (Site home/Overview, EV home); EVIDENCE always does.
+_RANGE_VIEWS = (None, "home", "ev")
+
+
+def view_label(ref: Mapping[str, Any] | None) -> str:
+    """D-SR.73: the words beside a link that carries no row window, chosen by the destination's range class."""
+    follows = ref is not None and (ref.get("kind") == "EVIDENCE"
+                                   or (ref.get("kind") == "SITE" and ref.get("view") in _RANGE_VIEWS))
+    return OPENS_RANGE if follows else RANGE_NOT_USED
+
+
 HISTORICAL_AS_OF = "Historical as of {known_at}"
 NO_CURRENT_CEILING = "No current ceiling"
 Admit = Callable[[str], bool]
@@ -169,7 +181,7 @@ def window_link_refs(code: str, domain: str, snap: dict[str, Any] | None, eviden
     """Closure 5 B5: a cold/EV row link carries only its own pinned `lo`/`hi` and row-local `known`, and only when
     `known` equals the passed Site evidence cutoff and is at or before both the estate cutoff and the committed
     watermark. Anything unprovable (and every placeholder) is the Site home (EV: `/sites/{code}/ev`), `Opens
-    current Site view`."""
+    this range` (`view_label`)."""
     home = site_home_ref(code, domain)
     if snap is not None:
         query = proven_window_query(snap.get("lo"), snap.get("hi"), snap.get("known"), evidence_cutoff, k,
@@ -178,7 +190,7 @@ def window_link_refs(code: str, domain: str, snap: dict[str, Any] | None, eviden
             w = refs.query_window(query)
             readiness = refs.evidence_ref(code, window=w) if domain == COLD else refs.site_ref(code, "ev_evidence", w)
             return {"site": home, "site_readiness": readiness, "site_readiness_label": None}
-    return {"site": home, "site_readiness": home, "site_readiness_label": CURRENT_VIEW}
+    return {"site": home, "site_readiness": home, "site_readiness_label": view_label(home)}
 
 
 def _gap(domain: str, code: str, role: str | None, label: str, step: str) -> dict[str, Any]:
@@ -211,7 +223,7 @@ def _row(site: dict[str, Any], domain: str, key: str, label: str, **values: Any)
            "gap_codes": [], "selected_revision_ids": [], "source_provenance": dict(NO_PROVENANCE),
            **refs.split_links({"site": site_home_ref(site["site_code"], domain),
                                "site_readiness": site_home_ref(site["site_code"], domain),
-                               "site_readiness_label": CURRENT_VIEW}),
+                               "site_readiness_label": view_label(site_home_ref(site["site_code"], domain))}),
            "disclosure": {"capability_key": key, "constituents": [], "reasons": [], "historical": None},
            "_key": (str(site["site_code_key"]), str(site["site_id"]).lower(), key), "_gaps": [],
            "_cited": [], "_token_cited": [], "_assessments": []}
