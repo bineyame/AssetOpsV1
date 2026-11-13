@@ -161,3 +161,13 @@ listed with them.
 - The client4/demo-build run (resume point 3): the `service:demo-upload` actor and the `kobo-edge-*` cohort risk.
 - Page captures in each state.
 - The production build.
+
+## Re-review (fix round, 2026-11-13) - verdict: ACCEPT
+
+- M1 closed: refusal bodies carry `{code, where}` only (no field path, no detail); `where` is "row 7 · timestamp_utc", "column 3" or a role in words; ALREADY_RECORDED is rendered in Site time ("17 Nov, 02:45 (site time)"); Site-specific sentences come from the entry read (`health_text`, `template_step`). `readingUploadServerShapes.json` regenerated from the real backend responses for all four cases and compared: identical.
+- M2 closed: upload and status run via `run_in_threadpool`; a test serves a GET while an upload is held inside its check.
+- L1 closed: field `csv.Error`/`UnicodeError` gives a FIELD_TOO_LARGE refusal (plain 422 words); RuntimeError from the port gives a plain 503; the page has fallbacks (CHECK_LOST, NOT_SAVED).
+- D-UP.12: order Processing > Analysed > Not analysed holds; five Postgres cases pass; removing the `lease_until >= decided` clause fails the leased-after case (restored; tree clean). L3 is listed in the packet.
+- Merge resolutions keep main's SR-6b Health range page (siteHealthRange 7/7, siteRangeTags 12/12).
+- Ran: no-DB pytest (up1, uq6a, field csv_upload, adjacent) 100 passed; Postgres store file on assetops_up1_test 7 passed (168 s); vitest readingUpload 14 + siteRangeTags + siteHealthRange 33 passed; tsc exit 0. Not run: check-all (coordinator), host process/demo-gateway tests (host/tests not in the named set; unchanged by the fix round), production build, captures.
+- Note (Low, non-blocking): the response `words` object still carries the catalogue key and params (never displayed by the page); the client ignores it.

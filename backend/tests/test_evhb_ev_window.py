@@ -97,7 +97,7 @@ def test_swaps_move_every_window_clock_to_the_recorded_day() -> None:
 
     registered = SimpleNamespace(**{n: getattr(w205b, n) for n in (
         "INSTALL_AT", "SETUP_AT", "WINDOW", "RELEASE", "ATTEST_FROM", "ATTEST_TO", "FIRST_DECISION", "LATE_DECISION",
-        "ATTESTED_AT")}, RunSetupService=lambda *a, **kw: None)
+        "ATTESTED_AT", "FORWARD_DIAGNOSTICS")}, RunSetupService=lambda *a, **kw: None)
     P = SimpleNamespace(E_START=datetime(2026, 10, 6, 8, tzinfo=UTC), E_END=datetime(2026, 10, 6, 9, tzinfo=UTC))
     before = dict(vars(registered)), dict(vars(P)), dict(ev_parsing.EV_WINDOW)
     day = _ev_days()[-1]
@@ -111,6 +111,7 @@ def test_swaps_move_every_window_clock_to_the_recorded_day() -> None:
             hi, hi + timedelta(minutes=5), sd.iso(hi + timedelta(minutes=5)))
         assert registered.ATTESTED_AT == hi - MINUTE
         assert registered.ATTEST_FROM <= lo and registered.ATTEST_TO > hi
+        assert registered.FORWARD_DIAGNOSTICS is True  # DATA-5: the story day stores its gateway diagnostics
     finally:
         dev._restore(registered, P, saved)
     assert (dict(vars(registered)), dict(vars(P)), dict(ev_parsing.EV_WINDOW)) == before

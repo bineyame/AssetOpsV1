@@ -29,6 +29,7 @@ import { expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
 import { OPERATOR_SITE_TABS_LABEL } from "../operatorSiteTabs";
+import type { RangeOverviewClient } from "../../sites/rangeOverviewClient";
 
 /**
  * The mini-grid Site Overview (T027 phase 2; AC11, AC12, AC13, AC22): the
@@ -55,6 +56,16 @@ function LocationProbe() {
   );
 }
 
+/**
+ * SR-5b (D-SR.9, D-SR.11): a MINIGRID Overview with a range and no `day` now shows the range view. These cases pin
+ * the one-day board's own behaviour, so the range read answers 404 (a Site it does not know) and the switch keeps the
+ * one-day page, as in `s5SiteWindowOverview.test.tsx`. The range view and the drill-in are pinned in
+ * `sites/__tests__/siteRangeOverview.test.tsx`.
+ */
+const ONE_DAY_FALLBACK: RangeOverviewClient = {
+  getRangeOverview: () => Promise.resolve({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }),
+};
+
 function renderAt(path: string, overview: SiteOverviewClient, enabled = false) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -67,6 +78,7 @@ function renderAt(path: string, overview: SiteOverviewClient, enabled = false) {
           value: POPULATED_EVIDENCE,
         })}
         siteOverview={overview}
+        rangeOverview={ONE_DAY_FALLBACK}
       />
       <LocationProbe />
     </MemoryRouter>,

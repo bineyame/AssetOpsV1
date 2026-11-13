@@ -11,7 +11,7 @@
 # run with no target or with a directory target (a suite sweep) unless -AllowHostFull is given.
 #
 # Interpreter (named only, never positional): -Interpreter, else $env:ASSETOPS_TEST_PYTHON, else $env:ASSETOPS_GUARD_PYTHON,
-# else the plan2 virtual environment (C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv).
+# else this checkout's .venv (Scripts\python.exe or bin/python), else /opt/assetecon/AssetOpsV1/.venv/bin/python.
 # Database: ASSETOPS_TEST_DATABASE_URL as set; when unset, the shared development server's `assetops_test`
 # (backend/TESTING.md). It never prints the URL.
 # No param() block on purpose: a CmdletBinding script gets the common parameters, so under `powershell -File` a `--` is
@@ -36,7 +36,13 @@ $worktree = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $Python = $Interpreter
 if (-not $Python) { $Python = $env:ASSETOPS_TEST_PYTHON }
 if (-not $Python) { $Python = $env:ASSETOPS_GUARD_PYTHON }
-if (-not $Python) { $Python = 'C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe' }
+if (-not $Python) {
+    # Portable default: this checkout's .venv (Windows Scripts\python.exe, Linux bin/python), else the VPS main venv.
+    foreach ($c in @((Join-Path $worktree '.venv/Scripts/python.exe'), (Join-Path $worktree '.venv/bin/python'),
+                     '/opt/assetecon/AssetOpsV1/.venv/bin/python')) {
+        if (Test-Path -LiteralPath $c -PathType Leaf) { $Python = $c; break }
+    }
+}
 if (-not (Test-Path -LiteralPath $Python -PathType Leaf)) {
     Write-Output "REFUSED: no Python interpreter at '$Python' (pass -Interpreter or set ASSETOPS_TEST_PYTHON)."
     exit 2
@@ -78,7 +84,7 @@ if ($env:ASSETOPS_HOST_DRY_RUN) {
 }
 
 $roots = @('backend', 'contracts', 'simulator', 'gateway', 'host', 'field') | ForEach-Object { Join-Path $worktree $_ }
-$env:PYTHONPATH = (($roots + @($env:PYTHONPATH)) | Where-Object { $_ }) -join ';'
+$env:PYTHONPATH = (($roots + @($env:PYTHONPATH)) | Where-Object { $_ }) -join [IO.Path]::PathSeparator
 if (-not $env:ASSETOPS_TEST_DATABASE_URL) {
     $password = $env:ASSETOPS_PG_PASSWORD
     if (-not $password) { $password = 'assetops-local-dev' }
@@ -99,7 +105,7 @@ if ($LASTEXITCODE -ne 0) {
     $origins | ForEach-Object { "  $_" }
     exit 2
 }
-$prefix = (Resolve-Path $worktree).Path.TrimEnd('\') + '\'
+$prefix = (Resolve-Path $worktree).Path.TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
 $wrong = @($origins | Where-Object { $_ -match '=' } | Where-Object {
     -not (($_ -split '=', 2)[1]).StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase) })
 if ($wrong.Count -gt 0 -or @($origins | Where-Object { $_ -match '=' }).Count -lt 5) {

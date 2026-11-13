@@ -53,6 +53,9 @@ function connector(label: string, asset: number, spans: AvailabilityConnector["s
     known_unavailable_seconds: sum("UNAVAILABLE"),
     unknown_seconds: sum("UNKNOWN"),
     spans,
+    connector_rated_kw: "60.0",
+    charger_asset_id: id(6),
+    charger_rated_kw: "60.0",
   };
 }
 
@@ -397,6 +400,12 @@ describe("W5-03a E2: evDepthClient", () => {
     expect(isEvAvailabilityRead({ ...good, availability: { ...good.availability, known_time_ratio: 0.5 } })).toBe(false);
     const badSpan = { ...C1, spans: [{ ...C1.spans[0], state: "HEALTHY" }] };
     expect(isEvAvailabilityRead({ ...good, availability: { ...good.availability, connectors: [badSpan] } })).toBe(false);
+    // D-DATA.5: the rating keys are part of the exact connector shape; null is a declared absence, 60 is not text
+    const { charger_rated_kw: _dropped, ...noRating } = C1;
+    expect(isEvAvailabilityRead({ ...good, availability: { ...good.availability, connectors: [noRating] } })).toBe(false);
+    expect(isEvAvailabilityRead({ ...good, availability: { ...good.availability, connectors: [{ ...C1, connector_rated_kw: 60 }] } })).toBe(false);
+    const undeclared = { ...C1, connector_rated_kw: null, charger_asset_id: null, charger_rated_kw: null };
+    expect(isEvAvailabilityRead({ ...good, availability: { ...good.availability, connectors: [undeclared] } })).toBe(true);
     expect(isEvAvailabilityRead({ ...good, selection: { ...good.selection, state: "FRESH" } })).toBe(false);
     const calls: string[] = [];
     vi.stubGlobal("fetch", vi.fn((url: string) => {

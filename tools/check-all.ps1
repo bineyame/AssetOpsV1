@@ -78,6 +78,8 @@ try {
     # ANY-1 AR-0: the stored read-period parity harness self-test (one deliberate mismatch must fail).
     Invoke-Guard "Period read parity self-test (ANY-1 AR-0)" $Python @("tools/checks/period_read_parity.py", "--self-test")
     Invoke-Guard "Frontend hard-wiring ratchet (CH-5b1)" $Node @("tools/checks/frontend-hardwiring.mjs")
+    Invoke-Guard "Style ratchet (UQ-FI)" $Node @("tools/checks/style-ratchet.mjs")
+    Invoke-Guard "Style ratchet fixtures (UQ-FI)" $Node @("--test", "tools/checks/test_style_ratchet.mjs")
 
     $failed = @($results | Where-Object { $_.Status -ne "PASS" })
     foreach ($result in $results) {

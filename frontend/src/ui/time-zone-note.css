@@ -1,6 +1,6 @@
 /* POLISH §3 (R650): the quiet per-page time zone note in a date or window bar. */
 .time-zone-note {
-  font-size: 12px;
+  font-size: var(--font-size-100);
   line-height: 1.4;
   color: var(--text-muted);
   white-space: nowrap;

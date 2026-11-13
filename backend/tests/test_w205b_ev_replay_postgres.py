@@ -47,6 +47,9 @@ pytestmark = pytest.mark.skipif(
 ROOT = Path(__file__).resolve().parents[2]
 #: DD0c-R Q1: the demo prepare / add-day child sets this True (L1 batching); the tests keep the per-group seal.
 SEAL_ONCE = False
+#: DATA-5: the demo prepare / add-day child sets this True; the central then stores the gateway's diagnostics through
+#: the product ingestion on the gateway's own clock (False: diagnostic posts are not routed, as in the tests).
+FORWARD_DIAGNOSTICS = False
 sys.path.insert(0, str(ROOT / "host"))
 sys.path.insert(0, str(ROOT / "host" / "tests"))
 sys.path.insert(0, str(ROOT / "gateway" / "tests"))
@@ -336,6 +339,11 @@ class Chain:
             batch_ingestion=BatchIngestionService(
                 PostgresEvidenceLedger(URL, test_decision_clock_override=self.decision_clock), self.decision_clock),
             gateway_principals=StoreGatewayPrincipals(PostgresGatewayAccess(URL))))
+        if FORWARD_DIAGNOSTICS:
+            from story_diagnostics import diagnostics_router, gateway_clock
+
+            # D-DATA.2: received on the gateway's own clock, not the chain decision clock
+            central_app.include_router(diagnostics_router(URL, gateway_clock))
         central = TestClient(central_app, base_url="https://testserver")
 
         def forward(path, headers, body):

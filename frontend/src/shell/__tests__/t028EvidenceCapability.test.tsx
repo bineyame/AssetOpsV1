@@ -273,6 +273,20 @@ describe("Site > Evidence capability table (AC20)", () => {
     );
     expect(rows()).toHaveLength(0);
   });
+
+  it("an imported Site's migration refusal shows the fixed words, never the server message (D-SR.74)", async () => {
+    await renderEvidence(
+      withDeclaration({
+        status: "unavailable",
+        transition: "AWAITING_EVIDENCE_MIGRATION",
+        message: "This legacy file-backed surface is awaiting evidence migration.",
+      }),
+    );
+    expect(document.querySelector('[data-capability-state="unavailable"]')?.textContent).toBe(
+      "What can be assessed from these records is not available yet for this site.",
+    );
+    expect(spacedText(screen.getByRole("main"))).not.toMatch(/migration|legacy/i);
+  });
 });
 
 describe("AC18 rules for Evidence capability rows", () => {

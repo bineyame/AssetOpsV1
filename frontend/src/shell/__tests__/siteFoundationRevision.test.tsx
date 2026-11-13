@@ -19,6 +19,7 @@ import type {
 } from "../../sites/siteFoundationClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import type { SiteOverviewClient } from "../../sites/siteOverviewClient";
+import type { RangeOverviewClient } from "../../sites/rangeOverviewClient";
 import type { EvidenceRead } from "../../sites/evidenceRead";
 import type { GatewayHealth, GatewayHealthClient, GatewayHealthEntry } from "../../sites/gatewayHealthClient";
 import { createSiteEvidenceClient } from "../../sites/siteEvidenceClient";
@@ -283,6 +284,14 @@ function Location() {
   return <output data-testid="location">{location.pathname + location.search}</output>;
 }
 
+/**
+ * SR-5b (D-SR.9, D-SR.11): a MINIGRID Overview with no `day` shows the range view. The legacy-overview case pins the
+ * one-day board's awaiting-migration refusal, so the range read answers 404 and the switch keeps the one-day page.
+ */
+const ONE_DAY_FALLBACK: RangeOverviewClient = {
+  getRangeOverview: () => Promise.resolve({ status: "refused", httpStatus: 404, code: "SITE_NOT_FOUND" }),
+};
+
 function renderAt(path: string, client: SiteFoundationClient, overview?: SiteOverviewClient) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -292,7 +301,7 @@ function renderAt(path: string, client: SiteFoundationClient, overview?: SiteOve
         siteDetail={detail}
         siteAnalytics={EMPTY_ANALYTICS_CLIENT}
         siteFoundation={client}
-        {...(overview === undefined ? {} : { siteOverview: overview })}
+        {...(overview === undefined ? {} : { siteOverview: overview, rangeOverview: ONE_DAY_FALLBACK })}
       />
       <Location />
     </MemoryRouter>,
@@ -1702,6 +1711,9 @@ describe("G-01: the catalogued gateway firmware missing state", () => {
   const expectedReadinessGapIds = Object.entries(UI_GAP_CATALOGUE)
     .filter(([, entry]) => entry.placements.some((p) => p.startsWith("readiness.")))
     .map(([id]) => id)
+    // D-SR.74: renders only for an imported Site awaiting migration (CapabilityReadiness Unavailable);
+    // these fixtures are native Sites, so it is explicitly absent here, not loosened.
+    .filter((id) => id !== "G-readiness-capability-assessable")
     .sort();
 
   it("tags firmware with a populated central-contact read, with exact data-gap-id membership", async () => {

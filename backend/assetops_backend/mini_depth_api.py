@@ -67,19 +67,22 @@ def _refuse(code: str) -> HTTPException:
     return HTTPException(status_code=status, headers=headers, detail={"code": code, "message": message})
 
 
-def _instant(request: Request, key: str, code: str) -> datetime | None:
-    """Q33: a UTC instant; offset input is accepted and normalized to UTC; a naive or malformed value refuses."""
+def _instant(request: Request, key: str, code: str,
+             refuse: Callable[[str], HTTPException] | None = None) -> datetime | None:
+    """Q33: a UTC instant; offset input is accepted and normalized to UTC; a naive or malformed value refuses
+    (through `refuse`, the one-day `_refuse` by default; a range route passes its own refuser)."""
+    refuse = refuse or _refuse
     values = request.query_params.getlist(key)
     if not values:
         return None
     if len(values) > 1:
-        raise _refuse(code)
+        raise refuse(code)
     try:
         at = datetime.fromisoformat(values[0].replace("Z", "+00:00"))
     except ValueError as error:
-        raise _refuse(code) from error
+        raise refuse(code) from error
     if at.tzinfo is None:
-        raise _refuse(code)
+        raise refuse(code)
     return at.astimezone(timezone.utc)
 
 
@@ -272,14 +275,16 @@ def build_renewable_range_router(chain_reader: Callable[[], Any], registry: Impo
         site = site_of(request, site_code)
         if site.site_type != MINIGRID:
             raise _range_refuse("RENEWABLE_RANGE_NOT_APPLICABLE")
-        lo, hi = _instant(request, "from", "INVALID_WINDOW"), _instant(request, "to", "INVALID_WINDOW")
+        # SR-8 review L2: the window rule first (as the estate parser), then `known_at`; both refuse in range words.
+        lo = _instant(request, "from", "INVALID_WINDOW", _range_refuse)
+        hi = _instant(request, "to", "INVALID_WINDOW", _range_refuse)
         if lo is None or hi is None:
             raise _range_refuse("INVALID_WINDOW")
-        known = _instant(request, "known_at", "INVALID_KNOWN_AT")
         try:
-            window = estate_request("portfolio", lo, hi, known)
+            window = estate_request("portfolio", lo, hi)
         except EstateRefusal as refused:
             raise _range_refuse("INVALID_WINDOW") from refused
+        known = _instant(request, "known_at", "INVALID_KNOWN_AT", _range_refuse)
         reader = chain_reader()
         if reader is None:
             raise _range_refuse("SITE_RENEWABLE_RANGE_UNAVAILABLE")

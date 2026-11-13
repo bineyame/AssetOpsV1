@@ -245,6 +245,7 @@ class PlanFact:
     asset_id: str | None
     link_ref: Mapping[str, Any] | None
     due_at: Any = None                 # C: the UTC instant of `next_due_at` (compared only)
+    asset_type: str | None = None      # DATA-10: the planned asset's stored type ("GENERATOR"), or None
 
 
 #: Issue kind of each non-Finding signal (§B.2): headroom is an opportunity, the evidence gap is a gap.

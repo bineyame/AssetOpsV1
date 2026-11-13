@@ -18,7 +18,10 @@ or `limit` shares its key either way):
   - `/api/estate/outcome-summary?from&to`; the Findings index page 1 `/api/estate/findings?from&to`;
   - Cold and EV boards (the Site page and its Site Findings warnings panel): `/api/sites/{code}/outcome-board?from&to`;
   - Kobo and Kisiwa boards (the Site Findings warnings panel, `miniBoardDay(to)`): `?date={last day}`; and, for the
-    Site Overview's served day, one board per day of each mini-grid Site's own dates.
+    Site Overview's served day, one board per day of each mini-grid Site's own dates;
+  - SR-12: per mini-grid Site, `/api/sites/{code}/{range-overview,health-range,service-range,claim-limit-range,
+    renewable-range,fuel-range,backup-range}?from&to` (`SITE_RANGE_ROUTES`). The Fuel subtab's nights list
+    (`/fuel-balance/nights?from&to`) is not stored, so it is timed under `unstored` (D-WARM.2).
 
 `warm` (default) sends each request with `--workers` threads, presets first, newest ranges next. Before each batch
 it waits while `pg_stat_activity` is above `--max-connections` (150). A 503 or a `stale` copy (and a body served
@@ -148,6 +151,14 @@ def _q(*pairs: tuple[str, str]) -> str:
     return urlencode(list(pairs))
 
 
+# SR-12 (lane G): the mini-grid Site range routes (each 404 `*_NOT_APPLICABLE` for Cold/EV), all stored routes keyed
+# `{site, from, to, known_at}`, each sent `?from&to` (the server's documented params: `outcome_api.RANGE_ROUTE`,
+# `source_health_api.HEALTH_RANGE_ROUTE`, `mini_depth_api.SERVICE_RANGE_ROUTE` / `RENEWABLE_RANGE_ROUTE` /
+# `DAY_RANGE_ROUTES`, `claim_limit_api.RANGE_ROUTE`). No page client on main yet (SR-5..SR-11 pages in parallel
+# lanes): re-check each against its page client after that page merges.
+SITE_RANGE_ROUTES = ("range-overview", "health-range", "service-range", "claim-limit-range", "renewable-range",
+                     "fuel-range", "backup-range")
+
 # `findingIndex.tsx` STATE_CHIPS, less "all" (which `estateQueryString` omits).
 STATE_CHIPS = ("supported", "unconfirmed", "no_longer_supported", "merged")
 
@@ -173,6 +184,9 @@ def range_requests(r: Range, sites: dict[str, tuple[date, date]]) -> list[Req]:
         path = f"/api/sites/{code}/outcome-board"
         if code in MINI_GRID:  # `miniBoardDay(to)`: the range's last day
             out.append(Req(f"board.{code}.{r.last}", path, _q(("date", r.last.isoformat()))))
+            # SR-12: the mini-grid range routes; `known_at` ranges stay outside the claim (D-WARM.5).
+            out += [Req(f"{name}.{code}.{tag}", f"/api/sites/{code}/{name}", _q(("from", f), ("to", t)))
+                    for name in SITE_RANGE_ROUTES]
         else:
             out.append(Req(f"board.{code}.{tag}", path, _q(("from", f), ("to", t))))
     return out
@@ -219,6 +233,9 @@ def unstored_requests(f: str, t: str, tag: str, sites: dict[str, tuple[date, dat
             out.append(Req(f"unstored.overview.{code}.{tag}", f"/api/sites/{code}/overview",
                            _q(("date", mini_board_day(t)))))
             out.append(Req(f"unstored.findings.{code}.{tag}", f"/api/sites/{code}/findings", window))
+            # SR-12: the Fuel subtab's nights list over the range (SR-10k, `fuelBalanceClient.getNights`, sent for
+            # every mini-grid Site); `fuel_balance_api.py` serves it live (no stored route), so it is timed, not warmed.
+            out.append(Req(f"unstored.fuel-nights.{code}.{tag}", f"/api/sites/{code}/fuel-balance/nights", window))
         else:
             kind = "ev" if code.startswith("EV") else "cold"
             out.append(Req(f"unstored.overview.{code}.{tag}", f"/api/sites/{code}/{kind}/overview", window))
@@ -298,6 +315,29 @@ def plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None =
     return rs, _dedupe(reqs)
 
 
+GATED_ROUTE = "claim-limit-range"  # 409 PERFORMANCE_CUTOVER_CLOSED while the Site's Performance gate is closed
+
+
+CLOSED_CODE = "PERFORMANCE_CUTOVER_CLOSED"
+
+
+def exclude_closed_gate(reqs: list[Req], probe: Fetch) -> tuple[list[Req], list[dict[str, str]]]:
+    """D-SR.74: send `claim-limit-range` only for Sites whose Performance gate is open. The route's own gate
+    answers: the Site's first planned request is the probe (`probe` returns (status, error code)); only a 409 whose
+    code is PERFORMANCE_CUTOVER_CLOSED closes that Site. Any other answer keeps the requests in the plan, so a
+    failing probe is reported by the run, never hidden as an exclusion.
+    Returns (the plan without the closed Sites' gated requests, `[{site, route}]` for each closed Site)."""
+    sites: dict[str, bool] = {}
+    for q in reqs:
+        parts = q.path.split("/")
+        if len(parts) == 5 and parts[4] == GATED_ROUTE and parts[3] not in sites:
+            status, code = probe(q.target)
+            sites[parts[3]] = not (status == 409 and code == CLOSED_CODE)
+    closed = {code for code, open_ in sites.items() if not open_}
+    kept = [q for q in reqs if not (q.path.split("/")[-1] == GATED_ROUTE and q.path.split("/")[3] in closed)]
+    return kept, [{"site": code, "route": GATED_ROUTE} for code in sorted(closed)]
+
+
 def unstored_plan(today: date, sites: dict[str, tuple[date, date]], routes: dict | None = None) -> list[Req]:
     """D-WARM.2: the unstored reads for the 5 presets and the story ranges (timed by `--verify`, not gated)."""
     reqs: list[Req] = []
@@ -347,6 +387,24 @@ class Result:
 
 
 Fetch = Callable[[str], tuple[int, str]]
+
+
+def http_probe(base_url: str, timeout: float = TIMEOUT_SECONDS) -> Fetch:
+    """GET base_url + target; returns (status, the error body's `detail.code` or "")."""
+    base = base_url.rstrip("/")
+
+    def probe(target: str) -> tuple[int, str]:
+        try:
+            with urllib.request.urlopen(base + target, timeout=timeout) as response:
+                response.read()
+                return response.status, ""
+        except urllib.error.HTTPError as error:
+            try:
+                detail = json.loads(error.read().decode("utf-8")).get("detail")
+                return error.code, str(detail.get("code", "")) if isinstance(detail, dict) else ""
+            except (ValueError, AttributeError):
+                return error.code, ""
+    return probe
 
 
 def http_fetch(base_url: str, timeout: float = TIMEOUT_SECONDS) -> Fetch:
@@ -517,6 +575,9 @@ def main(argv: list[str] | None = None) -> int:
     routes = json.loads(routes_path.read_text(encoding="utf-8")) if routes_path.is_file() else None
     today = a.today or datetime.now(timezone.utc).date()
     rs, reqs = plan(today, sites, routes)
+    excluded: list[dict[str, str]] = []
+    if a.base_url and not a.dry_run:  # the same plan for warm and --verify: closed-gate Sites are listed, not sent
+        reqs, excluded = exclude_closed_gate(reqs, http_probe(a.base_url))
     first, last = data_window(sites)
     print(f"WARM-1 (workaround): today {today}, data window {first}..{last}, {len(rs)} ranges, {len(reqs)} requests "
           f"({sum(1 for r in reqs if r.path.startswith('/api/estate/'))} estate, "
@@ -540,13 +601,15 @@ def main(argv: list[str] | None = None) -> int:
         report["unstored"] = unstored_section(run(unstored_plan(today, sites, routes), http_fetch(a.base_url),
                                                   workers=workers, verify=True))
     report.update({"workaround": "WARM-1 (D-17N.1; reverses D-ANY.3 for the 17 Nov build only)", "today": str(today),
-                   "data_window": [str(first), str(last)], "ranges": len(rs), "workers": workers,
+                   "data_window": [str(first), str(last)], "excluded_closed_gate": excluded, "ranges": len(rs), "workers": workers,
                    "base_url": a.base_url})
     out = a.report or report_path(a.work, a.verify)
     out.write_text(json.dumps(report, indent=1), encoding="utf-8")
     print(f"{report['mode']}: {'PASS' if report['pass'] else 'FAIL'} - {report['requests']} requests, "
           f"{report['hit_percent']}% hits, max {report['max_ms']} ms, {len(report['degraded'])} degraded, "
           f"{len(report['failed'])} failed, wall {report['wall_seconds']} s; report {out}")
+    if excluded:
+        print("excluded (closed Performance gate): " + ", ".join(f"{e['site']} {e['route']}" for e in excluded))
     if "unstored" in report:
         u = report["unstored"]
         print(f"unstored (not gated, D-WARM.2): {u['requests']} requests, max {u['max_ms']} ms, "

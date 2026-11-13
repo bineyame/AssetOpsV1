@@ -224,7 +224,10 @@ def _declare(url: str, mode: str, tag: str, replayed: dict) -> dict:
     intent = _ok(app.post(f"{base}/{action['id']}/intents", json=posted_intent), 201)
     detail = _ok(app.get(f"{base}/{action['id']}"), 200)
     shown = detail["action"]
-    if (shown["title"], shown["owner_label"], shown["due_at"]) != tuple(P.ACTION.values()) \
+    # DATA-13: the due date read back is the posted one (None unless the demo prepare set P.DEMO_ACTION_DUE).
+    due = lambda v: None if v is None else P.instant(v)  # noqa: E731
+    if (shown["title"], shown["owner_label"]) != (P.ACTION["title"], P.ACTION["owner_label"]) \
+            or due(shown["due_at"]) != due(posted["due_at"]) \
             or detail["intent"]["basis"] != posted_intent["basis"]:
         raise P.ProducerRefused("the stored Action/intent read back differs from the posted literals")
     k0, k1, k2 = selected.k0, P.instant(_recorded(action, "recorded_at")), P.instant(_recorded(intent, "recorded_at"))

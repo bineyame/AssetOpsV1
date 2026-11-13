@@ -118,6 +118,8 @@ export interface SiteWindowOverviewProps {
   outcomeBoard?: OutcomeBoardClient;
   /** PB-5: the Foundation device display names by device id, for the readings legend; without one the id is spoken. */
   deviceNames?: Readonly<Record<string, string>>;
+  /** SR-5b: the range view's address (same path, no day); set on a mini-grid drill-in. */
+  backToRange?: string;
 }
 
 /**
@@ -277,7 +279,17 @@ function dayPercent(instant: string | null, start: string): number | null {
 export const FIRST_DAY_OF_RANGE = "First day of the range";
 export const LAST_DAY_OF_RANGE = "Last day of the range";
 
-function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onSelectDay: (day: string) => void }) {
+export const BACK_TO_RANGE = "Back to the whole range";
+
+function DaySelector({
+  summary,
+  onSelectDay,
+  backToRange,
+}: {
+  summary: SiteWindowSummary;
+  onSelectDay: (day: string) => void;
+  backToRange?: string;
+}) {
   const day = summary.window.utc_date;
   const [params] = useSearchParams();
   // SR-2: day navigation keeps the shared range (and `known_at`) and writes the page's `day`; the Finding pin drops.
@@ -292,6 +304,12 @@ function DaySelector({ summary, onSelectDay }: { summary: SiteWindowSummary; onS
   return (
     <>
     <div className="v69-chips window-day" data-window-date={day}>
+      {/* SR-5b (rev 9 §9.4): the drill-in's way back to the range view (same path, no day); first in the chip row. */}
+      {backToRange === undefined ? null : (
+        <Link className="button" to={backToRange} data-range-back>
+          ← {BACK_TO_RANGE}
+        </Link>
+      )}
       {/* SR-2: the one day picker (FocusPicker) says which day of the shared range this board shows. */}
       <FocusPicker
         day={day}
@@ -1157,6 +1175,7 @@ export function SiteWindowOverview({
   mini,
   outcomeBoard,
   deviceNames,
+  backToRange,
 }: SiteWindowOverviewProps) {
   const day = summary.window.utc_date;
   const miniState = useOverviewMini(mini, day);
@@ -1168,7 +1187,7 @@ export function SiteWindowOverview({
           <>
             {/* Review Low 7b: the app-only day chooser is the v69 chip row above the statusbar, the same place as
                 on Dispatch and Evidence. */}
-            <DaySelector summary={summary} onSelectDay={onSelectDay} />
+            <DaySelector summary={summary} onSelectDay={onSelectDay} backToRange={backToRange} />
             <DayStatus summary={summary} links={links} reads={minigrid ? overviewReadable(miniState) : null} />
             <ObjectiveLine summary={summary} minigrid={minigrid} loadNames={mini?.loadNames} />
             {/* OUT-B B5: the outcome board replaces the old objective cards (doc §6.4 deviation 1, R540). It reads the

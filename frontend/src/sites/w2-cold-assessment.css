@@ -44,7 +44,7 @@
 }
 
 .cold-chart__axis {
-  font-size: 11px;
+  font-size: var(--font-size-100);
   fill: var(--text-muted, #5f6b7a);
 }
 
@@ -62,7 +62,7 @@
   margin: 10px 0 0;
   padding-left: 18px;
   color: var(--text-muted, #5f6b7a);
-  font-size: 13px;
+  font-size: var(--font-size-200);
 }
 
 .cold-chart__grid {
@@ -76,7 +76,7 @@
 }
 
 .cold-chart__excursion-label {
-  font-size: 11px;
+  font-size: var(--font-size-100);
   fill: #a8322a;
 }
 
@@ -85,7 +85,7 @@
   flex-wrap: wrap;
   gap: 4px 16px;
   margin-top: 4px;
-  font-size: 12px;
+  font-size: var(--font-size-100);
   color: var(--text-muted, #5f6b7a);
 }
 
@@ -152,7 +152,7 @@
 }
 [data-cold-view="cold-finding"] .cold-operational-missing {
   margin: 6px 0 0;
-  font-size: 11px;
+  font-size: var(--font-size-100);
   line-height: 1.4;
 }
 
