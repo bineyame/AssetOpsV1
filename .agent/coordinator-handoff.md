@@ -1,5 +1,15 @@
 # Coordinator handoff — 2026-11-09 (replaces all earlier versions; older text is in git history)
 
+## >>> RESUME STATE — 2026-11-13 ~08:55 UTC (session resumed after a network loss; read first) <<<
+
+- Walkthrough 16:00 EAT = 13:00 UTC (`owner-walkthrough-4pm-2026-11-13.md`).
+- Merged since 00:28: SR-5/6b/7/8/10c/11/12a/12b pages, WARM routes, UQ-FI-1/2/3, COH-17, FR-B part 2, and at 08:50 DATA-17N + DATA-10 fix (main 6b7c75601, check-all 21/21).
+- **Walkthrough DB build RUNNING**: wt `/opt/assetecon/AssetOpsV1-walk` (task/WALK-1113-build @6b7c75601), DB `assetops_polish_walk1113_test`, work `var/polish_walk1113`, log `var/polish_walk1113-prepare.log`; started 08:51 detached; expect ~11:00; cap 2x. Then: self-check, add-dates, warm, serve, smoke, access note by ~12:30.
+- UP-1: main merged in (935024a3b); check-all 3/21 fail (bare table -> DataTable, raw font-family, ratchet fixtures) — Sonnet fix round running. Has migration 0061 (apply to the walk DB after merge).
+- MB-1: re-review ACCEPT (ff13c2b69); merge main after UP-1 lands, then check-all.
+- AP-1: re-review ACCEPT + parity note (Kisiwa 409 on clone); read-path only; merge after the build.
+- Scratchpad for this session: /tmp/claude-1001/-opt-assetecon-AssetOpsV1/c6d26aed-1fa9-4f4e-a150-d6f87dd20a07/scratchpad (checkall-queue.sh, results).
+
 ## >>> VPS STATE — 2026-11-13 ~00:30 UTC (read this first; supersedes the "VPS RESUME" section below) <<<
 
 **Where.** Repo `/opt/assetecon/AssetOpsV1` (main), worktrees `/opt/assetecon/AssetOpsV1-<lane>`; each worktree's `frontend/node_modules` is a symlink to main's. Python `/opt/assetecon/AssetOpsV1/.venv/bin/python`. Docker via `sg docker -c "…"` until a fresh login (deploy is in the docker group). Postgres `assetopsv1-postgres-1`, max_connections 300 (compose file). Lane rules: `.agent/lane-rules-vps-2026-11-12.md` (coordinator runs check-all centrally; builders run Site-href tests; long jobs `setsid nohup`). check-all helper scripts: scratchpad `checkall-queue.sh <lanes…>`, `main-checkall.sh` (results appended to `checkall-queue.results`). Nothing pushed to GitHub since the move (owner asked: not yet answered).
