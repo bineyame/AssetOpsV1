@@ -75,6 +75,39 @@ describe("AP-1 stored-Site analytics readiness", () => {
     expect(required?.textContent).not.toMatch(/null usable record/);
   });
 
+  it("an unbound role shows Not bound and no file-era id; a policy row shows no reference (D-SR.78 Q2)", async () => {
+    const directory: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
+    const detail: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: STORED_SITE }) };
+    const base = storedDeclaration();
+    const row = base.analytics[0];
+    const stored: SiteAnalytics = {
+      ...base,
+      analytics: [
+        {
+          ...row,
+          required_evidence: [
+            { ...row.required_evidence[0], role: "Load", plain_role: "Site load", device_id: null, signal_id: null, unbound: true, available: false, last_source_time: null },
+            { ...row.required_evidence[0], role: "Reserve policy", plain_role: "Reserve policy", device_id: null, signal_id: null, unbound: false, available: true, last_source_time: null },
+          ],
+        },
+      ],
+    };
+    const analytics = { ...analyticsClient(SITE_ID), getDeclaration: vi.fn(() => Promise.resolve({ status: "loaded" as const, value: stored })) };
+    render(
+      <MemoryRouter initialEntries={[`/sites/${SITE_ID}/evidence?view=analysis`]}>
+        <App flags={featureFlagsWith(false)} siteDirectory={directory} siteDetail={detail}
+          siteEvidence={evidenceClient({ status: "loaded", value: POPULATED_EVIDENCE })} siteAnalytics={analytics} />
+      </MemoryRouter>,
+    );
+    await settledScreen();
+    const items = Array.from(document.querySelectorAll("[data-capability-required] li"));
+    const load = items.find((li) => li.textContent?.startsWith("Site load"));
+    const policy = items.find((li) => li.textContent?.startsWith("Reserve policy"));
+    expect(load).toHaveTextContent("(reference Not bound)");
+    expect(policy?.textContent).not.toContain("reference");
+    expect(document.body.textContent).not.toContain("pv-inverter-controller");
+  });
+
   it("Performance takes the durable reads for a POSTGRES Site without asking /analytics", async () => {
     const analytics = client();
     const performance: PerformanceDispatchClient = {

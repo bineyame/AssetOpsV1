@@ -127,7 +127,7 @@ def test_every_dispatch_requirement_maps_or_fails_closed():
     everything = [{**p, "role": r} for p in ALL_BOUND[:1] for r in {*dispatch_v3.LABELS, "Mystery input"}]
     required, _ = stored_requirements(mystery, [*ALL_BOUND, *everything], set(ROLE_OF_REQUIREMENT.values()))
     (row,) = [r for r in required if r["role"] == "Mystery input"]
-    assert row["available"] is False and (row["device_id"], row["signal_id"]) == ("x-device", "x-signal")
+    assert row["available"] is False and (row["device_id"], row["signal_id"]) == (None, None)  # D-SR.78 Q2
 
 
 def test_configured_capability_is_never_an_observed_reading():
@@ -154,6 +154,17 @@ def test_each_bound_feeder_is_one_load_row_with_its_binding_ids():
     # An unbound role keeps the declaration's rows, not available.
     required, _ = stored_requirements(DISPATCH, [p for p in ALL_BOUND if p["role"] != LOAD], set())
     assert [r["available"] for r in required if r["role"] == "Load"] == [False, False, False]
+
+
+def test_unbound_role_gives_null_ids_and_policy_rows_no_reference():
+    # D-SR.78 Q2: on the stored path ids come only from a stored binding.
+    required, optional = stored_requirements(DISPATCH, [p for p in ALL_BOUND if p["role"] != LOAD], {CONTROL_BATTERY_RESERVE})
+    loads = [r for r in required if r["role"] == "Load"]
+    assert loads and all(r["device_id"] is None and r["signal_id"] is None and r["unbound"] is True for r in loads)
+    policy = [r for r in [*required, *optional] if r["role"].endswith("policy")]
+    assert policy and all(r["device_id"] is None and r["signal_id"] is None and r["unbound"] is False for r in policy)
+    bound = [r for r in required if r["role"] == "Battery capability"]
+    assert bound and all(r["device_id"] is not None and r["unbound"] is False for r in bound)
 
 
 # --- unit: the dispatch-3.2 coverage adapter ---------------------------------------------------------------------

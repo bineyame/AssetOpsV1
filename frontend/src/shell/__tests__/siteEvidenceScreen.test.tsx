@@ -380,7 +380,7 @@ describe("SR-12a / SR-12b: Evidence panels and the date range", () => {
   it("L1: a failed ranged rejections read shows no count rather than the all-dates count", async () => {
     const evidence = populated();
     evidence.listRejections = async () => ({ status: "unavailable", message: null });
-    renderWith(RANGED, evidence);
+    renderWith(`${EVIDENCE_URL}?from=2026-11-03T00%3A00%3A00Z&to=2026-11-10T00%3A00%3A00Z`, evidence);
     await settledScreen();
     expect(screen.getByRole("heading", { name: /Data sources/ })).toBeInTheDocument();
     expect(document.querySelector("[data-evidence-rejection-count]")).toBeNull();

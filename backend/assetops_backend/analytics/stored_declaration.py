@@ -71,10 +71,12 @@ def _t(value: str) -> datetime:
 
 
 def _row(req: Any, *, available: bool, device_id: str | None = None, signal_id: str | None = None,
-         last: datetime | None = None) -> dict[str, Any]:
+         last: datetime | None = None, unbound: bool = False) -> dict[str, Any]:
+    # D-SR.78 Q2: ids come only from a stored binding; never the file-era declaration's reference.
     return {
-        "device_id": device_id or req.device_id,
-        "signal_id": signal_id or req.signal_id,
+        "device_id": device_id,
+        "signal_id": signal_id,
+        "unbound": unbound,
         "family": req.family,
         "role": req.role,
         "available": available,
@@ -89,7 +91,7 @@ def stored_requirements(declaration: AnalyticDeclaration, presence: list[dict[st
     """The (required, optional) availability rows of one declaration from the stored presence and controls.
 
     A reading role gives one row per bound asset, ids from that binding (the declaration's several Load rows become
-    the Site's bound feeders); an unbound role keeps the declaration's rows, not available. A control row is available
+    the Site's bound feeders); an unbound role keeps the declaration's rows, not available, with null ids and `unbound` true (D-SR.78 Q2). A control row is available
     only when a Foundation revision configures it. NOT_STORED and unmapped rows are not available (fail closed)."""
     by_role: dict[str, list[dict[str, Any]]] = {}
     for p in presence:
@@ -106,7 +108,7 @@ def stored_requirements(declaration: AnalyticDeclaration, presence: list[dict[st
                                  signal_id=b["signal_id"], last=b["last_source_time"]) for b in by_role[key]]
                     done.add(req.role)
                 continue
-            out.append(_row(req, available=kind == CONTROL and key in controls))
+            out.append(_row(req, available=kind == CONTROL and key in controls, unbound=kind == READING))
         return out
 
     return rows(declaration.required_evidence), rows(declaration.optional_evidence)

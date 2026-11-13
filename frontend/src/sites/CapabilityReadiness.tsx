@@ -216,6 +216,21 @@ function CapabilityRow({
   );
 }
 
+/** D-SR.78 Q2: a bound row names its reference; an unbound reading role says "Not bound"; a policy row names none. */
+function referenceText(row: EvidenceRequirement): string | null {
+  return row.device_id === null ? null : `${row.device_id} / ${row.signal_id ?? ""}`;
+}
+
+function referenceSuffix(row: EvidenceRequirement): string {
+  if (row.unbound === true) return " (reference Not bound)";
+  const ref = referenceText(row);
+  return ref === null ? "" : ` (reference ${ref})`;
+}
+
+function rowKey(row: EvidenceRequirement, index: number): string {
+  return `${row.role}/${row.device_id ?? ""}/${row.signal_id ?? ""}/${index}`;
+}
+
 function requirementText(row: EvidenceRequirement): string {
   if (!row.available) {
     return "No usable record";
@@ -262,18 +277,18 @@ export function CapabilityReadinessAnalysis({
               </Fact>
               <Fact term="Required records">
                 <ul className="cell-list" data-capability-required>
-                  {analytic.required_evidence.map((row) => (
-                    <li key={`${row.device_id}/${row.signal_id}`} data-requirement-available={row.available} {...sourceReferences(`${row.device_id} / ${row.signal_id}`)}>
-                      {`${row.plain_role ?? row.role}: ${requirementText(row)} (reference ${row.device_id} / ${row.signal_id})`}
+                  {analytic.required_evidence.map((row, index) => (
+                    <li key={rowKey(row, index)} data-requirement-available={row.available} {...sourceReferences(referenceText(row))}>
+                      {`${row.plain_role ?? row.role}: ${requirementText(row)}${referenceSuffix(row)}`}
                     </li>
                   ))}
                 </ul>
               </Fact>
               <Fact term="Optional records">
                 <ul className="cell-list" data-capability-optional>
-                  {analytic.optional_evidence.map((row) => (
-                    <li key={`${row.device_id}/${row.signal_id}`} data-requirement-available={row.available} {...sourceReferences(`${row.device_id} / ${row.signal_id}`)}>
-                      {`${row.plain_role ?? row.role}: ${row.available ? requirementText(row) : "none received; absence is not proof that none existed"} (reference ${row.device_id} / ${row.signal_id})`}
+                  {analytic.optional_evidence.map((row, index) => (
+                    <li key={rowKey(row, index)} data-requirement-available={row.available} {...sourceReferences(referenceText(row))}>
+                      {`${row.plain_role ?? row.role}: ${row.available ? requirementText(row) : "none received; absence is not proof that none existed"}${referenceSuffix(row)}`}
                     </li>
                   ))}
                 </ul>

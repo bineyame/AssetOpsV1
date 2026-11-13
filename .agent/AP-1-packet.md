@@ -83,3 +83,9 @@ Pass rule: `available_mismatch` empty; every level/ceiling/gap difference classi
 ## Residual risk
 - Unwarmed latency on the real Kobo ledger unmeasured (selected_intervals_on also reads per-window jobs).
 - Kobo levels will likely differ from the file-era level (dispatch-2 vs 3.2); classification pending.
+
+## D-SR.78 rulings applied (2026-11-13)
+- Q2 built: stored path ids come only from a stored binding (`stored_declaration._row`); unbound reading role gives null ids and `unbound: true`; policy/not-stored rows null ids, no reference. `CapabilityReadiness` shows "(reference Not bound)" for unbound, nothing for null-id policy rows. Tests: `test_unbound_role_gives_null_ids_and_policy_rows_no_reference` (backend), "an unbound role shows Not bound..." (`ap1StoredAnalytics.test.tsx`). The old fallback assertion in the mystery-role test now expects (None, None).
+- Q1 (no count, presence only), Q3 (whole-read 422 fail closed, matches claim_limit_read.SUPPORTED_MODELS), Q4 (closed gate returns existing 409 AWAITING_EVIDENCE_MIGRATION): confirmed as built, no change.
+- `git merge main` conflicted in SiteEvidence.tsx and siteEvidenceScreen.test.tsx (SR-12a rejections range vs SR-12b analytics range); both ranges kept, all-dates line on neither panel.
+- Runs: no-DB ap1 28 + sr12b 8 passed; Postgres ap1 file on assetops_ap1_test 6 passed; vitest ap1StoredAnalytics + siteEvidenceScreen + t028EvidenceCapability 36 passed; tsc clean. check-all: for coordinator.
