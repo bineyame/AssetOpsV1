@@ -292,3 +292,94 @@ C1 1.25 + C1b 0.75 + C2 4.0 + C3 2.5 + C3b 2.0 + C4 1.0 + C5 2.0 = 13.5, and C1-
 
 - No live DB or serve reads in this round, so the connection counts, timers and row counts are taken from the first review and the document.
 - The backfill rates were checked only for internal arithmetic (Kobo: 124 hour periods in 34 s, 62 day periods in 103 s; pilot about 20 CPU-hours per kind). The walk build logs were not re-read.
+
+## Re-review (rev 3)
+
+Reviewed: revision 3 at eb8508edc (diff 16eb2b860..eb8508edc on the HTML), against main at eb8508edc. Fresh Claude reviewer. Read-only: code and git reads only; no DB, serve or walk tree touched; nothing changed except this appended section.
+
+### Verdict: ACCEPT WITH NOTES
+
+Every rev 2 finding (N1-N7) is addressed in the body, not only in the changelog. The §4b correction and the re-costing match code and git. The blue/green, fallback-visibility and R0 texts are sound. D1-D6 can go to the owner now. Two Medium spec gaps remain in the new C1/C1b text (P1, P2). Neither affects any D-item or the demo, but both must be fixed in the document, or in the Planner packet, before C1 and C1b are planned.
+
+### Rev 2 findings: resolved in the body?
+
+| Finding | Status |
+|---|---|
+| N1 builder identity | Direction resolved: the framework computes the version; injected deps, dynamic loads, alembic head, config and env manifests are covered; version groups; drift sampler; trade-off stated; exit tests edit an injected adapter's SQL, a migration view and an env manifest. The mechanism as specified does not work for the cited deps (P1). |
+| N1b blue/green | Resolved. Pointer `period_builder_active`, active-version reader, newest-first, no mixed versions per range, `site_read_version` bump on switch, bug-fix PENDING policy. Wording nit in P5. |
+| N2 §4b | Resolved and verified. 182220d4e (2026-11-12 06:17, "AR-4: _data_gaps reads coverage.dispatch_days") is an ancestor of main. DISP-1 at coordinator-handoff `:123` shows week 10.9 → 8.6 s. `estate/period_rows.py:46-47` registers only `evidence.claim`; `evidence.provenance` and `money.lines` are declared but not built; `origin/task/ANY-2-AR4b` exists. The serve env (§1, HTML `:275`) serves `dispatch.day,evidence.claim`. `architect-answer-any-range-speed-2026-11-10.md §2` exists. |
+| N3 counter | Mostly resolved. Per-statement scope, retries with a forced-deadlock test, the tenant hot row and the bookkeeping precondition are all present. The fallback's `xact < pg_snapshot_xmin(pg_current_snapshot())` is sound: 0047 `:66` has `xact xid8 NOT NULL DEFAULT pg_current_xact_id()`, the same type. The new end-of-transaction call is underspecified (P2). |
+| N4 R0 gate | Resolved: first `--verify` only, a user-latency threshold (<1 s against 5.7 s), the midnight check, rollback, variant 1 excluded, default "not done". One gate is not achievable as written (P3). |
+| N5 sequencing | Resolved. C2's exit is mini-grid only; C3b carries the cold/EV `outcome.site_row` and provenance, and must finish before C4; the owner is told meanwhile. |
+| N6 wording | Resolved ("about 4 minutes", "95 in 100 views", calendar weeks, "prepared date ranges" replaces "presenter rule"). |
+| N7 | Resolved. No "85" remains in the HTML. |
+
+### Re-costing check
+
+The stage figures are C1 1.25 + C1b 1.25 (chart `:586` 2.5), C2 3.75, C3 2.5, C3b 2.0, C4 1.0 and C5 2.0.
+
+- Their sum is 13.75, which matches the summary (`:119`), the §6 table (`:346`), the chart (`:596`) and D1.
+- C1-C4 sum to 11.75, which matches D4.
+- Dropping the already-done second-compose item from C2 is correct, and so is adding the profile and the Findings-by-day kind.
+- C3b took on the cold/EV Portfolio inputs without being resized (see P6).
+
+### Remaining findings
+
+#### Medium
+
+**P1. As specified, the "type(dep).__module__" rule misses the injected dependencies it cites, and the reader cannot compute it.**
+- **`type(dep).__module__` misses the cited dependencies.**
+  - `dispatch_day_builders` injects the bound method `store.dispatch_day_now` (`chain/composition.py:136-137`). Its `type(dep).__module__` is `builtins`, not the `postgres_assessment_store` module.
+  - `estate_kind_builders(_estate_evidence_read)` injects an `lru_cache`-wrapped factory (`:91, :106-114`). Its type's module is `functools`, and the class it returns (the estate store) is known only after it is called, which opens a DB service.
+- **The reader cannot compute the version at registration.** The reader's PENDING rule takes its versions from `period_kind_versions()` (`:97-104`; used at `:127, 151, 160, 175`). That function deliberately builds no inputs, so a hash computed "when PeriodReadBuilder registers" from live deps is not available on the read path, and the builder and the reader could disagree.
+- The drift sampler would catch the resulting stale rows, but only after a deploy.
+- **Fix:**
+  - Each version group declares its dependency modules statically: the port adapters and the services it is wired to. The hash is computed from that list, with no instantiation, so builder and reader compute the same value.
+  - A composition-root test then resolves each actual injected dependency to its defining module, unwrapping it first: `__self__` / `__func__` for bound methods, `__wrapped__` for `lru_cache`, and the factory's return type. The test fails if that module is not in the group's list.
+- The exit tests already listed would then prove it.
+
+**P2. "One call at the end of the transaction" does not say how the 0047 statement triggers are kept from bumping earlier in the same transaction, or what happens if the call is skipped.**
+- §5 still has `site_read_version` "incremented by the 0047 trigger functions". The triggers fire per statement, mid-transaction, in application order, so they defeat the end-of-transaction sorted bump.
+- If the triggers are suppressed for these writers, for example by a `SET LOCAL` flag, a writer that forgets the final call commits facts without a version bump. Cached bodies then serve stale data: the H3 hazard again.
+- Fix:
+  - The triggers record the touched Sites in a transaction-local set and do not bump when the flag is set.
+  - The end call bumps the sorted set.
+  - A commit-time guard fails the transaction when the set is non-empty and unflushed, for example a deferred constraint trigger on the collector table.
+  - Alternatively, drop the end call and accept deadlock retries only.
+- Also correct the C1 stage row (`:456`, "lock order (sorted Sites, then the tenant row)"). It still states the rev 2 rule.
+
+#### Low
+
+- **P3. R0's connection cap is not reachable.**
+  - Pools are SQLAlchemy defaults that keep idle connections (`create_engine(..., pool_pre_ping=True)` without `pool_size`, across many stores), so an *idle* walk serve still holds about 90 connections.
+  - Two rehearsal processes add about 90 each. That makes about 270, above the 200 gate, and variant 1 (the pool cap) is excluded.
+  - In practice R0 can pass only if the walk serve is stopped during the rehearsal. That is an owner-visible condition, and D2 should say it.
+  - The gate fails closed (R0 is skipped), so this is not a safety issue.
+- **P4. The drift sampler needs a sampling rule.** It must sample only periods that have no dirty or PENDING marks (`period_read.py:400-403` `dirty_marks`). Otherwise legitimately dirty periods fail deploys. It should compare `period_fp` (which already folds in the version, `:204, 288`) rather than raw bodies, unless the bodies are known to be deterministic.
+- **P5. Wording.** "Not the active version and not the candidate version" reads as if candidate rows are served before the switch. Say that the reader serves only active-version rows; candidate rows are invisible until the switch.
+- **P6. Alembic head and C3b size.**
+  - The alembic head makes every group bump on any migration. That is rare today: 1 of the last 40 first-parent commits on main touched `migrations/versions`, and 58 migrations exist. Each such bump still costs about 20 CPU-hours per group at pilot. Note it in C1b's measurement step, or hash only the view and function definitions a group reads.
+  - C3b gained the cold/EV Portfolio inputs but stays at 2.0 u. Mark it as a floor.
+- **P7. D-items.** D1-D6 read plainly. D2's "a second user worker" and "file stores lose their locking" are the only remaining engineer phrases; "Lab runs could break" would do. This is not blocking.
+
+### Checks run
+
+- `git diff 16eb2b860 eb8508edc` on the HTML. Revision 3 was read in full, with the tags stripped.
+- Code read on main:
+  - `chain/composition.py:80-150`: the injected deps and `period_kind_versions` with its call sites.
+  - `estate/period_rows.py:44-47, 236-241`.
+  - `mini_depth/period_rows.py:192-197`.
+  - `chain/period_read.py:204, 266-295, 400-432`: fingerprint, dirty marks and the version-PENDING rule.
+  - `0047_chain_response.py:66`: the `xact xid8` column.
+  - `create_engine` usage: no pool settings.
+- git:
+  - 182220d4e: its date and subject, and that it is an ancestor of main.
+  - the DISP-1 handoff line.
+  - the `origin/task/ANY-2-AR4b` branch.
+  - migration frequency over the last 40 first-parent commits.
+- Arithmetic of all the effort figures in the HTML.
+
+### Not verified
+
+- No live DB or serve reads, so the timers (10.2 / 6.3 / 4.9 s), connection counts and backfill rates are taken from earlier rounds and the document.
+- The 11 min + about 1 h re-warm figure for variant 1 was not re-measured.

@@ -241,3 +241,9 @@ Restart only when no agents are running. On resume: read this file, `git log --o
 - Re-timed the smoke-2 slow routes at 06:50: Kobo overview/index 0.7–0.8 s, board 0.1 s, maintenance 0.3–0.5 s. Kobo finding financials is still ~2.1 s on every hit.
 - Architect diagnosing (a) prebuilt entries cold between ticks and the ~750 ms store-hit cost, (b) the financials route -> .agent/WALK-perf-ruling-2026-11-14.md. Then Sonnet fix -> fresh review -> merge -> smoke 3 -> access note.
 - Uncommitted owner-walkthrough-notes-2026-11-01.md diff (reordered owner quotes, +22 lines) left untouched.
+
+## UPDATE ~09:15 UTC 2026-11-14
+- WALK-perf merged (f37b0ad9f); walk tree refreshed to f679402c9, serve restart9b. Prebuild 218/218 hit; the 11 smoke-2 slow URLs are 0.08-0.5 s. Smoke 3 (smoke-check-3.md) FAIL on 1 hit only: EV overview 11-03 at 2.2 s (unstored route, 1.2-3.2 s); it ran during the first full warm after the code change (>1 h). Re-time the EV overview after the warm ends; if still >2 s idle -> store the EV overview (same pattern) or accept.
+- Owner docs (committed): .agent/convertion_potential.html rev 3 (re-review ACCEPT WITH NOTES, all fixed); .agent/page-load-architecture-review-2026-11-14.html rev 3 (re-review ACCEPT WITH NOTES). Mediums P1 (builder-version dependency modules: fixed list + wiring test) and P2 (counter bump vs 0047 per-statement triggers; commit-time check; stage row :456) must go into the C1/C1b Planner packet. Low P3: the R0 gate <200 connections is only reachable with the walk serve stopped.
+- OWNER DECISIONS PENDING: page-load D1-D6 (coordinator rec: C; no change before the walkthrough; after 17 Nov; accept D3/D5/D6); Grow card billed/collected money beside the estimate or instead of it (rec: beside).
+- Owner request verbatim: .agent/owner-conversion-potential-request-2026-11-14.md.
