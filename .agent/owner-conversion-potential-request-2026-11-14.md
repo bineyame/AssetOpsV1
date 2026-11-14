@@ -1,0 +1,10 @@
+# Owner request 2026-11-14 (verbatim)
+
+"I want the architect to do the following and create exceptionally illustrated document that 1. Each of the four key pillar input is composed to deliver the best value to the clients on portolio page : trace signal, outcome map, catalogue, outcome category, money compositoin in detail and the flexibility and limitation if any of the approach (especially in light of point 2) 2. in the same document detail the structurual data points and their resource to effectively realize the value for clients and how it can be addressed(e.g billing and/or metering integration...). Base this on actual reserch per vertical(minigrid, coldchain and ev) and the value assetecon can deliver that is likely to covert client during demo and also influence the conversation on what data we need from them. Let teh architect note what exists today and what doesmt. THe name of the file should be convertion_potential.html"
+
+Preceding owner question (same session): "I want to discuss the value for the different verticals, starting with minigrid. Specifically, the signal, category, outcome map for each of 4 core outcomes" and "we have identified 4 key outcome category which also profile in the portfolio page. what i want to do is for each what traces to them from signal, with actual key mechamics outlined(signal, category, outcome_map) as shown in the code logic, and then reflect what is currently wired into the correspondng portfolio card and what is not, especially on the bases of what would be compeling for client(COO,CEO,CFO) for assetcos(ssetecon) product to attract interest based on studies in the african market"
+
+## 2026-11-14 owner (verbatim), page-load architecture
+"regarding the page load speed, i beleive a fundamental architectural consdieration is warranted. what is the current approach?"
+(Coordinator described the current approach and proposed an Architect design review of build-on-arrival per-site-day read models.)
+"yes, commission it in parallel"
