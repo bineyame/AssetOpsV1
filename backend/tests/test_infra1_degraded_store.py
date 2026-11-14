@@ -290,11 +290,14 @@ def test_the_pinned_board_follow_up_of_an_overview_gets_the_same_retries(prebuil
             if "/overview" in path:
                 return SimpleNamespace(status_code=200, headers={HEADER: "stored"},
                                        json=lambda: {"known_finding": {"id": "f1", "revision_id": "r1"}})
+            if "/financials" in path:  # WALK-perf F2: the Financials follow-up of the same Overview
+                return SimpleNamespace(status_code=200, headers={HEADER: "stored"})
             status, state = self.board.pop(0)
             return SimpleNamespace(status_code=status, headers={HEADER: state})
 
     client = Pinned()
     out = prebuild.run("postgresql://x", client)
     board = "/api/sites/KOBO-001/outcome-board?date=2026-10-24&finding_id=f1&finding_revision_id=r1"
-    assert client.calls == [overview, board, board] and prebuild_env == [2]
-    assert out["code"] == "OK" and out["non_200"] == {} and out["degraded"] == {board: 2} and out["requests"] == 2
+    financials = "/api/sites/KOBO-001/findings/f1/financials?revision_id=r1"
+    assert client.calls == [overview, board, board, financials] and prebuild_env == [2]
+    assert out["code"] == "OK" and out["non_200"] == {} and out["degraded"] == {board: 2} and out["requests"] == 3

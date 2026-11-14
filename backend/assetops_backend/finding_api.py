@@ -31,6 +31,7 @@ from assetops_backend.analytics.assessment_ports import AssessmentStoreUnavailab
 from assetops_backend.analytics.finding_read import FindingReadService
 from assetops_backend.analytics.ports import AssessmentStoreUnavailable as FileAssessmentStoreUnavailable
 from assetops_backend.chain import refs
+from assetops_backend.chain.response_store import StoredRoute
 from assetops_backend.evidence.ports import EvidenceStoreUnavailable
 from assetops_backend.outcomes import price_action
 
@@ -42,6 +43,7 @@ ACCESS_BASIS = ("DEVELOPMENT_TENANT_OPERATOR_CONTEXT: no authenticated human pri
 
 
 Gate = Callable[[str, UUID, UUID], "tuple[bool, str]"]
+FINANCIALS_ROUTE = "/api/sites/{site_code}/findings/{finding_id}/financials"
 CLOSED_LINKS = "S3 Performance drill-down routes answer 409 PERFORMANCE_CUTOVER_CLOSED while the gate is closed"
 
 
@@ -56,7 +58,7 @@ def no_gate(site_code: str, tenant_id: UUID, site_id: UUID) -> tuple[bool, str]:
 def build_finding_router(reads: FindingReadService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                          access: Access = development_access, access_basis: str = ACCESS_BASIS,
                          gate: Gate = no_gate, consequences: Any = None,
-                         consequence_unavailable: tuple[type, ...] = ()) -> APIRouter:
+                         consequence_unavailable: tuple[type, ...] = (), responses: Any = None) -> APIRouter:
     router = APIRouter()
     down = (AssessmentStoreUnavailable, FileAssessmentStoreUnavailable, EvidenceStoreUnavailable, *unavailable)
     consequence_down = (*down, *consequence_unavailable)
@@ -282,36 +284,47 @@ def build_finding_router(reads: FindingReadService | None, scope: Scope, unavail
     # revision (`bridge_consequence`): a positive amount only when the head is CURRENT and PRICED, otherwise a
     # typed state with no amount. No consequence revision is manufactured and no mock number is inferred.
 
-    @router.get("/api/sites/{site_code}/findings/{finding_id}/financials")
+    @router.get(FINANCIALS_ROUTE)
     def finding_financials(request: Request, site_code: str, finding_id: UUID, revision_id: UUID | None = None
                            ) -> dict[str, Any]:
         code, tenant_id, site_id = open_scope(request, site_code)
-        source = source_gate(code, tenant_id, site_id)
-        if not source["permitted"] and revision_id is None:
-            raise closed(source)
-        body = served(lambda: reads.finding(tenant_id, site_id, finding_id, revision_id, limit=1,
-                                            source_open=source["permitted"]),
-                      "No such Finding or revision for this Site.")
-        selected = body["selection"]["revision_id"]
-        episode = body["revision"]["episode"]
-        links = child_links(code, finding_id, selected, source["permitted"])
-        links["financials"] = f"/sites/{code}/financials?finding_id={finding_id}&revision_id={selected}"
-        links["assumptions"] = f"/sites/{code}/financials/assumptions"
-        result = bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"]))
-        return jsonable_encoder({
-            "site_code": code, "access_basis": access_basis, "source_gate": source, "audit_only": audit_only(source),
-            "finding": body["finding"], "selection": body["selection"],
-            "revision": {"id": selected, "revision_no": body["selection"]["revision_no"],
-                         "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
-                         "claim_level": body["revision"]["claim_level"]},
-            "window": episode,
-            # S4-05b: the exact stored source provenance of the selected FindingRevision and of the consequence
-            # revision the bridge summarises (None when no consequence revision was read).
-            "source_provenance": {"finding_revision": body.get("source_provenance"),
-                                  "consequence_revision": None if result is None
-                                  else (result.get("source_provenance") or {}).get("consequence_revision")},
-            "consequence": with_price_action(bridge_consequence(result), code),
-            "links": links})
+
+        def compose() -> dict[str, Any]:
+            # WALK-perf F2: a stored route; the gate and the reads run only on a miss (inside `read_scope.fresh`).
+            source = source_gate(code, tenant_id, site_id)
+            if not source["permitted"] and revision_id is None:
+                raise closed(source)
+            body = served(lambda: reads.finding(tenant_id, site_id, finding_id, revision_id, limit=1,
+                                                source_open=source["permitted"]),
+                          "No such Finding or revision for this Site.")
+            selected = body["selection"]["revision_id"]
+            episode = body["revision"]["episode"]
+            links = child_links(code, finding_id, selected, source["permitted"])
+            links["financials"] = f"/sites/{code}/financials?finding_id={finding_id}&revision_id={selected}"
+            links["assumptions"] = f"/sites/{code}/financials/assumptions"
+            result = bridge(tenant_id, site_id, finding_id, body["selection"], bool(source["permitted"]))
+            return {FINANCIALS_ROUTE: jsonable_encoder({
+                "site_code": code, "access_basis": access_basis, "source_gate": source, "audit_only": audit_only(source),
+                "finding": body["finding"], "selection": body["selection"],
+                "revision": {"id": selected, "revision_no": body["selection"]["revision_no"],
+                             "title": body["revision"]["title"], "lifecycle": body["revision"]["lifecycle"],
+                             "claim_level": body["revision"]["claim_level"]},
+                "window": episode,
+                # S4-05b: the exact stored source provenance of the selected FindingRevision and of the consequence
+                # revision the bridge summarises (None when no consequence revision was read).
+                "source_provenance": {"finding_revision": body.get("source_provenance"),
+                                      "consequence_revision": None if result is None
+                                      else (result.get("source_provenance") or {}).get("consequence_revision")},
+                "consequence": with_price_action(bridge_consequence(result), code),
+                "links": links})}
+
+        if responses is None:
+            return compose()[FINANCIALS_ROUTE]
+        site = UUID(str(site_id))
+        key = {"site": str(site), "finding": str(finding_id),
+               "revision": None if revision_id is None else str(revision_id)}
+        return responses.serve(StoredRoute(FINANCIALS_ROUTE, UUID(str(tenant_id)), key, sites=(site,),
+                                           watermark_sites=(site,)), compose)
 
     def bridge(tenant_id: UUID, site_id: UUID, finding_id: UUID, selection: dict[str, Any],
                source_open: bool) -> dict[str, Any] | None:
