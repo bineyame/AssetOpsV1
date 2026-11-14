@@ -202,12 +202,12 @@ def chain_paths(client: Any, requests: Iterable[Any]) -> list[str]:
         if threads:
             out.append(f"/api/sites/{code}/threads/{threads[0]['id']}?{query}")
     # WALK-perf F2: the stored Financials route, from the first prebuilt KOBO Overview's known_finding.
-    overview = next((r for r in requests if r.path == "/api/sites/KOBO-001/overview"), None)
-    if overview is not None:
+    for overview in (r for r in requests if r.path == "/api/sites/KOBO-001/overview"):
         r = client.get(f"{overview.path}?{overview.query}")
         found = (r.json().get("known_finding") if r.status_code == 200 else None) or {}
-        if found.get("id") and found.get("revision_id"):
+        if found.get("id") and found.get("revision_id"):  # the first prebuilt Overview that names a Finding
             out.append(f"/api/sites/KOBO-001/findings/{found['id']}/financials?revision_id={found['revision_id']}")
+            break
     summary = next((r.query for r in requests if r.path == "/api/estate/outcome-summary"), None)
     if summary is not None:
         out.append(f"/api/estate/chain?{summary}")
