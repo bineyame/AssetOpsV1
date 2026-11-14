@@ -588,7 +588,7 @@ def create_app(
         registry.ledger_scope, finding_store_unavailable(), gate=performance_gate,
         # S4-02b phase 2a: the stored fuel-cost consequence read and the Financials bridge summary.
         consequences=build_consequence_read_service(database_url()) if database_url() else None,
-        consequence_unavailable=CONSEQUENCE_UNAVAILABLE))
+        consequence_unavailable=CONSEQUENCE_UNAVAILABLE, responses=responses))
     # DIESEL-K5 (DIESEL-1-R3l): the fuel-balance nights, the fuel Finding page and the Site's fuel checks; typed 503
     # without a database. Stores come from their compositions; the read only reads.
     # OWN-G3a (R2-G3a 2): the one fuel-balance store also answers the operational entry route's Site context.

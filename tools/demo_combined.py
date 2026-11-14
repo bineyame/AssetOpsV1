@@ -107,6 +107,28 @@ def prebuild_refusal(stdout: str) -> str | None:
     return None
 
 
+#: WALK-perf F3: warm the date-bar ranges again after this many seconds even when nothing changed.
+WARM_REFRESH_SECONDS = 30 * 60
+
+
+def prebuild_states(stdout: str) -> dict | None:
+    """WALK-perf F3: the `states` of the prebuild's last JSON line (None when no line parses)."""
+    lines = [x for x in (stdout or "").splitlines() if x.startswith("{")]
+    try:
+        states = json.loads(lines[-1]).get("states") if lines else None
+    except ValueError:
+        return None
+    return states if isinstance(states, dict) else None
+
+
+def warm_due(states: dict | None, last_warm_end: float | None, now: float) -> bool:
+    """WALK-perf F3: warm on the first tick (no warm has finished), when the prebuild stored or built anything other
+    than a `hit` (or its states are unknown), or when WARM_REFRESH_SECONDS have passed since the last warm ended."""
+    if last_warm_end is None or states is None:
+        return True
+    return any(k != "hit" for k in states) or now - last_warm_end >= WARM_REFRESH_SECONDS
+
+
 def kobo_expected_seconds(days_doc: dict) -> int:
     return 110 * sum(1 for e in days_doc["sites"].get("kobo", []) if e["kind"] != "missing") + 60
 
@@ -1332,7 +1354,7 @@ class Demo:
             return None
         return f"cic:{count}"
 
-    def performance_and_prebuild(self) -> None:
+    def performance_and_prebuild(self) -> dict | None:
         marks_path = self.work / PERFORMANCE_MARKS_FILE
         marks = read_marks(marks_path)
         for site in ("KOBO-001",) + (("KISIWA-001",) if "kisiwa" in self.story().get("sites", ()) else ()):
@@ -1351,9 +1373,12 @@ class Demo:
         done = self.py("-m", "assetops_backend.scheduling.run", "prebuild", label="prebuild", check=False,
                        serve_env=True)
         say("  prebuild: " + (done.stdout.strip().splitlines() or ["(no output)"])[-1][:160])
+        states = prebuild_states(done.stdout)
+        self.last_prebuild_states = states  # WALK-perf F3: the serve loop decides on the warm from it
         refusal = prebuild_refusal(done.stdout)
         if refusal is not None:  # INFRA-1 (D-E5.47) rule 5: a DEGRADED prebuild fails the build like FAILED
             raise PrebuildRefused(refusal)
+        return states
 
     # ---- the R8 drain (DD1b2-R6 O2, R7 Q1-Q4) -----------------------------------------------------------------
     def counts(self) -> dict:
@@ -1850,7 +1875,10 @@ class Demo:
         ranges: subprocess.Popen | None = None
         try:
             warmed = False
+            last_warm_end: float | None = None
+            warm_pending = False  # WALK-perf F3: a change was seen while a warm was still running
             while api.poll() is None:
+                self.last_prebuild_states = None
                 try:
                     self.tick()
                 except PrebuildRefused as exc:  # INFRA-1 fix round: a degraded tick is logged; the API keeps serving
@@ -1862,7 +1890,12 @@ class Demo:
                 if ranges is not None and ranges.poll() is not None:
                     say(f"  warm ranges: exit {ranges.returncode} (WARM-1 workaround; <work>/warm-report.json)")
                     ranges = None
-                if warm and ranges is None and api.poll() is None:  # WARM-1: after each tick's prebuild
+                    last_warm_end = time.monotonic()
+                if warm and warm_due(self.last_prebuild_states, last_warm_end, time.monotonic()):
+                    warm_pending = True
+                if warm and warm_pending and ranges is None and api.poll() is None:
+                    # WALK-perf F3: only on the first tick, a changed prebuild, or after WARM_REFRESH_SECONDS
+                    warm_pending = False
                     ranges = self.start_warm(port)
                 for _ in range(TICK_EVERY_SECONDS):
                     if api.poll() is not None:

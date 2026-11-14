@@ -201,6 +201,13 @@ def chain_paths(client: Any, requests: Iterable[Any]) -> list[str]:
         threads = r.json().get("threads") if r.status_code == 200 else None
         if threads:
             out.append(f"/api/sites/{code}/threads/{threads[0]['id']}?{query}")
+    # WALK-perf F2: the stored Financials route, from the first prebuilt KOBO Overview's known_finding.
+    for overview in (r for r in requests if r.path == "/api/sites/KOBO-001/overview"):
+        r = client.get(f"{overview.path}?{overview.query}")
+        found = (r.json().get("known_finding") if r.status_code == 200 else None) or {}
+        if found.get("id") and found.get("revision_id"):  # the first prebuilt Overview that names a Finding
+            out.append(f"/api/sites/KOBO-001/findings/{found['id']}/financials?revision_id={found['revision_id']}")
+            break
     summary = next((r.query for r in requests if r.path == "/api/estate/outcome-summary"), None)
     if summary is not None:
         out.append(f"/api/estate/chain?{summary}")
@@ -340,7 +347,10 @@ def _run(url: str, work: Path) -> dict[str, Any]:
                 current["route"] = path
                 statuses[f"{path}?"] = client.get(path).status_code
                 current["route"] = None
-            for path in chain_paths(client, requests):  # CH-5b2: the five stored chain and "Why?" routes
+            paths = chain_paths(client, requests)
+            financials = ("exercised" if any("/financials" in p for p in paths)
+                          else "not exercised: no KOBO Overview names a Finding")  # WALK-perf M2
+            for path in paths:  # CH-5b2: the five stored chain and "Why?" routes
                 current["route"] = path.split("?")[0]
                 statuses[path] = client.get(path).status_code
                 current["route"] = None
@@ -360,7 +370,7 @@ def _run(url: str, work: Path) -> dict[str, Any]:
     total["unlisted_modules"] = unlisted
     total["ok"] = overall(per_route, total) and not clock_predicates and not audit.violations and not unlisted
     return {"requests": len(statuses), "non_200": {k: v for k, v in statuses.items() if v != 200},
-            "routes": per_route, "all": total, "modules": sorted(audit.modules)}
+            "routes": per_route, "all": total, "modules": sorted(audit.modules), "financials": financials}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -382,7 +392,7 @@ def main(argv: list[str] | None = None) -> int:
           f"unresolved {total['unresolved']} untracked {total['untracked']} "
           f"event_consumption_read {total['event_consumption_read']} clock_predicates {len(total['clock_predicates'])} "
           f"file_violations {len(total['file_violations'])} modules {len(result['modules'])} "
-          f"unlisted_modules {total['unlisted_modules']}")
+          f"unlisted_modules {total['unlisted_modules']} financials: {result['financials']}")
     return 0 if total["ok"] and not result["non_200"] else 1
 
 

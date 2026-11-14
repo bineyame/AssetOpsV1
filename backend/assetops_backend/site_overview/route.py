@@ -159,13 +159,14 @@ class SiteOverviewRoute:
             raise HTTPException(status_code=503, detail={"code": "SITE_OVERVIEW_UNAVAILABLE",
                                                          "message": "No product database is configured."})
         try:
-            permitted, reason = self.gate(code, tenant_id, site_id)
-            reason = basis_reason(bool(permitted), reason, empty_legacy)  # final review ruling 3 (M4)
             if day is None:
                 day = self.read.db_today()
             pinned = None if fid is None else (fid, rid)
 
             def compose() -> dict[str, Any]:
+                # WALK-perf F1: the gate's inputs are all inside W, so a stored hit never evaluates it.
+                permitted, reason = self.gate(code, tenant_id, site_id)
+                reason = basis_reason(bool(permitted), reason, empty_legacy)  # final review ruling 3 (M4)
                 body = self.read.read(code, tenant_id, site_id, day, access_basis=self.access_basis,
                                       source_open=bool(permitted), source_reason=reason, pinned=pinned)
                 return {OVERVIEW_ROUTE: jsonable_encoder(body)}

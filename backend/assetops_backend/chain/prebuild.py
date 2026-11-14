@@ -95,6 +95,7 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
                 return response
             return None
 
+        built: set[str] = set()  # WALK-perf F2: each financials path is built once per run
         for path in paths():
             response = fetch(path)
             if response is not None:
@@ -102,6 +103,11 @@ def run(url: str | None, client: Any = None) -> dict[str, Any]:
                 if pinned is not None:  # D-SR.83: the board the Overview page opens next, that Finding pinned
                     extra += 1
                     fetch(pinned)
+                for financials in financials_paths(path, response):
+                    if financials not in built:  # WALK-perf F2: the Financials page a Finding opens next
+                        built.add(financials)
+                        extra += 1
+                        fetch(financials)
         pruned = store.prune()
     finally:
         store.dispose()
@@ -129,6 +135,26 @@ def pinned_board_path(path: str, response: Any) -> str | None:
         return None
     query = urlencode([("date", day), ("finding_id", finding["id"]), ("finding_revision_id", finding["revision_id"])])
     return f"/api/sites/{hit.group(1)}/outcome-board?{query}"
+
+
+_INDEX = re.compile(r"^/api/sites/([^/?]+)/finding-index\?")
+
+
+def financials_paths(path: str, response: Any) -> list[str]:
+    """WALK-perf F2: the stored Financials request(s) a Finding opens next. After a 200 Overview, its `known_finding`
+    (`id`, `revision_id`); after a 200 Site finding-index, one per row (`finding_id`, `finding_revision_id`)."""
+    overview, index = _OVERVIEW.match(path), _INDEX.match(path)
+    if overview is None and index is None:
+        return []
+    code = (overview or index).group(1)
+    try:
+        body = response.json()
+        pairs = ([(f.get("id"), f.get("revision_id")) for f in [body.get("known_finding")] if f] if overview
+                 else [(r.get("finding_id"), r.get("finding_revision_id")) for r in body.get("rows") or []])
+    except Exception:  # noqa: BLE001 - a body that cannot be read names no Finding
+        return []
+    return [f"/api/sites/{code}/findings/{fid}/financials?{urlencode([('revision_id', rid)])}"
+            for fid, rid in pairs if fid and rid]
 
 
 #: INFRA-1 (D-E5.47) rule 5: the waits before each of the 3 retries of a degraded path.

@@ -218,3 +218,43 @@ def test_prebuild_paths_cover_every_listed_request_and_the_scope_ids() -> None:
     portfolios = [p for p in paths if p.startswith("/api/estate/portfolio?")]
     assert len(paths) == len(set(paths)) and portfolios
     assert len([p for p in paths if p.startswith("/api/estate/portfolio/scope-ids?")]) == len(portfolios)
+
+
+def test_walkperf_m1_financials_through_the_real_store_misses_after_a_price_row_write(engine, monkeypatch) -> None:  # noqa: F811
+    """WALK-perf M1: stored, then hit, then a write to a `financial_assumption_*` row makes the next read a miss
+    with the new body. The Finding read is a stub whose title carries the price-row count; store, watermark and
+    change log are the real ones."""
+    from test_walkperf_gate_in_compose import Gate, Reads
+
+    from assetops_backend.finding_api import build_finding_router
+
+    monkeypatch.setenv("ASSETOPS_RESPONSE_STORE", "on")
+    tenant, (site, *_) = _seed(engine)
+
+    class PricedReads(Reads):
+        def finding(self, *a, **k):
+            out = super().finding(*a, **k)
+            with engine.connect() as c:
+                n = c.execute(text("SELECT count(*) FROM financial_assumption_revision WHERE site_id = :s"),
+                              {"s": site}).scalar_one()
+            out["revision"]["title"] = f"prices={n}"
+            return out
+
+    app = FastAPI()
+    app.include_router(build_finding_router(PricedReads(), {"KOBO-001": ("KOBO-001", tenant, site)}.get, (),
+                                            gate=Gate(), responses=_store(engine)))
+    client, url = TestClient(app), f"/api/sites/KOBO-001/findings/{uuid4()}/financials"
+    first, second = client.get(url), client.get(url)
+    assert (first.headers[HEADER], second.headers[HEADER]) == ("stored", "hit") and second.content == first.content
+    rid = uuid4()
+    with engine.begin() as c:
+        c.execute(text(
+            "INSERT INTO financial_assumption_revision (id, tenant_id, site_id, assumption_key, revision_no, "
+            "currency, unit, value, basis, source_reference, valid_from, recorded_at, change_kind, actor_kind, "
+            "actor_id, channel, authorization_basis, provenance, idempotency_key, request_sha256) VALUES (:id, :t, "
+            ":s, 'diesel_price_per_litre', 1, 'USD', 'currency/L', 1, 'AUTHORED_ESTIMATE', 'x', '2026-01-01', "
+            "clock_timestamp(), 'INITIAL', 'SYSTEM', 'svc', 'SYSTEM_CLI', 'x', '{}', :k, repeat('0', 64))"),
+            {"id": rid, "t": tenant, "s": site, "k": str(rid)})
+    third = client.get(url)
+    assert third.headers[HEADER] == "stored" and third.content != first.content
+    assert json.loads(third.content)["revision"]["title"] == "prices=1"

@@ -69,18 +69,20 @@ def build_finding_index_router(index: FindingIndexService | None, scope: Scope, 
             parsed = parse_request(domain, from_, to, limit, cursor)
         except IndexRefusal as error:
             raise HTTPException(status_code=error.status, detail=error.detail) from error
-        try:
-            permitted, reason = gate(code, tenant_id, site_id)
-        except down as error:
-            raise store_down(error) from error
-        if not permitted:
-            raise HTTPException(status_code=409, detail={
-                "code": "PERFORMANCE_CUTOVER_CLOSED", "read": "CLOSED", "message": reason,
-                "rows": None, "total_count": None,
-                "note": "The Finding index's authority is the selected S3 assessment, which is closed for this Site; "
-                        "no Finding rows, count or no-Findings verdict is shown. An exact revision_id Finding "
-                        "link reads audit material."})
+
         def compose() -> dict[str, Any]:
+            # WALK-perf F1: the gate (and its 409 refusal, which never stores) runs only on a miss; its inputs are in W.
+            try:
+                permitted, reason = gate(code, tenant_id, site_id)
+            except down as error:
+                raise store_down(error) from error
+            if not permitted:
+                raise HTTPException(status_code=409, detail={
+                    "code": "PERFORMANCE_CUTOVER_CLOSED", "read": "CLOSED", "message": reason,
+                    "rows": None, "total_count": None,
+                    "note": "The Finding index's authority is the selected S3 assessment, which is closed for this Site; "
+                            "no Finding rows, count or no-Findings verdict is shown. An exact revision_id Finding "
+                            "link reads audit material."})
             body = index.read(UUID(str(tenant_id)), UUID(str(site_id)), code, parsed, access_basis=access_basis)
             return {INDEX_ROUTE: jsonable_encoder({**body, "source_gate": {"permitted": True, "reason": reason}})}
 
