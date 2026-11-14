@@ -83,10 +83,22 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 </head>
 <body>
 <main>
-<div class="kicker">Architect review and proposal, 2026-11-14 · nothing built, no code or document changed</div>
+<div class="kicker">Architect review and proposal, 2026-11-14 · Revision 2 · nothing built, no code or document changed</div>
 <h1>How AssetOps serves its pages, and how it should</h1>
 <p class="sub">Portfolio, Site board and Overview, Finding index, Findings and their financials, and range pages. Written for the owner; file and line references are in small print for the team.</p>
 <p class="ref">Architect: Claude (fresh assetops-architect instance; <code>.ai/ROLE_CONFIG.md</code> row "Architect", Claude since 2026-10-27). Owner request: <code>.agent/owner-conversion-potential-request-2026-11-14.md</code> §"page-load architecture"; earlier words in <code>.agent/owner-walkthrough-notes-2026-11-01.md</code>:66, :80, :82 (items 12 and 13). Measurements: read-only GETs on 127.0.0.1:8990, read-only SQL (<code>default_transaction_read_only=on</code>), and the <code>assetops.perf</code> lines in <code>AssetOpsV1-walk/var/polish_walk1113/logs/api-8990.log</code> (3,000 lines, 08:00-08:17 UTC today, serve restarted at about 07:50 for WALK-perf). Live serve and DB not restarted or written.</p>
+
+<div class="card" style="border-left:4px solid var(--accent)">
+<b>Revision 2 (same day), after a fresh review</b> (<code>.agent/page-load-architecture-review-2026-11-14-review.md</code>, verdict REVISE, targeted). What changed:
+<ul>
+<li><b>Before the walkthrough: no change</b> (was: optional C0). Every C0 part has a measured risk, and there was no scratch rehearsal: connection count (H1), Lab sessions and per-process file locks (H2), and the prebuild skip (M1). A reduced C0 is kept as a rehearsed step after the walkthrough (§8). Its benefit is restated as partial (M2).</li>
+<li><b>New guarantee: invalidation that cannot be forgotten</b> (H3). Each builder's version is derived from a hash of its source, and a guard enforces it. The previous builder's rows keep serving until the new rows are complete (blue/green), so history never turns PENDING after a deploy (M6).</li>
+<li><b>Per-Site version counter</b>: lock order, contention and an alternative that keeps the change log (M3). Bookkeeping tables are listed as an amplifier in R2.</li>
+<li><b>New §4b</b>: why the rows built under BL-66 have not delivered yet, and a card-by-card map of BL-66 / ANY-1 / ANY-2 to C1-C5 (M4).</li>
+<li><b>Cold-chain and EV fact kinds</b> added as their own stage (M5). Stages re-sized: about 13.5 units, up from about 9. Times after the fix are now labelled as targets, not measurements.</li>
+<li><b>Decisions restated</b> (D1-D6). D2 now lists each C0 part with its risk (M7, L6). D5 maps the date bar's UTC days to Site-local days (L4). D6 is now a joint confirmation with the conversion-potential Architect (L5). Line references refreshed; 84 trigger tables (L1); the tick extrapolation accounts for <code>--max-sites 5</code> (L2); repeat budgets made consistent (L3). Residual risks from the review added to §5.</li>
+</ul>
+</div>
 
 <div class="card plain">
 <h2>In plain words</h2>
@@ -94,8 +106,8 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <li><b>Today the app is fast only for pages it has already made.</b> Each page is built from many small database reads, one after another, which takes 1 to 24 seconds (up to 56 s while the background is busy). The finished page is stored and served again in about 0.1-0.2 s. To make that happen before you look, a background crawler requests about 1,900 pages after every data change. A page that is not on its list is slow.</li>
 <li><b>The crawler is a symptom, not the design.</b> The design you accepted on 2026-11-03 (AG-20: "snapshots are the primary read source") says: compute each day's results when the data arrives, and build any page by adding up stored days. That was built for day grades and for six board parts. The rest of each page is still computed when someone looks, so the page store and the crawler became the real speed mechanism.</li>
 <li><b>Recommendation: finish the design you asked for, in stages.</b> Results are stored per Site and per period when data lands. Each page reads and adds those up. Each Site has one cheap version number, which replaces today's 80-230 ms check. A small cache keyed on that version stays, but the crawler goes. Background work moves to its own process.</li>
-<li><b>Expected result:</b> any range on any Site page in about 0.5 s on first view, and Portfolio in about 0.8 s, with no pre-loading. This holds from 4 Sites to about 100 Sites without redesign, with a clear further step for 1,000+.</li>
-<li><b>Effort:</b> about 9 lane-units over 6 stages. None of it can safely land before the walkthrough or the 17 Nov client demo, because it changes the database and the stored pages, and you asked for the walkthrough to run on a clean, good database. One small optional step can land before: the crawler moves to its own process, with no database change.</li>
+<li><b>Target (not yet measured):</b> any range on any Site page in about 0.5 s on first view, and Portfolio in about 0.8 s, with no pre-loading, for every Site type. The design is meant to hold from 4 Sites to about 100 Sites without a redesign, with a clear further step for 1,000+. The rows built so far cut the board from 11 s to 2.7 s; the targets are proven stage by stage, not promised up front.</li>
+<li><b>Effort:</b> about 13.5 lane-units over 7 stages, including cold-chain and EV. <b>Nothing changes before the walkthrough or the 17 Nov client demo.</b> The work changes the database and the stored pages, and you asked for the walkthrough to run on a clean, good database. The one candidate quick step (the crawler in its own process) has measured risks and needs a rehearsal first, so it moves to after the walkthrough.</li>
 </ul>
 </div>
 
@@ -104,6 +116,7 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <li><a href="#causes">Root causes</a></li>
 <li><a href="#candidate">The coordinator's candidate, evaluated</a></li>
 <li><a href="#options">Three options</a></li>
+<li><a href="#bl66">Why the built rows have not delivered; BL-66 map</a></li>
 <li><a href="#target">Target design (recommended option C)</a></li>
 <li><a href="#guarantees">How today's guarantees carry over</a></li>
 <li><a href="#scale">Scale path and budgets</a></li>
@@ -173,7 +186,7 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 </svg>
 <figcaption>Today's three paths. Red lines are the per-request reads that scale with data; dashed lines are the crawlers.</figcaption>
 </figure>
-<p class="ref">Hit/miss rule and two-transaction validation: <code>backend/assetops_backend/chain/response_store.py:155-210</code> (<code>serve</code>), <code>:136-151</code> (<code>_state</code>: W, Sites, file term F, schedule term). SQL: <code>chain/adapters/postgres_response_store.py:21-42</code>. Change log and triggers on 80 input tables: <code>migrations/versions/0047_chain_response.py:29-50, 61-70, 110-128</code>. Midnight expiry: <code>response_store.py:255-271</code> (<code>valid_until</code>). 304 support exists (<code>response_store.py:160, 186</code>) but no route passes <code>if_none_match</code> (<code>outcome_api.py:224,278,310</code>; <code>finding_api.py:326</code>; <code>finding_index_api.py:95</code>; <code>site_overview/route.py:179</code>; <code>estate_portfolio_api.py:75</code>; <code>estate_api.py:65</code>). Checked live: <code>If-None-Match: *</code> returns 200. Prebuild over HTTP: <code>chain/prebuild.py:49-121</code>. Serve loop: <code>tools/demo_combined.py:63</code> (<code>TICK_EVERY_SECONDS = 120</code>), <code>:124</code> (<code>warm_due</code>), <code>:1357</code> (<code>performance_and_prebuild</code>), <code>:1796</code> (single <code>uvicorn lab_app:app</code>, no <code>--workers</code>). Range crawl: <code>tools/warm_ranges.py:468-484</code>. Quiet tick: <code>var/polish_walk1113/last-tick.json</code> and <code>logs/572-tick.log</code> (<code>total_ms 52401</code>; about 1 s per stage per Site, <code>processed 0</code>).</p>
+<p class="ref">Hit/miss rule and two-transaction validation: <code>backend/assetops_backend/chain/response_store.py:162-222</code> (<code>serve</code>), <code>:137-153</code> (<code>_state</code>: W, Sites, file term F, schedule term). SQL: <code>chain/adapters/postgres_response_store.py:21-42</code>. Change log and triggers: <code>migrations/versions/0047_chain_response.py:29-50, 61-70, 110-128</code> (84 tables carry triggers today; later migrations such as 0058 added to 0047's list). Midnight expiry: <code>response_store.py:266-280</code> (<code>valid_until</code>). 304 support exists (<code>response_store.py:162-163, 194</code>) but no route passes <code>if_none_match</code> (<code>outcome_api.py:224,278,310</code>; <code>finding_api.py:326</code>; <code>finding_index_api.py:95</code>; <code>site_overview/route.py:179</code>; <code>estate_portfolio_api.py:75</code>; <code>estate_api.py:65</code>). Checked live: <code>If-None-Match: *</code> returns 200. Prebuild over HTTP: <code>chain/prebuild.py:49-121</code>. Serve loop: <code>tools/demo_combined.py:63</code> (<code>TICK_EVERY_SECONDS = 120</code>), <code>:124</code> (<code>warm_due</code>), <code>:1357</code> (<code>performance_and_prebuild</code>), <code>:1796</code> (single <code>uvicorn lab_app:app</code>, no <code>--workers</code>). Range crawl: <code>tools/warm_ranges.py:468-484</code>. Quiet tick: <code>var/polish_walk1113/last-tick.json</code> and <code>logs/572-tick.log</code> (<code>total_ms 52401</code>; about 1 s per stage per Site, <code>processed 0</code>).</p>
 
 <h3>Where the time goes, by route</h3>
 <figure>
@@ -257,22 +270,22 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 
 <div class="card"><h3 style="margin-top:0">R1. Cost grows with the number of possible URLs, not with the data</h3>
 <p>The store keeps one finished body per (route, parameters, language, Site set, W, code version). Every distinct page is its own piece of work. For 4 Sites and about 30 days, that is already about 1,900 crawled requests. For any from/to range, the URL space is unbounded: a year of days has about 66,000 possible ranges per Site. Whatever the crawler does not request is a full compose.</p>
-<p class="ref">Key: <code>response_store.py:76-83</code> (<code>request_key</code>). Crawl lists: <code>var/polish_walk1113/prebuilt-routes.json</code> (167 entries + financials follow-ups = 218), <code>warm-report.json</code> (47 ranges, 1,672 requests, labelled "WARM-1 (D-17N.1; reverses D-ANY.3 for the 17 Nov build only)").</p></div>
+<p class="ref">Key: <code>response_store.py:82-88</code> (<code>request_key</code>). Crawl lists: <code>var/polish_walk1113/prebuilt-routes.json</code> (167 entries + financials follow-ups = 218), <code>warm-report.json</code> (47 ranges, 1,672 requests, labelled "WARM-1 (D-17N.1; reverses D-ANY.3 for the 17 Nov build only)").</p></div>
 
 <div class="card"><h3 style="margin-top:0">R2. Invalidation is far coarser than the change</h3>
-<p>W is one count per Site over 80 input tables. One new reading writes about 12 change rows (1.56 M change rows for 131 k readings). Any write to the Site invalidates every stored page of that Site, for every day and every range, even when only one day changed. A quiet tick can still write: Kisiwa's <code>fuel_night</code> processed 7 rows at 08:15 with no new data. Any code change invalidates everything, because the code version is in the key. After this morning's deploy, re-storing took 11 minutes for the prebuild and about an hour for the ranges.</p>
+<p>W is one count per Site over 84 input tables. One new reading writes about 12 change rows (1.56 M change rows for 131 k readings). Any write to the Site invalidates every stored page of that Site, for every day and every range, even when only one day changed. A quiet tick can still write: Kisiwa's <code>fuel_night</code> processed 7 rows at 08:15 with no new data. <b>Amplifier:</b> about half of the change rows come from bookkeeping tables (<code>recompute_job</code>, <code>event_outbox</code>, <code>event_consumption</code>, <code>analytic_run_evidence</code>). They move W when no business data changed. Option C must decide, table by table, which writes bump the version. Any code change invalidates everything, because the code version is in the key. After this morning's deploy, re-storing took 11 minutes for the prebuild and about an hour for the ranges.</p>
 <p class="ref"><code>chain/watermark.py:1-27</code>; change rows by table (read-only SQL): <code>mini_depth_revision_evidence</code> 474 k, <code>analytic_run_evidence</code> 386 k, <code>recompute_job</code> 191 k, <code>event_outbox</code> 151 k, <code>accepted_evidence</code> 131 k. Code version: <code>chain/watermark.py:11-22</code>.</p></div>
 
 <div class="card"><h3 style="margin-top:0">R3. Every hit pays a validation cost that grows with history</h3>
 <p>Each request counts the Site's change rows before it can answer: 158 ms for Kobo today, up 50% since yesterday, and growing with every reading forever. A plain counter would answer this in about 1 ms. A <code>max(change_id)</code> shortcut is <em>not</em> safe: ids are handed out at insert time, not at commit time, so a lower id can commit after a higher one has been seen. That is why the count was chosen (W1).</p>
-<p class="ref"><code>postgres_response_store.py:41-53</code>; rationale <code>migrations/versions/0047_chain_response.py:9-14</code>. Measured <code>max(change_id)</code> read: 1.1 ms (shown for scale only, not proposed).</p></div>
+<p class="ref"><code>postgres_response_store.py:41-53</code> (the reviewer re-measured 125 ms); rationale <code>migrations/versions/0047_chain_response.py:9-14</code>. Measured <code>max(change_id)</code> read: 1.1 ms (shown for scale only, not proposed).</p></div>
 
 <div class="card"><h3 style="margin-top:0">R4. Pages are composed from near-raw tables, one read after another</h3>
 <p>A board runs 15-20 read families in sequence. The Portfolio re-derives evidence, money and Findings per Site-day. The outcome summary rebuilds each Site's whole board instead of reading stored results. The stored day results that do exist are fast (2-160 ms), but most page parts do not read them. This is the part the 2026-11-03 design meant to remove.</p>
 <p class="ref"><code>site_outcomes/read.py:438</code> (<code>compose</code>), <code>:693-697</code>; <code>site_outcomes/mini.py:507</code>; <code>estate/portfolio.py</code>, <code>estate/evidence_money.py:476-607</code> (per-Site loops); <code>read.chain_day</code> 31 ms p50 in the same log.</p></div>
 
 <div class="card"><h3 style="margin-top:0">R5. Background work and users share one process, and the tick polls everything</h3>
-<p>One uvicorn process serves the owner, 218 prebuild GETs and 4 range-crawl threads, all under one Python interpreter lock and one connection pool (85 connections in use). The tick runs 12 stages for every Site every 2 minutes, about 1 s each, even with nothing to do: 52 s for 4 Sites. At 100 Sites a quiet tick would take about 22 minutes, longer than its own interval.</p></div>
+<p>One uvicorn process serves the owner, 218 prebuild GETs and 4 range-crawl threads, all under one Python interpreter lock and one connection pool (85 connections in use). The tick runs 12 stages for every Site every 2 minutes, about 1 s each, even with nothing to do: 52 s for 4 Sites. The tick caps itself at 5 Sites per run (<code>--max-sites 5</code>, <code>tools/demo_combined.py:79</code>). At 100 Sites, each Site would therefore be visited only about every 20 ticks, roughly every 40 minutes. The visible symptom at scale is staleness, not a long tick.</p></div>
 
 <div class="card"><h3 style="margin-top:0">R6. How it got here: the accepted design was only partly built</h3>
 <p>The accepted design (AG-20, §11b) says snapshots are the primary read source, the ETag is the latest snapshot revision, and budgets are 1 s cold and 300 ms warm. Under demo time pressure the page store became the lever instead. The steps were: CH5c-R2 option A, then the any-range answer of 2026-11-10 (D-ANY), then WARM-1, labelled a workaround, then D-SR.83, which extended the prebuild to every day. Each step was reasonable for its deadline. Taken together, they turned speed into a crawling problem. The 2026-11-10 answer already named this as the decision to reverse; AR-5, which retires the pre-load list, is still queued.</p>
@@ -285,7 +298,8 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <div class="card"><h3 style="margin-top:0"><span class="tag t-good">Right</span> What it gets right</h3>
 <ul>
 <li>Compute when data changes, not when someone looks. This is the owner's 2026-11-03 instruction and the accepted §11b design.</li>
-<li>Much of the machinery already exists and is proven. There are two stored-row tables with revisions and "as known at k", and an event register that marks (Site, day, kind) dirty. A reader shows a period as PENDING when its input has arrived but has not yet been processed. A parity harness compares old and new output (six kinds: 42 pass, 0 fail).</li>
+<li>Much of the machinery already exists and is proven, although the stored row bodies today are page fragments, not parts that add up, so some kinds must be re-shaped (see §4b). There are two stored-row tables with revisions and "as known at k", and an event register that marks (Site, day, kind) dirty. A reader shows a period as PENDING when its input has arrived but has not yet been processed. A parity harness compares old and new output (six kinds: 42 pass, 0 fail).</li>
+<li>Caveat: every stored kind today is mini-grid only (<code>config/chain/event-register-v1.yaml:40-52</code>).</li>
 <li>One version number per Site removes R3, and isolating the background removes R5.</li>
 </ul>
 <p class="ref"><code>migrations/versions/0043_chain_snapshots.py</code>, <code>0059_site_period_read.py</code>; <code>chain/period_read.py:1-20</code>; <code>config/chain/event-register-v1.yaml</code>; <code>var/polish_walk1113/parity-6kinds-final.json</code>.</p></div>
@@ -315,12 +329,12 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <tr><th></th><th>A. Harden the page store</th><th>B. Read models, no page cache</th><th>C. Read models + thin version cache <span class="tag t-good">recommended</span></th></tr>
 <tr><td><b>Idea</b></td><td>Keep stored whole pages as the speed mechanism; make each hit cheap and keep crawls off users</td><td>Every page part reads stored facts and adds them up per request; drop <code>chain_response</code></td><td>B, plus a small cache of finished bodies keyed on the Site versions (304 and in-DB memo), filled only when someone asks</td></tr>
 <tr><td><b>Data</b></td><td>New <code>site_read_version</code> counter, bumped by the 0047 triggers; <code>chain_response</code> stays</td><td>New fact kinds in <code>site_period_read</code>, finding-revision facts, version counter</td><td>As B; <code>chain_response</code> keyed on version, not count, and never crawled</td></tr>
-<tr><td><b>Service</b></td><td>Second API process for crawls; <code>--workers</code> for users; prebuild skipped when no W moved</td><td>Builders in a separate worker process, event-driven; composers become readers and aggregators</td><td>As B</td></tr>
+<tr><td><b>Service</b></td><td>Second API process for crawls with a connection budget; users stay on one worker until process-local state moves out</td><td>Builders in a separate worker process, event-driven; composers become readers and aggregators</td><td>As B</td></tr>
 <tr><td><b>API contract</b></td><td>Unchanged; 304 wired</td><td>Unchanged bytes (parity-proven); ETag from versions</td><td>As B</td></tr>
 <tr><td><b>UI contract</b></td><td>Unchanged</td><td>Unchanged. Large detail lists (disclosure, evidence) load on demand <em>inside the same mock element</em> to meet payload budgets</td><td>As B</td></tr>
-<tr><td><b>First view, any range</b></td><td class="num">1-24 s off-list (unchanged)</td><td class="num">≈0.3-0.8 s</td><td class="num">≈0.3-0.8 s, repeats ≈0.05 s</td></tr>
-<tr><td><b>After a code change</b></td><td>Full re-crawl (11 min + 1 h today, growing)</td><td>Nothing, unless a builder changed (then that kind is rebuilt in the background and shows as pending until it is done)</td><td>As B; cached bodies refill on demand</td></tr>
-<tr><td><b>Effort</b></td><td class="num">≈2.5 units</td><td class="num">≈8.5 units</td><td class="num">≈9 units (+ ≈3 at pilot scale)</td></tr>
+<tr><td><b>First view, any range</b></td><td class="num">1-24 s off-list (unchanged)</td><td class="num">target ≈0.5-0.8 s</td><td class="num">target ≈0.5-0.8 s, repeats ≈0.05 s</td></tr>
+<tr><td><b>After a code change</b></td><td>Full re-crawl (11 min + 1 h today, growing)</td><td>A builder whose source changed gets a new version automatically (a hash of its source). Its kind is rebuilt in the background, and the previous rows keep serving until the new set is complete.</td><td>As B; cached bodies refill on demand, because the presenter code is in the cache key</td></tr>
+<tr><td><b>Effort</b></td><td class="num">≈2.5 units + rehearsal</td><td class="num">≈12.5 units</td><td class="num">≈13.5 units (+ ≈3 at pilot scale)</td></tr>
 <tr><td><b>Risk</b></td><td><span class="tag t-good">Low</span> to build; <span class="tag t-bad">High</span> that it does not scale: the crawl grows with Sites × days × ranges</td><td><span class="tag t-warn">Medium</span>: parity of values that do not add up; heavy repeat views on large bodies</td><td><span class="tag t-warn">Medium</span>: as B, without the repeat-view cost</td></tr>
 <tr><td><b>Meets the owner's "any range, quickly"</b></td><td><span class="tag t-bad">No</span>, only for the pages on the list</td><td><span class="tag t-good">Yes</span></td><td><span class="tag t-good">Yes</span></td></tr>
 </table></div>
@@ -330,7 +344,7 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <ul>
 <li><b>Migration path.</b>
   <ol>
-  <li>Process split and idle-prebuild skip. These are tools-only changes.</li>
+  <li>Process split with a connection budget, rehearsed on a scratch copy (the idle-prebuild skip is dropped; see M1 in §8).</li>
   <li>A counter migration; W reads the counter.</li>
   <li>304 wiring.</li>
   </ol></li>
@@ -350,6 +364,30 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <li><b>Why it is preferred.</b> It is the §11b design, the cheapest to run per view, and it reuses everything already built and proven.</li>
 </ul></div>
 </div>
+
+<h2 id="bl66">4b. Why the rows built so far have not delivered, and how BL-66 maps onto C</h2>
+<p>BL-66 (any range under 2 s, no pre-loading) is the same direction as option C, and part of it is built. The board fell from 11 s to 2.7 s. The Portfolio is still at 12-24 s. These are the measured reasons:</p>
+<ol>
+<li><b>Only part of each page moved onto stored rows.</b> On the board, mini depth moved. Dispatch (0.9 s), source (0.57 s), money head (0.6 s) and Findings (0.56 s) are still composed. On the Portfolio, <code>dispatch.day</code> and <code>evidence.claim</code> moved. Money lines and provenance did not: <code>money.lines</code> and MN-1 are parked on <code>task/ANY-2-AR4b</code>, and <code>evidence.provenance</code> is queued.</li>
+<li><b>A second compose hides behind the stored rows.</b> AR-4's evidence rows saved only 2-4 s, because <code>evidence_money.site_data_gap_days_many</code> composes again (<code>.agent/coordinator-handoff.md:109, :132</code>: week 18 → 13 s, and about 13 s is left in the <code>dispatch.day</code> compose path).</li>
+<li><b>The outcome summary rebuilds every board</b> instead of reading per-Site stored results. No card covered it; AR-7 <code>outcome.site_row</code> was meant to.</li>
+<li><b>The page store hid the gap.</b> WARM-1 and D-SR.83 made the demo ranges fast, so the remaining cards (AR-5, AR-7, MN-2/3) were queued behind demo work.</li>
+</ol>
+<p>Lesson carried into C: <b>a stage is done only when the page's own perf timers show no compose timer on the serve path</b>, measured on random ranges with pre-loading off, not when its row kind exists.</p>
+<div class="tablewrap"><table>
+<tr><th>BL-66 card</th><th>State</th><th>In option C</th></tr>
+<tr><td>AR-0 parity harness and speed guard</td><td>Parity built (six kinds, 42/0/0); the arbitrary-range budget guard is not run</td><td>Carried: every stage's exit test (C4 makes it a check-all gate)</td></tr>
+<tr><td>AR-1 row foundation (<code>site_period_read</code>, reader, PENDING-at-k)</td><td>Done</td><td>Reused; C1b adds builder identity and blue/green</td></tr>
+<tr><td>AR-2 board mini depth</td><td>Done (four hour kinds, two day kinds)</td><td>Kept; re-shaped to additive parts where a range needs a sum (C3)</td></tr>
+<tr><td>AR-3 Portfolio dispatch day</td><td>Done (<code>dispatch.day</code>)</td><td>Kept; its UTC <code>s3_day</code> grain is settled by D5 (C2)</td></tr>
+<tr><td>AR-4 evidence and money</td><td><code>evidence.claim</code> done; <code>money.lines</code> + MN-1 parked; <code>evidence.provenance</code> queued</td><td>Carried into C2, together with removing the second compose</td></tr>
+<tr><td>MN-2 <code>money.potential</code>, MN-3 no-total guard</td><td>Not built</td><td>Carried into C2</td></tr>
+<tr><td>AR-5 retire the pre-load list</td><td>Not built (out for 17 Nov)</td><td>Becomes C4</td></tr>
+<tr><td>AR-6 batched work lists</td><td>Done with AR-3</td><td>Subsumed</td></tr>
+<tr><td>AR-7 <code>outcome.site_row</code></td><td>Not built</td><td>Carried into C2: the summary reads per-Site rows, not boards</td></tr>
+<tr><td>Not in BL-66</td><td>-</td><td>New: version counter and 304 (C1); builder identity (C1b); Overview, Finding index and financials facts (C3); cold-chain and EV kinds (C3b); worker process (C5)</td></tr>
+</table></div>
+<p class="ref"><code>.agent/backlog-post-demo.md:85</code> (BL-66: ANY-1 3.0, ANY-2 5.5 with MN-1/2/3 and AR-7); <code>.agent/coordinator-handoff.md:61, 105-132</code>; <code>config/chain/event-register-v1.yaml:40-52</code>.</p>
 
 <!-- ============================================================ -->
 <h2 id="target">5. Target design (option C)</h2>
@@ -399,12 +437,39 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <h3>Design rules</h3>
 <ol>
 <li><b>The serve path never derives a fact from raw readings.</b> Add an AST and SQL guard: <code>site_outcomes/*</code>, <code>estate/*</code>, <code>site_overview/*</code> and the Finding read routes may read only the fact tables and the declared live lists. The old compose stays as the parity oracle.</li>
-<li><b>Facts store parts that add up; the page computes the ratios.</b> Store kWh, seconds covered and required, amounts in their original currency with a <code>rate_ref</code>, and counts of days by grade. Compute ARPU, cost per kWh, uptime, claim limits and window grades from those parts when the page is read. This is how a range stays consistent with its days.</li>
-<li><b>A range is a list of Site-local days</b> (plus native hour windows at its edges where a kind needs them). Coverage already works this way (D-E5.42). Parts of money and evidence still use UTC windows; they move to the same rule, proven equal on aligned ranges by the parity harness. Edge-day differences are reported before any switch.</li>
-<li><b>One version per (tenant, Site).</b> A row in <code>site_read_version</code>, incremented by the existing 0047 triggers instead of appending to <code>chain_input_change</code> (or as well as, during migration). The row lock gives commit order. An estate route's version is the sorted list of its Sites' versions plus a tenant-wide version.</li>
-<li><b>Builders are versioned.</b> A changed builder bumps <code>builder_version</code>. Its rows read as PENDING until the backfill completes (the rule already in place).</li>
-<li><b>Background never shares a process with users.</b> The tick and builders run in a worker process. The API runs 2-4 workers. There is no HTTP crawl.</li>
+<li><b>Facts store parts that add up; the page computes the ratios.</b> Store kWh, seconds covered and required, amounts in their original currency with a <code>rate_ref</code>, and counts of days by grade. Compute ARPU, cost per kWh, uptime, claim limits and window grades from those parts when the page is read. Today's <code>site_period_read</code> bodies are page fragments (<code>0059:7-8</code>), so the kinds a range sums are re-shaped. This costs a new builder version and a backfill per kind, both inside the stage sizes in §8.</li>
+<li><b>A range is a list of Site-local days</b> (plus native hour windows at its edges where a kind needs them), subject to D5. Coverage already works this way (D-E5.42). <code>dispatch.day</code> and <code>evidence.claim</code> use the UTC <code>s3_day</code> grain today; under D5 they move to Site-local days, proven on aligned ranges by the parity harness, and edge-day differences are reported before any switch.</li>
+<li><b>Every fact kind exists for every Site type the page shows.</b> Today all stored kinds are mini-grid only. Cold-chain and EV get kinds for the board, the range overview and Findings by day (C3b), so one range aggregator serves every Site type.</li>
+<li><b>Invalidation that cannot be forgotten.</b>
+  <ul>
+  <li><b>Builder identity.</b> Each builder's version becomes a hash of its source closure (its module, the pure functions it imports from the project, and its config), computed the way <code>code_version</code> is today (<code>chain/adapters/file_code_version.py:47-53</code>), and joined with a readable label. A check-all guard fails if a hand-written label exists without the hash. A change to any function a builder uses therefore yields a new version, with no human step.</li>
+  <li><b>Presenter identity.</b> The thin cache keeps <code>code_version</code> in its key, so a change to the read or aggregation code refills bodies on demand, as today.</li>
+  <li><b>Blue/green per kind.</b> When a builder version changes, its new rows are built in the background while the reader keeps serving the previous version's rows. The reader switches only when the new set covers every period the old one did. History therefore never reads PENDING after a deploy, which would be a visible regression against today's "slow but correct". A period whose <em>inputs</em> changed still reads PENDING until rebuilt; that is the honest-missing rule.</li>
+  <li><b>Backfill cost</b> (estimate from today's check-only runs: 0.3 s per hour kind and 1.6 s per day kind per Site-day; a rebuild is about 2 s). The demo takes about 2-5 min per kind. The pilot, at 100 Sites × 365 days, takes about 20 CPU-hours per kind, so about 2.5 h on 8 parallel builders. That duration is why blue/green is required at pilot scale.</li>
+  </ul></li>
+<li><b>One version per (tenant, Site), safely.</b>
+  <ul>
+  <li><b>The design.</b> Store the version in a <code>site_read_version</code> row, incremented by the 0047 trigger functions. The row lock gives commit order. An estate route's version is the sorted list of its Sites' versions plus a tenant-wide version.</li>
+  <li><b>Lock order.</b> A trigger that touches several Sites locks them in sorted Site-id order, then the tenant row last.</li>
+  <li><b>Short transactions.</b> Builders commit per Site-period, so a long backfill never holds a Site's row lock against user writes such as uploads and operational entry.</li>
+  <li><b>Which tables bump the version.</b> Bookkeeping tables (outbox, consumption, recompute jobs) stop bumping it once the facts carry their own PENDING state; the fact-input guard records this decision table by table.</li>
+  <li><b>Fallback if C1 measures contention.</b> Keep the append-only change log for ordering, and let one committer advance the per-Site version from it, as an asynchronous high-water mark. This adds lag of a few seconds but takes no locks in writers.</li>
+  <li><b>Exit evidence for C1.</b> Lock waits and deadlocks measured under a tick, a builder backfill and user writes running at the same time.</li>
+  </ul></li>
+<li><b>Background never shares a process with users</b>, and multiple user workers come only after process-local state moves out.
+  <ul>
+  <li>Lab sessions live in an in-memory dict (<code>host/lab_execution.py:2116</code>).</li>
+  <li>Five file-backed stores lock only within one process (<code>runs/adapters/json_commit_store.py:42</code>, <code>yaml_run_store.py:110</code>, <code>evidence/adapters/json_evidence_store.py:90</code>, <code>analytics/adapters/json_assessment_store.py:42</code>, <code>sites/adapters/yaml_user_site_store.py:73</code>).</li>
+  <li>C5 moves them out, or routes those requests to one process, before <code>--workers</code> rises above 1.</li>
+  <li>Every process gets a connection budget. Today one API process holds about 90 idle connections across about 35 engines, against <code>max_connections</code> 300.</li>
+  </ul></li>
 <li><b>Bodies meet the §11b payload budgets.</b> Long lists (Portfolio scope disclosure about 244 KB, financials evidence) load on demand when their mock element is opened. The element itself is kept. <span class="tag t-warn">MOCK DEVIATION check</span> Each such change cites the v69 element it lazy-loads and keeps its form. Nothing is trimmed.</li>
+<li><b>Operational alarms from S0, not S1.</b>
+  <ul>
+  <li>A builder-stall alarm: a dead worker leaves periods PENDING indefinitely, which is honest but must be noticed.</li>
+  <li>The reader's PENDING-at-k anti-join over the outbox and consumption ledgers (150 k outbox rows today) is timed in C1-C3, because it could grow with history the way R3 did.</li>
+  <li><code>chain_response</code> (539 MB) prunes rows of dead code versions on deploy, not only at reset or prepare.</li>
+  </ul></li>
 </ol>
 <p class="ref">Existing pieces reused: <code>chain/period_read.py</code> (<code>PeriodReadBuilder</code>, <code>PeriodReader</code>, PENDING-at-k from outbox and consumption), <code>chain/dispatch_day_rows.py:174-197</code> (switch and absent-day handling), <code>chain/adapters/postgres_snapshot_store.py</code>, <code>config/chain/event-register-v1.yaml</code>, <code>estate/coverage.py:102-119, 301-313</code> (Site-local day rule, D-E5.42), <code>response_store.py</code> INFRA-1 <code>_degraded</code> (kept).</p>
 
@@ -423,6 +488,7 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <tr><td><b>Clock guard</b></td><td>No wall clock on the compose path; live bodies expire at local midnight or a registered boundary</td><td>Builders take an explicit "as of". The read path's only clock is the Site-local "today", which is part of the cache key, and the same <code>valid_until</code> code keeps the expiry. The guard test is retargeted to readers.</td><td>Same</td></tr>
 <tr><td><b>Range output the same for every Site type</b></td><td>Checked page by page (page × Site-type matrix)</td><td>One range aggregator over one fact shape for mini-grid, cold room, EV and diesel. The matrix becomes a table-driven test: every Site type × every page part × three ranges (day, week, unaligned 9 days), each answered from facts with no pre-loading.</td><td>Holds, but off-list ranges are slow</td></tr>
 <tr><td><b>As known at k</b></td><td>Revisions with <code>computed_at</code>; lifecycle cutoff</td><td>Unchanged: facts are append-only revisions, read at <code>computed_at ≤ k</code></td><td>Same</td></tr>
+<tr><td><b>Automatic invalidation on code change</b></td><td><code>code_version</code> hashes all backend, config, host and contracts files, so any change invalidates every stored body</td><td>Builder versions are hashes of each builder's source closure, enforced by a guard. Presenter changes are covered by <code>code_version</code> in the thin-cache key. Blue/green keeps history readable during the rebuild.</td><td>Same as today</td></tr>
 <tr><td><b>Outage fallback (INFRA-1)</b></td><td>Stale stored body or 503</td><td>Kept through the thin cache</td><td>Same</td></tr>
 </table></div>
 
@@ -452,13 +518,13 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 
 <div class="tablewrap"><table>
 <tr><th>Stage</th><th>Sites × days × users</th><th>What changes (option C)</th><th>Move on when</th></tr>
-<tr><td><b>S0 Demo</b></td><td>4 × 30-60 × 1-5</td><td>Facts for every page part; version counter; worker process; 2 API workers; cache by version; no crawl</td><td>Budgets below hold with no pre-loading</td></tr>
+<tr><td><b>S0 Demo</b></td><td>4 × 30-60 × 1-5</td><td>Facts for every page part and every Site type; version counter; worker process; 1 API worker until process-local state moves out (C5), then 2; per-process connection budget; cache by version; no crawl; stall alarm</td><td>Budgets below hold with no pre-loading</td></tr>
 <tr><td><b>S1 Pilot</b></td><td>≈100 × 365 × 20-50</td><td>Latest-revision head table per (Site, kind, period); builders run in parallel per Site (the per-Site claim exists); monthly partitions above about 10 M rows; 4 API workers; dirty-queue age alarms</td><td>Portfolio p95 over budget at 100 Sites; dirty queue older than 2 ticks</td></tr>
 <tr><td><b>S2 Estate</b></td><td>1,000+ × multi-year × 100s</td><td>Estate-day roll-ups per scope, so a Portfolio month reads about 31 rows per kind; broker relay from the outbox, partitioned by Site; read replicas for API workers; evidence archive</td><td>(§11b S2 triggers)</td></tr>
 </table></div>
 <p class="ref">Stages follow §11b's scale path (<code>implementation-logic-design-proposal.html</code>, lines 2430-2450) with the read side made explicit. Fact counts: 4 Sites × about 20 kinds = 80 per day today (walk DB: 867 day-snapshot rows plus 981 period rows over about 30 days). Server: 8 cores, 22 GB, Postgres <code>max_connections</code> 300 (85 in use).</p>
 
-<h3>Proposed budgets (server time, any range, no pre-loading, measured on the demo VPS)</h3>
+<h3>Proposed budgets (targets; server time, any range, any Site type, no pre-loading, measured on the demo VPS)</h3>
 <div class="tablewrap"><table>
 <tr><th>Request</th><th>First view p95</th><th>Repeat p95</th><th>Body</th><th>Today</th></tr>
 <tr><td>Site board, Overview, Finding index, range tabs (≤ 31 days)</td><td class="num">≤ 500 ms</td><td class="num">≤ 50 ms (304)</td><td class="num">≤ 60 KB</td><td>1.3-4.4 s p50 off-list; Overview 220 KB</td></tr>
@@ -466,46 +532,91 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <tr><td>Finding detail and financials</td><td class="num">≤ 500 ms</td><td class="num">≤ 50 ms</td><td class="num">≤ 100 KB first view</td><td>2.1-2.6 s compose; 544 KB</td></tr>
 <tr><td>Data to screen (new reading visible)</td><td colspan="2">≤ 2 ticks p95; a period not rebuilt yet shows PENDING</td><td></td><td>1 tick + crawl</td></tr>
 <tr><td>Background impact</td><td colspan="2">user p95 rises ≤ 20% while builders run</td><td></td><td>5.7 s Overview hit during a crawl (WALK-perf)</td></tr>
+<tr><td>Builder rebuild after a builder change</td><td colspan="2">history keeps serving (blue/green); demo ≤ 5 min per kind</td><td></td><td>n/a (today: full re-crawl)</td></tr>
 </table></div>
 <p>These tighten §11b (1 s cold, 300 ms warm) where the owner asked for it, and keep its payload budgets. <code>tools/checks/perf_budget.py</code> gains random ranges with pre-loading off, as AR-0 already proposed.</p>
 
 <!-- ============================================================ -->
 <h2 id="sequence">8. Sequencing: before and after the walkthrough</h2>
 <figure>
-<svg viewBox="0 0 980 250" role="img" aria-labelledby="sqT sqD">
-<title id="sqT">Stages C0 to C5 relative to the walkthrough and the client demo</title>
-<desc id="sqD">C0 is optional and lands before the walkthrough with no database change. The walkthrough and the 17 Nov client demo run on today's page store with the presenter rule. C1 to C5 follow, each removing part of the crawl, and S1 pilot steps come later.</desc>
+<svg viewBox="0 0 980 270" role="img" aria-labelledby="sqT sqD">
+<title id="sqT">Stages relative to the walkthrough and the client demo</title>
+<desc id="sqD">Nothing changes before the walkthrough. An optional rehearsed step R0 may land between the walkthrough and the 17 Nov client demo. C1 to C5 follow after the demo; C2, C3 and C3b run in two lanes.</desc>
 <line x1="20" y1="60" x2="960" y2="60" class="grid"/>
-<rect x="20" y="40" width="160" height="40" rx="6" class="box-acc"/><text x="100" y="58" text-anchor="middle" class="small" font-weight="600">C0 crawl in own process</text><text x="100" y="72" text-anchor="middle" class="tiny">optional · 0.5 u · no DB change</text>
-<rect x="196" y="40" width="190" height="40" rx="6" class="box-warn"/><text x="291" y="58" text-anchor="middle" class="small" font-weight="600">Walkthrough → 17 Nov demo</text><text x="291" y="72" text-anchor="middle" class="tiny">today's store + WARM-1, presenter rule</text>
-<rect x="402" y="40" width="120" height="40" rx="6" class="box-good"/><text x="462" y="58" text-anchor="middle" class="small" font-weight="600">C1 version + 304</text><text x="462" y="72" text-anchor="middle" class="tiny">1.0 u</text>
-<rect x="532" y="40" width="130" height="40" rx="6" class="box-good"/><text x="597" y="58" text-anchor="middle" class="small" font-weight="600">C2 Portfolio facts</text><text x="597" y="72" text-anchor="middle" class="tiny">2.5 u</text>
-<rect x="672" y="40" width="130" height="40" rx="6" class="box-good"/><text x="737" y="58" text-anchor="middle" class="small" font-weight="600">C3 Site day facts</text><text x="737" y="72" text-anchor="middle" class="tiny">2.5 u</text>
-<rect x="812" y="40" width="148" height="40" rx="6" class="box-good"/><text x="886" y="58" text-anchor="middle" class="small" font-weight="600">C4 retire crawl</text><text x="886" y="72" text-anchor="middle" class="tiny">1.0 u</text>
-<rect x="402" y="100" width="400" height="34" rx="6" class="box-good"/><text x="602" y="122" text-anchor="middle" class="small" font-weight="600">C5 builder worker, event-driven tick (1.5 u), in parallel with C2-C3</text>
-<rect x="812" y="100" width="148" height="34" rx="6" class="box"/><text x="886" y="122" text-anchor="middle" class="small">S1 pilot steps ≈3 u</text>
-<text x="20" y="170" class="small">Lanes: C2 and C3 run in two lanes after C1 (the approved two-lane plan). C5 is independent.</text>
-<text x="20" y="190" class="small">Each fact kind lands behind ASSETOPS_PERIOD_READ_KINDS, passes the parity harness, then its crawl entries are removed.</text>
-<text x="20" y="210" class="small">Database changes (C1, C2, C3) are additive migrations, applied at the next clean prepare. The walk DB is never migrated in place.</text>
-<text x="20" y="230" class="tiny">u = lane-units (project sizing). Total C0-C5 ≈ 9 units.</text>
+<rect x="20" y="40" width="170" height="40" rx="6" class="box-warn"/><text x="105" y="58" text-anchor="middle" class="small" font-weight="600">Walkthrough: no change</text><text x="105" y="72" text-anchor="middle" class="tiny">today's store + WARM-1</text>
+<rect x="200" y="40" width="150" height="40" rx="6" class="box"/><text x="275" y="58" text-anchor="middle" class="small" font-weight="600">R0 (optional)</text><text x="275" y="72" text-anchor="middle" class="tiny">rehearsed crawl split · 0.5 u</text>
+<rect x="360" y="40" width="130" height="40" rx="6" class="box-warn"/><text x="425" y="58" text-anchor="middle" class="small" font-weight="600">17 Nov demo</text><text x="425" y="72" text-anchor="middle" class="tiny">presenter rule</text>
+<rect x="500" y="40" width="150" height="40" rx="6" class="box-good"/><text x="575" y="58" text-anchor="middle" class="small" font-weight="600">C1 + C1b</text><text x="575" y="72" text-anchor="middle" class="tiny">version, 304, builder hash · 2.0 u</text>
+<rect x="660" y="30" width="150" height="30" rx="6" class="box-good"/><text x="735" y="50" text-anchor="middle" class="small" font-weight="600">C2 Portfolio · 4.0 u</text>
+<rect x="660" y="64" width="150" height="30" rx="6" class="box-good"/><text x="735" y="84" text-anchor="middle" class="small" font-weight="600">C3 Site days · 2.5 u</text>
+<rect x="660" y="98" width="150" height="30" rx="6" class="box-good"/><text x="735" y="118" text-anchor="middle" class="small" font-weight="600">C3b cold + EV · 2.0 u</text>
+<rect x="820" y="40" width="140" height="40" rx="6" class="box-good"/><text x="890" y="58" text-anchor="middle" class="small" font-weight="600">C4 retire crawl</text><text x="890" y="72" text-anchor="middle" class="tiny">1.0 u</text>
+<rect x="500" y="140" width="310" height="32" rx="6" class="box-good"/><text x="655" y="161" text-anchor="middle" class="small" font-weight="600">C5 worker process, state out of process · 2.0 u</text>
+<rect x="820" y="140" width="140" height="32" rx="6" class="box"/><text x="890" y="161" text-anchor="middle" class="small">S1 pilot ≈3 u</text>
+<text x="20" y="200" class="small">C2 and C3 run in two lanes after C1 + C1b; C3b follows in whichever lane frees first. C5 is independent.</text>
+<text x="20" y="220" class="small">Each kind lands behind ASSETOPS_PERIOD_READ_KINDS, passes parity, shows no compose timer on random ranges, then its crawl entries go.</text>
+<text x="20" y="240" class="small">Database changes are additive migrations applied at the next clean prepare. The walk DB is never migrated in place.</text>
+<text x="20" y="258" class="tiny">u = lane-units (project sizing). Total C1-C5 ≈ 13.5 units; R0 is separate and optional.</text>
 </svg>
-<figcaption>Proposed order. The walkthrough and client demo do not wait for any of it.</figcaption>
+<figcaption>Proposed order. The walkthrough and the client demo do not wait for any of it.</figcaption>
 </figure>
 
+<h3>Before the walkthrough: no change</h3>
+<p>The first version proposed an optional C0 with three parts. The review measured a risk in each, and none was rehearsed:</p>
 <div class="tablewrap"><table>
-<tr><th>Stage</th><th>Content</th><th>Size</th><th>Demo-critical?</th></tr>
-<tr><td>C0</td><td>Run prebuild and warm against a second API process (same DB, same tree, own port). Give the user-facing process 2 workers. Skip the prebuild when no Site's W moved since the last one. Changes are in <code>tools/</code> only, which is not in the code version, so stored pages stay valid. Needs a serve restart; check that the <code>code_version</code> is unchanged afterwards.</td><td class="num">0.5</td><td>Optional. It removes the slow-while-crawling case (the 21:37 incident) for the walkthrough. Owner's call.</td></tr>
-<tr><td>C1</td><td><code>site_read_version</code> migration, bumped by the 0047 trigger functions. W reads it; 304 and <code>Cache-Control: no-cache</code> are wired on every stored route. Fixes R3 (158 ms → about 1 ms per hit).</td><td class="num">1.0</td><td>No: after the client demo</td></tr>
-<tr><td>C2</td><td>Portfolio and outcome summary on facts. Includes the AR-4 remainder (<code>money.lines</code>, <code>evidence.provenance</code>) and a Findings-by-day kind. The summary reads per-Site facts, not whole boards. The disclosure loads on demand inside its mock element.</td><td class="num">2.5</td><td>No</td></tr>
-<tr><td>C3</td><td>Overview, Finding index, the rest of the board (dispatch, source, money head) and financials per Finding revision, all on facts</td><td class="num">2.5</td><td>No</td></tr>
-<tr><td>C4</td><td>Retire the crawl (AR-5 and WARM-1). The cache is keyed on versions. Budget guard on random ranges.</td><td class="num">1.0</td><td>No</td></tr>
-<tr><td>C5</td><td>Tick and builders in a worker process, driven by the outbox, not by polling 12 stages for every Site</td><td class="num">1.5</td><td>No</td></tr>
+<tr><th>Part of the old C0</th><th>Risk found</th><th>Verdict</th></tr>
+<tr><td>A second user worker</td><td>
+  <ul>
+  <li>Lab runs started on one worker read INTERRUPTED on the other (<code>host/lab_execution.py:2116</code>, Lab enabled on the walk tree).</li>
+  <li>Five file-backed stores lock only within one process.</li>
+  <li>About 90 more idle connections.</li>
+  </ul></td><td><span class="tag t-bad">Dropped</span> until C5</td></tr>
+<tr><td>The crawl in its own API process</td><td>
+  <ul>
+  <li>About 90 more idle connections, so about 180-270 against the 300 limit.</li>
+  <li><code>warm_ranges</code> waits without limit above 150 connections, so the crawl would stall.</li>
+  <li>The crawl process must match the user process's <code>code_version</code>, which depends on the cursor keys and manifests in its environment.</li>
+  <li>The benefit is partial: it removes contention for Python's interpreter lock (the GIL), not Postgres contention. The 21:37 slow hits were a 3.6 s <code>count(*)</code> under DB load.</li>
+  </ul></td><td><span class="tag t-warn">Only as R0</span>, rehearsed, after the walkthrough</td></tr>
+<tr><td>Skip the prebuild when no W moved</td><td>
+  <ul>
+  <li>The prebuild also re-warms rows that expire at local midnight, follows the F and schedule terms, regrows the route list with the calendar, and prunes.</li>
+  <li>A skip that leaves the states at None makes <code>warm_due</code> fire on every tick (<code>demo_combined.py:124-129</code>).</li>
+  <li>The saving is small: 10-17 s.</li>
+  </ul></td><td><span class="tag t-bad">Dropped</span></td></tr>
 </table></div>
+<p><b>R0 (optional, between the walkthrough and the 17 Nov demo, 0.5 u):</b></p>
+<ul>
+<li>The crawl gets its own API process with a pool cap set in its environment. Pool sizes are not configurable today, so this part needs a backend change. That changes <code>code_version</code>, and therefore needs a full re-warm before use.</li>
+<li>Or, without the backend change: the crawl process keeps default pools, and <code>warm_ranges</code> counts only this DB's connections, with a hard ceiling and a timeout.</li>
+<li>Users stay on one worker, and there is no prebuild skip.</li>
+<li><b>Rehearsal first</b>, on a scratch copy of the walk DB under a producer-scratch name. The pass condition is <code>warm_ranges --verify</code> against the <b>user</b> port with 100% hits, the connection count staying under 200, and a Lab run working across a crawl.</li>
+<li>If the rehearsal fails, or time is short, skip R0. WALK-perf F3 already limits the crawl to "on change or every 30 min".</li>
+</ul>
+
+<h3>After the 17 Nov demo</h3>
+<div class="tablewrap"><table>
+<tr><th>Stage</th><th>Content</th><th>Size</th><th>Exit evidence</th></tr>
+<tr><td>C1</td><td><code>site_read_version</code> migration with lock order (sorted Sites, then the tenant row); W reads it; 304 and <code>Cache-Control: no-cache</code> wired on every stored route; per-process connection budgets; per-table decision on which writes bump the version</td><td class="num">1.25</td><td>Hit validation about 1 ms; lock waits and deadlocks measured under tick + backfill + user writes; 304 on repeat</td></tr>
+<tr><td>C1b</td><td>Builder version = hash of the builder's source closure, plus a guard; blue/green reader switch per kind; stall alarm</td><td class="num">0.75</td><td>A test edits a helper a builder imports and gets a new version; history keeps serving during a rebuild</td></tr>
+<tr><td>C2</td><td>Portfolio and outcome summary on facts:
+  <ul>
+  <li>the AR-4 remainder (<code>money.lines</code> + MN-1 from <code>task/ANY-2-AR4b</code>, <code>evidence.provenance</code>), MN-2/3 and AR-7 <code>outcome.site_row</code>;</li>
+  <li>remove the second compose in <code>site_data_gap_days_many</code>;</li>
+  <li>re-shape the summed kinds to additive parts, and apply the D5 day rule to <code>s3_day</code> kinds;</li>
+  <li>load the disclosure on demand, inside its mock element.</li>
+  </ul></td><td class="num">4.0</td><td>No compose timer on the Portfolio; ≤ 0.8 s p95 on random ranges of up to 31 days</td></tr>
+<tr><td>C3</td><td>Mini-grid Site day pages: Overview, Finding index, the rest of the board (dispatch, source, money head) and financials per Finding revision</td><td class="num">2.5</td><td>≤ 0.5 s p95 on random days and ranges</td></tr>
+<tr><td>C3b</td><td>Cold-chain and EV kinds: board, range overview and Findings by day, registered for <code>COLD</code>/<code>EV</code> site types</td><td class="num">2.0</td><td>The page × Site-type matrix test passes from facts</td></tr>
+<tr><td>C4</td><td>Retire the crawl (AR-5, WARM-1); thin cache keyed on versions; the random-range budget guard joins check-all; dead-version prune</td><td class="num">1.0</td><td>No prebuild or warm process; budgets hold</td></tr>
+<tr><td>C5</td><td>Tick and builders in a worker process, driven by the outbox; Lab sessions and file-store locks moved out of process (or routed to one process); then 2 user workers</td><td class="num">2.0</td><td>User p95 rises ≤ 20% during a backfill</td></tr>
+</table></div>
+<p><b>Why C2 is 4.0 and not 2.5.</b> The earlier estimate for ANY-2 was 5.5 units. AR-3 and the evidence-claim part of AR-4 are done, and AR-6 is subsumed. That leaves money lines, provenance, MN-2/3, AR-7, the second-compose fix, re-shaping and the D5 move.</p>
 <p><b>Honest note against the 17 Nov expectation.</b> On 2026-11-12 the owner asked for the "~2 sec target" before 17 Nov. The structural fix cannot land by then without migrating and rebuilding the database, which would put the clean walkthrough DB at risk. For the client demo, the stored pages plus WARM-1 cover the presets and the 7/14/30/31-day ranges. Any other range remains slow, and the presenter rule (D-ANY.4) stays.</p>
 
 <!-- ============================================================ -->
 <h2 id="overlap">9. Overlap with the conversion-potential data</h2>
-<p><code>.agent/convertion_potential.html</code> exists (read at 08:15 UTC; another Architect is still writing it). It lists the data each outcome pillar needs, its source and its effort (§10, §13), and it proposes no table structures. So the assumption below is mine, and it should be agreed with that Architect.</p>
+<p><code>.agent/convertion_potential.html</code> was re-read at the end of this revision (its own Revision 2, saved 08:59 UTC). It lists the data each pillar needs (§10) and the build gaps (§13). For mini-grid billing it proposes "a store (customer, meter, invoice, payment), an adapter (CSV upload, then a SparkMeter/Steama-style API), a chain measure such as <code>collected_amount</code>", with collected money shown beside the estimate and never added to it. For fuel it proposes "a chain measure (litres bought × price ÷ kWh served)". That fits the rules below. The one alignment needed is that the fuel ratio is <em>defined</em> as a measure but <em>stored</em> as its parts (litres, amount, kWh) and divided when the page is read. Its Revision 2 adds two points that fit this design. Customer data arrives "aggregated by customer group or with pseudonymised meter IDs" (consent-safe), which matches keeping no per-customer facts. Maintenance cost comes from a declared <code>repair_visit_cost</code> per visit (the "Price it" design), so it is stored as a visit count plus the price's <code>rate_ref</code>. This must be agreed jointly with that Architect (D6).</p>
 <div class="card"><h3 style="margin-top:0">One fact layer, not two</h3>
 <p>Client-value inputs (billing, collections, metered kWh sold, unserved energy, uptime, fuel and maintenance cost) become <b>measures and period kinds in the same tables</b>, built by the same register-driven builders. The tables already have the needed columns:</p>
 <ul>
@@ -516,14 +627,14 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 <div class="tablewrap"><table>
 <tr><th>Client metric (conversion doc)</th><th>Stored parts (per Site-local day unless noted)</th><th>Computed when the page is read</th><th>Evidence class</th></tr>
 <tr><td>ARPU, collections</td><td><code>billed_amount</code>, <code>collected_amount</code> (money, original currency, <code>rate_ref</code>), <code>active_customers</code> (count), per tariff class as <code>subject_ref</code>; month kind <code>billing.month</code> when only monthly data exists</td><td>Σ billed ÷ average active customers ÷ months; a partly covered month says so</td><td>RECORDED</td></tr>
-<tr><td>Cost per kWh served</td><td><code>fuel_cost</code>, <code>maintenance_cost</code> (money), <code>served_kwh</code></td><td>Σ cost ÷ Σ kWh, per currency, never added across currencies</td><td>RECORDED / MEASURED</td></tr>
+<tr><td>Cost per kWh served</td><td><code>fuel_litres_bought</code> and <code>fuel_amount</code> (from FUEL_DELIVERY with a unit price), <code>repair_visits</code> × declared <code>repair_visit_cost</code> (<code>rate_ref</code>), <code>served_kwh</code></td><td>Σ cost ÷ Σ kWh, per currency, never added across currencies</td><td>RECORDED / MEASURED</td></tr>
 <tr><td>Unserved kWh</td><td><code>unserved_kwh</code> from feeder demand against supply</td><td>Σ over range; the grade comes from coverage</td><td>MEASURED or MODELLED</td></tr>
 <tr><td>Uptime</td><td><code>supply_available_seconds</code>, with <code>required_seconds</code> as the denominator (column exists)</td><td>Σ available ÷ Σ required</td><td>MEASURED</td></tr>
 <tr><td>Metered kWh sold</td><td><code>metered_kwh_sold</code> per class</td><td>Σ</td><td>MEASURED</td></tr>
 </table></div>
 <p><b>Rules that keep the two efforts from duplicating:</b></p>
 <ol>
-<li>No per-customer, per-day facts. Customer ledgers stay in their import tables; facts hold Site-day aggregates per tariff class.</li>
+<li>No per-customer, per-day facts. Customer ledgers stay in the billing store the conversion doc proposes; facts hold Site-day aggregates per tariff class.</li>
 <li>No ratio is stored as a daily value.</li>
 <li>Each new input is a register event that marks its days dirty, so a late CSV import rebuilds only the days it touches.</li>
 <li>The "beside, never added" money rule from conversion doc §13 is enforced by the facts' currency and receipt fields (D-MONEY.1-4).</li>
@@ -532,14 +643,49 @@ svg .mh{fill:var(--ink)} svg .mhb{fill:var(--bad)} svg .mhg{fill:var(--good)} sv
 
 <!-- ============================================================ -->
 <h2 id="decisions">10. What needs your decision</h2>
-<div class="card decision"><b>D1. Direction.</b> Option C (finish the snapshot design you asked for, with a thin version cache and no crawling) or option A (harden today's page store). <i>Architect recommends C.</i> A is cheaper now but cannot give any-range speed and does not scale.</div>
-<div class="card decision"><b>D2. Before the walkthrough.</b> Should C0 land (crawlers in their own process; tools only; no DB or stored-page change; serve restart)? Or should nothing change before the walkthrough? <i>Architect leans to C0, because it removes the "slow while the background crawls" case, but either choice is safe.</i></div>
-<div class="card decision"><b>D3. Budgets.</b> Accept: Site pages first view ≤ 0.5 s p95; Portfolio ≤ 0.8 s p95 for ranges up to 31 days; repeats ≤ 0.1 s; any range, no pre-loading; §11b payload budgets kept, met by loading long lists on demand inside their mock elements.</div>
-<div class="card decision"><b>D4. Timing.</b> C1-C5 (about 9 units) start after the 17 Nov client demo, or the demo moves until C1-C4 land. <i>Architect recommends after</i>, with the presenter rule for off-preset ranges, because the database must be rebuilt cleanly for these changes.</div>
-<div class="card decision"><b>D5. Range days.</b> Confirm that a range means each Site's local calendar days for every page part, not only coverage. Money and evidence parts that still use UTC windows will move to this rule; edge-day numbers may shift slightly and will be shown before the switch.</div>
-<div class="card decision"><b>D6. One fact layer for client-value data.</b> Confirm that ARPU, cost per kWh, unserved kWh, uptime and billing inputs land as measures and kinds in the same fact tables (§9), so the conversion-potential work and this work share one structure.</div>
+<div class="card decision"><b>D1. Direction.</b> Choose option C or option A.
+<ul>
+<li><b>Option C</b> finishes the snapshot design you asked for: results are stored when data arrives, pages add them up, a small cache sits on top, and there is no crawling. It costs about 13.5 units after the demo.</li>
+<li><b>Option A</b> hardens today's page store. It costs about 2.5 units, but a range that is not on the list stays slow, and it does not scale.</li>
+</ul>
+<i>Architect recommends C.</i></div>
+<div class="card decision"><b>D2. Before the walkthrough.</b> <i>Architect recommends no change at all.</i>
+<ul>
+<li>The quick step proposed in the first version had three parts, and each carries a measured risk:
+  <ul>
+  <li>a second user worker (Lab runs break, and file stores lose their locking);</li>
+  <li>a separate crawl process (it could exhaust database connections and stall the crawl);</li>
+  <li>skipping idle prebuilds (pages could expire after midnight, or the crawl could run non-stop).</li>
+  </ul>
+  The first and third are dropped.</li>
+<li>Your choice is whether a reduced version of the second (R0, §8) may land <b>between the walkthrough and the 17 Nov demo</b>, only after it passes a rehearsal on a scratch copy. Or nothing changes until after the demo.</li>
+<li>R0 makes pages <em>less</em> slow while the background works; it does not remove the slowness.</li>
+</ul></div>
+<div class="card decision"><b>D3. Budgets (targets, proven stage by stage).</b> These hold for any range, any Site type, with no pre-loading:
+<ul>
+<li>Site pages: first view ≤ 0.5 s p95; repeat ≤ 50 ms.</li>
+<li>Portfolio (up to 31 days): first view ≤ 0.8 s p95; repeat ≤ 100 ms.</li>
+<li>Data appears within 2 ticks, and shows "pending" until then.</li>
+<li>A code change never makes history unreadable.</li>
+<li>The §11b body sizes are kept, by loading long lists only when their part of the page is opened. No mock element is removed.</li>
+</ul></div>
+<div class="card decision"><b>D4. Timing.</b> C1-C5 start after the 17 Nov client demo. Alternatively, the demo moves until C1-C4 land, which is about 11.5 units. <i>Architect recommends after</i>, keeping the presenter rule for ranges that are not prepared, because these changes need a clean database rebuild.</div>
+<div class="card decision"><b>D5. What a "day" means in a range.</b>
+<ul>
+<li>The date bar's presets today are full UTC days. Kobo and Kisiwa run on UTC+3, so a UTC day there runs from 03:00 to 03:00 local time. Two stored kinds (Portfolio dispatch and evidence) also use UTC days, while coverage already uses each Site's local days.</li>
+<li><i>Architect recommends:</i> a picked date means each Site's own local calendar day. "14 Nov" on the Portfolio is 14 Nov 00:00-24:00 at each Site.</li>
+<li>What you would see: in a Portfolio that mixes time zones, the Sites' days cover slightly different instants. Each Site's numbers then match its own board for the same dates exactly. The first and last day's totals may shift slightly from today's, and these differences will be shown to you before the switch.</li>
+<li>The alternative is to keep UTC days everywhere, including the Site boards, which then stop matching local calendar days.</li>
+</ul></div>
+<div class="card decision"><b>D6. One home for client-value data</b> (a joint confirmation with the conversion-potential Architect).
+<ul>
+<li>ARPU, collections, cost per kWh, unserved kWh, uptime and billing inputs are stored in the same daily fact tables as everything else, as parts that add up.</li>
+<li>Customer-level records stay in the billing store proposed in conversion §10/§13.</li>
+<li>Collected money is shown beside the estimate, never added to it, as that document recommends.</li>
+<li>This needs that Architect's agreement first. Then you confirm once for both documents.</li>
+</ul></div>
 
-<p class="ref" style="margin-top:30px">Method notes. All live numbers are from read-only GETs that returned <code>X-AssetOps-Stored: hit</code>, so nothing was stored, and from read-only SQL. No off-list GET was sent, because a miss would insert a <code>chain_response</code> row. First-compose numbers come from the serve's own perf log. Estimates (scale chart, effort, expected times after) are marked as such. Effort is in the project's lane-units; it is an Architect estimate, not a plan, and the Planner would split it into slices of 6 units or fewer.</p>
+<p class="ref" style="margin-top:30px">Method notes. All live numbers are from read-only GETs that returned <code>X-AssetOps-Stored: hit</code>, so nothing was stored, and from read-only SQL. No off-list GET was sent, because a miss would insert a <code>chain_response</code> row. First-compose numbers come from the serve's own perf log. Estimates (scale chart, effort, expected times after) are marked as such. Effort is in the project's lane-units; it is an Architect estimate, not a plan, and the Planner would split it into slices of 6 units or fewer. Revision 2 sources: the review's re-measurements (90 idle connections from one API process; 84 trigger tables; <code>chain_response</code> 539 MB), <code>config/chain/event-register-v1.yaml:36-56</code>, <code>chain/dispatch_day_rows.py:40</code>, <code>mini_depth/period_rows.py:33</code>, <code>estate/period_rows.py:48</code> (hand-written builder versions), and the walk build logs <code>logs/51-54-*rows*.log</code> (check-only row runs: 124 hour periods in 34 s, 62 day periods in 103 s for Kobo).</p>
 </main>
 </body>
 </html>
