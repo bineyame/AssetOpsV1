@@ -160,3 +160,135 @@ A reduced C0 is lower risk: one user worker, no prebuild skip, the crawl in its 
 - **Late data and the event worker.** If the worker dies, periods read PENDING indefinitely. That is honest, but the S0 stage has no alarm; the dirty-queue age alarm appears only at S1. Add a basic stall alarm at S0.
 - **The read itself may grow with history.** PeriodReader's PENDING-at-k is an anti-join over the append-only outbox and consumption ledgers (150 k outbox rows today). Its cost could grow with history the way R3 did. Add it to the C1-C3 measurements.
 - **chain_response grows without limit.** It is 539 MB, and rows of dead code versions are cleared only by reset or prepare. This matters for C's thin cache if code versions churn.
+
+---
+
+## Re-review (rev 2)
+
+Reviewed: revision 2 at 16eb2b860 (diff bc8fe7077..16eb2b860 on the HTML), against main at 16eb2b860. Fresh Claude reviewer. Nothing was changed; no DB or serve was touched (code and git reads only, so the live re-measurements in the first review were not repeated).
+
+### Verdict: REVISE (targeted, text-only)
+
+Every first-round finding is handled in the body, not only in the changelog. The "no change before the walkthrough" call, the dropped worker and skip, the §4b card map, C3b and the re-costing are all sound. Two claims are still wrong, though: the new H3 guarantee ("with no human step") does not hold for the builders as they are wired today, and §4b's main post-mortem cause was already fixed on main. Both are text fixes in §4b, §5, §6 and §8. **D1-D6 can go to the owner now**: none of them depends on these fixes. The fixes must land before C1b and C2 are planned.
+
+### First-round findings: resolved in the body?
+
+| Finding | Where in rev 2 | Status |
+|---|---|---|
+| H1 connections | §5 "connection budget"; §8 C0 table; R0 gate (<200) | Resolved. "Pool sizes are not configurable" is confirmed (no pool env in backend). See N4 on the rehearsal itself. |
+| H2 workers vs process-local state | §5; §8 (worker dropped until C5); C5 scope | Resolved. The `lab_execution.py:2116` and five store citations are accurate. |
+| H3 hand-bumped builder_version | §5 "Invalidation that cannot be forgotten", §6, C1b | Addressed, but the new design is unsound as specified (N1) |
+| M1 prebuild skip | §8 table: dropped | Resolved |
+| M2 benefit, code_version | §8 C0 table; R0 gate verifies on the user port | Resolved |
+| M3 counter contention | §5 "One version per (tenant, Site)"; C1 exit | Addressed. The lock order and fallback have gaps (N3). |
+| M4 BL-66 | §4b, card table, "Why C2 is 4.0" | The map is good, but one cause is stale (N2) |
+| M5 cold and EV | §5 rule; C3b at 2.0 u | Resolved. There is an ordering gap with C2 (N5). |
+| M6 additive reshape, PENDING | §3, §5 rule 2, blue/green, backfill estimate | Addressed. The blue/green mechanics are incomplete (N1b). |
+| M7 / L6 decision text | D2 rewritten, "either choice is safe" removed | Resolved |
+| L1-L5 | Line refs refreshed (they match my reads: serve 162-222, `_state` 137-153, `valid_until` 266-280); 84 tables; --max-sites (`demo_combined.py:79`); budgets consistent between §7 and D3; D5 and D6 reframed | Resolved. Nit: R5 and §7 still say "85 connections in use" where §5 says about 90. |
+| Residual risks | §5 operational alarms: stall alarm at S0, the PENDING anti-join timed, a dead-version prune | Resolved |
+
+### Re-costing check
+
+C1 1.25 + C1b 0.75 + C2 4.0 + C3 2.5 + C3b 2.0 + C4 1.0 + C5 2.0 = 13.5, and C1-C4 = 11.5 as D4 says. The arithmetic is consistent. The C2 rationale against ANY-2's 5.5 is reasonable. C1b at 0.75 is probably low once N1 and N1b are specified, because it then needs a composition-root closure, an active-version pointer, per-period fallback and a cache bump on switch. Budget about 1.25 u, or say it is a floor.
+
+### Remaining findings
+
+#### High
+
+**N1. The builder hash is not "unforgettable" as defined, because the builders' real computation is injected and is not in their import closure.**
+- §5 defines the closure as "its module, the pure functions it imports from the project, and its config". All three existing builders receive their compute by dependency injection at the composition root:
+  - `DispatchDayKindBuilder(day_now)` gets `store.dispatch_day_now`, a method of `PostgresAssessmentStore` (`analytics/adapters/postgres_assessment_store.py:1054`, wired in `chain/composition.py` `dispatch_day_builders`). `dispatch_day_rows.py` never imports that adapter.
+  - `EvidenceClaimKindBuilder(estate_read)` reaches `snap._o.claim_limits.store.claim_limit_snapshot_on` and `provenance_reads(...)` through attributes (`estate/period_rows.py:195-235`), not imports.
+  - `MiniDepthKindBuilder(d, mini)` takes an injected `mini` service (`mini_depth/period_rows.py:192-197`).
+- A SQL or logic change in those adapters would therefore leave the hash unchanged and serve stale facts: exactly the H3 hazard.
+- Further failure modes the definition misses:
+  - **Dynamic imports.** `chain/adapters/file_chain_config.py:127-129` and `chain/adapters/file_inputs.py:31` use `importlib`.
+  - **SQL in migrations.** The `chain_action` view (`0042:112`, `0051:53,100`) is read through SQL whose definition lives in a migration. The closure needs the alembic head, as `code_version` does.
+  - **Env-named manifests and config.** `COMPOSER_ENV` and `MANIFEST_ENV` are hashed into `code_version` (`file_code_version.py:36-44`) but are not named in the closure.
+  - **Shared versions.** `mini_depth` shares one version across six kinds (`period_rows.py:32-33`, because the provenance blocks share it), so "blue/green per kind" and "hash per builder" must state which unit they use.
+  - **Opt-out.** "A guard fails if a hand-written label exists without the hash" does not stop a new builder that sets no label, or one that computes its own.
+- Fix:
+  - Compute the version in the framework, not in the builder. `PeriodReadBuilder` derives it at registration from the builder class's module and the classes of every injected dependency (`type(dep).__module__`), each with its transitive project imports, plus the alembic head, the config files and the composer env and manifests. Builders cannot set it themselves.
+  - The guard asserts that every registered kind's version equals that computed hash.
+  - The C1b exit test must also edit an **injected adapter's SQL** and a migration view, not only "a helper a builder imports".
+  - Add a deploy-time drift sampler as a backstop: rebuild a random sample of periods per kind with the current code, and compare the input and body fingerprints (`period_fp`) with the stored latest rows. A mismatch under an unchanged version fails the deploy.
+  - State the trade-off. A conservative closure (for example all of `backend` except the presenters) is safe but bumps most kinds on most deploys. At pilot scale that means about 20 CPU-hours per kind per deploy (§5's own estimate). Precision matters for cost, not only for correctness.
+  - Until this is fixed, §6's "Same as today" for automatic invalidation overstates the guarantee.
+
+#### Medium
+
+**N1b. The blue/green switch is underspecified, and the gaps are visible to users.**
+- `site_period_read` revisions are per (Site, kind, period), with `latest + 1` across builder versions (`period_read.py` builder rules). The reader treats any older version as PENDING (`period_read.py:407-409, 432`).
+- Serving "the previous version's rows" therefore needs an active-version pointer and a reader that selects the latest revision **of the active version**. Neither exists, and §5 does not name them.
+- During the backfill only the new code is deployed, so a period whose inputs change can be rebuilt only under the new version. Under the rule as written ("switch only when the new set covers every period the old one did"), today's and other freshly dirty periods read PENDING for the whole backfill: about 2.5 h at pilot, on the most-viewed days. Allowing per-period fallback instead sums parts built by two builder semantics inside one range.
+- The switch is a runtime event, not a code change. Unless it bumps every affected Site's `site_read_version` (or the active versions join the cache key), cached bodies keep the old rows after the switch.
+- Serving old-version rows also means serving values from known-superseded logic, which is wrong when the builder change was a bug fix. That is a policy choice the owner should see.
+- Fix: specify the active-version pointer and the reader query; rebuild newest periods first, and state the fresh-period rule (PENDING or per-period fallback, and whether mixed versions may be summed); bump the versions on switch; and add a "bug-fix bump: PENDING instead of old rows" option per kind.
+
+**N2. §4b's second cause is stale: the second compose was removed on main on 12 Nov.**
+- `evidence_money.site_data_gap_days_many` (`:589`) calls `coverage.dispatch_days`, which reads stored rows when served (`estate/coverage.py:65-75`), since 182220d4e ("AR-4: _data_gaps reads coverage.dispatch_days"). That commit is on main and in the walk tree (f679402c9).
+- DISP-1 then moved `money_eligibility.for_finding_on` (coordinator-handoff "MERGED DISP-1": week 10.9 → 8.6 s).
+- The cited handoff lines (`:109`, `:132`) are the 06:45 entries from before the fix. The 12-24 s Portfolio composes in §1 were measured on a tree that already has the fix, so they are not explained by it. The remaining time is `portfolio.evidence` at 10.2 s, which the document does not attribute.
+- C2's item "remove the second compose in site_data_gap_days_many" is work that is already done, and C2's 4.0 u counts it.
+- Fix: replace the cause with an attribution of the measured 10.2 s `portfolio.evidence`, 6.3 s `portfolio.money` and 4.9 s `portfolio.findings` (for example, whether `dispatch.day` is in the served kinds on the walk serve: `ASSETOPS_PERIOD_READ_KINDS` in §1 lists it, so those timers are not dispatch). Drop the item from C2, or re-justify the size.
+
+**N3. The per-Site counter's lock order and fallback are incomplete.**
+- **Lock order holds only inside one statement.** The 0047 triggers are statement-level with transition tables (`0047:6-8, 116-125`), so one trigger can lock its Sites in sorted order. A transaction that writes Site B in one statement and Site A in a later one, or a Site-less (tenant-row) statement before a Site statement, still takes the locks in application order. "Then the tenant row last" cannot be enforced by a trigger. Deadlocks between, for example, an import and the tick remain possible. Postgres resolves them by aborting one transaction, which may be a user's upload.
+- **The tenant row is a hot row.** Every Site-less write locks it until commit. That is the over-invalidation 0047 already chose, now with a lock as well. It is not discussed.
+- **The single-committer fallback has R3's hazard.** It advances the version "from the change log as a high-water mark". `change_id` is assigned at insert, not commit (R3), so the committer needs a visibility rule, for example only rows whose xid is below `pg_snapshot_xmin(pg_current_snapshot())`, or the existing count. As written it reintroduces the `max(id)` race the document rejects.
+- **Bookkeeping tables versus the guard.** "Bookkeeping tables (outbox, consumption…) stop bumping it", but the reader's PENDING-at-k reads the outbox and consumption ledgers on the serve path (`period_read.py` docstring). §6's guard says every serve-path table bumps the version. Stopping the bump is safe only after PENDING moves into fact rows written in the input transaction. Say that as the precondition, not "once the facts carry their own PENDING state".
+- Fix:
+  - State that the ordering covers one statement, and require writers that touch several Sites to go through one ordered call, or accept deadlock retries and test them in C1.
+  - Name the tenant hot row as a measured C1 item.
+  - Give the fallback its commit-visibility rule.
+  - Make the bookkeeping change conditional, as above.
+
+**N4. The R0 rehearsal gate is not sufficient as written.**
+- **Shared cluster.** The rehearsal runs a scratch copy on the same Postgres cluster as the walk and demo serve. Two API processes at about 90 connections each, plus the walk serve's 90, approach the 300 cluster limit, so the rehearsal can harm the live serve. The "<200" pass condition is `pg_stat_activity` cluster-wide (`warm_ranges.py:542-545`), so it depends on whatever else runs at the time.
+- **A miss can mask itself.** `--verify` stores on a miss in the user process, so only the **first** verify after the crawl is evidence. A second verify passes even when the code versions differed.
+- **The benefit is not measured.** Nothing in the gate shows user latency during a crawl improving (for example, Overview hit p95 during a crawl versus the 5.7 s baseline). Without that, R0 carries risk for an unmeasured gain.
+- **No rollback or after-midnight check.** The gate has no rollback step, and no check after the local-midnight re-warm. Variant 1 also changes backend code, so it needs its own review and a full re-warm (11 min plus about 1 h) on the demo DB before 17 Nov. The gate does not budget that window.
+- Fix:
+  - Rehearse only when the walk serve is idle, or cap both rehearsal processes so the cluster stays under 200 in total.
+  - Gate on the first `--verify`.
+  - Add a user-latency-during-crawl measurement with a pass threshold.
+  - Add a rollback step and a midnight check.
+  - For variant 1, require a review and a timed re-warm window.
+  - Otherwise default D2 to "nothing until after the demo", which is the Architect's own recommendation.
+
+**N5. C2's exit evidence depends on C3b, but they are sequenced in parallel.**
+- The outcome summary and Portfolio include EV and COLD Sites (§1: summary timers for EV 2.6 s and COLD 0.8 s).
+- AR-7's `outcome.site_row` for those Sites needs their kinds. `evidence.claim` returns nothing for non-MINIGRID Sites (`estate/period_rows.py:211-212`), and `evidence.provenance` is declared there as the cold/EV pinned-window kind.
+- C2's exit ("no compose timer on the Portfolio") cannot hold for cold and EV until C3b lands, yet C3b "follows in whichever lane frees first".
+- Fix: either C2 builds the cold and EV `site_row` and provenance inputs, or C2's exit is scoped to mini-grid with C3b closing the Portfolio. State this so the owner's every-Site-type rule is not met silently for only some Site types.
+
+#### Low
+
+- **N6. D-items are plain, but a few terms remain for the owner.**
+  - D3 says "within 2 ticks"; say "about 4 minutes".
+  - D4 gives "about 11.5 units" with no calendar estimate, and uses "presenter rule" without explaining it.
+  - D3 uses "p95"; say "almost every time".
+  - Otherwise D1-D6 are decidable as written. Each has a recommendation and an alternative, and D6 is correctly framed as a joint confirmation.
+- **N7. The "85 in use" connection figure** in R5 and §7 is inconsistent with "about 90" in §5 and §8.
+
+### Checks run
+
+- `git diff bc8fe7077 16eb2b860` on the HTML; the full rev 2 text was read.
+- Read on main:
+  - `file_code_version.py` (code_version scope and env)
+  - the three `BUILDER_VERSION` sites and their builder classes and wiring (`chain/composition.py:85-130`)
+  - `period_read.py` version and PENDING handling (`:204-264, 319, 407-432`)
+  - the 0047 trigger generator (statement-level)
+  - views in migrations (0042, 0051)
+  - `importlib` uses
+  - `warm_ranges.py` throttle and verify, and its connection count
+  - `demo_combined.py:79`, `lab_execution.py:2116`
+  - `estate/coverage.py:65-75`, `evidence_money.py:573-594`
+- git: 182220d4e is an ancestor of main and of the walk tree f679402c9; `origin/task/ANY-2-AR4b` exists.
+- `backlog-post-demo.md:85` (BL-66 8.5 u, ANY-2 5.5) and `coordinator-handoff.md:61, 105-132` were checked against §4b. Accurate except N2.
+
+### Not verified
+
+- No live DB or serve reads in this round, so the connection counts, timers and row counts are taken from the first review and the document.
+- The backfill rates were checked only for internal arithmetic (Kobo: 124 hour periods in 34 s, 62 day periods in 103 s; pilot about 20 CPU-hours per kind). The walk build logs were not re-read.

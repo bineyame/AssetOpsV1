@@ -216,3 +216,149 @@ The "beside, never added" ruling for collected against estimated income is consi
 - Several research figures are older than two years: AMDA 2020, the 2022 ESMAP cost, ColdHubs 2019. Refresh them before any client deck.
 - The AMDA 2024 KPIs were not extracted, as the doc itself says.
 - The document mixes owner-facing code vocabulary with client-ready lines. Before reuse, separate §11–12 into a client-safe extract with no MG-x or strategy names.
+
+---
+
+## Re-review (rev 2)
+
+Reviewer: fresh Claude reviewer, independent of the author. Review only; nothing changed in the HTML.
+Reviewed: `.agent/convertion_potential.html` at `6846cb314`, diff `bc8fe7077..6846cb314`. Code checked against `main` at `6846cb314`.
+
+### Verdict: ACCEPT WITH NOTES
+
+All 13 original findings are resolved in the body as well as in the changelog. Two are only partly resolved: M5 is fixed in §13 but not in §4, and L6 still has present-tense lines. The new PR-3 and price-key content matches the code. The gap renumbering is consistent apart from one stale reference. The §10a legal claims name the right Acts, but one of its notes overstates what pseudonymisation achieves.
+
+One new Medium repeats the pattern of the original M4: a demo lever that claims a capability the product does not have. Fix it before §11 or §12 is used with a client. Nothing blocks the document as an owner discussion paper.
+
+### Original findings: status in the body
+
+**M1. Resolved.**
+- Summary bullet 4, §3 limits (line 305), §7(f) (line 487) and gap #12 all now say "No objective declared" rather than "Not measured yet".
+- The cited `objectives.py:57-72` and `status.py:88-102` are correct.
+
+**M2. Resolved.**
+- PR-3 is merged as `8fdb0cf76`, with migration `0060_site_admin_price_entry.py`. That migration's docstring says "No new table, key or trigger". `financials/assumptions.py` `ASSUMPTION_KEYS` still holds three keys.
+- The five keys on `price_page.py:58-87` are therefore listed but not storable, exactly as the doc now says.
+- The `price-it` references `:55-70` and `:195-201` are correct, and so is "2.75 units".
+- BL-67b is "structured tariffs" in `architect-answer-money-snapshot-2026-11-10.md:97` and `price-it:69`, so gap #8 cites it correctly.
+- Gaps #5 and #7 are merged into the new #5 as recommended.
+
+**M3. Resolved.** The figure is removed and marked do-not-quote.
+
+**M4. Resolved.** §11 EV now says "two single-tariff scenarios", and TOU is in gap #8.
+
+**M5. Partly resolved.** It is fixed in §13 #1 (precondition stated, output named honestly) and in the changelog. See R2-L2 for what remains in §4.
+
+**L1 to L5. Resolved.**
+- Pipeline label reads "6".
+- `outcome_map.py:22/25/36` checked: line 22 is EV_INTERRUPTION, 25 is HEADROOM, 36 is IDLE.
+- `read.py:944-951` is the Assure detail.
+- MG-2 lines are `:161-162` and `:163-166`.
+- The summary points to "section 7".
+- Attributions are corrected, and company claims are tagged "company-reported".
+
+**L6. Partly resolved.** The internal notes are good. Two client lines still speak in the present tense; see R2-M1 and R2-L3.
+
+**L7. Resolved.**
+- `figure{overflow-x:auto}`, `figure svg{min-width:720px}`, `tabindex="0"` and a phone-only scroll hint are in place.
+- I did not render it at 360px, so this is checked by CSS reading only.
+
+**L8. Resolved.** §10a is added, with the matching script line, gap #4a and gap #11.
+
+### Cross-references after renumbering
+
+These all point to the right gap:
+- Script → #3, #6, #4, #7, #5, #8, #9.
+- Lever → #8.
+- §10a → #4a and "a later gap" (#11).
+- Changelog → #12, #5, #8, #1.
+
+The one exception is R2-L1.
+
+### New findings
+
+**R2-M1 (Medium). The cold-chain demo lever claims a value-at-risk figure that the product does not calculate.**
+- Where: §11 Cold chain item 4 (about line 651): "the existing scenario shows value at risk during an excursion". Script line 4 (about line 666) has the same claim: "what is a typical chamber load worth? That lets an excursion show value at risk".
+- Evidence:
+  - `cold_scenarios/rules.py:4-7`: `STOCK_VALUE_CONTEXT` is "an authored what-if … no calculated amount, spoilage rule, comparison delta or outcome".
+  - `frontend/src/sites/coldSiteViews.tsx:1651-1652`: stock value is shown as `{quantity} × {unit value}` and is "never multiplied".
+  - `financials/cold_consequence.py:16`: "Every amount and currency is null".
+  - `stock_value_at_risk` is not storable.
+- Why it matters:
+  - This is the same class of problem as the original M4.
+  - If the presenter promises a value-at-risk number on screen, the demo will fail to show one in front of a COO or CFO.
+  - The script line also tells the client that a declaration would produce the figure today, but the key cannot be stored yet.
+- Fix:
+  - Reword the lever to: "the what-if records a declared stock quantity and unit value beside the excursion window. A value-at-risk amount is not calculated yet (gap #5)."
+  - Change the script line to: "That is what would let an excursion show value at risk."
+
+**R2-L1 (Low). A stale gap number after renumbering.**
+- Where: §13 closing paragraph (line 691): "needs a ruling before items 3 and 8 are built".
+- Problem: crate check-in plus fees (collected money) moved from #8 to #7. The new #8 is time-of-use tariffs, which produce no billed or collected money.
+- Fix: "items 3 and 7".
+
+**R2-L2 (Low). §4 still describes the old gap #1.**
+- Where: §4 "What a new data source would take" (about line 373) still says "a finding producer over the existing `critical_served`/feeder-demand intervals ('supply below demand for X min') … a mechanism plus one map entry, with no new data".
+- Problem: this contradicts the rescoped §13 #1, which needs a per-Site SUPPORTED CRITICAL load classification and declared operating hours, and whose output is unserved critical kWh rather than minutes of interruption.
+- Fix: mirror the §13 wording.
+
+**R2-L3 (Low). Two script lines still promise unbuilt behaviour.**
+- Script line 6: "A typical figure lets 'repeat visits without a result' carry a cost". `repair_visit_cost` is not storable, so this should read "would let".
+- Script line 2: "you can change it yourself on the price page". This is true only for a user with the site-admin pricing role. Confirm that the demo account has the role, or say "your site admin can change it".
+
+**R2-L4 (Low). §10a data protection is accurate on the Acts, but the note overstates what pseudonymisation achieves.**
+- What is correct: Kenya's Data Protection Act is No. 24 of 2019, and Nigeria's Data Protection Act is from 2023 (signed June 2023).
+- Problem 1: pseudonymised meter IDs are still personal data. Kenya DPA s.2 defines pseudonymisation as data that cannot be attributed "without additional information", and commentary reads it as still personal data. The NDPA follows the same model.
+- Problem 2: the script's internal note "consent-safe aggregation" is true for aggregation by customer class, but not for pseudonymised IDs.
+- Problem 3: §10a does not mention cross-border transfer conditions. These matter if exports are processed outside the client's country:
+  - Kenya DPA ss.48-49, plus 2026 ODPC transfer guidance (reported, not opened);
+  - Nigeria NDPA ss.41-43 (adequacy, approved transfer instruments, consent or contract exceptions).
+- Fix:
+  - Say "aggregated where possible; pseudonymised data is still personal data; agree a lawful basis and, if processed outside the country, a transfer mechanism".
+  - Drop "consent-safe".
+  - Mark §10a as not legal advice.
+- Sources: [KPMG NDPA 2023 summary](https://assets.kpmg.com/content/dam/kpmg/ng/pdf/nigeria-data-protection-act2023.pdf), [Mondaq NDPA cross-border](https://www.mondaq.com/nigeria/data-protection/1789480/cross-border-data-transfers-an-overview-of-legal-requirements-and-compliance-mechanisms-in-nigeria), [ODPC Kenya DPA 2019 text](https://www.odpc.go.ke/wp-content/uploads/2024/02/TheDataProtectionAct__No24of2019.pdf), [CMS: transfer of personal data outside Kenya](https://cms.law/en/ken/news-information/transfer-of-personal-data-outside-kenya).
+
+### Other new content checked and found accurate
+
+- `vocabulary.py:300` is `money.currency_mixed` "Not shown · amounts in more than one currency", and the estate total uses it (`:501`). §10a's FX claim holds.
+- §10a introduces no new numeric figures.
+
+### Figures safe to quote to a CEO, COO or CFO
+
+**Safe to quote, as attributed** (tagged "checked" and confirmed at source):
+- World Bank/ESMAP $0.55 → $0.38 → $0.20/kWh;
+- SEforALL $6,824/kW against a $3,000 benchmark, with the 20% decline attributed to AMDA;
+- UEF USD 592 per verified connection;
+- FAO 23% and 13.3%;
+- Rockefeller 20–30%;
+- Mongabay BasiGo terms;
+- CleanTechnica KSh 8/16 tariffs and BasiGo KSh 20/km.
+
+**Quote only as the company's own claim:**
+- Spiro figures;
+- SokoFresh 40%;
+- ColdHubs 2 → 21 days.
+
+**Do not quote:**
+- The ColdHubs "$60 → $120/month" figure. Its source is internally inconsistent.
+- The AMDA 2020 figures until they are refreshed from AMDA 2024. They are dated.
+- Any "snippet" item (Zebra LCOE, Power for All, Odyssey/CBEA KPIs, REPP, DARES ToR, BASE, GET.invest) until its source is opened.
+- The removed CrossBoundary figure.
+
+### Checks run
+
+- `git diff bc8fe7077 6846cb314`.
+- I read the following against main:
+  - `price_page.py`, `assumptions.py` and migration 0060;
+  - `vocabulary.py:295-303` and `outcome_map.py:20-37`;
+  - `read.py:926-951`;
+  - `cold_scenarios/rules.py`, `cold_consequence.py` and `coldSiteViews.tsx:1645-1680`;
+  - `architect-answer-price-it-2026-11-10.md`.
+- WebSearch on the Kenya DPA and NDPA (pseudonymisation and transfer).
+- No architecture or agent-workflow guards were run, because the change is to a design document only.
+
+### Residual risk
+
+- §11 and §12 still mix internal notes (PR-3, gap numbers, MG-x) with client-facing lines. Before the demo, extract a client-safe script.
+- The §10a legal summary should be confirmed by counsel before it is put to a client.
