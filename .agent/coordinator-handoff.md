@@ -235,3 +235,9 @@ Restart only when no agents are running. On resume: read this file, `git log --o
   - Open: why the prebuilt Kobo entries were cold at first hit (invalidated after prebuild by tick writes?).
 - Pre-existing failures on main: test_w302_evidence_api (2 tests: "Opens this range" vs "Current view"); test_s5_overview_postgres late_power and test_s4_schedule_health_postgres (STALE_PROJECTION, environmental?).
 - Low notes to backlog: D-SR.82 docstring "<=" vs the actual "<"; D-SR.83 L2 (gate result not in the key).
+
+## UPDATE ~06:55 UTC 2026-11-14 (resume)
+- Serve + Vite still up (restart8). The 06:48 tick: prebuild 193/193 hit; warm 1672, 100% hit, max 824 ms.
+- Re-timed the smoke-2 slow routes at 06:50: Kobo overview/index 0.7–0.8 s, board 0.1 s, maintenance 0.3–0.5 s. Kobo finding financials is still ~2.1 s on every hit.
+- Architect diagnosing (a) prebuilt entries cold between ticks and the ~750 ms store-hit cost, (b) the financials route -> .agent/WALK-perf-ruling-2026-11-14.md. Then Sonnet fix -> fresh review -> merge -> smoke 3 -> access note.
+- Uncommitted owner-walkthrough-notes-2026-11-01.md diff (reordered owner quotes, +22 lines) left untouched.
