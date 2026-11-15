@@ -134,3 +134,234 @@ All are accurate.
 
 - PostgreSQL-backed tests, by constraint.
 - Browser rendering. I inspected the source only.
+
+## Review (revision 3)
+
+Reviewer: fresh Claude Reviewer, 2026-11-15, main at bf6014e02956d9e7392329cbce46300037c9d9d8 (the document's working-tree revision 3). Scope: the new §5-8 against `.agent/owner-portfolio-composition-request-2026-11-15.md` and the demo-data question. I changed no code, test, database or document. I ran only pure tests and read-only queries (inside `BEGIN READ ONLY`) on `assetops_polish_walk1113_test`.
+
+### Verdict: REVISE (one Medium; seven Lows that do not block)
+
+§5, §6 and §7 are accurate. I found no false "summed", "never summed" or "lead Finding only" claim. The one blocking item is in §8.9. The build-time extrapolation is the headline answer to the owner's question about cost as Sites and horizon grow, and it counts only the Kobo child phase, so it is about a third of the measured build. The fix is a few sentences.
+
+### What I verified
+
+**§5 composition (code read line by line):**
+
+- **Moves, checks and records.**
+  - `ENTRIES` is at `outcome_map.py:17-37`.
+  - The 10 CONTRIBUTIONS records are at `:150-180`, all MOVES. `status` is declared at `:147` and has no record.
+  - `OutcomeEvaluator._record` takes the first match (`chain/outcomes.py:94-95`).
+  - Six strategies are registered (`strategies/__init__.py:12-13`). Records use only graded_verdict, priced_energy, avoided_cost and direction_only. `finding_presence@` and `recorded_amount@` appear in no record.
+  - `recorded_amount@1` returns `NO_RECORDS` unconditionally (`recorded_amount.py:1-11`).
+- **Status rules and roll-up.**
+  - First match wins: an open, unapplied primary Finding or a NEEDS_ATTENTION warning gives NEEDS_ATTENTION, then MISSED, then WATCH (`status.py:73-102`).
+  - The roll-up uses `PRECEDENCE`, and the lead is the first outcome in catalogue order (`:34`, `:105-113`).
+  - `row_nodes` takes earnings and potential from the first outcome in catalogue order, and kpi from the lead / declared outcome / record cascade (`board.py:367-382`).
+- **Money.**
+  - `estate_income` rounds each Site to the minor unit and then sums. It accepts one currency only, and "At least" applies when any basis is not COMPLETE or any Site is not known (`vocabulary.py:459-508`).
+  - The Optimize card lists the claims and never sums them (`read.py:901-924`).
+  - Value and fuel lines are one line each and never summed (`read.py:952-962`).
+  - Counts are summed, and any failed Site read makes them NOT_KNOWN (`claims.py:206-216`).
+  - Sites disrupted means primary Protect, in OPEN / RECURRED / ACTION_IN_HAND, excluding UNEXPLAINED_FUEL (`:42-43`, `:157-161`).
+  - A mill Action on a thread that is already counted is excluded (`:137-143`).
+  - A data-gap day is not taken twice (`:100-108`).
+  - One builder serves both routes (`read.py:759-777`, `:926`).
+- **Lead-Finding money and the 7-day claim.**
+  - `lead_finding` is at `chain/read.py:190-212`. The MG-2 earnings read only `inp.money_heads[inp.lead_findings[...]]` (`chain/outcomes.py:190-196`).
+  - `_window_parts` replaces only `window` and `rows` (`read.py:586`). The money head therefore stays the board day's lead, and the Portfolio Optimize figure for a 7-day window is one Finding's exposure from the last day. The document is correct, and this is the most useful new fact in §5.
+- **Tests.** All 23 test names cited in §5-8 exist in the named files. I ran `tests/test_ch6_contributions.py test_out_b1_status.py test_out_b2_mini.py test_ch6b_estate_chain.py test_ch5d1_optimize_card.py test_ch3_rows.py test_pv1_value_lines.py test_ch6b2_portfolio_cards.py test_mb1_opportunity_board.py test_s4_fuel_cost.py test_hon1_complete_readings.py test_tfc2.py -q`. Result: **345 passed, 1 warning in 3.87 s**.
+
+**§5.6 frontend (`frontend/src`):**
+
+- The Portfolio matrix renders only the pill and the lead label (`PortfolioOutcomes.tsx:350-366`).
+- `headline`, `short_value`, `headline_money` on the summary rows, `sites_needing_attention`, `warning_count`, `category_counts`, `recovered_value` and `value_cards` are typed only (`estateClient.ts:490-513`, `:647-671`). None of these is rendered by an estate component.
+- Only the Grow row renders nodes (`OutcomeBoard.tsx:118-147`, `:264`).
+- Value and fuel lines sit inside `CardQualifiers`, behind "Why?".
+- `verified_values`, `unexplained_fuel` and `thread_lines` do not occur in `frontend/src`.
+- No frontend code builds the bare `/api/estate/chain` URL (see L3).
+
+**§6.** Each verdict follows from §5 and §7. I checked `warnings.py:42` and `:45`, `credit.py:57-72`, `dispatch_v3.py:466-468` and `placement.py:5`, and found no "recoverable" in the backend. None of the verdicts over- or under-claims.
+
+**§7:**
+
+- Cold and EV have no verification family. `FAMILIES` is reserve + MIDDAY + FUEL (`verification_families.py:502`, `:516`), and MIDDAY refuses a non-MINI Action (`:139`).
+- `WorkService.post_event` refuses outcome requests (`work/service.py:265-266`).
+- VERIFIED is a cause only from `verification_outcome` (`lifecycle_run.py:45-53`). `ACTION_IN_HAND → CHANGE_APPLIED` is at `lifecycle.py:49`, and `DISRUPTED_STATES` excludes CHANGE_APPLIED. The §7.5 inference holds, and the walk1113 log shows `CHANGE_APPLIED: 2`.
+- `convertion_potential.html:413` says what §7.5 quotes. Its cold cell already says "no cold verification plan exists", so the correction mostly adds the EV case and the Protect-count consequence.
+- I also checked price keys (`assumptions.py:32`, `price_page.py:82-88`), the cold consequence nulls, the domain_action criteria, `BILLING_GAP` / `NO_RECORD`, the idle-charger record with no producer (`chain/graph.py:47-50`), and the scenario-kind rules. All are accurate.
+
+**§8:**
+
+- **Template.** Every §8.1 template value matches `kobo-mini-grid-60kw.yaml`.
+- **Scenarios.** The scenario values in §8.2 match (37 files = 36 YAML + README).
+- **Simulator.**
+  - The mini_grid docstring says: linear fuel, "no idle fuel and no start fuel", rating a ceiling, FAILED inert.
+  - Charging only when the battery is not discharging is at `:721-730`.
+  - v5 uses `effective_start_threshold = min(start, reserve + 5)` (`:1141-1156`). With 30 / 35 that gives 35, and a 25 % reserve gives 30. The "trial effect built in" claim is correct.
+  - Case A: PV 48 kW is more than the 15 kW load, so dispatch rule 1 (`load > pv`) cannot fire and rule 3 does (`dispatch_v3.py:290-296`). The PV-alone claim is correct.
+- **Idle fuel.** An unloaded generator gives 0 L by the linear law. `NO_LOAD` is 3.3 L/h `GENERIC_DEFAULT` (`demo_combined_kobo.py:140-153`). `test_tfc2.py:73-88` pins a 3.3 L / 4.125 USD idle-only credit.
+- **Profiles.** Profiles, versions, parsing limits, cadence / bias / dropout and the transform order are correct.
+- **Calendar.** The calendar matches v4. `S = DB day − 2` holds, and `mill_change_day` is S-9.
+- **Ingestion.** The ingestion route exists. `ADD_DAY_KINDS` matches. The planner estimate is 110 × 28 + 60 = 3,140 s. `prepare` drops and recreates the database (`:1045-1046`).
+- **Measured figures.** Phase times match `polish_walk1113-prepare.log`: 1724.7, 1473.9, 1195.1, 817.2, 132.6, 52.4, 47.6, 45.6, 35.4 + 1.0, 22.4 and 5.8 s, which sum to ≈ 5,554 s. The work marker is at 08:50:40 and the log mtime at 10:50. The other two logs match too (1991.0 / 2671.7 and 1234.4 / 2282.2).
+- **Read-only database queries.**
+  - `pg_database_size` = 1,769 MB.
+  - The largest tables match to the MB (635 / 259 / 208 / 104 / 97 / 91 / 70 / 66).
+  - `chain_response` has 8,828 rows.
+  - `accepted_evidence` holds 131,249 rows: KOBO 85,326 / KISIWA 40,104 / EV 4,951 / COLD 868, all `source_mode = SIMULATED`.
+  - The per-day figures use distinct UTC source days (30 / 12 / 3 / 9).
+- **Storage arithmetic.** 5.9 MB and 107 GB, then 40 MB and 732 GB, are correct, labelled and bounded.
+
+**HTML:**
+
+- The page is self-contained: no script, link, img, @import or URL. 18 hrefs, all resolve.
+- 8 SVGs parse as XML, the tags balance, and there are no duplicate ids or dangling `url(#)`.
+- The light, `prefers-color-scheme` and `[data-theme="dark"]` blocks define the same 16 tokens. Every `var()` is defined, there are no raw fill or stroke literals, and `body` has a background.
+
+### Findings
+
+- **M1 (Medium). §8.9 build-time extrapolation understates the build by about 3×, and its wording hides it** (the "Extrapolated" list, first item; Figure 8 caption).
+  - *What the document says.* "Build time for Kobo-like Sites ≈ N × D × 62 s … The 62 s is 1,724.7 s ÷ 28 built Kobo days …, plus drains and self-check, which grow with the data. Example: 50 Sites × 365 days ≈ 1.1 × 10⁶ s ≈ 13 days."
+  - *What 62 s covers.* It is the `kobo:` child phase only. Drains, self-check, mini-depth (2,996 jobs, untimed), period rows and day rows are not in the 62 s or in the 13-day example, even though the sentence reads as if they are. The measured walk1113 build was ≈ 7,200 s wall, of which Kobo was 1,725 s. Kisiwa costs about 119 s per night, about twice Kobo's per-day rate. Figure 8's own caption says most of the time goes to drains and self-check.
+  - *Why it matters.* This is the number the owner will use to judge whether portfolio-scale simulation is feasible, and it is presented as the estimate rather than as a floor.
+  - *Fix.* Label 62 s per Site-day as a lower bound for ingest + assess + match only, and add a whole-build figure. The measured ≈ 7,200 s wall over ≈ 49 built Site-days (28 Kobo + 10 Kisiwa + 8 Cold + 3 EV) is ≈ 147 s per Site-day, or ≈ 2.7 × 10⁶ s ≈ 31 days for 50 × 365, if drains and checks scale with data. State the 50 × 365 result as a range of about 13 to 31 days, sequential, and name the assumption that the self-check and drains scale linearly. While there, use one day denominator: r = 2,844 uses 30 UTC days, while the time rate uses 28 built days.
+- **L1. §5.2 states the lead-Finding precedence backwards.** "The lead is the pinned one, else the latest episode start …" is not what the code does. In `chain/read.py:205-211`, the pin wins only while the day is not settled or the source is closed. In the normal case (settled and source open), the discovered head wins: the greatest episode start, then the smallest id. Fix: "the latest episode start meeting the day (smallest id on a tie); a pinned Finding only while the basis is incomplete or the source closed."
+- **L2. §5.3 "Open threads … summed" cites a test that does not prove a thread sum.**
+  - `test_ch6b_estate_chain.py::test_counts_are_summed_over_the_sites` has no thread rows, so the thread read raises `AttributeError` and the thread claims are NOT_KNOWN. It asserts only that days are summed (`:239-243`).
+  - The thread-count tests in `test_ch5a2b_claims.py:140-162` each use one Site. The sum at `claims.py:209-212` is correct by reading, but no multi-Site thread-sum test exists.
+  - Fix: cite the test for days, and say "thread sum: by code, no multi-Site test".
+- **L3. §5.6 "/api/estate/chain is never called (searched estate/chain)" needs a qualifier.**
+  - The claim is true for the bare route.
+  - The search method would not find URLs that the frontend builds from parts. The frontend does call `/api/estate/chain/why`, built as `ESTATE_API_PATH` + `/chain/why` (`frontend/src/sites/chainClient.ts:16`, `:81`).
+  - Fix: name the why route as called and the bare route as not called.
+- **L4. §8.5 and §8.7 day kinds.**
+  - The v4 calendar has no Kobo `degraded` day. Only S-28 (normal) and S-21 (overcast) run `kobo-s3-dispatch-necessary-run`, so Case B appears on two calendar days.
+  - §8.7 "On every overuse and trial day … the 90 % stop policy then keeps the generator on" should exclude trial-after (S+1, 25 % reserve), where the generator never starts. The next paragraph says this, but the first sentence contradicts it.
+  - Fix: name the two days, and say "overuse days and trial-before".
+- **L5. §8.6 idle-fuel row merges two figures.** The row says the fuel figure "comes only from the declared generic 3.3 L/h no-load rate × 1.10". The × 1.10 is the exposure's upper multiplier (`chain/outcomes.py:308`). The credited trial value uses the nominal 3.3 L/h with no multiplier (`test_tfc2.py:76-78`: 3.3 L, 4.125 USD). Fix: split the sentence into the exposure upper bound (× 1.10) and the credit (nominal).
+- **L6. Citation drift (no claim affected).**
+  - `objectives.py:112-145`: the file has 143 lines.
+  - "Only PRODUCTIVE_LOAD calculates" is cited at `scenario_rules.py:24-25`, but the rule is at `:194-200`.
+  - `evidence_api.py:158` is `SITE_EVIDENCE_ROUTE`; the batches route is at `:157`.
+  - `packs/cold.py:44-58`: the 13-property map starts at `:50`.
+  - The rev-3 note (l.107) and §7 lead (l.997) announce "two corrections", but §7.5 is one correction plus its consequence.
+- **L7. Context for §8.9's source build.** The walk1113 prepare ended `SELF-CHECK FAILED` (CO-10). This does not change the timings, but the page names the build as the measurement source. Fix: optional; add one clause noting that the self-check failed on CO-10 and that the timings are unaffected.
+
+### Not verified
+
+- PostgreSQL-backed tests, by constraint. Browser rendering: I inspected the source only.
+- §8.7 Case A and Case B are inferred from scenario values and are not simulated. The document says so, and I did not run them either.
+- The `kisiwa-diesel-hybrid-60kw.yaml` and other template line citations, and `host/ev_publication.py:282` / `:331` beyond the TUESDAY 08:00-16:00 rule: spot-checked, not line-audited.
+- The database size and `chain_response` rows were read on 2026-11-15 and can drift as the walkthrough database is used.
+
+### Residual risk not named in the document
+
+- The Optimize card's 7-day window equals one Finding on the last day (§5.2). A viewer would read it as the window's exposure, and the card text does not say so. This is worth an owner decision, not a document fix.
+
+## Re-review (revision 3.1)
+
+Reviewer: fresh Claude Reviewer, 2026-11-15. Document: working-tree revision 3.1 of `.agent/decision-intelligence-mechanism-2026-11-14.html` (main at bf6014e02 plus uncommitted edits). There was no saved revision-3 copy, so I read every section that the 3.1 change note names, and opened every citation in those sections. I changed no code, test, database or document; I only appended this section. I ran pure tests only and read-only queries (`BEGIN READ ONLY … ROLLBACK`) on `assetops_polish_walk1113_test`.
+
+### Verdict: ACCEPT WITH NOTES (no High or Medium; three Lows)
+
+M1 and L1-L7 are fixed in the body, not just in the change note. The new §5.2 bullet is accurate and makes no design proposal. The HTML is still clean. The three Lows are arithmetic and labelling details in §8.9 and Figure 8. None of them changes a conclusion.
+
+### Prior findings
+
+- **M1: fixed.**
+  - *Lower bound.* §8.9 now labels 62 s as a lower bound covering ingest, assess and match only, and names what it leaves out: drains, mini-depth, period rows, day rows and the self-check. 1,724.7 ÷ 28 = 61.6 s, and 72 runs at about 24 s each is correct.
+  - *Whole build.* I re-derived the rate from `/opt/assetecon/AssetOpsV1-walk/var/polish_walk1113-prepare.log` and the files in the work directory. The log mtime is 10:50:48.07. The 7,204 s figure runs from `keys.json` (08:50:44); the marker file itself is at 08:50:40 (see N3). The build covered 28 Kobo built days (30 calendar days in v4 minus the 2 `missing` days), 10 Kisiwa nights, 8 Cold sessions and 3 EV runs, which is 49 Site-days. 7,204 ÷ 49 = 147.0 s.
+  - *50 × 365 range.* 18,250 × 61.6 s gives 13.1 days and 18,250 × 147 s gives 31.05 days. The page labels both as extrapolations ("formulas, not measurements") and names the linear-scaling assumption.
+  - *Storage.*
+    - `pg_total_relation_size('accepted_evidence')` is 272,015,360 B. Divided by 131,249 readings, that is 2,072 B per reading.
+    - Kobo r = 85,326 ÷ 28 = 3,047. That gives 6.31 MB per Site-day and 115.2 GB for 50 × 365.
+    - The whole database is 1,770 MiB ÷ 131,249 = 14.14 KB per reading. That gives 43.1 MB per Site-day and 786 GB.
+    - All of these match the page.
+  - *Day count.* The 30 vs 28 problem is gone. The old "30 UTC days / 2,844 / 5.9 MB / 107 GB / 732 GB" figures appear nowhere, and both the time rate and r use built Site-days.
+  - *Planner estimate.* `tools/demo_combined.py:132-133` matches the 110 × days + 60 estimate.
+- **L1: fixed.** §5.2 now matches `chain/read.py:205-211`. The latest episode start wins, then the smallest id. The pin wins only when `not (settled and source_open)`. The added cites `mini.py:587-590` (the `lead_finding` call) and `:1366-1374` (`_lead_findings`, the generator-only gate) are accurate.
+- **L2: fixed.**
+  - §5.3 now cites the test for days only. It gives the thread sum as "by code (`:209-212`)", and `claims.py:209-212` is the `open_n` / `verified_n` / `disrupted_n` sums.
+  - It also states that no multi-Site test exists, which matches the single-Site tests in `test_ch5a2b_claims.py:140-172`.
+- **L3: fixed.** §5.6 says that the bare route is not called and that `/chain/why` is called. `chainClient.ts:16` is `const ESTATE_API_PATH = "/api/estate"`, and `:81` returns `${basePath}/chain/why?…`.
+- **L4: fixed.**
+  - §8.5 names S-28 (`normal`) and S-21 (`overcast`) as the Case B days and states that v4 has no Kobo `degraded` day. I confirmed this from the `sites.kobo` list in `demo-story-days-v4.json`, which has 30 entries.
+  - §8.7 Case A now reads "overuse days (S-14, S-7) and trial-before (S)", which excludes trial-after.
+- **L5: fixed.** §8.6 separates the exposure upper bound (× 1.10, `chain/outcomes.py:308`, `idle_part = mult × …`) from the credit. The credit is 3.3 L and 4.125 USD nominal (`test_tfc2.py:76-78`, inside `test_idle_only_demo_figures_from_the_inputs`).
+- **L6: fixed.**
+  - `objectives.py:112-143`: the file has 143 lines, and `judge` is at `:112`.
+  - `scenario_rules.py:194-200`: "Only PRODUCTIVE_LOAD calculates" plus the `kind != "PRODUCTIVE_LOAD"` guard.
+  - `evidence_api.py:157` is `INGESTION_BATCHES_ROUTE`.
+  - `packs/cold.py:50-64` is the comment plus the 13-entry `PROPERTY_FIELDS`, which closes at `:65`. That is acceptable.
+  - The §7 lead (l.1005) and the rev-3 note (l.114) both say "one correction … plus its consequence".
+  - The §4 table (l.826) still cites `scenario_rules.py:24-25`, but only for "a stored calculation" (`CALCULATION_STATES`), which those lines support.
+- **L7: fixed.** §8.9 cites `53 pass, 1 fail ['CO-10']` at log line 55, which I confirmed. The self-check is the last phase, it ran all 54 checks with 0 skipped, and the timings are unaffected.
+- **New §5.2 presentation-risk bullet: accurate.**
+  - `_optimize_card` (`read.py:901-924`) builds value, detail ("At {site} · not added across sites"), basis and days_line, and none of them mentions the last day or a single Finding.
+  - `vocabulary.py:580` is quoted exactly.
+  - The bullet says "records the risk and does not propose a design", and it doesn't propose one.
+
+### Citations opened for 3.1
+
+All of the following resolve and support the claims made of them:
+
+- `chain/read.py:205-211`
+- `mini.py:587-590`, `:1366-1374`
+- `claims.py:42`, `:209-212`
+- `lifecycle_run.py:50-53`
+- `lifecycle.py:49`
+- `chainClient.ts:16`, `:81`
+- `read.py:586`, `:602-607`, `:901-924`
+- `vocabulary.py:580`
+- `chain/outcomes.py:308`
+- `test_tfc2.py:76-78`
+- `objectives.py:112-143`
+- `scenario_rules.py:194-200`
+- `evidence_api.py:157`
+- `packs/cold.py:50-64`
+- `demo_combined.py:132-133`
+- prepare log line 55
+
+The four cited test names exist.
+
+### Findings
+
+- **N1 (Low). Figure 8, "per built Site-day: KISIWA 4,010 · COLD 109", divides by the prepare's day counts, but the readings include the add-dates day.**
+  - *What the database shows.* `polish_walk1113-adddates.log` (13 Nov 13:02) added one Kisiwa night and one Cold session after the prepare. A read-only count shows 3,645 Kisiwa and 98 Cold readings received after the prepare ended at 10:51: Kisiwa 36,459 of 40,104 and Cold 770 of 868 were in place by then.
+  - *Correct figures.* 40,104 ÷ 11 ≈ 3,646 and 868 ÷ 9 ≈ 96. Alternatively, keep the 10 and 8 denominators with 36,459 and 770 readings.
+  - *What is not affected.* Kobo (85,326, all present by the end of the prepare) and EV are correct. The headline extrapolations use Kobo r only, so 115 GB and 785 GB stand.
+  - *Fix.* Use 11 and 9 as the denominators, or say that the database also holds the 12 Nov add-dates day.
+- **N2 (Low). The 147 s rate averages full days with short sessions, so 31 days is not an upper end for Kobo-like Sites.**
+  - *The problem.* The 49 Site-days include 8 Cold sessions of about 65 minutes and 3 EV runs of 8 h. Over the 38 full-day Sites (Kobo + Kisiwa), the same wall time gives 7,204 ÷ 38 ≈ 190 s. For 50 × 365 Kobo-like Sites, that is ≈ 40 days.
+  - *How the page reads.* "between … 13 days and … 31 days" reads as a bracket. This was the shape the revision-3 review suggested, and the conclusion holds either way: weeks of sequential compute, so per-Site regeneration or parallelism is needed.
+  - *Fix.* Add one clause: 147 s is a mixed-vertical average, and for full-day mini-grid Sites it is about 190 s, or about 40 days.
+- **N3 (Low, trivial).** §8.9 says the build ran "from the work marker at 08:50:44". The marker file `.demo3-combined-work` is at 08:50:40 (7,208 s), and 08:50:44 is `keys.json`. The rate is unchanged at 147 s. Fix: say "08:50:40" or name `keys.json`.
+
+### Checks run
+
+- Pure tests: `.venv/bin/python -m pytest tests/test_ch6b_estate_chain.py tests/test_ch5a2b_claims.py tests/test_tfc2.py tests/test_out_b2_mini.py tests/test_ch5d1_optimize_card.py -q`. Result: **113 passed in 2.12 s**.
+- Read-only queries, inside a READ ONLY transaction:
+  - `pg_database_size` = 1,770 MB.
+  - `pg_total_relation_size('accepted_evidence')` = 272,015,360 B.
+  - Readings per Site, with distinct UTC days and how many arrived before 10:51:
+    - KOBO: 85,326, 30 UTC days, all before the end of the prepare.
+    - KISIWA: 40,104, 12 UTC days, 36,459 before.
+    - EV: 4,951, 3 UTC days, all before.
+    - COLD: 868, 9 UTC days, 770 before.
+- HTML:
+  - No script, link, img, `@import`, external `url(` or http(s) reference.
+  - All 8 SVGs parse as XML.
+  - 39 ids, none duplicated, and no dangling `url(#)`, `href="#"` or `aria-labelledby`.
+  - The light, `prefers-color-scheme` and `[data-theme="dark"]` blocks define the same 16 tokens, and every `var()` is defined.
+  - There are no raw hex fill or stroke values, and `body` has a background.
+  - The only file link, `convertion_potential.html`, exists.
+
+### Not verified
+
+- Browser rendering: I inspected the source only.
+- Revision 3 → 3.1 as a literal diff: no revision-3 copy exists, so I checked by section and citation instead.
+- PostgreSQL-backed tests and the full suite, by constraint.
+
+### Residual note (not a finding)
+
+- The Optimize card can carry a days line from the shared coverage line (`_own_days`, `read.py:807-820`). That line names the window's checked days, which may reinforce the §5.2 misreading. This belongs with the owner decision that §5.2 already raises.

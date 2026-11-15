@@ -98,9 +98,24 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 </head>
 <body>
 <main>
-<p class="sub">AssetOps Architect (Claude) · 14 Nov 2026 · revision 2 · investigation only, no code, test or database changed · repository state: <code>main</code> at <code>9b4d9bd15c53daff70b2322012932720e1f96edb</code></p>
+<p class="sub">AssetOps Architect (Claude) · 14 Nov 2026 · revision 3.1 (15 Nov 2026) · investigation only, no code, test or database changed · repository state: <code>main</code> at <code>9b4d9bd15c53daff70b2322012932720e1f96edb</code></p>
 
-<details open class="card"><summary>Revision 2 · 14 Nov 2026 · changes after the independent review (REVISE: one Medium, four Lows)</summary>
+<details open class="card"><summary>Revision 3.1 · 15 Nov 2026 · changes after the revision 3 review (REVISE: one Medium, seven Lows)</summary>
+<ul>
+<li><b>M1</b> §8.9 build time. 62 s per Site-day is now labelled a lower bound (ingest, assess, match only). Added a re-derived whole-build rate: 7,204 s ÷ 49 built Site-days ≈ 147 s. 50 × 365 is now stated as about 13 to 31 days, assuming linear scaling. One day count (built Site-days) is used throughout, so storage is recomputed as 6.3 MB / 115 GB and 43 MB / 785 GB.</li>
+<li><b>L1</b> §5.2 lead-Finding order corrected (<code>chain/read.py:205-211</code>). <b>L2</b> §5.3: the cited test proves the days sum only; no multi-Site thread-sum test exists. <b>L3</b> §5.6: <code>/api/estate/chain/why</code> is called; the bare route is not.</li>
+<li><b>L4</b> §8.5 and §8.7: no Kobo degraded day in v4; Case B only on S-28 and S-21; trial-after left out of Case A. <b>L5</b> §8.6: ×1.10 applies to the exposure only; the credit is nominal 3.3 L / 4.125 USD. <b>L6</b> citation drift fixed, and "two corrections" now reads "one correction plus its consequence". <b>L7</b> §8.9 notes the walk1113 self-check failed on CO-10, which leaves the timings unaffected.</li>
+<li><b>Added</b> in §5.2: the presentation risk that the Optimize card does not say its figure is one Finding's exposure on the window's last day.</li>
+</ul></details>
+<details class="card"><summary>Revision 3 · 15 Nov 2026 · two owner requests: demo data generation, then portfolio composition and economic readiness</summary>
+<ul>
+<li><b>New §5 Outcome composition</b> (highest priority). It traces asset → Site → Portfolio (Figure 6): nodes, strategies, objectives, roll-up, the summed and listed money, the deduplication rules, actual vs estimate vs potential vs exposure vs verified, and the fields computed but not shown in the UI. Each has <code>path:line</code> and tests.</li>
+<li><b>New §6</b>: COO, CEO and CFO questions, each with a verdict and the point where aggregation, diagnosis, comparison or allocation stops.</li>
+<li><b>New §7</b>: a mini-grid, cold and EV capability inventory, with one correction to <a href="convertion_potential.html">convertion_potential.html</a> plus its consequence.</li>
+<li><b>New §8</b>: demo data generation (pipeline, Kobo template field by field, scenarios, simulator packs, story calendar, realistic or not, consequence for Case A and B). It also covers configurable parameters, modes, reuse, the regeneration scope and the ingestion path (§8.8), and measured build time and storage with labelled extrapolations (§8.9, Figure 8).</li>
+<li>Sections 1–4 are unchanged. The cited code is identical at <code>bf6014e02</code>; only <code>.agent</code> files changed since <code>9b4d9bd15</code>.</li>
+</ul></details>
+<details class="card"><summary>Revision 2 · 14 Nov 2026 · changes after the independent review (REVISE: one Medium, four Lows)</summary>
 <ul>
 <li><b>M1</b> The trial battery-charge safeguard is now stated as the code applies it: at least one cited Candidate segment must have its lowest usable SOC strictly above r + 10, and failing segments are ignored, not refused (<code>actions/reserve_trial.py:249-256</code>; <code>test_s6_action_rule.py::TestUnavailableReasons::test_any_eligible_segment_is_enough_and_is_cited</code>). Corrected in the short answer, §1.1 stage 7, Figures 2, 3 and 4, §3.4, §2.4 Q5 and the Case A and Case B tables, with the consequence for Case B spelled out.</li>
 <li><b>L1</b> §2.2 adds three readers: <code>site_outcomes/mini.py:718-719</code>, <code>chain/why.py:82-85</code> and <code>site_outcomes/board.py:379-380</code>. None of them decides anything.</li>
@@ -145,6 +160,10 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 <li><a href="#s3-seq">3.1 Sequence diagram</a></li>
 <li><a href="#s3-cases">3.11 Case A and Case B</a></li>
 <li><a href="#s4">4. The opportunity and action lifecycle</a></li>
+<li><a href="#s5">5. Outcome composition</a></li>
+<li><a href="#s6">6. Portfolio economic reasoning (COO, CEO, CFO)</a></li>
+<li><a href="#s7">7. Three-vertical capability inventory</a></li>
+<li><a href="#s8">8. Simulation and demo data: how and at what cost</a></li>
 </ol></nav>
 
 <!-- ============================================================ 1 -->
@@ -293,7 +312,7 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 <td>Unknown key or domain mismatch → NOT_MAPPED (<code>:79-84</code>). No condition is evaluated here: the map is a lookup table. See §2 for its readers.</td>
 <td><span class="tag p">partial</span> <small>moves: implemented; checks: configuration only</small></td></tr>
 <tr><td><b>5 Evaluation</b></td>
-<td><code>site_outcomes/board.py:671-712</code> <code>assemble</code>; <code>outcomes/status.py:55-102</code>; <code>chain/outcomes.py:86-256</code> <code>OutcomeEvaluator</code>; <code>outcomes/objectives.py:112-145</code></td>
+<td><code>site_outcomes/board.py:671-712</code> <code>assemble</code>; <code>outcomes/status.py:55-102</code>; <code>chain/outcomes.py:86-256</code> <code>OutcomeEvaluator</code>; <code>outcomes/objectives.py:112-143</code></td>
 <td><code>Signal(kind, outcome, primary, open, applied, status_effect)</code> → <code>(state, reason)</code> per outcome; row <code>state</code>, <code>lead_outcome</code>; <code>nodes{kpi, earnings, potential}</code></td>
 <td>The first matching rule wins. NOT_APPLICABLE, NOT_MEASURED and UNKNOWN (unsettled) come first. An open, unapplied primary Finding gives NEEDS_ATTENTION. A missed objective gives NEEDS_ATTENTION. A secondary or applied Finding gives WATCH (<code>status.py:67-102</code>). UNCONFIRMED Findings count as open (<code>board.py:28</code>, <code>:165</code>).</td>
 <td><span class="tag y">implemented</span></td></tr>
@@ -828,7 +847,499 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 <tr><td>How are actions assigned or handed off?</td><td><b>Trial Actions: not at all</b>, since the table has no assignee or owner. <b>Domain Actions:</b> a free-text <code>owner_label</code> and <code>due_at</code> (0033:46-48). <b>Work cases:</b> ASSIGN events with an <code>assignee</code> (<code>work/model.py:328-329</code>; latest one read at <code>work/global_index.py:276-279</code>). Hand-off between them is by links: case ↔ Findings and case ↔ Action events (0027:76-89), decision ↔ case (<code>mini_decisions/work_links.py</code>), and the mill plan is frozen after its linked case is COMPLETE (<code>verification_families.py:7-8</code>).</td></tr>
 </tbody></table></div>
 
-<p class="sub" style="margin-top:2em">End of the answer to sections 1 to 4. Related: <a href="convertion_potential.html">convertion_potential.html</a> (Portfolio card composition, rev 3).</p>
+<!-- ============================================================ 5 -->
+<h2 id="s5">5. Outcome composition: from asset to Site to Portfolio</h2>
+<p>This section continues §1–4. §2 established what the outcome map's roles do. This section adds how everything composes once it is read: per outcome, per category row, per Site and across Sites. The money and count rules are followed to the Portfolio. The composition of each Portfolio card's displayed number is in <a href="convertion_potential.html">convertion_potential.html</a> and is not repeated here.</p>
+
+<figure>
+<span class="scrollhint">Scroll sideways to see the whole diagram.</span>
+<svg viewBox="0 0 1000 640" role="img" aria-labelledby="f7T f7D">
+<title id="f7T">Composition from asset to Portfolio</title>
+<desc id="f7D">Four columns: asset-level sources, the per-outcome evaluation, the Site row, and the Portfolio. Each arrow names the composition rule: first match, lead Finding only, first outcome in catalogue order, roll-up precedence, sum, count, or list never summed.</desc>
+<defs><marker id="a7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="16" y="24" class="h">ASSET / SUBJECT</text><text x="262" y="24" class="h">OUTCOME (per Site)</text><text x="508" y="24" class="h">CATEGORY ROW (per Site)</text><text x="754" y="24" class="h">PORTFOLIO</text>
+<rect x="16" y="36" width="220" height="70" rx="8" class="acc"/><text x="26" y="56" class="t">Findings (per subject)</text><text x="26" y="74" class="s">generator, cold asset, EV connector;</text><text x="26" y="90" class="s">one thread per (mechanism, subject)</text>
+<rect x="16" y="116" width="220" height="62" rx="8" class="box"/><text x="26" y="136" class="t">Warnings (rules)</text><text x="26" y="154" class="s">outcomes/warnings.py:300 evaluate</text><text x="26" y="168" class="s">status_effect WATCH / NEEDS_ATT.</text>
+<rect x="16" y="188" width="220" height="62" rx="8" class="box"/><text x="26" y="208" class="t">Signals</text><text x="26" y="226" class="s">headroom opportunity, evidence gap,</text><text x="26" y="240" class="s">readiness (mini.py:613-617)</text>
+<rect x="16" y="260" width="220" height="62" rx="8" class="decl"/><text x="26" y="280" class="t">Declared objectives</text><text x="26" y="298" class="s">6 measures (objectives.py:57-73)</text><text x="26" y="312" class="s">one per outcome</text>
+<rect x="16" y="332" width="220" height="80" rx="8" class="wn"/><text x="26" y="352" class="t">Day snapshots + money</text><text x="26" y="370" class="s">chain measures per day: kWh × declared</text><text x="26" y="386" class="s">price; consequence rows (fuel-cost)</text><text x="26" y="402" class="s">grades COMPLETE / PARTIAL / LOW</text>
+<rect x="16" y="422" width="220" height="62" rx="8" class="as"/><text x="26" y="442" class="t">Actions + verdicts</text><text x="26" y="460" class="s">trial, mill, fuel verdicts;</text><text x="26" y="474" class="s">cost check → credit</text>
+<rect x="262" y="36" width="220" height="140" rx="8" class="wn"/><text x="272" y="56" class="t">State (status.py:55)</text><text x="272" y="74" class="s">signals of MOVES keys only;</text><text x="272" y="90" class="s">first rule wins: open primary</text><text x="272" y="106" class="s">Finding / NA warning / MISSED</text><text x="272" y="122" class="s">→ NEEDS_ATTENTION; secondary,</text><text x="272" y="138" class="s">applied, WATCH warning → WATCH;</text><text x="272" y="154" class="s">then objective, opportunity…</text><text x="272" y="170" class="sr">many Findings: any one decides</text>
+<rect x="262" y="188" width="220" height="230" rx="8" class="wn"/><text x="272" y="208" class="t">Nodes (chain/outcomes.py)</text><text x="272" y="226" class="s">kpi: objective verdict on a</text><text x="272" y="240" class="s">graded reading (graded_verdict@1)</text><text x="272" y="258" class="s">earnings: one record per outcome</text><text x="272" y="272" class="s">· MG-2: lead Finding's consequence</text><text x="272" y="286" class="s">  (avoided_cost@1), no days</text><text x="272" y="300" class="s">· MG-1, EV-3: Σ day money</text><text x="272" y="314" class="s">  (priced_energy@1), never scaled</text><text x="272" y="332" class="s">potential: headroom kW × 1 h ×</text><text x="272" y="346" class="s">price, SUPPORTED study only</text><text x="272" y="364" class="s">(MG-1); idle EV: title only</text><text x="272" y="384" class="sr">only lead Finding priced;</text><text x="272" y="400" class="sr">others on the day: no money</text>
+<rect x="262" y="428" width="220" height="56" rx="8" class="as"/><text x="272" y="448" class="t">Verified values</text><text x="272" y="466" class="s">mini.py:1277-1305 one line each</text>
+<rect x="508" y="36" width="220" height="140" rx="8" class="box"/><text x="518" y="56" class="t">Row state + lead</text><text x="518" y="74" class="s">roll_up (status.py:105-113):</text><text x="518" y="90" class="s">NEEDS_ATT &gt; WATCH &gt; UNKNOWN</text><text x="518" y="106" class="s">&gt; OPPORTUNITY &gt; ON_TRACK</text><text x="518" y="122" class="s">&gt; NO_OBJECTIVE &gt; NOT_MEAS. &gt; N/A</text><text x="518" y="138" class="s">lead = first outcome (catalogue</text><text x="518" y="154" class="s">order) holding that state</text><text x="518" y="170" class="sr">never a score</text>
+<rect x="508" y="188" width="220" height="130" rx="8" class="box"/><text x="518" y="208" class="t">Row nodes (board.py:367)</text><text x="518" y="226" class="s">earnings, potential: first outcome</text><text x="518" y="240" class="s">in catalogue order that has one</text><text x="518" y="258" class="s">kpi: lead if declared, else first</text><text x="518" y="272" class="s">declared, else first kpi record</text><text x="518" y="290" class="sr">never summed within a row</text>
+<rect x="508" y="328" width="220" height="90" rx="8" class="box"/><text x="518" y="348" class="t">Issues, in hand, earlier</text><text x="518" y="366" class="s">lists: MOVES then CHECKED;</text><text x="518" y="382" class="s">Assure nodes.verified_values;</text><text x="518" y="398" class="s">Protect nodes.unexplained_fuel</text>
+<rect x="754" y="36" width="230" height="82" rx="8" class="gd"/><text x="764" y="56" class="t">Grow card</text><text x="764" y="74" class="s">estate_income: Σ per-Site estimated</text><text x="764" y="90" class="s">income, one currency, minor-unit</text><text x="764" y="106" class="s">rounded (vocabulary.py:459-508)</text>
+<rect x="754" y="128" width="230" height="70" rx="8" class="wn"/><text x="764" y="148" class="t">Optimize card</text><text x="764" y="166" class="s">each Site's MG-2 earnings claim,</text><text x="764" y="182" class="s">listed, never summed (read.py:901)</text>
+<rect x="754" y="208" width="230" height="70" rx="8" class="bd"/><text x="764" y="228" class="t">Protect card</text><text x="764" y="246" class="s">count of Sites with a disrupting</text><text x="764" y="262" class="s">primary-Protect thread (claims.py:157)</text>
+<rect x="754" y="288" width="230" height="86" rx="8" class="as"/><text x="764" y="308" class="t">Assure card</text><text x="764" y="326" class="s">Σ verified threads + verified</text><text x="764" y="342" class="s">mill Actions (claims.py:210); value</text><text x="764" y="358" class="s">lines credited only, never summed</text>
+<rect x="754" y="384" width="230" height="100" rx="8" class="box"/><text x="764" y="404" class="t">Counts and categories</text><text x="764" y="422" class="s">open threads, opportunities (Σ);</text><text x="764" y="438" class="s">sites_needing_attention per cat.;</text><text x="764" y="454" class="s">warning_count; open_findings per</text><text x="764" y="470" class="s">category (any role)</text>
+<path d="M236 70H259" class="ln" marker-end="url(#a7)"/><path d="M236 146H259" class="ln" marker-end="url(#a7)"/><path d="M236 218H250V150H259" class="ln" marker-end="url(#a7)"/>
+<path d="M236 290H259" class="ln" marker-end="url(#a7)"/><path d="M236 372H259" class="ln" marker-end="url(#a7)"/><path d="M236 452H259" class="ln" marker-end="url(#a7)"/>
+<path d="M482 106H505" class="ln" marker-end="url(#a7)"/><path d="M482 252H505" class="ln" marker-end="url(#a7)"/><path d="M482 456H495V390H505" class="ln" marker-end="url(#a7)"/>
+<path d="M728 230H740V76H751" class="ln" marker-end="url(#a7)"/><path d="M728 240H745V162H751" class="ln" marker-end="url(#a7)"/>
+<path d="M728 380H745V330H751" class="ln" marker-end="url(#a7)"/><path d="M728 106H738V430H751" class="lnd" marker-end="url(#a7)"/>
+<path d="M126 106V112" class="ln"/>
+<text x="16" y="514" class="t">Composition rules at a glance</text>
+<text x="16" y="534" class="s">• Several Findings on one outcome: status takes the strongest signal; money takes only the board day's lead Finding (chain/read.py:190-212).</text>
+<text x="16" y="550" class="s">• One Finding on several outcomes: a status signal for each MOVES outcome (primary first); text only for CHECKED; money only where a CONTRIBUTIONS record exists.</text>
+<text x="16" y="566" class="s">• Several Sites: counts and estimated income are summed; exposure (Optimize) and verified values are listed per Site, never summed.</text>
+<text x="16" y="582" class="s">• Threads, not Findings, are counted at the Portfolio; an opportunity Action on a thread already counted is not counted again (claims.py:136-143).</text>
+<text x="16" y="598" class="s">• No rule weighs, ranks or normalises Sites; nothing divides by size, energy or capacity at the Portfolio.</text>
+</svg>
+<figcaption>Figure 6. How outcome signals, nodes and values compose from a subject (generator, cold asset, connector) to a Site row and the Portfolio cards. Solid arrows are code paths; the dashed arrow is the count and category inputs.</figcaption>
+</figure>
+
+<h3>5.1 How moves, checks, CONTRIBUTIONS, nodes, objectives, categories and strategies interact</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:20%">Element</th><th style="width:30%">What it is (code)</th><th>How it composes</th></tr></thead>
+<tbody>
+<tr><td><code>ENTRIES</code> (moves / checks)</td><td>Signal key → (moved, checked) outcome keys (<code>outcome_map.py:17-37</code>)</td><td>Gives a status signal per moved outcome (<code>board.py:692-706</code>). Checked outcomes are text and counts only (§2).</td></tr>
+<tr><td><code>CONTRIBUTIONS</code></td><td>10 node records, all MOVES (<code>outcome_map.py:150-180</code>). Nodes: <code>kpi</code>, <code>earnings</code>, <code>potential</code>; <code>status</code> is declared (<code>:147</code>) but has no record (BL-03).</td><td><code>OutcomeEvaluator._record</code> takes the first record matching outcome and node (<code>chain/outcomes.py:94-95</code>), so each outcome has at most one record per node.</td></tr>
+<tr><td>Strategies</td><td>Six registered (<code>chain/strategies/__init__.py:12-13</code>): <code>graded_verdict</code>, <code>priced_energy</code>, <code>avoided_cost</code>, <code>direction_only</code>, <code>finding_presence</code>, <code>recorded_amount</code>. "No strategy computes new money" (<code>base.py:1-6</code>).</td><td>Only the first four are used by a record. <code>recorded_amount@1</code> always returns NO_RECORDS because "no billing source exists" (<code>recorded_amount.py:1</code>). <code>finding_presence@1</code> is used by no record (searched <code>finding_presence@</code>, <code>recorded_amount@</code>).</td></tr>
+<tr><td>Objectives</td><td>Six declarable measures, one outcome each: MG-2, MG-1, MG-5, CC-6, EV-1, EV-2 (<code>objectives.py:57-73</code>). Judged MET / MISSED / NOT_JUDGED, or by monthly pace (<code>:112-143</code>).</td><td>A verdict sits inside the status rules: MISSED → NEEDS_ATTENTION, BEHIND_PACE → WATCH, MET → ON_TRACK (<code>status.py:79-97</code>). It also becomes the row's <code>kpi</code> node (<code>board.py:379-381</code>).</td></tr>
+<tr><td>Categories</td><td>Four categories, each holding outcomes in catalogue order (<code>catalogue.py:9</code>, <code>:43-68</code>)</td><td>A row rolls its outcomes' states up by fixed precedence, and the lead is the first outcome holding the winning state (<code>status.py:34</code>, <code>:105-113</code>). Rows are never combined into a score (<code>:4-6</code>).</td></tr>
+</tbody></table></div>
+<p>Tests: <code>test_ch6_contributions.py::test_records_are_exactly_a22</code>, <code>::test_no_duplicate_record</code>, <code>::test_registry_has_the_six_keys_and_every_record_resolves</code>, <code>::test_priced_energy_sums_complete_and_partial_unscaled</code>, <code>::test_avoided_cost_reads_the_stored_range</code>; <code>test_out_b1_status.py::test_roll_up_every_pairwise_precedence</code>, <code>::test_roll_up_lead_tie_break_is_catalogue_order</code>.</p>
+
+<h3>5.2 Many Findings on one outcome; one Finding on many outcomes</h3>
+<ul>
+<li><b>Status.</b> Every in-window Finding gives signals (<code>board.py:690-695</code>). <code>outcome_state</code> scans all of them and returns on the first one matching the strongest rule (<code>status.py:73-85</code>). Three open generator Findings read the same as one.</li>
+<li><b>Money.</b> The MG-2 earnings node reads one money head, that of the board day's <i>lead</i> Finding. The lead is the Finding with the latest episode start that meets the day, smallest id on a tie. A pinned Finding leads only while the day is not settled or the source is closed (<code>chain/read.py:205-211</code>; <code>mini.py:587-590</code>, <code>:1366-1374</code>). A second generator run on the same day is a separate Finding whose exposure is not added. Test: <code>test_out_b2_mini.py::test_money_reads_the_lead_finding_on_the_board_day</code>. A two-run test for that sum is <b>not covered</b>, because the behaviour is "not added" by construction.</li>
+<li><b>Portfolio window.</b> For a mini-grid Site the summary reads the board on the window's last local day (<code>read.py:602-607</code>; <code>test_ch6b_estate_chain.py::test_row_state_mini_on_the_last_local_day_cold_ev_over_the_whole_window</code>). Nodes are re-evaluated over the window days, but the money head keeps the board day's lead (<code>read.py:586</code> replaces <code>window</code> and <code>rows</code> only). <span class="does">So the Portfolio Optimize figure for a 7-day window is one Finding's exposure from the last day, not a 7-day total.</span></li>
+<li><b>Presentation risk (for the owner to decide).</b> Neither the Optimize card's text nor its basis line says that the figure is one Finding's exposure on the last day of the window (<code>read.py:901-924</code>; <code>vocabulary.py:580</code>: "Modelled from the stored record and the declared price · not a saving"). A reader of a 7-day or 30-day Portfolio is likely to take it as the period's avoidable fuel cost. This document records the risk and does not propose a design.</li>
+<li><b>One Finding, several outcomes.</b> Each moved outcome gets a signal, primary first (<code>board.py:694-695</code>). Checked outcomes get text (§2). Money attaches to an outcome only through a <code>CONTRIBUTIONS</code> record, and a Finding source has at most one (MG-2 for the generator Finding). Cold start failure moves CC-6 and CC-1, and EV interruption moves EV-1 and EV-3. Both get status on each moved outcome and money on none (no FINDING record for them in <code>CONTRIBUTIONS</code>).</li>
+<li><b>Within a row</b>, <code>earnings</code> and <code>potential</code> are the first outcome in catalogue order that has one, and are never added (<code>board.py:369-382</code>).</li>
+</ul>
+
+<h3>5.3 Several Sites into one Portfolio outcome</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Portfolio quantity</th><th>Rule</th><th>Code</th><th>Test</th></tr></thead>
+<tbody>
+<tr><td>Estimated income (Grow)</td><td><b>Summed</b> across Sites: MG-1 productive sales and EV-3 charging income. Each Site is rounded to the minor unit first, one currency only, "At least" when any day is partial or any Site is not known. Ends "· not billed or collected".</td><td><code>read.py:759-779</code> <code>portfolio_parts</code>; <code>chain/vocabulary.py:459-508</code>, <code>:298</code>, <code>:323</code></td><td><code>test_ch6b_estate_chain.py::test_money_total_rounds_each_site_then_sums</code>, <code>::test_mixed_currency_has_no_value_but_keeps_the_lines</code>, <code>::test_a_not_known_site_is_named_excluded_and_makes_the_total_a_lower_bound</code></td></tr>
+<tr><td>Fuel exposure (Optimize)</td><td><b>Listed per Site, never summed.</b> One Site shows its claim, two or more list each.</td><td><code>read.py:901-924</code></td><td><code>test_ch5d1_optimize_card.py::test_two_priced_sites_list_each_and_never_sum</code></td></tr>
+<tr><td>Verified value (Assure)</td><td><b>One line per credited result</b>, never summed within or across currencies</td><td><code>read.py:949-955</code>; <code>credit.py:75-94</code></td><td><code>test_ch3_rows.py::test_recovered_value_never_sums_two_items_in_one_currency</code>; <code>test_pv1_value_lines.py::test_mill_plus_trial_are_two_entries_in_code_order_never_summed</code></td></tr>
+<tr><td>Open threads, verified results, opportunities</td><td><b>Summed counts</b> of counted threads (Finding occurrence meeting the window) and opportunity items. A failed Site read makes the whole claim NOT_KNOWN.</td><td><code>chain/claims.py:179-216</code></td><td>Days summed: <code>test_ch6b_estate_chain.py::test_counts_are_summed_over_the_sites</code>. Thread counts summed over several Sites: by code (<code>:209-212</code>); <b>no multi-Site test</b> (the thread-count tests in <code>test_ch5a2b_claims.py</code> use one Site).</td></tr>
+<tr><td>Sites disrupted (Protect)</td><td>Count of Sites with a primary-Protect thread in OPEN / RECURRED / ACTION_IN_HAND, excluding UNEXPLAINED_FUEL</td><td><code>chain/claims.py:42-43</code>, <code>:157-161</code></td><td><code>test_ch6b2_portfolio_cards.py::test_sites_disrupted_counts_sites_with_a_primary_protect_thread_open_recurred_or_in_hand</code></td></tr>
+<tr><td>Per-category counts</td><td><code>sites_needing_attention</code> (row state), <code>warning_count</code> (any role), <code>open_findings</code> (any role), <code>sites_with_primary_finding</code> (moves[0])</td><td><code>read.py:723-728</code>; <code>estate/portfolio.py:306-321</code></td><td>see §5.6 for what is rendered</td></tr>
+</tbody></table></div>
+
+<h3>5.4 What prevents double counting</h3>
+<ul>
+<li><b>Threads, not Findings, are counted.</b> A thread is unique per (Site, mechanism, subject) (<code>0042:38</code>). A merged or split Finding stays one occurrence per Finding (<code>0042:54</code>), and each thread is classified once (<code>chain/threads.py:116-128</code>).</li>
+<li><b>Opportunity Actions are not double counted.</b> A verified mill Action on a thread already counted is excluded (<code>chain/claims.py:136-143</code>; <code>test_mb1_opportunity_board.py::test_a_mill_on_a_thread_already_counted_is_counted_once</code>).</li>
+<li><b>Money is never summed except estimated income</b> (above). Separately, a fuel quantity counts each power reading once (<code>test_s4_fuel_cost.py::test_shared_edge_interval_is_counted_once_and_names_both_spans</code>).</li>
+<li><b>Credited values have a unique key</b>: two credited items with one key fail loudly (<code>credit.py:85-89</code>; <code>test_ch3_rows.py::test_recovered_value_fails_loud_on_two_items_with_one_key</code>).</li>
+<li><b>Data-gap days are not counted twice</b> (<code>chain/claims.py:100-111</code>; <code>test_hon1_complete_readings.py::test_a_gap_day_already_counted_as_not_complete_is_not_taken_twice</code>).</li>
+<li><b>One builder</b> for the Portfolio cards and the parts, so the summary and <code>/api/estate/chain</code> agree by construction (<code>read.py:759-763</code>, <code>:926-934</code>; <code>test_ch6b_estate_chain.py::test_one_function_builds_sites_and_the_total</code>).</li>
+<li><b>Not guarded:</b> the same physical cost appearing as a Finding exposure on MG-2 <i>and</i> as a credited verified value on Assure for the same period. These are different quantities (potential exposure vs modelled post-trial change), both shown, never added. No rule nets one against the other.</li>
+</ul>
+
+<h3>5.5 Actuals, estimates, potential, exposure and verified benefit</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Kind</th><th>Exists?</th><th>Field / claim key</th><th>Label the user sees</th><th>Basis</th></tr></thead>
+<tbody>
+<tr><td><b>Actual financials</b> (billed, collected, spent, ledger)</td><td><span class="tag n">none</span></td><td><code>recorded_amount@1</code> returns NO_RECORDS always (<code>recorded_amount.py:1-11</code>); MG-6 / MG-3 / EV-6 / CC-2 / CC-4 are "not connected yet" (<code>catalogue.py:45-46</code>, <code>:54</code>, <code>:61-62</code>)</td><td>"Not measured yet · …records are not connected yet"</td><td>RECORDED (unused)</td></tr>
+<tr><td><b>Estimate</b> (measured energy × declared price)</td><td><span class="tag y">yes</span></td><td><code>money.estimated_income</code> (MG-1), <code>money.estimated_charging_income</code> (EV-3); Portfolio <code>money.estate_income</code></td><td>"… estimated income … · not billed or collected" (<code>vocabulary.py:298</code>, <code>:317-318</code>)</td><td>MEASURED kWh × DECLARED price</td></tr>
+<tr><td><b>Potential</b> (opportunity)</td><td><span class="tag y">yes</span> (MG-1)</td><td><code>potential.daytime_solar_headroom</code>: kW low–high, money only if SUPPORTED and priced (<code>chain/outcomes.py:209-241</code>)</td><td>"Potential" part on Grow</td><td>MODELLED (per hour of use)</td></tr>
+<tr><td><b>Exposure</b> (avoidable cost)</td><td><span class="tag y">yes</span> (MG-2)</td><td><code>money.possible_extra_fuel_cost</code> (<code>outcome_map.py:163-166</code>)</td><td>"possible extra fuel cost" · "Modelled from the stored record and the declared price · not a saving" (<code>vocabulary.py:326</code>, <code>:580</code>)</td><td>MODELLED (0 … upper)</td></tr>
+<tr><td><b>Verified benefit</b></td><td><span class="tag p">narrow</span></td><td><code>nodes.verified_values</code> (Assure); Portfolio <code>value_lines</code>; <code>recovered_value</code> state CREDITED / NOT_CREDITED</td><td>"No money credited · modelled, not saved" when none (<code>credit.py:17</code>); trial: "Modelled change after the trial · not realised savings"</td><td>MODELLED on a VERIFIED simulated / authored trial</td></tr>
+<tr><td>Cold stock at risk, EV tariff estimate</td><td><span class="tag p">elsewhere</span></td><td>Not in <code>CONTRIBUTIONS</code>; see §7 and <a href="convertion_potential.html">convertion_potential.html</a></td><td>–</td><td>–</td></tr>
+</tbody></table></div>
+
+<h3 id="s5-ui">5.6 Implemented, but not (fully) exposed in the UI</h3>
+<p>The API payloads were checked against what <code>frontend/src</code> renders. In the frontend column, "typed" means the field is declared in a client type but no component displays it.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Field (backend)</th><th>Computed</th><th>Frontend</th></tr></thead>
+<tbody>
+<tr><td>Summary <code>sites[].rows[].headline</code>, <code>short_value</code>, <code>headline_money</code> per Site and category</td><td><code>site_outcomes/read.py:986-993</code></td><td>Not rendered. The Portfolio matrix shows only the state pill and lead outcome label (<code>frontend/src/estate/PortfolioOutcomes.tsx:350-366</code>). Per-Site money is available and unused.</td></tr>
+<tr><td>Summary <code>sites[].rows[].nodes</code>, <code>sites[].earnings</code></td><td><code>read.py:701-720</code></td><td>Not rendered; used server-side to build the cards</td></tr>
+<tr><td><code>categories[].sites_needing_attention</code>, <code>warning_count</code></td><td><code>read.py:723-728</code></td><td>Typed only (<code>estateClient.ts:670</code>). Protect's warning count reaches the card detail as server text (<code>read.py:943</code>, <code>:968</code>).</td></tr>
+<tr><td><code>category_counts.open_findings</code>, <code>sites_with_primary_finding</code></td><td><code>estate/portfolio.py:306-321</code></td><td>Typed only</td></tr>
+<tr><td><code>/api/estate/chain</code> <code>counts</code> (<code>count.open_threads</code>, <code>count.opportunities</code>) and <code>sites[]</code></td><td><code>chain/claims.py:209-216</code>; <code>chain_api.py:342-355</code></td><td>The bare <code>/api/estate/chain</code> route is not called by the frontend. The frontend does call <code>/api/estate/chain/why</code>, built from <code>ESTATE_API_PATH</code> (<code>frontend/src/sites/chainClient.ts:16</code>, <code>:81</code>).</td></tr>
+<tr><td>Board <code>outcomes[].reason</code> (why each outcome has its state)</td><td><code>board.py:889</code></td><td>Typed only</td></tr>
+<tr><td>Board <code>nodes</code> on the Optimize, Protect and Assure rows</td><td><code>board.py:367-407</code></td><td>Only the Grow row renders nodes (<code>frontend/src/sites/OutcomeBoard.tsx:118-147</code>)</td></tr>
+<tr><td><code>nodes.verified_values</code>, <code>nodes.unexplained_fuel</code></td><td><code>board.py:895-898</code></td><td>Not on the board. On the Portfolio only as <code>value_lines</code> / <code>fuel_lines</code> behind "Why?" (<code>PortfolioOutcomes.tsx:193</code>, <code>:208</code>)</td></tr>
+<tr><td>Structured <code>thread_lines[]</code> (state, day, remaining days)</td><td><code>board.py:1048-1066</code></td><td>Joined into the <code>subline</code> text only (<code>OutcomeBoard.tsx:264</code>)</td></tr>
+<tr><td>Issue <code>role</code> (MOVES / CHECKED) and <code>primary</code></td><td><code>board.py:907-925</code></td><td>Kind and text only. CHECKED shows only as the title suffix.</td></tr>
+<tr><td>Board <code>objectives</code> with verdicts</td><td><code>read.py:554-555</code></td><td>Not in the board body type</td></tr>
+<tr><td>Warning <code>persistence</code>, <code>count</code>, <code>status_effect</code>, <code>evidence_refs</code>; <code>price_needs</code></td><td><code>outcomes/warnings.py:136-147</code></td><td>Not rendered; <code>price_needs</code> appears only in an explainer dialog (<code>frontend/src/sites/EarlyWarnings.tsx:103</code>)</td></tr>
+<tr><td>Card <code>claim.basis</code> (COMPLETE vs CHECKED_DAYS)</td><td><code>read.py:887</code>, <code>:923</code></td><td>Not rendered on the card face</td></tr>
+<tr><td>Portfolio <code>progress.recovered_value</code>, <code>value_cards</code></td><td><code>estate/portfolio.py:866</code>, <code>:923</code></td><td>Typed only; <code>value_cards</code> intentionally replaced by the outcome cards (<code>EstatePortfolio.tsx:425</code>)</td></tr>
+<tr><td>Opportunity items after the first</td><td><code>estate/portfolio.py:474</code></td><td>"N more" link only (<code>EstatePortfolio.tsx:476-528</code>); full list on Findings › Opportunities</td></tr>
+<tr><td>"Why?" graph <code>nodes[]</code></td><td><code>chain/why.py:74-79</code>, <code>:226-245</code></td><td>Only the text is rendered (<code>frontend/src/blocks/EvidenceTrace.tsx</code>)</td></tr>
+</tbody></table></div>
+<p><b>Main point.</b> The backend already returns comparable per-Site figures (headline money, short values, nodes, earnings, threads per Site), but the Portfolio has no per-Site table, sort or ranking built from them. The only ranked list on the Portfolio ranks Findings by placement group, not Sites (<code>EstatePortfolio.tsx:286-393</code>).</p>
+
+
+<h3>5.7 Reusable across verticals, and what the structures can support</h3>
+<ul>
+<li><b>Reusable today:</b> the outcome map, the status rules and roll-up, the strategy registry, the thread lifecycle (one subject mapping row per domain, <code>chain/threads.py:30-31</code>), the claims and the never-summed rules. All are keyed by domain and outcome key, not by vertical code. The Finding, Action and verification structures are partly domain specific: the reserve-trial <code>action</code> table is mini-grid only (<code>0016:60</code>), while <code>domain_action</code> serves cold, EV and mini (<code>0051</code>).</li>
+<li><b>Cross-Site comparison:</b> per-Site rows, states and claims are returned side by side (<code>site_outcomes/read.py:718-737</code>). No field normalises them (per kWh, per kW installed, per customer) and no ranking exists in the backend (searched <code>rank</code>, <code>sort</code>, <code>per_kwh</code> in <code>site_outcomes</code>, <code>estate</code>, <code>chain</code>). The trial cost check's per-kWh change is the only normalised money, and it is shown only as a rate (<code>credit.py:60-62</code>).</li>
+<li><b>Shared economic drivers:</b> the declared prices (diesel, productive tariff, EV tariff) are per Site (<code>fuel_cost.py:440-474</code>, the window price per Site). Nothing links two Sites to one driver, and no sensitivity runs across Sites.</li>
+<li><b>Portfolio prioritisation:</b> not supported. The nearest thing is the Finding placement group, which orders Findings by rule ("No query, no score: groups say where to look first, never a value ranking", <code>estate/placement.py:5</code>). There is no score, no expected-value ranking and no constraint (budget, crew, time) model.</li>
+</ul>
+
+<!-- ============================================================ 6 -->
+<h2 id="s6">6. Portfolio-level economic reasoning (COO, CEO, CFO)</h2>
+<p>Four levels are distinguished. <b>Aggregation</b>: totals and counts over Sites. <b>Diagnosis</b>: why one Site differs. <b>Comparison</b>: Sites or options on a common basis. <b>Allocation</b>: choosing under constraints. The table shows how far the current data path reaches.</p>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:22%">Question</th><th style="width:9%">Verdict</th><th>Data path that answers it today</th><th style="width:22%">Where it stops</th></tr></thead>
+<tbody>
+<tr><td><b>COO</b>: which Sites contribute disproportionately to avoidable operating cost?</td><td><span class="tag p">partial</span></td><td>Only mini-grid generator time is avoidable cost: <code>money.possible_extra_fuel_cost</code> per Site on the Optimize card (<code>read.py:901-924</code>) and avoidable generator minutes per day as the MG-2 reading (<code>mini.py:841-845</code>). Cold and EV have no avoidable-cost money. Repeat visits name "A cost per visit is not set" (<code>warnings.py:42</code>).</td><td>Aggregation of one mechanism. The Portfolio figure is the last day's lead Finding (§5.2), not a period total. No share-of-total, no per-kWh normalisation.</td></tr>
+<tr><td><b>COO</b>: what drives the differences?</td><td><span class="tag p">partial</span></td><td>Per Site: binding constraints and Candidate segments (§3.3), limitations, evidence gaps, the "Why?" chain (<code>chain/why.py</code>), and the fuel basis (litres, price, idle seconds) (<code>chain/outcomes.py:313-330</code>).</td><td>Diagnosis within a Site only. No cross-Site driver decomposition (price vs policy vs load vs equipment).</td></tr>
+<tr><td><b>COO</b>: where should engineering attention go?</td><td><span class="tag p">partial</span></td><td><code>sites_needing_attention</code> per category, Sites disrupted, open threads, early warnings, plans overdue (§5.3)</td><td>Counts, not a ranked worklist. No cost or impact weighting; no crew or time constraints.</td></tr>
+<tr><td><b>CEO</b>: best opportunities for profitable growth</td><td><span class="tag p">partial</span></td><td>MG-1 headroom potential (kW × 1 h × declared price, SUPPORTED only) and the mill Action verified by midday kWh (<code>verification_families.py:297-347</code>); EV charging income estimate</td><td>Revenue-side only: no margin, capex, payback or customer data. One opportunity type.</td></tr>
+<tr><td><b>CEO</b>: operational improvement, capital protection, investment</td><td><span class="tag n">no</span> (beyond counts)</td><td>Protect counts and warnings; battery warning says "Needs a tested battery wear model" (<code>warnings.py:45</code>)</td><td>No asset value, no remaining-life model, no capex record (MG-3 "capital records are not connected yet", <code>catalogue.py:46</code>).</td></tr>
+<tr><td><b>CEO</b>: which interventions are best?</td><td><span class="tag n">no</span></td><td>One trial rule per mechanism (§4.3); authored scenarios stored but not compared</td><td>No option set, no comparison, no ranking.</td></tr>
+<tr><td><b>CFO</b>: which Sites and drivers explain performance against plan?</td><td><span class="tag p">partial</span></td><td>Declared objectives per outcome with verdicts (MET / MISSED / pace) and the Assure "Actual against plan" count (<code>read.py:944-951</code>; <code>objectives.py:112-143</code>)</td><td>Plans are operational targets (minutes, kWh, sessions), not a financial plan or budget. Only EV-2 cost per km is a money objective, and its odometer is not connected (<code>catalogue.py:55-56</code>).</td></tr>
+<tr><td><b>CFO</b>: what portion is controllable?</td><td><span class="tag p">partial</span></td><td>Candidate (avoidable) vs Necessary minutes per interval (<code>dispatch_v3.py:466-468</code>); exposure labelled "possible"</td><td>Generator time only; not expressed as a share of cost.</td></tr>
+<tr><td><b>CFO</b>: recoverable?</td><td><span class="tag n">no</span></td><td>–</td><td>No recoverable or non-recoverable classification exists (searched <code>recoverable</code>).</td></tr>
+<tr><td><b>CFO</b>: verified?</td><td><span class="tag p">partial</span></td><td>Verified count and credited value lines (§5.3); only VERIFIED + MODELLED_IMPROVEMENT + priced total credits money (<code>credit.py:57-72</code>)</td><td>Simulated or authored sources only (§1.2). Never a realised saving.</td></tr>
+</tbody></table></div>
+<p><b>Summary.</b> The Portfolio aggregates well (counts, one estimated income total, per-Site lists) and diagnoses well within one Site and mechanism. It does not compare Sites on a normalised basis. It cannot rank interventions, and it has no allocation under constraints. The stopping points are data (no actuals, no capex, no plan in money) as much as behaviour.</p>
+
+<!-- ============================================================ 7 -->
+<h2 id="s7">7. Three-vertical economic capability inventory</h2>
+<p>This section is consistent with <a href="convertion_potential.html">convertion_potential.html</a> and adds code evidence and capabilities that the Portfolio cards do not show. Paths are relative to <code>backend/assetops_backend/</code>. It contains one correction to that document plus its consequence, listed at the end.</p>
+
+<h3>7.1 Mini-grid</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:20%">Inventory item</th><th>Exists (evidence)</th></tr></thead>
+<tbody>
+<tr><td>Measurements and analytics</td><td>Role sets minigrid-roles-1 to -4 (<code>sites/binding_roles.py:90-146</code>): generator, feeders, PV available, converter capability, SOC, critical load requested and delivered, charge request. Analytics: dispatch-3.2 → generator-support Findings (§3). The hourly mini-depth classification covers renewable, service, fuel and backup (<code>mini_depth/rules.py:1-15</code>). Chain measures: renewable headroom, critical served and dispatch minutes (<code>chain/measure_impls.py:164</code>, <code>:226</code>, <code>:286</code>). Fuel balance gives UNEXPLAINED_FUEL Findings.</td></tr>
+<tr><td>Commercial records</td><td>Stored prices: <code>diesel_price_per_litre</code> and <code>productive_use_price_per_kwh</code> (<code>financials/assumptions.py:32</code>). <code>repair_visit_cost</code> and <code>planned_service_cost</code> are listed on the price page but not storable (<code>financials/price_page.py:82-84</code>). No customer, meter, invoice or payment tables.</td></tr>
+<tr><td>Economic contribution</td><td>Fuel exposure (fuel-cost-1/2, §3.8); productive-sales estimate (MG-1, <code>priced_energy@1</code>); headroom potential; trial cost check (<code>financials/trial_fuel_comparison.py:1-12</code>); mill value line (<code>actions/verification_families.py:417-430</code>)</td></tr>
+<tr><td>Opportunities and scenarios</td><td>Productive-use headroom study; scenario kinds STOP_SOC, PRODUCTIVE_LOAD, TARIFF_ONLY and OTHER. Only PRODUCTIVE_LOAD calculates (<code>mini_decisions/scenario_rules.py:194-200</code>). Alternatives on dispatch Findings (§4).</td></tr>
+<tr><td>Action and verification</td><td>reserve-trial-1 with guardrailed verification; the mill's midday shift with a target-only check; the fuel-balance family (<code>actions/verification_families.py:502</code>, <code>:513-516</code>)</td></tr>
+<tr><td>Portfolio outputs</td><td>Grow (income sum, potential), Optimize (exposure per Site), Assure (verified count and value lines), Protect (fuel lines; disruptions only from cold and EV). MG-6 and MG-3 are not measured (<code>outcomes/catalogue.py:45-46</code>).</td></tr>
+</tbody></table></div>
+<p><b>Missing for executive decisions:</b> billing, payments and customer meters (MG-6, MG-3); fuel invoices and deliveries as amounts; a battery wear model; storable repair and visit costs; capex and asset values; a Finding for critical demand not served (it is measured as <code>critical_served</code> and used only to judge an objective); real-source verification.</p>
+
+<h3>7.2 Cold chain</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:20%">Inventory item</th><th>Exists (evidence)</th></tr></thead>
+<tbody>
+<tr><td>Measurements and analytics</td><td><code>cold-roles-1</code> (<code>sites/binding_roles.py:151-193</code>): chamber temperature, compressor state and power, grid, backup start, generator, transfer, door, ambient. <code>cold-excursion/1</code> and <code>cold-start-response/1</code> (<code>analytics/cold.py:31-39</code>). An excursion is bounded in degree-minutes with "no spoilage claim" (<code>:1-16</code>). Findings COLD_EXCURSION and COLD_START_FAILURE.</td></tr>
+<tr><td>Commercial records</td><td>None stored. <code>repair_visit_cost</code>, <code>planned_service_cost</code> and <code>stock_value_at_risk</code> are listed (<code>financials/price_page.py:85</code>) but not enterable. No occupancy, contract or stock tables.</td></tr>
+<tr><td>Economic contribution</td><td><code>cold-exposure/1</code> gives PRODUCT_EXPOSURE as degree-minute bounds only. "Every amount and currency is null: no cold stock value, currency or exposure rule is approved" (<code>financials/cold_consequence.py:8-16</code>). RECORDED_REPAIR is allowed by the schema (<code>migrations/versions/0023</code>) but has no producer.</td></tr>
+<tr><td>Opportunities and scenarios</td><td>STOCK_VALUE_CONTEXT scenario, authored only, computes no amount (<code>cold_scenarios/rules.py:4-6</code>)</td></tr>
+<tr><td>Action and verification</td><td>COLDCHAIN <code>domain_action</code> with four declared criteria (<code>work/domain_action.py:35-39</code>). An intent "is never a verification outcome and never implies <code>VERIFIED</code>" (<code>:7-8</code>). No cold verification family exists (<code>actions/verification_families.py:502</code>, <code>:516</code>), so a cold fix can reach CHANGE_APPLIED but never VERIFIED.</td></tr>
+<tr><td>Portfolio outputs</td><td>Protect "Sites disrupted" (CC-1, CC-6 threads). No money on any card. CC-2 and CC-4 are not measured; CC-3 is flagged measured but has no cost input (<code>catalogue.py:61-63</code>).</td></tr>
+</tbody></table></div>
+<p><b>Missing:</b> stock in the chamber, unit values and an approved exposure rule; occupancy, contracts and income (CC-2) and market prices (CC-4); a cooling energy meter for cost per cooling unit; storable repair costs; a cold verification family.</p>
+
+<h3>7.3 EV charging</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:20%">Inventory item</th><th>Exists (evidence)</th></tr></thead>
+<tbody>
+<tr><td>Measurements and analytics</td><td><code>ev-roles-1</code> per connector: session events, faults, state, energy, power, site import, requested power and allocated limit (<code>sites/binding_roles.py:198-215</code>). <code>ev-session/1</code> classifies sessions COMPLETED, OBSERVED_ABORT, INCOMPLETE or CONTRADICTORY (<code>analytics/ev.py:27-38</code>). EV_INTERRUPTION is raised only for an observed abort with a fault (<code>:291-292</code>). <code>ev-availability/2</code> is an observed-state proxy (<code>analytics/ev_availability.py:1-27</code>). Peak against the import limit (<code>analytics/ev_depth.py:134-158</code>).</td></tr>
+<tr><td>Commercial records</td><td>Only <code>ev_gross_tariff_per_kwh</code> is stored (<code>financials/assumptions.py:32</code>). <code>BILLING_GAP</code> ("Connect billing records") is always raised and <code>billing_state</code> is <code>NO_RECORD</code> (<code>ev_site_reads.py:77</code>, <code>:874</code>, <code>:990</code>). Repair and interrupted-session costs are listed but not storable (<code>price_page.py:86-87</code>).</td></tr>
+<tr><td>Economic contribution</td><td>Grow: <code>money.estimated_charging_income</code> = measured kWh × declared tariff (<code>outcome_map.py:173-176</code>). Estate financials: an <code>ev-gross-tariff/1</code> line (<code>financials/ev_money.py</code>).</td></tr>
+<tr><td>Opportunities and scenarios</td><td>GROSS_TARIFF_CONTEXT, authored only, no amount (<code>ev_scenarios/rules.py:4-7</code>). The idle-charger potential is mapped (<code>outcome_map.py:36</code>, <code>:178-179</code>), but nothing produces it.</td></tr>
+<tr><td>Action and verification</td><td>EV_CHARGING <code>domain_action</code> with three criteria (<code>work/domain_action.py:55-59</code>). No EV verification family, so an EV fix is never VERIFIED.</td></tr>
+<tr><td>Portfolio outputs</td><td>Grow income (summed with MG-1); Protect disruptions (EV-1); Protect warnings (connector out of service, fault overdue inspection, peak near the limit). EV-6 and EV-2 are not measured (<code>catalogue.py:54-56</code>).</td></tr>
+</tbody></table></div>
+<p><b>Missing:</b> billing and settlement (billed against metered, collected); the bus roster, which would give an out-of-service connector a cost; odometer or telematics data for cost per km; a demand-charge tariff and forecast; storable repair costs; an EV verification family; an idle-capacity producer.</p>
+
+<h3>7.4 Capabilities not apparent from the Portfolio cards</h3>
+<ul>
+<li><b>Per-Site comparable figures</b> already in the summary payload but unused (§5.6).</li>
+<li><b>Cold:</b> stock what-if scenarios (<code>cold_scenarios_api.py:151-180</code>); degree-minute exposure bounds (estate financials); cooling and health depth reads, the backup-chain read and replay (<code>cold_depth_api.py</code>, <code>cold_assessment_api.py:122</code>, <code>cold_replay_api.py:45</code>).</li>
+<li><b>EV:</b> per-session lists and detail (<code>ev_assessment_api.py:158-184</code>); availability, energy and health depth (<code>ev_depth_api.py:33-35</code>); tariff scenarios.</li>
+<li><b>Mini-grid:</b> hourly depth; alternatives; STOP_SOC and TARIFF_ONLY scenarios (stored, not calculated); the <code>critical_served</code> measure; the trial cost check's per-kWh rate.</li>
+</ul>
+
+<h3>7.5 Corrections to convertion_potential.html</h3>
+<ol>
+<li>Its Assure table row "What verifies" lists "A thread reaching VERIFIED" for cold and EV (<code>convertion_potential.html:413</code>). In code no path reaches it for those verticals. No cold or EV verification family exists (<code>actions/verification_families.py:502</code>, <code>:516</code>), and VERIFIED comes only from a verification outcome (<code>chain/lifecycle_run.py:50-53</code>). A completed work case moves the thread only to CHANGE_APPLIED (<code>chain/lifecycle.py:49</code>).</li>
+<li>That state is outside <code>DISRUPTED_STATES</code> (<code>chain/claims.py:42</code>). So a Site leaves the Protect count when its cold or EV work case completes, without any verification, and never reaches Assure. This is inferred from the two code reads together; there is no single test for it.</li>
+</ol>
+
+<!-- ============================================================ 8 -->
+<h2 id="s8">8. Simulation and demo-data generation: how it works, what it costs (demo data, not production ingestion)</h2>
+<div class="card warnbox"><strong>Scope.</strong> This section describes how the <b>demonstration</b> dataset is made: simulated worlds, authored scenarios, a story calendar and prepared records. It is separate from production ingestion. A real Site would arrive through the field poller and edge gateway or a reading upload, and would skip everything above the dashed line in Figure 6. Below that line the demo uses the same product code as production: the gateway envelope, S2 batch ingestion, S3 analysis, S4 matching and the Action API. Code paths in this section are relative to the repository root. The code cited here is unchanged between <code>9b4d9bd15</code> and <code>bf6014e02</code>; only <code>.agent</code> files differ.</div>
+
+<figure>
+<span class="scrollhint">Scroll sideways to see the whole diagram.</span>
+<svg viewBox="0 0 1000 560" role="img" aria-labelledby="f6T f6D">
+<title id="f6T">Demo data generation pipeline</title>
+<desc id="f6D">Authored Site template, scenario and story calendar feed an exact simulator. An observation transform and a publication profile turn its states into device readings, which a gateway publishes as envelopes. Below a dashed line, the same product code as production ingests, analyses and acts on them. Prepared records and an optional live field feed in from the side.</desc>
+<defs><marker id="a6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="16" y="24" class="h">DEMO-ONLY GENERATION</text>
+<rect x="16" y="34" width="220" height="92" rx="9" class="decl"/>
+<text x="26" y="54" class="t">Site template</text>
+<text x="26" y="72" class="s">site-templates/kobo-mini-grid-60kw.yaml</text>
+<text x="26" y="88" class="s">ratings, reserve, PCS, generator policy,</text>
+<text x="26" y="104" class="s">SFC, tank, loads, priorities (3 others)</text>
+<text x="26" y="120" class="s">"DEMONSTRATION values" (:15-17)</text>
+<rect x="16" y="136" width="220" height="92" rx="9" class="decl"/>
+<text x="26" y="156" class="t">Scenario YAML (37 files)</text>
+<text x="26" y="172" class="s">config/scenarios/*.yaml: causes only</text>
+<text x="26" y="188" class="s">irradiance + per-load demand windows,</text>
+<text x="26" y="204" class="s">run-start SOC, fuel, generator state</text>
+<text x="26" y="220" class="s">never generator output</text>
+<rect x="16" y="238" width="220" height="92" rx="9" class="decl"/>
+<text x="26" y="258" class="t">Story calendar</text>
+<text x="26" y="274" class="s">demo-story-days-v4.json (+ tools)</text>
+<text x="26" y="290" class="s">S = DB day − 2; Kobo S-28 … S+1</text>
+<text x="26" y="306" class="s">day kind → scenario; S-10, S-4 missing</text>
+<text x="26" y="322" class="s">Cold 8 sessions · EV 3 Tuesdays</text>
+<rect x="270" y="34" width="220" height="196" rx="9" class="acc"/>
+<text x="280" y="54" class="t">Simulator (exact Fractions)</text>
+<text x="280" y="72" class="s">simulator/…/kernel/execute.py</text>
+<text x="280" y="88" class="s">packs/minigrid.py (daytime law)</text>
+<text x="280" y="104" class="s">packs/mini_grid.py v1…v6 (generator)</text>
+<text x="280" y="120" class="s">controller → declared priority cascade</text>
+<text x="280" y="136" class="s">start/stop SOC, start delay, min runtime</text>
+<text x="280" y="152" class="s">linear fuel: no idle, no start fuel</text>
+<text x="280" y="168" class="s">no PV temperature derate</text>
+<text x="280" y="184" class="s">packs/cold.py cold-thermal/1</text>
+<text x="280" y="200" class="s">packs/ev_charger.py ev-charger/1</text>
+<text x="280" y="218" class="sr">no forecast, min load, ramp, failures</text>
+<rect x="524" y="34" width="220" height="196" rx="9" class="acc"/>
+<text x="534" y="54" class="t">Observation + profile</text>
+<text x="534" y="72" class="s">observation/transform.py</text>
+<text x="534" y="88" class="s">backend/…/runs/profiles.py</text>
+<text x="534" y="104" class="s">per-signal cadence (15 or 5 min)</text>
+<text x="534" y="120" class="s">additive bias (fuel level −0.5 L)</text>
+<text x="534" y="136" class="s">dropout per thousand (e.g. 40 ‰)</text>
+<text x="534" y="152" class="s">declared gap windows</text>
+<text x="534" y="168" class="s">a missing sample publishes nothing</text>
+<text x="534" y="184" class="s">seeded draws: same run → same series</text>
+<rect x="778" y="34" width="206" height="196" rx="9" class="acc"/>
+<text x="788" y="54" class="t">Gateway publish</text>
+<text x="788" y="72" class="s">simulator/…/gateway/publish.py</text>
+<text x="788" y="88" class="s">canonical source envelopes;</text>
+<text x="788" y="104" class="s">GOOD or UNAVAILABLE; nothing</text>
+<text x="788" y="120" class="s">invented for a gap</text>
+<text x="788" y="136" class="s">real gateway process, sealed</text>
+<text x="788" y="152" class="s">batches (demo_combined_kobo.py:6-7)</text>
+<rect x="270" y="244" width="220" height="86" rx="9" class="wn"/>
+<text x="280" y="264" class="t">Prepared records</text>
+<text x="280" y="280" class="s">visits, plans (service:w401-fixture)</text>
+<text x="280" y="296" class="s">diesel + productive prices, no-load rate</text>
+<text x="280" y="312" class="s">objectives · recorded-time test seam</text>
+<rect x="524" y="244" width="220" height="86" rx="9" class="box"/>
+<text x="534" y="264" class="t">Live field (optional, off)</text>
+<text x="534" y="280" class="s">tools/demo_live_field.py: prolonged run</text>
+<text x="534" y="296" class="s">→ GX-shaped Modbus emulator → poller</text>
+<text x="534" y="312" class="s">→ edge gateway → TLS upload</text>
+<path d="M8 348H992" class="lnd"/>
+<text x="16" y="366" class="h">SAME PRODUCT CODE AS PRODUCTION</text>
+<rect x="16" y="376" width="220" height="100" rx="9" class="gd"/>
+<text x="26" y="396" class="t">S2 batch ingestion</text>
+<text x="26" y="414" class="s">accepted_evidence, cohort, roles</text>
+<text x="26" y="430" class="s">source provenance class =</text>
+<text x="26" y="446" class="s">REGISTERED_SIMULATION /</text>
+<text x="26" y="462" class="s">AUTHORED_DEMONSTRATION</text>
+<rect x="270" y="376" width="220" height="100" rx="9" class="gd"/>
+<text x="280" y="396" class="t">S3 · S4 · consequence</text>
+<text x="280" y="414" class="s">dispatch-3.2 → finding-episode-3</text>
+<text x="280" y="430" class="s">→ fuel-cost-1/2 (§3)</text>
+<text x="280" y="446" class="s">add-dates: catch up to yesterday</text>
+<rect x="524" y="376" width="220" height="100" rx="9" class="gd"/>
+<text x="534" y="396" class="t">Action API replay</text>
+<text x="534" y="414" class="s">d-verification-window-v3.json:</text>
+<text x="534" y="430" class="s">recommend → accept → apply →</text>
+<text x="534" y="446" class="s">freeze → bind → evaluate</text>
+<text x="534" y="462" class="s">(SYSTEM demonstration actor)</text>
+<rect x="778" y="376" width="206" height="100" rx="9" class="box"/>
+<text x="788" y="396" class="t">Site board · Portfolio</text>
+<text x="788" y="414" class="s">§1 stage 10</text>
+<path d="M236 80H267" class="ln" marker-end="url(#a6)"/>
+<path d="M236 182H267" class="ln" marker-end="url(#a6)"/>
+<path d="M236 284H252V200H267" class="ln" marker-end="url(#a6)"/>
+<path d="M490 132H521" class="ln" marker-end="url(#a6)"/>
+<path d="M744 132H775" class="ln" marker-end="url(#a6)"/>
+<path d="M880 230V356H126V373" class="ln" marker-end="url(#a6)"/>
+<text x="600" y="342" class="s">envelopes → S2</text>
+<path d="M634 330V346" class="ln"/>
+<path d="M380 330V373" class="ln" marker-end="url(#a6)"/>
+<path d="M236 426H267" class="ln" marker-end="url(#a6)"/>
+<path d="M490 426H521" class="ln" marker-end="url(#a6)"/>
+<path d="M744 426H775" class="ln" marker-end="url(#a6)"/>
+<text x="16" y="506" class="s">Colours: dashed grey = authored inputs · blue = simulation and reporting model · amber = records written directly through services (not via S2) · green = product code shared with production.</text>
+<text x="16" y="524" class="s">The live field joins the envelope line at the edge gateway; it replaces nothing above, it only replays one scenario in real time.</text>
+</svg>
+<figcaption>Figure 7. How the demo dataset is produced. Everything above the dashed line exists only to manufacture data; everything below it is the product.</figcaption>
+</figure>
+
+<h3>8.1 The Kobo Site template, field by field</h3>
+<p>From <code>config/site-templates/kobo-mini-grid-60kw.yaml</code> (template version 3, <code>:41-42</code>). The file calls these "DEMONSTRATION values … plausible for a small African village mini-grid, not a recommendation for any real installation and not calibrated to one" (<code>:15-17</code>).</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Component</th><th>Field (<code>property_key</code>)</th><th>Value</th><th>Line</th></tr></thead>
+<tbody>
+<tr><td>PV array</td><td><code>pv-rated-power</code> (DC at 1000 W/m², "no temperature derate", <code>:63-64</code>)</td><td>60 kW</td><td><code>:65-67</code></td></tr>
+<tr><td>PV inverter</td><td><code>inverter-ac-limit</code></td><td>50 kW</td><td><code>:79-81</code></td></tr>
+<tr><td>Battery</td><td><code>battery-energy-capacity</code></td><td>200 kWh</td><td><code>:91-93</code></td></tr>
+<tr><td>Battery</td><td><code>reserve-state-of-charge</code> (a control: no discharge below it)</td><td>30 %</td><td><code>:100-102</code></td></tr>
+<tr><td>Battery PCS</td><td><code>pcs-charge-limit</code> · <code>pcs-discharge-limit</code></td><td>30 kW · 30 kW</td><td><code>:112-119</code></td></tr>
+<tr><td>Battery PCS</td><td><code>pcs-conversion-efficiency</code> (applied once each way)</td><td>95 %</td><td><code>:124-126</code></td></tr>
+<tr><td>Generator</td><td><code>specific-fuel-consumption</code></td><td>0.3 L/kWh</td><td><code>:136-138</code></td></tr>
+<tr><td>Generator</td><td><code>minimum-runtime</code></td><td>30 min</td><td><code>:141-143</code></td></tr>
+<tr><td>Generator</td><td><code>start-soc-threshold</code> · <code>stop-soc-threshold</code></td><td>35 % · 90 %</td><td><code>:149-157</code></td></tr>
+<tr><td>Generator</td><td><code>start-delay</code></td><td>5 min</td><td><code>:159-161</code></td></tr>
+<tr><td>Generator</td><td><code>generator-rated-power</code> (also the component rating, <code>:133</code>)</td><td>40 kW</td><td><code>:164-166</code></td></tr>
+<tr><td>Fuel tank</td><td><code>tank-capacity</code></td><td>400 L</td><td><code>:176-178</code></td></tr>
+<tr><td>Loads</td><td>component <code>rating</code> of load-res · load-clinic · load-mill</td><td>25 · 10 · 40 kW</td><td><code>:185-201</code></td></tr>
+<tr><td>Site controls</td><td><code>source-priority</code> members</td><td>pv-array, battery, generator</td><td><code>:416-418</code></td></tr>
+</tbody></table></div>
+<p>Not in the template: the generator no-load fuel rate. The demo build declares it after install as a Site property: 3.3 L/h with basis <code>GENERIC_DEFAULT</code>, "not this generator's datasheet" (<code>tools/demo_combined_kobo.py:140-146</code>, <code>:148-153</code>). Three other templates ship: <code>hybrid-mini-grid-100kw.yaml</code> (<code>:29</code>), <code>kisiwa-diesel-hybrid-60kw.yaml</code> (60 kW generator, island, <code>:23</code>) and <code>twin-tank-mini-grid-150kw.yaml</code> (<code>:25</code>). There are no cold or EV templates in that folder. Those Sites carry pack-specific Foundation properties (for example the 13 <code>cold-*</code> properties, <code>simulator/assetops_simulator/packs/cold.py:50-64</code>).</p>
+
+<h3>8.2 Scenarios: causes only</h3>
+<p><code>config/scenarios/</code> holds 37 files, 36 YAML scenarios plus <code>README.md</code>. A scenario states causes: plane-of-array irradiance and each load's demand as constant windows, and the run-start states. It "never authors generator output, a generator state change or a conclusion" (<code>kobo-mini-grid-reserve-trial.yaml:11-14</code>).</p>
+<ul>
+<li><code>kobo-daytime.yaml</code>: starting SOC 55 % (<code>:50</code>). Irradiance in six 2-hour windows: 150, 550, 900, 950, 600 and 150 W/m² (<code>:76</code>, <code>:100</code>, <code>:124</code>, <code>:148</code>, <code>:172</code>, <code>:196</code>), with per-load demand windows after them. It is not a demo story day itself. The steady and mill days are derived from it (<code>kobo-steady-day.yaml:9</code>, <code>kobo-mill-midday.yaml:9</code>).</li>
+<li><code>kobo-mini-grid-reserve-trial.yaml</code>: SOC 42.5 %, fuel 300 L, generator STOPPED (<code>:47</code>, <code>:58</code>, <code>:70</code>). Irradiance 0 for 60 min, then 800 W/m² for 420 min (<code>:96</code>, <code>:120</code>). Loads 10 + 5 + 0 kW for 480 min (<code>:144</code>, <code>:168</code>, <code>:192</code>). Windows are not always 2 hours.</li>
+<li><code>kobo-s3-dispatch-necessary-run.yaml</code>: SOC 40 %, fuel 300 L, STOPPED (<code>:46</code>, <code>:57</code>, <code>:68</code>). Irradiance 0 for 120 min, then 100 W/m² for 360 min (<code>:94</code>, <code>:118</code>). Loads 14 + 6 + 22 kW (<code>:142</code>, <code>:166</code>, <code>:190</code>).</li>
+</ul>
+<p>So scenarios also author the starting fuel volume and generator state, not just SOC.</p>
+
+<h3>8.3 The simulator</h3>
+<ul>
+<li><b>Mini-grid.</b> <code>packs/minigrid.py:1-44</code> covers PV, the battery and loads: linear PV with no temperature derate, inverter clipping, a fixed 95 % efficiency, a controller that requests battery power, and a declared priority cascade in exact <code>Fraction</code>s. <code>packs/mini_grid.py:1-35</code> adds the generator. Its lifecycle is STOPPED → STARTING → RUNNING → STOPPED. FAILED is "inert", and runs can start only from STOPPED or FAILED (<code>:8-13</code>). RUN is requested at or below the start SOC, and STOP only after the minimum runtime and at or above the stop SOC (<code>:14-18</code>). "The rating is a ceiling, never a command" (<code>:21-23</code>), and the generator charges the battery only when the battery is not discharging (<code>:721-730</code>). Fuel is "linear: no idle fuel and no start fuel" (<code>:24-27</code>, <code>:86-90</code>). Model v5, used by the demo through v6, starts the generator at <code>min(start, reserve + 5)</code> (<code>:1141-1156</code>). A scenario can override the stop threshold (<code>:949-961</code>, used by <code>kobo-mini-grid-stop-60.yaml</code>, which is not on the story calendar).</li>
+<li><b>Cold (<code>packs/cold.py:1-19</code>, <code>cold-thermal/1</code>).</b> One chamber, probe, compressor, grid supply, and a backup generator behind a transfer switch. One exact step per UTC minute: heat leak and door heat against compressor cooling, divided by thermal capacity. Nothing is clamped. The generator start delay (2 min) and transfer delay (1 min) are pack constants, not Site properties (<code>:33-34</code>). Its observation transform has zero bias, 0.1 °C rounding and +3 s latency, and can DROP, HOLD or ADD reports (<code>observation/transform.py:343-348</code>).</li>
+<li><b>EV (<code>packs/ev_charger.py:1-20</code>, <code>ev-charger/1</code>).</b> Two connectors under one charger share the Site import limit. Per minute it allocates <code>max(0, site_limit − base_load)</code> in 1 kW round-robin quanta, zero while the grid is unavailable, driven by authored PLUG / AUTHORIZE / REQUEST_KW / FAULT / CLEAR / UNPLUG forcing. The registered model is ruled to TUESDAY 08:00-16:00 only (<code>host/ev_publication.py:282</code>, <code>:331</code>; <code>tools/demo_story_days.py:49</code>).</li>
+</ul>
+
+<h3>8.4 Reporting model, publication and ingestion</h3>
+<p>The observation transform publishes nothing for four reasons, checked in this order: a declared gap window, no completed interval, nothing measured, or the dropout draw (<code>simulator/assetops_simulator/observation/transform.py:31-44</code>). The publication profile sets each signal's cadence, bias and dropout per thousand (<code>backend/assetops_backend/runs/profiles.py:493-516</code>). The lab profile reports the fuel level every 15 min with bias −0.5 L and 40 ‰ dropout (<code>:1490-1498</code>). <code>registered-kobo-publication</code> v4 moves its signals to 5 min and sets dropout to 0 for generator status and SOC (<code>:2006</code>, <code>:2024-2025</code>). The demo runs v5, which is v4 plus the charge request (<code>tools/demo_combined_kobo.py:34-36</code>). The gateway turns readings into canonical envelopes and invents nothing for a gap (<code>simulator/assetops_simulator/gateway/publish.py:10-21</code>). From there <code>tools/demo_combined_kobo.py:6-9</code> runs a real gateway process, S2 batch ingestion, S3, S4 and the real Action API, replaying <code>backend/conversions/d-verification-window-v3.json</code> on mini-grid v6.</p>
+
+<h3>8.5 The story calendar and prepared records</h3>
+<ul>
+<li><b>S</b> is the UTC day of the database clock at prepare, minus 2 days (<code>tools/demo_combined.py:13</code>, <code>:216-218</code>; <code>backend/conversions/demo-combined-story-v1.json:5</code>).</li>
+<li><b>Kobo, S-28 … S+1</b> (<code>backend/conversions/demo-story-days-v4.json</code>, <code>sites.kobo</code>):
+<ul>
+<li><code>normal</code> (S-28) and <code>overcast</code> (S-21) days run <code>kobo-s3-dispatch-necessary-run</code>. The <code>degraded</code> kind maps to the same scenario, but the v4 calendar has no Kobo <code>degraded</code> day.</li>
+<li><code>overuse</code> days (S-14, S-7) and the <code>trial-before</code> / <code>trial-after</code> pair (S, S+1) run <code>kobo-mini-grid-reserve-trial</code>, under 30 % and then 25 % reserve.</li>
+<li>Steady days repeat <code>kobo-steady-before-mill</code> before the mill change and <code>kobo-steady-day</code> after it. The mill-midday day is S-9 (<code>mill_change_day</code>, <code>:443</code>).</li>
+<li>S-10 and S-4 are <code>missing</code> (gateway offline).</li>
+<li>Generator and trial days cover 03:00–11:00 UTC only and read "partly checked". Steady days are full days built from a story run plus complement runs (label, <code>:6</code>).</li>
+<li>"Each full example day starts at 06:00 from a declared battery level and fuel level" (<code>:7</code>; <code>kobo-steady-day.yaml:9</code>: "the battery state of charge can jump at a segment edge"). S-26…S-22 and S-19…S-15 chain from the previous day's 24:00 instead.</li>
+</ul></li>
+<li><b>Cold</b>: S-7 normal, S-3 degraded, S failure, and ordinary days S-6, S-5, S-4, S-2, S-1. Each is one 16:00–17:05 UTC session (kinds in the same file; <code>tools/demo_story_days.py:50-54</code>).</li>
+<li><b>EV</b>: S-14 and S-7 normal and S fault, moved back to a Tuesday 08:00–16:00 (<code>:45-49</code>).</li>
+<li><b>Kisiwa</b>: ten runs from S-9 12:00 plus a shipped operational-actions log (dips, site visits), moved onto the calendar by whole days (<code>backend/conversions/demo-kisiwa-story-v1.json</code>; <code>tools/demo_combined_kisiwa.py:1-30</code>). It feeds the fuel-balance nights.</li>
+<li><b>Prepared records</b>:
+<ul>
+<li>Work cases and plans go through <code>WorkService</code> as <code>service:w401-fixture</code> (<code>tools/demo_combined_mill.py:35-36</code>; Kobo <code>write_work</code>, <code>tools/demo_combined_kobo.py:170-175</code>).</li>
+<li>Diesel and productive-use prices are published through a test-only recorded-time seam (<code>tools/demo_combined_kobo.py:156-166</code>, <code>test_recorded_clock_override</code> at <code>:161</code>).</li>
+<li>Declared objectives come from <code>tools/demo_declare_objectives.py</code> with <code>backend/conversions/demo-objectives.json</code>.</li>
+<li><code>add-dates</code> catches the Sites up to yesterday (<code>tools/demo_combined.py:7-8</code>, <code>:645-693</code>).</li>
+</ul></li>
+<li><b>Live field</b> (off by default, <code>ASSETOPS_LIVE_FIELD_SITES</code>) replays <code>kobo-mini-grid-prolonged</code> in real time through a GX-shaped Modbus emulator, the real poller and the edge gateway over TLS (<code>tools/demo_live_field.py:1-25</code>).</li>
+</ul>
+
+<h3>8.6 What is realistic, and what is not</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:26%">Aspect</th><th style="width:12%">Realistic?</th><th>Why (evidence)</th></tr></thead>
+<tbody>
+<tr><td>Plant structure and ratings</td><td><span class="tag y">plausible</span></td><td>Village-scale, inverter smaller than array, PCS limits; labelled demonstration, uncalibrated (template <code>:15-17</code>, <code>:77-78</code>)</td></tr>
+<tr><td>Energy balance, PCS limits, efficiency, clipping, reserve, critical-load priority</td><td><span class="tag y">yes</span></td><td>Exact laws with exact balance checks (<code>packs/minigrid.py:8-28</code>, <code>:39-40</code>)</td></tr>
+<tr><td>Generator start/stop policy, start delay, minimum runtime</td><td><span class="tag y">yes</span></td><td><code>packs/mini_grid.py:14-18</code>, <code>:28-33</code></td></tr>
+<tr><td>Reporting faults: cadence, bias, dropout, gaps, outage days, late delivery</td><td><span class="tag y">yes</span></td><td><code>observation/transform.py:31-44</code>; profiles; <code>missing</code> and <code>degraded</code> kinds</td></tr>
+<tr><td>Ingestion, analysis, matching and Action path</td><td><span class="tag y">real code</span></td><td><code>tools/demo_combined_kobo.py:6-9</code></td></tr>
+<tr><td>Weather and demand</td><td><span class="tag n">no</span></td><td>Constant blocks of 1–8 h. The same authored pattern repeats on every steady day, with no intra-hour variation.</td></tr>
+<tr><td>PV physics</td><td><span class="tag p">simplified</span></td><td>Linear in irradiance, no temperature derate (<code>packs/minigrid.py:9-10</code>). No soiling or degradation rule found in the pack.</td></tr>
+<tr><td>Battery ageing, SOC-dependent power, temperature</td><td><span class="tag n">absent</span></td><td>No such property in the template or rule in <code>minigrid.py</code> / <code>mini_grid.py</code> (searched for "degrad", "temperature")</td></tr>
+<tr><td>Generator fuel at idle and start</td><td><span class="tag n">absent</span></td><td>"no idle fuel and no start fuel" (<code>mini_grid.py:24-27</code>). The reserve-trial story keeps the generator "requested, unloaded" for most of the morning (scenario <code>:24</code>), so the simulated fuel for those hours is zero. The product's fuel figures for those hours come only from the declared generic 3.3 L/h no-load rate. The Finding's exposure upper bound applies ×1.10 to it (§3.8; <code>chain/outcomes.py:308</code>). The credited trial value uses the nominal rate with no multiplier: 3.3 L and 4.125 USD for the idle hour (<code>test_tfc2.py:76-78</code>, <code>::test_idle_only_demo_figures_from_the_inputs</code>).</td></tr>
+<tr><td>Generator minimum load, ramping, failures, operator commands</td><td><span class="tag n">absent</span></td><td>The rating is a ceiling, so the generator can run at 0 kW (<code>:21-23</code>). FAILED is inert and initial only (<code>:8-13</code>). No ramp rule. The only operator-like input is the stop-threshold override forcing (<code>:949-961</code>), which no calendar day uses.</td></tr>
+<tr><td>Controller foresight (evening energy, forecast)</td><td><span class="tag n">absent</span></td><td>The controller reads the SOC at T against thresholds only (<code>mini_grid.py:14-18</code>; <code>minigrid.py:17-21</code>).</td></tr>
+<tr><td>Day-to-day continuity</td><td><span class="tag p">partial</span></td><td>Many days start from a declared SOC and fuel, so SOC can jump between runs (story file <code>:7</code>; <code>kobo-steady-day.yaml:9</code>). Some before-mill days chain.</td></tr>
+<tr><td>Prices, objectives, visits, plans</td><td><span class="tag p">authored</span></td><td>Written through services with a test-only recorded-time seam (§8.5). Not from invoices or a CMMS.</td></tr>
+<tr><td>Source class</td><td><span class="tag a">by design</span></td><td>Every demo reading resolves to REGISTERED_SIMULATION or AUTHORED_DEMONSTRATION, the only classes verification accepts (<code>verification_rules.py:688</code>). Real readings could not reach VERIFIED today (§1.2).</td></tr>
+</tbody></table></div>
+
+<h3>8.7 What this means for Case A and Case B (§3.11)</h3>
+<ul>
+<li><b>Case A is clean by construction.</b> On the <code>overuse</code> days (S-14, S-7) and the <code>trial-before</code> day (S), all under the 30 % reserve, the battery dips below the 35 % start threshold before sunrise and the 90 % stop policy then keeps the generator on. Meanwhile 800 W/m² gives about 48 kW of PV available against 15 kW of load (scenario purpose, <code>kobo-mini-grid-reserve-trial.yaml:23-24</code>). By the §3.3 rules that is rule 3, PV alone. I inferred this from the scenario values and did not run it. The demo therefore exercises the PV-alone Candidate path, which no dispatch-3.2 unit test pins (§3.11).</li>
+<li><b>The trial's success is partly built into the simulator.</b> In model v5 and later, lowering the reserve from 30 % to 25 % also lowers the start threshold from 35 % to 30 % (<code>mini_grid.py:1141-1156</code>). The pre-dawn dip no longer crosses it, so the generator never starts (scenario <code>:24</code>). The verification then measures the effect the model was written to produce.</li>
+<li><b>Case B is clean by construction too.</b> Case B appears on only two calendar days, S-28 (<code>normal</code>) and S-21 (<code>overcast</code>). On those days the battery starts at 40 % (reserve + 10) and holds at its reserve. PV is at most 6 kW while 42 kW is demanded (<code>kobo-s3-dispatch-necessary-run.yaml:1-13</code>). Rule 1 (B1, near or at the reserve) fires before rule 2 (B2, capacity short), and either makes the time NECESSARY. That is why the battery early warning appears on those days.</li>
+<li><b>B4, the false Finding, never appears in the demo.</b> The simulator has no evening-energy logic, no spinning reserve, no generator minimum load and no operator command on the calendar, so none of these can cause a generator run (table above). Two B4 items, a SOC dip between reports and battery energy (kWh) behind the PCS kW rating, could arise in principle, because the simulator models battery energy. But no calendar scenario is built to produce them. The stop-SOC policy is the deliberate <i>cause</i> of Case A in the demo. It would become B4 only if a Site kept it for a reliability reason, which the simulator cannot express. The weakness §3 identified is real but unexercised: the demo cannot show it, and it cannot show that it is absent.</li>
+</ul>
+
+<h3 id="s8-arch">8.8 Configurable parameters, scale, modes and reuse</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:24%">Question</th><th>Answer (code does)</th></tr></thead>
+<tbody>
+<tr><td>Models and their parameters</td><td>Model profiles (<code>backend/assetops_backend/runs/profiles.py:2194</code>): <code>minimal-fuel-tank</code> v1 (<code>:878</code>), <code>daytime-mini-grid</code> v1 (<code>:987</code>), <code>mini-grid</code> v1–v7 (<code>:1124</code>, <code>:1278</code>, <code>:1312</code>, <code>:1328</code>, <code>:1343</code>, <code>:1359</code>, <code>:1375</code>), <code>cold-thermal</code> v1 (<code>:2115</code>) and <code>ev-charger</code> v1 (<code>:2156</code>). Physical parameters are Site Foundation properties: the Kobo table in §8.1 and the 13 <code>cold-*</code> properties (<code>packs/cold.py:50-64</code>). Causes and start states come from the scenario. Reporting parameters (cadence, bias, dropout, gaps) come from the publication profiles (<code>profiles.py:2208</code>): simulator-lab v3–v5, registered-kobo v1–v5, cold v1, ev v1. Run parameters: timestep 1–1440 min, interval ≤ 100,000 min and a whole number of timesteps, seed 0 to 2³¹−1, at most 64 run inputs (<code>runs/parsing.py:155-182</code>).</td></tr>
+<tr><td>Shared models</td><td>The mini-grid packs serve Kobo (v6) and Kisiwa (v7, <code>tools/demo_combined_kisiwa.py:83</code>). Cold and EV are standalone packs that do not compose with the mini-grid (<code>packs/cold.py:3-4</code>). The observation transform, gateway publish and S2 ingestion are shared by all three verticals.</td></tr>
+<tr><td>Site counts, durations, resolutions</td><td>Demo: 4 Sites (Kobo, Cold lab, EV lab, Kisiwa) over S-28 … S+1 for Kobo, 8 Cold sessions, 3 EV Tuesdays and 10 Kisiwa nights. Resolution: Kobo 5-minute steps and publication (<code>d-verification-window-v3.json</code>); cold and EV step once per minute (<code>packs/cold.py:6</code>, <code>packs/ev_charger.py:4</code>). The live field caps at 8 h (<code>tools/demo_live_field.py:12-13</code>). No code limits the Site count, but each Site has its own bindings, story file and producer tool.</td></tr>
+<tr><td>Execution modes</td><td>Lab draft run (<code>runs/models.py:77</code>); registered run and basis (<code>:909</code>); labelled replay manifest (<code>d-verification-window-v3.json</code>, replayed by <code>tools/demo_combined_kobo.py:6</code>, <code>:36</code>); real-time live field (<code>tools/demo_live_field.py</code>). Sites build one after another, each as a child process. No multiprocessing or process pool is used for simulation (searched <code>multiprocessing</code>, <code>ProcessPool</code> in <code>tools</code>, <code>simulator</code>, <code>field</code>). The only thread pool warms route caches (<code>tools/warm_ranges.py:51</code>).</td></tr>
+<tr><td>Targeted windows</td><td><span class="tag y">yes</span>. A run is any step-aligned <code>[start, end)</code> window, and the calendar runs story-only windows (03:00–11:00 UTC) for generator days.</td></tr>
+<tr><td>Historical replay</td><td><span class="tag y">yes</span>. Labelled replay manifests re-run a recorded trial on a new calendar, and the Kisiwa log is moved by whole days (<code>demo-kisiwa-story-v1.json</code>).</td></tr>
+<tr><td>Sparse / event-driven generation</td><td><span class="tag p">partial</span>. The calendar is sparse: missing days and story-only windows. The simulator itself steps on a fixed grid; a step splits only where inputs change inside it (<code>packs/minigrid.py:30-32</code>). There is no event-only engine.</td></tr>
+<tr><td>Cached baselines and reuse</td><td><span class="tag p">partial</span>. A whole built database can be cloned with <code>CREATE DATABASE … TEMPLATE</code> (<code>tools/chain_clone.py:32</code>, <code>:64</code>; <code>tools/demo_combined_ex1.py:9</code>). <code>add-day</code> / <code>add-dates</code> append days (<code>tools/demo_combined.py:1981</code>, <code>:1987</code>). <code>prepare</code> always drops and recreates the database (<code>:1045-1046</code>). No per-Site or per-day cached baseline is reused across builds.</td></tr>
+<tr><td>Reuse across executive demos</td><td>A finished database (for example <code>assetops_polish_walk1113_test</code>) can be cloned and caught up with <code>add-dates</code>. The story is relative to S, so a rebuild re-dates everything (§8.5). Scenarios, templates and manifests are reusable files.</td></tr>
+<tr><td>Changing an intervention</td><td><span class="tag n">full rebuild</span>. The reserve trial is replayed inside the Kobo step, and <code>add-day</code> refuses prepare-only kinds (trial, failure, fault) (<code>tools/demo_story_days.py:42-43</code>). A different intervention therefore needs a new <code>prepare</code> of all Sites. A subset via <code>prepare --sites</code> (<code>tools/demo_combined.py:1960</code>) still starts from an empty database.</td></tr>
+<tr><td>Path into ingestion</td><td>Simulator: <code>gateway/publish.py:121</code> envelopes → <code>POST /api/ingestion/batches</code> (<code>backend/assetops_backend/evidence_api.py:157</code>) → <code>IngestionService.ingest</code> (<code>evidence/service.py:324</code>). Field: poller → edge gateway IPC → uploader (<code>gateway/assetops_gateway/uploader.py:66</code>, <code>:99</code>) → TLS → the same endpoint (<code>tools/demo_upload_gateway.py:1-10</code>). CSV: <code>POST /api/sites/{code}/reading-uploads</code>, at most 2 MB, with a dry-run option (<code>reading_upload_api.py:3</code>, <code>:113</code>). Every demo reading is <code>source_mode</code> SIMULATED.</td></tr>
+<tr><td>Emulated third-party interfaces</td><td><span class="tag y">yes, illustrative</span>. A Victron GX-shaped Modbus TCP profile (<code>field/profiles/gx-system-illustrative-2.json</code>, register list from a third-party summary, "not a vendor document"). A GX emulator serving function codes 03/04 with fault injection (<code>field/tests/field_emulators/gx_server.py:1-14</code>). A real poller (<code>field/assetops_field/modbus_poller.py:1-17</code>). Also <code>gx-system-illustrative-1</code> and a generic interval CSV profile. No billing, CMMS or EV back-office (OCPP) emulator.</td></tr>
+</tbody></table></div>
+
+<h3 id="s8-cost">8.9 Compute and storage cost</h3>
+<p><b>Measured.</b> The figures come from the prepare logs of three builds in sibling worktrees and from read-only queries on the walkthrough database. The walk1113 prepare ended with a failed self-check (<code>53 pass, 1 fail ['CO-10']</code>, log line 55). That check ran after every timed phase, so the timings are unaffected.</p>
+<ul>
+<li><code>/opt/assetecon/AssetOpsV1-walk/var/polish_walk1113-prepare.log</code>, 13 Nov, code <code>6b7c75601</code></li>
+<li><code>…-data/var/polish_data17n-prepare.log</code></li>
+<li><code>…-build/var/prepare-vps1.log</code></li>
+<li>queries on <code>assetops_polish_walk1113_test</code> via <code>docker exec assetopsv1-postgres-1 psql … pg_database_size / pg_total_relation_size / count(*)</code></li>
+</ul>
+<figure>
+<span class="scrollhint">Scroll sideways to see the whole diagram.</span>
+<svg viewBox="0 0 1000 420" role="img" aria-labelledby="f8T f8D">
+<title id="f8T">Measured build time and storage</title>
+<desc id="f8D">Left: seconds per build phase of the walk1113 prepare. Right: megabytes per table in the resulting 1770 MB database.</desc>
+<text x="16" y="24" class="h">BUILD PHASES · walk1113 (seconds, measured)</text>
+<g>
+<text x="16" y="52" class="s">kobo (72 runs)</text><rect x="150" y="40" width="301" height="16" rx="3" class="acc"/><text x="456" y="52" class="s">1725</text>
+<text x="16" y="76" class="s">self-check</text><rect x="150" y="64" width="257" height="16" rx="3" class="box"/><text x="412" y="76" class="s">1474</text>
+<text x="16" y="100" class="s">kisiwa (10 nights)</text><rect x="150" y="88" width="208" height="16" rx="3" class="acc"/><text x="363" y="100" class="s">1195</text>
+<text x="16" y="124" class="s">drain-1</text><rect x="150" y="112" width="143" height="16" rx="3" class="gd"/><text x="298" y="124" class="s">817</text>
+<text x="16" y="148" class="s">day-rows</text><rect x="150" y="136" width="23" height="16" rx="3" class="gd"/><text x="178" y="148" class="s">133</text>
+<text x="16" y="172" class="s">ev (3 runs)</text><rect x="150" y="160" width="9" height="16" rx="3" class="acc"/><text x="164" y="172" class="s">52</text>
+<text x="16" y="196" class="s">drain-2</text><rect x="150" y="184" width="8" height="16" rx="3" class="gd"/><text x="164" y="196" class="s">48</text>
+<text x="16" y="220" class="s">period-rows</text><rect x="150" y="208" width="8" height="16" rx="3" class="gd"/><text x="164" y="220" class="s">46</text>
+<text x="16" y="244" class="s">backfill</text><rect x="150" y="232" width="6" height="16" rx="3" class="gd"/><text x="164" y="244" class="s">36</text>
+<text x="16" y="268" class="s">cold (8 runs)</text><rect x="150" y="256" width="4" height="16" rx="3" class="acc"/><text x="164" y="268" class="s">22</text>
+<text x="16" y="292" class="s">mill</text><rect x="150" y="280" width="1" height="16" rx="3" class="acc"/><text x="164" y="292" class="s">6</text>
+<text x="16" y="322" class="s">Timed phases ≈ 5,554 s; marker 08:50 → log end 10:50 ≈ 2.0 h wall (untimed steps incl. 2,996 mini-depth jobs).</text>
+<text x="16" y="340" class="s">Other builds: kobo 1,991 s (data17n), 2,672 s (vps1); kisiwa 1,234 / 2,282 s.</text>
+</g>
+<text x="520" y="24" class="h">STORAGE · 1,770 MB database (measured)</text>
+<g>
+<text x="520" y="52" class="s">chain_response (route cache)</text><rect x="700" y="40" width="240" height="16" rx="3" class="wn"/><text x="944" y="52" class="s">635</text>
+<text x="520" y="76" class="s">accepted_evidence</text><rect x="700" y="64" width="98" height="16" rx="3" class="acc"/><text x="802" y="76" class="s">259</text>
+<text x="520" y="100" class="s">chain_input_change</text><rect x="700" y="88" width="79" height="16" rx="3" class="wn"/><text x="783" y="100" class="s">208</text>
+<text x="520" y="124" class="s">event_outbox</text><rect x="700" y="112" width="39" height="16" rx="3" class="box"/><text x="743" y="124" class="s">104</text>
+<text x="520" y="148" class="s">revision_provenance</text><rect x="700" y="136" width="37" height="16" rx="3" class="box"/><text x="741" y="148" class="s">97</text>
+<text x="520" y="172" class="s">mini_depth_revision_evidence</text><rect x="700" y="160" width="34" height="16" rx="3" class="box"/><text x="738" y="172" class="s">91</text>
+<text x="520" y="196" class="s">ingestion_batch</text><rect x="700" y="184" width="26" height="16" rx="3" class="acc"/><text x="730" y="196" class="s">70</text>
+<text x="520" y="220" class="s">analytic_run_evidence</text><rect x="700" y="208" width="25" height="16" rx="3" class="box"/><text x="729" y="220" class="s">66</text>
+<text x="520" y="244" class="s">all other tables</text><rect x="700" y="232" width="90" height="16" rx="3" class="box"/><text x="794" y="244" class="s">≈ 240</text>
+<text x="520" y="274" class="s">accepted readings: KOBO 85,326 · KISIWA 40,104 · EV 4,951 · COLD 868 (= 131,249)</text>
+<text x="520" y="292" class="s">per built Site-day: KOBO 3,047 · KISIWA 4,010 · EV 1,650 · COLD 109</text>
+<text x="520" y="310" class="s">≈ 2,072 B per reading in accepted_evidence (heap + index + TOAST)</text>
+<text x="520" y="328" class="s">≈ 14.1 KB per reading for the whole database (caches dominate)</text>
+</g>
+<text x="16" y="380" class="s">Bars are to scale within each panel. "all other tables" is the remainder of the 1,770 MB total after the eight largest tables, which is approximate.</text>
+</svg>
+<figcaption>Figure 8. What the current demo costs to build and store. The simulator itself is a small share. Most of the time goes to ingestion, assessment, drains and the self-check, and most of the storage to read caches.</figcaption>
+</figure>
+
+<p><b>Extrapolated (formulas, not measurements).</b> Let <i>N</i> be the number of Sites, <i>D</i> the days per Site and <i>r</i> the readings per Site-day.</p>
+<ul>
+<li><b>Lower bound (ingest, assess, match only)</b> ≈ <i>N</i> × <i>D</i> × 62 s, sequential. The 62 s is the Kobo child phase, 1,724.7 s ÷ 28 built Kobo Site-days (72 runs, about 24 s each). It excludes drains, mini-depth jobs, period and day rows, and the self-check. Kisiwa alone costs about 119 s per night.</li>
+<li><b>Whole build</b> ≈ <i>N</i> × <i>D</i> × 147 s. The measured walk1113 wall time was 7,204 s, from the work marker at 08:50:44 to the last prepare-log write at 10:50:48. That build covered 49 built Site-days: 28 Kobo, 10 Kisiwa, 8 Cold and 3 EV. 7,204 ÷ 49 ≈ 147 s. This assumes drains and checks scale linearly with the data.</li>
+<li><b>50 Sites × 365 days</b> (18,250 Site-days, sequential): between 18,250 × 62 s ≈ 1.1 × 10⁶ s ≈ 13 days and 18,250 × 147 s ≈ 2.7 × 10⁶ s ≈ 31 days of wall time. The planner's own Kobo estimate is <code>110 s × days + 60 s</code> (<code>tools/demo_combined.py:132-133</code>), 3,140 s for 28 days. The measured Kobo phases took 1,725–2,672 s.</li>
+<li><b>Evidence storage</b> ≈ <i>N</i> × <i>D</i> × <i>r</i> × 2.07 KB, with <i>r</i> per built Site-day (the same day count as the time rate). Kobo's <i>r</i> = 85,326 ÷ 28 ≈ 3,047, which gives 6.3 MB per Site-day, or about 115 GB for 50 Sites × 365 days.</li>
+<li><b>Whole database</b> at today's ratio of 14.1 KB per reading: about 43 MB per Kobo-like Site-day, or about 785 GB for 50 × 365. This is an upper-bound style figure. The route cache (<code>chain_response</code>, 8,828 rows) grows with the windows read, not with readings, so the true slope is likely between 2.1 and 14.1 KB per reading.</li>
+<li><b>Changing one intervention</b> today costs a full prepare, about 2 h at the current size (§8.8). Without per-Site or per-day regeneration, that cost scales with the whole portfolio, not with the Site that changed.</li>
+</ul>
+<p class="sub">Correction to an earlier internal note: the planner's Kobo estimate is computed (<code>kobo_expected_seconds</code>), so the flat 250 in <code>EXPECTED_SECONDS</code> is not the figure used for Kobo.</p>
+
+<p class="sub" style="margin-top:2em">End of sections 1 to 8 (revision 3.1). Related: <a href="convertion_potential.html">convertion_potential.html</a> (Portfolio card composition, rev 3).</p>
 </main>
 </body>
 </html>
