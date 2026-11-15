@@ -98,9 +98,15 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 </head>
 <body>
 <main>
-<p class="sub">AssetOps Architect (Claude) · 14 Nov 2026 · revision 3.1 (15 Nov 2026) · investigation only, no code, test or database changed · repository state: <code>main</code> at <code>9b4d9bd15c53daff70b2322012932720e1f96edb</code></p>
+<p class="sub">AssetOps Architect (Claude) · 14 Nov 2026 · revision 3.2 (15 Nov 2026) · investigation only, no code, test or database changed · repository state: <code>main</code> at <code>9b4d9bd15c53daff70b2322012932720e1f96edb</code></p>
 
-<details open class="card"><summary>Revision 3.1 · 15 Nov 2026 · changes after the revision 3 review (REVISE: one Medium, seven Lows)</summary>
+<details open class="card"><summary>Revision 3.2 · 15 Nov 2026 · build speed analysis (owner request) and three Lows from the 3.1 re-review</summary>
+<ul>
+<li><b>New §8.10</b>: build speed. One simulation step takes about 1.4 ms (in-memory probe). One Kobo run takes 24 s in the build, and one built Site-day 62 s for Kobo, 119 s for Kisiwa, 2.8 s for Cold and 17 s for EV. The 7,208 s build is broken down by step (Figure 9). A new measured finding: per-run cost rises with each Site's history (for example 18 → 35 s for the same scenario over 12 runs), with a probable code cause in the S4 match. The section gives a scaling model with extrapolations labelled as such, and inventories the parallelism and speed mechanisms (none parallel except cache warming).</li>
+<li><b>N1</b> Figure 8 per-day readings: Kisiwa ÷ 11 and Cold ÷ 9, because of the add-dates day. <b>N2</b> §8.9: 147 s is called a mixed-vertical average, ≈ 190 s / ≈ 40 days for full-day mini-grid Sites. <b>N3</b> wall time taken from <code>manifest.json</code> (7,208 s, marker 08:50:40).</li>
+<li>Also folded in the two older Lows on §2.4 Q5: the returned reason is the last segment's, and the headroom-ignored case has no pinning test.</li>
+</ul></details>
+<details class="card"><summary>Revision 3.1 · 15 Nov 2026 · changes after the revision 3 review (REVISE: one Medium, seven Lows)</summary>
 <ul>
 <li><b>M1</b> §8.9 build time. 62 s per Site-day is now labelled a lower bound (ingest, assess, match only). Added a re-derived whole-build rate: 7,204 s ÷ 49 built Site-days ≈ 147 s. 50 × 365 is now stated as about 13 to 31 days, assuming linear scaling. One day count (built Site-days) is used throughout, so storage is recomputed as 6.3 MB / 115 GB and 43 MB / 785 GB.</li>
 <li><b>L1</b> §5.2 lead-Finding order corrected (<code>chain/read.py:205-211</code>). <b>L2</b> §5.3: the cited test proves the days sum only; no multi-Site thread-sum test exists. <b>L3</b> §5.6: <code>/api/estate/chain/why</code> is called; the bare route is not.</li>
@@ -513,7 +519,7 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 <p><b>Through hard-coded rules: yes, at three points, none of them tied to MG-5 or MG-4 keys.</b></p>
 <ol>
 <li><b>Before a Finding exists.</b> Reserve or capacity constraints make the time NECESSARY (<code>dispatch_v3.py:290-293</code>). That is a veto: no Finding is raised.</li>
-<li><b>Before a trial.</b> The proposal is refused with <code>SOC_NOT_ABOVE_HEADROOM</code> only when <i>no</i> cited Candidate segment has its lowest usable SOC above r + 10 (<code>reserve_trial.py:219-229</code>, <code>:249-252</code>). One eligible segment is enough, and the others are ignored (<code>test_s6_action_rule.py::TestUnavailableReasons::test_any_eligible_segment_is_enough_and_is_cited</code>; inputs from <code>actions/adapters/postgres_action_store.py:159-215</code>). This is a weak veto. Candidate segments reached through rule 3 (PV alone) never check SOC, so a Finding whose other segments sat inside the headroom can still be offered the trial.</li>
+<li><b>Before a trial.</b> The proposal is refused only when <i>no</i> cited Candidate segment has its lowest usable SOC above r + 10 (<code>reserve_trial.py:219-229</code>, <code>:249-252</code>). The reason returned is then the <i>last</i> segment's reason (<code>verdicts[-1]["reason"]</code>, <code>:251-252</code>). That is often <code>SOC_NOT_ABOVE_HEADROOM</code>, but not guaranteed. One eligible segment is enough, and the others are ignored. <code>test_s6_action_rule.py::TestUnavailableReasons::test_any_eligible_segment_is_enough_and_is_cited</code> pins this with an ineligible segment that has no readings. A segment that is ineligible because it sits inside the headroom is ignored by the same code path (<code>:249-250</code>), but no test pins that case ( inputs from <code>actions/adapters/postgres_action_store.py:159-215</code>). This is a weak veto. Candidate segments reached through rule 3 (PV alone) never check SOC, so a Finding whose other segments sat inside the headroom can still be offered the trial.</li>
 <li><b>After a trial.</b> A measured guardrail failure resolves the trial INEFFECTIVE with <code>GUARDRAIL_FAIL</code> (<code>verification_rules.py:807-809</code>) and blocks new trials on that battery (<code>actions/service.py:60-68</code>, <code>:159-166</code>). The Finding, its value and MG-2's state are not downgraded. The thread goes back to REOPENED, the same as a plain target miss (<code>chain/lifecycle.py:51</code>; <code>lifecycle_run.py:50-55</code> passes only VERIFIED or INEFFECTIVE).</li>
 </ol>
 <p>Tests: <code>test_s6_verification_verdict.py::test_measured_guardrail_failure_is_ineffective_with_guardrail_fail</code> (pure, run). <code>test_s6_verification_evaluator_postgres.py::TestEvaluator…::test_guardrail_failure_closes_but_blocks_a_different_finding</code> (PostgreSQL, not run). The unserved-critical-energy FAIL branch on its own (<code>:788</code>) is <b>not covered by tests</b>. Only its UNKNOWN branch is (<code>test_missing_critical_role_and_unknown_target_and_blockers_are_inconclusive</code>).</p></div>
@@ -1318,8 +1324,8 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 <text x="520" y="196" class="s">ingestion_batch</text><rect x="700" y="184" width="26" height="16" rx="3" class="acc"/><text x="730" y="196" class="s">70</text>
 <text x="520" y="220" class="s">analytic_run_evidence</text><rect x="700" y="208" width="25" height="16" rx="3" class="box"/><text x="729" y="220" class="s">66</text>
 <text x="520" y="244" class="s">all other tables</text><rect x="700" y="232" width="90" height="16" rx="3" class="box"/><text x="794" y="244" class="s">≈ 240</text>
-<text x="520" y="274" class="s">accepted readings: KOBO 85,326 · KISIWA 40,104 · EV 4,951 · COLD 868 (= 131,249)</text>
-<text x="520" y="292" class="s">per built Site-day: KOBO 3,047 · KISIWA 4,010 · EV 1,650 · COLD 109</text>
+<text x="520" y="274" class="s">accepted readings: KOBO 85,326 · KISIWA 40,104 · EV 4,951 · COLD 868 (= 131,249)</text><text x="520" y="346" class="s">Kisiwa ÷ 11 and Cold ÷ 9: the DB also holds the 12 Nov add-dates day</text>
+<text x="520" y="292" class="s">per built Site-day: KOBO 3,047 · KISIWA 3,646 · EV 1,650 · COLD 96</text>
 <text x="520" y="310" class="s">≈ 2,072 B per reading in accepted_evidence (heap + index + TOAST)</text>
 <text x="520" y="328" class="s">≈ 14.1 KB per reading for the whole database (caches dominate)</text>
 </g>
@@ -1331,15 +1337,129 @@ details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);ou
 <p><b>Extrapolated (formulas, not measurements).</b> Let <i>N</i> be the number of Sites, <i>D</i> the days per Site and <i>r</i> the readings per Site-day.</p>
 <ul>
 <li><b>Lower bound (ingest, assess, match only)</b> ≈ <i>N</i> × <i>D</i> × 62 s, sequential. The 62 s is the Kobo child phase, 1,724.7 s ÷ 28 built Kobo Site-days (72 runs, about 24 s each). It excludes drains, mini-depth jobs, period and day rows, and the self-check. Kisiwa alone costs about 119 s per night.</li>
-<li><b>Whole build</b> ≈ <i>N</i> × <i>D</i> × 147 s. The measured walk1113 wall time was 7,204 s, from the work marker at 08:50:44 to the last prepare-log write at 10:50:48. That build covered 49 built Site-days: 28 Kobo, 10 Kisiwa, 8 Cold and 3 EV. 7,204 ÷ 49 ≈ 147 s. This assumes drains and checks scale linearly with the data.</li>
-<li><b>50 Sites × 365 days</b> (18,250 Site-days, sequential): between 18,250 × 62 s ≈ 1.1 × 10⁶ s ≈ 13 days and 18,250 × 147 s ≈ 2.7 × 10⁶ s ≈ 31 days of wall time. The planner's own Kobo estimate is <code>110 s × days + 60 s</code> (<code>tools/demo_combined.py:132-133</code>), 3,140 s for 28 days. The measured Kobo phases took 1,725–2,672 s.</li>
+<li><b>Whole build</b> ≈ <i>N</i> × <i>D</i> × 147 s. The measured walk1113 wall time was 7,208 s (<code>manifest.json</code> <code>wall_seconds</code> 7207.7; work marker 08:50:40, last prepare-log write 10:50:48). That build covered 49 built Site-days: 28 Kobo, 10 Kisiwa, 8 Cold and 3 EV. 7,208 ÷ 49 ≈ 147 s. This assumes drains and checks scale linearly with the data. 147 s is a mixed-vertical average, because the 49 days include 8 Cold sessions of about 65 minutes and 3 EV days. Over the 38 full mini-grid Site-days (Kobo plus Kisiwa) the same wall time gives ≈ 190 s.</li>
+<li><b>50 Sites × 365 days</b> (18,250 Site-days, sequential): 18,250 × 62 s ≈ 13 days, 18,250 × 147 s ≈ 31 days, or 18,250 × 190 s ≈ 40 days for full-day mini-grid Sites. These are linear figures. §8.10 shows that the per-day cost rises with each Site's history, which would push this well beyond 40 days. The planner's own Kobo estimate is <code>110 s × days + 60 s</code> (<code>tools/demo_combined.py:132-133</code>), 3,140 s for 28 days. The measured Kobo phases took 1,725–2,672 s.</li>
 <li><b>Evidence storage</b> ≈ <i>N</i> × <i>D</i> × <i>r</i> × 2.07 KB, with <i>r</i> per built Site-day (the same day count as the time rate). Kobo's <i>r</i> = 85,326 ÷ 28 ≈ 3,047, which gives 6.3 MB per Site-day, or about 115 GB for 50 Sites × 365 days.</li>
 <li><b>Whole database</b> at today's ratio of 14.1 KB per reading: about 43 MB per Kobo-like Site-day, or about 785 GB for 50 × 365. This is an upper-bound style figure. The route cache (<code>chain_response</code>, 8,828 rows) grows with the windows read, not with readings, so the true slope is likely between 2.1 and 14.1 KB per reading.</li>
 <li><b>Changing one intervention</b> today costs a full prepare, about 2 h at the current size (§8.8). Without per-Site or per-day regeneration, that cost scales with the whole portfolio, not with the Site that changed.</li>
 </ul>
 <p class="sub">Correction to an earlier internal note: the planner's Kobo estimate is computed (<code>kobo_expected_seconds</code>), so the flat 250 in <code>EXPECTED_SECONDS</code> is not the figure used for Kobo.</p>
+<h3 id="s8-speed">8.10 Build speed: one step, one Site-day, scaling, and how the build uses parallelism</h3>
+<p>This analysis was added at the owner's request in revision 3.2. Sources:</p>
+<ul>
+<li><b>In-memory probes</b> of the simulator, no database: <code>host/execution_adapter.py</code> <code>run_to_end</code> and <code>host/tests/field_observation_fixtures.py</code> <code>generate_live_window</code>, run on this host (8 cores, load average 0.7).</li>
+<li><b>The walk1113 build artefacts:</b> <code>manifest.json</code> with <code>wall_seconds</code> 7207.7; per-stage <code>elapsed_ms</code> in the eight drain tick reports (<code>logs/*drain-*-tick.log</code>); and the write times of the 72 run drafts in <code>kobo-replay-a0alpf69/*/h/run-*.yaml</code>.</li>
+</ul>
+<p>Every figure below is <span class="does">measured</span> unless it is marked <span class="says">derived</span> or <span class="says">extrapolated</span>.</p>
 
-<p class="sub" style="margin-top:2em">End of sections 1 to 8 (revision 3.1). Related: <a href="convertion_potential.html">convertion_potential.html</a> (Portfolio card composition, rev 3).</p>
+<h4>One simulation step, one run, one Site-day</h4>
+<div class="tablewrap"><table>
+<thead><tr><th>Unit</th><th>Time</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>One mini-grid simulation step (exact Fractions, Kobo reserve-trial, model v6)</td><td><b>≈ 1.4 ms</b>: 8 h at 5-min steps = 97 boundaries in 0.134 s; 8 h at 1-min steps = 481 in 0.694 s</td><td>probe, <code>kobo_draft</code> + <code>run_to_end</code></td></tr>
+<tr><td>An 8 h registered Kobo window, simulated and turned into device readings (no database)</td><td><b>0.66 s</b> for 842 readings (≈ 0.8 ms per reading)</td><td>probe, <code>generate_live_window</code></td></tr>
+<tr><td>One Kobo run in the build (draft → real gateway → S2 acceptance → S3 assess → S4 match, against Postgres)</td><td><b>24 s mean</b> (1,724.7 s ÷ 72), ranging 10.6–78.3 s</td><td>log; draft write times</td></tr>
+<tr><td>One built Kobo Site-day (≈ 2.6 runs: story run plus complements)</td><td><b>62 s</b> in the Kobo child (1,724.7 ÷ 28)</td><td>log</td></tr>
+<tr><td>One Kisiwa night</td><td><b>119 s</b> (1,192.7 ÷ 10). It ingests about 2,000 small batches a night (20,033 batches for 40,104 readings), so batch count, not the simulator, drives the cost.</td><td><code>kisiwa.json</code>; read-only count</td></tr>
+<tr><td>One Cold session · one EV day</td><td><b>2.8 s</b> (22.4 ÷ 8) · <b>17 s</b> (52.4 ÷ 3)</td><td>log</td></tr>
+</tbody></table></div>
+<p><b>Conclusion 1.</b> The simulator is not the cost. An 8-hour Kobo run simulates in about 0.1–0.7 s, yet the run takes about 24 s in the build. More than 95 % of each run is the product pipeline the demo deliberately goes through: gateway envelopes, S2 acceptance, S3 assessment and S4 matching against PostgreSQL (<code>tools/demo_combined_kobo.py:374-401</code>). The run-level split between those parts is not logged, because the database timestamps are story-clock instants, so it is <span class="says">not measured</span>.</p>
+
+<figure>
+<span class="scrollhint">Scroll sideways to see the whole diagram.</span>
+<svg viewBox="0 0 1000 380" role="img" aria-labelledby="f9T f9D">
+<title id="f9T">Where the build time goes, and how a run slows as history grows</title>
+<desc id="f9D">Left: the 7,208-second walk1113 build split into Site children, mini-depth, drains, finish ticks, performance and pre-build, rows, self-check and other. Right: the duration of the twelve identical steady-before runs, rising from 18 to 35 seconds as the Site's history grows.</desc>
+<text x="16" y="24" class="h">7,208 s BUILD, BY STEP (measured)</text>
+<g>
+<rect x="16" y="40" width="208" height="22" class="acc"/><text x="230" y="56" class="s">Site children 2,995 s</text>
+<rect x="16" y="68" width="102" height="22" class="box"/><text x="124" y="84" class="s">Self-check 1,474 s (fixed per build)</text>
+<rect x="16" y="96" width="60" height="22" class="gd"/><text x="82" y="112" class="s">Drains 865 s, of which ≈ 310 s idle stage start-ups</text>
+<rect x="16" y="124" width="46" height="22" class="box"/><text x="68" y="140" class="s">Finish ticks 656 s</text>
+<rect x="16" y="152" width="39" height="22" class="box"/><text x="61" y="168" class="s">Performance + pre-build after drain-1 ≈ 564 s (derived)</text>
+<rect x="16" y="180" width="29" height="22" class="gd"/><text x="51" y="196" class="s">Mini-depth 415 s (2,996 jobs, 0.14 s each)</text>
+<rect x="16" y="208" width="12" height="22" class="gd"/><text x="34" y="224" class="s">Period + day rows 178 s</text>
+<rect x="16" y="236" width="4" height="22" class="box"/><text x="26" y="252" class="s">Backfill, mill, objectives, comparisons, tree ≈ 62 s</text>
+<text x="16" y="270" class="s">Site children: Kobo 1,725 · Kisiwa 1,195 · EV 52 · Cold 22 s.</text>
+<text x="16" y="286" class="s">Bars to scale (1 px ≈ 14.4 s). About 56 % of the time grows with data (children,</text>
+<text x="16" y="302" class="s">mini-depth, snapshot work, rows); about 44 % is fixed per build or per tick.</text>
+</g>
+<text x="560" y="24" class="h">ONE RUN KIND (steady-before, 12 h) OVER THE BUILD</text>
+<path d="M600 290H980M600 290V50" class="ln"/>
+<text x="560" y="294" class="s">0 s</text><text x="560" y="174" class="s">20 s</text><text x="560" y="54" class="s">40 s</text>
+<path d="M600 170H980M600 50H980" class="life"/>
+<g>
+<rect x="610" y="178" width="8" height="8" class="acc"/><rect x="640" y="176" width="8" height="8" class="acc"/><rect x="670" y="166" width="8" height="8" class="acc"/>
+<rect x="700" y="164" width="8" height="8" class="acc"/><rect x="730" y="152" width="8" height="8" class="acc"/><rect x="760" y="145" width="8" height="8" class="acc"/>
+<rect x="790" y="130" width="8" height="8" class="acc"/><rect x="820" y="126" width="8" height="8" class="acc"/><rect x="850" y="117" width="8" height="8" class="acc"/>
+<rect x="880" y="106" width="8" height="8" class="acc"/><rect x="910" y="85" width="8" height="8" class="acc"/><rect x="940" y="77" width="8" height="8" class="acc"/>
+</g>
+<text x="600" y="314" class="s">16 Oct → 31 Oct story days (12 runs of the same scenario): 18.2 s → 34.8 s</text>
+<text x="600" y="332" class="s">Fitted slope ≈ 0.41 s per earlier run; the same rise appears in every run kind</text>
+</svg>
+<figcaption>Figure 9. Left: the measured build composition. Right: per-run cost rises as the Site's history grows. Points are the 12 measured durations, at the scale 6 px per second.</figcaption>
+</figure>
+
+<h4>How cost scales with days and Sites</h4>
+<ul>
+<li><b>With days, one Site: faster than linear</b> (<span class="does">measured</span>). Runs of the same scenario get slower as the Site accumulates history. The fitted slope against earlier runs is 0.21–0.49 s per earlier run, and every run kind rises:
+<ul>
+<li>steady-before: 18.2 → 34.8 s over 12 runs</li>
+<li>before-rest: 14.0 → 21.2 s</li>
+<li>night-early: 11.0 → 29.6 s</li>
+<li>steady: 36.8 → 45.5 s</li>
+</ul>
+<span class="says">Probable cause, by code reading and not profiled:</span> each S4 match pass re-reads every assessed window of the Site (<code>backend/assetops_backend/analytics/finding_service.py:44-60</code>, <code>:62-68</code>), so pass <i>k</i> costs O(<i>k</i>) and <i>D</i> days cost O(<i>D</i>²).</li>
+<li><b>Model</b> (<span class="says">derived</span>). Per Kobo-like Site-day, the child cost is roughly <i>c</i>(<i>d</i>) ≈ 33 s + 2.0 s × <i>d</i>, where <i>d</i> is the days already built. This is fitted so that the 28-day mean is 62 s and the slope is the per-run slope × 2.6 runs per day × 2.6 runs per day of history. To that add the per-day downstream work, ≈ 26 s for a Kobo-like day:
+<ul>
+<li>mini-depth ≈ 11 s (2,996 jobs over 38 mini-grid Site-days × 0.14 s)</li>
+<li>chain snapshots ≈ 10 s (825 Kobo snapshots × 351 ms ÷ 28)</li>
+<li>day and period rows ≈ 5 s</li>
+</ul></li>
+<li><b>With Sites:</b> linear, because Sites build one after another (<code>tools/demo_combined.py:1080-1088</code>). Each tick visits the Sites in order (<code>backend/assetops_backend/scheduling/tick.py:382</code>). Every visited Site pays about 11 s of stage start-ups per tick even when it has no work: each of 12 stage children is a fresh Python process with a 0.7–1.2 s floor when idle (drain tick reports; <code>scheduling/tick.py:152-156</code>; a cold import of the stage module measured 1.9 s). In walk1113's drains, 348 of 384 stage runs did no work and cost about 310 s.</li>
+<li><b>Fixed per build:</b> self-check 1,474 s, finish ticks 656 s, and performance plus pre-build ≈ 564 s. How these grow with Sites and windows was <span class="says">not measured</span>.</li>
+</ul>
+
+<p><b>Extrapolated, one Kobo-like Site, sequential, using the model above:</b></p>
+<div class="tablewrap"><table>
+<thead><tr><th>Horizon</th><th>Child phase Σ c(d)</th><th>Plus downstream (26 s × D)</th><th>Total for one Site</th></tr></thead>
+<tbody>
+<tr><td>28 days (check against measured)</td><td>≈ 1,700 s (measured 1,725 s)</td><td>≈ 730 s</td><td>≈ 0.7 h</td></tr>
+<tr><td>90 days</td><td>≈ 11,100 s</td><td>≈ 2,300 s</td><td>≈ 3.7 h</td></tr>
+<tr><td>365 days</td><td>≈ 145,000 s</td><td>≈ 9,500 s</td><td>≈ 43 h</td></tr>
+</tbody></table></div>
+<p><b>Extrapolated, 50 Kobo-like Sites × 365 days, sequential:</b> about 50 × 43 h ≈ 90 days, plus fixed costs. If the per-run growth turned out not to persist beyond the measured 28 days (it could flatten), the linear figure from §8.9 applies: 13–40 days. The measured fact is that growth is present over the first 28 days. Whether it continues past them is not known.</p>
+
+<h4>Parallelism and speed optimisations in the current build</h4>
+<div class="tablewrap"><table>
+<thead><tr><th>Mechanism</th><th>Present?</th><th>Evidence</th></tr></thead>
+<tbody>
+<tr><td>Sites built in parallel</td><td><span class="tag n">no</span></td><td>Sequential loop of child processes (<code>tools/demo_combined.py:1080-1088</code>)</td></tr>
+<tr><td>Runs within a Site in parallel</td><td><span class="tag n">no</span></td><td>One run after another, each assessed and matched before the next (<code>tools/demo_combined_kobo.py:398-400</code>). The episode matcher needs ordered windows.</td></tr>
+<tr><td>Ticks or stages in parallel</td><td><span class="tag n">no</span></td><td>One environment claim per tick (<code>scheduling/tick.py:10-11</code>). Sites are visited in order, and stages run one by one as child processes (<code>:19-23</code>, <code>:152-156</code>). Per-Site claims (<code>schedule_site_head</code>) would make concurrent Site work safe by design, but no build or serve path uses it.</td></tr>
+<tr><td>Thread pool</td><td><span class="tag p">only for cache warming</span></td><td><code>tools/warm_ranges.py:51</code>, <code>:484</code> (route warming, not data)</td></tr>
+<tr><td>Bulk load (COPY)</td><td><span class="tag n">forbidden</span></td><td>Writer guards: "No product writer runs MERGE or COPY" (<code>tools/writer_guard_probes.py:95</code>)</td></tr>
+<tr><td>Batching that exists</td><td><span class="tag y">yes</span></td><td>Mini-depth drained in passes of 500 instead of the tick's 10 per Site (<code>tools/demo_combined.py:1303-1318</code>). One snapshot seed statement for all Sites (<code>site_outcomes/read.py:649</code>). Request-scoped memoised reads (<code>read_scope.memo</code>, e.g. <code>chain/claims.py:172</code>).</td></tr>
+<tr><td>Skipping unchanged work</td><td><span class="tag y">yes</span></td><td>An identical basis writes nothing (episode matcher, consequence replay). Day and period rows report <code>"written": 0</code> on unchanged rows (prepare log lines 48-53). Gateway sealing is done once (<code>tools/demo_combined_kobo.py:355-361</code>).</td></tr>
+<tr><td>Read-side caches</td><td><span class="tag y">yes</span></td><td>Stored route responses (<code>chain_response</code>, 635 MB) and pre-build after ticks (<code>tools/demo_combined.py:1320-1325</code>). They make serving fast but add build time and storage.</td></tr>
+<tr><td>Reuse instead of rebuild</td><td><span class="tag p">partial</span></td><td><code>CREATE DATABASE … TEMPLATE</code> clone (<code>tools/chain_clone.py:64</code>); <code>add-day</code> / <code>add-dates</code> append (§8.8)</td></tr>
+</tbody></table></div>
+<p><b>Conclusions for the owner.</b></p>
+<ol>
+<li>Simulating a Site-day costs well under a second. Building one costs about 1–1.5 minutes today, and the cost per day rises with the Site's history.</li>
+<li>The largest levers are structural, not the simulator:
+<ul>
+<li>the O(<i>D</i>²) re-read in matching;</li>
+<li>Sites built in series;</li>
+<li>about 1 s of process start-up per idle stage per Site per tick;</li>
+<li>a 25-minute self-check.</li>
+</ul></li>
+<li>Portfolio-scale history (tens of Sites × a year) is not feasible with the current build path without parallel Site builds and per-Site incremental regeneration.</li>
+</ol>
+<p>This section describes and measures only. It proposes no design.</p>
+
+
+<p class="sub" style="margin-top:2em">End of sections 1 to 8 (revision 3.2). Related: <a href="convertion_potential.html">convertion_potential.html</a> (Portfolio card composition, rev 3).</p>
 </main>
 </body>
 </html>

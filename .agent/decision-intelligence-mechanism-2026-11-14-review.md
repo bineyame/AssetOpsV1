@@ -365,3 +365,145 @@ The four cited test names exist.
 ### Residual note (not a finding)
 
 - The Optimize card can carry a days line from the shared coverage line (`_own_days`, `read.py:807-820`). That line names the window's checked days, which may reinforce the §5.2 misreading. This belongs with the owner decision that §5.2 already raises.
+
+## Review (revision 3.2)
+
+Reviewer: fresh Claude Reviewer, 2026-11-15. Document: working-tree revision 3.2 of `.agent/decision-intelligence-mechanism-2026-11-14.html`. I changed no code, test, database or document; I only appended this section. I ran in-memory probes and one pure test file, and read-only queries (`BEGIN READ ONLY … ROLLBACK`) on `assetops_polish_walk1113_test`.
+
+### Verdict: ACCEPT WITH NOTES (no High or Medium; five Lows)
+
+Every measured figure in §8.10 and Figure 9 reproduces from the probes and the walk1113 artefacts. The growth claim is sound, its cause is cited correctly and labelled as inferred, and the extrapolation arithmetic is right. N1-N3 and the two Q5 Lows are fixed in the body. The Lows are one inaccurate clause in the parallelism table, three places where a hedge in the text is dropped in a figure or conclusion, a point estimate given without its measured range, a Figure 8 / Figure 9 inconsistency, and two trivial details.
+
+### Measured figures (reproduced)
+
+- **Simulator step.** My own probe (`kobo_draft` + `run_to_end`, reserve trial, model v6, 3 repeats each) gave 97 boundaries in 0.123-0.138 s (1.28-1.44 ms per step) and 481 boundaries in 0.648-0.723 s (1.35-1.51 ms). The page says ≈ 1.4 ms, 0.134 s and 0.694 s: matches.
+- **Live window.** `generate_live_window` for 8 h gave 0.63-0.65 s for 842 readings (0.75-0.77 ms per reading). The page says 0.66 s and ≈ 0.8 ms: matches.
+- **Per run.** From the mtimes of the 72 `kobo-replay-a0alpf69/*/h/run-*.yaml` drafts, the successive intervals range from 10.6 to 78.3 s. 1,724.7 ÷ 72 = 24.0 s.
+- **Per Site-day.**
+  - Kobo: 1,724.7 ÷ 28 = 61.6 s.
+  - Kisiwa: `kisiwa.json` `wall_seconds` 1,192.7 ÷ 10 = 119 s.
+  - Cold: 22.4 ÷ 8 = 2.8 s.
+  - EV: 52.4 ÷ 3 = 17.5 s.
+  - `manifest.json`: `wall_seconds` 7,207.7, `finish-rows` (the self-check, `demo_combined.py:1201-1205`) 1,473.9, `finish-ticks` 656.0, `drain-1` + `drain-2` = 864.8, `mini-depth` 414.5, rows 45.6 + 132.6 = 178.2.
+  - The remainder of `after_children` (1,837.5 − 1,273.9 = 563.6 s) is the performance step and the pre-build after the drain (`demo_combined.py:1395-1400` docstring), so the "≈ 564 s (derived)" bar is right.
+  - The eight bars sum to 7,209 s.
+  - The bar widths are at 14.4 s/px.
+- **Drains.** I parsed the 8 drain tick reports: 384 stage runs, of which 348 did no work, for 313.6 s (about 0.90 s each, about 10.8 s per idle Site visit). Kobo `chain_snapshots` processed 825 items in 289.4 s, which is 351 ms each and 10.3 s per built day. The "≈ 56 %" share equals the children, mini-depth and rows plus the 447 s of snapshot-stage time: (3,588 + 447) ÷ 7,208 = 56 %.
+- **Kisiwa batches.** Read-only count: 20,033 `ingestion_batch` rows carrying 40,104 accepted readings.
+
+### Growth with Site history (sound)
+
+- **Evidence.** Grouping the run intervals by kind and regressing against the global run index gives:
+  - steady-before: 18.2 → 34.8 s, slope 0.410
+  - before-rest: 14.0 → 21.2 s, slope 0.213
+  - night-early: 11.0 → 29.6 s, slope 0.276
+  - steady: 36.8 → 45.5 s, slope 0.494
+  - night-early-after-before: slope 0.234
+  - mill-rest: slope 0.325
+  - steady-before-first: slope 0.380
+
+  Every kind rises, so the stated range of 0.21-0.49 is right. The 12 steady-before runs are 16-31 Oct and 12 h long (`interval_start_time` 03:00, end 15:00). The Figure 9 dots plot correctly at 6 px per second.
+- **Second Site.** Kisiwa's per-night `seconds` in `kisiwa.json` also rise, from 103.6 to 127.1 s. That supports the claim, and the page could mention it.
+- **Cause.** The cause is correctly cited.
+  - `finding_service.py:44-60` (`bases`) reads every window from `assessed_days`. That is `SELECT DISTINCT window_start … ORDER BY window_start` in `postgres_finding_store.py:139-143`.
+  - `:62-68` (`match`) calls it on every pass.
+  - The build calls `match` once per run (`demo_combined_kobo.py:398-400`).
+
+  The section labels the cause "Probable cause, by code reading and not profiled".
+- **Hedge on the quadratic total.** The 50 × 365 paragraph hedges it ("could flatten … not known"). The exception is the owner conclusions (L2).
+
+### Parallelism and optimisation claims (code-checked)
+
+- **No parallel Site builds:** confirmed (`demo_combined.py:1080-1088`).
+- **No parallel runs:** confirmed (`demo_combined_kobo.py:398-400`).
+- **Thread pool only in `warm_ranges.py:51` and `:484`:** confirmed. A grep of `tools/` and `backend/assetops_backend/` (excluding tests) finds no other `ThreadPool`, `ProcessPool`, `multiprocessing` or `concurrent.futures` use.
+- **One environment claim:** confirmed (`tick.py:10-11`).
+- **Ordered Site visits:** confirmed (`:382`).
+- **Stage children by `subprocess.run`:** confirmed (`:152-156`).
+- **`MERGE_COPY` guard string:** confirmed (`writer_guard_probes.py:95`).
+- **Mini-depth `limit=500` loop:** confirmed (`demo_combined.py:1303-1318`), against the tick's `mini_jobs_per_site: int = 10` (`tick.py:70`).
+- **`CREATE DATABASE … TEMPLATE`:** confirmed (`chain_clone.py:64`).
+- **Seal-once:** confirmed (`demo_combined_kobo.py:355-361`).
+- **`seed_snapshots`:** confirmed (`site_outcomes/read.py:649`).
+- **`read_scope.memo`:** confirmed (`claims.py:172`).
+- **`"written": 0` at prepare log lines 52-53.** Note that the day rows still took 102.7 s to establish that nothing changed.
+- **Per-Site claims:** see L1.
+
+### Extrapolations (arithmetic checked)
+
+With c(d) = 33 + 2.0 d summed over d = 1..D:
+
+| D | Σ c(d) | Downstream (26 × D) | Total |
+| --- | --- | --- | --- |
+| 28 | 1,736 | 728 | 0.68 h |
+| 90 | 11,160 | 2,340 | 3.75 h |
+| 365 | 145,635 | 9,490 | 43.1 h |
+
+- 50 × 43.1 h = 89.8 days.
+- The linear figures are 18,250 × 61.6 / 147 / 190 s = 13.0 / 31.1 / 40.1 days.
+- The downstream parts are right:
+  - mini-depth: 414.5 ÷ 38 = 10.9 s, and 414.5 ÷ 2,996 = 0.138 s per job;
+  - snapshots: 10.3 s;
+  - Kobo rows: (35.0 + 103.8) ÷ 28 = 5.0 s.
+- Everything is labelled derived or extrapolated.
+
+### N1-N3 and Q5: fixed in the body
+
+- **N1.** Figure 8 reads "KISIWA 3,646 · … · COLD 96" with the "÷ 11 and ÷ 9" note.
+- **N2.** §8.9 has the mixed-vertical clause and ≈ 190 s / ≈ 40 days.
+- **N3.** §8.9 gives "work marker 08:50:40" (the marker mtime is 08:50:40.42) and `manifest.json` 7207.7.
+- **Q5.** The returned reason is now stated as `verdicts[-1]["reason"]` (`reserve_trial.py:251-252`, confirmed). The headroom-ignored case is stated as having no pinning test. That is confirmed: `TestSocHeadroomBoundary` (`test_s6_action_rule.py:89-101`) uses single segments only, and `test_any_eligible_segment_is_enough_and_is_cited` (`:183-189`) uses a segment with no readings.
+
+### Findings
+
+- **L1 (Low). The parallelism table, row "Ticks or stages in parallel", says of per-Site claims "no build or serve path uses it". The tick takes the per-Site claim on every visit.**
+  - *What the code does.* `tick.py:19` (docstring step 5) and `:415-417` show `_site` → `self.store.claim_site(...)`, which writes `schedule_site_head` (`postgres_schedule_store.py:194-201`).
+  - *What would be true.* What no path does is run Sites concurrently: the environment claim serialises ticks, and the build children call `runner.step` directly without any Site claim.
+  - *"Safe by design" is also unverified.* Discovery (`reconcile_all()`) is global, and the build path takes no claims, so the page shows no concurrency safety.
+  - *Why it matters.* The owner asked specifically about parallelism.
+  - *Fix.* "Each tick takes a per-Site claim (`tick.py:417`), but the environment claim lets only one tick run at a time, and the build children take no claim. Whether Site work could run concurrently was not examined."
+- **L2 (Low). Three places state as fact what the text hedges.**
+  - *The owner conclusions.* Conclusion 2 lists "the O(D²) re-read in matching" as a lever. The body calls the cause probable and not profiled.
+  - *Figure 9's left panel.* It labels the self-check "fixed per build" and says "about 44 % is fixed per build or per tick". The bullet below says that how these grow "was not measured", and the self-check does check data over all Sites.
+  - *"With Sites: linear".* It carries no measured or derived tag, and it is an assumption: the per-tick idle cost grows with N, and the discovery step is global.
+  - *Fix.* Add "probable" to the conclusion, "(not measured)" to the figure, and a "derived" tag to "With Sites".
+- **L3 (Low). The model gives a point estimate without the measured range.**
+  - *The problem.* The per-day slope 2.0 implies a per-run slope of about 0.30 (2.0 ÷ 2.6²), but the page does not say which per-run slope it used. Across the measured 0.21-0.49, refitting to the 62 s mean gives:
+    - 365 days: ≈ 33-65 h for one Site;
+    - 50 × 365: ≈ 70-135 days, not a single 90.
+  - *A small indexing point.* d is defined as "days already built" (0..27). The fit (intercept 33) uses d = 1..28, and with 0..27 the mean is 60 s.
+  - *Fix.* State the slope that was used and give the range next to 43 h and 90 days.
+- **L4 (Low). Figure 8's left panel is now inconsistent with Figure 9 and the manifest.**
+  - *Figure 8.* It says "Timed phases ≈ 5,554 s … (untimed steps incl. 2,996 mini-depth jobs)".
+  - *The manifest.* `step_timings_seconds` times mini-depth at 414.5 s and finish-ticks at 656.0 s.
+  - *Figure 9.* It shows both as measured.
+  - *Fix.* Drop "untimed … mini-depth" from Figure 8, or point it to Figure 9's full composition.
+- **L5 (Low, trivial).**
+  - *A stray parenthesis.* §2.4 Q5 l.522 reads "no test pins that case ( inputs from `…postgres_action_store.py:159-215`)": the parenthesis is stray and the sentence is broken.
+  - *Kisiwa batches.* §8.10 says "about 2,000 small batches a night (20,033 batches …)", but the 20,033 include the add-dates night, which is the N1 issue again: 20,033 ÷ 11 ≈ 1,820.
+
+### Checks run
+
+- **Probes**, written to `…/scratchpad/rv/p.py`:
+  - My own `run_to_end` probe, as above.
+  - The existing `simprobe/probe2.py`, run twice.
+  - Load average 1.3-2.5 on 8 cores during the probes. The page states 0.7.
+- **Artefact parsers:**
+  - `…/scratchpad/rv/runs.py`: per-run intervals and slopes by kind.
+  - `…/scratchpad/rv/drain.py`: drain stage idle and snapshot totals.
+- **Pure test:** `.venv/bin/python -m pytest backend/tests/test_s6_action_rule.py -q` gave **60 passed in 0.37 s**.
+- **Read-only query:** `ingestion_batch` count and `sum(accepted_count)` per Site: KOBO 532 / 85,326, KISIWA 20,033 / 40,104, EV 30 / 4,951, COLD 71 / 868.
+- **HTML:**
+  - The 9 SVGs parse as XML.
+  - 42 ids, none duplicated, and no dangling `url(#)`, `href="#"` or `aria-labelledby`.
+  - No script, link, img, `@import` or http(s) reference.
+  - The `:root`, `:root:not([data-theme="light"])` (inside `prefers-color-scheme`) and `:root[data-theme="dark"]` blocks define the same 16 tokens, and every `var()` is defined.
+  - There are no raw hex fill or stroke values.
+  - Figure 9's longest right-panel lines estimate to about x = 953 of 1000 with Helvetica metrics, so they fit.
+
+### Not verified
+
+- The "cold import of the stage module measured 1.9 s". `import assetops_backend.scheduling.stages` took 0.07 s warm here, because the stage imports are lazy. I did not reproduce a cold first-import. The 0.7-1.2 s idle floor itself is confirmed from the tick reports.
+- That the run-level split is impossible because of story-clock timestamps. I accepted this as stated.
+- Browser rendering. I inspected the source only.
+- The PostgreSQL-backed tests and the full suite, by constraint.
