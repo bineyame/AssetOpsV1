@@ -44,7 +44,7 @@ The common financial composition contract (§6) carries all four columns. What c
 
 ### 3.1 Mto: energy to cash
 
-| Step | kWh | USD | Evidence class | What explains the step |
+| Step | kWh | USD | Money class | What explains the step |
 |---|---:|---:|---|---|
 | Delivered at feeder | 6,000 | | OPERATIONAL_ACTUAL | feeder meter |
 | Expected technical loss (5% band) | −300 | | DERIVED | declared loss band [assumption] |
@@ -245,7 +245,7 @@ Remedy options for one failure share one overlap group. Only the chosen path's r
 |---|---|---|
 | E1 | Bridge identity per site | Σ drivers = variance to the cent for all 9 manifest sites |
 | E2 | Portfolio identity | Σ site variances = portfolio variance; −852.00 / −770.00 / −3,184.32 |
-| E7 | Rejected-but-cheapest | the EV schedule rejected for service has the lowest bill (12,975 vs 13,356), so the safeguard, not price, rejects it |
+| E7 | Rejected-but-cheapest | the EV schedule rejected for service has the lowest bill (12,975 vs 13,356) because it buys 9,300 kWh less; per kWh delivered it is dearer (0.167 vs 0.154). The safeguard, not price, rejects it |
 | E3 | Cash chain | collected + in transit + outstanding = billed (Kobo, Mto) |
 | E4 | Ratio composition | portfolio diesel per billed kWh = 0.2329, not the mean of site ratios |
 | E5 | Option identity | each option's net equals §4.4 recomputation from its monthly effects |

@@ -248,3 +248,84 @@ The author fixed all four Medium findings in substance and fixed L1–L11. M4 is
 
 - The revision regenerated 45 screenshots and replaced `plan-lakeside-6500` with four case shots. I spot-checked one freshly rendered case (6,500 and No) and it matches the DOM figures. I did not compare every committed PNG.
 - The forward-replay figures (210 L, 20 L, 68 L) remain design values, now labelled as such on screen. RR1 still governs whether the slice 3 replay reproduces them.
+
+## Re-review (rev 3)
+
+**Reviewer:** fresh Claude reviewer (not the author and not an earlier reviewer) · 16 Nov 2026
+**Target:** the uncommitted working tree against `d30ef6af4` (`git diff d30ef6af4 -- Docs/demo-sprint/product-direction-layer4/`, 32 files), together with "Author response (rev 3)" in `REVIEW-response.md`.
+**Mode:** read-only. I edited nothing except this appendix. I did not touch the application code, any database, Docker or port 5490, did not run the full test suite and did not commit.
+
+### Verdict: **ACCEPT WITH NOTES**
+
+N1 (Medium) is resolved: the new axis is `money_class` everywhere it is specified, and the code citations are now correct in the main document, A11, the matrix and the manifest. N2–N6, N8 and N9 are resolved. The N7 dispute is sound on the figure: the crew meter correctly reads 3 of 3 in every case. However, the explanation added on screen conflicts with the manifest's connection lead time (R2). I found no High or Medium findings. The five Low findings below can go to the UI/UX pass or a later revision.
+
+### Checks I ran and what they returned
+
+| Check | Result |
+|---|---|
+| `python3 check_manifest.py` | `127 checks passed, 0 failed`, exit 0. The new N3 check compares deadline cost per kWh (13,356 / (24,800 + 62,000)) with cheapest cost per kWh (12,975 / 77,500). |
+| N1: grep for `evidence[ _-]class` across the pack (md, yaml, csv, py, js, html, excluding REVIEW files) | Every remaining hit names the **existing** chain column(s) or says "not `evidence_class`". These are matrix :61, :117 and :241; main doc :163 and :248 (and the HTML); A4 :28 and A11 :34; integration :593; contracts :221; manifest :14. The others are the mock-up's audit and change-register entries for the M2 vocabulary scan. Nothing uses `evidence_class` as the new Effect axis. The contracts §3.1 header now reads "Money class", and phase plan :63 reads `money_class`. |
+| N1: code citations against the repository | `0042_chain_threads.py:50` declares `evidence_class` with MEASURED/RECORDED/DECLARED/MODELLED/EXTERNAL. `0043_chain_snapshots.py:37` declares the same check. `chain/threads.py:205` writes `"evidence_class": EVIDENCE_CLASS` for the occurrence. `chain/measures.py:37` is `MeasureSpec.evidence_class`. `chain/ports.py:67,93` are `SnapshotRow.evidence_class` and its JSON, `chain/builder.py:88` passes `spec.evidence_class` into the snapshot, and `chain/outcomes.py:99` filters snapshot rows by `AUTHORITY` (:31). **All of these are cited correctly** in main doc :248, A11 and matrix :241, with one leftover in the contracts (R3). |
+| Numbers recomputed by hand | **October (N2):** 47,740 × 0.24 = 11,457.60, 39,060 × 0.12 = 4,687.20 and demand 6,000 give 22,144.80. **Plan:** 26,040 × 0.24 = 6,249.60, 60,760 × 0.12 = 7,291.20 and demand 5,400 give 18,940.80. With the 00:00–05:00 tier starting on 1 Nov, the October bill is internally consistent. **Per kWh (N3):** 12,975 / 77,500 = 0.1674 and 13,356 / 86,800 = 0.1539. **Embakasi bridge (N8):** 47,740 − 26,040 = 21,700 kWh × (0.24 − 0.12) = 2,604, and (500 − 450) × 12 = 600. 19,540.80 − 22,744.80 = −3,204 = −2,604 − 600. On screen, the cost lines are peak −5,208 and off-peak +2,604 (both "negative = worse"), and they net to the same −2,604. **Kasarani (N6):** the manifest has `KAS-OEM-WAIT.expected_penalties: 240.00` and 2 missed departures, which match the screen. **N5:** `kwh_0000_0500: 62000` matches the verify target. |
+| Rebuild on a scratch copy | I copied the manifest and the mock-up folder to my scratchpad. Running `tools/gen_fixtures.py` there gave `fixtures.js` byte-identical to the deliverable (sha `4d660dfee47c`). `node build.mjs` there gave `index.html` byte-identical (`cmp` silent). `index.html` contains no "oracle" string and no `OR-*` id. |
+| N9: `tools/run-audit.sh` on the scratch copy, with `CHROME`, `PW`, `AUDIT_LD_LIBRARY_PATH` and `FONTCONFIG_FILE` from the environment (no `--shots`) | It runs as documented: `routes 146, routesOk 146, badLinkRoutes 0, overflowAdded 0, overflowOther 0, vocabHits 0`. |
+| Served statically with `python3 -m http.server` on 127.0.0.1:8837 and driven with headless Chromium (Playwright) | **0 page or console errors.** **`#/econ-embakasi`:** drivers −$2,604 and −$600, total −$3,204. **`#/choice-embakasi-schedule`:** "What happened" carries the 1 Nov contract-term sentence; bills are $12,975 and $13,356, and the saving is $8,788.80 / $103,965.60. **`#/choice-kasarani-charger`:** the rights panel reads "$0 now; about $240 in likely penalties and 2 broken departures". **`#/econ-thika`:** "Within the occupancy model … which is the planned occupancy", with the formula replaced by plain words. **`#/verify-metro`:** "Almost no charging at peak price … about 62,000 kWh a month at the 00:00–05:00 rate …". **`#/plan-lakeside`, all four budget × letter-of-intent cases:** spend is 3,880 / 2,680 / 3,880 / 6,430 and the crew meter reads 3 of 3 in all of them. The explanatory note appears only in the 5,000 and No case. At 390 px there is no overflow. A vocabulary scan of those screens (OR-ids, oracle, evidence class, `money_class`, option-id prefixes, fixture, manifest, `kWh_month`, `crate_days`, LOI, `>=`) found nothing. I stopped the server and confirmed port 8837 is free. I did not touch 5490. |
+
+**Not verified:**
+- I did not compare all regenerated screenshots against the DOM. I viewed my own renders of plan-lakeside (5,000 and No) and econ-thika.
+- Screen-reader behaviour.
+
+### Status of the rev 2 findings
+
+| Finding | Status |
+|---|---|
+| N1 | **Resolved.** One stale citation remains in the contracts (R3, Low). |
+| N2 | **Resolved as worded.** The October bill is now consistent. It has a forward consequence for the do-nothing baseline (R1). |
+| N3 | **Resolved** in the models (§4.1), contracts E7, main document, manifest note and walkthrough. The checker asserts it. The screen still says "cheapest bill of all" without the reason; N3 was a preference, and the narration carries it. |
+| N4 | **Resolved.** `fixture-mapping.md:158` reads $8,788.80. |
+| N5 | **Resolved**, on screen and in the fixture mapping. |
+| N6 | **Resolved.** |
+| N7 | **Dispute accepted on the figure.** In the manifest, `MTO-INV-CLAIM` and `MTO-INV-BUYNOW` each carry `crew_visits: 1`, so Kisiwa repair + Mto inverter + Kobo evidence = 3 with or without the huller, and the original N7 ("should show 2 of 3") was wrong. The added explanation has its own problem (R2). |
+| N8 | **Resolved.** Thika's verdict, the single sign convention and the plain-words model are all confirmed in the browser. |
+| N9 | **Resolved.** The wrapper ran here from environment variables only. |
+
+### New findings
+
+#### Low
+
+**R1. The forward do-nothing baseline uses October's tariff while the options use November's.**
+- **Where:** the manifest Embakasi `EMB-NOACT.economics.energy_cost_monthly: 22144.80` and `EMB-DEADLINE.saving_monthly: 8788.80` (= October actual − deadline). `check_manifest.py:129` asserts that equality. On `#/choice-embakasi-schedule`, "Keep the current charging pattern … continues at $22,144.80 a month".
+- **Evidence:**
+  - Since N2, the 0.09 tier starts on 1 Nov. Every option is priced on the November tariff, but "do nothing" keeps October's 0.12 price for all 39,060 off-peak kWh.
+  - Under the new tariff, the do-nothing bill falls by 0.03 × (do-nothing kWh charged after midnight).
+  - The pack does not state that share. Charging at the 500 kW limit from 22:00, plus 17:30–18:00, fits about 1,250 of the 1,260 kWh a night before midnight. The share therefore lies anywhere from near 0 to all 39,060 kWh: an overstatement of about $0 to $1,172 a month (0–13% of $8,788.80; up to about $14k of the $103,965.60).
+- **Why it matters:** this is the headline saving on the Metro story. A technical buyer will ask for the do-nothing baseline priced on the tariff the saving accrues under.
+- **Fix (either):** (a) state the assumption in the manifest note and models §4.1, e.g. "do-nothing charging finishes before midnight, so the new tier does not change the baseline"; or (b) reprice `EMB-NOACT` on the November tariff with a stated after-midnight share, and recompute the saving and the checker equality.
+
+**R2. The N7 on-screen explanation conflicts with the manifest's connection lead time.**
+- **Where:**
+  - The note shown in the 5,000 and No case: `decisions.js:557`, "The huller connection would only have shared that visit".
+  - The crew panel's "Same visit as the inverter" for `MTO-HULLER`: `decisions.js:421`.
+  - Manifest :288: "Mto (inverter + huller + audit combined)".
+- **Evidence:**
+  - `MTO-HULLER.connection_lead` (manifest :232) says the connection takes "5 working days after the inverter is restored (service drop, meter, supply contract signature)". The huller work therefore cannot happen on the inverter-fit visit.
+  - In 5,000 and Yes, the claim path restores on 28 Nov, so the connection falls in December, outside the November crew constraint.
+  - In 6,500 and No, buy-now restores on 12 Nov, so the connection falls around 19 Nov: a second November Mto trip unless the connection is not crew work.
+  - `MTO-HULLER.crew_visits: 1` (:233) also contradicts the "combined" comment, whereas `MTO-METER-AUDIT` correctly carries `0  # combined with the inverter visit`.
+  - `check_manifest.py` asserts nothing about crew visits, so the brute-force allocation does not test this.
+- **Why it matters:** the meter figure is right, but its stated reason is not, and the 6,500 and No case may in fact need 4 November visits against 3.
+- **Fix:**
+  - Decide who does the service drop and meter. If it is the cooperative or a connection contractor, say so, set `MTO-HULLER.crew_visits: 0` and reword the note to "the huller connection is not crew work".
+  - Otherwise count it as a visit in the month it falls, and add a crew assertion to the checker for all four cases.
+
+**R3. One stale citation is left from N1.** `economic-metric-and-effect-contracts.md:221` still reads "that name already exists in the chain layer (0042:50, `chain/ports.py:67`)". `ports.py:67` is `SnapshotRow.evidence_class`, which is the 0043 column, not 0042. This is the same mis-pairing N1 asked to remove. Fix: cite "0042:50 and 0043:37", as the other files now do.
+
+**R4. A raw tariff string reaches a client screen.** `#/econ-embakasi` renders the manifest tariff verbatim: "super-off-peak 00:00-05:00 at 0.09, effective from 2026-11-01 (new contract term; October billed at 0.12 in all non-peak hours)". It has an ISO date and hyphenated time ranges, unlike the rest of the screen, which uses "1 Nov" and "00:00–05:00". This is cosmetic and goes to the UI/UX pass.
+
+**R5. The README revision line is stale.** `interactive-mockup-vNEXT/README.md:42` still says "Revision: rev 2 … see CHANGE-REGISTER §7". Rev 3 is §8.
+
+### Residual risk
+
+- Screenshots were again regenerated wholesale and spot-checked rather than compared in full. The audit counts above come from my scratch-copy run, not from the committed `audit-results.json`.
+- RR1 still governs whether the slice 3 replay reproduces the design values.
+- R1 means the Metro headline saving carries an unstated tariff-baseline assumption until (a) or (b) is applied.

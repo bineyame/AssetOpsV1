@@ -90,7 +90,7 @@ Structure from brief Part V: 0–1 opening, 1–2 reveal, 2–4 investigate (wit
 > "Metro Bus Depots charges its own buses: charging earns nothing, so the measure is cost per bus that leaves on time.
 > In October every one of 1,302 required departures left on time. That's the good news. The cost, energy and maintenance at all three depots, was $41,705.12 against a plan of $38,520.80: $3,184.32 over, about $32 per departure. 99.3% of it is from recorded invoices; Kasarani's $300 maintenance is estimated until the invoice arrives.
 > Almost all of that is at Embakasi, which charged 55% of its energy at peak prices against a 30% plan, and pushed its monthly peak to 500 kW.
-> The obvious fix is 'charge only in the cheapest hours', midnight to five at nine cents. It really is the cheapest bill, $12,975 a month. We still reject it: in those hours the chargers can't put enough energy in, and three buses would leave short every night.
+> The obvious fix is 'charge only in the cheapest hours', midnight to five at nine cents. It really is the cheapest bill, $12,975 a month — but only because it buys 9,300 kWh less; per kWh delivered it costs more than the schedule we recommend. We still reject it: in those hours the chargers can't put enough energy in, and three buses would leave short every night.
 > Second surprise: Ruiru looks underused, chargers busy 31% of the time, but the grid connection caps it at six more buses, not ten."
 
 ### 1–2 min · Reveal

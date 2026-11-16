@@ -236,3 +236,16 @@ Source: `../REVIEW.md` findings (owner: "let the architect address review findin
 | M2 | pack text | "evidence class" wording replaced by money class / plain words | Consistent vocabulary |
 
 Owner approval added by rev 2: the letter-of-intent control and its default (Yes) on Plan and budget.
+
+
+## 8. Rev 3 (re-review N2–N9, 16 Nov 2026)
+
+| Item | Screen | Change | Why |
+|---|---|---|---|
+| N2 | `#/choice-embakasi-schedule`, `#/econ-embakasi` | The 00:00–05:00 rate is a contract term from 1 Nov; October non-peak energy is billed at 0.12 | the previous "charging ended by 23:10" reason could not hold for October's volumes |
+| N3 | walkthrough (Metro) | "lowest bill only because it buys 9,300 kWh less; dearer per kWh delivered" | the negative control is honest about why the bill is low |
+| N5 | `#/verify-metro` | target is near-zero peak-price charging and ~62,000 kWh a month at the 00:00–05:00 rate | matches the modelled saving |
+| N6 | `#/choice-kasarani-charger` rights panel | "wait" path shows "$0 now; about $240 in likely penalties and 2 broken departures" | same treatment as the Mto inverter |
+| N7 | `#/plan-lakeside` | note under the crew meter when the huller is lost: the Mto visit is still needed for the inverter, so 3 of 3 stays | explains a correct figure instead of changing it |
+| N8 | `#/econ-thika`, `#/econ-embakasi`, cold economics pages | Thika verdict "Within the occupancy model" when occupancy is at plan; driver amounts use one sign convention (negative = worse) on cost operators; the energy-model formula is replaced by plain words | pre-existing presentation issues |
+| N9 | `tools/run-audit.sh`, README | wrapper reads CHROME, PW and optional AUDIT_LD_LIBRARY_PATH / FONTCONFIG_FILE from the environment; setup documented | the audit can be re-run on any machine |

@@ -29,8 +29,12 @@ Sources: v7.0 `mockups.css`, `portfolio.css`, `outcomes.css`, `portfolio.js`, `o
 ## Audit and screenshots
 
 ```
-tools/run-audit.sh --shots      # this server (sets library and font paths)
-CHROME=/path/to/chrome PW=/path/to/playwright-core node tools/audit.mjs --shots   # elsewhere
+# Any machine with Node 18+: install playwright-core and a Chromium once
+npm install --prefix /tmp/pw playwright-core
+npx --prefix /tmp/pw playwright install chromium        # or use an installed Chrome
+CHROME=/path/to/chrome PW=/tmp/pw/node_modules/playwright-core tools/run-audit.sh --shots
+# Hosts where Chromium lacks system libraries or fonts: also set
+#   AUDIT_LD_LIBRARY_PATH=/dir/with/extracted/libs  FONTCONFIG_FILE=/path/to/fonts.conf
 ```
 
 Writes `tools/audit-results.json`, `screen-manifest-vnext.json` and `screenshots/`; then `node tools/gen_audit_md.cjs` rewrites `browser-audit.md`.

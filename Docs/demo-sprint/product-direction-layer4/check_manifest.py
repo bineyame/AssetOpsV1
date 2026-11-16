@@ -129,6 +129,8 @@ def ev(t: dict) -> None:
     eq("emb saving", dl["saving_monthly"], D(str(emb["period"]["actual"]["energy_cost"])) - D(str(dl["energy_cost_monthly"])))
     eq("emb 12m", dl["net_12m"], D(str(dl["saving_monthly"])) * 12 - D(str(dl["one_off"])))
     lt("cheapest bill below deadline bill", ch["energy_cost_monthly"], dl["energy_cost_monthly"])
+    # N3: the cheapest bill is lower only because it buys less energy; per kWh delivered it is dearer
+    lt("deadline cost per kWh below cheapest cost per kWh", D(str(dl["energy_cost_monthly"])) / (D(dl["kwh_2200_2400"]) + D(dl["kwh_0000_0500"])), D(str(ch["energy_cost_monthly"])) / D(ch["kwh_month"]))
     cov = pf["coverage"]
     eq("ev coverage total", cov["cost_total_usd"], actual_total)
     est = sum(D(str(s_["period"]["actual"][k])) for s_ in t["sites"] for k, v in s_["period"]["coverage"].items() if v == "ESTIMATED")

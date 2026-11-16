@@ -11,7 +11,7 @@
 #   R1 Ground truth lives only under `oracle:` (private expectation oracle). Product findings and money must be
 #      computed by the real ingest/analytics path from `sources:`; the oracle is only compared against them.
 #   R2 Money classes (field `money_class`; `class:` in bridge rows) never sum: ECONOMIC_ACTUAL, OPERATIONAL_ACTUAL, DERIVED, MODELLED,
-#      EXPOSURE, VERIFIED. Distinct from the existing thread-occurrence column `evidence_class` (0042:50), which is a source basis.
+#      EXPOSURE, VERIFIED. Distinct from the two existing source-basis columns named `evidence_class` (0042:50, 0043:37).
 #   R3 Each money effect carries an overlap_group; one overlap group contributes money once.
 #   R4 Unknown is never zero. A missing record is `status: MISSING`, never 0.
 #   R5 Provenance labels: demo-simulated | source-emulated | bench-tested | field-integrated | observed-financial.
@@ -421,13 +421,13 @@ tenants:
     role_in_story: "deadline-aware schedule wins; cheapest schedule rejected because 3 buses miss departure"
     reuse: "EV demo Site pack ev-charger/1 extended to 10 chargers (proposed)"
     physical: {buses: 20, chargers: 10, charger_kw: 60, import_limit_kw: 500, kwh_per_bus_night: 140, departures: "05:30", returns: "17:30-19:30"}
-    tariff: {contract: "C-114 commercial time-of-use + demand charge", peak: "18:00-22:00 at 0.24", super_offpeak: "00:00-05:00 at 0.09", offpeak: "all other hours at 0.12", demand_usd_per_kw_month: 12.00,
+    tariff: {contract: "C-114 commercial time-of-use + demand charge", peak: "18:00-22:00 at 0.24", super_offpeak: "00:00-05:00 at 0.09, effective from 2026-11-01 (new contract term; October billed at 0.12 in all non-peak hours)", offpeak: "all other hours at 0.12", demand_usd_per_kw_month: 12.00,
              applicability: "[assumption] confirmed from the utility invoice in a pilot"}
     period:
       plan:   {kwh: 86800, peak_share: 0.30, peak_kwh: 26040, peak_cost: 6249.60, offpeak_kwh: 60760, offpeak_cost: 7291.20, max_kw: 450, demand_cost: 5400.00, energy_cost: 18940.80, maintenance: 600.00, total: 19540.80, departures_required: 620}
       actual: {kwh: 86800, peak_share: 0.55, peak_kwh: 47740, peak_cost: 11457.60, offpeak_kwh: 39060, offpeak_cost: 4687.20, max_kw: 500, demand_cost: 6000.00,
                energy_cost: 22144.80, maintenance: 600.00, total: 22744.80, departures_required: 620, departures_met: 620,
-               note: "charging on arrival finishes by about 23:10, so no October energy fell in the 00:00-05:00 tier"}
+               note: "the 00:00-05:00 tier starts on 1 Nov 2026, so all October non-peak energy is billed at 0.12, including what charged after midnight"}
       coverage: {energy: RECORDED, demand: RECORDED, maintenance: RECORDED}
       variance: -3204.00
       bridge:
@@ -439,7 +439,7 @@ tenants:
       options:
         - {id: EMB-CHEAPEST, kind: SCHEDULE, window: "00:00-05:00 at the 500 kW import limit", deliverable_kwh: 2500, required_kwh: 2800, buses_short: 3,
            economics: {kwh_month: 77500, energy: 6975.00, demand: 6000.00, energy_cost_monthly: 12975.00, unserved_kwh_month: 9300, class: MODELLED,
-                       note: "cheapest bill of all options: every kWh at 0.09; but 300 kWh short every night"},
+                       note: "lowest bill of all options only because it buys 9,300 kWh less a month; per kWh delivered it costs 0.167 against the deadline schedule's 0.154; and 300 kWh short every night"},
            safeguard: {policy: EV1_DEPARTURE_READINESS, mode: HARD_CONSTRAINT, result: FAIL}, disposition: REJECTED,
            reason: "cheapest bill (12,975 a month) but 3 buses leave below required charge every night"}
         - {id: EMB-DEADLINE, kind: SCHEDULE, window: "22:00-05:15 staggered", deliverable_kwh: 2900, required_kwh: 2800, max_kw: 400,

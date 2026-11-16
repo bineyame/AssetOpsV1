@@ -548,7 +548,7 @@ net_12m 12 × 8,788.80 − 1,500 = 103,965.60 (MODELLED) [derived, arithmetic ch
 The cheapest schedule puts every kWh in the 0.09 tier at the 500 kW limit: 77,500 × 0.09 + 500 × 12 = 6,975 +
 6,000 = **12,975**, the lowest bill of any option and 381 a month below the deadline schedule — and it is still
 rejected, because 3 buses leave short every night (EV1 HARD_CONSTRAINT; OR-EV-1). The checker asserts that the
-rejected option really is the cheapest bill, so the negative control carries a real cost temptation.
+rejected option really is the cheapest bill, so the negative control carries a real cost temptation. That bill is lower **only because it buys 9,300 kWh less a month**: per kWh delivered it costs 12,975 / 77,500 = 0.167 against the deadline schedule's 13,356 / 86,800 = 0.154. A naive bill minimiser picks it; the departure safeguard is what stops it. The 00:00–05:00 tier is a contract term effective 1 Nov 2026, so October is billed at 0.12 in all non-peak hours [assumption, manifest].
 
 **Tariff applicability.** The demand charge term is included only if contract C-114 carries it, confirmed from
 the utility invoice [assumption]. Sensitivity without demand charge [derived]: actual energy-only 16,144.80 vs

@@ -155,7 +155,7 @@ Six-part answer text per decision (all numbers read from the paths shown; deriva
 | Lakeside tests and baseline | `L.sites[0].decision.verification_plan.{baseline, after, operational_target, economic, causal}` (plain-language rewrite) |
 | Expected $250.50 a month | `KOB-STOPSOC.economics.net_monthly` |
 | Harvest: 5% tolerance; $155.20 a month | `H.energy_model.tolerance_pct`; `KIRI-REPAIR.economics.monthly`; tests marked "Proposed in this mock-up" (not in manifest) |
-| Metro: 55% → 30%, ≤ 400 kW, $6,928.80 a month | `M.sites[0].period.actual/plan.peak_share`; `EMB-DEADLINE.max_kw`, `.economics.saving_monthly`; tests marked "Proposed in this mock-up" |
+| Metro: peak share 55% → near 0%, about 62,000 kWh a month at the 00:00–05:00 rate, ≤ 400 kW, $8,788.80 a month | `M.sites[0].period.actual/plan.peak_share`; `EMB-DEADLINE.max_kw`, `.economics.saving_monthly`; tests marked "Proposed in this mock-up" |
 | All verdicts "Not yet" | as_of 6 Nov: no change applied in the manifest |
 
 ## 8. Pilot request (`#/pilot-{op}`)

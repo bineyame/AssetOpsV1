@@ -60,7 +60,7 @@ Each slice lists: purpose, scope, main touchpoints (detail in the matrix), test-
 
 ### Slice 2b — Period economics and typed effects (D3, D4)
 - **Purpose.** Plan vs actual in money, with coverage and drivers.
-- **Scope.** `site_period_economics` as a sibling read contract that recomputes totals from lines (period read refuses stored totals, D-MONEY.3); Effect gains evidence class and overlap group, extending `estate/financials.py` overlap/CONFLICT marking; `recorded_amount@2`; MG-6 and MG-3 leave "not connected yet".
+- **Scope.** `site_period_economics` as a sibling read contract that recomputes totals from lines (period read refuses stored totals, D-MONEY.3); Effect gains `money_class` and overlap group, extending `estate/financials.py` overlap/CONFLICT marking; `recorded_amount@2`; MG-6 and MG-3 leave "not connected yet".
 - **Tests first.** E1–E4 and N1–N3, N6, N11 from the contracts document; bridge identity for Lakeside (−852.00).
 - **Gate.** Lakeside October bridge reconciles to the cent with explicit residual and 91.5% coverage; no MODELLED amount appears in a recorded total.
 
