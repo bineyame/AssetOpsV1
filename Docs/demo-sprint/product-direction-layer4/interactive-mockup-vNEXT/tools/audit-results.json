@@ -1,0 +1,1498 @@
+{
+ "routes": [
+  {
+   "id": "decide-lakeside",
+   "status": "Added",
+   "ok": true,
+   "h1": "Decision home",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "bridge-lakeside",
+   "status": "Added",
+   "ok": true,
+   "h1": "Why we are off plan",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "decide-harvest",
+   "status": "Added",
+   "ok": true,
+   "h1": "Decision home",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "bridge-harvest",
+   "status": "Added",
+   "ok": true,
+   "h1": "Why we are off plan",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "decide-metro",
+   "status": "Added",
+   "ok": true,
+   "h1": "Decision home",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "bridge-metro",
+   "status": "Added",
+   "ok": true,
+   "h1": "Why we are off plan",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-kobo",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kobo · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-kisiwa",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-mto",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-mwea",
+   "status": "Added",
+   "ok": true,
+   "h1": "Room A · Mwea · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-thika",
+   "status": "Added",
+   "ok": true,
+   "h1": "Room B · Thika · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-kirinyaga",
+   "status": "Added",
+   "ok": true,
+   "h1": "Room C · Kirinyaga · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-embakasi",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-kasarani",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "econ-ruiru",
+   "status": "Added",
+   "ok": true,
+   "h1": "Ruiru · site economics",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-kobo-generator",
+   "status": "Added",
+   "ok": true,
+   "h1": "Change when Kobo’s generator stops",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-kobo-battery",
+   "status": "Added",
+   "ok": true,
+   "h1": "Protect Kobo’s battery warranty",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-kisiwa-generator",
+   "status": "Added",
+   "ok": true,
+   "h1": "Restore Kisiwa’s backup generator",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-mto-inverter",
+   "status": "Added",
+   "ok": true,
+   "h1": "Restore Mto’s failed inverter",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-mto-demand",
+   "status": "Added",
+   "ok": true,
+   "h1": "Sell Mto’s spare daytime solar",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-mto-billing",
+   "status": "Added",
+   "ok": true,
+   "h1": "Bill the Mto customers missed after the meter swap",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-mwea-demand",
+   "status": "Added",
+   "ok": true,
+   "h1": "Fill Mwea’s empty space",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-thika-backup",
+   "status": "Added",
+   "ok": true,
+   "h1": "Protect Thika’s stock until the switch is fixed",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-kirinyaga-energy",
+   "status": "Added",
+   "ok": true,
+   "h1": "Bring Kirinyaga’s energy use back to normal",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-embakasi-schedule",
+   "status": "Added",
+   "ok": true,
+   "h1": "Charge Embakasi’s buses outside peak hours",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-kasarani-charger",
+   "status": "Added",
+   "ok": true,
+   "h1": "Keep Kasarani’s buses running while charger 2 is repaired",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "choice-ruiru-expansion",
+   "status": "Added",
+   "ok": true,
+   "h1": "Can Ruiru take the city’s extra buses?",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "plan-lakeside",
+   "status": "Added",
+   "ok": true,
+   "h1": "Plan and budget",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "verify-lakeside",
+   "status": "Added",
+   "ok": true,
+   "h1": "Proof it worked",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "pilot-lakeside",
+   "status": "Added",
+   "ok": true,
+   "h1": "Pilot request",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "plan-harvest",
+   "status": "Added",
+   "ok": true,
+   "h1": "Plan and budget",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "verify-harvest",
+   "status": "Added",
+   "ok": true,
+   "h1": "Proof it worked",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "pilot-harvest",
+   "status": "Added",
+   "ok": true,
+   "h1": "Pilot request",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "plan-metro",
+   "status": "Added",
+   "ok": true,
+   "h1": "Plan and budget",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "verify-metro",
+   "status": "Added",
+   "ok": true,
+   "h1": "Proof it worked",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "pilot-metro",
+   "status": "Added",
+   "ok": true,
+   "h1": "Pilot request",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "portfolio",
+   "status": "Changed",
+   "ok": true,
+   "h1": "Portfolio Value & Operations",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "sites",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Sites",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "mini",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "foundation",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "readiness",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "changes",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "dispatch",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "renewable",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "evidence",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "finding",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Generator support merits review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "analysis",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Generator support merits review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "financials",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "assumptions",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "recommendation",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Generator support merits review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "verification",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Reduce extended generator support",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "health",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "lab",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo · Gateway & Ingestion",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "temperature",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cooling",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "coldbackup",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "sessions",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "availability",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "energy",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "incident",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Backup failure and temperature excursion",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "workverification",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Starter and control-circuit inspection",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "service",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "fuel",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "backup",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "sitefindings",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "sitework",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "sitework-incidents",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "sitework-maintenance",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "evidence-analysis",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "assets",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Assets",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "findings",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Findings",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "actions",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Actions",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "incidents",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Incidents",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "maintenance",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Maintenance",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "globalevidence",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Portfolio evidence",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "globalfinancials",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Portfolio financials",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-foundation",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-health",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-evidence",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-evidence-analysis",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-financials",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-assumptions",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-findings",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-work",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-work-incidents",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-work-maintenance",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-finding",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Backup response failed during grid interruption",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-recommendation",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Backup response failed during grid interruption",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-foundation",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-health",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-evidence",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-evidence-analysis",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-financials",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-assumptions",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-findings",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-work",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-work-incidents",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-work-maintenance",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-finding",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Connector 2 charging session interrupted",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-recommendation",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Connector 2 charging session interrupted",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-action",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "ACT-061 · Investigate connector 2",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "finding-evidence",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Generator support review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "alternatives",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Generator support review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "finding-history",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Generator support review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "action-overview",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "ACT-048 · Generator policy review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "action-plan",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "ACT-048 · Generator policy review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "action-execution",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "ACT-048 · Generator policy review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "action-evidence",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "ACT-048 · Generator policy review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "action-history",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "ACT-048 · Generator policy review",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "opportunity-finding",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Productive-use headroom at Kobo",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-finding-excursion",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Chamber temperature went above policy",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-action",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "ACT-051 · Witness automatic-start test",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "scenarios",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-scenarios",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-scenarios",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-readiness",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-readiness",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "sld",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo Mini-grid",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "cold-sld",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "GreenHarvest Cold Room",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "ev-sld",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Depot Charging Hub",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "assets-warranty",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Assets",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-register",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Assets",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-overview",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "site-create-form",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Sites",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "site-create-template",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Sites",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "site-batch-upload",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Sites",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "site-setup-history",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Sites",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-performance",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-config",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-edit",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-work",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-evidence",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "asset-warranty",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Kobo battery",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "findings-cost",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Findings",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "findings-risks",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Findings",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "findings-opportunities",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Findings",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "maintenance-preventive",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Maintenance",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "wr-overview",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Starter and control-circuit inspection",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "wr-record",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Starter and control-circuit inspection",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "wr-history",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Starter and control-circuit inspection",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "oprecords",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Operational records",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "settings-policies",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Settings",
+   "errors": [],
+   "badLinks": []
+  },
+  {
+   "id": "settings-tenant",
+   "status": "Preserved",
+   "ok": true,
+   "h1": "Settings",
+   "errors": [],
+   "badLinks": []
+  }
+ ],
+ "links": {
+  "decide-lakeside": [],
+  "bridge-lakeside": [],
+  "decide-harvest": [],
+  "bridge-harvest": [],
+  "decide-metro": [],
+  "bridge-metro": [],
+  "econ-kobo": [],
+  "econ-kisiwa": [],
+  "econ-mto": [],
+  "econ-mwea": [],
+  "econ-thika": [],
+  "econ-kirinyaga": [],
+  "econ-embakasi": [],
+  "econ-kasarani": [],
+  "econ-ruiru": [],
+  "choice-kobo-generator": [],
+  "choice-kobo-battery": [],
+  "choice-kisiwa-generator": [],
+  "choice-mto-inverter": [],
+  "choice-mto-demand": [],
+  "choice-mto-billing": [],
+  "choice-mwea-demand": [],
+  "choice-thika-backup": [],
+  "choice-kirinyaga-energy": [],
+  "choice-embakasi-schedule": [],
+  "choice-kasarani-charger": [],
+  "choice-ruiru-expansion": [],
+  "plan-lakeside": [],
+  "verify-lakeside": [],
+  "pilot-lakeside": [],
+  "plan-harvest": [],
+  "verify-harvest": [],
+  "pilot-harvest": [],
+  "plan-metro": [],
+  "verify-metro": [],
+  "pilot-metro": [],
+  "portfolio": [],
+  "sites": [],
+  "mini": [],
+  "foundation": [],
+  "readiness": [],
+  "changes": [],
+  "dispatch": [],
+  "renewable": [],
+  "evidence": [],
+  "finding": [],
+  "analysis": [],
+  "financials": [],
+  "assumptions": [],
+  "recommendation": [],
+  "verification": [],
+  "asset": [],
+  "health": [],
+  "lab": [],
+  "cold": [],
+  "temperature": [],
+  "cooling": [],
+  "coldbackup": [],
+  "ev": [],
+  "sessions": [],
+  "availability": [],
+  "energy": [],
+  "incident": [],
+  "workverification": [],
+  "service": [],
+  "fuel": [],
+  "backup": [],
+  "sitefindings": [],
+  "sitework": [],
+  "sitework-incidents": [],
+  "sitework-maintenance": [],
+  "evidence-analysis": [],
+  "assets": [],
+  "findings": [],
+  "actions": [],
+  "incidents": [],
+  "maintenance": [],
+  "globalevidence": [],
+  "globalfinancials": [],
+  "cold-foundation": [],
+  "cold-health": [],
+  "cold-evidence": [],
+  "cold-evidence-analysis": [],
+  "cold-financials": [],
+  "cold-assumptions": [],
+  "cold-findings": [],
+  "cold-work": [],
+  "cold-work-incidents": [],
+  "cold-work-maintenance": [],
+  "cold-finding": [],
+  "cold-recommendation": [],
+  "ev-foundation": [],
+  "ev-health": [],
+  "ev-evidence": [],
+  "ev-evidence-analysis": [],
+  "ev-financials": [],
+  "ev-assumptions": [],
+  "ev-findings": [],
+  "ev-work": [],
+  "ev-work-incidents": [],
+  "ev-work-maintenance": [],
+  "ev-finding": [],
+  "ev-recommendation": [],
+  "ev-action": [],
+  "finding-evidence": [],
+  "alternatives": [],
+  "finding-history": [],
+  "action-overview": [],
+  "action-plan": [],
+  "action-execution": [],
+  "action-evidence": [],
+  "action-history": [],
+  "opportunity-finding": [],
+  "cold-finding-excursion": [],
+  "cold-action": [],
+  "scenarios": [],
+  "cold-scenarios": [],
+  "ev-scenarios": [],
+  "cold-readiness": [],
+  "ev-readiness": [],
+  "sld": [],
+  "cold-sld": [],
+  "ev-sld": [],
+  "assets-warranty": [],
+  "asset-register": [],
+  "asset-overview": [],
+  "site-create-form": [],
+  "site-create-template": [],
+  "site-batch-upload": [],
+  "site-setup-history": [],
+  "asset-performance": [],
+  "asset-config": [],
+  "asset-edit": [],
+  "asset-work": [],
+  "asset-evidence": [],
+  "asset-warranty": [],
+  "findings-cost": [],
+  "findings-risks": [],
+  "findings-opportunities": [],
+  "maintenance-preventive": [],
+  "wr-overview": [],
+  "wr-record": [],
+  "wr-history": [],
+  "oprecords": [],
+  "settings-policies": [],
+  "settings-tenant": []
+ },
+ "overflow390": [],
+ "vocab": [],
+ "drawer": {
+  "openedWithKeyboard": true,
+  "focusInside": true,
+  "focusTrapped": true,
+  "escapeCloses": true,
+  "focusReturned": true,
+  "hasProvenance": true,
+  "hasFixtureRef": true
+ },
+ "focus": [
+  {
+   "sel": ".rail a",
+   "tag": "A",
+   "outline": "solid 3px",
+   "visible": true
+  },
+  {
+   "sel": ".d-roles .chip",
+   "tag": "BUTTON",
+   "outline": "solid 3px",
+   "visible": true
+  },
+  {
+   "sel": ".d-money",
+   "tag": "BUTTON",
+   "outline": "solid 3px",
+   "visible": true
+  },
+  {
+   "sel": "#op-switch",
+   "tag": "SELECT",
+   "outline": "solid 3px",
+   "visible": true
+  },
+  {
+   "sel": ".d-table summary",
+   "tag": "SUMMARY",
+   "outline": "auto 1px",
+   "visible": true
+  },
+  {
+   "sel": ".tabs a",
+   "tag": "A",
+   "outline": "solid 3px",
+   "visible": true
+  }
+ ],
+ "contrast": [
+  {
+   "sel": ".d-note",
+   "ratio": 5.03,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "sel": ".d-cellnote",
+   "ratio": 5.03,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "sel": ".d-rank small",
+   "ratio": 5.03,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "sel": ".badge.green",
+   "ratio": 5.67,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "sel": ".badge.amber",
+   "ratio": 5.3,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "sel": ".badge.red",
+   "ratio": 5.8,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "sel": ".badge.blue",
+   "ratio": 5.83,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "sel": ".d-legal",
+   "ratio": 8.18,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "sel": ".eyebrow",
+   "ratio": 6.1,
+   "size": "9px",
+   "pass": true
+  },
+  {
+   "sel": ".d-focustag",
+   "ratio": 6.7,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "sel": ".d-rolenote",
+   "ratio": 4.69,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "sel": ".tabs a",
+   "ratio": 6.25,
+   "size": "12px",
+   "pass": true
+  },
+  {
+   "sel": ".d-wfval small",
+   "missing": true
+  },
+  {
+   "sel": ".d-question p",
+   "ratio": 15.53,
+   "size": "18px",
+   "pass": true
+  }
+ ],
+ "role": {
+  "COO": {
+   "sameNumbers": true,
+   "question": "Where should limited crews work, and which changes are physically feasible?",
+   "firstPanel": "Where the crews go in November",
+   "focusRestored": true
+  },
+  "CFO": {
+   "sameNumbers": true,
+   "question": "Why is performance off plan, which amounts are actual or estimated, and what may be recoverable?",
+   "firstPanel": "What is recorded and what is estimated",
+   "focusRestored": true
+  },
+  "CCO": {
+   "sameNumbers": true,
+   "question": "Which demand can be sold profitably, and what limits it?",
+   "firstPanel": "Demand worth selling",
+   "focusRestored": true
+  },
+  "CEO": {
+   "sameNumbers": true,
+   "question": "Which sites and investments create the best returns from existing capital?",
+   "firstPanel": "What to do first",
+   "focusRestored": true
+  }
+ },
+ "budget": {
+  "base_has_claim": true,
+  "base_spend": true,
+  "high_has_buynow_recommended": true,
+  "high_spend": true,
+  "high_total": true
+ },
+ "errors": [],
+ "pilotToast": "Example only: no request was sent.",
+ "summary": {
+  "routes": 146,
+  "routesOk": 146,
+  "added": 36,
+  "changed": 1,
+  "badLinkRoutes": 0,
+  "overflowAdded": 0,
+  "overflowOther": 0,
+  "vocabHits": 0
+ }
+}
