@@ -1,7 +1,7 @@
 # Economic metric and effect contracts
 
 **Layer 4 companion artifact 3 · AssetOps Architect (Claude) · 16 Nov 2026 · design only, nothing built**
-Cross-referenced from the main document `layer4-transformation-design.md` §4. Figures are **illustrative** and come from `demo-site-scenario-manifest.yaml`; `check_manifest.py` proves they reconcile to the cent (73 checks).
+Cross-referenced from the main document `layer4-transformation-design.md` §4. Figures are **illustrative** and come from `demo-site-scenario-manifest.yaml`; `check_manifest.py` proves they reconcile to the cent (126 checks in rev 2, including option economics and the allocation).
 
 Labels used: **[code-observed]** read in code at `fe2392899` · **[test-confirmed]** pinned by a named test · **[implementation-report]** stated by the reviewed baseline document only · **[proposed]** this design · **[research]** industry source from the brief · **[assumption]** to validate with a pilot.
 
@@ -120,12 +120,12 @@ Every decision option is valued on one identity:
 - Mto rice huller: (495.00 − 85.00 − 15.00) × 12 − 1,200.00 = **3,540.00** [MODELLED].
 - Mto evening welding: 264.00 − 272.25 = **−8.25 per month** before connection cost; break-even tariff = 272.25 / 660 = 0.4125, rounded up to 0.42 [MODELLED].
 - Kirinyaga repair: 0.80 × 970 kWh × 0.20 × 12 − 350.00 = **1,512.40**; replacement: (194.00 + 40.30) × 12 − 4,800.00 = **−1,988.40** [MODELLED].
-- Embakasi deadline-aware schedule: (22,144.80 − 15,216.00) × 12 − 1,500.00 = **81,645.60** [MODELLED; tariff applicability is an assumption until the utility invoice confirms the time-of-use and demand-charge lines].
+- Embakasi deadline-aware schedule: (22,144.80 − 13,356.00) × 12 − 1,500.00 = **103,965.60** [MODELLED; tariff applicability is an assumption until the utility invoice confirms the time-of-use and demand-charge lines].
 
 The gross upper bound produced today by fuel-cost-1/2 (0 … 1.10 × Σ P·h·SFC × price; `financials/fuel_cost.py:56-79`) [code-observed] stays visible as "upper bound of fuel at stake", next to — never instead of — the forward-feasible net value.
 
 ### 4.5 Estimate, actual, exposure, verified
-These six classes are carried on every effect and never summed with one another:
+These six **money classes** (`money_class`) are carried on every effect and never summed with one another:
 
 | Class | Meaning | Example | May be summed with |
 |---|---|---|---|
@@ -187,7 +187,7 @@ For a failure with repair paths p ∈ {supplier remedy, stopgap + claim, paid re
 | Kobo battery BAT-001, insufficient evidence | assemble evidence: test 250 + sensor 180 | 430.00 | yes | a claim filed now would fail; 64,000.00 is cover at risk, not money gained |
 | Thika ATS, EPC covered and accepted | remedy + stopgap | 100.00 | yes | self-funding (710.00) voids cover |
 | Thika stock damage, insurance | claim | 0 recorded | not filed | 108.00 loss below 500.00 deductible; notice sent to keep the right |
-| Kasarani charger CH-K2, warranty + SLA | OEM remedy + bus moved to Ruiru | 90.00 | yes | waiting risks 240.00 more penalties; local repair voids cover |
+| Kasarani charger CH-K2, warranty + SLA | OEM remedy + one bus charged at Ruiru on each of the 3 nights to the 9 Nov restore | 90.00 in total (overtime 70 + energy 20) | yes | waiting risks about 240.00 of penalties and 2 broken departures in those 3 nights; local repair voids cover |
 
 ### 5.3 One identity for mutually exclusive remedies
 Remedy options for one failure share one overlap group. Only the chosen path's residual enters the plan; a supplier-paid repair, an insurance reimbursement and an operator payment for the **same expense** can never all appear: the composer checks that Σ recorded recoveries for an expense ≤ the expense, and refuses a second recovery record against an expense already fully recovered (negative test N5).
@@ -218,7 +218,7 @@ Remedy options for one failure share one overlap group. Only the chosen path's r
 |---|---|---|
 | direction | existing ADVERSE / FAVOURABLE / CHECK | unchanged |
 | basis | existing RECORDED / MEASURED / DECLARED / MODELLED | unchanged |
-| evidence_class | ECONOMIC_ACTUAL / OPERATIONAL_ACTUAL / DERIVED / MODELLED / EXPOSURE / VERIFIED | new; required |
+| money_class | ECONOMIC_ACTUAL / OPERATIONAL_ACTUAL / DERIVED / MODELLED / EXPOSURE / VERIFIED | new; required. Not `evidence_class`: that name already exists in the chain layer (0042:50, `chain/ports.py:67`) as a source basis |
 | overlap_group | string `driver:site:period:line` | new; required when money is non-null |
 | horizon | {start, end} or null | required for MODELLED |
 | beneficiary | OPERATOR / CUSTOMER / SUPPLIER / INSURER | who gains or bears |
@@ -245,6 +245,7 @@ Remedy options for one failure share one overlap group. Only the chosen path's r
 |---|---|---|
 | E1 | Bridge identity per site | Σ drivers = variance to the cent for all 9 manifest sites |
 | E2 | Portfolio identity | Σ site variances = portfolio variance; −852.00 / −770.00 / −3,184.32 |
+| E7 | Rejected-but-cheapest | the EV schedule rejected for service has the lowest bill (12,975 vs 13,356), so the safeguard, not price, rejects it |
 | E3 | Cash chain | collected + in transit + outstanding = billed (Kobo, Mto) |
 | E4 | Ratio composition | portfolio diesel per billed kWh = 0.2329, not the mean of site ratios |
 | E5 | Option identity | each option's net equals §4.4 recomputation from its monthly effects |
@@ -263,6 +264,6 @@ Remedy options for one failure share one overlap group. Only the chosen path's r
 | N7 Exposure as loss | B-1031 stock 2,160.00 exposed | shown as loss or liability | exposure; confirmed damage 108.00; liability 108.00 by contract |
 | N8 Modelled as realised | Kobo 2,916.00 modelled | shown under "savings" | MODELLED; becomes VERIFIED only through the verification triple, and ECONOMIC_ACTUAL only through fuel records |
 | N9 Last-day exposure | 30-day window, lead Finding on last day | presented as the period's avoidable cost | labelled with its day, or replaced by the window sum |
-| N10 Captive revenue | Metro Bus Depots | charging income invented from kWh × tariff | revenue NOT_APPLICABLE; measure is cost per departure (31.19) |
+| N10 Captive revenue | Metro Bus Depots | charging income invented from kWh × tariff | revenue NOT_APPLICABLE; measure is cost per departure (32.03, energy + demand + maintenance) |
 | N11 Unknown as zero | unmapped meter, unknown denominator | treated as 0 | MISSING / excluded and named |
 | N12 Gross as net | fuel-cost-1 upper bound 412.50 at Kobo | used as option value | upper bound shown as "fuel at stake"; option value 262.50 gross, 250.50 net per month |

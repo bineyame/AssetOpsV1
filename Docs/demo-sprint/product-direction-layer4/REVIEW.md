@@ -155,3 +155,96 @@ None of them changes the architecture.
 1. **Forward-replay input mapping.** PV-available is converted to irradiance (`domain-and-decision-models.md` §2.5). This is acknowledged as exact only below the inverter AC limit. On clipped days at Kobo (60 kW PV, 50 kW AC), the replay may refuse many slots, which could undercut the ≥14-day sample rule. Check the replay calibration on the walk1113 data before relying on the 210 L figure.
 2. **The `LabExecutionPort` return type would change.** The port today returns `LabProjection`. A "neutral projection" for replay is a contract change on a protected seam, and the phase plan should list it as such.
 3. **Two demo estates side by side** (v70 Kobo/GreenHarvest/Depot vs Lakeside/Harvest/Metro). Owner checklist item A4 notes it, but in a live demo a prospect clicking "Operations view" lands in a different company's numbers. The banner helps, but the risk persists until the screens are re-based.
+
+---
+
+## Re-review (rev 2)
+
+**Reviewer:** fresh Claude reviewer (not the author and not the first reviewer) · 16 Nov 2026
+**Target:** the uncommitted working tree against `f1f6d9bf9` (`git diff f1f6d9bf9 -- Docs/demo-sprint/product-direction-layer4/`, 67 files), together with the author's mapping in `REVIEW-response.md`.
+**Mode:** read-only. I edited nothing except this appendix. I did not touch the application code, any database, Docker or port 5490, did not run the full test suite and did not commit.
+
+### Verdict: **ACCEPT WITH NOTES**
+
+The author fixed all four Medium findings in substance and fixed L1–L11. M4 is correctly recorded as an owner decision (Q10, "met except measurement"). I found no High findings. One new Medium is a leftover of M2: the matrix row that tells an implementer to add `evidence_class` to `Effect` was not changed. It is a one-line fix and should be made before the pack is merged. The Low findings can go to the UI/UX pass or a later revision.
+
+### Checks I ran and what they returned
+
+| Check | Result |
+|---|---|
+| `python3 check_manifest.py` | `126 checks passed, 0 failed`, exit 0. I read the new checks. The EMB checks really assert cheapest < deadline and each component of both bills. The Lakeside allocation is checked by brute force over STOPSOC, CLAIM, BUYNOW and HULLER, with the rules "exactly one inverter path" and "huller requires buy-now or an extended letter of intent". |
+| M1 recomputed by hand | **Cheapest schedule:** 2,500 kWh × 31 = 77,500 kWh. 77,500 × 0.09 = 6,975. Demand is 500 kW × 12 = 6,000. The bill is **12,975**. **Deadline schedule:** 800 kWh a night before midnight and 2,000 after. 24,800 × 0.12 = 2,976 and 62,000 × 0.09 = 5,580. Demand is 400 × 12 = 4,800. The bill is **13,356**. The deadline schedule's other figures: 2,900 kWh deliverable is 400 kW × 7.25 h; the 21-bus night needs 2,940 / 7.25 = 405.5 kW, which matches the "406 kW" note. **Saving:** 22,144.80 − 13,356 = 8,788.80 a month, and × 12 − 1,500 = **103,965.60**. **Optimality:** of the schedules that deliver the full 2,800 kWh, minimising cost over a flat P gives about 386 kW, so 400 kW is a near-optimal plan with margin. **Verdict:** the rejected schedule is genuinely the lowest bill, by 381 a month (but see N3). |
+| L10 and L2 recomputed | **EV plan:** 19,540.80 + 5,880 + 13,100 = 38,520.80. **EV actual:** 22,744.80 + 5,880 + 13,080.32 = 41,705.12. The variance is −3,184.32, unchanged. 41,705.12 / 1,302 = 32.03. **Metro coverage:** (41,705.12 − 300) / 41,705.12 = 99.28%; the screen shows "99.3%". **Harvest costs:** 880 + 1,282 + 1,480 = 3,642. Coverage is (3,642 − 80) / 3,642 = 97.80%. |
+| M3 four cases recomputed | **5,000 and Yes:** 2,916 − 360 + 3,540 = 6,096, at spend 3,880. **5,000 and No:** 2,916 − 360 = 2,556, at spend 2,680. **6,500 and Yes:** 6,096; buy-now gives 3,546, so claim-and-wait wins by 2,550. **6,500 and No:** 2,916 + 3,540 − 2,910 = 3,546, at spend 6,430; buy-now beats claim-and-wait by 990. The wording is "and" in the manifest, main document §2.2 and integration line 299. The connection lead time is now in the manifest (restore 28 Nov, 5 working days, lapse 30 Nov). |
+| Stale-figure sweep | I searched for 15,216, 6,928.80, 81,645, 37,420, 40,605, 31.19, "328 links" and "or the cooperative". The only hit is `fixture-mapping.md:158` (N4). The CSV has 335 data rows, which matches the main document. X8 appears in 147 rows; T0327–T0332 link O2, P1 and A3 to S6 and S8. |
+| M2 against the code | 0042:50 does declare `evidence_class` on `finding_thread_occurrence` with MEASURED, RECORDED, DECLARED, MODELLED and EXTERNAL, and `chain/threads.py:205` writes it. However, `chain/ports.py:67,93`, `chain/builder.py:88` and `chain/outcomes.py:99` (`AUTHORITY`) belong to a **second** column of the same name: the daily measure-snapshot table (`0043_chain_snapshots.py:37`, `chain/measures.py:37`, `adapters/postgres_snapshot_store.py`). It has the same vocabulary. The renaming decision stands, but the description is imprecise (N1). |
+| Mock-up rebuild | I ran `node build.mjs` on a scratch copy. The resulting `index.html` is **byte-identical** to the committed one. I also ran `tools/gen_fixtures.py` on a scratch copy; the regenerated `fixtures.js` is **byte-identical** too, and its sha `7b5f74875705` matches the current manifest. |
+| Oracle removed | `gen_fixtures.py` pops `oracle`. `index.html` and `fixtures.js` contain no "oracle" string and no `OR-*` ids. `findings_expected` and the `disorder_tests` `expect:` strings are still in the bundle; they are outside the `oracle:` block, so L11 is met as stated. |
+| Served at http://127.0.0.1:8829 (`python3 -m http.server`) and driven with headless Chromium through Playwright | 146 of 146 routes render an `h1` with **0 page or console errors**. I scanned every non-Unchanged route with my own wider pattern (LOI, fixture, manifest, oracle, evidence/money class, option-id prefixes, enum names, `>=`, O&M, subset, exhaustive, tie-break). The only hit is the Preserved v70 `#/lab` ("immutable manifest"), which is not in revision scope. The **letter-of-intent control** works: all four budget × letter-of-intent clicks give the figures above, the alternative path is shown side by side, and the notes read "+$990" and "+$2,550". The "All four cases" table matches. `#/choice-embakasi-schedule` and its drawers show the tier, both bills and their workings. `#/choice-mto-inverter` shows "$0 now; cover lost after 27 Nov 2026". The Kasarani screens state 3 nights and $90 in total. `#/decide-harvest` and `#/decide-metro` show coverage. At 390 px, plan-lakeside (6,500 and No), choice-embakasi-schedule, decide-metro and econ-embakasi have no overflow. I stopped the server and confirmed the port is free. |
+| L3, L4, L8, L9, residual risks | "test-confirmed by checker" no longer appears. The C3 rows cite OR-ENT-2, OR-ENT-3, OR-ALLOC-1 and OR-VER-1. The design-value tags appear on screen and at first use in §2.1. v72 is named the v7.2 foundation in §9. RR1–RR3 are recorded, and RR1 and RR2 are in slice 3. |
+
+**Not verified:**
+- `tools/run-audit.sh`. It hard-codes another session's scratchpad path (N9). I ran my own click-through instead, reusing the same Chromium binary read-only.
+- Screen-reader behaviour.
+- Offline rendering of the main HTML document.
+
+### Status of the previous findings
+
+| Finding | Status |
+|---|---|
+| M1 | **Resolved.** The tariff tier is real, both bills reconcile, and the checker asserts the ordering. N2 and N3 are about how the fix is explained. |
+| M2 | **Mostly resolved.** The rename is applied in the manifest, the contracts, the main document, A11 and matrix row 241. Leftovers remain (N1). |
+| M3 | **Resolved.** There is a separate control, both paths are shown, all four cases are enumerated and checked, and the wording is aligned. |
+| M4 | **Correctly recorded as an owner decision** (Q10; status line in the cost plan). |
+| L1–L11 | **Resolved.** L7 is fixed for Mto but not for the analogous Kasarani row (N6). |
+
+### New findings
+
+#### Medium
+
+**N1. The M2 rename is incomplete. The implementer-facing matrix still instructs the collision M2 warned about.**
+- **Where and evidence:**
+  - `repo-reuse-and-gap-matrix.md:61` reads: "`Effect` … | D4: add `evidence_class` and `overlap_group` fields | extend". Row 241 of the same file says `money_class`, not `evidence_class`, so the file contradicts itself.
+  - Prose leftovers:
+    - `phase-plan-and-acceptance.md:63`: "Effect gains evidence class and overlap group".
+    - `design-questions-and-decisions.md:28` (A4): "the new evidence class".
+    - `integration-source-to-canonical-design.md:593`: "D4's effect evidence classes".
+    - `economic-metric-and-effect-contracts.md:47`: the §3.1 column header "Evidence class", which holds money-class values.
+  - Accuracy: the main document line 248 and A11 attribute `chain/ports.py`, `chain/builder.py` and `chain/outcomes.py` to the 0042 column. Those files read the snapshot column `0043_chain_snapshots.py:37` (`measures.py:37`), which has the same name and vocabulary.
+- **Why it matters:** the matrix is the inventory an implementer follows, and row 61 is exactly the hazard M2 was raised to prevent.
+- **Fix:**
+  - Change row 61 to `money_class`.
+  - Reword the four prose lines to "money class".
+  - Cite both columns (0042:50 and 0043:37) in §5 and A11.
+
+#### Low
+
+- **N2. The "October unaffected" rationale is arithmetically impossible as worded.**
+  - **Where:** manifest Embakasi `actual.note` ("charging on arrival finishes by about 23:10") and the mock-up at `decisions.js:162` ("none of October's energy used the cheaper 00:00–05:00 rate").
+  - **Evidence:**
+    - October off-peak is 39,060 / 31 = 1,260 kWh a night, all of it outside 18:00–22:00.
+    - Under the 500 kW limit, at most 250 kWh fits in 17:30–18:00 and at most 583 kWh in 22:00–23:10. Even counting 05:00–05:30, the total is about 1,083 kWh, which is below 1,260.
+    - With 55% of energy at peak, charging must run past midnight, so some energy falls in the new tier.
+  - **Money effect:** small, at most a few hundred dollars a month at a 0.03 difference.
+  - **Fix:** make the 00:00–05:00 tier effective from 1 Nov 2026 (a new contract term), which keeps October billed at 0.12, or re-split the October off-peak lines.
+- **N3. The "cheapest" bill is lower only because it buys less energy.**
+  - **Evidence:** EMB-CHEAPEST costs 12,975 for 77,500 kWh, which is 0.167 per kWh. EMB-DEADLINE costs 13,356 for 86,800 kWh, which is 0.154 per kWh. The deadline schedule is cheaper per kWh delivered.
+  - **Assessment:** this is a legitimate C3 negative control, because a naive bill minimiser picks the cheapest schedule. However, a technical buyer may say the temptation comes from the shortfall itself.
+  - **Fix:** add one clause in the walkthrough and models §4.1: "lowest bill because it buys 9,300 kWh less; per kWh delivered the deadline schedule is cheaper". This is a preference, not an acceptance gap.
+- **N4. Stale figure.** `interactive-mockup-vNEXT/fixture-mapping.md:158` still reads "$6,928.80 a month"; it should be $8,788.80.
+- **N5. Metro proof target is weaker than the model.** `decisions.js:577` says "Peak share falls from 55% toward the 30% plan". The modelled saving (8,788.80) assumes no peak-price energy (the 22:00–05:15 window). The operational target should be "peak share near 0%; about 62,000 kWh a month in 00:00–05:00". This is a pre-existing gap that M1's explicit bill makes visible.
+- **N6. The L7 fix was not applied to the analogous Kasarani row.** `#/choice-kasarani-charger`, rights panel "Cost to us under each path", shows "Do nothing extra: wait for the manufacturer's repair: $0". The same screen gives that path −$240 in likely penalties. It should show "$0 now; about $240 in likely penalties", as was done for Mto.
+- **N7. The crew meter on plan-lakeside does not follow the letter-of-intent case.**
+  - **Where:** `decisions.js:542` sets `used = A.crew_visits_used`, so the meter always shows 3 of 3.
+  - **Why it is wrong:** in the 5,000 and No case the huller (1 crew visit) is dropped, so the meter should show 2 of 3.
+  - **Fix:** derive crew use from the chosen path, as spend already is.
+- **N8. Pre-existing and outside revision scope; noted for the UI/UX pass.**
+  - `#/econ-thika` shows the verdict "Low occupancy, not equipment" although occupancy is at plan (70% against 70%) (`decisions.js:487`). The verdict should be "Within the occupancy model".
+  - `#/econ-embakasi` mixes sign conventions on one screen. The cost-line "Effect on result" column shows −$5,208, while "What moved the result" shows the same adverse drivers as "+$2,604" and "+$600" (`decisions.js:510` flips the sign for cost operators).
+  - The Thika model string "kWh_month = 1550 + 0.25 x crate_days …" is shown on a client screen.
+- **N9. The audit wrapper is not reproducible.** `interactive-mockup-vNEXT/tools/run-audit.sh` hard-codes `/tmp/claude-1001/.../fffff20f-…/scratchpad`. That is another session's scratchpad, which will be cleared. The audit's "all pass" claim therefore cannot be rerun by the owner. Fix: read `CHROME` and `PW` from the environment (`audit.mjs` already supports this) and document the setup in the README.
+
+### Residual risk
+
+- The revision regenerated 45 screenshots and replaced `plan-lakeside-6500` with four case shots. I spot-checked one freshly rendered case (6,500 and No) and it matches the DOM figures. I did not compare every committed PNG.
+- The forward-replay figures (210 L, 20 L, 68 L) remain design values, now labelled as such on screen. RR1 still governs whether the slice 3 replay reproduces them.

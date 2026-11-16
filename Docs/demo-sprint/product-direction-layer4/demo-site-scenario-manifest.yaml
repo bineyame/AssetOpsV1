@@ -10,7 +10,8 @@
 # Rules carried by this file:
 #   R1 Ground truth lives only under `oracle:` (private expectation oracle). Product findings and money must be
 #      computed by the real ingest/analytics path from `sources:`; the oracle is only compared against them.
-#   R2 Evidence classes never sum: ECONOMIC_ACTUAL, OPERATIONAL_ACTUAL, DERIVED, MODELLED, EXPOSURE, VERIFIED.
+#   R2 Money classes (field `money_class`; `class:` in bridge rows) never sum: ECONOMIC_ACTUAL, OPERATIONAL_ACTUAL, DERIVED, MODELLED,
+#      EXPOSURE, VERIFIED. Distinct from the existing thread-occurrence column `evidence_class` (0042:50), which is a source basis.
 #   R3 Each money effect carries an overlap_group; one overlap group contributes money once.
 #   R4 Unknown is never zero. A missing record is `status: MISSING`, never 0.
 #   R5 Provenance labels: demo-simulated | source-emulated | bench-tested | field-integrated | observed-financial.
@@ -228,6 +229,7 @@ tenants:
           forward_replay: {days_without_headroom: 3, kwh_from_battery_or_genset: 225, extra_fuel_l: 68}
           economics: {revenue_monthly: 495.00, fuel_monthly: 85.00, collection_cost_monthly: 15.00, net_monthly: 395.00, one_off: 1200.00, net_12m: 3540.00, class: MODELLED}
           depends_on: [MTO-INV restored]
+          connection_lead: "5 working days after the inverter is restored (service drop, meter, supply contract signature); a 28 Nov restore cannot connect before the 30 Nov lapse"
           crew_visits: 1
           disposition: RECOMMENDED
           condition: "LOI converts to supply contract; inverter INV-MT-02 restored first"
@@ -263,7 +265,7 @@ tenants:
       options:
         - {id: MTO-INV-CLAIM, kind: SUPPLIER_REMEDY, residual_cost: 360.00, detail: "shipping 150 + install 80 + extra fuel 130 during 21 days at half inverter capacity",
            restore_by: "2026-11-28", crew_visits: 1, disposition: RECOMMENDED, mutually_exclusive_with: [MTO-INV-BUYNOW],
-           risk: "huller LOI lapses 30 Nov unless extended"}
+           risk: "huller LOI lapses 30 Nov unless extended: restore on 28 Nov leaves 2 days, but the connection needs 5 working days"}
         - {id: MTO-INV-BUYNOW, kind: STOPGAP_PLUS_CLAIM, residual_cost: 2910.00, detail: "buy replacement 2,600 + install 80 now; claim failed unit (replacement becomes a spare, not cash) shipping 150 + 80",
            restore_by: "2026-11-12", crew_visits: 1, disposition: CONDITIONAL, condition: "wins if budget >= 6,430 and the cooperative will not extend its letter of intent"}
         - {id: MTO-INV-LOCAL, kind: REPAIR, cost: 450.00, disposition: REJECTED, reason: "opening the unit voids the warranty; dominated by the claim"}
@@ -320,6 +322,7 @@ tenants:
       plan:   {crate_days: 7440, occupancy_pct: 60, revenue: 1488.00, kwh: 3410, energy: 682.00, staff: 300.00, maint: 50.00, contribution: 456.00}
       actual: {crate_days: 4340, occupancy_pct: 35, revenue: 868.00, kwh_model: 2635, kwh: 2650, energy: 530.00, staff: 300.00, maint: 50.00, contribution: -12.00}
       energy_per_crate_day: 0.1221
+      coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: RECORDED}
       variance: -468.00
       bridge:
         - {driver: OCCUPANCY_REVENUE, overlap_group: MWEA-2026-10-REV, amount: -620.00, basis: "3,100 crate-days x 0.20", class: ECONOMIC_ACTUAL}
@@ -342,6 +345,8 @@ tenants:
     period:
       plan:   {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, kwh: 3720, energy: 744.00, staff: 350.00, maint: 80.00, liability: 0.00, contribution: 562.00}
       actual: {crate_days: 8680, occupancy_pct: 70, revenue: 1736.00, kwh_model: 3720, kwh: 3720, energy: 744.00, staff: 350.00, maint: 80.00, liability: 108.00, contribution: 454.00}
+      coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: ESTIMATED, liability: RECORDED}
+      coverage_note: "October refrigeration service invoice not received; plan amount carried as ESTIMATED"
       variance: -108.00
       bridge:
         - {driver: CUSTOMER_COMPENSATION, overlap_group: THIKA-2026-10-LIAB, amount: -108.00, basis: "credit note CN-0412 for 6 QA-downgraded crates x 18", class: ECONOMIC_ACTUAL}
@@ -377,6 +382,7 @@ tenants:
       plan:   {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, kwh: 4030, energy: 806.00, staff: 400.00, maint: 80.00, contribution: 698.00}
       actual: {crate_days: 9920, occupancy_pct: 80, revenue: 1984.00, kwh_model: 4030, kwh: 5000, energy: 1000.00, staff: 400.00, maint: 80.00, contribution: 504.00}
       energy_per_crate_day: 0.1008
+      coverage: {revenue: RECORDED, energy: RECORDED, staff: RECORDED, maint: RECORDED}
       variance: -194.00
       bridge:
         - {driver: ENERGY_EFFICIENCY, overlap_group: KIRI-2026-10-ENERGY, amount: -194.00, basis: "970 kWh (24%) above occupancy/ambient model x 0.20", class: DERIVED}
@@ -393,6 +399,7 @@ tenants:
     plan_contribution: 1716.00
     actual_contribution: 946.00
     variance: -770.00
+    coverage: {cost_recorded_usd: 3562.00, cost_total_usd: 3642.00, cost_recorded_share: 0.9780}
     allocation:
       recommended: [THIKA-EPC-STOPGAP, KIRI-REPAIR, MWEA-AGG]
       spend: 720.00
@@ -414,12 +421,14 @@ tenants:
     role_in_story: "deadline-aware schedule wins; cheapest schedule rejected because 3 buses miss departure"
     reuse: "EV demo Site pack ev-charger/1 extended to 10 chargers (proposed)"
     physical: {buses: 20, chargers: 10, charger_kw: 60, import_limit_kw: 500, kwh_per_bus_night: 140, departures: "05:30", returns: "17:30-19:30"}
-    tariff: {contract: "C-114 commercial time-of-use + demand charge", peak: "18:00-22:00 at 0.24", offpeak: 0.12, demand_usd_per_kw_month: 12.00,
+    tariff: {contract: "C-114 commercial time-of-use + demand charge", peak: "18:00-22:00 at 0.24", super_offpeak: "00:00-05:00 at 0.09", offpeak: "all other hours at 0.12", demand_usd_per_kw_month: 12.00,
              applicability: "[assumption] confirmed from the utility invoice in a pilot"}
     period:
-      plan:   {kwh: 86800, peak_share: 0.30, peak_kwh: 26040, peak_cost: 6249.60, offpeak_kwh: 60760, offpeak_cost: 7291.20, max_kw: 450, demand_cost: 5400.00, energy_cost: 18940.80, departures_required: 620}
+      plan:   {kwh: 86800, peak_share: 0.30, peak_kwh: 26040, peak_cost: 6249.60, offpeak_kwh: 60760, offpeak_cost: 7291.20, max_kw: 450, demand_cost: 5400.00, energy_cost: 18940.80, maintenance: 600.00, total: 19540.80, departures_required: 620}
       actual: {kwh: 86800, peak_share: 0.55, peak_kwh: 47740, peak_cost: 11457.60, offpeak_kwh: 39060, offpeak_cost: 4687.20, max_kw: 500, demand_cost: 6000.00,
-               energy_cost: 22144.80, departures_required: 620, departures_met: 620}
+               energy_cost: 22144.80, maintenance: 600.00, total: 22744.80, departures_required: 620, departures_met: 620,
+               note: "charging on arrival finishes by about 23:10, so no October energy fell in the 00:00-05:00 tier"}
+      coverage: {energy: RECORDED, demand: RECORDED, maintenance: RECORDED}
       variance: -3204.00
       bridge:
         - {driver: PEAK_ENERGY_SHARE, overlap_group: EMB-2026-10-ENERGY, amount: -2604.00, basis: "21,700 kWh more at peak than plan (55% vs 30%) x 0.12 premium", class: ECONOMIC_ACTUAL}
@@ -428,12 +437,16 @@ tenants:
       thread: "Embakasi pays peak prices for charging that could wait"
       origin: PLAN_VARIANCE
       options:
-        - {id: EMB-CHEAPEST, kind: SCHEDULE, window: "00:00-05:00", deliverable_kwh: 2500, required_kwh: 2800, buses_short: 3,
+        - {id: EMB-CHEAPEST, kind: SCHEDULE, window: "00:00-05:00 at the 500 kW import limit", deliverable_kwh: 2500, required_kwh: 2800, buses_short: 3,
+           economics: {kwh_month: 77500, energy: 6975.00, demand: 6000.00, energy_cost_monthly: 12975.00, unserved_kwh_month: 9300, class: MODELLED,
+                       note: "cheapest bill of all options: every kWh at 0.09; but 300 kWh short every night"},
            safeguard: {policy: EV1_DEPARTURE_READINESS, mode: HARD_CONSTRAINT, result: FAIL}, disposition: REJECTED,
-           reason: "3 buses leave below required charge every night"}
+           reason: "cheapest bill (12,975 a month) but 3 buses leave below required charge every night"}
         - {id: EMB-DEADLINE, kind: SCHEDULE, window: "22:00-05:15 staggered", deliverable_kwh: 2900, required_kwh: 2800, max_kw: 400,
            replay: "31 of 31 October nights feasible (20 buses each night); a 21-bus night needs about 406 kW, inside the 500 kW limit but above the 400 kW plan",
-           economics: {energy_cost_monthly: 15216.00, saving_monthly: 6928.80, one_off: 1500.00, net_12m: 81645.60, class: MODELLED},
+           economics: {kwh_2200_2400: 24800, cost_2200_2400: 2976.00, kwh_0000_0500: 62000, cost_0000_0500: 5580.00, demand: 4800.00,
+                       energy_cost_monthly: 13356.00, saving_monthly: 8788.80, one_off: 1500.00, net_12m: 103965.60, class: MODELLED,
+                       note: "400 kW for 2 h before midnight (800 kWh) and 5 h after (2,000 kWh) each night; 381 a month dearer than the rejected cheapest schedule"},
            safeguards: [{policy: EV1_DEPARTURE_READINESS, mode: HARD_CONSTRAINT, result: PASS}, {policy: EV5_IMPORT_LIMIT, mode: HARD_CONSTRAINT, result: PASS}],
            crew_visits: 0, disposition: RECOMMENDED, condition: "tariff applicability confirmed from invoice; 14-day supervised schedule"}
         - {id: EMB-NOACT, kind: NO_ACTION, economics: {energy_cost_monthly: 22144.80}, disposition: ACCEPTABLE}
@@ -445,6 +458,8 @@ tenants:
     period:
       plan:   {energy_cost: 5580.00, maintenance: 300.00, total: 5880.00, departures_required: 248}
       actual: {kwh: 37200, energy_cost: 5580.00, maintenance: 300.00, total: 5880.00, departures_required: 248, departures_met: 248}
+      coverage: {energy: RECORDED, maintenance: ESTIMATED}
+      coverage_note: "October maintenance invoice from the service contractor not received; plan amount carried as ESTIMATED"
       variance: 0.00
     incident:
       asset: CH-K2
@@ -460,18 +475,21 @@ tenants:
       claim_state: ACKNOWLEDGED
       sla_clock: {responded_within_hours: 31, restore_due: "2026-11-09", status: RUNNING, note: "5 business days from the 2 Nov notice"}
       options:
-        - {id: KAS-OEM-STOPGAP, kind: SUPPLIER_REMEDY, residual_cost: 90.00, detail: "one bus charged overnight at Ruiru (driver overtime 70 + energy 20)", crew_visits: 0, disposition: RECOMMENDED}
-        - {id: KAS-OEM-WAIT, kind: SUPPLIER_REMEDY, residual_cost: 0.00, expected_penalties: 240.00, disposition: REJECTED, reason: "likely 2 more missed departures"}
+        - {id: KAS-OEM-STOPGAP, kind: SUPPLIER_REMEDY, residual_cost: 90.00, detail: "one bus charged at Ruiru on each of the 3 nights to the 9 Nov restore (6, 7, 8 Nov): driver overtime 70 + energy 20 in total", nights: 3, crew_visits: 0, disposition: RECOMMENDED}
+        - {id: KAS-OEM-WAIT, kind: SUPPLIER_REMEDY, residual_cost: 0.00, expected_penalties: 240.00, disposition: REJECTED, reason: "likely 2 missed departures in the 3 nights to 9 Nov (spare bus free on 1 night): 240 in penalties and 2 broken service obligations, against 90 for the stopgap"}
         - {id: KAS-LOCAL, kind: REPAIR, cost: 380.00, disposition: REJECTED, reason: "voids power-stage warranty; dominated"}
         - {id: KAS-SCHEDULE, kind: SCHEDULE, disposition: REJECTED, reason: "flat tariff: no schedule saving exists (EV-L1 immaterial here)"}
   - site: Ruiru
     code: EV-RUI
     role_in_story: "looks underused; slack absorbs +6 buses without CAPEX but not +10; idle noncritical connector fault ranks low"
     physical: {buses: 14, chargers: 12, charger_kw: 60, import_limit_kw: 400, kwh_per_bus_night: 140, window: "21:00-05:00"}
+    tariff: {contract: "C-117 time-of-use + demand charge (older contract, no 00:00-05:00 tier)", peak: "18:00-22:00 at 0.24", offpeak: 0.12, demand_usd_per_kw_month: 12.00,
+             note: "moving Ruiru to the C-114 structure is a tariff lever (EV-L4) left for a later decision"}
     period:
-      plan:   {energy_cost: 12600.00, departures_required: 434}
+      plan:   {energy_cost: 12600.00, maintenance: 500.00, total: 13100.00, departures_required: 434}
       actual: {kwh: 60760, offpeak_kwh: 54684, offpeak_cost: 6562.08, peak_kwh: 6076, peak_cost: 1458.24, max_kw: 380, demand_cost: 4560.00, energy_cost: 12580.32,
-               departures_required: 434, departures_met: 434, charger_hour_utilisation: 0.31}
+               maintenance: 500.00, total: 13080.32, departures_required: 434, departures_met: 434, charger_hour_utilisation: 0.31}
+      coverage: {energy: RECORDED, demand: RECORDED, maintenance: RECORDED}
       variance: 19.68
     decision:
       thread: "City offers a route expansion: 6 more buses at Ruiru"
@@ -488,12 +506,14 @@ tenants:
       entitlement: {type: EQUIPMENT_WARRANTY, counterparty: "Ampere Charge Co", claim_state: POTENTIAL, plan: "claim at next routine visit"}
       priority: LOW
   portfolio:
-    plan_cost: 37420.80
-    actual_cost: 40605.12
+    plan_cost: 38520.80
+    actual_cost: 41705.12
+    cost_basis: "energy + demand + maintenance, every depot"
+    coverage: {cost_recorded_usd: 41405.12, cost_total_usd: 41705.12, cost_recorded_share: 0.9928}
     variance: -3184.32
     departures_required: 1302
     departures_met: 1302
-    cost_per_departure_actual: 31.19
+    cost_per_departure_actual: 32.03
     allocation:
       recommended: [KAS-OEM-STOPGAP, EMB-DEADLINE, RUI-ABSORB6]
       spend: 1590.00
@@ -541,7 +561,7 @@ oracle:   # PRIVATE expectation oracle: compared against computed results; never
   - {id: OR-ENT-1, expect: "INV-MT-02 POTENTIALLY_COVERED; GEN-KS-01 EXPIRED_AND_EXCLUDED; BAT-001 INSUFFICIENT_EVIDENCE; no remedy booked as money"}
   - {id: OR-CC-1, expect: "Mwea normalised energy within tolerance -> occupancy root cause; Kirinyaga +24% -> efficiency root cause"}
   - {id: OR-CC-2, expect: "B-1031 exposed 2,160 (EXPOSURE), damage 108, liability 108; B-1034 not exposed; B-1029 excluded"}
-  - {id: OR-EV-1, expect: "EMB-CHEAPEST REJECTED (3 buses short); EMB-DEADLINE RECOMMENDED"}
+  - {id: OR-EV-1, expect: "EMB-CHEAPEST has the lowest bill (12,975/month) and is REJECTED (3 buses short); EMB-DEADLINE RECOMMENDED (13,356/month)"}
   - {id: OR-EV-2, expect: "CH-K2 outranks CH-R7 connector 2"}
   - {id: OR-EV-3, expect: "Ruiru +6 feasible, +10 infeasible"}
   - {id: OR-TEN-1, expect: "no tenant can read another tenant's records"}

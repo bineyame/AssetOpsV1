@@ -56,7 +56,10 @@ The other 109 v7.0 screens are Preserved: same content, with only the shared men
 | State | Capture |
 |---|---|
 | Evidence drawer opened from the plan contribution figure | [evidence-drawer-1440.png](vnext/evidence-drawer-1440.png) |
-| Plan and budget with the $6,500 budget (buy-now replaces claim-and-wait) | [plan-lakeside-6500-1440.png](vnext/plan-lakeside-6500-1440.png) |
+| Plan and budget, $5,000 + letter of intent extended | [plan-lakeside-base-yes-1440.png](vnext/plan-lakeside-base-yes-1440.png) |
+| Plan and budget, $5,000 + not extended | [plan-lakeside-base-no-1440.png](vnext/plan-lakeside-base-no-1440.png) |
+| Plan and budget, $6,500 + letter of intent extended | [plan-lakeside-high-yes-1440.png](vnext/plan-lakeside-high-yes-1440.png) |
+| Plan and budget, $6,500 + not extended | [plan-lakeside-high-no-1440.png](vnext/plan-lakeside-high-no-1440.png) |
 
 ## Phone width (390 px)
 
@@ -69,4 +72,8 @@ The other 109 v7.0 screens are Preserved: same content, with only the shared men
 | `#/decide-lakeside` | [decide-lakeside-390.png](vnext/decide-lakeside-390.png) |
 | `#/decide-metro` | [decide-metro-390.png](vnext/decide-metro-390.png) |
 
-All 45 vNEXT captures and 1 v7.0 capture are in this folder.
+All 48 vNEXT captures and 1 v7.0 capture are in this folder.
+
+## Rev 2 refresh
+
+Recaptured after the rev 2 fix round (all captures above are from the rev 2 build): plan-lakeside in four cases, choice-embakasi-schedule, choice-mto-inverter, choice-kasarani-charger, decide-harvest, decide-metro, econ-embakasi, econ-ruiru, econ-kasarani, and every other added screen.

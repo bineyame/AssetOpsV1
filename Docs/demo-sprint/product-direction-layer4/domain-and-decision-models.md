@@ -5,7 +5,7 @@ D5 (option evaluation pipeline), D6 (SAFEGUARD_POLICIES), D7 (forward feasibilit
 D8 (entitlement remedy economics), D9 (allocation) and D10 (verification triple). D1–D4 are used as given.
 
 Sources. Every figure comes from `demo-site-scenario-manifest.yaml` in this folder (arithmetic re-checked:
-`check_manifest.py` reports 73 checks passed) [test-confirmed]. Code citations were re-read at HEAD
+`check_manifest.py` reports 126 checks passed in rev 2) [derived, arithmetic checked]. Code citations were re-read at HEAD
 `fe2392899` under `/opt/assetecon/AssetOpsV1` [code-observed]. Where a figure is derived here from manifest
 figures (a break-even, a margin), it says "derived" and shows the arithmetic. Money is illustrative USD.
 
@@ -85,7 +85,7 @@ Each option carries its own evaluation trail. A stage failure stops the trail an
 | QUALIFY | Is the evidence the option needs present, current and of the right provenance? Is the Finding SUPPORTED and latest? | INSUFFICIENT_EVIDENCE (missing named) | evidence digest, missing list |
 | FEASIBILITY | Can it physically and commercially happen? (D7 replay, EDF schedule, capacity, contract status, lead time) | REJECTED (infeasible, reason) | model run id, feasible quantities |
 | SAFEGUARDS | Does it pass every applicable SAFEGUARD_POLICIES row? (D6) | REJECTED (HARD fail) · INSUFFICIENT_EVIDENCE (unknown, REFUSE) · CONDITIONAL (unknown, CONDITIONAL) | per-policy result, reason, evidence ids |
-| NET_VALUE | Incremental money against NO_ACTION on a common horizon (12 months), by evidence class (D4), with sensitivities | REJECTED (dominated, or negative with no non-money reason) · DEFERRED (positive but outside horizon) | gross, costed trade-offs, one-off, net_12m, downside |
+| NET_VALUE | Incremental money against NO_ACTION on a common horizon (12 months), by money class (D4), with sensitivities | REJECTED (dominated, or negative with no non-money reason) · DEFERRED (positive but outside horizon) | gross, costed trade-offs, one-off, net_12m, downside |
 | ALLOCATE | Does it fit the portfolio's budget, crews, dependencies, exclusions and deadlines? (D9) | DEFERRED / CONDITIONAL with the binding constraint named | allocation run id, binding constraint |
 | RECOMMEND | Which option per decision should the operator consider first? | — | RECOMMENDED / ACCEPTABLE |
 
@@ -144,7 +144,7 @@ code-observed in `financials/fuel_cost.py`].
 replay shows is still needed later (120 L constrained); (c) genuine evening load growth (30 L Necessary); and (d)
 fuel the model cannot explain (120 L residual, above the 2 % tolerance, MG-8 "Fuel accounted for"). 210 + 120 + 30
 + 120 = 480 L [derived]. In money: −262.50 − 150.00 − 37.50 − 150.00 plus +38.00 demand = −562.00
-[test-confirmed by checker].
+[derived, arithmetic checked].
 
 **Why the generator runs after dawn.** The simulator controller requests RUN when SOC is at or below the start
 threshold and STOP only after minimum runtime *and* SOC at or above the stop threshold
@@ -438,7 +438,7 @@ contribution       = revenue − energy − staff − maintenance − liability
 
 Mwea: 4,340 × 0.20 = 868; contribution 868 − 530 − 300 − 50 = −12; bridge −620 occupancy revenue, +155 energy
 volume (775 kWh less at lower occupancy: not a saving), −3 efficiency (15 kWh inside tolerance) = −468
-[test-confirmed by checker]. The +155 is DERIVED and labelled "not a saving" because it is lost revenue's shadow.
+[derived, arithmetic checked]. The +155 is DERIVED and labelled "not a saving" because it is lost revenue's shadow.
 
 **Mwea decision (PLAN_VARIANCE).** MWEA-AGG: 150 crates × 30 days = 4,500 crate-days/month at 0.18 = 810; energy
 4,500 × 0.25 × 0.20 = 225; handling 100; net 485/month × 4 months − 270 one-off = 1,670 (MODELLED). Capacity check
@@ -524,7 +524,7 @@ root_cause ∈ {OCCUPANCY, EFFICIENCY, UNDETERMINED}, batch_exposure[], damage[]
 **Business condition.** Captive fleet: charging is a cost centre, the service unit is "required departure met",
 and there is no charging revenue (G1/O3 not applicable) [proposed fixture]. Embakasi's energy cost is 22,144.80
 against 18,940.80 planned (−3,204): 55 % of energy at peak instead of 30 % (−2,604) and a 500 kW monthly peak
-instead of 450 kW (−600) [test-confirmed by checker].
+instead of 450 kW (−600) [derived, arithmetic checked].
 
 **Competing alternatives.** Charge everything in the cheapest window, or charge on a deadline-aware stagger.
 
@@ -542,9 +542,13 @@ each capped at p_charger; a bus is MET if delivered ≥ required by departure.
 | EMB-DEADLINE | 22:00–05:15 (7.25 h) | 400 kW (below 500 limit) | 2,900 kWh | 2,800 kWh | all met; EV5 PASS |
 
 Chargers (10 × 60 = 600 kW) exceed the 500 kW import limit, so the import limit binds [derived]. The deadline
-schedule is all off-peak (peak is 18:00–22:00), so cost = 86,800 × 0.12 + 400 × 12 = 10,416 + 4,800 = 15,216;
-saving 6,928.80/month; net_12m 12 × 6,928.80 − 1,500 = 81,645.60 (MODELLED) [test-confirmed by checker for the
-identities]. The cheapest schedule is rejected for service, whatever its price (OR-EV-1).
+schedule runs 400 kW for 2 h before midnight (800 kWh at 0.12) and 5 h in the 00:00–05:00 tier (2,000 kWh at 0.09),
+so cost = 24,800 × 0.12 + 62,000 × 0.09 + 400 × 12 = 2,976 + 5,580 + 4,800 = 13,356; saving 8,788.80/month;
+net_12m 12 × 8,788.80 − 1,500 = 103,965.60 (MODELLED) [derived, arithmetic checked by check_manifest.py].
+The cheapest schedule puts every kWh in the 0.09 tier at the 500 kW limit: 77,500 × 0.09 + 500 × 12 = 6,975 +
+6,000 = **12,975**, the lowest bill of any option and 381 a month below the deadline schedule — and it is still
+rejected, because 3 buses leave short every night (EV1 HARD_CONSTRAINT; OR-EV-1). The checker asserts that the
+rejected option really is the cheapest bill, so the negative control carries a real cost temptation.
 
 **Tariff applicability.** The demand charge term is included only if contract C-114 carries it, confirmed from
 the utility invoice [assumption]. Sensitivity without demand charge [derived]: actual energy-only 16,144.80 vs
@@ -598,8 +602,8 @@ buses_short, max_kw, peak_kwh, offpeak_kwh, energy_cost, demand_cost, feasible}`
 
 | Vector | Expected |
 |---|---|
-| EV-T1 Embakasi cheapest | 2,500 vs 2,800; 3 short; REJECTED by EV1_DEPARTURE_READINESS |
-| EV-T2 Embakasi deadline | 2,900 ≥ 2,800; max 400 kW; 15,216; saving 6,928.80; net_12m 81,645.60 |
+| EV-T1 Embakasi cheapest | 2,500 vs 2,800; 3 short; bill 12,975 (lowest); REJECTED by EV1_DEPARTURE_READINESS |
+| EV-T2 Embakasi deadline | 2,900 ≥ 2,800; max 400 kW; 13,356; saving 8,788.80; net_12m 103,965.60 |
 | EV-T3 Kasarani CH-K2 | 1,050 vs 1,200; 1 short; HIGH; KAS-OEM-STOPGAP 90 RECOMMENDED |
 | EV-T4 Ruiru connector | deliverable unchanged 3,200; LOW |
 | EV-T5 Ruiru +6 / +10 | 2,800 feasible / 3,360 infeasible |
@@ -864,7 +868,7 @@ Protective pass with 1,550 and 1 visit left: BAT-EVIDENCE 430 (1 visit) → spen
 (60) rides on the Mto visit and is funded from routine O&M, outside the decision budget. KIS-OM-SLA review is a
 zero-cost CONTRACT_EVENT task. Result equals the manifest: [KIS-REPAIR, KOB-STOPSOC, MTO-INV-CLAIM, MTO-HULLER,
 MTO-BILLING, MTO-METER-AUDIT, BAT-EVIDENCE], spend 3,880, modelled 12-month change 6,096 (MODELLED, not realised);
-listed not summed: MTO-BILLING charges 672, KIS-OM-SLA credit 70, BAT-001 cover 64,000 [test-confirmed by checker].
+listed not summed: MTO-BILLING charges 672, KIS-OM-SLA credit 70, BAT-001 cover 64,000 [derived, arithmetic checked].
 
 ### 7.3 Budget 6,430 and the LOI switch
 
@@ -877,8 +881,10 @@ The switch is two conditions together, not either [derived]:
   BUYNOW wins by 990; below it, BUYNOW + HULLER is infeasible even after dropping BAT-EVIDENCE and STOPSOC
   (1,800 + 2,910 + 1,200 = 5,910 > 5,000), so the huller drops and CLAIM stays.
 
-The manifest's BUYNOW condition text says "budget ≥ 6,430 **or** the cooperative will not extend"; its sensitivity
-line says "and". The arithmetic supports "and" (section 12).
+The manifest's BUYNOW condition now reads "budget ≥ 6,430 **and** the cooperative will not extend" (corrected in
+rev 2). `check_manifest.py` enumerates all four budget × letter-of-intent cases by brute force: 5,000/extends → CLAIM
++6,096; 5,000/no extension → CLAIM without the huller +2,556; 6,500/extends → CLAIM +6,096; 6,500/no extension →
+BUYNOW +3,546 at spend 6,430 [derived, arithmetic checked].
 
 ### 7.4 Other tenants
 
@@ -970,7 +976,7 @@ claimed from both the EPC contractor and the insurer, the second recovery would 
 | Forecast / plan | What do we expect or intend? | October plan lines; Mwea Dec–Mar contract volumes | an actual |
 | Counterfactual | What would have happened under another policy, with the same inputs? | Kobo replay with stop 70 | a saving (it is MODELLED until verified) |
 
-Each object carries its type in its output and evidence class: reconstruction → OPERATIONAL_ACTUAL; normalisation
+Each object carries its type in its output and money class: reconstruction → OPERATIONAL_ACTUAL; normalisation
 → DERIVED; plan → PLAN_LINE (D2); counterfactual → MODELLED [proposed].
 
 ### 9.2 Minimum samples and resolutions per claim [proposed]
@@ -1025,14 +1031,14 @@ manifest oracle. "No oracle" means the manifest has none yet; a proposed id is g
 | 3 | Physical-to-cash discrepancy | Mto meters, billing CSV, meter register (valid_from), settlement statement | Reconciliation chain; MTO-BILLING, MTO-METER-AUDIT | MG-6 cash, MG-3 profitability | Correct mapping (56/month), audit the 120 kWh; unexplained unpriced; no automatic recovery | `test_l4_mg_energy_to_cash_chain` · OR-MG-4 |
 | 4 | Underoccupancy vs inefficiency | PLAN_VARIANCE → storage ledger crate-days + hourly energy + ambient → normalised model | Mwea: AGG vs compressor vs NO_ACTION; Kirinyaga: repair vs replace vs NO_ACTION | CC-2, CC-3; commodity compatibility | Sell Mwea capacity; repair Kirinyaga; compressor rejected | `test_l4_cc_normalised_root_cause` · OR-CC-1 |
 | 5 | Cold batch exposure | Thika incident → 1-min chamber + ledger presence + commodity limits + QA notes + contract | Exposure reconstruction; stopgap vs wait vs self-repair | CC-1, CC-6; CC1_TEMPERATURE_LIMIT | Exposure 2,160 (EXPOSURE) ≠ damage 108 ≠ liability 108; B-1034 not exposed; B-1029 excluded; probe gap → UNKNOWN | `test_l4_cc_batch_exposure_separation` · OR-CC-2 |
-| 6 | Cheaper schedule vs fleet constraint | PLAN_VARIANCE → OCPP sessions + roster + tariff/invoice | EDF feasibility; cheapest vs deadline vs NO_ACTION | EV-1, EV-2, EV-5; EV1 and EV5 HARD | Cheapest rejected (3 short); deadline 6,928.80/month; tariff applicability CONDITIONAL | `test_l4_ev_cheapest_schedule_rejected` · OR-EV-1 |
+| 6 | Cheaper schedule vs fleet constraint | PLAN_VARIANCE → OCPP sessions + roster + tariff/invoice | EDF feasibility; cheapest vs deadline vs NO_ACTION | EV-1, EV-2, EV-5; EV1 and EV5 HARD | Cheapest bill (12,975/month) rejected because 3 buses leave short; deadline 13,356/month (saving 8,788.80); tariff applicability CONDITIONAL | `test_l4_ev_cheapest_schedule_rejected` · OR-EV-1 |
 | 7 | Critical fault vs idle connector | Fault events + roster + capacity model + SLA | Consequence ranking; stopgap vs wait vs local repair | EV-1, EV-4 | CH-K2 first (1 bus short, penalties 240); CH-R7 LOW (import binds) | `test_l4_ev_fault_consequence_not_downtime` · OR-EV-2 |
 | 8 | Entitlement contrast | Three incidents → CONTRACT_DOCUMENT terms + evidence | Paths: claim, stopgap + claim, paid repair, replace, NO_ACTION | MG-5, MG-4; NOTICE_DEADLINE, WARRANTY_PRESERVATION | INV-MT-02 POTENTIALLY_COVERED (claim 360); GEN-KS-01 EXPIRED_AND_EXCLUDED (1,800 funded); BAT-001 INSUFFICIENT_EVIDENCE (collect evidence 430); no remedy as money | `test_l4_ent_three_incident_contrast` · OR-ENT-1 |
-| 9 | EPC/O&M/SLA obligation | CONTRACT_EVENT: Kisiwa O&M 96 h vs 48 h; Kasarani SLA clock; Thika EPC acceptance | Clock after exclusions and calendar basis | MG-5, EV-1, CC-6 | Kisiwa potential credit 70 REVIEW_REQUIRED (weather exclusion reviewed); never a breach verdict | `test_l4_ent_sla_clock_review_not_verdict` · no oracle (proposed OR-ENT-2) |
-| 10 | Insurance distinction | Thika goods-in-custody policy + QA damage + credit note | Peril hypothesis vs deductible vs exclusions | CC-1 | Notice sent; claim NOT_FILED (108 < 500); reimbursement 0 recorded until settlement | `test_l4_ent_insurance_deductible_no_reimbursement` · no oracle (proposed OR-ENT-3) |
+| 9 | EPC/O&M/SLA obligation | CONTRACT_EVENT: Kisiwa O&M 96 h vs 48 h; Kasarani SLA clock; Thika EPC acceptance | Clock after exclusions and calendar basis | MG-5, EV-1, CC-6 | Kisiwa potential credit 70 REVIEW_REQUIRED (weather exclusion reviewed); never a breach verdict | `test_l4_ent_sla_clock_review_not_verdict` · OR-ENT-2 |
+| 10 | Insurance distinction | Thika goods-in-custody policy + QA damage + credit note | Peril hypothesis vs deductible vs exclusions | CC-1 | Notice sent; claim NOT_FILED (108 < 500); reimbursement 0 recorded until settlement | `test_l4_ent_insurance_deductible_no_reimbursement` · OR-ENT-3 |
 | 11 | Portfolio underperformance bridge | D2 ledger + plan lines → D3 site_period_economics | Driver bridge with residual and coverage | all categories | Lakeside −852 explained by site bridges incl. residual lines; Kisiwa O&M ESTIMATED; entitlements not stacked on OPEX | `test_l4_portfolio_bridge_sums_with_residual` · OR-MG-5 |
-| 12 | Portfolio choice and execution | All decisions → D9 run → approval → work case ASSIGN → late evidence | Exhaustive subset | budget 5,000, 3 crews, dependencies, exclusions | Seven recommended, 3,880 spend, every exclusion reasoned; OOO-1 revision re-evaluates; withdrawal path | `test_l4_allocation_lakeside_5000_and_6430` · no oracle (proposed OR-ALLOC-1) |
-| 13 | Verification and integrity | Frozen plan → post window readings + D2 records + claim events | Verdict triple; recovery ledger | MG-2, MG-5, MG-4 | Operational, economic and causal shown separately; ACCEPTED ≠ CREDIT_BOOKED ≠ CASH_RECEIVED; duplicate recovery refused | `test_l4_verification_triple_and_recovery_ledger` · no oracle (proposed OR-VER-1) |
+| 12 | Portfolio choice and execution | All decisions → D9 run → approval → work case ASSIGN → late evidence | Exhaustive subset | budget 5,000, 3 crews, dependencies, exclusions | Seven recommended, 3,880 spend, every exclusion reasoned; OOO-1 revision re-evaluates; withdrawal path | `test_l4_allocation_lakeside_5000_and_6430` · OR-ALLOC-1 |
+| 13 | Verification and integrity | Frozen plan → post window readings + D2 records + claim events | Verdict triple; recovery ledger | MG-2, MG-5, MG-4 | Operational, economic and causal shown separately; ACCEPTED ≠ CREDIT_BOOKED ≠ CASH_RECEIVED; duplicate recovery refused | `test_l4_verification_triple_and_recovery_ledger` · OR-VER-1 |
 | 14 | Demo realism and tenancy | Source emulators + disorder tests DUP-1 … CLOCK-1 | Ingestion idempotency, revisions, isolation | all | DUP-1 0 new revisions; TENANT-1 refused; FX-1 converted with basis; GAP-1 ESTIMATED never 0 | `test_l4_disorder_and_tenancy_suite` · OR-TEN-1 |
 
 ---
@@ -1066,7 +1072,7 @@ approval: {decision_id, option_id, principal(USER), at, override_of[] (COSTED/AD
 
 `EXACT` (identity arithmetic on recorded facts) · `BOUNDED` (stated range, e.g. recovery 0.60–0.90) · `MODELLED`
 (replay or normalised model, calibrated) · `WIDE` (model with pooled or default coefficients) · `UNKNOWN` (evidence
-missing; never zero). Every money figure carries one label and one evidence class (D4).
+missing; never zero). Every money figure carries one label and one money class (D4).
 
 ### 11.3 Refusal policy [proposed]
 
@@ -1123,7 +1129,7 @@ block from the roster owner; connector compatibility per bus model.
    degradation schedule. BAT-EVIDENCE still stands.
 6. **Manifest omissions (immaterial):** KOB-STOPSOC one-off 90 is not itemised; KIRI-REPLACE 234.30 basis implied
    (new unit 5 % better than model); huller battery wear and BUYNOW's 6 days of extra fuel are not counted.
-7. **No oracle ids** for C3 scenarios 9, 10, 12, 13; proposed OR-ENT-2, OR-ENT-3, OR-ALLOC-1, OR-VER-1.
+7. ~~No oracle ids for C3 scenarios 9, 10, 12, 13~~ — resolved: OR-ENT-2, OR-ENT-3, OR-ALLOC-1, OR-VER-1 are in the manifest.
 8. **Not verified by running the simulator.** The replay figures (20 L / 4 days; 210 L / 0 days; huller 68 L) are
    manifest oracle values; no in-memory kernel run was made for this document. The mechanism (v5 start threshold,
    stop rule, override bounds) is code-observed and consistent with them.

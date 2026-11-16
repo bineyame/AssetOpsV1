@@ -1477,11 +1477,30 @@
   }
  },
  "budget": {
-  "base_has_claim": true,
-  "base_spend": true,
-  "high_has_buynow_recommended": true,
-  "high_spend": true,
-  "high_total": true
+  "base-yes": {
+   "chosen": true,
+   "spend": true,
+   "total": true,
+   "alternativeShown": true
+  },
+  "base-no": {
+   "chosen": true,
+   "spend": true,
+   "total": true,
+   "alternativeShown": true
+  },
+  "high-yes": {
+   "chosen": true,
+   "spend": true,
+   "total": true,
+   "alternativeShown": true
+  },
+  "high-no": {
+   "chosen": true,
+   "spend": true,
+   "total": true,
+   "alternativeShown": true
+  }
  },
  "errors": [],
  "pilotToast": "Example only: no request was sent.",

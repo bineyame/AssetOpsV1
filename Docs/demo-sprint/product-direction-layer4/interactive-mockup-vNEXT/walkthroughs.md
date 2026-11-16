@@ -34,7 +34,12 @@ Structure from brief Part V: 0–1 opening, 1–2 reveal, 2–4 investigate (wit
 2. Read the four answer cards. In **Options compared**, contrast: stop setting (+$2,916 over 12 months, three safeguards pass, one costed) vs lower reserve (**Fails**: battery below 35% at 5 am) vs buy storage ($28,000, Later) vs do nothing.
 3. Point at "If things change": diesel 20% cheaper still $2,286.
 4. Click **Plan and budget** in the left menu (`#/plan-lakeside`). Show $3,880 of $5,000, 3 of 3 crew visits, modelled +$6,096 "not realized", and the three listed-not-added items.
-5. Select the **$6,500** budget: buying the inverter now replaces claim-and-wait; spend $6,430; total +$3,546. Switch back to **$5,000**.
+5. Next to the budget, answer **Will the cooperative extend its letter of intent?** Walk the four cases (also in the "All four cases" table):
+   - **$5,000 + Yes** (default): claim and wait, spend $3,880, +$6,096.
+   - **$5,000 + No**: claim and wait, the huller is lost, spend $2,680, +$2,556; buying now is not affordable ($6,430).
+   - **$6,500 + Yes**: claim and wait still wins (+$6,096 against +$3,546 for buying now).
+   - **$6,500 + No**: buying now wins, spend $6,430, +$3,546 against +$2,556 (+$990).
+   Say: "More budget never lowers the result; whether the cooperative extends is what changes it." Return to **$5,000** and **Yes**.
 6. Optional (entitlement): open **Restore Mto's failed inverter** from "Not in the plan" → contract rights panel: Evidence assembled, **21 days left** to the 27 Nov notice deadline, cost to us per path, "This is not a legal decision…".
 
 ### 6–7 min · Convert
@@ -53,11 +58,11 @@ Structure from brief Part V: 0–1 opening, 1–2 reveal, 2–4 investigate (wit
 > Here's the comparison that matters. Mwea looks worst: it earns least per crate-day. The usual reaction is 'the compressor must be failing'. But Mwea used 2,650 kWh against 2,635 that a room this empty should use: it is within a fraction of a percent. Mwea's problem is that it's 35% full, not that anything is broken.
 > Kirinyaga is the opposite. It's busy, 80% full as planned, yet it used 24% more electricity than its occupancy explains. That one is the equipment.
 > And Thika: an outage exposed $2,160 of a customer's tomatoes. Exposed is not lost: inspection confirmed six crates, and we owed $108.
-> Coverage for this operator is not available yet in the demo data, and the page says so rather than assuming everything is recorded."
+> 97.8% of the costs come from recorded invoices; Thika's $80 maintenance line is an estimate because the invoice is still pending."
 
 ### 1–2 min · Reveal
 1. Point at the contrast card "The room with the highest cost per crate-day has nothing wrong with it".
-2. Click **View as COO**: "Where the technicians go in November", 2 of 2 visits.
+2. Click **View as CFO**: the coverage panel shows Thika maintenance as Estimated. Then **View as COO**: "Where the technicians go in November", 2 of 2 visits.
 
 ### 2–4 min · Investigate (negative control: Mwea)
 1. Click **Why off plan**: Mwea's recorded "Fewer crate-days stored" −$620, and "Less energy at lower occupancy (not a saving)" +$155.
@@ -83,9 +88,9 @@ Structure from brief Part V: 0–1 opening, 1–2 reveal, 2–4 investigate (wit
 ### 0–1 min · Opening insight (script, about 70 seconds)
 
 > "Metro Bus Depots charges its own buses: charging earns nothing, so the measure is cost per bus that leaves on time.
-> In October every one of 1,302 required departures left on time. That's the good news. The cost was $40,605.12 against a plan of $37,420.80: $3,184.32 over, about $31 per departure.
+> In October every one of 1,302 required departures left on time. That's the good news. The cost, energy and maintenance at all three depots, was $41,705.12 against a plan of $38,520.80: $3,184.32 over, about $32 per departure. 99.3% of it is from recorded invoices; Kasarani's $300 maintenance is estimated until the invoice arrives.
 > Almost all of that is at Embakasi, which charged 55% of its energy at peak prices against a 30% plan, and pushed its monthly peak to 500 kW.
-> The obvious fix is 'charge only in the cheapest hours'. We reject it: in those hours the chargers can't put enough energy in, and three buses would leave short every night.
+> The obvious fix is 'charge only in the cheapest hours', midnight to five at nine cents. It really is the cheapest bill, $12,975 a month. We still reject it: in those hours the chargers can't put enough energy in, and three buses would leave short every night.
 > Second surprise: Ruiru looks underused, chargers busy 31% of the time, but the grid connection caps it at six more buses, not ten."
 
 ### 1–2 min · Reveal
@@ -97,9 +102,9 @@ Structure from brief Part V: 0–1 opening, 1–2 reveal, 2–4 investigate (wit
 3. Click site tab **Kasarani**: flat tariff, so "Change the charging schedule" saves nothing (negative control); charger 2 fault, 2 missed departures, $240 penalties.
 
 ### 4–6 min · Decide
-1. Open **Charge Embakasi's buses outside peak hours**: deadline-aware schedule +$81,645.60 over 12 months, both safeguards pass; cheapest hours **Fails** "Every bus leaves with the charge it needs"; keep current pattern $22,144.80 a month.
-2. Open Kasarani → **Keep Kasarani's buses running while charger 2 is repaired**: rights panel (Acknowledged, restore due 9 Nov, **3 days left**), stop-gap $90 vs wait (likely $240 more penalties) vs local repair (voids warranty).
-3. **Plan and budget**: $1,590 of $5,000, 0 of 2 technician visits, the order of work.
+1. Open **Charge Embakasi's buses outside peak hours**: deadline-aware schedule, bill $13,356 a month, +$103,965.60 over 12 months, both safeguards pass; cheapest hours: the lowest bill ($12,975 a month, $381 less) but **Fails** "Every bus leaves with the charge it needs" ("Cheapest bill, but 3 buses leave short every night"); keep current pattern $22,144.80 a month.
+2. Open Kasarani → **Keep Kasarani's buses running while charger 2 is repaired**: rights panel (Acknowledged, restore due 9 Nov, **3 days left**); charge one bus at Ruiru on each of the 3 nights until the repair, $90 in total, against waiting (about $240 in penalties and 2 broken departures) and local repair (voids the warranty).
+3. **Plan and budget**: $1,590 of $5,000, 0 of 2 technician visits, the order of work. (Only Lakeside has a second budget case.)
 
 ### 6–7 min · Convert
 1. **Proof it worked** for the Embakasi schedule.

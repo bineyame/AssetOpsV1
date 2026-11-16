@@ -1,7 +1,9 @@
 """Arithmetic checks for demo-site-scenario-manifest.yaml (Layer 4 design pack).
 
 Design-pack tool, not product code. Every illustrative figure in the Layer 4 artifacts comes from the manifest;
-this script proves the manifest reconciles to the cent. Run:  python3 check_manifest.py demo-site-scenario-manifest.yaml
+this script proves the manifest reconciles to the cent: period identities, bridges, coverage, option economics,
+remedy residuals, that the rejected cheapest EV schedule really is the cheapest bill, and that the Lakeside allocation is
+the best subset under each budget x letter-of-intent case (brute force). Run:  python3 check_manifest.py demo-site-scenario-manifest.yaml
 Exit code 0 = all checks pass.
 """
 from __future__ import annotations
@@ -21,6 +23,18 @@ def eq(label: str, a, b) -> None:
         failures.append(f"{label}: {a} != {b}")
     else:
         passes += 1
+
+
+def check(label: str, cond: bool) -> None:
+    global passes
+    if cond:
+        passes += 1
+    else:
+        failures.append(label)
+
+
+def lt(label: str, a, b) -> None:
+    check(f"{label}: {a} < {b}", D(str(a)) < D(str(b)))
 
 
 def le(label: str, a, b) -> None:
@@ -85,18 +99,15 @@ def ev(t: dict) -> None:
     plan_total, actual_total = D(0), D(0)
     for s in t["sites"]:
         n, p = s["site"], s["period"]
-        a = p["actual"]
-        if "demand_cost" in a:
-            for k in ("plan", "actual"):
-                r = p[k]
-                if "demand_cost" in r:
-                    eq(f"{n} {k} cost parts", r["energy_cost"], D(str(r["peak_cost"])) + D(str(r["offpeak_cost"])) + D(str(r["demand_cost"])))
-            eq(f"{n} variance", p["variance"], D(str(p["plan"]["energy_cost"])) - D(str(a["energy_cost"])))
-            plan_total += D(str(p["plan"]["energy_cost"])); actual_total += D(str(a["energy_cost"]))
-            if "bridge" in p:
-                eq(f"{n} bridge", sum(D(str(b["amount"])) for b in p["bridge"]), p["variance"])
-        else:
-            plan_total += D(str(p["plan"]["total"])); actual_total += D(str(a["total"]))
+        for k in ("plan", "actual"):
+            r = p[k]
+            if "demand_cost" in r:
+                eq(f"{n} {k} energy parts", r["energy_cost"], D(str(r["peak_cost"])) + D(str(r["offpeak_cost"])) + D(str(r["demand_cost"])))
+            eq(f"{n} {k} total", r["total"], D(str(r["energy_cost"])) + D(str(r["maintenance"])))
+        eq(f"{n} variance", p["variance"], D(str(p["plan"]["total"])) - D(str(p["actual"]["total"])))
+        if "bridge" in p:
+            eq(f"{n} bridge", sum(D(str(b["amount"])) for b in p["bridge"]), p["variance"])
+        plan_total += D(str(p["plan"]["total"])); actual_total += D(str(p["actual"]["total"]))
     pf = t["portfolio"]
     eq("ev plan", pf["plan_cost"], plan_total)
     eq("ev actual", pf["actual_cost"], actual_total)
@@ -105,12 +116,108 @@ def ev(t: dict) -> None:
     al = pf["allocation"]
     eq("ev spend", al["spend"], sum(D(str(v)) for v in al["spend_breakdown"].values()))
     le("ev budget", al["spend"], t["portfolio_constraints"]["budget_usd_nov_dec"])
+    # option economics (M1: the rejected cheapest schedule must really be the cheapest bill)
+    emb = t["sites"][0]; o = {x["id"]: x for x in emb["decision"]["options"]}
+    ch, dl = o["EMB-CHEAPEST"]["economics"], o["EMB-DEADLINE"]["economics"]
+    eq("emb cheapest energy", ch["energy"], D(ch["kwh_month"]) * D("0.09"))
+    eq("emb cheapest kwh", ch["kwh_month"], D(o["EMB-CHEAPEST"]["deliverable_kwh"]) * 31)
+    eq("emb cheapest unserved", ch["unserved_kwh_month"], (D(o["EMB-CHEAPEST"]["required_kwh"]) - D(o["EMB-CHEAPEST"]["deliverable_kwh"])) * 31)
+    eq("emb cheapest cost", ch["energy_cost_monthly"], D(str(ch["energy"])) + D(str(ch["demand"])))
+    eq("emb deadline cost", dl["energy_cost_monthly"], D(dl["kwh_2200_2400"]) * D("0.12") + D(dl["kwh_0000_0500"]) * D("0.09") + D(str(dl["demand"])))
+    eq("emb deadline kwh", D(dl["kwh_2200_2400"]) + D(dl["kwh_0000_0500"]), D(o["EMB-DEADLINE"]["required_kwh"]) * 31)
+    eq("emb deadline demand", dl["demand"], D(o["EMB-DEADLINE"]["max_kw"]) * D(12))
+    eq("emb saving", dl["saving_monthly"], D(str(emb["period"]["actual"]["energy_cost"])) - D(str(dl["energy_cost_monthly"])))
+    eq("emb 12m", dl["net_12m"], D(str(dl["saving_monthly"])) * 12 - D(str(dl["one_off"])))
+    lt("cheapest bill below deadline bill", ch["energy_cost_monthly"], dl["energy_cost_monthly"])
+    cov = pf["coverage"]
+    eq("ev coverage total", cov["cost_total_usd"], actual_total)
+    est = sum(D(str(s_["period"]["actual"][k])) for s_ in t["sites"] for k, v in s_["period"]["coverage"].items() if v == "ESTIMATED")
+    eq("ev coverage recorded", cov["cost_recorded_usd"], actual_total - est)
+    eq("ev coverage share", cov["cost_recorded_share"], (D(str(cov["cost_recorded_usd"])) / actual_total).quantize(D("0.0001")))
+
+
+def lakeside_options(t: dict) -> None:
+    kob, kis, mto = t["sites"]
+    ko = {x["id"]: x for x in kob["decision"]["options"]}
+    e = ko["KOB-STOPSOC"]["economics"]
+    eq("stopsoc gross", e["gross_monthly"], D(ko["KOB-STOPSOC"]["forward_replay"]["avoidable_fuel_l"]) * D("1.25"))
+    eq("stopsoc wear", e["wear_monthly"], D(ko["KOB-STOPSOC"]["forward_replay"]["added_battery_throughput_kwh"]) * D("0.08"))
+    eq("stopsoc net", e["net_monthly"], D(str(e["gross_monthly"])) - D(str(e["wear_monthly"])))
+    eq("stopsoc 12m", e["net_12m"], D(str(e["net_monthly"])) * 12 - D(str(e["one_off"])))
+    mo = {x["id"]: x for x in mto["decision"]["options"]}
+    h = mo["MTO-HULLER"]["economics"]
+    eq("huller kwh", mo["MTO-HULLER"]["load"]["kwh_month"], D(mo["MTO-HULLER"]["load"]["kw"]) * 5 * D(mo["MTO-HULLER"]["load"]["days_per_month"]))
+    eq("huller revenue", h["revenue_monthly"], D(mo["MTO-HULLER"]["load"]["kwh_month"]) * D("0.30"))
+    eq("huller fuel", h["fuel_monthly"], D(mo["MTO-HULLER"]["forward_replay"]["extra_fuel_l"]) * D("1.25"))
+    eq("huller net", h["net_monthly"], D(str(h["revenue_monthly"])) - D(str(h["fuel_monthly"])) - D(str(h["collection_cost_monthly"])))
+    eq("huller 12m", h["net_12m"], D(str(h["net_monthly"])) * 12 - D(str(h["one_off"])))
+    w = mo["MTO-WELDING"]["economics"]
+    eq("welding net", w["net_monthly"], D(str(w["revenue_monthly"])) - D(str(w["fuel_monthly"])))
+    b = mo["MTO-BILLING"]["economics"]
+    eq("billing 12m", b["charges_12m"], D(str(b["charges_monthly"])) * 12)
+    io = {x["id"]: x for x in mto["entitlement"]["options"]}
+    eq("inverter claim residual", io["MTO-INV-CLAIM"]["residual_cost"], D(150) + D(80) + D(130))
+    eq("inverter buy-now residual", io["MTO-INV-BUYNOW"]["residual_cost"], D(2600) + D(80) + D(150) + D(80))
+    # allocation: brute force over the money options under each budget x letter-of-intent case
+    must = D(str(kis["decision"]["options"][0]["cost"])) + D(430)   # KIS-REPAIR + BAT-EVIDENCE (no money, protective)
+    opts = {"STOPSOC": (D(90), D(str(e["net_12m"]))), "CLAIM": (D(360), D(-360)), "BUYNOW": (D(2910), D(-2910)),
+            "HULLER": (D(1200), D(str(h["net_12m"])))}
+    import itertools
+    def best(budget, loi_extends):
+        res = None
+        for r in range(len(opts) + 1):
+            for c in itertools.combinations(opts, r):
+                c = set(c)
+                if len(c & {"CLAIM", "BUYNOW"}) != 1:   # the inverter must be restored by exactly one path
+                    continue
+                if "HULLER" in c and not (("BUYNOW" in c) or loi_extends):
+                    continue                            # claim path restores 28 Nov, after the LOI lapses
+                cost = must + sum(opts[k][0] for k in c)
+                if cost > budget:
+                    continue
+                val = sum(opts[k][1] for k in c)
+                if res is None or val > res[0]:
+                    res = (val, cost, c)
+        return res
+    v, c, sset = best(D(5000), True)
+    eq("alloc 5000 LOI-yes value", v, D(str(t["portfolio"]["allocation"]["modelled_12m_change"]["total"])))
+    eq("alloc 5000 LOI-yes spend", c, t["portfolio"]["allocation"]["spend"])
+    v2, c2, s2 = best(D(5000), False)
+    eq("alloc 5000 LOI-no value", v2, D(2556)); check("alloc 5000 LOI-no claim path", "CLAIM" in s2)
+    v3, c3, s3 = best(D(6500), True)
+    eq("alloc 6500 LOI-yes value (claim still wins)", v3, D(6096)); check("alloc 6500 LOI-yes claim", "CLAIM" in s3)
+    v4, c4, s4 = best(D(6500), False)
+    eq("alloc 6500 LOI-no value", v4, D(3546)); eq("alloc 6500 LOI-no spend", c4, D(6430)); check("alloc 6500 LOI-no buy-now", "BUYNOW" in s4)
+
+
+def cold_options(t: dict) -> None:
+    by = {s["code"]: s for s in t["sites"]}
+    mo = {x["id"]: x for x in by["COLD-MWEA"]["decision"]["options"]}["MWEA-AGG"]["economics"]
+    eq("mwea revenue", mo["revenue_monthly"], D(mo["crate_days_month"]) * D("0.18"))
+    eq("mwea energy", mo["energy_monthly"], D(mo["crate_days_month"]) * D("0.25") * D("0.20"))
+    eq("mwea net", mo["net_monthly"], D(str(mo["revenue_monthly"])) - D(str(mo["energy_monthly"])) - D(str(mo["handling_monthly"])))
+    eq("mwea contract", mo["net_contract"], D(str(mo["net_monthly"])) * mo["months"] - D(str(mo["one_off"])))
+    ko = {x["id"]: x for x in by["COLD-KIRI"]["decision"]["options"]}
+    excess = D(by["COLD-KIRI"]["period"]["actual"]["kwh"]) - D(by["COLD-KIRI"]["period"]["actual"]["kwh_model"])
+    r = ko["KIRI-REPAIR"]
+    eq("kiri repair monthly", r["economics"]["monthly"], excess * D(str(r["recovery_share"])) * D("0.20"))
+    eq("kiri repair 12m", r["economics"]["net_12m"], D(str(r["economics"]["monthly"])) * 12 - D(str(r["cost"])))
+    rp = ko["KIRI-REPLACE"]
+    eq("kiri replace monthly", rp["economics"]["monthly"], excess * D("0.20") + D(by["COLD-KIRI"]["period"]["actual"]["kwh_model"]) * D("0.05") * D("0.20"))
+    eq("kiri replace 12m", rp["economics"]["net_12m"], D(str(rp["economics"]["monthly"])) * 12 - D(str(rp["capex"])))
+    pf = t["portfolio"]["coverage"]
+    tot = sum(D(str(s["period"]["actual"][k])) for s in t["sites"] for k in ("energy", "staff", "maint", "liability") if k in s["period"]["actual"])
+    eq("cold coverage total", pf["cost_total_usd"], tot)
+    est = sum(D(str(s["period"]["actual"][k])) for s in t["sites"] for k, v in s["period"]["coverage"].items() if v == "ESTIMATED")
+    eq("cold coverage recorded", pf["cost_recorded_usd"], tot - est)
+    eq("cold coverage share", pf["cost_recorded_share"], (D(str(pf["cost_recorded_usd"])) / tot).quantize(D("0.0001")))
 
 
 def main(path: str) -> int:
     doc = yaml.safe_load(open(path, encoding="utf-8"))
     for t in doc["tenants"]:
         {"MINI_GRID": mini, "COLD_CHAIN": cold, "EV_DEPOT": ev}[t["vertical"]](t)
+        {"MINI_GRID": lakeside_options, "COLD_CHAIN": cold_options, "EV_DEPOT": lambda _t: None}[t["vertical"]](t)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
         print("FAIL", f)

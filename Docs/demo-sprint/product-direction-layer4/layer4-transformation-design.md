@@ -11,7 +11,7 @@
 | File | What it is |
 |---|---|
 | `layer4-transformation-design.md` (this file) + `layer4-transformation-design.html` (rendered) | The narrative: the decision process, the mechanisms that realise it, and how today's system becomes the product |
-| `outcome-lever-capability-traceability.csv` | 328 many-to-many links: objective ↔ lever ↔ capability ↔ executive question ↔ mechanism ↔ demo option |
+| `outcome-lever-capability-traceability.csv` | 335 many-to-many links: objective ↔ lever ↔ capability ↔ executive question ↔ mechanism ↔ demo option |
 | `repo-reuse-and-gap-matrix.md` | Appendix: module / function / table / API / test dispositions |
 | `economic-metric-and-effect-contracts.md` | Economic truth model, worked reconciliations, formulas, contract-rights states, typed contracts, negative accounting tests |
 | `integration-source-to-canonical-design.md` | Source → canonical → domain → decision traces, schemas, quality, security, pilot adapters |
@@ -80,7 +80,7 @@ The design starts from what the executive must decide, works backwards to the fa
 | Site | Diesel | What the analysis finds | What it means |
 |---|---:|---|---|
 | Kisiwa | 2,400 L | every generator interval is **Necessary**: evening load exceeds solar plus battery converter capability | no fuel lever; the highest diesel user is the negative control |
-| Kobo | 1,180 L | 330 L of generator running while solar could carry the load (dispatch-3.2 Candidate); forward replay says 210 L of it was avoidable, 120 L was not | a policy lever worth ~250 per month net |
+| Kobo | 1,180 L | 330 L of generator running while solar could carry the load (dispatch-3.2 Candidate); forward replay says 210 L of it was avoidable, 120 L was not (design values held in the manifest; the slice 3 replay adapter must reproduce them from real series before they are relied on) | a policy lever worth ~250 per month net |
 | Mto | 320 L | small; but 140 kWh metered and not billed after a meter swap, 120 kWh unexplained after expected losses, and a paying daytime customer waiting | commercial levers, not fuel |
 
 Each line of that table needs a **different kind of fact**, and that is what the integration design is for:
@@ -108,7 +108,7 @@ Each cause becomes a **decision with options**, and every decision includes **do
 | Kobo: generator runs after dawn | do nothing · lower reserve 30 → 25 (today's only rule) · lower stop threshold 90 → 70 · add 100 kWh battery (28,000) | stop threshold **recommended** (12-month net 2,916.00, modelled); reserve change **rejected**: it removes only 20 L and leaves dawn charge below 35% on 4 of 61 replayed days (hard safeguard); battery **deferred** |
 | Kisiwa: one of two gensets failed | repair (1,800) · replace (9,500) · add battery (14,000) · do nothing | repair **must-do** (single genset cannot carry the evening); battery deferred (payback ~6 years) |
 | Mto: daytime headroom and two customer requests | rice huller (signed letter of intent) · evening welder (verbal) · fix billing mapping · audit meters | huller **recommended** (395.00/month net, 3,540.00 over 12 months, after 1,200 connection), welder **rejected** (−8.25/month; every evening kWh is diesel), billing fix **recommended**, audit combined with a visit |
-| Mto: inverter INV-MT-02 failed 28 Oct | claim under warranty and wait · buy now and claim the failed unit · open it locally · do nothing | at budget 5,000: **claim and wait** (residual 360.00); at ≥ 6,430: buy now wins because it secures the huller before its letter of intent lapses |
+| Mto: inverter INV-MT-02 failed 28 Oct | claim under warranty and wait · buy now and claim the failed unit · open it locally · do nothing | at budget 5,000: **claim and wait** (residual 360.00); buy now wins only if the budget is at least 6,430 **and** the cooperative will not extend its letter of intent: then claim-and-wait loses the huller (+2,556 over 12 months) and buy-now keeps it (+3,546). If the letter of intent is extended, claim-and-wait wins at any budget (+6,096). More budget never lowers the result; the letter-of-intent assumption changes it |
 
 The **allocation** then picks a set under budget, crews and dependencies (§7.3): Kisiwa repair, Kobo stop-setting trial (remote, no crew), Mto inverter claim, Mto huller (after the inverter), Mto billing fix, Kobo battery evidence. Spend 3,880.00 of 5,000; crews 3 of 3. Modelled 12-month change of the set: 2,916.00 + 3,540.00 − 360.00 = **6,096.00, not realised**; the billing correction (672.00 of charges), the Kisiwa O&M response credit (70.00, review required) and the Kobo battery cover at risk (64,000.00) are **listed, not summed**.
 
@@ -160,7 +160,7 @@ The brief names seven structures to reuse or extend. Each subsection states what
 ### 3.3 `CONTRIBUTIONS`, strategies and objectives → typed evidence and money (extend through D3, D4)
 
 **Today.** Ten node records, all MOVES; six strategies; "no strategy computes new money" (`chain/strategies/base.py:1-6`) [code-observed]. Objectives are operational targets (minutes, kWh, sessions) with verdicts (`outcomes/objectives.py:57-73`, `:112-143`) [code-observed].
-**Becomes.** Three changes. (a) `recorded_amount@2` reads `commercial_record` revisions so MG-6, MG-3, EV-6, CC-2 can leave "not connected yet". (b) Every `Effect` gains `evidence_class`, `overlap_group`, `horizon`, `beneficiary` (contracts §6.2); the composer refuses a second money contribution to one overlap group. (c) Objectives gain **financial plan lines** (from `PLAN_LINE` records) beside the operational ones, so "off plan" can mean money.
+**Becomes.** Three changes. (a) `recorded_amount@2` reads `commercial_record` revisions so MG-6, MG-3, EV-6, CC-2 can leave "not connected yet". (b) Every `Effect` gains `money_class`, `overlap_group`, `horizon`, `beneficiary` (contracts §6.2; named `money_class` because `evidence_class` already exists in the chain layer as a source basis, see §5); the composer refuses a second money contribution to one overlap group. (c) Objectives gain **financial plan lines** (from `PLAN_LINE` records) beside the operational ones, so "off plan" can mean money.
 
 **Two repository constraints shape this.** The period read contract refuses stored totals (`chain/period_read.py:139-140`, "no stored totals (D-MONEY.3)") [code-observed], so `site_period_economics` is designed as a **sibling read contract** whose totals are recomputed from stored lines on every read, not stored; reusing the period read itself would need an Architect ruling against D-MONEY.3 (logged in `design-questions-and-decisions.md`). And overlap control already has a seed: `estate/financials.py` `_overlaps` and `compare` mark overlapping money lines CONFLICT, and `overlap_group` columns exist in migrations 0011, 0023 and 0026 [code-observed]. D4 extends that mechanism to strategy effects instead of inventing a second one.
 **Not done.** Strategies still never invent money. A modelled option value is computed by the decision's option evaluation (D5), not by a node strategy.
@@ -204,7 +204,7 @@ The demo already pushes simulated readings through the real gateway, S2 ingestio
 | Verification windows close | operational verdict; economic and causal verdicts follow when records arrive | plan frozen before the change |
 | Late evidence | affected decisions flagged "evidence changed"; resolutions can be withdrawn (existing RESOLUTION_WITHDRAWN) | never silent overwrite |
 
-**Decision invariants** [proposed]: every decision has exactly one NO_ACTION option; no option is RECOMMENDED with a failed or unknown HARD safeguard whose unknown policy is REFUSE; every money effect has an evidence class and overlap group; a modelled effect never appears under "realised"; a remedy never appears as money before a credit or receipt is recorded; UNKNOWN is never zero.
+**Decision invariants** [proposed]: every decision has exactly one NO_ACTION option; no option is RECOMMENDED with a failed or unknown HARD safeguard whose unknown policy is REFUSE; every money effect has a money class and overlap group; a modelled effect never appears under "realised"; a remedy never appears as money before a credit or receipt is recorded; UNKNOWN is never zero.
 
 **Conflict and unknown semantics.** Two Findings that disagree (the baseline's mixed Candidate/Necessary run, §2.4 Q6) produce one decision whose QUALIFY step shows both; options that depend on the contested interval become CONDITIONAL. Missing inputs make a safeguard UNKNOWN; its policy decides REFUSE or CONDITIONAL; the UI says which record would resolve it.
 
@@ -218,15 +218,15 @@ There is no new finding engine (Findings remain the only "what happened" claims)
 
 The full treatment, with formulas, typed contracts and twelve negative accounting tests, is `economic-metric-and-effect-contracts.md`. The mechanism in brief:
 
-1. **Phases are kept apart:** physical service → chargeable service → recognised revenue → settlement; attributable cost; contribution; plan. A captive EV fleet has no revenue phase (NOT_APPLICABLE, never zero); its executive measure is cost per required departure met (Metro Bus Depots October: 40,605.12 / 1,302 = 31.19).
+1. **Phases are kept apart:** physical service → chargeable service → recognised revenue → settlement; attributable cost; contribution; plan. A captive EV fleet has no revenue phase (NOT_APPLICABLE, never zero); its executive measure is cost per required departure met (Metro Bus Depots October: 41,705.12 / 1,302 = 32.03, energy, demand and maintenance included at every depot).
 2. **Four clocks per record:** service period, effective period, recognition period, settlement instant. Late records create revisions of closed periods, never overwrites.
 3. **Composition:** site × period × currency; portfolio Σ eligible numerators / Σ eligible denominators; mixed currency listed, not summed; unknown sites excluded and named.
 4. **Variance bridge:** non-overlapping drivers by overlap group, explicit residual; the recorded line total and the modelled split are labelled separately (Kobo fuel: −600.00 recorded, split −262.50 / −150.00 / −37.50 modelled and −150.00 unexplained).
-5. **Six evidence classes** that never sum across each other (ECONOMIC_ACTUAL, OPERATIONAL_ACTUAL, DERIVED, MODELLED, EXPOSURE, VERIFIED).
+5. **Six money classes** that never sum across each other (ECONOMIC_ACTUAL, OPERATIONAL_ACTUAL, DERIVED, MODELLED, EXPOSURE, VERIFIED).
 6. **One option identity** against no-action on a common horizon; gross exposure stays visible as "fuel at stake", not as value.
 7. **Contract rights** enter as residual operator cost per remedy path, and as money only once a credit note or receipt is recorded.
 
-Worked bridges for all three portfolios: Lakeside −852.00, Harvest Cold −770.00, Metro Bus −3,184.32 (manifest; contracts §3).
+Worked bridges for all three portfolios: Lakeside −852.00, Harvest Cold −770.00, Metro Bus −3,184.32 (manifest; contracts §3). `check_manifest.py` (126 checks) proves these, the option economics, the remedy residuals and the allocation.
 
 ---
 
@@ -245,7 +245,7 @@ The worked traces in that document follow real-looking rows through collection, 
 
 **What D2 must not copy from existing intake** [code-observed, via the integration document's appendix]: the reading upload keeps only a file hash, not the file (0061), and refuses any interval ending at or before the latest accepted reading (`reading_upload/service.py:244-248`) — commercial records arrive late by nature, so D2 copies the dry-run and receipt pattern but stores raw bytes and accepts late records as revisions. The evidence ledger is first-write-wins (a changed payload under the same message id is a Conflict, `evidence/service.py:487-492`); D2 needs source-versioned revisions instead. Unauthenticated V1 batches (`evidence_api.py:319-352`) are not a model for commercial intake; only the V2 site-bound credential path is. EV telemetry has no vehicle identity (`sites/binding_roles.py:195-215`), so roster joins need a session-attribution record keyed by the OCPP idTag.
 
-Note on vocabularies: thread occurrences already carry a **basis** (MEASURED, RECORDED, DECLARED, MODELLED, EXTERNAL; 0042:50). D4's **evidence class** is a second axis (actual, derived, modelled, exposure, verified) and does not replace it.
+Note on vocabularies: thread occurrences already carry a column named **`evidence_class`** (MEASURED, RECORDED, DECLARED, MODELLED, EXTERNAL; 0042:50; also read in `chain/ports.py`, `chain/builder.py`, `chain/outcomes.py`, `chain/threads.py`), used as a source basis, and `Effect` already has a `basis` field [code-observed]. D4's new axis (actual, derived, modelled, exposure, verified) is therefore named **`money_class`**, so the two never share a name in the layer that reads both.
 
 **Pilot transfer.** Each emulator emits exactly the file or message shape a pilot source sends, through the same upload or batch endpoint; a pilot swaps the transport, not the parser. Where no provider API is available, CSV export or manual upload of the same shape is the admissible path, validated in the pilot. Integration rights, data protection (customer identifiers are personal data under the Kenya and Nigeria data-protection acts) and customer permission are hard constraints.
 
@@ -258,7 +258,7 @@ The full models, with equations, pseudocode, sequence diagrams, error modes, cal
 - **Deterministic first.** Every first-demo decision is decidable with rules, balances and a forward replay. No machine learning is needed for the first demo, and none is added for decoration.
 - **Mini-grid (D7).** The simulator's exact controller kernel (`simulator/assetops_simulator/packs/mini_grid.py`, `minigrid.py`) [code-observed] replays observed PV-available and load under the baseline policy and the candidate policy, giving feasible fuel reduction, the SOC trajectory and dawn adequacy. This closes the baseline's B4 gap for the constraints the kernel can represent (evening energy, battery kWh behind the kW rating) and makes the others explicit refusals. It also explains why today's fixed five-point reserve change is not the recommendation at Kobo.
 - **Cold.** A per-room normalised energy model (kWh = base + k × crate-days, ambient-corrected) separates "low occupancy" (Mwea, within 0.6% of model) from "inefficient equipment" (Kirinyaga, +24%). Batch exposure is presence interval × chamber temperature × commodity limit; damage needs a QA record; liability needs the contract clause.
-- **EV.** Deadline feasibility is a capacity-and-deadline check per night (Embakasi: 00:00–05:00 delivers 2,500 kWh against 2,800 required, so the cheapest schedule fails; 22:00–05:15 delivers 2,900 at 400 kW). A linear program is warranted only when connector compatibility, partial charging and multiple tariffs interact at scale.
+- **EV.** Deadline feasibility is a capacity-and-deadline check per night (Embakasi: the cheapest bill puts every kWh in the 00:00–05:00 tier at 0.09 and the 500 kW import limit — 12,975 a month — but delivers 2,500 kWh against 2,800 required, so 3 buses leave short and it is rejected; 22:00–05:15 at 400 kW delivers 2,900 and costs 13,356 a month, 381 more). A linear program is warranted only when connector compatibility, partial charging and multiple tariffs interact at scale.
 - **Contract-aware remedies (D8).** Residual operator cost per path, with notice deadlines, exclusions, warranty-preserving behaviour, downtime and deductibles; outcomes are possible rights and options, never legal conclusions.
 
 ---
@@ -306,7 +306,7 @@ Each option runs **QUALIFY → FEASIBILITY → SAFEGUARDS → NET_VALUE**, then 
 
 The simplest justified allocator for a three-site portfolio is **transparent**: must-do options first (hard service obligations), then every subset of the remaining evaluated options (≤ 2¹⁵ subsets, trivial to enumerate) under budget, crew visits, dependencies (huller after inverter), mutual exclusion (claim-and-wait vs buy-now) and deadlines (notice by 27 Nov, letter of intent to 30 Nov); highest 12-month modelled net wins, ties broken by smaller downside. Every excluded option carries its reason. Investigation or doing nothing wins when no option clears its safeguards or when the evidence to value it is missing (Mto meter audit has no money; it is chosen because it is cheap and combined with a visit, not because of a number).
 
-Lakeside at 5,000: recommended spend 3,880.00, 3 crews. At 6,430 with a cooperative that will not extend: the buy-now inverter path replaces claim-and-wait. The executive sees the switch move when the budget field changes (mock-up, allocation page).
+Lakeside at 5,000: recommended spend 3,880.00, 3 crews. The budget and the letter-of-intent assumption are separate controls (mock-up, allocation page), and the checker enumerates all four cases by brute force: 5,000 or 6,500 with the letter of intent extended → claim-and-wait, +6,096; 5,000 without extension → claim-and-wait without the huller, +2,556 (buy-now unaffordable); 6,500 without extension → buy-now, +3,546 against +2,556, spend 6,430. Each view shows the competing inverter path's result beside the chosen one.
 
 ### 7.4 Verification (D10)
 
@@ -369,12 +369,12 @@ October: plan 1,716.00, actual 946.00, −770.00. Mwea −468.00 (occupancy), Th
 
 ### 8.3 EV depot: schedule versus critical repair versus capacity (Metro Bus Depots, captive)
 
-October cost: plan 37,420.80, actual 40,605.12, −3,184.32; all 1,302 required departures met.
+October cost (energy, demand and maintenance at every depot): plan 38,520.80, actual 41,705.12, −3,184.32; all 1,302 required departures met; 32.03 per departure.
 
 | Depot | Decision | Accepted | Rejected |
 |---|---|---|---|
-| Embakasi | stop paying peak prices | deadline-aware schedule 22:00–05:15, 400 kW peak: 6,928.80/month (modelled; tariff applicability to confirm) | cheapest 00:00–05:00: 3 buses below departure charge every night (hard safeguard) |
-| Kasarani | charger CH-K2 fault since 1 Nov; one bus short each night | warranty + SLA remedy, one bus charged at Ruiru meanwhile (90.00) | wait (≈240.00 more penalties); local repair (voids cover); scheduling (flat tariff: nothing to save) |
+| Embakasi | stop paying peak prices | deadline-aware schedule 22:00–05:15, 400 kW peak: 13,356/month, saving 8,788.80/month against October (modelled; tariff applicability to confirm) | cheapest 00:00–05:00 at the import limit: the lowest bill (12,975/month) but 3 buses below departure charge every night (hard safeguard) |
+| Kasarani | charger CH-K2 fault since 1 Nov; one bus short each night | warranty + SLA remedy, one bus charged at Ruiru on each of the 3 nights to the 9 Nov restore (90.00 in total) | wait (≈240.00 more penalties); local repair (voids cover); scheduling (flat tariff: nothing to save) |
 | Ruiru | city offers 6 more buses | absorb with existing chargers (2,800 ≤ 3,200 kWh); avoids a 60,000 charger purchase | 10 more buses (3,360 > 3,200, import limit); buying 4 chargers |
 
 The idle connector at Ruiru (CH-R7 connector 2) ranks **below** Kasarani's fault although both are "a charger down": it affects no departure.
@@ -427,7 +427,7 @@ Every state is set from a recorded document or event by a person; the system fla
 | Evidence drawer | source rows, transformation, coverage, provenance label | commercial records + evidence ledger |
 | Pilot request | the paid diagnostic for this operator | manifest sources |
 
-The runnable mock-up is `interactive-mockup-vNEXT/` (README for launch). It is a **new version of the v7.0 mock-up** (`frontend/mockups/v70/`, the latest complete interactive version; v71 and v72 are single-page design studies), keeps all 110 v70 screens, adds the decision experience as a new top rail group, and records every change in its change register. Its figures are the manifest's. **It is not approved until the owner inspects it.** The client-facing screens use plain words (no option codes, no internal vocabulary) and show *Recorded*, *Estimated*, *Modelled* and *At stake, not money* as visible text, not colour alone.
+The runnable mock-up is `interactive-mockup-vNEXT/` (README for launch). It is a **new version of the v7.0 mock-up** (`frontend/mockups/v70/`, the latest complete interactive version; v71 holds four single-page studies, and v72 is the **v7.2 design foundation** — tokens, Inter, light and dark modes — with hi-fi Portfolio and Site Overview pages, which the current UI pass (UQ-FI) builds on. vNEXT keeps the v7.0 shell and has **not yet adopted v7.2**; moving it onto v7.2 is owner question Q4), keeps all 110 v70 screens, adds the decision experience as a new top rail group, and records every change in its change register. Its figures are the manifest's. **It is not approved until the owner inspects it.** The client-facing screens use plain words (no option codes, no internal vocabulary) and show *Recorded*, *Estimated*, *Modelled* and *At stake, not money* as visible text, not colour alone.
 
 ---
 
@@ -484,7 +484,7 @@ Order changes from the brief's suggestion: none in sequence; one split — slice
 | which alternatives win or lose and why | options with do-nothing and "why not" (§2.2, §8) |
 | how the value is calculated | evidence drawer + contracts §4.4 identity |
 | who bears the cost given any contractual remedies | contract rights panel, residual cost (§8.4) |
-| what is observed versus modelled | evidence classes, visible labels (§4) |
+| what is observed versus modelled | money classes, visible labels (§4) |
 | what intervention can be undertaken | allocation + approval + carrier (§7) |
 | how it will be verified | verification triple (§7.4) |
 | what pilot data / engagement is needed | pilot request page; integration minimum asks (§5) |

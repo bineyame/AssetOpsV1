@@ -20,7 +20,7 @@ It opens on the decision home (`#/decide-lakeside`). The v7.0 Portfolio is in th
 ## Rebuild
 
 ```
-python3 tools/gen_fixtures.py   # only if the manifest changed: regenerates fixtures.js
+python3 tools/gen_fixtures.py   # only if the manifest changed: regenerates fixtures.js (strips the private oracle block)
 node build.mjs                  # writes index.html from the css and js sources
 ```
 
@@ -33,7 +33,9 @@ tools/run-audit.sh --shots      # this server (sets library and font paths)
 CHROME=/path/to/chrome PW=/path/to/playwright-core node tools/audit.mjs --shots   # elsewhere
 ```
 
-Writes `tools/audit-results.json`, `screen-manifest-vnext.json` and `screenshots/`.
+Writes `tools/audit-results.json`, `screen-manifest-vnext.json` and `screenshots/`; then `node tools/gen_audit_md.cjs` rewrites `browser-audit.md`.
+
+Revision: rev 2 (Architect fix round on `../REVIEW.md`), see CHANGE-REGISTER §7.
 
 ## Review pack
 

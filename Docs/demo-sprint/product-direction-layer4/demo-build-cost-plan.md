@@ -38,6 +38,8 @@ Baseline and counterfactual share the **same observed inputs** (PV available, lo
 
 ## 4. Measured cost today (historical, to be re-benchmarked)
 
+**Status (review M4): Deliverable 7 is met except measurement.** Owner question Q10 decides whether to authorise one re-benchmark run or accept the gap for this phase.
+
 All figures below are from the walk1113 build of 13 Nov 2026 as analysed in the reviewed baseline (§8.9–8.10) [implementation-report]. They were not re-measured for this design: this commission was not authorised to run a build or touch a database.
 
 | Unit | Measured | Source |

@@ -271,7 +271,7 @@ total,,,,22144.80
 
 **Reconciliation.** Two checks. (1) Invoice vs meter: invoice kWh 86,800 equals the site import meter total within 1% [assumption tolerance]; the peak share 55% versus plan 30% is computed from interval data bucketed by the tariff bands, and must equal the invoice's peak line within the same tolerance before the tariff is treated as confirmed. (2) Departure feasibility per night: required 20 × 140 = 2,800 kWh; candidate window deliverable is computed from charger count, power and import limit.
 
-**Option and measure.** EMB-CHEAPEST (00:00–05:00, deliverable 2,500 < 2,800, 3 buses short) fails EV1_DEPARTURE_READINESS (HARD_CONSTRAINT) → REJECTED. EMB-DEADLINE (22:00–05:15 staggered, 2,900 deliverable, max 400 kW, 31 of 31 nights feasible) passes EV1 and EV5_IMPORT_LIMIT → RECOMMENDED, energy cost 15,216.00/month, saving 6,928.80/month (MODELLED), condition "tariff applicability confirmed from invoice". Bridge lines PEAK_ENERGY_SHARE −2,604.00 and DEMAND_CHARGE −600.00 are ECONOMIC_ACTUAL because they come from the invoice.
+**Option and measure.** EMB-CHEAPEST (00:00–05:00, deliverable 2,500 < 2,800, 3 buses short) has the lowest bill of any option (77,500 kWh × 0.09 + 500 kW × 12 = 12,975/month) yet fails EV1_DEPARTURE_READINESS (HARD_CONSTRAINT) → REJECTED. EMB-DEADLINE (22:00–05:15 staggered, 2,900 deliverable, max 400 kW, 31 of 31 nights feasible) passes EV1 and EV5_IMPORT_LIMIT → RECOMMENDED, energy cost 13,356.00/month (2,976 before midnight at 0.12 + 5,580 in the 00:00–05:00 tier at 0.09 + 4,800 demand), saving 8,788.80/month (MODELLED), condition "tariff applicability confirmed from invoice". Bridge lines PEAK_ENERGY_SHARE −2,604.00 and DEMAND_CHARGE −600.00 are ECONOMIC_ACTUAL because they come from the invoice.
 
 **Drawer.** Night-by-night departure table, the invoice lines with page reference, "charger CH-E03 clock 4 min fast on 14 Oct, corrected and flagged".
 
@@ -296,7 +296,7 @@ total,,,,22144.80
 
 **Condition evidence.** Installer certificate ON_FILE (document), ambient max 38 °C (telemetry, spec 45 °C), firmware CURRENT (service ticket), fault log ON_FILE. Each condition row links to its evidence record; eligibility = POTENTIALLY_COVERED (a product state, explicitly not a legal finding).
 
-**Options (D5).** MTO-INV-CLAIM (residual 360.00 = shipping 150 + install 80 + extra fuel 130 during 21 days, restore by 28 Nov, RECOMMENDED), MTO-INV-BUYNOW (residual 2,910.00, restore 12 Nov, CONDITIONAL on budget ≥ 6,430 or the cooperative not extending), MTO-INV-LOCAL (450.00, REJECTED: triggers exception E5), MTO-INV-NOACT (REJECTED: notice deadline lost 27 Nov). Claim state EVIDENCE_ASSEMBLED; the work case SUPPLIER_CLAIM holds the claim events (D8).
+**Options (D5).** MTO-INV-CLAIM (residual 360.00 = shipping 150 + install 80 + extra fuel 130 during 21 days, restore by 28 Nov, RECOMMENDED), MTO-INV-BUYNOW (residual 2,910.00, restore 12 Nov, CONDITIONAL on budget ≥ 6,430 **and** the cooperative not extending its letter of intent), MTO-INV-LOCAL (450.00, REJECTED: triggers exception E5), MTO-INV-NOACT (REJECTED: notice deadline lost 27 Nov). Claim state EVIDENCE_ASSEMBLED; the work case SUPPLIER_CLAIM holds the claim events (D8).
 
 **Measure.** The covered remedy (a replacement unit) is never shown as money. The option value is the operator-funded residual. Only a later supplier credit note or cash receipt becomes a D2 `ADJUSTMENT` or `RECEIPT`.
 

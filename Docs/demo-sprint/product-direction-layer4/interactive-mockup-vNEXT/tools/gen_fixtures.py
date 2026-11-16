@@ -5,6 +5,8 @@ here = pathlib.Path(__file__).resolve().parent.parent
 src = here.parent / 'demo-site-scenario-manifest.yaml'
 raw = src.read_bytes()
 data = yaml.safe_load(raw)
+# The expectation oracle is private (manifest rule R1): never ship it in the mock-up bundle.
+data.pop('oracle', None)
 def conv(o):
     if isinstance(o, (datetime.date, datetime.datetime)): return o.isoformat()
     raise TypeError(type(o))

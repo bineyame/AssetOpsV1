@@ -11,6 +11,7 @@ const here = path.dirname(fileURLToPath(import.meta.url)), root = path.resolve(h
 const url = pathToFileURL(path.join(root, 'index.html')).href;
 const v70 = pathToFileURL(path.resolve(root, '../../../../frontend/mockups/v70/index.html')).href;
 const shots = process.argv.includes('--shots');
+const path_join = (f) => path.join(root, f);
 const out = { routes: [], links: {}, overflow390: [], vocab: [], drawer: {}, focus: [], contrast: [], role: {}, budget: {}, errors: [] };
 const browser = await chromium.launch({ executablePath: process.env.CHROME, args: ['--no-sandbox', '--disable-gpu'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -24,15 +25,16 @@ writeFileSync(path.join(root, 'screen-manifest-vnext.json'), JSON.stringify(mani
 const ids = manifest.map(s => s.id), idset = new Set(ids);
 const added = manifest.filter(s => s.vnext_status === 'Added').map(s => s.id), changed = manifest.filter(s => s.vnext_status === 'Changed').map(s => s.id);
 if (shots) { mkdirSync(path.join(root, 'screenshots/vnext'), { recursive: true }); mkdirSync(path.join(root, 'screenshots/v70'), { recursive: true }); }
-const CODE = /[<>]=|\bLOI\b|INV-MT|GEN-KS|BAT-0|CH-K2|\bP1\b|EV-L\d|MG-?L?\d|~\d|_[a-z]+_|\b(?:KOB|BAT|KIS|MTO|MWEA|THIKA|KIRI|EMB|KAS|RUI)-[A-Z0-9-]+\b|\bFinding\b|\bthread\b|CONTRIBUTIONS|overlap.group|ECONOMIC_ACTUAL|MODELLED\b|RECOMMENDED\b|REJECTED\b|NO_ACTION|undefined|NaN|\[object/;
+const CODE = /\bexhaustive\b|\bsubsets?\b|tie-break|O&M|\bfixture\b|\bmanifest\b|\boracle\b|\d\s+is funded|evidence class|[<>]=|\bLOI\b|INV-MT|GEN-KS|BAT-0|CH-K2|\bP1\b|EV-L\d|MG-?L?\d|~\d|_[a-z]+_|\b(?:KOB|BAT|KIS|MTO|MWEA|THIKA|KIRI|EMB|KAS|RUI)-[A-Z0-9-]+\b|\bFinding\b|\bthread\b|CONTRIBUTIONS|overlap.group|ECONOMIC_ACTUAL|MODELLED\b|RECOMMENDED\b|REJECTED\b|NO_ACTION|undefined|NaN|\[object/;
 for (const id of ids) {
   errs = [];
   await page.goto(url + '#/' + id); await page.waitForFunction(() => window.mockupReady);
-  const r = await page.evaluate(() => ({ title: document.querySelector('h1')?.textContent, hrefs: [...document.querySelectorAll('a[href^="#/"]')].map(a => a.getAttribute('href').slice(2)), text: document.querySelector('.canvas')?.innerText || '' }));
+  const r = await page.evaluate(() => ({ title: document.querySelector('h1')?.textContent, hrefs: [...document.querySelectorAll('a[href^="#/"]')].map(a => a.getAttribute('href').slice(2)), text: document.querySelector('.canvas')?.textContent || '' }));
   const bad = [...new Set(r.hrefs.filter(h => !idset.has(h)))];
   out.links[id] = bad;
   const st = manifest.find(s => s.id === id).vnext_status;
   if (st === 'Added') { const m = r.text.match(CODE); if (m) out.vocab.push({ id, match: m[0], at: r.text.slice(Math.max(0, m.index - 40), m.index + 40) }); }
+  if (st === 'Added') { const n = await page.locator('.d-money').count(); for (let k = 0; k < Math.min(n, 2); k++) { await page.locator('.d-money').nth(k).click(); const dt = (await page.evaluate(() => { const d = document.querySelector('.drawer').cloneNode(true); d.querySelectorAll('.d-src thead').forEach(x => x.remove()); return d.textContent; })).replace(/Demo data reference \(for reviewers\)[\s\S]*$/, ''); const m2 = dt.match(CODE); if (m2) out.vocab.push({ id: id + ' (drawer ' + k + ')', match: m2[0], at: dt.slice(Math.max(0, m2.index - 40), m2.index + 40) }); await page.keyboard.press('Escape'); } }
   out.routes.push({ id, status: st, ok: !!r.title && errs.length === 0, h1: r.title, errors: errs.slice(0, 3), badLinks: bad });
   if (shots && (st === 'Added' || st === 'Changed')) await page.screenshot({ path: path.join(root, `screenshots/vnext/${id}-1440.png`), fullPage: true });
 }
@@ -75,13 +77,18 @@ out.contrast = await page.evaluate(() => {
   const bg = e => { while (e) { const c = getComputedStyle(e).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; e = e.parentElement; } return 'rgb(255,255,255)'; };
   return ['.d-note', '.d-cellnote', '.d-rank small', '.badge.green', '.badge.amber', '.badge.red', '.badge.blue', '.d-legal', '.eyebrow', '.d-focustag', '.d-rolenote', '.tabs a', '.d-wfval small', '.d-question p'].map(sel => { const e = document.querySelector(sel); if (!e) return { sel, missing: true }; const a = lum(getComputedStyle(e).color), b = lum(bg(e)); const r = (Math.max(a, b) + .05) / (Math.min(a, b) + .05); return { sel, ratio: Math.round(r * 100) / 100, size: getComputedStyle(e).fontSize, pass: r >= 4.5 }; });
 });
-/* budget sensitivity */
+/* budget x letter-of-intent cases (Lakeside) */
 await page.goto(url + '#/plan-lakeside'); await page.waitForFunction(() => window.mockupReady);
-const t1 = await page.textContent('.canvas'); await page.check('[data-budget="high"]');
-const t2 = await page.textContent('.canvas');
-if (shots) await page.screenshot({ path: path.join(root, 'screenshots/vnext/plan-lakeside-6500-1440.png'), fullPage: true });
-out.budget = { base_has_claim: t1.includes('Claim the inverter under warranty and wait'), base_spend: /\$3,880[^$]*of \$5,000/.test(t1), high_has_buynow_recommended: /Buy a replacement now, then claim the failed unit/.test(t2), high_spend: /\$6,430 of \$6,500/.test(t2), high_total: t2.includes('+$3,546') };
-await page.check('[data-budget="base"]');
+const expect = { 'base-yes': ['Claim the inverter under warranty and wait', '$3,880', '+$6,096'], 'base-no': ['Claim the inverter under warranty and wait', '$2,680', '+$2,556'], 'high-yes': ['Claim the inverter under warranty and wait', '$3,880', '+$6,096'], 'high-no': ['Buy a replacement now, then claim the failed unit', '$6,430', '+$3,546'] };
+for (const [k, [path, spend, m12]] of Object.entries(expect)) {
+  const [b, l] = k.split('-'); await page.check(`[data-budget="${b}"]`); await page.check(`[data-loi="${l}"]`);
+  const chosen = await page.evaluate(() => document.querySelector('.d-path.win h3')?.textContent || '');
+  const t = await page.textContent('.d-path.win');
+  const tot = await page.textContent('.d-total strong');
+  out.budget[k] = { chosen: chosen.startsWith(path), spend: t.includes(spend), total: tot.trim().startsWith(m12), alternativeShown: (await page.locator('.d-path').count()) === 2 };
+  if (shots) await page.screenshot({ path: path_join(`screenshots/vnext/plan-lakeside-${k}-1440.png`), fullPage: true });
+}
+await page.check('[data-budget="base"]'); await page.check('[data-loi="yes"]');
 /* pilot form */
 await page.goto(url + '#/pilot-lakeside'); await page.waitForFunction(() => window.mockupReady);
 await page.click('[data-pilot-form] button[type=submit]'); out.pilotToast = await page.textContent('.toast');

@@ -1,5 +1,7 @@
 # vNEXT fixture mapping
 
+**Rev 2 (fix round):** `fixtures.js` no longer contains the manifest's private `oracle:` block (stripped by `tools/gen_fixtures.py`, rule R1). Figures below reflect the corrected manifest (EV maintenance and super-off-peak tier, Harvest and Metro coverage, Kasarani 3-night stop-gap).
+
 Every figure on the 36 decision screens is read at runtime from `MANIFEST` in `fixtures.js`. `fixtures.js` is **generated** from `../demo-site-scenario-manifest.yaml` by `python3 tools/gen_fixtures.py` (the file header carries the manifest's sha256). No figure is typed into a page template except where listed under "Derived" with its arithmetic, or under "Text constants" below. Every money figure on screen is also a button that opens the evidence drawer, whose last section ("Fixture reference") prints the manifest path it was read from.
 
 The 110 v7.0 screens keep their own v7.0 fixture data (earlier demo estate); none of their figures changed.
@@ -11,11 +13,14 @@ Path shorthand: `L` = `tenants[0]` (Lakeside Power), `H` = `tenants[1]` (Harvest
 | On screen | Source |
 |---|---|
 | Plan / actual / against plan contribution: $2,295 / $1,443 / −$852 (Lakeside); $1,716 / $946 / −$770 (Harvest) | `L.portfolio.plan_contribution`, `.actual_contribution`, `.variance`; same for `H` |
-| Plan cost / actual cost / over plan: $37,420.80 / $40,605.12 / $3,184.32 (Metro) | `M.portfolio.plan_cost`, `.actual_cost`, `−variance` |
-| Departures met 1,302 of 1,302; $31.19 per departure | `M.portfolio.departures_met`, `.departures_required`, `.cost_per_departure_actual` |
+| Plan cost / actual cost / over plan: $38,520.80 / $41,705.12 / $3,184.32 (Metro; energy + demand + maintenance at every depot) | `M.portfolio.plan_cost`, `.actual_cost`, `−variance`; per site `{s}.period.plan.total`, `.actual.total` (Embakasi 19,540.80 / 22,744.80; Kasarani 5,880 / 5,880; Ruiru 13,100 / 13,080.32) |
+| Departures met 1,302 of 1,302; $32.03 per departure | `M.portfolio.departures_met`, `.departures_required`, `.cost_per_departure_actual` |
 | Per-site plan / actual bars | `{s}.period.plan.contribution`, `.actual.contribution` (EV: `.plan.total` or `.plan.energy_cost`, `.actual.total` or `.actual.energy_cost`) |
 | Coverage "91.5% of costs from recorded invoices ($7,545 of $8,245)" | `L.portfolio.coverage.cost_recorded_share` (0.9151 shown 91.5%), `.cost_recorded_usd`, `.cost_total_usd` |
-| Coverage for Harvest / Metro | Not in manifest → shown "Coverage: not available yet" |
+| Coverage "97.8% … ($3,562 of $3,642); Thika's maintenance cost ($80) is estimated" (Harvest) | `H.portfolio.coverage.*` (share 0.9780 shown to 1 decimal); estimated line from `H.sites[1].period.coverage.maint: ESTIMATED` |
+| Coverage "99.3% … ($41,405.12 of $41,705.12); Kasarani's maintenance cost ($300) is estimated" (Metro) | `M.portfolio.coverage.*` (share 0.9928 shown as 99.3%; the evidence drawer shows 99.28%); estimated line from `M.sites[1].period.coverage.maintenance: ESTIMATED` |
+| Coverage table (all operators) | `{s}.period.coverage` per line; columns by vertical (mini: revenue, diesel, maintenance, staff; cold: revenue, electricity, staff, maintenance, compensation; EV: energy, demand charge, maintenance) |
+| Coverage drawer rows | **Derived**: each site's cost lines (mini: diesel, O&M, staff; cold: energy, staff, maint, liability; EV: energy_cost, maintenance) with their coverage; recorded sum = `cost_recorded_usd`, total = `cost_total_usd` (Harvest 880 + 1,282 + 1,480 = 3,642; Metro 22,744.80 + 5,880 + 13,080.32 = 41,705.12) |
 | Contrast lines: Kisiwa 2,400 L, Kobo 1,180 L, 210 L avoidable | `L.sites[1].period.actual.diesel_l`, `L.sites[0].period.actual.diesel_l`, `L.sites[0].decision.options[2].forward_replay.avoidable_fuel_l` |
 | Huller $395/month; welding −$8.25/month | `MTO-HULLER.economics.net_monthly`, `MTO-WELDING.economics.net_monthly` |
 | Mwea 2,650 vs 2,635 kWh; Kirinyaga 24% | `H.sites[0].period.actual.kwh`, `.kwh_model`; Kirinyaga bridge basis "(24%)" |
@@ -41,8 +46,9 @@ Path shorthand: `L` = `tenants[0]` (Lakeside Power), `H` = `tenants[1]` (Harvest
 | Plan and Actual bars | as §1 portfolio plan / actual |
 | Each step: site, driver, amount, evidence label, basis | `{s}.period.bridge[i]` (`driver`, `amount`, `class`, `basis`); class → label: ECONOMIC_ACTUAL "Recorded" (solid), MODELLED "Modelled" (hatched), DERIVED "Not explained yet" (dotted, dashed outline) |
 | Metro steps | sign flipped to show cost: step = −`amount` (e.g. Embakasi +$2,604, +$600) |
-| Ruiru "Not broken down yet" step −$19.68 | **Derived**: Ruiru has `variance: 19.68` and no `bridge` lines, so the step is the site variance shown as not explained (cost −19.68). Running total: 37,420.80 + 2,604 + 600 − 19.68 = 40,605.12 = `M.portfolio.actual_cost`. |
+| Ruiru "Not broken down yet" step −$19.68 | **Derived**: Ruiru has `variance: 19.68` and no `bridge` lines, so the step is the site variance shown as not explained (cost −19.68). Running total: see the Metro row below. |
 | Kasarani | `variance: 0.00`, no step |
+| Metro running totals | 38,520.80 + 2,604 + 600 − 19.68 = 41,705.12 = `M.portfolio.actual_cost` |
 | Running totals | cumulative sum of steps, rounded to the cent; ends exactly at the portfolio actual (audit-verified for all three operators) |
 
 ## 3. Site economics (`#/econ-{site}`, 9 sites)
@@ -53,7 +59,7 @@ Path shorthand: `L` = `tenants[0]` (Lakeside Power), `H` = `tenants[1]` (Harvest
 | P&L lines (cold): storage revenue, electricity, staff, maintenance, customer compensation | `{s}.period.plan/actual.{revenue,energy,staff,maint,liability}` |
 | P&L lines (EV): peak, off-peak, demand, flat energy, maintenance, total | Embakasi `{peak_cost,offpeak_cost,demand_cost,energy_cost}`; Kasarani `{energy_cost,maintenance,total}`; Ruiru actual split, plan `energy_cost` only (plan split shown "not available yet") |
 | "Effect on result" column | **Derived**: (actual − plan) × sign (+1 revenue, −1 cost) |
-| Source badge | mini-grid: `{s}.period.coverage`; Thika compensation and Embakasi lines: "Recorded" because their bridge lines are ECONOMIC_ACTUAL (credit note, utility invoice); all other cold/EV lines "Coverage not stated yet" (manifest has no coverage block) |
+| Source badge | `{s}.period.coverage` for every site (EV peak/off-peak/flat energy → `energy`, demand → `demand`, maintenance → `maintenance`) |
 | Kisiwa coverage note | `L.sites[1].period.coverage_note` |
 | "What moved the result" table | `{s}.period.bridge[]` |
 | Energy-to-cash chain, Kobo | `L.sites[0].period.actual.{delivered_kwh 9,100, technical_loss_kwh 410, metered_kwh 8,690, adjustments_kwh 45, billed_kwh 8,645, revenue 3,458, collected 3,180, in_transit 0, outstanding 278}` |
@@ -100,8 +106,8 @@ Six-part answer text per decision (all numbers read from the paths shown; deriva
 | Mwea | 35% / 60%, 4,340 / 7,440 crate-days; 2,650 / 2,635 kWh; +0.6% (`MWEA-COMPRESSOR.reason`); $4,800; $485, $1,670, 4 months, $270 `MWEA-AGG.economics`; 150 crates, $0.18 `MWEA-AGG.customer` |
 | Thika | outage, 135 min, 9.8 °C `incident`; 120 crates, $2,160, $108 `incident.batches[0]`; 6 crates (`bridge[0].basis`); remedy 8 Nov `entitlement.remedy_scheduled`; $100 = 40 + 60 `THIKA-EPC-STOPGAP`; $710 `THIKA-SELF.cost`; $500 deductible `incident.insurance.deductible` |
 | Kirinyaga | 80%, 5,000 / 4,030 kWh; 970 kWh (24%) and $194 `bridge[0]`; $350, 80% (60–90%), $155.20, $1,512.40 `KIRI-REPAIR`; $4,800, $234.30, −$1,988.40 `KIRI-REPLACE` |
-| Embakasi | 620 departures; 55% / 30%; 500 / 450 kW; $22,144.80 / $18,940.80; $15,216 / $6,928.80 / $81,645.60 / $1,500 `EMB-DEADLINE.economics`; 2,500 / 2,800 kWh, 3 buses `EMB-CHEAPEST` |
-| Kasarani | 1,050 / 1,200 kWh, 1 bus `incident.capacity_after`; 2 missed, $240, $120 `incident.november_to_date`; $240 likely `KAS-OEM-WAIT.expected_penalties`; $90 = 70 + 20 `KAS-OEM-STOPGAP`; $380 `KAS-LOCAL.cost`; restore due 9 Nov `entitlement.sla_clock.restore_due` |
+| Embakasi | 620 departures; 55% / 30%; 500 / 450 kW; $22,144.80 / $18,940.80 (energy lines); deadline schedule bill $13,356, saving $8,788.80, 12-month net $103,965.60, one-off $1,500 and its parts (24,800 kWh × 0.12 = 2,976; 62,000 kWh × 0.09 = 5,580; demand 4,800) `EMB-DEADLINE.economics`; cheapest bill $12,975 = 77,500 kWh × 0.09 (6,975) + demand 6,000, 2,500 / 2,800 kWh, 3 buses, 9,300 kWh a month short `EMB-CHEAPEST`; **$381** = 13,356 − 12,975 (also in the manifest note); tariff tiers `M.sites[0].tariff.{peak,super_offpeak,offpeak}`; "none of October's energy used the 00:00–05:00 rate" from `period.actual.note` |
+| Kasarani | 1,050 / 1,200 kWh, 1 bus `incident.capacity_after`; 2 missed, $240, $120 `incident.november_to_date`; about $240 and 2 broken departures if we wait `KAS-OEM-WAIT.expected_penalties`, `.reason`; $90 **in total for 3 nights** (6, 7, 8 Nov) = 70 + 20 `KAS-OEM-STOPGAP.residual_cost`, `.nights`, `.detail`; $380 `KAS-LOCAL.cost`; restore due 9 Nov `entitlement.sla_clock.restore_due` |
 | Ruiru | 31%; 2,800 / 3,200 kWh, $60,000 avoided `RUI-ABSORB6`; 3,360 kWh `RUI-ABSORB10`; 400 kW `physical.import_limit_kw`; $60,000 `RUI-4CHARGERS.capex`; ~$45,000 grid upgrade from `RUI-4CHARGERS.reason` |
 
 ## 5. Contract rights panels
@@ -114,6 +120,7 @@ Six-part answer text per decision (all numbers read from the paths shown; deriva
 | Mto inverter 2 | `L.sites[2].entitlement` (`EVIDENCE_ASSEMBLED`, notice 27 Nov) | **21 days left** = 27 Nov − as_of 6 Nov |
 | Thika transfer switch | `H.sites[1].entitlement` (`claim_events` 16/18/25 Oct, `ACCEPTED`, remedy 8 Nov) | **2 days left** = 8 Nov − 6 Nov |
 | Thika insurance | `H.sites[1].incident.insurance` (deductible $500, notified 16 Oct, not filed, $0 reimbursed) | — |
+| Mto do-nothing path | "$0 now; cover lost after 27 Nov 2026" from `MTO-INV-NOACT.reason` and `entitlement.notice_deadline` |
 | Kasarani charger 2 | `M.sites[1].entitlement` (`claim_events` 2 and 3 Nov, `ACKNOWLEDGED`, restore due 9 Nov, 31 h response) | **3 days left** = 9 Nov − 6 Nov; credit text "5% of the $400 monthly fee per business day late" from `contracts[1].service_credit` (not computed, not counted) |
 | Ruiru connector | `M.sites[2].incident` (`POTENTIAL`, claim at next routine visit) | — |
 | Cost to us under each path | option `residual_cost` / `cost` / `capex` (see §4) | — |
@@ -131,10 +138,15 @@ Six-part answer text per decision (all numbers read from the paths shown; deriva
 | Excluded options and reasons | `allocation.excluded` |
 | Sensitivity bullets | `L.portfolio.allocation.sensitivity`; $2,286 from `KOB-STOPSOC.sensitivity` |
 | Metro order of work | `M.portfolio.allocation.priority_order` |
+| **Letter-of-intent control** (Lakeside, Yes / No; default Yes) | Manifest condition on `MTO-INV-BUYNOW` and `allocation.sensitivity[0]`: buy-now wins only with budget ≥ 6,430 **and** no extension. Without an extension the claim path brings the inverter back on 28 Nov, leaving no time to connect the huller before the 30 Nov lapse, so the huller drops (the Architect's brute-force case). |
+| $5,000 + No: spend **$2,680**, **+$2,556** | **Derived**: 3,880 − 1,200 (`spend_breakdown.MTO-HULLER`) = 2,680; 6,096 − 3,540 (`modelled_12m_change.MTO-HULLER`) = 2,556 (= 2,916 − 360). Buy-now needs 6,430 > 5,000: not affordable. |
+| $6,500 + Yes: claim and wait **+$6,096** vs buy now **+$3,546** | 6,096 = `modelled_12m_change.total`; 3,546 = 2,916 + 3,540 − 2,910 (below). Claim and wait wins. |
+| $6,500 + No: buy now **+$3,546** vs claim and wait **+$2,556**, difference **+$990** | 3,546 − 2,556 = 990. Matches the Architect's brute-force check. |
 | **$6,500 budget case** (Lakeside) | Budget value 6,500 is the commission's second case; it satisfies the manifest condition "budget ≥ 6,430" (`MTO-INV-BUYNOW.condition`, `allocation.sensitivity[0]`). |
 | Spend at $6,500: **$6,430** | **Derived**: 3,880 − 360 (`spend_breakdown.MTO-INV-CLAIM`) + 2,910 (`MTO-INV-BUYNOW.residual_cost`) = 6,430, matching `allocation.excluded[0].reason` |
 | Modelled 12-month change at $6,500: **+$3,546** | **Derived**: 2,916 + 3,540 − 2,910 = 3,546 (the buy-now path's cost replaces the claim path's −360). The earlier restoration (12 Nov vs 28 Nov) is not given a money value. |
 | Harvest / Metro totals | No portfolio 12-month total in the manifest → effects listed, not added |
+| Plain-language replacements | allocation `method` → "Recommended set: essential work first, then the best 12-month result that fits the budget and crew visits."; `meter_audit_note` → "The $60 meter check is paid from the routine maintenance visit budget, not the decision budget." |
 
 ## 7. Proof it worked (`#/verify-{op}`)
 
@@ -168,10 +180,13 @@ Six-part answer text per decision (all numbers read from the paths shown; deriva
 
 ## 10. Text constants (non-money) used on screen and not in the manifest
 
+- "Design value: to be reproduced from your data" label at first use of forward-replay figures (Kobo 210 L and 20 L, huller 68 L) and on the Kobo avoidable bridge step (review L8).
+- Do-nothing reasons where the manifest has none: Embakasi ("peak-price charging continues at $22,144.80 a month" = `EMB-NOACT.economics.energy_cost_monthly`), Kobo ($262.50 = avoidable fuel, `KOB-STOPSOC.economics.gross_monthly`), Kirinyaga ($194 = `bridge[0]`), Mwea (no figure).
+
 - "61 replayed days" (Kobo forward replay window Sep 1 – Oct 31, from `time_scales.sparse_operational_context.span`).
 - Plain-language site stories (`SITE_STORY`), driver names (`DRIVER`), option labels (`OPT_LABEL`), safeguard names (`SAFEGUARD`): wording only, meaning from `role_in_story`, `driver`, option `kind`/`carrier`, `policy`.
 - Role questions from the brief's L1.3 table.
 
 ## 11. Figures that could not be sourced (shown as "not available yet")
 
-Coverage for Harvest and Metro; Kisiwa delivered/metered kWh; Ruiru plan split by time of day; Kisiwa O&M notice period; contract page references; the KES conversion rate; pilot price; per-customer billing rows.
+Kisiwa delivered/metered kWh; Ruiru plan split by time of day (plan has energy and maintenance only); Kisiwa O&M notice period; contract page references; the KES conversion rate; pilot price; per-customer billing rows.

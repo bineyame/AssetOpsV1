@@ -186,7 +186,7 @@ All are data-driven templates in `decisions.js` over `MANIFEST` (`fixtures.js`, 
 | `#/verify-metro` | Proof it worked | metro | Separates the three proofs (operation, money in the books, attribution) so a completed job is never read as realized money. |
 | `#/pilot-metro` | Pilot request | metro | Converts the demo into a bounded paid diagnostic with the source categories and deliverables (Part V convert step). |
 
-Components added (used across the screens above): role emphasis toggle (CEO/COO/CFO/CCO; reorders and highlights panels and changes the headline question, never the numbers: audit-verified); evidence drawer from every money figure; plan-vs-actual bar chart; waterfall bridge with pattern-coded evidence classes; energy-to-cash flow; occupancy-normalised energy chart; contract-rights panel with 8-stage claim timeline, deadline countdown, cost per path and the fixed legal line; budget and crew meters; three-verdict proof view; example-only pilot form.
+Components added (used across the screens above): role emphasis toggle (CEO/COO/CFO/CCO; reorders and highlights panels and changes the headline question, never the numbers: audit-verified); evidence drawer from every money figure; plan-vs-actual bar chart; waterfall bridge with pattern-coded money classes (recorded, modelled, not explained yet); energy-to-cash flow; occupancy-normalised energy chart; contract-rights panel with 8-stage claim timeline, deadline countdown, cost per path and the fixed legal line; budget and crew meters; three-verdict proof view; example-only pilot form.
 
 ## 5. Changed or cut legacy behaviour needing owner approval
 
@@ -217,3 +217,22 @@ Components added (used across the screens above): role emphasis toggle (CEO/COO/
 - No "evidence-limited" variants of decision screens (see 5.4).
 - Harvest and Metro have one budget case each in the manifest, so their budget control is shown disabled with that statement.
 - Verification plans for Harvest (Kirinyaga repair) and Metro (Embakasi schedule) are not in the manifest; their tests are marked "Proposed in this mock-up" on screen.
+
+## 7. Rev 2: Architect fix round on the review (16 Nov 2026)
+
+Source: `../REVIEW.md` findings (owner: "let the architect address review findings"). Screen inventory unchanged (146 screens; statuses as above). Changes are within `decisions.js`, `decisions.css`, `tools/`, and this pack.
+
+| Item | Screens | Change | Why it improves executive decision comprehension |
+|---|---|---|---|
+| L11 | none (bundle) | `tools/gen_fixtures.py` strips the private `oracle:` block; fixtures regenerated from the corrected manifest | The expected answers never ship with the demo |
+| M1 | `choice-embakasi-schedule`, `econ-embakasi`, Metro home and plan | Super-off-peak tier shown; cheapest schedule shows its bill ($12,975 a month, the lowest) and is rejected with "Cheapest bill, but 3 buses leave short every night"; recommended bill $13,356, $381 more, +$103,965.60 over 12 months | The rejection now visibly trades money against service instead of hiding the cheaper price |
+| L2 | `decide-harvest`, `decide-metro`, coverage drawers, site economics | Coverage line and panel for all operators (97.8%, 99.3%) with the estimated lines named | CFO sees recorded vs estimated for every operator |
+| L10 | Metro home, bridge, site economics (all three depots) | Depot maintenance in every EV cost; plan $38,520.80, actual $41,705.12, $32.03 per departure; Ruiru on an older tariff | Cost per departure is complete |
+| L5 | `choice-kasarani-charger`, Metro home and plan | "Charge one bus at Ruiru on each of the 3 nights until the repair", $90 in total, against about $240 and 2 broken departures | Removes the per-night ambiguity |
+| M3 | `plan-lakeside`, `choice-mto-inverter` | New "Will the cooperative extend its letter of intent?" control beside the budget; both inverter paths side by side under the chosen assumption; table of all four cases; "More budget never lowers the result; the letter-of-intent assumption is what changes it." Default $5,000 + Yes | Shows the real driver of the ranking change instead of implying that more budget changes the answer |
+| L1 | all decision screens | Plain allocation method and meter-check sentences; "fixture", "manifest" removed from client text; audit vocabulary scan extended and applied to drawers | No internal language in front of a client |
+| L7 | `choice-embakasi-schedule`, `choice-mto-inverter`, checklist | Do-nothing rows always state a reason; Mto do-nothing path reads "$0 now; cover lost after 27 Nov 2026"; checklist B9 says the budget control is Lakeside-only | Do nothing is never shown as free when it is not |
+| L8 | home (Lakeside), `choice-kobo-generator`, `choice-mto-demand`, `bridge-lakeside` | "Design value: to be reproduced from your data" at first use of 210 L, 20 L and 68 L | Replay figures are not presented as measured results |
+| M2 | pack text | "evidence class" wording replaced by money class / plain words | Consistent vocabulary |
+
+Owner approval added by rev 2: the letter-of-intent control and its default (Yes) on Plan and budget.
