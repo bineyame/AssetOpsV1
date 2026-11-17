@@ -536,3 +536,147 @@ Unchanged: Harvest, all site outcomes, all Protect effects and the O2 measures. 
 ### Owner decision added
 
 **Q14:** keep Kisiwa's battery fuel saving as a flagged assumption, add a fourth calibration spike, or drop the option. Recommended: keep it flagged. The option is deferred and appears in no plan.
+
+## Author response (rev 11)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This answers "## Re-review (rev 10)", including its coordinator points. The governing direction is unchanged (owner, ninth to eleventh messages): the structure must produce the figures, even in the illustration.
+
+### High
+
+**H1: the period's Protect measures were hand inputs. Fixed.**
+
+The period's dated facts are now records, and the structure counts them:
+
+| Site | Record | Evaluated measure |
+|---|---|---|
+| Kisiwa | generator failed 30 Oct | 10 obligation-hours, 2 asset-days out |
+| Mto | inverter failed 28 Oct | 20 obligation-hours, 4 asset-days out |
+| Thika | backup start unproven from 6 Oct, no October cover rota | 26 nights without backup cover, 26 days unproven |
+| Ruiru | connector out from 6 Oct | 26 charger-days |
+| Kasarani, November to date | CH-K2 short from 1 Nov; spare bus 3 nights | 5 nights below required, 2 departures missed, 240.00 penalties, 5 charger-days |
+| Ruiru, November to date | connector still out | 6 charger-days |
+
+- The facts sit in a per-site `observations` block, with October and November to date as their own observed periods. The structure counts them with `days_incl` / `days_between`.
+- `check_manifest.py` asserts every numeric `portfolio.protect` site value against its node, for both periods.
+- The mock-up's Protect views now read the evaluated nodes, not the hand-entered table.
+- **All seven O2 measures are evaluated**, each as Σ numerator / Σ denominator of declared nodes: asset availability, field visits, kWh per visit, cooling availability, crate-days without excursion, deliverable energy used, and departures per installed charger. The asset counts are declared, and the checker ties each to its listed assets.
+- **One observer output stays an input:** batch crate-minutes above the limit. It is the batch-exposure observer's result and is shown as "Measured".
+
+### Mediums
+
+**M1: rights decided nothing for Thika or Kasarani. Fixed (decision A26).**
+
+- **Separate fields.** Eligibility ("does a right apply") is now separate from `claim_state` (how far the claim has got), following brief l.430.
+- **Rule.** A line is supplier-borne when its right is potentially covered and the claim has not been denied.
+- **Supplier-borne lines on every path:**
+  - Thika: the 710 controller.
+  - Kasarani: the 380 contactor.
+- **Self-repair paths void the right**, and the evaluator turns that into lost cover: Thika's self-repair loses 710.
+- **Battery evidence makes the battery right claimable**, so unclaimable cover goes from 64,000 to 0.
+- **Rights perturbations now move the result:**
+  - R2 (Thika claim denied): the controller moves to the operator, so the stopgap path costs 810, and the protective choice switches to self-repair (710).
+  - R1 (Kisiwa right potentially covered): repair cost 0, spend 1,950, and the case flips.
+
+**M2: the hard-limit rule was EV-only. Fixed (decision A25).**
+
+- **Bounds declared per vertical, each with a reason:**
+  - mini-grid: redundancy, claimable cover;
+  - cold: backup cover, room capacity;
+  - EV: departures, import limit.
+- **Bounds are tested absolutely on every option**, not relative to the reference.
+- **Each plan decision declares its policy** (hard or advisory) and any least-violation fallback.
+- **Protective decisions are now chosen by the allocator,** taking the cheapest option that meets the hard bounds. Hand-placed `fixed` lists are gone.
+  - Thika: the stopgap (100) beats self-repair (710).
+  - Kasarani: the stopgap.
+  - Kobo: the battery evidence.
+  - Kisiwa: no option restores redundancy at once, so the least violation is chosen (repair 15 h, against replacement 105 h and no action 125 h).
+- **Valued decisions are enumerated among admissible options only.**
+- **Results on the reviewer's cases:**
+  - Q3: the cover now scales with the shortfall.
+  - Q5: import limit 380 rejects the 400 kW schedule.
+  - Q6: Mwea at 300 crates exceeds room capacity by 940 crate-days and is rejected.
+  - Ruiru +10 is rejected (62 missed departures).
+  - The Kisiwa battery's 10 h is advisory, because a battery does not replace the failed generator.
+
+**M3: Kasarani cover, Embakasi feasibility and the cheapest schedule were hand-shaped. Fixed.**
+
+- **Kasarani cover** = shortfall bus-nights − spare cover, priced at 45.00 per bus-night.
+  - Shortfall: chargers in service give 1,050 kWh against 1,200 required, so one bus is short each night, for 3 nights to restore.
+  - Spare cover is a declared parameter: 1 bus-night.
+  - Cost per bus-night is a declared quote: driver overtime 35 + energy 10.
+  - So 2 bus-nights × 45 = 90.00, and the cost scales with the shortfall (Q3).
+  - The row and the screen now say this, which closes L3.
+- **Embakasi feasibility.** `feasible_nights` (spike E) now feeds missed departures: (31 − feasible) × one bus. At 25 feasible nights (Q4) the schedule fails the departures bound and drops out of the plan.
+- **Cheapest schedule.** It reads the import limit from `physical`.
+- **§10 lists the inputs that remain by design:** spike design values, quotes, one observer output, the record count, and Q14.
+
+**M4: the document check missed most drift. Fixed.**
+
+- **Figure anchors.** 76 figures across the main document, contracts, models, phase plan, integration, cost plan and walkthroughs carry `<!--fig:path-->` anchors, invisible when rendered. The checker asserts each anchored number equals the evaluated value at its path. This catches a swap to another valid figure, which D2, D3, D5 and D6 now do.
+- **Superseded scan** now also covers the manifest's own strings.
+- **Membership scan** now covers the walkthroughs as well as main §2–§10.
+
+### Lows
+
+| Finding | Outcome |
+|---|---|
+| **L1** | Fixed. OR-ALLOC-1 quotes the evaluated spend (3,750), and the checker asserts it. |
+| **L2** | Fixed. Headers carry no check counts; the revision labels are updated, including the manifest's first line. |
+| **L3** | Fixed (see M3). |
+| **L4** | Fixed. `check_manifest.py` is rewritten and holds no prices, tariffs, windows or counts. It checks identities, then stated against evaluated values, anchors, documents and spikes. |
+| **L5** | Fixed. RUI-4CHARGERS is evaluated: 4 × the declared unit cost = 60,000, and deliverable energy stays 3,200 kWh because the import limit binds. The checker asserts the row's `avoided_capex` against it. |
+
+### Figures
+
+No headline figure changed in this round. Lakeside +6,088.50 at 3,750; Harvest +3,182.40 at 720; Metro +95,634.00 at 1,590. These now come with the protective choices and bound checks that produce them.
+
+### Perturbations (scratch copy; working tree untouched)
+
+| # | Change | What moved | Checker |
+|---|---|---|---|
+| P1 | Kisiwa crew visit 8 → 9 Nov | restore date; repair hours 15 → 20 | 2 FAIL |
+| P2 | Kobo diesel price | stop setting 2,916 → 3,042; plan and all cases | 91 FAIL |
+| P4 | cold electricity price | Kirinyaga, Mwea, Harvest plan | 54 FAIL |
+| P5 | Mto lead time 21 → 22 days | restore 29 Nov; claim −373.75; plan | 67 FAIL |
+| P7 | Embakasi demand charge | option 96,684; Metro plan; site outcomes | 72 FAIL |
+| P9 | Kirinyaga recovery share | repair 1,279.60; plan | 24 FAIL |
+| P11 | half-capacity fuel | both inverter paths; plan | 83 FAIL |
+| P12 | Mto warranty expired | claim −2,967.50; at 5,000 no plan restores the inverter, reported as infeasible | 105 FAIL |
+| Q1 | Thika remedy 8 → 12 Nov | wait path 2 → 6 nights | 2 FAIL |
+| Q2 | Kasarani kWh per bus | shortfall, cover cost 225, value 375, plan | 47 FAIL |
+| Q3 | Kasarani 2 chargers failed | cover 495, value 825, plan; nothing left unrejected | 35 FAIL |
+| Q4 | Embakasi feasible nights 31 → 25 | schedule rejected (6 missed); Metro plan 150 | 28 FAIL (rev 10: nothing moved) |
+| Q5 | import limit 500 → 380 | deadline schedule rejected (import exceeded by 20 kW) | 32 FAIL |
+| Q6 | Mwea 300 crates | rejected by room capacity (940 over); Harvest plan 1,512.40 | 24 FAIL |
+| R1 | Kisiwa right potentially covered | repair 0; spend 1,950; case flips | 33 FAIL |
+| R2 | Thika claim denied | controller borne by the operator; protective choice → self-repair | 6 FAIL (rev 10: nothing moved) |
+| N1 *(new)* | Kisiwa failure 30 → 29 Oct | October obligation-hours 10 → 15; asset-days 2 → 3 | 3 FAIL |
+| N2 *(new)* | Thika unproven from 10 Oct | October nights 26 → 22 | 2 FAIL |
+| N3 *(new)* | Kasarani spare covers 0 | wait 3 missed; cover 135; value 225 | 35 FAIL |
+| N4 *(new)* | battery evidence no longer makes the right claimable | evidence fails its bound; protective decision unmet | 32 FAIL |
+| D1 | main +6,088.50 → +6,082.50 | (document) | 2 FAIL |
+| D2 | main Metro +95,634.00 → +95,484.00 | (document) | 1 FAIL (rev 10: passed) |
+| D3 | main Kasarani +150.00 → +240.00 | (document) | 1 FAIL (rev 10: passed) |
+| D5 | main "2 departures missed" → "3" | (document) | 1 FAIL (rev 10: passed) |
+| D6 | contracts 367.50 → 361.25 | (document) | 1 FAIL (rev 10: passed) |
+
+### Checks run before replying
+
+- `python3 evaluate_structure.py`: 9 sites (plan, October, and November to date where recorded), 26 options, 3 plans.
+- `python3 check_manifest.py`: **753 passed, 0 failed**.
+- CSV validator: **PASS**.
+- Rebuild: `rebase_v70.py`, `gen_fixtures.py` (oracle removed), `node build.mjs`.
+- Full audit:
+
+| Check | Result |
+|---|---|
+| Route renders | 202 / 202 |
+| Console errors / bad links / overflow at 390 px | 0 / 0 / 0 |
+| Vocabulary hits / identifiers / role or question wording | 0 / 0 / 0 |
+| Independent design-value scan | 28 figures; 102 occurrences; 0 unlabelled |
+| Switch cases | 8 / 8 |
+| Drawer / focus / contrast | pass / 7 of 7 / 38 of 38 |
+| Preserved screens identical | 65 / 65 |
+| Oracle in the bundle | no |
+
+**Still owner decisions:** Q1–Q14, including Q14 (Kisiwa battery assumption) and Q13 (client exposure of replay figures).

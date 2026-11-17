@@ -1,25 +1,24 @@
-"""Structure evaluator for the Layer 4 demonstration world (rev 10; owner, ninth to eleventh messages).
+"""Structure evaluator for the Layer 4 demonstration world (rev 11; owner, ninth to eleventh messages).
 
 Design-pack tool, not product code. It produces the illustration's figures by running the five mechanics on declared inputs,
 all the way down the structure, and holds no numbers of its own:
 
-  M1 Define   - `structures:` declares every layer of each vertical's structure as node expressions over named factors: value
-                chain stages and leaks, physical sub-structures, cost to serve and the outcome, Protect measures.
-  M2 Observe  - `factor_map:` turns each site's source records (period record, tenant prices, site tariff and physical data,
-                energy model, incident) into leaf factors; every node is evaluated bottom-up for actual and plan. A plan stated only
-                as a total is reported as "not decomposed: stated total", never counted as evaluated.
-  M3 Evaluate - `evaluation.options` gives each option's parameters (from its manifest row, or declared with provenance: design
-                value of a calibration spike, assumption, quote) and its factor changes as expressions over those parameters and the
-                observed factors. Restore dates are derived from their drivers (decision date + lead times, crew visit + repair
-                days, notice + business days). The option is re-evaluated through the same structure against its reference; money
-                value = (outcome under option - outcome under reference) x months - operator-borne one-off cost. Rights decide who
-                bears each cost line (operator share 0 when the named right is POTENTIALLY_COVERED or ACCEPTED). Protect measures are
-                structure nodes evaluated for the option and its reference.
-  M4 Choose   - `plans:` gives budget, fixed (must-do and protective) items, candidates, exclusivity, requirements and switches;
-                every subset is enumerated; switch cases, sensitivities and the downside re-run it.
+  M1 Define   - `structures:` declares every layer of each vertical as node expressions over named factors: value-chain stages
+                and leaks, physical sub-structures and capacity, cost to serve and the outcome, Protect measures and O2 measures.
+  M2 Observe  - `factor_map:` turns each site's source records (period record + period observations, tenant prices and capacity,
+                site tariff and physical data, energy model, incident) into leaf factors; every node is evaluated bottom-up for the
+                plan, October and, where recorded, November to date. Date leaves (failure, fault, unproven backup) are counted with
+                days_incl / days_between. A plan stated only as a total is reported as "not decomposed", never as evaluated.
+  M3 Evaluate - `evaluation.options`: parameters (from records, or declared with provenance), factor changes applied in order
+                as expressions, cost lines (amounts may be expressions) and the right that could bear each, rights the option sets
+                or voids, and restore dates derived from their drivers. The option is re-evaluated through the same structure
+                against its reference. Rights decide who bears each cost line and give claimable, unclaimable and lost cover.
+                Declared bounds (`evaluation.bounds`) are evaluated absolutely on every option.
+  M4 Choose   - `plans:` lists decisions: protective decisions choose the cheapest option meeting their hard bounds (or the least
+                violation when none can, if declared); valued decisions are enumerated among their admissible options under the
+                budget, requirements and switches. Switch cases, sensitivities and the downside re-run it.
 
-Writes derived-values.json (every figure with its formula). check_manifest.py asserts that the stated figures in the manifest and
-the documents equal these values. Run:  python3 evaluate_structure.py [demo-site-scenario-manifest.yaml]
+Writes derived-values.json (every figure with its formula). Run:  python3 evaluate_structure.py [manifest]
 """
 from __future__ import annotations
 
@@ -42,14 +41,26 @@ class Missing(Exception):
 
 BIN = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
 FUNCS = {"min": min, "max": max, "ceil": lambda x: D(math.ceil(x))}
+DATE_FUNCS = {"days_incl": lambda a, b: D((b - a).days + 1), "days_between": lambda a, b: D((b - a).days)}
 
 
 def num(x):
     if isinstance(x, D):
         return x
-    if isinstance(x, (int, float)):
+    if isinstance(x, (int, float)) and not isinstance(x, bool):
         return D(str(x))
     raise Missing(f"not a number: {x!r}")
+
+
+def as_date(x):
+    if isinstance(x, (dt.date, dt.datetime)):
+        return x if isinstance(x, dt.date) and not isinstance(x, dt.datetime) else x.date()
+    if isinstance(x, str):
+        try:
+            return dt.date.fromisoformat(x[:10])
+        except ValueError:
+            pass
+    raise Missing(f"not a date: {x!r}")
 
 
 class Env:
@@ -76,6 +87,8 @@ class Env:
                 return base[k]
             except (KeyError, IndexError, TypeError):
                 raise Missing(str(k))
+        if isinstance(node, ast.Constant):
+            return node.value
         raise Missing(ast.dump(node))
 
     def ev(self, node):
@@ -93,6 +106,8 @@ class Env:
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
             return -self.ev(node.operand)
         if isinstance(node, ast.Call):
+            if node.func.id in DATE_FUNCS:
+                return DATE_FUNCS[node.func.id](*[as_date(self.path(a)) for a in node.args])
             return FUNCS[node.func.id](*[self.ev(a) for a in node.args])
         if isinstance(node, ast.Name):
             if node.id in self.values:
@@ -107,11 +122,13 @@ class Env:
         return self.ev(ast.parse(str(text), mode="eval"))
 
     def all_nodes(self):
-        return {n: self.expr(n) for n in self.structure}
+        out = {n: self.expr(n) for n in self.structure}
+        out.update({k: v for k, v in self.values.items() if isinstance(v, D)})
+        return out
 
 
-def money(x) -> float:
-    return float(D(x).quantize(D("0.01")))
+def money(x):
+    return None if x is None else float(D(x).quantize(D("0.01")))
 
 
 def add_business_days(d: dt.date, n: int) -> dt.date:
@@ -127,22 +144,31 @@ def main(path: str) -> dict:
     S, FM, EV = doc["structures"], doc["factor_map"], doc["evaluation"]
     as_of = dt.date.fromisoformat(doc["as_of"])
     end = dt.date.fromisoformat(EV["horizon_end"])
-    out = {"as_of": doc["as_of"], "method": "derived by evaluate_structure.py from declared structures, factor map and option inputs",
-           "sites": {}, "options": {}, "plans": {}, "operations": {}}
-    site_ctx, site_struct, site_base = {}, {}, {}
+    out = {"as_of": doc["as_of"], "method": "derived by evaluate_structure.py from declared structures, factor map, option inputs, bounds and plans",
+           "sites": {}, "options": {}, "plans": {}, "operations": {}, "portfolio": {}}
+    site_ctx, site_struct, site_base, site_vert, site_tenant = {}, {}, {}, {}, {}
+
+    # ---------------- M2 Observe ----------------
     for t in doc["tenants"]:
         vert = "EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]
         rights = {}
         for s_ in t["sites"]:
-            for e in ([s_["entitlement"]] if "entitlement" in s_ else []) + s_.get("entitlements", []):
-                rights[e["asset"]] = e.get("eligibility", e.get("claim_state"))
+            for e in ([s_["entitlement"]] if "entitlement" in s_ else []) + s_.get("entitlements", []) + \
+                     ([s_["incident"]["entitlement"]] if isinstance(s_.get("incident", {}).get("entitlement"), dict) else []):
+                if "asset" in e:
+                    rights[e["asset"]] = {"site": s_["site"], "eligibility": e.get("eligibility"), "claim_state": e.get("claim_state"),
+                                          "cover_value": e.get("cover_value")}
         for s_ in t["sites"]:
             n = s_["site"]
             res = {}
-            for k in ("plan", "actual"):
-                ctx = {"record": s_["period"][k], "prices": t.get("prices", {}), "physical": s_.get("physical", {}),
-                       "tariff": s_.get("tariff", {}), "energy_model": t.get("energy_model", {}), "incident": s_.get("incident", {}),
-                       "entitlement": s_.get("entitlement", {}), "site": n, "period_days": EV["period_days"]}
+            obs = s_.get("observations", {})
+            sides = [("plan", s_["period"]["plan"]), ("actual", {**s_["period"]["actual"], **obs.get("october", {})})]
+            if "november_to_date" in obs:
+                sides.append(("november_to_date", obs["november_to_date"]))
+            for k, record in sides:
+                ctx = {"record": record, "prices": t.get("prices", {}), "physical": s_.get("physical", {}), "tariff": s_.get("tariff", {}),
+                       "energy_model": t.get("energy_model", {}), "incident": s_.get("incident", {}), "entitlement": s_.get("entitlement", {}),
+                       "tenant": t, "site": n, "period_days": EV["period_days"], "period_end": record.get("period_end", EV["period_end"])}
                 try:
                     env = Env(S[vert], {}, ctx)
                     factors = {f: env.expr(x) for f, x in FM[vert].items()}
@@ -150,44 +176,14 @@ def main(path: str) -> dict:
                     nodes = env.all_nodes()
                     res[k] = {"status": "evaluated", "nodes": {nn: money(v) for nn, v in nodes.items()}}
                     if k == "actual":
-                        site_ctx[n], site_struct[n], site_base[n] = ctx, S[vert], factors
-                        site_ctx[n]["_tenant"], site_ctx[n]["_rights"] = t, rights
+                        site_ctx[n], site_struct[n], site_base[n], site_vert[n], site_tenant[n] = ctx, S[vert], factors, vert, t["tenant"]
+                        site_ctx[n]["_rights"] = rights
                 except Missing as m:
-                    stated = s_["period"][k].get("contribution", s_["period"][k].get("total"))
+                    stated = record.get("contribution", record.get("total"))
                     res[k] = {"status": f"not decomposed: stated total (missing leaf {m})", "stated_total": stated}
             out["sites"][f"{t['tenant']}/{n}"] = res
 
-    def param_value(spec, ctx, row, params):
-        if isinstance(spec, dict) and "value" in spec:
-            return num(spec["value"])
-        if isinstance(spec, (int, float)):
-            return num(spec)
-        if isinstance(spec, str):
-            if spec in params:
-                return params[spec]
-            root, _, rest = spec.partition(".")
-            src = row if root == "row" else ctx.get(root, {})
-            env = Env({}, {}, {"x": src, "site": ctx["site"]})
-            return num(env.path(ast.parse("x" + ("." + rest if rest else ""), mode="eval").body))
-        raise Missing(str(spec))
-
-    def resolve_date(spec, ctx, row, params):
-        d = spec.get("date")
-        if d == "none":
-            return None
-        if d == "as_of":
-            base = as_of
-        else:
-            root, _, rest = d.partition(".")
-            src = row if root == "row" else ctx.get(root, {})
-            raw = Env({}, {}, {"x": src, "site": ctx["site"]}).path(ast.parse("x." + rest, mode="eval").body)
-            base = dt.date.fromisoformat(str(raw)[:10])
-        days = sum(int(params[p] if p in params else param_value(p, ctx, row, params)) for p in spec.get("plus", []))
-        base = base + dt.timedelta(days=days)
-        if "business_days" in spec:
-            base = add_business_days(base, int(param_value(spec["business_days"], ctx, row, params)))
-        return base
-
+    # ---------------- M3 Evaluate ----------------
     rows = {}
     for t in doc["tenants"]:
         for s_ in t["sites"]:
@@ -198,75 +194,115 @@ def main(path: str) -> dict:
                 for o in e.get("options", []):
                     rows[o["id"]] = o
 
-    PROTECT = {"obligation_hours_without_redundancy", "nights_without_backup_cover", "departures_missed"}
+    def resolve(spec, ctx, row, params, nodes=None):
+        if isinstance(spec, dict) and "value" in spec:
+            return num(spec["value"])
+        if isinstance(spec, (int, float)):
+            return num(spec)
+        if isinstance(spec, str):
+            if spec in params:
+                return params[spec]
+            env = Env({}, {**params, **(nodes or {})}, {**ctx, "row": row})
+            return env.expr(spec)
+        raise Missing(str(spec))
+
+    def resolve_date(spec, ctx, row, params):
+        d = spec.get("date")
+        if d == "none":
+            return None
+        if d == "as_of":
+            base = as_of
+        else:
+            base = as_date(Env({}, {}, {**ctx, "row": row}).path(ast.parse(d, mode="eval").body))
+        days = sum(int(resolve(p, ctx, row, params)) for p in spec.get("plus", []))
+        base = base + dt.timedelta(days=days)
+        if "business_days" in spec:
+            base = add_business_days(base, int(resolve(spec["business_days"], ctx, row, params)))
+        return base
+
+    def covered(r):
+        return r and r["eligibility"] == "POTENTIALLY_COVERED" and r.get("claim_state") not in ("DENIED", "REJECTED")
+
+    def rights_nodes(site, rights):
+        mine = {a: r for a, r in rights.items() if r["site"] == site and r.get("cover_value") is not None}
+        return {"claimable_cover": sum((num(r["cover_value"]) for r in mine.values() if covered(r)), D(0)),
+                "unclaimable_cover": sum((num(r["cover_value"]) for r in mine.values() if r["eligibility"] == "INSUFFICIENT_EVIDENCE"), D(0))}
+
+    PROTECT = ["obligation_hours_without_redundancy", "nights_without_backup_cover", "departures_missed", "unclaimable_cover"]
 
     def run(oid, param_over=None, factor_over=None):
         spec = EV["options"][oid]
         site = spec["site"]
-        ctx, struct, base = site_ctx[site], site_struct[site], site_base[site]
+        ctx, struct, base, vert = site_ctx[site], site_struct[site], site_base[site], site_vert[site]
         row = rows.get(oid, {})
         params = {}
         for pn, ps in (spec.get("params") or {}).items():
             if pn == "restore":
                 continue
-            params[pn] = num((param_over or {})[pn]) if pn in (param_over or {}) else param_value(ps, ctx, row, params)
-        restore = resolve_date(spec["params"]["restore"], ctx, row, params) if "restore" in (spec.get("params") or {}) else None
+            params[pn] = num((param_over or {})[pn]) if pn in (param_over or {}) else resolve(ps, ctx, row, params)
+        restore = None
         if "restore" in (spec.get("params") or {}):
+            restore = resolve_date(spec["params"]["restore"], ctx, row, params)
             params["days_to_restore"] = D((end - as_of).days + 1) if restore is None else D((restore - as_of).days)
+        rights = {a: dict(r) for a, r in ctx["_rights"].items()}
+        for a, st in (spec.get("set_rights") or {}).items():
+            rights[a]["eligibility"] = st
+        lost = D(0)
+        for a in spec.get("voids_rights") or []:
+            lost += num(rights[a]["cover_value"]) if covered(rights[a]) else D(0)
+            rights[a]["eligibility"] = "VOIDED"
 
-        def apply(ref_factors, changes, extra_params):
+        def evaluate(ref_factors, changes, extra, rts):
             f = dict(base)
-            env0 = Env(struct, dict(f), {**ctx, **{k: v for k, v in extra_params.items()}})
             for k, x in (ref_factors or {}).items():
-                f[k] = env0.expr(x)
-            env1 = Env(struct, dict(f), ctx)
-            env1.values.update(extra_params)
-            newf = dict(f)
-            for k, x in (changes or {}).items():
-                newf[k] = env1.expr(x)
+                f[k] = Env(struct, dict(f), ctx).expr(x)
+            for k, x in (changes or {}).items():   # applied in order; each sees the nodes produced by the earlier ones
+                e = Env(struct, dict(f), ctx); e.values.update(extra)
+                f[k] = e.expr(x)
             for k, x in (factor_over or {}).items():
-                newf[k] = Env(struct, dict(newf), ctx).expr(x)
-            return Env(struct, newf, ctx).all_nodes()
+                f[k] = Env(struct, dict(f), ctx).expr(x)
+            nodes = Env(struct, f, ctx).all_nodes()
+            nodes.update(rights_nodes(site, rts))
+            return nodes
 
         if spec.get("reference_option"):
             ref = run(spec["reference_option"], param_over, factor_over)["_nodes"]
         else:
-            rf = dict(spec.get("reference_factors") or {})
-            ref = apply(rf, {}, {})
-        opt = apply(spec.get("reference_factors"), spec.get("changes"), params)
+            ref = evaluate(spec.get("reference_factors"), {}, {}, ctx["_rights"])
+        opt = evaluate(spec.get("reference_factors"), spec.get("changes"), params, rights)
         months = num(spec.get("months", 1))
         dmoney = opt["contribution"] - ref["contribution"]
         lines, one_off = {}, D(0)
         for ln, lv in (spec.get("cost_lines") or {}).items():
-            amt = num(lv["amount"] if isinstance(lv, dict) else lv)
+            amt = resolve(lv["amount"] if isinstance(lv, dict) else lv, ctx, row, params, opt)
             cov = lv.get("covered_by") if isinstance(lv, dict) else None
-            share = D(0) if cov and ctx["_rights"].get(cov) in ("POTENTIALLY_COVERED", "ACCEPTED") else D(1)
-            lines[ln] = {"amount": money(amt), "covered_by": cov, "right_state": ctx["_rights"].get(cov) if cov else None,
-                         "operator_share": float(share)}
+            share = D(0) if cov and covered(rights.get(cov)) else D(1)
+            lines[ln] = {"amount": money(amt), "covered_by": cov, "right_eligibility": rights.get(cov, {}).get("eligibility") if cov else None,
+                         "claim_state": rights.get(cov, {}).get("claim_state") if cov else None, "operator_share": float(share)}
             one_off += amt * share
-        # M3 hard bounds: an option whose counterfactual pushes a hard Protect measure above its reference (departures missed), or
-        # that carries a declared bound failure from a calibration spike, is rejected before valuation and is never valued in money.
-        bound_failed = bool(spec.get("bound_failure")) or ("departures_missed" in opt and opt["departures_missed"] > ref["departures_missed"])
-        valued = dmoney != 0 and "money" not in spec and "comparator" not in spec and not spec.get("is_reference") and not bound_failed
+        # declared bounds, evaluated absolutely on the option's counterfactual
+        violations = {}
+        for b in EV["bounds"].get(vert, []):
+            if b["node"] in opt:
+                limit = Env(struct, dict(opt), ctx).expr(b["max"])
+                violations[b["id"]] = money(max(opt[b["node"]] - limit, D(0)))
         res = {"site": site, "monthly_or_horizon_change": money(dmoney), "months": float(months), "operator_one_off": money(one_off),
-               "cost_lines": lines, "valued_in_money": bool(valued),
-               "value": money(dmoney * months - one_off) if valued else None,
+               "cost_lines": lines, "money_changes": dmoney != 0 and "money" not in spec and "comparator" not in spec and not spec.get("is_reference"),
                "formula": f"(contribution under option {money(opt['contribution'])} - under reference {money(ref['contribution'])}) x {months} - operator-borne one-off {money(one_off)}",
-               "protect": {k: money(opt[k]) for k in PROTECT if k in opt},
-               "reference_protect": {k: money(ref[k]) for k in PROTECT if k in ref},
-               "restore_date": restore.isoformat() if restore else None,
-               "params": {k: float(v) for k, v in params.items()},
+               "protect": {k: money(opt[k]) for k in PROTECT if k in opt}, "reference_protect": {k: money(ref[k]) for k in PROTECT if k in ref},
+               "rights": {"claimable_cover": money(opt["claimable_cover"]), "unclaimable_cover": money(opt["unclaimable_cover"]), "cover_lost": money(lost)},
+               "violations": violations, "declared_bound_failure": spec.get("bound_failure"),
+               "restore_date": restore.isoformat() if restore else None, "params": {k: float(v) for k, v in params.items()},
                "design_values": sorted({ps["design_value"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "design_value" in ps}),
                "assumptions": [ps["assumption"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "assumption" in ps] + ([spec["assumption"]] if "assumption" in spec else []),
                "_nodes": opt}
+        res["value_if_admissible"] = money(dmoney * months - one_off) if res["money_changes"] else None
         if "deliverable_kwh_night" in opt:
             res["bound"] = {"required_kwh_night": money(opt["required_kwh_night"]), "supplied_kwh_night": money(opt["supplied_kwh_night"]),
-                            "deliverable_kwh_night": money(opt["deliverable_kwh_night"]), "buses_short_per_night": int(opt["buses_short_per_night"])}
+                            "deliverable_kwh_night": money(opt["deliverable_kwh_night"]), "buses_short_per_night": int(opt["buses_short_per_night"]),
+                            "max_kw": money(opt["max_kw"]), "import_limit_kw": money(opt["import_limit_kw"])}
             res["cost_per_departure_met"] = money(opt["cost_per_departure_met"])
             res["energy_bill_option"] = money(opt["energy_cost"]); res["energy_bill_reference"] = money(ref["energy_cost"])
-        if bound_failed:
-            res["bound_failure"] = spec.get("bound_failure") or f"departures missed {money(opt['departures_missed'])} against {money(ref['departures_missed'])} under the reference (hard bound)"
-            res["rejected_by_bound"] = True
         return res
 
     for oid, spec in EV["options"].items():
@@ -280,37 +316,75 @@ def main(path: str) -> dict:
         r.pop("_nodes")
         out["options"][oid] = r
 
+    # ---------------- M4 Choose ----------------
+    O = out["options"]
+    for o, r in O.items():   # options outside any plan decision: admissible unless a declared bound failure applies
+        r["admissible"] = not r.get("declared_bound_failure")
+        r["value"] = r["value_if_admissible"] if r["admissible"] else None
+        r["valued_in_money"] = r["value"] is not None
+        if r.get("declared_bound_failure"):
+            r["bound_failure"] = r["declared_bound_failure"]
+        elif any(v for v in r["violations"].values()) and r["value_if_admissible"] is None and "comparator" in EV["options"][o]:
+            r["bound_failure"] = "bound: " + ", ".join(f"{b} exceeded by {v}" for b, v in r["violations"].items() if v)
     for tid, pl in doc["plans"].items():
-        O = out["options"]
+        def admissible(o, d):
+            if O[o].get("declared_bound_failure"):
+                return False
+            return all(O[o]["violations"].get(b, 0) == 0 for b in d.get("hard", []))
+
+        protective = {}
+        for d in [d for d in pl["decisions"] if d["kind"] == "protective"]:
+            ok = [o for o in d["options"] if admissible(o, d)]
+            how = "meets its hard bounds"
+            if not ok and d.get("fallback") == "least_violation":
+                viol = {o: sum(D(str(O[o]["violations"].get(b, 0))) for b in d["hard"]) for o in d["options"]}
+                least = min(viol.values())
+                ok = [o for o in d["options"] if viol[o] == least]
+                how = f"least violation ({money(least)}) - no option meets the hard bound"
+            if not ok:
+                protective[d["name"]] = {"chosen": None, "how": "unmet: no option meets the hard bound and no fallback is declared", "admissible": []}
+                continue
+            pick = min(ok, key=lambda o: (D(str(O[o]["operator_one_off"])), -D(str(O[o]["value_if_admissible"] or 0))))
+            protective[d["name"]] = {"chosen": pick, "how": how, "admissible": ok}
+        for d in pl["decisions"]:
+            for o in d["options"]:
+                O[o]["admissible"] = admissible(o, d)
+                O[o]["value"] = O[o]["value_if_admissible"] if (O[o]["admissible"] or O[o]["money_changes"] and d["kind"] == "protective" and o == protective.get(d["name"], {}).get("chosen")) else None
+                O[o]["valued_in_money"] = O[o]["value"] is not None
+                if not O[o]["admissible"] and (O[o]["value_if_admissible"] is not None or d["kind"] == "comparator"):
+                    O[o]["bound_failure"] = O[o].get("declared_bound_failure") or "hard bound: " + ", ".join(f"{b} exceeded by {O[o]['violations'][b]}" for b in d.get("hard", []) if O[o]["violations"].get(b))
+        valued = [d for d in pl["decisions"] if d["kind"] == "valued"]
+        fixed = [p["chosen"] for p in protective.values() if p["chosen"]]
 
         def best(budget, switches, drops=(), sens=None):
-            val = {o: D(str((sens or {}).get(o, O[o]["value"] if O[o]["value"] is not None else 0))) for o in O}
-            fixed = pl["fixed"]
-            cand = [o for o in pl["candidates"] if o not in drops]
+            choice_sets = []
+            for d in valued:
+                opts = [o for o in d["options"] if O[o]["admissible"] and O[o]["value"] is not None and o not in drops]
+                if d.get("optional", True) or not opts:
+                    opts = [None] + opts
+                choice_sets.append(opts)
             res = None
-            for r_ in range(len(cand) + 1):
-                for c in itertools.combinations(cand, r_):
-                    c = set(c)
-                    if any(len(c & set(g)) != 1 for g in pl["exactly_one_of"]):
-                        continue
-                    if any(o in c and not any((q.startswith("switch:") and switches.get(q[7:])) or q in c for q in req)
-                           for o, req in pl["requires_any"].items()):
-                        continue
-                    items = list(fixed) + sorted(c)
-                    spend = sum(D(str(O[o]["operator_one_off"])) for o in items)
-                    if spend > budget:
-                        continue
-                    v = sum(val[o] for o in items if O[o]["valued_in_money"])
-                    if res is None or v > res[0]:
-                        res = (v, spend, items)
-            if res is None:   # no subset satisfies budget, must-do items and exclusivity: a result, not an error
-                return {"value": None, "spend": None, "items": list(fixed), "valued_options": [], "valued_option_costs": None,
-                        "not_valued_in_money": None, "infeasible": "no plan satisfies the budget, the must-do items and the required choices"}
+            for combo in itertools.product(*choice_sets):
+                c = {o for o in combo if o}
+                if any(o in c and not any((q.startswith("switch:") and switches.get(q[7:])) or q in c for q in req) for o, req in pl.get("requires_any", {}).items()):
+                    continue
+                if any(not d.get("optional", True) and not (c & set(d["options"])) for d in valued):
+                    continue
+                items = fixed + sorted(c)
+                spend = sum(D(str(O[o]["operator_one_off"])) for o in items)
+                if spend > budget:
+                    continue
+                v = sum(D(str((sens or {}).get(o, O[o]["value"]))) for o in items if O[o]["valued_in_money"])
+                if res is None or v > res[0]:
+                    res = (v, spend, items)
+            if res is None:
+                return {"value": None, "spend": None, "items": fixed, "valued_options": [], "valued_option_costs": None, "not_valued_in_money": None,
+                        "infeasible": "no plan satisfies the budget, the protective choices and the required decisions"}
             v, spend, items = res
-            valued = [o for o in items if O[o]["valued_in_money"]]
-            vc = sum(D(str(O[o]["operator_one_off"])) for o in valued)
-            return {"value": money(v), "spend": money(spend), "items": items, "valued_options": valued,
-                    "valued_option_costs": money(vc), "not_valued_in_money": money(spend - vc)}
+            vo = [o for o in items if O[o]["valued_in_money"]]
+            vc = sum(D(str(O[o]["operator_one_off"])) for o in vo)
+            return {"value": money(v), "spend": money(spend), "items": items, "valued_options": vo, "valued_option_costs": money(vc),
+                    "not_valued_in_money": money(spend - vc)}
 
         names = list(pl["switches"])
         defaults = {k: v[0] for k, v in pl["switches"].items()}
@@ -333,55 +407,53 @@ def main(path: str) -> dict:
                 if sn in downs or any(sn in mp.values() for mp in (pl.get("switch_sensitivity") or {}).values()):
                     continue
                 sens = {oo: O[oo]["sensitivities"][sn] for oo in default["valued_options"] if sn in O[oo].get("sensitivities", {})}
-                downs[sn] = {"value": money(sum(D(str(sens.get(oo, O[oo]["value"]))) for oo in default["valued_options"])),
-                             "valued_options": default["valued_options"]}
+                downs[sn] = {"value": money(sum(D(str(sens.get(oo, O[oo]["value"]))) for oo in default["valued_options"])), "valued_options": default["valued_options"]}
         for k, mp in (pl.get("switch_sensitivity") or {}).items():
             for swv, sn in mp.items():
                 c_ = cases["/".join(str(swv if kk == k else defaults[kk]) for kk in names)]
                 downs[sn] = {"value": c_["value"], "valued_options": c_["valued_options"]}
-        out["plans"][tid] = {"default": default, "switch_cases": cases, "sensitivity_values": downs,
+        out["plans"][tid] = {"protective_choices": protective, "default": default, "switch_cases": cases, "sensitivity_values": downs,
                              "downside": min((v["value"] for v in downs.values() if v["value"] is not None), default=None) if downs else default["value"]}
 
-    # Portfolio composition (M1 identity): sums of eligible site nodes; ratios as Σ numerator / Σ denominator; sites whose record
-    # is not decomposed are named, never zero.
-    out["portfolio"] = {}
+    # ---------------- portfolio composition and O2 ----------------
     for t in doc["tenants"]:
         comp = {}
-        for k in ("plan", "actual"):
-            sites = [out["sites"][f"{t['tenant']}/{s_['site']}"][k] for s_ in t["sites"]]
-            ev_ = [x for x in sites if x["status"] == "evaluated"]
-            names = sorted({n for x in ev_ for n in x["nodes"]})
-            sums = {n: money(sum(D(str(x["nodes"][n])) for x in ev_)) for n in names}
+        for k in ("plan", "actual", "november_to_date"):
+            sites = [(s_["site"], out["sites"][f"{t['tenant']}/{s_['site']}"].get(k)) for s_ in t["sites"]]
+            sites = [(n, x) for n, x in sites if x is not None]
+            if not sites:
+                continue
+            ev_ = [x for _, x in sites if x["status"] == "evaluated"]
+            names = sorted({nn for x in ev_ for nn in x["nodes"]})
+            sums = {nn: money(sum(D(str(x["nodes"].get(nn, 0))) for x in ev_)) for nn in names}
             if len(ev_) < len(sites):
                 stated = sum(D(str(s_["period"][k].get("contribution", s_["period"][k].get("total")))) for s_ in t["sites"])
                 sums = {"outcome_total_with_stated_totals": money(stated)}
-            if "departures_met" in sums and "cost_to_serve" in sums:
-                sums["cost_per_departure_met"] = money(D(str(sums["cost_to_serve"])) / D(str(sums["departures_met"])))
-            if k == "plan" and "outcome_total_with_stated_totals" in sums:
-                dep = sum(D(str(s_["period"]["plan"].get("departures_required", 0))) for s_ in t["sites"])
+                dep = sum(D(str(s_["period"][k].get("departures_required", 0))) for s_ in t["sites"])
                 if dep:
-                    sums["cost_per_departure_required"] = money(D(str(sums["outcome_total_with_stated_totals"])) / dep)
-            comp[k] = {"sums": sums, "not_decomposed": [s_["site"] for s_, x in zip(t["sites"], sites) if x["status"] != "evaluated"]}
+                    sums["cost_per_departure_required"] = money(D(str(stated)) / dep)
+            elif "departures_met" in sums and "cost_to_serve" in sums and sums["departures_met"]:
+                sums["cost_per_departure_met"] = money(D(str(sums["cost_to_serve"])) / D(str(sums["departures_met"])))
+            comp[k] = {"sums": sums, "not_decomposed": [n for n, x in sites if x["status"] != "evaluated"]}
         out["portfolio"][t["tenant"]] = comp
-    # O2 operations measures, composed from the site structures and declared asset lists (Σ numerator / Σ denominator)
-    for t in doc["tenants"]:
         ops = {}
         for m in t["portfolio"].get("operations", {}).get("measures", []):
-            if "assets" in m:
-                out_days = {k: v for k, v in [(x["id"], x) for x in t["portfolio"]["protect"]["measures"]]}["asset_days_out_of_service"]["sites"]
-                den = {s: len(a) * EV["period_days"] for s, a in m["assets"].items()}
-                numr = {s: den[s] - out_days[s] for s in den}
-                ops[m["id"]] = {"numerator": numr, "denominator": den, "portfolio_pct": money(D(sum(numr.values())) / D(sum(den.values())) * 100)}
-            if m["id"] == "deliverable_energy_used":
-                numr, den = {}, {}
-                for s_ in t["sites"]:
-                    nd = out["sites"][f"{t['tenant']}/{s_['site']}"]["actual"]["nodes"]
-                    numr[s_["site"]], den[s_["site"]] = nd["scheduled_kwh_night"], nd["deliverable_kwh_night"]
-                ops[m["id"]] = {"numerator": numr, "denominator": den,
-                                "sites_pct": {s: money(D(str(numr[s])) / D(str(den[s])) * 100) for s in numr},
-                                "portfolio_pct": money(D(str(sum(numr.values()))) / D(str(sum(den.values()))) * 100)}
-        if ops:
-            out["operations"][t["tenant"]] = ops
+            if "numerator" not in m:
+                continue
+            per = {}
+            for s_ in t["sites"]:
+                nd = out["sites"][f"{t['tenant']}/{s_['site']}"]["actual"]["nodes"]
+                per[s_["site"]] = (D(str(nd[m["numerator"]])), D(str(nd[m["denominator"]])) if "denominator" in m else None)
+            scale = D(str(m.get("scale", 1))); q = D(1).scaleb(-int(m.get("decimals", 2)))
+            num_ = sum(v[0] for v in per.values())
+            if "denominator" in m:
+                den_ = sum(v[1] for v in per.values())
+                ops[m["id"]] = {"numerator": {k: float(v[0]) for k, v in per.items()}, "denominator": {k: float(v[1]) for k, v in per.items()},
+                                "sites": {k: float((v[0] / v[1] * scale).quantize(q)) for k, v in per.items() if v[1]},
+                                "portfolio": float((num_ / den_ * scale).quantize(q))}
+            else:
+                ops[m["id"]] = {"sites": {k: float(v[0]) for k, v in per.items()}, "portfolio": float(num_)}
+        out["operations"][t["tenant"]] = ops
     return out
 
 

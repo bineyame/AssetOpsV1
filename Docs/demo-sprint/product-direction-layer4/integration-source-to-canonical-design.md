@@ -1,6 +1,6 @@
 # Integrations needed: from source facts to leaf factors to outcome state
 
-**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 10 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
+**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 11 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
 **Status:** design only. Nothing here exists in the repository unless it is labelled [code-observed] or [test-confirmed]. No code, test, database or mock-up was changed or run for this document.
 
 **Labels.** [code-observed] read in current code (backend, frontend, simulator and tools are unchanged since `bf6014e02`) · [test-confirmed] pinned by a named product test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) · [proposed] this design · [research] external protocol or law · [assumption] a value or behaviour a pilot must confirm. **Provenance** of every record is one of *demo-simulated* (simulator pack), *source-emulated* (a generator that emits the source's native shape), *bench-tested* (a real device or export on a bench), *field-integrated* (a live operator source), *observed-financial* (the operator's own ledger, bill or statement). Simulated and observed values never share a number.
@@ -364,7 +364,7 @@ total,,,,22144.80
 
 **Structure → outcome state.** Energy cost = 47,740 × 0.24 + 39,060 × 0.12 + 500 × 12.00 = 22,144.80 against plan 18,940.80; with maintenance 600.00, cost 22,744.80 against 19,540.80 (−3,204.00). Attribution: 21,700 kWh more at peak than plan × 0.12 premium = −2,604.00 (Recorded); 50 kW above the 450 kW plan × 12 = −600.00 (Recorded). The peak-share factor was visible from the first October nights; the invoice confirms it.
 
-**Evaluate on the same structure.** No action = October's factor values under tariff revision 2: peak 11,457.60 + 22:00–24:00 15,500 kWh × 0.12 = 1,860.00 + 00:00–05:00 23,560 kWh × 0.09 = 2,120.40 + demand 6,000.00 = 21,438.00 a month (706.80 lower than October's bill with no action; never credited to an option). EMB-DEADLINE (22:00–05:15 staggered, 400 kW): 24,800 × 0.12 + 62,000 × 0.09 + 400 × 12 = 13,356.00, so 8,082.00 a month better than no action and 95,484.00 over 12 months after 1,500.00 (Modelled; condition: tariff confirmed, 14 supervised nights). EMB-CHEAPEST (00:00–05:00 at 500 kW) has the lowest bill, 12,975.00, but deliverable 2,500 < required 2,800 kWh a night: the departure bound fails for 3 buses, so it is rejected.
+**Evaluate on the same structure.** No action = October's factor values under tariff revision 2: peak 11,457.60 + 22:00–24:00 15,500 kWh × 0.12 = 1,860.00 + 00:00–05:00 23,560 kWh × 0.09 = 2,120.40 + demand 6,000.00 = 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> a month (706.80 lower than October's bill with no action; never credited to an option). EMB-DEADLINE (22:00–05:15 staggered, 400 kW): 24,800 × 0.12 + 62,000 × 0.09 + 400 × 12 = 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option-->, so 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> a month better than no action and 95,484.00<!--fig:options.EMB-DEADLINE.value--> over 12 months after 1,500.00 (Modelled; condition: tariff confirmed, 14 supervised nights). EMB-CHEAPEST (00:00–05:00 at 500 kW) has the lowest bill, 12,975.00, but deliverable 2,500 < required 2,800 kWh a night: the departure bound fails for 3 buses, so it is rejected.
 
 **Evidence drawer.** Night-by-night departures (required, met, kWh by bus), the invoice lines with page reference, the tariff revision and its effective date, "charger CH-E03 clock 4 minutes fast on 14 Oct, corrected and flagged".
 
@@ -381,7 +381,7 @@ total,,,,22144.80
 
 **Outcome state.** October is on plan (5,880.00, all 248 departures met); November shows the departure bound breached twice and the penalty node moving, weeks before the November invoices.
 
-**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (one bus charged at Ruiru on each of the 3 nights to the restore, 6–8 Nov: 90.00), recommended; wait (about 240.00 of penalties and two broken departures), rejected; local repair 380.00, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
+**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10): 90.00), recommended; wait (about 240.00 of penalties and two broken departures), rejected; local repair 380.00, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
 
 **Evidence drawer.** Fault message, deliverable vs required by night, the ticket with its clock ("responded in 31 h; restore due 9 Nov"), the SLA clause with page reference, penalties, and "a service credit is potential until a credit note is received".
 
@@ -404,7 +404,7 @@ total,,,,22144.80
 
 **Occurrence and condition evidence.** Fault event 28 Oct, "IGBT overcurrent trip, latched" (telemetry). Notice deadline = 28 Oct + 30 days = 27 Nov. Installer certificate on file; ambient maximum 38 °C (telemetry, specification 45 °C); firmware current (service ticket); fault log on file. Eligibility: *potentially covered* (a product state, not a legal finding).
 
-**Rights factor → option values.** The factor is who bears the cost under each remedy path, giving the operator's residual cost: claim and wait 367.50 (shipping 150 + install 80; the 2,600 replacement unit is borne by the supplier because the right is potentially covering; plus 110 L of extra fuel for the 22 days at half capacity until the restore date derived from the warranty's 21-day lead time and one installation day, 28 Nov); buy now and claim the failed unit 2,947.50 (2,600 + 80 now; 150 + 80 to claim; plus 30 L of extra fuel until the 12 Nov restore; the replacement becomes a spare, not cash). Both are outputs of `evaluate_structure.py`, which applies the rights rule to each cost line; local repair 450.00, rejected (triggers E5); no action, rejected (half daytime capacity; notice lost on 27 Nov). The huller's letter of intent lapses on 30 Nov and the connection needs 5 working days after restore, so the claim path loses the huller unless the cooperative extends: that is the plan's switch (main design §7.1).
+**Rights factor → option values.** The factor is who bears the cost under each remedy path, giving the operator's residual cost: claim and wait 367.50<!--fig:options.MTO-INV-CLAIM.value--> (shipping 150 + install 80; the 2,600 replacement unit is borne by the supplier because the right is potentially covering; plus 110 L of extra fuel for the 22 days at half capacity until the restore date derived from the warranty's 21-day lead time and one installation day, 28 Nov); buy now and claim the failed unit 2,947.50<!--fig:options.MTO-INV-BUYNOW.value--> (2,600 + 80 now; 150 + 80 to claim; plus 30 L of extra fuel until the 12 Nov restore; the replacement becomes a spare, not cash). Both are outputs of `evaluate_structure.py`, which applies the rights rule to each cost line; local repair 450.00, rejected (triggers E5); no action, rejected (half daytime capacity; notice lost on 27 Nov). The huller's letter of intent lapses on 30 Nov and the connection needs 5 working days after restore, so the claim path loses the huller unless the cooperative extends: that is the plan's switch (main design §7.1).
 
 **Money.** The covered remedy is never shown as money. Only a supplier credit note or receipt becomes an `ADJUSTMENT` or `RECEIPT`.
 
@@ -465,7 +465,7 @@ Each recipe states sources, minimum fields, canonical records, the factor observ
 
 **Productive demand (MG-C2).** Sources: supply headroom (telemetry), signed letter of intent or contract, productive tariff, marginal fuel. Canonical: `CONTRACT_DOCUMENT` with reviewed terms; `TARIFF_SCHEDULE`. Observer: demand-on-headroom replay (days without headroom 3; extra fuel 68 L). Factor: latent demand, which exists only as an option input. Consumers: MTO-HULLER (+395.00 a month net), MTO-WELDING (−8.25, rejected). Failure: no signed demand evidence → headroom stays capacity, never revenue.
 
-**Capital and repair choices (MG-C5).** Sources: quotes, budget and crew constraints. Canonical: `EXPENSE` QUOTE, `PLAN_LINE` (budget). Consumer: the allocation run (Lakeside 3,750.00 of 5,000, 3 crew visits). Failure: quote missing → option *insufficient evidence*, listed.
+**Capital and repair choices (MG-C5).** Sources: quotes, budget and crew constraints. Canonical: `EXPENSE` QUOTE, `PLAN_LINE` (budget). Consumer: the allocation run (Lakeside 3,750.00<!--fig:plans.lakeside-power.default.spend--> of 5,000, 3 crew visits). Failure: quote missing → option *insufficient evidence*, listed.
 
 ### 5.2 Cold rooms
 
@@ -475,7 +475,7 @@ Each recipe states sources, minimum fields, canonical records, the factor observ
 
 **Batch exposure and liability (CC-C2).** Trace C. Failure: no ledger → excursion shown, "batches unknown"; no QA note → damage *not available*, never 0; no contract clause → liability *not available*.
 
-**Occupancy contracts (CC-C4).** Source: draft aggregator contract; compatibility table. Consumer: MWEA-AGG (+1,670.00 over the contract, conditional on signature). Failure: forecast is an option, never booked revenue.
+**Occupancy contracts (CC-C4).** Source: draft aggregator contract; compatibility table. Consumer: MWEA-AGG (+1,670.00<!--fig:options.MWEA-AGG.value--> over the contract, conditional on signature). Failure: forecast is an option, never booked revenue.
 
 ### 5.3 EV depots
 
@@ -713,7 +713,7 @@ Every test runs on the source-emulated fixture and must pass before a pilot prof
 | TENANT-1 | Harvest Cold billing row with a Lakeside tenant key | row refused; nothing written; no cross-tenant read from either side | rejection row; OR-TEN-1 |
 | CLOCK-1 | OCPP MeterValues with a charger clock 4 min fast | offset estimated, corrected, readings SUSPECT; departure feasibility unchanged | offset stored and shown |
 | EARLY-1 | CH-K2 fault 1 Nov 23:40, no money records yet | departure bound shown *at risk* from 23:40; November money nodes *not available yet*; no total mixing them | early factor state |
-| EV-TARIFF-1 | tariff schedule rev 2 effective 1 Nov | October priced on rev 1 (22,144.80); November no action on rev 2 (21,438.00); the 706.80 difference never credited to an option | effective-date selection |
+| EV-TARIFF-1 | tariff schedule rev 2 effective 1 Nov | October priced on rev 1 (22,144.80); November no action on rev 2 (21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference-->); the 706.80 difference never credited to an option | effective-date selection |
 | VER-1 | re-issued Embakasi invoice with a corrected demand line | new revision; period lines re-revised; earlier option evaluation keeps its citation and is flagged | revision chain |
 | CONF-1 | settlement row changed under the same txn_id | source-version conflict; original kept | conflict row |
 | EXT-1 | extraction proposes a notice period with no quote | row cannot be accepted; eligibility not computed until a reviewed NOTICE row exists | review gate |

@@ -44,7 +44,10 @@ function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?
  return `<section class="panel anchor"><div class="eyebrow">The factor this decision changes</div><p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} planned`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}</section>
  ${sec('Options compared, including no action',region('Options compared',comp),'Same factor structure, horizon, prices and contracts for every option; the result is the change against no action, net of the one-off cost.')}
  ${sec('How each option changes the factor structure',region('Counterfactual factor structure',cf))}
+ ${protectiveChoice(id)?`<section class="panel anchor"><div class="eyebrow">Protective choice</div><p class="prose">${protectiveChoice(id)}</p></section>`:''}
+ ${boundTable(id)?sec('Bound check under each option',boundTable(id),'Each option’s counterfactual Protect values against this decision’s limits, from the structure evaluator: a hard limit decides admissibility; an advisory limit is shown, never a rejection.'):''}
  ${restoreTable(id)?sec('Restore dates and what sets them',restoreTable(id)):''}
+ ${rightsCoverTable(id)?sec('Cover under each option',rightsCoverTable(id)):''}
  ${costLinesTable(id)?sec('Cost lines and who bears each',costLinesTable(id),'Rights decide who bears a cost line; the right’s state is shown in words.'):''}
  ${capacityTable(id)?sec('Capacity bound under each option',capacityTable(id),'Evaluated through the depot structure: required against deliverable energy a night, buses short, departures missed and cost per required departure met.'):''}
  ${protectEffectsFor(id).length?sec('Protect measures under each option',protectEffectsPanel(id),'Each option evaluated through the Protect structure over the stated horizon; the evidence class is in words.'):''}

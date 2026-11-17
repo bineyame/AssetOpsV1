@@ -1,6 +1,6 @@
 {
  "dvScan": {
-  "occurrences": 101,
+  "occurrences": 102,
   "unlabelled": [],
   "drawersOpened": 734,
   "byFigure": {},
@@ -4027,7 +4027,7 @@
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
   "operatorSelectInReviewBar": 202,
-  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 101 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
+  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 102 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
   "rev6TabOrder": true,
   "rev7EvMeasure": true,
   "rev7RuiruNameplate": true,

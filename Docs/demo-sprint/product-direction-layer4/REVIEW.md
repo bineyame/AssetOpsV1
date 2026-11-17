@@ -1836,3 +1836,256 @@ However, coordinator points 1 and 4 are only partly resolved, and the author's t
 - I did not rerun `tools/run-audit.sh` in full. The 202-route, contrast, focus, design-value-scan and 65/65 text-identity figures are the author's numbers.
 - I did not rerun the CSV validator, because I could not locate it in the repository.
 - I did not verify the replay design values themselves; they belong to the calibration lane.
+
+## Re-review (rev 11)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 11 working tree on `task/product-direction-layer4-design`, which is the uncommitted diff over `20a94e03f`. The main focus is structural derivation and the coordinator's four points from the owner's eleventh message. I ran every experiment in scratch copies of the folder. This appended section is my only edit.
+
+### Verdict: **REVISE (targeted: H1, then M1 to M5)**
+
+Rev 11 is a large and genuine step. The period's Protect measures are now counted from dated records. All seven O2 measures are Σ numerator / Σ denominator of evaluated nodes. Eligibility is separate from claim progress, and rights flips now move outcomes at Thika, Kasarani, Kobo battery, Kisiwa and Mto. Bounds are declared per vertical and measured absolutely. Protective choices are made by the allocator. Every figure I recomputed by hand is correct, and the author's perturbations reproduce.
+
+What remains:
+
+- **One plan-deciding admissibility is still hand-entered.** The Mto inverter no-action option is excluded by a typed `bound_failure` string, not by a limit (H1).
+- **One valuation bug** appears under rights flips (M1).
+- **The allocator does not enforce crews**, although the brief and the documents use them as a constraint (M2).
+- **The least-violation fallback** is cost-blind, and the policy split between Kisiwa and Mto is undifferentiated (M3).
+- **The document check is still sign-blind**, has one mis-anchor and leaves headline figures unanchored (M4).
+- **The mock-up still hand-types several figures** where evaluated nodes exist (M5).
+
+### Coordinator points (owner-requested)
+
+| Point | Status | Evidence |
+|---|---|---|
+| **1. The structure covers only the money layer** | **Mostly resolved. Residue: M2, M5, L2.** | **Now evaluated:**<br>• Kisiwa: `reduced_capacity_from` 30 Oct → `days_incl` = 2 days × 5 h = **10 h**.<br>• Mto: 28 Oct → 4 days × 5 h = **20 h**.<br>• Thika: `backup_unproven_from` 6 Oct → **26** nights.<br>• Ruiru: 26 charger-days.<br>• Kasarani, November to date: 5 nights, 2 missed (5 short − 3 spare), 240.00 in penalties.<br>• All seven O2 measures come from nodes, and I hand-checked four (below).<br>`check_manifest.derived()` now asserts every numeric `portfolio.protect` site value against its node for both periods. My perturbations C2 (Thika proven) and Nk (Mto window 5 → 6 h) are caught. The Protect view reads the nodes, so "Calculated from records" is now true for those rows.<br>**Residue:**<br>• The Kasarani site row and the decision factor still read hand-typed `incident.capacity_after` (1,050 / 1,200 / 1) and `incident.november_to_date` (2 missed, 240), labelled "Measured … (recorded)" (M5).<br>• Crews are not structural (M2).<br>• Thika's "nights without backup cover" is the same expression as "days unproven" (L2). |
+| **2. The causal step is entered by hand** | **Partly resolved. Residue: H1, L1, L3.** | **Fixed:** Kasarani cover = shortfall bus-nights − spare cover, at 45 per bus-night. Embakasi `feasible_nights` now feeds missed departures (Q4 reproduces). EMB-CHEAPEST reads `physical.import_limit_kw`.<br>**Still hand-shaped:**<br>• The Mto no-action rejection is a typed string, and its factor changes omit the extra fuel that both other paths carry (H1).<br>• THIKA-SELF restores "as_of", with no driver (L3).<br>• `failed_chargers` is declared separately in each Kasarani option (L1). |
+| **3. Thika, Kasarani and Ruiru are not evaluated** | **Resolved.** | All nine sites and 26 options run through the structure. Ruiru's plan remains an honest "not decomposed: stated total".<br>Perturbations move the outcomes and are caught:<br>• C1: Thika remedy on 6 Nov → waiting is admissible and chosen, spend 620.<br>• E3: Kasarani spare 3 → 2 → November 3 missed, 360.<br>• E4: Ruiru import 400 → 300 → +6 rejected (93 missed, 80 kW over).<br>• E5: Kasarani SLA 8 days → cover 225, value 375. |
+| **4. Rights sit outside the structure** | **Mostly resolved. Residue: H1, M1, L4.** | `covered()` keys on eligibility, with `claim_state` separate. Flips moved the outcome at every site:<br>• **RA** (Mto claim DENIED): claim path one-off 2,830 → no plan within 5,000 ("infeasible"); 105 FAIL.<br>• **RB** (Kasarani DENIED): contactor becomes operator-borne; 32 FAIL.<br>• **RC** (Thika EXPIRED): protective choice → self-repair, spend 1,330; 6 FAIL.<br>• **RD** (Kobo BAT-001 already covered): BAT-NOACT is admissible and chosen, spend −430.<br>• **RE** (Kisiwa GEN-KS-01 covered): repair 0; the 5000/no case flips.<br>"Voids cover" is structural for Thika (THIKA-SELF `cover_lost` 710; 0 under RC).<br>**Residue:**<br>• The Mto notice-deadline lapse is not modelled (H1).<br>• Under RB the stopgap's value goes wrong, because the reference path's operator-borne line is not netted (M1).<br>• KAS-LOCAL's voiding is not evaluated (L4).<br>• Restore dates do not follow a denied claim (L4). |
+
+**Hard limits.**
+
+- **What holds:** the bounds are declared per vertical with reasons, measured absolutely (`violations` = max(node − bound, 0)) and generalise across verticals. Q5, Q6 and E4 reject correctly.
+- **The hard/advisory policy is set per decision.** That is allowed by brief l.464, but:
+  - the same P1 redundancy bound is hard (with least violation) for the Kisiwa generator and advisory for the Mto inverter, with a reason that does not distinguish the two cases (M3);
+  - the least-violation fallback ignores cost and budget (M3).
+- **The Mto inverter no-action option is not rejected by a limit.**
+  - Its bound row on `#/decision/mto-inverter` reads "Not a limit for this decision · obligation hours without a backup: 125 h — Not admissible" (headless check).
+  - Its inadmissibility is the typed `bound_failure` string added in rev 11, and it is not in the `mto_inverter` decision's option list at all (H1).
+
+### Findings
+
+**H1 (High): the Mto no-action rejection is hand-entered, and the structure, completed consistently, would choose no action.**
+- **Where:** `demo-site-scenario-manifest.yaml` `evaluation.options.MTO-INV-NOACT`: `money: "not evaluated…"`, `bound_failure: "inadmissible: … notice deadline (27 Nov) is lost"` (new in rev 11) and `changes` without `extra_l`. Also `plans.lakeside-power.decisions[mto_inverter].options` (NOACT is absent), and `domain-and-decision-models.md:648` ("No action is REJECTED only by a hard bound or a lapsing right (KIS-NOACT, MTO-INV-NOACT)").
+- **Evidence:**
+  - **X1:** deleting the two strings makes NOACT `admissible: true`, and **all 753 checks pass**.
+  - **X2:** adding NOACT to the decision changes nothing, because with no money change it is not valued.
+  - **X3:** giving NOACT the same extra-fuel change the claim and buy-now paths carry (`extra_l + days_to_restore × extra_l_per_day`) values it at **−156.25**, which beats the claim (−367.50). The allocator then picks no action: the Lakeside plan becomes **+6,299.75 at 3,520** (74 FAIL).
+  - The real reason no action is wrong is the right lapsing on 27 Nov (2,600 of cover lost) and the indefinite half capacity. Neither is in the structure: there is no dated lapse, no `voids_rights`, and the claimable-cover bound counts only `INSUFFICIENT_EVIDENCE`, not lost cover.
+- **Why it matters:** this is the owner's governing principle (points 2 and 4). The admissibility that forces the plan's inverter choice is typed, not produced. The "Bound check" table attributes it to the evaluator while saying no limit applies.
+- **Fix:**
+  1. Model the notice deadline as a dated right lapse. For example, an option whose restore path files no claim by `entitlement.notice_deadline` voids INV-MT-02, giving `cover_lost` 2,600.
+  2. Count lost cover in a declared cover bound (unclaimable + lost), across all verticals. THIKA-SELF would then also fail it while the right applies, and pass under R2.
+  3. Give NOACT the extra-fuel change and put it in the `mto_inverter` decision.
+  4. Delete `money` and `bound_failure`.
+  5. Do the same for KOB-RESERVE's typed `bound_failure`: declare a dawn-adequacy bound over a design-value leaf (spike K).
+
+**M1 (Medium): an option's value does not net the reference path's operator-borne cost, so a rights flip produces a wrong value.**
+- **Where:** `evaluate_structure.py` `run()`: `value_if_admissible = dmoney × months − one_off`. The reference's `operator_one_off` is never subtracted.
+- **Evidence (RB, Kasarani claim DENIED):** both paths now pay the 380 contactor. KAS-OEM-STOPGAP becomes **−230.00** (240 avoided − 90 − 380), where the correct increment is **+150.00**. The Metro plan drops to 95,254, and the tariff-off case and the downside go to −230.
+- **Why it matters:** this is a mechanics bug in the rights path the owner asked for. It hits any valued option whose `reference_option` carries an operator-borne line.
+- **Fix:** value = Δcontribution × months − (option one-off − reference one-off). Show the common lines as common.
+
+**M2 (Medium): crews are not a constraint in the allocator, yet the documents state them as one.**
+- **Where:** `evaluate_structure.py` `best()`, which checks budget only. `crew_visits_nov: 3` and `technician_visits_nov: 2` are in the manifest. Main §7 says "Budget 5,000, three crew visits … crews 3 of 3", and the walkthroughs say "2 of 2 technician visits".
+- **Evidence (L1):** Lakeside crews 3 → 1 moves **0 leaves; 753 pass**. The plan still uses 3 visits (KIS-REPAIR, BAT-EVIDENCE, MTO-INV-CLAIM).
+- **Why it matters:** brief l.295 and l.466 ask for budget- and crew-constrained allocation. "3 of 3" is a hand count.
+- **Fix:** sum `crew_visits` per item in `best()` against the tenant limit. Evaluate "visits used", anchor it in the documents, and add a perturbation.
+
+**M3 (Medium): the least-violation fallback ignores cost, and the same P1 bound is hard in one decision and advisory in the other without a distinguishing fact.**
+- **Where:** `evaluate_structure.py` protective block, and `plans.lakeside-power.decisions` (`kisiwa_genset` is hard with least violation; `mto_inverter` and `kisiwa_storage` are advisory).
+- **Evidence:**
+  - **L2:** Kisiwa crew visit on 29 Nov → repair 120 h against replacement 105 h. The fallback picks the 9,500 replacement, and **every Lakeside case becomes infeasible**, including at 6,500.
+  - **H1-test:** making Mto redundancy hard with least violation (as at Kisiwa) makes every Lakeside case infeasible, because the fallback exists only for protective decisions.
+  - The Mto reason ("both paths leave reduced capacity until restore; money decides") is equally true at Kisiwa.
+- **Why it matters:** the plan headline depends on a policy placement whose reason does not tell the two cases apart. Least violation is neither "hard" nor "costed" in the brief's sense (l.464).
+- **Fix:**
+  - Either declare the fact that makes Mto advisory (for example, generator-backed daytime supply, so a different measure applies), or raise it to the owner as a policy question.
+  - Make least violation budget-aware: choose among options within budget, and report a trade-off when the least violation is unaffordable. Allow it on valued decisions, or state why not.
+
+**M4 (Medium): the anchor check is a real improvement, but it is sign-blind, has a mis-anchor, and leaves headline figures unanchored.**
+- **Where:** `check_manifest.py` `anchors()` (it compares `abs()` to `abs()`) and `documents()` (membership scan, main §2–§10 and walkthroughs only). Also `walkthroughs.md:42`.
+- **Planted drift (scratch):**
+
+| # | Drift | Result |
+|---|---|---|
+| Da | main §7 "− 367.50<!--fig…-->" → "+ 367.50" | **passes** |
+| Di | main "2<!--fig:…departures_missed-->" → "-2" | **passes** |
+| Db | contracts "2,910.00" → "2,901.00" (unanchored) | **passes** |
+| Dc | main §10 "26 nights without backup cover" → "22" (unanchored) | **passes** |
+| De | main Harvest "spend **720.00**" → "450.00" (unanchored; a valid value) | **passes** |
+| Dh | main Metro "spend **1,590.00**" → "1,500.00" (unanchored) | **passes** |
+| Df | main "−1,988.40" (KIRI-REPLACE) → "−1,512.40" | **passes** |
+| Dg | phase plan "Thika stopgap (100.00)" → "10.00" | **passes** |
+| Dd | main "720.00" → "702.00" | caught |
+| E3+ | Kasarani November spare 3 → 2, with the manifest's protect table updated consistently | **753 pass.** The walkthrough still says "2<!--fig:options.KAS-OEM-WAIT.protect.departures_missed--> departures missed … $240 penalties" for **November to date**, because the anchor points at the option's horizon path, not the observed period. |
+
+- **Fix:**
+  - Compare signed values; carry the sign in the anchored text.
+  - Anchor every plan headline (spend and visits for all three tenants), the §10 Protect statement, and the evaluated option figures in the contracts, models and phase plan.
+  - Re-point the walkthrough anchor to `sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed`, and anchor the $240.
+
+**M5 (Medium): the mock-up still hand-types figures that evaluated nodes produce, so they do not move with the structure.**
+- **Where:**
+  - `loop-core.js:142` and `loop-decisions.js:347` read `incident.capacity_after` (1,050 / 1,200 / 1) and `incident.november_to_date` (2 missed, $240), labelled "Measured" and "(recorded)".
+  - `loop-decisions.js` result strings: "Likely 2 missed departures before 9 Nov", "unprotected at night until 8 Nov", "2,800 of 3,200 kWh a night", "3,360 kWh a night".
+  - `loop-protect.js:66` `OBASIS`: "1,302 ÷ 26 … 1,302 ÷ 25.16 = 51.75", "Ruiru 34%".
+  - The manifest duplicates are never checked: `incident.november_to_date`, `capacity_after`, `exposed_value` 2,160 (= 120 × 18, typed).
+- **Evidence:**
+  - **E5:** with the SLA at 8 business days, the evaluator gives 5 missed and a 12 Nov restore. The rebuilt bundle still contains "Likely 2 missed departures before 9 Nov".
+  - **E3+:** the Kasarani site row keeps "2 … $240" while the nodes say 3 and $360, and all checks pass.
+- **Why it matters:** the owner's principle covers the illustration itself. This is the rev 10 H1 pattern at a smaller scale.
+- **Fix:**
+  - Read these from DERIVED: the November nodes, the WAIT option's `protect` and `restore_date`, `bound`, and the operations numerator and denominator.
+  - Delete or derive the manifest duplicates.
+  - Extend the audit's scan to digit-bearing literals in the `loop-*.js` result maps.
+
+**L1 (Low): some inputs are duplicated and not tied together.**
+- `failed_chargers` is declared separately in KAS-OEM-WAIT and KAS-OEM-STOPGAP, and again in the November observation. Changing only the stopgap's gives −255 against the author's 825 for the consistent Q3.
+- `physical.spare_buses` is unused (E2 moves 0 leaves), while the option's `spare_cover` is a roster basis.
+- The option `hours: 5` for the Mto and Kisiwa paths is separate from the observed `reduced_hours_per_day` (Nk moves October, not the options).
+- `capacity_crate_days_oct: 12400` is typed rather than 400 × `period_days`, and is applied to a 30-day contract month.
+
+*Fix:* read each from one record.
+
+**L2 (Low):** COLD_CHAIN `nights_without_backup_cover = uncovered_nights = days_incl(backup_unproven_from, period_end)`, which is the same expression as days unproven. The measure's own definition on screen is "stock present, backup start unproven and no manual-start cover (rota)", but stock presence and rota records are not leaves. The figure (26) is right for this world.
+
+*Fix:* uncovered = Σ nights (unproven ∧ stock present ∧ no rota record).
+
+**L3 (Low):** THIKA-SELF `restore: {date: as_of}` has no procurement or install driver. Under RC and R2 it is chosen because it "restores today".
+
+*Fix:* give it a lead-time driver (a quote) or flag it as an assumption.
+
+**L4 (Low):**
+- Restore dates do not follow rights. Under a DENIED claim, WAIT still uses the supplier's 9 Nov (Kasarani) and 8 Nov (Thika), and CLAIM still uses the 21-day warranty lead time.
+- KAS-LOCAL ("voids power-stage cover; dominated") is not evaluated.
+
+*Fix:* make the supplier restore driver conditional on `covered()`, and evaluate KAS-LOCAL with `voids_rights: [CH-K2]` or state why not.
+
+**L5 (Low):** October's observed state leaks into forward 12-month options. KIS-BATT60 shows "Advisory · 10 h", MTO-HULLER and MTO-WELDING carry 20 h, and the Mto "immediate restore" reference shows 20 h.
+
+*Fix:* reset period-observation leaves (`reduced_days`) to the forward baseline for options without a restore path.
+
+**L6 (Low):** the Kasarani November record `kwh: 6000` over 5 nights exceeds what the structure says was deliverable (1,050 × 5 = 5,250) while a bus was short each night.
+
+*Fix:* record the delivered kWh (≤ 5,250), or add a record-consistency check.
+
+**L7 (Low):**
+- The evaluator still holds vertical knowledge in code: the `PROTECT` node list and the EV-only `bound` display branch.
+- Hand dispositions remain in rows. For example, THIKA-SELF is "REJECTED, dominated" while the evaluator says it is admissible.
+
+*Fix:* declare the Protect list per vertical, and derive dispositions or label them as narrative.
+
+### Perturbation table (my runs, scratch copies; "moved" = changed leaves in derived-values.json; checker base 753)
+
+| # | Vertical / mechanism | Change | What moved | Checker |
+|---|---|---|---|---|
+| X1 | MG / limit | delete MTO-INV-NOACT `money` + `bound_failure` | NOACT becomes admissible; nothing else | **753 pass** (H1) |
+| X3 | MG / limit | X1 + NOACT in decision + extra fuel like the other paths | NOACT −156.25; plan picks no action: **+6,299.75 at 3,520** | 74 FAIL (H1) |
+| RA | MG / rights | Mto INV-MT-02 claim DENIED | claim one-off 2,830; plan infeasible at 5,000 | 105 FAIL |
+| RB | EV / rights | Kasarani CH-K2 claim DENIED | contactor operator-borne; **stopgap −230 (should be +150)**; plan 95,254 | 32 FAIL (M1) |
+| RC | Cold / rights | Thika eligibility EXPIRED | stopgap 810; choice → self-repair; spend 1,330 | 6 FAIL |
+| RD | MG / rights | Kobo BAT-001 already POTENTIALLY_COVERED | BAT-NOACT admissible and chosen; spend −430 | caught |
+| RE | MG / rights | Kisiwa GEN-KS-01 POTENTIALLY_COVERED | repair 0; spend 1,950; 5000/no case flips | caught |
+| L1 | MG / allocator | Lakeside crews 3 → 1 | **nothing** | **753 pass** (M2) |
+| L2 | MG / limit | Kisiwa crew visit 8 → 29 Nov | least violation → 9,500 replacement; **all cases infeasible** | caught (M3) |
+| H1-test | MG / limit | Mto redundancy hard + least violation (as at Kisiwa) | every Lakeside case infeasible | caught (M3) |
+| Nk | MG / observation | Mto observed window 5 → 6 h | October 20 → 24 h; options unchanged (duplicated `hours`) | 1 FAIL (L1) |
+| C1 | Cold / limit | Thika remedy 8 → 6 Nov | waiting admissible and chosen; spend 620 | caught |
+| C2 | Cold / observation | Thika backup proven (no unproven date) | 26 → 0 nights and days | 2 FAIL |
+| E2 | EV / input | Kasarani `physical.spare_buses` 1 → 0 | **nothing** (dangling) | 753 pass (L1) |
+| E3 | EV / observation | Kasarani November spare 3 → 2 | November 3 missed, 360 | 2 FAIL; **753 pass once the protect table is updated; walkthrough and site row keep 2 / $240** (M4, M5) |
+| E4 | EV / limit | Ruiru import 400 → 300 | +6 rejected (93 missed, 80 kW over) | 7 FAIL |
+| E5 | EV / rights + structure | Kasarani SLA 5 → 8 business days | restore 12 Nov; wait 5 missed; cover 225; value 375 | caught; **bundle still says "Likely 2 missed departures before 9 Nov"** (M5) |
+| Q3 | EV | both Kasarani `failed_chargers` 1 → 2 | cover 495; value 825 (reproduces author) | 35 FAIL |
+| Q4 | EV | Embakasi feasible nights 31 → 25 | schedule rejected (6 missed); Metro 150 (reproduces) | 28 FAIL |
+| R2 | Cold / rights | Thika claim DENIED | choice → self-repair; spend 1,330 (reproduces) | 6 FAIL |
+| Da, Di, Db, Dc, De, Dh, Df, Dg | documents | see M4 | — | **all pass** (M4) |
+| Dd | document | main "720.00" → "702.00" | — | 1 FAIL |
+
+### Hand recomputation
+
+| Figure | Working | Result |
+|---|---|---|
+| Kasarani restore | notice 2 Nov (Mon) + 5 business days → 9 Nov; days to restore 9 − 6 = 3 | 9 Nov ✓ |
+| Kasarani cover | 4 × 50 kW → one charger out → 150 × 7 h = 1,050 against 8 × 150 = 1,200 → ceil(150 / 150) = 1 bus short; 1 × 3 nights − 1 spare = **2 × 45** | **90.00** ✓; value 2 × 120 − 90 = **+150.00** ✓ |
+| Kisiwa October obligation hours | days_incl(30 Oct, 31 Oct) = 2 × 5 h | **10** ✓ |
+| Mto October obligation hours | days_incl(28 Oct, 31 Oct) = 4 × 5 h | **20** ✓ (portfolio 30) |
+| Thika nights | days_incl(6 Oct, 31 Oct) | **26** ✓ |
+| O2 asset availability | (155 + 122 + 151) / (155 + 124 + 155) = 428 / 434 | **98.62%** ✓ |
+| O2 kWh per visit | (9,100 + 7,950 + 6,000) / 3 | **7,683.33** ✓ |
+| O2 departures per installed charger | (620 + 248 + 434) / (10 + 4 + 12) = 1,302 / 26 | **50.08** ✓ |
+| O2 deliverable energy used | (2,800 + 1,200 + 1,960) / (6,000 + 1,400 + 3,200) | **56.23%** ✓ |
+| Kisiwa least violation | repair 8 Nov + 1 = 9 Nov → 3 d × 5 = 15 h; replace 6 Nov + 21 → 21 d = 105 h; none → 25 d = 125 h | repair ✓ |
+
+### Regression checks
+
+- **Evaluator and checker.**
+  - `python3 evaluate_structure.py`: 9 sites, 26 options, 3 plans. Its output is byte-identical to the committed working-tree `derived-values.json`.
+  - `python3 check_manifest.py`: **753 passed, 0 failed** (1.2 s).
+- **Rebuild.** In a scratch copy I ran `rebase_v70.py`, `gen_fixtures.py` ("0 differences", 28 replay patterns), `node build.mjs` and `gen_docs.cjs`. `diff -rq` against the working tree shows **no differences** (byte-identical).
+  - Side note: `gen_fixtures.py` reported "0 differences" for E5 too, although the checker failed. Its diff is narrower than the checker's.
+- **Preserved v7.0 screens.** `screens.js`, `portfolio.js`, `outcomes.js`, the CSS files and `src-v70-baseline` are not in the diff since `20a94e03f`. `audit-results.json` records 65/65 preserved; I did not rerun the audit's text comparison.
+- **Wording, filters and menus.** The added mock-up lines contain no `<select>`, no role or question wording and no menus. The only matches were the JS `.filter()` calls and "cooling". Audit summary: 0 role/question hits, 0 filter controls.
+- **Generality.** One evaluator and one set of mechanics serves all three verticals, with bounds declared per vertical. Residue is in L7.
+- **Headless spot check.** I used headless Chromium (Playwright headless shell) against a static server on **port 8781**, which I stopped afterwards; I did not touch ports 5490 or 8990.
+  - **Mto inverter:** the bound table described in H1.
+  - **Kisiwa:** "the least violation is chosen: Repair … 15 obligation hours".
+  - **Kobo battery:** "Cover under each option", $64,000.
+  - **Thika:** $710 "potentially covered, Accepted".
+  - **Kasarani:** "3 bus-nights … 2 … $45 each: $90 … +$150", with "Likely 2 missed departures before 9 Nov" (M5).
+  - **Ruiru:** $60,000; "62 over the limit".
+  - **Outcomes by site:** 30 h and 26 nights "Calculated from records"; O2 56.23% / 50.08 / 7,683.33 / 99.997%.
+  - No page errors, and no overflow at 390 px on the 5 routes I checked.
+
+### Remaining hand inputs (all of them, judged)
+
+| Input | Where | Legitimate? | Flagged? |
+|---|---|---|---|
+| 210 L, 150 kWh, 20 L (K); 68 L (M); 31 feasible nights (E) | option params | yes: replay design values | yes (`design_value`) |
+| "1 bus short on an infeasible night" | EMB-DEADLINE | basis taken from spike E text | basis only |
+| 150 L Kisiwa battery | KIS-BATT60 | yes: owner Q14 | yes (assumption) |
+| 0.80 recovery share; 0.95 new-unit factor | Kirinyaga | yes: assumptions with range or datasheet | yes |
+| quotes: 60, 30, 1,200, 1,800, 9,500, 14,000, 150, 80, 2,600, 250, 180, 350, 4,800, 40, 60, 45 per bus-night, 1,500, 15,000 per charger | cost lines / params | yes: quotes | basis given |
+| windows 5 / 3 / 2 / 5 h; install 1 d; local supply 5 d; repair 1 d | params | yes: quotes or windows | basis given; duplicates the observation (L1) |
+| crates 150, 30 days, rate 0.18, handling 100; +6 / +10 buses; +4 chargers | params | yes: draft contract or offer | basis given |
+| spare cover 1 bus-night | Kasarani | roster basis, but `physical.spare_buses` is unused | basis only (L1) |
+| `failed_chargers` 1 (×2) | Kasarani options | record, duplicated | basis only (L1) |
+| crate-minutes above the limit, 2,400–3,600 | Thika observation | yes: observer output | yes ("Measured") |
+| major assets, field visits, excursion crates and days, cooling minutes | observations | yes: records | as records |
+| **MTO-INV-NOACT `bound_failure` / `money`** | evaluation | **no**: typed admissibility (H1) | presented as a bound check |
+| **KOB-RESERVE `bound_failure`** | evaluation | replay result, but the bound is undeclared | design value named (H1 fix 5) |
+| THIKA-SELF restore "as_of" | evaluation | no driver | no (L3) |
+| `incident.capacity_after`, `incident.november_to_date`, `exposed_value` 2,160 | manifest | **no**: typed computed figures shown on screen | no (M5) |
+| `capacity_crate_days_oct` 12,400 | tenant | typed product | no (L1) |
+| crews 3 / 2 / 2 | tenant | resource limit | not enforced (M2) |
+| row dispositions and reasons | rows | narrative | not derived (L7) |
+
+### Convergence
+
+This round still needs author work. All of it is targeted and mechanical:
+
+1. **H1:** the Mto deadline lapse, a lost-cover bound and a complete no-action option.
+2. **M1:** a one-line netting fix.
+3. **M2:** a crew sum in `best()`.
+4. **M3:** a budget-aware fallback, plus either a declared fact for the Mto advisory policy or an owner question.
+5. **M4:** signed anchors, plus anchors on the remaining headline figures.
+6. **M5:** read the remaining screen literals from DERIVED.
+
+Apart from the M3 policy question, nothing here needs an owner decision. After this round I would expect only owner decisions to remain: Q1–Q14 (including Q13 and Q14), and possibly the Mto redundancy policy.
+
+### Not verified
+
+- I did not rerun `tools/run-audit.sh`. The 202-route, contrast, focus, design-value-scan and 65/65 text-identity figures are the author's numbers.
+- I did not rerun the CSV validator.
+- I did not verify the replay design values; they belong to the calibration lane.

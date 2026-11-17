@@ -79,6 +79,13 @@ Built in `loop-core.js` (`miniTree`, `coldTree`, `evTree`). Plan and October val
 | Excluded or deferred | Lakeside `allocation.excluded` (+ losing inverter path, + huller when lost); Harvest `allocation.excluded` (+ aggregator when the switch is No); Metro: the file has no `excluded` list, so rejected Metro options and the deferred connector claim are listed |
 | Harvest / Metro switch effects | `switches[].if_false` text (spend 450 and 1 of 2; spend 90) |
 
+## 3f. Rev 11
+
+- **Protect period values** (H1): `loop-protect.js` reads each measure's October value from the evaluator's `sites[...].actual.nodes` and November to date from `november_to_date.nodes` (Kasarani, Ruiru); node names equal the measure ids except customer liability and damage confirmed by inspection (`liability`), nights below required (`nights_below_required`) and service penalties (`penalties`). Portfolio Σ is the sum of the site nodes. Crate-minutes above the limit (a range) keeps the declared value. Batches exposed and crate-minutes are shown as Measured (observer outputs); other classes stay as declared.
+- **Decision pages** (M1, M2): `options[id].violations` and `admissible` → "Bound check under each option"; `rights.claimable_cover / unclaimable_cover / cover_lost` → "Cover under each option" (at stake, never added); `cost_lines[].right_eligibility` and `claim_state` shown as separate words; `plans[tid].protective_choices` → "Protective choice" with its reason.
+- **Kasarani cover** (L3): bus-nights to the restore (`params.days_to_restore`), the spare bus (`params.spare_cover`) and `params.cost_per_bus_night` (2 × $45 = $90).
+- **Ruiru** (L5): the $60,000 avoided purchase is `options.RUI-4CHARGERS.operator_one_off`; its deliverable energy stays `bound.deliverable_kwh_night` (3,200 kWh) at the `import_limit_kw`.
+
 ## 3e. Rev 10: evaluator schema and new derived figures
 
 `DERIVED` now carries, per site and side, `{status, nodes}` (Ruiru's plan: "not decomposed: stated total", used only as its stated total); per option `value` (null when not valued in money), `monthly_or_horizon_change`, `months`, `operator_one_off`, `cost_lines{amount, covered_by, right_state, operator_share}`, `valued_in_money`, `formula`, `protect`, `reference_protect`, `restore_date`, `params`, `bound`, `cost_per_departure_met`, `energy_bill_option/reference`, `sensitivities`; per plan `default`, `switch_cases`, `sensitivity_values{name:{value, valued_options}}`, `downside`.

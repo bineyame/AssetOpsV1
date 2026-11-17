@@ -10,9 +10,15 @@ const TAGNAME = {'GEN-KS-02':'generator 2','GEN-KS-01':'generator 1','CH-R7':'ch
 function idPlain(t){return String(t).replace(/\b(GEN-KS-0[12]|CH-R7|CH-K2|INV-MT-02|BAT-001|GEN-CR-01|B-1031)\b/g,(m)=>`${TAGNAME[m]} (${m})`).replace(/(\d)-(\d)/g,'$1–$2').replace(/ x /g,' × ').replace(/ (\d+) C\b/g,' $1 °C').replace('O&M','maintenance-contract').replace('EPC','installation contractor’s').replace(' + service SLA',' and service agreement').replace(/ SLA\b/,' service agreement').replace(/^(\w)/,c=>c.toUpperCase());}
 function rightName(site,r){const m=r.match(/^([A-Z]{2,3}-[A-Z0-9-]+) (.*)$/);const rest=m?m[2].replace(' + service SLA',' and service agreement'):'',par=m?(rest.match(/\(([^)]*)\)/)||[])[1]:'';return m?`${site} ${rest.replace(/\s*\([^)]*\)/,'')} (${m[1]}${par?'; '+par:''})`:`${site} ${idPlain(r).replace(/^./,c=>c.toLowerCase())}`;}
 function siteKeyOf(op,name){return OPS[op].sites.find(sk=>siteM(sk).site===name);}
-function protectOf(op){const P=OPS[op].t.portfolio.protect;return P.measures.map(m=>{const sites={};Object.entries(m.sites||{}).forEach(([n,v])=>{sites[siteKeyOf(op,n)]=v;});
- const nov=m.november_to_date?Object.fromEntries(Object.entries(m.november_to_date).filter(([k])=>k!=='detail').map(([k,v])=>[k==='portfolio'?'portfolio':siteKeyOf(op,k),v])):null;
- return {...m,name:PNAME[m.id]||m.id,sites,nov,novDetail:m.november_to_date?.detail,stake:m.class==='EXPOSURE'&&m.status!=='NOT_AVAILABLE_YET',na:m.status==='NOT_AVAILABLE_YET',money:m.unit==='USD',detailBy:m.detail?Object.fromEntries(Object.entries(m.detail).map(([n,v])=>[siteKeyOf(op,n),idPlain(v)])):{}};});}
+/* H1 (rev 11): period Protect values are the evaluator's nodes (October = actual; November to date where evaluated); the declared table only names the measures */
+const PNODE={customer_liability:'liability',qa_confirmed_damage_liability:'liability',nights_deliverable_below_required:'nights_below_required',service_penalties:'penalties'};
+const OBSERVER_MEASURED=new Set(['batches_exposed','crate_minutes_above_limit']);
+function protectOf(op){const P=OPS[op].t.portfolio.protect;return P.measures.map(m=>{const sites={},node=PNODE[m.id]||m.id;let fromNodes=false;
+ Object.entries(m.sites||{}).forEach(([n,v])=>{const sk=siteKeyOf(op,n),x=DSITE(sk)?.actual?.nodes?.[node];if(x!==undefined&&typeof v!=='string'){sites[sk]=x;fromNodes=true;}else sites[sk]=v;});
+ OPS[op].sites.forEach(sk=>{if(sites[sk]===undefined){const x=DSITE(sk)?.actual?.nodes?.[node];if(x!==undefined&&m.sites){sites[sk]=x;fromNodes=true;}}});
+ let nov=null;if(m.november_to_date){nov={};OPS[op].sites.forEach(sk=>{const x=DSITE(sk)?.november_to_date?.nodes?.[node];if(x!==undefined)nov[sk]=x;});if(!Object.keys(nov).length)nov=Object.fromEntries(Object.entries(m.november_to_date).filter(([k])=>k!=='detail').map(([k,v])=>[k==='portfolio'?'portfolio':siteKeyOf(op,k),v]));else nov.portfolio=Object.values(nov).reduce((a,b)=>a+b,0);}
+ const portfolio=fromNodes&&!m.items?Object.values(sites).reduce((a,b)=>typeof b==='number'?a+b:a,0):m.portfolio;
+ return {...m,portfolio,class:OBSERVER_MEASURED.has(m.id)?'MEASURED':m.class,name:PNAME[m.id]||m.id,sites,nov,novDetail:m.november_to_date?.detail,stake:m.class==='EXPOSURE'&&m.status!=='NOT_AVAILABLE_YET',na:m.status==='NOT_AVAILABLE_YET',money:m.unit==='USD',detailBy:m.detail?Object.fromEntries(Object.entries(m.detail).map(([n,v])=>[siteKeyOf(op,n),idPlain(v)])):{}};});}
 const pfmt = (m,v) => v===undefined||v===null?'—':typeof v==='string'?v.replace(/-/g,'–'):m.money?usd(v):num(v);
 const pnum = v => typeof v==='string'?Number(v.split(/[-–]/).pop().replace(/,/g,'')):Number(v||0);
 const pstate = (m,v) => pnum(v)>0?badge('Above its target','red'):badge('At its target','green');
@@ -45,13 +51,13 @@ function protectCell(op,sk){const ms=protectOf(op).filter(m=>!m.stake&&!m.na),ou
 
 /* ===== rev 6: operations measures (O2) and rights measures (P4/A5) ===== */
 const ONAME = {asset_availability:'Asset availability',field_visits:'Field visits',delivered_kwh_per_field_visit:'Delivered kWh per field visit',cooling_availability:'Cooling availability',crate_days_without_excursion:'Crate-days without an excursion',deliverable_energy_used:'Deliverable energy used (import-limited)',departures_met_per_installed_charger:'Required departures met per installed charger'};
-function opsOf(op){return OPS[op].t.portfolio.operations.measures.map(m=>{const site={},key=n=>siteKeyOf(op,n);
- if(m.numerator_asset_days_available)Object.keys(m.denominator_asset_days).forEach(n=>{const a=m.numerator_asset_days_available[n],d=m.denominator_asset_days[n];site[key(n)]=`${(a/d*100).toFixed(2)}% <small class="cellnote">${a} of ${d} asset-days</small>`;});
- else if(m.minutes_unavailable)Object.entries(m.minutes_unavailable).forEach(([n,v])=>{site[key(n)]=`${(100*(1-v/m.minutes_per_room)).toFixed(3)}% <small class="cellnote">${v} minutes lost</small>`;});
- else if(m.sites_pct)Object.entries(m.sites_pct).forEach(([n,v])=>{site[key(n)]=`${v.toFixed(2)}% <small class="cellnote">${num(m.numerator_kwh_per_night[n])} of ${num(m.denominator_kwh_per_night[n])} kWh deliverable a night · binding limit: ${idPlain((m.binding_limit||{})[n]||'—')}</small>`;});
- else if(m.sites)Object.entries(m.sites).forEach(([n,v])=>{site[key(n)]=num(v);});
- const port=m.portfolio_pct!==undefined?`${m.portfolio_pct}%`:num(m.portfolio,2);
- const plan=m.plan===undefined?'not declared':m.unit.startsWith('%')?`${m.plan}%`:num(m.plan);
+/* Rev 11b: O2 values are the evaluator's (DERIVED.operations: sites + portfolio, numerator/denominator); the manifest names the measure, unit, plan, class and binding limits. */
+const OPS_DETAIL={asset_availability:(n,dn)=>`${num(n)} of ${num(dn)} asset-days`,cooling_availability:(n,dn)=>`${num(dn-n)} minutes lost`,deliverable_energy_used:(n,dn)=>`${num(n)} of ${num(dn)} kWh deliverable a night`,departures_met_per_installed_charger:(n,dn)=>`${num(n)} departures ÷ ${num(dn)} installed chargers`,delivered_kwh_per_field_visit:(n,dn)=>`${num(n)} kWh ÷ ${num(dn)} visit${dn===1?'':'s'}`};
+function opsOf(op){const D=DERIVED.operations[OPS[op].t.tenant]||{};return OPS[op].t.portfolio.operations.measures.map(m=>{const site={},key=n=>siteKeyOf(op,n),d=D[m.id],pctU=/^%|share/.test(m.unit);
+ if(d&&d.sites)Object.entries(d.sites).forEach(([n,v])=>{const nu=d.numerator?.[n],de=d.denominator?.[n];const det=nu!==undefined&&OPS_DETAIL[m.id]?OPS_DETAIL[m.id](nu,de):'';const bl=m.binding_limit?.[n]?` · binding limit: ${idPlain(m.binding_limit[n])}`:'';
+  site[key(n)]=`${pctU?`${num(v,3)}%`:num(v,2)}${det||bl?` <small class="cellnote">${det}${bl}</small>`:''}`;});
+ const port=d?(pctU?`${num(d.portfolio,3)}%`:num(d.portfolio,2)):'—';
+ const plan=m.plan===undefined?'not declared':pctU?`${m.plan}%`:num(m.plan);
  return {...m,name:ONAME[m.id]||m.id,site,port,plan};});}
 function opsTable(op){const o=OPS[op],ms=opsOf(op);
  return region('Operations measures by site',table(['Operations measure','Plan',...o.sites.map(sk=>SK[sk].name),'Portfolio (Σ ÷ Σ)','Evidence'],ms.map(m=>[`<b>${m.name}</b> <small class="cellnote">${m.unit}, October · ${OBASIS[m.id]||idPlain(m.basis||'')}</small>`,m.plan,...o.sites.map(sk=>m.site[sk]||'—'),`<b>${m.port}</b>`,ec(m.class)])));}
