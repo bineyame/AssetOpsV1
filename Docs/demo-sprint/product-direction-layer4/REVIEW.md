@@ -1661,3 +1661,178 @@ Where a check catches a change (P9, P10), it catches it by reconciling figures, 
 - I did not rerun `tools/run-audit.sh`. The 202-route, 390 px, contrast, focus and the "936 views unchanged" figures are the author's numbers.
 - I did not rerun the CSV validator.
 - The replay design values themselves; they belong to the calibration lane.
+
+## Re-review (rev 10)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 10 working tree on `task/product-direction-layer4-design`, which is the uncommitted diff over `9398febb0`. The main focus is the coordinator's four points from the owner's eleventh message. I also verified R9-M1 to R9-M4 and R9-L1 to R9-L3, and ran the regression list. I ran every experiment in scratch copies of the folder. This appended section is my only edit.
+
+### Verdict: **REVISE (targeted: H1, then M1 to M4)**
+
+The rev 10 mechanism is a real step forward. The evaluator holds no prices of its own. All nine sites are observed bottom-up through `factor_map`, and all 24 options are evaluated against their references through the same structure. Rights now decide who pays for Mto and Kisiwa. Restore dates are derived from their drivers. Every figure I recomputed by hand is correct, and the claimed perturbations all reproduce.
+
+However, coordinator points 1 and 4 are only partly resolved, and the author's table marks both "Fixed":
+
+- The Protect measures observed for the period are not evaluated. The factor map pins those leaves to a literal `"0"`, so the evaluated nodes contradict the Protect figures the mock-up shows as "Calculated from records" (H1).
+- Rights still decide nothing for Thika or Kasarani (M1).
+- The new hard-limit rule is applied to a single EV measure only, and is tested relative to the reference (M2).
+- Some causal steps are still hand-shaped or not wired (M3).
+- The R9-M4 document check misses most kinds of drift (M4).
+
+### Coordinator points (owner-requested)
+
+| Point | Status | Evidence |
+|---|---|---|
+| **1. The structure covers only the money layer** | **Partly resolved (H1).** | **Now evaluated:** the value chain (delivered → metered → billed → revenue → collected), the physical diesel split (necessary + candidate + unexplained + extra), cost to serve and the outcome, for every site and side. These are checked against the stated fields (`derived()` `NODE_OF`) and against portfolio composition. Protect nodes are evaluated per option against its reference, for example Kisiwa 125 / 15 / 105 h, Mto 110 / 30 / 125 h, Thika 2 / 0 / 0 nights and Kasarani 2 / 0 missed. **Not evaluated:** the period's own Protect measures. `factor_map` sets `reduced_days: "0"`, `hours_per_day: "0"` and `uncovered_nights: "0"` for every site, so the October actual nodes give obligation hours 0 at every Lakeside site and nights without backup cover 0 at Thika (`derived-values.json`). The manifest's `portfolio.protect` table states Kisiwa 10 h, Mto 20 h (portfolio 30) and Thika 26 nights. `loop-protect.js:13` reads that hand table, and the Protect view renders "Obligation hours without a backup: 30 hours in October … Calculated from records" (headless check). `check_manifest.protect()` checks only that the sites sum to the portfolio figure, never that the figure equals the node. `asset_days_out_of_service` (Kisiwa 2, Mto 4) is also hand-entered, although it follows from the failure dates in the manifest (28 and 30 Oct). Of the six O2 measures, only `asset_availability` (on that hand count) and `deliverable_energy_used` are evaluated. `delivered_kwh_per_field_visit` 7,683.33, `crate_days_without_excursion` and `departures_met_per_installed_charger` 50.08 are not. |
+| **2. The causal step is entered by hand, and some figures are unflagged** | **Mostly resolved; residue in M3.** | Welding's 217.8 L (= 10 × 3 × 22 × 0.33), Kirinyaga replacement's −1,171.5 kWh (excess → 0, model × 0.95), the huller's kWh, Mwea's crate-days, Kirinyaga repair (× (1 − share)) and Embakasi's schedule kWh are now expressions over named parameters. The perturbations of P9 and P10 move them. The remaining replay inputs carry `design_value` K / M / E (210, 20, 150, 68, 5 L a day). Kisiwa's 150 L is an assumption recorded as Q14. Cost lines are quotes, which is a legitimate input. **Residue (M3):** Kasarani's stopgap cover `days_to_restore - physical.spare_buses` is shaped to exactly a one-bus shortfall, with fixed costs. Embakasi's `feasible_nights` (E) is declared but referenced by no expression. `EMB-CHEAPEST.max_kw_option` types 500 instead of reading `physical.import_limit_kw`. |
+| **3. Thika, Kasarani and Ruiru are not evaluated** | **Resolved.** | All nine sites are observed: 17 of 18 site-sides are evaluated. Every Thika, Kasarani and Ruiru option runs through the structure. My perturbations Q1 (Thika), Q2 and Q3 (Kasarani) and Q5 (Embakasi) move the dependent figures, and the checker catches them. **Ruiru's "not decomposed: stated total" is an honest exception.** The October plan record holds only `energy_cost` and `total`. The evaluator labels it with the missing leaf, the checker asserts the label, portfolio composition switches to `outcome_total_with_stated_totals` and names Ruiru, and the mock-up uses the stated total explicitly (`loop-core.js` `opTotals`). The plan is never counted as evaluated. |
+| **4. Rights sit outside the structure** | **Partly resolved (M1).** | Mto and Kisiwa are now structural. R1 (Kisiwa GEN-KS-01 → POTENTIALLY_COVERED) moves the repair to 0 and the plan spend to 1,950, and flips the 5000/no case to buy-now; 8 FAIL. P12 (Mto expired) gives "infeasible at 5,000"; 17 FAIL. Thika and Kasarani rights decide nothing. R2 (Thika claim ACCEPTED → REJECTED) **moves 0 figures, and all 587 checks pass**. |
+
+**The two structural rules.**
+
+- **"Valued in money only if it changes a money node"** is sound and consistent with the brief: a potential claim is exposure, not money (§P4, line 119), and Protect effects are not stacked as cash. It is implemented as `dmoney != 0` on `contribution`, which is correct for the declared structures. The Kasarani stopgap is now valued at +150 because penalties are a money node, and the Kisiwa repair, the Thika stopgap and the battery evidence are not valued. That classification follows from the structure.
+- **"Hard limits reject before valuation"** is consistent with the brief's sequence ("hard safeguards → incremental financial value", line 462), but the implementation is not general (M2). The evaluator hard-codes `departures_missed` as the only hard measure. It tests the option's value against the reference's value, not against the bound. It also does not enforce:
+  - the hard bounds that the rows themselves claim for cold and mini-grid: Thika "fails the hard bound on batch temperature" and Kisiwa "P1 hard constraint";
+  - physical limits: cold-room capacity and the EV import limit.
+
+  The brief (line 464) asks that each condition's policy (hard, costed or unknown) be declared, with its reason and evidence. Here the policy lives in code.
+
+### Findings
+
+**H1 (High): the period's Protect measures are hand inputs that contradict the evaluated structure, and the claim says they are evaluated.**
+- **Where:** `demo-site-scenario-manifest.yaml`, `factor_map` (`reduced_days`, `hours_per_day` and `uncovered_nights` are all `"0"`) and `portfolio.protect.measures` (lines ~346–350 and ~534); `check_manifest.py` `protect()`; `loop-protect.js:13`; REVIEW-response rev 10, point 1 ("value chain, physical split, cost, outcome and Protect nodes are all evaluated and checked against the stated figures").
+- **What:** the October nodes evaluate to 0 obligation hours (Kisiwa, Mto) and 0 uncovered nights (Thika). The stated, displayed figures are 10 / 20 / 30 h and 26 nights. Nothing compares the two. The Protect view labels the 30 h "Calculated from records".
+- **Why it matters:** this is exactly the owner's point 1: Protect measures not produced by the structure. It is also the case the owner flagged: a figure shown as calculated that the structure does not produce.
+- **Fix:**
+  - Map these leaves from records: reduced days from failure date to period end (Kisiwa 30 Oct, Mto 28 Oct); uncovered nights from the Thika fault and stock dates; asset-days out of service from the same dates.
+  - Have `derived()` assert every numeric `portfolio.protect` site value against its node.
+  - Either evaluate the remaining O2 measures, or label them as not evaluated.
+
+**M1 (Medium): rights are structural for two of the four entitlement cases.**
+- **Where:** `evaluation.options`: THIKA-EPC-WAIT, THIKA-SELF, KAS-OEM-WAIT and KAS-OEM-STOPGAP. Also `evaluate_structure.py` `rights[...] = e.get("eligibility", e.get("claim_state"))`.
+- **What:**
+  - **Thika and Kasarani have no `covered_by` line.** Under waiting, the supplier-borne controller or charger repair is not a line at all. THIKA-SELF's "voids the EPC workmanship cover" and BAT-EVIDENCE's "64,000 kept claimable" are free-text `rights_effect` strings. R2 shows that flipping Thika's right changes nothing.
+  - **Two separate states are merged into one.** The rights map falls back from `eligibility` to `claim_state`, so Kasarani's CH-K2 resolves to `ACKNOWLEDGED`. Under `rights_rule`, any CH-K2-covered line would then be operator-borne. The brief (line 430) requires potential eligibility, acknowledged, accepted, delivered and credited to stay separate.
+- **Fix:** give each waiting or supplier path its supplier-borne line with `covered_by`. Give each self-repair path the same line, uncovered, plus a declared "voids right X" effect that the evaluator applies. Evaluate the rights-at-stake figures (710; 64,000) as nodes. Key the share rule on eligibility, with the claim state kept as a separate field.
+
+**M2 (Medium): the hard-limit rule is not general across verticals.**
+- **Where:** `evaluate_structure.py` (the `PROTECT` set; `bound_failed = … opt["departures_missed"] > ref["departures_missed"]`) and `plans.*.fixed`.
+- **What:**
+  - **Q3:** with two chargers failed, the Kasarani stopgap still leaves 9 departures missed. It is not rejected, because the reference has 11, and it stays valued at +150 in a fixed must-do slot.
+  - **Q5:** at an import limit of 380 kW, the 400 kW and 500 kW schedules are not rejected.
+  - **Q6:** 300 crates at Mwea need 13,340 crate-days against a 12,400 capacity. The option is valued at +4,010 and the Harvest plan rises to 5,522.40, with no rejection.
+  - **No-action and protective choices are hand-set:** Thika and Kisiwa no-action are not rejected by any bound, and the protective choices (KIS-REPAIR over KIS-REPLACE, THIKA-EPC-STOPGAP over THIKA-SELF) are hand-placed in `fixed` rather than chosen.
+- **Fix:**
+  - Declare on each Protect or physical measure its policy (hard, costed or unknown), its bound and its reason, as the brief asks.
+  - Test hard bounds absolutely: option value ≤ bound, with "least violation" as a declared fallback.
+  - Add capacity and import nodes as bounds.
+  - Let the allocator choose the protective option as the cheapest option that meets the hard bounds, instead of taking it from `fixed`.
+
+**M3 (Medium): some causal steps are still shaped by hand or are dangling, and §10 under-states them.**
+- **Where:** `evaluation.options`: KAS-OEM-STOPGAP, KAS-OEM-WAIT, EMB-DEADLINE and EMB-CHEAPEST. Also main document §10, "Three things remain inputs".
+- **What:**
+  - **Kasarani:** `covered_bus_nights: "days_to_restore - physical.spare_buses"` does not follow `buses_short_per_night` (Q3), and the 70 + 20 cost does not scale with it. `spare_bus_nights: "physical.spare_buses"` uses a bus count as bus-nights.
+  - **Embakasi:** `feasible_nights` (E) is referenced nowhere. Q4 (31 → 25) moves only the parameter itself, and all 587 checks pass. So the spike E feasibility outcome is a label, not an input to the structure.
+  - **EMB-CHEAPEST** types `500` instead of reading `physical.import_limit_kw`.
+- **Fix:**
+  - Kasarani: cover = shortfall bus-nights − spare cover, with cost per covered bus-night, and a declared basis for how many nights the spare bus covers.
+  - Embakasi: wire `feasible_nights` into `short_nights`/`departures_missed`, or remove the parameter.
+  - EMB-CHEAPEST: read the import limit from `physical`.
+  - List these residual inputs in §10.
+
+**M4 (Medium): R9-M4 is partly resolved; the document check misses most kinds of drift.**
+- **Where:** `check_manifest.py` `documents()`.
+- **What:** the "allowed" set is every number anywhere in the manifest, including free-text strings, plus every derived value. The regex matches only figures with a thousands separator or two decimals, and only in main §2–§10, outside backticks. The superseded list is hand-kept and does not scan the manifest. Planted drift:
+  - **D1:** novel figure 6,082.50 in §7: caught.
+  - **D2:** Metro plan +95,634.00 → +95,484.00 (another valid value): **passes**.
+  - **D3:** Kasarani +150.00 → +240.00: **passes**.
+  - **D5:** "2 departures missed" → "3": **passes**.
+  - **D6:** `economic-metric-and-effect-contracts.md` 367.50 → 361.25: **passes**.
+- **Fix:** for the money figures of each plan, option and site, assert them at their anchored statements (for example a figure tag such as `{{plans.metro-bus.default.value}}`, or a per-section expected-figure list) rather than accepting set membership. Extend the scan to the contracts, models and walkthrough documents, and include the manifest's own strings.
+
+**L1 (Low):** `oracle` OR-ALLOC-1 still says "recommended set spend 3,880"; the evaluated spend is 3,750. The superseded scan skips the manifest. *Fix:* update the oracle and add the manifest to the scan.
+
+**L2 (Low; R9-L3 recurrence):** `domain-and-decision-models.md:5` still says "`check_manifest.py`: 389 checks pass"; the current count is 587. The manifest's first header line still reads "rev 4 (17 Nov 2026)". *Fix:* drop the count and update the header.
+
+**L3 (Low):** the Kasarani narrative contradicts its own structure. The row and the decision screen say "Charging one bus at Ruiru on each of the 3 nights … $90", and the same screen says "the spare bus is free on 1 night". The structure covers 2 bus-nights. *Fix:* align the row's `nights`, its `detail` and the screen text with the evaluated cover (this follows from M3).
+
+**L4 (Low):** `check_manifest.py` still hard-codes inputs: cold 0.20, 1550 + 0.25 × crate-days; EV 0.09, 0.12, 0.24 and 12; the window hours `{"Embakasi": 12, "Kasarani": 7, "Ruiru": 8}`; and `D(3)` visits. These do not produce figures, but a legitimate input change fails spuriously, and they duplicate inputs the evaluator now reads. *Fix:* read them from the manifest.
+
+**L5 (Low):** Ruiru's "avoids a 60,000 purchase" is the row's `avoided_capex`. It is not evaluated as 4 × `physical.charger_unit_cost`, and no structure node says why 4 chargers would be needed. It is listed beside the plan, not added, so this is a provenance gap only.
+
+### Perturbation table (my runs, scratch copies; "moved" = changed leaves in derived-values.json)
+
+| # | Change | What moved | Checker (587 base) |
+|---|---|---|---|
+| P1 | Kisiwa `crew_visit` 8 → 9 Nov | restore 9 → 10 Nov; repair Protect 15 → 20 h | 2 FAIL, caught (reproduces author) |
+| P2 | Kobo diesel 1.25 → 1.30 | 26 leaves incl. stop-setting and its sensitivities | 22 FAIL (reproduces) |
+| P4 | Cold electricity 0.20 → 0.22 | 37 leaves incl. Kirinyaga options, Harvest plan | 25 FAIL (reproduces) |
+| P5 | Mto warranty lead time 21 → 22 d | claim restore 29 Nov, fuel −143.75, plan | 12 FAIL (reproduces) |
+| P7 | Embakasi demand 12 → 13 | 22 leaves incl. bills, option, Metro plan | 13 FAIL (reproduces) |
+| P9 | Kirinyaga recovery 0.80 → 0.70 | repair 1,279.60; Harvest plan 2,949.60 | 5 FAIL (reproduces) |
+| P11 | Mto half-capacity fuel 5 → 6 L/day | both inverter paths, plan, cases | 12 FAIL (reproduces) |
+| P12 | Mto warranty EXPIRED | claim −2,967.50; default plan "infeasible" | 17 FAIL (reproduces) |
+| Q1 *(cold)* | Thika `remedy_scheduled` 8 → 12 Nov | wait path 2 → 6 nights; references of stopgap and self | 2 FAIL, caught |
+| Q2 *(EV)* | Kasarani kWh per bus 150 → 160 | 37 leaves: site actual/plan, portfolio, options | 9 FAIL, caught |
+| Q3 *(EV)* | Kasarani failed chargers 1 → 2 | 4 short a night; wait 11 missed; **stopgap 9 missed, still +150, not rejected** | 3 FAIL (Protect values), caught; shows M2 and M3 |
+| Q4 *(EV)* | Embakasi `feasible_nights` (E) 31 → 25 | **only the parameter** | **587 pass**: dangling design value (M3) |
+| Q5 *(EV)* | Embakasi import limit 500 → 380 | deliverable and O2 only; 400/500 kW schedules not rejected | 3 FAIL (O2), caught; shows M2 |
+| Q6 *(cold)* | Mwea crates 150 → 300 | value 4,010, Harvest plan 5,522.40; above room capacity, not rejected | 5 FAIL, caught; shows M2 |
+| R1 *(rights)* | Kisiwa GEN-KS-01 → POTENTIALLY_COVERED | repair 0; spend 1,950; 5000/no case flips to buy-now | 8 FAIL, caught |
+| R2 *(rights)* | Thika claim ACCEPTED → REJECTED | **nothing** | **587 pass** (M1) |
+| D1 *(doc)* | main §7 +6,088.50 → +6,082.50 | — | 1 FAIL, caught |
+| D2 *(doc)* | main §7 Metro +95,634.00 → +95,484.00 | — | **587 pass** (M4) |
+| D3 *(doc)* | main §7 Kasarani stopgap +150.00 → +240.00 | — | **587 pass** (M4) |
+| D5 *(doc)* | main §7 "2 departures missed" → "3" | — | **587 pass** (M4) |
+| D6 *(doc)* | contracts doc 367.50 → 361.25 | — | **587 pass** (M4) |
+
+### R9 findings
+
+| Finding | Status |
+|---|---|
+| R9-M1 | **Resolved in the evaluator.** There are no numeric literals beyond identities and the percent/inclusive-horizon conventions. P4 and P7 move everything dependent. The checker still duplicates constants (L4). |
+| R9-M2 | **Resolved.** `base_site_factors` is gone, and deltas are expressions (P9, P10 and P11 move the values). The residue is in M3. |
+| R9-M3 | **Resolved.** Recomputed by hand below. The rights decide the 2,600 line for Mto. |
+| R9-M4 | **Partly resolved (M4).** |
+| R9-L1 | **Resolved for option Protect effects.** The spare-bus units are still questionable (M3). |
+| R9-L2 | **Resolved.** Each restore date is derived and asserted; P1, P5 and Q1 move and are caught. |
+| R9-L3 | **Partly resolved (L2).** |
+
+**Hand recomputation.**
+
+| Figure | Working | Result |
+|---|---|---|
+| Mto claim | 150 + 80 (the 2,600 unit is supplier-borne under POTENTIALLY_COVERED) + (6 Nov + 21 + 1 = 28 Nov → 22 days × 5 L × 1.25 = 137.50) | **367.50** ✓ |
+| Buy now | 2,600 + 80 + 150 + 80 = 2,910, + 6 days (5 + 1) × 5 L × 1.25 = 37.50 | **2,947.50** ✓ |
+| Kobo stop-setting | (210 × 1.25 − 150 × 0.08) × 12 − 90 | 2,916 |
+| Huller | 395 × 12 − 1,200 | 3,540 |
+| Lakeside plan value | 2,916 + 3,540 − 367.50 | **+6,088.50** ✓ |
+| Lakeside plan spend | 1,800 + 430 + 90 + 1,200 + 230 | **3,750** ✓ |
+| Kasarani stopgap | 2 missed × 120 = 240 avoided, − (70 + 20) | **+150** ✓ |
+| Embakasi schedule (no action) | 21,438 | |
+| Embakasi schedule (with option) | 400 × 2 × 31 × 0.12 + 400 × 5 × 31 × 0.09 + 400 × 12 = 13,356 | |
+| Embakasi schedule (value) | (21,438 − 13,356) × 12 − 1,500 | 95,484 |
+| Metro plan | 95,484 + 150 | **95,634** ✓ |
+| Lakeside, budget 6,500, no LOI extension | 2,916 + 3,540 − 2,947.50 | 3,508.50 ✓ |
+
+### Regression checks
+
+- **Evaluator and checker.** `python3 evaluate_structure.py`: 9 sites, 24 options, 3 plans, and its output is byte-identical to the committed `derived-values.json`. `python3 check_manifest.py`: **587 passed, 0 failed**.
+- **Rebuild.** In a scratch copy I ran `rebase_v70.py`, then `gen_fixtures.py` ("evaluator vs stated fields: 0 differences", 28 replay patterns), then `node build.mjs`. `diff -r` against the working tree shows **no differences**, which makes the rebuild byte-identical.
+- **Preserved v7.0 screens.** The sources of the 65 preserved screens are unchanged since `9398febb0`: `screens.js`, `portfolio.js`, `outcomes.js` and `src-v70-baseline` are not in the diff. The bundle rebuilds identically. `audit-results.json` records `preservedIdentical: 65/65`, but I did not rerun the audit's text comparison against v7.0.
+- **Wording, filters and menus.** The added mock-up lines contain no role or question wording, no `<select>`, and no new filters or menus. The new parts are three sections inside decision screens: restore dates, cost lines and who bears each, and capacity bound. The audit summary shows 0 role/question hits and 0 filter controls.
+- **Generality.** The same evaluator and `structures`/`factor_map` path serves all three verticals. M2 is the exception: the hard-bound policy is EV-only.
+- **Headless spot check.** I used headless Chromium (Playwright headless shell, with locally extracted libraries and fonts) against a static server on **port 8765**, which I stopped afterwards.
+  - **Mto inverter:** −$367.50 and −$2,947.50; restore dates 28 Nov and 12 Nov, with their drivers.
+  - **Kasarani:** +$150 and $240 against $90, with the "3 nights" text (L3).
+  - **Lakeside act-first:** +$6,088.50 and $3,750 of $5,000; cases +$2,548.50 and +$3,508.50; sensitivities +$5,690 and +$5,338.50. Neither 6,096 nor 3,880 appears.
+  - **Metro act-first:** +$95,634, and +$150 with $90 of $5,000 when the tariff switch is "no".
+  - **Harvest act-first:** +$3,182.40 and $720.
+  - **Ruiru expansion:** 2,800 / 3,200, $26.14, and 62 missed.
+  - **Protect view:** "30 hours in October … Calculated from records" (H1).
+  - **General:** no page errors, and no overflow at 390 px on the three routes I checked.
+
+### Not verified
+
+- I did not rerun `tools/run-audit.sh` in full. The 202-route, contrast, focus, design-value-scan and 65/65 text-identity figures are the author's numbers.
+- I did not rerun the CSV validator, because I could not locate it in the repository.
+- I did not verify the replay design values themselves; they belong to the calibration lane.

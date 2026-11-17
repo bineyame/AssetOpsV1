@@ -23,6 +23,7 @@ for ten in data['tenants']:
         dv = derived['sites'].get(f"{ten['tenant']}/{s['site']}")
         if not dv: continue
         for side in ('plan', 'actual'):
+            if dv[side].get('status') != 'evaluated': continue
             P = s['period'][side]
             for node, field in (('contribution', 'contribution'), ('revenue', 'revenue'), ('fuel_cost', 'diesel_cost'), ('energy', 'energy'), ('energy_cost', 'energy_cost'), ('cost_to_serve', 'total')):
                 if node in dv[side]['nodes'] and field in P and abs(dv[side]['nodes'][node] - P[field]) > 0.005:
@@ -78,16 +79,13 @@ for ten in data['tenants']:
                 if k in e and abs(e[k]) >= 50: add(money(abs(e[k])), e[k])
             for v in (o.get('sensitivity') or {}).values():
                 if abs(v) >= 50: add(money(abs(v)), v)
-    if replay_tenant:
-        A = ten['portfolio'].get('allocation', {})
-        for k, v in (A.get('modelled_12m_change') or {}).items():
-            if isinstance(v, (int, float)) and v >= 50: add(money(v), v)
-        for sw in A.get('switches', []):
-            for c in (sw.get('cases') or {}).values():
-                if c['value'] >= 50: add(money(c['value']), c['value'])
-        d = A.get('downside') or {}
-        for v in [d.get('value', 0)] + list((d.get('others') or {}).values()):
-            if v >= 50: add(money(v), v)
+    # Plan values: every derived plan case (default, switch cases, sensitivities) whose valued options include a replay-dependent option.
+    rids = {o['id'] for s in ten['sites'] for o in ((s.get('decision') or {}).get('options', []) + ((s.get('entitlement') or {}).get('options', []) if isinstance(s.get('entitlement'), dict) else [])) if any(k in o for k in ('forward_replay', 'replay', 'design_value'))}
+    rids |= {oid for oid, e in derived['options'].items() if e.get('design_values')}
+    plan = derived['plans'].get(ten['tenant'])
+    if plan:
+        for c in [plan['default']] + list(plan['switch_cases'].values()) + list(plan['sensitivity_values'].values()):
+            if set(c['valued_options']) & rids and c['value'] >= 50: add(money(c['value']), c['value'])
     for pe in ten['portfolio'].get('protect_effects', []):
         if pe.get('design_value'):
             for v in pe['options'].values():

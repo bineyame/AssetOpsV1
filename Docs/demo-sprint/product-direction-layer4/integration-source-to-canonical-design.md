@@ -1,6 +1,6 @@
 # Integrations needed: from source facts to leaf factors to outcome state
 
-**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 9 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
+**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 10 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
 **Status:** design only. Nothing here exists in the repository unless it is labelled [code-observed] or [test-confirmed]. No code, test, database or mock-up was changed or run for this document.
 
 **Labels.** [code-observed] read in current code (backend, frontend, simulator and tools are unchanged since `bf6014e02`) · [test-confirmed] pinned by a named product test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) · [proposed] this design · [research] external protocol or law · [assumption] a value or behaviour a pilot must confirm. **Provenance** of every record is one of *demo-simulated* (simulator pack), *source-emulated* (a generator that emits the source's native shape), *bench-tested* (a real device or export on a bench), *field-integrated* (a live operator source), *observed-financial* (the operator's own ledger, bill or statement). Simulated and observed values never share a number.
@@ -404,7 +404,7 @@ total,,,,22144.80
 
 **Occurrence and condition evidence.** Fault event 28 Oct, "IGBT overcurrent trip, latched" (telemetry). Notice deadline = 28 Oct + 30 days = 27 Nov. Installer certificate on file; ambient maximum 38 °C (telemetry, specification 45 °C); firmware current (service ticket); fault log on file. Eligibility: *potentially covered* (a product state, not a legal finding).
 
-**Rights factor → option values.** The factor is who bears the cost under each remedy path, giving the operator's residual cost: claim and wait 360.00 (shipping 150 + install 80 + extra fuel 130 during 21 days at half inverter capacity; restore by 28 Nov); buy now and claim the failed unit 2,910.00 (2,600 + 80 now; 150 + 80 to claim; restore by 12 Nov; the replacement becomes a spare, not cash); local repair 450.00, rejected (triggers E5); no action, rejected (half daytime capacity; notice lost on 27 Nov). The huller's letter of intent lapses on 30 Nov and the connection needs 5 working days after restore, so the claim path loses the huller unless the cooperative extends: that is the plan's switch (main design §7.1).
+**Rights factor → option values.** The factor is who bears the cost under each remedy path, giving the operator's residual cost: claim and wait 367.50 (shipping 150 + install 80; the 2,600 replacement unit is borne by the supplier because the right is potentially covering; plus 110 L of extra fuel for the 22 days at half capacity until the restore date derived from the warranty's 21-day lead time and one installation day, 28 Nov); buy now and claim the failed unit 2,947.50 (2,600 + 80 now; 150 + 80 to claim; plus 30 L of extra fuel until the 12 Nov restore; the replacement becomes a spare, not cash). Both are outputs of `evaluate_structure.py`, which applies the rights rule to each cost line; local repair 450.00, rejected (triggers E5); no action, rejected (half daytime capacity; notice lost on 27 Nov). The huller's letter of intent lapses on 30 Nov and the connection needs 5 working days after restore, so the claim path loses the huller unless the cooperative extends: that is the plan's switch (main design §7.1).
 
 **Money.** The covered remedy is never shown as money. Only a supplier credit note or receipt becomes an `ADJUSTMENT` or `RECEIPT`.
 
@@ -465,7 +465,7 @@ Each recipe states sources, minimum fields, canonical records, the factor observ
 
 **Productive demand (MG-C2).** Sources: supply headroom (telemetry), signed letter of intent or contract, productive tariff, marginal fuel. Canonical: `CONTRACT_DOCUMENT` with reviewed terms; `TARIFF_SCHEDULE`. Observer: demand-on-headroom replay (days without headroom 3; extra fuel 68 L). Factor: latent demand, which exists only as an option input. Consumers: MTO-HULLER (+395.00 a month net), MTO-WELDING (−8.25, rejected). Failure: no signed demand evidence → headroom stays capacity, never revenue.
 
-**Capital and repair choices (MG-C5).** Sources: quotes, budget and crew constraints. Canonical: `EXPENSE` QUOTE, `PLAN_LINE` (budget). Consumer: the allocation run (Lakeside 3,880.00 of 5,000, 3 crew visits). Failure: quote missing → option *insufficient evidence*, listed.
+**Capital and repair choices (MG-C5).** Sources: quotes, budget and crew constraints. Canonical: `EXPENSE` QUOTE, `PLAN_LINE` (budget). Consumer: the allocation run (Lakeside 3,750.00 of 5,000, 3 crew visits). Failure: quote missing → option *insufficient evidence*, listed.
 
 ### 5.2 Cold rooms
 

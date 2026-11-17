@@ -150,7 +150,7 @@ function walk(n,f,d=0,parent=null){f(n,d,parent);(n.kids||[]).forEach(k=>walk(k,
 function findNode(sk,id){let r=null;walk(tree(sk),n=>{if(n.id===id)r=n;});return r;}
 
 /* portfolio composition (identity M1): Σ eligible sites; ratios as Σ/Σ */
-function opTotals(op){const o=OPS[op],cost=o.kind==='cost';let plan=0,actual=0;o.sites.forEach(sk=>{const d=DERIVED.sites[`${o.t.tenant}/${siteM(sk).site}`];plan+=d.plan.value;actual+=d.actual.value;});plan=r2(plan);actual=r2(actual);return {plan,actual,variance:r2(cost?plan-actual:actual-plan)}; /* Σ of the evaluator's site outcomes */}
+function opTotals(op){const o=OPS[op],cost=o.kind==='cost';let plan=0,actual=0;const ov=X=>X.status==='evaluated'?X.nodes[cost?'cost_to_serve':'contribution']:X.stated_total;o.sites.forEach(sk=>{const d=DERIVED.sites[`${o.t.tenant}/${siteM(sk).site}`];plan+=ov(d.plan);actual+=ov(d.actual);});plan=r2(plan);actual=r2(actual);return {plan,actual,variance:r2(cost?plan-actual:actual-plan)}; /* Σ of the evaluator's site outcomes */}
 function residualOf(op){let r=0;OPS[op].sites.forEach(sk=>{walk(tree(sk),n=>{if(n.residual&&n.eff!=null)r+=n.eff;});});
  const v=opTotals(op).variance;return {residual:r2(r),attributed:r2(v-r)};}
 

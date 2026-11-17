@@ -427,3 +427,112 @@ I accept the coordinator's point. Per-option Protect effects, option values and 
 | Private oracle in the bundle | no |
 
 The design-value scan and tagger now skip the preserved v7.0 pages. The scan reports 2 unrelated "150 kWh" matches there as exempt; tagging them would have broken those screens' identity with v7.0.
+
+## Author response (rev 10)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This answers "## Re-review (rev 9)" (R9-M1 to M4, R9-L1 to L3), the owner's tenth message (option A, points 1, 3 and 4) and the owner's eleventh message (the coordinator's full comment, points 1 to 4). The owner's ninth message governs: the structure must produce the figures, even in the illustration.
+
+### What changed in the mechanism
+
+`evaluate_structure.py` is rebuilt so that the illustration is produced by the structure all the way down. The manifest now holds only inputs:
+
+| Manifest block | What it holds |
+|---|---|
+| `structures:` | Every layer of each vertical's structure, as node expressions. **Mini-grid:** delivered → metered → billed → revenue → collected; diesel = necessary + candidate + unexplained + extra running; cost to serve; contribution; obligation-hours. **Cold:** revenue and receipts; normalised energy model × model factor + excess; cost to serve; contribution; nights without backup cover. **EV:** deliverable energy a night = min(chargers × kW, import limit) × window; supplied energy; required energy; buses short; departures missed and met; energy cost; penalties; cost per departure met. |
+| `factor_map:` | Turns each site's source records into leaf factors, using record fields, tenant prices, site tariff and physical data, the energy model and incident data. The evaluator contains no numbers of its own. |
+| `evaluation:` | Each of 24 options, with: its parameters, taken from its record or declared with provenance (spike design value, assumption, quote); its factor changes as expressions over those parameters; its reference; its cost lines, each naming the right that could bear it; and restore dates derived from what drives them. |
+| `plans:` | Allocator inputs. |
+
+The evaluator observes all nine sites (actual and plan) bottom-up, composes the portfolio (Σ, and Σ/Σ for ratios), evaluates every option through the same structure against its reference, applies hard bounds, decides who pays from rights, and chooses every plan, switch case and downside.
+
+`check_manifest.py` asserts every stated figure in the manifest against the evaluation, at every layer:
+- value-chain stages, physical splits, cost lines and outcomes for every site and plan;
+- portfolio composition;
+- option values, operator costs and restore dates;
+- Protect effects;
+- plans, switch cases, sensitivities and downsides;
+- O2 measures.
+
+It also checks the documents (R9-M4).
+
+### Outcomes, R9 findings
+
+| Finding | Outcome |
+|---|---|
+| **R9-M1** Cold and EV observation hard-coded prices and constants | **Fixed.** All three verticals observe through the declared `factor_map`; the evaluator holds no numeric literals. Cold reads `prices` and the `energy_model` (base 1,550, k 0.25, now declared). EV reads each site's `tariff.prices` (peak, off-peak, night from 1 Nov, night in October, demand) and `physical` (chargers, kW, import limit, window hours, buses, kWh per bus). Embakasi's October split by interval (15,500 / 23,560 kWh) is now a recorded leaf. Kasarani's plan is now decomposed (37,200 kWh at 0.15). Ruiru's plan is stated only as a bill total, so the evaluator labels it "not decomposed: stated total" and does not count it as evaluated. Perturbations P4 and P7 now move every dependent figure and the checker catches them (below). |
+| **R9-M2** Options used a second hand-entered copy of base factors and hand-worked deltas | **Fixed.** `base_site_factors` is deleted; each option starts from the site's observed factors. Deltas are now expressions over the option's own parameters: huller `load_kw × hours × days`; welding kWh × the site's consumption rate; Kirinyaga repair `excess × (1 − recovery_share)` (recovery share read from the row); Mwea `crates × days`; Embakasi schedules `max_kw × hours × nights`. Kirinyaga replacement now acts on its own leaf: excess → 0 and model factor 0.95 (a declared assumption). The excess therefore never goes negative, and the value is unchanged (−1,988.40). P6 (base drifting from October) can no longer happen. |
+| **R9-M3** Mto inverter money entered as one-off results, contradicting the restore horizon | **Fixed (decision A24).** Reduced capacity now runs through the structure as extra running (5 L a day at half inverter capacity, a spike-M design value) over each path's own derived restore horizon. Cost lines carry who bears them through the right. The figures now differ, and they are the honest ones: claim and wait **367.50** = 230.00 one-off (the 2,600 unit is borne by the supplier) + 137.50 fuel (22 days); buy now **2,947.50** = 2,910.00 + 37.50 fuel (6 days). Every plan figure follows. No chosen plan changes. |
+| **R9-M4** Documents unchecked | **Fixed.** `check_manifest.py` now has a document pass. **(1)** It checks that a list of superseded figures appears in no pack document; review history and the mock-up's revision log are excepted. **(2)** It checks that every money or quantity figure in main §2–§10 is either an evaluated value or a declared input. Both currently pass. **Drift corrected:** §7.2 now names Thika's measure correctly, and §10 says exactly what is checked. The manifest's Protect `basis` strings no longer carry hand-written numbers. Figures typed into the mock-up's strings (`loop-portfolio.js`) now come from evaluated nodes. |
+| **R9-L1** Rough edges in the Protect rule | **Fixed.** Protect measures are now structure nodes, not a date rule. The horizon end comes from `evaluation.horizon_end`. The spare bus is a factor (`physical.spare_buses`). Cover options use cover-from-decision, not a restore sentinel. Units are correct per measure. The `minus` adjustment is removed. |
+| **R9-L2** Restore dates not tied to their drivers | **Fixed.** Every restore date is derived from its drivers: Kisiwa repair = crew visit + 1 repair day; replacement = decision + the row's 21 days; Mto claim = decision + warranty lead time + 1 installation day; buy now = decision + 5-day local supply + 1 day; Kasarani = notice (2 Nov) + 5 business days (the SLA term); Thika = the supplier's scheduled remedy. The checker asserts that each stated date equals the derived one. P1 and P8 (below) now move the date and the Protect hours, and both are caught. |
+| **R9-L3** Stale header claims | **Fixed.** Headers no longer quote a check count; they name the evaluator and checker. Manifest revision labels are updated. |
+
+### Outcomes, owner's tenth message (points 1, 3, 4) and eleventh message (points 1 to 4)
+
+| Point | Outcome |
+|---|---|
+| **1. The evaluated structure stops at the money layer** | **Fixed.** Value chain, physical split, cost, outcome and Protect nodes are all evaluated and checked against the stated figures (e.g. Mto 6,000 → 5,580 → 5,400 → 2,160 → collected 1,890; Kobo diesel 730 + 330 + 120 = 1,180). O2 measures and portfolio composition are evaluated too. Protect effects are now node values of the counterfactual structure; the date rule is gone. |
+| **2. The causal step is hand-entered, and some deltas are unflagged** (eleventh message) | **Fixed where a structure can produce it; flagged where only a replay can.** Every delta is now an expression over named parameters, and every non-record parameter declares its provenance. The remaining causal inputs are replay outputs: 210 L and 20 L avoided, 150 kWh throughput, 68 L, and 5 L a day at half capacity (spikes K and M; Embakasi's feasibility, spike E). These are flagged design values with a calibration spike as their exit. Welding's 217.8 L and Kirinyaga's −1,171.5 kWh are now computed. One figure has no model: Kisiwa's 60 kWh battery saving (150 L a month), on a deferred option in no plan. It is flagged as an assumption and recorded as **owner decision Q14** rather than entered silently. |
+| **3. Thika, Kasarani and Ruiru were not evaluated** | **Fixed.** All 24 options across all nine sites run through the structure. **Thika:** nights without backup cover 2 / 0 / 0; self-repair bears the 710 controller. **Kasarani:** chargers in service 3 → supplied energy 1,050 against 1,200 required → 1 bus short a night × 3 nights − 1 spare = 2 departures missed, 240.00 penalties; the cover avoids them for 90.00, so the stopgap is now **valued +150.00** by the structural rule below. **Ruiru:** +6 buses supplied 2,800 within 3,200, 0 missed, cost per departure met 26.14; +10 buses 2 short a night, 62 missed, rejected by the bound. |
+| **4. Rights sit outside the structure** | **Fixed (A24).** Each cost line names the right that could bear it. The operator's share is 0 when that right is potentially covering or accepted, and 1 otherwise. The difference between the Mto paths is now fully structural: the supplier bears the unit under the claim; the operator buys it under buy-now; and each path pays its own extra fuel up to its own restore date. Kisiwa's expired cover leaves the 1,800 repair with the operator. |
+
+**Two structural rules replace hand classifications.**
+- An option is valued in money only when it changes a money node (A16 revised). Kasarani's stopgap is now valued; the Kisiwa repair, the Thika stopgap and the Kobo battery evidence are not.
+- An option whose counterfactual raises a hard Protect measure above its reference (departures missed), or that carries a declared spike bound failure, is rejected before valuation. The cheapest Embakasi schedule, the Kobo reserve change and Ruiru +10 therefore show no money value.
+
+### Figures that changed (all evaluator outputs)
+
+| | Before | Now |
+|---|---|---|
+| Mto claim / buy now (operator cost) | 360 / 2,910 | 367.50 / 2,947.50 |
+| Lakeside plan | value 6,096 at spend 3,880 | value **6,088.50** at spend **3,750** (valued 1,520; not valued 2,230) |
+| Lakeside, budget 5,000, no LOI extension | 2,556 at spend 2,680 | 2,548.50 at spend 2,550 |
+| Lakeside, budget 6,500, no LOI extension | 3,546 | 3,508.50 at spend 6,430 (buy-now wins by 960) |
+| Lakeside downside | 2,556 | 2,548.50 |
+| Lakeside, diesel −20% | 5,670 | 5,690 |
+| Lakeside, 160 L feasible | 5,346 | 5,338.50 |
+| Metro plan | 95,484 | **95,634** (stopgap +150) |
+| Metro, flat tariff, and downside | 0 | 150 |
+
+Unchanged: Harvest, all site outcomes, all Protect effects and the O2 measures. The documents, mock-up, walkthroughs, fixture mapping, phase plan, matrix and CSV are updated, and the document pass confirms that no superseded figure remains.
+
+### Perturbations re-run (scratch copy; working tree untouched)
+
+| # | Change | What moves now | Checker |
+|---|---|---|---|
+| P1 | Kisiwa crew visit 8 → 9 Nov | Restore 9 → 10 Nov; repair Protect 15 → 20 h | 2 FAIL (stated date and hours), caught |
+| P5 | Mto warranty lead time 21 → 22 days | Claim restore 28 → 29 Nov; claim −367.50 → −373.75 (fuel follows the horizon); plan 6,088.50 → 6,082.25 and every case and downside | 12 FAIL, caught |
+| P2 | Kobo diesel price 1.25 → 1.30 | Site outcome and stop-setting value 2,916 → 3,042; plan, cases and downsides | 22 FAIL, caught (in rev 9 the option did not move) |
+| P3 / P6 | Kobo October diesel 1,180 → 1,200 (+20 L candidate) | Site outcome and portfolio; no second copy exists to drift | 5 FAIL, caught |
+| P4 | Cold electricity 0.20 → 0.22 | 36 figures: site outcomes, Mwea, Kirinyaga options, Harvest plan | 25 FAIL, caught (rev 9: nothing moved) |
+| P7 | Embakasi demand rate 12 → 13 | Site outcomes, the Embakasi option 95,484 → 96,684, the Metro plan | 13 FAIL, caught (rev 9: nothing moved) |
+| P8 | Kisiwa repair days 1 → 0 | Restore 9 → 8 Nov; Protect hours | 2 FAIL, caught (rev 9: nothing moved) |
+| P9 | Kirinyaga recovery share 0.80 → 0.70 | Repair 1,512.40 → 1,279.60; Harvest plan and downside | 5 FAIL, caught by derivation, not by an old reconciliation |
+| P10 | Huller days 22 → 20 | Huller 3,540 → 3,000; Lakeside plan and cases | 10 FAIL, caught by derivation |
+| P11 *(new)* | Mto half-capacity fuel 5 → 6 L a day | Both inverter paths; plan and every case | 12 FAIL, caught |
+| P12 *(new)* | Mto warranty expired | Rights move the 2,600 unit to the operator; claim −2,967.50. At budget 5,000 no plan can restore the inverter, so the evaluator reports "infeasible" as a result. At 6,500, buy-now is chosen. | 17 FAIL, caught |
+
+### Checks run before replying
+
+- `python3 evaluate_structure.py`: 9 sites, 24 options, 3 plans.
+- `python3 check_manifest.py`: **587 checks passed, 0 failed**, including the document pass.
+- CSV validator: **PASS** (454 rows).
+- Rebuild: `rebase_v70.py`, then `gen_fixtures.py` (evaluator vs stated: 0 differences; 28 replay patterns; private oracle removed), then `node build.mjs`.
+- Full audit:
+
+| Check | Result |
+|---|---|
+| Routes rendering | 202 / 202 |
+| Console errors / bad links / overflow at 390 px | 0 / 0 / 0 |
+| Vocabulary hits | 0 |
+| Record identifiers on added and changed screens | 0 |
+| Role or question wording | 0 |
+| Independent design-value scan | 28-figure set, same as the tagger's; 101 occurrences across all routes and 734 drawers; 0 unlabelled |
+| Switch cases | 8 / 8 |
+| Drawer / visible focus / contrast | pass / 7 / 7 / 38 / 38 |
+| Preserved screens identical to v7.0 | 65 / 65 |
+| Private oracle in the bundle | no |
+
+### Owner decision added
+
+**Q14:** keep Kisiwa's battery fuel saving as a flagged assumption, add a fourth calibration spike, or drop the option. Recommended: keep it flagged. The option is deferred and appears in no plan.

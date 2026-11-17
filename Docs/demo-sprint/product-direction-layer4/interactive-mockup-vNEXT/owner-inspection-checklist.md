@@ -13,7 +13,7 @@
 
 **2. One operator walk (10 minutes; Lakeside Power).** Overview (headline, four figures, the plan's first three moves) → *Outcomes by site* (each outcome to its factors, plan against actual) → *Act first* (switch the budget to $6,500 and the letter of intent to No; watch the plan change) → `#/decision/kobo-generator` (options against no action, design-value labels, Protect under each option) → *What changed* (commitments, three verdicts, rights).
 
-**3. One cross-vertical contrast (5 minutes).** Metro: *Demand and capacity* (Ruiru: 61% of deliverable energy used — the import limit binds — so +6 buses fit and +10 do not) and `#/decision/kasarani-charger` (departures missed 2 under waiting, 0 under the stopgap). Harvest: `#/site/thika` (batch exposed, damage confirmed, liability — three different things).
+**3. One cross-vertical contrast (5 minutes).** Metro: *Demand and capacity* (Ruiru: 61% of deliverable energy used — the import limit binds — so +6 buses fit and +10 do not) and `#/decision/kasarani-charger` (departures missed 2 under waiting, 0 under the stopgap, which therefore avoids $240 of penalties for $90). Harvest: `#/site/thika` (batch exposed, damage confirmed, liability — three different things).
 
 **4. The decisions only you can take (10 minutes; `../design-questions-and-decisions.md`).**
 
@@ -26,9 +26,10 @@
 | Q7 Embakasi's tariff assumption (largest figure) | `#/decision/embakasi-schedule` |
 | Q9 delivery order, with the calibration lane first | main document §9 |
 | Q13 may early prospects see replay-derived figures if labelled and said aloud? | `#/decision/kobo-generator` |
+| Q14 keep Kisiwa's battery fuel saving as a flagged assumption? | `#/decision/kisiwa-genset` |
 | Item 11 below: rebuild Ruiru's preserved deep views? | `#/ev-health` |
 
-**Everything else** still open is listed, with the Architect's recommendation, in `../design-questions-and-decisions.md` (Q4, Q6, Q8, Q10–Q12 and residual risks RR1–RR3); none needs a screen.
+**Everything else** still open is listed, with the Architect's recommendation, in `../design-questions-and-decisions.md` (Q4, Q6, Q8, Q10–Q12, Q14 and residual risks RR1–RR3); none needs a screen.
 
 The numbered rows below are the full inspection log by revision.
 

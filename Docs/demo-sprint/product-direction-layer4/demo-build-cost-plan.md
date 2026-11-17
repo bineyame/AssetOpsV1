@@ -1,9 +1,9 @@
 # The demonstration world: built backwards from each choice, cheap to change
 
-**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 7) · rev 9 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only**
+**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 7) · rev 10 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only**
 Pairs with `demo-site-scenario-manifest.yaml` (rev 4, the only source of figures) and `integration-source-to-canonical-design.md` (the source shapes). Main narrative: `layer4-transformation-design.md` §2 (mechanics) and §10.
 
-**Labels.** [code-observed] read in current code · [test-confirmed] pinned by a named test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) and **must be re-measured** · [proposed] this design · [assumption] to confirm. **Measured** means measured on a real build and cited; **derived** means arithmetic on measured figures; **target** means a budget not yet achieved. No build, test suite, database or Docker command was run for this document. Every figure is **illustrative** and reconciles with the manifest (`python3 check_manifest.py` → 167 checks pass).
+**Labels.** [code-observed] read in current code · [test-confirmed] pinned by a named test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) and **must be re-measured** · [proposed] this design · [assumption] to confirm. **Measured** means measured on a real build and cited; **derived** means arithmetic on measured figures; **target** means a budget not yet achieved. No build, test suite, database or Docker command was run for this document. Every figure is **illustrative** and reconciles with the manifest (`python3 evaluate_structure.py` produces them; `python3 check_manifest.py` asserts them, 0 failures).
 
 ---
 
@@ -25,7 +25,7 @@ The build therefore starts from the choice and asks, mechanic by mechanic, what 
 
 ### 1.2 Per portfolio: the choice, the factor states it needs, and the facts that produce them
 
-**Lakeside Power (mini-grid).** *Choice:* with 5,000 and three crew visits, repair Kisiwa's genset (must-do), trial Kobo's lower generator stop threshold, claim Mto's inverter under warranty, connect the rice huller, fix Mto's meter mapping and assemble Kobo's battery evidence: spend 3,880.00, modelled 12-month change +6,096.00, not realised.
+**Lakeside Power (mini-grid).** *Choice:* with 5,000 and three crew visits, repair Kisiwa's genset (must-do), trial Kobo's lower generator stop threshold, claim Mto's inverter under warranty, connect the rice huller, fix Mto's meter mapping and assemble Kobo's battery evidence: spend 3,750.00, modelled 12-month change +6,088.50, not realised (both evaluated by `evaluate_structure.py`).
 
 | Factor state the tour needs | Intended value (manifest) | Facts that must produce it | Time scale |
 |---|---|---|---|

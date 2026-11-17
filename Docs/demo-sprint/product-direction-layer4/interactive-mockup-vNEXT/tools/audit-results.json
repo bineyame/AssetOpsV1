@@ -1,10 +1,10 @@
 {
  "dvScan": {
-  "occurrences": 102,
+  "occurrences": 101,
   "unlabelled": [],
   "drawersOpened": 734,
   "byFigure": {},
-  "independentPatterns": 27,
+  "independentPatterns": 28,
   "independentFigures": [
    "20 L",
    "4 of 61 dawn days",
@@ -21,17 +21,18 @@
    "3540.0",
    "395.0",
    "85.0",
-   "6096.0",
-   "2556.0",
-   "3546.0",
-   "5670.0",
-   "5346.0",
+   "6088.5",
+   "2548.5",
+   "3508.5",
+   "5690.0",
+   "5338.5",
    "31 of 31 nights",
    "406 kW",
    "2,900 kWh",
    "95484.0",
    "8082.0",
    "13356.0",
+   "95634.0",
    "93 departures missed"
   ],
   "sameAsTagger": true,
@@ -3459,8 +3460,8 @@
  ],
  "switches": {
   "lakeside 5000/yes": {
-   "expectSpend": "$3,880",
-   "expectValue": "+$6,096",
+   "expectSpend": "$3,750",
+   "expectValue": "+$6,088.50",
    "spendOk": true,
    "valueOk": true,
    "inverterOk": true,
@@ -3472,8 +3473,8 @@
    "focusKept": true
   },
   "lakeside 5000/no": {
-   "expectSpend": "$2,680",
-   "expectValue": "+$2,556",
+   "expectSpend": "$2,550",
+   "expectValue": "+$2,548.50",
    "spendOk": true,
    "valueOk": true,
    "inverterOk": true,
@@ -3485,8 +3486,8 @@
    "focusKept": true
   },
   "lakeside 6500/yes": {
-   "expectSpend": "$3,880",
-   "expectValue": "+$6,096",
+   "expectSpend": "$3,750",
+   "expectValue": "+$6,088.50",
    "spendOk": true,
    "valueOk": true,
    "inverterOk": true,
@@ -3499,7 +3500,7 @@
   },
   "lakeside 6500/no": {
    "expectSpend": "$6,430",
-   "expectValue": "+$3,546",
+   "expectValue": "+$3,508.50",
    "spendOk": true,
    "valueOk": true,
    "inverterOk": true,
@@ -3538,8 +3539,8 @@
    "downsideOk": true,
    "got": {
     "m": "$1,590 of $5,000",
-    "t": "+$95,484",
-    "d": "Downside: $0 if Embakasi’s time-of-use and demand-charge tariff does not apply (a flat tariff). Modelled"
+    "t": "+$95,634",
+    "d": "Downside: +$150 if Embakasi’s time-of-use and demand-charge tariff does not apply (a flat tariff). Modelled"
    }
   },
   "metro tariff no": {
@@ -3548,8 +3549,8 @@
    "downsideOk": true,
    "got": {
     "m": "$90 of $5,000",
-    "t": "$0",
-    "d": "Downside shown for the default plan: $0 if Embakasi’s time-of-use and demand-charge tariff does not apply (a flat tariff). Modelled"
+    "t": "+$150",
+    "d": "Downside shown for the default plan: +$150 if Embakasi’s time-of-use and demand-charge tariff does not apply (a flat tariff). Modelled"
    }
   }
  },
@@ -4026,7 +4027,7 @@
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
   "operatorSelectInReviewBar": 202,
-  "designValueScan": "independent set of 27 replay figures (same as the tagger's: true); 102 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
+  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 101 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
   "rev6TabOrder": true,
   "rev7EvMeasure": true,
   "rev7RuiruNameplate": true,

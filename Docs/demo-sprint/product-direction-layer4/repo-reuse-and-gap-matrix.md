@@ -152,7 +152,7 @@ What M2 needs: telemetry leaves (exist), operational leaves (fuel exists), money
 | Due maintenance `outcomes/plan_due.py:1` | Due state of preventive plans | integrate | Must-do candidates for the allocator when a bound requires them | M | None | `test_w601b_global_maintenance.py` |
 | Assignment `work/model.py:328` ASSIGN; `work/global_index.py:276` latest assignee | Assignment through work-case events | integrate | Crew-visit use of the plan is read from and written to the existing assignment path (X8: integrate, do not absorb) | H | None | `test_w601a_global_incidents.py` |
 | System actor `actions/lifecycle.py:44-58` `SystemDemoActor` ("no operator approval is recorded", `actions/lifecycle.py:53-55`); `actions/capability.py:1-9` | Every trial command is a SYSTEM demonstration | rework (for approvals) | Plan approval and option selection need a named person; stored SYSTEM events keep their actor | M | Do not rewrite stored events | No approval test |
-| **Allocation run** [proposed]: must-do first, exhaustive subsets (≤ 15 options), budget / crews / dependencies / exclusions, reasons, switches, sensitivity | — | new | No part allocates across sites | – | After decision records (reads evaluations) | OR-ALLOC-1: Lakeside 5,000 → spend 3,880.00; 6,500 without LOI extension → MTO-INV-BUYNOW replaces MTO-INV-CLAIM |
+| **Allocation run** [proposed]: must-do first, exhaustive subsets (≤ 15 options), budget / crews / dependencies / exclusions, reasons, switches, sensitivity | — | new | No part allocates across sites | – | After decision records (reads evaluations) | OR-ALLOC-1 on evaluated values (`derived-values.json`): Lakeside 5,000 → spend 3,750.00, +6,088.50; 6,500 without LOI extension → MTO-INV-BUYNOW replaces MTO-INV-CLAIM, spend 6,430.00, +3,508.50; Metro +95,634.00 (Kasarani stopgap valued +150.00) |
 
 ---
 
@@ -230,6 +230,7 @@ The live Portfolio keeps its frame: route `/portfolio/:tab?`, the six owner-appr
 | Packs `simulator/assetops_simulator/packs/mini_grid.py:1141` (v5), `simulator/assetops_simulator/packs/cold.py`, `simulator/assetops_simulator/packs/ev_charger.py`; EV publication rule `host/ev_publication.py:282` (one Tuesday window) | Mini-grid kernel; cold and EV packs | extend | Ruiru and Embakasi nightly windows need more than one weekly window; cold minute readings only around INC-203 | M | – | `simulator/tests/test_cold_pack.py`, `simulator/tests/test_ev_pack.py` |
 | Writer guard `tools/writer_guard_probes.py:95` | No product writer runs MERGE or COPY | reuse as-is | Commercial bulk intake uses batched inserts | H | Rules out COPY | – |
 | Objective declaration `tools/demo_declare_objectives.py:1` | Declares objectives at the story instant | rework | Plans per factor come from commercial plan records | M | – | – |
+| Illustration evaluator `Docs/demo-sprint/product-direction-layer4/evaluate_structure.py` (design pack, rev 10) → `derived-values.json`; asserted by `check_manifest.py` | Runs M1–M4 over the manifest's `structures:`, `factor_map:`, `evaluation:` and `plans:`; holds no numbers of its own; every demo figure is evaluated and written with its formula [code-observed in the design pack; not product code] | integrate (as the oracle of the demo figures) | It mirrors the components to be built — structure registry, structure read, option evaluator and allocator — so the built product must reproduce `derived-values.json` from source-emulated records through the real intake path; it is never imported by product code and never replaces the private oracle's role of being compared against, not read | H | Keep it outside `backend/` and out of the dependency graph; any change to a declared structure or option must be re-run before figures are quoted | the OR-ALLOC gate and release tests R9 and R14 compare against it; no product test exists yet |
 
 ---
 
@@ -310,8 +311,8 @@ Numbers follow the delivery slices in `phase-plan-and-acceptance.md` (commercial
 | D M4 Choose | 1 | 0 | 1 | 2 | 0 | 1 | 0 | 5 |
 | E M5 Prove | 5 | 4 | 1 | 2 | 0 | 1 | 0 | 13 |
 | F UI (F1–F3) | 2 | 4 | 6 | 0 | 7 | 0 | 2 (+1 within a row) | 21 |
-| G Build | 3 | 4 | 1 | 0 | 0 | 0 | 0 | 8 |
-| **Total** | **40** | **21** | **22** | **13** | **7** | **7** | **3 (+2)** | **113** |
+| G Build | 3 | 4 | 1 | 1 | 0 | 0 | 0 | 9 |
+| **Total** | **40** | **21** | **22** | **14** | **7** | **7** | **3 (+2)** | **114** |
 
 The §A1 Protect-measure map is not counted (it lists measures and their observers, not dispositions of code). Counted from the tables by script; a row with a mixed disposition (e.g. "reuse as-is (first two); retire/avoid (…)") is counted under its first disposition, and its retirement is shown as "+1 within a row". Section H lists the retirements in full.
 

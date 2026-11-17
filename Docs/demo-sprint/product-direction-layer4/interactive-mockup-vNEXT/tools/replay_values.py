@@ -58,14 +58,18 @@ for tenant in doc['tenants']:
             if key in econ and abs(econ[key]) >= 50: put(fmt_money(econ[key]), econ[key])
         for val in (d.get('sensitivity') or {}).values():
             if abs(val) >= 50: put(fmt_money(val), val)
-    if recommended_replay:
-        alloc = tenant['portfolio'].get('allocation', {})
-        nums = [v for v in (alloc.get('modelled_12m_change') or {}).values() if isinstance(v, (int, float))]
-        nums += [c['value'] for s in alloc.get('switches', []) for c in (s.get('cases') or {}).values()]
-        dn = alloc.get('downside') or {}
-        nums += [dn.get('value', 0)] + list((dn.get('others') or {}).values())
-        for v in nums:
-            if v >= 50: put(fmt_money(v), v)
+    # rev 10: plan values are replay-dependent when the plan case they come from contains a replay-dependent valued option; the
+    # cases and their option lists come from the structure evaluator's output (derived-values.json), not from the screen tagger.
+    dv = json.loads((root / 'derived-values.json').read_text(encoding='utf-8'))
+    replay_ids = {d['id'] for d in walk(doc['tenants']) if 'id' in d and ({'forward_replay', 'replay', 'design_value'} & set(d))}
+    replay_ids |= {o for o, e in dv['options'].items() if e.get('design_values')}
+    pl = dv['plans'].get(tenant['tenant'])
+    if pl:
+        cases = [pl['default']] + list(pl['switch_cases'].values())
+        for c in cases:
+            if c.get('value') is not None and set(c['valued_options']) & replay_ids and c['value'] >= 50: put(fmt_money(c['value']), c['value'])
+        for sv in pl['sensitivity_values'].values():
+            if sv.get('value') is not None and set(sv['valued_options']) & replay_ids and sv['value'] >= 50: put(fmt_money(sv['value']), sv['value'])
     for pe in tenant['portfolio'].get('protect_effects', []):
         if pe.get('design_value'):
             for v in pe['options'].values():

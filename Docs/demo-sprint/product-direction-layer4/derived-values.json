@@ -1,207 +1,283 @@
 {
  "as_of": "2026-11-06",
- "method": "derived by evaluate_structure.py from the declared structures and leaf factors",
+ "method": "derived by evaluate_structure.py from declared structures, factor map and option inputs",
  "sites": {
   "lakeside-power/Kobo": {
    "plan": {
-    "outcome_node": "contribution",
-    "value": 1445.0,
+    "status": "evaluated",
     "nodes": {
+     "metered_kwh": 8550.0,
+     "billed_kwh": 8550.0,
      "revenue": 3420.0,
+     "collected": 3420.0,
+     "diesel_l": 700.0,
      "fuel_cost": 875.0,
      "battery_wear": 0.0,
      "cost_to_serve": 1975.0,
-     "contribution": 1445.0
+     "contribution": 1445.0,
+     "obligation_hours_without_redundancy": 0.0
     }
    },
    "actual": {
-    "outcome_node": "contribution",
-    "value": 883.0,
+    "status": "evaluated",
     "nodes": {
+     "metered_kwh": 8690.0,
+     "billed_kwh": 8645.0,
      "revenue": 3458.0,
+     "collected": 3180.0,
+     "diesel_l": 1180.0,
      "fuel_cost": 1475.0,
      "battery_wear": 0.0,
      "cost_to_serve": 2575.0,
-     "contribution": 883.0
+     "contribution": 883.0,
+     "obligation_hours_without_redundancy": 0.0
     }
    }
   },
   "lakeside-power/Kisiwa": {
    "plan": {
-    "outcome_node": "contribution",
-    "value": -65.0,
+    "status": "evaluated",
     "nodes": {
+     "metered_kwh": 7500.0,
+     "billed_kwh": 7500.0,
      "revenue": 4125.0,
+     "collected": 4125.0,
+     "diesel_l": 2300.0,
      "fuel_cost": 2990.0,
      "battery_wear": 0.0,
      "cost_to_serve": 4190.0,
-     "contribution": -65.0
+     "contribution": -65.0,
+     "obligation_hours_without_redundancy": 0.0
     }
    },
    "actual": {
-    "outcome_node": "contribution",
-    "value": -250.0,
+    "status": "evaluated",
     "nodes": {
+     "metered_kwh": 7430.0,
+     "billed_kwh": 7400.0,
      "revenue": 4070.0,
+     "collected": 3800.0,
+     "diesel_l": 2400.0,
      "fuel_cost": 3120.0,
      "battery_wear": 0.0,
      "cost_to_serve": 4320.0,
-     "contribution": -250.0
+     "contribution": -250.0,
+     "obligation_hours_without_redundancy": 0.0
     }
    }
   },
   "lakeside-power/Mto": {
    "plan": {
-    "outcome_node": "contribution",
-    "value": 915.0,
+    "status": "evaluated",
     "nodes": {
+     "metered_kwh": 5600.0,
+     "billed_kwh": 5600.0,
      "revenue": 2240.0,
+     "collected": 2240.0,
+     "diesel_l": 300.0,
      "fuel_cost": 375.0,
      "battery_wear": 0.0,
      "cost_to_serve": 1325.0,
-     "contribution": 915.0
+     "contribution": 915.0,
+     "obligation_hours_without_redundancy": 0.0
     }
    },
    "actual": {
-    "outcome_node": "contribution",
-    "value": 810.0,
+    "status": "evaluated",
     "nodes": {
+     "metered_kwh": 5580.0,
+     "billed_kwh": 5400.0,
      "revenue": 2160.0,
+     "collected": 1890.0,
+     "diesel_l": 320.0,
      "fuel_cost": 400.0,
      "battery_wear": 0.0,
      "cost_to_serve": 1350.0,
-     "contribution": 810.0
+     "contribution": 810.0,
+     "obligation_hours_without_redundancy": 0.0
     }
    }
   },
   "harvest-cold/Room A · Mwea": {
    "plan": {
-    "outcome_node": "contribution",
-    "value": 456.0,
+    "status": "evaluated",
     "nodes": {
      "revenue": 1488.0,
+     "received": 1488.0,
+     "kwh_model": 3410.0,
      "kwh": 3410.0,
      "energy": 682.0,
      "cost_to_serve": 1032.0,
-     "contribution": 456.0
+     "contribution": 456.0,
+     "nights_without_backup_cover": 0.0
     }
    },
    "actual": {
-    "outcome_node": "contribution",
-    "value": -12.0,
+    "status": "evaluated",
     "nodes": {
      "revenue": 868.0,
+     "received": 820.0,
+     "kwh_model": 2635.0,
      "kwh": 2650.0,
      "energy": 530.0,
      "cost_to_serve": 880.0,
-     "contribution": -12.0
+     "contribution": -12.0,
+     "nights_without_backup_cover": 0.0
     }
    }
   },
   "harvest-cold/Room B · Thika": {
    "plan": {
-    "outcome_node": "contribution",
-    "value": 562.0,
+    "status": "evaluated",
     "nodes": {
      "revenue": 1736.0,
+     "received": 1736.0,
+     "kwh_model": 3720.0,
      "kwh": 3720.0,
      "energy": 744.0,
      "cost_to_serve": 1174.0,
-     "contribution": 562.0
+     "contribution": 562.0,
+     "nights_without_backup_cover": 0.0
     }
    },
    "actual": {
-    "outcome_node": "contribution",
-    "value": 454.0,
+    "status": "evaluated",
     "nodes": {
      "revenue": 1736.0,
+     "received": 1650.0,
+     "kwh_model": 3720.0,
      "kwh": 3720.0,
      "energy": 744.0,
      "cost_to_serve": 1282.0,
-     "contribution": 454.0
+     "contribution": 454.0,
+     "nights_without_backup_cover": 0.0
     }
    }
   },
   "harvest-cold/Room C · Kirinyaga": {
    "plan": {
-    "outcome_node": "contribution",
-    "value": 698.0,
+    "status": "evaluated",
     "nodes": {
      "revenue": 1984.0,
+     "received": 1984.0,
+     "kwh_model": 4030.0,
      "kwh": 4030.0,
      "energy": 806.0,
      "cost_to_serve": 1286.0,
-     "contribution": 698.0
+     "contribution": 698.0,
+     "nights_without_backup_cover": 0.0
     }
    },
    "actual": {
-    "outcome_node": "contribution",
-    "value": 504.0,
+    "status": "evaluated",
     "nodes": {
      "revenue": 1984.0,
+     "received": 1900.0,
+     "kwh_model": 4030.0,
      "kwh": 5000.0,
      "energy": 1000.0,
      "cost_to_serve": 1480.0,
-     "contribution": 504.0
+     "contribution": 504.0,
+     "nights_without_backup_cover": 0.0
     }
    }
   },
   "metro-bus/Embakasi": {
    "plan": {
-    "outcome_node": "cost_to_serve",
-    "value": 19540.8,
+    "status": "evaluated",
     "nodes": {
+     "deliverable_kwh_night": 6000.0,
+     "scheduled_kwh_night": 2800.0,
+     "supplied_kwh_night": 2800.0,
+     "required_kwh_night": 2800.0,
+     "buses_short_per_night": 0.0,
+     "departures_required": 620.0,
+     "departures_missed": 0.0,
+     "departures_met": 620.0,
      "energy_cost": 18940.8,
+     "penalties": 0.0,
      "cost_to_serve": 19540.8,
+     "cost_per_departure_met": 31.52,
      "contribution": -19540.8
     }
    },
    "actual": {
-    "outcome_node": "cost_to_serve",
-    "value": 22744.8,
+    "status": "evaluated",
     "nodes": {
+     "deliverable_kwh_night": 6000.0,
+     "scheduled_kwh_night": 2800.0,
+     "supplied_kwh_night": 2800.0,
+     "required_kwh_night": 2800.0,
+     "buses_short_per_night": 0.0,
+     "departures_required": 620.0,
+     "departures_missed": 0.0,
+     "departures_met": 620.0,
      "energy_cost": 22144.8,
+     "penalties": 0.0,
      "cost_to_serve": 22744.8,
+     "cost_per_departure_met": 36.69,
      "contribution": -22744.8
     }
    }
   },
   "metro-bus/Kasarani": {
    "plan": {
-    "outcome_node": "cost_to_serve",
-    "value": 5880.0,
+    "status": "evaluated",
     "nodes": {
+     "deliverable_kwh_night": 1400.0,
+     "scheduled_kwh_night": 1200.0,
+     "supplied_kwh_night": 1200.0,
+     "required_kwh_night": 1200.0,
+     "buses_short_per_night": 0.0,
+     "departures_required": 248.0,
+     "departures_missed": 0.0,
+     "departures_met": 248.0,
      "energy_cost": 5580.0,
+     "penalties": 0.0,
      "cost_to_serve": 5880.0,
+     "cost_per_departure_met": 23.71,
      "contribution": -5880.0
     }
    },
    "actual": {
-    "outcome_node": "cost_to_serve",
-    "value": 5880.0,
+    "status": "evaluated",
     "nodes": {
+     "deliverable_kwh_night": 1400.0,
+     "scheduled_kwh_night": 1200.0,
+     "supplied_kwh_night": 1200.0,
+     "required_kwh_night": 1200.0,
+     "buses_short_per_night": 0.0,
+     "departures_required": 248.0,
+     "departures_missed": 0.0,
+     "departures_met": 248.0,
      "energy_cost": 5580.0,
+     "penalties": 0.0,
      "cost_to_serve": 5880.0,
+     "cost_per_departure_met": 23.71,
      "contribution": -5880.0
     }
    }
   },
   "metro-bus/Ruiru": {
    "plan": {
-    "outcome_node": "cost_to_serve",
-    "value": 13100.0,
-    "nodes": {
-     "energy_cost": 12600.0,
-     "cost_to_serve": 13100.0,
-     "contribution": -13100.0
-    }
+    "status": "not decomposed: stated total (missing leaf kwh)",
+    "stated_total": 13100.0
    },
    "actual": {
-    "outcome_node": "cost_to_serve",
-    "value": 13080.32,
+    "status": "evaluated",
     "nodes": {
+     "deliverable_kwh_night": 3200.0,
+     "scheduled_kwh_night": 1960.0,
+     "supplied_kwh_night": 1960.0,
+     "required_kwh_night": 1960.0,
+     "buses_short_per_night": 0.0,
+     "departures_required": 434.0,
+     "departures_missed": 0.0,
+     "departures_met": 434.0,
      "energy_cost": 12580.32,
+     "penalties": 0.0,
      "cost_to_serve": 13080.32,
+     "cost_per_departure_met": 30.14,
      "contribution": -13080.32
     }
    }
@@ -209,253 +285,904 @@
  },
  "options": {
   "KOB-STOPSOC": {
-   "monthly_change": 250.5,
-   "months": 12,
-   "one_off": 90.0,
+   "site": "Kobo",
+   "monthly_or_horizon_change": 250.5,
+   "months": 12.0,
+   "operator_one_off": 90.0,
+   "cost_lines": {
+    "vendor_remote_reconfiguration": {
+     "amount": 60.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "trial_supervision": {
+     "amount": 30.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
    "value": 2916.0,
-   "no_action_month": 883.0,
-   "option_month": 1133.5,
-   "formula": "(1133.5 - 883.0) x 12 - 90.0",
-   "design_value": "K",
-   "assumption": null,
-   "bound_failure": null,
+   "formula": "(contribution under option 1133.5 - under reference 883.0) x 12 - operator-borne one-off 90.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "avoided_candidate_l": 210.0,
+    "added_throughput_kwh": 150.0
+   },
+   "design_values": [
+    "K"
+   ],
+   "assumptions": [],
    "sensitivities": {
     "diesel_minus_20pct": 2286.0,
     "feasible_fuel_160l": 2166.0
    }
   },
   "KOB-RESERVE": {
-   "monthly_change": 25.0,
-   "months": 12,
-   "one_off": 0.0,
-   "value": 300.0,
-   "no_action_month": 883.0,
-   "option_month": 908.0,
-   "formula": "(908.0 - 883.0) x 12 - 0.0",
-   "design_value": "K",
-   "assumption": null,
-   "bound_failure": null
+   "site": "Kobo",
+   "monthly_or_horizon_change": 25.0,
+   "months": 12.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option 908.0 - under reference 883.0) x 12 - operator-borne one-off 0.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "avoided_candidate_l": 20.0
+   },
+   "design_values": [
+    "K"
+   ],
+   "assumptions": [],
+   "bound_failure": "battery below 35% at 5 am on 4 of 61 replayed days (design value, spike K)",
+   "rejected_by_bound": true
   },
   "MTO-HULLER": {
-   "monthly_change": 395.0,
-   "months": 12,
-   "one_off": 1200.0,
+   "site": "Mto",
+   "monthly_or_horizon_change": 395.0,
+   "months": 12.0,
+   "operator_one_off": 1200.0,
+   "cost_lines": {
+    "service_drop_and_meter": {
+     "amount": 1200.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
    "value": 3540.0,
-   "no_action_month": 810.0,
-   "option_month": 1205.0,
-   "formula": "(1205.0 - 810.0) x 12 - 1200.0",
-   "design_value": "M",
-   "assumption": null,
-   "bound_failure": null,
+   "formula": "(contribution under option 1205.0 - under reference 810.0) x 12 - operator-borne one-off 1200.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "load_kw": 15.0,
+    "hours_per_day": 5.0,
+    "days": 22.0,
+    "added_fuel_l": 68.0,
+    "collection": 15.0
+   },
+   "design_values": [
+    "M"
+   ],
+   "assumptions": [],
    "sensitivities": {
     "diesel_minus_20pct": 3744.0
    }
   },
   "MTO-WELDING": {
-   "monthly_change": -8.25,
-   "months": 12,
-   "one_off": 0.0,
+   "site": "Mto",
+   "monthly_or_horizon_change": -8.25,
+   "months": 12.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": true,
    "value": -99.0,
-   "no_action_month": 810.0,
-   "option_month": 801.75,
-   "formula": "(801.75 - 810.0) x 12 - 0.0",
-   "design_value": null,
-   "assumption": null,
-   "bound_failure": null
+   "formula": "(contribution under option 801.75 - under reference 810.0) x 12 - operator-borne one-off 0.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "load_kw": 10.0,
+    "hours_per_day": 3.0,
+    "days": 22.0,
+    "sfc": 0.33
+   },
+   "design_values": [],
+   "assumptions": []
   },
   "KIS-BATT60": {
-   "monthly_change": 195.0,
-   "months": 12,
-   "one_off": 14000.0,
+   "site": "Kisiwa",
+   "monthly_or_horizon_change": 195.0,
+   "months": 12.0,
+   "operator_one_off": 14000.0,
+   "cost_lines": {
+    "battery_60_kwh": {
+     "amount": 14000.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
    "value": -11660.0,
-   "no_action_month": -250.0,
-   "option_month": -55.0,
-   "formula": "(-55.0 - -250.0) x 12 - 14000.0",
-   "design_value": null,
-   "assumption": null,
-   "bound_failure": null
+   "formula": "(contribution under option -55.0 - under reference -250.0) x 12 - operator-borne one-off 14000.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "shifted_fuel_l": 150.0
+   },
+   "design_values": [],
+   "assumptions": [
+    "no Kisiwa battery replay exists; deferred option; owner decision Q14"
+   ]
   },
   "MTO-INV-CLAIM": {
-   "monthly_change": 0.0,
-   "months": 0,
-   "one_off": 360.0,
-   "value": -360.0,
-   "no_action_month": 810.0,
-   "option_month": 810.0,
-   "formula": "(810.0 - 810.0) x 0 - 360.0",
-   "design_value": null,
-   "assumption": null,
-   "bound_failure": null
+   "site": "Mto",
+   "monthly_or_horizon_change": -137.5,
+   "months": 1.0,
+   "operator_one_off": 230.0,
+   "cost_lines": {
+    "replacement_unit": {
+     "amount": 2600.0,
+     "covered_by": "INV-MT-02",
+     "right_state": "POTENTIALLY_COVERED",
+     "operator_share": 0.0
+    },
+    "shipping_failed_unit": {
+     "amount": 150.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "install": {
+     "amount": 80.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
+   "value": -367.5,
+   "formula": "(contribution under option 672.5 - under reference 810.0) x 1 - operator-borne one-off 230.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 110.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": "2026-11-28",
+   "params": {
+    "install_days": 1.0,
+    "extra_l_per_day": 5.0,
+    "hours": 5.0,
+    "days_to_restore": 22.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "sensitivities": {
+    "diesel_minus_20pct": -340.0
+   }
   },
   "MTO-INV-BUYNOW": {
-   "monthly_change": 0.0,
-   "months": 0,
-   "one_off": 2910.0,
-   "value": -2910.0,
-   "no_action_month": 810.0,
-   "option_month": 810.0,
-   "formula": "(810.0 - 810.0) x 0 - 2910.0",
-   "design_value": null,
-   "assumption": null,
-   "bound_failure": null
+   "site": "Mto",
+   "monthly_or_horizon_change": -37.5,
+   "months": 1.0,
+   "operator_one_off": 2910.0,
+   "cost_lines": {
+    "replacement_unit_bought": {
+     "amount": 2600.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "install": {
+     "amount": 80.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "ship_failed_unit_for_claim": {
+     "amount": 150.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "install_returned_unit_as_spare": {
+     "amount": 80.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
+   "value": -2947.5,
+   "formula": "(contribution under option 772.5 - under reference 810.0) x 1 - operator-borne one-off 2910.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 30.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": "2026-11-12",
+   "params": {
+    "local_supply_days": 5.0,
+    "install_days": 1.0,
+    "extra_l_per_day": 5.0,
+    "hours": 5.0,
+    "days_to_restore": 6.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "sensitivities": {
+    "diesel_minus_20pct": -2940.0
+   }
+  },
+  "MTO-INV-NOACT": {
+   "site": "Mto",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option 810.0 - under reference 810.0) x 1 - operator-borne one-off 0.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 125.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "hours": 5.0,
+    "days_to_restore": 25.0
+   },
+   "design_values": [],
+   "assumptions": []
+  },
+  "KIS-REPAIR": {
+   "site": "Kisiwa",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 1800.0,
+   "cost_lines": {
+    "alternator_repair": {
+     "amount": 1800.0,
+     "covered_by": "GEN-KS-01",
+     "right_state": "EXPIRED_AND_EXCLUDED",
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - operator-borne one-off 1800.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 15.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 125.0
+   },
+   "restore_date": "2026-11-09",
+   "params": {
+    "repair_days": 1.0,
+    "hours": 5.0,
+    "days_to_restore": 3.0
+   },
+   "design_values": [],
+   "assumptions": []
+  },
+  "KIS-REPLACE": {
+   "site": "Kisiwa",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 9500.0,
+   "cost_lines": {
+    "replacement_genset": {
+     "amount": 9500.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - operator-borne one-off 9500.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 105.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 125.0
+   },
+   "restore_date": "2026-11-27",
+   "params": {
+    "hours": 5.0,
+    "days_to_restore": 21.0
+   },
+   "design_values": [],
+   "assumptions": []
+  },
+  "KIS-NOACT": {
+   "site": "Kisiwa",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - operator-borne one-off 0.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 125.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "hours": 5.0,
+    "days_to_restore": 25.0
+   },
+   "design_values": [],
+   "assumptions": []
+  },
+  "BAT-EVIDENCE": {
+   "site": "Kobo",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 430.0,
+   "cost_lines": {
+    "capacity_test": {
+     "amount": 250.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "temperature_sensor": {
+     "amount": 180.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option 883.0 - under reference 883.0) x 1 - operator-borne one-off 430.0",
+   "protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0
+   },
+   "restore_date": null,
+   "params": {},
+   "design_values": [],
+   "assumptions": []
   },
   "MWEA-AGG": {
-   "monthly_change": 485.0,
-   "months": 4,
-   "one_off": 270.0,
+   "site": "Room A · Mwea",
+   "monthly_or_horizon_change": 485.0,
+   "months": 4.0,
+   "operator_one_off": 270.0,
+   "cost_lines": {
+    "sales": {
+     "amount": 150.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "ethylene_curtain": {
+     "amount": 120.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
    "value": 1670.0,
-   "no_action_month": -12.0,
-   "option_month": 473.0,
-   "formula": "(473.0 - -12.0) x 4 - 270.0",
-   "design_value": null,
-   "assumption": null,
-   "bound_failure": null
+   "formula": "(contribution under option 473.0 - under reference -12.0) x 4 - operator-borne one-off 270.0",
+   "protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "reference_protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "crates": 150.0,
+    "days": 30.0,
+    "contract_rate": 0.18,
+    "handling": 100.0
+   },
+   "design_values": [],
+   "assumptions": []
   },
   "KIRI-REPAIR": {
-   "monthly_change": 155.2,
-   "months": 12,
-   "one_off": 350.0,
+   "site": "Room C · Kirinyaga",
+   "monthly_or_horizon_change": 155.2,
+   "months": 12.0,
+   "operator_one_off": 350.0,
+   "cost_lines": {
+    "condenser_clean_and_leak_repair": {
+     "amount": 350.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
    "value": 1512.4,
-   "no_action_month": 504.0,
-   "option_month": 659.2,
-   "formula": "(659.2 - 504.0) x 12 - 350.0",
-   "design_value": null,
-   "assumption": "recovery share 80% (range 60-90%)",
-   "bound_failure": null,
+   "formula": "(contribution under option 659.2 - under reference 504.0) x 12 - operator-borne one-off 350.0",
+   "protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "reference_protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "recovery_share": 0.8
+   },
+   "design_values": [],
+   "assumptions": [
+    "recovery share 80% (range 60-90%)"
+   ],
    "sensitivities": {
     "kirinyaga_recovery_60pct": 1046.8
    }
   },
   "KIRI-REPLACE": {
-   "monthly_change": 234.3,
-   "months": 12,
-   "one_off": 4800.0,
+   "site": "Room C · Kirinyaga",
+   "monthly_or_horizon_change": 234.3,
+   "months": 12.0,
+   "operator_one_off": 4800.0,
+   "cost_lines": {
+    "replacement_compressor": {
+     "amount": 4800.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
    "value": -1988.4,
-   "no_action_month": 504.0,
-   "option_month": 738.3,
-   "formula": "(738.3 - 504.0) x 12 - 4800.0",
-   "design_value": null,
-   "assumption": null,
-   "bound_failure": null
+   "formula": "(contribution under option 738.3 - under reference 504.0) x 12 - operator-borne one-off 4800.0",
+   "protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "reference_protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "new_unit_factor": 0.95
+   },
+   "design_values": [],
+   "assumptions": [
+    "a new compressor runs 5% below the occupancy model (vendor datasheet)"
+   ]
+  },
+  "THIKA-EPC-WAIT": {
+   "site": "Room B · Thika",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - operator-borne one-off 0.0",
+   "protect": {
+    "nights_without_backup_cover": 2.0
+   },
+   "reference_protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "restore_date": "2026-11-08",
+   "params": {
+    "days_to_restore": 2.0
+   },
+   "design_values": [],
+   "assumptions": []
+  },
+  "THIKA-EPC-STOPGAP": {
+   "site": "Room B · Thika",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 100.0,
+   "cost_lines": {
+    "sms_alarm_relay": {
+     "amount": 40.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "night_rota_labour": {
+     "amount": 60.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - operator-borne one-off 100.0",
+   "protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "reference_protect": {
+    "nights_without_backup_cover": 2.0
+   },
+   "restore_date": "2026-11-06",
+   "params": {
+    "days_to_restore": 0.0
+   },
+   "design_values": [],
+   "assumptions": []
+  },
+  "THIKA-SELF": {
+   "site": "Room B · Thika",
+   "monthly_or_horizon_change": 0.0,
+   "months": 1.0,
+   "operator_one_off": 710.0,
+   "cost_lines": {
+    "controller_self_funded": {
+     "amount": 710.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - operator-borne one-off 710.0",
+   "protect": {
+    "nights_without_backup_cover": 0.0
+   },
+   "reference_protect": {
+    "nights_without_backup_cover": 2.0
+   },
+   "restore_date": "2026-11-06",
+   "params": {
+    "days_to_restore": 0.0
+   },
+   "design_values": [],
+   "assumptions": []
   },
   "EMB-DEADLINE": {
-   "monthly_change": 8082.0,
-   "months": 12,
-   "one_off": 1500.0,
+   "site": "Embakasi",
+   "monthly_or_horizon_change": 8082.0,
+   "months": 12.0,
+   "operator_one_off": 1500.0,
+   "cost_lines": {
+    "schedule_configuration_and_supervision": {
+     "amount": 1500.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "valued_in_money": true,
    "value": 95484.0,
-   "no_action_month": -21438.0,
-   "option_month": -13356.0,
-   "formula": "(-13356.0 - -21438.0) x 12 - 1500.0",
-   "design_value": "E",
-   "assumption": null,
-   "bound_failure": null,
-   "no_action_bill": 21438.0,
-   "option_bill": 13356.0,
+   "formula": "(contribution under option -13956.0 - under reference -22038.0) x 12 - operator-borne one-off 1500.0",
+   "protect": {
+    "departures_missed": 0.0
+   },
+   "reference_protect": {
+    "departures_missed": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "max_kw_option": 400.0,
+    "hours_before_midnight": 2.0,
+    "hours_after_midnight": 5.0,
+    "feasible_nights": 31.0
+   },
+   "design_values": [
+    "E"
+   ],
+   "assumptions": [],
+   "bound": {
+    "required_kwh_night": 2800.0,
+    "supplied_kwh_night": 2800.0,
+    "deliverable_kwh_night": 6000.0,
+    "buses_short_per_night": 0
+   },
+   "cost_per_departure_met": 22.51,
+   "energy_bill_option": 13356.0,
+   "energy_bill_reference": 21438.0,
    "sensitivities": {
     "flat_tariff": -1500.0
    }
   },
   "EMB-CHEAPEST": {
-   "monthly_change": 8463.0,
-   "months": 12,
-   "one_off": 0.0,
-   "value": 101556.0,
-   "no_action_month": -21438.0,
-   "option_month": -12975.0,
-   "formula": "(-12975.0 - -21438.0) x 12 - 0.0",
-   "design_value": "E",
-   "assumption": null,
-   "bound_failure": "3 buses short every night (departures bound)",
-   "no_action_bill": 21438.0,
-   "option_bill": 12975.0
-  }
- },
- "protect_effects": {
-  "Kisiwa generator 1 failed": {
-   "measure": "obligation_hours_without_redundancy",
-   "values": {
-    "KIS-NOACT": 125,
-    "KIS-REPAIR": 15,
-    "KIS-REPLACE": 105
+   "site": "Embakasi",
+   "monthly_or_horizon_change": 8463.0,
+   "months": 12.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option -13575.0 - under reference -22038.0) x 12 - operator-borne one-off 0.0",
+   "protect": {
+    "departures_missed": 93.0
    },
-   "rule": "days from as_of (2026-11-06) to the day before restore x 5 h"
+   "reference_protect": {
+    "departures_missed": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "max_kw_option": 500.0,
+    "hours_after_midnight": 5.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "bound": {
+    "required_kwh_night": 2800.0,
+    "supplied_kwh_night": 2500.0,
+    "deliverable_kwh_night": 6000.0,
+    "buses_short_per_night": 3
+   },
+   "cost_per_departure_met": 25.76,
+   "energy_bill_option": 12975.0,
+   "energy_bill_reference": 21438.0,
+   "bound_failure": "departures missed 93.0 against 0.0 under the reference (hard bound)",
+   "rejected_by_bound": true
   },
-  "Mto inverter INV-MT-02 failed": {
-   "measure": "obligation_hours_without_redundancy",
-   "values": {
-    "MTO-INV-NOACT": 125,
-    "MTO-INV-CLAIM": 110,
-    "MTO-INV-BUYNOW": 30
+  "KAS-OEM-WAIT": {
+   "site": "Kasarani",
+   "monthly_or_horizon_change": -240.0,
+   "months": 1.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option -6120.0 - under reference -5880.0) x 1 - operator-borne one-off 0.0",
+   "protect": {
+    "departures_missed": 2.0
    },
-   "rule": "days from as_of (2026-11-06) to the day before restore x 5 h"
+   "reference_protect": {
+    "departures_missed": 0.0
+   },
+   "restore_date": "2026-11-09",
+   "params": {
+    "failed_chargers": 1.0,
+    "days_to_restore": 3.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "bound": {
+    "required_kwh_night": 1200.0,
+    "supplied_kwh_night": 1050.0,
+    "deliverable_kwh_night": 1050.0,
+    "buses_short_per_night": 1
+   },
+   "cost_per_departure_met": 24.88,
+   "energy_bill_option": 5580.0,
+   "energy_bill_reference": 5580.0,
+   "bound_failure": "departures missed 2.0 against 0.0 under the reference (hard bound)",
+   "rejected_by_bound": true
   },
-  "Thika backup start controller": {
-   "measure": "nights_without_backup_cover",
-   "values": {
-    "THIKA-EPC-WAIT": 2,
-    "THIKA-EPC-STOPGAP": 0,
-    "THIKA-SELF": 0
+  "KAS-OEM-STOPGAP": {
+   "site": "Kasarani",
+   "monthly_or_horizon_change": 240.0,
+   "months": 1.0,
+   "operator_one_off": 90.0,
+   "cost_lines": {
+    "driver_overtime": {
+     "amount": 70.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    },
+    "energy_at_ruiru": {
+     "amount": 20.0,
+     "covered_by": null,
+     "right_state": null,
+     "operator_share": 1.0
+    }
    },
-   "rule": "days from as_of (2026-11-06) to the day before restore x 1 h"
+   "valued_in_money": true,
+   "value": 150.0,
+   "formula": "(contribution under option -5880.0 - under reference -6120.0) x 1 - operator-borne one-off 90.0",
+   "protect": {
+    "departures_missed": 0.0
+   },
+   "reference_protect": {
+    "departures_missed": 2.0
+   },
+   "restore_date": "2026-11-09",
+   "params": {
+    "failed_chargers": 1.0,
+    "days_to_restore": 3.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "bound": {
+    "required_kwh_night": 1200.0,
+    "supplied_kwh_night": 1050.0,
+    "deliverable_kwh_night": 1050.0,
+    "buses_short_per_night": 1
+   },
+   "cost_per_departure_met": 23.71,
+   "energy_bill_option": 5580.0,
+   "energy_bill_reference": 5580.0
   },
-  "Kasarani charger CH-K2": {
-   "measure": "departures_missed",
-   "values": {
-    "KAS-OEM-WAIT": 2,
-    "KAS-OEM-STOPGAP": 0
+  "RUI-ABSORB6": {
+   "site": "Ruiru",
+   "monthly_or_horizon_change": -3124.8,
+   "months": 1.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option -16205.12 - under reference -13080.32) x 1 - operator-borne one-off 0.0",
+   "protect": {
+    "departures_missed": 0.0
    },
-   "rule": "days from as_of (2026-11-06) to the day before restore x 1 h"
+   "reference_protect": {
+    "departures_missed": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "added_buses": 6.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "bound": {
+    "required_kwh_night": 2800.0,
+    "supplied_kwh_night": 2800.0,
+    "deliverable_kwh_night": 3200.0,
+    "buses_short_per_night": 0
+   },
+   "cost_per_departure_met": 26.14,
+   "energy_bill_option": 15705.12,
+   "energy_bill_reference": 12580.32
+  },
+  "RUI-ABSORB10": {
+   "site": "Ruiru",
+   "monthly_or_horizon_change": -5208.0,
+   "months": 1.0,
+   "operator_one_off": 0.0,
+   "cost_lines": {},
+   "valued_in_money": false,
+   "value": null,
+   "formula": "(contribution under option -18288.32 - under reference -13080.32) x 1 - operator-borne one-off 0.0",
+   "protect": {
+    "departures_missed": 62.0
+   },
+   "reference_protect": {
+    "departures_missed": 0.0
+   },
+   "restore_date": null,
+   "params": {
+    "added_buses": 10.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "bound": {
+    "required_kwh_night": 3360.0,
+    "supplied_kwh_night": 3200.0,
+    "deliverable_kwh_night": 3200.0,
+    "buses_short_per_night": 2
+   },
+   "cost_per_departure_met": 26.82,
+   "energy_bill_option": 17788.32,
+   "energy_bill_reference": 12580.32,
+   "bound_failure": "departures missed 62.0 against 0.0 under the reference (hard bound)",
+   "rejected_by_bound": true
   }
  },
  "plans": {
   "lakeside-power": {
    "default": {
-    "value": 6096.0,
-    "spend": 3880.0,
+    "value": 6088.5,
+    "spend": 3750.0,
+    "items": [
+     "KIS-REPAIR",
+     "BAT-EVIDENCE",
+     "KOB-STOPSOC",
+     "MTO-HULLER",
+     "MTO-INV-CLAIM"
+    ],
     "valued_options": [
      "KOB-STOPSOC",
      "MTO-HULLER",
      "MTO-INV-CLAIM"
     ],
-    "valued_option_costs": 1650.0,
+    "valued_option_costs": 1520.0,
     "not_valued_in_money": 2230.0
    },
    "switch_cases": {
     "5000/True": {
-     "value": 6096.0,
-     "spend": 3880.0,
+     "value": 6088.5,
+     "spend": 3750.0,
+     "items": [
+      "KIS-REPAIR",
+      "BAT-EVIDENCE",
+      "KOB-STOPSOC",
+      "MTO-HULLER",
+      "MTO-INV-CLAIM"
+     ],
      "valued_options": [
       "KOB-STOPSOC",
       "MTO-HULLER",
       "MTO-INV-CLAIM"
      ],
-     "valued_option_costs": 1650.0,
+     "valued_option_costs": 1520.0,
      "not_valued_in_money": 2230.0
     },
     "5000/False": {
-     "value": 2556.0,
-     "spend": 2680.0,
+     "value": 2548.5,
+     "spend": 2550.0,
+     "items": [
+      "KIS-REPAIR",
+      "BAT-EVIDENCE",
+      "KOB-STOPSOC",
+      "MTO-INV-CLAIM"
+     ],
      "valued_options": [
       "KOB-STOPSOC",
       "MTO-INV-CLAIM"
      ],
-     "valued_option_costs": 450.0,
+     "valued_option_costs": 320.0,
      "not_valued_in_money": 2230.0
     },
     "6500/True": {
-     "value": 6096.0,
-     "spend": 3880.0,
+     "value": 6088.5,
+     "spend": 3750.0,
+     "items": [
+      "KIS-REPAIR",
+      "BAT-EVIDENCE",
+      "KOB-STOPSOC",
+      "MTO-HULLER",
+      "MTO-INV-CLAIM"
+     ],
      "valued_options": [
       "KOB-STOPSOC",
       "MTO-HULLER",
       "MTO-INV-CLAIM"
      ],
-     "valued_option_costs": 1650.0,
+     "valued_option_costs": 1520.0,
      "not_valued_in_money": 2230.0
     },
     "6500/False": {
-     "value": 3546.0,
+     "value": 3508.5,
      "spend": 6430.0,
+     "items": [
+      "KIS-REPAIR",
+      "BAT-EVIDENCE",
+      "KOB-STOPSOC",
+      "MTO-HULLER",
+      "MTO-INV-BUYNOW"
+     ],
      "valued_options": [
       "KOB-STOPSOC",
       "MTO-HULLER",
@@ -466,16 +1193,41 @@
     }
    },
    "sensitivity_values": {
-    "cooperative_does_not_sign": 2556.0,
-    "diesel_minus_20pct": 5670.0,
-    "feasible_fuel_160l": 5346.0
+    "cooperative_does_not_sign": {
+     "value": 2548.5,
+     "valued_options": [
+      "KOB-STOPSOC",
+      "MTO-INV-CLAIM"
+     ]
+    },
+    "diesel_minus_20pct": {
+     "value": 5690.0,
+     "valued_options": [
+      "KOB-STOPSOC",
+      "MTO-HULLER",
+      "MTO-INV-CLAIM"
+     ]
+    },
+    "feasible_fuel_160l": {
+     "value": 5338.5,
+     "valued_options": [
+      "KOB-STOPSOC",
+      "MTO-HULLER",
+      "MTO-INV-CLAIM"
+     ]
+    }
    },
-   "downside": 2556.0
+   "downside": 2548.5
   },
   "harvest-cold": {
    "default": {
     "value": 3182.4,
     "spend": 720.0,
+    "items": [
+     "THIKA-EPC-STOPGAP",
+     "KIRI-REPAIR",
+     "MWEA-AGG"
+    ],
     "valued_options": [
      "KIRI-REPAIR",
      "MWEA-AGG"
@@ -487,6 +1239,11 @@
     "True": {
      "value": 3182.4,
      "spend": 720.0,
+     "items": [
+      "THIKA-EPC-STOPGAP",
+      "KIRI-REPAIR",
+      "MWEA-AGG"
+     ],
      "valued_options": [
       "KIRI-REPAIR",
       "MWEA-AGG"
@@ -497,6 +1254,10 @@
     "False": {
      "value": 1512.4,
      "spend": 450.0,
+     "items": [
+      "THIKA-EPC-STOPGAP",
+      "KIRI-REPAIR"
+     ],
      "valued_options": [
       "KIRI-REPAIR"
      ],
@@ -505,43 +1266,202 @@
     }
    },
    "sensitivity_values": {
-    "aggregator_does_not_sign": 1512.4,
-    "kirinyaga_recovery_60pct": 2716.8
+    "aggregator_does_not_sign": {
+     "value": 1512.4,
+     "valued_options": [
+      "KIRI-REPAIR"
+     ]
+    },
+    "kirinyaga_recovery_60pct": {
+     "value": 2716.8,
+     "valued_options": [
+      "KIRI-REPAIR",
+      "MWEA-AGG"
+     ]
+    }
    },
    "downside": 1512.4
   },
   "metro-bus": {
    "default": {
-    "value": 95484.0,
+    "value": 95634.0,
     "spend": 1590.0,
-    "valued_options": [
+    "items": [
+     "KAS-OEM-STOPGAP",
      "EMB-DEADLINE"
     ],
-    "valued_option_costs": 1500.0,
-    "not_valued_in_money": 90.0
+    "valued_options": [
+     "KAS-OEM-STOPGAP",
+     "EMB-DEADLINE"
+    ],
+    "valued_option_costs": 1590.0,
+    "not_valued_in_money": 0.0
    },
    "switch_cases": {
     "True": {
-     "value": 95484.0,
+     "value": 95634.0,
      "spend": 1590.0,
-     "valued_options": [
+     "items": [
+      "KAS-OEM-STOPGAP",
       "EMB-DEADLINE"
      ],
-     "valued_option_costs": 1500.0,
-     "not_valued_in_money": 90.0
+     "valued_options": [
+      "KAS-OEM-STOPGAP",
+      "EMB-DEADLINE"
+     ],
+     "valued_option_costs": 1590.0,
+     "not_valued_in_money": 0.0
     },
     "False": {
-     "value": 0.0,
+     "value": 150.0,
      "spend": 90.0,
-     "valued_options": [],
-     "valued_option_costs": 0.0,
-     "not_valued_in_money": 90.0
+     "items": [
+      "KAS-OEM-STOPGAP"
+     ],
+     "valued_options": [
+      "KAS-OEM-STOPGAP"
+     ],
+     "valued_option_costs": 90.0,
+     "not_valued_in_money": 0.0
     }
    },
    "sensitivity_values": {
-    "flat_tariff": 0.0
+    "flat_tariff": {
+     "value": 150.0,
+     "valued_options": [
+      "KAS-OEM-STOPGAP"
+     ]
+    }
    },
-   "downside": 0.0
+   "downside": 150.0
+  }
+ },
+ "operations": {
+  "lakeside-power": {
+   "asset_availability": {
+    "numerator": {
+     "Kobo": 155,
+     "Kisiwa": 122,
+     "Mto": 151
+    },
+    "denominator": {
+     "Kobo": 155,
+     "Kisiwa": 124,
+     "Mto": 155
+    },
+    "portfolio_pct": 98.62
+   }
+  },
+  "metro-bus": {
+   "deliverable_energy_used": {
+    "numerator": {
+     "Embakasi": 2800.0,
+     "Kasarani": 1200.0,
+     "Ruiru": 1960.0
+    },
+    "denominator": {
+     "Embakasi": 6000.0,
+     "Kasarani": 1400.0,
+     "Ruiru": 3200.0
+    },
+    "sites_pct": {
+     "Embakasi": 46.67,
+     "Kasarani": 85.71,
+     "Ruiru": 61.25
+    },
+    "portfolio_pct": 56.23
+   }
+  }
+ },
+ "portfolio": {
+  "lakeside-power": {
+   "plan": {
+    "sums": {
+     "battery_wear": 0.0,
+     "billed_kwh": 21650.0,
+     "collected": 9785.0,
+     "contribution": 2295.0,
+     "cost_to_serve": 7490.0,
+     "diesel_l": 3300.0,
+     "fuel_cost": 4240.0,
+     "metered_kwh": 21650.0,
+     "obligation_hours_without_redundancy": 0.0,
+     "revenue": 9785.0
+    },
+    "not_decomposed": []
+   },
+   "actual": {
+    "sums": {
+     "battery_wear": 0.0,
+     "billed_kwh": 21445.0,
+     "collected": 8870.0,
+     "contribution": 1443.0,
+     "cost_to_serve": 8245.0,
+     "diesel_l": 3900.0,
+     "fuel_cost": 4995.0,
+     "metered_kwh": 21700.0,
+     "obligation_hours_without_redundancy": 0.0,
+     "revenue": 9688.0
+    },
+    "not_decomposed": []
+   }
+  },
+  "harvest-cold": {
+   "plan": {
+    "sums": {
+     "contribution": 1716.0,
+     "cost_to_serve": 3492.0,
+     "energy": 2232.0,
+     "kwh": 11160.0,
+     "kwh_model": 11160.0,
+     "nights_without_backup_cover": 0.0,
+     "received": 5208.0,
+     "revenue": 5208.0
+    },
+    "not_decomposed": []
+   },
+   "actual": {
+    "sums": {
+     "contribution": 946.0,
+     "cost_to_serve": 3642.0,
+     "energy": 2274.0,
+     "kwh": 11370.0,
+     "kwh_model": 10385.0,
+     "nights_without_backup_cover": 0.0,
+     "received": 4370.0,
+     "revenue": 4588.0
+    },
+    "not_decomposed": []
+   }
+  },
+  "metro-bus": {
+   "plan": {
+    "sums": {
+     "outcome_total_with_stated_totals": 38520.8,
+     "cost_per_departure_required": 29.59
+    },
+    "not_decomposed": [
+     "Ruiru"
+    ]
+   },
+   "actual": {
+    "sums": {
+     "buses_short_per_night": 0.0,
+     "contribution": -41705.12,
+     "cost_per_departure_met": 32.03,
+     "cost_to_serve": 41705.12,
+     "deliverable_kwh_night": 10600.0,
+     "departures_met": 1302.0,
+     "departures_missed": 0.0,
+     "departures_required": 1302.0,
+     "energy_cost": 40305.12,
+     "penalties": 0.0,
+     "required_kwh_night": 5960.0,
+     "scheduled_kwh_night": 5960.0,
+     "supplied_kwh_night": 5960.0
+    },
+    "not_decomposed": []
+   }
   }
  }
 }

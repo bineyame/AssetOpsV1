@@ -18,7 +18,7 @@ Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-aud
 | Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | 0 |
 | Rev 6: Portfolio tab order Overview, Outcomes by site, Demand and capacity, Act first, What changed, Scope & coverage | pass (old route lands on #/portfolio/demand-and-capacity) |
 | Rev 6/7: design-value labels on the Kobo, Mto demand, Embakasi, Kirinyaga and Mto inverter decision pages; each operator's plan-value drawer (Harvest: assumption wording, no forward replay) and Overview note | pass |
-| Rev 7/8: design-value scan over every route and every evidence drawer, using the audit's own set derived from the YAML (tools/replay_values.py) | independent set of 27 replay figures (same as the tagger's: true); 102 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2 |
+| Rev 7/8: design-value scan over every route and every evidence drawer, using the audit's own set derived from the YAML (tools/replay_values.py) | independent set of 28 replay figures (same as the tagger's: true); 101 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2 |
 | Rev 7: EV measure shown as "Deliverable energy used (import-limited)" with binding limits; Ruiru 34% labelled nameplate charger-hours beside 61% of deliverable energy | pass |
 | Rev 6: no "not explained by the model" wording on Ruiru (site page, economics, factor structure, waterfall rows) | pass |
 | Filter or lens controls on Portfolio tabs | 0 |
@@ -34,10 +34,10 @@ Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-aud
 
 | Case | Checks |
 |---|---|
-| lakeside 5000/yes | expectSpend: $3,880; expectValue: +$6,096; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
-| lakeside 5000/no | expectSpend: $2,680; expectValue: +$2,556; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
-| lakeside 6500/yes | expectSpend: $3,880; expectValue: +$6,096; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
-| lakeside 6500/no | expectSpend: $6,430; expectValue: +$3,546; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
+| lakeside 5000/yes | expectSpend: $3,750; expectValue: +$6,088.50; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
+| lakeside 5000/no | expectSpend: $2,550; expectValue: +$2,548.50; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
+| lakeside 6500/yes | expectSpend: $3,750; expectValue: +$6,088.50; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
+| lakeside 6500/no | expectSpend: $6,430; expectValue: +$3,508.50; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; downsideOk: pass; announced: pass; focusKept: pass |
 | harvest aggregator yes | spendOk: pass; visitsOk: pass; valueOk: pass; downsideOk: pass |
 | harvest aggregator no | spendOk: pass; visitsOk: pass; valueOk: pass; downsideOk: pass |
 | metro tariff yes | spendOk: pass; valueOk: pass; downsideOk: pass |
