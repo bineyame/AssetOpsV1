@@ -197,6 +197,22 @@ Check: every number on every page (all routes, three operators) and in every evi
 | Fixture diff | \`tools/gen_fixtures.py\` also compares option restore dates, crew visits, expected penalties, Protect-effect values and plan crew visits/limits against the evaluator. |
 | Not produced by the structure | The Ruiru "per charger-day in service" figure (25.16 charger-days, 51.75 departures) has no evaluated node and was removed from the operations-measure basis. |
 
+## 7j. Rev 13 changes (review M3, H1, M1, M2, L1–L6; owner's twelfth message)
+
+| Item | Change in the mock-up |
+|---|---|
+| M3 rendered manifest strings | Manifest strings the screen renders carry \`{fig:<path into derived-values.json>}\` for evaluated figures and \`{rec:<manifest path>}\` for record restatements (paths: dotted keys; brackets name a key with special characters or pick a list item by its tenant, site, id, driver, measure or batch). One renderer (\`tpl\`, loop-core.js) fills every manifest string at load; a placeholder that does not resolve shows "not available" and fails the audit. ${A.summary.placeholdersFig} fig and ${A.summary.placeholdersRec} rec placeholders in ${A.summary.placeholderStrings} strings; unresolved ${A.summary.unresolvedPlaceholders}. Kasarani "restore due" and the penalties under each option are read from the evaluation (WAIT restore date; departures missed × the site's penalty rate), not from \`sla_clock.restore_due\` or \`protect_effects.penalties\`. |
+| Which strings are rendered | \`tools/rendered_strings.cjs\` records, in a temporary copy, every manifest string the screen reads while rendering all routes, drawers and switches for the three operators (${A.summary.manifestStringsScanned} digit-bearing strings). |
+| L4 scan | \`tools/hand_typed_scan.py\` now also scans those strings outside their placeholders; the allow-list is keyed by file or manifest path + exact literal + context, with a reason, and an entry that suppresses nothing fails the scan. Result ${A.summary.hand_typed_figures} (code ${A.summary.handTypedCode}, manifest strings ${A.summary.handTypedManifest}, unused entries ${A.summary.handTypedAllowUnused}); ${A.summary.handTypedAllowList} entries. |
+| H1 rice huller | The huller row on the Mto inverter page is derived per option: the option's evaluated restore date + the huller's connection lead (working days) against the letter's lapse and extension dates. Act first takes the plan's items, inverter path and huller from the evaluated switch case; the competing path is the evaluated case that takes the other inverter option. The Conditional text of "buy now" is derived from the switch cases in which it is chosen. |
+| M2 horizons | The Mto inverter page states that fuel is counted to the restore date, or for 12 months if never restored, and service hours to the Protect horizon end (30 Nov); "not admissible (would be …)" shows the evaluated value if admissible. |
+| L3, L6 | "Repair locally now" is shown for the Mto inverter as for Kasarani (restore 8 Nov, cover lost, not admissible); Kasarani local repair shows 1 departure missed and $120 of penalties. |
+| L5 | Embakasi peak share computed from the reference nodes and the options' declared peak kWh (0%); "about 62,000 kWh" = max kW × hours after midnight × nights; Kobo "92%" = the recorded 184 kWh estimate ÷ battery kWh; "406 kW" carries the design-value label. |
+| M1 | Harvest and Metro plan rows come from the evaluated switch case's items (MWEA-AGG only when the aggregator signs). |
+| Fix | Demand and capacity (Harvest): the idle-capacity table reads each room's evaluated capacity (rev 12 left it empty, so idle crate-days showed negative). |
+| Audit expectations | The switch-case checks read the evaluator's switch cases from derived-values.json instead of typed expected figures or the manifest's stated case copies. |
+| Register | Every item in the mock-up code and tools that is not read from the evaluation or the manifest is listed with its disposition in the derivation-register fragment for this round. |
+
 ## 8. Conflicts and gaps found (not fixed by invention)
 
 1. **Ruiru scale.** The preserved v7.0 EV pages describe a 2-connector, 80 kW depot with daytime public sessions (charger CHG-002, session SES-011 at 14:03) and a tariff revenue estimate. The scenario file's Ruiru is a captive depot with 12 chargers, a 400 kW import limit and night charging (21:00–05:00), and names the asset "charger 7, connector 2". Names were re-based; the physical scale and charger id were not rewritten. A banner says so.
@@ -244,7 +260,8 @@ Scripted with Playwright and Chromium (\`tools/audit.mjs\`, run via \`tools/run-
 | Contrast spot checks at least 4.5:1 | ${S.contrastPass} |
 | Preserved v7.0 screens identical after the name map | ${S.preservedIdentical} |
 | Private oracle shipped in the bundle | ${S.oracleShipped ? 'YES' : 'no'} |
-| Hand-typed figures in loop-*.js restating an evaluated figure (allow-list entries) | ${S.hand_typed_figures} (${S.handTypedAllowList}) |
+| Hand-typed figures restating an evaluated figure: total (in loop-*.js / in ${S.manifestStringsScanned} rendered manifest strings / unused allow-list entries) | ${S.hand_typed_figures} (${S.handTypedCode} / ${S.handTypedManifest} / ${S.handTypedAllowUnused}); allow-list ${S.handTypedAllowList} entries, each keyed by file or manifest path, literal and context |
+| Manifest placeholders filled on screen (fig / rec / strings) and unresolved | ${S.placeholdersFig} / ${S.placeholdersRec} / ${S.placeholderStrings}; unresolved ${S.unresolvedPlaceholders} |
 
 ## Switch cases
 
@@ -252,7 +269,7 @@ Scripted with Playwright and Chromium (\`tools/audit.mjs\`, run via \`tools/run-
 |---|---|
 ${Object.entries(A.switches).map(([k, v]) => `| ${k} | ${Object.entries(v).filter(([x]) => x !== 'got').map(([x, y]) => `${x}: ${typeof y === 'boolean' ? (y ? 'pass' : 'FAIL') : y}`).join('; ')} |`).join('\n')}
 
-Lakeside expected values are the four precomputed cases in the scenario file (spend, modelled 12-month change, inverter path, huller kept); valuedCostsOk checks that the note names spend − $2,230 as the valued options' costs and $2,230 as not valued. Harvest expects +$3,182.40 / +$1,512.40; Metro +$95,484 / $0. downsideOk checks the downside line beside the plan value ("Downside:" in the default case, "Downside shown for the default plan:" in switched cases). Lakeside's note now names must-do $1,800 and protective $430 spend. After each change the plan is announced in a polite live region and focus stays on the radio button.
+Expected values are the evaluator's switch cases in derived-values.json (spend, modelled 12-month change, visits, inverter path and huller from the case's items, downside); valuedCostsOk checks that the note names spend − the case's spend not valued in money as the valued options' costs. downsideOk checks the downside line beside the plan value ("Downside:" in the default case, "Downside shown for the default plan:" in switched cases). Lakeside's note now names must-do $1,800 and protective $430 spend. After each change the plan is announced in a polite live region and focus stays on the radio button.
 
 ## Rev 5 checks
 

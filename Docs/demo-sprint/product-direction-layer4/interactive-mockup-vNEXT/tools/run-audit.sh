@@ -8,4 +8,4 @@ set -euo pipefail
 : "${CHROME:?Set CHROME}"; : "${PW:?Set PW}"
 if [ -n "${AUDIT_LD_LIBRARY_PATH:-}" ]; then export LD_LIBRARY_PATH="$AUDIT_LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"; fi
 export CHROME PW
-cd "$(dirname "$0")/.." && node tools/audit.mjs "$@" && node tools/gen_docs.cjs
+cd "$(dirname "$0")/.." && node tools/rendered_strings.cjs && node tools/audit.mjs "$@" && node tools/gen_docs.cjs

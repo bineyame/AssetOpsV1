@@ -16,6 +16,7 @@
      "cost_to_serve": 1975.0,
      "contribution": 1445.0,
      "obligation_hours_without_redundancy": 0.0,
+     "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 0.0,
      "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
@@ -49,7 +50,8 @@
      "field_visits": 0.0,
      "liability": 0.0,
      "period_days": 31.0,
-     "shortfall_backed": 0.0,
+     "standby_kw": 0.0,
+     "lost_unit_kw": 0.0,
      "dawn_days_below": 0.0
     }
    },
@@ -66,6 +68,7 @@
      "cost_to_serve": 2575.0,
      "contribution": 883.0,
      "obligation_hours_without_redundancy": 0.0,
+     "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 0.0,
      "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
@@ -99,7 +102,8 @@
      "field_visits": 1.0,
      "liability": 0.0,
      "period_days": 31.0,
-     "shortfall_backed": 0.0,
+     "standby_kw": 0.0,
+     "lost_unit_kw": 0.0,
      "dawn_days_below": 0.0
     }
    }
@@ -118,6 +122,7 @@
      "cost_to_serve": 4190.0,
      "contribution": -65.0,
      "obligation_hours_without_redundancy": 0.0,
+     "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 0.0,
      "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
@@ -151,7 +156,8 @@
      "field_visits": 0.0,
      "liability": 0.0,
      "period_days": 31.0,
-     "shortfall_backed": 0.0,
+     "standby_kw": 0.0,
+     "lost_unit_kw": 60.0,
      "dawn_days_below": 0.0
     }
    },
@@ -168,6 +174,7 @@
      "cost_to_serve": 4320.0,
      "contribution": -250.0,
      "obligation_hours_without_redundancy": 10.0,
+     "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 10.0,
      "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 2.0,
@@ -201,7 +208,8 @@
      "field_visits": 1.0,
      "liability": 0.0,
      "period_days": 31.0,
-     "shortfall_backed": 0.0,
+     "standby_kw": 0.0,
+     "lost_unit_kw": 60.0,
      "dawn_days_below": 0.0
     }
    }
@@ -220,6 +228,7 @@
      "cost_to_serve": 1325.0,
      "contribution": 915.0,
      "obligation_hours_without_redundancy": 0.0,
+     "shortfall_backed": 1.0,
      "obligation_hours_without_backup": 0.0,
      "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
@@ -253,7 +262,8 @@
      "field_visits": 0.0,
      "liability": 0.0,
      "period_days": 31.0,
-     "shortfall_backed": 1.0,
+     "standby_kw": 30.0,
+     "lost_unit_kw": 25.0,
      "dawn_days_below": 0.0
     }
    },
@@ -270,6 +280,7 @@
      "cost_to_serve": 1350.0,
      "contribution": 810.0,
      "obligation_hours_without_redundancy": 20.0,
+     "shortfall_backed": 1.0,
      "obligation_hours_without_backup": 0.0,
      "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 4.0,
@@ -303,7 +314,8 @@
      "field_visits": 1.0,
      "liability": 0.0,
      "period_days": 31.0,
-     "shortfall_backed": 1.0,
+     "standby_kw": 30.0,
+     "lost_unit_kw": 25.0,
      "dawn_days_below": 0.0
     }
    }
@@ -574,6 +586,10 @@
      "nights_below_required": 0.0,
      "charger_days_out_of_service": 0.0,
      "departures_met": 620.0,
+     "peak_cost": 6249.6,
+     "offpeak_cost": 7291.2,
+     "night_cost": 0.0,
+     "demand_cost": 5400.0,
      "energy_cost": 18940.8,
      "penalties": 0.0,
      "cost_to_serve": 19540.8,
@@ -617,6 +633,10 @@
      "nights_below_required": 0.0,
      "charger_days_out_of_service": 0.0,
      "departures_met": 620.0,
+     "peak_cost": 11457.6,
+     "offpeak_cost": 1860.0,
+     "night_cost": 2827.2,
+     "demand_cost": 6000.0,
      "energy_cost": 22144.8,
      "penalties": 0.0,
      "cost_to_serve": 22744.8,
@@ -662,6 +682,10 @@
      "nights_below_required": 0.0,
      "charger_days_out_of_service": 0.0,
      "departures_met": 248.0,
+     "peak_cost": 0.0,
+     "offpeak_cost": 5580.0,
+     "night_cost": 0.0,
+     "demand_cost": 0.0,
      "energy_cost": 5580.0,
      "penalties": 0.0,
      "cost_to_serve": 5880.0,
@@ -705,6 +729,10 @@
      "nights_below_required": 0.0,
      "charger_days_out_of_service": 0.0,
      "departures_met": 248.0,
+     "peak_cost": 0.0,
+     "offpeak_cost": 5580.0,
+     "night_cost": 0.0,
+     "demand_cost": 0.0,
      "energy_cost": 5580.0,
      "penalties": 0.0,
      "cost_to_serve": 5880.0,
@@ -748,6 +776,10 @@
      "nights_below_required": 5.0,
      "charger_days_out_of_service": 5.0,
      "departures_met": 38.0,
+     "peak_cost": 0.0,
+     "offpeak_cost": 787.5,
+     "night_cost": 0.0,
+     "demand_cost": 0.0,
      "energy_cost": 787.5,
      "penalties": 240.0,
      "cost_to_serve": 1027.5,
@@ -797,6 +829,10 @@
      "nights_below_required": 0.0,
      "charger_days_out_of_service": 26.0,
      "departures_met": 434.0,
+     "peak_cost": 1458.24,
+     "offpeak_cost": 6562.08,
+     "night_cost": 0.0,
+     "demand_cost": 4560.0,
      "energy_cost": 12580.32,
      "penalties": 0.0,
      "cost_to_serve": 13080.32,
@@ -840,6 +876,10 @@
      "nights_below_required": 0.0,
      "charger_days_out_of_service": 6.0,
      "departures_met": 84.0,
+     "peak_cost": 0.0,
+     "offpeak_cost": 1411.2,
+     "night_cost": 0.0,
+     "demand_cost": 0.0,
      "energy_cost": 1411.2,
      "penalties": 0.0,
      "cost_to_serve": 1411.2,
@@ -1256,8 +1296,10 @@
    "restore_date": "2026-11-28",
    "params": {
     "install_days": 1.0,
+    "local_supply_days": 5.0,
     "extra_l_per_day": 5.0,
-    "days_to_restore": 22.0
+    "days_to_restore": 22.0,
+    "value_days_to_restore": 22.0
    },
    "design_values": [],
    "assumptions": [],
@@ -1344,7 +1386,8 @@
     "local_supply_days": 5.0,
     "install_days": 1.0,
     "extra_l_per_day": 5.0,
-    "days_to_restore": 6.0
+    "days_to_restore": 6.0,
+    "value_days_to_restore": 6.0
    },
    "design_values": [],
    "assumptions": [],
@@ -1359,7 +1402,7 @@
   },
   "MTO-INV-NOACT": {
    "site": "Mto",
-   "monthly_or_horizon_change": -156.25,
+   "monthly_or_horizon_change": -2281.25,
    "months": 1.0,
    "operator_one_off": 0.0,
    "reference_one_off": 0.0,
@@ -1367,7 +1410,7 @@
    "crew_visits": 0,
    "cost_lines": {},
    "money_changes": true,
-   "formula": "(contribution under option 653.75 - under reference 810.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
+   "formula": "(contribution under option -1471.25 - under reference 810.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 125.0,
     "obligation_hours_without_backup": 0.0,
@@ -1402,11 +1445,78 @@
    "restore_date": null,
    "params": {
     "extra_l_per_day": 5.0,
-    "days_to_restore": 25.0
+    "days_to_restore": 25.0,
+    "value_days_to_restore": 365.0
    },
    "design_values": [],
    "assumptions": [],
-   "value_if_admissible": -156.25,
+   "value_if_admissible": -2281.25,
+   "admissible": false,
+   "value": null,
+   "valued_in_money": false,
+   "decision": "mto_inverter",
+   "bound_failure": "hard bound: claimable_cover exceeded by 2600.0"
+  },
+  "MTO-INV-LOCAL": {
+   "site": "Mto",
+   "monthly_or_horizon_change": -12.5,
+   "months": 1.0,
+   "operator_one_off": 450.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 450.0,
+   "crew_visits": 1,
+   "cost_lines": {
+    "local_repair": {
+     "amount": 450.0,
+     "covered_by": null,
+     "right_eligibility": null,
+     "claim_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "money_changes": true,
+   "formula": "(contribution under option 797.5 - under reference 810.0) x 1 - (operator-borne one-off 450.0 - reference path's 0.0)",
+   "protect": {
+    "obligation_hours_without_redundancy": 10.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 2600.0
+   },
+   "reference_protect": {
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
+   },
+   "rights": {
+    "claimable_cover": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_lost": 2600.0,
+    "lapsed": [],
+    "states": {
+     "INV-MT-02": "VOIDED"
+    }
+   },
+   "violations": {
+    "redundancy": 0.0,
+    "claimable_cover": 2600.0,
+    "dawn_adequacy": 0.0
+   },
+   "restore_basis": null,
+   "restore_date": "2026-11-08",
+   "params": {
+    "local_repair_days": 2.0,
+    "extra_l_per_day": 5.0,
+    "days_to_restore": 2.0,
+    "value_days_to_restore": 2.0
+   },
+   "design_values": [],
+   "assumptions": [
+    "a local technician opens and repairs the unit in 2 days; no quote held"
+   ],
+   "value_if_admissible": -462.5,
    "admissible": false,
    "value": null,
    "valued_in_money": false,
@@ -1465,7 +1575,8 @@
    "restore_date": "2026-11-09",
    "params": {
     "repair_days": 1.0,
-    "days_to_restore": 3.0
+    "days_to_restore": 3.0,
+    "value_days_to_restore": 3.0
    },
    "design_values": [],
    "assumptions": [],
@@ -1527,7 +1638,8 @@
    "restore_basis": null,
    "restore_date": "2026-11-27",
    "params": {
-    "days_to_restore": 21.0
+    "days_to_restore": 21.0,
+    "value_days_to_restore": 21.0
    },
    "design_values": [],
    "assumptions": [],
@@ -1581,7 +1693,8 @@
    "restore_basis": null,
    "restore_date": null,
    "params": {
-    "days_to_restore": 25.0
+    "days_to_restore": 25.0,
+    "value_days_to_restore": 365.0
    },
    "design_values": [],
    "assumptions": [],
@@ -1925,10 +2038,14 @@
    "restore_basis": null,
    "restore_date": "2026-11-08",
    "params": {
-    "days_to_restore": 2.0
+    "procurement_days": 0.0,
+    "days_to_restore": 2.0,
+    "value_days_to_restore": 2.0
    },
    "design_values": [],
-   "assumptions": [],
+   "assumptions": [
+    "if the EPC remedy is refused, a controller is bought from local stock and fitted the same day; no quote held"
+   ],
    "value_if_admissible": null,
    "admissible": false,
    "value": null,
@@ -1994,7 +2111,8 @@
    "restore_basis": null,
    "restore_date": "2026-11-06",
    "params": {
-    "days_to_restore": 0.0
+    "days_to_restore": 0.0,
+    "value_days_to_restore": 0.0
    },
    "design_values": [],
    "assumptions": [],
@@ -2049,7 +2167,8 @@
    "restore_date": "2026-11-06",
    "params": {
     "procurement_days": 0.0,
-    "days_to_restore": 0.0
+    "days_to_restore": 0.0,
+    "value_days_to_restore": 0.0
    },
    "design_values": [],
    "assumptions": [
@@ -2235,9 +2354,11 @@
    "restore_basis": null,
    "restore_date": "2026-11-09",
    "params": {
+    "local_repair_days": 1.0,
     "failed_chargers": 1.0,
-    "spare_cover": 1.0,
-    "days_to_restore": 3.0
+    "days_to_restore": 3.0,
+    "value_days_to_restore": 3.0,
+    "spare_cover": 1.0
    },
    "design_values": [],
    "assumptions": [],
@@ -2310,10 +2431,12 @@
    "restore_basis": null,
    "restore_date": "2026-11-09",
    "params": {
+    "local_repair_days": 1.0,
     "failed_chargers": 1.0,
-    "spare_cover": 1.0,
     "cost_per_bus_night": 45.0,
-    "days_to_restore": 3.0
+    "days_to_restore": 3.0,
+    "value_days_to_restore": 3.0,
+    "spare_cover": 1.0
    },
    "design_values": [],
    "assumptions": [],
@@ -2336,7 +2459,7 @@
   },
   "KAS-LOCAL": {
    "site": "Kasarani",
-   "monthly_or_horizon_change": 240.0,
+   "monthly_or_horizon_change": 120.0,
    "months": 1.0,
    "operator_one_off": 380.0,
    "reference_one_off": 0.0,
@@ -2352,9 +2475,9 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option -5880.0 - under reference -6120.0) x 1 - (operator-borne one-off 380.0 - reference path's 0.0)",
+   "formula": "(contribution under option -6000.0 - under reference -6120.0) x 1 - (operator-borne one-off 380.0 - reference path's 0.0)",
    "protect": {
-    "departures_missed": 0.0,
+    "departures_missed": 1.0,
     "cover_not_claimable": 380.0
    },
    "reference_protect": {
@@ -2371,7 +2494,7 @@
     }
    },
    "violations": {
-    "departures": 0.0,
+    "departures": 1.0,
     "import_limit": 0.0,
     "claimable_cover": 380.0
    },
@@ -2380,12 +2503,13 @@
    "params": {
     "local_repair_days": 1.0,
     "failed_chargers": 1.0,
-    "spare_cover": 1.0,
-    "days_to_restore": 1.0
+    "days_to_restore": 1.0,
+    "value_days_to_restore": 1.0,
+    "spare_cover": 0.0
    },
    "design_values": [],
    "assumptions": [],
-   "value_if_admissible": -140.0,
+   "value_if_admissible": -260.0,
    "bound": {
     "required_kwh_night": 1200.0,
     "supplied_kwh_night": 1050.0,
@@ -2394,14 +2518,14 @@
     "max_kw": 0.0,
     "import_limit_kw": 250.0
    },
-   "cost_per_departure_met": 23.71,
+   "cost_per_departure_met": 24.29,
    "energy_bill_option": 5580.0,
    "energy_bill_reference": 5580.0,
    "admissible": false,
    "value": null,
    "valued_in_money": false,
    "decision": "kasarani_charger",
-   "bound_failure": "hard bound: claimable_cover exceeded by 380.0"
+   "bound_failure": "hard bound: departures exceeded by 1.0, claimable_cover exceeded by 380.0"
   },
   "RUI-ABSORB6": {
    "site": "Ruiru",
@@ -2590,17 +2714,15 @@
    "protective_choices": {
     "kisiwa_genset": {
      "chosen": "KIS-REPAIR",
-     "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
-     "admissible": [
-      "KIS-REPAIR"
-     ]
+     "admissible": [],
+     "how": "least violation within the plan (15.0)"
     },
     "kobo_battery_evidence": {
      "chosen": "BAT-EVIDENCE",
-     "how": "meets its hard bounds",
      "admissible": [
       "BAT-EVIDENCE"
-     ]
+     ],
+     "how": "meets its hard bounds"
     }
    },
    "default": {
@@ -2610,13 +2732,13 @@
      "KIS-REPAIR",
      "BAT-EVIDENCE",
      "KOB-STOPSOC",
-     "MTO-HULLER",
-     "MTO-INV-CLAIM"
+     "MTO-INV-CLAIM",
+     "MTO-HULLER"
     ],
     "valued_options": [
      "KOB-STOPSOC",
-     "MTO-HULLER",
-     "MTO-INV-CLAIM"
+     "MTO-INV-CLAIM",
+     "MTO-HULLER"
     ],
     "valued_option_costs": 1520.0,
     "not_valued_in_money": 2230.0,
@@ -2625,19 +2747,22 @@
     "protective_choices": {
      "kisiwa_genset": {
       "chosen": "KIS-REPAIR",
-      "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
-      "admissible": [
-       "KIS-REPAIR"
-      ]
+      "admissible": [],
+      "how": "least violation within the plan (15.0)"
      },
      "kobo_battery_evidence": {
       "chosen": "BAT-EVIDENCE",
-      "how": "meets its hard bounds",
       "admissible": [
        "BAT-EVIDENCE"
-      ]
+      ],
+      "how": "meets its hard bounds"
      }
-    }
+    },
+    "dependencies": {
+     "MTO-HULLER": "MTO-INV-CLAIM restores 2026-11-28; +5 working days = 2026-12-04 vs 2026-12-31"
+    },
+    "not_connectable": {},
+    "least_violation_total": 15.0
    },
    "switch_cases": {
     "5000/True": {
@@ -2647,13 +2772,13 @@
       "KIS-REPAIR",
       "BAT-EVIDENCE",
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-CLAIM"
+      "MTO-INV-CLAIM",
+      "MTO-HULLER"
      ],
      "valued_options": [
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-CLAIM"
+      "MTO-INV-CLAIM",
+      "MTO-HULLER"
      ],
      "valued_option_costs": 1520.0,
      "not_valued_in_money": 2230.0,
@@ -2662,19 +2787,22 @@
      "protective_choices": {
       "kisiwa_genset": {
        "chosen": "KIS-REPAIR",
-       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
-       "admissible": [
-        "KIS-REPAIR"
-       ]
+       "admissible": [],
+       "how": "least violation within the plan (15.0)"
       },
       "kobo_battery_evidence": {
        "chosen": "BAT-EVIDENCE",
-       "how": "meets its hard bounds",
        "admissible": [
         "BAT-EVIDENCE"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {
+      "MTO-HULLER": "MTO-INV-CLAIM restores 2026-11-28; +5 working days = 2026-12-04 vs 2026-12-31"
+     },
+     "not_connectable": {},
+     "least_violation_total": 15.0
     },
     "5000/False": {
      "value": 2548.5,
@@ -2696,19 +2824,22 @@
      "protective_choices": {
       "kisiwa_genset": {
        "chosen": "KIS-REPAIR",
-       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
-       "admissible": [
-        "KIS-REPAIR"
-       ]
+       "admissible": [],
+       "how": "least violation within the plan (15.0)"
       },
       "kobo_battery_evidence": {
        "chosen": "BAT-EVIDENCE",
-       "how": "meets its hard bounds",
        "admissible": [
         "BAT-EVIDENCE"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {},
+     "not_connectable": {
+      "MTO-HULLER": "MTO-INV-CLAIM restores 2026-11-28; +5 working days = 2026-12-04 vs 2026-11-30"
+     },
+     "least_violation_total": 15.0
     },
     "6500/True": {
      "value": 6088.5,
@@ -2717,13 +2848,13 @@
       "KIS-REPAIR",
       "BAT-EVIDENCE",
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-CLAIM"
+      "MTO-INV-CLAIM",
+      "MTO-HULLER"
      ],
      "valued_options": [
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-CLAIM"
+      "MTO-INV-CLAIM",
+      "MTO-HULLER"
      ],
      "valued_option_costs": 1520.0,
      "not_valued_in_money": 2230.0,
@@ -2732,19 +2863,22 @@
      "protective_choices": {
       "kisiwa_genset": {
        "chosen": "KIS-REPAIR",
-       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
-       "admissible": [
-        "KIS-REPAIR"
-       ]
+       "admissible": [],
+       "how": "least violation within the plan (15.0)"
       },
       "kobo_battery_evidence": {
        "chosen": "BAT-EVIDENCE",
-       "how": "meets its hard bounds",
        "admissible": [
         "BAT-EVIDENCE"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {
+      "MTO-HULLER": "MTO-INV-CLAIM restores 2026-11-28; +5 working days = 2026-12-04 vs 2026-12-31"
+     },
+     "not_connectable": {},
+     "least_violation_total": 15.0
     },
     "6500/False": {
      "value": 3508.5,
@@ -2753,13 +2887,13 @@
       "KIS-REPAIR",
       "BAT-EVIDENCE",
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-BUYNOW"
+      "MTO-INV-BUYNOW",
+      "MTO-HULLER"
      ],
      "valued_options": [
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-BUYNOW"
+      "MTO-INV-BUYNOW",
+      "MTO-HULLER"
      ],
      "valued_option_costs": 4200.0,
      "not_valued_in_money": 2230.0,
@@ -2768,19 +2902,24 @@
      "protective_choices": {
       "kisiwa_genset": {
        "chosen": "KIS-REPAIR",
-       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
-       "admissible": [
-        "KIS-REPAIR"
-       ]
+       "admissible": [],
+       "how": "least violation within the plan (15.0)"
       },
       "kobo_battery_evidence": {
        "chosen": "BAT-EVIDENCE",
-       "how": "meets its hard bounds",
        "admissible": [
         "BAT-EVIDENCE"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {
+      "MTO-HULLER": "MTO-INV-BUYNOW restores 2026-11-12; +5 working days = 2026-11-19 vs 2026-11-30"
+     },
+     "not_connectable": {
+      "MTO-HULLER": "MTO-INV-CLAIM restores 2026-11-28; +5 working days = 2026-12-04 vs 2026-11-30"
+     },
+     "least_violation_total": 15.0
     }
    },
    "sensitivity_values": {
@@ -2795,16 +2934,16 @@
      "value": 5690.0,
      "valued_options": [
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-CLAIM"
+      "MTO-INV-CLAIM",
+      "MTO-HULLER"
      ]
     },
     "feasible_fuel_160l": {
      "value": 5338.5,
      "valued_options": [
       "KOB-STOPSOC",
-      "MTO-HULLER",
-      "MTO-INV-CLAIM"
+      "MTO-INV-CLAIM",
+      "MTO-HULLER"
      ]
     }
    },
@@ -2814,10 +2953,10 @@
    "protective_choices": {
     "thika_backup": {
      "chosen": "THIKA-EPC-STOPGAP",
-     "how": "meets its hard bounds",
      "admissible": [
       "THIKA-EPC-STOPGAP"
-     ]
+     ],
+     "how": "meets its hard bounds"
     }
    },
    "default": {
@@ -2839,12 +2978,14 @@
     "protective_choices": {
      "thika_backup": {
       "chosen": "THIKA-EPC-STOPGAP",
-      "how": "meets its hard bounds",
       "admissible": [
        "THIKA-EPC-STOPGAP"
-      ]
+      ],
+      "how": "meets its hard bounds"
      }
-    }
+    },
+    "dependencies": {},
+    "not_connectable": {}
    },
    "switch_cases": {
     "True": {
@@ -2866,12 +3007,14 @@
      "protective_choices": {
       "thika_backup": {
        "chosen": "THIKA-EPC-STOPGAP",
-       "how": "meets its hard bounds",
        "admissible": [
         "THIKA-EPC-STOPGAP"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {},
+     "not_connectable": {}
     },
     "False": {
      "value": 1512.4,
@@ -2890,12 +3033,14 @@
      "protective_choices": {
       "thika_backup": {
        "chosen": "THIKA-EPC-STOPGAP",
-       "how": "meets its hard bounds",
        "admissible": [
         "THIKA-EPC-STOPGAP"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {},
+     "not_connectable": {}
     }
    },
    "sensitivity_values": {
@@ -2919,10 +3064,10 @@
    "protective_choices": {
     "kasarani_charger": {
      "chosen": "KAS-OEM-STOPGAP",
-     "how": "meets its hard bounds",
      "admissible": [
       "KAS-OEM-STOPGAP"
-     ]
+     ],
+     "how": "meets its hard bounds"
     }
    },
    "default": {
@@ -2943,12 +3088,14 @@
     "protective_choices": {
      "kasarani_charger": {
       "chosen": "KAS-OEM-STOPGAP",
-      "how": "meets its hard bounds",
       "admissible": [
        "KAS-OEM-STOPGAP"
-      ]
+      ],
+      "how": "meets its hard bounds"
      }
-    }
+    },
+    "dependencies": {},
+    "not_connectable": {}
    },
    "switch_cases": {
     "True": {
@@ -2969,12 +3116,14 @@
      "protective_choices": {
       "kasarani_charger": {
        "chosen": "KAS-OEM-STOPGAP",
-       "how": "meets its hard bounds",
        "admissible": [
         "KAS-OEM-STOPGAP"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {},
+     "not_connectable": {}
     },
     "False": {
      "value": 150.0,
@@ -2992,12 +3141,14 @@
      "protective_choices": {
       "kasarani_charger": {
        "chosen": "KAS-OEM-STOPGAP",
-       "how": "meets its hard bounds",
        "admissible": [
         "KAS-OEM-STOPGAP"
-       ]
+       ],
+       "how": "meets its hard bounds"
       }
-     }
+     },
+     "dependencies": {},
+     "not_connectable": {}
     }
    },
    "sensitivity_values": {
@@ -3152,6 +3303,7 @@
      "hours_per_day": 0.0,
      "in_transit": 0.0,
      "liability": 0.0,
+     "lost_unit_kw": 85.0,
      "major_assets": 0.0,
      "metered_kwh": 21650.0,
      "necessary_l": 3300.0,
@@ -3167,6 +3319,7 @@
      "revenue": 9785.0,
      "shortfall_backed": 1.0,
      "staff": 1450.0,
+     "standby_kw": 30.0,
      "tariff": 1.35,
      "technical_loss_kwh": 0.0,
      "unexplained_l": 0.0,
@@ -3202,6 +3355,7 @@
      "hours_per_day": 10.0,
      "in_transit": 150.0,
      "liability": 0.0,
+     "lost_unit_kw": 85.0,
      "major_assets": 14.0,
      "metered_kwh": 21700.0,
      "necessary_l": 3430.0,
@@ -3217,6 +3371,7 @@
      "revenue": 9688.0,
      "shortfall_backed": 1.0,
      "staff": 1450.0,
+     "standby_kw": 30.0,
      "tariff": 1.35,
      "technical_loss_kwh": 1230.0,
      "unexplained_l": 140.0,
@@ -3336,6 +3491,7 @@
      "cost_to_serve": 41705.12,
      "covered_bus_nights": 0.0,
      "deliverable_kwh_night": 10600.0,
+     "demand_cost": 10560.0,
      "demand_rate": 24.0,
      "departures_met": 1302.0,
      "departures_missed": 0.0,
@@ -3348,10 +3504,13 @@
      "kwh_per_bus_night": 430.0,
      "maintenance": 1400.0,
      "max_kw": 880.0,
+     "night_cost": 2827.2,
      "night_price": 0.39,
      "nights_below_required": 0.0,
      "nights_in_period": 93.0,
+     "offpeak_cost": 14002.08,
      "offpeak_price": 0.39,
+     "peak_cost": 12915.84,
      "peak_kwh": 53816.0,
      "peak_price": 0.63,
      "penalties": 0.0,
@@ -3379,6 +3538,7 @@
      "cost_to_serve": 2438.7,
      "covered_bus_nights": 0.0,
      "deliverable_kwh_night": 4250.0,
+     "demand_cost": 0.0,
      "demand_rate": 12.0,
      "departures_met": 122.0,
      "departures_missed": 2.0,
@@ -3391,10 +3551,13 @@
      "kwh_per_bus_night": 290.0,
      "maintenance": 0.0,
      "max_kw": 0.0,
+     "night_cost": 0.0,
      "night_price": 0.27,
      "nights_below_required": 5.0,
      "nights_in_period": 11.0,
+     "offpeak_cost": 2198.7,
      "offpeak_price": 0.27,
+     "peak_cost": 0.0,
      "peak_kwh": 0.0,
      "peak_price": 0.39,
      "penalties": 240.0,
@@ -3407,6 +3570,386 @@
      "window_h": 15.0
     },
     "not_decomposed": []
+   }
+  }
+ },
+ "deciders": {
+  "INV-MT-02": [
+   "MTO-INV-BUYNOW",
+   "MTO-INV-CLAIM",
+   "MTO-INV-LOCAL",
+   "MTO-INV-NOACT"
+  ],
+  "GEN-KS-01": [
+   "KIS-NOACT",
+   "KIS-REPAIR",
+   "KIS-REPLACE"
+  ],
+  "BAT-001": [
+   "BAT-EVIDENCE",
+   "BAT-NOACT"
+  ],
+  "GEN-CR-01 start controller (backup generator)": [
+   "THIKA-EPC-STOPGAP",
+   "THIKA-EPC-WAIT",
+   "THIKA-SELF"
+  ],
+  "CH-K2": [
+   "KAS-LOCAL",
+   "KAS-OEM-STOPGAP",
+   "KAS-OEM-WAIT"
+  ]
+ },
+ "horizons": {
+  "protect_horizon_end": "2026-11-30",
+  "value_horizon_end": {
+   "lakeside-power": "2027-11-05",
+   "harvest-cold": "2027-11-05",
+   "metro-bus": "2027-11-05"
+  }
+ },
+ "owner_question_variants": {
+  "Q15": {
+   "applied": "A",
+   "A": {
+    "lakeside-power": {
+     "cases": {
+      "5000/True": {
+       "value": 6088.5,
+       "spend": 3750.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-CLAIM",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "5000/False": {
+       "value": 2548.5,
+       "spend": 2550.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-CLAIM"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "6500/True": {
+       "value": 6088.5,
+       "spend": 3750.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-CLAIM",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "6500/False": {
+       "value": 3508.5,
+       "spend": 6430.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-BUYNOW",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    },
+    "harvest-cold": {
+     "cases": {
+      "True": {
+       "value": 3182.4,
+       "spend": 720.0,
+       "items": [
+        "THIKA-EPC-STOPGAP",
+        "KIRI-REPAIR",
+        "MWEA-AGG"
+       ],
+       "crew_visits_used": 2,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "False": {
+       "value": 1512.4,
+       "spend": 450.0,
+       "items": [
+        "THIKA-EPC-STOPGAP",
+        "KIRI-REPAIR"
+       ],
+       "crew_visits_used": 1,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    },
+    "metro-bus": {
+     "cases": {
+      "True": {
+       "value": 95634.0,
+       "spend": 1590.0,
+       "items": [
+        "KAS-OEM-STOPGAP",
+        "EMB-DEADLINE"
+       ],
+       "crew_visits_used": 0,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "False": {
+       "value": 150.0,
+       "spend": 90.0,
+       "items": [
+        "KAS-OEM-STOPGAP"
+       ],
+       "crew_visits_used": 0,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    }
+   },
+   "B": {
+    "lakeside-power": {
+     "cases": {
+      "5000/True": {
+       "value": 6088.5,
+       "spend": 3750.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-CLAIM",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "5000/False": {
+       "value": 2548.5,
+       "spend": 2550.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-CLAIM"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "6500/True": {
+       "value": 3508.5,
+       "spend": 6430.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-BUYNOW",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": -2580.0,
+       "spend_change_vs_applied": 2680.0
+      },
+      "6500/False": {
+       "value": 3508.5,
+       "spend": 6430.0,
+       "items": [
+        "KIS-REPAIR",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-BUYNOW",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 3,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    },
+    "harvest-cold": {
+     "cases": {
+      "True": {
+       "value": 3182.4,
+       "spend": 720.0,
+       "items": [
+        "THIKA-EPC-STOPGAP",
+        "KIRI-REPAIR",
+        "MWEA-AGG"
+       ],
+       "crew_visits_used": 2,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "False": {
+       "value": 1512.4,
+       "spend": 450.0,
+       "items": [
+        "THIKA-EPC-STOPGAP",
+        "KIRI-REPAIR"
+       ],
+       "crew_visits_used": 1,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    },
+    "metro-bus": {
+     "cases": {
+      "True": {
+       "value": 95634.0,
+       "spend": 1590.0,
+       "items": [
+        "KAS-OEM-STOPGAP",
+        "EMB-DEADLINE"
+       ],
+       "crew_visits_used": 0,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "False": {
+       "value": 150.0,
+       "spend": 90.0,
+       "items": [
+        "KAS-OEM-STOPGAP"
+       ],
+       "crew_visits_used": 0,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    }
+   },
+   "C": {
+    "lakeside-power": {
+     "cases": {
+      "5000/True": {
+       "value": 6088.5,
+       "spend": 1950.0,
+       "items": [
+        "KIS-NOACT",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-CLAIM",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 2,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": -1800.0
+      },
+      "5000/False": {
+       "value": 3508.5,
+       "spend": 4630.0,
+       "items": [
+        "KIS-NOACT",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-BUYNOW",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 2,
+       "value_change_vs_applied": 960.0,
+       "spend_change_vs_applied": 2080.0
+      },
+      "6500/True": {
+       "value": 6088.5,
+       "spend": 1950.0,
+       "items": [
+        "KIS-NOACT",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-CLAIM",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 2,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": -1800.0
+      },
+      "6500/False": {
+       "value": 3508.5,
+       "spend": 4630.0,
+       "items": [
+        "KIS-NOACT",
+        "BAT-EVIDENCE",
+        "KOB-STOPSOC",
+        "MTO-INV-BUYNOW",
+        "MTO-HULLER"
+       ],
+       "crew_visits_used": 2,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": -1800.0
+      }
+     }
+    },
+    "harvest-cold": {
+     "cases": {
+      "True": {
+       "value": 3182.4,
+       "spend": 720.0,
+       "items": [
+        "THIKA-EPC-STOPGAP",
+        "KIRI-REPAIR",
+        "MWEA-AGG"
+       ],
+       "crew_visits_used": 2,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "False": {
+       "value": 1512.4,
+       "spend": 450.0,
+       "items": [
+        "THIKA-EPC-STOPGAP",
+        "KIRI-REPAIR"
+       ],
+       "crew_visits_used": 1,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    },
+    "metro-bus": {
+     "cases": {
+      "True": {
+       "value": 95634.0,
+       "spend": 1590.0,
+       "items": [
+        "KAS-OEM-STOPGAP",
+        "EMB-DEADLINE"
+       ],
+       "crew_visits_used": 0,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      },
+      "False": {
+       "value": 150.0,
+       "spend": 90.0,
+       "items": [
+        "KAS-OEM-STOPGAP"
+       ],
+       "crew_visits_used": 0,
+       "value_change_vs_applied": 0.0,
+       "spend_change_vs_applied": 0.0
+      }
+     }
+    }
    }
   }
  }

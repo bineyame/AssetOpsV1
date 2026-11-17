@@ -798,3 +798,109 @@ Every switch case, sensitivity and downside is also unchanged. The evaluator now
 ### Still owner decisions
 
 **Q1–Q15.** Q15 is new: the redundancy policy, with (A) applied and recommended. It is set out in `design-questions-and-decisions.md` with the effect of each option on the plans. It is also in the owner checklist.
+
+## Author response (rev 13)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This responds to "## Re-review (rev 12)" and the owner's twelfth message (four rules).
+
+**Work order (owner rule 4).**
+1. `structure-specification.md` was written first, as the contract.
+2. A helper that never read the evaluator wrote `independent_model.py` from that specification and the manifest. Its 26 recorded ambiguities were settled by amending the specification, never by copying the evaluator.
+3. The rewritten `check_manifest.py` imports no evaluator code and holds no expected figure. It compares the evaluator's output, the manifest's stated copies and the document tags against that independent model.
+4. `derivation-register.md` is the main deliverable (rule 2).
+
+### Findings
+
+| # | Outcome |
+|---|---|
+| **H1** | **The huller dependency is now dated.** `requires_any` is deleted. MTO-HULLER now requires that the restore date of the plan's inverter path, plus the contractor's 5 working days, falls on or before the letter's lapse date (30 Nov), or the extension date when the switch is set; no restore means no connection. Under the perturbations:<br>• LT7: claim plus huller in every case, 6,176.00.<br>• LS20: the 6,500/no case loses the huller, 2,548.50.<br>• RA and H1n: the plan repairs the inverter locally (no cover is left to lose) and keeps the huller, 5,993.50.<br>• X1: the plan is unchanged, because a never-restored inverter cannot connect the huller. |
+| **M1** | **Protective and valued decisions are enumerated together**, ranked by least violation, then value, then spend.<br>• B2000 is now feasible (+6,088.50 at 1,950); B1500 gives +2,548.50.<br>• CR2 is feasible: Kisiwa takes no action, and the repair is reported as the trade-off.<br>• RC reaches the joint optimum: the stopgap, Kirinyaga and Mwea, +3,182.40. |
+| **M2** | **Money runs to the restore date or through the tenant's 12-month horizon**; Protect is stated to 30 Nov. The no-action fuel cost is −2,281.25 (rev 12: −156.25). This is disclosed in A33, in the main document and on the Mto decision screen. |
+| **M3** | **Rendered manifest strings carry `{fig:}` / `{rec:}` placeholders**, rendered by the mock-up. The checker rejects an evaluated figure written as a literal (now 0). |
+| **M4** | **Coverage now includes whole-dollar forms, monthly changes and O2 percentages.**<br>• The Q15 figures are evaluated variants (`owner_question_variants`) and are anchored.<br>• The October bill lines are nodes, and anchored.<br>• Dn1–Dn9 are caught. |
+| **M5** | **Deciding options are derived** from the rights each option touches and from decision membership; the `asset:` key is gone. A deadline already passed is LAPSED for every option. The checker requires a notice deadline or a notice term on every un-notified right, and CH-R7 and BAT-001 now record theirs. GT1 is caught. |
+| **L1** | **Under a refused right, the restore switches to the operator's own procurement**, with that path's crew visits. |
+| **L2** | **The Q15 fact is computed:** shortfall backed = min(1, floor(standby kW / lost kW)), from the site's declared outage records. |
+| **L3** | **MTO-INV-LOCAL is evaluated:** it restores on 8 Nov and fails the cover bound. |
+| **L4** | **The allow-list is used in full and keyed by place:** 46 entries, all used, each keyed by file or manifest path, exact literal and context, with a reason (rev 12: 30 entries, 8 used). The scan now also covers the 216 rendered manifest strings outside their placeholders, and an unused entry fails it. |
+| **L5** | **The remaining typed Embakasi and Kobo figures are now computed.**<br>• Embakasi peak share: from nodes (55% reference, 0% under both options; "near 0%" is gone).<br>• Night kWh: from the option parameters.<br>• Kobo battery 92%: from a new numeric record, 184 kWh ÷ 200 kWh.<br>• 406 kW keeps its design-value label (spike E). |
+| **L6** | **The roster is dated:** spare cover counts the listed free nights inside the window. |
+
+**Q15 stays open.** (A) is applied pending the owner's answer. The two alternatives are re-evaluated (B, C).
+
+### Figures that changed (owner rule 1)
+
+| Figure | Rev 12 | Rev 13 | Why |
+|---|---|---|---|
+| MTO-INV-NOACT value if admissible | −156.25 | −2,281.25 | fuel is now counted over the 12-month horizon |
+| KAS-LOCAL Protect effect | 0 missed, −140 | 1 missed, −260 | the dated roster has no free spare-bus night on 6 Nov |
+| MTO-INV-LOCAL | not evaluated | −462.50, restores 8 Nov, fails the cover bound | now evaluated |
+
+The headline plans and downsides did not change. They are an output of this round, not its success criterion.
+
+### Results
+
+- **Evaluator:** 9 sites, 28 options, 3 plans.
+- **Independent checker:** **3,255 passed, 0 failed.**
+- **CSV:** PASS.
+- **Perturbations (rev 13 harness):** 57 runs, made up of the reviewer's set, one perturbation for each derived item of register §2, and document drifts. Every one moves or is caught. The exceptions are A08 and Dn8 before their fixes; both now move.
+- **Register:**
+  - 852 manifest leaves affect a figure or choice. All are (b): 355 structure declarations, 308 records, 95 policy declarations, 35 quotes, 30 owner decisions, 17 replay design values, 12 assumptions.
+  - 1,589 leaves affect nothing and are (c).
+  - 25 derived items (a), 34 evaluator rules, 12 checker items, and 14 items no perturbation reveals.
+
+### Completed after hand-back (coordinator: "finish rev 13")
+
+**The builder's work is merged.**
+- **Placeholders.** 78 manifest strings were converted, holding 91 figure and 53 record placeholders. The single renderer `tpl()` leaves 0 unresolved.
+- **The huller row is derived per inverter path** from the evaluated restore date, the contractor's working days and the letter dates: no action, lost (never restored); claim, kept only with the extension, connected by 4 Dec; buy now, kept by 19 Nov; local repair, kept by 13 Nov but not admissible.
+- **The CONDITIONAL text for buying now** comes from the switch cases.
+- **The horizon disclosure** is on the Mto page.
+
+**I fixed the remaining figure restatements flagged in the builder's sweep:**
+- `loop-decisions.js:142`: $194;
+- `:282`: $6,430 and 30 Nov;
+- `:302`: +0.6%;
+- `:303`: 4,500 crate-days;
+- `:334–335`: one bus short;
+- `:48`: 184 kWh, now a numeric record.
+
+**Typed copies the screen no longer read are deleted:** `sla_clock.restore_due` and `protect_effects.penalties`. The penalties column is derived from the measure instead. The departures-missed measure is now labelled "Calculated from records".
+
+**Kasarani screen test** (builder, scratch copy; SLA 8 business days and November spare 3 → 2):
+- "9 Nov", "2 missed", "$240", "3 nights", "lent on 3", "missed on 2" and "$90" each appear 0 times; the base capture has 3, 3, 8, 1, 1, 1 and 3.
+- The perturbed screens show 12 Nov, 5 missed, $600, 6 nights, $225 and November to date $360.
+- 26 of 716 lines changed.
+
+**Register §7.** 801 rows across the 15 mock-up and generator files: 244 (a), 331 (b), 226 (c).
+- 154 rows restate a record in code. They are documented limit L-RS: they are not checked, because the scan sees only evaluated figures.
+- 42 rows are typed narrative facts, documented limit L-UB.
+- None holds a figure in place.
+
+**Final runs:**
+
+| Run | Result |
+|---|---|
+| Evaluator | 9 sites, 28 options, 3 plans |
+| Independent checker | **3,255 passed, 0 failed** |
+| CSV validator | PASS |
+| Influence scan | 2,438 manifest leaves × 5 worlds: 852 affect a figure or choice (all (b)), 1,586 affect none (c) |
+| Perturbation suite (`perturb4.py`) | 44 runs, all caught; every derived item's perturbation moves it |
+
+Full audit (`run-audit.sh --shots`, exit 0):
+
+| Check | Result |
+|---|---|
+| Routes | 202 / 202 |
+| Console errors / bad links / overflow at 390 px | 0 / 0 / 0 |
+| Vocabulary / identifiers / role or question wording / filter controls | 0 / 0 / 0 / 0 |
+| Design-value scan | 28 figures, 93 occurrences and 733 drawers, 0 unlabelled |
+| Hand-typed figures | 0 in code, 0 in 216 rendered manifest strings; 46 allow-list entries, 0 unused |
+| Placeholders | 91 figure + 53 record in 77 strings, 0 unresolved |
+| Switch cases / focus / contrast | 8 of 8 / 7 of 7 / 38 of 38 |
+| Preserved screens | 65 / 65 |
+| Oracle in the bundle | no |
+
+**Still open, and the reason:**
+- The builder asked for some nodes to be exported, so that their allow-listed literals could become placeholders: the bridge quantities (actual − plan), chargers × kW, the Thika crate-minute range, the rights evidence shares, payback years, and Mwea +0.6% / Kirinyaga 24% in manifest text. They are not exported. Each is allow-listed with its reason and listed in the register.
+- **Q15** remains an owner decision.

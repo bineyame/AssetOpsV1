@@ -72,7 +72,35 @@ print('evaluator vs stated fields: %d differences' % len(diffs) + (': ' + '; '.j
 # Quoted one-off costs are not replay-dependent. Money below $50 is not pattern-matched (it collides with unrelated
 # unit prices such as $12 a kW); such figures sit in rows already tagged. Small litre values that collide with an
 # observed litre quantity are matched only in "avoided" phrasing.
-import re
+import re, copy
+# Rev 13: manifest strings carry {fig:path} / {rec:path} placeholders (spec §7); render them before reading figures from text.
+def _get(root, path):
+    o = root
+    for m in re.finditer(r'\[([^\]]+)\]|([^.\[\]]+)', path):
+        k = m.group(1) if m.group(1) is not None else m.group(2)
+        if isinstance(o, list): o = o[int(k)] if k.isdigit() else next((x for x in o if isinstance(x, dict) and k in (x.get('tenant'), x.get('site'), x.get('id'), x.get('driver'), x.get('measure'), x.get('batch'))), None)
+        elif isinstance(o, dict): o = o.get(k)
+        else: return None
+    return o
+def _fmt(v, neg):
+    if isinstance(v, bool) or v is None: return 'not available'
+    if isinstance(v, (int, float)):
+        x = -v if neg else v
+        return ('−' if x < 0 else '') + (f"{abs(x):,.0f}" if abs(x - round(x)) < 1e-9 else f"{abs(x):,.2f}")
+    if hasattr(v, 'isoformat'): v = v.isoformat()
+    if isinstance(v, str) and re.fullmatch(r'\d{4}-\d{2}-\d{2}', v):
+        y, mo, d = v.split('-'); return f"{int(d)} {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][int(mo)-1]}"
+    return str(v)
+def _render_all(o, man, der):
+    if isinstance(o, dict):
+        for k, v in o.items(): o[k] = _render_all(v, man, der)
+    elif isinstance(o, list):
+        for i, v in enumerate(o): o[i] = _render_all(v, man, der)
+    elif isinstance(o, str) and '{' in o:
+        return re.sub(r'\{(fig|rec):(-?)([^{}]+)\}', lambda m: _fmt(_get(der if m.group(1) == 'fig' else man, m.group(3)), bool(m.group(2))), o)
+    return o
+data_raw = data
+data = _render_all(copy.deepcopy(data_raw), copy.deepcopy(data_raw), derived)
 def money(v):
     return '\\$' + (f'{v:,.0f}' if float(v).is_integer() else f'{v:,.2f}').replace(',', ',') + '(?![\\d,])'
 def ints(v): return f'{int(v):,}'

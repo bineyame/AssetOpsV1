@@ -2,7 +2,7 @@
  "dvScan": {
   "occurrences": 93,
   "unlabelled": [],
-  "drawersOpened": 734,
+  "drawersOpened": 733,
   "byFigure": {},
   "independentPatterns": 28,
   "independentFigures": [
@@ -3902,6 +3902,12 @@
  "errors": [],
  "links": {},
  "oracleShipped": false,
+ "placeholders": {
+  "fig": 91,
+  "rec": 53,
+  "strings": 77,
+  "unresolved": []
+ },
  "reviewNotesChecked": true,
  "rev5": {
   "lakeside": {
@@ -4013,38 +4019,290 @@
  "handTyped": {
   "count": 0,
   "hits": [],
-  "allow": {
-   "35% at 5 am": "declared dawn-adequacy policy (obligation), not an evaluated figure",
-   "5 °C": "declared commodity limit",
-   "12 °C": "declared commodity limit",
-   "2–4 °C": "declared chamber band",
-   "15 minutes": "declared contract threshold",
-   "5% tolerance": "declared model tolerance",
-   "2% tolerance": "declared fuel-balance tolerance",
-   "a 5% tolerance": "declared model tolerance",
-   "1 Nov": "event date (fault, tariff start), declared",
-   "6 Oct": "incident date, declared",
-   "30 Oct": "event date, declared",
-   "28 Oct": "event date, declared",
-   "3 Oct": "event date, declared",
-   "7 Oct": "inspection date, declared",
-   "14 days": "declared trial length",
-   "14 supervised nights": "declared trial length",
-   "14 matched days": "declared trial window",
-   "30 days": "declared verification window",
-   "60 days": "declared model-fitting window",
-   "61 days": "declared replay window length",
-   "12 months": "declared horizon",
-   "4 months": "declared contract length",
-   "7-year": "declared life view",
-   "1,000-hour": "warranty condition text (declared contract term), not an evaluated figure",
-   "80 kW": "set-up of the preserved earlier-demo charger example (v70 detail views), not an evaluated figure",
-   "42 kW": "illustrative interval in a source sample row",
-   "30 kW": "illustrative interval in a source sample row (energy-management export)",
-   "10%": "declared comparability band",
-   "60–90%": "declared recovery range (assumption)",
-   "80%": "declared recovery share (assumption)"
-  }
+  "manifest_strings_scanned": 216,
+  "manifest_count": 0,
+  "manifest_hits": [],
+  "allow_total": 46,
+  "allow_used": 46,
+  "allow_unused": [],
+  "allow": [
+   {
+    "where": "loop-core.js",
+    "literal": "80 kW",
+    "context": "with that example’s 2-connector",
+    "reason": "set-up of the preserved v7.0 earlier-demo charger example (v70 detail views), not an evaluated figure"
+   },
+   {
+    "where": "loop-core.js",
+    "literal": "30 kW",
+    "context": "30 kW",
+    "reason": "illustrative interval of the energy-management source sample row (\"Example interval\")"
+   },
+   {
+    "where": "loop-core.js",
+    "literal": "60 days",
+    "context": "fitted on 60 days",
+    "reason": "declared model-fitting window of the proposed occupancy energy model"
+   },
+   {
+    "where": "loop-site.js",
+    "literal": "60 days",
+    "context": "fitted on 60 days",
+    "reason": "declared model-fitting window of the proposed occupancy energy model"
+   },
+   {
+    "where": "loop-decisions.js",
+    "literal": "30 days",
+    "context": "over 30 days",
+    "reason": "declared verification window"
+   },
+   {
+    "where": "loop-init.js",
+    "literal": "80 kW",
+    "context": "earlier demo (2 connectors",
+    "reason": "set-up of the preserved v7.0 earlier-demo charger example, not an evaluated figure"
+   },
+   {
+    "where": "loop-decisions.js",
+    "literal": "1,000",
+    "context": "1,000-hour service",
+    "reason": "warranty condition text (declared contract term)"
+   },
+   {
+    "where": "sources.cold_chain[1].cadence",
+    "literal": "5",
+    "context": "5 min",
+    "reason": "declared source cadence"
+   },
+   {
+    "where": "sources.mini_grid[0].cadence",
+    "literal": "5",
+    "context": "5 min in evidence",
+    "reason": "declared source cadence"
+   },
+   {
+    "where": "sources.mini_grid[0].cadence",
+    "literal": "15",
+    "context": "15 min context",
+    "reason": "declared source cadence"
+   },
+   {
+    "where": "tenants[harvest-cold].sites[Room A · Mwea].decision.options[MWEA-AGG].compatibility",
+    "literal": "5",
+    "context": "5 C setpoint",
+    "reason": "declared commodity setpoint"
+   },
+   {
+    "where": "tenants[harvest-cold].sites[Room A · Mwea].period.bridge[ENERGY_EFFICIENCY].basis",
+    "literal": "5",
+    "context": "5% tolerance",
+    "reason": "declared model tolerance"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kisiwa].period.bridge[UNEXPLAINED_RESIDUAL].basis",
+    "literal": "2",
+    "context": "2% tolerance",
+    "reason": "declared fuel-balance tolerance"
+   },
+   {
+    "where": "tenants[harvest-cold].sites[Room B · Thika].entitlement.contract.remedy",
+    "literal": "30",
+    "context": "within 30 days",
+    "reason": "contract term quoted as text"
+   },
+   {
+    "where": "tenants[harvest-cold].sites[Room B · Thika].entitlement.evidence.quarterly_tests",
+    "literal": "3",
+    "context": "3 of 3 logged",
+    "reason": "recorded evidence, stated only in the record text"
+   },
+   {
+    "where": "tenants[harvest-cold].sites[Room B · Thika].period.bridge[CUSTOMER_COMPENSATION].basis",
+    "literal": "6",
+    "context": "6 crates downgraded",
+    "reason": "QA record quoted from the credit note (no numeric record field)"
+   },
+   {
+    "where": "tenants[harvest-cold].sites[Room C · Kirinyaga].decision.options[KIRI-REPLACE].reason",
+    "literal": "12",
+    "context": "12 months",
+    "reason": "declared horizon"
+   },
+   {
+    "where": "tenants[harvest-cold].sites[Room C · Kirinyaga].decision.options[KIRI-REPLACE].reason",
+    "literal": "60",
+    "context": "below 60%",
+    "reason": "declared revisit threshold (low end of the assumed recovery range)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kisiwa].entitlements[1].contract.service_credit",
+    "literal": "10",
+    "context": "10% of monthly fee",
+    "reason": "contract term quoted as text"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kisiwa].entitlements[1].contract.service_credit",
+    "literal": "700",
+    "context": "fee (700)",
+    "reason": "contract fee quoted as text (no numeric record field)"
+   },
+   {
+    "where": "tenants[metro-bus].sites[Kasarani].entitlement.contracts[1].service_credit",
+    "literal": "5",
+    "context": "5% of monthly",
+    "reason": "contract term quoted as text"
+   },
+   {
+    "where": "tenants[metro-bus].sites[Kasarani].entitlement.contracts[1].service_credit",
+    "literal": "400",
+    "context": "fee (400)",
+    "reason": "contract fee quoted as text (no numeric record field)"
+   },
+   {
+    "where": "tenants[metro-bus].sites[Kasarani].entitlement.options[KAS-OEM-STOPGAP].detail",
+    "literal": "10",
+    "context": "energy 10",
+    "reason": "cost-per-bus-night quote breakdown (record text)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].daytime_headroom.usable_kw",
+    "literal": "20",
+    "context": "18-20",
+    "reason": "recorded headroom range"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].decision.options[KOB-RESERVE].carrier",
+    "literal": "25",
+    "context": "-> 25",
+    "reason": "declared option setting (reserve after the change)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].carrier",
+    "literal": "90",
+    "context": "threshold 90 -> 70",
+    "reason": "declared controller settings (current and new)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].entitlement.evidence.cycles",
+    "literal": "6000",
+    "context": "of 6000",
+    "reason": "warranty limit quoted in the evidence record"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].entitlement.evidence.throughput",
+    "literal": "600",
+    "context": "of 600 MWh",
+    "reason": "warranty limit quoted in the evidence record"
+   },
+   {
+    "where": "tenants[metro-bus].sites[Embakasi].decision.options[EMB-DEADLINE].replay",
+    "literal": "21",
+    "context": "21-bus night",
+    "reason": "spike E replay basis (design value)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kisiwa].period.bridge[DEMAND_VOLUME].basis",
+    "literal": "100",
+    "context": "100 kWh",
+    "reason": "bridge quantity = actual - plan billed kWh; no single node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kisiwa].period.bridge[SOLAR_SHORTFALL_NECESSARY_GEN].basis",
+    "literal": "80",
+    "context": "80 L",
+    "reason": "bridge quantity = actual - plan needed litres; no single node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].period.bridge[EVENING_LOAD_GROWTH].basis",
+    "literal": "30",
+    "context": "30 L",
+    "reason": "bridge quantity = actual - plan needed litres; no single node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Mto].period.bridge[DEMAND_VOLUME].basis",
+    "literal": "20",
+    "context": "20 kWh",
+    "reason": "bridge quantity = actual - plan metered kWh; no single node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Mto].period.bridge[EVENING_NECESSARY_GEN].basis",
+    "literal": "20",
+    "context": "20 L",
+    "reason": "bridge quantity = actual - plan needed litres; no single node (export requested)"
+   },
+   {
+    "where": "tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis",
+    "literal": "30",
+    "context": "vs 30%",
+    "reason": "plan peak share; no node (export requested)"
+   },
+   {
+    "where": "tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis",
+    "literal": "0.12",
+    "context": "0.12 premium",
+    "reason": "peak minus off-peak price; no single node (export requested)"
+   },
+   {
+    "where": "tenants[metro-bus].portfolio.operations.measures[deliverable_energy_used].binding_limit.Embakasi",
+    "literal": "600",
+    "context": "chargers 600 kW",
+    "reason": "chargers x charger kW; no node (export requested)"
+   },
+   {
+    "where": "tenants[metro-bus].portfolio.operations.measures[deliverable_energy_used].binding_limit.Ruiru",
+    "literal": "720",
+    "context": "chargers 720 kW",
+    "reason": "chargers x charger kW; no node (export requested)"
+   },
+   {
+    "where": "tenants[harvest-cold].portfolio.protect.measures[crate_minutes_above_limit].portfolio",
+    "literal": "2,400",
+    "context": "2,400-3,600",
+    "reason": "crates x minutes range; no node (export requested)"
+   },
+   {
+    "where": "tenants[harvest-cold].portfolio.protect.measures[crate_minutes_above_limit].sites.Room B · Thika",
+    "literal": "2,400",
+    "context": "2,400-3,600",
+    "reason": "crates x minutes range; no node (export requested)"
+   },
+   {
+    "where": "tenants[harvest-cold].portfolio.rights.measures[tracked_assets_with_complete_contract_evidence].share",
+    "literal": "1",
+    "context": "1 of 1",
+    "reason": "rights evidence share typed; no node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].portfolio.rights.measures[tracked_assets_with_complete_contract_evidence].share",
+    "literal": "1",
+    "context": "1 of 3",
+    "reason": "rights evidence share typed; no node (export requested)"
+   },
+   {
+    "where": "tenants[metro-bus].portfolio.rights.measures[tracked_assets_with_complete_contract_evidence].share",
+    "literal": "2",
+    "context": "2 of 2",
+    "reason": "rights evidence share typed; no node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].portfolio.protect_effects[tracked_assets_with_complete_contract_evidence].options.BAT-CLAIM-NOW",
+    "literal": "1",
+    "context": "1 of 3",
+    "reason": "per-option evidence share typed; no node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].portfolio.protect_effects[tracked_assets_with_complete_contract_evidence].options.BAT-EVIDENCE",
+    "literal": "2",
+    "context": "2 of 3",
+    "reason": "per-option evidence share typed; no node (export requested)"
+   },
+   {
+    "where": "tenants[lakeside-power].portfolio.protect_effects[tracked_assets_with_complete_contract_evidence].options.BAT-NOACT",
+    "literal": "1",
+    "context": "1 of 3",
+    "reason": "per-option evidence share typed; no node (export requested)"
+   }
+  ]
  },
  "summary": {
   "routesChecked": 202,
@@ -4066,7 +4324,7 @@
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
   "operatorSelectInReviewBar": 202,
-  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 93 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
+  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 93 occurrences scanned on all routes and 733 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
   "rev6TabOrder": true,
   "rev7EvMeasure": true,
   "rev7RuiruNameplate": true,
@@ -4080,6 +4338,14 @@
   "preservedIdentical": "65/65",
   "oracleShipped": false,
   "hand_typed_figures": 0,
-  "handTypedAllowList": 30
+  "handTypedCode": 0,
+  "handTypedManifest": 0,
+  "manifestStringsScanned": 216,
+  "handTypedAllowList": 46,
+  "handTypedAllowUnused": 0,
+  "placeholdersFig": 91,
+  "placeholdersRec": 53,
+  "placeholderStrings": 77,
+  "unresolvedPlaceholders": 0
  }
 }

@@ -2342,3 +2342,216 @@ The L items can ride along. The owner decisions are Q1–Q15. Q15 is correctly p
 - I did not verify the replay design values; they belong to the calibration lane.
 
 ---
+
+## Final review (rev 13)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 13 working tree on `task/product-direction-layer4-design`: the uncommitted diff over `f5c705e25` plus the five untracked files. I ran every experiment in scratch copies (harness `scratchpad/fr13/pt.sh`; "moved" counts changed leaves of `derived-values.json`; "fail" counts `check_manifest.py` failures). Appending this section is my only edit.
+
+### Verdict: **ACCEPT WITH NOTES** (two small screen fixes, F1 and F2, before the owner inspects)
+
+The rev 12 structural findings are fixed, and I confirmed each one by hand:
+
+- The rice-huller dependency is now dated.
+- The allocator is joint.
+- The horizon is disclosed.
+- The deciding options are derived.
+
+The three figures that changed are correct, and they were reported. The evaluator and the independent model agree under every input perturbation I ran (32 runs). A planted bug in either program is caught when it changes a compared field. The rebuild is byte-identical.
+
+**Two screen defects state wrong figures or wrong claims.** Neither affects a plan or a headline.
+
+- **F1.** In 3 of the 4 Lakeside switch cases, the plan-value drawer lists the wrong options and figures.
+- **F2.** The plan page says "Largest …" next to an option that is not the largest.
+
+Both are short fixes, and they are the only items I put in class (i).
+
+**Where the pack overclaims is the register and the checker coverage, not the evaluation.**
+
+- About half of the numeric manifest leaves that the register classes (c) "affects no figure" are rendered on screen, and nothing checks them (F3).
+- The checker skips the two option fields that the screens actually read (F4).
+
+These items are not wrong today. They are the remaining places where a figure can drift without any check failing, and owner rules 1 and 2 asked for exactly this class to be closed or declared.
+
+### Owner rules (twelfth message)
+
+| Rule | Status | Severity, class | Evidence |
+|---|---|---|---|
+| **1. Figures are outputs, never targets** | **Met for every evaluated figure; not met for some rendered typed copies** | Medium (i) F1, F2; Medium (ii) F3; Low (ii) F6 | **Met:**<br>• `requires_any`, `asset:`, `sla_clock.restore_due` and `protect_effects.penalties` are gone (`grep`: 0).<br>• Every numeric change between rev 12 and rev 13 in `derived-values.json` is one of the three reported figures (8 numeric leaves). The exception is KAS-LOCAL's cost per departure met, 23.71 → 24.29, which is shown on the Kasarani page but not listed (L5).<br>• The screens move under the structure: under RO (Kasarani roster, 7 Nov spare night removed), the WAIT reason, the penalties, the cover cost, Metro +95,709 and the downside all follow on 3 routes.<br>**Held in place:**<br>• `allocation.modelled_12m_change` keys fix the rows of the Lakeside plan-value drawer across switch cases (F1).<br>• `WHY_FIRST` "Largest …" claims (F2).<br>• Under RO, loop-decisions.js:335 still says "the spare bus on one night, a bus charged at Ruiru on the others", although the evaluation says 0 spare nights and 3 nights at Ruiru (F6).<br>• The manifest `oracle` holds expected figures (spend 3,750 and 6,430, 12,975 and 13,356 a month, 8,082.00, 395 a month). Nothing reads it, but it is a target list, and it is outside the register (L1). |
+| **2. The derivation register is complete** | **Not met as stated** | Medium (ii) F3; Low (ii) L1, L2, L3 | **I re-ran the register's own claim on every numeric (c) leaf.** I perturbed each one alone (×1.1 + 1) and ran the checker:<br>• **477** numeric leaves are classed (c) in §3.2.<br>• **225** are caught by a model or stated check.<br>• **9** are caught only by the document scan.<br>• **243 are caught by nothing.**<br>Many of those 243 are rendered derived figures, and the register text says "checked (stated())" or "numbers … are … checked literals". Examples:<br>• `listed_not_summed` (672, 70, 64,000, 60,000): N69 claims stated() checks them; it does not.<br>• MTO-BILLING `charges_monthly` / `charges_12m` (140 kWh × 0.40).<br>• MTO-HULLER `revenue_monthly` 495 and `fuel_monthly` 85. Under PT35 (productive tariff 0.30 → 0.35) the screen formula would read "1,650 kWh × $0.35 = $495", and no check names it.<br>• `forward_replay.avoidable_fuel_l` 210 and `extra_fuel_l` 68 are typed copies of the K and M design-value params. The screen reads the copy and the evaluator reads the param.<br>• `portfolio_constraints.budget_usd_nov_dec` (shown on screen) is a second copy of `plans.*.budget` (read by the evaluator), and the two are never compared.<br>• `coverage.cost_recorded_share`, `occupancy_pct` and `KAS-OEM-STOPGAP.nights` 2 ("in total for 2 bus-nights").<br>**Site variances and bridge amounts** are typed. They are checked only against each other, never against the evaluated contributions. V1 (Mto variance −105 → −110 with one bridge line adjusted) gives **0 model or stated failures**; only an untagged "852.00" in the main document trips. All 9 sites agree today; I recomputed actual − plan from the nodes.<br>**The 13 items no perturbation reveals (§8):** H2 is wrong as written ("only one decision is ever on its fallback"). G20 (Mto genset 30 → 20 kW) puts Kisiwa and Mto on their fallbacks together, and MTO-INV-LOCAL / NOACT then add 2,600 dollars to hours (L2).<br>**§7 is partly stale.** Rows 136, 147 and 169 describe code that was fixed after hand-back. Several L-RS rows restate DERIVED figures, not records (row 170, the F6 sentence; 175; portfolio row 33).<br>**Coverage.** "Every leaf (2,438)" excludes 175 of the manifest's 2,613 leaves, including `oracle` and `checks` (L1).<br>**The derived items I sampled do move**, and I confirmed each by hand: A10 and A16 (LT7, LS20), A11 (RA), A13 (RO), A14 (G20), A18 (B2000, B1500, CR2, RC) and A8 / A9 (GT1). |
+| **3. Checks are independent** | **Met for code and lists; coverage gap** | Medium (ii) F4; Low (ii) L4 | **Independence holds:**<br>• `check_manifest.py` imports only `independent_model.py` and reads `derived-values.json` as data.<br>• It holds no expected figure. Its only literals are thresholds, a naming map and the `REQUIRED` anchor paths.<br>• `independent_model.py` shares 9 trivial lines with the evaluator (`ast` node tests, `if __name__`). It is structurally different (a class with phases against closures) and records 26 spec ambiguities.<br>**My plants:**<br>• IM1, the model's ranking key changed: **281 fail** (caught).<br>• EV2, business days counting weekends: **45 fail** (caught).<br>• EV5, spend tie-break reversed: **12 fail** (caught, through Q15 C).<br>• **EV1**, evaluator option `value` / `valued_in_money` set for every option: EMB-CHEAPEST +101,556, MTO-INV-NOACT −2,281.25 and KAS-LOCAL −260 become "valued". **0 fail.** `NOT_COMPARED = {"money_changes","value"}` skips exactly the fields that loop-decisions.js:56 reads (F4).<br>• EV6, protective "how" text: **0 fail**, presentation only.<br>• **SP1**, spec §6.3 ranking and §6.2 business days → calendar days: **0 fail**. The checker never reads the spec, so spec-to-model conformance rests on authorship. Both files are untracked with identical mtimes, so I cannot verify that the specification came first (L4).<br>**Same method:** the model's `solve()` uses the same exhaustive product and the same key as `best()`. The spec prescribes this, so a spec-level error is shared (register §8 says so). |
+| **4. The specification came first, and data, code and screens conform** | **Mostly met** | Medium (ii) F4; Low (ii) L3, L6 | **Complete for:** factors and layers (§3), rights (§4.1), restore and horizons (§2.1, §4.2), limits and bounds (§5.6, §6.1), plans (§6) and declared input classes (§1).<br>**Divergences:**<br>(a) The plan-facing option `value` / `valued_in_money` (evaluator line 507: admissible, or chosen and changes money) is not defined in the spec, yet it drives the screens (F4).<br>(b) Spec §7 forbids literals of evaluated figures in screen code, but not screens reading manifest stated copies of evaluated figures. That is how F1 got through.<br>(c) The evaluator docstring (lines 22–26) still describes the rev 12 allocator ("cheapest affordable option … one at a time"), which contradicts the code and spec §6.3 (L6).<br>(d) Fallback eligibility is static: "no option meets the bound at all". CR1 (crews 1) and B600 (budget 600) are **infeasible**, although declared fallbacks (Mto no action, 0 visits) would give a least-violation plan. This conforms to the spec, but it is narrower than the rev 12 M1 fix asked for (L3). |
+
+### Coordinator points (eleventh message)
+
+| Point | Status | Severity, class | Evidence |
+|---|---|---|---|
+| **1. Money layer only** | **Resolved for the evaluation; one attribution layer is still typed** | Medium (ii), inside F3 | **Evaluated and moving under perturbation:** value chain, physical split, Protect, O2, rights, restore and Q15 backing (G20, RO, UM, GT1).<br>**The residue is the factor bridge**, the per-driver attribution of each site's variance. It is typed and checked only for internal sums (V1), although every amount except Ruiru's is computable from evaluated nodes. |
+| **2. Causal step hand-entered** | **Resolved as declared inputs** | Low (ii), inside F3 | **Plan-deciding steps are structural:** the huller dependency is dated (LT7, LS20, RA hand-checked) and the lapse is derived (GT1).<br>**The remaining causal magnitudes are declared, labelled inputs:** Kobo 210 L and 150 kWh (K), Mto 68 L and 5 L/day (M), Kisiwa 150 L (assumption), Kirinyaga recovery 80% (assumption).<br>**Residue:** typed display copies of K and M (`forward_replay.*`) can diverge from the params after calibration (F3). |
+| **3. Thika, Kasarani and Ruiru not evaluated** | **Resolved** | none | All nine sites are evaluated (Ruiru plan "not decomposed: stated total", labelled).<br>RC: Thika EXPIRED → joint optimum **+3,182.40 at 1,430**.<br>RO: Kasarani roster → WAIT 3 missed, stopgap 135 / +225, Metro 95,709 (hand-checked). |
+| **4. Rights outside the structure** | **Resolved** | Low (ii), allow-listed shares | **Rights decide who pays, lapse and restore drivers:**<br>• RA: claim refused → the claim restores 12 Nov through own procurement, 1 visit, one-off 2,830.<br>• GT1: Thika un-notified with a passed deadline → caught (37 fail).<br>**Residue:** rights evidence shares ("1 of 3 → 2 of 3") are typed and allow-listed, which is disclosed. |
+
+### Rev 12 findings, verified with my own runs
+
+| # | Status | Evidence (hand recomputation) |
+|---|---|---|
+| **H1** | **Resolved** | `requires_any` = 0 in the manifest, the evaluator and the model.<br>**LT7** (lead 21 → 7): claim restores 14 Nov (Sat); +5 working days = 20 Nov ≤ 30 Nov. Claim fuel 8 d × 5 L × 1.25 = 50, so claim value −280. Plan = 2,916 + 3,540 − 280 = **6,176.00** at 3,750, every case ✓.<br>**LS20** (local supply 5 → 20): buy-now restores 27 Nov (Fri); +5 working days = 4 Dec > 30 Nov, so no huller. 6500/no = 2,916 − 367.50 = **2,548.50** at 2,550 (claim; buy-now without the huller would be −125.25) ✓.<br>**RA** (claim DENIED): local repair restores 8 Nov, voids nothing left to lose, admissible: −2 × 5 × 1.25 − 450 = −462.50. +5 working days = 13 Nov, so the huller is kept. Plan = 2,916 + 3,540 − 462.50 = **5,993.50** at 3,970, 3 visits ✓. No action is admissible here but valued −2,281.25 and cannot connect the huller.<br>The Mto page derives the huller row per path ("connected by 4 Dec, after the 30 Nov lapse" / 19 Nov / 13 Nov / "never restored"). |
+| **M1** | **Resolved for the reported cases; residual L3** | **B2000** → +6,088.50 at 1,950 (Kisiwa no action, violation 125) ✓.<br>**B1500** → +2,548.50 at 750 ✓.<br>**CR2** → feasible, Kisiwa no action, 2 visits ✓.<br>**RC** → +3,182.40 at 1,430 (stopgap 810 + Kirinyaga 350 + Mwea 270) ✓.<br>**CR1** and **B600** are infeasible although the Mto fallback exists (L3). |
+| **M2** | **Resolved** | Mto no action: 6 Nov 2026 to 5 Nov 2027 = 365 d × 5 L × 1.25 = **−2,281.25** ✓.<br>A33 and the Mto page ("Fuel is counted to the restore date, or for 12 months if the inverter is never restored; service hours are counted to 30 Nov") ✓. |
+| **M3** | **Resolved for manifest strings; residual F6 in code** | RO screen diff: the reason, penalties, cover and Metro totals follow. The typed "spare bus on one night" stays (F6). |
+| **M4** | **Resolved for key figures; residual L5** | **Caught:**<br>• Dr1, contracts whole-dollar 6,430 → 6,340: 1 fail.<br>• Dr2, phase-plan 98.62% → 96.82%: 1 fail.<br>• Dr3, an untagged 3,508.50 in the models document: 1 fail.<br>**Passes:** Dr4, a wrong untagged figure that equals no key ("Mto claim costs 376.50") before main §2: **0 fail** (L5). |
+| **M5** | **Resolved** | `asset:` is gone. Deciders are derived (`out["deciders"]`). GT1 is caught. |
+| **L1** | **Resolved** | RA: the claim switches to `if_not_covered`: 12 Nov, 1 visit, 2,830 borne. |
+| **L2** | **Resolved** | G20 (genset 20 < 25 kW lost): `shortfall_backed` 0. The Mto options now violate redundancy; 6500 cases pick buy-now (violation 45). |
+| **L3** | **Resolved** | MTO-INV-LOCAL: restores 8 Nov, −462.50, cover lost 2,600, inadmissible ✓. |
+| **L4** | **Resolved** | `hand_typed_scan.py`: 0 hits in code and in 216 rendered manifest strings; 46 entries, 0 unused. |
+| **L5** | **Resolved** | Embakasi peak share comes from nodes ("near 0%": 0 occurrences).<br>Allow-listed Mwea +0.6% = 15 / 2,635 = 0.57% ✓, Kirinyaga 24% = 970 / 4,030 ✓, chargers 600 / 720 kW ✓, payback 14,000 / 195 = 71.8 months ≈ 6 years ✓. |
+| **L6** | **Resolved** | Dated roster: KAS-LOCAL restores 7 Nov, has no free night on 6 Nov, so 1 missed, Δ +120 against WAIT, value 120 − 380 = **−260** ✓.<br>WAIT: nights 6–8 Nov, spare free on 7 Nov, 2 missed ✓. |
+
+### Perturbation and plant table (scratch copies; base 3,255 checks)
+
+| # | Change | What moved | Checker |
+|---|---|---|---|
+| LT7 | claim lead 21 → 7 d | 58 moved; claim + huller every case, **6,176.00** | 103 fail (anchors and stated) |
+| LS20 | local supply 5 → 20 d | 41; no/no cases lose the huller, **2,548.50** | 37 fail |
+| RA | Mto claim DENIED | 120; local repair + huller, **5,993.50** at 3,970 | 139 fail |
+| B2000 / B1500 | budget switch | 226 / 230; +6,088.50 at 1,950 / +2,548.50 at 750 | 43 / 96 fail |
+| CR2 / CR1 | crews 3 → 2 / 1 | 120, feasible / 237, **infeasible** (L3) | 51 / 131 fail |
+| B600 | budget switch 600 | 155; **infeasible** (L3) | 98 fail |
+| RC | Thika EXPIRED | 66; **+3,182.40 at 1,430** | 37 fail |
+| GT1 | Thika un-notified, deadline 5 Nov | 68; lapse, 710 borne | 37 fail |
+| G20 | Mto genset 30 → 20 kW | 49; two decisions on fallback; 6500 cases buy now (L2) | 4 fail |
+| RO | Kasarani roster without 7 Nov | 43; WAIT 3 missed; stopgap 135 / +225; Metro 95,709. Screen follows except F6 | 75 fail |
+| PT35 | productive tariff 0.30 → 0.35 | 30; huller 4,530 | 76 fail; **`revenue_monthly` 495 not among them** (F3) |
+| UM / UM2 | Mto unmapped 140 → 150 kWh / plus stated copies updated | 16 / 16 | 8 / **2 (documents only)**: variance, bridge −56 and charges 56 / 672 stay stale (F3) |
+| V1 | Mto variance −105 → −110, bridge −8 → −13, portfolio −852 → −857 | 0 | **0 model or stated fail**; 1 document (F3) |
+| LNS | `listed_not_summed` 672 → 999 | 0 | **0** (F3) |
+| SBK2 / M12 | add a non-plan item to `spend_breakdown` / `modelled_12m_change` | 0 | **0 / 0** (F1, F3) |
+| EXC / SWH / REC | excluded reason / case inverter-huller labels / extra recommended id | 0 | **0 / 0 / 0** (F3) |
+| EV1 | evaluator plan-facing `value` for every option | 10 | **0** (F4) |
+| EV2 | evaluator business days count weekends | 56 | 45 fail |
+| EV3 / EV4 | trade-off reporting disabled / `<=` → `<` on the huller deadline | 0 / 0 | 0 / 0 (not binding) |
+| EV5 | evaluator spend tie-break reversed | 12 (Q15 C) | 12 fail |
+| EV6 | protective "how" text | 6 | 0 (presentation) |
+| IM1 | model ranking key changed | — | 281 fail |
+| SP1 | spec §6.3 key and §6.2 business days edited | — | **0** (L4) |
+| Dr1 / Dr2 / Dr3 | contracts 6,430 → 6,340 / 98.62% → 96.82% / untagged 3,508.50 | — | 1 / 1 / 1 fail |
+| Dr4 | wrong untagged "376.50" in main document preamble | — | **0** (L5) |
+| (c)-scan | each of the 477 numeric §3.2 leaves alone, ×1.1 + 1 | — | 225 caught by model or stated checks, 9 by documents only, **243 by nothing** (F3) |
+
+### Drift table (figures that changed, rev 12 → rev 13, from `derived-values.json`)
+
+| Figure | Rev 12 | Rev 13 | Reported | My check |
+|---|---|---|---|---|
+| MTO-INV-NOACT value (if admissible) | −156.25 | −2,281.25 | yes | 365 × 5 × 1.25 ✓ |
+| KAS-LOCAL departures missed / value | 0 / −140 | 1 / −260 | yes | dated roster ✓ |
+| KAS-LOCAL cost per departure met | 23.71 | 24.29 | **no** (L5) | shown on `#/decision/kasarani-charger` |
+| MTO-INV-LOCAL | — | −462.50, 8 Nov | yes | 2 × 5 × 1.25 + 450 ✓ |
+
+No other numeric leaf changed. Text changes (Kisiwa "how", item order) are cosmetic. 222 numeric leaves are new: 120 for the Q15 variants, 29 for MTO-INV-LOCAL, and the EV bill-line nodes.
+
+### Findings
+
+**F1 (Medium, class i): the Lakeside plan-value drawer shows the wrong rows in three switch cases.**
+- **Where:** `loop-portfolio.js:122-123` (`planValueRecord`). The Lakeside rows come from the manifest's `A.modelled_12m_change` keys (KOB-STOPSOC, MTO-HULLER, MTO-INV-CLAIM), not from the case's `valued_options`.
+- **Evidence:** headless capture of Act first → plan-value drawer.
+  - **5000 / no:** the headline is **+$2,548.50**, but the rows list "rice huller +$3,540" (not in the plan) and sum to 6,088.50.
+  - **6500 / no:** the headline is +$3,508.50, but the rows list "Claim the inverter … −$367.50" while the plan buys now (−$2,947.50).
+  - The walkthrough's step at 6:00 switches to exactly this case.
+  - The design-value note also cites "the rice huller (68 L …, $395 a month)" when the huller is out of the plan.
+  - Plant M12, a non-plan key added to `modelled_12m_change`, passes the checker.
+- **Fix:** build the rows from `derivedPlan(op).valued_options` with `DOPT(id).value`, as `valueNote` already does. Do the same for the design-value note.
+
+**F2 (Medium, class i): the "Largest …" reasons on Act first are false.**
+- **Where:** `loop-portfolio.js:101`, `WHY_FIRST`.
+- **Evidence:**
+  - Lakeside: "Largest modelled value; remote change" sits on Kobo stop setting **+$2,916**, two rows above the rice huller **+$3,540**.
+  - Harvest: "Largest 12-month value" sits on Kirinyaga **+$1,512.40**, while Mwea is **+$1,670**.
+  - Register §7 row 46 already flags these as UNBACKED.
+- **Why it matters:** this is a wrong claim about evaluated figures on the plan screen.
+- **Fix:** derive the rank from DERIVED (for example "largest of the valued options" only when it is true), or drop the comparative.
+
+**F3 (Medium, class ii; class i if the owner treats "register complete" as a gate): rendered typed copies are classed (c) "checked" but are unchecked.**
+- **Evidence:**
+  - The (c)-scan above: 243 numeric (c) leaves can change with no failure.
+  - The specific examples are listed under rule 2: `listed_not_summed`, MTO-BILLING charges, huller revenue and fuel, the `forward_replay` copies of the K and M params, the duplicate budget, coverage share, the KAS-OEM-STOPGAP `nights`, the site variances and bridge amounts, and the `excluded`, `recommended` and `switches[].cases` labels.
+  - The register text for N3, N5, N6, N13, N19, N21–N23, N26, N29, N35, N42–N43 and N69 says these are "checked against the independent model (stated())" or are "placeholders or checked literals". For these leaves that is not so.
+- **Today:** I found every one of these values correct. This is a guard gap, not a wrong figure.
+- **Fix, either:**
+  - render them from DERIVED or from the param (one source); or
+  - add stated() checks: variance = actual − plan contribution; each bridge amount against its basis quantity × price; `listed_not_summed` against its row; `spend_breakdown` and `modelled_12m_change` key sets equal to the plan items; `budget_usd_nov_dec` = `plans.budget`; `forward_replay` copies equal to the params; and reclassify the rest as (b) with their flag.
+- **Register fix in any case:** the influence scan's definition, "moves an evaluated value", misses figures that are rendered straight from the manifest. Add a second pass, "rendered on screen and not checked".
+
+**F4 (Medium, class ii): the checker skips the plan-facing option fields that the screens read, and the spec does not define them.**
+- **Where:** `check_manifest.py:82` (`NOT_COMPARED = {"money_changes","value"}`); `evaluate_structure.py:507`; `loop-decisions.js:56`.
+- **Evidence:** plant EV1 makes five rejected options "valued" (EMB-CHEAPEST +101,556): **0 fail**.
+- **Fix:**
+  - define in spec §6.3 "the option value shown = value if admissible, or chosen on a fallback";
+  - have the model compute it;
+  - compare it.
+
+**F6 (Low, class ii): typed narrative counts that restate evaluated figures.**
+- **Evidence:** under RO, loop-decisions.js:335 says "the spare bus on one night … on the others", while the same page says "the spare bus covers 0, and the other 3".
+- **Similar rows:** register §7 rows 170 and 175, and loop-portfolio row 33 ("6 more buses"). These restate DERIVED figures, not records, so the label L-RS ("records restated") understates them.
+- **Fix:** template them from DERIVED, or relabel them.
+
+**L1 (Low, ii): the register's "every leaf (2,438)" leaves out 175 of the manifest's 2,613 leaves.**
+- The leaves left out include `oracle` (32 leaves, holding expected figures) and `checks` (8, for example "allocation spend == sum(spend_breakdown)", which no code checks; SBK2 passes).
+- **Fix:** remove the oracle figures, or list them as (b) "illustration expectations, unenforced". Delete or implement `checks`.
+
+**L2 (Low, ii): register §8 H2's premise is false.**
+- G20 shows that a single record change puts two decisions on their fallback, and that the options then add dollars to hours.
+- **Fix:** restate H2 as reachable, or rank by bound.
+
+**L3 (Low, ii or iii): fallback eligibility is static.**
+- CR1 and B600 are infeasible, although declared fallbacks give a plan.
+- The owner may prefer "infeasible" (it is honest). Otherwise, extend the fallback to options that meet the bound but cannot be afforded jointly.
+- Record the choice.
+
+**L4 (Low, ii): spec-to-model conformance is not mechanically checked, and the specification-first order cannot be verified from the repository.**
+- SP1 passes the checker. The specification and the model are untracked, with the same mtime.
+- **Fix:** state in the pack that the specification's authority over the model rests on review, and commit the specification before the model if the history matters.
+
+**L5 (Low, ii): small omissions.**
+- The KAS-LOCAL cost per departure met (23.71 → 24.29) is missing from the "Figures that changed" table.
+- A wrong untagged figure that equals no key, outside main §2–§10, is not caught (Dr4); disclose this beside H13.
+- Register §7 rows 136, 147 and 169 still describe code that was fixed after hand-back.
+
+**L6 (Low, ii): presentation.**
+- The evaluator docstring (lines 22–26) describes the rev 12 allocator.
+- "inverter inverter 2 (INV-MT-02)" on Act first (MTO-HULLER condition).
+- "spare bus free on 0 night" under RO.
+
+**Owner decisions (iii):**
+- Q15 remains open, with (A) applied and disclosed. The (B) and (C) variants are evaluated and anchored.
+- L3 can be put to the owner, if the Architect prefers that to a ruling.
+
+### Regression and owner-expectation checks
+
+- **Evaluator and checker:**
+  - `python3 evaluate_structure.py`: 9 sites, 28 options, 3 plans (0.55 s). Its output is byte-identical to the working-tree `derived-values.json`.
+  - `python3 check_manifest.py`: **3,255 passed, 0 failed** (0.8 s).
+  - `tools/hand_typed_scan.py`: 0 hits in code and in the 216 rendered manifest strings, with 46 allow-list entries, all used.
+- **Scratch rebuild:** I ran `evaluate_structure.py`, `rebase_v70.py`, `gen_fixtures.py` (28 replay patterns), `build.mjs`, `rendered_strings.cjs` (216 strings, 0 page errors) and `gen_docs.cjs`. `diff -rq` against the working tree shows **byte-identical**.
+- **Preserved screens:** `screens.js`, `portfolio.js`, `outcomes.js`, `*.css`, `src-v70-baseline/` and `screen-manifest-vnext.json` are unchanged since `f5c705e25` (and since `f55f15716`). The manifest has 184 screens: 65 Preserved, 36 Changed, 74 Added, 9 Merged. **My own full audit run** (`run-audit.sh` in a scratch tree, with `frontend/` linked read-only) gives:
+  - 202 / 202 routes;
+  - 0 console errors, 0 bad links, 0 overflow at 390 px;
+  - vocabulary, identifiers, role or question wording and filter controls all 0;
+  - **preserved screens 65 / 65**;
+  - switch cases 8 / 8, focus 7 / 7, contrast 38 / 38;
+  - the oracle is not shipped, and 0 placeholders are unresolved.
+
+  Its generated `browser-audit.md` is byte-identical to the working tree's.
+- **Wording, filters and menus:** the rev 13 `loop-*.js` additions contain no `<select>`, no role names and no question headings; the only matches are `.filter(` calls.
+- **Generality:** the evaluator and the model name no site or vertical except the EV alias (spec ambiguity A1). The checker names sites only in its `REQUIRED` anchor paths.
+- **Headless spot check:** Playwright with Chromium 1140, static servers on ports 8796 (base) and 8797 (RO build), both stopped afterwards. I did not touch 5490 or 8990.
+  - Pages: `#/decision/mto-inverter`, Lakeside / Harvest / Metro `#/portfolio/act-first` (Lakeside in 3 switch cases with drawers), `#/decision/kasarani-charger`, `#/site/kasarani` and Metro outcomes by site.
+  - **0 page errors** and **0 overflow** at 1440 px and at 390 px.
+  - Mto: the huller row per path, "not admissible (would be $2,281.25 / $462.50)", the horizon disclosure, and the CONDITIONAL text "budget at least $6,430".
+  - Kasarani: "Departures missed to 9 Nov 2 / 0 / 1", "Penalties $240 / $0 / $120".
+  - The defects are F1 and F2.
+
+### Not verified
+
+- The CSV validator.
+- The author's `perturb4.py` (44 runs) and the 2,438 × 5-world influence scan. I ran my own (c)-scan instead.
+- The replay design values (calibration lane).

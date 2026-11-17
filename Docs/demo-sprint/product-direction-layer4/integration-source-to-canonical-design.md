@@ -64,7 +64,7 @@ Lakeside October, evaluated on observed factors: delivered 23,050 → metered 21
 | Obligations | battery cell temperature | warranty operating limit | BMS temperature register | a reading of a temperature role | **no role exists** (no battery temperature in `binding_roles.py`; withheld input `ACCEPTED_BATTERY_TEMPERATURE_HISTORY`, `sites/battery_boundary.py:28-30`) [code-observed] | add the role; Kobo needs a sensor (BAT-EVIDENCE) |
 | Rights | cost bearer per remedy path (INV-MT-02, GEN-KS-01, BAT-001, Kisiwa O&M SLA) | residual cost of repair options | warranty and O&M contracts; asset serials and commissioning; fault log; run hours; service log; tickets | rights register rows from reviewed extraction; `SERVICE_TICKET`; claim events | **no** (warranty appears only as a withheld field, `sites/battery_boundary.py:26`) [code-observed] | document intake, reviewed extraction, supplier-claim work case |
 | Option inputs | latent demand (huller 15 kW 10:00–15:00, 22 days; welder 10 kW evening) | revenue and fuel of a counterfactual | signed letter of intent; enquiry note; productive tariff | `CONTRACT_DOCUMENT`; `TARIFF_SCHEDULE` | **no** | document intake; headroom alone stays capacity |
-| Option inputs | quotes (repair 1,800, replace 9,500, battery 28,000, connection 1,200) | one-off cost of options | supplier quotes | `EXPENSE` status QUOTE | **no** | quote upload |
+| Option inputs | quotes (repair 1,800<!--fig:options.KIS-REPAIR.operator_one_off-->, replace 9,500<!--fig:options.KIS-REPLACE.operator_one_off-->, battery 28,000, connection 1,200<!--fig:options.MTO-HULLER.operator_one_off-->) | one-off cost of options | supplier quotes | `EXPENSE` status QUOTE | **no** | quote upload |
 
 **Why these, decision by decision.** Kobo's fuel node is observed only when deliveries and dips (operational records, existing) meet the price (invoice) and the plan (budget); dispatch-3.2 then splits the litres into observed sub-factors — necessary, candidate (330 L) and not explained by the generator model (120 L). How much of the candidate running each option avoids (210 L for the stop-threshold change, 20 L for the reserve change) is computed by the forward replay as that option's effect, which is what tells KOB-STOPSOC from KOB-RESERVE. Without the deliveries the unexplained 120 L cannot be stated; without the plan nothing is "off plan". Kisiwa is the negative control because its observed sub-factors put every generator interval in *necessary*; its repair decision needs the evening-supply bound (genset in service) and two quotes, and its rights factor needs the Kestrel warranty end (30 Jun 2026) and the service log (1,000-hour service MISSING at 1,240 run hours). Mto's revenue node cannot be explained from telemetry at all: the unmapped 140 kWh appears only when the meter register's effective dates meet the customer meter reads and the billing export.
 
@@ -166,7 +166,7 @@ Two further instants are bookkeeping: `received_at` (when a batch arrived) and `
 
 | Site | Continuously observed factor | Visible from | Money node that confirms it | Confirmed from |
 |---|---|---|---|---|
-| Kasarani | chargers in service 4 → 3 (CH-K2 fault, 1 Nov 23:40) → deliverable 1,050 < required 1,200 kWh: departure bound at risk | 1 Nov 23:40, before the 2 Nov departures | penalties 240.00 (2 missed blocks × 120) | penalty statement in November |
+| Kasarani | chargers in service 4 → 3 (CH-K2 fault, 1 Nov 23:40) → deliverable 1,050 < required 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh: departure bound at risk | 1 Nov 23:40, before the 2 Nov departures | penalties 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> (2 missed blocks × 120) | penalty statement in November |
 | Embakasi | peak share of energy 55% against 30% planned, from interval energy bucketed by tariff band | the first October nights | invoice peak line 47,740 kWh × 0.24 = 11,457.60 | October invoice, early November |
 | Kobo | candidate generator time after dawn on 11 of 31 days (dispatch-3.2) | each day after its window is assessed | fuel line 1,475.00 | dips, delivery notes, invoice at month end |
 | Thika | chamber above 4 °C from about 19:15 on 6 Oct; B-1031 above its 5 °C limit | 6 Oct, minutes | liability 108.00 | QA note 7 Oct, credit note CN-0412 |
@@ -182,7 +182,7 @@ Attention therefore arises at the factor where something happens (a factor devia
 | MM-7F58 | 2026-10-31T09:15+03:00 | 2026-10 | 2026-11-02 | 50.00 |
 | MM-7F77 | 2026-10-31T20:03+03:00 | 2026-10 | 2026-11-02 | 40.00 |
 
-Revenue is recognised on the charge, so October revenue stays 2,160.00 whatever the settlement date. The cash factors read: collected 1,890.00 + in transit 150.00<!--rec--> + outstanding 120.00 = 2,160.00 as of 31 Oct; as of 6 Nov the three receipts show "settled 2 Nov". No October amount changed, so October gets no new revision; only the receipts' status moved.
+Revenue is recognised on the charge, so October revenue stays 2,160.00 whatever the settlement date. The cash factors read: collected 1,890.00 + in transit 150.00<!--rec--> + outstanding 120.00<!--rec--> = 2,160.00 as of 31 Oct; as of 6 Nov the three receipts show "settled 2 Nov". No October amount changed, so October gets no new revision; only the receipts' status moved.
 
 **How a period closes and reopens.** A period is soft-closed when the operator's books close it (October, by 6 Nov in the demo). Closing writes nothing; it is a statement about the latest revision. A late record whose recognition period is closed appends a new revision of the record, the period's stored lines are rebuilt into a new append-only revision exactly as `site_period_read` does today (one row per site, kind, period and revision with `input_fp` and `builder_version`, append-only by trigger, `0059:31-51`) [code-observed], and the structure read recomputes every node from those lines on each read, because stored totals are refused (`chain/period_read.py:138-139`, D-MONEY.3) [code-observed]. Decisions and verdicts that cited the earlier revision keep their citation and are flagged for re-evaluation (main design M5, late-data revision).
 
@@ -249,7 +249,7 @@ MT-2201,2026-10-03,2026-11-01,31,ACTUAL
 
 (Per-customer split [assumption]; the total is the manifest's.)
 
-**Reconciliation and leaf factors.** delivered 6,000 kWh (feeder telemetry) − expected loss 300 (declared band) − unexplained 120 = metered 5,580; billed = 5,580 − unmapped 140 − authorised 40 = 5,400. The 140 is the factor *unmapped kWh* because every unbilled kWh sits on a meter the register assigns to an active customer; it is not loss. The 120 kWh is the factor *unexplained loss*: observed, not priced, investigated, never called theft. Cash factors: collected 1,890.00, in transit 150.00<!--rec-->, outstanding 120.00.
+**Reconciliation and leaf factors.** delivered 6,000 kWh (feeder telemetry) − expected loss 300 (declared band) − unexplained 120 = metered 5,580; billed = 5,580 − unmapped 140 − authorised 40 = 5,400. The 140 is the factor *unmapped kWh* because every unbilled kWh sits on a meter the register assigns to an active customer; it is not loss. The 120 kWh is the factor *unexplained loss*: observed, not priced, investigated, never called theft. Cash factors: collected 1,890.00, in transit 150.00<!--rec-->, outstanding 120.00<!--rec-->.
 
 **Structure → outcome state.** Revenue = billed kWh × 0.40 = 2,160.00 against plan 5,600 × 0.40 = 2,240.00. Billed kWh is a sum, so the 200 kWh deviation is attributed exactly (brief S2 bridge; main design identity M2): lower demand −20 kWh (−8.00), unmapped −140 (−56.00), authorised allowance −40 (−16.00). Tariff equals plan, so the price effect is 0 (rule: volume at plan price, then price at actual volume). With the fuel line (320 L against 300 L, −25.00, necessary evening generation) Mto's contribution is 810.00 against 915.00, −105.00.
 
@@ -261,7 +261,7 @@ MT-2201,2026-10-03,2026-11-01,31,ACTUAL
 
 ### 3.2 Trace B — Kobo: a fuel delivery note entered nine days late (OOO-1)
 
-**Source.** A paper delivery note, entered by the site admin on 4 Nov through the existing operational-entry screen. The size of the late delivery is an [assumption] (400 L of the manifest's 1,200 L October deliveries).
+**Source.** A paper delivery note, entered by the site admin on 4 Nov through the existing operational-entry screen. The size of the late delivery is an [assumption] (400 L of the manifest's 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> L October deliveries).
 
 ```json
 {"entry": "FUEL_DELIVERY", "value": "400", "taken_at_local": "2026-10-26T10:30",
@@ -276,7 +276,7 @@ MT-2201,2026-10-03,2026-11-01,31,ACTUAL
 
 | | revision 1 (as of 3 Nov) | revision 2 (as of 4 Nov) |
 |---|---:|---:|
-| deliveries (L) | 800 | 1,200 |
+| deliveries (L) | 800 | 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> |
 | litres consumed = 220 + deliveries − 240 | 780 | 1,180 |
 | modelled litres (generator observer) | 1,060 | 1,060 |
 | consumed − modelled | −280: impossible (less than the generator's own output needs) | +120 (10.2%, above the 2% tolerance) |
@@ -288,7 +288,7 @@ The structure itself detects the hole in revision 1: the litres-consumed leaf co
 
 **Decision.** The factor key (site Kobo, factor *candidate running*, cause: generator after dawn) carries KOB-STOPSOC, unchanged in value because its effect is the forward-feasible reduction of that factor (210 L); its evidence now cites revision 2. The unexplained 120 L opens an investigation; no recovery is claimed.
 
-**Evidence drawer.** "October fuel: 1,180 L used (dips 220 → 240, deliveries 1,200). Revised 4 Nov: delivery DN-KB-2610 (26 Oct) was entered 9 days late. 120 L more than the generator's output explains; investigate. Previous figure kept."
+**Evidence drawer.** "October fuel: 1,180 L used (dips 220 → 240, deliveries 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l-->). Revised 4 Nov: delivery DN-KB-2610 (26 Oct) was entered 9 days late. 120 L more than the generator's output explains; investigate. Previous figure kept."
 
 ### 3.3 Trace C — Thika: storage ledger, chamber readings, QA note, credit note and EPC contract (v7.0 INC-203)
 
@@ -370,18 +370,18 @@ total,,,,22144.80
 
 ### 3.5 Trace E — Kasarani: a charger fault and the SLA ticket clock
 
-**Source rows.** OCPP StatusNotification from CH-K2: `status: Faulted` at 2026-11-01T23:40+03:00 with a vendor error code for a welded contactor [assumption on code]; the vendor ticket export (`ticket_id, asset, created_at, acknowledged_at, restored_at, status`): created 2 Nov 07:10 (notice), acknowledged 3 Nov 15:00, restored empty; the depot dispatch log and the operator's penalty statement (two missed blocks at 120.00); roster (8 buses × 150 kWh, window 22:00–05:00).
+**Source rows.** OCPP StatusNotification from CH-K2: `status: Faulted` at 2026-11-01T23:40+03:00 with a vendor error code for a welded contactor [assumption on code]; the vendor ticket export (`ticket_id, asset, created_at, acknowledged_at, restored_at, status`): created 2 Nov 07:10 (notice), acknowledged 3 Nov 15:00, restored empty; the depot dispatch log and the operator's penalty statement (two missed blocks at 120.00<!--rec-->); roster (8 buses × 150 kWh, window 22:00–05:00).
 
 **Collection and canonical records.** Fault into `ev_connector_fault` and `ev_connector_state` (existing roles); ticket as `SERVICE_TICKET` with source-versioned revisions (the vendor updates the same ticket); dispatch log as `DEPARTURE`; penalties as `EXPENSE` category PENALTY; claim events on the supplier-claim case (NOTIFIED 2 Nov 07:10, ACKNOWLEDGED 3 Nov 15:00).
 
 **Leaf factors → structure, as time passes.**
-- 1 Nov 23:40: chargers in service 4 → 3. Deliverable = 3 × 50 kW × 7 h = 1,050 kWh < required 1,200: the departure bound is **at risk for one bus per night**, visible before the first affected departure and before any money.
-- 2–5 Nov: departures met fall below required on two nights (a spare bus covered one night); penalties 240.00 Recorded.
+- 1 Nov 23:40: chargers in service 4 → 3. Deliverable = 3 × 50 kW × 7 h = 1,050 kWh < required 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night-->: the departure bound is **at risk for one bus per night**, visible before the first affected departure and before any money.
+- 2–5 Nov: departures met fall below required on two nights (a spare bus covered one night); penalties 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> Recorded.
 - SLA clock (rights factor): response 31 h after notice, within the 48 h term; restore due Mon 9 Nov (5 business days after the Mon 2 Nov notice: 3, 4, 5, 6, 9 Nov); status running. A late restore would make a service credit of 5% of the 400.00 monthly fee per business day *potential*, never money until a credit note arrives.
 
 **Outcome state.** October is on plan (5,880.00, all 248 departures met); November shows the departure bound breached twice and the penalty node moving, weeks before the November invoices.
 
-**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10): 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off-->), recommended; wait (about 240.00 of penalties and two broken departures), rejected; local repair 380.00<!--fig:options.KAS-LOCAL.operator_one_off-->, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
+**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10): 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off-->), recommended; wait (about 240.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> of penalties and two broken departures), rejected; local repair 380.00<!--fig:options.KAS-LOCAL.operator_one_off-->, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
 
 **Evidence drawer.** Fault message, deliverable vs required by night, the ticket with its clock ("responded in 31 h; restore due 9 Nov"), the SLA clause with page reference, penalties, and "a service credit is potential until a credit note is received".
 
@@ -463,7 +463,7 @@ Each recipe states sources, minimum fields, canonical records, the factor observ
 
 **Energy to cash (MG-C3).** Sources: feeder energy, customer meter reads, meter register, billing export, settlement statements. Canonical: `CUSTOMER_METER_READ`, `CHARGE`, `ADJUSTMENT`, `RECEIPT`, `SETTLEMENT`; identity history. Observer: energy-to-cash reconciliation. Factors: technical loss, unexplained loss, unmapped kWh, authorised adjustments, collected, in transit, outstanding. Nodes: metered → billed → revenue → cash. Consumers: MTO-BILLING, MTO-METER-AUDIT. Failure: customer-meter coverage below 95% of connections [assumption] → unexplained loss shown as a range, no mapping factor. Pilot: vending/billing CSV export (most platforms export files [assumption]); data-processing agreement first (§6.9).
 
-**Productive demand (MG-C2).** Sources: supply headroom (telemetry), signed letter of intent or contract, productive tariff, marginal fuel. Canonical: `CONTRACT_DOCUMENT` with reviewed terms; `TARIFF_SCHEDULE`. Observer: demand-on-headroom replay (days without headroom 3; extra fuel 68 L). Factor: latent demand, which exists only as an option input. Consumers: MTO-HULLER (+395.00 a month net), MTO-WELDING (−8.25, rejected). Failure: no signed demand evidence → headroom stays capacity, never revenue.
+**Productive demand (MG-C2).** Sources: supply headroom (telemetry), signed letter of intent or contract, productive tariff, marginal fuel. Canonical: `CONTRACT_DOCUMENT` with reviewed terms; `TARIFF_SCHEDULE`. Observer: demand-on-headroom replay (days without headroom 3; extra fuel 68 L). Factor: latent demand, which exists only as an option input. Consumers: MTO-HULLER (+395.00<!--fig:options.MTO-HULLER.monthly_or_horizon_change--> a month net), MTO-WELDING (−8.25, rejected). Failure: no signed demand evidence → headroom stays capacity, never revenue.
 
 **Capital and repair choices (MG-C5).** Sources: quotes, budget and crew constraints. Canonical: `EXPENSE` QUOTE, `PLAN_LINE` (budget). Consumer: the allocation run (Lakeside 3,750.00<!--fig:plans.lakeside-power.default.spend--> of 5,000, 3 crew visits). Failure: quote missing → option *insufficient evidence*, listed.
 
@@ -529,7 +529,7 @@ commercial_record_revision            -- append-only (ledger_append_only trigger
 | RECEIPT | payer ref, method, amount, applied-to charges | occurred, recognition | collected / in transit | MM-7F31 60.00 |
 | SETTLEMENT | provider, batch ref, total, receipts | settled | in transit → collected | 150.00<!--rec--> on 2 Nov |
 | ADJUSTMENT | reason code, authorised by, amount or quantity, applies to | effective, recognition | authorised adjustments; liability; supplier credit | clinic allowance 40 kWh; CN-0412 −108.00 |
-| EXPENSE | counterparty, category (FUEL, OM, STAFF, REPAIR, ENERGY, PENALTY), amount, status, document ref | occurred, recognition | cost lines; option one-off cost (QUOTE) | Kisiwa repair quote 1,800; Kasarani penalties 240 |
+| EXPENSE | counterparty, category (FUEL, OM, STAFF, REPAIR, ENERGY, PENALTY), amount, status, document ref | occurred, recognition | cost lines; option one-off cost (QUOTE) | Kisiwa repair quote 1,800<!--fig:options.KIS-REPAIR.operator_one_off-->; Kasarani penalties 240 |
 | PLAN_LINE | factor (billed kWh, tariff, litres, price, crate-days, peak share…), value, plan version | recognition | plan evaluation of the structure | Kobo plan 700 L at 1.25 |
 | STORAGE_MOVEMENT | batch, direction IN/OUT, crates, commodity, customer ref, rate | occurred | occupied crate-days; presence | B-1031 IN 120 crates |
 | CUSTOMER_METER_READ | meter, kWh or register start/end, read type | effective | metered kWh | MT-2201 31 kWh |

@@ -359,7 +359,7 @@ Check: every number on every page (all routes, three operators) and in every evi
 | Item | Change in the mock-up |
 |---|---|
 | M5 hand-typed figures | Every figure the structure evaluator produces is read from `DERIVED` (or computed from the manifest's own inputs), never typed into a string in `loop-*.js`. The option worked figures, the factor-structure tables, the decision reasons, the rights rows, the Act first rows, the Demand and capacity page, the site assumptions and the operations-measure bases are templates. Manifest reasons are put into plain words by rules (no literal-keyed rewrite tables that restate figures). |
-| Hand-typed figure audit | `tools/hand_typed_scan.py` (run by the audit) fails when a digit-bearing string literal in a `loop-*.js` file restates an evaluated figure in screen format (money, quantity with unit, "n of m" counts, thousands/decimals, restore dates next to restore words). Explicit allow-list with reasons (declared constants such as the 35% at 5 am policy, temperature limits, tolerances, event dates, the earlier-demo 80 kW example). Result: 0 hand-typed figures (required 0); 30 allow-list entries. |
+| Hand-typed figure audit | `tools/hand_typed_scan.py` (run by the audit) fails when a digit-bearing string literal in a `loop-*.js` file restates an evaluated figure in screen format (money, quantity with unit, "n of m" counts, thousands/decimals, restore dates next to restore words). Explicit allow-list with reasons (declared constants such as the 35% at 5 am policy, temperature limits, tolerances, event dates, the earlier-demo 80 kW example). Result: 0 hand-typed figures (required 0); 46 allow-list entries. |
 | Kasarani November | Read from `DERIVED.sites["metro-bus/Kasarani"].november_to_date.nodes` (1,050 of 1,200 kWh a night, 1 bus short, 2 departures missed, $240 penalties = 2 × $120) and labelled "Calculated from records". |
 | Harvest capacity | `capacity_crate_days` from each room's evaluated actual nodes (12,400 crate-days). |
 | Bound check | Each option shows the hard limits of its decision with the measured value and the evaluator's admissibility; the advisory wording is gone. Names: obligation hours with no backup supply; warranty cover not claimable (lost or unevidenced); replayed days with battery below 35% at 5 am (design value); nights without backup cover; departures missed; import above the limit. |
@@ -368,6 +368,22 @@ Check: every number on every page (all routes, three operators) and in every evi
 | Protective choice | A trade-off line appears when the evaluator gives one (none in the base case). |
 | Fixture diff | `tools/gen_fixtures.py` also compares option restore dates, crew visits, expected penalties, Protect-effect values and plan crew visits/limits against the evaluator. |
 | Not produced by the structure | The Ruiru "per charger-day in service" figure (25.16 charger-days, 51.75 departures) has no evaluated node and was removed from the operations-measure basis. |
+
+## 7j. Rev 13 changes (review M3, H1, M1, M2, L1–L6; owner's twelfth message)
+
+| Item | Change in the mock-up |
+|---|---|
+| M3 rendered manifest strings | Manifest strings the screen renders carry `{fig:<path into derived-values.json>}` for evaluated figures and `{rec:<manifest path>}` for record restatements (paths: dotted keys; brackets name a key with special characters or pick a list item by its tenant, site, id, driver, measure or batch). One renderer (`tpl`, loop-core.js) fills every manifest string at load; a placeholder that does not resolve shows "not available" and fails the audit. 91 fig and 53 rec placeholders in 77 strings; unresolved 0. Kasarani "restore due" and the penalties under each option are read from the evaluation (WAIT restore date; departures missed × the site's penalty rate), not from `sla_clock.restore_due` or `protect_effects.penalties`. |
+| Which strings are rendered | `tools/rendered_strings.cjs` records, in a temporary copy, every manifest string the screen reads while rendering all routes, drawers and switches for the three operators (216 digit-bearing strings). |
+| L4 scan | `tools/hand_typed_scan.py` now also scans those strings outside their placeholders; the allow-list is keyed by file or manifest path + exact literal + context, with a reason, and an entry that suppresses nothing fails the scan. Result 0 (code 0, manifest strings 0, unused entries 0); 46 entries. |
+| H1 rice huller | The huller row on the Mto inverter page is derived per option: the option's evaluated restore date + the huller's connection lead (working days) against the letter's lapse and extension dates. Act first takes the plan's items, inverter path and huller from the evaluated switch case; the competing path is the evaluated case that takes the other inverter option. The Conditional text of "buy now" is derived from the switch cases in which it is chosen. |
+| M2 horizons | The Mto inverter page states that fuel is counted to the restore date, or for 12 months if never restored, and service hours to the Protect horizon end (30 Nov); "not admissible (would be …)" shows the evaluated value if admissible. |
+| L3, L6 | "Repair locally now" is shown for the Mto inverter as for Kasarani (restore 8 Nov, cover lost, not admissible); Kasarani local repair shows 1 departure missed and $120 of penalties. |
+| L5 | Embakasi peak share computed from the reference nodes and the options' declared peak kWh (0%); "about 62,000 kWh" = max kW × hours after midnight × nights; Kobo "92%" = the recorded 184 kWh estimate ÷ battery kWh; "406 kW" carries the design-value label. |
+| M1 | Harvest and Metro plan rows come from the evaluated switch case's items (MWEA-AGG only when the aggregator signs). |
+| Fix | Demand and capacity (Harvest): the idle-capacity table reads each room's evaluated capacity (rev 12 left it empty, so idle crate-days showed negative). |
+| Audit expectations | The switch-case checks read the evaluator's switch cases from derived-values.json instead of typed expected figures or the manifest's stated case copies. |
+| Register | Every item in the mock-up code and tools that is not read from the evaluation or the manifest is listed with its disposition in the derivation-register fragment for this round. |
 
 ## 8. Conflicts and gaps found (not fixed by invention)
 

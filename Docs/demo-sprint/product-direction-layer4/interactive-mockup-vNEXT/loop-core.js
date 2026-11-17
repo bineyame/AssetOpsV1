@@ -4,6 +4,25 @@
    on screen and listed in fixture-mapping.md. Outcomes are computed from declared factor structures (main design
    §2.1–2.2): factors are observed, the structure composes them, deviations are attributed to the factor where
    they arise; a residual appears only where a leaf factor is not observed. */
+/* Rev 13 (spec §7, review M3): one renderer for every manifest string. {fig:<path>} is filled from the evaluation
+   (DERIVED, derived-values.json), {fig:-<path>} with the negated value; {rec:<path>} restates a manifest record. Paths are
+   dotted; a bracket names a key with special characters, or picks a list item by its tenant / site / id / driver / measure /
+   batch field (a number picks by position). Numbers: thousands separators, 2 decimals only when not whole; ISO dates as
+   "9 Nov". A placeholder that does not resolve renders "not available" and is listed in TPL.unresolved (the audit fails on it). */
+const TPL = {fig:0, rec:0, strings:0, unresolved:[]};
+function tplPath(root, path){let o=root;for(const m of path.matchAll(/\[([^\]]+)\]|([^.\[\]]+)/g)){const k=m[1]??m[2];if(o==null)return undefined;
+ if(Array.isArray(o))o=/^\d+$/.test(k)?o[+k]:o.find(x=>x&&typeof x==='object'&&[x.tenant,x.site,x.id,x.driver,x.measure,x.batch].includes(k));else o=o[k];}return o;}
+function tplFmt(v,neg){if(typeof v==='number'){const x=neg?-v:v,w=Number.isInteger(Math.round(x*100)/100)&&Math.abs(x-Math.round(x))<1e-9;return (x<0?'−':'')+Math.abs(x).toLocaleString('en-US',{minimumFractionDigits:w?0:2,maximumFractionDigits:w?0:2});}
+ if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)){const [,mo,d]=v.split('-');return `${+d} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+mo-1]}`;}
+ if(typeof v==='string'||typeof v==='number')return String(v);return undefined;}
+function tpl(s){if(typeof s!=='string'||s.indexOf('{')<0)return s;let hit=false;
+ const out=s.replace(/\{(fig|rec):(-?)([^{}]+)\}/g,(m,kind,neg,path)=>{hit=true;TPL[kind]++;const v=tplFmt(tplPath(kind==='fig'?DERIVED:TPL.raw,path),!!neg);if(v===undefined){TPL.unresolved.push(m);return 'not available';}return v;});
+ if(hit)TPL.strings++;return out;}
+window.__TPL_RENDERING = true; /* lets tools/rendered_strings.cjs ignore this one-time walk */
+TPL.raw = JSON.parse(JSON.stringify(MANIFEST));
+(function renderManifestStrings(o){if(Array.isArray(o)){o.forEach((v,i)=>{if(typeof v==='string')o[i]=tpl(v);else if(v&&typeof v==='object')renderManifestStrings(v);});return;}
+ for(const k of Object.keys(o)){const v=o[k];if(typeof v==='string')o[k]=tpl(v);else if(v&&typeof v==='object')renderManifestStrings(v);}})(MANIFEST);
+window.__TPL_RENDERING = false; window.TPL = TPL;
 const M = MANIFEST, AS_OF = M.as_of;
 const LS = {op:'lakeside', budget:5000, loi:true, agg:true, tou:true};
 try{const o=sessionStorage.getItem('l4-op');if(['lakeside','harvest','metro'].includes(o))LS.op=o;}catch{}

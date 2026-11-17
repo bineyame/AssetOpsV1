@@ -30,7 +30,7 @@ The build therefore starts from the choice and asks, mechanic by mechanic, what 
 | Factor state the tour needs | Intended value (manifest) | Facts that must produce it | Time scale |
 |---|---|---|---|
 | Kobo candidate running (observed) and each option's feasible reduction of it (option effect) | 330 L observed; 210 L (stop threshold) / 20 L (reserve) as option effects | 5-minute generator, PV-available, load and SOC on the 11 candidate days; 61 days of 15-minute context for the replay | evidence window + sparse context |
-| Kobo litres beyond the model | 120 L (above 2%) | dips 220 → 240, deliveries 1,200 L (one entered 9 days late, OOO-1) | ledger history |
+| Kobo litres beyond the model | 120 L (above 2%) | dips 220 → 240, deliveries 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> L (one entered 9 days late, OOO-1) | ledger history |
 | Kisiwa every generator interval necessary (negative control) | 0 candidate minutes; 20 L residual within tolerance | 15-minute context showing load > PV + PCS every evening; battery near reserve on 22 days | sparse context |
 | Mto unmapped kWh / authorised / unexplained | 140 / 40 / 120 kWh | meter register with the 3 Oct swap; meter reads; billing export | ledger history |
 | Mto cash | 1,890 + 150 in transit + 120 outstanding | receipts; settlement 2 Nov (LATE-SETTLE-1) | ledger history |
@@ -53,7 +53,7 @@ The build therefore starts from the choice and asks, mechanic by mechanic, what 
 |---|---|---|---|
 | Embakasi peak share, monthly peak kW | 55% vs 30%; 500 vs 450 kW | per-session OCPP energy and site import intervals for 31 nights; invoice lines | sparse context (per session) + ledger |
 | Embakasi departures under candidate schedules | deadline schedule 31 of 31 nights; cheapest 2,500 < 2,800 kWh, 3 buses short | roster for 31 nights; charger and import limits | ledger (roster) + computed |
-| Kasarani chargers in service → departure bound | 3 of 4 from 1 Nov 23:40; 1,050 < 1,200 kWh | OCPP StatusNotification and fault event; roster; dispatch log; penalty statement | evidence window (event level) + ledger |
+| Kasarani chargers in service → departure bound | 3 of 4 from 1 Nov 23:40; 1,050 < 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh | OCPP StatusNotification and fault event; roster; dispatch log; penalty statement | evidence window (event level) + ledger |
 | Ruiru spare deliverable kWh | 3,200 vs 1,960 a night (+6 fits, +10 does not) | roster; import limit; charger count | ledger + computed |
 | Ruiru CH-R7 connector 2 | one interrupted session 6 Oct; no departure affected | OCPP event (v7.0 F-130) | evidence window (event level) |
 | Rights | CH-K2 acknowledged, SLA restore due 9 Nov; CH-R7 potential | ticket export; documents | events + documents |
