@@ -1,20 +1,20 @@
 # Walkthroughs · seven minutes per vertical
 
-**Not approved: awaits owner inspection.** Open `index.html`. Each walkthrough starts with the **Demo operator** selector in the blue review bar. Times are guides. All figures are illustrative demo data.
+**Not approved: awaits owner inspection.** Open `index.html`. The screens never state an executive question; the presenter talks through what each section shows. Quoted lines below are presenter speech, not on-screen text. Each walkthrough starts with the **Demo operator** selector in the blue review bar. Times are guides. All figures are illustrative demo data.
 
 ## 1. Lakeside Power (mini-grids: Kobo, Kisiwa, Mto)
 
-**Opening insight (60–90 s), on `#/portfolio`:** "October contribution is $1,443 against a plan of $2,295. It isn't a guess: it is composed from each site's factors. Revenue factors move it by $97, cost factors by $755, all of it diesel litres. Here is the surprise: Kisiwa burns the most diesel, 2,400 litres, and has nothing to save; every generator interval was needed. Kobo burns half as much, yet 210 litres a month of its generator running after dawn is avoidable by a setting change worth a modelled $2,916 over 12 months. The plan spends $3,880 of $5,000 and uses all three crew visits."
+**Opening insight (60–90 s), on `#/portfolio`:** "October contribution is $1,443 against a plan of $2,295. It isn't a guess: it is composed from each site's factors. Revenue factors move it by $97, cost factors by $755, all of it diesel litres. Here is the surprise: Kisiwa burns the most diesel, 2,400 litres, and has nothing to save; every generator interval was needed. Kobo burns half as much, yet 330 litres of its running was candidate running while solar could carry the load; of that, the best feasible setting change avoids 210 litres a month, a modelled $2,916 over 12 months. The plan spends $3,880 of $5,000 and uses all three crew visits; the valued options add a modelled $6,096, and the $2,230 of must-do and protective work shows up in the Protect measures, not in money."
 
 | Time | Click | Say |
 |---|---|---|
 | 0:00 | Review bar → Demo operator: Lakeside Power. Portfolio → Overview | Headline, four figures (point out 91.5% of cost on recorded facts and "Modelled, not realised"). |
 | 1:30 | Value chain strip | Delivered 23,050 → metered 21,700 → billed 21,445 kWh → $9,688 → $8,870 collected. Usable capacity is "Not available yet": we say what record fills it. |
-| 2:00 | Outcome cards; then "Factors needing attention" | Each outcome with the factors that define it. Attention comes from factors: off plan (Kobo litres), at a limit (Kisiwa evening supply on one generator), a new factor (the cooperative's letter of intent), a deadline (inverter notice 27 Nov). |
-| 3:00 | Tab **Outcomes by site** | The waterfall: −$676 attributed to observed factors, −$176 not explained yet (Kobo 120 L beyond the generator model, Kisiwa 20 L within tolerance). Scroll to Kobo's factor structure: litres 1,180 against 700, split by why the generator ran. Click **1,180 L** → evidence drawer (definition, formula, delivery notes and dips, clocks, coverage, provenance). Esc. |
-| 4:15 | Kobo row "Decision →" (`#/decision/kobo-generator`) | Options with no action. Stop at 70%: +$2,916, battery at least 35% at 5 am on 61 of 61 replayed days. Lower the reserve: removes only 20 L and breaks the dawn limit on 4 days. Counterfactual structure table. Three verdicts, all "Not yet". |
+| 2:00 | Outcome cards; then "Factors needing attention" | Each outcome with the factors that define it; Protect lists its measures against a target of 0 (30 obligation hours without a backup, 6 asset-days out of service, no critical energy unserved) and the rights at stake, never summed. Attention comes from factors: off plan (Kobo litres), at a limit (Kisiwa evening supply on one generator), a new factor (the cooperative's letter of intent), a deadline (inverter notice 27 Nov). |
+| 3:00 | Tab **Outcomes by site** | The waterfall: −$676 attributed to observed factors, −$176 not explained yet (Kobo 120 L beyond the generator model, Kisiwa 20 L within tolerance). Scroll to the Protect measures by site, then Kobo's factor structure: litres 1,180 against 700, observed as 330 L candidate running, 30 L needed and 120 L not explained by the model. Click **1,180 L** → evidence drawer (definition, formula, delivery notes and dips, clocks, coverage, provenance). Esc. |
+| 4:15 | Kobo row "Decision →" (`#/decision/kobo-generator`) | Options with no action. Of the 330 L of candidate running, stopping at 70% avoids 210 L: +$2,916, battery at least 35% at 5 am on 61 of 61 replayed days. Lowering the reserve avoids only 20 L and breaks the dawn limit on 4 days. Counterfactual structure table. Three verdicts, all "Not yet". |
 | 5:15 | Breadcrumb **Act first** | The plan: why first, cost and who pays, crew visit, result with evidence class. Listed beside, not added: $672 restored charges, $70 possible credit, $64,000 battery cover at stake. |
-| 6:00 | Switch: budget **$6,500**, letter extended **No** | Plan re-computes: buying the inverter now (+$3,546) beats claim and wait (+$2,556, huller lost). Switch letter to **Yes**: claim and wait returns (+$6,096). Show the four-case table. |
+| 6:00 | Switch: budget **$6,500**, letter extended **No** | Plan re-computes: buying the inverter now (+$3,546; valued options' costs $4,200) beats claim and wait (+$2,556, huller lost). Switch letter to **Yes**: claim and wait returns (+$6,096). Show the four-case table. |
 | 6:40 | Tab **Scope & coverage** → "Open the pilot request" | Seven source categories, exports only; deliverables. |
 
 ## 2. Harvest Cold Network (cold rooms: Mwea, Thika, Kirinyaga)
@@ -25,10 +25,10 @@
 |---|---|---|
 | 0:00 | Demo operator: Harvest Cold Network. Overview | $946 against $1,716; 97.8% of cost on recorded facts (Thika's service invoice is estimated). |
 | 1:30 | Value chain strip; outcome cards | 37,200 crate-days of capacity, 22,940 occupied. Protect shows the batch limit breach and the value at stake, never added to money. |
-| 2:15 | **Outcomes by site** | Waterfall: Mwea occupancy −$620, less electricity at lower occupancy +$155 (not a saving), Kirinyaga −$194, Thika compensation −$108; nothing unexplained. Kirinyaga's "Electricity above what occupancy explains" shows "Outside its limit" against the 5% tolerance. |
+| 2:15 | **Outcomes by site** | Protect measures: 1 batch exposed, 2,400–3,600 crate-minutes above the limit, 26 days with the backup start unproven; $108 damage is the same factor as the compensation line. Waterfall: Mwea occupancy −$620, less electricity at lower occupancy +$155 (not a saving), Kirinyaga −$194, Thika compensation −$108; nothing unexplained. Kirinyaga's "Electricity above what occupancy explains" shows "Outside its limit" against the 5% tolerance. |
 | 3:30 | Site link **Thika** (`#/site/thika`) | How a cold room fills the shared structure (factors, levers, limits). Factor structure; rights panel. Sub-tab "Operating outcomes (earlier view)" and tab Performance show the preserved 6 Oct incident pages. |
 | 4:30 | Decision → `#/decision/thika-backup` | Night cover $100 until the contractor replaces the controller on 8 Nov; fitting it ourselves ($710) voids the cover; insurance not claimed ($108 < $500 deductible). Rights: notified 8 Oct, acknowledged 10 Oct, accepted 17 Oct. "This is not a legal decision…" |
-| 5:30 | **Act first** | $720 of $2,500; 2 of 2 technician visits. Switch "aggregator signs" → **No**: $450, 1 of 2; Mwea moves to excluded. Back to Yes. |
+| 5:30 | **Act first** | $720 of $2,500; 2 of 2 technician visits; valued options +$3,182.40 net of $620, Thika night cover $100 not valued in money. Switch "aggregator signs" → **No**: $450, 1 of 2, +$1,512.40; Mwea moves to excluded. Back to Yes. |
 | 6:15 | **Opportunity** | Aggregator +$485 a month, $1,670 over the 4-month contract (conditional on signature); idle crate-days per room shown as capacity. |
 
 ## 3. Metro Bus Depots (captive fleet: Embakasi, Kasarani, Ruiru)
@@ -39,7 +39,7 @@
 |---|---|---|
 | 0:00 | Demo operator: Metro Bus Depots. Overview | $41,705.12 against $38,520.80; value chain strip ends in "Revenue: not applicable". |
 | 1:30 | Factors needing attention | Kasarani below its limit; Embakasi peak share 55% against 30% and peak at the 500 kW limit; new factors: the 00:00–05:00 rate, 6 more buses; Ruiru 380 of 400 kW. |
-| 2:30 | **Outcomes by site** | Embakasi −$2,604 (peak share) and −$600 (demand); Ruiru +$19.68 shown as "not attributed": its plan is only a bill total. |
+| 2:30 | **Outcomes by site** | Protect: October all at target except 26 charger-days out of service at Ruiru; November to 6 Nov shown separately (2 departures missed, 5 nights below required, $240 penalties, the same factor as the cost line). Embakasi −$2,604 (peak share) and −$600 (demand); Ruiru +$19.68 shown as "not attributed": its plan is only a bill total. |
 | 3:30 | Decision → `#/decision/embakasi-schedule` | No action is October's pattern under the November tariff ($21,438). Charge to departure time: $13,356, $8,082 a month less, $95,484 over 12 months. Cheapest hours: $12,975, but 3 buses short. The $706.80 tariff windfall is not credited to the option. |
 | 4:45 | `#/decision/kasarani-charger` | Cover $90 for 3 nights against about $240 of penalties; local repair voids the warranty; restore due 9 Nov. |
 | 5:30 | **Act first** | $1,590 of $5,000; no technician visits. Switch tariff → **No**: schedule drops, spend $90, result $0. |

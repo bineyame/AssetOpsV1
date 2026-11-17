@@ -103,13 +103,13 @@ tenants:
       variance: -562.00
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KOBO-2026-10-REV, amount: 38.00, basis: "95 kWh x 0.40", class: ECONOMIC_ACTUAL}
-        - {driver: GEN_POLICY_RUNNING_AVOIDABLE, overlap_group: KOBO-2026-10-FUEL, amount: -262.50, basis: "210 L x 1.25 (forward-feasible share of Candidate fuel)", class: MODELLED}
-        - {driver: GEN_POLICY_RUNNING_CONSTRAINED, overlap_group: KOBO-2026-10-FUEL, amount: -150.00, basis: "120 L x 1.25 (Candidate by dispatch-3.2, not avoidable by forward replay)", class: MODELLED}
+        - {driver: CANDIDATE_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -412.50, basis: "330 L x 1.25: generator running while solar could carry the load (dispatch-3.2 Candidate; plan 0 L); model-implied litres from metered generator energy x SFC", class: DERIVED,
+           note: "observed factor; how much of it an option avoids (210 L for the stop-threshold change, 20 L for the reserve change) is that option's effect (M3), never a node of the observed structure"}
         - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: -37.50, basis: "30 L x 1.25 (Necessary)", class: MODELLED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KOBO-2026-10-FUEL, amount: -150.00, basis: "120 L x 1.25 consumed minus modelled; investigate (MG-L5)", class: DERIVED}
       fuel_balance: {opening_dip_l: 220, deliveries_l: 1200, closing_dip_l: 240, consumed_l: 1180, model_implied_l: 1060, residual_l: 120, tolerance_pct: 2.0}
     findings_expected:
-      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, days: "11 of 31", gross_exposure_l: [0, 330], gross_exposure_usd: [0.00, 412.50], note: "fuel-cost-1 upper bound; NOT the decision value"}
+      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, days: "11 of 31", gross_exposure_l: [0, 330], gross_exposure_usd: [0.00, 412.50], note: "fuel-cost-1 upper bound (includes its 1.10 consumption allowance); NOT the decision value and NOT the observed candidate-running factor (330 L x 1.25 = 412.50 from metered generator energy); the build keeps the two separate"}
       - {mechanism: UNEXPLAINED_FUEL, residual_l: 120, note: "above 2% tolerance; investigation, no recovery claimed"}
     decision:
       thread: "Kobo generator runs after dawn while solar could carry the load"
@@ -288,6 +288,23 @@ tenants:
         - {id: MTO-INV-NOACT, kind: NO_ACTION, disposition: REJECTED, reason: "half daytime capacity indefinitely; notice deadline lost on 27 Nov"}
 
   portfolio:
+    protect:   # main design §2.1 / §3.1a: Protect is a declared structure of measured factors; targets 0; Σ over sites; classes never mixed
+      period: "2026-10"
+      measures:
+        - {id: unserved_critical_kwh, unit: kWh, objective: P1, target: 0, class: MEASURED, basis: "critical feeder meters (clinic and critical loads) vs demand while supply was unavailable",
+           sites: {Kobo: 0, Kisiwa: 0, Mto: 0}, portfolio: 0}
+        - {id: obligation_hours_without_redundancy, unit: h, objective: P1, target: 0, class: DERIVED, basis: "hours in which an obligation's supply rested on a single unit or reduced capacity (asset status x obligation window)",
+           sites: {Kobo: 0, Kisiwa: 10, Mto: 20}, portfolio: 30,
+           detail: {Kisiwa: "30-31 Oct, 18:00-23:00 evening supply on GEN-KS-02 alone", Mto: "28-31 Oct, 10:00-15:00 daytime supply at half inverter capacity"}}
+        - {id: asset_days_out_of_service, unit: asset-days, objective: P2, target: 0, class: RECORDED, basis: "fault logs: failure to period end",
+           sites: {Kobo: 0, Kisiwa: 2, Mto: 4}, portfolio: 6}
+        - {id: customer_liability, unit: USD, objective: P3, target: 0.00, class: ECONOMIC_ACTUAL, sites: {Kobo: 0.00, Kisiwa: 0.00, Mto: 0.00}, portfolio: 0.00,
+           shared_factor: "cost-to-serve liability factor (same factor ID; never added twice)"}
+        - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE, target: "no right lost to a missed deadline or missing evidence",
+           items: [{site: Kobo, right: "BAT-001 battery warranty", value: 64000.00, state: "insufficient evidence"},
+                   {site: Mto, right: "INV-MT-02 inverter warranty (replacement unit)", value: 2600.00, state: "evidence assembled; notice due 27 Nov"},
+                   {site: Kisiwa, right: "O&M late-response credit", value: 70.00, state: "review required"}],
+           note: "values at stake are listed, never summed with money or with each other's classes"}
     plan_contribution: 2295.00
     actual_contribution: 1443.00
     chain: {delivered_kwh: 23050, metered_kwh: 21700, billed_kwh: 21445, plan_billed_kwh: 21650, revenue: 9688.00, plan_revenue: 9785.00,
@@ -307,6 +324,9 @@ tenants:
       crew_visits_used: 3     # Kisiwa repair, Mto inverter (meter audit on the same visit), Kobo battery evidence; huller connection is contractor work
       modelled_12m_change: {KOB-STOPSOC: 2916.00, MTO-HULLER: 3540.00, MTO-INV-CLAIM: -360.00, total: 6096.00, class: MODELLED, note: "distinct overlap groups; not realized"}
       listed_not_summed: {MTO-BILLING_charges_12m: 672.00, KIS-OM-SLA_potential_credit: 70.00, BAT-001_cover_exposure: 64000.00}
+      valued_option_costs: 1650.00     # KOB-STOPSOC 90 + MTO-INV-CLAIM 360 + MTO-HULLER 1,200: netted inside the 6,096.00
+      unvalued_spend: 2230.00          # KIS-REPAIR 1,800 (must-do) + BAT-EVIDENCE 430 (protective): not valued in money; their effect is on Protect measures
+      value_label: "modelled 12-month change from the valued options, net of their own one-off costs; must-do and protective spend not valued in money"
       excluded:
         - {id: MTO-INV-BUYNOW, reason: "6,430 needed with everything else; budget 5,000"}
         - {id: KIS-BATT60, reason: "over budget; payback ~6 years"}
@@ -424,6 +444,19 @@ tenants:
            reason: "negative on 12 months; revisit if verified recovery after repair is below 60%"}
         - {id: KIRI-NOACT, kind: NO_ACTION, economics: {monthly: -194.00}, disposition: ACCEPTABLE}
   portfolio:
+    protect:
+      period: "2026-10"
+      measures:
+        - {id: batches_exposed, unit: batches, objective: P1, target: 0, class: DERIVED, basis: "batch presence x chamber temperature x commodity limit (5-minute readings)",
+           sites: {"Room A · Mwea": 0, "Room B · Thika": 1, "Room C · Kirinyaga": 0}, portfolio: 1}
+        - {id: crate_minutes_above_limit, unit: crate-minutes, objective: P1, target: 0, class: DERIVED, basis: "120 crates of B-1031 x 20-30 min above 5 C (bounded by 5-minute readings)",
+           sites: {"Room A · Mwea": "0", "Room B · Thika": "2,400-3,600", "Room C · Kirinyaga": "0"}, portfolio: "2,400-3,600"}
+        - {id: days_backup_start_unproven, unit: days, objective: P1, target: 0, class: DERIVED, basis: "days since a failed automatic start without a witnessed successful test",
+           sites: {"Room A · Mwea": 0, "Room B · Thika": 26, "Room C · Kirinyaga": 0}, portfolio: 26, detail: {"Room B · Thika": "6-31 Oct; night manual-start rota from 7 Nov until the 8 Nov replacement and test"}}
+        - {id: stock_value_exposed, unit: USD, objective: P3, class: EXPOSURE, target: 0.00, sites: {"Room B · Thika": 2160.00}, portfolio: 2160.00, note: "customer-owned stock; at stake, not money"}
+        - {id: qa_confirmed_damage_liability, unit: USD, objective: P3, class: ECONOMIC_ACTUAL, target: 0.00, sites: {"Room A · Mwea": 0.00, "Room B · Thika": 108.00, "Room C · Kirinyaga": 0.00}, portfolio: 108.00,
+           shared_factor: "customer compensation factor of cost to serve (same factor ID; never added twice)"}
+        - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE, items: [{site: "Room B · Thika", right: "EPC workmanship warranty on the start controller", value: 710.00, state: "accepted 17 Oct; replacement 8 Nov"}]}
     plan_contribution: 1716.00
     actual_contribution: 946.00
     chain: {capacity_crate_days: 37200, occupied_crate_days: 22940, plan_crate_days: 26040, revenue: 4588.00, plan_revenue: 5208.00,
@@ -434,6 +467,9 @@ tenants:
       recommended: [THIKA-EPC-STOPGAP, KIRI-REPAIR, MWEA-AGG]
       spend: 720.00
       spend_breakdown: {THIKA-EPC-STOPGAP: 100.00, KIRI-REPAIR: 350.00, MWEA-AGG: 270.00}
+      valued_option_costs: 620.00      # KIRI-REPAIR 350 + MWEA-AGG 270
+      unvalued_spend: 100.00           # THIKA-EPC-STOPGAP: valued on Protect measures, not in money
+      modelled_12m_change: {KIRI-REPAIR: 1512.40, MWEA-AGG: 1670.00, total: 3182.40, class: MODELLED, note: "the Mwea contract's 4 months fall inside the 12-month horizon"}
       technician_visits_used: 2
       excluded: [{id: KIRI-REPLACE, reason: "negative 12-month net"}, {id: MWEA-COMPRESSOR, reason: "no fault"}, {id: THIKA-SELF, reason: "voids cover"}]
       switches:   # assumptions shown as switches on the plan (main design §2.4)
@@ -544,6 +580,20 @@ tenants:
       entitlement: {type: EQUIPMENT_WARRANTY, counterparty: "Ampere Charge Co", claim_state: POTENTIAL, plan: "claim at next routine visit"}
       priority: LOW
   portfolio:
+    protect:
+      period: "2026-10 (and November to 6 Nov, shown separately)"
+      measures:
+        - {id: departures_missed, unit: departures, objective: P1, target: 0, class: RECORDED, basis: "roster required departures vs departures with required charge",
+           sites: {Embakasi: 0, Kasarani: 0, Ruiru: 0}, portfolio: 0, november_to_date: {Kasarani: 2, portfolio: 2}}
+        - {id: nights_deliverable_below_required, unit: nights, objective: P1, target: 0, class: DERIVED, basis: "chargers in service x power x window vs roster required kWh, per night",
+           sites: {Embakasi: 0, Kasarani: 0, Ruiru: 0}, portfolio: 0, november_to_date: {Kasarani: 5, portfolio: 5, detail: "nights 1/2 to 5/6 Nov; spare bus lent on 3, departure missed on 2"}}
+        - {id: charger_days_out_of_service, unit: charger-days, objective: P2, target: 0, class: RECORDED,
+           sites: {Embakasi: 0, Kasarani: 0, Ruiru: 26}, portfolio: 26, november_to_date: {Kasarani: 5, Ruiru: 6}, detail: {Ruiru: "CH-R7 connector 2, 6-31 Oct; no departure depended on it"}}
+        - {id: service_penalties, unit: USD, objective: P3, class: ECONOMIC_ACTUAL, target: 0.00, sites: {Embakasi: 0.00, Kasarani: 0.00, Ruiru: 0.00}, portfolio: 0.00,
+           november_to_date: {Kasarani: 240.00}, shared_factor: "penalties factor of cost to serve (same factor ID; never added twice)"}
+        - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE,
+           items: [{site: Kasarani, right: "CH-K2 parts warranty + service SLA", value: "repair at supplier cost", state: "acknowledged; restore due 9 Nov"},
+                   {site: Ruiru, right: "CH-R7 connector warranty", value: "repair at supplier cost", state: "potential; claim at next routine visit"}]}
     plan_cost: 38520.80
     actual_cost: 41705.12
     cost_basis: "energy + demand + maintenance, every depot"
@@ -557,6 +607,10 @@ tenants:
       recommended: [KAS-OEM-STOPGAP, EMB-DEADLINE, RUI-ABSORB6]
       spend: 1590.00
       spend_breakdown: {KAS-OEM-STOPGAP: 90.00, EMB-DEADLINE: 1500.00, RUI-ABSORB6: 0.00}
+      valued_option_costs: 1500.00     # EMB-DEADLINE
+      unvalued_spend: 90.00            # KAS-OEM-STOPGAP: valued on Protect measures (departures), not in money
+      modelled_12m_change: {EMB-DEADLINE: 95484.00, total: 95484.00, class: MODELLED}
+      listed_not_summed: {RUI-ABSORB6_avoided_capex: 60000.00}
       technician_visits_used: 0
       priority_order: ["KAS-OEM-STOPGAP (departures at risk now)", "EMB-DEADLINE (largest money)", "RUI-ABSORB6 (contract decision)", "CH-R7 claim (no consequence)"]
       switches:

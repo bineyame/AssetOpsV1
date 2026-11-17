@@ -249,11 +249,30 @@ def cold_options(t: dict) -> None:
     eq("cold coverage share", pf["cost_recorded_share"], (D(str(pf["cost_recorded_usd"])) / tot).quantize(D("0.0001")))
 
 
+def protect(t: dict) -> None:
+    """H1 (rev 5): Protect is a declared structure of measured factors; portfolio = sum of sites for numeric measures."""
+    pr = t["portfolio"]["protect"]
+    for m in pr["measures"]:
+        if "sites" in m and isinstance(m.get("portfolio"), (int, float)):
+            eq(f"{t['tenant']} protect {m['id']} composition", m["portfolio"], sum(D(str(v)) for v in m["sites"].values()))
+        check(f"{t['tenant']} protect {m['id']} has unit, objective, class", all(k in m for k in ("unit", "objective", "class")))
+    al = t["portfolio"]["allocation"]
+    if "unvalued_spend" in al:
+        eq("plan spend = valued option costs + unvalued spend", al["spend"], D(str(al["valued_option_costs"])) + D(str(al["unvalued_spend"])))
+        b = al["spend_breakdown"]
+        if t["vertical"] == "MINI_GRID":
+            eq("valued option costs", al["valued_option_costs"], D(str(b["KOB-STOPSOC"])) + D(str(b["MTO-INV-CLAIM"])) + D(str(b["MTO-HULLER"])))
+        m = al.get("modelled_12m_change")
+        if m:
+            eq(f"{t['tenant']} plan value total", m["total"], sum(D(str(v)) for k, v in m.items() if k not in ("total", "class", "note")))
+
+
 def main(path: str) -> int:
     doc = yaml.safe_load(open(path, encoding="utf-8"))
     for t in doc["tenants"]:
         {"MINI_GRID": mini, "COLD_CHAIN": cold, "EV_DEPOT": ev}[t["vertical"]](t)
         {"MINI_GRID": lakeside_options, "COLD_CHAIN": cold_options, "EV_DEPOT": lambda _t: None}[t["vertical"]](t)
+        protect(t)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
         print("FAIL", f)

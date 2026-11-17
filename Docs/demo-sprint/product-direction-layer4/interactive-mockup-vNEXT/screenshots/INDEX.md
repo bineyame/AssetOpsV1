@@ -1,16 +1,16 @@
-# Screenshots
+# Screenshots (rev 5)
 
-**Not approved: awaits owner inspection.** Captured by `tools/audit.mjs --shots` (Chromium, full page). Lakeside Power unless the file name starts with `harvest-` or `metro-`.
+**Not approved: awaits owner inspection.** Captured by `tools/audit.mjs --shots` (Chromium, full page). Lakeside Power unless the file name starts with `harvest-` or `metro-`. Rev 5 views to look at first: Protect card on `portfolio-1440.png`, `harvest-portfolio-1440.png`, `metro-portfolio-1440.png` and `metro-portfolio-390.png`; Protect measures by site on the three `*outcomes-by-site-1440.png`; plan figure wording on the four `act-first-lakeside-*` captures.
 
 ## Before: v7.0 (`v70/`)
 
 | File | Route |
 |---|---|
-| `v70/financials-1440.png` | `#/financials` (v7.0 Portfolio, Sites, global Financials, Kobo Financials, Kobo overview) |
-| `v70/globalfinancials-1440.png` | `#/globalfinancials` (v7.0 Portfolio, Sites, global Financials, Kobo Financials, Kobo overview) |
-| `v70/mini-1440.png` | `#/mini` (v7.0 Portfolio, Sites, global Financials, Kobo Financials, Kobo overview) |
-| `v70/portfolio-1440.png` | `#/portfolio` (v7.0 Portfolio, Sites, global Financials, Kobo Financials, Kobo overview) |
-| `v70/sites-1440.png` | `#/sites` (v7.0 Portfolio, Sites, global Financials, Kobo Financials, Kobo overview) |
+| `v70/financials-1440.png` | `#/financials` |
+| `v70/globalfinancials-1440.png` | `#/globalfinancials` |
+| `v70/mini-1440.png` | `#/mini` |
+| `v70/portfolio-1440.png` | `#/portfolio` |
+| `v70/sites-1440.png` | `#/sites` |
 
 ## After (`vnext/`)
 

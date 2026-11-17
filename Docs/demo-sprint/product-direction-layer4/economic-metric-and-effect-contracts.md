@@ -16,16 +16,16 @@ An executive's outcome ("contribution is below plan", "cost per departure is ris
 
 The design therefore **defines each outcome as an explicit structure** (M1) and **observes it bottom-up** (M2):
 
-1. *(Brief: L1.1 objective definitions, L1.2 vertical translation, R1–R3 economic anatomy, C1 D2 phases.)* A structure is a tree of nodes. Each node is one of five kinds: an **identity** (a sum or difference: contribution = revenue − cost to serve), a **product** (fuel cost = litres × price), a **stage relation** of the value chain (billed = metered − unmapped − authorised adjustments), a **physical sub-structure** (generator litres = necessary + candidate-avoidable + candidate-constrained + unexplained), or a **composition** (portfolio = Σ eligible sites).
+1. *(Brief: L1.1 objective definitions, L1.2 vertical translation, R1–R3 economic anatomy, C1 D2 phases.)* A structure is a tree of nodes. Each node is a **leaf** or one of seven computed kinds, the same list the domain models use (§2.2 there): an **identity** (a sum or difference: contribution = revenue − cost to serve), a **product** (fuel cost = litres × price), a **tiered product** (time-of-use energy = Σ tier kWh × tier price), a **stage relation** of the value chain (billed = metered − unmapped − authorised adjustments), a **physical sub-structure** (generator litres = necessary + candidate + not explained by the model), a **composition** (portfolio = Σ eligible sites) or a **ratio** (cost per departure met).
 2. The tree ends in **leaf factors** that a source fact can observe: a billing row, a fuel delivery note, a tank dip, a storage check-in, an OCPP meter value, a utility invoice line, a roster entry.
 3. *(Brief: S2 plan assumptions.)* **Plans are declared at leaf level** (planned billed kWh, tariff, litres, price, occupancy, peak share, peak kW). The planned outcome is the same structure evaluated on planned leaves, so plan and actual can be compared at every node, not only at the top.
-4. *(Brief: P1, S5; R3a, P4.)* **Obligations are bounds on factors** (dawn battery charge ≥ 35%; a batch's chamber temperature ≤ its limit; departures met = departures required; import ≤ the contracted limit). **Rights are a factor on who bears a cost** (operator, supplier, insurer), never a change of the cost itself.
+4. *(Brief: L1.1 Protect measures, P1–P4, S5; R3a.)* **Protect is a declared structure of measured factors too** (§2.6): unserved critical energy, obligation-hours without redundancy, crate-minutes above limit, departures missed, each with a unit, period, target and composition. **Obligation bounds are derived from those measures** (dawn battery charge ≥ 35%; a batch's chamber temperature ≤ its limit; departures met = departures required; import ≤ the contracted limit). **Rights are a factor on who bears a cost** (operator, supplier, insurer), never a change of the cost itself.
 
 Why the backbone is a **value chain**: money reaches an operator only by passing stages — capacity becomes service, service becomes chargeable service, chargeable service becomes recognised revenue, revenue becomes cash — and each passage can leak. Collapsing the stages ("energy = revenue", "revenue = cash") is the most common way a dashboard misleads (brief C1 D2). Making each stage a node with its own source and clock means a leak is a factor that can be observed, planned and changed, and an option that acts on it (fixing a meter mapping) moves exactly that node. The physical and commercial sub-structures hang off the chain where they act: fuel litres under the fuel cost line, refrigeration kWh under the energy line, deliverable charging energy under the departures obligation.
 
 Three consequences follow, and the rest of this file makes them exact:
 - **The bridge is a reading, not an inference.** Because every node is computed from its children, the deviation of an outcome from plan *is* the propagation of leaf deviations. Attribution is exact for sums and uses one declared rule for products (§4.2).
-- **A residual exists only where a leaf is not observed or the structure is incomplete** (Kobo: 120 L consumed beyond what the generator model explains). It is shown as a factor in its own right, never spread over other factors.
+- **A residual exists only where the observed total differs from what the structure's modelled children explain** (a leaf of the explanation is not observed, or the model is incomplete). Kobo's 120 L are observed in dips and deliveries but not explained by the generator model; the label on screen is "not explained by the model yet". It is shown as a factor in its own right, never spread over other factors.
 - **Deviations are visible before money closes.** Factors are observed daily; money closes monthly. A factor drifting from plan or approaching a bound is visible at the factor (Kasarani: charger CH-K2's capacity fell on 1 Nov, so its departures factor was at risk before any penalty or invoice existed).
 
 ---
@@ -44,7 +44,7 @@ Every node, at every level, carries the same attributes so it can be composed, c
 - **Four clocks** for any commercial leaf: **service period** (when the kWh, crate-day or departure happened), **effective period** (when a tariff, contract term or meter mapping applies), **recognition period** (the accounting month a charge or expense is booked), **settlement instant** (when cash arrived). Telemetry leaves carry only the service clock.
 - **Lineage** to the source records that observed the leaf, and the observer (model id and version) that computed a derived node.
 
-Node kinds evaluate as follows: identity nodes add children with signs; product nodes multiply; stage relations subtract named leaks; physical sub-structures add sub-factors that a factor observer (an existing or new analysis) classifies; composition nodes sum eligible sites and **exclude and name** ineligible ones.
+Node kinds evaluate as follows (one list, shared with the domain models): **LEAF** takes its observation; **IDENTITY** adds children with signs; **PRODUCT** multiplies; **TIERED_PRODUCT** sums tier products; **STAGE** subtracts named leaks; **PHYSICAL** adds sub-factors that a factor observer (an existing or new analysis) classifies; **COMPOSITION** sums eligible sites and **excludes and names** ineligible ones; **RATIO** divides a numerator node by a denominator node. Each kind has one attribution rule (§4.2: A1 for IDENTITY, STAGE and COMPOSITION, A2 PRODUCT, A3 TIERED_PRODUCT, A4 PHYSICAL, A5 RATIO).
 
 ### 2.2 Mini-grid (billed electricity): Lakeside Power
 
@@ -60,7 +60,7 @@ flowchart TD
   R -.settles as.-> CASH[Collected + in transit + outstanding]
   K --> F[Fuel cost] & OM[O&M] & ST[Staff]
   F --> FL[Litres] & FP[Diesel price]
-  FL --> FN[Necessary litres] & FA[Candidate litres, feasibly avoidable] & FC[Candidate litres, constrained] & FU[Unexplained litres]
+  FL --> FN[Necessary litres] & FA[Candidate litres] & FU[Litres not explained by the model]
 ```
 
 | Node | Kind | Rule | Leaf source (four clocks where commercial) | Plan declared? |
@@ -72,10 +72,10 @@ flowchart TD
 | Delivered kWh | leaf | feeder / inverter output | EMS telemetry (service clock) | no |
 | Cash split | stage | revenue = collected + in transit + outstanding | receipts and mobile-money settlement statements (settlement instant) | no |
 | Fuel cost | product | litres × price | delivery notes (price, effective period) | litres, price |
-| Litres | physical sub-structure | necessary + candidate-avoidable + candidate-constrained + unexplained | fuel balance (dips + deliveries) observes the total; dispatch-3.2 splits necessary vs candidate; forward replay splits candidate into avoidable vs constrained | total litres (all "necessary at plan load") |
+| Litres | physical sub-structure | necessary + candidate + not explained by the model | fuel balance (dips + deliveries) observes the total; dispatch-3.2 splits generator running into necessary vs candidate; the residual is consumed − model-implied | total litres (all "necessary at plan load"; candidate plan 0) |
 | O&M, staff | leaf | invoice amount | invoices (recognition period) | yes |
 
-Obligations as bounds on factors at a mini-grid site: clinic critical load served 24/7; battery charge at 05:00 ≥ 35% on every day (dawn adequacy); evening supply with N−1 generation where declared; battery warranty operating limits (lowest charge ≥ 10%, ≤ 0.5C, cell ≤ 45 °C).
+How much of the candidate litres an option would avoid is **not** a node of the observed structure: it is that option's effect (M3; 210 L for the stop-threshold change, 20 L for the reserve change, both design values). Obligations at a mini-grid site, whose Protect measures are in §2.6: clinic critical load served 24/7; battery charge at 05:00 ≥ 35% on every day (dawn adequacy); evening supply with N−1 generation where declared; battery warranty operating limits (lowest charge ≥ 10%, ≤ 0.5C, cell ≤ 45 °C).
 
 ### 2.3 Cold room (pay-as-you-store): Harvest Cold Network
 
@@ -112,7 +112,52 @@ A captive fleet's depot sells nothing: charging is a cost centre and the service
 
 Obligations: every required departure met (required energy delivered before departure); import ≤ contracted limit. A commercial depot (later) adds the revenue and cash stages of §2.2 with session fees.
 
-### 2.5 The four clocks in practice
+### 2.6 Protect: a declared structure of measured factors, per vertical
+
+*Brief:* L1.1 Protect ("Unserved critical energy; eligible temperature excursions; failed fleet departures; material outages; physical assets at risk, verified damage, expected loss only with defensible likelihood"), objectives P1–P4, S5, R3a.
+
+The Protect outcome is built the same way as contribution: each **Protect measure** is a node with a unit, a period, a **target** (0 for every measure here), a class, coverage and composition (Σ over intervals → site → portfolio), and it is observed bottom-up from leaves. Three rules tie Protect to the money structure:
+
+1. **Obligation bounds are derived from Protect measures.** A bound is the per-option limit of a measure: an option fails a bound when its counterfactual pushes a Protect measure above its target (dawn battery charge below 35% makes unserved critical energy possible; a schedule that leaves a bus short adds a missed departure). Bounds are therefore not a separate list of rules; they are the Protect structure evaluated on the option's factors (domain models §4.7).
+2. **Money-valued Protect measures are the same factor as in the money structure.** Customer liability (cold) and service penalties (EV) appear in cost to serve; the Protect measure *references* that factor by its shared factor ID and is never added a second time.
+3. **Values at stake are listed, never summed** with money or with one another across classes (class EXPOSURE): stock exposed, cover value of a right, a potential credit.
+
+Protect is attributed like any other outcome: the deviation of a measure from target is the Σ of its interval-and-asset contributions (rule A1), each tagged with the cause (the asset or event), so "30 obligation-hours without redundancy" opens onto "Kisiwa GEN-KS-01, 10 h" and "Mto INV-MT-02, 20 h".
+
+**Mini-grid.**
+
+| Measure | Unit | Objective | Target | Class | Leaf source | Composition |
+|---|---|---|---|---|---|---|
+| Unserved critical energy | kWh | P1 | 0 | MEASURED | critical feeder meters (clinic, critical loads) vs demand while supply was unavailable | Σ intervals → site → portfolio |
+| Obligation-hours without redundancy | h | P1 | 0 | DERIVED | asset status × obligation window (hours an obligation rested on a single unit or reduced capacity) | Σ |
+| Asset-days out of service | asset-days | P2 | 0 | RECORDED | fault logs, failure to period end | Σ |
+| Customer liability | USD | P3 | 0.00 | ECONOMIC_ACTUAL | **references** the cost-to-serve liability factor | Σ (same factor ID; never added twice) |
+| Rights value at stake | USD | P4 | no right lost to a deadline or missing evidence | EXPOSURE | rights register | listed, not summed |
+
+**Cold room.**
+
+| Measure | Unit | Objective | Target | Class | Leaf source | Composition |
+|---|---|---|---|---|---|---|
+| Batches exposed | batches | P1 | 0 | DERIVED | batch presence × chamber temperature × commodity limit | Σ |
+| Crate-minutes above limit | crate-minutes | P1 | 0 | DERIVED | crates × minutes above the batch's limit, bounded by reading resolution | Σ (ranges add as ranges) |
+| Days backup start unproven | days | P1 | 0 | DERIVED | days since a failed automatic start without a witnessed successful test | Σ |
+| Stock value exposed | USD | P3 | 0.00 | EXPOSURE | exposed crates × declared value | listed, not summed with money |
+| QA-confirmed damage liability | USD | P3 | 0.00 | ECONOMIC_ACTUAL | **references** the customer-compensation factor of cost to serve | Σ (same factor ID) |
+| Rights value at stake | USD | P4 | — | EXPOSURE | rights register | listed |
+
+**EV depot (captive).**
+
+| Measure | Unit | Objective | Target | Class | Leaf source | Composition |
+|---|---|---|---|---|---|---|
+| Departures missed | departures | P1 | 0 | RECORDED | roster required departures vs departures with the required charge | Σ; also the denominator of cost per departure met |
+| Nights deliverable below required | nights | P1 | 0 | DERIVED | chargers in service × power × window vs roster required kWh, per night | Σ |
+| Charger-days out of service | charger-days | P2 | 0 | RECORDED | status notifications, fault logs | Σ |
+| Service penalties | USD | P3 | 0.00 | ECONOMIC_ACTUAL | **references** the penalties factor of cost to serve | Σ (same factor ID) |
+| Rights value at stake | USD | P4 | — | EXPOSURE | rights register | listed |
+
+Protect measures are observed at the factor's own cadence (daily, or per night), so they move before money closes: Kasarani's nights below required started on 1/2 Nov, before any penalty was invoiced.
+
+### 2.7 The four clocks in practice
 
 Each clock answers a different question, and mixing them produces wrong months:
 
@@ -148,13 +193,13 @@ Kobo and Kisiwa report loss as one figure (expected and unexplained are not sepa
 
 **Fuel sub-structure.** Litres are observed by the fuel balance and split by the factor observers. Plan litres are declared as necessary generation at plan load.
 
-| Site | Price | Plan L | Necessary L | Candidate, avoidable L | Candidate, constrained L | Unexplained L | Actual L | Observers |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| Kobo | 1.25 | 700 | 730 | 210 | 120 | 120 | 1,180 | balance: 220 + 1,200 − 240 = 1,180; model-implied 1,060; dispatch-3.2: Candidate on 11 of 31 days, 330 L; forward replay: 210 avoidable [design value] |
-| Kisiwa | 1.30 | 2,300 | 2,380 | 0 | 0 | 20 | 2,400 | model-implied 2,380; 0 Candidate minutes |
-| Mto | 1.25 | 300 | 320 | 0 | 0 | — | 320 | evening necessary generation |
+| Site | Price | Plan L | Necessary L | Candidate L | Not explained by the model L | Actual L | Observers |
+|---|---:|---:|---:|---:|---:|---:|---|
+| Kobo | 1.25 | 700 | 730 | 330 | 120 | 1,180 | balance: 220 + 1,200 − 240 = 1,180; model-implied 1,060; dispatch-3.2: Candidate on 11 of 31 days |
+| Kisiwa | 1.30 | 2,300 | 2,380 | 0 | 20 | 2,400 | model-implied 2,380; 0 Candidate minutes |
+| Mto | 1.25 | 300 | 320 | 0 | — | 320 | evening necessary generation |
 
-Kobo's 730 + 210 + 120 = 1,060 model-implied litres; 1,060 + 120 unexplained = 1,180 consumed. The unexplained 120 L is 10.2% of consumption, above the 2% tolerance, so it is a factor to investigate; Kisiwa's 20 L (0.83%) is reported and not investigated. Mto has no fuel-balance figure in the manifest, so its unexplained cell is "—".
+Kobo's 730 + 330 = 1,060 model-implied litres; 1,060 + 120 unexplained = 1,180 consumed. The unexplained 120 L is 10.2% of consumption, above the 2% tolerance, so it is a factor to investigate; Kisiwa's 20 L (0.83%) is reported and not investigated. Mto has no fuel-balance figure in the manifest, so its unexplained cell is "—".
 
 **Contribution per site.**
 
@@ -170,10 +215,9 @@ Kobo's 730 + 210 + 120 = 1,060 model-implied litres; 1,060 + 120 unexplained = 1
 | Site | Factor node (overlap key) | Leaf deviation | × plan price | Attribution | Money class |
 |---|---|---|---|---:|---|
 | Kobo | billed kWh (`KOBO-2026-10-REV`) | +95 kWh | 0.40 | +38.00 | ECONOMIC_ACTUAL |
-| Kobo | candidate-avoidable litres (`KOBO-2026-10-FUEL`) | +210 L | 1.25 | −262.50 | MODELLED split of a recorded total |
-| Kobo | candidate-constrained litres (`KOBO-2026-10-FUEL`) | +120 L | 1.25 | −150.00 | MODELLED split |
+| Kobo | candidate litres (`KOBO-2026-10-FUEL`) | +330 L | 1.25 | −412.50 | DERIVED (Calculated from records) |
 | Kobo | necessary litres, evening load growth (`KOBO-2026-10-FUEL`) | +30 L | 1.25 | −37.50 | MODELLED split |
-| Kobo | unexplained litres (`KOBO-2026-10-FUEL`) | +120 L | 1.25 | −150.00 | DERIVED |
+| Kobo | litres not explained by the model (`KOBO-2026-10-FUEL`) | +120 L | 1.25 | −150.00 | DERIVED |
 | Kisiwa | billed kWh (`KIS-2026-10-REV`) | −100 kWh | 0.55 | −55.00 | ECONOMIC_ACTUAL |
 | Kisiwa | necessary litres, solar shortfall (`KIS-2026-10-FUEL`) | +80 L | 1.30 | −104.00 | MODELLED split |
 | Kisiwa | unexplained litres (`KIS-2026-10-FUEL`) | +20 L | 1.30 | −26.00 | DERIVED |
@@ -183,9 +227,9 @@ Kobo's 730 + 210 + 120 = 1,060 model-implied litres; 1,060 + 120 unexplained = 1
 | Mto | necessary litres, evening (`MTO-2026-10-FUEL`) | +20 L | 1.25 | −25.00 | MODELLED split |
 | | | | | **−852.00** | equals the portfolio deviation |
 
-By line: revenue +38 − 55 − 8 − 56 − 16 = **−97.00**; cost −262.50 − 150 − 37.50 − 150 − 104 − 26 − 25 = **−755.00**; −97 − 755 = −852.00.
+By line: revenue +38 − 55 − 8 − 56 − 16 = **−97.00**; cost −412.50 − 37.50 − 150 − 104 − 26 − 25 = **−755.00**; Kobo +38.00 − 412.50 − 37.50 − 150.00 = −562.00; −97 − 755 = −852.00.
 
-Why two classes sit on one line: Kobo's fuel deviation of 480 L × 1.25 = −600.00 is an **economic actual** (dips and delivery notes). Its split into necessary, avoidable and constrained litres is **modelled** (dispatch classification and forward replay). The screen shows the line total as Recorded and the split as Modelled; the 262.50 is never shown as money already lost to a cause or as money that will be saved.
+Why two classes sit on one line: Kobo's fuel deviation of 480 L × 1.25 = −600.00 is an **economic actual** (dips and delivery notes). Its split into necessary and candidate litres comes from dispatch classification of metered generator energy × SFC, and the remainder is not explained by the model. The screen shows the line total as Recorded and the split as Calculated from records or Modelled. No option appears in the observed split: "of 330 L candidate running, the best feasible option avoids 210 L (Modelled)" is a sentence about an option, shown beside the structure, never a node of it.
 
 Mto's 120 kWh unexplained after expected losses sits on the metered stage, and Mto's plan deviation is not affected by it (the plan is on billed kWh). It stays **unpriced**: an investigation factor, never "theft", never collectible (oracle OR-MG-4).
 
@@ -243,6 +287,43 @@ Ruiru's plan is declared at line level, not tier level, so its 19.68 cannot be s
 
 **Early visibility.** On 1 Nov 23:40 Kasarani's charger CH-K2 failed (contactor weld). The deliverable-energy node fell from 4 × 50 kW × 7 h = 1,400 to 3 × 50 × 7 = **1,050 kWh** per night against **1,200** required (8 buses × 150): one bus short each night. The departures bound was at risk from that night, days before any penalty (2 missed departures, 240.00, ECONOMIC_ACTUAL by 6 Nov) or invoice existed.
 
+### 3.4 Protect, observed in the three portfolios
+
+Each portfolio's Protect state is read off the same structure (manifest `portfolio.protect`; October unless stated).
+
+**Lakeside Power.**
+
+| Measure | Kobo | Kisiwa | Mto | Portfolio | Attributed to |
+|---|---:|---:|---:|---:|---|
+| Unserved critical energy (kWh) | 0 | 0 | 0 | **0** | — |
+| Obligation-hours without redundancy (h) | 0 | 10 | 20 | **30** | Kisiwa GEN-KS-01: 30–31 Oct, 18:00–23:00 on GEN-KS-02 alone (2 × 5 h); Mto INV-MT-02: 28–31 Oct, 10:00–15:00 at half inverter capacity (4 × 5 h) |
+| Asset-days out of service | 0 | 2 | 4 | **6** | GEN-KS-01 (30–31 Oct); INV-MT-02 (28–31 Oct) |
+| Customer liability (USD, = cost-to-serve factor) | 0.00 | 0.00 | 0.00 | **0.00** | — |
+| Rights value at stake (At stake, listed) | BAT-001 64,000.00 (insufficient evidence) | O&M credit 70.00 (review required) | INV-MT-02 replacement unit 2,600.00 (notice by 27 Nov) | not summed | — |
+
+**Harvest Cold Network.**
+
+| Measure | Mwea | Thika | Kirinyaga | Portfolio |
+|---|---:|---:|---:|---:|
+| Batches exposed | 0 | 1 (B-1031) | 0 | **1** |
+| Crate-minutes above limit | 0 | 2,400–3,600 (120 crates × 20–30 min above 5 °C, 5-minute readings) | 0 | **2,400–3,600** |
+| Days backup start unproven | 0 | 26 (6–31 Oct; manual-start rota from 7 Nov until the 8 Nov replacement and test) | 0 | **26** |
+| Stock value exposed (At stake) | — | 2,160.00 | — | 2,160.00, listed |
+| QA-confirmed damage liability (USD, = customer-compensation factor) | 0.00 | 108.00 | 0.00 | **108.00** (counted once, in cost to serve) |
+| Rights value at stake (At stake) | — | EPC remedy on a 710.00 start controller (accepted 17 Oct) | — | listed |
+
+**Metro Bus Depots.** October and, separately, November to 6 Nov.
+
+| Measure | Embakasi | Kasarani | Ruiru | Portfolio Oct | Portfolio Nov to date |
+|---|---:|---:|---:|---:|---:|
+| Departures missed | 0 | 0 (Nov: 2) | 0 | **0 of 1,302** | **2** |
+| Nights deliverable below required | 0 | 0 (Nov: 5, nights 1/2 to 5/6) | 0 | **0** | **5** |
+| Charger-days out of service | 0 | 0 (Nov: 5) | 26 (CH-R7 connector 2, 6–31 Oct; Nov: 6) | **26** | Kasarani 5, Ruiru 6 |
+| Service penalties (USD, = penalties factor) | 0.00 | 0.00 (Nov: 240.00) | 0.00 | **0.00** | **240.00** |
+| Rights at stake | — | CH-K2 warranty + SLA, restore due 9 Nov | CH-R7 warranty, potential | listed | listed |
+
+Ruiru's 26 charger-days out of service in October coexist with 0 missed departures and 0 nights below required: the Protect structure shows directly why that fault ranks low (the import limit, not the connector, bounds deliverable energy).
+
 ---
 
 ## 4. Identities and attribution rules
@@ -263,16 +344,16 @@ Ruiru's plan is declared at line level, not tier level, so its 19.68 cannot be s
 
 **Identity.** For every node N, site and period:
 
-> N(actual) − N(plan) = Σ over its children of their attributed effects, exactly, by the rule of N's kind; recursively down to leaves. The residual of a node is non-zero only where a leaf is unobserved or the structure is incomplete, and it is then a named factor.
+> N(actual) − N(plan) = Σ over its children of their attributed effects, exactly, by the rule of N's kind; recursively down to leaves. The residual of a node is non-zero only where the observed total differs from what its modelled children explain, and it is then a named factor ("not explained by the model yet").
 
-**Overlap key = the factor node (its shared factor ID).** Each attributed amount belongs to exactly one node (site × period × factor), so one money effect is counted once, however many outcomes read it. Kobo's generator running after dawn moves the candidate-avoidable litres node once; its relation to battery wear and clinic supply are bounds checked on options (M3), not further money. Today's `estate/financials.py:361` `_overlaps` (pairwise duplicate key or equal overlap group) and the existing `overlap_group` columns (`0011_financial_consequences.py:54`, `0023_w2_cold_consequence.py:66`, `0026_w2_ev_money.py:63`) [code-observed] are the seed of this rule; the key becomes the factor node.
+**Overlap key = the factor node (its shared factor ID).** Each attributed amount belongs to exactly one node (site × period × factor), so one money effect is counted once, however many outcomes read it. Kobo's generator running after dawn moves the candidate litres node once; its relation to battery wear and clinic supply are bounds checked on options (M3), not further money. Today's `estate/financials.py:361` `_overlaps` (pairwise duplicate key or equal overlap group) and the existing `overlap_group` columns (`0011_financial_consequences.py:54`, `0023_w2_cold_consequence.py:66`, `0026_w2_ev_money.py:63`) [code-observed] are the seed of this rule; the key becomes the factor node.
 
 **Rules by node kind** [proposed; one rule per kind, declared with the structure and versioned]:
 
 - **A1 Sum / stage relation**: the child deviations add exactly. No rule choice.
 - **A2 Product Q × P** (decision A13): *volume effect at plan price, then price effect at actual volume*: (Q_a − Q_p) × P_p + (P_a − P_p) × Q_a. This sums exactly to Q_a·P_a − Q_p·P_p with no cross term left over, and is the convention finance teams use for volume/price variance. The order (volume first) is declared and never changes silently.
 - **A3 Sum of tier products Σ_k Q·s_k·P_k** (time-of-use energy): *volume* (Q_a − Q_p) × Σ s_p,k P_p,k; then *mix* Q_a × Σ (s_a,k − s_p,k) P_p,k; then *price* Q_a × Σ s_a,k (P_a,k − P_p,k). Exact by construction.
-- **A4 Physical sub-structure** (litres, kWh model, deliverable energy): child deviations add (A1), each child observed by a named factor observer. Where a child is MODELLED (the avoidable/constrained split), the parent's total stays at its recorded class and the children carry MODELLED.
+- **A4 Physical sub-structure** (litres, kWh model, deliverable energy): child deviations add (A1), each child observed by a named factor observer. Where a child is MODELLED or DERIVED (the necessary/candidate split), the parent's total stays at its recorded class and the children carry their own. A child is always an observation or a classification of what happened, never an option's counterfactual.
 - **A5 Ratio** (cost per departure, energy per crate-day): ratios are not attributed in money. A ratio deviation is decomposed into numerator and denominator effects in their own units and labelled; its money is the numerator's, counted once.
 
 **Test vectors** (AT-x; arithmetic shown):
@@ -280,7 +361,7 @@ Ruiru's plan is declared at line level, not tier level, so its 19.68 cannot be s
 | Id | Node | Input | Expected attribution |
 |---|---|---|---|
 | AT-1 | Kobo revenue (A2) | Q 8,645 vs 8,550; P 0.40 = 0.40 | volume +95 × 0.40 = +38.00; price 0.00; total 3,458.00 − 3,420.00 = +38.00 |
-| AT-2 | Kobo fuel cost (A2 then A4) | L 1,180 vs 700; P 1.25 = 1.25 | volume −480 × 1.25 = −600.00 = −262.50 − 150.00 − 37.50 − 150.00; price 0.00 |
+| AT-2 | Kobo fuel cost (A2 then A4) | L 1,180 vs 700; P 1.25 = 1.25 | volume −480 × 1.25 = −600.00 = candidate −412.50 + necessary −37.50 + not explained −150.00; price 0.00 |
 | AT-3 | **Hypothetical** (not in the manifest): Kobo fuel cost with diesel at 1.30 actual | L 1,180 vs 700; P 1.30 vs 1.25 | volume 480 × 1.25 = 600.00; price 1,180 × 0.05 = 59.00; total 1,534.00 − 875.00 = 659.00 adverse. Reversing the order (price at plan volume, volume at actual price) would give 35.00 + 624.00: the declared order is A2's |
 | AT-4 | Embakasi energy (A3) | Q 86,800 = 86,800; shares 0.55/0.45 vs 0.30/0.70; prices 0.24/0.12 both periods | volume 0.00; mix 86,800 × (0.25 × 0.24 − 0.25 × 0.12) = 2,604.00 adverse; price 0.00; total 16,144.80 − 13,540.80 = 2,604.00 |
 | AT-5 | Embakasi demand (A2) | 500 vs 450 kW; 12.00 | volume 600.00 adverse; price 0.00 |
@@ -305,7 +386,7 @@ Consequences:
 - **No-action windfalls are never credited to options.** Embakasi's tariff C-114 adds a 00:00–05:00 tier at 0.09 from 1 Nov 2026. November no-action (October's charging pattern under the November tariff) is 47,740 × 0.24 = 11,457.60 + 15,500 × 0.12 = 1,860.00 + 23,560 × 0.09 = 2,120.40 + 500 kW × 12 = 6,000.00 = **21,438.00** a month, which is 706.80 below October's 22,144.80 with no action at all (23,560 × 0.03). The deadline-aware schedule is 24,800 × 0.12 = 2,976.00 + 62,000 × 0.09 = 5,580.00 + 400 × 12 = 4,800.00 = **13,356.00**. Its value is 21,438.00 − 13,356.00 = **8,082.00 a month**, and 8,082.00 × 12 − 1,500.00 = **95,484.00 over 12 months** (MODELLED; tariff applicability to be confirmed from the invoice [assumption]). A comparison with October's bill (8,788.80 a month) would credit the option with the tariff's 706.80.
 - **Gross exposure is never value.** Kobo's candidate fuel at stake, 0 … 330 L (0 … 412.50), from fuel-cost-1 (`financials/fuel_cost.py:57-79`, quantity_high = 1.10 × Σ P·h·SFC over Candidate time) [code-observed], stays labelled "upper bound of fuel at stake". The stop-threshold option's value is what the forward replay says is feasibly avoidable: (210 × 1.25 − 150 kWh × 0.08 wear) × 12 − 90.00 = (262.50 − 12.00) × 12 − 90.00 = **2,916.00** (MODELLED). 210 L is a **design value** held in the manifest that the forward-replay adapter must reproduce from real series before it is relied on.
 - **Ratio effects are never added to the money they come from.** If Mwea's aggregator contract adds 4,500 crate-days a month, revenue rises 810.00 a month and energy per crate-day falls; the second is the A5 denominator effect of the first, reported with money null.
-- **Options on the same factor node are mutually exclusive or evaluated together.** The Mto inverter remedy paths share one node; Kobo's 100 kWh battery and the stop-threshold change act on the same candidate-avoidable litres node, so the battery adds nothing the threshold change does not.
+- **Options on the same factor node are mutually exclusive or evaluated together.** The Mto inverter remedy paths share one node; Kobo's 100 kWh battery and the stop-threshold change act on the same candidate litres node, so the battery adds nothing the threshold change does not.
 - **Other option values (manifest, recomputed):** Mto rice huller (495.00 − 85.00 − 15.00) × 12 − 1,200.00 = **3,540.00**; Mto evening welder 264.00 − 272.25 = **−8.25 a month** (break-even tariff 272.25 / 660 = 0.4125 → 0.42); Kirinyaga repair 0.80 × 194.00 × 12 − 350.00 = **1,512.40**, replacement (194.00 + 40.30) × 12 − 4,800.00 = **−1,988.40**; Mwea aggregator (810.00 − 225.00 − 100.00) × 4 − 270.00 = **1,670.00** over the contract.
 
 ### 4.4 Money classes (`money_class`)
@@ -316,14 +397,14 @@ Every node and every option effect carries one class. Different classes are show
 
 | `money_class` | On screen | Meaning | Example | May be summed with |
 |---|---|---|---|---|
-| ECONOMIC_ACTUAL | Recorded | sourced revenue, expense, receipt, settlement | Mto billed 2,160.00 | same class, currency, period |
+| ECONOMIC_ACTUAL | Recorded (Quoted for a supplier quote; Estimated when the plan amount stands in) | sourced revenue, expense, receipt, settlement | Mto billed 2,160.00 | same class, currency, period |
 | OPERATIONAL_ACTUAL | Measured | physical quantity from telemetry or operational records | Kobo 1,180 L consumed | same unit |
-| DERIVED | Derived | computed from actuals by a stated method | Kirinyaga +970 kWh above model | its own components |
+| DERIVED | Calculated from records | computed from actuals by a stated method | Kirinyaga +970 kWh above model | its own components |
 | MODELLED | Modelled | counterfactual, forecast or forward replay | Kobo 2,916.00 over 12 months | MODELLED effects on **distinct** factor nodes |
-| EXPOSURE | At stake, not money | value that could be lost or recovered | B-1031 stock 2,160.00; BAT-001 cover 64,000.00; Kisiwa SLA credit 70.00 | never |
+| EXPOSURE | At stake (not money) | value that could be lost or recovered | B-1031 stock 2,160.00; BAT-001 cover 64,000.00; Kisiwa SLA credit 70.00 | never |
 | VERIFIED | Verified | observed change under a frozen prediction | none yet in October | VERIFIED on distinct nodes |
 
-ESTIMATED is a **coverage** state, not a class: an ECONOMIC_ACTUAL node whose record is missing carries the plan amount labelled Estimated, and counts in the coverage denominator.
+The evidence words on screen are exactly: Recorded, Measured, Calculated from records, Estimated, Quoted, Modelled, At stake (not money), Verified, Not available yet. ESTIMATED is a **coverage** state, not a class: an ECONOMIC_ACTUAL node whose record is missing carries the plan amount labelled Estimated, and counts in the coverage denominator.
 
 **Verified replaces modelled, never adds to it.** When an option is verified, its VERIFIED effect supersedes its MODELLED effect on the same node; money appears as ECONOMIC_ACTUAL only through the later period's recorded leaves.
 
@@ -393,9 +474,9 @@ All contracts are [proposed]. Names are illustrative; storage placement is in `r
 
 | Field | Type | Rule |
 |---|---|---|
-| node_id, structure_id@version | string | e.g. `MINI_GRID.contribution@1/fuel.litres.candidate_avoidable` |
+| node_id, structure_id@version | string | e.g. `MINI_GRID.contribution@1/fuel.litres.candidate` |
 | vertical / business model | MINI_GRID_BILLED, COLD_PAY_AS_YOU_STORE, EV_CAPTIVE, EV_COMMERCIAL | decides NOT_APPLICABLE nodes |
-| kind | IDENTITY, PRODUCT, STAGE, PHYSICAL, COMPOSITION, RATIO, LEAF | fixes the attribution rule (A1–A5) |
+| kind | LEAF, IDENTITY, PRODUCT, TIERED_PRODUCT, STAGE, PHYSICAL, COMPOSITION, RATIO | fixes the attribution rule (A1–A5) |
 | children[] with sign | node ids | acyclic; units must compose |
 | unit | kWh, L, crate_day, departure, kW, USD, ratio | checked at start-up |
 | observer | model id@version (for PHYSICAL children and derived leaves) | e.g. `dispatch-3.2`, `fuel-balance`, `cold-energy-norm@1` |
@@ -442,9 +523,13 @@ All contracts are [proposed]. Names are illustrative; storage placement is in `r
 
 `right`: {asset or service, contract type (EQUIPMENT_WARRANTY, EPC_WORKMANSHIP_WARRANTY, EPC_PERFORMANCE, OM_SLA, SERVICE_SLA, INSURANCE), counterparty, term, conditions[], exclusions[], notice {days, deadline}, remedy, extraction {page_refs, reviewed_by, reviewed_at}}. A right with unreviewed extraction cannot feed an option. `right_event`: {state (§5.3), at, by (USER), document_ref}. `recovery`: {expense_id, amount, kind (IN_KIND, CREDIT, CASH, INSURANCE)} with Σ ≤ expense.
 
-### 6.6 `obligation_bound`
+### 6.6 `protect_measure` and `obligation_bound`
 
-{obligation_id, node_id, bound (≥ / ≤ / =, value or source), mode (HARD, COSTED, ADVISORY), unknown_policy (REFUSE, CONDITIONAL), evidence requirement, reason}. Evaluated on the option's counterfactual structure (domain models §M3.6).
+`protect_measure`: {measure_id, objective (P1–P4), unit, period, target, money_class, leaf source or observer, composition (SUM, LISTED), shared_factor_id (required when the measure is money: it must reference the cost-to-serve factor, not hold its own amount), per-site and per-cause contributions, coverage}. Invariants: a money-valued measure has no amount of its own; an EXPOSURE measure is never summed.
+
+`obligation_bound` (derived from a Protect measure):
+
+{obligation_id, protect_measure_id, factor node it limits, bound (the per-option limit at which the measure would exceed its target), mode (HARD, COSTED, ADVISORY), unknown_policy (REFUSE, CONDITIONAL), evidence requirement, reason}. Evaluated on the option's counterfactual structure (domain models §M3.6).
 
 ### 6.7 Acceptance tests
 
@@ -458,8 +543,10 @@ All contracts are [proposed]. Names are illustrative; storage placement is in `r
 | E6 | Valuation identity | each option's value recomputes from its effects against NO_ACTION; Embakasi 8,082.00 / 95,484.00, never 8,788.80 |
 | E7 | Cheapest is rejected by a bound, not by price | Embakasi cheapest bill 12,975.00 < 13,356.00 because it buys 9,300 kWh less (0.167 vs 0.154 per kWh); the departures bound rejects it |
 | E8 | No-action present | every decision has exactly one NO_ACTION option, evaluated on the same structure |
-| E9 | Residual placement | residual nodes exist only beside an unobserved leaf; AT-10 |
+| E9 | Residual placement | a residual node exists only where an observed total exceeds what the modelled children explain; labelled "not explained by the model yet"; AT-10 |
 | E10 | Unit check | a structure whose units do not compose fails start-up |
+| E11 | Protect composition | Lakeside obligation-hours 0 + 10 + 20 = 30; Harvest crate-minutes 2,400–3,600; Metro departures missed 0 (Oct), 2 (Nov to date); liability and penalties equal their cost-to-serve factors |
+| E12 | Bounds derive from Protect | every `obligation_bound` names a `protect_measure`; a bound without one fails start-up |
 
 ---
 
@@ -485,6 +572,8 @@ Each test names the wrong behaviour the structure must make impossible.
 | N14 Unknown as zero | unexplained Mto 120 kWh; Kobo/Kisiwa loss split; Ruiru tier plan | treated as 0 or priced | MISSING / unpriced / "plan not declared at factor level" |
 | N15 Gross as net | fuel-cost-1 upper bound 412.50 at Kobo | used as option value | "upper bound of fuel at stake"; option 262.50 gross, 250.50 net a month |
 | N16 Duplicate source row | Mto billing CSV re-uploaded (DUP-1) | revenue doubled | idempotent: 0 new revisions |
+| N18 Protect money counted twice | Thika liability 108.00 shown in Protect and in cost to serve; Kasarani 240.00 penalties | 108.00 (or 240.00) added again in a Protect total or a "total impact" figure | one shared factor ID; the Protect measure references it; any total counts it once |
+| N19 At-stake value summed | Lakeside rights at stake 64,000.00 + 2,600.00 + 70.00; Thika stock 2,160.00 | a "66,670.00 at risk" total, or exposure added to contribution | each listed with its state; never summed with money or across rights |
 | N17 Cross-tenant | Harvest Cold row carrying Lakeside's tenant key (TENANT-1) | read into Lakeside's structure | refused at ingestion |
 
 ---

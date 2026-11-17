@@ -29,7 +29,7 @@ The build therefore starts from the choice and asks, mechanic by mechanic, what 
 
 | Factor state the tour needs | Intended value (manifest) | Facts that must produce it | Time scale |
 |---|---|---|---|
-| Kobo candidate running, avoidable / not avoidable | 210 L / 120 L of 480 L above plan | 5-minute generator, PV-available, load and SOC on the 11 candidate days; 61 days of 15-minute context for the replay | evidence window + sparse context |
+| Kobo candidate running (observed) and each option's feasible reduction of it (option effect) | 330 L observed; 210 L (stop threshold) / 20 L (reserve) as option effects | 5-minute generator, PV-available, load and SOC on the 11 candidate days; 61 days of 15-minute context for the replay | evidence window + sparse context |
 | Kobo litres beyond the model | 120 L (above 2%) | dips 220 → 240, deliveries 1,200 L (one entered 9 days late, OOO-1) | ledger history |
 | Kisiwa every generator interval necessary (negative control) | 0 candidate minutes; 20 L residual within tolerance | 15-minute context showing load > PV + PCS every evening; battery near reserve on 22 days | sparse context |
 | Mto unmapped kWh / authorised / unexplained | 140 / 40 / 120 kWh | meter register with the 3 Oct swap; meter reads; billing export | ledger history |

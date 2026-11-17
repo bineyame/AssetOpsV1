@@ -34,3 +34,17 @@ The six points the owner confirmed:
 Owner, sixth message (on why the previous version fell short):
 
 > i was not against the re-use, but the re-use itself was narrow, in the sense that it did not establish the core future mechanics, and then decided what to reuse, rebuild or create, and often it focussed on a specific path(e.g kobo or specific minigrid) that overarching logic
+
+Owner, seventh message (on rev 4, while the rev 5 fix round was running):
+
+> one things to note: execute questions should not be stated verbatim, they should just naturally emerge on the way information is organized
+
+Owner, eighth message. The coordinator explained how it understood the seventh message (text below). The owner replied: "yes, pass that to the architect".
+
+The understanding the owner confirmed:
+
+- The screens do not state the executive questions as text: not as titles, labels or subheadings, and not as captions such as "This answers the CFO's question…". The answers come from how the Portfolio is organised: what comes first, how things are grouped, how one view leads to the next, and what each number breaks down into. Each executive finds what they need without being told "this is your question".
+- Headings name the business content, not the question. For example, "Contribution by Site, plan against actual" rather than "Why is performance off plan?".
+- The structure itself carries the answers. The CFO question emerges when each outcome breaks down through its factors to plan against actual. The COO question emerges when the plan and its constraints sit where action is decided. The CEO question emerges when the overview shows which outcomes are moving and why.
+- The questions stay in the design documents as acceptance tests the design must pass. On screen they are invisible.
+- The same holds for the mock-up's tab and section names, and for the walkthrough script. The presenter can talk through the executive's concerns, but the product screens do not spell them out.

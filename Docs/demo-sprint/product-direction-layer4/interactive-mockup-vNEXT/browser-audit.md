@@ -1,4 +1,4 @@
-# Browser audit · Layer 4 rev 4 mock-up
+# Browser audit · Layer 4 mock-up rev 5
 
 Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-audit.sh`), against `index.html` opened with `file://`. Raw results: `tools/audit-results.json`. A static-server run (`python3 -m http.server` on 127.0.0.1) was also checked on five routes: all rendered, 0 console errors.
 
@@ -13,6 +13,9 @@ Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-aud
 | Routes with a link to a missing screen | 0 |
 | Routes with horizontal page scroll at 390 px | 0 |
 | Vocabulary hits (option codes, internal terms, ISO dates, ">=", "LOI", "O&M", undefined/NaN) on added and changed screens and sampled evidence drawers | 0 |
+| Product record ids (F-, ACT-, WR-, INC-) bare, or asset/batch tags without a plain name, on added and changed screens and sampled drawers | 0 |
+| Same check on preserved v7.0 screens (exempt; reported separately) | 140 occurrences on 16 preserved routes (16 distinct pages) |
+| Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | 0 |
 | Filter or lens controls on Portfolio tabs | 0 |
 | Demo operator selector in the product top bar / in the review bar | 0 / 202 |
 | Switch cases re-computing the plan correctly | 8/8 |
@@ -26,16 +29,29 @@ Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-aud
 
 | Case | Checks |
 |---|---|
-| lakeside 5000/yes | expectSpend: $3,880; expectValue: +$6,096; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; announced: pass; focusKept: pass |
-| lakeside 5000/no | expectSpend: $2,680; expectValue: +$2,556; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; announced: pass; focusKept: pass |
-| lakeside 6500/yes | expectSpend: $3,880; expectValue: +$6,096; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; announced: pass; focusKept: pass |
-| lakeside 6500/no | expectSpend: $6,430; expectValue: +$3,546; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; announced: pass; focusKept: pass |
-| harvest aggregator yes | spendOk: pass; visitsOk: pass |
-| harvest aggregator no | spendOk: pass; visitsOk: pass |
+| lakeside 5000/yes | expectSpend: $3,880; expectValue: +$6,096; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; announced: pass; focusKept: pass |
+| lakeside 5000/no | expectSpend: $2,680; expectValue: +$2,556; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; announced: pass; focusKept: pass |
+| lakeside 6500/yes | expectSpend: $3,880; expectValue: +$6,096; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; announced: pass; focusKept: pass |
+| lakeside 6500/no | expectSpend: $6,430; expectValue: +$3,546; spendOk: pass; valueOk: pass; inverterOk: pass; competingShown: pass; hullerOk: pass; valuedCostsOk: pass; announced: pass; focusKept: pass |
+| harvest aggregator yes | spendOk: pass; visitsOk: pass; valueOk: pass |
+| harvest aggregator no | spendOk: pass; visitsOk: pass; valueOk: pass |
 | metro tariff yes | spendOk: pass; valueOk: pass |
 | metro tariff no | spendOk: pass; valueOk: pass |
 
-Lakeside expected values are the four precomputed cases in the scenario file (spend, modelled 12-month change, inverter path, huller kept). After each change the plan is announced in a polite live region and focus stays on the radio button.
+Lakeside expected values are the four precomputed cases in the scenario file (spend, modelled 12-month change, inverter path, huller kept); valuedCostsOk checks that the note names spend − $2,230 as the valued options' costs and $2,230 as not valued. Harvest expects +$3,182.40 / +$1,512.40; Metro +$95,484 / $0. After each change the plan is announced in a polite live region and focus stays on the radio button.
+
+## Rev 5 checks
+
+| Operator | Protect table by site | November-to-date table | At-stake listed, never summed | "Avoidable" in an observed view | Overview Protect card shows targets |
+|---|---|---|---|---|---|
+| lakeside | true | false | true | false | true |
+| harvest | true | false | true | false | true |
+| metro | true | true | true | false | true |
+
+Plan-figure notes as shown on the Overview:
+- lakeside: "Net of the valued options’ own one-off costs ($1,650). Must-do and protective spend of $2,230 (Kisiwa repair, Kobo battery evidence) is not valued in money; its effect is on Protect measures."
+- harvest: "From the valued options: Kirinyaga repair (+$1,512.40 over 12 months) and the Mwea contract (+$1,670, its 4 months inside the 12-month horizon), net of their own costs ($620). Not valued in money: Thika n"
+- metro: "From the valued option: the Embakasi schedule, net of its $1,500 set-up. Not valued in money: Kasarani cover ($90), protective; its effect is departures protected."
 
 ## Operator switch
 

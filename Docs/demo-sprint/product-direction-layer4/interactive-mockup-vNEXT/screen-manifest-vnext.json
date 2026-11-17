@@ -5,7 +5,7 @@
   "root": "Portfolio",
   "section": "",
   "anchor": "Layer 4 design rev 4 §6.2",
-  "question": "Which outcomes are off plan, which factors show it, and what is the plan?",
+  "question": "Outcomes against plan with the factors that make them, factors needing attention, and the first moves of the plan.",
   "models": [
    "Factor structure (site × period)",
    "Portfolio composition",
@@ -70,7 +70,7 @@
   "root": "Sites",
   "section": "",
   "anchor": "8.2",
-  "question": "Which of our sites needs attention, and what is the recommended move?",
+  "question": "The operator’s sites: outcome against plan, factor needing attention, recommended move.",
   "models": [
    "SiteDirectorySummary",
    "SiteAssessmentSummary",
@@ -229,7 +229,7 @@
   "subtitle": "Performance · renewable use and productive-load opportunity",
   "window": "Illustrative recurrence sample · 5 observed days",
   "layer4_status": "Changed",
-  "layer4_note": "Slim banner: these detailed views come from the earlier demo (2 connectors, 80 kW) and depot-wide figures are on the Ruiru overview."
+  "layer4_note": "Slim banner: spare solar without a customer is capacity, not opportunity value."
  },
  {
   "id": "evidence",
@@ -961,7 +961,7 @@
   "root": "Financials",
   "section": "",
   "anchor": "8.9 · 8.36",
-  "question": "What is our economic position, factor by factor, against plan?",
+  "question": "Economic statement: every site’s money factors against plan.",
   "models": [
    "PortfolioConsequenceRollup",
    "FinancialConsequenceRevision"
@@ -2528,7 +2528,7 @@
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "What do we do first under budget and crews, and what changes the plan?",
+  "question": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2546,14 +2546,14 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · Act first · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What do we do first under budget and crews, and what changes the plan?"
+  "layer4_note": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it."
  },
  {
   "id": "portfolio/outcomes-by-site",
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "How do each site’s factors compose its outcomes, and where does each deviation arise?",
+  "question": "Each outcome by site, broken down through its factors to plan against actual; Protect measures against their targets.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2571,14 +2571,14 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · Outcomes by site · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "How do each site’s factors compose its outcomes, and where does each deviation arise?"
+  "layer4_note": "Each outcome by site, broken down through its factors to plan against actual; Protect measures against their targets."
  },
  {
   "id": "portfolio/opportunity",
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "Which demand can be served profitably, and what limits it?",
+  "question": "Demand that adds contribution, rejected demand with break-even, and capacity without a customer.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2596,14 +2596,14 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · Opportunity · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Which demand can be served profitably, and what limits it?"
+  "layer4_note": "Demand that adds contribution, rejected demand with break-even, and capacity without a customer."
  },
  {
   "id": "portfolio/what-changed",
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "Did the committed changes work, and where do our contract rights stand?",
+  "question": "Commitments with frozen predictions and three verdicts; contract rights and their states.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2621,14 +2621,14 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · What changed · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Did the committed changes work, and where do our contract rights stand?"
+  "layer4_note": "Commitments with frozen predictions and three verdicts; contract rights and their states."
  },
  {
   "id": "portfolio/scope",
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "What do the figures rest on, what is missing, and what would a pilot need?",
+  "question": "Coverage by site and leaf factor, missing records, sources and the pilot request.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2646,14 +2646,14 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · Scope & coverage · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What do the figures rest on, what is missing, and what would a pilot need?"
+  "layer4_note": "Coverage by site and leaf factor, missing records, sources and the pilot request."
  },
  {
   "id": "portfolio/scope/pilot",
   "title": "Request a paid diagnostic",
   "root": "Portfolio",
   "section": "",
-  "question": "What would a paid diagnostic need from us, and what would we get?",
+  "question": "Paid diagnostic: minimum records and deliverables.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2672,14 +2672,14 @@
   "ptab": "portfolio/scope",
   "subtitle": "Lakeside Power · minimum records and deliverables",
   "layer4_status": "Added",
-  "layer4_note": "What would a paid diagnostic need from us, and what would we get?"
+  "layer4_note": "Paid diagnostic: minimum records and deliverables."
  },
  {
   "id": "site/kobo",
   "title": "Kobo",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Kobo’s outcomes, which factors define them, and what is decided here?",
+  "question": "Kobo: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2698,14 +2698,14 @@
   "siteTab": "Overview",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Kobo’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Kobo: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/kobo/economics",
   "title": "Kobo",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Kobo’s economic position, factor by factor, against plan?",
+  "question": "Kobo economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2724,14 +2724,14 @@
   "siteTab": "Financials",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Kobo’s economic position, factor by factor, against plan?"
+  "layer4_note": "Kobo economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/kisiwa",
   "title": "Kisiwa",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Kisiwa’s outcomes, which factors define them, and what is decided here?",
+  "question": "Kisiwa: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2750,14 +2750,14 @@
   "siteTab": "Overview",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Kisiwa’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Kisiwa: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/kisiwa/economics",
   "title": "Kisiwa",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Kisiwa’s economic position, factor by factor, against plan?",
+  "question": "Kisiwa economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2776,7 +2776,7 @@
   "siteTab": "Financials",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Kisiwa’s economic position, factor by factor, against plan?"
+  "layer4_note": "Kisiwa economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/kisiwa/foundation",
@@ -2939,7 +2939,7 @@
   "title": "Mto",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Mto’s outcomes, which factors define them, and what is decided here?",
+  "question": "Mto: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2958,14 +2958,14 @@
   "siteTab": "Overview",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Mto’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Mto: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/mto/economics",
   "title": "Mto",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Mto’s economic position, factor by factor, against plan?",
+  "question": "Mto economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2984,7 +2984,7 @@
   "siteTab": "Financials",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Mto’s economic position, factor by factor, against plan?"
+  "layer4_note": "Mto economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/mto/foundation",
@@ -3147,7 +3147,7 @@
   "title": "Mwea",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Mwea’s outcomes, which factors define them, and what is decided here?",
+  "question": "Mwea: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3166,14 +3166,14 @@
   "siteTab": "Overview",
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Mwea’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Mwea: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/mwea/economics",
   "title": "Mwea",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Mwea’s economic position, factor by factor, against plan?",
+  "question": "Mwea economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3192,7 +3192,7 @@
   "siteTab": "Financials",
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Mwea’s economic position, factor by factor, against plan?"
+  "layer4_note": "Mwea economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/mwea/foundation",
@@ -3355,7 +3355,7 @@
   "title": "Thika",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Thika’s outcomes, which factors define them, and what is decided here?",
+  "question": "Thika: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3374,14 +3374,14 @@
   "siteTab": "Overview",
   "subtitle": "Cold room B · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Thika’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Thika: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/thika/economics",
   "title": "Thika",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Thika’s economic position, factor by factor, against plan?",
+  "question": "Thika economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3400,14 +3400,14 @@
   "siteTab": "Financials",
   "subtitle": "Cold room B · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Thika’s economic position, factor by factor, against plan?"
+  "layer4_note": "Thika economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/kirinyaga",
   "title": "Kirinyaga",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Kirinyaga’s outcomes, which factors define them, and what is decided here?",
+  "question": "Kirinyaga: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3426,14 +3426,14 @@
   "siteTab": "Overview",
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Kirinyaga’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Kirinyaga: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/kirinyaga/economics",
   "title": "Kirinyaga",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Kirinyaga’s economic position, factor by factor, against plan?",
+  "question": "Kirinyaga economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3452,7 +3452,7 @@
   "siteTab": "Financials",
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Kirinyaga’s economic position, factor by factor, against plan?"
+  "layer4_note": "Kirinyaga economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/kirinyaga/foundation",
@@ -3615,7 +3615,7 @@
   "title": "Embakasi",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Embakasi’s outcomes, which factors define them, and what is decided here?",
+  "question": "Embakasi: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3634,14 +3634,14 @@
   "siteTab": "Overview",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Embakasi’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Embakasi: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/embakasi/economics",
   "title": "Embakasi",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Embakasi’s economic position, factor by factor, against plan?",
+  "question": "Embakasi economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3660,7 +3660,7 @@
   "siteTab": "Financials",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Embakasi’s economic position, factor by factor, against plan?"
+  "layer4_note": "Embakasi economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/embakasi/foundation",
@@ -3823,7 +3823,7 @@
   "title": "Kasarani",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Kasarani’s outcomes, which factors define them, and what is decided here?",
+  "question": "Kasarani: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3842,14 +3842,14 @@
   "siteTab": "Overview",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Kasarani’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Kasarani: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/kasarani/economics",
   "title": "Kasarani",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Kasarani’s economic position, factor by factor, against plan?",
+  "question": "Kasarani economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3868,7 +3868,7 @@
   "siteTab": "Financials",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Kasarani’s economic position, factor by factor, against plan?"
+  "layer4_note": "Kasarani economics: every factor against plan, prices and models used."
  },
  {
   "id": "site/kasarani/foundation",
@@ -4031,7 +4031,7 @@
   "title": "Ruiru",
   "root": "Sites",
   "section": "Overview",
-  "question": "What are Ruiru’s outcomes, which factors define them, and what is decided here?",
+  "question": "Ruiru: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4050,14 +4050,14 @@
   "siteTab": "Overview",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What are Ruiru’s outcomes, which factors define them, and what is decided here?"
+  "layer4_note": "Ruiru: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights."
  },
  {
   "id": "site/ruiru/economics",
   "title": "Ruiru",
   "root": "Sites",
   "section": "Financials",
-  "question": "What is Ruiru’s economic position, factor by factor, against plan?",
+  "question": "Ruiru economics: every factor against plan, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4076,14 +4076,14 @@
   "siteTab": "Financials",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "What is Ruiru’s economic position, factor by factor, against plan?"
+  "layer4_note": "Ruiru economics: every factor against plan, prices and models used."
  },
  {
   "id": "decision/kobo-generator",
-  "title": "When should Kobo’s generator stop?",
+  "title": "Kobo generator stop setting",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "When should Kobo’s generator stop?",
+  "question": "Kobo generator stop setting",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4101,14 +4101,14 @@
   "site": "kobo",
   "subtitle": "Kobo · Lakeside Power · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "When should Kobo’s generator stop?"
+  "layer4_note": "Kobo generator stop setting"
  },
  {
   "id": "decision/kobo-battery",
-  "title": "How do we protect Kobo’s battery warranty?",
+  "title": "Kobo battery warranty evidence",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we protect Kobo’s battery warranty?",
+  "question": "Kobo battery warranty evidence",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4126,14 +4126,14 @@
   "site": "kobo",
   "subtitle": "Kobo · Lakeside Power · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we protect Kobo’s battery warranty?"
+  "layer4_note": "Kobo battery warranty evidence"
  },
  {
   "id": "decision/kisiwa-genset",
-  "title": "How do we restore Kisiwa’s evening backup?",
+  "title": "Kisiwa evening backup generator",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we restore Kisiwa’s evening backup?",
+  "question": "Kisiwa evening backup generator",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4151,14 +4151,14 @@
   "site": "kisiwa",
   "subtitle": "Kisiwa · Lakeside Power · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we restore Kisiwa’s evening backup?"
+  "layer4_note": "Kisiwa evening backup generator"
  },
  {
   "id": "decision/kisiwa-om",
-  "title": "Do we raise the late repair response with the service contractor?",
+  "title": "Kisiwa late repair response and service credit",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "Do we raise the late repair response with the service contractor?",
+  "question": "Kisiwa late repair response and service credit",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4176,14 +4176,14 @@
   "site": "kisiwa",
   "subtitle": "Kisiwa · Lakeside Power · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "Do we raise the late repair response with the service contractor?"
+  "layer4_note": "Kisiwa late repair response and service credit"
  },
  {
   "id": "decision/mto-demand",
-  "title": "Which new demand should Mto’s spare daytime solar serve?",
+  "title": "Mto new daytime demand",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "Which new demand should Mto’s spare daytime solar serve?",
+  "question": "Mto new daytime demand",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4201,14 +4201,14 @@
   "site": "mto",
   "subtitle": "Mto · Lakeside Power · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "Which new demand should Mto’s spare daytime solar serve?"
+  "layer4_note": "Mto new daytime demand"
  },
  {
   "id": "decision/mto-billing",
-  "title": "How do we bill the customers missed after the meter swap?",
+  "title": "Mto billing after the meter swap",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we bill the customers missed after the meter swap?",
+  "question": "Mto billing after the meter swap",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4226,14 +4226,14 @@
   "site": "mto",
   "subtitle": "Mto · Lakeside Power · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we bill the customers missed after the meter swap?"
+  "layer4_note": "Mto billing after the meter swap"
  },
  {
   "id": "decision/mto-inverter",
-  "title": "How do we restore Mto’s failed inverter?",
+  "title": "Mto inverter 2 restore path",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we restore Mto’s failed inverter?",
+  "question": "Mto inverter 2 restore path",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4251,14 +4251,14 @@
   "site": "mto",
   "subtitle": "Mto · Lakeside Power · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we restore Mto’s failed inverter?"
+  "layer4_note": "Mto inverter 2 restore path"
  },
  {
   "id": "decision/mwea-occupancy",
-  "title": "How do we fill Mwea’s empty space?",
+  "title": "Mwea occupancy",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we fill Mwea’s empty space?",
+  "question": "Mwea occupancy",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4276,14 +4276,14 @@
   "site": "mwea",
   "subtitle": "Mwea · Harvest Cold Network · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we fill Mwea’s empty space?"
+  "layer4_note": "Mwea occupancy"
  },
  {
   "id": "decision/thika-backup",
-  "title": "How do we protect Thika’s stock until the start controller is replaced?",
+  "title": "Thika stock cover until the start controller is replaced",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we protect Thika’s stock until the start controller is replaced?",
+  "question": "Thika stock cover until the start controller is replaced",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4301,14 +4301,14 @@
   "site": "thika",
   "subtitle": "Thika · Harvest Cold Network · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we protect Thika’s stock until the start controller is replaced?"
+  "layer4_note": "Thika stock cover until the start controller is replaced"
  },
  {
   "id": "decision/kirinyaga-energy",
-  "title": "How do we bring Kirinyaga’s electricity back to what its occupancy needs?",
+  "title": "Kirinyaga electricity above the occupancy model",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we bring Kirinyaga’s electricity back to what its occupancy needs?",
+  "question": "Kirinyaga electricity above the occupancy model",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4326,14 +4326,14 @@
   "site": "kirinyaga",
   "subtitle": "Kirinyaga · Harvest Cold Network · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we bring Kirinyaga’s electricity back to what its occupancy needs?"
+  "layer4_note": "Kirinyaga electricity above the occupancy model"
  },
  {
   "id": "decision/embakasi-schedule",
-  "title": "When should Embakasi’s buses charge?",
+  "title": "Embakasi charging schedule",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "When should Embakasi’s buses charge?",
+  "question": "Embakasi charging schedule",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4351,14 +4351,14 @@
   "site": "embakasi",
   "subtitle": "Embakasi · Metro Bus Depots · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "When should Embakasi’s buses charge?"
+  "layer4_note": "Embakasi charging schedule"
  },
  {
   "id": "decision/kasarani-charger",
-  "title": "How do we keep Kasarani’s departures while charger 2 is repaired?",
+  "title": "Kasarani departures while charger 2 is repaired",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "How do we keep Kasarani’s departures while charger 2 is repaired?",
+  "question": "Kasarani departures while charger 2 is repaired",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4376,14 +4376,14 @@
   "site": "kasarani",
   "subtitle": "Kasarani · Metro Bus Depots · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "How do we keep Kasarani’s departures while charger 2 is repaired?"
+  "layer4_note": "Kasarani departures while charger 2 is repaired"
  },
  {
   "id": "decision/ruiru-expansion",
-  "title": "Can Ruiru take the city’s extra buses?",
+  "title": "Ruiru route expansion: extra buses",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "Can Ruiru take the city’s extra buses?",
+  "question": "Ruiru route expansion: extra buses",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4401,14 +4401,14 @@
   "site": "ruiru",
   "subtitle": "Ruiru · Metro Bus Depots · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "Can Ruiru take the city’s extra buses?"
+  "layer4_note": "Ruiru route expansion: extra buses"
  },
  {
   "id": "decision/ruiru-connector",
-  "title": "When do we claim Ruiru’s idle connector?",
+  "title": "Ruiru idle connector claim",
   "root": "Portfolio",
   "section": "Decision",
-  "question": "When do we claim Ruiru’s idle connector?",
+  "question": "Ruiru idle connector claim",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4426,6 +4426,6 @@
   "site": "ruiru",
   "subtitle": "Ruiru · Metro Bus Depots · options compared with no action",
   "layer4_status": "Added",
-  "layer4_note": "When do we claim Ruiru’s idle connector?"
+  "layer4_note": "Ruiru idle connector claim"
  }
 ]

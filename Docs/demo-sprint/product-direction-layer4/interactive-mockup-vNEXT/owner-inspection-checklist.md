@@ -19,3 +19,7 @@
 | 13 | Harvest's modelled change shown as two figures on different horizons, not totalled | Harvest Overview, Act first | Two figures |
 | 14 | Visual direction: keep v7.0 styling here; apply v7.2 in the product build (Q4) | — | v7.0 |
 | 15 | Evidence drawer content (definition, formula, source-shaped rows, clocks, coverage, provenance) | Any underlined number, e.g. Kobo litres on Outcomes by site | As built |
+| 16 | Rev 5: Protect as measured factors against a target of 0 (units, period, Σ over sites; EV October and November to 6 Nov separately; liability and penalties marked as the same factor as their cost line; at-stake values listed, never summed) | `#/portfolio/outcomes-by-site` (each operator); any site page; Overview Protect card | As built |
+| 17 | Rev 5: Kobo's observed fuel = needed + candidate running (330 L) + not explained by the model (120 L); 210 L only as the option's effect | `#/portfolio/outcomes-by-site`, `#/decision/kobo-generator` | As built |
+| 18 | Rev 5: plan figure "from the valued options", with spend not valued in money named (Lakeside $2,230; Harvest $100; Metro $90) | Overview figure; Act first, every switch case | As built |
+| 19 | Rev 5: no executive question or role on screen; decision titles and headings name the content; identifiers only as plain name (TAG) | Any decision page; audit result in `browser-audit.md` | As built |

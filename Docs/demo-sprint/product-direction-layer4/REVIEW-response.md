@@ -67,3 +67,34 @@ None of the findings is disputed.
 | **N9** Audit wrapper not reproducible | **Fixed** | `tools/run-audit.sh` now reads `CHROME` and `PW` (required) and the optional `AUDIT_LD_LIBRARY_PATH` / `FONTCONFIG_FILE` from the environment, with clear errors when they are missing. The README documents the setup for any machine. |
 
 Residual risks from the re-review are unchanged and already recorded: screenshots were spot-checked rather than compared in full, and RR1 still governs the replay design values.
+
+## Author response (rev 5)
+
+**Author:** AssetOps Architect (Claude) · 17 Nov 2026 · answering "## Review (rev 4 redesign)" in `REVIEW.md` (verdict REVISE, targeted). Also applied in this round: owner messages 7 and 8 (executive questions never shown on screen).
+
+| Finding | Outcome | What changed |
+|---|---|---|
+| **H1** Protect not built from factors | **Fixed** | Protect is now a declared structure of measured factors with unit, period, target, class, coverage and Σ composition over sites. Measures: <br>- mini-grid: unserved critical kWh (0); obligation-hours without redundancy (30: Kisiwa 10, Mto 20); asset-days out of service (6); <br>- cold: batches exposed (1); crate-minutes above limit (2,400–3,600); days with backup start unproven (26); <br>- EV: departures missed (0 in October; 2 in November to 6 Nov); nights below required (0; 5); charger-days out of service (26); <br>- money measures (liability 108.00, penalties 240.00) are the same factor as their cost line and are never added twice; values at stake are listed and never summed. <br>Obligation bounds are now derived from these measures: an option fails a bound when its counterfactual pushes a measure above target. <br>Files: manifest `portfolio.protect` blocks; checker (composition and field checks); main doc §2.1, §3.1, §3.1a and §6.2; contracts §2.6, §3.4, §6.6, E11–E12, N18–N19; models §3.11, §4.7; matrix §A1; CSV `protect-measure` rows; phase plan slice 3 tests. Mock-up: Overview Protect card, the Outcomes-by-site Protect section and grid column, and the site Protect panels all show measures against target; EV shows October and November to date separately. |
+| **M1** Fuel structure node depends on one option | **Fixed** | The observed split is now necessary running, candidate running (330 L, −412.50, calculated from records) and not explained by the model (120 L, −150.00). Kobo still sums to −562.00. The 210 L and 20 L appear only as option effects on the decision page. Models add a start-up check that no observed node is an option counterfactual. The manifest note now separates the fuel-cost-1 upper bound from the observed 330 L. Applied in the main doc, contracts, models, integration doc, cost plan, CSV, matrix, phase plan and mock-up. |
+| **M2** Plan value does not net all spend | **Fixed (relabel and split)** | The figure now reads "modelled 12-month change from the valued options, net of their own one-off costs". Must-do and protective spend is shown beside it as not valued in money, with its effect on Protect measures. <br>- Lakeside: +6,096.00 net of 1,650.00, with 2,230.00 not valued; every switch case satisfies valued costs = spend − 2,230.00. <br>- Harvest: +3,182.40 net of 620.00; 100.00 not valued. <br>- Metro: +95,484.00 net of 1,500.00; 90.00 not valued; the 60,000.00 avoided purchase is listed beside, not added. <br>The fields are in the manifest and checked by the checker. I did not value the must-do in money, because that would need a value-of-lost-load assumption the brief does not give (decision A16). |
+| **M3** Slices 4/5 lack cold and EV cases | **Fixed** | Slice 4 now tests the general evaluator on cold and EV inputs: Kirinyaga repair +1,512.40 vs replace −1,988.40; Embakasi's cheapest schedule rejected by the departures bound, and the deadline schedule at 8,082.00 a month against November no-action. Its gate forbids vertical-specific code in the evaluator. Slice 5 adds a Harvest Cold allocation case (720.00, or 450.00 without the aggregator). |
+| **L1** Wrong register reason for `#/renewable` | **Fixed** | The register now gives the Kobo headroom banner text. |
+| **L2** Record ids in prose | **Fixed** | One rule: product record ids (F-, ACT-, WR-, INC-, PM-) never appear on added or changed screens; they become plain words linked to their page. Client asset and batch tags appear only as "plain name (TAG)". The audit's vocabulary check is widened to these patterns: 0 hits on added and changed screens. Preserved v7.0 screens are exempt and reported separately (140 occurrences of 16 ids). |
+| **L3** Small inconsistencies | **Fixed, one partly disputed** | **Node kinds:** one list in contracts and models. **Evidence words:** nine, listed in UI strategy §6.1.4. **Residual label:** "not explained by the model yet" on screen; the attention tag reads "Not explained". **CONTRIBUTIONS citation (disputed in part):** every pack file now cites `outcomes/outcome_map.py:149-180`. The review's proposed `:150-174` would cut off the last two records (EV-3 charging income, lines 173–176; idle-charger potential, lines 178–179). The assignment is at line 149 and the closing parenthesis at 180. |
+| Owner messages 7 and 8 | **Applied** | No executive question, role or question stem on any added or changed screen, tab name, section name, drawer or review note. Headings name business content. UI strategy §3.4 and §6.1 state the rule. The §6.2 table column now reads "acceptance test it must pass (never shown on screen)". Walkthroughs mark presenter speech and do not quote the questions as screen text. The audit adds a role and question-stem check: 0 hits. |
+
+**Checks run for this round**
+
+- `python3 check_manifest.py` → **202 checks passed, 0 failed** (up from 167; adds Protect composition, valued and unvalued spend split, plan value totals).
+- Mock-up rebuild: `tools/rebase_v70.py`, `tools/gen_fixtures.py` (oracle removed, sha a196bcd30435) and `node build.mjs` all succeeded.
+- Full audit (`tools/run-audit.sh --shots`, headless Chromium, file://):
+  - 202 of 202 route renders with an h1, 184 screens;
+  - 0 console-error routes, 0 bad links, 0 overflow at 390 px;
+  - vocabulary 0; identifier rule 0 on added and changed screens; role and question stems 0;
+  - filter controls on Portfolio 0; operator selector in the product top bar 0;
+  - switch cases 8 of 8; drawer pass; focus 7 of 7; contrast spot checks 36 of 36; preserved screens identical 65 of 65; oracle not shipped.
+- CSV validator: PASS, 429 rows. Coverage: objectives 15/15, levers 28/28, classes 9/9, capabilities 30/30, options 38/38, Protect measures 14/14.
+
+**Not changed:**
+- The preserved v7.0 Ruiru pages still show a smaller public depot than the manifest's Ruiru (owner checklist item 11).
+- Decision pages show the per-option bound checks, not a per-option Protect value table, because the manifest holds no per-option Protect values; the bounds now name the measure they protect.

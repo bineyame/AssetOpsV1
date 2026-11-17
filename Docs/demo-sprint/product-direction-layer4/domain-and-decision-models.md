@@ -18,7 +18,7 @@
 
 The product does not watch outcomes and then search for causes. It **observes factors** (M2), computes every outcome through its declared structure (M1), and therefore sees a deviation or a threat **at the factor where it arises**, usually before the outcome's money closes. Three things open a decision [proposed]:
 
-1. **A factor deviates from its plan** beyond a declared materiality: Kobo's candidate-avoidable litres (210 L in October against 0 planned); Mwea's occupied crate-days (4,340 against 7,440); Embakasi's peak share (55% against 30%); Kirinyaga's efficiency factor (+970 kWh above the occupancy model).
+1. **A factor deviates from its plan** beyond a declared materiality: Kobo's candidate litres (330 L of generator running while solar could carry the load, against 0 planned); Mwea's occupied crate-days (4,340 against 7,440); Embakasi's peak share (55% against 30%); Kirinyaga's efficiency factor (+970 kWh above the occupancy model).
 2. **A factor approaches or breaches an obligation bound**: Kasarani's deliverable energy fell to 1,050 kWh a night on 1 Nov against 1,200 required, so the departures factor was at risk before any penalty; Kisiwa's generation redundancy fell to one genset at 95% evening load when GEN-KS-01 failed on 30 Oct; B-1031's chamber temperature crossed its 5 °C limit on 6 Oct.
 3. **A new latent factor appears**: a customer's demand with evidence (Mto's cooperative letter of intent for a rice huller; the city's offer of 6 more buses at Ruiru; the Mwea aggregator's draft contract), or a contract deadline (Mto inverter warranty notice by 27 Nov).
 
@@ -26,7 +26,7 @@ Headroom without a customer does **not** open a decision: Kobo's 18–20 kW dayt
 
 ### 1.2 The factor key
 
-A decision is keyed by **(site, factor node, cause)** [proposed]: for example (Kobo, `fuel.litres.candidate_avoidable`, generator stop threshold 90%); (Kasarani, `charging.chargers_in_service`, CH-K2 contactor weld); (Mto, `capacity.daytime_latent_demand`, cooperative huller LOI). The factor node is the shared factor ID of the structure (brief unit hierarchy, line 130), so every option, bound, commitment and verdict of the decision refers to the same node, and its money is counted once.
+A decision is keyed by **(site, factor node, cause)** [proposed]: for example (Kobo, `fuel.litres.candidate`, generator stop threshold 90%); (Kasarani, `charging.chargers_in_service`, CH-K2 contactor weld); (Mto, `capacity.daytime_latent_demand`, cooperative huller LOI). The factor node is the shared factor ID of the structure (brief unit hierarchy, line 130), so every option, bound, commitment and verdict of the decision refers to the same node, and its money is counted once.
 
 Findings, Finding threads, operational records and contract events **attach to the key as evidence**. The thread remains the right carrier for recurrence of a physical issue (REOPENED, RECURRED, RESOLUTION_WITHDRAWN, `chain/lifecycle.py:47-58`) [code-observed], but a decision can exist without any Finding (a plan deviation in occupancy, a customer proposal, a contract deadline), which is why rev 3's thread anchor is retired. Today a thread occurrence must be exactly a Finding or an opportunity (`0042_chain_threads.py:53`, `occurrence_one_source`) [code-observed]; that constraint stays as it is, because threads no longer carry the decision.
 
@@ -93,25 +93,27 @@ These are three different operations [proposed; brief C1 D5]:
 
 **Purpose.** Hold, as versioned code rows, the declared structure of every outcome per vertical: nodes, kinds, children, units, observers, plan declaration, bounds, lens and lever associations (contracts in `economic-metric-and-effect-contracts.md` §6.1). Evaluate it bottom-up on actual, planned and counterfactual factors with one function, and attribute deviations through it.
 
-**Status: new**, replacing the role of the outcome map. **Basis in code:** the outcome map `CONTRIBUTIONS` declares 10 signal → outcome rows, all MOVES (`outcomes/outcome_map.py:145-161`) [code-observed], and a role table maps each Finding mechanism to the outcomes it moves and checks (`outcome_map.py:18-26`: e.g. `GENERATOR_SUPPORT_CANDIDATE` moves MG-2 and checks MG-5, MG-4; `COLD_START_FAILURE` F-118; `EV_INTERRUPTION` F-130) [code-observed]. A start-up integrity check exists (`chain/graph.py:177` `check`) [code-observed]. What is kept: the code-registry form, versioning and start-up check. What changes: rows declare **outcome → factor → leaf** relations; each signal row names the factor node it observes; MOVES / CHECKED become the brief's L2.5 roles (primary → value, trade-off → costed factor, constraint → bound, evidence → Assure state). Why not keep it as is: a signal → outcome row has no arithmetic relation to the outcome, so it cannot carry money once or explain a deviation.
+**Status: new**, replacing the role of the outcome map. **Basis in code:** the outcome map `CONTRIBUTIONS` declares 10 signal → outcome rows, all MOVES (`outcomes/outcome_map.py:149-180`) [code-observed], and a role table maps each Finding mechanism to the outcomes it moves and checks (`outcome_map.py:18-26`: e.g. `GENERATOR_SUPPORT_CANDIDATE` moves MG-2 and checks MG-5, MG-4; `COLD_START_FAILURE` F-118; `EV_INTERRUPTION` F-130) [code-observed]. A start-up integrity check exists (`chain/graph.py:177` `check`) [code-observed]. What is kept: the code-registry form, versioning and start-up check. What changes: rows declare **outcome → factor → leaf** relations; each signal row names the factor node it observes; MOVES / CHECKED become the brief's L2.5 roles (primary → value, trade-off → costed factor, constraint → bound, evidence → Assure state). Why not keep it as is: a signal → outcome row has no arithmetic relation to the outcome, so it cannot carry money once or explain a deviation.
 
 ### 2.2 Mechanism
 
 ```
 # Definition (code rows, versioned)
-Node(id, kind ∈ {LEAF, IDENTITY, PRODUCT, STAGE, PHYSICAL, COMPOSITION, RATIO}, children[(id, sign)],
+Node(id, kind ∈ {LEAF, IDENTITY, PRODUCT, TIERED_PRODUCT, STAGE, PHYSICAL, COMPOSITION, RATIO},   # same list as contracts §2.1
+     children[(id, sign)],
      unit, observer?, leaf_source?, plan_declared, bounds[], lenses[], levers[], tolerance?)
 
 # Start-up integrity (fails the process, like chain/graph.py check)
 assert acyclic; every leaf has a source or observer; units compose (kWh × USD/kWh → USD);
-every observer named exists at its version; every bound refers to a node; every lens objective resolves.
+every observer named exists at its version; every bound derives from a Protect measure (§4.7);
+every lens objective resolves; no PHYSICAL child is an option's counterfactual (observation only).
 
 # Evaluation: one function for actual, plan and counterfactual
 def evaluate(node, leaves, period):
     if node.kind == LEAF:      return leaves[node.id]            # value, class, coverage, clocks, lineage
     vals = [evaluate(c, leaves, period) for c in node.children]
     if any(v.coverage == MISSING for v in vals): return partial(node, vals)   # never zero-filled
-    return combine(node.kind, vals)                               # sum, product, stage, ratio
+    return combine(node.kind, vals)          # identity/stage/composition: signed sum; product; tiered product; physical: sum; ratio
 # class of a combined node = the weakest class among its children (RECORDED > DERIVED > MODELLED);
 # coverage = share of its value resting on RECORDED leaves.
 
@@ -120,12 +122,14 @@ def evaluate(node, leaves, period):
 # Attribution (plan → actual), recursive, exact
 def attribute(node, plan, actual):
     match node.kind:
-      SUM/STAGE/PHYSICAL: return concat(attribute(c) for c in children)        # rule A1 / A4
-      PRODUCT (Q×P):      vol = (Qa−Qp)·Pp ; price = (Pa−Pp)·Qa                  # rule A2 (decision A13)
-      TIERED (ΣQ·s_k·P_k): vol, mix, price as in contracts §4.2 rule A3
-      RATIO:              numerator / denominator effects in units, money null     # rule A5
+      IDENTITY | STAGE | COMPOSITION: return concat(attribute(c) for c in children)   # rule A1
+      PHYSICAL:           concat(attribute(c) for c in children)                     # rule A4
+      PRODUCT (Q×P):      vol = (Qa−Qp)·Pp ; price = (Pa−Pp)·Qa                       # rule A2 (decision A13)
+      TIERED_PRODUCT (ΣQ·s_k·P_k): vol, mix, price as in contracts §4.2 rule A3
+      RATIO:              numerator / denominator effects in units, money null          # rule A5
     assert Σ rows == actual(node) − plan(node)        # to the cent
-    residual rows only on declared residual nodes (an unobserved leaf); never spread
+    residual rows only on declared residual nodes: observed total − what the modelled children explain
+    (label "not explained by the model yet"); never spread
 ```
 
 **Plans at factor level.** Plan lines are entered at leaves (billed kWh, tariff, litres, price, crate-days, rate, peak share, max kW). A plan entered only at a line (Ruiru's 12,600.00 energy) is accepted; attribution stops at that line and says "plan not declared at factor level" (contracts AT-11).
@@ -264,7 +268,7 @@ liability_b = contract rule(damage_b, cause = operator equipment, minutes_b) →
 | B-1029 | cabbage | no (checked out 5 Oct 16:00) | excluded | — | — | — |
 
 The decision is robust to resolution: even the lower bound (20 minutes above 5 °C) exceeds the contract's 15 minutes.
-**Error modes:** `PROBE_GAP_IN_EXCURSION` (> 5 min missing inside the window → exposure UNKNOWN for present batches, never "not exposed"); ledger presence ambiguous. **Uncertainty:** BOUNDED (minutes as a range). Chamber air temperature is not pulp temperature: exposure is a statement about air. **Calibration:** commodity limits and contract thresholds from customer contracts. **Minimum sample:** the incident window at the recorded resolution (the manifest's incident is "bounded by 5-minute readings"; evidence windows can be 1-minute). **Negative control:** B-1034 present but below its limit; B-1029 absent. **Refusal:** exposure is never presented as loss; no liability without a QA record and a contract clause; insurance never assumed (108.00 < 500.00 deductible: not claimed). **Vectors:** OBS-B1 as table (OR-CC-2); OBS-B2 remove 10 min of probe data inside the window → B-1031 UNKNOWN; OBS-B3 insurance notified 8 Oct, NOT_FILED, reimbursement 0.00 (OR-ENT-3).
+**Error modes:** `PROBE_GAP_IN_EXCURSION` (> 5 min missing inside the window → exposure UNKNOWN for present batches, never "not exposed"); ledger presence ambiguous. **Uncertainty:** BOUNDED (minutes as a range). Chamber air temperature is not pulp temperature: exposure is a statement about air. **Calibration:** commodity limits and contract thresholds from customer contracts. **Minimum sample:** the incident window at the recorded resolution (5-minute chamber readings in evidence windows, as the v7.0 probe; the time above limit is a bound). **Negative control:** B-1034 present but below its limit; B-1029 absent. **Refusal:** exposure is never presented as loss; no liability without a QA record and a contract clause; insurance never assumed (108.00 < 500.00 deductible: not claimed). **Vectors:** OBS-B1 as table (OR-CC-2); OBS-B2 remove 10 min of probe data inside the window → B-1031 UNKNOWN; OBS-B3 insurance notified 8 Oct, NOT_FILED, reimbursement 0.00 (OR-ENT-3).
 
 **Optional thermal counterfactual.** The `cold-thermal/1` pack steps an exact heat balance per minute (`simulator/assetops_simulator/packs/cold.py:5-11`) [code-observed]. It is worth running only when it changes a decision: sizing a stopgap's response time (how long, at this load and ambient, before 5 °C is crossed) [proposed]. It is not needed for energy normalisation.
 
@@ -294,6 +298,40 @@ A downtime count would rank Ruiru first; consequence ranks it last, because at R
 **Mechanism.** latent_demand(site) exists iff a customer record (signed LOI, contract draft, request with load, window and tariff) references the site; else capacity only. Kobo 18–20 kW, 10:00–15:00, no customer → capacity. Mto: cooperative LOI (15 kW, 10:00–15:00, 22 days, lapses 30 Nov) → latent factor; evening welder (verbal only) → latent factor flagged "no evidence".
 **Refusal:** no money for capacity without a customer (contracts N11). **Vectors:** OBS-H1 Kobo no opportunity value; OBS-H2 Mto huller latent factor created.
 
+### 3.11 Protect observer (new): the Protect measures, observed
+
+**Purpose.** Observe each Protect measure (contracts §2.6) from its leaves, at the factor's own cadence (interval, night, day), compose it to site and portfolio, and attribute its deviation from target to the causing asset or event (brief L1.1 Protect, P1–P4).
+**Status: new**, over kept observers: critical-feeder telemetry (the existing `unserved_critical_energy` metric, `verification_rules.py:787-790`) [code-observed]; the cold excursion and start-response Findings (`analytics/cold.py:1`) [code-observed]; EV interruption and connector-fault Findings (`analytics/ev.py:32`, `:44`) [code-observed]; fault logs in work cases; the occupancy ledger (§3.6); the charging capacity observer (§3.9).
+
+**Mechanism.**
+```
+unserved_critical_kwh(site, period) = Σ_intervals max(0, critical_demand − critical_served)          # MEASURED
+obligation_hours_without_redundancy = Σ_hours in obligation windows where available units < N−1 requirement
+                                      or capacity < declared share                                      # DERIVED
+asset_days_out_of_service           = Σ_assets days from failure record to restore record (or period end)   # RECORDED
+batches_exposed, crate_minutes      = Σ_batches 1[exposed_b] ; Σ_b crates_b × minutes_b (as a range)      # DERIVED (§3.8)
+days_backup_start_unproven          = days from a failed automatic start to a witnessed successful start  # DERIVED
+departures_missed                   = required − met (roster, departure log)                              # RECORDED
+nights_deliverable_below_required   = Σ_nights 1[deliverable_kwh < required_kwh]                           # DERIVED (§3.9)
+liability / penalties               = reference to the cost-to-serve factor (shared ID; no own amount)
+rights_value_at_stake               = listed per right with state (EXPOSURE; never summed)
+attribution: measure − target = Σ contributions tagged (site, asset or event, interval)                     # rule A1
+```
+| Portfolio | Measure (period) | Observed | Attributed to |
+|---|---|---:|---|
+| Lakeside | obligation-hours without redundancy (Oct) | 30 h | Kisiwa GEN-KS-01 10 h (30–31 Oct, 18:00–23:00); Mto INV-MT-02 20 h (28–31 Oct, 10:00–15:00) |
+| Lakeside | unserved critical energy (Oct) | 0 kWh | — |
+| Lakeside | asset-days out of service (Oct) | 6 | GEN-KS-01 2; INV-MT-02 4 |
+| Harvest Cold | crate-minutes above limit (Oct) | 2,400–3,600 | B-1031, 6 Oct, 120 crates × 20–30 min |
+| Harvest Cold | days backup start unproven (Oct) | 26 | GEN-CR-01, 6–31 Oct |
+| Harvest Cold | liability (Oct) | 108.00 | = customer-compensation factor (counted once) |
+| Metro | departures missed (Oct / Nov to 6 Nov) | 0 / 2 | Kasarani CH-K2 |
+| Metro | nights deliverable below required (Nov to date) | 5 | Kasarani CH-K2, nights 1/2 to 5/6 Nov |
+| Metro | charger-days out of service (Oct) | 26 | Ruiru CH-R7 connector 2 (no departure depended on it) |
+
+**Why it matters for decisions.** Protect measures move before money: Kasarani's nights below required became non-zero on 1/2 Nov, opening the factor key days before any penalty. Must-do and protective options are valued on these measures, not in money (§6): Kisiwa's repair brings obligation-hours without redundancy back to 0; Thika's stopgap and controller test bring days backup start unproven to 0; Kasarani's stopgap keeps departures missed at 0 until the 9 Nov restore.
+**Error modes:** `CRITICAL_FEEDER_UNMETERED` (unserved critical energy MISSING, never 0); `RESTORE_RECORD_MISSING` (asset-days open-ended, flagged); `PROBE_GAP_IN_EXCURSION` (§3.8). **Uncertainty:** EXACT for counts from records; BOUNDED for minutes. **Calibration:** obligation windows and N−1 requirements declared per site. **Minimum sample:** the period; nightly for EV. **Negative control:** Ruiru: 26 charger-days out of service and 0 missed departures, 0 nights below required. **Refusal:** a money-valued Protect measure never holds its own amount; at-stake values are never summed. **Vectors:** PR-T1 Lakeside 0 + 10 + 20 = 30 h; PR-T2 Harvest 2,400–3,600 crate-minutes, 26 days, liability 108.00 equals cost-to-serve factor; PR-T3 Metro Oct 0 missed of 1,302, Nov to date 2 and 5 nights; PR-T4 a Protect total that adds liability to cost to serve is refused (contracts N18).
+
 ---
 
 ## 4. M3 Evaluate: counterfactual factor models per lever
@@ -314,7 +352,7 @@ Horizon: 12 months unless a contract sets it (Mwea aggregator 4 months). **Error
 
 ### 4.2 Forward dispatch replay (new adapter around the existing kernel): generator policy at Kobo
 
-**Purpose.** Determine the feasibly avoidable part of candidate running under a candidate controller setting, and the bound factors (dawn charge, lowest charge, battery throughput, starts, unserved critical energy) it produces (brief MG-C1; C3 scenario 1).
+**Purpose.** Determine, for each candidate controller setting, how much of the observed candidate running it would avoid (an effect of that option, recorded on its `option_effect`; the observed structure keeps only necessary + candidate + not explained by the model), and the bound factors (dawn charge, lowest charge, battery throughput, starts, unserved critical energy) it produces (brief MG-C1; C3 scenario 1).
 **Status: new adapter.** The simulator's mini-grid controller requests RUN at or below the start threshold and STOP only after minimum runtime and at or above the stop threshold (`simulator/assetops_simulator/packs/mini_grid.py:14-18`) [code-observed]; from model v5 the effective start is min(start, reserve + 5) (`:1153-1156`) [code-observed]; a scenario may override the stop threshold inside a step-aligned window (`:356-362`, handler `:949-961`) [code-observed]. The host runs a draft to the end (`host/execution_adapter.py:869` `run_to_end`) [code-observed]; the backend may not import the simulator and sees only a projection across `runs/execution_ports.py` [code-observed]. The adapter returns a neutral projection, never kernel types [proposed].
 
 **Narrative.** Kobo's stop threshold is 90%. A pre-dawn start at 35% keeps the generator running after sunrise until the battery reaches 90%, while PV could already carry the load. That is the candidate running dispatch-3.2 observes. Whether it is *avoidable* depends on what the battery needs before the next dawn, which dispatch-3.2 does not model. The replay answers it: the same observed PV-available and load series for 61 days (1 Sep – 31 Oct) are replayed twice, under the baseline settings and under each candidate setting; the avoidable litres are the **difference of two model runs on identical inputs**, so systematic model error (an SFC bias) largely cancels.
@@ -322,8 +360,8 @@ Horizon: 12 months unless a contract sets it (Mwea aggregator 4 months). **Error
 ```
 F(π)      = Σ_days Σ_steps fuel_π(d, t)              # replayed litres under settings π
 ΔF(π)     = F(baseline) − F(π)                        # the decision quantity
-ΔF_cand   = part of ΔF on intervals dispatch-3.2 classified CANDIDATE → candidate-avoidable factor
-constrained = candidate litres − ΔF_cand             → candidate-constrained factor
+ΔF_cand(π) = part of ΔF on intervals dispatch-3.2 classified CANDIDATE   # an effect of option π (option_effect),
+                                                                         # never a node of the observed structure
 dawn_ok(π)  = ∀ d: SOC_π(d, 05:00) ≥ 35%              → bound
 value(π)  = 12 × (p_diesel × ΔF_month − c_wear × Δthroughput_month − c_start × Δstarts) − one_off
 ```
@@ -332,7 +370,7 @@ value(π)  = 12 × (p_diesel × ΔF_month − c_wear × Δthroughput_month − c
 | Setting | Avoidable L/month | Dawn charge < 35% | Added throughput | Bound result | Value |
 |---|---:|---|---:|---|---|
 | reserve 30 → 25 (today's rule) | 20 | 4 of 61 days | — | dawn adequacy FAIL (hard) | REJECTED |
-| stop 90 → 70, reserve 30 | 210 (constrained 120) | 0 of 61 | 150 kWh | dawn PASS; lowest charge 30% ≥ warranty floor 10%; wear costed 12.00 | (262.50 − 12.00) × 12 − 90.00 = **2,916.00** |
+| stop 90 → 70, reserve 30 | 210 of the 330 candidate L (120 L of candidate running remain needed) | 0 of 61 | 150 kWh | dawn PASS; lowest charge 30% ≥ warranty floor 10%; wear costed 12.00 | (262.50 − 12.00) × 12 − 90.00 = **2,916.00** |
 | 100 kWh battery (28,000) | acts on the same factor | — | — | — | DEFERRED: adds nothing the setting change does not |
 
 Candidate grid [proposed]: stop ∈ {90, 85, 80, 75, 70, 65, 60} × reserve ∈ {30, 25}. Choose the highest value that passes every hard bound with the worst replayed day at least 2 points above the dawn limit; prefer the more conservative stop when two values are within 10%.
@@ -402,25 +440,28 @@ The cheapest bill is lowest only because it buys 9,300 kWh a month less: per kWh
 **Purpose.** Make every obligation an explicit bound on a factor of the counterfactual structure, in one of three modes, with a declared policy when the factor cannot be evaluated (brief S5; C1 D5: "a hard constraint, a costed trade-off or unknown").
 **Status: new.** Today the outcome map's CHECKED role produces sentences and counts [implementation-report §2]; the safeguards that act are literals in detection (`dispatch_v3.py:290-293`), trial eligibility (one segment with SOC > r + 10, `reserve_trial.py:247-252`, `SOC_HEADROOM_POINTS = 10`, `dispatch_v3.py:47`), three verification guardrails (`verification_rules.py:787-800`: unserved critical energy, below-reserve seconds "five-minute sampled guardrail, not continuous physical SOC proof", terminal SOC) and a trial block after a guardrail failure (`actions/service.py:164-166`) [code-observed]. The mill verification family has no guardrails at all (`verification_families.py:175` `"guardrails": {}`) [code-observed].
 
-**Mechanism.** Each bound is a code row beside the structure: {obligation, factor node, comparison and threshold source, mode HARD / COSTED / ADVISORY, unknown policy REFUSE / CONDITIONAL, phases (evaluate, verify), verification metric, reason}. It is evaluated on the option's counterfactual factors before recommendation, and the same row generates the verification guardrail, so they cannot drift apart. A bound evaluates only the conditions the option changes: KOB-STOPSOC passes warranty operating limits although cell temperature is MISSING, because the setting change does not alter the SOC floor, the C-rate (30 kW on 200 kWh = 0.15C) or the thermal regime; the missing temperature record is the battery right's problem (BAT-EVIDENCE).
+**Bounds derive from Protect measures.** Protect is a declared structure of measured factors (contracts §2.6): unserved critical energy, obligation-hours without redundancy, crate-minutes above limit, days backup start unproven, departures missed, nights deliverable below required, all with target 0. A bound is the per-option limit of such a measure: **an option fails a bound when its counterfactual pushes a Protect measure above its target.** Dawn adequacy at Kobo is the limit at which unserved critical energy could become non-zero; departures met at Embakasi is the limit at which departures missed would exceed 0; evening redundancy at Kisiwa is the limit of obligation-hours without redundancy. COSTED bounds (wear, demand charge) are factors inside value, and their measure is money.
 
-| Bound | Factor | Mode | Unknown | Applies to |
-|---|---|---|---|---|
-| Dawn adequacy | SOC at 05:00 ≥ 35% every replayed day | HARD | REFUSE | generator settings, demand connections (mini) |
-| Critical load served | unserved critical kWh ≤ baseline | HARD | CONDITIONAL | generator settings, reserve trial |
-| Reserve respected | seconds below reserve = 0 (5-min sampled) | HARD | CONDITIONAL | reserve trial, settings |
-| Terminal SOC | end-of-window SOC ≥ baseline | HARD | CONDITIONAL | reserve-trial-1 only (a stop-threshold trial lowers morning SOC by design) |
-| Battery wear | Δthroughput × 0.08 [assumption] | COSTED | CONDITIONAL | any throughput change |
-| Warranty operating limits | lowest SOC ≥ 10%, ≤ 0.5C, cell ≤ 45 °C, on changed conditions | HARD | REFUSE | battery operation changes |
-| Evening redundancy | N−1 generation for 18:00–23:00 | HARD | REFUSE | no action, deferral, repair timing (Kisiwa) |
-| Departures met | delivered ≥ required by departure, every bus | HARD | REFUSE | schedules, fault paths, capacity use |
-| Import limit | max kW ≤ contracted | HARD | REFUSE | schedules, capacity use |
-| Demand charge | Δpeak kW × rate, only if the tariff applies | COSTED | CONDITIONAL | schedules |
-| Batch temperature | chamber ≤ limit of present batches | HARD | REFUSE | cooling changes, load mixing, outage stopgaps |
-| Commodity compatibility | co-stored commodities compatible | HARD | CONDITIONAL (mitigation named) | demand contracts (cold) |
-| Warranty preservation | path does not breach a cover condition | COSTED (cover forfeited) | CONDITIONAL | repair paths |
-| Notice deadline | notice sent ≤ deadline | HARD for paths claiming cover | REFUSE | entitlement paths, no action |
-| Mill safety | none defined today | — | — | must be defined before mill trials are verified |
+**Mechanism.** Each bound is a code row beside the structure: {obligation, Protect measure it limits, factor node, comparison and threshold source, mode HARD / COSTED / ADVISORY, unknown policy REFUSE / CONDITIONAL, phases (evaluate, verify), verification metric, reason}. It is evaluated on the option's counterfactual factors before recommendation, and the same row generates the verification guardrail, so they cannot drift apart. A bound evaluates only the conditions the option changes: KOB-STOPSOC passes warranty operating limits although cell temperature is MISSING, because the setting change does not alter the SOC floor, the C-rate (30 kW on 200 kWh = 0.15C) or the thermal regime; the missing temperature record is the battery right's problem (BAT-EVIDENCE).
+
+| Bound | Factor limited | Protect measure it protects (target) | Mode | Unknown | Applies to |
+|---|---|---|---|---|---|
+| Dawn adequacy | SOC at 05:00 ≥ 35% every replayed day | unserved critical energy (0 kWh) | HARD | REFUSE | generator settings, demand connections (mini) |
+| Critical load served | unserved critical kWh ≤ baseline | unserved critical energy (0 kWh) | HARD | CONDITIONAL | generator settings, reserve trial |
+| Reserve respected | seconds below reserve = 0 (5-min sampled) | unserved critical energy; asset integrity (P2) | HARD | CONDITIONAL | reserve trial, settings |
+| Terminal SOC | end-of-window SOC ≥ baseline | unserved critical energy | HARD | CONDITIONAL | reserve-trial-1 only (a stop-threshold trial lowers morning SOC by design) |
+| Battery wear | Δthroughput × 0.08 [assumption] | money (costed in value) | COSTED | CONDITIONAL | any throughput change |
+| Warranty operating limits | lowest SOC ≥ 10%, ≤ 0.5C, cell ≤ 45 °C, on changed conditions | rights value at stake (no right lost) | HARD | REFUSE | battery operation changes |
+| Evening redundancy | N−1 generation for 18:00–23:00 | obligation-hours without redundancy (0 h) | HARD | REFUSE | no action, deferral, repair timing (Kisiwa) |
+| Departures met | delivered ≥ required by departure, every bus | departures missed (0); nights deliverable below required (0) | HARD | REFUSE | schedules, fault paths, capacity use |
+| Import limit | max kW ≤ contracted | departures missed (via deliverable energy); contract compliance | HARD | REFUSE | schedules, capacity use |
+| Demand charge | Δpeak kW × rate, only if the tariff applies | money (costed in value) | COSTED | CONDITIONAL | schedules |
+| Batch temperature | chamber ≤ limit of present batches | batches exposed (0); crate-minutes above limit (0) | HARD | REFUSE | cooling changes, load mixing, outage stopgaps |
+| Backup start proven | witnessed automatic start after any failed start | days backup start unproven (0) | HARD for no action / wait paths | REFUSE | Thika remedy paths |
+| Commodity compatibility | co-stored commodities compatible | batches exposed (0) | HARD | CONDITIONAL (mitigation named) | demand contracts (cold) |
+| Warranty preservation | path does not breach a cover condition | rights value at stake | COSTED (cover forfeited) | CONDITIONAL | repair paths |
+| Notice deadline | notice sent ≤ deadline | rights value at stake | HARD for paths claiming cover | REFUSE | entitlement paths, no action |
+| Mill safety | none defined today | to be declared | — | — | must be defined before mill trials are verified |
 
 Semantics: HARD fails reject; COSTED enters value; ADVISORY informs. Unknown is never PASS. A HARD failure cannot be overridden in the product; a COSTED or ADVISORY result can be overridden only by a named USER with a reason. A configuration revision is not field actuation: the record says "configuration recorded; device change to be confirmed by the operator" until a field acknowledgement exists. Today's reserve-trial guardrails are reproduced byte-equal from rows (`test_ch9b2_reserve_byte_equal_postgres.py` as the model) [proposed]. **Vectors:** BD-1 reserve 25 FAIL dawn; BD-2 stop 70 PASS with wear 12.00; BD-3 Embakasi cheapest FAIL departures; BD-4 Kisiwa no action FAIL redundancy; BD-5 Mwea contract CONDITIONAL until the curtain is installed.
 
@@ -512,28 +553,32 @@ Must-do: KIS-REPAIR 1,800.00, 1 visit (no action fails evening redundancy). Reje
 | STOPSOC + CLAIM + BILLING | 2,250 | 2 | 2,556 | yes, lower |
 | any with KIS-BATT60 or KOB-BATT100 | > 15,800 | — | — | no |
 
-Protective pass with 1,550 and 1 visit left: BAT-EVIDENCE 430 (1 visit) → **spend 3,880.00, 3 of 3 visits** (Kisiwa repair; Mto inverter with the meter audit on the same visit; Kobo battery evidence; the huller connection is contractor work). MTO-METER-AUDIT (60) is funded from routine O&M. Modelled 12-month change **6,096.00** (MODELLED, not realised). Listed beside, not added: restored charges 672.00; potential O&M credit 70.00; battery cover at stake 64,000.00 (OR-ALLOC-1).
+Protective pass with 1,550 and 1 visit left: BAT-EVIDENCE 430 (1 visit) → **spend 3,880.00, 3 of 3 visits** (Kisiwa repair; Mto inverter with the meter audit on the same visit; Kobo battery evidence; the huller connection is contractor work). MTO-METER-AUDIT (60) is funded from routine O&M.
+
+**What the plan figure says, and what it nets.** "Modelled 12-month change from the valued options: **+6,096.00**, net of their own one-off costs (**1,650.00**: KOB-STOPSOC 90 + MTO-INV-CLAIM 360 + MTO-HULLER 1,200). Must-do and protective spend of **2,230.00** (Kisiwa repair 1,800, Kobo battery evidence 430) is not valued in money; its effect is on Protect measures" (obligation-hours without redundancy back to 0 at Kisiwa; 64,000.00 of battery cover kept claimable). Spend = valued option costs + unvalued spend: 1,650.00 + 2,230.00 = 3,880.00. The figure is MODELLED, not realised; the plan never shows a money figure that silently omits part of its spend. Listed beside, not added: restored charges 672.00; potential O&M credit 70.00; battery cover at stake 64,000.00 (OR-ALLOC-1).
 
 ### 6.3 The two switches
 
-| Budget / LOI extended | Inverter path | Huller | Spend | Value |
-|---|---|---|---:|---:|
-| 5,000 / yes | claim | yes | 3,880.00 | 6,096.00 |
-| 5,000 / no | claim | no (restore 28 Nov + 5 working days > 30 Nov lapse) | 2,680.00 | 2,916 − 360 = 2,556.00 |
-| 6,500 / yes | claim | yes | 3,880.00 | 6,096.00 (buy-now would give 3,546.00) |
-| 6,500 / no | buy now | yes | 1,800 + 90 + 2,910 + 1,200 + 430 = 6,430.00 | 2,916 + 3,540 − 2,910 = 3,546.00 |
+Every case uses the same wording and netting rule: valued option costs = spend − 2,230.00 (must-do and protective, not valued in money).
+
+| Budget / LOI extended | Inverter path | Huller | Spend | Valued option costs (netted) | Not valued in money | Modelled 12-month change from the valued options |
+|---|---|---|---:|---:|---:|---:|
+| 5,000 / yes | claim | yes | 3,880.00 | 1,650.00 (90 + 360 + 1,200) | 2,230.00 | +6,096.00 |
+| 5,000 / no | claim | no (restore 28 Nov + 5 working days > 30 Nov lapse) | 2,680.00 | 450.00 (90 + 360) | 2,230.00 | 2,916 − 360 = +2,556.00 |
+| 6,500 / yes | claim | yes | 3,880.00 | 1,650.00 | 2,230.00 | +6,096.00 (buy-now would give +3,546.00) |
+| 6,500 / no | buy now | yes | 1,800 + 90 + 2,910 + 1,200 + 430 = 6,430.00 | 4,200.00 (90 + 2,910 + 1,200) | 2,230.00 | 2,916 + 3,540 − 2,910 = +3,546.00 |
 
 Buy-now wins only with budget ≥ 6,430 **and** a letter of intent that will not be extended; below 6,430 even dropping STOPSOC and BAT-EVIDENCE leaves 1,800 + 2,910 + 1,200 = 5,910 > 5,000. More budget never lowers the result.
 
 ### 6.4 Other portfolios
 
-Harvest Cold (2,500; 2 technician visits): THIKA-EPC-STOPGAP 100 (0 visits), KIRI-REPAIR 350 (1), MWEA-AGG 270 (1) → **720.00, 2 of 2**; excluded KIRI-REPLACE (negative 12-month value), MWEA-COMPRESSOR (no fault), THIKA-SELF (voids cover). Switch: aggregator does not sign → spend 450.00, 1 visit, Mwea stays at no action. Metro (5,000; 2 visits): KAS-OEM-STOPGAP 90, EMB-DEADLINE 1,500, RUI-ABSORB6 0 → **1,590.00, 0 visits**; order: Kasarani (departures at risk now), Embakasi (largest money), Ruiru (contract decision), CH-R7 claim at the next routine visit. Switch: tariff not confirmed (flat) → schedule not recommended, spend 90.00.
+Harvest Cold (2,500; 2 technician visits): THIKA-EPC-STOPGAP 100 (0 visits), KIRI-REPAIR 350 (1), MWEA-AGG 270 (1) → **720.00, 2 of 2**; excluded KIRI-REPLACE (negative 12-month value), MWEA-COMPRESSOR (no fault), THIKA-SELF (voids cover). Valued options: KIRI-REPAIR (+1,512.40 net of 350) and MWEA-AGG (+1,670.00 over the contract, net of 270) → **modelled change from the valued options +3,182.40**, valued option costs 620.00; THIKA-EPC-STOPGAP (100.00) is protective and not valued in money: its effect is on days backup start unproven and batches exposed. Switch: aggregator does not sign → spend 450.00 (valued 350.00 → +1,512.40; not valued 100.00), 1 visit, Mwea stays at no action. Metro (5,000; 2 visits): KAS-OEM-STOPGAP 90, EMB-DEADLINE 1,500, RUI-ABSORB6 0 → **1,590.00, 0 visits**; order: Kasarani (departures at risk now), Embakasi (largest money), Ruiru (contract decision), CH-R7 claim at the next routine visit. Valued option: EMB-DEADLINE (**+95,484.00** net of its 1,500 one-off; valued option costs 1,500.00). RUI-ABSORB6 costs nothing; its 60,000.00 avoided charger purchase is MODELLED against a different comparator (buying chargers) and is listed beside, not added. KAS-OEM-STOPGAP (90.00) is not valued in money: its effect is on departures missed and nights below required (the about 240.00 of penalties it avoids is listed beside). Switch: tariff not confirmed (flat) → schedule not recommended; modelled change from valued options 0.00; spend 90.00, not valued in money.
 
 ### 6.5 When investigation or doing nothing wins
 
-Investigation wins when a residual factor is unobserved and acting would price a guess (Kobo 120 L; Mto 120 kWh; BAT-001 capacity). Doing nothing wins when no option beats no action after bounds (Mwea compressor; Kasarani scheduling; Kisiwa generator settings; Mto welder): no action is ACCEPTABLE and shown first, with what it keeps. No action is REJECTED only by a hard bound or a lapsing right (KIS-NOACT, MTO-INV-NOACT).
+Investigation wins when a residual is not explained by the model and acting would price a guess (Kobo 120 L; Mto 120 kWh; BAT-001 capacity). Doing nothing wins when no option beats no action after bounds (Mwea compressor; Kasarani scheduling; Kisiwa generator settings; Mto welder): no action is ACCEPTABLE and shown first, with what it keeps. No action is REJECTED only by a hard bound or a lapsing right (KIS-NOACT, MTO-INV-NOACT).
 
-**Error modes:** `MUST_DO_UNFUNDED`, `REFUSED_TOO_MANY`, `DEPENDENCY_CYCLE`. **Uncertainty:** inherits the options'. **Negative control:** a portfolio with only no-action-acceptable decisions returns an empty plan with reasons. **Refusal:** the plan never sums classes. **Vectors:** AL-T1 Lakeside 5,000 → 3,880.00 / 6,096.00; AL-T2 four switch cases; AL-T3 Harvest 720.00; AL-T4 Metro 1,590.00.
+**Error modes:** `MUST_DO_UNFUNDED`, `REFUSED_TOO_MANY`, `DEPENDENCY_CYCLE`. **Uncertainty:** inherits the options'. **Negative control:** a portfolio with only no-action-acceptable decisions returns an empty plan with reasons. **Refusal:** the plan never sums classes. **Vectors:** AL-T1 Lakeside 5,000 → spend 3,880.00 = 1,650.00 valued + 2,230.00 not valued; +6,096.00; AL-T2 four switch cases; AL-T3 Harvest 720.00; AL-T4 Metro 1,590.00.
 
 ---
 
@@ -613,7 +658,7 @@ A counterfactual is never a saving until verified; a normalisation is never a ta
 | Fuel balance | dips at both period edges + every delivery | 1 month | residual vs 2% tolerance |
 | Demand replay | 5 min | ≥ 28 days over the window | days without headroom |
 | Refrigeration normalisation | hourly energy, daily occupancy, hourly ambient | ≥ 60 days, ≥ 30 occupancy points span | identify a and b |
-| Batch exposure | recorded chamber resolution (5 min in the incident; 1 min where available); minute-stamped check-in/out | the incident window | minutes above a 15-min contract threshold |
+| Batch exposure | 5-minute chamber readings in evidence windows (time above limit stated as a bound); minute-stamped check-in/out | the incident window | minutes above a 15-min contract threshold |
 | Charging feasibility | per-session meter values; roster per night | ≥ 1 roster cycle; 31 nights for a monthly claim | the worst night decides |
 | Demand charge | contract interval (e.g. 15 min) | 1 invoice cycle | monthly maximum |
 | Plan deviation | monthly | 1 period (4 for context) | no seasonality from 4 periods |
@@ -674,6 +719,7 @@ Mini-grid: replay calibration per site; SFC per generator; loss band per feeder;
 | Decisions, options, evaluation, allocation | new `decisions/` package (factor key, options, stages, allocator) | cross-vertical; references existing carriers by id |
 | Replay adapter | `host/` beside `execution_adapter.py:869`, across `runs/execution_ports.py` | backend never imports the simulator |
 | Rights register and claim case | new `entitlements/`; new `work_case` kind (changes the 0027 kind CHECK and `work/model.py:27-29`) | claim lifecycle reuses assignment and the global work list |
+| Protect observer and Protect measures | `chain/protect.py` reading kept observers; measures declared in the structure registry | Protect composes like any outcome; money-valued measures reference cost-to-serve factors |
 | Economic and causal verdicts | `actions/verification_economic.py`, `actions/verification_causal.py` | siblings of `verification_rules.py` |
 
 ---

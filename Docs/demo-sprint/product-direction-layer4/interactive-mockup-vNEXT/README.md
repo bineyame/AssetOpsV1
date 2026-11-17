@@ -1,8 +1,8 @@
 # AssetEcon Layer 4 mock-up (rev 4): the restructured Portfolio
 
-**Not approved: awaits owner inspection.**
+**Not approved: awaits owner inspection.** Rev 5 (targeted revision after review): see CHANGE-REGISTER §7.
 
-A new version of the v7.0 interactive mock-up, built to the Layer 4 design rev 4 (`../layer4-transformation-design.md`, §2, §3.4, §6, §7). It keeps the v7.0 shell and left menu, keeps the Portfolio's six owner-approved tabs (Overview, Act first, Outcomes by site, Opportunity, What changed, Scope & coverage) and re-bases their content on the five mechanics: outcomes are computed from declared factor structures, deviations show at the factor where they arise, options change factors and are compared with no action, a plan is chosen under budget and crews, and proof is three separate verdicts. Three demo operators (Lakeside Power mini-grids, Harvest Cold Network cold rooms, Metro Bus Depots captive EV fleet), October 2026, books closed 6 Nov. Every figure is illustrative and comes from `../demo-site-scenario-manifest.yaml`.
+A new version of the v7.0 interactive mock-up, built to the Layer 4 design (`../layer4-transformation-design.md`, §2, §3.4, §6, §7). It keeps the v7.0 shell and left menu, keeps the Portfolio's six owner-approved tabs (Overview, Act first, Outcomes by site, Opportunity, What changed, Scope & coverage) and re-bases their content on the five mechanics: outcomes are computed from declared factor structures, deviations show at the factor where they arise, options change factors and are compared with no action, a plan is chosen under budget and crews, and proof is three separate verdicts. Three demo operators (Lakeside Power mini-grids, Harvest Cold Network cold rooms, Metro Bus Depots captive EV fleet), October 2026, books closed 6 Nov. Every figure is illustrative and comes from `../demo-site-scenario-manifest.yaml`.
 
 | | Path |
 |---|---|
@@ -27,7 +27,7 @@ python3 tools/gen_fixtures.py   # only if the scenario file changed: regenerates
 node build.mjs                  # writes index.html; refuses a bundle containing the oracle
 ```
 
-Sources: re-based v7.0 files (all edits in `tools/rebase_v70.py`, log in `tools/rebase-log.txt`); new `economics.css`, `loop-core.js` (data, factor structures, evidence drawer, shell hooks), `loop-decisions.js` (options, rights, 14 decisions), `loop-portfolio.js` (six tabs, Sites, Financials, pilot), `loop-site.js` (site overview, economics, decision pages), `loop-init.js` (registration, change status).
+Sources: re-based v7.0 files (all edits in `tools/rebase_v70.py`, log in `tools/rebase-log.txt`); new `economics.css`, `loop-core.js` (data, factor structures, evidence drawer, shell hooks), `loop-decisions.js` (options, rights, 14 decisions), `loop-protect.js` (Protect measures), `loop-portfolio.js` (six tabs, Sites, Financials, pilot), `loop-site.js` (site overview, economics, decision pages), `loop-init.js` (registration, change status).
 
 ## Audit and screenshots
 

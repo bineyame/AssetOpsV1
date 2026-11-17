@@ -1,4 +1,848 @@
 {
+ "idHits": [],
+ "idHitsPreserved": [
+  {
+   "op": "lakeside",
+   "id": "ACT-049",
+   "kind": "record id",
+   "at": "Restore reporting · ACT-049 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Generator stop threshold · linked to ACT-048"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Open F-104 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Findings›F-104›Overview· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · Kobo Mini-grid · generator dispatch · 6 Oct 2026"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · stop-setting trial, now in its verification window."
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Open ACT-048 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Findings›F-104›Analysis· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · analytical method, input comparison and uncertainty"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · Analysis"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Findings›F-104›Recommendation· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · proposed policy intervention and declared success criterion"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · Recommendation"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · retained analytic revision"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Actions›ACT-048›Verification· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · source F-104 · owner: site controls lead"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "ACT-048 · source F-104 · owner: site controls lead"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · Verification window"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Health· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Battery · BAT-001"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "1 · F-104"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "1 · ACT-048"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "Open Incident INC-203 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "Open INC-203 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "Incidents›INC-203›Timeline· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "INC-203 · Thika · power-to-product-condition case"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "INC-203 · Awaiting evidence"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118 · Backup response failure"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-119",
+   "kind": "record id",
+   "at": "F-119 · Temperature excursion"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "WR-019 · Starter/control inspection"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-051",
+   "kind": "record id",
+   "at": "ACT-051 · Witnessed backup test"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "Maintenance›WR-019›Verification· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "WR-019 · Thika · owner: maintenance lead"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "WR-019 · Completed"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "Linked case INC-203 · Finding F-118 remains open"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "Linked case INC-203 · Finding F-118 remains open"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "INC-203"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · Generator support review"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-108",
+   "kind": "record id",
+   "at": "F-108 · Battery output-limit report missing"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-109",
+   "kind": "record id",
+   "at": "F-109 · Productive-use headroom"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · Review generator stop setting"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-049",
+   "kind": "record id",
+   "at": "ACT-049 · Restore battery-limit reporting"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-108",
+   "kind": "record id",
+   "at": "F-108"
+  },
+  {
+   "op": "lakeside",
+   "id": "GEN-CR-01",
+   "kind": "asset or batch tag without a plain name",
+   "at": "GEN-CR-01"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118 · Backup response failed"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-119",
+   "kind": "record id",
+   "at": "F-119 · Temperature excursion"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-051",
+   "kind": "record id",
+   "at": "ACT-051 · Witness automatic-start test"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "INC-203 · Backup response failure"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-119",
+   "kind": "record id",
+   "at": "F-119"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "WR-019 · Starter and control inspection"
+  },
+  {
+   "op": "lakeside",
+   "id": "GEN-CR-01",
+   "kind": "asset or batch tag without a plain name",
+   "at": "GEN-CR-01 · backup generator"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "Findings›F-118›Overview· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "Findings›F-118›Recommendation· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118 · Recommendation"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "The backup generator failed to start on grid loss; the starter and control circuit were inspected (WR-019) but nothing y"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118 · backup response failure"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-051",
+   "kind": "record id",
+   "at": "ACT-051 · accepted"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-130",
+   "kind": "record id",
+   "at": "Findings›F-130›Overview· site: Ruiru depot"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-130",
+   "kind": "record id",
+   "at": "F-130"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-130",
+   "kind": "record id",
+   "at": "Findings›F-130›Recommendation· site: Ruiru depot"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-130",
+   "kind": "record id",
+   "at": "F-130 · Recommendation"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-130",
+   "kind": "record id",
+   "at": "F-130 · connector 2 session fault"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-061",
+   "kind": "record id",
+   "at": "ACT-061 · open"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-061",
+   "kind": "record id",
+   "at": "Actions›ACT-061›Verification· site: Ruiru depot"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-061",
+   "kind": "record id",
+   "at": "ACT-061 · Investigate connector 2"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Findings›F-104›Evidence· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Evidence bundle · F-104"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Findings›F-104›Alternatives· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Findings›F-104›History· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 revision 1 constructed"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Actions›ACT-048›Overview· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · Generator policy review"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Actions›ACT-048›Plan· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · Generator policy review"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Actions›ACT-048›Execution· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · Generator policy review"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Actions›ACT-048›Evidence· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · Generator policy review"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "Actions›ACT-048›History· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-048",
+   "kind": "record id",
+   "at": "ACT-048 · Generator policy review"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-119",
+   "kind": "record id",
+   "at": "Findings›F-119›Overview· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-119",
+   "kind": "record id",
+   "at": "F-119"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "Related: F-118 backup response →"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-051",
+   "kind": "record id",
+   "at": "Actions›ACT-051›Verification· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-051",
+   "kind": "record id",
+   "at": "ACT-051 · Witness automatic-start test"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "Maintenance lead · Thika · F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "Starter/control inspection WR-019 is complete. A witnessed outcome test remains required."
+  },
+  {
+   "op": "lakeside",
+   "id": "GEN-CR-01",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Sites›Thika cold room›FoundationThika cold roomSimulated site · COLD-THIKAProduce cold room · 2–4°C policy · hybrid: 15 "
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Overview· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "Linked: F-104 charges this battery"
+  },
+  {
+   "op": "lakeside",
+   "id": "PM-0447",
+   "kind": "asset or batch tag without a plain name",
+   "at": "PM-0447 capacity test · due 1 Nov"
+  },
+  {
+   "op": "lakeside",
+   "id": "PM-0447",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Work › PM-0447 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "PM-0447",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Capacity test · PM-0447 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Performance· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Configuration· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · battery, lithium iron phosphate"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Configuration· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · edit registration"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Work· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · scoped Actions and Maintenance"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Scoped to BAT-001 · 0 actions · 1 scheduledSame records as Actions and MaintenanceManage in Maintenance →"
+  },
+  {
+   "op": "lakeside",
+   "id": "PM-0447",
+   "kind": "asset or batch tag without a plain name",
+   "at": "PM-0447 · Battery capacity test"
+  },
+  {
+   "op": "lakeside",
+   "id": "PM-0390",
+   "kind": "asset or batch tag without a plain name",
+   "at": "PM-0390 · Battery inspection"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Evidence· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · condition evidence"
+  },
+  {
+   "op": "lakeside",
+   "id": "PM-0447",
+   "kind": "asset or batch tag without a plain name",
+   "at": "PM-0447 →"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Assets›BAT-001›Warranty· site: Kobo Mini-grid"
+  },
+  {
+   "op": "lakeside",
+   "id": "BAT-001",
+   "kind": "asset or batch tag without a plain name",
+   "at": "BAT-001 · warranty and usage against terms"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "Maintenance›WR-019›Overview· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "WR-019 · Thika · corrective"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "INC-203"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection"
+  },
+  {
+   "op": "lakeside",
+   "id": "GEN-CR-01",
+   "kind": "asset or batch tag without a plain name",
+   "at": "Starter and control circuit on GEN-CR-01 inspected after the failed automatic start in INC-203. Loose control connection"
+  },
+  {
+   "op": "lakeside",
+   "id": "GEN-CR-01",
+   "kind": "asset or batch tag without a plain name",
+   "at": "GEN-CR-01 · backup generator · diagram →"
+  },
+  {
+   "op": "lakeside",
+   "id": "ACT-051",
+   "kind": "record id",
+   "at": "ACT-051 · witnessed start test"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "Maintenance›WR-019›Maintenance record· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "WR-019 · Thika · corrective"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "INC-203"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "Maintenance›WR-019›History· site: Thika cold room"
+  },
+  {
+   "op": "lakeside",
+   "id": "WR-019",
+   "kind": "record id",
+   "at": "WR-019 · Thika · corrective"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "INC-203"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118"
+  },
+  {
+   "op": "lakeside",
+   "id": "INC-203",
+   "kind": "record id",
+   "at": "Raised from INC-203"
+  }
+ ],
+ "roleHits": [],
  "routes": [
   {
    "op": "lakeside",
@@ -1875,7 +2719,7 @@
    "id": "decision/kobo-generator",
    "status": "Added",
    "ok": true,
-   "h1": "When should Kobo’s generator stop?",
+   "h1": "Kobo generator stop setting",
    "landed": "decision/kobo-generator",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1886,7 +2730,7 @@
    "id": "decision/kobo-battery",
    "status": "Added",
    "ok": true,
-   "h1": "How do we protect Kobo’s battery warranty?",
+   "h1": "Kobo battery warranty evidence",
    "landed": "decision/kobo-battery",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1897,7 +2741,7 @@
    "id": "decision/kisiwa-genset",
    "status": "Added",
    "ok": true,
-   "h1": "How do we restore Kisiwa’s evening backup?",
+   "h1": "Kisiwa evening backup generator",
    "landed": "decision/kisiwa-genset",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1908,7 +2752,7 @@
    "id": "decision/kisiwa-om",
    "status": "Added",
    "ok": true,
-   "h1": "Do we raise the late repair response with the service contractor?",
+   "h1": "Kisiwa late repair response and service credit",
    "landed": "decision/kisiwa-om",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1919,7 +2763,7 @@
    "id": "decision/mto-demand",
    "status": "Added",
    "ok": true,
-   "h1": "Which new demand should Mto’s spare daytime solar serve?",
+   "h1": "Mto new daytime demand",
    "landed": "decision/mto-demand",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1930,7 +2774,7 @@
    "id": "decision/mto-billing",
    "status": "Added",
    "ok": true,
-   "h1": "How do we bill the customers missed after the meter swap?",
+   "h1": "Mto billing after the meter swap",
    "landed": "decision/mto-billing",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1941,7 +2785,7 @@
    "id": "decision/mto-inverter",
    "status": "Added",
    "ok": true,
-   "h1": "How do we restore Mto’s failed inverter?",
+   "h1": "Mto inverter 2 restore path",
    "landed": "decision/mto-inverter",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1952,7 +2796,7 @@
    "id": "decision/mwea-occupancy",
    "status": "Added",
    "ok": true,
-   "h1": "How do we fill Mwea’s empty space?",
+   "h1": "Mwea occupancy",
    "landed": "decision/mwea-occupancy",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1963,7 +2807,7 @@
    "id": "decision/thika-backup",
    "status": "Added",
    "ok": true,
-   "h1": "How do we protect Thika’s stock until the start controller is replaced?",
+   "h1": "Thika stock cover until the start controller is replaced",
    "landed": "decision/thika-backup",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1974,7 +2818,7 @@
    "id": "decision/kirinyaga-energy",
    "status": "Added",
    "ok": true,
-   "h1": "How do we bring Kirinyaga’s electricity back to what its occupancy needs?",
+   "h1": "Kirinyaga electricity above the occupancy model",
    "landed": "decision/kirinyaga-energy",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1985,7 +2829,7 @@
    "id": "decision/embakasi-schedule",
    "status": "Added",
    "ok": true,
-   "h1": "When should Embakasi’s buses charge?",
+   "h1": "Embakasi charging schedule",
    "landed": "decision/embakasi-schedule",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1996,7 +2840,7 @@
    "id": "decision/kasarani-charger",
    "status": "Added",
    "ok": true,
-   "h1": "How do we keep Kasarani’s departures while charger 2 is repaired?",
+   "h1": "Kasarani departures while charger 2 is repaired",
    "landed": "decision/kasarani-charger",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2007,7 +2851,7 @@
    "id": "decision/ruiru-expansion",
    "status": "Added",
    "ok": true,
-   "h1": "Can Ruiru take the city’s extra buses?",
+   "h1": "Ruiru route expansion: extra buses",
    "landed": "decision/ruiru-expansion",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2018,7 +2862,7 @@
    "id": "decision/ruiru-connector",
    "status": "Added",
    "ok": true,
-   "h1": "When do we claim Ruiru’s idle connector?",
+   "h1": "Ruiru idle connector claim",
    "landed": "decision/ruiru-connector",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2557,6 +3401,7 @@
    "inverterOk": true,
    "competingShown": true,
    "hullerOk": true,
+   "valuedCostsOk": true,
    "announced": true,
    "focusKept": true
   },
@@ -2568,6 +3413,7 @@
    "inverterOk": true,
    "competingShown": true,
    "hullerOk": true,
+   "valuedCostsOk": true,
    "announced": true,
    "focusKept": true
   },
@@ -2579,6 +3425,7 @@
    "inverterOk": true,
    "competingShown": true,
    "hullerOk": true,
+   "valuedCostsOk": true,
    "announced": true,
    "focusKept": true
   },
@@ -2590,23 +3437,28 @@
    "inverterOk": true,
    "competingShown": true,
    "hullerOk": true,
+   "valuedCostsOk": true,
    "announced": true,
    "focusKept": true
   },
   "harvest aggregator yes": {
    "spendOk": true,
    "visitsOk": true,
+   "valueOk": true,
    "got": [
     "$720 of $2,500",
-    "2 of 2"
+    "2 of 2",
+    "+$3,182.40"
    ]
   },
   "harvest aggregator no": {
    "spendOk": true,
    "visitsOk": true,
+   "valueOk": true,
    "got": [
     "$450 of $2,500",
-    "1 of 2"
+    "1 of 2",
+    "+$1,512.40"
    ]
   },
   "metro tariff yes": {
@@ -2974,6 +3826,33 @@
  "errors": [],
  "links": {},
  "oracleShipped": false,
+ "reviewNotesChecked": true,
+ "rev5": {
+  "lakeside": {
+   "protectTable": true,
+   "novTable": false,
+   "stakeListed": true,
+   "avoidableObserved": false,
+   "overviewProtectTargets": true,
+   "valueNote": "plan $2,295 · 91.5% · show how this is worked out of cost on recorded facts −$676 attributed to observed factors · −$176 not explained by the model yet of $5,000 3 of 3 crew visits in November Net of the valued options’ own one-off costs ($1,650). Must-do and protective spend of $2,230 (Kisiwa repair, Kobo battery evidence) is not valued in money; its effect is on Protect measures."
+  },
+  "harvest": {
+   "protectTable": true,
+   "novTable": false,
+   "stakeListed": true,
+   "avoidableObserved": false,
+   "overviewProtectTargets": true,
+   "valueNote": "plan $1,716 · 97.8% · show how this is worked out of cost on recorded facts −$770 attributed to observed factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits in November From the valued options: Kirinyaga repair (+$1,512.40 over 12 months) and the Mwea contract (+$1,670, its 4 months inside the 12-month horizon), net of their own costs ($620). Not valued in money: Thika n"
+  },
+  "metro": {
+   "protectTable": true,
+   "novTable": true,
+   "stakeListed": true,
+   "avoidableObserved": false,
+   "overviewProtectTargets": true,
+   "valueNote": "plan $38,520.80 · 99.3% · show how this is worked out of cost on recorded facts −$3,204 attributed to observed factors · +$19.68 not explained by the model yet. Minus means cost above plan. of $5,000 0 of 2 technician visits in November From the valued option: the Embakasi schedule, net of its $1,500 set-up. Not valued in money: Kasarani cover ($90), protective; its effect is departures protected."
+  }
+ },
  "tabsKeyboard": true,
  "summary": {
   "routesChecked": 202,
@@ -2989,6 +3868,9 @@
   "badLinkRoutes": 0,
   "overflow390": 0,
   "vocabHits": 0,
+  "identifierHitsAddedChanged": 0,
+  "identifierHitsPreservedV70": 140,
+  "roleOrQuestionHits": 0,
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
   "operatorSelectInReviewBar": 202,
