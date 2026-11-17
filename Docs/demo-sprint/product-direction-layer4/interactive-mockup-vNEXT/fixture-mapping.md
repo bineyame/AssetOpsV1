@@ -26,7 +26,7 @@ Built in `loop-core.js` (`miniTree`, `coldTree`, `evTree`). Plan and October val
 | Fuel balance (Kobo, Kisiwa) | — | `period.fuel_balance.*`; % = residual_l ÷ consumed_l against `tolerance_pct` | — | Recorded |
 | Operations and maintenance, staff | `plan.om`, `plan.staff` | `actual.om`, `actual.staff` | plan − actual | `coverage.om`, `coverage.staff` |
 | Occupied crate-days, occupancy % | `plan.crate_days`, `plan.occupancy_pct` | `actual.*` | bridge `OCCUPANCY_REVENUE` (Mwea) else 0 | Recorded |
-| Idle capacity | `T1.capacity_crate_days_oct` − plan crate-days | − actual crate-days | — | Calculated from records |
+| Idle capacity | `DERIVED.sites["harvest-cold/<room>"].actual.nodes.capacity_crate_days` − plan crate-days | − actual crate-days | — | Calculated from records |
 | Storage rate, electricity price | `T1.prices.*` | same | 0 | Recorded |
 | Electricity (cold) | `plan.energy` | `actual.energy` | plan − actual | `coverage.energy` |
 | Electricity expected at this occupancy | `plan.kwh` | `actual.kwh_model` | bridge `OCCUPANCY_ENERGY_VOLUME` (Mwea) else 0 | Modelled |
@@ -40,7 +40,7 @@ Built in `loop-core.js` (`miniTree`, `coldTree`, `evTree`). Plan and October val
 | Demand charge, monthly peak import | `plan.demand_cost`, `plan.max_kw` | `actual.*`; limit `physical.import_limit_kw` | bridge `DEMAND_CHARGE` | Recorded |
 | Ruiru peak, off-peak, demand | — | `actual.peak_cost`, `offpeak_cost`, `demand_cost`, `max_kw` | — | Recorded |
 | Ruiru not attributed | — | — | `period.variance` (+19.68): plan is a bill total only | Calculated from records (residual) |
-| Kasarani energy deliverable a night | `incident.capacity_after.required_kwh` | `incident.capacity_after.deliverable_kwh` | — | Measured |
+| Kasarani energy deliverable a night | `DERIVED.sites["metro-bus/Kasarani"].november_to_date.nodes.required_kwh_night` | `….november_to_date.nodes.deliverable_kwh_night` | — | Calculated from records |
 | Maintenance (EV) | `plan.maintenance` | `actual.maintenance` | 0 | `coverage.maintenance` |
 | Penalties for missed departures (EV) | 0 | 0 in October: every required departure met (`departures_met = departures_required`; derivation; `chain_model.EV_DEPOT_CAPTIVE.cost_lines` includes penalties) | 0 | Calculated from records |
 
@@ -56,12 +56,12 @@ Built in `loop-core.js` (`miniTree`, `coldTree`, `evTree`). Plan and October val
 | Revenue and cost factor moves | `portfolio.chain.revenue_variance`, `cost_variance` |
 | % of cost on recorded facts | `portfolio.coverage.cost_recorded_share` (drawer: `cost_recorded_usd ÷ cost_total_usd`) |
 | Deviation attributed / not explained | Σ of residual factors (bridge `UNEXPLAINED_RESIDUAL` rows; Ruiru variance): Lakeside −150 − 26 = −176, attributed −852 − (−176) = −676; Harvest 0 and −770; Metro +19.68 and −3,204 (derivation) |
-| Plan spend, crew visits | Lakeside switch case `allocation.switches[].cases[key].spend`, `crew_visits_used`, `portfolio_constraints.crew_visits_nov`; Harvest `allocation.spend` (− `spend_breakdown.MWEA-AGG` when the aggregator does not sign) and `technician_visits_used` (− 1 then; from the switch text "technician visits 1 of 2"); Metro `allocation.spend` (− `spend_breakdown.EMB-DEADLINE` when the tariff does not apply) |
+| Plan spend, crew visits | `DERIVED.plans[t].switch_cases[case].spend`, `.crew_visits_used` and `.crew_visits_limit` (rev 12; the case follows the switches: Lakeside budget/letter of intent, Harvest aggregator, Metro tariff) |
 | Modelled 12-month change from the valued options | Lakeside case `value` (default 6,088.50 since rev 10); label `allocation.value_label`; valued costs = case `spend` − `allocation.unvalued_spend` (2,230): 1,650 / 450 / 1,650 / 4,200 (default equals `valued_option_costs`). Harvest: `KIRI-REPAIR.economics.net_12m` + `MWEA-AGG.economics.net_contract` = 3,182.40 net of `spend_breakdown` 350 + 270 = 620 (Architect rule, models §6.4; aggregator not signing: 1,512.40 on 350); `THIKA-EPC-STOPGAP` 100 not valued. Metro `EMB-DEADLINE.economics.net_12m` net of `one_off` 1,500; `KAS-OEM-STOPGAP` 90 not valued; `RUI-ABSORB6.avoided_capex` listed beside |
 | Cost per departure | `portfolio.cost_per_departure_actual`; plan = `plan_cost ÷ departures_required` = 29.59 (derivation) |
 | Value chain strip | `portfolio.chain.*` (mini: delivered, metered, billed, plan billed, revenue, plan revenue, collected, in transit, outstanding; leaks delivered − metered = 1,350 and metered − billed = 255); cold: capacity, occupied, plan crate-days, revenue, collected, outstanding; chargeable = revenue ÷ storage rate (derivation); EV: delivered, departures required and met; revenue NOT_APPLICABLE. Usable capacity and deliverable energy: not in the file → "Not available yet" |
 | Outcome cards | Card positions from `portfolio.chain`; factor lines are sentences built from the site fields above. Portfolio litres 3,900 / 3,300 = Σ `diesel_l` (derivation). Mwea and Kirinyaga energy per crate-day from `energy_per_crate_day`. Ruiru 31% from `charger_hour_utilisation`; 2,800 / 3,200 from `RUI-ABSORB6` |
-| Factors needing attention | Text constants in `ATTN` (loop-portfolio.js), each restating manifest fields: Kobo litres, Kisiwa decision thread, Mto `MTO-HULLER.customer`, entitlement dates, unbilled kWh, fuel residual; Mwea occupancy, Kirinyaga 24%, Thika batch; Kasarani `capacity_after`, `november_to_date`; Embakasi peak share and `max_kw` against `import_limit_kw`, tariff `super_offpeak`; Ruiru `max_kw` 380 of 400, incident |
+| Factors needing attention | Text constants in `ATTN` (loop-portfolio.js), each restating manifest fields: Kobo litres, Kisiwa decision thread, Mto `MTO-HULLER.customer`, entitlement dates, unbilled kWh, fuel residual; Mwea occupancy, Kirinyaga 24%, Thika batch; Kasarani `DERIVED.sites["metro-bus/Kasarani"].november_to_date.nodes` (deliverable and required kWh a night, departures missed); Embakasi peak share and `max_kw` against `import_limit_kw`, tariff `super_offpeak`; Ruiru `max_kw` 380 of 400, incident |
 | Contrast panel | Text constants restating Kisiwa / Kobo diesel and `KOB-STOPSOC.net_12m`; Mwea / Kirinyaga energy per crate-day and model; Ruiru connector, Kasarani, `EMB-CHEAPEST` / `EMB-DEADLINE` bills |
 | First moves | First three of the plan (`allocation.recommended`, Metro in `priority_order`) |
 
@@ -71,13 +71,32 @@ Built in `loop-core.js` (`miniTree`, `coldTree`, `evTree`). Plan and October val
 |---|---|
 | Recommended set | `allocation.recommended`; Lakeside: inverter path and huller from the switch case (`inverter`, `huller`) |
 | Cost and who pays | option `capex` / `cost` / `residual_cost` / `economics.one_off`; meter check $60 from `MTO-METER-AUDIT.cost` and `meter_audit_note`; "warranty ended 30 Jun 2026" from `entitlements[0].contract.term_end` |
-| Crew or technician | option `crew_visits` and `allocation.crew_visits_used` comment (inverter visit carries the meter check; huller by contractor) — wording is a text constant |
+| Crew or technician | `DERIVED.options[id].crew_visits` (count); the wording (inverter visit carries the meter check; huller by contractor) is a text constant |
 | 12-month result | option `economics.net_12m` / `net_contract` / `charges_12m` / `avoided_capex`; inverter paths −367.50 and −2,947.50 (evaluator: operator-borne one-off plus extra fuel to the derived restore date); battery evidence: $64,000 at stake from `listed_not_summed` |
 | Competing inverter path | In the plan and competing values are the manifest cases: claim with huller = `5000/yes` (6,088.50; 3,750), claim without huller = `5000/no` (2,548.50; 2,550), buy now = `6500/no` (3,508.50; 6,430); fits the budget = spend ≤ selected budget; restore dates `restore_by` |
 | All four cases table | `allocation.switches[].cases` verbatim |
-| Listed beside, not added | Lakeside `allocation.listed_not_summed`; Harvest `incident.batches[0].exposed_value`, `insurance.reimbursement_recorded`; Metro `RUI-ABSORB6.avoided_capex`, `november_to_date.penalties`, SLA credit text from `contracts[1].service_credit` |
+| Listed beside, not added | Lakeside `allocation.listed_not_summed`; Harvest `incident.batches[0].exposed_value`, `insurance.reimbursement_recorded`; Metro `RUI-ABSORB6.avoided_capex`, Kasarani `november_to_date.nodes.penalties` (= `departures_missed` × `penalty_rate`, calculated from records), SLA credit text from `contracts[1].service_credit` |
 | Excluded or deferred | Lakeside `allocation.excluded` (+ losing inverter path, + huller when lost); Harvest `allocation.excluded` (+ aggregator when the switch is No); Metro: the file has no `excluded` list, so rejected Metro options and the deferred connector claim are listed |
 | Harvest / Metro switch effects | `switches[].if_false` text (spend 450 and 1 of 2; spend 90) |
+
+## 3g. Rev 12 (M5: no hand-typed evaluated figures)
+
+Every figure the structure evaluator produces is read from `DERIVED` in the `loop-*.js` code; `tools/hand_typed_scan.py` (run by the audit, result `hand_typed_figures` = 0) fails on any string literal that restates one. Old literal → source:
+
+| Was typed | Now read from |
+|---|---|
+| Kasarani "1,050 of 1,200 kWh", "1 bus short", "2 departures", "$240 (recorded)", "2 blocks × $120" | `DERIVED.sites["metro-bus/Kasarani"].november_to_date.nodes` `deliverable_kwh_night`, `required_kwh_night`, `buses_short_per_night` (rounded), `departures_missed`, `penalties`, `penalty_rate`; class Calculated from records |
+| Harvest capacity 12,400 crate-days | `DERIVED.sites["harvest-cold/<room>"].actual.nodes.capacity_crate_days` |
+| "3 of 3", "2 of 2", "0 of 2" visits; "1 crew/technician visit" | `DERIVED.plans[t].switch_cases[case].crew_visits_used` / `.crew_visits_limit`; `DERIVED.options[id].crew_visits` |
+| "Likely 2 missed departures before 9 Nov" | removed from the obligation text; the bound check reads `options.KAS-OEM-WAIT.protect.departures_missed` and the restore table `restore_date` |
+| "Batch temperature limits unprotected at night until 8 Nov" | bound check `options.THIKA-EPC-WAIT.protect.nights_without_backup_cover`; factor table `restore_date` |
+| "2,800 of 3,200 kWh a night", "3,360 kWh a night" | `options.RUI-ABSORB6/RUI-ABSORB10.bound.required_kwh_night` / `deliverable_kwh_night` |
+| Ruiru basis "1,302 ÷ 26 … 1,302 ÷ 25.16 = 51.75", "Ruiru 34%" | Σ `operations["metro-bus"].departures_met_per_installed_charger.numerator` ÷ Σ `.denominator`; the per-charger-day-in-service figure has no node and was removed; 34% = manifest `charger_hour_utilisation` |
+| Thika "120 crates × $18", "6 crates", "$108", "$500" | `incident.batches[0].crates` × `declared_value_per_crate`; `nodes.liability` ÷ `declared_value_per_crate`; `nodes.liability`; `insurance.deductible` |
+| Kobo "480 / 330 / 30 / 120 L", "210 L", "20 L", "4 of 61", "$12", "$250.50", "$2,916" | Kobo actual − plan nodes `diesel_l`, `candidate_l`, `necessary_l`, `unexplained_l`; `forward_replay.avoidable_fuel_l`; `options.KOB-RESERVE.protect.replayed_dawn_days_below_safeguard`; `economics.wear_monthly`, `net_monthly`; `options.KOB-STOPSOC.value` |
+| Option worked figures (Kobo, huller, welding, Kirinyaga, Embakasi, Mwea, Mto billing, Ruiru) | `options[id].net_one_off`, `.value`, `.cost_lines[k].amount`, `.energy_bill_option/_reference`, `.bound`, `.params`; site nodes (`demand_rate`, `tariff`, `unmapped_kwh`, `excess_kwh`, `elec_price`, `import_limit_kw`, `base_kwh`, `k_kwh_per_crate_day`) |
+| Rights rows ("$430", "$64,000", "$100", "$90", "$108", "$700 / $400 fee") | `options.BAT-EVIDENCE.net_one_off` / `.rights.claimable_cover`; `THIKA-EPC-STOPGAP` / `KAS-OEM-STOPGAP.net_one_off`; Thika `nodes.liability`; contract `service_credit` text |
+| Bound names and values | decision hard bounds from `plans[...].decisions[].hard`; values `protect.obligation_hours_without_backup`, `cover_not_claimable`, `replayed_dawn_days_below_safeguard` (design value), `nights_without_backup_cover`, `departures_missed`; admissibility `admissible` |
 
 ## 3f. Rev 11
 

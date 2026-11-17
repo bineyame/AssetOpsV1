@@ -1,4 +1,4 @@
-# Screenshots (rev 11)
+# Screenshots (rev 12)
 
 **Not approved: awaits owner inspection.** Captured by `tools/audit.mjs --shots` (Chromium, full page). Lakeside Power unless the file name starts with `harvest-` or `metro-`. Rev 8 views to look at first: "Protect measures under each option" on `decision_kisiwa-genset-1440.png`, `decision_kobo-generator-1440.png`, `decision_kobo-battery-1440.png`, `decision_thika-backup-1440.png`, `decision_kasarani-charger-1440.png`, `decision_embakasi-schedule-1440.png`; the must-do and protective Protect effects on the `act-first-lakeside-*`, `harvest-portfolio_act-first-1440.png` and `metro-portfolio_act-first-1440.png` captures.
 

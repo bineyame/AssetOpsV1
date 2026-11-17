@@ -1,4 +1,4 @@
-"""Structure evaluator for the Layer 4 demonstration world (rev 11; owner, ninth to eleventh messages).
+"""Structure evaluator for the Layer 4 demonstration world (rev 12; owner, ninth to eleventh messages).
 
 Design-pack tool, not product code. It produces the illustration's figures by running the five mechanics on declared inputs,
 all the way down the structure, and holds no numbers of its own:
@@ -14,9 +14,14 @@ all the way down the structure, and holds no numbers of its own:
                 or voids, and restore dates derived from their drivers. The option is re-evaluated through the same structure
                 against its reference. Rights decide who bears each cost line and give claimable, unclaimable and lost cover.
                 Declared bounds (`evaluation.bounds`) are evaluated absolutely on every option.
-  M4 Choose   - `plans:` lists decisions: protective decisions choose the cheapest option meeting their hard bounds (or the least
-                violation when none can, if declared); valued decisions are enumerated among their admissible options under the
-                budget, requirements and switches. Switch cases, sensitivities and the downside re-run it.
+                Rights with an open notice deadline lapse for any option that files no notice by it (cover lost). Value nets
+                the reference path's operator-borne one-off: (option - reference) x months - (option one-off - reference one-off).
+                No option carries a typed admissibility: every rejection is a declared bound measured on the option's nodes.
+  M4 Choose   - `plans:` lists decisions: protective decisions choose the cheapest affordable option meeting their hard bounds (or,
+                if declared, the least violation among the affordable options, reporting the trade-off when a smaller violation is
+                unaffordable); valued decisions are enumerated among their admissible options under the budget, the crew-visit
+                limit, requirements and switches (a valued decision may declare the same least-violation fallback). Switch cases,
+                sensitivities and the downside re-run it, protective choices included.
 
 Writes derived-values.json (every figure with its formula). Run:  python3 evaluate_structure.py [manifest]
 """
@@ -157,7 +162,7 @@ def main(path: str) -> dict:
                      ([s_["incident"]["entitlement"]] if isinstance(s_.get("incident", {}).get("entitlement"), dict) else []):
                 if "asset" in e:
                     rights[e["asset"]] = {"site": s_["site"], "eligibility": e.get("eligibility"), "claim_state": e.get("claim_state"),
-                                          "cover_value": e.get("cover_value")}
+                                          "cover_value": e.get("cover_value"), "notice_deadline": e.get("notice_deadline")}
         for s_ in t["sites"]:
             n = s_["site"]
             res = {}
@@ -167,7 +172,7 @@ def main(path: str) -> dict:
                 sides.append(("november_to_date", obs["november_to_date"]))
             for k, record in sides:
                 ctx = {"record": record, "prices": t.get("prices", {}), "physical": s_.get("physical", {}), "tariff": s_.get("tariff", {}),
-                       "energy_model": t.get("energy_model", {}), "incident": s_.get("incident", {}), "entitlement": s_.get("entitlement", {}),
+                       "energy_model": t.get("energy_model", {}), "incident": s_.get("incident", {}), "entitlement": s_.get("entitlement", {}), "observations": obs,
                        "tenant": t, "site": n, "period_days": EV["period_days"], "period_end": record.get("period_end", EV["period_end"])}
                 try:
                     env = Env(S[vert], {}, ctx)
@@ -196,7 +201,7 @@ def main(path: str) -> dict:
 
     def resolve(spec, ctx, row, params, nodes=None):
         if isinstance(spec, dict) and "value" in spec:
-            return num(spec["value"])
+            return resolve(spec["value"], ctx, row, params, nodes)
         if isinstance(spec, (int, float)):
             return num(spec)
         if isinstance(spec, str):
@@ -223,12 +228,13 @@ def main(path: str) -> dict:
     def covered(r):
         return r and r["eligibility"] == "POTENTIALLY_COVERED" and r.get("claim_state") not in ("DENIED", "REJECTED")
 
-    def rights_nodes(site, rights):
+    def rights_nodes(site, rights, lost=D(0)):
         mine = {a: r for a, r in rights.items() if r["site"] == site and r.get("cover_value") is not None}
+        unclaim = sum((num(r["cover_value"]) for r in mine.values() if r["eligibility"] == "INSUFFICIENT_EVIDENCE"), D(0))
         return {"claimable_cover": sum((num(r["cover_value"]) for r in mine.values() if covered(r)), D(0)),
-                "unclaimable_cover": sum((num(r["cover_value"]) for r in mine.values() if r["eligibility"] == "INSUFFICIENT_EVIDENCE"), D(0))}
+                "unclaimable_cover": unclaim, "cover_lost": lost, "cover_not_claimable": unclaim + lost}
 
-    PROTECT = ["obligation_hours_without_redundancy", "nights_without_backup_cover", "departures_missed", "unclaimable_cover"]
+    NOTIFIED = ("NOTIFIED", "ACKNOWLEDGED", "ACCEPTED", "DENIED", "REJECTED")   # a notice has been given (brief l.430 claim states)
 
     def run(oid, param_over=None, factor_over=None):
         spec = EV["options"][oid]
@@ -240,20 +246,31 @@ def main(path: str) -> dict:
             if pn == "restore":
                 continue
             params[pn] = num((param_over or {})[pn]) if pn in (param_over or {}) else resolve(ps, ctx, row, params)
-        restore = None
-        if "restore" in (spec.get("params") or {}):
-            restore = resolve_date(spec["params"]["restore"], ctx, row, params)
-            params["days_to_restore"] = D((end - as_of).days + 1) if restore is None else D((restore - as_of).days)
         rights = {a: dict(r) for a, r in ctx["_rights"].items()}
         for a, st in (spec.get("set_rights") or {}).items():
             rights[a]["eligibility"] = st
-        lost = D(0)
+        lost, lapsed = D(0), []
         for a in spec.get("voids_rights") or []:
             lost += num(rights[a]["cover_value"]) if covered(rights[a]) else D(0)
             rights[a]["eligibility"] = "VOIDED"
+        for a, r in rights.items():   # for the options deciding an asset: an open notice deadline lapses unless notice is filed by it
+            if a == spec.get("asset") and r.get("notice_deadline") and r.get("claim_state") not in NOTIFIED and covered(r):
+                filed = (spec.get("files_notice") or {}).get(a)
+                filed_on = None if filed is None else resolve_date(filed, ctx, row, params)
+                if filed_on is None or filed_on > as_date(r["notice_deadline"]):   # never filed, or filed too late: the right is lost
+                    lost += num(r["cover_value"]); r["eligibility"] = "LAPSED"; lapsed.append(a)
+        restore, restore_basis = None, None
+        if "restore" in (spec.get("params") or {}):
+            rs = spec["params"]["restore"]
+            if rs.get("performed_under") and not covered(rights.get(rs["performed_under"])):   # the supplier restores only under a live right
+                rs, restore_basis = rs.get("if_not_covered", {"date": "none"}), f"{rs['performed_under']} not covered: supplier restore does not apply"
+            restore = resolve_date(rs, ctx, row, params)
+            params["days_to_restore"] = D((end - as_of).days + 1) if restore is None else D((restore - as_of).days)
 
-        def evaluate(ref_factors, changes, extra, rts):
-            f = dict(base)
+        fwd = {k: Env(struct, dict(base), ctx).expr(x) for k, x in (EV.get("forward_baseline", {}).get(vert) or {}).items()}
+
+        def evaluate(ref_factors, changes, extra, rts, lost_=D(0)):
+            f = {**base, **fwd}   # options look forward from as_of: period-observation leaves reset to the declared forward baseline
             for k, x in (ref_factors or {}).items():
                 f[k] = Env(struct, dict(f), ctx).expr(x)
             for k, x in (changes or {}).items():   # applied in order; each sees the nodes produced by the earlier ones
@@ -262,14 +279,15 @@ def main(path: str) -> dict:
             for k, x in (factor_over or {}).items():
                 f[k] = Env(struct, dict(f), ctx).expr(x)
             nodes = Env(struct, f, ctx).all_nodes()
-            nodes.update(rights_nodes(site, rts))
+            nodes.update(rights_nodes(site, rts, lost_))
             return nodes
 
         if spec.get("reference_option"):
-            ref = run(spec["reference_option"], param_over, factor_over)["_nodes"]
+            ref_run = run(spec["reference_option"], param_over, factor_over)
+            ref, ref_one_off = ref_run["_nodes"], D(str(ref_run["operator_one_off"]))
         else:
-            ref = evaluate(spec.get("reference_factors"), {}, {}, ctx["_rights"])
-        opt = evaluate(spec.get("reference_factors"), spec.get("changes"), params, rights)
+            ref, ref_one_off = evaluate(spec.get("reference_factors"), {}, {}, ctx["_rights"]), D(0)
+        opt = evaluate(spec.get("reference_factors"), spec.get("changes"), params, rights, lost)
         months = num(spec.get("months", 1))
         dmoney = opt["contribution"] - ref["contribution"]
         lines, one_off = {}, D(0)
@@ -286,23 +304,31 @@ def main(path: str) -> dict:
             if b["node"] in opt:
                 limit = Env(struct, dict(opt), ctx).expr(b["max"])
                 violations[b["id"]] = money(max(opt[b["node"]] - limit, D(0)))
+        try:   # crew visits: from the option row, or declared on the option with its basis; never defaulted
+            crews = int(resolve(spec["crew_visits"], ctx, row, params)) if "crew_visits" in spec else int(row["crew_visits"])
+        except (KeyError, Missing):
+            crews = None
+        PROTECT = EV["protect_nodes"][vert]
         res = {"site": site, "monthly_or_horizon_change": money(dmoney), "months": float(months), "operator_one_off": money(one_off),
-               "cost_lines": lines, "money_changes": dmoney != 0 and "money" not in spec and "comparator" not in spec and not spec.get("is_reference"),
-               "formula": f"(contribution under option {money(opt['contribution'])} - under reference {money(ref['contribution'])}) x {months} - operator-borne one-off {money(one_off)}",
+               "reference_one_off": money(ref_one_off), "net_one_off": money(one_off - ref_one_off), "crew_visits": crews,
+               "cost_lines": lines, "money_changes": dmoney != 0 and "comparator" not in spec and not spec.get("is_reference"),
+               "formula": f"(contribution under option {money(opt['contribution'])} - under reference {money(ref['contribution'])}) x {months} - (operator-borne one-off {money(one_off)} - reference path's {money(ref_one_off)})",
                "protect": {k: money(opt[k]) for k in PROTECT if k in opt}, "reference_protect": {k: money(ref[k]) for k in PROTECT if k in ref},
-               "rights": {"claimable_cover": money(opt["claimable_cover"]), "unclaimable_cover": money(opt["unclaimable_cover"]), "cover_lost": money(lost)},
-               "violations": violations, "declared_bound_failure": spec.get("bound_failure"),
+               "rights": {"claimable_cover": money(opt["claimable_cover"]), "unclaimable_cover": money(opt["unclaimable_cover"]), "cover_lost": money(lost),
+                          "lapsed": lapsed, "states": {a: r["eligibility"] for a, r in rights.items() if r["site"] == site}},
+               "violations": violations, "restore_basis": restore_basis,
                "restore_date": restore.isoformat() if restore else None, "params": {k: float(v) for k, v in params.items()},
                "design_values": sorted({ps["design_value"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "design_value" in ps}),
                "assumptions": [ps["assumption"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "assumption" in ps] + ([spec["assumption"]] if "assumption" in spec else []),
                "_nodes": opt}
-        res["value_if_admissible"] = money(dmoney * months - one_off) if res["money_changes"] else None
-        if "deliverable_kwh_night" in opt:
-            res["bound"] = {"required_kwh_night": money(opt["required_kwh_night"]), "supplied_kwh_night": money(opt["supplied_kwh_night"]),
-                            "deliverable_kwh_night": money(opt["deliverable_kwh_night"]), "buses_short_per_night": int(opt["buses_short_per_night"]),
-                            "max_kw": money(opt["max_kw"]), "import_limit_kw": money(opt["import_limit_kw"])}
-            res["cost_per_departure_met"] = money(opt["cost_per_departure_met"])
-            res["energy_bill_option"] = money(opt["energy_cost"]); res["energy_bill_reference"] = money(ref["energy_cost"])
+        res["value_if_admissible"] = money(dmoney * months - (one_off - ref_one_off)) if res["money_changes"] else None
+        det = EV.get("option_detail", {}).get(vert) or {}   # per-vertical detail nodes shown with an option (declared, not coded)
+        if det:
+            res["bound"] = {k: money(opt[k]) for k in det.get("capacity", [])}
+            for k, nn in (det.get("option_nodes") or {}).items():
+                res[k] = money(opt[nn])
+            for k, nn in (det.get("reference_nodes") or {}).items():
+                res[k] = money(ref[nn])
         return res
 
     for oid, spec in EV["options"].items():
@@ -310,7 +336,7 @@ def main(path: str) -> dict:
         sens = {}
         for sn, sp in (spec.get("sensitivities") or {}).items():
             rs = run(oid, sp.get("params"), sp.get("factors"))
-            sens[sn] = money(D(str(rs["monthly_or_horizon_change"])) * D(str(rs["months"])) - D(str(rs["operator_one_off"])))
+            sens[sn] = money(D(str(rs["monthly_or_horizon_change"])) * D(str(rs["months"])) - D(str(rs["net_one_off"])))
         if sens:
             r["sensitivities"] = sens
         r.pop("_nodes")
@@ -318,48 +344,65 @@ def main(path: str) -> dict:
 
     # ---------------- M4 Choose ----------------
     O = out["options"]
-    for o, r in O.items():   # options outside any plan decision: admissible unless a declared bound failure applies
-        r["admissible"] = not r.get("declared_bound_failure")
-        r["value"] = r["value_if_admissible"] if r["admissible"] else None
+    D_ = lambda x: D(str(x))
+    for o, r in O.items():   # options outside any plan decision: admissible (they are listed, not chosen)
+        r["admissible"] = True
+        r["value"] = r["value_if_admissible"]
         r["valued_in_money"] = r["value"] is not None
-        if r.get("declared_bound_failure"):
-            r["bound_failure"] = r["declared_bound_failure"]
-        elif any(v for v in r["violations"].values()) and r["value_if_admissible"] is None and "comparator" in EV["options"][o]:
-            r["bound_failure"] = "bound: " + ", ".join(f"{b} exceeded by {v}" for b, v in r["violations"].items() if v)
     for tid, pl in doc["plans"].items():
-        def admissible(o, d):
-            if O[o].get("declared_bound_failure"):
-                return False
-            return all(O[o]["violations"].get(b, 0) == 0 for b in d.get("hard", []))
+        tenant = next(t for t in doc["tenants"] if t["tenant"] == tid)
+        crew_limit = int(tenant["portfolio_constraints"][pl["crew_limit"]])
 
-        protective = {}
-        for d in [d for d in pl["decisions"] if d["kind"] == "protective"]:
-            ok = [o for o in d["options"] if admissible(o, d)]
-            how = "meets its hard bounds"
+        def viol(o, d):
+            return sum(D_(O[o]["violations"].get(b, 0)) for b in d.get("hard", []))
+
+        def admissible(o, d):
+            return viol(o, d) == 0
+
+        def protect_choice(d, budget):
+            """Cheapest affordable option meeting the hard bounds; else, if declared, the least violation among affordable options."""
+            afford = lambda o: D_(O[o]["operator_one_off"]) <= budget and (O[o]["crew_visits"] or 0) <= crew_limit
+            ok = [o for o in d["options"] if admissible(o, d) and afford(o)]
+            how, trade = "meets its hard bounds", None
             if not ok and d.get("fallback") == "least_violation":
-                viol = {o: sum(D(str(O[o]["violations"].get(b, 0))) for b in d["hard"]) for o in d["options"]}
-                least = min(viol.values())
-                ok = [o for o in d["options"] if viol[o] == least]
-                how = f"least violation ({money(least)}) - no option meets the hard bound"
+                aff = [o for o in d["options"] if afford(o)]
+                if aff:
+                    least = min(viol(o, d) for o in aff)
+                    ok = [o for o in aff if viol(o, d) == least]
+                    how = f"least violation among affordable options ({money(least)}) - no affordable option meets the hard bound"
+                    best_any = min(d["options"], key=lambda o: (viol(o, d), D_(O[o]["operator_one_off"])))
+                    if viol(best_any, d) < least:
+                        trade = {"smaller_violation_option": best_any, "its_violation": money(viol(best_any, d)), "its_one_off": O[best_any]["operator_one_off"],
+                                 "its_crew_visits": O[best_any]["crew_visits"], "why_not": "over the budget or the crew-visit limit"}
             if not ok:
-                protective[d["name"]] = {"chosen": None, "how": "unmet: no option meets the hard bound and no fallback is declared", "admissible": []}
-                continue
-            pick = min(ok, key=lambda o: (D(str(O[o]["operator_one_off"])), -D(str(O[o]["value_if_admissible"] or 0))))
-            protective[d["name"]] = {"chosen": pick, "how": how, "admissible": ok}
+                return {"chosen": None, "how": "unmet: no affordable option meets the hard bound and no fallback is declared", "admissible": []}
+            pick = min(ok, key=lambda o: (D_(O[o]["operator_one_off"]), -D_(O[o]["value_if_admissible"] or 0)))
+            return {"chosen": pick, "how": how, "admissible": ok, **({"trade_off": trade} if trade else {})}
+
+        prot_default = {d["name"]: protect_choice(d, D_(pl["budget"])) for d in pl["decisions"] if d["kind"] == "protective"}
         for d in pl["decisions"]:
             for o in d["options"]:
                 O[o]["admissible"] = admissible(o, d)
-                O[o]["value"] = O[o]["value_if_admissible"] if (O[o]["admissible"] or O[o]["money_changes"] and d["kind"] == "protective" and o == protective.get(d["name"], {}).get("chosen")) else None
+                chosen = d["kind"] == "protective" and o == prot_default[d["name"]]["chosen"]
+                O[o]["value"] = O[o]["value_if_admissible"] if (O[o]["admissible"] or (chosen and O[o]["money_changes"])) else None
                 O[o]["valued_in_money"] = O[o]["value"] is not None
-                if not O[o]["admissible"] and (O[o]["value_if_admissible"] is not None or d["kind"] == "comparator"):
-                    O[o]["bound_failure"] = O[o].get("declared_bound_failure") or "hard bound: " + ", ".join(f"{b} exceeded by {O[o]['violations'][b]}" for b in d.get("hard", []) if O[o]["violations"].get(b))
+                O[o]["decision"] = d["name"]
+                if not O[o]["admissible"]:
+                    O[o]["bound_failure"] = ("hard bound: " if d["kind"] != "protective" or not chosen else "least violation: ") + \
+                        ", ".join(f"{b} exceeded by {O[o]['violations'][b]}" for b in d.get("hard", []) if O[o]["violations"].get(b))
+                if d.get("advisory"):
+                    O[o]["advisory"] = {b: O[o]["violations"].get(b) for b in d["advisory"]}
         valued = [d for d in pl["decisions"] if d["kind"] == "valued"]
-        fixed = [p["chosen"] for p in protective.values() if p["chosen"]]
 
         def best(budget, switches, drops=(), sens=None):
-            choice_sets = []
+            prot = {d["name"]: protect_choice(d, budget) for d in pl["decisions"] if d["kind"] == "protective"}
+            fixed = [p["chosen"] for p in prot.values() if p["chosen"]]
+            choice_sets, lv = [], set()
             for d in valued:
-                opts = [o for o in d["options"] if O[o]["admissible"] and O[o]["value"] is not None and o not in drops]
+                cands = [o for o in d["options"] if O[o]["value_if_admissible"] is not None and o not in drops]
+                opts = [o for o in cands if admissible(o, d)]
+                if not opts and d.get("fallback") == "least_violation":   # valued least violation: violation is minimised before value
+                    opts, _ = cands, lv.add(d["name"])
                 if d.get("optional", True) or not opts:
                     opts = [None] + opts
                 choice_sets.append(opts)
@@ -371,24 +414,29 @@ def main(path: str) -> dict:
                 if any(not d.get("optional", True) and not (c & set(d["options"])) for d in valued):
                     continue
                 items = fixed + sorted(c)
-                spend = sum(D(str(O[o]["operator_one_off"])) for o in items)
-                if spend > budget:
+                spend = sum(D_(O[o]["operator_one_off"]) for o in items)
+                crews = sum(O[o]["crew_visits"] or 0 for o in items)
+                if spend > budget or crews > crew_limit:
                     continue
-                v = sum(D(str((sens or {}).get(o, O[o]["value"]))) for o in items if O[o]["valued_in_money"])
-                if res is None or v > res[0]:
-                    res = (v, spend, items)
+                v = sum(D_((sens or {}).get(o, O[o]["value_if_admissible"])) for o in items if O[o]["money_changes"])
+                pen = sum(viol(o, d) for d in valued if d["name"] in lv for o in c if o in d["options"])
+                key = (-pen, v)
+                if res is None or key > res[0]:
+                    res = (key, spend, items, crews)
             if res is None:
                 return {"value": None, "spend": None, "items": fixed, "valued_options": [], "valued_option_costs": None, "not_valued_in_money": None,
-                        "infeasible": "no plan satisfies the budget, the protective choices and the required decisions"}
-            v, spend, items = res
-            vo = [o for o in items if O[o]["valued_in_money"]]
-            vc = sum(D(str(O[o]["operator_one_off"])) for o in vo)
+                        "crew_visits_used": None, "crew_visits_limit": crew_limit, "protective_choices": prot,
+                        "infeasible": "no plan satisfies the budget, the crew-visit limit, the protective choices and the required decisions"}
+            (pen, v), spend, items, crews = res
+            vo = [o for o in items if O[o]["money_changes"]]
+            vc = sum(D_(O[o]["operator_one_off"]) for o in vo)
             return {"value": money(v), "spend": money(spend), "items": items, "valued_options": vo, "valued_option_costs": money(vc),
-                    "not_valued_in_money": money(spend - vc)}
+                    "not_valued_in_money": money(spend - vc), "crew_visits_used": crews, "crew_visits_limit": crew_limit, "protective_choices": prot,
+                    **({"least_violation_valued": money(-pen)} if pen else {})}
 
         names = list(pl["switches"])
         defaults = {k: v[0] for k, v in pl["switches"].items()}
-        bud = lambda sw: D(str(sw.get("budget", pl["budget"])))
+        bud = lambda sw: D_(sw.get("budget", pl["budget"]))
         cases = {}
         for combo in itertools.product(*[pl["switches"][k] for k in names]):
             sw = dict(zip(names, combo))
@@ -407,12 +455,12 @@ def main(path: str) -> dict:
                 if sn in downs or any(sn in mp.values() for mp in (pl.get("switch_sensitivity") or {}).values()):
                     continue
                 sens = {oo: O[oo]["sensitivities"][sn] for oo in default["valued_options"] if sn in O[oo].get("sensitivities", {})}
-                downs[sn] = {"value": money(sum(D(str(sens.get(oo, O[oo]["value"]))) for oo in default["valued_options"])), "valued_options": default["valued_options"]}
+                downs[sn] = {"value": money(sum(D_(sens.get(oo, O[oo]["value_if_admissible"])) for oo in default["valued_options"])), "valued_options": default["valued_options"]}
         for k, mp in (pl.get("switch_sensitivity") or {}).items():
             for swv, sn in mp.items():
                 c_ = cases["/".join(str(swv if kk == k else defaults[kk]) for kk in names)]
                 downs[sn] = {"value": c_["value"], "valued_options": c_["valued_options"]}
-        out["plans"][tid] = {"protective_choices": protective, "default": default, "switch_cases": cases, "sensitivity_values": downs,
+        out["plans"][tid] = {"protective_choices": default["protective_choices"], "default": default, "switch_cases": cases, "sensitivity_values": downs,
                              "downside": min((v["value"] for v in downs.values() if v["value"] is not None), default=None) if downs else default["value"]}
 
     # ---------------- portfolio composition and O2 ----------------

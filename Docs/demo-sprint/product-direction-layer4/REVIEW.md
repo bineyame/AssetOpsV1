@@ -2089,3 +2089,256 @@ Apart from the M3 policy question, nothing here needs an owner decision. After t
 - I did not rerun `tools/run-audit.sh`. The 202-route, contrast, focus, design-value-scan and 65/65 text-identity figures are the author's numbers.
 - I did not rerun the CSV validator.
 - I did not verify the replay design values; they belong to the calibration lane.
+
+## Re-review (rev 12)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 12 working tree on `task/product-direction-layer4-design`, which is the uncommitted diff over `f55f15716`. I ran every experiment in scratch copies of the folder (harness `scratchpad/pert.py`; "moved" is the number of changed leaves in `derived-values.json`). This appended section is my only edit.
+
+### Verdict: **REVISE (targeted: H1, then M1 to M5)**
+
+Rev 12 closes most of what rev 11 asked for:
+
+- No typed admissibility is left. The notice-deadline lapse, the cover bound and the dawn bound are declared, and X1 and H1n reproduce.
+- The netting fix is correct. I recomputed RB by hand.
+- Crews bind (CR2, RC).
+- Signed anchors catch a sign flip in a companion document (Dn7).
+- The Kasarani screens now follow the structure. Under E5 + E3, more than 20 lines on the decision, site, outcomes and act-first pages move.
+
+The scratch rebuild is byte-identical, and the preserved screens are untouched.
+
+What remains:
+
+1. **One plan-deciding causal step is still typed.** The rice-huller's dependence on the inverter restore is a `requires_any` rule, and it gives wrong plans whenever the restore dates or rights move (H1). This step was already present in rev 11, and earlier reviews (mine included) did not catch it. The author's own RA perturbation shows it: the plan connects the huller while choosing never to restore the inverter.
+2. **The allocator fixes protective choices one at a time.** As a result, it is non-monotonic in budget and can pick a worse plan (M1).
+3. **Mixed horizons.** RA's "no action within the horizon" comes from valuing over 25 days alongside 12-month options, and it is not disclosed in the pack (M2).
+4. **Typed manifest strings are still rendered on screen** and go stale (M3).
+5. **The document check has coverage gaps** (M4).
+6. **The notice-deadline lapse is general in code but scoped by a hand-placed `asset:` key** (M5).
+
+### Coordinator points (owner-requested)
+
+| Point | Status | Severity | Evidence |
+|---|---|---|---|
+| **1. Only the money layer is structural** | **Mostly resolved** | Medium (M3), Low (L2, L5) | **Now structural:**<br>• Crews are enforced (CR2: crews 3 → 2 makes every Lakeside case infeasible).<br>• The Kasarani November figures are nodes (E3: 3 missed / $360 on the site, outcomes and act-first pages).<br>• Thika's uncovered nights are a three-record expression.<br>• Options read the observed window (Nk: 110 / 30 / 125 → 132 / 36 / 150).<br>**Residue:**<br>• Several manifest strings are rendered as facts but are typed: the WAIT reason, the Protect-effect horizon and penalties, the SLA "restore due", and the outcomes detail (M3).<br>• The Q15 fact `shortfall_backed_by_generator` is a typed 0/1, although it can be derived from kW (L2).<br>• "62,000 kWh a month" and "near 0%" are typed where option nodes exist (L5). |
+| **2. The causal step is hand-entered** | **Not resolved for one plan-deciding step** | **High (H1)**, Low (L1) | **Typed dependency:**<br>• `plans.lakeside-power.requires_any: {MTO-HULLER: [MTO-INV-BUYNOW, "switch:loi_extended"]}` encodes, by hand, "a 28 Nov restore cannot connect before the 30 Nov lapse".<br>• The mock-up's typed row `['Rice huller','lost','kept if the letter is extended','kept']` (loop-decisions.js:287) restates it.<br>**What it gets wrong:**<br>• LT7 (claim lead time 21 → 7 days; restore 14 Nov) still drops the huller without an extension, and still buys now at 6,500.<br>• LS20 (local supply 5 → 20 days; restore 26 Nov, which cannot connect by 30 Nov) still values the huller at +3,540.<br>• RA, X1 and H1n connect the huller while choosing **no action** on the inverter.<br>**Restore after a denied right** is still half-modelled (L1). |
+| **3. Thika, Kasarani and Ruiru are not evaluated** | **Resolved** | none | All nine sites are evaluated. Ruiru's plan is honestly "not decomposed: stated total (missing leaf kwh)", and its actual and November-to-date are evaluated.<br>Perturbations move each of them:<br>• RC: Thika self-repair, Harvest +1,670 at 980.<br>• RB, E2, E3 and E5: Kasarani.<br>• E4, author's run: Ruiru. |
+| **4. Rights sit outside the structure** | **Mostly resolved** | Medium (M5), Low (L1, L3) | **Resolved:**<br>• Netting under a flip is correct (RB, hand-checked below).<br>• The supplier restore follows `covered()` where `performed_under` is declared.<br>• KAS-LOCAL voids CH-K2 (lost 380; fails the bound).<br>• The Mto lapse is structural (X1, H1n).<br>**Residue:**<br>• The lapse applies only to options carrying a hand-placed `asset:` key, which only the three Mto options have. GT1 puts an already-passed, un-notified deadline on Thika's right: 2 leaves move and **all 1,040 checks pass** (M5).<br>• Mto CLAIM keeps the supplier's 21-day lead under a denial, and WAIT paths pay the repair yet never restore (L1).<br>• MTO-INV-LOCAL is still a hand disposition (L3). |
+
+### Findings
+
+**H1 (High): the rice-huller's dependence on the inverter restore is typed, so plans are wrong when restore dates or rights move.**
+- **Where:**
+  - `demo-site-scenario-manifest.yaml` `plans.lakeside-power.requires_any` (MTO-HULLER needs BUYNOW or `switch:loi_extended`).
+  - Row MTO-HULLER: `connection_lead: "5 working days after the inverter is restored …; a 28 Nov restore cannot connect before the 30 Nov lapse"` (text only), and `depends_on: [MTO-INV restored]` (not read).
+  - `interactive-mockup-vNEXT/loop-decisions.js:287`: the typed huller row.
+- **Evidence (scratch):**
+
+| Run | Change | Result | Correct result |
+|---|---|---|---|
+| LT7 | `lead_time_days` 21 → 7 (claim restore 14 Nov, connectable by 21 Nov) | 5,000/no still drops the huller (2,636.00). 6,500/no still buys now (3,508.50 at 6,430). | Claim + huller in both cases (about 6,176). |
+| LS20 | `local_supply_days` 5 → 20 (buy-now restore 26 Nov; 5 working days → 3 Dec, after the 30 Nov lapse) | 6,500/no still includes the huller at +3,540 (3,414.75). | The huller is lost. |
+| RA, X1, H1n | Mto claim denied; no-action files notice; deadline already passed | Plan = KIS-REPAIR, BAT-EVIDENCE, KOB-STOPSOC, **MTO-HULLER, MTO-INV-NOACT**: +6,299.75 at 3,520. | The inverter is never restored, yet the 15 kW daytime huller is connected and valued for 12 months. The screen row says "Rice huller: lost" for no action, while the plan contains it. |
+
+- **Why it matters:** this is the owner's governing principle (point 2). This step decides the Lakeside switch cases and the CONDITIONAL disposition of MTO-INV-BUYNOW. Its admissibility is typed, not produced by the structure.
+- **Fix:**
+  1. Declare `connection_lead` (5 working days) and the letter's lapse date (30 Nov; the extended date under `loi_extended`) as records.
+  2. Make MTO-HULLER require that `restore_date` of the chosen INV-MT-02 option + `connection_lead` ≤ the lapse date. Evaluate this in `best()`, and treat no restore as not connectable.
+  3. Delete `requires_any` for the huller.
+  4. Derive the mock-up row and the CONDITIONAL condition text from the result.
+  5. Add LT7 and LS20 to the perturbation set.
+
+**M1 (Medium): protective choices are fixed one at a time, so the allocator is non-monotonic in budget and can pick a worse plan.**
+- **Where:** `evaluate_structure.py` `protect_choice()`, where `afford` tests each option alone against the whole budget and visit limit, and `best()`, which fixes the protective picks before enumerating the rest.
+- **Evidence:**
+  - **B2000** (budget switch 2,000): every 2,000 case is **infeasible**.
+  - **B1500** (1,500): feasible, with KIS-NOACT as the least violation, +2,548.50 at 750. A larger budget gives no plan while a smaller one gives a plan.
+  - **CR2** (crews 3 → 2): infeasible, although the declared Kisiwa fallback (no action, 0 visits) gives a plan within 2 visits (BAT-EVIDENCE + claim).
+  - **RC** (Thika EXPIRED): THIKA-SELF (710, **1 visit**) is chosen over the stopgap (810, 0 visits) on one-off cost alone. That uses the visit and drops KIRI-REPAIR, so Harvest is +1,670.00 at 980. The joint optimum, stopgap + Kirinyaga + Mwea, is **+3,182.40 at 1,430**, within 2,500 and 2 visits.
+  - The author reported RC as "crews now bind"; they do, but the allocator then resolves the binding wrongly.
+- **Fix:** enumerate the protective decisions inside `best()`'s product. Allow only options meeting their hard bounds, or the declared least violation, judged jointly against the remaining budget and visits. Rank by (violation, then plan value, then spend). Report the trade-off from the joint result.
+
+**M2 (Medium): RA's "no action" result is a horizon effect from mixed valuation periods, and the pack does not disclose it.**
+- **Where:** MTO-INV-* use `months: 1` (to the horizon), so a restore path is valued over 6–30 Nov (25 days), while the competing valued options use 12 months. `horizon_months: 12` is the tenant's declared horizon.
+- **Evidence:**
+  - Under RA, no action costs 25 × 5 L × 1.25 = **156.25**, against the denied claim's 2,830 + 137.50 = **2,967.50**.
+  - Over the declared 12 months, no action costs about 2,281 in fuel and still leaves the inverter out, which blocks the huller (H1).
+  - "Horizon effect" appears only in REVIEW-response.md. `grep` finds nothing in the questions file, the main document or the screens.
+  - The response's remedy, "Q15 (B) would reject it", uses a breach policy to fix a valuation and dependency error.
+- **Fix:**
+  - Value the restore-path decision over the tenant horizon: reduced days to the restore, and "not restored" through the horizon end. Alternatively, carry "not restored at horizon end" as a declared Protect node.
+  - State the behaviour in the questions file.
+  - With H1 fixed, RA should restore (claim or buy) and keep the huller.
+
+**M3 (Medium): typed manifest strings are rendered as facts and do not follow the structure.** This is the rev 11 M5 pattern, moved from `loop-*.js` into the manifest.
+- **Evidence:** I rebuilt in scratch with E5 (SLA 8 business days) + E3 (spare 3 → 2) and captured the screens headless. Most figures moved, but these stayed:
+  - **The WAIT rejection reason** ("Likely 2 missed departures in the 3 nights to 9 Nov … $240 … against $90") is shown on `#/decision/kasarani-charger` and Metro `#/portfolio/act-first`. The evaluator says 5, 6 nights, 12 Nov, $600 and $225.
+  - **The Protect-effect table.** The horizon reads "until the 9 Nov restore", and the row reads "Wait … 5 | **$240** | Calculated from records". The departures are evaluated; `protect_effects.penalties` is typed and never checked.
+  - **The rights panel** shows "Restore due 9 Nov · 3 days left · 9 Nov" (`sla_clock.restore_due`) on the same page that says "restore on 12 Nov".
+  - **Outcomes by site:** "spare bus lent on 3, departure missed on 2" sits under the row that shows 3.
+  - **E3+ with the checked protect fields updated:** the only failures left are document anchors. These strings pass.
+  - `tools/hand_typed_scan.py` scans only `loop-*.js` literals, and only those equal to *current* evaluated figures, so it cannot see these strings.
+- **Fix:**
+  - Render the reason, horizon, penalties, `restore_due` and detail from the evaluated fields.
+  - Or check each one in `derived()`: `protect_effects.penalties` against −Δcontribution, `sla_clock.restore_due` against the WAIT `restore_date`, and any digits in a rendered `reason` or `detail` against the evaluation.
+
+**M4 (Medium): the anchor coverage rule is narrower than the response claims.**
+- **Where:** `check_manifest.py` `key_figures()` and the coverage regex `\d{1,3}(?:,\d{3})*\.\d{2}` (cents only). `documents()` excludes `%` and covers only main §2–§10 and the walkthroughs.
+- **Planted drifts (scratch):**
+
+| # | Drift | Result |
+|---|---|---|
+| Dn1 | contracts "budget ≥ 6,430" → 6,340 (the plan's 6,500/no spend, written without cents) | **passes** |
+| Dn2 | models "137.50 → **367.50" → 173.50 (the arithmetic is now wrong) | **passes** |
+| Dn3 | phase plan "98.62%" → 96.82% | **passes** |
+| Dn4 | Q15 "at 6,430" → 6,340 | **passes** |
+| Dn5 | Q15 "pays 2,580 more" → 2,850 | **passes** |
+| Dn6 | main "availability 98.62%" → 96.82% | **passes** |
+| Dn8 | contracts "4,560.00" → 4,650.00 | **passes** |
+| Dn7 | models sign flip on anchored −1,988.40 | caught |
+| Dn9 | walkthrough +$95,634 → 95,643 | caught |
+
+- **Fix:**
+  - Match whole-dollar forms of key figures.
+  - Add `monthly_or_horizon_change` and the O2 portfolio and site percentages to the key set, and allow `%` in the main-document scan.
+  - Anchor the figures in the owner question Q15: 6,430, 2,580, and each option's case figures. The (C) figure is currently anchored to the live (A) path `6500/False.value`, which only coincides with it.
+
+**M5 (Medium): the notice-deadline lapse reaches only options that carry a hand-placed `asset:` key.**
+- **Where:** `evaluate_structure.py` `run()`, `if a == spec.get("asset") …`. Only MTO-INV-CLAIM, BUYNOW and NOACT declare `asset:`.
+- **Evidence:**
+  - **GT1:** Thika's right set to `claim_state: POTENTIAL` with `notice_deadline: "2026-11-05"` (passed, as_of 6 Nov). **2 leaves move; 1,040 checks pass**, and WAIT stays `POTENTIALLY_COVERED` with 710 claimable.
+  - **GT2:** GT1 plus `asset:` on THIKA-EPC-WAIT. WAIT lapses, 710 is lost, and the bound fails.
+  - A deadline that has already passed is a state at `as_of`, but it is only ever evaluated per option.
+  - Ruiru's POTENTIAL CH-R7 claim ("claim at next routine visit") has no notice term recorded.
+- **Fix:**
+  - Derive which options decide a right from the rights each option touches (`covered_by`, `performed_under`, `voids_rights`, `files_notice`) or from its decision.
+  - Evaluate a deadline already passed at `as_of` as LAPSED for every option.
+  - Have the checker require that every right with an open deadline has deciding options.
+  - Record CH-R7's notice term, or state that there is none.
+
+**L1 (Low): restore under a denied right is half-generalised.**
+- Under RA, MTO-INV-CLAIM still restores on 28 Nov by the supplier's 21-day lead while the operator pays the 2,600 (it has no `performed_under`).
+- Under RB and RC, WAIT and STOPGAP pay the repair line (380, 710) but restore "none".
+- *Fix:* when a right is not covered, switch the restore driver to the operator's own procurement (a quote), and pay the line once.
+
+**L2 (Low):** `physical.shortfall_backed_by_generator` (0 at Kisiwa, 1 at Mto) is typed, yet it decides Q15 (A). It can be derived from records: at Mto, genset 30 kW ≥ the 25 kW inverter lost; at Kisiwa, the backup is 0, with the battery at reserve.
+- *Fix:* min(1, backup kW / lost kW) as a node.
+
+**L3 (Low):** MTO-INV-LOCAL ("opening the unit voids the warranty; dominated") is still a hand disposition. The KAS-LOCAL evaluation was not generalised to it.
+
+**L4 (Low):** of the scan's 30 allow-list entries, the no-allow run shows that only 8 hits are suppressed, so 22 entries suppress nothing. Matching is by fragment, so entries such as '80%' or '30 kW' would also mask a future restatement of an evaluated figure.
+- *Fix:* keep only the entries in use, and key them by file and line.
+
+**L5 (Low): typed figures remaining on screen.**
+- Embakasi "55% / near 0% / 0%": both options set `peak_kwh` to 0, so "near 0%" disagrees with the structure.
+- "about 62,000 kWh a month" = the DEADLINE node `kwh_0000_0500` (400 × 5 × 31). It is evaluated but not exported, so the scan cannot see it.
+- "184 kWh (92%)": the 92% is computed by hand from a record.
+- "406 kW" is a spike-E basis, which is acceptable.
+
+**L6 (Low):** `incident.roster.spare_free_nights_to_restore: 1` is a count tied to the base 3-night window, but it is applied unchanged to 6 nights (E5) and 25 nights (RB).
+
+### Prior findings (rev 11), verified
+
+| # | Status | My evidence |
+|---|---|---|
+| H1 | **Resolved as stated; generality partial (M5)** | `grep` finds no `bound_failure`, `admissible:` or `money:` string in the manifest, and the evaluator no longer reads them.<br>X1 (NOACT files notice) → +6,299.75 at 3,520.<br>H1n (deadline 3 Nov) → no action.<br>KOB-RESERVE is rejected by the declared `dawn_adequacy` bound.<br>The lapse is structural, but it reaches only Mto (GT1). |
+| M1 | **Resolved** | RB (Kasarani DENIED), by hand:<br>• WAIT: restore none, so 25 nights − 1 spare = 24 missed, 2,880 penalties, 380 borne.<br>• STOPGAP: 24 × 45 + 380 = 1,460; value 2,880 − (1,460 − 380) = **+1,800.00** ✓.<br>• LOCAL: restore 7 Nov, 0 missed, 380 (lost 0, since the right is already denied); value 2,880 − (380 − 380) = **+2,880.00** ✓.<br>• Metro 95,634 − 150 + 2,880 = **98,364** at 1,880 ✓.<br>RA claim: −137.50 − 2,830 = **−2,967.50** ✓. |
+| M2 | **Resolved; joint allocation open (M1)** | CR2 infeasible; RC binds (Harvest 2/2). |
+| M3 | **Partly resolved** | L2 reproduces: repair kept, KIS-REPLACE reported as the trade-off (105 h, 9,500).<br>The Mto/Kisiwa policy is now one rule plus a declared fact (Q15).<br>Affordability is per item (M1). |
+| M4 | **Partly resolved** | Signed anchors work (Dn7), headlines are anchored, and E3+ is caught by the November anchors. Coverage gaps remain (M4). |
+| M5 | **Partly resolved** | The loop literals now read DERIVED (the E5 + E3 screen diff follows on 4 routes). Typed manifest strings remain (M3). |
+| L1 | Resolved | E2 → wait 3 missed, stopgap +225 (34 moved). Nk → options 132 / 36 / 150. |
+| L2 | Resolved | Three-record expression. The author's L2t was not separately rerun. |
+| L3 | Resolved (as an assumption) | THIKA-SELF has a declared procurement driver of 0 days. |
+| L4 | Partly resolved | Restore follows rights where `performed_under` is declared; KAS-LOCAL is evaluated; Mto is not (L1, L3). |
+| L5 | Resolved | The forward baseline resets `reduced_days` / `uncovered_nights`. |
+| L6 | Resolved | L6t (6,000 kWh) is caught by the new record-consistency check. |
+| L7 | Resolved | Protect and detail nodes are declared per vertical. The only vertical branch left in the evaluator is the EV_DEPOT → EV_DEPOT_CAPTIVE alias. Dispositions are checked. |
+
+### Q15 (redundancy policy)
+
+- **The options are fairly and correctly described.** I ran each one in scratch:
+  - **(B)** bound node → `obligation_hours_without_redundancy`: 5,000 cases unchanged; **6,500/yes and 6,500/no both 3,508.50 at 6,430 (buy now)**, as stated. "Pays 2,580 more" is the net value lost (2,680 extra spend − 100 of fuel saved), which is correct as a net figure.
+  - **(C)** advisory at both sites: Kisiwa → **no action; spend 1,950, 2 visits; 5,000/no → +3,508.50 at 4,630 (buy now)**, as stated. The 6,500/no case also falls to 4,630 at the same value; the text "values otherwise as (A)" is accurate.
+- **Applying (A) pending the answer is appropriate and disclosed.** It leaves the reviewed plans unchanged. It is written as "(A) applied pending your answer" in the questions file, and it is listed in the owner checklist with routes.
+- **Two caveats:**
+  - The fact on which (A) rests is a typed 0/1 (L2).
+  - The client screen states "redundancy met" as settled. That is acceptable for client-facing copy, given the checklist entry.
+- (A) is not a workaround for H1. Under RA, (A) admits no action and H1 then connects the huller.
+
+### Perturbation table (my runs, scratch copies; checker base 1,040)
+
+| # | Change | What moved | Checker |
+|---|---|---|---|
+| RA | Mto claim DENIED | claim −2,967.50; **plan = NOACT + HULLER, +6,299.75 at 3,520** (H1, M2) | caught (spike set) |
+| X1 | NOACT files notice | same plan as RA (H1) | caught |
+| H1n | Mto deadline 3 Nov | all paths lapse; no action chosen with huller | caught |
+| LT7 | claim lead 21 → 7 d | 5,000/no 2,636.00 still without the huller; 6,500/no still buys now (H1) | caught, but the plan structure is wrong |
+| LS20 | local supply 5 → 20 d | 6,500/no 3,414.75 still includes the huller (H1) | caught, but the plan structure is wrong |
+| RB | Kasarani DENIED | local repair chosen; stopgap +1,800, local +2,880; Metro 98,364 at 1,880 | caught |
+| RC | Thika EXPIRED | THIKA-SELF chosen; Harvest **+1,670.00 at 980** (joint optimum 3,182.40 at 1,430) (M1) | caught |
+| CR2 | Lakeside crews 3 → 2 | every case infeasible (M1) | caught |
+| B2000 | budget switch 2,000 | **both 2,000 cases infeasible** (M1) | caught |
+| B1500 | budget switch 1,500 | Kisiwa no action; +2,548.50 at 750 | caught |
+| L2 | Kisiwa visit 29 Nov | repair kept (120 h); trade-off KIS-REPLACE 105 h / 9,500 | caught |
+| Q15B | redundancy on any unit out | 6,500/yes → 3,508.50 at 6,430 | caught (documents) |
+| Q15C | redundancy advisory | Kisiwa no action; 1,950; 5,000/no 3,508.50 at 4,630 | caught (documents) |
+| E5 + E3 | SLA 8 bd; November spare 3 → 2 | restore 12 Nov; stopgap +375; Metro 95,859 at 1,725; Nov 3 missed / $360. **The screen keeps "9 Nov", "2 missed … $240 … $90", "5 \| $240", and "lent on 3, missed on 2"** (M3) | 73 FAIL |
+| E3+ | E3 with the protect table updated | only document anchors fail; the typed detail string survives (M3) | 6 FAIL (anchors only) |
+| E2 | `spare_buses` 1 → 0 | wait 3 missed; stopgap +225 | caught |
+| Nk | Mto window 5 → 6 h | October 24 h; options 132 / 36 / 150 | caught |
+| L6t | Kasarani Nov kWh 6,000 | record-consistency fails | 1 FAIL |
+| GT1 | Thika un-notified, deadline 5 Nov (passed) | 2 leaves; WAIT keeps 710 claimable | **1,040 pass** (M5) |
+| GT2 | GT1 + `asset:` on WAIT | WAIT lapses (710 lost) | caught |
+| Dn1–Dn6, Dn8 | document drifts (M4) | — | **all pass** |
+| Dn7, Dn9 | sign flip; walkthrough headline | — | caught |
+
+### Regression checks
+
+- **Evaluator and checker.**
+  - `python3 evaluate_structure.py`: 9 sites, 27 options, 3 plans. Its output is byte-identical to the working-tree `derived-values.json`.
+  - `python3 check_manifest.py`: **1,040 passed, 0 failed** (1.3 s).
+  - `tools/hand_typed_scan.py`: **0** hits, with 30 allow-list entries. Without the allow-list there are 8 hits, all legitimate.
+- **Scratch rebuild.** I ran `evaluate_structure.py`, `rebase_v70.py`, `gen_fixtures.py` ("0 differences", 28 replay patterns), `node build.mjs` and `gen_docs.cjs`. `diff -rq` against the working tree shows **no differences** (byte-identical).
+- **Preserved screens.** `screens.js`, `portfolio.js`, `outcomes.js`, `*.css`, `src-v70-baseline` and `screen-manifest-vnext.json` are not in the diff since `f55f15716`. I did not rerun the audit's 65/65 text comparison.
+- **Wording, filters and menus.** The added `loop-*.js` lines contain no `<select>`, no role or question wording and no new menus. The only matches were JS `.filter()` calls.
+- **Generality.** The evaluator has no vertical names except the EV alias, and the bounds and Protect nodes are declared per vertical. The residue is in M5 (lapse scoping).
+- **Headless spot check.** I used Playwright with Chromium 1140 against a static server on **port 8783**, which I stopped afterwards; I did not touch ports 5490 or 8990.
+  - I checked 12 routes (the Kasarani, Mto, Kisiwa, Kobo, Thika, Ruiru and Embakasi decisions; the Kasarani site page; outcomes by site; act-first for all three tenants) at 1440 and 390 px, on the base build and the E5 + E3 build.
+  - **0 page errors and 0 overflow at 390 px.**
+  - **Mto:** "Fails the cover bound: no notice is filed, so the warranty lapses on its 27 Nov deadline and $2,600 of cover is lost".
+  - **Kisiwa:** "the least violation is chosen: Repair generator 1 … 15 h".
+
+### Remaining hand inputs that matter
+
+| Input | Where | Status |
+|---|---|---|
+| `requires_any` MTO-HULLER, and the typed huller row | plans; loop-decisions.js:287 | **typed causal step (H1)** |
+| `asset:` per option | evaluation | hand scoping of the lapse (M5) |
+| `shortfall_backed_by_generator` 0 / 1 | physical | typed fact behind Q15 (L2) |
+| WAIT `reason`, `protect_effects.horizon` / `penalties`, `sla_clock.restore_due`, protect `detail` | rows / portfolio | typed, rendered and unchecked (M3) |
+| `spare_free_nights_to_restore` 1 | incident roster | a fixed count (L6) |
+| 55% / near 0%, 62,000 kWh, 92% | loop-decisions.js | typed (L5) |
+
+Everything else listed in the rev 11 table is now either evaluated or labelled as a quote, assumption or design value.
+
+### Convergence
+
+Author work remains. It is targeted, but H1 is a genuine plan-deciding causal step:
+
+1. **H1:** a dated huller dependency evaluated in `best()`.
+2. **M1:** joint enumeration of the protective choices.
+3. **M2:** a consistent horizon for restore paths, and disclosure.
+4. **M3:** derive or check the rendered manifest strings.
+5. **M4:** widen the coverage rule and anchor Q15.
+6. **M5:** derive which options decide a right, and evaluate an already-passed deadline.
+
+The L items can ride along. The owner decisions are Q1–Q15. Q15 is correctly posed, and (A) is an appropriate interim choice. After this round I would expect only owner decisions to remain, provided H1 and M1 are fixed without new typed rules.
+
+### Not verified
+
+- I did not rerun `tools/run-audit.sh`. The 202-route, contrast, focus, design-value-scan and 65/65 text-identity figures are the author's numbers.
+- I did not rerun the CSV validator.
+- I did not rerun the author's K1, M3b, L2t, Dj–Dm or M1t individually.
+- I did not verify the replay design values; they belong to the calibration lane.
+
+---

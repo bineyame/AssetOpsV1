@@ -28,6 +28,40 @@ for ten in data['tenants']:
             for node, field in (('contribution', 'contribution'), ('revenue', 'revenue'), ('fuel_cost', 'diesel_cost'), ('energy', 'energy'), ('energy_cost', 'energy_cost'), ('cost_to_serve', 'total')):
                 if node in dv[side]['nodes'] and field in P and abs(dv[side]['nodes'][node] - P[field]) > 0.005:
                     diffs.append(f"{s['site']} {side} {field}: stated {P[field]} derived {dv[side]['nodes'][node]}")
+# Rev 12 (M5): the diff also covers option protect values, restore dates, option crew visits and plan crew visits, so it
+# cannot report 0 differences while the checker fails on one of them.
+def _opts(o):
+    if isinstance(o, dict):
+        if isinstance(o.get('id'), str) and o['id'] in derived['options']: yield o
+        for v in o.values(): yield from _opts(v)
+    elif isinstance(o, list):
+        for v in o: yield from _opts(v)
+_seen = set()
+for o in _opts(data['tenants']):
+    d = derived['options'][o['id']]
+    if o['id'] in _seen: continue
+    _seen.add(o['id'])
+    if o.get('restore_by') and d.get('restore_date') and str(o['restore_by']) != d['restore_date']:
+        diffs.append(f"{o['id']} restore: stated {o['restore_by']} derived {d['restore_date']}")
+    if o.get('crew_visits') is not None and d.get('crew_visits') is not None and o['crew_visits'] != d['crew_visits']:
+        diffs.append(f"{o['id']} crew visits: stated {o['crew_visits']} derived {d['crew_visits']}")
+    if o.get('expected_penalties') is not None and d.get('monthly_or_horizon_change') is not None and abs(o['expected_penalties'] + d['monthly_or_horizon_change']) > 0.005:
+        diffs.append(f"{o['id']} penalties: stated {o['expected_penalties']} derived {-d['monthly_or_horizon_change']}")
+for ten in data['tenants']:
+    for pe in (ten.get('portfolio') or {}).get('protect_effects') or []:
+        for oid, v in (pe.get('options') or {}).items():
+            d = derived['options'].get(oid)
+            if d and isinstance(v, (int, float)) and pe['measure'] in (d.get('protect') or {}) and abs(d['protect'][pe['measure']] - v) > 0.005:
+                diffs.append(f"{oid} protect {pe['measure']}: stated {v} derived {d['protect'][pe['measure']]}")
+    A = ((ten.get('portfolio') or {}).get('allocation') or {})
+    P = derived['plans'].get(ten['tenant'], {}).get('default', {})
+    used = A.get('crew_visits_used', A.get('technician_visits_used'))
+    if used is not None and P.get('crew_visits_used') is not None and used != P['crew_visits_used']:
+        diffs.append(f"{ten['tenant']} plan crew visits used: stated {used} derived {P['crew_visits_used']}")
+    C = ten.get('portfolio_constraints') or {}
+    lim = C.get('crew_visits_nov', C.get('technician_visits_nov'))
+    if lim is not None and P.get('crew_visits_limit') is not None and lim != P['crew_visits_limit']:
+        diffs.append(f"{ten['tenant']} plan crew visit limit: stated {lim} derived {P['crew_visits_limit']}")
 print('evaluator vs stated fields: %d differences' % len(diffs) + (': ' + '; '.join(diffs) if diffs else ''))
 
 

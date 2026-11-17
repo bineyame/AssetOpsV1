@@ -27,6 +27,7 @@
 | Q9 delivery order, with the calibration lane first | main document §9 |
 | Q13 may early prospects see replay-derived figures if labelled and said aloud? | `#/decision/kobo-generator` |
 | Q14 keep Kisiwa's battery fuel saving as a flagged assumption? | `#/decision/kisiwa-genset` |
+| Q15 redundancy policy: does losing a unit breach the obligation when a generator carries the shortfall? (A) applied: Kisiwa fails it, Mto passes, plans unchanged; (B) and (C) change the plans as listed in the questions file | `#/decision/mto-inverter`, then `#/decision/kisiwa-genset` |
 | Item 11 below: rebuild Ruiru's preserved deep views? | `#/ev-health` |
 
 **Everything else** still open is listed, with the Architect's recommendation, in `../design-questions-and-decisions.md` (Q4, Q6, Q8, Q10–Q12, Q14 and residual risks RR1–RR3); none needs a screen.

@@ -680,3 +680,121 @@ No headline figure changed in this round. Lakeside +6,088.50 at 3,750; Harvest +
 | Oracle in the bundle | no |
 
 **Still owner decisions:** Q1–Q14, including Q14 (Kisiwa battery assumption) and Q13 (client exposure of replay figures).
+
+## Author response (rev 12)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This responds to "## Re-review (rev 11)". The governing principle is unchanged: every figure and every admissibility comes out of the declared structure. This round removes the last typed admissibility, fixes the valuation netting, makes crews and the least-violation fallback real constraints, signs the document check, and moves the remaining screen literals onto evaluated nodes. One item is a policy question for the owner (Q15). (A) is applied pending the answer, and it leaves the plans as reviewed.
+
+### Headline figures (unchanged)
+
+| Plan | Value | Spend | Crew visits |
+|---|---|---|---|
+| Lakeside | +6,088.50 | 3,750.00 | 3 of 3 |
+| Harvest | +3,182.40 | 720.00 | 2 of 2 |
+| Metro | +95,634.00 | 1,590.00 | 0 of 2 |
+
+Every switch case, sensitivity and downside is also unchanged. The evaluator now produces 27 options; KAS-LOCAL is new.
+
+### Findings
+
+| # | What changed | Where |
+|---|---|---|
+| **H1** | **No typed admissibility is left.** `money` / `bound_failure` are deleted from MTO-INV-NOACT and `bound_failure` from KOB-RESERVE; the evaluator no longer reads `bound_failure` at all.<br>**Notice-deadline lapse.** A right with an open notice deadline now lapses, for the options that decide that asset (`asset:`), unless the option files notice by the deadline (`files_notice`, a date expression). The claim and buy-now paths file on 6 Nov. No action files nothing, so INV-MT-02 lapses on 27 Nov and **2,600.00 is lost**.<br>**Cover bound across all three verticals.** The `claimable_cover` bound now tests `cover_not_claimable` = unclaimable + lost cover, and it is declared for all three verticals.<br>**Mto no action.** It is now complete: it carries the same extra fuel as the other paths, so it would be worth −156.25 if it were admissible. It sits inside the `mto_inverter` decision and is rejected by that bound.<br>**Kobo.** A declared `dawn_adequacy` bound over the node `replayed_dawn_days_below_safeguard` replaces the typed string. The leaf is read from the row's `forward_replay.soc_0500_below_35_days`, a spike-K design value. KOB-RESERVE fails it (4 days); KOB-STOPSOC passes (0). Perturbation K1 (0 → 2 days) rejects the stop-setting change and moves the plan. | evaluator `run()` rights block; manifest `evaluation.bounds`, the MTO-INV-* and KOB-* options, `plans.lakeside-power` |
+| **M1** | **Value now nets the reference path's one-off.** The formula is value = Δ × months − (option one-off − reference one-off). The output gains `reference_one_off` and `net_one_off`; sensitivities use the netted figure.<br>**Perturbation M1t** (the contactor borne by the operator on both paths): the stopgap stays **+150.00** (rev 11: −230). Under RB, the restore date now also follows the right; see L4. | evaluator `run()`; main §2.3 identity; contracts identity; A28 |
+| **M2** | **Crews are enforced.** `best()` sums each item's `crew_visits` against the tenant limit (`crew_limit` per plan). Crew visits come from the option rows, or are declared on the option with a basis; they are never defaulted, and the checker asserts that every plan item has them.<br>**Outputs:** `crew_visits_used` / `crew_visits_limit` per case. The checker asserts them against the manifest's allocation, and they are anchored in the main document, the models, the phase plan and the walkthroughs.<br>**L1 (crews 3 → 1)** and **M2b (crews 3 → 2)** now make every Lakeside case infeasible, with that reason stated. | evaluator `best()`; manifest `crew_limit`, option `crew_visits`; A29 |
+| **M3** | **The fallback is budget-aware.** Protective choices are remade per switch case inside that case's budget and visit limit. The least violation is chosen among affordable options, and a `trade_off` is reported when a smaller violation was unaffordable. A valued decision may declare the same fallback (violation minimised before value).<br>**L2** (Kisiwa crew visit on 29 Nov): the repair is kept (120 h), the 9,500 replacement (105 h) is reported as the unaffordable trade-off, and **every case stays feasible** (rev 11: all infeasible). **M3b** (budget switch 1,500) chooses no action at Kisiwa as the least affordable violation and states the trade-off.<br>**Policy.** The distinguishing fact is now declared, `physical.shortfall_backed_by_generator`. At Kisiwa it is 0: GEN-KS-02 alone carries the evening load. At Mto it is 1: the generator carries the daytime shortfall. One rule applies to every Lakeside decision: hard, with the fallback, on `obligation_hours_without_backup`. **This is a policy on what counts as a breach, so it is raised as owner question Q15.** Q15 sets out options (A) applied, (B) and (C), each with its effect on the plans (computed by running the evaluator on each variant):<br>• (A): no change to the plans.<br>• (B): the 6,500/yes case falls to 3,508.50 at 6,430.<br>• (C): Kisiwa takes no action; spend 1,950; the 5,000/no case buys the inverter now. | evaluator protective / `best()`; manifest physical facts and `plans`; questions Q15, A29; owner checklist |
+| **M4** | **Signed anchors.** The sign written before a figure is part of it; `<!--fig:-path-->` marks a cost written as a subtraction. Da and Di are now caught.<br>**Period-to-date rule.** A figure stated for a period to date may not be anchored to an option path. The walkthrough is re-pointed to `sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed`, and the $240 and the 5 nights are anchored.<br>**Required headline anchors** in the main document and the walkthroughs: spend, value and visits for every plan, plus the §10 Protect statement (Kisiwa 10, Mto 20, Thika 26, Kasarani 2 / 240).<br>**Coverage rule.** Every occurrence of an evaluated plan or option money figure in the eight figure-bearing documents (now including this questions file) must carry an anchor. Record figures carry `<!--rec-->`, checked against the manifest's money records.<br>**Result.** The documents now carry **417 figure anchors (rev 11: 250) and 39 record tags**. Most of the new anchors were placed by explicit context rules (scratch `rev12/autoanchor.py`, every placement listed and reviewed); the rest were placed by hand. All of Da, Db, Dc, Dd, De, Df, Dg, Dh and Di are now caught, as are E3+ and the new drifts Dj, Dk and Dm. | `check_manifest.py` `anchors()`; all figure-bearing documents |
+| **M5** | **Screen literals.** The typed `incident.capacity_after` / `incident.november_to_date` are deleted. The Kasarani row and the decision read the November-to-date nodes, labelled "Calculated from records". `capacity_crate_days_oct` is deleted (now evaluated as 400 × period days). The other result-map literals are read from DERIVED. The audit has a new scan for hand-typed figures in `loop-*.js`. See "M5: what the builder replaced" below. | `loop-*.js`, `tools/audit.mjs` |
+| **L1** | **One record per input.** `failed_chargers` comes from the November observation. Spare cover = `physical.spare_buses` × the roster's free nights (E2 now moves the outcome). The Mto and Kisiwa paths read the observed `reduced_hours_per_day` (Nk now moves the options). Capacity = crates per room × period days. | manifest |
+| **L2** | **Uncovered nights.** The node is now unproven nights − nights without stock − nights covered by a rota, each from a record (L2t moves it). | factor map, Thika observation |
+| **L3** | **THIKA-SELF restore.** Its restore now carries a declared procurement driver, labelled as an assumption ("held in local stock, fitted the same day; no quote held"). | manifest |
+| **L4** | **Restore follows rights.** A restore performed by the supplier (`performed_under`) falls back to "none within the horizon" when the right is not covered.<br>**KAS-LOCAL is evaluated:** it restores on 7 Nov, `voids_rights: [CH-K2]`, loses 380 and fails the cover bound.<br>**Under RB:** waiting runs to the horizon (24 missed), and the local repair becomes the protective choice (spend 380). | evaluator restore; manifest |
+| **L5** | **Forward baseline.** Before an option's changes apply, the period-observation leaves are reset (`forward_baseline` per vertical). KIS-BATT60, MTO-HULLER and MTO-WELDING now show 0 obligation hours, and Mto's "immediate restore" reference shows 0. | evaluator, manifest |
+| **L6** | **Kasarani November delivery.** It is now 5,250 kWh (≤ 1,050 × 5). The checker asserts recorded kWh a night ≤ deliverable for every EV side, and L6t (6,000) is caught. | manifest, checker |
+| **L7** | **Declared per vertical.** The Protect nodes and the option detail nodes are now declared per vertical in `evaluation`; there are no lists in the evaluator code.<br>**Dispositions checked.** The checker asserts row dispositions against the evaluation: RECOMMENDED is in the plan, CONDITIONAL is in a case, REJECTED/DEFERRED is not in the plan, ACCEPTABLE is admissible, and a comparator is RECOMMENDED only if admissible. This caught BAT-NOACT "ACCEPTABLE" while it was inadmissible; it is now REJECTED with the evaluated reason. The THIKA-SELF, KAS-LOCAL and MTO-INV-NOACT reasons now state the bound. | evaluator, manifest, checker |
+
+### Coordinator points
+
+1. **Structure below money.** Crews are structural (M2). The Kasarani November figures are evaluated, not typed (M5). Thika's uncovered nights are a three-record expression (L2).
+2. **The causal step.** No admissibility is typed (H1). THIKA-SELF has a declared driver (L3). Kasarani's inputs each come from one record (L1).
+3. **Coverage.** Unchanged: all nine sites run through the structure, and the evaluator now produces 27 options.
+4. **Rights.** The notice deadline is a structural lapse (H1), netting is correct under a rights flip (M1), and restore dates follow rights; KAS-LOCAL's voiding is evaluated (L4).
+
+### Perturbations (scratch copy `pert3`; harness `scratchpad/perturb3.py`; checker base 1,038)
+
+"Moved" is the number of changed leaves in `derived-values.json`. A failing checker means the drift is caught. The reviewer's items come first and keep the reviewer's IDs.
+
+| # | Change | What the structure did | Checker |
+|---|---|---|---|
+| X1 | *(was: delete NOACT's typed strings)* NOACT files notice on time | NOACT becomes admissible and is chosen: Lakeside +6,299.75 at 3,520 (2 visits). The cover bound was the only thing excluding it, and it is structural. | 88 FAIL |
+| X3 | *(was: give NOACT the extra fuel; that is now its baseline)* notice deadline 27 Nov → 2 Dec | nothing: a right never notified lapses whenever its deadline falls (invariance, as intended) | 0 FAIL (expected) |
+| RA | Mto claim DENIED | claim −2,967.50. The right no longer lapses (there is no cover to lose), so no action passes the cover bound and is chosen inside the horizon: +6,299.75 at 3,520. This is a horizon effect: the generator keeps running after 30 Nov. Q15 (B) would reject it. | 112 FAIL |
+| RB | Kasarani claim DENIED | supplier restore no longer applies: waiting runs to the horizon (24 missed). The local repair, with no cover left to lose, becomes the protective choice: +2,880, spend 380. Metro +98,364 at 1,880. No −230 (M1). | 68 FAIL |
+| RC | Thika EXPIRED | the self-funded controller passes the cover bound and is chosen. **Crews now bind:** with 2 visits, the Kirinyaga repair drops. Harvest +1,670.00 at 980. | 55 FAIL |
+| RD | Kobo BAT-001 already covered | BAT-NOACT is admissible and chosen; spend 3,320, 2 visits | 45 FAIL |
+| RE | Kisiwa covered | repair 0; spend 1,950; 5,000/no case flips to buying now | 48 FAIL |
+| L1 | Lakeside crews 3 → 1 | every Lakeside case is infeasible, with the reason stated (rev 11: nothing moved) | 119 FAIL |
+| L2 | Kisiwa crew visit 29 Nov | repair kept (120 h); the replacement (105 h, 9,500) is reported as an unaffordable trade-off; every case is feasible (rev 11: all infeasible) | 2 FAIL |
+| H1t | Mto shortfall not backed (Q15 option B) | the claim and buy-now paths both violate; least violation within the budget keeps the claim at 5,000 | 30 FAIL |
+| Nk | Mto window 5 → 6 h | October 20 → 24 h **and** the options 110 / 30 / 125 → 132 / 36 / 150 (rev 11: options unchanged) | 5 FAIL |
+| C1 | Thika remedy 6 Nov | waiting is admissible and chosen; spend 620 | 21 FAIL |
+| C2 | Thika backup proven | 26 → 0 nights | 3 FAIL |
+| E2 | Kasarani `spare_buses` 1 → 0 | wait 3 missed; cover 135; stopgap +225 (rev 11: nothing moved) | 65 FAIL |
+| E3 | November spare 3 → 2 | November 3 missed, 360 | 8 FAIL |
+| E3+ | E3 with the protect table updated | the walkthrough and main-document anchors on the November nodes catch it (rev 11: passed) | 6 FAIL |
+| E4 | Ruiru import 400 → 300 | +6 rejected (93 missed, 80 kW over) | 8 FAIL |
+| E5 | SLA 8 business days | restore 12 Nov; wait 5 missed; stopgap +375. The screen reads the node (see M5). | 65 FAIL |
+| Q3 | November failed chargers 1 → 2 (one record) | cover 495; stopgap +825 | 74 FAIL |
+| Q4 | Embakasi feasible nights 25 | schedule rejected; Metro 150 | 38 FAIL |
+| R2 | Thika claim DENIED | as RC | 55 FAIL |
+| Da, Di, Db, Dc, De, Dh, Df, Dg | documents (rev 11: all passed) | — | 1 FAIL each |
+| Dd | main 720.00 → 702.00 | — | 2 FAIL |
+| M1t *(new)* | contactor operator-borne on both Kasarani paths | stopgap stays +150.00; spend 1,970 | 35 FAIL |
+| H1n *(new)* | Mto notice deadline already passed (3 Nov) | every path lapses and violates the cover bound equally; least violation then value picks no action | 119 FAIL |
+| K1 *(new)* | Kobo replay 0 → 2 dawn days below 35% | stop-setting rejected by dawn adequacy; Lakeside +3,172.50 | 123 FAIL |
+| M2b *(new)* | Lakeside crews 3 → 2 | infeasible, with the reason stated | 119 FAIL |
+| M3b *(new)* | Lakeside budget switch 1,500 | Kisiwa protective choice = no action (the least affordable violation), with the repair reported as the trade-off; +2,548.50 at 750 | 94 FAIL |
+| L2t *(new)* | Thika stock absent 3 unproven nights | 26 → 23 nights | 2 FAIL |
+| L6t *(new)* | Kasarani November kWh 6,000 | the record-consistency check fails | 1 FAIL |
+| Dj, Dk, Dl, Dm *(new)* | walkthrough visits 2 → 3; a new unanchored copy of the Metro spend; a record tag altered (150.00 → 151.00); walkthrough November penalties $240 → $360 | — | 1 FAIL each |
+
+**Every perturbation and drift is caught except X3, which is invariant by design.**
+
+### M5: what the builder replaced (details in `interactive-mockup-vNEXT/fixture-mapping.md` §3g and `CHANGE-REGISTER.md` §7i)
+
+- **Kasarani November figures.** 1,050 of 1,200 kWh, 1 bus short, 2 departures, $240 and "2 × $120" now come from `sites["metro-bus/Kasarani"].november_to_date.nodes`, labelled "Calculated from records".
+- **Restore dates and protect values.** "Likely 2 missed departures before 9 Nov" and "unprotected at night until 8 Nov" are now built from the options' `protect` values and `restore_date`.
+- **Ruiru.** 2,800 / 3,200 / 3,360 kWh come from `bound` of RUI-ABSORB6/10.
+- **Departures per charger.** "1,302 ÷ 26" comes from the O2 numerator and denominator. The Ruiru "per charger-day in service" figures (25.16, 51.75) had no node, so they are deleted.
+- **Crews.** Every visit count comes from `crew_visits_used` / `crew_visits_limit` per case.
+- **Worked figures.** Kobo, Thika, Mto and Embakasi worked figures come from nodes, cost lines and parameters.
+- **Bound table.** It now shows each decision's hard bounds with the measured node. The advisory wording is gone, KAS-LOCAL is shown, and the trade-off line is rendered when one is present.
+- **New audit scan.** `tools/hand_typed_scan.py` fails on any digit-bearing literal in `loop-*.js` that equals an evaluated figure. Result **0**, with 30 allow-listed literals, each with a reason: declared policies and limits, event dates, declared windows, assumptions, and one preserved v7.0 example.
+- **`gen_fixtures` diff.** It now also covers restore dates, crew visits, Protect effects and plan visits.
+- **Typed figures that remain** have no evaluated node and are context text from records or spike E: "about 406 kW for a 21-bus night" (spike E basis), the peak shares 55% / near 0%, 62,000 kWh a month, and the battery estimate "184 kWh (92%)" (an occurrence record).
+- **Walkthrough.** The "obligation hours" step now reads "without redundancy", matching the screen, with Kisiwa 10 and Mto 20 anchored.
+
+### Checks run before replying
+
+- `python3 evaluate_structure.py`: 9 sites, **27 options** (KAS-LOCAL added), 3 plans; the plan figures are unchanged.
+- `python3 check_manifest.py`: **1,040 passed, 0 failed** (rev 11: 753). The checks are now signed, the headline anchors are required and anchor coverage is enforced, and they include crews, dispositions and record consistency.
+- CSV validator: **PASS**.
+- Rebuild: `rebase_v70.py`, `gen_fixtures.py` (28 replay patterns; it covers the new fields), `node build.mjs`, `gen_docs.cjs`.
+- Full audit (`run-audit.sh --shots`, exit 0):
+
+| Check | Result |
+|---|---|
+| Route renders | 202 / 202 |
+| Console errors / bad links / overflow at 390 px | 0 / 0 / 0 |
+| Vocabulary / identifiers / role or question wording / Portfolio filter controls | 0 / 0 / 0 / 0 |
+| Independent design-value scan | 28 figures; 93 occurrences and 734 drawers; 0 unlabelled |
+| Hand-typed figures in `loop-*.js` | **0** (30 allow-listed with reasons) |
+| Switch cases / focus / contrast | 8 of 8 / 7 of 7 / 38 of 38 |
+| Preserved screens identical | 65 / 65 |
+| Oracle in the bundle | no |
+
+- Perturbations: 41 runs. 40 are caught; X3 is invariant by design.
+
+### Still owner decisions
+
+**Q1–Q15.** Q15 is new: the redundancy policy, with (A) applied and recommended. It is set out in `design-questions-and-decisions.md` with the effect of each option on the plans. It is also in the owner checklist.

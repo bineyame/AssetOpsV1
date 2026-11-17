@@ -1,6 +1,6 @@
 {
  "dvScan": {
-  "occurrences": 102,
+  "occurrences": 93,
   "unlabelled": [],
   "drawersOpened": 734,
   "byFigure": {},
@@ -3953,6 +3953,10 @@
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data"
    ],
    "mto-demand": [
@@ -3964,7 +3968,6 @@
    ],
    "embakasi-schedule": [
     "Design value: the replay has not yet been run on site data: schedule feasibility on 31 of 31 October nights and the deliverable energy a night",
-    "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
@@ -4007,6 +4010,42 @@
   "ruiruNameplate": true
  },
  "tabsKeyboard": true,
+ "handTyped": {
+  "count": 0,
+  "hits": [],
+  "allow": {
+   "35% at 5 am": "declared dawn-adequacy policy (obligation), not an evaluated figure",
+   "5 °C": "declared commodity limit",
+   "12 °C": "declared commodity limit",
+   "2–4 °C": "declared chamber band",
+   "15 minutes": "declared contract threshold",
+   "5% tolerance": "declared model tolerance",
+   "2% tolerance": "declared fuel-balance tolerance",
+   "a 5% tolerance": "declared model tolerance",
+   "1 Nov": "event date (fault, tariff start), declared",
+   "6 Oct": "incident date, declared",
+   "30 Oct": "event date, declared",
+   "28 Oct": "event date, declared",
+   "3 Oct": "event date, declared",
+   "7 Oct": "inspection date, declared",
+   "14 days": "declared trial length",
+   "14 supervised nights": "declared trial length",
+   "14 matched days": "declared trial window",
+   "30 days": "declared verification window",
+   "60 days": "declared model-fitting window",
+   "61 days": "declared replay window length",
+   "12 months": "declared horizon",
+   "4 months": "declared contract length",
+   "7-year": "declared life view",
+   "1,000-hour": "warranty condition text (declared contract term), not an evaluated figure",
+   "80 kW": "set-up of the preserved earlier-demo charger example (v70 detail views), not an evaluated figure",
+   "42 kW": "illustrative interval in a source sample row",
+   "30 kW": "illustrative interval in a source sample row (energy-management export)",
+   "10%": "declared comparability band",
+   "60–90%": "declared recovery range (assumption)",
+   "80%": "declared recovery share (assumption)"
+  }
+ },
  "summary": {
   "routesChecked": 202,
   "routesOk": 202,
@@ -4027,7 +4066,7 @@
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
   "operatorSelectInReviewBar": 202,
-  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 102 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
+  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 93 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
   "rev6TabOrder": true,
   "rev7EvMeasure": true,
   "rev7RuiruNameplate": true,
@@ -4039,6 +4078,8 @@
   "focusVisible": "7/7",
   "contrastPass": "38/38",
   "preservedIdentical": "65/65",
-  "oracleShipped": false
+  "oracleShipped": false,
+  "hand_typed_figures": 0,
+  "handTypedAllowList": 30
  }
 }

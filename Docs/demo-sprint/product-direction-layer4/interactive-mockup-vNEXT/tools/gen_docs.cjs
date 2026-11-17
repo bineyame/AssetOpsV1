@@ -182,6 +182,21 @@ Check: every number on every page (all routes, three operators) and in every evi
 | Bound policy per decision | The bound-check table names each limit's policy for its decision (from the manifest's \`plans[...].decisions[].hard\` / \`.advisory\`): a hard excess reads "over the limit" and decides admissibility; an advisory excess reads "(advisory, not a rejection)" (Kisiwa battery 10 h; Mto inverter paths 110 h and 30 h). Ruiru +10 buses is now inadmissible (62 departures missed). |
 | O2 from the evaluator | Operations measures read \`derived-values.json\` \`operations\` (sites, portfolio, numerator and denominator); the manifest supplies the name, unit, plan, class and binding limits. |
 
+## 7i. Rev 12 changes (review M5 and the rev 12 structure)
+
+| Item | Change in the mock-up |
+|---|---|
+| M5 hand-typed figures | Every figure the structure evaluator produces is read from \`DERIVED\` (or computed from the manifest's own inputs), never typed into a string in \`loop-*.js\`. The option worked figures, the factor-structure tables, the decision reasons, the rights rows, the Act first rows, the Demand and capacity page, the site assumptions and the operations-measure bases are templates. Manifest reasons are put into plain words by rules (no literal-keyed rewrite tables that restate figures). |
+| Hand-typed figure audit | \`tools/hand_typed_scan.py\` (run by the audit) fails when a digit-bearing string literal in a \`loop-*.js\` file restates an evaluated figure in screen format (money, quantity with unit, "n of m" counts, thousands/decimals, restore dates next to restore words). Explicit allow-list with reasons (declared constants such as the 35% at 5 am policy, temperature limits, tolerances, event dates, the earlier-demo 80 kW example). Result: ${A.summary.hand_typed_figures} hand-typed figures (required 0); ${A.summary.handTypedAllowList} allow-list entries. |
+| Kasarani November | Read from \`DERIVED.sites["metro-bus/Kasarani"].november_to_date.nodes\` (1,050 of 1,200 kWh a night, 1 bus short, 2 departures missed, $240 penalties = 2 × $120) and labelled "Calculated from records". |
+| Harvest capacity | \`capacity_crate_days\` from each room's evaluated actual nodes (12,400 crate-days). |
+| Bound check | Each option shows the hard limits of its decision with the measured value and the evaluator's admissibility; the advisory wording is gone. Names: obligation hours with no backup supply; warranty cover not claimable (lost or unevidenced); replayed days with battery below 35% at 5 am (design value); nights without backup cover; departures missed; import above the limit. |
+| New and changed options | Mto "do nothing" is rejected by the cover bound ($2,600 lost, the notice lapses). Kobo lower-reserve fails the dawn limit (4 of 61 replayed days). Kasarani "Repair locally now" ($380, restores 7 Nov, $380 cover lost, not admissible) is in the option table, the factor-structure table, bounds, restore dates and cover. Thika self-repair is not admissible ($710 cover lost). |
+| Crews | Visits used and the visit limit come from the evaluated plan (\`crew_visits_used\` / \`crew_visits_limit\`, per switch case); per-option visits from \`crew_visits\`. |
+| Protective choice | A trade-off line appears when the evaluator gives one (none in the base case). |
+| Fixture diff | \`tools/gen_fixtures.py\` also compares option restore dates, crew visits, expected penalties, Protect-effect values and plan crew visits/limits against the evaluator. |
+| Not produced by the structure | The Ruiru "per charger-day in service" figure (25.16 charger-days, 51.75 departures) has no evaluated node and was removed from the operations-measure basis. |
+
 ## 8. Conflicts and gaps found (not fixed by invention)
 
 1. **Ruiru scale.** The preserved v7.0 EV pages describe a 2-connector, 80 kW depot with daytime public sessions (charger CHG-002, session SES-011 at 14:03) and a tariff revenue estimate. The scenario file's Ruiru is a captive depot with 12 chargers, a 400 kW import limit and night charging (21:00–05:00), and names the asset "charger 7, connector 2". Names were re-based; the physical scale and charger id were not rewritten. A banner says so.
@@ -229,6 +244,7 @@ Scripted with Playwright and Chromium (\`tools/audit.mjs\`, run via \`tools/run-
 | Contrast spot checks at least 4.5:1 | ${S.contrastPass} |
 | Preserved v7.0 screens identical after the name map | ${S.preservedIdentical} |
 | Private oracle shipped in the bundle | ${S.oracleShipped ? 'YES' : 'no'} |
+| Hand-typed figures in loop-*.js restating an evaluated figure (allow-list entries) | ${S.hand_typed_figures} (${S.handTypedAllowList}) |
 
 ## Switch cases
 

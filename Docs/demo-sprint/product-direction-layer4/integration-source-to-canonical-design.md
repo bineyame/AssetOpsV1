@@ -1,6 +1,6 @@
 # Integrations needed: from source facts to leaf factors to outcome state
 
-**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 11 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
+**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 12 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
 **Status:** design only. Nothing here exists in the repository unless it is labelled [code-observed] or [test-confirmed]. No code, test, database or mock-up was changed or run for this document.
 
 **Labels.** [code-observed] read in current code (backend, frontend, simulator and tools are unchanged since `bf6014e02`) · [test-confirmed] pinned by a named product test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) · [proposed] this design · [research] external protocol or law · [assumption] a value or behaviour a pilot must confirm. **Provenance** of every record is one of *demo-simulated* (simulator pack), *source-emulated* (a generator that emits the source's native shape), *bench-tested* (a real device or export on a bench), *field-integrated* (a live operator source), *observed-financial* (the operator's own ledger, bill or statement). Simulated and observed values never share a number.
@@ -43,7 +43,7 @@ contribution = revenue − cost_to_serve                                     (pe
 bounds: battery SOC at 05:00 ≥ 35 % · clinic load served 24/7 · evening supply has a running genset with redundancy
         · lowest SOC ≥ 10 %, cell temperature ≤ 45 °C (battery warranty operating limits)
 ```
-Lakeside October, evaluated on observed factors: delivered 23,050 → metered 21,700 → billed 21,445 kWh → revenue 9,688.00 → collected 8,870.00 + in transit 150.00 + outstanding 668.00; cost to serve 8,245.00; contribution 1,443.00 against 2,295.00 evaluated on plan factors.
+Lakeside October, evaluated on observed factors: delivered 23,050 → metered 21,700 → billed 21,445 kWh → revenue 9,688.00 → collected 8,870.00 + in transit 150.00<!--rec--> + outstanding 668.00; cost to serve 8,245.00; contribution 1,443.00 against 2,295.00 evaluated on plan factors.
 
 | Place in the structure | Leaf factor | Feeds | Source fact | Canonical record (store) | Exists today? | Integration needed |
 |---|---|---|---|---|---|---|
@@ -174,7 +174,7 @@ Two further instants are bookkeeping: `received_at` (when a batch arrived) and `
 
 Attention therefore arises at the factor where something happens (a factor deviating from plan, a bound threatened, a latent factor appearing), not when the month's outcome is booked. Before the money node closes, the outcome is shown as **provisional**: the observed factors with their classes, the money nodes that are not yet recorded named as *not available yet* (or ESTIMATED at plan, labelled), and no total that mixes the two (invariant 3 of the main design).
 
-**Worked example: Mto late settlement (LATE-SETTLE-1).** Three Mto customers pay by mobile money on 30 and 31 Oct; the provider settles on 2 Nov. The split of the manifest's 150.00 is an [assumption].
+**Worked example: Mto late settlement (LATE-SETTLE-1).** Three Mto customers pay by mobile money on 30 and 31 Oct; the provider settles on 2 Nov. The split of the manifest's 150.00<!--rec--> is an [assumption].
 
 | txn_id | paid_at (service) | recognition_period | settled_at | amount |
 |---|---|---|---|---|
@@ -182,7 +182,7 @@ Attention therefore arises at the factor where something happens (a factor devia
 | MM-7F58 | 2026-10-31T09:15+03:00 | 2026-10 | 2026-11-02 | 50.00 |
 | MM-7F77 | 2026-10-31T20:03+03:00 | 2026-10 | 2026-11-02 | 40.00 |
 
-Revenue is recognised on the charge, so October revenue stays 2,160.00 whatever the settlement date. The cash factors read: collected 1,890.00 + in transit 150.00 + outstanding 120.00 = 2,160.00 as of 31 Oct; as of 6 Nov the three receipts show "settled 2 Nov". No October amount changed, so October gets no new revision; only the receipts' status moved.
+Revenue is recognised on the charge, so October revenue stays 2,160.00 whatever the settlement date. The cash factors read: collected 1,890.00 + in transit 150.00<!--rec--> + outstanding 120.00 = 2,160.00 as of 31 Oct; as of 6 Nov the three receipts show "settled 2 Nov". No October amount changed, so October gets no new revision; only the receipts' status moved.
 
 **How a period closes and reopens.** A period is soft-closed when the operator's books close it (October, by 6 Nov in the demo). Closing writes nothing; it is a statement about the latest revision. A late record whose recognition period is closed appends a new revision of the record, the period's stored lines are rebuilt into a new append-only revision exactly as `site_period_read` does today (one row per site, kind, period and revision with `input_fp` and `builder_version`, append-only by trigger, `0059:31-51`) [code-observed], and the structure read recomputes every node from those lines on each read, because stored totals are refused (`chain/period_read.py:138-139`, D-MONEY.3) [code-observed]. Decisions and verdicts that cited the earlier revision keep their citation and are flagged for re-evaluation (main design M5, late-data revision).
 
@@ -235,7 +235,7 @@ MT-2201,2026-10-03,2026-11-01,31,ACTUAL
 
 **Clock and identity resolution.** Each read resolves to a customer through the register **at the read's effective time**. From 3 Oct the six new meters (MT-2201 … MT-2206) accumulate energy, but the billing rows still name the old meters with 0 kWh.
 
-**Canonical records.** `CUSTOMER_METER_READ` per meter-period; `CHARGE` per billing row; `ADJUSTMENT` for the clinic allowance; the register as identity history (meter → customer, half-open). Mobile-money rows become `RECEIPT` (occurred = paid_at) and one `SETTLEMENT` (settled 2 Nov, 150.00).
+**Canonical records.** `CUSTOMER_METER_READ` per meter-period; `CHARGE` per billing row; `ADJUSTMENT` for the clinic allowance; the register as identity history (meter → customer, half-open). Mobile-money rows become `RECEIPT` (occurred = paid_at) and one `SETTLEMENT` (settled 2 Nov, 150.00<!--rec-->).
 
 | customer (pseudonymised) | new meter | kWh read 3–31 Oct | kWh billed | unmapped kWh |
 |---|---|---:|---:|---:|
@@ -249,7 +249,7 @@ MT-2201,2026-10-03,2026-11-01,31,ACTUAL
 
 (Per-customer split [assumption]; the total is the manifest's.)
 
-**Reconciliation and leaf factors.** delivered 6,000 kWh (feeder telemetry) − expected loss 300 (declared band) − unexplained 120 = metered 5,580; billed = 5,580 − unmapped 140 − authorised 40 = 5,400. The 140 is the factor *unmapped kWh* because every unbilled kWh sits on a meter the register assigns to an active customer; it is not loss. The 120 kWh is the factor *unexplained loss*: observed, not priced, investigated, never called theft. Cash factors: collected 1,890.00, in transit 150.00, outstanding 120.00.
+**Reconciliation and leaf factors.** delivered 6,000 kWh (feeder telemetry) − expected loss 300 (declared band) − unexplained 120 = metered 5,580; billed = 5,580 − unmapped 140 − authorised 40 = 5,400. The 140 is the factor *unmapped kWh* because every unbilled kWh sits on a meter the register assigns to an active customer; it is not loss. The 120 kWh is the factor *unexplained loss*: observed, not priced, investigated, never called theft. Cash factors: collected 1,890.00, in transit 150.00<!--rec-->, outstanding 120.00.
 
 **Structure → outcome state.** Revenue = billed kWh × 0.40 = 2,160.00 against plan 5,600 × 0.40 = 2,240.00. Billed kWh is a sum, so the 200 kWh deviation is attributed exactly (brief S2 bridge; main design identity M2): lower demand −20 kWh (−8.00), unmapped −140 (−56.00), authorised allowance −40 (−16.00). Tariff equals plan, so the price effect is 0 (rule: volume at plan price, then price at actual volume). With the fuel line (320 L against 300 L, −25.00, necessary evening generation) Mto's contribution is 810.00 against 915.00, −105.00.
 
@@ -284,7 +284,7 @@ MT-2201,2026-10-03,2026-11-01,31,ACTUAL
 | contribution = 3,458.00 − fuel − 600.00 − 500.00 | 1,383.00, provisional | 883.00 |
 | attribution of the fuel deviation | withheld | sums to −562.00 with the revenue line |
 
-The structure itself detects the hole in revision 1: the litres-consumed leaf contradicts the physical sub-structure, so the fuel node is not attributed and the outcome is marked provisional. In revision 2 the 480 L above plan (700 L) is attributed to observed sub-factors: candidate running 330 L (−412.50, Calculated from records), necessary running for evening load growth 30 L (−37.50, Modelled) and unexplained 120 L (−150.00, Derived; investigate). With more demand (+95 kWh × 0.40 = +38.00) the site's deviation is −562.00.
+The structure itself detects the hole in revision 1: the litres-consumed leaf contradicts the physical sub-structure, so the fuel node is not attributed and the outcome is marked provisional. In revision 2 the 480 L above plan (700 L) is attributed to observed sub-factors: candidate running 330 L (−412.50, Calculated from records), necessary running for evening load growth 30 L (−37.50, Modelled) and unexplained 120 L (−150.00<!--rec-->, Derived; investigate). With more demand (+95 kWh × 0.40 = +38.00) the site's deviation is −562.00.
 
 **Decision.** The factor key (site Kobo, factor *candidate running*, cause: generator after dawn) carries KOB-STOPSOC, unchanged in value because its effect is the forward-feasible reduction of that factor (210 L); its evidence now cites revision 2. The unexplained 120 L opens an investigation; no recovery is claimed.
 
@@ -327,7 +327,7 @@ Three different factors: exposure is a bound violation with a value at stake; da
 
 **Structure → outcome state.** Thika's occupancy (8,680 crate-days), revenue (1,736.00) and energy (3,720 kWh, equal to the occupancy model) are on plan; the liability leaf is 108.00 (Recorded, from CN-0412), so contribution is 454.00 against 562.00. The 2,160.00 exposure is shown beside it, never added. The insurance factor: loss 108 below the 500 deductible, claim not filed, reimbursement recorded 0.00.
 
-**Decision at factor key** (site Thika, factor *backup start*, cause: start controller). The rights factor puts the controller's cost on CoolBuild (claim accepted 17 Oct; replacement scheduled 8 Nov), so the operator's residual cost per path is: stopgap (night manual-start rota and SMS alarm relay) 100.00, recommended; wait with no stopgap, rejected (stock unprotected until 8 Nov); self-funded controller 710.00, rejected (voids the EPC cover). Verification: the witnessed automatic-start test ACT-051 after replacement. The remedy clock is itself a factor: the extracted term "within 30 days of acceptance" put the remedy due on 27 Oct, and the scheduled date is 8 Nov, so the product would flag the supplier's remedy timing for human review, never as a legal conclusion (see the manifest note in the report to the Architect).
+**Decision at factor key** (site Thika, factor *backup start*, cause: start controller). The rights factor puts the controller's cost on CoolBuild (claim accepted 17 Oct; replacement scheduled 8 Nov), so the operator's residual cost per path is: stopgap (night manual-start rota and SMS alarm relay) 100.00<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off-->, recommended; wait with no stopgap, rejected (stock unprotected until 8 Nov); self-funded controller 710.00<!--fig:options.THIKA-SELF.operator_one_off-->, rejected (voids the EPC cover). Verification: the witnessed automatic-start test ACT-051 after replacement. The remedy clock is itself a factor: the extracted term "within 30 days of acceptance" put the remedy due on 27 Oct, and the scheduled date is 8 Nov, so the product would flag the supplier's remedy timing for human review, never as a legal conclusion (see the manifest note in the report to the Architect).
 
 **Evidence drawer.** Timeline (grid lost 19:11 → start request 19:11:05 → failed start 19:11:10 → manual start 19:14 → cooling 19:15 → peak 8.2 °C 19:19 → in band by 19:45), the temperature curve with the 4 °C and 5 °C lines, the three batches with presence, limit and result, QA note 7 Oct, CN-0412, the contract clause with page reference, the claim events, and: "Exposure is not damage; damage is not liability. Coverage is decided by the supplier or insurer."
 
@@ -364,7 +364,7 @@ total,,,,22144.80
 
 **Structure → outcome state.** Energy cost = 47,740 × 0.24 + 39,060 × 0.12 + 500 × 12.00 = 22,144.80 against plan 18,940.80; with maintenance 600.00, cost 22,744.80 against 19,540.80 (−3,204.00). Attribution: 21,700 kWh more at peak than plan × 0.12 premium = −2,604.00 (Recorded); 50 kW above the 450 kW plan × 12 = −600.00 (Recorded). The peak-share factor was visible from the first October nights; the invoice confirms it.
 
-**Evaluate on the same structure.** No action = October's factor values under tariff revision 2: peak 11,457.60 + 22:00–24:00 15,500 kWh × 0.12 = 1,860.00 + 00:00–05:00 23,560 kWh × 0.09 = 2,120.40 + demand 6,000.00 = 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> a month (706.80 lower than October's bill with no action; never credited to an option). EMB-DEADLINE (22:00–05:15 staggered, 400 kW): 24,800 × 0.12 + 62,000 × 0.09 + 400 × 12 = 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option-->, so 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> a month better than no action and 95,484.00<!--fig:options.EMB-DEADLINE.value--> over 12 months after 1,500.00 (Modelled; condition: tariff confirmed, 14 supervised nights). EMB-CHEAPEST (00:00–05:00 at 500 kW) has the lowest bill, 12,975.00, but deliverable 2,500 < required 2,800 kWh a night: the departure bound fails for 3 buses, so it is rejected.
+**Evaluate on the same structure.** No action = October's factor values under tariff revision 2: peak 11,457.60 + 22:00–24:00 15,500 kWh × 0.12 = 1,860.00 + 00:00–05:00 23,560 kWh × 0.09 = 2,120.40 + demand 6,000.00 = 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> a month (706.80 lower than October's bill with no action; never credited to an option). EMB-DEADLINE (22:00–05:15 staggered, 400 kW): 24,800 × 0.12 + 62,000 × 0.09 + 400 × 12 = 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option-->, so 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> a month better than no action and 95,484.00<!--fig:options.EMB-DEADLINE.value--> over 12 months after 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> (Modelled; condition: tariff confirmed, 14 supervised nights). EMB-CHEAPEST (00:00–05:00 at 500 kW) has the lowest bill, 12,975.00, but deliverable 2,500 < required 2,800 kWh a night: the departure bound fails for 3 buses, so it is rejected.
 
 **Evidence drawer.** Night-by-night departures (required, met, kWh by bus), the invoice lines with page reference, the tariff revision and its effective date, "charger CH-E03 clock 4 minutes fast on 14 Oct, corrected and flagged".
 
@@ -381,7 +381,7 @@ total,,,,22144.80
 
 **Outcome state.** October is on plan (5,880.00, all 248 departures met); November shows the departure bound breached twice and the penalty node moving, weeks before the November invoices.
 
-**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10): 90.00), recommended; wait (about 240.00 of penalties and two broken departures), rejected; local repair 380.00, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
+**Decision at factor key** (site Kasarani, factor *chargers in service*, cause: CH-K2 contactor): KAS-OEM-STOPGAP (one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10): 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off-->), recommended; wait (about 240.00 of penalties and two broken departures), rejected; local repair 380.00<!--fig:options.KAS-LOCAL.operator_one_off-->, rejected (voids power-stage cover); scheduling, rejected (flat tariff, nothing to save). Ruiru's CH-R7 connector 2 fault (6 Oct, v7.0 F-130) ranks below: no departure depends on it.
 
 **Evidence drawer.** Fault message, deliverable vs required by night, the ticket with its clock ("responded in 31 h; restore due 9 Nov"), the SLA clause with page reference, penalties, and "a service credit is potential until a credit note is received".
 
@@ -404,7 +404,7 @@ total,,,,22144.80
 
 **Occurrence and condition evidence.** Fault event 28 Oct, "IGBT overcurrent trip, latched" (telemetry). Notice deadline = 28 Oct + 30 days = 27 Nov. Installer certificate on file; ambient maximum 38 °C (telemetry, specification 45 °C); firmware current (service ticket); fault log on file. Eligibility: *potentially covered* (a product state, not a legal finding).
 
-**Rights factor → option values.** The factor is who bears the cost under each remedy path, giving the operator's residual cost: claim and wait 367.50<!--fig:options.MTO-INV-CLAIM.value--> (shipping 150 + install 80; the 2,600 replacement unit is borne by the supplier because the right is potentially covering; plus 110 L of extra fuel for the 22 days at half capacity until the restore date derived from the warranty's 21-day lead time and one installation day, 28 Nov); buy now and claim the failed unit 2,947.50<!--fig:options.MTO-INV-BUYNOW.value--> (2,600 + 80 now; 150 + 80 to claim; plus 30 L of extra fuel until the 12 Nov restore; the replacement becomes a spare, not cash). Both are outputs of `evaluate_structure.py`, which applies the rights rule to each cost line; local repair 450.00, rejected (triggers E5); no action, rejected (half daytime capacity; notice lost on 27 Nov). The huller's letter of intent lapses on 30 Nov and the connection needs 5 working days after restore, so the claim path loses the huller unless the cooperative extends: that is the plan's switch (main design §7.1).
+**Rights factor → option values.** The factor is who bears the cost under each remedy path, giving the operator's residual cost: claim and wait 367.50<!--fig:-options.MTO-INV-CLAIM.value--> (shipping 150 + install 80; the 2,600 replacement unit is borne by the supplier because the right is potentially covering; plus 110 L of extra fuel for the 22 days at half capacity until the restore date derived from the warranty's 21-day lead time and one installation day, 28 Nov); buy now and claim the failed unit 2,947.50<!--fig:-options.MTO-INV-BUYNOW.value--> (2,600 + 80 now; 150 + 80 to claim; plus 30 L of extra fuel until the 12 Nov restore; the replacement becomes a spare, not cash). Both are outputs of `evaluate_structure.py`, which applies the rights rule to each cost line; local repair 450.00<!--rec-->, rejected (triggers E5); no action, rejected (half daytime capacity; notice lost on 27 Nov). The huller's letter of intent lapses on 30 Nov and the connection needs 5 working days after restore, so the claim path loses the huller unless the cooperative extends: that is the plan's switch (main design §7.1).
 
 **Money.** The covered remedy is never shown as money. Only a supplier credit note or receipt becomes an `ADJUSTMENT` or `RECEIPT`.
 
@@ -489,7 +489,7 @@ Each recipe states sources, minimum fields, canonical records, the factor observ
 
 ### 5.4 Rights (MG-C6, CC-C6, EV-C6, S12)
 
-Sources: asset register (serial, commissioning, owner); warranty, EPC, O&M/SLA and insurance documents; fault events and tickets; maintenance and test logs; notices and supplier or insurer decisions; credit notes and receipts. Canonical: `CONTRACT_DOCUMENT` → reviewed rights rows (§6.3); `SERVICE_TICKET`; claim events on a supplier-claim work case; money only as `ADJUSTMENT` or `RECEIPT`. Observer: residual cost per remedy path; notice and SLA clocks; condition evidence check. Factor: who bears each cost line, and when. Consumers: every repair decision of §3.3, §3.5, §3.6 and the Kobo battery and Kisiwa genset and O&M cases. Failure: missing condition evidence → *insufficient evidence*, with an evidence-assembly option (BAT-EVIDENCE 430.00). **Blocking conditions:** (a) the operator does not hold the document (an EPC contract kept by a funder) → operator-assisted: request a copy, or record terms as "declared by the operator, document not on file", eligibility capped at *review required*; (b) insurer decisions are held by the insurer or broker → AssetEcon records only the operator's notice and the insurer's written decision as documents; it does not administer claims.
+Sources: asset register (serial, commissioning, owner); warranty, EPC, O&M/SLA and insurance documents; fault events and tickets; maintenance and test logs; notices and supplier or insurer decisions; credit notes and receipts. Canonical: `CONTRACT_DOCUMENT` → reviewed rights rows (§6.3); `SERVICE_TICKET`; claim events on a supplier-claim work case; money only as `ADJUSTMENT` or `RECEIPT`. Observer: residual cost per remedy path; notice and SLA clocks; condition evidence check. Factor: who bears each cost line, and when. Consumers: every repair decision of §3.3, §3.5, §3.6 and the Kobo battery and Kisiwa genset and O&M cases. Failure: missing condition evidence → *insufficient evidence*, with an evidence-assembly option (BAT-EVIDENCE 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off-->). **Blocking conditions:** (a) the operator does not hold the document (an EPC contract kept by a funder) → operator-assisted: request a copy, or record terms as "declared by the operator, document not on file", eligibility capped at *review required*; (b) insurer decisions are held by the insurer or broker → AssetEcon records only the operator's notice and the insurer's written decision as documents; it does not administer claims.
 
 ---
 
@@ -527,7 +527,7 @@ commercial_record_revision            -- append-only (ledger_append_only trigger
 |---|---|---|---|---|
 | CHARGE | account ref, quantity + unit, tariff code, amount, line type (USAGE, FIXED, DEMAND, STORAGE) | effective, recognition | billed kWh, revenue; utility energy and demand cost | Embakasi peak line 47,740 kWh × 0.24 = 11,457.60 |
 | RECEIPT | payer ref, method, amount, applied-to charges | occurred, recognition | collected / in transit | MM-7F31 60.00 |
-| SETTLEMENT | provider, batch ref, total, receipts | settled | in transit → collected | 150.00 on 2 Nov |
+| SETTLEMENT | provider, batch ref, total, receipts | settled | in transit → collected | 150.00<!--rec--> on 2 Nov |
 | ADJUSTMENT | reason code, authorised by, amount or quantity, applies to | effective, recognition | authorised adjustments; liability; supplier credit | clinic allowance 40 kWh; CN-0412 −108.00 |
 | EXPENSE | counterparty, category (FUEL, OM, STAFF, REPAIR, ENERGY, PENALTY), amount, status, document ref | occurred, recognition | cost lines; option one-off cost (QUOTE) | Kisiwa repair quote 1,800; Kasarani penalties 240 |
 | PLAN_LINE | factor (billed kWh, tariff, litres, price, crate-days, peak share…), value, plan version | recognition | plan evaluation of the structure | Kobo plan 700 L at 1.25 |
@@ -706,7 +706,7 @@ Every test runs on the source-emulated fixture and must pass before a pilot prof
 |---|---|---|---|
 | DUP-1 | Mto billing CSV re-uploaded, identical | 0 new revisions; receipt *already recorded*; period revision unchanged | revision count; `input_fp` unchanged |
 | OOO-1 | Kobo delivery recorded 4 Nov for 26 Oct | revision 1 provisional (consumed below modelled, fuel node not attributed); revision 2: contribution 1,383.00 → 883.00, attribution sums to −562.00; revision 1 kept; night flagged late | two revisions; structure identity |
-| LATE-SETTLE-1 | Mto 150.00 settled 2 Nov for 30–31 Oct payments | 31 Oct: in transit 150.00; 6 Nov: collected 2 Nov; revenue 2,160.00 unchanged; no period revision | revenue constant |
+| LATE-SETTLE-1 | Mto 150.00<!--rec--> settled 2 Nov for 30–31 Oct payments | 31 Oct: in transit 150.00<!--rec-->; 6 Nov: collected 2 Nov; revenue 2,160.00 unchanged; no period revision | revenue constant |
 | MAP-1 | meter swap 3 Oct, six meters re-pointed | 140 kWh on the unmapped factor (−56.00), not loss; unexplained loss stays 120 | factor placement |
 | FX-1 | one Kisiwa expense invoiced in KES | converted at the declared monthly rate, basis shown; never summed unconverted (existing words `chain/vocabulary.py:300`) [code-observed] | rate id on the line; raw KES kept |
 | GAP-1 | Kisiwa O&M invoice missing | O&M ESTIMATED at 700.00; portfolio cost recorded 91.5%; never 0 | coverage |

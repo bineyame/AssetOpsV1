@@ -16,6 +16,8 @@
      "cost_to_serve": 1975.0,
      "contribution": 1445.0,
      "obligation_hours_without_redundancy": 0.0,
+     "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 0.0,
      "asset_days_available": 0.0,
@@ -46,7 +48,9 @@
      "customer_hours_interrupted": 0.0,
      "field_visits": 0.0,
      "liability": 0.0,
-     "period_days": 31.0
+     "period_days": 31.0,
+     "shortfall_backed": 0.0,
+     "dawn_days_below": 0.0
     }
    },
    "actual": {
@@ -62,6 +66,8 @@
      "cost_to_serve": 2575.0,
      "contribution": 883.0,
      "obligation_hours_without_redundancy": 0.0,
+     "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 155.0,
      "asset_days_available": 155.0,
@@ -92,7 +98,9 @@
      "customer_hours_interrupted": 0.0,
      "field_visits": 1.0,
      "liability": 0.0,
-     "period_days": 31.0
+     "period_days": 31.0,
+     "shortfall_backed": 0.0,
+     "dawn_days_below": 0.0
     }
    }
   },
@@ -110,6 +118,8 @@
      "cost_to_serve": 4190.0,
      "contribution": -65.0,
      "obligation_hours_without_redundancy": 0.0,
+     "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 0.0,
      "asset_days_available": 0.0,
@@ -140,7 +150,9 @@
      "customer_hours_interrupted": 0.0,
      "field_visits": 0.0,
      "liability": 0.0,
-     "period_days": 31.0
+     "period_days": 31.0,
+     "shortfall_backed": 0.0,
+     "dawn_days_below": 0.0
     }
    },
    "actual": {
@@ -156,6 +168,8 @@
      "cost_to_serve": 4320.0,
      "contribution": -250.0,
      "obligation_hours_without_redundancy": 10.0,
+     "obligation_hours_without_backup": 10.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 2.0,
      "asset_days_total": 124.0,
      "asset_days_available": 122.0,
@@ -186,7 +200,9 @@
      "customer_hours_interrupted": 0.0,
      "field_visits": 1.0,
      "liability": 0.0,
-     "period_days": 31.0
+     "period_days": 31.0,
+     "shortfall_backed": 0.0,
+     "dawn_days_below": 0.0
     }
    }
   },
@@ -204,6 +220,8 @@
      "cost_to_serve": 1325.0,
      "contribution": 915.0,
      "obligation_hours_without_redundancy": 0.0,
+     "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 0.0,
      "asset_days_available": 0.0,
@@ -234,7 +252,9 @@
      "customer_hours_interrupted": 0.0,
      "field_visits": 0.0,
      "liability": 0.0,
-     "period_days": 31.0
+     "period_days": 31.0,
+     "shortfall_backed": 1.0,
+     "dawn_days_below": 0.0
     }
    },
    "actual": {
@@ -250,6 +270,8 @@
      "cost_to_serve": 1350.0,
      "contribution": 810.0,
      "obligation_hours_without_redundancy": 20.0,
+     "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 4.0,
      "asset_days_total": 155.0,
      "asset_days_available": 151.0,
@@ -280,7 +302,9 @@
      "customer_hours_interrupted": 0.0,
      "field_visits": 1.0,
      "liability": 0.0,
-     "period_days": 31.0
+     "period_days": 31.0,
+     "shortfall_backed": 1.0,
+     "dawn_days_below": 0.0
     }
    }
   },
@@ -715,7 +739,7 @@
     "status": "evaluated",
     "nodes": {
      "deliverable_kwh_night": 1050.0,
-     "scheduled_kwh_night": 1200.0,
+     "scheduled_kwh_night": 1050.0,
      "supplied_kwh_night": 1050.0,
      "required_kwh_night": 1200.0,
      "buses_short_per_night": 1.0,
@@ -724,11 +748,11 @@
      "nights_below_required": 5.0,
      "charger_days_out_of_service": 5.0,
      "departures_met": 38.0,
-     "energy_cost": 900.0,
+     "energy_cost": 787.5,
      "penalties": 240.0,
-     "cost_to_serve": 1140.0,
-     "cost_per_departure_met": 30.0,
-     "contribution": -1140.0,
+     "cost_to_serve": 1027.5,
+     "cost_per_departure_met": 27.04,
+     "contribution": -1027.5,
      "chargers_in_service": 3.0,
      "chargers_installed": 4.0,
      "charger_kw": 50.0,
@@ -738,7 +762,7 @@
      "kwh_per_bus_night": 150.0,
      "nights_in_period": 5.0,
      "peak_kwh": 0.0,
-     "kwh_2200_2400": 6000.0,
+     "kwh_2200_2400": 5250.0,
      "kwh_0000_0500": 0.0,
      "max_kw": 0.0,
      "peak_price": 0.15,
@@ -854,6 +878,9 @@
    "monthly_or_horizon_change": 250.5,
    "months": 12.0,
    "operator_one_off": 90.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 90.0,
+   "crew_visits": 0,
    "cost_lines": {
     "vendor_remote_reconfiguration": {
      "amount": 60.0,
@@ -871,29 +898,41 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 1133.5 - under reference 883.0) x 12 - operator-borne one-off 90.0",
+   "formula": "(contribution under option 1133.5 - under reference 883.0) x 12 - (operator-borne one-off 90.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 64000.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 64000.0,
+    "cover_not_claimable": 64000.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 64000.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 64000.0,
+    "cover_not_claimable": 64000.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 64000.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "BAT-001": "INSUFFICIENT_EVIDENCE"
+    }
    },
    "violations": {
     "redundancy": 0.0,
-    "claimable_cover": 64000.0
+    "claimable_cover": 64000.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "avoided_candidate_l": 210.0,
-    "added_throughput_kwh": 150.0
+    "added_throughput_kwh": 150.0,
+    "dawn_days_below_35pct": 0.0
    },
    "design_values": [
     "K"
@@ -906,37 +945,53 @@
    },
    "admissible": true,
    "value": 2916.0,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "kobo_generator"
   },
   "KOB-RESERVE": {
    "site": "Kobo",
    "monthly_or_horizon_change": 25.0,
    "months": 12.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {},
    "money_changes": true,
-   "formula": "(contribution under option 908.0 - under reference 883.0) x 12 - operator-borne one-off 0.0",
+   "formula": "(contribution under option 908.0 - under reference 883.0) x 12 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 64000.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 4.0,
+    "unclaimable_cover": 64000.0,
+    "cover_not_claimable": 64000.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 64000.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 64000.0,
+    "cover_not_claimable": 64000.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 64000.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "BAT-001": "INSUFFICIENT_EVIDENCE"
+    }
    },
    "violations": {
     "redundancy": 0.0,
-    "claimable_cover": 64000.0
+    "claimable_cover": 64000.0,
+    "dawn_adequacy": 4.0
    },
-   "declared_bound_failure": "battery below 35% at 5 am on 4 of 61 replayed days (design value, spike K)",
+   "restore_basis": null,
    "restore_date": null,
    "params": {
-    "avoided_candidate_l": 20.0
+    "avoided_candidate_l": 20.0,
+    "dawn_days_below_35pct": 4.0
    },
    "design_values": [
     "K"
@@ -946,13 +1001,17 @@
    "admissible": false,
    "value": null,
    "valued_in_money": false,
-   "bound_failure": "battery below 35% at 5 am on 4 of 61 replayed days (design value, spike K)"
+   "decision": "kobo_generator",
+   "bound_failure": "hard bound: dawn_adequacy exceeded by 4.0"
   },
   "MTO-HULLER": {
    "site": "Mto",
    "monthly_or_horizon_change": 395.0,
    "months": 12.0,
    "operator_one_off": 1200.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 1200.0,
+   "crew_visits": 0,
    "cost_lines": {
     "service_drop_and_meter": {
      "amount": 1200.0,
@@ -963,29 +1022,40 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 1205.0 - under reference 810.0) x 12 - operator-borne one-off 1200.0",
+   "formula": "(contribution under option 1205.0 - under reference 810.0) x 12 - (operator-borne one-off 1200.0 - reference path's 0.0)",
    "protect": {
-    "obligation_hours_without_redundancy": 20.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "obligation_hours_without_redundancy": 20.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 2600.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "INV-MT-02": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
-    "redundancy": 20.0,
-    "claimable_cover": 0.0
+    "redundancy": 0.0,
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "load_kw": 15.0,
-    "hours_per_day": 5.0,
+    "load_hours_per_day": 5.0,
     "days": 22.0,
     "added_fuel_l": 68.0,
     "collection": 15.0
@@ -1000,38 +1070,53 @@
    },
    "admissible": true,
    "value": 3540.0,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "mto_demand"
   },
   "MTO-WELDING": {
    "site": "Mto",
    "monthly_or_horizon_change": -8.25,
    "months": 12.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {},
    "money_changes": true,
-   "formula": "(contribution under option 801.75 - under reference 810.0) x 12 - operator-borne one-off 0.0",
+   "formula": "(contribution under option 801.75 - under reference 810.0) x 12 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
-    "obligation_hours_without_redundancy": 20.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "obligation_hours_without_redundancy": 20.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 2600.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "INV-MT-02": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
-    "redundancy": 20.0,
-    "claimable_cover": 0.0
+    "redundancy": 0.0,
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "load_kw": 10.0,
-    "hours_per_day": 3.0,
+    "load_hours_per_day": 3.0,
     "days": 22.0,
     "sfc": 0.33
    },
@@ -1040,13 +1125,17 @@
    "value_if_admissible": -99.0,
    "admissible": true,
    "value": -99.0,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "mto_evening_demand"
   },
   "KIS-BATT60": {
    "site": "Kisiwa",
    "monthly_or_horizon_change": 195.0,
    "months": 12.0,
    "operator_one_off": 14000.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 14000.0,
+   "crew_visits": 1,
    "cost_lines": {
     "battery_60_kwh": {
      "amount": 14000.0,
@@ -1057,25 +1146,37 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option -55.0 - under reference -250.0) x 12 - operator-borne one-off 14000.0",
+   "formula": "(contribution under option -55.0 - under reference -250.0) x 12 - (operator-borne one-off 14000.0 - reference path's 0.0)",
    "protect": {
-    "obligation_hours_without_redundancy": 10.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "obligation_hours_without_redundancy": 10.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "GEN-KS-01": "EXPIRED_AND_EXCLUDED",
+     "O&M contract (Island Power Services)": "REVIEW_REQUIRED"
+    }
    },
    "violations": {
-    "redundancy": 10.0,
-    "claimable_cover": 0.0
+    "redundancy": 0.0,
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "shifted_fuel_l": 150.0
@@ -1087,13 +1188,17 @@
    "value_if_admissible": -11660.0,
    "admissible": true,
    "value": -11660.0,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "kisiwa_storage"
   },
   "MTO-INV-CLAIM": {
    "site": "Mto",
    "monthly_or_horizon_change": -137.5,
    "months": 1.0,
    "operator_one_off": 230.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 230.0,
+   "crew_visits": 1,
    "cost_lines": {
     "replacement_unit": {
      "amount": 2600.0,
@@ -1118,30 +1223,40 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 672.5 - under reference 810.0) x 1 - operator-borne one-off 230.0",
+   "formula": "(contribution under option 672.5 - under reference 810.0) x 1 - (operator-borne one-off 230.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 110.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "obligation_hours_without_redundancy": 20.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 2600.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "INV-MT-02": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
-    "redundancy": 110.0,
-    "claimable_cover": 0.0
+    "redundancy": 0.0,
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-28",
    "params": {
     "install_days": 1.0,
     "extra_l_per_day": 5.0,
-    "hours": 5.0,
     "days_to_restore": 22.0
    },
    "design_values": [],
@@ -1152,13 +1267,17 @@
    },
    "admissible": true,
    "value": -367.5,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "mto_inverter"
   },
   "MTO-INV-BUYNOW": {
    "site": "Mto",
    "monthly_or_horizon_change": -37.5,
    "months": 1.0,
    "operator_one_off": 2910.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 2910.0,
+   "crew_visits": 1,
    "cost_lines": {
     "replacement_unit_bought": {
      "amount": 2600.0,
@@ -1190,31 +1309,41 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 772.5 - under reference 810.0) x 1 - operator-borne one-off 2910.0",
+   "formula": "(contribution under option 772.5 - under reference 810.0) x 1 - (operator-borne one-off 2910.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 30.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "obligation_hours_without_redundancy": 20.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 2600.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "INV-MT-02": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
-    "redundancy": 30.0,
-    "claimable_cover": 0.0
+    "redundancy": 0.0,
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-12",
    "params": {
     "local_supply_days": 5.0,
     "install_days": 1.0,
     "extra_l_per_day": 5.0,
-    "hours": 5.0,
     "days_to_restore": 6.0
    },
    "design_values": [],
@@ -1225,52 +1354,73 @@
    },
    "admissible": true,
    "value": -2947.5,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "mto_inverter"
   },
   "MTO-INV-NOACT": {
    "site": "Mto",
-   "monthly_or_horizon_change": 0.0,
+   "monthly_or_horizon_change": -156.25,
    "months": 1.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {},
-   "money_changes": false,
-   "formula": "(contribution under option 810.0 - under reference 810.0) x 1 - operator-borne one-off 0.0",
+   "money_changes": true,
+   "formula": "(contribution under option 653.75 - under reference 810.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 125.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 2600.0
    },
    "reference_protect": {
-    "obligation_hours_without_redundancy": 20.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
-    "claimable_cover": 2600.0,
+    "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 2600.0,
+    "lapsed": [
+     "INV-MT-02"
+    ],
+    "states": {
+     "INV-MT-02": "LAPSED"
+    }
    },
    "violations": {
-    "redundancy": 125.0,
-    "claimable_cover": 0.0
+    "redundancy": 0.0,
+    "claimable_cover": 2600.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": "inadmissible: the reduced capacity never ends and the warranty notice deadline (27 Nov) is lost",
+   "restore_basis": null,
    "restore_date": null,
    "params": {
-    "hours": 5.0,
+    "extra_l_per_day": 5.0,
     "days_to_restore": 25.0
    },
    "design_values": [],
    "assumptions": [],
-   "value_if_admissible": null,
+   "value_if_admissible": -156.25,
    "admissible": false,
    "value": null,
    "valued_in_money": false,
-   "bound_failure": "inadmissible: the reduced capacity never ends and the warranty notice deadline (27 Nov) is lost"
+   "decision": "mto_inverter",
+   "bound_failure": "hard bound: claimable_cover exceeded by 2600.0"
   },
   "KIS-REPAIR": {
    "site": "Kisiwa",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 1800.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 1800.0,
+   "crew_visits": 1,
    "cost_lines": {
     "alternator_repair": {
      "amount": 1800.0,
@@ -1281,29 +1431,40 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - operator-borne one-off 1800.0",
+   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - (operator-borne one-off 1800.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 15.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 15.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 125.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 125.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "GEN-KS-01": "EXPIRED_AND_EXCLUDED",
+     "O&M contract (Island Power Services)": "REVIEW_REQUIRED"
+    }
    },
    "violations": {
     "redundancy": 15.0,
-    "claimable_cover": 0.0
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-09",
    "params": {
     "repair_days": 1.0,
-    "hours": 5.0,
     "days_to_restore": 3.0
    },
    "design_values": [],
@@ -1311,13 +1472,18 @@
    "value_if_admissible": null,
    "admissible": false,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "kisiwa_genset",
+   "bound_failure": "least violation: redundancy exceeded by 15.0"
   },
   "KIS-REPLACE": {
    "site": "Kisiwa",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 9500.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 9500.0,
+   "crew_visits": 1,
    "cost_lines": {
     "replacement_genset": {
      "amount": 9500.0,
@@ -1328,28 +1494,39 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - operator-borne one-off 9500.0",
+   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - (operator-borne one-off 9500.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 105.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 105.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 125.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 125.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "GEN-KS-01": "EXPIRED_AND_EXCLUDED",
+     "O&M contract (Island Power Services)": "REVIEW_REQUIRED"
+    }
    },
    "violations": {
     "redundancy": 105.0,
-    "claimable_cover": 0.0
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-27",
    "params": {
-    "hours": 5.0,
     "days_to_restore": 21.0
    },
    "design_values": [],
@@ -1357,37 +1534,53 @@
    "value_if_admissible": null,
    "admissible": false,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "kisiwa_genset",
+   "bound_failure": "hard bound: redundancy exceeded by 105.0"
   },
   "KIS-NOACT": {
    "site": "Kisiwa",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {},
    "money_changes": false,
-   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - operator-borne one-off 0.0",
+   "formula": "(contribution under option -250.0 - under reference -250.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 125.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 125.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "obligation_hours_without_redundancy": 10.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_redundancy": 0.0,
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "GEN-KS-01": "EXPIRED_AND_EXCLUDED",
+     "O&M contract (Island Power Services)": "REVIEW_REQUIRED"
+    }
    },
    "violations": {
     "redundancy": 125.0,
-    "claimable_cover": 0.0
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
-    "hours": 5.0,
     "days_to_restore": 25.0
    },
    "design_values": [],
@@ -1395,13 +1588,18 @@
    "value_if_admissible": null,
    "admissible": false,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "kisiwa_genset",
+   "bound_failure": "hard bound: redundancy exceeded by 125.0"
   },
   "BAT-EVIDENCE": {
    "site": "Kobo",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 430.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 430.0,
+   "crew_visits": 1,
    "cost_lines": {
     "capacity_test": {
      "amount": 250.0,
@@ -1419,25 +1617,36 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option 883.0 - under reference 883.0) x 1 - operator-borne one-off 430.0",
+   "formula": "(contribution under option 883.0 - under reference 883.0) x 1 - (operator-borne one-off 430.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 0.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 64000.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 64000.0,
+    "cover_not_claimable": 64000.0
    },
    "rights": {
     "claimable_cover": 64000.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "BAT-001": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "redundancy": 0.0,
-    "claimable_cover": 0.0
+    "claimable_cover": 0.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {},
    "design_values": [],
@@ -1445,34 +1654,49 @@
    "value_if_admissible": null,
    "admissible": true,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "kobo_battery_evidence"
   },
   "BAT-NOACT": {
    "site": "Kobo",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {},
    "money_changes": false,
-   "formula": "(contribution under option 883.0 - under reference 883.0) x 1 - operator-borne one-off 0.0",
+   "formula": "(contribution under option 883.0 - under reference 883.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 64000.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 64000.0,
+    "cover_not_claimable": 64000.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
-    "unclaimable_cover": 64000.0
+    "obligation_hours_without_backup": 0.0,
+    "replayed_dawn_days_below_safeguard": 0.0,
+    "unclaimable_cover": 64000.0,
+    "cover_not_claimable": 64000.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 64000.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "BAT-001": "INSUFFICIENT_EVIDENCE"
+    }
    },
    "violations": {
     "redundancy": 0.0,
-    "claimable_cover": 64000.0
+    "claimable_cover": 64000.0,
+    "dawn_adequacy": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {},
    "design_values": [],
@@ -1480,13 +1704,18 @@
    "value_if_admissible": null,
    "admissible": false,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "kobo_battery_evidence",
+   "bound_failure": "hard bound: claimable_cover exceeded by 64000.0"
   },
   "MWEA-AGG": {
    "site": "Room A · Mwea",
    "monthly_or_horizon_change": 485.0,
    "months": 4.0,
    "operator_one_off": 270.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 270.0,
+   "crew_visits": 1,
    "cost_lines": {
     "sales": {
      "amount": 150.0,
@@ -1504,25 +1733,28 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 473.0 - under reference -12.0) x 4 - operator-borne one-off 270.0",
+   "formula": "(contribution under option 473.0 - under reference -12.0) x 4 - (operator-borne one-off 270.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {}
    },
    "violations": {
     "backup_cover": 0.0,
-    "capacity": 0.0
+    "capacity": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "crates": 150.0,
@@ -1535,13 +1767,17 @@
    "value_if_admissible": 1670.0,
    "admissible": true,
    "value": 1670.0,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "mwea_occupancy"
   },
   "KIRI-REPAIR": {
    "site": "Room C · Kirinyaga",
    "monthly_or_horizon_change": 155.2,
    "months": 12.0,
    "operator_one_off": 350.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 350.0,
+   "crew_visits": 1,
    "cost_lines": {
     "condenser_clean_and_leak_repair": {
      "amount": 350.0,
@@ -1552,25 +1788,28 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 659.2 - under reference 504.0) x 12 - operator-borne one-off 350.0",
+   "formula": "(contribution under option 659.2 - under reference 504.0) x 12 - (operator-borne one-off 350.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {}
    },
    "violations": {
     "backup_cover": 0.0,
-    "capacity": 0.0
+    "capacity": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "recovery_share": 0.8
@@ -1585,13 +1824,17 @@
    },
    "admissible": true,
    "value": 1512.4,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "kirinyaga_energy"
   },
   "KIRI-REPLACE": {
    "site": "Room C · Kirinyaga",
    "monthly_or_horizon_change": 234.3,
    "months": 12.0,
    "operator_one_off": 4800.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 4800.0,
+   "crew_visits": 1,
    "cost_lines": {
     "replacement_compressor": {
      "amount": 4800.0,
@@ -1602,25 +1845,28 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 738.3 - under reference 504.0) x 12 - operator-borne one-off 4800.0",
+   "formula": "(contribution under option 738.3 - under reference 504.0) x 12 - (operator-borne one-off 4800.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {}
    },
    "violations": {
     "backup_cover": 0.0,
-    "capacity": 0.0
+    "capacity": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "new_unit_factor": 0.95
@@ -1632,13 +1878,17 @@
    "value_if_admissible": -1988.4,
    "admissible": true,
    "value": -1988.4,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "kirinyaga_energy"
   },
   "THIKA-EPC-WAIT": {
    "site": "Room B · Thika",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {
     "controller_replacement": {
      "amount": 710.0,
@@ -1649,25 +1899,30 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - operator-borne one-off 0.0",
+   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 2.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
-    "nights_without_backup_cover": 26.0,
-    "unclaimable_cover": 0.0
+    "nights_without_backup_cover": 0.0,
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 710.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "GEN-CR-01 start controller (backup generator)": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "backup_cover": 2.0,
-    "capacity": 0.0
+    "capacity": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-08",
    "params": {
     "days_to_restore": 2.0
@@ -1677,13 +1932,18 @@
    "value_if_admissible": null,
    "admissible": false,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "thika_backup",
+   "bound_failure": "hard bound: backup_cover exceeded by 2.0"
   },
   "THIKA-EPC-STOPGAP": {
    "site": "Room B · Thika",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 100.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 100.0,
+   "crew_visits": 0,
    "cost_lines": {
     "sms_alarm_relay": {
      "amount": 40.0,
@@ -1708,25 +1968,30 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - operator-borne one-off 100.0",
+   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - (operator-borne one-off 100.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "nights_without_backup_cover": 2.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 710.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "GEN-CR-01 start controller (backup generator)": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "backup_cover": 0.0,
-    "capacity": 0.0
+    "capacity": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-06",
    "params": {
     "days_to_restore": 0.0
@@ -1736,13 +2001,17 @@
    "value_if_admissible": null,
    "admissible": true,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "thika_backup"
   },
   "THIKA-SELF": {
    "site": "Room B · Thika",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 710.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 710.0,
+   "crew_visits": 1,
    "cost_lines": {
     "controller_self_funded": {
      "amount": 710.0,
@@ -1753,41 +2022,54 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - operator-borne one-off 710.0",
+   "formula": "(contribution under option 454.0 - under reference 454.0) x 1 - (operator-borne one-off 710.0 - reference path's 0.0)",
    "protect": {
     "nights_without_backup_cover": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 710.0
    },
    "reference_protect": {
     "nights_without_backup_cover": 2.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 710.0
+    "cover_lost": 710.0,
+    "lapsed": [],
+    "states": {
+     "GEN-CR-01 start controller (backup generator)": "VOIDED"
+    }
    },
    "violations": {
     "backup_cover": 0.0,
-    "capacity": 0.0
+    "capacity": 0.0,
+    "claimable_cover": 710.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-06",
    "params": {
+    "procurement_days": 0.0,
     "days_to_restore": 0.0
    },
    "design_values": [],
-   "assumptions": [],
+   "assumptions": [
+    "controller held in local stock and fitted the same day; no quote held (rev 12, L3)"
+   ],
    "value_if_admissible": null,
-   "admissible": true,
+   "admissible": false,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "thika_backup",
+   "bound_failure": "hard bound: claimable_cover exceeded by 710.0"
   },
   "EMB-DEADLINE": {
    "site": "Embakasi",
    "monthly_or_horizon_change": 8082.0,
    "months": 12.0,
    "operator_one_off": 1500.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 1500.0,
+   "crew_visits": 0,
    "cost_lines": {
     "schedule_configuration_and_supervision": {
      "amount": 1500.0,
@@ -1798,25 +2080,28 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option -13956.0 - under reference -22038.0) x 12 - operator-borne one-off 1500.0",
+   "formula": "(contribution under option -13956.0 - under reference -22038.0) x 12 - (operator-borne one-off 1500.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {}
    },
    "violations": {
     "departures": 0.0,
-    "import_limit": 0.0
+    "import_limit": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "max_kw_option": 400.0,
@@ -1834,7 +2119,7 @@
     "required_kwh_night": 2800.0,
     "supplied_kwh_night": 2800.0,
     "deliverable_kwh_night": 6000.0,
-    "buses_short_per_night": 0,
+    "buses_short_per_night": 0.0,
     "max_kw": 400.0,
     "import_limit_kw": 500.0
    },
@@ -1846,34 +2131,41 @@
    },
    "admissible": true,
    "value": 95484.0,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "embakasi_schedule"
   },
   "EMB-CHEAPEST": {
    "site": "Embakasi",
    "monthly_or_horizon_change": 8463.0,
    "months": 12.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {},
    "money_changes": true,
-   "formula": "(contribution under option -13575.0 - under reference -22038.0) x 12 - operator-borne one-off 0.0",
+   "formula": "(contribution under option -13575.0 - under reference -22038.0) x 12 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 93.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {}
    },
    "violations": {
     "departures": 93.0,
-    "import_limit": 0.0
+    "import_limit": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "max_kw_option": 500.0,
@@ -1886,7 +2178,7 @@
     "required_kwh_night": 2800.0,
     "supplied_kwh_night": 2500.0,
     "deliverable_kwh_night": 6000.0,
-    "buses_short_per_night": 3,
+    "buses_short_per_night": 3.0,
     "max_kw": 500.0,
     "import_limit_kw": 500.0
    },
@@ -1896,6 +2188,7 @@
    "admissible": false,
    "value": null,
    "valued_in_money": false,
+   "decision": "embakasi_schedule",
    "bound_failure": "hard bound: departures exceeded by 93.0"
   },
   "KAS-OEM-WAIT": {
@@ -1903,6 +2196,9 @@
    "monthly_or_horizon_change": -240.0,
    "months": 1.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": 0,
    "cost_lines": {
     "contactor_repair": {
      "amount": 380.0,
@@ -1913,25 +2209,30 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option -6120.0 - under reference -5880.0) x 1 - operator-borne one-off 0.0",
+   "formula": "(contribution under option -6120.0 - under reference -5880.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 2.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 380.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "CH-K2": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "departures": 2.0,
-    "import_limit": 0.0
+    "import_limit": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-09",
    "params": {
     "failed_chargers": 1.0,
@@ -1945,7 +2246,7 @@
     "required_kwh_night": 1200.0,
     "supplied_kwh_night": 1050.0,
     "deliverable_kwh_night": 1050.0,
-    "buses_short_per_night": 1,
+    "buses_short_per_night": 1.0,
     "max_kw": 0.0,
     "import_limit_kw": 250.0
    },
@@ -1954,13 +2255,18 @@
    "energy_bill_reference": 5580.0,
    "admissible": false,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "kasarani_charger",
+   "bound_failure": "hard bound: departures exceeded by 2.0"
   },
   "KAS-OEM-STOPGAP": {
    "site": "Kasarani",
    "monthly_or_horizon_change": 240.0,
    "months": 1.0,
    "operator_one_off": 90.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 90.0,
+   "crew_visits": 0,
    "cost_lines": {
     "buses_charged_at_ruiru": {
      "amount": 90.0,
@@ -1978,25 +2284,30 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option -5880.0 - under reference -6120.0) x 1 - operator-borne one-off 90.0",
+   "formula": "(contribution under option -5880.0 - under reference -6120.0) x 1 - (operator-borne one-off 90.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "departures_missed": 2.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 380.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "CH-K2": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "departures": 0.0,
-    "import_limit": 0.0
+    "import_limit": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": "2026-11-09",
    "params": {
     "failed_chargers": 1.0,
@@ -2011,7 +2322,7 @@
     "required_kwh_night": 1200.0,
     "supplied_kwh_night": 1050.0,
     "deliverable_kwh_night": 1050.0,
-    "buses_short_per_night": 1,
+    "buses_short_per_night": 1.0,
     "max_kw": 0.0,
     "import_limit_kw": 250.0
    },
@@ -2020,34 +2331,112 @@
    "energy_bill_reference": 5580.0,
    "admissible": true,
    "value": 150.0,
-   "valued_in_money": true
+   "valued_in_money": true,
+   "decision": "kasarani_charger"
+  },
+  "KAS-LOCAL": {
+   "site": "Kasarani",
+   "monthly_or_horizon_change": 240.0,
+   "months": 1.0,
+   "operator_one_off": 380.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 380.0,
+   "crew_visits": 0,
+   "cost_lines": {
+    "local_contactor_repair": {
+     "amount": 380.0,
+     "covered_by": null,
+     "right_eligibility": null,
+     "claim_state": null,
+     "operator_share": 1.0
+    }
+   },
+   "money_changes": true,
+   "formula": "(contribution under option -5880.0 - under reference -6120.0) x 1 - (operator-borne one-off 380.0 - reference path's 0.0)",
+   "protect": {
+    "departures_missed": 0.0,
+    "cover_not_claimable": 380.0
+   },
+   "reference_protect": {
+    "departures_missed": 2.0,
+    "cover_not_claimable": 0.0
+   },
+   "rights": {
+    "claimable_cover": 0.0,
+    "unclaimable_cover": 0.0,
+    "cover_lost": 380.0,
+    "lapsed": [],
+    "states": {
+     "CH-K2": "VOIDED"
+    }
+   },
+   "violations": {
+    "departures": 0.0,
+    "import_limit": 0.0,
+    "claimable_cover": 380.0
+   },
+   "restore_basis": null,
+   "restore_date": "2026-11-07",
+   "params": {
+    "local_repair_days": 1.0,
+    "failed_chargers": 1.0,
+    "spare_cover": 1.0,
+    "days_to_restore": 1.0
+   },
+   "design_values": [],
+   "assumptions": [],
+   "value_if_admissible": -140.0,
+   "bound": {
+    "required_kwh_night": 1200.0,
+    "supplied_kwh_night": 1050.0,
+    "deliverable_kwh_night": 1050.0,
+    "buses_short_per_night": 1.0,
+    "max_kw": 0.0,
+    "import_limit_kw": 250.0
+   },
+   "cost_per_departure_met": 23.71,
+   "energy_bill_option": 5580.0,
+   "energy_bill_reference": 5580.0,
+   "admissible": false,
+   "value": null,
+   "valued_in_money": false,
+   "decision": "kasarani_charger",
+   "bound_failure": "hard bound: claimable_cover exceeded by 380.0"
   },
   "RUI-ABSORB6": {
    "site": "Ruiru",
    "monthly_or_horizon_change": -3124.8,
    "months": 1.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": null,
    "cost_lines": {},
    "money_changes": false,
-   "formula": "(contribution under option -16205.12 - under reference -13080.32) x 1 - operator-borne one-off 0.0",
+   "formula": "(contribution under option -16205.12 - under reference -13080.32) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "CH-R7": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "departures": 0.0,
-    "import_limit": 0.0
+    "import_limit": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "added_buses": 6.0
@@ -2059,7 +2448,7 @@
     "required_kwh_night": 2800.0,
     "supplied_kwh_night": 2800.0,
     "deliverable_kwh_night": 3200.0,
-    "buses_short_per_night": 0,
+    "buses_short_per_night": 0.0,
     "max_kw": 380.0,
     "import_limit_kw": 400.0
    },
@@ -2068,13 +2457,17 @@
    "energy_bill_reference": 12580.32,
    "admissible": true,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "ruiru_expansion"
   },
   "RUI-4CHARGERS": {
    "site": "Ruiru",
    "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 60000.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 60000.0,
+   "crew_visits": null,
    "cost_lines": {
     "chargers": {
      "amount": 60000.0,
@@ -2085,25 +2478,30 @@
     }
    },
    "money_changes": false,
-   "formula": "(contribution under option -13080.32 - under reference -13080.32) x 1 - operator-borne one-off 60000.0",
+   "formula": "(contribution under option -13080.32 - under reference -13080.32) x 1 - (operator-borne one-off 60000.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "CH-R7": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "departures": 0.0,
-    "import_limit": 0.0
+    "import_limit": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "added_chargers": 4.0,
@@ -2116,7 +2514,7 @@
     "required_kwh_night": 1960.0,
     "supplied_kwh_night": 1960.0,
     "deliverable_kwh_night": 3200.0,
-    "buses_short_per_night": 0,
+    "buses_short_per_night": 0.0,
     "max_kw": 380.0,
     "import_limit_kw": 400.0
    },
@@ -2125,34 +2523,43 @@
    "energy_bill_reference": 12580.32,
    "admissible": true,
    "value": null,
-   "valued_in_money": false
+   "valued_in_money": false,
+   "decision": "ruiru_expansion"
   },
   "RUI-ABSORB10": {
    "site": "Ruiru",
    "monthly_or_horizon_change": -5208.0,
    "months": 1.0,
    "operator_one_off": 0.0,
+   "reference_one_off": 0.0,
+   "net_one_off": 0.0,
+   "crew_visits": null,
    "cost_lines": {},
    "money_changes": false,
-   "formula": "(contribution under option -18288.32 - under reference -13080.32) x 1 - operator-borne one-off 0.0",
+   "formula": "(contribution under option -18288.32 - under reference -13080.32) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "departures_missed": 62.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "departures_missed": 0.0,
-    "unclaimable_cover": 0.0
+    "cover_not_claimable": 0.0
    },
    "rights": {
     "claimable_cover": 0.0,
     "unclaimable_cover": 0.0,
-    "cover_lost": 0.0
+    "cover_lost": 0.0,
+    "lapsed": [],
+    "states": {
+     "CH-R7": "POTENTIALLY_COVERED"
+    }
    },
    "violations": {
     "departures": 62.0,
-    "import_limit": 0.0
+    "import_limit": 0.0,
+    "claimable_cover": 0.0
    },
-   "declared_bound_failure": null,
+   "restore_basis": null,
    "restore_date": null,
    "params": {
     "added_buses": 10.0
@@ -2164,7 +2571,7 @@
     "required_kwh_night": 3360.0,
     "supplied_kwh_night": 3200.0,
     "deliverable_kwh_night": 3200.0,
-    "buses_short_per_night": 2,
+    "buses_short_per_night": 2.0,
     "max_kw": 380.0,
     "import_limit_kw": 400.0
    },
@@ -2174,6 +2581,7 @@
    "admissible": false,
    "value": null,
    "valued_in_money": false,
+   "decision": "ruiru_expansion",
    "bound_failure": "hard bound: departures exceeded by 62.0"
   }
  },
@@ -2182,7 +2590,7 @@
    "protective_choices": {
     "kisiwa_genset": {
      "chosen": "KIS-REPAIR",
-     "how": "least violation (15.0) - no option meets the hard bound",
+     "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
      "admissible": [
       "KIS-REPAIR"
      ]
@@ -2211,7 +2619,25 @@
      "MTO-INV-CLAIM"
     ],
     "valued_option_costs": 1520.0,
-    "not_valued_in_money": 2230.0
+    "not_valued_in_money": 2230.0,
+    "crew_visits_used": 3,
+    "crew_visits_limit": 3,
+    "protective_choices": {
+     "kisiwa_genset": {
+      "chosen": "KIS-REPAIR",
+      "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
+      "admissible": [
+       "KIS-REPAIR"
+      ]
+     },
+     "kobo_battery_evidence": {
+      "chosen": "BAT-EVIDENCE",
+      "how": "meets its hard bounds",
+      "admissible": [
+       "BAT-EVIDENCE"
+      ]
+     }
+    }
    },
    "switch_cases": {
     "5000/True": {
@@ -2230,7 +2656,25 @@
       "MTO-INV-CLAIM"
      ],
      "valued_option_costs": 1520.0,
-     "not_valued_in_money": 2230.0
+     "not_valued_in_money": 2230.0,
+     "crew_visits_used": 3,
+     "crew_visits_limit": 3,
+     "protective_choices": {
+      "kisiwa_genset": {
+       "chosen": "KIS-REPAIR",
+       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
+       "admissible": [
+        "KIS-REPAIR"
+       ]
+      },
+      "kobo_battery_evidence": {
+       "chosen": "BAT-EVIDENCE",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "BAT-EVIDENCE"
+       ]
+      }
+     }
     },
     "5000/False": {
      "value": 2548.5,
@@ -2246,7 +2690,25 @@
       "MTO-INV-CLAIM"
      ],
      "valued_option_costs": 320.0,
-     "not_valued_in_money": 2230.0
+     "not_valued_in_money": 2230.0,
+     "crew_visits_used": 3,
+     "crew_visits_limit": 3,
+     "protective_choices": {
+      "kisiwa_genset": {
+       "chosen": "KIS-REPAIR",
+       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
+       "admissible": [
+        "KIS-REPAIR"
+       ]
+      },
+      "kobo_battery_evidence": {
+       "chosen": "BAT-EVIDENCE",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "BAT-EVIDENCE"
+       ]
+      }
+     }
     },
     "6500/True": {
      "value": 6088.5,
@@ -2264,7 +2726,25 @@
       "MTO-INV-CLAIM"
      ],
      "valued_option_costs": 1520.0,
-     "not_valued_in_money": 2230.0
+     "not_valued_in_money": 2230.0,
+     "crew_visits_used": 3,
+     "crew_visits_limit": 3,
+     "protective_choices": {
+      "kisiwa_genset": {
+       "chosen": "KIS-REPAIR",
+       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
+       "admissible": [
+        "KIS-REPAIR"
+       ]
+      },
+      "kobo_battery_evidence": {
+       "chosen": "BAT-EVIDENCE",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "BAT-EVIDENCE"
+       ]
+      }
+     }
     },
     "6500/False": {
      "value": 3508.5,
@@ -2282,7 +2762,25 @@
       "MTO-INV-BUYNOW"
      ],
      "valued_option_costs": 4200.0,
-     "not_valued_in_money": 2230.0
+     "not_valued_in_money": 2230.0,
+     "crew_visits_used": 3,
+     "crew_visits_limit": 3,
+     "protective_choices": {
+      "kisiwa_genset": {
+       "chosen": "KIS-REPAIR",
+       "how": "least violation among affordable options (15.0) - no affordable option meets the hard bound",
+       "admissible": [
+        "KIS-REPAIR"
+       ]
+      },
+      "kobo_battery_evidence": {
+       "chosen": "BAT-EVIDENCE",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "BAT-EVIDENCE"
+       ]
+      }
+     }
     }
    },
    "sensitivity_values": {
@@ -2318,8 +2816,7 @@
      "chosen": "THIKA-EPC-STOPGAP",
      "how": "meets its hard bounds",
      "admissible": [
-      "THIKA-EPC-STOPGAP",
-      "THIKA-SELF"
+      "THIKA-EPC-STOPGAP"
      ]
     }
    },
@@ -2336,7 +2833,18 @@
      "MWEA-AGG"
     ],
     "valued_option_costs": 620.0,
-    "not_valued_in_money": 100.0
+    "not_valued_in_money": 100.0,
+    "crew_visits_used": 2,
+    "crew_visits_limit": 2,
+    "protective_choices": {
+     "thika_backup": {
+      "chosen": "THIKA-EPC-STOPGAP",
+      "how": "meets its hard bounds",
+      "admissible": [
+       "THIKA-EPC-STOPGAP"
+      ]
+     }
+    }
    },
    "switch_cases": {
     "True": {
@@ -2352,7 +2860,18 @@
       "MWEA-AGG"
      ],
      "valued_option_costs": 620.0,
-     "not_valued_in_money": 100.0
+     "not_valued_in_money": 100.0,
+     "crew_visits_used": 2,
+     "crew_visits_limit": 2,
+     "protective_choices": {
+      "thika_backup": {
+       "chosen": "THIKA-EPC-STOPGAP",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "THIKA-EPC-STOPGAP"
+       ]
+      }
+     }
     },
     "False": {
      "value": 1512.4,
@@ -2365,7 +2884,18 @@
       "KIRI-REPAIR"
      ],
      "valued_option_costs": 350.0,
-     "not_valued_in_money": 100.0
+     "not_valued_in_money": 100.0,
+     "crew_visits_used": 1,
+     "crew_visits_limit": 2,
+     "protective_choices": {
+      "thika_backup": {
+       "chosen": "THIKA-EPC-STOPGAP",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "THIKA-EPC-STOPGAP"
+       ]
+      }
+     }
     }
    },
    "sensitivity_values": {
@@ -2407,7 +2937,18 @@
      "EMB-DEADLINE"
     ],
     "valued_option_costs": 1590.0,
-    "not_valued_in_money": 0.0
+    "not_valued_in_money": 0.0,
+    "crew_visits_used": 0,
+    "crew_visits_limit": 2,
+    "protective_choices": {
+     "kasarani_charger": {
+      "chosen": "KAS-OEM-STOPGAP",
+      "how": "meets its hard bounds",
+      "admissible": [
+       "KAS-OEM-STOPGAP"
+      ]
+     }
+    }
    },
    "switch_cases": {
     "True": {
@@ -2422,7 +2963,18 @@
       "EMB-DEADLINE"
      ],
      "valued_option_costs": 1590.0,
-     "not_valued_in_money": 0.0
+     "not_valued_in_money": 0.0,
+     "crew_visits_used": 0,
+     "crew_visits_limit": 2,
+     "protective_choices": {
+      "kasarani_charger": {
+       "chosen": "KAS-OEM-STOPGAP",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "KAS-OEM-STOPGAP"
+       ]
+      }
+     }
     },
     "False": {
      "value": 150.0,
@@ -2434,7 +2986,18 @@
       "KAS-OEM-STOPGAP"
      ],
      "valued_option_costs": 90.0,
-     "not_valued_in_money": 0.0
+     "not_valued_in_money": 0.0,
+     "crew_visits_used": 0,
+     "crew_visits_limit": 2,
+     "protective_choices": {
+      "kasarani_charger": {
+       "chosen": "KAS-OEM-STOPGAP",
+       "how": "meets its hard bounds",
+       "admissible": [
+        "KAS-OEM-STOPGAP"
+       ]
+      }
+     }
     }
    },
    "sensitivity_values": {
@@ -2579,6 +3142,7 @@
      "contribution": 2295.0,
      "cost_to_serve": 7490.0,
      "customer_hours_interrupted": 0.0,
+     "dawn_days_below": 0.0,
      "delivered_kwh": 21650.0,
      "diesel_l": 3300.0,
      "diesel_price": 3.8,
@@ -2591,6 +3155,7 @@
      "major_assets": 0.0,
      "metered_kwh": 21650.0,
      "necessary_l": 3300.0,
+     "obligation_hours_without_backup": 0.0,
      "obligation_hours_without_redundancy": 0.0,
      "om": 1800.0,
      "outstanding": 0.0,
@@ -2598,7 +3163,9 @@
      "productive_kwh": 0.0,
      "productive_tariff": 0.9,
      "reduced_days": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "revenue": 9785.0,
+     "shortfall_backed": 1.0,
      "staff": 1450.0,
      "tariff": 1.35,
      "technical_loss_kwh": 0.0,
@@ -2625,6 +3192,7 @@
      "contribution": 1443.0,
      "cost_to_serve": 8245.0,
      "customer_hours_interrupted": 0.0,
+     "dawn_days_below": 0.0,
      "delivered_kwh": 23050.0,
      "diesel_l": 3900.0,
      "diesel_price": 3.8,
@@ -2637,6 +3205,7 @@
      "major_assets": 14.0,
      "metered_kwh": 21700.0,
      "necessary_l": 3430.0,
+     "obligation_hours_without_backup": 10.0,
      "obligation_hours_without_redundancy": 30.0,
      "om": 1800.0,
      "outstanding": 668.0,
@@ -2644,7 +3213,9 @@
      "productive_kwh": 0.0,
      "productive_tariff": 0.9,
      "reduced_days": 6.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "revenue": 9688.0,
+     "shortfall_backed": 1.0,
      "staff": 1450.0,
      "tariff": 1.35,
      "technical_loss_kwh": 1230.0,
@@ -2803,20 +3374,20 @@
      "charger_out_days": 11.0,
      "chargers_in_service": 15.0,
      "chargers_installed": 16.0,
-     "contribution": -2551.2,
-     "cost_per_departure_met": 20.91,
-     "cost_to_serve": 2551.2,
+     "contribution": -2438.7,
+     "cost_per_departure_met": 19.99,
+     "cost_to_serve": 2438.7,
      "covered_bus_nights": 0.0,
      "deliverable_kwh_night": 4250.0,
      "demand_rate": 12.0,
      "departures_met": 122.0,
      "departures_missed": 2.0,
      "departures_required": 124.0,
-     "energy_cost": 2311.2,
+     "energy_cost": 2198.7,
      "extra_missed_departures": 0.0,
      "import_limit_kw": 650.0,
      "kwh_0000_0500": 0.0,
-     "kwh_2200_2400": 17760.0,
+     "kwh_2200_2400": 17010.0,
      "kwh_per_bus_night": 290.0,
      "maintenance": 0.0,
      "max_kw": 0.0,
@@ -2829,7 +3400,7 @@
      "penalties": 240.0,
      "penalty_rate": 120.0,
      "required_kwh_night": 3160.0,
-     "scheduled_kwh_night": 3160.0,
+     "scheduled_kwh_night": 3010.0,
      "short_nights": 11.0,
      "spare_bus_nights": 3.0,
      "supplied_kwh_night": 3010.0,

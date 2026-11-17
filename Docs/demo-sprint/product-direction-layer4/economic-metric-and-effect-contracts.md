@@ -1,6 +1,6 @@
 # Economic metric and effect contracts
 
-**Layer 4 companion · rev 11 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only, nothing built**
+**Layer 4 companion · rev 12 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only, nothing built**
 **Answers:** brief Part VI, C1 Deliverable 2 (economic truth, measurement, composition, financial models and contractual entitlements), for the mechanics of `layer4-transformation-design.md` §2: **M1 Define**, **M2 Observe**, **M3 Evaluate**, as corrected by the owner on 17 Nov 2026 (outcomes are *observed through the factors that structurally define them*, not traced backwards from a shortfall).
 **Figures:** every amount is **illustrative** (USD) and comes from `demo-site-scenario-manifest.yaml` (rev 11) and is evaluated by `evaluate_structure.py` into `derived-values.json`; `check_manifest.py` asserts the stated and tagged figures against the evaluation; other figures show their working. One test vector (AT-3) is a stated hypothetical, because the manifest holds prices at plan in October; it is labelled as such. Nothing here is an observed financial result.
 
@@ -191,7 +191,7 @@ Each clock answers a different question, and mixing them produces wrong months:
 | Service | kWh delivered 30–31 Oct | crate-days of B-1031 in October | energy delivered night of 6 Oct |
 | Effective | Mto meter swap valid from 3 Oct for 6 customers | 0.18 aggregator rate Dec–Mar | Embakasi's 00:00–05:00 tier valid from 1 Nov |
 | Recognition | October bill run | October storage invoice | October utility invoice |
-| Settlement | 150.00 paid 30–31 Oct, settled 2 Nov | receipts in November for October | — (captive) |
+| Settlement | 150.00<!--rec--> paid 30–31 Oct, settled 2 Nov | receipts in November for October | — (captive) |
 
 Effective-dated mappings (meter → customer, serial → asset, tariff → site, idTag → bus) are resolved at the **service instant**, never at load time (disorder test MAP-1).
 
@@ -203,16 +203,16 @@ Each site below is the structure evaluated twice, on planned leaves and on obser
 
 ### 3.1 Lakeside Power, October 2026
 
-**Chain block (portfolio).** Delivered 23,050 kWh → metered 21,700 → billed 21,445 (plan 21,650) → revenue 9,688.00 (plan 9,785.00) → collected 8,870.00 + in transit 150.00 + outstanding 668.00 = 9,688.00. Cost to serve 8,245.00 (plan 7,490.00). **Contribution 1,443.00 vs plan 2,295.00: −852.00.**
+**Chain block (portfolio).** Delivered 23,050 kWh → metered 21,700 → billed 21,445 (plan 21,650) → revenue 9,688.00 (plan 9,785.00) → collected 8,870.00 + in transit 150.00<!--rec--> + outstanding 668.00 = 9,688.00. Cost to serve 8,245.00 (plan 7,490.00). **Contribution 1,443.00 vs plan 2,295.00: −852.00.**
 
 **Per-site chain stages (actual).**
 
 | Site | Delivered | Technical loss | Unexplained | Metered | Unmapped | Adjustments | Billed (plan) | Tariff | Revenue (plan) | Collected | In transit | Outstanding |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Kobo | 9,100 | 410 | — | 8,690 | — | 45 | 8,645 (8,550) | 0.40 | 3,458.00 (3,420.00) | 3,180.00 | 0.00 | 278.00 |
-| Kisiwa | 7,950 | 520 | — | 7,430 | — | 30 | 7,400 (7,500) | 0.55 | 4,070.00 (4,125.00) | 3,800.00 | 0.00 | 270.00 |
-| Mto | 6,000 | 300 (expected) | 120 | 5,580 | 140 | 40 | 5,400 (5,600) | 0.40 | 2,160.00 (2,240.00) | 1,890.00 | 150.00 | 120.00 |
-| **Σ** | **23,050** | | | **21,700** | | | **21,445 (21,650)** | | **9,688.00 (9,785.00)** | **8,870.00** | **150.00** | **668.00** |
+| Kisiwa | 7,950 | 520 | — | 7,430 | — | 30 | 7,400 (7,500) | 0.55 | 4,070.00 (4,125.00) | 3,800.00 | 0.00 | 270.00<!--rec--> |
+| Mto | 6,000 | 300 (expected) | 120 | 5,580 | 140 | 40 | 5,400 (5,600) | 0.40 | 2,160.00 (2,240.00) | 1,890.00 | 150.00<!--rec--> | 120.00 |
+| **Σ** | **23,050** | | | **21,700** | | | **21,445 (21,650)** | | **9,688.00 (9,785.00)** | **8,870.00** | **150.00**<!--rec--> | **668.00** |
 
 Kobo and Kisiwa report loss as one figure (expected and unexplained are not separated there: the loss band leaf is not declared for them yet), so their unexplained cell is "—", not zero.
 
@@ -232,8 +232,8 @@ Kobo's 730 + 330 = 1,060 model-implied litres; 1,060 + 120 unexplained = 1,180 c
 |---|---:|---:|---:|---:|---:|---:|---:|---|
 | Kobo | 3,458.00 | 1,475.00 | 600.00 | 500.00 | 883.00 | 1,445.00 | −562.00 | all RECORDED |
 | Kisiwa | 4,070.00 | 3,120.00 | 700.00 (ESTIMATED) | 500.00 | −250.00 | −65.00 | −185.00 | O&M invoice missing |
-| Mto | 2,160.00 | 400.00 | 500.00 | 450.00 | 810.00 | 915.00 | −105.00 | all RECORDED |
-| **Σ** | **9,688.00** | **4,995.00** | **1,800.00** | **1,450.00** | **1,443.00** | **2,295.00** | **−852.00** | 7,545.00 of 8,245.00 recorded = **91.5%** |
+| Mto | 2,160.00 | 400.00 | 500.00 | 450.00<!--rec--> | 810.00 | 915.00 | −105.00 | all RECORDED |
+| **Σ** | **9,688.00** | **4,995.00** | **1,800.00**<!--rec--> | **1,450.00** | **1,443.00** | **2,295.00** | **−852.00** | 7,545.00 of 8,245.00 recorded = **91.5%** |
 
 **Attribution (the bridge as a reading of the structure).** Prices and tariffs are at plan in October, so every product node's price effect is 0.00 and each deviation is a volume effect at plan price (rule AR2, §4.2).
 
@@ -242,7 +242,7 @@ Kobo's 730 + 330 = 1,060 model-implied litres; 1,060 + 120 unexplained = 1,180 c
 | Kobo | billed kWh (`KOBO-2026-10-REV`) | +95 kWh | 0.40 | +38.00 | ECONOMIC_ACTUAL |
 | Kobo | candidate litres (`KOBO-2026-10-FUEL`) | +330 L | 1.25 | −412.50 | DERIVED (Calculated from records) |
 | Kobo | necessary litres, evening load growth (`KOBO-2026-10-FUEL`) | +30 L | 1.25 | −37.50 | DERIVED (Calculated from records) |
-| Kobo | litres not explained by the model (`KOBO-2026-10-FUEL`) | +120 L | 1.25 | −150.00 | DERIVED |
+| Kobo | litres not explained by the model (`KOBO-2026-10-FUEL`) | +120 L | 1.25 | −150.00<!--rec--> | DERIVED |
 | Kisiwa | billed kWh (`KIS-2026-10-REV`) | −100 kWh | 0.55 | −55.00 | ECONOMIC_ACTUAL |
 | Kisiwa | necessary litres, solar shortfall (`KIS-2026-10-FUEL`) | +80 L | 1.30 | −104.00 | DERIVED (Calculated from records) |
 | Kisiwa | unexplained litres (`KIS-2026-10-FUEL`) | +20 L | 1.30 | −26.00 | DERIVED |
@@ -252,7 +252,7 @@ Kobo's 730 + 330 = 1,060 model-implied litres; 1,060 + 120 unexplained = 1,180 c
 | Mto | necessary litres, evening (`MTO-2026-10-FUEL`) | +20 L | 1.25 | −25.00 | DERIVED (Calculated from records) |
 | | | | | **−852.00** | equals the portfolio deviation |
 
-By line: revenue +38 − 55 − 8 − 56 − 16 = **−97.00**; cost −412.50 − 37.50 − 150 − 104 − 26 − 25 = **−755.00**; Kobo +38.00 − 412.50 − 37.50 − 150.00 = −562.00; −97 − 755 = −852.00.
+By line: revenue +38 − 55 − 8 − 56 − 16 = **−97.00**; cost −412.50 − 37.50 − 150 − 104 − 26 − 25 = **−755.00**; Kobo +38.00 − 412.50 − 37.50 − 150.00<!--rec--> = −562.00; −97 − 755 = −852.00.
 
 Why two classes sit on one line: Kobo's fuel deviation of 480 L × 1.25 = −600.00 is an **economic actual** (dips and delivery notes). Its split into necessary and candidate litres comes from one rule on metered data: dispatch classification of metered generator energy × the declared consumption rate, so **both halves carry the same class, DERIVED** ("Calculated from records"); the remainder is not explained by the model. The screen shows the line total as Recorded and the split as Calculated from records. No option appears in the observed split: "of 330 L candidate running, the best feasible option avoids 210 L (Modelled)" is a sentence about an option, shown beside the structure, never a node of it.
 
@@ -260,12 +260,12 @@ Mto's 120 kWh unexplained after expected losses sits on the metered stage, and M
 
 ### 3.2 Harvest Cold Network, October 2026
 
-**Chain block (portfolio).** Capacity 37,200 crate-days → occupied 22,940 (plan 26,040) → chargeable 22,940 → revenue 4,588.00 (plan 5,208.00) → collected 4,370.00 + outstanding 218.00. Cost to serve 3,642.00 (plan 3,492.00). **Contribution 946.00 vs plan 1,716.00: −770.00** (revenue −620.00, cost −150.00). Cost recorded 3,562.00 of 3,642.00 = **97.8%** (Thika's 80.00 refrigeration service invoice is ESTIMATED).
+**Chain block (portfolio).** Capacity 37,200 crate-days → occupied 22,940 (plan 26,040) → chargeable 22,940 → revenue 4,588.00 (plan 5,208.00) → collected 4,370.00 + outstanding 218.00. Cost to serve 3,642.00 (plan 3,492.00). **Contribution 946.00 vs plan 1,716.00: −770.00** (revenue −620.00<!--rec-->, cost −150.00<!--rec-->). Cost recorded 3,562.00 of 3,642.00 = **97.8%** (Thika's 80.00 refrigeration service invoice is ESTIMATED).
 
 | Site | Occupied crate-days (plan) | Occupancy | Revenue (plan) | kWh model | kWh actual (plan) | Energy | Staff | Maint. | Liability | Contribution (plan) | Deviation |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Mwea | 4,340 (7,440) | 35% (60%) | 868.00 (1,488.00) | 2,635 | 2,650 (3,410) | 530.00 | 300.00 | 50.00 | 0.00 | −12.00 (456.00) | −468.00 |
-| Thika | 8,680 (8,680) | 70% | 1,736.00 | 3,720 | 3,720 (3,720) | 744.00 | 350.00 | 80.00 E | 108.00 | 454.00 (562.00) | −108.00 |
+| Mwea | 4,340 (7,440) | 35% (60%) | 868.00 (1,488.00) | 2,635 | 2,650 (3,410) | 530.00 | 300.00<!--rec--> | 50.00 | 0.00 | −12.00 (456.00) | −468.00 |
+| Thika | 8,680 (8,680) | 70% | 1,736.00 | 3,720 | 3,720 (3,720) | 744.00 | 350.00<!--rec--> | 80.00 E | 108.00 | 454.00 (562.00) | −108.00 |
 | Kirinyaga | 9,920 (9,920) | 80% | 1,984.00 | 4,030 | 5,000 (4,030) | 1,000.00 | 400.00 | 80.00 | 0.00 | 504.00 (698.00) | −194.00 |
 | **Σ** | **22,940 (26,040)** | | **4,588.00 (5,208.00)** | | | **2,274.00** | **1,050.00** | **210.00** | **108.00** | **946.00 (1,716.00)** | **−770.00** |
 
@@ -275,7 +275,7 @@ kWh model = 1,550 + 0.25 × crate-days (October ambient at or below the 24 °C r
 
 | Site | Factor node (overlap key) | Leaf deviation | Attribution | Money class |
 |---|---|---|---:|---|
-| Mwea | occupied crate-days → revenue (`MWEA-2026-10-REV`) | −3,100 crate-days × 0.20 | −620.00 | ECONOMIC_ACTUAL |
+| Mwea | occupied crate-days → revenue (`MWEA-2026-10-REV`) | −3,100 crate-days × 0.20 | −620.00<!--rec--> | ECONOMIC_ACTUAL |
 | Mwea | kWh, occupancy volume (`MWEA-2026-10-ENERGY`) | 2,635 − 3,410 = −775 kWh × 0.20 | +155.00 | DERIVED (not a saving: the shadow of lost occupancy) |
 | Mwea | kWh, efficiency (`MWEA-2026-10-ENERGY`) | 2,650 − 2,635 = +15 kWh × 0.20 | −3.00 | DERIVED (inside 5% tolerance) |
 | Thika | liability (`THIKA-2026-10-LIAB`) | 6 crates × 18 | −108.00 | ECONOMIC_ACTUAL (credit note CN-0412) |
@@ -288,12 +288,12 @@ kWh model = 1,550 + 0.25 × crate-days (October ambient at or below the 24 °C r
 
 ### 3.3 Metro Bus Depots (captive), October 2026
 
-**Chain block (portfolio).** Delivered 184,760 kWh; departures required 1,302, met 1,302; revenue **NOT_APPLICABLE**. Cost to serve 41,705.12 vs plan 38,520.80: **−3,184.32**. **Cost per departure met 32.03** (41,705.12 / 1,302) vs plan 29.59 (38,520.80 / 1,302). Cost recorded 41,405.12 of 41,705.12 = **99.3%** (Kasarani's 300.00 maintenance invoice is ESTIMATED).
+**Chain block (portfolio).** Delivered 184,760 kWh; departures required 1,302, met 1,302; revenue **NOT_APPLICABLE**. Cost to serve 41,705.12 vs plan 38,520.80: **−3,184.32**. **Cost per departure met 32.03** (41,705.12 / 1,302) vs plan 29.59 (38,520.80 / 1,302). Cost recorded 41,405.12 of 41,705.12 = **99.3%** (Kasarani's 300.00<!--rec--> maintenance invoice is ESTIMATED).
 
 | Depot | kWh | Peak kWh × 0.24 | Off-peak kWh × 0.12 | Max kW × 12 | Energy + demand | Maint. | Cost (plan) | Departures met / required | Deviation |
 |---|---:|---:|---:|---:|---:|---:|---:|---|---:|
 | Embakasi | 86,800 | 47,740 → 11,457.60 | 39,060 → 4,687.20 | 500 → 6,000.00 | 22,144.80 | 600.00 | 22,744.80 (19,540.80) | 620 / 620 | −3,204.00 |
-| Kasarani | 37,200 | flat 0.15 → 5,580.00 | | — | 5,580.00 | 300.00 E | 5,880.00 (5,880.00) | 248 / 248 | 0.00 |
+| Kasarani | 37,200 | flat 0.15 → 5,580.00 | | — | 5,580.00 | 300.00<!--rec--> E | 5,880.00 (5,880.00) | 248 / 248 | 0.00 |
 | Ruiru | 60,760 | 6,076 → 1,458.24 | 54,684 → 6,562.08 | 380 → 4,560.00 | 12,580.32 | 500.00 | 13,080.32 (13,100.00) | 434 / 434 | +19.68 |
 | **Σ** | **184,760** | | | | | | **41,705.12 (38,520.80)** | **1,302 / 1,302** | **−3,184.32** |
 
@@ -337,7 +337,7 @@ Each portfolio's Protect state is read off the same structure (manifest `portfol
 | Days with backup start unproven | 0 | 26 (6–31 Oct; manual-start rota from 7 Nov until the 8 Nov replacement and test) | 0 | **26** |
 | Stock value exposed (At stake) | — | 2,160.00 | — | listed (never summed) |
 | QA-confirmed damage liability (USD, = customer-compensation factor) | 0.00 | 108.00 | 0.00 | **108.00** (counted once, in cost to serve) |
-| Rights value at stake (At stake) | — | EPC remedy on a 710.00 start controller (accepted 17 Oct) | — | listed |
+| Rights value at stake (At stake) | — | EPC remedy on a 710.00<!--fig:options.THIKA-SELF.rights.cover_lost--> start controller (accepted 17 Oct) | — | listed |
 
 **Metro Bus Depots.** October and, separately, November to 6 Nov.
 
@@ -388,7 +388,7 @@ Ruiru's 26 charger-days out of service in October coexist with 0 missed departur
 | Id | Node | Input | Expected attribution |
 |---|---|---|---|
 | AT-1 | Kobo revenue (AR2) | Q 8,645 vs 8,550; P 0.40 = 0.40 | volume +95 × 0.40 = +38.00; price 0.00; total 3,458.00 − 3,420.00 = +38.00 |
-| AT-2 | Kobo fuel cost (AR2 then AR4) | L 1,180 vs 700; P 1.25 = 1.25 | volume −480 × 1.25 = −600.00 = candidate −412.50 + necessary −37.50 + not explained −150.00; price 0.00 |
+| AT-2 | Kobo fuel cost (AR2 then AR4) | L 1,180 vs 700; P 1.25 = 1.25 | volume −480 × 1.25 = −600.00 = candidate −412.50 + necessary −37.50 + not explained −150.00<!--rec-->; price 0.00 |
 | AT-3 | **Hypothetical** (not in the manifest): Kobo fuel cost with diesel at 1.30 actual | L 1,180 vs 700; P 1.30 vs 1.25 | volume 480 × 1.25 = 600.00; price 1,180 × 0.05 = 59.00; total 1,534.00 − 875.00 = 659.00 adverse. Reversing the order (price at plan volume, volume at actual price) would give 35.00 + 624.00: the declared order is AR2's |
 | AT-4 | Embakasi energy (AR3) | Q 86,800 = 86,800; shares 0.55/0.45 vs 0.30/0.70; prices 0.24/0.12 both periods | volume 0.00; mix 86,800 × (0.25 × 0.24 − 0.25 × 0.12) = 2,604.00 adverse; price 0.00; total 16,144.80 − 13,540.80 = 2,604.00 |
 | AT-5 | Embakasi demand (AR2) | 500 vs 450 kW; 12.00 | volume 600.00 adverse; price 0.00 |
@@ -405,17 +405,19 @@ Ruiru's 26 charger-days out of service in October coexist with 0 missed departur
 
 An option changes one or more factors; the structure propagates the change to the outcome. It is valued against **no action**, which is the *same structure projected forward* under the same horizon, prices, tariff, contracts and accounting basis:
 
-> value(option) = Σ over horizon H [ outcome(structure | changed factors) − outcome(structure | no action) ] − one-off cost borne by the operator
+> value(option) = Σ over horizon H [ outcome(structure | changed factors) − outcome(structure | reference) ] − ( one-off cost borne by the operator under the option − under the reference path )
+
+The reference is no action unless the decision names another path (waiting for a supplier); a cost line both paths carry cancels (rev 12, M1).
 
 with outcome = contribution for service businesses, and = −(cost to serve) with every required departure met for a captive fleet.
 
 Consequences:
-- **No-action windfalls are never credited to options.** Embakasi's tariff C-114 adds a 00:00–05:00 tier at 0.09 from 1 Nov 2026. November no-action (October's charging pattern under the November tariff) is 47,740 × 0.24 = 11,457.60 + 15,500 × 0.12 = 1,860.00 + 23,560 × 0.09 = 2,120.40 + 500 kW × 12 = 6,000.00 = **21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference-->** a month, which is 706.80 below October's 22,144.80 with no action at all (23,560 × 0.03). The deadline-aware schedule is 24,800 × 0.12 = 2,976.00 + 62,000 × 0.09 = 5,580.00 + 400 × 12 = 4,800.00 = **13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option-->**. Its value is 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> − 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option--> = **8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> a month**, and 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> × 12 − 1,500.00 = **95,484.00<!--fig:options.EMB-DEADLINE.value--> over 12 months** (MODELLED; tariff applicability to be confirmed from the invoice [assumption]). A comparison with October's bill would credit the option with the tariff's 706.80 a month as well.
-- **Gross exposure is never value.** Kobo's candidate fuel at stake, 0 … 330 L (0 … 412.50), from fuel-cost-1 (`financials/fuel_cost.py:57-79`, quantity_high = 1.10 × Σ P·h·SFC over Candidate time) [code-observed], stays labelled "upper bound of fuel at stake". The stop-threshold option's value is what the forward replay says is feasibly avoidable: (210 × 1.25 − 150 kWh × 0.08 wear) × 12 − 90.00 = (262.50 − 12.00) × 12 − 90.00 = **2,916.00<!--fig:options.KOB-STOPSOC.value-->** (MODELLED). 210 L is a **design value** held in the manifest that the forward-replay adapter must reproduce from real series before it is relied on.
+- **No-action windfalls are never credited to options.** Embakasi's tariff C-114 adds a 00:00–05:00 tier at 0.09 from 1 Nov 2026. November no-action (October's charging pattern under the November tariff) is 47,740 × 0.24 = 11,457.60 + 15,500 × 0.12 = 1,860.00 + 23,560 × 0.09 = 2,120.40 + 500 kW × 12 = 6,000.00 = **21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference-->** a month, which is 706.80 below October's 22,144.80 with no action at all (23,560 × 0.03). The deadline-aware schedule is 24,800 × 0.12 = 2,976.00 + 62,000 × 0.09 = 5,580.00 + 400 × 12 = 4,800.00<!--rec--> = **13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option-->**. Its value is 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> − 13,356.00<!--fig:-options.EMB-DEADLINE.energy_bill_option--> = **8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> a month**, and 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> × 12 − 1,500.00<!--fig:-options.EMB-DEADLINE.operator_one_off--> = **95,484.00<!--fig:options.EMB-DEADLINE.value--> over 12 months** (MODELLED; tariff applicability to be confirmed from the invoice [assumption]). A comparison with October's bill would credit the option with the tariff's 706.80 a month as well.
+- **Gross exposure is never value.** Kobo's candidate fuel at stake, 0 … 330 L (0 … 412.50), from fuel-cost-1 (`financials/fuel_cost.py:57-79`, quantity_high = 1.10 × Σ P·h·SFC over Candidate time) [code-observed], stays labelled "upper bound of fuel at stake". The stop-threshold option's value is what the forward replay says is feasibly avoidable: (210 × 1.25 − 150 kWh × 0.08 wear) × 12 − 90.00<!--fig:-options.KOB-STOPSOC.operator_one_off--> = (262.50 − 12.00) × 12 − 90.00<!--fig:-options.KOB-STOPSOC.operator_one_off--> = **2,916.00<!--fig:options.KOB-STOPSOC.value-->** (MODELLED). 210 L is a **design value** held in the manifest that the forward-replay adapter must reproduce from real series before it is relied on.
 - **Ratio effects are never added to the money they come from.** If Mwea's aggregator contract adds 4,500 crate-days a month, revenue rises 810.00 a month and energy per crate-day falls; the second is the AR5 denominator effect of the first, reported with money null.
 - **Options on the same factor node are mutually exclusive or evaluated together.** The Mto inverter remedy paths share one node; Kobo's 100 kWh battery and the stop-threshold change act on the same candidate litres node, so the battery adds nothing the threshold change does not.
 - **Design values.** Every figure that rests on the forward replay or the demand-on-headroom replay is labelled "Design value: the replay has not yet been run on site data" wherever it is stated: Kobo 210 L, 20 L, the 4-of-61 and 0-of-61 dawn results and 2,916.00<!--fig:options.KOB-STOPSOC.value-->; the huller's 68 L, 395.00 a month and 3,540.00<!--fig:options.MTO-HULLER.value-->; and any plan value that includes them. The same rule covers Embakasi's 31-of-31 feasible nights and Kirinyaga's recovery share (assumption 80%, range 60–90%).
-- **Other option values (manifest, recomputed):** Mto rice huller (495.00 − 85.00 − 15.00) × 12 − 1,200.00 = **3,540.00<!--fig:options.MTO-HULLER.value-->** (design value); Mto evening welder 264.00 − 272.25 = **−8.25 a month** (break-even tariff 272.25 / 660 = 0.4125 → 0.42); Kirinyaga repair 0.80 × 194.00 × 12 − 350.00 = **1,512.40<!--fig:options.KIRI-REPAIR.value-->**, replacement (194.00 + 40.30) × 12 − 4,800.00 = **−1,988.40**; Mwea aggregator (810.00 − 225.00 − 100.00) × 4 − 270.00 = **1,670.00<!--fig:options.MWEA-AGG.value-->** over the contract.
+- **Other option values (manifest, recomputed):** Mto rice huller (495.00 − 85.00 − 15.00) × 12 − 1,200.00<!--fig:-options.MTO-HULLER.operator_one_off--> = **3,540.00<!--fig:options.MTO-HULLER.value-->** (design value); Mto evening welder 264.00 − 272.25 = **−8.25 a month** (break-even tariff 272.25 / 660 = 0.4125 → 0.42); Kirinyaga repair 0.80 × 194.00 × 12 − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> = **1,512.40<!--fig:options.KIRI-REPAIR.value-->**, replacement (194.00 + 40.30) × 12 − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> = **−1,988.40**<!--fig:options.KIRI-REPLACE.value_if_admissible-->; Mwea aggregator (810.00 − 225.00 − 100.00<!--fig:-options.MWEA-AGG.params.handling-->) × 4 − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = **1,670.00<!--fig:options.MWEA-AGG.value-->** over the contract.
 
 ### 4.4 Money classes (`money_class`)
 
@@ -468,12 +470,12 @@ The remedy is never subtracted as cash. Downtime consequence is the change it ca
 
 | Asset · contract | Evidence | Path: residual cost | Disposition (manifest) |
 |---|---|---|---|
-| Mto INV-MT-02 · warranty to 14 Mar 2029, replacement unit, shipping at owner cost, notice 30 days (by 27 Nov) | installer certificate, ambient max 38 °C (spec 45), firmware current, fault log | claim and wait: one-off 230.00 (shipping 150 + install 80; the 2,600 replacement unit is a cost line borne by the supplier under the warranty) + extra fuel 137.50 = **367.50<!--fig:options.MTO-INV-CLAIM.value-->**, restore 28 Nov (decision + 21-day warranty lead time + 1 install day) · buy now and claim the failed unit: one-off 2,600 + 80 + 150 + 80 = 2,910.00 + extra fuel 37.50 = **2,947.50<!--fig:options.MTO-INV-BUYNOW.value-->** operator cost, restore 12 Nov (decision + 5-day local supply + 1 install day; the returned unit becomes a spare, not cash) · local repair 450 + cover lost · no action: half capacity, notice lost 27 Nov | claim RECOMMENDED; buy-now CONDITIONAL (budget ≥ 6,430 **and** the cooperative will not extend its letter of intent); local REJECTED; no action REJECTED |
-| Kisiwa GEN-KS-01 · warranty ended 30 Jun 2026; 1,000-hour service condition | run hours 1,240; service record MISSING | operator-funded repair **1,800.00** | must-do; "no supportable right identified from the evidence" (not "no right exists") |
-| Kobo BAT-001 · warranty to 1 Mar 2034; 95% capacity at year 3 (interim), temperature and C-rate conditions | usable capacity *estimate* 184 kWh (92%) at 2.7 years; temperature and commissioning test MISSING | claim now: fails without a baseline · assemble evidence: capacity test 250 + sensor 180 = **430.00** | evidence RECOMMENDED; 64,000.00 cover is EXPOSURE |
-| Thika GEN-CR-01 start controller · EPC workmanship warranty to 10 Feb 2027; quarterly test condition | 3 of 3 tests logged; WR-019 found the controller fault | supplier remedy + stopgap (rota, SMS relay 40 + labour 60) = **100.00** · wait = 0.00 now, stock unprotected · self-funded 710.00 voids cover | stopgap RECOMMENDED |
+| Mto INV-MT-02 · warranty to 14 Mar 2029, replacement unit, shipping at owner cost, notice 30 days (by 27 Nov) | installer certificate, ambient max 38 °C (spec 45), firmware current, fault log | claim and wait: one-off 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> (shipping 150 + install 80; the 2,600 replacement unit is a cost line borne by the supplier under the warranty) + extra fuel 137.50 = **367.50<!--fig:-options.MTO-INV-CLAIM.value-->**, restore 28 Nov (decision + 21-day warranty lead time + 1 install day) · buy now and claim the failed unit: one-off 2,600 + 80 + 150 + 80 = 2,910.00<!--fig:options.MTO-INV-BUYNOW.operator_one_off--> + extra fuel 37.50 = **2,947.50<!--fig:-options.MTO-INV-BUYNOW.value-->** operator cost, restore 12 Nov (decision + 5-day local supply + 1 install day; the returned unit becomes a spare, not cash) · local repair 450 + cover lost · no action: half capacity, notice lost 27 Nov | claim RECOMMENDED; buy-now CONDITIONAL (budget ≥ 6,430 **and** the cooperative will not extend its letter of intent); local REJECTED; no action REJECTED |
+| Kisiwa GEN-KS-01 · warranty ended 30 Jun 2026; 1,000-hour service condition | run hours 1,240; service record MISSING | operator-funded repair **1,800.00**<!--fig:options.KIS-REPAIR.operator_one_off--> | must-do; "no supportable right identified from the evidence" (not "no right exists") |
+| Kobo BAT-001 · warranty to 1 Mar 2034; 95% capacity at year 3 (interim), temperature and C-rate conditions | usable capacity *estimate* 184 kWh (92%) at 2.7 years; temperature and commissioning test MISSING | claim now: fails without a baseline · assemble evidence: capacity test 250 + sensor 180 = **430.00**<!--fig:options.BAT-EVIDENCE.operator_one_off--> | evidence RECOMMENDED; 64,000.00 cover is EXPOSURE |
+| Thika GEN-CR-01 start controller · EPC workmanship warranty to 10 Feb 2027; quarterly test condition | 3 of 3 tests logged; WR-019 found the controller fault | supplier remedy + stopgap (rota, SMS relay 40 + labour 60) = **100.00**<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off--> · wait = 0.00 now, stock unprotected · self-funded 710.00<!--fig:options.THIKA-SELF.operator_one_off--> voids cover | stopgap RECOMMENDED |
 | Thika stock · goods-in-custody insurance, deductible 500, notice 14 days | confirmed loss 108 | notify (done 8 Oct) and do not claim: 108 < 500 deductible; reimbursement recorded 0.00 | not filed |
-| Kasarani CH-K2 · parts warranty to 31 Aug 2027 (unauthorised repair voids power stage) + SLA (48 h response, 5 business days restore, 5% × 400 per late day) | fault log, ticket; responded in 31 h; restore due 9 Nov | supplier remedy + one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10) = **90.00** · wait: 0.00 now, about 240.00 of penalties and 2 broken departures · local repair 380 voids cover | stopgap RECOMMENDED |
+| Kasarani CH-K2 · parts warranty to 31 Aug 2027 (unauthorised repair voids power stage) + SLA (48 h response, 5 business days restore, 5% × 400 per late day) | fault log, ticket; responded in 31 h; restore due 9 Nov | supplier remedy + one bus short a night for the 3 nights to restore, the spare bus covering one of them, so 2 buses charged at Ruiru at 45.00 each (driver overtime 35 + energy 10) = **90.00**<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> · wait: 0.00 now, about 240.00 of penalties and 2 broken departures · local repair 380 voids cover | stopgap RECOMMENDED |
 | Kisiwa O&M · 48 h response; 10% × 700 credit when late; weather exclusion | reported 30 Oct 19:10, responded 3 Nov 19:30 (96 h); calm-weather bulletin | potential credit **70.00** | EXPOSURE, REVIEW_REQUIRED; never booked until a credit note |
 
 ### 5.3 Rights states and their money
@@ -558,7 +560,7 @@ All contracts are [proposed]. Names are illustrative; storage placement is in `r
 | assumptions[] {key, value, source, label} | e.g. wear 0.08/kWh [assumption] |
 | bound_results[] | §6.6 per obligation |
 | residual_cost_paths[] | for remedy options (§5.2) |
-| sensitivity[] {variable, value, resulting value} | e.g. diesel −20% → 2,286.00 |
+| sensitivity[] {variable, value, resulting value} | e.g. diesel −20% → 2,286.00<!--fig:options.KOB-STOPSOC.sensitivities.diesel_minus_20pct--> |
 | audit {model_id@version, inputs_digest, design_value: bool} | design_value true until the adapter reproduces it |
 
 ### 6.5 `right` and `right_event`
@@ -606,7 +608,7 @@ Each test names the wrong behaviour the structure must make impossible.
 |---|---|---|---|
 | N1 Partial coverage | Kisiwa October O&M invoice missing (GAP-1) | O&M shown as 0; contribution overstated by 700.00 | node ESTIMATED at plan 700.00, coverage 91.5%, contribution labelled "includes 1 estimated line"; never zero |
 | N2 Currency mismatch | one Kisiwa expense invoiced in KES (FX-1) | KES added to USD | converted with declared basis shown, or listed and excluded by name |
-| N3 Late settlement | Mto 150.00 paid 30–31 Oct, settled 2 Nov (LATE-SETTLE-1) | shown as uncollected or as November revenue | October revenue unchanged; IN_TRANSIT at 31 Oct; COLLECTED by 2 Nov |
+| N3 Late settlement | Mto 150.00<!--rec--> paid 30–31 Oct, settled 2 Nov (LATE-SETTLE-1) | shown as uncollected or as November revenue | October revenue unchanged; IN_TRANSIT at 31 Oct; COLLECTED by 2 Nov |
 | N4 Overlap / dedup | Mwea contract raises revenue and lowers energy per crate-day | both priced and added | revenue priced on its node; per-unit effect AR5 with money null |
 | N5 Overlap across outcomes | Kobo after-dawn generator running read by Optimize (fuel), Protect (battery) and Assure (verification) | 262.50 counted under several lenses | one node, one amount; other lenses show bounds and evidence, not money |
 | N6 Contract remedy double counting | Thika start controller: EPC remedy plus an insurance claim plus an operator invoice | two recoveries against one expense | second recovery refused; Σ recoveries ≤ expense |
@@ -632,4 +634,4 @@ Each test names the wrong behaviour the structure must make impossible.
 1. **Kobo candidate litres and the fuel-cost-1 upper bound.** The manifest uses 330 L both as fuel-cost-1's upper value (which includes the 1.10 SFC allowance) and as the candidate part of the 1,060 L model-implied fuel (730 + 330). In the structure the candidate leaf must be litres at the calibrated SFC, and the upper bound a separate EXPOSURE figure (≈ 1.10 × the candidate litres). The demo figures are internally consistent; the build must not wire the two together. No manifest change made.
 2. **Thika EPC remedy timing — resolved in the manifest.** The remedy term is "replace start controller within 30 days of acceptance"; acceptance 17 Oct, replacement scheduled 8 Nov (day 22), inside the term.
 3. **Thika chamber resolution — resolved in the manifest.** Chamber readings are 5-minute in evidence windows (as the v7.0 probe TMP-003); the time above limit is stated as a bound (B-1031 at least 20 min above 5 °C against the contract's 15 min).
-4. **Embakasi without the demand-charge term** (tariff switch): the schedule's monthly value becomes (21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> − 6,000.00) − (13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option--> − 4,800.00) = 15,438.00 − 8,556.00 = **6,882.00** [derived]; it stays recommended. The manifest switch covers only a flat tariff.
+4. **Embakasi without the demand-charge term** (tariff switch): the schedule's monthly value becomes (21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> − 6,000.00) − (13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option--> − 4,800.00<!--rec-->) = 15,438.00 − 8,556.00 = **6,882.00** [derived]; it stays recommended. The manifest switch covers only a flat tariff.
