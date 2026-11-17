@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: the economic decision loop
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 4 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 8 (redesign, after seven review rounds) · AssetOps Architect (Claude) · 17 Nov 2026**
 **Status:** design for owner review. No application code, test, database or existing mock-up version was changed. Repository: branch `task/product-direction-layer4-design`; backend, frontend, simulator and tools are unchanged since `bf6014e02`, so every code citation below was read against current code.
 **Product contract:** owner brief v1.1, Parts I–V (`.agent/AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md`). This document answers Part VI as the owner clarified it on 17 Nov 2026 (`.agent/owner-layer4-direction-feedback-2026-11-17.md`).
 
@@ -13,6 +13,10 @@ The owner judged rev 3 "narrow stitched ideas" rather than a fundamental design,
 Read against the brief, rev 3's main document was organised around today's repository structures (its §3 walked `moves`, `checks`, `CONTRIBUTIONS`, threads and cases and added extensions D1–D10), although the brief asks that the primary document not be organised by inventory (C0); it decided reuse before establishing the mechanics, treating the brief's "smallest coherent extension" (C0) as a design principle, and its extensions were shaped around one path (the Kobo generator Finding, the reserve trial, the mini-grid thread); and its mock-up added a decision menu group and a CEO/COO/CFO/CCO toggle to v7.0, although the brief treats the four questions as experience requirements, not views (L1.3).
 
 This revision builds its mechanics from the structure the brief itself defines in Parts I–V (§1, with the source of every mechanic in §2.7): each outcome is defined by measured factors, the factors are observed independently from source facts, and outcome states, including shortfalls, are computed through that structure. The mechanics are general: they are defined once for every outcome, asset type and lever class, and the three verticals are instances of them, not their source. The worked sites (Kobo and the others) illustrate the mechanics; they do not define them. Everything else is derived from the mechanics: outcomes, levers and capabilities (§3), the integrations needed (§4), the algorithms new and changed (§5), the UI strategy and restructured Portfolio (§6), the worked portfolios (§7), the judgement of today's code on merit (§8) and the delivery order (§9). One departure from the brief is deliberate: C0's "smallest coherent extension" is applied as the owner clarified it — reuse where a part serves a mechanic well, rework or replace it where it does not, and never build a parallel engine (§8).
+
+## Owner review in 30 minutes
+
+Start with `interactive-mockup-vNEXT/owner-inspection-checklist.md`, section "Owner review in 30 minutes": the five mechanics in five paragraphs (§2 here), the owner decisions with the one screen to open for each, one operator walk (Lakeside) and one cross-vertical contrast.
 
 ## The design pack
 
@@ -29,7 +33,7 @@ This revision builds its mechanics from the structure the brief itself defines i
 | `repo-reuse-and-gap-matrix.md` | Appendix: module / function / table / API / test dispositions, organised by mechanic |
 | `interactive-mockup-vNEXT/` | Runnable restructured mock-up (from v7.0), change register, audit, walkthroughs, owner checklist |
 | `design-questions-and-decisions.md` | Owner decisions and material conflicts |
-| `REVIEW.md`, `REVIEW-response.md` | History of rev 1–3 reviews; kept unchanged |
+| `REVIEW.md`, `REVIEW-response.md` | Review history, rev 1–7, and the author responses through rev 8 |
 
 ---
 
@@ -154,6 +158,8 @@ on contribution for service businesses, and on cost to serve with every required
 - **Overlap is structural.** Two options that change the same factor are mutually exclusive or evaluated together; a ratio that improves because its denominator grew (cost per crate-day falling as occupancy rises) is not added to the contribution it comes from (L2.5).
 
 **The outcome × lever map's roles are how the structure treats each outcome an option touches** (L2.5): a *primary* outcome carries the option's value; a *trade-off* is a costed factor inside the value (battery wear); a *constraint* is an obligation bound checked on the counterfactual factors — **hard** (fail → rejected), **costed** or **advisory**; *conditional* and *enabler* roles become stated conditions; *evidence* is the Assure state. A bound the model cannot evaluate is **unknown**, and its declared policy decides: refuse or conditional. Examples: dawn battery charge at Kobo (hard), every required departure at Embakasi (hard), battery wear (costed), warranty operating limits (hard).
+
+**Protect measures are evaluated per option too.** An option's counterfactual gives its effect on each Protect measure over a stated horizon (e.g. Kasarani: departures missed 2 under waiting, 0 under the stopgap; Thika: nights with stock and no backup cover 2 or 0), so must-do and protective options show the measure they move, computed, not asserted.
 
 **Rights change the cost-bearer factor and its timing.** A right enters an option as the operator's **residual cost** under each remedy path (claim and wait, buy now and claim later, repair locally and lose cover), with notice deadlines, exclusions, downtime and transport. A right is never money until a credit note or receipt is recorded (R3a).
 
@@ -388,7 +394,15 @@ Each mechanic needs specific computations. Deterministic first: every first-demo
 
 The base is the current Portfolio experience: the live product's six tabs (Overview, Act first, Outcomes by site, Opportunity, What changed, Scope & coverage; `frontend/src/estate/portfolioWords.ts:30-35`) [code-observed] and the v7.0 mock-up's Portfolio page. Its problem, read against the mechanics: its outcomes are not computed from declared factors (there is no money position at all), it ranks Findings rather than choices, its outcome cards are counts and estimates of different kinds, and its opportunity tab shows headroom without a customer. The restructure re-judges the frame and replaces the substance.
 
-Each tab was judged on merit against the loop — keep, rename, merge or reorder — rather than kept because it exists (owner, 17 Nov, messages 2 and 6):
+**Three frames were weighed against the loop, the four executive concerns and the demo flow** (re-review CP-1):
+
+| Frame | For | Against | Judgement |
+|---|---|---|---|
+| (a) Six parallel tabs, each a section of the loop | stable addresses for deep views; the live product already has the frame; each concern can jump to its section | read as peers, tabs hide the loop's order; a first-time viewer may never reach Prove | not chosen on its own |
+| (b) One sequential Portfolio page: what is happening → why → the plan → proof, coverage alongside | the loop is literally the page; nothing is skipped in a demo | very long: the Overview alone is about 2,000 px at desktop and 4,300 px on a phone, so all six sections on one page would be several times that; deep views lose stable addresses; drill-downs return to the top | not chosen |
+| (c) **Staged Overview that reads the loop in sequence, with the other tabs as drill-downs in loop order** | the first fold already reads Observe → Choose (headline, four figures, the plan's first three moves); each tab deepens one stage and keeps a stable address; works at phone width; no new menu | the drill-down tabs still look like peers unless their order follows the loop | **chosen** — the tabs are ordered by the loop and named by their content |
+
+Within (c), each tab was judged on merit — keep, rename, merge or reorder — rather than kept because it exists (owner, 17 Nov, messages 2 and 6). Frame (b) is offered to the owner as Q2 (c).
 
 | Order | Tab | Before (live / v7.0) | After | Mechanic | Judgement |
 |---|---|---|---|---|---|
@@ -444,7 +458,7 @@ Each trace runs the loop: observe the factors and read the outcomes through them
 
 The forward-replay figures (210 L, 20 L, 68 L) are **design values** held in the manifest; the replay adapter must reproduce them from real series before they are relied on.
 
-**Choose.** Budget 5,000, three crew visits. Plan: Kisiwa repair (must-do), Kobo stop-setting trial (remote), Mto inverter warranty claim, Mto huller connection (contractor), Mto billing fix, Kobo battery evidence. Spend **3,880.00**; crews 3 of 3. **Modelled 12-month change from the valued options: +6,096.00** (2,916.00 + 3,540.00 − 360.00), each net of its own one-off cost (1,650.00 in total), not realised. **Must-do and protective spend of 2,230.00** (Kisiwa repair 1,800.00, must-do; Kobo battery evidence 430.00, protective) **is not valued in money**: its effect is on the Protect measures (evening obligation-hours without redundancy back to 0; 64,000.00 of battery cover kept claimable). The plan never shows a money figure that silently omits part of its spend. **Downside** (the plan's value under the worst listed sensitivity): +2,556.00 if the cooperative does not sign a supply contract (diesel −20%: +5,670.00; feasible fuel 160 L: +5,346.00). The stop-setting and huller values rest on replay design values, and the screen says so until the replay has been run on site data. Listed beside, not added: 672.00 of restored charges over 12 months; a potential 70.00 O&M service credit (review required); 64,000.00 of battery cover at stake. Switches: with budget 6,500 and a cooperative that will **not** extend its letter of intent, buying a replacement inverter now (+3,546.00) beats claiming and waiting (+2,556.00, the huller is lost); if the letter of intent is extended, claiming wins at any budget (+6,096.00).
+**Choose.** Budget 5,000, three crew visits. Plan: Kisiwa repair (must-do), Kobo stop-setting trial (remote), Mto inverter warranty claim, Mto huller connection (contractor), Mto billing fix, Kobo battery evidence. Spend **3,880.00**; crews 3 of 3. **Modelled 12-month change from the valued options: +6,096.00** (2,916.00 + 3,540.00 − 360.00), each net of its own one-off cost (1,650.00 in total), not realised. **Must-do and protective spend of 2,230.00** (Kisiwa repair 1,800.00, must-do; Kobo battery evidence 430.00, protective) **is not valued in money**: its effect is on the Protect measures computed per option in the structure (manifest `protect_effects`): the Kisiwa repair takes November's evening hours without a backup generator from 150 (no action) to 15 (21-day replacement: 105); the Kobo battery evidence takes tracked assets with complete contract evidence from 1 of 3 to 2 of 3, which keeps 64,000.00 of battery cover claimable (listed, not added). The plan never shows a money figure that silently omits part of its spend. **Downside** (the plan's value under the worst listed sensitivity): +2,556.00 if the cooperative does not sign a supply contract (diesel −20%: +5,670.00; feasible fuel 160 L: +5,346.00). The stop-setting and huller values rest on replay design values, and the screen says so until the replay has been run on site data. Listed beside, not added: 672.00 of restored charges over 12 months; a potential 70.00 O&M service credit (review required); 64,000.00 of battery cover at stake. Switches: with budget 6,500 and a cooperative that will **not** extend its letter of intent, buying a replacement inverter now (+3,546.00) beats claiming and waiting (+2,556.00, the huller is lost); if the letter of intent is extended, claiming wins at any budget (+6,096.00).
 
 **Prove.** Kobo: 14 matched days before and after; operational target generator time after dawn −50% with dawn charge ≥ 35% every day; economic verdict from November dips and delivery notes per delivered kWh, weather-normalised; causal strength with Kisiwa and Mto as untreated sites. Mto huller: metered huller kWh → billed → collected.
 
@@ -565,6 +579,7 @@ The loop has a dependency order: no outcome can be observed before its structure
 
 | Slice | Mechanic unlocked | Why here |
 |---|---|---|
+| 0 Calibration lane, first and in parallel with slice 1: spikes K (Kobo forward replay), M (Mto headroom replay), E (Embakasi schedule replay), read-only | M3 models | every replay-derived figure the demo leads with is a design value until its own spike passes; none depends on slices 1–3. Client-exposure rule: no client sees such a figure unless its spike passed, or it is labelled and the presenter says so (Q13) |
 | 1 Stop misleading, expose what exists | — | relabel the last-day Optimize figure; render per-site money, nodes, threads and outcome reasons the API already returns; no new data |
 | 2 Commercial record store and money leaves (general; first sources: mini-grid billing, receipts, plan) | M2 sources | every outcome with money in it needs these leaves; critical path |
 | 3 Structure registry, bottom-up evaluation and attribution (general; mini-grid structure first, one cold and one captive-EV structure in the tests) | M1 + M2 | outcomes computed from factors, with attribution and coverage; CFO answer |

@@ -278,3 +278,84 @@ I took the reviewer's first option: make the measure use the structure's own `de
 | Full audit: oracle in the bundle | none |
 
 **Limits of the design-value scan.** It covers each page in its default switch state; other switch states use the same tagging rule and are captured in the screenshots. It counts "20 L" only when phrased as litres avoided, because the observed 20 L figures (Kisiwa residual, Mto evening running) are not replay figures.
+
+## Author response (rev 8)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This answers "## Re-review (rev 7)", including its coordinator points. I accept the reviewer's CP-4 judgement: this is the last author round, and anything still open is an owner decision in `design-questions-and-decisions.md`. That file now states this at the top.
+
+### Medium findings
+
+**CP-1: alternatives to six parallel tabs were never weighed. Fixed in the documents; the choice goes to the owner.**
+- Main §6.2 now weighs three frames against the loop, the four executive concerns and the demo flow, with arguments for and against each:
+  - (a) six parallel tabs;
+  - (b) one sequential Portfolio page;
+  - (c) a staged Overview that reads the loop in sequence, with the other tabs as drill-downs in loop order.
+- **Chosen: (c).** The first fold already reads Observe → Choose. Each tab deepens one stage and keeps a stable address, and it works at phone width.
+- **Why not (b):** the loop becomes literal, but the page would be several times the Overview's length (about 2,000 px on desktop and 4,300 px on a phone for the Overview alone), and deep views would lose stable addresses.
+- Q2 now offers the owner real alternatives: (a) old tabs, (b) staged Overview with tabs in loop order (recommended), (c) one sequential page. As the reviewer suggested, no mock-up of (c) is built unless the owner picks it.
+
+**CP-2: per-option Protect effects were neither declared nor shown. Fixed (decision A22).**
+- The manifest now declares `protect_effects` per decision, each with horizon, measure, values per option and evidence class:
+
+| Decision | Measure | No action | Recommended | Other |
+|---|---|---|---|---|
+| Kisiwa | hours without a backup generator in November | 150 | repair 15 | replace 105 |
+| Kobo stop setting | days below 35% at 5 am (design value) | 0 | 0 | reserve 4 |
+| Kobo battery evidence | assets with complete contract evidence | 1 of 3 | 2 of 3 | — |
+| Thika | nights with stock and no backup cover | 2 | 0 | self-repair 0, but the $710 cover is lost |
+| Kasarani | departures missed | 2 (penalties $240) | 0 ($0) | — |
+| Embakasi | departures missed (design value) | 0 | 0 | cheapest schedule 93 |
+
+- The checker reconciles these with the option rows:
+  - penalties = missed departures × $120, and matches the option's expected penalties;
+  - Kisiwa hours = evenings × 5 h;
+  - Embakasi 93 = 3 short × 31 nights;
+  - Kobo reserve 4 = its replay days.
+- They appear in models §4.7, main §2.3 and §7.1.
+- On screen:
+  - each of the six decision pages has a "Protect measures under each option" section;
+  - the must-do and protective spend line on Act first names the measure each item moves, for example "Kisiwa repair: … 150 → 15".
+- The $2,230 Lakeside spend is now justified by computed Protect effects, not prose.
+- **Limit:** the other eight decisions have no Protect effect in the file. Their options leave Protect measures unchanged, and they keep their bound checks.
+
+**CP-3: calibration covered Kobo only, came late, and had no client-exposure rule. Fixed (decision A21; owner decision Q13).**
+- The single Kobo spike is now a **calibration lane** that runs first, read-only and in parallel with slice 1. It depends on no slice.
+- It has three spikes, each with its own exit and replacing only its own figures:
+
+| Spike | Replay | Figures it replaces |
+|---|---|---|
+| K | Kobo forward replay | 210 L, 20 L, 61/61 and 4/61 days, $2,916, $2,286, $2,166, $250.50 |
+| M | Mto headroom replay | 68 L, 3 days, $395, $3,540 |
+| E | Embakasi schedule replay | 31/31 nights, 2,900 kWh, 93 departures, $8,082, $95,484 |
+
+- Plan values built from these figures lose the label only when every spike they depend on has passed.
+- **Client-exposure rule:** no client sees a replay-derived figure unless its spike has passed, or it carries the label and the presenter says so aloud. Whether "labelled and said" is enough for early prospect demos is owner decision Q13.
+- Updated in: the phase-plan graph, the slice-order table, the readiness and sizing rows, R13 (now tied to K, M or E), main §9 (new row "0 Calibration lane") and RR1.
+
+### Low findings
+
+| Finding | Outcome |
+|---|---|
+| **CP-5** | **Fixed.** An "Owner review in 30 minutes" section now opens `owner-inspection-checklist.md`, and the main document points to it at the top. It covers the five mechanics in five lines, one Lakeside walk, one cross-vertical contrast (Metro Ruiru and Kasarani, Harvest Thika), and the owner decisions with the one screen to open for each. The checklist's stale row 13 is corrected. The rev labels in the main document and the decisions file now say rev 8, and the pack index says the review history runs rev 1–7. |
+| **R7-L1** | **Fixed.** `tools/gen_fixtures.py` now derives the replay-dependent set from the manifest: options carrying `forward_replay`, `replay` or `design_value`, their economics and sensitivities, and the plan values, switch cases, downsides and Protect effects built from them. The tagger uses only that set. The audit derives its own set separately (`tools/replay_values.py` reads the YAML directly), so it can find anything the tagger misses. Result: 25 figures, the same in both sets; 94 occurrences across all routes and 734 drawers; **0 unlabelled**. The set now includes $250.50, $2,286, $2,166, $8,082 and $13,356. **Stated limits:** amounts under $50 and bare integers under 10 are not scanned, because they collide with unrelated prices. "20 L" and "93" are matched only in their replay phrasing, because the same numbers appear as observed figures elsewhere. |
+| **R7-L2** | **Fixed.** Contracts: 428 / 434. `gen_docs.cjs`: +$5,670. CSV T0438: "share of deliverable energy a night (import-limited)". Headers: see CP-5. |
+
+### Checks run before replying
+
+| Check | Result |
+|---|---|
+| `python3 check_manifest.py` | **236 checks passed, 0 failed** (new: Protect effects reconciled with the option rows) |
+| CSV validator | **PASS** |
+| Mock-up rebuild (`rebase_v70.py`, `gen_fixtures.py`, `node build.mjs`) | succeeded; oracle removed, 25 replay patterns derived, sha 41b935209449 |
+| Full audit: routes rendering an h1 | 202 / 202 |
+| Full audit: console errors, bad links, overflow at 390 px | 0 / 0 / 0 |
+| Full audit: vocabulary hits, identifiers on added and changed screens | 0 / 0 |
+| Full audit: role and question hits, filter controls, operator selector in the top bar | 0 / 0 / 0 |
+| Full audit: independent design-value scan | 0 unlabelled of 94 |
+| Full audit: tab order, EV measure | pass |
+| Full audit: switch cases | 8 / 8 |
+| Full audit: drawer, focus, contrast | pass, 7 / 7, 38 / 38 |
+| Full audit: preserved screens identical to v7.0 | 65 / 65 |
+| Full audit: oracle shipped | no |
+
+**Now owner decisions (no further author round):** Q1–Q13, including the new Q2 frame choice and Q13 client exposure, and checklist item 11 (Ruiru's preserved deep views).

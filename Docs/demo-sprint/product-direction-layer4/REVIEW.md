@@ -1232,3 +1232,180 @@ Each depot's deliverable energy is min(chargers × kW, import limit) × window, 
 - I did not rerun `tools/run-audit.sh`, so its contrast, focus, 390 px overflow and screenshot outputs are the author's numbers, not mine. My checks ran at 1440 px only.
 - The replay design values themselves (CP-3).
 - The rendered mermaid in `layer4-transformation-design.html`.
+
+## Re-review (rev 8)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 8 working tree on `task/product-direction-layer4-design` (uncommitted over `f513cd9c1`, including the untracked `interactive-mockup-vNEXT/tools/replay_values.py`). I judged it only against the rev 7 points (CP-1, CP-2, CP-3, CP-5, R7-L1, R7-L2) and the regression list, and did not reopen settled arithmetic. This appended section is my only edit.
+
+### Verdict: **REVISE (targeted: CP-2 only, manifest + text)**
+
+- CP-1, CP-3, CP-5, R7-L1 and R7-L2 are resolved. The Lows below are notes, not blockers.
+- CP-2 is **partly resolved**. Four of the six declared Protect effects reconcile with the option rows. Two defects remain, both at Medium:
+  - **R8-M1:** the Kisiwa effect (150 → 15), which is the figure that justifies the $1,800 must-do on Act first, uses a restore date (4 Nov) that is earlier than the scenario's own `as_of` (6 Nov).
+  - **R8-M2:** the Mto inverter decision does change a declared Protect measure, contrary to the "other eight leave Protect unchanged" claim. It is the plan's decisive claim-versus-buy switch, and its Protect effect is not shown.
+- Both are small fixes in the manifest and the generated text. No redesign is needed. After this fix the pack can go to the owner without another full review; a spot check of the two rows is enough.
+
+### Findings
+
+**R8-M1 · Medium · The Kisiwa Protect effect contradicts the scenario date, and the checker only checks the effect against itself.**
+- **Evidence:**
+  - `demo-site-scenario-manifest.yaml:25` sets `as_of: "2026-11-06"`, which is the demo "today" and the date the plan is chosen.
+  - `protect_effects` for Kisiwa (l.292–297) says "repair restores on 4 Nov (3 evenings)" → 15 h, and "replacement lead time 21 days (21 evenings)" → 105 h.
+  - Neither date is in the option rows. `KIS-REPAIR` (l.193) has no restore date. `KIS-REPLACE` (l.195) has no lead time; the only 21-day lead time in the file is Mto's inverter warranty (l.276).
+  - A repair chosen on 6 Nov cannot restore on 4 Nov. November 1–6 evenings ran on one generator under every option.
+  - The other horizons in the same block start correctly at the decision: Kasarani "6/7, 7/8 and 8/9 Nov" and Thika "6/7 and 7/8 Nov".
+  - `check_manifest.py` hard-codes `KIS-REPAIR == 15` and `KIS-NOACT == 150`. It does not derive these from `as_of` or from any option field, and it does not check 105 at all. "Reconciled with the option rows" therefore does not hold for Kisiwa.
+- **On screen:**
+  - Act first (Lakeside) reads "Kisiwa repair, obligation hours without a backup, november, 150 → 15".
+  - `#/decision/kisiwa-genset` shows 15 / 105 / 150 with the 4 Nov basis.
+- **Why it matters:**
+  - This is the one computed effect that now carries the $1,800 must-do. CP-2 asked for it to be computed, not asserted, and the 4 Nov restore is asserted.
+  - The owner will read this line on the Act-first walk in the 30-minute path.
+- **Fix:**
+  - declare a restore date on `KIS-REPAIR` and a lead time on `KIS-REPLACE` in the option rows;
+  - count evenings from `as_of`, for example "from the evening of 6 Nov to 30 Nov", or count the whole of November with 1–6 Nov shown as observed under every option;
+  - have the checker derive the hours from those fields;
+  - regenerate the Act-first line, and capitalise "November" while doing so.
+
+**R8-M2 · Medium · The Mto inverter options change a declared Protect measure, but no effect is declared or shown, and the "leave Protect unchanged" limit is incorrect.**
+- **Evidence:**
+  - `portfolio.protect.obligation_hours_without_redundancy` (manifest l.335–337) is defined as "hours in which an obligation's supply rested on a single unit **or reduced capacity**". It already counts Mto's "28–31 Oct, 10:00–15:00 daytime supply at half inverter capacity" as 20 h, which is 4 days × 5 h.
+  - On the same basis, the November figure depends on the inverter option:
+
+    | Option | Restore date | Days at half capacity | Hours (× 5 h) |
+    |---|---|---|---|
+    | `MTO-INV-CLAIM` | 28 Nov | Nov 1–27, 27 days | **135 h** |
+    | `MTO-INV-BUYNOW` | 12 Nov | 11 days | **55 h** |
+    | `MTO-INV-NOACT` | never | 30 days | **150 h** |
+
+  - The rev 7 CP-2 fix listed "the rejected no-action rows". `MTO-INV-NOACT`'s own rejection reason is a Protect consequence: "half daytime capacity indefinitely".
+  - The author response (rev 8, CP-2 "Limit") and `CHANGE-REGISTER.md` §7 item 9 say the other eight decisions' "options leave Protect measures unchanged". That is not true for this decision.
+- **In the browser:**
+  - `#/decision/mto-inverter` has no "Protect measures under each option" section.
+  - Lakeside Act first names only Kisiwa (150 → 15) and the battery evidence (1 of 3 → 2 of 3). The recommended plan keeps claim-and-wait and its 135 h of reduced-capacity daytime supply, and nothing on the plan says so.
+- **Why it matters:**
+  - This is the plan's decisive switch (budget $6,500 with no letter-of-intent extension → buy now). It is decided on money alone, while one side carries a Protect advantage of about 80 h.
+  - Mechanic 3 promises that the structure shows each option's effect. A reader who goes upward from the Protect card to the plan sees the Kisiwa hours fixed and not the Mto hours left open.
+- **Fix:**
+  - add a `protect_effects` entry for the Mto inverter (CLAIM, BUYNOW, LOCAL if evaluable, NOACT) on the declared measure, with restore dates taken from the option rows, and have the checker derive it;
+  - show it on the decision page and in the switch-case explanation on Act first;
+  - correct the "unchanged" sentence in the response text and in the change register.
+- **Other decisions:** I checked the remaining seven and found no comparable gap. Ruiru +10 is rejected by a bound, so it is acceptable as a bound check.
+
+**R8-L1 · Low · Two of the six effects are stated on measures outside the declared Protect structure.**
+- **Thika** uses "nights with stock present and no backup start cover". That is not a declared measure; the declared one is `days_backup_start_unproven`, l.519. The night rota does not prove an automatic start, so the declared measure would not move under the stopgap at all.
+- **Kobo stop setting** uses the MG5 bound count ("days below 35% at 5 am") rather than `unserved_critical_kwh`. The label is honest ("the bound that keeps unserved critical kWh at 0").
+- **Fix:** either declare the Thika measure in `portfolio.protect` with its composition, or state in models §4.7 that an effect may be shown on the bound's own quantity, and say why.
+
+**R8-L2 · Low · The spike lists in CP-3 and the replay-figure rule in R7-L1 do not quite agree with each other.**
+- **Spikes K, M and E** (phase plan, calibration lane) omit some replay-derived figures that the screen labels:
+  - K: $262.50 (the gross) and the 150 kWh throughput behind the $12 wear;
+  - M: 225 kWh and $85;
+  - E: $13,356, and 406 kW from the replay string.
+- **The derived set** (`gen_fixtures.py` and `replay_values.py`) has the opposite gaps. It omits 2,900 kWh and 406 kW, which spike E names or derives.
+- **It also over-labels:**
+  - $495, the huller's revenue, which does not depend on the replay;
+  - Embakasi no-action "0 departures missed", which is October as observed (620 of 620).
+- **The one unlabelled replay figure I found:** "A 21-bus night needs about 406 kW: inside the 500 kW limit, above the 400 kW plan" on `#/decision/embakasi-schedule`. The page banner names only "schedule feasibility on 31 of 31 October nights and the deliverable energy a night".
+- **Fix:**
+  - make the three spike tables the enumeration;
+  - have the rule (or a checker assertion) prove that the derived set equals the union of the spike lists plus the plan values;
+  - tag the 406 kW sentence.
+
+**R8-L3 · Low · Labels and residues.**
+- **Option letters:** the frame letters differ between §6.2 and Q2. §6.2's chosen frame is (c) and its sequential page is (b); in Q2 these are (b) and (c). The text maps them ("Frame (b) is offered to the owner as Q2 (c)"), but an owner answering "(c)" could mean either. Use the same letters in both places.
+- **Row order:** Q13 sits between Q11 and Q12, and A21 and A22 come before A12.
+- **RR1:** the mitigation still reads "the replay slice starts with a calibration check". It should point to the calibration lane (A21).
+- **Rev headers:** `domain-and-decision-models.md`, `economic-metric-and-effect-contracts.md`, `integration-source-to-canonical-design.md` and `demo-build-cost-plan.md` still say "rev 4 (redesign)". Two of them changed in rev 8.
+- **Act-first wording:** "until a capacity claim is needed, 1 of 3 → 2 of 3" reads awkwardly on the plan line.
+
+### Resolution of the rev 7 points
+
+**CP-1: resolved.**
+- §6.2 now weighs three frames against the loop, the four concerns and the demo flow, with points for and against each, and Q2 offers the owner real alternatives, including the one-page frame.
+- The comparison is not a strawman, though the choice that matters is tabs against one page. Frames (a) and (c) differ mainly in loop order and the staged Overview, which already exists.
+- The page-length argument holds. I measured the Overview's scroll height:
+
+  | Operator | Desktop, 1440 px | Phone, 390 px |
+  |---|---|---|
+  | Lakeside | 2,237 px | 4,616 px |
+  | Harvest | 1,897 px | 4,097 px |
+  | Metro | 2,110 px | 4,572 px |
+
+  The claim was "about 2,000 and 4,300", which is fair.
+- One inconsistency remains: the option letters (R8-L3).
+
+**CP-2: partly resolved (R8-M1, R8-M2, R8-L1).**
+- **Hand recomputation.** These reconcile with their option rows:
+  - Kasarani: 2 missed × $120 = $240, which equals `KAS-OEM-WAIT.expected_penalties`. Over the 3 nights, the spare bus covers one, so 2 are missed.
+  - Embakasi: 3 short × 31 = 93, which equals `EMB-CHEAPEST.buses_short` × 31.
+  - Kobo reserve: 4, which equals `forward_replay.soc_0500_below_35_days`.
+  - Battery evidence: 1 of 3 → 2 of 3. That agrees with `tracked_assets_with_complete_contract_evidence`, where only `INV-MT-02` is complete.
+  - Thika: 2 → 0 over nights 6/7 and 7/8.
+  - Kisiwa: the 5 h per evening is right, but the dates are not (R8-M1).
+- **On screen** (headless Chromium, 1440 px). All six decision pages carry "Protect measures under each option" with horizon, basis and evidence class. The Kobo and Embakasi rows carry the design-value label. Act first shows the moved measure for every operator:
+  - Lakeside: Kisiwa 150 → 15 and evidence 1 of 3 → 2 of 3;
+  - Harvest: Thika 2 → 0;
+  - Metro: Kasarani 2 → 0, penalties $240 → $0.
+- **Lakeside $2,230:** $1,800 + $430 is now tied to computed effects, but the Kisiwa half rests on the date error in R8-M1.
+- **The eight decisions without a declared effect:** acceptable for seven of them. The exception is the Mto inverter (R8-M2).
+
+**CP-3: resolved in structure; the figure mapping has small gaps (R8-L2).**
+- **Where the lane sits:** it is slice 0 in main §9, runs first in parallel with slice 1, and gates S4, S8 and client demos in the phase-plan graph.
+- **Each spike has its own exit**, and each replaces only its own figures. R13 is tied to K, M and E. The sizing and readiness rows are updated.
+- **The client-exposure rule and Q13 are sound:**
+  - the two options are distinct and real (labelled and said aloud, or hidden until the spike passes);
+  - the Architect's split (a for early prospects, b for any evidence-of-results demo) is reasoned;
+  - the audit enforces the label that option (a) relies on.
+- **Remaining issue:** RR1's wording is stale (R8-L3).
+
+**CP-5: resolved.**
+- "Owner review in 30 minutes" opens `owner-inspection-checklist.md`, and the main document links to it.
+- Every route it names exists in `screen-manifest-vnext.json` and renders: `#/portfolio`, outcomes-by-site, act-first, demand-and-capacity, what-changed, `#/decision/kobo-generator`, kasarani-charger, embakasi-schedule, `#/site/thika` and `#/ev-health`.
+- The Lakeside walk includes the switch case and the new Protect section.
+- **Note:** the decisions table omits Q4, Q6, Q8, Q10, Q11 and Q12, although each is marked "owner input: Yes". A line saying "the rest are in the decisions file" would stop the owner from reading this table as complete.
+
+**R7-L1: resolved as asked, with a limit on how independent the audit is.**
+- **What is now independent:** `tools/audit.mjs:15` builds its set from `tools/replay_values.py`, which reads the YAML directly, not `fixtures.js` and not `REPLAY_PATTERNS`. The tagger (`loop-core.js:274`) uses the set from `gen_fixtures.py`. The hand list is gone.
+- **What is not:** `replay_values.py` is a second implementation of the same rule, with the same keys, the same thresholds and the same carve-outs. It will catch a tagger or render miss, but not an omission in the rule. 2,900 kWh and 406 kW escape both (R8-L2). "0 unlabelled" means every figure the rule enumerates is labelled.
+- **My own scan:**
+  - Coverage:
+    - a separate, hand-built list of 32 patterns, including 120 L, 150 kWh, 2,900 kWh, 406 kW, $3,744, $381 and "3 days";
+    - all 119 non-Preserved routes, scanned for all three operators where the audit does the same;
+    - every switch state: Lakeside 5,000 and 6,500 with yes and no, Harvest aggregator yes and no, Metro tariff yes and no;
+    - 769 drawers opened.
+  - Result: 183 occurrences, all replay-derived occurrences labelled, except the 406 kW sentence.
+  - The other 48 unlabelled hits were all observed figures, correctly unlabelled:
+    - the 120 L fuel residual;
+    - Kisiwa's 20 L residual and Mto's 20 L of needed running;
+    - 93.3% connector availability;
+    - "3 days left" on the SLA clock.
+
+**R7-L2: resolved.**
+- Contracts l.173 reads 428 / 434.
+- `gen_docs.cjs` gives +$5,670. I found no "5,466" anywhere in the pack.
+- CSV T0438 reads "share of deliverable energy a night (import-limited)".
+- The main document and decisions headers say rev 8, and the pack index says rev 1–7. The companion headers remain (R8-L3).
+
+### Regression checks
+
+- **`python3 check_manifest.py`:** 236 checks passed, 0 failed.
+- **Rebuild in a scratch copy** (`rebase_v70.py`, `gen_fixtures.py`, `node build.mjs`, `node tools/gen_docs.cjs`):
+  - 25 replay patterns, fixtures sha `41b935209449`;
+  - every non-screenshot file in the pack is **byte-identical** to the working tree.
+- **The 65 Preserved v7.0 screens:**
+  - `git diff f513cd9c1` is empty for `frontend/mockups/v70`, `src-v70-baseline/`, `tools/rebase_v70.py`, `screens.js`, `portfolio.js`, `outcomes.js` and `mockups.css`;
+  - in the browser, 0 `.dv` tags on the 65 Preserved routes for all three operators;
+  - the manifest counts Added 74, Changed 36, Merged 9 and Preserved 65.
+- **Owner expectations:**
+  - **Role and question wording:** no CEO, COO, CFO or CCO in any non-Preserved route or in the rev 8 diff of `loop-*.js`. The only "?" line endings are v7.0 "Why?" links and a v7.0 finding title on Changed screens, both unchanged since v7.0.
+  - **Filters and menus:** no chips or selects on any Portfolio route, and no new menu.
+  - **Factors observed upward:** the Protect effects are carried on the decision's structure measures, with the exceptions in R8-L1.
+  - **All three verticals:** effects are declared for each, and Act first shows them for each operator.
+- **Browser:** headless Chromium 1155, served statically on 127.0.0.1:18891 (not 5490 or 8990), with 0 page errors. The server was stopped and the port is free.
+
+### Not verified
+
+- I did not rerun `tools/run-audit.sh`, so the contrast, focus, 390 px overflow and screenshot results are the author's numbers. My only 390 px check was the Overview heights above.
+- The replay design values themselves; that is the purpose of the calibration lane.
+- The rendered mermaid in `layer4-transformation-design.html`.

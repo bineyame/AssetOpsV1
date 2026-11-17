@@ -60,14 +60,16 @@ flowchart LR
   S8 --> S9[9 Pilot onboarding,<br/>field validation, optional assistant]
   B[Lane B: build refactors<br/>re-benchmark first] -.-> S4
   B -.-> S8
-  R[Spike: replay calibration<br/>on Kobo data] -.gate.-> S4
+  R0[Calibration lane, first, parallel with slice 1:<br/>K Kobo forward replay · M Mto headroom replay ·<br/>E Embakasi schedule replay] -.gate.-> S4
+  R0 -.gate.-> S8
+  R0 -.gate.-> D[Client demos showing replay-derived figures]
 ```
 
 | Brief's suggested order (C1 Deliverable 8) | This plan | Why it differs |
 |---|---|---|
 | (1) eliminate misleading UI and expose fields | slice 1 | same |
 | (2) ingest commercial and plan facts into shared typed economic measures | slices 2 and 3 | split: the store (2) is a migration and intake contract; the structure registry and read (3) are code. Splitting lets the registry start before the store lands and keeps each PR reviewable |
-| (3) complete mini-grid decision with negative control, counterfactual, no action | slice 4 | same content; preceded by a replay calibration spike because the forward-replay design values (210 L, 20 L) have never been produced by the kernel |
+| (3) complete mini-grid decision with negative control, counterfactual, no action | slice 4 | same content; the calibration lane runs first, read-only and in parallel with slice 1, because every replay-derived figure the demo leads with (210 L, 20 L, 68 L, 31 of 31 nights) is a design value until it passes |
 | (4) portfolio variance, alternatives, resource allocation | variance moves to slice 3; allocation is slice 5; verification is slice 7 | the variance bridge is a reading of the structure (main doc §2.2), so it arrives with the structure, before decisions; verification is a separate mechanic (M5) with its own data dependency (after-window records) and is not on the demo's critical path |
 | (5) entitlements in repair and capital choices | slice 6, run in parallel with slice 5 | Lakeside's full plan contains rights options (MTO-INV-CLAIM, BAT-EVIDENCE) and the plan's decisive switch is claim-versus-buy-now, so the full Lakeside allocation gate (OR-ALLOC-1) closes only after slice 6. Slice 5 builds and proves the allocator on the non-rights options |
 | (6) cold then EV | slice 8 | same; cold first by default, or the first qualified prospect's vertical (design question Q10) |
@@ -111,10 +113,19 @@ Each slice states purpose, scope by PR, touchpoints (verified in the matrix), te
 - **Gate.** Lakeside October: contribution 1,443.00 against plan 2,295.00, −852.00 = −97.00 revenue factors + −755.00 cost factors, to the cent; cost 91.5% on Recorded leaves; Kisiwa O&M Estimated, never zero; a captive-EV fixture shows revenue NOT_APPLICABLE; Protect measures compose for all three tenants.
 - **Owner checkpoint.** Walk the *Outcomes by site* tab on computed data (first screen with real money).
 
-### Spike before slice 4 — Forward-replay calibration (time-boxed)
+### Calibration lane — first, read-only, in parallel with slice 1 (rev 8, re-review CP-3)
 
-- Replay observed PV-available and load for the existing Kobo demo data through the simulator kernel via `host/` (`host/execution_adapter.py:869`) [code-observed], under the current settings, and compare with the observed generator and SOC series. Measure how many slots refuse on inverter-clipped days (60 kW PV behind a 50 kW AC limit), since the 14-matched-day rule needs enough admissible days (rev 3 review residual risk 1).
-- **Exit.** Either the replay reproduces observed behaviour within a stated tolerance and slice 4 uses it, or the Kobo option is valued with a bounded proxy, labelled, and the design values (210 L, 20 L, 68 L) are replaced by what the kernel produces. These figures are option effects (litres avoided under the stop-threshold, reserve and welder options), shown on decision pages, never nodes of the observed structure. The manifest's figures are design values until this spike passes.
+The replays depend on none of slices 1–3: they read existing demo data through `host/execution_adapter.py:869` [code-observed] and write nothing. They therefore start on day one, in parallel with slice 1, and each has its own exit. Three spikes, one per replay the demo leads with:
+
+| Spike | Replays | Figures it replaces | Exit |
+|---|---|---|---|
+| **K — Kobo forward dispatch replay** | observed PV-available and load for Kobo under current settings, compared with observed generator and SOC series; refusals counted on inverter-clipped days (60 kW PV behind 50 kW AC) | Kobo only: 210 L and 20 L avoided, 61 of 61 and 4 of 61 dawn days, 2,916.00 and its sensitivities (2,286.00, 2,166.00), 250.50 a month | replay within a stated tolerance on at least 14 admissible days → figures replaced by kernel output; otherwise the option is valued with a bounded proxy, labelled |
+| **M — Mto demand-on-headroom replay** | the huller's 15 kW 10:00–15:00 profile against Mto's observed supply by hour (with inverter 2 restored) | Mto only: 68 L extra fuel, 3 days without headroom, 395.00 a month, 3,540.00 | same rule; if Mto has too little observed history, the headroom is taken from a declared PV model and labelled Modelled with its basis |
+| **E — Embakasi deadline schedule replay** | October roster and charging log replayed under the 22:00–05:15 schedule and the cheapest schedule, at the 500 kW import limit | Embakasi only: 31 of 31 nights feasible, 2,900 kWh deliverable, 93 missed departures under the cheapest schedule, 8,082.00 a month and 95,484.00 | same rule; until it passes, the schedule is presented as a design value |
+
+Plan values, switch cases and downsides built from these figures lose their design-value label only when every spike they depend on has passed.
+
+**Client-exposure rule** (design decision A21; owner decision Q13). No client sees a replay-derived figure unless its spike has passed, **or** the figure is shown with the visible design-value label **and** the presenter says so aloud at first sight. Whether "labelled and said" is enough for an early prospect demo, or whether replay-derived figures are hidden until their spike passes, is the owner's call (Q13).
 
 ### Slice 4 — One complete mini-grid decision
 
@@ -192,7 +203,7 @@ Re-benchmark on an authorised `*_test` or `<prefix>_audit*` database (design que
 | S10 Exploration assistant | none | 9 (optional) | stored computations to cite |
 | S11 External opportunity intelligence | none | after 9 (P2) | not a demo gate |
 | S12 Entitlement-aware decisions | mock only | 6 | rights register, review step |
-| MG-C1 Fuel/dispatch intervention | observer and trial exist; gross exposure | 4 | replay calibration spike |
+| MG-C1 Fuel/dispatch intervention | observer and trial exist; gross exposure | 4 | calibration spike K (first, parallel with slice 1) |
 | MG-C2 Productive-use activation | headroom studies only | 4 | demand-on-headroom replay, customer evidence |
 | MG-C3 Energy-to-cash | none | 3 | billing, meter register, settlements |
 | MG-C4 Fuel procurement assurance | fuel balance exists [test-confirmed] | 3 (balance); 9 (price-discrepancy check, P1-P, no demo case) | delivery-note and invoice leaves; fuel contract prices |
@@ -222,7 +233,7 @@ Relative size only (the brief asks for product priorities, not engineer estimate
 | 1 | small | 3 | none |
 | 2 | medium | 3 | intake contract and revision semantics |
 | 3 | large | 5 | attribution rule for products; cache invalidation |
-| Spike | small (time-boxed) | 0–1 | replay may not reproduce design values |
+| Calibration lane (spikes K, M, E) | small each (time-boxed), read-only | from day 1, parallel with slice 1 | a replay may not reproduce its design values; then a labelled bounded proxy replaces it |
 | 4 | large | 6 | protected port seam; new carrier rule |
 | 5 | medium | 3 | allocator explanations in plain words |
 | 6 | medium | 3 | review workflow for extracted rows |
@@ -276,7 +287,7 @@ Every structure evaluation, option evaluation, allocation run and verdict stores
 | R10 Verification integrity | OR-VER-1 | three verdicts separate; supplier repair, credit and cash distinct; "not proven yet" is a verdict |
 | R11 Front-end interaction | vNEXT walkthroughs per vertical | every click path works on computed data; source within two interactions; WCAG 2.2 AA spot checks; no horizontal scroll at 390 px; evidence class in words |
 | R12 Mock-up change log | `interactive-mockup-vNEXT/CHANGE-REGISTER.md` | every screen Preserved / Changed / Merged / Added / Retired with a reason; approved by the owner before it is the layout spec |
-| R13 Design-value disclosure | Kobo 210 L, 20 L, 4 of 61 and 61 of 61 days, 2,916.00; huller 68 L, 395.00 a month, 3,540.00; Embakasi 31 of 31 nights; Kirinyaga 80% recovery (range 60–90%); every plan value that includes them | until the replay calibration spike passes on site data, every occurrence of such a figure, or of a value computed from one (plan values, switch cases, sensitivities and downsides such as 6,096.00, 2,556.00, 3,546.00, 5,670.00, 5,346.00), on any screen, card, table or drawer — Overview, Act first (path cards and switch table), decision pages, plan-value drawers — carries "Design value: the replay has not yet been run on site data" or sits in a container that does; Kirinyaga's recovery share carries the assumption label instead. The test scans every route and drawer and fails on any unlabelled occurrence |
+| R13 Design-value disclosure | Kobo 210 L, 20 L, 4 of 61 and 61 of 61 days, 2,916.00; huller 68 L, 395.00 a month, 3,540.00; Embakasi 31 of 31 nights; Kirinyaga 80% recovery (range 60–90%); every plan value that includes them | until the spike that computes it (K, M or E in the calibration lane) passes on site data, every occurrence of such a figure, or of a value computed from one (plan values, switch cases, sensitivities and downsides such as 6,096.00, 2,556.00, 3,546.00, 5,670.00, 5,346.00), on any screen, card, table or drawer — Overview, Act first (path cards and switch table), decision pages, plan-value drawers — carries "Design value: the replay has not yet been run on site data" or sits in a container that does; Kirinyaga's recovery share carries the assumption label instead. The test scans every route and drawer and fails on any unlabelled occurrence |
 | R14 Plan downside shown | every tenant's `allocation.downside` | *Act first* shows the plan's downside beside its value: Lakeside +2,556.00 if the cooperative does not sign (other sensitivities: diesel −20% +5,670.00; feasible fuel 160 L +5,346.00); Harvest Cold +1,512.40 if the aggregator does not sign; Metro 0.00 if the time-of-use tariff does not apply |
 | R15 Declared measures compose | Protect, operations (O2) and rights (P4, A5) measures of all three tenants | each measure equals its declared composition (Σ, or Σ/Σ for ratios); money-valued measures share the cost factor ID; at-stake values listed, never summed; asset value at risk shown as *not available yet* with its reason |
 

@@ -2,9 +2,37 @@
 
 **Not approved: awaits owner inspection.** Open `index.html`; use the **Demo operator** selector in the blue review bar.
 
+## Owner review in 30 minutes
+
+**1. The five mechanics (5 minutes; main document §2).**
+- *Define:* every outcome — contribution, cost to serve, Protect, operations, Assure — is a declared structure of factors down to source facts.
+- *Observe:* factors are observed from sources and each outcome is computed upward through its structure; a shortfall is what that computation shows.
+- *Evaluate:* an option changes factors; the same structure, re-run, gives its money and Protect effect against no action.
+- *Choose:* a plan under budget, crews and deadlines, with switches for the assumptions that change it.
+- *Prove:* the same factors are observed after the change; three separate verdicts.
+
+**2. One operator walk (10 minutes; Lakeside Power).** Overview (headline, four figures, the plan's first three moves) → *Outcomes by site* (each outcome to its factors, plan against actual) → *Act first* (switch the budget to $6,500 and the letter of intent to No; watch the plan change) → `#/decision/kobo-generator` (options against no action, design-value labels, Protect under each option) → *What changed* (commitments, three verdicts, rights).
+
+**3. One cross-vertical contrast (5 minutes).** Metro: *Demand and capacity* (Ruiru: 61% of deliverable energy used — the import limit binds — so +6 buses fit and +10 do not) and `#/decision/kasarani-charger` (departures missed 2 under waiting, 0 under the stopgap). Harvest: `#/site/thika` (batch exposed, damage confirmed, liability — three different things).
+
+**4. The decisions only you can take (10 minutes; `../design-questions-and-decisions.md`).**
+
+| Decision | Open this screen |
+|---|---|
+| Q1 the five mechanics | main document §2 |
+| Q2 Portfolio frame: staged Overview + tabs in loop order (recommended), old tabs, or one sequential page | `#/portfolio` |
+| Q3 *Act first* is the plan, not ranked Findings | `#/portfolio/act-first` |
+| Q5 demo operators: separate logins for client demos | review bar selector |
+| Q7 Embakasi's tariff assumption (largest figure) | `#/decision/embakasi-schedule` |
+| Q9 delivery order, with the calibration lane first | main document §9 |
+| Q13 may early prospects see replay-derived figures if labelled and said aloud? | `#/decision/kobo-generator` |
+| Item 11 below: rebuild Ruiru's preserved deep views? | `#/ev-health` |
+
+The numbered rows below are the full inspection log by revision.
+
 | # | Decision for the owner | What to click | Default in the mock-up |
 |---:|---|---|---|
-| 1 | Is the Portfolio, with its six owner-approved tabs re-based on the mechanics, the right overall structure (no role filters, no new menu items)? | `#/portfolio` and each tab, for each operator | As built |
+| 1 | Is the Portfolio frame right (Q2: staged Overview + tabs in loop order, against the alternatives in main §6.2) (no role filters, no new menu items)? | `#/portfolio` and each tab, for each operator | As built |
 | 2 | Overview: outcome cards show each outcome with the factors that define it (not "gap then causes"). Right reading? | Overview → the four cards | As built |
 | 3 | "Factors needing attention" (off plan, at or near a limit, new factor, not observed) on Overview and site pages | Overview (Metro: Kasarani) ; `#/site/kasarani` | As built |
 | 4 | Outcomes by site: factor structure per site with plan against October at every factor; waterfall as one view | `#/portfolio/outcomes-by-site` | As built |
@@ -16,7 +44,7 @@
 | 10 | v7.0 site overviews kept as "Operating outcomes (earlier view)" | `#/site/kobo` → sub-tab | Kept |
 | 11 | Ruiru's preserved deep views keep the earlier 2-connector, 80 kW example under a banner (conflict with the 12-charger, 400 kW depot) — accept, or rebuild them? | `#/ev-health` | Banner |
 | 12 | Decisions without option rows in the scenario file (Kisiwa service credit, Ruiru connector) shown from the design's rights table | `#/decision/kisiwa-om`, `#/decision/ruiru-connector` | As built |
-| 13 | Harvest's modelled change shown as two figures on different horizons, not totalled | Harvest Overview, Act first | Two figures |
+| 13 | Harvest's modelled change from the valued options: +$3,182.40 (Kirinyaga repair over 12 months + Mwea contract, whose 4 months fall inside the horizon) | Harvest Overview, Act first | Totalled (rev 5) |
 | 14 | Visual direction: keep v7.0 styling here; apply v7.2 in the product build (Q4) | — | v7.0 |
 | 15 | Evidence drawer content (definition, formula, source-shaped rows, clocks, coverage, provenance) | Any underlined number, e.g. Kobo litres on Outcomes by site | As built |
 | 16 | Rev 5: Protect as measured factors against a target of 0 (units, period, Σ over sites; EV October and November to 6 Nov separately; liability and penalties marked as the same factor as their cost line; at-stake values listed, never summed) | `#/portfolio/outcomes-by-site` (each operator); any site page; Overview Protect card | As built |

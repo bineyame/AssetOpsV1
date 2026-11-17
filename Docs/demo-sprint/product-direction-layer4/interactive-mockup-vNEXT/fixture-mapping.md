@@ -92,6 +92,11 @@ Read from `tenants[*].portfolio.protect.measures` (`loop-protect.js`): `id` → 
 - **Cold realisation stages**: chargeable = invoiced revenue ÷ storage rate; invoiced = `revenue`; received = `collected`; leaks are text (no October difference).
 - **Ruiru charger use** reads `charger_hour_utilisation` (now 0.34).
 
+## 3d. Rev 8: Protect effects per option and the derived replay set
+
+- **Protect measures under each option** (decision pages): `tenants[*].portfolio.protect_effects[]` — `horizon`, `measure` (named with the Protect or rights measure name), `options` (value per option; an option not listed shows "not evaluated"), `penalties`, `side_effect`, `basis`, `at_stake_note`, `class`, `design_value`. The Act first line "from → to" takes the no-action (or wait) value and the chosen option's value.
+- **Replay-dependent set**: written into `fixtures.js` as `REPLAY_PATTERNS` / `REPLAY_VALUES` by `tools/gen_fixtures.py` (rule in its header); derived again independently by `tools/replay_values.py` for the audit. Current set (25): 20 L (avoided phrasing), 210 L, 68 L, 225 kWh, 4 of 61 and 61 of 61 dawn days, $2,916, $250.50, $262.50, $2,286, $2,166, $3,540, $395, $495, $85, $6,096, $2,556, $3,546, $5,670, $5,346, 31 of 31 nights, $95,484, $8,082, $13,356, 93 departures missed.
+
 ## 3c. Rev 7: design-value tag
 
 Text constant "Design value: the replay has not yet been run on site data", applied by `tagReplay` (loop-core.js) to every container holding a replay figure: 210 L, 20 L avoided, 61 of 61, 4 of 61, $2,916 (`KOB-STOPSOC`), 68 L, $395, $3,540 (`MTO-HULLER`), 31 of 31 (`EMB-DEADLINE.replay`), and plan values that include them: $6,096, $2,556, $3,546 (switch cases), $5,670, $5,346 (`allocation.downside.others`). Kirinyaga carries "Assumption: Kirinyaga recovery share 80%, range 60–90%" (`KIRI-REPAIR.recovery_share`, `recovery_range`).

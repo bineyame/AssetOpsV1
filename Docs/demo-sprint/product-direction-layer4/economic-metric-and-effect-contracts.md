@@ -170,7 +170,7 @@ Protect measures are observed at the factor's own cadence (daily, or per night),
 
 | Vertical | Measure | Unit | Class | Composition | October |
 |---|---|---|---|---|---|
-| Mini-grid | asset availability | % of asset-days | RECORDED | Σ available asset-days / Σ asset-days (Kobo 5, Kisiwa 4, Mto 5 major assets) | (155 + 122 + 151) / (155 + 124 + 155) = 428 / 403 = **98.62%** (plan 100%) |
+| Mini-grid | asset availability | % of asset-days | RECORDED | Σ available asset-days / Σ asset-days (Kobo 5, Kisiwa 4, Mto 5 major assets) | (155 + 122 + 151) / (155 + 124 + 155) = 428 / 434 = **98.62%** (plan 100%) |
 | Mini-grid | field visits | visits | RECORDED | Σ | 1 + 1 + 1 = **3** (plan 3) |
 | Mini-grid | delivered kWh per field visit | kWh / visit | DERIVED | Σ delivered / Σ visits | 23,050 / 3 = **7,683.33** |
 | Cold | cooling availability | % of chamber-minutes | MEASURED | Σ minutes available / Σ chamber-minutes | 1 − 4 / (3 × 44,640) = **99.997%** (Thika lost cooling 19:11–19:15 on 6 Oct) |

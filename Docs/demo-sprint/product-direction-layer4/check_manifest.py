@@ -304,6 +304,29 @@ def operations(t: dict) -> None:
         le("downside <= plan value", al["downside"]["value"], al["modelled_12m_change"]["total"])
 
 
+def protect_effects(t: dict) -> None:
+    """CP-2 (rev 8): per-option Protect effects are declared and reconcile with the options they describe."""
+    for e in t["portfolio"].get("protect_effects", []):
+        check(f"{e['decision']}: horizon, measure, class declared", all(k in e for k in ("horizon", "measure", "class", "options")))
+        if "penalties" in e:
+            for o, n in e["options"].items():
+                eq(f"{e['decision']} {o} penalties = missed x rate", e["penalties"][o], D(n) * D(str(e["penalty_per_missed_block"])))
+        if e["decision"] == "Kisiwa generator 1 failed":
+            eq("Kisiwa no action = 30 evenings x 5 h", e["options"]["KIS-NOACT"], 150)
+            eq("Kisiwa repair = 3 evenings x 5 h", e["options"]["KIS-REPAIR"], 15)
+        if e["decision"] == "Embakasi charging schedule":
+            o = {x["id"]: x for x in t["sites"][0]["decision"]["options"]}["EMB-CHEAPEST"]
+            eq("Embakasi cheapest missed departures = buses short x 31", e["options"]["EMB-CHEAPEST"], D(o["buses_short"]) * 31)
+        if e["decision"] == "Kobo generator stop setting":
+            o = {x["id"]: x for x in t["sites"][0]["decision"]["options"]}["KOB-RESERVE"]
+            eq("Kobo reserve dawn days agree with the replay", e["options"]["KOB-RESERVE"], o["forward_replay"]["soc_0500_below_35_days"])
+    k = [x for x in t["sites"] if x["site"] == "Kasarani"]
+    if k:
+        w = {o["id"]: o for o in k[0]["entitlement"]["options"]}["KAS-OEM-WAIT"]
+        e = [x for x in t["portfolio"]["protect_effects"] if x["decision"].startswith("Kasarani")][0]
+        eq("Kasarani wait penalties agree with the option row", e["penalties"]["KAS-OEM-WAIT"], w["expected_penalties"])
+
+
 def main(path: str) -> int:
     doc = yaml.safe_load(open(path, encoding="utf-8"))
     for t in doc["tenants"]:
@@ -311,6 +334,7 @@ def main(path: str) -> int:
         {"MINI_GRID": lakeside_options, "COLD_CHAIN": cold_options, "EV_DEPOT": lambda _t: None}[t["vertical"]](t)
         protect(t)
         operations(t)
+        protect_effects(t)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
         print("FAIL", f)

@@ -493,6 +493,19 @@ The cheapest bill is lowest only because it buys 9,300 kWh a month less: per kWh
 
 Semantics: HARD fails reject; COSTED enters value; ADVISORY informs. Unknown is never PASS. A HARD failure cannot be overridden in the product; a COSTED or ADVISORY result can be overridden only by a named USER with a reason. A configuration revision is not field actuation: the record says "configuration recorded; device change to be confirmed by the operator" until a field acknowledgement exists. Today's reserve-trial guardrails are reproduced byte-equal from rows (`test_ch9b2_reserve_byte_equal_postgres.py` as the model) [proposed]. **Vectors:** BD-1 reserve 25 FAIL dawn; BD-2 stop 70 PASS with wear 12.00; BD-3 Embakasi cheapest FAIL departures; BD-4 Kisiwa no action FAIL redundancy; BD-5 Mwea contract CONDITIONAL until the curtain is installed.
 
+**Per-option Protect effects (rev 8, re-review CP-2).** A bound says pass or fail; the structure also gives each option's *value* on the Protect measure the bound protects, over a stated horizon, through the same counterfactual. The manifest declares them (`portfolio.protect_effects`) and the checker reconciles them with the option rows:
+
+| Decision | Horizon | Protect measure | No action / waiting | Recommended | Other option | Class |
+|---|---|---|---|---|---|---|
+| Kisiwa generator 1 | November evenings | hours without a backup generator | 150 h | repair: 15 h (restored 4 Nov) | replace: 105 h (21-day lead) | DERIVED |
+| Kobo stop setting | 61 replayed days | days below 35% at 5 am | 0 | stop setting: 0 | reserve 25%: 4 | MODELLED, design value |
+| Kobo battery evidence | until a claim | tracked assets with complete contract evidence | 1 of 3 | evidence: 2 of 3 | claim now: 1 of 3, claim fails | RECORDED |
+| Thika backup start | nights 6/7, 7/8 Nov | nights with stock and no backup cover | 2 | stopgap: 0 | self-repair: 0, EPC cover on a 710.00 controller lost | DERIVED |
+| Kasarani CH-K2 | nights 6/7–8/9 Nov | departures missed (penalties) | 2 (240.00) | stopgap: 0 (0.00) | local repair: 0, warranty lost | DERIVED |
+| Embakasi schedule | 31 replayed nights | departures missed | 0 | deadline schedule: 0 | cheapest: 93 | MODELLED, design value |
+
+This is what justifies must-do and protective spend that is not valued in money: the spend is shown with the measure it moves, computed, not asserted. Penalties are the same factor as the cost line (never added twice).
+
 ### 4.8 Residual cost per remedy path (new): rights inside repair decisions
 
 **Purpose.** Compare repair paths on the operator's residual cost and restoration time, given the right's terms and evidence, with deadlines and service continuity; output possible rights and options, never legal conclusions (brief C1 D4 entitlement-aware economics; C3 scenarios 8–10).

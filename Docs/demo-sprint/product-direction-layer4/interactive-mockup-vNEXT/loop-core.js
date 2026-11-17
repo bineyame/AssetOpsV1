@@ -271,7 +271,7 @@ function resolveScreen(id){
  return s;}
 function setOp(op){LS.op=op;try{sessionStorage.setItem('l4-op',op);}catch{}}
 /* rev 7 (N-M2): every figure that rests on a replay carries the visible design-value tag in its own container */
-const REPLAY_RE=/210 L|\b(?:avoid(?:s|ed)?|remov(?:es|ed))(?: only)? 20 L|20 L avoided|61 of 61|4 of 61|\$2,916|68 L|\$395|\$3,540|31 of 31|\$6,096|\$2,556|\$3,546|\$5,670|\$5,346/;
+const REPLAY_RE=new RegExp(REPLAY_PATTERNS.join('|')); /* derived from the manifest by tools/gen_fixtures.py */
 const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
 function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Set();let n;
  while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest('.dv,.vh,select,option,details.tech,script,style'))continue;if(REPLAY_RE.test(n.textContent)){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector('.dv'))conts.add(c);}}

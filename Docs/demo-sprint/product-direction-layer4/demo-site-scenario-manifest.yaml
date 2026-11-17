@@ -288,6 +288,25 @@ tenants:
         - {id: MTO-INV-NOACT, kind: NO_ACTION, disposition: REJECTED, reason: "half daytime capacity indefinitely; notice deadline lost on 27 Nov"}
 
   portfolio:
+    protect_effects:   # rev 8 (re-review CP-2): each option's effect on Protect measures, evaluated through the structure over a stated horizon; design values where a replay is involved
+      - decision: "Kisiwa generator 1 failed"
+        horizon: "November (30 evenings, 18:00-23:00)"
+        measure: obligation_hours_without_redundancy
+        options: {KIS-NOACT: 150, KIS-REPAIR: 15, KIS-REPLACE: 105}
+        basis: "evenings without redundancy x 5 h: no action 30 evenings; repair restores on 4 Nov (3 evenings); replacement lead time 21 days (21 evenings)"
+        class: DERIVED
+      - decision: "Kobo generator stop setting"
+        horizon: "61 replayed days"
+        measure: "days with battery below 35% at 5 am (the bound that keeps unserved critical kWh at 0)"
+        options: {KOB-NOACT: 0, KOB-STOPSOC: 0, KOB-RESERVE: 4}
+        class: MODELLED
+        design_value: true
+      - decision: "Kobo battery warranty evidence"
+        horizon: "until a capacity claim is needed"
+        measure: tracked_assets_with_complete_contract_evidence
+        options: {BAT-NOACT: "1 of 3", BAT-CLAIM-NOW: "1 of 3 (claim fails)", BAT-EVIDENCE: "2 of 3"}
+        at_stake_note: "64,000.00 of battery cover becomes claimable only with the evidence; listed, never summed"
+        class: RECORDED
     operations:   # O2 (rev 6, re-review LY-1): operational productivity as measured factors; Σ/Σ over sites
       period: "2026-10"
       measures:
@@ -468,6 +487,13 @@ tenants:
            reason: "negative on 12 months; revisit if verified recovery after repair is below 60%"}
         - {id: KIRI-NOACT, kind: NO_ACTION, economics: {monthly: -194.00}, disposition: ACCEPTABLE}
   portfolio:
+    protect_effects:
+      - decision: "Thika backup start controller"
+        horizon: "nights 6/7 and 7/8 Nov, until the 8 Nov replacement"
+        measure: "nights with stock present and no backup start cover"
+        options: {THIKA-EPC-WAIT: 2, THIKA-EPC-STOPGAP: 0, THIKA-SELF: 0}
+        side_effect: {THIKA-SELF: "EPC cover on the 710.00 controller lost (rights value at stake)"}
+        class: DERIVED
     operations:
       period: "2026-10"
       measures:
@@ -491,7 +517,7 @@ tenants:
         - {id: crate_minutes_above_limit, unit: crate-minutes, objective: P1, target: 0, class: DERIVED, basis: "120 crates of B-1031 x 20-30 min above 5 C (bounded by 5-minute readings)",
            sites: {"Room A · Mwea": "0", "Room B · Thika": "2,400-3,600", "Room C · Kirinyaga": "0"}, portfolio: "2,400-3,600"}
         - {id: days_backup_start_unproven, unit: days, objective: P1, target: 0, class: DERIVED, basis: "days since a failed automatic start without a witnessed successful test",
-           sites: {"Room A · Mwea": 0, "Room B · Thika": 26, "Room C · Kirinyaga": 0}, portfolio: 26, detail: {"Room B · Thika": "6-31 Oct; night manual-start rota from 7 Nov until the 8 Nov replacement and test"}}
+           sites: {"Room A · Mwea": 0, "Room B · Thika": 26, "Room C · Kirinyaga": 0}, portfolio: 26, detail: {"Room B · Thika": "6-31 Oct; night manual-start rota from the evening of 6 Nov until the 8 Nov replacement and test"}}
         - {id: stock_value_exposed, unit: USD, objective: P3, class: EXPOSURE, target: 0.00, sites: {"Room B · Thika": 2160.00}, portfolio: LISTED, note: "customer-owned stock; at stake, not money; exposure values are listed by site, never summed"}
         - {id: qa_confirmed_damage_liability, unit: USD, objective: P3, class: ECONOMIC_ACTUAL, target: 0.00, sites: {"Room A · Mwea": 0.00, "Room B · Thika": 108.00, "Room C · Kirinyaga": 0.00}, portfolio: 108.00,
            shared_factor: "customer compensation factor of cost to serve (same factor ID; never added twice)"}
@@ -620,6 +646,23 @@ tenants:
       entitlement: {type: EQUIPMENT_WARRANTY, counterparty: "Ampere Charge Co", claim_state: POTENTIAL, plan: "claim at next routine visit"}
       priority: LOW
   portfolio:
+    protect_effects:
+      - decision: "Kasarani charger CH-K2"
+        horizon: "nights 6/7, 7/8 and 8/9 Nov, until the 9 Nov restore"
+        measure: departures_missed
+        options: {KAS-OEM-WAIT: 2, KAS-OEM-STOPGAP: 0, KAS-LOCAL: 0}
+        penalties: {KAS-OEM-WAIT: 240.00, KAS-OEM-STOPGAP: 0.00, KAS-LOCAL: 0.00}
+        penalty_per_missed_block: 120.00
+        side_effect: {KAS-LOCAL: "power-stage warranty lost"}
+        basis: "one bus short each night; the spare bus covers one of the three nights"
+        class: DERIVED
+      - decision: "Embakasi charging schedule"
+        horizon: "31 replayed October nights"
+        measure: departures_missed
+        options: {EMB-NOACT: 0, EMB-DEADLINE: 0, EMB-CHEAPEST: 93}
+        basis: "cheapest schedule: 3 buses short every night x 31 nights"
+        class: MODELLED
+        design_value: true
     operations:
       period: "2026-10"
       measures:
