@@ -210,3 +210,71 @@ O2 is now declared for each vertical as measured factors that compose as Σ nume
 - The preserved v7.0 Ruiru pages show a smaller depot than the manifest's Ruiru. This needs the owner's decision (checklist item 11).
 - Decision pages show each option's bound checks, naming the Protect measure each one protects, but not a per-option table of Protect values; the manifest holds no such values.
 - Two O2 measures (kWh per field visit, departures per charger) are given only at portfolio level.
+
+## Author response (rev 7)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This answers "## Re-review (rev 6)" in `REVIEW.md` (verdict REVISE, targeted).
+
+### N-M1: EV utilisation denominator ignored the import limit. Fixed.
+
+I took the reviewer's first option: make the measure use the structure's own `deliverable_kwh_per_night` stage, so the O2 measure and the capacity bounds share one definition.
+- The measure is renamed `deliverable_energy_used`. Its denominator is min(chargers in service × kW, import limit) × window.
+- The manifest records the binding limit per depot. The checker recomputes each denominator and asserts that Ruiru's 3,200 kWh equals RUI-ABSORB6's deliverable figure.
+
+| Depot | Binding limit | kWh used / deliverable a night | Share |
+|---|---|---|---|
+| Embakasi | import limit, 500 kW | 2,800 / 6,000 | 46.67% |
+| Kasarani | chargers, 200 kW | 1,200 / 1,400 | 85.71% |
+| Ruiru | import limit, 400 kW | 1,960 / 3,200 | 61.25% |
+| Portfolio | Σ/Σ | 5,960 / 10,600 | 56.23% |
+
+- Contracts l.181 now says that Ruiru's headroom is 1,240 kWh, room for 8.9 buses. That is why +6 buses passes and +10 fails.
+- Nameplate charger-hour use (Ruiru 34%) stays on screen only as a labelled secondary figure, shown beside "61% of deliverable energy a night (the 400 kW import limit binds)".
+- Updated in: manifest, checker, contracts §2.7, models §3.13 (OP-T2), the CSV measure ids, the matrix, the phase plan, the main doc, and the mock-up's Outcomes by site, Grow card, Demand and capacity tab and Ruiru decision page.
+
+### N-M2: replay figures still unlabelled in several places. Fixed, and the check is widened.
+
+- **The tag.** One tagging rule in the mock-up (`tagReplay`) runs after every render and every drawer opening. Any element that holds a replay figure, or a value computed from one, gets "Design value: the replay has not yet been run on site data". This now covers:
+  - the Overview Optimize card and the "Sites that look alike" panel;
+  - the Act first path cards and the four-case switch table;
+  - every drawer.
+- **The Mto inverter page.** Its banner now names both the Kobo stop-setting replay and the huller replay.
+- **The audit.** It now scans every route and every drawer for:
+  - replay figures: 210 L, 20 L avoided, 61 of 61 and 4 of 61 days, 68 L, and 31 of 31 nights;
+  - money values: $2,916, $395, $3,540, $6,096, $2,556, $3,546, $5,670 and $5,346.
+
+  It fails on any figure whose container is unlabelled. Result: 53 occurrences across 202 routes and 734 drawers, **0 unlabelled**.
+- **The rules.** Decision A20 and release test R13 are widened to "every occurrence, including values computed from replay figures (plan values, switch cases, sensitivities, downsides), on any card, table or drawer".
+- **Harvest.** Its plan value rests on no replay, so its notes use the assumption wording instead: "includes an assumed recovery share (80%) at Kirinyaga".
+
+### Lows
+
+| Finding | Outcome |
+|---|---|
+| **N-L1** | **Fixed.** Contracts §5 reads "R3a, P4, A5, S12". |
+| **N-L2** | **Fixed.** The diesel −20% sensitivity now applies to every valued option that buys diesel: stop setting 2,286 + huller 3,744 ((495 − 68 × 1.00 − 15) × 12 − 1,200) − inverter claim 360 = **+5,670.00**. The manifest note carries the working, the checker recomputes it, and the main doc, models §6.4, phase plan and screen are updated. The downside (+2,556) is unchanged. |
+| **N-L3** | **Fixed.** The path cards are retitled "Modelled 12-month change from the valued options". The duplicated "Net of …" sentence is removed from the Lakeside drawer. The Harvest drawer uses the assumption wording, and its source line no longer says "forward replay". |
+| **N-L4** | **Fixed.** The measure is renamed "departures met per installed charger" (50.08). Its basis note gives the per-charger-day-in-service figure (51.75). Asset availability now counts a declared asset list per site, with the counting rule stated ("every power-conversion or generation unit listed in the site's physical block": Kobo 5, Kisiwa 4, Mto 5). Lakeside becomes 428 / 434 = **98.62%**, and the checker verifies it. |
+| **N-L5** | Already handled by the coordinator in the rev 6 commit. |
+
+### Checks run before replying
+
+| Check | Result |
+|---|---|
+| `python3 check_manifest.py` | **222 checks passed, 0 failed** (new: import-limited deliverable energy per depot, the Ruiru deliverable figure against RUI-ABSORB6, and the diesel −20% whole-plan sensitivity) |
+| CSV validator | **PASS** (453 rows; measure ids match the manifest) |
+| Mock-up rebuild: `rebase_v70.py`, `gen_fixtures.py` (oracle removed, sha 00d50e72bfc1), `node build.mjs` | succeeded |
+| Full audit: routes rendering an h1 | 202 / 202 (184 screens) |
+| Full audit: console errors, bad links, overflow at 390 px | 0 / 0 / 0 |
+| Full audit: vocabulary hits; identifiers on added and changed screens; role and question hits | 0 / 0 / 0 |
+| Full audit: filter controls; operator selector in the top bar | 0 / 0 |
+| Full audit: design-value scan | 53 occurrences, 734 drawers, 0 unlabelled |
+| Full audit: tab order, old route, rev 7 EV measure, Ruiru nameplate wording, Ruiru not-attributed wording | pass |
+| Full audit: switch cases | 8 / 8 |
+| Full audit: evidence drawer | pass |
+| Full audit: focus | 7 / 7 |
+| Full audit: contrast | 38 / 38 |
+| Full audit: preserved screens identical to v7.0 | 65 / 65 |
+| Full audit: oracle in the bundle | none |
+
+**Limits of the design-value scan.** It covers each page in its default switch state; other switch states use the same tagging rule and are captured in the screenshots. It counts "20 L" only when phrased as litres avoided, because the observed 20 L figures (Kisiwa residual, Mto evening running) are not replay figures.

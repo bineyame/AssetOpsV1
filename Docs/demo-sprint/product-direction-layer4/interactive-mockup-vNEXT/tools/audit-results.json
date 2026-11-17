@@ -1,4 +1,9 @@
 {
+ "dvScan": {
+  "occurrences": 53,
+  "unlabelled": [],
+  "drawersOpened": 734
+ },
  "idHits": [],
  "idHitsPreserved": [
   {
@@ -3866,7 +3871,7 @@
    "stakeListed": true,
    "avoidableObserved": false,
    "overviewProtectTargets": true,
-   "valueNote": "plan $1,716 · 97.8% · show how this is worked out of cost recorded −$770 attributed to factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits Valued options only; includes design values not yet run on site data"
+   "valueNote": "plan $1,716 · 97.8% · show how this is worked out of cost recorded −$770 attributed to factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits Valued options only; includes an assumed recovery share (80%) at Kirinyaga"
   },
   "metro": {
    "protectTable": true,
@@ -3892,10 +3897,17 @@
    "kobo-generator": [
     "Design value: the replay has not yet been run on site data: the 210 L and 20 L avoided, the 61 of 61 and 4 of 61 replayed days, and the $2,916",
     "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data"
    ],
    "mto-demand": [
     "Design value: the replay has not yet been run on site data: the 68 L of extra fuel, $395 a month and $3,540",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data"
    ],
    "embakasi-schedule": [
@@ -3904,12 +3916,14 @@
     "Design value: the replay has not yet been run on site data"
    ],
    "kirinyaga-energy": [
-    "Design value: the recovery share is an assumption (80%, range 60–90%)",
-    "Design value: the recovery share is an assumption (80%, range 60–90%)",
-    "Design value: the recovery share is an assumption (80%, range 60–90%)"
+    "Assumption: Kirinyaga recovery share 80%, range 60–90%",
+    "Assumption: Kirinyaga recovery share 80%, range 60–90%",
+    "Assumption: Kirinyaga recovery share 80%, range 60–90%"
    ],
    "mto-inverter": [
-    "Design value: the replay has not yet been run on site data: the plan values in the sensitivity include the rice huller replay"
+    "Design value: the replay has not yet been run on site data: the plan values in the sensitivity include the Kobo stop-setting replay and the rice huller replay",
+    "Design value: the replay has not yet been run on site data",
+    "Design value: the replay has not yet been run on site data"
    ]
   },
   "dvOk": true,
@@ -3929,6 +3943,10 @@
    "portfolio/outcomes-by-site": true
   },
   "ruiruOk": true
+ },
+ "rev7": {
+  "evMeasure": true,
+  "ruiruNameplate": true
  },
  "tabsKeyboard": true,
  "summary": {
@@ -3951,7 +3969,10 @@
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
   "operatorSelectInReviewBar": 202,
+  "designValueScan": "53 occurrences scanned on all routes and 734 drawers; unlabelled 0",
   "rev6TabOrder": true,
+  "rev7EvMeasure": true,
+  "rev7RuiruNameplate": true,
   "rev6DesignValueLabels": true,
   "rev6RuiruWording": true,
   "rev6OldRoute": "#/portfolio/demand-and-capacity",

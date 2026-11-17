@@ -170,15 +170,15 @@ Protect measures are observed at the factor's own cadence (daily, or per night),
 
 | Vertical | Measure | Unit | Class | Composition | October |
 |---|---|---|---|---|---|
-| Mini-grid | asset availability | % of asset-days | RECORDED | Σ available asset-days / Σ asset-days (Kobo 4, Kisiwa 4, Mto 5 major assets) | (124 + 122 + 151) / (124 + 124 + 155) = 397 / 403 = **98.51%** (plan 100%) |
+| Mini-grid | asset availability | % of asset-days | RECORDED | Σ available asset-days / Σ asset-days (Kobo 5, Kisiwa 4, Mto 5 major assets) | (155 + 122 + 151) / (155 + 124 + 155) = 428 / 403 = **98.62%** (plan 100%) |
 | Mini-grid | field visits | visits | RECORDED | Σ | 1 + 1 + 1 = **3** (plan 3) |
 | Mini-grid | delivered kWh per field visit | kWh / visit | DERIVED | Σ delivered / Σ visits | 23,050 / 3 = **7,683.33** |
 | Cold | cooling availability | % of chamber-minutes | MEASURED | Σ minutes available / Σ chamber-minutes | 1 − 4 / (3 × 44,640) = **99.997%** (Thika lost cooling 19:11–19:15 on 6 Oct) |
 | Cold | crate-days without excursion | crate-days | DERIVED | Σ occupied − crate-days of batches above limit | 4,340 + (8,680 − 120) + 9,920 = **22,820** (plan 26,040) |
-| EV | charger energy utilisation | share of deliverable charger energy in the usable window | DERIVED | Σ delivered kWh / Σ (chargers × kW × window h) | (2,800 + 1,200 + 1,960) / (7,200 + 1,400 + 5,760) = 5,960 / 14,360 = **41.50%** (Embakasi 38.89%, Kasarani 85.71%, Ruiru 34.03%) |
-| EV | departures met per charger in service | departures / charger | DERIVED | Σ departures / Σ chargers | 1,302 / 26 = **50.08** |
+| EV | deliverable energy used (import-limited) | share of deliverable energy a night (import-limited) | DERIVED | Σ delivered kWh / Σ (min(chargers × kW, import limit) × window h) | (2,800 + 1,200 + 1,960) / (6,000 + 1,400 + 3,200) = 5,960 / 10,600 = **56.23%** (Embakasi 46.67%, Kasarani 85.71%, Ruiru 61.25%) |
+| EV | departures met per installed charger | departures / charger | DERIVED | Σ departures / Σ chargers | 1,302 / 26 = **50.08** |
 
-O2 measures are throughput and productivity factors, not money; their money effect, where any, sits on cost-to-serve factors already in the structure and is counted there once. Ruiru's 34% utilisation is the capacity the +6-bus option uses; Kasarani's 86% is why one failed charger leaves a bus short.
+O2 measures are throughput and productivity factors, not money; their money effect, where any, sits on cost-to-serve factors already in the structure and is counted there once. Deliverable energy is the structure's `deliverable_kwh_per_night` stage, min(chargers in service × kW, import limit) × window, so the measure and the capacity bounds use one definition. Ruiru uses 1,960 of 3,200 kWh a night (61.25%): its 400 kW import limit, not its 720 kW of chargers, binds, leaving 1,240 kWh — room for 8.9 buses at 140 kWh, which is why +6 passes and +10 (1,400 kWh) fails. Nameplate charger-hour utilisation (Ruiru 34%) is a secondary figure and never the capacity measure. Kasarani's 85.71% (chargers bind at 200 kW) is why one failed charger leaves a bus short.
 
 **Assure.** A1–A3 and A5 are read from every factor's evidence state: A1 coverage and residuals, A2 the evaluated options with their bounds, A3 the verdicts, A5 the rights measures (§5.5). **A4 is the evidence-pack reading of A1–A3** (coverage, residuals, verdicts, rights states, lineage) exported per period for an investor, lender or auditor. It is a P1-P capability built in delivery slice 9 and adds no new measure.
 
@@ -454,7 +454,7 @@ Money never crosses currencies without a declared basis (rate, date rule, source
 
 ### 5.1 What a right is in the structure
 
-*Brief:* R3a, P4, @@AR5@@, S12, C1 D2 ("contractual entitlements").
+*Brief:* R3a, P4, A5, S12, C1 D2 ("contractual entitlements").
 
 A right (equipment warranty, EPC workmanship or performance guarantee, O&M or service SLA, insurance) never changes a cost's physics or amount. It changes the **cost-bearer factor**: who pays a cost node, and when. So a right enters decisions as a property of each remedy path's **residual cost to the operator**, and enters the books only when a credit note, replacement invoice or receipt is recorded. The product evaluates evidence and options; it never states coverage, liability or enforceability ("Coverage is decided by the supplier or insurer").
 
@@ -592,7 +592,7 @@ All contracts are [proposed]. Names are illustrative; storage placement is in `r
 | E9 | Residual placement | a residual node exists only where an observed total exceeds what the modelled children explain; labelled "not explained by the model yet"; AT-10 |
 | E10 | Unit check | a structure whose units do not compose fails start-up |
 | E11 | Protect composition | Lakeside obligation-hours 0 + 10 + 20 = 30; Harvest crate-minutes 2,400–3,600; Metro departures missed 0 (Oct), 2 (Nov to date); liability and penalties equal their cost-to-serve factors |
-| E13 | O2 composition | Lakeside 397 / 403 = 98.51%; Metro 5,960 / 14,360 = 41.50%; never a mean of site percentages |
+| E13 | O2 composition | Lakeside 428 / 434 = 98.62%; Metro 5,960 / 10,600 = 56.23%; never a mean of site percentages |
 | E14 | Cold realisation | chargeable = occupied, invoiced = 4,588.00, received + outstanding = 4,370.00 + 218.00 for October |
 | E12 | Bounds derive from Protect | every `obligation_bound` names a `protect_measure`; a bound without one fails start-up |
 

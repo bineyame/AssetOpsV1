@@ -1,6 +1,6 @@
-# Screenshots (rev 6)
+# Screenshots (rev 7)
 
-**Not approved: awaits owner inspection.** Captured by `tools/audit.mjs --shots` (Chromium, full page). Lakeside Power unless the file name starts with `harvest-` or `metro-`. Rev 6 views to look at first: the Overview first fold (`portfolio-1440.png`, `portfolio-390.png`); the new tab order on any Portfolio capture; operations and Protect measures on the three `*outcomes-by-site-1440.png`; design-value labels on `decision_kobo-generator-1440.png`; the downside line on the four `act-first-lakeside-*` captures; rights measures on `portfolio_what-changed-1440.png`; Demand and capacity on `*demand-and-capacity-1440.png`.
+**Not approved: awaits owner inspection.** Captured by `tools/audit.mjs --shots` (Chromium, full page). Lakeside Power unless the file name starts with `harvest-` or `metro-`. Rev 7 views to look at first: design-value tags on the four `act-first-lakeside-*` captures, `portfolio-1440.png` and `decision_kobo-generator-1440.png`; the EV operations measure on `metro-portfolio_outcomes-by-site-1440.png`; Ruiru nameplate against deliverable energy on `metro-portfolio_demand-and-capacity-1440.png`.
 
 ## Before: v7.0 (`v70/`)
 

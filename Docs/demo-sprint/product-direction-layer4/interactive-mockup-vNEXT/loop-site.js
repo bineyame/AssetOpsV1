@@ -32,9 +32,9 @@ function siteEconomics(sk){const s=siteM(sk),o=OPS[SK[sk].op],decs=DEC.filter(d=
 function deepPlaceholder(sk,tab){return panel(`${tab} · ${SK[sk].name}`,empty('Not built in this mock-up',`Detailed views for this site are not built in this mock-up; see ${link(DEEP.kobo[tab],'Kobo')}, ${link(DEEP.thika[tab],'Thika')} or ${link(DEEP.ruiru[tab],'Ruiru')} for the pattern.`));}
 
 /* ---------- decision page ---------- */
-const DV_KIRI='Design value: the recovery share is an assumption (80%, range 60–90%)';
-const DV_OPT={'KOB-STOPSOC':DVTEXT,'KOB-RESERVE':DVTEXT,'MTO-HULLER':DVTEXT,'EMB-DEADLINE':DVTEXT,'EMB-CHEAPEST':DVTEXT,'KIRI-REPAIR':DV_KIRI,'KIRI-REPLACE':DV_KIRI};
-const DV_DEC={'kobo-generator':DVTEXT+': the 210 L and 20 L avoided, the 61 of 61 and 4 of 61 replayed days, and the $2,916','mto-demand':DVTEXT+': the 68 L of extra fuel, $395 a month and $3,540','embakasi-schedule':DVTEXT+': schedule feasibility on 31 of 31 October nights and the deliverable energy a night','kirinyaga-energy':DV_KIRI,'mto-inverter':DVTEXT+': the plan values in the sensitivity include the rice huller replay'};
+const DV_KIRI='Assumption: Kirinyaga recovery share 80%, range 60–90%';
+const DV_OPT={'KOB-NOACT':DVTEXT,'KOB-STOPSOC':DVTEXT,'KOB-RESERVE':DVTEXT,'MTO-HULLER':DVTEXT,'EMB-DEADLINE':DVTEXT,'EMB-CHEAPEST':DVTEXT,'KIRI-REPAIR':DV_KIRI,'KIRI-REPLACE':DV_KIRI};
+const DV_DEC={'kobo-generator':DVTEXT+': the 210 L and 20 L avoided, the 61 of 61 and 4 of 61 replayed days, and the $2,916','mto-demand':DVTEXT+': the 68 L of extra fuel, $395 a month and $3,540','embakasi-schedule':DVTEXT+': schedule feasibility on 31 of 31 October nights and the deliverable energy a night','kirinyaga-energy':DV_KIRI,'mto-inverter':DVTEXT+': the plan values in the sensitivity include the Kobo stop-setting replay and the rice huller replay'};
 const OPT_KIND = {CONFIG_TRIAL:'Controller setting, changed remotely',CAPEX:'Capital purchase',REPAIR:'Repair',NO_ACTION:'Nothing changes',DEMAND_CONNECTION:'New customer load',SUPPLIER_REMEDY:'Supplier remedy under the contract',STOPGAP_PLUS_CLAIM:'Buy now; claim the failed unit',COMMERCIAL_CORRECTION:'Billing records',INVESTIGATION:'Meter check',DEMAND_CONTRACT:'New storage contract',SCHEDULE:'Charging schedule',CAPACITY_USE:'Use of existing chargers',RIGHTS_REVIEW:'Contract review by a person'};
 function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null;
  const rows=d.opts.map(oid=>{const x=OPT[oid],[cv,cn]=optCost(x),[ev,en]=optEffect(x);const recd=x.disposition==='RECOMMENDED';

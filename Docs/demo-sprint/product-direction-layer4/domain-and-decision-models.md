@@ -355,8 +355,8 @@ October: no discrepancy at any room. Chargeable = occupied (22,940 crate-days); 
 ### 3.13 Operations (O2) observer (new composition over kept and new observers)
 
 **Purpose.** Observe the brief's O2 measures (operational throughput and resource productivity) as declared factors, composed Σ/Σ (contracts §2.7).
-**Mechanism.** asset availability = Σ available asset-days / Σ asset-days, from fault and restore records (Lakeside 397 / 403 = 98.51%); field visits from work records (3, plan 3); delivered kWh per visit 23,050 / 3 = 7,683.33; cooling availability from chamber-controller run state (Thika lost 4 minutes on 6 Oct: 99.997% over 3 × 44,640 chamber-minutes); crate-days without excursion = occupied − crate-days of exposed batches (22,820 against plan 26,040); charger energy utilisation = Σ delivered kWh per night / Σ (chargers × kW × window h) (5,960 / 14,360 = 41.50%); departures met per charger in service 1,302 / 26 = 50.08.
-**Error modes:** `RESTORE_RECORD_MISSING`; `WINDOW_UNDECLARED` (utilisation refused without a declared usable window). **Uncertainty:** EXACT on records. **Negative control:** a site with no fault records has availability 100%, never "unknown" unless its asset list is missing. **Refusal:** never a mean of site percentages; O2 carries no money of its own. **Vectors:** OP-T1 98.51%; OP-T2 41.50% (Embakasi 38.89%, Kasarani 85.71%, Ruiru 34.03%); OP-T3 22,820.
+**Mechanism.** asset availability = Σ available asset-days / Σ asset-days, from fault and restore records (Lakeside 428 / 434 = 98.62%); field visits from work records (3, plan 3); delivered kWh per visit 23,050 / 3 = 7,683.33; cooling availability from chamber-controller run state (Thika lost 4 minutes on 6 Oct: 99.997% over 3 × 44,640 chamber-minutes); crate-days without excursion = occupied − crate-days of exposed batches (22,820 against plan 26,040); deliverable energy used (import-limited) = Σ delivered kWh per night / Σ (min(chargers × kW, import limit) × window h) (5,960 / 10,600 = 56.23%); departures met per installed charger 1,302 / 26 = 50.08.
+**Error modes:** `RESTORE_RECORD_MISSING`; `WINDOW_UNDECLARED` (utilisation refused without a declared usable window). **Uncertainty:** EXACT on records. **Negative control:** a site with no fault records has availability 100%, never "unknown" unless its asset list is missing. **Refusal:** never a mean of site percentages; O2 carries no money of its own. **Vectors:** OP-T1 98.62%; OP-T2 56.23% (Embakasi 46.67%, Kasarani 85.71%, Ruiru 61.25%); OP-T3 22,820.
 
 **Assure A4** is not an observer: it is the evidence-pack export of A1–A3 (coverage, residuals, verdicts, rights states, lineage) per period, built in delivery slice 9 (P1-P), with no new measure.
 
@@ -617,7 +617,7 @@ Harvest Cold (2,500; 2 technician visits): must-do THIKA-EPC-STOPGAP 100 (0 visi
 
 | Portfolio | Plan value | Downside | Sensitivity that sets it | Other listed sensitivities |
 |---|---:|---:|---|---|
-| Lakeside | +6,096.00 | **+2,556.00** | the cooperative does not sign a supply contract (huller drops: 6,096 − 3,540) | diesel −20%: 6,096 − (2,916 − 2,286) = +5,466.00; feasible fuel 160 L: 6,096 − (2,916 − 2,166) = +5,346.00 |
+| Lakeside | +6,096.00 | **+2,556.00** | the cooperative does not sign a supply contract (huller drops: 6,096 − 3,540) | diesel −20% on every valued option: 2,286 + 3,744 − 360 = +5,670.00; feasible fuel 160 L: 6,096 − (2,916 − 2,166) = +5,346.00 |
 | Harvest Cold | +3,182.40 | **+1,512.40** | the aggregator does not sign (3,182.40 − 1,670.00) | Kirinyaga recovery 60%: 1,046.80 + 1,670.00 = +2,716.80 |
 | Metro | +95,484.00 | **0.00** | the time-of-use and demand-charge tariff does not apply (flat tariff) | without the demand term only: 6,882.00 a month [derived] |
 

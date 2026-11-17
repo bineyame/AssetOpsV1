@@ -27,4 +27,6 @@
 | 21 | Rev 6: Overview first fold = headline, four figures, the plan's first three moves; value chain behind a disclosure on phones | `#/portfolio` at 1440 and 390 px | As built |
 | 22 | Rev 6: "Design value" labels on replay-based figures (Kobo, Mto demand, Embakasi, Kirinyaga, plan value) | `#/decision/kobo-generator`; click the Overview plan figure | As built |
 | 23 | Rev 6: operations measures (O2), cold realisation stages, plan downside, rights measures by contract and period | Outcomes by site; Thika site page; Act first; What changed | As built |
+| 24 | Rev 7: every replay figure tagged "Design value: the replay has not yet been run on site data" (all routes and drawers); Kirinyaga tagged as an assumption | Act first (Lakeside), `#/decision/kobo-generator`, any drawer on those figures | As built |
+| 25 | Rev 7: EV operations measure is deliverable energy used (import-limited), with the binding limit per depot; Ruiru 34% shown as nameplate charger-hours beside 61% of deliverable energy | Metro: Outcomes by site; Demand and capacity | As built |
 

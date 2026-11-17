@@ -1,4 +1,4 @@
-# Browser audit · Layer 4 mock-up rev 6
+# Browser audit · Layer 4 mock-up rev 7
 
 Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-audit.sh`), against `index.html` opened with `file://`. Raw results: `tools/audit-results.json`. A static-server run (`python3 -m http.server` on 127.0.0.1) was also checked on five routes: all rendered, 0 console errors.
 
@@ -17,7 +17,9 @@ Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-aud
 | Same check on preserved v7.0 screens (exempt; reported separately) | 140 occurrences on 16 preserved routes (16 distinct pages) |
 | Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | 0 |
 | Rev 6: Portfolio tab order Overview, Outcomes by site, Demand and capacity, Act first, What changed, Scope & coverage | pass (old route lands on #/portfolio/demand-and-capacity) |
-| Rev 6: design-value labels on the Kobo, Mto demand, Embakasi, Kirinyaga and Mto inverter decision pages, in each operator's plan-value drawer and in the Overview note | pass |
+| Rev 6/7: design-value labels on the Kobo, Mto demand, Embakasi, Kirinyaga and Mto inverter decision pages; each operator's plan-value drawer (Harvest: assumption wording, no forward replay) and Overview note | pass |
+| Rev 7: design-value scan over every route and every evidence drawer | 53 occurrences scanned on all routes and 734 drawers; unlabelled 0 |
+| Rev 7: EV measure shown as "Deliverable energy used (import-limited)" with binding limits; Ruiru 34% labelled nameplate charger-hours beside 61% of deliverable energy | pass |
 | Rev 6: no "not explained by the model" wording on Ruiru (site page, economics, factor structure, waterfall rows) | pass |
 | Filter or lens controls on Portfolio tabs | 0 |
 | Demo operator selector in the product top bar / in the review bar | 0 / 202 |
@@ -53,7 +55,7 @@ Lakeside expected values are the four precomputed cases in the scenario file (sp
 
 Plan-figure notes as shown on the Overview:
 - lakeside: "plan $2,295 · 91.5% · show how this is worked out of cost recorded −$676 attributed to factors · −$176 not explained by the model yet of $5,000 3 of 3 crew visits Valued options only; includes design values not yet run on site data"
-- harvest: "plan $1,716 · 97.8% · show how this is worked out of cost recorded −$770 attributed to factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits Valued options only; includes design values not yet run on site data"
+- harvest: "plan $1,716 · 97.8% · show how this is worked out of cost recorded −$770 attributed to factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits Valued options only; includes an assumed recovery share (80%) at Kirinyaga"
 - metro: "plan $38,520.80 · 99.3% · show how this is worked out of cost recorded −$3,204 attributed to factors · +$19.68 not attributed yet of $5,000 0 of 2 technician visits Valued options only; includes design values not yet run on site data"
 
 ## Operator switch

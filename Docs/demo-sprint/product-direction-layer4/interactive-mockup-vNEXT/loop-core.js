@@ -218,7 +218,7 @@ function evRecord(key){const [kind,a,b,c]=key.split(':');
   const v=b==='plan'?T.plan:b==='actual'?T.actual:T.variance;
   return {title:`${o.name} · ${cost?'charging and depot cost':'contribution'} · ${b==='plan'?'plan':b==='actual'?'October':'difference from plan'}`,value:usd(v,b==='variance'),cls:b==='plan'?'PLAN':'RECORDED',def:`Portfolio ${cost?'cost':'contribution'} is the sum of the three sites, computed from each site's factors (never an average of site percentages).`,formula:rows.map(r=>r[b==='plan'?1:b==='actual'?2:3]).join(' + ')+` = ${usd(v,b==='variance')}`,parts:rows.map(r=>[r[0],r[1],r[2],r[3],'']),sys:b==='plan'?SRCDEF.plan[0]:'Site economics (billing, fuel, invoices, ledgers)',head:'site, plan, actual, difference',rows,prov:'source-emulated',clocks:[['Service period','1–31 Oct'],['Recognised in','October books, closed 6 Nov']],coverage:`${pct(P.coverage.cost_recorded_share,1)} of cost on recorded facts`,path:`tenants[${o.ti}].portfolio`};}
  if(kind==='opt'){const x=OPT[a],cost=b==='cost',[val,note]=cost?optCost(x):optEffect(x),e=x.economics||{};
-  return {title:`${optLabel(a)} · ${cost?'one-off cost':'12-month result'}`,value:val,cls:cost?'QUOTE':(e.class||'MODELLED'),def:cost?(x.detail?`Breakdown: ${plain(x.detail).replace(/ \+ /g,', ')}.`:note):note,formula:cost?plain(x.one_off_detail||x.detail||'Quoted cost'):(OPT_WORK[a]?OPT_WORK[a]():'As stated by the option.'),parts:[],sys:cost?'Quotes, contract terms and price lists':SRCDEF.model[0],head:'item, value',rows:[[optLabel(a),val]],prov:'demo-simulated',clocks:[['Horizon','12 months, October prices and contracts']],coverage:cost?'Quoted':ecw(e.class||'MODELLED')+', not realised',path:x._path};}
+  return {title:`${optLabel(a)} · ${cost?'one-off cost':'12-month result'}`,value:val,cls:cost?'QUOTE':(e.class||'MODELLED'),def:cost?(x.detail?`Breakdown: ${plain(x.detail).replace(/ \+ /g,', ')}.`:note):note,formula:cost?plain(x.one_off_detail||x.detail||'Quoted cost'):(OPT_WORK[a]?OPT_WORK[a]():'As stated by the option.'),parts:[],sys:cost?'Quotes, contract terms and price lists':REPLAY_OPTS.has(a)?SRCDEF.model[0]:'Option valuation from quotes, contract terms, declared prices and stated assumptions',head:'item, value',rows:[[optLabel(a),val]],prov:'demo-simulated',clocks:[['Horizon','12 months, October prices and contracts']],coverage:cost?'Quoted':ecw(e.class||'MODELLED')+', not realised',path:x._path};}
  if(kind==='clause'){const r=rightsOf(a);return {title:`${r.asset} · contract clause`,value:r.type,cls:'CONTRACT',def:'Reviewed extraction from the contract document: assisted, then checked by a person.',formula:'—',parts:[],sys:'Contract documents (PDF) and reviewed extraction',head:'clause, page reference',rows:r.terms.map((t,i)=>[t,`clause ${i+1}; page reference shown in a pilot`]),prov:'source-emulated',clocks:[['Term',r.until?`to ${fdate(r.until)}`:'not stated']],coverage:'Reviewed extraction',path:r.path,legal:true};}
  if(kind==='stake'){const map={battery:['Kobo battery cover',OPS.lakeside.t.portfolio.allocation.listed_not_summed['BAT-001_cover_exposure'],'Asset value covered by the battery warranty. At stake, never money gained.',`${sitePath('kobo')}.entitlement`],
    batch:['Thika French-bean batch (B-1031) exposed',siteM('thika').incident.batches[0].exposed_value,'120 crates × declared $18 a crate. Exposure: the produce was above its limit; only the 6 crates downgraded by inspection ($108) became a liability.',`${sitePath('thika')}.incident.batches[0]`],
@@ -227,6 +227,7 @@ function evRecord(key){const [kind,a,b,c]=key.split(':');
    penalty:['Kasarani November penalties',siteM('kasarani').incident.november_to_date.penalties,'2 missed departure blocks × $120.',`${sitePath('kasarani')}.incident.november_to_date`]}[a];
   return {title:map[0],value:usd(map[1]),cls:a==='penalty'?'RECORDED':a==='charges'?'ECONOMIC_ACTUAL_FORWARD':'EXPOSURE',def:map[2],formula:map[2],parts:[],sys:a==='batch'?SRCDEF.ledger[0]:a==='penalty'?SRCDEF.penalty[0]:a==='charges'?SRCDEF.billing[0]:'Contract documents and service tickets',head:'item, amount',rows:[[map[0],usd(map[1])]],prov:'source-emulated',clocks:[['Period','October–November']],coverage:a==='penalty'?'Recorded':'Listed beside the plan, never added',path:map[3]};}
  return {title:'Source records',value:'—',cls:'MISSING',def:'Not available yet.',formula:'—',parts:[],sys:'—',head:'',rows:[],prov:'source-emulated',clocks:[],coverage:'—',path:'—'};}
+const REPLAY_OPTS=new Set(['KOB-STOPSOC','KOB-RESERVE','KOB-NOACT','MTO-HULLER','EMB-DEADLINE','EMB-CHEAPEST']);
 function provChips(active){return `<div class="prov" aria-label="Where the data came from">${Object.entries(PROV).map(([k,p])=>`<span class="${k===active?'on':''}">${k===active?icon('check'):''}${p}</span>`).join('')}</div>`;}
 function openEvidence(key){const r=evRecord(key);
  drawer(r.title,`<div class="evhead"><div class="evval">${r.value}</div>${ec(r.cls)}</div>
@@ -237,7 +238,7 @@ function openEvidence(key){const r=evRecord(key);
  <h3>Coverage</h3><p>${r.coverage}</p>
  <h3>Where the data came from</h3>${provChips(r.prov)}<p class="note">Demo data only: nothing here is field connected or from a client’s books.</p>
  ${r.legal?'<p class="legal">This is not a legal decision. Coverage is decided by the supplier or insurer.</p>':''}
- <details class="tech"><summary>For reviewers: demo data reference</summary><pre class="code">${escapeHtml(r.path)}\ndemo data version ${MANIFEST_SHA}</pre></details>`,true);}
+ <details class="tech"><summary>For reviewers: demo data reference</summary><pre class="code">${escapeHtml(r.path)}\ndemo data version ${MANIFEST_SHA}</pre></details>`,true);tagReplay(document.querySelector('.drawer'));}
 
 /* ---------- shell hooks used by the re-based v7.0 screens.js ---------- */
 const LOOP_SITE_TABS=['Overview','Foundation','Health','Performance','Findings','Work','Financials','Evidence'];
@@ -269,7 +270,13 @@ function resolveScreen(id){
  if(op&&op!==LS.op)setOp(op);
  return s;}
 function setOp(op){LS.op=op;try{sessionStorage.setItem('l4-op',op);}catch{}}
-function afterRender(s){document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
+/* rev 7 (N-M2): every figure that rests on a replay carries the visible design-value tag in its own container */
+const REPLAY_RE=/210 L|\b(?:avoid(?:s|ed)?|remov(?:es|ed))(?: only)? 20 L|20 L avoided|61 of 61|4 of 61|\$2,916|68 L|\$395|\$3,540|31 of 31|\$6,096|\$2,556|\$3,546|\$5,670|\$5,346/;
+const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
+function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Set();let n;
+ while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest('.dv,.vh,select,option,details.tech,script,style'))continue;if(REPLAY_RE.test(n.textContent)){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector('.dv'))conts.add(c);}}
+ conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c;t.insertAdjacentHTML('beforeend',' '+dvTag());});}
+function afterRender(s){tagReplay(document.querySelector('.canvas'));document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
 
 /* click and change hooks */
 function loopClick(e){const el=e.target.closest('button,a,input');if(!el)return false;

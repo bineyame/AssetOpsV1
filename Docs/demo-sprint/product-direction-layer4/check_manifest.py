@@ -287,7 +287,19 @@ def operations(t: dict) -> None:
             eq("O2 crate-days without excursion", m["portfolio"], sum(D(str(v)) for v in m["sites"].values()))
         if m["id"] == "delivered_kwh_per_field_visit":
             eq("O2 kWh per visit", m["portfolio"], (D(str(pf["chain"]["delivered_kwh"])) / D(3)).quantize(D("0.01")))
+        if "binding_limit" in m:
+            byname = {s_["site"]: s_ for s_ in t["sites"]}
+            for k, d in m["denominator_kwh_per_night"].items():
+                ph = byname[k]["physical"]; hours = {"Embakasi": 12, "Kasarani": 7, "Ruiru": 8}[k]
+                eq(f"O2 deliverable {k} = min(chargers x kW, import) x window", d, min(D(ph["chargers"]) * D(ph["charger_kw"]), D(ph["import_limit_kw"])) * hours)
+            eq("Ruiru deliverable agrees with RUI-ABSORB6", m["denominator_kwh_per_night"]["Ruiru"], {o["id"]: o for o in byname["Ruiru"]["decision"]["options"]}["RUI-ABSORB6"]["deliverable_kwh"])
     al = pf["allocation"]
+    if t["vertical"] == "MINI_GRID":
+        kob, kis, mto = t["sites"]
+        h = {o["id"]: o for o in mto["decision"]["options"]}["MTO-HULLER"]
+        huller_lo = (D(str(h["economics"]["revenue_monthly"])) - D(h["forward_replay"]["extra_fuel_l"]) * D("1.00") - D(str(h["economics"]["collection_cost_monthly"]))) * 12 - D(str(h["economics"]["one_off"]))
+        stop_lo = D(str({o["id"]: o for o in kob["decision"]["options"]}["KOB-STOPSOC"]["sensitivity"]["diesel_minus_20pct_net_12m"]))
+        eq("diesel -20% applied to the whole plan", al["downside"]["others"]["diesel_minus_20pct"], stop_lo + huller_lo - D(360))
     if "downside" in al and "modelled_12m_change" in al:
         le("downside <= plan value", al["downside"]["value"], al["modelled_12m_change"]["total"])
 

@@ -83,14 +83,18 @@ Read from `tenants[*].portfolio.protect.measures` (`loop-protect.js`): `id` → 
 
 ## 3b. Rev 6 additions
 
-- **Operations measures (O2)**: `tenants[*].portfolio.operations.measures`. Site values: asset availability = `numerator_asset_days_available ÷ denominator_asset_days` (e.g. Kisiwa 122 ÷ 124 = 98.39%); cooling availability = 1 − `minutes_unavailable ÷ minutes_per_room` (Thika 1 − 4 ÷ 44,640 = 99.991%); charger energy use `sites_pct` with `numerator_kwh_per_night`/`denominator_kwh_per_night`; field visits and crate-days without an excursion from `sites`. Portfolio values `portfolio_pct` or `portfolio` (Σ ÷ Σ); plan `plan`.
+- **Operations measures (O2)**: `tenants[*].portfolio.operations.measures`. Site values: asset availability = `numerator_asset_days_available ÷ denominator_asset_days` (e.g. Kisiwa 122 ÷ 124 = 98.39%; Kobo 155 ÷ 155 with 5 declared assets; portfolio 98.62%); cooling availability = 1 − `minutes_unavailable ÷ minutes_per_room` (Thika 1 − 4 ÷ 44,640 = 99.991%); deliverable energy used (import-limited) `sites_pct` with `numerator_kwh_per_night`/`denominator_kwh_per_night` and `binding_limit` (portfolio `portfolio_pct` 56.23 = 5,960 ÷ 10,600); departures met per installed charger `portfolio` 50.08 (basis states 51.75 per charger-day in service); Ruiru's 61% beside its 34% nameplate charger-hours = `sites_pct.Ruiru` rounded; field visits and crate-days without an excursion from `sites`. Portfolio values `portfolio_pct` or `portfolio` (Σ ÷ Σ); plan `plan`.
 - **Rights measures (P4/A5)**: `tenants[*].portfolio.rights.measures` (`share`, `items`, `count`, `nearest`, `october`, `note`), tags written as "plain name (TAG)".
 - **Protect additions**: `customer_hours_interrupted` (0); `asset_value_at_risk` with `status: NOT_AVAILABLE_YET` shown as "Not available yet" with its reason; exposed stock listed by site (`portfolio: LISTED`).
-- **Downside**: `allocation.downside.value`, `sensitivity`, `others` (Lakeside 2,556; 5,466; 5,346 · Harvest 1,512.40; 2,716.80 · Metro 0). Shown as "Downside:" in the default case of the switches and "Downside shown for the default plan:" otherwise.
+- **Downside**: `allocation.downside.value`, `sensitivity`, `others` (Lakeside 2,556; 5,670; 5,346 · Harvest 1,512.40; 2,716.80 · Metro 0). Shown as "Downside:" in the default case of the switches and "Downside shown for the default plan:" otherwise.
 - **Must-do and protective spend**: Lakeside `allocation.must_do_spend` 1,800, `protective_spend` 430; Thika and Kasarani stop-gaps `must_do: true` (`must_do_reason`), amounts from `spend_breakdown`.
 - **Plan-value drawer**: Lakeside rows from `allocation.modelled_12m_change`; Harvest and Metro from the valued options' `net_12m` / `net_contract`. Design-value label is a text constant applied to the figures listed in CHANGE-REGISTER §7a (OE-6).
 - **Cold realisation stages**: chargeable = invoiced revenue ÷ storage rate; invoiced = `revenue`; received = `collected`; leaks are text (no October difference).
 - **Ruiru charger use** reads `charger_hour_utilisation` (now 0.34).
+
+## 3c. Rev 7: design-value tag
+
+Text constant "Design value: the replay has not yet been run on site data", applied by `tagReplay` (loop-core.js) to every container holding a replay figure: 210 L, 20 L avoided, 61 of 61, 4 of 61, $2,916 (`KOB-STOPSOC`), 68 L, $395, $3,540 (`MTO-HULLER`), 31 of 31 (`EMB-DEADLINE.replay`), and plan values that include them: $6,096, $2,556, $3,546 (switch cases), $5,670, $5,346 (`allocation.downside.others`). Kirinyaga carries "Assumption: Kirinyaga recovery share 80%, range 60–90%" (`KIRI-REPAIR.recovery_share`, `recovery_range`).
 
 ## 4. Outcomes by site, Demand and capacity, What changed, Scope & coverage
 

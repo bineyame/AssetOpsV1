@@ -1019,3 +1019,216 @@ Both are small fixes. Five Lows follow. The foundation, generality, derivation a
 - I did not rerun `tools/run-audit.sh`, so its contrast, focus and screenshot outputs are unchecked by me.
 - The forward-replay design values themselves (still design values, which is the point of N-M2).
 - The rendered mermaid in `layer4-transformation-design.html`.
+
+## Re-review (rev 7)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 7 working tree on `task/product-direction-layer4-design`, uncommitted over `fcc2ec049`. I judged it against "## Re-review (rev 6)" (N-M1, N-M2, N-L1 to N-L5), the author response (rev 7), the owner's brief and the owner's direction file (messages 1–8). I also assessed five points the coordinator relayed at the owner's request. This appended section is my only edit; I changed nothing in the pack, the code or any database.
+
+### Verdict: **REVISE (targeted, documents only)**
+
+- **The rev 6 findings are resolved.**
+  - N-M1 is fixed, and every figure reconciles by hand.
+  - N-M2 is fixed on every surface rev 6 named, and on all four Act-first switch cases.
+  - N-L1 to N-L4 are fixed.
+  - What remains of N-M2 is a Low residue on secondary pages (R7-L1), plus an audit that cannot find what its own list omits.
+- **Three of the owner-requested points are real design gaps at Medium:**
+  - CP-1: the structural alternative to six tabs is not recorded or offered to the owner;
+  - CP-2: decision pages do not show each option's effect on the Protect structure;
+  - CP-3: the replay-calibration plan does not cover two of the three replays, and it is not prioritised ahead of client use.
+- **All three are fixed in the documents** (a decision record, model and manifest text, a phase-plan change). None needs a mock-up redesign. After one short author round, what is left is owner decisions (see CP-4).
+
+### Resolution of the rev 6 findings
+
+**N-M1: resolved.**
+
+Each depot's deliverable energy is min(chargers × kW, import limit) × window, using the manifest `physical` blocks.
+
+| Depot | Chargers × kW | Import limit | Binding | Window | Deliverable a night | Used a night | Share |
+|---|---|---|---|---|---|---|---|
+| Embakasi | 10 × 60 = 600 | 500 | import limit | 17:30–05:30 = 12 h | 6,000 | 86,800 / 31 = 2,800 | 46.67% ✓ |
+| Kasarani | 4 × 50 = 200 | 250 | chargers | 22:00–05:00 = 7 h | 1,400 | 37,200 / 31 = 1,200 | 85.71% ✓ |
+| Ruiru | 12 × 60 = 720 | 400 | import limit | 21:00–05:00 = 8 h | 3,200 | 60,760 / 31 = 1,960 | 61.25% ✓ |
+| Portfolio (Σ/Σ) | | | | | 10,600 | 5,960 | 56.23% ✓ |
+
+- **Capacity options.**
+  - Ruiru's 3,200 equals `RUI-ABSORB6.deliverable_kwh`, and the checker now asserts it.
+  - The headroom is 3,200 − 1,960 = 1,240 kWh, room for 1,240 / 140 = 8.86 buses. So +6 buses (840 kWh) passes and +10 (1,400 kWh) fails, which matches `RUI-ABSORB10` "exceeds the 400 kW import limit".
+  - Kasarani at 85.71%, with chargers binding, agrees with the 1 Nov fault: 3 × 50 × 7 = 1,050 < 1,200 (`capacity_after`).
+  - Nameplate use is 1,960 / (12 × 60 × 8) = 34.03%. It is kept on screen only as a labelled secondary figure.
+- **Corrected text.** Contracts §2.7, models §3.13 (OP-T2: 56.23%; 46.67%, 85.71%, 61.25%), the main document, the matrix, A18 and the CSV measure ids all agree.
+- **On screen** (headless Chromium, Metro):
+  - Outcomes by site shows "Deliverable energy used (import-limited)" with the binding limit per depot.
+  - Overview reads "Ruiru: 34% of nameplate charger-hours; 61% of deliverable energy a night (the 400 kW import limit binds)" and "Deliverable energy used (import-limited): 56.23%".
+  - Demand and capacity and `#/decision/ruiru-expansion` use the same 3,200 kWh and 61% wording. The two definitions no longer contradict each other.
+- **Residue:** the CSV unit text is stale (R7-L2).
+
+**N-M2: resolved on the rev 6 surfaces. The residue is Low (R7-L1).**
+- **How I checked.** I ran my own scan in headless Chromium:
+  - all 119 Added, Changed and Merged routes × 3 operators, plus the four Lakeside Act-first switch cases;
+  - every `.ev-num` drawer opened on each (337 figure hits, 0 drawer errors);
+  - a wider figure list than the author's: the rev 7 list plus 262.50, 250.50, 2,286, 2,166, 3,744, 160 L, 120 L, 3 days, 225 kWh, 95,484, 8,082, 13,356 and 406 kW.
+- **What is now labelled:**
+  - **Lakeside Overview:** the Optimize card factor line and "Sites that look alike" (210 L and $2,916), and the hero plan figure.
+  - **Act first, all four cases** (5,000/yes, 5,000/no, 6,500/yes, 6,500/no): 65 hits, **0 unlabelled**. That covers the path cards (retitled), the four-case table, the plan rows, the totals and the downside line with +$5,670 and +$5,346.
+  - **Decision pages:** the Mto inverter banner now names the Kobo stop-setting replay and the huller replay. Mto demand ($395, $3,540, 68 L) is labelled, and so is every Kobo option row.
+  - **Drawers:** all three plan-value drawers carry the right label. Harvest carries the assumption wording, and its source line reads "Option valuations from the repair quote, the recovery assumption and the draft contract terms".
+- **What the audit does not cover.** The widened scan does not cover what A20 promises, because it is circular:
+  - `tools/audit.mjs:30` (`DV_SCAN`) and the tagger `loop-core.js:274` (`REPLAY_RE`) use the same hand-written list of literals. The tagger labels exactly what the audit then checks, so "0 unlabelled" can only mean "the tagger ran".
+  - A replay-derived value missing from the list (for example 250.50 or 2,286) is neither tagged nor detected.
+  - A20 promises "every figure resting on a replay, and every value computed from one … wherever it appears". The audit tests a subset that the author chose.
+  - The author's response also says the scan covers only the default switch state. My scan of the other three cases found them labelled.
+  - See R7-L1 for what slips through.
+
+**N-L1: resolved.** Contracts l.457 reads "R3a, P4, A5, S12". There are no `@@` markers in any pack file except REVIEW.md, where they appear only as the quoted finding.
+
+**N-L2: resolved.**
+- My recomputation:
+  - stop setting at diesel 1.00: (210 × 1.00 − 12) × 12 − 90 = **2,286.00**;
+  - huller: (495 − 68 × 1.00 − 15) × 12 − 1,200 = 412 × 12 − 1,200 = **3,744.00**;
+  - plan: 2,286 + 3,744 − 360 = **+5,670.00** ✓.
+- Feasible fuel 160 L: (160 × 1.25 − 12) × 12 − 90 = 2,166, and 2,166 + 3,540 − 360 = **+5,346.00** ✓. Applying this one to the Kobo option only is correct, because only that option has a feasible-fuel uncertainty.
+- The checker recomputes +5,670 from the option economics (`check_manifest.py`, "diesel -20% applied to the whole plan").
+- Updated in the manifest, models §6.4, the main document, R14 and the screen.
+- **Residue:** the generated change register still says +$5,466 (R7-L2).
+
+**N-L3: resolved.**
+- The path cards read "Modelled 12-month change from the valued options".
+- The Lakeside drawer no longer duplicates the "Net of …" sentence.
+- The Harvest drawer uses "Assumption: Kirinyaga recovery share 80%, range 60–90%; no replay is involved" and no longer says "forward replay".
+- A trivial residue: the Harvest and Metro drawers still read "Net of the valued options' own one-off costs. From the valued options: … net of their own costs ($620)". The point is made twice in one paragraph. This is cosmetic and not a finding.
+
+**N-L4: resolved.**
+- The measure is renamed "departures met per installed charger" (1,302 / 26 = 50.08), with the charger-day basis 1,302 / 25.16 = 51.75 in its note (26 − 26/31 = 25.161).
+- The asset lists are declared, with a counting rule: Kobo 5 (PV, inverter, battery, PCS, generator), Kisiwa 4, Mto 5.
+- My recomputation: (5 × 31) + (4 × 31 − 2) + (5 × 31 − 4) = 155 + 122 + 151 = **428**, and 155 + 124 + 155 = **434**. 428 / 434 = 0.98618, so **98.62%** ✓.
+- Shown on Outcomes by site (portfolio 98.62%, Kisiwa 98.39%), and in models §3.13 and the main document.
+- **Residue:** contracts §2.7 l.173 prints "428 / **403**" (R7-L2).
+
+**N-L5: not re-checked as a finding.** The rev 6 screenshot renames are committed in `fcc2ec049`.
+
+### Coordinator points (owner-requested)
+
+**CP-1 · Medium · The structural alternative to six parallel tabs was not considered on the record.**
+- **Point:** the tab review mostly confirmed what was there.
+- **Disposition:** upheld, as a decision-record and owner-choice gap, not as a defect in the chosen structure.
+- **What the pack does:**
+  - Main §6.1(1) states "The loop is the information architecture … The Portfolio's sections follow Observe → Evaluate/Choose → Prove".
+  - §6.1(2) then fixes the frame first: "Keep the product's navigation … The Portfolio keeps six tabs, judged one by one against the loop".
+  - The §6.2 table judges each existing tab (keep / rename / reorder). It never weighs a different frame, such as a single sequential Portfolio page (what is happening → why → the plan → proof, with coverage alongside), or fewer, staged sections.
+  - I searched the pack for any consideration of a sequential or single-page alternative and found none.
+  - Q2 offers the owner only "(a) as proposed; (b) keep the old order and names". Both are tab variants.
+- **What the owner asked for:**
+  - The owner asked to "review the overall current portfolio experience and structure it in a way those requirements are met" (direction file, message 2).
+  - The owner criticised reuse that "did not establish the core future mechanics, and then decided what to reuse" (message 6).
+  - "No … new menu items" does not by itself require keeping six peer tabs. Tabs that follow the loop sequentially could be one structure that meets it, but the pack never argues the point.
+- **What already exists:** the Overview's first fold (headline → four figures → the plan's first three moves) is already a sequential reading of the loop. A fair case for tabs exists: deep views stay reachable, and the live product already has the frame. It is just not written down.
+- **Why it matters:** the owner's central complaint across messages 1, 2 and 6 is narrowness: keeping today's form and re-filling it. This is the one structural UI choice where the pack kept the form without arguing against an alternative.
+- **Fix (documents only):**
+  - add a short considered-alternatives paragraph to §6.2: tabs, against one sequential Portfolio page, against a staged Overview with tabs as drill-downs. Judge each against the loop, the four concerns and demo flow, and record why the choice wins;
+  - add the sequential option as Q2 (c), so the owner decides between real alternatives.
+  - No mock-up rebuild is needed unless the owner picks (c).
+
+**CP-2 · Medium · Mechanic 3 says the structure shows each option's effect, but decision pages show Protect only as bound pass/fail.**
+- **Disposition:** upheld as a derivation gap.
+- **What the pack promises:**
+  - Main §2.3 (Mechanic 3) is headed "options change factors; the structure shows the effect".
+  - §6.2 says "A decision page … shows each option's counterfactual structure."
+  - Since rev 5, Protect is a declared structure of measured factors (A15; manifest `portfolio.protect`).
+- **What the pack delivers:**
+  - Only the money structure has a counterfactual per option.
+  - The manifest holds no per-option Protect values. The author response (rev 6, l.100 and l.211) says "Decision pages show the per-option bound checks, not a per-option Protect value table, because the manifest holds no per-option Protect values."
+  - In the browser, `#/decision/kobo-generator` shows a bound row ("Battery at least 35% at 5 am: held on 61 of 61 days / broken on 4 of 61"), not the change in unserved critical kWh or obligation-hours per option.
+- **Why the gap matters:**
+  - The plan spends money on options whose only value is on Protect: Kisiwa repair 1,800 (must-do), Kobo battery evidence 430 (protective), Thika night cover 100 and Kasarani stopgap 90.
+  - Identity M4 (main l.170) explicitly counts "spend on options valued only on Protect measures".
+  - Yet their effect is asserted in prose, never computed through the structure. Examples: "evening obligation-hours without redundancy back to 0" (main l.447) and "their effect is on Protect measures" (Act-first total).
+  - So the Protect structure is built for Observe but not used in Evaluate. Read upward, a must-do option cannot show the Protect measure it moves.
+- **Fix (either):**
+  - **Preferred, cheap in the manifest:** declare per-option Protect deltas for the options that carry Protect value, at least KIS-REPAIR, BAT-EVIDENCE, THIKA-EPC-STOPGAP, KAS-OEM-STOPGAP and the rejected no-action rows. Have the checker compose them, and show a "Protect measures under each option" row on those decision pages.
+  - **Or:** narrow §2.3 and §6.2 to say that Protect enters Evaluate only as bounds, and record that as a decision with the brief's justification. I would not recommend this: it contradicts the rev 5 H1 resolution's intent.
+
+**CP-3 · Medium · The replay calibration plan covers only Kobo and is not prioritised ahead of client use.**
+- **Disposition:** upheld, partly as a plan defect and partly as an owner prioritisation call.
+- **What the pack does:**
+  - It labels the design values honestly, and I verified the labels.
+  - Its plan to compute them is the "Spike before slice 4" (phase plan l.113–117), a gate on slice 4. Slice 4 follows slices 1–3 (UI exposure, the commercial store, the structure registry).
+  - RR1 (decisions l.52) says the check comes "before 210 L is used client-facing". No slice, gate or rule enforces that. The mock-up and the demo story lead with 210 L and +$6,096, and nothing in the plan stops a client from seeing them first.
+- **Scope gap:**
+  - The spike replays Kobo only ("Replay observed PV-available and load for the existing Kobo demo data").
+  - Yet its exit claims to replace "(210 L, 20 L, 68 L)", and 68 L is the Mto huller's demand-on-headroom replay at another site.
+  - R13 also ties Embakasi's 31 of 31 nights to "until the replay calibration spike passes". No spike or slice ever calibrates the Embakasi schedule replay; PR 4e builds Mto's, and slice 8 builds EV's, with no calibration step.
+  - So the Mto and Embakasi labels have no exit.
+- **Priority:** the spike is read-only on existing Kobo demo data (`host/execution_adapter.py:869`). It depends on none of slices 1–3, so it can run first, in parallel. Gating it behind slice 3 delays the evidence for the strongest demo claim without reason.
+- **Fix (documents):**
+  - make the spike the first item of the build lane, read-only and in parallel with slice 1;
+  - extend it to, or add matching spikes for, the Mto huller headroom replay and the Embakasi schedule replay, each with its own exit;
+  - correct the exit text so the Kobo spike replaces only Kobo figures;
+  - add an explicit rule to the plan and to Q5 / client-demo strategy: no client sees replay-derived figures until their spike has passed, or they are shown with the label and the presenter says so.
+- **Owner decision:** whether "labelled" is enough for an early prospect demo. Put it to the owner in the questions table.
+
+**CP-4 · Diminishing returns: is another author round needed?**
+- **Disposition:** agreed in part.
+- The numeric and label findings have converged. N-M1 and N-M2 are closed, and the rev 7 Lows (R7-L1, R7-L2) are small residues that need no full round.
+- CP-1 to CP-3 are not polish. They are design-reasoning and plan gaps, and each is fixed in the documents in one short round:
+  - CP-1: a paragraph and a Q2 option;
+  - CP-2: manifest Protect deltas and one decision-page row, or a recorded narrowing;
+  - CP-3: a phase-plan reorder and scope, and an exit rule.
+- After that round, everything left is an owner decision: Q1–Q12, the new Q2 (c), and the client-exposure rule from CP-3.
+- I recommend that the next re-review be limited to those three items and not reopen settled arithmetic.
+
+**CP-5 · Low · Navigability: there is no short guided path for the owner's review.**
+- **Disposition:** upheld at Low.
+- **How large the pack is:**
+  - The main document is 640 lines, with ten companion artefacts (5,774 lines of Markdown in all) and 184 screens.
+  - `interactive-mockup-vNEXT/owner-inspection-checklist.md` exists (25 rows). It has grown as a log of revisions (rows 16–25 are labelled "Rev 5/6/7"), not a path.
+  - `walkthroughs.md` (46 lines) is a timed presenter script, not a review guide.
+- **Stale headers:** the main document and the decisions file both still say "rev 4 (redesign)" (l.3). The pack index says REVIEW.md holds the "History of rev 1–3 reviews; kept unchanged", but it now holds rev 1–7.
+- **Fix:** a one-page "owner review in 30 minutes" at the top of the checklist or the main document. It would cover:
+  - the five mechanics (§2, one paragraph each);
+  - the decisions that need the owner (Q1, Q2, Q3, Q5, Q7, Q9, and the CP-3 rule), each with the one screen to open;
+  - one operator walk (Lakeside: Overview → Outcomes by site → Act first switches → Kobo decision → What changed);
+  - one cross-vertical contrast (Metro Ruiru, Harvest Thika).
+
+  Then refresh the rev labels. This is needed for an efficient owner gate, but it does not block.
+
+### New findings (rev 7)
+
+**R7-L1 · Low · A20's "every occurrence" still misses replay-derived values that are not on the tagger's hand list.** In the browser:
+- **Lakeside, `#/portfolio/what-changed`:** the commitment row "Kobo: stop the generator at 70% battery … +$250.50 a month" is unlabelled, while the huller row in the same table is labelled. 250.50 = 210 L × 1.25 − 12, a replay value.
+- **`#/decision/kobo-generator` sensitivity lines:**
+  - "Diesel 20% cheaper: $2,286 over 12 months; ranking unchanged."
+  - "Only 160 L a month proves avoidable: $2,166 over 12 months; still first."
+
+  These sensitivities are named in A20. The page banner lists only "the 210 L and 20 L avoided, the 61 of 61 and 4 of 61 replayed days, and the $2,916", so neither line is labelled.
+- **Metro `#/portfolio/what-changed`:** "Embakasi … $8,082 a month below no action". The Embakasi schedule value is treated as a design value elsewhere (the Act-first row, the decision option row, the plan drawer).
+- **Metro Overview "Sites that look alike":** Embakasi bill figures, unlabelled.
+- **The plan value itself:** $95,484 is labelled in its drawer and on Act first. On the Overview hero it carries the plain-text note "includes design values not yet run on site data", as accepted at rev 6.
+- **Cause:** both `REPLAY_RE` (`loop-core.js:274`) and `DV_SCAN` (`tools/audit.mjs:30`) are the same literal list, so the audit cannot find an omission.
+- **Fix:** derive the replay-dependent value set from the manifest (options carrying `forward_replay` or `replay`, their economics, sensitivities and the allocation values built from them) in `gen_fixtures.py`, and use it for both the tagger and an independent audit. Or, at minimum, add 250.50, 2,286, 2,166, 8,082 and 13,356 and tag the two Kobo sensitivity lines.
+- It is Low because every headline and plan surface is labelled. It should still be fixed before the audit's "0 unlabelled" is cited as R13 evidence.
+
+**R7-L2 · Low · Stale residues from the rev 7 edits.**
+- `economic-metric-and-effect-contracts.md:173` prints "(155 + 122 + 151) / (155 + 124 + 155) = 428 / **403** = 98.62%". It should read 434.
+- `interactive-mockup-vNEXT/CHANGE-REGISTER.md:288` and its generator `tools/gen_docs.cjs:116` still read "diesel 20% cheaper +$5,466". It should read +$5,670.
+- `outcome-lever-capability-traceability.csv` row T0438 describes `deliverable_energy_used` as "share of deliverable charger energy in the usable window", the pre-rev 7 unit. It should say "share of deliverable energy a night (import-limited)".
+- The main document and decisions headers say "rev 4"; see CP-5.
+
+### Regression checks
+
+- **`python3 check_manifest.py`:** 222 checks passed, 0 failed. The new checks are the import-limited denominators per depot, Ruiru against RUI-ABSORB6, and diesel −20% on the whole plan.
+- **Rebuild in a scratch copy:** `tools/rebase_v70.py`, `tools/gen_fixtures.py` (sha 00d50e72bfc1), `node build.mjs` and `node tools/gen_docs.cjs`. `index.html`, `fixtures.js`, `screens.js`, `portfolio.js`, `outcomes.js`, `mockups.css`, `CHANGE-REGISTER.md` and `browser-audit.md` are **byte-identical** to the working tree, and no other modified file differs.
+- **The 65 Preserved v7.0 screens:**
+  - `git diff fcc2ec049` shows no change under `frontend/mockups/v70`, `src-v70-baseline/`, `tools/rebase_v70.py`, `screens.js`, `portfolio.js` or `outcomes.js`.
+  - In the browser, 0 of the 65 Preserved screens carry a `.dv` tag for any of the 3 operators. The new post-render tagger does not touch them.
+  - Comparing `.canvas` text with `frontend/mockups/v70/index.html` served separately: 21 are raw-identical. In the other 44, every differing token is a re-basing display name (GreenHarvest→Thika, Charging Hub→Ruiru/depot, MG→KOBO, DEMO-01→001 or THIKA, Cold Room→cold room), which matches the rev 6 finding of 65 of 65 after the name map.
+- **Owner expectations:**
+  - `loop-*.js` contain no CEO/COO/CFO/CCO strings.
+  - The author's audit (`tools/audit-results.json`) reports 0 role or question hits, 0 filter controls and 0 operator selectors in the top bar on 202 routes. My route walk saw the same tab row and no filter chips. Rev 7 adds no menus, filters or role wording.
+  - The new EV measure is built from the structure's own `deliverable_kwh_per_night` stage, and the asset counts come from a declared list and rule. Both are factor-built, not detected at the top.
+- **Browser walk:** headless Chromium 1155, served statically on 127.0.0.1:18773 (the pack) and 18774 (v7.0); 5490 and 8990 were not touched. 119 non-Preserved routes × 3 operators, plus the four switch cases, with every drawer opened: 0 drawer errors. Both servers were stopped, and the ports are free.
+
+### Not verified
+
+- I did not rerun `tools/run-audit.sh`, so its contrast, focus, 390 px overflow and screenshot outputs are the author's numbers, not mine. My checks ran at 1440 px only.
+- The replay design values themselves (CP-3).
+- The rendered mermaid in `layer4-transformation-design.html`.

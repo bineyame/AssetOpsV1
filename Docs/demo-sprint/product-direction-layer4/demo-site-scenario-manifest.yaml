@@ -291,8 +291,9 @@ tenants:
     operations:   # O2 (rev 6, re-review LY-1): operational productivity as measured factors; Σ/Σ over sites
       period: "2026-10"
       measures:
-        - {id: asset_availability, unit: "% of asset-days", objective: O2, plan: 100.0, class: RECORDED, basis: "1 - asset-days out of service / (major assets x days); assets: Kobo 4, Kisiwa 4, Mto 5",
-           numerator_asset_days_available: {Kobo: 124, Kisiwa: 122, Mto: 151}, denominator_asset_days: {Kobo: 124, Kisiwa: 124, Mto: 155}, portfolio_pct: 98.51}
+        - {id: asset_availability, unit: "% of asset-days", objective: O2, plan: 100.0, class: RECORDED, basis: "1 - asset-days out of service / (major assets x days); counting rule: every power-conversion or generation unit listed in the site's physical block",
+           assets: {Kobo: ["PV array", "inverter (50 kW AC)", "battery", "battery converter (PCS 30 kW)", "generator"], Kisiwa: ["PV array", "battery", "GEN-KS-01", "GEN-KS-02"], Mto: ["PV array", "INV-MT-01", "INV-MT-02", "battery", "generator"]},
+           numerator_asset_days_available: {Kobo: 155, Kisiwa: 122, Mto: 151}, denominator_asset_days: {Kobo: 155, Kisiwa: 124, Mto: 155}, portfolio_pct: 98.62}
         - {id: field_visits, unit: visits, objective: O2, plan: 3, class: RECORDED, basis: "work records: routine visits completed", sites: {Kobo: 1, Kisiwa: 1, Mto: 1}, portfolio: 3}
         - {id: delivered_kwh_per_field_visit, unit: kWh per visit, objective: O2, class: DERIVED, basis: "delivered kWh / field visits (Σ/Σ)", portfolio: 7683.33}
     rights:   # P4 and A5 by contract and period (rev 6, re-review LY-5 / L5)
@@ -348,7 +349,8 @@ tenants:
       must_do_spend: 1800.00            # KIS-REPAIR
       protective_spend: 430.00          # BAT-EVIDENCE
       value_label: "modelled 12-month change from the valued options, net of their own one-off costs; must-do and protective spend not valued in money"
-      downside: {value: 2556.00, sensitivity: "the cooperative does not sign a supply contract (huller drops)", others: {diesel_minus_20pct: 5466.00, feasible_fuel_160l: 5346.00}, class: MODELLED}
+      downside: {value: 2556.00, sensitivity: "the cooperative does not sign a supply contract (huller drops)", others: {diesel_minus_20pct: 5670.00, feasible_fuel_160l: 5346.00}, class: MODELLED,
+                 note: "diesel -20% applied to every valued option that buys diesel: stop setting 2,286.00 + huller 3,744.00 ((495 - 68 x 1.00 - 15) x 12 - 1,200) - inverter claim 360.00"}
       excluded:
         - {id: MTO-INV-BUYNOW, reason: "6,430 needed with everything else; budget 5,000"}
         - {id: KIS-BATT60, reason: "over budget; payback ~6 years"}
@@ -621,11 +623,12 @@ tenants:
     operations:
       period: "2026-10"
       measures:
-        - {id: charger_energy_utilisation, unit: "share of deliverable charger energy in the usable window", objective: O2, class: DERIVED,
-           basis: "delivered kWh per night / (chargers x kW x window hours); Σ/Σ",
-           numerator_kwh_per_night: {Embakasi: 2800, Kasarani: 1200, Ruiru: 1960}, denominator_kwh_per_night: {Embakasi: 7200, Kasarani: 1400, Ruiru: 5760},
-           sites_pct: {Embakasi: 38.89, Kasarani: 85.71, Ruiru: 34.03}, portfolio_pct: 41.50, note: "Embakasi window 17:30-05:30; Kasarani 22:00-05:00; Ruiru 21:00-05:00"}
-        - {id: departures_met_per_charger_in_service, unit: departures per charger, objective: O2, class: DERIVED, portfolio: 50.08, basis: "1,302 departures / 26 chargers in service"}
+        - {id: deliverable_energy_used, unit: "share of deliverable energy a night (import-limited)", objective: O2, class: DERIVED,
+           basis: "delivered kWh per night / deliverable kWh per night, where deliverable = min(chargers in service x kW, import limit) x window hours (the deliverable_kwh_per_night stage of the structure); Σ/Σ",
+           numerator_kwh_per_night: {Embakasi: 2800, Kasarani: 1200, Ruiru: 1960}, denominator_kwh_per_night: {Embakasi: 6000, Kasarani: 1400, Ruiru: 3200},
+           binding_limit: {Embakasi: "import 500 kW (chargers 600 kW)", Kasarani: "chargers 200 kW (import 250 kW)", Ruiru: "import 400 kW (chargers 720 kW)"},
+           sites_pct: {Embakasi: 46.67, Kasarani: 85.71, Ruiru: 61.25}, portfolio_pct: 56.23, note: "Embakasi window 17:30-05:30; Kasarani 22:00-05:00; Ruiru 21:00-05:00. Nameplate charger-hour utilisation (Ruiru 0.34) is a different, secondary figure: the import limit, not the chargers, binds"}
+        - {id: departures_met_per_installed_charger, unit: departures per installed charger, objective: O2, class: DERIVED, portfolio: 50.08, basis: "1,302 departures / 26 installed chargers (CH-R7 connector 2 was out of service 26 of 31 days; per charger-day in service the figure would be 1,302 / 25.16 = 51.75)"}
     rights:
       period: "as of 6 Nov"
       measures:
