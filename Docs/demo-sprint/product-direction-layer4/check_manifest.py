@@ -58,12 +58,26 @@ def mini(t: dict) -> None:
             eq(f"{n} {k} contribution", r["contribution"],
                D(str(r["revenue"])) - D(str(r["diesel_cost"])) - D(str(r["om"])) - D(str(r["staff"])))
         a = p["actual"]
+        if "delivered_kwh" in a:   # value chain (main design 2.1): delivered -> metered -> billed
+            loss = D(str(a.get("technical_loss_kwh", 0))) + D(str(a.get("expected_technical_loss_kwh", 0))) + D(str(a.get("unexplained_kwh", 0)))
+            eq(f"{n} chain delivered->metered", D(str(a["delivered_kwh"])) - loss, a["metered_kwh"])
+            eq(f"{n} chain metered->billed", D(str(a["metered_kwh"])) - D(str(a.get("adjustments_kwh", 0))) - D(str(a.get("unbilled_mapping_kwh", 0))), a["billed_kwh"])
         if "collected" in a:
             eq(f"{n} cash chain", D(str(a["collected"])) + D(str(a["in_transit"])) + D(str(a["outstanding"])), a["revenue"])
         eq(f"{n} variance", p["variance"], D(str(a["contribution"])) - D(str(p["plan"]["contribution"])))
         eq(f"{n} bridge", sum(D(str(b["amount"])) for b in p["bridge"]), p["variance"])
         total_var += D(str(p["variance"]))
     eq("mini portfolio variance", t["portfolio"]["variance"], total_var)
+    ch = t["portfolio"]["chain"]; acts = [s_["period"]["actual"] for s_ in t["sites"]]; plans = [s_["period"]["plan"] for s_ in t["sites"]]
+    for k in ("delivered_kwh", "metered_kwh", "billed_kwh", "revenue", "collected", "in_transit", "outstanding"):
+        eq(f"mini portfolio chain {k}", ch[k], sum(D(str(a_[k])) for a_ in acts))
+    eq("mini portfolio plan billed", ch["plan_billed_kwh"], sum(D(str(p_["billed_kwh"])) for p_ in plans))
+    eq("mini portfolio plan revenue", ch["plan_revenue"], sum(D(str(p_["revenue"])) for p_ in plans))
+    cost = lambda r: D(str(r["diesel_cost"])) + D(str(r["om"])) + D(str(r["staff"]))
+    eq("mini portfolio cost to serve", ch["cost_to_serve"], sum(cost(a_) for a_ in acts))
+    eq("mini portfolio plan cost", ch["plan_cost_to_serve"], sum(cost(p_) for p_ in plans))
+    eq("mini revenue + cost variance", D(str(ch["revenue_variance"])) + D(str(ch["cost_variance"])), t["portfolio"]["variance"])
+    eq("mini revenue variance", ch["revenue_variance"], D(str(ch["revenue"])) - D(str(ch["plan_revenue"])))
     eq("mini portfolio variance (plan-actual)", t["portfolio"]["variance"],
        D(str(t["portfolio"]["actual_contribution"])) - D(str(t["portfolio"]["plan_contribution"])))
     al = t["portfolio"]["allocation"]
@@ -90,6 +104,17 @@ def cold(t: dict) -> None:
         eq(f"{n} bridge", sum(D(str(b["amount"])) for b in p["bridge"]), p["variance"])
         total += D(str(p["variance"]))
     eq("cold portfolio variance", t["portfolio"]["variance"], total)
+    ch = t["portfolio"]["chain"]; acts = [s_["period"]["actual"] for s_ in t["sites"]]; plans = [s_["period"]["plan"] for s_ in t["sites"]]
+    for a_ in acts:
+        eq("cold cash chain", D(str(a_["collected"])) + D(str(a_["outstanding"])), a_["revenue"])
+    eq("cold capacity", ch["capacity_crate_days"], D(t["capacity_crate_days_oct"]) * len(acts))
+    for k, src in (("occupied_crate_days", "crate_days"), ("revenue", "revenue"), ("collected", "collected"), ("outstanding", "outstanding")):
+        eq(f"cold portfolio chain {k}", ch[k], sum(D(str(a_[src])) for a_ in acts))
+    eq("cold plan crate-days", ch["plan_crate_days"], sum(D(str(p_["crate_days"])) for p_ in plans))
+    cost = lambda r: D(str(r["energy"])) + D(str(r["staff"])) + D(str(r["maint"])) + D(str(r.get("liability", 0)))
+    eq("cold cost to serve", ch["cost_to_serve"], sum(cost(a_) for a_ in acts))
+    eq("cold plan cost", ch["plan_cost_to_serve"], sum(cost(p_) for p_ in plans))
+    eq("cold revenue + cost variance", D(str(ch["revenue_variance"])) + D(str(ch["cost_variance"])), t["portfolio"]["variance"])
     al = t["portfolio"]["allocation"]
     eq("cold spend", al["spend"], sum(D(str(v)) for v in al["spend_breakdown"].values()))
     le("cold budget", al["spend"], t["portfolio_constraints"]["budget_usd_nov_dec"])
@@ -112,6 +137,8 @@ def ev(t: dict) -> None:
     eq("ev plan", pf["plan_cost"], plan_total)
     eq("ev actual", pf["actual_cost"], actual_total)
     eq("ev variance", pf["variance"], plan_total - actual_total)
+    eq("ev chain delivered", pf["chain"]["delivered_kwh"], sum(D(str(s_["period"]["actual"]["kwh"])) for s_ in t["sites"]))
+    eq("ev chain departures", pf["chain"]["departures_met"], sum(D(str(s_["period"]["actual"]["departures_met"])) for s_ in t["sites"]))
     eq("ev cost per departure", pf["cost_per_departure_actual"], (actual_total / D(pf["departures_met"])).quantize(D("0.01")))
     al = pf["allocation"]
     eq("ev spend", al["spend"], sum(D(str(v)) for v in al["spend_breakdown"].values()))
@@ -126,7 +153,14 @@ def ev(t: dict) -> None:
     eq("emb deadline cost", dl["energy_cost_monthly"], D(dl["kwh_2200_2400"]) * D("0.12") + D(dl["kwh_0000_0500"]) * D("0.09") + D(str(dl["demand"])))
     eq("emb deadline kwh", D(dl["kwh_2200_2400"]) + D(dl["kwh_0000_0500"]), D(o["EMB-DEADLINE"]["required_kwh"]) * 31)
     eq("emb deadline demand", dl["demand"], D(o["EMB-DEADLINE"]["max_kw"]) * D(12))
-    eq("emb saving", dl["saving_monthly"], D(str(emb["period"]["actual"]["energy_cost"])) - D(str(dl["energy_cost_monthly"])))
+    na = o["EMB-NOACT"]["economics"]
+    eq("emb no-action kwh", D(na["peak_kwh"]) + D(na["kwh_2200_2400"]) + D(na["kwh_0000_0500"]), emb["period"]["actual"]["kwh"])
+    eq("emb no-action peak", na["peak_cost"], D(na["peak_kwh"]) * D("0.24"))
+    eq("emb no-action 22-24", na["cost_2200_2400"], D(na["kwh_2200_2400"]) * D("0.12"))
+    eq("emb no-action 00-05", na["cost_0000_0500"], D(na["kwh_0000_0500"]) * D("0.09"))
+    eq("emb no-action bill", na["energy_cost_monthly"], D(str(na["peak_cost"])) + D(str(na["cost_2200_2400"])) + D(str(na["cost_0000_0500"])) + D(str(na["demand"])))
+    eq("emb tariff windfall (not option value)", na["tariff_tier_windfall_monthly"], D(str(emb["period"]["actual"]["energy_cost"])) - D(str(na["energy_cost_monthly"])))
+    eq("emb saving vs November no-action", dl["saving_monthly"], D(str(na["energy_cost_monthly"])) - D(str(dl["energy_cost_monthly"])))
     eq("emb 12m", dl["net_12m"], D(str(dl["saving_monthly"])) * 12 - D(str(dl["one_off"])))
     lt("cheapest bill below deadline bill", ch["energy_cost_monthly"], dl["energy_cost_monthly"])
     # N3: the cheapest bill is lower only because it buys less energy; per kWh delivered it is dearer

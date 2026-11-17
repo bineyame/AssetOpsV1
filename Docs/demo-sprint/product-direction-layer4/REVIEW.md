@@ -329,3 +329,127 @@ N1 (Medium) is resolved: the new axis is `money_class` everywhere it is specifie
 - Screenshots were again regenerated wholesale and spot-checked rather than compared in full. The audit counts above come from my scratch-copy run, not from the committed `audit-results.json`.
 - RR1 still governs whether the slice 3 replay reproduces the design values.
 - R1 means the Metro headline saving carries an unstated tariff-baseline assumption until (a) or (b) is applied.
+
+## Review (rev 4 redesign)
+
+**Reviewer:** fresh, independent Claude reviewer · 17 Nov 2026 · working tree on `task/product-direction-layer4-design` (rev 4 uncommitted over `f5d2b9a4f`). Read first, myself: the owner's brief v1.1 (in full) and the owner's verbatim feedback of 17 Nov with the six confirmed points. Nothing in the pack, the application code or any database was changed; only this section was appended.
+
+### Verdict: REVISE (targeted)
+
+The redesign is a real change of foundation, not a re-skin of rev 3. The five mechanics (Define, Observe, Evaluate, Choose, Prove) are built from structure the brief actually defines, the citations are real and read faithfully, and integrations, algorithms, the UI strategy, the reuse judgement and the delivery order are each derived from the mechanics rather than listed beside them. The mock-up restructures the existing Portfolio inside its six tabs with no role switch, filter or menu, and it works for all three operators. One foundation gap stops me from accepting: **the Define mechanic is instantiated only for the money outcome**. Protect is treated as a set of bounds and status words, not as an outcome built from factors with units, periods and composition, which is what the brief's L1.1 and the owner's point 1 require. That is fixable inside the current frame. The Medium findings below are local.
+
+### Answers to the four questions
+
+1. **Foundation: largely yes, with one gap.** M1/M2 come straight from the brief: the L1.1 "what counts, units and time" column, the unit hierarchy (L1.1, lines 121-130), "shared driver IDs and period IDs" (line 130, quoted correctly), the L1.2 decision invariants (line 149), R1-R3 economic anatomy, the C1 D2 phase chain (line 426), the S2 "independently identified drivers" bridge (line 291) and the L2.5 roles and "many-to-many and causal" warning (line 251). I checked each citation in §1 and §2.7 against the brief and found none misquoted. Outcome state is computed bottom-up and attention arises at the factor (off plan, at a bound, a new latent factor), so the owner's "observed by the underlying factors" correction is followed for **contribution and cost-per-departure**. It is not followed for **Protect** (H1). In one place (M1 below) the Observe step also takes in a counterfactual from one lever.
+2. **Generality: mostly yes.** The structure, the node kinds, the valuation identity, the bounds, the allocator and the three verdicts are stated once and filled in per vertical (§3.1a). The captive EV case changes the outcome's form (cost per required departure met, revenue NOT_APPLICABLE) without changing the mechanics, and the mock-up's Overview, Opportunity and Outcomes-by-site adapt to each operator. Kobo appears as an example, not as the source of the logic. Two places still lean on one path: the mini-grid fuel sub-structure has a node defined by one lever's replay (M1), and the delivery plan promises cold or EV fixtures in the general slices but drops them from the slice 4 tests (M3).
+3. **Derivation: yes.**
+   - **Integrations** are scoped as "one family of source facts per leaf factor" (§4).
+   - **Algorithms** are tabled by mechanic, each marked new, modified or kept, with a code basis (§5).
+   - **UI strategy:** "the loop is the information architecture" (§6.1).
+   - **Reuse:** each part is kept, reworked, replaced or created by the mechanic it serves, with a reason, and the current code does not shape the design (§8).
+   - **Delivery** follows the loop's dependency order, with general primitives first (§9, phase plan §1).
+   - Nothing reads as bolted on. The weakest derivation is the plan-value figure (M2), which does not follow the M3 identity.
+4. **Mock-up: yes.** The left rail is identical to v7.0, including Simulator Lab. The six tabs keep their owner-approved names. v7.0's Act-first lens chips are retired from the Portfolio and kept in the Findings root. There is no role switch: the words CEO, COO, CFO and CCO appear 0 times on the Overview. The demo-operator selector is in the review bar only. Each question lands on a section:
+   - CFO: Outcomes by site, with the structure, the waterfall and the residual.
+   - CEO and COO: Act first, as a plan under budget and crews with switches.
+   - CCO: Opportunity, with qualified demand, rejected demand at break-even, and capacity without a customer.
+   - Proof: What changed, with the three verdicts and the rights tracker.
+
+   The change register matches the v7.0 inventory (110 screens in `frontend/mockups/v70/screen-manifest.json`) and the observed behaviour, with one wrong row reason (L1).
+
+### Findings
+
+**H1 · Foundation: the Protect outcome is not a declared factor structure. It is read as bounds and status words.**
+- **Where:** main §2.1 l.106 and l.111 ("Protect reads the obligation bounds, asset factors and rights"); §3.1 l.232. Contracts §2.2-§2.4 (l.49-113) declare structures only for contribution and cost per departure; the obligations sit under them as bounds (l.78, l.97, l.113). Mock-up Overview Protect card: "1 obligation at its limit · 1 right with a deadline". Outcomes-by-site Protect column: "Battery charge at 5 am: within its limit", "Generators available for evening supply: at its limit", "Inverters in service: outside its limit".
+- **Evidence:** brief L1.1 (l.114) defines Protect with measured quantities and units: "Unserved critical energy; eligible temperature excursions; failed fleet departures; material outages; physical assets at risk, verified damage, expected loss only with defensible likelihood, required capital". The owner's point 1 asks that each outcome be built from factors "with clear units, periods and scope". Identity M1 says "every outcome node equals the declared function of its factors". Protect has no outcome node, no plan, no Σ/Σ composition and no attribution. Its state is a count of bounds at their limits, which is the "counts of different kinds" pattern that §6.2 criticises in v7.0. Only EV's departures-met node is a real Protect quantity. Mini-grid unserved critical kWh and cold eligible excursion batch-minutes appear only as bound checks (models l.410), never as observed outcome quantities with a plan. Assure is defensible as a state over evidence (brief: Assure is asymmetric). Protect is not.
+- **Why it matters:** one of the four categories does not follow the mechanics the design says govern every outcome, so the foundation is incomplete exactly where the owner pointed. The COO's "factors at bounds" answer then has no period measure behind it, and a portfolio Protect figure cannot be composed or drilled the way the Grow and Optimize figures can.
+- **Fix:** declare a Protect structure per vertical in contracts §2 and the main §3.1a. Possible measures: unserved critical kWh by interval → site → portfolio; eligible excursion batch-minutes and QA-confirmed damage; required versus missed departures; asset value at risk with its likelihood basis; covered value at stake. Each needs units, a period, a plan or target, coverage and composition. Bounds then become the per-option limits derived from those measures. Update the Overview Protect card and the Outcomes-by-site column to show the measures against plan, with the bound state beside them.
+
+**M1 · Generality/foundation: the mini-grid fuel sub-structure puts one lever's counterfactual inside the observed structure.**
+- **Where:** contracts l.75 ("forward replay splits candidate into avoidable vs constrained"), l.153, l.173-175; main l.83, l.414; models §1.1 l.21 ("Kobo's candidate-avoidable litres (210 L in October against 0 planned)"); mock Scope tab "Generator running beyond need, not avoidable in the replay".
+- **Evidence:** the 210 L "feasibly avoidable" leaf is the output of the replay of one option (stop threshold 90% → 70%, models §4.2). The reserve option avoids 20 L and another setting would avoid a different amount. So a node of the M2 structure depends on which M3 lever was replayed. Dispatch-3.2 observes only necessary versus candidate. That contradicts M2's "nothing is inferred backwards" and the separation of observation from evaluation. It is the one place where a vertical- and lever-specific path shapes the general structure.
+- **Fix:** keep the observed split at necessary + candidate + unexplained. Move "feasibly avoidable under option X" into that option's `option_effect` (M3) and show it on the decision page. The Overview can still say "of 330 L candidate, the best feasible option avoids 210 L (Modelled)".
+
+**M2 · Derivation: the plan's "modelled 12-month change" does not apply the M3 identity to the whole plan.**
+- **Where:** main l.430 (+6,096.00 = 2,916.00 + 3,540.00 − 360.00, with spend 3,880.00); identity M4 l.169; identity M3 l.147 ("− one-off cost borne by the operator"); models §6.1 l.495-502; mock Overview figure "Modelled 12-month change of the plan +$6,096" beside "Plan spend $3,880".
+- **Evidence:** the Kisiwa repair (1,800) and the Kobo battery evidence (430) are in the spend but are neither valued nor netted ("No saving claimed"). The Mto inverter cost (360) is netted. The headline therefore nets 360 of 3,880 spend, and the reader cannot tell which costs are inside the figure.
+- **Why it matters:** this is a CFO-facing headline. The brief excludes "uncosted heroic options", and the design's own identity nets one-off costs.
+- **Fix:** either value the must-do and protective options against no action (for example the evening-supply consequence at Kisiwa) and net all spend, or relabel the figure "modelled change from the valued options (+6,096.00); must-do and protective spend of 2,230.00 not valued" and put the same words on screen.
+
+**M3 · Generality of delivery: the promised cold/EV fixtures are missing from the general slices' tests.**
+- **Where:** main §9 l.547 ("with a cold or EV fixture case in its acceptance tests so the primitive is not shaped by one path"); phase plan slice 4 tests l.128 and slice 5 tests l.138.
+- **Evidence:** slice 3 does carry a captive-EV fixture (N13). Slice 4 builds the general option evaluator, the obligation bounds and the decision records, but its tests are all mini-grid (OR-MG-1..3, E6, E8, N9, N11, N15), and its bounds gate is "byte-equal for today's reserve plan". Slice 5's allocator is tested on synthetic fixtures and Lakeside only. The cold and EV options (Kirinyaga repair or replace, Embakasi schedule against a hard departures bound) first meet the evaluator and bounds in slice 8.
+- **Fix:** add one cold and one EV fixture to the slice 4 tests, for example a Kirinyaga repair-versus-replace valuation and Embakasi's cheapest schedule rejected by the departures bound. Add one non-mini-grid allocation case to slice 5.
+
+**L1 · Change register row reason wrong for `#/renewable`.**
+- **Where:** `interactive-mockup-vNEXT/CHANGE-REGISTER.md` l.60, and the matching `layer4_note` in `screen-manifest-vnext.json`.
+- **Evidence:** the row reason is the Ruiru text ("earlier demo (2 connectors, 80 kW)…"). In the browser, `#/renewable` shows the Kobo headroom banner ("Spare daytime solar without a paying customer is capacity…"), which the register's own shell table (l.34) describes correctly.
+- **Fix:** correct the note in the generator.
+
+**L2 · Internal record identifiers in prose on new client screens.**
+- **Where:** `loop-portfolio.js` (F-109, ACT-051), `loop-decisions.js` (GEN-CR-01, ACT-051, F-130, WR-019, INV-MT-02), `loop-core.js` (B-1031, F-130); visible in What changed (Harvest) and on the Opportunity and Thika decision pages.
+- **Evidence:** the audit's vocabulary regex (`tools/audit.mjs`) treats CH-K2, CH-R7, GEN-KS and INV-MT as hits, but not ACT-/F-/WR-/GEN-CR-/B-10xx. So the "0 vocabulary hits" claim rests on a narrower rule than the pack applies elsewhere. Asset tags and batch ids may be acceptable as the client's own identifiers. Product action and finding ids in running prose are less clearly so.
+- **Fix:** make one consistent rule. Either link these as navigable references or replace them with plain words, and widen the regex to match.
+
+**L3 · Small internal inconsistencies.**
+- The `CONTRIBUTIONS` lines are cited as `outcome_map.py:150-180` (main, phase plan) and as `:145-161` (models §2.1). The actual tuple spans l.150-174.
+- Node kinds are five in contracts §1 and §2.1, but seven plus TIERED in the models §2.2 pseudocode.
+- The UI strategy (§6.1.4) names six evidence words. The screens also use "Measured", "Calculated from records" and "Quoted", which should be added to the list.
+- The Overview labels the residual "not explained yet (unobserved leaves)", yet Kobo's 120 L comes from observed dips and deliveries set against the model. "Not explained by the model" would be accurate.
+
+### Checks run and what they returned
+
+- `python3 check_manifest.py` → **167 checks passed, 0 failed**.
+- **Spot reconciliation by hand, all consistent across the main document, contracts, models, manifest and mock-up:**
+  - Lakeside −852.00 = −97.00 + −755.00, with the per-site attribution rows summing.
+  - Lakeside spend 3,880 = 1,800 + 90 + 360 + 1,200 + 430 (the meter check is from the routine maintenance budget).
+  - The four switch cases (3,880/6,096; 2,680/2,556; 3,880/6,096; 6,430/3,546), re-clicked in the browser.
+  - Harvest 946/1,716/−770 and 720 = 350 + 100 + 270.
+  - Kirinyaga 1,512.40 = 155.20 × 12 − 350.
+  - Mwea 1,670 = 485 × 4 − 270.
+  - Metro 41,705.12 = 22,744.80 + 5,880 + 13,080.32; plan 38,520.80.
+  - Departures 1,302 (620 + 248 + 434), giving 32.03 and 29.59 per departure.
+  - Embakasi 95,484 = 8,082 × 12 − 1,500.
+  - Huller 395 × 12 − 1,200 = 3,540 at the 0.30 productive tariff.
+- **Code-observed claims sampled, all accurate:**
+  - `recorded_amount.py:1`
+  - `outcome_map.py` CONTRIBUTIONS (10 rows, all MOVES)
+  - `reserve_trial.py:37` (TRIAL_STEP 5)
+  - `verification.py:1167` (InterventionCost 0)
+  - `placement.py:1-7`
+  - `battery_boundary.py:26` (WARRANTY_EXPOSURE withheld)
+  - `period_read.py:138-139`
+  - `financials.py:361` `_overlaps`
+  - `dispatch_v3.py:290-293`
+  - `verification_rules.py:688` and `:718`
+  - `verification_families.py:175` (`"guardrails": {}`)
+  - `chain/read.py:190` `lead_finding`
+  - `alternatives.py:9-14`
+  - `scenario_rules.py:193-200`
+  - `sites/models.py:167` and `:513`
+  - `portfolioWords.ts:30-35`
+  - `host/execution_adapter.py:869`
+  - `reading_upload/service.py:244-248`
+- **Mock-up served statically** on 127.0.0.1:18731 (not 5490 or 8990) and driven with headless Chromium. Chromium came from playwright-core, with missing system libraries and fonts extracted into the session scratchpad. I visited:
+  - all six Portfolio tabs for each of the three operators;
+  - the Kobo and Thika decision pages and the Kasarani site;
+  - the evidence drawer on Kobo litres (definition, factor split, source rows including the 9-day-late delivery note, clocks, provenance with "Demo data only");
+  - the Act-first switches;
+  - `#/renewable`;
+  - v7.0 `#/portfolio`, for comparison.
+
+  Zero page errors across all visited routes. The server was stopped afterwards. I did not rerun the pack's full 202-route audit.
+- **Simulated versus observed:** kept distinct on every screen I opened (Modelled, Recorded, At stake and Not available yet, in words; "not realised"; restored charges, potential credit and cover at stake are "listed beside, not added"). The drawer states the demo provenance.
+- **Honesty of stated gaps:** fair. `design-questions-and-decisions.md` names the unmeasured build cost (Q12), the replay design values (RR1), the cross-tenant global roots (RR2), the unbuilt deep tabs (RR3) and the deliberate omission of C1 D6 "filters / role emphasis" (A14). The one departure from the brief's "smallest coherent extension" (C0) is stated openly in the main document (l.15).
+
+### Not verified
+
+- The forward-replay design values (210 L, 20 L, 68 L; 4 of 61 and 0 of 61 dawn days). They are labelled as design values, and no kernel run was made.
+- Screenshots in `screenshots/` and the full audit counts in `browser-audit.md`, beyond the routes I visited.
+- Accessibility claims (contrast, focus trap) beyond the drawer opening and closing.
+- Rendered mermaid in the HTML. The HTML text matches the markdown for the figures I sampled.
+
+### Residual risk not already named in the pack
+
+- If H1 is fixed by adding Protect measures, the Overview and Outcomes-by-site layouts will need a fourth composed figure. The mock-up's density at 390 px should be rechecked then.
+- Merging the v7.0 estates into Thika and Ruiru leaves Ruiru's preserved deep views at a different scale (2 connectors, 80 kW), bannered rather than re-based. A prospect who clicks deep can still meet two scales for one depot. The pack lists this as an owner choice. It remains a demo risk until it is decided.

@@ -1,56 +1,54 @@
-# AssetEcon vNEXT decision mock-up (Layer 4, Deliverable 6)
+# AssetEcon Layer 4 mock-up (rev 4): the restructured Portfolio
 
 **Not approved: awaits owner inspection.**
 
-A new version of the existing interactive mock-up, not a new visual concept. It keeps every v7.0 screen and adds a decision layer for three demo operators (Lakeside Power mini-grid, Harvest Cold Network cold rooms, Metro Bus Depots captive EV fleet), October 2026, books closed 6 Nov 2026. All figures are illustrative and come from `../demo-site-scenario-manifest.yaml`.
+A new version of the v7.0 interactive mock-up, built to the Layer 4 design rev 4 (`../layer4-transformation-design.md`, §2, §3.4, §6, §7). It keeps the v7.0 shell and left menu, keeps the Portfolio's six owner-approved tabs (Overview, Act first, Outcomes by site, Opportunity, What changed, Scope & coverage) and re-bases their content on the five mechanics: outcomes are computed from declared factor structures, deviations show at the factor where they arise, options change factors and are compared with no action, a plan is chosen under budget and crews, and proof is three separate verdicts. Three demo operators (Lakeside Power mini-grids, Harvest Cold Network cold rooms, Metro Bus Depots captive EV fleet), October 2026, books closed 6 Nov. Every figure is illustrative and comes from `../demo-site-scenario-manifest.yaml`.
 
 | | Path |
 |---|---|
 | Old version | `frontend/mockups/v70/` (`index.html`, 110 screens) |
-| New version | `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/` (`index.html`, 146 screens) |
-| v7.0 sources, untouched, for diffing | `src-v70-baseline/` |
+| New version | `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/` (`index.html`, 184 screens) |
+| v7.0 sources, byte-identical, for diffing | `src-v70-baseline/` |
 
 ## Launch
 
 - Open `index.html` directly in a browser (no server needed), or
 - from this folder: `python3 -m http.server 8790 --bind 127.0.0.1`, then open `http://127.0.0.1:8790/`.
 
-It opens on the decision home (`#/decide-lakeside`). The v7.0 Portfolio is in the left menu as **Operations view** (`#/portfolio`). The review bar's screen selector lists every screen.
+It opens on the Portfolio Overview (`#/portfolio`). Choose the **Demo operator** in the blue review bar at the top (review tooling, not part of the product). The review bar's screen selector lists every screen; "What changed" summarises the restructure.
+
+Main routes: `#/portfolio`, `#/portfolio/act-first`, `#/portfolio/outcomes-by-site`, `#/portfolio/opportunity`, `#/portfolio/what-changed`, `#/portfolio/scope`, `#/portfolio/scope/pilot`, `#/sites`, `#/site/<kobo|kisiwa|mto|mwea|thika|kirinyaga|embakasi|kasarani|ruiru>`, `#/site/<site>/economics`, `#/decision/<id>` (14 decisions), `#/globalfinancials`. Every v7.0 route still works; merged ones redirect to the site economics page that absorbed them.
 
 ## Rebuild
 
 ```
-python3 tools/gen_fixtures.py   # only if the manifest changed: regenerates fixtures.js (strips the private oracle block)
-node build.mjs                  # writes index.html from the css and js sources
+python3 tools/rebase_v70.py     # re-creates the re-based v7.0 copies (screens.js, portfolio.js, outcomes.js, css) from src-v70-baseline
+python3 tools/gen_fixtures.py   # only if the scenario file changed: regenerates fixtures.js (private oracle removed)
+node build.mjs                  # writes index.html; refuses a bundle containing the oracle
 ```
 
-Sources: v7.0 `mockups.css`, `portfolio.css`, `outcomes.css`, `portfolio.js`, `outcomes.js`, `screens.js` (minimal recorded edits); new `decisions.css`, `fixtures.js` (generated), `decisions.js` (data-driven templates).
+Sources: re-based v7.0 files (all edits in `tools/rebase_v70.py`, log in `tools/rebase-log.txt`); new `economics.css`, `loop-core.js` (data, factor structures, evidence drawer, shell hooks), `loop-decisions.js` (options, rights, 14 decisions), `loop-portfolio.js` (six tabs, Sites, Financials, pilot), `loop-site.js` (site overview, economics, decision pages), `loop-init.js` (registration, change status).
 
 ## Audit and screenshots
 
 ```
-# Any machine with Node 18+: install playwright-core and a Chromium once
-npm install --prefix /tmp/pw playwright-core
-npx --prefix /tmp/pw playwright install chromium        # or use an installed Chrome
+npm install --prefix /tmp/pw playwright-core && npx --prefix /tmp/pw playwright install chromium   # once
 CHROME=/path/to/chrome PW=/tmp/pw/node_modules/playwright-core tools/run-audit.sh --shots
-# Hosts where Chromium lacks system libraries or fonts: also set
-#   AUDIT_LD_LIBRARY_PATH=/dir/with/extracted/libs  FONTCONFIG_FILE=/path/to/fonts.conf
+# hosts where Chromium lacks libraries or fonts: also set AUDIT_LD_LIBRARY_PATH and FONTCONFIG_FILE
 ```
 
-Writes `tools/audit-results.json`, `screen-manifest-vnext.json` and `screenshots/`; then `node tools/gen_audit_md.cjs` rewrites `browser-audit.md`.
-
-Revision: rev 2 (Architect fix round on `../REVIEW.md`), see CHANGE-REGISTER §7.
+Writes `tools/audit-results.json`, `screen-manifest-vnext.json`, `screenshots/`, then regenerates `CHANGE-REGISTER.md` and `browser-audit.md` (`tools/gen_docs.cjs`).
 
 ## Review pack
 
 | File | Contents |
 |---|---|
-| `CHANGE-REGISTER.md` | Before/after inventory of all 110 v7.0 screens and 36 added screens; shared-shell changes; behaviour needing owner approval |
-| `fixture-mapping.md` | Every on-screen figure → manifest path or stated derivation |
-| `screenshots/INDEX.md` | Before/after for the changed screen; captures of every added screen; 390 px captures |
-| `browser-audit.md` | Scripted browser audit results, issues fixed and open |
-| `walkthroughs.md` | Seven-minute walkthrough per vertical with opening scripts and exact clicks |
-| `owner-inspection-checklist.md` | Owner decisions and things to click |
-| `screen-manifest-vnext.json` | Screen inventory with vNEXT status (also in the review-notes export) |
+| `CHANGE-REGISTER.md` | All 110 v7.0 screens (Preserved / Changed / Merged / Retired) and the 74 added screens; shell changes; six-tab before/after; owner approvals; conflicts found |
+| `fixture-mapping.md` | Every on-screen figure → scenario-file path or stated derivation |
+| `screenshots/INDEX.md` | Key changed screens at 1440 px and 390 px, the four switch cases, and v7.0 "before" captures |
+| `browser-audit.md` | Scripted audit results |
+| `walkthroughs.md` | Seven-minute walkthrough per vertical with an opening insight and exact clicks |
+| `owner-inspection-checklist.md` | Owner decisions and what to click |
+| `screen-manifest-vnext.json` | Screen inventory with status and note |
 
-No API is wired: this is a design mock-up. No production UI code was changed.
+No API is wired: this is a design mock-up. No product code, test, database or other mock-up version was changed.

@@ -1,1322 +1,2228 @@
 {
  "routes": [
   {
-   "id": "decide-lakeside",
-   "status": "Added",
-   "ok": true,
-   "h1": "Decision home",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "bridge-lakeside",
-   "status": "Added",
-   "ok": true,
-   "h1": "Why we are off plan",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "decide-harvest",
-   "status": "Added",
-   "ok": true,
-   "h1": "Decision home",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "bridge-harvest",
-   "status": "Added",
-   "ok": true,
-   "h1": "Why we are off plan",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "decide-metro",
-   "status": "Added",
-   "ok": true,
-   "h1": "Decision home",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "bridge-metro",
-   "status": "Added",
-   "ok": true,
-   "h1": "Why we are off plan",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-kobo",
-   "status": "Added",
-   "ok": true,
-   "h1": "Kobo · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-kisiwa",
-   "status": "Added",
-   "ok": true,
-   "h1": "Kisiwa · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-mto",
-   "status": "Added",
-   "ok": true,
-   "h1": "Mto · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-mwea",
-   "status": "Added",
-   "ok": true,
-   "h1": "Room A · Mwea · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-thika",
-   "status": "Added",
-   "ok": true,
-   "h1": "Room B · Thika · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-kirinyaga",
-   "status": "Added",
-   "ok": true,
-   "h1": "Room C · Kirinyaga · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-embakasi",
-   "status": "Added",
-   "ok": true,
-   "h1": "Embakasi · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-kasarani",
-   "status": "Added",
-   "ok": true,
-   "h1": "Kasarani · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "econ-ruiru",
-   "status": "Added",
-   "ok": true,
-   "h1": "Ruiru · site economics",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-kobo-generator",
-   "status": "Added",
-   "ok": true,
-   "h1": "Change when Kobo’s generator stops",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-kobo-battery",
-   "status": "Added",
-   "ok": true,
-   "h1": "Protect Kobo’s battery warranty",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-kisiwa-generator",
-   "status": "Added",
-   "ok": true,
-   "h1": "Restore Kisiwa’s backup generator",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-mto-inverter",
-   "status": "Added",
-   "ok": true,
-   "h1": "Restore Mto’s failed inverter",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-mto-demand",
-   "status": "Added",
-   "ok": true,
-   "h1": "Sell Mto’s spare daytime solar",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-mto-billing",
-   "status": "Added",
-   "ok": true,
-   "h1": "Bill the Mto customers missed after the meter swap",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-mwea-demand",
-   "status": "Added",
-   "ok": true,
-   "h1": "Fill Mwea’s empty space",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-thika-backup",
-   "status": "Added",
-   "ok": true,
-   "h1": "Protect Thika’s stock until the switch is fixed",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-kirinyaga-energy",
-   "status": "Added",
-   "ok": true,
-   "h1": "Bring Kirinyaga’s energy use back to normal",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-embakasi-schedule",
-   "status": "Added",
-   "ok": true,
-   "h1": "Charge Embakasi’s buses outside peak hours",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-kasarani-charger",
-   "status": "Added",
-   "ok": true,
-   "h1": "Keep Kasarani’s buses running while charger 2 is repaired",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "choice-ruiru-expansion",
-   "status": "Added",
-   "ok": true,
-   "h1": "Can Ruiru take the city’s extra buses?",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "plan-lakeside",
-   "status": "Added",
-   "ok": true,
-   "h1": "Plan and budget",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "verify-lakeside",
-   "status": "Added",
-   "ok": true,
-   "h1": "Proof it worked",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "pilot-lakeside",
-   "status": "Added",
-   "ok": true,
-   "h1": "Pilot request",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "plan-harvest",
-   "status": "Added",
-   "ok": true,
-   "h1": "Plan and budget",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "verify-harvest",
-   "status": "Added",
-   "ok": true,
-   "h1": "Proof it worked",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "pilot-harvest",
-   "status": "Added",
-   "ok": true,
-   "h1": "Pilot request",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "plan-metro",
-   "status": "Added",
-   "ok": true,
-   "h1": "Plan and budget",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "verify-metro",
-   "status": "Added",
-   "ok": true,
-   "h1": "Proof it worked",
-   "errors": [],
-   "badLinks": []
-  },
-  {
-   "id": "pilot-metro",
-   "status": "Added",
-   "ok": true,
-   "h1": "Pilot request",
-   "errors": [],
-   "badLinks": []
-  },
-  {
+   "op": "lakeside",
    "id": "portfolio",
    "status": "Changed",
    "ok": true,
-   "h1": "Portfolio Value & Operations",
+   "h1": "Portfolio",
+   "landed": "portfolio",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "sites",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Sites",
+   "landed": "sites",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "mini",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "mini",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "foundation",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "foundation",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "readiness",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "readiness",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "changes",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "changes",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "dispatch",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "dispatch",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "renewable",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "renewable",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "evidence",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "evidence",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "finding",
    "status": "Preserved",
    "ok": true,
    "h1": "Generator support merits review",
+   "landed": "finding",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "analysis",
    "status": "Preserved",
    "ok": true,
    "h1": "Generator support merits review",
+   "landed": "analysis",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "financials",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
+   "landed": "site/kobo/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "assumptions",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
+   "landed": "site/kobo/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "recommendation",
    "status": "Preserved",
    "ok": true,
    "h1": "Generator support merits review",
+   "landed": "recommendation",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "verification",
    "status": "Preserved",
    "ok": true,
    "h1": "Reduce extended generator support",
+   "landed": "verification",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "health",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "health",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "lab",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo · Gateway & Ingestion",
+   "landed": "lab",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "temperature",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "temperature",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cooling",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cooling",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "coldbackup",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "coldbackup",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "sessions",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "sessions",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "availability",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "availability",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "energy",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "energy",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "incident",
    "status": "Preserved",
    "ok": true,
    "h1": "Backup failure and temperature excursion",
+   "landed": "incident",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "workverification",
    "status": "Preserved",
    "ok": true,
    "h1": "Starter and control-circuit inspection",
+   "landed": "workverification",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "service",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "service",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "fuel",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "fuel",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "backup",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "backup",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "sitefindings",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "sitefindings",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "sitework",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "sitework",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "sitework-incidents",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "sitework-incidents",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "sitework-maintenance",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "sitework-maintenance",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "evidence-analysis",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "evidence-analysis",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "assets",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Assets",
+   "landed": "assets",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "findings",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Findings",
+   "landed": "findings",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "actions",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Actions",
+   "landed": "actions",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "incidents",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Incidents",
+   "landed": "incidents",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "maintenance",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Maintenance",
+   "landed": "maintenance",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "globalevidence",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Portfolio evidence",
+   "landed": "globalevidence",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "globalfinancials",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Portfolio financials",
+   "h1": "Financials",
+   "landed": "globalfinancials",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-foundation",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-foundation",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-health",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-health",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-evidence",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-evidence",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-evidence-analysis",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-evidence-analysis",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-financials",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika",
+   "landed": "site/thika/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-assumptions",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika",
+   "landed": "site/thika/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-findings",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-findings",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-work",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-work",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-work-incidents",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-work-incidents",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-work-maintenance",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-work-maintenance",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-finding",
    "status": "Preserved",
    "ok": true,
    "h1": "Backup response failed during grid interruption",
+   "landed": "cold-finding",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-recommendation",
    "status": "Preserved",
    "ok": true,
    "h1": "Backup response failed during grid interruption",
+   "landed": "cold-recommendation",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-foundation",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-foundation",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-health",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-health",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-evidence",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-evidence",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-evidence-analysis",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-evidence-analysis",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-financials",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru",
+   "landed": "site/ruiru/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-assumptions",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru",
+   "landed": "site/ruiru/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-findings",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-findings",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-work",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-work",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-work-incidents",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-work-incidents",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-work-maintenance",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-work-maintenance",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-finding",
    "status": "Preserved",
    "ok": true,
    "h1": "Connector 2 charging session interrupted",
+   "landed": "ev-finding",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-recommendation",
    "status": "Preserved",
    "ok": true,
    "h1": "Connector 2 charging session interrupted",
+   "landed": "ev-recommendation",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-action",
    "status": "Preserved",
    "ok": true,
    "h1": "ACT-061 · Investigate connector 2",
+   "landed": "ev-action",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "finding-evidence",
    "status": "Preserved",
    "ok": true,
    "h1": "Generator support review",
+   "landed": "finding-evidence",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "alternatives",
    "status": "Preserved",
    "ok": true,
    "h1": "Generator support review",
+   "landed": "alternatives",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "finding-history",
    "status": "Preserved",
    "ok": true,
    "h1": "Generator support review",
+   "landed": "finding-history",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "action-overview",
    "status": "Preserved",
    "ok": true,
    "h1": "ACT-048 · Generator policy review",
+   "landed": "action-overview",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "action-plan",
    "status": "Preserved",
    "ok": true,
    "h1": "ACT-048 · Generator policy review",
+   "landed": "action-plan",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "action-execution",
    "status": "Preserved",
    "ok": true,
    "h1": "ACT-048 · Generator policy review",
+   "landed": "action-execution",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "action-evidence",
    "status": "Preserved",
    "ok": true,
    "h1": "ACT-048 · Generator policy review",
+   "landed": "action-evidence",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "action-history",
    "status": "Preserved",
    "ok": true,
    "h1": "ACT-048 · Generator policy review",
+   "landed": "action-history",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "opportunity-finding",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Productive-use headroom at Kobo",
+   "landed": "opportunity-finding",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-finding-excursion",
    "status": "Preserved",
    "ok": true,
    "h1": "Chamber temperature went above policy",
+   "landed": "cold-finding-excursion",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-action",
    "status": "Preserved",
    "ok": true,
    "h1": "ACT-051 · Witness automatic-start test",
+   "landed": "cold-action",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "scenarios",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
+   "landed": "site/kobo/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-scenarios",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika",
+   "landed": "site/thika/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-scenarios",
-   "status": "Preserved",
+   "status": "Merged",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru",
+   "landed": "site/ruiru/economics",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-readiness",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-readiness",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-readiness",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-readiness",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "sld",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo Mini-grid",
+   "landed": "sld",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "cold-sld",
    "status": "Preserved",
    "ok": true,
-   "h1": "GreenHarvest Cold Room",
+   "h1": "Thika cold room",
+   "landed": "cold-sld",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "ev-sld",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
-   "h1": "Depot Charging Hub",
+   "h1": "Ruiru depot",
+   "landed": "ev-sld",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "assets-warranty",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Assets",
+   "landed": "assets-warranty",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-register",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Assets",
+   "landed": "asset-register",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-overview",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset-overview",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "site-create-form",
    "status": "Preserved",
    "ok": true,
    "h1": "Sites",
+   "landed": "site-create-form",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "site-create-template",
    "status": "Preserved",
    "ok": true,
    "h1": "Sites",
+   "landed": "site-create-template",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "site-batch-upload",
    "status": "Preserved",
    "ok": true,
    "h1": "Sites",
+   "landed": "site-batch-upload",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "site-setup-history",
    "status": "Preserved",
    "ok": true,
    "h1": "Sites",
+   "landed": "site-setup-history",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-performance",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset-performance",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-config",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset-config",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-edit",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset-edit",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-work",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset-work",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-evidence",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset-evidence",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "asset-warranty",
    "status": "Preserved",
    "ok": true,
    "h1": "Kobo battery",
+   "landed": "asset-warranty",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "findings-cost",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Findings",
+   "landed": "findings-cost",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "findings-risks",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Findings",
+   "landed": "findings-risks",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "findings-opportunities",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Findings",
+   "landed": "findings-opportunities",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "maintenance-preventive",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Maintenance",
+   "landed": "maintenance-preventive",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "wr-overview",
    "status": "Preserved",
    "ok": true,
    "h1": "Starter and control-circuit inspection",
+   "landed": "wr-overview",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "wr-record",
    "status": "Preserved",
    "ok": true,
    "h1": "Starter and control-circuit inspection",
+   "landed": "wr-record",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "wr-history",
    "status": "Preserved",
    "ok": true,
    "h1": "Starter and control-circuit inspection",
+   "landed": "wr-history",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "oprecords",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Operational records",
+   "landed": "oprecords",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "settings-policies",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Settings",
+   "landed": "settings-policies",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   },
   {
+   "op": "lakeside",
    "id": "settings-tenant",
-   "status": "Preserved",
+   "status": "Changed",
    "ok": true,
    "h1": "Settings",
+   "landed": "settings-tenant",
    "errors": [],
-   "badLinks": []
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/act-first",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/act-first",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/outcomes-by-site",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/outcomes-by-site",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/opportunity",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/opportunity",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/what-changed",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/what-changed",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/scope",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/scope",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/scope/pilot",
+   "status": "Added",
+   "ok": true,
+   "h1": "Request a paid diagnostic",
+   "landed": "portfolio/scope/pilot",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kobo",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kobo",
+   "landed": "site/kobo",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kobo/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kobo",
+   "landed": "site/kobo/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa/foundation",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa/foundation",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa/health",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa/health",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa/performance",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa/performance",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa/findings",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa/findings",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa/work",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa/work",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kisiwa/evidence",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kisiwa",
+   "landed": "site/kisiwa/evidence",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto/foundation",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto/foundation",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto/health",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto/health",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto/performance",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto/performance",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto/findings",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto/findings",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto/work",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto/work",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mto/evidence",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mto",
+   "landed": "site/mto/evidence",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/foundation",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea/foundation",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/health",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea/health",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/performance",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea/performance",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/findings",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea/findings",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/work",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea/work",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/evidence",
+   "status": "Added",
+   "ok": true,
+   "h1": "Mwea",
+   "landed": "site/mwea/evidence",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/thika",
+   "status": "Added",
+   "ok": true,
+   "h1": "Thika",
+   "landed": "site/thika",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/thika/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Thika",
+   "landed": "site/thika/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/foundation",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga/foundation",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/health",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga/health",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/performance",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga/performance",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/findings",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga/findings",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/work",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga/work",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/evidence",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kirinyaga",
+   "landed": "site/kirinyaga/evidence",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi/foundation",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi/foundation",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi/health",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi/health",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi/performance",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi/performance",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi/findings",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi/findings",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi/work",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi/work",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/embakasi/evidence",
+   "status": "Added",
+   "ok": true,
+   "h1": "Embakasi",
+   "landed": "site/embakasi/evidence",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani/foundation",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani/foundation",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani/health",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani/health",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani/performance",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani/performance",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani/findings",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani/findings",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani/work",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani/work",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kasarani/evidence",
+   "status": "Added",
+   "ok": true,
+   "h1": "Kasarani",
+   "landed": "site/kasarani/evidence",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/ruiru",
+   "status": "Added",
+   "ok": true,
+   "h1": "Ruiru",
+   "landed": "site/ruiru",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "site/ruiru/economics",
+   "status": "Added",
+   "ok": true,
+   "h1": "Ruiru",
+   "landed": "site/ruiru/economics",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/kobo-generator",
+   "status": "Added",
+   "ok": true,
+   "h1": "When should Kobo’s generator stop?",
+   "landed": "decision/kobo-generator",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/kobo-battery",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we protect Kobo’s battery warranty?",
+   "landed": "decision/kobo-battery",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/kisiwa-genset",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we restore Kisiwa’s evening backup?",
+   "landed": "decision/kisiwa-genset",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/kisiwa-om",
+   "status": "Added",
+   "ok": true,
+   "h1": "Do we raise the late repair response with the service contractor?",
+   "landed": "decision/kisiwa-om",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/mto-demand",
+   "status": "Added",
+   "ok": true,
+   "h1": "Which new demand should Mto’s spare daytime solar serve?",
+   "landed": "decision/mto-demand",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/mto-billing",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we bill the customers missed after the meter swap?",
+   "landed": "decision/mto-billing",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/mto-inverter",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we restore Mto’s failed inverter?",
+   "landed": "decision/mto-inverter",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/mwea-occupancy",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we fill Mwea’s empty space?",
+   "landed": "decision/mwea-occupancy",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/thika-backup",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we protect Thika’s stock until the start controller is replaced?",
+   "landed": "decision/thika-backup",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/kirinyaga-energy",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we bring Kirinyaga’s electricity back to what its occupancy needs?",
+   "landed": "decision/kirinyaga-energy",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/embakasi-schedule",
+   "status": "Added",
+   "ok": true,
+   "h1": "When should Embakasi’s buses charge?",
+   "landed": "decision/embakasi-schedule",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/kasarani-charger",
+   "status": "Added",
+   "ok": true,
+   "h1": "How do we keep Kasarani’s departures while charger 2 is repaired?",
+   "landed": "decision/kasarani-charger",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/ruiru-expansion",
+   "status": "Added",
+   "ok": true,
+   "h1": "Can Ruiru take the city’s extra buses?",
+   "landed": "decision/ruiru-expansion",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/ruiru-connector",
+   "status": "Added",
+   "ok": true,
+   "h1": "When do we claim Ruiru’s idle connector?",
+   "landed": "decision/ruiru-connector",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio",
+   "status": "Changed",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "sites",
+   "status": "Changed",
+   "ok": true,
+   "h1": "Sites",
+   "landed": "sites",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "globalfinancials",
+   "status": "Changed",
+   "ok": true,
+   "h1": "Financials",
+   "landed": "globalfinancials",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/act-first",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/act-first",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/outcomes-by-site",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/outcomes-by-site",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/opportunity",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/opportunity",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/what-changed",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/what-changed",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/scope",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/scope",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/scope/pilot",
+   "status": "Added",
+   "ok": true,
+   "h1": "Request a paid diagnostic",
+   "landed": "portfolio/scope/pilot",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio",
+   "status": "Changed",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "sites",
+   "status": "Changed",
+   "ok": true,
+   "h1": "Sites",
+   "landed": "sites",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "globalfinancials",
+   "status": "Changed",
+   "ok": true,
+   "h1": "Financials",
+   "landed": "globalfinancials",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/act-first",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/act-first",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/outcomes-by-site",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/outcomes-by-site",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/opportunity",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/opportunity",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/what-changed",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/what-changed",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/scope",
+   "status": "Added",
+   "ok": true,
+   "h1": "Portfolio",
+   "landed": "portfolio/scope",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/scope/pilot",
+   "status": "Added",
+   "ok": true,
+   "h1": "Request a paid diagnostic",
+   "landed": "portfolio/scope/pilot",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   }
  ],
- "links": {
-  "decide-lakeside": [],
-  "bridge-lakeside": [],
-  "decide-harvest": [],
-  "bridge-harvest": [],
-  "decide-metro": [],
-  "bridge-metro": [],
-  "econ-kobo": [],
-  "econ-kisiwa": [],
-  "econ-mto": [],
-  "econ-mwea": [],
-  "econ-thika": [],
-  "econ-kirinyaga": [],
-  "econ-embakasi": [],
-  "econ-kasarani": [],
-  "econ-ruiru": [],
-  "choice-kobo-generator": [],
-  "choice-kobo-battery": [],
-  "choice-kisiwa-generator": [],
-  "choice-mto-inverter": [],
-  "choice-mto-demand": [],
-  "choice-mto-billing": [],
-  "choice-mwea-demand": [],
-  "choice-thika-backup": [],
-  "choice-kirinyaga-energy": [],
-  "choice-embakasi-schedule": [],
-  "choice-kasarani-charger": [],
-  "choice-ruiru-expansion": [],
-  "plan-lakeside": [],
-  "verify-lakeside": [],
-  "pilot-lakeside": [],
-  "plan-harvest": [],
-  "verify-harvest": [],
-  "pilot-harvest": [],
-  "plan-metro": [],
-  "verify-metro": [],
-  "pilot-metro": [],
-  "portfolio": [],
-  "sites": [],
-  "mini": [],
-  "foundation": [],
-  "readiness": [],
-  "changes": [],
-  "dispatch": [],
-  "renewable": [],
-  "evidence": [],
-  "finding": [],
-  "analysis": [],
-  "financials": [],
-  "assumptions": [],
-  "recommendation": [],
-  "verification": [],
-  "asset": [],
-  "health": [],
-  "lab": [],
-  "cold": [],
-  "temperature": [],
-  "cooling": [],
-  "coldbackup": [],
-  "ev": [],
-  "sessions": [],
-  "availability": [],
-  "energy": [],
-  "incident": [],
-  "workverification": [],
-  "service": [],
-  "fuel": [],
-  "backup": [],
-  "sitefindings": [],
-  "sitework": [],
-  "sitework-incidents": [],
-  "sitework-maintenance": [],
-  "evidence-analysis": [],
-  "assets": [],
-  "findings": [],
-  "actions": [],
-  "incidents": [],
-  "maintenance": [],
-  "globalevidence": [],
-  "globalfinancials": [],
-  "cold-foundation": [],
-  "cold-health": [],
-  "cold-evidence": [],
-  "cold-evidence-analysis": [],
-  "cold-financials": [],
-  "cold-assumptions": [],
-  "cold-findings": [],
-  "cold-work": [],
-  "cold-work-incidents": [],
-  "cold-work-maintenance": [],
-  "cold-finding": [],
-  "cold-recommendation": [],
-  "ev-foundation": [],
-  "ev-health": [],
-  "ev-evidence": [],
-  "ev-evidence-analysis": [],
-  "ev-financials": [],
-  "ev-assumptions": [],
-  "ev-findings": [],
-  "ev-work": [],
-  "ev-work-incidents": [],
-  "ev-work-maintenance": [],
-  "ev-finding": [],
-  "ev-recommendation": [],
-  "ev-action": [],
-  "finding-evidence": [],
-  "alternatives": [],
-  "finding-history": [],
-  "action-overview": [],
-  "action-plan": [],
-  "action-execution": [],
-  "action-evidence": [],
-  "action-history": [],
-  "opportunity-finding": [],
-  "cold-finding-excursion": [],
-  "cold-action": [],
-  "scenarios": [],
-  "cold-scenarios": [],
-  "ev-scenarios": [],
-  "cold-readiness": [],
-  "ev-readiness": [],
-  "sld": [],
-  "cold-sld": [],
-  "ev-sld": [],
-  "assets-warranty": [],
-  "asset-register": [],
-  "asset-overview": [],
-  "site-create-form": [],
-  "site-create-template": [],
-  "site-batch-upload": [],
-  "site-setup-history": [],
-  "asset-performance": [],
-  "asset-config": [],
-  "asset-edit": [],
-  "asset-work": [],
-  "asset-evidence": [],
-  "asset-warranty": [],
-  "findings-cost": [],
-  "findings-risks": [],
-  "findings-opportunities": [],
-  "maintenance-preventive": [],
-  "wr-overview": [],
-  "wr-record": [],
-  "wr-history": [],
-  "oprecords": [],
-  "settings-policies": [],
-  "settings-tenant": []
- },
  "overflow390": [],
  "vocab": [],
  "drawer": {
@@ -1325,193 +2231,772 @@
   "focusTrapped": true,
   "escapeCloses": true,
   "focusReturned": true,
-  "hasProvenance": true,
-  "hasFixtureRef": true
+  "hasDefinition": true,
+  "hasFormula": true,
+  "hasSourceRows": true,
+  "hasClocks": true,
+  "hasCoverage": true,
+  "hasProvenance": true
  },
  "focus": [
   {
    "sel": ".rail a",
    "tag": "A",
    "outline": "solid 3px",
-   "visible": true
-  },
-  {
-   "sel": ".d-roles .chip",
-   "tag": "BUTTON",
-   "outline": "solid 3px",
-   "visible": true
-  },
-  {
-   "sel": ".d-money",
-   "tag": "BUTTON",
-   "outline": "solid 3px",
-   "visible": true
-  },
-  {
-   "sel": "#op-switch",
-   "tag": "SELECT",
-   "outline": "solid 3px",
-   "visible": true
-  },
-  {
-   "sel": ".d-table summary",
-   "tag": "SUMMARY",
-   "outline": "auto 1px",
+   "shadow": "none",
    "visible": true
   },
   {
    "sel": ".tabs a",
    "tag": "A",
    "outline": "solid 3px",
+   "shadow": "none",
+   "visible": true
+  },
+  {
+   "sel": ".ev-num",
+   "tag": "BUTTON",
+   "outline": "solid 3px",
+   "shadow": "none",
+   "visible": true
+  },
+  {
+   "sel": "#op-switch",
+   "tag": "SELECT",
+   "outline": "solid 3px",
+   "shadow": "none",
+   "visible": true
+  },
+  {
+   "sel": "button.wfrow",
+   "tag": "BUTTON",
+   "outline": "solid 3px",
+   "shadow": "none",
+   "visible": true
+  },
+  {
+   "sel": "input[name=\"sw-budget\"]",
+   "tag": "INPUT",
+   "outline": "solid 3px",
+   "shadow": "none",
+   "visible": true
+  },
+  {
+   "sel": "details.astable summary",
+   "tag": "SUMMARY",
+   "outline": "auto 1px",
+   "shadow": "none",
    "visible": true
   }
  ],
  "contrast": [
   {
-   "sel": ".d-note",
-   "ratio": 5.03,
+   "route": "portfolio",
+   "sel": ".ec-rec",
+   "ratio": 5.19,
    "size": "11px",
    "pass": true
   },
   {
-   "sel": ".d-cellnote",
+   "route": "portfolio",
+   "sel": ".ec-est",
+   "ratio": 6.35,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".ec-der",
+   "ratio": 5.23,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".ec-mod",
+   "ratio": 5.17,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".ec-stake",
+   "ratio": 6.96,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".ec-na",
+   "ratio": 5.92,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".hero small",
+   "ratio": 5.92,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".note",
+   "ratio": 5.52,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".attn-k",
+   "ratio": 6.96,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".attn-new .attn-k",
+   "ratio": 7.01,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".attn-at .attn-k",
+   "ratio": 6.35,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".attn-unobs .attn-k",
+   "ratio": 7.15,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".chain .stage span",
+   "ratio": 5.92,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".chain .leak",
+   "ratio": 6.69,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".ocard h4",
+   "ratio": 5.92,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".op-select",
+   "ratio": 7.92,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/outcomes-by-site",
+   "sel": ".fac small",
+   "ratio": 5.66,
+   "size": "10.5px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/outcomes-by-site",
+   "sel": ".wfval small",
+   "ratio": 5.92,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/outcomes-by-site",
+   "sel": ".wflabel small",
+   "ratio": 5.92,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/outcomes-by-site",
+   "sel": ".lens",
+   "ratio": 10.16,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/outcomes-by-site",
+   "sel": ".ftab thead th",
+   "ratio": 5.66,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/outcomes-by-site",
+   "sel": ".lgrid tbody th small",
+   "ratio": 5.92,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/act-first",
+   "sel": ".cellnote",
+   "ratio": 5.92,
+   "size": "10px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/act-first",
+   "sel": ".switch small",
+   "ratio": 5.92,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "portfolio/act-first",
+   "sel": ".meterhead",
+   "ratio": 9.47,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "decision/mto-inverter",
+   "sel": ".legal",
+   "ratio": 8.18,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "decision/mto-inverter",
+   "sel": ".steps small",
    "ratio": 5.03,
    "size": "10px",
    "pass": true
   },
   {
-   "sel": ".d-rank small",
-   "ratio": 5.03,
+   "route": "decision/mto-inverter",
+   "sel": ".deadline",
+   "ratio": 14.83,
+   "size": "12px",
+   "pass": true
+  },
+  {
+   "route": "decision/kobo-generator",
+   "sel": ".obl-pass",
+   "ratio": 7.09,
    "size": "11px",
    "pass": true
   },
   {
+   "route": "decision/kobo-generator",
+   "sel": ".obl-fail",
+   "ratio": 8.03,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "decision/kobo-generator",
+   "sel": ".obl-cost",
+   "ratio": 6.59,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "decision/kobo-generator",
+   "sel": ".obl-unknown",
+   "ratio": 8.71,
+   "size": "11px",
+   "pass": true
+  },
+  {
+   "route": "decision/kobo-generator",
+   "sel": ".legal",
+   "missing": true
+  },
+  {
+   "route": "decision/kobo-generator",
    "sel": ".badge.green",
    "ratio": 5.67,
    "size": "10px",
    "pass": true
   },
   {
+   "route": "decision/kobo-generator",
    "sel": ".badge.amber",
    "ratio": 5.3,
    "size": "10px",
    "pass": true
   },
   {
+   "route": "decision/kobo-generator",
    "sel": ".badge.red",
    "ratio": 5.8,
    "size": "10px",
    "pass": true
   },
   {
-   "sel": ".badge.blue",
-   "ratio": 5.83,
-   "size": "10px",
-   "pass": true
-  },
-  {
-   "sel": ".d-legal",
-   "ratio": 8.18,
+   "route": "findings",
+   "sel": ".slim-banner",
+   "ratio": 6.9,
    "size": "11px",
-   "pass": true
-  },
-  {
-   "sel": ".eyebrow",
-   "ratio": 6.1,
-   "size": "9px",
-   "pass": true
-  },
-  {
-   "sel": ".d-focustag",
-   "ratio": 6.7,
-   "size": "10px",
-   "pass": true
-  },
-  {
-   "sel": ".d-rolenote",
-   "ratio": 4.69,
-   "size": "11px",
-   "pass": true
-  },
-  {
-   "sel": ".tabs a",
-   "ratio": 6.25,
-   "size": "12px",
-   "pass": true
-  },
-  {
-   "sel": ".d-wfval small",
-   "missing": true
-  },
-  {
-   "sel": ".d-question p",
-   "ratio": 15.53,
-   "size": "18px",
    "pass": true
   }
  ],
- "role": {
-  "COO": {
-   "sameNumbers": true,
-   "question": "Where should limited crews work, and which changes are physically feasible?",
-   "firstPanel": "Where the crews go in November",
-   "focusRestored": true
+ "switches": {
+  "lakeside 5000/yes": {
+   "expectSpend": "$3,880",
+   "expectValue": "+$6,096",
+   "spendOk": true,
+   "valueOk": true,
+   "inverterOk": true,
+   "competingShown": true,
+   "hullerOk": true,
+   "announced": true,
+   "focusKept": true
   },
-  "CFO": {
-   "sameNumbers": true,
-   "question": "Why is performance off plan, which amounts are actual or estimated, and what may be recoverable?",
-   "firstPanel": "What is recorded and what is estimated",
-   "focusRestored": true
+  "lakeside 5000/no": {
+   "expectSpend": "$2,680",
+   "expectValue": "+$2,556",
+   "spendOk": true,
+   "valueOk": true,
+   "inverterOk": true,
+   "competingShown": true,
+   "hullerOk": true,
+   "announced": true,
+   "focusKept": true
   },
-  "CCO": {
-   "sameNumbers": true,
-   "question": "Which demand can be sold profitably, and what limits it?",
-   "firstPanel": "Demand worth selling",
-   "focusRestored": true
+  "lakeside 6500/yes": {
+   "expectSpend": "$3,880",
+   "expectValue": "+$6,096",
+   "spendOk": true,
+   "valueOk": true,
+   "inverterOk": true,
+   "competingShown": true,
+   "hullerOk": true,
+   "announced": true,
+   "focusKept": true
   },
-  "CEO": {
-   "sameNumbers": true,
-   "question": "Which sites and investments create the best returns from existing capital?",
-   "firstPanel": "What to do first",
-   "focusRestored": true
+  "lakeside 6500/no": {
+   "expectSpend": "$6,430",
+   "expectValue": "+$3,546",
+   "spendOk": true,
+   "valueOk": true,
+   "inverterOk": true,
+   "competingShown": true,
+   "hullerOk": true,
+   "announced": true,
+   "focusKept": true
+  },
+  "harvest aggregator yes": {
+   "spendOk": true,
+   "visitsOk": true,
+   "got": [
+    "$720 of $2,500",
+    "2 of 2"
+   ]
+  },
+  "harvest aggregator no": {
+   "spendOk": true,
+   "visitsOk": true,
+   "got": [
+    "$450 of $2,500",
+    "1 of 2"
+   ]
+  },
+  "metro tariff yes": {
+   "spendOk": true,
+   "valueOk": true,
+   "got": {
+    "m": "$1,590 of $5,000",
+    "t": "+$95,484"
+   }
+  },
+  "metro tariff no": {
+   "spendOk": true,
+   "valueOk": true,
+   "got": {
+    "m": "$90 of $5,000",
+    "t": "$0"
+   }
   }
  },
- "budget": {
-  "base-yes": {
-   "chosen": true,
-   "spend": true,
-   "total": true,
-   "alternativeShown": true
+ "operator": {
+  "harvest": {
+   "topbar": "Harvest Cold Network / Demo operator",
+   "headline": "October contribution, composed from the sites’ factors: $946 against a plan of $1,716, $77",
+   "inTopbar": false
   },
-  "base-no": {
-   "chosen": true,
-   "spend": true,
-   "total": true,
-   "alternativeShown": true
+  "metro": {
+   "topbar": "Metro Bus Depots / Demo operator",
+   "headline": "October charging and depot cost, composed from the depots’ factors: $41,705.12 against a p",
+   "inTopbar": false
   },
-  "high-yes": {
-   "chosen": true,
-   "spend": true,
-   "total": true,
-   "alternativeShown": true
-  },
-  "high-no": {
-   "chosen": true,
-   "spend": true,
-   "total": true,
-   "alternativeShown": true
+  "lakeside": {
+   "topbar": "Lakeside Power / Demo operator",
+   "headline": "October contribution, composed from the sites’ factors: $1,443 against a plan of $2,295, $",
+   "inTopbar": false
   }
  },
+ "filters": [],
+ "preservedText": [
+  {
+   "id": "foundation",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "readiness",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "changes",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "dispatch",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "evidence",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "finding",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "analysis",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "recommendation",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "verification",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "asset",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "health",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "lab",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "temperature",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cooling",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "coldbackup",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "incident",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "workverification",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "service",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "fuel",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "backup",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "sitefindings",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "sitework",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "sitework-incidents",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "sitework-maintenance",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "evidence-analysis",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-foundation",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-health",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-evidence",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-evidence-analysis",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-findings",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-work",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-work-incidents",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-work-maintenance",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-finding",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-recommendation",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "ev-finding",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "ev-recommendation",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "ev-action",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "finding-evidence",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "alternatives",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "finding-history",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "action-overview",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "action-plan",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "action-execution",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "action-evidence",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "action-history",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "cold-finding-excursion",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-action",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-readiness",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "sld",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "cold-sld",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "asset-overview",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "site-create-form",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "site-create-template",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "site-batch-upload",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "site-setup-history",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "asset-performance",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "asset-config",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "asset-edit",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "asset-work",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "asset-evidence",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "asset-warranty",
+   "identicalAfterNames": true,
+   "namesChanged": false
+  },
+  {
+   "id": "wr-overview",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "wr-record",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  },
+  {
+   "id": "wr-history",
+   "identicalAfterNames": true,
+   "namesChanged": true
+  }
+ ],
  "errors": [],
- "pilotToast": "Example only: no request was sent.",
+ "links": {},
+ "oracleShipped": false,
+ "tabsKeyboard": true,
  "summary": {
-  "routes": 146,
-  "routesOk": 146,
-  "added": 36,
-  "changed": 1,
+  "routesChecked": 202,
+  "routesOk": 202,
+  "screens": 184,
+  "byStatus": {
+   "Changed": 36,
+   "Preserved": 65,
+   "Merged": 9,
+   "Added": 74
+  },
+  "consoleErrorRoutes": 0,
   "badLinkRoutes": 0,
-  "overflowAdded": 0,
-  "overflowOther": 0,
-  "vocabHits": 0
+  "overflow390": 0,
+  "vocabHits": 0,
+  "filterControlsOnPortfolio": 0,
+  "operatorSelectInTopbar": 0,
+  "operatorSelectInReviewBar": 202,
+  "switchCasesOk": "8/8",
+  "drawerOk": true,
+  "focusVisible": "7/7",
+  "contrastPass": "36/36",
+  "preservedIdentical": "65/65",
+  "oracleShipped": false
  }
 }
