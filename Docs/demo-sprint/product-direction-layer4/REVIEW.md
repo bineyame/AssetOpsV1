@@ -1409,3 +1409,255 @@ Each depot's deliverable energy is min(chargers × kW, import limit) × window, 
 - I did not rerun `tools/run-audit.sh`, so the contrast, focus, 390 px overflow and screenshot results are the author's numbers. My only 390 px check was the Overview heights above.
 - The replay design values themselves; that is the purpose of the calibration lane.
 - The rendered mermaid in `layer4-transformation-design.html`.
+
+## Re-review (rev 9)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 9 working tree on `task/product-direction-layer4-design`: the uncommitted diff over `4393c19b3`, plus the untracked `evaluate_structure.py` and `derived-values.json`. The main focus is the owner-requested structural check (owner, ninth message: "the structural aspect of mechanics are still very important even in the document illustration"). I also verified R8-M1, R8-M2 and R8-L1 to R8-L3, and ran the regression list. I ran the perturbation experiments in scratch copies only. This appended section is my only edit.
+
+### Verdict: **REVISE (targeted: structural derivation, R9-M1 to R9-M4)**
+
+- **R8-M1 and R8-M2 are resolved**, and so are R8-L1 to R8-L3. I recomputed the hours by hand and they match. Counting from the decision date (6 Nov) is the right choice.
+- **The core of the rev 9 change is genuine:**
+  - `evaluate_structure.py` evaluates the manifest's `structures:` expressions over factors.
+  - Option values are re-evaluations of the structure against no action.
+  - Plans are chosen by enumerating subsets.
+  - The mock-up overwrites the stated fields with the evaluator's output.
+  - Every option value, plan, switch case and downside shown on screen comes from that evaluation.
+- **But the structure does not yet prevent the R8 class of error.** Leaf factors still sit in three places that are not tied together:
+  - constants in the evaluator's code;
+  - a hand-entered second copy of each site's factors (`base_site_factors`);
+  - hand-computed factor deltas.
+- **The documents are not checked at all**, although the pack says they are.
+- My perturbations show:
+  - a change to a declared price or a base factor can move nothing, or move only half of what depends on it, while the checker still passes (325/325);
+  - the R8-M2 pattern recurs on the money side of the same Mto inverter decision.
+- These are Mediums, not Highs: no figure on screen is wrong today. They are what the owner asked about, so they block.
+
+### Structural derivation (owner-requested)
+
+**(a) Are the illustrative figures produced by evaluating the declared structure? Mostly yes for outputs; not yet for inputs.**
+
+*Outputs: evaluated.*
+- `evaluate()` (`evaluate_structure.py:33-50`) is a real bottom-up evaluator over the node expressions (+, −, ×) using AST.
+- Each valued option is evaluated twice through the same vertical structure, once as no action and once with the option's factors changed. Its value is (v1 − v0) × months − one-off (l.103-115).
+- Sensitivities re-run the evaluation with factors overridden.
+- Plans are chosen by enumerating every subset under the budget, exclusivity and requirements (l.155-182), and the switch cases and downsides re-run that allocator.
+- I re-ran the evaluator, and its output equals the committed `derived-values.json` exactly.
+- `loop-decisions.js:34-53` (`applyDerived`) replaces the manifest's stated site outcomes, option values, sensitivities, Protect effects, plan values, switch cases and downsides with `DERIVED`.
+
+*How much of each option's value is computed?* 12 options are evaluated.
+- **10 get their monthly change from factor deltas run through the structure:** KOB-STOPSOC, KOB-RESERVE, MTO-HULLER, MTO-WELDING, KIS-BATT60, MWEA-AGG, KIRI-REPAIR, KIRI-REPLACE, EMB-DEADLINE and EMB-CHEAPEST.
+- **2 are results entered as one-off amounts with no factor change:** MTO-INV-CLAIM (360) and MTO-INV-BUYNOW (2,910). See R9-M3.
+- **Options outside the evaluator:**
+  - priced only as costs, with their effect on Protect: the Kisiwa options, Thika, and Kasarani (penalty = missed × rate, in the checker);
+  - checked against a bound: Ruiru;
+  - reconciled only by older hard-coded checks: MTO-BILLING (56 = 140 × 0.40).
+
+*Inputs: not all evaluated.* Many factor deltas are intermediate results computed by hand from parameters that sit on the option rows, and the evaluator never reads those parameters:
+
+| Delta in the manifest | How it was computed by hand |
+|---|---|
+| KIRI-REPAIR −776 | 0.80 × 970 (`recovery_share`) |
+| KIRI-REPAIR sensitivity −582 | 0.60 × 970 |
+| KIRI-REPLACE −1,171.5 | 970 + 5% × 4,030 |
+| MTO-HULLER 1,650 kWh | 15 kW × 5 h × 22 days |
+| MTO-WELDING 660 kWh | 10 kW × 3 h × 22 days |
+| MTO-WELDING 217.8 L | 660 × `sfc_l_per_kwh` 0.33 |
+
+KIRI-REPLACE −1,171.5 is also more than the 970 kWh of excess that exists, so the "excess" factor goes negative: the efficiency gain is booked to the wrong leaf. Beyond the stated exceptions (Kobo dawn days, Embakasi's 93, the battery evidence count, and the spike K/M/E design values), these are hand-entered figures. So are the restore dates, apart from KIS-REPLACE (R9-L2).
+
+**(b) Does the design prevent the R8-M1 and R8-M2 class of error structurally? Only partly.**
+
+- **What it prevents:** a Protect effect can no longer disagree with its own restore date. The evaluator derives the effect, and the checker fails if the stated figure differs (P1 and P5 below).
+- **What it does not prevent:** the same fact entered in two places with nothing tying them together. R8-M2 was a horizon that drove one figure and was missing from another. R9-M3 is that pattern again, on the money side of the same decision. R9-M2 shows that the factors used for observing a site and for evaluating its options are separate copies.
+
+**(c) Does the checker derive figures, not only reconcile them? Yes for evaluator outputs; no for documents.**
+
+- `check_manifest.py:derived()` imports the evaluator and asserts that each stated manifest figure equals the evaluated one. That part is genuine derivation.
+- The Protect-date check (l.314-329) re-implements the evaluator's rule line for line, so it is not independent. I recomputed the hours by hand instead (below).
+- The checker reads only the YAML (R9-M4).
+
+**Uniform across the three verticals?**
+- Option evaluation, Protect effects and the allocator are generic code.
+- Observation is not generic (R9-M1):
+  - the mini-grid branch reads prices from the manifest;
+  - the cold-room and EV branches hard-code their leaf factors in Python;
+  - three of the 18 site evaluations do not evaluate anything: Ruiru's plan and Kasarani's plan and actual pass the stated bill straight through.
+
+**Do the document's illustrations and the drawers present figures as structure outputs?**
+- **Drawers: yes.**
+  - The Kobo stop-setting drawer reads "Contribution = revenue − cost to serve, evaluated with the option's factor changes against no action: (option $1,133.50 − no action $883 a month) × 12 − one-off $90 = +$2,916".
+  - The plan drawer reads "Plan value = Σ of the valued options' changes against no action, each evaluated through the structure … +$2,916 + $3,540 − $360 = +$6,096".
+- **Main document: as text only.** §2.3, §7 and §10 state the figures as literals, and nothing checks them (R9-M4).
+
+**Perturbations** (scratch copy of the pack; evaluator and checker re-run each time; working tree untouched):
+
+| # | Change | What moved | Checker |
+|---|---|---|---|
+| P1 | `KIS-REPAIR.restore_date` 9 → 10 Nov | Protect effect 15 → 20 | 2 FAIL (stated 15 ≠ 20). Caught. |
+| P5 | `MTO-INV-CLAIM.restore_by` 28 → 29 Nov | Protect effect 110 → 115. The $360 residual, with its "extra fuel 130 during 21 days", did not move. | 2 FAIL on the Protect effect only |
+| P2 | Kobo `prices.diesel_usd_per_l` 1.25 → 1.30 | The site outcome moved (883 → 824). KOB-STOPSOC stayed at 2,916, because it is valued at 210 L × 1.25 from `base_site_factors`. | 4 FAIL, all on site outcomes. The option value disagrees with the price and nothing catches it. |
+| P3 | `base_site_factors` Kobo diesel price 1.25 → 1.30 | Option, plan, cases and downside all moved consistently | 10 FAIL. Caught. |
+| P6 | `base_site_factors` Kobo `diesel_l` 1180 → 1200 | The no-action month no longer equals October | **325/325 pass** |
+| P4 | Cold `prices.electricity_usd_per_kwh` 0.20 → 0.22 | **Nothing** | **325/325 pass** |
+| P7 | Embakasi `demand_usd_per_kw_month` 12 → 13 | **Nothing** | **325/325 pass** |
+| P8 | Kisiwa `crew_visit` 8 → 9 Nov (the visit now falls on the restore day) | Nothing | **325/325 pass** |
+| P9 | KIRI-REPAIR `recovery_share` 0.80 → 0.70 | The evaluated value did not move (−776 is a literal) | 1 FAIL from a pre-rev-9 hard-coded reconciliation |
+| P10 | Huller `days_per_month` 22 → 20 | Evaluated value did not move | 1 FAIL from a pre-rev-9 reconciliation |
+
+Where a check catches a change (P9, P10), it catches it by reconciling figures, not by deriving them.
+
+### Findings
+
+**R9-M1 · Medium · The leaf factors used for observing cold-room and EV sites are constants in the evaluator's code, not declared factors.**
+- **Evidence:**
+  - `evaluate_structure.py:80-82` hard-codes `1550`, `0.25`, rate `0.20`, `contract_rate 0.18` and `elec_price 0.20`.
+  - `evaluate_structure.py:91` hard-codes peak `0.24`, off-peak `0.12`, night `0.12` and demand `12`.
+  - The manifest declares these at l.410 (cold prices) and l.576/643 (tariffs). The evaluator ignores them: P4 and P7 move nothing, and the checker passes.
+  - The mini-grid branch does read `t["prices"]`, so the three verticals are not treated the same way.
+  - l.93-96 is not an evaluation for a plan "stated as a bill total". The bill is used as kWh at $1 (Ruiru's plan) or divided and re-multiplied by the flat price (Kasarani's plan and actual). That passes 3 of the 18 site evaluations straight through.
+- **Why it matters:** the owner asked that the illustration be produced by evaluating the declared structure. A declared price that changes nothing is exactly the gap between what is declared and what is computed.
+- **Fix:**
+  - map each vertical's record fields to factors through a declared table in the manifest, with prices and tariffs taken from the tenant or site blocks;
+  - leave no numeric literals in the evaluator;
+  - label the bill-total plans as "not decomposed: stated total" rather than counting them as evaluated.
+
+**R9-M2 · Medium · Options are evaluated against a second, hand-entered copy of each site's factors, with hand-computed deltas.**
+- **Evidence:**
+  - `option_factor_changes.*.base_site_factors` (manifest l.796-821) repeats the prices, litres, kWh, O&M and staff already in `prices` and `period.actual`. No check ties the two together:
+    - P2: the price moved and the option value did not;
+    - P6: the base month drifted away from October and all 325 checks still passed.
+  - The deltas in the table under (a) are hand arithmetic over option-row parameters (`recovery_share`, `load`, `sfc_l_per_kwh`) that the evaluator never reads.
+  - KIRI-REPLACE's −1,171.5 drives the excess factor negative.
+- **Why it matters:** this is the same kind of error as R8-M1 and R8-M2. A fact entered twice can drift, and it is caught only where a pre-rev-9 reconciliation check happens to exist.
+- **Fix:**
+  - build each option's base month from the site's observed factors (or from a declared no-action projection of them) instead of a copy;
+  - express deltas as expressions over the option's own parameters, for example `excess_kwh: "-recovery_share * excess_kwh"`, `productive_kwh: "load.kw * 5 * load.days_per_month"` and `diesel_l: "kwh * sfc_l_per_kwh"`;
+  - put the 5% efficiency gain on its own leaf (the model kWh), not on excess.
+
+**R9-M3 · Medium · The money values of the Mto inverter options are entered by hand and contradict the restore horizon that now drives their Protect effect (R8-M2 recurring on the money side).**
+- **Evidence:**
+  - `MTO-INV-CLAIM.residual_cost` 360 is "shipping 150 + install 80 + extra fuel 130 during **21 days** at half inverter capacity" (manifest l.282). The restore date in the same row gives 22 days from the decision (6–27 Nov), and 31 days from the failure.
+  - `MTO-INV-BUYNOW.residual_cost` 2,910 = 2,600 + 80 + 150 + 80. It has **no** fuel for its own 6 days at half capacity (6–11 Nov).
+  - In `option_factor_changes` both options are `monthly_delta: {}`, `months: 0`, entered as one-off results. P5 moves the Protect hours, but not the fuel.
+- **Why it matters:**
+  - Mechanic 3 says an option is a change to factors over a horizon. Here the same horizon drives one figure and is ignored by the other.
+  - At about $130/21 a day, buy-now's 6 days are worth about $35–40. That would move the switch-case value of $3,546 and the "wins if budget ≥ 6,430" threshold. It does not change any chosen plan.
+- **Fix:**
+  - model reduced capacity as a factor change (for example `diesel_l` per day at half capacity) over each option's own restore horizon, and derive the extra fuel for both paths;
+  - let the evaluator produce both the residual costs and the threshold.
+
+**R9-M4 · Medium · The documents' figures are not checked, although the pack says they are, and one has already drifted.**
+- **Evidence:**
+  - Main §10 (`layer4-transformation-design.md:599`) and the author response say that "`check_manifest.py` asserts that every figure stated in the manifest **and documents** equals the evaluated one". `check_manifest.py` opens only the YAML (l.428). No `.md` file is read.
+  - The figures in §2.3 and §7 (125/15/105, 110/30, 6,096, 3,546, 2,556 and so on) are literals.
+  - The manifest's `basis` strings are unchecked prose that the decision page shows: "6-8 Nov, 3 evenings", "22 days". After P1 the number reads 20 while the basis still says 3 evenings.
+  - **Drift already present:** §7.2 (l.478) says the Thika stopgap's effect is "on *days with backup start unproven*". The R8-L1 fix moved that effect to `nights_without_backup_cover`, and the stopgap does not move `days_backup_start_unproven` (R8-L1's own reasoning).
+  - `loop-portfolio.js:51-61` also writes observed figures into strings: "3,900 against 3,300", "−$412.50", "−$2,604", "$0.1221", "+$19.68".
+- **Why it matters:** the owner named the document illustration explicitly. A check that covers the manifest but not the prose leaves the drift that rev 8 had in a new place.
+- **Fix:** either
+  - generate the figure-bearing sentences and tables of §2.3 and §7, and the manifest `basis` strings, from `derived-values.json`; or
+  - add a checker pass that extracts the numbers from those sections and asserts them against `derived-values.json`.
+
+  In both cases, correct §7.2 l.478 and change the §10 sentence to say what is actually checked.
+
+**R9-L1 · Low · Rough edges in the Protect rule.**
+- The rule string reads "× 1 h" for Thika (nights) and Kasarani (departures) in `derived-values.json`.
+- `minus: {KAS-OEM-WAIT: 1}` is an ad hoc adjustment for the spare bus, not a factor (for example `spare_bus_nights: 1`).
+- The horizon end `2026-11-30` is hard-coded in both the evaluator (l.135) and the checker, instead of being read from `horizon`.
+- `as_of` is used as a "restore" sentinel for cover options that do not restore anything.
+
+**R9-L2 · Low · Restore dates are inputs not tied to their drivers.**
+- Only KIS-REPLACE is checked (restore = `as_of` + lead time).
+- The 9 Nov KIS-REPAIR restore is not tied to the 8 Nov crew visit: P8 put the visit on the restore day and nothing failed.
+- MTO-INV-CLAIM's 28 Nov is not tied to the warranty's `lead_time_days` 21 (6 Nov + 21 = 27 Nov, plus an install day not stated).
+- BUYNOW's 12 Nov has no stated lead time.
+
+**R9-L3 · Low · Stale header claims.**
+- The companion headers still say "`check_manifest.py` 217 checks pass" and "(rev 4)/(rev 6)" for the manifest (models and contracts headers). The current count is 325.
+
+### R8 points, verified by hand
+
+**R8-M1: resolved.**
+- `as_of` is 6 Nov, and evenings 6–30 Nov are 25:
+
+  | Option | Restore | Evenings | Hours (× 5 h) |
+  |---|---|---|---|
+  | No action | — | 25 | **125** |
+  | Repair (crew 8 Nov) | 9 Nov | 6, 7, 8 = 3 | **15** |
+  | Replace (6 Nov + 21 days) | 27 Nov | 6–26 = 21 | **105** |
+
+- 1–5 Nov (25 h) is shown separately as observed under every option.
+- Rendered:
+  - `#/decision/kisiwa-genset` shows 15 / 105 / 125 with the observed note;
+  - Act first reads "6–30 Nov: 125 → 15 (plus 25 hours observed 1–5 Nov under every option)".
+
+**R8-M2: resolved on the Protect side.**
+- 6–30 Nov is 25 days:
+
+  | Option | Restore | Days | Hours (× 5 h) |
+  |---|---|---|---|
+  | No action | — | 25 | **125** |
+  | Claim | 28 Nov | 6–27 = 22 | **110** |
+  | Buy now | 12 Nov | 6–11 = 6 | **30** |
+
+- Local repair is shown as "not evaluated" with its reason.
+- Rendered:
+  - `#/decision/mto-inverter` has the section;
+  - Act first reads "Reduced daytime capacity from 6 Nov: claim and wait 110 h, buy now 30 h (Protect; the switch itself is decided on money)".
+- The CHANGE-REGISTER limit sentence is corrected.
+- The money side is R9-M3.
+
+**6 Nov rather than 1 Nov: sound.**
+- An option cannot change hours before it is chosen.
+- Counting from the decision date applies the same rule to all four date-derived effects.
+- The difference between the paths (80 h) is the same under either start date.
+- 1–5 Nov is disclosed as observed, so nothing is hidden.
+- My rev 8 table (150/135/55, from 1 Nov) is superseded.
+
+**R8-L1: resolved.**
+- Thika's effect is on the declared `nights_without_backup_cover` (manifest l.537, rendered on `#/decision/thika-backup`).
+- Models §4.7 explains why the Kobo effect is shown on its bound's own quantity.
+- Residue: §7.2 l.478 (R9-M4).
+
+**R8-L2: resolved.**
+- `calibration_spikes` is now the enumeration.
+- The checker asserts equality with `replay_values.py` (passes).
+- The 406 kW sentence renders with "Design value: the replay has not yet been run on site data".
+
+**R8-L3: resolved.**
+- Frame letters (a)/(b)/(c) are the same in §6.2 and Q2.
+- Q1–Q13 and A1–A23 are in order.
+- RR1 points to spike K (A21).
+- Revision headers say rev 9.
+- The battery line is reworded.
+
+### Regression checks
+
+- **Checks:**
+  - `python3 -B evaluate_structure.py`: 9 site outcomes, 12 options, 4 Protect effects, 3 plans. The output equals the committed `derived-values.json`.
+  - `python3 -B check_manifest.py`: **325 passed, 0 failed**.
+- **Rebuild in a scratch copy** (`evaluate_structure.py`, `rebase_v70.py`, `gen_fixtures.py`, `node build.mjs`, `node tools/gen_docs.cjs`):
+  - "evaluator vs stated fields: 0 differences";
+  - 27 replay patterns, fixtures sha `ff53eda1dd5c`;
+  - `diff -rq` against the working tree, excluding screenshots: **byte-identical**.
+- **The 65 Preserved v7.0 screens:**
+  - `git diff 4393c19b3` is empty for `frontend/mockups/v70`, `src-v70-baseline/`, `tools/rebase_v70.py`, `screens.js`, `portfolio.js`, `outcomes.js` and `mockups.css`;
+  - `src-v70-baseline` matches `frontend/mockups/v70` for every file it contains;
+  - the screen manifest counts Added 74, Changed 36, Merged 9 and Preserved 65.
+- **Owner expectations:**
+  - **Role and question wording:** no CEO, COO, CFO or CCO, and no `<select>`, chip or menu, added in the rev 9 `loop-*.js` diff;
+  - **Filters and menus:** no new menus;
+  - **Mechanics:** built from factors and general in option evaluation, Protect and Choose. Observation is not yet general (R9-M1).
+- **Browser:** served statically on 127.0.0.1:18897 (not 5490 or 8990) and checked with headless Chromium 1155 at 1440 px:
+  - Lakeside Act first, `kisiwa-genset`, `mto-inverter`, `thika-backup`, `embakasi-schedule`;
+  - the Kobo stop-setting and plan-value drawers;
+  - 0 page errors; the one 404 was `/favicon.ico`.
+
+  The server was stopped and the port is free.
+
+### Not verified
+
+- I did not rerun `tools/run-audit.sh`. The 202-route, 390 px, contrast, focus and the "936 views unchanged" figures are the author's numbers.
+- I did not rerun the CSV validator.
+- The replay design values themselves; they belong to the calibration lane.

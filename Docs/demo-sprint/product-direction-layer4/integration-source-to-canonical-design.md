@@ -1,6 +1,6 @@
 # Integrations needed: from source facts to leaf factors to outcome state
 
-**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 4 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
+**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 9 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
 **Status:** design only. Nothing here exists in the repository unless it is labelled [code-observed] or [test-confirmed]. No code, test, database or mock-up was changed or run for this document.
 
 **Labels.** [code-observed] read in current code (backend, frontend, simulator and tools are unchanged since `bf6014e02`) · [test-confirmed] pinned by a named product test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) · [proposed] this design · [research] external protocol or law · [assumption] a value or behaviour a pilot must confirm. **Provenance** of every record is one of *demo-simulated* (simulator pack), *source-emulated* (a generator that emits the source's native shape), *bench-tested* (a real device or export on a bench), *field-integrated* (a live operator source), *observed-financial* (the operator's own ledger, bill or statement). Simulated and observed values never share a number.

@@ -1,6 +1,6 @@
 # Domain and decision models
 
-**Layer 4 companion · rev 4 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only, nothing built**
+**Layer 4 companion · rev 9 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only, nothing built**
 **Answers:** brief Part VI, C1 Deliverable 4 (vertical algorithms, time-series reasoning, intervention models) and Deliverable 5 (decision orchestration, safeguards, allocation, verification), and C3 (mandatory scenario tests), for the five mechanics of `layer4-transformation-design.md` §2: **M1 Define**, **M2 Observe**, **M3 Evaluate**, **M4 Choose**, **M5 Prove**.
 **Figures:** illustrative USD from `demo-site-scenario-manifest.yaml` (rev 6; `check_manifest.py` 217 checks pass). Derived figures show their arithmetic. The forward-replay quantities **210 L, 20 L, 68 L** (and the 4-of-61 and 0-of-61 dawn results) are **design values** held in the manifest: the replay adapter must reproduce them from real series before anything relies on them. No simulator run was made for this document.
 
@@ -497,12 +497,15 @@ Semantics: HARD fails reject; COSTED enters value; ADVISORY informs. Unknown is 
 
 | Decision | Horizon | Protect measure | No action / waiting | Recommended | Other option | Class |
 |---|---|---|---|---|---|---|
-| Kisiwa generator 1 | November evenings | hours without a backup generator | 150 h | repair: 15 h (restored 4 Nov) | replace: 105 h (21-day lead) | DERIVED |
+| Kisiwa generator 1 | evenings 6–30 Nov, from the decision (1–5 Nov: 25 h observed under every option) | hours without a backup generator | 125 h | repair: 15 h (crew 8 Nov, restored 9 Nov) | replace: 105 h (21-day lead, restored 27 Nov) | DERIVED |
+| Mto inverter 2 | daytime 10:00–15:00, 6–30 Nov (1–5 Nov: 25 h observed) | hours at reduced capacity | 125 h | claim and wait: 110 h (restored 28 Nov) | buy now: 30 h (restored 12 Nov); local repair not evaluated | DERIVED |
 | Kobo stop setting | 61 replayed days | days below 35% at 5 am | 0 | stop setting: 0 | reserve 25%: 4 | MODELLED, design value |
 | Kobo battery evidence | until a claim | tracked assets with complete contract evidence | 1 of 3 | evidence: 2 of 3 | claim now: 1 of 3, claim fails | RECORDED |
-| Thika backup start | nights 6/7, 7/8 Nov | nights with stock and no backup cover | 2 | stopgap: 0 | self-repair: 0, EPC cover on a 710.00 controller lost | DERIVED |
+| Thika backup start | nights 6/7, 7/8 Nov | nights without backup cover (declared Protect measure; October: 26) | 2 | stopgap: 0 | self-repair: 0, EPC cover on a 710.00 controller lost | DERIVED |
 | Kasarani CH-K2 | nights 6/7–8/9 Nov | departures missed (penalties) | 2 (240.00) | stopgap: 0 (0.00) | local repair: 0, warranty lost | DERIVED |
 | Embakasi schedule | 31 replayed nights | departures missed | 0 | deadline schedule: 0 | cheapest: 93 | MODELLED, design value |
+
+Hours are derived by the checker from the restore dates in the option rows, counted from the decision date (`as_of`, 6 Nov); hours before the decision are observed, not option effects. Effects are shown on a declared Protect measure, with one exception: the Kobo stop setting is shown on its bound's own quantity (days below 35% at 5 am), because unserved critical kWh is 0 under every option and the bound count is what distinguishes them; the label says which measure the bound protects. Mto's inverter switch is decided on money; its Protect difference (80 h of reduced capacity) is shown beside the switch, not folded into the value.
 
 This is what justifies must-do and protective spend that is not valued in money: the spend is shown with the measure it moves, computed, not asserted. Penalties are the same factor as the cost line (never added twice).
 

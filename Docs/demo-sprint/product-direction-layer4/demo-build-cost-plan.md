@@ -1,6 +1,6 @@
 # The demonstration world: built backwards from each choice, cheap to change
 
-**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 7) · rev 4 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only**
+**AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 7) · rev 9 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only**
 Pairs with `demo-site-scenario-manifest.yaml` (rev 4, the only source of figures) and `integration-source-to-canonical-design.md` (the source shapes). Main narrative: `layer4-transformation-design.md` §2 (mechanics) and §10.
 
 **Labels.** [code-observed] read in current code · [test-confirmed] pinned by a named test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) and **must be re-measured** · [proposed] this design · [assumption] to confirm. **Measured** means measured on a real build and cited; **derived** means arithmetic on measured figures; **target** means a budget not yet achieved. No build, test suite, database or Docker command was run for this document. Every figure is **illustrative** and reconciles with the manifest (`python3 check_manifest.py` → 167 checks pass).

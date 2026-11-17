@@ -20,13 +20,15 @@
 | Decision | Open this screen |
 |---|---|
 | Q1 the five mechanics | main document §2 |
-| Q2 Portfolio frame: staged Overview + tabs in loop order (recommended), old tabs, or one sequential page | `#/portfolio` |
+| Q2 Portfolio frame: (a) six parallel tabs, (b) one sequential page, (c) staged Overview + tabs in loop order (recommended) | `#/portfolio` |
 | Q3 *Act first* is the plan, not ranked Findings | `#/portfolio/act-first` |
 | Q5 demo operators: separate logins for client demos | review bar selector |
 | Q7 Embakasi's tariff assumption (largest figure) | `#/decision/embakasi-schedule` |
 | Q9 delivery order, with the calibration lane first | main document §9 |
 | Q13 may early prospects see replay-derived figures if labelled and said aloud? | `#/decision/kobo-generator` |
 | Item 11 below: rebuild Ruiru's preserved deep views? | `#/ev-health` |
+
+**Everything else** still open is listed, with the Architect's recommendation, in `../design-questions-and-decisions.md` (Q4, Q6, Q8, Q10–Q12 and residual risks RR1–RR3); none needs a screen.
 
 The numbered rows below are the full inspection log by revision.
 

@@ -311,9 +311,22 @@ def protect_effects(t: dict) -> None:
         if "penalties" in e:
             for o, n in e["options"].items():
                 eq(f"{e['decision']} {o} penalties = missed x rate", e["penalties"][o], D(n) * D(str(e["penalty_per_missed_block"])))
-        if e["decision"] == "Kisiwa generator 1 failed":
-            eq("Kisiwa no action = 30 evenings x 5 h", e["options"]["KIS-NOACT"], 150)
-            eq("Kisiwa repair = 3 evenings x 5 h", e["options"]["KIS-REPAIR"], 15)
+        if "restore_from" in e:   # R8-M1/M2 (rev 9): hours derived from the option rows' restore dates, counted from as_of
+            import datetime as _dt
+            as_of = _dt.date.fromisoformat(AS_OF); end = _dt.date(2026, 11, 30)
+            rows = {o["id"]: o for s_ in t["sites"] for blk in ("decision", "entitlement") for o in (s_.get(blk) or {}).get("options", [])}
+            per = D(e.get("hours_per_evening", e.get("hours_per_day", e.get("per_day"))))
+            for opt, ref in e["restore_from"].items():
+                if ref is None:
+                    days = (end - as_of).days + 1
+                elif ref == "as_of":
+                    days = 0
+                else:
+                    oid, field = ref.split(".")
+                    days = (_dt.date.fromisoformat(rows[oid][field]) - as_of).days
+                eq(f"{e['decision']} {opt} derived from restore date", e["options"][opt], D(days) * per - D(str((e.get("minus") or {}).get(opt, 0) if days else 0)))
+            if "lead_time_days" in rows.get("KIS-REPLACE", {}) and e["decision"].startswith("Kisiwa"):
+                eq("Kisiwa replacement restore = as_of + lead time", (_dt.date.fromisoformat(rows["KIS-REPLACE"]["restore_date"]) - as_of).days, rows["KIS-REPLACE"]["lead_time_days"])
         if e["decision"] == "Embakasi charging schedule":
             o = {x["id"]: x for x in t["sites"][0]["decision"]["options"]}["EMB-CHEAPEST"]
             eq("Embakasi cheapest missed departures = buses short x 31", e["options"]["EMB-CHEAPEST"], D(o["buses_short"]) * 31)
@@ -327,8 +340,96 @@ def protect_effects(t: dict) -> None:
         eq("Kasarani wait penalties agree with the option row", e["penalties"]["KAS-OEM-WAIT"], w["expected_penalties"])
 
 
+AS_OF = "2026-11-06"
+
+
+def spikes(doc: dict, path: str) -> None:
+    """R8-L2 (rev 9): the replay-derived set used on screen equals the spike enumeration plus the plan values."""
+    import json, re, subprocess, pathlib
+    tool = pathlib.Path(path).resolve().parent / "interactive-mockup-vNEXT" / "tools" / "replay_values.py"
+    if not tool.exists():
+        failures.append("replay_values.py missing"); return
+    derived = json.loads(subprocess.run([sys.executable, str(tool)], capture_output=True, text=True, check=True).stdout)["figures"]
+    def norm(x):
+        x = str(x).replace("$", "")
+        m = re.fullmatch(r"[\d,]+(\.\d+)?", x)
+        return str(float(x.replace(",", ""))) if m else re.sub(r"\s*\(.*\)$", "", x).replace("departures_missed", "departures missed")
+    cs = doc["calibration_spikes"]
+    listed = {norm(f) for k in ("K", "M", "E") for f in cs[k]["scanned"]} | {norm(f) for f in cs["plan_values"]}
+    got = {norm(f) for f in derived}
+    check(f"derived replay set == spike enumeration + plan values (missing on screen: {sorted(listed - got)}; not enumerated: {sorted(got - listed)})", listed == got)
+
+
+def derived(doc: dict, path: str) -> None:
+    """Owner, ninth message (rev 9): the figures stated in the manifest must equal the values evaluate_structure.py derives by
+    evaluating the declared structures (site outcomes, option values and sensitivities, Protect effects, plans, switch cases,
+    downside). The evaluator is the source; the stated figures are the illustration's expected values."""
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location("ev", pathlib.Path(path).resolve().parent / "evaluate_structure.py")
+    ev = importlib.util.module_from_spec(spec); spec.loader.exec_module(ev)
+    dv = ev.main(path)
+    for t in doc["tenants"]:
+        tid = t["tenant"]
+        for s_ in t["sites"]:
+            for k in ("plan", "actual"):
+                r = s_["period"][k]
+                stated = r.get("contribution", r.get("total"))
+                eq(f"evaluated {tid}/{s_['site']} {k} outcome", dv["sites"][f"{tid}/{s_['site']}"][k]["value"], stated)
+        rows = {o["id"]: o for s_ in t["sites"] for blk in ("decision", "entitlement") for o in (s_.get(blk) or {}).get("options", [])}
+        for oid, e in dv["options"].items():
+            if oid not in rows:
+                continue
+            econ = rows[oid].get("economics", {})
+            if "net_12m" in econ:
+                eq(f"evaluated {oid} 12-month value", e["value"], econ["net_12m"])
+            if "net_contract" in econ:
+                eq(f"evaluated {oid} contract value", e["value"], econ["net_contract"])
+            if "net_monthly" in econ:
+                eq(f"evaluated {oid} monthly change", e["monthly_change"], econ["net_monthly"])
+            if "monthly" in econ:
+                eq(f"evaluated {oid} monthly change", e["monthly_change"], econ["monthly"])
+            if "saving_monthly" in econ:
+                eq(f"evaluated {oid} monthly saving", e["monthly_change"], econ["saving_monthly"])
+            if "energy_cost_monthly" in econ:
+                eq(f"evaluated {oid} monthly bill", e["option_bill"], econ["energy_cost_monthly"])
+            if "residual_cost" in rows[oid]:
+                eq(f"evaluated {oid} operator cost", -e["value"], rows[oid]["residual_cost"])
+            if "net_12m" in rows[oid]:
+                eq(f"evaluated {oid} 12-month value", e["value"], rows[oid]["net_12m"])
+            for sk, sv in (rows[oid].get("sensitivity") or {}).items():
+                key = {"diesel_minus_20pct_net_12m": "diesel_minus_20pct", "feasible_fuel_160l_net_12m": "feasible_fuel_160l"}.get(sk)
+                if key:
+                    eq(f"evaluated {oid} sensitivity {key}", e["sensitivities"][key], sv)
+        for e in t["portfolio"].get("protect_effects", []):
+            if e["decision"] in dv["protect_effects"]:
+                for o, v in dv["protect_effects"][e["decision"]]["values"].items():
+                    eq(f"evaluated Protect effect {e['decision']} {o}", v, e["options"][o])
+        if tid in dv["plans"]:
+            pl, al = dv["plans"][tid], t["portfolio"]["allocation"]
+            eq(f"evaluated {tid} plan spend", pl["default"]["spend"], al["spend"])
+            if "modelled_12m_change" in al:
+                eq(f"evaluated {tid} plan value", pl["default"]["value"], al["modelled_12m_change"]["total"])
+            if "valued_option_costs" in al:
+                eq(f"evaluated {tid} valued option costs", pl["default"]["valued_option_costs"], al["valued_option_costs"])
+                eq(f"evaluated {tid} not valued in money", pl["default"]["not_valued_in_money"], al["unvalued_spend"])
+            if "downside" in al:
+                eq(f"evaluated {tid} downside", pl["downside"], al["downside"]["value"])
+                for k, v in (al["downside"].get("others") or {}).items():
+                    eq(f"evaluated {tid} sensitivity {k}", pl["sensitivity_values"][k], v)
+            for sw in al.get("switches", []):
+                for case, c in (sw.get("cases") or {}).items():
+                    b, l = case.split("/")
+                    got = pl["switch_cases"][f"{b}/{'True' if l == 'yes' else 'False'}"]
+                    eq(f"evaluated {tid} case {case} spend", got["spend"], c["spend"])
+                    eq(f"evaluated {tid} case {case} value", got["value"], c["value"])
+
+
 def main(path: str) -> int:
     doc = yaml.safe_load(open(path, encoding="utf-8"))
+    derived(doc, path)
+    global AS_OF
+    AS_OF = doc["as_of"]
+    spikes(doc, path)
     for t in doc["tenants"]:
         {"MINI_GRID": mini, "COLD_CHAIN": cold, "EV_DEPOT": ev}[t["vertical"]](t)
         {"MINI_GRID": lakeside_options, "COLD_CHAIN": cold_options, "EV_DEPOT": lambda _t: None}[t["vertical"]](t)

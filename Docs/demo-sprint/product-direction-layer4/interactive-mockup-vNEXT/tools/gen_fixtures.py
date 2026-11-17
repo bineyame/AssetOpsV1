@@ -12,6 +12,24 @@ def conv(o):
     raise TypeError(type(o))
 body = json.dumps(data, default=conv, ensure_ascii=False, separators=(',', ':'))
 
+# ---- Structure evaluator (owner ninth message): every computed figure on screen comes from ../derived-values.json ----
+import subprocess, sys
+subprocess.run([sys.executable, str(here.parent / 'evaluate_structure.py')], check=True, cwd=str(here.parent), capture_output=True)
+derived = json.loads((here.parent / 'derived-values.json').read_text(encoding='utf-8'))
+# Report any figure where the evaluator and the manifest's stated field differ (expected: none).
+diffs = []
+for ten in data['tenants']:
+    for s in ten['sites']:
+        dv = derived['sites'].get(f"{ten['tenant']}/{s['site']}")
+        if not dv: continue
+        for side in ('plan', 'actual'):
+            P = s['period'][side]
+            for node, field in (('contribution', 'contribution'), ('revenue', 'revenue'), ('fuel_cost', 'diesel_cost'), ('energy', 'energy'), ('energy_cost', 'energy_cost'), ('cost_to_serve', 'total')):
+                if node in dv[side]['nodes'] and field in P and abs(dv[side]['nodes'][node] - P[field]) > 0.005:
+                    diffs.append(f"{s['site']} {side} {field}: stated {P[field]} derived {dv[side]['nodes'][node]}")
+print('evaluator vs stated fields: %d differences' % len(diffs) + (': ' + '; '.join(diffs) if diffs else ''))
+
+
 # ---- Replay-dependent values (rev 8, R7-L1): derived from the manifest, used by the design-value tagger ----
 # Rule: options carrying forward_replay / replay / design_value -> their forward_replay quantities, their result
 # economics (net, saving, bill, gross, revenue, fuel), their sensitivities; the allocation values, switch-case values and
@@ -47,13 +65,16 @@ for ten in data['tenants']:
                 if k.endswith('_l') and k != 'constrained_candidate_l':
                     if int(v) in observed_l: add(rf'(?:avoid(?:s|ed)?|remov(?:es|ed))(?: only)? {ints(v)} L|{ints(v)} L avoided', f'{v} L (avoided phrasing)')
                     else: add(rf'(?<![\d,]){ints(v)} L\b', f'{v} L')
-                if k == 'kwh_from_battery_or_genset': add(rf'(?<![\d,]){ints(v)} kWh', f'{v} kWh')
+                if k in ('kwh_from_battery_or_genset', 'added_battery_throughput_kwh'): add(rf'(?<![\d,]){ints(v)} kWh', f'{ints(v)} kWh')
                 if k == 'soc_0500_below_35_days': add(rf'{61 - int(v)} of 61|{int(v)} of 61', f'{v} of 61 days')
             if 'replay' in o:
                 m = re.match(r'(\d+) of (\d+)', o['replay'])
                 if m: add(rf'{m.group(1)} of {m.group(2)}', m.group(0) + ' nights')
+                kw = re.search(r'about (\d+) kW', o['replay'])
+                if kw: add(rf'(?<![\d,]){kw.group(1)} kW\b', f'{kw.group(1)} kW')
+                if 'deliverable_kwh' in o: add(rf'(?<![\d,]){ints(o["deliverable_kwh"])} kWh', f'{ints(o["deliverable_kwh"])} kWh')
             e = o.get('economics', {}) or {}
-            for k in ('net_12m', 'net_monthly', 'saving_monthly', 'energy_cost_monthly', 'gross_monthly', 'revenue_monthly', 'fuel_monthly'):
+            for k in ('net_12m', 'net_monthly', 'saving_monthly', 'energy_cost_monthly', 'gross_monthly', 'fuel_monthly'):
                 if k in e and abs(e[k]) >= 50: add(money(abs(e[k])), e[k])
             for v in (o.get('sensitivity') or {}).values():
                 if abs(v) >= 50: add(money(abs(v)), v)
@@ -70,7 +91,7 @@ for ten in data['tenants']:
     for pe in ten['portfolio'].get('protect_effects', []):
         if pe.get('design_value'):
             for v in pe['options'].values():
-                if isinstance(v, (int, float)) and v >= 10: add(rf'(?<![\d,.]){ints(v)} ' + pe['measure'].replace('_', ' '), f'{v} ({pe["measure"]})')
+                if isinstance(v, (int, float)) and v >= 10: add(rf'(?<![\d,.]){ints(v)} ' + pe['measure'].replace('_', ' '), f'{ints(v)} ' + pe['measure'].replace('_', ' '))
 
 sha = hashlib.sha256(raw).hexdigest()[:12]
 (here / 'fixtures.js').write_text(
@@ -78,6 +99,7 @@ sha = hashlib.sha256(raw).hexdigest()[:12]
     "   Every figure on the Layer 4 screens is read from MANIFEST or derived by stated arithmetic (see fixture-mapping.md). */\n"
     "const MANIFEST = " + body + ";\nconst MANIFEST_SHA = '" + sha + "';\n"
     "/* Replay-dependent values derived from the manifest (rule above in tools/gen_fixtures.py) */\n"
+    "const DERIVED = " + json.dumps(derived, ensure_ascii=False, separators=(',', ':')) + "; /* from ../evaluate_structure.py */\n"
     "const REPLAY_PATTERNS = " + json.dumps(pats) + ";\nconst REPLAY_VALUES = " + json.dumps([str(v) for v in vals]) + ";\n")
 print('replay patterns', len(pats))
 print('fixtures.js written', len(body), 'chars, sha', sha)

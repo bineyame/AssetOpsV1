@@ -31,6 +31,33 @@ SYN('RUI-CONN-NOACT','ruiru',`${sitePath('ruiru')}.incident`,{reason:'Connector 
 OPT['KIS-OM-REVIEW']={id:'KIS-OM-REVIEW',kind:'RIGHTS_REVIEW',_site:'kisiwa',_synthetic:true,_path:`${sitePath('kisiwa')}.entitlements[1]`,disposition:'RECOMMENDED',reason:'Response took 96 hours against 48 and the weather was calm; a person reviews the weather exception before the credit is requested.'};
 OPT['RUI-CONN-CLAIM']={id:'RUI-CONN-CLAIM',kind:'SUPPLIER_REMEDY',_site:'ruiru',_synthetic:true,_path:`${sitePath('ruiru')}.incident.entitlement`,disposition:'RECOMMENDED',reason:'No departure depends on connector 2, so the claim waits for the next routine visit.'};
 
+/* Owner ninth message: every computed figure on screen comes from the structure evaluator (DERIVED = ../derived-values.json,
+   written by ../evaluate_structure.py from the declared structures and leaf factors). Stated manifest fields are replaced here. */
+const dKey=sk=>`${OPS[SK[sk].op].t.tenant}/${siteM(sk).site}`;
+(function applyDerived(){
+ Object.keys(SK).forEach(sk=>{const dv=DERIVED.sites[dKey(sk)];if(!dv)return;const cost=OPS[SK[sk].op].kind==='cost';
+  const map={contribution:cost?null:'contribution',revenue:'revenue',fuel_cost:'diesel_cost',energy:'energy',energy_cost:'energy_cost',cost_to_serve:cost?'total':null};
+  ['plan','actual'].forEach(side=>{const P=siteM(sk).period[side];Object.entries(map).forEach(([n,f])=>{if(f&&dv[side].nodes[n]!==undefined&&P[f]!==undefined)P[f]=dv[side].nodes[n];});});});
+ Object.entries(DERIVED.options).forEach(([id,d])=>{const o=OPT[id];if(!o)return;o._derived=d;const e=o.economics||(o.economics={});
+  if(id==='KIS-BATT60'){o.net_12m=d.value;o.monthly_fuel_saving_modelled=d.monthly_change;return;}
+  if(e.net_contract!==undefined)e.net_contract=d.value;else if(e.net_12m!==undefined)e.net_12m=d.value;
+  ['net_monthly','monthly','saving_monthly'].forEach(k=>{if(e[k]!==undefined)e[k]=d.monthly_change;});
+  if(d.option_bill!==undefined&&e.energy_cost_monthly!==undefined)e.energy_cost_monthly=d.option_bill;
+  if(d.no_action_bill!==undefined&&OPT['EMB-NOACT'])OPT['EMB-NOACT'].economics.energy_cost_monthly=d.no_action_bill;
+  if(d.sensitivities&&o.sensitivity)Object.entries(d.sensitivities).forEach(([k,v])=>{if(o.sensitivity[k+'_net_12m']!==undefined)o.sensitivity[k+'_net_12m']=v;});});
+ Object.values(OPS).forEach(o=>(o.t.portfolio.protect_effects||[]).forEach(pe=>{const d=DERIVED.protect_effects[pe.decision];if(d)Object.assign(pe.options,d.values);}));
+ const L=OPS.lakeside.t.portfolio.allocation,LP=DERIVED.plans['lakeside-power'],cases=L.switches.find(x=>x.cases).cases;
+ Object.entries(LP.switch_cases).forEach(([k,c])=>{const key=k.replace('True','yes').replace('False','no');if(cases[key]){cases[key].value=c.value;cases[key].spend=c.spend;}});
+ L.modelled_12m_change.total=LP.default.value;L.spend=LP.default.spend;L.valued_option_costs=LP.default.valued_option_costs;L.unvalued_spend=LP.default.not_valued_in_money;
+ [['lakeside','lakeside-power'],['harvest','harvest-cold'],['metro','metro-bus']].forEach(([op,k])=>{const A=OPS[op].t.portfolio.allocation,dp=DERIVED.plans[k];if(A.downside){A.downside.value=dp.downside;Object.keys(A.downside.others||{}).forEach(s=>{if(dp.sensitivity_values[s]!==undefined)A.downside.others[s]=dp.sensitivity_values[s];});}});
+})();
+const derivedPlan=(op)=>{const k={lakeside:'lakeside-power',harvest:'harvest-cold',metro:'metro-bus'}[op],dp=DERIVED.plans[k].switch_cases;return op==='lakeside'?dp[`${LS.budget}/${LS.loi?'True':'False'}`]:op==='harvest'?dp[LS.agg?'True':'False']:dp[LS.tou?'True':'False'];};
+function derivedFormula(id){const d=DERIVED.options[id];if(!d)return '';const o=OPT[id],cost=OPS[SK[o._site].op].kind==='cost';
+ if(optEffect(o)[0]==='Not valued')return `Not valued: the option fails a limit (${d.bound_failure||'battery below 35% at 5 am on 4 of 61 replayed days'}), so its money effect is not counted.`;
+ if(!d.months)return `One-off cost only, no change to the structure’s monthly outcome: ${usd(d.value,true)}.`;
+ const head=cost?'Cost to serve = energy cost + demand + maintenance, evaluated with the option’s factor changes against no action':'Contribution = revenue − cost to serve, evaluated with the option’s factor changes against no action';
+ const body=cost&&d.option_bill!==undefined?`(no-action bill ${usd(d.no_action_bill)} − option bill ${usd(d.option_bill)}) × ${d.months} − one-off ${usd(d.one_off)} = ${usd(d.value,true)}`:`(option ${usd(d.option_month)} − no action ${usd(d.no_action_month)} a month) × ${d.months} − one-off ${usd(d.one_off)} = ${usd(d.value,true)}`;
+ return `${head}: ${body}.`;}
 const DISP = {RECOMMENDED:['Recommended','green'],CONDITIONAL:['Conditional','amber'],ACCEPTABLE:['Acceptable',''],DEFERRED:['Deferred','blue'],REJECTED:['Rejected','red']};
 const dispBadge = o => o.disposition?badge(...DISP[o.disposition]):badge('No action (baseline)','outline');
 const TEXTFIX = {
@@ -272,7 +299,7 @@ function decText(d){const s=siteM(d.site),P=s.period,o=k=>OPT[k],e=k=>OPT[k].eco
   factor:`Share of charging at peak price: ${pct(a.peak_share)} in October against ${pct(P.plan.peak_share)} planned, and the monthly peak reached ${a.max_kw} kW (plan ${P.plan.max_kw} kW, which is also the import limit). All ${num(a.departures_met)} departures were met. From 1 Nov the tariff adds a 00:00–05:00 rate at $0.09.`,
   change:'A schedule changes two factors, peak share and peak kW; departures must stay met. No action is October’s pattern under the November tariff.',
   why:`Charging to each departure time costs a modelled ${usd(dl.economics.energy_cost_monthly)} a month: ${usd(dl.economics.saving_monthly)} less than no action (${usd(na.economics.energy_cost_monthly)}), ${usd(dl.economics.net_12m)} over 12 months after ${usd(dl.economics.one_off)} set-up. The new rate also lowers no action by $706.80 a month; that is not credited to the schedule. Charging only 00:00–05:00 gives the cheapest bill (${usd(ch.economics.energy_cost_monthly)}) but delivers ${num(ch.deliverable_kwh)} of the ${num(ch.required_kwh)} kWh needed each night, so 3 buses leave short: rejected.`,
-  cf:[['Share at peak price','55%','near 0%','0%'],['Monthly peak import','500 kW','400 kW','500 kW'],['Energy deliverable a night','2,800 needed','2,900','2,500'],['Required departures met','all','all','3 buses short a night'],['Monthly bill','$21,438','$13,356','$12,975']],cfHead:['Factor','No action (November tariff)','Charge to departure time','Cheapest hours only'],
+  cf:[['Share at peak price','55%','near 0%','0%'],['Monthly peak import','500 kW','400 kW','500 kW'],['Energy deliverable a night','2,800 kWh needed','2,900 kWh','2,500 kWh'],['Required departures met','all','all','3 buses short a night'],['Monthly bill','$21,438','$13,356','$12,975']],cfHead:['Factor','No action (November tariff)','Charge to departure time','Cheapest hours only'],
   sens:['If the invoice shows a different tariff, the saving is recomputed before approval (see the switch on Act first).','A 21-bus night needs about 406 kW: inside the 500 kW limit, above the 400 kW plan.'],
   verify:[['Operational','Peak share near 0%, about 62,000 kWh a month at the 00:00–05:00 rate, every departure met, over 14 supervised nights'],['Economic','Next utility invoice: time-of-use and demand lines against the modelled figure'],['Causal','Ruiru as the comparison depot; Kasarani’s flat tariff is not comparable']],
   records:[['node:embakasi:peak','Energy at peak price'],['node:embakasi:maxkw','Monthly peak import'],['opt:EMB-DEADLINE:effect','How the schedule result is worked out']]};},

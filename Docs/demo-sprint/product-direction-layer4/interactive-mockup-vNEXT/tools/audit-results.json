@@ -1,15 +1,16 @@
 {
  "dvScan": {
-  "occurrences": 94,
+  "occurrences": 102,
   "unlabelled": [],
   "drawersOpened": 734,
   "byFigure": {},
-  "independentPatterns": 25,
+  "independentPatterns": 27,
   "independentFigures": [
    "20 L",
    "4 of 61 dawn days",
    "210 L",
    "0 of 61 dawn days",
+   "150 kWh",
    "2916.0",
    "250.5",
    "262.5",
@@ -19,7 +20,6 @@
    "68 L",
    "3540.0",
    "395.0",
-   "495.0",
    "85.0",
    "6096.0",
    "2556.0",
@@ -27,12 +27,28 @@
    "5670.0",
    "5346.0",
    "31 of 31 nights",
+   "406 kW",
+   "2,900 kWh",
    "95484.0",
    "8082.0",
    "13356.0",
-   "93 (departures_missed)"
+   "93 departures missed"
   ],
-  "sameAsTagger": true
+  "sameAsTagger": true,
+  "preservedCoincidences": [
+   {
+    "op": "lakeside",
+    "id": "site-create-form",
+    "figure": "150 kWh",
+    "at": "Battery + inverter150 kWh · ±25 kWSets the bus"
+   },
+   {
+    "op": "lakeside",
+    "id": "site-batch-upload",
+    "figure": "150 kWh",
+    "at": "2Hillcrest Mini-gridMG-HILL-01Mini-grid · DC-coupledAfrica/NairobiWarningBattery size missing · template default 150 kWh"
+   }
+  ]
  },
  "idHits": [],
  "idHitsPreserved": [
@@ -3936,7 +3952,6 @@
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data"
    ],
    "mto-demand": [
@@ -3948,6 +3963,7 @@
    ],
    "embakasi-schedule": [
     "Design value: the replay has not yet been run on site data: schedule feasibility on 31 of 31 October nights and the deliverable energy a night",
+    "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
     "Design value: the replay has not yet been run on site data",
@@ -4010,7 +4026,7 @@
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
   "operatorSelectInReviewBar": 202,
-  "designValueScan": "independent set of 25 replay figures (same as the tagger's: true); 94 occurrences scanned on all routes and 734 drawers; unlabelled 0",
+  "designValueScan": "independent set of 27 replay figures (same as the tagger's: true); 102 occurrences scanned on all routes and 734 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
   "rev6TabOrder": true,
   "rev7EvMeasure": true,
   "rev7RuiruNameplate": true,

@@ -359,3 +359,71 @@ I took the reviewer's first option: make the measure use the structure's own `de
 | Full audit: oracle shipped | no |
 
 **Now owner decisions (no further author round):** Q1–Q13, including the new Q2 frame choice and Q13 client exposure, and checklist item 11 (Ruiru's preserved deep views).
+
+## Author response (rev 9)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This answers "## Re-review (rev 8)" and the owner's ninth message ("the structural aspect of mechanics are still very important even in the document illustration").
+
+### Owner, ninth message: the illustration is now evaluated through the structure, not hand-written
+
+I accept the coordinator's point. Per-option Protect effects, option values and plan values were written by hand into the demo data, and the R8-M1 and R8-M2 errors are symptoms of that.
+
+**What the manifest now declares (inputs only)**
+- `structures:` holds the outcome structure of each vertical as node expressions over named factors (Define).
+- `option_factor_changes:` holds how each valued option changes leaf factors, for how many months, and its one-off cost, with sensitivities as factor overrides.
+- `plans:` holds the allocator inputs: budget, fixed must-do and protective items, candidate options, exclusivity, requirements and switches.
+
+**What the new `evaluate_structure.py` derives from those inputs**
+- **Observe:** every site's actual and plan outcome, bottom-up from its leaf factors.
+- **Evaluate:**
+  - every valued option, by re-running the same structure with its factor changes against no action, together with its sensitivities;
+  - four Protect effects (Kisiwa, Mto inverter, Thika, Kasarani), from the option rows' restore dates, counted from `as_of`.
+- **Choose:** every plan, switch case and downside, by enumerating subsets.
+
+**Where the results go**
+- The script writes `derived-values.json`, with each figure's formula.
+- The mock-up's fixtures take every computed figure from that file.
+- Drawers show the evaluator's formula and name the structure.
+
+**How the check works**
+- `check_manifest.py` asserts that every figure stated in the manifest and documents equals the evaluated one. It also asserts that every date-derived Protect effect is recomputed from its dates.
+- A figure that does not follow from the structure now fails the check before it can reach a screen.
+- No on-screen figure changed: 936 page and drawer views were compared before and after.
+
+**Still inputs, by design:** Kobo dawn days and Embakasi's 93 missed departures are replay design values (spikes K and E). Kobo battery evidence is a record count.
+
+**Where this is recorded:** main §10 and decision A23.
+
+### Findings
+
+| Finding | Outcome |
+|---|---|
+| **R8-M1** Kisiwa effect used a restore date before `as_of` | **Fixed.** `KIS-REPAIR` now carries `crew_visit` 8 Nov and `restore_date` 9 Nov. `KIS-REPLACE` carries `lead_time_days` 21 and `restore_date` 27 Nov. Evenings are counted from the decision date: 6–30 Nov is 25 evenings. Result: no action 125 h, repair 15 h, replace 105 h. The 25 h observed on 1–5 Nov appears separately, under every option, as observed. The evaluator derives these figures and the checker re-derives them from the dates. Act first reads "6–30 Nov: 125 → 15". |
+| **R8-M2** Mto inverter had no Protect effect | **Fixed.** A new effect is declared on `obligation_hours_without_redundancy`, using the restore dates in the option rows and counted from 6 Nov: claim and wait 110 h (restored 28 Nov), buy now 30 h (12 Nov), no action 125 h. Local repair is shown as not evaluated, with the reason. The 1–5 Nov 25 h is shown as observed. **On the reviewer's figures (150 / 135 / 55):** I used the same counting rule as R8-M1, from the decision date rather than from 1 Nov. The difference between the two paths is the same either way: 80 h. The effect appears on `#/decision/mto-inverter` and beside the claim-versus-buy switch on Act first. CHANGE-REGISTER now says seven decisions have Protect effects. |
+| **R8-L1** Two effects used measures outside the declared structure | **Fixed.** Thika's effect is now on a declared Protect measure, `nights_without_backup_cover` (Harvest, October: 26). The CSV has a row for it. Models §4.7 states why the Kobo stop setting is shown on its bound's own quantity: unserved critical kWh is 0 under every option, and the bound count is what tells the options apart. |
+| **R8-L2** Spike lists and derived set disagreed; 406 kW unlabelled | **Fixed.** The manifest's `calibration_spikes` is now the enumeration. `check_manifest.py` runs `replay_values.py` and asserts that the derived set equals the spikes' scanned figures plus the plan values: 27 figures. 150 kWh, 2,900 kWh and 406 kW are added; $495 and Embakasi's no-action "0" are no longer labelled; the 406 kW sentence is tagged. The phase-plan spike table points to the enumeration. |
+| **R8-L3** Label residues | **Fixed.** Frame letters are now the same in §6.2 and Q2: (a) six tabs, (b) one sequential page, (c) staged Overview, which is recommended. Q13 now follows Q12, and decisions A1–A23 are in numeric order. RR1 now points to calibration spike K (A21). Revision headers updated. The Act-first battery line now reads "assets with complete warranty evidence 1 of 3 → 2 of 3". The 30-minute path has a closing line pointing to the remaining owner decisions (CP-5 note). |
+
+### Checks run before replying
+
+- `python3 evaluate_structure.py`: 9 site outcomes, 12 options, 4 Protect effects, 3 plans.
+- `python3 check_manifest.py`: **325 checks passed, 0 failed**. New checks:
+  - evaluated figures equal stated figures;
+  - date-derived Protect effects are recomputed from their dates;
+  - the spike enumeration equals the derived replay set.
+- CSV validator: **PASS** (454 rows; includes the new Protect measure).
+- Mock-up rebuild: evaluator, `rebase_v70.py`, `gen_fixtures.py` (27 replay patterns; private oracle removed) and `node build.mjs`.
+- Full audit:
+
+| Check | Result |
+|---|---|
+| Routes that render | 202 / 202 |
+| Console errors / bad links / overflow at 390 px | 0 / 0 / 0 |
+| Vocabulary hits / identifiers / role or question wording | 0 / 0 / 0 |
+| Independent design-value scan | 27-figure set, same as the tagger's; 102 occurrences; 0 unlabelled |
+| Switch cases | 8 / 8 |
+| Drawer / focus / contrast | pass / 7 of 7 / 38 of 38 |
+| Preserved screens identical to v7.0 | 65 / 65 |
+| Private oracle in the bundle | no |
+
+The design-value scan and tagger now skip the preserved v7.0 pages. The scan reports 2 unrelated "150 kWh" matches there as exempt; tagging them would have broken those screens' identity with v7.0.

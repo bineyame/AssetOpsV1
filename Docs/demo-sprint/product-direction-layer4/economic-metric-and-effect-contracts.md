@@ -1,6 +1,6 @@
 # Economic metric and effect contracts
 
-**Layer 4 companion · rev 4 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only, nothing built**
+**Layer 4 companion · rev 9 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only, nothing built**
 **Answers:** brief Part VI, C1 Deliverable 2 (economic truth, measurement, composition, financial models and contractual entitlements), for the mechanics of `layer4-transformation-design.md` §2: **M1 Define**, **M2 Observe**, **M3 Evaluate**, as corrected by the owner on 17 Nov 2026 (outcomes are *observed through the factors that structurally define them*, not traced backwards from a shortfall).
 **Figures:** every amount is **illustrative** (USD) and comes from `demo-site-scenario-manifest.yaml` (rev 4). `python3 check_manifest.py` passes 217 checks; every other figure here was recomputed by hand and the working is shown. One test vector (AT-3) is a stated hypothetical, because the manifest holds prices at plan in October; it is labelled as such. Nothing here is an observed financial result.
 

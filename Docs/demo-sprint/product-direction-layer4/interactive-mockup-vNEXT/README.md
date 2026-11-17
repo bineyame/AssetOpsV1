@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 mock-up (rev 4): the restructured Portfolio
 
-**Not approved: awaits owner inspection.** Rev 8 (targeted revisions after review): see CHANGE-REGISTER §7, §7a, §7b and §7c.
+**Not approved: awaits owner inspection.** Rev 9 (targeted revisions after review): see CHANGE-REGISTER §7, §7a–§7d.
 
 A new version of the v7.0 interactive mock-up, built to the Layer 4 design (`../layer4-transformation-design.md`, §2, §3.4, §6, §7). It keeps the v7.0 shell and left menu, keeps the Portfolio's six owner-approved tabs (Overview, Act first, Outcomes by site, Opportunity, What changed, Scope & coverage) and re-bases their content on the five mechanics: outcomes are computed from declared factor structures, deviations show at the factor where they arise, options change factors and are compared with no action, a plan is chosen under budget and crews, and proof is three separate verdicts. Three demo operators (Lakeside Power mini-grids, Harvest Cold Network cold rooms, Metro Bus Depots captive EV fleet), October 2026, books closed 6 Nov. Every figure is illustrative and comes from `../demo-site-scenario-manifest.yaml`.
 
@@ -23,7 +23,8 @@ Main routes (rev 6 tab order): `#/portfolio`, `#/portfolio/outcomes-by-site`, `#
 
 ```
 python3 tools/rebase_v70.py     # re-creates the re-based v7.0 copies (screens.js, portfolio.js, outcomes.js, css) from src-v70-baseline
-python3 tools/gen_fixtures.py   # only if the scenario file changed: regenerates fixtures.js (private oracle removed) and the replay-dependent figure set
+python3 ../evaluate_structure.py # evaluates the declared structures bottom-up and writes ../derived-values.json (every computed figure, with its formula)
+python3 tools/gen_fixtures.py   # runs the evaluator again, embeds derived-values.json as DERIVED (all computed figures on screen come from it); only if the scenario file changed: regenerates fixtures.js (private oracle removed) and the replay-dependent figure set
 node build.mjs                  # writes index.html; refuses a bundle containing the oracle
 ```
 
