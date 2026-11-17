@@ -17,11 +17,11 @@ all the way down the structure, and holds no numbers of its own:
                 Rights with an open notice deadline lapse for any option that files no notice by it (cover lost). Value nets
                 the reference path's operator-borne one-off: (option - reference) x months - (option one-off - reference one-off).
                 No option carries a typed admissibility: every rejection is a declared bound measured on the option's nodes.
-  M4 Choose   - `plans:` lists decisions: protective decisions choose the cheapest affordable option meeting their hard bounds (or,
-                if declared, the least violation among the affordable options, reporting the trade-off when a smaller violation is
-                unaffordable); valued decisions are enumerated among their admissible options under the budget, the crew-visit
-                limit, requirements and switches (a valued decision may declare the same least-violation fallback). Switch cases,
-                sensitivities and the downside re-run it, protective choices included.
+  M4 Choose   - `plans:` lists decisions. Protective and valued decisions are enumerated together (one product), judged jointly
+                against the budget, the crew-visit limit, switch requirements and dated dependencies (requires_restore); the
+                plan is the feasible combination with the least total violation of decisions on their least-violation fallback,
+                then the highest value, then the lowest spend (structure-specification.md §6). Switch cases, sensitivities, the
+                downside and owner-question variants re-run it.
 
 Writes derived-values.json (every figure with its formula). Run:  python3 evaluate_structure.py [manifest]
 """

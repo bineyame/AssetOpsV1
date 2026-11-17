@@ -835,6 +835,7 @@ Every switch case, sensitivity and downside is also unchanged. The evaluator now
 | MTO-INV-NOACT value if admissible | −156.25 | −2,281.25 | fuel is now counted over the 12-month horizon |
 | KAS-LOCAL Protect effect | 0 missed, −140 | 1 missed, −260 | the dated roster has no free spare-bus night on 6 Nov |
 | MTO-INV-LOCAL | not evaluated | −462.50, restores 8 Nov, fails the cover bound | now evaluated |
+| KAS-LOCAL cost per departure met | 23.71 | 24.29 | its one missed departure (dated roster) adds 120 of penalties; added after the final review (L5) |
 
 The headline plans and downsides did not change. They are an output of this round, not its success criterion.
 
@@ -904,3 +905,28 @@ Full audit (`run-audit.sh --shots`, exit 0):
 **Still open, and the reason:**
 - The builder asked for some nodes to be exported, so that their allow-listed literals could become placeholders: the bridge quantities (actual − plan), chargers × kW, the Thika crate-minute range, the rights evidence shares, payback years, and Mwea +0.6% / Kirinyaga 24% in manifest text. They are not exported. Each is allow-listed with its reason and listed in the register.
 - **Q15** remains an owner decision.
+
+### Close-out after the final review (ACCEPT WITH NOTES)
+
+**Class (i), fixed.**
+- **F1.** The Lakeside plan-value drawer's rows now come from the evaluated case's valued options (`derivedPlan(op).valued_options` and `DOPT(id).value`) for every tenant. The design-value note names only the valued options in the case, and reads their figures from the evaluated parameters, not the `forward_replay` copies.
+- **F2.** The "Largest …" claims are removed from the Act first reasons. The letter's lapse date in the buy-now reason is now read from the record.
+- **Screen test** (scratch copy, headless, all four Lakeside switch cases):
+  - In every case the drawer rows are exactly the case's valued options and sum to the headline: 6,088.50, 2,548.50, 6,088.50 and 3,508.50.
+  - The design-value note mentions the huller only when the huller is in the plan.
+  - No "Largest" appears on Lakeside, Harvest or Metro Act first.
+  - There are 0 page errors.
+
+**Class (ii), recorded as documented limits (not redesigned).** F3, F4, F6 and L1–L6 are recorded in `derivation-register.md` §9 and in the main document's limits (§10).
+
+**Register corrections.**
+- §3.2 dispositions no longer claim that unchecked leaves are checked (F3).
+- H2 is restated as reachable (G20).
+- §7 rows 136, 147 and 169 are marked as fixed after the sweep; rows 170 and 175 are relabelled F6.
+- The scan's coverage gap is stated (L1).
+
+**Other corrections.**
+- The evaluator docstring now describes the joint allocator (L6).
+- KAS-LOCAL's 23.71 → 24.29 is added to the changed-figures table.
+- L3 is put to the owner as Q16, with (a) "infeasible" applied.
+
