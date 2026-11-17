@@ -2524,31 +2524,6 @@
   "layer4_note": "Slim banner: example items from the three demo operators shown together."
  },
  {
-  "id": "portfolio/act-first",
-  "title": "Portfolio",
-  "root": "Portfolio",
-  "section": "",
-  "question": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it.",
-  "domain": "mini",
-  "loop": true,
-  "book": false,
-  "anchor": "Layer 4 design rev 4 §6.2",
-  "models": [
-   "Factor structure (site × period)",
-   "Portfolio composition",
-   "Decision and options",
-   "Allocation run",
-   "Commitments and rights"
-  ],
-  "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
-  "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
-  "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
-  "opScoped": true,
-  "subtitle": "Lakeside Power · Act first · October 2026",
-  "layer4_status": "Added",
-  "layer4_note": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it."
- },
- {
   "id": "portfolio/outcomes-by-site",
   "title": "Portfolio",
   "root": "Portfolio",
@@ -2574,7 +2549,7 @@
   "layer4_note": "Each outcome by site, broken down through its factors to plan against actual; Protect measures against their targets."
  },
  {
-  "id": "portfolio/opportunity",
+  "id": "portfolio/demand-and-capacity",
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
@@ -2594,9 +2569,34 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "opScoped": true,
-  "subtitle": "Lakeside Power · Opportunity · October 2026",
+  "subtitle": "Lakeside Power · Demand and capacity · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Demand that adds contribution, rejected demand with break-even, and capacity without a customer."
+ },
+ {
+  "id": "portfolio/act-first",
+  "title": "Portfolio",
+  "root": "Portfolio",
+  "section": "",
+  "question": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it.",
+  "domain": "mini",
+  "loop": true,
+  "book": false,
+  "anchor": "Layer 4 design rev 4 §6.2",
+  "models": [
+   "Factor structure (site × period)",
+   "Portfolio composition",
+   "Decision and options",
+   "Allocation run",
+   "Commitments and rights"
+  ],
+  "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
+  "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
+  "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
+  "opScoped": true,
+  "subtitle": "Lakeside Power · Act first · October 2026",
+  "layer4_status": "Added",
+  "layer4_note": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it."
  },
  {
   "id": "portfolio/what-changed",

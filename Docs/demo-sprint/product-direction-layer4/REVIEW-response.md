@@ -98,3 +98,115 @@ Residual risks from the re-review are unchanged and already recorded: screenshot
 **Not changed:**
 - The preserved v7.0 Ruiru pages still show a smaller public depot than the manifest's Ruiru (owner checklist item 11).
 - Decision pages show the per-option bound checks, not a per-option Protect value table, because the manifest holds no per-option Protect values; the bounds now name the measure they protect.
+
+## Author response (rev 6)
+
+**Author:** AssetOps Architect (Claude), 17 Nov 2026. This answers "## Re-review (rev 5)" (L1–L6) and its addendum (OE-1 to OE-6, LY-1 to LY-5) in `REVIEW.md`. The owner's feedback file remains the governing direction.
+
+### Blocking findings (Medium)
+
+**OE-1: Portfolio tab frame not judged on merit. Fixed.**
+
+Main §6.1 item 2 and §6.2 now judge each tab against the loop, and the tabs are reordered to follow it: Observe, then Evaluate/Choose, then Prove.
+
+| New position | Tab | Decision |
+|---|---|---|
+| 1 | Overview | Keep. Results and choices lead (C1 D6). |
+| 2 | Outcomes by site | Keep the name; move to 2nd (Observe). |
+| 3 | Demand and capacity | **Renamed** from *Opportunity*: in the loop every option is an opportunity, and this tab holds latent demand factors and capacity without a customer. |
+| 4 | Act first | Keep the name, because it says where action is decided; move to 4th (Choose). |
+| 5 | What changed | Keep (Prove). |
+| 6 | Scope & coverage | Keep, last (evidence state, then pilot). |
+
+- The old `#/portfolio/opportunity` route redirects to the new tab.
+- CHANGE-REGISTER §7a records the reason for each tab.
+- Owner decision Q2 now asks for approval of the new order and the rename.
+
+**OE-6: Mock-up no longer disclosed replay design values. Fixed (decision A20).**
+
+Every replay-based figure now carries the label "Design value: the replay has not yet been run on site data":
+- Kobo 210 L, 20 L, 61/61 and 4/61 days, $2,916;
+- Mto 68 L, $395 a month, $3,540;
+- Embakasi 31/31 nights;
+- the Mto inverter sensitivity;
+- each operator's plan-value drawer and the plan rows on Act first.
+
+Kirinyaga's 80% recovery is labelled as an assumption. The Overview plan figure says "includes design values not yet run on site data". The audit checks that the labels are present, and phase-plan release test R13 fails if they are missing.
+
+**LY-1: O2 and A4 had no declared measure. Fixed (decision A18).**
+
+O2 is now declared for each vertical as measured factors that compose as Σ numerator / Σ denominator (manifest `operations`; contracts §2.7; models §3.13; checker):
+
+| Vertical | O2 measures |
+|---|---|
+| Mini-grid | asset availability 98.51% (397 of 403 asset-days); field visits 3; 7,683.33 kWh delivered per visit |
+| Cold | cooling availability 99.997%; 22,820 crate-days without excursion |
+| EV | charger energy utilisation 41.50%; 50.08 departures per charger in service |
+
+- A4 is declared as the evidence pack: a reading of A1–A3 with lineage, built in slice 9. It adds no new measure.
+- Attribution rules A1–A5 are renamed AR1–AR5 everywhere, so they no longer clash with the Assure objectives.
+- The CSV gains a `declared_measure` column and no longer claims coverage by enumeration. The validator now reports 14 of 15 objectives with a declared measure; the 15th is A4, which is a reading.
+
+### Lows from the addendum
+
+| Finding | Outcome |
+|---|---|
+| **OE-2** | **Fixed.** The §6.2 column is now a trace showing how the executive concerns are met. Each concern spans several sections; no tab is assigned to a role. These are acceptance tests and never appear on screen. |
+| **OE-4** | **Fixed.** The Overview's first fold is the headline, four figures with one-line notes, and "The plan's first three moves" with "Open the plan". The value chain is behind a disclosure, closed at phone width. |
+| **LY-2** | **Fixed.** The cold realisation stages are declared: occupied → chargeable → invoiced → received, with a storage-ledger-to-invoice observer (models §3.12) and negative test N20. October has no discrepancy, so CC-L8 has no demo option; this is stated in the docs, the CSV and on screen. |
+| **LY-3** | **Fixed.** MG-L2 has a load-shift model line, deferred under the brief's tariff boundary. EV-L7 battery health is deferred under the brief's "without validated battery data" boundary; charger reliability is carried by fault consequence. MG-C4 gains a fuel price-discrepancy check (P1-P). See models §4.9. |
+| **LY-4** | **Fixed.** Act first shows the plan's downside beside its value: Lakeside +2,556.00 (other sensitivities +5,466.00 and +5,346.00), Harvest +1,512.40, Metro 0.00. The values are in the manifest, and the checker asserts downside ≤ value. |
+| **LY-5** | **Fixed.** P4/A5 measures are declared by contract and period (manifest `rights`, contracts §5.5) and shown on What changed: complete contract evidence 1 of 3, 1 of 1 and 2 of 2; open deadlines; remedy days; residual expense; credits. The EV-C5 position is in main §2.4: different defensible allocations are switch settings a person chooses over one evidence base, never role views. |
+
+### Lows from the re-review
+
+| Finding | Outcome |
+|---|---|
+| **L1** | **Fixed.** There is one plan-value drawer per operator, generated from `modelled_12m_change` and titled "Modelled 12-month change from the valued options". It shows the valued options, the must-do and protective spend not valued in money, the downside and the design-value note. |
+| **L2** | **Fixed (decision A19).** Must-do means that taking no action fails a hard bound. That applies to the Kisiwa repair, the Thika stopgap and the Kasarani stopgap (`must_do: true` in the manifest, with the reason). Protective covers only the Kobo battery evidence. The measures are named "days with backup start unproven" and "departures missed". |
+| **L3** | **Fixed.** Ruiru's +19.68 now reads "not attributed: the plan is declared only as a bill total" everywhere, never "not explained by the model". The audit checks this. |
+| **L4** | **Fixed.** Both halves of the dispatch split (necessary and candidate running) are now "Calculated from records" (DERIVED): one rule on metered generator energy with a declared consumption rate. This is updated in the manifest, the main doc and the models doc (§3.4 is now BOUNDED, not MODELLED). |
+| **L5** | **Fixed (decision A17).** Customer-hours interrupted is added as a Protect measure (0). Asset value at risk is declared but shown as "not available yet", deferred under the brief's own "expected loss only with defensible likelihood" rule. Exposure measures are listed, never summed (manifest `LISTED`, CSV, contracts). |
+| **L6** | **Fixed.** `loop-protect.js` was committed in 146667cfc. The dead `GEN_POLICY_RUNNING_*` keys are removed from `loop-core.js`. |
+
+**Also corrected:** Ruiru's charger utilisation in the manifest was 0.31 and did not reconcile with the stated chargers, power and window. It is now 0.34 (1,960 ÷ 5,760). The Harvest cooling-minutes field is split into per-room and portfolio minutes.
+
+**OE-3 and OE-5:** rejected by the reviewer; no action.
+
+### Checks run before replying
+
+- `python3 check_manifest.py`: **217 checks passed, 0 failed**. New checks cover O2 composition, availability agreeing with the Protect asset-days, and downside ≤ value.
+- CSV validator: **PASS**.
+  - 453 rows and 18 columns.
+  - Objectives 15/15, levers 28/28, lever classes 9/9, capabilities 30/30, options 38/38, Protect measures 16/16.
+  - 14 of 15 objectives have a declared measure; A4 is a reading.
+- Mock-up rebuild: `tools/rebase_v70.py`, `tools/gen_fixtures.py` (oracle removed, sha d31a2c9e18bb) and `node build.mjs` all succeeded.
+- Full audit (`tools/run-audit.sh --shots`):
+
+| Check | Result |
+|---|---|
+| Routes rendering an h1 | 202 of 202 (184 screens) |
+| Console-error routes | 0 |
+| Bad links | 0 |
+| Overflow at 390 px | 0 |
+| Vocabulary hits | 0 |
+| Identifier rule on added and changed screens | 0 |
+| Role and question hits | 0 |
+| Filter controls on the Portfolio | 0 |
+| Operator selector in the product top bar | 0 |
+| Tab order | pass |
+| Old route redirect | pass |
+| Design-value labels | pass |
+| Ruiru wording | pass |
+| Switch cases, including downside and must-do wording | 8 of 8 |
+| Evidence drawer | pass |
+| Focus | 7 of 7 |
+| Contrast | 38 of 38 |
+| Preserved screens identical to v7.0 | 65 of 65 |
+| Oracle shipped in the bundle | no |
+
+### Not changed
+
+- The preserved v7.0 Ruiru pages show a smaller depot than the manifest's Ruiru. This needs the owner's decision (checklist item 11).
+- Decision pages show each option's bound checks, naming the Protect measure each one protects, but not a per-option table of Protect values; the manifest holds no such values.
+- Two O2 measures (kWh per field visit, departures per charger) are given only at portfolio level.

@@ -1,6 +1,6 @@
-# Screenshots (rev 5)
+# Screenshots (rev 6)
 
-**Not approved: awaits owner inspection.** Captured by `tools/audit.mjs --shots` (Chromium, full page). Lakeside Power unless the file name starts with `harvest-` or `metro-`. Rev 5 views to look at first: Protect card on `portfolio-1440.png`, `harvest-portfolio-1440.png`, `metro-portfolio-1440.png` and `metro-portfolio-390.png`; Protect measures by site on the three `*outcomes-by-site-1440.png`; plan figure wording on the four `act-first-lakeside-*` captures.
+**Not approved: awaits owner inspection.** Captured by `tools/audit.mjs --shots` (Chromium, full page). Lakeside Power unless the file name starts with `harvest-` or `metro-`. Rev 6 views to look at first: the Overview first fold (`portfolio-1440.png`, `portfolio-390.png`); the new tab order on any Portfolio capture; operations and Protect measures on the three `*outcomes-by-site-1440.png`; design-value labels on `decision_kobo-generator-1440.png`; the downside line on the four `act-first-lakeside-*` captures; rights measures on `portfolio_what-changed-1440.png`; Demand and capacity on `*demand-and-capacity-1440.png`.
 
 ## Before: v7.0 (`v70/`)
 
@@ -41,19 +41,19 @@
 | `vnext/globalfinancials-1440.png` | globalfinancials · 1440 px |
 | `vnext/harvest-portfolio-1440.png` | harvest-portfolio · 1440 px |
 | `vnext/harvest-portfolio_act-first-1440.png` | harvest-portfolio/act-first · 1440 px |
-| `vnext/harvest-portfolio_opportunity-1440.png` | harvest-portfolio/opportunity · 1440 px |
+| `vnext/harvest-portfolio_demand-and-capacity-1440.png` | harvest-portfolio/demand-and-capacity · 1440 px |
 | `vnext/harvest-portfolio_outcomes-by-site-1440.png` | harvest-portfolio/outcomes-by-site · 1440 px |
 | `vnext/metro-portfolio-1440.png` | metro-portfolio · 1440 px |
 | `vnext/metro-portfolio-390.png` | metro-portfolio · 390 px |
 | `vnext/metro-portfolio_act-first-1440.png` | metro-portfolio/act-first · 1440 px |
-| `vnext/metro-portfolio_opportunity-1440.png` | metro-portfolio/opportunity · 1440 px |
+| `vnext/metro-portfolio_demand-and-capacity-1440.png` | metro-portfolio/demand-and-capacity · 1440 px |
 | `vnext/metro-portfolio_outcomes-by-site-1440.png` | metro-portfolio/outcomes-by-site · 1440 px |
 | `vnext/mini-1440.png` | mini · 1440 px |
 | `vnext/portfolio-1440.png` | portfolio · 1440 px |
 | `vnext/portfolio-390.png` | portfolio · 390 px |
 | `vnext/portfolio_act-first-1440.png` | portfolio/act-first · 1440 px |
 | `vnext/portfolio_act-first-390.png` | portfolio/act-first · 390 px |
-| `vnext/portfolio_opportunity-1440.png` | portfolio/opportunity · 1440 px |
+| `vnext/portfolio_demand-and-capacity-1440.png` | portfolio/demand-and-capacity · 1440 px |
 | `vnext/portfolio_outcomes-by-site-1440.png` | portfolio/outcomes-by-site · 1440 px |
 | `vnext/portfolio_outcomes-by-site-390.png` | portfolio/outcomes-by-site · 390 px |
 | `vnext/portfolio_scope-1440.png` | portfolio/scope · 1440 px |

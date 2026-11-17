@@ -267,12 +267,38 @@ def protect(t: dict) -> None:
             eq(f"{t['tenant']} plan value total", m["total"], sum(D(str(v)) for k, v in m.items() if k not in ("total", "class", "note")))
 
 
+def operations(t: dict) -> None:
+    """LY-1 (rev 6): O2 measures compose as Σ/Σ; downside never above the plan value."""
+    pf = t["portfolio"]
+    for m in pf["operations"]["measures"]:
+        if "numerator_asset_days_available" in m:
+            n = sum(D(str(v)) for v in m["numerator_asset_days_available"].values()); d = sum(D(str(v)) for v in m["denominator_asset_days"].values())
+            eq("O2 asset availability Σ/Σ", m["portfolio_pct"], (n / d * 100).quantize(D("0.01")))
+            out = {k: D(str(m["denominator_asset_days"][k])) - D(str(v)) for k, v in m["numerator_asset_days_available"].items()}
+            pm = {x["id"]: x for x in pf["protect"]["measures"]}["asset_days_out_of_service"]
+            for k, v in out.items():
+                eq(f"O2 availability agrees with Protect asset-days {k}", v, pm["sites"][k])
+        if "numerator_kwh_per_night" in m:
+            n = sum(D(str(v)) for v in m["numerator_kwh_per_night"].values()); d = sum(D(str(v)) for v in m["denominator_kwh_per_night"].values())
+            eq("O2 charger utilisation Σ/Σ", m["portfolio_pct"], (n / d * 100).quantize(D("0.01")))
+            for k, v in m["numerator_kwh_per_night"].items():
+                eq(f"O2 kWh per night {k}", v, D(str({s_["site"]: s_ for s_ in t["sites"]}[k]["period"]["actual"]["kwh"])) / 31)
+        if m["id"] == "crate_days_without_excursion":
+            eq("O2 crate-days without excursion", m["portfolio"], sum(D(str(v)) for v in m["sites"].values()))
+        if m["id"] == "delivered_kwh_per_field_visit":
+            eq("O2 kWh per visit", m["portfolio"], (D(str(pf["chain"]["delivered_kwh"])) / D(3)).quantize(D("0.01")))
+    al = pf["allocation"]
+    if "downside" in al and "modelled_12m_change" in al:
+        le("downside <= plan value", al["downside"]["value"], al["modelled_12m_change"]["total"])
+
+
 def main(path: str) -> int:
     doc = yaml.safe_load(open(path, encoding="utf-8"))
     for t in doc["tenants"]:
         {"MINI_GRID": mini, "COLD_CHAIN": cold, "EV_DEPOT": ev}[t["vertical"]](t)
         {"MINI_GRID": lakeside_options, "COLD_CHAIN": cold_options, "EV_DEPOT": lambda _t: None}[t["vertical"]](t)
         protect(t)
+        operations(t)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
         print("FAIL", f)

@@ -832,3 +832,190 @@ Measured in the browser, Lakeside and Metro Overview against v7.0 Portfolio:
 - **ID counts:** lever, capability and objective IDs counted in each pack document.
 - **CSV:** checked its role mapping against L2.5 in code.
 - **Server:** stopped; port 18744 is free.
+
+## Re-review (rev 6)
+
+**Reviewer:** a fresh, independent Claude reviewer, 17 Nov 2026. I reviewed the rev 6 working tree on `task/product-direction-layer4-design`, uncommitted over `146667cfc`. I judged it against "## Re-review (rev 5)" (L1–L6), its addendum (OE-1 to OE-6, LY-1 to LY-5), the author response (rev 6), the owner's brief and the owner's verbatim feedback (messages 1–8). I changed nothing in the pack, the code or any database; this appended section is my only edit.
+
+### Verdict: **REVISE (targeted)**
+
+OE-1 is resolved, and so are most of the Lows. LY-1 and OE-6 are resolved in structure but not in full, and that gives two Medium findings:
+- **N-M1:** the new EV O2 measure contradicts the pack's own definition of deliverable energy.
+- **N-M2:** some replay figures on the Overview and Act first are still unlabelled.
+
+Both are small fixes. Five Lows follow. The foundation, generality, derivation and the Portfolio restructure still hold.
+
+### Resolution of the prior findings
+
+- **OE-1: resolved.**
+  - Main §6.2 now judges each tab (keep / rename / reorder) with a reason against the loop.
+  - In the browser, all three operators show the tab row Overview · Outcomes by site · Demand and capacity · Act first · What changed · Scope & coverage.
+  - `#/portfolio/opportunity` redirects to `#/portfolio/demand-and-capacity`.
+  - The rename is justified on content. The reuse matrix (l.187) and phase plan PR 5b carry the same order for the live product, and Q2 puts it to the owner.
+- **OE-2: resolved.** §6.2 is now a concern-to-sections trace, and each concern spans two to four sections.
+- **OE-4: resolved.**
+  - The first fold is the headline, four figures and "The plan's first three moves".
+  - At 390 px the value chain `<details>` is closed, and the Lakeside Overview is 4,344 px tall (5,147 at rev 5). There is no horizontal overflow.
+- **OE-6: partly resolved.** See N-M2.
+  - Labelled: the Overview hero ("includes design values not yet run on site data") for all three operators; all three plan-value drawers; the decision pages (a page banner plus per-option tags); the Act-first plan rows and totals.
+  - Still unlabelled: three places, listed under N-M2.
+- **LY-1: resolved in structure.**
+  - The O2 measures are declared per vertical in the manifest, contracts §2.7, models §3.13, the checker, the CSV `declared_measure` column and on screen ("Operations measures by site").
+  - A4 is designed as an evidence-pack reading with a slice (9), not just named.
+  - AR1–AR5 are renamed consistently, except one botched replacement (N-L1).
+  - Hand recomputation (below) reconciles every figure except the EV utilisation denominator (N-M1).
+- **LY-2: resolved.**
+  - Cold realisation stages, observer models §3.12, N20 and E14 are declared.
+  - Thika and Kirinyaga site pages state "October: no difference … so no billing option exists".
+  - 22,940 crate-days × 0.20 = 4,588.00 = 4,370.00 + 218.00.
+- **LY-3: resolved.** Models §4.9 gives each lever a model line or a deferral with the brief's own boundary. I checked the quotes in the brief: l.179 "legal/customer-acceptable", l.219 "without validated battery data". MG-C4 adds a price-discrepancy check.
+- **LY-4: resolved.**
+  - The downside appears on Act first and in the drawer for all three operators.
+  - Lakeside 6,096 − 3,540 = 2,556 ✓. Harvest 3,182.40 − 1,670 = 1,512.40 ✓. Recovery at 60%: 0.6 × 194 × 12 − 350 + 1,670 = 2,716.80 ✓. Metro 0.00 under "option dropped" semantics, consistent with Lakeside's.
+  - One secondary figure is wrong (N-L2).
+- **LY-5: resolved.**
+  - Contracts §5.5 and manifest `rights` declare the rights measures. What changed renders them (Lakeside 1 of 3, an open deadline on 27 Nov, $0 residual expense, $0 recognised credits) with the legal disclaimer.
+  - The EV-C5 position is in main §2.4 and models §6: switch settings, never role views. The brief quote at l.342 is verified.
+- **L1: resolved.**
+  - Each operator's drawer is titled "Modelled 12-month change from the valued options", generated from `modelled_12m_change`, with not-valued spend, the downside and the design-value note.
+  - One residue: Act first's path cards still read "Modelled 12-month change of the plan" (N-L3).
+- **L2: resolved.**
+  - The manifest marks `must_do: true` with a reason on THIKA-EPC-STOPGAP and KAS-OEM-STOPGAP.
+  - Act first reads "Must do: no action fails the batch temperature limit (days with the backup start unproven)" and "… fails the departures limit (departures missed)".
+  - Models §6.4, the main document and A19 agree.
+- **L3: resolved.** The Metro hero reads "+$19.68 not attributed yet", and the Assure card reads "not attributed (plan is a bill total)". The source has no "not explained by the model yet" for Ruiru.
+- **L4: resolved.** The manifest, contracts §3.1, models §3.4 and the main document classify both halves as DERIVED.
+- **L5: resolved.**
+  - Customer-hours interrupted is declared and rendered (0).
+  - Asset value at risk shows as "not available yet (needs a failure-likelihood basis)" (A17; brief l.114 quote verified).
+  - EXPOSURE measures are `LISTED` in the manifest. The CSV has 0 EXPOSURE rows that sum.
+- **L6: resolved.** `loop-protect.js` is tracked. `GEN_POLICY_RUNNING_*` has 0 hits in `loop-*.js`.
+- **Unprompted corrections.**
+  - **Ruiru 0.31 → 0.34: arithmetically right as charger-hour utilisation.** 1,960 / (12 × 60 kW × 8 h) = 0.3403, and 14 buses × 140 kWh = 1,960 = 60,760 / 31. But see N-M1 for what it is labelled as.
+  - **Harvest cooling-minutes split: correct.** 3 × 44,640 = 133,920. Thika: 1 − 4/44,640 = 99.991%. Portfolio: 1 − 4/133,920 = 99.997%. This matches the 19:11–19:15 outage in the manifest (l.423–424).
+
+### O2 figures recomputed by hand
+
+| Measure | Working | Result |
+|---|---|---|
+| MG asset availability | (124 + 122 + 151) / (124 + 124 + 155) = 397/403 | 98.51% ✓ |
+| — out-of-service days | 0 / 2 / 4, equal to the Protect asset-days | ✓ |
+| — by site | Kisiwa 122/124 and Mto 151/155 | 98.39% and 97.42% on screen ✓ |
+| MG kWh per visit | (9,100 + 7,950 + 6,000) / 3 = 23,050 / 3 | 7,683.33 ✓ |
+| Cold crate-days without excursion | 4,340 + (8,680 − 120) + 9,920 = 22,820; plan 7,440 + 8,680 + 9,920 = 26,040 | ✓ |
+| EV utilisation as declared | (2,800 + 1,200 + 1,960) / (10 × 60 × 12 + 4 × 50 × 7 + 12 × 60 × 8) = 5,960 / 14,360 | 41.50% ✓ arithmetically (but see N-M1) |
+| EV departures per charger | (620 + 248 + 434) / (10 + 4 + 12) = 1,302 / 26 | 50.08 ✓ (but see N-L4) |
+
+### Owner expectations (feedback file, messages 1–8)
+
+- **Mechanics first, read upward.**
+  - Rev 6 adds O2, rights and cold realisation as further declared factor structures, each with unit, period, composition and evidence class.
+  - Each is observed from leaves and composed Σ or Σ/Σ, never detected at the top.
+  - A4 is a reading, not a parallel measure.
+- **General across verticals.**
+  - O2, rights and Protect are declared for all three tenants.
+  - The cold realisation stages fill the shared STAGE kind. EV's O3 is NOT_APPLICABLE (captive), as the brief allows.
+  - No new path-specific logic: `loop-protect.js` reads `portfolio.operations` and `portfolio.rights` generically.
+- **Derived integrations, algorithms, UI and reuse.**
+  - Each new measure has a reuse-matrix row with source, decision and missing input: `0027:35`/`0027:145`, `analytics/cold.py`, `analytics/ev_availability.py`, and a new rights register.
+  - The tab reorder is derived from the loop.
+- **Portfolio restructured with no role toggles, filters or menus.** The left rail and the six-tab frame are unchanged. The audit shows no filters, and there is no product operator selector; the "Demo operator" selector belongs to the review bar.
+- **Executive questions never on screen.**
+  - I visited 264 Added or Changed route renders across the three operators and opened up to four evidence drawers on each.
+  - 0 role names (CEO, COO, CFO, CCO, executive).
+  - 0 headings or tab names ending in "?".
+  - The design documents keep the questions as acceptance tests (§6.2 "never shown on screen"). The CSV's `executive_question` column is design-side only.
+
+### Layers 1–3
+
+- The earlier LY gaps are closed as described above.
+- The CSV has 453 rows and 18 columns. Every objective except A4 has a declared measure for all three verticals; A4 is declared as a reading. Cold has no P2 measure, and the CSV says so with a reason.
+- No contradiction of Layers 1–3 found.
+- The only new tension is N-M1. EV "deliverable" energy is defined two ways, which bears on G2/O2 and on the Ruiru expansion story (EV-L2).
+
+### Findings
+
+**N-M1 · Medium · The EV O2 "charger energy utilisation" denominator ignores the import limit, so the screen shows two different "deliverable" figures for Ruiru.**
+- **Where:**
+  - manifest l.624–627 (`unit: "share of deliverable charger energy in the usable window"`, denominator 5,760 for Ruiru and 7,200 for Embakasi);
+  - contracts §2.7 table and l.181;
+  - models §3.13 (OP-T2);
+  - rendered on `#/portfolio/outcomes-by-site` (Metro): "share of deliverable charger energy … Ruiru 34.03%, 1,960 of 5,760 kWh a night".
+- **The contradiction:**
+  - The same manifest gives Ruiru `import_limit_kw: 400` and `RUI-ABSORB6 … deliverable_kwh: 3200`.
+  - `RUI-ABSORB10` is rejected because it "exceeds the 400 kW import limit".
+  - Embakasi has `import_limit_kw: 500`, and EMB-CHEAPEST's deliverable is computed "at the 500 kW import limit".
+  - Metro's Demand and capacity tab renders "Vertical line: 3,200 kWh deliverable a night at the 400 kW import limit".
+  - So in one app, Ruiru's deliverable energy a night is 5,760 on one tab and 3,200 on another.
+- **What the doc wrongly claims:** contracts l.181 says "Ruiru's 34% utilisation is the capacity the +6-bus option uses". At 34% of 5,760, the remaining headroom would carry (5,760 − 1,960)/140 ≈ 27 more buses. The binding limit is 3,200, i.e. 61.25% used, with room for 8.9 buses. That is why +6 passes and +10 fails.
+- **Corrected figures:** with the import-limited denominator, Embakasi is 2,800/6,000 = 46.67%, Kasarani 85.71% (250 kW is not binding), Ruiru 61.25%, and the portfolio 5,960/10,600 = 56.23%.
+- **Why it matters:** LY-1 asked for O2 measures that are real structures and reconcile. This one reconciles with its own formula but not with the factor structure's `deliverable_kwh_per_night` stage (manifest l.35) or the bound logic. Read naively, it supports the wrong capacity conclusion on the depot the story uses for "looks underused".
+- **Fix (either):**
+  - make the denominator min(chargers in service × kW, import limit) × window, consistent with `deliverable_kwh_per_night`, and update the manifest, checker, contracts §2.7, models §3.13, CSV and screen;
+  - or rename the measure "charger-hour utilisation (nameplate)" (as Demand and capacity already says, "in use 34% of charger-hours"), add the import-limited share beside it, and correct contracts l.181.
+
+**N-M2 · Medium · OE-6 is not complete: replay-dependent figures on the Overview and Act first are still unlabelled.**
+- **The rule:** decision A20 and the author response say "every figure resting on a replay carries 'Design value …'".
+- **What I found:** I scanned in the browser all 264 route renders and their drawers for 210 L / 61 of 61 / $2,916 / 68 L / $395 / $3,540 / 31 of 31 / $6,096 / $2,556 / $3,546 and checked each hit's container. These remain without the label:
+  - Lakeside Overview, Optimize card factor line (`loop-portfolio.js:51`): "of it, the best feasible option avoids 210 L a month (Modelled)".
+  - Lakeside Overview, "Sites that look alike need different levers" (`loop-portfolio.js:72`): "the best feasible option avoids 210 L a month (Modelled), worth $2,916 over 12 months". This is on the first screen a prospect sees.
+  - Lakeside Act first:
+    - the path cards (`loop-portfolio.js:134`): "+$6,096" and "+$3,546";
+    - the "All four cases of the two switches" table (`loop-portfolio.js:141`): +$6,096 / +$2,556 / +$6,096 / +$3,546, every one including the 2,916.
+  - `#/decision/mto-inverter` (`loop-site.js:37`): the banner says the sensitivity values "include the rice huller replay". But +$2,556 is 2,916 − 360, which is entirely the Kobo forward replay, and the banner does not mention it.
+- **Why the audit missed them:** the author's audit "Design-value labels: pass" and release test R13 cover only the decision pages, the drawer and the Overview plan figure. A20 promises more.
+- **Fix (either):**
+  - add `dvTag()` to the two Overview statements, the path cards and the four-case table, and extend the mto-inverter banner to the stop-setting replay;
+  - or narrow A20/R13 explicitly and justify why secondary mentions may go unlabelled. I would not recommend that for the Overview.
+
+**N-L1 · Low · Botched rename in contracts §5.** Contracts l.457 reads "*Brief:* R3a, P4, @@AR5@@, S12". The **objective** A5 was turned into a stray-marked attribution rule. Restore "A5".
+
+**N-L2 · Low · The Lakeside "diesel −20%" sensitivity applies the price change to one option only.**
+- **What the pack says:** manifest l.351, models §6.4, the main document, R14 and Act first all show +$5,466 = 6,096 − (2,916 − 2,286).
+- **What it misses:** the huller in the same plan buys 68 L of diesel a month (fuel_monthly 85.00 = 68 × 1.25). At 1.00 per litre its 12-month value is (495 − 68 − 15) × 12 − 1,200 = 3,744.00, not 3,540.00.
+- **Correct figure:** the plan under diesel −20% is 2,286 + 3,744 − 360 = **+5,670.00**.
+- The downside itself (+2,556) is unaffected.
+- **Fix:** recompute the set under the sensitivity, or label the figure "stop-setting sensitivity only". Have the checker recompute it.
+
+**N-L3 · Low · Wording residues in the plan drawers and path cards.**
+- **Act first path cards (`loop-portfolio.js:134`).** They still say "Modelled 12-month change of the plan", the L1 wording that the drawer dropped.
+- **Lakeside drawer.** The definition repeats itself: "Net of the valued options' own one-off costs. Net of the valued options' own one-off costs ($1,650)." The cause is `loop-portfolio.js:104` prefixing `valueNote()`.
+- **Harvest drawer.** It says "Design value: the replay has not yet been run on site data: includes the Kirinyaga recovery share", with "Source records: Forward replay of site data (modelled)". Neither Harvest valued option rests on a replay. Kirinyaga's figure is an assumption, as the decision page correctly says.
+- **Fix:** use the A20 assumption wording for Harvest, drop the duplicate sentence, and retitle the path cards.
+
+**N-L4 · Low · Two O2 basis details.**
+- **Departures per charger.** "Departures met per charger in service" divides by 26 installed chargers. The pack's own Protect measure records Ruiru CH-R7 out of service for 26 of 31 October days. Either call it "per installed charger", or use charger-days in service: 26 − 26/31 = 25.16, giving 51.75.
+- **Asset counts.** "Major assets: Kobo 4, Kisiwa 4, Mto 5" is not derivable from the manifest. Kobo's `physical` lists five components (PV, a 50 kW inverter, battery, a 30 kW PCS, generator), and Mto's five include each inverter.
+- **Fix:** declare the asset list per site (it is the denominator of a measure), or state the counting rule.
+
+**N-L5 · Low · Commit hygiene.**
+- The three renamed screenshots `screenshots/vnext/*portfolio_demand-and-capacity-1440.png` are untracked (`??`).
+- Their predecessors `*portfolio_opportunity-1440.png` are deleted but not staged.
+- The rev 6 commit must include both, for example `git add -A` on the pack folder, or `screenshots/INDEX.md` will point at missing files.
+
+### Checks I ran and what they returned
+
+- **`python3 check_manifest.py`:** 217 checks passed, 0 failed.
+- **Rebuild in a scratch copy:**
+  - `tools/gen_fixtures.py` → `fixtures.js` byte-identical;
+  - `tools/gen_docs.cjs` → `CHANGE-REGISTER.md` and `browser-audit.md` byte-identical;
+  - `node build.mjs` → `index.html` byte-identical to the working tree.
+- **Preserved v7.0 screens:**
+  - I served the pack statically on 127.0.0.1:18761 (not 5490 or 8990). Headless Chromium 1155 compared `.canvas` text for every Preserved screen against `frontend/mockups/v70/index.html`: **65 of 65 identical** (21 raw, 44 after the display-name map).
+  - `src-v70-baseline/` matches `frontend/mockups/v70/` for every shared file.
+  - `git status` shows no change under `frontend/mockups/v70` or `src-v70-baseline`.
+  - No re-based v7.0 source changed in rev 6.
+- **Browser click-through:**
+  - 264 route renders (every Added or Changed screen for Lakeside, plus every Portfolio, Sites, Site, Decision and Financials route for Harvest and Metro), with up to four evidence drawers each. 0 page or console errors.
+  - Tab order, the old-route redirect, the role and question scan and the design-value scan are reported above.
+  - I also checked the three plan-value drawers, Act first, Outcomes by site (O2 and Protect tables), What changed (rights), Demand and capacity (Metro) and the Kobo, Mto inverter, Embakasi and Kirinyaga decision pages.
+  - At 390 px the Lakeside Overview is 390 px wide with no overflow.
+- **CSV:** 453 rows × 18 columns. `declared_measure` is populated for every objective; A4 is declared as a reading.
+- **Brief quotations** used for the deferrals and for EV-C5 match brief l.114, l.179, l.219 and l.342.
+- **Server:** stopped; port 18761 is free.
+
+### Not verified
+
+- I did not rerun `tools/run-audit.sh`, so its contrast, focus and screenshot outputs are unchecked by me.
+- The forward-replay design values themselves (still design values, which is the point of N-M2).
+- The rendered mermaid in `layer4-transformation-design.html`.

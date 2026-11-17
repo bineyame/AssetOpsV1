@@ -23,3 +23,8 @@
 | 17 | Rev 5: Kobo's observed fuel = needed + candidate running (330 L) + not explained by the model (120 L); 210 L only as the option's effect | `#/portfolio/outcomes-by-site`, `#/decision/kobo-generator` | As built |
 | 18 | Rev 5: plan figure "from the valued options", with spend not valued in money named (Lakeside $2,230; Harvest $100; Metro $90) | Overview figure; Act first, every switch case | As built |
 | 19 | Rev 5: no executive question or role on screen; decision titles and headings name the content; identifiers only as plain name (TAG) | Any decision page; audit result in `browser-audit.md` | As built |
+| 20 | Rev 6: tab order Overview, Outcomes by site, Demand and capacity (renamed from Opportunity), Act first, What changed, Scope & coverage; same order and rename for the live product (Q2) | `#/portfolio` tab row; `#/portfolio/opportunity` redirects | As built |
+| 21 | Rev 6: Overview first fold = headline, four figures, the plan's first three moves; value chain behind a disclosure on phones | `#/portfolio` at 1440 and 390 px | As built |
+| 22 | Rev 6: "Design value" labels on replay-based figures (Kobo, Mto demand, Embakasi, Kirinyaga, plan value) | `#/decision/kobo-generator`; click the Overview plan figure | As built |
+| 23 | Rev 6: operations measures (O2), cold realisation stages, plan downside, rights measures by contract and period | Outcomes by site; Thika site page; Act first; What changed | As built |
+

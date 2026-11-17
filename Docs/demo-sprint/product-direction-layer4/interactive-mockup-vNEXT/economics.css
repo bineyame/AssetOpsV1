@@ -106,3 +106,11 @@ table.srcrows{width:100%;border-collapse:collapse;font-family:Consolas,monospace
 .shell>.workspace{min-width:0}
 .ev-num,.scroll-region,.table-wrap{position:relative}
 .fills .key-values{grid-template-columns:110px minmax(0,1fr)}.fills dd{text-align:left;font-weight:400;line-height:1.55}
+/* rev 6 */
+.dv{display:inline-block;font-size:10px;font-weight:650;color:#5e3f80;background:#f5f0fb;border:1px dashed #9a7cc0;border-radius:3px;padding:2px 6px;margin:4px 0 0;line-height:1.4}
+.moves-strip{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:10px 14px;margin-bottom:16px}
+.moves-strip h2{font-size:12px;margin:0}.moves-strip ol{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;padding-left:18px;font-size:12px;flex:1}.moves-strip li small{color:#56657c}
+.chain-disc{margin-bottom:16px}.chain-disc>summary{cursor:pointer;font-size:12px;font-weight:650;color:var(--blue);padding:6px 0;min-height:24px}
+.hero small{white-space:normal}
+.downside{font-size:12px;margin-top:8px;color:#33425a}
+@media(max-width:760px){.moves-strip ol{flex-direction:column}.hero small{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}}

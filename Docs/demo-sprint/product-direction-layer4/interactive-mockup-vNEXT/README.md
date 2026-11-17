@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 mock-up (rev 4): the restructured Portfolio
 
-**Not approved: awaits owner inspection.** Rev 5 (targeted revision after review): see CHANGE-REGISTER §7.
+**Not approved: awaits owner inspection.** Rev 6 (targeted revisions after review): see CHANGE-REGISTER §7 and §7a.
 
 A new version of the v7.0 interactive mock-up, built to the Layer 4 design (`../layer4-transformation-design.md`, §2, §3.4, §6, §7). It keeps the v7.0 shell and left menu, keeps the Portfolio's six owner-approved tabs (Overview, Act first, Outcomes by site, Opportunity, What changed, Scope & coverage) and re-bases their content on the five mechanics: outcomes are computed from declared factor structures, deviations show at the factor where they arise, options change factors and are compared with no action, a plan is chosen under budget and crews, and proof is three separate verdicts. Three demo operators (Lakeside Power mini-grids, Harvest Cold Network cold rooms, Metro Bus Depots captive EV fleet), October 2026, books closed 6 Nov. Every figure is illustrative and comes from `../demo-site-scenario-manifest.yaml`.
 
@@ -17,7 +17,7 @@ A new version of the v7.0 interactive mock-up, built to the Layer 4 design (`../
 
 It opens on the Portfolio Overview (`#/portfolio`). Choose the **Demo operator** in the blue review bar at the top (review tooling, not part of the product). The review bar's screen selector lists every screen; "What changed" summarises the restructure.
 
-Main routes: `#/portfolio`, `#/portfolio/act-first`, `#/portfolio/outcomes-by-site`, `#/portfolio/opportunity`, `#/portfolio/what-changed`, `#/portfolio/scope`, `#/portfolio/scope/pilot`, `#/sites`, `#/site/<kobo|kisiwa|mto|mwea|thika|kirinyaga|embakasi|kasarani|ruiru>`, `#/site/<site>/economics`, `#/decision/<id>` (14 decisions), `#/globalfinancials`. Every v7.0 route still works; merged ones redirect to the site economics page that absorbed them.
+Main routes (rev 6 tab order): `#/portfolio`, `#/portfolio/outcomes-by-site`, `#/portfolio/demand-and-capacity` (old `#/portfolio/opportunity` redirects), `#/portfolio/act-first`, `#/portfolio/what-changed`, `#/portfolio/scope`, `#/portfolio/scope/pilot`, `#/sites`, `#/site/<kobo|kisiwa|mto|mwea|thika|kirinyaga|embakasi|kasarani|ruiru>`, `#/site/<site>/economics`, `#/decision/<id>` (14 decisions), `#/globalfinancials`. Every v7.0 route still works; merged ones redirect to the site economics page that absorbed them.
 
 ## Rebuild
 
