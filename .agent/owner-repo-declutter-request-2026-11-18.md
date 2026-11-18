@@ -23,3 +23,7 @@ After the coordinator explained D11 (adopt workflow W1–W9 from `Docs/demo-spri
 > yes, adopt D11 and start the declutter after
 
 "after" = after the roadmap document's last pass (in progress at the time) is done and verified.
+
+## Owner instruction (verbatim), 2026-11-18: step 2
+
+> go ahead with declutter step 2
