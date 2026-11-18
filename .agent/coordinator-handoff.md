@@ -24,8 +24,8 @@ The full previous text (2026-11-09 to 2026-11-18) is verbatim in
   `archive/agent-history/` (not a default read). Old `.agent/` paths:
   `specs/CITATION_MAP.md`.
 - Evidence: `/opt/assetecon/evidence/` (RULES §9), never the tree.
-- `.agent/` keeps only live coordination files and files code reads (list in
-  `tools/declutter/step4_map.py` KEEP).
+- `.agent/` keeps only live coordination files and files code reads (list:
+  `AGENT_KEEP` in `tools/checks/tracked_evidence.py`; check-all fails on others).
 
 ## Lanes
 
@@ -39,12 +39,16 @@ The full previous text (2026-11-09 to 2026-11-18) is verbatim in
   (`specs/DECLUTTER/packet-declutter-03.md`, `specs/DECLUTTER/packet-declutter-04.md`).
 - Walkthrough worktree `/opt/assetecon/AssetOpsV1-walk` (`task/WALK-1113-build`,
   DB `assetops_polish_walk1113_test`, serve on 5490 with API 8990): do not touch.
+  - Serve: start with `setsid -f <scratchpad>/walk-serve.sh` (log var/polish_walk1113-serve.log); Vite: frontend `npm run dev -- --port 5490 --strictPort --host 127.0.0.1` with ASSETOPS_API_PORT=8990.
+  - Owner access: Tailscale, server 100.107.18.77 (owner device 100.118.230.76); SSH tunnel for 5490, or rebind Vite on owner request.
 
 ## Owner decisions pending (as of 2026-11-14; to confirm still open)
 
 - Page-load D1-D6 (`.agent/page-load-architecture-review-2026-11-14.html`;
   coordinator recommendation: C, no change before the walkthrough, after 17 Nov;
-  accept D3/D5/D6). Mediums P1/P2 from its re-review go into the C1/C1b packet.
+  accept D3/D5/D6). Mediums P1/P2 from its re-review go into the C1/C1b packet
+  (detail: `archive/agent-history/page-load-architecture-review-2026-11-14-review.md:331`
+  and `:342`).
 - Grow card: billed/collected money beside the estimate or instead of it
   (recommendation: beside).
 - D-SR.81 (EV availability counts a reported charging state as in service): owner
@@ -59,6 +63,7 @@ The full previous text (2026-11-09 to 2026-11-18) is verbatim in
   range" vs "Current view"); `test_s5_overview_postgres` late_power and
   `test_s4_schedule_health_postgres` (STALE_PROJECTION, possibly environmental);
   `test_ch5a1_reader_postgres.py` collection NameError without a DB URL.
+- Test debt: rerun `test_ch5c2_real_composers_postgres.py` with ASSETOPS_TEST_DATABASE_URL set at a quiet moment — failures seen were connection exhaustion.
 - Backlog Lows: D-SR.82 docstring "<=" vs "<"; D-SR.83 L2 (gate result not in the
   key); add-day does not rerun evidence comparison; Health watermark inputs
   (D-SR.56). Post-demo backlog: `.agent/backlog-post-demo.md`.
@@ -66,6 +71,8 @@ The full previous text (2026-11-09 to 2026-11-18) is verbatim in
 ## Standing constraints
 
 - Owner rules are in `.ai/RULES.md` (§3 approvals, §7 machine, §8 git, §9 tidy).
+- Restart only when no agents are running.
+- `tools/check-architecture.ps1` run on its own: set ASSETOPS_GUARD_PYTHON (check-all sets it).
 - Network loss: treat an agent or job that ended on a network/API error as
   interrupted; wait for reconnection, then resume it, telling it to check disk
   and git first.
