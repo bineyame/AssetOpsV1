@@ -2899,3 +2899,70 @@ None changes a figure here: every valued option has a value and every option has
 ### Not verified
 
 No browser render of the mock-up or `.html`, and no rerun of `gen_fixtures.py`, `build.mjs` or `run-audit.sh`; the 202/202 audit figures are the author's. No test suite was run. No database, Docker container or port 5490/8990 was touched. No pack file was edited.
+
+---
+
+## Review of product transition and roadmap (0dd950ffd)
+
+Fresh independent reviewer (Claude), 18 Nov 2026. Scope: `product-transition-and-roadmap.md` / `.html`, `render_product_transition_html.py`, and the one-row index link in `layer4-transformation-design.md`/`.html`. Read against the owner's request and demo objective (`.agent/owner-product-transition-request-2026-11-18.md`), the standing rules (`.agent/owner-layer4-direction-feedback-2026-11-17.md`), the brief, the pack, and the code.
+
+**Verdict: ACCEPT WITH NOTES.** The document covers everything the owner asked for: today against Layer 4, three strategy options and a recommended path (offer, onboarding checklist, success criteria, lead vertical, how cold and EV follow), technical detail per step, a roadmap with phases, gates and ranges, and owner decisions linked to Q-items. Its disagreements with the coordinator are argued from the brief and the pack, and the brief citations hold (lines 6, 38, 94, 376). It invents no market, pricing or competitor facts. Most code claims check out. One of its corrections to the coordinator is itself partly wrong (M1). The case for running calibration now overstates what a replay on simulated demo data proves (M2). Its figures sit outside the pack's checker (M3). None of these changes the recommendation.
+
+### Medium
+
+- **M1. "Money is listed per site, never summed" is wrong as a general claim, and the citation points at the wrong code.** `product-transition-and-roadmap.md:56` and `:130` (the §1.6 "No" verdict on the coordinator). The never-sum rule applies to the Optimize card's possible extra fuel cost (`site_outcomes/read.py:901-903`, "Never summed across Sites"; test `test_ch5d1_optimize_card.py:60`). It also applies to credited results (`estate/portfolio.py:680-681`, which is the line cited, but it is about verified credits, not per-site money). The Grow card's productive-use income, however, **is** summed across sites into one Portfolio total when all sites share a currency: `chain/vocabulary.py:459-508` `estate_income` (`total = sum(amounts)`, "income.total"), called from `site_outcomes/read.py:777`. So the coordinator's "summed per site" was partly right. Fix: say "possible extra fuel cost is listed per site and never summed; estimated income is summed into one Portfolio total (one currency only)". Change the §1.6 verdict to "Partly" and cite `site_outcomes/read.py:901` and `chain/vocabulary.py:459`.
+- **M2. The calibration split overstates what a replay on demo data proves.** See `:229` ("Running them now de-risks the demo's biggest figures for every prospect") and `:437` (the phase 0 exit "replays reproduced"). The demo's generator, battery and solar series are simulator output (provenance "demo-simulated"). A replay on them shows the design values are consistent with the simulated world. It measures nothing about a real site. The coordinator's point ("replay figures stay design values until run on real generator, battery and fuel series") was correct on that axis. The document is also inconsistent with itself: `:87` and `:173` (control 4) keep the label "until reproduced on recorded data", while the phase plan (`phase-plan-and-acceptance.md:130`, R13 `:294`) drops the label once a spike "passes", and a pass on demo data would count. Fix: keep the split, but say what each half proves. The demo-data replay turns a typed input into an output of the simulator, labelled Modelled (simulated data). Only a replay on a pilot's recorded series lifts "design value" for client purposes. Tie the phase 0 exit and D6/Q13 to that distinction.
+- **M3. The document's figures are outside the independent checker.** `check_manifest.py:351-353` `FIG_DOCS` does not list `product-transition-and-roadmap.md`. The `<!--fig:-->` tags at `:85`, `:99`, `:309` and `:336` sit on their own lines, so the anchor pattern (`check_manifest.py:363`, a number immediately followed by its tag) would not bind them anyway. The 3,674 passes therefore say nothing about this document. I resolved all 8 tags by hand against `derived-values.json` (1445, 883, 8082, 1443, 2295, 3750, 6088.5, 2548.5), and they are correct. The untagged figures I spot-checked also match the pack: 412.50 / 37.50 / 150.00 / 38.00, 2,916.00, 4 of 61, Mwea +0.6% against Kirinyaga +24%, budget 5,000 and 3 visits. Under the owner's standing rule that figures are outputs and checks are independent, this is a gap in the guard, not a wrong number. Fix: put each tag directly after its figure and add the document to `FIG_DOCS`. The alternative is to state at `:8` that this document is not machine-checked.
+
+### Low
+
+- **L1. Wrong cross-references in the header.** `:6` says "§1.5 and §2.6 list what was corrected and where this document disagrees". Those sections are §1.6 and §2.7.
+- **L2. Figure 2 labels the 330 L "Avoidable running".** The label is set at `render_product_transition_html.py:72`, and `:95` uses the same word ("necessary and avoidable"). The pack and the code call it *candidate* running (`dispatch_v3` `CANDIDATE_AVOIDABLE`; `layer4-transformation-design.md:58`, `:88`). The demo's best option avoids 210 L of the 330, so "avoidable" overclaims inside the very figure that explains the bridge. The table at `:79` words it correctly. Fix: "Running solar/battery could carry" or "Candidate running".
+- **L3. The document makes rights a hard prerequisite of the plan build, without arguing for it.** See `:260`, `:272` and D1 at `:463`. The pack lets slices 5 and 6 run in parallel after slice 4, with only the full Lakeside plan gate waiting for rights (`phase-plan-and-acceptance.md:49-54`; main doc §9 `:1118`). The stated reason ("the full mini-grid plan cannot close without them", `:232`) justifies that gate, not putting 6 ahead of 5 on the build path. Either argue it, or keep the allocator in parallel and draw only the gate as dependent. This puts §3.1 and §4.3's two-lane assumption on a longer serial path than the pack has.
+- **L4. "One executable change" leaves out domain Actions.** See `:54` and `:131`. Besides the reserve trial (`action` table, `0016:60`), operators record domain Actions with work cases for mini-grid, cold and EV (`domain_action`, `0033:39`; also `0035`). The mini-grid midday mill shift has its own verification family (`verification_families.py:7`, `:502`; `0052`). The claim holds for *setting changes*. The Choices row should say "one setting-change action; recorded domain work actions (the mill midday shift is verified)" so that a reader does not under-count today's product.
+- **L5. Q14–Q16 are called "demo policies".** See `:474`. Q15 (the redundancy breach policy) and Q16 (protective fallback when no plan fits) are product rules for the allocator and bounds, and Q14 is a structural gap (the Kisiwa battery saving has no model behind it). Fix: list them as open structure questions.
+- **L6. Analyst diagnostics "using the pack's evaluator" hide a manual step.** See `:170` and D5 `:467`. `evaluate_structure.py` reads the design manifest YAML ("[proposed; design-pack tool, not product code]", `phase-plan-and-acceptance.md:272`), not customer exports. Someone has to transcribe a prospect's records into manifest form by hand. Say so, because that step is the main analyst cost and an error source the "never hand arithmetic" control does not cover.
+- **L7. Diagrams at phone width.** `figure.dg svg{min-width:640px}` (`render_product_transition_html.py:325`) keeps the page from scrolling sideways (scrollWidth 390 at a 390 px viewport), with each figure scrolling inside its frame. At 640 px, though, 12 px labels in the 1,100–1,210-wide figures render at about 6–7 px (screenshot of Figure 5). They are legible when zoomed in but not at a glance. Optional: a taller, stacked layout under about 700 px, or a larger font at small widths.
+
+### Checks run and what they returned
+
+- **Owner request coverage.** All five asked-for parts are present (§1–§5). Every D-item links to a Q-item or is marked new: D1→Q9 (stated as a change), D4→Q10, D6→Q13, D7→Q1–Q3, D8→Q12, D9→Q11.
+- **Code claims verified.**
+  - Ten outcome-map rows, all `MOVES` (`outcome_map.py:149-180`).
+  - `recorded_amount@1` returns no money, always.
+  - `0016:60` `rule_id = 'reserve-trial-1'`, and no later migration widens the `action` table (0052 and 0057 widen `verification_plan` only).
+  - `TRIAL_STEP = 5`.
+  - `POSITIVE_SOURCE_CLASSES = (REGISTERED_SIMULATION, AUTHORED_DEMONSTRATION)` (`verification_rules.py:688`).
+  - `InterventionCost(Fraction(0), …)` (`verification.py:1167`).
+  - Guardrails `:787-800`; bands `:36-41`.
+  - Dispatch near-reserve rule `:290-291`.
+  - Placement "never a value ranking".
+  - `WARRANTY_EXPOSURE` withheld.
+  - `stop-soc-threshold` property.
+  - Cold and EV scenario modules: "no calculated amount".
+  - First-write-wins conflict in the evidence service.
+  - Upload `ALREADY_RECORDED` refusal.
+  - No stored totals (`period_read.py:139`).
+  - Verification families: reserve, midday (MINI only) and fuel.
+  - 0061 merged 13 Nov (git log).
+- **Pack consistency.**
+  - Matrix §K totals (40/21/22/14/7/7/3(+2), 114 rows; B2 observers: 12 of 15 kept) match `repo-reuse-and-gap-matrix.md:304-315`.
+  - The reviewed-change counts in §4.3 match `phase-plan-and-acceptance.md:233-243`.
+  - Departures from main doc §9 and Q9 are declared in D1.
+  - Q-item meanings match `design-questions-and-decisions.md`.
+  - "12 of 15 observer elements kept": correct.
+- **Arithmetic.** −412.50 − 37.50 − 150.00 + 38.00 = −562.00 (1,445 → 883). The §4.3 ranges add up to about 4–7.5 months, consistent with "4–7 months" and with the Gantt chart, where the core ends at M6.
+- **`python3 check_manifest.py`**: **3674 checks passed, 0 failed** (but see M3: this document is not in its scope).
+- **`render_product_transition_html.py`** re-run into scratch: **byte-identical** to the committed `.html`. It contains 7 `<svg>` figures and no external requests.
+- **Headless render** (playwright-core with scratch headless Chromium; screenshots only in scratch):
+  - Light and dark at 1280 px and light at 390 px: no console or request errors.
+  - Body background set in both themes.
+  - No page-level horizontal scroll at 390 px (tables and figures scroll inside their frames).
+  - I inspected Figure 2 (light), Figure 4 (dark), Figure 5 (light and phone) and Figure 7 (dark). They are meaningful, match their mermaid sources, and the waterfall geometry is correct.
+
+### Not verified
+
+- Figures 1, 3 and 6 were only measured, not inspected visually.
+- The mermaid blocks in the `.md` were not rendered by a mermaid engine.
+- No test suite was run, and no database, Docker container or port 5490/8990 was touched.
+- No pack file other than this one was edited.
