@@ -1030,3 +1030,74 @@ The owner asked that all findings be addressed. Each one is treated as a class a
 - About 20 option inputs are held in the demo data with no stated source; they are listed under L1. They are now labelled as such. Giving them a source (quote, record or assumption) is a data task, not a document fix.
 - The evaluator's `MWEA-AGG.assumptions` list is empty, although its handling basis reads "handling estimate". The document labels it Assumption.
 - Manifest `break_even_tariff_usd_per_kwh: 0.42` is a rounded-up value (exact 0.4125); see L4.
+
+## Author response to the re-review of §7 fixes (5ac8c6f69)
+
+Architect (Claude), 18 Nov. The owner approved addressing every finding. Each one was handled as a class across §7. The changes are inside §7 only, in the .md and in the .html (re-rendered with the same renderer, which was first confirmed to reproduce the current file byte for byte). No manifest, evaluator, model or checker change was needed.
+
+**M1: plan search described as two steps. Accepted and fixed as a class.**
+- §7.1 Choose 1 now carries one description that matches §2 (`:182`) and `evaluate_structure.py` `best()`:
+  - one search over all the decisions together, taking one option per decision; a money-valued decision may take none, except the Mto inverter (`optional: false`);
+  - an option that breaks one of its decision's rules (a service rule, or keeping warranty cover) is left out, unless no option of that decision can keep the rule (Kisiwa's `least_violation` fallback; `candidates()`);
+  - a combination must fit the budget and the crew visits and meet the dated dependency;
+  - the plan is the combination that breaks the rules least, then is worth most, then spends least (`key = (-pen, v, -spend)`).
+- §7.2 and §7.3 Choose 1 now say "found as at Lakeside: one search over all the decisions together", with the same ranking. The old "backup-cover decision first, then …" (§7.2) is gone. §7.3's "order of action" is kept, but it is now labelled as the order the chosen items are acted on (Declared input: manifest `priority_order`), not as how the plan is chosen.
+- Other sentences describing the choice:
+  - The intro now says Choose "searches all the options together".
+  - The Kisiwa note now says every option breaks the rule, so all three stay in the search, and the search breaks the service rules least before it weighs money.
+  - "required: …" (Kisiwa, Thika, Kasarani) wrongly implied a separate first step. It now gives the reason in the search's terms ("fewest evening hours with no backup"; "the only option that keeps both the backup-cover rule and the warranty cover"; "the only option that misses no departure and keeps the cover").
+- Every plan and switch row was re-checked against `best()`:
+  - Lakeside 5,000 / extended: the claim and huller plan (3,750.00).
+  - 6,500 / extended: the claim is still kept; buying now fits the budget, but it is worth less.
+  - 6,500 / not extended: buying now with the huller (+3,508.50) beats claiming without it (+2,548.50).
+  - 5,000 / not extended: one combination with a higher value exists. Dropping the Kisiwa repair for no action frees enough to buy now and keep the huller (spend 430 + 90 + 2,910 + 1,200 = 4,630, 2 crew visits). It loses because it leaves 125 evening hours with no backup instead of 15, and least rule-breaking comes first. That is the row the old two-step text could not explain, so one sentence now says it under the switch table.
+  - Harvest Cold (both cases) and Metro Bus (both cases) follow from one admissible option per protective decision and the value ranking.
+
+**L1: inputs without a label. Accepted and fixed.**
+- Crew visits per item: the column is now "Crew visits (Declared input)" in all three Choose tables. Each value is the manifest's per-option `crew_visits`; bracketed reasons (remote, contractor) are kept where the data gives them.
+- Ruiru: "added buses charge off-peak; the highest kW stays at 380 kW" is now an Assumption row in Ruiru's inputs (the model's change rule; RUI-ABSORB6 changes only `kwh_2200_2400`).
+- Dates: the §7 intro states once that every decision is taken on 6 Nov, the demo's today (Declared input: manifest `as_of`), and that Protect effects are counted to 30 Nov (Plan limit). Kisiwa's 30 Jun warranty end and the missed 1,000-hour service (1,240 run hours) are a Record row in Kisiwa's inputs.
+- Others found in the sweep and labelled:
+  - the 2% fuel tolerance (Kobo) and the 5% energy tolerance (Mwea): Declared input;
+  - the service obligations behind Kisiwa's evening hours and Mto's daytime hours in Observe: Record;
+  - Mto's observed 20 half-capacity hours: Calculated from the fault log;
+  - departures met at Embakasi, Kasarani and Ruiru: Record;
+  - the Mto warranty term (2029) and the Kobo battery warranty term (2034): Record, now in their inputs rows;
+  - the Kisiwa O&M credit basis: Record, now on its "listed beside" row.
+
+**L2: litre split labelled unevenly. Accepted and fixed.**
+- Every row or sentence that gives part of the necessary / candidate / unexplained split now reads "Declared input, *stands in for a calculation*": Kobo (three factor rows and the two split steps), Kisiwa (prose and both factor rows) and Mto (prose and its factor row).
+- The unexplained litres carry the qualifier too. In the manifest they are a typed leaf (`record.unexplained_l`), not computed from consumed minus modelled, although they agree with it.
+
+**L3: readability. Accepted and fixed.**
+- The three long "Inputs to the options" tables are gone. Each decision now has its own inputs table directly above its option table (Lakeside 6, Harvest Cold 3, Metro Bus 3). Each row keeps its label.
+- With the inputs above, the option cells no longer repeat the inputs' labels.
+- Sensitivities now have one row per option the case moves, with the plan total on its own row. This applies to Lakeside (diesel −20% and 160 L) and Harvest Cold (60% recovery). The downside rows use the same layout.
+- No new material, apart from the M1 sentence under the switch table. Duplicated text was cut:
+  - the Kobo meter note (its point is already in the 1,060 L row);
+  - the three Evaluate input preambles;
+  - the checker-provenance sentence in the legend;
+  - Kasarani's restatement of its contract terms in the heading.
+
+**L4: one name per measure. Accepted and fixed.**
+- Kisiwa: "evening hours with no backup" throughout ("no second generator in reserve" is removed).
+- Mto: "daytime hours at half inverter capacity" throughout ("half capacity" is aligned).
+- Thika: "nights with stock and no backup cover" throughout (the Observe sentence and the Wait row are aligned).
+- Kobo: "days with dawn charge below 35%" (the service-rule row and the Reserve row are aligned).
+- The plan total in the three "valued in money" tables is now "The plan" in the 12-month value column. It was "Modelled 12-month change", a second name for the value shown in the sensitivity and switch tables; the modelled caveat stays in the sentence below the Lakeside table.
+- "Technician visits" is now "crew visits" throughout.
+- "One-off borne by the operator" is now "One-off", defined once in the 7.1 Evaluate intro.
+- The Metro portfolio columns are now "Plan cost to serve / Actual cost to serve".
+- The meter-reading note no longer gives the whole-number reason. The 1,060 L row says the generator-energy reading is not in the demo data, so it cannot be shown.
+
+**Checks.**
+- `python3 check_manifest.py`: **3674 passed, 0 failed**. It was 3,680 before. §7 now has 491 figure anchors instead of 497 (net 6 fewer): those that went were on text that restated an input next to its own inputs row.
+- Every anchor path present in §7 before is still present.
+- §7 word count (anchors stripped): 9,175 before, 9,233 after. The L1 labels, the inputs-table headers and the M1 rule cost more than the cuts saved.
+
+**Not reconciled / for the owner's attention.**
+- Outside §7, two texts still describe the search in the old two-step way. Both are left unchanged because this round is scoped to §7:
+  - the manifest's `plans:` header comment ("protective: the cheapest option meeting its hard bounds is chosen …"), a comment only;
+  - §2 "Job" (`:176`, "after **must-do** options that hard bounds require").
+  §2 `:182` and the evaluator are correct.
+- The earlier response's L5 note that "must-do" became "required: …" is superseded. See M1 above.

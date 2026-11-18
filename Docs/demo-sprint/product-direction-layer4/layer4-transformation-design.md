@@ -436,7 +436,7 @@ The live Portfolio (`frontend/src/estate/EstatePortfolio.tsx`, tabs from `portfo
 
 ## 7. The worked portfolios: the loop, run three times
 
-Each portfolio runs the same loop. **Observe** reads each Site's outcome up from its factors, plan against actual. **Evaluate** writes every option as a change to factors and lets the structure give its value. **Choose** builds the plan under the budget and crew limits. **Prove** names what will be measured afterwards. The tables below give every input a reader needs to follow each figure without opening the data file. Full models and test vectors are in `domain-and-decision-models.md`.
+Each portfolio runs the same loop. **Observe** reads each Site's outcome up from its factors, plan against actual. **Evaluate** writes every option as a change to factors and lets the structure give its value. **Choose** searches all the options together for the plan, under the budget, the crew visits and each decision's rules. **Prove** names what will be measured afterwards. The tables below give every input a reader needs to follow each figure without opening the data file. Every decision is taken on 6 Nov, the demo's today (Declared input), and Protect effects are counted to 30 Nov, the reporting horizon (Plan limit). Full models and test vectors are in `domain-and-decision-models.md`.
 
 **How each figure is known.** Every table says where its figures come from, in one of these words:
 
@@ -451,7 +451,7 @@ Each portfolio runs the same loop. **Observe** reads each Site's outcome up from
 | Quote / Assumption | a supplier or contractor price, lead time or duration / a value with no record or quote |
 | Plan limit | the budget, crew visits, horizon and service rules the operator sets |
 
-In every factor table the Plan column is a Plan figure, and "How it is known" describes the Actual column. The money effect of a factor is always *(actual − plan) × its price*. The data file also stores each Site's effects as records, and the checker confirms they add up to the Site deviation; for this section each product was also recomputed by hand from the inputs shown, and every one agrees.
+In every factor table the Plan column is a Plan figure, and "How it is known" describes the Actual column. The money effect of a factor is always *(actual − plan) × its price*. The checker confirms that each Site's effects add up to its deviation.
 
 ### 7.1 Mini-grid — Lakeside Power (Kobo, Kisiwa, Mto)
 
@@ -478,19 +478,17 @@ The productive-use tariff and battery wear are not used in October (no productiv
 | Step | Figure | How it is known |
 |---|---|---|
 | Fuel balance: opening dip + deliveries − closing dip = litres consumed | 220<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.opening_dip_l--> + 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> − 240<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.closing_dip_l--> = **1,180<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L** | Record (dips and delivery notes) |
-| What the generator should have used: metered generator energy × 0.30 L/kWh | 1,060<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.model_implied_l--> L | Declared input. The generator-energy reading behind it is not in the demo data (see note) |
+| What the generator should have used: metered generator energy × 0.30 L/kWh | 1,060<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.model_implied_l--> L | Declared input. The generator-energy reading behind it is not in the demo data, so it cannot be shown |
 | Classifying each generator interval splits the modelled litres | necessary 730<!--fig:sites.lakeside-power/Kobo.actual.nodes.necessary_l--> L + candidate 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L = 1,060 L | Declared input, *stands in for a calculation*: the product classifies each generator interval; the demo types the result |
-| Unexplained = consumed − modelled | 1,180 − 1,060 = 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L | Declared input, consistent with the two lines above. 2% of 1,180 L is about 24 L, so 120 L is far above tolerance: investigate |
-
-Note: 1,060 L ÷ 0.30 L/kWh is not a whole number of kWh, so the "metered generator energy" the split starts from cannot be shown; the pack holds the modelled litres, not the meter reading. The three-way split is internally consistent (730 + 330 + 120 = 1,180).
+| Unexplained = consumed − modelled | 1,180 − 1,060 = 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L | Declared input, *stands in for a calculation*. Tolerance 2% (Declared input): about 24 L of 1,180 L, so 120 L is far above it: investigate |
 
 **Plan against actual, per factor.**
 
 | Factor | Plan | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
-| Necessary running (L) | 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.necessary_l--> | 730 | +30 | 1.25 | −37.50<!--rec--> | Declared input |
-| Candidate running (L) | 0<!--fig:sites.lakeside-power/Kobo.plan.nodes.candidate_l--> | 330 | +330 | 1.25 | −412.50<!--rec--> | Declared input (stands in for a calculation) |
-| Unexplained litres (L) | 0 | 120 | +120 | 1.25 | −150.00<!--rec--> | Declared input |
+| Necessary running (L) | 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.necessary_l--> | 730 | +30 | 1.25 | −37.50<!--rec--> | Declared input, *stands in for a calculation* |
+| Candidate running (L) | 0<!--fig:sites.lakeside-power/Kobo.plan.nodes.candidate_l--> | 330 | +330 | 1.25 | −412.50<!--rec--> | Declared input, *stands in for a calculation* |
+| Unexplained litres (L) | 0 | 120 | +120 | 1.25 | −150.00<!--rec--> | Declared input, *stands in for a calculation* |
 | *Diesel, all litres* | *700* | *1,180* | *+480* | | *fuel 875.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.fuel_cost--> → 1,475.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.fuel_cost-->* | Calculated |
 | Billed kWh | 8,550<!--fig:sites.lakeside-power/Kobo.plan.nodes.billed_kwh--> | 8,645<!--fig:sites.lakeside-power/Kobo.actual.nodes.billed_kwh--> | +95 | 0.40 | +38.00<!--rec--> | Record |
 | O&M | 600.00<!--fig:sites.lakeside-power/Kobo.plan.nodes.om--> | 600.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.om--> | 0 | | 0.00 | Record |
@@ -503,12 +501,12 @@ Sum of the effects: −412.50 − 37.50 − 150.00<!--rec--> + 38.00 = **−562.
 
 ##### Kisiwa
 
-**How the October litres are obtained.** The fuel balance holds litres consumed 2,400<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.consumed_l--> L (Record; the dips and deliveries behind it are not itemised in the demo data) and modelled litres 2,380<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.model_implied_l--> L (Declared input; as at Kobo, the generator-energy reading behind it is not in the demo data). Every generator interval is classified necessary, because evening load exceeds what the solar and battery can carry: necessary 2,380<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.necessary_l--> L, candidate 0 L (Declared input, stands in for a calculation). Unexplained 2,400 − 2,380 = 20<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l--> L, inside the 2% tolerance (about 48 L): reported, not investigated.
+**How the October litres are obtained.** The fuel balance holds litres consumed 2,400<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.consumed_l--> L (Record; the dips and deliveries behind it are not itemised in the demo data) and modelled litres 2,380<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.model_implied_l--> L (Declared input; as at Kobo, the generator-energy reading behind it is not in the demo data). Every generator interval is classified necessary, because evening load exceeds what the solar and battery can carry: necessary 2,380<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.necessary_l--> L, candidate 0 L (Declared input, *stands in for a calculation*). Unexplained 2,400 − 2,380 = 20<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l--> L, inside the 2% tolerance (about 48 L): reported, not investigated.
 
 | Factor | Plan | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
-| Necessary running (L), a rainy month | 2,300<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.necessary_l--> | 2,380 | +80 | 1.30 | −104.00<!--rec--> | Declared input |
-| Unexplained litres (L) | 0 | 20 | +20 | 1.30 | −26.00<!--rec--> | Declared input |
+| Necessary running (L), a rainy month | 2,300<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.necessary_l--> | 2,380 | +80 | 1.30 | −104.00<!--rec--> | Declared input, *stands in for a calculation* |
+| Unexplained litres (L) | 0 | 20 | +20 | 1.30 | −26.00<!--rec--> | Declared input, *stands in for a calculation* |
 | *Diesel, all litres* | *2,300* | *2,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l-->* | *+100* | | *fuel 2,990.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.fuel_cost--> → 3,120.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.fuel_cost-->* | Calculated |
 | Billed kWh | 7,500<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.billed_kwh--> | 7,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.billed_kwh--> | −100 | 0.55 | −55.00<!--rec--> | Record |
 | O&M | 700.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.om--> | 700.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.om--> | 0 | | 0.00 | Estimate (the October invoice has not arrived) |
@@ -517,11 +515,11 @@ Sum of the effects: −412.50 − 37.50 − 150.00<!--rec--> + 38.00 = **−562.
 
 Sum: −104.00 − 26.00 − 55.00 = **−185.00**, which is −250.00 − (−65.00). Energy to cash: delivered 7,950<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.delivered_kwh--> − losses 520<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.technical_loss_kwh--> = metered 7,430<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.metered_kwh--> − adjustments 30 = billed 7,400 → revenue 4,070.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.revenue--> (plan 4,125.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.revenue-->) → collected 3,800.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.collected-->.
 
-Protect, observed: generator GEN-KS-01 failed on 30 Oct, so the evening supply (18:00–23:00) ran on GEN-KS-02 alone on 30 and 31 Oct: 2 days × 5 hours = 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> hours of evening supply with no second generator in reserve (Calculated from the fault log).
+Protect, observed: generator GEN-KS-01 failed on 30 Oct, so the evening supply (18:00–23:00, Record: service obligation) ran on GEN-KS-02 alone on 30 and 31 Oct: 2 days × 5 hours = 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours with no backup (Calculated from the fault log).
 
 ##### Mto
 
-**How the October litres are obtained.** Mto has no fuel balance record; its litres are the recorded 320<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_l--> L, all classified necessary evening running (Declared input, stands in for a calculation), against a plan of 300<!--fig:sites.lakeside-power/Mto.plan.nodes.necessary_l--> L.
+**How the October litres are obtained.** Mto has no fuel balance record; its litres are the recorded 320<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_l--> L, all classified necessary evening running (the split is a Declared input, *stands in for a calculation*), against a plan of 300<!--fig:sites.lakeside-power/Mto.plan.nodes.necessary_l--> L.
 
 **Energy to cash, where Mto's revenue leaks (Record, then Calculated).**
 
@@ -543,14 +541,14 @@ The plan states only billed kWh, so the comparison starts at the meter: plan 5,6
 | Unmapped meters (kWh) | 0 | 140 | +140 not billed | 0.40 | −56.00<!--rec--> | Record |
 | Authorised adjustment (kWh) | 0 | 40 | +40 not billed | 0.40 | −16.00<!--rec--> | Record |
 | *Billed kWh* | *5,600* | *5,400* | *−200* | | *revenue 2,240.00<!--fig:sites.lakeside-power/Mto.plan.nodes.revenue--> → 2,160.00<!--fig:sites.lakeside-power/Mto.actual.nodes.revenue-->* | Calculated |
-| Necessary running (L) | 300 | 320 | +20 | 1.25 | −25.00<!--rec--> | Declared input |
+| Necessary running (L) | 300 | 320 | +20 | 1.25 | −25.00<!--rec--> | Declared input, *stands in for a calculation* |
 | O&M | 500.00<!--fig:sites.lakeside-power/Mto.plan.nodes.om--> | 500.00 | 0 | | 0.00 | Record |
 | Staff | 450.00<!--fig:sites.lakeside-power/Mto.plan.nodes.staff--> | 450.00<!--fig:sites.lakeside-power/Mto.actual.nodes.staff--> | 0 | | 0.00 | Record |
 | **Contribution** | **915.00<!--fig:sites.lakeside-power/Mto.plan.nodes.contribution-->** | **810.00<!--fig:sites.lakeside-power/Mto.actual.nodes.contribution-->** | | | **−105.00** | Calculated |
 
 Sum: −8.00 − 56.00 − 16.00 − 25.00 = **−105.00**, which is 810.00 − 915.00. Revenue of 2,160.00 splits into collected 1,890.00<!--fig:sites.lakeside-power/Mto.actual.nodes.collected-->, in transit 150.00<!--fig:sites.lakeside-power/Mto.actual.nodes.in_transit--> and outstanding 120.00<!--fig:sites.lakeside-power/Mto.actual.nodes.outstanding-->.
 
-Protect, observed: inverter INV-MT-02 failed on 28 Oct, so the daytime supply (10:00–15:00) ran at half inverter capacity for 4 days × 5 hours = 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy--> hours; the idle generator backed the shortfall, so no hour was without backup.
+Protect, observed: inverter INV-MT-02 failed on 28 Oct, so the daytime supply (10:00–15:00, Record: service obligation) had 4 days × 5 hours = 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy--> daytime hours at half inverter capacity (Calculated from the fault log); the idle generator backed the shortfall, so no hour was without backup.
 
 ##### The portfolio
 
@@ -567,96 +565,110 @@ Each "of which" is the Site's change in revenue or in cost to serve from its tab
 
 #### Evaluate
 
-Each option is a change to factors. The structure re-evaluates the Site with the change and compares it with no action (or with the comparison stated for that decision): value = (change in monthly contribution × months) − the operator's one-off cost. An option is valued in money only when it changes a money factor; otherwise its effect is read on the Protect measures.
-
-**Inputs to the options.** Every figure the option tables below start from, besides the prices above and the October factors in Observe.
-
-| Input | Figure | How it is known |
-|---|---|---|
-| Kobo stop threshold 90% → 70%: candidate running avoided; added battery throughput; days with dawn charge below 35% | 210 L a month; 150 kWh a month; 0 of 61 replayed days | Design value |
-| Kobo battery reserve 30% → 25%: candidate running avoided; days with dawn charge below 35% | 20 L a month; 4 of 61 replayed days | Design value |
-| Kobo stop-threshold trial: vendor reconfiguration; trial supervision | 60.00<!--fig:options.KOB-STOPSOC.cost_lines.vendor_remote_reconfiguration.amount-->; 30.00<!--fig:options.KOB-STOPSOC.cost_lines.trial_supervision.amount--> | Declared input, source not recorded |
-| Kobo 100 kWh battery | 28,000.00<!--rec:tenants[lakeside-power].sites[Kobo].decision.options[KOB-BATT100].capex--> | Declared input, source not recorded |
-| Battery at or above 35% at 05:00 on every day | service rule | Plan limit |
-| Evening supply at Kisiwa, 18:00–23:00 | 5 hours a day | Record (service obligation) |
-| Kisiwa alternator repair: crew visit; repair time; cost | 8 Nov; 1 day; 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | visit date Declared input; repair time Quote (workshop estimate); cost Declared input, source not recorded |
-| Kisiwa generator replacement: lead time; cost | 21 days; 9,500.00<!--fig:options.KIS-REPLACE.operator_one_off--> | Declared input, source not recorded |
-| Kisiwa 60 kWh battery: necessary running moved to the battery; cost | 150 L a month; 14,000.00<!--fig:options.KIS-BATT60.operator_one_off--> | Assumption (no Kisiwa replay exists); cost Declared input, no quote held |
-| Mto extra diesel while the inverter runs at half capacity | 5 L a day | Design value |
-| Mto inverter warranty: notice period; replacement lead time; replacement unit | 30 days (by 27 Nov); 21 days; 2,600.00<!--fig:options.MTO-INV-CLAIM.cost_lines.replacement_unit.amount--> at the supplier's cost, shipping at the owner's | Record (warranty contract) |
-| Mto installation time; local supply time for a unit bought now | 1 day; 5 days | Quote (installer; local distributor) |
-| Mto shipping the failed unit; installation; installing the returned unit as a spare | 150.00<!--fig:options.MTO-INV-CLAIM.cost_lines.shipping_failed_unit.amount-->; 80.00<!--fig:options.MTO-INV-CLAIM.cost_lines.install.amount-->; 80.00<!--fig:options.MTO-INV-BUYNOW.cost_lines.install_returned_unit_as_spare.amount--> | Declared input, source not recorded |
-| Mto unit bought now | 2,600.00<!--fig:options.MTO-INV-BUYNOW.cost_lines.replacement_unit_bought.amount--> | Declared input, source not recorded |
-| Mto local repair: time; cost | 2 days; 450.00<!--fig:options.MTO-INV-LOCAL.operator_one_off--> | time Assumption (no quote held); cost Declared input, source not recorded |
-| Mto huller load | 15 kW, 10:00–15:00 (5 hours), 22 days a month | Declared input (the cooperative's signed letter of intent) |
-| Mto huller extra diesel on days without solar headroom | 68 L a month | Design value |
-| Mto huller collection cost | 15.00 a month | Declared input, source not recorded |
-| Mto huller connection: cost; lead time after the inverter is restored | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off-->; 5 working days | Quote (connection contractor) |
-| Mto huller letter of intent: lapses; extended to | 30 Nov; 31 Dec | lapse date Record; extension Assumption until signed (a condition a person sets) |
-| Mto welding load | 10 kW, 18:00–21:00 (3 hours), 22 days a month | Declared input (verbal enquiry only) |
-| Kobo battery warranty cover; evidence: capacity test; temperature sensor | 64,000.00<!--fig:options.BAT-EVIDENCE.rights.claimable_cover-->; 250.00<!--fig:options.BAT-EVIDENCE.cost_lines.capacity_test.amount-->; 180.00<!--fig:options.BAT-EVIDENCE.cost_lines.temperature_sensor.amount--> | cover Record (warranty contract); costs Declared input, source not recorded |
-| Mto meter audit | 60.00 | Declared input, paid from the routine O&M visit budget |
-| Kisiwa O&M late-response credit | 10% of the 700.00 monthly fee = 70.00 | Record (O&M contract); potential until a credit note arrives |
+Each option is a change to factors. The structure re-evaluates the Site with the change and compares it with no action (or with the comparison stated for that decision): value = (change in monthly contribution × months) − the one-off. "One-off" always means the one-off cost the operator bears. An option is valued in money only when it changes a money factor; otherwise its effect is read on the Protect measures.
 
 **Kobo: generator running after dawn** (no action: the 330 L of candidate running continues, 412.50<!--rec--> a month).
 
+| Input | Figure | How it is known |
+|---|---|---|
+| Stop threshold 90% → 70%: candidate running avoided; added battery throughput; days with dawn charge below 35% | 210 L a month; 150 kWh a month; 0 of 61 replayed days | Design value |
+| Battery reserve 30% → 25%: candidate running avoided; days with dawn charge below 35% | 20 L a month; 4 of 61 replayed days | Design value |
+| Stop-threshold trial: vendor reconfiguration; trial supervision | 60.00<!--fig:options.KOB-STOPSOC.cost_lines.vendor_remote_reconfiguration.amount-->; 30.00<!--fig:options.KOB-STOPSOC.cost_lines.trial_supervision.amount--> | Declared input, source not recorded |
+| 100 kWh battery | 28,000.00<!--rec:tenants[lakeside-power].sites[Kobo].decision.options[KOB-BATT100].capex--> | Declared input, source not recorded |
+| No day with dawn charge below 35% (at 05:00) | service rule | Plan limit |
+
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Lower the generator stop threshold 90% → 70% (remote, 14-day supervised trial) | candidate running −210<!--fig:-options.KOB-STOPSOC.params.avoided_candidate_l--> L a month (Design value); battery throughput +150<!--fig:options.KOB-STOPSOC.params.added_throughput_kwh--> kWh (Design value); dawn charge below 35% on 0<!--fig:options.KOB-STOPSOC.protect.replayed_dawn_days_below_safeguard--> of 61 replayed days | fuel 210 L × 1.25 = +262.50; battery wear 150 kWh × 0.08 (Assumption) = −12.00; monthly **+250.50<!--fig:options.KOB-STOPSOC.monthly_or_horizon_change-->**; 12 × 250.50<!--fig:options.KOB-STOPSOC.monthly_or_horizon_change--> − one-off 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> (vendor reconfiguration 60 + trial supervision 30) | **+2,916.00<!--fig:options.KOB-STOPSOC.value--> over 12 months. Chosen** |
-| Lower the battery reserve 30% → 25% (today's rule) | candidate running −20<!--fig:-options.KOB-RESERVE.params.avoided_candidate_l--> L (Design value); dawn charge below 35% on 4<!--fig:options.KOB-RESERVE.protect.replayed_dawn_days_below_safeguard--> replayed days | 20 L × 1.25 = +25.00 a month; 12 months, no one-off: +300.00<!--fig:options.KOB-RESERVE.value--> | **Rejected**: the battery would be below 35% at dawn on 4 days, and the service rule allows none |
+| Lower the generator stop threshold 90% → 70% (remote, 14-day supervised trial) | candidate running −210<!--fig:-options.KOB-STOPSOC.params.avoided_candidate_l--> L a month; battery throughput +150<!--fig:options.KOB-STOPSOC.params.added_throughput_kwh--> kWh; dawn charge below 35% on 0<!--fig:options.KOB-STOPSOC.protect.replayed_dawn_days_below_safeguard--> of 61 replayed days | fuel 210 L × 1.25 = +262.50; battery wear 150 kWh × 0.08 = −12.00; monthly **+250.50<!--fig:options.KOB-STOPSOC.monthly_or_horizon_change-->**; 12 × 250.50<!--fig:options.KOB-STOPSOC.monthly_or_horizon_change--> − one-off 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> (60 + 30) | **+2,916.00<!--fig:options.KOB-STOPSOC.value--> over 12 months. Chosen** |
+| Lower the battery reserve 30% → 25% (today's rule) | candidate running −20<!--fig:-options.KOB-RESERVE.params.avoided_candidate_l--> L; dawn charge below 35% on 4<!--fig:options.KOB-RESERVE.protect.replayed_dawn_days_below_safeguard--> replayed days | 20 L × 1.25 = +25.00 a month; 12 months, no one-off: +300.00<!--fig:options.KOB-RESERVE.value--> | **Rejected**: 4 days with dawn charge below 35%, and the service rule allows none |
 | 100 kWh battery (28,000) | not valued | the candidate running is a setting problem; storage adds nothing the threshold change does not | Deferred |
 
 The stop-threshold change leaves 330 − 210 = 120 L a month of candidate running that no setting the replay found feasible can avoid. That 120 L is a different quantity from the 120 L of unexplained litres in Observe.
 
-**Kisiwa: generator GEN-KS-01 failed on 30 Oct.** The decision is dated 6 Nov; the Protect horizon runs to 30 Nov, 25<!--fig:options.KIS-NOACT.params.days_to_restore--> evenings of 5 hours. The evenings of 1–5 Nov (25 hours) were on one generator under every option and are observed, not an option's effect.
+**Kisiwa: generator GEN-KS-01 failed on 30 Oct.** From 6 Nov to 30 Nov there are 25<!--fig:options.KIS-NOACT.params.days_to_restore--> evenings of 5 hours. The evenings of 1–5 Nov (25 hours) were on one generator under every option and are observed, not an option's effect.
 
-| Option | Factor changes | How the value follows | Evening hours with no backup to 30 Nov | Result |
+| Input | Figure | How it is known |
+|---|---|---|
+| Evening supply | 18:00–23:00, 5 hours a day | Record (service obligation) |
+| GEN-KS-01 warranty; 1,000-hour service | ended 30 Jun; missed (1,240 run hours at failure), so the operator pays | Record (warranty contract; run-hours log) |
+| Alternator repair: crew visit; repair time; cost | 8 Nov; 1 day; 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | visit date Declared input; repair time Quote (workshop estimate); cost Declared input, source not recorded |
+| Generator replacement: lead time; cost | 21 days; 9,500.00<!--fig:options.KIS-REPLACE.operator_one_off--> | Declared input, source not recorded |
+
+| Option | Factor changes | How the value follows | Evening hours with no backup, 6–30 Nov | Result |
 |---|---|---|---:|---|
 | No action | the unit stays out | no money factor changes | 25 days × 5 h = 125<!--fig:options.KIS-NOACT.protect.obligation_hours_without_backup--> | Rejected |
-| Repair the alternator (crew visit 8 Nov, 1 repair day: restored 9 Nov) | days out: 3<!--fig:options.KIS-REPAIR.params.days_to_restore--> (6–8 Nov) | not valued in money; one-off 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> (warranty expired 30 Jun and the 1,000-hour service was missed, so the operator pays) | 3 × 5 = 15<!--fig:options.KIS-REPAIR.protect.obligation_hours_without_backup--> | **Chosen** |
+| Repair the alternator (crew visit 8 Nov + 1 repair day: restored 9 Nov) | days out: 3<!--fig:options.KIS-REPAIR.params.days_to_restore--> (6–8 Nov) | not valued in money; one-off 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 3 × 5 = 15<!--fig:options.KIS-REPAIR.protect.obligation_hours_without_backup--> | **Chosen** |
 | Replace the generator (21-day lead time: restored 27 Nov) | days out: 21<!--fig:options.KIS-REPLACE.params.days_to_restore--> | not valued in money; one-off 9,500.00<!--fig:options.KIS-REPLACE.operator_one_off--> | 21 × 5 = 105<!--fig:options.KIS-REPLACE.protect.obligation_hours_without_backup--> | Rejected |
 
-No option restores a backup at once, so every one leaves some evening hours with no backup; the plan takes the option with the fewest such hours that fits the budget, the repair.
+No option restores a backup at once, so every option breaks the rule and all three stay in the plan search; the search breaks the service rules as little as possible before it weighs money, so it takes the repair.
 
-**Kisiwa: evening storage.** A separate decision, compared with Kisiwa's October running (contribution −250.00), that is, looking forward from the repair with both generators in service. It is not an alternative to the repair, and its hours column cannot be compared with the 125, 15 and 105 above, which count 6–30 Nov while GEN-KS-01 is out.
+**Kisiwa: evening storage.** A separate decision, not an alternative to the repair: it looks forward from the repair with both generators in service and is compared with Kisiwa's October running (contribution −250.00). Its hours column does not compare with the 125, 15 and 105 above, which count 6–30 Nov while GEN-KS-01 is out.
+
+| Input | Figure | How it is known |
+|---|---|---|
+| 60 kWh battery: necessary running moved to the battery | 150 L a month | Assumption (no Kisiwa replay exists) |
+| 60 kWh battery: cost | 14,000.00<!--fig:options.KIS-BATT60.operator_one_off--> | Declared input, no quote held |
 
 | Option | Factor changes | How the value follows | Evening hours with no backup | Result |
 |---|---|---|---:|---|
-| 60 kWh battery | necessary running −150<!--fig:-options.KIS-BATT60.params.shifted_fuel_l--> L a month (Assumption: no Kisiwa replay exists) | 150 L × 1.30 = +195.00<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> a month (contribution −250.00 + 195.00<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> = −55.00); 12 × 195.00<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> − 14,000.00<!--fig:-options.KIS-BATT60.operator_one_off--> = −11,660.00<!--fig:options.KIS-BATT60.value--> | n/a: measured after the repair, when there are no such hours to remove | **Deferred**: over budget (a 14,000.00<!--fig:options.KIS-BATT60.operator_one_off--> one-off against the 5,000 budget for November and December) and negative over 12 months; it pays back in 14,000<!--fig:options.KIS-BATT60.operator_one_off--> ÷ 195<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> ≈ 72 months, about 6 years |
+| 60 kWh battery | necessary running −150<!--fig:-options.KIS-BATT60.params.shifted_fuel_l--> L a month | 150 L × 1.30 = +195.00<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> a month (contribution −250.00 + 195.00<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> = −55.00); 12 × 195.00<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> − 14,000.00<!--fig:-options.KIS-BATT60.operator_one_off--> = −11,660.00<!--fig:options.KIS-BATT60.value--> | n/a: measured after the repair, when there are no such hours to remove | **Deferred**: over budget (a 14,000.00<!--fig:options.KIS-BATT60.operator_one_off--> one-off against the 5,000 budget for November and December) and negative over 12 months; it pays back in 14,000<!--fig:options.KIS-BATT60.operator_one_off--> ÷ 195<!--fig:options.KIS-BATT60.monthly_or_horizon_change--> ≈ 72 months, about 6 years |
 
-**Mto: inverter INV-MT-02 failed on 28 Oct** (warranty to 2029; notice due by 27 Nov; cover 2,600.00<!--fig:options.MTO-INV-CLAIM.rights.claimable_cover--> for the replacement unit). Every path runs the generator 5<!--fig:options.MTO-INV-CLAIM.params.extra_l_per_day--> L a day extra (Design value) until the inverter is restored, and money is compared with an immediate restore at no cost.
+**Mto: inverter INV-MT-02 failed on 28 Oct.** Money is compared with an immediate restore at no cost.
 
-| Option | Restore date and factor changes | One-off borne by the operator | How the value follows | Rights | Result |
+| Input | Figure | How it is known |
+|---|---|---|
+| Extra diesel while at half inverter capacity | 5<!--fig:options.MTO-INV-CLAIM.params.extra_l_per_day--> L a day | Design value |
+| Warranty: term; notice period; replacement lead time; cover | to 2029; 30 days (by 27 Nov); 21 days; the 2,600.00<!--fig:options.MTO-INV-CLAIM.cost_lines.replacement_unit.amount--> replacement unit at the supplier's cost, shipping at the owner's | Record (warranty contract) |
+| Installation time; local supply time for a unit bought now | 1 day; 5 days | Quote (installer; local distributor) |
+| Shipping the failed unit; installation; installing the returned unit as a spare | 150.00<!--fig:options.MTO-INV-CLAIM.cost_lines.shipping_failed_unit.amount-->; 80.00<!--fig:options.MTO-INV-CLAIM.cost_lines.install.amount-->; 80.00<!--fig:options.MTO-INV-BUYNOW.cost_lines.install_returned_unit_as_spare.amount--> | Declared input, source not recorded |
+| Unit bought now | 2,600.00<!--fig:options.MTO-INV-BUYNOW.cost_lines.replacement_unit_bought.amount--> | Declared input, source not recorded |
+| Local repair: time; cost | 2 days; 450.00<!--fig:options.MTO-INV-LOCAL.operator_one_off--> | time Assumption (no quote held); cost Declared input, source not recorded |
+
+| Option | Restore date and factor changes | One-off | How the value follows | Rights | Result |
 |---|---|---|---|---|---|
-| Claim and wait | 6 Nov + 21-day warranty lead time + 1 installation day = 28 Nov; 22<!--fig:options.MTO-INV-CLAIM.params.days_to_restore--> days × 5 L = 110 L extra | shipping 150.00<!--fig:options.MTO-INV-CLAIM.cost_lines.shipping_failed_unit.amount--> + installation 80.00 = 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off-->; the 2,600.00 unit is borne by the supplier | 110 L × 1.25 = −137.50<!--fig:options.MTO-INV-CLAIM.monthly_or_horizon_change-->; − 230.00<!--fig:-options.MTO-INV-CLAIM.operator_one_off--> | notice filed now; cover kept | **−367.50<!--fig:options.MTO-INV-CLAIM.value-->. Chosen** |
+| Claim and wait | 6 Nov + 21 days + 1 installation day = 28 Nov; 22<!--fig:options.MTO-INV-CLAIM.params.days_to_restore--> days × 5 L = 110 L extra | shipping 150 + installation 80 = 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off-->; the 2,600.00<!--fig:options.MTO-INV-CLAIM.rights.claimable_cover--> unit is borne by the supplier | 110 L × 1.25 = −137.50<!--fig:options.MTO-INV-CLAIM.monthly_or_horizon_change-->; − 230.00<!--fig:-options.MTO-INV-CLAIM.operator_one_off--> | notice filed now; cover kept | **−367.50<!--fig:options.MTO-INV-CLAIM.value-->. Chosen** |
 | Buy a unit now, claim the failed one as a spare | 6 Nov + 5 supply days + 1 install day = 12 Nov; 6<!--fig:options.MTO-INV-BUYNOW.params.days_to_restore--> days × 5 L = 30 L extra | unit 2,600 + installation 80 + shipping 150 + installing the returned spare 80 = 2,910.00<!--fig:options.MTO-INV-BUYNOW.operator_one_off--> | 30 L × 1.25 = −37.50<!--fig:options.MTO-INV-BUYNOW.monthly_or_horizon_change-->; − 2,910.00<!--fig:-options.MTO-INV-BUYNOW.operator_one_off--> | cover kept | −2,947.50<!--fig:options.MTO-INV-BUYNOW.value-->. Chosen only in the switch case below |
-| Local repair | 2 repair days (Assumption): restored 8 Nov; 2 days × 5 L = 10 L extra | 450.00<!--fig:options.MTO-INV-LOCAL.operator_one_off--> | 10 L × 1.25 = −12.50<!--fig:options.MTO-INV-LOCAL.monthly_or_horizon_change-->; − 450.00<!--fig:-options.MTO-INV-LOCAL.operator_one_off--> = −462.50<!--fig:options.MTO-INV-LOCAL.value--> | opening the unit voids the warranty: 2,600.00<!--fig:options.MTO-INV-LOCAL.rights.cover_lost--> lost | Rejected: the warranty cover would be lost |
+| Local repair | 6 Nov + 2 repair days = 8 Nov; 2 days × 5 L = 10 L extra | 450.00<!--fig:options.MTO-INV-LOCAL.operator_one_off--> | 10 L × 1.25 = −12.50<!--fig:options.MTO-INV-LOCAL.monthly_or_horizon_change-->; − 450.00<!--fig:-options.MTO-INV-LOCAL.operator_one_off--> = −462.50<!--fig:options.MTO-INV-LOCAL.value--> | opening the unit voids the warranty: 2,600.00<!--fig:options.MTO-INV-LOCAL.rights.cover_lost--> lost | Rejected: the warranty cover would be lost |
 | No action | never restored; extra fuel over the 12-month horizon | none | 365 days × 5 L × 1.25 = −2,281.25<!--fig:options.MTO-INV-NOACT.value--> | no notice is filed, so the warranty lapses on 27 Nov: 2,600.00<!--fig:options.MTO-INV-NOACT.rights.cover_lost--> lost | Rejected: the warranty cover would be lost |
 
-On every path the idle generator backs the daytime shortfall, so no hour is without backup; the daytime hours (5 a day) at half capacity to 30 Nov are 22 × 5 = 110<!--fig:options.MTO-INV-CLAIM.protect.obligation_hours_without_redundancy--> (claim), 6 × 5 = 30<!--fig:options.MTO-INV-BUYNOW.protect.obligation_hours_without_redundancy--> (buy now), 2 × 5 = 10<!--fig:options.MTO-INV-LOCAL.protect.obligation_hours_without_redundancy--> (local repair) and 25 × 5 = 125<!--fig:options.MTO-INV-NOACT.protect.obligation_hours_without_redundancy--> (no action: every day from 6 to 30 Nov).
+On every path the idle generator backs the daytime shortfall, so no hour is without backup; the daytime hours at half inverter capacity, 6–30 Nov, are 22 × 5 = 110<!--fig:options.MTO-INV-CLAIM.protect.obligation_hours_without_redundancy--> (claim), 6 × 5 = 30<!--fig:options.MTO-INV-BUYNOW.protect.obligation_hours_without_redundancy--> (buy now), 2 × 5 = 10<!--fig:options.MTO-INV-LOCAL.protect.obligation_hours_without_redundancy--> (local repair) and 25 × 5 = 125<!--fig:options.MTO-INV-NOACT.protect.obligation_hours_without_redundancy--> (no action).
 
 **Mto: daytime demand** (no action: the daytime solar headroom stays unused).
 
+| Input | Figure | How it is known |
+|---|---|---|
+| Huller load | 15 kW, 10:00–15:00 (5 hours), 22 days a month | Declared input (the cooperative's signed letter of intent) |
+| Huller extra diesel on days without solar headroom | 68 L a month | Design value |
+| Huller collection cost | 15.00 a month | Declared input, source not recorded |
+| Huller connection: cost; lead time after the inverter is restored | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off-->; 5 working days | Quote (connection contractor) |
+| Huller letter of intent: lapses; extended to | 30 Nov; 31 Dec | lapse date Record; extension Assumption until signed (a condition a person sets) |
+| Welding load | 10 kW, 18:00–21:00 (3 hours), 22 days a month | Declared input (verbal enquiry only) |
+
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Rice huller, Mto Farmers Cooperative (signed letter of intent) | productive kWh +15<!--fig:options.MTO-HULLER.params.load_kw--> kW × 5 h × 22<!--fig:options.MTO-HULLER.params.days--> days = +1,650 kWh; extra fuel +68<!--fig:options.MTO-HULLER.params.added_fuel_l--> L on days without headroom (Design value); collection cost +15.00 | 1,650 kWh × 0.30 = +495.00<!--rec-->; fuel 68 L × 1.25 = −85.00<!--rec-->; collection −15.00; monthly **+395.00<!--fig:options.MTO-HULLER.monthly_or_horizon_change-->**; 12 × 395.00<!--fig:options.MTO-HULLER.monthly_or_horizon_change--> − connection 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> (Quote) | **+3,540.00<!--fig:options.MTO-HULLER.value--> over 12 months. Chosen**, if the inverter is restored and the meter connected (5 working days) before the letter lapses |
-| Evening welding workshop (verbal enquiry only) | delivered and billed kWh +10<!--fig:options.MTO-WELDING.params.load_kw--> kW × 3 h × 22 days = +660 kWh; every evening kWh is generator energy: 660 × 0.33 = 217.8 L | 660 × 0.40 = +264.00<!--rec-->; fuel 217.8 L × 1.25 = −272.25<!--rec-->; monthly −8.25<!--fig:options.MTO-WELDING.monthly_or_horizon_change-->; × 12 = −99.00<!--fig:options.MTO-WELDING.value--> | Not chosen: negative margin; it breaks even only at a tariff of 272.25 ÷ 660 = 0.4125 per kWh, above the 0.40 charged |
+| Rice huller, Mto Farmers Cooperative | productive kWh +15<!--fig:options.MTO-HULLER.params.load_kw--> kW × 5 h × 22<!--fig:options.MTO-HULLER.params.days--> days = +1,650 kWh; extra fuel +68<!--fig:options.MTO-HULLER.params.added_fuel_l--> L; collection cost +15.00 | 1,650 kWh × 0.30 = +495.00<!--rec-->; fuel 68 L × 1.25 = −85.00<!--rec-->; collection −15.00; monthly **+395.00<!--fig:options.MTO-HULLER.monthly_or_horizon_change-->**; 12 × 395.00<!--fig:options.MTO-HULLER.monthly_or_horizon_change--> − one-off 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> | **+3,540.00<!--fig:options.MTO-HULLER.value--> over 12 months. Chosen**, if the inverter is restored and the meter connected (5 working days) before the letter lapses |
+| Evening welding workshop | delivered and billed kWh +10<!--fig:options.MTO-WELDING.params.load_kw--> kW × 3 h × 22 days = +660 kWh; every evening kWh is generator energy: 660 × 0.33 = 217.8 L | 660 × 0.40 = +264.00<!--rec-->; fuel 217.8 L × 1.25 = −272.25<!--rec-->; monthly −8.25<!--fig:options.MTO-WELDING.monthly_or_horizon_change-->; × 12 = −99.00<!--fig:options.MTO-WELDING.value--> | Rejected: negative margin; it breaks even only at a tariff of 272.25 ÷ 660 = 0.4125 per kWh, above the 0.40 charged |
 
-**Mto billing.** Fixing the meter mapping restores 140 kWh × 0.40 = 56.00 a month of charges from the corrected billing run onward (12 × 56.00 = 672.00<!--rec--> over 12 months). It is not an evaluated option: the restored charges are listed beside the plan, because collecting them is a separate step. The meter audit (60, from the routine O&M visit) looks for the 120 kWh lost beyond expected.
+**Mto billing.** Fixing the meter mapping restores 140 kWh × 0.40 = 56.00 a month of charges from the corrected billing run onward (12 × 56.00 = 672.00<!--rec--> over 12 months). It is not an evaluated option: the restored charges are listed beside the plan, because collecting them is a separate step. The meter audit (60, Declared input, paid from the routine O&M visit budget) looks for the 120 kWh lost beyond expected.
 
-**Kobo battery BAT-001 warranty evidence.** The warranty runs to 2034, but there is no temperature record and no commissioning capacity test, so 64,000.00<!--fig:options.BAT-NOACT.rights.unclaimable_cover--> of cover cannot be claimed today.
+**Kobo battery BAT-001 warranty evidence.** There is no temperature record and no commissioning capacity test, so 64,000.00<!--fig:options.BAT-NOACT.rights.unclaimable_cover--> of cover cannot be claimed today.
+
+| Input | Figure | How it is known |
+|---|---|---|
+| Warranty: term; cover | to 2034; 64,000.00<!--fig:options.BAT-EVIDENCE.rights.claimable_cover--> | Record (warranty contract) |
+| Capacity test; temperature sensor | 250.00<!--fig:options.BAT-EVIDENCE.cost_lines.capacity_test.amount-->; 180.00<!--fig:options.BAT-EVIDENCE.cost_lines.temperature_sensor.amount--> | Declared input, source not recorded |
 
 | Option | Factor changes | One-off | Result |
 |---|---|---|---|
 | No action | evidence stays incomplete | none | Rejected: 64,000.00 of cover stays unclaimable |
 | Claim now | none | none | Rejected: a contested claim without evidence fails |
-| Assemble evidence: capacity test and temperature sensor | the warranty cover becomes claimable: 64,000.00<!--fig:options.BAT-EVIDENCE.rights.claimable_cover--> | 250.00<!--fig:options.BAT-EVIDENCE.cost_lines.capacity_test.amount--> + 180.00<!--fig:options.BAT-EVIDENCE.cost_lines.temperature_sensor.amount--> = 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | **Chosen**; not valued in money |
+| Assemble evidence: capacity test and temperature sensor | the warranty cover becomes claimable | 250.00 + 180.00 = 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | **Chosen**; not valued in money |
 
 #### Choose
 
-**1. The plan and its limits.** Budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December (Plan limit); 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November (Plan limit); 12-month horizon (Plan limit). The plan is built in two steps. First, each decision that protects service or warranty cover takes its cheapest option that keeps within the service rules, or, where none can, the one that breaks them least. Then every combination of the money-valued options is tried within the budget, the crew visits and the dates one option depends on (the huller needs the inverter first), and the combination worth most is kept.
+**1. The plan and its limits.** Budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December; 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November; 12-month horizon (all Plan limits). **How the plan is found:** one search over all the decisions together. It tries every combination that takes one option per decision (a money-valued decision may take none, except the Mto inverter, which must be restored). An option that breaks one of its decision's rules (a service rule, or keeping warranty cover) is left out, unless no option of that decision can keep the rule, as at Kisiwa. A combination must fit the budget and the crew visits and meet the dates one option depends on (the huller needs the inverter first). The plan is the combination that breaks the rules least, then is worth most, then spends least.
 
-| Item | One-off | Crew visit |
+| Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
 | Kisiwa alternator repair | 1,800.00<!--fig:options.KIS-REPAIR.net_one_off--> | 1 |
 | Kobo battery evidence | 430.00<!--fig:options.BAT-EVIDENCE.net_one_off--> | 1 |
@@ -665,7 +677,7 @@ On every path the idle generator backs the daytime shortfall, so no hour is with
 | Mto huller connection | 1,200.00<!--fig:options.MTO-HULLER.net_one_off--> | 0 (contractor) |
 | **Spend** | **3,750.00<!--fig:plans.lakeside-power.default.spend-->** | **3<!--fig:plans.lakeside-power.default.crew_visits_used--> of 3** |
 
-The Mto billing fix and meter audit go ahead beside the plan at no cost to this budget (the meter audit's 60 comes from the routine O&M visit).
+The Mto billing fix and meter audit go ahead beside the plan at no cost to this budget.
 
 **2. What is valued in money, and how the total is composed.**
 
@@ -674,26 +686,30 @@ The Mto billing fix and meter audit go ahead beside the plan at no cost to this 
 | Kobo stop threshold | +2,916.00<!--fig:options.KOB-STOPSOC.value--> | 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> |
 | Mto huller | +3,540.00<!--fig:options.MTO-HULLER.value--> | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> |
 | Mto inverter claim | −367.50<!--fig:options.MTO-INV-CLAIM.value--> | 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> |
-| **Modelled 12-month change** | **+6,088.50<!--fig:plans.lakeside-power.default.value-->** | **1,520.00<!--fig:plans.lakeside-power.default.valued_option_costs-->** |
+| **The plan** | **+6,088.50<!--fig:plans.lakeside-power.default.value-->** | **1,520.00<!--fig:plans.lakeside-power.default.valued_option_costs-->** |
 
-Each value is already net of its own one-off cost. It is a modelled change, not a realised one.
+Each value is already net of its own one-off. It is a modelled change, not a realised one.
 
 **3. Spend not valued in money, and what it protects.** 2,230.00<!--fig:plans.lakeside-power.default.not_valued_in_money--> of the spend changes no money factor; its effect is on the Protect measures, evaluated per option. The plan never shows a money figure that leaves part of its spend out.
 
 | Item | One-off | Protect measure | No action | With the item |
 |---|---:|---|---:|---:|
-| Kisiwa repair (required: doing nothing leaves evening supply with no backup) | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | evening hours with no backup, 6–30 Nov | 125 | 15 |
-| Kobo battery evidence (protective) | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | battery cover that can be claimed | 0 | 64,000.00 (at stake, never added to money) |
+| Kisiwa repair (fewest evening hours with no backup) | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | evening hours with no backup, 6–30 Nov | 125 | 15 |
+| Kobo battery evidence (keeps the cover claimable) | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | battery cover that can be claimed | 0 | 64,000.00 (at stake, never added to money) |
 | | | tracked assets with complete contract evidence (Record count) | 1 of 3 | 2 of 3 |
 
-**4. Downside and sensitivities.** Each is the plan re-evaluated with one factor or one item changed.
+**4. Downside and sensitivities.** Each case re-evaluates the plan with one factor or one item changed; one row per option it moves.
 
-| Case | 12-month value |
-|---|---:|
-| The plan as chosen | +6,088.50<!--fig:plans.lakeside-power.default.value--> |
-| Diesel 20% cheaper, 1.00 a litre at Kobo and Mto (every valued option that buys or saves diesel re-evaluated): stop threshold 12 × (210 × 1.00 − 12.00) − 90.00<!--fig:-options.KOB-STOPSOC.operator_one_off--> = +2,286.00<!--fig:options.KOB-STOPSOC.sensitivities.diesel_minus_20pct-->; huller 12 × (495.00 − 68 × 1.00 − 15.00) − 1,200.00<!--fig:-options.MTO-HULLER.operator_one_off--> = +3,744.00<!--fig:options.MTO-HULLER.sensitivities.diesel_minus_20pct-->; inverter claim −110 × 1.00 − 230.00<!--fig:-options.MTO-INV-CLAIM.operator_one_off--> = −340.00<!--fig:options.MTO-INV-CLAIM.sensitivities.diesel_minus_20pct--> | +5,690.00<!--fig:plans.lakeside-power.sensitivity_values.diesel_minus_20pct.value--> |
-| The stop-threshold change avoids 160 L, not 210 L: stop threshold 12 × (160 × 1.25 − 12.00) − 90.00<!--fig:-options.KOB-STOPSOC.operator_one_off--> = +2,166.00<!--fig:options.KOB-STOPSOC.sensitivities.feasible_fuel_160l-->, plus huller +3,540.00<!--fig:options.MTO-HULLER.value--> and inverter claim −367.50<!--fig:options.MTO-INV-CLAIM.value--> | +5,338.50<!--fig:plans.lakeside-power.sensitivity_values.feasible_fuel_160l.value--> |
-| **Downside: the cooperative does not sign a supply contract** (huller drops): 6,088.50<!--fig:plans.lakeside-power.default.value--> − 3,540.00<!--fig:-options.MTO-HULLER.value--> | **+2,548.50<!--fig:plans.lakeside-power.downside-->** |
+| Case | Option | How its value follows | 12-month value |
+|---|---|---|---:|
+| The plan as chosen | | | +6,088.50<!--fig:plans.lakeside-power.default.value--> |
+| Diesel 20% cheaper: 1.00 a litre at Kobo and Mto | Kobo stop threshold | 12 × (210 × 1.00 − 12.00) − 90.00<!--fig:-options.KOB-STOPSOC.operator_one_off--> | +2,286.00<!--fig:options.KOB-STOPSOC.sensitivities.diesel_minus_20pct--> |
+| | Mto huller | 12 × (495.00 − 68 × 1.00 − 15.00) − 1,200.00<!--fig:-options.MTO-HULLER.operator_one_off--> | +3,744.00<!--fig:options.MTO-HULLER.sensitivities.diesel_minus_20pct--> |
+| | Mto inverter claim | −110 × 1.00 − 230.00<!--fig:-options.MTO-INV-CLAIM.operator_one_off--> | −340.00<!--fig:options.MTO-INV-CLAIM.sensitivities.diesel_minus_20pct--> |
+| | *The plan* | sum of the three | *+5,690.00<!--fig:plans.lakeside-power.sensitivity_values.diesel_minus_20pct.value-->* |
+| The stop-threshold change avoids 160 L, not 210 L | Kobo stop threshold | 12 × (160 × 1.25 − 12.00) − 90.00<!--fig:-options.KOB-STOPSOC.operator_one_off--> | +2,166.00<!--fig:options.KOB-STOPSOC.sensitivities.feasible_fuel_160l--> |
+| | *The plan* | huller +3,540.00<!--fig:options.MTO-HULLER.value--> and inverter claim −367.50<!--fig:options.MTO-INV-CLAIM.value--> unchanged | *+5,338.50<!--fig:plans.lakeside-power.sensitivity_values.feasible_fuel_160l.value-->* |
+| **Downside: the cooperative does not sign a supply contract** | Mto huller drops | 6,088.50<!--fig:plans.lakeside-power.default.value--> − 3,540.00<!--fig:-options.MTO-HULLER.value--> | **+2,548.50<!--fig:plans.lakeside-power.downside-->** |
 
 The stop-threshold and huller values rest on Design values, and the screen says so until the replays have been run on the Sites' recorded data.
 
@@ -702,19 +718,19 @@ The stop-threshold and huller values rest on Design values, and the screen says 
 | Item | Amount | Why it is not added |
 |---|---:|---|
 | Mto restored charges over 12 months | 672.00 | billed, not yet collected |
-| Kisiwa O&M late-response credit | 70.00 | potential; review required; booked only on a credit note |
+| Kisiwa O&M late-response credit: 10% of the 700.00 monthly fee (Record: O&M contract) | 70.00 | potential; review required; booked only on a credit note |
 | Kobo battery cover | 64,000.00 | at stake, not money gained |
 
-**6. When a condition changes (the switches).** Two conditions are set by a person, not computed: the budget, and whether the cooperative extends its letter of intent. The huller needs the inverter restored plus 5 working days for the connection, before the cooperative's letter of intent lapses on 30 Nov (or 31 Dec if extended). The claim restores on 28 Nov, which gives 4 Dec: too late unless the letter is extended. Buying now restores on 12 Nov, which gives 19 Nov.
+**6. When a condition changes (the switches).** Two conditions are set by a person, not computed: the budget, and whether the cooperative extends its letter of intent. The huller needs the inverter restored plus 5 working days for the connection, before the letter lapses on 30 Nov (or 31 Dec if extended). The claim restores on 28 Nov, which gives 4 Dec: too late unless the letter is extended. Buying now restores on 12 Nov, which gives 19 Nov.
 
 | Budget | Letter extended | Inverter path | Huller | Spend | 12-month value |
 |---:|---|---|---|---:|---:|
 | 5,000 | yes (default) | claim | connected | 3,750.00<!--fig:plans.lakeside-power.switch_cases.5000/True.spend--> | +6,088.50<!--fig:plans.lakeside-power.switch_cases.5000/True.value--> |
 | 5,000 | no | claim (buying now would need 6,430.00<!--fig:plans.lakeside-power.switch_cases.6500/False.spend-->) | lost | 2,550.00<!--fig:plans.lakeside-power.switch_cases.5000/False.spend--> | +2,548.50<!--fig:plans.lakeside-power.switch_cases.5000/False.value--> |
 | 6,500 | yes | claim | connected | 3,750.00<!--fig:plans.lakeside-power.switch_cases.6500/True.spend--> | +6,088.50<!--fig:plans.lakeside-power.switch_cases.6500/True.value--> |
-| 6,500 | no | **buy now** (only 6 days at half capacity) | connected | 6,430.00<!--fig:plans.lakeside-power.switch_cases.6500/False.spend--> | +3,508.50<!--fig:plans.lakeside-power.switch_cases.6500/False.value--> |
+| 6,500 | no | **buy now** (only 6 days at half inverter capacity) | connected | 6,430.00<!--fig:plans.lakeside-power.switch_cases.6500/False.spend--> | +3,508.50<!--fig:plans.lakeside-power.switch_cases.6500/False.value--> |
 
-Every figure in this table is Calculated: the plan is searched again under each pair of conditions. The spends and values follow from the items above: without the huller, 3,750.00<!--fig:plans.lakeside-power.default.spend--> − 1,200.00<!--fig:-options.MTO-HULLER.operator_one_off--> = 2,550.00<!--fig:plans.lakeside-power.switch_cases.5000/False.spend--> and 6,088.50<!--fig:plans.lakeside-power.default.value--> − 3,540.00<!--fig:-options.MTO-HULLER.value--> = 2,548.50<!--fig:plans.lakeside-power.switch_cases.5000/False.value-->; buying now instead of claiming, 3,750.00<!--fig:plans.lakeside-power.default.spend--> − 230.00<!--fig:-options.MTO-INV-CLAIM.operator_one_off--> + 2,910.00<!--fig:options.MTO-INV-BUYNOW.operator_one_off--> = 6,430.00<!--fig:plans.lakeside-power.switch_cases.6500/False.spend--> and 2,916.00<!--fig:options.KOB-STOPSOC.value--> + 3,540.00<!--fig:options.MTO-HULLER.value--> − 2,947.50<!--fig:options.MTO-INV-BUYNOW.value--> = 3,508.50<!--fig:plans.lakeside-power.switch_cases.6500/False.value-->.
+Every figure in this table is Calculated: the plan is searched again under each pair of conditions. The spends and values follow from the items above: without the huller, 3,750.00<!--fig:plans.lakeside-power.default.spend--> − 1,200.00<!--fig:-options.MTO-HULLER.operator_one_off--> = 2,550.00<!--fig:plans.lakeside-power.switch_cases.5000/False.spend--> and 6,088.50<!--fig:plans.lakeside-power.default.value--> − 3,540.00<!--fig:-options.MTO-HULLER.value--> = 2,548.50<!--fig:plans.lakeside-power.switch_cases.5000/False.value-->; buying now instead of claiming, 3,750.00<!--fig:plans.lakeside-power.default.spend--> − 230.00<!--fig:-options.MTO-INV-CLAIM.operator_one_off--> + 2,910.00<!--fig:options.MTO-INV-BUYNOW.operator_one_off--> = 6,430.00<!--fig:plans.lakeside-power.switch_cases.6500/False.spend--> and 2,916.00<!--fig:options.KOB-STOPSOC.value--> + 3,540.00<!--fig:options.MTO-HULLER.value--> − 2,947.50<!--fig:options.MTO-INV-BUYNOW.value--> = 3,508.50<!--fig:plans.lakeside-power.switch_cases.6500/False.value-->. In the second row, dropping the Kisiwa repair would free enough to buy the inverter now and keep the huller, worth more, but would leave 125 evening hours with no backup instead of 15; least rule-breaking comes first, so the repair stays.
 
 #### Prove
 
@@ -741,7 +757,7 @@ A cold room's contribution is revenue minus cost to serve. Revenue is occupied c
 | Maintenance | 50.00 | 50.00 | 0 | | 0.00 | Record |
 | **Contribution** | **456.00<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.contribution-->** | **−12.00<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.contribution-->** | | | **−468.00** | Calculated |
 
-Sum: −620.00<!--rec--> + 155.00 − 3.00 = **−468.00**. Its 15 kWh above the model is 15 ÷ 2,635 = 0.6% of it, inside the 5% tolerance: the equipment is fine; the room is under-occupied.
+Sum: −620.00<!--rec--> + 155.00 − 3.00 = **−468.00**. Its 15 kWh above the model is 15 ÷ 2,635 = 0.6% of it, inside the 5% tolerance (Declared input): the equipment is fine; the room is under-occupied.
 
 ##### Thika
 
@@ -755,7 +771,7 @@ Sum: −620.00<!--rec--> + 155.00 − 3.00 = **−468.00**. Its 15 kWh above the
 
 **Where the 108.00 comes from (Record).** On 6 Oct the grid failed at 19:11 and backup generator GEN-CR-01 did not start automatically (start-controller fault); it was started by hand at 19:14. The chamber was above its 2–4 °C band for 25–35 minutes, peaking at 8.2 °C at 19:19. Batch B-1031 (French beans, export grade, limit 5 °C) had 120<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.excursion_crates--> crates exposed, declared at 18.00<!--rec:tenants[harvest-cold].sites[Room B · Thika].incident.batches[B-1031].declared_value_per_crate--> a crate: 2,160.00<!--rec--> **at stake, not money**. QA downgraded 6 crates; 6 × 18.00 = 108.00 confirmed damage, which the customer contract makes the operator's liability. Avocados (limit 12 °C) were not exposed; the cabbage batch had left on 5 Oct.
 
-Protect, observed: from 6 Oct the backup start was unproven and stock was present every night with no manual-start rota, so 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights in October were without backup cover (Calculated from the stock register and the incident record).
+Protect, observed: from 6 Oct the backup start was unproven and stock was present every night with no manual-start rota, so October had 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights with stock and no backup cover (Calculated from the stock register and the incident record).
 
 ##### Kirinyaga
 
@@ -782,50 +798,54 @@ Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_d
 
 #### Evaluate
 
-**Inputs to the options.** Every figure the option tables below start from, besides the prices and the occupancy model above.
+**Mwea: low occupancy** (no action: contribution stays near −12.00 a month; acceptable but leaves the room 65% empty).
 
 | Input | Figure | How it is known |
 |---|---|---|
-| Mwea off-season contract: crates; days a month; months; rate | 150 crates; 30 days; December to March (4 months); 0.18 per crate-day | Quote (draft contract) |
-| Mwea contract handling | 100.00<!--fig:options.MWEA-AGG.params.handling--> a month | Assumption (a handling estimate; no quote) |
-| Mwea contract one-off: sales; ethylene curtain | 150.00<!--fig:options.MWEA-AGG.cost_lines.sales.amount-->; 120.00<!--fig:options.MWEA-AGG.cost_lines.ethylene_curtain.amount--> | Declared input, source not recorded |
-| Compressor replacement, Mwea or Kirinyaga | 4,800.00<!--fig:options.KIRI-REPLACE.operator_one_off--> | Declared input, source not recorded |
-| Kirinyaga condenser clean and leak repair: share of the excess recovered; cost | 0.80 (range 0.60–0.90); 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> | share Assumption; cost Declared input, source not recorded |
-| A new compressor's energy, as a share of the model | 0.95 | Assumption (vendor datasheet) |
-| Thika start controller: supplier's replacement date; cover | 8 Nov; 710.00<!--fig:options.THIKA-EPC-WAIT.rights.claimable_cover--> | Record (EPC warranty claim, accepted 17 Oct) |
-| Thika stopgap: SMS alarm relay; night rota labour | 40.00; 60.00 | Declared input, source not recorded |
-| Thika goods-in-custody insurance deductible | 500.00 | Record (policy) |
-| Stock present has backup start or manual cover every night | service rule | Plan limit |
-
-**Mwea: low occupancy** (no action: contribution stays near −12.00 a month; acceptable but leaves the room 65% empty).
+| Off-season contract: crates; days a month; months; rate | 150 crates; 30 days; December to March (4 months); 0.18 per crate-day | Quote (draft contract) |
+| Contract handling | 100.00<!--fig:options.MWEA-AGG.params.handling--> a month | Assumption (a handling estimate; no quote) |
+| Contract one-off: sales; ethylene curtain | 150.00<!--fig:options.MWEA-AGG.cost_lines.sales.amount-->; 120.00<!--fig:options.MWEA-AGG.cost_lines.ethylene_curtain.amount--> | Declared input, source not recorded |
+| Compressor replacement | 4,800.00<!--fig:options.KIRI-REPLACE.operator_one_off--> | Declared input, source not recorded |
 
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Sign the aggregator's off-season contract (draft) | contract crate-days +150<!--fig:options.MWEA-AGG.params.crates--> crates × 30 days = +4,500 a month, December to March, at 0.18<!--fig:options.MWEA-AGG.params.contract_rate--> (Quote); model energy +0.25 kWh × 4,500; handling +100.00<!--fig:options.MWEA-AGG.params.handling--> a month (Assumption) | revenue 4,500 × 0.18 = +810.00<!--rec-->; energy 4,500 × 0.25 kWh × 0.20 = −225.00<!--rec-->; handling −100.00<!--fig:-options.MWEA-AGG.params.handling-->; monthly **+485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change-->**; 4 months × 485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change--> − one-off 270.00<!--fig:options.MWEA-AGG.operator_one_off--> (sales 150 + ethylene curtain 120, so avocado can share with cabbage) | **+1,670.00<!--fig:options.MWEA-AGG.value-->. Chosen** if the aggregator signs; on October's occupancy, 4,340 + 4,500 crate-days fit within the room's 12,400 |
+| Sign the aggregator's off-season contract | contract crate-days +150<!--fig:options.MWEA-AGG.params.crates--> crates × 30 days = +4,500 a month, December to March, at 0.18<!--fig:options.MWEA-AGG.params.contract_rate-->; model energy +0.25 kWh × 4,500; handling +100.00<!--fig:options.MWEA-AGG.params.handling--> a month | revenue 4,500 × 0.18 = +810.00<!--rec-->; energy 4,500 × 0.25 kWh × 0.20 = −225.00<!--rec-->; handling −100.00<!--fig:-options.MWEA-AGG.params.handling-->; monthly **+485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change-->**; 4 months × 485.00<!--fig:options.MWEA-AGG.monthly_or_horizon_change--> − one-off 270.00<!--fig:options.MWEA-AGG.operator_one_off--> (sales 150 + ethylene curtain 120, so avocado can share with cabbage) | **+1,670.00<!--fig:options.MWEA-AGG.value-->. Chosen** if the aggregator signs; on October's occupancy, 4,340 + 4,500 crate-days fit within the room's 12,400 |
 | Replace the compressor | none: energy matches the model | 4,800<!--rec:tenants[harvest-cold].sites[Room A · Mwea].decision.options[MWEA-COMPRESSOR].capex--> for no factor change | Rejected: no equipment fault to fix |
 
 **Kirinyaga: energy above the model** (no action: 194.00<!--rec--> a month continues).
 
+| Input | Figure | How it is known |
+|---|---|---|
+| Condenser clean and leak repair: share of the excess recovered; cost | 0.80 (range 0.60–0.90); 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> | share Assumption; cost Declared input, source not recorded |
+| A new compressor's energy, as a share of the model; its cost | 0.95; 4,800.00<!--fig:options.KIRI-REPLACE.operator_one_off--> | share Assumption (vendor datasheet); cost Declared input, source not recorded |
+
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
-| Condenser clean and leak repair | excess × (1 − recovery share 0.80, Assumption, range 0.60–0.90): 970 → 194 kWh, so 776 kWh less a month | 776 kWh × 0.20 = +155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> a month; 12 × 155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | **+1,512.40<!--fig:options.KIRI-REPAIR.value-->. Chosen** |
-| Replace the compressor | excess → 0, and a new unit runs at 0.95<!--fig:options.KIRI-REPLACE.params.new_unit_factor--> of the model (Assumption): 970 + (1 − 0.95) × 4,030 = 970 + 201.5 kWh less a month | (970 + 201.5) kWh × 0.20 = +234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> a month; 12 × 234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> | −1,988.40<!--fig:options.KIRI-REPLACE.value_if_admissible-->. Deferred unless verified recovery after the repair is below 60% |
+| Condenser clean and leak repair | excess × (1 − 0.80): 970 → 194 kWh, so 776 kWh less a month | 776 kWh × 0.20 = +155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> a month; 12 × 155.20<!--fig:options.KIRI-REPAIR.monthly_or_horizon_change--> − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | **+1,512.40<!--fig:options.KIRI-REPAIR.value-->. Chosen** |
+| Replace the compressor | excess → 0, and a new unit runs at 0.95<!--fig:options.KIRI-REPLACE.params.new_unit_factor--> of the model: 970 + (1 − 0.95) × 4,030 = 970 + 201.5 kWh less a month | (970 + 201.5) kWh × 0.20 = +234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> a month; 12 × 234.30<!--fig:options.KIRI-REPLACE.monthly_or_horizon_change--> − 4,800.00<!--fig:-options.KIRI-REPLACE.operator_one_off--> | −1,988.40<!--fig:options.KIRI-REPLACE.value_if_admissible-->. Deferred unless verified recovery after the repair is below 60% |
 
-**Thika: backup start controller.** The EPC workmanship warranty (to 2027) was accepted on 17 Oct; the supplier replaces the controller on 8 Nov at its own cost (710.00<!--fig:options.THIKA-EPC-WAIT.rights.claimable_cover--> of cover). Decision date 6 Nov.
+**Thika: backup start controller.**
 
-| Option | Factor changes | One-off borne by the operator | Nights with stock and no backup cover | Rights | Result |
+| Input | Figure | How it is known |
+|---|---|---|
+| EPC workmanship warranty: term; claim; supplier's replacement date; cover | to 2027; accepted 17 Oct; 8 Nov; 710.00<!--fig:options.THIKA-EPC-WAIT.rights.claimable_cover--> | Record (EPC warranty claim) |
+| Stopgap: SMS alarm relay; night rota labour | 40.00; 60.00 | Declared input, source not recorded |
+| Goods-in-custody insurance deductible | 500.00 | Record (policy) |
+| No night with stock and no backup cover | service rule | Plan limit |
+
+| Option | Factor changes | One-off | Nights with stock and no backup cover | Rights | Result |
 |---|---|---|---:|---|---|
-| Wait for the supplier | unproven until 8 Nov: 2<!--fig:options.THIKA-EPC-WAIT.params.days_to_restore--> nights | none | 2<!--fig:options.THIKA-EPC-WAIT.protect.nights_without_backup_cover--> | cover kept | Rejected: stock would have no backup cover on 2 nights |
-| Stopgap: night manual-start rota and SMS alarm relay, then the supplier's replacement | covered from tonight | relay 40.00 + rota labour 60.00 = 100.00<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off--> | 0<!--fig:options.THIKA-EPC-STOPGAP.protect.nights_without_backup_cover--> | cover kept | **Chosen** (required: stock must have backup cover every night); not valued in money |
+| Wait for the supplier | unproven until 8 Nov: 2<!--fig:options.THIKA-EPC-WAIT.params.days_to_restore--> nights | none | 2<!--fig:options.THIKA-EPC-WAIT.protect.nights_without_backup_cover--> | cover kept | Rejected: breaks the backup-cover rule on 2 nights |
+| Stopgap: night manual-start rota and SMS alarm relay, then the supplier's replacement | covered from tonight | relay 40.00 + rota labour 60.00 = 100.00<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off--> | 0<!--fig:options.THIKA-EPC-STOPGAP.protect.nights_without_backup_cover--> | cover kept | **Chosen**: the only option that keeps both the backup-cover rule and the warranty cover; not valued in money |
 | Buy and fit a controller ourselves | covered from tonight | 710.00<!--fig:options.THIKA-SELF.operator_one_off--> | 0 | voids the EPC cover: 710.00<!--fig:options.THIKA-SELF.rights.cover_lost--> lost | Rejected: the warranty cover would be lost |
 
 Goods-in-custody insurance is not claimed: the 108.00 loss is below the 500.00 deductible.
 
 #### Choose
 
-**1. The plan and its limits.** Budget 2,500<!--rec:tenants[harvest-cold].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.harvest-cold.default.crew_visits_limit--> technician visits in November; 12-month horizon (Plan limits). The plan is built the same way as Lakeside's: the backup-cover decision first, then the best combination of the money-valued options within the limits.
+**1. The plan and its limits.** Budget 2,500<!--rec:tenants[harvest-cold].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.harvest-cold.default.crew_visits_limit--> crew visits in November; 12-month horizon (all Plan limits). The plan is found as at Lakeside: one search over all the decisions together, keeping the combination that breaks the rules least, then is worth most, then spends least.
 
-| Item | One-off | Technician visit |
+| Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
 | Thika stopgap | 100.00<!--fig:options.THIKA-EPC-STOPGAP.net_one_off--> | 0 |
 | Kirinyaga repair | 350.00<!--fig:options.KIRI-REPAIR.net_one_off--> | 1 |
@@ -838,21 +858,22 @@ Goods-in-custody insurance is not claimed: the 108.00 loss is below the 500.00 d
 |---|---:|---:|
 | Kirinyaga repair | +1,512.40<!--fig:options.KIRI-REPAIR.value--> | 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> |
 | Mwea contract (its 4 months fall inside the horizon) | +1,670.00<!--fig:options.MWEA-AGG.value--> | 270.00<!--fig:options.MWEA-AGG.operator_one_off--> |
-| **Modelled 12-month change** | **+3,182.40<!--fig:plans.harvest-cold.default.value-->** | **620.00<!--fig:plans.harvest-cold.default.valued_option_costs-->** |
+| **The plan** | **+3,182.40<!--fig:plans.harvest-cold.default.value-->** | **620.00<!--fig:plans.harvest-cold.default.valued_option_costs-->** |
 
 **3. Spend not valued in money.** The Thika stopgap, 100.00<!--fig:plans.harvest-cold.default.not_valued_in_money-->: nights with stock and no backup cover from 6 Nov go from 2 (no action) to 0.
 
 **4. Downside and sensitivities.**
 
-| Case | 12-month value |
-|---|---:|
-| The plan as chosen | +3,182.40<!--fig:plans.harvest-cold.default.value--> |
-| Kirinyaga repair recovers 60%, not 80%: repair 12 × (970 × 0.60 × 0.20) − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> = +1,046.80<!--fig:options.KIRI-REPAIR.sensitivities.kirinyaga_recovery_60pct-->, plus Mwea +1,670.00<!--fig:options.MWEA-AGG.value--> | +2,716.80<!--fig:plans.harvest-cold.sensitivity_values.kirinyaga_recovery_60pct.value--> |
-| **Downside: the aggregator does not sign**: 3,182.40<!--fig:plans.harvest-cold.default.value--> − 1,670.00<!--fig:-options.MWEA-AGG.value--> | **+1,512.40<!--fig:plans.harvest-cold.downside-->** |
+| Case | Option | How its value follows | 12-month value |
+|---|---|---|---:|
+| The plan as chosen | | | +3,182.40<!--fig:plans.harvest-cold.default.value--> |
+| Kirinyaga repair recovers 60%, not 80% | Kirinyaga repair | 12 × (970 × 0.60 × 0.20) − 350.00<!--fig:-options.KIRI-REPAIR.operator_one_off--> | +1,046.80<!--fig:options.KIRI-REPAIR.sensitivities.kirinyaga_recovery_60pct--> |
+| | *The plan* | Mwea +1,670.00<!--fig:options.MWEA-AGG.value--> unchanged | *+2,716.80<!--fig:plans.harvest-cold.sensitivity_values.kirinyaga_recovery_60pct.value-->* |
+| **Downside: the aggregator does not sign** | Mwea contract drops | 3,182.40<!--fig:plans.harvest-cold.default.value--> − 1,670.00<!--fig:-options.MWEA-AGG.value--> | **+1,512.40<!--fig:plans.harvest-cold.downside-->** |
 
 **5. Listed beside, not added.** Thika's exposed batch, 2,160.00 at stake (customer-owned stock, not money); the 710.00<!--fig:options.THIKA-EPC-STOPGAP.rights.claimable_cover--> controller cover, kept.
 
-**6. When a condition changes (the switch).** Whether the aggregator signs is set by a person. If it does not, the Mwea contract drops: spend 720.00<!--fig:plans.harvest-cold.default.spend--> − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = 450.00<!--fig:plans.harvest-cold.switch_cases.False.spend-->, value +1,512.40<!--fig:plans.harvest-cold.switch_cases.False.value-->, 1<!--fig:plans.harvest-cold.switch_cases.False.crew_visits_used--> technician visit.
+**6. When a condition changes (the switch).** Whether the aggregator signs is set by a person. If it does not, the Mwea contract drops: spend 720.00<!--fig:plans.harvest-cold.default.spend--> − 270.00<!--fig:-options.MWEA-AGG.operator_one_off--> = 450.00<!--fig:plans.harvest-cold.switch_cases.False.spend-->, value +1,512.40<!--fig:plans.harvest-cold.switch_cases.False.value-->, 1<!--fig:plans.harvest-cold.switch_cases.False.crew_visits_used--> crew visit.
 
 #### Prove
 
@@ -879,13 +900,13 @@ Charging is a cost centre; there is no charging revenue. The outcome is **cost p
 | *Bill lines* | *peak 26,040 × 0.24 = 6,249.60<!--fig:sites.metro-bus/Embakasi.plan.nodes.peak_cost-->, off-peak 60,760<!--fig:sites.metro-bus/Embakasi.plan.nodes.kwh_2200_2400--> × 0.12 = 7,291.20<!--fig:sites.metro-bus/Embakasi.plan.nodes.offpeak_cost-->, demand 450 × 12.00 = 5,400.00<!--fig:sites.metro-bus/Embakasi.plan.nodes.demand_cost-->* | *peak 47,740 × 0.24 = 11,457.60<!--fig:sites.metro-bus/Embakasi.actual.nodes.peak_cost-->, 22:00–24:00 15,500<!--fig:sites.metro-bus/Embakasi.actual.nodes.kwh_2200_2400--> × 0.12 = 1,860.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.offpeak_cost-->, 00:00–05:00 23,560<!--fig:sites.metro-bus/Embakasi.actual.nodes.kwh_0000_0500--> × 0.12 = 2,827.20<!--fig:sites.metro-bus/Embakasi.actual.nodes.night_cost-->, demand 500 × 12.00 = 6,000.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.demand_cost-->* | | | | Calculated |
 | **Cost to serve** | **19,540.80<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_to_serve-->** | **22,744.80<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_to_serve-->** | | | **−3,204.00** | Calculated |
 
-Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met; 22,744.80 ÷ 620 = 36.69<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_per_departure_met--> per departure (plan 19,540.80 ÷ 620 = 31.52<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_per_departure_met-->).
+Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met (Record); 22,744.80 ÷ 620 = 36.69<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_per_departure_met--> per departure (plan 19,540.80 ÷ 620 = 31.52<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_per_departure_met-->).
 
 ##### Kasarani
 
 **Inputs (Record).** Flat tariff 0.15<!--fig:sites.metro-bus/Kasarani.actual.nodes.offpeak_price--> per kWh, no demand charge. 8<!--fig:sites.metro-bus/Kasarani.actual.nodes.buses--> buses × 150 kWh = 1,200<!--fig:sites.metro-bus/Kasarani.actual.nodes.required_kwh_night--> kWh needed a night; the lower of 4 chargers × 50 kW = 200 kW and the import limit of 250 kW, over a 7-hour window: 200 × 7 = 1,400<!--fig:sites.metro-bus/Kasarani.actual.nodes.deliverable_kwh_night--> kWh deliverable. Penalty 120.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalty_rate--> per missed departure (service contract). One spare bus.
 
-**October: on plan.** Energy 1,200<!--fig:sites.metro-bus/Kasarani.actual.nodes.required_kwh_night--> kWh × 31 nights = 37,200 kWh × 0.15 = 5,580.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.energy_cost--> + maintenance 300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance--> (Estimate: the invoice has not arrived) = 5,880.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.cost_to_serve-->, the same as plan; all 248 departures met.
+**October: on plan.** Energy 1,200<!--fig:sites.metro-bus/Kasarani.actual.nodes.required_kwh_night--> kWh × 31 nights = 37,200 kWh × 0.15 = 5,580.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.energy_cost--> + maintenance 300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance--> (Estimate: the invoice has not arrived) = 5,880.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.cost_to_serve-->, the same as plan; all 248 departures met (Record).
 
 **November to date (1–5 Nov).** Charger CH-K2 failed at 23:40 on 1 Nov. The structure reads the consequence from the chargers-in-service factor before any invoice:
 
@@ -903,7 +924,7 @@ Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met; 22,744.80
 
 **Inputs (Record).** Tariff C-117 (no after-midnight tier): peak 0.24, off-peak 0.12, demand 12.00 per kW. 14 buses × 140 kWh = 1,960<!--fig:sites.metro-bus/Ruiru.actual.nodes.required_kwh_night--> kWh needed a night; the lower of 12 chargers × 60 kW = 720 kW and the import limit of 400<!--fig:sites.metro-bus/Ruiru.actual.nodes.import_limit_kw--> kW, over an 8-hour window: 400 × 8 = 3,200<!--fig:sites.metro-bus/Ruiru.actual.nodes.deliverable_kwh_night--> kWh deliverable. The import limit, not the chargers, binds.
 
-**October, actual by factor (Calculated).** Peak 6,076<!--fig:sites.metro-bus/Ruiru.actual.nodes.peak_kwh--> kWh × 0.24 = 1,458.24<!--fig:sites.metro-bus/Ruiru.actual.nodes.peak_cost-->; off-peak 54,684<!--fig:sites.metro-bus/Ruiru.actual.nodes.kwh_2200_2400--> kWh × 0.12 = 6,562.08<!--fig:sites.metro-bus/Ruiru.actual.nodes.offpeak_cost-->; demand 380<!--fig:sites.metro-bus/Ruiru.actual.nodes.max_kw--> kW × 12.00 = 4,560.00<!--fig:sites.metro-bus/Ruiru.actual.nodes.demand_cost-->; maintenance 500.00; cost to serve 1,458.24 + 6,562.08 + 4,560.00 + 500.00 = 13,080.32<!--fig:sites.metro-bus/Ruiru.actual.nodes.cost_to_serve-->; all 434 departures met.
+**October, actual by factor (Calculated).** Peak 6,076<!--fig:sites.metro-bus/Ruiru.actual.nodes.peak_kwh--> kWh × 0.24 = 1,458.24<!--fig:sites.metro-bus/Ruiru.actual.nodes.peak_cost-->; off-peak 54,684<!--fig:sites.metro-bus/Ruiru.actual.nodes.kwh_2200_2400--> kWh × 0.12 = 6,562.08<!--fig:sites.metro-bus/Ruiru.actual.nodes.offpeak_cost-->; demand 380<!--fig:sites.metro-bus/Ruiru.actual.nodes.max_kw--> kW × 12.00 = 4,560.00<!--fig:sites.metro-bus/Ruiru.actual.nodes.demand_cost-->; maintenance 500.00; cost to serve 1,458.24 + 6,562.08 + 4,560.00 + 500.00 = 13,080.32<!--fig:sites.metro-bus/Ruiru.actual.nodes.cost_to_serve-->; all 434 departures met (Record).
 
 **Plan: a stated total only.** Ruiru's plan is 13,100.00<!--fig:sites.metro-bus/Ruiru.plan.stated_total--> (energy 12,600 + maintenance 500), with no kWh, peak share or kW behind it. So the plan cannot be split into factors, and the deviation, 13,100.00 − 13,080.32 = +19.68, **cannot be attributed to factors**. This is an honest gap in the plan record, not a calculation.
 
@@ -911,7 +932,7 @@ Connector 2 of charger CH-R7 has been out since 6 Oct (26<!--fig:sites.metro-bus
 
 ##### The portfolio
 
-| Depot | Plan cost | Actual cost | Deviation | Departures met |
+| Depot | Plan cost to serve | Actual cost to serve | Deviation | Departures met |
 |---|---:|---:|---:|---:|
 | Embakasi | 19,540.80 | 22,744.80 | −3,204.00 | 620 of 620 |
 | Kasarani | 5,880.00<!--fig:sites.metro-bus/Kasarani.plan.nodes.cost_to_serve--> | 5,880.00 | 0.00 | 248 of 248 |
@@ -922,44 +943,50 @@ The deviation is −3,204.00 + 0.00 + 19.68 = −3,184.32. Cost per departure me
 
 #### Evaluate
 
-**Inputs to the options.** Every figure the option tables below start from, besides the tariffs, buses and chargers in Observe.
+**Embakasi: charging schedule.** No action is October's charging pattern billed under the November tariff. It is 23,560 kWh × (0.12 − 0.09) = 706.80 lower than October's energy bill of 22,144.80<!--fig:sites.metro-bus/Embakasi.actual.nodes.energy_cost--> because of the new tier; that drop is never credited to an option.
 
 | Input | Figure | How it is known |
 |---|---|---|
-| Embakasi deadline-aware schedule: charging power; hours charged | 400 kW; 2 hours (22:00–24:00) + 5 hours (00:00–05:00), with 05:00–05:15 kept as slack | Declared input (the schedule's design) |
-| Embakasi schedule: nights it would have met every departure | 31 of 31 replayed October nights | Design value |
-| Embakasi schedule set-up and supervision | 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | Declared input, source not recorded |
-| Kasarani restore under the service agreement | notice 2 Nov + 5 business days = 9 Nov | Record (service agreement) |
-| Kasarani contactor repair under the parts warranty | 380.00<!--fig:options.KAS-OEM-WAIT.rights.claimable_cover--> at the supplier's cost | Record (parts warranty) |
-| Kasarani nights the roster frees the spare bus, 6–8 Nov | 1 | Record (roster) |
-| Kasarani cover: charging an uncovered bus at Ruiru | 45.00<!--fig:options.KAS-OEM-STOPGAP.params.cost_per_bus_night--> a bus-night (driver overtime 35 + energy 10) | Quote |
-| Kasarani local repair: time; cost | 1 day; 380.00<!--fig:options.KAS-LOCAL.operator_one_off--> | time Quote (local electrician); cost Declared input, source not recorded |
-| Ruiru city offer | 6 or 10 more buses | Record (city route offer) |
-| Ruiru charger purchase | 4 chargers × 15,000<!--fig:options.RUI-4CHARGERS.params.unit_cost--> | Quote (vendor proposal) |
+| Deadline-aware schedule: charging power; hours charged | 400 kW; 2 hours (22:00–24:00) + 5 hours (00:00–05:00), with 05:00–05:15 kept as slack | Declared input (the schedule's design) |
+| Schedule: nights it would have met every departure | 31 of 31 replayed October nights | Design value |
+| Schedule set-up and supervision | 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | Declared input, source not recorded |
 | Every required departure is met | service rule | Plan limit |
-
-**Embakasi: charging schedule.** No action is October's charging pattern billed under the November tariff. It is 23,560 kWh × (0.12 − 0.09) = 706.80 lower than October's energy bill of 22,144.80<!--fig:sites.metro-bus/Embakasi.actual.nodes.energy_cost--> because of the new tier; that drop is never credited to an option.
 
 | Option | Factor changes (a month) | Bill a month | How the value follows | Result |
 |---|---|---:|---|---|
 | No action | peak 47,740 kWh × 0.24 = 11,457.60; 22:00–24:00 15,500 kWh × 0.12 = 1,860.00; 00:00–05:00 23,560 kWh × 0.09 = 2,120.40; demand 500 kW × 12.00 = 6,000.00 | 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference--> | reference | |
-| Deadline-aware schedule, 22:00–05:15 at 400<!--fig:options.EMB-DEADLINE.params.max_kw_option--> kW | billed hours 2 + 5 at 400 kW = 2,800 kWh a night, exactly the requirement (05:00–05:15 is slack for a late bus and is not billed); peak 0; 400 kW × 2 h × 31 = 24,800 kWh × 0.12 = 2,976.00; 400 kW × 5 h × 31 = 62,000 kWh × 0.09 = 5,580.00; demand 400 kW × 12.00 = 4,800.00<!--rec-->; feasible on 31<!--fig:options.EMB-DEADLINE.params.feasible_nights--> of 31 replayed nights (Design value) | 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option--> | 21,438.00 − 13,356.00 = **8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change-->** a month; 12 × 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> − one-off 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | **+95,484.00<!--fig:options.EMB-DEADLINE.value-->. Chosen**, once the tariff is confirmed from the invoice |
+| Deadline-aware schedule, 22:00–05:15 at 400<!--fig:options.EMB-DEADLINE.params.max_kw_option--> kW | billed hours 2 + 5 at 400 kW = 2,800 kWh a night, exactly the requirement (05:00–05:15 is slack for a late bus and is not billed); peak 0; 400 kW × 2 h × 31 = 24,800 kWh × 0.12 = 2,976.00; 400 kW × 5 h × 31 = 62,000 kWh × 0.09 = 5,580.00; demand 400 kW × 12.00 = 4,800.00<!--rec-->; meets every departure on 31<!--fig:options.EMB-DEADLINE.params.feasible_nights--> of 31 replayed nights | 13,356.00<!--fig:options.EMB-DEADLINE.energy_bill_option--> | 21,438.00 − 13,356.00 = **8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change-->** a month; 12 × 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> − one-off 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | **+95,484.00<!--fig:options.EMB-DEADLINE.value-->. Chosen**, once the tariff is confirmed from the invoice |
 | Cheapest bill: 00:00–05:00 at the 500 kW limit | 500 kW × 5 h = 2,500<!--fig:options.EMB-CHEAPEST.bound.supplied_kwh_night--> kWh a night against 2,800 needed | 12,975.00<!--fig:options.EMB-CHEAPEST.energy_bill_option--> | 2,500 kWh × 31 nights × 0.09 + 500 kW × 12.00 = 12,975.00: cheaper only because it buys less energy | **Rejected**: 300 kWh short a night is 3<!--fig:options.EMB-CHEAPEST.bound.buses_short_per_night--> buses at 140 kWh, so 3 × 31 = 93<!--fig:options.EMB-CHEAPEST.protect.departures_missed--> departures missed a month; every departure must be met |
 
-**Kasarani: charger CH-K2** (parts warranty and service agreement: notice 2 Nov + 5 business days = restore due 9 Nov; the contactor repair, 380.00<!--fig:options.KAS-OEM-WAIT.rights.claimable_cover-->, is the supplier's). From the 6 Nov decision there are 3<!--fig:options.KAS-OEM-WAIT.params.days_to_restore--> nights to the restore, one bus short each night, and the roster frees the spare bus on 1<!--fig:options.KAS-OEM-WAIT.params.spare_cover--> of them.
+**Kasarani: charger CH-K2.** From 6 Nov there are 3<!--fig:options.KAS-OEM-WAIT.params.days_to_restore--> nights to the restore, one bus short each night, and the roster frees the spare bus on 1<!--fig:options.KAS-OEM-WAIT.params.spare_cover--> of them.
 
-| Option | Factor changes | One-off borne by the operator | Departures missed | How the value follows | Result |
+| Input | Figure | How it is known |
+|---|---|---|
+| Restore under the service agreement | notice 2 Nov + 5 business days = 9 Nov | Record (service agreement) |
+| Contactor repair under the parts warranty | 380.00<!--fig:options.KAS-OEM-WAIT.rights.claimable_cover--> at the supplier's cost | Record (parts warranty) |
+| Nights the roster frees the spare bus, 6–8 Nov | 1 | Record (roster) |
+| Cover: charging an uncovered bus at Ruiru | 45.00<!--fig:options.KAS-OEM-STOPGAP.params.cost_per_bus_night--> a bus-night (driver overtime 35 + energy 10) | Quote |
+| Local repair: time; cost | 1 day; 380.00<!--fig:options.KAS-LOCAL.operator_one_off--> | time Quote (local electrician); cost Declared input, source not recorded |
+| Every required departure is met | service rule | Plan limit |
+
+| Option | Factor changes | One-off | Departures missed | How the value follows | Result |
 |---|---|---:|---:|---|---|
 | Wait for the supplier | 3 short nights − 1 spare-bus night | none | 2<!--fig:options.KAS-OEM-WAIT.protect.departures_missed--> | penalties 2 × 120.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalty_rate--> = 240.00<!--fig:-options.KAS-OEM-WAIT.monthly_or_horizon_change--> | Rejected: 2 departures missed; every departure must be met |
-| Supplier remedy plus cover: the 2 uncovered buses charge at Ruiru at 45.00<!--fig:options.KAS-OEM-STOPGAP.params.cost_per_bus_night--> each (driver overtime 35 + energy 10, Quote) | the 2 bus-nights covered | 2 × 45.00 = 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> | 0<!--fig:options.KAS-OEM-STOPGAP.protect.departures_missed--> | penalties avoided +240.00<!--fig:options.KAS-OEM-STOPGAP.monthly_or_horizon_change--> − 90.00<!--fig:-options.KAS-OEM-STOPGAP.operator_one_off--> | **+150.00<!--fig:options.KAS-OEM-STOPGAP.value-->. Chosen** (required: doing nothing misses departures), valued in money because it changes the penalties factor |
+| Supplier remedy plus cover: the 2 uncovered buses charge at Ruiru | the 2 bus-nights covered | 2 × 45.00 = 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> | 0<!--fig:options.KAS-OEM-STOPGAP.protect.departures_missed--> | penalties avoided +240.00<!--fig:options.KAS-OEM-STOPGAP.monthly_or_horizon_change--> − 90.00<!--fig:-options.KAS-OEM-STOPGAP.operator_one_off--> | **+150.00<!--fig:options.KAS-OEM-STOPGAP.value-->. Chosen**: the only option that misses no departure and keeps the cover; valued in money because it changes the penalties factor |
 | Local repair (restores 7 Nov) | 1 short night, no spare | 380.00<!--fig:options.KAS-LOCAL.operator_one_off--> | 1<!--fig:options.KAS-LOCAL.protect.departures_missed--> | 1 penalty fewer than waiting, +120.00<!--fig:options.KAS-LOCAL.monthly_or_horizon_change-->, − 380.00<!--fig:-options.KAS-LOCAL.operator_one_off--> = −260.00<!--fig:options.KAS-LOCAL.value--> | Rejected: voids the power-stage cover (380.00<!--fig:options.KAS-LOCAL.rights.cover_lost--> lost) and still misses a departure |
 | Reschedule charging | none: the tariff is flat | | | nothing to save | Rejected |
 
 **Ruiru: the city offers more buses.** These are compared with the import limit; their cost is a service expansion, so they are listed beside the plan, not valued.
 
+| Input | Figure | How it is known |
+|---|---|---|
+| City offer | 6 or 10 more buses | Record (city route offer) |
+| Charger purchase | 4 chargers × 15,000<!--fig:options.RUI-4CHARGERS.params.unit_cost--> | Quote (vendor proposal) |
+| Added buses charge off-peak; the highest kW stays at 380 kW | the model's change rule | Assumption |
+
 | Option | Factor changes | Energy needed vs deliverable a night | Departures missed a month | Result |
 |---|---|---:|---:|---|
-| Absorb 6 more buses on existing chargers | buses 14 → 20 | 2,800<!--fig:options.RUI-ABSORB6.bound.required_kwh_night--> vs 3,200 | 0<!--fig:options.RUI-ABSORB6.protect.departures_missed--> | **Recommended**; the bill rises 6 buses × 140 kWh × 31 nights = 26,040 kWh × 0.12 = 3,124.80<!--fig:-options.RUI-ABSORB6.monthly_or_horizon_change--> a month for the added service, all off-peak, with the highest kW unchanged at 380 kW |
+| Absorb 6 more buses on existing chargers | buses 14 → 20 | 2,800<!--fig:options.RUI-ABSORB6.bound.required_kwh_night--> vs 3,200 | 0<!--fig:options.RUI-ABSORB6.protect.departures_missed--> | **Recommended**; the bill rises 6 buses × 140 kWh × 31 nights = 26,040 kWh × 0.12 = 3,124.80<!--fig:-options.RUI-ABSORB6.monthly_or_horizon_change--> a month for the added service |
 | Absorb 10 more buses | buses 14 → 24 | 3,360<!--fig:options.RUI-ABSORB10.bound.required_kwh_night--> vs 3,200 | 3,360 − 3,200 = 160 kWh short a night is 2 buses at 140 kWh, so 2 × 31 = 62<!--fig:options.RUI-ABSORB10.protect.departures_missed--> | Rejected: beyond the 400 kW import limit |
 | Buy 4 chargers | chargers 12 → 16 | deliverable stays 3,200<!--fig:options.RUI-4CHARGERS.bound.deliverable_kwh_night--> (the import limit binds) | | Rejected: 4 × 15,000 = 60,000.00<!--fig:options.RUI-4CHARGERS.operator_one_off--> for no capacity gain |
 
@@ -967,9 +994,9 @@ The idle connector at Ruiru (CH-R7 connector 2, one interrupted session on 6 Oct
 
 #### Choose
 
-**1. The plan and its limits.** Budget 5,000<!--rec:tenants[metro-bus].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.metro-bus.default.crew_visits_limit--> technician visits; 12-month horizon (Plan limits). Order of action: Kasarani cover (departures at risk now), Embakasi schedule (largest money), Ruiru contract (a decision), CH-R7 claim (no consequence).
+**1. The plan and its limits.** Budget 5,000<!--rec:tenants[metro-bus].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.metro-bus.default.crew_visits_limit--> crew visits in November; 12-month horizon (all Plan limits). The plan is found as at Lakeside: one search over the Kasarani and Embakasi decisions together, keeping the combination that breaks the rules least, then is worth most, then spends least. Once chosen, the items are acted on in this order (Declared input): Kasarani cover (departures at risk now), Embakasi schedule (largest money), Ruiru contract (a decision), CH-R7 claim (no consequence).
 
-| Item | One-off | Technician visit |
+| Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
 | Kasarani cover | 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> | 0 |
 | Embakasi schedule | 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | 0 (remote) |
@@ -981,9 +1008,9 @@ The idle connector at Ruiru (CH-R7 connector 2, one interrupted session on 6 Oct
 |---|---:|---:|
 | Embakasi schedule | +95,484.00<!--fig:options.EMB-DEADLINE.value--> | 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> |
 | Kasarani cover | +150.00<!--fig:options.KAS-OEM-STOPGAP.value--> | 90.00<!--fig:options.KAS-OEM-STOPGAP.operator_one_off--> |
-| **Modelled 12-month change** | **+95,634.00<!--fig:plans.metro-bus.default.value-->** | **1,590.00<!--fig:plans.metro-bus.default.valued_option_costs-->** |
+| **The plan** | **+95,634.00<!--fig:plans.metro-bus.default.value-->** | **1,590.00<!--fig:plans.metro-bus.default.valued_option_costs-->** |
 
-**3. Spend not valued in money.** None (0.00<!--fig:plans.metro-bus.default.not_valued_in_money-->). Unlike the required items in the other two portfolios, the Kasarani cover changes a money factor (penalties), so it is valued; its Protect effect is departures missed to 9 Nov, 2 → 0.
+**3. Spend not valued in money.** None (0.00<!--fig:plans.metro-bus.default.not_valued_in_money-->). Unlike the protective items in the other two portfolios, the Kasarani cover changes a money factor (penalties), so it is valued; its Protect effect is departures missed to 9 Nov, 2 → 0.
 
 **4. Downside.** If Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff), the schedule saves nothing: the plan is worth 95,634.00<!--fig:plans.metro-bus.default.value--> − 95,484.00<!--fig:-options.EMB-DEADLINE.value--> = +150.00<!--fig:plans.metro-bus.downside-->, the Kasarani cover only.
 
