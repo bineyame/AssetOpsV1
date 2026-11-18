@@ -1,1 +1,0 @@
-[["re.fullmatch(r\"assetops_s302[a-z0-9_]{0,40}\", db) or db.endswith(\"_test\")", "re.fullmatch(r\"assetops_audit_b2_s302[a-z0-9_]{0,40}_test\", db)"]]
