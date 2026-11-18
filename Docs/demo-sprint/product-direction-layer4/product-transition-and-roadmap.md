@@ -52,6 +52,8 @@ flowchart TB
 
 Today's product is not wrong; it is one layer of the loop. Its analyses observe physical factors well, and they carry over. What is missing is everything that turns those observations into money, choices and proof.
 
+**Why the transition, in full.** How far today's mechanics reach, dimension by dimension (how data is organised, how it is processed, how it is presented), is set out in `layer4-transformation-design.md` §0, with Kobo's month as the running example. For each dimension, §0 gives what today answers, one operator question it cannot answer and why, and three sorted lists: missing, repurposable and must change. It is not repeated here. §1.2 below sets today beside Layer 4 in one table, and §3.6–§3.7 are the path that §0's conclusion leads into.
+
 ### 1.2 Side by side, verified against the code
 
 | | Today's product (as the code shows it) | Layer 4 |
@@ -687,6 +689,7 @@ On `task/gtm-documents`; not edited here.
 ## Appendix C. Revision history
 
 - **Revision 4** (18 Nov) answers the owner's grounded-path question and its follow-ups (`.agent/owner-grounded-transition-request-2026-11-18.md`, verbatim): today's chain re-grounded on the primitives and ordered by what the client's screens show (§3.6–§3.9, §4.4, D13–D15); the coordinator's four risks weighed in §2.7. Its review fixes (`REVIEW.md`, "Review of grounded, visible-first path") restate the Kobo verdict path, the carrier migration, the labelling rule and the phase order, and move three tables here. It is a decision-level change, so the frozen pack (D10) is updated where it follows from it.
+- **Revision 4, pointer** (18 Nov): §1.1 points to the design document's new §0 (why the transition, by data, processing and presentation, owner request `.agent/owner-design-intro-and-motivation-request-2026-11-18.md`) instead of repeating it; no figure or claim here changed.
 - **Revision 4, diagrams** (18 Nov): Figures 1 and 6 redrawn to the grounded path (one registry, today's chain re-grounded, emulators with one contract test); Figure 7 added (visible-first increments by screen); figures renumbered in reading order. Combined-review fixes GL1–GL3 and GM2 (spike K builds the forward replay adapter; PR 4c wires the evaluator to it).
 - **Revision 3** weighed the coordinator's three pitch points (§2.3, §2.7, §4.2, D6, D12) and answered the re-review's L-A to L-E: the effort arithmetic follows the lanes, the workflow evidence says what its counts measure, and D11 records the owner's adoption. Its claim-by-claim table of corrections to the coordinator's first answer is in git (`ff72c58fb`).
 - **Revision 2** answered the first review (M1–M3, L1–L7), stated the effort basis and added the workflow (§5). Outside this document, only the pack's checker changed: `check_manifest.py` covers this document's figures, and its computed-figure tags cannot hold a typed figure.

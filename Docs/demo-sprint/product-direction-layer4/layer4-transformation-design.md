@@ -1,11 +1,223 @@
 # AssetEcon Layer 4 design: the economic decision loop
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 13 (redesign, after twelve review rounds) · AssetOps Architect (Claude) · 17 Nov 2026 · rev 14 update 18 Nov 2026 (grounded path)**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 13 (redesign, after twelve review rounds) · AssetOps Architect (Claude) · 17 Nov 2026 · rev 14 update 18 Nov 2026 (grounded path) · rev 15 update 18 Nov 2026 (introduction and §0)**
 **Rev 14 update.** At the owner's request (`.agent/owner-grounded-transition-request-2026-11-18.md`), the design states how today's chain is re-grounded on the mechanics and becomes the delivery vehicle, ordered by what the client's screens show: what a Finding means and may claim, how Evaluate acts on it (§2.2, §2.3), the Action as the user's carrier (§2.5), emulators as placeholders for the canonical contract (§4), the parity rule for the outcome map (§5), every existing construct placed on the mechanics (§8.5) and the visible-first delivery order (§9). The mechanics and figures are unchanged. Full mapping and the compromise register: `product-transition-and-roadmap.md` §3.6–§3.9.
+**Rev 15 update.** At the owner's request (`.agent/owner-design-intro-and-motivation-request-2026-11-18.md`), the owner-approved description opens the document as its introduction, and a new §0 shows, dimension by dimension (data, processing, presentation), how far today's mechanics reach and what is missing, repurposable or must change. The mechanics and figures are unchanged.
 **Status:** design for owner review. No application code, test, database or existing mock-up version was changed. Repository: branch `task/product-direction-layer4-design`; backend, frontend, simulator and tools are unchanged since `bf6014e02`, so every code citation below was read against current code.
 **Product contract:** owner brief v1.1, Parts I–V (`.agent/AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md`). This document answers Part VI as the owner clarified it on 17 Nov 2026 (`.agent/owner-layer4-direction-feedback-2026-11-17.md`).
 
 > **Labels.** **[code-observed]** read in code · **[test-confirmed]** pinned by a named product test · **[implementation-report]** stated only by the reviewed baseline document (`.agent/decision-intelligence-mechanism-2026-11-14.html`) · **[proposed]** this design · **[research]** industry source cited in the brief ([R1]–[R12]) · **[assumption]** to validate with a prospect or pilot. Data provenance is always one of *demo-simulated, source-emulated, bench-tested, field-integrated, observed-financial*. Every money figure is **illustrative**, comes from `demo-site-scenario-manifest.yaml`, and reconciles to the cent (`python3 evaluate_structure.py` produces them; `python3 check_manifest.py` asserts them, 0 failures). Simulated and observed values are never mixed: nothing in this pack is an observed financial result.
+
+## Introduction
+
+*Approved by the owner, 18 Nov 2026* (`.agent/owner-design-intro-and-motivation-request-2026-11-18.md`).
+
+In short: **the brief exists to turn AssetEcon from a tool that tells operators what their assets did into one that tells them what it did to their money, what's worth doing about it, and whether it paid off. Every screen should earn its place by answering that.**
+
+**The motivation:**
+- **Operators already have monitoring.** Mini-grid, cold-chain and EV executives can see telemetry, alarms and dashboards. What they lack is economic judgement across their systems. Operational, commercial and contract facts sit in separate places, so no one can say with confidence why the month came in below plan, which lever moves it, and what it's worth.
+- **The product had drifted towards "interesting signals with economic hints".** It showed findings and exposure figures, but not intentionally organised around the movers of the business. The brief corrects that.
+- **Credibility is the differentiator.** Executives act only on figures they trust. So the brief insists on honest evidence: every figure says how it is known, figures of different kinds are never added together (a total built from mixed evidence takes its weakest class and names every source beneath it, and a benefit total admits only field records), savings are claimed only after proof, and the no-action baseline is always shown.
+
+**The evolution it wants to inspire:**
+1. **Outcomes defined structurally.** Each business outcome, such as contribution, cost to serve or service obligations, is declared as a structure of factors down to source records.
+2. **Observed bottom-up.** Where the business stands, including any shortfall, is read upward through those factors, not detected at the top and explained afterwards.
+3. **Choices, not just findings.** Options are valued as changes to factors against doing nothing. One plan fits the operator's budget, crews and contract rights.
+4. **Proof.** The same factors are observed after the change: it happened, the money followed, and the action caused it.
+5. **General, then particular.** One set of mechanics serves all three verticals. Kobo illustrates the design; it never defines it.
+6. **Built on what exists.** Findings, threads, actions and what-ifs are extended and re-grounded on the structure rather than replaced, so the visible product becomes useful quickly.
+
+**What it's ultimately for:** differentiation and usefulness that convert operator executives. They see their own money explained, their decisions compared, and results proven, which their monitoring tools can't do. The commercial path follows from that: demo, then a paid diagnostic on their records, then a proven change.
+
+## 0. Why Layer 4: how far today's mechanics reach, and what has to change
+
+**Why this section sits here.** It is the evidence behind the introduction's motivation, so it comes straight after it and before the design. It does not define the mechanics: §1–§2 derive them from the brief, and nothing in this section shapes them. It reads today's product against them, so it uses their words before §2 defines them in full: a *factor* is a measured quantity that an outcome is built from (litres, kWh billed, crate-days), and a *leaf* is a factor that a source record evidences directly. The owner asked that this reading stay honest about what is missing, what can be repurposed and what should change, and not argue a point (owner, 18 Nov, same file).
+
+**How it is read.** Three dimensions: how data is organised (§0.1), how it is processed (§0.2) and how it is presented (§0.3). Each states what today does well and which questions it answers, then one operator question it cannot answer and the exact reason: the **data** is not held, the **processing** does not do it, or the **presentation** hides it. Each ends with three sorted lists: **missing** (does not exist), **repurposable** (exists and can be extended or re-grounded; dispositions from `repo-reuse-and-gap-matrix.md`) and **must change** (exists, but misleads a reader or blocks a later step), each item with its reason. Code references are under `backend/assetops_backend/` unless they start with `frontend/` or a migration number (`backend/migrations/versions/`); all were read on this branch, whose application code is unchanged since `bf6014e02`.
+
+**The running example** is Kobo's October in the demonstration world (`derived-values.json`, demo values, never a customer result): contribution 1,445<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution--> planned and 883<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> actual, −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> in all. The factor-by-factor table is in `product-transition-and-roadmap.md` §1.3 and the derivation in §7.1 here. One cold-room or EV line per dimension shows that the case is general.
+
+**Testing the introduction's own claim.** The introduction says the product had drifted towards "interesting signals with economic hints". Against the code, this holds for money and not for intent:
+- *Money.* Every money figure today is either Estimated from a declared price (productive-use income and EV charging income, `outcomes/outcome_map.py:153-156`, `:173-176`) or Modelled as an upper bound (possible extra fuel cost, `financials/fuel_cost.py:22`, `:41-42`). No recorded commercial money exists: the recorded-amount strategy "returns no money with `NO_RECORDS`, always" (`chain/strategies/recorded_amount.py:1`).
+- *Intent.* The outcome catalogue is already organised by the four economic categories (`outcomes/catalogue.py:9`). It already names Site profitability and Cash collected as outcomes, and it says plainly that their records "are not connected yet" (`outcomes/catalogue.py:45-46`).
+
+So the gap is one of means, not of direction.
+
+### 0.1 How data is organised
+
+**Today.** Today's data is organised around evidence and around what the analyses find, and it is strong on both:
+- *The evidence ledger.* It holds every reading with its source, unit before and after conversion, quality, a live-or-simulated flag and an envelope hash, append-only (`0005_evidence_ledger.py:161-197`).
+- *Period reads.* These store each page fragment once per site, kind and period, with revisions, so a figure can be read "as known at" a past moment (`0059_site_period_read.py:1-20`; `chain/period_read.py:1-20`).
+- *Findings and threads.* Findings are stored episodes per site, mechanism and asset, each with a lifecycle and a claim ceiling (`0009_finding_store.py:33-64`; `analytics/declaration.py:41`). Threads keep a Finding's recurrence history (`0042_chain_threads.py:29`).
+- *The outcome map.* It links 16 signals to outcome keys, as the outcomes each signal *moves* and those it is *checked* against (`outcomes/outcome_map.py:17-37`). Ten node records attach a measure and, for four of them, a price (`:150-180`).
+- *Objectives and prices.* Objectives hold operational targets, for example at most so many minutes a day of generator running that was not needed (`outcomes/objectives.py:58-60`). Prices are declared and published (`publish_assumption.py:1`).
+
+**What it can answer today.**
+- How long did Kobo's generator run when solar and battery could have carried the load? (dispatch classification, `analytics/dispatch_v3.py:290-302`)
+- Is fuel missing beyond the tolerance band? (`fuel_balance/rules.py:216`)
+- Which readings is a figure built from, and were they live or simulated? (`0005_evidence_ledger.py:196`)
+
+<!--diagram:motivation-data-->
+
+```mermaid
+flowchart LR
+  subgraph T["Today: separate stores, each keyed its own way"]
+    direction TB
+    EL["Evidence ledger: every reading"] --> FI["Findings: site, mechanism, asset"] & TH["Threads: site, mechanism, subject"]
+    FI & TH --> OM["Outcome map: 16 signal rows point at outcome keys"] --> OR["Outcome rows per site"]
+    PR["Declared prices"]
+    OB["Objectives: operational targets"]
+    NH["Not held: billing, receipts, money plans, invoices, contracts"]
+  end
+  subgraph L["Layer 4: one structure, read upward"]
+    direction BT
+    SRC["Telemetry ledger (kept) and commercial records (new; emulated first)"] --> LEAF["Leaves: litres necessary, candidate, unexplained; kWh billed; O&M"]
+    LEAF --> F["Factors: revenue = billed kWh × tariff; cost to serve = fuel + O&M + staff"] --> C["Contribution"]
+  end
+```
+
+*Figure 0.1 (in the HTML twin, with Kobo's demo values on every node): today's stores beside one structure registry. The italic line under each of today's stores says what becomes of it.*
+
+**The ceiling.** *Operator question:* "Kobo's contribution in October: how far below plan is it, and how much of the gap is fuel and how much is billing?" In the demo, the answer is −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}-->. Of that, candidate running is −412.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, unexplained fuel −150.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, necessary running above plan −37.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> and extra kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->. Of the 3,458.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.revenue--> billed, 3,180.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.collected--> was collected.
+
+*Why today cannot answer it: the data is not held.*
+- No billing, receipt, money-plan or invoice record exists (`chain/strategies/recorded_amount.py:1`; `outcomes/catalogue.py:45-46`).
+- The only plans are operational targets (`outcomes/objectives.py:58-60`), so there is no planned contribution to compare against.
+
+*A second reason, in the organisation itself.* Billing records alone would not produce the answer. No record states that contribution is revenue minus cost to serve, or that fuel cost is litres times price:
+- The node records attach a measure and a price to one outcome each (`outcomes/outcome_map.py:150-180`), and none composes one outcome from others.
+- Findings are keyed by site, mechanism and asset (`0009_finding_store.py:33-64`), and threads by site, mechanism and subject (`0042_chain_threads.py:29`). Neither shares a key with any quantity an outcome is built from.
+
+*What today answers in part.* The fuel side of the question, in operational terms: today shows how long the generator ran when it was not needed and whether fuel is unaccounted for. These are the facts behind the 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L leaves.
+
+*The general case (cold room).* At Kirinyaga's room, occupancy is on plan, yet 5,000<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh--> kWh were metered against the 4,030<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh_model--> kWh that its occupancy explains (+24%<!--figx:round({sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh}/{sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh_model}*100, 0)-->), and contribution falls from 698<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.contribution--> to 504<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.contribution-->. Today's product cannot separate low occupancy from inefficiency, because no occupancy or storage-contract record exists (`outcomes/catalogue.py:61`). It does observe excursions and backup-start failures (`outcomes/outcome_map.py:20-21`).
+
+| Missing (does not exist) | Repurposable (exists; extend or re-ground) | Must change (misleads or blocks) |
+|---|---|---|
+| Commercial records: billing, receipts, money plans, invoices, contracts. Reason: no money figure can be Recorded without them (`chain/strategies/recorded_amount.py:1`) | Evidence ledger, as the telemetry source of leaves. Reason: it already carries provenance per reading (matrix B1, reuse as-is) | Signals linked straight to outcomes in the outcome map, if kept as a model of its own. Reason: a second model of outcomes beside the structure would diverge from it. Its wire stays until a parity test passes (compromise C1 in `product-transition-and-roadmap.md` §3.9) |
+| A declared composition: outcome = function of factors, with plan values per factor. Reason: without it, records cannot add up to a contribution or a bridge | Findings and threads, keyed to factors through one observer row each, with no column added. Reason: they already observe factors (§8.5; transition Appendix A.1) | Headroom stored as Grow potential priced "per hour of use" (`outcomes/outcome_map.py:157-160`). Reason: capacity without a paying customer is not revenue (brief R1). It stays as a capacity factor |
+| Shared factor and period IDs across constructs. Reason: the brief requires that the same fuel never counts twice (L1.1) | Outcome catalogue and map, as registry rows with *moves* derived. Objectives, as factor plans. Declared prices, as Estimated price leaves | |
+| Rights as data: warranty, EPC, O&M and insurance terms with their states. Reason: who bears a repair cost cannot be computed; today the battery warranty exists only as withheld fields (`sites/battery_boundary.py:26`) | Period reads' append-only revision pattern, for stored structure reads | |
+| Occupancy, roster and odometer records for cold and EV. Reason: cold and EV cost per service unit needs them (`outcomes/catalogue.py:55-56`, `:61`) | | |
+
+### 0.2 How it is processed
+
+**Today.** Today's processing turns readings into well-bounded observations and checks one kind of change after the fact, and it does both carefully:
+- *Dispatch classification.* It splits generator running into necessary and candidate running, with the reason for each (`analytics/dispatch_v3.py:290-302`). It already protects service: running near the battery reserve is kept "necessary" (`:290-291`).
+- *The fuel balance.* It tests fuel against a tolerance band (`fuel_balance/rules.py:216`).
+- *Possible extra fuel cost.* It is labelled as Modelled and conditional, running from 0 up to an upper bound (`financials/fuel_cost.py:22`, `:41-42`), and it is recomputed when late data arrives (`recompute_consequences.py:1`).
+- *Verification.* It freezes a plan, checks comparability and guardrails, and returns Verified, Ineffective or Inconclusive (`actions/verification.py:193`; `actions/verification_rules.py:684`, `:739`). An unknown family fails closed (`actions/verification_families.py:505-510`).
+
+**What it can answer today.**
+- Did the reserve trial, the midday mill shift or the fuel-balance work action change generator running or unexplained fuel as planned, without breaking a guardrail? This applies to mini-grid only (`actions/verification_families.py:502`, `:516`).
+
+<!--diagram:motivation-processing-->
+
+```mermaid
+flowchart TB
+  subgraph T["Today: from readings to findings and trials"]
+    R["Readings"] --> OBS["Observers: dispatch-3.2, fuel balance; cold and EV"] --> FR["Finding rules: episode, claim ceiling"]
+    FR --> EX["Possible extra fuel cost: 0 up to an upper bound"]
+    FR --> REC["One recommendation: reserve −5 points"] --> VER["Trial, then operational verdict (mini-grid)"]
+    WI["What-ifs beside the chain: energy × authored tariff, gross"]
+  end
+  subgraph L["Layer 4: from factors to a plan and proof"]
+    LF["Leaf factors observed"] --> SE["Structure evaluated upward"] --> AT["Findings: conditions on factors"] --> DE["Decision: options as factor changes, with no action"]
+    DE --> OP["Each option re-evaluated; bounds and rights; value against no action"] --> PL["Plan within budget and crews"] --> AC["Action carries the chosen option"] --> V3["Three verdicts"]
+  end
+```
+
+*Figure 0.2 (in the HTML twin, with Kobo's demo values): from readings to proof, today and in Layer 4. The italic line under each of today's steps says what becomes of it.*
+
+**The ceiling.** *Operator question:* "Should Kobo lower the generator stop threshold or lower the battery reserve, and what is each worth over a year, net of its cost, against doing nothing?" In the demo:
+- Lowering the stop threshold cuts candidate running by 210<!--fig:options.KOB-STOPSOC.params.avoided_candidate_l--> L a month and adds 150<!--fig:options.KOB-STOPSOC.params.added_throughput_kwh--> kWh of battery throughput. That is worth +250.50<!--fig:options.KOB-STOPSOC.monthly_or_horizon_change--> a month against no action, and 2,916.00<!--fig:options.KOB-STOPSOC.value--> over twelve months after its 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> one-off. This is a design value until replay K has run.
+- Lowering the reserve is rejected: the dawn battery charge falls below 35% on 4<!--fig:options.KOB-RESERVE.params.dawn_days_below_35pct--> of 61 replayed days.
+
+*Why today cannot answer it: the processing does not do it.*
+- There is one recommendation per Finding, a fixed reserve step of −5 points (`actions/service.py:300`; `actions/reserve_trial.py:37`). No second option is generated, and no option is compared with doing nothing.
+- The possible extra fuel cost is a bound on what was at stake, from 0 to the fuel burned during candidate running (`financials/fuel_cost.py:22`). It is not the change a feasible option makes.
+- An operator can record a stop-setting what-if (kind `STOP_SOC`, `mini_decisions/scenario_rules.py:24`), but it is not calculated. The only kind that calculates is the productive load: energy times an authored tariff, as gross sales, with no cost (`:186`, `:191-197`).
+- Alternatives are authored explanations of a Finding, not options (`mini_decisions/alternatives.py:1`).
+- No step re-computes an outcome under a choice.
+
+The proof side has the same limit. The cost of a change is set to 0 in verification (`actions/verification.py:1167`), and a positive verdict admits only simulated or authored evidence (`actions/verification_rules.py:688`). So "did the money follow, net of what the change cost?" cannot be stated, even for a verified change.
+
+*What today answers in part.* After the reserve trial has run, whether generator running fell without breaking a guardrail. That operational verdict carries over unchanged as the first of Layer 4's three verdicts.
+
+*The general case (cold room).* At Kirinyaga, repairing the condenser and the leak is worth +1,512.40<!--fig:options.KIRI-REPAIR.value--> over twelve months after its 350.00<!--fig:options.KIRI-REPAIR.operator_one_off--> cost. Replacing the compressor would be −1,988.40<!--fig:options.KIRI-REPLACE.value_if_admissible-->. Today a cold what-if is an authored stock-value context with no computed amount (`cold_scenarios/rules.py:26-27`), so neither option is valued.
+
+| Missing (does not exist) | Repurposable (exists; extend or re-ground) | Must change (misleads or blocks) |
+|---|---|---|
+| Structure evaluation for actual, plan and every option. Reason: an outcome cannot be computed under a choice without it | The observers (dispatch-3.2, fuel balance, cold and EV depth reads), as observers of leaf factors. Reason: they already observe factors; 12 of the matrix's 15 observer rows are reuse as-is (matrix B2) | The fixed −5-point reserve step as *the* recommendation (`actions/reserve_trial.py:37`). Reason: a single fixed step is not chosen by comparing anything, so it cannot be shown as the best choice; the demo shows a month where it breaks the dawn bound. It becomes one option generator among several |
+| Options as factor changes, always with no action, valued against it net of their own cost. Reason: the brief's valuation rule | Finding rules and claim ceilings, unchanged | The change's cost set to 0 in verification (`actions/verification.py:1167`). Reason: a net economic verdict needs it |
+| Obligation bounds with a policy, checked before an option is recommended. Reason: today only the dispatch reserve rule and post-trial guardrails act (`analytics/dispatch_v3.py:290-291`; `actions/verification_rules.py:739`) | The reserve recommendation's qualification checks, as one option generator. The productive-load and stop-setting what-ifs, as option calculation records. Tariff contexts, as sensitivities | Positive evidence limited to simulated or authored sources (`actions/verification_rules.py:688`). Reason: a change on a customer's site could never be verified. Field evidence is admitted with its label |
+| An allocator under budget and crew visits; a forward replay; economic and causal verdicts | Plan freeze, comparability and the operational verdict; the late-data recompute pattern | |
+| | Possible extra fuel cost, as the at-stake bound on the candidate-running factor, labelled as today. It is never an option's value and never summed: it runs from 0 up to an upper bound, not a saving a feasible change makes. Its internal strategy name, `avoided_cost@1` (`chain/strategies/avoided_cost.py:1`), suggests otherwise and is renamed with the registry work | |
+
+### 0.3 How it is presented
+
+**Today.** Today's screens are careful about what a figure is, and much of this carries over:
+- *Honest gaps.* Missing records are stated, naming the record (`outcomes/catalogue.py:45-46`, `:72-78`).
+- *Never-sum rules.* Possible extra fuel cost is listed per site and never summed (`site_outcomes/read.py:903`), and credited results are never summed (`estate/portfolio.py:681`).
+- *Placement says what it is.* Placement states that it says "where to look first, never a value ranking" (`estate/placement.py:5`).
+- *Findings open into their evidence.* A Finding opens on Overview, Analysis, Evidence, Alternatives, Recommendation and History sections (`frontend/src/shell/SiteAnalyticsFrames.tsx:1004-1020`).
+- *Navigation is stable.* The rail lists Portfolio, Sites, Findings, Actions, Incidents, Maintenance, Operational records, Evidence and Financials (`frontend/src/shell/OperatorShellLayout.tsx:61-71`). The Portfolio has six tabs (`frontend/src/estate/portfolioWords.ts:30-36`). A site has Overview, Foundation, Health, Performance, Findings, Work, Financials and Evidence (`frontend/src/shell/operatorSiteTabs.tsx:72-83`).
+
+**What it can answer today.**
+- Which sites need a look first, and why? (placement with reasons)
+- What evidence stands behind this Finding, and how sure is it? (the Finding's sections and its claim ceiling)
+- Which outcomes cannot be judged yet, for want of which records?
+
+<!--diagram:motivation-presentation-->
+
+```mermaid
+flowchart LR
+  subgraph T["Today: what the screens show"]
+    direction TB
+    RT["Rail and six Portfolio tabs (kept)"] --> CA["Four cards: estimated income total · possible extra fuel cost (mini-grid: last day) · counts · targets"]
+    CA --> AF["Act first: Findings in placement groups"] --> OS["Outcomes by site: statuses"] --> FP["Finding page sections"]
+  end
+  subgraph L["Layer 4: the same frame, organised by the movers"]
+    direction TB
+    RL["Rail and tab frame, tabs in loop order"] --> OV["Overview: outcomes against plan, factors moving them, the plan's first moves"]
+    OV --> OF["Outcomes by site: outcome, factors, leaves, plan against actual, evidence class"] --> PA["Act first: the plan; What changed: Actions and verdicts"] --> DP["Decision page drill-down"]
+  end
+```
+
+*Figure 0.3 (in the HTML twin, with Kobo's factor rows): today's screens and Layer 4's, in the same frame. The italic line under each of today's elements says what becomes of it.*
+
+**The ceiling.** *Operator question:* "Across my three sites, which outcome is off plan this month, and which factor is moving it?" Part of the reason is data: there is no money plan (§0.1). But even what today computes is not shown in a form that answers it, so the presentation hides it:
+- *Four kinds of figure side by side.* The Overview's four cards show different kinds of figure in parallel. Grow is an estimated income total, summed across sites when they share a currency (`chain/vocabulary.py:459`, called from `site_outcomes/read.py:777`). Optimize is a possible extra fuel cost per site (`site_outcomes/read.py:901-903`). Protect and Assure are counts and per-site lines (`site_outcomes/read.py:926-960`).
+- *A single day on a period range.* For a mini-grid, the Optimize figure is the lead Finding's exposure for the window's last day, even on a 7- or 30-day range (`site_outcomes/read.py:603-604`; `chain/read.py:190`), so it can read as the period's cost.
+- *Act first orders evidence, not choices.* It orders Findings by placement, which by its own policy is not a value ranking (`estate/placement.py:5`).
+- *Computed but not shown.* The site board computes nodes for every outcome row (`site_outcomes/board.py:367-407`), but the screen renders them for Grow only (`frontend/src/sites/OutcomeBoard.tsx:118`). Nodes, counts and reasons that the API returns and the screens do not render are listed in matrix F3, seven rows.
+
+*What today answers in part.* Which outcome rows are in a warning state at each site, and which Findings to look at first.
+
+*The general case (EV depot).* Embakasi runs a captive fleet, so it earns no charging revenue. Today its Charger use outcome still carries an estimated charging income from a declared tariff (`outcomes/outcome_map.py:173-176`). Layer 4 shows revenue as *not applicable* and leads with cost per departure met.
+
+| Missing (does not exist) | Repurposable (exists; extend or re-ground) | Must change (misleads or blocks) |
+|---|---|---|
+| Plan against actual per factor, on the Portfolio and site pages. Reason: it is the view that answers the question above | The rail, the six-tab frame, the range bar and the coverage line, all kept with no new menu (§6.1, §6.2) | The mini-grid Optimize card's last-day figure on a period range (`site_outcomes/read.py:603-604`). Reason: it reads as a period cost |
+| A decision page with options, no action, value, who pays, and the rule that rejected an option | Values the API already computes but does not render (matrix F3: seven rows, expose UI-only). Reason: the first slice needs no new data | Estimated charging income for a captive fleet (`outcomes/outcome_map.py:173-176`). Reason: a captive fleet's revenue is not applicable, not an estimate |
+| The plan view within budget and crew visits; the three-verdict view | Finding and Action detail pages, as drill-downs. The "Why?" trace, as the evidence drawer. The "not available yet" pattern | Headroom shown as the Opportunity tab's value. Reason: capacity is not demand. The tab is renamed *Demand and capacity* (§6.2) |
+| An evidence class in words on every figure (Recorded, Emulated, Estimated, Modelled, …), beyond today's basis labels | Placement, kept as triage on Findings. Act first shows the plan once it exists; placement does not mislead meanwhile, because it states that it is not a value ranking | |
+
+### 0.4 So the transition is…
+
+The lists above, read together, give the transition's shape:
+- **Missing.** Most of what is missing is records (commercial, occupancy, contracts) and the processing that uses them: evaluating the structure for the actual, the plan and each option, and the plan and the economic and causal verdicts built on that.
+- **Repurposable.** Most of what exists is repurposable. Of the reuse matrix's 114 rows, 40 are reuse as-is, 21 extend and 22 rework; 3 are retired, plus 2 within a row (`repo-reuse-and-gap-matrix.md` §K). Observation and execution are largely kept: 13 of 15 observer rows and 9 of 13 proof rows are reuse as-is or extend.
+- **Must change.** The must-change list is short, and each item either misleads a reader (a single day shown on a period range, an income estimate for a fleet that earns none, capacity shown as opportunity or as Grow potential) or blocks a later step (a fixed single option, a zero change cost, field evidence refused, a second model of outcomes).
+
+Today's product also goes further than its first screens suggest. It already has an operational verdict with frozen plans and guardrails, it already names the economic outcomes it cannot yet measure, and its API already computes more than its screens show.
+
+So the transition is three things:
+1. Add the missing records and the one structure that composes them.
+2. Re-ground today's Findings, what-ifs, Actions and verification on that structure instead of rebuilding them.
+3. Correct the few figures that read as something they are not.
+
+The order follows which client screen becomes useful first. That is the grounded, visible-first path in `product-transition-and-roadmap.md` §3.6–§3.7. The mechanics it builds towards are defined next, from the brief (§1–§2).
 
 ## Why this revision exists
 

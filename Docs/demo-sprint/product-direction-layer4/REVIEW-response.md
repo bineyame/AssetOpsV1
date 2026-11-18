@@ -1399,3 +1399,48 @@ Each finding is answered as a class, with the sweep across the pack. The directi
 **Text inconsistency found while drawing (not changed).** §3.6 and Appendix B say that if the W1 sitting slips "V2 and V3 slip with it", but V1 is built from step 1 plus the observer rows (3a′), and 3a′ also waits for W1 (phase plan PR 3a′; design §9). V1's findings-on-factors part therefore slips too; only the step 1 relabels do not. Figure 7 shows V1 as waiting for W1 for the observer rows. Recommended fix: "V1's findings on factors, V2 and V3 slip with it".
 
 **Checks.** `check_manifest.py` 3721 passed, 0 failed. Both renderers reproduce the committed `.html` byte for byte. Playwright at 390 and 1280, light and dark: no page horizontal scroll, no text outside its viewBox, no text-on-text overlap; smallest text at 390 is 10.0 px (transition, inline SVG) and 11 px (design, Mermaid, scrolling inside its frame). No DB, Docker, ports or test suite used.
+
+---
+
+## Author note: introduction and §0 "Why Layer 4" (Architect, 18 Nov)
+
+**Request.** `.agent/owner-design-intro-and-motivation-request-2026-11-18.md` (verbatim, with the owner's follow-up on honesty, committed with this work).
+
+**Introduction.** The owner-approved description opens the design document, after the header block and before "Why this revision exists". The voice changes only from "My understanding, in short" to "In short". "Nothing is added across evidence types" is restated to the pack's current rule, keeping its meaning: figures of different kinds are never added together; a total built from mixed evidence takes its weakest class and names every source beneath it; a benefit total admits only field records. It carries the attribution "Approved by the owner, 18 Nov 2026".
+
+**§0, placed straight after the introduction.**
+- *Why there.* It is the evidence for the introduction's motivation, so it comes before the design.
+- *Mechanics stay first.* It does not define the mechanics: §1–§2 still derive them from the brief, and §0 says so.
+- *Structure.* §0.1 covers data, §0.2 processing and §0.3 presentation. Each states what today does well and what it answers, then one operator question it cannot answer and whether the reason is data, processing or presentation. Each ends with three sorted lists: missing, repurposable and must change.
+- *Close.* §0.4 draws its conclusion from those lists and leads into transition §3.6–§3.7.
+- *Testing the introduction.* §0 tests the introduction's "drifted" claim against the code. It holds for money (every money figure is Estimated or Modelled). It does not hold for intent: the outcome catalogue already names profitability and cash collected, and states that their records are missing.
+
+**Honesty pass (owner follow-up).** A sceptical re-read removed what read as advocacy:
+- *Moved to repurposable.* Possible extra fuel cost is labelled correctly on screen; only its internal strategy name misleads. Placement as Act first's order states that it is not a value ranking.
+- *Moved to missing.* The withheld warranty fields are an absence, not a misleading figure.
+- *Reason restated.* The reserve step's must-change reason is now structural (a single fixed step compares nothing), not only the demo's dawn-bound case.
+- *Partial capability added.* An operator can record a stop-setting what-if today, but it is not calculated.
+- *Counts stated in full.* The closing counts include reworked and retired rows, not only reuse.
+
+**Ceiling questions.**
+- Data: "Kobo's contribution in October: how far below plan is it, and how much of the gap is fuel and how much is billing?"
+- Processing: "Should Kobo lower the generator stop threshold or lower the battery reserve, and what is each worth over a year, net of its cost, against doing nothing?"
+- Presentation: "Across my three sites, which outcome is off plan this month, and which factor is moving it?"
+
+The general-case lines are the Kirinyaga cold room (data, processing) and the Embakasi depot (presentation).
+
+**Figures.**
+- Figures 0.1–0.3 are inline SVG from the new `motivation_figures.py`, imported by `render_design_html.py`. In the `.md`, a line `<!--diagram:NAME-->` precedes a mermaid block that stays as the plain-text source.
+- Each figure has a wide layout (today beside Layer 4) and a narrow stacked layout below 1000 px.
+- Kobo's values in the figures are read from `derived-values.json`, never typed. The renderer refuses a line that would overflow its box.
+- The renderer gained two colour tokens (`--acard`, `--pcard`) for light and dark.
+
+**Transition document.** §1.1 points to design §0 instead of repeating it. Appendix C has a pointer line. No figure or claim in it changed.
+
+**Code claims.** Every claim about today cites file:line, read on this branch. Ten citations taken from earlier pack text were re-read, and two line ranges were corrected in the new text: the outcome-map income and EV records, and the Portfolio tab list.
+
+**Checks.**
+- `python3 check_manifest.py`: 3747 passed, 0 failed. It was 3721; the 26 new anchored figures in §0 each add a check.
+- Both renderers re-run into scratch: byte-identical to the committed `.html` files.
+- Playwright on the design HTML at 390 and 1280 px, light and dark: no horizontal page scroll. The smallest SVG text is 11.1 px at 390 px and 15.3 px at 1280 px.
+- No test suite, database, Docker or ports 5490/8990 were used.

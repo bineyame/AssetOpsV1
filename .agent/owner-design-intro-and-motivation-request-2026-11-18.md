@@ -24,3 +24,7 @@ My understanding, in short: **the brief exists to turn AssetEcon from a tool tha
 **What it's ultimately for:** differentiation and usefulness that convert operator executives. They see their own money explained, their decisions compared, and results proven, which their monitoring tools can't do. The commercial path follows from that: demo, then a paid diagnostic on their records, then a proven change.
 
 Note for the Architect: the phrase "nothing is added across evidence types" was written before the pack's M3 ruling; state it consistently with the pack's current rule (figures of different kinds are never added; a mixed total takes the weakest class and carries every provenance; a benefit total admits only field records) without changing the owner-approved meaning.
+
+## Owner follow-up (verbatim), same day
+
+> on its attempt on why layer4 is neeed, make sure it avoids manufacturing vague reason so justify it, it has to stay honest on what is missing , what can be repurposed and what should change in a way that makes clear objective sense, not to prove a point

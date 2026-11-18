@@ -3,15 +3,19 @@
 Usage: python3 render_design_html.py layer4-transformation-design.md layer4-transformation-design.html
 Reproduces the twin that was previously rendered by hand-run tooling outside the repository (rev 4 of the transition
 document added this script so the twin can be rebuilt and checked: rendering the committed .md must give the committed
-.html byte for byte)."""
-import html, re, sys
+.html byte for byte). A line `<!--diagram:NAME-->` before a mermaid block replaces that block, in the HTML only, with
+the inline SVG figure FIGURES[NAME] from motivation_figures.py; the mermaid block stays as the .md's plain-text source."""
+import html, pathlib, re, sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from motivation_figures import CSS as FIG_CSS, FIGURES   # §0's inline SVG figures (wide and narrow layouts)
 
 SRC, OUT = sys.argv[1], sys.argv[2]
 
 HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        '<title>Layer 4 Design</title><style>:root{--bg:#f6f7f9;--fg:#18212f;--muted:#5d6878;--line:#dfe3ea;--card:#fff;--accent:#1d4ed8;--code:#eef1f5}\n'
-        '@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733}}\n'
-        ':root[data-theme=dark]{--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733}\n'
+        '<title>Layer 4 Design</title><style>:root{--bg:#f6f7f9;--fg:#18212f;--muted:#5d6878;--line:#dfe3ea;--card:#fff;--accent:#1d4ed8;--code:#eef1f5;--acard:#eef3ff;--pcard:#f4f5f7}\n'
+        '@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733;--acard:#1a2540;--pcard:#1b212b}}\n'
+        ':root[data-theme=dark]{--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733;--acard:#1a2540;--pcard:#1b212b}\n'
         'body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}\n'
         '.wrap{max-width:1040px;margin:0 auto;padding:24px 16px 80px}h1{font-size:28px;line-height:1.25}h2{margin-top:44px;padding-top:12px;border-top:1px solid var(--line)}h3{margin-top:28px}\n'
         'a{color:var(--accent)}code{background:var(--code);padding:1px 4px;border-radius:3px;font-size:.88em;overflow-wrap:anywhere}pre{background:var(--code);padding:12px;border-radius:6px;overflow-x:auto}pre code{background:none;padding:0}\n'
@@ -19,6 +23,7 @@ HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="
         '.tw{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:6px;background:var(--card)}table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--line)}th{background:var(--code);font-weight:600}\n'
         'blockquote{margin:16px 0;padding:10px 14px;border-left:4px solid var(--accent);background:var(--card)}hr{border:0;border-top:1px solid var(--line);margin:32px 0}\n'
         '.toc{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:20px 0}.toc ul{margin:6px 0;padding-left:18px}.toc .l3{margin-left:16px;font-size:.93em}\n'
+        + FIG_CSS +
         ':focus-visible{outline:2px solid var(--accent);outline-offset:2px}</style></head><body><main class="wrap">')
 FOOT = ('<p style="color:var(--muted);font-size:13px">Rendered from layer4-transformation-design.md. Diagrams render with Mermaid from the '
         'jsDelivr CDN; offline, the diagram source is shown. On a narrow screen a wide diagram keeps its text at a legible size '
@@ -63,6 +68,15 @@ lines = open(SRC, encoding="utf-8").read().split("\n")
 body, toc, i = [], [], 0
 while i < len(lines):
     ln = lines[i]
+    dm = re.fullmatch(r"<!--diagram:([\w-]+)-->", ln.strip())
+    if dm:
+        j = i + 1
+        while not lines[j].strip(): j += 1
+        assert lines[j].startswith("```mermaid"), f"diagram {dm.group(1)} must precede its mermaid source"
+        j += 1
+        while not lines[j].startswith("```"): j += 1
+        body.append(FIGURES[dm.group(1)]()); i = j + 1
+        continue
     if ln.startswith("```"):
         lang = ln[3:].strip(); i += 1; code = []
         while not lines[i].startswith("```"):
