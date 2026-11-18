@@ -1,4 +1,21 @@
+# Agent scratch. Tracked text in it (packets, reviews, specs, owner files) is force-added by named path;
+# generated evidence never is (tools/checks/tracked_evidence.py, in check-all, fails on it).
 .agent/
+
+# Generated evidence lives outside the repo: /opt/assetecon/evidence/<task>/<run>/ (RULES section 9).
+# Only the root evidence/ folder: backend/assetops_backend/evidence/ is source code.
+/evidence/
+**/*-captures/
+**/*-captures-*/
+**/*-evidence/
+**/*-evidence-*/
+**/*-recapture/
+**/*-screens/
+**/*-shots/
+*.pid
+*.err
+*.log
+Docs/**/*.html.tmp
 
 # Writable user-authored configuration store. Site documents a user creates
 # live here at runtime; they are user data, not shipped configuration, and the
