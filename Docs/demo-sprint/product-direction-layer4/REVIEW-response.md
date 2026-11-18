@@ -930,3 +930,19 @@ Full audit (`run-audit.sh --shots`, exit 0):
 - KAS-LOCAL's 23.71 → 24.29 is added to the changed-figures table.
 - L3 is put to the owner as Q16, with (a) "infeasible" applied.
 
+
+### Author note, 18 Nov: main §7 rewritten as factor tables (owner, thirteenth message)
+
+The owner could not follow §7.1 and asked to have §7 rewritten the way the coordinator had explained Kobo's 562.00. Only §7 of `layer4-transformation-design.md` changed, and the same section of the `.html` (re-rendered from the Markdown with the conventions the rest of that file uses).
+
+- **Observe.** Each Site now has its inputs (prices, fuel balance, modelled litres and the necessary / candidate / unexplained split, energy-to-cash chain), a plan-against-actual table per factor with the money effect (change × price), and a sum that reconciles to the Site deviation and then to the portfolio. Cold rooms use their own structure (crate-days, model energy and excess above it, liability). EV depots use theirs (bill lines, highest kW, deliverable energy a night, buses short, departures missed and penalties).
+- **Evaluate.** Each decision has a table: no action, chosen and rejected options, each option's factor changes, and how its value follows (monthly change × months − one-off).
+- **Choose.** This is split into six parts: the plan and its limits; what is valued in money and how the total is composed; spend not valued in money and its Protect measures; downside and sensitivities; items listed beside the plan; the switch cases.
+- **Prove.** Unchanged in substance, as short lists.
+- **Provenance.** Every table says how each figure is known: record, calculated, declared input, design value, quote or assumption. The litre split (730 / 330 / 120 at Kobo, and the Kisiwa and Mto splits) is stated as a declared input that *stands in for a calculation*. It is no longer labelled "Calculated from records".
+
+**Figures.** No figure in the data, evaluator, model or checker changed. Every new figure is anchored with `<!--fig:path-->` or `<!--rec-->` / `<!--rec:path-->`. The checker now passes 3,602 checks with 0 failures, up from 3,255. Each Site's per-factor effect was also recomputed from the inputs shown (change × price). All agree with the stored bridge records, and the fuel balances agree (220 + 1,200 − 240 = 1,180; 730 + 330 = 1,060; 1,180 − 1,060 = 120).
+
+**Not reconcilable from the data, stated in the section:**
+- The "metered generator energy × consumption rate" behind the modelled litres (1,060 L at Kobo, 2,380 L at Kisiwa) is not in the demo data. Back-solving gives a fraction of a kWh, so the modelled litres are a declared input, not a calculation from a reading.
+- Ruiru's plan is a stated total, so its +19.68 cannot be attributed to factors.
