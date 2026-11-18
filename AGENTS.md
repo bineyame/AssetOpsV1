@@ -1,21 +1,39 @@
 # AssetOps Agent Guide
 
-Start here:
+AssetOps turns evidence from energy and cold-chain Sites (mini-grid, cold chain,
+EV charging) into bounded operational and economic conclusions, and verifies
+the interventions taken on them.
 
-1. Read `.ai/START_HERE.md`.
-2. Read `.ai/ACTIVE_CONTEXT.md` and the active task, or `.ai/PLANNING_GUIDANCE.md` if no task exists.
-3. For current S1-S7 work, use the current `frontend/docs/architecture/production-shaped-mvp.md`, `frontend/docs/architecture/production-shaped-mvp-technical-design.md`, and `frontend/docs/architecture/site-first-execution-plan.md`.
-4. Use `frontend/mockups/v69/index.html` and its screen manifest as the interaction/content reference for the named Site or Lab surface. Implement only the supported slice with honest missing states.
-5. Read `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md`, or `.ai/DECISIONS.md` only when compatible additional semantics, boundaries, or prior decisions matter.
+## Read, in this order
 
-The open T0xx queue and earlier feature maps are superseded planning history. `tasks/README.md` is the current S1-S7 queue; completed T packets remain built-state history, not implementation instructions.
+1. `.ai/START_HERE.md`: router. Current direction, authority order, which mock
+   governs which work.
+2. `.ai/NOW.md`: the active lanes, each with its spec.
+3. `.ai/ROLE_CONFIG.md`: who plays which role, and the live role rules.
+4. `.ai/RULES.md`: project rules, workflow (W1-W9) and the keep-it-tidy rules.
+5. The spec your dispatch names, by the sections it names.
 
-Default responsibility roles are Architect, Planner, Implementer, and Reviewer.
-Their default agent bindings live in `.ai/ROLE_CONFIG.md` and may be changed
-there when the project needs a different setup.
+Stop there. Everything else is found on demand.
 
-Do not work directly on `main`. Use one branch per vertical slice or task, such as
-`task/S1-01-persisted-foundation`.
+## Find on demand
 
-Keep context small. Prefer reviewable vertical slices that produce observable
-product behavior over broad horizontal subsystem work.
+- Decisions: `.ai/DECISIONS.md` and the rulings files that `.ai/NOW.md` names,
+  by decision ID (grep the ID; never read the file whole).
+- Built state: `.ai/CODE_STATE.md`, one entry at a time (grep the slice ID).
+- Owner words: `.agent/owner-*.md`, verbatim, by the file a spec or NOW cites.
+- Product glossary and old boundaries: `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md`,
+  only where `.ai/START_HERE.md` says they still apply.
+
+## Do not read by default
+
+- `.ai/history/`, `tasks/archive/`, `tasks/completed/`, and any `archive/` folder.
+- `.agent/` beyond the files your spec or `.ai/NOW.md` names (it is scratch,
+  reviews, packets and evidence).
+- Evidence and capture folders (`*-evidence/`, `*-captures/`, screenshots, logs).
+- `frontend/mockups/v69/` and `frontend/mockups/v71/` (owner, 2026-11-18: not
+  to be read).
+- `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md`,
+  `.ai/PLANNING_HANDOFF_*.md`, `.ai/PLANNING_GUIDANCE.md`,
+  `.ai/MILESTONE_REVIEW_BACKLOG.md`, `.ai/ARTIFACT_INDEX.md` (history).
+
+Never work on `main`: one branch per slice or task. Keep context small.

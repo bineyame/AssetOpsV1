@@ -1,22 +1,71 @@
 # Start Here
 
-AssetOps turns mini-grid evidence into bounded operational and economic conclusions and verifies interventions. Current implementation documents: [system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md).
+A router. It says where the current truth is; it does not hold it.
 
-The [Architect S1-01 decision](DECISIONS.md) and [contract addendum](../frontend/docs/architecture/s1-01-foundation-contract-addendum.md) resolve S1-01; no owner sign-off on the three Site-first documents or S1-01 is recorded here. Their proposal headers remain provenance.
+Current milestone: demo sprint (live product on `main`) running alongside the
+Layer 4 product-direction design, which awaits owner decisions. Repo declutter
+in progress (step 1 of 5). Detail: `.ai/NOW.md`.
 
-The [v6.9 mock screens](../frontend/mockups/v69/index.html) and their `screen-manifest.json` are the interaction/content references for each named surface. They do not authorize invented data or unfinished tabs; the active task and current architecture determine what becomes real.
+Planning status: the S1-S7 queue is built; new product work waits on the owner's
+Layer 4 decisions (Q1-Q16, D1-D12). Demo-sprint fixes are sequenced by the
+coordinator (`.agent/coordinator-handoff.md`). To confirm: whether any
+demo-sprint unit is still open after the 17 Nov client demo.
 
-Current milestone: S1 Foundation.
+## Direction and its boundary (owner O1, 2026-11-18)
 
-Planning status: S1-01 is ready for implementation; S2-S7 are outlined for refinement after predecessor review.
+- **Live product: S1-S7 / Site-first stays authoritative.** Work on the
+  running product follows
+  `frontend/docs/architecture/production-shaped-mvp.md`,
+  `frontend/docs/architecture/production-shaped-mvp-technical-design.md` and
+  `frontend/docs/architecture/site-first-execution-plan.md` (read by section),
+  plus the demo-sprint rulings `.ai/NOW.md` names.
+- **Destination: Layer 4** (on branch `task/product-direction-layer4-design` until it merges to
+  `main`). `Docs/demo-sprint/product-direction-layer4/` is
+  where the product is going. Entry point:
+  `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md`
+  (decisions in its §6; open questions in
+  `Docs/demo-sprint/product-direction-layer4/design-questions-and-decisions.md`).
+  It **supersedes S1-S7 once the owner approves Q1**. Until then it is a
+  design under review, not build authority.
+- Lookup files in the pack (`derivation-register.md`,
+  `outcome-lever-capability-traceability.csv`, the `.html` twins) are
+  searched, never read whole.
 
-## Current route
+## Which mock governs which work (owner O2, 2026-11-18)
 
-1. Read `AGENTS.md` and this file.
-2. Read `.ai/ACTIVE_CONTEXT.md` and the active task it names.
-3. Use `tasks/README.md` for the only executable S1–S7 queue. S1-01 is next; S2–S7 packets are outlines until refined after predecessor review.
-4. Read `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md` and `.ai/DECISIONS.md` only when their semantics, boundaries or prior choices matter. Read `.ai/ROLE_CONFIG.md` for role binding and `.ai/WORKFLOW.md` for task/review rules.
+| Work | Reference |
+| --- | --- |
+| Screens and content of the live product | `frontend/mockups/v70/index.html` and `frontend/mockups/v70/screen-manifest.json`, by the named screen |
+| Visual style, and its four hi-fi pages | `frontend/mockups/v72/` (`foundation-sheet.html`, `portfolio-hifi.html`, `site-overview-hifi.html`, `upload-readings.html`) |
+| Layer 4 destination (still changing) | `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/` |
 
-The open T0xx queue is [archived as superseded](../tasks/archive/pre-site-first-2026-10-07/README.md). Completed task packets and `.ai/CODE_STATE.md` remain built-state history. `.ai/FEATURE_MAP.md`, `.ai/ARCHITECT_DEMO_RECOMMENDATION.md` and the old scoped handoffs are historical planning references, not current sequencing authority. Do not activate a T0xx packet because its title resembles a new slice.
+Do not read `frontend/mockups/v69/` or `frontend/mockups/v71/`. Guards still
+use the `frontend/docs/architecture/v69-*` registries by name; that is guard
+plumbing, not mock authority. A mock is an interaction and content reference:
+it does not authorise a claim the data cannot support. Show a missing source as
+"not available yet".
 
-Use one task branch per slice, never `main`. The planned lane is Architect/Planner → Implementer → independent Reviewer → owner review where required. Each task must show a persisted Site or Lab state and protect the simulator/private truth boundary. Do not load all history by default.
+## Authority order
+
+1. The owner's instructions (verbatim files `.agent/owner-*.md`).
+2. The active spec's acceptance criteria and rulings.
+3. `.ai/RULES.md` and `.ai/ROLE_CONFIG.md`.
+4. The direction documents above, inside the O1 boundary.
+5. `.ai/PRODUCT.md` and `.ai/ARCHITECTURE.md`, where compatible with 4.
+6. Existing code and tests.
+
+When two conflict, follow the higher one and record the consequence as a
+decision (`.ai/DECISIONS.md` or the active rulings file).
+
+## Where things are (find on demand)
+
+- Active work: `.ai/NOW.md`. Coordinator state: `.agent/coordinator-handoff.md`.
+- Decisions: `.ai/DECISIONS.md` (by ID); demo-sprint rulings
+  `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (D-SR.*, D-ANY.*, D-DATA.* ...).
+- Built state: `.ai/CODE_STATE.md` (by slice ID).
+- S1-S7 queue tables (machine-read by guards): `tasks/README.md`.
+- UI defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
+- Tests: `backend/TESTING.md`. Guards: `tools/check-all.ps1`.
+
+Indexes for decisions, state, specs and owner files arrive in declutter step 2;
+until then, grep by ID.

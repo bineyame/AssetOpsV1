@@ -1,10 +1,6 @@
 # Site-first task queue
 
-**Current direction (2026-10-07):** [current system architecture](../frontend/docs/architecture/production-shaped-mvp.md), [current technical design](../frontend/docs/architecture/production-shaped-mvp-technical-design.md), and [Site-first execution plan](../frontend/docs/architecture/site-first-execution-plan.md). These are current implementation authority under project routing; their proposal headers do not record owner sign-off. The Architect decision `D-2026-10-07-s1-foundation-import-and-cutover` and S1-01 addendum control the first slice. This is the only executable queue. The [superseded T0xx queue](archive/pre-site-first-2026-10-07/README.md) and its open packets are historical reference with original status intact. Completed tasks and decisions remain historical built-state evidence.
-
-One mini-grid Site and one assessed window form the first end-to-end path. S1-01/02/03 and S2-01a/b/c/S2-02 are reviewed and merged through `82ba6cd`; the owner passed the S2 Evidence checkpoint and adopted V-01 on 2026-10-09. The owner confirmed W1's revised 27-screen target, core panels, demo values and K=10 on 2026-10-11 (`.agent/owner-W1-confirmation-2026-10-11.md`). S3–S7 remain outlines. Startup guards and S3 dispatch contract/fixtures remain activation gates. S2-02r is a follow-up before unattended/multi-operator rotation or a real pilot, not a dispatch prerequisite.
-
-For implementation, read the active packet and the contract sections it names. The registry, ledger and follow-on lanes below guide Architect/Planner review; they do not expand an active packet's scope.
+> **Machine-read S1-S7 tables, not a reading list.** `frontend/docs/architecture/delivery_next_work.cjs`, `frontend/docs/architecture/check_v69_dependency_registry.cjs` and `frontend/docs/architecture/test_delivery_next_work.cjs` parse this file: keep the table rows, the gate paragraphs below and every packet link. The S1-S7 queue is built; current work is in [.ai/NOW.md](../.ai/NOW.md), direction in [.ai/START_HERE.md](../.ai/START_HERE.md). The full narrative this file held until 2026-11-18 is in [archive/site-first-2026-10/README.md](archive/site-first-2026-10/README.md).
 
 **Pre-S3 planning gates:** `A-claim-work-routes`, `A-actor-identity` and bounded `A-evidence-readiness-health` are recorded in the pre-S3 decisions. `A-finding-index` is resolved by `D-2026-10-15-a-finding-index`; S4-04 implementation and its fixtures remain open. `A-money-comparability` and broad shared projections remain open. S4-01 and S4-02 consume the route and actor decisions; S6-01 reuses both accepted contracts. These decisions do not add implementation prerequisites to dispatch. At each S2–S7 outline refinement, compare the packet with the registry's `queue_baseline_nodes`; a contract or fixture no longer owned by the queue leaves that baseline before marginal estimates are used.
 
@@ -55,7 +51,7 @@ The recorded `A-lab-registered-basis`, `A-edge-diagnostics` and `A-demo-scenario
 | S4 financial history follow-on | [S4-08](S4-08-assumption-consequence-history.md) | Assumptions shows Site consequence versions at the selected recorded cutoff, with exact Finding links and honest source/money states | Merged S4-02a/b, S4-06, LR-01 and S4-05b; registry `I-assumption-consequence-history-read/ui` | Done 2026-10-17 (merged; owner walkthrough deferred to combined W1 walkthrough) |
 | S7 Health | [S7-01](S7-01-site-health.md) ([a](S7-01a-health-read.md), [b](S7-01b-health-ui.md)) | Central freshness and asset missing-input boundary | S7-01a and S7-01b | Done 2026-10-16 (S7-01a and S7-01b merged) |
 
-W1 conclusion presentation plan: [W1-UX umbrella](W1-UX-mockup-fidelity.md). These are frontend presentation slices, outside the S1–S7 capability ranking; they create no new panel claim. Independent review gates each merge; the owner walks the combined result once after all five slices, per `.agent/owner-walkthrough-policy-2026-10-16.md`.
+W1 presentation umbrella: [W1-UX umbrella](W1-UX-mockup-fidelity.md). Visual-fidelity umbrella: [V-01 umbrella](V-01-v69-visual-fidelity.md).
 
 | W1 presentation | Packet | Product screens | Dependency | Status |
 | --- | --- | --- | --- | --- |
@@ -68,8 +64,6 @@ W1 conclusion presentation plan: [W1-UX umbrella](W1-UX-mockup-fidelity.md). The
 
 ## W2 cold-chain planning packets
 
-These implementation-ready packets sequence the binding `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold` and `D-2026-10-17-mockup-layout-spec`. Planning assigns existing registry `task` pointers only; W2 screen scope and node promotion await the owner's scope decision and independent review.
-
 | Slice | Packet | Exit and predecessor | Review |
 | --- | --- | --- | --- |
 | W2-00 source events | [W2-00](W2-00-source-events.md) | SourceEnvelope v4 event/EV delta through ordinary S2 accepted evidence; `0020` after `0019`; unlocks W2-02/W2-05b | Done 2026-10-17 (merged; review ACCEPT) |
@@ -79,8 +73,6 @@ These implementation-ready packets sequence the binding `D-2026-10-17-w2-design`
 | W2-04 cold Site/evidence/money | [W2-04](W2-04-cold-site-evidence-money.md) | `0023` unpriced cold consequence and selected Site/evidence/financial reads, five exact v69 routes; after reviewed/merged W2-03 | Done 2026-10-19 (merged; re-review ACCEPT) |
 
 ## W2 EV charging planning packets
-
-These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev`, `D-2026-10-18-w2-mockup-authority`, `D-2026-10-18-w2-05-buildspec` and `D-2026-10-18-w2-06-07-buildspec`. Planning assigns existing registry `task` pointers only; independent review and the later owner W2 walkthrough remain required.
 
 | Slice | Packet | Exit and predecessor | Review |
 | --- | --- | --- | --- |
@@ -98,8 +90,6 @@ These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev
 
 ## Post-W2 step 1 planning packets
 
-`D-2026-10-20-post-w2-sequence` in `.agent/post-W2-sequence.md` binds the two lanes after reviewed W2-07 merges. These packets are **planned; build spec pending**, not implementation authorization. Each requires concrete artifact closure, independent spec review and the owner wave-start scope/core-panel gate before build.
-
 | Lane and slice | Packet | Exit and predecessor | Status |
 | --- | --- | --- | --- |
 | A · W4-01 Work-case core | [W4-01](W4-01-work-case-core.md) | `0027` shared Incident/Maintenance/WorkEvent/OperationalRecord contract, case APIs and thin `sitework-incidents`/`sitework-maintenance` lists; after reviewed/merged W2-07 | Done 2026-10-20 (merged d76809dd; review REVISE, fix r1, re-review ACCEPT; full suite in container; W3-01 shared provenance/selection prerequisites cherry-picked, W3 money picks reverted per r1 M5) |
@@ -111,8 +101,6 @@ These implementation-ready packets follow amended `D-2026-10-17-w2-techdesign-ev
 | B / W6-01 Global work cases | [W6-01](W6-01-global-work-cases.md) | Seven v69 screens split into W6-01a Incidents, W6-01b Maintenance/Preventive, W6-01c request Overview/Record, W6-01d History, W6-01e Operational records; frozen W4 model and W3 estate scope; `0036` reserved unused | W6-01a Incidents **Done** 2026-10-22 (merge 1d3c13b9); W6-01b Maintenance **Done** 2026-10-22; W6-01c Request Overview/Record **Done** 2026-10-23; W6-01d History **Done** 2026-10-23; W6-01e Operational records **Done** 2026-10-23 (merge 231cee3e); **W6 complete** |
 
 ## Post-W2 step 3 depth planning packets
-
-The W2-F structural re-audit closed all 14 findings. W5-01 and W5-03 are split into ordered sub-slices under `D-2026-10-22-w5-01-w5-03-buildspec`; their exact unit cards are in the linked build specs.
 
 | Lane and sub-slice | Packet | Exit and predecessor | Status |
 | --- | --- | --- | --- |
@@ -136,8 +124,6 @@ Carry/follow-up lane: [S2-02r](S2-02r-credential-rotation-recovery.md) corrects 
 
 ## Mock-gap closure queue
 
-Owner confirmed the catalogue and orphan guard on 2026-10-12 (`D-2026-10-12-mock-gap-closure-mechanism` sections 1–2). The non-core ranking and per-screen completion policy wait for W1 exit. These G packets are planning/backfill work and add no scored W1 core paths. G-01 does not gate V-01a's current owner review or merge. The normal single-active-task and owner checkpoints still apply.
-
 | Batch | Packet | Manifest scope | Dependency | Size / status |
 | --- | --- | --- | --- | --- |
 | Shared | [G-01 catalogue and guard](G-01-mock-gap-catalogue-and-guard.md) | Versioned registry, checker, typed missing state and orphan guard | Confirmed mechanism | M; done; owner accepted conditionally 2026-10-13; merged |
@@ -146,17 +132,7 @@ Owner confirmed the catalogue and orphan guard on 2026-10-12 (`D-2026-10-12-mock
 | Backfill | [G-04 Dispatch/Finding](G-04-dispatch-finding-gap-backfill.md) | Dispatch, Analysis, Finding family | Reviewed G-02; merged claim UI | M; outline |
 | Backfill | [G-05 Money/Overview/Work/Health](G-05-money-overview-work-health-gap-backfill.md) | Remaining W1 screens | Reviewed G-02; merged owner UI | M; outline, split if refinement exceeds M |
 
-The dependency registry carries `I-G-01`–`I-G-05` as unscored technical packet nodes. They have no reviewed path to an approved W1 core panel, so `next-work` cannot select them through current core scoring. They are listed separately in its report and activate by `D-2026-10-13-g-gap-packet-activation`: after the active V-01b closes and merges, G-01 takes the next free single-active slot, then G-02 takes the next free slot after reviewed and merged G-01 and merged/accepted V-01a, ahead of an ordinary ranked selection once any checker refusal or owner stop is resolved. G-03–G-05 wait for their reviewed merged UI and packet prerequisites; run at the first free slot with no ready active-wave core candidate, or take their remaining backlog to W1-exit review. A ≤5% ranking contest still goes to the owner before activating a due G packet; a 5–10% notice is recorded. This ordering needs no new owner choice and gives no G node a demo value. The screen ledger's `gap_backfill_task` is a planning pointer, not a delivered gap ID. G-01 introduces the catalogue schema and one real tagged Readiness gateway-firmware missing state; G-02 enrolls the four V-01a screens for complete non-core/open `gap_ids` coverage, then later batches enroll their merged UI.
-
 ## Screen-outward planning gate
-
-The [v6.9 screen realization map](../frontend/docs/architecture/v69-screen-realization-map.md), [screen ledger](../frontend/docs/architecture/v69-screen-ledger.json), [model homes](../frontend/docs/architecture/v69-model-homes.json) and [panel contracts](../frontend/docs/architecture/v69-panel-contracts.json) are Architect planning overlays, not accepted screen completion. They account for 110 manifest IDs, 88 model names and 258 visible panels. The owner approved `Real with honest gaps` as the W1 target for 27 screens, including six moved from W4, and their exact core keys/values; later-wave tiers remain pending. The manifest ID and its `visual_reference` key each later comparison; `GAP` in a panel contract means no supported claim yet. Run `python frontend/docs/architecture/check_v69_ledger.py` after ledger changes.
-
-For each `Deferred` screen, the ledger's `promotion_dependencies.to_candidate` lists the design, projection, fixture and task gates before it can enter the executable queue. For every proposed `Real with honest gaps` screen, `promotion_dependencies.to_real` names unresolved panels and remaining work before full mock fidelity can be claimed. A named S task alone does not satisfy that gate. The Planner checks these fields when refining a packet and updates them when a dependency is met or the owner changes a tier.
-
-S1 and S2 are merged; W1 owner input and `A-S3-dispatch` are recorded. **Before S3-01 is activated**, pass PRE-S3-03/startup guards and check the split [V-01 umbrella](V-01-v69-visual-fidelity.md). S3-01 contains the versioned `I-sim-dispatch-cases` fixture as phase 1, followed by typed assessment and UI/cutover phases; its Candidate path stays Indeterminate until the new capability channels are accepted. S3-02 owns the later positive Evidence Analysis claim-limit view. S4-03 owns Finding Evidence/History; S4-04 owns the Site Finding list. S5-01 owns selected-window context/timeline/money; S5-02 integrates the list with separate empty and positive fixtures. S6-01 owns Action detail/activity/change, S6-02 owns plan/evidence/outcome, and S6-03 owns the Site Work list. Resolve only model gaps merited by the next supported claim; broader work, domains and indexes stay in later waves. A target tier does not authorize an empty route or illustrative mock value as product data.
-
-S2-02 refinement compared `queue_baseline_nodes`: `I-accepted-evidence-store`, `I-edge-diagnostics-store` and `I-S2-02` remain in S2-02; S2-01b/c retain their nodes. None leaves the baseline. The registry and checker cover the executable S1–S7 queue, including the S3-02 and S7-01 a/b splits and S6-03. Changed W1 core panel paths await independent graph/mapping review; unchanged reviewed paths keep their citations. Owner target approval is recorded separately.
 
 | Proposal | Manifest IDs | Dependency and review gate | Status |
 | --- | --- | --- | --- |
@@ -165,11 +141,7 @@ S2-02 refinement compared `queue_baseline_nodes`: `I-accepted-evidence-store`, `
 | S3/S4 first claim fixture | `dispatch`, `analysis`, `finding`, `finding-evidence`, `financials`, `assumptions` | [Demo-data plan](../frontend/docs/architecture/v69-demo-data-plan-proposal.md): complete, missing/contradictory and late Kobo intervals, one price revision, exact accepted evidence | Planning dependency |
 | S6 later-window fixture | `changes`, `recommendation`, `verification`, `sitework` | Baseline, applied change, later closed window, guardrail fail and inconclusive variant with lineage | Planning dependency |
 
-Current S milestones also own bounded portions of `mini` (S5-01), `action-overview` (S6-01/S6-02), and `health` and `asset` (S7-01). Their remaining panels need the same tier, projection and evidence review; the post-S7 Action lane below refers only to fuller contextual detail.
-
 ## Non-executable follow-on dependency lane after S7
-
-These are **planning lanes, not task IDs or executable packets**. Review the owner-approved tier and the ledger's exact panel contract before creating a slice. Keep multi-site and multi-window fixtures traceable through normal ingestion. A global comparison needs aligned windows, coverage, currency/price basis and non-overlap rules; Unknown stays visible when those conditions are absent.
 
 | Lane | Manifest IDs from screen ledger | Must exist before an executable packet |
 | --- | --- | --- |
@@ -179,8 +151,6 @@ These are **planning lanes, not task IDs or executable packets**. Review the own
 | Cold-chain and EV Sites | `cold`, `temperature`, `cooling`, `coldbackup`, `incident`, `workverification`, `cold-foundation`, `cold-health`, `cold-evidence`, `cold-evidence-analysis`, `cold-financials`, `cold-assumptions`, `cold-findings`, `cold-work`, `cold-work-incidents`, `cold-work-maintenance`, `cold-finding`, `cold-recommendation`, `cold-finding-excursion`, `cold-action`, `cold-scenarios`, `cold-readiness`, `cold-sld`, `wr-overview`, `wr-record`, `wr-history`; `ev`, `sessions`, `availability`, `energy`, `ev-foundation`, `ev-health`, `ev-evidence`, `ev-evidence-analysis`, `ev-financials`, `ev-assumptions`, `ev-findings`, `ev-work`, `ev-work-incidents`, `ev-work-maintenance`, `ev-finding`, `ev-recommendation`, `ev-action`, `ev-scenarios`, `ev-readiness`, `ev-sld` | Separate Site/role and captured-device fixtures, domain assessments, bounded Finding/consequence and work semantics through the shared ingestion path; missing sensors/sessions remain Unknown. |
 | Estate and finance roots | `portfolio`, `globalevidence`, `globalfinancials`, `scenarios` | Multi-site/domain fixture gate; tenant/window/coverage/currency and overlap rules, `CapabilityReadiness`/source-health projection contracts; scenario basis separate from observed money. |
 | Asset cover, policy and onboarding | `assets-warranty`, `asset-warranty`, `settings-policies`, `settings-tenant`, `site-create-form`, `site-create-template`, `site-batch-upload`, `site-setup-history` | Audited asset/warranty and tenant policy authority; SiteDraft/Template/ImportBatch/SetupEvent decisions, per-row refusals and tenant authorization. |
-
-For each activated lane, compare app and mock at desktop and narrow widths, including visual tokens/components, navigation and reload. Unsupported routes stay hidden or honestly unavailable; populated, missing and conflicting/late states come from persisted source-to-claim data, never copied mock values. See [V-01](V-01-v69-visual-fidelity.md) for the repeatable comparison method.
 
 ## Current-code transition by slice
 
@@ -192,6 +162,3 @@ For each activated lane, compare app and mock at desktop and narrow widths, incl
 | S3-S5 | Existing dispatch, Finding and Site presentation where claim semantics still fit | Hard-coded device keys, JSON assessment authority and independent view recalculation give way to typed accepted-evidence inputs, revisioned claims and derived read models. |
 | S6-S7 | Existing Lab control and Site shell where they fit | Persist Action/verification/health claims from public evidence and work records; no Lab truth or static mock value becomes product history. |
 
-This is a cutover map, not permission to delete historical fixtures or completed task evidence. The technical design's demo-to-Postgres comparison must pass per supported read: Evidence changes in S2-02 after evidence comparison; Performance changes in S3-01 after dispatch comparison. S2-01b makes the gateway durable, S2-01c exposes diagnostics/faults, and S2-02 makes upload and central acceptance real; S3 consumes durable recompute jobs. Do not call the current in-process publisher or JSON ingestion the production gateway/ledger.
-
-All packets inherit the current architecture and technical design. Every closeout needs the selected-window screen, read API, storage/reload, missing or contradictory evidence state, and lineage to the accepted SourceEnvelope. S2 additionally proves loss/retry/duplicate/conflict; S3–S4 preserve revisions after late evidence; S6 proves a failed guardrail. Follow `.ai/WORKFLOW.md` for independent review and appropriate checks. The four owner-review moments are S2 evidence, S4 bounded money, S6 verification and S7 Site Health. Global indexes, extra domains and empty tabs follow the Site journey.
