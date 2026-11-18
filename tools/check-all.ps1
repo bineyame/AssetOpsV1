@@ -85,9 +85,13 @@ $slotStream = $null
 $running = New-Object System.Collections.Generic.List[object]
 
 try {
-    # Both venv layouts (Windows Scripts\python.exe, Linux/macOS bin/python), as the architecture modules do.
+    # Both venv layouts (Windows Scripts\python.exe, Linux/macOS bin/python), as the architecture modules do: this
+    # tree's .venv first, then the main checkout's (worktrees on the VPS share it; D-1 keeps the imports on this tree).
     if (-not $Python) {
-        $Python = @((Join-Path $repoRoot ".venv/Scripts/python.exe"), (Join-Path $repoRoot ".venv/bin/python")) |
+        $roots = @($repoRoot)
+        $commonForVenv = (& git rev-parse --git-common-dir 2>$null)
+        if ($LASTEXITCODE -eq 0 -and $commonForVenv) { $roots += Split-Path -Parent ([IO.Path]::GetFullPath([IO.Path]::Combine($repoRoot, $commonForVenv.Trim()))) }
+        $Python = @($roots | ForEach-Object { (Join-Path $_ ".venv/Scripts/python.exe"), (Join-Path $_ ".venv/bin/python") }) |
             Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
         if (-not $Python) { $Python = Join-Path $repoRoot ".venv/bin/python" }
     }
