@@ -1444,3 +1444,64 @@ The general-case lines are the Kirinyaga cold room (data, processing) and the Em
 - Both renderers re-run into scratch: byte-identical to the committed `.html` files.
 - Playwright on the design HTML at 390 and 1280 px, light and dark: no horizontal page scroll. The smallest SVG text is 11.1 px at 390 px and 15.3 px at 1280 px.
 - No test suite, database, Docker or ports 5490/8990 were used.
+
+---
+
+## Author response: review of the introduction and §0 (68c3d9934, REVISE) (Architect, 18 Nov)
+
+Each finding is answered as a class, with its sweep.
+
+**H1. The site outcome board was left out (class: a strength of today left out).**
+- *§0 now reports the board in all three dimensions.*
+  - §0.1 data: the drivers are named per outcome in words and do not compose.
+  - §0.2 processing: the options link onwards from the board.
+  - §0.3 presentation: a strength bullet, "what it can answer", the repurposable lists and Figure 0.3.
+- *D:88 is qualified.* No record composes an outcome *numerically*; the board names its drivers in words.
+- *Sweep.*
+  - Matrix F2: two rows added. The board's columns are marked extend; its per-vertical drivers are marked rework, to be generated from the registry. §K is recounted to 116 rows (extend 22, rework 23), with a note on the change.
+  - Transition document: §1.2 row, §3.4 counts, §3.6 (V1–V3 rows, the Portfolio Outcomes by site and Site Overview rows, and a new paragraph), Figure 7's data, §3.7 table, Appendix A.2 and Appendix C.
+  - Phase plan: PR 3e.
+  - Design document: §6.2, §6.3 and §8.5.
+- *The board as the first slice of V1/V2, assessed on merit: it holds, with one condition.*
+  - Why it holds: the board already has the mechanics' order (drivers → issues → levers → in hand → earlier, with bounds in *Must not harm*). It exists for all three verticals, and *Outcomes by site* reads the same per-site rows.
+  - What lands on it: V2's site factor view is delivered by extending the board. V1's Findings appear in its *Issues* column. V3 opens from *What can be done*.
+  - The condition: the drivers are generated from the registry (3a, 3a′) and filled from the structure read (3b), never kept hand-written per vertical beside it. Otherwise there would be two models of a site's factors.
+- *What changes in the plan.* Only where 3e starts (the board, before the Portfolio tab body) and what it reuses. Steps, dependencies, lane counts and effort ranges are unchanged. No calendar gain is claimed until the W4 readiness dry-read sizes 3e against the board's code.
+
+**M1. The cost check and credit rule were left out (same class).** §0.2 now covers them: the strength, a partial answer to "did the money follow" (modelled, credited only when verified, not net), and the repurposable list ("reworked: the seed of the economic verdict"). Figure 0.2 has a *Cost check* box. Swept into transition §3.7, Appendix A.2 and design §8.5.
+
+**M2. The −5 step was overstated (class: a must-change reason that argues against a claim today does not make).** It is now a single must-change item, "blocks a comparison", and the text says it does not mislead, citing its limitation text (`reserve_trial.py:42-45`) as a strength. The dawn case is marked as the design world. The repurposable column holds only its qualification checks, and the must-change item says why the two differ.
+
+**M3. The closing was shaped by the column definitions.** §0.4 now separates the groups:
+- 62 kept or extended;
+- 23 reworked, with 7 of 13 Evaluate rows and 7 of 23 UI rows named;
+- integrations, exposed fields, new and retired rows.
+
+It says that the must-change column names only what misleads or blocks, and that the change is larger than that column suggests. Item 3 now reads "the two figures", and item 2 names the rework.
+
+**M4. Gaps were omitted (class: gaps left out).**
+- (a) No operator approval is recorded (`actions/lifecycle.py:44-55`). Added to §0.2's missing list and Figure 0.2, and counted among the blockers in §0.4.
+- (b) The midday mill shift has no guardrails (`verification_families.py:175`). D:112 is corrected.
+- (c) Cold has no cooling energy meter and no repair-cost records (`cold.py:71-72`, `:379-382`). Kirinyaga is corrected: the 5,000 kWh itself is not held today. The missing list now names occupancy, the cooling meter and cost invoices, and states that O&M and staff costs fall under commercial records.
+
+**M5. Fuel money was understated (class: a strength understated).** Unexplained fuel's priced range (`fuel-residual-1`; `mini.py:200-203`, `:918-936`; Protect card `read.py:957-960`) is added to the testing bullet, to §0.1's partial answer (now "partly in money") and to §0.2's strengths and repurposable list. Figure 0.2 now has *Fuel money ranges*.
+
+**Low findings.**
+- **L1.** The citations are fixed: the last-day rule is `chain/read.py:136-146` with `site_outcomes/read.py:676-682`, and the Grow-only gate is `OutcomeBoard.tsx:238`, `:263`.
+- **L2.** Every one of today's elements carries exactly one tag word (kept, extended, re-keyed, reworked, must change), matching the lists. The dashed style now means only "not held today". Each figure has a legend.
+- **L3.** The text refers to today's depot outcome "Charger use" (`catalogue.py:53`). Embakasi appears only as the design world's example. "No business model per site" is added to §0.1's missing list.
+- **L4.** The presentation question is replaced by one whose data today computes but does not assemble: "What did generator running that was not needed cost Kobo over these 30 days?"
+- **L5.** Headroom is moved from must change to reworked. It is labelled apart as Potential and never added to income; only its category changes.
+- **L6.** The introduction's clause now reads "inside the structure, a node built from mixed evidence…", keeping the owner's meaning.
+
+**Sceptic's re-read.** One more pass removed argument:
+- "strong on both" is gone;
+- the reserve item now rests on what the code says;
+- the headroom item is gone from must change;
+- the closing now draws on the full counts.
+
+**Checks.**
+- `check_manifest.py`: 3747 passed, 0 failed.
+- Both renderers reproduce byte for byte.
+- Playwright at 390 and 1280 px, light and dark: no horizontal scroll. The smallest SVG text is 11.1 px and 15.3 px.
+- Figure arrows now start at each box's own bottom.

@@ -73,16 +73,16 @@ def panel(title, entries, up=False):
             for x, bx in zip(xs, row):
                 h, s = box(x, y, bw, bx); hs.append(h); b.append(s)
             if prev is not None:
-                py, pxs, pbw = prev
+                py, pxs, pbw, pys = prev
                 for i, x in enumerate(xs):
                     ps = parents[i] if parents else [min(i, len(pxs) - 1)]
                     for p in (ps if isinstance(ps, list) else [ps]):
                         sx, cx = pxs[p] + pbw / 2, x + bw / 2
                         if up:
-                            b.append(arrow(cx, y - 2, sx, py + 3))
+                            b.append(arrow(cx, y - 2, sx, pys[p] + 3))
                         else:
-                            b.append(arrow(sx, py + 2, cx, y - 3))
-            y += max(hs); prev = (y, xs, bw)
+                            b.append(arrow(sx, pys[p] + 2, cx, y - 3))
+            prev = (y + max(hs), xs, bw, [y + h for h in hs]); y += max(hs)
     return y + 8, "".join(b)
 
 
@@ -103,38 +103,51 @@ def figure(title, desc, left, right):
                 f'{defs}'
                 f'{body.replace("url(#m)", f"url(#{mid})")}</svg>')
 
+    lw, lwh, ln, lnh = legend()
     wh = max(lh, rh) + 20
     wide = (f'<g transform="translate(10,10)">{lb}</g>'
             f'<line class="div" x1="430" y1="10" x2="430" y2="{wh - 10:.0f}"/>'
-            f'<g transform="translate(450,10)">{rb}</g>')
+            f'<g transform="translate(450,10)">{rb}</g>'
+            f'<g transform="translate(10,{wh + 4:.0f})">{lw}</g>')
+    nh = lh + rh + 40
     narrow = (f'<g transform="translate(2,6)">{lb}</g>'
               f'<line class="div" x1="2" y1="{lh + 18:.0f}" x2="402" y2="{lh + 18:.0f}"/>'
-              f'<g transform="translate(2,{lh + 34:.0f})">{rb}</g>')
-    return (f'<figure class="dg">{one("wide", 860, wh, wide, "w")}{one("narrow", 404, lh + rh + 40, narrow, "n")}'
+              f'<g transform="translate(2,{lh + 34:.0f})">{rb}</g>'
+              f'<g transform="translate(2,{nh + 4:.0f})">{ln}</g>')
+    return (f'<figure class="dg">{one("wide", 860, wh + lwh + 12, wide, "w")}{one("narrow", 404, nh + lnh + 10, narrow, "n")}'
             f'<figcaption>{esc(title)}</figcaption></figure>')
 
 
 def B(lines, cls="bx", tag=None): return (lines, cls, tag)
 
 
+def legend():
+    """The one legend, drawn under each layout: (wide body, wide height, narrow body, narrow height)."""
+    def sample(x, y, cls, t):
+        return f'<rect class="{cls}" x="{x}" y="{y}" width="26" height="15" rx="4"/>' + text(x + 34, y + 12, t, cls="lb", anchor="start")
+    exp = "Italic line: what becomes of today's element"
+    wide = sample(0, 0, "bxp", "not held today") + sample(170, 0, "bxa", "Layer 4") + text(300, 12, exp, cls="tg", anchor="start")
+    narrow = sample(0, 0, "bxp", "not held today") + sample(170, 0, "bxa", "Layer 4") + text(0, 36, exp, cls="tg", anchor="start")
+    return wide, 22, narrow, 44
+
+
 def fig_data():
     today = panel("Today: separate stores, each keyed its own way", [
         ("r", [B(["Evidence ledger", "every reading: source, unit, quality,", "live or simulated, envelope hash"],
                  tag="kept: the telemetry source of leaves")]),
-        ("x",),
         ("r", [B(["Findings", "per site, mechanism", "and asset"], tag="re-keyed to factors"),
-               B(["Threads", "per site, mechanism", "and subject"], tag="history on factors")]),
+               B(["Threads", "per site, mechanism", "and subject"], tag="re-keyed: history")], [0, 0]),
         ("r", [B(["Outcome map", "16 signal rows point straight at", "outcome keys (moves, checks)"],
-                 tag="becomes rows of one registry")], [[0, 1]]),
-        ("r", [B(["Outcome rows per site", "e.g. Supply cost per kWh (measured);",
-                  "Site profitability: not connected yet"], tag="kept as outcome nodes")]),
+                 tag="reworked into registry rows")], [[0, 1]]),
+        ("r", [B(["Outcome board per site", "drivers named in words, per outcome:",
+                  "e.g. generator minutes, fuel, fuel price"], tag="reworked: drivers become factor rows")]),
         ("x",),
-        ("r", [B(["Declared prices", "productive tariff,", "diesel price"], tag="Estimated price leaves"),
-               B(["Objectives", "operational targets,", "e.g. generator minutes"], tag="plans of factors")]),
+        ("r", [B(["Declared prices", "productive tariff,", "diesel price"], tag="kept: Estimated leaves"),
+               B(["Objectives", "operational targets,", "e.g. generator minutes"], tag="re-keyed: factor plans")]),
         ("x",),
-        ("r", [B(["Not held", "billing, receipts, money plans,", "invoices, contracts"], cls="bxp",
-                 tag="new: canonical records")]),
-        ("n", "Period reads (one revisioned row per site, kind and\nperiod) sit under the screens: their pattern is kept."),
+        ("r", [B(["Not held today", "billing, receipts, money plans, cost", "invoices, contracts; cold: occupancy,",
+                  "cooling energy, repair costs"], cls="bxp")]),
+        ("n", "Period reads (one revisioned row per site, kind and\nperiod) sit under the screens: kept as a pattern."),
     ])
     fuel_p, fuel_a = KP["necessary_l"] + KP["candidate_l"] + KP["unexplained_l"], KA["diesel_l"]
     l4 = panel("Layer 4: one structure, read upward (Kobo, Oct.)", [
@@ -151,16 +164,18 @@ def fig_data():
          [1, 1, 1]),
         ("n", "Every leaf: factor ID, period ID, unit, plan, evidence\nclass and provenance. Findings, decisions, "
               "options,\nActions and verdicts key to these factor IDs."),
-        ("r", [B(["Telemetry ledger", "dispatch split,", "fuel balance"], tag="kept"),
-               B(["Commercial records", "billing, receipts, plan,", "invoices, contracts"], cls="bxp",
-                 tag="new; emulated first")]),
+        ("r", [B(["Telemetry ledger", "dispatch split,", "fuel balance"], cls="bxa"),
+               B(["Commercial records", "billing, receipts, plan,", "cost invoices, contracts"], cls="bxp")]),
+        ("n", "Commercial records come from emulated exports first,\nthen the operator's own."),
     ], up=True)
     return figure("Figure 0.1. How data is organised: today's stores beside one structure registry",
-                  "Left, today: an evidence ledger, Findings and threads keyed by site and mechanism, an outcome map "
-                  "pointing signals at outcome keys, outcome rows, declared prices and objectives; billing, receipts, "
-                  "money plans, invoices and contracts are not held. Right, Layer 4: Kobo's contribution read upward "
-                  "from revenue and cost to serve, billed kWh, fuel litres split into necessary, candidate and "
-                  "unexplained, and O&M, over leaves fed by the kept telemetry ledger and new commercial records.",
+                  "Left, today: an evidence ledger (kept), Findings and threads keyed by site and mechanism (re-keyed "
+                  "to factors), an outcome map pointing signals at outcome keys (reworked into registry rows), the "
+                  "per-site outcome board whose drivers are named in words (reworked into factor rows), declared prices "
+                  "and objectives; billing, receipts, money plans, cost invoices, contracts and, for cold rooms, "
+                  "occupancy, cooling energy and repair costs are not held. Right, Layer 4: Kobo's contribution read "
+                  "upward from revenue and cost to serve, billed kWh, fuel litres split into necessary, candidate and "
+                  "unexplained, and O&M, over leaves fed by the telemetry ledger and new commercial records.",
                   today, l4)
 
 
@@ -172,16 +187,19 @@ def fig_processing():
                  tag="kept: observe factors"),
                B(["Cold and EV observers", "excursions, backup", "starts, interruptions"], tag="kept")], [0, 0]),
         ("r", [B(["Finding rules", "one episode per site, mechanism, asset;",
-                  "a claim ceiling; next-step text"], tag="conditions on factor keys")], [[0, 1]]),
-        ("r", [B(["Possible extra fuel", "cost: 0 up to an", "upper bound; modelled"], tag="at-stake bound"),
-               B(["One recommendation", "the reserve, a fixed", "−5 points"], tag="one option generator")],
-         [0, 0]),
-        ("r", [B(["Trial, then operational verdict", "frozen plan, guardrails; mini-grid only;",
-                  "positive evidence simulated or authored;", "the change's own cost set to 0"],
-                 tag="kept as the operational verdict")], [1]),
+                  "a claim ceiling; next-step text"], tag="re-keyed: conditions on factors")], [[0, 1]]),
+        ("r", [B(["Fuel money ranges", "extra fuel cost and", "unexplained fuel per", "night: modelled"],
+                 tag="kept: at-stake bounds"),
+               B(["One recommendation", "reserve −5 points,", "fixed; it predicts", "no saving"],
+                 tag="must change: sole option")], [0, 0]),
+        ("r", [B(["Trial and verdict", "frozen plan and", "comparability; reserve", "trial: guardrails"], tag="kept"),
+               B(["Cost check", "modelled fuel cost per", "kWh; credited only", "when verified"], tag="reworked")],
+         [1, 1]),
+        ("r", [B(["Verification rules", "the change's own cost set to 0; positive",
+                  "evidence simulated or authored; SYSTEM actor"], tag="must change")], [[0, 1]]),
         ("x",),
         ("r", [B(["What-ifs beside the chain", "productive load: energy × authored tariff,",
-                  "gross sales; no cost, no no-action case"], cls="bxp", tag="become option calculation records")]),
+                  "gross sales; stop setting not calculated"], tag="reworked: option calculations")]),
         ("n", "No step re-computes an outcome under a choice."),
     ])
     l4 = panel("Layer 4: from factors to a plan and proof", [
@@ -196,20 +214,23 @@ def fig_processing():
                   f"+{n0(so['params']['added_throughput_kwh'])} kWh battery",
                   f"→ {m2(KA['contribution'] + so['monthly_or_horizon_change'])} a month"], cls="bxa"),
                B(["Reserve −5 points", "dawn charge below 35%",
-                  f"on {n0(rs['params']['dawn_days_below_35pct'])} of 61 days:", "rejected by a bound"], cls="bxp")],
+                  f"on {n0(rs['params']['dawn_days_below_35pct'])} of 61 days:", "rejected by a bound"], cls="bxa")],
          [0, 0]),
-        ("r", [B(["Plan within budget and crews", "one plan across the three sites"], cls="bxa")], [0]),
+        ("r", [B(["Plan within budget and crews", "approved by a named person"], cls="bxa")], [0]),
         ("r", [B(["Action carries the chosen option", "frozen prediction on the same factors"], cls="bxa")]),
-        ("r", [B(["Three verdicts", "it happened · the money followed ·", "the action caused it"], cls="bxa")]),
+        ("r", [B(["Three verdicts", "it happened · the money followed, net ·", "the action caused it"], cls="bxa")]),
         ("n", f"Stop threshold: {m2(so['value'])} over 12 months, net of its\n{m2(so['operator_one_off'])} one-off; "
-              "a design value until replay K runs."),
+              "design-world values, a design value\nuntil replay K runs."),
     ])
     return figure("Figure 0.2. How it is processed: from readings to proof (Kobo's generator decision, demo values)",
-                  "Left, today: readings, observers, Finding rules, a gross possible-fuel-cost bound, one fixed reserve "
-                  "recommendation, a trial with an operational verdict, and productive-load what-ifs beside the chain. "
+                  "Left, today: readings, observers (kept), Finding rules (re-keyed), modelled fuel money ranges "
+                  "(kept as at-stake bounds), one fixed reserve recommendation that predicts no saving (must change: "
+                  "the sole option), a trial with an operational verdict (kept), a modelled cost check credited only "
+                  "when verified (reworked), verification rules with the change's cost at 0, simulated or authored "
+                  "positive evidence and a SYSTEM actor (must change), and what-ifs beside the chain (reworked). "
                   "Right, Layer 4: observed leaf factors, the structure evaluated upward, Findings on factors, a "
                   "decision whose options are valued against no action, the reserve change rejected by the dawn "
-                  "bound, one plan, an Action and three verdicts.", today, l4)
+                  "bound, one approved plan, an Action and three verdicts.", today, l4)
 
 
 def fig_presentation():
@@ -217,18 +238,21 @@ def fig_presentation():
         ("r", [B(["Rail and Portfolio tabs", "Portfolio · Sites · Findings · Actions ·",
                   "Evidence · Financials; six Portfolio tabs"], tag="kept: no new menu")]),
         ("x",),
-        ("r", [B(["Grow card", "estimated income,", "summed across", "sites"], tag="kept, with its factors"),
-               B(["Optimize card", "possible extra fuel cost", "per site; mini-grid:", "the window's last day"], cls="bxp",
+        ("r", [B(["Grow card", "estimated income,", "summed across sites"], tag="reworked"),
+               B(["Optimize card", "possible extra fuel", "cost; mini-grid:", "the window's last day"],
                  tag="must change")]),
         ("x",),
-        ("r", [B(["Protect card", "counts and fuel", "lines, per site"], tag="kept, with its factors"),
-               B(["Assure card", "targets; verified", "results, listed"], tag="kept, with its factors")]),
+        ("r", [B(["Protect card", "counts and fuel", "lines, per site"], tag="reworked"),
+               B(["Assure card", "targets; verified", "results, listed"], tag="reworked")]),
+        ("x",),
+        ("r", [B(["Site outcome board", "what drives it · issues · what can be done",
+                  "· in hand · earlier · must not harm"], tag="extended: the first factor view")]),
         ("x",),
         ("r", [B(["Act first", "Findings in placement groups: where to", "look first, never a value ranking"],
-                 tag="kept as triage on Findings")]),
+                 tag="reworked: the plan; placement kept")]),
         ("x",),
         ("r", [B(["Outcomes by site", "a status per site and outcome; row", "nodes computed but mostly not shown"],
-                 tag="becomes the factor view")]),
+                 tag="reworked: the factor view")]),
         ("x",),
         ("r", [B(["Finding page", "Overview · Analysis · Evidence ·", "Alternatives · Recommendation · History"],
                  tag="kept as the drill-down")]),
@@ -239,7 +263,8 @@ def fig_presentation():
         ("r", [B(["Overview", "each outcome against plan, the factors", "moving it, the plan's first three moves"],
                  cls="bxa")]),
         ("x",),
-        ("r", [B(["Outcomes by site · Kobo", f"Contribution {n0(KP['contribution'])} → {n0(KA['contribution'])}",
+        ("r", [B(["Site board and Outcomes by site · Kobo",
+                  f"Contribution {n0(KP['contribution'])} → {n0(KA['contribution'])}",
                   f"Candidate running {m2(-(KA['candidate_l'] - KP['candidate_l']) * KA['diesel_price'])} · "
                   f"Unexplained fuel {m2(-(KA['unexplained_l'] - KP['unexplained_l']) * KA['diesel_price'])}",
                   f"Necessary running {m2(-(KA['necessary_l'] - KP['necessary_l']) * KA['diesel_price'])} · "
@@ -252,17 +277,19 @@ def fig_presentation():
         ("r", [B(["Decision page (drill-down)", "options with no action, value, who pays,",
                   "the bound or rule that rejected one"], cls="bxa")]),
         ("x",),
-        ("r", [B(["Embakasi depot (captive fleet)", "revenue: not applicable;",
+        ("r", [B(["A depot charging its own fleet", "revenue: not applicable;",
                   "cost per departure met"], cls="bxa")]),
         ("n", "Every figure carries its evidence class in words.\nHeadings name business content, never a question."),
     ])
     return figure("Figure 0.3. How it is presented: the same frame, different contents",
-                  "Left, today: the rail and six Portfolio tabs; four outcome cards of different kinds (an estimated "
-                  "income total, a possible extra fuel cost that for mini-grid is the window's last day, counts, "
-                  "targets); Act first as Findings in placement groups; Outcomes by site as statuses; the Finding page "
-                  "sections. Right, Layer 4: the same frame; each outcome against plan with its factors (Kobo's "
-                  "contribution and its four factor effects, labelled Emulated), the plan, Actions and verdicts, a "
-                  "decision page, and a captive EV depot with revenue not applicable.", today, l4)
+                  "Left, today: the rail and six Portfolio tabs (kept); four outcome cards of different kinds, an "
+                  "estimated income total, a possible extra fuel cost that for mini-grid is the window's last day "
+                  "(must change), counts and targets (the others reworked); the site outcome board with what drives "
+                  "it, issues, what can be done, in hand, earlier and must not harm (extended into the first factor "
+                  "view); Act first as Findings in placement groups and Outcomes by site as statuses (reworked); the "
+                  "Finding page (kept). Right, Layer 4: the same frame; each outcome against plan with its factors "
+                  "(Kobo's contribution and its four factor effects, labelled Emulated), the plan, Actions and "
+                  "verdicts, a decision page, and a fleet operator's depot with revenue not applicable.", today, l4)
 
 
 FIGURES = {"motivation-data": fig_data, "motivation-processing": fig_processing,

@@ -203,6 +203,8 @@ The live Portfolio keeps its frame: route `/portfolio/:tab?`, the six owner-appr
 | Outcomes by site: `ObjectivesPanel` `frontend/src/estate/EstatePortfolio.tsx:427` → `OutcomeMatrix` `frontend/src/estate/PortfolioOutcomes.tsx:328` | Site × outcome status matrix | rework | Each outcome's factor structure by site: plan vs actual per factor, attribution, residual only where a leaf is unobserved (M1, M2) | M | Name kept (owner-approved) |
 | Demand and capacity (was *Opportunity*): `OpportunityPanel` `frontend/src/estate/EstatePortfolio.tsx:473`; tab entry `frontend/src/estate/portfolioWords.ts:34` | One productive-use headroom study | rework | Renamed and moved to third. Qualified demand by net contribution; rejected demand with break-even; capacity without customers (M2 latent factors, M3) | M | Keep the old `/portfolio/opportunity` address redirecting to the new segment, as the old `?lens=` addresses redirect today |
 | What changed: `ProgressPanel` `frontend/src/estate/EstatePortfolio.tsx:535` | Counts of accepted actions and verifications | rework | Commitments with frozen predictions, three verdicts, rights tracker (M5) | M | – |
+| Site outcome board: columns "What drives it", "Issues", "What can be done", "Already in hand", "Earlier interventions" (`frontend/src/sites/OutcomeBoard.tsx:42-48`, `:262-330`) and the "Must not harm" line (`:265-272`), every outcome row, all three verticals (added after the §0 review, H1) | Outcome → drivers → issues → levers → in hand → earlier result, in words | extend | The site's first factor view (V1–V3): drivers become factor rows with value, unit, plan, evidence class and coverage; Issues show Findings on their factor; "What can be done" opens the decision; "Must not harm" shows the bounds; in hand and earlier carry Actions and verdicts. The Portfolio's *Outcomes by site* reads the same per-site rows (M1–M5) | H | Nodes are rendered for Grow only today (`OutcomeBoard.tsx:238`, `:263`) |
+| Board drivers: `Contributor` `site_outcomes/board.py:276`, written per vertical (e.g. `site_outcomes/mini.py:1156-1177`, `site_outcomes/cold.py:366-384`, `site_outcomes/ev.py`) | Each driver a status text with a confidence chip and a link; missing drivers stated (`cold.py:71-72`) | rework | Generated from the registry's factor and observer rows (3a, 3a′) and filled from the structure read (3b), so the site's factors have one model, not a hand-written one per vertical beside the registry (M1, M2) | M | Per-vertical honesty texts ("not connected yet") are kept as the factor's *not available yet* reason |
 | Scope & coverage: `ScopeDisclosure` `frontend/src/estate/EstatePortfolio.tsx:659`; `ContextFooter` `frontend/src/estate/EstatePortfolio.tsx:788` | Assessment scope; footer with one line's tariff-estimated quantity and amount | extend (scope); retire/avoid (footer) | Coverage by site and leaf factor, what each missing record blocks, pilot request (S9); the footer's single estimated revenue line does not fit a captive fleet | M | – |
 
 ### F3. Computed but not rendered (slice 1, no new data)
@@ -312,13 +314,13 @@ Numbers follow the delivery slices in `phase-plan-and-acceptance.md` (commercial
 | C M3 Evaluate | 3 | 1 | 7 | 1 | 0 | 1 | 0 | 13 |
 | D M4 Choose | 1 | 0 | 1 | 2 | 0 | 1 | 0 | 5 |
 | E M5 Prove | 5 | 4 | 1 | 2 | 0 | 1 | 0 | 13 |
-| F UI (F1–F3) | 2 | 4 | 6 | 0 | 7 | 0 | 2 (+1 within a row) | 21 |
+| F UI (F1–F3) | 2 | 5 | 7 | 0 | 7 | 0 | 2 (+1 within a row) | 23 |
 | G Build | 3 | 4 | 1 | 1 | 0 | 0 | 0 | 9 |
-| **Total** | **40** | **21** | **22** | **14** | **7** | **7** | **3 (+2)** | **114** |
+| **Total** | **40** | **22** | **23** | **14** | **7** | **7** | **3 (+2)** | **116** |
 
 The §A1 Protect-measure map is not counted (it lists measures and their observers, not dispositions of code). Counted from the tables by script; a row with a mixed disposition (e.g. "reuse as-is (first two); retire/avoid (…)") is counted under its first disposition, and its retirement is shown as "+1 within a row". Section H lists the retirements in full.
 
-Reading: most physical observation (B2) and execution (E) is kept because it already serves the mechanics; the rework concentrates where the product's meaning changes: the outcome map into the structure registry, CHECKED into obligation bounds, scenarios and the reserve trial into options, and the Portfolio tab bodies.
+Reading: most physical observation (B2) and execution (E) is kept because it already serves the mechanics; the rework concentrates where the product's meaning changes: the outcome map into the structure registry, CHECKED into obligation bounds, scenarios and the reserve trial into options, the Portfolio tab bodies and the site board's drivers. The two site-board rows in F2 were added after the review of the design document's §0 (H1); the counts include them.
 
 ## L. Citation corrections against rev 3 and the main document
 
