@@ -33,6 +33,7 @@ Start with `interactive-mockup-vNEXT/owner-inspection-checklist.md`, section "Ow
 | `repo-reuse-and-gap-matrix.md` | Appendix: module / function / table / API / test dispositions, organised by mechanic |
 | `interactive-mockup-vNEXT/` | Runnable restructured mock-up (from v7.0), change register, audit, walkthroughs, owner checklist |
 | `design-questions-and-decisions.md` | Owner decisions and material conflicts |
+| `product-transition-and-roadmap.md` + `.html` (rendered) | From today's product to Layer 4: the transition strategy, the technical steps to get there, the product roadmap and the owner decisions it needs |
 | `REVIEW.md`, `REVIEW-response.md` | Review history, rev 1–9, and the author responses through rev 10 |
 
 ---
