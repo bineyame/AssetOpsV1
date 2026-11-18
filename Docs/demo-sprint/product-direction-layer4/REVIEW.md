@@ -2831,3 +2831,71 @@ The word count went from 9,175 to 9,233 (anchors stripped; I reproduced both fig
   - Sensitivities: +2,286.00, +3,744.00, −340.00 and +5,690.00; +2,166.00 and +5,338.50; +1,046.80 and +2,716.80.
   - Embakasi: 706.80, 22,144.80 and 21,438.00.
 - Not run: no browser render of the .html, and no test suite. No database, Docker container or port was touched. No pack file was edited.
+
+## Review of pack-wide plan-search consistency (bd491047d)
+
+Fresh Claude reviewer, 18 Nov. Diff `2b9d0e53c..bd491047d` (28 files). I read `evaluate_structure.py` `candidates()`/`best()` (`:411-490`) and `independent_model.py` `solve()` (`:917-1000`) before the author response, then grepped the whole pack myself (documents, manifest, CSV, structure specification, derivation register, mock-up sources and built `index.html`, generated docs, walkthroughs).
+
+**Verdict: ACCEPT WITH NOTES.** The class M1 named is fixed: every place that described how the plan is *searched* now matches the code: one product over protective and valued decisions; an option breaking its decision's hard bounds is left out unless none can keep them; budget, crew visits, switches and dated dependencies; ranked (−violation, value, −spend); ties go to the first combination in declared order (`>` in both evaluators). I found no remaining "must-do first", "protective pass", "leftover", "cheapest affordable" or downside tie-break. L1 is fixed and the Record labels are supported. No figure or behaviour changed. Two Medium findings remain in the same family: claims next to the search that nothing computes. They are text-only fixes and should be made on the branch before merge.
+
+### Findings
+
+**M1 (Medium). The mock-up claims an action order that nothing produces.** `interactive-mockup-vNEXT/loop-portfolio.js:166` (built `index.html:2710`) heads the plan column "Reason it comes first". `:94` (`index.html:2638`) shows "The plan's first three moves" as `P.rows.slice(0,3)`. `walkthroughs.md:11` and `owner-inspection-checklist.md:14` present those moves as the plan's opening. The rows follow `derived-values.json` `items`, which is the order the decisions are declared in the manifest (`best()` builds `items` from the `itertools.product` combination). No declared input or computation orders them as actions. For Metro, the manifest does have a `priority_order` (`demo-site-scenario-manifest.yaml:767`), but the screen does not read it. At Lakeside the result contradicts itself: row 2 of the "first three moves" is BAT-EVIDENCE, whose "Reason it comes first" text (`WHY_FIRST`, `:101`) is "nothing breaks if it waits a month".
+- The author's defence (REVIEW-response, "Left as they are … the order items are acted on") is not backed: there is no action-order rule for Lakeside or Harvest.
+- Read beside the "must-do" labels, the screen tells a reader that must-do items are taken first. That is the prior step M1 removed from the text.
+- "Must do" as a decision property is fine. Main doc `:176` and domain `:587`/`:603` define it correctly, and the `WHY_FIRST` "Must do: …" reasons do not mislead on their own. The ordering words are the problem.
+- Fix:
+  - Rename the column "Why it is in the plan".
+  - Then either derive an action order from a declared rule (e.g. by deadline or restore date, declared in the structure specification) and state that rule, or rename the strip "In the plan" and drop "first".
+  - Update `fixture-mapping.md:66`. It still says first moves come from `allocation.recommended` and Metro `priority_order`, but the code reads the evaluated case's `items`.
+  - Update derivation-register rows `:2077` and `:2079`. `:2079` also quotes stale `WHY_FIRST` text ("Largest modelled value…", "Largest 12-month value", "Largest money") that is no longer in the code.
+
+**M2 (Medium). The 15-option shortlist and its refusal are still claimed, but the code does not have them.** The shortlist step was removed from the `allocate` pseudocode, and neither evaluator enforces a size limit. Yet the pack still says:
+- `domain-and-decision-models.md:651` lists error modes `MUST_DO_UNFUNDED` and `REFUSED_TOO_MANY`;
+- `:773` says the product refuses when "more than 15 value options remain after dominance";
+- main doc `:182` (and `.html`) says "(≤ 15 money options)".
+
+`best()` returns a single `infeasible` result ("no plan satisfies the budget, the crew-visit limit, the bounds and the dated dependencies"). It has no must-do-specific error and no size refusal. A builder following `phase-plan-and-acceptance.md:148` ("build it as one search, as `best()` does") would not implement either.
+
+On the author's `:182` question: "≤ 15" is now an unsupported claim when read as a limit. As a description of this world it is true but uninformative. Lakeside's choice sets give 3 × 1 × 2 × 2 × 2 × 2 × 2 = 96 combinations.
+
+Recommended fix:
+- Replace `:182`'s parenthesis with the size the search actually covers ("the product of the decisions' choice counts, under 100 combinations per portfolio here"), matching domain `:603`.
+- Replace `:651`'s error modes with `INFEASIBLE` (no combination fits) and `DEPENDENCY_CYCLE`.
+- At `:773`, either drop the size refusal, or keep it as a declared product guard on the product of choice counts. If it is kept, list it in the structure specification as a declared input, not as dominance shortlisting.
+
+**L1 (Low). §6.2 states the wrong reason for leaving out KIS-REPLACE.** `domain-and-decision-models.md:607` says "KIS-REPLACE (over the budget; the least violation among affordable options is the repair)". The manifest reason at `:1208` uses the same "among affordable options" wording. In `derived-values.json`, KIS-REPLACE's redundancy violation is 105 against the repair's 15, so the repair has the least violation of all three options, affordable or not. `protective_choices.kisiwa_genset` correctly carries no `trade_off`. The wording suggests replacement would win with more budget, which is false. Fix: "KIS-REPLACE (more hours without backup, 105 against 15, and over the budget)".
+
+**L2 (Low). §6.2 places Mto's billing fix both inside and outside the search.** `domain-and-decision-models.md:603` says zero-cost actions that are not plan decisions (Mto's billing fix) are "carried with the plan, outside the search". Yet `:607` lists MTO-BILLING under "Money-valued options", and the `:611`–`:613` rows name "+ BILLING" as part of each combination. MTO-BILLING belongs to no decision (manifest `plans.lakeside-power.listed_not_added`) and is not in `items`. Its 0 cost leaves every figure unchanged. Fix: drop "+ BILLING" from the rows and from the money-valued list, and note it once beside the table.
+
+**L3 (Low). The `allocate` pseudocode omits three filters `best()` applies.** `domain-and-decision-models.md:591-601` matches the search structure, the candidate rule, the `None` rule, the ranking key and the tie rule. It omits:
+- (a) `candidates()` drops a valued decision's options whose money value is unknown (`value_if_admissible is None`);
+- (b) any combination with unknown crew visits is skipped (`:476`, spec §5.7);
+- (c) a required valued decision must take an option.
+
+None changes a figure here: every valued option has a value and every option has known visits. Fix: add them to the `feasible()` comment. A side observation outside this commit: `independent_model.py` lacks (c), so the two disagree for a required decision with no candidates. That case does not arise in this world.
+
+### Item-by-item
+
+1. **Search descriptions.** Clean, apart from M1, M2 and L2. `derivation-register.md:2500` (H1 tie-break: declared decision order, "none" first) matches both evaluators. The `method` string in the manifest (`:385`) and in the fixtures matches.
+2. **`allocate` and §6.2/§6.4 figures.** Reproduced from `derived-values.json` option costs and visits:
+   - KIS-REPAIR 1,800 + STOPSOC 90 + CLAIM 230 + HULLER 1,200 = 3,320, with 1 + 0 + 1 + 0 = 2 visits;
+   - adding BAT-EVIDENCE (430, 1 visit) gives 3,750.00 and 3 of 3, matching `plans.lakeside-power.default`;
+   - the other rows: 2,120; 6,000 (6,430 with evidence, over 5,000); and 6,430 for the 6,500/no case;
+   - §6.4: Harvest 720.00 and 2 of 2, Metro 1,590.00 and 0 visits, as derived;
+   - Kisiwa "least violation" matches `protective_choices` (`least violation within the plan (15.0)`).
+3. **"≤ 15".** See M2.
+4. **L1 Record rows.** Supported:
+   - Kisiwa `:593`: manifest `:178` has `standby_kw: "0"` with "record: GEN-KS-02 carries the evening load (95%); battery at reserve; no PV in the evening"; `:179`/`:201` agree.
+   - Mto `:622`: manifest `:231` has `standby_kw: "physical.genset_kw"`, "record: the generator is idle in the 10:00-15:00 window (dispatch log)".
+   - Welding Assumption row (`:648`, `:653`): manifest `:1005` carries it only as a `note`, so "Assumption" is the right label.
+5. **No regression.**
+   - `derived-values.json` is unchanged (`git diff --quiet` passes).
+   - `python3 check_manifest.py` returned **3674 checks passed, 0 failed**, and left the tree clean.
+   - The `.html` carries every new `.md` phrase once each (12 phrases checked, including "≤ 15") and none of the old ones.
+   - The mock-up text diff is limited to the manifest hash (`fixtures.js`, `index.html` header), the `allocation.method` string inside the embedded fixtures, and the `loop-portfolio.js:166` note (`index.html` carries the same four changes).
+   - 15 screenshots changed; I did not inspect them pixel by pixel.
+
+### Not verified
+
+No browser render of the mock-up or `.html`, and no rerun of `gen_fixtures.py`, `build.mjs` or `run-audit.sh`; the 202/202 audit figures are the author's. No test suite was run. No database, Docker container or port 5490/8990 was touched. No pack file was edited.
