@@ -140,7 +140,12 @@ round the Architect folds rulings into one current unit card.
 - Guards: `pwsh -NoProfile -File tools/check-all.ps1`, plus
   `tools/check-architecture.ps1` and `tools/check-agent-workflow.ps1`; never
   with an execution-policy override. A guard you add must be shown to fail on
-  a real violation.
+  a real violation. Builders run check-all themselves (fast mode, at the end of
+  the build, before review); it allows 2 runs at once machine-wide and waits
+  for a free slot. The coordinator runs it on `main` after every merge, where
+  it is full by itself (the estate self-tests run there, with `-Full`, and on
+  any branch that changes the writer guard or its tests). The central queue of
+  12 Nov is ended (PIPE-1, coordinator rule).
 - Databases: only `*_test` and `<prefix>_audit*` databases in
   `assetopsv1-postgres-1`; never others. Drop your own when done.
 - Walkthrough and demo (owner): never touch port 5490 (walkthrough server,
