@@ -53,7 +53,7 @@ MOVES: dict[str, tuple[str, str | None]] = {
     # --- retired advisory guards (PIPE-1 A6) and the data only they read ---
     "frontend/docs/architecture/check_v69_dependency_registry.cjs": (
         "archive/frontend/docs/architecture/check_v69_dependency_registry.cjs",
-        "Retired guard (PIPE-1 A6; v69 and S1-S7 are not read, O1/O2); the live gap catalogue is "
+        "Retired guard (PIPE-1 A6; v69 is not read (O2) and the S1-S7 queue is built); the live gap catalogue is "
         "frontend/docs/architecture/check_mock_gaps.cjs."),
     "frontend/docs/architecture/delivery_next_work.cjs": (
         "archive/frontend/docs/architecture/delivery_next_work.cjs",

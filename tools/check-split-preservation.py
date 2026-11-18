@@ -66,7 +66,7 @@ def main() -> int:
         rev = (added[-1].decode() + "^") if added else "HEAD"
     global PARTS_REV
     if "--worktree" not in sys.argv:
-        PARTS_REV = sys.argv[sys.argv.index("--parts") + 1] if "--parts" in sys.argv else rev[:-1]
+        PARTS_REV = sys.argv[sys.argv.index("--parts") + 1] if "--parts" in sys.argv else (rev[:-1] if rev.endswith("^") else rev)
     print(f"parts read from {PARTS_REV or 'the working tree'}")
     bad = 0
     dec = git("show", f"{rev}:.ai/DECISIONS.md")
