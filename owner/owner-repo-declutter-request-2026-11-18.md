@@ -37,3 +37,7 @@ After the coordinator explained D11 (adopt workflow W1–W9 from `Docs/demo-spri
 > go ahead with declutter step 4
 
 Coordinator's split: 4a (branch `task/declutter-04-specs-history`) moves specs, owner files and history with a citation map and rewrite; 4b (branch `task/declutter-04b-owner-summary`) drafts the concise owner-feedback summary (O4) for the owner to confirm before any original is archived.
+
+## Owner instruction (verbatim), 2026-11-18: step 5
+
+> go ahead with declutter step 5 after the review
