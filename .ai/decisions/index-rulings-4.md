@@ -1,6 +1,6 @@
 # Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-E5.14 to D-PRICE.4)
 
-One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
 
 - `D-E5.14` Downstream figures (for the DS-1 scripts after the… · replaced in part? see specs/OWN-GAPS/rulings-4.md:654 · specs/OWN-GAPS/rulings-4.md:540
 - `D-E5.15` Order · live · specs/OWN-GAPS/rulings-4.md:557

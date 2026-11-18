@@ -1,6 +1,6 @@
 # Owner feedback index, part 3 of 5 (2026-10-26 to 2026-11-07)
 
-One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
 - 2026-10-26 `owner-commercial-capability-feedback-2-2026-10-26.md` Commercial readiness iteration 3 feedback · current — iteration done; claim ladder, never label simulated realized; to confirm
 - 2026-10-26 `owner-commercial-capability-feedback-2026-10-26.md` Commercial vs capability assessment feedback · historical — iteration done

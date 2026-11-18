@@ -1,6 +1,6 @@
 # Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-SR.1 to D-SR.52)
 
-One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
 
 - `D-SR.1` Three classes of Site page · live · specs/OWN-GAPS/rulings-7.md:5
 - `D-SR.2` Every Site link carries the range, through one… · live · specs/OWN-GAPS/rulings-7.md:11

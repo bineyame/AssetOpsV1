@@ -1,6 +1,6 @@
 # Owner feedback index, part 5 of 5 (2026-11-13 to 2026-11-18)
 
-One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
 - 2026-11-13 `owner-push-and-ui-mockups-2026-11-13.md` Push branches; rebuild UP-1 on v7.2 · historical — done
 - 2026-11-13 `owner-walkthrough-4pm-2026-11-13.md` Walkthrough at 4pm; keep merging · historical — one-off schedule

@@ -1,14 +1,15 @@
 # Owner feedback index
 
-The owner's words, verbatim, in `.agent/owner-*.md` (187 files; they move here in
-declutter step 4). Authority: owner words come first (`.ai/START_HERE.md`). Status is
+The owner's words, verbatim, in `owner/` (186 files, moved from `.agent/` in declutter
+step 4; `owner-walkthrough-notes-2026-11-01.md` stays in `.agent/` until its pending
+change is committed). Authority: owner words come first (`.ai/START_HERE.md`). Status is
 read from what later owner files say: 63 current, 12 superseded, 112 historical.
 "to confirm" marks a status the owner has not confirmed. The concise summary of what
 matters now (owner O4) is a later step that the owner confirms; this index prepares it.
 
 All files, by date: `index-1.md`, `index-2.md`, `index-3.md`, `index-4.md`, `index-5.md`.
 
-Current files (in `.agent/`):
+Current files:
 
 - `owner-T028-closeout-2026-10-04.md` Readiness gap rule; decisions to Architect
 - `owner-T028-presentation-direction-2026-10-04.md` Client-facing plain text, graphs, deep tab

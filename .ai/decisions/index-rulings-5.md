@@ -1,6 +1,6 @@
 # Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-R3.7 to D-W1-9)
 
-One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
 
 - `D-R3.7` for owner review). The night re-check trigger now… · live · specs/OWN-GAPS/rulings-2.md:332
 - `D-R3.8` for owner review). A correction that moves a… · live · specs/OWN-GAPS/rulings-2.md:589

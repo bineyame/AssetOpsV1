@@ -1,6 +1,6 @@
 # Owner feedback index, part 4 of 5 (2026-11-07 to 2026-11-13)
 
-One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
 - 2026-11-07 `owner-rehearsal-whole-list-2026-11-07.md` Whole-list rehearsal exception · historical — one-off exception
 - 2026-11-07 `owner-scenario-data-2026-11-07.md` Scenario data via operational actions · current — standing data principle

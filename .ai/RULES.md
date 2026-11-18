@@ -177,10 +177,18 @@ round the Architect folds rulings into one current unit card.
 
 ## 9. Keep the repo tidy
 
-- **Where agents write.** Agent scratch and session transcripts: the session
-  scratchpad or `.agent/` (git-ignored). Packets, reviews, rulings and owner
-  files stay where they are today until declutter steps 2 and 4 give them
-  indexed homes; `.ai/NOW.md` will say when that changes.
+- **Where agents write (declutter step 4).** Agent scratch and session
+  transcripts: the session scratchpad or `.agent/` (git-ignored; the only
+  tracked files there are live coordination files and files code reads, listed
+  in `tools/declutter/step4_map.py` KEEP). New owner files: `owner/`, verbatim,
+  named `owner-<topic>-<date>.md`, with a row in the last `owner/index-*.md`,
+  never `.agent/`. New specs: `specs/<ID>/` (`spec.md`; rulings and pre-flight
+  answers in `rulings.md`, continued in `rulings-2.md` past the 15k cap), with a
+  row in `specs/INDEX.md`. A spec's packets and reviews go in its folder; work
+  without a `specs/` folder keeps them in `.agent/` by named path. Finished or
+  superseded text goes to `archive/agent-history/` or `.ai/history/` with a
+  header line; neither is a default read. Old `.agent/` paths resolve through
+  `specs/CITATION_MAP.md`.
 - **Evidence (owner O3, 2026-11-18).** Generated evidence (screenshots,
   captures, audit JSON, logs, transcripts) is written outside the repo, to
   `/opt/assetecon/evidence/<task>/<run>/`, never into the tree or `.agent/`.
@@ -209,8 +217,10 @@ round the Architect folds rulings into one current unit card.
   the area file in `.ai/state/` plus a line in `.ai/state/index-*.md`, never to
   the `.ai/CODE_STATE.md` stub. Specs: `specs/INDEX.md`; owner files:
   `owner/INDEX.md`. Add the index line in the same commit;
-  `tools/check-decision-index.py` fails on an unindexed cited ID, a new owner
-  file or build sheet without a row, or an index over its cap.
+  `tools/check-decision-index.py` fails on an unindexed cited ID, an owner file
+  or spec folder without a row, an owner file or build sheet tracked in
+  `.agent/`, or an index over its cap; `tools/checks/tracked_evidence.py` fails
+  on evidence under `specs/`, `owner/` or `archive/`.
 - **Example IDs.** A packet, review or spec that needs an example, planted or
   hypothetical decision ID uses the reserved forms `D-EG.<n>` or
   `D-2099-<MM>-<DD>-<slug>` (never indexed; the guard skips exactly these), or

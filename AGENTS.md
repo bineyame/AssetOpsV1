@@ -22,7 +22,7 @@ Stop there. Everything else is found on demand.
 - Built state: grep the slice ID in `.ai/state/index-*.md`, then read that one
   section of the area file.
 - Specs: `specs/INDEX.md`. Owner words: `owner/INDEX.md` (files verbatim in
-  `.agent/owner-*.md`), by the file a spec or NOW cites.
+  `owner/`), by the file a spec or NOW cites.
 - Product glossary and old boundaries: `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md`,
   only where `.ai/START_HERE.md` says they still apply.
 

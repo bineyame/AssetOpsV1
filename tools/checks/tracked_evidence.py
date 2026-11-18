@@ -6,16 +6,17 @@ Fails when the git index holds:
      `*-wip`, `*-probe`) anywhere in the tree;
   3. an image (png, jpg, jpeg, gif, webp) outside the allowed folders;
   4. a file over MAX_BYTES outside the allowed folders;
-  5. under `.agent/`: anything other than a root-level md/html/py/sh file or `.agent/delivery-drafts/*.md`
-     (the text that stays tracked until declutter step 4 gives it a home).
+  5. under `.agent/`: anything other than a root-level md/html/py/sh file (live coordination files and files
+     code reads; declutter step 4 moved the rest to `specs/`, `owner/` and `archive/agent-history/`);
+  6. under the text homes `owner/` (md only), `specs/` (md, html, txt) and `archive/` (md, html, py, sh, txt):
+     any other file, so no evidence lands beside the specs, owner words or history.
 
 Allowed folders (rules 3 and 4): `frontend/mockups/`, `frontend/public/`, `Docs/`, `contract-fixtures/`, and any
 `fixtures/` or `__fixtures__/` folder. A test fixture is the only evidence that may be committed, and only there.
 
-MAX_BYTES is 1 MiB. Outside the allowed folders the largest tracked files are a 0.68 MB build sheet and a 0.36 MB
-registry JSON, while evidence bulk ranges from 0.1-0.5 MB screenshots (caught by rule 3) to 4.4 MB session
-transcripts; 1 MiB leaves about 50% headroom over legitimate text and still catches transcripts and dumps. Lower it
-after declutter step 4 moves the large build sheets (review L3). Test data
+MAX_BYTES is 512 KiB (lowered from 1 MiB in declutter step 4, review L3). With the 0.68 MB build sheet split,
+the largest tracked files outside the allowed folders are a 0.49 MB archived ranking note and a 0.36 MB registry
+JSON, while evidence bulk ranges from 0.1-0.5 MB screenshots (caught by rule 3) to 4.4 MB session transcripts. Test data
 colocated in `__tests__/` (e.g. frontend/src/shell/__tests__/kobo-degraded-evidence-deltas.json, 1.38 MB) is allowed.
 
 Sizes are read from the index (`git cat-file --batch-check`), so a staged file is checked as committed.
@@ -28,7 +29,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-MAX_BYTES = 1 << 20
+MAX_BYTES = 512 << 10
 ALLOWED_PREFIXES = ("frontend/mockups/", "frontend/public/", "Docs/", "contract-fixtures/")
 ALLOWED_SEGMENTS = ("fixtures", "__fixtures__")
 SIZE_ALLOWED_SEGMENTS = ALLOWED_SEGMENTS + ("__tests__",)
@@ -36,7 +37,9 @@ LOG = re.compile(r"\.(log|err|pid|out)$|-(log|last)\.txt$", re.I)
 TRANSCRIPT = re.compile(r"\.jsonl$", re.I)
 IMAGE = re.compile(r"\.(png|jpe?g|gif|webp)$", re.I)
 EVIDENCE_DIR = re.compile(r"-(captures|evidence|recapture)(-.*)?$|-(screens|shots|wip|probe)$", re.I)
-AGENT_KEPT = re.compile(r"\.agent/[^/]+\.(md|html|py|sh)$|\.agent/delivery-drafts/[^/]+\.md$")
+AGENT_KEPT = re.compile(r"\.agent/[^/]+\.(md|html|py|sh)$")
+TEXT_HOMES = {"owner/": re.compile(r"\.md$"), "specs/": re.compile(r"\.(md|html|txt)$"),
+              "archive/": re.compile(r"\.(md|html|py|sh|txt)$")}
 
 
 def allowed(path: str, segments: tuple[str, ...]) -> bool:
@@ -60,6 +63,9 @@ def problems(entries: list[tuple[str, int]]) -> list[str]:
         if path.startswith(".agent/") and not AGENT_KEPT.fullmatch(path):
             out.append(f"{path}: only root md/html/py/sh text is tracked under .agent/ (evidence goes to "
                        "/opt/assetecon/evidence/<task>/<run>/)")
+        home = next((h for h in TEXT_HOMES if path.startswith(h)), None)
+        if home and not TEXT_HOMES[home].search(path):
+            out.append(f"{path}: {home} holds text only (evidence goes to /opt/assetecon/evidence/<task>/<run>/)")
     return out
 
 
@@ -84,8 +90,11 @@ def self_test() -> int:
     bad = [(".agent/post-W6-audit/run-1/shot.png", 200_000), (".agent/W9-evidence/report.md", 100),
            ("tools/foo-captures/a.json", 10), ("backend/run.log", 10), ("serve.pid", 5), ("x/y.err", 5),
            (".agent/planner-X-log.txt", 4_000_000), ("frontend/src/shot.png", 10), ("notes/session.jsonl", 10),
-           (".agent/next-work.json", 10), ("backend/big.json", MAX_BYTES + 1), (".agent/X-wip/a.py", 10)]
-    good = [(".agent/packet-declutter-03.md", 9000), (".agent/delivery-drafts/w1-panel-mapping-draft.md", 10),
+           (".agent/next-work.json", 10), ("backend/big.json", MAX_BYTES + 1), (".agent/X-wip/a.py", 10),
+           (".agent/delivery-drafts/x.md", 10), ("specs/W9-01/capture.json", 10), ("owner/notes.html", 10),
+           ("archive/agent-history/run.json", 10)]
+    good = [(".agent/coordinator-handoff.md", 9000), ("specs/DIESEL-1/rulings-2.md", 45_000),
+            ("owner/owner-x-2026-11-18.md", 10), ("archive/agent-history/T026-guard-probes.py", 10),
             ("frontend/mockups/v70/previews/portfolio.png", 307_133), ("Docs/UI Design/Motivation/x.png", 1_747_141),
             ("backend/tests/fixtures/w2/ev-w206-vectors.json", 2_047_695),
             ("frontend/src/shell/__tests__/kobo-degraded-evidence-deltas.json", 1_377_522),

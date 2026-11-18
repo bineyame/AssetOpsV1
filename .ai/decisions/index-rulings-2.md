@@ -1,6 +1,6 @@
 # Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-SR.53 to D-AW-4)
 
-One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
 
 - `D-SR.53` The rebuild test (interpretation 6 · live · specs/OWN-GAPS/rulings-7.md:290
 - `D-SR.54` Day-kind build time in the prepare and the… · live · specs/OWN-GAPS/rulings-7.md:293

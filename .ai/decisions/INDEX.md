@@ -30,9 +30,9 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-6.md` | Demo-sprint and later rulings | `D-W1-10` to `D-WARM.8` (22) |
 
 The `index-rulings-*` lines are index-only: demo-sprint and later rulings
-(D-SR, D-E5, D-ANY, D-AW, D-W1, D-MONEY and the rest) whose text stays in
-`.agent/` build sheets, Architect files and the coordinator handoff until
-declutter step 4. Most live in `specs/OWN-GAPS/`.
+(D-SR, D-E5, D-ANY, D-AW, D-W1, D-MONEY and the rest) whose text is in the
+rulings parts of `specs/<ID>/` (most in `specs/OWN-GAPS/`) and in Architect files
+in `archive/agent-history/` (declutter step 4); each line names its file.
 
 New decisions: append to `<YYYY-MM>.md` of the month (create it if absent; the
 first is 2026-11.md) with a `Decision: \`D-YYYY-MM-DD-slug\`` line, or record a
