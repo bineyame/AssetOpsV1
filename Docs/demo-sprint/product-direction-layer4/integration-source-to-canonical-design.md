@@ -695,7 +695,7 @@ An adapter has three parts: **transport** (how bytes arrive), **parser** (bytes 
 | Pilot | the operator's export, uploaded or dropped on a schedule (SFTP or e-mail) | same | `<operator-source>-1`, PINNED | *field-integrated* |
 | Pilot money | the operator's own ledger, bill or statement | same | same | *observed-financial* |
 
-Only transport and profile change; the parser, canonical records, observers and structure do not. **Pilot validation gate:** one closed month reconciled to the cent against the operator's management accounts on revenue and fuel or energy cost before any value is shown as Recorded money; until then the money factors are labelled with their provenance.
+Only transport and profile change; the parser, canonical records, observers and structure do not. **Pilot validation gate:** one closed month reconciled, within a tolerance agreed at the start, against the operator's management accounts on revenue and fuel or energy cost before any value is shown as Recorded money; until then the money factors are labelled with their provenance.
 
 ---
 

@@ -276,7 +276,7 @@ def d4():
     b.append(diamond(680, cy, 170, 110, ["Their plan", "against actual", "reconciled and", "compelling?"]))
     b.append(box(790, y, 160, h, ["Stop or rethink", "record why"], fs=12))
     b.append(box(180, 170, 180, 66, ["Data assessment", "cold and EV prospects", "until their vertical", "is built"], fs=12))
-    b.append(box(10, y2, 190, h, ["Integration pack", "and pilot timeline", "sources in order;", "pilot fee, credited against", "the first SaaS year (C2)"], cls="bxa", fs=12))
+    b.append(box(10, y2, 190, h, ["Integration pack", "and pilot timeline", "the pilot has a fee, agreed", "with you after we have", "talked through your sites"], cls="bxa", fs=12))
     b.append(box(225, y2, 180, h, ["Pilot and", "monitoring", "options vs no action;", "first change proved"], cls="bxa", fs=12))
     b.append(diamond(515, cy2, 170, 110, ["Verdicts and", "the buyer's own", "judgement?"]))
     b.append(box(625, y2, 150, h, ["SaaS", "subscription", "and reference"], cls="bxa", fs=12))
@@ -292,12 +292,12 @@ def d4():
                      ("r", [(["Initial call: aligned on data privacy,", "processes, integrations, who signs?", "not yet: data assessment (cold, EV)"], "bxp")]),
                      ("a", "yes", "ar"), ("r", [(["Deep-dive with process owners", "file exports through the canonical", "contract; first decision to test"], "bxa")]),
                      ("r", [(["Their plan against actual in the", "product, reconciled and compelling?", "no: stop or rethink, record why"], "bxp")]),
-                     ("a", "yes", "ar"), ("r", [(["Integration pack and pilot timeline", "sources in order, files first;", "pilot fee, credited against", "the first SaaS year (C2)"], "bxa")]),
+                     ("a", "yes", "ar"), ("r", [(["Integration pack and pilot timeline", "sources in order, files first;", "the pilot has a fee, agreed with", "you after we have talked", "through your sites"], "bxa")]),
                      ("r", [(["Pilot and monitoring", "options vs no action; one change proved"], "bxa")]),
                      ("r", [(["Verdicts and the buyer's judgement?", "no: stop or rethink"], "bxp")]),
                      ("a", "yes", "ar"), ("r", [(["SaaS subscription", "and reference case"], "bxa")])])
     return svg(960, 462, "".join(b), "Figure 4. The engagement path, with its gates (D1, as revised by the owner on 18 Nov)",
-               "Demo of the loop on the mock-up, then the live product as what runs today; an initial call checks alignment on data privacy, processes, integrations and who signs; aligned prospects get a deep-dive with their process owners, in which their file exports go through the canonical contract, others a data assessment. If their plan against actual in the product is reconciled and compelling, an integration pack and pilot timeline follow, with a pilot fee credited against the first SaaS year (C2); then the pilot and monitoring; if its verdicts hold, a SaaS subscription. Failed gates lead to stop or rethink.", narrow)
+               "Demo of the loop on the mock-up, then the live product as what runs today; an initial call checks alignment on data privacy, processes, integrations and who signs; aligned prospects get a deep-dive with their process owners, in which their file exports go through the canonical contract, others a data assessment. If their plan against actual in the product is reconciled and compelling, an integration pack and pilot timeline follow; the pilot has a fee, agreed with the operator after the conversation about their sites; then the pilot and monitoring; if its verdicts hold, a SaaS subscription. Failed gates lead to stop or rethink.", narrow)
 
 # ---------------------------------------------------------------- diagram 5: dependencies (rights and plan in parallel)
 def d5():

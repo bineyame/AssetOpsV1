@@ -3,6 +3,7 @@
 **AssetEcon · Layer 4 architecture and demonstrator design · rev 13 (redesign, after twelve review rounds) · AssetOps Architect (Claude) · 17 Nov 2026 · rev 14 update 18 Nov 2026 (grounded path) · rev 15 update 18 Nov 2026 (introduction and §0)**
 **Rev 14 update.** At the owner's request (`.agent/owner-grounded-transition-request-2026-11-18.md`), the design states how today's chain is re-grounded on the mechanics and becomes the delivery vehicle, ordered by what the client's screens show: what a Finding means and may claim, how Evaluate acts on it (§2.2, §2.3), the Action as the user's carrier (§2.5), emulators as placeholders for the canonical contract (§4), the parity rule for the outcome map (§5), every existing construct placed on the mechanics (§8.5) and the visible-first delivery order (§9). The mechanics and figures are unchanged. Full mapping and the compromise register: `product-transition-and-roadmap.md` §3.6–§3.9.
 **Rev 15 update.** At the owner's request (`.agent/owner-design-intro-and-motivation-request-2026-11-18.md`), the owner-approved description opens the document as its introduction, and a new §0 shows, dimension by dimension (data, processing, presentation), how far today's mechanics reach and what is missing, repurposable or must change. The mechanics and figures are unchanged. Rev 15.1 (18 Nov): the owner revised D1 (engagement path: initial call → deep-dive → integration pack and pilot timeline → pilot → SaaS); the introduction carries a dated note, §9 and the pack follow (`product-transition-and-roadmap.md` §2).
+**Rev 15 review fixes (18 Nov).** The dated note under the introduction states the pilot fee's form as an open default (C2), and §0.4 counts four blocking must-change items, as §0.2 classifies the missing approver as missing. The owner-approved introduction sentence is unchanged.
 **Status:** design for owner review. No application code, test, database or existing mock-up version was changed. Repository: branch `task/product-direction-layer4-design`; backend, frontend, simulator and tools are unchanged since `bf6014e02`, so every code citation below was read against current code.
 **Product contract:** owner brief v1.1, Parts I–V (`.agent/AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md`). This document answers Part VI as the owner clarified it on 17 Nov 2026 (`.agent/owner-layer4-direction-feedback-2026-11-17.md`).
 
@@ -29,7 +30,7 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 
 **What it's ultimately for:** differentiation and usefulness that convert operator executives. They see their own money explained, their decisions compared, and results proven, which their monitoring tools can't do. The commercial path follows from that: demo, then a paid diagnostic on their records, then a proven change.
 
-*Since revised by the owner (18 Nov, D1; `/opt/assetecon/AssetOpsV1/owner/owner-d1-engagement-path-2026-11-18.md`):* the commercial path is now an initial call (data privacy, processes, integrations), a deep-dive with process owners, an integration pack and pilot timeline, the pilot with monitoring, then the product as a SaaS offering; the operator's own exports go through the canonical contract early, as the pilot's baseline, and the pilot carries a fee, credited against the first SaaS year (`product-transition-and-roadmap.md` §2.2–§2.3). The approved wording above is kept as approved.
+*Since revised by the owner (18 Nov, D1; `/opt/assetecon/AssetOpsV1/owner/owner-d1-engagement-path-2026-11-18.md`):* the commercial path is now an initial call (data privacy, processes, integrations), a deep-dive with process owners, an integration pack and pilot timeline, the pilot with monitoring, then the product as a SaaS offering; the operator's own exports go through the canonical contract early, as the pilot's baseline, and the pilot carries a fee, modest or credited against the first SaaS year (which form is C2, an open default) (`product-transition-and-roadmap.md` §2.2–§2.3). The approved wording above is kept as approved.
 
 ## 0. Why Layer 4: how far today's mechanics reach, and what has to change
 
@@ -272,12 +273,13 @@ The rest is the processing that uses them:
 - a single day shown on a period range;
 - an income estimate for a fleet that earns none.
 
-Five items block:
+Four items block:
 - a second model of outcomes;
 - a single fixed option;
 - a zero change cost;
-- field evidence refused;
-- no recorded approver.
+- field evidence refused.
+
+A recorded approver is not among them: nothing records one today, so §0.2 lists it as missing, not as something to change.
 
 That column is short. The change is larger than it suggests, because the 23 reworked rows are where most of the work lies.
 
