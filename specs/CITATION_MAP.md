@@ -14,8 +14,8 @@ this map resolves the rest: verbatim records (archived files, owner files, spec 
 - `.agent/architect-sequence-client-scope-2026-11-11.md`: live demo-sprint plan (cited by .ai/NOW.md).
 - `.agent/backlog-post-demo.md`: live post-demo backlog; the owner picks items after the demo.
 - `.agent/page-load-architecture-review-2026-11-14.html`: owner decisions D1-D6 still pending.
-- `.agent/convertion_potential.html`: owner-facing document on main (cited by .ai/NOW.md); its home is step 5.
-- `.agent/decision-intelligence-mechanism-2026-11-14.html`: owner-facing document on main (cited by .ai/NOW.md); its home is step 5.
+- `.agent/convertion_potential.html`: moved in step 5 to `Docs/demo-sprint/convertion_potential.html` (same bytes; see below).
+- `.agent/decision-intelligence-mechanism-2026-11-14.html`: moved in step 5 to `Docs/demo-sprint/decision-intelligence-mechanism-2026-11-14.html` (same bytes; see below).
 - `.agent/mock-departure-register.md`: read by tools/checks/mock-deviation-labels.mjs; RULES section 6 adds rows here.
 - `.agent/W1-UX-combined-owner-walkthrough.md`: read by tools/checks/test_evidence_checks.mjs.
 - `.agent/owner-walkthrough-notes-2026-11-01.md`: pending: uncommitted change in the main checkout; move after it is committed.
@@ -113,3 +113,22 @@ this map resolves the rest: verbatim records (archived files, owner files, spec 
 `task/product-direction-layer4-design` and `task/gtm-documents` (and any other branch cut before
 step 4): their text keeps `.agent/...` citations until they merge `main`; this map resolves them.
 Merge instructions: `specs/DECLUTTER/packet-declutter-04.md`.
+
+## Step 5 (Docs and tools, 2026-11-18)
+
+Base `d05bf668c`. `tools/declutter/step5_map.py` is the executable form; `move_step5.py --verify` proves
+every moved file is its base bytes plus at most one header line. Citations in live text and code comments were
+rewritten by `move_step5.py rewrite`; verbatim records (archive, owner files, spec parts, `.ai/history/`) keep
+old paths and resolve here. A file with a header has old `:N` at `:N+1`, except a shebang script's line 1
+(the header is line 2 there); files with no header (owner words, owner draft, JSON, the two live HTML
+documents) keep their line numbers.
+
+| Old path | New path | Header |
+| --- | --- | --- |
+| `Docs/simulator_design.md`, `_v2.md`, `_v3.md`, `Docs/simulator-design-v2-alignment.md`, `-v3-alignment.md`, `Docs/multi-vertical-capability-read.md`, `Docs/multi-vertical-build-plan.md`, `Docs/mini-grid-demo-architecture-and-roadmap.md`, `Docs/declared-capability-and-what-checks-it.md` | `Docs/archive/2026-09/<same name>` | Superseded by X |
+| `Docs/multi-vertical-brief-verbatim.md`, `Docs/queue-review-feedback-verbatim.md`, `Docs/lab-cockpit-proposal.md` | `Docs/archive/2026-09/<same name>` | none (owner words or draft; status in `Docs/archive/README.md`) |
+| `.agent/convertion_potential.html`, `.agent/decision-intelligence-mechanism-2026-11-14.html` | `Docs/demo-sprint/<same name>` | none (live) |
+| `frontend/docs/architecture/check_v69_dependency_registry.cjs`, `delivery_next_work.cjs`, `test_delivery_next_work.cjs`, `check_v69_ledger.py` | `archive/frontend/docs/architecture/<same name>` | Retired guard |
+| `frontend/docs/architecture/v69-subject-area-briefs.json`, `v69-model-homes.json` | `archive/frontend/docs/architecture/<same name>` | none (JSON) |
+| `tasks/README.md` before step 5 (the S1-S7 tables) | `tasks/archive/site-first-2026-10/queue-tables.md` | Superseded by X; `tasks/README.md` is now a short pointer |
+| `tools/<name>` for the 28 names in `step5_map.TOOLS_FINISHED` (`ap1_parity_probe.py`, `dd1a1_*`, `dd1a2_addday_l2.py`, `dd1b1_coh3_probe.py`, `dd1b2a_*`, `lr01-money-evidence.mjs`, `pr2a-`/`pr3-` price evidence, `s405-provenance-evidence.mjs`, `s5-overview-evidence.mjs`, `v01b-*`/`v01b_*`, `w1-fidelity-audit-index.mjs`, `w502-`/`w504-` work evidence, `w5f1-d3-evidence.mjs`) | `archive/tools/<name>` | Finished; historical |

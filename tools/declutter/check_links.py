@@ -1,16 +1,18 @@
-"""Declutter step 4 link check: every `.agent/`, `specs/`, `owner/`, `Docs/` and `tasks/` path cited in tracked
-text and code resolves to a file (or folder) or through the citation map.
+"""Declutter link check (steps 4 and 5): every `.agent/`, `specs/`, `owner/`, `Docs/`, `tasks/`, `tools/` and
+`frontend/docs/` path cited in tracked text and code resolves to a file (or folder) or through the citation map.
 
 A cited path resolves when:
 - it exists now (file or folder); or
 - it is `.agent/<p>` with <p> tracked at BASE: step4_map.new_location gives where it went (move_step4.py --verify
   proves those files); or
-- it is `.agent/<p>` evidence untracked in step 3 and present under EVIDENCE (CITATION_MAP rule 6).
-Otherwise it is unresolved. An unresolved path that existed at BASE (file or folder) was broken by this step:
+- it is `.agent/<p>` evidence untracked in step 3 and present under EVIDENCE (CITATION_MAP rule 6); or
+- it is an old path in step5_map.MOVES whose new location exists (CITATION_MAP "Step 5").
+Otherwise it is unresolved. An unresolved path that existed at the base (file or folder) was broken:
 FAIL. One that did not exist at BASE either (a file never committed, deleted earlier, or written to an output
 folder) is pre-existing and only counted, with examples.
 
-Usage: python tools/declutter/check_links.py [--list-preexisting]
+Usage: python tools/declutter/check_links.py [--base REV] [--list-preexisting]
+The base defaults to step 4's (`step4_map.BASE`); step 5 runs it with `--base step5_map.BASE` (d05bf668c).
 """
 from __future__ import annotations
 
@@ -22,10 +24,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from step4_map import BASE, new_location  # noqa: E402
+from step5_map import MOVES as STEP5  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = Path("/opt/assetecon/evidence/repo-untracked-2026-11-18")
-GREP = r"(^|[^A-Za-z0-9_./-])((\.agent|specs|owner|Docs|tasks)/[A-Za-z0-9_./-]*[A-Za-z0-9_/])([*<{$]?)"
+GREP = r"(^|[^A-Za-z0-9_./-])((\.agent|specs|owner|Docs|tasks|tools|frontend/docs)/[A-Za-z0-9_./-]*[A-Za-z0-9_/])([*<{$]?)"
 
 
 def git(*args: str) -> str:
@@ -33,7 +36,9 @@ def git(*args: str) -> str:
 
 
 def main() -> int:
-    base_files = set(git("ls-tree", "-r", "--name-only", BASE).splitlines())
+    base = sys.argv[sys.argv.index("--base") + 1] if "--base" in sys.argv else BASE
+    base_files = set(git("ls-tree", "-r", "--name-only", base).splitlines())
+    step4_files = set(git("ls-tree", "-r", "--name-only", BASE).splitlines())  # what the step-4 map covers
     base_dirs = {str(Path(f).parent) for f in base_files}
     base_dirs |= {p for d in list(base_dirs) for p in (str(x) for x in Path(d).parents)}
     hits = git("grep", "-I", "-n", "-o", "-E", GREP, "--", ".")
@@ -52,12 +57,18 @@ def main() -> int:
         if (ROOT / path).exists():
             resolved += 1
             continue
+        if path in STEP5 and (ROOT / STEP5[path][0]).exists():
+            mapped += 1
+            continue
         if path.startswith(".agent/"):
-            if path in base_files:
+            if path in step4_files:
                 new = new_location(path)
                 if (ROOT / new).exists() or (ROOT / new).parent.joinpath("README.md").is_file():
                     mapped += 1
                     continue
+            elif path.rstrip("/") in base_dirs and (ROOT / new_location(path.rstrip("/") + "/x")).parent.is_dir():
+                mapped += 1  # a cited `.agent/` folder whose files moved together (e.g. to archive/agent-history/)
+                continue
             elif (EVIDENCE / path).exists():
                 evidence += 1
                 continue
@@ -66,16 +77,16 @@ def main() -> int:
         else:
             pre[path] = places
     for path, places in sorted(broken.items()):
-        print(f"FAIL {path} (existed at {BASE}) cited in {', '.join(places[:3])}")
+        print(f"FAIL {path} (existed at {base}) cited in {', '.join(places[:3])}")
     if "--list-preexisting" in sys.argv:
         for path, places in sorted(pre.items()):
             print(f"pre-existing {path} cited in {', '.join(places[:2])}")
     by_root = defaultdict(int)
     for p in pre:
         by_root[p.split("/")[0]] += 1
-    print(f"link check: {len(cited)} distinct cited paths; {resolved} exist, {mapped} resolve through the step-4 map, "
-          f"{evidence} are step-3 evidence; {len(broken)} broken by this step; "
-          f"{len(pre)} pre-existing unresolved (absent at {BASE} too) {dict(by_root)}")
+    print(f"link check: {len(cited)} distinct cited paths; {resolved} exist, {mapped} resolve through the step-4/5 maps, "
+          f"{evidence} are step-3 evidence; {len(broken)} broken since {base}; "
+          f"{len(pre)} pre-existing unresolved (absent at {base} too) {dict(by_root)}")
     return 1 if broken else 0
 
 
