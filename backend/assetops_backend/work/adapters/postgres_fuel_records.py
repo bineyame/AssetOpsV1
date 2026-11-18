@@ -1,4 +1,4 @@
-"""DIESEL-K2 (`.agent/build-sheet-DIESEL-1.md` §9c.2): the read-only as-known fuel records reader (a rule-8 named
+"""DIESEL-K2 (`specs/DIESEL-1/` §9c.2): the read-only as-known fuel records reader (a rule-8 named
 PostgreSQL reader, never a writer).
 
 `select_fuel_records` runs on a caller's connection, so K3 reads inside its own snapshot; `PostgresFuelRecords`

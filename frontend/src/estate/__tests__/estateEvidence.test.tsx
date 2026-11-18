@@ -1,5 +1,5 @@
 /**
- * W3-02 commit 2 named frontend tests (`.agent/W3-02-build-spec.md` "Proof and builder handoff"): the estate
+ * W3-02 commit 2 named frontend tests (`specs/W3-02/` "Proof and builder handoff"): the estate
  * Evidence root under a local MemoryRouter (Lane A mounts the shell route), against the v6.9 `globalevidence`
  * panel structure, with every card, column, chip, link, inert example and state-table string asserted. Bodies are
  * shaped as the reviewed `estate-evidence-1` wire; IDs are synthetic, and no mock count, Site or Action survives.

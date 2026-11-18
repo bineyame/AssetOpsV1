@@ -1,6 +1,6 @@
 /**
  * W5-03a E3: the EV Site Energy page body (v6.9 `energy`), from the selected `/ev/energy` depth read
- * (`.agent/W5-03-build-spec.md` literal ledger, E3 card, closure 2 and the W5-03a pre-flight E3 ruling).
+ * (`specs/W5-03/` literal ledger, E3 card, closure 2 and the W5-03a pre-flight E3 ruling).
  *
  * Complete metered energy, partial energy and the gross tariff consequence stay separate; an observed peak below the
  * declared limit never exonerates the limit, and an unpriced consequence is never zero or cash.

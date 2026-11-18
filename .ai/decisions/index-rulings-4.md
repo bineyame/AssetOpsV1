@@ -2,57 +2,57 @@
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
 
-- `D-E5.14` Downstream figures (for the DS-1 scripts after the… · replaced in part? see build-sheet-OWN-GAPS-2026-11-08.md:3641 · build-sheet-OWN-GAPS-2026-11-08.md:3527
-- `D-E5.15` Order · live · build-sheet-OWN-GAPS-2026-11-08.md:3544
-- `D-E5.16` Longer spans: not available; DD1a1-R16 still holds (READ · live · build-sheet-OWN-GAPS-2026-11-08.md:3563
-- `D-E5.17` Injecting days: yes, through the product's ingest path;… · live · build-sheet-OWN-GAPS-2026-11-08.md:3577
-- `D-E5.18` The day list (v4 as amended · live · build-sheet-OWN-GAPS-2026-11-08.md:3597
-- `D-E5.19` Card FX-KOBO-GAPS, amended (same branch, same review; about… · live · build-sheet-OWN-GAPS-2026-11-08.md:3616
-- `D-E5.20` Figures (S = 11-08; expected, the build decides · live · build-sheet-OWN-GAPS-2026-11-08.md:3630
-- `D-E5.21` WK-GAP gates the v4 calendar only; on v3… · live · build-sheet-OWN-GAPS-2026-11-08.md:3657
-- `D-E5.22` Frontend: keep the page while the lens loads… · live · build-sheet-OWN-GAPS-2026-11-08.md:3739
-- `D-E5.23` Tools: pre-build the lens variants (card PL-2, Sonnet,… · live · build-sheet-OWN-GAPS-2026-11-08.md:3758
-- `D-E5.24` Client-side filtering by lens_flags is refused · live · build-sheet-OWN-GAPS-2026-11-08.md:3769
-- `D-E5.25` "High priority" removed; "Low confidence" replaced by "Not… · live · build-sheet-OWN-GAPS-2026-11-08.md:3808
-- `D-E5.26` Show the counts with an honest qualifier; do… · live · build-sheet-OWN-GAPS-2026-11-08.md:3816
-- `D-E5.27` Awaiting verification: mini-grid only is a disclosure defect… · live · build-sheet-OWN-GAPS-2026-11-08.md:3830
-- `D-E5.28` What each card is for (plain language, for… · live · build-sheet-OWN-GAPS-2026-11-08.md:3836
-- `D-E5.29` Verdict: product bug for Cold and EV, story… · live · build-sheet-OWN-GAPS-2026-11-08.md:3870
-- `D-E5.30` DATA-1 (Opus, 0.5 unit): one Kisiwa recording session;… · live · build-sheet-OWN-GAPS-2026-11-08.md:3879
-- `D-E5.31` PB-1 (Opus, 2 units, plus Sonnet 0.25 frontend):… · live · build-sheet-OWN-GAPS-2026-11-08.md:3885
-- `D-E5.32` Thursday mitigation: analysed-period story links (DATA-2, Sonnet, 0.25… · live · build-sheet-OWN-GAPS-2026-11-08.md:3894
-- `D-E5.33` Kisiwa objectives MG-2 and MG-5, after DATA-1 (DATA-6,… · live · build-sheet-OWN-GAPS-2026-11-08.md:3897
-- `D-E5.34` NOT BUILT values become plain roadmap wording (RM-1,… · live · build-sheet-OWN-GAPS-2026-11-08.md:3900
-- `D-E5.35` Integration ranking for the client · live · build-sheet-OWN-GAPS-2026-11-08.md:3903
-- `D-E5.36` Story order · live · build-sheet-OWN-GAPS-2026-11-08.md:3910
-- `D-E5.37` More Cold and EV days only after PB-1… · live · build-sheet-OWN-GAPS-2026-11-08.md:3914
-- `D-E5.38` to D-E5.40: Portfolio coverage counts UTC days (CO-6,… · live · build-sheet-OWN-GAPS-2026-11-08.md:3927
-- `D-E5.39` Thursday 13 Nov: do not fix; fix before… · live · build-sheet-OWN-GAPS-2026-11-08.md:3964
-- `D-E5.40` Mark CO-6 and WK-GAP as a known defect… · live · build-sheet-OWN-GAPS-2026-11-08.md:3975
-- `D-E5.41` to D-E5.44: DATA-12 review rulings (Architect, Claude, 2026-11-11;… · live · build-sheet-OWN-GAPS-2026-11-08.md:3989
-- `D-E5.42` Day rule, completing D-E5.38 (the M1 and L4… · live · build-sheet-OWN-GAPS-2026-11-08.md:3995
-- `D-E5.43` L1 and L3 fixed in the same round;… · live · build-sheet-OWN-GAPS-2026-11-08.md:4005
-- `D-E5.44` Money on a partly covered Site: owner question… · live · build-sheet-OWN-GAPS-2026-11-08.md:4021
-- `D-E5.45` Owner answer to D-E5.44: option 2 (2026-11-11 · live · build-sheet-OWN-GAPS-2026-11-08.md:4037
-- `D-E5.46` Day-gap words state the data fact; "not analysed… · live · build-sheet-OWN-GAPS-2026-11-08.md:4063
-- `D-E5.47` An infrastructure read failure is never stored and… · live · build-sheet-OWN-GAPS-2026-11-08.md:4104
-- `D-E5.48` DATA-11 Cold epochs and the EV depot's sparse… · live · build-sheet-OWN-GAPS-2026-11-08.md:4196
-- `D-E5.49` EV fault day over the full recorded day:… · live · build-sheet-OWN-GAPS-2026-11-08.md:4240
-- `D-E5.49a` Tonight's build fails one check, CO-10 ("16 min… · live · build-sheet-OWN-GAPS-2026-11-08.md:4307
-- `D-F05.1` F05 placement test coverage after the s602b estate… · live · build-sheet-OWN-GAPS-2026-11-08.md:4375
-- `D-HON.1` HON-1 Low: the Site Overview card's "Why?" days · live · build-sheet-OWN-GAPS-2026-11-08.md:4368
-- `D-I18N.1` , words render at read. Stored rows (site_period_read… · live · architect-plan-pre-client-2026-11-10.md:137
-- `D-I18N.2` , locale in every cache key. Until AR-5… · live · architect-plan-pre-client-2026-11-10.md:138
-- `D-I18N.3` , a language is offered only when complete… · live · architect-plan-pre-client-2026-11-10.md:139
-- `D-MB.1` Acceptable: the live window comes from the prolonged… · live · build-sheet-OWN-GAPS-2026-11-08.md:5607
-- `D-MB.2` No delivery loop; keep the gateway's 60 s… · live · build-sheet-OWN-GAPS-2026-11-08.md:5612
-- `D-MONEY.1` Store the amount with its receipt (hybrid), rebuild… · live · build-sheet-OWN-GAPS-2026-11-08.md:3679
-- `D-MONEY.2` Original currency only; conversion is read-time and named · live · build-sheet-OWN-GAPS-2026-11-08.md:3688
-- `D-MONEY.3` No stored totals · live · build-sheet-OWN-GAPS-2026-11-08.md:3694
-- `D-MONEY.4` It lives in the BL-66 design; no separate… · live · build-sheet-OWN-GAPS-2026-11-08.md:3699
-- `D-MONEY.5` Sizing · live · build-sheet-OWN-GAPS-2026-11-08.md:3706
-- `D-OPEN.1` , D-ANY.7, D-HON.1, D-F05.1 Batched rulings (Architect, Claude,… · live · build-sheet-OWN-GAPS-2026-11-08.md:4343
-- `D-PRICE.1` Prices typed on screen are saved as "Entered… · live · build-sheet-OWN-GAPS-2026-11-08.md:4323
-- `D-PRICE.2` PR-3 server half: Site name in the first-price… · live · build-sheet-OWN-GAPS-2026-11-08.md:4413
-- `D-PRICE.3` PR-2a price page: old addresses, EV subtabs, rows… · live · build-sheet-OWN-GAPS-2026-11-08.md:4444
-- `D-PRICE.4` PR-3 form half: the "Applies from" date exemption,… · live · build-sheet-OWN-GAPS-2026-11-08.md:4636
+- `D-E5.14` Downstream figures (for the DS-1 scripts after the… · replaced in part? see specs/OWN-GAPS/rulings-4.md:654 · specs/OWN-GAPS/rulings-4.md:540
+- `D-E5.15` Order · live · specs/OWN-GAPS/rulings-4.md:557
+- `D-E5.16` Longer spans: not available; DD1a1-R16 still holds (READ · live · specs/OWN-GAPS/rulings-4.md:576
+- `D-E5.17` Injecting days: yes, through the product's ingest path;… · live · specs/OWN-GAPS/rulings-4.md:590
+- `D-E5.18` The day list (v4 as amended · live · specs/OWN-GAPS/rulings-4.md:610
+- `D-E5.19` Card FX-KOBO-GAPS, amended (same branch, same review; about… · live · specs/OWN-GAPS/rulings-4.md:629
+- `D-E5.20` Figures (S = 11-08; expected, the build decides · live · specs/OWN-GAPS/rulings-4.md:643
+- `D-E5.21` WK-GAP gates the v4 calendar only; on v3… · live · specs/OWN-GAPS/rulings-5.md:5
+- `D-E5.22` Frontend: keep the page while the lens loads… · live · specs/OWN-GAPS/rulings-5.md:87
+- `D-E5.23` Tools: pre-build the lens variants (card PL-2, Sonnet,… · live · specs/OWN-GAPS/rulings-5.md:106
+- `D-E5.24` Client-side filtering by lens_flags is refused · live · specs/OWN-GAPS/rulings-5.md:117
+- `D-E5.25` "High priority" removed; "Low confidence" replaced by "Not… · live · specs/OWN-GAPS/rulings-5.md:156
+- `D-E5.26` Show the counts with an honest qualifier; do… · live · specs/OWN-GAPS/rulings-5.md:164
+- `D-E5.27` Awaiting verification: mini-grid only is a disclosure defect… · live · specs/OWN-GAPS/rulings-5.md:178
+- `D-E5.28` What each card is for (plain language, for… · live · specs/OWN-GAPS/rulings-5.md:184
+- `D-E5.29` Verdict: product bug for Cold and EV, story… · live · specs/OWN-GAPS/rulings-5.md:218
+- `D-E5.30` DATA-1 (Opus, 0.5 unit): one Kisiwa recording session;… · live · specs/OWN-GAPS/rulings-5.md:227
+- `D-E5.31` PB-1 (Opus, 2 units, plus Sonnet 0.25 frontend):… · live · specs/OWN-GAPS/rulings-5.md:233
+- `D-E5.32` Thursday mitigation: analysed-period story links (DATA-2, Sonnet, 0.25… · live · specs/OWN-GAPS/rulings-5.md:242
+- `D-E5.33` Kisiwa objectives MG-2 and MG-5, after DATA-1 (DATA-6,… · live · specs/OWN-GAPS/rulings-5.md:245
+- `D-E5.34` NOT BUILT values become plain roadmap wording (RM-1,… · live · specs/OWN-GAPS/rulings-5.md:248
+- `D-E5.35` Integration ranking for the client · live · specs/OWN-GAPS/rulings-5.md:251
+- `D-E5.36` Story order · live · specs/OWN-GAPS/rulings-5.md:258
+- `D-E5.37` More Cold and EV days only after PB-1… · live · specs/OWN-GAPS/rulings-5.md:262
+- `D-E5.38` to D-E5.40: Portfolio coverage counts UTC days (CO-6,… · live · specs/OWN-GAPS/rulings-5.md:275
+- `D-E5.39` Thursday 13 Nov: do not fix; fix before… · live · specs/OWN-GAPS/rulings-5.md:312
+- `D-E5.40` Mark CO-6 and WK-GAP as a known defect… · live · specs/OWN-GAPS/rulings-5.md:323
+- `D-E5.41` to D-E5.44: DATA-12 review rulings (Architect, Claude, 2026-11-11;… · live · specs/OWN-GAPS/rulings-5.md:337
+- `D-E5.42` Day rule, completing D-E5.38 (the M1 and L4… · live · specs/OWN-GAPS/rulings-5.md:343
+- `D-E5.43` L1 and L3 fixed in the same round;… · live · specs/OWN-GAPS/rulings-5.md:353
+- `D-E5.44` Money on a partly covered Site: owner question… · live · specs/OWN-GAPS/rulings-5.md:369
+- `D-E5.45` Owner answer to D-E5.44: option 2 (2026-11-11 · live · specs/OWN-GAPS/rulings-5.md:385
+- `D-E5.46` Day-gap words state the data fact; "not analysed… · live · specs/OWN-GAPS/rulings-5.md:411
+- `D-E5.47` An infrastructure read failure is never stored and… · live · specs/OWN-GAPS/rulings-5.md:452
+- `D-E5.48` DATA-11 Cold epochs and the EV depot's sparse… · live · specs/OWN-GAPS/rulings-5.md:544
+- `D-E5.49` EV fault day over the full recorded day:… · live · specs/OWN-GAPS/rulings-5.md:588
+- `D-E5.49a` Tonight's build fails one check, CO-10 ("16 min… · live · specs/OWN-GAPS/rulings-5.md:655
+- `D-F05.1` F05 placement test coverage after the s602b estate… · live · specs/OWN-GAPS/rulings-6.md:53
+- `D-HON.1` HON-1 Low: the Site Overview card's "Why?" days · live · specs/OWN-GAPS/rulings-6.md:46
+- `D-I18N.1` , words render at read. Stored rows (site_period_read… · live · archive/agent-history/architect-plan-pre-client-2026-11-10.md:138
+- `D-I18N.2` , locale in every cache key. Until AR-5… · live · archive/agent-history/architect-plan-pre-client-2026-11-10.md:139
+- `D-I18N.3` , a language is offered only when complete… · live · archive/agent-history/architect-plan-pre-client-2026-11-10.md:140
+- `D-MB.1` Acceptable: the live window comes from the prolonged… · live · specs/OWN-GAPS/rulings-8.md:240
+- `D-MB.2` No delivery loop; keep the gateway's 60 s… · live · specs/OWN-GAPS/rulings-8.md:245
+- `D-MONEY.1` Store the amount with its receipt (hybrid), rebuild… · live · specs/OWN-GAPS/rulings-5.md:27
+- `D-MONEY.2` Original currency only; conversion is read-time and named · live · specs/OWN-GAPS/rulings-5.md:36
+- `D-MONEY.3` No stored totals · live · specs/OWN-GAPS/rulings-5.md:42
+- `D-MONEY.4` It lives in the BL-66 design; no separate… · live · specs/OWN-GAPS/rulings-5.md:47
+- `D-MONEY.5` Sizing · live · specs/OWN-GAPS/rulings-5.md:54
+- `D-OPEN.1` , D-ANY.7, D-HON.1, D-F05.1 Batched rulings (Architect, Claude,… · live · specs/OWN-GAPS/rulings-6.md:21
+- `D-PRICE.1` Prices typed on screen are saved as "Entered… · live · specs/OWN-GAPS/rulings-6.md:1
+- `D-PRICE.2` PR-3 server half: Site name in the first-price… · live · specs/OWN-GAPS/rulings-6.md:91
+- `D-PRICE.3` PR-2a price page: old addresses, EV subtabs, rows… · live · specs/OWN-GAPS/rulings-6.md:122
+- `D-PRICE.4` PR-3 form half: the "Applies from" date exemption,… · live · specs/OWN-GAPS/rulings-6.md:314

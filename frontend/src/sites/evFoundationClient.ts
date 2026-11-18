@@ -4,7 +4,7 @@ import type { ColdTopologyEdge, ColdTopologyNode } from "./coldFoundationClient"
 
 /*
  * W2-05a: the selected EV Foundation read, `GET /api/sites/{site_code}/ev/foundation?at=<UTC>`
- * (`.agent/W2-05a-build-spec.md` "Role set, binding and selected read" and QH-QL). Decimal quantities are
+ * (`specs/W2-05a/spec.md` "Role set, binding and selected read" and QH-QL). Decimal quantities are
  * strings; unknowns are null, never zero. Configuration only: a schedule is not observed availability and
  * gateway contact is not charger health.
  */

@@ -3,8 +3,8 @@
 Status: in_review
 
 Outcome sprint, slice C. Branch `task/OUT-C-early-warnings`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outC`, cut from main `e8cf8a36`.
-Implementation contract (wins over the sprint spec's Slice C): `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-OUT-C.md`
-(§0 rules, §2 units U1-U6, §3 copy, §4 wire, §7 acceptance, §8 register). History: `.agent/OUT-C-phase-handoff.md`.
+Implementation contract (wins over the sprint spec's Slice C): `C:\Users\assef\Bineyame\AssetOpsV1-plan2\specs\OUT-C\spec.md`
+(§0 rules, §2 units U1-U6, §3 copy, §4 wire, §7 acceptance, §8 register). History: `archive/agent-history/OUT-C-phase-handoff.md`.
 
 ## Gates (from the sheet)
 
@@ -17,4 +17,4 @@ Implementation contract (wins over the sprint spec's Slice C): `C:\Users\assef\B
 
 USER_REVIEW_REQUIRED: false for merge (fresh independent review gates merge; owner sees it in the post-sprint walkthrough).
 
-Review packet: `.agent/OUT-C-packet.md`.
+Review packet: `archive/agent-history/OUT-C-packet.md`.

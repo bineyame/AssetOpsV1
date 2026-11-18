@@ -1,6 +1,6 @@
 # S4-05a — immutable source binding and resolver
 
-Status: done, pending merge (reviewed ACCEPT + fix round; re-chained onto main 2026-10-16, migration now 0017; both phases built 2026-10-15; packet `.agent/S4-05a-review-packet.md`). Activated 2026-10-15 from main under the owner-absence work order `D-2026-10-15-owner-absence-work-order`; plan re-review `.agent/S4-05-plan-rereview.md` N-M1 fixed; carries N-L1..N-L3 in the coordinator note. Was implementation-ready. Size M, two phases. USER_REVIEW_REQUIRED: false — no UI; mergeable after fresh independent review. The source-state contract and owner-visible copy proposal are presented at S4-05b's owner checkpoint. Branch `task/S4-05a-provenance-binding-resolver` from reviewed main. Coordinator commits the plan.
+Status: done, pending merge (reviewed ACCEPT + fix round; re-chained onto main 2026-10-16, migration now 0017; both phases built 2026-10-15; packet `archive/agent-history/S4-05a-review-packet.md`). Activated 2026-10-15 from main under the owner-absence work order `D-2026-10-15-owner-absence-work-order`; plan re-review `archive/agent-history/S4-05-plan-rereview.md` N-M1 fixed; carries N-L1..N-L3 in the coordinator note. Was implementation-ready. Size M, two phases. USER_REVIEW_REQUIRED: false — no UI; mergeable after fresh independent review. The source-state contract and owner-visible copy proposal are presented at S4-05b's owner checkpoint. Branch `task/S4-05a-provenance-binding-resolver` from reviewed main. Coordinator commits the plan.
 
 Depends on merged S2-02, S4-01, S4-02b and resolved `A-S2-evidence`, `A-actor-identity`. Implements registry `I-S4-05a`; shared contract and authority in [S4-05](S4-05-stored-demo-provenance.md). Independent of unmerged LR-01/S5-01/S6-01; re-check merged head before coding.
 
@@ -18,7 +18,7 @@ Implement one tenant/Site-scoped resolver for accepted IDs and the S4-05 truth t
 
 Run focused checks and rule 8 guard; final full suite is owned by S4-05b after UI integration. Keep unbound current reads cautious at the S4-05b cutover; no retroactive binding.
 
-## Coordinator note after plan re-review (`.agent/S4-05-plan-rereview.md`)
+## Coordinator note after plan re-review (`archive/agent-history/S4-05-plan-rereview.md`)
 
 - N-M1 fixed: USER_REVIEW_REQUIRED set false (no UI; S6-01a precedent); copy proposal moves to S4-05b.
 - N-L1 (implementer carry): anchor simulator registration on the registered commit/release path (`simulator_lab_api.py` ~3278-3283, `runs/execution_ports.py:178` `release_registered`), checking and registering each sealed batch against the run's committed stage before it moves to READY; one run can produce several batches (gateway `_fit` splits by size).

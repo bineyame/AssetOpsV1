@@ -2,7 +2,7 @@
  * W6-01e E2: the global Operational records root (v6.9 `oprecords`, `index.html:973-987` `opRecordsScreen`), read
  * from `GET /api/work/operational-records` (`global-work-index-1`). Mock order: breadcrumb, h1 and subtitle (no tabs),
  * the date bar, the four cards, the five record-type chips, the `Operational records` panel, then the pair
- * `Record a manual reading` / `How records are used`. Copy follows `.agent/W6-01-build-spec.md` section 2, section 3.1
+ * `Record a manual reading` / `How records are used`. Copy follows `specs/W6-01/` section 2, section 3.1
  * (A2Q1, A2Q4-A2Q7, A2Q10, X1-X8, CL3-1, CL3-6) and the "E1-E2 pre-flight rulings" P-E2-1..8, which supersede them.
  *
  * MOCK DEVIATIONS (register `.agent/mock-departure-register.md`):

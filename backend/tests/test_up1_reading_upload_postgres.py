@@ -1,7 +1,7 @@
 """UP-1 (D-UP.9, D-UP.10): migration 0061 and the reading-upload store on a real `*_test` database.
 
 The flow (upload -> accepted evidence -> drain -> assessed) and the `analysed(row)` read (D-UP.3) are separate
-(resume points in `.agent/UP-1-packet.md`); this file covers the table, its append-only trigger and CHECKs, the store's
+(resume points in `archive/agent-history/UP-1-packet.md`); this file covers the table, its append-only trigger and CHECKs, the store's
 insert/get round trip, the ledger reads on an empty ledger, and the refused downgrade.
 
 Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database; skipped otherwise.

@@ -1,6 +1,6 @@
 """W4-01 commit 2: the work command service and its sole writer over real Postgres.
 
-`.agent/W4-01-build-spec.md` "Fixture and exact test contract", Review closures B4-B6/S14-S17, closure 3 Q7/Q28
+`specs/W4-01/spec.md` "Fixture and exact test contract", Review closures B4-B6/S14-S17, closure 3 Q7/Q28
 and "Run 1 rulings (q1)". The positive linked case is built from F01 through the S4 CaseRunner, the public
 Finding index and the existing recommendation/accept route (no hard-coded or invented IDs). Requires
 ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.

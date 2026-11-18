@@ -1,5 +1,5 @@
 /**
- * W5-03a E3 (Codex retrospective "RESTORE TO MOCK" and the pre-flight E3 ruling, `.agent/W5-03-build-spec.md`): the
+ * W5-03a E3 (Codex retrospective "RESTORE TO MOCK" and the pre-flight E3 ruling, `specs/W5-03/`): the
  * EV Energy `Import power and configured limit` chart (v6.9 `lineChart('ev')`).
  *
  * Each selected accepted `ev_site_import` sample is one unconnected 5px mark at its interval-end UTC time; equal-time

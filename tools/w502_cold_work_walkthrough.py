@@ -5,7 +5,7 @@
     python tools/w502_cold_work_walkthrough.py attest      # re-read lineage; print per-mode status from the real GET
     python tools/w502_cold_work_walkthrough.py drop        # stop only recorded PIDs, drop only this tool's DBs
 
-`.agent/W5-02-build-spec.md` P-G-5 / P-K2b-4-5, "Producer and clocks (K1c)", K1c rulings 2-3 and the run-5
+`specs/W5-02/` P-G-5 / P-K2b-4-5, "Producer and clocks (K1c)", K1c rulings 2-3 and the run-5
 STALE/UNKNOWN rulings. Nothing outside the tool's `*_test` databases and its work folder (`var/w502b*`, gitignored)
 is written. `prepare`:
 

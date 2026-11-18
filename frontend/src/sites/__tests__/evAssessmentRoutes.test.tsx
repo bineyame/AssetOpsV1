@@ -28,7 +28,7 @@ import { F130 } from "./outcomeFixtures";
 import { plural } from "../EvAssessmentViews";
 
 /*
- * W2-06 commit 5 (`.agent/W2-06-build-spec.md` "Commit 5", r5 state copy, r6 commit-5 dry-read): an EV_CHARGING
+ * W2-06 commit 5 (`specs/W2-06/` "Commit 5", r5 state copy, r6 commit-5 dry-read): an EV_CHARGING
  * Site's Performance/Sessions and Finding routes render `sessions` and `ev-finding` in the exact v69 panel
  * structure (`docs/architecture/v69-rendered-panels.json`) for the stocked complete, interrupted, missing-meter,
  * pending/historical, contradictory, empty/orphan, unknown and refused states. Fixture values follow the W2-05b

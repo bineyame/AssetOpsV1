@@ -1,6 +1,6 @@
 """W5-03b unit E5: authored EV scenario store (`ev_scenario` root plus append-only `ev_scenario_revision`).
 
-`.agent/W5-03-build-spec.md`: "E5 exact persisted schema and wire contract", "E5 consolidated correction" and the
+`specs/W5-03/`: "E5 exact persisted schema and wire contract", "E5 consolidated correction" and the
 K2 lane-2 ruling. Chains to exactly `0033_w5_cold_work`. Mirrors W5-01b C4 (`0032_w5_cold_scenarios`): one global
 `ev_scenario_public_no_seq`, the Site-scoped root, the append-only revision table (no observed-outcome column), the
 `ev_scenario_site_order` revision index and two `<table>_immutable` append-only triggers on the existing

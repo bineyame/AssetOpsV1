@@ -1,5 +1,5 @@
 /**
- * W5-01a C3 (`.agent/W5-01-build-spec.md` C3 card, literal ledger and readiness pass 3): the cold depth client's
+ * W5-01a C3 (`specs/W5-01/` C3 card, literal ledger and readiness pass 3): the cold depth client's
  * exact Health validation and the cold Health body (`ColdHealthDepth`) with a stubbed depth client
  * (`health_dto_rendering`, `condition_matrix`, `health_states_and_loading`).
  */

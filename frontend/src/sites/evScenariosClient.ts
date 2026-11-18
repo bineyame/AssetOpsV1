@@ -1,6 +1,6 @@
 /**
- * W5-03b E6: read-only client for an EV charging Site's authored scenario list (`.agent/W5-03-build-spec.md` E6 card
- * "Client", E6 consolidated correction and `.agent/W5-03b-ui-preflight-rulings.md` points 11-13):
+ * W5-03b E6: read-only client for an EV charging Site's authored scenario list (`specs/W5-03/` E6 card
+ * "Client", E6 consolidated correction and `archive/agent-history/W5-03b-ui-preflight-rulings.md` points 11-13):
  *
  *   GET /api/sites/{site_code}/ev/financials/scenarios?from=&to=&known_at=&scenario_at=
  *

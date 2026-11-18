@@ -5,7 +5,7 @@ Status: in_review
 Owner-commissioned Lab scenario (end of `.agent/owner-client-demo-sequence-2026-10-30.md`): a registered Kobo run in
 which the 30 -> 25 % reserve trial changes generator energy. Branch `task/SCN-kobo-reserve-matters`, worktree
 `C:\Users\assef\Bineyame\AssetOpsV1-scn`, from main `ca6d7d61b`. Implementation contract:
-`C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-SCN-kobo-reserve.md` (§0 rules, §2 U1, Addendum 1 design
+`C:\Users\assef\Bineyame\AssetOpsV1-plan2\specs\SCN\spec.md` (§0 rules, §2 U1, Addendum 1 design
 D2 and its five kernel properties, §4 acceptance). Decision `D-2026-10-31-scn-kobo-reserve-matters`.
 
 ## Scope (this branch)
@@ -22,4 +22,4 @@ D2 and its five kernel properties, §4 acceptance). Decision `D-2026-10-31-scn-k
 - USER_REVIEW_REQUIRED: false (Lab content, no UI); fresh independent review gates merge. The owner hears the U3
   result whatever it shows.
 
-Packet: `.agent/SCN-packet.md`.
+Packet: `archive/agent-history/SCN-packet.md`.

@@ -1,6 +1,6 @@
 """PB-1a (D-E5.31): Cold analysed periods inside a requested window, default Site selection only.
 
-Rule (`.agent/architect-answer-non-kobo-sites-2026-11-10.md` D-E5.31): (i) a stored selection that contains or
+Rule (`archive/agent-history/architect-answer-non-kobo-sites-2026-11-10.md` D-E5.31): (i) a stored selection that contains or
 equals the window is unchanged; (ii) otherwise the selected analysed periods lying wholly inside the window are
 listed and the snapshot reads the most recent one with an open (SUPPORTED) Finding, or else the most recent one;
 (iii) none inside is today's empty selection. Pinned mode is unchanged.

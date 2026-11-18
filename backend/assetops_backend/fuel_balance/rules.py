@@ -1,4 +1,4 @@
-"""DIESEL-K3 (`.agent/build-sheet-DIESEL-1.md` §9d.2, ruling DIESEL-1-R3d): the `fuel-balance-1` night check, pure and
+"""DIESEL-K3 (`specs/DIESEL-1/` §9d.2, ruling DIESEL-1-R3d): the `fuel-balance-1` night check, pure and
 exact (`Fraction`).
 
 For one Site, one fuel tank and one Site-local night `[d 18:00, d+1 12:00)`, the tank's change from accepted

@@ -32,7 +32,7 @@ import "./w2-ev-foundation.css";
 
 /*
  * W2-05a: the three Foundation views of an EV_CHARGING Site (`ev-foundation`, `ev-readiness`, `ev-sld`),
- * rendered from the selected EV Foundation read in the v69 panel slots (`.agent/W2-05a-build-spec.md`
+ * rendered from the selected EV Foundation read in the v69 panel slots (`specs/W2-05a/spec.md`
  * "Three routes and fidelity proof"; `D-2026-10-17-mockup-layout-spec`). Configuration only: a configured
  * service window is not observed availability, gateway contact is not charger health, and a mapped status
  * channel is not proof of reporting.

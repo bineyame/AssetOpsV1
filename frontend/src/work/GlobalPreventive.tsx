@@ -2,7 +2,7 @@
  * W6-01b B3: the global Maintenance root, Preventive view (v6.9 `maintenance-preventive`), read from
  * `GET /api/work/preventive` (`global-work-index-1`). The mock's slots, in order (`index.html:962-965`): breadcrumb,
  * h1 and subtitle, the `Corrective` / `Preventive · scheduled` view tabs, the date bar, the status strip, the four
- * cards, the `Preventive plan` panel and the blue notice. Copy follows `.agent/W6-01-build-spec.md` section 2, section
+ * cards, the `Preventive plan` panel and the blue notice. Copy follows `specs/W6-01/` section 2, section
  * 3.1 (A2Q1, A2Q4-A2Q7, A2Q10, X1-X8, CL3-1) and the "B1-B3 pre-flight rulings" P-B3-3..9, which supersede them.
  *
  * MOCK DEVIATIONS (P-B3-3..6): the status badge `2 overdue` becomes `Due status not assessed` (no due evaluator); the

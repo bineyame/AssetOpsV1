@@ -1,6 +1,6 @@
 # S4-07 - evidence decision time at the scheduled cutoff
 
-Status: done (merged to main 2026-10-15; slice review `.agent/S4-07-review.md` ACCEPT, L1-L2 Low; full suite JUnit 2147/0 failures/0 skipped at `f1e67a52`); in_review (built 2026-10-15 on `task/S4-07-evidence-decided-at`; packet `.agent/S4-07-review-packet.md`); activated 2026-10-15 from main under the owner-absence work order; plan re-review ACCEPT `.agent/S4-07-plan-rereview.md`
+Status: done (merged to main 2026-10-15; slice review `archive/agent-history/S4-07-review.md` ACCEPT, L1-L2 Low; full suite JUnit 2147/0 failures/0 skipped at `f1e67a52`); in_review (built 2026-10-15 on `task/S4-07-evidence-decided-at`; packet `archive/agent-history/S4-07-review-packet.md`); activated 2026-10-15 from main under the owner-absence work order; plan re-review ACCEPT `archive/agent-history/S4-07-plan-rereview.md`
 Size: M; one bounded build and one fresh independent review (ledger clock contract, deterministic fixture updates, real-Postgres race/restart proof)
 Branch when activated: `task/S4-07-evidence-decided-at`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; no owner-facing copy or visual change)
@@ -8,7 +8,7 @@ Owner: evidence/ingestion; S4-02d I3 carry, not a schedule-writer expansion
 
 ## Outcome and authority
 
-A late accepted decision is either visible to a scheduled S3 DB-time knowledge cutoff or leaves durable work for a later tick. Close the scheduled-ingestion part of `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02d carries" I3 and `.agent/S4-02d-phase-2-review.md` F-A's evidence-owner residual after independent proof. Preserve the `S3_STALE_NO_JOB` alarm and operator requeue as defense in depth. Independent of unmerged LR-01/S5-01/S6-01/S4-05.
+A late accepted decision is either visible to a scheduled S3 DB-time knowledge cutoff or leaves durable work for a later tick. Close the scheduled-ingestion part of `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-02d carries" I3 and `archive/agent-history/S4-02d-phase-2-review.md` F-A's evidence-owner residual after independent proof. Preserve the `S3_STALE_NO_JOB` alarm and operator requeue as defense in depth. Independent of unmerged LR-01/S5-01/S6-01/S4-05.
 
 ## Decided clock contract
 
@@ -33,7 +33,7 @@ Focused checks: `backend/tests/test_s2_evidence_ledger_postgres.py`, `test_s2_si
 
 Resolved review M1 by choosing transactional DB-time decision/job stamping, an explicit test-only fixture override, and existing coalescing subject to the two-order race proof. Expanded focused coverage and resized S to M. Carried review L1 (app-clock receipt timestamps), L2 (configuration comparand out of scope), and the manual-CLI clock residual. No open Architect question remains.
 
-## Coordinator note after plan re-review (`.agent/S4-07-plan-rereview.md`: ACCEPT)
+## Coordinator note after plan re-review (`archive/agent-history/S4-07-plan-rereview.md`: ACCEPT)
 
 Implementer carries (Low): L-a under clock skew a batch's app-clock `completed_at` may precede the last DB-time `decided_at` - do not assert that order in tests and mention it in the README-db note; L-b the decision time is taken before the job lock wait - test the ingestion-waits-on-a-leased-job case and assert ingestion inserts a new job.
 

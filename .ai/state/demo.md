@@ -2,18 +2,18 @@
 
 ## post-W6 final-fix - whole-diff review Mediums and Lows (built, awaiting owner walkthrough)
 
-Branch `task/post-W6-final-fix` from main `739c0d7a`. Rulings `.agent/post-W6-final-review-rulings.md` (binding); packet `.agent/post-W6-final-fix-packet.md`.
+Branch `task/post-W6-final-fix` from main `739c0d7a`. Rulings `archive/agent-history/post-W6-final-review-rulings.md` (binding); packet `archive/agent-history/post-W6-final-fix-packet.md`.
 
 - M1: mini Site Work Incidents/Maintenance default is seven Site-local calendar days including today (`siteSevenDayWindow` in `sites/siteTime.ts`; `workCasesScope(params, site)` in `SiteAnalyticsFrames.tsx` picks it for non-cold/EV Sites, R338 UTC days stay for cold/EV and global Work). Invalid or missing zone uses UTC.
 - M2: cold Action refusal map mirrors EV (`coldActionRefusal`, 409 and 503/unreached offer Reload, 403/INVALID_KNOWN_AT/other have none), `COLD_WORK_RELOAD`, cold gets the "Technical detail" disclosure; the cold Actions list keeps its own Retry (app-wide label convergence is backlog (j)).
 - M3: the 640 px 152 px first-column rules apply only to the Findings table (`:has(col.estate-findings-col)`).
 - L3: one sentence `STALE_BASIS_COPY` for the withheld tariff state on Site and estate pinned reads (`ev_site_reads.py`; `STALE_AS_OF_COPY` aliases it). L4/L5: `coldTabSearch` applies the EV valid-window gate (complete, ordered, at most 31 days, UTC; cutoff kept alone) and the cold Financials > Scenarios tab row uses it. L6: `siteZoneDisplayLabel`/`SITE_ZONE_UNAVAILABLE_LABEL` ("UTC (Site time zone unavailable)") on mini Scenarios and Work fields, Finding history header, mini Evidence Measured/Sent/Received headers. L8: dead mini Performance 422 branch removed. L9: `EV_WINDOW_NOT_UTC_TEXT` for an ordered non-UTC Action window. L11: `KeyValueValue` (V69Layout) makes an overflowing `dd code` focusable (tabindex 0, role group, "Full value: ..." name) with a CSS focus ring.
-- Register housekeeping done per `.agent/post-W6-register-reconciliation.md`: 117 stale D3 rows closed with merge shas (19 are split parents pointing at their child), 60 planned rows now `standing (owner)`, R224 duplicate of R207, counts refreshed; R328 and R374 stay open. Backlog (j) added to `.ai/MILESTONE_REVIEW_BACKLOG.md`.
+- Register housekeeping done per `archive/agent-history/post-W6-register-reconciliation.md`: 117 stale D3 rows closed with merge shas (19 are split parents pointing at their child), 60 planned rows now `standing (owner)`, R224 duplicate of R207, counts refreshed; R328 and R374 stay open. Backlog (j) added to `.ai/MILESTONE_REVIEW_BACKLOG.md`.
 - Open: backlog (j) items (L1, L2, L7, L10 probes, L11 duplicate 760 px rule, Reload/Retry convergence).
 
 ## SCN - Kobo scenario where the reserve change matters (built, in_review)
-Branch `task/SCN-kobo-reserve-matters` (from main ca6d7d61b). Contract `AssetOpsV1-plan2/.agent/build-sheet-SCN-kobo-reserve.md`
-(§2 U1, Addendum 1 design D2); packet `.agent/SCN-packet.md`; decision `D-2026-10-31-scn-kobo-reserve-matters`.
+Branch `task/SCN-kobo-reserve-matters` (from main ca6d7d61b). Contract `AssetOpsV1-plan2/specs/SCN/spec.md`
+(§2 U1, Addendum 1 design D2); packet `archive/agent-history/SCN-packet.md`; decision `D-2026-10-31-scn-kobo-reserve-matters`.
 - `config/scenarios/kobo-mini-grid-reserve-matters.yaml` v1 (D2): start SOC 34 %, 300 L, STOPPED; 30 W/m2 0/240, 800 W/m2 240/240;
   loads 4 / 2 / 0 kW over 0/480. Fingerprint `50f8be3e...c956`; registered in `PINNED_SCENARIO_FINGERPRINTS`, `NEW_SINCE_T025G`,
   `NEVER_SHIPPED_AS_V1`; `test_the_shipped_scenarios_were_found` 13 -> 14 (the only non-additive test line).
@@ -24,8 +24,8 @@ Branch `task/SCN-kobo-reserve-matters` (from main ca6d7d61b). Contract `AssetOps
 - Left open: U3 (real-chain probe at H in `-demo3`) and the DEMO-SPARSE day-list consumption; the money figure and verification
   outcome are unknown until U3. The first design's stop is recorded in the packet and `.agent/SCN-evidence/`.
 ## DEMO-A - combined three-Site demo dataset on the DEMO-SPARSE calendar (merged `4f57261d3`)
-Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to main as `4f57261d3`). Contract `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md`
-+ Addenda 1-4 over `build-sheet-DEMO-COMBINED.md`; packet `.agent/DEMO-A-packet.md`; history `.agent/DEMO-A-phase-handoff.md`.
+Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to main as `4f57261d3`). Contract `AssetOpsV1-plan2/specs/DEMO-SPARSE/spec.md`
++ Addenda 1-4 over `build-sheet-DEMO-COMBINED.md`; packet `archive/agent-history/DEMO-A-packet.md`; history `archive/agent-history/DEMO-A-phase-handoff.md`.
 - `tools/demo_combined.py` `prepare | links | serve | tick | add-day | drop` on a private `assetops_demo3_<name>_test` DB; children
   `demo_combined_kobo.py` (day runs + the S/S+1 trial chain), `_cold.py` (ShiftedChain per night, attest at setup instant), `_ev.py`
   (Tuesday days, w504 work rows), `_finish.py` (`check`: CO-1..CO-12 + SP-1..SP-7 via `host/lab_app.py`, `<work>/check.json`).
@@ -50,11 +50,11 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to ma
   `/sites/COLD-LAB-001?from&to`, `/sites/EV-LAB-001/ev?from&to`); `/sites/{code}/outcomes` and `/overview` (printed by
   `demo_combined.py links`) are not routes (P-01). Cold/EV boards read on `days.json` start/end windows.
 - Global work lists window by recorded time (build day), not story time (R629).
-- Open: R626, R630 (open rows), polish P-01..P-10 and the client-copy list in `.agent/DEMO-B-packet.md`.
+- Open: R626, R630 (open rows), polish P-01..P-10 and the client-copy list in `archive/agent-history/DEMO-B-packet.md`.
 
 ## POLISH PA-2a - server copy, codes and titles (built, in_review)
 
-- Contract: `.agent/build-sheet-POLISH.md` §3/§3.1 BE rows, Addenda 4 and 6; packet `.agent/POLISH-PA-2a-packet.md`.
+- Contract: `specs/POLISH/` §3/§3.1 BE rows, Addenda 4 and 6; packet `archive/agent-history/POLISH-PA-2a-packet.md`.
 - `outcomes/display_code.py`: `display_code` (prefix + number padded to at least 3; no `re`, the package stays pure)
   and `finding_label` (title, else "Finding"). Applied to warnings refs, board `_item_text`/`_action_name`, mini
   verification lines, cold contributors and the work link labels (request, incident, detail, linked requests).
@@ -72,7 +72,7 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to ma
   preventive due counts are PA-2b. Captures deferred to PA-3.
 ## POLISH PA-2b - plan due state and asset labels (built, in_review)
 
-- Contract: `.agent/build-sheet-POLISH.md` §1.4 backend, §3 asset labels, Addendum 6 Q2/Q4; packet `.agent/POLISH-PA-2b-packet.md`.
+- Contract: `specs/POLISH/` §1.4 backend, §3 asset labels, Addendum 6 Q2/Q4; packet `archive/agent-history/POLISH-PA-2b-packet.md`.
 - `outcomes/plan_due.py` `plan_due_state` (OVERDUE / DUE_SOON / NOT_DUE / NOT_ASSESSED; `due == to` not overdue;
   the 14-day horizon is built without importing `datetime`, because `outcomes/` stays pure). `warnings._plans`/
   `_overdue` and `visits.warning_facts` use it.
@@ -113,7 +113,7 @@ Branch `task/DEMO-A-combined-dataset` (worktree `AssetOpsV1-demo3`, merged to ma
 
 ## POLISH PA-3 - producers, links and rebuild (built, in_review)
 Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from main `c4a39b1dc`, main `0ad27df7f` merged).
-- Contract: `.agent/build-sheet-POLISH.md` §1.3, §3, §4, §5 PA-3, Addenda 3, 9-12; packet `.agent/POLISH-PA-3-packet.md`.
+- Contract: `specs/POLISH/` §1.3, §3, §4, §5 PA-3, Addenda 3, 9-12; packet `archive/agent-history/POLISH-PA-3-packet.md`.
 - `tools/demo_combined.py`: pure `story_links` + `LINK_FORMS` (no `/outcomes`/`/overview`; cold/EV on the `days.json`
   event window, whole day "no event" otherwise); guards accept `assetops_polish_<name>_test` and `var/polish*`.
 - `demo_combined_ev`: `ev.json` records `action_code`, `intent_id`, posted `raised_at` (P-08; R645). Narratives
@@ -193,7 +193,7 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   `performance_migration` after (R6.3). Never replace `tree` on the demo path.
 - Tests: `backend/tests/test_own_g1_add_dates.py` (38, no DB); K7 skip-branch count is 13 (KIS-11).
 - Rehearsal (fresh clone): run A 51/51 PASS (2545 s; settles 87.2 s and 109.6 s, 1 tick each), run B (10.5 min later, nothing
-  to add, one closing tick) 51/51 PASS (1364 s). Packet `.agent/review-packet-G1.md`.
+  to add, one closing tick) 51/51 PASS (1364 s). Packet `archive/agent-history/review-packet-G1.md`.
 - Review fix round: a PUBLISHED Kisiwa night is resumed (planner starts after the last DONE night) and the child refuses any later
   night (`NIGHT_NOT_FINISHED`); `--dry-run` runs the read-only preflight; a stopped command prints what it added.
 - Open: Kisiwa added-night board row in `finish check` is BL-52 (backlog). EX-2 = F-COH PASS in runs A and B (F-COH3 proves it is

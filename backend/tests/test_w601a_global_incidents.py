@@ -1,6 +1,6 @@
 """W6-01a (A1): the global Incidents root `GET /api/work/incidents` over real Postgres (`global-work-index-1`).
 
-`.agent/W6-01-build-spec.md` section 1 (wire, parser, refusals, envelope, incident row), section 3.1 (A1Q G1-G3 and
+`specs/W6-01/` section 1 (wire, parser, refusals, envelope, incident row), section 3.1 (A1Q G1-G3 and
 the Q3-Q9 rulings) and section 4 (fixture producer and clocks). Rows are written by `tools/w601_seed.py` through the
 real W4 `WorkService` with the server-side fixture principal and the ordered write clock from
 `--clock 2026-10-22T12:00:00Z`; reads construct `PostgresGlobalWorkRead(..., test_read_clock_override=...)` directly

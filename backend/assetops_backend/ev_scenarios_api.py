@@ -1,4 +1,4 @@
-"""W5-03b E5: the authored EV scenario routes (`.agent/W5-03-build-spec.md` E5 card, "E5 exact persisted schema and
+"""W5-03b E5: the authored EV scenario routes (`specs/W5-03/` E5 card, "E5 exact persisted schema and
 wire contract" and its refusal table).
 
 - `GET /api/sites/{site_code}/ev/financials/scenarios?from=&to=&known_at=&scenario_at=&limit=&cursor=`

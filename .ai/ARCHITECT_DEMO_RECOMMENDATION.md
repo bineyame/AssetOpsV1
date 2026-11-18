@@ -1115,14 +1115,14 @@ Nothing else in this version changes an owner ruling.
 - First draft answering the owner's request, then an appendix comparing a
   grouped root menu (owner question), folded in at `a28479f`.
 - The owner's verbatim review, with five pushbacks and the D1-D8 rulings:
-  `.agent/owner-review-architect-recommendation-2026-10-02.md`. Applied at
+  `owner/owner-review-architect-recommendation-2026-10-02.md`. Applied at
   `b12ae86`.
 - The Architect's response to that review, agreeing with all five pushbacks
   and listing six corrections and further material items:
-  `.agent/architect-response-to-owner-review-2026-10-02.md` (`3178d55`,
+  `archive/agent-history/architect-response-to-owner-review-2026-10-02.md` (`3178d55`,
   `0884026`).
 - The owner's instruction to produce this final version:
-  `.agent/owner-instruction-final-recommendation-2026-10-02.md` (`e5efd17`).
+  `owner/owner-instruction-final-recommendation-2026-10-02.md` (`e5efd17`).
 
 This version integrates all of those rounds into the body. `git log` on this
 file shows the earlier states.

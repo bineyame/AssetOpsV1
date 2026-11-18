@@ -1,6 +1,6 @@
 # S4-06 — equal-start future price succession
 
-Status: done (merged to main 2026-10-15; review `.agent/S4-06-review.md` ACCEPT; coordinator full suite on `16fd46e3`-equivalent code `3dcfafd4`: 2137 passed, 0 failed/errors/skipped (JUnit), 544 s); in_review (built 2026-10-15 on `task/S4-06-price-succession`; packet `.agent/S4-06-review-packet.md`; activated from main under `D-2026-10-15-owner-absence-work-order`, plan review ACCEPT `.agent/small-followons-plan-review.md`)
+Status: done (merged to main 2026-10-15; review `archive/agent-history/S4-06-review.md` ACCEPT; coordinator full suite on `16fd46e3`-equivalent code `3dcfafd4`: 2137 passed, 0 failed/errors/skipped (JUnit), 544 s); in_review (built 2026-10-15 on `task/S4-06-price-succession`; packet `archive/agent-history/S4-06-review-packet.md`; activated from main under `D-2026-10-15-owner-absence-work-order`, plan review ACCEPT `archive/agent-history/small-followons-plan-review.md`)
 Size: S; one build and one fresh independent review
 Branch when activated: `task/S4-06-price-succession`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; no owner-facing copy or visual change)
@@ -8,7 +8,7 @@ Registry: `I-price-equal-start-succession` (acceptance target)
 
 ## Outcome and authority
 
-A server-authorized SYSTEM publication may replace the sole open-ended future Site price exactly at that assignment's `valid_from`. The previous scheduled assignment remains visible at earlier recorded cutoffs; the current validity timeline contains only the replacement from that instant. This implements `.agent/architect-S4-02-batch-answers.md` Q1 and the S4-02a assumption contract. Independent of unmerged LR-01, S5-01, S6-01 and S4-05 branches.
+A server-authorized SYSTEM publication may replace the sole open-ended future Site price exactly at that assignment's `valid_from`. The previous scheduled assignment remains visible at earlier recorded cutoffs; the current validity timeline contains only the replacement from that instant. This implements `archive/agent-history/architect-S4-02-batch-answers.md` Q1 and the S4-02a assumption contract. Independent of unmerged LR-01, S5-01, S6-01 and S4-05 branches.
 
 ## Code reality and boundary
 
@@ -28,6 +28,6 @@ Focused checks: `backend/tests/test_s4_assumptions_postgres.py` and relevant con
 
 None required to build. Recommendation: retain the existing SUCCESSION conflict codes and expose the earlier recorded-cutoff assignment through the existing history read; Q1 already decides equality semantics.
 
-## Coordinator note after plan review (`.agent/small-followons-plan-review.md`: ACCEPT)
+## Coordinator note after plan review (`archive/agent-history/small-followons-plan-review.md`: ACCEPT)
 
 Implementer carries (Low): add a second scenario with an earlier price so the earlier-price consequence check is non-vacuous; add a case where the replaced open-ended row is a tail left by a CORRECTION (cites an older revision than the series head).

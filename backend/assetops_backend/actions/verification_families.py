@@ -53,7 +53,7 @@ MIN_DAYS = 3
 LOOK_DAYS = 14
 SHORT, FULL = "SHORT", "COMPLETE"
 FREEZE_COMMAND = "FREEZE_DOMAIN_VERIFICATION_PLAN"
-#: CH9b1-R P1 (owner 2026-11-05, `.agent/owner-mill-pass-margin-2026-11-05.md`), verbatim; never fitted.
+#: CH9b1-R P1 (owner 2026-11-05, `owner/owner-mill-pass-margin-2026-11-05.md`), verbatim; never fitted.
 TARGET = {"rule": "10*mean(later) >= 11*mean(baseline) productive_kwh[midday]",
           "over": "COMPLETE days of each window", "ratio": [11, 10], "declared_by": "owner 2026-11-05"}
 SHORT_TEXT = "Not judged yet: only {n} of 3 days with complete readings before the change"

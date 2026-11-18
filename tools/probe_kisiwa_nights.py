@@ -1,7 +1,7 @@
 """DIESEL-1 D0: the Kisiwa simulator trial. In memory; no database, no product code.
 
 Kisiwa's physical assumptions, runs, cuts, lever, night window, metric, nights judged, pass mark, gates and stops are
-DIESEL-1 §2 (`.agent/build-sheet-DIESEL-1.md` §2.2-§2.9, f755f085b), fixed before any run and never tuned. The Site
+DIESEL-1 §2 (`specs/DIESEL-1/` §2.2-§2.9, f755f085b), fixed before any run and never tuned. The Site
 is the draft template `host/fixtures/diesel-d0/kisiwa-diesel-hybrid-60kw.draft.yaml` built through the product's own create
 path (`host/tests/fixtures.py` `site_from_template`), run on `mini-grid` v6 at 5 minutes with Lab publication profile
 v3, as `tools/probe_kobo_nights.py` runs Kobo.

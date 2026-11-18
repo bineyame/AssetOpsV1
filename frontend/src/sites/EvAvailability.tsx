@@ -1,6 +1,6 @@
 /**
  * W5-03a E2: the EV Site Availability page body (v6.9 `availability`), from the selected `/ev/availability` depth
- * read (`.agent/W5-03-build-spec.md` literal ledger, E2 card, closure 2 and the W5-03a pre-flight E2 ruling).
+ * read (`specs/W5-03/` literal ledger, E2 card, closure 2 and the W5-03a pre-flight E2 ruling).
  *
  * A bounded observed-state proxy (`ev-availability/2`): configured scheduled seconds and accepted connector-state
  * seconds are separate facts, Unknown is never availability, and no number certifies physical availability.

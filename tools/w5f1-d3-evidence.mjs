@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// W5-F1 F1-3 (`.agent/W5-F1-build-spec.md`): capture producer for the three D3 corrections R22, R37 and R38.
+// W5-F1 F1-3 (`specs/W5-F1/spec.md`): capture producer for the three D3 corrections R22, R37 and R38.
 // usage: node tools/w5f1-d3-evidence.mjs <out-dir> <revision> <web-base> <api-base>
 //   <out-dir> must sit under .agent/W5-F1-evidence/. <web-base> serves the app and v69 (`/mockups/v69/index.html`)
 //   from one origin; <api-base> is the real API on the private test DB. No browser fetch is mocked or rewritten.

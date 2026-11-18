@@ -25,7 +25,7 @@ import { windowText } from "../coldFormat";
 import { F118, F119 } from "./outcomeFixtures";
 
 /*
- * W2-03 commit 5 (`.agent/W2-03-build-spec.md` "Commit 5 - exact v69 slots"): a COLDCHAIN Site's
+ * W2-03 commit 5 (`specs/W2-03/spec.md` "Commit 5 - exact v69 slots"): a COLDCHAIN Site's
  * Performance/Temperature, Performance/Backup and cold Finding detail routes render `temperature`,
  * `coldbackup`, `cold-finding` and `cold-finding-excursion` in the exact v69 panel structure (titles from
  * `docs/architecture/v69-rendered-panels.json` at test time) in the stocked, empty (UNKNOWN) and refused

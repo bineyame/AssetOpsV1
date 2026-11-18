@@ -1,4 +1,4 @@
-"""DIESEL-K4b (`.agent/build-sheet-DIESEL-1.md` §9j.10-§9j.13, rulings DIESEL-1-R3j and R3j2): the Protect row's
+"""DIESEL-K4b (`specs/DIESEL-1/` §9j.10-§9j.13, rulings DIESEL-1-R3j and R3j2): the Protect row's
 unexplained-fuel placement (MG-8 "Fuel accounted for", the Finding issue and thread line, the node), the Portfolio
 Protect lines (never summed), the SITES_DISRUPTED exclusion and the empty clean-day declaration. L0, fake ports."""
 from __future__ import annotations

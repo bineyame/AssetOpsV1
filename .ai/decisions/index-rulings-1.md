@@ -2,62 +2,62 @@
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
 
-- `D-SR.1` Three classes of Site page · live · build-sheet-OWN-GAPS-2026-11-08.md:4771
-- `D-SR.2` Every Site link carries the range, through one… · live · build-sheet-OWN-GAPS-2026-11-08.md:4777
-- `D-SR.3` Safety net in SharedRangeOutlet · live · build-sheet-OWN-GAPS-2026-11-08.md:4782
-- `D-SR.4` pageDay · live · build-sheet-OWN-GAPS-2026-11-08.md:4791
-- `D-SR.5` Service and Renewable under a long range · live · build-sheet-OWN-GAPS-2026-11-08.md:4795
-- `D-SR.6` Honest tags · live · build-sheet-OWN-GAPS-2026-11-08.md:4800
-- `D-SR.7` EV on generic paths · live · build-sheet-OWN-GAPS-2026-11-08.md:4807
-- `D-SR.8` IN for 17 Nov · live · build-sheet-OWN-GAPS-2026-11-08.md:4811
-- `D-SR.9` Standing product rule · live · build-sheet-OWN-GAPS-2026-11-08.md:4824
-- `D-SR.10` Process fix · live · build-sheet-OWN-GAPS-2026-11-08.md:4832
-- `D-SR.11` SR-5 range board for mini-grid Sites: IN for… · live · build-sheet-OWN-GAPS-2026-11-08.md:4837
-- `D-SR.12` Audit dispositions and capacity · live · build-sheet-OWN-GAPS-2026-11-08.md:4846
-- `D-SR.13` SR-6, SR-7, SR-8 are IN now (owner-directed, 2026-11-12 · live · build-sheet-OWN-GAPS-2026-11-08.md:4858
-- `D-SR.14` What is point-in-time by nature · live · build-sheet-OWN-GAPS-2026-11-08.md:4861
-- `D-SR.15` Range reads reuse stored per-day rows only · live · build-sheet-OWN-GAPS-2026-11-08.md:4864
-- `D-SR.16` BL-ANY-absent returns as a test, not code · live · build-sheet-OWN-GAPS-2026-11-08.md:4867
-- `D-SR.17` Unlisted Site routes go to the Architect · live · build-sheet-OWN-GAPS-2026-11-08.md:4870
-- `D-SR.18` Lanes and drop order · live · build-sheet-OWN-GAPS-2026-11-08.md:4873
-- `D-SR.19` SR-6 reading cutoff is the disposition time · live · build-sheet-OWN-GAPS-2026-11-08.md:4882
-- `D-SR.20` READINGS_ONLY contact state; no demo diagnostics work · live · build-sheet-OWN-GAPS-2026-11-08.md:4885
-- `D-SR.21` Dead SR-6 branches dropped · live · build-sheet-OWN-GAPS-2026-11-08.md:4888
-- `D-SR.22` One day-state rule in estate/range_days.py · live · build-sheet-OWN-GAPS-2026-11-08.md:4891
-- `D-SR.23` SR-6 read shape and late router wiring · live · build-sheet-OWN-GAPS-2026-11-08.md:4894
-- `D-SR.24` SR-7b reuses the evidence-money claim-day pattern; no claim_days · live · build-sheet-OWN-GAPS-2026-11-08.md:4897
-- `D-SR.25` SR-7b day row is reduce_day; link /sites/{code}/evidence?day=&revision= · live · build-sheet-OWN-GAPS-2026-11-08.md:4899
-- `D-SR.26` SR-7a hours from row seconds; NO_CRITICAL_LOAD dropped; NO_VALUE… · live · build-sheet-OWN-GAPS-2026-11-08.md:4902
-- `D-SR.27` SR-8 shows the low–high band · live · build-sheet-OWN-GAPS-2026-11-08.md:4904
-- `D-SR.28` SR-5 safe readings · live · build-sheet-OWN-GAPS-2026-11-08.md:4907
-- `D-SR.29` Demo Sites and parity windows · live · build-sheet-OWN-GAPS-2026-11-08.md:4910
-- `D-SR.30` Route classes · live · build-sheet-OWN-GAPS-2026-11-08.md:4913
-- `D-SR.31` Fuel and Backup ranges come from stored day… · live · build-sheet-OWN-GAPS-2026-11-08.md:4924
-- `D-SR.32` SR-10 Fuel range (Kobo, 0.9 with the core · live · build-sheet-OWN-GAPS-2026-11-08.md:4927
-- `D-SR.33` SR-11 Backup range (0.6 · live · build-sheet-OWN-GAPS-2026-11-08.md:4930
-- `D-SR.34` Sweep result · live · build-sheet-OWN-GAPS-2026-11-08.md:4933
-- `D-SR.35` What stays N (not a period · live · build-sheet-OWN-GAPS-2026-11-08.md:4936
-- `D-SR.36` Demo backfill · live · build-sheet-OWN-GAPS-2026-11-08.md:4939
-- `D-SR.37` Lanes and order · live · build-sheet-OWN-GAPS-2026-11-08.md:4942
-- `D-SR.38` Saturday reassessment replaces the drop order · live · build-sheet-OWN-GAPS-2026-11-08.md:4947
-- `D-SR.39` Range means telemetry and its consequences (owner principle,… · live · build-sheet-OWN-GAPS-2026-11-08.md:4957
-- `D-SR.40` SR-4's 31 superseded App-level tests · superseded in part? see build-sheet-OWN-GAPS-2026-11-08.md:4967 · build-sheet-OWN-GAPS-2026-11-08.md:4967
-- `D-SR.41` SR-4 changes (5 tests · live · build-sheet-OWN-GAPS-2026-11-08.md:4970
+- `D-SR.1` Three classes of Site page · live · specs/OWN-GAPS/rulings-7.md:5
+- `D-SR.2` Every Site link carries the range, through one… · live · specs/OWN-GAPS/rulings-7.md:11
+- `D-SR.3` Safety net in SharedRangeOutlet · live · specs/OWN-GAPS/rulings-7.md:16
+- `D-SR.4` pageDay · live · specs/OWN-GAPS/rulings-7.md:25
+- `D-SR.5` Service and Renewable under a long range · live · specs/OWN-GAPS/rulings-7.md:29
+- `D-SR.6` Honest tags · live · specs/OWN-GAPS/rulings-7.md:34
+- `D-SR.7` EV on generic paths · live · specs/OWN-GAPS/rulings-7.md:41
+- `D-SR.8` IN for 17 Nov · live · specs/OWN-GAPS/rulings-7.md:45
+- `D-SR.9` Standing product rule · live · specs/OWN-GAPS/rulings-7.md:58
+- `D-SR.10` Process fix · live · specs/OWN-GAPS/rulings-7.md:66
+- `D-SR.11` SR-5 range board for mini-grid Sites: IN for… · live · specs/OWN-GAPS/rulings-7.md:71
+- `D-SR.12` Audit dispositions and capacity · live · specs/OWN-GAPS/rulings-7.md:80
+- `D-SR.13` SR-6, SR-7, SR-8 are IN now (owner-directed, 2026-11-12 · live · specs/OWN-GAPS/rulings-7.md:92
+- `D-SR.14` What is point-in-time by nature · live · specs/OWN-GAPS/rulings-7.md:95
+- `D-SR.15` Range reads reuse stored per-day rows only · live · specs/OWN-GAPS/rulings-7.md:98
+- `D-SR.16` BL-ANY-absent returns as a test, not code · live · specs/OWN-GAPS/rulings-7.md:101
+- `D-SR.17` Unlisted Site routes go to the Architect · live · specs/OWN-GAPS/rulings-7.md:104
+- `D-SR.18` Lanes and drop order · live · specs/OWN-GAPS/rulings-7.md:107
+- `D-SR.19` SR-6 reading cutoff is the disposition time · live · specs/OWN-GAPS/rulings-7.md:116
+- `D-SR.20` READINGS_ONLY contact state; no demo diagnostics work · live · specs/OWN-GAPS/rulings-7.md:119
+- `D-SR.21` Dead SR-6 branches dropped · live · specs/OWN-GAPS/rulings-7.md:122
+- `D-SR.22` One day-state rule in estate/range_days.py · live · specs/OWN-GAPS/rulings-7.md:125
+- `D-SR.23` SR-6 read shape and late router wiring · live · specs/OWN-GAPS/rulings-7.md:128
+- `D-SR.24` SR-7b reuses the evidence-money claim-day pattern; no claim_days · live · specs/OWN-GAPS/rulings-7.md:131
+- `D-SR.25` SR-7b day row is reduce_day; link /sites/{code}/evidence?day=&revision= · live · specs/OWN-GAPS/rulings-7.md:133
+- `D-SR.26` SR-7a hours from row seconds; NO_CRITICAL_LOAD dropped; NO_VALUE… · live · specs/OWN-GAPS/rulings-7.md:136
+- `D-SR.27` SR-8 shows the low–high band · live · specs/OWN-GAPS/rulings-7.md:138
+- `D-SR.28` SR-5 safe readings · live · specs/OWN-GAPS/rulings-7.md:141
+- `D-SR.29` Demo Sites and parity windows · live · specs/OWN-GAPS/rulings-7.md:144
+- `D-SR.30` Route classes · live · specs/OWN-GAPS/rulings-7.md:147
+- `D-SR.31` Fuel and Backup ranges come from stored day… · live · specs/OWN-GAPS/rulings-7.md:158
+- `D-SR.32` SR-10 Fuel range (Kobo, 0.9 with the core · live · specs/OWN-GAPS/rulings-7.md:161
+- `D-SR.33` SR-11 Backup range (0.6 · live · specs/OWN-GAPS/rulings-7.md:164
+- `D-SR.34` Sweep result · live · specs/OWN-GAPS/rulings-7.md:167
+- `D-SR.35` What stays N (not a period · live · specs/OWN-GAPS/rulings-7.md:170
+- `D-SR.36` Demo backfill · live · specs/OWN-GAPS/rulings-7.md:173
+- `D-SR.37` Lanes and order · live · specs/OWN-GAPS/rulings-7.md:176
+- `D-SR.38` Saturday reassessment replaces the drop order · live · specs/OWN-GAPS/rulings-7.md:181
+- `D-SR.39` Range means telemetry and its consequences (owner principle,… · live · specs/OWN-GAPS/rulings-7.md:191
+- `D-SR.40` SR-4's 31 superseded App-level tests · superseded in part? see specs/OWN-GAPS/rulings-7.md:201 · specs/OWN-GAPS/rulings-7.md:201
+- `D-SR.41` SR-4 changes (5 tests · live · specs/OWN-GAPS/rulings-7.md:204
 - `D-SR.41a` readSharedRange rounds the reversed same-day hour pair to… · reversed in part? see architect-sequence-client-scope-2026-11-11.md:185 · architect-sequence-client-scope-2026-11-11.md:192
 - `D-SR.41b` After 41a the reversed address is invalid, so… · reversed in part? see architect-sequence-client-scope-2026-11-11.md:193 · architect-sequence-client-scope-2026-11-11.md:193
 - `D-SR.41c` Site Maintenance is R (D-SR.9). The list read… · live · architect-sequence-client-scope-2026-11-11.md:191
-- `D-SR.42` Builder calls confirmed · live · build-sheet-OWN-GAPS-2026-11-08.md:4975
-- `D-SR.42a` is removed when that page's range view lands:… · live · build-sheet-OWN-GAPS-2026-11-08.md:5109
-- `D-SR.42b` (read at the cited line) · live · SR-4c-review.md:30
-- `D-SR.42c` frontend-hardwiring-baseline.json changes only SiteAnalyticsFrames cmp 27→26 and lit… · live · SR-4c-review.md:46
-- `D-SR.42d` sub-item of D-SR.42; text cited in code only · live · build-sheet-OWN-GAPS-2026-11-08.md:4975
-- `D-SR.43` Assets list and battery page are N (configuration)… · live · build-sheet-OWN-GAPS-2026-11-08.md:4978
-- `D-SR.44` Unlisted routes · live · build-sheet-OWN-GAPS-2026-11-08.md:4981
-- `D-SR.45` SR-7 Q-J1-5 · live · build-sheet-OWN-GAPS-2026-11-08.md:4986
-- `D-SR.46` Build sheet restored · live · build-sheet-OWN-GAPS-2026-11-08.md:4993
-- `D-SR.47` SR-8 Q2-Q5 (Architect, Claude, 2026-11-12 night, owner-delegated, logged… · live · build-sheet-OWN-GAPS-2026-11-08.md:5001
-- `D-SR.48` SR-8 Q6: the range shows the stored "every… · live · build-sheet-OWN-GAPS-2026-11-08.md:5011
-- `D-SR.49` SR-6a Q1-Q5 and guard policy (Architect, Claude, 2026-11-12… · live · build-sheet-OWN-GAPS-2026-11-08.md:5020
-- `D-SR.50` SR-5: the range names retired Findings; Postgres cases… · live · build-sheet-OWN-GAPS-2026-11-08.md:5032
-- `D-SR.51` Interpretations 1-4 · live · build-sheet-OWN-GAPS-2026-11-08.md:5046
-- `D-SR.52` The kill switch (interpretation 5 · live · build-sheet-OWN-GAPS-2026-11-08.md:5052
+- `D-SR.42` Builder calls confirmed · live · specs/OWN-GAPS/rulings-7.md:209
+- `D-SR.42a` is removed when that page's range view lands:… · live · specs/OWN-GAPS/rulings-7.md:343
+- `D-SR.42b` (read at the cited line) · live · archive/agent-history/SR-4c-review.md:31
+- `D-SR.42c` frontend-hardwiring-baseline.json changes only SiteAnalyticsFrames cmp 27→26 and lit… · live · archive/agent-history/SR-4c-review.md:47
+- `D-SR.42d` sub-item of D-SR.42; text cited in code only · live · specs/OWN-GAPS/rulings-7.md:209
+- `D-SR.43` Assets list and battery page are N (configuration)… · live · specs/OWN-GAPS/rulings-7.md:212
+- `D-SR.44` Unlisted routes · live · specs/OWN-GAPS/rulings-7.md:215
+- `D-SR.45` SR-7 Q-J1-5 · live · specs/OWN-GAPS/rulings-7.md:220
+- `D-SR.46` Build sheet restored · live · specs/OWN-GAPS/rulings-7.md:227
+- `D-SR.47` SR-8 Q2-Q5 (Architect, Claude, 2026-11-12 night, owner-delegated, logged… · live · specs/OWN-GAPS/rulings-7.md:235
+- `D-SR.48` SR-8 Q6: the range shows the stored "every… · live · specs/OWN-GAPS/rulings-7.md:245
+- `D-SR.49` SR-6a Q1-Q5 and guard policy (Architect, Claude, 2026-11-12… · live · specs/OWN-GAPS/rulings-7.md:254
+- `D-SR.50` SR-5: the range names retired Findings; Postgres cases… · live · specs/OWN-GAPS/rulings-7.md:266
+- `D-SR.51` Interpretations 1-4 · live · specs/OWN-GAPS/rulings-7.md:280
+- `D-SR.52` The kill switch (interpretation 5 · live · specs/OWN-GAPS/rulings-7.md:286

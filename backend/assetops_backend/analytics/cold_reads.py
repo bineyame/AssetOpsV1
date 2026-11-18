@@ -1,4 +1,4 @@
-"""W2-03 commit 4: selected cold reads (`.agent/W2-03-build-spec.md` "Commit 4 - selected reads" and the
+"""W2-03 commit 4: selected cold reads (`specs/W2-03/spec.md` "Commit 4 - selected reads" and the
 "freshness reference for commit 4" amendment).
 
 The pure currentness, freshness and cursor rules live here; the Postgres snapshot read is

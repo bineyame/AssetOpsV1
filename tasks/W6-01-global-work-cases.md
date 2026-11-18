@@ -1,6 +1,6 @@
 # W6-01 Global work cases
 
-Status: **specified, readiness closure pending browser measurements and independent review before build**. Lane B. Architect/Planner decision `D-2026-10-22-w6-01-buildspec`. The sole implementation contract is [the build spec](../.agent/W6-01-build-spec.md). No W4-01 model change is authorized.
+Status: **specified, readiness closure pending browser measurements and independent review before build**. Lane B. Architect/Planner decision `D-2026-10-22-w6-01-buildspec`. The sole implementation contract is [the build spec](../specs/W6-01/). No W4-01 model change is authorized.
 
 ## Outcome and order
 

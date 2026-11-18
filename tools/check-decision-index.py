@@ -5,7 +5,7 @@
    `D-ANY.6a`, `D-W1-4`, `D-AW-2` ... (any `D-<LETTERS/DIGITS>` then `.n` or `-n`).
    A dated token also resolves when it is the start of an indexed ID: line-wrapped
    citations (`D-2026-10-09-pre-s3`) and bare dates (`D-2026-10-09`) are common.
-   File names such as `.agent/D-SR63-67-review.md` are not citations.
+   File names such as `archive/agent-history/D-SR63-67-review.md` are not citations.
    Reserved example IDs (`D-EG.n`, `D-2099-...`, .ai/RULES.md §9) are skipped.
 2. Every file an index names exists and holds the IDs indexed to it, as whole tokens.
    A `file:line` pointer whose line no longer holds the ID is a note (live files grow).

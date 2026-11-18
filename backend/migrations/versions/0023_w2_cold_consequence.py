@@ -1,6 +1,6 @@
 """W2-04 commit 1: immutable, unpriced cold consequence history and trigger-only dirty work.
 
-`.agent/W2-04-build-spec.md` "Money schema `0023` and rules" (decision D-2026-10-18-w2-04-buildspec). Four new
+`specs/W2-04/spec.md` "Money schema `0023` and rules" (decision D-2026-10-18-w2-04-buildspec). Four new
 tenant/Site-scoped, append-only tables; the mini-grid `financial_*` tables (0010-0012) and their rows are untouched.
 
 - `cold_consequence_revision`: one immutable consequence revision per (FindingRevision, kind, basis). Every amount and

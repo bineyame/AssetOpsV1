@@ -1,7 +1,7 @@
 """W2-01 cold Foundation persistence and the selected cold read against PostgreSQL.
 
 Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database; skipped (never passed) without it.
-`.agent/W2-technical-design-cold.md` section 3 and the W2-01 acceptance row; `tasks/W2-01-cold-foundation.md`
+`archive/agent-history/W2-technical-design-cold.md` section 3 and the W2-01 acceptance row; `tasks/W2-01-cold-foundation.md`
 phase 1.
 """
 

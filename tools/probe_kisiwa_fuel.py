@@ -1,7 +1,7 @@
 """DIESEL-1 F0: the Kisiwa fuel-events probe. In memory; no database, no product code.
 
 The declared world, the `fuel-balance-1` parameters, the gates (F0a, F1-F10) and the stops are DIESEL-1-R2 §8.3
-with §8.2a (`.agent/build-sheet-DIESEL-1.md`, dc72cb72a), fixed before any run and never tuned. Kisiwa's physics are
+with §8.2a (`specs/DIESEL-1/`, dc72cb72a), fixed before any run and never tuned. Kisiwa's physics are
 D0's (§2.2), imported from `tools/probe_kisiwa_nights.py` and never edited: start fuel 700 L, stop 90 % throughout.
 
 OA-1: the scenario of every run is D0's `day_document` unchanged (weather and loads only). The fuel delivery, the

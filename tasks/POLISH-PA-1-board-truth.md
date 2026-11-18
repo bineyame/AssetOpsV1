@@ -4,7 +4,7 @@ Status: in_review
 
 USER_REVIEW_REQUIRED: no (merges on review ACCEPT; walkthroughs deferred to the owner walkthrough after this round).
 
-Contract: `.agent/build-sheet-POLISH.md` §1.1 (backend), §1.3 (connector wording), §1.6, §1.7, §5 Lane A PA-1,
+Contract: `specs/POLISH/` §1.1 (backend), §1.3 (connector wording), §1.6, §1.7, §5 Lane A PA-1,
 §6 D-2, §7 (R635, R636) and Addendum 2 (pre-flight rulings). Branch `task/POLISH-PA-1-board-truth`.
 
 ## Acceptance

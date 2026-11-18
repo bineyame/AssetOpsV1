@@ -7,9 +7,9 @@ whose checked days are all current, reads Partly checked (PARTIAL), not Unknown.
 Findings from the checked days with no amount, and is never counted as covered. No estate root reads Current while a
 Site is PARTIAL, and the Portfolio status is Partial. Branch `task/COV-PARTIAL-estate-coverage`, worktree
 `C:\Users\assef\Bineyame\AssetOpsV1-covp`, from main `15eed62c8` (build sheets at `0796218fc`). Implementation contract:
-`C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-COV-PARTIAL.md` (§0 rules, §2 rule, §3 Portfolio status,
+`C:\Users\assef\Bineyame\AssetOpsV1-plan2\specs\COV-PARTIAL\spec.md` (§0 rules, §2 rule, §3 Portfolio status,
 §4 units U1-U4, §5 tiers, §7 register, §8 decision) and its Addendum 1 (pre-flight Q1-Q3). Decision
-`D-2026-10-31-estate-coverage-v2`. Packet `.agent/COV-PARTIAL-packet.md`.
+`D-2026-10-31-estate-coverage-v2`. Packet `archive/agent-history/COV-PARTIAL-packet.md`.
 
 ## Gates (from the sheet)
 

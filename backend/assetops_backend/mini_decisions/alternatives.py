@@ -1,6 +1,6 @@
 """W4-03 unit 3: authored Alternatives on one exact W1 mini-grid dispatch Finding revision.
 
-`.agent/W4-03-build-spec.md`: original "Alternative" domain paragraph and Alternatives panel ledger; "API, exact wire,
+`specs/W4-03/`: original "Alternative" domain paragraph and Alternatives panel ledger; "API, exact wire,
 ordering and errors"; closure 1 Q1-Q3 (actor, attestation, literal command/response, canonical hash, retry) and
 Q12-Q16 (one REPEATABLE READ snapshot, head per `(finding_id, alternative_key)` at cutoff, closed key set with fixed
 ranks, carry-forward, RULED_OUT interval, list envelope, selection token, cursor); closure 4 B1, S17 (revision

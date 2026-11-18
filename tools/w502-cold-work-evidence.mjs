@@ -1,6 +1,6 @@
 /**
  * W5-02b part 1 browser evidence: the cold Site Work > Actions list (K2a/K2b) and the domain Action shell, at
- * 1440 and 390 px, measured against the W5-02 build-spec caps (".agent/W5-02-build-spec.md", "Measurement,
+ * 1440 and 390 px, measured against the W5-02 build-spec caps ("specs/W5-02/", "Measurement,
  * capture and deviations" and U4).
  *
  *   node tools/w502-cold-work-evidence.mjs <manifest.json> <out-dir> [web-host]
@@ -12,7 +12,7 @@
  * row's code is on one line, then writes a full-page PNG. Every claim prints PASS/FAIL with its measured value;
  * row claims require a non-empty measured row set. Writes <out>/w502b-measurements.json.
  *
- * K2 rulings (`.agent/W5-02b-K2-rulings.md`): ruling 2 caps the cold Actions panel at 650/850 px and the page at
+ * K2 rulings (`archive/agent-history/W5-02b-K2-rulings.md`): ruling 2 caps the cold Actions panel at 650/850 px and the page at
  * 1600/2000 px (1440/390), with document.scrollWidth <= clientWidth + 1, per-cell containment, a preview of at most
  * two lines and no horizontal clip of an opened `Read full text` (including five 160-code-point rows with every
  * disclosure open); ruling 3 captures the real WORK_STORE_UNAVAILABLE 503 inside the cold-work panel (healthy Site
@@ -49,7 +49,7 @@ const WIDTHS = [
 ];
 // Build-spec caps [1440, 390]. K2 ruling 2: the cold Actions Work page <= 1600/2000 and its panel <= 650/850.
 const WORK_CAPS = { main: [1600, 2000], strip: [100, 150], panel: [650, 850], notice: [110, 160] };
-// W5-02c K4b (`.agent/W5-02c-K4-preflight-rulings.md` ruling 7): final closed `cold-action` caps [1440, 390]; each
+// W5-02c K4b (`archive/agent-history/W5-02c-K4-preflight-rulings.md` ruling 7): final closed `cold-action` caps [1440, 390]; each
 // panel is measured on its own. Any user-opened disclosure is exempt from every height cap (recorded as INFO).
 const ACTION_CAPS = { main: [1500, 1900], strip: [140, 200], criteria: [500, 760], related: [360, 500], notice: [110, 160] };
 mkdirSync(OUT, { recursive: true });
@@ -828,7 +828,7 @@ async function main() {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// W5-02c K4b (`.agent/W5-02c-K4-preflight-rulings.md` rulings 4-8, 12): `W502B_EVIDENCE=action`. The v69
+// W5-02c K4b (`archive/agent-history/W5-02c-K4-preflight-rulings.md` rulings 4-8, 12): `W502B_EVIDENCE=action`. The v69
 // `cold-action` detail at 1440/390 from the producer's served reads: positive CURRENT (four criteria, completed WR),
 // the open `Finding version` (user expansion, no height cap), the explicit K1 cutoff with no linked work, historical,
 // pending/stale/unknown, worstcase Action 1 (160-code-point title/owner, intent null, no WR), not found, 403/503

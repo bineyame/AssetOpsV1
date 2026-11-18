@@ -32,7 +32,7 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 The `index-rulings-*` lines are index-only: demo-sprint and later rulings
 (D-SR, D-E5, D-ANY, D-AW, D-W1, D-MONEY and the rest) whose text stays in
 `.agent/` build sheets, Architect files and the coordinator handoff until
-declutter step 4. Most live in `.agent/build-sheet-OWN-GAPS-2026-11-08.md`.
+declutter step 4. Most live in `specs/OWN-GAPS/`.
 
 New decisions: append to `<YYYY-MM>.md` of the month (create it if absent; the
 first is 2026-11.md) with a `Decision: \`D-YYYY-MM-DD-slug\`` line, or record a

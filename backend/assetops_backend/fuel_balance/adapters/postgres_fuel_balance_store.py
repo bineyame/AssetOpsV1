@@ -1,4 +1,4 @@
-"""DIESEL-K3 (`.agent/build-sheet-DIESEL-1.md` §9d.4-§9d.5): the `fuel_balance_window` store and its read port.
+"""DIESEL-K3 (`specs/DIESEL-1/` §9d.4-§9d.5): the `fuel_balance_window` store and its read port.
 
 `transaction` runs one assessment in one transaction: `known_at` (`clock_timestamp()`, or the test-only override) is
 taken first, then the Site's timezone and assets, the per-night advisory lock, the latest revision, the fuel records

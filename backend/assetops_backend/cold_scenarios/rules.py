@@ -1,4 +1,4 @@
-"""W5-01b C4: the authored cold scenario command rules (`.agent/W5-01-build-spec.md` C4 card and pre-flight rulings
+"""W5-01b C4: the authored cold scenario command rules (`specs/W5-01/` C4 card and pre-flight rulings
 P-C4-7..23).
 
 `cold-scenario-authored/1` allows one `kind`, `STOCK_VALUE_CONTEXT`, whose only assumption object is

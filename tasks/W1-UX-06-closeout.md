@@ -1,6 +1,6 @@
 # W1-UX-06 — W1 presentation closeout and combined owner walkthrough
 
-Status: **done** (merged to main 2026-10-17; reviews ACCEPT after fix round 1; owner acceptance in the combined W1 walkthrough); was in_review. Size **S–M**, at most two phases. Implement on `task/W1-UX-06` after W1-UX-02, -03 and -04 are reviewed and merged; this packet is written on `plan/W1-UX-06`. Coordinator commits the plan. This is the last W1 slice before the owner's single combined walkthrough under `.agent/owner-walkthrough-policy-2026-10-16.md`. Fresh independent slice review gates merge; the owner walks the combined result once and W1 closes only after that acceptance. No new panel claim or source promotion.
+Status: **done** (merged to main 2026-10-17; reviews ACCEPT after fix round 1; owner acceptance in the combined W1 walkthrough); was in_review. Size **S–M**, at most two phases. Implement on `task/W1-UX-06` after W1-UX-02, -03 and -04 are reviewed and merged; this packet is written on `plan/W1-UX-06`. Coordinator commits the plan. This is the last W1 slice before the owner's single combined walkthrough under `owner/owner-walkthrough-policy-2026-10-16.md`. Fresh independent slice review gates merge; the owner walks the combined result once and W1 closes only after that acceptance. No new panel claim or source promotion.
 
 ## Result and boundaries
 
@@ -16,7 +16,7 @@ The final walkthrough measures the actual 1440 and 390 px layout of all **26 nam
 | `backend/assetops_backend/foundation_api.py:340-343`; `backend/assetops_backend/sites/binding_service.py:773-775,935-939`; `frontend/src/sites/FoundationBindingsPanel.tsx:96-101,196,249,373` | Three backend sentences say “signal binding set”; the frontend masks each no-set sentence. Reword the three backend sentences in plain language with the same Unknown/unbound/no-snapshot meaning, remove the frontend overrides, and update exact response/UI assertions. Keep technical identifiers and codes in labelled exact references. |
 | `frontend/src/sites/FoundationBindingsPanel.tsx:31-47,163`; `foundationHeadlines.tsx:286-329`; `healthHeadlines.tsx:155-169`; `SiteHealth.tsx:476-480` | “Ready to report”, the strip title, selected-gateway “In contact”, and two optimistic fallback headlines need the Architect choices below. Do not treat unknown or stale facts as positive. |
 
-Sources: `.agent/W1-UX-05-review.md` L1–L8, `.agent/W1-UX-03-review.md` narrow evidence finding, `.agent/W1-UX-04-review.md` M3, and `.agent/S7-01b-review-packet.md` L2. UX-03/04 review fixes unrelated to this packet remain with their owning slices before merge.
+Sources: `archive/agent-history/W1-UX-05-review.md` L1–L8, `archive/agent-history/W1-UX-03-review.md` narrow evidence finding, `archive/agent-history/W1-UX-04-review.md` M3, and `archive/agent-history/S7-01b-review-packet.md` L2. UX-03/04 review fixes unrelated to this packet remain with their owning slices before merge.
 
 ## Architect questions (recommendations; settle before wording changes)
 
@@ -42,4 +42,4 @@ Run focused frontend tests for shared presentation, Foundation/Readiness, Health
 
 ## Plan review fixes (coordinator, 2026-10-17)
 
-`.agent/W1-UX-06-plan-review.md`: M1 resolved by the inventory rule in phase 1 (all cited evidence scripts, one shared width check, unguarded = not established). L1: the current helper regex `/^As of /` rejects `As of: time not recorded`; the fix accepts both forms. L2: phase 2 is the long pole; commit captures in batches by tool so one failing tool is recorded "not run" with its reason rather than stalling the slice. Architect questions answered by `D-2026-10-17-w1-ux-06` (`.agent/architect-W1-UX-06-answers.md`): implement exactly those labels.
+`archive/agent-history/W1-UX-06-plan-review.md`: M1 resolved by the inventory rule in phase 1 (all cited evidence scripts, one shared width check, unguarded = not established). L1: the current helper regex `/^As of /` rejects `As of: time not recorded`; the fix accepts both forms. L2: phase 2 is the long pole; commit captures in batches by tool so one failing tool is recorded "not run" with its reason rather than stalling the slice. Architect questions answered by `D-2026-10-17-w1-ux-06` (`archive/agent-history/architect-W1-UX-06-answers.md`): implement exactly those labels.

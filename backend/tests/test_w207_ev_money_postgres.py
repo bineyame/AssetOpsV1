@@ -1,6 +1,6 @@
 """W2-07: migration `0026_w2_ev_money` (commit 1) and the EV money writer (commit 2) against Postgres.
 
-`.agent/W2-07-build-spec.md` "Concrete-artifact closure (2026-10-19)" section 1 and "Post-W2-06 reconciliation
+`specs/W2-07/rulings-2.md` "Concrete-artifact closure (2026-10-19)" section 1 and "Post-W2-06 reconciliation
 (2026-10-20)" commit 1: the authored EV tariff key, five append-only scoped EV consequence tables, trigger-only work
 with the exact scoped `ON CONFLICT (tenant_id,site_id,window_start,window_end,dirty_basis_sha256) DO NOTHING` target,
 backfill and a guarded downgrade that refuses while any EV tariff or 0026 row exists. Schema-level rows written here

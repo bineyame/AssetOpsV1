@@ -1,6 +1,6 @@
 """W2-05a EV vocabulary, typed state property, connector enable schedule and EV Foundation validator (no database).
 
-`.agent/W2-05a-build-spec.md` commit 1 (`D-2026-10-18-w2-05-buildspec`, Architect answers Q3-Q5).
+`specs/W2-05a/spec.md` commit 1 (`D-2026-10-18-w2-05-buildspec`, Architect answers Q3-Q5).
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 /**
  * W5-01b C5: the cold Site Financials > Scenarios body (v6.9 `cold-scenarios`), from the authored C4 list
- * (`.agent/W5-01-build-spec.md` C5 card, readiness pass 3, closure 2 and the C5 mock and UI closure P-C5-1..22).
+ * (`specs/W5-01/` C5 card, readiness pass 3, closure 2 and the C5 mock and UI closure P-C5-1..22).
  *
  * The mock panel is `Financial scenarios` (its subtitle replaced under R25 D4, post-W6 R337) with its evidence-icon
  * empty block, then the blue closing notice. Authored definitions are labelled what-ifs: no observed outcome, no

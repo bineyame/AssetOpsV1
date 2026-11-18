@@ -5,7 +5,7 @@ Status: in_progress
 Lane C (commercial). Branch `task/CC-M-combined-schema`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-ccm`, from
 `main` `9cec4fcb` (CC-R1, CC-R2, TEL-01..05b merged).
 
-The contract is `.agent/build-spec-commercial-2026-10-27.md` "CC-M", with Q-C12 (head literals) and Q-C42 (column
+The contract is `specs/Lane-C/rulings.md` "CC-M", with Q-C12 (head literals) and Q-C42 (column
 list). The persistence-guard extension for the trial writer (Q-C13) is CC-D2's ("CC-D2 Files, Guard"): CC-M adds the
 table only, with no writer.
 
@@ -29,5 +29,5 @@ Any existing migration needs editing.
 
 ## Phases
 
-1. Build, focused migration tests, head-literal tests, guards. Done; see `.agent/CC-M-review-packet.md`.
+1. Build, focused migration tests, head-literal tests, guards. Done; see `archive/agent-history/CC-M-review-packet.md`.
 2. One full backend suite plus the frontend suite, on the coordinator's go.

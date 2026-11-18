@@ -2,7 +2,7 @@
 `GET /api/work/maintenance` and `GET /api/work/preventive`; E1 `GET /api/work/operational-records` (selection in
 `work/operational_index.py`, kind filter bound in the cursor and token `filter`).
 
-`.agent/W6-01-build-spec.md` section 1 (wire, parser, refusals, envelope, incident row) and section 3.1 (A1Q G2 and
+`specs/W6-01/` section 1 (wire, parser, refusals, envelope, incident row) and section 3.1 (A1Q G2 and
 the Q3-Q9 rulings). One read-only REPEATABLE READ snapshot (`PostgresGlobalWorkRead.snapshot`) at one fixed cutoff
 K selects every authorized imported Site of the server's tenant (a denied candidate never enters a row, count,
 digest or cursor) and every eligible case of every such Site before paging, through the per-Site W4 reads on the

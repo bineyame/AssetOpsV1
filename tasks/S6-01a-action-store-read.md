@@ -66,7 +66,7 @@ Fresh independent review per phase; phase 2 review is slice review. Focused test
 
 ## Architect rulings
 
-`.agent/architect-S6-01-answers.md` Q1-Q5 and M1-M3, ratified by `D-2026-10-15-s601-action-store-and-ui` in `.ai/DECISIONS.md`, govern the server rule, transaction/writer boundary, refusal scope, scoped demonstration capability, selectors, accepted snapshot and OBSERVED event.
+`archive/agent-history/architect-S6-01-answers.md` Q1-Q5 and M1-M3, ratified by `D-2026-10-15-s601-action-store-and-ui` in `.ai/DECISIONS.md`, govern the server rule, transaction/writer boundary, refusal scope, scoped demonstration capability, selectors, accepted snapshot and OBSERVED event.
 
 ## Plan fix round 1
 

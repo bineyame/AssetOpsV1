@@ -608,7 +608,7 @@ class PostgresConsequenceStore:
         return self._run(work, "REPEATABLE READ")
 
     # ---- W2-04: cold consequence (migration 0023) -------------------------------------------------------------
-    # `.agent/W2-04-build-spec.md` "Money schema `0023` and rules", Q5/Q6. This store alone INSERTs
+    # `specs/W2-04/spec.md` "Money schema `0023` and rules", Q5/Q6. This store alone INSERTs
     # `cold_consequence_revision`, `cold_consequence_evidence` and `cold_consequence_work_attempt`; work rows come
     # only from the 0023 triggers. Server times (`created_at`, `finished_at`) are always the column defaults: no
     # method accepts a client timestamp. The mini-grid methods above are unchanged.
@@ -689,7 +689,7 @@ class PostgresConsequenceStore:
                 conn.close()
 
     # W2-04 commit 3: read-only heads and pending work on the caller's connection (the cold Site read's one
-    # REPEATABLE READ snapshot, `.agent/W2-04-build-spec.md` "Five API reads"). SELECT-only.
+    # REPEATABLE READ snapshot, `specs/W2-04/spec.md` "Five API reads"). SELECT-only.
 
     @staticmethod
     def cold_heads_on(c: Connection, tenant_id: UUID, site_id: UUID,
@@ -765,7 +765,7 @@ class PostgresConsequenceStore:
 
 
     # ---- W2-07: EV gross tariff consequence (migration 0026) --------------------------------------------------
-    # `.agent/W2-07-build-spec.md` commit 1 writer boundary, q1 R2/R5/R6 and q3 R8. This store alone INSERTs
+    # `specs/W2-07/` commit 1 writer boundary, q1 R2/R5/R6 and q3 R8. This store alone INSERTs
     # `ev_consequence_revision`, `ev_consequence_session`, `ev_consequence_evidence` and
     # `ev_consequence_work_attempt`; work rows come only from the 0026 triggers. Every time is the database
     # `clock_timestamp()` (0026 has no column defaults); no method accepts a client timestamp.

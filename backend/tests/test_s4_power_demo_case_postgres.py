@@ -1,6 +1,6 @@
 """S4-02b phase 2a: the authored power-mean demonstration case (`s4-power-demo-cases-v1`).
 
-Owner ruling `.agent/owner-S4-02b-money-demo-2026-10-14.md`. The spec is delivered through the same in-process
+Owner ruling `owner/owner-S4-02b-money-demo-2026-10-14.md`. The spec is delivered through the same in-process
 Batch V2 path as the S4 Finding cases (the walkthrough producer `tools/s402b_power_cases.py` posts the same
 envelopes over TLS with the registered gateway credential), assessed, matched, and recomputed by the durable
 worker: a positive bounded amount at price v1 and a second consequence revision after the v4 correction.

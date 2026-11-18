@@ -1,7 +1,7 @@
 """`fuel-cost-2`: `fuel-cost-1` plus running at 0 kW counted at a declared no-load fuel rate (FUEL-1 A1).
 
-`.agent/build-sheet-FUEL-1.md` §4.1 (Option A, idle fuel) and the owner's answers in
-`.agent/owner-fuel-scope-2026-11-07.md` ("Generic 3.3 L/h, labelled"). `fuel_cost.py` (fuel-cost-1) is never edited
+`specs/FUEL-1/` §4.1 (Option A, idle fuel) and the owner's answers in
+`owner/owner-fuel-scope-2026-11-07.md` ("Generic 3.3 L/h, labelled"). `fuel_cost.py` (fuel-cost-1) is never edited
 in place: this is a new reviewed model with its own immutable parameter version.
 
 Selection (`quantify`): fuel-cost-2 applies to a FindingRevision iff `fuel_cost.quantify` succeeds and at least one

@@ -1,13 +1,13 @@
 # LR-01 — late-reading series and money limit
 
-Status: done (owner walkthrough accepted conditionally 2026-10-15, `.agent/owner-LR01-S501-acceptance-2026-10-15.md`; merged to main; was in_review (phases 1-2 built 2026-10-15 on `task/LR-01-late-reading-series-and-money-limit`; packet `.agent/LR-01-review-packet.md`; owner walkthrough `.agent/LR-01-owner-walkthrough.md`; fresh independent slice review pending)
+Status: done (owner walkthrough accepted conditionally 2026-10-15, `owner/owner-LR01-S501-acceptance-2026-10-15.md`; merged to main; was in_review (phases 1-2 built 2026-10-15 on `task/LR-01-late-reading-series-and-money-limit`; packet `archive/agent-history/LR-01-review-packet.md`; owner walkthrough `archive/agent-history/LR-01-owner-walkthrough.md`; fresh independent slice review pending)
 USER_REVIEW_REQUIRED: true — the Financials bridge gains owner-visible no-current-amount and withheld states, and the Finding page gains the series-limit statement with its evidence link. Owner walkthrough below is a merge checkpoint.
 Size: M, two phases; phase 2 review is the slice review. Branch for implementation: `task/LR-01-late-reading-series-and-money-limit`.
 Depends on: registry `I-S2-02`, `I-S3-01`, `I-S4-01`, `I-S4-02b`; built S4-02c consequence work and S4-02d schedule are the operational seam. This is a hard prerequisite of `I-site-overview-read` and schedule installation on demo/walkthrough hosts; real pilot additionally requires validated physical clock semantics and the other registry gates.
 
 ## Outcome and authority
 
-Resolve `.agent/S4-02c-review.md` F1 and `.ai/MILESTONE_REVIEW_BACKLOG.md` late-reading carries L-a–L-f, L1 and the S4-02b panel residual under decision `D-2026-10-14-s402c-late-sequence-and-s5-money`. Run 1 currently yields S3 `INDETERMINATE` / `SEQUENCE_ORDER_INVERTED` / `GENERATOR_SERIES_AMBIGUOUS`, a revised `SUPPORTED` Finding ending at 07:00 with only `OPEN_BOUND`, then `CURRENT PRICED` 7.5625 USD. The on-time-sequenced late upload yields 15.8125 USD. Neither figure is an automatic current-money claim when its generator series is unresolved. Keep the existing authored fixture `backend/conversions/s4-power-late-demo-cases-v1.json:2-13` and accepted consequence history.
+Resolve `archive/agent-history/S4-02c-review.md` F1 and `.ai/MILESTONE_REVIEW_BACKLOG.md` late-reading carries L-a–L-f, L1 and the S4-02b panel residual under decision `D-2026-10-14-s402c-late-sequence-and-s5-money`. Run 1 currently yields S3 `INDETERMINATE` / `SEQUENCE_ORDER_INVERTED` / `GENERATOR_SERIES_AMBIGUOUS`, a revised `SUPPORTED` Finding ending at 07:00 with only `OPEN_BOUND`, then `CURRENT PRICED` 7.5625 USD. The on-time-sequenced late upload yields 15.8125 USD. Neither figure is an automatic current-money claim when its generator series is unresolved. Keep the existing authored fixture `backend/conversions/s4-power-late-demo-cases-v1.json:2-13` and accepted consequence history.
 
 ## Architect-ruled contract — S3 cohort v4
 
@@ -54,7 +54,7 @@ Add a `serve` mode to the LR-01 extension of `tools/s402c_late_power_walkthrough
 
 ## Architect rulings
 
-Architect Q1-Q4 and the corrected overlap rule are accepted in `.agent/architect-LR-01-answers.md` (including “Packet changes for the Planner” 1-3 and “Follow-up M1”) and decision `D-2026-10-15-lr01-source-time-cohort` in `.ai/DECISIONS.md`. Those rulings govern implementation and proof above.
+Architect Q1-Q4 and the corrected overlap rule are accepted in `archive/agent-history/architect-LR-01-answers.md` (including “Packet changes for the Planner” 1-3 and “Follow-up M1”) and decision `D-2026-10-15-lr01-source-time-cohort` in `.ai/DECISIONS.md`. Those rulings govern implementation and proof above.
 
 **Plan fix round 1:** Applied the Architect's placement/overlap and requeue rulings; fixed the attestation authority, append-only as-of path and eligibility precedence; added exact outcome and transition proof across S3, Finding and Financials; made the owner UI serving and browser evidence reachable; corrected citations, test targets, simulated wording and cross-midnight window scope, with expected model/matcher revision churn called out.
 

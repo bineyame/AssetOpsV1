@@ -1,6 +1,6 @@
 /**
  * W5-04 V2b browser evidence: the EV_CHARGING Site Work > Actions tab (`ev-work`) at 1440 and 390 px, measured against
- * the W5-04 build-spec caps (".agent/W5-04-build-spec.md" "Measurements, captures and deviations"; readiness rulings
+ * the W5-04 build-spec caps ("specs/W5-04/spec.md" "Measurements, captures and deviations"; readiness rulings
  * 25, 26, 39, 50-55, 61, 62).
  *
  *   node tools/w504-ev-work-evidence.mjs <manifest.json> <out-dir> [web-host]

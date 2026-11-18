@@ -1,4 +1,4 @@
-"""DIESEL-K3 L2 parity (`.agent/build-sheet-DIESEL-1.md` §9d.6 C): K3's stored windows reproduce F0's readings band.
+"""DIESEL-K3 L2 parity (`specs/DIESEL-1/` §9d.6 C): K3's stored windows reproduce F0's readings band.
 
 Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database (K3: `assetops_k3_test`); skipped without it.
 

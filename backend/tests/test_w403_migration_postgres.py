@@ -1,6 +1,6 @@
 """W4-03 unit 1: migration `0030_w4_mini_decisions`, its exact catalog delta, downgrade refusals and store skeleton.
 
-`.agent/W4-03-build-spec.md` original "Migration `0030_w4_mini_decisions`", closure 1 catalog/lock paragraph and
+`specs/W4-03/spec.md` original "Migration `0030_w4_mini_decisions`", closure 1 catalog/lock paragraph and
 closure 4 S3/S4/S18/S19. The catalog is compared as exact name arrays from `pg_catalog`, not counts alone.
 Requires ASSETOPS_TEST_DATABASE_URL.
 """

@@ -1,6 +1,6 @@
 """W5-04a V1b: the non-test EV work fixture producer library (readiness rulings 20, 21, 29, 31, 34-38).
 
-`.agent/W5-04-build-spec.md` "V1 selection, clock and schema" and "EV producer, UI and registry"; readiness rulings
+`specs/W5-04/spec.md` "V1 selection, clock and schema" and "EV producer, UI and registry"; readiness rulings
 34-38 supersede the earlier shifted-Site design (no generated Site, no shifted documents). Importable mode library in
 the shape of `tools/w502_cold_work_cases.py`; the CLI is `tools/w504_ev_work_walkthrough.py`, whose walkthrough
 CHILD alone imports the existing `backend/tests`/`host/tests` registered-replay helpers (ruling 36). Nothing here

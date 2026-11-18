@@ -40,7 +40,7 @@ NOT_REALISED = "Estimated effect of the trial (not money saved): "
 GAPS_TEXT = "{g} of the last 31 days have no complete readings yet"
 GAPS_SINCE_TEXT = "Since readings began on {d}: {g} of {n} days have no complete readings yet"  # PB-7
 IDX_POLICY = "finding-index/2"
-#: U1 probe, `.agent/DEMO-SPARSE-trial-probe.md` P3 row (a): the chosen candidate and its recorded cost check.
+#: U1 probe, `archive/agent-history/DEMO-SPARSE-trial-probe.md` P3 row (a): the chosen candidate and its recorded cost check.
 #: FUEL-1 A3-R §3.9: with the declared idle fuel rate the trial hour is a `/2` MODELLED_IMPROVEMENT (was
 #: MODELLED_NO_IMPROVEMENT, nominal 0); the figures are checked from stored values (`demo_rows.trial_cost`).
 PROBE_CHOSEN = {"chosen": "a", "window_hour": "06:00", "cost_state": "MODELLED_IMPROVEMENT"}

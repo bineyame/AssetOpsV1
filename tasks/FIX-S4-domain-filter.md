@@ -5,8 +5,8 @@ Status: in_review
 `PostgresFindingStore.episodes` read every Finding on a Site, so a Site holding an open cold Finding (`episode_end`
 NULL) broke the mini dispatch matcher pass (`plan_pass` TypeError) and stopped that Site's later tick stages.
 Branch `task/FIX-S4-domain-filter`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-fixs4`, from main `ee678cbe5`.
-Contract: ruling 1 of Addendum 3 in `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-DEMO-SPARSE.md`.
-Packet `.agent/FIX-S4-DOMAIN-packet.md`.
+Contract: ruling 1 of Addendum 3 in `C:\Users\assef\Bineyame\AssetOpsV1-plan2\specs\DEMO-SPARSE\spec.md`.
+Packet `archive/agent-history/FIX-S4-DOMAIN-packet.md`.
 
 ## Gates (from the ruling)
 

@@ -1,5 +1,5 @@
 /**
- * W5-01a C2 (Codex retrospective Q-C2-3, `.agent/W5-01-build-spec.md`): the cold Cooling `Recovery curves` graphic.
+ * W5-01a C2 (Codex retrospective Q-C2-3, `specs/W5-01/`): the cold Cooling `Recovery curves` graphic.
  *
  * The selected C1 `selected_points` carry a role and a source time but no temperature value, so each is an
  * unconnected, labelled mark on a categorical lane (compressor, chamber probe) across the selected window. No

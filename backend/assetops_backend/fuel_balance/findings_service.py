@@ -1,4 +1,4 @@
-"""DIESEL-K4a (`.agent/build-sheet-DIESEL-1.md` §9j.4, §9j.6, ruling DIESEL-1-R3j): raise the unexplained-fuel
+"""DIESEL-K4a (`specs/DIESEL-1/` §9j.4, §9j.6, ruling DIESEL-1-R3j): raise the unexplained-fuel
 Finding of one stored night, explicitly (no tick stage).
 
 `raise_night` runs in one transaction, the cold worker's pattern (`analytics/assessment_worker.py:250`, the

@@ -1,4 +1,4 @@
-"""DIESEL-K4a L2 (`.agent/build-sheet-DIESEL-1.md` §9j.8 B1-B6, §9k.5 B7-B9): the unexplained-fuel Finding over real
+"""DIESEL-K4a L2 (`specs/DIESEL-1/` §9j.8 B1-B6, §9k.5 B7-B9): the unexplained-fuel Finding over real
 Postgres.
 
 Kobo is imported as K3's B does (`test_s1_bindings_postgres.imported`); B7-B9 use the S4 power Site

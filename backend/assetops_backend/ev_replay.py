@@ -1,4 +1,4 @@
-"""W2-05b EV replay read (`.agent/W2-05b-build-spec.md` commit 5 and q4 "Final commit 4-5" item 2).
+"""W2-05b EV replay read (`specs/W2-05b/` commit 5 and q4 "Final commit 4-5" item 2).
 
 The cold replay (`cold_replay.py`) mirrored for the closed EV pair. `EvReplayService.replay` reads one explicitly
 selected, persisted EV run and the public transport that its

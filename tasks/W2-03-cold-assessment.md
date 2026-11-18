@@ -1,12 +1,12 @@
 # W2-03 — Cold assessment, episodes and Findings
 
-Status: done (merged to main 2026-10-18; re-review ACCEPT; backend 2752, host 708, frontend 2182); was in_review (built 2026-10-18, commits 1-5; packet `.agent/W2-03-review-packet.md`); was active (activated 2026-10-18 from main `a3ac189c`; W2-02 merged); was implementation-ready (planned). Size M; two phases. Branch `task/W2-03-cold-assessment` from merged W2-02. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. The exit is immutable, evidence-linked cold claims and four exact v69 routes, with missing and pending states visible.
+Status: done (merged to main 2026-10-18; re-review ACCEPT; backend 2752, host 708, frontend 2182); was in_review (built 2026-10-18, commits 1-5; packet `archive/agent-history/W2-03-review-packet.md`); was active (activated 2026-10-18 from main `a3ac189c`; W2-02 merged); was implementation-ready (planned). Size M; two phases. Branch `task/W2-03-cold-assessment` from merged W2-02. USER_REVIEW_REQUIRED: true, after independent slice review, in the later owner W2 walkthrough. The exit is immutable, evidence-linked cold claims and four exact v69 routes, with missing and pending states visible.
 
 ## Binding design and dependencies
 
-**Architect build closure:** `D-2026-10-17-w2-02-buildspec` and `.agent/W2-03-build-spec.md` fix exact `0022` schema, accepted-evidence selection, episode keys, one-transaction writer ownership, replay-derived assertions, selected reads and four route proof. They supersede unspecified implementation shorthand below.
+**Architect build closure:** `D-2026-10-17-w2-02-buildspec` and `specs/W2-03/spec.md` fix exact `0022` schema, accepted-evidence selection, episode keys, one-transaction writer ownership, replay-derived assertions, selected reads and four route proof. They supersede unspecified implementation shorthand below.
 
-- `.agent/W2-technical-design-cold.md` §2 owns `0022_w2_cold_assessment`, scoped FKs, Finding domain widening and downgrade; §5 owns selection, excursion/start-chain rules and episode identity; §6 owns reads/panel maps; §7 owns rule-8 writers, response vocabulary and cases. `.agent/architect-W2-design.md` "Domain seams and claim rules"/"Ordered slices" fix bounded claims and late recompute. Decisions `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold`, `D-2026-10-17-w2-00-answers`, `D-2026-10-17-mockup-layout-spec` apply.
+- `archive/agent-history/W2-technical-design-cold.md` §2 owns `0022_w2_cold_assessment`, scoped FKs, Finding domain widening and downgrade; §5 owns selection, excursion/start-chain rules and episode identity; §6 owns reads/panel maps; §7 owns rule-8 writers, response vocabulary and cases. `archive/agent-history/architect-W2-design.md` "Domain seams and claim rules"/"Ordered slices" fix bounded claims and late recompute. Decisions `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold`, `D-2026-10-17-w2-00-answers`, `D-2026-10-17-mockup-layout-spec` apply.
 - Requires merged W2-02 public replay, W2-01 time-valid Foundation/bindings, W2-00 AcceptedEvidence, S4-05 exact lineage and merged W1-F1 guard/CSS for phase 2. Consume only accepted public evidence with effective role, quality, source clock, received time and `known_at`; private world and illustrative mock values are never claim inputs.
 
 ## Phase 1 — immutable assessment and Finding projection
@@ -35,7 +35,7 @@ Assign existing open `A-cold-excursion-rules`, `I-cold-assessment-store` and `D-
 
 None; the cited design fixes the assessment, read and UI contracts.
 
-## Plan review fixes (coordinator, 2026-10-17; `.agent/W2-packets-2-review.md`)
+## Plan review fixes (coordinator, 2026-10-17; `archive/agent-history/W2-packets-2-review.md`)
 
 - **Replay-driven acceptance (M1, required in phase 1):** run each W2-02 demo replay through ordinary intake and the assessment, and assert on its accepted evidence: **normal** -> `NO_EXCURSION_OBSERVED` with start and transfer observed; **excursion** -> exposure Finding, latest start 19:15, open episode, duration lower bound 45 min and no upper bound; **backup-failed** -> `OBSERVED_FAILURE`, door only as context, exposure Finding still held; **missing-probe** -> coverage 7/13, temperature `UNKNOWN`, no exposure Finding, start failure still observed; **late-reading** -> at the 20:05 cutoff 12/13 points with first high readings at 19:15 and 19:25, at 20:10 a new revision with the old history intact; **contradictory** -> `CONTRADICTORY`, never `OBSERVED_FAILURE`. Hand-made fixtures do not satisfy this.
 - **L1:** missing-transfer, clock-skew, SUSPECT, unbound-role and equal-event-ID cases are built through the normal authenticated intake (never direct row inserts).

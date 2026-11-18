@@ -1,6 +1,6 @@
 """W4-03 unit 1: the sole writer of the ten migration-0030 mini-decision tables (insert skeletons).
 
-`.agent/W4-03-build-spec.md` closure 1 ("Rule-8 registers exactly `mini_decisions/store.py`"), closure 4 S3/S4.
+`specs/W4-03/` closure 1 ("Rule-8 registers exactly `mini_decisions/store.py`"), closure 4 S3/S4.
 Every write is one INSERT into one 0030 table on the caller's transaction; 0030's `<table>_immutable` triggers
 refuse UPDATE and DELETE, and this module never issues either, never upserts and never writes another table. The
 later units compose these inserts into their commands and add their own rules (scenario, alternative, projection,

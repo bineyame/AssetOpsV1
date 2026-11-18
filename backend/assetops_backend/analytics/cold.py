@@ -1,7 +1,7 @@
 """Pure cold-chain assessment rules: `cold-excursion/1` and `cold-start-response/1` (W2-03).
 
-Authority: `D-2026-10-17-w2-02-buildspec`, `.agent/W2-03-build-spec.md` ("Inputs, model and selection",
-"Rules and exact outcomes") and `.agent/W2-technical-design-cold.md` section 5.
+Authority: `D-2026-10-17-w2-02-buildspec`, `specs/W2-03/spec.md` ("Inputs, model and selection",
+"Rules and exact outcomes") and `archive/agent-history/W2-technical-design-cold.md` section 5.
 
 The rules read only accepted public evidence that the caller has already selected for one Site, one fixed
 half-open window `[from_at, to_at)` and one knowledge cutoff `known_at`, together with the effective

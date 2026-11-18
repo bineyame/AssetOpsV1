@@ -1,5 +1,5 @@
 /**
- * W2-04: read-only client for a cold-chain Site's five selected Site reads (`.agent/W2-04-build-spec.md`
+ * W2-04: read-only client for a cold-chain Site's five selected Site reads (`specs/W2-04/`
  * "Five API reads" with the Run-5 additions Q-R1..Q-R9):
  *
  *   GET /api/sites/{code}/cold/overview

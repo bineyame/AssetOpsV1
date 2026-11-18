@@ -1,5 +1,5 @@
 /**
- * W5-01b C5 (`.agent/W5-01-build-spec.md` C5 card, readiness pass 3, closure 2 and P-C5-1..22): the cold scenario
+ * W5-01b C5 (`specs/W5-01/` C5 card, readiness pass 3, closure 2 and P-C5-1..22): the cold scenario
  * client's exact validation and the cold Financials > Scenarios page (`states_loading_and_refusal`,
  * `row_disclosure_and_client`, `authored_pending_historical_basis`, the 51-row pager and the full-page W1 scan).
  */

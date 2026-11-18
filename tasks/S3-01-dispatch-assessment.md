@@ -1,6 +1,6 @@
 # S3-01 — Typed dispatch assessment and interval detail
 
-Status: done (owner checkpoint passed 2026-10-12 `.agent/owner-S3-01-acceptance-2026-10-12.md`; fresh Claude reviews accepted; merged to main)
+Status: done (owner checkpoint passed 2026-10-12 `owner/owner-S3-01-acceptance-2026-10-12.md`; fresh Claude reviews accepted; merged to main)
 USER_REVIEW_REQUIRED: true
 Milestone: S3 Performance / Dispatch
 Depends on: merged S2-02 (`I-S2-02`), time-valid S1 bindings (`I-S1-02`), resolved `A-S3-dispatch`, and `I-sim-dispatch-cases` delivered in this task
@@ -11,7 +11,7 @@ Planner: Codex, 2026-10-11
 
 For one selected Kobo Site UTC window, Performance > Dispatch (`dispatch:1-3`) shows generator intervals as Necessary, bounded Candidate avoidable, or Indeterminate, with source coverage, exact selected revision and accepted Evidence drill-down after reload. Its Analysis child view supplies the S3-supported constraint and coverage portions of `analysis:1,3`; Finding-level comparison, alternatives and fuel money remain gated by later work. W1 owner approval names core targets, not delivered panels or full Real status.
 
-Use `D-2026-10-11-s3-dispatch-interval-assessment`, `.agent/architect-S3-dispatch-answers.md`, technical design §§3–4 and `backend/tests/dispatch_decision_table.md` (`dispatch-2`). The pre-S3 route/actor/readiness decisions are recorded shared boundaries, not extra dispatch implementation `requires`. S2-02r credential rotation is a separate carry. This task has no S4 Finding, financial consequence, global index, cold-chain/EV analytic or asset-condition write.
+Use `D-2026-10-11-s3-dispatch-interval-assessment`, `archive/agent-history/architect-S3-dispatch-answers.md`, technical design §§3–4 and `backend/tests/dispatch_decision_table.md` (`dispatch-2`). The pre-S3 route/actor/readiness decisions are recorded shared boundaries, not extra dispatch implementation `requires`. S2-02r credential rotation is a separate carry. This task has no S4 Finding, financial consequence, global index, cold-chain/EV analytic or asset-condition write.
 
 Built seams to inspect: `backend/assetops_backend/sites/binding_roles.py`, `analytics/dispatch.py`, `analytics/service.py`, `analytics_api.py`, `evidence/adapters/postgres_evidence_ledger.py` (accepted rows/jobs), `evidence/legacy_comparison.py`, and `frontend/src/sites/SitePerformance.tsx` with `siteAnalyticsClient.ts`. Use S2's accepted ledger and recompute jobs; file-backed dispatch remains read-only comparison input until the Performance cutover gate passes.
 

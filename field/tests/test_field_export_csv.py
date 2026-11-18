@@ -2,7 +2,7 @@
 
 The profile here is built in the test from the 0.6 `EXPORT_CSV` rules; it is
 not the checked-in profile (its content is an open question, see
-`.agent/TEL-06-questions.md` Q1). No gateway, no database.
+`archive/agent-history/TEL-06-questions.md` Q1). No gateway, no database.
 """
 
 from __future__ import annotations

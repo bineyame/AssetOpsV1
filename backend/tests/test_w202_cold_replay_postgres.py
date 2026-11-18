@@ -1,6 +1,6 @@
 """W2-02 commit (4): six registered cold replays through the real chain, pinned as public manifests.
 
-`.agent/W2-02-build-spec.md` "Commit (4) exact contract". Each case runs in a fresh private `*_test` database:
+`specs/W2-02/spec.md` "Commit (4) exact contract". Each case runs in a fresh private `*_test` database:
 install COLD-LAB-001 -> freeze a registered cold Draft -> Host Lab start with the frozen re-read port -> a real
 `assetops_gateway serve` process admits the v2 reports and seals Stage -> preauthorized SYSTEM_LAB_RELEASE
 publication and gateway release -> the gateway's own uploader posts Batch V2 over TLS to an in-process S2 ingestion

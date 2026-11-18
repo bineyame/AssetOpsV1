@@ -1,4 +1,4 @@
-"""FUEL-1 A1 (`.agent/build-sheet-FUEL-1.md` §4.1): fuel-cost-2 over real persisted inputs, the consequence store's new
+"""FUEL-1 A1 (`specs/FUEL-1/` §4.1): fuel-cost-2 over real persisted inputs, the consequence store's new
 columns, migration 0053's CHECKs, and its downgrade/upgrade.
 
 The S4-02b PowerSite (five 20 kW means of 5 minutes in Candidate time [08:05, 08:30)) is built with its demo generator

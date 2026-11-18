@@ -1,4 +1,4 @@
-"""DIESEL-K5 L2 (`.agent/build-sheet-DIESEL-1.md` §9l.2 B1-B5): the fuel-balance night and fuel Finding routes over
+"""DIESEL-K5 L2 (`specs/DIESEL-1/` §9l.2 B1-B5): the fuel-balance night and fuel Finding routes over
 real Postgres.
 
 Kobo is imported as K3's B tests do (`test_s1_bindings_postgres.imported`); synthetic windows go through

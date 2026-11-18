@@ -1,6 +1,6 @@
 """W2-04 commit 2: the cold consequence worker - trigger work, race, retry, idempotence and the failed attempt.
 
-`.agent/W2-04-build-spec.md` "Fixtures, named tests and guards" (`test_w204_cold_worker.py`) and the last paragraph
+`specs/W2-04/spec.md` "Fixtures, named tests and guards" (`test_w204_cold_worker.py`) and the last paragraph
 of "Money schema `0023` and rules". Replay cases run the W2-02 chain and the W2-03 worker in a fresh private
 `*_test` database (no hand-inserted accepted, assessment or Finding row); the unpaired-basis case uses the W2-03
 migration fixture's synthetic cold heads. Needs `ASSETOPS_TEST_DATABASE_URL`; skipped (never passed) without it.

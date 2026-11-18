@@ -1,6 +1,6 @@
 """CC-R2 (D5): `estate.placement.place` over hand-built Portfolio rows (pure; no database).
 
-One case per rule and per reason code (`.agent/build-spec-commercial-2026-10-27.md` "CC-R2" Rules, Reason texts,
+One case per rule and per reason code (`specs/Lane-C/rulings.md` "CC-R2" Rules, Reason texts,
 Confidence), the two precedence cases the gate names (MIXED + PRICED investigates first; Verified + PRICED is
 monitored), and the six-part Portfolio cursor marker.
 """

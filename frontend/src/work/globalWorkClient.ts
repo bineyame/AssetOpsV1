@@ -1,6 +1,6 @@
 /**
  * W6-01a A2 / W6-01b B2-B3: the read-only global work list client, `GET /api/work/incidents`, `/maintenance` and
- * `/preventive` (`global-work-index-1`, `.agent/W6-01-build-spec.md` section 1, section 2, section 3.1 A2Q1-A2Q10
+ * `/preventive` (`global-work-index-1`, `specs/W6-01/` section 1, section 2, section 3.1 A2Q1-A2Q10
  * and the B1-B3 pre-flight rulings P-B2-1/2 and P-B3-1).
  *
  * The client asks for five rows, forwards only `from`, `to`, `known_at` and `cursor` exactly as given, and maps
@@ -425,7 +425,7 @@ export function createGlobalWorkClient(
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// W6-01c C2 (".agent/W6-01-build-spec.md" section 1 Detail DTO and the "C1-C3 pre-flight rulings" P-C1-1..11,
+// W6-01c C2 ("specs/W6-01/" section 1 Detail DTO and the "C1-C3 pre-flight rulings" P-C1-1..11,
 // P-C2-9): the request detail wire `GET /api/work/requests/{case_id}?site_id={site_code}[&known_at=]`. C2 owns these
 // types for the whole C1 wire; C3/C4 import them. The detail result is separate from the list code union: the list
 // copy map and its enumerable codes are unchanged.

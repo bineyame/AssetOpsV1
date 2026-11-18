@@ -1,5 +1,5 @@
 /**
- * W5-02c K4a (`.agent/W5-02c-K4-preflight-rulings.md` rulings 4, 5, 8; build spec "Action panels"): the two loaded
+ * W5-02c K4a (`archive/agent-history/W5-02c-K4-preflight-rulings.md` rulings 4, 5, 8; build spec "Action panels"): the two loaded
  * panels of the v69 `cold-action` screen (`frontend/mockups/v69/index.html:742-746`), `Declared outcome criteria` and
  * `Related activity`, from one validated domain Action detail read. No fetches; `domainActionClient.ts` owns the read
  * and the shell in `SiteAnalyticsFrames.tsx` owns the breadcrumb, header, strip, currentness and concluding notices.

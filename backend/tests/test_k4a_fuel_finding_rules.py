@@ -1,4 +1,4 @@
-"""DIESEL-K4a L0 (`.agent/build-sheet-DIESEL-1.md` §9j.8 A1-A7, §9k.5 A9): the unexplained-fuel Finding's wording,
+"""DIESEL-K4a L0 (`specs/DIESEL-1/` §9j.8 A1-A7, §9k.5 A9): the unexplained-fuel Finding's wording,
 money, lifecycle and the no-sum guard, with no database. Every "must fail" names the mutation it kills."""
 
 from __future__ import annotations

@@ -1,4 +1,4 @@
-"""W2-06 commit 4: the pure rules of the selected EV session and Finding reads (`.agent/W2-06-build-spec.md`
+"""W2-06 commit 4: the pure rules of the selected EV session and Finding reads (`specs/W2-06/`
 "Commit 4: selected reads and refusal dry-read" and "Run 5 rulings (r5)" "Commits 4 and 5").
 
 The Postgres snapshot read is `analytics/adapters/postgres_ev_reads.py:EvReadService`: one REPEATABLE READ

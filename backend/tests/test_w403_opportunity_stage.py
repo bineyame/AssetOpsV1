@@ -1,4 +1,4 @@
-"""W4-03 unit 4: the tick's OPPORTUNITY stage (`.agent/W4-03-build-spec.md` closure 4 S1, u3 "Unit 4 dry-read"):
+"""W4-03 unit 4: the tick's OPPORTUNITY stage (`specs/W4-03/` closure 4 S1, u3 "Unit 4 dry-read"):
 order after MINI and before S4, limits and lease budget, counters only for an OK stage, a failed stage reported while
 later stages still run, claim loss, and an opportunity-only Site kept scheduled. Pure (fake runner and store).
 """

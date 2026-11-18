@@ -1,6 +1,6 @@
 """W5-02a K1a: migration `0033_w5_cold_work`, its DB checks/triggers, and the three domain Action commands.
 
-`.agent/W5-02-build-spec.md` "K1 migration", "Backend wire, validation and lineage (K1a-K1c)" and the Architect
+`specs/W5-02/` "K1 migration", "Backend wire, validation and lineage (K1a-K1c)" and the Architect
 pre-flight ruling A1-A4. The cold Finding is produced by the ordinary W2-02 registered replay (`backup-failed`)
 and the W2-03 worker, and its selection is the real W4 linked-selection pin; no Finding, evidence or pin is
 invented. W4 cases are created through the W4 service. Direct-SQL rows exercise only DB constraints.
@@ -516,7 +516,7 @@ def test_k5_cold_action_lineage_through_product_get(cold, monkeypatch) -> None:
     """Accepted envelope IDs -> selected cold Finding revision -> domain Action -> selected completed WR revision and
     performed record -> intent basis, then the same chain read through `GET /api/sites/{site}/domain-work/actions/{id}`
     at the captured cutoffs. The initial results stay `NOT_TESTED, NOT_TESTED, NOT_ESTABLISHED, PENDING` with no
-    evidence; no restoration or verification is inferred (`.agent/W5-02c-K4-preflight-rulings.md` ruling 5)."""
+    evidence; no restoration or verification is inferred (`archive/agent-history/W5-02c-K4-preflight-rulings.md` ruling 5)."""
     from fastapi.testclient import TestClient
     from test_w401_work_service_postgres import at as w4_at
 

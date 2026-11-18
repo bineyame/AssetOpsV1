@@ -1,6 +1,6 @@
 """DATA-13 (D-17N.4, C17): the Cold, EV and Kisiwa story Actions carry a due date. No database: each producer's Action
 body is pinned (Cold by the BUILD source and the demo namespace, EV by `action_body`, Kisiwa by `record_action` against
-a fake domain service); the Postgres proof is the VPS scratch prepare named in `.agent/DATA-17N-packet.md`."""
+a fake domain service); the Postgres proof is the VPS scratch prepare named in `archive/agent-history/DATA-17N-packet.md`."""
 
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 /**
  * W3-02 commit 4: the estate Financials root (v6.9 `globalfinancials`, `I-estate-money-root`) read from
- * `GET /api/estate/financials` (`estate-financials-1`). Copy and layout follow `.agent/W3-02-build-spec.md`: the mock
+ * `GET /api/estate/financials` (`estate-financials-1`). Copy and layout follow `specs/W3-02/`: the mock
  * ledger, "Refusals and UI states", closure 1 "Money row and comparison contract" (display) and "Mock copy,
  * navigation and measured layout", closure 2 Q19, closure 3 Q19/C1, closure 4 wire/links, closure 5 S13 (the two
  * panel titles) and the commit-3 review carries L3 (differing-value category copy), L4 (`PARTITION_INELIGIBLE` in

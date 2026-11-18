@@ -4,7 +4,7 @@ Status: in_review
 USER_REVIEW_REQUIRED: false
 Lane: B (frontend and tools). Units: 3. Branch `task/POLISH-PB-0-capture-gate`.
 
-The spec is `.agent/build-sheet-POLISH.md`: §2 (P-04 ruling), §5 Lane B "PB-0", and §7 (PB-0/PB-1 own register ids R650-R654). This file
+The spec is `specs/POLISH/`: §2 (P-04 ruling), §5 Lane B "PB-0", and §7 (PB-0/PB-1 own register ids R650-R654). This file
 states scope only; the sheet is the contract.
 
 ## Scope

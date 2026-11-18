@@ -1,6 +1,6 @@
 """W2-01 cold vocabulary, cold-roles-1, cold Foundation validator and contact mapping (no database).
 
-`.agent/W2-technical-design-cold.md` section 3 (`D-2026-10-17-w2-01-answers` A-I, W2-02 channel closure).
+`archive/agent-history/W2-technical-design-cold.md` section 3 (`D-2026-10-17-w2-01-answers` A-I, W2-02 channel closure).
 """
 
 from __future__ import annotations

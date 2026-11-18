@@ -64,7 +64,7 @@ export interface NavRailProps {
   label: string;
   items: NavRailItem[];
   /**
-   * W5-02c K4a (`.agent/W5-02c-K4-preflight-rulings.md` rulings 1-2): the label of the live root a shell selects for a
+   * W5-02c K4a (`archive/agent-history/W5-02c-K4-preflight-rulings.md` rulings 1-2): the label of the live root a shell selects for a
    * route whose path is not under that root's `to` (a Site Action detail selects `Actions`, v69 `rail()` root rule).
    * When set, every live item renders as a plain `Link` with the same href, icon and order, and only the named item
    * carries `active` and `aria-current="page"`. When absent or null, `NavLink` path matching applies unchanged.

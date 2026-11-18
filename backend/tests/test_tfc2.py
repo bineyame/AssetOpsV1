@@ -1,7 +1,7 @@
 """FUEL-1 A2: `trial-fuel-comparison/2` (`financials/trial_fuel_comparison.py`) and the window idle seconds
 (`actions/verification_rules.window_evidence`), no database.
 
-`.agent/build-sheet-FUEL-1.md` §4.2: v1 byte-equal without a rate in force over both windows; idle only (the demo
+`specs/FUEL-1/` §4.2: v1 byte-equal without a rate in force over both windows; idle only (the demo
 figures, computed here from the inputs); loaded only; mixed; both new reasons; the priced total and its credit.
 """
 
