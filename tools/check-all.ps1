@@ -63,7 +63,7 @@ try {
     $env:ASSETOPS_GUARD_PYTHON = $Python
     Invoke-Guard "Architecture seams"            $powershell @("-NoProfile", "-File", "tools/check-architecture.ps1")
     Invoke-Guard "Estate guard self-tests (test_pg_reader_import_allowed, test_pg_reader_write_rejected, test_domain_driver_import_rejected)" $Python @("-m", "pytest", "tools/checks/test_estate_guard.py", "-q", "-p", "no:cacheprovider")
-    Invoke-Guard "Navigation truthfulness"       $powershell @("-NoProfile", "-File", "tools/check-navigation-truthfulness.ps1")
+    # PIPE-1 A5: no standalone navigation-truthfulness call; the architecture runner already runs the same module.
     Invoke-Guard "Agent workflow"                $powershell @("-NoProfile", "-File", "tools/check-agent-workflow.ps1")
     # PIPE-1 A6: the v69 registry, the S1-S7 queue (delivery checker) and the v69 screen ledger are advisory; the live
     # honest-gap catalogue they shared stays blocking as its own guard.
