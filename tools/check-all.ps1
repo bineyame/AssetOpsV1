@@ -67,7 +67,9 @@ if ($SelfTestSelection) {
         @{ Name = "no change"; Changed = @(); Full = $false; Main = $false; Err = ""; Want = $false },
         @{ Name = "near miss"; Changed = @("tools/checks/configuration-persistence.ps1.orig", "backend/tools/checks/_common.ps1"); Full = $false; Main = $false; Err = ""; Want = $false }
     )
-    foreach ($trigger in $estateTriggers) {
+    # Written out, not read from $estateTriggers, so dropping a trigger from the list fails this self-test.
+    foreach ($trigger in @("tools/checks/configuration-persistence.ps1", "tools/checks/_common.ps1",
+                           "tools/checks/sql_statements.py", "tools/checks/test_estate_guard.py")) {
         $cases += @{ Name = "changed $trigger"; Changed = @("frontend/src/App.tsx", $trigger); Full = $false; Main = $false; Err = ""; Want = $true }
     }
     $bad = 0
