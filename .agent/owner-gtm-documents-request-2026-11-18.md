@@ -20,3 +20,9 @@ Location and access not yet given (coordinator has asked).
 Owner, later the same day (verbatim):
 
 > the wesbite path in this machine is the following ; /opt/asseteconsite/assetecon, put your recommendation under docs there once you see what exists
+
+## Owner decision (verbatim), 2026-11-18: analyst
+
+Answering TW8 (two-week plan) = C3 (commercial plan) = D5 (roadmap), ahead of sitting 1:
+
+> The owner is the analyst
