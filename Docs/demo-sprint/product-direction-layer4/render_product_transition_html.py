@@ -459,7 +459,7 @@ def d9():
 # Revised bars: build at 1-3 days per reviewed change, five working days to the week (§4.3 table). The last row is the §4.3
 # elapsed range (the 16-change chain plus 15-20% rework plus four weeks of owner time), not a sum of the bars above.
 EFFORT = [("Calibration + step 1 (lane 2)", (2, 4), (1, 3.5)), ("Steps 2–3 (lane 1)", (6, 10), (2, 5.5)),
-          ("Step 4 (4a lane 2, 4b lane 1)", (8, 14), (1.5, 4)), ("Step 5 ‖ step 7, then 6", (2, 4), (1, 3)),
+          ("Step 4 (both lanes)", (8, 14), (1.5, 5)), ("Step 5 ‖ step 7, then 6", (2, 4), (1, 3)),
           ("Core, elapsed (§4.3)", (17, 30), (8, 16))]
 TOTAL = "Core, elapsed (§4.3)"
 
@@ -493,7 +493,7 @@ def d10():
     nb += f'<rect class="rnew" x="150" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(170, ny + 15, "Revised", fs=12.5, cls="t")
     nb += label(10, ny + 36, "Last row: the §4.3 elapsed range, not a sum.", fs=12.5)
     return svg(960, wy + 52, wb, "Figure 8. Build effort in weeks: revision 1 against the revised ranges (estimates)",
-               "Revised bars are build time at one to three days per reviewed change, on the grounded path. Calibration and step 1 (lane 2, alongside steps 2-3): 2-4 weeks to about 1-3.5. Steps 2-3: 6-10 to about 2-5.5. Step 4: revision 1 counted it with steps 5 and 6 (8-14); revised about 1.5-4. Step 5 in lane 1 beside step 7 then step 6 in lane 2: revision 1 gave step 7 alone 2-4; revised about 1-3. Core elapsed, the §4.3 range with rework and owner time and not a sum of the bars: 17-30 weeks (4-7 months) to about 8-16 weeks (2-4 months).",
+               "Revised bars are build time at one to three days per reviewed change, on the grounded path. Calibration and step 1 (lane 2, alongside steps 2-3): 2-4 weeks to about 1-3.5. Steps 2-3: 6-10 to about 2-5.5. Step 4: revision 1 counted it with steps 5 and 6 (8-14); revised about 1.5-5. Step 5 in lane 1 beside step 7 then step 6 in lane 2: revision 1 gave step 7 alone 2-4; revised about 1-3. Core elapsed, the §4.3 range with rework and owner time and not a sum of the bars: 17-30 weeks (4-7 months) to about 8-16 weeks (2-4 months).",
                (NW, ny + 46, nb))
 
 # ---------------------------------------------------------------- diagram 11: grounding today's chain on the primitives

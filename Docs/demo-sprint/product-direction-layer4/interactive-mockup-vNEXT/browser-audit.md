@@ -56,9 +56,9 @@ Expected values are the evaluator's switch cases in derived-values.json (spend, 
 | metro | true | true | true | false | true |
 
 Plan-figure notes as shown on the Overview:
-- lakeside: "plan $2,295 · 91.5% · show how this is worked out of cost recorded −$676 attributed to factors · −$176 not explained by the model yet of $5,000 3 of 3 crew visits Valued options only; includes design values not yet run on site data"
-- harvest: "plan $1,716 · 97.8% · show how this is worked out of cost recorded −$770 attributed to factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits Valued options only; includes an assumed recovery share (80%) at Kirinyaga"
-- metro: "plan $38,520.80 · 99.3% · show how this is worked out of cost recorded −$3,204 attributed to factors · +$19.68 not attributed yet of $5,000 0 of 2 technician visits Valued options only; includes design values not yet run on site data"
+- lakeside: "plan $2,295 · 91.5% · show how this is worked out of cost on emulated records −$676 attributed to factors · −$176 not explained by the model yet of $5,000 3 of 3 crew visits Valued options only; includes design values not yet run on site data"
+- harvest: "plan $1,716 · 97.8% · show how this is worked out of cost on emulated records −$770 attributed to factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits Valued options only; includes an assumed recovery share (80%) at Kirinyaga"
+- metro: "plan $38,520.80 · 99.3% · show how this is worked out of cost on emulated records −$3,204 attributed to factors · +$19.68 not attributed yet of $5,000 0 of 2 technician visits Valued options only; includes design values not yet run on site data"
 
 ## Operator switch
 

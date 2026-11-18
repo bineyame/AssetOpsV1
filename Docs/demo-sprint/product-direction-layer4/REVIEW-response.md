@@ -1321,3 +1321,63 @@ Residual: perturbation tests dependence, not size, so an expression could still 
 - Transition `.html`, headless Chromium at 390 and 1280 px, light and dark: 12 figures; no text outside its viewBox; no page-level horizontal scroll. Inspected: Figures 5, 7, 11 and 12.
 - No test suite, database or Docker was used.
 - The transition `.md` grew from 11,614 to about 18,300 words: the owner asked for the screen-by-screen table, the full construct mapping and the emulator contract; §1.6 and §5.2 were replaced by pointers to offset part of it.
+
+## Author response to the review of the grounded, visible-first path (4c3413902, 4c86fedb1)
+
+Each finding is answered as a class, with the sweep across the pack. The direction is unchanged.
+
+**M1, fixed (class: a verdict or carrier claimed to "exist today" for a new rule).**
+- Step 4 gains PR 4g, the `stop-soc-trial-1` verification family in lane 2, because verdicts are dispatched by rule and an unknown rule fails closed (`actions/verification_families.py:502-516`).
+- The gates now say "an operational verdict of today's kind, from the new family". Swept in transition §3.2, §3.6 (V3), §3.7 and §4.4; phase plan PR 4g and slice 4 gate; decision models §1.5; design §8.5 and §9.
+- §4.4 and D15 now state what must merge first: 4d, 4f and 4g before the commit; 7b (field evidence) before the after-window ends.
+- **D15 re-derived, with L7:** the diagnostic now includes site onboarding (site model, controller-export profile, replay on the operator's export), about 5–6 weeks from data (an assumption). The commit is about M2.5–M3.5 and the first proved change about **M5–M6** instead of M6–M7, so about **one month earlier**. M4.5 is the optimistic edge: data by M1, onboarding inside five weeks, agreement at the report, and an after-window ending just before a month-end. On the go-to-market plan's owner-as-analyst calendar it is about M5–M7.
+
+**M2, fixed (class: carrier widening described smaller than its migration).**
+- **Origin model.** A decision-originated domain action holds its origin in `origin_decision_id` and `origin_option_id`. The trigger Finding stays on the decision.
+- **One migration (PR 4a′) in the 0051 pattern** touches seven objects plus a downgrade guard: the two columns, `domain_action_one_origin`, `domain_action_mini_origin`, the thread link's column and check, the `chain_action_thread_target()` trigger, and the `chain_action` view.
+- The reserve trial keeps its Finding origin. Every carrier also gets a decision-to-carrier link row.
+- "The last widening" is withdrawn. A new trigger kind needs no carrier change; a new carrier kind still does.
+- Swept in transition §3.7, A.1 and C4; decision models §1.5; matrix domain-action row; A36; design §8.5; phase plan PR 4a′.
+
+**M3, fixed (class: an honest-figure rule worded more strictly than the structure allows).**
+- **Rule:** a node takes the weakest class and every provenance of its leaves and states its coverage. No total is shown as a stronger class or provenance than its weakest part. Different kinds (observed, modelled, at stake, verified) are never added. A benefit total admits only field provenance.
+- **Emulated** is now an on-screen word for records of source-emulated provenance, not a new `money_class`. It is added to `economic-metric-and-effect-contracts.md` §4.4 with its composition rule and its mapping to code: provenance from `source_provenance` and the commercial revision. The `evidence_class` CHECK at `0042:50` is not widened.
+- Swept in transition §3.7, §3.8, §2.7 and D14; integration §7.3.
+- **Mock-up (text only):** the demo world's commercial, plan and contract records now show "Emulated"; coverage reads "of cost on emulated records". The class word map in `loop-core.js`, the strings in `loop-portfolio.js` and `loop-site.js`, and the evidence-words line in `tools/gen_docs.cjs` were changed. Rebuilt and audited (below).
+
+**M4, fixed (class: one order stated in several places).**
+- Phase 2 now reads "step 4, then 5 in lane 1; 7, then 6, in lane 2", at about M1–M3. Phase 3 carries only the proof of the first change.
+- The gantt id `p5` is no longer duplicated: the verticals are now `p6` and `p7`.
+- The phase plan §2 row (4) now says verification is on the first customer change's path.
+- Swept: §3.1, §3.2, §4.1, §4.2, §4.4, design §9 and phase plan §2 agree.
+
+**Lows.**
+- **L1.** The lane split is re-derived from the phase plan's PRs (transition §3.2, phase plan slice 4 "Lanes"): lane 1 = 15 changes, lane 2 = 16, 31 in all, 16 in sequence. The effort range is unchanged at 8–16 weeks.
+  - Spike K builds the adapter and its port method; PR 4c only wires the evaluator to it, so they are two changes.
+  - The factor views (3e) arrive after 7 changes instead of 8, and the decision view (4f) after 12 instead of 14: a few days to a week sooner. The real gain is that neither waits for commercial records.
+- **L2.** Steps 3a and 3a′ wait for the W1 structure approval. The go-to-market note (Appendix B) now says to move the structure sitting earlier, or accept that V2 and V3 move with it. §3.6, design §9 and phase plan PR 3a′ say the same.
+- **L3.** Observer rows declare the primary outcome, the order, the domain aliases and, until bounds exist (4b), the checked roles. Parity runs over every signal × domain × linked input and the not-mapped cases. The transition and design docs now agree: moves are derived from the structure, and declared on the observer row only for the transitional wire.
+- **L4.** `energy_cost_per_km` (`outcomes/objectives.py:56`, `:71`) is placed as the plan of the EV cost-per-km node, "not available yet" until odometer records exist (A.2).
+- **L5.** Candidate running is now a deviation against a structural plan of zero until plan lines exist. Unexplained fuel is read as a bound (its tolerance band).
+- **L6.** Threads holding headroom occurrences become the history of the capacity factor, never a demand value (A.2).
+- **L7.** See M1.
+- **L8.** Listed for the mock-up gate as RR4 in `design-questions-and-decisions.md`: a Finding shown as a condition on its factor (V1), and the decision page's trigger Finding. Both need new elements, not only text.
+- **L9.** Fixed: `0009_finding_store.py:33-64`, `0042_chain_threads.py:29`, `scenario_rules.py:24`, and the design doc's `evidence/service.py:484-492`. My earlier note was also wrong: the old design HTML had 8 `&quot;`, 2 of which the new renderer also produces, so 6 differed. With every `&quot;` unescaped, the files are identical.
+
+**Readability.** The transition body went from about 18,300 to about 14,900 words, and the appendices hold about 2,600:
+- §3.8 is cut to its definition, the labelling rule and the benefit table, with a pointer to integration §7.3.
+- §3.7's code-level core table and the other-constructs table move to Appendix A, leaving a five-row plain table.
+- The go-to-market knock-ons move to Appendix B, and the revision history to Appendix C.
+- §2.7's last five rows become one row.
+- §3.2 is now one line per step.
+
+**Checks.**
+- `python3 check_manifest.py`: 3721 passed, 0 failed.
+- Both renderers re-run into scratch: byte-identical to the committed `.html` files.
+- Mock-up: `node build.mjs` and `tools/run-audit.sh`, result below.
+- Mock-up audit result: `tools/run-audit.sh` exit 0.
+  - Routes: 202/202 render with 0 console errors, 0 bad links, 0 horizontal scroll at 390 px.
+  - Text scans: 0 vocabulary hits, 0 hand-typed figures, 0 unresolved placeholders.
+  - Contrast 38/38; preserved screens 65/65.
+- Transition HTML at 390 and 1280 px, light and dark: no text outside its viewBox, no horizontal scroll.
+- No test suite, database or Docker was used.
