@@ -30,7 +30,11 @@ Last updated 2026-11-18.
   merged to `main`.
 - Step 3 (evidence out of the repo, 2-week retention): built on
   `task/declutter-03-untrack-evidence`, packet `.agent/packet-declutter-03.md`,
-  in review. Evidence now goes to `/opt/assetecon/evidence/` (RULES section 9).
+  in review (revision 2). Evidence now goes to `/opt/assetecon/evidence/`
+  (RULES section 9). Merging it into a worktree removes that worktree's
+  untracked `.agent/` evidence files; copies are in
+  `/opt/assetecon/evidence/repo-untracked-2026-11-18/` (manifest) and the
+  coordinator backup. Lanes merge `main` as in the packet's lane note.
 - Next: steps 4 (specs, owner files and history), 5 (Docs and tools). Each on
   its own branch, reviewed and merged before the next.
 

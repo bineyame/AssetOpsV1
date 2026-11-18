@@ -94,7 +94,7 @@ new files in `x-evidence/`, `tools/foo-captures/`, `run.log`, `Docs/a.html.tmp` 
 `tools/evidence-retention.py` lists items older than `--days` (14) by capture date: manifest groups (per top folder,
 newest last_commit_date) or `<task>/<run>/` folders by newest mtime; prints the total. `--delete` asks to type
 `delete <n> items`; anything else aborts (exit 1). Manifest lines stay; deletions go to `RETENTION-LOG.tsv`.
-Today: 245 items, 22,204 files, 1,694.9 MB are past 14 days. Delete path tested on a scratch tree only (abort and
+Superseded by revision 2 (dating by copy-out): today nothing is past 14 days. Delete path tested on a scratch tree only (abort and
 confirm). RULES §9 now says where evidence is written and how retention runs.
 
 ## 7. Checks (revision 0fb414f6c unless noted)
@@ -126,9 +126,37 @@ confirm). RULES §9 now says where evidence is written and how retention runs.
 
 ## Residual risk and review focus
 
-- Other worktrees and lanes still have the files on disk; after merge, `git status` in a lane that touched an
-  untracked path shows a modify/delete conflict only if it edited that evidence. Lanes merge `main` as usual.
+- Corrected in revision 2 (M4): merging this branch into a worktree makes git delete that worktree's copies of the
+  22,300 untracked files (they leave the index, so a checkout that moves to the new `main` removes them). Nothing is
+  lost: `/opt/assetecon/evidence/repo-untracked-2026-11-18/` (manifest, sha256-verified) and the coordinator's backup
+  `/opt/assetecon/evidence-backup-2026-11-18/` hold everything. See "How lanes merge main after step 3".
 - The spec counts about 580 comment citations; those pointing at `.agent/<ID>-evidence/...` now resolve under the evidence folder by the
-  same relative path (provenance, not runtime).
+  same relative path under `/opt/assetecon/evidence/repo-untracked-2026-11-18/` (provenance, not runtime).
 - Review: the class rules in `inventory.py` (`classify`), the 9-path exception list, the guard regexes, and that
   nothing in classes c/d left the index.
+
+## Revision 2 (review `.agent/review-declutter-03.md`, REVISE)
+
+| Finding | Fix | Evidence |
+| --- | --- | --- |
+| M1 retention root | `EVIDENCE_ROOT` fixed at `/opt/assetecon/evidence`; `--root` must resolve to it or below; every deleted path is re-checked against `EVIDENCE_ROOT`, symlinks are skipped in manifests and refused on delete | `--root /`, `--root /opt/assetecon/evidence-backup-2026-11-18`, `--root /opt/assetecon/evidence/../evidence-backup-2026-11-18` and a symlink `evidence/ZZ-escape-link -> scratch` each exit 1 "refusing --root ... outside /opt/assetecon/evidence" (link removed) |
+| M2 retention clock | Item date = max(newest last_commit_date, `COPIED_AT`); `COPIED_AT` = 2026-11-18 written once in the batch folder; an item is due at 14 or more days | Listing 2026-11-18: 0 items (282 checked, 368 capture scripts kept). `--today 2026-12-01`: 0. `--today 2026-12-02`: 282 items, 21,953 files, 1,698.9 MB (first possible purge; owner asked first) |
+| M4 merge deletes files | Packet residual risk, RULES §9 and NOW say it plainly and give the read path | below |
+| M3 (coordinator) | Not touched here | `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/tools/rebase-log.txt` on the Layer 4 and gtm lanes matches `*-log.txt` (guard and `.gitignore`) and must be renamed before those lanes merge `main` |
+| L1 G6 | `probe_kisiwa_nights.py --write` | diff is only `host/fixtures/diesel-d0/probe-result.json:67` (`.agent/DIESEL-D0/...` to `host/fixtures/diesel-d0/...`); `--check`: "probe result current (G6 pass)"; fuel `--check`: current |
+| L2 ignore = guard | `.gitignore` adds `*.out`, `*-log.txt`, `*-last.txt`, `**/*-wip/`, `**/*-probe/`, `*.jsonl` with negations for `fixtures/`, `__fixtures__/`, `contract-fixtures/` | `git ls-files -ci --exclude-standard` outside `.agent/`: 0 (the two `contract-fixtures` jsonl needed the third negation). New `zz-wip/`, `zz-x-probe/`, `s.out`, `a-log.txt`, `a-last.txt`, `t.jsonl` ignored; `backend/tests/fixtures/zz/ok.jsonl` not |
+| L3 cap | 1 MiB kept; guard docstring says lower it after step 4 | - |
+| L4 capture scripts | Batch `*.py`, `*.mjs`, `*.sh` kept by default (368); `--include-scripts` lists them | Delete test in a temporary `evidence/ZZ-retention-selftest/` (removed after): a wrong phrase aborts; the right phrase deleted `a.png`, kept `capture.mjs`, skipped a symlink to a scratch file (target intact), logged one line; test log removed |
+
+### How lanes merge main after step 3
+
+1. In the lane, list tracked files the new guard would reject: `python tools/checks/tracked_evidence.py`
+   (after merging, or on the lane first with the guard file copied in). Rename or move any evidence-shaped file the
+   lane added (a `*-log.txt`, `*.log`, png, or file in a `*-evidence*`/`*-captures*` folder) out of the tree, to
+   `/opt/assetecon/evidence/<task>/<run>/`, and `git rm --cached` it.
+2. Commit any edit the lane made to an untracked `.agent/` evidence file first (or copy it out); otherwise the merge
+   stops on a modify/delete conflict for that path. Resolve such a conflict by keeping the deletion and copying the
+   lane's version to the evidence folder.
+3. `git merge main`. Git removes the lane's local copies of the untracked evidence; read them at
+   `/opt/assetecon/evidence/repo-untracked-2026-11-18/.agent/...`.
+4. `pwsh -NoProfile -File tools/check-all.ps1`; it must pass, including "Tracked evidence and logs".

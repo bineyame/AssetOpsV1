@@ -189,12 +189,16 @@ round the Architect folds rulings into one current unit card.
   `tools/checks/tracked_evidence.py` (check-all) fails otherwise. The evidence
   untracked in declutter step 3 is in
   `/opt/assetecon/evidence/repo-untracked-2026-11-18/` (paths kept;
-  `MANIFEST.tsv` holds size, sha256, class and last commit date).
-- **Retention: 2 weeks from capture.** `python tools/evidence-retention.py`
-  lists items older than 14 days (manifest date, else mtime) and their size;
-  it deletes only with `--delete` and a typed confirmation. The coordinator
-  asks the owner before the first purge. To confirm: whether the 2 weeks run
-  from capture or from slice acceptance.
+  `MANIFEST.tsv` holds size, sha256, class and last commit date). Once a
+  worktree has `main` after step 3, its local `.agent/<ID>-evidence/` and
+  other untracked evidence files are gone (git removes them on merge);
+  read them at `/opt/assetecon/evidence/repo-untracked-2026-11-18/.agent/...`.
+- **Retention: 2 weeks from copy-out or capture, whichever is later.**
+  `python tools/evidence-retention.py` lists items 14 or more days old (each
+  dated max(manifest last commit date, the batch's `COPIED_AT`), else by
+  mtime) with their size; capture scripts in a batch are kept. It works only
+  under `/opt/assetecon/evidence/` and deletes only with `--delete` and a
+  typed confirmation. The coordinator asks the owner before the first purge.
 - **Caps.** AGENTS, START_HERE, NOW: 1.5k tokens each. ROLE_CONFIG: 3k.
   RULES: 4k. A role brief: 1.5k. An index: 2k. A task spec's binding part: 15k.
   A packet: 3k. A review round: a summary of at most 15 lines plus findings.
