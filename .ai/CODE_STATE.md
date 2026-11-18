@@ -6487,3 +6487,16 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   night (`NIGHT_NOT_FINISHED`); `--dry-run` runs the read-only preflight; a stopped command prints what it added.
 - Open: Kisiwa added-night board row in `finish check` is BL-52 (backlog). EX-2 = F-COH PASS in runs A and B (F-COH3 proves it is
   not vacuous); the standalone 8 findings are the old fixture's COH-10 x3 and the known BL-47 COH-2 x5, 0 from G1.
+
+## PIPE-1: guard speed-up and D-1 (2026-11-18, `task/PIPE-1-checks-speedup`, in review)
+
+- `tools/check-all.ps1`: 4-process pool (`-Jobs`), one job per architecture module (`check-architecture.ps1 -List`,
+  `-Only <file>`); estate self-tests only when `configuration-persistence.ps1`, `_common.ps1`, `sql_statements.py` or
+  `test_estate_guard.py` differ from `main`, with `-Full`, or on branch `main` (then alone, `pytest -n 4`); the trigger
+  rule is its own guard (`-SelfTestSelection`); 2 runs at once machine-wide (`-Slots`, `<git-common-dir>/check-all-slots`);
+  advisory mode (WARN) for the v69 registry, S1-S7 delivery fixtures and v69 ledger; new blocking
+  `frontend/docs/architecture/check_mock_gaps.cjs`; duplicate navigation run removed; D-1 `PYTHONPATH` uses the platform
+  separator; the interpreter falls back to the main checkout's `.venv`. Fast 40 s / 2.7 GB tree peak; `-Full` 172 s.
+- `frontend/tsconfig.json` incremental, cache `frontend/.tsbuildinfo/` (ignored).
+- Open: estate trigger set (reader file?), D-2 agent-workflow rewrite (A9), deletion of advisory guards (declutter step 5).
+
