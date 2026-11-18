@@ -1,6 +1,6 @@
 # Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-AW-5 to D-E5.13)
 
-One line per decision ID: ID, title, status, file. Status is `live` unless the text says otherwise; "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
 
 - `D-AW-5` no Grow total across Sites; away log untracked · reversed in part? see build-sheet-CH-6.md:408 · architect-handoff-demo-plan-2026-11-04.md:211
 - `D-AW-6` I-22 in part; away log untracked · reversed in part? see build-sheet-CH-9.md:120 · architect-handoff-demo-plan-2026-11-04.md:211
@@ -9,13 +9,13 @@ One line per decision ID: ID, title, status, file. Status is `live` unless the t
 - `D-AW-9` EV "Low"; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:253
 - `D-AW-10` withheld Finding shown, with a stop; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:253
 - `D-AW-11` CH-5c at 3; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:253
-- `D-DATA.1` 6 DATA-17N packet Q1-Q6: diagnostics clocks, due dates,… · live · build-sheet-OWN-GAPS-2026-11-08.md:4649
-- `D-DATA.2` Q2) Health reads the real server clock; a… · live · build-sheet-OWN-GAPS-2026-11-08.md:4657
-- `D-DATA.3` Q3) Due = raised + 14 days, confirmed.… · live · build-sheet-OWN-GAPS-2026-11-08.md:4674
-- `D-DATA.4` Q4) Kisiwa service plan: written S-8d 09:00 is… · live · build-sheet-OWN-GAPS-2026-11-08.md:4681
-- `D-DATA.5` Q5) DATA-4 spec: Charger use from declared ratings;… · live · build-sheet-OWN-GAPS-2026-11-08.md:4688
-- `D-DATA.6` Q6) Cold store and water pump PRODUCTIVE: accepted.… · live · build-sheet-OWN-GAPS-2026-11-08.md:4739
-- `D-E2.1` The scheduleinputs DB-clock read is a tick writer's… · live · build-sheet-OWN-GAPS-2026-11-08.md:2524
+- `D-DATA.1` Kobo diagnostics forwarding stays off · live · build-sheet-OWN-GAPS-2026-11-08.md:4653
+- `D-DATA.2` Health reads the real server clock; a forwarded… · live · build-sheet-OWN-GAPS-2026-11-08.md:4657
+- `D-DATA.3` Due = raised + 14 days, confirmed. Kobo's… · live · build-sheet-OWN-GAPS-2026-11-08.md:4674
+- `D-DATA.4` Kisiwa service plan: written S-8d 09:00 is confirmed;… · live · build-sheet-OWN-GAPS-2026-11-08.md:4681
+- `D-DATA.5` DATA-4 spec: Charger use from declared ratings; the… · live · build-sheet-OWN-GAPS-2026-11-08.md:4688
+- `D-DATA.6` Cold store and water pump PRODUCTIVE: accepted. Kisiwa… · live · build-sheet-OWN-GAPS-2026-11-08.md:4739
+- `D-E2.1` The schedule_inputs DB-clock read is a tick writer's… · live · build-sheet-OWN-GAPS-2026-11-08.md:2524
 - `D-E2.2` The container copies the four tracked test inputs… · live · build-sheet-OWN-GAPS-2026-11-08.md:2527
 - `D-E2.3` ch6b: comparing the full nodes over the week… · live · build-sheet-OWN-GAPS-2026-11-08.md:2530
 - `D-E2.4` s502 lags the K8 R-LOAD fixture change. Share… · live · build-sheet-OWN-GAPS-2026-11-08.md:2533
@@ -26,7 +26,7 @@ One line per decision ID: ID, title, status, file. Status is `live` unless the t
 - `D-E2.9` G-e is a real inconsistency that no presented… · live · build-sheet-OWN-GAPS-2026-11-08.md:2735
 - `D-E2.10` G-h: the k6b normalizer left date keys absolute… · live · build-sheet-OWN-GAPS-2026-11-08.md:2742
 - `D-E2.11` The G-g deviation is accepted. The test's Site… · live · build-sheet-OWN-GAPS-2026-11-08.md:2746
-- `D-E2.12` The pinreadat import-order hole goes to FR-B. Patch… · live · build-sheet-OWN-GAPS-2026-11-08.md:2748
+- `D-E2.12` The pin_read_at import-order hole goes to FR-B. Patch… · live · build-sheet-OWN-GAPS-2026-11-08.md:2748
 - `D-E2.13` E3 starts after FR-A merges. That needs R-1… · live · build-sheet-OWN-GAPS-2026-11-08.md:2750
 - `D-E3.1` G-m test fix on task/E3-gm-story-fixture (Sonnet builder, fresh… · live · build-sheet-OWN-GAPS-2026-11-08.md:2781
 - `D-E3.2` E4-env runs the fixed files in the E3… · live · build-sheet-OWN-GAPS-2026-11-08.md:2789

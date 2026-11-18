@@ -5,7 +5,7 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-10-02 `owner-acceptance-demo-led-replan-2026-10-02.md` Demo-led replan accepted · historical — early plan, later replaced by S1-S7
 - 2026-10-02 `owner-approval-final-recommendation-2026-10-02.md` Final Architect recommendation approved · historical — early planning
 - 2026-10-02 `owner-instruction-final-recommendation-2026-10-02.md` Final recommendation then Planner · historical — early planning
-- 2026-10-02 `owner-review-architect-recommendation-2026-10-02.md` Review of Architect demo recommendation · historical — early planning
+- 2026-10-02 `owner-review-architect-recommendation-2026-10-02.md` Review of Architect demo recommendation · superseded — meaningful-tabs-only rule replaced by owner-rail-decision-2026-10-17.md; to confirm
 - 2026-10-03 `owner-T027-phase-1-hands-on-2026-10-03.md` T027 phase 1 hands-on check · historical — superseded T-queue history
 - 2026-10-03 `owner-T027-phase-2-hands-on-2026-10-03.md` T027 phase 2 UI validation · historical — superseded T-queue history
 - 2026-10-03 `owner-T028-phase-1-questions-2026-10-03.md` T028 phase 1 rulings · historical — recommendations accepted; T-queue history
@@ -13,7 +13,7 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-10-04 `owner-T028-audience-question-2026-10-04.md` T028 client vs technical audience question · historical — answered by presentation direction file
 - 2026-10-04 `owner-T028-closeout-2026-10-04.md` Readiness gap rule; decisions to Architect · current — standing rule: decision requests go to active Architect
 - 2026-10-04 `owner-T028-presentation-direction-2026-10-04.md` Client-facing plain text, graphs, deep tab · current — standing client-facing presentation rule
-- 2026-10-06 `owner-v69-site-mockup-comparison-2026-10-06.md` Compare v69 Site mockup with doc · historical — v69 pivot done
+- 2026-10-06 `owner-v69-site-mockup-comparison-2026-10-06.md` Compare v69 Site mockup with doc · current — pivot done; site templates tenant-specific later direction; to confirm
 - 2026-10-08 `owner-S1-acceptance-2026-10-08.md` S1 foundation UI check · historical — S1 accepted for now
 - 2026-10-08 `owner-S1-ui-feedback-2026-10-08.md` S1 foundation page looks like dump · historical — led to V-01 fidelity work; resolved
 - 2026-10-09 `owner-S2-02-acceptance-2026-10-09.md` S2-02 evidence checkpoint passed · historical — walkthrough of merged slice
@@ -41,10 +41,8 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-10-13 `owner-V-01b-walkthrough-2026-10-13.md` V-01b walkthrough and headings · historical — conditional acceptance of merged slice
 - 2026-10-13 `owner-next-work-2026-10-13.md` Next-work: finding evidence · historical — contest choice
 - 2026-10-13 `owner-next-work-2026-10-13b.md` Next-work: money decision · historical — contest choice
-- 2026-10-13 `owner-next-work-2026-10-13c.md` Next-work: money; mind prioritization workflow · historical — contest choice
+- 2026-10-13 `owner-next-work-2026-10-13c.md` Next-work: money; mind prioritization workflow · current — contest choice historical; mind prioritization workflow standing
 - 2026-10-13 `owner-next-work-2026-10-13d.md` Next-work: S4-02 money · historical — contest choice
 - 2026-10-13 `owner-next-work-2026-10-13e.md` Next-work: S4-02a first slice · historical — contest choice
 - 2026-10-14 `owner-S4-02a-acceptance-2026-10-14.md` S4-02a money assumptions walkthrough · historical — conditional acceptance; minor carries
 - 2026-10-14 `owner-S4-02b-acceptance-2026-10-14.md` S4-02b fuel cost walkthrough · historical — conditional acceptance of merged slice
-- 2026-10-14 `owner-S4-02b-money-demo-2026-10-14.md` S4-02b demo case for fuel cost · historical — backlog: simulated and real sites supply analysis data
-- 2026-10-14 `owner-autonomy-2026-10-14.md` Two-hour no-input window · historical — window closed

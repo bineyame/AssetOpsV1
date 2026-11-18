@@ -1,8 +1,7 @@
-# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-SR.52 to D-AW-4)
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-SR.53 to D-AW-4)
 
-One line per decision ID: ID, title, status, file. Status is `live` unless the text says otherwise; "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
 
-- `D-SR.52` The kill switch (interpretation 5 · live · build-sheet-OWN-GAPS-2026-11-08.md:5052
 - `D-SR.53` The rebuild test (interpretation 6 · live · build-sheet-OWN-GAPS-2026-11-08.md:5056
 - `D-SR.54` Day-kind build time in the prepare and the… · live · build-sheet-OWN-GAPS-2026-11-08.md:5059
 - `D-SR.55` SR-10k Q1-Q4 (Architect, Claude, 2026-11-12 night, owner-delegated, logged… · live · build-sheet-OWN-GAPS-2026-11-08.md:5069
@@ -14,15 +13,15 @@ One line per decision ID: ID, title, status, file. Status is `live` unless the t
 - `D-SR.61` SR-4: negative-offset zones use the range's date strings… · live · build-sheet-OWN-GAPS-2026-11-08.md:5192
 - `D-SR.62` SR-8 parity: the one-day read follows the stored… · live · build-sheet-OWN-GAPS-2026-11-08.md:5202
 - `D-SR.63` The rows-on switch for the 17 Nov build… · live · build-sheet-OWN-GAPS-2026-11-08.md:5226
-- `D-SR.64` 68 SR-4 live check (F1-F3, the migration 409)… · live · build-sheet-OWN-GAPS-2026-11-08.md:5243
+- `D-SR.64` F2: Cold/EV Finding detail reads its own episode · live · build-sheet-OWN-GAPS-2026-11-08.md:5247
 - `D-SR.65` F1: Kisiwa Fuel nights · live · build-sheet-OWN-GAPS-2026-11-08.md:5253
 - `D-SR.66` F3: Cold/EV financial assumptions. Corrects the D-SR.44 row · live · build-sheet-OWN-GAPS-2026-11-08.md:5257
 - `D-SR.67` The evidence-migration 409 · live · build-sheet-OWN-GAPS-2026-11-08.md:5261
 - `D-SR.68` SR-8: a day with no solar reading at… · live · build-sheet-OWN-GAPS-2026-11-08.md:5268
 - `D-SR.69` KOBO-001 10-31: a story gap; the SR-10/11 head… · live · build-sheet-OWN-GAPS-2026-11-08.md:5275
-- `D-SR.70` 72 SR-10/11 parity findings: pre-data days, the precise… · live · build-sheet-OWN-GAPS-2026-11-08.md:5290
+- `D-SR.70` A day with no readings reads NO_DATA, stored… · live · build-sheet-OWN-GAPS-2026-11-08.md:5294
 - `D-SR.71` The head gate follows the enqueue rule exactly… · live · build-sheet-OWN-GAPS-2026-11-08.md:5314
-- `D-SR.72` NODATA days read one state (finding 3 · live · build-sheet-OWN-GAPS-2026-11-08.md:5327
+- `D-SR.72` NO_DATA days read one state (finding 3 · live · build-sheet-OWN-GAPS-2026-11-08.md:5327
 - `D-SR.73` Estate "Current view" label after SR-4; R339 /… · live · build-sheet-OWN-GAPS-2026-11-08.md:5347
 - `D-SR.74` Lane G: SR-12b Q1-Q3 and WARM-1 gate refusals… · live · build-sheet-OWN-GAPS-2026-11-08.md:5368
 - `D-SR.75` AP-1 analytics readiness port sized; database stays PostgreSQL… · live · build-sheet-OWN-GAPS-2026-11-08.md:5408
@@ -47,7 +46,7 @@ One line per decision ID: ID, title, status, file. Status is `live` unless the t
 - `D-ANY.7` AR-4 claim-day rows vs D-ANY.5 (commit 5f82f5fa0, task/ANY-2-AR4 · live · build-sheet-OWN-GAPS-2026-11-08.md:4360
 - `D-ANY.8` Order of the remaining any-range speed work for… · live · build-sheet-OWN-GAPS-2026-11-08.md:4382
 - `D-ANY.9` AR-4: Portfolio consequence money, receipt-less productive rows, the… · live · build-sheet-OWN-GAPS-2026-11-08.md:4401
-- `D-ANY.10` AR-4 client4 evidence: the beforebuild mismatch and the… · live · build-sheet-OWN-GAPS-2026-11-08.md:4424
+- `D-ANY.10` AR-4 client4 evidence: the before_build mismatch and the… · live · build-sheet-OWN-GAPS-2026-11-08.md:4424
 - `D-ANY.11` DISP-1: the remaining dispatch-day lookups are Finding money… · live · build-sheet-OWN-GAPS-2026-11-08.md:4493
 - `D-AW-1` owner-away decision; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:276
 - `D-AW-2` OD-P11/OD-P12, waiting on DD-0b; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:217

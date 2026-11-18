@@ -1,8 +1,11 @@
-# Owner feedback index, part 3 of 5 (2026-10-26 to 2026-11-08)
+# Owner feedback index, part 3 of 5 (2026-10-26 to 2026-11-07)
 
 One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
-- 2026-10-26 `owner-local-servers-authorization-2026-10-26.md` Local preview servers for recapture · historical — scoped to final recapture batches
+- 2026-10-26 `owner-commercial-capability-feedback-2-2026-10-26.md` Commercial readiness iteration 3 feedback · current — iteration done; claim ladder, never label simulated realized; to confirm
+- 2026-10-26 `owner-commercial-capability-feedback-2026-10-26.md` Commercial vs capability assessment feedback · historical — iteration done
+- 2026-10-26 `owner-commercial-capability-final-clarifications-2026-10-26.md` Commercial baseline accepted with clarifications · superseded — by owner-commercial-architecture-reframe-2026-10-27.md
+- 2026-10-26 `owner-local-servers-authorization-2026-10-26.md` Local preview servers for recapture · current — batch scope historical; no execution-policy bypass standing
 - 2026-10-26 `owner-s3walk-authorization-2026-10-26.md` Rebuild s3walk DB for recapture · historical — scoped to batch-02 recapture
 - 2026-10-27 `owner-answers-open-questions-1-2026-10-27.md` Source is displayed data, not screen logic · current — to confirm; data origin principle
 - 2026-10-27 `owner-answers-open-questions-2-2026-10-27.md` Open questions 4-17 answers · historical — October telemetry and money answers
@@ -16,7 +19,7 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-10-27 `owner-telemetry-integration-plan-2026-10-27.md` Telemetry integration plan document request · historical — document delivered
 - 2026-10-27 `owner-telemetry-plan-feedback-2026-10-27.md` Telemetry plan approved with adjustments · current — to confirm; Modbus proof and VRM honesty
 - 2026-10-28 `owner-answers-demo-data-2026-10-28.md` Demo data strategy question answers · current — to confirm; source labels and realistic limits
-- 2026-10-28 `owner-demo-data-strategy-2026-10-28.md` Evidence-grounded demo data strategy request · historical — strategy delivered and accepted
+- 2026-10-28 `owner-demo-data-strategy-2026-10-28.md` Evidence-grounded demo data strategy request · current — strategy done; traceability, never synthetic as observed; to confirm
 - 2026-10-28 `owner-demo-sprint-md-removal-2026-10-28.md` Remove demo-sprint md, keep html · historical — one-off cleanup
 - 2026-10-28 `owner-long-running-accepted-2026-10-28.md` Efficient long-run approach accepted · historical — design accepted and built
 - 2026-10-28 `owner-long-running-proposal-2026-10-28.md` Illustrated long-run algorithm document · historical — document delivered
@@ -29,7 +32,7 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-11-05 `owner-scope-backlog-2026-11-05.md` Demo-critical only; rest to backlog · superseded — by owner-deferred-is-queued-2026-11-13.md; to confirm
 - 2026-11-06 `owner-build-time-2026-11-06.md` Demo history build length · historical — demo data build parameter
 - 2026-11-06 `owner-cold-days-2026-11-06.md` Cold-lab example days partly checked · historical — demo data parameter built
-- 2026-11-06 `owner-efficiency-2026-11-06.md` Implement suggested usage optimizations · historical — optimizations applied; rule in 11-05 file
+- 2026-11-06 `owner-efficiency-2026-11-06.md` Implement suggested usage optimizations · current — approves standing usage optimizations (ROLE_CONFIG); to confirm
 - 2026-11-06 `owner-kobo-nights-2026-11-06.md` Kobo night data by domain knowledge · historical — demo data built
 - 2026-11-07 `owner-dd1a2-answers-2026-11-07.md` Kobo and mill example day answers · historical — demo data parameters built
 - 2026-11-07 `owner-diesel-night-window-2026-11-07.md` Diesel night window 6pm to noon · historical — built into diesel trial
@@ -41,9 +44,4 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-11-07 `owner-kisiwa-scope-2026-11-07.md` Kisiwa action link in scope · historical — built
 - 2026-11-07 `owner-kobo-partial-days-2026-11-07.md` Kobo edge days partly checked · historical — demo data built
 - 2026-11-07 `owner-mill-route-2026-11-07.md` Mill result via route link · superseded — by owner-fuel-scope-2026-11-07.md
-- 2026-11-07 `owner-missing-fuel-2026-11-07.md` Kisiwa missing fuel before demo · historical — built
-- 2026-11-07 `owner-rehearsal-whole-list-2026-11-07.md` Whole-list rehearsal exception · historical — one-off exception
-- 2026-11-07 `owner-scenario-data-2026-11-07.md` Scenario data via operational actions · current — standing data principle
-- 2026-11-08 `owner-answers-endgame-2026-11-08.md` Endgame prepare skip; 10 Nov session · historical — client date later moved to 17 Nov
-- 2026-11-08 `owner-answers-own-gaps-2026-11-08.md` All fixes now; add-dates option · historical — OWN-GAPS build round
-- 2026-11-08 `owner-away-architect-decides-2026-11-08.md` Away: Architect decides on real-site understanding · current — standing pattern for delegated absence
+- 2026-11-07 `owner-missing-fuel-2026-11-07.md` Kisiwa missing fuel before demo · current — build choices historical; "unexplained fuel, never theft" wording standing

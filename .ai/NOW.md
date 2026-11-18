@@ -53,10 +53,8 @@ Also active: `task/gtm-documents` (worktree `/opt/assetecon/AssetOpsV1-gtm`,
 based on the Layer 4 branch): two-week conversion plan, commercial plan and
 website content documents (`Docs/go-to-market/`).
 
-Also active: PIPE-1 guard speed-up and D-1 fix (`task/PIPE-1-checks-speedup`,
-revision 2 for re-review; packet `.agent/packet-PIPE-1.md`). At merge the
-central check-all queue ends: builders run the fast check-all themselves (2 at
-once), and the coordinator runs it on `main` after each merge.
+Check-all (PIPE-1, merged): builders run the fast check-all themselves (2 at
+once); the coordinator runs it on `main` after each merge.
 
 No other lane is active. The S1-S7, W1-W6 and OUT/POLISH/DEMO "in_review"
 records in the old active context are history: their branches are not present

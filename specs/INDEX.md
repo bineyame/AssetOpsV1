@@ -45,7 +45,7 @@ partial replacements. Over cap = larger than the 15k-token task-spec cap
 | DD-1 | B-22 baseline, fill-any-day, drain-to-empty prepare | finished | `build-sheet-DD-1.md` | 342 KB **over cap** |
 | DEMO-COMBINED | Combined three-Site demo dataset | finished — as DEMO-A; section 2 replaced by DEMO-SPARSE | `build-sheet-DEMO-COMBINED.md` | 35 KB |
 | DEMO-SPARSE | Sparse story days with named gaps | finished | `build-sheet-DEMO-SPARSE.md` | 35 KB |
-| DIESEL-1 | Diesel-hybrid example Site Kisiwa | live — Handoff cites rulings through 9v; K8c unmerge | `build-sheet-DIESEL-1.md` | 668 KB **over cap** |
+| DIESEL-1 | Diesel-hybrid example Site Kisiwa | live — Handoff cites rulings through 9v; K8c unmerged | `build-sheet-DIESEL-1.md` | 668 KB **over cap** |
 | FIX-COLD-DRAIN | Scheduled tick drives cold and EV producers | finished | `build-sheet-FIX-COLD-DRAIN.md` | 10 KB |
 | FUEL-1 | Mill dollars, money wording, diesel story | finished — sections 5.2-5.6 overridden by DIESEL-1 | `build-sheet-FUEL-1.md` | 172 KB **over cap** |
 | IDX-GAPS | Finding index: assessed days, named gaps | finished | `build-sheet-IDX-GAPS.md` | 31 KB |
@@ -55,7 +55,7 @@ partial replacements. Over cap = larger than the 15k-token task-spec cap
 | OUT-D | Declared objectives and status | finished — replaced outcome-sprint spec Slice D | `build-sheet-OUT-D.md` | 29 KB |
 | OUT-E | Cost check after the generator trial | finished | `build-sheet-OUT-E.md` | 21 KB |
 | OUT-W | Estate event windows for cold, EV | finished | `build-sheet-OUT-W.md` | 18 KB |
-| OWN-GAPS | Kisiwa add-day, diesel-night check, records | live — Demo sprint rulings in force (D-SR, D-E5, D-P | `build-sheet-OWN-GAPS-2026-11-08.md` | 524 KB **over cap** |
+| OWN-GAPS | Kisiwa add-day, diesel-night check, records | live — Demo sprint rulings in force (D-SR, D-E5, D-PRICE) | `build-sheet-OWN-GAPS-2026-11-08.md` | 524 KB **over cap** |
 | POLISH | Client-demo polish round | finished | `build-sheet-POLISH.md` | 81 KB **over cap** |
 | SCN | Kobo scenario where reserve change matters | finished | `build-sheet-SCN-kobo-reserve.md` | 15 KB |
 | TEST-drift | Five no-DB backend failures on main | finished | `build-sheet-TEST-drift.md` | 9 KB |

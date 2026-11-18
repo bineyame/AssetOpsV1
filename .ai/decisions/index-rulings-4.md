@@ -1,6 +1,6 @@
 # Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-E5.14 to D-PRICE.4)
 
-One line per decision ID: ID, title, status, file. Status is `live` unless the text says otherwise; "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
 
 - `D-E5.14` Downstream figures (for the DS-1 scripts after the… · replaced in part? see build-sheet-OWN-GAPS-2026-11-08.md:3641 · build-sheet-OWN-GAPS-2026-11-08.md:3527
 - `D-E5.15` Order · live · build-sheet-OWN-GAPS-2026-11-08.md:3544
@@ -12,7 +12,7 @@ One line per decision ID: ID, title, status, file. Status is `live` unless the t
 - `D-E5.21` WK-GAP gates the v4 calendar only; on v3… · live · build-sheet-OWN-GAPS-2026-11-08.md:3657
 - `D-E5.22` Frontend: keep the page while the lens loads… · live · build-sheet-OWN-GAPS-2026-11-08.md:3739
 - `D-E5.23` Tools: pre-build the lens variants (card PL-2, Sonnet,… · live · build-sheet-OWN-GAPS-2026-11-08.md:3758
-- `D-E5.24` Client-side filtering by lensflags is refused · live · build-sheet-OWN-GAPS-2026-11-08.md:3769
+- `D-E5.24` Client-side filtering by lens_flags is refused · live · build-sheet-OWN-GAPS-2026-11-08.md:3769
 - `D-E5.25` "High priority" removed; "Low confidence" replaced by "Not… · live · build-sheet-OWN-GAPS-2026-11-08.md:3808
 - `D-E5.26` Show the counts with an honest qualifier; do… · live · build-sheet-OWN-GAPS-2026-11-08.md:3816
 - `D-E5.27` Awaiting verification: mini-grid only is a disclosure defect… · live · build-sheet-OWN-GAPS-2026-11-08.md:3830
@@ -41,11 +41,11 @@ One line per decision ID: ID, title, status, file. Status is `live` unless the t
 - `D-E5.49a` Tonight's build fails one check, CO-10 ("16 min… · live · build-sheet-OWN-GAPS-2026-11-08.md:4307
 - `D-F05.1` F05 placement test coverage after the s602b estate… · live · build-sheet-OWN-GAPS-2026-11-08.md:4375
 - `D-HON.1` HON-1 Low: the Site Overview card's "Why?" days · live · build-sheet-OWN-GAPS-2026-11-08.md:4368
-- `D-I18N.1` , words render at read. Stored rows (siteperiodread… · live · architect-plan-pre-client-2026-11-10.md:137
+- `D-I18N.1` , words render at read. Stored rows (site_period_read… · live · architect-plan-pre-client-2026-11-10.md:137
 - `D-I18N.2` , locale in every cache key. Until AR-5… · live · architect-plan-pre-client-2026-11-10.md:138
 - `D-I18N.3` , a language is offered only when complete… · live · architect-plan-pre-client-2026-11-10.md:139
-- `D-MB.1` 2 MB-1 packet questions (Architect, Claude, 2026-11-13, owner-delegated,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5604
-- `D-MB.2` Q4) No delivery loop; keep the gateway's 60… · live · build-sheet-OWN-GAPS-2026-11-08.md:5612
+- `D-MB.1` Acceptable: the live window comes from the prolonged… · live · build-sheet-OWN-GAPS-2026-11-08.md:5607
+- `D-MB.2` No delivery loop; keep the gateway's 60 s… · live · build-sheet-OWN-GAPS-2026-11-08.md:5612
 - `D-MONEY.1` Store the amount with its receipt (hybrid), rebuild… · live · build-sheet-OWN-GAPS-2026-11-08.md:3679
 - `D-MONEY.2` Original currency only; conversion is read-time and named · live · build-sheet-OWN-GAPS-2026-11-08.md:3688
 - `D-MONEY.3` No stored totals · live · build-sheet-OWN-GAPS-2026-11-08.md:3694

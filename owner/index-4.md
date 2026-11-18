@@ -1,14 +1,19 @@
-# Owner feedback index, part 4 of 5 (2026-11-08 to 2026-11-15)
+# Owner feedback index, part 4 of 5 (2026-11-07 to 2026-11-13)
 
 One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
+- 2026-11-07 `owner-rehearsal-whole-list-2026-11-07.md` Whole-list rehearsal exception · historical — one-off exception
+- 2026-11-07 `owner-scenario-data-2026-11-07.md` Scenario data via operational actions · current — standing data principle
+- 2026-11-08 `owner-answers-endgame-2026-11-08.md` Endgame prepare skip; 10 Nov session · historical — client date later moved to 17 Nov
+- 2026-11-08 `owner-answers-own-gaps-2026-11-08.md` All fixes now; add-dates option · historical — OWN-GAPS build round
+- 2026-11-08 `owner-away-architect-decides-2026-11-08.md` Away: Architect decides on real-site understanding · current — standing pattern for delegated absence
 - 2026-11-08 `owner-decisions-ingest-gaps-2026-11-08.md` Ingest gaps; save operational records · current — to confirm; diesel night auto-check
 - 2026-11-08 `owner-demo-script-format-2026-11-08.md` Two illustrated HTML demo scripts · historical — DS-1 delivered
 - 2026-11-08 `owner-final-check-scope-2026-11-08.md` Kisiwa final check affected rows · historical — one-off check scope
 - 2026-11-08 `owner-followup-dates-roles-2026-11-08.md` Why session date needed precisely · historical — question answered
 - 2026-11-08 `owner-kisiwa-measure-applicability-2026-11-08.md` Zero contributors shown as zero · current — to confirm; general measure applicability rule
 - 2026-11-08 `owner-next-order-2026-11-08.md` Screenshots, Architect pass, scripts order · historical — sequence done
-- 2026-11-08 `owner-proceed-own-gaps-2026-11-08.md` Estimates are human speed; proceed · historical — one-off go-ahead
+- 2026-11-08 `owner-proceed-own-gaps-2026-11-08.md` Estimates are human speed; proceed · current — go-ahead historical; estimate at agent not human speed; to confirm
 - 2026-11-08 `owner-questions-ingest-captures-2026-11-08.md` Real ingest must work for any site · current — to confirm; real-life upload principle
 - 2026-11-09 `owner-question-simulator-dependency-2026-11-09.md` Ingestion dependency on simulator · historical — question answered
 - 2026-11-10 `owner-any-range-speed-2026-11-10.md` Any date range fast via snapshots · current — natural app behaviour, daily snapshots
@@ -23,7 +28,7 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-11-11 `owner-price-it-and-speed-priority-2026-11-11.md` Price-it journey and range speed · historical — prioritised for 17 Nov
 - 2026-11-11 `owner-speed-before-thursday-2026-11-11.md` Speed work before Thursday demo · historical — rebuild done
 - 2026-11-11 `owner-tag-optionb-client-date-2026-11-11.md` Tag demo builds; 17 Nov client date · current — standing: tag every demo build
-- 2026-11-11 `owner-units-by-friday-2026-11-11.md` Agent-speed estimates; BeagleBone ready · historical — reassessed Thursday
+- 2026-11-11 `owner-units-by-friday-2026-11-11.md` Agent-speed estimates; BeagleBone ready · current — Friday target past; estimates at agent speed standing; to confirm
 - 2026-11-11 `owner-vps-move-2026-11-11.md` Plan move to VPS · superseded — by owner-vps-move-after-thursday-demo-2026-11-12.md
 - 2026-11-12 `owner-17nov-expectations-2026-11-12.md` 17 Nov client demo expectations · historical — 17 Nov demo passed; UI/speed bar lives in other rules
 - 2026-11-12 `owner-17nov-package-2026-11-12.md` 17 Nov demo package approval · historical — package approved for 17 Nov demo, now past
@@ -41,10 +46,4 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-11-13 `owner-analytics-port-and-db-choice-2026-11-13.md` Analytics port; SQL vs NoSQL weigh-in · current — to confirm whether AP-1 finished
 - 2026-11-13 `owner-clean-walkthrough-over-time-2026-11-13.md` Walkthrough only on clean DB · current — standing; no fallback DB
 - 2026-11-13 `owner-deferred-is-queued-2026-11-13.md` Deferred list is a work queue · current — standing; pull next item when lane free
-- 2026-11-13 `owner-proceed-waiting-items-2026-11-13.md` Proceed on items awaiting owner · historical — provisional approvals acted on
-- 2026-11-13 `owner-push-and-ui-mockups-2026-11-13.md` Push branches; rebuild UP-1 on v7.2 · historical — done
-- 2026-11-13 `owner-walkthrough-4pm-2026-11-13.md` Walkthrough at 4pm; keep merging · historical — one-off schedule
-- 2026-11-13 `owner-walkthrough-in-6h-2026-11-13.md` Walkthrough in six hours · historical — one-off schedule
-- 2026-11-14 `owner-conversion-potential-request-2026-11-14.md` Four pillars value doc; page-load design · current — to confirm whether doc and review done
-- 2026-11-14 `owner-decision-intelligence-request-2026-11-14.md` Decision intelligence mechanism document · current — to confirm; likely input to Layer 4
-- 2026-11-15 `owner-portfolio-composition-request-2026-11-15.md` Portfolio composition economic readiness review · current — to confirm; likely input to Layer 4
+- 2026-11-13 `owner-proceed-waiting-items-2026-11-13.md` Proceed on items awaiting owner · current — items historical; "we want progress" proceed-and-review rule; to confirm

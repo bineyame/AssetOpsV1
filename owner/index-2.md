@@ -2,22 +2,24 @@
 
 One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
+- 2026-10-14 `owner-S4-02b-money-demo-2026-10-14.md` S4-02b demo case for fuel cost · historical — backlog: simulated and real sites supply analysis data
+- 2026-10-14 `owner-autonomy-2026-10-14.md` Two-hour no-input window · current — window historical; owner-absent rule standing
 - 2026-10-14 `owner-next-work-2026-10-14.md` Next-work: S4-02b fuel cost · historical — contest choice
 - 2026-10-14 `owner-next-work-2026-10-14b.md` Next-work: S4-02c recalculation · historical — contest choice
 - 2026-10-14 `owner-process-speed-2026-10-14.md` Faster turnaround without lower quality · current — to confirm; turnaround speed rules
 - 2026-10-15 `owner-LR01-S501-acceptance-2026-10-15.md` LR-01 and S5-01 walkthrough acceptance · historical — wording condition folded into W1-conclusion pass
-- 2026-10-15 `owner-autonomy-2026-10-15.md` Absence window, Architect decides · historical — window closed; decisions logged
+- 2026-10-15 `owner-autonomy-2026-10-15.md` Absence window, Architect decides · current — window historical; network-disconnect retry rule standing (origin)
 - 2026-10-15 `owner-next-work-2026-10-15.md` Next-work: late readings · historical — contest choice
 - 2026-10-16 `owner-S302b-acceptance-2026-10-16.md` S3-02b claim-limit walkthrough accepted · historical — conditional; presentation carried to UI/UX pass
-- 2026-10-16 `owner-S404-S601b-acceptance-2026-10-16.md` S4-04 and S6-01b walkthroughs accepted · historical — plain-language ask carried by T028 presentation rule
-- 2026-10-16 `owner-S405b-acceptance-2026-10-16.md` S4-05b accepted; vocabulary leak theme · historical — theme addressed in W1-conclusion pass
+- 2026-10-16 `owner-S404-S601b-acceptance-2026-10-16.md` S4-04 and S6-01b walkthroughs accepted · current — walkthrough historical; kill stale walkthrough servers/ports standing
+- 2026-10-16 `owner-S405b-acceptance-2026-10-16.md` S4-05b accepted; vocabulary leak theme · current — verdict historical; plain language for users principle standing; to confirm
 - 2026-10-16 `owner-S502-acceptance-2026-10-16.md` S5-02 finding list accepted · historical — merged slice
 - 2026-10-16 `owner-walkthrough-policy-2026-10-16.md` Walkthroughs deferred to W1 end · superseded — by owner-walkthrough-after-w6-2026-10-20.md
 - 2026-10-17 `owner-W1-walkthrough-verdict-2026-10-17.md` W1 rejected for mockup drift · superseded — by owner-W1-acceptance-2026-10-18.md
 - 2026-10-17 `owner-autonomy-2026-10-17.md` Away; progress waves 1 and 2 · historical — window closed
 - 2026-10-17 `owner-rail-decision-2026-10-17.md` Full mockup left menu, greyed items · historical — built
 - 2026-10-18 `owner-W1-acceptance-2026-10-18.md` W1 repeat walkthrough conditional acceptance · historical — W1 closed; UI/UX refinement after waves
-- 2026-10-18 `owner-W2-mockup-authority-2026-10-18.md` v69 W2 screens are authority · historical — W2 done; mock reference now v70 + v72 style
+- 2026-10-18 `owner-W2-mockup-authority-2026-10-18.md` v69 W2 screens are authority · current — W2 done; mock screens binding, never "extrapolated"; to confirm
 - 2026-10-18 `owner-client-conversations-2026-10-18.md` Build all waves before client talks · historical — waves done; client demos now running
 - 2026-10-18 `owner-fidelity-and-design-ownership-2026-10-18.md` Mockup fidelity; Architect owns design · current — mock now v70 + v72 style
 - 2026-10-18 `owner-post-W2-parallel-plan-2026-10-18.md` Two-lane post-W2 sequence · historical — waves done
@@ -44,6 +46,3 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-10-26 `owner-commercial-capability-brief-2026-10-26.md` Commercial capability readiness brief · historical — iteration done
 - 2026-10-26 `owner-commercial-capability-deep-review-2026-10-26.md` Commercial readiness iteration 3 review · historical — iteration done
 - 2026-10-26 `owner-commercial-capability-direction-2026-10-26.md` Commercial outcomes drive everything · current — standing product principle
-- 2026-10-26 `owner-commercial-capability-feedback-2-2026-10-26.md` Commercial readiness iteration 3 feedback · historical — iteration done
-- 2026-10-26 `owner-commercial-capability-feedback-2026-10-26.md` Commercial vs capability assessment feedback · historical — iteration done
-- 2026-10-26 `owner-commercial-capability-final-clarifications-2026-10-26.md` Commercial baseline accepted with clarifications · superseded — by owner-commercial-architecture-reframe-2026-10-27.md
