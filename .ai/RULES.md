@@ -199,7 +199,12 @@ round the Architect folds rulings into one current unit card.
   the area file in `.ai/state/` plus a line in `.ai/state/index-*.md`, never to
   the `.ai/CODE_STATE.md` stub. Specs: `specs/INDEX.md`; owner files:
   `owner/INDEX.md`. Add the index line in the same commit;
-  `tools/check-decision-index.py` fails on an unindexed cited ID.
+  `tools/check-decision-index.py` fails on an unindexed cited ID, a new owner
+  file or build sheet without a row, or an index over its cap.
+- **Example IDs.** A packet, review or spec that needs an example, planted or
+  hypothetical decision ID uses the reserved forms `D-EG.<n>` or
+  `D-2099-<MM>-<DD>-<slug>` (never indexed; the guard skips exactly these), or
+  drops the `D-` prefix.
 - **Find on demand.** Read the router, then open only the sections the task
   names, by ID or heading. Grep scoped to current homes, never `.agent/`,
   `archive/`, `history/` or evidence folders. No brief says "read X fully" for

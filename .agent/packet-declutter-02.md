@@ -45,8 +45,8 @@ marked "to confirm" in the notes.
 - `python tools/check-decision-index.py`: `OK (470 indexed decision IDs; every cited ID resolves; every named file
   exists)`, 1.8-2.9 s. It scans all tracked text (`git grep`, including `.agent/`); dated prefixes resolve wrapped
   and bare-date citations; file names such as `D-SR63-67-review.md` are skipped.
-- Planted failures in the tree (then `git checkout`/restored): a line citing `D-SR.9999` and
-  `D-2026-12-01-no-such-decision` in `.ai/NOW.md`, and `.agent/build-sheet-CH-6.md` moved away, gave exit 1 with
+- Planted failures in the tree (then `git checkout`/restored): a line citing two unindexed IDs (ruling SR.9999
+  and a dated 2026-12-01 "no-such-decision" ID, prefix dropped here per RULES §9) in `.ai/NOW.md`, and `.agent/build-sheet-CH-6.md` moved away, gave exit 1 with
   `FAIL specs/INDEX.md:41: names a missing file build-sheet-CH-6.md` and two `unresolved decision ID` lines.
   `--self-test` (in check-all) plants an ID and a missing file in memory, writes nothing.
 - First run flagged the guard's own self-test strings; fixed by excluding the script. A line inserted at the top of

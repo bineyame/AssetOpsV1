@@ -26,6 +26,8 @@ $requiredFiles = @(
     ".ai/DECISIONS.md",
     ".ai/decisions/INDEX.md",
     ".ai/state/INDEX.md",
+    "specs/INDEX.md",
+    "owner/INDEX.md",
     ".ai/ARTIFACT_INDEX.md",
     ".claude/commands/assetops-architect.md",
     ".claude/commands/assetops-planner.md",
