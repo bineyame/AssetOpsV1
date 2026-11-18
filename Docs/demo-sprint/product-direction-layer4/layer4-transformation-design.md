@@ -29,7 +29,7 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 
 **What it's ultimately for:** differentiation and usefulness that convert operator executives. They see their own money explained, their decisions compared, and results proven, which their monitoring tools can't do. The commercial path follows from that: demo, then a paid diagnostic on their records, then a proven change.
 
-*Since revised by the owner (18 Nov, D1; `/opt/assetecon/AssetOpsV1/owner/owner-d1-engagement-path-2026-11-18.md`):* the commercial path is now an initial call (data privacy, processes, integrations), a deep-dive with process owners, an integration pack and pilot timeline, the pilot with monitoring, then the product as a SaaS offering; the operator's own exports go through the canonical contract early, as the pilot's baseline, and the pilot carries a fee or a credit against the first SaaS year (`product-transition-and-roadmap.md` §2.2–§2.3). The approved wording above is kept as approved.
+*Since revised by the owner (18 Nov, D1; `/opt/assetecon/AssetOpsV1/owner/owner-d1-engagement-path-2026-11-18.md`):* the commercial path is now an initial call (data privacy, processes, integrations), a deep-dive with process owners, an integration pack and pilot timeline, the pilot with monitoring, then the product as a SaaS offering; the operator's own exports go through the canonical contract early, as the pilot's baseline, and the pilot carries a fee, credited against the first SaaS year (`product-transition-and-roadmap.md` §2.2–§2.3). The approved wording above is kept as approved.
 
 ## 0. Why Layer 4: how far today's mechanics reach, and what has to change
 

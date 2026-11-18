@@ -1553,3 +1553,32 @@ The adoptions are recorded at the coordinator's instruction, from those verbatim
 - Both renderers reproduce byte for byte.
 - Transition HTML at 390 and 1280 px, light and dark: no text outside a viewBox, no horizontal scroll.
 - Mock-up `tools/run-audit.sh`: exit 0, with contrast 38/38, preserved screens 65/65, 0 hand-typed figures and 0 unresolved placeholders.
+
+---
+
+## Author note: pack changes PK1–PK10 from the go-to-market D1 revision (Architect, 18 Nov)
+
+**Source.** The two-week plan rev 4.2 §9 ("Pack changes still needed on the Layer 4 branch"), the commercial plan rev 4 and `two-week-conversion-plan-REVIEW-response.md`, all read from `ea5eb2cef` on `task/gtm-documents`; owner words in `/opt/assetecon/AssetOpsV1/owner/owner-d1-engagement-path-2026-11-18.md` and `/opt/assetecon/AssetOpsV1/owner/owner-sitting1-answers-2026-11-18.md`. Figures copied from those documents, not re-derived here. Roadmap revision 4.2.
+
+**Per item.**
+- *PK1.* §2.3: the deep-dive about 2.1–4.3 weeks, the first plan against actual 1.1–2.5 weeks in; the integration pack about 1–1.4 weeks; 4.7–9.9 weeks for both at the 240-minute baseline (commercial plan rev 4 §6.3).
+- *PK2.* Control 3: one deep-dive at a time with a pilot beside it, a second with a few days of the second person's help, one piece of work at a time at the baseline (§5.4).
+- *PK3.* One-page path row and D1 row: decided 18 Nov; commitment about weeks 7–14 (9–18 at the baseline); C12 (no fee, timeboxed at about 11.5 owner-days) and C2 (pilot fee credited in full against the first SaaS year) as go-to-market defaults, both open.
+- *PK4.* Figure 4 (mermaid and SVG, wide and narrow): the integration pack box reads "pilot fee, credited against the first SaaS year (C2)". Figure 10 (parsed from the gantt): the first deep-dive to the commitment M0.9–M3.2 (weeks 4–14); onboarding M0.9–M2.8 (inside the deep-dive); the pilot M1.6–M6.2; first money verdict M4.5 (midpoint of M4–M5); first conversion decision M5.5 (one pilot month after the proof; the commercial plan's base case says about M5).
+- *PK5.* D15, control 6, §4.4 (and the one-page value row, §4.3, §5.3, Q19): the first change agreed at the end of the deep-dive and made when the pilot starts; first proved change about M4–M5, M4–M6 at the baseline, replacing "about M5–M6, M4.5 at best"; the first-change question at alignment (commercial plan §1.2); still open.
+- *PK6.* Phase 0 ships the kit KT01–KT07 as named in the two-week plan; phase 1 exits on the reconciled baseline and the signed commitment, weeks 7–14; Figure 10 as PK4.
+- *PK7.* D5: the owner runs the deep-dive and mapping, the product computes, a second person checks each mapping (TW21 = C10 open). D2: the fee disclosed after the conversation (TW7, decided), credited against the first SaaS year (C2, open).
+- *PK8.* D13 and D14 already read as adopted (checked, no change). Appendix B replaced by a pointer to the two-week plan rev 4.2 §9; onboarding sits inside the deep-dive (§6.1).
+- *PK9.* Confirmed: §3.6 (V1, V2, the screen table, the board paragraph) and `phase-plan-and-acceptance.md` PR 3e already start 3e on the site outcome board. One place did not say it: the §3.2 step 3 row named only *Outcomes by site*; it now names the board first. No lane, effort or day changes.
+- *PK10.* Phase plan §10: the offer template is the deep-dive and pilot offer with the website brief's approved client durations ("within a few weeks of receiving your files"; "about three to ten weeks from the deep-dive's start to the pilot"); the sheet gains the four alignment checks as separate items and the first-change question.
+
+**Sweep (class: a duration or date carried from the old diagnostic path).** Searched the pack (all `.md`, `.py`, `.js`, `.cjs`, `.json`, `.yaml`, `.csv`, mock-up sources; not REVIEW files or generated HTML) for "4–6 weeks", "four to six weeks", "1–2 weeks", "5–6 weeks", "M5–M6", "M4.5", "M6–M7", "M2.5–M3.5", "weeks 11–18", "at most two", "two deep-dives", and for the term "fee or (a) credit". What is left is history only: revision 3's M4.5–M5 and M6–M7, the §4.4 revision-3 column's "about 4 weeks from data", and the "replacing …" phrases; "1–2 weeks per reviewed change" (Figure 11) is the build pace, a different quantity. The terms class: "fee or credit" now reads "fee, credited against the first SaaS year" in the roadmap, Figure 4, the phase plan and the design document's dated note.
+
+**Not changed.**
+- The owner-approved introduction's sentence ("demo, then a paid diagnostic") stays, with its dated note; the owner has been asked whether to update it.
+- The mock-up states no duration or date, so it is not changed or rebuilt. One wording residual for the coordinator: its pilot page says "a fee or a credit against the first subscription year" (`interactive-mockup-vNEXT/loop-portfolio.js:257`); the documents now say a fee credited against it (C2 default). Proposed text: "The pilot carries a fee, credited against the first subscription year if you continue, priced after our conversation". Not applied, because the brief limits mock-up changes to durations and dates.
+
+**Checks.**
+- `check_manifest.py`: 3747 passed, 0 failed.
+- Both renderers reproduce their HTML byte for byte on a second render.
+- Headless Chromium at 390 and 1280 px, light and dark: no horizontal scroll on either page; transition document 0 SVG text outside its viewBox, smallest SVG text 10 px, 0 console errors. Design document: 3 SVG texts outside their viewBox at 390 px and smallest text 11.1 px (15.3 px at 1280), identical to the committed `16f4cd8d0` version, so not caused by this change. Figures 4 and 10 inspected by screenshot (scratchpad only).
