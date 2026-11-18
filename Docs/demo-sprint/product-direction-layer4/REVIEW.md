@@ -2643,3 +2643,94 @@ All reconcile.
 
 - `python3 Docs/demo-sprint/product-direction-layer4/check_manifest.py`: **3602 checks passed, 0 failed**. As noted, the checker confirms the anchors and the bridge sums. It does not check the class labels (M2, L1) or the reference basis of a Protect cell (M1).
 - No test suite was run. No database, Docker container or port was touched. No file other than this one was edited.
+
+## Re-review of §7 fixes (5ac8c6f69)
+
+Fresh independent reviewer, 18 Nov. Diff `626a090df..5ac8c6f69`. Judged against the owner's thirteenth message and the standing rules in `.agent/owner-layer4-direction-feedback-2026-11-17.md`. I formed this view before reading the author response.
+
+**Verdict: ACCEPT WITH NOTES.** All seven earlier findings are resolved across §7, not only at the cited lines. Every newly shown calculation reconciles with the manifest and `derived-values.json`. Scope is clean. One new Medium: the rewording that removed "the allocator" now describes the plan search incorrectly. It is a one-sentence fix in two places, and the owner should not read §7 with it in.
+
+### Earlier findings
+
+- **M1, resolved.** The Kisiwa battery now has its own table (`:621-625`), with the reference stated as Kisiwa's October running, looking forward from the repair. That matches the KIS-BATT60 formula (−55.0 against −250.0) and `reference_protect` = 0. The hours cell reads "n/a". The disposition is now Deferred (manifest `DEFERRED`), and both reasons are given: over budget, and negative over 12 months. Both are in the manifest's reason texts.
+- **M2, resolved as a class.**
+  - The legend gains Plan and Estimate rows (`:445`, `:447`), and one rule covers every table (`:454`).
+  - The three Estimate cells (Kisiwa O&M, Thika maintenance, Kasarani maintenance) match the items left out of the 91.5%, 97.8% and 99.3% recorded shares.
+  - Every label used in §7 is now in the legend.
+- **L1, resolved with small residue (see L1 below).** The inputs tables were checked against the manifest's basis texts. Where the manifest records no source, the label says "source not recorded" rather than guessing. That is the honest choice.
+- **L2, resolved.** `:929` and `:946` agree with the manifest (`hours_after_midnight` 5, "(to 05:15)").
+- **L3, resolved.** Ruiru 6 × 140 × 31 = 26,040 × 0.12 = 3,124.80 (`:962`). I found no other figure in §7 that cannot be followed from inputs shown.
+- **L4, resolved, with one decline that I accept.**
+  - 0.4125 is fixed.
+  - Thika now has the Price column.
+  - On "+155.00 − 3.00" (`:774`): I confirmed in a scratch copy that writing +152.00 makes the checker fail ("untraced: ['152.00']"). The cell shows its arithmetic, so the reader loses nothing. The decline is acceptable. Note, though, that this is the checker's format rule (any x.xx figure must already exist in the data), not a limit on honesty. The same rule forces phrasings such as "970 + 201.5 kWh less a month" (`:812`). If printed totals are wanted later, the checker could accept a shown "a + b = c" whose result it recomputes.
+- **L5, resolved.** None of "allocator", "bound", "must-do", "obligation hours", INC-/ACT-/F- IDs or `evaluate_structure.py` remains in §7 prose. The legend's provenance pointer and the asset, tariff and document numbers stay. That is right for a design document. No executive question is stated.
+
+### Findings
+
+**Medium**
+
+- **M1 (new). The plan search is described as two steps, but it is one joint search** (`layer4-transformation-design.md:657`, repeated at `:826`).
+  - §7.1 now says: "First, each decision that protects service or warranty cover takes its cheapest option … Then every combination of the money-valued options is tried."
+  - §2 (`:182`) says the opposite: "Protective and valued decisions are enumerated **together** … never one choice at a time". `evaluate_structure.py` `best()` does the same: one enumeration, ranked by least violation, then value, then lower spend.
+  - §7 is also inconsistent with itself. Under the two-step reading, the Mto inverter decision protects warranty cover, so it would always take its cheapest compliant option, the claim at 230.00. Yet the 6,500 / letter-not-extended switch row (`:715`) picks buying now at 2,910.00, because the joint search values the huller dependency.
+  - The old text ("takes the must-do and protective decisions first") had the same flaw. This round rewrote the sentence and made the wrong mechanism more explicit. Because the owner reads §7 to understand the mechanics, this matters.
+  - **Fix:** use one sentence consistent with §2. For example: "Every combination of options is tried together within the budget, the crew visits and the dates one option depends on; the plan kept is the one that breaks the service rules least, then is worth most, then spends least." Make the same change at `:826`.
+
+**Low**
+
+- **L1. Inputs still used without a label.**
+  - Crew visits per item in the three Choose tables (`:659-666`, `:828-833`, `:972-976`). Lakeside uses 3 of 3, so this limit binds the plan.
+  - Ruiru "all off-peak, with the highest kW unchanged at 380" (`:962`). This is the model's change rule (manifest RUI-ABSORB6 changes only `kwh_2200_2400`), but it is stated as fact. Label it an Assumption.
+  - The 6 Nov decision date, and Kisiwa's warranty end of 30 Jun (`:616`), carry no label in §7.1.
+- **L2. The litre split is labelled unevenly.**
+  - The prose says the whole split stands in for a calculation (`:482`, `:506`, `:524`).
+  - Only Kobo's candidate row carries that qualifier (`:492`). The necessary rows at `:491`, `:510` and `:546` say only "Declared input".
+  - **Fix:** use the same qualifier on every split row.
+- **L3. Readability (a preference, not an acceptance gap).**
+  - §7 has grown from about 6,900 to about 9,200 words. Observe reads well and follows the owner's Kobo pattern.
+  - The Lakeside inputs table (`:574-599`) is 27 rows across six decisions, placed away from the option tables that repeat its figures.
+  - The diesel-sensitivity cell (`:694`) holds three calculations.
+  - Suggested fix: put each decision's inputs directly above its option table, and give the sensitivity one row per option.
+- **L4. Wording.**
+  - Kisiwa's measure has two names: "no second generator in reserve" (`:520`) and "no backup" (`:613`, `:685`, `:723`). In the data the two are the same measure at Kisiwa (10 / 125 / 15). Use one term.
+  - The note at `:485` justifies the missing reading by "not a whole number of kWh". The reason is simply that the reading is not in the demo data, as `:481` already says. Drop the whole-number clause.
+
+### Arithmetic (recomputed; all reconcile with the manifest and `derived-values.json`)
+
+- **Lakeside**
+  - Kobo stop threshold: 262.50 − 12.00 = 250.50, and 12 × 250.50 − 90 = 2,916.00. Reserve option: 300.00.
+  - Kisiwa: 25, 3 and 21 days × 5 h = 125, 15 and 105 hours; 1–5 Nov is 25 hours. Battery: 12 × 195 − 14,000 = −11,660.00, and 14,000 ÷ 195 ≈ 72 months.
+  - Mto inverter: restore dates 28 Nov (22 days), 12 Nov (6 days) and 8 Nov (2 days). Values −367.50, −2,947.50 (2,600 + 80 + 150 + 80 = 2,910), −462.50 and −2,281.25. Half-capacity hours 110, 30, 10 and 125.
+  - Mto huller: 1,650 × 0.30 = 495 − 85 − 15 = 395, so +3,540.00.
+  - Mto welding: 660 × 0.33 = 217.8 L, then −8.25 a month, −99.00 a year, break-even 0.4125. Billing: 56.00 a month, 672.00 a year.
+  - Sensitivities: at 1.00 a litre, +2,286.00, +3,744.00 and −340.00, total +5,690.00. At 160 L, +2,166.00, total +5,338.50. Downside +2,548.50.
+  - Switch cases: spends 2,550.00 and 6,430.00; value +3,508.50. Working days (calendar-checked): 28 Nov is a Saturday, giving 4 Dec; 12 Nov gives 19 Nov.
+  - Recorded share: 7,545.00, which is 91.5%.
+- **Harvest Cold**
+  - Models: 3,410, 2,635, 3,720 and 4,030. Contributions: 456 / −12, 562 / 454 and 698 / 504. Mwea's excess is 0.6% of its model.
+  - Portfolio: cost to serve 3,492 / 3,642, recorded share 97.8%. Energy per crate-day 0.1221 and 0.1008; Kirinyaga's excess is 24% of its model. 4,340 + 4,500 ≤ 12,400.
+  - Options: Mwea contract 810 − 225 − 100 = 485, and × 4 − 270 = 1,670.00. Kirinyaga repair 1,512.40; replacement (970 + 201.5) × 0.20 = 234.30, giving −1,988.40.
+  - Cases: 60% recovery 1,046.80, plan 2,716.80. Switch spend 450.00.
+- **Metro Bus**
+  - Embakasi bill lines: plan 19,540.80, actual 22,744.80. Energy splits 86,800 = 47,740 + 15,500 + 23,560.
+  - Embakasi options: tier drop 706.80, no action 21,438.00, schedule 2,976 + 5,580 + 4,800 = 13,356.00. The difference, 8,082.00, gives +95,484.00 over 12 months. Cheapest bill 12,975.00, with 3 buses short and 93 departures missed.
+  - Ruiru: 13,080.32, and absorbing 6 buses costs 3,124.80 (manifest formula −16,205.12 against −13,080.32). Taking 10 buses misses 62 departures.
+  - Kasarani: options +150.00 and −260.00.
+  - Portfolio: 1,302 departures, 32.03 and 29.59 per departure, recorded share 99.3%.
+
+### Scope
+
+- **The .md:** all hunks fall in lines 445–1008, inside §7 (437–1013).
+- **The .html:** the old and new files share a 93,301-character prefix (inside the §7 legend) and a 26,500-character suffix that starts inside §7.4. Nothing outside §7 changed.
+- **The .md and .html §7 match:**
+  - Both have 42 tables, 12 `h4` headings and 12 `h5` headings.
+  - No anchor, escaped anchor, `|---` or `**` remains in the .html.
+  - A token comparison with the .md §7 differs only in list bullets.
+- I did not render the .html in a browser.
+
+### Checks run
+
+- `python3 Docs/demo-sprint/product-direction-layer4/check_manifest.py` returned **3680 checks passed, 0 failed**. The checker does not test labels, the reference basis of a cell, or prose descriptions of the mechanism (M1 above).
+- I tested the +152.00 claim in a scratch copy, outside the repo. The checker gave 3679 passed, 1 failed, as the author stated.
+- No test suite was run. No database, Docker container or port was touched. No pack file was edited.
