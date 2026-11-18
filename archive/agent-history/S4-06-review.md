@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-06-review.md on 2026-11-18 (declutter step 4).
 # S4-06 review - equal-start future price succession
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Worktree `AssetOpsV1-review2`, branch

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-q6-prereq-review.md on 2026-11-18 (declutter step 4).
 # W3-01 q6 prerequisite review (independent, per commit)
 
 Reviewer: fresh Claude reviewer (not the author). Branch `task/W3-01-estate-claim-action-roots`, handoff `f8ca78d1`.

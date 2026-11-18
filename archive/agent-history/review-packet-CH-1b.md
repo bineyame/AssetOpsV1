@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-1b.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-1b event register, outbox, dirty queue and drain
 
 Branch `task/CH-1b-events` (worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch1b`); main `e207f328f` merged in.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W2-01-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - W2-00 and W2-01 packets
 
 You are the AssetOps Planner (Codex). Write `tasks/W2-00-source-events.md` and `tasks/W2-01-cold-foundation.md` on branch `plan/W2-packets-1` (no code; coordinator commits). Token-efficient: packets sequence and test the design; do NOT redesign. The design is binding and complete: `.agent/W2-technical-design-cold.md` (W2-00 and W2-01 sections), `.agent/architect-W2-design.md`, `D-2026-10-17-w2-design`, `-w2-techdesign-cold`, and the layout contract `D-2026-10-17-mockup-layout-spec` (`.agent/architect-W1-fidelity.md`).

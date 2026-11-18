@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-ux-answers.md on 2026-11-18 (declutter step 4).
 # W1 UX pass - Architect answers (2026-10-16)
 
 Decision: `D-2026-10-16-w1-ux`. Codex Architect, under `.ai/ROLE_CONFIG.md`. This answers the two questions in `tasks/W1-UX-mockup-fidelity.md` and governs W1-UX-01 through W1-UX-05. It amends the proposed disclosure-only pattern and approves a bounded vocabulary. Owner visual acceptance remains the combined W1 walkthrough.

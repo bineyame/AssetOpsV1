@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-ux-disclosure-request.md on 2026-11-18 (declutter step 4).
 # Architect request - W1-UX disclosure scan amendment (2026-10-16)
 
 You are the AssetOps Architect (Codex); decide within your remit. `tasks/W1-UX-01-shared-presentation.md` proposes, per `.agent/W1-UX-plan-review.md` (finding 3) and `.agent/W1-UX-plan-rereview.md`, that the closed "How this was worked out" disclosure be scanned against a narrower banned list instead of being exempt, while the existing one-value exemption rule from `D-2026-10-04-plain-language-analysis-views` stays. Read those files, `D-2026-10-16-w1-ux` and `D-2026-10-04-plain-language-analysis-views`.

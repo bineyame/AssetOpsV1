@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FC-review.md on 2026-11-18 (declutter step 4).
 # FC-1 / FC-2 review: Findings cards (task/FC-findings-cards @ 656f99278)
 
 Reviewer: fresh Claude (Opus), independent of the builder. Diff: `git diff main...task/FC-findings-cards`.

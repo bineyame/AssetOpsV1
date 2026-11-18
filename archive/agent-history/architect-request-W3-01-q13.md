@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-01-q13.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-01 q13 (commit 3)
 
 Read `.agent/W3-01-build-spec.md` (all rulings through q12) and `.agent/W3-01-pending-rulings.md` q13: reading 1 on `as_of`, 2 questions, and 12 readings. Also read the v69 `findings`, `findings-cost`, `findings-risks`, `findings-opportunities` and `actions` mocks.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-demo-data-strategy.md on 2026-11-18 (declutter step 4).
 # Architect request: evidence-grounded demo data strategy (HTML)
 
 You are the AssetOps Architect (Claude). The authority is the owner's request, saved word for word in `.agent/owner-demo-data-strategy-2026-10-28.md`. Read it in full and follow it, including its §6 constraint: plan first, no implementation.

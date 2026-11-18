@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S2-01b phase 2 handoff: transfer and staged publication
 
 Branch `task/S2-01b-durable-simulated-gateway`. Phase 2 is complete with the fail-closed defaults below. Phase 3 is the visible closeout: frontend, F1 and layout. The full review comes after phase 3.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/implementer-questions-demo-data-2026-10-28.md on 2026-11-18 (declutter step 4).
 # Implementer pre-flight questions: demo-data lane (DD-00..DD-13, DD-05a), 28 October 2026
 
 Read: `Docs/demo-sprint/demo-data-strategy.html` rev 2 (section 8 cards, 5.x, 6.x), the owner answers, the Architect reply, `.agent/build-spec-telemetry-2026-10-27.md` (TEL) and `.agent/build-spec-commercial-2026-10-27.md` (CC). Checked read-only against worktree `AssetOpsV1-demo-plan` at bf63b4c6. "Card" means the section 8 card. Each question is something I would otherwise have to decide myself. Group A can block the whole lane.

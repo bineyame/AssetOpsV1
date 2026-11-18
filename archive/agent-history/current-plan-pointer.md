@@ -1,3 +1,4 @@
+> Superseded by .ai/NOW.md on 2026-11-18. Archived from .agent/current-plan-pointer.md on 2026-11-18 (declutter step 4).
 # Current plan pointer (updated 2026-11-03)
 
 **Current plan: `Docs/demo-sprint/client-demo-plan.html`. AGREED by the owner on 2026-11-03.**

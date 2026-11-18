@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PB-1b-packet.md on 2026-11-18 (declutter step 4).
 # PB-1b packet: EV analysed periods (backend)
 
 Branch `task/PB-1b-ev-periods` (wt `AssetOpsV1-pb1b`), rebased onto main `987d48c78` (PB-1a merged). Card: `.agent/architect-answer-non-kobo-sites-2026-11-10.md` PB-1b (lines 251-255); rule D-E5.31 (line 156); E4 (line 100). PB-1a review notes L1 (widest-wins / nested) and M1 (href is an API route, kept consistent with Cold; UI link is PB-1c) applied.

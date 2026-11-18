@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-05a-q4.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-05a five implementer judgements (2026-10-18). Owner rule: implementer decisions are defects ruled by the Architect. Brief rulings; edit `.agent/W2-05a-build-spec.md` in place (include the mock mapping for the affected screen elements); amend `D-2026-10-18-w2-05-buildspec`. No code.
 
 From the commit-3 implementer (branch task/W2-05a-ev-foundation):

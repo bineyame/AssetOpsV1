@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-B-phase-handoff.md on 2026-11-18 (declutter step 4).
 # OUT-B handoff (partial, 2026-10-30): B1-B3 landed; B4 addendum 4 landed (f8012282); B4 Postgres test WIP (aaebaa7f). Resume at "B4 addendum 4 landed"
 
 Branch `task/OUT-B-site-outcome-board`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outB`. It is cut from OUT-A head `7b826e97` and has no main merge yet. Merge main in only when the coordinator says A has merged.

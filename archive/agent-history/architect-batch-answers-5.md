@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-batch-answers-5.md on 2026-11-18 (declutter step 4).
 # Codex Architect — batched pre-loop rulings (2026-10-11)
 
 Authority: `D-2026-10-11-w1-pre-loop-mapping-and-truthfulness` in `.ai/DECISIONS.md`, the confirmed revised W1 owner input, and `D-2026-10-11-s3-dispatch-interval-assessment`. The owner does **not** need to weigh in again: these decisions interpret the confirmed core targets and protect technical truth. Existing `USER_REVIEW_REQUIRED` checkpoints, including V-01 and S3-01, still go to the owner. This handoff does not approve implementation or make the currently refused next-work report authoritative.

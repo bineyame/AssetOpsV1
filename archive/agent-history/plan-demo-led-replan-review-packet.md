@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/plan-demo-led-replan-review-packet.md on 2026-11-18 (declutter step 4).
 # Review Packet: Demo-Led Replan (Planner, 2026-10-02)
 
 ## 1. Header

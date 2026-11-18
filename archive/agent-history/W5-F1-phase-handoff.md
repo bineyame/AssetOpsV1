@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-F1-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W5-F1 phase handoff - D3 corrections R22, R37, R38
 
 Branch `task/W5-F1-d3-corrections` (from main `2503a34d`). Spec `.agent/W5-F1-build-spec.md`.

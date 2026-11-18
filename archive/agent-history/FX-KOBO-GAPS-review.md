@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-KOBO-GAPS-review.md on 2026-11-18 (declutter step 4).
 # FX-KOBO-GAPS review
 
 Reviewer: fresh Claude reviewer (not the author). Revision `94f998602` on `task/FX-KOBO-GAPS`, diff `main...task/FX-KOBO-GAPS`.

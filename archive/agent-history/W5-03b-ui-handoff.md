@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03b-ui-handoff.md on 2026-11-18 (declutter step 4).
 # W5-03b UI handoff: E4 EV Health and E6 EV Scenarios
 
 Branch `task/W5-03b-ev-health-ui`, from `f8293bbe` (main with W5-03a, K2, K3 and E5). Builder: Claude Implementer, 2026-10-24. The pre-flight was already ruled; the build used `.agent/W5-03-build-spec.md` (E4/E6 cards and W5-03b pre-flight) plus `.agent/W5-03b-ui-preflight-rulings.md` 1-16. Ruling-vs-code points are in `.agent/W5-03b-ui-questions.md` (7 points). Each was built with the stated choice and needs Architect confirmation.

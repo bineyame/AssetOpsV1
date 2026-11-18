@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-CH-5d1.md on 2026-11-18 (declutter step 4).
 # Review CH-5d1: the Portfolio Optimize card (first review, Opus)
 
 - Branch `task/CH-5d1-optimize-card`, reviewed at `b156c4740` (build `151580feb`), diff `1428e3a8c...HEAD`.

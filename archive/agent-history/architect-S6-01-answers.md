@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-01-answers.md on 2026-11-18 (declutter step 4).
 # Architect rulings - S6-01a/S6-01b
 
 Decision: `D-2026-10-15-s601-action-store-and-ui`. Authority: `.agent/architect-S6-01-request.md`, the owner's 2026-10-15 delegation, `D-2026-10-14-action-lifecycle-and-policy-application`, and `.agent/A-action-lifecycle-review.md`. These rulings refine the packets; they do not claim a measured effect or waive the S6-01b owner checkpoint.

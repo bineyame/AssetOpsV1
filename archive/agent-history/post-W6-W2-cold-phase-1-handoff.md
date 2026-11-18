@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-cold-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # post-W6 W2-cold: build handoff (phase 1, partial: not started)
 
 The pre-flight agent stopped at the context cap before writing product code. Branch `task/post-W6-W2-cold` at `077e15a9` (main merged in). Build exactly `.agent/post-W6-W2-cold-rulings.md`; the cross-card section binds. Use `.agent/post-W6-W2-cold-preflight.md` for anchors and literals. This file adds only the build plan and the dependency state.

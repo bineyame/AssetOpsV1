@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-b-preflight-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W1-b pre-flight
 
 2026-10-25. These rulings amend `.agent/post-W6-W1-rulings.md` for W1-b. They authorize only the named W1-b implementation and register edit; they do not close a mock departure or record owner acceptance. The v6.9 `sitefindings`, `financials`, `assumptions`, Finding section, Recommendation and Action screens remain the presentation reference.

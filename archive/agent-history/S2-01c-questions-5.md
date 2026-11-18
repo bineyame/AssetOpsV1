@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-questions-5.md on 2026-11-18 (declutter step 4).
 # S2-01c questions 5 (fix round 1) - fail-closed defaults, batchable
 
 Raised while implementing `.agent/architect-S2-01c-answers-4.md` "First-review ruling" and `D-2026-10-09-s2-ordered-publication-and-closing-boundary`. Each default is built; none blocks.

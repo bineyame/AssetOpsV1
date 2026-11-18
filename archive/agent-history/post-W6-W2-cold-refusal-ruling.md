@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-cold-refusal-ruling.md on 2026-11-18 (declutter step 4).
 # Architect ruling: W2-cold Finding refused window
 
 1. **Cross-card ruling 5 governs the refusal; Q4 governs the section form.** Q4's “Finding keeps its established section form” preserves the Finding header, section navigation, state strip and the three panels. It does not exempt the Finding from ruling 5's single refusal sentence and no duplicate page banner. Remove the `PageRefusal` block for a refused-window Finding.

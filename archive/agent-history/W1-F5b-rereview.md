@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5b-rereview.md on 2026-11-18 (declutter step 4).
 # W1-F5b re-review (fix round, cbb88be1)
 
 Verdict: RETURN (1 Medium: lost capture state)

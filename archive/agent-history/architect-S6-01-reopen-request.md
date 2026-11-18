@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-01-reopen-request.md on 2026-11-18 (declutter step 4).
 # Architect request - recommendation for a newer Finding revision after an Action (delegated, owner absent)
 
 You are the AssetOps Architect (Codex). S6-01a/S6-01b (reviewed, unmerged; branches `task/S6-01a-action-store-read` head `c341599b`, `task/S6-01b-action-ui`) behave like this: after an Action is accepted on FindingRevision N, the Recommendation for the newer FindingRevision N+1 reads as open to accept again (recorded contract) or unavailable with `FOUNDATION_BASIS_STALE` once the reserve was applied (served walkthrough), and in neither case mentions the Action already accepted on revision N. Owner walkthrough doc (on the S6-01b branch, `.agent/S6-01b-owner-walkthrough.md`) flags it. Context: `D-2026-10-15-s601-action-store-and-ui`, `.agent/architect-S6-01-answers.md`, `D-2026-10-14-action-lifecycle-and-policy-application`.

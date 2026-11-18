@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-02-review-packet.md on 2026-11-18 (declutter step 4).
 # S5-02 review packet - Finding list in the Site Overview
 
 Task: `tasks/S5-02-overview-finding-list.md` (one build phase). Branch `task/S5-02-overview-finding-list` from main

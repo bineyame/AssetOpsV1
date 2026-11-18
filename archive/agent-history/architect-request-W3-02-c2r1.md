@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c2r1.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 commit-2 review (r1) — two copy points
 
 Read `.agent/W3-02-build-spec.md` (c2, c2b, c2c), `.agent/W3-02-commit2-review.md`, and the v69 `globalevidence` mock.

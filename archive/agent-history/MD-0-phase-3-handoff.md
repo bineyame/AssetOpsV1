@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/MD-0-phase-3-handoff.md on 2026-11-18 (declutter step 4).
 # MD-0 phase 3 handoff (PARTIAL, Kobo-only scope MD0-S2: resume here)
 
 - Branch `task/MD-0-mechanism`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-md0`. Read the phase-1 and phase-2 handoffs first. Authority: build sheet §0-§15 (`AssetOpsV1-plan2\.agent\build-sheet-MD-0.md`), with **§15 MD0-S2 (Kobo only)** as the scope.

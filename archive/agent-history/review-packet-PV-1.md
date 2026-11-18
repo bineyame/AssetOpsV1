@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-PV-1.md on 2026-11-18 (declutter step 4).
 # Review packet: PV-1 Portfolio verified-value lines (FUEL-1, lane 1)
 
 - **Task:** build sheet `.agent/build-sheet-FUEL-1.md` §3.3 as replaced by **PV-1-R** (main `3b09aea6c`).

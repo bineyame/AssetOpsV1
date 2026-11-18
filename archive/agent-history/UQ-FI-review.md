@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UQ-FI-review.md on 2026-11-18 (declutter step 4).
 # UQ-FI review (UQ-FI-1 + partial UQ-FI-2 + UQ-FI-3), branch task/UQ-FI-3
 
 Reviewer: fresh Claude reviewer, 2026-11-13. Reviewed at `fbc5373e3`. Diff: `git diff c9e40d56e HEAD` (merge-base with main). Spec: rev 6, rev 7 UQ-FI-3 row, D-UQFI.1-12. Packets: `UQ-FI-packet.md`, `UQ-FI-3-packet.md`.

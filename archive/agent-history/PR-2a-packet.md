@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-2a-packet.md on 2026-11-18 (declutter step 4).
 # PR-2a packet: read-only Site price page (2026-11-12)
 
 - **Card:** PR-2a, `.agent/architect-sequence-client-scope-2026-11-11.md` rev 4 (line 225) and rev 5 §5.3 (set-by map, seam for PR-3). Layout: `frontend/mockups/v71/price-it.html` Part B and C. Defaults: `.agent/owner-price-entry-defaults-2026-11-12.md` (1, 2, 3, 5).

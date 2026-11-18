@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UQ-FI-3-packet.md on 2026-11-18 (declutter step 4).
 # UQ-FI-3 packet (lane D, branch task/UQ-FI-3, stacked on task/UQ-FI-1-2 at c66937b97)
 
 Spec: rev 7, 7.2 UQ-FI-3 row (`architect-sequence-client-scope-2026-11-11.md`); D-UQFI.1-10 (`build-sheet-OWN-GAPS-2026-11-08.md`). Owner go: `owner-proceed-waiting-items-2026-11-13.md` (provisional). Visual targets: v72 `foundation-sheet.html` (Outcome card, reading-state chips), `portfolio-hifi.html` (`.kpi` card, state chips).

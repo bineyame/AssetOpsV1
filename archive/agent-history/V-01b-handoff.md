@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-handoff.md on 2026-11-18 (declutter step 4).
 # V-01b handoff — phase a (survey, gap inventory, Lab precondition)
 
 Branch `task/V-01b-evidence-lab-visual`. Task `tasks/V-01b-evidence-lab-visual-fidelity.md`. Binding precedents:

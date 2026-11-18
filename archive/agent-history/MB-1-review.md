@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/MB-1-review.md on 2026-11-18 (declutter step 4).
 # MB-1 review (fresh Claude reviewer, 2026-11-13)
 
 Branch `task/MB-1-modbus`, MB-1's own commits `task/UP-1-reading-upload..HEAD` (92a6d4368, 903d0db96, a078ddb2a, a850a4e31).

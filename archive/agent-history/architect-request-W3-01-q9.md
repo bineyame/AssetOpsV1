@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-01-q9.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-01 q9 (golden manifest and verification count)
 
 Read `.agent/W3-01-build-spec.md` (all rulings through q8) and `.agent/W3-01-pending-rulings.md` q9.

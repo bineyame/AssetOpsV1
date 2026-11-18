@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-02-review-packet.md on 2026-11-18 (declutter step 4).
 # OPS-02 review packet - statement-level product writer guard
 
 Task: `tasks/OPS-02-writer-guard-ast.md` (size S, non-UI, USER_REVIEW_REQUIRED false). Branch

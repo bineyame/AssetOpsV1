@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/AP-1-live-check.md on 2026-11-18 (declutter step 4).
 # AP-1 live check (D-SR.80 Q1 merge gate), 2026-11-13
 
 Result: **PASS on all four items.** Every listed day was checked. Nothing was accepted as ruled.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/AR-2-packet.md on 2026-11-18 (declutter step 4).
 # AR-2 packet: Site boards' mini depth served from period-read rows (D-ANY.6)
 
 Branch `task/ANY-1-AR2` (worktree `AssetOpsV1-ar2`) from `bb3d7645c` (ANY-1 phase 1-2 head).

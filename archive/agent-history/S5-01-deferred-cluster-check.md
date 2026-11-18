@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-deferred-cluster-check.md on 2026-11-18 (declutter step 4).
 # S5-01 deferred-cluster check (S4-04 phase-1 H1 applied to the Site Overview)
 
 Targeted investigation, not a full review. Fresh Claude reviewer, worktree `AssetOpsV1-review4`, branch

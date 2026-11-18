@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/MB-1-packet.md on 2026-11-18 (declutter step 4).
 # MB-1 packet (lane F) - live Modbus into the Kobo edge gateway - built, switch off by default
 
 Branch `task/MB-1-modbus` (worktree `AssetOpsV1-mb1`), based on `task/UP-1-reading-upload`; UP-1's fix round (M1, M2, L1, D-UP.12)

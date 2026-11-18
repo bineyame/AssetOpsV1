@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-F1-d3.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-F1 correction cards for the D3 departures on built screens
 
 You are the AssetOps Architect (Codex). Read `.agent/mock-departure-register.md`, specifically the D3 rows R22, R37 and R38, along with the departure rule and mock-fidelity rules in `.ai/ROLE_CONFIG.md`. These three are on screens already merged to main. R23/R24 are already corrected in the planned W5-02/W5-04 specs; confirm that in one line.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-questions-3.md on 2026-11-18 (declutter step 4).
 # S2-01c phase-3a design questions (Implementer, 2026-10-09)
 
 Each has a fail-closed default that is implemented and committed. None blocks phase 3b.

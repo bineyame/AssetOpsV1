@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03a-review.md on 2026-11-18 (declutter step 4).
 # W5-03a independent review (E1a, E1b, E2, E3)
 
 Reviewer: fresh Claude reviewer, 2026-10-23. Branch `task/W5-03a-ev-selected-depth`, worktree

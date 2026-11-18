@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-V2a-questions.md on 2026-11-18 (declutter step 4).
 # W5-04 V2a — interpretation notes for Architect confirmation
 
 Builder, 2026-10-24, branch `task/W5-04b-ev-work-ui`. None of these block V2a: no ruling contradicted merged code. Each

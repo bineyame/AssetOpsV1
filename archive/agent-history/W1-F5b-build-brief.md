@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5b-build-brief.md on 2026-11-18 (declutter step 4).
 # W1-F5b build - in-page tab rows, Site Findings chips, carries, all-26 audit (implementer brief)
 
 Branch `task/W1-F5b-tabs-audit` from main AFTER W1-F5a merges (coordinator creates it). Frontend only.

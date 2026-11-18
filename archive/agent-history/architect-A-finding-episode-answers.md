@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-finding-episode-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — A-finding-episode and S3-01 question batch (2026-10-12)
 
 The owner selected `A-finding-episode` in the contested ranking. `D-2026-10-12-finding-episode-and-revisions` resolves that architecture node; the registry marks only the architecture node resolved. S4-01, its fixture and every downstream panel remain open. This is an Architect decision, not an S3-01 re-review or a new owner acceptance.

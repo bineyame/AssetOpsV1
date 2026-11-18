@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-02d-fix2-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: S4-02d plan fix round 2 (N1 only) (2026-10-14)
 
 Role: Planner (Codex). Branch `plan/S4-02c-architect`. Read `.agent/S4-02d-plan-fix-rereview.md` (N1 Medium; N2-N6 Low carries) and `.agent/architect-S4-02d-answers.md` (ratified, decision `D-2026-10-14-s402d-schedule-storage-and-install-gate`).

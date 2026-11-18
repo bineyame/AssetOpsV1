@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04b-handoff.md on 2026-11-18 (declutter step 4).
 # W5-04b handoff: V3a and V3b (EV Incidents and Maintenance tabs, captures, registry)
 
 Branch `task/W5-04b-ev-cases`, from main `ad7b82f9`. Main was merged at `84e9a233` (`f5f7f70b`, rulings 67-68).

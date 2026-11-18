@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DIESEL-K8-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # K8 code phase: handoff 2 (PARTIAL; builder 2 stopped at the context cap)
 
 Read handoff 1 (`.agent/DIESEL-K8-phase-1-handoff.md`) and §9p first. Worktree, branch and PYTHONPATH are unchanged.

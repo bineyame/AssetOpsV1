@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/implementer-effort-view-2026-10-27.md on 2026-11-18 (declutter step 4).
 # Implementer effort and approach view on commercial-capability iteration 6 (2026-10-27)
 
 Read-only, at main 1a746769. Focused rules check: test_w403_scenario_rules.py + test_s6_verification_rules.py, 72 passed. Effort is relative: "card" = one post-W6 fix card (~6 commits, 10-15 files, one scoped Postgres run, one recapture, one fix round). Plan 2 review cycles per slice.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-telemetry-integration-plan.md on 2026-11-18 (declutter step 4).
 # Architect request: commercially prioritised telemetry integration plan (HTML)
 
 You are the AssetOps Architect. The owner's request is saved word for word in `.agent/owner-telemetry-integration-plan-2026-10-27.md`. Read it in full and follow it exactly. It is the authority here.

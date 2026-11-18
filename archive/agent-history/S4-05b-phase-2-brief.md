@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05b-phase-2-brief.md on 2026-11-18 (declutter step 4).
 # S4-05b phase 2 - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`, branch `task/S4-05b-producers-reads-walkthrough` (main merged in). Same environment as `.agent/S4-05b-phase-1-brief.md` (venv junction, PYTHONPATH, private `assetops_s405*` DBs, keep-awake running, memory tight: focused tests `-n 2` at most until the final full suite; ports API 8935 / web 5435).

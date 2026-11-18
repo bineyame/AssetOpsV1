@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-W401b-packet.md on 2026-11-18 (declutter step 4).
 # FIX-W401b packet: clocked-test request times
 
 Branch `task/FIX-W401b-clock`, from main ab248b4c3.

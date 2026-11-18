@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-04-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - refine S4-04 Site Finding index
 
 You are the AssetOps Planner (Codex). `A-finding-index` is resolved (`D-2026-10-15-a-finding-index`, `.agent/architect-A-finding-index-answers.md`, incl. the fix round: closed source gate -> 409 `PERFORMANCE_CUTOVER_CLOSED`; complete discovery definition; new read, do not change `findings_over` in place; same-basis test that the first index row is the S5-01 card Finding). Next-work now ranks `I-finding-index` first. Refine `tasks/S4-04-site-finding-index.md` (outline) into an implementation-ready packet on this branch (`plan/S4-04-refine`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-gap-planning`). No code; the coordinator commits.

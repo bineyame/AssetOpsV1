@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-phase2-review.md on 2026-11-18 (declutter step 4).
 # S4-03 phase 2 - fresh Claude review (`I-finding-evidence-ui`)
 
 Reviewer: fresh Claude Reviewer. I did not author this phase. Date: 2026-10-13.

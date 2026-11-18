@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/A-S6-verification-rereview.md on 2026-11-18 (declutter step 4).
 # Re-review - A-S6-verification (amended ruling, D-2026-10-16-s6-verification)
 
 Reviewer: fresh Claude, independent of the Architect and of the first reviewer. Branch `plan/A-S6-verification`, HEAD `46bb39f5`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5c-preflight.md on 2026-11-18 (declutter step 4).
 # CH-5c pre-flight (build sheet `AssetOpsV1-plan2/.agent/build-sheet-CH-5c.md`, rulings CH5c-R3)
 
 Branch `task/CH-5c-perf` from main `fd03ae6b0`; worktree `AssetOpsV1-ch5c`. No production code changed. The only

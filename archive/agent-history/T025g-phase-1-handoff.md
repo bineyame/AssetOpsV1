@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025g-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # T025g phase 1 handoff
 
 Branch `task/T025g-run-binds-scenario-to-site`. Phase 1 landed in two commits

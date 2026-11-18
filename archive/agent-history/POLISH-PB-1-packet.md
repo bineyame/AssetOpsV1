@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PB-1-packet.md on 2026-11-18 (declutter step 4).
 # POLISH-PB-1 review packet: shell, time consolidation and P-03
 
 - **Task:** `tasks/POLISH-PB-1-shell-time.md`.

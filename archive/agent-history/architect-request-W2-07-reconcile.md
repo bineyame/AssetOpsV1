@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-07-reconcile.md on 2026-11-18 (declutter step 4).
 # Architect request: reconcile the W2-07 build spec with the W2-06 merge
 
 You are the AssetOps Architect. Read:

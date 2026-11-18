@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-closure-check2.md on 2026-11-18 (declutter step 4).
 # W3-02 closure check 2 (2026-10-20)
 
 Checked against "Review closure 2" in W3-02-build-spec.md and the W3-01 "Versioned amendment: estate selection token v2".

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-plan-rereview.md on 2026-11-18 (declutter step 4).
 # S4-04 plan re-review after fix round 1 (fresh Claude reviewer, no code)
 
 Date: 2026-10-15

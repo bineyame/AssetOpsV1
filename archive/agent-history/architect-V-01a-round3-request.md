@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-V-01a-round3-request.md on 2026-11-18 (declutter step 4).
 # Architect request: V-01a round 3 rulings (2026-10-12)
 
 Owner feedback (verbatim): `.agent/owner-V-01a-round2-feedback-2026-10-12.md`. Prior rulings: `.agent/architect-V-01a-answers.md`, `D-2026-10-12-v01a-owner-visual-rulings`. Built state: branch `task/V-01a-foundation-visual` (packet `.agent/V-01a-review-packet.md` "Round 2"/"Round 2 fix"). Mock: `frontend/mockups/v69/index.html` screens `readiness`, `foundation`. Batch rule: answer everything in one pass.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-KOBO-V3-packet.md on 2026-11-18 (declutter step 4).
 # FX-KOBO-V3 packet (D-E5.21; review Lows 2, 3)
 
 Branch `task/FX-KOBO-V3`, one code commit on main d810ecef3.

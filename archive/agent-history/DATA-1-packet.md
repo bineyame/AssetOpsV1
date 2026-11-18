@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-1-packet.md on 2026-11-18 (declutter step 4).
 # DATA-1 review packet: one Kisiwa recording session (D-E5.30)
 
 Branch `task/DATA-1-kisiwa-one-session` from `main` ec6ee2643. Card: `.agent/architect-answer-non-kobo-sites-2026-11-10.md`

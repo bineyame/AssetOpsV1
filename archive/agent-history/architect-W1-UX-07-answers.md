@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-UX-07-answers.md on 2026-11-18 (declutter step 4).
 # Architect ruling - W1-UX-07 full operator rail (2026-10-17)
 
 The owner chose the full v69 menu with unbuilt entries greyed out and labelled "Not available yet". This ruling authorizes that narrow exception to the earlier live-items-only rail rule. It does not authorize placeholder pages, routes, inferred site selection, or new capability claims. The W1-UX-07 implementer changes code and tests; this document is the decision, not an implementation.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02d-questions-1.md on 2026-11-18 (declutter step 4).
 # S4-02d questions 1 (phase 1 implementer)
 
 Conservative choices taken and built; none blocks phase 1. Architect or reviewer may overturn any of them.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-08-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - S4-08 assumption consequence history
 
 You are the AssetOps Planner (Codex). Write a new implementation-ready packet `tasks/S4-08-assumption-consequence-history.md` on branch `plan/S4-08-assumption-history` in this worktree. No code; the coordinator commits.

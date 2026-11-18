@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PARTIAL-MONEY-packet.md on 2026-11-18 (declutter step 4).
 # PARTIAL-MONEY review packet
 
 Task: build sheet `.agent/build-sheet-OWN-GAPS-2026-11-08.md` "Card PARTIAL-MONEY" (D-E5.45, owner "option 2 for

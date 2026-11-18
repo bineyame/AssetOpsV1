@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-S4-financial-request.md on 2026-11-18 (declutter step 4).
 # Architect request: A-S4-financial (2026-10-13)
 
 Owner choice (verbatim selection, 2026-10-13): "Money decision (A-S4-financial)". It was picked from a contested next-work ranking (`.agent/next-work-2026-10-13i.json` on main `9fde68f`: A-S4-financial 2.215 vs A-S5-overview 2.144, gap 3.21%) and recorded in `.agent/owner-next-work-2026-10-13c.md`. Owner Codex rule: batch questions and keep usage efficient.

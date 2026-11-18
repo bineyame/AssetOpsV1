@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5c-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5c handoff 6: fix round CH5c-R6 built; branch review-ready
 
 Builder 6. Branch `task/CH-5c-perf`, worktree `AssetOpsV1-ch5c`. Spec: sheet §8.5. Results: packet section

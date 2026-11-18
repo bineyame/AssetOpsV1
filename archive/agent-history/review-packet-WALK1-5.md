@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-5.md on 2026-11-18 (declutter step 4).
 # Review packet: WALK1-5 (5-day spare-solar read; declared price on the opportunity page)
 
 Branch `task/WALK1-5-solar-window-whatif`, worktree `AssetOpsV1-w1f`, base main `635654bf0`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1a1-handoff.md on 2026-11-18 (declutter step 4).
 # DD-1a1 handoff (current: fix round 1 after the REVISE review; older text below is history)
 
 **Current state: fix round 1 on top of R16 (see the packet).** The "builder 14" header below is history.

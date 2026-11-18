@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-seam-recheck.md on 2026-11-18 (declutter step 4).
 # W3-02 pre-build seam re-check against merged W3-01 + W4-01 (2026-10-20)
 
 Base: worktree `AssetOpsV1-plan2`, main `a1b29f81` (W3-01 merge `b5d0a7d6`, W4-01 merged earlier). Read-only. Spec under check: `.agent/W3-02-build-spec.md` (body + closures 1-3 + group-key, Run 5 and Run 6 amendments). Line refs are `file:line` on this revision.

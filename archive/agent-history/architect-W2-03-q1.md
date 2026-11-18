@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-03-q1.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-03 questions + preemptive sweep of commits 3-5 (2026-10-18). Owner: very efficient without compromising quality; make this the last W2-03 question round. Edit `.agent/W2-03-build-spec.md` in place; record `D-2026-10-18-w2-03-answers`. No code.
 
 Read `.agent/W2-03-phase-1-handoff.md` (copied from branch task/W2-03-cold-assessment, which has the code for commits 1-2).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-03-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S6-03 owner walkthrough - Site Work, Actions list (`sitework:1#a`)
 
 What you are accepting: a new **Work** tab on a Site. Its **Actions** list shows the Actions created at this Site in

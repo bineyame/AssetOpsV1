@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C9-fix2-notes.md on 2026-11-18 (declutter step 4).
 # C9 fix 2 notes (B1 + C1)
 - parseGateQueue now keys discovery on the link target filename (`ID-slug.md`, any label); bare-id link text is the fallback. External URLs skipped.
 - packetPhase: anchored `open\b` is not_started (after done/in_review/active); `umbrella` restricted to literal `umbrella/index`.

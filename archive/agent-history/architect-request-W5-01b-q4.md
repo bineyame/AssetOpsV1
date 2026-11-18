@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01b-q4.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-01b review H1 and Lows
 
 You are the AssetOps Architect (Codex). Read the review with `MSYS_NO_PATHCONV=1 git show task/W5-01b-cold-scenarios:.agent/W5-01b-review.md`, then P-C5-15 and the C5 rulings in `.agent/W5-01-build-spec.md`, the mock-fidelity rules in `.ai/ROLE_CONFIG.md`, and the v69 `cold-scenarios` mock.

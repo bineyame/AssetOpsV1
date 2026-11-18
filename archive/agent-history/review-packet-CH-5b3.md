@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5b3.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-5b3 (Why? button, trace dialog, chain client)
 
 Branch `task/CH-5b3-why-ui`. Build `d783b643a` on `21503aa6f`; handoff `fbac8b3bb`. Builder 2 finished the clone run and this packet.

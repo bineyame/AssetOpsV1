@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/A-finding-index-review.md on 2026-11-18 (declutter step 4).
 # A-finding-index - independent review (fresh Claude reviewer)
 
 Date: 2026-10-15

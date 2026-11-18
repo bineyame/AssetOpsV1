@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-00-review.md on 2026-11-18 (declutter step 4).
 # W2-00 review - source-event format extension
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Revision `482d0c5d` (detached worktree `AssetOpsV1-review5`). Diff `git diff 8f54508d..482d0c5d -- ':!.agent'` (27 files). `8f54508d` is an ancestor of the packet base `dc643215`; the only extra files in that range are `.ai/DECISIONS.md` and the task file. The review packet is on `task/W2-00-source-events` (worktree `review2`), not in the reviewed tree.

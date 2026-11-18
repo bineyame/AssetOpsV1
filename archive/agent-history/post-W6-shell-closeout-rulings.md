@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-shell-closeout-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 shell closeout
 
 2026-10-25. Applies to `task/post-W6-shell` after its verification batch. These rulings supplement `.agent/post-W6-shell-rulings.md` Q1–Q26. R375–R381 remain reserved for the shell card; other branches renumber on rebase.

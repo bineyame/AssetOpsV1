@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-01-post-w2-review.md on 2026-11-18 (declutter step 4).
 # OPS-01 post-W2 review (ca2e4aef, fc23fb19, 06b049ad vs main)
 
 Verdict: ACCEPT

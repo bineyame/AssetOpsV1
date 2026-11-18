@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-G1-r2.md on 2026-11-18 (declutter step 4).
 # Review: OWN-G1 add-dates (re-review of the H1 fix round)
 
 Reviewer: fresh Claude, not the author. Branch `task/OWN-G1-add-dates`, diff `ddbdaa044..fc6545de4`.

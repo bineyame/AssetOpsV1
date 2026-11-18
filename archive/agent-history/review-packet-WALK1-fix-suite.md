@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-fix-suite.md on 2026-11-18 (declutter step 4).
 # Review packet: WALK1-fix-suite
 
 Branch `task/WALK1-fix-suite` from main `7149022b7`. Fix commit `35db0a8cd`.

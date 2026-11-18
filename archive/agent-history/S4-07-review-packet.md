@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-07-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-07 review packet - evidence decided_at on DB time
 
 Task: `tasks/S4-07-evidence-decided-at.md` (M; non-UI; USER_REVIEW_REQUIRED false). Branch `task/S4-07-evidence-decided-at` from `3ec3d765` (main `5bfff665` + activation). Build commits `aa56dfc6` (code + proofs), `f1e67a52` (docs, F-A skew); closeout commit follows. Diff: `git diff 3ec3d765..HEAD`.

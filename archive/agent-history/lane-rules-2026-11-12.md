@@ -1,3 +1,4 @@
+> Superseded by .agent/lane-rules-vps-2026-11-12.md on 2026-11-18. Archived from .agent/lane-rules-2026-11-12.md on 2026-11-18 (declutter step 4).
 # Lane rules — night of 11→12 Nov (Thursday demo moved to 14:00)
 
 Every builder/runner/reviewer agent tonight follows these:

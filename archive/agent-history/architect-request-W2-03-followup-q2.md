@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-03-followup-q2.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-03 follow-up, one unmet height target
 
 You are the AssetOps Architect. Read `.agent/W2-03-followup-spec.md` (`D-2026-10-19-w2-03-followup`) and the follow-up packet with `git show task/W2-03-followup:.agent/W2-03-followup-review-packet.md`. The v69 mock is authoritative, and nothing is left to the implementer.

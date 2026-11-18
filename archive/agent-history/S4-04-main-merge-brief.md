@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-main-merge-brief.md on 2026-11-18 (declutter step 4).
 # S4-04 - take main (deferred-match root fix) and close review Lows (Sonnet)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`, branch `task/S4-04-site-finding-index` (slice review ACCEPT). Main `7edbe396` now has the deferred-match root fix (migration `0018_finding_match_deferral`, `finding_match_pass.deferred_window_starts`, `match_state` reports deferred windows as not matched).

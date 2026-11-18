@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-seam-recheck.md on 2026-11-18 (declutter step 4).
 # W3-03 seam re-check against merged W3-01 and W3-02 (2026-10-21)
 
 Base: `main` at `996064c3` (worktree `AssetOpsV1-plan2`). Read-only. Spec: `.agent/W3-03-build-spec.md` (body plus closures 1-3; `Lnn` = spec line). I ran no test suites. This is a code-reading check, and every claim below cites file:line.

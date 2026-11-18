@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-02-q2.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-02 q2 (unit-2 readings)
 
 Read `.agent/W4-02-build-spec.md` (closures 1–5, q1) and `.agent/W4-02-phase-handoff.md`, which lists the 15 readings the builder applied in unit 2.

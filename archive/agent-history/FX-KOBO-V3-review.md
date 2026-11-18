@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-KOBO-V3-review.md on 2026-11-18 (declutter step 4).
 # FX-KOBO-V3 review
 
 Verdict: ACCEPT with one Medium finding (fail-open on missing schema), recommended fix before the v4 build is relied on.

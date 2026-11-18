@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-2.md on 2026-11-18 (declutter step 4).
 # Review packet: WALK1-2 (Depot declared charging tariff, EV Grow copy, L-A, L-B)
 
 Branch `task/WALK1-2-depot-tariff` from main `2058a6567`. Spec: `AssetOpsV1-plan2/.agent/build-sheet-WALK1.md` §3,

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5d1.md on 2026-11-18 (declutter step 4).
 # Review packet CH-5d1: the Portfolio Optimize card from the chain
 
 - Spec: `.agent/build-sheet-CH-5d.md` ruling **CH5d1-R** (commit 1428e3a8c). Branch `task/CH-5d1-optimize-card`, cut

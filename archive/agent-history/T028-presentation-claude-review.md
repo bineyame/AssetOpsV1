@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-presentation-claude-review.md on 2026-11-18 (declutter step 4).
 # T028 presentation revision - Claude review
 
 Fresh Claude Reviewer, 2026-10-04. This is a **Claude review** under the

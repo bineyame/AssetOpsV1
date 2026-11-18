@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-07-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-UX-07 review packet: full v6.9 left menu with unavailable entries
 
 Task: `tasks/W1-UX-07-full-rail.md`. Contract: `D-2026-10-17-w1-rail` (`.agent/architect-W1-UX-07-answers.md`); owner decision `.agent/owner-rail-decision-2026-10-17.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DIESEL-D0-probe-results.md on 2026-11-18 (declutter step 4).
 # DIESEL-D0: Kisiwa simulator trial, results
 
 Ruling: `.agent/build-sheet-DIESEL-1.md` §2 (f755f085b). Owner decisions: `.agent/owner-diesel-site-2026-11-07.md`,

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-questions-1.md on 2026-11-18 (declutter step 4).
 # S2-02 questions 1 (phase 1)
 
 Raised while building S2-02 phase 1 (ledger, identity hardening, decision engine). Each is built on the fail-closed default named; none blocks phase 2. Batch with the next Architect round.

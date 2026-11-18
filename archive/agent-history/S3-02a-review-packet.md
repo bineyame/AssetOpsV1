@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02a-review-packet.md on 2026-11-18 (declutter step 4).
 # S3-02a review packet - selected-assessment capability and claim-limit read
 
 Task `tasks/S3-02a-capability-read.md` (status `in_review`). Branch `task/S3-02a-capability-read` from main `71009bf6`. USER_REVIEW_REQUIRED: false (non-UI; mergeable after a fresh independent review). Review diff: `git diff 71009bf6..HEAD -- ':!.agent'`.

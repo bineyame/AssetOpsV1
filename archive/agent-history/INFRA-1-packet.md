@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/INFRA-1-packet.md on 2026-11-18 (declutter step 4).
 # INFRA-1 review packet: no degraded store (D-E5.47, BL-71)
 
 Branch `task/INFRA-1-no-degraded-store` (worktree `AssetOpsV1-infra1`), from main `bfe609500`. Commits

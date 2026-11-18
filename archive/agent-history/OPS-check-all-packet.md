@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-check-all-packet.md on 2026-11-18 (declutter step 4).
 # OPS-check-all-no-bypass packet
 
 Owner approval: .agent/owner-checkall-no-bypass-2026-10-30.md ("go with your suggestion").

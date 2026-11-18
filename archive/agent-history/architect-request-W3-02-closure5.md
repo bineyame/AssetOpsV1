@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-closure5.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 closure round 5 (small)
 
 Read `.agent/W3-02-build-spec.md` (all closures) and `.agent/W3-02-closure4-check.md`.

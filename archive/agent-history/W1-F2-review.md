@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F2-review.md on 2026-11-18 (declutter step 4).
 # W1-F2 review (Overview, Dispatch, Analysis, Evidence, Evidence Analysis)
 
 Reviewer: fresh independent Claude reviewer. Revision reviewed: `f3a2f518` (code at `8270c9a6`), base `af1aa23e`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-08-plan-rereview.md on 2026-11-18 (declutter step 4).
 # S4-08 plan re-review: Site assumption and consequence history
 
 Reviewer: fresh independent Claude reviewer (plan re-review; nothing built).

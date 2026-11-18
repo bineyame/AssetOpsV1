@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01e-review-packet.md on 2026-11-18 (declutter step 4).
 # W6-01e review packet: E1 global Operational records read, E2 Operational records page
 
 Branch `task/W6-01e-operational-records`. Base: main `2dc2e5ed` (W6-01c merge `fdbbccf4`, W6-01d merge `1fd48441`); K4a is

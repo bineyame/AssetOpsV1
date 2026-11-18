@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W6-preflight.md on 2026-11-18 (declutter step 4).
 # Post-W6 W6-global-Work pre-flight
 
 Read-only pre-flight on main `ad71329d` (worktree `AssetOpsV1-plan2`), 2026-10-25. No code, tests, captures or DB work.

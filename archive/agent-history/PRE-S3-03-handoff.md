@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PRE-S3-03-handoff.md on 2026-11-18 (declutter step 4).
 # PRE-S3-03 handoff (complete; in review)
 
 Landed on `plan/pre-S3-startup`: `04122ae` engine, registry and checker; `c62ff9e`/`147fc45` check-all and README; `663bde2` CRLF-stable fingerprints; then the closeout commit. Packet: `.agent/PRE-S3-03-review-packet.md`. Questions: `.agent/PRE-S3-03-questions.md`.

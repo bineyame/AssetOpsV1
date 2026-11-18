@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-test-speed-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: backend test-suite speed-up packet (2026-10-14)
 
 Role: Planner (Codex). Branch `plan/test-suite-speed` (worktree `C:\Users\assef\Bineyame\AssetOpsV1-gap-planning`, from main). Owner instruction (verbatim, `.agent/owner-process-speed-2026-10-14.md`): "do item 1 after S4-02d and add the rest based on observation and merit". This is a tooling task run right after S4-02d, ahead of normal next-work ranking (like PRE-S3-03: outside competitive W1 scoring; do not give it a W1 core score).

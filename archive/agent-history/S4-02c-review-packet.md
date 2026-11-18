@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02c-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-02c review packet: consequence work on accepted evidence (all three phases)
 
 Task: `tasks/S4-02c-evidence-consequence-work.md` (registry node `I-evidence-acceptance-consequence-work`).

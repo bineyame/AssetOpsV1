@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PA-1.md on 2026-11-18 (declutter step 4).
 # Review: POLISH PA-1 (board truth)
 
 Reviewer: fresh Claude reviewer (did not author the slice). Date 2026-11-01.

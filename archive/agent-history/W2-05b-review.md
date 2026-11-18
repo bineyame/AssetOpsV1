@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05b-review.md on 2026-11-18 (declutter step 4).
 # W2-05b review - EV causal producer and public replay
 
 Reviewer: independent Claude reviewer (did not author the slice). Branch `task/W2-05b-ev-producer`, head `7859562d`,

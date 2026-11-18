@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DISP-1-packet.md on 2026-11-18 (declutter step 4).
 # DISP-1 packet (lane C) - branch fix/DISP-1-money-eligibility, off main 4fb0ccc11
 
 Spec: D-ANY.11 in `.agent/build-sheet-OWN-GAPS-2026-11-08.md`.

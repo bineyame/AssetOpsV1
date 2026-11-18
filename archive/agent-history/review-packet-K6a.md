@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K6a.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K6a, the fuel Finding as a domain-Action origin (migration 0057)
 
 - Spec: `.agent/build-sheet-DIESEL-1.md` §9m.1-§9m.3 (ruling DIESEL-1-R3m) and §9m2 (DIESEL-1-R3m2, the S-a3 fix).

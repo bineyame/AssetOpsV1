@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W1-rulings.md on 2026-11-18 (declutter step 4).
 # Architect request: W1-mini-Action-a/b pre-flight rulings
 
 You are the AssetOps Architect. Read `.agent/post-W6-W1-preflight.md`: 58 points (G1–G6, Q1–Q52), each with defaults, covering both W1 cards in `.agent/post-W6-audit/fix-slices.md`. Use your earlier rulings as precedent: `.agent/post-W6-shell-rulings.md`, `.agent/post-W6-W2-cold-rulings.md`, `.agent/post-W6-W2-EV-rulings.md`, `.agent/post-W6-W3-estate-rulings.md`. Also read the register and lesson 15.

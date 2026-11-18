@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-preflight-questions.md on 2026-11-18 (declutter step 4).
 # W5-04 EV Work pre-flight questions (V1a–V5)
 
 Builder pre-flight, 2026-10-23, branch `task/W5-04-ev-work` from main `8884d86b`. These are read and grep findings only; no product code was written. Each question names the unit, the evidence and the options. **The builder decides none of these.** All go to the Architect as one batch.

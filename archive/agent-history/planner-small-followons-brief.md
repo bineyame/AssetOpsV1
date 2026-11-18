@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-small-followons-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - three small follow-on packets (owner-absence work order items 5-7)
 
 You are the AssetOps Planner (Codex). Architect work order `.agent/architect-autonomy-2026-10-15-answers.md` items 5, 6, 7 (`D-2026-10-15-owner-absence-work-order`). Write three small (size S, one build + one review each), implementation-ready, non-UI packets on branch `plan/small-followons` in worktree `C:\Users\assef\Bineyame\AssetOpsV1-plan2`. No code; the coordinator commits. All base on main (independent of unmerged LR-01/S5-01/S6-01/S4-05 branches); state migration re-chaining if any adds a migration (main head 0013; LR-01 adds 0014/0015 on its branch; S6-01a and S4-05a may add more).

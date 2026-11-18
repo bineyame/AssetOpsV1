@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-07-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W2-07 phase handoff (run 1, 2026-10-20)
 
 Branch `task/W2-07-ev-site-evidence-money`, worktree `AssetOpsV1-review5`. Private DB `w207a_test` (dropped at end of

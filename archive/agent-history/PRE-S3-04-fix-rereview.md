@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PRE-S3-04-fix-rereview.md on 2026-11-18 (declutter step 4).
 # PRE-S3-04 fix round 1 re-review (fresh Claude reviewer)
 
 Verdict: ACCEPT. B1 closed. No block findings. Two carries.

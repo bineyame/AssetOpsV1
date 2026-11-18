@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-closure-check-2.md on 2026-11-18 (declutter step 4).
 # W5 closure check, round 2 (R1-R7, V1-V6)
 
 Checker: independent Claude reviewer, 2026-10-22, tree `main` 87701889. Read-only except this file.

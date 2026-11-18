@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PF-C-packet.md on 2026-11-18 (declutter step 4).
 # PF-C + PF-W review packet (card B2)
 
 - Branch `task/PF-C-coverage-once` (worktree `AssetOpsV1-pfc`), from main `4b20b0462`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S5-02-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer - S5-02 cross-read parity (2026-10-16)
 
 Decision: `D-2026-10-16-s502-parity`. **Amend** the Planner's recommendation. The S5-01 card and S4-04 index are separate fenced reads; matching a displayed day alone does not prove a shared snapshot, and their whole tokens or accepted-source fingerprints have different scopes.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-plan-review.md on 2026-11-18 (declutter step 4).
 # LR-01 plan review (fresh Claude reviewer, 2026-10-15)
 
 Subject: `tasks/LR-01-late-reading-series-and-money-limit.md` on `plan/late-reading-series` at `02e84619` (base main `af6f1306`), with the `tasks/README.md` row and the two registry node edits. No code yet. The Architect's answers to the four packet questions were pending; I judged the plan against the Planner's recommendations.

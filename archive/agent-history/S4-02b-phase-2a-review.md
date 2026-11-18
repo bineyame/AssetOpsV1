@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-phase-2a-review.md on 2026-11-18 (declutter step 4).
 # S4-02b phase 2a: fresh Claude review (read and recompute)
 
 Reviewer: fresh Claude (did not build this). Branch `task/S4-02b-fuel-consequence`. Diff reviewed: `e45bbbc..7c21931`

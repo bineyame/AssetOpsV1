@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-02-closure-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer - S6-02 W1 closure (2026-10-16)
 
 Decision: choose (a). For W1, accept S6-02b's reviewed, labelled test-scoped non-pass cases as the case manifest for `I-sim-verification-cases` and `D-verification-window`, together with its genuine two-run registered Lab replay that reaches VERIFIED through the ordinary gateway and S2 acceptance. This is an explicit narrowing of those nodes' W1 acceptance targets: target miss, measured guardrail fail with hold, inconclusive, and late/withdrawn/overlap behavior may be proven by the S6-02a evaluator builders under a pinned clock. They are not Lab runs, and their synthetic window/source inputs did not pass normal ingestion. Do not describe them as public Lab evidence or claim that the original all-variants-through-ingestion wording was met literally.

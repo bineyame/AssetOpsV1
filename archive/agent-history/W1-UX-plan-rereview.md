@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-plan-rereview.md on 2026-11-18 (declutter step 4).
 # W1-UX plan re-review after fix round 1 (fresh independent Reviewer, 2026-10-16)
 
 Scope: `git diff 55620a8c..606dc862 -- tasks` (umbrella and W1-UX-01..05), judged against `.agent/W1-UX-plan-review.md` (Mediums 1-5, Lows 6-10), `.agent/planner-W1-ux-fix-brief.md` and the Architect ruling `D-2026-10-16-w1-ux` (`.agent/architect-W1-ux-answers.md`). Read-only; no suites run.

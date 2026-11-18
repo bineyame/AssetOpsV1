@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PB-4-packet.md on 2026-11-18 (declutter step 4).
 # A2 packet: PB-4 + PB-7 + BL-50 + DATA-1 L2 + DATA-6
 
 Branch `task/PB-4-honest-days` (worktree `AssetOpsV1-pb4`), cut from main `502829266`. Specs:

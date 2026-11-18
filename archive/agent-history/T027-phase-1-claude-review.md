@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T027-phase-1-claude-review.md on 2026-11-18 (declutter step 4).
 # T027 phase 1 - independent review (Claude)
 
 Reviewer: Claude, as a fresh `assetops-reviewer` instance. Under

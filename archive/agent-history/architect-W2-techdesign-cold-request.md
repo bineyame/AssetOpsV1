@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-techdesign-cold-request.md on 2026-11-18 (declutter step 4).
 # Architect request - W2 technical design, part 1: shared source-format extension + cold-chain (2026-10-17)
 
 You are the AssetOps Architect (Codex). Owner (verbatim): "make sure the architect creates proper technical design and not leave too much to the implementer architecturally and technically." Also: be token-efficient - one pass, concise, tables over prose, cite path:line.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-design-review.md on 2026-11-18 (declutter step 4).
 # W2 design review - D-2026-10-17-w2-design
 
 Reviewer: fresh Claude reviewer (independent; did not author). Target `.agent/architect-W2-design.md` at 648f728c, judged against `.agent/architect-W2-design-request.md`. Read-only spot checks; no suites run (as instructed).

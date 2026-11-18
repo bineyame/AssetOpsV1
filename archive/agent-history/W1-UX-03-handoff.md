@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-03-handoff.md on 2026-11-18 (declutter step 4).
 # W1-UX-03 handoff
 
 Branch `task/W1-UX-03` (base main `b4a89314`), phases 1-2 built, `in_review`. Not merged. Packet `.agent/W1-UX-03-review-packet.md`.

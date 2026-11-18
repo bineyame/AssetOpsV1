@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/T026-stage-measure.py on 2026-11-18 (declutter step 4).
 """T026 phase 1: stage size and per-step stage write cost at the 8 h window."""
 import sys, tempfile, time, statistics
 from pathlib import Path

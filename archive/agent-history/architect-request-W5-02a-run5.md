@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02a-run5.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02a run 5 STALE/UNKNOWN producer question
 
 You are the AssetOps Architect (Codex). Read the latest Run entry and open question at the end of `MSYS_NO_PATHCONV=1 git show task/W5-02a-cold-action-root:.agent/W5-02a-phase-handoff.md` (head `2dba4236`), then "W5-02a build rulings (K1c)" rulings 2 and 3 in `.agent/W5-02-build-spec.md`, and the producer `tools/w502_cold_work_cases.py` on that branch.

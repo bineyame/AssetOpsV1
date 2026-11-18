@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/S4-02d-phase-2-probes.py on 2026-11-18 (declutter step 4).
 """S4-02d phase 2 non-vacuity probes: each mutation must make its named test fail; every file is restored with
 `git checkout --` (run only on a clean, committed tree; needs ASSETOPS_TEST_DATABASE_URL for the Postgres tests).
 

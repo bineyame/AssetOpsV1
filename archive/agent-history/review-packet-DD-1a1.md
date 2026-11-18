@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-DD-1a1.md on 2026-11-18 (declutter step 4).
 # Review packet: DD-1a1 (steady full days), current state in the R16 and Fix round 1 sections
 
 **Current state (fix round 1, after review `review-DD-1a1.md` REVISE at `270b409ec`):** the R16 sections at the end are the

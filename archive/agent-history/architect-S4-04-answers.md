@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-04-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer - S4-04 index contract (2026-10-15)
 
 Authority: `D-2026-10-15-a-finding-index` and `D-2026-10-15-s501-finding-choice`. These rulings settle the three API choices in `tasks/S4-04-site-finding-index.md`; they do not approve UI copy or change the Finding detail route.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-04-rereview.md on 2026-11-18 (declutter step 4).
 # W1-UX-04 re-review - fix round 1
 
 Reviewer: fresh independent Claude reviewer. I did not author this slice or the fix round.

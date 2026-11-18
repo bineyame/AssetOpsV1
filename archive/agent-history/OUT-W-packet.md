@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-W-packet.md on 2026-11-18 (declutter step 4).
 # OUT-W review packet · estate event windows for cold and EV Sites
 
 Task `tasks/OUT-W-estate-event-windows.md`; contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-W.md`. Branch

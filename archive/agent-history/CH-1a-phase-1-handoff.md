@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-1a-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # CH-1a phase 1 handoff (PARTIAL: stopped at the context budget)
 
 - Branch `task/CH-1a-snapshots`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch1a`, head `59a813a93`.

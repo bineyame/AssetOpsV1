@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-6-review-server.md on 2026-11-18 (declutter step 4).
 # SR-6a server review (fresh Claude reviewer, 2026-11-12)
 
 Branch `task/SR-6-health-range`, head 5cf6278b7, diff `git diff $(git merge-base HEAD main) HEAD`, focused on SR-6's own files.

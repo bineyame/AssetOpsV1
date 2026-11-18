@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/D-2026-10-09-owner-delivery-strategy-proposal.md on 2026-11-18 (declutter step 4).
 # Proposed owner decision — D-2026-10-09-owner-delivery-strategy
 
 **For owner confirmation; not recorded or effective.** This would set the product delivery order, screen fidelity target, ranking method and bounded coordinator autonomy. Open choices at confirmation are the proposed scoring weights and thresholds, W1 IDs/core panels/demo values, allocations of the other 89 screens, and whether the dropped and indefinitely deferred lists are both empty. It does not approve a screen, waive a technical gate, or start the prerequisites.

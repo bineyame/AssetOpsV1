@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-02-questions-1.md on 2026-11-18 (declutter step 4).
 # G-02 questions for the Architect (batch 1, 2026-10-13)
 
 Each question ships its fail-closed default; no answer changes W1 core scoring, K=10, panel status or the deferred W1-exit non-core policy.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01-a1q-w5-sweep.md on 2026-11-18 (declutter step 4).
 # W6-01 A1Q sweep: W5-01 and W5-03 guard and composition ownership
 
 *Produced by Claude Architect under the 2026-10-22 Codex-reset exception; Codex to review retrospectively.*

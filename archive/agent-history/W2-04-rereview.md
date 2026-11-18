@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-04-rereview.md on 2026-11-18 (declutter step 4).
 # W2-04 re-review (r2) after Run 9 fix round, head c2da7779
 
 ## Verdict: ACCEPT (no High or Medium findings)

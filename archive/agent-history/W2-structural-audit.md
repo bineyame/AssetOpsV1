@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-structural-audit.md on 2026-11-18 (declutter step 4).
 # W2 structural audit: app versus v69 mock (2026-10-20)
 
 Independent agent audit replacing the owner's W2 walkthrough as the gate before W5 (`.agent/owner-walkthrough-after-w6-2026-10-20.md`). It is read-only and checks structure only. Worktree `AssetOpsV1-plan2` on `main` at `04ebdcfc`.

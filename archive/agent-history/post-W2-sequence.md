@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W2-sequence.md on 2026-11-18 (declutter step 4).
 # Binding post-W2 sequence
 
 Decision `D-2026-10-20-post-w2-sequence` (Architect, 2026-10-20). This amends the owner-approved two-lane proposal of 2026-10-18 and takes effect **when reviewed W2-07 merges**, after migration `0026`. W2 owner acceptance remains a later walkthrough. The owner approved building the waves before client conversations; no client-feedback gate precedes the W4 case model. This is sequence and allocation authority, **not** a build spec, panel promotion, or owner approval of later-wave core panels.

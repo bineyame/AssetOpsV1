@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05b-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W2-05b pending rulings (run 1, 2026-10-19) - commits 1 and 2 blocked
 
 Builder stopped before writing code: spec commits 1 (strict catalog, frozen identity, Lab choice) and 2

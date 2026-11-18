@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-02-fix-brief.md on 2026-11-18 (declutter step 4).
 # OPS-02 fix round (Sonnet) - review M1, M2 (+ cheap Lows)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`, branch `task/OPS-02-writer-guard-ast` (head `c7d6f9c0`). Review: `.agent/OPS-02-review.md`. Guards need Python: set `ASSETOPS_GUARD_PYTHON=C:\Users\assef\Bineyame\AssetOpsV1\.venv\Scripts\python.exe` (or a temporary `.venv` junction, removed afterwards). No full suite (guard-only change).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-delivery-strategy-request-4.md on 2026-11-18 (declutter step 4).
 # Architect request: final calibration of the owner delivery-strategy proposal (2026-10-09)
 
 The owner says the proposal `.agent/D-2026-10-09-owner-delivery-strategy-proposal.md` is ready to confirm, with three calibrations to settle first and one content note. Owner text verbatim (authoritative): `.agent/owner-delivery-strategy-review-3-2026-10-09.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-G3b.md on 2026-11-18 (declutter step 4).
 # Review packet — OWN-G3b, the operational records entry form (frontend)
 
 Branch `task/OWN-G3b-operational-entry-form` (from main `60858f6cc`, main `1d666d410` merged in). Spec: build sheet

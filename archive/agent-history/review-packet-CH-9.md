@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-9.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-9 measured daylight (builder 7; BLOCKING finding F1 for the Architect)
 
 Branch `task/CH-9-measured-daylight`. Sheet `AssetOpsV1-plan2\.agent\build-sheet-CH-9.md` §9 (OWN-1104), §10 (CH9-R2),

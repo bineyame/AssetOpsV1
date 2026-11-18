@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-phase1-review.md on 2026-11-18 (declutter step 4).
 # S4-03 phase 1 review (fresh Claude Reviewer)
 
 Scope: `2bb4f87..6ac76f3` (backend Evidence and History child reads), plus `9b065fb` (delivery fixture). HEAD at review end is `e9eb2e3`. The commits after `df72b67` change only `.agent/S4-03-handoff.md`.

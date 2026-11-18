@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W3-02 pending rulings (Lane B, commit 1)
 
 Recorded, not decided. Commit 1 code (`8d1e6325`, `c9e19695`) applies the reading named in each item; a ruling may change it.

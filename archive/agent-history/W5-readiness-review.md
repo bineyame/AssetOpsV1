@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-readiness-review.md on 2026-11-18 (declutter step 4).
 # W5-01 / W5-03 build-spec readiness review
 
 Reviewer: independent Claude reviewer (did not author the specs), 2026-10-22.

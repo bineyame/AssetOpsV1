@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-u5b.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 unit-5 builder readings (u5b)
 
 Read:

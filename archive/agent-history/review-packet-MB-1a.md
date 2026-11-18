@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-MB-1a.md on 2026-11-18 (declutter step 4).
 # Review packet MB-1a: the mill in the Kobo Assure row and the verified count
 
 - Task: FUEL-1 MB-1a, as ruled in `.agent/build-sheet-FUEL-1.md` "MB-1-R" §1 (Q1, Q4, Q5) and §2 (main `7d49ff2d3`).

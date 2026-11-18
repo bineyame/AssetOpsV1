@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PRE-S3-04-review-packet.md on 2026-11-18 (declutter step 4).
 # PRE-S3-04 review packet
 
 Task: Foundation Readiness truthfulness (Architect batch 5 Q8; PRE-S3-03 review C4).

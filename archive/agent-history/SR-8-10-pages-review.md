@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-8-10-pages-review.md on 2026-11-18 (declutter step 4).
 # Review: task/SR-8-10-pages (SR-8 Renewable range page + one-day labels, SR-10c Fuel range page, SR-8 server L1-L3)
 
 Reviewer: fresh Claude reviewer (did not author). Head reviewed: 31fc8a703, base = merge-base with main (e8f2bdea5).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-G-01-brief.md on 2026-11-18 (declutter step 4).
 # Architect brief: G-01 questions batch (2026-10-13)
 
 Role: Architect (Codex). Branch `task/G-01-mock-gap-catalogue-and-guard`. G-01 is built; fresh review RETURN fixed (duplicate-placement guard); narrow re-review in progress; owner walkthrough pending. Do not edit code or commit (Codex cannot write .git). Write only `.agent/architect-G-01-answers.md`.

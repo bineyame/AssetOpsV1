@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/COV-PARTIAL-handoff.md on 2026-11-18 (declutter step 4).
 # COV-PARTIAL handoff (implementer)
 
 Branch `task/COV-PARTIAL-estate-coverage`, worktree `AssetOpsV1-covp`. Built and packeted; the slice is ready for review.

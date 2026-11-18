@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-r1b4.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 1b review Lows L1 and L3 (r1b4)
 
 Read `.agent/W3-03-build-spec.md` (through r1b3) and `.agent/W3-03-1b-review.md`.

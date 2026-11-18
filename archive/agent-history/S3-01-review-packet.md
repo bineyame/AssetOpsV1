@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-review-packet.md on 2026-11-18 (declutter step 4).
 # S3-01 review packet (all phases: 1, 2, 3a, dispatch-3.1, R1, 3b)
 
 Task: `tasks/S3-01-dispatch-assessment.md`. Branch `task/S3-01-dispatch-assessment`. USER_REVIEW_REQUIRED: true (owner checkpoint). Status: `in_review`.

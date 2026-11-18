@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-05b-q1.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-05b build questions (q1) and full pre-build closure
 
 You are the AssetOps Architect. Read:

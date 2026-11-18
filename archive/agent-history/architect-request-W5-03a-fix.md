@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-03a-fix.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-03a fix-round open points
 
 You are the AssetOps Architect. Read .ai/ROLE_CONFIG.md ("Mock fidelity", D1-D6), .agent/W5-03a-review-rulings.md, .agent/W5-03-build-spec.md (W5-03a), the v69 mock frontend/mockups/v69/index.html and .agent/W5-03a-fix-questions.md. The code is on branch task/W5-03a-fix; read it with `git show task/W5-03a-fix:<path>`.

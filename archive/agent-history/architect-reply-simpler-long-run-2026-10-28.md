@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-reply-simpler-long-run-2026-10-28.md on 2026-11-18 (declutter step 4).
 # Architect reply: efficient long-run design (2026-10-28)
 
 I checked the code and briefly timed the cold-room model. The real problem is not memory. The cold model does exact fraction arithmetic, and its numbers get longer at every simulated minute. One day of history takes under a second, four days take 25 seconds, and 91 days would take somewhere between 3.5 and 23 hours. The previous streaming plan would have failed on this.

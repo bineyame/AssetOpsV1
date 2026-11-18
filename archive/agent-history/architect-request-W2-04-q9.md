@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-04-q9.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-04 review round 1 rulings (q9)
 
 You are the AssetOps Architect. Read `.ai/ROLE_CONFIG.md` (the sections "Mockup drives the design; implementers never decide" and "Token Efficiency"), `.agent/W2-04-build-spec.md`, and the review `.agent/W2-04-review-r1.md`. The v69 mock in `frontend/mockups/v69/` is authoritative. The owner rule is to stay faithful to the mock and leave nothing for the implementer to decide.

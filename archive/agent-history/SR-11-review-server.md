@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-11-review-server.md on 2026-11-18 (declutter step 4).
 # SR-11 server review (Backup over the range), fresh independent Claude reviewer
 
 - Branch `task/SR-11-backup-range`, worktree `/opt/assetecon/AssetOpsV1-sr11`, head `3989659c1`.

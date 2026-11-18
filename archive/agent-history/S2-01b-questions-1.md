@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-questions-1.md on 2026-11-18 (declutter step 4).
 # S2-01b phase-1 questions for Architect — 2026-10-08
 
 None of these block phase 2. Each is built on the fail-closed default named here (commit `775f8f9`). Changing any of them changes V3/Batch V2 bytes and the vectors in `contract-fixtures/source-envelope-v3-vectors.json`, so a different answer should come before phase 2 seals any reviewer-visible rows.

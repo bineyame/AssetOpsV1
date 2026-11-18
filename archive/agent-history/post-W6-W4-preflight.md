@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W4-preflight.md on 2026-11-18 (declutter step 4).
 # Post-W6 W4-mini pre-flight (no code)
 
 Read-only on main `ba971d96` (`AssetOpsV1-plan2`). Shell, W1-a, W1-b and W3 are merged. W2-EV, W2-cold and W6 are not. Card: `.agent/post-W6-audit/fix-slices.md:131-149`. Ledgers: batch-12 (42 pairs) and batch-13 (54 pairs), 96 pairs in total. Paths are under `frontend/src/` unless stated. MP = `sites/MiniPerformance.tsx`, SAF = `shell/SiteAnalyticsFrames.tsx`, SWC = `sites/siteWorkCases.tsx`.

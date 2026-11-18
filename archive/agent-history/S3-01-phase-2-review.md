@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-2-review.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 2 review: typed seam and durable dispatch assessment
 
 - **Reviewer:** a fresh Claude reviewer (Opus), independent of the phase-2 Implementer. I did not author, fix, commit or merge anything in this slice.

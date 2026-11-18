@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T027-phase-2-claude-rereview.md on 2026-11-18 (declutter step 4).
 # T027 phase 2 fix round: re-review
 
 Reviewer: Claude, a fresh instance independent of the Implementer and of the first phase 2

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-closeout-packet.md on 2026-11-18 (declutter step 4).
 # V-01b registry closeout packet
 
 Branch `closeout/V-01b-registry`. Registry/ledger metadata only; no code change. No review verdict or owner approval is written here; acceptance is cited from `.agent/owner-V-01b-walkthrough-2026-10-13.md`.

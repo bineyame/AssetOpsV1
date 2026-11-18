@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-phase-3a-handoff.md on 2026-11-18 (declutter step 4).
 # S2-02 phase 3a handoff — PARTIAL (corrections + commit delivery landed; Evidence reads and legacy comparison pending)
 
 Branch `task/S2-02-ingestion-site-evidence`. Stopped at the context budget. Commits: `8c43db4` (item 1), `d539f20` (item 2), `b3585fd` (item 4 backend). New questions Q13–Q17 in `.agent/S2-02-questions-3.md` (fail-closed defaults; batch to Architect). No frontend change.

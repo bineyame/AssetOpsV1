@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-01-answers-1.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S4-01 phase-1 rulings (2026-10-12)
 
 Authority: `D-2026-10-12-finding-episode-and-revisions`, the S4-01 packet and the technical design's Finding/Assessment lineage. These Q1–Q9 rulings are subject to the fresh phase-1 Claude review. They do not accept phase 1 or waive the S4-01 owner checkpoint.

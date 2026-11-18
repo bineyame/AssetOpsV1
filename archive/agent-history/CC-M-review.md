@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-M-review.md on 2026-11-18 (declutter step 4).
 # CC-M review: combined schema slice (owner Q14), migrations 0036 and 0037
 
 Reviewer: fresh Claude reviewer (not the author). Branch `task/CC-M-combined-schema` at `01e272b7`, diffed against

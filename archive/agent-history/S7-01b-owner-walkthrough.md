@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S7-01b-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S7-01b owner walkthrough - Site Health (gateway contact) and the battery page
 
 About 15 minutes. Everything runs on a private copy of the data that is removed at the end.

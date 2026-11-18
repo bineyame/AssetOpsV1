@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02b-build-brief.md on 2026-11-18 (declutter step 4).
 # S6-02b build - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review5`, branch `task/S6-02b-verification-ui` (from main `cdb09767`; S6-02a, S6-01b, S4-05b merged). Touch no other worktree. Run `npm.cmd ci` in `frontend/` first. Ports: the packet's, else API 8966 / web 5466.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-3b-handoff.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3b handoff (PARTIAL: 3b1 and most of 3b2 built and committed; closeout remains)
 
 Branch `task/S3-01-dispatch-assessment`. Status stays `active` until closeout. Commits start at `b04b904`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-R4.md on 2026-11-18 (declutter step 4).
 # Review packet R4.1 (branch task/R4-portfolio-thread-state, from caa3fdf23)
 
 Status: built; all checks green (held failure resolved, see below).

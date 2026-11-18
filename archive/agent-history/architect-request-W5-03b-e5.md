@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-03b-e5.md on 2026-11-18 (declutter step 4).
 # Architect request: rule on the W5-03b E5 backend review items A1-A6
 
 You are the AssetOps Architect. Read .ai/ROLE_CONFIG.md, the E5 sections of .agent/W5-03-build-spec.md ("Unit E5", "E5 consolidated correction" and the pre-flight rulings that touch E5), .agent/W5-04-build-spec.md (which consumes the E5 read methods), .agent/W5-03b-e5-handoff.md (judgment calls 1-10), and .agent/W5-03b-e5-review.md (verdict REVISE, items A1-A6). The code is on branch task/W5-03b-e5-backend; read it with `git show task/W5-03b-e5-backend:<path>`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-01-post-w2-report.md on 2026-11-18 (declutter step 4).
 # OPS-01 post-W2 test-speed follow-up - report
 
 Scope: `.agent/post-W2-sequence.md:54` ("OPS-01 in Step 1"). Branch `task/OPS-01-post-w2-speed` from main `6c53b3c5`.

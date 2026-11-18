@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-2-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 2 review packet - `I-finding-read`
 
 Task: `tasks/S4-01-finding-identity.md`, phase 2 row and "Detail read and visible states" (Status stays `active`).

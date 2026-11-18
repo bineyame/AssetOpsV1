@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5a-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-F5a review packet: Health, Asset, page titles, 390 rail
 
 Branch `task/W1-F5a-health-shell` (worktree `AssetOpsV1-review5`), from main `4ea6c620` + brief `098c05d9`. Frontend only. Not merged.

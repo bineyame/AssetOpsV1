@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-closeout-review.md on 2026-11-18 (declutter step 4).
 # V-01a registry closeout review
 
 Reviewer: fresh Claude reviewer (independent of author). Branch closeout/V-01a-registry @ f02e83f vs d81d265.

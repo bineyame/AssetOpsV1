@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-06-07-closure.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-06 and W2-07 full pre-build closure
 
 You are the AssetOps Architect. Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-questions-2.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 2: open questions for the Architect (batched; fail-closed defaults are built)
 
 Context: `tasks/S3-01-dispatch-assessment.md` phase 2, `D-2026-10-11-s3-dispatch-interval-assessment`, `D-2026-10-11-s3-phase-1-fixture-and-late-evidence`, `backend/tests/dispatch_3_decision_table.md`. Each item names the default that is built and what changes if the ruling differs. None of them blocks phase 3.

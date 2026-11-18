@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-pre-S3-questions.md on 2026-11-18 (declutter step 4).
 # Pre-S3 Planner questions and fail-closed defaults
 
 No new Architect ruling is required to complete this planning pass. The recorded Architect answers resolve the S1/S2 nodes, bounded routes/actor/readiness/health decisions, S2-02r scope, S3 dispatch gates and the two ordering-only predecessor edges.

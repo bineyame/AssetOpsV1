@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T027-phase-2-review-packet.md on 2026-11-18 (declutter step 4).
 # T027 phase 2 review packet - the mini-grid Site Overview
 
 ## Task

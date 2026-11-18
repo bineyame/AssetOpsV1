@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-6.md on 2026-11-18 (declutter step 4).
 # WALK1-6 review packet: G2 defect fixes D1-D5
 
 Task: build sheet `AssetOpsV1-plan2/.agent/build-sheet-WALK1.md` **Addendum 9** (D-W1-19..23); context

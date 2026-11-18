@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-01-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-01 review packet - cold Foundation, readiness and configured topology
 
 Task: `tasks/W2-01-cold-foundation.md` (two phases). Branch `task/W2-01-cold-foundation`, base main `8e0af014`. Design `.agent/W2-technical-design-cold.md` section 3 A-I (`D-2026-10-17-w2-01-answers`), panel map section 6; layout contract `D-2026-10-17-mockup-layout-spec`. Phase-1 handoff `.agent/W2-01-phase-1-handoff.md`. USER_REVIEW_REQUIRED: true (independent slice review, then the owner's later W2 walkthrough). Reviewer diff: `git diff 8e0af014..HEAD -- ':!.agent'`.

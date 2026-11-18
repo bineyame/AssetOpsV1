@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W2-05-request.md on 2026-11-18 (declutter step 4).
 # W2-05a + W2-05b packets and code-anchored build specs (2026-10-18) - one call
 
 You are the AssetOps Planner/Architect (Codex). Owner: very efficient without compromising quality; implementers make no design choice. Produce, for W2-05a (EV Foundation and topology) and W2-05b (EV producer and replay):

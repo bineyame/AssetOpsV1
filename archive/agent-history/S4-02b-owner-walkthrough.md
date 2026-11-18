@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S4-02b owner walkthrough: what a finding's generator time could cost in fuel, and how that changes with the price
 
 ## What changed

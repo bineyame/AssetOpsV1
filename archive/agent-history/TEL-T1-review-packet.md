@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-T1-review-packet.md on 2026-11-18 (declutter step 4).
 # TEL T1 review packet: TEL-00, TEL-01, TEL-02, TEL-03
 
 Status: in_review

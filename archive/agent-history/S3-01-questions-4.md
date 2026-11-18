@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-questions-4.md on 2026-11-18 (declutter step 4).
 # S3-01 dispatch-3.1 questions (batched; each has its fail-closed default built)
 
 Context: `D-2026-10-11-s3-phase-3a-version-and-cutover`, `.agent/architect-S3-answers-3.md`. None of these blocks phase 3b.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-01-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # OPS-01 phase 2 handoff
 
 Branch `task/OPS-01-backend-test-speed`, phase 2 on top of `af7c48d2`. Not merged. Slice packet: `.agent/OPS-01-review-packet.md`.

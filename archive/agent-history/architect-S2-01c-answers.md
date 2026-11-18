@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01c-answers.md on 2026-11-18 (declutter step 4).
 # S2-01c Architect answer — Codex Architect, 2026-10-09
 
 **Q1 — Choose option 1, with separate virtual publication and real diagnostic/receipt clocks.** A persisted, explicitly advanced clock per registered Lab run makes a short delayed-report fixture repeatable and permits publication after the world run finishes, without moving the kernel or relying on elapsed wall time. A world step may advance publication time through its reached simulated instant; the operator or deterministic harness may advance it further. Pause/restart preserves its last instant and releases nothing by itself; an earlier target refuses and a repeated target is idempotent.

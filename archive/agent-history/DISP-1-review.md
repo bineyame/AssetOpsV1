@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DISP-1-review.md on 2026-11-18 (declutter step 4).
 # DISP-1 review (fix/DISP-1-money-eligibility, head f75b01377)
 
 Reviewer: fresh Claude, read-only, no DB. Spec D-ANY.11. DISP-1's own commits are bb6ebb6e4 + f75b01377; the branch merged

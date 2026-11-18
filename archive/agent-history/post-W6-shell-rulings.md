@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-shell-rulings.md on 2026-11-18 (declutter step 4).
 # Shell typography and copy: Architect rulings
 
 2026-10-24. Source: builder pre-flight, B1/B2/B4/B13 ledgers, D3 register, current components, and ROLE_CONFIG lesson 15. These rulings amend the shell card in `post-W6-audit/fix-slices.md`. Product code is outside this decision.

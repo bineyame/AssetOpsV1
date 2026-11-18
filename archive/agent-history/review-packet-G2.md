@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-G2.md on 2026-11-18 (declutter step 4).
 # Review packet OWN-G2 (automatic diesel-night check), u1 + u2 — PARTIAL (Postgres P1-P7 not proven)
 
 Branch `task/OWN-G2-diesel-night-check`. Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` §2, Revision 1, Revision 2

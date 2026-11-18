@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-readiness-questions.md on 2026-11-18 (declutter step 4).
 # W5-04 readiness refresh: open points (V1a-V5)
 
 Read-only pre-flight, 2026-10-24, worktree `AssetOpsV1-review6` on `task/W5-04-ev-work-a` at main `48b0bf84`. The K4 branch `task/W5-02c-K4-cold-action` (head `de57ee51`, merge-base `48b0bf84`) was read with `git show`. Inputs: the task, the build spec, preflight rulings 1-46 (made against `8884d86b`), E5 rulings A1-A6/M1/L1-L3, E4/E6 UI rulings 1-29, K4 rulings 1-22, the mock measurements, the register, and v69 `SITE_WORK.ev`/`siteWorkScreen`/`add('ev-action'...)` (index.html:334-342, 701-703, 710-713). No code was run and nothing outside this file was changed. The list includes only points that are new or still open. Each point gives options and recommends the first one unless it says otherwise.

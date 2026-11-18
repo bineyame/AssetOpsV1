@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-V-01a-round3-followup.md on 2026-11-18 (declutter step 4).
 # Architect follow-up: owner's missing-data rule (2026-10-12)
 
 Your round 3 answers (`.agent/architect-V-01a-round3-answers.md`) did not yet address the owner's follow-up, which arrived while you worked (verbatim, in `.agent/owner-V-01a-round2-feedback-2026-10-12.md` "Follow-up"):

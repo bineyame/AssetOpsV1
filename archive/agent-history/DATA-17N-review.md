@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-17N-review.md on 2026-11-18 (declutter step 4).
 # DATA-17N review (fresh Claude reviewer, 2026-11-13)
 
 Branch `task/DATA-17N-coverage`, head `c2cc3f906`, base `bd4c0086e` (merge-base with main). Scope: DATA-5/10/13/8,

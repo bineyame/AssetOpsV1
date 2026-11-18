@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-E2-fix-A.md on 2026-11-18 (declutter step 4).
 # Review: E2 fix round A (FR-A), branch `task/E2-fix-A`, head 1d11eb77c
 
 Reviewer: fresh Claude (Opus), independent of the builder. Diff reviewed: `git diff 8dae46bd9...1d11eb77c` (main 8dae46bd9

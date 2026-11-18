@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/IDX-GAPS-final-review.md on 2026-11-18 (declutter step 4).
 # IDX-GAPS final slice review (finding-index/2)
 
 Reviewer: fresh Claude Reviewer, 2026-10-31. Branch `task/IDX-GAPS-finding-index-v2`, head `379f73961`, base main

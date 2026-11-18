@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01b-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W6-01b (units B1, B2, B3) phase handoff
 
 Branch `task/W6-01b-maintenance` (from main `7d4296a2`). Base code is W6-01a on `task/W6-01a-global-incidents`

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-2-review.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 2 (`I-finding-read`) independent review
 
 Reviewer: a fresh Claude reviewer (no part in authoring), 2026-10-12.

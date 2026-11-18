@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-E2-fix-A.md on 2026-11-18 (declutter step 4).
 # Review packet: E2 fix round A (FR-A), branch `task/E2-fix-A`
 
 Spec: "E2 fix-round scope (2026-11-09)" at the end of `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (main 3db4b2bb7).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/followups-fuel-kisiwa-2026-11-07.md on 2026-11-18 (declutter step 4).
 # Review Lows carried to a follow-up round (FUEL-1 / DIESEL-1 / CH-5d1), 2026-11-07
 
 Coordinator list so non-blocking review findings are not lost. Each line cites its review file; an Architect decides which go into one small Sonnet round before DS-1 and which go to the backlog.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/plan-demo-led-replan-claude-rereview.md on 2026-11-18 (declutter step 4).
 # Re-review: Demo-Led Replan fix round 1 (`591cff2..11acc6d`)
 
 Reviewer: a fresh Claude Reviewer instance, under the Codex-reset exception in

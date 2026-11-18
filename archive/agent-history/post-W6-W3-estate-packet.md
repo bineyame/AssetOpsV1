@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W3-estate-packet.md on 2026-11-18 (declutter step 4).
 # Post-W6 W3-estate: verification packet
 
 Branch `task/post-W6-W3-estate`, worktree `AssetOpsV1-review6`. The build is at `7f67154c` (main merged in). This verification batch adds `14441112`, `c9665a90`, `cc00730a`, `b81989b0` and `26e6c49c`, plus the packet commit. Authority: `.agent/post-W6-W3-estate-rulings.md` and `.agent/post-W6-W3-estate-build-rulings.md`.

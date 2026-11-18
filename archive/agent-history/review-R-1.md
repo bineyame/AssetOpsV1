@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-R-1.md on 2026-11-18 (declutter step 4).
 # Review R-1 (light), branch task/R-1-demo-fixes @ 6edb36976
 
 Reviewer: fresh Claude (Opus), did not author the slice. Spec: `AssetOpsV1-plan2/.agent/architect-combined-pass-2026-11-08.md` A.1, A.2, A.5. Diff: `git diff main...task/R-1-demo-fixes`.

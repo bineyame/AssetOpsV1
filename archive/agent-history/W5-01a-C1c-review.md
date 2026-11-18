@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01a-C1c-review.md on 2026-11-18 (declutter step 4).
 # W5-01a C1c (Q13) review, commit 29d24321
 
 Verdict: ACCEPT. No findings. Read-only review; tests not rerun (builder: 62 passed, check-all 11/11).

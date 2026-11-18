@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-03-answers-2.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S4-03 questions batch 2 (2026-10-13)
 
 This follows the Q1–Q3 rulings in `.agent/architect-S4-03-answers.md`. Phases 1 and 2 are independently accepted; phase 3 is under fresh review, and the owner still has the visual checkpoint. The rulings below do not turn omitted mock events, Coverage or Use into delivered claims.

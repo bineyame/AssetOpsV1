@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPEN-NOW-review.md on 2026-11-18 (declutter step 4).
 # OPEN-NOW review (Claude reviewer, 2026-11-12)
 
 Reviewed: `task/OPEN-NOW-work-read` at `a2e792ddb`, diff vs merge-base `8a4b4fe4d`, against card OPEN-NOW (sequence doc rev 3 l.89-94) and the portfolio-layout proposal ~l.578-581. Packet `.agent/OPEN-NOW-packet.md`. The worktree was later merged with main (`d8733388b`). That merge does not touch any OPEN-NOW product file.

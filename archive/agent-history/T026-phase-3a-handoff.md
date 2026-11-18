@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T026-phase-3a-handoff.md on 2026-11-18 (declutter step 4).
 # T026 phase 3a handoff (Lab and frontend build)
 
 Branch `task/T026-dispatch-capable-evidence`. Commits: `f26afb2` (build),

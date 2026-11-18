@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02c-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S4-02c phase 2 handoff - scoped drain and run plan
 
 Implementer: fresh Claude, 2026-10-14. Branch `task/S4-02c-evidence-consequence-work`, from `0a79be14`. Phase 2 only (packet table row 2; items 3-4; carries C4 worker half, N1, N3, N4, N7, R2; phase 1 review L1-L3, I1-I2). No phase 3 walkthrough. Built state: `.ai/CODE_STATE.md` "S4-02c phase 2".

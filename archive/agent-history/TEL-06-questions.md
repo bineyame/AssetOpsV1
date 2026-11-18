@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-06-questions.md on 2026-11-18 (declutter step 4).
 # TEL-06 builder questions (Lane T, 2026-10-28)
 
 Branch `task/TEL-06-csv-collector`, worktree `AssetOpsV1-tel6`. To: Architect (Claude).

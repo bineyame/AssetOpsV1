@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-packets-1-review.md on 2026-11-18 (declutter step 4).
 # W2-00 / W2-01 packet review (plan review, round 1)
 
 Reviewer: fresh independent Claude reviewer. Revision: `e62cc4af`, read-only. No suites run (per dispatch).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-02-handoff.md on 2026-11-18 (declutter step 4).
 # OPS-02 handoff (single phase, built; review next)
 
 Landed on `task/OPS-02-writer-guard-ast` (from main `5bfff665`): `cacf9083` extractor + rule 8, `7fc6f35f` corpus,

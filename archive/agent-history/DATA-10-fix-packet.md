@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-10-fix-packet.md on 2026-11-18 (declutter step 4).
 # DATA-10 fix packet (gate item 2)
 Problem: Kisiwa Protect > Generator read "No preventive plan recorded" though the CALENDAR generator plan exists (D-DATA.4).
 Fix: board.PlanFact gains asset_type (default None, last field; positional callers unaffected); mini.plan_fact passes p.get("asset_type");

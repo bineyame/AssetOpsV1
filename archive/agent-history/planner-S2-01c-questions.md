@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-01c-questions.md on 2026-11-18 (declutter step 4).
 # S2-01c questions for Architect — 2026-10-09
 
 ## Q1 — Release clock for a delayed registered Lab report

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/AR-4-review.md on 2026-11-18 (declutter step 4).
 # AR-4 review (task/ANY-2-AR4, head 786d2293a, diff vs merge-base f4e2ec9fa)
 
 Reviewer: fresh Claude, read-only, no Postgres, no parity (lane rules 2026-11-12). Spec: sequence rev 4/5a/7 AR-4;

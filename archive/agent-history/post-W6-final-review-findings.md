@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-final-review-findings.md on 2026-11-18 (declutter step 4).
 # Final complete review: whole-diff findings (8b6ef3ed..5f71f6c9)
 
 Independent reviewer, 2026-10-26, read-only (no tests run). Verdict: accept with three Medium to fix before the owner walkthrough; nothing High; no security regression, no backend contract break, no weakened or deleted tests.

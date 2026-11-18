@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-reopen-handoff.md on 2026-11-18 (declutter step 4).
 # S6-01b reopen round handoff - `D-2026-10-15-s601-reopen` + review Lows
 
 Branch `task/S6-01b-action-ui`; code `4603ceaf..07b6fa4a`. No backend change. Packet section "Reopen round" in `.agent/S6-01b-review-packet.md`; owner steps `.agent/S6-01b-owner-walkthrough.md` (new step 2).

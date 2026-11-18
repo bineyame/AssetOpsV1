@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-mock-gap-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: mock gap closure packets (2026-10-12)
 
 Role: Planner (Codex). Work only in this worktree (branch `planning/mock-gap-closure`). Do not edit `C:/Users/assef/Bineyame/AssetOpsV1`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-V-01a-request.md on 2026-11-18 (declutter step 4).
 # Architect request: V-01a owner feedback rulings (2026-10-12)
 
 Owner feedback (verbatim) in `.agent/owner-V-01a-feedback-2026-10-12.md`. Owner Codex rule: batch questions.

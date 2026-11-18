@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PA-2a.md on 2026-11-18 (declutter step 4).
 # Review: POLISH PA-2a (server copy, display codes and Finding titles)
 
 Reviewer: fresh Claude reviewer (not the author). Date 2026-11-01.

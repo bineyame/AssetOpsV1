@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-phase-1-brief.md on 2026-11-18 (declutter step 4).
 # S4-04 phase 1 - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`, branch `task/S4-04-site-finding-index` (from main, which now contains LR-01, S5-01, S6-01a, S4-05a, S4-06, S4-07, OPS-01, OPS-02). The packet said "stacked on S5-01"; S5-01 is merged, so main is the base.

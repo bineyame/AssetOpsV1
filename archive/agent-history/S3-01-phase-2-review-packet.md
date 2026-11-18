@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-2-review-packet.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 2 review packet: typed seam and durable dispatch assessment (`I-dispatch-assessment-store`)
 
 - **Task:** `tasks/S3-01-dispatch-assessment.md`, phase 2. Status stays `active`. This phase gets a fresh Claude review before phase 3. USER_REVIEW_REQUIRED for the task is true; the owner checkpoint is at task close.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01b-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W5-01b phase handoff (C4 + C5)
 
 Branch `task/W5-01b-cold-scenarios` (from main `7d4296a2`). Base for code reading: `task/W5-01a-cold-selected-depth` (unmerged). No code written.

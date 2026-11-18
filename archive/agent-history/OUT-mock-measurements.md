@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-mock-measurements.md on 2026-11-18 (declutter step 4).
 # OUT mock measurements (v70), 2026-10-30
 
 Command (in `-outB`, coordinator go): `node tools/measure-mock-panels.mjs --mock frontend/mockups/v70 .agent/OUT-mock-measurements mini cold ev portfolio`. Raw JSON and PNGs stay git-ignored in `.agent/OUT-mock-measurements/`. Chrome (CDP 9488) was closed by the tool; no process with port 9488 remained (checked by command line).

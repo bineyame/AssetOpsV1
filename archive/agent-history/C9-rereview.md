@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C9-rereview.md on 2026-11-18 (declutter step 4).
 # C9 stop fix re-review (fresh Claude reviewer)
 
 Produced by a fresh Claude reviewer. Target: f05686b on plan/pre-S3-startup (vs 56e3777).

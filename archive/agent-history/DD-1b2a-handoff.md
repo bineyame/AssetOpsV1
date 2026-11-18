@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b2a-handoff.md on 2026-11-18 (declutter step 4).
 # DD-1b2a handoff
 
 Branch `task/DD-1b2-finish-rehearsal`, worktree `AssetOpsV1-dd1b2`. Rulings: `build-sheet-DD-1.md` DD1b2-R and DD1b2-R2. Packet: `.agent/review-packet-DD-1b2a.md` (full results).

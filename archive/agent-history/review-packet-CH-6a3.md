@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-6a3.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-6a3 (composers, wire, R7, removals, proofs)
 
 Branch `task/CH-6a3-composers`. Binding: `.agent/CH-6a3-preflight.md` + CH6a3-R. Handoff chain: `.agent/CH-6a3-handoff.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LINK-LINEAGE-handoff.md on 2026-11-18 (declutter step 4).
 # LINK-LINEAGE handoff (implementer)
 
 - Commits: U1 `39ebf86d0` (board.py refresh_chain + linked_actions, tests/test_link_lineage.py), U2 `73296c8b2`

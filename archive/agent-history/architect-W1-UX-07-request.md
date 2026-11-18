@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-UX-07-request.md on 2026-11-18 (declutter step 4).
 # Architect request - full mockup rail with unavailable items (2026-10-17)
 
 You are the AssetOps Architect (Codex); decide within your remit. The owner decided (verbatim, `.agent/owner-rail-decision-2026-10-17.md`) to show the full v69 left menu with unbuilt items greyed out as "not available yet". Read that file, the v69 rail (`frontend/mockups/v69/screens.js` ROOTS and `rail()`), the current rail (`frontend/src/shell/OperatorShellLayout.tsx`, `NavRail`), the navigation-truthfulness guard (`tools/checks/navigation-truthfulness.ps1`) and its decisions in `.ai/DECISIONS.md` (search "navigation", "truthful", "grammar-ownership", `D-2026-10-02-grammar-ownership-test`), the missing-claim/G-01 rules (`D-2026-10-13-g01-placement-and-orphan-scan-boundary`), and `D-2026-10-16-w1-ux`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PF-T-packet.md on 2026-11-18 (declutter step 4).
 # PF-T packet: Portfolio section tabs (card B1)
 
 Branch `task/PF-T-portfolio-tabs` (wt `AssetOpsV1-pft`, from main `22d877b1d`). Build commit `ecaf8fc01`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-F-closure-check.md on 2026-11-18 (declutter step 4).
 # W2-F closure check (main 3091298c)
 
 Result: 24/24 CLOSED, 0 OPEN.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SCN-review.md on 2026-11-18 (declutter step 4).
 # SCN-kobo-reserve-matters review
 
 Reviewer: fresh Claude reviewer (did not author the slice), 2026-10-31.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-G-activation-request.md on 2026-11-18 (declutter step 4).
 # Architect request: G-01/G-02 activation rule and packet tidy (2026-10-13)
 
 The mock-gap planning branch merged to main with review carries F1-F5 (`.agent/mock-gap-planning-review.md`). Owner confirmation (verbatim): "confirm gap catalogue and orphan guard now, defer ranking to W1 exit" (`.agent/owner-mock-gap-confirmation-2026-10-12.md`). V-01b is currently the single active task.

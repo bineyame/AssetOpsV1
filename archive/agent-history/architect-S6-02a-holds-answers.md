@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-02a-holds-answers.md on 2026-11-18 (declutter step 4).
 # Architect ruling - S6-02a trial holds (2026-10-16)
 
 Decision: `D-2026-10-16-s602a-holds`. This refines `D-2026-10-16-s6-verification`, `D-2026-10-16-s602-questions`, `D-2026-10-16-s602a-cutoff` and `D-2026-10-16-s602a-replay` for `reserve-trial-verification-1`. It resolves slice-review F4 and F2 before S6-02a merge. It grants no owner visual acceptance.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-MA-1.md on 2026-11-18 (declutter step 4).
 # Review packet: MA-1, v70 mock addendum for the chain screens
 
 - Task: brief `.agent/brief-MA-1-mock-addendum.md` (in AssetOpsV1-plan2). The plan is §2.1 MA-1 and OD-P5.

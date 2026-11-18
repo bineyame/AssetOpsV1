@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-delivery-strategy-request-3.md on 2026-11-18 (declutter step 4).
 # Architect request: amend the owner delivery-strategy proposal (2026-10-09)
 
 The owner reviewed the revised proposal `.agent/D-2026-10-09-owner-delivery-strategy-proposal.md` and says they would approve it with amendments. Their feedback, addressed to the Architect, is verbatim in `.agent/owner-delivery-strategy-review-2-2026-10-09.md` (authoritative; read it fully).

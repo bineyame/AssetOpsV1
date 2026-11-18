@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-a-closeout-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W1-a review follow-ups
 
 1. **R386 — backlog, outside the D1–D6 departure categories.** Keep the audit ID for traceability, but replace the row in the post-W6 register table with the exact row below. `Backlog (non-departure)` is excluded from the D1–D6 counts and from the line-211 `MOCK DEVIATION Dn` labelling rule: there is no mock element or accepted deviation to label. D6 remains empty. This does not close the work; scope the error boundary as its own slice. Q6's Dispatch shape guard remains the immediate fix.

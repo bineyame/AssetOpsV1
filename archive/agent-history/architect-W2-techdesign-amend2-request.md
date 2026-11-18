@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-techdesign-amend2-request.md on 2026-11-18 (declutter step 4).
 # Architect request - final W2 design amendments (2026-10-17)
 
 You are the AssetOps Architect (Codex). Read `.agent/W2-techdesign-rereview.md`. EV is ACCEPT; cold has R-M1 and R-M2. Edit in place, concise, no hedges.

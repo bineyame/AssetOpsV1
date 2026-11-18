@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-closure-check2.md on 2026-11-18 (declutter step 4).
 # W4-02 closure check 2 (2026-10-20)
 
 Read-only check of "Review closure 2" in `W4-02-build-spec.md` against `W4-02-closure-check.md`. Spot-checked against merged code: `assessment_worker.py:60` and `binding_roles.py:210/224` match the spec's description of role-set registration. `authored_fixture_specs.py` has a registry and the `conversions/` dir exists, so the authored-fixture path is real. `tools/schedule-install-gate.py` exists. `pg_advisory_xact_lock(hashtextextended(...))` is an established pattern. W4-01 `0027` and W3-01 provenance remain unmerged prerequisites, not verified.

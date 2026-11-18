@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-T1-review.md on 2026-11-18 (declutter step 4).
 # TEL-T1 review: TEL-00..TEL-03 (`task/TEL-01-field-core` at 3bbce526, base `main` f3c9db4d)
 
 Reviewer: fresh Claude reviewer, independent of the builder. Authority: `.agent/build-spec-telemetry-2026-10-27.md` rev 2 (Q-T1..Q-T70, section J TEL-T1-Q1..Q7) and `.agent/telemetry-rulings-2026-10-27.md` (D4, D10, amendments 1-3).

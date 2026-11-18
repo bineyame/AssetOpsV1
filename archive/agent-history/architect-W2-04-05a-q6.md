@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-05a-q6.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 commit-4 layout/copy rulings + W2-05a pending wording (2026-10-18). One call. No code.
 
 Owner (verbatim): "stay faithful to the mock-up in ui/ux and align technial desgin accordingly. there should not be drfit" and "the architect should not let important things be decided by the implementer by a vague guide".

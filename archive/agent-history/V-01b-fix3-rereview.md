@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-fix3-rereview.md on 2026-11-18 (declutter step 4).
 # V-01b fix round 3: fresh re-review
 
 Reviewer: fresh Claude reviewer, independent of the fix-3 implementer.

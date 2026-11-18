@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W1-ux-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - W1-conclusion mockup-fidelity and UI/UX pass
 
 You are the AssetOps Planner (Codex). Write an implementation-ready plan for the owner's W1-conclusion task on branch `plan/W1-ux-pass` in this worktree. No code; the coordinator commits.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-17N-packet.md on 2026-11-18 (declutter step 4).
 # DATA-17N coverage — lane B packet (2026-11-12, VPS update 2026-11-13)
 
 Branch `task/DATA-17N-coverage`, worktree `/opt/assetecon/AssetOpsV1-data`. Scope: D-17N.4 / rev 7 §7.4; item

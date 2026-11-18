@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UQ-6a-packet.md on 2026-11-18 (declutter step 4).
 # UQ-6a review packet: server message seam (English only)
 
 Card: A5 in `.agent/architect-sequence-client-scope-2026-11-11.md`; spec UQ-6a row and §4.3 D-I18N.1/D-I18N.2 in

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K2.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K2 (fuel delivery and tank dip records, migration 0054)
 
 **Reviewer:** independent first review (Claude, fresh context). **Branch:** `task/DIESEL-K2-fuel-records`, worktree `AssetOpsV1-k2`.

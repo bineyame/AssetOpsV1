@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W5.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-cold-Work and W5-EV-Work pre-flight escalations
 
 You are the AssetOps Architect. Two builders pre-flighted against main 14696fda, applying the UI guide (`frontend/docs/architecture/ui-ux-decision-guide.md`) for all minor choices: `.agent/post-W6-W5-cold-preflight.md` and `.agent/post-W6-W5-EV-preflight.md`. Each lists its planned guide-covered choices (no ruling needed unless you see a conflict) and escalation-only questions. Verify code claims as needed. Rule exactly on:

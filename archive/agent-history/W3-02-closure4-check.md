@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-closure4-check.md on 2026-11-18 (declutter step 4).
 # W3-02 closure 4 check (main c50ea24b)
 
 Method: read the 27 items and spec lines 365-416; spot-checked main. Seams confirmed against code: `estate/scope.py` KEYS (3 roots, `decode_cursor` Finding/Action key sets only), `claim_limit_read.py` (`read/interval_ceiling/_reasons/role_coverage`, no `_on`), `select_dispatch_days_on` (`postgres_assessment_store.py:685`) and `_revision_detail` (:802), cold `_capabilities`/`_money` (private, no `_on`), `ev_site_reads.py` at package top, `select_consequence_on` (no window/quantity/overlap fields), `imported_sites` (ORDER BY site_code_key but not returned). Closure 4 builds on exactly these.

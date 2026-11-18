@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PRE-S3-04-review.md on 2026-11-18 (declutter step 4).
 # PRE-S3-04 review (fresh Claude reviewer)
 
 Target: plan/pre-S3-startup, 75dd4d8 product files + packet commit.

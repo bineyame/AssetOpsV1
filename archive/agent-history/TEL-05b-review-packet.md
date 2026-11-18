@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-05b-review-packet.md on 2026-11-18 (declutter step 4).
 # TEL-05b review packet: Finding proof, profile `-2`
 
 PowerShell:

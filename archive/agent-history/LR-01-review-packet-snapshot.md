@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-review-packet-snapshot.md on 2026-11-18 (declutter step 4).
 # LR-01 review packet — late-reading series and money limit (slice)
 
 Task `tasks/LR-01-late-reading-series-and-money-limit.md` (status `in_review`). Rulings `.agent/architect-LR-01-answers.md`,

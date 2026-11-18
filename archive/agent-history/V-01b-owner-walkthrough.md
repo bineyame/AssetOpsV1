@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # V-01b owner walkthrough: Lab and Site Evidence next to the v6.9 mock
 
 This task makes three screens look like the mock: the Lab run page ("Gateway & Ingestion"), Site Evidence (Overview) and Evidence Analysis. Put each app screen next to its mock screen and decide whether it now looks right.

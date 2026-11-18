@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W3-01 phase handoff (commit 1, Lane B part complete, 2026-10-20)
 
 Branch `task/W3-01-estate-claim-action-roots` (worktree `AssetOpsV1-review2`). Lane B commits: `1c409a3d` (core),

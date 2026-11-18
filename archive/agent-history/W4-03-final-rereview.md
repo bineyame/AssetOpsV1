@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-final-rereview.md on 2026-11-18 (declutter step 4).
 # W4-03 final fix round re-review
 
 Branch `task/W4-03-fix-final`, head `7f42661e` (code 38552dbf, harness f545fbec). Base = `f06e9bab` (merge-base with `task/W4-03-mini-decisions-work`). Reviewer: fresh Claude reviewer, did not author.

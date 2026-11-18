@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-fix-handoff.md on 2026-11-18 (declutter step 4).
 # S6-01a fix round handoff
 
 - L1: `actions/composition.py` S1_FAILURES maps FOUNDATION_CLOCK_BEHIND -> (409, ACTION_FOUNDATION_STALE). The Site lock is taken inside the S1 publish, so the server time cannot be re-read after it; the clock-behind refusal is the window guard. Test: `test_s6_action_apply_postgres.py::TestClockBehindIsStale`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-EV-packet.md on 2026-11-18 (declutter step 4).
 # post-W6 W2-EV review packet: EV Site screens D3 fixes
 
 Branch `task/post-W6-W2-EV`, worktree `AssetOpsV1-review5`. Reviewer diff: `git diff main...HEAD -- ':!.agent'`.

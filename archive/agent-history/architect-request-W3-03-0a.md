@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-0a.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 run-0a review items
 
 Read `.agent/W3-03-build-spec.md` (closures 4–5) and `.agent/W3-03-0a-review.md`.

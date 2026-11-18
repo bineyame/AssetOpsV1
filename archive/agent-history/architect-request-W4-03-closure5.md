@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-closure5.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 closure 5 (one item)
 
 Read `.agent/W4-03-build-spec.md` (closure 4, B4 and S12) and `.agent/W4-03-closure4-check.md`.

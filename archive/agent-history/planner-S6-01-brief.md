@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S6-01-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief — refine S6-01 (Action store + controlled policy change)
 
 You are the AssetOps Planner (Codex). The Architect's work order (`.agent/architect-autonomy-2026-10-15-answers.md`, item 3 and "Planner work" item 2; decision `D-2026-10-15-owner-absence-work-order`) asks you to refine S6-01 around `I-action-store`. Refine `tasks/S6-01-action-change.md` (38-line outline) into an implementation-ready packet on branch `plan/S6-01-refine` in worktree `C:\Users\assef\Bineyame\AssetOpsV1-plan2`. No code. The coordinator commits.

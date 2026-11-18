@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-02-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: refine S2-02 (2026-10-09)
 
 Role: Planner (Codex). Branch: currently `task/S2-01c-gateway-diagnostics-faults` (S2-01c built; fix round re-reviewed with one open block R1 awaiting an Architect ruling). Edit only `tasks/S2-02-ingestion-site-evidence.md` and `tasks/README.md`; the coordinator commits and will cut `task/S2-02-...` from S2-01c.

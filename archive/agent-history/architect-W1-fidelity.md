@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-fidelity.md on 2026-11-18 (declutter step 4).
 # W1 structural fidelity: Architect contract and rework plan (2026-10-17)
 
 Decision: `D-2026-10-17-mockup-layout-spec` in `.ai/DECISIONS.md`. The owner rejected the combined W1 walkthrough; the verbatim verdict is `.agent/owner-W1-walkthrough-verdict-2026-10-17.md`. This is a layout correction, not a data or capability promotion. Scope is the 26 Site screens in the W1 walkthrough and W1 registry list; the registry also labels `lab` W1, but it is not one of the 26 requested screens and needs its own Lab comparison before a later owner session. The registry and its checker stay unchanged.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # LR-01 owner walkthrough: late reading, series limit and the money limit
 
 Merge checkpoint for `tasks/LR-01-late-reading-series-and-money-limit.md` (USER_REVIEW_REQUIRED). Everything runs in a

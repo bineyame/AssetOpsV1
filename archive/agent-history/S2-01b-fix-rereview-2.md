@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-fix-rereview-2.md on 2026-11-18 (declutter step 4).
 # S2-01b fix round 2 re-review (fresh Claude reviewer)
 
 Verdict: ACCEPT. No block findings.

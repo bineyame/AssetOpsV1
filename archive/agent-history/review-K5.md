@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K5.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K5 fuel screens (code round; captures owed)
 
 Reviewer: Claude (Opus), fresh context, independent of the builder. Branch `task/DIESEL-K5-fuel-screens` at `31b9bd7f8`

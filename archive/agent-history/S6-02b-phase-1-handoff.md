@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02b-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S6-02b phase 1 handoff (reserve-aware model + public VERIFIED replay)
 
 Branch `task/S6-02b-verification-ui`, worktree `AssetOpsV1-review5`. Commits `87dba01b` (v5 model, reserve-trial

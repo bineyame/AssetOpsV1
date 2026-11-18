@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-final-review.md on 2026-11-18 (declutter step 4).
 # W3-03 final whole-slice review (Portfolio composition)
 
 Reviewer: independent Claude reviewer (author of no W3-03 unit). Branch `task/W3-03-portfolio-composition`, head

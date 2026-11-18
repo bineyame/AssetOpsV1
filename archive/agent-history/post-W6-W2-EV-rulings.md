@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-EV-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: W2-EV
 
 ## Cross-card ownership

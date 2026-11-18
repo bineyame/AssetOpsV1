@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01b-answers-2.md on 2026-11-18 (declutter step 4).
 # S2-01b phase-1 Architect answers — Codex Architect, 2026-10-08
 
 These answer `.agent/S2-01b-questions-1.md` without reviewing the phase. The three built defaults stand; phase 2 may use the committed phase-1 vectors unchanged. Decision `D-2026-10-08-s2-v3-source-payload-and-period-reference` records the material wire rule.

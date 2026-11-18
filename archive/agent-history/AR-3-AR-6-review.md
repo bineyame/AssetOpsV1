@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/AR-3-AR-6-review.md on 2026-11-18 (declutter step 4).
 # AR-3 + AR-6 review (task/ANY-2-AR3-AR6, head 7a6e29c19)
 
 Reviewer: fresh Claude reviewer (did not author). Base: merge-base with main `bb171b72b`; merged-in main content ignored.

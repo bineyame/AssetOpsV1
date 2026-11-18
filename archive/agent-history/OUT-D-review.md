@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-D-review.md on 2026-11-18 (declutter step 4).
 # OUT-D final review: declared objectives and status
 
 Reviewer: fresh Claude Reviewer (did not author the slice). Branch `task/OUT-D-declared-objectives` at 35578dd5, against

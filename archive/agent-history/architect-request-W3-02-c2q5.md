@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c2q5.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 c2-q5, c2-q6 and the missing Evidence eyebrow
 
 Read `.agent/W3-02-build-spec.md` (all rulings including c2), `.agent/W3-02-pending-rulings.md` (c2-q5 and c2-q6), and the v69 `globalevidence` mock.

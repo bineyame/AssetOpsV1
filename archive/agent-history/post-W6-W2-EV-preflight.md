@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-EV-preflight.md on 2026-11-18 (declutter step 4).
 # post-W6 W2-EV pre-flight
 
 Builder pre-flight per `.ai/ROLE_CONFIG.md` "Builder pre-flight" and lesson 15. Base `main` 7554111e, branch

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F1-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-F1 review packet: shared mockup layout guard, plus Sites, Foundation, Readiness and SLD rebuilt to v69
 
 - **Branch:** `task/W1-F1-foundation`, worktree `AssetOpsV1-review4`. Not merged.

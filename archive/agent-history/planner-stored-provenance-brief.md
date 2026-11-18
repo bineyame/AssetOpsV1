@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-stored-provenance-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - stored demonstration provenance (`I-stored-demo-provenance`)
 
 You are the AssetOps Planner (Codex). Architect work order item 4 (`.agent/architect-autonomy-2026-10-15-answers.md`, `D-2026-10-15-owner-absence-work-order`). Write a new implementation-ready packet `tasks/S4-05-stored-demo-provenance.md` (pick the next free sensible ID if S4-05 is taken) on branch `plan/stored-demo-provenance` in worktree `C:\Users\assef\Bineyame\AssetOpsV1-plan2`. No code; the coordinator commits.

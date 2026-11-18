@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-06-phase-handoff.md on 2026-11-18 (declutter step 4).
 # Resume note — fix round r9 (2026-10-20, tip after `c18acc34`)
 
 Done: r9 M1-a/b/c `dd3b0b53`, M3 wire `26718e5d`, UI `0b2e12cd`, key-set test fixes `2ae3da82` `c18acc34`. Verified at `c18acc34`: focused EV, frontend 2322 + build, check-all 10/10, backend 3234 (0 skipped), host 787. Captures refreshed (byte-identical). Packet updated. Next: review; notes N1-N3 in pending rulings "fix round r9". `w206i_test` dropped.

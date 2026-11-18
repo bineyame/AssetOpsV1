@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5a-build-brief.md on 2026-11-18 (declutter step 4).
 # W1-F5a build - Health, Asset, page titles, 390 rail (implementer brief)
 
 Worktree `C:/Users/assef/Bineyame/AssetOpsV1-review5`, branch `task/W1-F5a-health-shell` (from main with F1 + F2 merged). Frontend only.

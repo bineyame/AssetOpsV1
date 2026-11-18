@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-B-packet.md on 2026-11-18 (declutter step 4).
 # OUT-B review packet: Site outcome board from existing reads
 
 Task `tasks/OUT-B-site-outcome-board.md` (Status: in_review). Branch `task/OUT-B-site-outcome-board`, worktree `AssetOpsV1-outB`,

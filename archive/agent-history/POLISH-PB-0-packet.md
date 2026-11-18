@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PB-0-packet.md on 2026-11-18 (declutter step 4).
 # POLISH-PB-0 review packet: strict capture gate, review-mode labels and guard 12
 
 - **Task:** `tasks/POLISH-PB-0-capture-gate.md`.

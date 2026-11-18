@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05a-build-brief.md on 2026-11-18 (declutter step 4).
 # W2-05a build - EV Foundation, readiness and SLD (implementer brief)
 
 Worktree `C:/Users/assef/Bineyame/AssetOpsV1-review5`, branch `task/W2-05a-ev-foundation` (from main with W2-00..W2-02 merged).

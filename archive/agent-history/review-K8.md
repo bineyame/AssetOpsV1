@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K8.md on 2026-11-18 (declutter step 4).
 # Review: K8 code phase (four-Site screens), ruling DIESEL-1-R3p (§9p)
 
 - Reviewer: fresh Claude (independent first review), 2026-11-08.

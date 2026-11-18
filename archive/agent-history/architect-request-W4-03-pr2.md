@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-pr2.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 PR-2 (scenario narrative column) and the 2a/2b readings
 
 Read `.agent/W4-03-build-spec.md` (closures 4–5, u1), `.agent/W4-03-pending-rulings.md` PR-2, and `.agent/W4-03-phase-handoff.md` (2a readings 7–10, the 2b anchors).

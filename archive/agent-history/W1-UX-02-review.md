@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-02-review.md on 2026-11-18 (declutter step 4).
 # W1-UX-02 review - Site, Finding and money presentation
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Revision under review: `2aa3af3c` (detached, worktree `AssetOpsV1-review5`). Diff: `git diff b982905b..2aa3af3c -- ':!.agent'` (28 files, +4171/-1020). Task `tasks/W1-UX-02-site-money.md`; rulings `D-2026-10-16-w1-ux`, `D-2026-10-16-w1-ux-disclosure`, `D-2026-10-16-s408`.

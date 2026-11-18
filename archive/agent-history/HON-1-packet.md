@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/HON-1-packet.md on 2026-11-18 (declutter step 4).
 # HON-1 packet: complete-readings honesty
 
 Branch `task/HON-1-complete-readings` from main 8a4b4fe4d. Card: `.agent/architect-sequence-client-scope-2026-11-11.md`

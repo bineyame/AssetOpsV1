@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-questions-6.md on 2026-11-18 (declutter step 4).
 # S2-01c questions 6 (fix round 2)
 
 Raised while building `D-2026-10-09-s2-publication-gap-and-batch-boundary` (R1, questions-5 Q2/Q3/Q5). Each is built with the fail-closed default named; none blocks re-review.

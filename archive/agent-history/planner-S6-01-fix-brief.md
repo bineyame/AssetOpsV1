@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S6-01-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round 1 - S6-01a / S6-01b
 
 You are the AssetOps Planner (Codex). Amend `tasks/S6-01a-action-store-read.md`, `tasks/S6-01b-action-ui.md` (and `tasks/README.md`, registry if needed) on `plan/S6-01-refine` in this worktree. No code; the coordinator commits.

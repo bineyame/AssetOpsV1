@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W4.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-mini pre-flight questions
 
 You are the AssetOps Architect. A builder pre-flighted the post-W6 W4-mini card against main ba971d96: `.agent/post-W6-W4-preflight.md` (build plan per D3 item; 22 numbered questions with recommended defaults). Verify code claims yourself as needed. Rule on all 22 with exact, implementable answers.

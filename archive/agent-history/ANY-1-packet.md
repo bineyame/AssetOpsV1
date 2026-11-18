@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/ANY-1-packet.md on 2026-11-18 (declutter step 4).
 # ANY-1 packet: card A6 = AR-0 + AR-1 (fast Site boards for any date range)
 
 Branch `task/ANY-1-rows` (worktree `AssetOpsV1-any1`), from main `31f741f85`.

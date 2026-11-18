@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-delivery-drafts-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: planning-only drafts under D-2026-10-09-owner-delivery-strategy (2026-10-09)
 
 Role: Planner (Codex). The owner confirmed `D-2026-10-09-owner-delivery-strategy` (`.ai/DECISIONS.md`, commit `f5d35c0`); the working plan and phased prerequisites are in `.agent/D-2026-10-09-owner-delivery-strategy-proposal.md`. It allows **planning-only drafts during S2-02**: nothing in tracked registry/workflow/checker/queue files changes until S2-02 closeout. S2-02 is being implemented concurrently on the current branch — do not touch tracked files.

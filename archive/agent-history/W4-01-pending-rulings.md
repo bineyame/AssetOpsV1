@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W4-01 pending rulings (batched, 2026-10-20, after commit 1 `4cb89c68`)
 
 None blocks commit 1. Each needs an answer before commit 2 or 3 is built. No builder default is assumed.

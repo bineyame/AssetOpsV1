@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-03-build-brief.md on 2026-11-18 (declutter step 4).
 # S6-03 build - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S6-03-site-work-list` (from main `cdb09767`; S6-02a and S4-05b merged). Touch no other worktree. Ports: API 8963, web 5463. DB prefix per the packet (or `assetops_s603*`).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02d-phase-2-review.md on 2026-11-18 (declutter step 4).
 # S4-02d phase 2 review (health, install and currentness handoff)
 
 Reviewer: fresh Claude reviewer (did not author the slice), 2026-10-14. Branch

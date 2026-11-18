@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/WALK-perf-ruling-2026-11-14.md on 2026-11-18 (declutter step 4).
 # WALK-perf ruling (2026-11-14): slow first hits on the walk server
 
 Architect (Claude; ROLE_CONFIG "Architect Is Claude By Default"). Diagnosis only; nothing implemented, serve untouched, DB not written.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-closure3.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 closure round 3 (breadcrumb root)
 
 Read `.agent/W4-03-build-spec.md` (all closures), `.agent/W4-03-closure-check2.md` and `.agent/W3-01-build-spec.md` (the global `/findings` route and its query keys).

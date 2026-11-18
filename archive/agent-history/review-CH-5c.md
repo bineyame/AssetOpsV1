@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-CH-5c.md on 2026-11-18 (declutter step 4).
 # Review CH-5c (OWN-CH5c): batched reads, stored route responses, Portfolio trim, R6
 
 - Reviewer: fresh Claude reviewer (did not author the slice), 2026-11-05.

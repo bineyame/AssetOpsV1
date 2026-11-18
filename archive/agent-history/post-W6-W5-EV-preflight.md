@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W5-EV-preflight.md on 2026-11-18 (declutter step 4).
 # W5-EV-Work pre-flight (post-W6)
 
 Pre-flight only: nothing was built, tested, captured or written to a DB. Code anchors are from main `14696fda` (`AssetOpsV1-plan2`), which includes shell, W3, W1-a, W1-b, W2-EV and W6-global. W2-cold (`task/post-W6-W2-cold`) and W4-mini (`task/post-W6-W4-mini`) are still on branches. Both touch `SiteAnalyticsFrames.tsx` and `primitives.css`. W4 also touches `operatorSiteTabs.tsx` (R333 wrap, R453 label) and `siteWorkCases.tsx` (R322). **Build on main after both have merged**, then re-anchor the hunks below.

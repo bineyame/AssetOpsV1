@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01a-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W5-01a C1 handoff — PARTIAL (Cooling built; Health held on an Architect question)
 
 Branch `task/W5-01a-cold-selected-depth` from main `68b88dae`. Build commit `703807cf`.

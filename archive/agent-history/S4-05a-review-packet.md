@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05a-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-05a review packet - immutable source binding and exact-revision resolver
 
 ## Task

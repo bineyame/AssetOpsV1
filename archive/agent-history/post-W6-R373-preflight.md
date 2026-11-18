@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-R373-preflight.md on 2026-11-18 (declutter step 4).
 # post-W6 R373 (B19-15, High D3) - pre-flight
 
 Branch `task/post-W6-R373-request-access` from main `aa08d16d`. Ruling: `.agent/post-W6-audit/fix-slices.md`

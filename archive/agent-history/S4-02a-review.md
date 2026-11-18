@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02a-review.md on 2026-11-18 (declutter step 4).
 # S4-02a fresh Claude review: phase 2 and the slice as a whole
 
 Reviewer: fresh Claude (did not author). Branch `task/S4-02a-site-assumptions`, diff `5159b96..f9ce2e5`. Phase 1 was reviewed

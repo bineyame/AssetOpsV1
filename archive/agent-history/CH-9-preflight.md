@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-9-preflight.md on 2026-11-18 (declutter step 4).
 # CH-9 pre-flight (measured daylight + full-day MG-5)
 
 Implementer: Claude, 2026-11-05. Branch `task/CH-9-measured-daylight` from main `692e4d57e`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-07-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-07 review packet (EV Site evidence and money)
 
 Task: W2-07, five EV Site reads and routes with a gross tariff scenario (`.agent/W2-07-build-spec.md`, rulings q1-q6).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-1.md on 2026-11-18 (declutter step 4).
 # Review packet: WALK1-1 (Portfolio checked days, Assure verified count, Grow card, labels)
 
 Branch `task/WALK1-1-portfolio-fixes` from main `2058a6567`. Spec: `.agent/build-sheet-WALK1.md` §2 (WN-2, WN-1, WN-3 display), §8 R670-R673, §9 D-W1-4.

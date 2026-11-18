@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-commercial-capability-assessment.md on 2026-11-18 (declutter step 4).
 # Architect request: commercial capability, integration and simulation readiness (assessment only)
 
 You are the AssetOps Architect. The owner's brief is in `.agent/owner-commercial-capability-brief-2026-10-26.md`. Read it in full and follow it exactly as written. It is the authority for this task, and this file only adds where things are and the machine limits.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-08-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers - S4-08 (2026-10-16)
 
 Decision: `D-2026-10-16-s408`. Authority: `tasks/S4-08-assumption-consequence-history.md`, `D-2026-10-14-s402-post-review-follow-ons`, `.agent/architect-S4-02-batch-answers.md`, `D-2026-10-15-s405-stored-demo-provenance`, `D-2026-10-16-s405b-label`, and `D-2026-10-16-w1-ux`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-04-review-packet.md on 2026-11-18 (declutter step 4).
 # TEL-04 review packet: poller and focused end-to-end through a real gateway process
 
 PowerShell PYTHONPATH (build sequence 1, `-tel` replaced by `-tel4`):

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/COV-PARTIAL-packet.md on 2026-11-18 (declutter step 4).
 # COV-PARTIAL review packet
 
 Task: `tasks/COV-PARTIAL-estate-coverage.md`. Contract: `AssetOpsV1-plan2/.agent/build-sheet-COV-PARTIAL.md` + Addendum 1.

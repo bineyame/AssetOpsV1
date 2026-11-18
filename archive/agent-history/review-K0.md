@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K0.md on 2026-11-18 (declutter step 4).
 # Review: K0, the operational-action bridge (DIESEL-1-R3 §9.3, §9c.3 items 1 and 4, §9f R3f, §9i R3i)
 
 - Reviewer: Claude (Opus), independent first review, fresh context. Not the author.

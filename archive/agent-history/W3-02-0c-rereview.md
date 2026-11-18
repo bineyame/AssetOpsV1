@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-0c-rereview.md on 2026-11-18 (declutter step 4).
 # W3-02 0c re-review of fix r1 (2c46c9fd)
 
 Verdict: ACCEPT. Read only through `git show 2c46c9fd`. Nothing was run, as instructed.

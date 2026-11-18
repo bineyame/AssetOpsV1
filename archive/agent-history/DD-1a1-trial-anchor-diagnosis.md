@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1a1-trial-anchor-diagnosis.md on 2026-11-18 (declutter step 4).
 # DD-1a1 trial-anchor KeyError: diagnosis
 
 Crash: `tools/demo_combined_kobo.py:433` `h.findings()[act["finding_anchor_day"]]` -> `KeyError: '2026-11-04'`

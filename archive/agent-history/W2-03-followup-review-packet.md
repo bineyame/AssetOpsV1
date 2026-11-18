@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-03-followup-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-03 follow-up review packet (D-2026-10-19-w2-03-followup)
 
 Branch `task/W2-03-followup` (from main `01b3825f`), not merged. Frontend-only; backend/host suites not run.

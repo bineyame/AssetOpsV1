@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-commit3-review.md on 2026-11-18 (declutter step 4).
 # W3-02 commit 3 review: Financials read/API and Lane A items
 
 Reviewer: independent Claude reviewer (did not author). Date: 2026-10-21.

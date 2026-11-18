@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-02c-answers.md on 2026-11-18 (declutter step 4).
 # Architect rulings: S4-02c review F1 Q1–Q3 and R1 (2026-10-14)
 
 Inputs: `.agent/S4-02c-review.md` F1 and registry closeout notes, `.agent/S4-02c-review-packet.md`, `.agent/S4-02c-walkthrough-evidence.md` run 1, `tasks/S4-02c-evidence-consequence-work.md` R1; `D-2026-10-09-s2-simulated-publication-clock`, the S3 dispatch decisions, `D-2026-10-14-s402-post-review-follow-ons`, and `D-2026-10-14-s5-selected-window-overview`. This is a ruling for subsequent work, not a change to S4-02c's reviewed contract.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-01-reopen-answers.md on 2026-11-18 (declutter step 4).
 # Architect ruling - newer Finding revision after an Action
 
 Decision: `D-2026-10-15-s601-reopen`. Authority: `.agent/architect-S6-01-reopen-request.md`, `D-2026-10-14-action-lifecycle-and-policy-application`, `D-2026-10-15-s601-action-store-and-ui`, and the S6-01b owner walkthrough. This amends the recommendation read and acceptance rule; it does not change an Action's immutable origin or accepted-recommendation snapshot.

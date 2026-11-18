@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01a-answers-3.md on 2026-11-18 (declutter step 4).
 # S2-01a phase-2 Architect answers — Codex Architect, 2026-10-08
 
 These resolve Q4 and Q5 in `.agent/S2-01a-questions-2.md`; they do not review or accept S2-01a. The material contract is recorded as `D-2026-10-08-s2-registered-kobo-demo-configuration` in `.ai/DECISIONS.md`.

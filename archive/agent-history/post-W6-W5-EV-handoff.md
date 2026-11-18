@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W5-EV-handoff.md on 2026-11-18 (declutter step 4).
 # W5-EV-Work handoff (PARTIAL: code and focused tests done; captures, caps, proofs, packet, state docs remain)
 
 Branch `task/post-W6-W5-EV-work` from main 104e9c33. Binding: `.agent/post-W6-W5-rulings.md` 3-5, `.agent/post-W6-W5-EV-preflight.md`, UI guide. Register range R470-R479 (none used so far).

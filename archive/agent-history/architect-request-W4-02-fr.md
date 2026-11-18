@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-02-fr.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-02 final review copy and state contradictions
 
 Read `.agent/W4-02-build-spec.md` (all rulings through q12), `.agent/W4-02-final-review.md`, and the v69 Site overview, `service` and `backup` mocks.

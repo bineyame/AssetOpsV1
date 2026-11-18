@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T026-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # T026 phase 2 handoff (History, AC13 host side)
 
 Branch `task/T026-dispatch-capable-evidence`. Phase 2 commits: `8508a7c` (build

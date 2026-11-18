@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05b-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S4-05b owner walkthrough - where the readings came from
 
 What you are checking: every Finding, its Evidence, its fuel cost (Financials) and the Site Overview now say where

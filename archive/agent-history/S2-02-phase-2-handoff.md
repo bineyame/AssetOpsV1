@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S2-02 phase 2 handoff — credential, gateway transport, diagnostics, Lab Commit
 
 Branch `task/S2-02-ingestion-site-evidence`. Commits `f00321a` (central credential/TLS/diagnostics), `464f564` (gateway uploader + receipt verification + release), `b7d2c0d` (Lab Commit release + guard). No frontend change. New questions on fail-closed defaults: `.agent/S2-02-questions-2.md` (Q8–Q12); questions-1 (Q1–Q7) still unanswered — batch both to the Architect.

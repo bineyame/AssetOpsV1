@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T027-phase-1-claude-rereview.md on 2026-11-18 (declutter step 4).
 # T027 phase 1 fix round: re-review
 
 Reviewer: Claude (independent of the Implementer's fix round; Reviewer is Claude under

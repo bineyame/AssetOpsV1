@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-review.md on 2026-11-18 (declutter step 4).
 # S4-02b fresh Claude review: phase 2b and the whole slice (bounded fuel consequence and repricing)
 
 Reviewer: fresh Claude. I did not build this slice. Branch `task/S4-02b-fuel-consequence` at `c0be402`.

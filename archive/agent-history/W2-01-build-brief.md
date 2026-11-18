@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-01-build-brief.md on 2026-11-18 (declutter step 4).
 # W2-01 build - cold-chain Foundation, topology, readiness, SLD (implementer brief)
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review2`, branch `task/W2-01-cold-foundation` (from main with W2-00 and W1-F1 merged). Backend + frontend.

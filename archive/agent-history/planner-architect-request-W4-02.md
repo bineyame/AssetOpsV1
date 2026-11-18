@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-architect-request-W4-02.md on 2026-11-18 (declutter step 4).
 # Planner + Architect request: W4-02 task packet and build spec
 
 You are the AssetOps Planner and Architect. Read:

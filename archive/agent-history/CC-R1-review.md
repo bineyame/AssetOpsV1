@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-R1-review.md on 2026-11-18 (declutter step 4).
 # CC-R1 review (fresh Claude reviewer, 2026-10-27)
 
 Branch `task/CC-R1-claim-links-beneficiary` at `c1151a6d`, diffed against main `4a166d98`.

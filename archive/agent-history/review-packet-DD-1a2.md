@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-DD-1a2.md on 2026-11-18 (declutter step 4).
 # Review packet: DD-1a2 (the B-22 day list), size 2.25
 
 Branch `task/DD-1a2-b22-day-list`. Rulings: `build-sheet-DD-1.md` DD1a2-R (:717) and DD1a2-R2 (:916); acceptance is the sheet's "DD-1a2 (2)" (~:111) as cut by SCOPE-1 (~:128). Evidence: `.agent/DD-1a2-*.json`. Commits: `5a5211639`, `3bd1893e8`, `215984add` (earlier), `281a2bd54`, `6a203f6b1` (this round), plus the closing commit.

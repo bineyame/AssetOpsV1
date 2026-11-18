@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-4-packet.md on 2026-11-18 (declutter step 4).
 # SR-4 packet: Site pages follow the shared date range (lane G)
 
 Spec: architect rev 8 (`architect-sequence-client-scope-2026-11-11.md` top), D-SR.1-8 (`build-sheet-OWN-GAPS-2026-11-08.md`), register R718/R719. Branch `task/SR-4-site-range` (fast-forwarded to main a6d40513f before the build).

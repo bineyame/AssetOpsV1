@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-01-fix-rereview.md on 2026-11-18 (declutter step 4).
 # G-01 fix round 1 - fresh re-review
 
 Reviewer: fresh Claude Reviewer (did not author G-01 or its fix round). Date: 2026-10-13.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-01-review-packet.md on 2026-11-18 (declutter step 4).
 # G-01 review packet - Mock-gap catalogue and orphan guard
 
 Task: `tasks/G-01-mock-gap-catalogue-and-guard.md` (Status `in_review`, USER_REVIEW_REQUIRED: true).

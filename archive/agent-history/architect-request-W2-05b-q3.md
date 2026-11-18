@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-05b-q3.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-05b q3 (Q15–Q17, N9–N12)
 
 You are the AssetOps Architect. Read the `.ai/ROLE_CONFIG.md` section "Mockup drives the design; implementers never decide", then the whole of `.agent/W2-05b-build-spec.md` (including q1, the commits 3–5 closure and q2) and the W2-05a build spec. The code is on `task/W2-05b-ev-producer` at head `5c5c809e`. Read these with `git show task/W2-05b-ev-producer:<path>`:

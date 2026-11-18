@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-02-q3.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-02 commit (2)/(3) points (2026-10-17). Brief; edit `.agent/W2-02-build-spec.md` in place; amend `D-2026-10-17-w2-02-buildspec`. No code.
 
 From the implementer (handoff `.agent/W2-02-phase-2-handoff.md` on branch task/W2-02-cold-producer):

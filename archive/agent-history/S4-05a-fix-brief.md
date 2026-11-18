@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05a-fix-brief.md on 2026-11-18 (declutter step 4).
 # S4-05a fix round (Sonnet) - slice review L1, L2
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S4-05a-provenance-binding-resolver`. Python: main venv with `PYTHONPATH` = this worktree's `backend;contracts;gateway;simulator` (confirm `assetops_backend.__file__`). Private `_test` DB; drop afterwards. Focused tests only; no full suite (it runs at merge time after migration re-chaining). Other agents use other worktrees; touch none.

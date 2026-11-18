@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01-closure2.md on 2026-11-18 (declutter step 4).
 # Architect request: W6-01 closure round 2
 
 You are the AssetOps Architect. The closure check `.agent/W6-01-closure-check.md` confirms all 36 first-review items are closed. It found 10 new open items: OI-1 to OI-10, 4 BLOCKERs and 6 NOTEs. Measurements are in `.agent/W6-01-mock-measure-2.md`.

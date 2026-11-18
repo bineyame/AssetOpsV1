@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-closure-check.md on 2026-11-18 (declutter step 4).
 # W5-01 / W5-03 readiness closure check
 
 Checker: independent Claude reviewer (did not author the specs or the closure), 2026-10-22.

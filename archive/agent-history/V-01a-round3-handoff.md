@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-round3-handoff.md on 2026-11-18 (declutter step 4).
 # V-01a round 3 handoff: phases 3a and 3b landed; 3c (evidence, walkthrough, packet, checks) to do
 
 Branch `task/V-01a-foundation-visual`. Round-3 base `b5a7a75`; build commit `5300c2a`.

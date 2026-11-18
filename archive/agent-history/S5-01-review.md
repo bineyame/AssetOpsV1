@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-review.md on 2026-11-18 (declutter step 4).
 # S5-01 slice review - selected-window Site Overview (phase 2 = slice review)
 
 Reviewer: fresh Claude reviewer (did not author the slice or the phase-1 review). Worktree `AssetOpsV1-review`, branch

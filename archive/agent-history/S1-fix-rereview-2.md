@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S1-fix-rereview-2.md on 2026-11-18 (declutter step 4).
 # S1 fix-round re-review 2 (R1-R3)
 
 - **Reviewer:** a fresh Claude Reviewer (Opus). I did not write any of this code, and I did no earlier S1 review, including `.agent/S1-fix-rereview.md`.

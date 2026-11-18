@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-02d-notes.md on 2026-11-18 (declutter step 4).
 # S4-02d Planner notes (2026-10-14)
 
 - Selected input: `.agent/next-work-2026-10-14i.json` selected `I-analytic-finding-worker-schedule` at 2.198 versus `I-action-store` at 2.016 (8.28%); this is the required 5–10% notice, not an owner stop.

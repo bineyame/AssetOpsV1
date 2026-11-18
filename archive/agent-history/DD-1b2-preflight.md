@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b2-preflight.md on 2026-11-18 (declutter step 4).
 # DD-1b2 pre-flight: drain, finish rows, mill Action, rehearsal (questions for the lane-2 Architect)
 
 Branch `task/DD-1b2-finish-rehearsal`, from main `aaea00962`. No code written and nothing run on a database. "Read" means read from code, not run. Day lists marked "resolved" went through the real `resolve_story` and `plan_add_runs` offline.

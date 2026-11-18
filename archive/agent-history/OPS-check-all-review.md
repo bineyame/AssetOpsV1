@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-check-all-review.md on 2026-11-18 (declutter step 4).
 # OPS-check-all-no-bypass review (fresh Claude reviewer, 2026-10-30)
 
 Branch `task/OPS-check-all-no-bypass`, head 4c45e2c9, diff `main...HEAD` (7 files).

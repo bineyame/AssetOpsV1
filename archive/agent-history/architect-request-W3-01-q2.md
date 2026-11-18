@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-01-q2.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-01 q2 (before Lane A's compatibility commit)
 
 You are the AssetOps Architect. Read:

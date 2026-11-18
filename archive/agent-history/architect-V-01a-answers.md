@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-V-01a-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — V-01a owner feedback rulings (2026-10-12)
 
 These rulings answer the owner feedback in `.agent/owner-V-01a-feedback-2026-10-12.md` as one fix round. The owner should compare **Directory → Site inventory (`sites:1`)**, not every Sites screen or the whole mock page. Keep **Foundation** as the page h1 (Q2).

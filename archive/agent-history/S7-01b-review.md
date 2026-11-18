@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S7-01b-review.md on 2026-11-18 (declutter step 4).
 # S7-01b review - Site Health and battery boundary UI (+ S7-01a follow-up)
 
 Reviewer: a fresh, independent Claude reviewer who did not author the slice. Reviewed `09501a67` (head of

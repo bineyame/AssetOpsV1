@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-3-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # CH-3 handoff 2 (partial): resume at "Remaining"
 
 - Branch `task/CH-3-lifecycle`, worktree `AssetOpsV1-ch3`. Read `.agent/CH-3-phase-1-handoff.md` first for the core anchors; this file supersedes its "Remaining" list.

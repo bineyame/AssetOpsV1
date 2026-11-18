@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-02-fix-rereview.md on 2026-11-18 (declutter step 4).
 # G-02 fix round 1 - fresh Claude re-review
 
 Reviewer: fresh Claude Reviewer, independent of the Implementer. Branch `task/G-02-v01a-gap-pilot`, HEAD `e2010e6`, diff `e2ffd40..e2010e6`. Judged against `.agent/architect-G-02-answers.md` (Q1, Q2 overruled, binding) and `.agent/G-02-review.md` (F1, F2, C-a).

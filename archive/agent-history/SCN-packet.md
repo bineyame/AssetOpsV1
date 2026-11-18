@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SCN-packet.md on 2026-11-18 (declutter step 4).
 # SCN-kobo-reserve-matters review packet: design D2 passes U2; U1 registered
 
 Spec: `AssetOpsV1-plan2/.agent/build-sheet-SCN-kobo-reserve.md` (§2 U1; Addendum 1 design D2 and its five kernel

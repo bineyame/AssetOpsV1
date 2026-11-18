@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-rereview.md on 2026-11-18 (declutter step 4).
 # W4-01 re-review after fix round r1 (head fd64ebdd)
 
 ## Verdict: ACCEPT (no High, no Medium findings)

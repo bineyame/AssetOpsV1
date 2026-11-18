@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-5-review-server.md on 2026-11-18 (declutter step 4).
 # SR-5 server review (fresh Claude reviewer, 2026-11-12)
 
 Scope: `GET /api/sites/{code}/range-overview` and `estate/range_days.py`, branch `task/SR-5-range-board` at 9219ab10b,

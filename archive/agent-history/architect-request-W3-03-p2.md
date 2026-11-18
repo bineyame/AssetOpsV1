@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-p2.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 P-2-1, the run-2 readings, and the run-3 readiness (r2)
 
 Read:

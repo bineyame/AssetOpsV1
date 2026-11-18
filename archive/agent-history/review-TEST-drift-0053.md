@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-TEST-drift-0053.md on 2026-11-18 (declutter step 4).
 # Review: TEST-drift-0053 (commit 716af2166)
 
 Verdict: ACCEPT (one non-blocking nit)

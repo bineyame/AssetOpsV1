@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-A2-r2.md on 2026-11-18 (declutter step 4).
 # Re-review A2 (FUEL-1), fix round: ACCEPT
 
 Scope: fix commits a76926a14, 6f9ee6996 (main merge), 598fc0ab3, 48ae07eda against review-A2.md (H1, L1-L4) and ruling A2-R1.

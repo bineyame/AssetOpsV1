@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-K2-rereview.md on 2026-11-18 (declutter step 4).
 # W5-02b part 1 (K2a + K2b) re-review after fix rounds
 
 Reviewer: fresh Claude reviewer. I did not author the slice or the fixes. Worktree `AssetOpsV1-review3`, branch

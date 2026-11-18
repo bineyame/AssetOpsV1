@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-design.md on 2026-11-18 (declutter step 4).
 # Wave 2 architecture proposal — 2026-10-17
 
 > **Mockup authority (owner ruling 2026-10-18, `.agent/owner-W2-mockup-authority-2026-10-18.md`):** the v6.9 mockup's W2 screens - cold-chain AND EV - are built and are the binding visual and content authority, exactly like the W1 screens: panel set, order, titles, prominence, layout and content scope. The mockup's "EV extrapolation" / "domain-pack extrapolation" tags (`frontend/mockups/v69/screens.js`) record only that the v6.9 *product spec* had no EV section; they do NOT make any mock screen uncertain, illustrative-only or optional. Where accepted data cannot back a mock value, keep the mock slot and state the gap ("not available yet"); never drop or redesign a panel. Which routes belong to W2 vs later waves is a scope question, unaffected by this note.

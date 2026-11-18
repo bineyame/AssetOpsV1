@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W5-cold-packet.md on 2026-11-18 (declutter step 4).
 # Review packet: post-W6 W5-cold-Work (cold depth and Work), complete
 
 2026-10-25. Branch `task/post-W6-W5-cold-work` from main `0cfe43b3`. Frontend only, no backend change.

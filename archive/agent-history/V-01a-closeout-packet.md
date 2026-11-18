@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-closeout-packet.md on 2026-11-18 (declutter step 4).
 # V-01a registry closeout packet
 
 Branch `closeout/V-01a-registry`. Registry/ledger metadata only; no code change.

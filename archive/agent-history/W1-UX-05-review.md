@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-05-review.md on 2026-11-18 (declutter step 4).
 # W1-UX-05 review: Foundation, Readiness, SLD, Health and battery presentation
 
 Reviewer: a fresh, independent Claude reviewer. I did not author this slice and did not edit it.

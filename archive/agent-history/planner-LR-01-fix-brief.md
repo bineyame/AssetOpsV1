@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-LR-01-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round 1 — LR-01
 
 You are the AssetOps Planner (Codex). Amend `tasks/LR-01-late-reading-series-and-money-limit.md` on `plan/late-reading-series` in this worktree. No code. The coordinator commits.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-EV-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # post-W6 W2-EV phase 1 handoff (PARTIAL: interfaces, U1-U3 landed; resume at U4)
 
 Branch `task/post-W6-W2-EV`, worktree `AssetOpsV1-review5`. Inputs: `.agent/post-W6-W2-EV-rulings.md` (binding),

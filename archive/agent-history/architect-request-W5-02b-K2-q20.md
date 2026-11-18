@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02b-K2-q20.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02b K2, Q20 (final F1 ruling)
 
 Read .agent/W5-02b-K2-rulings.md (rulings 2 and 20), .agent/W5-02b-questions.md (Q20), .agent/W5-02-build-spec.md, .agent/W5-02-04-mock-measurements.md and the v69 mock (frontend/mockups/v69/index.html, cold-work). The evidence is on branch task/W5-02b-cold-site-screens under .agent/W5-02b-evidence/.

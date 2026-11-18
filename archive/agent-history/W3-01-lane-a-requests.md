@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-lane-a-requests.md on 2026-11-18 (declutter step 4).
 # W3-01 Lane A requests (Lane B commit-2 run, 2026-10-20)
 
 Lane B does not edit these Lane A files. Each is needed by W3-01 commit 2 (estate read/API).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-mapping-review.md on 2026-11-18 (declutter step 4).
 # W1 37-panel mapping review (fresh Claude reviewer, 2026-10-11)
 
 This review was produced by a fresh Claude reviewer that did not author the mapping. It covers branch `plan/pre-S3-startup`: the Planner mapping pass `e4cf13a` and the registry/checker carry edits inside `75dd4d8`. The PRE-S3-04 product files are out of scope.

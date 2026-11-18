@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-07-plan-rereview.md on 2026-11-18 (declutter step 4).
 # S4-07 plan re-review after fix round 1
 
 Reviewer: fresh independent Claude reviewer (did not author the packet or the fix). Worktree

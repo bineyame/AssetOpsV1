@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/preflight-G3b.md on 2026-11-18 (declutter step 4).
 # G3b pre-flight — operational records entry form (frontend)
 
 Implementer (Claude), branch `task/OWN-G3b-operational-entry-form` from main `60858f6cc`. Read-only; no product code.

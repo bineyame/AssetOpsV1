@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01b-q2.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-01b build follow-ups (Q-C5b-1..4 and builder choices)
 
 You are the AssetOps Architect (Codex). W5-01b C4 and C5 are built on `task/W5-01b-cold-scenarios` (C4 `8fbaf1ed`, C5 `e8147420`, captures `65f1bef0`). Read the handoff and Run entries with `MSYS_NO_PATHCONV=1 git show task/W5-01b-cold-scenarios:.agent/W5-01b-phase-handoff.md`. Also read the C4/C5 cards with their pre-flight rulings in `.agent/W5-01-build-spec.md`, the mock-fidelity rules in `.ai/ROLE_CONFIG.md`, and the v69 `cold-scenarios` screen; the captures are in `.agent/W5-01b-C5-evidence/` on the branch.

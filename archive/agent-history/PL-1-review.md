@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PL-1-review.md on 2026-11-18 (declutter step 4).
 # PL-1 review
 
 Verdict: REJECT until finding 1 is fixed (one-line fix). Behaviour is otherwise correct.

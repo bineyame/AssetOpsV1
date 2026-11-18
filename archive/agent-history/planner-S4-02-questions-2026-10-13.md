@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-02-questions-2026-10-13.md on 2026-11-18 (declutter step 4).
 # Planner questions for Architect — S4-02 (2026-10-13)
 
 ## Q1 — Is the proposed `fuel-cost-1` upper multiplier acceptable as a conditional model bound?

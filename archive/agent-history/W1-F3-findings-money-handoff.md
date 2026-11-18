@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F3-findings-money-handoff.md on 2026-11-18 (declutter step 4).
 # W1-F3 handoff: height phase (resume point)
 
 Branch `task/W1-F3-findings-money`, worktree `AssetOpsV1-review`. Head `23671e6a` plus the packet/evidence commit. Main (final W1-F1) is merged in, and the tightened guard passes on all six screens.

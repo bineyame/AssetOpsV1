@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-02a-cutoff-request.md on 2026-11-18 (declutter step 4).
 # Architect request - S6-02a phase-1 review F3 (and two small format calls)
 
 You are the AssetOps Architect (Codex). The owner is away until 11:00 and asked for maximum W1 progress; decide on the owner's behalf only within the Architect's remit. Read `.agent/S6-02a-phase-1-review.md` (findings F2, F3, F7), the packet `tasks/S6-02a-verification-core.md`, `D-2026-10-16-s602-questions` (Q3: the plan cannot be frozen once the later run has begun) and `.agent/architect-S6-02-answers.md`.

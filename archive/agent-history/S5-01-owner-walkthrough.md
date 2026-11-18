@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S5-01 owner walkthrough - selected-day Site Overview
 
 What you are accepting: Site > Overview for an imported Site (KOBO-001) now shows **one UTC day**: whether the day was

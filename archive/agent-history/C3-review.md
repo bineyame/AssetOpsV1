@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C3-review.md on 2026-11-18 (declutter step 4).
 # C3 review: two-tier board gap line (D-E4.6)
 
 Reviewer: fresh Claude (Opus 5.5), independent of the builder. Diff: `git diff main...task/E4-C3-gap-line-tiers`

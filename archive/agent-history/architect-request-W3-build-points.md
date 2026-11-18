@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-build-points.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-estate build-time points
 
 You are the AssetOps Architect. The W3-estate builder finished code to your rulings (`.agent/post-W6-W3-estate-rulings.md`), on branch `task/post-W6-W3-estate` at e4e1042d; inspect it with `git show`/`git diff main...task/post-W6-W3-estate`. It raised six points. Rule each in `.agent/post-W6-W3-estate-build-rulings.md`: accept as built, or say exactly what to change.

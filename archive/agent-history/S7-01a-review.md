@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S7-01a-review.md on 2026-11-18 (declutter step 4).
 # S7-01a review - Site source-health and battery boundary reads
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Reviewed `c5945e88`

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/IDX-GAPS-U2-review.md on 2026-11-18 (declutter step 4).
 # IDX-GAPS U2 review · U1 fix round `c89ce915c` + U2 board (`728851b12`, `400d1096b`, `a88588312`)
 
 Reviewer: fresh Claude reviewer, 2026-10-31. Diff `abcd8b4e4..a88588312 -- backend`, read from a `git archive

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-W3-01-spec-review.md on 2026-11-18 (declutter step 4).
 # Independent spec review: W4-01 and W3-01 build specs (2026-10-20)
 
 Reviewer: fresh Claude spec reviewer, read-only, worktree `AssetOpsV1-plan2` on main `5e45ea83`.

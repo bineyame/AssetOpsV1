@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02a-review.md on 2026-11-18 (declutter step 4).
 # S3-02a review - selected-assessment capability and claim-limit read
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Revision reviewed: `f9d02d9e` (head of `task/S3-02a-capability-read`; last code change `37343acc`). Diff: `git diff dee54c8b..f9d02d9e -- ':!.agent'`.

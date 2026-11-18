@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-A0-packet.md on 2026-11-18 (declutter step 4).
 # DEMO-A0 packet: assumption-store clock seam (R1)
 
 Branch `task/DEMO-A0-assumption-clock-seam`. 

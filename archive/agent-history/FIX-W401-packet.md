@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-W401-packet.md on 2026-11-18 (declutter step 4).
 # FIX-W401 packet: clock fixture
 
 Task: clock audit rank 1 (FIX-W301-review-and-clock-audit.md). Test-only.

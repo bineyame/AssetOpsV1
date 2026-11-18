@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S4-04 phase 1 handoff - Site Finding index read
 
 Branch `task/S4-04-site-finding-index` (base main `f8a131e3`). Phase 1 commits: `ae526aae` (code + tests), then the TESTING.md line. Not merged; packet status unchanged (`active`); phase-1 review pending.

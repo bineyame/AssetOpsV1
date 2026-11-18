@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/implementer-questions-commercial-html-2026-10-27.md on 2026-11-18 (declutter step 4).
 # Implementer review of commercial-capability-readiness.html (2026-10-27)
 
 Read-only, worktree AssetOpsV1-demo-plan at c975d618. Re-ran test_w403_scenario_rules, test_s6_verification_rules, test_s4_fuel_cost, test_w303_portfolio_reduction: 152 passed. All referenced files exist; D1–D4 worked-example arithmetic checks. Main problems: D2 comparison keys, D3 Foundation read, D5 lens/recurrence/paging assumptions. Paths are under `backend/assetops_backend/` unless noted.

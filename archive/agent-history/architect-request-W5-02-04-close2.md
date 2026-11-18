@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02-04-close2.md on 2026-11-18 (declutter step 4).
 # Architect request: close the W5-02/W5-04 readiness recheck items
 
 You are the AssetOps Architect and Planner (Codex). Read the "Recheck" section of `.agent/W5-02-04-readiness-review.md`. Close R-1 to R-5 with literal artifacts in the unit cards of `.agent/W5-02-build-spec.md` and `.agent/W5-04-build-spec.md`, and close the Lows R-6 to R-10 where that is cheap:

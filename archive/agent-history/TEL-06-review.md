@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-06-review.md on 2026-11-18 (declutter step 4).
 # TEL-06 review (TEL-06a / TEL-06b)
 
 Reviewer: fresh Claude reviewer (did not author the slice). Branch `task/TEL-06-csv-collector` at `f408a8f6`, diffed against main `caf22405`.

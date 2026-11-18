@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-commit2-rereview.md on 2026-11-18 (declutter step 4).
 # W3-02 commit-2 fix r1 re-review (e45f4219)
 
 Verdict: ACCEPT. Static review only (git objects); no tests were run.

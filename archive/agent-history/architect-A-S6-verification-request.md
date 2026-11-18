@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-S6-verification-request.md on 2026-11-18 (declutter step 4).
 # Architect request - resolve A-S6-verification
 
 You are the AssetOps Architect (Codex). Resolve registry node `A-S6-verification` ("Later-window verification, guardrail fail and inconclusive outcomes for S6-02"), the architecture gate for S6-02 (`tasks/S6-02-verification.md`, outline) and nodes `I-S6-02`, `D-verification-window`, `I-sim-verification-cases`, `I-verification-plan-read/-ui`, `I-verification-read/-ui`, `I-action-evidence-read/-ui`.

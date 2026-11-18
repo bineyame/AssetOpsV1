@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-R1-rereview.md on 2026-11-18 (declutter step 4).
 # S3-01 R1 fix re-review
 
 Reviewer: fresh Claude reviewer (not the author). Target: commit 868ba66 on task/S3-01-dispatch-assessment.

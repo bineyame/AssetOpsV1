@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-1-review.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 1 review - `I-sim-dispatch-cases` (1a + 1b)
 
 Reviewer: a fresh Claude reviewer (independent of the Implementer), 2026-10-11.

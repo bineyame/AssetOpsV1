@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W4-03 pending rulings
 
 ## PR-1 (raised in unit 1) - RESOLVED by u1: `0030` carries the three `schedule_site_head` opportunity counters, the OPPORTUNITY stage CHECK and its downgrade; u3/unit 4 consume them (uF 7)

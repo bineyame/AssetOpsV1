@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-A-capture-brief.md on 2026-11-18 (declutter step 4).
 # OUT-A A6 capture brief (capture-only; no product code changes)
 
 Worktree `C:\Users\assef\Bineyame\AssetOpsV1-outA`, branch `task/OUT-A-category-labels`. Capture the product at the current HEAD. Do not edit anything under `frontend/src`, `backend/` or `host/`. Do not merge.

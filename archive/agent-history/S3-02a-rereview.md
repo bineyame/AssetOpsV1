@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02a-rereview.md on 2026-11-18 (declutter step 4).
 # S3-02a re-review - fix round 1
 
 Reviewer: fresh independent Claude reviewer (did not author the slice or the fix). Revision: `00658f55` (head of `task/S3-02a-capability-read`). Diff: `git diff a96c6e35..00658f55`.

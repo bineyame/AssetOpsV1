@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-A-preflight.md on 2026-11-18 (declutter step 4).
 # OUT-A pre-flight: batched questions and findings
 
 - Slice: A, `task/OUT-A-category-labels`.

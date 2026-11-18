@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01a-C2b-review.md on 2026-11-18 (declutter step 4).
 # W5-01a C2 rebuild delta: independent re-review (C2b)
 
 Reviewer: fresh Claude reviewer (did not author). Branch `task/W5-01a-cold-selected-depth`, worktree `AssetOpsV1-review2`, HEAD `e6ac07dd`.

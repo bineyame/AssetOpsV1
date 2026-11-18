@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-departure-register.md on 2026-11-18 (declutter step 4).
 # Architect request: build the mock departure register (D1–D6)
 
 You are the AssetOps Architect (Codex). Read the new rule "Departure categories and register" in `.ai/ROLE_CONFIG.md` and `.agent/owner-departure-categories-2026-10-23.md`.

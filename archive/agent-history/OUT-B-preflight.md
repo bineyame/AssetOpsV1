@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-B-preflight.md on 2026-11-18 (declutter step 4).
 # OUT-B pre-flight: batched questions (2026-10-30)
 
 Branch `task/OUT-B-site-outcome-board`, worktree `AssetOpsV1-outB`, head `7b826e97` (slice A head, not yet on main). Spec: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-spec-outcome-sprint-2026-10-29.md` rev 2, covering §0, §1, Slice B, "Pre-flight rulings A" and addenda 1-2. No product code has been written.

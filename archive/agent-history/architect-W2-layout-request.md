@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-layout-request.md on 2026-11-18 (declutter step 4).
 # Architect request - apply the mockup layout contract to W2 (2026-10-17)
 
 You are the AssetOps Architect (Codex). The owner rejected W1 for mockup drift (`.agent/owner-W1-walkthrough-verdict-2026-10-17.md`); `D-2026-10-17-mockup-layout-spec` (`.agent/architect-W1-fidelity.md`) is now binding for all UI. Edit in place, concise.

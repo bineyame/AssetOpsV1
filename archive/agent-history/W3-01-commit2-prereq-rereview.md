@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-commit2-prereq-rereview.md on 2026-11-18 (declutter step 4).
 # W3-01 commit-2 prerequisite fix r1: re-review of 15dae742
 
 ## Verdict: ACCEPT (no High/Medium findings)

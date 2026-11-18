@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-W301-review-and-clock-audit.md on 2026-11-18 (declutter step 4).
 # FIX-W301 review and clock time-bomb audit
 
 Reviewer: fresh Claude reviewer, 2026-10-31 (real clock about 12:35 UTC at start). Branch

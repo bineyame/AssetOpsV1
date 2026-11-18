@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W1-UX-06-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - W1-UX-06 W1 closeout (evidence tooling, small backend wording, combined walkthrough)
 
 You are the AssetOps Planner (Codex). Write `tasks/W1-UX-06-closeout.md` on branch `plan/W1-UX-06` in this worktree (no code; coordinator commits). It is the last W1 slice before the owner's single combined walkthrough (`.agent/owner-walkthrough-policy-2026-10-16.md`). Runs after W1-UX-02, -03 and -04 merge.

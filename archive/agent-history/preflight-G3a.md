@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/preflight-G3a.md on 2026-11-18 (declutter step 4).
 # G3a pre-flight: saving operational records from the screen (backend)
 
 Branch `task/OWN-G3a-operational-entry-api` from main `59a89397a`. Spec: `AssetOpsV1-plan2/.agent/build-sheet-OWN-GAPS-2026-11-08.md`

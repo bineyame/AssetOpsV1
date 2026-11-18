@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01-closure.md on 2026-11-18 (declutter step 4).
 # Architect request: close the W6-01 readiness gate
 
 You are the AssetOps Architect. The independent readiness review `.agent/W6-01-readiness-review.md` found W6-01 NOT READY, with 16 BLOCKERs and 20 NOTEs. Read it, `.agent/W6-01-build-spec.md`, `.agent/W6-01-mock-measure.md`, and `.ai/ROLE_CONFIG.md` ("Build-Spec Readiness Gate For W5 And W6" and the 13 lessons).

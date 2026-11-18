@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-phase-3a-handoff.md on 2026-11-18 (declutter step 4).
 # S2-01b phase 3a handoff: simulated device resolution profile
 
 - **Branch:** `task/S2-01b-durable-simulated-gateway`

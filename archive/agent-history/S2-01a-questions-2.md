@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01a-questions-2.md on 2026-11-18 (declutter step 4).
 # S2-01a phase 2: questions for the Architect
 
 None of these blocks S2-01a. Each is built on the fail-closed default named below. Each matters for the S2-01b and S2-02 demo path.

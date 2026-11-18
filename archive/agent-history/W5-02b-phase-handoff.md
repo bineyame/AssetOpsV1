@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W5-02b phase handoff (K2a, K2b, K3a, K3b, K4a, K4b, K5)
 
 Branch `task/W5-02b-cold-site-screens`, from main `5e7c6f2d`. I wrote no code and ran no tests, servers or DBs. The core is read from `task/W5-02a-cold-action-root` (`7d6bbf92`, not merged). The P-IDs continue after the W5-02a batch: P-K2a-1..32 and P-K2b-1..3 are already ruled (U1-U4) and are not reused. Anchors refer to main unless they say `core:`.

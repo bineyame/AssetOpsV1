@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-review-packet.md on 2026-11-18 (declutter step 4).
 # S2-01b review packet: durable simulated gateway
 
 - **Task:** `tasks/S2-01b-durable-simulated-gateway.md` (amended through `ec0f77a`). USER_REVIEW_REQUIRED: false.

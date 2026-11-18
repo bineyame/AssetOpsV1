@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-4-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # CH-4 phase 2 handoff (PARTIAL: coherence and frontend landed; L2 work uncommitted; L3, guards and packet open)
 
 Branch `task/CH-4-opportunity`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch4`. Read phase 1 handoff first.

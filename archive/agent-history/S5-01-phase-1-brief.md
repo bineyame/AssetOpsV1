@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-phase-1-brief.md on 2026-11-18 (declutter step 4).
 # S5-01 phase 1 - implementer brief
 
 Branch `task/S5-01-site-overview` in `C:\Users\assef\Bineyame\AssetOpsV1`, stacked on LR-01 head `3b360af5` (LR-01 is under slice review in a separate worktree and is unmerged; its merge waits for the owner). Packet `tasks/S5-01-site-overview.md` - build **phase 1 only** (scoped read: imported-Site route/DTO, one process seam, S2 cutover and Performance gates, consistent basis, UTC day, Finding choice per `D-2026-10-15-s501-finding-choice`, money states consuming LR-01's `money_eligibility`). Reviews: `.agent/S5-01-plan-review.md`, `.agent/S5-01-plan-rereview.md`; Architect `.agent/architect-S5-01-answers.md`.

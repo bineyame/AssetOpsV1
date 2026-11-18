@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S1-03-review.md on 2026-11-18 (declutter step 4).
 # S1-03 review: Foundation organized as Site model, SLD and Readiness
 
 - **Reviewer:** a fresh Claude Reviewer (Opus). I did not author any of this slice, and I did not edit, fix or commit any tracked file.

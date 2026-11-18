@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-01-review.md on 2026-11-18 (declutter step 4).
 # G-01 review - Mock-gap catalogue and orphan guard
 
 Reviewer: fresh Claude Reviewer (did not author G-01). Date: 2026-10-13.

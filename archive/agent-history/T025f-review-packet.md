@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025f-review-packet.md on 2026-11-18 (declutter step 4).
 # T025f review packet - Template versioning and site lineage staleness (S0)
 
 Task: `tasks/T025f-template-versioning.md` (fast lane, `USER_REVIEW_REQUIRED: false`).

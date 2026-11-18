@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S1-03-questions-2026-10-08.md on 2026-11-18 (declutter step 4).
 ﻿# S1-03 Architect answers — 2026-10-08
 
 **Codex Architect**, per `.ai/ROLE_CONFIG.md`. This answers `.agent/S1-03-questions.md` and the S1-02 re-review's n6. It is a decision on the identified choices, not an independent S1-03 review or owner UI acceptance. The owner is checking the current tree; this answer changes no tracked file, branch, server or database.

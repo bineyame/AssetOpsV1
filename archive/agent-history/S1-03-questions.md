@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S1-03-questions.md on 2026-11-18 (declutter step 4).
 # S1-03 questions (choices made under the ambiguity rule; Architect may overrule)
 
 1. **Narrow viewport shell.** At 390 px the operator rail kept its 216 px column and left the Foundation about 95 px of content, so a 390 px comparison was impossible. Added one shell-wide rule, `@media (max-width: 640px)` in `ui/primitives.css`, that stacks the rail above the content as a wrapping row and sets a 16 px gutter. Every page at ≤640 px changes, including the Lab shell, which shares `.app-frame`. Options: (a) keep it (chosen); (b) scope it to operator Site pages; (c) defer it to V-01 and accept a 390 px failure here.

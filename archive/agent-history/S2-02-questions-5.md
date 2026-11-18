@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-questions-5.md on 2026-11-18 (declutter step 4).
 # S2-02 questions 5 (backend/gateway corrections Q14-Q16, Q19, Q21) - fail-closed defaults applied
 
 Q25. **A missing legacy store reads as the zero inventory.** `current_legacy_inventory` (`backend/assetops_backend/evidence_migration.py`) loads the Site's file-store evidence (`JsonEvidenceStore.load_site`: an absent file is an empty `SiteEvidence`) and `JsonCommitStore.site_artifacts` (an absent `var/commits` is no artifacts). An unreadable file or artifact raises and closes the gate. So deleting the legacy store invalidates any non-empty pass (the digest changes), but an empty-set pass stays valid when the store folder is absent, since "no store" and "empty store" hold the same (zero) legacy input. Default built: as stated. Alternative: record store presence in the digest (would also close KOBO-001 the first time any Lab commit creates `var/commits`).

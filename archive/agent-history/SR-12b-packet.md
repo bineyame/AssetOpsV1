@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-12b-packet.md on 2026-11-18 (declutter step 4).
 # SR-12b packet: analytics readiness over the date range
 
 - Task: SR-12b (sequence doc rev 10b/10c `architect-sequence-client-scope-2026-11-11.md:461-463`; D-SR.34, D-SR.39:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02b-build-brief.md on 2026-11-18 (declutter step 4).
 # S3-02b build - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review3`, branch `task/S3-02b-claim-limit-ui` (from main `8b5d8137`, S3-02a merged). Touch no other worktree.

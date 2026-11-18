@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W3-closeout.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-estate closeout questions
 
 You are the AssetOps Architect. Rule on three points raised by the W3-estate verification batch (branch `task/post-W6-W3-estate`, head 76f66f25; packet at `../AssetOpsV1-review6/.agent/post-W6-W3-estate-packet.md`; recapture in `../AssetOpsV1-review6/.agent/post-W6-W3-estate-recapture/`). Governing rulings: `.agent/post-W6-W3-estate-rulings.md` (point 8, Q10, Q17) and `.agent/post-W6-W3-estate-build-rulings.md`. Read only what you need.

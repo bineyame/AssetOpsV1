@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-7-review-server.md on 2026-11-18 (declutter step 4).
 # SR-7 server review (fresh Claude reviewer, 2026-11-12)
 
 Branch `task/SR-7-service-claim-range`, head 7fc12167d, diff `git diff $(git merge-base HEAD main) HEAD` (merge-base bbec56c26).

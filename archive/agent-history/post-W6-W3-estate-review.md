@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W3-estate-review.md on 2026-11-18 (declutter step 4).
 # Review: post-W6 W3-estate (`task/post-W6-W3-estate` @ 76f66f25)
 
 Reviewer: fresh Claude reviewer, independent of the implementer. Base: merge-base with main `dcf5b086`. Main has since moved to `aa0ff22f`, but only with docs (`post-W6-W1-rulings.md`, `post-W6-W3-closeout-rulings.md`), so no code conflicts.

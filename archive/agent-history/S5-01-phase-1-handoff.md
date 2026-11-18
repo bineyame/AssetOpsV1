@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S5-01 phase 1 handoff - scoped imported-Site Overview read
 
 Branch `task/S5-01-site-overview` (stacked on LR-01 `3b360af5`, unmerged). Phase 1 only; no UI. Build commit `c21f279f`, guard commit follows it.

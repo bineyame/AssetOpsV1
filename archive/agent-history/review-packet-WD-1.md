@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WD-1.md on 2026-11-18 (declutter step 4).
 # Review packet: WD-1 money wording (BL-48), ruled by WD-1-R
 
 Branch `task/FUEL-WD1-money-wording`. Code commit e73ef9ef0 (plus this packet).

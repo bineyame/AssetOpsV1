@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-05b-q2.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-05b notes N1–N8 (q2)
 
 You are the AssetOps Architect. Read the `.ai/ROLE_CONFIG.md` section "Mockup drives the design; implementers never decide", the whole of `.agent/W2-05b-build-spec.md` (including q1 and the commits 3–5 closure), `.agent/W2-05b-pending-rulings.md` (notes N1–N8), and `.agent/W2-05b-phase-handoff.md`. The code is on `task/W2-05b-ev-producer`; read it with `git show task/W2-05b-ev-producer:<path>`. The v69 mock is authoritative for the Lab layout.

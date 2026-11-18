@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-techdesign-ev-request.md on 2026-11-18 (declutter step 4).
 # Architect request - W2 technical design, part 2: EV charging (2026-10-17)
 
 You are the AssetOps Architect (Codex). Same bar and format as part 1 (`.agent/architect-W2-techdesign-cold-request.md`): an implementable technical design so implementers make no architectural or technical choice; token-efficient, tables over prose, cite path:line, reuse W1 and part-1 contracts by reference (`.agent/W2-technical-design-cold.md`, esp. W2-00 source events and the 0020-0023 migrations).

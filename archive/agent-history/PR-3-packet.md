@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-3-packet.md on 2026-11-18 (declutter step 4).
 # PR-3 packet: site-admin price entry, server half
 
 Branch `task/PR-3-price-entry` (worktree `AssetOpsV1-pr3`), from main `34465972b` + `task/PR-1-price-action` `24e6728d4`

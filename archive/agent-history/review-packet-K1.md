@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K1.md on 2026-11-18 (declutter step 4).
 # Review packet K1: the Kisiwa Site (DIESEL-1-R3c §9c.1)
 
 - Branch `task/DIESEL-K1-kisiwa-site`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k1`, from main `f9d27116b`.

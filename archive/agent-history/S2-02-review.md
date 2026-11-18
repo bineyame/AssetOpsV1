@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-review.md on 2026-11-18 (declutter step 4).
 # S2-02 review - Authenticated ingestion and Site Evidence
 
 Reviewer: a fresh Claude reviewer (independent of the S2-02 author). This is the first independent review of S2-02 under the 2026-10-09 owner routing; the single Codex review of S2-01c + S2-02 follows separately.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-W3-01-closure-check.md on 2026-11-18 (declutter step 4).
 # W4-01 / W3-01 closure check (2026-10-20, main e109f4f6)
 
 Only items still open or vague are listed. Every other numbered item is closed with a literal artifact (JSON, DDL column, code, copy, test name or file:line).

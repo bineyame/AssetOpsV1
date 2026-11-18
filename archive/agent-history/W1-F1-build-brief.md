@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F1-build-brief.md on 2026-11-18 (declutter step 4).
 # W1-F1 build - shared layout guard + Sites/Foundation/Readiness/SLD (implementer brief)
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review4`, branch `task/W1-F1-foundation` (from main). Frontend only (plus test/evidence tooling). Run `npx.cmd`/`npm.cmd` through PowerShell; `npm.cmd ci` in `frontend/` if stale. Walkthrough tools for captures: see `.agent/W1-UX-combined-owner-walkthrough.md` (use this worktree as `$wt`, PYTHONPATH with all five entries); drop fixtures afterwards.

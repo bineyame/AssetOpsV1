@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c3q3.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 c3-q3 (second EV Site has no scenario)
 
 Read `.agent/W3-02-build-spec.md` ("Commit-3 rulings (c3)") and `.agent/W3-02-pending-rulings.md` c3-q3.

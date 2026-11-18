@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OWN-G2-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # OWN-G2 handoff after u1 (PARTIAL: stopped at the context budget)
 
 Branch `task/OWN-G2-diesel-night-check`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-g2`, main merged at `76083070d`

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-1-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 1 fix round - re-review
 
 Reviewer: a fresh Claude reviewer (independent; did not author the slice or the fix round). 2026-10-12.

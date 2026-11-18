@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W6-handoff.md on 2026-11-18 (declutter step 4).
 # post-W6 W6-global-Work handoff (build phase; captures and full suites held)
 
 Branch `task/post-W6-W6-global` (worktree `AssetOpsV1-review8`, from main `821ad6bf`). Binding: `.agent/post-W6-W6-rulings.md`

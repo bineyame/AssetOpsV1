@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-closure.md on 2026-11-18 (declutter step 4).
 # Architect request: close the W5-01 and W5-03 readiness gate
 
 You are the AssetOps Architect. The independent readiness review `.agent/W5-readiness-review.md` found both specs NOT READY: W5-01 has 13 BLOCKERs and W5-03 has 11, among 46 items. Read it, `.agent/W5-01-build-spec.md`, `.agent/W5-03-build-spec.md`, and `.ai/ROLE_CONFIG.md` ("Build-Spec Readiness Gate For W5 And W6" and the 13 lessons).

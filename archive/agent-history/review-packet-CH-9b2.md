@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-9b2.md on 2026-11-18 (declutter step 4).
 # Review packet CH-9b2: the mill verification plan and freeze (lane 2, 3.0 units)
 
 - Branch `task/CH-9b2-mill-plan`, from `1bc73ce7e` (pre-flight). Commits: `2938ed1ff` (golden captured at unchanged 0051 code),

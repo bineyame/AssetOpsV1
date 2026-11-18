@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025e-claude-review.md on 2026-11-18 (declutter step 4).
 # T025e discovery review: Lab cockpit organisation and live playback
 
 Reviewer: **Claude** (fresh `assetops-reviewer` instance, not the implementer),

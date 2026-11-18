@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-phase1-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S4-03 phase 1 fix - fresh re-review
 
 Reviewer: fresh Claude (did not author the work), 2026-10-13. Branch `task/S4-03-finding-evidence-history`, HEAD `91dea16`. Scope: diff `a145ca9..91dea16` against F1 in `.agent/S4-03-phase1-review.md`.

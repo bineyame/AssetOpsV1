@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W3-03 phase handoff
 
 Branch `task/W3-03-portfolio-composition`. Spec: `.agent/W3-03-build-spec.md` closure 4 "Six builder runs" table,

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-01-q7.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-01 q7 and final dry-read of the remaining W4-01 commits
 
 You are the AssetOps Architect. Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/WALK-perf-review.md on 2026-11-18 (declutter step 4).
 # WALK-perf review (fix/WALK-perf, worktree /opt/assetecon/AssetOpsV1-walkperf)
 
 Reviewer: fresh Claude reviewer (did not author). Base main a1957a47a. Commits f6c67e34b and 6aa49760f. Diff `main...HEAD`: 9 files, +360/-46.

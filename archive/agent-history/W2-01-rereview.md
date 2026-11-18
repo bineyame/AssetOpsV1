@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-01-rereview.md on 2026-11-18 (declutter step 4).
 # W2-01 re-review - cold Foundation, readiness and SLD (after fix rounds 1-2)
 
 Reviewer: a fresh, independent Claude reviewer who did not author the work. Revision `ae2d9686`. W2-01 fix diff `acea3bda..ae2d9686` without `.agent`, with the main-side files of merge `81f62703` set aside using `81f62703^2..81f62703`. Prior review: `.agent/W2-01-review.md` (RETURN).

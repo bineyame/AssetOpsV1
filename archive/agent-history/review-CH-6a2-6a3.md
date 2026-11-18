@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-CH-6a2-6a3.md on 2026-11-18 (declutter step 4).
 # Review: CH-6a2 + CH-6a3 (batched)
 
 - Reviewer: fresh Claude (independent; did not author either unit). Read-only.

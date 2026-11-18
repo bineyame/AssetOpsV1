@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-retro-rulings.md on 2026-11-18 (declutter step 4).
 # Architect request - retro-rule implementer decisions in merged W2-02 and W2-03 (2026-10-18). One call; no code.
 
 Owner (verbatim, `.agent/owner-fidelity-and-design-ownership-2026-10-18.md`): "the architect should not let important things be decided by the implementer by a vague guide" and "stay faithful to the mock-up ... there should not be drfit".

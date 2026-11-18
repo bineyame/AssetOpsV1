@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-9b3.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-9b3 mill verdict (evaluator, trigger, read, page)
 
 Branch `task/CH-9b3-mill-verdict` (main merged at `24b6e6b59`, main = `5fe2cf42d` with the CH9b3-R rulings). Scope: build

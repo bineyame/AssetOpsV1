@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-closeout-review.md on 2026-11-18 (declutter step 4).
 # S4-03 registry closeout review
 
 Reviewer: a fresh Claude reviewer who did not write this change. Branch `closeout/S4-03-registry` @ e872714, against main a32d4bb. The diff is `e5492b2` (S4-03 closeout) plus `e872714` (I-G-01 resolution and the regenerated report). It is metadata only: 4 files, and no product code, tests or fixtures changed.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-05b-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers - S4-05b phase 1 (2026-10-16)
 
 Authority: `.agent/architect-S4-05b-request.md`, the S4-05 shared contract and S4-05b packet, `D-2026-10-15-s405-stored-demo-provenance`, the phase-1 handoff, and the owner's T028 presentation direction. These are interim implementation rulings. The owner still approves final visible wording at the W1 copy checkpoint before S4-05b merges.

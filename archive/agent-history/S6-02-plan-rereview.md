@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02-plan-rereview.md on 2026-11-18 (declutter step 4).
 # Plan re-review: S6-02a / S6-02b (after fix round 1)
 
 Reviewer: fresh Claude, independent of the Planner, the Architect and the coordinator who edited the checker. Branch `plan/S6-02-refine` at `df7b7105`. The fix is `26c34da8` (Planner) plus `df7b7105` (coordinator checker change). This is a targeted re-review. I ran no test suites.

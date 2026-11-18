@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-commit2-review.md on 2026-11-18 (declutter step 4).
 # W3-01 commit 2 independent review (estate read core and integration)
 
 Reviewer: fresh Claude reviewer, 2026-10-20. Branch `task/W3-01-estate-claim-action-roots`, head `4cf4475f`, range

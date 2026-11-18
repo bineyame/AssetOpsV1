@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S3-01-questions.md on 2026-11-18 (declutter step 4).
 # S3-01 Planner questions and fail-closed defaults (2026-10-11)
 
 The recorded `D-2026-10-11-s3-dispatch-interval-assessment` supplies the implementation contract. No additional Architect answer is required before phase 1 starts. Bundle any later contract question here for one Architect review, with the exact public evidence and affected `dispatch-3` row.

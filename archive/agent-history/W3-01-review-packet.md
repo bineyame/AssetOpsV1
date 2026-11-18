@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-review-packet.md on 2026-11-18 (declutter step 4).
 # W3-01 review packet (estate Finding and Action roots)
 
 Task `tasks/W3-01-estate-claim-action-roots.md`; spec `.agent/W3-01-build-spec.md` (commits 1-4, Runs 1-13, c1r1, c2r1,

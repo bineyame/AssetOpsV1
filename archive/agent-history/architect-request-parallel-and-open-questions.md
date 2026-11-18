@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-parallel-and-open-questions.md on 2026-11-18 (declutter step 4).
 # Architect request: can the two plans run in parallel, and what are the open questions?
 
 The owner's request is in `.agent/owner-parallel-and-open-questions-2026-10-27.md`, word for word. It is the authority.

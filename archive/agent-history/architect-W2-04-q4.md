@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-q4.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 Q-R1..Q-R9 + readings + copy dry-read for commit 4; W2-05a vocabulary scope (2026-10-18). One call. No code.
 
 Owner (verbatim): "the architect should not let important things be decided by the implementer by a vague guide"; "stay faithful to the mock-up". Make this the LAST W2-04 question round.

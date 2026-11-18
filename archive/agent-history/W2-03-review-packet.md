@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-03-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-03 review packet - cold assessment, episodes, Findings and the four cold screens
 
 Task `tasks/W2-03-cold-assessment.md` (USER_REVIEW_REQUIRED: true - fresh independent slice review, then the owner's

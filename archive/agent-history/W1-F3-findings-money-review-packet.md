@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F3-findings-money-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-F3 findings and money - review packet
 
 Task: W1 structural fidelity rework, F3 (`.agent/W1-F3-findings-money-build-brief.md`, contract `D-2026-10-17-mockup-layout-spec`). Branch `task/W1-F3-findings-money`, worktree `AssetOpsV1-review`. Main (final W1-F1, `4002b1ad`) is merged in. Not merged to main.

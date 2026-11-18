@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PA-3.md on 2026-11-18 (declutter step 4).
 # Review: POLISH PA-3 (producers, links, Addendum 12 wire fields, polish rebuild)
 
 Reviewer: fresh Claude reviewer (independent; did not author the slice). Date 2026-11-01.

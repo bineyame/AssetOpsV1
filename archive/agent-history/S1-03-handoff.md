@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S1-03-handoff.md on 2026-11-18 (declutter step 4).
 # S1-03 handoff
 
 **State:** built and in review on `task/S1-03-foundation-organization`. Packet: `.agent/S1-03-review-packet.md`. Nothing remains in progress.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-review.md on 2026-11-18 (declutter step 4).
 # V-01b fresh Claude review — Lab and Evidence visual fidelity
 
 Reviewer: fresh independent Claude Reviewer (did not build the slice). Tree `task/V-01b-evidence-lab-visual` at `8ab5589`; slice diff `b1ac0a8..6d5fba9`; merge `8ab5589` brings only planning/docs/registry/ledger files (no product code), and every check below was run on `8ab5589`.

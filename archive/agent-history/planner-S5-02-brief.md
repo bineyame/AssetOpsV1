@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S5-02-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - refine S5-02 Overview Finding list
 
 You are the AssetOps Planner (Codex). Refine `tasks/S5-02-overview-finding-list.md` (outline) into an implementation-ready packet on branch `plan/S5-02-refine` in this worktree. No code; the coordinator commits.

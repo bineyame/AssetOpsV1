@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-R1-questions.md on 2026-11-18 (declutter step 4).
 # CC-R1 questions for the Architect (2026-10-27)
 
 Builder: Lane C, branch `task/CC-R1-claim-links-beneficiary`. Everything else in CC-R1 is built; the item below is held, not decided.

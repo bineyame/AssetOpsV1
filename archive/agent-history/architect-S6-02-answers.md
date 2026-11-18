@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-02-answers.md on 2026-11-18 (declutter step 4).
 # Architect ruling - S6-02a/S6-02b packet questions
 
 Decision: `D-2026-10-16-s602-questions`. Applies `D-2026-10-16-s6-verification` and `.agent/architect-A-S6-verification-answers.md`. These are contract choices for the two implementation packets, not owner visual acceptance.

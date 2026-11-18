@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02c-K4-handoff.md on 2026-11-18 (declutter step 4).
 # W5-02c K4a + K4b + K5 handoff (cold Action detail and W5-02 closeout)
 
 Branch `task/W5-02c-K4-cold-action`, from main `acf3f078` (K2, K3 and the K4 rulings), merged at `2b287613`. It is built

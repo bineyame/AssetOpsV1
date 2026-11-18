@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02b-K3-cap664.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02b K3, one remaining cap measurement
 
 Read .agent/W5-02-build-spec.md, K3 rulings 17, 18 and 21, and the v69 mock (cold-work-incidents). Ruling 17 caps the five-row "one `Read full text` open" state at 650 px panel height at 390, with no fallback clipping or row reduction. Ruling 21 removed the narrow Incidents vertical box, so all five rows now show.

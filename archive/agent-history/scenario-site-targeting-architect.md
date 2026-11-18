@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/scenario-site-targeting-architect.md on 2026-11-18 (declutter step 4).
 # Scenario site targeting - Architect recommendation (advisory, revision 3)
 
 Date: 2026-10-01. Produced by **Claude under the `.ai/ROLE_CONFIG.md`

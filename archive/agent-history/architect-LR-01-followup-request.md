@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-LR-01-followup-request.md on 2026-11-18 (declutter step 4).
 # Architect follow-up — LR-01 overlap definition (plan review M1)
 
 You are the AssetOps Architect (Codex). Read `.agent/LR-01-plan-review.md` finding M1 and your rulings `.agent/architect-LR-01-answers.md` Q1/Q2 (and `D-2026-10-15-lr01-source-time-cohort` in `.ai/DECISIONS.md`).

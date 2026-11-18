@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-dispatch-3-1-handoff.md on 2026-11-18 (declutter step 4).
 # S3-01 dispatch-3.1 handoff (complete; phase 3b UI is next after the fresh Claude review)
 
 Branch `task/S3-01-dispatch-assessment`. The dispatch-3.1 commits start at `05f9b4d`. Ruling: `D-2026-10-11-s3-phase-3a-version-and-cutover` (`.agent/architect-S3-answers-3.md`). Packet: the "dispatch-3.1" section in `.agent/S3-01-phase-3a-review-packet.md`. Questions: `.agent/S3-01-questions-4.md` (Q14-Q16, with fail-closed defaults). Status stays `active`. The phase-3a handoff `.agent/S3-01-phase-3a-handoff.md` still holds the 3b anchors (client calls, `DispatchView`, fixture days).

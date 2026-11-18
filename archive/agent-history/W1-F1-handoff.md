@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F1-handoff.md on 2026-11-18 (declutter step 4).
 # W1-F1 handoff: the shared layout API F2-F5 must use
 
 Contract: `.agent/architect-W1-fidelity.md` (`D-2026-10-17-mockup-layout-spec`). Branch `task/W1-F1-foundation`. Review packet: `.agent/W1-F1-review-packet.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-06-q4.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-06 q4 (Q4-1, Q4-2, Q4-3)
 
 You are the AssetOps Architect. Read `.agent/W2-06-build-spec.md` (all rulings q1–q3). The code is on `task/W2-06-ev-assessment` at head `362eb97c`. Read these from it with `git show task/W2-06-ev-assessment:<path>`:

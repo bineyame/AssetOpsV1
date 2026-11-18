@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W3-estate-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: W3-estate
 
 ## Cross-card ownership

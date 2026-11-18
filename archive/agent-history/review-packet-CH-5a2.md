@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5a2.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-5a2a (chain endpoints, Refs, lens, threads)
 
 - **Branch:** `task/CH-5a2-chain-endpoints`, worktree `AssetOpsV1-ch5a2`.

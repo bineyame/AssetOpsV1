@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b1-handoff.md on 2026-11-18 (declutter step 4).
 # DD-1b1 handoff
 
 Branch `task/DD-1b1-story-time-actions`, worktree `AssetOpsV1-dd1b1`. **State: stopped on the Q6 probe; awaiting Architect rulings on S1, S2, S3 in `.agent/review-packet-DD-1b1.md`.** Rulings so far: `build-sheet-DD-1.md` "DD1b1-R" (:1033).

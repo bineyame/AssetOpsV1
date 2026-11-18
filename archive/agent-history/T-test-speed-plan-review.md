@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T-test-speed-plan-review.md on 2026-11-18 (declutter step 4).
 # T-test-speed planning packet: fresh Claude review
 
 Reviewer: fresh Claude reviewer. The Codex Planner wrote the packet; I did not. Date 2026-10-14.

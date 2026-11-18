@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/MB-1-rereview.md on 2026-11-18 (declutter step 4).
 # MB-1 re-review (fresh Claude reviewer, 2026-11-13)
 
 Fix round 6953f9ca5 on `task/MB-1-modbus`, reviewed as `git diff 46b2e3ece 6953f9ca5` (5 files) against the review's

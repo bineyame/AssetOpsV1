@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-DD-1b2a.md on 2026-11-18 (declutter step 4).
 # Review DD-1b2a: the mill step (independent first review)
 
 Reviewer: fresh Claude, 2026-11-07. Branch `task/DD-1b2-finish-rehearsal` at `2c69bbd6f`. Range: code and tools since `3d1871142` (pre-flight), no product change after `e513401e0` except the declared mill-tool literal.

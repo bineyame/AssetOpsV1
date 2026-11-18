@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-01-handoff.md on 2026-11-18 (declutter step 4).
 # G-01 handoff and design (Implementer coordinator, 2026-10-13)
 
 Contract: `tasks/G-01-mock-gap-catalogue-and-guard.md`. Decisions: `D-2026-10-12-mock-gap-closure-mechanism`,

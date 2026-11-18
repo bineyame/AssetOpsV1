@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-DD-1b1.md on 2026-11-18 (declutter step 4).
 # Review packet: DD-1b1 story-time Actions (READY for review)
 
 Branch `task/DD-1b1-story-time-actions`, size 1.5. Rulings: DD1b1-R, R2, R3 in `.agent/build-sheet-DD-1.md` (R3 wins over R2, R2 over R).

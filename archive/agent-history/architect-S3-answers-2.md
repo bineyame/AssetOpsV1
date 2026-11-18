@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S3-answers-2.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S3-01 phase-2 rulings (2026-10-11)
 
 These are phase-3 handoff rules for Q1–Q8, subject to the fresh phase-2 review. They amend the S3-01 packet through `D-2026-10-11-s3-phase-2-selection-and-read`; they do not accept the implementation or waive the owner checkpoint.

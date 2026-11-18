@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-03b-ui.md on 2026-11-18 (declutter step 4).
 # Architect request: rule on the W5-03b E4/E6 UI pre-flight refresh (16 points)
 
 You are the AssetOps Architect. Read these first:

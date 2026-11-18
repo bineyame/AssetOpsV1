@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/plan-demo-led-replan-claude-review.md on 2026-11-18 (declutter step 4).
 # Review: Demo-Led Replan (`plan/demo-led-replan`, `446906e..58d756b`)
 
 Reviewer: a fresh Claude `assetops-reviewer` instance, working under the

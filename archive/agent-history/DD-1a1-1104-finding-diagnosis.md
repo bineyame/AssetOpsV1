@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1a1-1104-finding-diagnosis.md on 2026-11-18 (declutter step 4).
 # DD-1a1: why the 11-04 Finding goes UNCONFIRMED / NO_INTERVAL with complements
 
 This is a diagnosis only. No product code changed. Build head `23d90e251`. I rebuilt both sides with

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-presentation-cp2a-handoff.md on 2026-11-18 (declutter step 4).
 # T028 presentation checkpoint 2a - handoff to checkpoint 2b
 
 Spec `.agent/T028-architect-presentation.md` (sections 2, 4, 5). 2a landed the

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-graph-pass-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: one graph/packet/queue pass (2026-10-11)
 
 Role: Planner (Codex). Branch `plan/pre-S3-startup`. One bounded pass (owner Codex-usage rule, verbatim 2026-10-09: "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use").

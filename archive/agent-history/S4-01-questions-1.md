@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-questions-1.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 1 questions (fail-closed defaults shipped)
 
 For one Architect batch; none blocks phase 1. Each names the default the build uses and where it lives.

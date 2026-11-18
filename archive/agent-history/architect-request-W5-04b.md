@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-04b.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-04b review items A1-A4 (A3 binds W5-04c V4a)
 
 Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-W3-01-closure-check2.md on 2026-11-18 (declutter step 4).
 # W4-01 / W3-01 closure check 2 (2026-10-20, main 70739d37)
 
 Only items still open are listed. 11 of 13 are closed. The Action snapshot keys (`reserve_trial.py:276-289`, `postgres_action_store.py:273-274`) and the nine resolver keys plus reason extras (`source_provenance.py:157-226`) match the specs. `probe_fresh`, `ColdReadService`, `EvReadService`, both `_snapshot(c,...)` methods, the `contract-fixtures/w2` files, `var/sites/kobo-001.yaml` and `verification_outcome.recorded_at` also exist as cited.

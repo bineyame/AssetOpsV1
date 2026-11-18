@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-phase2-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S4-03 phase 2 fix round - fresh Claude re-review
 
 Reviewer: fresh Claude Reviewer. I did not author this phase or its fix round. Date: 2026-10-13.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/GAP-REASONS-packet.md on 2026-11-18 (declutter step 4).
 # GAP-REASONS packet (D-E5.46) + currentness wording follow-up
 
 Branch `task/GAP-REASONS` from main 44bab5d50. Card: `.agent/build-sheet-OWN-GAPS-2026-11-08.md` ~4093.

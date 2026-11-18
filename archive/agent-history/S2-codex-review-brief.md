@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-codex-review-brief.md on 2026-11-18 (declutter step 4).
 # Review brief: one Codex review of S2-01c + S2-02 (2026-10-09)
 
 Role: Reviewer (Codex). Owner rule (verbatim, 2026-10-09): "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use". S2-01a and S2-01b had their own Codex reviews earlier.

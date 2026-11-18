@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-10-review-server.md on 2026-11-18 (declutter step 4).
 # SR-10 server + SR-10/11 shared core: independent review
 
 Reviewer: fresh Claude (Opus 5.5), 2026-11-12. Branch `task/SR-10-fuel-range`, head `95a71e92d`, diff

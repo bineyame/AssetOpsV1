@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/small-followons-plan-review.md on 2026-11-18 (declutter step 4).
 # Plan review - small follow-ons S4-06, S4-07, OPS-02
 
 Reviewer: fresh independent Claude reviewer (did not author the packets). Branch `plan/small-followons`, HEAD

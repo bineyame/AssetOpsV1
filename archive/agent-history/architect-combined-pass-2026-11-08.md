@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-combined-pass-2026-11-08.md on 2026-11-18 (declutter step 4).
 # Architect combined pass, 2026-11-08: backlog sort, DS-1 scope, end-game order
 
 Claude Architect (binding: Claude, `.ai/ROLE_CONFIG.md:9`, owner 2026-10-27). Read-only on code, main `b0663c1eb`. The

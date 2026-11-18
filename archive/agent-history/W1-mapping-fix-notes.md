@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-mapping-fix-notes.md on 2026-11-18 (declutter step 4).
 # W1 mapping fix round notes
 
 Fixes against `.agent/W1-mapping-review.md`. Registry: `frontend/docs/architecture/v69-dependency-registry-pilot.json`.

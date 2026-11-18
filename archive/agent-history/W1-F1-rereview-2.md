@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F1-rereview-2.md on 2026-11-18 (declutter step 4).
 # W1-F1 re-review 2: fix round 2
 
 - **Reviewer:** a fresh Claude Reviewer, not the author.

@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/SR-11-parity-script.py on 2026-11-18 (declutter step 4).
 """SR-10/SR-11 real-data parity (D-SR.36/45/51-54/58/60) on the polish VPS DB. Reads only; writes the --record JSONs.
 
     PYTHONPATH=<sr11>/backend:<sr11>/backend/tests:<sr11>/contracts:<sr11>/simulator:<sr11>/gateway:<sr11>/field:<sr11>/host:<sr11>/tools \

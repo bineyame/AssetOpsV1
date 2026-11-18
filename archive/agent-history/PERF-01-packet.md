@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PERF-01-packet.md on 2026-11-18 (declutter step 4).
 # PERF-01 review packet: phase 0 (baseline) and phase 1 (quick wins)
 
 Branch `task/PERF-01-baseline-quick-wins` from main 504ae5f1. Builder: the Architect (Claude), under the owner's

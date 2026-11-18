@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-MV-1.md on 2026-11-18 (declutter step 4).
 # Review packet MV-1: mill dollars on the verdict page (FUEL-1 lane 1)
 
 - Ruling: `.agent/build-sheet-FUEL-1.md` §2 (main `f63b46a01`). Branch `task/FUEL-MV1-mill-dollars`, worktree

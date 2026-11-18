@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-a-handoff.md on 2026-11-18 (declutter step 4).
 # post-W6 W1-mini-Action-a: build handoff (code + focused tests done; capture and closeout pending)
 
 Branch `task/post-W6-W1-a`, worktree `AssetOpsV1-review4`. Base 091045ed. Rulings: `.agent/post-W6-W1-rulings.md` (cross-card 1-5, 6-29).

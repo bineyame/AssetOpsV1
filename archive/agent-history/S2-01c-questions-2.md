@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-questions-2.md on 2026-11-18 (declutter step 4).
 # S2-01c phase 2 — design choices the packet and decisions do not fix
 
 Implementer, 2026-10-09. Each item is built with the stated fail-closed default; none blocks phase 3. All are local to the host schedule, the v2 profile or the new gateway ops.

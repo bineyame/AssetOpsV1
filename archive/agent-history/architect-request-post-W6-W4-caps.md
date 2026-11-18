@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W4-caps.md on 2026-11-18 (declutter step 4).
 # Architect request: ratify W4-mini provisional caps (Q18)
 
 W4-mini merged to main (7dfd8f4e) on independent review ACCEPT. Its packet `.agent/post-W6-W4-packet.md` section "Provisional caps (Q18 ...)" lists caps computed with the accepted guide formula `50*ceil(peak*1.15/50)` (method in `frontend/docs/architecture/ui-ux-decision-guide.md` and `.agent/post-W6-W3-closeout-rulings.md`). Rulings context: `.agent/post-W6-W4-rulings.md`, `.agent/post-W6-W4-build-rulings.md`.

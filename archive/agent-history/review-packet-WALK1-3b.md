@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-3b.md on 2026-11-18 (declutter step 4).
 # Review packet: WALK1-3b (Grow row: performance, KPI progress and potential apart; configurable minimum; 0041)
 
 Task: build sheet `.agent/build-sheet-WALK1.md` (plan2) Addendum 2 §A2.1-§A2.5, and the two tests that fail on

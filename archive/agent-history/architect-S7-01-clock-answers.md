@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S7-01-clock-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers - S7-01 clock and contact summary (2026-10-16)
 
 Authority: `D-2026-10-16-s701-clock` in `.ai/DECISIONS.md`. This refines `D-2026-10-16-a-s7-health` for the S7-01a follow-up and S7-01b UI.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/KD-COVERAGE-packet.md on 2026-11-18 (declutter step 4).
 # KD-COVERAGE packet (D-E5.40)
 
 Branch `task/KD-COVERAGE`, tool-only (no product code). `tools/demo_combined_finish.py`:

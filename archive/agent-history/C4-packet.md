@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C4-packet.md on 2026-11-18 (declutter step 4).
 # E4-C4 packet: Performance comparison only on change (D-E4.8)
 
 Branch `task/E4-C4-performance-on-change`, cut from main c0362bdcd (includes C2). Tool only.

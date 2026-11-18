@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-1a-review.md on 2026-11-18 (declutter step 4).
 # W3-03 run 1a — independent review
 
 Commit `450f5f9f` on `task/W3-03-portfolio-composition` (parent `5456b7fa`). I read it through git only and ran the tests in a separate detached worktree on a private `assetops_w303rv_test` DB. The DB has been dropped and the worktree removed.

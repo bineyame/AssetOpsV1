@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-b-review.md on 2026-11-18 (declutter step 4).
 # post-W6 W1-mini-Action-b: independent review
 
 Reviewer: fresh Claude reviewer (not the author). 2026-10-25. Branch `task/post-W6-W1-b`, head d78c9133, diff

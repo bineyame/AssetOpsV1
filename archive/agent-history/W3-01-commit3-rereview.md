@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-commit3-rereview.md on 2026-11-18 (declutter step 4).
 # W3-01 commit-3 re-review (read via git objects, b59575c0..2b7e18e1, nothing run)
 
 **Verdict: ACCEPT.** No High or Medium finding.

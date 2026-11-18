@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03a-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W5-03a phase handoff
 
 Branch `task/W5-03a-ev-selected-depth` (from main `43a75577`, main merged at `ccf16c2f`). E1a, E1b, E2, E3 built; run entries below.

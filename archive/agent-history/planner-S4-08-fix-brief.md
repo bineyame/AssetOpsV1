@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-08-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round - S4-08 (plan review RETURN)
 
 You are the AssetOps Planner (Codex), branch `plan/S4-08-assumption-history`. Edit `tasks/S4-08-assumption-consequence-history.md` only (and registry/README if needed). Read `.agent/S4-08-plan-review.md` and the Architect ruling `D-2026-10-16-s408` (`.agent/architect-S4-08-answers.md`).

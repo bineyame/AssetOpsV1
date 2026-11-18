@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/fuel-story-design-2026-11-07.md on 2026-11-18 (declutter step 4).
 # Fuel story: why today's example data can't carry it, an honest design, and the idle-fuel probe
 
 - Architect: Claude, 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude since 2026-10-27.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F2-overview-handoff.md on 2026-11-18 (declutter step 4).
 # W1-F2-overview handoff (pass 2 complete; awaiting review)
 
 Branch `task/W1-F2-overview`, clean at `fde3e130`. Not merged. The packet is `.agent/W1-F2-overview-review-packet.md`; read it first for what landed, the per-screen panel map, the changed assertions and the deviations.

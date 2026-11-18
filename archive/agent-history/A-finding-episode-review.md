@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/A-finding-episode-review.md on 2026-11-18 (declutter step 4).
 # A-finding-episode review (fresh Claude reviewer)
 
 Target: plan/A-finding-episode @ 513711b. Planning-record review only; no implementation reviewed.

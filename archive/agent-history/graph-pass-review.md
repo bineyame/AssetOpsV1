@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/graph-pass-review.md on 2026-11-18 (declutter step 4).
 # Planner graph pass + scoring fixtures review (fresh Claude reviewer, 2026-10-11)
 
 A fresh Claude reviewer produced this review. It did not author the graph pass, the fixtures, or any earlier mapping review. It covers branch `plan/pre-S3-startup`: commit `cb09657` (the Planner graph pass) and commit `152f903` (`test_delivery_next_work.cjs` fixtures).

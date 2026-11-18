@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025e-claude-review-r1.md on 2026-11-18 (declutter step 4).
 # T025e re-review after fix round R1
 
 Reviewer: **Claude**. This is a fresh `assetops-reviewer` instance. It did not

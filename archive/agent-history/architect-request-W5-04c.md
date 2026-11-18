@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-04c.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-04c Q1-Q2 (Q2 also binds W5-04b V3b)
 
 Read:

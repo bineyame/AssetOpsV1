@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-02-rereview.md on 2026-11-18 (declutter step 4).
 # W1-UX-02 re-review - fix round 1
 
 Reviewer: fresh independent Claude reviewer (did not author the slice or the fix). Revision: `77ceba1d` (detached, worktree `AssetOpsV1-review5`). Diff: `git diff 68b61dae..77ceba1d` (8 files, +78/-13; frontend, evidence script, packet). Inputs: `.agent/W1-UX-02-review.md` (RETURN: M1, L1-L6), packet "Fix round 1".

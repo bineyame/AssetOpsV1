@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02b-K3-review.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02b K3 review rulings (FINAL, no further loop)
 
 You are the AssetOps Architect. Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-round2-handoff.md on 2026-11-18 (declutter step 4).
 # V-01a round 2 handoff: phase 2a and 2b landed (round complete, in review)
 
 Branch `task/V-01a-foundation-visual`. Round-2 base: `13620b6`. Authority: `.agent/architect-V-01a-answers.md` items 1-5, `D-2026-10-12-v01a-owner-visual-rulings`, owner text `.agent/owner-V-01a-feedback-2026-10-12.md` (including "Follow-up" and "Follow-up 2" at lines 15 and 19, added mid-round by the coordinator: match the mock's tab-header styling, colours and type sizes; restyle the left navigation like the mock, with icons).

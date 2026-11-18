@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-batch-answers-4.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S2-02 and delivery-strategy batch rulings (2026-10-09)
 
 These are contract rulings, not a review verdict or owner Evidence acceptance. **No separate owner decision is needed now.** The owner still judges the S2 Evidence checkpoint and V-01 adoption after independent review; the one S2-01c/S2-02 Codex review remains the owner's requested review batch.

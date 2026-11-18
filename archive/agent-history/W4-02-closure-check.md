@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-closure-check.md on 2026-11-18 (declutter step 4).
 # W4-02 closure check (2026-10-20)
 
 Checked at main `091aad9c` ("Merge plan/W4-02-closure"). Read-only. Inputs: `.agent/W4-02-spec-review.md` (33 questions), "Review closure (2026-10-20)" of `.agent/W4-02-build-spec.md` (cited `C:Qn`), `.agent/W4-02-mock-measurements.md`, `tasks/W4-02-mini-grid-depth.md`.

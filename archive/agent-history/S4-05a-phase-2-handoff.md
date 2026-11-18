@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05a-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S4-05a phase 2 handoff - exact-revision resolver (slice complete, in_review)
 
 Branch `task/S4-05a-provenance-binding-resolver` (worktree `AssetOpsV1-review3`). Phase-2 commits `a5f448b3`,

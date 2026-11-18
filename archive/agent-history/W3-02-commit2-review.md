@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-commit2-review.md on 2026-11-18 (declutter step 4).
 # W3-02 commit 2 independent review (Evidence page, shell, eyebrow, wording)
 
 Reviewer: fresh Claude reviewer, not an author of this range. Date: 2026-10-21.

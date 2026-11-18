@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-4-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # CH-4 phase 1 handoff (PARTIAL: backend core landed; stopped at the context cap)
 
 Branch `task/CH-4-opportunity` in worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch4`, cut from plan2 main `e207f328f`.

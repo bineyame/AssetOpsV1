@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/re-review-K10-r3v.md on 2026-11-18 (declutter step 4).
 # Re-review K10 R3v fix round
 
 Verdict: ACCEPT. No High, Medium or Low findings.

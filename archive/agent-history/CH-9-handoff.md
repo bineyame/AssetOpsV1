@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-9-handoff.md on 2026-11-18 (declutter step 4).
 # CH-9 handoff (builder 8: CH9-R4 F1-F3 built and L3-proved; stopped at the context cap before the main merge)
 
 ## Status 2026-11-05 (builder 9): DONE. Main (CH-5c) merged, migrations 0047_chain_response -> 0048 -> 0049, COH-6 x4 retired, polish W6 PASS / fresh 23/23 / COH-17 0, MD-0 rebuilt `*_df73aa8a` + L3m states/close clean + L2m 8/8, guards 14/14 + estate 15/15. Packet section "Merge with CH-5c". No clone left (ch9m dropped); DBs left: mechanism + mechanism_close (derived), templates `*_df73aa8a`. Next: review.

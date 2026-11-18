@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-remaining-plan-rereview.md on 2026-11-18 (declutter step 4).
 # W1 remaining packets - plan re-review (fix round 1)
 
 Reviewer: fresh independent Claude Reviewer, 2026-10-16. Plan re-review only. Worktree `AssetOpsV1-review5` at `c4cb8662`. Scope: Planner fix `git diff e855cedb..cb4208f7 -- tasks` against `.agent/W1-remaining-plan-review.md` F1-F5, and agreement with `.agent/architect-W1-remaining-q-answers.md` / `D-2026-10-16-w1-remaining-questions` (`.ai/DECISIONS.md:4168`). Untouched packet text not re-reviewed. Owner direction: demo speed, no wording/visual findings, only High/Medium block. No suites run.

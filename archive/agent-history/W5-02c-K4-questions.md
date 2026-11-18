@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02c-K4-questions.md on 2026-11-18 (declutter step 4).
 # W5-02c K4: question for the Architect (ruling contradicts merged code)
 
 Branch `task/W5-02c-K4-cold-action`. Raised while building K4b; everything else in K4a/K4b/K5 is built.

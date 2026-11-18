@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-registry-closeout-review.md on 2026-11-18 (declutter step 4).
 # S3-01 registry closeout review
 
 Reviewer: fresh Claude reviewer (did not author the closeout). Branch closeout/S3-01-registry, commit 5d371d0 over bc78298.

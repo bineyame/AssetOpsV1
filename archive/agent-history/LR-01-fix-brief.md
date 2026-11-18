@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-fix-brief.md on 2026-11-18 (declutter step 4).
 # LR-01 fix round (Sonnet) - Architect deviation rulings + slice review Lows
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`, branch `task/LR-01-late-reading-series-and-money-limit` (head `87019e52`). S5-01 is being built in the main checkout on a branch stacked on LR-01; do not touch the main checkout.

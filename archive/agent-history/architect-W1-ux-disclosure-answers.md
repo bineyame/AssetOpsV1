@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-ux-disclosure-answers.md on 2026-11-18 (declutter step 4).
 # W1-UX disclosure scan - Architect answer (2026-10-16)
 
 Decision: `D-2026-10-16-w1-ux-disclosure`. Accept the W1-UX-01 amendment, with the precise scan boundary below. This refines `D-2026-10-04-plain-language-analysis-views` for the small closed "How this was worked out" disclosure only. The broader W1 vocabulary guard still applies to the default reading and to Analysis/Evidence prose. No task packet or code change is made here.

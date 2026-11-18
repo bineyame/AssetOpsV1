@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-seam-recheck.md on 2026-11-18 (declutter step 4).
 # W4-02 pre-build seam re-check (after W4-01 merge)
 
 Base checked: `C:\Users\assef\Bineyame\AssetOpsV1-plan2`, main `4049a72c` (W4-01 merged at `d76809dd`). Read-only check of `.agent/W4-02-build-spec.md` (main body plus closures 1-3) and `.agent/W4-02-mock-measurements.md` against the merged code. Line refs are `file:line` on that revision. Nothing was run apart from greps and reads. The spec's own line numbers appear as `spec:N`.

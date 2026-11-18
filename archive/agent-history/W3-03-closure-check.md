@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-closure-check.md on 2026-11-18 (declutter step 4).
 # W3-03 spec review closure check (2026-10-20)
 
 Worktree `AssetOpsV1-plan2`, main `5faddeff`. Read-only. Inputs: `W3-03-spec-review.md` (35 questions), "Review closure (2026-10-20)" in `W3-03-build-spec.md` (L161-236), `W3-03-mock-measurements.md`, and the frozen W3-01 (q1-q4, token v2 amendment, refusal table) and W3-02 (closures 1-3) wire.

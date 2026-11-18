@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05a-rechain-brief.md on 2026-11-18 (declutter step 4).
 # S4-05a re-chain and merge prep (Sonnet)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S4-05a-provenance-binding-resolver` (slice review ACCEPT + fix round). Main is now `4fbb97f8`: it contains LR-01 (`0014_*`, `0015_finding_returning_basis`) and S6-01a (`0016_action_store`), plus S5-01, S4-06, S4-07, OPS-01, keep-awake display fix.

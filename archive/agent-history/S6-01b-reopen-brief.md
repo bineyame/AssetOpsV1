@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-reopen-brief.md on 2026-11-18 (declutter step 4).
 # S6-01b change round - Architect ruling D-2026-10-15-s601-reopen + slice review Lows
 
 Same worktree and environment as `.agent/S6-01b-phase-2-brief.md` (`C:\Users\assef\Bineyame\AssetOpsV1-review3`, branch `task/S6-01b-action-ui`, now containing the S6-01a reopen round via merge `bb577b0d`).

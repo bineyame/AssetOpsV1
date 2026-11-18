@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K6c.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K6c (DIESEL-1-R3u U2, U3 and U6)
 
 **Reviewer:** a fresh Claude reviewer who did not author this work.

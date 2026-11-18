@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-04-review.md on 2026-11-18 (declutter step 4).
 # OPS-04 review (fresh reviewer, read only; no suite, no Docker)
 
 Verdict: ACCEPT (two Low doc findings, non-blocking).

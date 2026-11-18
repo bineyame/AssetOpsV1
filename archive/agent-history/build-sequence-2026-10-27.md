@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/build-sequence-2026-10-27.md on 2026-11-18 (declutter step 4).
 # Build sequence, two lanes, 2026-10-27 to 3 November
 
 Architect: Claude (`.ai/ROLE_CONFIG.md` line 9). Sources: owner answers `.agent/owner-answers-open-questions-1-2026-10-27.md` and `-2-2026-10-27.md` (verbatim, the authority), `.agent/owner-build-plan-depth-2026-10-27.md`, `.agent/architect-reply-owner-q2-q3-2026-10-27.md`, `.agent/parallel-feasibility-2026-10-27.md`, `.agent/implementer-parallel-confirmation-2026-10-27.md` (its four adjustments are folded into the specs), `.agent/telemetry-rulings-2026-10-27.md` (amendment 2).

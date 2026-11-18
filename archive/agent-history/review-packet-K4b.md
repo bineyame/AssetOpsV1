@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K4b.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K4b, Protect row MG-8 "Fuel accounted for", the fuel Finding on the board, Portfolio Protect lines
 
 - **Task:** K4b card, `.agent/build-sheet-DIESEL-1.md` §9j.10–§9j.13 (R3j), amended by §9k (domain filters, K4a), §9l.4 (link with `fuel_finding_ref`, reason words imported from K5), §9m/§9m2 (Protect thread line stays K4b), §9j2 (R3j2: the S-a stop ruling). PV-1-R (`build-sheet-FUEL-1.md`) for the one-line-each, never-summed pattern.

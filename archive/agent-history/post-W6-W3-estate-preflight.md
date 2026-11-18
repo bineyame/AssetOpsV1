@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W3-estate-preflight.md on 2026-11-18 (declutter step 4).
 # post-W6 W3-estate: builder pre-flight
 
 2026-10-24. Branch `task/post-W6-W3-estate` at main `7554111e`. No product code is written yet.

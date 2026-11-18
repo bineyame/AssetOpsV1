@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C1-review.md on 2026-11-18 (declutter step 4).
 # C1 review: Portfolio lifecycle cutoff (D-E4.2)
 
 Reviewer: fresh Claude (Opus), independent of the builder. Diff: `git diff main...task/E4-C1-portfolio-lifecycle-cutoff`

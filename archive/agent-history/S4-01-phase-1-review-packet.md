@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-1-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 1 review packet - `I-finding-store` and `D-finding-revisions`
 
 Task: `tasks/S4-01-finding-identity.md`, phase 1 row (Status stays `active`; phases 2-3 follow).

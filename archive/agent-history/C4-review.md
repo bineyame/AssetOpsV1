@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C4-review.md on 2026-11-18 (declutter step 4).
 # E4-C4 review: Performance comparison only on change (D-E4.8)
 
 Reviewer: fresh Claude reviewer (did not author the slice). Branch `task/E4-C4-performance-on-change`, head 3a8530f82,

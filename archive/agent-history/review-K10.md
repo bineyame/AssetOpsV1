@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K10.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K10 v2 phase 1 (declared-absent productive use)
 
 - Reviewer: fresh Claude reviewer (independent of the builder). Read-only on code; no DB, no check-all.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-fix2-rereview.md on 2026-11-18 (declutter step 4).
 # S2-01c fix round 2: re-review
 
 Reviewer: a fresh Claude reviewer. I am independent and authored none of this slice, its fix rounds, or the earlier reviews. This re-review covers `a2d409d..2797ccc` on `task/S2-01c-gateway-diagnostics-faults` (commits `803f62f`, `70e5f19`, `2797ccc`). I judged it against the Architect's fix list in `.agent/architect-S2-batch-answers-2026-10-09.md` ("S2-01c re-review R1 and questions-5", items (1)-(4)), `D-2026-10-09-s2-publication-gap-and-batch-boundary`, R1 in `.agent/S2-01c-fix-rereview.md`, and the task file. Questions-6 belong to the Architect and are not ruled on here. N1, N2, C2 and C3 stay carried, as ruled.

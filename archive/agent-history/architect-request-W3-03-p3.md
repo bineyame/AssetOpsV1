@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-p3.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 P-3-1, the registry rows (r3)
 
 Read:

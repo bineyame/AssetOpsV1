@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-01-rereview.md on 2026-11-18 (declutter step 4).
 # W1-UX-01 re-review - fix round 1
 
 Reviewer: fresh independent Claude reviewer (did not author the slice or the fix). Revision: `8298fed7`. Diff: `git diff e7b99a11..8298fed7`.

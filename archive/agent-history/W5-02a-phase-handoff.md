@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02a-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W5-02a phase handoff (K1a, K1b, K1c, K2a, K2b)
 
 Branch `task/W5-02a-cold-action-root` (from main `84cef493`). Base for 0032: `task/W5-01b-cold-scenarios` (unmerged). No code written; no tests, servers or DBs run.

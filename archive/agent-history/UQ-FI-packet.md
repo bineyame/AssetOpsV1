@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UQ-FI-packet.md on 2026-11-18 (declutter step 4).
 # UQ-FI-1 / UQ-FI-2 packet (lane D, branch task/UQ-FI-1-2) - P3 frames built (fix round); captures (coordinator)
 
 Spec: `architect-sequence-client-scope-2026-11-11.md` Revision 6 (6.1-6.4, D-UQFI.1-5). Owner go: `owner-proceed-waiting-items-2026-11-13.md` (provisional).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W3-02 phase handoff
 
 ## Commit 4 fixes (Lane B) - rulings c4, c4-q1..q3 applied; Aggregation cap open as c4-q4

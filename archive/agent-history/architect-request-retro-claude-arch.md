@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-retro-claude-arch.md on 2026-11-18 (declutter step 4).
 # Architect request: retrospective review of Claude Architect rulings, with mock fidelity
 
 You are the AssetOps Architect (Codex). Read:

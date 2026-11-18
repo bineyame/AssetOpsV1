@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-01-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-UX-01 review packet - shared product presentation
 
 Task `tasks/W1-UX-01-shared-presentation.md` (umbrella `tasks/W1-UX-mockup-fidelity.md`). Branch `task/W1-UX-01`, base main `3e6dbc88`, final code revision `530da1c8`. Frontend only; no backend, schema or contract change. Decisions `D-2026-10-16-w1-ux`, `D-2026-10-16-w1-ux-disclosure`. USER_REVIEW_REQUIRED: no per-slice owner walkthrough; one combined W1 walkthrough after all UX slices. Fresh independent review is the merge gate. Reviewer diff: `git diff 3e6dbc88..HEAD -- ':!.agent'`. The shared API for UX-02..05 is in `.agent/W1-UX-01-handoff.md`.

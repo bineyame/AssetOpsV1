@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-answer-money-snapshot-2026-11-10.md on 2026-11-18 (declutter step 4).
 # Architect answer: storing money in the snapshot (2026-11-10)
 
 - Architect: Claude (fresh `assetops-architect` instance). Binding checked: `.ai/ROLE_CONFIG.md`, Architect = Claude since 2026-10-27.

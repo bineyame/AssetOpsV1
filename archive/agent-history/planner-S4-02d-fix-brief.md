@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-02d-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: S4-02d plan fix round 1 (2026-10-14)
 
 Role: Planner (Codex). Branch `plan/S4-02c-architect`. Read the RETURN review `.agent/S4-02d-plan-review.md` in full, the packet `tasks/S4-02d-analytic-finding-worker-schedule.md` and `.agent/planner-S4-02d-notes.md`, and verify against the code it cites (`postgres_assessment_store.py` `_LIVE_JOBS` ~:88 and reconcile, `finding_episode.py:12-14`, the S4 matcher consistency check / `match_state` / `finding_match_pass`, `tools/checks/configuration-persistence.ps1` rule 8, `backend/README-db.md`, `backend/assetops_backend/recompute_consequences.py`, `financials/recompute.py`, `tools/s402c_late_power_walkthrough.py`, `.ai/DECISIONS.md` ~:4049 commit-ordered fence ruling).

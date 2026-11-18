@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01a-review-brief.md on 2026-11-18 (declutter step 4).
 # Review brief: S2-01a (first review)
 
 Role: Reviewer (Codex, per `.ai/ROLE_CONFIG.md`; first review of a slice is discovery).

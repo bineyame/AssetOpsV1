@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05b-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-05b review packet - registered producers, Finding reads and owner walkthrough
 
 Task: `tasks/S4-05b-producers-reads-walkthrough.md` (size M, two phases). Branch

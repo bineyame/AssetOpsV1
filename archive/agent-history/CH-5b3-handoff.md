@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5b3-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5b3 handoff (partial: build committed, DB step and packet pending)
 
 Branch `task/CH-5b3-why-ui`; build commit `d783b643a` on top of `21503aa6f`.

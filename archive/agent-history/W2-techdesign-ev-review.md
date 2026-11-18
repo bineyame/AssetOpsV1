@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-techdesign-ev-review.md on 2026-11-18 (declutter step 4).
 # W2 EV technical design review - D-2026-10-17-w2-techdesign-ev
 
 Reviewer: fresh Claude reviewer (independent, not the author). Target: `.agent/W2-technical-design-ev.md` at c5fce044, judged against `.agent/architect-W2-techdesign-ev-request.md` and the owner's bar ("not leave too much to the implementer architecturally and technically"). Checklist: cold review c8405733. I made read-only spot checks against the code and ran no suites.

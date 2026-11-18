@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/fuel-loss-feasibility-2026-11-07.md on 2026-11-18 (declutter step 4).
 # Unexplained fuel (loss, siphoning, short deliveries) at Kisiwa: feasibility and sizing
 
 - Architect: Claude (fresh Architect), 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude (owner 2026-10-27). Main at `e31ccbbb8`.

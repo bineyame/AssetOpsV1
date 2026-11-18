@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-SPARSE-trial-probe.md on 2026-11-18 (declutter step 4).
 # DEMO-SPARSE U1 probe: kind compatibility, episode edges, trial hour, back-dating
 
 Build sheet `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` §3 U1. Choice rules fixed before measuring (sheet U1;

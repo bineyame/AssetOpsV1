@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04a-rereview.md on 2026-11-18 (declutter step 4).
 # W5-04a combined merge candidate re-review: V1a/V1b fix round, V2a fix round, V2b
 
 Independent Reviewer (Claude), 2026-10-24. Branch `task/W5-04b-ev-work-ui` at `c8209474`. It contains the V1 fix branch

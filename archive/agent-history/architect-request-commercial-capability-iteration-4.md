@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-commercial-capability-iteration-4.md on 2026-11-18 (declutter step 4).
 # Architect request: commercial-capability-readiness.md, iteration 4
 
 You are the AssetOps Architect. The authority for this task is the owner's feedback, word for word, in `.agent/owner-commercial-capability-feedback-2-2026-10-26.md`. Read it in full and follow it exactly, including its section 9 scope and exclusions and its section 10 decision summary.

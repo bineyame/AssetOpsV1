@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-01-questions-1.md on 2026-11-18 (declutter step 4).
 # G-01 questions for the Architect (batch 1, 2026-10-13)
 
 All defaults below are shipped and fail closed. None changes scoring, K=10, W1 core paths or ranking fixtures.

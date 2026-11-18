@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-ux-request.md on 2026-11-18 (declutter step 4).
 # Architect request - W1 UX pass questions (2026-10-16)
 
 You are the AssetOps Architect (Codex); decide within your remit. Read `tasks/W1-UX-mockup-fidelity.md` ("Architect questions") and the slice packets `tasks/W1-UX-0*.md`, the owner direction files `.agent/owner-S405b-acceptance-2026-10-16.md`, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`, `.agent/owner-walkthrough-policy-2026-10-16.md`, `.agent/owner-T028-presentation-direction-2026-10-04.md`, and the v69 mockups (`frontend/mockups/v69/index.html`).

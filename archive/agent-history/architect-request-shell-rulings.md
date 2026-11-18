@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-shell-rulings.md on 2026-11-18 (declutter step 4).
 # Architect request: shell-typography-copy pre-flight rulings, and card repair
 
 You are the AssetOps Architect. Read `.agent/post-W6-shell-preflight.md`: the builder's 26 questions, with defaults, for the card "shell-typography-copy" in `.agent/post-W6-audit/fix-slices.md`. Also read the register rows and audit ledgers it cites, and lesson 15 in `.ai/ROLE_CONFIG.md`.

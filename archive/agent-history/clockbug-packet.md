@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/clockbug-packet.md on 2026-11-18 (declutter step 4).
 # FIX clock-dependent power fixture - packet
 
 Root cause: `publishing_submit` (test_s405_resolver_postgres.py) built the ledger without `test_decision_clock_override`, so

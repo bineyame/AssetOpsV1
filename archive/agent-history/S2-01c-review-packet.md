@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-review-packet.md on 2026-11-18 (declutter step 4).
 # S2-01c review packet: gateway diagnostics and fault scenarios
 
 - **Task:** `tasks/S2-01c-gateway-diagnostics-faults.md`. USER_REVIEW_REQUIRED: false.

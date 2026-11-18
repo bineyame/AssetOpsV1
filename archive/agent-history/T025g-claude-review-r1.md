@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025g-claude-review-r1.md on 2026-11-18 (declutter step 4).
 # T025g review, R1 verification - The run is the only join of scenario and site (S1)
 
 Reviewer: Claude (Opus 5.5). This is a fresh reviewer instance. It did not

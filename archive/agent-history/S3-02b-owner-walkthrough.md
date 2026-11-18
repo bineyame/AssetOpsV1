@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02b-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S3-02b owner walkthrough: what a selected assessment can support (Evidence > Analysis)
 
 You will look at one new section on the Evidence > Analysis page: **"What the selected assessment can support"**. It sits under the existing "How each limit is set" panel. It answers, for one assessed generator run, what the accepted readings allow us to say, and where the readings fall short.

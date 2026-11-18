@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-678-preflight.md on 2026-11-18 (declutter step 4).
 # SR-6 / SR-7 / SR-8 pre-flight (code reading on main 780df2f39, 2026-11-12)
 
 Survey only. Answers to rev 10 §10.7; questions for the Architect are in **Q** items at the end. Paths are relative to the repo root; backend paths are under `backend/assetops_backend/` unless given in full.

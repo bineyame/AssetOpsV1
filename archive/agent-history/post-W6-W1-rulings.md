@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W1-mini-Action-a and W1-mini-Action-b
 
 2026-10-25. These rulings settle all 58 points in `post-W6-W1-preflight.md` and amend the two W1 cards in `post-W6-audit/fix-slices.md`. Paths below are under `frontend/src/` unless qualified. D3 closes after focused tests, independent review, and current-SHA app/mock recapture; this decision alone does not close register rows. No product code is changed here.

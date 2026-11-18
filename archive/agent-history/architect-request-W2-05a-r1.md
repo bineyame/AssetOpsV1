@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-05a-r1.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-05a review r1 rulings
 
 You are the AssetOps Architect. Read `.ai/ROLE_CONFIG.md` (the sections "Mockup drives the design; implementers never decide" and "Token Efficiency"), `.agent/W2-05a-build-spec.md` (`D-2026-10-18-w2-05-buildspec`), `.agent/W2-technical-design-ev.md`, and the review `.agent/W2-05a-review-r1.md`. The code is on branch `task/W2-05a-ev-foundation`; read it with `git show task/W2-05a-ev-foundation:<path>`. The v69 EV mock is authoritative.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S6-01a phase 1 handoff
 
 Branch `task/S6-01a-action-store-read`. The build commit is `9a115431`, on top of `5e0b705d`. It has not been merged. This phase covers only phase 1 of `tasks/S6-01a-action-store-read.md`; the task Status line is unchanged.

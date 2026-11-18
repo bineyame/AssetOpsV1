@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-01-q6.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-01 q6 (estate core blocked) — final closure of W3-01
 
 You are the AssetOps Architect. Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02c-K4-build.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02c K4 build-time points
 
 Read:

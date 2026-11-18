@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-0c-probe-results.md on 2026-11-18 (declutter step 4).
 # DD-0c lever re-probe: results (complete; Â§4 is an estimate, see there)
 
 - Date: 2026-11-06. Implementer (Claude). Brief: `AssetOpsV1-plan2/.agent/brief-DD-0c-levers-probe.md`. Feeds DD-1 R2, R3, P1.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/WARM-1-gate-vps.md on 2026-11-18 (declutter step 4).
 # WARM-1 live gate on the VPS demo DB (2026-11-12 ~23:30 UTC)
 
 DB `assetops_polish_vps1_test` (built from main cdd65115c; S = 2026-11-10). Serve: warm1 code (head after `git merge main`, 1c7f541f8), `demo_combined serve --no-warm` on :8765, ASSETOPS_PERIOD_READ_KINDS=dispatch.day,evidence.claim (D-SR.63 now-state).

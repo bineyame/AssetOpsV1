@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02a-dev.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02a K1a/K1b builder deviations
 
 You are the AssetOps Architect (Codex). The W5-02a core build is on `task/W5-02a-cold-action-root`: K1a is done, and K1b is committed (`828e284c`, `3279887c`) but not yet verified. Read the handoff Run entries with `MSYS_NO_PATHCONV=1 git show task/W5-02a-cold-action-root:.agent/W5-02a-phase-handoff.md`, plus the K1a–K1c cards and the pre-flight rulings in `.agent/W5-02-build-spec.md`.

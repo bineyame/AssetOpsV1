@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C1-screen-fixes-packet.md on 2026-11-18 (declutter step 4).
 # C1 packet: PB-5, PB-6, PB-8, RM-1, RM-2 (branch task/C1-screen-fixes, from db447d0e0)
 
 (File name note: `.agent/C1-packet.md` already holds the older E4-C1 packet, so this one is C1-screen-fixes-packet.md.)

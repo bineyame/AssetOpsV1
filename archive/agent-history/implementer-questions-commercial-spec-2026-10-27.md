@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/implementer-questions-commercial-spec-2026-10-27.md on 2026-11-18 (declutter step 4).
 # Implementer questions, commercial lane spec (CC-00 pre-flight), 2026-10-27
 
 Reviewed: `.agent/build-spec-commercial-2026-10-27.md` (cited "Spec §" by heading), `.agent/build-sequence-2026-10-27.md`, Appendix C of `Docs/demo-sprint/commercial-capability-readiness.html` (cited "App-C", with its HTML line). Code checked read-only in `C:\Users\assef\Bineyame\AssetOpsV1-demo-plan` (all paths below are relative to it). Items 1-12 are contradictions with the code or with each other and would block or silently change a gate. Items 13 onward are unspecified signatures, shapes, copy or seams.

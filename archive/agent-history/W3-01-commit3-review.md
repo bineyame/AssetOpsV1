@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-commit3-review.md on 2026-11-18 (declutter step 4).
 # W3-01 commit 3 review and main-merge check (independent)
 
 Branch `task/W3-01-estate-claim-action-roots` at `8d289359`, worktree `AssetOpsV1-review2`. Reviewer: a fresh Claude

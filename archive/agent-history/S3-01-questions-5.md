@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-questions-5.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3b questions (batched; each has its fail-closed default built)
 
 None blocks review. Context: `.agent/S3-01-phase-3b-handoff.md`, `.agent/S3-01-review-packet.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-05a-q5.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-05a commit-4 questions (2026-10-18). Owner: mockup leads UI/UX and the technical design aligns to it; no drift; implementer decides nothing. Brief rulings; edit `.agent/W2-05a-build-spec.md` in place; amend `D-2026-10-18-w2-05-buildspec`. No code.
 
 From the commit-4 implementer (branch task/W2-05a-ev-foundation; screens ev-foundation, ev-readiness, ev-sld; captures `.agent/W2-05a-evidence` on that branch):

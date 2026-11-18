@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-8-packet.md on 2026-11-18 (declutter step 4).
 # SR-8 packet: mini-grid Renewable over the whole date range (server part)
 
 Branch `task/SR-8-renewable-range` (worktree `/opt/assetecon/AssetOpsV1-sr8`), main merged at cdd65115c.

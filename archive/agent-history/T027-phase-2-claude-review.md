@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T027-phase-2-claude-review.md on 2026-11-18 (declutter step 4).
 # T027 phase 2 review: the mini-grid Site Overview
 
 Reviewer: Claude, a fresh instance independent of the Implementer. Reviewer is Claude under

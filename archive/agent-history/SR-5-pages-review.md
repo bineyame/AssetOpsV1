@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-5-pages-review.md on 2026-11-18 (declutter step 4).
 # SR-5 pages review (SR-5b, SR-5e, SR-5c, SR-5d, D-SR.77)
 
 Reviewer: fresh Claude (Opus 5.5), independent of the builder. 2026-11-13.

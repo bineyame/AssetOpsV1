@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K3.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K3 fuel balance (fuel-balance-1)
 
 Branch `task/DIESEL-K3-fuel-balance`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-k3`. Card: `.agent/build-sheet-DIESEL-1.md` §9d; rulings R3d, R3g (§9g), R3h (§9h).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025e-review-packet.md on 2026-11-18 (declutter step 4).
 # T025e review packet: Lab cockpit organisation and live playback (L1c)
 
 Task: `tasks/T025e-cockpit-organisation-and-live-playback.md` (Status `in_review`,

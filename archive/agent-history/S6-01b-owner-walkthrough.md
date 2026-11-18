@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S6-01b owner walkthrough: Recommendation, Action and Foundation change
 
 These steps let you view the screens in a browser at desktop (1440) and phone (390) widths, and then record whether you accept them. Nothing here touches your own databases or any other walkthrough's databases.

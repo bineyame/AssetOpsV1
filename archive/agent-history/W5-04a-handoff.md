@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04a-handoff.md on 2026-11-18 (declutter step 4).
 # W5-04a V1a/V1b handoff - PARTIAL (V1a schema/port landed; V1a service use and V1b blocked on Q1-Q4)
 
 Branch `task/W5-04a-ev-work-backend` from main `f7761b28`. Backend only; no frontend/routes/nav/registry.

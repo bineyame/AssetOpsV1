@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-questions-7.md on 2026-11-18 (declutter step 4).
 # S2-02 questions 7 (fix round 1, before the owner walkthrough)
 
 Each item names the fail-closed default the build already uses. None blocks the walkthrough.

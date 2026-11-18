@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-6a1.md on 2026-11-18 (declutter step 4).
 # Review packet CH-6a1: records, strategies, CHARGERS_MOSTLY_IDLE
 
 - **Branch:** `task/CH-6a1-records`, from main `628f77b36`.

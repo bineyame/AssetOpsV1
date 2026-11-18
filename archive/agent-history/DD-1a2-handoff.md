@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1a2-handoff.md on 2026-11-18 (declutter step 4).
 # DD-1a2 handoff
 
 ## UPDATE after DD1a2-R3 (H1 closed)

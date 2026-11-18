@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-review-packet.md on 2026-11-18 (declutter step 4).
 # W4-01 review packet (work-case core and thin Site lists)
 
 Task `tasks/W4-01-work-case-core.md`; contract `.agent/W4-01-build-spec.md` (closures 1-3, rulings q1-q7, commit-4/5

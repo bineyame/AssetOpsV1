@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-02-brief.md on 2026-11-18 (declutter step 4).
 # OPS-02 statement-level writer guard - implementer brief (size S: one build, then one review)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`, branch `task/OPS-02-writer-guard-ast` (from main `5bfff665`). S4-05a builds in `AssetOpsV1-review3`; do not touch it or other worktrees.

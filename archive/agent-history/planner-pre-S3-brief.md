@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-pre-S3-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: pre-S3 startup planning (2026-10-09)
 
 Role: Planner (Codex). Branch `plan/pre-S3-startup` (from main `82ba6cd`; Architect commit `5330aed`). Owner Codex-usage rule (verbatim, 2026-10-09): "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use" — one bounded pass.

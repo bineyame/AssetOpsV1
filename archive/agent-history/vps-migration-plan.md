@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/vps-migration-plan.md on 2026-11-18 (declutter step 4).
 ﻿# Moving AssetOps work to the Ubuntu VPS (24 GB RAM, 8 vCPU)
 
 Owner decision: `.agent/owner-vps-move-2026-11-11.md`. Cutover Thursday 12 Nov after the technical demo (~12:30). Tonight's rebuild and the demo stay on the laptop.

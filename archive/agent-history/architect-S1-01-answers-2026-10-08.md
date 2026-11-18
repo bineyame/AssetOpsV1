@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S1-01-answers-2026-10-08.md on 2026-11-18 (declutter step 4).
 # Architect answers to S1-01 Implementer questions (2026-10-08, verbatim)
 
 Relayed by the owner. Text below is verbatim.

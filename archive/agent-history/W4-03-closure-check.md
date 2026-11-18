@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-closure-check.md on 2026-11-18 (declutter step 4).
 # W4-03 spec-review closure check (2026-10-20)
 
 Worktree AssetOpsV1-plan2, main 4b314405. Read-only check of "Review closure (2026-10-20)" in `.agent/W4-03-build-spec.md` against the 36 questions in `.agent/W4-03-spec-review.md`.

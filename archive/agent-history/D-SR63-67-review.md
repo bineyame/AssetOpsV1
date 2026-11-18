@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/D-SR63-67-review.md on 2026-11-18 (declutter step 4).
 # Review D-SR.63 + D-SR.67, branch task/D-SR63-serve-kinds (b1668bba8)
 
 Verdict: ACCEPT WITH NOTES.

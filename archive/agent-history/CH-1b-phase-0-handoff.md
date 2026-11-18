@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-1b-phase-0-handoff.md on 2026-11-18 (declutter step 4).
 # CH-1b phase 0 handoff: pre-flight answered, Architect questions open (PARTIAL; build not started past the core)
 
 Branch `task/CH-1b-events` (worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch1b`), from main `54d46479f`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-04-preflight.md on 2026-11-18 (declutter step 4).
 # Architect request: rule on the W5-04 pre-flight (46 questions)
 
 You are the AssetOps Architect. Read .ai/ROLE_CONFIG.md, in particular "Mock fidelity", "Departure categories and register" (D1-D6) and "Builder pre-flight". Also read .agent/W5-04-build-spec.md, tasks/W5-04-ev-work.md, .agent/W5-02-04-mock-measurements.md, .agent/mock-departure-register.md, .agent/W5-02-build-spec.md and .agent/W5-03-build-spec.md.

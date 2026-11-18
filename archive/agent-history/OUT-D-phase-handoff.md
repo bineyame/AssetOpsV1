@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-D-phase-handoff.md on 2026-11-18 (declutter step 4).
 # OUT-D phase handoff (partial: U1-U4 done, U5 in progress)
 
 ## Update 2026-10-31 (second implementer)

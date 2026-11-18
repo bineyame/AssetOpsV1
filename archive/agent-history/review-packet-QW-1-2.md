@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-QW-1-2.md on 2026-11-18 (declutter step 4).
 # Review packet: QW-1 + QW-2 (per-read timing, reuse within one request)
 
 Task: design proposal §14b (AG-22), diagnosis §11b P-1..P-6. Branch `task/QW-1-2-load-timing` from `73a558a1b`.

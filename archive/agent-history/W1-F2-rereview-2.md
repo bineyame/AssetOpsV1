@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F2-rereview-2.md on 2026-11-18 (declutter step 4).
 # W1-F2 re-review 2 (fix round 2)
 
 Reviewer: fresh, independent Claude reviewer. Revision: `1a40f380`. Diff: `33025377..1a40f380 -- frontend`. Prior verdict: `.agent/W1-F2-rereview.md` (RETURN, M1 limits panel, M2 inline-status box).

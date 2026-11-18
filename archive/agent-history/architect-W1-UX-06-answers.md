@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-UX-06-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers - W1-UX-06 labels (2026-10-17)
 
 Authority: `D-2026-10-17-w1-ux-06` in `.ai/DECISIONS.md`. These rulings settle the four questions in `tasks/W1-UX-06-closeout.md`. They change presentation only; the read contracts, source limits and owner walkthrough gate remain in force.

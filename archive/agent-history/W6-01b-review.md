@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01b-review.md on 2026-11-18 (declutter step 4).
 # W6-01b review (units B1-B3: global Maintenance and Preventive)
 
 Reviewer: fresh independent Claude reviewer, 2026-10-22. Branch `task/W6-01b-maintenance`, head `43a9142c`,

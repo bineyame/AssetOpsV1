@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-SPARSE-preflight.md on 2026-11-18 (declutter step 4).
 # DEMO-SPARSE pre-flight (build sheet `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` §9)
 
 Worktree `-demo3`, branch `task/DEMO-A-combined-dataset`, head `50cbc02be`, 2026-10-31.

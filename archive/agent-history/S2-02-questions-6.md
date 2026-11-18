@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-questions-6.md on 2026-11-18 (declutter step 4).
 # S2-02 questions 6 (phase 3c) - fail-closed defaults applied; batch to the Architect
 
 Each question names the default the slice already ships. None blocks owner review.

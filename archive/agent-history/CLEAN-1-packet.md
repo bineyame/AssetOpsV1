@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CLEAN-1-packet.md on 2026-11-18 (declutter step 4).
 # CLEAN-1 packet (lane A, branch task/CLEAN-1, from main f4850ee2c)
 
 Task: cleanup card (revision 3 table row 5 plus gathered items). No product behaviour change except item 4's header.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05a-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W2-05a phase handoff - run 5 (spec commits 1-4 landed; QH-QL applied)
 
 Branch `task/W2-05a-ev-foundation`, worktree `AssetOpsV1-review5`. Commits: 1 `2d8b323d`, QC/QD `932ad981`, 2 `880384d3`, 3 `5a7b46c6`, QH-QL `ca3ef6ab`, 4 `ee8b92d7`. Rulings Q1-Q8, QA-QL in `.agent/W2-05a-build-spec.md`.

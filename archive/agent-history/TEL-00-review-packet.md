@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-00-review-packet.md on 2026-11-18 (declutter step 4).
 # TEL-00 review packet: pre-flight and card corrections
 
 Status: in_review

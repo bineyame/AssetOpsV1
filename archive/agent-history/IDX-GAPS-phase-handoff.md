@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/IDX-GAPS-phase-handoff.md on 2026-11-18 (declutter step 4).
 # IDX-GAPS phase handoff (COMPLETE: U1-U4 built, closeout done, in_review)
 
 Source: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-IDX-GAPS.md` + Addenda 1-3 (Addendum 1 Q1

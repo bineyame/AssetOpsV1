@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W5-EV-packet.md on 2026-11-18 (declutter step 4).
 # Review packet: post-W6 W5-EV-Work (EV depth and Work screens), complete
 
 2026-10-26. Branch `task/post-W6-W5-EV-work` from main `104e9c33`. Frontend plus one backend copy string and one producer line.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-phase-2b-handoff.md on 2026-11-18 (declutter step 4).
 # S4-02b phase 2b handoff: Financials UI, walkthrough and evidence
 
 Branch `task/S4-02b-fuel-consequence`, commits `dbaba10`..HEAD (`git log 3793e4d..HEAD`). The slice is `in_review`; packet `.agent/S4-02b-review-packet.md`.

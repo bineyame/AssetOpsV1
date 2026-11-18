@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-phase-1-brief.md on 2026-11-18 (declutter step 4).
 # LR-01 phase 1 — implementer brief
 
 Branch `task/LR-01-late-reading-series-and-money-limit` (checked out in `C:\Users\assef\Bineyame\AssetOpsV1`, HEAD `2386a1a3`). Packet `tasks/LR-01-late-reading-series-and-money-limit.md` — build **phase 1 only** (source-time contract S3 cohort v4, SYSTEM-only simulated attestation persistence and input basis, affected-window requeue, reassessment keeping history). Authority: `.agent/architect-LR-01-answers.md` (Q1-Q4, packet changes 1-3, Follow-up M1) and `D-2026-10-15-lr01-source-time-cohort` in `.ai/DECISIONS.md`. Plan reviews: `.agent/LR-01-plan-review.md`, `.agent/LR-01-plan-rereview.md`.

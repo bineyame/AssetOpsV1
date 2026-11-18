@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S6-02-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - refine S6-02 verification
 
 You are the AssetOps Planner (Codex). `A-S6-verification` is resolved: `D-2026-10-16-s6-verification`, `.agent/architect-A-S6-verification-answers.md`, reviews `.agent/A-S6-verification-review.md` and `.agent/A-S6-verification-rereview.md`. Refine `tasks/S6-02-verification.md` (outline) into implementation-ready packet(s) on branch `plan/S6-02-refine` in this worktree. No code; the coordinator commits.

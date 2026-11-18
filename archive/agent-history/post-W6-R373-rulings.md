@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-R373-rulings.md on 2026-11-18 (declutter step 4).
 # R373 / B19-15 Architect rulings
 
 1. **Q1 — Accept, with precise reachability.** Keep R373 High D3 in `W6-global-Work`. Today's `create_app` admits the development operator on both Site Work and global Work; the observed 403/200 split is in the W5 `forbidden` walkthrough compositions. The product defect is the independent access wiring: attaching a real Site principal to Site Work would leave global Work on `development_access`. Closeout must state both facts, not claim that the current default product principal already gets 403.

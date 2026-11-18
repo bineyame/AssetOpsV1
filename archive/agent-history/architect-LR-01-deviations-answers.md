@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-LR-01-deviations-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers: LR-01 known deviations (2026-10-15)
 
 Authority: `.agent/architect-LR-01-deviations-request.md`, `.agent/LR-01-review-packet-snapshot.md`, `tasks/LR-01-late-reading-series-and-money-limit.md`, `D-2026-10-15-lr01-source-time-cohort`, and the LR-01 code at `3b360af5`. These are architecture rulings, not an independent review verdict or owner acceptance.

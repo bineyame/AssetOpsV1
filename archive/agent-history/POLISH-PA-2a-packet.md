@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PA-2a-packet.md on 2026-11-18 (declutter step 4).
 # POLISH PA-2a review packet: server copy, codes and titles
 
 Task: `tasks/POLISH-PA-2a-server-copy.md`. Branch `task/POLISH-PA-2a-server-copy` from main `4681ba7d8`.

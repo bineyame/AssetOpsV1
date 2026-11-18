@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-WD-1m.md on 2026-11-18 (declutter step 4).
 # Review: WD-1m (the mill verdict reads "on example data", using a class stored when the verdict is judged)
 
 Reviewer: independent first review (Claude), fresh context. Branch `task/FUEL-WD1m-mill-example-label` at `8aeecac6f`

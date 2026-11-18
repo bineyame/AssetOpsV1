@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-audit-spec.md on 2026-11-18 (declutter step 4).
 # Post-W6 structural app-versus-v69 audit specification
 
 Architect plan, 2026-10-24. Baseline: merged W1-W6 on `main`; this document authorizes an audit and subsequent separately reviewed corrections, not a product change. The v69 `screen-manifest.json` has 110 IDs. The audit target below is **87 implemented IDs**, including the 26 W1 IDs in `.agent/W1-F5b-evidence/audit.json` and the 22 W2 IDs in `.agent/W2-structural-audit.md`. The other 23 IDs are named below. Reconcile this inventory against the mounted `App.tsx` routes before capture; a missing mounted target is a finding, not a silent reduction of the denominator.

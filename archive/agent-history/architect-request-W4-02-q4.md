@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-02-q4.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-02 q4 (three commit-A readings)
 
 Read `.agent/W4-02-build-spec.md` (q1–q3) and `.agent/W4-02-phase-handoff.md`, the commit-A readings section.

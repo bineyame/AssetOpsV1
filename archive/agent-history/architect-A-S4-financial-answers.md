@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-S4-financial-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — A-S4-financial and G-02 missing-kind carry (2026-10-13)
 
 The owner selected `A-S4-financial` in the 3.21% next-work contest. I resolve the architecture node with `D-2026-10-13-s4-bounded-financial-basis` below. This is an S4-02 implementation contract, not a priced Finding, a valuation of unassessed operation, or authorization for an estate roll-up.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05a-review.md on 2026-11-18 (declutter step 4).
 # W2-05a review (EV Foundation): independent first review
 
 Reviewer: fresh Claude reviewer (not the author). Branch `task/W2-05a-ev-foundation`, head `c1d45bbf`. Code head `334c7c70`; `c1d45bbf` adds only the packet, which I verified with `git diff 334c7c70..HEAD`. Judged against `.agent/W2-05a-build-spec.md` (`D-2026-10-18-w2-05-buildspec`, including QA-QP, the Run-5 and Run-7 rulings), `.agent/W2-technical-design-ev.md` §0024, `D-2026-10-18-w2-mockup-authority`, `.agent/architect-W1-fidelity.md`, and `.ai/ROLE_CONFIG.md` ("Mockup drives the design; implementers never decide").

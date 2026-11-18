@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-architect-questions.md on 2026-11-18 (declutter step 4).
 # W2-02 build stopped: Architect questions (Implementer, 2026-10-17)
 
 ## Architect answers — `D-2026-10-17-w2-02-buildspec`

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01a-questions-1.md on 2026-11-18 (declutter step 4).
 # S2-01a questions 1 (Implementer, phase 1)
 
 For the active Architect. None blocks phase 1; each was built on the fail-closed default named. Decision context: `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary`.

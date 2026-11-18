@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-ui-readiness-questions.md on 2026-11-18 (declutter step 4).
 # W5-04 UI readiness check: open points (V2a-V5)
 
 Read-only check, 2026-10-24. Worktree `AssetOpsV1-review3`, branch `task/W5-04b-ev-work-ui`, at main `d9dfab85` (K4a/K4b/K5 merged).

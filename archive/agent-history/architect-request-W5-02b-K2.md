@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02b-K2.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02b K2a/K2b review rulings, plus a lane question
 
 You are the AssetOps Architect. Read .ai/ROLE_CONFIG.md, in particular "Mock fidelity" and the D1-D6 departure categories. Also read .agent/W5-02-build-spec.md (the K2a/K2b authority sections and the 2026-10-23 Site-screens pre-flight ruling), tasks/W5-02-cold-work.md, .agent/W5-02-04-mock-measurements.md, .agent/mock-departure-register.md and the v69 mock in frontend/mockups/v69/.

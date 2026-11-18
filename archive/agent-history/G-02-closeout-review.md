@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-02-closeout-review.md on 2026-11-18 (declutter step 4).
 # G-02 registry closeout - fresh Claude review (2026-10-13)
 
 Reviewed: commit `00e7504` on `closeout/G-02-registry`, diff `8f711d8..00e7504`. Precedent compared: `e872714` (I-G-01 resolution, reviewed in `.agent/S4-03-closeout-review.md`). The reviewer did not author this work.

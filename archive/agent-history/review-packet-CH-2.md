@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-2.md on 2026-11-18 (declutter step 4).
 # Review packet CH-2: Finding threads, the Action-to-thread link, the backfill
 
 - Build sheet: `AssetOpsV1-plan2/.agent/build-sheet-CH-2.md` (Architect, 2026-11-03). Lane 2.

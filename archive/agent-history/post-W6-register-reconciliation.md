@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-register-reconciliation.md on 2026-11-18 (declutter step 4).
 # Register reconciliation (final complete review, part: register reconciliation)
 
 Source: `.agent/mock-departure-register.md` at main 5f71f6c9 (read-only; no tests, builds or servers run). Parsed with a script: every line starting `| R<n>`.

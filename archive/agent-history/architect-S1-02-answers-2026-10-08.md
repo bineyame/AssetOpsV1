@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S1-02-answers-2026-10-08.md on 2026-11-18 (declutter step 4).
 ﻿# S1-02 Architect answers — 2026-10-08
 
 Author: **Codex Architect**, per `.ai/ROLE_CONFIG.md`.

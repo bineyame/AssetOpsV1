@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-W3-rulings.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-cold, W2-EV and W3-estate pre-flight rulings (one batch)
 
 You are the AssetOps Architect. Three builders pre-flighted in parallel against main 7554111e, with the shell slice being built first:

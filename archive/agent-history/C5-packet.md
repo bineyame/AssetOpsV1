@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C5-packet.md on 2026-11-18 (declutter step 4).
 # E4-C5 review packet: the board reads Cold/EV thread lifecycle at `k`
 
 Card: D-E3b.2, `AssetOpsV1-plan2/.agent/build-sheet-OWN-GAPS-2026-11-08.md` (5fd85d7d8), "E3b stop ruling".

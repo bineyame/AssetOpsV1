@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-01-diagnosis.md on 2026-11-18 (declutter step 4).
 # FIX-01 step 1 diagnosis: 409 ESTATE_SELECTION_INCONSISTENT on the w504 EV build
 
 Classification: **High, real product defect** (not a fixture artefact). The check works as written but is wrong for a

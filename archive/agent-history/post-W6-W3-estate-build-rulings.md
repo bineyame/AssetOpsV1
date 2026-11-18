@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W3-estate-build-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: W3-estate build points
 
 1. **Index Finding links — change.** Make `EstateFindingRow.links.finding` nullable in the frontend contract and emit `null` from the Findings index for cold/EV rows without a provable row-local `from`/`to`/`known_at`. Remove the old `?revision_id=` fallback for those rows. Keep the plain-text title and “Finding detail unavailable” when null; retain the frontend proof gate as defense. This narrow nullable contract correction is authorized despite the earlier no-schema-change scope; keep the existing schema version and test the null wire value.

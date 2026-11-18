@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DIESEL-K8-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # K8 code phase: handoff 1 (PARTIAL; the builder stopped at the context cap)
 
 The binding card is §9p (DIESEL-1-R3p) in `.agent/build-sheet-DIESEL-1.md` (lines 4738-5143). Read §9p.2, §9p.7 and §9p.12 to §9p.15 only.

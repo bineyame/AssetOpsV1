@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-techdesign-amend-request.md on 2026-11-18 (declutter step 4).
 # Architect request - amend both W2 technical designs (2026-10-17)
 
 You are the AssetOps Architect (Codex). Both designs were RETURNed: `.agent/W2-techdesign-cold-review.md` (M1-M5, Lows) and `.agent/W2-techdesign-ev-review.md` (M1-M6, Lows). Owner bar: implementers make no architectural or technical choice. Token-efficient: edit in place, tables, no restating.

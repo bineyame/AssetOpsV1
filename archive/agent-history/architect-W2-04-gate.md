@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-gate.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 build spec readiness gate (2026-10-18). Edit `.agent/W2-04-build-spec.md` in place; amend `D-2026-10-18-w2-04-buildspec`. No code. Efficient: one pass.
 
 Apply the readiness gate in `.ai/ROLE_CONFIG.md` § "Token Efficiency Without Lowering Quality" to `.agent/W2-04-build-spec.md`, verifying against the CURRENT code on main (W2-00..W2-02 merged) and W2-03's spec + answers (`.agent/W2-03-build-spec.md`, `D-2026-10-18-w2-03-answers`, incl. Q1: 0022 makes the fuel trigger mini-grid-only and W2-04 owns cold money in 0023; the window-end freshness rule; the cold read routes in `cold_assessment_api.py` on branch task/W2-03-cold-assessment).

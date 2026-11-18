@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-G3b.md on 2026-11-18 (declutter step 4).
 # Review — OWN-G3b, operational records entry form (frontend)
 
 Reviewer: fresh Claude (Opus) reviewer, independent of the implementer. Branch `task/OWN-G3b-operational-entry-form`,

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K6a.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K6a, the fuel Finding as a domain-Action origin (migration 0057)
 
 - Reviewer: Claude (Opus), independent first review. Fresh context. I did not write any of this slice.

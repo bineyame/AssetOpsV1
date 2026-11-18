@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/S4-02d-phase-1-probes.py on 2026-11-18 (declutter step 4).
 """S4-02d phase 1 non-vacuity probes: each mutation must make its guard or test fail; every file is restored with
 `git checkout --` (run only on a clean, committed tree).
 

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-finding-index-fix-request.md on 2026-11-18 (declutter step 4).
 # Architect fix round - A-finding-index (review RETURN M1)
 
 You are the AssetOps Architect (Codex). Review `.agent/A-finding-index-review.md` (RETURN: M1 Medium; L1-L4 Low) of your resolution `.agent/architect-A-finding-index-answers.md` / `D-2026-10-15-a-finding-index`.

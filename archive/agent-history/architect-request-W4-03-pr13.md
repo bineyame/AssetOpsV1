@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-pr13.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 PR-13 (the last two cap breaches) and the four readings (u9c)
 
 Read:

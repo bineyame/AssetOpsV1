@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/telemetry-rulings-2026-10-27.md on 2026-11-18 (declutter step 4).
 # Architect rulings D4, D10, D5, D6 for the telemetry plan (2026-10-27)
 
 Architect: Claude. `.ai/ROLE_CONFIG.md` line 9 and "Architect Is Claude By Default" (line 39) bind this role to Claude, so these rulings are made directly.

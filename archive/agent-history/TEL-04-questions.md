@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-04-questions.md on 2026-11-18 (declutter step 4).
 # TEL-04 builder questions (2026-10-27)
 
 Items the spec does not cover. Each is left unhandled in code (no design chosen); the Architect decides.

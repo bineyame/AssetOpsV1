@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02-04-close3.md on 2026-11-18 (declutter step 4).
 # Architect request: withdraw M5/E5 and fix the K4a ordering
 
 You are the AssetOps Architect (Codex). Read "Recheck 2" in `.agent/W5-02-04-readiness-review.md`.

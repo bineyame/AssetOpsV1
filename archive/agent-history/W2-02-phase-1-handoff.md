@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # W2-02 handoff after spec commit (1) — PARTIAL (context budget)
 
 Branch `task/W2-02-cold-producer`, worktree `AssetOpsV1-review2`. Spec commit (1) landed in `d23db231` and `4906d6a5`. Spec commits (2), (3) and (4) have not started. Resume at spec commit (2), "cold pack/profile/run identity", in `.agent/W2-02-build-spec.md`.

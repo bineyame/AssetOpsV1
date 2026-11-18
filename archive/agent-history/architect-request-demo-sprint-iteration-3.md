@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-demo-sprint-iteration-3.md on 2026-11-18 (declutter step 4).
 # Architect request: demo-sprint iteration 3 (selection reasoning)
 
 You are the AssetOps Architect. Your iteration-2 `Docs/demo-sprint/scenario-options.md` is committed. While you were working, the owner added (verbatim, see the end of `.agent/owner-demo-sprint-feedback-2-2026-10-25.md`): "so  the reason we select scenarios in the context described is the most important and 3 is the mimimum".

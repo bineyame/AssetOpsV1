@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S5-01-M3-request.md on 2026-11-18 (declutter step 4).
 # Architect request - demonstration label for the late-power case P02 (delegated, owner absent)
 
 You are the AssetOps Architect (Codex). S5-01 phase-1 review M3 (`C:\Users\assef\Bineyame\AssetOpsV1-review2\.agent\S5-01-phase-1-review.md`): the shared demonstration label (`backend/assetops_backend/demonstration_label.py`, `demonstration_case`) reads only the P01 power demo spec. For P02 (KOBO-001, 2026-10-24, authored late-power spec `s4-power-late-demo-cases-v1.json`, used by LR-01 and S5-01 walkthroughs) it returns None, so S5 treats the source as resolved and shows PRICED 15.82 with `demonstration` null; LR-01's Financials bridge likely shows the same amount unlabelled. S4-05 (stored provenance, planned, unmerged) will replace the label with `AUTHORED_DEMONSTRATION` bindings later (`D-2026-10-15-s405-stored-demo-provenance`).

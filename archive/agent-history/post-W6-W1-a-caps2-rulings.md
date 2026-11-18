@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-a-caps2-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W1-a synthetic cap probe
 
 2026-10-25. These rulings amend the W1-a cap gate in `.agent/post-W6-W1-rulings.md` for the named panels only. Evidence is the labelled synthetic probe on the real s404 `late-stale` page at `task/post-W6-W1-a` head `273fac91`, recorded in `../AssetOpsV1-review4/.agent/post-W6-W1-a-fix-probe/` and the fix-round section of `.agent/post-W6-W1-a-packet.md`. The probe reports zero clipped elements and zero document horizontal overflow at 1440 and 390 px. This is design authority, not implementation acceptance.

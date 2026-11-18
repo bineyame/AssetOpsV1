@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-7-packet.md on 2026-11-18 (declutter step 4).
 # SR-7 packet: mini-grid Service and claim limit over the date range (servers only)
 
 Branch `task/SR-7-service-claim-range` (worktree `/opt/assetecon/AssetOpsV1-sr7`), main cdd65115c merged.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W1-b-preflight.md on 2026-11-18 (declutter step 4).
 # Architect request: W1-b pre-flight questions
 
 You are the AssetOps Architect. The W1-b builder (worktree `../AssetOpsV1-review7`, branch `task/post-W6-W1-b` from W1-a head ec9bfbe9) pre-flighted against `.agent/post-W6-W1-rulings.md` (W1-b Q19-Q36, cross-card contract) and stopped. Rule on each question with exact, implementable answers. Verify code claims yourself in `../AssetOpsV1-review7` as needed.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-fix2-handoff.md on 2026-11-18 (declutter step 4).
 # LR-01 fix round 2 handoff
 
 1. M1: `frontend/src/sites/FindingConsequence.tsx` `MoneyLimit` now de-duplicates on `start|end|kind`, Finding-revision limits first (selected-window ones sorted last). L1 reworded to "they arrived before an earlier reading and their clock is not proven". Test added in `frontend/src/sites/__tests__/siteFinancials.test.tsx` (same span from revision + window -> one item, specific wording). Older assertion updated.

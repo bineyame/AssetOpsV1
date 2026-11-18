@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-04-review.md on 2026-11-18 (declutter step 4).
 # TEL-04 review: poller and focused end-to-end through a real gateway process
 
 - Reviewer: fresh Claude reviewer (did not author the slice).

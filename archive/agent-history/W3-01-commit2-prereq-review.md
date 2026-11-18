@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-commit2-prereq-review.md on 2026-11-18 (declutter step 4).
 # W3-01 commit-2 Lane A prerequisite: independent review
 
 Reviewed: code commit `a75b0291` (handoff `04b00a25`), branch `task/W3-01-estate-claim-action-roots`, worktree

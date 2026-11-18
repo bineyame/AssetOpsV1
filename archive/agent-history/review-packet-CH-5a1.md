@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5a1.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-5a1 (ChainReader and the board read path)
 
 Branch `task/CH-5a1-chain-reader`. **CH5a1-R2 fix round** (sheet §A13) on 110d0057a: ff033ade1 (R-1), d088b16f1 (COH-7a), e542064b2 (ledger), packet f6dfc60e4. **MD-0 round** (sheet §A13 / MD-0 §7, §16-§18): e40018c53 (merge main c036f8a49), c9638be3f (D-2d-1), 99e956dec (L2m), 33841fd57 (e4 importer); this packet commit follows. Not merged.

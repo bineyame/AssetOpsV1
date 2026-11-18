@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02b-rereview.md on 2026-11-18 (declutter step 4).
 # S3-02b re-review: fix round 1 (claim-limit section, UI)
 
 Reviewer: a fresh, independent Claude reviewer who did not author the slice or the fix. Reviewed revision `e6492b97`, diff `git diff 12246a6f..e6492b97` (fix commit `e8971255`, closeout `e6492b97`).

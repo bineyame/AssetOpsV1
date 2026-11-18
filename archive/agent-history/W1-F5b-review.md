@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5b-review.md on 2026-11-18 (declutter step 4).
 # W1-F5b review: in-page tab rows, Site Findings chips, carries, all-26 audit
 
 Reviewer: fresh independent Claude reviewer. Revision `13cf2477` (code at `6978d924`), base `e7a1f6a1`.

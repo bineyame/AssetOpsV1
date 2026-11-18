@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-boundary-request.md on 2026-11-18 (declutter step 4).
 # Architect request: W1 boundary candidates (2026-10-11)
 
 Owner (verbatim, 2026-10-11, after asking which screens W1 leaves out and how Action screens are split): "ok share with me the revised recommendation for the waves by the architect"

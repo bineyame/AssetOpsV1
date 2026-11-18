@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-review-packet.md on 2026-11-18 (declutter step 4).
 # W3-03 review packet (Portfolio composition)
 
 Task: W3-03 `tasks/W3-03-*`; contract `.agent/W3-03-build-spec.md` (closures 4-5, r0a..r3b). Branch

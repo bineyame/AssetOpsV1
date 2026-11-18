@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F4-review.md on 2026-11-18 (declutter step 4).
 # W1-F4 review (Recommendation, Changes, Action x5, Verification, Site Work)
 
 - Reviewer: fresh independent Claude reviewer. Revision reviewed: `983622c0` (code as of `6989f074`), diff `af1aa23e..HEAD -- frontend`.

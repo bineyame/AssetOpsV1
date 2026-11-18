@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PA-3-packet.md on 2026-11-18 (declutter step 4).
 # POLISH PA-3 review packet: producers, links and rebuild
 
 Task: `tasks/POLISH-PA-3-producers-rebuild.md`. Branch `task/POLISH-PA-3-producers-rebuild` from main `c4a39b1dc`.

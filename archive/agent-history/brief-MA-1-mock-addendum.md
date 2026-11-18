@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/brief-MA-1-mock-addendum.md on 2026-11-18 (declutter step 4).
 # Brief MA-1: v70 mock addendum for the chain screens (OD-P5, agreed)
 
 - Architect: Claude, 2026-11-03.

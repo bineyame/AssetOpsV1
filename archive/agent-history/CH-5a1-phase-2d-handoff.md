@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a1-phase-2d-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5a1 phase 2d handoff - COMPLETE (L2, collector, estate guard self-tests, guards). Next: phase 3.
 
 Authority unchanged: build sheet Part A (incl. §A12). Previous: `CH-5a1-phase-2c-handoff.md`.

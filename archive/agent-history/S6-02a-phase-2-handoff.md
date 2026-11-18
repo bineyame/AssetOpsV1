@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02a-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S6-02a phase 2 handoff (verification core: evaluator, holds, reads, replay)
 
 Branch `task/S6-02a-verification-core` (worktree `AssetOpsV1-review4`), on top of the phase-2 brief `ffcfa1cf`:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-01-request.md on 2026-11-18 (declutter step 4).
 # Architect request - S6-01a/S6-01b questions (delegated, owner absent)
 
 You are the AssetOps Architect (Codex), acting on the owner's delegation (`.agent/owner-autonomy-2026-10-15.md`). Packets `tasks/S6-01a-action-store-read.md` (Q1-Q3) and `tasks/S6-01b-action-ui.md` (Q4-Q5) on branch `plan/S6-01-refine` list "Architect questions" with the Planner's recommendations. Context: `D-2026-10-14-action-lifecycle-and-policy-application`, `.agent/A-action-lifecycle-review.md`, the backlog "A-action-lifecycle review carries".

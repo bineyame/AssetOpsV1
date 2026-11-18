@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-DD-1b2a.md on 2026-11-18 (declutter step 4).
 # Review packet DD-1b2a: the mill step (current: reviewed FIX, fix round 1 applied, H1 and M1 ruled in DD1b2-R5, coordinator-verified for merge)
 
 Branch `task/DD-1b2-finish-rehearsal`. Rulings: DD1b2-R, R2, R3 and R4 in `build-sheet-DD-1.md`; owner answer "Leave it" (option (a)) in `.agent/owner-grow-size-2026-11-07.md`; review `.agent/review-DD-1b2a.md` (verdict FIX: H1, M1, Lows). Fix round 1 changed no product code; it added the M3 measurement and these corrections. **Nothing here is closed that the Architect has not ruled on:** see "Fix round 1" at the end. Evidence: `.agent/DD-1b2a-probe.json` (first probe, kept), `.agent/DD-1b2a-m0.json`, `.agent/DD-1b2a-m1.json`, `.agent/DD-1b2a-probe-2.json` (+ `-seam.json`). **MEASURED** is a stored row or a run; **READ** is code reading.

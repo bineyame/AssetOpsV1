@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-DD-1a2.md on 2026-11-18 (declutter step 4).
 # Review: DD-1a2 (the B-22 day list)
 
 Branch `task/DD-1a2-b22-day-list` at `2c033f6c8`, against `9b1c53ae3`. Reviewer: independent Claude, did not author the work.

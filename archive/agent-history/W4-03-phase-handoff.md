@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W4-03 phase handoff
 
 Branch `task/W4-03-mini-decisions-work` (from `main`), worktree `AssetOpsV1-review5`.

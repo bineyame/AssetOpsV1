@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S3-dispatch-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S3-01 dispatch refinement handoff (2026-10-11)
 
 `A-S3-dispatch` is resolved by `D-2026-10-11-s3-dispatch-interval-assessment` in `.ai/DECISIONS.md`. This is the mini-grid S3-01 contract. The owner has already confirmed the revised W1 screen/core/value set and K=10; **no additional owner weighing is needed for this technical decision**. S3-01 still requires accepted S2 Evidence, time-valid S1 bindings, normal-ingestion `I-sim-dispatch-cases`, startup guards and its stated owner review checkpoint. Do not infer that recording this decision accepts S3 implementation.

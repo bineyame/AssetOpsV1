@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-q5.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 two applied mappings (2026-10-18). Brief; edit `.agent/W2-04-build-spec.md` in place; amend `D-2026-10-18-w2-04-buildspec`. No code.
 
 The commit-3 fixup implementer applied two mappings the ruling did not specify per code (owner rule: implementer decisions must be ruled):

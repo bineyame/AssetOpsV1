@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-plan-review.md on 2026-11-18 (declutter step 4).
 # S4-03 planning packet: fresh Claude review
 
 Reviewer: fresh Claude reviewer (did not author the packet). Date 2026-10-13.

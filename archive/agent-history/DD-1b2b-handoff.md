@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b2b-handoff.md on 2026-11-18 (declutter step 4).
 # DD-1b2b handoff (steps 1-5 and P0 done; resume at step 6, the rehearsal)
 
 Card: `build-sheet-DD-1.md` "DD1b2-R6", amended by "DD1b2-R7" (Q7 start window and memory rules, Q8 start time), "DD1b2-R8" (C1 non-fatal drain, C2 manifest always written, C4 P0, A the after tool) and "DD1b2-R9" (COH-2, DS-1 clause, step-7 tree form). Pre-flight `.agent/DD-1b2b-preflight.md`. P0 evidence: `.agent/DD-1b2b-p0.json` (read it). Worktree `AssetOpsV1-dd1b2`, branch `task/DD-1b2-finish-rehearsal`. **Code freeze: the prepare archives HEAD (`backend gateway host simulator contracts config contract-fixtures tools`), so nothing in those may change until step 6 starts.** Commit this file before step 6 (`.agent` is not archived). Do not push or merge.

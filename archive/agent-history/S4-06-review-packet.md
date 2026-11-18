@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-06-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-06 review packet - equal-start future price succession
 
 Task: `tasks/S4-06-price-succession.md` (size S, non-UI, USER_REVIEW_REQUIRED false). Registry `I-price-equal-start-succession`. Branch `task/S4-06-price-succession` from main `7c72c6b3`. Review range: `git diff 7c72c6b3..HEAD`.

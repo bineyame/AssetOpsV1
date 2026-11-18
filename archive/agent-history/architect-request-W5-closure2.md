@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-closure2.md on 2026-11-18 (declutter step 4).
 # Architect request: W5 closure round 2
 
 You are the AssetOps Architect. The closure check `.agent/W5-closure-check.md` confirms 41 of 46 readiness items are closed. It found 7 open items in W5-01 (R1-R7) and 6 in W5-03 (V1-V6). Close each one in place in `.agent/W5-01-build-spec.md` and `.agent/W5-03-build-spec.md`, with a literal artifact verified against merged code.

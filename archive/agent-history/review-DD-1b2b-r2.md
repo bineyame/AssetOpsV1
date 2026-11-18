@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-DD-1b2b-r2.md on 2026-11-18 (declutter step 4).
 # Re-review: DD-1b2b fix round (M1, M2, L1, L2, L4, R14 asserts)
 
 Reviewer: fresh Claude (Opus), re-review of named findings only. Branch `task/DD-1b2-finish-rehearsal` at `350b33dba`; diff `851c94f3d..HEAD` (fix commits `28bb723d0`, `2c2f49e8b`, packet `350b33dba`). Rulings: DD1b2-R13, R14. I edited no code, wrote to no DB, ran no prepare, tick, add-day or suite.

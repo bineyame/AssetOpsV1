@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-handoff.md on 2026-11-18 (declutter step 4).
 # S4-03 handoff
 
 Task: `tasks/S4-03-finding-evidence-history.md` (binding). Branch `task/S4-03-finding-evidence-history`.

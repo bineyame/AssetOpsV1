@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-05-review.md on 2026-11-18 (declutter step 4).
 # TEL-05 review: Postgres acceptance, profile `-1`
 
 Reviewer: fresh Claude reviewer (did not author the slice). Branch `task/TEL-05-postgres-acceptance` at 5c2f134f, diffed against TEL-04 head 164be83c.

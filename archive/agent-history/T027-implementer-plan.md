@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T027-implementer-plan.md on 2026-11-18 (declutter step 4).
 # T027 phase 1 - implementer plan
 
 Written by the phase 1 coordinating implementer. Each sub-phase is built by a

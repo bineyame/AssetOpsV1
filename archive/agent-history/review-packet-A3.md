@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-A3.md on 2026-11-18 (declutter step 4).
 # Review packet: FUEL-1 A3, idle fuel on Kobo's screens and story
 
 - Card: `.agent/build-sheet-FUEL-1.md` **A3-R** (replaces §4.3's build detail; main `0c4aa7310`). Branch `task/FUEL-A3-kobo-idle-fuel`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-a3`. Cut from `b70be217b`; `git merge main` (fast-forward to `0c4aa7310`) before the build. No rebase.

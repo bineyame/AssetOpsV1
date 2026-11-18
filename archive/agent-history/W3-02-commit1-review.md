@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-commit1-review.md on 2026-11-18 (declutter step 4).
 # W3-02 commit 1 - combined review (Evidence read/API, Lane A facade and mount)
 
 Reviewer: fresh Claude reviewer (independent; authored none of the range).

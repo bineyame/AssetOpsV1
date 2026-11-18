@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S1-03-owner-steps.md on 2026-11-18 (declutter step 4).
 # S1-03 owner UI check: Foundation, Single line diagram, Readiness
 
 Branch `task/S1-03-foundation-organization`. Compare each app view with its mock, side by side. Reference captures are in `.agent/S1-03-screens/` (see `INDEX.md`).

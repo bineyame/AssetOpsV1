@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-review.md on 2026-11-18 (declutter step 4).
 # S2-01c review: gateway diagnostics and fault scenarios
 
 Reviewer: a fresh Claude reviewer (independent; authored none of this slice). This is the per-slice review; Codex reviews S2-01c and S2-02 together at the end of S2 (owner rule, 2026-10-09).

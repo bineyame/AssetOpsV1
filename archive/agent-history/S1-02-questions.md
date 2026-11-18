@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S1-02-questions.md on 2026-11-18 (declutter step 4).
 # S1-02 questions for the Architect (Implementer, 2026-10-08)
 
 **Answered 2026-10-08:** see `.agent/architect-S1-02-answers-2026-10-08.md` (decision `D-2026-10-08-s1-bindings-roles-and-snapshot`). The PROPOSED values below are superseded by those answers.

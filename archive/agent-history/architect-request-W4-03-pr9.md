@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-pr9.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 PR-9 and the unit-7 and u6b readings (u7)
 
 Read:

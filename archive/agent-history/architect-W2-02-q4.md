@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-02-q4.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-02 Lab cold-choice UI (2026-10-17). Brief; edit `.agent/W2-02-build-spec.md` in place; amend `D-2026-10-17-w2-02-buildspec`. No code.
 
 Implementer (handoff `.agent/W2-02-phase-2-handoff.md`, branch task/W2-02-cold-producer) built `GET /api/simulator-lab/cold-scenarios?site_id=` and its client. The spec says the client "offers the returned cold scenarios" after Site selection, but `RunSetupFrame.tsx` builds its form from the legacy scenario detail (404 for cold by spec); the v69 mock has no screen for this.

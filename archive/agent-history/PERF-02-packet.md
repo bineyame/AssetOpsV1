@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PERF-02-packet.md on 2026-11-18 (declutter step 4).
 # PERF-02 review packet: build once, copy per test (A) and slice test selection (C)
 
 Branch `task/PERF-02-build-once-copy`, built from PERF-01 (d4fe44a5) and merged with main 05f80711. Builder: the

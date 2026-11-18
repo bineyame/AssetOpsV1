@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-1-packet.md on 2026-11-18 (declutter step 4).
 # PR-1 review packet: `price_action` on unpriced items (2026-11-11)
 
 - **Card:** "PR-1 + price-page draft", `.agent/architect-sequence-client-scope-2026-11-11.md` rev 4 (line 49).

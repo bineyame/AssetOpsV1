@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-08-handoff.md on 2026-11-18 (declutter step 4).
 # S4-08 handoff (build complete, in_review)
 
 Branch `task/S4-08-assumption-history` (from main `e46bbd7c`), final code revision `46dc42cb`; docs commit after it. Not merged. Packet `.agent/S4-08-review-packet.md`.

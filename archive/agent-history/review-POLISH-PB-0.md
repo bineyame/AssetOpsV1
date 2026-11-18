@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PB-0.md on 2026-11-18 (declutter step 4).
 # Review: POLISH PB-0 (strict capture gate, review-mode labels, guard 12)
 
 Reviewer: independent Claude reviewer (did not author the slice). Date 2026-11-01.

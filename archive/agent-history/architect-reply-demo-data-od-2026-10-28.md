@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-reply-demo-data-od-2026-10-28.md on 2026-11-18 (declutter step 4).
 # Reply to the owner: demo data questions 2, 4, 5 and 7 (28 October 2026)
 
 **2. Source labels.** Agreed. Histories built on real public inputs get their own label, "Simulated with real public inputs", and their money follows exactly the same rules as any simulation. The server derives the label from the input files' fingerprint, so nobody can type it in, and it disappears if the inputs change. Cost: about half a day. A whole new category would cost three to four days for the same result. *Example:* Turkana shows "Simulated with real public inputs: weather measured by NASA near this location", and its generator saving is calculated exactly as at our lab site.

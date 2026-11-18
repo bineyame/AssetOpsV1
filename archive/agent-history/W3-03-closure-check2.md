@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-closure-check2.md on 2026-11-18 (declutter step 4).
 # W3-03 closure check 2 (2026-10-20, main f6c7d9cc)
 
 Result: 10 CLOSED, 1 OPEN (Q9).

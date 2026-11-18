@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-06-r9.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-06 fix-round questions (r9)
 
 You are the AssetOps Architect. Read the following:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-9b1.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-9b1 (Actions from an opportunity on `domain_action`)
 
 Branch `task/CH-9b1-opportunity-actions` (builds `15cdc456d`, `b33016c89`, `c54e4f56f`). Rulings: build-sheet-CH-9b.md "CH9b1-R". Status: in_review. USER_REVIEW_REQUIRED: no (backend only).

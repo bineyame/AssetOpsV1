@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-MB-1a.md on 2026-11-18 (declutter step 4).
 # Review MB-1a: the mill in the Kobo Assure row and the verified count
 
 - Reviewer: fresh Claude (Opus), independent of the builder. Branch `task/FUEL-MB1-mill-on-board`, head `f7fa95a06`;

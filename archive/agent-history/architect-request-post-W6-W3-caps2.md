@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W3-caps2.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-estate Findings and Managed actions caps
 
 You are the AssetOps Architect. After your closeout rulings (`.agent/post-W6-W3-closeout-rulings.md`), the W3 fix round (worktree `../AssetOpsV1-review6`, branch `task/post-W6-W3-estate`, head 5658757d) re-ran the cap probe with every intended variable text field set to exactly 160 characters in all five clones (typed columns Priority, Confidence, State, Lens, Value kept real). Evidence: `../AssetOpsV1-review6/.agent/post-W6-W3-estate-recapture/fix-round/` (cap-table.txt, probe JSON, screenshots) and the "Fix round" section of `../AssetOpsV1-review6/.agent/post-W6-W3-estate-packet.md`.

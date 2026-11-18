@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-FIX-MAIN-2.md on 2026-11-18 (declutter step 4).
 # FIX-MAIN-2 review packet
 Test-only fixes; no product code changed. Run via tools\run-host-tests.ps1 (127.0.0.1, *_test DB), localised.
 

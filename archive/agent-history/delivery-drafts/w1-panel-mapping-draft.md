@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/delivery-drafts/w1-panel-mapping-draft.md on 2026-11-18 (declutter step 4).
 # W1 panel-to-gate mapping draft — 58 of 58
 
 Planning only, for the 21 proposed W1 manifest IDs in the owner strategy. Keys are `screen_id:panel_index` in `v69-panel-contracts.json`; title is a check against that file. **All listed gates are AND dependencies**, including transitive `requires`. A task closeout does not make a panel real without the named read, UI, persisted/accepted data, lineage, rendered-claim review and applicable V-01 interaction acceptance. Product tier and core choices remain pending owner. `B` means a bounded supported path exists in the merged S1/S2-01 code, subject to contract/review reconciliation; `G` means a necessary gate or claim is still missing. `B` is not registry `real`.

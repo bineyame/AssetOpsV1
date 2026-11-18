@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-questions-2026-10-08.md on 2026-11-18 (declutter step 4).
 # S2 planning questions for Architect — 2026-10-08
 
 ## Q1 — Historical registered snapshot availability (S1-02 carry n5)

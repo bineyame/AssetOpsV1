@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-02-merge-handoff.md on 2026-11-18 (declutter step 4).
 # OPS-02 merge handoff
 
 Branch `task/OPS-02-writer-guard-ast` (worktree `AssetOpsV1-review2`) is merge-ready; not merged to main.

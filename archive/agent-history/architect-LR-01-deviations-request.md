@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-LR-01-deviations-request.md on 2026-11-18 (declutter step 4).
 # Architect request - LR-01 known deviations (delegated, owner absent)
 
 You are the AssetOps Architect (Codex). LR-01 is built on branch `task/LR-01-late-reading-series-and-money-limit` (head `3b360af5`; read code with `git show 3b360af5:<path>`). Its review packet (copied here as `.agent/LR-01-review-packet-snapshot.md`) lists five Known Deviations for you:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-finding-index-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer - Site FindingIndex (2026-10-15)
 
 Decision: `D-2026-10-15-a-finding-index`. Resolve `A-finding-index` for the W1 Site read only. Authority is the owner-absence work order item 9, the reviewed S4-01 episode contract, `D-2026-10-14-s5-selected-window-overview`, and `D-2026-10-15-s501-finding-choice`. This decision defines a reusable row contract; it does not implement an estate/global index, cold-chain or EV analytics, or approve UI copy.

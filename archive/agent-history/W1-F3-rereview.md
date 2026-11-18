@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F3-rereview.md on 2026-11-18 (declutter step 4).
 # W1-F3 fix round: independent re-review
 
 Reviewer: a fresh Claude reviewer who is not the author. Revision: `db47efc2` (last code commit `8a6a294c`). Fix diff: `dcbbf181..db47efc2 -- frontend`.

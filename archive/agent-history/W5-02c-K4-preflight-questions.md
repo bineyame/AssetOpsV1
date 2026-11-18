@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02c-K4-preflight-questions.md on 2026-11-18 (declutter step 4).
 # W5-02c K4a/K4b/K5 pre-flight refresh: questions for the Architect
 
 Branch `task/W5-02c-K4-cold-action` at main `59c66b5e` (K2 and K3 merged). This is a read-only dry-read. It checks the K4/K5 cards (`.agent/W5-02-build-spec.md:103-105, :70-76, :367-373`), the merged K2 domain Action shell, mock `cold-action` (`frontend/mockups/v69/index.html:742-746`) and the expected W5-03b E4/E6 collisions. The E4/E6 branch `task/W5-03b-ev-health-ui` has no diff from main yet, so the collisions below are taken from `.agent/W5-03b-ui-preflight-rulings.md` and `.agent/W5-03-build-spec.md`. No product code was written.

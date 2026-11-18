@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-V2a-handoff.md on 2026-11-18 (declutter step 4).
 # W5-04 V2a handoff — EV Site Work Actions tab (pure fixtures)
 
 Branch `task/W5-04b-ev-work-ui`, based on main `6927bb33` (merged K4/K5 and rulings 1-52). Ruling 39 lets V2a be built

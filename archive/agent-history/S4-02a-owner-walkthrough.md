@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02a-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S4-02a owner walkthrough: the Site diesel price, its history, the disabled edit and a finding's money view
 
 ## What changed

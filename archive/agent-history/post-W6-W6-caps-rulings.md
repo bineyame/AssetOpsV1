@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W6-caps-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W6 caps and list-cell overflow
 
 Authority: `.agent/architect-request-post-W6-W6-caps.md`, W6 Q15–Q16 in `.agent/post-W6-W6-rulings.md`, and the mounted-page probe at product `f3da6e90` in `../AssetOpsV1-review8/.agent/post-W6-W6-evidence/q15/summary.json` (five rows with every intended variable text field at 160 characters, 1440/390 px). These are build rulings; the listed measurements are from the pre-fix probe, not a claim that the final build passes.

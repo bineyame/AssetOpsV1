@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-A-phase-handoff.md on 2026-11-18 (declutter step 4).
 # OUT-A handoff (partial, 2026-10-30)
 
 Branch `task/OUT-A-category-labels`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outA`, head `6b98ddc3`. Spec rev 2 + "Pre-flight rulings A" + "addendum 1" in `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-spec-outcome-sprint-2026-10-29.md`.

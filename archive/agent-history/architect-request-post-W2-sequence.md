@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W2-sequence.md on 2026-11-18 (declutter step 4).
 # Architect request: binding post-W2 two-lane sequence
 
 You are the AssetOps Architect.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-06-q2.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-06 q2 (Q1–Q15). Give concrete artifacts, not prose.
 
 You are the AssetOps Architect. Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/A-S4-financial-review.md on 2026-11-18 (declutter step 4).
 # A-S4-financial review (fresh Claude reviewer)
 
 Target: `plan/A-S4-financial`, diff `9fde68f..d72bfff` (`2157ef7` activation, `7faa206` Architect output, `d72bfff` next-work report). This reviews a planning record only. No implementation was reviewed. I did not author the decision.

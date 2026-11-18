@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-A-packet.md on 2026-11-18 (declutter step 4).
 # DEMO-A review packet (combined three-Site dataset on the DEMO-SPARSE calendar)
 
 Task `tasks/DEMO-A-combined-dataset.md` · branch `task/DEMO-A-combined-dataset` · worktree `AssetOpsV1-demo3`.

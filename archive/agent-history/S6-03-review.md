@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-03-review.md on 2026-11-18 (declutter step 4).
 # S6-03 review - Site Work Action list
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Revision under review: `173e7057`

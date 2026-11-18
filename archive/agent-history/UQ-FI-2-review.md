@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UQ-FI-2-review.md on 2026-11-18 (declutter step 4).
 # UQ-FI-2 review (fresh Claude reviewer, 2026-11-13)
 
 Branch `task/UQ-FI-1-2`, worktree `/opt/assetecon/AssetOpsV1-uqfi`, head `66ead2967`. Scope: UQ-FI-2 commits after `c66937b97` (`8acf207a5`, `fc2d007a3`, `ec7b22d56`, `82420ed3e`, `900925779`, `a56b29c70`) and the UQ-FI-3 merge resolution. Spec: rev 6 6.1/6.3, D-UQFI.4, .6, .8, .13-18.

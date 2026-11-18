@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-3.md on 2026-11-18 (declutter step 4).
 # Review packet: WALK1-3 (declared productive-use price and estimated productive-use sales at Kobo)
 
 Branch `task/WALK1-3-productive-use-price` from main `daa523b29` (WALK1-2 merged). WALK1-1 is not merged. Spec:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-final-fix-handoff.md on 2026-11-18 (declutter step 4).
 # Handoff: post-W6 final fix (captures complete; see packet Captures section)
 
 Branch task/post-W6-final-fix (worktree `C:\Users\assef\Bineyame\AssetOpsV1-review10`), code SHA 6bc57581 plus docs commit. Everything except captures is done and verified (see `.agent/post-W6-final-fix-packet.md`).

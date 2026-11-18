@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-02-q6.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-02 cold readiness gate (2026-10-18). Brief; edit `.agent/W2-02-build-spec.md` in place; amend `D-2026-10-17-w2-02-buildspec`. No code.
 
 Implementer finished commit (4) (branch task/W2-02-cold-producer, packet `.agent/W2-02-review-packet.md` deviations 1-3). Blocker (High): `binding_service.acquisition_snapshot` applies the mini-grid configuration-gap check to COLD-LAB-001 (SITE_TYPE_UNSUPPORTED + electrical component gaps), so `RegisteredLabBasis` refuses every production cold Draft. The six Postgres proofs lift only that gap check test-only for COLDCHAIN (`open_cold_snapshot_gate`).

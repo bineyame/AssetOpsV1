@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05b-phase-1-review.md on 2026-11-18 (declutter step 4).
 # S4-05b phase 1 review - registered producers and exact stored source provenance on reads
 
 Reviewer: fresh independent Claude reviewer (did not author). Revision reviewed: `e147b06d`

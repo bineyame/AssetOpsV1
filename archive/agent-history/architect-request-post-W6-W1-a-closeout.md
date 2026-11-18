@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W1-a-closeout.md on 2026-11-18 (declutter step 4).
 # Architect request: W1-a review follow-ups
 
 You are the AssetOps Architect. The W1-a review (`../AssetOpsV1-review4/.agent/post-W6-W1-a-review.md`, branch `task/post-W6-W1-a`, head 3fd3df6d; packet `.agent/post-W6-W1-a-packet.md` there) raised points needing your ruling. Rule exactly:

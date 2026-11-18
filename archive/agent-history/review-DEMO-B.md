@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-DEMO-B.md on 2026-11-18 (declutter step 4).
 # Review: DEMO-B (combined-dataset captures, v70 comparison, walkthrough runbook)
 
 Reviewer: fresh Claude reviewer (did not author). Date: 2026-11-01.

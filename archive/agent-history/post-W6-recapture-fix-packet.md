@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-recapture-fix-packet.md on 2026-11-18 (declutter step 4).
 # Packet: post-W6 recapture fix (branch task/post-W6-recapture-fix, from main 6a766a7e)
 
 ## Changes

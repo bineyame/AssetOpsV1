@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-CH-6b3.md on 2026-11-18 (declutter step 4).
 # Review: CH-6b3 coherence, proofs and the packet
 
 Branch `task/CH-6b3-coherence-proofs`, HEAD `8b168ddaa`, against main `9b1c53ae3`. Reviewer: fresh Claude, not the author.

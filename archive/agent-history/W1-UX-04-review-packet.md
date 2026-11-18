@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-04-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-UX-04 review packet - Action, work, change and verification presentation
 
 Task `tasks/W1-UX-04-actions-work.md`; branch `task/W1-UX-04`, base main `b4a89314`, final build revision `de7d14ef` (closeout commit follows). Frontend only. Reviewer diff: `git diff b4a89314..HEAD -- ':!.agent'`. USER_REVIEW_REQUIRED: a fresh independent review is the merge gate, including the S6-02b fail-closed diff below. The owner sees this slice in the combined W1 walkthrough. Do not merge before that review.

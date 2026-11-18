@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-2-packet.md on 2026-11-18 (declutter step 4).
 # DATA-2 packet (D-E5.32)
 
 Outcome: `story_links` (tools/demo_combined.py) adds, per Cold/EV story day with an event window, a second link

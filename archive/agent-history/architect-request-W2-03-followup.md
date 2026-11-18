@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-03-followup.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-03 follow-up rulings (fidelity compaction + chip tones)
 
 You are the AssetOps Architect. Read `.ai/ROLE_CONFIG.md` (the sections "Mockup drives the design; implementers never decide" and "Token Efficiency"), `.agent/W2-03-build-spec.md` (if present) and `tasks/W2-03-cold-assessment.md`, the height table in `.agent/W2-03-review-packet.md` §"App-vs-mock panel heights", and the "Run 9 rulings" M5 section in `.agent/W2-04-build-spec.md`. The v69 mock (`frontend/mockups/v69/`) is authoritative. Owner rule: stay faithful to the mock and leave nothing for the implementer to decide.

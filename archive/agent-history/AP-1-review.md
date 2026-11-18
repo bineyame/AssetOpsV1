@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/AP-1-review.md on 2026-11-18 (declutter step 4).
 # AP-1 review: stored-Site analytics readiness (`/api/sites/{id}/analytics`)
 
 Reviewer: fresh Claude reviewer (did not author the work), 2026-11-13.

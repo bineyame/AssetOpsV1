@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-questions-4.md on 2026-11-18 (declutter step 4).
 # S4-01 questions 4 (phase-2 fix round 1)
 
 Raised by the Implementer while fixing the phase-2 review (B1, B2, C3) and applying Q17-Q20

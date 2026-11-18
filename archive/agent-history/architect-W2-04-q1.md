@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-q1.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 Q1-Q10 + implementer dry-read of W2-04 commits 1-5 (2026-10-18). One call. No code.
 
 Owner (verbatim): "the architect should not let important things be decided by the implementer by a vague guide" and "stay faithful to the mock-up in ui/ux and align technial desgin accordingly". This must be the LAST W2-04 question round.

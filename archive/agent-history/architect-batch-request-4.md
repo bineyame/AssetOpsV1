@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-batch-request-4.md on 2026-11-18 (declutter step 4).
 # Architect request: batched S2-02 questions + delivery-strategy contract questions (2026-10-09)
 
 Owner instructions (verbatim): 2026-10-09 "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use". The owner confirmed `D-2026-10-09-owner-delivery-strategy` (`.ai/DECISIONS.md`), which allows planning-only drafts during S2-02.

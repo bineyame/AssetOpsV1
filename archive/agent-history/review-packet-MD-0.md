@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-MD-0.md on 2026-11-18 (declutter step 4).
 # Review packet: MD-0 Kobo-only mechanism dataset (phases 1-4)
 
 - Branch `task/MD-0-mechanism`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-md0`. Authority: build sheet

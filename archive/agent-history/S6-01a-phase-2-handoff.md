@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S6-01a phase 2 handoff
 
 Branch `task/S6-01a-action-store-read`, code-final `375c8cf9` (commits `b8a5e931`, `d9f2aec5`, `375c8cf9`; closeout docs after). Not merged. Task status `in_review`; packet `.agent/S6-01a-review-packet.md` (slice review).

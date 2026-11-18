@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-final-review.md on 2026-11-18 (declutter step 4).
 # W3-01 final review (whole slice, head `60e0bf55`)
 
 Reviewer: fresh Claude reviewer, independent of the builder. Read through git only. I did not run tests in

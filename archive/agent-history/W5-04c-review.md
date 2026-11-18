@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04c-review.md on 2026-11-18 (declutter step 4).
 # W5-04c independent review: V4a, V4b and V5
 
 Reviewer: fresh Claude reviewer (did not author the slice). Date: 2026-10-24.

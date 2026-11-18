@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-retro-rulings.md on 2026-11-18 (declutter step 4).
 # W2 retro rulings (2026-10-18)
 
 Architect decision `D-2026-10-18-w2-retro-rulings`. This closes the implementation choices recorded in the W2-02 and W2-03 review packets. `ACCEPT` makes the stated behavior a build contract. `CORRECT` states the required replacement; it does not assert that code has changed. Existing decisions `D-2026-10-17-w2-02-buildspec` and `D-2026-10-18-w2-03-answers` prevail where cited. The v6.9 named screen and its honest gaps remain the user-facing authority.

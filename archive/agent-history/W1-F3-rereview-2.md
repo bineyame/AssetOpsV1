@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F3-rereview-2.md on 2026-11-18 (declutter step 4).
 # W1-F3 fix round 2 re-review (revision 1bad5a47)
 
 Verdict: ACCEPT

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01a-C1b-review.md on 2026-11-18 (declutter step 4).
 # W5-01a C1 follow-up review (Health, Cooling Q2/Q6, review Lows)
 
 Reviewer: a fresh, independent Claude reviewer, 2026-10-22. Branch `task/W5-01a-cold-selected-depth`. The range is `1db6008c..8e6d164b` without the main merge, so the diff is `git diff 68171261 8e6d164b`, which covers commits `5d10d0e8`, `e7d8afad` and `8e6d164b`. I judged it against `.agent/W5-01-build-spec.md`: the C1 card, the C1q rulings Q1–Q12, the "C1 Cooling payload", "C1 Health read" and "C1 public W2 helper" tables, the C1 follow-up fixes and tests, and the shared read section.

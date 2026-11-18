@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-A2.md on 2026-11-18 (declutter step 4).
 # Review packet: FUEL-1 A2, trial-fuel-comparison/2, priced total, no-sum credit
 
 - Spec: `.agent/build-sheet-FUEL-1.md` §4.2 (with §1); owner decisions `.agent/owner-fuel-scope-2026-11-07.md`, `.agent/owner-kisiwa-scope-2026-11-07.md` (never a combined savings total; fuel and mill money never added). A1 review `.agent/review-A1.md` L1 and L2 closed here.

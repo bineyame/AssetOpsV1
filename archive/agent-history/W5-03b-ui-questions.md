@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03b-ui-questions.md on 2026-11-18 (declutter step 4).
 # W5-03b E4/E6 UI: ruling-vs-code points for the Architect
 
 Builder, 2026-10-24, branch `task/W5-03b-ev-health-ui`. Each point is where a ruling or card text does not match the merged code or producer. The build proceeded with the named choice. Confirm or rule otherwise.

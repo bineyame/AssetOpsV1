@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-3a-review-packet.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3a review packet - durable dispatch read, comparison and cutover gate
 
 Task: `tasks/S3-01-dispatch-assessment.md`, phase 3 row "Read, comparison and UI cutover" (backend half; UI is phase 3b). Branch `task/S3-01-dispatch-assessment`, commits `aaa47ae`..HEAD. Status stays `active`. Rulings: `D-2026-10-11-s3-phase-2-selection-and-read`, `.agent/architect-S3-answers-1.md`; phase-2 review carries F3-F6 and fixture determinism (`.agent/S3-01-phase-2-fix-rereview.md`). Questions with built fail-closed defaults: `.agent/S3-01-questions-3.md` Q9-Q13.

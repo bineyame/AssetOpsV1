@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-05b-request.md on 2026-11-18 (declutter step 4).
 # Architect request - S4-05b phase 1 questions (2026-10-16)
 
 You are the AssetOps Architect (Codex). The owner wants maximum W1 progress; decide within the Architect's remit. Visible copy remains the owner's W1 checkpoint. Read `.agent/S4-05b-phase-1-handoff.md`, `tasks/S4-05b-producers-reads-walkthrough.md`, `tasks/S4-05-stored-demo-provenance.md`, `D-2026-10-15-s405-stored-demo-provenance`, `.agent/owner-T028-presentation-direction-2026-10-04.md` (owner: product screens read as a real site, no simulator or implementation vocabulary in the default reading; deeper detail in its own layer) and the product-vocabulary scan in `tools/checks/`.

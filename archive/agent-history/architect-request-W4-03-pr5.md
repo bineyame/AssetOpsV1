@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-pr5.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 PR-5 (Alternatives readings) and PR-1 placement check
 
 Read `.agent/W4-03-build-spec.md` (closures 4–5, u1, u2, u2b, u2c) and `.agent/W4-03-pending-rulings.md` PR-5 (eight Alternatives readings).

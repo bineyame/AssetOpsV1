@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-MD-0b.md on 2026-11-18 (declutter step 4).
 # Review: MD-0b, mechanism dataset verification add-on (after fix round 1)
 
 - Reviewer: fresh Claude (independent; not the author). Read-only on the branch.

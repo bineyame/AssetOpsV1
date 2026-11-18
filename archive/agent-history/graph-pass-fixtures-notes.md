@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/graph-pass-fixtures-notes.md on 2026-11-18 (declutter step 4).
 # Graph-pass scoring fixtures (checker lane)
 
 Edited only `frontend/docs/architecture/test_delivery_next_work.cjs` (+6 tests, 32 pass). `delivery_next_work.cjs`, registry, panel contracts and packets untouched; no real defect exposed.

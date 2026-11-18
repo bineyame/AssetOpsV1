@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OWN-G1-phase-3-handoff.md on 2026-11-18 (declutter step 4).
 # OWN-G1 phase 3 handoff (STOPPED on R5 stop condition: non-PASS rows CO-2 and WK-6)
 
 Branch `task/OWN-G1-add-dates`. Commits on top of d9540c26c: 776f4fc03 (R5.2 settle in tools/demo_combined.py),

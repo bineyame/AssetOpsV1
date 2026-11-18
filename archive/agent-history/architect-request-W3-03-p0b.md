@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-p0b.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 P-0b-1, and the run numbering for L3
 
 Read:

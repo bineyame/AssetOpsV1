@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01a-C2-review.md on 2026-11-18 (declutter step 4).
 # W5-01a C2 review (Cooling page)
 
 Reviewer: fresh independent Claude reviewer, 2026-10-22. Branch `task/W5-01a-cold-selected-depth`, code diff `b6c74709..2812d7aa -- frontend backend tools` (main merges excluded; C2 commits `a4288c66`, `06c8c3cc`, `af17bcf2`, `2812d7aa`).

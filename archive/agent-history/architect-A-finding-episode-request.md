@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-finding-episode-request.md on 2026-11-18 (declutter step 4).
 # Architect request: A-finding-episode (2026-10-12)
 
 Owner choice (verbatim, 2026-10-12): "lets go with option A" — selected `A-finding-episode` from a contested next-work ranking (`.agent/next-work-2026-10-12.json`; A-finding-episode 2.761 vs V-01a 2.655). Owner Codex rule (verbatim, 2026-10-11): "codex usage optimizaion is important, so keep the same arragment for S2 going forward" — batch questions.

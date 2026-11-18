@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-04 review packet - Site Finding index and list (slice review)
 
 Task: `tasks/S4-04-site-finding-index.md` (status `in_review`). Branch `task/S4-04-site-finding-index`, base main

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-0a-review.md on 2026-11-18 (declutter step 4).
 # W3-03 run 0a — independent review
 
 Reviewed: `task/W3-03-portfolio-composition` commit `87f8ffed` (code), read at merge `9e3216d0` (main merged in;

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-rereview.md on 2026-11-18 (declutter step 4).
 # W4-02 re-review (final fix round), head 84a1ae6d
 
 Verdict: ACCEPT (read-only via git objects; no tests run; frontend/backend suites not re-run by me).

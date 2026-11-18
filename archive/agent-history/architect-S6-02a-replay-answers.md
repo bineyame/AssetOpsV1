@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-02a-replay-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer - S6-02a public replay (2026-10-16)
 
 Decision: require a versioned, reserve-aware mini-grid model/profile and a genuinely VERIFIED public Lab replay in S6-02b, before its owner walkthrough. This does not block S6-02a merge after its fresh independent review. Accept S6-02a's present replay only as an honest INCONCLUSIVE example; its labelled test-scoped Postgres cases prove evaluator branches, not a public positive replay. Record the missing positive replay as a carried acceptance gap, not as a passed S6-02a criterion.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/MA-1-mock-measurements.md on 2026-11-18 (declutter step 4).
 # MA-1 mock measurements (v70 addendum)
 
 Command: `node tools/measure-mock-panels.mjs --mock frontend/mockups/v70 <out> portfolio mini cold ev findings-opportunities finding-history verification`

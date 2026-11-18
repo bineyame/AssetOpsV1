@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/WARM-1-packet.md on 2026-11-18 (declutter step 4).
 # WARM-1 packet: warm every date-bar range (labelled workaround)
 
 - **Task:** rev 7 §7.1 of `.agent/architect-sequence-client-scope-2026-11-11.md`, ruling D-17N.1. Packet questions answered by **D-WARM.1-6** (`build-sheet-OWN-GAPS-2026-11-08.md`, main 506eae7fc).

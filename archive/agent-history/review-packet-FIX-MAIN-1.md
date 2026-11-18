@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-FIX-MAIN-1.md on 2026-11-18 (declutter step 4).
 # Review packet: FIX-MAIN-1 (latent full-suite failures on main, plus M4)
 
 Branch `task/FIX-MAIN-1` from main `c036f8a49`. Commits: cf27a0423 (goldens, runs_api), e10f215cc (M4 and the runner

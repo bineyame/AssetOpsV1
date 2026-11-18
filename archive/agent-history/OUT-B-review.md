@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-B-review.md on 2026-11-18 (declutter step 4).
 # OUT-B slice review: Site outcome board (final, B3/B5/B6 + integration)
 
 Reviewer: fresh Claude Reviewer, 2026-10-30. Branch `task/OUT-B-site-outcome-board` at e5a95e18, against main 32adae2f (the merge base; 43 commits).

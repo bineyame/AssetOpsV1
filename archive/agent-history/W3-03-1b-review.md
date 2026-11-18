@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-1b-review.md on 2026-11-18 (declutter step 4).
 # W3-03 run 1b (and the r1a fix) — independent review
 
 Reviewer: fresh Claude reviewer (did not author any of the commits). Branch `task/W3-03-portfolio-composition`, head

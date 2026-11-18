@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01-a1q.md on 2026-11-18 (declutter step 4).
 # Architect request: W6-01 A1 builder questions
 
 You are the AssetOps Architect. The A1 builder stopped before writing code. Its questions Q1-Q9, with file:line, are in `.agent/W6-01a-phase-handoff.md`.

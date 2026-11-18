@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-remaining-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer - remaining W1 screen contracts (2026-10-16)
 
 Authority: `.agent/architect-W1-remaining-request.md`; registry `frontend/docs/architecture/v69-dependency-registry-pilot.json` (`sitework:1#a`, `health:2#a`, `asset:3#a/#b`, `evidence-analysis:2#a/#b`); v6.9 Site Work, Site Health, Asset Health and Evidence Analysis screens; Site-first execution plan; existing decisions named below. These are bounded architecture contracts, not implementation, copy approval or panel delivery. The mock's populated Actions, condition claims and cross-domain lists are illustrative.

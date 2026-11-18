@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c1q.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 commit-1 questions (c1-q1 to c1-q3)
 
 Read `.agent/W3-02-build-spec.md` (closures 4–5, the 0b/0c r1 rulings) and `.agent/W3-02-pending-rulings.md`: c1-q1, c1-q2, and c1-q3 with its 7 readings.

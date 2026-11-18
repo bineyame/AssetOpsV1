@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-05-followup-request.md on 2026-11-18 (declutter step 4).
 # Architect follow-up - S4-05 plan review M1 (delegated, owner absent)
 
 You are the AssetOps Architect (Codex). Read `.agent/S4-05-plan-review.md` (M1 especially, also M2/M3) and your rulings `.agent/architect-S4-05-answers.md` / `D-2026-10-15-s405-stored-demo-provenance`.

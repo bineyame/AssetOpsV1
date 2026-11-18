@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-MA-1.md on 2026-11-18 (declutter step 4).
 # Review: MA-1, v70 mock addendum (M1–M6)
 
 - Reviewer: independent Claude reviewer, 2026-11-03.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-round2-review.md on 2026-11-18 (declutter step 4).
 # V-01a round 2: independent review
 
 Reviewer: a fresh Claude reviewer (Opus), independent of the Implementer. I did not fix, commit or merge anything.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5b-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-F5b review packet: in-page tab rows, Site Findings chips, carries, all-26 audit
 
 Branch `task/W1-F5b-tabs-audit`, built from main `e7a1f6a1` (F1-F5a merged). Brief: `.agent/W1-F5b-build-brief.md`. Ruling: `D-2026-10-17-f5-subtabs-and-contact` (F5 section of `.agent/architect-W1-fidelity.md`). Carries 7-11 of `.agent/W1-F5-carries.md`. Frontend and guards only; not merged.

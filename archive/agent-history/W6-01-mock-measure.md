@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01-mock-measure.md on 2026-11-18 (declutter step 4).
 # W6-01 mock measurements (v69 mock, headless Chrome, 2026-10-22)
 
 Helper ran unmodified: `node tools/measure-mock-panels.mjs <dir> incidents maintenance maintenance-preventive wr-overview wr-record wr-history oprecords` (Chrome at default path worked). Heights in px. Rows = row count and min-max row height (single-line rows are the min). Wrap = rows taller than the minimum. Overflow = tableScroll>tableClient (panel-local) / document scrollWidth>clientWidth.

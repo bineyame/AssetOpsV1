@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-W301-packet.md on 2026-11-18 (declutter step 4).
 # FIX-W301 review packet
 
 Task: tasks/FIX-W301-estate-index-tests.md. Branch task/FIX-W301-estate-index-tests, from main 15eed62c8.

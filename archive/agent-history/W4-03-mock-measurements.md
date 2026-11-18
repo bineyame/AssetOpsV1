@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-mock-measurements.md on 2026-11-18 (declutter step 4).
 # W4-03 mock measurements (v69, tools/measure-mock-panels.mjs, main)
 
 Heights/widths in px; budget rule: max = mock + max(24px,10%).

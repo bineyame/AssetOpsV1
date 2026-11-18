@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a1-phase-3-results.md on 2026-11-18 (declutter step 4).
 # CH-5a1 phase 3 results: L3 on the polish clone (§A9 item 5). Evidence only. OPEN: R-1 needs an Architect ruling.
 
 Authority: build sheet Part A §A6, §A7, §A9 item 5, R3/P1; pre-flight §3 and §4. Previous: `CH-5a1-phase-2d-handoff.md`.

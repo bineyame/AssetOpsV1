@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01a-C1-review.md on 2026-11-18 (declutter step 4).
 # W5-01a C1 per-unit review — Cooling part only
 
 Reviewer: independent Claude reviewer, 2026-10-22. Branch `task/W5-01a-cold-selected-depth`, head `4400491c`, code commit `703807cf`, diff `git merge-base main HEAD` (`68b88dae`)..`703807cf`. Scope: `GET /cold/cooling`, the extracted gate, `main.py` mount and the two C1 test files. The Health read (`/cold/health`, `test_health_not_configured`) is held for an Architect ruling and is not reviewed as missing.

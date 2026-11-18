@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-TEST-drift.md on 2026-11-18 (declutter step 4).
 # Review: TEST-drift (task/TEST-drift-main) vs DRIFT-R1
 
 Verdict: ACCEPT. No findings.

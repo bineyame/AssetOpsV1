@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-questions-1.md on 2026-11-18 (declutter step 4).
 # V-01b questions batch 1 (for the Architect; fail-closed defaults shipped)
 
 Each question is new: the V-01a rulings do not answer it. V-01b builds the default and continues.

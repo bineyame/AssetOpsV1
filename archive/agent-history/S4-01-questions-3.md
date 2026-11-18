@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-questions-3.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 2 questions (Q16-Q20) - for the Architect
 
 Raised by the phase-2 Implementer (`I-finding-read`), 2026-10-12. Each states the default built; none blocks the

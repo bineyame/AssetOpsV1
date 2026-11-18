@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5c.md on 2026-11-18 (declutter step 4).
 # Review packet CH-5c: batched reads, stored route responses, Portfolio trim (OWN-CH5c)
 
 Branch `task/CH-5c-perf` (worktree `AssetOpsV1-ch5c`), base plan2 main `fd03ae6b0`. Spec: build sheet

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-K2-review.md on 2026-11-18 (declutter step 4).
 # W5-02b part 1 (K2a + K2b) independent review: cold Site Action list and domain Action shell
 
 Reviewer: fresh Claude reviewer (did not author the slice). Worktree `AssetOpsV1-review3`, branch

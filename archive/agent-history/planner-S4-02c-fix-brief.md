@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-02c-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: S4-02c plan fix round 1 (2026-10-14)
 
 Role: Planner (Codex). Branch `plan/A-S5-overview`. Read the RETURN review `.agent/S4-02c-plan-review.md` in full, the packet `tasks/S4-02c-evidence-consequence-work.md`, `.agent/planner-S4-02c-notes.md`, and verify against the code it cites (`backend/migrations/versions/0011_financial_consequences.py`, `backend/assetops_backend/evidence/adapters/postgres_evidence_ledger.py` (`decide_chunk`), `backend/assetops_backend/financials/{fuel_cost.py,recompute.py,consequence_read.py,adapters/postgres_consequence_store.py}`, `tools/checks/configuration-persistence.ps1` rule 8, `tools/s402b_power_cases.py`, `backend/conversions/s4-power-demo-cases-v1.json`).

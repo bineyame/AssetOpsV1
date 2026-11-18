@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W4-build.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-mini build choices to confirm
 
 You are the AssetOps Architect. The W4-mini builder (worktree `../AssetOpsV1-review9`, branch `task/post-W6-W4-mini`; handoff `.agent/post-W6-W4-handoff.md` there) built units 1-4 under `.agent/post-W6-W4-rulings.md` and made these choices where rulings were silent. Confirm or correct each with exact copy/values, applying the owner's standing UI bar (`.agent/owner-ui-ux-guidance-2026-10-25.md`; name the pattern for UI calls):

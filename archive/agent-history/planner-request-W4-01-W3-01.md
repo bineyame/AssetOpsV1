@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-request-W4-01-W3-01.md on 2026-11-18 (declutter step 4).
 # Planner request: W4-01 and W3-01 task packets
 
 You are the AssetOps Planner. First read:

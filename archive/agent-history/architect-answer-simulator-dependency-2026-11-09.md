@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-answer-simulator-dependency-2026-11-09.md on 2026-11-18 (declutter step 4).
 # Architect answer: how far ingestion and intelligence depend on the simulator (2026-11-09)
 
 Owner question (verbatim, `.agent/owner-question-simulator-dependency-2026-11-09.md`): "how much is the canonical data

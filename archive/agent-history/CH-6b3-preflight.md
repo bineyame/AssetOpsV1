@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6b3-preflight.md on 2026-11-18 (declutter step 4).
 # CH-6b3 pre-flight (coherence, proofs and the packet; size 1.0)
 
 Branch `task/CH-6b3-coherence-proofs`, head 9b1c53ae3. No code written. **Result: rulings needed on Q1-Q4; stopped.**

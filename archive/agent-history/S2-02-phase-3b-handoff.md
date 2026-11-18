@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-phase-3b-handoff.md on 2026-11-18 (declutter step 4).
 # S2-02 phase 3b handoff — frontend Site Evidence (ledger) and Lab Commit/status landed; phase 3c next
 
 Branch `task/S2-02-ingestion-site-evidence`. Commits: `c17bef2` (build), `9d84f20` (tests), `32b1bcd` (bars moved to graphics module for the shell-overflow guard), `f22c320` (questions 4: Q21–Q24, fail-closed defaults). Architect rulings in `.agent/architect-S2-batch-answers-3.md` applied on the UI side (empty-set cutover renders Postgres Evidence and never says "matched"; Q17 schedule-based completeness; Q19 unwindowed refused list + untimed count, unavailable when absent, batch refusals "operational audit only"; Q20 analysis status separate from freshness, no dispatch/healthy conclusion). Backend Q14/Q15/Q16/Q19 corrections are not in this phase.

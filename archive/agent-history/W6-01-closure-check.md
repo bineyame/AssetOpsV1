@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01-closure-check.md on 2026-11-18 (declutter step 4).
 # W6-01 readiness closure check
 
 Reviewer: fresh Claude reviewer (did not author the spec or the first review), 2026-10-22, in `AssetOpsV1-plan2`. Spec files `.agent/W6-01-build-spec.md` and `tasks/W6-01-global-work-cases.md` are byte-identical at `37ad9ba8` (the named base) and HEAD `f938516f`. Nothing committed, no DB created, no server started.

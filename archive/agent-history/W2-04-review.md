@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-04-review.md on 2026-11-18 (declutter step 4).
 # W2-04 review: cold Site, evidence and unpriced money
 
 This is an independent first review of branch `task/W2-04-cold-site-evidence-money` at head `58d2d504`. It is judged against `.agent/W2-04-build-spec.md` (`D-2026-10-18-w2-04-buildspec`, including Run-7, Run-8 and Run-9), the v69 cold screens and the `.agent/W2-04-evidence` captures.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-architect-request-W2-F.md on 2026-11-18 (declutter step 4).
 # Planner + Architect request: W2-F structural fix slice
 
 You are the AssetOps Planner and Architect. Read:

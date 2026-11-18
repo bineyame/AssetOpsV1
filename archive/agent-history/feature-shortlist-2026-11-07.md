@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/feature-shortlist-2026-11-07.md on 2026-11-18 (declutter step 4).
 # High-impact, medium-effort features for CFO / COO / CEO (mini-grid and EV) — feasibility and shortlist
 
 - Architect: Claude, 2026-11-07. Binding checked: `.ai/ROLE_CONFIG.md:9`, Architect = Claude since 2026-10-27. Read-only study; nothing built, no DB touched, no suite run.

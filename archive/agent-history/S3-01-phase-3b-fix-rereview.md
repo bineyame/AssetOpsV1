@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-3b-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3b fix round: re-review (fresh Claude reviewer)
 
 A fresh Claude reviewer (Opus) produced this. It is independent of the Implementer and of the earlier 3b reviewer. The diff reviewed is `e7c4a85..dac94db` on `task/S3-01-dispatch-assessment`, made up of `1008bb8` (code) and `dac94db` (guide, Q19, packet, evidence). Nothing was fixed, merged or committed.

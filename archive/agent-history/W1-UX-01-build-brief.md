@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-01-build-brief.md on 2026-11-18 (declutter step 4).
 # W1-UX-01 build - implementer brief
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review4`, branch `task/W1-UX-01` (from main after S6-02b, S6-03 and S7-01b merged). Touch no other worktree. Frontend only; no backend schema or contract change. `frontend/node_modules` is installed (run `npm.cmd ci` if stale).

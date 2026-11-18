@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-review-packet.md on 2026-11-18 (declutter step 4).
 # V-01b review packet — Lab and Evidence visual fidelity
 
 USER_REVIEW_REQUIRED: true — needs a fresh independent Claude review, then the owner's visual checkpoint (guide `.agent/V-01b-owner-walkthrough.md`).

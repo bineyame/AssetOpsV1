@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PRE-S3-03-review.md on 2026-11-18 (declutter step 4).
 # PRE-S3-03 independent review — delivery checker and next-work report
 
 Reviewer: fresh Claude reviewer (Opus), independent of the Implementer. 2026-10-11.

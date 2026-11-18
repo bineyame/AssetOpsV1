@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-06-review-packet.md on 2026-11-18 (declutter step 4).
 # TEL-06 review packet (TEL-06a / TEL-06b)
 
 Status: in_review. 06a green; 06b Postgres gate green twice on fresh databases.

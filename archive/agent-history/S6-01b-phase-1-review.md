@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-phase-1-review.md on 2026-11-18 (declutter step 4).
 # S6-01b phase 1 - independent review
 
 Reviewer: fresh Claude reviewer (did not author S6-01b). Worktree `AssetOpsV1-review4`, branch `review/S6-01b-phase-1` at `21aabfed`; diff `c341599b..21aabfed` (frontend only, plus task status and missing-claim baseline).

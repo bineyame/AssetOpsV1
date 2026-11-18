@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6a1-preflight.md on 2026-11-18 (declutter step 4).
 # CH-6a1 pre-flight (records, strategies, CHARGERS_MOSTLY_IDLE) - branch `task/CH-6a1-records` from `628f77b36`
 
 Binding scope: `build-sheet-CH-6.md` "Scope cut (SCOPE-1)" CH-6a1 (1.25): R2 node records + `records_for` /

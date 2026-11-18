@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S2-02 phase 1 handoff — database and decision engine
 
 Branch `task/S2-02-ingestion-site-evidence`. Commits `fdf1c6e` (ledger, identity, engine, Receipt V2, API, tests) and `22c006c` (guard). Phase 1 only; no gateway, Lab or frontend change. Questions built on fail-closed defaults: `.agent/S2-02-questions-1.md` (Q1–Q7).

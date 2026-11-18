@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C2-review.md on 2026-11-18 (declutter step 4).
 # E4-C2 review: prebuild follows the story calendar (D-E4.1)
 
 Reviewer: fresh Claude (Opus), read-only. Diff: `main...task/E4-C2-prebuild-follows-calendar` (base 1f40cca0d, head 573e331c6).

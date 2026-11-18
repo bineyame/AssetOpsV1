@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-questions-2.md on 2026-11-18 (declutter step 4).
 # S2-01b phase-2 questions for the Architect
 
 Branch `task/S2-01b-durable-simulated-gateway`, phase-2 commits `79fbbf2`, `a8bd895` and the guard commit after them. Each question has a fail-closed default that is already built, and phase 3 can proceed on it.

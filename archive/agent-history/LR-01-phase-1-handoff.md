@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # LR-01 phase 1 handoff — source-time contract and reassessment
 
 Branch `task/LR-01-late-reading-series-and-money-limit`, commits `2539e5cf`, `d1cbfe8a`, `07173066` (base `d4c80e77`). Phase 1 only; nothing merged.

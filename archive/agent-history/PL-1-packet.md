@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PL-1-packet.md on 2026-11-18 (declutter step 4).
 # PL-1 packet: keep the page while the lens loads (D-E5.22)
 
 Branch `task/PL-1-lens-keep-page`, from main 862c4577f.

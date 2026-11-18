@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-F5-W2-01-questions.md on 2026-11-18 (declutter step 4).
 # Architect request - batched (2026-10-17): F5 subtabs + W2-01 contact null
 
 You are the AssetOps Architect (Codex). Token-efficient: answer briefly, edit in place, record one decision `D-2026-10-17-f5-subtabs-and-contact`. No code.

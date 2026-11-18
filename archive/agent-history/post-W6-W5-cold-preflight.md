@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W5-cold-preflight.md on 2026-11-18 (declutter step 4).
 # Pre-flight: post-W6 W5-cold-Work (cold depth and Work)
 
 2026-10-25. Read-only pre-flight. No code, tests, builds, captures or DB work.

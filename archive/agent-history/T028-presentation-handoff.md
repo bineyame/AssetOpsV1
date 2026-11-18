@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-presentation-handoff.md on 2026-11-18 (declutter step 4).
 # T028 presentation correction - handoff (paused)
 
 Status: **paused by the coordinator** on 2026-10-04. The owner widened the

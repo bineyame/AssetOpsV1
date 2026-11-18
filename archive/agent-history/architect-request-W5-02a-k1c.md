@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02a-k1c.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02a K1c open questions (global_detail, and the item-29 producer)
 
 You are the AssetOps Architect (Codex). Read the latest Run entry and open questions in `MSYS_NO_PATHCONV=1 git show task/W5-02a-cold-action-root:.agent/W5-02a-phase-handoff.md` (head `3a3dedc4`), then the K1c card, the pre-flight rulings and readiness item 29 in `.agent/W5-02-build-spec.md`, and `.agent/W5-02-04-readiness-review.md` (item 29). Lesson: check every literal against the real code.

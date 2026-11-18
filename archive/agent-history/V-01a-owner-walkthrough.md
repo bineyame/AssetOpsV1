@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # V-01a owner walkthrough: Sites and Foundation next to the v6.9 mock (round 3)
 
 This round applies your round-2 feedback and the Architect's round-3 rulings. It covers the same four screens: the Sites list, the Foundation Site model, the single line diagram and Readiness. Put each app screen next to its mock screen and decide whether it now looks right.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-COLD-LINKED-rereview.md on 2026-11-18 (declutter step 4).
 # FX-COLD-LINKED re-review (fresh Claude reviewer, 2026-11-10)
 
 Diff: `git diff b95fe8587..HEAD` (66298bd8e) and `main...HEAD`. Spec: D-E5.8.

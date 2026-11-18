@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-proposal-review-request.md on 2026-11-18 (declutter step 4).
 # Architect request: review the Planner's W1 owner-input proposal (2026-10-10)
 
 Owner instruction (verbatim, 2026-10-10): "let the codex architect review the recommednation by the planner before i do"

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-mock-gap-mechanism-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — proposed mock-gap closure mechanism (2026-10-12)
 
 **Owner decision requested:** approve a complete, checked gap catalogue now; decide how non-core work competes for delivery at the W1 exit. The present W1 core scoring, K=10, active-task stop and owner checkpoints remain unchanged. This proposal makes every honest “not available yet” traceable without delaying the V-01a owner checkpoint or merge.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-01-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # W2-01 phase 1 handoff (backend: persisted cold configuration and selected read)
 
 Status: phase 1 complete on `task/W2-01-cold-foundation`. Phase 2 (frontend routes) not started. Nothing merged.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-06-brief.md on 2026-11-18 (declutter step 4).
 # S4-06 price succession - implementer brief (size S: one build, then one review)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`, branch `task/S4-06-price-succession` (from main). Other builds/reviews run in the main checkout, `AssetOpsV1-review` and `AssetOpsV1-review3`; do not touch them.

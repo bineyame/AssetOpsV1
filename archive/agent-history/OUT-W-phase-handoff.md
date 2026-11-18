@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-W-phase-handoff.md on 2026-11-18 (declutter step 4).
 # OUT-W phase handoff (live)
 
 - Branch task/OUT-W-estate-event-windows. Commits: f99c3626 W1, bb556587 W2, ca73bd55 W3 code/tests, 315ef5aa register.

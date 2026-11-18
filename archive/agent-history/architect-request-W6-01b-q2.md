@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01b-q2.md on 2026-11-18 (declutter step 4).
 # Architect request: W6-01b build follow-ups
 
 You are the AssetOps Architect (Codex). W6-01b B1–B3 is built on `task/W6-01b-maintenance` (head `43a9142c`). Read its handoff with `MSYS_NO_PATHCONV=1 git show task/W6-01b-maintenance:.agent/W6-01b-phase-handoff.md`, the Run entries, and the B1–B3 cards plus "W6-01b pre-flight rulings" in `.agent/W6-01-build-spec.md`. Apply the mock-fidelity rules in `.ai/ROLE_CONFIG.md`.

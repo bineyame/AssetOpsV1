@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PA-1-packet.md on 2026-11-18 (declutter step 4).
 # POLISH PA-1 review packet: board truth
 
 Task: `tasks/POLISH-PA-1-board-truth.md`. Branch `task/POLISH-PA-1-board-truth` from main `83918ac00`.

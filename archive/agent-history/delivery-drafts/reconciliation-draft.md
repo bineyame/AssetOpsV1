@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/delivery-drafts/reconciliation-draft.md on 2026-11-18 (declutter step 4).
 # Startup 1 reconciliation draft — 2026-10-09
 
 Planning only. Source baseline: `main` at `b4006d1` for merged S1-01/02/03 and S2-01a/b/c; current S2-02 task branch is excluded. Apply only after S2-02 independent review, S2 owner Evidence closeout, and the S2-wide Codex review required by the queue. Status means reviewed task closeout, not merely merged code. Preserve carries in the task packets and `.ai/MILESTONE_REVIEW_BACKLOG.md`.

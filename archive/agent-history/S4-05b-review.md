@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05b-review.md on 2026-11-18 (declutter step 4).
 # S4-05b phase-2 and slice review - registered producers, stored source on reads, money gate, walkthrough
 
 Reviewer: fresh independent Claude reviewer (did not author). Revision reviewed: `5324e24d`

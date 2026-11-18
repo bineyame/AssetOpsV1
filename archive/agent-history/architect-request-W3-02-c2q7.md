@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c2q7.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 c2-q7 (raw cold analytic text)
 
 Read `.agent/W3-02-build-spec.md` (all rulings) and `.agent/W3-02-pending-rulings.md` c2-q7.

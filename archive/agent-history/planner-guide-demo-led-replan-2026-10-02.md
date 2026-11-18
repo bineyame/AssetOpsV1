@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-guide-demo-led-replan-2026-10-02.md on 2026-11-18 (declutter step 4).
 # Planner Guide: Demo-Led Replan (2026-10-02)
 
 From: Architect (Claude, under the Codex-reset exception in `.ai/ROLE_CONFIG.md`;

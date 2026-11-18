@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-4ab-review.md on 2026-11-18 (declutter step 4).
 # SR-4a + SR-4b review (fresh Claude reviewer, 2026-11-12)
 
 Scope: `59acd65c4` (4a) and `59bccda4d` (4b) on `task/SR-4-site-range`; later commits read only to say whether an issue was fixed (HEAD `ebef46a3a`). Spec: rev 8 §8.1-8.5, rev 10d, D-SR.1-8/40-42. 4c and the fix rounds are another reviewer's.

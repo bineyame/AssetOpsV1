@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03b-e5-handoff.md on 2026-11-18 (declutter step 4).
 # W5-03b E5 handoff: authored EV scenario store (backend only)
 
 Branch `task/W5-03b-e5-backend`, based on `29d7539c` (main `3bdc7d02` plus the W5-03b pre-flight). This was built under the lane-2 ruling (`.agent/W5-02b-K2-rulings.md` "Lane 2 ruling"), the E5 card, and the "E5 consolidated correction" (P-E5-1..10, P-34-2/3). It touches no frontend file, no Site route, nav or registry file, and makes no captures.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-03-review-packet.md on 2026-11-18 (declutter step 4).
 # S6-03 review packet - Site Work Action list
 
 Task `tasks/S6-03-site-work-list.md` (incl. plan fix round 1). Branch `task/S6-03-site-work-list` from main `cdb09767`.

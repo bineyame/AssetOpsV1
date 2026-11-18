@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-closure4-check.md on 2026-11-18 (declutter step 4).
 # W4-02 closure 4 check (main df7ed86e, read-only)
 
 Result: all 20 items CLOSED (B1-B3, S1-S9, N1-N8). Each has a literal rule or table, an owning unit, and a named test.

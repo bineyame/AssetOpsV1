@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-CH-9b3.md on 2026-11-18 (declutter step 4).
 # Review: CH-9b3 mill verdict
 
 - Reviewer: fresh Claude reviewer (did not author the slice), 2026-11-06.

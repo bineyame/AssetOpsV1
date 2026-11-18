@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-readiness-rulings.md on 2026-11-18 (declutter step 4).
 # W5-04 readiness rulings — Architect, 2026-10-24
 
 Decisions 1-38 answer `W5-04-readiness-questions.md`; decisions 39-52 close the subsequent UI readiness check on main after K4/K5 merged. Later decisions supersede conflicting earlier gate and UI wording. They amend the W5-04 build spec and task and supersede conflicting W5-04 pre-flight prose. Screen citations are to `frontend/mockups/v69/index.html`, especially `SITE_WORK.ev`/`WORK_COLS`/`WORK_EMPTY` at 334–343 and `ev-action` at 710–713. No implementation or acceptance is asserted.

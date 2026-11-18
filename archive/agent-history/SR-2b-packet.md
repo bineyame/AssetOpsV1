@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-2b-packet.md on 2026-11-18 (declutter step 4).
 # SR-2b packet: Site pages onto the shared range (PARTIAL), FocusPicker, day=
 
 Branch `task/SR-2b-site-pages` (wt `AssetOpsV1-sr2b`, from main `bfb2376f5`). Commits `282116e9b` (step 1),

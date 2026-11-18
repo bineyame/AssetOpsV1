@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01a-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W6-01a (unit A1) phase handoff - BLOCKED before code
 
 Branch `task/W6-01a-global-incidents` from main 3a14f5aa. No code written; no DB created; no process started.

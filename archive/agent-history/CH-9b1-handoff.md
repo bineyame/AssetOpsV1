@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-9b1-handoff.md on 2026-11-18 (declutter step 4).
 # CH-9b1 handoff (PARTIAL - stopped at the context cap)
 
 Branch `task/CH-9b1-opportunity-actions`. Main `b1ed2d3e4` merged (`6f8e70822`). Build commit `15cdc456d`.

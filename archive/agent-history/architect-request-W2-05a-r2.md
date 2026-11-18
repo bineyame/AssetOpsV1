@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-05a-r2.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-05a Run 8 fix-round confirmations (r2)
 
 You are the AssetOps Architect. Read the "Run 8 rulings (review r1)" section of `.agent/W2-05a-build-spec.md`. The code is on `task/W2-05a-ev-foundation` at head `164a1d1a`; use `git show task/W2-05a-ev-foundation:<path>`. The v69 EV mock is authoritative.

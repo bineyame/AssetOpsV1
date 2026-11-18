@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F2-compaction-phase-A-handoff.md on 2026-11-18 (declutter step 4).
 # W1-F2 compaction, phase A handoff
 
 Branch `task/W1-F2-overview`, build commit `016ed942` (on `74148840`). Not merged. Heights not measured here (phase B runs captures).

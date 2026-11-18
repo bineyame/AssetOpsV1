@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-phase-1-brief.md on 2026-11-18 (declutter step 4).
 # S6-01b phase 1 - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review3`, branch `task/S6-01b-action-ui` (stacked on reviewed, unmerged S6-01a `c341599b`). Other agents use other worktrees; touch none of them or the main checkout.

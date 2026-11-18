@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-3b-review.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3b review (fresh Claude reviewer)
 
 Produced by a fresh Claude reviewer (Opus), independent of the Implementer. Diff reviewed: `cdc24f7..4426a17` on `task/S3-01-dispatch-assessment` (build `b04b904`..`4f56b89`, closeout `4426a17`). Nothing was fixed, merged or committed.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-A-phase-handoff.md on 2026-11-18 (declutter step 4).
 # DEMO-A phase handoff
 
 Sources: `AssetOpsV1-plan2\.agent\build-sheet-DEMO-SPARSE.md` (wins where it differs) over

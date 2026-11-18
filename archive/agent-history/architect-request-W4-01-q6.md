@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-01-q6.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-01 q6 (cold/EV pins in the lists under q5 r1)
 
 Read `.agent/W4-01-build-spec.md` (all rulings, especially "Run 5 rulings (q5)" r1 and "Run 3 rulings (q3)" ruling 6), and the "Commit 4 resume anchors" section of `git show 091d6e50:.agent/W4-01-phase-handoff.md` (branch `task/W4-01-work-case-core`).

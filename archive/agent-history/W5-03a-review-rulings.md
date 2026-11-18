@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03a-review-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings — W5-03a independent review
 
 Codex Architect, 2026-10-23. Applies to `task/W5-03a-ev-selected-depth` after the independent review's REVISE verdict. `.agent/W5-03-build-spec.md` has been corrected; the builder owns the code fixes and tests. This ruling does not approve merge. The full real-Postgres suite on the final branch revision remains required.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-03-q2.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-03 confirmations (2026-10-18). Brief; edit `.agent/W2-03-build-spec.md` in place; amend `D-2026-10-18-w2-03-answers`. No code.
 
 From the commit-3 implementer (`.agent/W2-03-phase-1-handoff.md`, choices list):

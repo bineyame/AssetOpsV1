@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01c-answers-3.md on 2026-11-18 (declutter step 4).
 # S2-01c phase-2 decisions — Codex Architect, 2026-10-09
 
 These rulings answer `.agent/S2-01c-questions-2.md`; they are not a review of phase 2. The material amendment is `D-2026-10-09-s2-publication-clock-post-run-release` in `.ai/DECISIONS.md`, carried into the S2-01c and S2-02 packets.

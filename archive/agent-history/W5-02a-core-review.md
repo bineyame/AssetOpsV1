@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02a-core-review.md on 2026-11-18 (declutter step 4).
 # W5-02a core review (K1a, K1b, K1c)
 
 Reviewer: fresh independent Claude reviewer, 2026-10-23. Branch `task/W5-02a-cold-action-root`, head `e3ada3df`, diff `main...HEAD` (merge-base `46a9936b`). `main` has since moved to `2dc2e5ed` (W6-01d). The two touch no common files, and `git merge-tree` merges them cleanly.

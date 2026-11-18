@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-9b1-preflight.md on 2026-11-18 (declutter step 4).
 # CH-9b1 pre-flight: Actions from an opportunity (R0) + P1
 
 Branch `task/CH-9b1-opportunity-actions` from main `929d29076`. No code written, no DB touched.

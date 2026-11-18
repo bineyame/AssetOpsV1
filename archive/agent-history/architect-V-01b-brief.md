@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-V-01b-brief.md on 2026-11-18 (declutter step 4).
 # Architect brief: V-01b questions batch (2026-10-13)
 
 Role: Architect (Codex). Branch `task/V-01b-evidence-lab-visual` (HEAD after `e6e1ba1`). V-01b is built and fresh-reviewed ACCEPT (`.agent/V-01b-fix2-rereview.md`); owner walkthrough pending. Do not edit product code. Codex cannot write .git: write your answers file; the coordinator commits.

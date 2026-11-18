@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04c-questions.md on 2026-11-18 (declutter step 4).
 # W5-04c questions (V4a/V4b/V5 build, 2026-10-24)
 
 Builder: W5-04c on `task/W5-04c-ev-action`. One open item; everything else is built to the rulings.

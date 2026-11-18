@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a2b-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5a2b handoff (phase 2: steps 1-4 built and committed; 5-8 open)
 
 Branch `task/CH-5a2b-chain-counts`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch5a2b`, head: see `git log`.

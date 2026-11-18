@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W2-06-07-request.md on 2026-11-18 (declutter step 4).
 # W2-06 + W2-07 packets and code-anchored build specs, with implementer dry-read (2026-10-18) - one call
 
 You are the AssetOps Planner/Architect (Codex). Owner (verbatim): "stay faithful to the mock-up in ui/ux and align technial desgin accordingly. there should not be drfit" and "the architect should not let important things be decided by the implementer by a vague guide". Efficient without compromising quality.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F2-rereview.md on 2026-11-18 (declutter step 4).
 # W1-F2 re-review (fix round)
 
 Reviewer: fresh, independent Claude reviewer. Revision: `f2163bef` (code at `73cb5a54`). Fix diff: `5934b841..f2163bef -- frontend`.

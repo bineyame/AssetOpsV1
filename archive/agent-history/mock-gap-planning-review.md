@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/mock-gap-planning-review.md on 2026-11-18 (declutter step 4).
 # Review: mock-gap closure planning branch (`planning/mock-gap-closure`)
 
 Reviewer: fresh Claude reviewer (independent; did not author any of this work), 2026-10-13.

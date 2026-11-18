@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-LR-01-request.md on 2026-11-18 (declutter step 4).
 # Architect request — LR-01 batch questions
 
 You are the AssetOps Architect (Codex). Packet `tasks/LR-01-late-reading-series-and-money-limit.md` (branch `plan/late-reading-series`, commit `02e84619`) asks four questions in its "Architect questions" section, each with the Planner's recommendation. Context: decision `D-2026-10-14-s402c-late-sequence-and-s5-money` in `.ai/DECISIONS.md`, your earlier rulings `.agent/architect-S4-02c-answers.md`, and `.agent/S4-02c-review.md` F1.

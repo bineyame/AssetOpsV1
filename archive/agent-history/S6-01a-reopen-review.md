@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-reopen-review.md on 2026-11-18 (declutter step 4).
 # S6-01a reopen review - `D-2026-10-15-s601-reopen`
 
 Reviewer: fresh Claude reviewer (did not author). Worktree `AssetOpsV1-review4`, branch `review/S6-01a-reopen` at `b82140d8`; diff `868a98b8..b82140d8` (code `586d5fe1`, closeout docs `b82140d8`). Scope limited to the reopen items listed in the dispatch.

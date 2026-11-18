@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03a-rereview.md on 2026-11-18 (declutter step 4).
 # W5-03a fix-round re-review
 
 Reviewer: fresh Claude reviewer, 2026-10-23. Worktree `AssetOpsV1-review6`, branch `task/W5-03a-fix`, head `452fe650`.

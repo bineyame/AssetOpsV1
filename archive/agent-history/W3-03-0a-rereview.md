@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-0a-rereview.md on 2026-11-18 (declutter step 4).
 # W3-03 run 0a re-review (fix 9f24f4e5)
 Verdict: ACCEPT (read-only, git objects; nothing run).
 - M1: financials.py adds private `_windows_covered` to the per-Site cov dict only (mini-grid = state in COVERED, cold/EV = windows_covered), exactly per r0a. applicable AND and tuple shape unchanged. Not in `_coverage_site`/token (named fields) and projected away by the underscore filter, so no wire change. Test covers covered/uncovered EV + mini-grid -> [True, False, True].

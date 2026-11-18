@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-1-review.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 1 review - `I-finding-store`, `D-finding-revisions`
 
 Reviewer: a fresh Claude reviewer (independent; did not author the slice). 2026-10-12.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-techdesign-cold-review.md on 2026-11-18 (declutter step 4).
 # W2 cold technical design review - D-2026-10-17-w2-techdesign-cold
 
 Reviewer: fresh Claude reviewer (independent, not the author). Targets: `.agent/W2-technical-design-cold.md` and the amended `.agent/architect-W2-design.md` at 04170b25, judged against `.agent/architect-W2-techdesign-cold-request.md` (B1-B9) and `.agent/W2-design-review.md`. I made read-only spot checks against the code and ran no suites.

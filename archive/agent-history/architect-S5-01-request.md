@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S5-01-request.md on 2026-11-18 (declutter step 4).
 # Architect request - S5-01 Finding choice (delegated, owner absent)
 
 You are the AssetOps Architect (Codex). Packet `tasks/S5-01-site-overview.md` (branch `plan/autonomy-2026-10-15`) asks one question near its end ("Architect question"): which single Finding the Overview money card shows when several Findings intersect the selected UTC day. The Planner recommends a price-independent latest-episode selection and keeping the same Finding through stale/withheld states. Context: `D-2026-10-14-s5-selected-window-overview`, `.agent/architect-A-S5-overview-answers.md` (P2), `D-2026-10-15-lr01-source-time-cohort`.

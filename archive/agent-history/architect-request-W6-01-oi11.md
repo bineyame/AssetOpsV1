@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01-oi11.md on 2026-11-18 (declutter step 4).
 # Architect request: W6-01 OI-11
 
 You are the AssetOps Architect. `.agent/W6-01-closure-check-2.md` confirms OI-1 to OI-10 are closed. It found one new item, OI-11: the replacement Site Work strip links "Manage in Incidents" and "Manage in Maintenance" have no literal href or helper. A2 must also keep the shared `WORK_MANAGE_UNAVAILABLE_STATUS` and its exemption until B2 removes them.

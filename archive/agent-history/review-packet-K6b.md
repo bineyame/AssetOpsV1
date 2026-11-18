@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K6b.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K6b, the fuel after-check (`fuel-residual-within-band-1`)
 
 - Task: build sheet DIESEL-1 §9m.1 and §9m.4 (ruling DIESEL-1-R3m), plus §9m2 (the request link's fuel address).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-review-packet.md on 2026-11-18 (declutter step 4).
 # S5-01 review packet - selected-window Site Overview (slice review)
 
 Task `tasks/S5-01-site-overview.md` (status `in_review`, USER_REVIEW_REQUIRED: owner visual acceptance before merge

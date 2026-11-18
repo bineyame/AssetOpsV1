@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-2-packet.md on 2026-11-18 (declutter step 4).
 # SR-2 + SR-3 packet: pages on the shared range (PARTIAL), guard
 
 Branch `task/SR-2-pages-on-range` (wt `AssetOpsV1-sr2`, from main `66a38d849`). Commits `61bb2060f` (step 1),

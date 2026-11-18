@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S7-01b-build-brief.md on 2026-11-18 (declutter step 4).
 # S7-01b build - implementer brief
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review`, branch `task/S7-01b-health-ui` (from main `f3de235a`; S7-01a merged). Touch no other worktree. Ports: API 8947, web 5447 (packet), DB prefix `assetops_s701_owner*`.

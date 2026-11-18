@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PA-2b-packet.md on 2026-11-18 (declutter step 4).
 # POLISH PA-2b review packet: plan due state and asset labels
 
 Task: `tasks/POLISH-PA-2b-plan-due-assets.md`. Branch `task/POLISH-PA-2b-plan-due-assets` from main `816448bec`.

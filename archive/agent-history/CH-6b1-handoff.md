@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6b1-handoff.md on 2026-11-18 (declutter step 4).
 # CH-6b1 handoff (PARTIAL: stopped at the context budget)
 
 Branch `task/CH-6b1-estate-chain` (worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch6b1`), main merged at `53e5eddff` (CH6b1-R). Head `79886c69f`.

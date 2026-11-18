@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04c-handoff.md on 2026-11-18 (declutter step 4).
 # W5-04c handoff - V4a, V4b and V5 (EV Action detail `ev-action`, captures and closeout)
 
 Branch `task/W5-04c-ev-action`, cut from main `ad7b82f9`. **Not yet rebased on W5-04b**: it merges first, then this

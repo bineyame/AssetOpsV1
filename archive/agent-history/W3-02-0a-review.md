@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-0a-review.md on 2026-11-18 (declutter step 4).
 # W3-02 `0a` independent review
 
 Reviewed: commit `7a4d06ef` (code and tests) and handoff `2d36689a` on `task/W3-02-estate-evidence-money-basis`. Base is `c50ea24b`. I read them only through git objects and ran nothing in the review2 worktree.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-presentation-cp1-handoff.md on 2026-11-18 (declutter step 4).
 # T028 presentation checkpoint 1 - handoff to checkpoint 2
 
 Spec `.agent/T028-architect-presentation.md` (`D-2026-10-04-plain-language-analysis-views`),

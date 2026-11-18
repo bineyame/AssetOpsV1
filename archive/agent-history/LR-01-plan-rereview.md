@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-plan-rereview.md on 2026-11-18 (declutter step 4).
 # LR-01 plan re-review after fix round 1 (fresh Claude reviewer, 2026-10-15)
 
 Subject: `tasks/LR-01-late-reading-series-and-money-limit.md` and the registry node edit on `plan/late-reading-series` at `bf05bf0c`. Judged against `.agent/LR-01-plan-review.md` (M1-M5, L1-L5), `.agent/architect-LR-01-answers.md` (Q1-Q4, packet changes 1-3, Follow-up M1), `D-2026-10-15-lr01-source-time-cohort` (`.ai/DECISIONS.md:4137`) and `.agent/planner-LR-01-fix-brief.md`.

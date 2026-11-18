@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02b-rereview.md on 2026-11-18 (declutter step 4).
 # S6-02b re-review: truth fixes F1, F3, F5 (D-2026-10-16-s602-closure)
 
 Reviewer: fresh Claude reviewer, independent of the implementer. Branch `fix/S6-02b-truth` at `88d842fb`.

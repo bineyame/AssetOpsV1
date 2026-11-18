@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-PV-1.md on 2026-11-18 (declutter step 4).
 # Review: PV-1 Portfolio verified-value lines (FUEL-1, lane 1)
 
 - Reviewer: fresh Claude (Opus) first reviewer, independent of the builder.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01b-answers-4.md on 2026-11-18 (declutter step 4).
 # S2-01b phase-3a Architect answers — Codex Architect, 2026-10-08
 
 These decide Q1–Q4 in `.agent/S2-01b-questions-3.md`, without reviewing phase 3a. The material interpretation is appended to `D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary`.

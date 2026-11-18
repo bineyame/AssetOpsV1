@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PB-3.md on 2026-11-18 (declutter step 4).
 # Review: POLISH-PB-3 (estate, cold/EV and work copy; P-07, P-09, P-10)
 
 - Reviewer: fresh Claude reviewer, independent of the builder. Date 2026-11-01.

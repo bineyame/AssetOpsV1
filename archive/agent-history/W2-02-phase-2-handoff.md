@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # W2-02 handoff after commit (2) — commit (2) landed except the Lab run-setup UI wiring (one question open)
 
 Branch `task/W2-02-cold-producer`, worktree `AssetOpsV1-review2`. Binding: `.agent/W2-02-build-spec.md` (amended

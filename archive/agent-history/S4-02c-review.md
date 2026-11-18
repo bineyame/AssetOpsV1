@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02c-review.md on 2026-11-18 (declutter step 4).
 # S4-02c fresh Claude review: phase 3 and the whole slice (consequence work on accepted evidence)
 
 Reviewer: fresh Claude. I did not build or review any earlier phase. Branch `task/S4-02c-evidence-consequence-work`

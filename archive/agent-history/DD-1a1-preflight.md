@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1a1-preflight.md on 2026-11-18 (declutter step 4).
 # DD-1a1 pre-flight (P1-P6 answered once; questions batched)
 
 - Implementer (Claude Opus), 2026-11-06. Branch `task/DD-1a1-steady-fullday` from main `ce7a7853b`. Worktree `AssetOpsV1-dd1a1`.

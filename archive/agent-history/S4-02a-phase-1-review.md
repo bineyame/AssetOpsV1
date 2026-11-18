@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02a-phase-1-review.md on 2026-11-18 (declutter step 4).
 # S4-02a phase 1: fresh Claude review (assumption store and SYSTEM publication)
 
 Reviewer: fresh Claude (did not build this). Branch `task/S4-02a-site-assumptions`. Diff reviewed: `ec74ac6..4e694bb`.

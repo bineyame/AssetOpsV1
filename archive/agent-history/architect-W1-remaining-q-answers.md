@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-remaining-q-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers - remaining W1 packet questions (2026-10-16)
 
 Decision: `D-2026-10-16-w1-remaining-questions`. These answers refine the five packet contracts under `.agent/architect-W1-remaining-answers.md`. They authorize implementation within each packet's existing review and owner checkpoints.

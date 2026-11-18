@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PB-1c-packet.md on 2026-11-18 (declutter step 4).
 # PB-1c and finish (branch task/PB-1c-and-finish, worktree AssetOpsV1-pb1c)
 
 Commits: `0df9a1f3f` (A), `46e1890eb` (C), then B ("SR finish").

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-R373-review.md on 2026-11-18 (declutter step 4).
 # post-W6 R373 (B19-15, High D3) - independent review
 
 Reviewer: fresh Claude reviewer (did not author the slice). Branch `task/post-W6-R373-request-access` at

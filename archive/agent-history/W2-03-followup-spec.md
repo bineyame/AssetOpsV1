@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-03-followup-spec.md on 2026-11-18 (declutter step 4).
 # D-2026-10-19-w2-03-followup — cold assessment fidelity and chip tones
 
 **Status:** Architect decision. **Scope:** W2-03 presentation follow-up after merge; implement in `frontend/src/sites/ColdAssessmentViews.tsx` and `frontend/src/sites/w2-cold-assessment.css`, with focused UI proof and captures. Do not change selected reads, findings, policy, bounds, provenance, links, panel order, titles, or the v69 mock. The stocked 1440 px comparison in `.agent/W2-03-review-packet.md` is the baseline; these are closed-panel limits, not guaranteed new measurements.

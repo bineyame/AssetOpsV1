@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PB-2.md on 2026-11-18 (declutter step 4).
 # Review: POLISH PB-2 (Kobo board, verification page, display codes, Technical details)
 
 Reviewer: fresh Claude reviewer, independent of the implementer. Date 2026-11-01.

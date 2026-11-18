@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01d-review-packet.md on 2026-11-18 (declutter step 4).
 # W6-01d review packet — C4 request History
 
 Branch `task/W6-01d-request-history`, base `d798029e` (main with W6-01a/b/c merged). Spec: `.agent/W6-01-build-spec.md` "C4 pre-flight rulings" (P-C4-1..22), §2 `history` row, §3.1 F3–F5 (`wr-history`). Commits: `f756d86e` (Lane A), `f7122095` (Lane B), `09536c95` (By-cell layout), then the evidence/packet commit.

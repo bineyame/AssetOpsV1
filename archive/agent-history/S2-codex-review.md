@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-codex-review.md on 2026-11-18 (declutter step 4).
 # Codex review: S2-01c and S2-02
 
 Reviewer: Codex, independent review of the two S2 slices requested in `.agent/S2-codex-review-brief.md`.

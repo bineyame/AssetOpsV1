@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-COLD-LINKED-review.md on 2026-11-18 (declutter step 4).
 # FX-COLD-LINKED review (fresh Claude reviewer, 2026-11-10)
 
 Diff: `git diff main...task/FX-COLD-LINKED` (bcdf5389b, packet e679bfbd8/8e45bb542). Spec: D-E5.8 / D-E5.10.

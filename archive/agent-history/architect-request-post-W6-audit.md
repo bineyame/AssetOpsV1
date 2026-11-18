@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-audit.md on 2026-11-18 (declutter step 4).
 # Architect request: plan the post-W6 structural app-vs-mock audit (all W1-W6 screens)
 
 You are the AssetOps Architect. W1 through W6 are complete on main. Before the owner's single walkthrough, the owner has asked for a structural audit of every implemented W1-W6 screen against the v69 mockup, followed by fixes, and then a walkthrough index grouped by departure category D1-D6.

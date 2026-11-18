@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-review-packet.md on 2026-11-18 (declutter step 4).
 # S6-01b review packet: Action, recommendation and change surfaces
 
 - **Task:** `tasks/S6-01b-action-ui.md`, Status `in_review`.

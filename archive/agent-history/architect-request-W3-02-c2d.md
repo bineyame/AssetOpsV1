@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c2d.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 c2d (two Evidence wording gaps)
 
 Read `.agent/W3-02-build-spec.md` (c2 to c2c and the commit-2 r1 rulings), the "commit-2 fix r1" notes in `git show e45f4219:.agent/W3-02-phase-handoff.md` on branch `task/W3-02-estate-evidence-money-basis`, and the v69 `globalevidence` mock.

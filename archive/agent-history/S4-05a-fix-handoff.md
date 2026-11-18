@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05a-fix-handoff.md on 2026-11-18 (declutter step 4).
 # S4-05a fix round handoff
 
 - L2: `source_provenance.py` `consequence_revision`: Finding part UNKNOWN (incl. EMPTY_CITATION_SET) -> consequence

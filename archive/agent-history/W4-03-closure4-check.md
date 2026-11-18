@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-closure4-check.md on 2026-11-18 (declutter step 4).
 # W4-03 closure 4 check (main 449e48e1, read-only)
 
 Verdict: 34 of 35 CLOSED, 1 OPEN (B4, minor). 1 new question.

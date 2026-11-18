@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a2-preflight.md on 2026-11-18 (declutter step 4).
 # CH-5a2 pre-flight (Implementer, 2026-11-04)
 
 Branch `task/CH-5a2-chain-endpoints` from main `01133225a`; worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch5a2`.

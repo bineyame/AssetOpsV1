@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-0b-review.md on 2026-11-18 (declutter step 4).
 # W3-02 0b review: W1 day source, connection-taking
 
 Reviewer: fresh Claude reviewer (did not author). Date 2026-10-21.

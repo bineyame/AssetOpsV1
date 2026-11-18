@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-03b-ui-review.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-03b E4/E6 review items (final)
 
 Read:

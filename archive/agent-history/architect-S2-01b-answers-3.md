@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01b-answers-3.md on 2026-11-18 (declutter step 4).
 # S2-01b phase-2 Architect answers — Codex Architect, 2026-10-08
 
 These resolve Q1-Q3 in `.agent/S2-01b-questions-2.md`; they are not a phase-2 review. Decision `D-2026-10-08-s2-simulated-device-resolution-and-delay-boundary` records the contract and ownership.

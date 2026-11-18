@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/re-review-G2.md on 2026-11-18 (declutter step 4).
 # Re-review G2 (fix round R3.8), head a944415fd
 
 Verdict: ACCEPT. M1 closed. No new findings.

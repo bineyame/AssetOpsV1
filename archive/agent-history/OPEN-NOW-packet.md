@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPEN-NOW-packet.md on 2026-11-18 (declutter step 4).
 # OPEN-NOW review packet
 
 Task: card OPEN-NOW, `.agent/architect-sequence-client-scope-2026-11-11.md` lines 36-41. Spec: portfolio-layout proposal ~581. Context: PB-1c packet (Work pages default to the last 7 full days).

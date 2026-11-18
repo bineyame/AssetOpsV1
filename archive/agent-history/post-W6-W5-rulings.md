@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W5-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W5-cold-Work and W5-EV-Work
 
 2026-10-25. These rulings answer the escalation-only questions in `post-W6-W5-cold-preflight.md` and `post-W6-W5-EV-preflight.md`. The builders own their listed UI-guide choices; no further ruling is needed for those choices unless a conflict appears.

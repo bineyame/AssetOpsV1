@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a1-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5a1 phase 1 handoff (commit 2e0c6d971 on task/CH-5a1-chain-reader)
 
 Authority: Part A of `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-CH-5a.md` (incl. §A12 rulings) and

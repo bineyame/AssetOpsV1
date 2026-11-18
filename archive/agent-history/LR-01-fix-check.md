@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-fix-check.md on 2026-11-18 (declutter step 4).
 # LR-01 fix round: targeted check
 
 Reviewer: a fresh Claude reviewer who did not author the fix. Worktree `AssetOpsV1-review`, branch `task/LR-01-late-reading-series-and-money-limit`, head `78a47be5`. Diff checked: `87019e52..78a47be5`. `assetops_backend.__file__` was confirmed under `AssetOpsV1-review`.

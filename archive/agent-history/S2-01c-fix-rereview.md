@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S2-01c fix round 1: re-review
 
 Reviewer: a fresh Claude reviewer (independent; authored none of this slice or its fix round). Re-review of `fb4edae..84a71e6` on `task/S2-01c-gateway-diagnostics-faults` (commits `f693d4e`, `5cbbbc5`, `d7beec7`, `84a71e6`), against `.agent/architect-S2-01c-answers-4.md`, `D-2026-10-09-s2-ordered-publication-and-closing-boundary`, the task file and the prior review `.agent/S2-01c-review.md`. Questions-5 is the Architect's to decide and is not ruled on here; C2 and C3 stay carried per the ruling.

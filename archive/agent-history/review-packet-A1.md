@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-A1.md on 2026-11-18 (declutter step 4).
 # Review packet: FUEL-1 A1, fuel-cost-2 and the declared no-load fact
 
 - Spec: `.agent/build-sheet-FUEL-1.md` §4.1 (commit f63b46a01), with §1 for context; owner decisions `.agent/owner-fuel-scope-2026-11-07.md` (generic 3.3 L/h, labelled; example tank left alone).

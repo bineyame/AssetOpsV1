@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-activation-review.md on 2026-11-18 (declutter step 4).
 # G-activation fresh Claude review (2026-10-13)
 
 Produced by a fresh Claude reviewer on `planning/G-01-activation-rule` (eb084eb vs main).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-review-packet.md on 2026-11-18 (declutter step 4).
 # S2-02 review packet - Authenticated ingestion and Site Evidence
 
 Task `tasks/S2-02-ingestion-site-evidence.md` (USER_REVIEW_REQUIRED: S2 Evidence owner checkpoint). Branch `task/S2-02-ingestion-site-evidence`. Phases: 1 (ledger), 2 (credential/transport/diagnostics/Commit), 3a/3a2 (corrections, Postgres Evidence reads, legacy comparison), 3b (frontend Evidence + Lab Commit), corrections (Q14/Q15/Q16/Q19/Q21), 3c (this: demo, real-stack verification, carries, packet). Handoffs `.agent/S2-02-phase-{1,2,3a,3a2,3b}-handoff.md`, `.agent/S2-02-corrections-handoff.md`; Architect rulings `.agent/architect-S2-batch-answers-2.md`, `-3.md`.

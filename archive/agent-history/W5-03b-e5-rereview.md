@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03b-e5-rereview.md on 2026-11-18 (declutter step 4).
 # W5-03b E5 re-review: backend fix round
 
 - Branch `task/W5-03b-e5-fix`, head `bf6fa1d4`. Fix diff `git diff 78c6c263..HEAD` (5 files, +323/-11): `postgres_assessment_store.py`, `ev_scenarios/service.py`, `ev_site_reads.py`, `test_w503_ev_scenarios_postgres.py`, the handoff.

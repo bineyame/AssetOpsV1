@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-G-02-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — G-02 questions and developer-workspace labels (2026-10-13)
 
 These rulings apply the confirmed G-01 one-claim/one-placement catalogue and orphan guard to the four V-01a surfaces. They do not authorize mock values, promote a panel or screen to Real, alter W1 core scoring or decide the deferred non-core ranking policy. G-02 still needs independent review and the owner's visual checkpoint.

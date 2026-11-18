@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-01-review.md on 2026-11-18 (declutter step 4).
 # W2-01 review - cold Foundation, topology, readiness and SLD
 
 Reviewer: fresh independent Claude reviewer (not the author). Revision `a4e4cb10`, diff `7ea8d042..a4e4cb10` (excluding `.agent`).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S3-answers-1.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S3-01 phase-1 rulings (2026-10-11)
 
 Authority: `D-2026-10-11-s3-dispatch-interval-assessment`, the S3-01 packet, the accepted-with-findings phase-1 review and its public manifest. These rulings do not close the phase-2/3 gates or waive the S3-01 owner checkpoint. The owner's new routing instruction extends the S2 arrangement: batch Codex questions, fresh Claude review per slice and re-review, and one Codex review at the S3 milestone end.

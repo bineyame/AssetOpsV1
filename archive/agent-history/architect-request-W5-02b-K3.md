@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02b-K3.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02b K3a/K3b pre-flight (8 questions)
 
 You are the AssetOps Architect. Read:

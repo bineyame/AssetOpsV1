@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-commercial-architecture-reframe.md on 2026-11-18 (declutter step 4).
 # Architect request: outcome-led commercial capability architecture (HTML rewrite)
 
 You are the AssetOps Architect. The owner's request is saved word for word in `.agent/owner-commercial-architecture-reframe-2026-10-27.md`. Read it in full and follow it exactly. It is the authority here, including its required ten-section structure (§8) and acceptance questions (§9).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WD-1m.md on 2026-11-18 (declutter step 4).
 # Review packet: WD-1m (mill verdict reads "on example data", class stored at judging)
 
 Task: FUEL-1 WD-1m, WD-1m-R2 route (c). Branch `task/FUEL-WD1m-mill-example-label`. WIP `0bc9c2e14` kept; build on top in `c79fecbce`.

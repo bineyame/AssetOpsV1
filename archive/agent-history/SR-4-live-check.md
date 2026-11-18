@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-4-live-check.md on 2026-11-18 (declutter step 4).
 # SR-4 live check: Site pages x Site types on the real demo DB (D-SR.9)
 
 Revision `35e8a8b59` (task/SR-4-site-range), 2026-11-12. No product code changed.

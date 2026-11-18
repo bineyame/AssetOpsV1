@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6a2-preflight.md on 2026-11-18 (declutter step 4).
 # CH-6a2 pre-flight (evaluator and claims, pure)
 
 Branch `task/CH-6a2-evaluator` from main `6b3bb9182`. Sheet: plan2 working copy of `build-sheet-CH-6.md` (CH6a1-R is

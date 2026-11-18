@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/packet-PIPE-1.md on 2026-11-18 (declutter step 4).
 # PIPE-1 review packet: D-1 fix and guard speed-up (A1-A6, A10)
 
 - Branch `task/PIPE-1-checks-speedup` (from `main` 3729ee44d). Spec: `Docs/engineering/build-pipeline-and-checks-speedup.md` §4.5 D-1, §7.1 A1-A6 and A10, §9 guardrails. Approval: `.agent/owner-build-pipeline-speedup-request-2026-11-18.md` (PIPE-2, OD-4, OD-6, OD-7 not built).

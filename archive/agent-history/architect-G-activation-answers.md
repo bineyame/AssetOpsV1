@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-G-activation-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — G-01/G-02 activation and F1–F5 (2026-10-13)
 
 The owner confirmed the gap catalogue and orphan guard **now**; non-core ranking and per-screen completion remain W1-exit decisions. V-01b is the single active task, so the G work cannot start while it is active or in review. This ruling is recorded as `D-2026-10-13-g-gap-packet-activation` and changes no W1 score, K or owner gate.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-02-merge-brief.md on 2026-11-18 (declutter step 4).
 # OPS-02 final merge prep (Sonnet)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`, branch `task/OPS-02-writer-guard-ast` (review ACCEPT after fix round). Main is now `0d3114a3`: it adds LR-01 (`source_clock_attestation`, assessment-store writer entry), S6-01a (ninth writer `actions/adapters/postgres_action_store.py`, Action tables insert-only) and S4-05a (provenance tables `evidence_publication`, `batch_publication_link` insert-only on the ledger, plus its own line-based split-statement refusals) to rule 8 in `tools/checks/configuration-persistence.ps1`.

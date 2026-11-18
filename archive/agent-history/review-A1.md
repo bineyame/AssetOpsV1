@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-A1.md on 2026-11-18 (declutter step 4).
 # Review: FUEL-1 A1, fuel-cost-2 and the declared no-load fact
 
 - Reviewer: fresh Claude reviewer (did not author the slice).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-A2.md on 2026-11-18 (declutter step 4).
 # Review: FUEL-1 A2, trial-fuel-comparison/2, priced total, no-sum credit
 
 - Reviewer: fresh Claude reviewer (did not author the slice).

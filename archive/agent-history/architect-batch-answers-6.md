@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-batch-answers-6.md on 2026-11-18 (declutter step 4).
 # Codex Architect — loop and W1 mapping answers (2026-10-11)
 
 Decision: `D-2026-10-11-w1-loop-and-mapping-boundaries` in `.ai/DECISIONS.md`. I amended `.ai/COORDINATOR_LOOP.md`. **No new owner choice is needed now**: these are role, graph and checker corrections under the confirmed W1 strategy. The owner still decides at the packet's `USER_REVIEW_REQUIRED` checkpoint, a genuine ≤5% contested ranking, XL exception or repeated rejection under the recorded rule.

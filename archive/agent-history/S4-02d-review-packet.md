@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02d-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-02d review packet: analytic and Finding worker schedule (all three phases)
 
 Task `tasks/S4-02d-analytic-finding-worker-schedule.md` (registry node `I-analytic-finding-worker-schedule`).

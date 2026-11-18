@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-F-seam-recheck.md on 2026-11-18 (declutter step 4).
 # W2-F seam re-check after the W4-01, W3-01 and W4-02 merges
 
 Read-only check of `tasks/W2-F-structural-fixes.md` and `.agent/W2-F-build-spec.md` against merged `main` at `449e48e1`, in worktree `AssetOpsV1-plan2`. Spec line numbers refer to `.agent/W2-F-build-spec.md`. No checks were run, because this is a seam read, not a build review.

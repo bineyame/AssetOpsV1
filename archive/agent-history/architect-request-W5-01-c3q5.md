@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01-c3q5.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-01a C3 Q-C3-5 and mock differences
 
 You are the AssetOps Architect (Codex). Read the `.ai/ROLE_CONFIG.md` rules on mock fidelity ("Mockup drives the design" and "Both Architects ... against the v69 mock"), the C3 card in `.agent/W5-01-build-spec.md` (including "C3 rulings (Q-C3-1..4)" and your retrospective), and the v69 `cold-health` screen in `frontend/mockups/v69/index.html`. Read the C3 build on branch `task/W5-01a-cold-selected-depth` (code `56231727`, evidence and handoff `f3bf7c6c`). Use `MSYS_NO_PATHCONV=1 git show task/W5-01a-cold-selected-depth:.agent/W5-01a-phase-handoff.md`; the captures are in `.agent/W5-01a-C3-evidence/` on that branch.

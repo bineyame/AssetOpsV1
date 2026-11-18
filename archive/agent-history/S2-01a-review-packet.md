@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01a-review-packet.md on 2026-11-18 (declutter step 4).
 # S2-01a review packet: registered Kobo Lab basis
 
 **Task:** `tasks/S2-01a-registered-lab-basis.md`.

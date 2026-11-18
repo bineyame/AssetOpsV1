@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-03-review.md on 2026-11-18 (declutter step 4).
 # OPS-03 independent review
 
 Branch `task/OPS-03-suite-in-container`, head `e1dd1957`, diff against `main` (9 files). Reviewer did not author the slice,

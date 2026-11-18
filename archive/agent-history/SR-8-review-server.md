@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-8-review-server.md on 2026-11-18 (declutter step 4).
 # SR-8 server review: `GET /api/sites/{code}/renewable-range` + `all_hours_headroom_kw`
 
 Reviewer: fresh Claude reviewer (did not author the slice), 2026-11-12.

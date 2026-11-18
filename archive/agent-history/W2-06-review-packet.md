@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-06-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-06 review packet (EV session assessment)
 
 Branch `task/W2-06-ev-assessment`. Spec: `.agent/W2-06-build-spec.md` (`D-2026-10-18-w2-06-07-buildspec`), rulings q1-q4, r5, r6. Handoff: `.agent/W2-06-phase-handoff.md`. Not merged to main. **Fix round r7/r8/r9 built and verified at `c18acc34`** (r9 rulings in the build spec "Fix-round rulings (r9)"). Three interpretation notes are in `.agent/W2-06-pending-rulings.md` "fix round r9"; none blocks.

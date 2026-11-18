@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02a-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S4-02a phase 1 handoff: assumption store and SYSTEM publication
 
 Branch `task/S4-02a-site-assumptions`, from `ec74ac6`. Commits: `28668d9` (the build) and the follow-up commit that

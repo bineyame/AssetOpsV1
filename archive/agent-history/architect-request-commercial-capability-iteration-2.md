@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-commercial-capability-iteration-2.md on 2026-11-18 (declutter step 4).
 # Architect request: commercial capability assessment, iteration 2 (owner direction applied)
 
 You are the AssetOps Architect. Read `.agent/owner-commercial-capability-direction-2026-10-26.md` in full. It holds the owner's overall direction and answers, word for word, and it is the authority here. The original brief, `.agent/owner-commercial-capability-brief-2026-10-26.md`, still applies, including its stop point: assessment and design only, with no implementation and no five-day plan.

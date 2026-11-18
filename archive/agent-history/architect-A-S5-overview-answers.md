@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-S5-overview-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers — A-S5-overview (2026-10-14)
 
 ## Registration and selection

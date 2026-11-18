@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-3-review.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 3 review (fresh Claude reviewer)
 
 Produced by a fresh Claude reviewer that did not author S4-01. Scope: phase 3 diff `0f4808b..4c499b6`

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/v69-site-mockup-architect-comparison.md on 2026-11-18 (declutter step 4).
 # v6.9 Site Mock-up Comparison and Enhancement (Architect)
 
 Produced by **Claude as Architect under the scoped 2026-10-06 exception** in

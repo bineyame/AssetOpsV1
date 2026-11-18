@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-R4.md on 2026-11-18 (declutter step 4).
 # Review R4.1: Portfolio Cold/EV thread state (light review)
 
 Branch `task/R4-portfolio-thread-state`, head 4518f888f; diff `main...HEAD` (6 files).

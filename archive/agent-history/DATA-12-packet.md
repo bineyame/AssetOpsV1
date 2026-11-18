@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-12-packet.md on 2026-11-18 (declutter step 4).
 # DATA-12 packet: coverage on Site-local graded days (D-E5.38, D-E5.40)
 
 Branch `task/DATA-12-coverage-local-days` (wt `AssetOpsV1-data12`, from main 22d877b1d).

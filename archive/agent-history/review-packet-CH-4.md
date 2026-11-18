@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-4.md on 2026-11-18 (declutter step 4).
 # Review packet CH-4: opportunity threads
 
 **Branch:** `task/CH-4-opportunity`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-ch4`. It was cut from plan2 main `e207f328f`.

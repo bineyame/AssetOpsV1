@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-W-review.md on 2026-11-18 (declutter step 4).
 # OUT-W final review (estate event windows)
 
 Reviewer: fresh Claude reviewer, independent of the author. Branch `task/OUT-W-estate-event-windows` at head 7d18f6f0,

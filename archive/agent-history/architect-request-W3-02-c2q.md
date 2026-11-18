@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c2q.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 commit-2 questions (c2-q1 to c2-q4)
 
 Read:

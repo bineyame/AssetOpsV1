@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02b-review.md on 2026-11-18 (declutter step 4).
 # S3-02b review: Evidence Analysis selected claim limit UI
 
 Reviewer: a fresh, independent Claude reviewer who did not author the slice. Reviewed revision `18749240` (`task/S3-02b-claim-limit-ui`), diff `git diff 8b5d8137..18749240 -- ':!.agent'`.

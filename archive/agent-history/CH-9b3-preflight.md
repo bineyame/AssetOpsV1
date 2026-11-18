@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-9b3-preflight.md on 2026-11-18 (declutter step 4).
 # CH-9b3 pre-flight: mill verdict (evaluator, trigger, reads, page)
 
 Branch `task/CH-9b3-mill-verdict` from main `0d34ee3b1`. Scope: build sheet CH-9b "Build units" CH-9b3, as cut by

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-fix-round-1-claude-rereview.md on 2026-11-18 (declutter step 4).
 # T028 fix round 1 - Claude re-review
 
 Reviewer: a fresh Claude `assetops-reviewer`, 2026-10-04. It is independent of

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-01-review.md on 2026-11-18 (declutter step 4).
 # W1-UX-01 review - shared product presentation
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Revision reviewed: `184a6519` (head of `task/W1-UX-01`; final code revision `530da1c8`). Diff: `git diff 3e6dbc88..184a6519 -- ':!.agent'`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-07-brief.md on 2026-11-18 (declutter step 4).
 # S4-07 evidence decided_at - implementer brief (M; at most two phases; last review = slice review)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review3`, branch `task/S4-07-evidence-decided-at` (from main `5bfff665`+). Other agents use other worktrees; touch none of them.

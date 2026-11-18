@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W4-caps-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W4-mini caps (Q18)
 
 Caps below apply to the largest closed state at 1440 / 390 px, in that order. User-opened disclosures may grow beyond a closed cap, but their full content must remain readable and reachable. These rulings do not close owner-visible departures or R328.

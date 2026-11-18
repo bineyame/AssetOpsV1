@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/convertion_potential-review.md on 2026-11-18 (declutter step 4).
 # Review: `.agent/convertion_potential.html` (Architect, 14 Nov 2026)
 
 Reviewer: fresh Claude reviewer, independent of the author. Review only; nothing changed.

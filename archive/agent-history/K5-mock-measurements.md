@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/K5-mock-measurements.md on 2026-11-18 (declutter step 4).
 # K5 mock measurements (v69 `fuel`, tools/measure-mock-panels.mjs, main 97505484a)
 
 Command: `node tools/measure-mock-panels.mjs .agent/K5-mock-measurements fuel` (headless Chrome, 2026-11-08).

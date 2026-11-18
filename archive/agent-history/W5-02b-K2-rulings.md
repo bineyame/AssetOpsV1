@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-K2-rulings.md on 2026-11-18 (declutter step 4).
 # W5-02b K2a/K2b review rulings — Codex Architect, 2026-10-23
 
 Authority: `.ai/ROLE_CONFIG.md` mock fidelity; v69 `frontend/mockups/v69/index.html` screens `cold-work`, `cold-work-incidents`, `cold-work-maintenance`, `cold-action`; `.agent/W5-02-04-mock-measurements.md`; `.agent/W5-02b-K2-review.md`; `.agent/W5-02b-questions.md`. These numbered rulings supersede conflicting W5-02 spec sentences. The builder implements them without further design choices. H1, H2, L1 and L2 below are confirmed direct review fixes.

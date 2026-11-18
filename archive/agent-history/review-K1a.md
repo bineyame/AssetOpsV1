@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K1a.md on 2026-11-18 (declutter step 4).
 # Review K1a: `mini-grid` v7, the tank-level signal
 
 - Reviewer: fresh Claude reviewer (independent; did not author the slice). 2026-11-07.

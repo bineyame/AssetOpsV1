@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # LR-01 phase 2 handoff — Finding and money surfaces (slice complete, in review)
 
 Branch `task/LR-01-late-reading-series-and-money-limit`, phase-2 commits `3f71deac..2f326600` (+ closeout). Not merged.

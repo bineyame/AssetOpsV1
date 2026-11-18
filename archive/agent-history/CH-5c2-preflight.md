@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5c2-preflight.md on 2026-11-18 (declutter step 4).
 # CH-5c2 pre-flight (build sheet CH-5c §8.6, CH5c-R7)
 
 Branch `task/CH-5c2-store-safety` from main `9fe13ae3f` (contains CH-5c `ac29b6f95`). Clone

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-MAIN-RED-packet.md on 2026-11-18 (declutter step 4).
 # FIX-MAIN-RED packet
 
 Branch `task/FIX-MAIN-RED` from main 626e3b94e.

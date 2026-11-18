@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-round2-fix-rereview.md on 2026-11-18 (declutter step 4).
 # V-01a round 2 fix: verification re-review
 
 Reviewer: a fresh Claude reviewer, independent of the Implementer. I fixed, committed and merged nothing.

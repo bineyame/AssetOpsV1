@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01-W5-03-specs.md on 2026-11-18 (declutter step 4).
 # Planner + Architect request: W5-01 Cold depth and W5-03 EV depth build specs
 
 You are the AssetOps Planner and Architect.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-02-batch-request.md on 2026-11-18 (declutter step 4).
 # Architect request: S4-02 batched rulings (2026-10-14)
 
 Role: Architect (Codex). Context: S4-02a and S4-02b are merged to main (`a6c6a849`), owner S4-02 checkpoint passed (conditional). Governing decision `D-2026-10-13-s4-bounded-financial-basis`; prior answers `.agent/architect-S4-02-answers.md`, `.agent/architect-A-S4-financial-answers.md`. Rule each question briefly with justification; say whether it needs a code change, and in which slice; flag any item where you want the owner to weigh in. Owner-facing summary in plain language at the end.

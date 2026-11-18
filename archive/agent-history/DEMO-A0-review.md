@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-A0-review.md on 2026-11-18 (declutter step 4).
 # DEMO-A0 review: assumption-store recorded clock seam (R1)
 
 Reviewer: fresh Claude reviewer. Branch `task/DEMO-A0-assumption-clock-seam` at 7be6feae7, against main e19bb687.

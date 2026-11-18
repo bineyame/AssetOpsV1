@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6b2-preflight.md on 2026-11-18 (declutter step 4).
 # CH-6b2 pre-flight (Portfolio cards and the board Grow parts)
 
 Branch `task/CH-6b2-portfolio-cards` from main `8133f5b95`. Builder: Claude (Opus). No code written yet.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05b-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S4-05b phase 2 handoff - COMPLETE
 
 Branch `task/S4-05b-producers-reads-walkthrough` (worktree `AssetOpsV1-review2`). Environment as in

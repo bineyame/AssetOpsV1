@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-final-recapture-brief.md on 2026-11-18 (declutter step 4).
 # Final complete review: full 1,414-pair recapture (standing brief)
 
 Owner request (2026-10-25): a complete review at the end to ensure everything checks out. This part recaptures **every pair** of the frozen post-W6 audit index (`.agent/post-W6-audit/audit-index.json`, 1,414 pairs in batches 01–19) at the final main SHA, after all 11 fix cards and the final-review fix round merged.

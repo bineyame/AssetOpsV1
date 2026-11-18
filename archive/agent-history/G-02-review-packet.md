@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-02-review-packet.md on 2026-11-18 (declutter step 4).
 # G-02 review packet - V-01a mock-gap pilot
 
 Task: `tasks/G-02-v01a-gap-pilot.md` (Status `in_review`, USER_REVIEW_REQUIRED: true). Branch `task/G-02-v01a-gap-pilot`, diff base `42bd74d` (activation, from main `5625447`). Binding inputs: `.agent/architect-G-01-answers.md` (C5, C7) and `D-2026-10-13-g01-placement-and-orphan-scan-boundary`; G-01 carries C1, C6, C9 (`.ai/MILESTONE_REVIEW_BACKLOG.md`); V-01a round-3 Addendum and the conditional-acceptance rows. Handoff `.agent/G-02-handoff.md`. Questions `.agent/G-02-questions-1.md` (Q1-Q6, fail-closed defaults shipped).

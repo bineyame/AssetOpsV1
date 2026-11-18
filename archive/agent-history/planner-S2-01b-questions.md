@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-01b-questions.md on 2026-11-18 (declutter step 4).
 # S2-01b questions for Architect — 2026-10-08
 
 ## Q1 — Authorized frozen-snapshot transfer to the separate simulated gateway

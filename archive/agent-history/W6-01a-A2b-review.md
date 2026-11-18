@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01a-A2b-review.md on 2026-11-18 (declutter step 4).
 # W6-01a A2 re-review (fix round `fc80b6cf`): ACCEPT
 
 Reviewer: fresh Claude reviewer. Read only; no code changed. Checked M1 and L1 from `.agent/W6-01a-A2-review.md`.

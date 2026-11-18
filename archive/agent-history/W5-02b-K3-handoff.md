@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-K3-handoff.md on 2026-11-18 (declutter step 4).
 # W5-02b K3a + K3b handoff (cold Incidents and Maintenance tabs)
 
 Branch `task/W5-02b-K3-cold-cases` from main `f164c49d`, with main merged at `e0c1c40c` (the K3 pre-flight rulings 1-8 and register rows R92-R94). Scope is K3a and K3b only. K4 and K5 are not touched.

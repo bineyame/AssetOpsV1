@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-closeout-packet.md on 2026-11-18 (declutter step 4).
 # S4-03 registry closeout packet
 
 Branch `closeout/S4-03-registry` (from main `a32d4bb`). Registry/ledger metadata only; no product code. No review verdict or owner approval is written here; acceptance is cited from `.agent/owner-S4-03-acceptance-2026-10-13.md` (CONDITIONAL: named gaps stay open). Precedent: S4-01 registry closeout (`e2c190c`).

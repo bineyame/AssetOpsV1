@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02a-fix-1-brief.md on 2026-11-18 (declutter step 4).
 # S6-02a fix round 1 - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S6-02a-verification-core` (main merged in). Environment as in `.agent/S6-02a-phase-2-brief.md`; set PYTHONPATH yourself (do not use the shared scratchpad `env.sh`). Keep-awake is running. Memory is tight (other agents run Postgres): focused tests `-n 2` at most; check free memory before the full suite and wait if under 2.5 GB.

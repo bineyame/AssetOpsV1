@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-05-answers.md on 2026-11-18 (declutter step 4).
 # Architect rulings - S4-05 stored demonstration provenance (2026-10-15)
 
 Authority: `tasks/S4-05-stored-demo-provenance.md`, `I-stored-demo-provenance`, `.agent/architect-S4-02-batch-answers.md` Q3, `D-2026-10-15-lr01-source-time-cohort`, `D-2026-10-15-s501-finding-choice`, and the owner's absence delegation. These are implementation decisions, not owner approval of visible copy or pilot designation.

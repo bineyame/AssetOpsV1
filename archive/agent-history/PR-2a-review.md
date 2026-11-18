@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-2a-review.md on 2026-11-18 (declutter step 4).
 # PR-2a review: read-only Site price page (2026-11-12)
 
 - **Reviewer:** fresh Claude reviewer (did not author). Read-only; no Postgres run.

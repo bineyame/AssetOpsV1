@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-07-review.md on 2026-11-18 (declutter step 4).
 # W2-07 independent review (EV Site evidence and money)
 
 Reviewer: fresh Claude reviewer (did not author the slice). Branch `task/W2-07-ev-site-evidence-money`, head

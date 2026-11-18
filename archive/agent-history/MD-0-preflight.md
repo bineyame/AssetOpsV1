@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/MD-0-preflight.md on 2026-11-18 (declutter step 4).
 # MD-0 pre-flight (P0-P7) and Architect questions
 
 - Implementer: Claude, 2026-11-04. Branch `task/MD-0-mechanism` (dispatch name; the sheet says `task/MD-0-mechanism-dataset`), cut from main `a07452c63`.

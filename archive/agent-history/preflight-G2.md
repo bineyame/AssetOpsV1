@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/preflight-G2.md on 2026-11-18 (declutter step 4).
 # Pre-flight G2 — automatic diesel-night check (`fuel_night` tick stage)
 
 Implementer (Claude), branch `task/OWN-G2-diesel-night-check` from main `59a89397a`. Read-only; no Postgres run.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-review.md on 2026-11-18 (declutter step 4).
 # LR-01 slice review: late-reading series and money limit
 
 Reviewer: a fresh Claude reviewer who did not author the work. Worktree `AssetOpsV1-review`, branch `review/LR-01-slice` at `3b360af5`. The diff reviewed is `ad2a96d0..3b360af5`.

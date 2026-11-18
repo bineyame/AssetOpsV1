@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-deferred-match-review.md on 2026-11-18 (declutter step 4).
 # S4 deferred-match fix - independent review
 
 Reviewer: fresh Claude reviewer, not the author. Worktree `AssetOpsV1-gap-planning`, branch `review/S4-deferred-match`

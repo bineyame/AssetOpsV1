@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-questions-1.md on 2026-11-18 (declutter step 4).
 # S4-03 phase 2 - Architect questions (batch 1)
 
 Raised by the phase 2 Implementer, 2026-10-13. Each has a fail-closed default that is already built; work continued on the default. None blocks phase 3.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-AR3-absent-review.md on 2026-11-18 (declutter step 4).
 # FIX-AR3-absent review (D-ANY.10)
 
 Reviewer: fresh Claude (read-only). Branch `fix/AR-3-absent-compose`, commits eb2ff7d17 + 58c5d8aff, diff vs main 49c0ca628.

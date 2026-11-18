@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PC-fix-handoff.md on 2026-11-18 (declutter step 4).
 # POLISH-PC fix round handoff (whole-diff review REVISE)
 
 Review: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\review-POLISH-whole-diff.md` (M1-M3, L1-L5, item 8).

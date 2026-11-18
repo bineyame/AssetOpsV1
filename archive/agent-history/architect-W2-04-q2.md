@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-q2.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 Q4 against data + implementer-named codes (2026-10-18). Brief rulings; edit `.agent/W2-04-build-spec.md` in place; amend `D-2026-10-18-w2-04-buildspec`. No code.
 
 From the W2-04 commit-2 implementer (branch task/W2-04-cold-site-evidence-money, handoff `.agent/W2-04-phase-handoff.md` there):

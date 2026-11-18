@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-COLD-DRAIN-packet.md on 2026-11-18 (declutter step 4).
 # FIX-COLD-DRAIN review packet
 
 Task: [tasks/FIX-COLD-DRAIN-tick.md](../tasks/FIX-COLD-DRAIN-tick.md). Spec: plan2 `.agent/build-sheet-FIX-COLD-DRAIN.md` U1-U4

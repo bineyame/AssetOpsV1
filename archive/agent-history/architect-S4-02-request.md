@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-02-request.md on 2026-11-18 (declutter step 4).
 # Architect request: S4-02b fuel-cost-1 bound (2026-10-13)
 
 Role: Architect (Codex). Branch `plan/S4-02-refine` (from main `2c87037`). Write only `.agent/architect-S4-02-answers.md`. Do not edit packets or the registry (a parallel fix round is editing the packets), and do not commit.

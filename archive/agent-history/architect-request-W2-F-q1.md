@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-F-q1.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-F 1b-q1 (copy blocked by the plain-language guard)
 
 Read:

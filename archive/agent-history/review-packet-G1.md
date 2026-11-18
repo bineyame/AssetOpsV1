@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-G1.md on 2026-11-18 (declutter step 4).
 # Review packet: OWN-G1 add-dates (with R5 settle and R6 closing tick / WK-6)
 
 Branch `task/OWN-G1-add-dates`, HEAD at packet time = the commit after `5d7a62039`. Spec: build sheet OWN-GAPS §4, R2-G1,

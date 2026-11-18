@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F1-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # W1-F1 phase 1 handoff (PARTIAL - context limit)
 
 Branch `task/W1-F1-foundation`, worktree `C:/Users/assef/Bineyame/AssetOpsV1-review4`. Brief: `.agent/W1-F1-build-brief.md`. Contract: `.agent/architect-W1-fidelity.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-04-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-04 review packet - cold Site, evidence and unpriced consequence
 
 Task `tasks/W2-04-cold-site-evidence-money.md` (USER_REVIEW_REQUIRED: true, in the later owner W2 walkthrough).

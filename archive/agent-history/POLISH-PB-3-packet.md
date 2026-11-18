@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PB-3-packet.md on 2026-11-18 (declutter step 4).
 # POLISH-PB-3 review packet: estate, cold/EV and work copy; P-07, P-09, P-10
 
 - Task: `tasks/POLISH-PB-3-estate-work-copy.md`. Branch `task/POLISH-PB-3-estate-work-copy`, base `0ad27df7f`.

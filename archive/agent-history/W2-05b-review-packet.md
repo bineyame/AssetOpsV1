@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05b-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-05b review packet - EV producer (commits 1-5)
 
 Task `tasks/W2-05b-ev-producer.md`; binding spec `.agent/W2-05b-build-spec.md` (`D-2026-10-18-w2-05-buildspec`,

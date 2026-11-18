@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-02-handoff.md on 2026-11-18 (declutter step 4).
 # G-02 handoff (V-01a mock-gap pilot)
 
 Task `tasks/G-02-v01a-gap-pilot.md`; branch `task/G-02-v01a-gap-pilot` from `42bd74d` (main `5625447`). Never stage `.agent/coordinator-handoff.md`; stage by explicit path only.

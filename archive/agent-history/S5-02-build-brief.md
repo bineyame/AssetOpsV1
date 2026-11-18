@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-02-build-brief.md on 2026-11-18 (declutter step 4).
 # S5-02 build - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review3`, branch `task/S5-02-overview-finding-list` (from main `5c1d9d42`). Touch no other worktree.

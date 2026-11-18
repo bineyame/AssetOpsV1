@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-final-fix-packet.md on 2026-11-18 (declutter step 4).
 # Post-W6 final fix packet (branch task/post-W6-final-fix, from main 739c0d7a)
 
 Rulings: `.agent/post-W6-final-review-rulings.md` (binding). Status: code, tests, register, backlog and captures DONE (captures: see Captures).

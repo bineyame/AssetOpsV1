@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-02a-replay-request.md on 2026-11-18 (declutter step 4).
 # Architect request - S6-02a replay cannot reach VERIFIED (2026-10-16)
 
 You are the AssetOps Architect (Codex). The owner wants maximum W1 progress; decide within the Architect's remit. Read `.agent/S6-02a-phase-2-handoff.md` and `.agent/S6-02a-review-packet.md` (deviation 1), the packet `tasks/S6-02a-verification-core.md` (replay manifest cases, incl. "complete pass"), `D-2026-10-16-s6-verification`, `D-2026-10-16-s602-questions`, and the simulator mini-grid model (`simulator/` pack `mini_grid.py`, v4) and Lab profile `backend/assetops_backend/runs/profiles.py`.

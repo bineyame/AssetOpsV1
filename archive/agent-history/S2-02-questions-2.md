@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-questions-2.md on 2026-11-18 (declutter step 4).
 # S2-02 questions 2 (phase 2)
 
 Raised while building S2-02 phase 2 (credential, diagnostics, gateway transport, Lab Commit). Each is built on the fail-closed default named; none blocks phase 3. Batch with questions-1 for the next Architect round.

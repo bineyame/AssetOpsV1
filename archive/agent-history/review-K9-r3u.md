@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K9-r3u.md on 2026-11-18 (declutter step 4).
 # Review: K9 fix round (DIESEL-1-R3u, build sheet §9u)
 
 Reviewer: fresh Claude reviewer (did not author). Branch `task/DIESEL-K9-checks-rehearsal`, diff `d681480be..8b68ff9b2` (code 0be93c2ce, packet 8b68ff9b2). Reviewed together with DIESEL-K6c (R3u cut 4).

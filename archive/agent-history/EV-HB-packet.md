@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/EV-HB-packet.md on 2026-11-18 (declutter step 4).
 # EV-HB review packet
 
 Branch `task/EV-HB` (worktree `AssetOpsV1-evhb`), from main `700469706`. Card: D-E5.48 (2) "Card EV-HB" in

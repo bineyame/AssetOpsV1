@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PB-3-DATA-11-packet.md on 2026-11-18 (declutter step 4).
 # PB-3 + DATA-11 review packet
 
 Branch `task/PB-3-DATA-11` (worktree `AssetOpsV1-pb3`), from main `b685975c7`. Cards: `.agent/architect-answer-non-kobo-sites-2026-11-10.md`

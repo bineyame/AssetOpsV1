@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-06-handoff.md on 2026-11-18 (declutter step 4).
 # S4-06 handoff (built, in_review)
 
 - Landed: `backend/assetops_backend/financials/assumptions.py` `plan_assignments` SUCCESSION branch admits equality with the sole open-ended assignment and returns close + single insert. Tests: `backend/tests/test_s4_assumption_publication.py` `TestPlan` (3 new), `backend/tests/test_s4_assumptions_postgres.py` `TestEqualStartSuccession` (5 new).

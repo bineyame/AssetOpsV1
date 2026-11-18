@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-b-handoff.md on 2026-11-18 (declutter step 4).
 # post-W6 W1-mini-Action-b: build handoff (built, captured, closed out; in_review)
 
 **Update 2026-10-25:** main (W1-a 3b4979d0) merged (d960eeee); 142/142 pairs captured; Q23 cap fallback e6af4ff0; full vitest, build, check-all run; packet `.agent/post-W6-W1-b-packet.md`. Open: Evidence requirements and Action history Q37 caps exceeded in synthetic probes with no ruled fallback (Architect). The "Remaining" list below is historical.

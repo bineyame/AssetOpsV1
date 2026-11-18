@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05b-phase-1-brief.md on 2026-11-18 (declutter step 4).
 # S4-05b phase 1 - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review2`, branch `task/S4-05b-producers-reads-walkthrough` (from main `7576ef9d`). Touch no other worktree.

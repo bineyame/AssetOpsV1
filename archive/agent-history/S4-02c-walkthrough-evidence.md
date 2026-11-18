@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02c-walkthrough-evidence.md on 2026-11-18 (declutter step 4).
 # S4-02c phase 3: two-leg late-power walkthrough evidence
 
 Tool: `tools/s402c_late_power_walkthrough.py run` (then `drop`), code from `94a62aad` (git HEAD, staged into a

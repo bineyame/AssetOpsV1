@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-reopen-brief.md on 2026-11-18 (declutter step 4).
 # S6-01a change round - Architect ruling D-2026-10-15-s601-reopen
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`, branch `task/S6-01a-action-store-read` (head `c341599b`). Environment as in `.agent/S6-01a-phase-1-brief.md` with this worktree's paths in PYTHONPATH (confirm `assetops_backend.__file__`). Other agents use other worktrees; touch none of them.

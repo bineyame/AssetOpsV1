@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-02-handoff.md on 2026-11-18 (declutter step 4).
 # W1-UX-02 handoff - Site, Finding and money screens on the shared layer
 
 Branch `task/W1-UX-02` (base main `a8cbb3d1`), final code revision `bc1cea1b`, status `in_review`. Packet `.agent/W1-UX-02-review-packet.md`. Built state `.ai/CODE_STATE.md` "W1-UX-02". Not merged.

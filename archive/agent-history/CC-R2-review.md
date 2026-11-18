@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-R2-review.md on 2026-11-18 (declutter step 4).
 # CC-R2 review (fresh Claude reviewer, 2026-10-28)
 
 Branch `task/CC-R2-placement` at `78ddc60e`, diffed against `71aa1fea` (CC-R1 head, on main). Scope: CC-R2 and the

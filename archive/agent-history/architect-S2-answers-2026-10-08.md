@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-answers-2026-10-08.md on 2026-11-18 (declutter step 4).
 # S2 planning answers — 2026-10-08
 
 **Codex Architect**, per `.ai/ROLE_CONFIG.md`. This answers `.agent/planner-S2-questions-2026-10-08.md`; the controlling record is `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` in `.ai/DECISIONS.md`. The present branch is the S2-01a task branch. These decisions amend the packet; they do not claim S2 was built or tested.

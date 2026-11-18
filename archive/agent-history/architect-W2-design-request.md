@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-design-request.md on 2026-11-18 (declutter step 4).
 # Architect request - Wave 2 design (2026-10-17)
 
 You are the AssetOps Architect (Codex). The owner (verbatim): "While i perform the walkthrough, start design and planning of wave2(architect has to properly design including simulator integration) with as much faithfullness to the mockup as possible. Also, make sure to be efficent with token usage both on claude and codex."

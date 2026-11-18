@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02-closeout-packet.md on 2026-11-18 (declutter step 4).
 # S4-02 registry closeout packet
 
 Branch `closeout/S4-02-registry` (from main `a6c6a849`, which merges S4-02b). Registry/ledger metadata only; no product code. No review verdict or owner approval is written here; acceptance is cited from `.agent/owner-S4-02b-acceptance-2026-10-14.md` (CONDITIONAL) and the reviews `.agent/S4-02b-review.md` (ACCEPT with carries, H1 fixed) and `.agent/S4-02b-fix-rereview.md` (ACCEPT). Precedents: `.agent/S4-02a-closeout-packet.md`, `.agent/S4-03-closeout-packet.md`.

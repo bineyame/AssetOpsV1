@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-commit1-rereview.md on 2026-11-18 (declutter step 4).
 # W3-02 commit-1 fix r1 re-review (33b9711e)
 
 Verdict: ACCEPT (two Lows, non-blocking). Read through git objects only; nothing was run, so the new tests passing is not verified by me.

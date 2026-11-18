@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-shell-capture-review.md on 2026-11-18 (declutter step 4).
 # post-W6 shell: capture and fix-round review
 
 - Reviewer: fresh Claude reviewer (did not author the slice).

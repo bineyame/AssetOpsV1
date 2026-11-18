@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-2-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 2 fix round 1 - verification re-review
 
 Produced by a fresh Claude reviewer. Diff reviewed: `065058c..HEAD` (54b037d, 1522565, 0de2b5d).

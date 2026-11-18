@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-lane-a-requests.md on 2026-11-18 (declutter step 4).
 # W3-02 Lane A requests (from Lane B)
 
 ## Commit 1 - mount the Evidence router (closure 4 B6 row `1`)

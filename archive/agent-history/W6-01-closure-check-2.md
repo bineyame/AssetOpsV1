@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01-closure-check-2.md on 2026-11-18 (declutter step 4).
 # W6-01 closure check 2 (OI-1 to OI-10)
 
 Fresh reviewer, `AssetOpsV1-plan2` at af242a82, read-only. Spec: `.agent/W6-01-build-spec.md`. No tests run; literals spot-checked against merged code.

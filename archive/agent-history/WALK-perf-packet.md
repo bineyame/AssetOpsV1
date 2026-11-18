@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/WALK-perf-packet.md on 2026-11-18 (declutter step 4).
 # WALK-perf packet (branch fix/WALK-perf, worktree /opt/assetecon/AssetOpsV1-walkperf)
 Spec: .agent/WALK-perf-ruling-2026-11-14.md F1-F3. Commits: f6c67e34b (F1-F3 + tests), plus one guard follow-up.
 

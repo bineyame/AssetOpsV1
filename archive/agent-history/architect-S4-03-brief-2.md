@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-03-brief-2.md on 2026-11-18 (declutter step 4).
 # Architect brief: S4-03 questions batch 2 (2026-10-13)
 
 Role: Architect (Codex). Branch `task/S4-03-finding-evidence-history` (HEAD `37212de`). Phases 1-3 built; phase 1 and 2 reviewed ACCEPT; phase 3 under fresh review; owner walkthrough next. Do not edit code or commit. Write only `.agent/architect-S4-03-answers-2.md`.

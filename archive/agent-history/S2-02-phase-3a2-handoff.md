@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-phase-3a2-handoff.md on 2026-11-18 (declutter step 4).
 # S2-02 phase 3a2 handoff — items 3 (backend) and 5 landed; phase 3b (frontend) next
 
 Branch `task/S2-02-ingestion-site-evidence`. Builds on `.agent/S2-02-phase-3a-handoff.md` (items 1, 2, 4-backend). Commits: `23da99d` (Evidence reads + comparison gate + CLI + guard), `59d76fe` (comparison tests, recorded KOBO-001 record, Q18–Q20). New questions Q18–Q20 in `.agent/S2-02-questions-3.md`.

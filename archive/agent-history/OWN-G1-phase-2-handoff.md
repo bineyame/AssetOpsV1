@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OWN-G1-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # OWN-G1 phase 2 handoff (PARTIAL: rehearsal stopped on a non-KIS row, F-THREADS)
 
 Branch `task/OWN-G1-add-dates`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-g1`. Phase 1: `.agent/OWN-G1-phase-1-handoff.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02c-K4-preflight-rulings.md on 2026-11-18 (declutter step 4).
 # W5-02c K4a/K4b/K5 pre-flight rulings — Codex Architect, 2026-10-24
 
 These rulings close all 13 questions in `.agent/W5-02c-K4-preflight-questions.md`. They supersede conflicting K4/K5 text in `.agent/W5-02-build-spec.md`. The reference is the v6.9 `cold-action` definition at `frontend/mockups/v69/index.html:742-746`, its Action-root rail at :1111-1114, and the measured 1440/390 screen in `.agent/W5-02-04-mock-measurements.md`. The mock is illustrative; selected IDs and states come from the read.

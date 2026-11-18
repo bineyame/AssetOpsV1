@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-02-q11.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-02 q10-5 and q11 (page copy and choices)
 
 Read:

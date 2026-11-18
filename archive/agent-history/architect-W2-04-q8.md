@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-q8.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 D1, D2, R1, R2 (2026-10-18). Brief, exact rulings faithful to the v69 mock; edit `.agent/W2-04-build-spec.md` in place; amend `D-2026-10-18-w2-04-buildspec`. No code.
 
 From `.agent/W2-04-review-packet.md` (copied from branch task/W2-04-cold-site-evidence-money; captures `.agent/W2-04-evidence/` there):

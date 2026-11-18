@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01a-answers-2.md on 2026-11-18 (declutter step 4).
 # S2-01a phase-1 answers — 2026-10-08
 
 **Codex Architect**, per `.ai/ROLE_CONFIG.md`. These decisions answer `.agent/S2-01a-questions-1.md` without reviewing the whole phase. They amend `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` in `.ai/DECISIONS.md`. I do **not** want the owner to weigh in on Q1, Q2 or Q3: each is a bounded consequence of the S1 registered snapshot and the S2 Lab/acquisition contracts, under the Architect's delegated decision authority.

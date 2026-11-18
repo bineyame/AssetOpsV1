@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-02-plan-review.md on 2026-11-18 (declutter step 4).
 # S5-02 plan review (fresh Claude Reviewer)
 
 Reviewed: `tasks/S5-02-overview-finding-list.md` at `58e190c6` (`git diff 97851c68..58e190c6 -- tasks`), against code on the same tree.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-07-handoff.md on 2026-11-18 (declutter step 4).
 # S4-07 handoff (build complete; both phases in one go)
 
 - State: built and `in_review` on `task/S4-07-evidence-decided-at`; packet `.agent/S4-07-review-packet.md`. Not merged.

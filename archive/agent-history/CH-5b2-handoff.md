@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5b2-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5b2 handoff (partial: build and L0/L2m done; clone, guards and packet remain)
 
 Branch `task/CH-5b2-why-trace`, head `d07257d57` (commits `2f3f5402d`, `a1ae043f1`, `d07257d57` on `c3cf85409`).

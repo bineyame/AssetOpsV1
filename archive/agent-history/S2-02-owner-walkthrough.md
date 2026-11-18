@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S2-02 owner walkthrough - registered gateway to Site Evidence
 
 This is the first S2 owner checkpoint: a completed simulated Kobo run is committed, the separate gateway uploads its sealed batches over HTTPS, the server records every reading in Postgres, and Site Evidence shows them with their receipts. Everything below is simulated input. Recorded output of one full scripted run: `.agent/S2-02-demo-run-output.txt`; layout measurements: `.agent/S2-02-layout-evidence.txt`.

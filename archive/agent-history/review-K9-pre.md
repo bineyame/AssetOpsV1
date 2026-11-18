@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K9-pre.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K9 pre-rehearsal (wording guard, COH-10 thread, KIS-8/8a, KIS-1/2/6/7, Q1 boards, Q5)
 
 Reviewer: fresh Claude reviewer, independent of the builder. I read the code and ran checks. I did not use a DB or run a prepare, and I edited no code.

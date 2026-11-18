@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S6-02-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round 1 - S6-02a / S6-02b
 
 You are the AssetOps Planner (Codex). Amend `tasks/S6-02a-verification-core.md`, `tasks/S6-02b-verification-ui.md`, `tasks/S6-02-verification.md`, `tasks/README.md` and the registry on `plan/S6-02-refine` in this worktree. No code; the coordinator commits.

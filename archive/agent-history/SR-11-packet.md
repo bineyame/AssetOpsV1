@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-11-packet.md on 2026-11-18 (declutter step 4).
 # SR-11 packet: Backup over the range, server (lane J)
 
 Branch `task/SR-11-backup-range` from SR-10a core 7f928edb2, + SR-10b route 3fc8c4c23, + main, + SR-10 D-SR.51 fix ee97829ef.

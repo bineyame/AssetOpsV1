@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-3-server-review.md on 2026-11-18 (declutter step 4).
 # PR-3 server half: independent review (Claude reviewer, 2026-11-12)
 
 Branch `task/PR-3-price-entry` head `99d4b6f24`, diff `946a02661...HEAD` (PR-1 already on main, so excluded).

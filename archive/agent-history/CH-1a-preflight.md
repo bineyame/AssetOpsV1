@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-1a-preflight.md on 2026-11-18 (declutter step 4).
 # CH-1a pre-flight (P1-P7) and Architect questions
 
 Branch `task/CH-1a-snapshots` (worktree `AssetOpsV1-ch1a`) from main `7fffc8358`. Groundwork commit `25b8fa5ab`:

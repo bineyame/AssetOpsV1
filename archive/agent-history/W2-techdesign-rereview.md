@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-techdesign-rereview.md on 2026-11-18 (declutter step 4).
 # W2 technical designs re-review - amended 87428eb0
 
 Reviewer: fresh Claude reviewer (independent, not the author). Inputs: cold review c8405733, EV review d5ca77b9, amend request 7927df76, amended designs at 87428eb0 (diffed against 5f7eb279). Read-only code spot checks; no suites run.

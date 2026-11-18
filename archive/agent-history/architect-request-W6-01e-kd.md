@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01e-kd.md on 2026-11-18 (declutter step 4).
 # Architect request: W6-01e builder items KD1–KD5
 
 You are the AssetOps Architect (Codex). W6-01e E1/E2 is built on `task/W6-01e-operational-records` (head `173cfc73`). Read `MSYS_NO_PATHCONV=1 git show task/W6-01e-operational-records:.agent/W6-01e-review-packet.md` (Known Deviations KD1–KD5), the E1/E2 cards and pre-flight rulings in `.agent/W6-01-build-spec.md`, the departure and mock rules in `.ai/ROLE_CONFIG.md`, `.agent/mock-departure-register.md`, and the v69 `oprecords` mock.

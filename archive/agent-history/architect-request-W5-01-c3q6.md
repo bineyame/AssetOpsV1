@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01-c3q6.md on 2026-11-18 (declutter step 4).
 # Architect request: correct the Q-C3-5 ruling against the mock (C3 review H1, M1)
 
 You are the AssetOps Architect (Codex). Read the C3 review at `.agent/W5-01a-C3-review.md` on branch `task/W5-01a-cold-selected-depth`: run `MSYS_NO_PATHCONV=1 git show task/W5-01a-cold-selected-depth:.agent/W5-01a-C3-review.md`. Also read your "C3 rulings (Q-C3-5, mock differences)" in `.agent/W5-01-build-spec.md`, the mock-fidelity rules in `.ai/ROLE_CONFIG.md`, and v69 `frontend/mockups/v69/index.html` around line 181 (the `cold-health` cards and table).

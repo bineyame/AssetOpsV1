@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K1.md on 2026-11-18 (declutter step 4).
 # Review K1: the Kisiwa Site (DIESEL-1-R3c §9c.1)
 
 - Reviewer: Claude (Opus), fresh context, independent first review. I did not author K1.

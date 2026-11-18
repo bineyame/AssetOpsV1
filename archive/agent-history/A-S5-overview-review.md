@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/A-S5-overview-review.md on 2026-11-18 (declutter step 4).
 # A-S5-overview Architect output review
 
 Reviewer: fresh Claude reviewer. I did not author the Architect output, the S4-02 batch rulings or the S4-02 closeout.

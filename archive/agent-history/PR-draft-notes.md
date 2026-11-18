@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-draft-notes.md on 2026-11-18 (declutter step 4).
 # Price it: draft for owner approval (2026-11-11)
 
 Draft: `frontend/mockups/v71/price-it.html` (open it in a browser; "Show change notes" explains each change).

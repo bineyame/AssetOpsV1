@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01-readiness-review.md on 2026-11-18 (declutter step 4).
 # W6-01 build-spec readiness review
 
 Reviewer: fresh Claude reviewer (did not author the spec), 2026-10-22. Read-only dry-read of `.agent/W6-01-build-spec.md` and `tasks/W6-01-global-work-cases.md` against main `5c89d633` in `AssetOpsV1-plan2`, the measurements in `.agent/W6-01-mock-measure.md` (raw `scratchpad/m1/*.json`, injector `scratchpad/worst.mjs`), and v69 `frontend/mockups/v69/screens.js` / `screen-manifest.json`. Gate rules: `.ai/ROLE_CONFIG.md` "Build-Spec Readiness Gate For W5 And W6" and lessons 1-13.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-phase-1-review.md on 2026-11-18 (declutter step 4).
 # S4-02b phase 1: fresh Claude review (`fuel-cost-1` model and consequence store)
 
 Reviewer: fresh Claude (did not build this). Branch `task/S4-02b-fuel-consequence`. Diff reviewed: `16ba22d..bc88a0e`

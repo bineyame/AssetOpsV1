@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5b2-preflight.md on 2026-11-18 (declutter step 4).
 # CH-5b2 pre-flight (the "Why?" trace and server ETag/304)
 
 Branch `task/CH-5b2-why-trace` from main `08a6c52e4`. Read: build-sheet-CH-5b §0/§1 R1-R4/OWN-CH5c/§2/§3/§5/§6/§7, the

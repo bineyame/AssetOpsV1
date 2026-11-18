@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PRE-S3-03-questions.md on 2026-11-18 (declutter step 4).
 # PRE-S3-03 questions (batched; fail-closed defaults in effect)
 
 For the Architect/Planner. Each default is the more restrictive reading and is already what the checker enforces; changing one is a registry/checker edit plus fixture.

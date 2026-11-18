@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-owner-walkthrough-index.md on 2026-11-18 (declutter step 4).
 # W2 owner walkthrough index (app versus mock)
 
 Written 2026-10-20 at W2 close. This is the side-by-side list for the 22 cold-chain and EV charging screens that W2 built. It uses only the captures that already exist; nothing was newly captured. The owner walkthrough is final acceptance for W2, but it does not block later work (owner decision of 2026-10-19).

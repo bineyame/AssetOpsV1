@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1a2-preflight.md on 2026-11-18 (declutter step 4).
 # DD-1a2 pre-flight: questions for the lane-2 Architect
 
 Builder, 2026-11-06, branch `task/DD-1a2-b22-day-list` at `9b1c53ae3`. No repo code changed. **Stopped: Q1 and Q2 are stop-level; Q3-Q8 change the list.**

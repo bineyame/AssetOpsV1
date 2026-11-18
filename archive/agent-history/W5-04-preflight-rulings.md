@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-preflight-rulings.md on 2026-11-18 (declutter step 4).
 # W5-04 pre-flight rulings
 
 Architect (Codex), 2026-10-23. Applies to the 46 questions in `W5-04-preflight-questions.md` against main `8884d86b`. These rulings amend `W5-04-build-spec.md` and `tasks/W5-04-ev-work.md`. No W5-04 code is authorized until the named predecessor reviews and merges finish and the readiness check is repeated on that merged head. Screen selectors below refer to `frontend/mockups/v69/index.html`: `SITE_WORK.ev`, `WORK_COLS`, `WORK_EMPTY`, `siteWorkScreen('ev', …)`, `add('ev-work'…)`, `add('ev-work-incidents'…)`, `add('ev-work-maintenance'…)`, and `add('ev-action'…)`.

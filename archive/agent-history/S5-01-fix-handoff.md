@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-fix-handoff.md on 2026-11-18 (declutter step 4).
 # S5-01 fix round handoff
 - L1: read.py - an unreadable overlapping Finding sets discovery_complete False (money UPSTREAM_PENDING, no amount); test asserts it.
 - L2: .agent/S5-01-owner-walkthrough.md - exact tick command inline; tick before steps 1, 4 (5); never between attest and steps 6-7; tick at 8; step-5 stale reference removed.

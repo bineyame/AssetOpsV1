@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b1-preflight.md on 2026-11-18 (declutter step 4).
 # DD-1b1 pre-flight: story-time Actions and clock seams
 
 Base `51f5ad22c`, branch `task/DD-1b1-story-time-actions`. No code written. **Rulings needed: Q1-Q7; the build is stopped.**

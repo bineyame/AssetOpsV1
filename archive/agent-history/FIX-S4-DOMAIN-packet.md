@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-S4-DOMAIN-packet.md on 2026-11-18 (declutter step 4).
 # FIX-S4-DOMAIN review packet
 
 Task: `tasks/FIX-S4-domain-filter.md`. Ruling: Addendum 3, ruling 1 of

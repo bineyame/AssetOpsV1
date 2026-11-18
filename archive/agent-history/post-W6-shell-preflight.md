@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-shell-preflight.md on 2026-11-18 (declutter step 4).
 # post-W6 shell-typography-copy: builder pre-flight
 
 Branch `task/post-W6-shell` from main `aa08d16d`. This is a dry read of the card (`post-W6-audit/fix-slices.md` §shell-typography-copy), register rows R115–R319, the batch ledgers and v69. No product code has been written. All paths are under `frontend/src/` unless noted. Mock references (`v69 Lnnn`) point to `frontend/mockups/v69/index.html`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-6a2.md on 2026-11-18 (declutter step 4).
 # Review packet CH-6a2: evaluator and claims (pure)
 
 - Branch `task/CH-6a2-evaluator`, main merged at `84955b219` (CH6a2-R). Build head `921f537ea` (+ this packet).

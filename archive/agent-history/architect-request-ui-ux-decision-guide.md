@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-ui-ux-decision-guide.md on 2026-11-18 (declutter step 4).
 # Architect request: UI/UX decision guide for builders
 
 You are the AssetOps Architect. Owner, verbatim (2026-10-25): "i feel some of the questions by the builder should be resolved by itself because the look minior: the architect should provide a guide based on ui/ux best practices and the builder itself should also be well versed". Earlier the same day: "for UI/UX related question, it is important to take inspiration from modern UI guidelines and techniques, this is for the architect as well as the implementer" and "not just when there are questions but state of the art UI/UX should be used(within bounds of demo speed)" (see `.agent/owner-ui-ux-guidance-2026-10-25.md`).

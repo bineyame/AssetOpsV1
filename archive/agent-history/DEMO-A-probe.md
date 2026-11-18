@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-A-probe.md on 2026-11-18 (declutter step 4).
 # DEMO-A U1 probe (build sheet `AssetOpsV1-plan2/.agent/build-sheet-DEMO-COMBINED.md` §3 U1)
 
 Base: main `e19bb687`, branch `task/DEMO-A-combined-dataset`. No product code. Probe scripts were scratch only

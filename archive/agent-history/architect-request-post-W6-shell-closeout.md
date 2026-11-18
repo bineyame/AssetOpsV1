@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-shell-closeout.md on 2026-11-18 (declutter step 4).
 # Architect request: post-W6 shell closeout questions
 
 You are the AssetOps Architect. The shell card (worktree `../AssetOpsV1-review3`, branch `task/post-W6-shell`, head 3f686150) finished its verification batch. Packet: `../AssetOpsV1-review3/.agent/post-W6-shell-packet.md`; recapture: `../AssetOpsV1-review3/.agent/post-W6-shell-recapture/index.md`; governing rulings `.agent/post-W6-shell-rulings.md` (Q1-Q26). Rule on:

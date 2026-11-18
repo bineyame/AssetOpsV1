@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-6-12a-pages-review.md on 2026-11-18 (declutter step 4).
 # Review: task/SR-6-12a-pages (SR-6b Health range page + SR-12a Evidence rejections over the range)
 
 Reviewer: fresh Claude reviewer (did not author). Diff `e8f2bdea5..bbe8cc6fa` (merge-base with main..HEAD), 24 files.

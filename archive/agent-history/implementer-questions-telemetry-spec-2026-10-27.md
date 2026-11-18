@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/implementer-questions-telemetry-spec-2026-10-27.md on 2026-11-18 (declutter step 4).
 # Implementer pre-flight questions, telemetry lane (TEL-00), 2026-10-27
 
 Reviewer role: Lane T builder, read-only. Read: `.agent/build-sequence-2026-10-27.md` (BS), `.agent/build-spec-telemetry-2026-10-27.md` (SPEC), `.agent/telemetry-rulings-2026-10-27.md` (RUL, with both amendments). Checked against the code in `AssetOpsV1-demo-plan` (branch `plan/commercial-capability-assessment`, abb5ab56). Nothing was run; nothing was edited except this file.

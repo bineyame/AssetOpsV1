@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-MB-1b.md on 2026-11-18 (declutter step 4).
 # Review MB-1b: the mill's thread line on the Kobo board's Grow row
 
 - Reviewer: fresh Claude (Opus), independent first review. I did not write this work.

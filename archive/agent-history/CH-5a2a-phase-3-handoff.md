@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a2a-phase-3-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5a2a phase 3 handoff: PARTIAL (stopped near the context limit)
 
 Branch `task/CH-5a2-chain-endpoints`, worktree `AssetOpsV1-ch5a2`. B = `backend/assetops_backend`, F = `frontend/src`.

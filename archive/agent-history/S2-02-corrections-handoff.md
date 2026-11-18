@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-corrections-handoff.md on 2026-11-18 (declutter step 4).
 # S2-02 backend/gateway corrections handoff - Q14, Q15, Q16, Q19 (+Q21) landed; phase 3c next
 
 Branch `task/S2-02-ingestion-site-evidence`. Rulings: `.agent/architect-S2-batch-answers-3.md`. Commits: `94db934` (Q14 + Q19), `5a4a1fa` (Q15), `efceb75` (Q16), `5e84966` (Q21), `0b8eb80` (lazy commit store for the inventory). New questions Q25-Q31 in `.agent/S2-02-questions-5.md` (fail-closed defaults).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S4-04 phase 2 handoff - Site Findings UI, walkthrough, closeout
 
 Branch `task/S4-04-site-finding-index`; final code revision `38c61cfd`, closeout commits after it. Not merged.

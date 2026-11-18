@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/re-review-K4b.md on 2026-11-18 (declutter step 4).
 # K4b re-review (fix round R3j3)
 
 Verdict: ACCEPT. No High or Medium findings.

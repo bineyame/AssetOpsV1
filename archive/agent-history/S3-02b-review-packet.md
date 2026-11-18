@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02b-review-packet.md on 2026-11-18 (declutter step 4).
 # S3-02b review packet: Evidence Analysis selected claim limit UI
 
 Task `tasks/S3-02b-claim-limit-ui.md`; branch `task/S3-02b-claim-limit-ui` from main `8b5d8137` (S3-02a merged). USER_REVIEW_REQUIRED: true; owner walkthrough `.agent/S3-02b-owner-walkthrough.md` before merge or `#b` promotion. Diff: `git diff 8b5d8137..HEAD -- ':!.agent'`.

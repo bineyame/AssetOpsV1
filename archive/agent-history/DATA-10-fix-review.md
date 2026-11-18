@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-10-fix-review.md on 2026-11-18 (declutter step 4).
 # DATA-10 fix review (gate item 2) — ACCEPT WITH NOTES
 
 Reviewed: fix/DATA-10-generator-plan, `git diff 8dbf5a317 HEAD` (d2c4d2658 + 78d45563f packet). Code not edited.

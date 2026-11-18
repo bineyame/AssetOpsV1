@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025e-architect-guidance.md on 2026-11-18 (declutter step 4).
 # T025e Architect guidance: cockpit organisation and playback flicker
 
 Architect pass, 2026-09-30, advisory and read-only. **Produced by Claude**

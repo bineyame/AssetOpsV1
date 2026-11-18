@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-demo-sprint-assessment.md on 2026-11-18 (declutter step 4).
 # Architect request: demo-sprint assessment (owner brief)
 
 You are the AssetOps Architect. The owner's brief, verbatim, is `.agent/owner-demo-sprint-brief-2026-10-25.md` in this worktree. Do exactly what it asks: assessment and planning only, no feature implementation. Write the three documents under `docs/demo-sprint/` (`readiness-assessment.md`, `scenario-options.md`, `five-day-plan.md`). Because your final chat response is not shown to the owner directly, also put the section-12 direct answers (questions 1-10) at the end of `five-day-plan.md` under a heading "Architect recommendation", and end that section with the explicit request for the owner's review before implementing.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02c-architect-closeout-review.md on 2026-11-18 (declutter step 4).
 # S4-02c Architect rulings and registry closeout review
 
 Reviewer: fresh Claude reviewer (did not author the rulings, the registry edit or the report).

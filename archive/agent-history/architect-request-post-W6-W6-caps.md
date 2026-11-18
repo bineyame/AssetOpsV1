@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W6-caps.md on 2026-11-18 (declutter step 4).
 # Architect request: W6-global-Work caps, R356 and clipped list cells
 
 You are the AssetOps Architect. The W6 verification (worktree `../AssetOpsV1-review8`, branch `task/post-W6-W6-global`, evidence commit 6d82f084 under `.agent/post-W6-W6-evidence/`, product f3da6e90) ran the accepted synthetic probe (five rows, every intended text field at exactly 160 chars, asserted; 136 runs) on the real mounted pages. Rulings: `.agent/post-W6-W6-rulings.md` (Q15 caps, Q16 widths). Apply the owner's standing UI bar (`.agent/owner-ui-ux-guidance-2026-10-25.md`; name the pattern) and Lesson 15.

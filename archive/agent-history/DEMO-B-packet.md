@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DEMO-B-packet.md on 2026-11-18 (declutter step 4).
 # DEMO-B review packet (combined-dataset captures, v70 comparison, walkthrough runbook)
 
 Branch `task/DEMO-B-captures` (worktree `AssetOpsV1-demob`, from main `d2e8407e4`). Contract:

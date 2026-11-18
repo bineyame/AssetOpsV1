@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-02-review.md on 2026-11-18 (declutter step 4).
 # S5-02 slice review - Finding list in the Site Overview
 
 Reviewer: fresh Claude reviewer (did not author the slice). Reviewed revision `10e804f8` (head of

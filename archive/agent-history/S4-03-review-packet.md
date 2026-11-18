@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-03 review packet - Finding Evidence and History
 
 **Task:** `tasks/S4-03-finding-evidence-history.md`.

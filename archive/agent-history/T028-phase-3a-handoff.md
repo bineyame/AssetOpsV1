@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-phase-3a-handoff.md on 2026-11-18 (declutter step 4).
 # T028 phase 3a handoff (AC20 built) -> phase 3b (closeout)
 
 Branch `task/T028-dispatch-finding-and-evidence`. Phase 3 build committed

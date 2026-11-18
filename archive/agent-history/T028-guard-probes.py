@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/T028-guard-probes.py on 2026-11-18 (declutter step 4).
 """Mutation probes for the T028 guards. Each mutation must make the check fail;
 every file is restored with git checkout (work is committed first)."""
 import pathlib

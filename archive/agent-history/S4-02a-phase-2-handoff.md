@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02a-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S4-02a phase 2 handoff: reads, Financials UI, Finding bridge, Foundation link
 
 Branch `task/S4-02a-site-assumptions`, commits `408e9e6`..HEAD (`git log 5159b96..HEAD`). Phase 2 is complete; the slice is `in_review`. Packet: `.agent/S4-02a-review-packet.md`. Owner steps: `.agent/S4-02a-owner-walkthrough.md`.

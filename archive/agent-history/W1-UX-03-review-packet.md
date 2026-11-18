@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-03-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-UX-03 review packet - Evidence, Dispatch and Analysis presentation
 
 Task: `tasks/W1-UX-03-evidence-performance.md` (registry IDs `evidence`, `evidence-analysis`, `dispatch`, `analysis`). Branch `task/W1-UX-03`, base main `b4a89314`. Frontend only; no backend, read-contract, classification, provenance or stale/current policy change. Decisions applied: `D-2026-10-16-w1-ux`, `D-2026-10-16-w1-ux-disclosure`; shared API from `.agent/W1-UX-01-handoff.md` (no fork). USER_REVIEW_REQUIRED: fresh independent slice review is the merge gate; owner sees it in the one combined W1 walkthrough (no per-slice walkthrough).

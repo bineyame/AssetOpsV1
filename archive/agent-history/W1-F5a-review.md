@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5a-review.md on 2026-11-18 (declutter step 4).
 # W1-F5a review: Health, Asset, page titles, 390 rail
 
 Reviewer: fresh independent Claude. Reviewed revision: `e84a3294` (code `e0815ac8`), base `4ea6c620`.

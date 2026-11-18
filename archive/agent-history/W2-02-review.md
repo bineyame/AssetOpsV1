@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-review.md on 2026-11-18 (declutter step 4).
 # W2-02 review - cold producer, Lab scenarios, gateway v4, Lab cold setup route, replay
 
 Reviewer: fresh independent Claude reviewer (not the author). Revision reviewed: `8668396f` (code `7b0c9f79`).

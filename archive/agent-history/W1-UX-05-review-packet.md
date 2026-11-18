@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-05-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-UX-05 review packet - Foundation, Readiness, SLD, Health and battery presentation
 
 Task `tasks/W1-UX-05-foundation-health.md` (both phases). Branch `task/W1-UX-05`, base main `815888f0` (UX-01 + S7-01b merged). Frontend only. Reviewer diff: `git diff 815888f0..HEAD -- ':!.agent'`. USER_REVIEW_REQUIRED: owner sees it only in the combined W1 walkthrough; fresh independent review is the merge gate.

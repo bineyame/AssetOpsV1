@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-1-review.md on 2026-11-18 (declutter step 4).
 # PR-1 review (Claude reviewer, 2026-11-12)
 
 Reviewed: `task/PR-1-price-action` head `81c8bd95d`, diff vs merge-base `9fc353736`, against card PR-1 (sequence doc rev 4 l.49-54) and `architect-answer-price-it-2026-11-10.md` §3, §4.1, §5, §7. Packet `.agent/PR-1-packet.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/IDX-GAPS-U1-review.md on 2026-11-18 (declutter step 4).
 # IDX-GAPS U1 review · `finding-index/2` (`analytics/finding_index.py`)
 
 Reviewer: fresh Claude reviewer, 2026-10-31. Revision `abcd8b4e4` on `task/IDX-GAPS-finding-index-v2`, base main `ca6d7d61b`.

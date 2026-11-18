@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-S6-verification-fix-request.md on 2026-11-18 (declutter step 4).
 # Architect fix round - A-S6-verification (review RETURN M1, M2)
 
 You are the AssetOps Architect (Codex). Review `.agent/A-S6-verification-review.md` (RETURN: M1, M2 Medium; L1-L5 Low) of your ruling `.agent/architect-A-S6-verification-answers.md` / `D-2026-10-16-s6-verification`. `.ai/DECISIONS.md` on this branch now also contains `D-2026-10-15-s601-reopen`.

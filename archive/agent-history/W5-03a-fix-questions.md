@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03a-fix-questions.md on 2026-11-18 (declutter step 4).
 # W5-03a fix round: points the rulings do not settle (non-blocking, builder chose the narrowest reading)
 
 1. **Next-evidence sentence for a SCHEDULED window with zero unknown time.** The spec table gives three branches

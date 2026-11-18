@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K5.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K5 fuel screens (Fuel page night mode, fuel Finding page, Fuel checks panel)
 
 Card: `.agent/build-sheet-DIESEL-1.md` §9l.2 (ruling DIESEL-1-R3l), with §9j.7 (K4a wording), §9m/§9m2

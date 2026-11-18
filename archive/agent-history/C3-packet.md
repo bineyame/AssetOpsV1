@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C3-packet.md on 2026-11-18 (declutter step 4).
 # C3 packet: two-tier board gap line (D-E4.6)
 
 - `site_outcomes/mini.py` `finding_gap_line`: a gap day holding any COMPLETE/PARTIAL/LOW grade is counted as

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-plan-rereview.md on 2026-11-18 (declutter step 4).
 # S5-01 plan re-review after fix round 1 (fresh independent Claude reviewer, 2026-10-15)
 
 Subject: `tasks/S5-01-site-overview.md` at `d5984d3a` on `plan/autonomy-2026-10-15`. Prior review: `.agent/S5-01-plan-review.md` (RETURN M1, M2). LR-01 citations were checked at `task/LR-01-late-reading-series-and-money-limit` head `bede75ec`, which has moved on from `17dc2f99`, the head used in the first review.

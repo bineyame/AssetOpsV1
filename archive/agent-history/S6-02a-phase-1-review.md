@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02a-phase-1-review.md on 2026-11-18 (declutter step 4).
 # S6-02a phase 1 review (verification core)
 
 Reviewer: fresh independent Claude reviewer (did not author the slice). Branch reviewed `review/S6-02a-phase-1` at

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-07-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W2-07 pending rulings (implementer, run 1, 2026-10-20)
 
 Raised after spec commit 1 (`0026_w2_ev_money`). R2 blocks commit 2; the others are recorded so the Architect can

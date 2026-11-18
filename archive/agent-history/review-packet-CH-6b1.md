@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-6b1.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-6b1 (estate chain and summary from one composition), lane 1
 
 Branch `task/CH-6b1-estate-chain`, worktree `AssetOpsV1-ch6b1`. Sheet: `AssetOpsV1-plan2\.agent\build-sheet-CH-6.md` (CH6b1-R, CH6b1-R2). Size 2.0 units. USER_REVIEW: none required.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-brief-2026-10-08.md on 2026-11-18 (declutter step 4).
 # Planner brief: S2 refinement (2026-10-08)
 
 Role: Planner (Codex, per `.ai/ROLE_CONFIG.md`). Branch: `task/S2-01a-registered-lab-basis` (cut from main `26d013b`, S1 merged).

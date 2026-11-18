@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-01-followup-request.md on 2026-11-18 (declutter step 4).
 # Architect follow-up - S6-01 plan review M1 and M3 (delegated, owner absent)
 
 You are the AssetOps Architect (Codex). Read `.agent/S6-01-plan-review.md` findings M1 and M3 (and M2 for context), your rulings `.agent/architect-S6-01-answers.md`, `D-2026-10-15-s601-action-store-and-ui`, and how S4-02d's eighth writer was ratified (`D-2026-10-14-s402d-schedule-storage-and-install-gate` in `.ai/DECISIONS.md`; guard `tools/checks/configuration-persistence.ps1:590-700`).

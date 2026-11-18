@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-r1b.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 Q-1b-1..3 (r1b)
 
 Read:

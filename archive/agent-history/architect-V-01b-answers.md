@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-V-01b-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — V-01b questions and C1 (2026-10-13)
 
 This is an Architect ruling on the shipped V-01b choices, not independent visual acceptance. The fresh fix-round-2 review accepted the slice; the owner's visual checkpoint remains mandatory. V-01b changes layout and presentation only: a mock panel, screenshot or Lab-private observation cannot create an accepted Evidence or capability claim.

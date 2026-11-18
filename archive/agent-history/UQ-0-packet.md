@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UQ-0-packet.md on 2026-11-18 (declutter step 4).
 # UQ-0 packet: v7.2 design-foundation sheet (for owner approval, Thursday evening)
 
 Branch `task/UQ-0-v72-sheet` (from main `db447d0e0`). No product code changed.

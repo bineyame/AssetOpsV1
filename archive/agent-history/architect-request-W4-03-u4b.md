@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-u4b.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 unit-4 builder choices and unit-5 dry-read
 
 Read:

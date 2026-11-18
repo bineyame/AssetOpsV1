@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-01-c3r1.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-01 commit-3 review (r1)
 
 Read:

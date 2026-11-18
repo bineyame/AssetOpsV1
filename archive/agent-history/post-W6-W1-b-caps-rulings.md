@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-b-caps-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W1-b synthetic caps
 
 2026-10-25. These rulings amend the W1-b cap gate for the named panels. Evidence is the labelled synthetic layout probe on the mounted W1-b pages at `task/post-W6-W1-b` head `d78c9133`, recorded in `../AssetOpsV1-review7/.agent/post-W6-W1-b-recapture/probe/probe-A.md` and `probe-B.md`, alongside the real captures in its review packet. Synthetic text is layout evidence, not product data. This file grants design authority; it does not assert that the two open cap remedies have been built or accepted in review.

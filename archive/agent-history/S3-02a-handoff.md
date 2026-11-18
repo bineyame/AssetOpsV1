@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-02a-handoff.md on 2026-11-18 (declutter step 4).
 # S3-02a handoff to S3-02b (claim-limit UI and walkthrough)
 
 Branch `task/S3-02a-capability-read`. Non-UI read is built; S3-02b builds the Evidence Analysis S3 section on it.

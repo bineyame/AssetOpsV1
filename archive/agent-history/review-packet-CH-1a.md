@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-1a.md on 2026-11-18 (declutter step 4).
 # Review packet CH-1a: day snapshots, quality grades, evidence class, subjects
 
 - Branch `task/CH-1a-snapshots`, worktree `AssetOpsV1-ch1a`. Main `26f6edcea` (CH-0) is merged in.

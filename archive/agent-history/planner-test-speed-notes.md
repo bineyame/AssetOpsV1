@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-test-speed-notes.md on 2026-11-18 (declutter step 4).
 # OPS-01 backend test speed planning notes (2026-10-14)
 
 - Scope: owner item 1 only. Scheduled after S4-02d, outside W1 scoring. Packet `tasks/OPS-01-backend-test-speed.md` uses a non-T tooling prefix and `Status: planned` to satisfy the workflow guard without implying an S1-S7 product slice.

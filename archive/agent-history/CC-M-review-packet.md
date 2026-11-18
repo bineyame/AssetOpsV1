@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-M-review-packet.md on 2026-11-18 (declutter step 4).
 # CC-M review packet: combined schema slice (owner Q14), migrations 0036 and 0037
 
 Task `tasks/CC-M-combined-schema.md` (Status `in_progress`: phase 1 built; the tier-4 full suites wait for the

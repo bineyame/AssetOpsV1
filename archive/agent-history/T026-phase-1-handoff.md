@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T026-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # T026 phase 1 handoff (contract and gateway, AC1-AC9, AC11-AC12)
 
 Branch `task/T026-dispatch-capable-evidence`, on top of `5fed927`. Commits:

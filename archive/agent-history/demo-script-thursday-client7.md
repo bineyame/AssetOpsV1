@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/demo-script-thursday-client7.md on 2026-11-18 (declutter step 4).
 # Demo script, Thursday 12 November 2026, 14:00 (build E3e, client7)
 
 Refreshed from the client script (DS-1f, branch task/DS-1f-fill 157159d33) and the technical script (DS-1b, branch task/DS-1b-technical 46e468427), which were written against the client4 build (story day 8 Nov). This file is the one to present from today. Every figure and date below was read from the running demo on 12 Nov 2026 between 11:00 and 11:45: the API (127.0.0.1:8990) and the pages as rendered by the web app (localhost:5490). Nothing was written to the database. (Opening the Kobo 11 Nov board, which was not in the prepared list, may have stored one page; no other unlisted page was opened.)

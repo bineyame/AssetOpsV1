@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-02-answers.md on 2026-11-18 (declutter step 4).
 # Architect rulings: S4-02b `fuel-cost-1` upper bound (2026-10-13)
 
 Branch `plan/S4-02-refine`. These rulings answer Q1 in `.agent/planner-S4-02-questions-2026-10-13.md` and C4 in `.agent/S4-02-plan-review.md` together. They refine `D-2026-10-13-s4-bounded-financial-basis`; the addendum below makes the conditional bound and containment rule explicit.

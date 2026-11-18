@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5a-rereview.md on 2026-11-18 (declutter step 4).
 # W1-F5a re-review
 
 Verdict: ACCEPT

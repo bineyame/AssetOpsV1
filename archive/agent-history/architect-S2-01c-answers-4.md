@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-01c-answers-4.md on 2026-11-18 (declutter step 4).
 # S2-01c batched Architect rulings — Codex, 2026-10-09
 
 This answers `.agent/S2-01c-questions-3.md` and `-4.md` and rules on the fresh Claude first review. It is a design/fix-round instruction, not the planned Codex S2-wide review. Material semantics are recorded as `D-2026-10-09-s2-ordered-publication-and-closing-boundary` in `.ai/DECISIONS.md`.

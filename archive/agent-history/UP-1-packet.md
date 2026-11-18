@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UP-1-packet.md on 2026-11-18 (declutter step 4).
 # UP-1 packet (lane F) - client reading upload, Kobo only - server + frontend built (Fri 13 Nov); client4 run pending
 
 Branch `task/UP-1-reading-upload` (worktree `AssetOpsV1-up1`; main 506eae7fc merged in at a77a870bd). Spec: rev 7

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K9.md on 2026-11-18 (declutter step 4).
 # Review packet K9 — Kisiwa checks, then rehearsal
 
 Branch `task/DIESEL-K9-checks-rehearsal` (worktree `AssetOpsV1-k9`). Binding rulings: DIESEL-1-R3q (§9q, main d257bdc68,

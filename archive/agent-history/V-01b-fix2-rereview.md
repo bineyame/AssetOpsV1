@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-fix2-rereview.md on 2026-11-18 (declutter step 4).
 # V-01b fix round 2: fresh Claude re-review
 
 Reviewer: a fresh, independent Claude Reviewer. I did not build the slice, either fix round, or the previous review.

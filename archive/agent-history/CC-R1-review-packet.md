@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-R1-review-packet.md on 2026-11-18 (declutter step 4).
 # CC-R1 review packet
 
 Task: CC-R1, links, claim labels, beneficiary key and the no-double-count check. Lane C. Task file: `tasks/CC-R1-links-labels.md`.

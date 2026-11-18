@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W6-packet.md on 2026-11-18 (declutter step 4).
 # Review packet: post-W6 W6-global-Work (global work lists and work request pages)
 
 Task: the W6 card in `.agent/post-W6-audit/fix-slices.md` (amended), rulings `.agent/post-W6-W6-rulings.md` (Q1-Q21) and

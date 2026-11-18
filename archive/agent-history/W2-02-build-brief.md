@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-build-brief.md on 2026-11-18 (declutter step 4).
 # W2-02 build - cold-chain producer, Lab scenarios, gateway v4 (implementer brief)
 
 Worktree `C:/Users/assef/Bineyame/AssetOpsV1-review2`, branch `task/W2-02-cold-producer` (from main with W2-00, W2-01 merged). Simulator + gateway + host + backend.

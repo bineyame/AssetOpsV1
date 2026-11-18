@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-review.md on 2026-11-18 (declutter step 4).
 # W4-01 independent review (first review): work-case core and thin Site lists
 
 Branch `task/W4-01-work-case-core`, head `afa35e79` (code `0e77205d` plus the packet). I read it through git objects only.

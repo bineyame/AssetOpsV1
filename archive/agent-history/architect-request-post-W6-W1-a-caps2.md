@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W1-a-caps2.md on 2026-11-18 (declutter step 4).
 # Architect request: W1-a caps under synthetic stress
 
 You are the AssetOps Architect. The W1-a fix round (worktree `../AssetOpsV1-review4`, branch `task/post-W6-W1-a`, head 273fac91) ran the accepted synthetic probe (W3 closeout ruling 1 method) on the real s404 `late-stale` Finding page. Evidence: `../AssetOpsV1-review4/.agent/post-W6-W1-a-fix-probe/` and the packet's fix-round section (`.agent/post-W6-W1-a-packet.md`). Caps from `.agent/post-W6-W1-rulings.md`.

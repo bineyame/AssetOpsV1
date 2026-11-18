@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-0c-review.md on 2026-11-18 (declutter step 4).
 # W3-02 0c review (pinned cold/EV/money facades)
 
 Reviewer: fresh Claude reviewer (did not author). Code `750ce929`, handoff `c88ef3f6`, branch

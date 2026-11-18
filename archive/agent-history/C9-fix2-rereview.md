@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C9-fix2-rereview.md on 2026-11-18 (declutter step 4).
 # C9 fix 2 re-review (fresh Claude reviewer)
 
 Verdict: ACCEPT. B1 and C1 closed. No block findings.

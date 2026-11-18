@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K10.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K10 v2 (declared-absent productive use), phase 1 (code and tests)
 
 - Ruling: `.agent/build-sheet-DIESEL-1.md` §9t (DIESEL-1-R3t), binding; owner answer "Build it (Recommended)" in

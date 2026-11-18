@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-review-packet.md on 2026-11-18 (declutter step 4).
 # S6-01a review packet - Action store, controlled application and exact read
 
 Task `tasks/S6-01a-action-store-read.md` (status `in_review`). Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Code-final revision `586d5fe1` after the reopen round below (slice review was on `375c8cf9`; closeout docs after it). Authority `D-2026-10-15-s601-action-store-and-ui` (`.agent/architect-S6-01-answers.md` Q1-Q5, M1-M3). USER_REVIEW_REQUIRED: **false** (non-UI). This phase-2 review is the slice review. Not merged.

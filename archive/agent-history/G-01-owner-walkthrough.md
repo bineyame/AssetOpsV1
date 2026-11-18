@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-01-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # G-01 owner walkthrough: the gateway firmware missing state
 
 ## What changed

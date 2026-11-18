@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b2-addday-renewable-diagnosis.md on 2026-11-18 (declutter step 4).
 # DD-1b2b owed item: why add-day days get no spare-solar assessments (read-only diagnosis)
 
 Clone `assetops_demo3_dd1b2r_test`, read-only sessions (`default_transaction_read_only=on`), no writes, no ticks. `dd1b2p`/`dd1b2q` untouched. Clock at measurement: 2026-11-07 09:17Z.

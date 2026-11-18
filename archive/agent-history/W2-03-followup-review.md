@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-03-followup-review.md on 2026-11-18 (declutter step 4).
 # W2-03 follow-up review (D-2026-10-19-w2-03-followup + Ruling q2)
 
 Reviewer: fresh Claude reviewer, first review. Branch `task/W2-03-followup`, head `a3790b5d`, diff `main...HEAD`.

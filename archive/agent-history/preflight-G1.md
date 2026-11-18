@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/preflight-G1.md on 2026-11-18 (declutter step 4).
 # Pre-flight G1 (`add-dates`) — questions for the Architect
 
 Implementer (Claude), branch `task/OWN-G1-add-dates` from main `60858f6cc`. Read-only; no code written. Spec: build sheet

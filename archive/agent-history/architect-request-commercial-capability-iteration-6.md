@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-commercial-capability-iteration-6.md on 2026-11-18 (declutter step 4).
 # Architect request: commercial capability, final clarifications (iteration 6)
 
 You are the AssetOps Architect. The authority for this task is the owner's final clarifications, word for word, in `.agent/owner-commercial-capability-final-clarifications-2026-10-26.md`. Read all of it and follow it exactly, including what it settles and its section 7 output and stop point.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-codex-review-brief.md on 2026-11-18 (declutter step 4).
 # Reviewer brief: T028 first review (Codex Reviewer, 2026-10-04)
 
 You are the AssetOps Reviewer (Codex; `.ai/ROLE_CONFIG.md`), independent of the

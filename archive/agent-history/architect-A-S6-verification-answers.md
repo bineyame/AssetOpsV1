@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-A-S6-verification-answers.md on 2026-11-18 (declutter step 4).
 # Architect ruling - A-S6-verification
 
 Decision: `D-2026-10-16-s6-verification`. This closes the architecture gate only. S6-02 remains an outline, implementation and owner visual acceptance remain open. This ruling applies `D-2026-10-14-action-lifecycle-and-policy-application` (including its S6-02 paragraph), `D-2026-10-15-s601-action-store-and-ui` and `D-2026-10-15-s601-reopen`.

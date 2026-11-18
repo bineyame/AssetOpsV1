@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-preflight.md on 2026-11-18 (declutter step 4).
 # Post-W6 W1-mini-Action-a / -b: builder pre-flight
 
 Branch `task/post-W6-W1-a` at main `dcf5b086`. Pre-flight only; no product code. Sources: both W1 cards, the

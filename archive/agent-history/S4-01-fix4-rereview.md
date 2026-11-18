@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-fix4-rereview.md on 2026-11-18 (declutter step 4).
 # S4-01 fix round 4 re-review (fresh Claude reviewer)
 
 Produced by a fresh Claude reviewer that did not author S4-01 or any of its fix rounds. Scope: `3fccb72..HEAD`

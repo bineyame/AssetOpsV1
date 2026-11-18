@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/re-review-K9-pre.md on 2026-11-18 (declutter step 4).
 # Re-review: DIESEL-K9 pre-rehearsal (delta since 6b3b5faa5)
 
 Reviewer: fresh Claude delta re-reviewer, independent of the builder. No DB, no prepare, no full suite, no code edited. Mutations ran on a `git archive` copy of HEAD outside the repo.

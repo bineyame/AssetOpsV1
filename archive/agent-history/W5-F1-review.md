@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-F1-review.md on 2026-11-18 (declutter step 4).
 # W5-F1 review: D3 corrections R22, R37, R38
 
 Reviewer: fresh independent Claude (Opus), 2026-10-23. Branch `task/W5-F1-d3-corrections` at `2552fd65`, diff `main...task/W5-F1-d3-corrections`.

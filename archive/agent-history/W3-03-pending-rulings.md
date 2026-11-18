@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W3-03 pending rulings
 
 ## P-0b-1 — RESOLVED (r0b applied: `excursion` + drain, cold line assertions added) — B3 clean fixture: cold `normal` makes no POTENTIAL_PRODUCT_EXPOSURE line (run 0b, stopped variant)

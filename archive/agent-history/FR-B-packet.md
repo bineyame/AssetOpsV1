@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FR-B-packet.md on 2026-11-18 (declutter step 4).
 # FR-B test hygiene (lane A) - packet
 
 Branch `task/FR-B-test-hygiene` (worktree AssetOpsV1-frb), from main adf869b08. Test hygiene only; no product code changed.

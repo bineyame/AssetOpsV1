@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b2b-rehearsal-handoff.md on 2026-11-18 (declutter step 4).
 # DD-1b2b rehearsal handoff (step 6 done, self-check failed; steps 7-9 NOT done)
 
 Prepare ran once at HEAD `1dd70bc78`: DB `assetops_demo3_dd1b2_test`, work `var/demo3_dd1b2` (both kept). Started 11:17:41Z, ended 12:17:27Z, exit 1 (SELF-CHECK FAILED). No process is running; keep-awake PID 23468 (started by this builder, watches a dead PID, exits by itself) and the Docker Postgres are all that remain. Nothing in the repo changed after the prepare started. Logs (scratchpad `...\f4febd4c-9675-4106-956a-a7689855586a\scratchpad\`): `rehearsal-prepare.log`, `rehearsal-mem.log`, `rehearsal-mem2.log` (30 s RAM samples; the first monitor was replaced at 11:30Z because it looked at the top-level logs folder only, which is quiet during Kobo runs; the second covers 11:30Z to the end), `rehearsal-start.txt`, `rehearsal-end.txt`.

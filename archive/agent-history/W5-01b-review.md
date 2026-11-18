@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01b-review.md on 2026-11-18 (declutter step 4).
 # W5-01b review (C4 cold scenarios backend + C5 cold Scenarios page)
 
 Reviewer: fresh independent Claude reviewer, 2026-10-22. Did not author any of this work.

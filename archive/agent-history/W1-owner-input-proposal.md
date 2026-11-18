@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-owner-input-proposal.md on 2026-11-18 (declutter step 4).
 # W1 owner input proposal — revised 27 screens / 64 panels
 
 Recorded outcome: the owner confirmed this revised W1 target on 2026-10-11 in `.agent/owner-W1-confirmation-2026-10-11.md`. The registry now holds 27 W1 screens, 64 proposed panel paths and exact owner core/demo values. Panel mapping review and delivery remain open; the proposal text below preserves the recommendation and its boundary reasoning.

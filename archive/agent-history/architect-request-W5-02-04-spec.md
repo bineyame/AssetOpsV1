@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02-04-spec.md on 2026-11-18 (declutter step 4).
 # Architect/Planner request: W5-02 (cold Work tabs) and W5-04 (EV Work) build specs
 
 You are the AssetOps Architect and Planner (Codex). Read:

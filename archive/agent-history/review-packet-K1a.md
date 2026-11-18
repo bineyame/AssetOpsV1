@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K1a.md on 2026-11-18 (declutter step 4).
 # Review packet K1a: `mini-grid` v7, the tank-level signal
 
 - Ruling: DIESEL-1-R3 §9.2 (`.agent/build-sheet-DIESEL-1.md`, commit `b5b3e7f03`). Branch `task/DIESEL-K1a-minigrid-v7`, worktree `AssetOpsV1-k1a`, from main `b5b3e7f03`.

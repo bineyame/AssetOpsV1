@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T026-review-packet.md on 2026-11-18 (declutter step 4).
 # T026 review packet - Dispatch-capable evidence
 
 Task `tasks/T026-dispatch-capable-evidence.md` (Status `in_review`).

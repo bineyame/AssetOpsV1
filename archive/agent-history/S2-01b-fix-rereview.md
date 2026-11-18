@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S2-01b fix round 1 re-review
 
 Produced by a fresh Claude reviewer (did not author the slice or the fix).

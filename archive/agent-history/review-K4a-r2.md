@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K4a-r2.md on 2026-11-18 (declutter step 4).
 # K4a re-review (round 2): ACCEPT
 
 Scope: M1, L1 (B11), B10, main merge. Commits eb62b1555, 80328f3e5, 83d7f2ef7 against 979c9da3e.

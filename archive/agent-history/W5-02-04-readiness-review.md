@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02-04-readiness-review.md on 2026-11-18 (declutter step 4).
 # W5-02 / W5-04 build-spec readiness review
 
 Reviewer: fresh independent Claude reviewer, 2026-10-22, read only on `main` at `59c2ca89`.

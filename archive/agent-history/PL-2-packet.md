@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PL-2-packet.md on 2026-11-18 (declutter step 4).
 # PL-2 packet: pre-build Portfolio lens variants (D-E5.23)
 
 Branch `task/PL-2-lens-prebuilt` (from main 862c4577f).

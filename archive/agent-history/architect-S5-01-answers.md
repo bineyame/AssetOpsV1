@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S5-01-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer - S5-01 Finding choice (2026-10-15)
 
 **Accept with a boundary clarification.** For the selected half-open UTC day, use the latest recorded FindingRevision of each tenant/Site-scoped canonical Finding in the same fenced S3/S4 basis. An episode intersects only when `episode_start < day_end` and `episode_end > day_start`; a boundary touch alone does not qualify. Exclude IDs superseded by an S4 merge, but do not filter candidates by lifecycle, consequence state, price, amount or money eligibility. Choose the greatest `episode_start`, breaking ties by the lexicographically smallest stable Finding UUID. Return the rule, Finding ID and exact revision ID; the card describes only that Finding, never a Site sum.

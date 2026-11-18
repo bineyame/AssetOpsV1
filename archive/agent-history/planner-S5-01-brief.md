@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S5-01-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief — refine S5-01 Site Overview (selected window)
 
 You are the AssetOps Planner (Codex). The Architect's work order (`.agent/architect-autonomy-2026-10-15-answers.md`, decision `D-2026-10-15-owner-absence-work-order`) puts S5-01 next after LR-01 and asks you to refine it now. Refine `tasks/S5-01-site-overview.md` (currently a 38-line outline) into an implementation-ready packet on this branch (`plan/autonomy-2026-10-15`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-gap-planning`). No code. The coordinator commits.

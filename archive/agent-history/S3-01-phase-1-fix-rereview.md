@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-1-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 1 fix round 1: re-review
 
 Reviewer: a fresh Claude reviewer. Commit reviewed: 733ea8d (only that commit).

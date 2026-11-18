@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-06-r5.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-06 run-5 implementer readings (r5)
 
 You are the AssetOps Architect. Read `.ai/ROLE_CONFIG.md` ("Mockup drives the design; implementers never decide", "Token Efficiency"), `.agent/W2-06-build-spec.md` (all rulings through q4), and `.agent/W2-technical-design-ev.md`. Branch `task/W2-06-ev-assessment` commits `ef408a1b`, `3a48dc45` and `d556b02c` contain the code in question (`git show <sha>`).

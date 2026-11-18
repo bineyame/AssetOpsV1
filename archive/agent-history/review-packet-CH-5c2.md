@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5c2.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-5c2 (store safety) - branch `task/CH-5c2-store-safety`
 
 Spec: `AssetOpsV1-plan2\.agent\build-sheet-CH-5c.md` §8.6-§8.7; pre-flight `.agent/CH-5c2-preflight.md`;

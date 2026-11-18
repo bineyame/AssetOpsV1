@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C1-packet.md on 2026-11-18 (declutter step 4).
 # C1 review packet: Portfolio lifecycle cutoff (D-E4.2)
 
 Branch `task/E4-C1-portfolio-lifecycle-cutoff`, from main 1f40cca0d. Spec: build sheet "E4 stop rulings", D-E4.2 Fix.

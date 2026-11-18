@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W4-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W4-mini
 
 2026-10-25. Authority: `.agent/post-W6-W4-preflight.md` against main `ba971d96`, current code checked for decision error codes, Site time formatting, Work refusals and Site tabs. These are implementation rulings, not completed D3s or owner acceptance. Apply the owner's UI bar in `.agent/owner-ui-ux-guidance-2026-10-25.md`; the v6.9 mock remains the layout reference. D2 items below are proposals pending owner review.

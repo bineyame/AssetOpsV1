@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-3a-review.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3a + dispatch-3.1 review (fresh Claude reviewer)
 
 Reviewer: a fresh Claude reviewer (independent; did not author phase 3a or dispatch-3.1).

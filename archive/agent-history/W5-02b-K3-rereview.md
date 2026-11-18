@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-K3-rereview.md on 2026-11-18 (declutter step 4).
 # W5-02b K3a + K3b re-review (cold Incidents and Maintenance tabs)
 
 Reviewer: fresh independent Claude reviewer, 2026-10-24. Branch `task/W5-02b-K3-cold-cases`, reviewed at `6cd7f733`, then at `5352c035` (ruling 25), per the coordinator. The review is against `.agent/W5-02b-K3-review.md` (`a0e7d88f`, M1-M3, L1-L5, items 1-7) and build-spec K3 rulings 17-25.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04-V2b-handoff.md on 2026-11-18 (declutter step 4).
 # W5-04 V2b handoff — EV Work Actions producer-backed captures (1440/390)
 
 Branch `task/W5-04b-ev-work-ui`. It merges `task/W5-04a-fix` at `3a100f2f` (merge commit `c3487ce3`) on top of the

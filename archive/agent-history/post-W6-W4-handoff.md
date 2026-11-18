@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W4-handoff.md on 2026-11-18 (declutter step 4).
 # post-W6 W4-mini handoff (unit 5 partial)
 
 Branch `task/post-W6-W4-mini` (worktree `AssetOpsV1-review9`). Main 4d51df61 merged (174a2401). Binding:

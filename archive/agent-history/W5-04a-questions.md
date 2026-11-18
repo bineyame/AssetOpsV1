@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04a-questions.md on 2026-11-18 (declutter step 4).
 # W5-04a V1a/V1b builder questions (against main f7761b28)
 
 Builder, 2026-10-24. Raised under the dispatch rule "if anything is unclear or contradicts the merged code, stop and

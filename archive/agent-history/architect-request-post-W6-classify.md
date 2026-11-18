@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-classify.md on 2026-11-18 (declutter step 4).
 # Architect request: classify the post-W6 audit and plan the fix slices
 
 You are the AssetOps Architect. Read `.agent/post-W6-audit-spec.md` (your plan), `.agent/post-W6-audit/agent-brief.md`, `.ai/ROLE_CONFIG.md` lesson 15, and the register `.agent/mock-departure-register.md`. The audit is complete: 19 batch folders `.agent/post-W6-audit/batch-01` … `batch-19`, each with `batch-NN.md` (ledger), `batch-NN.json`, `differences.json` (some batches keep differences only in the .md), `index.html` and screenshots. Every disposition in those ledgers is an agent PROPOSAL; you decide. Implementer decisions are defects; you decide every one.

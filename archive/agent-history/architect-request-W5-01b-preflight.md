@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01b-preflight.md on 2026-11-18 (declutter step 4).
 # Architect request: rule on the W5-01b pre-flight batch (C4–C5)
 
 You are the AssetOps Architect (Codex). Read:

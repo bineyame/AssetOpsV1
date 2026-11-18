@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-request-OPS-03.md on 2026-11-18 (declutter step 4).
 # Planner + Architect request: OPS-03 (run the full suite inside the Docker network)
 
 You are the AssetOps Planner and Architect. Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-commit3-rereview.md on 2026-11-18 (declutter step 4).
 # W3-02 commit-3 re-review (r1 fix round)
 
 Head `cfa428ccdbcf2479f1aee3c9e8afa1f8e5c0e0ec`; fix commits `f4242856` and `8ad9d842` (plus a main merge). Read via git objects only. Tests were not rerun; verified by diff reading against the r1 rulings.

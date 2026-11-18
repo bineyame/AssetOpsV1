@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S3-01 owner walkthrough: Performance > Dispatch
 
 What this shows: for one chosen day, whether Kobo's generator was needed, possibly avoidable, or cannot be determined, and which accepted records each answer rests on. It runs on a private copy of the reviewed dispatch-case data. Your own servers and databases are not touched.

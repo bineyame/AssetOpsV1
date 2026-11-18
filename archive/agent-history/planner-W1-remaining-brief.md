@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W1-remaining-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - refine S6-03, S7-01 and S3-02
 
 You are the AssetOps Planner (Codex). Refine three outline packets into implementation-ready packets on branch `plan/W1-remaining-packets` in this worktree: `tasks/S6-03-site-work-list.md`, `tasks/S7-01-site-health.md`, `tasks/S3-02-claim-limit-follow-up.md`. No code; the coordinator commits.

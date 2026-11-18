@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-pre-S3-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S2 leftovers and pre-S3 contracts (2026-10-09)
 
 S2-02 is merged at `82ba6cd` and V-01 is owner-adopted. These are Architect decisions, not a second S2 review or a new owner acceptance. **No separate owner ruling is needed**: inform the owner of the rotation follow-up and the S3 activation gates; the confirmed strategy already reserves the later owner core-panel/demo-value choice.

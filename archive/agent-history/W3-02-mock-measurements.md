@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-mock-measurements.md on 2026-11-18 (declutter step 4).
 # W3-02 v69 mock measurements: `globalevidence`, `globalfinancials` (2026-10-20)
 
 These are measured mock pixels, not caps. They feed the `.agent/W3-02-build-spec.md` "1440/390 panel budget" section and close its "pre-review browser measurement of the mock DOM" for the mock side. The app side is still measured at commits 2 and 4.

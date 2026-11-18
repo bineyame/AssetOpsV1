@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-LR-01-answers.md on 2026-11-18 (declutter step 4).
 # Architect answers: LR-01 source-time cohort and money limit (2026-10-15)
 
 Authority: `tasks/LR-01-late-reading-series-and-money-limit.md` Q1-Q4, `D-2026-10-14-s402c-late-sequence-and-s5-money`, `.agent/architect-S4-02c-answers.md`, and `.agent/S4-02c-review.md` F1.

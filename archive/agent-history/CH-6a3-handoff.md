@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6a3-handoff.md on 2026-11-18 (declutter step 4).
 # CH-6a3 handoff 2 (PARTIAL, builder 2 stopped at the context limit)
 
 Branch `task/CH-6a3-composers`. Binding: `.agent/CH-6a3-preflight.md` + CH6a3-R. `git merge main` NOT done.

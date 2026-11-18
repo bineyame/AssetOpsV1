@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c4q4.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 c4-q4 (Aggregation panel still over its cap)
 
 Read `.agent/W3-02-build-spec.md` (c4), `.agent/W3-02-pending-rulings.md` c4-q4, and the v69 `globalfinancials` mock, including its CSS for the Aggregation panel prose.

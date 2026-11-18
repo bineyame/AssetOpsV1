@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/COV-PARTIAL-preflight.md on 2026-11-18 (declutter step 4).
 # COV-PARTIAL pre-flight (one batch)
 
 Worktree `AssetOpsV1-covp`, branch `task/COV-PARTIAL-estate-coverage` at `0796218fc`, clean. No code written yet.

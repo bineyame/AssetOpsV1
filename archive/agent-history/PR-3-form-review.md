@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PR-3-form-review.md on 2026-11-18 (declutter step 4).
 # PR-3 review: server fix round + form half (Reviewer, Claude, 2026-11-12)
 
 Branch `task/PR-3-price-entry`, head `d4c0935c0`, worktree `AssetOpsV1-pr3`. Scope: (a) `d66bf933e..fc67edd70`

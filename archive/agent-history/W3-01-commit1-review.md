@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-commit1-review.md on 2026-11-18 (declutter step 4).
 # W3-01 commit-1 unit review (shared public provenance DTO + cross-lane compatibility)
 
 Reviewer: fresh Claude reviewer (did not author). Worktree `AssetOpsV1-review2`, branch

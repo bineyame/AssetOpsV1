@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-06-rereview.md on 2026-11-18 (declutter step 4).
 # W2-06 re-review (fresh Claude) at dcc43b64
 
 ## Verdict: ACCEPT (two Low notes, none blocking)

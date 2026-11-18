@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-02-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S5-02 owner walkthrough - Finding list in the Site Overview
 
 What you are checking: on a Site's Overview page, the "Findings" panel now lists the Findings for the selected day

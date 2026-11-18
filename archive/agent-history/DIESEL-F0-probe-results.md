@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DIESEL-F0-probe-results.md on 2026-11-18 (declutter step 4).
 # DIESEL-F0: Kisiwa fuel-events probe, evidence
 
 Ruling: DIESEL-1-R2 §8.3 with §8.2a (`.agent/build-sheet-DIESEL-1.md`, dc72cb72a). Branch

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S7-01a-review-packet.md on 2026-11-18 (declutter step 4).
 # S7-01a review packet - Site source-health and battery boundary reads
 
 Task `tasks/S7-01a-health-read.md`; branch `task/S7-01a-health-read` from main `8b5d8137`. Non-UI;

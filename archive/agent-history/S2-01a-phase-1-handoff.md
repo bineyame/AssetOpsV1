@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01a-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S2-01a phase 1 handoff: selection and freeze
 
 Branch `task/S2-01a-registered-lab-basis`. Commits: `ce65b8d` (code), `fabbfc2` (tests, plus a typed refusal for an unparseable Site row), `f1b78bd` (run read reports the basis). Phase 1 is complete. Phase 2 is next.

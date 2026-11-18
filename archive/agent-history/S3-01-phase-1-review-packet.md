@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-1-review-packet.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 1 review packet - `I-sim-dispatch-cases` (phases 1a + 1b)
 
 Task: `tasks/S3-01-dispatch-assessment.md`, phase 1 ("Role vocabulary and fixture"). Status stays `active`; this phase gets a fresh Claude review before phase 2. USER_REVIEW_REQUIRED for the task: true (owner checkpoint is at task close, not this phase).

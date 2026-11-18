@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S5-01-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round 1 - S5-01
 
 You are the AssetOps Planner (Codex). Amend `tasks/S5-01-site-overview.md` on `plan/autonomy-2026-10-15` in this worktree. No code; the coordinator commits.

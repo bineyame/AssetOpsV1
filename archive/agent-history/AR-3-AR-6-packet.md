@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/AR-3-AR-6-packet.md on 2026-11-18 (declutter step 4).
 # AR-3 + AR-6 packet (ANY-2 core): Portfolio coverage on rows; board work lists in one read
 
 Branch `task/ANY-2-AR3-AR6` (worktree `AssetOpsV1-ar3`) from `task/ANY-1-rows` `b1ca93b83`. Card: sequence

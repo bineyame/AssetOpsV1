@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-02-q5.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-02 q5 (run-6 readings)
 
 Read `.agent/W4-02-build-spec.md` (q1–q4) and `.agent/W4-02-phase-handoff.md`, the "Run 6" section, which lists 5 readings.

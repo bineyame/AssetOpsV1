@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6b1-r3r4-handoff.md on 2026-11-18 (declutter step 4).
 # CH-6b1 fix round R3+R4: PARTIAL handoff (stopped at the context budget)
 
 Branch `task/CH-6b1-estate-chain`, main merged (R3/R4 rulings). Env helper (recreate): PYTHONPATH absolute worktree

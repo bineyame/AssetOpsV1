@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5b1.md on 2026-11-18 (declutter step 4).
 # Review packet CH-5b1: graph check, budget guard, hard-wiring ratchet
 
 - Unit: CH-5b1 (1.5 units, lane 2), build sheet `build-sheet-CH-5b.md` "Build units" + rulings **CH5b1-R** (Architect 14).

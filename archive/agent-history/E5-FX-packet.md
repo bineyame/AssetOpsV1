@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/E5-FX-packet.md on 2026-11-18 (declutter step 4).
 # E5-FX packet
 
 Branch `task/E5-FX-actor-label-links`. Spec: D-E5.3 (part A), D-E5.4 (part B) in build-sheet-OWN-GAPS-2026-11-08.md.

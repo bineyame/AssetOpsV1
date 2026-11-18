@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01b-q3.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-01b Q-C5c-1/2 and the remaining 503 Low
 
 You are the AssetOps Architect (Codex). Read the latest Run entry in `MSYS_NO_PATHCONV=1 git show task/W5-01b-cold-scenarios:.agent/W5-01b-phase-handoff.md` (head `ffc444c5`), "W5-01b build rulings (Q-C5b)" in `.agent/W5-01-build-spec.md`, the mock-fidelity rules and "W3/W4 lessons" in `.ai/ROLE_CONFIG.md` (spec literals must be checked against the real guards), `tools/checks/shell-overflow.ps1` rule 5, and the v69 `cold-scenarios` mock.

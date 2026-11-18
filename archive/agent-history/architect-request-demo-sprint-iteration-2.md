@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-demo-sprint-iteration-2.md on 2026-11-18 (declutter step 4).
 # Architect request: demo-sprint iteration 2 (scenarios)
 
 You are the AssetOps Architect. Your first-pass documents are `Docs/demo-sprint/{readiness-assessment,scenario-options,five-day-plan}.md`. The owner has responded; read verbatim:

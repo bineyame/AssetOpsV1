@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-demo-sprint-iteration-4.md on 2026-11-18 (declutter step 4).
 # Architect request: demo-sprint iteration 4 (three per vertical minimum; mini-grid depth)
 
 You are the AssetOps Architect. Read verbatim `.agent/owner-demo-sprint-feedback-3-2026-10-25.md`, plus the earlier owner files (`owner-demo-sprint-brief-2026-10-25.md`, `owner-demo-sprint-answers-2026-10-25.md`, `owner-demo-sprint-feedback-2-2026-10-25.md`). Key correction: **the minimum of three scenarios is per vertical** (mini-grid, cold chain, EV), so at least nine — not three in total. Selection reasoning in the African buyer context remains the most important content.

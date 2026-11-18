@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-G-02-brief.md on 2026-11-18 (declutter step 4).
 # Architect brief: G-02 questions batch (2026-10-13)
 
 Role: Architect (Codex). Branch `task/G-02-v01a-gap-pilot` (HEAD `c85b435`). G-02 built; fresh Claude review in progress; owner walkthrough next. Do not edit code or commit. Write only `.agent/architect-G-02-answers.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F3-review.md on 2026-11-18 (declutter step 4).
 # W1-F3 findings + money: independent review
 
 Reviewer: fresh Claude reviewer (not the author). Revision reviewed: `a5e961fc`. The last code commit is `d79a9705`. Base: `4002b1ad` (merge-base with main).

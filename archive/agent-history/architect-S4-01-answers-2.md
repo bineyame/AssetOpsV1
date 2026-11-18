@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-01-answers-2.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S4-01 phase-1 fix-round rulings (2026-10-12)
 
 Q10–Q15 are ruled below under `D-2026-10-12-s4-finding-phase-1-fix-clarifications`. These are phase-2 read and phase-3 presentation instructions, subject to the independent fresh Claude re-review of the phase-1 fix; they do not accept that fix round.

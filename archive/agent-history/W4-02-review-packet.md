@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-review-packet.md on 2026-11-18 (declutter step 4).
 # W4-02 review packet (mini-grid depth: renewable, service, fuel, backup)
 
 Contract `.agent/W4-02-build-spec.md` (closures 1-5, Run 1-11 rulings q1-q11). Handoff `.agent/W4-02-phase-handoff.md`

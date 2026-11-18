@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/OUT-A-golden-equality.py on 2026-11-18 (declutter step 4).
 """OUT-A2/A3 golden proof (ruling A-Q6): every regenerated fixture equals its `main` blob once every `categories`
 key is deleted. Run from the repository root with the backend venv:  python .agent/OUT-A-golden-equality.py
 

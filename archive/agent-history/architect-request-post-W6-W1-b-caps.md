@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W1-b-caps.md on 2026-11-18 (declutter step 4).
 # Architect request: W1-b caps over under synthetic stress
 
 You are the AssetOps Architect. W1-b (worktree `../AssetOpsV1-review7`, branch `task/post-W6-W1-b`, head d78c9133; packet `.agent/post-W6-W1-b-packet.md`; probes `.agent/post-W6-W1-b-recapture/probe/probe-A.md`, `probe-B.md`) ran the accepted labelled synthetic probe (W3 closeout ruling 1). Rule per Lesson 15 (worst case, all-open exemption, fallback; never hide rows or silently truncate):

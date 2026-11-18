@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-01-review.md on 2026-11-18 (declutter step 4).
 # FIX-01 final review (estate two revisions)
 
 Reviewer: fresh Claude Reviewer, 2026-10-31. Branch `task/FIX-01-estate-two-revisions` @ 8c3f69ba, against main 9ebb3d1c.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F3-merge-review.md on 2026-11-18 (declutter step 4).
 ﻿# W1-F3 merge review (5ed3162b + cceb882b)
 
 Verdict: ACCEPT

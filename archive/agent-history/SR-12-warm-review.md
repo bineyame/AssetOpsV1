@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-12-warm-review.md on 2026-11-18 (declutter step 4).
 # Review: task/SR-12-warm-routes (SR-12 warm routes + SR-12b + D-SR.74 fix round)
 
 - Reviewer: fresh Claude reviewer, 2026-11-13. Head e3b7dbe18, base 21db0dc4a (merge-base with main).

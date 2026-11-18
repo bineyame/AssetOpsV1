@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05b-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W2-05b phase handoff - run 7 (q5 applied; commit 5 part 1 built; manifests blocked on Q26-Q31)
 
 Branch `task/W2-05b-ev-producer`, worktree `AssetOpsV1-review5`. Not merged. main merged in (q5 rulings).

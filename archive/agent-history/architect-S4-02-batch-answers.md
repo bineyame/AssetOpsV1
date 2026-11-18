@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-02-batch-answers.md on 2026-11-18 (declutter step 4).
 # Architect rulings: S4-02 batch (2026-10-14)
 
 Authority: `D-2026-10-13-s4-bounded-financial-basis`, the S4-02a/b packets and fresh reviews. S4-02a/b and the conditional owner checkpoint remain accepted; these rulings identify follow-on work and the precise registry boundary.

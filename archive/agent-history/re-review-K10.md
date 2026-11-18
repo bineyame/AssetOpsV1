@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/re-review-K10.md on 2026-11-18 (declutter step 4).
 # Re-review K10 v2 phase-1 fix round (R3t3)
 
 Verdict: ACCEPT. Findings: none (no High, Medium or Low).

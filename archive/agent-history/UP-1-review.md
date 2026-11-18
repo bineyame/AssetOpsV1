@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/UP-1-review.md on 2026-11-18 (declutter step 4).
 # UP-1 review (fresh Claude Reviewer, 2026-11-13)
 
 Branch `task/UP-1-reading-upload`, head `b5ccd7e40`, diff `git diff 482e25a06 HEAD` (merge base with main; main since

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02b-review-packet.md on 2026-11-18 (declutter step 4).
 # S6-02b review packet - Action verification surfaces
 
 Task `tasks/S6-02b-verification-ui.md` (Status `in_review`, USER_REVIEW_REQUIRED true: slice review, then owner

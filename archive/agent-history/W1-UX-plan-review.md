@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-plan-review.md on 2026-11-18 (declutter step 4).
 # W1-UX plan review (fresh independent Reviewer, 2026-10-16)
 
 Scope: plan review of `tasks/W1-UX-mockup-fidelity.md` and `tasks/W1-UX-01..05` at `fec27edd` (diff `fec27edd~1..fec27edd`), against the owner notes named in the brief, `.agent/planner-W1-ux-brief.md`, v69 `index.html`/`screen-manifest.json`, current code at `fec27edd`, and the unmerged branches `task/S6-03-site-work-list`, `task/S6-02b-verification-ui`, `task/S7-01b-health-ui`. Nothing built; no suites run. The two Architect questions are being ruled separately; neither recommendation is unsafe, so I make no comment on them beyond finding 1 (which concerns the vocabulary map, not Q2).

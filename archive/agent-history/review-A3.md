@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-A3.md on 2026-11-18 (declutter step 4).
 # Review: FUEL-1 A3, idle fuel on Kobo's screens and story
 
 - Reviewer: fresh Claude (Opus), independent first review. I did not write or edit any of this slice.

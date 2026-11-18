@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-04-q3.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-04 source contact mapping (2026-10-18). Brief; edit `.agent/W2-04-build-spec.md` in place; amend `D-2026-10-18-w2-04-buildspec`. No code.
 
 W2-04 commit 3 (five read APIs) needs the source contact mapping, which the spec leaves open. Implementer's provisional (do not let it stand unruled): a source-specific diagnostic contact maps to RECENT/STALE by the existing gateway freshness rule evaluated against the selected window end; a source the diagnostic names with no contact -> NEVER; anything else -> UNKNOWN.

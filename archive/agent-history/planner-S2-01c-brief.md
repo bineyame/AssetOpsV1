@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-01c-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: refine S2-01c (2026-10-09)
 
 Role: Planner (Codex). Branch: `task/S2-01c-gateway-diagnostics-faults`, cut from `task/S2-01b-durable-simulated-gateway` at `08712e7` (S2-01b built, Codex first review, fix rounds and fresh Claude re-reviews accepted; not yet merged to main).

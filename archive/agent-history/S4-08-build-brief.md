@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-08-build-brief.md on 2026-11-18 (declutter step 4).
 # S4-08 build - implementer brief
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review`, branch `task/S4-08-assumption-history` (from main `e46bbd7c`). Touch no other worktree. Ports: per the packet, else API 8968 / web 5468; private DB prefix per the packet (`assetops_s408*`).

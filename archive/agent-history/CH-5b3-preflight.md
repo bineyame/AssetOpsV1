@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5b3-preflight.md on 2026-11-18 (declutter step 4).
 # CH-5b3 pre-flight (Implementer, lane 1, branch `task/CH-5b3-why-ui` from `417a19efb`)
 
 Scope read: build sheet CH-5b3 entry + SCOPE-1 (binding) + CH5b2-R/R2; mock `frontend/mockups/v70/index.html:411-444`

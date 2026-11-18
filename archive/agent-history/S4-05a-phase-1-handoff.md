@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05a-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S4-05a phase 1 handoff - admission authority and immutable binding
 
 Branch `task/S4-05a-provenance-binding-resolver` (worktree `AssetOpsV1-review3`), from main `fd7afd2c`.

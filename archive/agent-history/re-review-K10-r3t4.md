@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/re-review-K10-r3t4.md on 2026-11-18 (declutter step 4).
 # Re-review K10 R3t4 (e6604ebf4..51c037445)
 
 Verdict: **ACCEPT**. No High or Medium findings.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CO-10-fix-packet.md on 2026-11-18 (declutter step 4).
 # CO-10 fix packet: NOT FIXED, ruling premise does not match the data
 
 No code changed, no commit.

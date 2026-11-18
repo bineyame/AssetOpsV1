@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-final-review-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 final whole-diff review
 
 Authority: `.agent/architect-request-post-W6-final-review.md`, `.agent/post-W6-final-review-findings.md`, the post-W6 rulings, and `frontend/docs/architecture/ui-ux-decision-guide.md`. These are build decisions for one bounded fix round before full recapture and the owner walkthrough. They do not record review or owner acceptance.

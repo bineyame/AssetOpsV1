@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LINK-LINEAGE-packet.md on 2026-11-18 (declutter step 4).
 # LINK-LINEAGE review packet
 
 Task `tasks/LINK-LINEAGE-board-action.md` (in_review). Branch `task/LINK-LINEAGE-board-action`, worktree

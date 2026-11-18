@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DATA-17N-gate.md on 2026-11-18 (declutter step 4).
 # DATA-17N gate (STOPPED at prepare: SELF-CHECK FAILED)
 
 - Branch task/DATA-17N-coverage; `git merge main` clean (no conflicts).

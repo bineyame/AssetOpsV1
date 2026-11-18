@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-01-W3-01-closure2.md on 2026-11-18 (declutter step 4).
 # Architect request: close the remaining spec items for W4-01 and W3-01 (closure 2)
 
 You are the AssetOps Architect. Read:

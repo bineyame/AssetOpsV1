@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S2-01c phase 1 handoff — ledger correctness and diagnostics
 
 Branch `task/S2-01c-gateway-diagnostics-faults`. Phase 1 complete (AC1, AC2, gateway half of AC3). Packet placement put the F2/F3 UI carry in phase 3, so it was not touched. Design defaults: `.agent/S2-01c-questions-1.md` (Q1-Q5, fail-closed; awaiting Architect, none blocks phase 2).

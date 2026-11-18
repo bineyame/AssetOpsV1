@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S4-04 owner walkthrough - Site Findings index (`sitefindings:1#a/#b`)
 
 What you are accepting: Site > Findings for an imported Site lists the persisted Findings that overlap a chosen

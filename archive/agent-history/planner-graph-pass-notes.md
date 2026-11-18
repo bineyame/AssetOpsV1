@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-graph-pass-notes.md on 2026-11-18 (declutter step 4).
 # Graph pass notes for checker Implementer and independent Reviewer (2026-10-11)
 
 The Planner changed the registry, panel contract, packets and queue. No product code or delivery-report script was edited. The current report is non-authoritative until the changed paths and score behavior receive independent review.

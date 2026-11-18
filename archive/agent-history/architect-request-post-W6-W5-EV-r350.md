@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-W5-EV-r350.md on 2026-11-18 (declutter step 4).
 # Architect request: R350 scope for non-domain (W1) Action IDs
 
 W5-EV-Work (branch `task/post-W6-W5-EV-work`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-review10`, head 12ec40c3) built R350 per `.agent/post-W6-W5-rulings.md` ruling 4 and the pre-flight Q2 answer (`.agent/post-W6-W5-EV-preflight.md`): Action section routes `/plan`, `/execution`, `/history`, `/evidence` under a cold or EV Site now show "Page not available / This address is not served" with no read and no redirect. See the packet `.agent/post-W6-W5-EV-packet.md` (residual risk) in that worktree.

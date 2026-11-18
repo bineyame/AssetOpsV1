@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01d-h1.md on 2026-11-18 (declutter step 4).
 # Architect request: W6-01d review H1 — classify two departures
 
 You are the AssetOps Architect (Codex). Read H1 in `MSYS_NO_PATHCONV=1 git show task/W6-01d-request-history:.agent/W6-01d-review.md`, the C4 rulings in `.agent/W6-01-build-spec.md`, the departure rule in `.ai/ROLE_CONFIG.md`, `.agent/mock-departure-register.md`, and the v69 `wr-history` mock.

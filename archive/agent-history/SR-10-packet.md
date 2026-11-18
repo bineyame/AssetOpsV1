@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-10-packet.md on 2026-11-18 (declutter step 4).
 # SR-10 packet: SR-10/11 shared core + SR-10b Fuel range server (lane K)
 
 Branch `task/SR-10-fuel-range` from main bbec56c26. Spec: rev 10b.1-10b.3, rev 10d.4 (D-SR.45 Q-J1), D-SR.31-33/36.

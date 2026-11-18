@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-final-review.md on 2026-11-18 (declutter step 4).
 # W4-02 final independent review: mini-grid depth
 
 - **Branch:** `task/W4-02-mini-grid-depth`, head `7f3a0ab6`. The captures are at `b065ee8d`; the only change after that is the packet and evidence commit.

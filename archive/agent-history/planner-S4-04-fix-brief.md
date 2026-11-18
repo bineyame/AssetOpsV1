@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-04-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round 1 - S4-04
 
 You are the AssetOps Planner (Codex). Amend `tasks/S4-04-site-finding-index.md` (and `tasks/README.md`, `backend/TESTING.md` references only as packet text) on `plan/S4-04-refine` in this worktree. No code; the coordinator commits.

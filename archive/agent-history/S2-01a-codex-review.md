@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01a-codex-review.md on 2026-11-18 (declutter step 4).
 # S2-01a independent review — 2026-10-08
 
 Reviewer: Codex, independent first review. Target: `task/S2-01a-registered-lab-basis` through `145ca18` against `26d013b`. Verdict: **ACCEPT WITH CARRIES**. No blocking finding.

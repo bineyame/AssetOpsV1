@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-phase-1-review.md on 2026-11-18 (declutter step 4).
 # LR-01 phase 1 — independent review
 
 Reviewer: fresh Claude reviewer (did not author the work). Worktree `AssetOpsV1-review`, branch `review/LR-01-phase-1` at `445f3d18`; diff `ad2a96d0..445f3d18`.

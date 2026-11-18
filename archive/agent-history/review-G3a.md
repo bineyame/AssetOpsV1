@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-G3a.md on 2026-11-18 (declutter step 4).
 # Review: OWN-G3a, saving operational records from the screen (backend)
 
 Reviewer: fresh Claude (Opus) reviewer, independent of the builder. Branch `task/OWN-G3a-operational-entry-api`,

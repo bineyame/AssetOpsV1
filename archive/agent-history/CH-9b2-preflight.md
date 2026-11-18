@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-9b2-preflight.md on 2026-11-18 (declutter step 4).
 # CH-9b2 pre-flight (Implementer, 2026-11-05, branch `task/CH-9b2-mill-plan` from main `92f95effb`)
 
 Scope read: build sheet CH-9b2 unit, §1 R1-R2, §2 P2-P3, CH9b1-R (CH-9b2 bullets), CH9b1-R2, SCOPE-1; owner P1.

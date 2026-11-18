@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-F-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W2-F phase handoff
 
 Branch `task/W2-F-structural-fixes` (from main `7cfcb751`). W4-03 merges before W2-F; `navigation-truthfulness.ps1`

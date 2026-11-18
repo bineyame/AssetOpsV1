@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025f-claude-review.md on 2026-11-18 (declutter step 4).
 # T025f review - Template versioning and site lineage staleness (S0)
 
 Reviewer: Claude. This is a fresh reviewer instance that did not author the slice.

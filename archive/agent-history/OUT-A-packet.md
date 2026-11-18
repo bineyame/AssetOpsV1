@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-A-packet.md on 2026-11-18 (declutter step 4).
 # OUT-A review packet: category labels and links
 
 Task `tasks/OUT-A-category-labels.md`. Branch `task/OUT-A-category-labels`, cut from main `287a63a7`, main `cbc32703` merged in at ``8b4c52dc``. Contract: build spec `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-spec-outcome-sprint-2026-10-29.md` rev 2 §0, §1.1-1.3, Slice A, "Pre-flight rulings A", addendum 1 and addendum 2. Pre-flight: `.agent/OUT-A-preflight.md`.

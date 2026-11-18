@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-06-build-brief.md on 2026-11-18 (declutter step 4).
 # W1-UX-06 build - implementer brief (PHASE 1 NOW)
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review3`, branch `task/W1-UX-06` (from main `a9b3b297`: UX-01/03/04/05 and S4-08 merged; W1-UX-02 still building in `AssetOpsV1-review` - do not touch it). Run `npx.cmd`/`npm.cmd` through PowerShell. `.venv` junction to the main venv; backend tests on a private `*_test` DB (`docker exec assetopsv1-postgres-1 createdb -U assetops <name>`; drop afterwards); set PYTHONPATH to this worktree; `ASSETOPS_GUARD_PYTHON` = main venv python. Keep-awake is running.

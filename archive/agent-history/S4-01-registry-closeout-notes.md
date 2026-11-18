@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-registry-closeout-notes.md on 2026-11-18 (declutter step 4).
 # S4-01 registry closeout notes
 
 Branch closeout/S4-01-registry. File: frontend/docs/architecture/v69-dependency-registry-pilot.json.

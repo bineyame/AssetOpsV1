@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/T026-guard-probes.py on 2026-11-18 (declutter step 4).
 """Guard probes: each mutation must make its named test fail; files restored by git."""
 import subprocess, sys
 ROOT = 'C:/Users/assef/Bineyame/AssetOpsv1'

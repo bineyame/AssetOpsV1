@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-03-q3.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-03 deviations 16 and 18 (2026-10-18). Brief; amend `D-2026-10-18-w2-03-answers`; edit `.agent/W2-03-build-spec.md` in place. No code.
 
 From `.agent/W2-03-review-packet.md` (copied from branch task/W2-03-cold-assessment). Deviation 1 (work window) was already confirmed in q2 - just restate.

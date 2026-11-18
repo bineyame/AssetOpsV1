@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-whole-diff.md on 2026-11-18 (declutter step 4).
 # Whole-diff review: client-demo POLISH round (§5 PC)
 
 Reviewer: fresh Claude reviewer (did not author any slice). Diff: `git diff 83918ac00...84a2914ab` in

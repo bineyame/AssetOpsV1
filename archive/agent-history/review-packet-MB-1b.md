@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-MB-1b.md on 2026-11-18 (declutter step 4).
 # Review packet MB-1b: the mill's thread line on the Kobo board's Grow row
 
 - Task: FUEL-1 MB-1b, as ruled in `.agent/build-sheet-FUEL-1.md` "MB-1-R" §1 Q2/Q3/Q6 and §3 (the MB-1b card), amended by "MB-1a-R2" §1 (no policy -> no line; policy via `BoardServices.thread_policy`).

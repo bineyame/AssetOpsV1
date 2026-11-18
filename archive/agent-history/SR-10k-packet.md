@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-10k-packet.md on 2026-11-18 (declutter step 4).
 # SR-10k review packet: Kisiwa fuel-check nights over the date range (0.25 u)
 
 Branch `task/SR-10k-kisiwa-fuel-nights` (merged main e5a033a3b). Spec: architect sequence rev 10b.4 "SR-10k", 10c (IN), 10d.3 (Fuel R via SR-10k); D-SR.34, D-SR.37, D-SR.45 (J1 `window_days`).

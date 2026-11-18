@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-02-review.md on 2026-11-18 (declutter step 4).
 # G-02 fresh Claude review (V-01a mock-gap pilot)
 
 Reviewer: fresh independent Claude (did not author G-02). Branch `task/G-02-v01a-gap-pilot`, HEAD `c85b435`, diff `42bd74d..c85b435`. Judged against `tasks/G-02-v01a-gap-pilot.md`, `.agent/architect-G-01-answers.md` (C5, C7) / `D-2026-10-13-g01-placement-and-orphan-scan-boundary`, G-01 carries C1/C6/C9 (`.ai/MILESTONE_REVIEW_BACKLOG.md`), the V-01a round-3 Addendum, and `.ai/WORKFLOW.md` review rules (raise only expensive-to-reverse defects, misleading claims, owner-only decisions).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5b2.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-5b2 Why-trace (lane 1)
 
 Branch `task/CH-5b2-why-trace` (merged `main` in at `79cb6dbc8`, CH-5b1 guards included). Rulings: CH5b2-R at the end of

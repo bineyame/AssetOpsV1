@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-01-questions-request.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-01 build questions + pre-check W2-02/W2-03 against code (2026-10-17)
 
 You are the AssetOps Architect (Codex). The W2-01 implementer stopped before coding: `.agent/W2-01-build-questions.md`. Owner rule: implementers make no design choice. Token-efficient; edit in place.

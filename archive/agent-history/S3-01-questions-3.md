@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-questions-3.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3a questions (batched; each has its fail-closed default built)
 
 1. **Q9: F3 fix changes the `dispatch-3` cohort rule without a model-version bump.** The default cohort is now `AMBIGUOUS` whenever one source reports under two or more sequence epochs inside a UTC window, whether or not their spans overlap. Before, successive epochs were treated as one stream. The reason is that central evidence cannot tell a reprovisioned gateway from a labelled fixture placed beside ordinary evidence. Explicit selection still works. The model version stays `dispatch-3` because nothing has been released or cut over (table amended: `backend/tests/dispatch_3_decision_table.md`, "Successive epochs").

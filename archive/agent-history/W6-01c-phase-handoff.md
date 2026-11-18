@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01c-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W6-01c phase handoff (C1 read, C2 overview, C3 record)
 
 Branch `task/W6-01c-request-overview` from main `d5f6ee76` (W6-01a merged; W6-01b B1-B3 ruled, not built).

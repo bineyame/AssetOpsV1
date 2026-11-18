@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-WD-1.md on 2026-11-18 (declutter step 4).
 # Review: WD-1 money wording (BL-48)
 
 Reviewer: Claude (fresh, independent first review). Branch `task/FUEL-WD1-money-wording`, commits e73ef9ef0 (code) and c979da22a (packet). Spec: WD-1-R in `.agent/build-sheet-FUEL-1.md` (c1db80094), BL-48 in `.agent/backlog-post-demo.md`.

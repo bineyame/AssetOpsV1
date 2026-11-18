@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-deferred-match-handoff.md on 2026-11-18 (declutter step 4).
 # S4 deferred-match fix - handoff
 
 Branch `fix/S4-deferred-match` (worktree `AssetOpsV1-review4`), not merged. Brief `.agent/S4-deferred-match-brief.md`.

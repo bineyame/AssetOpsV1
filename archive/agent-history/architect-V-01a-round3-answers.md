@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-V-01a-round3-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — V-01a round 3 rulings (2026-10-12)
 
 This is one fix round under the owner's feedback in `.agent/owner-V-01a-round2-feedback-2026-10-12.md`. Keep the existing Foundation/Readiness/SLD routes, selected `at` and `component` semantics, and the configuration-versus-Evidence boundary. No new backend model or mock value is authorized.

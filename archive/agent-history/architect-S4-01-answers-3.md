@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-01-answers-3.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S4-01 phase-2 rulings (2026-10-12)
 
 Q16–Q20 below refine the Finding read and phase-3 UI under `D-2026-10-12-s4-finding-phase-2-read-boundaries`. The fresh Claude phase-2 review is still pending; this does not accept the read implementation or authorize the S4-01 owner checkpoint early.

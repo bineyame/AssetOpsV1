@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a1-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5a1 phase 2 handoff - PARTIAL (wiring landed at 8d9cda125; tests not yet adapted)
 
 Authority unchanged: build sheet Part A (incl. §A12) + pre-flight §1/§2/§6. Phase 1 handoff: `CH-5a1-phase-1-handoff.md`.

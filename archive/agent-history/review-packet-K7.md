@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K7.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K7-D (Kisiwa story days, build phase)
 
 Branch `task/DIESEL-K7-kisiwa-story`. Card: build sheet §9l.3, amended by §9m.5 (R3m) and §9n.3 (R3k2).

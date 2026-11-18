@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F2-overview-review-packet.md on 2026-11-18 (declutter step 4).
 ﻿# W1-F2-overview review packet
 
 Task: W1 structural fidelity rework F2 (`mini`, `dispatch`, `analysis`, `evidence`, `evidence-analysis`). The contract is `D-2026-10-17-mockup-layout-spec` (`.agent/architect-W1-fidelity.md`) and the brief is `.agent/W1-F2-overview-build-brief.md`. Branch `task/W1-F2-overview`, stacked on W1-F1 `2a5d4869`. Frontend only. Not merged.

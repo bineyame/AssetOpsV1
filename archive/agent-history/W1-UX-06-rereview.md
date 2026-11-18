@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-06-rereview.md on 2026-11-18 (declutter step 4).
 # W1-UX-06 re-review (fix round 1)
 
 Reviewer: a fresh, independent Claude reviewer who did not author the slice or the fix. Revision under review: `85c3a9c5`. Diff: `678901f0..85c3a9c5` (5 files: the walkthrough, the packet's "Fix round 1" section, `SiteActionVerification.tsx`, its test, and `tools/checks/test_evidence_checks.mjs`). Worktree: `AssetOpsV1-review5`, detached.

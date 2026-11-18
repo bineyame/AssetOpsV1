@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-05-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round 1 - S4-05
 
 You are the AssetOps Planner (Codex). Amend `tasks/S4-05-stored-demo-provenance.md` (and `tasks/README.md`, registry) on `plan/stored-demo-provenance` in this worktree. No code; the coordinator commits.

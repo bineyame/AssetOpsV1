@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-02 review packet - cold causal producer and public replay
 
 Task: `tasks/W2-02-cold-producer.md`. Binding spec: `.agent/W2-02-build-spec.md` (`D-2026-10-17-w2-02-buildspec`,

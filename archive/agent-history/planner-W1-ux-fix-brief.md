@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W1-ux-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round - W1 UX plan (plan review RETURN + Architect D-2026-10-16-w1-ux)
 
 You are the AssetOps Planner (Codex), branch `plan/W1-ux-pass` in this worktree. Edit the packets only (no code): `tasks/W1-UX-mockup-fidelity.md` and `tasks/W1-UX-0*.md`.

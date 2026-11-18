@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-01-q8.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-01 q8 (commit 5 guard conflicts and registry)
 
 Read:

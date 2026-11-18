@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S4-03 owner walkthrough: a Finding's Evidence and History
 
 This walkthrough shows three things. You can open the records one exact version of a Finding cites, and follow one record to its stored original message. You can list every version of the Finding and see how a late reading added a new version without changing the old one. You can go back to an old version's evidence after a reload.

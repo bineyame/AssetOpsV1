@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-phase3-review.md on 2026-11-18 (declutter step 4).
 # S4-03 phase 3 + closeout - fresh Claude review
 
 Reviewer: fresh Claude (did not author phases 1-3 or the closeout). Branch `task/S4-03-finding-evidence-history`, HEAD `37212de`, diff `26b5e7a..37212de`. No code was edited.

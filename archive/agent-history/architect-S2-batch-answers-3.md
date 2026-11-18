@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S2-batch-answers-3.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S2-02 phase-3 batch rulings (2026-10-09)
 
 These are Architect contract decisions, not owner acceptance or a review verdict. The owner need not decide Q13–Q20: the choices follow the recorded S2 cutover, credential and honest-evidence boundaries. The owner still reviews S2 Evidence at the packet checkpoint.

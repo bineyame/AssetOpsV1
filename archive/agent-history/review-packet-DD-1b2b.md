@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-DD-1b2b.md on 2026-11-18 (declutter step 4).
 # Review packet: DD-1b2b (rehearsal finish, steps 7-9)
 
 Branch `task/DD-1b2-finish-rehearsal`. Rulings: DD1b2-R6..R12 in `.agent/build-sheet-DD-1.md`. Rehearsal state: `.agent/DD-1b2b-rehearsal-handoff.md`. EX-1 results: `.agent/DD-1b2b-rehearsal.json` (two runs; the first is marked "invalid read form (R11 §2)").

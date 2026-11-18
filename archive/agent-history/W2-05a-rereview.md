@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05a-rereview.md on 2026-11-18 (declutter step 4).
 # W2-05a re-review (Run 8 fix round)
 
 Reviewer: fresh Claude reviewer. Branch `task/W2-05a-ev-foundation`, head `164a1d1a`; scope is the r1 findings, judged against build spec "Run 8 rulings" and `git diff 3992b6e1..164a1d1a`.

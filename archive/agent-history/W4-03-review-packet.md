@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-review-packet.md on 2026-11-18 (declutter step 4).
 # W4-03 review packet - mini-grid decisions and work connection
 
 Task: `tasks/W4-03-mini-decisions-work.md` (Lane A, step 2; USER_REVIEW_REQUIRED: true at the W4 owner checkpoint).

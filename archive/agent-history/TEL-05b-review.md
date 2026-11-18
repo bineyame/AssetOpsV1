@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-05b-review.md on 2026-11-18 (declutter step 4).
 # TEL-05b review (independent Claude reviewer, 2026-10-28)
 
 Branch `task/TEL-05b-finding-money-withheld` at `4430f65c`, diff `git diff main...HEAD`. Authority: build spec section TEL-05b and sections J/K/L, `.agent/TEL-05b-questions.md` (Q1-Q3 and the Q3 addendum), rulings amendment 2 (N1 replaced, owner Q5) and amendment 3 items 8-9.

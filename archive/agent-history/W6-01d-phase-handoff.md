@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01d-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W6-01d phase handoff (C4 request History)
 
 Branch `task/W6-01d-request-history`, cut from main `c8978edf` (includes W6-01a). No code was written.

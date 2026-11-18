@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-A-review.md on 2026-11-18 (declutter step 4).
 # OUT-A review: category labels and links
 
 Reviewer: a fresh Claude reviewer (not the author). Branch `task/OUT-A-category-labels` at `7b826e97`, compared with main `cbc32703` (main is merged in at `8b4c52dc`). Diff: `git diff cbc32703...HEAD`.

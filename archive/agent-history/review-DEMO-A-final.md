@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-DEMO-A-final.md on 2026-11-18 (declutter step 4).
 # Review: DEMO-A final round (combined three-Site demo dataset)
 
 Reviewer: fresh Claude reviewer (did not author the slice). Date 2026-10-31.

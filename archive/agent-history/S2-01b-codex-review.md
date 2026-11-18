@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-codex-review.md on 2026-11-18 (declutter step 4).
 # S2-01b Codex first review
 
 **Target:** `task/S2-01b-durable-simulated-gateway` at `bb09554`, diff from `85a11c4`.

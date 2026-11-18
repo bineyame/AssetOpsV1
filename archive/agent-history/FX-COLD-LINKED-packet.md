@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-COLD-LINKED-packet.md on 2026-11-18 (declutter step 4).
 # FX-COLD-LINKED review packet
 
 Task: DS-1f ruling D-E5.8 (build sheet OWN-GAPS, "DS-1f anomaly rulings (2026-11-10)", commit 12b5b37f1).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-F-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W2-F pending rulings
 
 Questions for the Architect. Builders record; they do not decide.

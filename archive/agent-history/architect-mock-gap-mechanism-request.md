@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-mock-gap-mechanism-request.md on 2026-11-18 (declutter step 4).
 # Architect request: mock gap closure mechanism (2026-10-12)
 
 Owner request and proposal (verbatim context): `.agent/owner-mock-gap-mechanism-2026-10-12.md`. Codex rule: one pass.

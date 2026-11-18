@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-registry-closeout-review.md on 2026-11-18 (declutter step 4).
 # S4-01 registry closeout review
 
 Reviewer: fresh Claude reviewer (did not author the closeout). Target: branch closeout/S4-01-registry, commit e2c190c. Not fixed, merged or committed.

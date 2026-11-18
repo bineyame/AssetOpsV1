@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T027-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # T027 phase 1 handoff
 
 Phase 1 (Commit, ingestion, Site > Evidence, tab rule, `/` redirect) is built,

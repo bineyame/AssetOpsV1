@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-fix-rereview.md on 2026-11-18 (declutter step 4).
 # V-01a fix round 1 re-review (fresh Claude reviewer)
 
 Produced by a fresh Claude reviewer that did not author V-01a. Target: `46d28c8..3379f0b` on `task/V-01a-foundation-visual`.

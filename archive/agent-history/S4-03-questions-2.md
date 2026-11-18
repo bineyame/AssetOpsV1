@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-03-questions-2.md on 2026-11-18 (declutter step 4).
 # S4-03 questions batch 2 (phase 3 closeout, 2026-10-13)
 
 For the Architect. Each question has the fail-closed default that is built, so none blocks the owner walkthrough.

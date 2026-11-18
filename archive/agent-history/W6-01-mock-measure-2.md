@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01-mock-measure-2.md on 2026-11-18 (declutter step 4).
 # W6-01 mock measurement 2 (v69 mock, headless Chrome, 2026-10-22)
 
 Run by the closure-check reviewer on `AssetOpsV1-plan2` (W6-01 spec files identical at `37ad9ba8` and HEAD `f938516f`). One Chrome at a time, all closed afterwards (process count 0 after every run). This closes the measurement the spec section 4 said was still required, except where "not measurable" is stated.

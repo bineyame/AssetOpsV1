@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-E-packet.md on 2026-11-18 (declutter step 4).
 # OUT-E review packet - cost check after the generator trial
 
 Task `tasks/OUT-E-cost-proof.md` (in_review, USER_REVIEW_REQUIRED: false). Branch `task/OUT-E-cost-proof`, from main

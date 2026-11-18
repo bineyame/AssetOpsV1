@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-rereview.md on 2026-11-18 (declutter step 4).
 # W2-02 re-review (fix round, ce03733e)
 
 Verdict: ACCEPT. No High or Medium findings.

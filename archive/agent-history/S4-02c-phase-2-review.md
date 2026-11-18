@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02c-phase-2-review.md on 2026-11-18 (declutter step 4).
 # S4-02c phase 2: fresh Claude review (scoped drain and run plan)
 
 Reviewer: fresh Claude (did not build this). Branch `task/S4-02c-evidence-consequence-work`. Diff reviewed:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025e-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # T025e phase 1 handoff: data path (AC1-AC3)
 
 Branch `task/T025e-cockpit-organisation-and-live-playback`. Commits:

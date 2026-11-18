@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-lane-a-adapter-contract.md on 2026-11-18 (declutter step 4).
 # W3-01 Lane A adapter contract (shared `source_provenance`)
 
 From Lane B, branch `task/W3-01-estate-claim-action-roots` at `2951b66c` (commit-1 core `1c409a3d`, completion

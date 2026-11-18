@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05a-review-packet.md on 2026-11-18 (declutter step 4).
 ﻿# W2-05a review packet (EV Foundation)
 
 Branch `task/W2-05a-ev-foundation`. Spec: `.agent/W2-05a-build-spec.md` (`D-2026-10-18-w2-05-buildspec`); rulings Q1-Q8, QA-QP and the run-7 wording closure applied (see `.agent/W2-05a-phase-handoff.md`). Not merged to main.

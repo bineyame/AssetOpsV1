@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-mapping-questions.md on 2026-11-18 (declutter step 4).
 # Planner mapping questions and fail-closed defaults (2026-10-11)
 
 No owner or Architect decision is needed for this bounded mapping pass; the Architect's batched Q1–Q9 rulings govern it.

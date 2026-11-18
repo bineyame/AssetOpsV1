@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-R2-review-packet.md on 2026-11-18 (declutter step 4).
 # CC-R2 review packet: Portfolio placement (D5) and the estate producer case
 
 Task `tasks/CC-R2-placement.md`. Branch `task/CC-R2-placement`, branched from CC-R1 head `71aa1fea`. The contract is

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W6-01-spec.md on 2026-11-18 (declutter step 4).
 # Planner + Architect request: W6-01 Global work cases build spec
 
 You are the AssetOps Planner and Architect.

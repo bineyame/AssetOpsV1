@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05-plan-rereview.md on 2026-11-18 (declutter step 4).
 # S4-05 plan re-review (after fix round 1)
 
 Reviewer: fresh Claude, independent of the Planner (Codex) and of the first reviewer. Date: 2026-10-15.

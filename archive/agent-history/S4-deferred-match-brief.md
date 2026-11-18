@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-deferred-match-brief.md on 2026-11-18 (declutter step 4).
 # Fix - deferred matcher clusters must not read as matched (root cause of S4-04 H1 and S5-01 exposure)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `fix/S4-deferred-match` (from main; contains the evidence files `.agent/S5-01-deferred-cluster-check.md` and `.agent/S4-04-phase-1-review.md`). S4-04 phase 2 builds in `AssetOpsV1-review` (it is adding an index-side guard for the same H1); touch no other worktree.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-DD-1b2b.md on 2026-11-18 (declutter step 4).
 # Review: DD-1b2b (rehearsal finish, O1 link fix, drain, finish rows, after tool, EX-1)
 
 Reviewer: fresh Claude (Opus), independent first review. Branch `task/DD-1b2-finish-rehearsal` at `455a08fd6`, diff `main...HEAD` (main has DD-1b2a at `29efab1d0`). Spec: DD1b2-R6 to R12 in `.agent/build-sheet-DD-1.md`. I did not edit code, write to any DB, tick, prepare, or run a suite.

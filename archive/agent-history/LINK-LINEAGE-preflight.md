@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LINK-LINEAGE-preflight.md on 2026-11-18 (declutter step 4).
 # LINK-LINEAGE pre-flight (build sheet §8)
 
 Checklist results (worktree `C:\Users\assef\Bineyame\AssetOpsV1-link`, branch `task/LINK-LINEAGE-board-action`):

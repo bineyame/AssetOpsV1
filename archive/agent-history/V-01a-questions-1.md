@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-questions-1.md on 2026-11-18 (declutter step 4).
 # V-01a questions, batch 1 (Implementer, 2026-10-12)
 
 Each question has a fail-closed default that is already built. Nothing here blocks review.

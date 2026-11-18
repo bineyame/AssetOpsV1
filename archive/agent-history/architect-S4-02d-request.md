@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-02d-request.md on 2026-11-18 (declutter step 4).
 # Architect request: S4-02d storage and guard amendment ratification (2026-10-14)
 
 Role: Architect (Codex), branch `plan/S4-02c-architect`. The S4-02d packet `tasks/S4-02d-analytic-finding-worker-schedule.md` (after plan fix round 1; plan review `.agent/S4-02d-plan-review.md` M1) proposes migration 0013 schedule tables (heartbeat/cursor/claim), `backend/assetops_backend/scheduling/adapters/postgres_schedule_store.py` as the eighth PostgreSQL writer, and a scoped amendment to architecture guard rule 8 in `tools/checks/configuration-persistence.ps1`. Notes: `.agent/planner-S4-02d-notes.md` "For the Architect batch".

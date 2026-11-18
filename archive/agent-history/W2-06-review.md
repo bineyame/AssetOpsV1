@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-06-review.md on 2026-11-18 (declutter step 4).
 # W2-06 review (independent first review, Claude)
 
 Branch `task/W2-06-ev-assessment`, head `5f90c3a6`, against `main...HEAD`. Reviewed against `tasks/W2-06-ev-assessment.md`,

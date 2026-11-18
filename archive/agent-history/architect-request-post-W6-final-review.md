@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-post-W6-final-review.md on 2026-11-18 (declutter step 4).
 # Architect request: rulings on the final whole-diff review findings
 
 All 11 post-W6 fix cards are merged (main 5f71f6c9). An independent whole-diff review of `git diff 8b6ef3ed 5f71f6c9` (product code) found 3 Medium and 11 Low items, full text in `.agent/post-W6-final-review-findings.md`. Nothing High; security and backend clean. Rulings context: `.agent/post-W6-*-rulings.md`, `frontend/docs/architecture/ui-ux-decision-guide.md` (owner standing bar: state-of-the-art UI/UX within demo speed), backlog `.ai/MILESTONE_REVIEW_BACKLOG.md` "Post-W6 follow-ups" (a)–(i).

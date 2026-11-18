@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-review.md on 2026-11-18 (declutter step 4).
 # S6-01b slice review - Action, recommendation and change surfaces
 
 Reviewer: fresh Claude reviewer (did not author S6-01b or its phase-1 review). Worktree `AssetOpsV1-review4`, branch `review/S6-01b-slice` at `48c96648`; slice diff `c341599b..48c96648` (stacked on unmerged S6-01a). Commits after the final code revision `15d156d1` were verified as docs only (`.agent/*`, `.ai/*`, `tasks/S6-01b-action-ui.md`).

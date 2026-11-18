@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-contest-2026-10-14d-answers.md on 2026-11-18 (declutter step 4).
 # Architect answer: 0.54% next-work contest (2026-10-14)
 
 ## Decision under owner delegation

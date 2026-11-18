@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-04-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W2-04 phase handoff - Run 9 (Run-8 rulings applied; recapture and suites remain)
 
 ## Run 8 rulings applied (commits f0da723c, 7372c264, e6be9a82 on top of 6fb1aaf7)

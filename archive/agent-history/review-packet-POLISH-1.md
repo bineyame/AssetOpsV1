@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-POLISH-1.md on 2026-11-18 (declutter step 4).
 # Review packet: OWN-POLISH-1
 
 Branch `task/OWN-POLISH-1` from main `575c13222`. Worktree `AssetOpsV1-polish1`. No product decisions were needed.

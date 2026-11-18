@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-6-packet.md on 2026-11-18 (declutter step 4).
 # SR-6 packet (lane I) — SR-6a server
 
 Branch `task/SR-6-health-range`. Spec: rev 10 §10.2, rev 10a §10a.1, D-SR.19-23 (rev 10b/10c: no SR-6a change). Merged main cdd65115c and 9afb0bcee and lane H's

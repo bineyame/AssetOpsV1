@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-final-review.md on 2026-11-18 (declutter step 4).
 # W3-02 final review (whole slice, before merge)
 
 Branch `task/W3-02-estate-evidence-money-basis`, head `5fe9d4b2`. Read through git objects. The tests ran in a private

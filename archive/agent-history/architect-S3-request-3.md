@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S3-request-3.md on 2026-11-18 (declutter step 4).
 # Architect request: S3-01 phase-3a questions (2026-10-11)
 
 Owner routing (verbatim, 2026-10-11): "codex usage optimizaion is important, so keep the same arragment for S2 going forward" — batched Codex questions.

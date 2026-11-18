@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S2-01c phase 2 handoff — selectable delay and fault fixtures
 
 Branch `task/S2-01c-gateway-diagnostics-faults`. Phase 2 complete (AC4, the phase-2 half of AC3/AC5, Architect Q4 correction). Design defaults: `.agent/S2-01c-questions-2.md` (Q1-Q5, fail-closed; none blocks phase 3).

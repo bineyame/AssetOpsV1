@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K6c.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K6c (Assure fuel count, summary claim count, 5 guard modules)
 
 Ruling: `.agent/build-sheet-DIESEL-1.md` §9u (DIESEL-1-R3u, main 886341aff), items U2 (A1), U3 (L2), U6 (guard modules) and §9u.2 order.

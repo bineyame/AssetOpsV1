@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-F-final-review.md on 2026-11-18 (declutter step 4).
 # W2-F final review: W2 structural corrections
 
 Reviewer: independent Claude reviewer (did not author any W2-F unit). Branch `task/W2-F-structural-fixes`, head

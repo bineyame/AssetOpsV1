@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5b1-preflight.md on 2026-11-18 (declutter step 4).
 # CH-5b1 pre-flight (guards and tools)
 
 Builder: Claude (Opus), 2026-11-05. Branch `task/CH-5b1-guards-tools` from main `8777bc0f8`. Paths: `B/` =

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-reopen-handoff.md on 2026-11-18 (declutter step 4).
 # S6-01a reopen round handoff - `D-2026-10-15-s601-reopen`
 
 Code `586d5fe1` on `task/S6-01a-action-store-read`. Packet section "Reopen round" in `.agent/S6-01a-review-packet.md`.

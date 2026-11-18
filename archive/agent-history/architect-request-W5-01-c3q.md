@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01-c3q.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-01a C3 builder questions (Q-C3-1..4)
 
 You are the AssetOps Architect (Codex). Read `.ai/ROLE_CONFIG.md`: "Mockup drives the design", the new "Both Architects ... check every screen-affecting spec ... against the v69 mock" rule, and "Token Efficiency". Read the C3 card in `.agent/W5-01-build-spec.md`, including your retrospective, and the v69 `cold-health` screen in `frontend/mockups/v69/index.html` and `screen-manifest.json`.

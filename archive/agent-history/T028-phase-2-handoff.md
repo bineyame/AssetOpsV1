@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # T028 phase 2 handoff (screens) -> phase 3
 
 Branch `task/T028-dispatch-finding-and-evidence`. Phase 2 committed

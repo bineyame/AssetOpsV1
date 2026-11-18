@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-prereq-lows-rereview.md on 2026-11-18 (declutter step 4).
 # W3-01 prerequisite Lows + q7-1 re-review of 381cf1a2 (read via git objects only; no tests run)
 
 Verdict: ACCEPT. No High or Medium findings.

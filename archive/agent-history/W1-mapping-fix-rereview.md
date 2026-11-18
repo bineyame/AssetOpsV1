@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-mapping-fix-rereview.md on 2026-11-18 (declutter step 4).
 # W1 mapping fix round re-review (fresh Claude reviewer, 2026-10-11)
 
 A fresh Claude reviewer produced this re-review. It did not author the mapping, the original review, or the fix. Scope: commit `9ae48ef` on `plan/pre-S3-startup` (base `69d6c12`), judged against `.agent/W1-mapping-review.md` (B1-B3, "Residual risk") and `.agent/architect-batch-answers-5.md`. No branch switch, no repo edit, no commit.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CC-R2-questions.md on 2026-11-18 (declutter step 4).
 # CC-R2 questions for the Architect (Lane C)
 
 Branch `task/CC-R2-placement`. Owner rule: no isolated design decisions. Everything else in CC-R2 is built. Each

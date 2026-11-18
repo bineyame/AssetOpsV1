@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-MV-1.md on 2026-11-18 (declutter step 4).
 # Review MV-1: mill dollars on the verdict page (first review)
 
 - Reviewer: fresh Claude (Opus), independent of the builder. 2026-11-07.

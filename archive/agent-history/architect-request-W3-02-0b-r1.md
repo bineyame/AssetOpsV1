@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-0b-r1.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 `0b` review (r1)
 
 Read `.agent/W3-02-build-spec.md` (closures 4–5, the W1 day section) and `.agent/W3-02-0b-review.md`.

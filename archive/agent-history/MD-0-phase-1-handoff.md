@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/MD-0-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # MD-0 phase 1 handoff (PARTIAL: resume at phase 2)
 
 - Branch `task/MD-0-mechanism`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-md0`. Commits: `de327ebbb` (pre-flight), `7016c0a17` (phase 1).

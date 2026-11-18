@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02-04-mock-measurements.md on 2026-11-18 (declutter step 4).
 # W5-02 / W5-04 mock measurements (v69, 1440 and 390)
 
 Produced by `node tools/measure-mock-panels.mjs` on 2026-10-22 for cold-work, cold-work-incidents, cold-work-maintenance, cold-action, ev-work, ev-work-incidents, ev-work-maintenance, ev-action. Raw JSON follows.

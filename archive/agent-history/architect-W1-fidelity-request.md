@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W1-fidelity-request.md on 2026-11-18 (declutter step 4).
 # Architect request - mockup-as-layout-spec contract and W1 structural rework plan (2026-10-17)
 
 You are the AssetOps Architect (Codex). The owner rejected W1 after the combined walkthrough - read `.agent/owner-W1-walkthrough-verdict-2026-10-17.md` verbatim. The W1-UX pass layered answer cards above old layouts instead of rebuilding to the v69 mockup. Owner: no drift going forward, and no repeating the same comment. Token-efficient: one pass, tables.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S4-02b fix round 1: fresh Claude re-review
 
 Reviewer: fresh Claude. I did not build S4-02b, review it, or write the fixes. Branch `task/S4-02b-fuel-consequence`,

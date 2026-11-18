@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-01-W3-01-buildspecs.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-01 and W3-01 build specs, with full pre-build closure
 
 You are the AssetOps Architect. First read:

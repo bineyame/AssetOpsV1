@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PB-2-packet.md on 2026-11-18 (declutter step 4).
 # POLISH-PB-2 review packet: Kobo board, verification page and display codes
 
 Task `tasks/POLISH-PB-2-kobo-board.md`. Branch `task/POLISH-PB-2-kobo-board` from main `1c0ef34c3`, worktree

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 1 handoff (PARTIAL - stopped at the context budget)
 
 Branch `task/S4-01-finding-identity`; core commit `bcbc3f4` on top of activation `5f7cd4c`. Status stays `active`.

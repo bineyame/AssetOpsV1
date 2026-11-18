@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-4-estate-link-review.md on 2026-11-18 (declutter step 4).
 # SR-4 estate/Site Work link test repair review (987018db0)
 
 Verdict: ACCEPT WITH NOTES

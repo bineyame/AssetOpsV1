@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/AP-1-packet.md on 2026-11-18 (declutter step 4).
 # AP-1 review packet: stored-Site analytics readiness (`/api/sites/{id}/analytics`)
 
 Branch `task/AP-1-analytics-port` (worktree `/opt/assetecon/AssetOpsV1-ap1`), based on `task/SR-12-warm-routes` + main.

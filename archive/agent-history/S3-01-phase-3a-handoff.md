@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-3a-handoff.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 3a handoff (PARTIAL: built and committed; closeout, proofs and full suites remain)
 
 Branch `task/S3-01-dispatch-assessment`. Commits: `aaa47ae`, `79161dc`, `6314b64`, `d47c03d` (fixture subagent), `6f23429`. Status stays `active`. Open questions: `.agent/S3-01-questions-3.md` (Q9-Q12, fail-closed defaults built).

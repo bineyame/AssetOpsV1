@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-S4-DOMAIN-review.md on 2026-11-18 (declutter step 4).
 # FIX-S4-DOMAIN review
 
 Reviewer: fresh Claude reviewer (did not author the slice). Branch `task/FIX-S4-domain-filter`, head `fdc852515`,

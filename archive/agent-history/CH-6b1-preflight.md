@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6b1-preflight.md on 2026-11-18 (declutter step 4).
 # CH-6b1 pre-flight (EstateChain composition and the income total)
 
 Branch `task/CH-6b1-estate-chain` from main `064845742`. Sheet: `build-sheet-CH-6.md` R14, OWN-1104 R10 (replaced), §S.2, §B0 b1-2, §B1, §B5 1/3/4, §B7 P1-P3; SCOPE-1; CH6a2-R, CH6a3-R, CH6a3-R2.

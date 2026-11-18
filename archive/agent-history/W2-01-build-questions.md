@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-01-build-questions.md on 2026-11-18 (declutter step 4).
 # W2-01 build questions (implementer stopped before coding, 2026-10-17)
 
 Verbatim summary of the implementer report (questions A-I plus W2-02 carries):

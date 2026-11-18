@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/WARM-1-review-vps.md on 2026-11-18 (declutter step 4).
 # WARM-1 review (VPS, fresh Claude reviewer, 2026-11-12)
 
 - Branch `task/WARM-1-range-warm`, head `7699a2b23`, diff `main...HEAD` (7 files). Merges into current main cleanly (`git merge-tree`).

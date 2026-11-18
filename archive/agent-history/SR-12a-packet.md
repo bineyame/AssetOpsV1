@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-12a-packet.md on 2026-11-18 (declutter step 4).
 # SR-12a packet (lane I) — Evidence rejections over the date range
 
 Branch `task/SR-6-12a-pages` (from main e8f2bdea5). Spec: sequence doc rev 10b.4 "SR-12a", rev 10c (D-SR.39: IN),

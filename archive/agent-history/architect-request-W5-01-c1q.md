@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-01-c1q.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-01 C1 builder questions
 
 You are the AssetOps Architect.

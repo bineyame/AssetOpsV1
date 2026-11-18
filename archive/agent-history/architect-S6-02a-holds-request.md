@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S6-02a-holds-request.md on 2026-11-18 (declutter step 4).
 # Architect request - S6-02a slice review F2 and F4 (2026-10-16)
 
 You are the AssetOps Architect (Codex); decide within your remit, owner wants W1 progress. Read `.agent/S6-02a-review.md` (F2, F4; F1 is being fixed), `tasks/S6-02a-verification-core.md`, `D-2026-10-16-s6-verification`, `D-2026-10-16-s602-questions`, `D-2026-10-16-s602a-cutoff`, `D-2026-10-16-s602a-replay`.

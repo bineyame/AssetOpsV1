@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-r1a2.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 1a review notes (r1a2)
 
 Read:

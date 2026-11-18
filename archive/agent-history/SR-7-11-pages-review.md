@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-7-11-pages-review.md on 2026-11-18 (declutter step 4).
 # SR-7 / SR-11 pages review (fresh, independent)
 
 Branch `task/SR-7-11-pages` at 194cc6f61 (worktree `/opt/assetecon/AssetOpsV1-sr7`); diff `git diff $(git merge-base HEAD main) HEAD`, 24 files.

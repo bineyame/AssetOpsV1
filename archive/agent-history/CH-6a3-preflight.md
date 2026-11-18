@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-6a3-preflight.md on 2026-11-18 (declutter step 4).
 # CH-6a3 pre-flight: composers, wire, R7, the `_productive_month` removal, "Why?" measures and price
 
 - Branch `task/CH-6a3-composers` from `task/CH-6a2-evaluator` at `e373109bc`. Sheet: `build-sheet-CH-6.md` CH-6a3 unit,

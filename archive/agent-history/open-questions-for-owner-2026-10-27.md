@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/open-questions-for-owner-2026-10-27.md on 2026-11-18 (declutter step 4).
 # Open questions for the owner (2026-10-27)
 
 From the Architect (Claude). Your request, verbatim: `.agent/owner-parallel-and-open-questions-2026-10-27.md`.

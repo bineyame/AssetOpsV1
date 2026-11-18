@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-08-review.md on 2026-11-18 (declutter step 4).
 # S4-08 slice review: Site assumption and consequence history
 
 Reviewer: fresh independent Claude reviewer (not the author). Revision `48ace99f` (`task/S4-08-assumption-history`), diff `e46bbd7c..48ace99f -- ':!.agent'`. Judged against `tasks/S4-08-assumption-consequence-history.md` (with plan fix round 1), `D-2026-10-16-s408`, the plan reviews and the review packet.

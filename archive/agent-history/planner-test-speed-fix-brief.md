@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-test-speed-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: T-test-speed plan fix round 1 (2026-10-14)
 
 Role: Planner (Codex). Branch `plan/test-suite-speed`. Read `.agent/T-test-speed-plan-review.md` (RETURN). Amend the packet; a targeted check will follow, so keep changes precise.

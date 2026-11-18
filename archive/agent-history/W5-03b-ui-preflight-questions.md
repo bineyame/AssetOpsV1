@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03b-ui-preflight-questions.md on 2026-11-18 (declutter step 4).
 # W5-03b E4/E6 UI pre-flight refresh: open points
 
 Branch `task/W5-03b-ev-health-ui` at main `8270fd3f` (W5-03a, K2, E5 `0034` merged; K3 `task/W5-02b-K3-cold-cases` not merged). Read-only dry read of the E4 and E6 cards, the W5-03b pre-flight rulings (`.agent/W5-03-build-spec.md:767-820`), `.agent/W5-03b-e5-rulings.md`, the E5 API as built, the measurements, the departure register and v69 (`index.html:689-691` ev-health, `:859,862` ev-scenarios). No code, tests or builds.

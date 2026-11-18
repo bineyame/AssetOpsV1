@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-05b-rereview.md on 2026-11-18 (declutter step 4).
 # TEL-05b re-review (fresh Claude reviewer, 2026-10-28)
 
 This re-review covers branch `task/TEL-05b-finding-money-withheld` at `29050394`. It checks the fix for the previous review's H1 (`.agent/TEL-05b-review.md`), judged against the ruling TEL-05b-Q4 (`.agent/TEL-05b-questions.md`, build spec section L).

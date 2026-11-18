@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-F0.md on 2026-11-18 (declutter step 4).
 # Review F0 (DIESEL-F0 / F0r, Kisiwa fuel-events probe)
 
 Reviewer: fresh Claude (Opus), independent of the builder. Branch `task/DIESEL-F0-kisiwa-fuel-probe` at

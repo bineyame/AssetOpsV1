@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F4-actions-work-build-brief.md on 2026-11-18 (declutter step 4).
 # W1-F4-actions-work build - W1 structural fidelity rework (implementer brief)
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review4`, branch `task/W1-F4-actions-work` (from main with W1-F1 merged; use F1's shared guard/CSS API, additive changes only). Frontend only. Run `npx.cmd`/`npm.cmd` through PowerShell; `npm.cmd ci` in `frontend/` if stale. Walkthrough tools for captures per `.agent/W1-UX-combined-owner-walkthrough.md` (this worktree as `$wt`, PYTHONPATH with all five entries); pick ports not in use; drop fixtures afterwards.

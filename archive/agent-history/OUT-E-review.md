@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-E-review.md on 2026-11-18 (declutter step 4).
 # OUT-E slice review (cost check after the trial)
 
 Reviewer: fresh Claude, 2026-10-31. Branch `task/OUT-E-cost-proof` at `462b5e6d`, reviewed against main `b94aee17`.

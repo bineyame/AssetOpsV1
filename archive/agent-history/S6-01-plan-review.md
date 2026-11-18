@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01-plan-review.md on 2026-11-18 (declutter step 4).
 # S6-01a / S6-01b plan review
 
 Reviewer: fresh Claude reviewer. I did not write the packets, the brief, the work order or the Architect ruling.

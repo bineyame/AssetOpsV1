@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-review-packet.md on 2026-11-18 (declutter step 4).
 # V-01a review packet: Site and Foundation visual fidelity
 
 **Task:** `tasks/V-01a-foundation-visual-fidelity.md` (`USER_REVIEW_REQUIRED: true`, owner visual checkpoint).

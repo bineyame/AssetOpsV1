@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F1-review.md on 2026-11-18 (declutter step 4).
 # W1-F1 independent review: shared layout guard + Sites, Foundation, Readiness, SLD
 
 - Reviewer: fresh Claude Reviewer (not the author). Revision reviewed: `2a5d4869` (diff `c3b21c6e..2a5d4869`, excluding `.agent`). Worktree `AssetOpsV1-review5`.

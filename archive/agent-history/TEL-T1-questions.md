@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-T1-questions.md on 2026-11-18 (declutter step 4).
 # TEL T1 questions for the Architect (TEL-01..03)
 
 Status: ruled 2026-10-27 by the Architect (Claude); see TEL-T1-Q1..Q7 in the spec resolutions. None blocks T1. Each item names the narrow behaviour implemented so that the review can see it, and the Architect may overrule any of them; nothing here widens a spec rule.

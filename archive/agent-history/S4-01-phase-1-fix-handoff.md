@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-phase-1-fix-handoff.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 1 fix round 1 - handoff (PARTIAL: stopped at the context budget)
 
 Branch `task/S4-01-finding-identity`. Fix commits on top of `9609dd8`: `S4-01 phase 1 fix round: anchor-first split...`

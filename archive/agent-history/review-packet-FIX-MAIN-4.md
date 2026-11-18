@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-FIX-MAIN-4.md on 2026-11-18 (declutter step 4).
 # FIX-MAIN-4 review packet
 All three were stale tests after intended CH-6b1 product changes (7cc440771, 287e5ff6b); no product change.
 

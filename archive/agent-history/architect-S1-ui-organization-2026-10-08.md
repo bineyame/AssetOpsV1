@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S1-ui-organization-2026-10-08.md on 2026-11-18 (declutter step 4).
 ﻿# Architect decision: organize the S1 Foundation UI before owner acceptance
 
 **Codex Architect · 2026-10-08.** Responds to the owner's verbatim feedback in `.agent/owner-S1-ui-feedback-2026-10-08.md`: the current Foundation page is too much of a content dump for the owner to verify. This is a new presentation decision, not a reversal of the accepted-with-carries technical reviews of S1-01 and S1-02, and not owner acceptance. No tracked file, branch, or database state was changed for this decision.

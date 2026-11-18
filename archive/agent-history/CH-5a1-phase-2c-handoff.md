@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a1-phase-2c-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5a1 phase 2c handoff - PARTIAL (items 1-3, 6, 7 landed; L2 and the collector next; stopped at the context budget)
 
 Authority unchanged: build sheet Part A (incl. §A12). Previous: `CH-5a1-phase-2b-handoff.md`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-K3-questions.md on 2026-11-18 (declutter step 4).
 # W5-02b K3a/K3b pre-flight questions (builder, 2026-10-23)
 
 Branch `task/W5-02b-K3-cold-cases` from main `f164c49d`. I dry-read the K3a/K3b cards (`.agent/W5-02-build-spec.md:101-102`), the Site-screens ruling `### K3a and K3b: cases` (:315-321), Shared Site UI (:68-78), Measurement (:38), Producer (:80-84), Registry (:86-90), K2 rulings 1-24, the register (R65-R73, R88-R91) and the v69 `cold-work-incidents`/`cold-work-maintenance` source (`index.html:333-342`), checking each against the code on main. Most of K3 is decided. The points below are not, and each one would otherwise be a builder decision. Each has a proposed default. No code is written yet.

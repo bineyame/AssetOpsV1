@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02a-m1.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-02a core review M1 and L1
 
 You are the AssetOps Architect (Codex). Read the review with `MSYS_NO_PATHCONV=1 git show task/W5-02a-cold-action-root:.agent/W5-02a-core-review.md`, then the K1c card and rulings in `.agent/W5-02-build-spec.md`.

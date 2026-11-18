@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F5-carries.md on 2026-11-18 (declutter step 4).
 # W1-F5 carries (cross-slice fidelity items found during F2-F4; coordinator, 2026-10-17)
 
 Fold into F5 (or a shell slice) so the owner's repeat walkthrough sees none of them:

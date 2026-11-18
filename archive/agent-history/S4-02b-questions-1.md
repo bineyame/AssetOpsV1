@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-questions-1.md on 2026-11-18 (declutter step 4).
 # S4-02b phase 1: questions and fail-closed choices (Implementer, 2026-10-14)
 
 The packet and decisions did not settle the points below. For each one, the Implementer took the conservative, fail-closed option and continued. Each item says what the code now does and what would need a ruling to change it.

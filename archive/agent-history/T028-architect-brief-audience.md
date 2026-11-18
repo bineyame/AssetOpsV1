@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-architect-brief-audience.md on 2026-11-18 (declutter step 4).
 # Architect brief: T028 audience (Codex Architect, 2026-10-04)
 
 You are the AssetOps Architect (Codex; `.ai/ROLE_CONFIG.md`, including

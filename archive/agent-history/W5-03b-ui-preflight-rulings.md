@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03b-ui-preflight-rulings.md on 2026-11-18 (declutter step 4).
 # W5-03b E4/E6 UI pre-flight rulings — Codex Architect, 2026-10-23
 
 Rulings 1–16 answer `.agent/W5-03b-ui-preflight-questions.md`; later numbered sections record build-time and independent-review corrections. They control E4 and E6 with the corrected cards in `.agent/W5-03-build-spec.md`. Screen citations refer to `frontend/mockups/v69/index.html`; its EV Health definition is at 689–691 and EV Scenarios at 859–862. This record edits no product code.

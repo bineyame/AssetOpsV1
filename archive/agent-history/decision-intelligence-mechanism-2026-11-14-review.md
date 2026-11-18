@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/decision-intelligence-mechanism-2026-11-14-review.md on 2026-11-18 (declutter step 4).
 # Review: decision-intelligence-mechanism-2026-11-14.html
 
 Reviewer: fresh Claude Reviewer, 2026-11-14. Repository at main 9b4d9bd15c53daff70b2322012932720e1f96edb, the same revision the document cites. No code, test, database or document was changed.

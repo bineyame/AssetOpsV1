@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W2-02-03-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief - W2-02 and W2-03 packets
 
 You are the AssetOps Planner (Codex). Write `tasks/W2-02-cold-producer.md` and `tasks/W2-03-cold-assessment.md` on branch `plan/W2-packets-2` (no code; coordinator commits). Token-efficient: sequence and test the binding design; do NOT redesign. Binding: `.agent/W2-technical-design-cold.md` (W2-02, W2-03 sections, migrations, scenario forcing tables, rule-8 writers, response shapes, panel maps), `.agent/architect-W2-design.md`, decisions `D-2026-10-17-w2-design`, `-w2-techdesign-cold`, `-w2-00-answers`, `D-2026-10-17-mockup-layout-spec`; W2-00 is merged (review Lows in `.agent/W2-00-review.md`: role check, read-path test - fold where they belong); use the existing exemplars `tasks/W2-00-source-events.md`, `tasks/W2-01-cold-foundation.md`.

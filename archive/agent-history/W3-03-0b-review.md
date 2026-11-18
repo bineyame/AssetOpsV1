@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-0b-review.md on 2026-11-18 (declutter step 4).
 # W3-03 run 0b — independent review (portfolio fixture composition)
 
 Branch `task/W3-03-portfolio-composition`, commits `45592a22` and `7ab8019a` (head `7ab8019a`). I read the code only through

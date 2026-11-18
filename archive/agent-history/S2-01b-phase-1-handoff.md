@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01b-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S2-01b phase 1 handoff: wire and ledger
 
 Branch `task/S2-01b-durable-simulated-gateway`. Phase-1 commit `775f8f9`, after the Architect transfer decision `10aebb9`. Status: phase 1 is complete. There is no host wiring, transport or UI yet.

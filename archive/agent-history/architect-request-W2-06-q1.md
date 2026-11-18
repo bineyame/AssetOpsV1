@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-06-q1.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-06 q1 (R1–R10) and closure of commits 2–5
 
 You are the AssetOps Architect. Read:

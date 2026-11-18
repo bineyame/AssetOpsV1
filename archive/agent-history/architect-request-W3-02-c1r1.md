@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c1r1.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 commit-1 review (r1)
 
 Read `.agent/W3-02-build-spec.md` (closures 1–5, 0b/0c r1, c1) and `.agent/W3-02-commit1-review.md`.

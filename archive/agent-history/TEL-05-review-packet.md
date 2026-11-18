@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-05-review-packet.md on 2026-11-18 (declutter step 4).
 # TEL-05 review packet: Postgres acceptance, profile `-1`
 
 PowerShell environment (0.1, with the `-tel5` worktree):

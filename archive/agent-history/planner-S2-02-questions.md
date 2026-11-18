@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-02-questions.md on 2026-11-18 (declutter step 4).
 # S2-02 questions for Architect — 2026-10-09
 
 Batch this with `.agent/S2-01c-questions-5.md` and its open R1 publication-gap ruling per the owner's Codex-use instruction. Do not ask the owner to choose technical credential or receipt mechanics.

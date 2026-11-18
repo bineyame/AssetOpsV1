@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K6b.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K6b, the fuel after-check (`fuel-residual-within-band-1`)
 
 - Reviewer: Claude (Opus), independent first review; did not author the slice. 2026-11-08.

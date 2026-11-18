@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S1-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S1 fix-round re-review (S1-03 review findings + S1-02 n6)
 
 - **Reviewer:** a fresh Claude Reviewer (Opus). I did not write any of this code and did not do any earlier S1 review. I edited no tracked file and made no commit, push or merge. This file is my only write to the repo.

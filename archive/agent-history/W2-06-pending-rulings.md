@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-06-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W2-06 pending rulings — commit 2 (pure correlation) — 2026-10-19
 
 Raised by the W2-06 implementer before starting spec commit 2. Commit 1 (0025 schema, domain checks, rule-8

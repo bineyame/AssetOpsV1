@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-F-review-packet.md on 2026-11-18 (declutter step 4).
 # W2-F review packet — W2 structural corrections
 
 Task: `tasks/W2-F-structural-fixes.md`. Contract: `.agent/W2-F-build-spec.md` (ledger + "Review closure (2026-10-21)"

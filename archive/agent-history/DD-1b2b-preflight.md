@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/DD-1b2b-preflight.md on 2026-11-18 (declutter step 4).
 # DD-1b2b pre-flight (builder, Claude, 2026-11-07)
 
 Worktree `AssetOpsV1-dd1b2`, branch `task/DD-1b2-finish-rehearsal` at `e7a9f494b`. Card: `build-sheet-DD-1.md` "DD1b2-R6". No product code written, nothing built, no DB written or dropped, no `npm ci`. The only DB access was one read-only session (`default_transaction_read_only = on`) listing `pg_database` and `pg_stat_activity`. **MEASURED** = a grep, a query or an offline computation I ran; **READ** = code read.

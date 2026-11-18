@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5c2-handoff.md on 2026-11-18 (declutter step 4).
 # CH-5c2 handoff (PARTIAL, builder 4 at the context cap; builder 3 before) - branch `task/CH-5c2-store-safety`
 
 Spec: `AssetOpsV1-plan2\.agent\build-sheet-CH-5c.md` §8.6 + §8.7; pre-flight `.agent/CH-5c2-preflight.md`.

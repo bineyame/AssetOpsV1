@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-02-phase-3-handoff.md on 2026-11-18 (declutter step 4).
 # W2-02 handoff after commit (3), partial: report, gateway and host verification landed; Lab session wiring blocked on 4 questions
 
 Branch `task/W2-02-cold-producer`, worktree `AssetOpsV1-review2`. Binding: `.agent/W2-02-build-spec.md`. Env:

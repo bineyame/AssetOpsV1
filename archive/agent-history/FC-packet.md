@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FC-packet.md on 2026-11-18 (declutter step 4).
 # FC-1 / FC-2 review packet: Findings cards (branch task/FC-findings-cards, not merged)
 
 Spec: "Findings cards ruling (2026-11-10)" D-E5.25 to D-E5.28 in `.agent/build-sheet-OWN-GAPS-2026-11-08.md`;

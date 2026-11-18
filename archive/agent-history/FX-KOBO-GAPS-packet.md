@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-KOBO-GAPS-packet.md on 2026-11-18 (declutter step 4).
 # FX-KOBO-GAPS review packet
 
 Task: card FX-KOBO-GAPS, D-E5.13 as amended by D-E5.19 (`.agent/build-sheet-OWN-GAPS-2026-11-08.md`, "Kobo gap-pattern

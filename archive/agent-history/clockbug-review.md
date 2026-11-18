@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/clockbug-review.md on 2026-11-18 (declutter step 4).
 # FIX clock-dependent power fixture - review
 
 Reviewer: fresh Claude reviewer (did not author). Branch `task/FIX-clock-dependent-power-fixture`,

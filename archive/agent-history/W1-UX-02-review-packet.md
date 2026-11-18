@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-02-review-packet.md on 2026-11-18 (declutter step 4).
 # W1-UX-02 review packet - Site, Finding and money presentation
 
 Task `tasks/W1-UX-02-site-money.md`; umbrella `tasks/W1-UX-mockup-fidelity.md`; decisions `D-2026-10-16-w1-ux`, `D-2026-10-16-w1-ux-disclosure`; shared API `.agent/W1-UX-01-handoff.md`. Branch `task/W1-UX-02` from main `a8cbb3d1`; review diff `git diff b982905b..HEAD -- ':!.agent'`. Frontend and one evidence tool only. No backend change. USER_REVIEW_REQUIRED: a fresh independent slice review gates merge. There is no per-slice owner walkthrough; the owner sees these screens in the combined W1 walkthrough.

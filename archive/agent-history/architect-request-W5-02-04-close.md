@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02-04-close.md on 2026-11-18 (declutter step 4).
 # Architect request: close the W5-02/W5-04 readiness review
 
 You are the AssetOps Architect and Planner (Codex). Read `.agent/W5-02-04-readiness-review.md`. It found 45 numbered gaps, challenged deviations and unlabelled departures from the mock. Also read `.ai/ROLE_CONFIG.md` (the readiness gate, W3/W4 lessons, both mock-fidelity rules, Token Efficiency), `.agent/W5-02-build-spec.md`, `.agent/W5-04-build-spec.md` and the v69 screens they own.

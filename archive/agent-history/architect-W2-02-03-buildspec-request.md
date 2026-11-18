@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-02-03-buildspec-request.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-02 questions + code-anchored build specs for W2-02 and W2-03 (2026-10-17)
 
 You are the AssetOps Architect (Codex). Owner rule: implementers make no design choice; be very efficient without compromising quality. W2-00, W2-01 and now W2-02 each stopped before coding on design-vs-code gaps; a pre-check was not enough. One call:

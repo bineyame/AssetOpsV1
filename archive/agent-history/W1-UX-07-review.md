@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-07-review.md on 2026-11-18 (declutter step 4).
 # W1-UX-07 review: full v6.9 left menu with unavailable entries
 
 Reviewer: fresh independent Claude reviewer (not the author). Revision reviewed: `3526a0f2` (worktree `AssetOpsV1-review5`, detached). Diff: `git diff 3bb1b8b2..3526a0f2 -- ':!.agent'`.

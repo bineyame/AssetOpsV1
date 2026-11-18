@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-questions-1.md on 2026-11-18 (declutter step 4).
 # S2-01c phase 1 — design choices the packet and decisions do not fix
 
 Implementer, 2026-10-09. Each item was built with the stated fail-closed default; none blocks phase 2. Architect may overturn any of them cheaply (all are local to `gateway/` and the new contract).

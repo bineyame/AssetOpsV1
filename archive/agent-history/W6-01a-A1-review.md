@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01a-A1-review.md on 2026-11-18 (declutter step 4).
 # W6-01a unit A1 review (fresh independent Claude reviewer)
 
 Branch `task/W6-01a-global-incidents`, commits `ad1cefc1`, `801e5ad8`, `c5e45a67`; diff `git diff 1ac44fd2 c5e45a67`.

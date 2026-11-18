@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-01-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W3-01 pending rulings (q6, Lane B commit-2 run 2, 2026-10-20)
 
 Branch `task/W3-01-estate-claim-action-roots` at `15dae742` (main merged: already up to date; Lane A

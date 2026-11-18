@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-02b review packet: bounded fuel consequence and repricing (phases 1, 2a, 2b)
 
 Task `tasks/S4-02b-fuel-consequence.md`; branch `task/S4-02b-fuel-consequence` from main `14ad5ef`. USER_REVIEW_REQUIRED: true (S4-02 owner checkpoint after a fresh review). Governing: `D-2026-10-13-s4-bounded-financial-basis` + addendum, `.agent/architect-S4-02-answers.md`, owner ruling `.agent/owner-S4-02b-money-demo-2026-10-14.md`.

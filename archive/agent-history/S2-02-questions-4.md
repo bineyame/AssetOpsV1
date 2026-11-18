@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-questions-4.md on 2026-11-18 (declutter step 4).
 # S2-02 questions 4 (phase 3b, frontend) — fail-closed defaults applied
 
 Q21. **Diagnostic upload refusal is not visible locally.** The gateway's local diagnostics read (`gateway/assetops_gateway/service.py` `_DIAGNOSTIC_COLUMNS` :1706) carries `state` and `last_attempt_at` but not `last_error_code`; a refused/failed diagnostic upload goes back to `READY` (:1420). The Lab cannot tell "refused by the server" from "not sent yet". Default built: `diagnosticUploadText` (`frontend/src/shell/GatewayPublicationPanels.tsx`) says an attempted-but-unreceipted diagnostic "did not produce a receipt; it waits to be retried. The reason is not shown in this local read" — never "refused", never "received". Proposed backend fix (for the backend implementer): add `last_error_code` to the local diagnostic row; the UI would then name the refusal.

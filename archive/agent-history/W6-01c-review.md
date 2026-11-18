@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01c-review.md on 2026-11-18 (declutter step 4).
 # W6-01c review (C1 detail read, C2 Overview, C3 Maintenance record)
 
 Reviewer: fresh independent Claude reviewer, 2026-10-23. Read-only review: no tests, servers or browsers were run, because a full suite was running on the machine.

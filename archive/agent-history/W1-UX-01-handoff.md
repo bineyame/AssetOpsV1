@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-01-handoff.md on 2026-11-18 (declutter step 4).
 # W1-UX-01 handoff - the shared presentation API for W1-UX-02..05
 
 Branch `task/W1-UX-01` (base main `3e6dbc88`). Frontend only. Decisions: `D-2026-10-16-w1-ux`, `D-2026-10-16-w1-ux-disclosure`. Every later UX slice uses this API and does not fork it.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W6-rulings.md on 2026-11-18 (declutter step 4).
 # W6-global-Work Architect rulings
 
 Authority: `.agent/post-W6-W6-preflight.md` against main `ad71329d`, the W6 card in `.agent/post-W6-audit/fix-slices.md`, and the current code. These are build rulings; no D3 is closed by this document.

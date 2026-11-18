@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-1-packet.md on 2026-11-18 (declutter step 4).
 # SR-1 packet: shared date range bar and state (card B4)
 
 Branch `task/SR-1-shared-range` (wt `AssetOpsV1-sr1`, from main `bfe609500`). Build commit `c984af785`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-C-packet.md on 2026-11-18 (declutter step 4).
 # OUT-C review packet: early warnings, first set
 
 Task: `tasks/OUT-C-early-warnings.md`. Contract: `AssetOpsV1-plan2/.agent/build-sheet-OUT-C.md` (wins over the sprint spec).

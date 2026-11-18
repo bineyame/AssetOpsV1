@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-spec-review.md on 2026-11-18 (declutter step 4).
 # Independent spec dry-read: W4-02 mini-grid depth (2026-10-20)
 
 Reviewer: a fresh Claude spec reviewer, read-only, worktree `AssetOpsV1-plan2` on main `3e5c8a6f`. This follows the ROLE_CONFIG rule, with `.agent/W4-01-W3-01-spec-review.md` and `.agent/W3-02-spec-review.md` as precedents.

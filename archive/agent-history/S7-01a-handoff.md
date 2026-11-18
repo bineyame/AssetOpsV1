@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S7-01a-handoff.md on 2026-11-18 (declutter step 4).
 # S7-01a handoff - fixture and read contract for S7-01b
 
 Branch `task/S7-01a-health-read`. Non-UI; S7-01b consumes exactly this.

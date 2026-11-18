@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-architect-readiness-decisions.md on 2026-11-18 (declutter step 4).
 # T028 capability-readiness decisions
 
 Architect: Codex, 2026-10-04. Basis reviewed: branch

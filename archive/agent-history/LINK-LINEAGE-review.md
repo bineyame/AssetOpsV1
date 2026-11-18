@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LINK-LINEAGE-review.md on 2026-11-18 (declutter step 4).
 # LINK-LINEAGE review
 
 Reviewer: fresh Claude, 2026-10-31. Reviewed the `git archive 9cbd7f299` snapshot (branch

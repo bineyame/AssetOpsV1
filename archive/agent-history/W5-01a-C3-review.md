@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-01a-C3-review.md on 2026-11-18 (declutter step 4).
 # W5-01a C3 review: cold Health
 
 Reviewer: fresh independent Claude reviewer, 2026-10-22.

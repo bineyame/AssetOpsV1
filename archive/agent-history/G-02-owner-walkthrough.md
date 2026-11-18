@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/G-02-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # G-02 owner walkthrough: missing states on Sites, Site model, Readiness and the single line diagram
 
 ## What changed

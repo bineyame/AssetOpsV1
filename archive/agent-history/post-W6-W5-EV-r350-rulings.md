@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W5-EV-r350-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W5-EV R350
 
 2026-10-26. Binding for `task/post-W6-W5-EV-work`; this refines W5 rulings 4 without changing the W5-04 ruling 43 W1 fallback.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S4-01 owner walkthrough: the generator-support Finding
 
 What you will see: AssetOps opening a Finding when the generator stayed on while solar power and the battery

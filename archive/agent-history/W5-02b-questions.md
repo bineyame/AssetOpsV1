@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-02b-questions.md on 2026-11-18 (declutter step 4).
 # W5-02b questions (K2a/K2b capture producer, tools/w502_cold_work_walkthrough.py)
 
 Points where the ruling is ambiguous or contradicts merged code. The producer runs with the noted provisional

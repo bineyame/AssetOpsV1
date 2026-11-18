@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-cold-packet.md on 2026-11-18 (declutter step 4).
 # post-W6 W2-cold review packet: cold Site screens D3 fixes
 
 Task: the post-W6 W2-cold card, D3 portion of R241-R261 (`.agent/post-W6-W2-cold-rulings.md`, Q0-Q15 and cross-card ownership 1-8; `.agent/post-W6-W1-rulings.md` cross-card contract). Branch `task/post-W6-W2-cold`, main `09196de0` merged in at `38fdff6d`. Frontend only: no backend, contract or schema file changed (`git diff main --stat -- backend host contracts gateway simulator` is empty). Reviewer diff: `git diff main...HEAD -- ':!.agent'`.

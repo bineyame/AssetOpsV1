@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/CH-5a2b-preflight.md on 2026-11-18 (declutter step 4).
 # CH-5a2b pre-flight (Implementer, 2026-11-05)
 
 - Branch `task/CH-5a2b-chain-counts`, worktree `AssetOpsV1-ch5a2b`, cut from main `27aa6a638`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C5-review.md on 2026-11-18 (declutter step 4).
 # E4-C5 review: board reads Cold/EV thread lifecycle at `k`
 
 Reviewer: fresh Claude reviewer (independent of the builder). Diff: `git diff main...task/E4-C5-board-lifecycle-cutoff`

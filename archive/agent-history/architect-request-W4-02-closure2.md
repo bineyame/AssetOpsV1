@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-02-closure2.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-02 closure round 2
 
 You are the AssetOps Architect. Read `.agent/W4-02-build-spec.md` (including "Review closure (2026-10-20)") and `.agent/W4-02-closure-check.md`. That check lists 7 OPEN items (Q3, Q4, Q7, Q8, Q16, Q24, Q27) and 5 new questions (N1–N5).

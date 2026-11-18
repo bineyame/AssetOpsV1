@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S7-01b-review-packet.md on 2026-11-18 (declutter step 4).
 # S7-01b review packet - Site Health and battery boundary UI
 
 Task `tasks/S7-01b-health-ui.md`; branch `task/S7-01b-health-ui` from main `f3de235a`, which already contains S7-01a. USER_REVIEW_REQUIRED: true. The slice goes to review first, then the owner walkthrough `.agent/S7-01b-owner-walkthrough.md`, then merge. Reviewer diff: `git diff f3de235a..HEAD -- ':!.agent'`.

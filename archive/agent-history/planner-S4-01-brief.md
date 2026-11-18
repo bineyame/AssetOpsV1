@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-01-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: refine S4-01 (2026-10-12)
 
 Role: Planner (Codex). Branch `task/S4-01-finding-identity` (from main `58b3263`). One bounded pass (owner Codex rule, verbatim 2026-10-11: "codex usage optimizaion is important, so keep the same arragment for S2 going forward").

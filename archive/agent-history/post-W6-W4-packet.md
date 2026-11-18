@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W4-packet.md on 2026-11-18 (declutter step 4).
 # Review packet: post-W6 W4-mini (mini depth, mini decisions, Site Work text)
 
 Branch `task/post-W6-W4-mini`, final SHA = head of branch at packet commit (code last changed at `98c50573`; every later commit is evidence or docs).

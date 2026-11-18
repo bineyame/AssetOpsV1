@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-01-questions-2.md on 2026-11-18 (declutter step 4).
 # S4-01 phase 1 questions, batch 2 (fail-closed defaults shipped)
 
 Raised by fix round 1 (`.agent/S4-01-phase-1-review.md` B1-B4, C3; `D-2026-10-12-s4-finding-phase-1-clarifications`).

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K4a.md on 2026-11-18 (declutter step 4).
 # Review packet K4a: unexplained-fuel Finding, fuel-residual-1 money (0056), theft strings reworded
 
 - Task: DIESEL-K4a, `.agent/build-sheet-DIESEL-1.md` §9j.1-§9j.9 (ruling DIESEL-1-R3j, 662b2cf91) as amended by §9k (DIESEL-1-R3k, ff3837089).

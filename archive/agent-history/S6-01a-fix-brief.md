@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-fix-brief.md on 2026-11-18 (declutter step 4).
 # S6-01a fix round (Sonnet) - slice review Lows L1, L2
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`, branch `task/S6-01a-action-store-read`. Environment as in `.agent/S6-01a-phase-1-brief.md` but with this worktree's paths in PYTHONPATH (`C:/Users/assef/Bineyame/AssetOpsV1-review/...`); confirm `assetops_backend.__file__`. Private `_test` DB; drop it afterwards. Another build runs in `AssetOpsV1-review3`: keep test runs focused; NO full suite (it runs later at merge time after re-chaining).

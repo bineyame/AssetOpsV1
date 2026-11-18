@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K7F.md on 2026-11-18 (declutter step 4).
 # K7-F second Kisiwa-only scratch prepare (record)
 
 Branch `task/DIESEL-K7F-kisiwa-freeze`, code `f1f7dca2a`. Ruling DIESEL-1-R3n (§9o.4). Build-side packet sections are not in this file; this is the scratch-run evidence only.

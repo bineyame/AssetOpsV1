@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01d-review.md on 2026-11-18 (declutter step 4).
 # W6-01d review — C4 request History
 
 Reviewer: fresh independent Claude reviewer, 2026-10-23. Branch `task/W6-01d-request-history`, head `241960bb`,

@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/SR-8-parity-script.py on 2026-11-18 (declutter step 4).
 """SR-8 parity (after D-SR.62/68). Run from host/ with WT=<worktree> and PYTHONPATH incl. scratchpad common.py.
 Gates: stored day == one-day all_hours_headroom_kw and missing_hours; all-missing day UNKNOWN one-day / NO_DATA range;
 card high >= stored high; rows on == rows off; stored hit <= 2.0 s."""

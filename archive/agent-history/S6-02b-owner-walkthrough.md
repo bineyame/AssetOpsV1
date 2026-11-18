@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02b-owner-walkthrough.md on 2026-11-18 (declutter step 4).
 # S6-02b owner walkthrough - did the reserve change work?
 
 What you are checking: after a battery-reserve change is applied, the Action now shows its **plan** (what success

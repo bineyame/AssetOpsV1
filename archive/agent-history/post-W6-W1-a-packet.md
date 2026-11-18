@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-a-packet.md on 2026-11-18 (declutter step 4).
 # post-W6 W1-mini-Action-a: review packet
 
 **Task:** card W1-mini-Action-a (`.agent/post-W6-audit/fix-slices.md`), as amended by the binding rulings in

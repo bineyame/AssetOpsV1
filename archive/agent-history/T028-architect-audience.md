@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-architect-audience.md on 2026-11-18 (declutter step 4).
 # T028 audience: Architect decision
 
 Codex Architect, 2026-10-04. Answer to the owner's

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W2-07-r1.md on 2026-11-18 (declutter step 4).
 # Architect request: W2-07 review findings (r1)
 
 You are the AssetOps Architect. Read `.ai/ROLE_CONFIG.md` ("Mockup drives the design; implementers never decide", "Token Efficiency"), `.agent/W2-07-build-spec.md` (all rulings through q6), `.agent/W2-07-review.md`, and the v69 EV mock screens. Code is on branch `task/W2-07-ev-site-evidence-money` (`git show task/W2-07-ev-site-evidence-money:<path>`).

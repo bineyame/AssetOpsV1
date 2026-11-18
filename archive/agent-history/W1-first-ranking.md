@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-first-ranking.md on 2026-11-18 (declutter step 4).
 # W1 first ranking (live --next-work, after mapping marks + C9 fix2: labeled V-01a/V-01b discovered, 2026-10-11)
 
 Command: node frontend/docs/architecture/check_v69_dependency_registry.cjs --next-work (exit 0). Exact output:

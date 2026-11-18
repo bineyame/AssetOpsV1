@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-07-fix-brief.md on 2026-11-18 (declutter step 4).
 # Planner fix round 1 - S4-07 evidence decided_at
 
 You are the AssetOps Planner (Codex). Amend `tasks/S4-07-evidence-decided-at.md` on `plan/small-followons` in this worktree per `.agent/small-followons-plan-review.md` (S4-07 RETURN M1, Lows). No code; the coordinator commits.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-02-c3bq2.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-02 c3b-q2 (COMPARABLE test token assertion)
 
 Read `.agent/W3-02-build-spec.md` (c3 and c3b, plus the commit-1 r1 ruling on M1, where tokens include the read cutoff k), and `.agent/W3-02-pending-rulings.md` c3b-q2.

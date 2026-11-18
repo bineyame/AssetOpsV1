@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-PIPE-1.md on 2026-11-18 (declutter step 4).
 # Review: PIPE-1 (D-1 fix and guard speed-up, A1-A6, A10)
 
 Reviewer: fresh Claude reviewer, independent of the author. Discovery depth (W5): the whole diff

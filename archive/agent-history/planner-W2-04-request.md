@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W2-04-request.md on 2026-11-18 (declutter step 4).
 # W2-04 packet + code-anchored build spec (2026-10-18) - one call
 
 You are the AssetOps Planner/Architect (Codex). Owner: very efficient without compromising quality; implementers make no design choice. W2-00..W2-02 each stopped repeatedly on design-vs-code gaps until a code-anchored build spec existed - so produce both now.

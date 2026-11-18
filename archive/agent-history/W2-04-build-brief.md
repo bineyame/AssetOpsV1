@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-04-build-brief.md on 2026-11-18 (declutter step 4).
 # W2-04 build - cold Site, evidence and money screens (implementer brief)
 
 Worktree `C:/Users/assef/Bineyame/AssetOpsV1-review2`, branch `task/W2-04-cold-site-evidence-money` (from main with W2-00..W2-02 merged).

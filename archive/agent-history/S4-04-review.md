@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-04-review.md on 2026-11-18 (declutter step 4).
 # S4-04 slice review - Site Finding index read + Site Findings UI
 
 Reviewer: fresh Claude reviewer (did not author the slice). Worktree `AssetOpsV1-review4`, branch

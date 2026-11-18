@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OUT-C-review.md on 2026-11-18 (declutter step 4).
 # OUT-C slice review: early warnings (final, U3-U6 plus the whole slice)
 
 Reviewer: a fresh Claude reviewer (not the author). Branch `task/OUT-C-early-warnings` at head `0297540a`, against main `e8cf8a36`.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-W1-record-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: record the owner's W1 confirmation (2026-10-11)
 
 Role: Planner (Codex). Branch `plan/pre-S3-startup`. Owner confirmation verbatim: `.agent/owner-W1-confirmation-2026-10-11.md` ("Confirm revised W1's 27 screens, core panels, demo values, K=10").

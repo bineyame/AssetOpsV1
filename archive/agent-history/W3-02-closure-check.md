@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-02-closure-check.md on 2026-11-18 (declutter step 4).
 # W3-02 spec closure check (2026-10-20)
 
 Worktree `AssetOpsV1-plan2`, main `7aa54277`. Read-only check of `.agent/W3-02-build-spec.md` "Review closure (2026-10-20)" (lines 143-223) against `.agent/W3-02-spec-review.md` (48 items), `.agent/W3-02-mock-measurements.md` and `tasks/W3-02-estate-evidence-money-basis.md`.

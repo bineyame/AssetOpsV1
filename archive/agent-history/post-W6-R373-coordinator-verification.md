@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-R373-coordinator-verification.md on 2026-11-18 (declutter step 4).
 # R373: coordinator verification of the fix round (2026-10-25)
 
 The review (55519d1a) returned REJECT, with the fix round limited to M1. Verified against diff 55519d1a..7b1e3a82:

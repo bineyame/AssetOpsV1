@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S4-01-questions.md on 2026-11-18 (declutter step 4).
 # S4-01 Planner questions and fail-closed defaults (2026-10-12)
 
 The Architect's `D-2026-10-12-finding-episode-and-revisions` resolves the Finding semantics, so no owner or Architect answer is required before phase 1. These are the implementation/review checks to bundle if the built seams expose ambiguity.

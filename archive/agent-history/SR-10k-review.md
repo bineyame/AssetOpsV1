@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-10k-review.md on 2026-11-18 (declutter step 4).
 # SR-10k review: Kisiwa fuel-check nights over the date range
 
 Reviewer: fresh Claude reviewer (did not author). Branch `task/SR-10k-kisiwa-fuel-nights`, head 1cebb2865, diff `git diff $(git merge-base HEAD main) HEAD` (base 2023addb9). Spec: rev 10b.4 SR-10k, 10c/10d; D-SR.9, D-SR.34, D-SR.45, D-SR.55.

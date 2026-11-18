@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-W2-05a-q3.md on 2026-11-18 (declutter step 4).
 # Architect request - W2-05a QE-QG (2026-10-18). Brief rulings; edit `.agent/W2-05a-build-spec.md` in place; amend `D-2026-10-18-w2-05-buildspec`. No code.
 
 From the W2-05a commit-2 implementer (branch task/W2-05a-ev-foundation, handoff `.agent/W2-05a-phase-handoff.md` there):

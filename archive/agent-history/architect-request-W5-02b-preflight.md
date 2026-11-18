@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-02b-preflight.md on 2026-11-18 (declutter step 4).
 # Architect request: rule on the W5-02 Site-screens pre-flight batch (47 items)
 
 You are the AssetOps Architect (Codex). Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-02-fix-handoff.md on 2026-11-18 (declutter step 4).
 # OPS-02 fix round handoff (review M1, M2, L1-L3)
 
 Code commit: see `git log` (one commit "OPS-02 fix round ..."). Files: `tools/checks/sql_statements.py`,

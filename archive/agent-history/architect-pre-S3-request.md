@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-pre-S3-request.md on 2026-11-18 (declutter step 4).
 # Architect request: S2 leftovers + mandatory pre-S3 shared-contract decisions (2026-10-09)
 
 Owner instructions (verbatim): 2026-10-09 "codex review happens for the whole S2-0* for usage efficency. also bundle questions to codex, be efficent with its use". 2026-10-09 S2 closeout: "yes merge S2-02 to main and adopt V-01" (`.agent/owner-S2-closeout-2026-10-09.md`).

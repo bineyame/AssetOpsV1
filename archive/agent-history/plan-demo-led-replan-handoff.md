@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/plan-demo-led-replan-handoff.md on 2026-11-18 (declutter step 4).
 # Handoff: demo-led replan (Planner, 2026-10-02)
 
 **Status: complete.** The remaining work below was finished in `db4203f` by three fresh Planner agents working from this file; the packet is `.agent/plan-demo-led-replan-review-packet.md`. Kept as the record of the mid-run handoff.

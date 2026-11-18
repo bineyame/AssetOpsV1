@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01e-review.md on 2026-11-18 (declutter step 4).
 # W6-01e review (E1 global Operational records read, E2 Operational records page)
 
 Reviewer: fresh independent Claude reviewer, 2026-10-23. Branch `task/W6-01e-operational-records`, head `173cfc73`,

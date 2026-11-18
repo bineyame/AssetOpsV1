@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W4-02 pending rulings (builder questions; Architect decides)
 
 Raised by the unit-1 builder run on `task/W4-02-mini-grid-depth`. Unit 1 did not need either ruling, so this run

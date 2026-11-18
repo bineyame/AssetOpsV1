@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-answer-non-kobo-sites-2026-11-10.md on 2026-11-18 (declutter step 4).
 # Architect answer: why the non-Kobo Site pages look empty (walkthrough item 11, 2026-11-10)
 
 Architect: Claude (the binding in `.ai/ROLE_CONFIG.md` is Claude, set by the owner on 2026-10-27), working under the

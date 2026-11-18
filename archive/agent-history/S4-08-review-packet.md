@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-08-review-packet.md on 2026-11-18 (declutter step 4).
 # S4-08 review packet: Site assumption and consequence history
 
 Task: `tasks/S4-08-assumption-consequence-history.md` (`I-assumption-consequence-history-read`, `I-assumption-consequence-history-ui`, `I-S4-08`). Authority: `D-2026-10-16-s408`, plan re-review Lows L-R1/L-R2, `D-2026-10-16-w1-ux`. Branch `task/S4-08-assumption-history` from main `e46bbd7c`. USER_REVIEW_REQUIRED: true, satisfied by fresh independent slice review now and the combined W1 walkthrough later (owner-walkthrough policy 2026-10-16). Do not promote `assumptions:3#a` before the accepted review.

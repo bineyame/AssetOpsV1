@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PA-2b.md on 2026-11-18 (declutter step 4).
 # Review: POLISH PA-2b (plan due state and asset labels)
 
 Reviewer: fresh Claude reviewer (not the author). Date: 2026-11-01.

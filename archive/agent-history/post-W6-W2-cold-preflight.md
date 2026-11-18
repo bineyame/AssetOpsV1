@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W2-cold-preflight.md on 2026-11-18 (declutter step 4).
 # post-W6 W2-cold: builder pre-flight
 
 2026-10-24. Branch `task/post-W6-W2-cold` from main `7554111e`. No product code is written yet. Sources: the W2-cold card and the shared sections of `post-W6-audit/fix-slices.md`, the R241-R261 register rows, the batch-06/07/14 ledgers and `differences.json`, the v69 mock (`index.html` lines 239, 322-330, 536-566), and current code. Every point below has a **recommended default**. The builder will use the default unless the Architect rules otherwise.

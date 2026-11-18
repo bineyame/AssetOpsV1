@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-02-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W4-02 handoff (unit 5 reads/API BUILT incl. q9) -> unit 6 renewable/service pages + Overview cards
 
 Branch `task/W4-02-mini-grid-depth`. Unit 1 `00a5703a` (+ q1-ruling-2 repairs `1c1655ed`..`57aaf24e`); unit 2

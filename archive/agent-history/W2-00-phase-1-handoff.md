@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-00-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # W2-00 phase 1 handoff — PARTIAL (survey and plan only; no code yet)
 
 Branch `task/W2-00-source-events` at `9c21aabf`; worktree clean apart from this file. The context budget ran out during the survey (about 140k tokens), so the slice stops here, as the brief requires. Resume from "Build order". Settle the open questions first: the brief says to stop rather than choose.

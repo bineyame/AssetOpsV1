@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K3.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K3 fuel balance (`fuel-balance-1`, 0055, R3g, R3h)
 
 - Reviewer: Claude Opus (independent first review; did not author the slice). 2026-11-08.

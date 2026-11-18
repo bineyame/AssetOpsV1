@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01a-rechain-brief.md on 2026-11-18 (declutter step 4).
 # S6-01a re-chain and merge prep (Sonnet)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`, branch `task/S6-01a-action-store-read` (reviewed; reopen review ACCEPT). Main is now `5536f228` (contains LR-01 migrations `0014_*` and `0015_finding_returning_basis`, S5-01, S4-06, S4-07, OPS-01, keep-awake display fix).

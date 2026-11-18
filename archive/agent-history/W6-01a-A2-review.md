@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W6-01a-A2-review.md on 2026-11-18 (declutter step 4).
 # W6-01a unit A2 review (fresh independent Claude reviewer), with the A1 reopen
 
 Branch `task/W6-01a-global-incidents`, head `87a34a75`. Code diff `git diff befe6cf8 87a34a75 -- frontend backend tools`

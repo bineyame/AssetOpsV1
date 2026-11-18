@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02a-review-packet.md on 2026-11-18 (declutter step 4).
 # S6-02a review packet - frozen verification, evaluator and exact read
 
 Task `tasks/S6-02a-verification-core.md` (Status `in_review`; USER_REVIEW_REQUIRED false: non-UI, mergeable after a

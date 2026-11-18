@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-6b3.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-6b3 coherence, proofs and the packet (size 1.3)
 
 **Backlog id mapping (merge prep, 2026-11-07):** this branch's BL-23, BL-24, BL-25, BL-26, BL-27 are now BL-33, BL-34, BL-35, BL-36, BL-37 (main keeps DD-1a2's BL-23..26; DD-1b1 holds BL-30..32). Renamed in the CH6b3-R* sections of `build-sheet-CH-6.md`, this packet, `review-CH-6b3.md`, `estate/portfolio.py:865` and `tools/checks/chain_coherence.py:1318` (comments). Older text elsewhere in this packet that says BL-23..27 means the old ids.

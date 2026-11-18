@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-G2.md on 2026-11-18 (declutter step 4).
 # Review OWN-G2 — automatic diesel-night check
 
 Reviewer: fresh Claude (Opus), independent of the builder. Branch `task/OWN-G2-diesel-night-check` at `e33d8f113`,

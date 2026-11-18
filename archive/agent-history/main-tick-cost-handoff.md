@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/main-tick-cost-handoff.md on 2026-11-18 (declutter step 4).
 # main-tick-cost handoff
 
 Branch `fix/main-tick-cost` from main `439c6127`. Not merged.

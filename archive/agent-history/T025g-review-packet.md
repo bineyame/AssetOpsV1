@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T025g-review-packet.md on 2026-11-18 (declutter step 4).
 # T025g review packet - The run is the only join of scenario and site (S1)
 
 Task: `tasks/T025g-run-binds-scenario-to-site.md` (`USER_REVIEW_REQUIRED: true`).

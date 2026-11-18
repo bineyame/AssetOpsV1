@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-plan-review.md on 2026-11-18 (declutter step 4).
 # S5-01 plan review (fresh independent Claude reviewer, 2026-10-15)
 
 Subject: `tasks/S5-01-site-overview.md` at `ce0a3f0b` on `plan/autonomy-2026-10-15` (Planner packet, no code). LR-01 read at `task/LR-01-late-reading-series-and-money-limit` head `17dc2f99` (unmerged, still building). The Architect's Finding-choice ruling was assumed to follow the Planner's recommendation, which is sound: the choice ignores price and keeps the same Finding through stale and withheld states.

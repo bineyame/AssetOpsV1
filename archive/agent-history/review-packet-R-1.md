@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-R-1.md on 2026-11-18 (declutter step 4).
 # Review packet R-1 (branch task/R-1-demo-fixes, from main afb0b9ccb)
 
 Spec: `.agent/architect-combined-pass-2026-11-08.md` A.1, A.2, A.5. Product backend untouched.

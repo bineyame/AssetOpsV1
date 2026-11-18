@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02c-plan-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S4-02c plan fix round 1: fresh re-review
 
 Reviewer: a fresh Claude re-reviewer. I did not write the packet, the first review (`.agent/S4-02c-plan-review.md`) or the fix round. Date 2026-10-14.

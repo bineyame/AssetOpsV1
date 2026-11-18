@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K4b.md on 2026-11-18 (declutter step 4).
 # Review: DIESEL-K4b (Protect MG-8 "Fuel accounted for", fuel Finding on the board, Portfolio Protect fuel lines)
 
 - Reviewer: fresh Claude (Opus), independent first review, 2026-11-08.

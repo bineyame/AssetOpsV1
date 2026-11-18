@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-commercial-capability-verification.md on 2026-11-18 (declutter step 4).
 # Architect follow-up: run the focused verification you could not start
 
 Your three documents in `Docs/demo-sprint/` record every test as "not executed" because the system Python has no pytest. The project Python works:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-S2-01b-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief: refine S2-01b (2026-10-08)
 
 Role: Planner (Codex). Branch: `task/S2-01b-durable-simulated-gateway`, cut from `task/S2-01a-registered-lab-basis` at `85a11c4` (S2-01a built, Codex first review ACCEPT WITH CARRIES, not yet merged to main).

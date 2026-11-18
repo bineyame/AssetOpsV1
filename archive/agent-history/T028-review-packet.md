@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T028-review-packet.md on 2026-11-18 (declutter step 4).
 # T028 review packet - First dispatch Finding with challengeable evidence
 
 Branch `task/T028-dispatch-finding-and-evidence` (26 commits over `main`, 69

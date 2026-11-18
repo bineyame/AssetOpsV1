@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/C2-packet.md on 2026-11-18 (declutter step 4).
 # E4-C2 review packet: prebuild follows the story calendar (D-E4.1)
 
 Branch `task/E4-C2-prebuild-follows-calendar` (from main 1f40cca0d). Commits 58f06b99d, f8b95e251.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-COLD-DRAIN-review.md on 2026-11-18 (declutter step 4).
 # FIX-COLD-DRAIN review
 
 Reviewer: fresh Claude Reviewer, not the author. Branch `task/FIX-COLD-DRAIN-tick`, head `a91da360a`, base `ce5df006c`.

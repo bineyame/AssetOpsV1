@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S4-01-request-2.md on 2026-11-18 (declutter step 4).
 # Architect request: S4-01 phase-1 fix-round questions (2026-10-12)
 
 Owner Codex rule (verbatim, 2026-10-11): "codex usage optimizaion is important, so keep the same arragment for S2 going forward" — batched.

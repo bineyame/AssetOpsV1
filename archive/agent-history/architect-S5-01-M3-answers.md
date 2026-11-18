@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-S5-01-M3-answers.md on 2026-11-18 (declutter step 4).
 # Architect ruling - S5-01 phase-1 review M3 (2026-10-15)
 
 Authority: `.agent/architect-S5-01-M3-request.md`, the independent S5-01 phase-1 review M3, `tasks/LR-01-late-reading-series-and-money-limit.md`, `tasks/S5-01-site-overview.md`, the P02 late-power spec, the owner's S4-02b demonstration ruling, and `D-2026-10-15-s405-stored-demo-provenance`.

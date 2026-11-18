@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02d-walkthrough-evidence.md on 2026-11-18 (declutter step 4).
 # S4-02d phase 3: automatic (tick-only) late-power walkthrough evidence
 
 Tool: `tools/s402d_tick_walkthrough.py run` (then `drop`), code from `dc4b7e4f` (git HEAD, staged into a private

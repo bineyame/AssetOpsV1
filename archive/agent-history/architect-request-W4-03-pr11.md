@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-pr11.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 PR-11, the unit-9a readings and the 9b–12 open items (u9)
 
 Read:

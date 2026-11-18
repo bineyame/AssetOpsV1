@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/A-action-lifecycle-review.md on 2026-11-18 (declutter step 4).
 # A-action-lifecycle Architect decision review
 
 Reviewer: fresh Claude reviewer. I did not write the Architect request, the answers, the decision or the registry edit.

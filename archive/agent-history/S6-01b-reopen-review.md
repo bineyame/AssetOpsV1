@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-reopen-review.md on 2026-11-18 (declutter step 4).
 # S6-01b reopen round - independent re-review
 
 Reviewer: fresh Claude reviewer (not the author). Worktree `AssetOpsV1-review4`, branch `review/S6-01b-reopen` at `4aeaa781`. Diff `4603ceaf..4aeaa781`. Scope: the targeted checks in the dispatch, against ruling `D-2026-10-15-s601-reopen` (S6-01b part) and slice review L1-L3.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W1-a-review.md on 2026-11-18 (declutter step 4).
 # post-W6 W1-a: independent review
 
 Reviewer: fresh Claude reviewer (did not author the slice). Worktree `AssetOpsV1-review4`, branch `task/post-W6-W1-a`,

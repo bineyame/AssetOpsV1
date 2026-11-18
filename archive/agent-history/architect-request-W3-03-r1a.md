@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W3-03-r1a.md on 2026-11-18 (declutter step 4).
 # Architect request: W3-03 run-1a question and readings (r1a), plus a 1b/2 dry-read
 
 Read:

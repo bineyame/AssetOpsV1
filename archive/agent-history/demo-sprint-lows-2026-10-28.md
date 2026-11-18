@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/demo-sprint-lows-2026-10-28.md on 2026-11-18 (declutter step 4).
 # Demo-sprint review Lows (open; fold into a Sonnet fix round or the backlog)
 
 - TEL-T1 L1: the emulator does not count a write sent during a pause.

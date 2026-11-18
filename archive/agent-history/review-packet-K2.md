@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K2.md on 2026-11-18 (declutter step 4).
 # Review packet: DIESEL-K2 (fuel delivery and tank dip records, migration 0054)
 
 **Task:** the K2 card, `.agent/build-sheet-DIESEL-1.md` §9c.2 (ruling DIESEL-1-R3c, commit e6e3bedd1).

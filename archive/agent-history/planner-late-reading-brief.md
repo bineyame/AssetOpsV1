@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/planner-late-reading-brief.md on 2026-11-18 (declutter step 4).
 # Planner brief — late-reading series and money limit (`I-late-reading-series-and-money-limit`)
 
 You are the AssetOps Planner (Codex). The owner chose this task next (`.agent/owner-next-work-2026-10-15.md`, 0.20% contest over `I-action-store`). Write one implementation-ready task packet on this branch (`plan/late-reading-series`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-gap-planning`, from main `af6f1306`). Do not write code. The coordinator commits your edits.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-6b2.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-6b2 (Portfolio cards and board Grow from server claims), lane 1
 
 Branch `task/CH-6b2-portfolio-cards` (main with FIX-MAIN-4 merged), worktree `AssetOpsV1-ch6b2`. Rulings: CH6b2-R in `AssetOpsV1-plan2\.agent\build-sheet-CH-6.md`. USER_REVIEW: none required. Not merged.

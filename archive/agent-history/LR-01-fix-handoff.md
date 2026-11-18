@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-fix-handoff.md on 2026-11-18 (declutter step 4).
 # LR-01 fix round handoff
 
 Branch `task/LR-01-late-reading-series-and-money-limit`. Items:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-02-q8.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-02 q8 (FAILED mini jobs on older MINIGRID Sites)
 
 Read:

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-01-phase-2-handoff.md on 2026-11-18 (declutter step 4).
 # S5-01 phase 2 handoff - Site UI, walkthrough and slice closeout
 
 Branch `task/S5-01-site-overview`; phase 2 commits from `440a2bad`; LR-01 fix rounds 1 (`78a47be5`) and 2 (`e8d555bc`)

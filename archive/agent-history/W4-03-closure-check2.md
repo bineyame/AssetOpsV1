@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-closure-check2.md on 2026-11-18 (declutter step 4).
 # W4-03 closure check 2 (2026-10-20)
 Main 7395f5c3 (Merge plan/W4-03-closure2). Read-only check of "Review closure 2" in .agent/W4-03-build-spec.md.
 

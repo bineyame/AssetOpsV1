@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-K8.md on 2026-11-18 (declutter step 4).
 # Review packet: K8 code phase (four-Site screens), ruling DIESEL-1-R3p (§9p)
 
 - **Card:** `.agent/build-sheet-DIESEL-1.md` §9p (binding).

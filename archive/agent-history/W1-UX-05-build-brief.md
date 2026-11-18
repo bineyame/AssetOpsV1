@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-UX-05-build-brief.md on 2026-11-18 (declutter step 4).
 # W1-UX-05 build - implementer brief
 
 Work ONLY in worktree `C:/Users/assef/Bineyame/AssetOpsV1-review5`, branch `task/W1-UX-05` (from main after W1-UX-01 merged). Touch no other worktree. Frontend only unless the packet names a missing backend label (then stop and report first). Run `npm.cmd ci` in `frontend/` if `node_modules` is missing or stale. Other UX slices build in parallel in other worktrees: keep shared-file edits (`frontend/src/ui/productWords.ts`, `ProductStatus.tsx`, `productVocabulary.json`, `primitives.css`, `test/settled.ts`) additive and minimal so merges stay unions.

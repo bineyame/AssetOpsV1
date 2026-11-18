@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-01-phase-handoff.md on 2026-11-18 (declutter step 4).
 # W4-01 phase handoff - run 10: commit 5 (Site UI) built; q8 open; review packet written (2026-10-20)
 
 Merged main (`291341c4`, `.agent` W3-01 only). **Commit 5**: `8e0f331b` (routes, views, guard, registry tags),

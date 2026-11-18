@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PRE-S3-03-fix-rereview.md on 2026-11-18 (declutter step 4).
 # PRE-S3-03 fix round 1 re-review
 
 Fresh Claude reviewer (verification re-review of commit 49144bb, diff 453a568..49144bb for product files).

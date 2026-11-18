@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-WALK1-4.md on 2026-11-18 (declutter step 4).
 # Review packet: WALK1-4 (Kobo reports the midday solar-check readings)
 
 Branch `task/WALK1-4-kobo-solar-readings` from main `362dc4fe6`. Spec: `AssetOpsV1-plan2/.agent/build-sheet-WALK1.md`

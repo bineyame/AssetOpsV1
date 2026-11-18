@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/delivery-drafts/questions-for-architect.md on 2026-11-18 (declutter step 4).
 # Architect questions to batch with S2-02 — 2026-10-09
 
 Planning only. These require architecture authority; the Planner's registry/queue copy edits and owner core/demo-value choices are not Architect questions. Please answer as one batch before S3-01 activation, after S2-02 reviewed/owner closeout where the decision depends on its actual contract.

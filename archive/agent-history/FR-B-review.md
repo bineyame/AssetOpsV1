@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FR-B-review.md on 2026-11-18 (declutter step 4).
 # FR-B part 2 review: ACCEPT WITH NOTES
 - No product code changed (7 files: 5 tests, run-host-tests.ps1, packet). No stray files; tree clean.
 - w207: 0053 + channel_check exclusion applies only to the 0025 comparison (default); head round-trip uses with_0053=True full set. Not weakened.

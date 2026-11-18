@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W4-03-pr1.md on 2026-11-18 (declutter step 4).
 # Architect request: W4-03 PR-1 (OPPORTUNITY stage counters)
 
 Read `.agent/W4-03-build-spec.md` (closures 4–5, the unit split), `.agent/W4-03-pending-rulings.md` PR-1, and the W4-02 q7 ruling in `.agent/W4-02-build-spec.md` (the MINI stage added counter columns to `schedule_site_head`).

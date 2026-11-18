@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-PB-1.md on 2026-11-18 (declutter step 4).
 # Review: POLISH PB-1 (shell, time consolidation, P-03)
 
 - Branch `task/POLISH-PB-1-shell-time`, head `700a4b7e4`, base main `ab248b4c3`. Diff `ab248b4c3...700a4b7e4` (82 files).

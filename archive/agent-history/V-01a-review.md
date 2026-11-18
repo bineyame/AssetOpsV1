@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01a-review.md on 2026-11-18 (declutter step 4).
 # V-01a review: Site and Foundation visual fidelity (fresh Claude reviewer)
 
 This review was produced by a fresh Claude reviewer that did not author V-01a.

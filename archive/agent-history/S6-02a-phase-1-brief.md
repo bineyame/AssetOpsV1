@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02a-phase-1-brief.md on 2026-11-18 (declutter step 4).
 # S6-02a phase 1 - implementer brief
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review4`, branch `task/S6-02a-verification-core` (from main `1096ba48`). Touch no other worktree.

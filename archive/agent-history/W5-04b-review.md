@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04b-review.md on 2026-11-18 (declutter step 4).
 # W5-04b review: V3a (EV case tabs) and V3b (cases, captures, ledger)
 
 Independent Claude reviewer, 2026-10-24. Branch `task/W5-04b-ev-cases` at `bf7b0856`; diff `ad7b82f9..bf7b0856`, excluding `.agent`. Main was merged at `84e9a233`.

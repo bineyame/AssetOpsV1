@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-W5-04-ui.md on 2026-11-18 (declutter step 4).
 # Architect request: W5-04 UI readiness, 14 points (V2a-V5)
 
 Read:

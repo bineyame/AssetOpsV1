@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-03b-e5-rulings.md on 2026-11-18 (declutter step 4).
 # W5-03b E5 Architect rulings on backend review A1-A6
 
 Codex Architect, 2026-10-23. Applies to `task/W5-03b-e5-backend` at reviewed head `50b43246`. These rulings amend `.agent/W5-03-build-spec.md`; the implementation still requires correction and independent re-review. No product code is changed here.

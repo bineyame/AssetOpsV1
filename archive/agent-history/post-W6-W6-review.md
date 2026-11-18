@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W6-review.md on 2026-11-18 (declutter step 4).
 # Independent review: post-W6 W6-global-Work (fix card + caps fix round)
 
 Reviewer: fresh Claude reviewer (not the author). Branch `task/post-W6-W6-global`, head `b41e56c6`, product `6f54ad1b`,

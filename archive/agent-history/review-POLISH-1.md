@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-POLISH-1.md on 2026-11-18 (declutter step 4).
 # Review: OWN-POLISH-1 (head 099aa4969 vs main 575c13222)
 
 Verdict: ACCEPT (no High/Medium; one Info note).

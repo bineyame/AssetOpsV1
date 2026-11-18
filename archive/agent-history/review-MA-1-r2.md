@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-MA-1-r2.md on 2026-11-18 (declutter step 4).
 # Re-review: MA-1 fix round 1 (v70 mock addendum)
 
 - Reviewer: independent Claude reviewer, 2026-11-03. I did not author the work and made no edits to the branch.

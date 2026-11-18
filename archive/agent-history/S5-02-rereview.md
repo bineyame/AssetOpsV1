@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S5-02-rereview.md on 2026-11-18 (declutter step 4).
 # S5-02 re-review - fix round 1
 
 Reviewer: fresh Claude reviewer. It did not author the slice or the fix. Reviewed revision `f5a6903f` (head of

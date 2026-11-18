@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/LR-01-fix2-brief.md on 2026-11-18 (declutter step 4).
 # LR-01 fix round 2 (Sonnet)
 
 Work ONLY in worktree `C:\Users\assef\Bineyame\AssetOpsV1-review`, branch `task/LR-01-late-reading-series-and-money-limit` (head `2fb026c1`). Same environment as `.agent/LR-01-fix-brief.md` (main venv python + PYTHONPATH override to this worktree; real frontend node_modules here; private `_test` DB; keep-awake running). Do not touch the main checkout or `AssetOpsV1-review2`.

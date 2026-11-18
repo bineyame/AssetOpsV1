@@ -1,3 +1,4 @@
+# Finished; historical. Archived from .agent/T026-phase-2-probes.sh on 2026-11-18 (declutter step 4).
 #!/usr/bin/env bash
 # T026 phase 2 guard probes: each introduces one violation, runs the guard
 # meant to catch it, reports CAUGHT/MISSED, and restores the file from HEAD.

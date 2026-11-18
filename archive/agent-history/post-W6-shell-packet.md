@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-shell-packet.md on 2026-11-18 (declutter step 4).
 # post-W6 shell-typography-copy: implementer packet (verification batch)
 
 - **Branch:** `task/post-W6-shell`, worktree `AssetOpsV1-review3`.

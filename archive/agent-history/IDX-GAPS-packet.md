@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/IDX-GAPS-packet.md on 2026-11-18 (declutter step 4).
 # IDX-GAPS review packet · Finding index `finding-index/2`
 
 Task: `tasks/IDX-GAPS-finding-index-v2.md`. Contract: `AssetOpsV1-plan2/.agent/build-sheet-IDX-GAPS.md` + Addenda 1-3

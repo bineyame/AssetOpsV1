@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FX-EV-TITLE-packet.md on 2026-11-18 (declutter step 4).
 # FX-EV-TITLE packet (D-E5.9 / D-E5.10)
 
 Change: EV action title literal "Investigate connector 2" -> "Investigate connector c1" in tools/w504_ev_work_cases.py:52 (the producer ACTION).

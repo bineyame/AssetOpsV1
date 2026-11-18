@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-G1.md on 2026-11-18 (declutter step 4).
 # Review: OWN-G1 add-dates (first independent review)
 
 Reviewer: Claude (fresh, not the author). Branch `task/OWN-G1-add-dates`, worktree `AssetOpsV1-g1`, HEAD `a7d87479d`,

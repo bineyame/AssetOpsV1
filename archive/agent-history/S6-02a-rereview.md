@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-02a-rereview.md on 2026-11-18 (declutter step 4).
 # S6-02a fix round 1 re-review: verification core
 
 Reviewer: a fresh, independent Claude reviewer. I did not author this slice or its fixes. I reviewed worktree

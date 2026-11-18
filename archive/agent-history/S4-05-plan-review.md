@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05-plan-review.md on 2026-11-18 (declutter step 4).
 # S4-05 plan review - stored demonstration provenance
 
 Reviewer: fresh Claude (independent; did not author the packet). Date: 2026-10-15.

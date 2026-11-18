@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-5a2b.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-5a2b (PC-1 count claims, COH-17, board off the estate snapshot, Q11 cutoff)
 
 Branch `task/CH-5a2b-chain-counts`. Authority: `AssetOpsV1-plan2\.agent\build-sheet-CH-5a.md` §B13 as amended

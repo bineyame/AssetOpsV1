@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PB-1a-packet.md on 2026-11-18 (declutter step 4).
 # PB-1a packet: Cold analysed periods (backend)
 
 Branch `task/PB-1a-cold-periods` (wt `AssetOpsV1-pb1`), from main `fd9c88860`. Card: `.agent/architect-answer-non-kobo-sites-2026-11-10.md` PB-1a; rule D-E5.31.

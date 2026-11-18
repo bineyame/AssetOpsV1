@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-R373-rulings.md on 2026-11-18 (declutter step 4).
 # Architect request: R373 pre-flight rulings
 
 You are the AssetOps Architect. Read `.agent/post-W6-R373-preflight.md`: the builder's 8 questions with recommended defaults for the security D3 R373 (audit B19-15). Also read your ruling "B19-15 access" in `.agent/post-W6-audit/fix-slices.md` and the code it cites (`backend/.../main.py` around 555-585, `global_work_api.py`, the WorkGate).

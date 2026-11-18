@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-closure4-check.md on 2026-11-18 (declutter step 4).
 # W3-03 closure 4 check (main 4d5c0365; spec L337-399)
 
 Result: 31 CLOSED, 2 OPEN (S4, S7). Items not listed below are CLOSED.

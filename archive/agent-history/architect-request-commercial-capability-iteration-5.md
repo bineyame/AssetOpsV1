@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-request-commercial-capability-iteration-5.md on 2026-11-18 (declutter step 4).
 # Architect request: commercial capability — short final clarification (iteration 5)
 
 You are the AssetOps Architect. The authority for this task is the owner's deep review, word for word, in `.agent/owner-commercial-capability-deep-review-2026-10-26.md`. Read all of it.

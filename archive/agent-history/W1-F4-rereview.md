@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W1-F4-rereview.md on 2026-11-18 (declutter step 4).
 # W1-F4 re-review (after fix rounds 1 and 2)
 
 - Reviewer: fresh independent Claude reviewer. Revision `7a8df01c` (code as of `2045cfdd`). Diff `1132c336..7a8df01c -- frontend`.

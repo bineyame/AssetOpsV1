@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/PERF-01-review.md on 2026-11-18 (declutter step 4).
 # PERF-01 review: baseline and quick wins
 
 Reviewer: a fresh Claude Reviewer, independent of the builder. Branch `task/PERF-01-baseline-quick-wins`, head d4fe44a5, diffed against main 504ae5f1 (the merge base).

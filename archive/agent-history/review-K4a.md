@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-K4a.md on 2026-11-18 (declutter step 4).
 # Review K4a: unexplained-fuel Finding, fuel-residual-1 money (0056), R3k filters, theft strings
 
 - Reviewer: Claude (Opus), fresh context, first review. Not the author.

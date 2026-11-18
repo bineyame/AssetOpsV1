@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W2-05a-pending-rulings.md on 2026-11-18 (declutter step 4).
 # W2-05a items awaiting Architect ruling before merge (batched; coordinator 2026-10-18)
 
 From the ev-sld compaction run (branch task/W2-05a-ev-foundation; parts panel now 1.29x mock):

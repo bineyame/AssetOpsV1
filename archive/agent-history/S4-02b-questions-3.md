@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-02b-questions-3.md on 2026-11-18 (declutter step 4).
 # S4-02b phase 2b: questions and conservative choices (Implementer, 2026-10-14)
 
 None blocks review. Each has a built, conservative default.

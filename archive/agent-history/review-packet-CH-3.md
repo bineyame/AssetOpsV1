@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-CH-3.md on 2026-11-18 (declutter step 4).
 # Review packet: CH-3 thread lifecycle and feedback
 
 - Branch `task/CH-3-lifecycle`, worktree `AssetOpsV1-ch3`. Head: see the final commit on the branch (this packet's commit).

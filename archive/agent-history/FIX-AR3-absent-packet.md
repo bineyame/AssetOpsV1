@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/FIX-AR3-absent-packet.md on 2026-11-18 (declutter step 4).
 # FIX-AR3-absent packet (D-ANY.10)
 
 Branch `fix/AR-3-absent-compose` off main 49c0ca628. Not merged.

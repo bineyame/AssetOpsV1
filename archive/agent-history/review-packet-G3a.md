@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/review-packet-G3a.md on 2026-11-18 (declutter step 4).
 # Review packet: OWN-G3a, saving operational records from the screen (backend)
 
 Branch `task/OWN-G3a-operational-entry-api` (main merged at `1d666d410`). Spec: `.agent/build-sheet-OWN-GAPS-2026-11-08.md`

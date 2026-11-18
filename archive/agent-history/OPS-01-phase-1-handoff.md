@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-01-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # OPS-01 phase 1 handoff
 
 Branch `task/OPS-01-backend-test-speed`, from main `52189ec7`. Phase 1 is complete; the next step is phase 2 (xdist). Nothing is merged.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/TEL-05b-questions.md on 2026-11-18 (declutter step 4).
 # TEL-05b builder questions (2026-10-28)
 
 Items the spec does not settle. Each is built to the literal spec text or the existing contract, named here, and left for the Architect; none is a new design. None blocks the non-DB phase; Q1 and Q2 should be ruled before the two Postgres runs are taken as acceptance.

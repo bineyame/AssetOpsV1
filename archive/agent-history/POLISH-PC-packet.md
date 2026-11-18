@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/POLISH-PC-packet.md on 2026-11-18 (declutter step 4).
 # POLISH-PC review packet: final gate of the client-demo polish round
 
 Task: `tasks/POLISH-PC-final-gate.md`. Spec: `.agent/build-sheet-POLISH.md` §5 PC, §6, §7, Addenda 1-13 (Addendum 13

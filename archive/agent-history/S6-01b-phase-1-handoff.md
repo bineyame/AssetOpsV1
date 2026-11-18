@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S6-01b-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S6-01b phase 1 handoff
 
 Branch `task/S6-01b-action-ui` (stacked on unmerged S6-01a `c341599b`). Commits: `f538dc56` (build) and the tests commit after it. Not merged. Task Status is unchanged (`active`). No backend change.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/SR-5-packet.md on 2026-11-18 (declutter step 4).
 # SR-5 packet (WIP, stopped for the VPS move 2026-11-12)
 
 Branch `task/SR-5-range-board` (worktree `AssetOpsV1-sr5`, from main a9159c945). Spec: rev 9 §9.4 of

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-01c-phase-3a-handoff.md on 2026-11-18 (declutter step 4).
 # S2-01c phase 3a handoff: post-run release, Q5, Lab API
 
 Branch `task/S2-01c-gateway-diagnostics-faults`. Phase 3a is complete: answers-3 Q3/Q5, the backend Lab API and the `outbox_state` carry. Design defaults are in `.agent/S2-01c-questions-3.md` (Q1-Q4, fail-closed, none blocking). **Read Q1 first:** the pending report is the run's end-instant reading (source 15:00), not the 14:45 sample, because the alternative is a two-report batch release.

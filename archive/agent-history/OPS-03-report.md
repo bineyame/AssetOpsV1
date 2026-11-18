@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/OPS-03-report.md on 2026-11-18 (declutter step 4).
 # OPS-03 report: full backend suite inside the Compose network
 
 Branch `task/OPS-03-suite-in-container` from main `e8c9cef6`. Tooling only; no production code changed.

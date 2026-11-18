@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S4-05a-review.md on 2026-11-18 (declutter step 4).
 # S4-05a slice review - immutable source binding and exact-revision resolver
 
 Reviewer: fresh Claude reviewer (did not author the slice). Worktree `AssetOpsV1-review4`, branch

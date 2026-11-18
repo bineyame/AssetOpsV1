@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W4-03-final-review.md on 2026-11-18 (declutter step 4).
 # W4-03 final independent review
 
 Branch `task/W4-03-mini-decisions-work`, head `f06e9bab`, base `main` `11517cf4` (the merge-base equals main's head).

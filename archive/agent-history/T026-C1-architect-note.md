@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/T026-C1-architect-note.md on 2026-11-18 (declutter step 4).
 # T026 C1 - are scenario control overrides operator commands? (Architect note)
 
 Produced by Claude under the ROLE_CONFIG exception (Architect bound to Claude

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S3-01-phase-1-handoff.md on 2026-11-18 (declutter step 4).
 # S3-01 phase 1 handoff - PARTIAL (stopped at the context budget)
 
 Branch `task/S3-01-dispatch-assessment`. Phase 1 is **not complete**: the role vocabulary and the Foundation property seam landed (1a); the demo-configuration publication, the registered capability publication profile, the `s3-dispatch-cases-v1` producer/manifest and the Candidate before/after proof (1b) are not built. Resume at "Next (1b)". Task file Status stays `active`; no review packet yet.

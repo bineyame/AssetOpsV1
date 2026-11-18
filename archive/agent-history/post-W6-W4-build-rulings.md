@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/post-W6-W4-build-rulings.md on 2026-11-18 (declutter step 4).
 # Architect rulings: post-W6 W4-mini build choices
 
 2026-10-25. These rulings amend `.agent/post-W6-W4-rulings.md` for the builder's units 1–4. They are implementation direction, not D3 closure, independent review, or owner acceptance. The v6.9 mock remains the layout reference; the owner's 2026-10-25 UI bar applies. No product-code change is authorized by this document alone.

@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W5-04a-review.md on 2026-11-18 (declutter step 4).
 # W5-04a backend review: V1a and V1b
 
 Independent Reviewer, 2026-10-24. Branch `task/W5-04a-ev-work-backend`, builder head `71e5cdc9`. Diff

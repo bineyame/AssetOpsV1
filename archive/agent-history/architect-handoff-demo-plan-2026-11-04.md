@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/architect-handoff-demo-plan-2026-11-04.md on 2026-11-18 (declutter step 4).
 # Architect handoff: client-demo plan, 2026-11-04
 
 Architect: Claude (`.ai/ROLE_CONFIG.md` "Architect Is Claude By Default"). This hands over from the Architect who wrote the plan and the CH-0 to CH-3 sheets. Nothing is committed by the Architect. The coordinator commits.

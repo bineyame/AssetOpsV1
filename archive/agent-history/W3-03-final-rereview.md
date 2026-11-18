@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/W3-03-final-rereview.md on 2026-11-18 (declutter step 4).
 # W3-03 final fix re-review (head 782c3044, base 85efbea7)
 
 ## Verdict: ACCEPT

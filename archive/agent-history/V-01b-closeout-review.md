@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/V-01b-closeout-review.md on 2026-11-18 (declutter step 4).
 # V-01b registry closeout review
 
 Reviewer: a fresh Claude reviewer who did not write this change. Branch `closeout/V-01b-registry` @ 58e117e vs main 34b2a9f. Metadata only.

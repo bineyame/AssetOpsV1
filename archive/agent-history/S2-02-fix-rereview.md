@@ -1,3 +1,4 @@
+> Finished; historical. Archived from .agent/S2-02-fix-rereview.md on 2026-11-18 (declutter step 4).
 # S2-02 fix round 1 - focused re-review
 
 Reviewer: a fresh Claude reviewer, independent of the S2-02 author and of the fix-round implementer.
