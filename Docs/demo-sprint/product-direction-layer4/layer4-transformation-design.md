@@ -1,6 +1,7 @@
 # AssetEcon Layer 4 design: the economic decision loop
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 13 (redesign, after twelve review rounds) · AssetOps Architect (Claude) · 17 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 13 (redesign, after twelve review rounds) · AssetOps Architect (Claude) · 17 Nov 2026 · rev 14 update 18 Nov 2026 (grounded path)**
+**Rev 14 update.** At the owner's request (`.agent/owner-grounded-transition-request-2026-11-18.md`), the design states how today's chain is re-grounded on the mechanics and becomes the delivery vehicle, ordered by what the client's screens show: what a Finding means and may claim, how Evaluate acts on it (§2.2, §2.3), the Action as the user's carrier (§2.5), emulators as placeholders for the canonical contract (§4), the parity rule for the outcome map (§5), every existing construct placed on the mechanics (§8.5) and the visible-first delivery order (§9). The mechanics and figures are unchanged. Full mapping and the compromise register: `product-transition-and-roadmap.md` §3.6–§3.9.
 **Status:** design for owner review. No application code, test, database or existing mock-up version was changed. Repository: branch `task/product-direction-layer4-design`; backend, frontend, simulator and tools are unchanged since `bf6014e02`, so every code citation below was read against current code.
 **Product contract:** owner brief v1.1, Parts I–V (`.agent/AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md`). This document answers Part VI as the owner clarified it on 17 Nov 2026 (`.agent/owner-layer4-direction-feedback-2026-11-17.md`).
 
@@ -13,6 +14,8 @@ The owner judged rev 3 "narrow stitched ideas" rather than a fundamental design,
 Read against the brief, rev 3's main document was organised around today's repository structures (its §3 walked `moves`, `checks`, `CONTRIBUTIONS`, threads and cases and added extensions D1–D10), although the brief asks that the primary document not be organised by inventory (C0); it decided reuse before establishing the mechanics, treating the brief's "smallest coherent extension" (C0) as a design principle, and its extensions were shaped around one path (the Kobo generator Finding, the reserve trial, the mini-grid thread); and its mock-up added a decision menu group and a CEO/COO/CFO/CCO toggle to v7.0, although the brief treats the four questions as experience requirements, not views (L1.3).
 
 This revision builds its mechanics from the structure the brief itself defines in Parts I–V (§1, with the source of every mechanic in §2.7): each outcome is defined by measured factors, the factors are observed independently from source facts, and outcome states, including shortfalls, are computed through that structure. The mechanics are general: they are defined once for every outcome, asset type and lever class, and the three verticals are instances of them, not their source. The worked sites (Kobo and the others) illustrate the mechanics; they do not define them. Everything else is derived from the mechanics: outcomes, levers and capabilities (§3), the integrations needed (§4), the algorithms new and changed (§5), the UI strategy and restructured Portfolio (§6), the worked portfolios (§7), the judgement of today's code on merit (§8) and the delivery order (§9). One departure from the brief is deliberate: C0's "smallest coherent extension" is applied as the owner clarified it — reuse where a part serves a mechanic well, rework or replace it where it does not, and never build a parallel engine (§8).
+
+**Rev 14 and today's constructs.** Rev 3 was organised around today's structures and rejected for it. Rev 14 does not return to that: the mechanics stay first, and today's Findings, threads, what-ifs, Actions and verification are placed on them afterwards, each with what it becomes (§8.5). Placing them keeps what already serves the mechanics and lets the product reach useful, differentiated screens sooner, which is the owner's governing criterion (18 Nov).
 
 ## Owner review in 30 minutes
 
@@ -128,6 +131,7 @@ Each factor carries a **shared factor ID and period ID** (the brief's "shared dr
 
 - **Leaf factors are observed independently**, each from its own evidence: litres from delivery notes and tank dips; billed kWh from the billing export; necessary vs candidate running from dispatch classification of telemetry; occupied crate-days from the storage ledger; departures met from the roster and the charging log. This is S2's "independently identified drivers".
 - **Existing analyses are factor observers.** Dispatch-3.2 observes the split of generator energy into necessary and candidate running; the fuel balance observes litres beyond what the generator model explains; the cold excursion analysis observes chamber temperature against each batch's limit; EV fault Findings observe chargers in service. A Finding is a statement about a factor, not an explanation searched for after a variance.
+- **What a Finding means.** A Finding is an observation of a **condition on a factor key** (site, factor ID, period): the factor deviates from plan, approaches or breaches a bound, or a latent factor appears (the three kinds of attention below). Each stored Finding mechanism names its factor and condition through one observer row of the registry; a condition with no physical observer (necessary running above plan, kWh billed below plan, a customer's letter of intent) is shown as a Finding computed from the structure. A Finding **may claim** its condition, in the factor's unit and period, within its observer's claim ceiling, and cite the structure's attribution of that factor. It **may not claim** an outcome value, money of its own, a saving or the value of acting; the outcome is always read upward through the structure.
 - **Deviations propagate upward.** Each node's deviation from plan is the propagation of its factors' deviations, so the bridge — the attribution of an outcome's deviation to its factors — is a reading of the structure. For sums the attribution is exact; for products a declared rule is used and shown (volume effect at plan price, then price effect at actual volume).
 - **An unexplained residual exists only where a leaf is not observed or the structure is incomplete**, and it is shown as a factor in its own right ("litres consumed beyond what the generator model explains"), with a tolerance that decides whether it is investigated (S2: "explicitly unexplained residual").
 - **Coverage is a property of the structure.** If a leaf has no source record, every node above it is partially observed; the share of the outcome resting on Recorded leaves is its coverage (A1, S1). Missing is never zero.
@@ -166,6 +170,8 @@ on contribution for service businesses, and on cost to serve with every required
 
 **Rights change the cost-bearer factor and its timing.** A right enters an option as the operator's **residual cost** under each remedy path (claim and wait, buy now and claim later, repair locally and lose cover), with notice deadlines, exclusions, downtime and transport. These are structural, not narrated: a right with an open notice deadline **lapses** for any path that files no notice by it (Mto's no action loses the 2,600 inverter cover on 27 Nov); an unauthorised repair **voids** cover (Kasarani's local repair, Thika's self-funded controller); a supplier restores only while the right is covered, so a denied claim moves the restore date; and the lost or unclaimable cover is a node that a declared bound tests. A right is never money until a credit note or receipt is recorded (R3a).
 
+**Evaluate acts on Findings.** A Finding on a factor key opens a decision when a lever is declared for that factor; the Finding is the decision's trigger, frozen into it, and its evidence (threads, records) attaches to the same key. A Finding with no lever stays a Finding whose next step is to investigate. A decision is a choice between options about one factor, never "the fix for this Finding", so gross exposure never becomes an option's value.
+
 **Each option ends in one disposition with its reason** — Recommended, Conditional, Acceptable, Deferred, Rejected — answering the experience invariant (L3.6): what is possible, why it matters economically, why this lever rather than alternatives, what prevents action, how success is proved, which records are needed. No action is always shown with its consequence.
 
 **Refusal M3.** No option is recommended when a hard bound fails or is unknown under a refuse policy, or when its value depends on a missing factor; the screen names the record or test that would resolve it. Every rejection is a declared bound measured on the option's own nodes; none is typed (Kobo's reserve change fails dawn adequacy on the replay's 4 of 61 days; Mto's no action fails the cover bound).
@@ -190,7 +196,7 @@ Three orderings are kept apart, as the commission requires: **triage** (what to 
 
 *From the brief:* S8, A3, the unit hierarchy's verified effect, R3a states, C1 Deliverable 5 verification.
 
-**Job.** A chosen option becomes a **commitment**: a frozen prediction (which factors should move, by how much, which bounds must hold, over which windows) handed to the work carrier that executes it (a controller trial, a domain action, a work case, a supplier claim). After the change the **same factors are observed** through the same structure, giving three separate verdicts:
+**Job.** A chosen option becomes a **commitment**: a frozen prediction (which factors should move, by how much, which bounds must hold, over which windows) handed to the work carrier that executes it (a controller trial, a domain action, a work case, a supplier claim). The user acts on it and tracks it as an **Action**, through today's carriers; the decision links its chosen option to the carrier, so the Action, its frozen prediction and its verdicts refer to the same factors. After the change the **same factors are observed** through the same structure, giving three separate verdicts:
 
 | Verdict | Question | Evidence |
 |---|---|---|
@@ -334,7 +340,7 @@ The structures of §2.1 end in leaf factors, and each leaf factor needs one fami
 
 **Integration design decisions.**
 1. **Keep stores by the nature of the fact.** Interval telemetry stays in the evidence ledger; operational records stay where they are; money-denominated, effective-dated source transactions (bills, receipts, plans, rosters, tariffs, contract documents, QA notes) get one new **commercial record** store with immutable raw payload and source-versioned revisions, because nothing in the repository holds them and the existing intake is first-write-wins (`evidence/service.py:487-492`) and refuses late intervals (`reading_upload/service.py:244-248`) [code-observed] — the opposite of what commercial records need. No universal schema replaces existing stores.
-2. **Pilot-first intake.** Every source enters through file export or upload of its native shape (CSV, statement, PDF) on the authenticated site-bound path; APIs replace transport, not parsers. Demonstration emulators emit the same shapes through the same path, labelled *source-emulated*.
+2. **Pilot-first intake.** Every source enters through file export or upload of its native shape (CSV, statement, PDF) on the authenticated site-bound path; APIs replace transport, not parsers. Demonstration emulators emit the same shapes through the same path, labelled *source-emulated*. An emulator is a **placeholder source**: it defines and exercises the canonical records everything downstream uses, encodes nothing a real source of its type would not provide, and labels its outputs Emulated; a real adapter replaces it by passing the same contract test, and nothing downstream changes (`integration-source-to-canonical-design.md` §7.3).
 3. **Contract documents** are read by AI-assisted extraction into obligation, condition, exception, notice and remedy rows, each with a page reference and **mandatory human review**; extraction is evidence for a person, never a coverage decision.
 4. **Identity is effective-dated**: meter → customer, serial → asset, idTag → bus, batch → customer; late records revise closed periods.
 5. **Rights and permissions are hard constraints**: tenant isolation at ingestion, customer data minimisation (customer identifiers are personal data), no provider API assumed without contractual access.
@@ -356,7 +362,7 @@ Each mechanic needs specific computations. Deterministic first: every first-demo
 | M2 | **Occupancy ledger observer** (crate-days from check-in/out, compatibility) | **new** | — | chargeable crate-days, idle capacity |
 | M2 | **Tariff pricing of energy** (time-of-use, demand charge, effective-dated contract terms) | **new** | peak warning only (`analytics/ev_depth.py:134-158`) [code-observed] | prices every kWh by its interval; used for actuals and counterfactuals alike |
 | M2 | **Attribution through the structure** (each outcome deviation attributed to factor deviations; declared rule for products; residual factor; tolerance) | **new** | overlap marking seed: `estate/financials.py:361` `_overlaps`, CONFLICT [code-observed] | shared factor IDs replace overlap groups; Σ attributions + residual = deviation enforced |
-| M1 | **Outcome map → structure definitions** | **modified** | outcome map `CONTRIBUTIONS`: 10 rows, all MOVES, signal → outcome (`outcomes/outcome_map.py:149-180`) [code-observed] | same code-registry form and start-up integrity check, now declaring outcome → factor relations; each signal row names the factor it observes; MOVES/CHECKED become the L2.5 roles (primary, trade-off, constraint) |
+| M1 | **Outcome map → structure definitions** | **modified** | outcome map `CONTRIBUTIONS`: 10 rows, all MOVES, signal → outcome (`outcomes/outcome_map.py:149-180`) [code-observed] | same code-registry form and start-up integrity check, now declaring outcome → factor relations; each signal row names the factor it observes; MOVES/CHECKED become the L2.5 roles (primary, trade-off, constraint). Migration: `outcome_roles` and `categories_for` are computed from the registry behind an unchanged wire, a parity test against today's literal entries rules every difference, then the literal is removed |
 | M2 | **Dispatch classification** (Necessary / Candidate) | **kept** | dispatch-3.2 [test-confirmed, baseline §3.11] | observer of the necessary / candidate split of generator energy; no longer the value |
 | M2 | **Normalised refrigeration energy observer** (kWh = base + k × crate-days, ambient-corrected) | **new** | excursion analysis only (`analytics/cold.py`) [code-observed] | separates low occupancy from inefficiency (Mwea +0.6% vs Kirinyaga +24%) |
 | M2 | **Batch exposure observer** (presence interval × chamber temperature × commodity limit) | **new** | excursion Finding (kept) | exposure ≠ damage (needs QA record) ≠ liability (needs contract clause) |
@@ -1055,7 +1061,7 @@ Many existing parts remain right for where the product is going; some do not. Ea
 | Evidence ledger, S2 ingestion, field gateway, role-bound readings | M2 telemetry leaves | first-write-wins with conflict detection is right for telemetry; quality grading and cohorts are already there |
 | Dispatch-3.2, cold excursion, EV fault and fuel-balance analyses and their Findings | M2 factor observers | careful, test-pinned, honest about limits; they observe factors of the structure rather than value them |
 | Finding threads and their lifecycle (REOPENED, RECURRED, RESOLUTION_WITHDRAWN) | M2 recurrence; M5 late-data withdrawal | a recurring physical issue is one evidence thread on a factor |
-| Work cases, domain actions, the trial Action | M5 execution carriers | four working lifecycles with owners and due dates; no new workflow engine is needed |
+| Work cases, domain actions, the trial Action | M5 execution carriers | four working lifecycles with owners and due dates; no new workflow engine is needed. They carry the chosen option, and the user acts on and tracks it as an Action |
 | Plan freeze and the operational verdict | M5 operational verdict | correct for the operational question; it only lacked the economic and causal verdicts |
 | Placement groups | triage | they honestly order *where to look*; kept for the Findings root, no longer the Portfolio's spine |
 | D-MONEY.3 (no stored totals) and the never-sum rules | M1 composition | exactly the composition rule the chain needs |
@@ -1100,13 +1106,34 @@ Many existing parts remain right for where the product is going; some do not. Ea
 | Allocation run | M4 | a stored, re-runnable result with reasons and switches |
 | Economic and causal verdicts | M5 | beside the operational verdict |
 
-**How a second engine is avoided.** Findings remain the only "what happened" claims; execution goes to existing carriers; obligation bounds are code rows like the outcome map, not a rules engine; telemetry stays in the evidence ledger. New code concentrates in a `decisions/` package (decision, options, evaluation, allocation), the structure registry and read, the commercial record intake, the rights register and the replay adapter.
+**How a second engine is avoided.** Findings remain the only "what happened" claims (stored by observers, or computed from the structure for conditions with no physical observer), and every one is keyed to a factor of the one registry; execution goes to existing carriers; obligation bounds are code rows like the outcome map, not a rules engine; telemetry stays in the evidence ledger. New code concentrates in a `decisions/` package (decision, options, evaluation, allocation), the structure registry and read, the commercial record intake, the rights register and the replay adapter.
+
+### 8.5 Every existing construct, placed on the mechanics (rev 14)
+
+The default is keep, extend or update; a part is retired only where it misleads or contradicts the mechanics (§8.3). The full table with code references and migration rules is `product-transition-and-roadmap.md` §3.7; in brief:
+
+| Construct | Becomes | Note |
+|---|---|---|
+| Findings | conditions on factor keys; decision triggers (§2.2, §2.3) | stores and lifecycle kept; observer rows added |
+| Threads | the history of one physical observation on a factor key | not the decision anchor; history of non-physical conditions is read from stored inputs |
+| What-ifs | STOP_SOC and PRODUCTIVE_LOAD: an option's calculation record; tariff contexts: sensitivities; the cold stock value: value at stake beside a bound | no authored amount is carried over |
+| Scenario definitions | the demonstration world's simulated intervals | not what-ifs; they stay on the simulator side |
+| Cold and EV replays | lineage reads of a simulated run (Assure) | not the forward replay, which stays new (§5) |
+| Objectives | plan values of operational factors | money plans come from plan lines; bounds from Protect measures |
+| Claim limits | a Finding's claim ceiling | kept |
+| Document bounds | parser safety limits | not an honesty bound; reused by the commercial parsers |
+| Possible extra fuel cost and its history | the at-stake bound of the candidate factor | never an option value; listed, never summed |
+| Depth reads, fuel balance, source health | factor observers, drill-downs, coverage per leaf | kept |
+| Actions, domain actions, work cases | the chosen option's carrier, tracked by the user | one decision link; one decision arm on the origin check |
+| Verification | the operational verdict, beside the economic and causal verdicts | outcome values never widened |
 
 ---
 
 ## 9. Delivery order, derived from the mechanics
 
 The loop has a dependency order: no outcome can be observed before its structure is declared and its money leaves have sources; nothing can be valued before the structure can be re-evaluated on changed factors; nothing allocated before options are valued. Each slice builds a **general primitive** of a mechanic — for every asset type and lever class — and proves it first on the vertical where evidence is richest (mini-grid), with a cold or EV fixture case in its acceptance tests so the primitive is not shaped by one path. Cold and EV then add only their own structures, observers and lever models. Full slices, gates and tests: `phase-plan-and-acceptance.md`.
+
+**Within that order, work runs visible first (rev 14).** Work is ordered by how soon a screen the client sees (Portfolio, Site, the decision views) becomes economically useful and differentiated, within the dependencies above and the honest-figure rules. The critical path stays records → plan against actual (slices 2–3). Beside it, in the second lane, run the parts that need no commercial records: findings shown on their factors (with slice 1), the registry and the structure read on observed factors (3a–3b), and the first cost-side decision (the Kobo setting change, 4a) with its Action and today's operational verdict. Proof (7) comes before rights (6), because the first customer change is committed at the diagnostic's close (`product-transition-and-roadmap.md` §3.6, §4.4).
 
 | Slice | Mechanic unlocked | Why here |
 |---|---|---|
@@ -1116,8 +1143,8 @@ The loop has a dependency order: no outcome can be observed before its structure
 | 3 Structure registry, bottom-up evaluation and attribution (general; mini-grid structure first, one cold and one captive-EV structure in the tests) | M1 + M2 | outcomes computed from factors, with attribution and coverage; CFO answer |
 | 4 Option evaluation, obligation bounds and the valuation identity (general), with the first lever models: forward dispatch replay and demand-on-headroom (mini-grid) | M3 | the general evaluator, proven where analysis is deepest, including a negative control |
 | 5 Allocator and the restructured Portfolio (general; first full demo vertical: mini-grid) | M4 + UI | the CEO/COO answer; the full mini-grid plan gate (including the inverter switch) closes at the end of slice 6, because its decisive options are rights options |
-| 6 Rights register, cost-bearer factors and claim states (general, all four contract types) | M3 rights, M5 states | entitlement contrast inside repair decisions |
-| 7 Verification triple | M5 | closes the loop with economic and causal verdicts |
+| 6 Rights register, cost-bearer factors and claim states (general, all four contract types) | M3 rights, M5 states | entitlement contrast inside repair decisions; built after slice 7 in the second lane (rev 14) |
+| 7 Verification triple | M5 | closes the loop with economic and causal verdicts; before slice 6, so the first customer change's money verdict can be given (rev 14) |
 | 8 Cold, then EV: their structures, factor observers (occupancy ledger, normalised energy, batch exposure; roster, tariff pricing, charging capacity and fault consequence) and lever models (deadline-aware schedule) | M1–M3 instances | the general primitives pay off; only vertical content is new |
 | 9 Pilot onboarding, field validation, investor and lender evidence pack (A4), optional explanation assistant | M2 sources | conversion to paid diagnostic |
 

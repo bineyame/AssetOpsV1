@@ -1,6 +1,6 @@
 # Domain and decision models
 
-**Layer 4 companion · rev 12 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · design only, nothing built**
+**Layer 4 companion · rev 12 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026 · rev 13 update 18 Nov 2026 (grounded path: Findings as decision triggers, Actions as carriers, §1.1, §1.2, §1.5) · design only, nothing built**
 **Answers:** brief Part VI, C1 Deliverable 4 (vertical algorithms, time-series reasoning, intervention models) and Deliverable 5 (decision orchestration, safeguards, allocation, verification), and C3 (mandatory scenario tests), for the five mechanics of `layer4-transformation-design.md` §2: **M1 Define**, **M2 Observe**, **M3 Evaluate**, **M4 Choose**, **M5 Prove**.
 **Figures:** illustrative USD from `demo-site-scenario-manifest.yaml` (rev 11), evaluated by `evaluate_structure.py` into `derived-values.json`; `check_manifest.py` asserts every stated figure, and every figure tagged in this document, against the evaluation. Derived figures show their arithmetic. The forward-replay quantities **210 L, 20 L, 68 L** (and the 4-of-61 and 0-of-61 dawn results) are **design values** held in the manifest: the replay adapter must reproduce them from real series before anything relies on them. No simulator run was made for this document.
 
@@ -16,7 +16,7 @@
 
 ### 1.1 Attention arises at a factor
 
-The product does not watch outcomes and then search for causes. It **observes factors** (M2), computes every outcome through its declared structure (M1), and therefore sees a deviation or a threat **at the factor where it arises**, usually before the outcome's money closes. Three things open a decision [proposed]:
+The product does not watch outcomes and then search for causes. It **observes factors** (M2), computes every outcome through its declared structure (M1), and therefore sees a deviation or a threat **at the factor where it arises**, usually before the outcome's money closes. Each of the three conditions below is shown to the user as a **Finding on its factor key**: stored, when a physical observer raised it (today's Findings), or computed from the structure read, when no observer exists. A Finding opens a decision when a lever is declared for its factor (rev 13). Three things open a decision [proposed]:
 
 1. **A factor deviates from its plan** beyond a declared materiality: Kobo's candidate litres (330 L of generator running while solar could carry the load, against 0 planned); Mwea's occupied crate-days (4,340 against 7,440); Embakasi's peak share (55% against 30%); Kirinyaga's efficiency factor (+970 kWh above the occupancy model).
 2. **A factor approaches or breaches an obligation bound**: Kasarani's deliverable energy fell to 1,050 kWh a night on 1 Nov against 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> required, so the departures factor was at risk before any penalty; Kisiwa's generation redundancy fell to one genset at 95% evening load when GEN-KS-01 failed on 30 Oct; B-1031's chamber temperature crossed its 5 °C limit on 6 Oct.
@@ -28,7 +28,7 @@ Headroom without a customer does **not** open a decision: Kobo's 18–20 kW dayt
 
 A decision is keyed by **(site, factor node, cause)** [proposed]: for example (Kobo, `fuel.litres.candidate`, generator stop threshold 90%); (Kasarani, `charging.chargers_in_service`, CH-K2 contactor weld); (Mto, `capacity.daytime_latent_demand`, cooperative huller LOI). The factor node is the shared factor ID of the structure (brief unit hierarchy, line 130), so every option, bound, commitment and verdict of the decision refers to the same node, and its money is counted once.
 
-Findings, Finding threads, operational records and contract events **attach to the key as evidence**. The thread remains the right carrier for recurrence of a physical issue (REOPENED, RECURRED, RESOLUTION_WITHDRAWN, `chain/lifecycle.py:47-58`) [code-observed], but a decision can exist without any Finding (a plan deviation in occupancy, a customer proposal, a contract deadline), which is why rev 3's thread anchor is retired. Today a thread occurrence must be exactly a Finding or an opportunity (`0042_chain_threads.py:53`, `occurrence_one_source`) [code-observed]; that constraint stays as it is, because threads no longer carry the decision.
+The Finding that opened the decision is its **trigger**, frozen into the decision record (a Finding revision id, or the structure read's snapshot of the factor); Findings, Finding threads, operational records and contract events **attach to the key as evidence**. The thread remains the right carrier for recurrence of a physical issue (REOPENED, RECURRED, RESOLUTION_WITHDRAWN, `chain/lifecycle.py:47-58`) [code-observed], but a decision can exist without any Finding (a plan deviation in occupancy, a customer proposal, a contract deadline), which is why rev 3's thread anchor is retired. Today a thread occurrence must be exactly a Finding or an opportunity (`0042_chain_threads.py:53`, `occurrence_one_source`) [code-observed]; that constraint stays as it is, because threads no longer carry the decision.
 
 ### 1.3 The decision lifecycle
 
@@ -83,6 +83,8 @@ These are three different operations [proposed; brief C1 D5]:
 | Repair, maintenance | `work_case` INCIDENT / MAINTENANCE_REQUEST (`work/model.py:27-29`) [code-observed] | cost fields on the option |
 | Supplier claim | — | new `work_case` kind with typed claim events [proposed] |
 | Approval | today `DecisionPrincipal` SERVICE in mini decisions | USER principal required [proposed] |
+| Decision → carrier | `chain_action_thread` links an Action to a thread (`0042_chain_threads.py:81`) [code-observed]; a carrier's origin is exactly a Finding or an opportunity (`0051_action_opportunity_origin.py:73`), and a mini-grid domain action must come from an opportunity (`0051:78`) [code-observed] | one link table from the chosen option to its carrier; one decision arm added to the origin check, relaxing the mini-grid opportunity rule for decision-originated rows; the last widening (rev 13) [proposed] |
+| What the user acts on and tracks | the Actions rail item, domain-work routes (`domain_work_api.py:1`) [code-observed] | the chosen option's Action, with its frozen prediction and verdicts [proposed] |
 | Verification | plan freeze and operational verdict (`actions/verification.py:193`, `verification_rules.py:739-815`) [code-observed] | economic and causal verdicts beside it (§7) |
 
 ---

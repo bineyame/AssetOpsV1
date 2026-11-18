@@ -1,6 +1,7 @@
 # Integrations needed: from source facts to leaf factors to outcome state
 
 **AssetEcon · Layer 4 companion to the main design (brief Part VI, Deliverable 3) · rev 12 (redesign) · AssetOps Architect (Claude) · 17 Nov 2026**
+**Rev 13 (18 Nov, grounded path):** §7.3 added at the owner's request: emulators are placeholder sources that define the canonical contract; real adapters replace them source by source and pass the same contract test; their outputs are labelled Emulated (`product-transition-and-roadmap.md` §3.8, D14).
 **Status:** design only. Nothing here exists in the repository unless it is labelled [code-observed] or [test-confirmed]. No code, test, database or mock-up was changed or run for this document.
 
 **Labels.** [code-observed] read in current code (backend, frontend, simulator and tools are unchanged since `bf6014e02`) · [test-confirmed] pinned by a named product test · [implementation-report] stated only by the reviewed baseline (`.agent/decision-intelligence-mechanism-2026-11-14.html`) · [proposed] this design · [research] external protocol or law · [assumption] a value or behaviour a pilot must confirm. **Provenance** of every record is one of *demo-simulated* (simulator pack), *source-emulated* (a generator that emits the source's native shape), *bench-tested* (a real device or export on a bench), *field-integrated* (a live operator source), *observed-financial* (the operator's own ledger, bill or statement). Simulated and observed values never share a number.
@@ -697,6 +698,26 @@ An adapter has three parts: **transport** (how bytes arrive), **parser** (bytes 
 Only transport and profile change; the parser, canonical records, observers and structure do not. **Pilot validation gate:** one closed month reconciled to the cent against the operator's management accounts on revenue and fuel or energy cost before any value is shown as Recorded money; until then the money factors are labelled with their provenance.
 
 ---
+
+### 7.3 Emulators are placeholders for the canonical contract [proposed]
+
+An emulator is a **placeholder source**, replaced by real integration (owner, 18 Nov: "it just defines a practical canonical data to use downstream"). It defines and exercises the canonical records of §6.1, which the structure, the observers, Evaluate and the screens consume; it writes native-shape files through the intake of §7.2, so the parser and profile path is exercised as well.
+
+| Source type | Canonical records (§6.1) | Emulated in | Replaced first by |
+|---|---|---|---|
+| Billing or vending | `CHARGE`, `CUSTOMER_METER_READ`, `ADJUSTMENT` | slice 2 | the first diagnostic's billing export |
+| Collections | `RECEIPT`, `SETTLEMENT` | slice 2 | the first diagnostic's settlement statements |
+| Plan or budget | `PLAN_LINE` | slice 2 | the first diagnostic's plan |
+| Quotes | `EXPENSE` (status QUOTE, with validity date) | slice 4 | the first diagnostic's open quotes |
+| Contracts and warranties | `CONTRACT_DOCUMENT`, then `rights_term` rows after review (§6.3) | slice 6 | the first operator's contract set for its most important asset |
+| Fuel deliveries and dips | operational records `FUEL_DELIVERY`, `TANK_DIP` (`0054:3`) [code-observed]; fuel invoices as `EXPENSE` FUEL | exists (demo-authored) | the first diagnostic's delivery notes and dips |
+| Cold and EV families | `STORAGE_MOVEMENT`; `FLEET_ROSTER`, `DEPARTURE`, `TARIFF_SCHEDULE`, `SERVICE_TICKET` | slice 8 | the second vertical's design partner |
+
+**Replacement rule.** An emulator may encode only what a real source of its type provides: the required fields of §6.1, in native shape and units, with the disorder classes of §8, with values derived from the manifest. It may not encode semantics a real source lacks: no factor IDs, classifications, attributions, plan splits, option effects or verdicts inside records, no field a real export of that type does not carry, no typed figure. Its outputs carry the evidence class **Emulated** (where a real record would be Recorded) and the provenance *source-emulated* until replaced; nothing downstream branches on that except labels, coverage reporting (emulated coverage, never Recorded coverage) and the benefit gate (no "realised", "saved" or "money followed" on emulated records).
+
+**Contract test.** One suite per source type runs against both the emulator and every real adapter, on the emulator's output and on the operator's pinned sample. It checks kinds, required fields, units, the four clocks, the idempotency key, disorder handling and plain-word refusals, and that the same logical content gives the same canonical records and the same factor values (§6.2). A real adapter is admitted only when it passes; a change the suite rejects is a contract change, decided by the Architect.
+
+**Order of replacement** (diagnostic-led): the first mini-grid diagnostic's exported files (billing, collections, plan, fuel, quotes), one closed month reconciled before money is Recorded; the same operator's contract set; scheduled drops in the pilot; the second vertical's files; APIs only with contractual access, replacing transport only. A replaced emulator stays only as the contract test's fixture.
 
 ## 8. Disorder and isolation tests
 

@@ -11,7 +11,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "domain": "mini",
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
@@ -2538,7 +2538,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2563,7 +2563,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2588,7 +2588,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2603,7 +2603,7 @@
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "Commitments with frozen predictions and three verdicts; contract rights and their states.",
+  "question": "Actions (each chosen option) with frozen predictions and three verdicts; contract rights and their states.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2613,7 +2613,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2621,7 +2621,7 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · What changed · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Commitments with frozen predictions and three verdicts; contract rights and their states."
+  "layer4_note": "Actions (each chosen option) with frozen predictions and three verdicts; contract rights and their states."
  },
  {
   "id": "portfolio/scope",
@@ -2638,7 +2638,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2663,7 +2663,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2689,7 +2689,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2715,7 +2715,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2741,7 +2741,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2767,7 +2767,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2793,7 +2793,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2819,7 +2819,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2845,7 +2845,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2871,7 +2871,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2897,7 +2897,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2923,7 +2923,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2949,7 +2949,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -2975,7 +2975,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3001,7 +3001,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3027,7 +3027,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3053,7 +3053,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3079,7 +3079,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3105,7 +3105,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3131,7 +3131,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3157,7 +3157,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3183,7 +3183,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3209,7 +3209,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3235,7 +3235,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3261,7 +3261,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3287,7 +3287,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3313,7 +3313,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3339,7 +3339,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3365,7 +3365,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3391,7 +3391,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3417,7 +3417,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3443,7 +3443,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3469,7 +3469,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3495,7 +3495,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3521,7 +3521,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3547,7 +3547,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3573,7 +3573,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3599,7 +3599,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3625,7 +3625,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3651,7 +3651,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3677,7 +3677,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3703,7 +3703,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3729,7 +3729,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3755,7 +3755,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3781,7 +3781,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3807,7 +3807,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3833,7 +3833,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3859,7 +3859,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3885,7 +3885,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3911,7 +3911,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3937,7 +3937,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3963,7 +3963,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -3989,7 +3989,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4015,7 +4015,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4041,7 +4041,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4067,7 +4067,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4093,7 +4093,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4118,7 +4118,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4143,7 +4143,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4168,7 +4168,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4193,7 +4193,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4218,7 +4218,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4243,7 +4243,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4268,7 +4268,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4293,7 +4293,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4318,7 +4318,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4343,7 +4343,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4368,7 +4368,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4393,7 +4393,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
@@ -4418,7 +4418,7 @@
    "Portfolio composition",
    "Decision and options",
    "Allocation run",
-   "Commitments and rights"
+   "Actions and rights"
   ],
   "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",

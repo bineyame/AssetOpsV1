@@ -1291,3 +1291,33 @@ Residual: perturbation tests dependence, not size, so an expression could still 
 - `render_product_transition_html.py` re-run into scratch: byte-identical to the committed `.html`.
 - No test suite was run.
 - The `.md` grew from 10,348 to 11,614 words, mostly the three §2.7 rows, the two §2.3 paragraphs and the lane arithmetic.
+
+## Author response (product transition rev 4, and the pack): the owner's grounded-path question (18 Nov)
+
+**Request.** `.agent/owner-grounded-transition-request-2026-11-18.md` (owner's question, three follow-ups and the coordinator's four risks). This is a decision-level change, so the frozen pack (D10) is updated where the outcome requires it, and nowhere else.
+
+**Verdict.** The owner's path holds on the mechanics, with two conditions (findings attach to factors and outcomes are read upward; every construct keys to one registry) and one narrowing ("economic benefit realised early" holds only on an operator's records; on emulators the loop is demonstrable and testable). The coordinator's four risks are agreed and each is made structural (transition §2.7); a fifth is added: early compromises becoming permanent, hence the register with a retirement step per compromise (§3.9). Readings tested and rejected: cold and EV replays are lineage reads, not the forward replay; scenario definitions are the demonstration world, not what-ifs; document bounds are parser limits, not honesty bounds; the cold stock-value and EV tariff what-ifs are value at stake and a sensitivity, not options.
+
+**What changed, document by document.**
+- `product-transition-and-roadmap.md` rev 4: new §3.6 (visible first: ranking rule, increments V1–V5, screen by screen), §3.7 (the mapping, core path and every other construct, with file:line and migration rules), §3.8 (emulators as placeholders for the canonical contract: schema per source type, replacement rule, contract test, replacement order, two labels, benefit by stage), §3.9 (compromise register), §4.4 (roadmap effect, earlier value, go-to-market knock-ons); D13–D15; Figures 11 and 12; Figures 5, 7 and 8 follow the new lane order. §1.6 and §5.2 replaced by pointers (the claim table is in rev 3, `ff72c58fb`; W1–W9 live in `.ai/RULES.md` §4).
+- `render_product_transition_html.py`: Figures 11 (mapping) and 12 (register, parsed from the register table); the roadmap swimlanes are now parsed from the mermaid gantt, so the figure cannot drift from its source.
+- `layer4-transformation-design.md` rev 14 update: what a Finding means and may claim (§2.2), Evaluate acting on Findings (§2.3), the Action as the user's carrier (§2.5), emulators as placeholders (§4), the outcome-map parity rule (§5), every construct placed on the mechanics (new §8.5), visible-first order with proof before rights (§9). Mechanics and figures unchanged.
+- `render_design_html.py` (new): the design document's HTML twin had no generator in the repository. Rendering the committed rev 13 `.md` with it reproduces the committed `.html` except for eight `"` characters the old tooling escaped as `&quot;` in §7 text.
+- `integration-source-to-canonical-design.md`: new §7.3 (placeholder emulators, canonical records per source type, replacement rule, Emulated label, contract test, replacement order).
+- `domain-and-decision-models.md`: Findings as decision triggers (§1.1, §1.2); the decision → carrier link and the decision arm, and the Action as what the user tracks (§1.5).
+- `phase-plan-and-acceptance.md`: rev 5 note; PR 3a′ (observer rows, parity shim); slice 4 lanes, trigger and carrier link, gate; slice 7 before slice 6 (mermaid and notes); slice 2 contract test; slice 9 gate.
+- `repo-reuse-and-gap-matrix.md`: migration rules on five rows; no disposition or count changed (§K stands at 114).
+- `design-questions-and-decisions.md`: Q17–Q19 (= D13–D15) and A35–A37.
+- Mock-up (text only): *What changed* shows "Actions: what was chosen, its frozen prediction and three verdicts", with the column "Action (the chosen option)" and one note line; the loop model name and the screen question say Actions. Rebuilt with `node build.mjs`; `tools/run-audit.sh` run (result below). Not done, because it needs more than text: the decision pages do not yet show "the Finding that opened this decision" as its own element; listed for the mock-up gate.
+- Not changed, and why: `structure-specification.md` (it specifies the evaluator over declared inputs; Findings and carriers are not evaluator inputs, and the factor IDs it uses are already the registry's); the traceability CSV (it traces objectives → levers → capabilities, which the grounding does not change); `derived-values.json` and the manifest (no figure changed).
+
+**Architect decisions taken, for owner review.** A35 (what a Finding is), A36 (one registry; parity shim; one decision arm, which also relaxes the mini-grid opportunity rule `0051:78` for decision-originated rows), A37 (reuse before rework). One conflict found and fixed during the sweep: a first draft carried the stop threshold as a rule arm on the reserve-trial table; the pack already rules a domain-action apply path and no widening of `0016:60`, so the transition document now follows the pack (compromise C5 restated).
+
+**Owner input wanted.** D13–D15 (Q17–Q19). The earlier-value claim (first proved change about 1.5–2 months earlier) rests on the operator agreeing at qualification to one supervised change (D15).
+
+**Checks.**
+- `python3 check_manifest.py`: 3721 passed, 0 failed.
+- Both renderers re-run into scratch: byte-identical to the committed `.html` files.
+- Transition `.html`, headless Chromium at 390 and 1280 px, light and dark: 12 figures; no text outside its viewBox; no page-level horizontal scroll. Inspected: Figures 5, 7, 11 and 12.
+- No test suite, database or Docker was used.
+- The transition `.md` grew from 11,614 to about 18,300 words: the owner asked for the screen-by-screen table, the full construct mapping and the emulator contract; §1.6 and §5.2 were replaced by pointers to offset part of it.

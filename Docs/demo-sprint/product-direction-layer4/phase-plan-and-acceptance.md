@@ -1,6 +1,7 @@
 # Phase plan and acceptance: building the economic decision loop
 
-**Layer 4 companion artifact · rev 4 · AssetOps Architect (Claude) · 17 Nov 2026 · design only**
+**Layer 4 companion artifact · rev 4 · AssetOps Architect (Claude) · 17 Nov 2026 · rev 5 update 18 Nov 2026 (grounded, visible-first path) · design only**
+**Rev 5 update.** The slices and their gates stand. What changes (`product-transition-and-roadmap.md` §3.6–§3.9, §4.4; D13–D15): work is ordered by how soon a client screen becomes economically useful; PRs 3a–3b and the cost-side part of slice 4 run in the second lane beside slice 2; slice 7 comes before slice 6; Findings open decisions and chosen options ride today's carriers as Actions; emulators are placeholder sources replaced by real adapters that pass one contract test; the first customer change is committed at the diagnostic's close.
 Main narrative: `layer4-transformation-design.md` §2 (mechanics M1 Define, M2 Observe, M3 Evaluate, M4 Choose, M5 Prove) and §9 (delivery order). Code dispositions, verified references and migration order: `repo-reuse-and-gap-matrix.md`. Identities and negative tests: `economic-metric-and-effect-contracts.md` (E1–E10, N1–N17). Oracle and disorder cases: `demo-site-scenario-manifest.yaml` (OR-*, DUP-1 … CLOCK-1).
 Labels: [code-observed] [test-confirmed] [implementation-report] [proposed] [assumption]. Everything in this plan is [proposed] unless labelled otherwise.
 
@@ -50,10 +51,10 @@ flowchart LR
   S2[2 Commercial record store;<br/>money leaves] --> S3[3 Structure registry,<br/>observation, attribution]
   S3 --> S4[4 One mini-grid decision:<br/>options, bounds, replay, no action]
   S4 --> S5[5 Allocation and the<br/>restructured Portfolio]
-  S4 --> S6[6 Rights in repair<br/>and capital choices]
+  S4 --> S7[7 Verification triple]
+  S7 --> S6[6 Rights in repair<br/>and capital choices]
   S6 --> S5c[5 gate: full Lakeside<br/>allocation incl. rights options]
   S5 --> S5c
-  S4 --> S7[7 Verification triple]
   S5c --> S8[8 Cold, then EV]
   S6 --> S8
   S7 --> S8
@@ -96,7 +97,7 @@ Each slice states purpose, scope by PR, touchpoints (verified in the matrix), te
 
 - **Purpose.** A source for every money leaf: revisable, effective-dated, money-denominated source facts.
 - **PR 2a.** Migration 0062: commercial record + revision + intake receipt; raw payload immutable; idempotency key (tenant, source system, source record id, version); four clocks (service, effective, recognition, settlement); kinds charge, receipt, settlement, adjustment, expense, plan line, roster, tariff schedule, storage movement, contract document, QA note. Downgrade refuses while rows exist (0059 / 0061 precedent) [code-observed]. Pure validator module.
-- **PR 2b.** CSV intake API on the authenticated site-bound path with dry run and whole-file plain-word refusal (pattern of `reading_upload/service.py:213`), without the late-interval refusal (`reading_upload/service.py:244-248`) that commercial revisions must not inherit [code-observed]. Source-emulator CSVs for Lakeside (billing, settlement statements, invoices, plan lines) labelled *source-emulated*.
+- **PR 2b.** CSV intake API on the authenticated site-bound path with dry run and whole-file plain-word refusal (pattern of `reading_upload/service.py:213`), without the late-interval refusal (`reading_upload/service.py:244-248`) that commercial revisions must not inherit [code-observed]. Source-emulator CSVs for Lakeside (billing, settlement statements, invoices, plan lines) labelled *source-emulated*: placeholder sources that define the canonical contract (`integration-source-to-canonical-design.md` §7.3), with the per-source contract test that every later real adapter must also pass.
 - **PR 2c.** `recorded_amount@2` reads revisions by recognition period; `chain_input_change` triggers so a late record dirties cached reads.
 - **Tests first.** DUP-1 / N16 (identical re-upload, 0 new revisions); LATE-SETTLE-1 / N3; FX-1 / N2; TENANT-1 / N17 (refused at ingestion); a corrected row becomes a revision and the prior one is kept (OOO-1 shape).
 - **Gate.** Lakeside October billing, settlements, receipts, invoices and plan lines ingest from emulated CSV and read back to the cent; a Harvest Cold row with Lakeside's key is refused.
@@ -104,6 +105,7 @@ Each slice states purpose, scope by PR, touchpoints (verified in the matrix), te
 ### Slice 3 — Structure registry, observation and attribution
 
 - **Purpose.** Outcomes computed bottom-up from observed factors through declared structures, with attribution and coverage: the CFO answer.
+- **PR 3a′ (rev 5, re-grounding).** One observer row per signal of today's outcome map (`outcomes/outcome_map.py:17-37`): each stored Finding mechanism names its factor and condition (deviation, bound, latent); `outcome_roles` and `categories_for` (`outcome_map.py:75`, `:97`) [code-observed] computed from the registry behind an unchanged wire; a parity test against today's 16 entries, every difference listed and ruled, then the literal removed. PRs 3a, 3a′ and 3b run in the second lane beside slice 2; 3c–3e follow slice 2 in the first lane.
 - **PR 3a.** Structure registry in code (reworking `CONTRIBUTIONS`, `outcomes/outcome_map.py:149-180`) with the start-up integrity check pattern of `chain/graph.py:177` [code-observed]: mini-grid structure in full (main doc §2.1 diagram), cold and captive-EV structures declared; plan values per factor read from plan lines; every factor has a shared factor ID and a unit (E10). The Protect outcome is declared the same way: measured factors with unit, target 0, evidence class and Σ over sites (manifest `portfolio.protect`: e.g. unserved critical kWh, obligation-hours without redundancy, crate-minutes above limit, departures missed, nights deliverable below required, asset-days and charger-days out of service); money-valued Protect measures (customer liability, QA-confirmed damage, service penalties) reference the cost-to-serve factor ID. Lakeside's Protect structure also declares customer-hours interrupted (Measured, 0 in October) and asset value at risk, which is shown as *not available yet* and deferred (brief L1.1: expected loss only with a defensible likelihood). Operational productivity (O2) is declared per vertical as measured factors (manifest `portfolio.operations`): mini-grid asset availability, field visits and delivered kWh per visit; cold cooling availability and crate-days without excursion; EV deliverable energy used (import-limited) and departures met per installed charger. Cold realisation stages are declared (occupied → chargeable → invoiced → received).
 - **PR 3b.** Structure read: bottom-up evaluation, coverage as share of each node on Recorded leaves, composition Σ / Σ (pattern `chain/vocabulary.py:459-508`), exclusion with names; nothing stored as a total (`chain/period_read.py:139`, D-MONEY.3).
 - **PR 3c.** Attribution: exact for sums, the declared product rules AR1–AR5 (e.g. volume at plan price, then price at actual volume), residual factors only beside an unobserved leaf, tolerance; existing observers attached as factor observers (dispatch-3.2's necessary / candidate split, the fuel-balance residual). The observed fuel structure is necessary + candidate running + unexplained litres (Kobo: candidate 330 L, −412.50, Derived; unexplained 120 L, −150.00<!--rec-->); litres a setting would avoid are an option effect (slice 4), never an observed node.
@@ -132,14 +134,15 @@ Plan values, switch cases and downsides built from these figures lose their desi
 ### Slice 4 — One complete mini-grid decision
 
 - **Purpose.** Prove M3 where evidence is deepest: options as factor changes, no action, bounds before recommendation, net value.
-- **PR 4a.** Migration 0063: decision, option and evaluation records anchored on a factor key (site, factor, cause); options reference their calculation record and their carrier by id; approval rows with a USER principal (stored SYSTEM events untouched, `actions/lifecycle.py:53-55`) [code-observed].
+- **Lanes (rev 5).** PRs 4a–4d and the Kobo part of 4f run in the second lane as soon as PR 3b lands: the Kobo option changes cost factors priced by declared prices, so it needs no commercial records. PR 4e and the Mto pages follow the bridge in the first lane.
+- **PR 4a.** Migration 0063: decision, option and evaluation records anchored on a factor key (site, factor, cause), each with its trigger (the Finding that opened it, frozen); a link from the chosen option to its carrier, and one decision arm on the carriers' origin check (`0051_action_opportunity_origin.py:73`, `:78`) [code-observed]; options reference their calculation record and their carrier by id; approval rows with a USER principal (stored SYSTEM events untouched, `actions/lifecycle.py:53-55`) [code-observed].
 - **PR 4b.** Obligation bounds as code rows (hard / costed / advisory; unknown → refuse or conditional); every former CHECKED declaration must have one (integrity check); verification guardrails generated from the same rows, byte-equal for today's reserve plan.
 - **PR 4c.** Forward replay adapter in `host/` behind a **new** port method returning a neutral projection; `run_to_end` → `LabProjection` untouched (protected seam; rev 3 review residual risk 2). The backend never imports the simulator (`runs/execution_ports.py:20-23`) [code-observed].
 - **PR 4d.** Stop-threshold carrier: today the `action` table admits only `reserve-trial-1` with `proposed_value = old_value - 5` (`0016:60`, `0016:72`) [code-observed], so a "lower the stop threshold" option cannot be applied by any existing path even though the site property exists (`sites/models.py:167`) [code-observed]. Add a carrier rule for the `stop-soc-threshold` property with its own CHECKs and generated guardrails; do not widen the reserve-trial CHECKs.
 - **PR 4e.** Mto decisions: demand-on-headroom replay (huller vs welder) and the billing correction and meter audit options.
-- **PR 4f (UI).** Decision page: options incl. no action, value, cost and who pays, bounds, disposition and reason in plain words, sensitivity, records behind it.
+- **PR 4f (UI).** Decision page: the Finding that opened it, options incl. no action, value, cost and who pays, bounds, disposition and reason in plain words, sensitivity, records behind it.
 - **Tests first.** E6, E8; N9, N11, N15; OR-MG-1 (KOB-RESERVE rejected by dawn adequacy; KOB-STOPSOC recommended), OR-MG-2 (Kisiwa: no fuel option qualifies), OR-MG-3 (huller +395.00<!--fig:options.MTO-HULLER.monthly_or_horizon_change-->/month, welder −8.25/month rejected); a pinned failing fixture for a constraint dispatch-3.2 cannot see (evening energy) which the replay must refuse; rule-3 PV-alone Candidate pinned (matrix §J). **Vertical-neutral fixtures** (the evaluator, bounds and decision records are general, so they are proved on cold and EV inputs now, with leaf values fed from the manifest; the vertical observers that will produce those leaves come in slice 8): cold — Kirinyaga repair vs replace valued on the identity against no action, KIRI-REPAIR +1,512.40<!--fig:options.KIRI-REPAIR.value--> over 12 months (recommended) and KIRI-REPLACE −1,988.40<!--fig:options.KIRI-REPLACE.value_if_admissible--> (deferred); EV — Embakasi EMB-CHEAPEST (12,975.00 a month, the lowest bill) rejected by the departures bound (3 buses short every night), and EMB-DEADLINE valued 8,082.00<!--fig:options.EMB-DEADLINE.monthly_or_horizon_change--> a month against November no-action 21,438.00<!--fig:options.EMB-DEADLINE.energy_bill_reference-->, never 8,788.80 (OR-EV-1, E7, N10).
-- **Gate.** The C3 "candidate vs necessary diesel" and "paying daytime vs unsupported evening demand" scenarios pass end to end; gross exposure never appears as an option value; the cold and EV fixtures pass on the same evaluator with no vertical-specific code in it.
+- **Gate.** A Finding opens the Kobo decision, the chosen option becomes an Action and today's operational verdict runs on it unchanged; the C3 "candidate vs necessary diesel" and "paying daytime vs unsupported evening demand" scenarios pass end to end; gross exposure never appears as an option value; the cold and EV fixtures pass on the same evaluator with no vertical-specific code in it.
 - **Owner checkpoint.** Walk the Kobo decision page.
 
 ### Slice 5 — Allocation and the restructured Portfolio
@@ -153,6 +156,8 @@ Plan values, switch cases and downsides built from these figures lose their desi
 
 ### Slice 6 — Rights in repair and capital choices
 
+*Rev 5: built after slice 7 in the second lane; contract documents enter first through a placeholder emulator, replaced by the first operator's contract set.*
+
 - **Purpose.** Rights as cost-bearer factors inside existing decisions (brief S12, X9; P4, A5).
 - **PR 6a.** Migration 0065: rights register (obligation, condition, exception, notice, remedy rows) from contract documents in the commercial record store; AI-assisted extraction proposes rows, a person approves each (review states pattern `0027:174`) [code-observed]; no coverage decision is automated.
 - **PR 6b.** Migration 0066: supplier-claim work-case kind and typed claim events in a sibling table; rights state machine (recorded events only; duplicate-recovery guard).
@@ -162,6 +167,8 @@ Plan values, switch cases and downsides built from these figures lose their desi
 - **Owner checkpoint.** Lakeside seven-minute walkthrough on computed data; entitlement copy and the legal boundary.
 
 ### Slice 7 — Verification triple
+
+*Rev 5: built before slice 6, right after the cost-side part of slice 4, because the first customer change is committed at the diagnostic's close and its money verdict is due about one closed month later.*
 
 - **Purpose.** Close the loop (M5): operational, economic and causal verdicts kept apart.
 - **PR 7a.** Migration 0067: economic and causal verdicts beside the operational outcome (do not widen `0019:166`) [code-observed]; economic verdict from after-window commercial records; causal strength graded from comparability bands (`actions/verification_rules.py:36-41`) with untreated sites as controls.
@@ -179,7 +186,7 @@ Plan values, switch cases and downsides built from these figures lose their desi
 
 - One consented operator dataset through the slice 2 intake (S9); mapping and quality report per leaf factor; field-integrated provenance; field verification of one commitment; optional explanation assistant that only cites stored computations and refuses unsupported numbers (S10).
 - **A4 evidence pack** (P1-P): the per-period export of A1–A3 (coverage, residuals, verdicts, rights states, lineage) for an investor or lender; no new measure. **MG-C4 fuel price-discrepancy check** (delivery-note vs invoice vs contracted price), P1-P, no demo case.
-- **Gate.** Data protection and integration rights confirmed before any data is received; no provider API assumed without contractual access.
+- **Gate.** Data protection and integration rights confirmed before any data is received; no provider API assumed without contractual access; every real adapter passes its source type's contract test before its emulator is retired (rev 5).
 
 ### Lane B — Build refactors (parallel, starts first)
 

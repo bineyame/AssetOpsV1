@@ -19,3 +19,7 @@ The coordinator agreed it makes sense and is close to what the roadmap already i
 ## Owner, same day (verbatim): the core motivation
 
 > The most important thing that motivated the brief and discussion on layer4 design is to ensure that what the product shows on portfolio, site ..etc is actually useful and intentiaionally aligned with economic needs movers, the faster we have achive that the better for the demo. the goal is not to drop things that would make layer4 better that already exist or aligned directionally with it that can be extended/updated as new missing pieces are also added with the core utility function being differentiation and usefulness that converts clients
+
+## Owner, same day (verbatim): what the emulator is for
+
+> yeah the emulator is a palcehodler that should be replaced by real integration , it jsut defines a practical canonical  data to use downstream
