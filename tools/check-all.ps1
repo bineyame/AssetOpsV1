@@ -150,13 +150,15 @@ using System.Runtime.InteropServices;
 public static class CheckAllReaper {
     static readonly ConcurrentDictionary<int, Process> Live = new ConcurrentDictionary<int, Process>();
     static PosixSignalRegistration term, hup;
-    public static void Track(Process p) { Live[p.Id] = p; }
+    public static volatile bool Stopping;
+    // A guard started while the handler runs is stopped at once, so none outlives the run.
+    public static void Track(Process p) { Live[p.Id] = p; if (Stopping) { try { p.Kill(true); } catch { } } }
     public static void Untrack(Process p) { Process gone; Live.TryRemove(p.Id, out gone); }
     public static void KillAll() {
         foreach (var p in Live.Values) { try { if (!p.HasExited) p.Kill(true); } catch { } }
     }
     public static void Register() {
-        Action<PosixSignalContext> handler = ctx => KillAll();
+        Action<PosixSignalContext> handler = ctx => { Stopping = true; KillAll(); };
         term = PosixSignalRegistration.Create(PosixSignal.SIGTERM, handler);
         hup = PosixSignalRegistration.Create(PosixSignal.SIGHUP, handler);
     }
@@ -319,6 +321,7 @@ try {
     }
 
     function Start-Guard($guard) {
+        if ($reaper -and [CheckAllReaper]::Stopping) { $guard.Status = "FAIL"; $guard.Detail = "run stopped by a signal"; return }
         $resolved = Resolve-Tool $guard.Tool
         if (-not $resolved) {
             $guard.Status = if ($guard.Advisory) { "WARN" } else { "FAIL" }
