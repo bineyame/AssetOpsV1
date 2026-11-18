@@ -93,3 +93,49 @@ AGENTS + START_HERE + NOW: 8,529 B (~2.1k tok) before, 8,913 B (~2.2k tok) after
 - Step 4: move specs/owner files, refresh `file:line` pointers, rewrite the 21 registry anchors and code citations.
 - 45 unnamed early decisions are not individually indexed.
 - Provision `frontend/node_modules` in this worktree (environment).
+
+## Revision 2 (review `.agent/review-declutter-02.md`, REVISE)
+
+Commits `9081ccfc0` (guard, RULES, agent-workflow) and `31c8528c0` (index corrections, NOW), then this section.
+Each finding is fixed as a class, with a sweep.
+- **F1 High (check-all red at tip).** Packet lines 48-49 no longer carry the `D-` prefix. Class: RULES §9
+  "Example IDs" reserves `D-EG.<n>` and `D-2099-<MM>-<DD>-<slug>` (or dropping the prefix). The guard skips exactly
+  those forms (`EXAMPLE` regex), not `.agent/`. Sweep: no other unindexed tokens anywhere in tracked text (guard OK,
+  including the review file). Only the guard script itself is excluded from the scan, because its self-test holds
+  planted IDs.
+- **F2 Medium (prefix hiding).** `holds()` matches `re.escape(id) + (?![0-9A-Za-z])` in both the line test and the
+  whole-file test, and likewise for the stem. Sweep: the generator's definition patterns use the same boundary.
+  Self-test: `D-SR.2` against a text holding only `D-SR.20`/`.21` fails. The reviewer's plant, repeated in the tree
+  (every `D-SR.2` token in OWN-GAPS replaced, then restored), now gives exit 1:
+  `FAIL ...index-rulings-1.md:6: D-SR.2 does not occur in build-sheet-OWN-GAPS-2026-11-08.md`.
+- **F3 Medium (owner status).** A fresh read-only sweep read all 128 `historical` rows for standing-rule wording
+  ("from now on", "never", "keep ... rule" ...). 16 rows changed:
+  - Current: `owner-autonomy-2026-10-14` (owner-absent rule), `-10-15` (reconnect), `owner-next-work-2026-10-13c`
+    (prioritisation workflow), `owner-local-servers-authorization-2026-10-26` (no safety override),
+    `owner-S404-S601b-acceptance-2026-10-16` (stop stale servers), `owner-missing-fuel-2026-11-07` (never "theft").
+  - Current "to confirm" (9): W2-mockup-authority, S405b-acceptance, demo-data-strategy,
+    commercial-capability-feedback-2, efficiency-11-06, proceed-waiting-items, proceed-own-gaps,
+    units-by-friday, v69-site-mockup-comparison.
+  - Superseded "to confirm" (1): review-architect-recommendation-10-02, by rail-decision-10-17.
+  - Totals now 63 current, 12 superseded, 112 historical.
+- **F4 Low.** INDEX part ranges corrected (late part: 10-23 amendments; early part: later decisions to 10-31 under the
+  last heading).
+- **F5 Low.** Definition patterns reject range headings (`D-SR.1-8`); all 15 rows now carry the ID's own heading
+  and title and point at its own section (e.g. `D-SR.1` at OWN-GAPS:4771). Titles keep underscores (e.g.
+  `READINGS_ONLY`) and drop leading "(Qn)". Specs notes are no longer truncated. Legacy-index-only IDs
+  point into a part when the ID text occurs there (`D-2026-09-13-canonical-fidelity` now 2026-09.md).
+- **F6 Low.** `D-2026-09-13-canonical-fidelity` is "forward-looking parts superseded in part? see 2026-09.md:938".
+  The INDEX and every index header say `live` means not superseded by a later decision text, not "applies under
+  Layer 4".
+- **F7 Low.** `check-agent-workflow.ps1` requires `specs/INDEX.md` and `owner/INDEX.md`. The guard fails when a
+  tracked `.agent/owner-*.md` or build sheet/spec has no row, and when an index file is over 8000 bytes (2k tokens).
+  The self-test plants an unindexed owner file, an unindexed build sheet and an oversized index; all are reported,
+  and the reserved example IDs are not.
+- **F8.** `.ai/NOW.md`: PIPE-1 is merged, not active. Correct family counts in the index: D-SR 92, D-E5 51 (the
+  table above miscounted). Total 470, unchanged; 65 decision rows changed, no ID lost or added.
+
+Checks at the final tip (the commit holding this section; nothing changed after these runs):
+- `pwsh -NoProfile -File tools/check-all.ps1` (temporary `frontend/node_modules` symlink, removed): `All 34 guards
+  passed (blocking; 3 advisory, 0 warned)`, 44.1 s; index guard 4.2 s, its self-test 3.8 s (under load).
+- `pwsh -NoProfile -File tools/check-agent-workflow.ps1`: `Agent workflow check passed.`
+- `python tools/check-split-preservation.py`: both OK (504986 / 525239 bytes).
