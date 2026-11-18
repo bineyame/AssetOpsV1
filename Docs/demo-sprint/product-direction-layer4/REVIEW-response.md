@@ -1101,3 +1101,34 @@ Architect (Claude), 18 Nov. The owner approved addressing every finding. Each on
   - §2 "Job" (`:176`, "after **must-do** options that hard bounds require").
   §2 `:182` and the evaluator are correct.
 - The earlier response's L5 note that "must-do" became "required: …" is superseded. See M1 above.
+
+## Author response to the third review of §7 (2b9d0e53c)
+
+Architect (Claude), 18 Nov. The owner approved addressing M1 and L1. No figure changed; every figure stays anchored.
+
+**M1: the plan search described as two steps outside §7. Accepted and fixed as a class.**
+- I grepped the whole pack, not only the listed places: the documents, the manifest, the CSV, the mock-up sources, its generated docs and walkthroughs, `structure-specification.md`, `derivation-register.md` and both evaluators. I searched for "must-do first", "after must-do", "funded first", "settled first", "cheapest affordable", "cheapest option meeting", "protective pass", "leftover", the downside tie-break and "subsets".
+- Every description of how a plan is chosen now matches `best()` / `candidates()` and §7 `:669`: one search over all decisions together, one option per decision (a money-valued decision may take none unless it is declared required), an option that breaks its decision's hard bounds is left out unless no option can keep them, the combination fits the budget, crew visits and dated dependencies, and the plan breaks the bounds least, then is worth most, then spends least. "Must-do" stays only as a property of a decision (no action fails a hard bound).
+- Places changed:
+  - main doc `:176` (§2 Job), `:182` ("every subset" → "every combination of one option per decision"), `:229` (exhaustive joint-search allocator), `:371` (M4 row), `:1129` (the `plans:` summary in §9, which said "a protective decision takes the cheapest affordable option");
+  - `domain-and-decision-models.md` `:587` (purpose), `:591-601` (the `allocate` pseudocode had must-do funded first, a protective pass on leftover resources and a −downside tie-break; it now mirrors `best()`), `:603` (rules: "protective decisions are settled first … cheapest affordable", "take leftover resources by deadline", "≤ 2^15 subsets"), `:607`, `:609`, `:616` (§6.2: "Pool", "Set (with KIS-REPAIR)" and "Protective pass with 1,680 left" now say every combination carries KIS-REPAIR and BAT-EVIDENCE and is judged with them; the figures 3,320, 2, 3,750.00 and 3 of 3 are unchanged), `:635` (§6.4 read as "must-do X, Y, Z"; now "plan X (must-do), Y, Z"), `:759`;
+  - `phase-plan-and-acceptance.md:148` (PR 5a now tells builders to build the joint search as `best()` does, with no separate must-do step);
+  - `repo-reuse-and-gap-matrix.md:155`;
+  - `design-questions-and-decisions.md:51` (A19 "funded first … funded next by deadline") and `:57` (A25);
+  - `demo-site-scenario-manifest.yaml:385` (`method`, including the wrong tie-break) and `:1200-1202` (the `plans:` comment);
+  - `outcome-lever-capability-traceability.csv` (13 rows: "allocator (exhaustive subsets)" → "allocator (one joint search)");
+  - mock-up `loop-portfolio.js:166`: the Act first note said "Must-do work first, then the set with the best modelled result"; it now states the joint search in plain words. `derivation-register.md:2119` quotes it and is updated.
+- Left as they are, because they are properties or order of action, not the search: the "Must do: …" reasons in the mock-up's `WHY_FIRST`, the column "Reason it comes first" (the order items are acted on), "(must-do)" in `demo-build-cost-plan.md:28`, the manifest's `must_do_spend` and `must_do_reason` fields, and the history in `CHANGE-REGISTER.md` / `browser-audit.md`. `structure-specification.md` §6 and `derivation-register.md` E25 / H1 already matched the code.
+- **Code against the documented search: no difference.** `evaluate_structure.py` `best()` and `independent_model.py` (`:928-1000`) both enumerate protective and valued decisions in one product, use the same candidate rule and rank by `(−violation, value, −spend)`, with ties going to the first combination in declared order. The mock-up runs no search; it reads `derived-values.json`. The checker does not implement a search.
+- **Checked values.** The manifest `method` string is not read by the evaluator, the checker or any screen (fixtures carry it, but no mock-up code reads `.method`), so no checked value moved. `gen_fixtures.py` reported 0 differences. `derived-values.json` is byte-identical. The fixtures changed only in the `method` text and the manifest hash.
+
+**L1: welding premise stated as fact. Accepted and fixed as a class.**
+- Mto daytime and evening demand inputs (`:648`): a new row, "Evening load is carried by the generator (no solar in the evening; battery at reserve) | the model's change rule: every evening kWh is generator energy | Assumption". The welding row (`:653`) now reads "every evening kWh is generator energy (Assumption)".
+- Class check over §7: the other change rules are already labelled. These are the Kobo replays (Design value), Kisiwa storage 150 L (Assumption), the Mto half-capacity litres (Design value), the Kirinyaga 0.80 and 0.95 (Assumption), the Mwea model (Declared input), Embakasi's 140 kWh a bus (Record) and Ruiru (Assumption). Two premises behind the Protect measures were stated without a label. Both are records in the manifest, so they are labelled Record:
+  - Kisiwa (`:593`): "What backs the evening load while GEN-KS-01 is out | nothing: GEN-KS-02 carries it, the battery is at reserve and there is no solar in the evening | Record (dispatch configuration)", from manifest `standby_kw: "0"`.
+  - Mto (`:622`): "What backs the daytime shortfall while INV-MT-02 is out | the generator, idle 10:00–15:00 | Record (dispatch log)", from manifest `standby_kw: "physical.genset_kw"`.
+
+**HTML.** §7 was regenerated with `render7.py`, which first reproduced the committed file byte for byte. The five changes outside §7 (`:176`, `:182`, `:229`, `:371`, `:1129` in the .md) were applied to the .html as the same text. No other pack document has an HTML twin. The mock-up was rebuilt (`gen_fixtures.py`, `node build.mjs`, `tools/run-audit.sh --shots`).
+
+**Checks.** `python3 check_manifest.py`: **3674 passed, 0 failed**. After the edits, the residual grep for the old phrases returns nothing outside the review files and the generated history.
+- `tools/run-audit.sh --shots`: exit 0. Routes 202/202. Console errors, bad links and overflow at 390 px: 0 / 0 / 0. Vocabulary, identifier, role or question wording and filter-control hits: 0. Switch cases 8/8. Contrast 38/38. Preserved screens 65/65 identical. Hand-typed figures: 0 in code and 0 in 216 manifest strings. Unresolved placeholders: 0. `CHANGE-REGISTER.md` and `browser-audit.md` regenerated unchanged. Screenshots were refreshed: the Act first pages carry the new sentence, and the other changed PNGs differ by rendering noise only.

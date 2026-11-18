@@ -382,7 +382,7 @@ tenants:
       cost_total_usd: 8245.00
       cost_recorded_share: 0.9151
     allocation:
-      method: "must-do first, then exhaustive subsets under budget/crew/dependency/exclusion; tie-break 12-month net, then downside"
+      method: "one joint search: one option per decision; options breaking a hard bound left out unless none can keep it; budget/crew visits/dated dependencies; rank by least violation, then highest 12-month value, then lowest spend"
       recommended: [KIS-REPAIR, KOB-STOPSOC, MTO-INV-CLAIM, MTO-HULLER, MTO-BILLING, MTO-METER-AUDIT, BAT-EVIDENCE]
       spend: 3750.00
       spend_breakdown: {KIS-REPAIR: 1800.00, KOB-STOPSOC: 90.00, MTO-INV-CLAIM: 230.00, MTO-HULLER: 1200.00, MTO-BILLING: 0.00, BAT-EVIDENCE: 430.00}
@@ -1197,8 +1197,9 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       changes: {buses: "buses + added_buses", kwh_2200_2400: "kwh_2200_2400 + added_buses * kwh_per_bus_night * nights_in_period"}
       comparator: "service expansion"
 
-plans:   # inputs to the allocator (M4). Each decision lists its options, its kind (protective: the cheapest option meeting its hard
-         # bounds is chosen, or the least violation when none can; valued: the allocator enumerates), its bound policy and reason.
+plans:   # inputs to the allocator (M4): one joint search over all decisions (evaluate_structure.py best()). Each decision lists its
+         # options, its kind (protective: must take one; valued: may take none unless optional: false), its bound policy, fallback and reason.
+         # Options breaking a hard bound are left out unless none can keep it; rank: least violation, then value, then lower spend.
   lakeside-power:
     budget: 5000
     crew_limit: crew_visits_nov   # rev 12 (M2): the allocator enforces the tenant's crew visits beside the budget
