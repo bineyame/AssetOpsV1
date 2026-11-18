@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_fullday_compare.py on 2026-11-18 (declutter step 5).
 """DD-1a1 L2: compare the `without` and `with` Kobo builds of tools/dd1a1_fullday_probe.py (two own *_test DBs).
 Rows are compared with ids, uuids and timestamps removed (they differ by run), as sorted multisets of the rest.
 

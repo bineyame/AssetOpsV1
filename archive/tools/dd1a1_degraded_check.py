@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_degraded_check.py on 2026-11-18 (declutter step 5).
 """DD1a1-R6 L2 check (own `*_test` DB, no prepare): the Kobo `degraded` day with and without its three complements.
 
     python tools/dd1a1_degraded_check.py <with|without> <work-dir>     (ASSETOPS_TEST_DATABASE_URL names the DB)

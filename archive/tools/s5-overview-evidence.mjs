@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/s5-overview-evidence.mjs on 2026-11-18 (declutter step 5).
 /**
  * S5-01 phase 2: browser evidence for the selected-window Site Overview at 1440x1000 and 390x900, from the installed
  * Chrome over the DevTools Protocol (the no-dependency approach of tools/lr01-money-evidence.mjs).

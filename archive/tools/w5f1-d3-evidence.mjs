@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Finished; historical. Archived from tools/w5f1-d3-evidence.mjs on 2026-11-18 (declutter step 5).
 // W5-F1 F1-3 (`specs/W5-F1/spec.md`): capture producer for the three D3 corrections R22, R37 and R38.
 // usage: node tools/w5f1-d3-evidence.mjs <out-dir> <revision> <web-base> <api-base>
 //   <out-dir> must sit under .agent/W5-F1-evidence/. <web-base> serves the app and v69 (`/mockups/v69/index.html`)

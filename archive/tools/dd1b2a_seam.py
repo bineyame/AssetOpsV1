@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1b2a_seam.py on 2026-11-18 (declutter step 5).
 """DD1b2-R2 M0 / M1 measures, read-only on a kept `*_test` database (development only; never part of a prepare).
 
     python tools/dd1b2a_seam.py --db <db> --days 2026-10-16,2026-10-17 [--out <json>]

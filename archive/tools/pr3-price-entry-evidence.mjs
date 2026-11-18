@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/pr3-price-entry-evidence.mjs on 2026-11-18 (declutter step 5).
 /* PR-3 layout evidence (rev 5 §5.3): the inline price form at 1440 and 390 px — open (filled), confirm with the
    Reason field, and the success note after Save — on the Kobo price page.
    No database: a fixture API on <api-port> answers /api/sites/{id}, /api/sites/{id}/prices (with the `entry` block)

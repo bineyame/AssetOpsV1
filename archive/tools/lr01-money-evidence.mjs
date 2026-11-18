@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/lr01-money-evidence.mjs on 2026-11-18 (declutter step 5).
 /**
  * LR-01 phase 2: browser evidence for the money eligibility states on Site > Financials and the Finding page at
  * 1440x1000 and 390x900, from the installed Chrome over the DevTools Protocol (the no-dependency approach of

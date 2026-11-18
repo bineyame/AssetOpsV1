@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/v01b-lab-evidence-evidence.mjs on 2026-11-18 (declutter step 5).
 /**
  * V-01b: app-vs-mock evidence for Site Evidence (`evidence:1-3`, `evidence-analysis:1-2`) and the Simulator
  * Lab run's Gateway & Ingestion overview (`lab:1-4`), with layout measurements at 1440 and 390, missing states

@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1b1_coh3_probe.py on 2026-11-18 (declutter step 5).
 """DD1b1-R Q6: the COH-3 probe. Not a demo prepare: Cold's `failure` day and EV's `fault` day only, through each child's
 own `build`, on this run's own `*_test` database; then backfill a-d, at most 3 ticks, the board and index reads and
 `chain_coherence.collect`. No `demo_combined.py prepare`, no finish rows, no Kobo, no polish or demo3 database.

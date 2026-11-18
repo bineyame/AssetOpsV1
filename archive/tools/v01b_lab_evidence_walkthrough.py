@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/v01b_lab_evidence_walkthrough.py on 2026-11-18 (declutter step 5).
 """V-01b owner walkthrough: Lab (Gateway & Ingestion) and Site Evidence over private copies.
 
     .venv/Scripts/python.exe tools/s4_finding_cases.py run                  # first: the reviewed fixture producer

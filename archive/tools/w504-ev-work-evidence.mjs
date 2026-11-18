@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/w504-ev-work-evidence.mjs on 2026-11-18 (declutter step 5).
 /**
  * W5-04 V2b browser evidence: the EV_CHARGING Site Work > Actions tab (`ev-work`) at 1440 and 390 px, measured against
  * the W5-04 build-spec caps ("specs/W5-04/spec.md" "Measurements, captures and deviations"; readiness rulings

@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1b2a_days.py on 2026-11-18 (declutter step 5).
 """DD1b2-R2: write a Kobo-only probe day list from the v3 list (development only; never part of a prepare).
 
     python tools/dd1b2a_days.py --out <file> --pick S-13d,S-12d,S+0d,S+1d     # M0 / M1 style subset

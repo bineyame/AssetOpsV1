@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a2_addday_l2.py on 2026-11-18 (declutter step 5).
 """DD1a2-R Q8.3 L2 (own `*_test` DB that `dd1a2_mill3_dry_run.py mill3` built; never a prepare). Fills the `missing` day
 S-10 through the add-day path: `plan_add_runs` (the Site-local `delivered_days` basis, FILL-1, three runs in source-time
 order), then the Kobo child's `add_day`. Reports the runs, the evidence per Site-local day and the second fill's refusal.

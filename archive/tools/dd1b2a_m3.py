@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1b2a_m3.py on 2026-11-18 (declutter step 5).
 """DD-1b2a M3 (fix round): add the whole-list days the probe list omitted (S-3 late-as-normal, then S-1 normal) on a
 clone, tick after each, and sample the mill thread, studies and boards. Development only; measures, never tunes.
 

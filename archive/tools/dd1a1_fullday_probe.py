@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_fullday_probe.py on 2026-11-18 (declutter step 5).
 """DD-1a1 L2 probe (own `*_test` DB, no prepare): build the Kobo side of the demo story on the v2 day list, with or
 without the steady complement runs, so the two builds can be compared (DD1a1-R3 Q1 checks, DD1a1-R Q6).
 

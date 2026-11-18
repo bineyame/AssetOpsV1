@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_r12_check.py on 2026-11-18 (declutter step 5).
 """DD-1a1 R12 L2 check on two *_test DBs built by tools/dd1a1_fullday_probe.py (`without` / `with` full days).
 
     python tools/dd1a1_r12_check.py <db-without> <db-with> [<days.json of the build>]

@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_r7_check.py on 2026-11-18 (declutter step 5).
 """HISTORICAL (DD1a1-R16 retired the trial-night split and its calendar; kept as the R7/R7b record, not run).
 
 DD1a1-R7/R7b L2 checks on a finished `with` Kobo build (own *_test DB, read only).

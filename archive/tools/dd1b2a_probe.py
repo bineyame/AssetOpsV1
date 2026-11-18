@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1b2a_probe.py on 2026-11-18 (declutter step 5).
 """DD1b2-R probe, measures P5 to P7 (P1 to P4 are in `<work>/mill.json`, written by the real mill step). Development only;
 never part of a prepare. Runs on a work folder that `prepare --sites kobo --no-finish` and `after-children` have built:
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Finished; historical. Archived from tools/w1-fidelity-audit-index.mjs on 2026-11-18 (declutter step 5).
 // W1-F5b all-26 audit index. Reads every evidence.json that `tools/w1-fidelity-evidence.mjs` wrote under
 // <root> (one folder per walkthrough part), and writes <root>/index.html and <root>/audit.json: each of the 26
 // W1 screens with its app-vs-mock pairs at 1440 and 390, the panel-count and title match, horizontal overflow,

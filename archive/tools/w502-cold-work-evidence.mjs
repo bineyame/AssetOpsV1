@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/w502-cold-work-evidence.mjs on 2026-11-18 (declutter step 5).
 /**
  * W5-02b part 1 browser evidence: the cold Site Work > Actions list (K2a/K2b) and the domain Action shell, at
  * 1440 and 390 px, measured against the W5-02 build-spec caps ("specs/W5-02/", "Measurement,

@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_r9_check.py on 2026-11-18 (declutter step 5).
 """DD1a1-R9 L2 check on a built `*_test` DB: the reserve-trial plan's baseline days.
 
     python tools/dd1a1_r9_check.py <db-name>

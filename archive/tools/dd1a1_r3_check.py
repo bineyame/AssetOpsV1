@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_r3_check.py on 2026-11-18 (declutter step 5).
 """DD1a1-R3 Q1 L2 checks on a finished pair of Kobo builds (own *_test DBs, read only).
 
     python tools/dd1a1_r3_check.py <without-db> <with-db> [<days.json of the build>]

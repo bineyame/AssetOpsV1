@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1a1_r8_check.py on 2026-11-18 (declutter step 5).
 """DD1a1-R8 L2 probe/acceptance checks on a Kobo build DB (read-only).
 
     python tools/dd1a1_r8_check.py <db> [stream|full]

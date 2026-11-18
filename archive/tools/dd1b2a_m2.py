@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1b2a_m2.py on 2026-11-18 (declutter step 5).
 """DD1b2-R3 M2: read-only measure of the pinned Kobo study's source class and in-memory figure. Writes nothing to the DB.
 
     python tools/dd1b2a_m2.py --db assetops_demo3_dd1b2q_test --out .agent/DD-1b2a-m2.json [--last-day 2026-10-21]

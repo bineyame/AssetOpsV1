@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/s405-provenance-evidence.mjs on 2026-11-18 (declutter step 5).
 /**
  * S4-05b phase 2: browser layout evidence for the stored source label on Finding, Evidence, Financials and the
  * Site Overview at 1440x1000 and 390x900, from the installed Chrome over the DevTools Protocol (the no-dependency

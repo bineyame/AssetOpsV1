@@ -1,3 +1,4 @@
+// Finished; historical. Archived from tools/pr2a-price-page-evidence.mjs on 2026-11-18 (declutter step 5).
 /* PR-2a layout evidence (D-PRICE.3 action 1): the price page at 1440, 760 and 390 px for a mini Site, a cold Site with
    ?key=repair_visit_cost and an EV Site, beside frontend/mockups/v71/price-it.html (Parts B and C).
    No database: a tiny fixture API on <api-port> answers /api/sites/{id} and /api/sites/{id}/prices, and `npm run dev`

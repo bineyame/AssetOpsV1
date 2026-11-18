@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/ap1_parity_probe.py on 2026-11-18 (declutter step 5).
 """AP-1 parity probe (D-SR.75 "Parity against the file-backed version"). Run ONLY on a scratch clone DB.
 
 Reads Kobo's file-backed declaration straight from the file stores (bypassing LegacySiteGate inside this probe

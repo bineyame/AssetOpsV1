@@ -1,3 +1,4 @@
+# Finished; historical. Archived from tools/dd1b2a_evidence.py on 2026-11-18 (declutter step 5).
 """DD1b2-R2: compose the re-probe's evidence file from a stopped mill step (development only).
 
     python tools/dd1b2a_evidence.py --work var/demo3_dd1b2p --seam .agent/DD-1b2a-probe-2-seam.json --out .agent/DD-1b2a-probe-2.json
