@@ -283,17 +283,17 @@ def d5():
     b.append(arrow([(xs[1]+W/2, yt+66), (xs[2]+20, yc-2)], cls="ard"))
     b.append(arrow([(xs[2]+W/2, yt+66), (xs[2]+W/2, yc-2)], cls="ard"))
     b.append(arrow([(xs[3]+W/2, yt+66), (xs[3]+W/2, yc-2)]))
-    b.append(box(xs[2], yb, W, 66, ["7 Proof:", "three verdicts", "(lane 2)"], cls="bxa", fs=12))
-    b.append(box(xs[3], yb, W, 66, ["6 Rights in", "repair decisions", "(lane 2)"], cls="bxa", fs=12))
+    b.append(box(xs[2], yb, W, 66, ["7 Proof:", "three verdicts", "(lane 2, first)"], cls="bxa", fs=12))
+    b.append(box(xs[3], yb, W, 66, ["6 Rights in", "repair decisions", "(lane 2, after 7)"], cls="bxa", fs=12))
     b.append(box(xs[5], yb, W, 66, ["9 Pilot hardening", "field calibration", "evidence pack"], cls="bxa", fs=12))
     b.append(arrow([(xs[2]+W/2, yc+hc), (xs[2]+W/2, yb-2)]))
-    b.append(arrow([(xs[2]+W-10, yc+hc), (xs[3]+20, yb-2)]))
+    b.append(arrow([(xs[2]+W, yb+33), (xs[3]-2, yb+33)]))
     b.append(arrow([(xs[3]+W/2, yb), (xs[3]+W/2, yc+hc+2)], cls="ard"))
     b.append(label(xs[3]+W/2+6, yb-22, "full plan gate", fs=11))
     b.append(arrow([(xs[3]+W, yc+hc-14), (xs[4]+60, yc+hc-14), (xs[4]+60, yb+40), (xs[5]-2, yb+40)]))
     b.append(arrow([(xs[2]+W/2, yb+66), (xs[2]+W/2, yb+86), (xs[5]+W/2, yb+86), (xs[5]+W/2, yb+68)]))
     b.append(arrow([(xs[0]+20, yt), (xs[0]+20, 12), (1150, 12), (1150, yb+33), (xs[5]+W+2, yb+33)], cls="ard"))
-    b.append(label(20, 410, "Thick orange arrows: the critical path (records → structure → decisions → plan). Rights and proof run in lane 2 after decisions; dashed: parallel lanes and the plan gate.", fs=11.5))
+    b.append(label(20, 410, "Thick orange arrows: the critical path (records → structure → decisions → plan). Proof, then rights, run in lane 2 after decisions; dashed: parallel lanes and the plan gate.", fs=11.5))
     narrow = vstack([("h", "Parallel from the start"),
                      ("r", [(["Pilot lane", "agreements, profiles"], "bxp"), (["Lane B", "build speed"], "bxp")]), ("x",),
                      ("r", [(["Calibration lane", "replays, demo data"], "bxp"), (["1 Honest screens", "UI only"], "bxp")]),
@@ -301,11 +301,11 @@ def d5():
                      ("r", [(["2 Commercial records", "and file intake"], "bxa")]),
                      ("a", "", "arc"), ("r", [(["3 Structure and factor bridge"], "bxa")]),
                      ("a", "", "arc"), ("r", [(["4 Decisions", "options, rules, no action"], "bxa")]),
-                     ("a", "", "arc"), ("r", [(["5 Plan, Portfolio", "lane 1"], "bxa"), (["6 Rights, 7 Proof", "lane 2"], "bxa")]),
+                     ("a", "", "arc"), ("r", [(["5 Plan, Portfolio", "lane 1"], "bxa"), (["7 Proof, then 6 Rights", "lane 2"], "bxa")]),
                      ("n", "The full plan gate waits for rights (6)."),
                      ("r", [(["8a Cold, then 8b EV", "(order set by prospect)"], "bxa"), (["9 Pilot hardening", "field calibration"], "bxa")])])
     return svg(1170, 420, "".join(b), "Figure 5. Transition steps, dependencies and the critical path",
-               "Critical path: commercial records, structure and factor bridge, decisions, plan. Rights and proof run in the second lane after decisions; the full plan gate waits for rights. Parallel lanes: pilot lane, Lane B, calibration lane, honest screens. Verticals follow plan and proof; pilot hardening follows plan and proof.", narrow)
+               "Critical path: commercial records, structure and factor bridge, decisions, plan. Proof and then rights run in the second lane after decisions; the full plan gate waits for rights. Parallel lanes: pilot lane, Lane B, calibration lane, honest screens. Verticals follow plan and proof; pilot hardening follows plan and proof.", narrow)
 
 # ---------------------------------------------------------------- diagram 6: adapters
 def d6():
@@ -333,12 +333,18 @@ def d6():
                "Emulated, bench and pilot exports enter through transport, parser and profile into the commercial record store or the evidence ledger.", narrow)
 
 # ---------------------------------------------------------------- diagram 7: roadmap swimlanes
-LANES = [("Product", [("Calibration lane + honest screens", 0, 1), ("Records and factor bridge (steps 2–3)", 0, 2),
-                      ("Decisions (step 4)", 1, 3), ("Plan and Portfolio (step 5)", 2, 4), ("Rights (step 6), then proof (step 7)", 2, 4),
-                      ("Second vertical (8a or 8b)", 4, 6), ("Third vertical", 6, 8)]),
-         ("Data", [("Diagnostic kit and profiles", 0, 1), ("Pilot profiles pinned", 2, 4), ("Field calibration on pilot data", 4, 6)]),
-         ("Pilots", [("First mini-grid diagnostic", 1, 3), ("Mini-grid pilot (field validation)", 3, 7), ("Second-vertical diagnostic", 4, 6)]),
-         ("Commercial", [("Demos and qualification", 0, 10), ("Kit ready: diagnostics can be signed", 1, 1), ("First conversion decision", 7, 7), ("Investor and lender evidence pack", 6, 8)])]
+def _lanes():
+    """The swimlanes, parsed from the mermaid gantt block of the .md, so the figure cannot drift from its source."""
+    src = open(SRC, encoding="utf-8").read()
+    blk = src[src.index("```mermaid\ngantt"):]; blk = blk[:blk.index("\n```", 4)]
+    lanes = []
+    for ln in blk.split("\n"):
+        m = re.match(r"\s*section (.+)", ln)
+        if m: lanes.append((m.group(1).strip(), [])); continue
+        m = re.match(r"\s*(.+?)\s*:(?:milestone, )?\w+, ([\d.]+), ([\d.]+)\s*$", ln)
+        if m and lanes: lanes[-1][1].append((m.group(1).strip(), float(m.group(2)), float(m.group(3))))
+    return lanes
+LANES = _lanes()
 
 def gantt(L, R, top, rh, lbl_fs, stacked):
     mw = (R - L) / 10
@@ -360,9 +366,9 @@ def gantt(L, R, top, rh, lbl_fs, stacked):
                 b.append(label(16, y + 16, name, fs=lbl_fs))
             if s == e:
                 cx = L + s * mw; cy = y + rh/2
-                b.append(f'<polygon class="ms" points="{cx},{cy-8} {cx+8},{cy} {cx},{cy+8} {cx-8},{cy}"><title>{esc(name)}: M{s}</title></polygon>')
+                b.append(f'<polygon class="ms" points="{cx},{cy-8} {cx+8},{cy} {cx},{cy+8} {cx-8},{cy}"><title>{esc(name)}: M{s:g}</title></polygon>')
             else:
-                b.append(f'<rect class="bar{li}" x="{L + s*mw + 1:.1f}" y="{y+5}" width="{(e-s)*mw - 2:.1f}" height="{rh-10}" rx="4"><title>{esc(name)}: M{s} to M{e}</title></rect>')
+                b.append(f'<rect class="bar{li}" x="{L + s*mw + 1:.1f}" y="{y+5}" width="{(e-s)*mw - 2:.1f}" height="{rh-10}" rx="4"><title>{esc(name)}: M{s:g} to M{e:g}</title></rect>')
             y += rh
     return "".join(b), top + rows * rh
 
@@ -451,10 +457,10 @@ def d9():
 
 # ---------------------------------------------------------------- diagram 10: effort ranges, revision 1 against revised (weeks)
 # Revised bars: build at 1-3 days per reviewed change, five working days to the week (§4.3 table). The last row is the §4.3
-# elapsed range (the 19-change chain plus 15-20% rework plus four weeks of owner time), not a sum of the bars above.
-EFFORT = [("Calibration + step 1 (lane 2)", (2, 4), (1, 3.5)), ("Steps 2–3 (lane 1)", (6, 10), (1.5, 5)),
-          ("Step 4, then 5 ‖ 6", (8, 14), (2, 5.5)), ("Step 7 (lane 2, after 6)", (2, 4), (0.5, 1)),
-          ("Core, elapsed (§4.3)", (17, 30), (8, 18))]
+# elapsed range (the 16-change chain plus 15-20% rework plus four weeks of owner time), not a sum of the bars above.
+EFFORT = [("Calibration + step 1 (lane 2)", (2, 4), (1, 3.5)), ("Steps 2–3 (lane 1)", (6, 10), (2, 5.5)),
+          ("Step 4 (4a lane 2, 4b lane 1)", (8, 14), (1.5, 4)), ("Step 5 ‖ step 7, then 6", (2, 4), (1, 3)),
+          ("Core, elapsed (§4.3)", (17, 30), (8, 16))]
 TOTAL = "Core, elapsed (§4.3)"
 
 def d10():
@@ -487,11 +493,104 @@ def d10():
     nb += f'<rect class="rnew" x="150" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(170, ny + 15, "Revised", fs=12.5, cls="t")
     nb += label(10, ny + 36, "Last row: the §4.3 elapsed range, not a sum.", fs=12.5)
     return svg(960, wy + 52, wb, "Figure 8. Build effort in weeks: revision 1 against the revised ranges (estimates)",
-               "Revised bars are build time at one to three days per reviewed change. Calibration and step 1 (lane 2, alongside steps 2-3): 2-4 weeks to about 1-3.5. Steps 2-3: 6-10 to about 1.5-5. Step 4, then steps 5 and 6 in parallel: 8-14 to about 2-5.5. Step 7, after step 6 in lane 2: 2-4 to about 0.5-1. Core elapsed, the §4.3 range with rework and owner time and not a sum of the bars: 17-30 weeks (4-7 months) to about 8-18 weeks (2-4 months).",
+               "Revised bars are build time at one to three days per reviewed change, on the grounded path. Calibration and step 1 (lane 2, alongside steps 2-3): 2-4 weeks to about 1-3.5. Steps 2-3: 6-10 to about 2-5.5. Step 4: revision 1 counted it with steps 5 and 6 (8-14); revised about 1.5-4. Step 5 in lane 1 beside step 7 then step 6 in lane 2: revision 1 gave step 7 alone 2-4; revised about 1-3. Core elapsed, the §4.3 range with rework and owner time and not a sum of the bars: 17-30 weeks (4-7 months) to about 8-16 weeks (2-4 months).",
                (NW, ny + 46, nb))
 
+# ---------------------------------------------------------------- diagram 11: grounding today's chain on the primitives
+MAP_ROWS = [(["Finding and its thread", "dispatch, fuel balance, excursion,", "fault; recurrence history"],
+             ["Observation on a factor key", "a deviation, a bound at risk or a", "latent factor; Evaluate acts on it"]),
+            (["Outcome map", "moves / checks rows,", "contribution records"],
+             ["Registry rows", "observer row per signal; roles;", "obligation bounds with a policy"]),
+            (["What-ifs, scenarios,", "headroom opportunity,", "reserve recommendation"],
+             ["Options", "factor changes valued against", "no action, net of their cost"]),
+            (["Action, domain action,", "work case", "(the user acts and tracks)"],
+             ["Carrier of the chosen option", "frozen prediction; the user", "acts and tracks through it"]),
+            (["Verification", "plan freeze, operational", "verdict (mini-grid)"],
+             ["Three verdicts", "operational kept; economic and", "causal beside it, same factors"])]
+
+def d11():
+    b = [label(10, 22, "Today's construct", fs=13, weight="600"), label(330, 22, "On the primitives", fs=13, weight="600"),
+         label(740, 22, "One structure registry", fs=13, weight="600")]
+    y0, rh, h = 40, 84, 68
+    for i, (old, new) in enumerate(MAP_ROWS):
+        y = y0 + i * rh
+        b.append(box(10, y, 270, h, old, fs=12))
+        b.append(box(330, y, 330, h, new, cls="bxa", fs=12))
+        b.append(arrow([(280, y + h/2), (328, y + h/2)]))
+    top, bot = y0, y0 + 4 * rh + h
+    b.append(f'<rect class="grp" x="730" y="{top - 6}" width="440" height="{bot - top + 12}" rx="10"/>')
+    yo, yf, yl = top + 8, top + 118, bot - 86
+    b.append(box(750, yo, 400, 70, ["Outcomes", "contribution · cost per departure met ·", "Protect measures · evidence state"], cls="bx", fs=12))
+    b.append(box(750, yf, 400, yl - yf - 40, ["Factors", "factor ID · period ID · unit · plan ·", "evidence class · bounds · who bears the cost"], cls="bxa", fs=12))
+    b.append(box(750, yl, 400, 72, ["Leaf factors from source records", "telemetry · emulated exports, then", "the operator's own exports"], cls="bx", fs=12))
+    b.append(arrow([(950, yl), (950, yl - 38)])); b.append(arrow([(950, yf), (950, yo + 72)]))
+    b.append(label(960, yl - 16, "read upward", fs=11.5)); b.append(label(960, yf - 18, "read upward", fs=11.5))
+    for i in range(5):
+        y = y0 + i * rh + h/2
+        ty = min(max(y, yf + 14), yl - 54)
+        b.append(arrow([(660, y), (700, y), (700, ty), (748, ty)], cls="ard"))
+    b.append(label(10, bot + 30, "Every role on the right is keyed to a factor of the one registry. Findings attach at a factor and outcomes are read upward through the factors; no construct carries an outcome value of its own.", fs=11.5))
+    narrow = [("h", "Today → on the primitives")]
+    for old, new in MAP_ROWS:
+        narrow += [("r", [(old, "bx")]), ("r", [(new, "bxa")]), ("x",)]
+    narrow += [("h", "One structure registry, read upward"),
+               ("r", [(["Leaf factors", "from source records: telemetry,", "emulated, then the operator's exports"], "bx")]), ("a", "computed into", "ar"),
+               ("r", [(["Factors", "factor and period IDs, unit, plan,", "evidence class, bounds, cost-bearer"], "bxa")]), ("a", "computed into", "ar"),
+               ("r", [(["Outcomes", "contribution, Protect measures"], "bx")]),
+               ("n", "Every role above is keyed to a factor.\nFindings attach at a factor; outcomes are\nread upward; nothing carries its own outcome.")]
+    return svg(1180, bot + 46, "".join(b), "Figure 11. Grounding today's chain on the Layer 4 primitives",
+               "Five of today's constructs, each mapped to its role on the primitives: a finding becomes an observation on a factor key that Evaluate acts on; the outcome map becomes registry rows and obligation bounds; what-ifs and the reserve recommendation become options against no action; actions, domain actions and work cases carry the chosen option, which the user acts on and tracks; verification becomes three verdicts. Every role is keyed to one structure registry, in which leaf factors from source records are read upward to outcomes.", vstack(narrow))
+
+# ---------------------------------------------------------------- diagram 12: the compromise register, parsed from its table
+STEP_COLS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+
+def _register():
+    rows, on = [], False
+    for ln in open(SRC, encoding="utf-8").read().split("\n"):
+        if ln.startswith("| ID | Compromise taken early"): on = True; continue
+        if on and ln.startswith("|---"): continue
+        if on and ln.startswith("|"):
+            c = cells(ln); nm = re.match(r"\*\*(.+?)\*\*", c[1]); rows.append((c[0], nm.group(1) if nm else c[1], int(c[5]), int(c[6])))
+        elif on: break
+    return rows
+
+def d12():
+    R = _register()
+    def body(L, Rx, rh, fs, wrap):
+        sx = (Rx - L) / 9.6
+        b = []
+        names = ["phase 0", "1 screens", "2 records", "3 structure", "4 decisions", "5 plan", "6 rights", "7 proof", "8 verticals", "9 pilot"]
+        top = 52 if wrap else 40
+        for k in range(10):
+            x = L + (k + 0.3) * sx
+            b.append(f'<line class="grid" x1="{x:.1f}" x2="{x:.1f}" y1="{top - 6}" y2="{top + len(R) * rh}"/>')
+            if wrap:
+                b.append(label(x, top - 26, names[k].split(" ")[0], anchor="middle", fs=12))
+            else:
+                b.append(label(x, top - 12, names[k], anchor="middle", fs=11))
+        y = top
+        for cid, text, t0, t1 in R:
+            short = text if len(text) <= 58 else text[:56].rsplit(" ", 1)[0] + " …"
+            if wrap:
+                b.append(label(8, y + 14, f"{cid} {short[:44] + (' …' if len(short) > 44 else '')}", fs=fs, cls="t")); yb = y + 20
+            else:
+                b.append(label(L - 10, y + 17, f"{cid}  {short}", anchor="end", fs=fs, cls="t")); yb = y + 6
+            x0, x1 = L + (t0 + 0.3) * sx, L + (t1 + 0.3) * sx
+            b.append(f'<rect class="rnew" x="{x0:.1f}" y="{yb}" width="{max(x1 - x0, 4):.1f}" height="14" rx="4"><title>{esc(cid)}: taken at step {t0}, retired by step {t1}</title></rect>')
+            b.append(f'<circle class="ms" cx="{x1:.1f}" cy="{yb + 7}" r="6"><title>{esc(cid)} retired by step {t1}</title></circle>')
+            y += rh
+        return "".join(b), y
+    wb, wy = body(520, 1160, 34, 12, False)
+    wb += label(10, wy + 22, "Bar: the compromise is in force, from the step that takes it to the step that retires it (dot). Steps as in §3.1; phase 0 is the calibration lane and the kit.", fs=11.5)
+    nb, ny = body(24, NW - 16, 44, 12.5, True)
+    nb += label(8, ny + 18, "Bar: in force from the step that takes it to the", fs=12.5)
+    nb += label(8, ny + 36, "step that retires it (dot). Steps as in §3.1.", fs=12.5)
+    return svg(1180, wy + 40, wb, "Figure 12. Purity catches up: when each early compromise is taken and retired",
+               "One bar per compromise in the register of §3.9, from the step that takes it to the step that retires it: " +
+               "; ".join(f"{c} step {a} to {z}" for c, _, a, z in R) + ".", (NW, ny + 48, nb))
+
 DIAGRAMS = [d1, d2, d3, d4, d5, d6, d7, d8, d9]   # in the order of the mermaid blocks
-MARKERS = {"effort": d10}
+MARKERS = {"effort": d10, "mapping": d11, "register": d12}
 
 # ---------------------------------------------------------------- markdown subset
 def slug(t):

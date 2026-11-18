@@ -11,3 +11,11 @@ The coordinator agreed it makes sense and is close to what the roadmap already i
 2. Direction of causality. The owner's earlier correction (feedback file, fourth message): outcomes are observed bottom-up through structurally defined factors, never detected at the top and explained afterwards. Findings must attach to factors (an observed deviation or condition on a factor key), not become the spine again.
 3. One structure, not two. If findings, outcomes map and the factor structure each keep their own model, they diverge. One registry, with findings and actions keyed to it.
 4. The honest-figure rules already in force (gross exposure is not a valued option; capacity without a customer is not an opportunity) must survive the re-grounding.
+
+## Owner follow-up (verbatim), same day
+
+> also layer4 design doc(and other relevant ones) should be updated based on the outcome in addition to the transitioin straategy doc
+
+## Owner, same day (verbatim): the core motivation
+
+> The most important thing that motivated the brief and discussion on layer4 design is to ensure that what the product shows on portfolio, site ..etc is actually useful and intentiaionally aligned with economic needs movers, the faster we have achive that the better for the demo. the goal is not to drop things that would make layer4 better that already exist or aligned directionally with it that can be extended/updated as new missing pieces are also added with the core utility function being differentiation and usefulness that converts clients
