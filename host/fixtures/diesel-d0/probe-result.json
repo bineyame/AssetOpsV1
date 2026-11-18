@@ -64,7 +64,7 @@
    "16:00-18:00": 150,
    "18:00-06:00": 0
   },
-  "template": ".agent/DIESEL-D0/kisiwa-diesel-hybrid-60kw.draft.yaml",
+  "template": "host/fixtures/diesel-d0/kisiwa-diesel-hybrid-60kw.draft.yaml",
   "template_sha256_lf": "261b7e642aa7e2f3a2d5175868cf7b2a406b2c89154b1229ca78424e65a6414b"
  },
  "profile": {
