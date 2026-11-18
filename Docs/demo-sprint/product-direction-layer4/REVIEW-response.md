@@ -946,3 +946,87 @@ The owner could not follow §7.1 and asked to have §7 rewritten the way the coo
 **Not reconcilable from the data, stated in the section:**
 - The "metered generator energy × consumption rate" behind the modelled litres (1,060 L at Kobo, 2,380 L at Kisiwa) is not in the demo data. Back-solving gives a fraction of a kWh, so the modelled litres are a declared input, not a calculation from a reading.
 - Ruiru's plan is a stated total, so its +19.68 cannot be attributed to factors.
+
+
+### Author response, 18 Nov: review of §7 rewrite (bd5970f3d), findings M1, M2, L1–L5
+
+The owner asked that all findings be addressed. Each one is treated as a class across the whole of §7. Only §7 of `layer4-transformation-design.md` changed, plus the same section of the `.html`, re-rendered with the same renderer. The byte prefix and suffix outside §7 are unchanged. No change was made to the manifest, evaluator, independent model, checker or `derived-values.json`. The checker passes **3,680 checks with 0 failures**, up from 3,602 because of the new anchors.
+
+**M1: Kisiwa battery on a different basis. Accepted and fixed.**
+- The battery is moved out of the generator table into its own table, "Kisiwa: evening storage".
+- That table states what the battery is compared with: Kisiwa's October running, contribution −250.00, which means looking forward from the repair. This is what `derived-values.json` shows: the formula is "contribution under option −55.0 − under reference −250.0", and `reference_protect` is 0. It is also what the manifest's `kisiwa_storage` reason says.
+- Its hours cell reads "n/a: measured after the repair". A sentence says this cannot be compared with the 125 / 15 / 105 hours, which count 6–30 Nov.
+- The result now follows the data. The disposition is **Deferred**, not "Not chosen" (manifest row `disposition: DEFERRED`). The reasons are over budget (14,000.00 one-off against the 5,000 budget, which matches the plan's `excluded` reason "over budget; payback ~6 years") and negative over 12 months (−11,660.00). The payback is shown as arithmetic: 14,000 ÷ 195 ≈ 72 months, about 6 years.
+- The generator table now explains the least-violation choice in plain words: no option restores a backup at once, so the option with the fewest hours that fits the budget is chosen.
+
+**M2: plan figures labelled "Record". Accepted and fixed as a class.**
+- The legend gains a **Plan** row: the operator's monthly plan line from its plan spreadsheet, a declared target, not a record. This matches the manifest source "monthly plan / budget spreadsheet".
+- One rule now covers every factor table: the Plan column is Plan, and "How it is known" describes the Actual column. The three "plan: Record; actual: Declared input" cells now read "Declared input".
+- The same check covered every other label in §7. Three labels were not in the legend:
+  - "estimate" (Kisiwa O&M, Thika maintenance, Kasarani maintenance). These are invoices not yet received, with the plan amount carried. The legend gains an **Estimate** row and the three cells use it.
+  - "Design value" is reworded in the legend without the word "forward replay".
+  - "Plan limit" now also covers service rules: battery at 35% at dawn, every departure met, backup cover every night.
+
+**L1: unlabelled inputs. Accepted and fixed as a class.**
+- The Lakeside Prices table gains a "How it is known" column and two rows:
+  - productive-use tariff 0.30 (Record, tariff schedule; `rec:` anchored);
+  - battery wear 0.08 (Assumption, to be checked against the warranty's throughput terms; `rec:` anchored).
+- Each portfolio's Evaluate now opens with an **Inputs to the options** table. It lists every input the option tables use, with its figure and label.
+- Mwea handling is labelled Assumption.
+- Labels were taken from the manifest's own basis text. Where the manifest gives no source, the label says **"Declared input, source not recorded"** instead of guessing. One result: the Kobo trial's 60 + 30 lose the "Quote" label the previous text gave them, because the manifest calls neither a quote. Inputs with no recorded source:
+  - Kobo: trial 60 / 30; 100 kWh battery 28,000.
+  - Kisiwa: repair 1,800; replacement 9,500 and its 21 days; battery 14,000.
+  - Mto: shipping 150; installation 80; unit bought now 2,600; local repair 450; huller collection 15; meter audit 60.
+  - Kobo battery evidence: 250 / 180.
+  - Mwea: one-off 150 / 120.
+  - Compressor: 4,800.
+  - Kirinyaga: repair 350.
+  - Thika: relay 40, rota 60.
+  - Embakasi: set-up 1,500.
+  - Kasarani: local repair 380.
+
+**L2: Embakasi 05:15. Accepted and fixed.**
+- The schedule row now says: billed hours are 2 + 5 at 400 kW = 2,800 kWh a night, exactly the requirement. 05:00–05:15 is slack for a late bus and is not billed.
+- The inputs table says the same. This matches the manifest parameter `hours_after_midnight: 5, basis "00:00-05:00 (to 05:15)"` and the evaluator's supplied 2,800 kWh. The manifest row's `deliverable_kwh: 2900` is the 7.25-hour window.
+
+**L3: figures not followable. Accepted and fixed as a class.**
+- Ruiru absorbing 6 buses: 6 × 140 kWh × 31 nights = 26,040 kWh × 0.12 = 3,124.80, all off-peak, with the highest kW unchanged at 380.
+- All other figures in §7 were swept. Arithmetic from shown inputs was added for:
+  - Lakeside: the "of which" columns; 7,545.00 = 8,245.00 − 700.00.
+  - Kisiwa: hours (25 / 3 / 21 days × 5 h).
+  - Mto: 30 L / 10 L extra; half-capacity hours (22 / 6 / 2 / 25 days × 5 h); welding fuel 217.8 L × 1.25; billing 140 kWh × 0.40 and 12 × 56.00.
+  - Lakeside sensitivities: each recomputed at 1.00 a litre or 160 L, with the per-option values anchored to `options.*.sensitivities`. The downside and all four switch-case spends and values are also shown.
+  - Mwea: 0.6%; the contract's revenue and energy lines; capacity 4,340 + 4,500 against 12,400.
+  - Harvest: 37,200 = 3 × 12,400; the cost change −150.00; 97.8%; energy per crate-day for Mwea and Kirinyaga; 24%.
+  - Kirinyaga: replacement 970 + (1 − 0.95) × 4,030; 60% recovery case.
+  - Mwea: downside and switch spend.
+  - EV deliverable energy: the lower of chargers × kW and the import limit, × window, at all three depots.
+  - Embakasi: bill lines as kWh × price; cost per departure.
+  - Kasarani: 37,200 kWh; 150 kWh short.
+  - Ruiru: cost-to-serve sum; 13,100.00 − 13,080.32.
+  - Portfolio: deviation; cost per departure; 99.3%.
+  - Embakasi options: the 706.80 tier drop (23,560 × 0.03); the cheapest-bill 12,975.00 and the 93 departures; Ruiru's 62 departures; 4 × 15,000.
+  - Metro: downside and switch.
+
+**L4: small presentation points.**
+- Welding break-even: fixed. It now reads "272.25 ÷ 660 = 0.4125 per kWh, above the 0.40 charged". The manifest row still carries `break_even_tariff_usd_per_kwh: 0.42`, rounded up. The evaluator does not use it, so the manifest is left as it is; this is reported, not changed.
+- Thika factor table: fixed. It now carries the Price column.
+- Mwea "+155.00 − 3.00": **kept, with proof.** Writing +152.00 makes the checker fail: "main §2-§10: figures are independent values or declared inputs (untraced: ['152.00'])". 152.00 is a subtotal that does not exist in the data. The cell already shows its arithmetic, and the column total −150.00 is a data record. For the same reason, 8,840 and 1,171.5 are shown only as their sums (4,340 + 4,500; 970 + 201.5) and never printed as totals.
+
+**L5: system vocabulary. Accepted and fixed in §7.**
+- "The allocator" is replaced by a plain two-step description of how the plan is built.
+- "must-do" is replaced by "required: …" with the reason.
+- "hard bound", "cover bound", "backup-cover bound" and "departures bound" are replaced by what would happen ("the warranty cover would be lost", "2 departures missed; every departure must be met", and so on).
+- "obligation hours without redundancy" is replaced by "hours of evening supply with no second generator in reserve".
+- "All of these are outputs of `evaluate_structure.py`" is replaced by "Every figure in this table is Calculated: the plan is searched again under each pair of conditions".
+- "not decomposed" is replaced by "cannot be split into factors".
+- "dispatch classification" is replaced by "classifying each generator interval".
+- "the decision's reference" is replaced by "the comparison stated for that decision".
+- "switch cases" is replaced by "When a condition changes (the switches)", with the conditions named.
+- The internal IDs v7.0 INC-203, ACT-051, F-130 and WR-019 are removed.
+- What is kept: asset tags, tariff codes and document numbers (GEN-KS-01, INV-MT-02, CH-K2, C-114, CN-0412, B-1031). These are what an operator sees on site and on paper. Also kept: the legend's pointer to `evaluate_structure.py` / `independent_model.py`, which is design-document provenance.
+
+**Not reconciled / for the owner's attention:**
+- About 20 option inputs are held in the demo data with no stated source; they are listed under L1. They are now labelled as such. Giving them a source (quote, record or assumption) is a data task, not a document fix.
+- The evaluator's `MWEA-AGG.assumptions` list is empty, although its handling basis reads "handling estimate". The document labels it Assumption.
+- Manifest `break_even_tariff_usd_per_kwh: 0.42` is a rounded-up value (exact 0.4125); see L4.
