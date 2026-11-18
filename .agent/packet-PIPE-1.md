@@ -66,3 +66,27 @@ Peak tree RSS (sum over the whole process tree, sampled every 0.25 s) stays unde
 ## Review focus
 
 `tools/check-all.ps1` trigger computation (merge-base, untracked files, failure → run), pool completion and child cleanup, advisory status handling; `tools/check-architecture.ps1` `-List`/`-Only`; `check_mock_gaps.cjs` equals the registry guard's call.
+
+## Revision 2 (review `.agent/review-PIPE-1.md`, REVISE)
+
+Commits: 780799353 (M1, L1, L2, L3, info), 6d999760e (L1 race), eaae12325 (docs). Evidence: `/opt/assetecon/evidence/PIPE-1/run-2026-11-18-r2/`.
+
+- **M1 (class).** check-all sets `PYTHONPATH` = this tree's `backend` + `contracts` (platform separator) for the whole run, so every guard and every Python process a guard starts (pytest, xdist workers, rule-8 extractor) beats the shared venv's editable installs. New blocking guard `tools/checks/import_root_probe.py`: FAIL when `assetops_backend` or `assetops_contracts` loads from outside the repo root.
+  - Sweep: a `sitecustomize` audit logged every first-party module loaded from the main checkout by any Python process of a check-all run in a worktree. Old code (8a3ab5cf7): `test_chain_coherence.py :: assetops_contracts`. New code, full run (estate self-tests included): **0** (`audit-old.log`, `audit-new-run.log`).
+  - Probe without `PYTHONPATH`: 2 FAIL lines (backend, contracts from `/opt/assetecon/AssetOpsV1/...`), exit 1; with it: pass.
+  - Planted `raise` in the worktree's `contracts/assetops_contracts/__init__.py`: chain coherence FAIL (plus event register, chain graph, probe). Same plant with the run-wide `PYTHONPATH` line removed: chain coherence `183 passed` (vacuous) and the probe FAILs naming main's paths (`r2-plant-contracts.log`, `r2-plant-nopath.log`).
+- **L1.** SIGTERM/SIGHUP handler (`PosixSignalRegistration`, pwsh 7.2+, compiled with Add-Type, ~0.8 s) stops every running guard tree; once signalled, no new guard starts and a late-registered one is killed. Correction to the earlier claim: before this, only exceptions and Ctrl-C reaped children. SIGKILL cannot be caught. Test (processes found by an inherited env marker): final code, 2 rounds, 4 guard processes before SIGTERM, 0 left 5 s after; old code, 3 left (killed by PID).
+- **L2.** A run counts as main when `HEAD` = `main`'s commit, not only by branch name. Shown: a detached worktree at main's tip ran the estate self-tests "on main (full run after merge)".
+- **L3.** Triggers = the 4 guard files + path constants of `test_estate_guard.py` (12 derived anchors; 13 paths with `TRIAL_GUARD`). If fewer than 10 derive, the self-tests run. The trigger self-test (22 cases) pins the derivation: a fixture text, three known anchors, and every anchor exists on disk.
+- **Info.** Windows PowerShell 5.1: `Stop-GuardTree` uses `taskkill /T /F` instead of the missing `Kill(bool)`; failures are printed, not swallowed (5.1 still not run: no Windows here). Failure summary counts blocking and advisory separately. Timeouts: slot wait 20 min (`-SlotWaitMinutes`), each guard 10 min (`-GuardTimeoutMinutes`; slowest measured 37 s), estate self-tests 20 min (`-EstateTimeoutMinutes`; 133-159 s at `-n 4`); a timed-out guard is stopped and FAILs (advisory: WARN).
+- **Summary lines (exact):** `All <B> guards passed (blocking; <A> advisory, <W> warned).` and `Check failed: <F> of <B> blocking guards (<A> advisory, <W> warned).` The old pattern `All [0-9]+ guards passed|Check failed` still matches both.
+- **Docs.** `backend/TESTING.md` check-all paragraph (fast mode, `-Full`, slots, limits; Windows form dropped); `.ai/NOW.md` lane line.
+
+Timings, this branch at eaae12325 (load avg 3-4 from other agents):
+
+| Run | Wall | Peak single | Peak tree | Result |
+| --- | ---: | ---: | ---: | --- |
+| Fast | 41.9 s | 1.12 GB | 2.86 GB | 32/32 blocking, estate SKIP |
+| `-Full` | 205.5 s (estate 159.1 s) | 1.00 GB | 2.43 GB | 33/33 |
+
+Also run: `check-agent-workflow.ps1` passed; `tools/checks/` pytest (chain coherence, event register, fuel wording) 216 passed. No full suite, no database, Docker or ports. All test processes stopped; worktrees removed.
