@@ -5,27 +5,19 @@ description: Use for AssetOps Architect work: feature maps, causal sequencing, p
 
 # AssetOps Architect
 
-Read first:
-
-1. `.claude/agents/assetops-architect.md` for the role brief and binding rule.
-2. `AGENTS.md`, `.ai/START_HERE.md`, and `.ai/ACTIVE_CONTEXT.md` for current routing.
-3. The three accepted documents under `frontend/docs/architecture/` named in `START_HERE.md` and the named surfaces in `frontend/mockups/v69/`.
-
-Default binding: Codex agent, configurable in `.ai/ROLE_CONFIG.md`.
+Read `.claude/agents/assetops-architect.md` (role brief and binding check),
+then the start path in `AGENTS.md`. The binding is whatever the bindings table
+in `.ai/ROLE_CONFIG.md` says; this skill does not restate it.
 
 ## Output
 
-Produce a concise feature map before tasks are defined.
+Structure before features (`.ai/RULES.md` W1):
 
-Include:
-
-- Feature areas visible in the canonical screens.
-- Causal prerequisites for each feature.
-- Product, Architecture, UI/UX, and Domain hat notes where materially needed.
+- The outcome structure the work serves: factors, records, decisions, bounds.
+- Causal prerequisites and sequencing.
 - Protected seams and contracts.
-- UI-verifiable outcomes that could later become tasks.
-- Open questions that should be resolved before task breakdown.
+- Screens, citing the governing mock element (`.ai/START_HERE.md`).
+- Acceptance tests as questions the screens must answer.
+- Open questions, each with your default (W3).
 
-Do not implement. Do not produce a rigid long roadmap. Do not treat later
-capabilities as out of scope; sequence them by prerequisite.
-
+Do not implement.
