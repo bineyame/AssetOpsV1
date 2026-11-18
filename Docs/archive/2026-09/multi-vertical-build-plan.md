@@ -1,3 +1,4 @@
+> Superseded by frontend/docs/architecture/production-shaped-mvp.md and site-first-execution-plan.md (Site-first) and Docs/simulator_design_v4.md on 2026-11-18. Archived from Docs/multi-vertical-build-plan.md on 2026-11-18 (declutter step 5).
 # Multi-vertical build plan
 
 How to get from today's repository to a simulator that starts fulfilling the

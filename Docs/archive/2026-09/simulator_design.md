@@ -1,3 +1,4 @@
+> Superseded by Docs/simulator_design_v4.md on 2026-11-18. Archived from Docs/simulator_design.md on 2026-11-18 (declutter step 5).
 # Simulator design
 
 The engineering design for the AssetOps simulator: what it is for, how it is

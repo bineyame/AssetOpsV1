@@ -1,3 +1,4 @@
+> Superseded by Docs/simulator_design_v4.md on 2026-11-18. Archived from Docs/simulator_design_v2.md on 2026-11-18 (declutter step 5).
 # Simulator design v2
 
 The engineering design for the AssetOps simulator: what it is for, how it is built, and how its internals work. Written so an implementer can build from it without re-deriving the reasoning behind it.

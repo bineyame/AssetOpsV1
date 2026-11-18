@@ -1,3 +1,4 @@
+> Superseded by Docs/simulator_design_v4.md on 2026-11-18. Archived from Docs/simulator-design-v3-alignment.md on 2026-11-18 (declutter step 5).
 # Aligning the implementation to simulator design v3
 
 A verification pass over `Docs/simulator_design_v3.md`, checking each item the

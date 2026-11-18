@@ -1,3 +1,4 @@
+> Superseded by frontend/docs/architecture/production-shaped-mvp.md and site-first-execution-plan.md (Site-first) on 2026-11-18. Archived from Docs/mini-grid-demo-architecture-and-roadmap.md on 2026-11-18 (declutter step 5).
 # AssetOps Mini-Grid Demo Architecture and Roadmap
 
 **Architecture basis:** `Docs/simulator_design_v4.md`  

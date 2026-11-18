@@ -1,3 +1,4 @@
+> Superseded by .ai/decisions/ on 2026-11-18 (it was a reflection, never a decision). Archived from Docs/declared-capability-and-what-checks-it.md on 2026-11-18 (declutter step 5).
 # Declared Capability And What Checks It
 
 Status: **reflection, not a decision.** Nothing here is recorded in

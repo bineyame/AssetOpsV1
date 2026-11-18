@@ -1,3 +1,4 @@
+> Superseded by frontend/docs/architecture/production-shaped-mvp.md and site-first-execution-plan.md (Site-first) and Docs/simulator_design_v4.md on 2026-11-18. Archived from Docs/multi-vertical-capability-read.md on 2026-11-18 (declutter step 5).
 # Multi-vertical capability read
 
 An Architect response to the multi-vertical demo strategy and 23-family
