@@ -3095,3 +3095,160 @@ W1–W9 are concrete and actionable, and each one names what it removes. They ag
 - The mermaid blocks were not rendered by a mermaid engine.
 - The 1–3 days per change and the human-team range are judgements I can only test for plausibility.
 - No test suite was run. No database, Docker container or port 5490/8990 was touched. No pack file other than this one was edited, and `.agent/owner-walkthrough-notes-2026-11-01.md` was left alone.
+
+## Review of grounded, visible-first path (4c3413902, 4c86fedb1)
+
+Reviewer: fresh Claude reviewer (did not author the work). Discovery depth (W5): both commits read in full, rules and owner files read first, author response read last. Worktree `/opt/assetecon/AssetOpsV1-layer4`, branch `task/product-direction-layer4-design`. Line references below are to the files at `4c86fedb1`. Unless marked, `PT` = `product-transition-and-roadmap.md`.
+
+**Verdict: REVISE (targeted).** The direction fits the owner's intent well. The path is ordered by visible economic usefulness, keeps the records → bridge critical path, reuses before reworking, and keeps bottom-up direction: a Finding is a condition on a factor key and carries no outcome money. Each rejection checks out against the code: `scenarios/` as a what-if, the cold and EV replays as the forward replay, and document bounds as honesty bounds. The mechanical checks pass.
+
+Four Medium findings remain. Each is a claim the owner is asked to decide on (D13–D15) that the code or the pack does not support as written:
+- M1: the Kobo change's operational verdict cannot "run unchanged".
+- M2: the "one decision arm" understates the carrier change.
+- M3: the new never-sum-across-provenance rule, read literally, forbids the bridge, and "Emulated" is outside the fixed screen vocabulary.
+- M4: the phase table still says the old order (rights in parallel with the plan, proof later).
+
+All four can be fixed on the branch without changing direction. A verification re-review of M1–M4 and their sweeps is enough.
+
+### Medium
+
+**M1. The Kobo stop-setting change has no operational verdict today, and on a customer site the existing verdict cannot pass on field evidence.** The claim appears at PT:334 (step 4 gate: "today's operational verdict runs on it unchanged"), PT:435 (V3), PT:664 ("the operational verdict already exists", a stated reason for D15) and `phase-plan-and-acceptance.md:145`.
+- What is wrong:
+  - Verdicts are dispatched by rule id. `FAMILIES = {RESERVE, MIDDAY}` plus `FUEL` (`actions/verification_families.py:502`, `:516`), and an unknown family fails closed with `VERIFICATION_FAMILY_UNSUPPORTED` (`:505-510`).
+  - `MiddayShift.freeze` refuses any action that is not a MINI domain action with opportunity origin.
+  - `FuelResidual` is pinned to the fuel-seal lever (`actions/fuel_verification.py:41-50`).
+  - The pack's own carrier is a new rule `stop-soc-trial-1` (`domain-and-decision-models.md` §1.5), so nothing can verify it today.
+  - On a customer site, positive evidence is admitted only from `REGISTERED_SIMULATION` or `AUTHORED_DEMONSTRATION` (`verification_rules.py:688`) until PR 7b ships.
+- Why it matters:
+  - A reviewed change (a candidate-litres verification family) is missing from step 4a's count.
+  - D15's timing depends on PR 7b and that family both landing before the first after-window. PT §4.4 states neither.
+- Fix:
+  - Add the stop-setting verification family to step 4a (lane 2), and recount.
+  - Reword the gates as "an operational verdict of the same kind, new family `stop-soc-trial-1`".
+  - Add "7b merged" and "the family merged" to the §4.4 assumptions.
+
+**M2. "One decision arm on the origin check … the last widening" understates the carrier change.** The claim appears at PT:476 (migration rule), C4 (PT §3.9), `domain-and-decision-models.md` §1.5, the matrix domain-action row, and A36.
+- What is wrong:
+  - The precedent, 0051 (opportunity origin), had to change five objects together: `domain_action_one_origin` (`0051:73`), `domain_action_mini_origin` (`0051:78`), `chain_action_thread_one_origin` (the `chain_action_thread` XOR check in `0051` UPGRADE), the `chain_action_thread_target()` trigger (`0051:34-49`), and the `chain_action` view. It also needed a downgrade guard (`REFUSE_IF_USED`).
+  - A decision-originated MINI domain action fails `:78` today. To advance its thread "as today" (PT:483), the link row must also satisfy the link XOR check and the trigger's origin match. Otherwise the action has to keep its trigger Finding as its origin, which `one_origin` then forbids alongside a decision origin.
+  - The matrix itself warns that "each widening rewrote the CHECK and its downgrade guard".
+- Why it matters: the size and risk of PR 4a (a protected seam) are understated. "The last widening" is a promise the design cannot yet keep, because it has not said which columns hold the origin.
+- Fix: in `domain-and-decision-models.md` §1.5, state the origin model of a decision-originated Action:
+  - either a decision column that replaces the Finding/opportunity pair,
+  - or the trigger Finding kept as origin with the decision only in the link table.
+  Then list every object the migration touches, as 0051's docstring does. Restate C4 to match.
+
+**M3. The new provenance rule contradicts the structure's composition, and "Emulated" is outside the pack's fixed screen vocabulary.**
+- What is wrong:
+  - PT:508 says figures "of different evidence classes, or of different provenance, are never added". The structure composes leaves of mixed class by design: a node's class is the weakest of its children's, and coverage is the Recorded share (`domain-and-decision-models.md:121-122`).
+  - In the demo, contribution is emulated billing (source-emulated) minus fuel from simulated telemetry (demo-simulated) priced by a declared price. Read literally, the rule forbids the Kobo bridge at PT:279-282.
+  - PT §3.8 (:531, :542) introduces the evidence class **Emulated**. `economic-metric-and-effect-contracts.md:437` fixes the on-screen words as "exactly: Recorded, Measured, …", which does not include Emulated. Its §4.4 class table has no Emulated row and no composition rule.
+  - The mock-up maps `ECONOMIC_ACTUAL`/`PLAN`/`CONTRACT` to "Recorded" (`interactive-mockup-vNEXT/loop-core.js`, `CLS`), so demo-world records on emulated exports are shown as Recorded, against D14.
+- Why it matters: this is exactly the honest-figure rule D14 asks the owner to adopt. As written it is either unworkable (the literal reading) or not applied (the vocabulary and the mock-up).
+- Fix:
+  - Narrow the rule to what §3.8 already says: no *benefit total* or across-item total mixes provenance. Within the structure, a node takes the weakest class and provenance of its leaves and states its coverage.
+  - Add Emulated to `economic-metric-and-effect-contracts.md` §4.4 with its composition and its mapping to the code's `evidence_class`. Note that the code's `evidence_class` CHECK, `0042_chain_threads.py:50`, has no such value.
+  - Either label the mock-up's demo-world records Emulated, or say why the mock-up shows the operator's (Recorded) view. That second part is for the mock-up gate.
+
+**M4. The phase table still has the old order.**
+- What is wrong:
+  - PT:617 (phase 2) still reads "steps 4, then 5 and 6 in parallel".
+  - PT:618 (phase 3, ≈ M3–M6) carries step 7.
+  - The gantt (PT:592) and §3.1/§4.4 put proof (7) in M1–M3, *before* rights (6).
+  - `phase-plan-and-acceptance.md` §2 row (4) still says verification "is not on the demo's critical path". Under D15 it is on the first customer change's path.
+  - The gantt reuses the id `p5` for two tasks (PT:592-593). This is new in rev 4.
+- Fix:
+  - Phase 2: "steps 4, then 5 in lane 1 and 7 then 6 in lane 2".
+  - Phase 3: carries only the proof *of the change*.
+  - Give the vertical task its own id.
+  - Add one clause to the phase plan row.
+
+### Low
+
+- **L1. The lane split does not reconcile with the phase plan's PR assignment.**
+  - PT:644 has lane 2 at 14 changes and lane 1 at 16, with V3 "after about 9 changes in lane 2" (PT:665). For lane 2 to total 14, step 4 can contribute only 3 changes there.
+  - `phase-plan-and-acceptance.md:137` puts PRs 4a–4d and the Kobo part of 4f in lane 2, which is 5 changes.
+  - That gives lane 2 = 16 and lane 1 = 14. The sequence length is still 16, so the effort range survives. V3 then lands after about 11 changes, so the decision view's gain is about 0.5–2 weeks, not 1–3.
+  - Under M1, add the verification family. Also say whether spike K and PR 4c are the same change or two.
+- **L2. The go-to-market knock-on (PT:672) proposes starting 3a "not after the structure approval".** PR 3a declares outcome → factor relations, which is the structure. W1 (`.ai/RULES.md` §4: "before any build or figure") forbids building it before approval. Either move the structure sitting earlier, or keep 3a behind it.
+- **L3. The parity shim's inputs are not available from the registry at step 3.**
+  - Today's wire needs an ordered `moves` whose first entry is primary (it drives `lens_flags`), first-appearance category order (ruling A-Q3), `@COST`/`@ASSET_LIFE`/`@EVIDENCE` alias resolution per domain, and `@LINKED` (`outcome_map.py:44-49`, `:57-107`, `:119-122`).
+  - PT:475 says moves are "no longer declared" but found by walking upward. The design doc (:365) says MOVES/CHECKED become declared L2.5 roles.
+  - CHECKED is to come from obligation bounds, which land in PR 4b, after 3a′.
+  - Fix: the observer row declares the primary role, the order and the checked roles until bounds exist. Run parity over every (signal × domain × linked) input and over NOT_MAPPED, not over "16 entries".
+- **L4. Objectives are not only operational.** `outcomes/objectives.py:32`, `:71` declares `energy_cost_per_km` (EV-2) in `currency/km`. PT:487's "operational targets only" needs a rule for this money-ratio objective.
+- **L5. Candidate running mapped as a "deviation" (PT:473) needs a plan.** Before V4 there are no plan lines. For V1, state the plan basis (a structural zero or a tolerance from the observer). Also consider whether unexplained fuel is better read as a bound (its band) than as a deviation.
+- **L6. Threads that carry opportunities are not placed.** `finding_thread_occurrence` holds `opportunity_id` rows (`0042:46-53`), and the headroom thread maps through `SIGNAL:PRODUCTIVE_USE_HEADROOM` (`outcome_map.py:110-117`). PT:483 describes threads only as physical observations. State that the headroom thread becomes the history of the capacity factor, or is frozen.
+- **L7. D15 moves onboarding into a four-week diagnostic without re-sizing it.**
+  - Before the after-window, the operator's site must be modelled for a replay on its controller export, and its telemetry must be flowing for an operational verdict at M3.
+  - Gantt d2 "Pilot profiles pinned" spans M2–M4, overlapping the commit at about M3.
+  - PT:666 lists the agreement-to-change caveat but not this one. Add it, with its effect: the low end of M4.5 looks optimistic.
+- **L8. The mock-up does not show V1 or the decision trigger.** No mock-up screen shows a Finding as a condition on its factor (V1), and `loop-decisions.js` has no "Finding that opened it" element. The author lists the second for the mock-up gate; add V1 to that list too (mock-up is the layout spec).
+- **L9. Citation nits.**
+  - Each of the following points at a blank line one above the target: `mini_decisions/scenario_rules.py:23` (`KINDS` is :24), `0042_chain_threads.py:27` (table at :28), `0009_finding_store.py:31`.
+  - The design doc cites `evidence/service.py:487-492` where PT cites `:484-492`.
+  - The response says the old design HTML differed by "eight" `&quot;`. The old file has 8, and 2 of them are in the regenerated output too, so 6 differ. With every `&quot;` unescaped, the two files are byte-identical.
+
+### Checks against the brief
+
+1. **Fit to the owner's intent.**
+   - The path is visible-first, with the critical path kept (PT §3.6).
+   - Defaults are keep, extend or update. Only four retirements are made, each because it misleads. Their reasons are sound and match the code: the last-day Optimize figure, headroom shown as a value, captive charging income, and placement as the spine.
+   - Each rejection is confirmed:
+     - `scenarios/__init__.py:1-7`: "A scenario names no Site".
+     - `cold_replay.py:1-8` and `ev_replay.py:1-9`: they read what a persisted run published and project nothing.
+     - `document_bounds.py:1-8`: parser limits.
+   - "Threads hold in part" is right: they are keyed (site, mechanism, subject) at `0042:28-38`, with the gap noted in L6.
+   - The what-if split matches `scenario_rules.py:24` and the cold and EV `KIND` constants.
+   - Nothing aligned is dropped without a reason.
+2. **Mechanics.**
+   - Bottom-up holds. A Finding may cite the structure's attribution but holds no money, and the Kobo bullets reconcile: −412.50 −150.00 −37.50 +38.00 = −562.00.
+   - There is one registry, with a start-up check, as in the `chain/graph.py:177` pattern. The parity shim is sound in principle (see L3).
+   - The honest-figure rules survive, except for M3's wording.
+   - The emulator contract has a replacement rule, an "Emulated" label and a contract test run against both emulator and real adapter (PT §3.8, integration §7.3). A swap changes labels, not behaviour.
+3. **Truth against the code.** About 45 citations were checked, including `0051:73`, `0051:78`, `outcome_map.py:19-23`, `:75`, `:97`, `:149`, `chain/graph.py:177`, `actions/service.py:300`, `:390`, `:504`, `verification.py:193`, `:1167`, `verification_rules.py:688`, `:739`, `verification_families.py:502`, `:516`, `0016:46`, `:60`, `:72`, `0019:166`, `0030:144`, `0033:39`, `:62`, `:82`, `0042:53`, `:81`, `0054:3`, `sites/models.py:167`, `site_outcomes/read.py:901-903`, `site_outcomes/mini.py:99`, `cold_scenarios/rules.py:26`, `ev_scenarios/rules.py:27`, `objectives/model.py:36`, `host/execution_adapter.py:869`, `chain/lifecycle.py:47-58`, `reading_upload/service.py:213`, `:244`, `finding_api.py:115`, `postgres_chain_read.py:273`, `mini_depth/read.py:462`, `ev_depth.py:34`, `fuel_balance/rules.py:216`, `source_health.py:83`, the field emulator, profile and uploader, and `portfolioWords.ts:30-37`.
+   - All are accurate apart from the nits in L9. The "16 entries" count is right (5 + 3 + 8).
+   - The new design §8.5 has no file:line citations of its own. It defers to PT §3.7, which was checked.
+   - The substantive errors are inferences, not citations: M1 and M2.
+4. **Screen table and V1–V5.** The table is concrete, and today's content checks out where tested:
+   - The Overview's top three (`EstatePortfolio.tsx:862-865`).
+   - Today's tab names.
+   - The vNEXT routes, including `#/decision/kobo-generator`.
+   The "useful at" dates follow the lane order, subject to L1 for V3 and M1 for V3's Action verdict.
+5. **Roadmap claims.**
+   - The 1.5–2-month gain is arithmetically consistent: commit at about M3, operational verdict about two weeks later, money verdict after the next closed month. It rests on D15, M1 and L7.
+   - 30 changes reconcile with §4.3's table (6 + 9 + 7 + 3 + 2 + 3). The lane assignment does not (L1).
+   - Proof before rights is consistent in §3.1, §3.2, §4.4, the gantt, the design doc §9 and phase plan §2, but not in §4.2 (M4).
+   - D13–D15 match Q17–Q19 and A35–A37.
+6. **Pack consistency.**
+   - No text in the pack says Findings are retired, describes a Layer 4 built alongside the old one, or gives an integration order that does not start from emulators.
+   - The old orders that remain are M4's.
+   - The vocabulary gap is M3.
+   - The mock-up text changed only on *What changed* (Commitments → Actions). This is consistent; the gaps are in L8.
+7. **Mechanical checks (run by me).**
+   - `python3 check_manifest.py`: **3721 checks passed, 0 failed**.
+   - `render_product_transition_html.py` and `render_design_html.py` re-run into scratch: both **byte-identical** to the committed HTML.
+   - `render_design_html.py` on the rev 13 `.md` from `3007aef2a`: identical to that commit's HTML once `&quot;` is unescaped in both.
+   - `tools/run-audit.sh` (local Chromium; missing shared libraries extracted into scratch, nothing installed):
+     - routes: 202/202 OK, 0 console errors, 0 bad links, 0 overflow at 390 px
+     - text scans: 0 vocabulary hits, 0 role or question hits, 0 hand-typed figures, 0 unresolved placeholders, design values unlabelled 0
+     - contrast 38/38, preserved pages 65/65
+   - The in-place rebuild left the tree clean: `git status` was empty. Nothing was committed from it. No audit or browser process is left running.
+8. **Readability (18.3k words; about 4–5k can move without loss to the owner).**
+   - PT §3.8 repeats integration §7.3 almost line for line: the canonical contract table, replacement rule, contract test and replacement order. Keep the "what an emulator is" paragraph, the labelling rule and the benefit-by-stage table, and point to §7.3 for the rest (about 700 words).
+   - PT §3.7's second table (the eleven "other constructs") and the code citations in the first table can go to an appendix. Keep the five-row core mapping in plain words (about 1,000 words).
+   - The §4.4 go-to-market knock-on table belongs with the GTM branch, or in an appendix (about 400 words).
+   - The last five rows of §2.7 restate §3.7 and §3.8. One row pointing there is enough (about 300 words).
+   - §3.2 duplicates the phase plan's slice tables. A one-line-per-step summary plus a pointer would do (about 900 words).
+   - The header's revision history (line 4) can move to the appendix.
+
+### Not verified
+
+- The mermaid blocks were not rendered by a mermaid engine. In particular I did not check how mermaid handles the duplicate gantt id.
+- The transition HTML was not inspected visually at phone width this round; the renderer reproduces the author's file byte for byte.
+- No test suite, database, Docker container or port 5490/8990 was used. No owner file and no file in `/opt/assetecon/AssetOpsV1-gtm` was touched.
+
+### Residual risk not named in the packet
+
+- D15 turns the diagnostic into the first customer onboarding: replay model, telemetry intake, verification family and field-evidence admission. The analyst-and-owner effort for that (go-to-market `commercial-plan.md` §4.1) is assumed to be about half a day.
+- If the structure sitting slips, lane 2's early work (3a and 4a) either waits, and V2 and V3 lose their gain, or is built ahead of W1.
