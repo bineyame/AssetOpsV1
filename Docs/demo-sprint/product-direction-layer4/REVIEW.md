@@ -2555,3 +2555,91 @@ No other numeric leaf changed. Text changes (Kisiwa "how", item order) are cosme
 - The CSV validator.
 - The author's `perturb4.py` (44 runs) and the 2,438 × 5-world influence scan. I ran my own (c)-scan instead.
 - The replay design values (calibration lane).
+
+## Review of §7 rewrite (bd5970f3d)
+
+Fresh independent reviewer, 18 Nov. Diff `97cf295b6..bd5970f3d`. Request judged: the owner's thirteenth message, with the earlier messages as standing rules (`.agent/owner-layer4-direction-feedback-2026-11-17.md`). I formed this view before reading the author note in `REVIEW-response.md`.
+
+**Verdict: ACCEPT WITH NOTES.** The rewrite does what the owner asked. Every Site in all three portfolios now has its inputs, a plan-against-actual table per factor, and a sum that reconciles to the Site deviation and then to the portfolio. Choose is split into the six parts the coordinator described. Each vertical uses its own factor structure:
+- **Mini-grid:** litres split into necessary, candidate and unexplained, plus the chain from energy to cash.
+- **Cold rooms:** occupancy model plus the excess above it, and liability.
+- **EV depots:** bill lines by tariff window and highest kW, plus the chain from deliverable energy to buses short, missed departures and penalties.
+
+A reader with no data file can follow each Site's deviation. I recomputed every figure, and all of them reconcile. The notes below are labelling and clarity issues. None is an arithmetic error.
+
+### Findings
+
+**Medium**
+
+- **M1. The Kisiwa 60 kWh battery is shown as an alternative to the generator repair, measured on a different basis** (`layer4-transformation-design.md:583`). The table's column is "Evening hours with no backup to 30 Nov". No action has 125, repair 15, replace 105, and the battery 0. The battery's 0 comes from a different reference: `derived-values.json` KIS-BATT60 has `reference_protect` 0, and the manifest's `kisiwa_storage` group says "looking forward from the repair". Its 0 does not mean the battery covers 6–30 Nov while GEN-KS-01 is down. A reader would conclude the battery beats the repair on Protect and was dropped only for money. The stated reason also differs from the manifest. The doc says "negative over 12 months". The manifest says "over budget; payback about 6 years", and 14,000 exceeds the 5,000 budget. **Fix:** move the battery into its own short table, "Kisiwa: evening storage", whose reference is after the repair. Show its Protect cell as "n/a: after repair". Give both reasons (over budget; negative over 12 months).
+- **M2. Plan values are labelled "Record"** (`:485`, `:504`, `:540`, "plan: Record"). In the legend (`:446`), "Record" means a meter, dip, invoice, log, roster or contract. A plan figure is the operator's declared target, not a record. The owner asked for each figure to be honestly labelled as derived, record or declared input, so this is the class of label the request is about. **Fix:** label plan figures "Plan (declared input)", or add a "Plan" row to the legend and use it in every factor table.
+
+**Low**
+
+- **L1. Unlabelled inputs inside option arithmetic.**
+  - Battery wear 0.08 per kWh (`:570`) is `[assumption]` in the manifest (line 75), but the doc does not label it.
+  - The productive tariff 0.30 (`:600`) is not in the Prices table (`:462`) and has no label.
+  - Mwea handling 100.00 is called an "estimate" (`:747`), which is not a word in the legend.
+
+  **Fix:** add 0.08 and 0.30 to the Prices table with their labels. Label handling "Assumption".
+- **L2. Embakasi schedule window** (`:873`). The heading says "22:00–05:15", but the bill uses exactly 2 h + 5 h at 400 kW (2,800 kWh = the requirement). The quarter hour is slack: the manifest gives 2,900 kWh deliverable against 2,800 required. A reader recomputing from 05:15 gets 7.25 h. **Fix:** add one clause saying that 05:00–05:15 is slack and is not billed.
+- **L3. Ruiru, absorbing 6 buses** (`:889`). The 3,124.80 a month is not broken down. It equals 6 × 140 × 31 = 26,040 kWh × 0.12 with demand unchanged, but the doc does not say so. It is the one figure in §7 the reader cannot follow from the inputs shown. **Fix:** show that line.
+- **L4. Small presentation points.**
+  - The Mwea "Of which cost" cell reads "+155.00 − 3.00" instead of +152.00 (`:732`).
+  - The welding break-even tariff is "0.42", but the exact value is 272.25 ÷ 660 = 0.4125 (`:601`). Rounding up is defensible as the minimum that does not lose money. Say "about 0.41" or "0.4125".
+  - The Thika factor table drops the Price column the other tables carry (`:706`).
+- **L5. System vocabulary in prose.** Examples: "the allocator" (`:615`), "cover bound" / "hard bound" (`:571`, `:591`), "must-do", "obligation hours", "All of these are outputs of `evaluate_structure.py`" (`:675`), and internal IDs (INC-203, ACT-051, F-130). This is acceptable in a design document, and §7 states no executive question verbatim. If §7 is ever lifted into client-facing material, these need plain wording.
+
+### Arithmetic (recomputed by hand from the inputs shown and cross-checked against the manifest and `derived-values.json`)
+
+All reconcile.
+
+- **Mini-grid**
+  - Kobo: 220 + 1,200 − 240 = 1,180; 730 + 330 + 120 = 1,180. Effects −37.50, −412.50, −150.00 and +38.00 sum to −562.00 = 883 − 1,445. Revenue 3,420 → 3,458; cost to serve 1,975 → 2,575. Energy to cash: 9,100 → 8,690 → 8,645, and collected 3,180.
+  - Kisiwa: −104 − 26 − 55 = −185.00 = −250 − (−65); 2% of 2,400 = 48; 10 evening hours.
+  - Mto: 6,000 → 5,580 → 5,400. Effects −8, −56, −16 and −25 sum to −105.00; collected + in transit + outstanding = 2,160; 20 hours at half inverter capacity.
+  - Portfolio: 2,295 → 1,443 (−852; revenue −97, cost −755). Revenue 9,785 → 9,688; cost to serve 7,490 → 8,245; 7,545 ÷ 8,245 = 91.5%.
+  - Kobo options: +2,916 and +300.
+  - Kisiwa options: 125, 15 and 105 hours (days counted against the 6 Nov decision date); −11,660 for the battery.
+  - Mto inverter: −367.50, −2,947.50, −462.50 and −2,281.25; half-capacity hours 110 / 30 / 10 / 125.
+  - Mto demand: huller +3,540, welding −99.
+  - Plan: spend 3,750, of which 1,520 valued and 2,230 not valued; value +6,088.50.
+  - Sensitivities and cases: diesel 20% cheaper +5,690.00; 160 L case +5,338.50; downside +2,548.50.
+  - Switch cases: spend 2,550 and 6,430, value +3,508.50. Working days: 28 Nov (Saturday) → 4 Dec; 12 Nov → 19 Nov.
+- **Cold rooms**
+  - Mwea: model 3,410 / 2,635 kWh, excess 15 kWh; −620 + 155 − 3 = −468.
+  - Thika: −108 (6 × 18), with 2,160 at stake.
+  - Kirinyaga: excess 970 kWh, −194.
+  - Portfolio: 1,716 → 946; cost to serve 3,492 → 3,642, 97.8% recorded. Energy per crate-day: Mwea 0.1221, Kirinyaga 0.1008; Kirinyaga's 970 kWh is 24% above its model.
+  - Options: Mwea contract +1,670; Kirinyaga repair +1,512.40, replacement −1,988.40; Thika 2 nights to restore, 26 nights without backup cover in October.
+  - Plan: value +3,182.40; 60% recovery case +2,716.80; switch spend 450.
+- **EV depots**
+  - Embakasi: bill lines 19,540.80 → 22,744.80; −2,604 − 600 = −3,204; 36.69 and 31.52 per departure.
+  - Kasarani: 5,880; November to date 1,050 kWh deliverable a night, 2 departures missed, 240 in penalties.
+  - Ruiru: 13,080.32, +19.68 not attributable.
+  - Portfolio: 38,520.80 → 41,705.12; 32.03 and 29.59 per departure; 99.3% recorded.
+  - Embakasi schedule: no action 21,438.00, 706.80 below October's energy bill; schedule 13,356.00, so 8,082 a month and +95,484 over 12 months; cheapest bill 12,975 with 3 buses short and 93 departures missed.
+  - Kasarani charger: restore due 9 Nov (2 Nov is a Monday); 3 − 1 = 2 missed; options +150 and −260.
+  - Ruiru: 2,800 / 3,360 kWh needed a night against 3,200; 62 departures missed.
+  - Plan: spend 1,590, value +95,634; downside +150.
+
+### Derivation honesty
+
+- The litre split is now labelled a declared input that stands in for a calculation (`:476`). The modelled 1,060 L and 2,380 L are declared inputs, and the doc says the generator-energy reading behind them is missing (`:479`). Ruiru's stated-total plan is reported as unattributable (`:851`).
+- I found no subtotal that is absent from the data.
+- Prose figures without an anchor are either products of inputs shown beside them, or the cases named in L1–L3.
+
+### Scope and rendering
+
+- In the .md, all hunks fall between lines 439 and 936 (§7 only).
+- In the .html:
+  - The old and new files share a 92,493-character prefix ending at the §7 intro, and a 26,263-character suffix starting inside the §7.4 table, so nothing outside §7 changed.
+  - §7 has 38 tables, the same number as the .md, and 12 `h4` and 12 `h5` headings.
+  - No `<!--` anchor and no escaped `&lt;!--` remains. No raw `|---` or `**` is left.
+  - A word-level comparison with the .md §7 (anchors and markup stripped) shows only tokenisation differences.
+- I did not render it in a browser.
+
+### Checks run
+
+- `python3 Docs/demo-sprint/product-direction-layer4/check_manifest.py`: **3602 checks passed, 0 failed**. As noted, the checker confirms the anchors and the bridge sums. It does not check the class labels (M2, L1) or the reference basis of a Protect cell (M1).
+- No test suite was run. No database, Docker container or port was touched. No file other than this one was edited.
