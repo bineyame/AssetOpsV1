@@ -56,8 +56,8 @@ Last updated 2026-11-18.
   (`.agent/page-load-architecture-review-2026-11-14.html`) and the Grow card
   money question. To confirm: whether these are still open, and whether the
   17 Nov client demo has happened.
-- Owner documents on `main`: `.agent/convertion_potential.html`,
-  `.agent/decision-intelligence-mechanism-2026-11-14.html`.
+- Owner documents on `main`: `Docs/demo-sprint/convertion_potential.html`,
+  `Docs/demo-sprint/decision-intelligence-mechanism-2026-11-14.html`.
 
 Also active: `task/gtm-documents` (worktree `/opt/assetecon/AssetOpsV1-gtm`,
 based on the Layer 4 branch): two-week conversion plan, commercial plan and

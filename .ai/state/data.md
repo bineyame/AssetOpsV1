@@ -286,7 +286,7 @@ Branch `task/LR-01-late-reading-series-and-money-limit`; handoffs `archive/agent
 - Shared money gate `financials/money_eligibility.py` (`money-eligibility-1`): PENDING_REASSESSMENT > WITHHELD_GENERATOR_SERIES > ELIGIBLE, read-derived on every read, fails closed. Consumed by `ConsequenceReadService(eligibility=...)` (gates `presented_as_current`/`current_amount_shown`), `finding_api.bridge_consequence` (states + `recorded_consequence_revision_id`), and `scheduling/upstream.py` `findings[].money_eligibility` for S5-01. ELIGIBLE is not an amount authorization.
 - Migration 0015 `0015_finding_returning_basis`: FindingRevision basis may return (A -> B -> A); replay guard compares with the latest revision only.
 - UI: Financials bridge shows withheld/pending with the refused span and an exact link to the recorded consequence; Finding page states a SERIES_LIMIT end.
-- Walkthrough: `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01*`; browser claims `tools/lr01-money-evidence.mjs`.
+- Walkthrough: `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01*`; browser claims `archive/tools/lr01-money-evidence.mjs`.
 - Open: real-source clock proof has no write path (by design); S5-01 owns its own UI over the seam; the schedule install gate stays closed until this slice is reviewed and merged; broader per-analytic input/clock coverage remains the owner analysis-input backlog.
 
 ## S4-05b - registered producers, stored-source reads and owner walkthrough (phases 1-2 built, in_review)
@@ -307,7 +307,7 @@ Branch `task/S4-05b-producers-reads-walkthrough` (unmerged; owner W1 copy checkp
   Finding, Evidence, consequence/Financials, Overview, Action, Recommendation; marker `[data-source-provenance]`.
 - Pilot install gate (`tools/schedule-install-gate.py`) always requires `I-attested-real-source-provenance`.
 - Walkthrough `tools/s405_provenance_walkthrough.py` (DBs `assetops_s405_{owner,old,mixed}<suffix>`, work
-  `var/s405_*`, API 8935/web 5435, `serve --case`); browser claims `tools/s405-provenance-evidence.mjs`.
+  `var/s405_*`, API 8935/web 5435, `serve --case`); browser claims `archive/tools/s405-provenance-evidence.mjs`.
 - S5-01 packet amended (shared contract item 5).
 - Open: owner copy approval; `ATTESTED_REAL_SOURCE` class (separate task); `MoneyInputs.provenance_resolved`
   default True for unit tests; per-row provenance queries in consequence history; Action fixture size.

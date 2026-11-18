@@ -25,7 +25,7 @@ not require priced Financials or a portfolio.
 
 With T029 this is a legitimate external-feedback and early-prospect demo, not a
 rehearsal for one: one site, one strong Finding, its evidence and its money is
-enough to learn from a real operator. `Docs/queue-review-feedback-verbatim.md`
+enough to learn from a real operator. `Docs/archive/2026-09/queue-review-feedback-verbatim.md`
 says waiting for the portfolio wastes the feedback.
 
 ## Read for detail

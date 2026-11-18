@@ -6,7 +6,7 @@ Startup prerequisite 6 of `D-2026-10-09-owner-delivery-strategy`. The rules live
 
 1. Read the top of `.agent/coordinator-handoff.md`, including "Ranking notices".
 2. Start only after the pre-S3 planning branch and its required reviews/guards are merged. Work from current `main`; run `tools/check-all.ps1`. A failure stops selection for correction.
-3. Run `node frontend/docs/architecture/check_v69_dependency_registry.cjs --next-work --out .agent/next-work-<date>.json`, then `--verify-report .agent/next-work-<date>.json` before acting. Read the decision, blockers, scores and paths; regenerate after any input change.
+3. Run `node archive/frontend/docs/architecture/check_v69_dependency_registry.cjs --next-work --out .agent/next-work-<date>.json`, then `--verify-report .agent/next-work-<date>.json` before acting. Read the decision, blockers, scores and paths; regenerate after any input change.
    - `refused` → stop and route the stated technical/mapping defect to its owner; ask the owner only for a genuine owner decision or checkpoint.
    - `stop` → take the stated action: owner for a ≤5% contest, XL exception or missing owner choice; finish an active/in-review packet and its recorded review before another selection.
    - 5–10% → apply the published tie-break, append the two scores and reason under "Ranking notices" in `.agent/coordinator-handoff.md`, continue.

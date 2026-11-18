@@ -6,7 +6,7 @@
 **Status: Final version for owner review, 2026-10-02.** This is a
 recommendation input, not the roadmap. It does not change `tasks/README.md`,
 any task file, `.ai/FEATURE_MAP.md`, `.ai/DECISIONS.md`, `.ai/ARCHITECTURE.md`
-or `Docs/mini-grid-demo-architecture-and-roadmap.md`. Once the owner approves
+or `Docs/archive/2026-09/mini-grid-demo-architecture-and-roadmap.md`. Once the owner approves
 it, the Architect briefs the Planner, and the Planner applies it to the queue
 and the planning records. Everything below that touches the queue is a
 **proposal for the Planner**, and items marked **[Planner verifies]** must be

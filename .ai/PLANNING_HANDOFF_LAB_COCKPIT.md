@@ -9,7 +9,7 @@ and `tasks/README.md`; none is changed by this handoff.
 ## Authority, Timing And Recommendation
 
 The owner explicitly commissioned consideration of
-`Docs/lab-cockpit-proposal.md` (aeb4c99). It is an authorized additional planning
+`Docs/archive/2026-09/lab-cockpit-proposal.md` (aeb4c99). It is an authorized additional planning
 input despite the older routing documents' "only two sources" wording. It is
 not an adopted decision. Simulator v4 remains the mechanism authority; the
 corrected mini-grid roadmap and subsequent queue decisions retain the demo

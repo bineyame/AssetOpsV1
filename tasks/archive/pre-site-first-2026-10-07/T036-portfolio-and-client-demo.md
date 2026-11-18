@@ -33,7 +33,7 @@ conversations may begin. T027 is the internal architecture demo, T028/T029 is a
 legitimate domain-expert and early-prospect demo, and T034 with T034A is the
 strong product demo, already opening on Portfolio. A former mini-grid colleague
 does not need six sites before their feedback is worth having. See
-`Docs/queue-review-feedback-verbatim.md` and
+`Docs/archive/2026-09/queue-review-feedback-verbatim.md` and
 `D-2026-09-24-queue-resequenced-for-demo`.
 
 ## Read for detail

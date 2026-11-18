@@ -287,8 +287,8 @@ Packet `archive/agent-history/V-01b-review-packet.md`, handoff `archive/agent-hi
   (non-vacuity proven in the packet). `overflowContainment.test.tsx` asserts the class.
 - Tests: `shell/__tests__/v01bEvidenceVisual.test.tsx` (10), `v01bLabIngestion.test.tsx` (9); order/name updates in
   `cockpitLayout`, `runExecution`, `simulatorLabGate`, `s2LedgerEvidence`, `runsInventory` (Commit first).
-- Tools: `tools/v01b_lab_evidence_walkthrough.py` (prepare/links/serve/drop, `--db/--empty-db/--work-name`, owner
-  ports 8862/8863/5362/5363); `tools/v01b-lab-evidence-evidence.mjs` (101 claims at 1440/390, SourceEnvelope trace,
+- Tools: `archive/tools/v01b_lab_evidence_walkthrough.py` (prepare/links/serve/drop, `--db/--empty-db/--work-name`, owner
+  ports 8862/8863/5362/5363); `archive/tools/v01b-lab-evidence-evidence.mjs` (101 claims at 1440/390, SourceEnvelope trace,
   intercepted 503 gateway variant); `tools/layout-evidence.mjs` registered Lab Site/dates/profiles, Kobo registered run
   section (`ASSETOPS_LAYOUT_V01B_ONLY`, `ASSETOPS_LAYOUT_V01B_RELEASED_RUN`), `ASSETOPS_CDP_PORT`, run-setup overflow
   proof at 390px. Full run with KOBO-001: 398 PASS / 5 FAIL, all named preconditions.

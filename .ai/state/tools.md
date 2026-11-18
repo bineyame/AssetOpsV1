@@ -4,7 +4,7 @@
 
 Built on `plan/pre-S3-startup`; packet `archive/agent-history/PRE-S3-03-review-packet.md`, questions `archive/agent-history/PRE-S3-03-questions.md`.
 
-- `frontend/docs/architecture/delivery_next_work.cjs` owns delivery-plan validation and the `next-work` report; `check_v69_dependency_registry.cjs --next-work [--out f]` / `--verify-report f` drive it (exit 3 on refusal or stale inputs). Fixtures: `test_delivery_next_work.cjs` (node:test).
+- `archive/frontend/docs/architecture/delivery_next_work.cjs` owns delivery-plan validation and the `next-work` report; `check_v69_dependency_registry.cjs --next-work [--out f]` / `--verify-report f` drive it (exit 3 on refusal or stale inputs). Fixtures: `test_delivery_next_work.cjs` (node:test).
 - Registry claim portions now carry `id`, `core`, `variant` (bounded/positive/unknown) and `state` (delivered/open/unmapped/excluded). Only `open` portions with real-node `technical_requires` and no proposed IDs are reviewed paths; `delivered` needs resolved `delivered_by` plus evidence. `real` panels need every portion delivered and an accepted visual gate.
 - 15 S1/S2 bounded portions recorded delivered (14 panels `reviewed_mapping:true`, all `partial`); V-01 is `delivery_plan.visual_gates.V-01` (effort unrecorded, so blocked); `outside_ranking` holds A-finding-index and A-money-comparability.
 - `tools/check-all.ps1` is the normal check command (architecture, navigation, workflow, registry, delivery fixtures, ledger).

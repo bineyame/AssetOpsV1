@@ -14,7 +14,7 @@ Sizing: first intervention write path and world-input boundary.
 
 T032 owned this mechanism, which put the first verification story behind a
 productive-use analytic and a paired-comparison platform.
-`Docs/queue-review-feedback-verbatim.md` asked for the minimal immutable
+`Docs/archive/2026-09/queue-review-feedback-verbatim.md` asked for the minimal immutable
 policy-intervention mechanism to be extracted so verification can happen
 shortly after T029. See `D-2026-09-24-queue-resequenced-for-demo`.
 

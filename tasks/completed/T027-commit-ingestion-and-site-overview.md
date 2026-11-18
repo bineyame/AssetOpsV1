@@ -199,7 +199,7 @@ simple and correct rather than production-scale.
 
 No acceptance criterion is optional (protected seam; watched for scope growth,
 not trimmed): satisfy each at the smallest honest implementation. Source: round
-two of `Docs/queue-review-feedback-verbatim.md`.
+two of `Docs/archive/2026-09/queue-review-feedback-verbatim.md`.
 
 No dispatch classification, capability declaration, capability table or claim
 ceiling yet; T028 owns them.

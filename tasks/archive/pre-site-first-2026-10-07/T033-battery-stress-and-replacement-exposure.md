@@ -15,7 +15,7 @@ whichever runs second is unaffected by the choice. Which comes first is a
 product-priority call taken from T028/T029 feedback, not a sequencing
 constraint.
 Under schedule pressure this is the first major story to move behind early
-client feedback - see `Docs/queue-review-feedback-verbatim.md` and
+client feedback - see `Docs/archive/2026-09/queue-review-feedback-verbatim.md` and
 `D-2026-09-24-queue-resequenced-for-demo`. Deferring it does not weaken the
 core proposition.
 Branch: task/T033-battery-stress-and-replacement-exposure
