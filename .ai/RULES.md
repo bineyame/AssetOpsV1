@@ -67,6 +67,9 @@ Source: `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadma
   dry-reads the spec against the code before the build (every copy string,
   field, ID source, route, fixture producer, capture state, cap). Units are
   one to three commits. A slice over 6 units is split.
+  Amended by the owner 2026-11-18 (TW23, `owner/owner-sitting1-answers-2026-11-18.md`):
+  for the two-week build, four build lanes split by area, with B03 (heavy-tool slot
+  pool) merged and enforced before lanes 3 and 4 open.
 - **W5 Review depth matched to risk.** Discovery review (strongest fresh
   reviewer) for a new schema, mechanism, protected seam or any money figure.
   Verification re-review (lighter fresh reviewer) for named findings only.
