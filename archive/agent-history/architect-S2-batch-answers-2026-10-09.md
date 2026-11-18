@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-S2-batch-answers-2026-10-09.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-S2-batch-answers-2026-10-09.md on 2026-11-18 (declutter step 4).
 # Batched S2 rulings — Codex AssetOps Architect, 2026-10-09
 
 This answers `.agent/S2-01c-fix-rereview.md`, `.agent/S2-01c-questions-5.md`, and `.agent/planner-S2-02-questions.md`. It directs the next S2-01c fix and S2-02 implementation; it is not the owner's S2-wide Codex review. The material rules are `D-2026-10-09-s2-publication-gap-and-batch-boundary` and `D-2026-10-09-s2-pilot-gateway-upload-credential` in `.ai/DECISIONS.md`.

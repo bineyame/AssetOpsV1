@@ -95,6 +95,41 @@ DECLUTTER = [
     "review-declutter-03.md",
 ]
 
+DECISION_BEARING = {  # archived files that hold decisions still indexed `live` (step-4 review L4, fixed in step 5):
+    # the 25 named by a `live` row of .ai/decisions/index-*.md, plus 5 architect answers the live plan and
+    # backlog cite as their design basis. Header: "Finished work; its decisions remain live per ...".
+    "SR-4c-review.md",
+    "W2-03-followup-spec.md",
+    "architect-G-01-answers.md",
+    "architect-G-02-answers.md",
+    "architect-S2-01a-answers-3.md",
+    "architect-S2-01b-answers-2.md",
+    "architect-S2-01b-answers-5.md",
+    "architect-S2-01b-answers.md",
+    "architect-S2-01c-answers-2.md",
+    "architect-S2-01c-answers-3.md",
+    "architect-S2-01c-answers.md",
+    "architect-S2-batch-answers-2.md",
+    "architect-S2-batch-answers-2026-10-09.md",
+    "architect-S2-batch-answers-3.md",
+    "architect-S3-answers-2.md",
+    "architect-S3-answers-3.md",
+    "architect-S4-01-answers-1.md",
+    "architect-S4-01-answers-2.md",
+    "architect-S4-01-answers-3.md",
+    "architect-S4-02-batch-answers.md",
+    "architect-S4-03-answers.md",
+    "architect-answer-any-range-speed-2026-11-10.md",
+    "architect-answer-money-snapshot-2026-11-10.md",
+    "architect-answer-price-it-2026-11-10.md",
+    "architect-answer-ui-quality-2026-11-10.md",
+    "architect-batch-answers-4.md",
+    "architect-handoff-demo-plan-2026-11-04.md",
+    "architect-plan-pre-client-2026-11-10.md",
+    "architect-proposal-portfolio-layout-2026-11-10.md",
+    "post-W2-sequence.md",
+}
+
 SUPERSEDED = {  # archived file -> what superseded it (header "Superseded by X on 2026-11-18")
     "lane-rules-2026-11-12.md": ".agent/lane-rules-vps-2026-11-12.md",
     "current-plan-pointer.md": ".ai/NOW.md",

@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-S3-answers-3.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-S3-answers-3.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S3-01 phase-3a rulings (2026-10-11)
 
 These are Q9–Q13 rulings for the phase-3a fix round and phase-3b UI, subject to the fresh Claude review. They do not accept phase 3a or replace the S3-01 owner checkpoint.

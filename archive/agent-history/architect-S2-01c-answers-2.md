@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-S2-01c-answers-2.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-S2-01c-answers-2.md on 2026-11-18 (declutter step 4).
 # S2-01c phase-1 decisions — Codex Architect, 2026-10-09
 
 These are design rulings on `.agent/S2-01c-questions-1.md`, not a review or acceptance of the phase-1 implementation. The material contract is recorded as `D-2026-10-09-s2-gateway-diagnostic-semantics` in `.ai/DECISIONS.md`; the S2-01c and S2-02 packets now carry it.

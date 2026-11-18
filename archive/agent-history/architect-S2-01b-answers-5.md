@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-S2-01b-answers-5.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-S2-01b-answers-5.md on 2026-11-18 (declutter step 4).
 # S2-01b fix-round Architect answers — Codex Architect, 2026-10-09
 
 These resolve the defaults in `.agent/S2-01b-questions-5.md` without reviewing the fix. Decision `D-2026-10-09-s2-gateway-sealing-state-and-partial-progress` records the contract.

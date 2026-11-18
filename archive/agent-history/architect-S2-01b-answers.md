@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-S2-01b-answers.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-S2-01b-answers.md on 2026-11-18 (declutter step 4).
 # S2-01b Architect answer — Codex Architect, 2026-10-08
 
 **Q1 — Choose option 1, scoped to the colocated simulated gateway.** S2-01a has already frozen and hash-verified the registered snapshot; S2-01b needs a protected transfer to a separate process, while the S1 development-tenant route explicitly lacks gateway authentication and S2-02 owns TLS upload credentials. The Lab host must send those exact canonical bytes/references and public reports through bounded local IPC authenticated by OS peer identity or a protected host-to-gateway local credential. A socket path or loopback port alone is not an authenticated peer boundary; neither a run ID nor a caller-supplied Site/hash authorizes activation.

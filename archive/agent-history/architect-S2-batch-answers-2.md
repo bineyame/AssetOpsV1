@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-S2-batch-answers-2.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-S2-batch-answers-2.md on 2026-11-18 (declutter step 4).
 # S2 batched Architect rulings — Codex, 2026-10-09
 
 These rulings answer `.agent/S2-01c-questions-6.md`, `.agent/S2-02-questions-1.md` and `.agent/S2-02-questions-2.md`. They direct S2-02 phase 3 and a bounded correction to its phase-2 provisioning path; they are not a review of the slice. Material rules are recorded as `D-2026-10-09-s2-terminal-publication-gap-closeout` and `D-2026-10-09-s2-ingestion-operational-semantics` in `.ai/DECISIONS.md`.

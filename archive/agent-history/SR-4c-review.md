@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/SR-4c-review.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/SR-4c-review.md on 2026-11-18 (declutter step 4).
 # SR-4c and SR-4 fix round review (fresh Claude reviewer, 2026-11-12)
 
 Branch `task/SR-4-site-range`, head `ebef46a3a`. Scope: branch-only commits after `59bccda4d` (77924b3ff, de0375733, 91b58baab, e885670f4, 1a665b968, b6d7124fe, 582019b0e, 286dd3237, ebef46a3a). The main commits pulled in by merges (rev 9-10d, compose, host harness, VPS tools) are out of scope. 4a/4b are reviewed separately.

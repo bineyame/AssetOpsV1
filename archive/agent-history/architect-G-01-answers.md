@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-G-01-answers.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-G-01-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — G-01 questions and review carries (2026-10-13)
 
 These rulings apply the owner-confirmed gap catalogue/orphan guard and the G activation decision. They do not change W1 core scoring, K=10, panel status or the deferred W1-exit non-core ranking choice. The duplicate-placement finding must pass its narrow re-review, and the required 1440/390 populated-contact and unknown/unavailable-contact browser evidence remains due before G-01 merge and owner visual acceptance.

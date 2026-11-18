@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-plan-pre-client-2026-11-10.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-plan-pre-client-2026-11-10.md on 2026-11-18 (declutter step 4).
 # Architect plan: everything before the client session (2026-11-10)
 
 - Architect: Claude (`assetops-architect`). Binding checked in `.ai/ROLE_CONFIG.md`: Architect = Claude since 2026-10-27.

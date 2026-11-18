@@ -25,7 +25,8 @@ this map resolves the rest: verbatim records (archived files, owner files, spec 
 3. `.agent/owner-<topic>.md` -> `owner/owner-<topic>.md` (verbatim; 186 files).
 4. Anything else, `.agent/<path>` -> `archive/agent-history/<path>` (1,840 files: reviews,
    packets, rulings, handoffs, architect notes, questions, probes). Each has one header line
-   ("Finished; historical." or "Superseded by X on 2026-11-18."), so an old `:line` is +1.
+   ("Finished; historical.", "Superseded by X on 2026-11-18." or, for the 30 files whose decisions are
+   still indexed live, "Finished work; its decisions remain live per `.ai/decisions/INDEX.md`."), so an old `:line` is +1.
    Superseded: `lane-rules-2026-11-12.md` by `.agent/lane-rules-vps-2026-11-12.md`, `current-plan-pointer.md` by `.ai/NOW.md`.
 5. `.agent/coordinator-handoff.md` before 2026-11-18: `.ai/history/coordinator-handoff-to-2026-11-18.md`
    (verbatim after one header line, so an old `:line` is +1).

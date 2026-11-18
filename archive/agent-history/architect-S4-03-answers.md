@@ -1,4 +1,4 @@
-> Finished; historical. Archived from .agent/architect-S4-03-answers.md on 2026-11-18 (declutter step 4).
+> Finished work; its decisions remain live per `.ai/decisions/INDEX.md`. Archived from .agent/architect-S4-03-answers.md on 2026-11-18 (declutter step 4).
 # Codex Architect — S4-03 questions batch 1 (2026-10-13)
 
 These rulings govern phase 3 and closeout; they do not change Finding identity, selected-assessment rules, revision immutability or the reviewed phase-1 read's membership/count semantics. Phase 2 remains under independent review, and the S4-03 owner walkthrough remains required.
