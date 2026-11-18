@@ -15,3 +15,11 @@ The coordinator presented O1–O7 from `.agent/repo-declutter-recommendation-202
 > Response to decluttering questions 1-Agree with you 2-the most recent before the layer4 and the layer 4 one needs more change,only thosse two are relevant 3-outisde the repo, needed only for 2 weeks 4-this needs to be summarized and made concise only with the content that matters now (relevant now) 5. later after demo 6.yes i agree 7. yes
 
 Coordinator clarifying question on O2: v72 (13 Nov) is the newest but has four pages (v7.2 style sheet, hi-fi Portfolio, Site Overview, Upload readings); v70 (3 Nov) is the newest complete screen set and the base of the Layer 4 mock-up; v71 is a single price-it page draft. Owner chose: "v70 + v72 style" — v70 is the reference for screens and content, v72 for visual style and its four hi-fi pages; archive v69 and v71. Plus the Layer 4 `interactive-mockup-vNEXT`, which needs more change.
+
+## Owner decision on D11 and declutter timing (verbatim)
+
+After the coordinator explained D11 (adopt workflow W1–W9 from `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md` §5) and proposed recording it in the lean agent start path the declutter creates, the owner replied:
+
+> yes, adopt D11 and start the declutter after
+
+"after" = after the roadmap document's last pass (in progress at the time) is done and verified.
