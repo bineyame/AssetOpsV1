@@ -33,10 +33,15 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   (or another Postgres-heavy agent) slows both and makes timing meaningless.
 - OPS-01's baseline and comparison runs are the one documented exception to
   "one full suite per slice".
-- `tools/check-all.ps1` is a separate required guard command; it does not run
-  pytest, and pytest does not replace it. Run guards directly, e.g.
-  `powershell -NoProfile -File tools\check-all.ps1` or
-  `tools\check-navigation-truthfulness.ps1`. Never pass an
+- `tools/check-all.ps1` is a separate required guard command; the backend
+  suite does not replace it. Run it directly:
+  `pwsh -NoProfile -File tools/check-all.ps1` (fast mode: guards 4 at a time,
+  about 40 s; the estate self-tests run only when the writer guard, its tests or
+  their anchor files change). `-Full` forces the estate self-tests (about 3 min);
+  a run at `main`'s tip is full by itself. At most 2 runs at once machine-wide:
+  a third waits for a slot (20 min limit, `-SlotWaitMinutes`); a guard is stopped
+  after 10 min (`-GuardTimeoutMinutes`; estate 20, `-EstateTimeoutMinutes`).
+  Every guard imports this tree's `backend` and `contracts` (PIPE-1). Never pass an
   execution-policy override (owner rule, 2026-10-30). Guards need an execution policy that allows local scripts. The Claude Code agent environment already provides one (`PSExecutionPolicyPreference`). In a plain shell the machine owner sets it once for their own account (CurrentUser). Agents must never set it or pass an override.
 
 ## The test database
