@@ -47,7 +47,8 @@ Bindings: `.ai/ROLE_CONFIG.md`.
 
 ## 4. Workflow W1-W9 (D11, adopted by the owner 2026-11-18)
 
-Source: `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md` §5.2.
+Source: `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md` §5.2
+(on branch `task/product-direction-layer4-design` until it merges to `main`).
 
 - **W1 Structure first, owner-approved.** Per phase, the Architect writes the
   structure specification (factors and records, decisions and bounds, screens
@@ -131,7 +132,8 @@ round the Architect folds rulings into one current unit card.
 
 - Tests: `backend/TESTING.md`. Focused and adjacent files while building;
   `python tools/select-tests.py --base main` picks the slice-end set. Full
-  suites only when the coordinator schedules them: one at a time, on a quiet
+  suites only when the owner asks (owner rule from the demo sprint, still
+  applied): if asked, one at a time, on a quiet
   machine, with `tools/keep-awake-during-tests.ps1` started and a cap of twice
   the expected wall time (stop and report past the cap). Never a bare
   `docker compose up` for tests.
@@ -141,6 +143,16 @@ round the Architect folds rulings into one current unit card.
   a real violation.
 - Databases: only `*_test` and `<prefix>_audit*` databases in
   `assetopsv1-postgres-1`; never others. Drop your own when done.
+- Walkthrough and demo (owner): never touch port 5490 (walkthrough server,
+  `/opt/assetecon/AssetOpsV1-walk`) or Docker during task work; never write
+  to the walkthrough DB except through its own serve; port 8990 (uvicorn
+  `lab_app`) is not ours, leave it alone. Walkthroughs run only on a clean,
+  good DB; no fallback DB.
+- Keep `var/sites` and the Lab data intact. Do not switch branches in a
+  checkout while an agent is working in it.
+- A unit that touches shared code or schema is reviewed before the next unit
+  builds on it. An implementer choice the spec did not fix is a spec defect:
+  raise it, don't decide it.
 - Processes: stop every process you start, by PID only; never kill by image
   name or a broad pattern, never all browsers. Long jobs: `setsid nohup`.
 - Line endings: before a full suite, list LF-pinned files checked out as CRLF

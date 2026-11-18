@@ -19,7 +19,8 @@ demo-sprint unit is still open after the 17 Nov client demo.
   `frontend/docs/architecture/production-shaped-mvp-technical-design.md` and
   `frontend/docs/architecture/site-first-execution-plan.md` (read by section),
   plus the demo-sprint rulings `.ai/NOW.md` names.
-- **Destination: Layer 4.** `Docs/demo-sprint/product-direction-layer4/` is
+- **Destination: Layer 4** (on branch `task/product-direction-layer4-design` until it merges to
+  `main`). `Docs/demo-sprint/product-direction-layer4/` is
   where the product is going. Entry point:
   `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md`
   (decisions in its §6; open questions in

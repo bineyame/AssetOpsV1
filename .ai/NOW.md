@@ -24,8 +24,8 @@ Last updated 2026-11-18.
 - Spec: `.agent/repo-declutter-recommendation-2026-11-18.md` (§4.2 steps);
   owner decisions O1-O7 and D11 in
   `.agent/owner-repo-declutter-request-2026-11-18.md`.
-- Step 1 (start path, text only): branch `task/declutter-01-start-path`,
-  branched from the Layer 4 branch; in review.
+- Step 1 (start path, text only): reviewed (ACCEPT WITH NOTES, notes fixed)
+  and merged to `main` from `task/declutter-01-on-main`.
 - Next: steps 2 (indexes; split DECISIONS and CODE_STATE), 3 (evidence out of
   the repo, 2-week retention), 4 (specs, owner files and history), 5 (Docs and
   tools). Each on its own branch, reviewed and merged before the next.
@@ -46,6 +46,10 @@ Last updated 2026-11-18.
   17 Nov client demo has happened.
 - Owner documents on `main`: `.agent/convertion_potential.html`,
   `.agent/decision-intelligence-mechanism-2026-11-14.html`.
+
+Also active: `task/gtm-documents` (worktree `/opt/assetecon/AssetOpsV1-gtm`,
+based on the Layer 4 branch): two-week conversion plan, commercial plan and
+website content documents (`Docs/go-to-market/`).
 
 No other lane is active. The S1-S7, W1-W6 and OUT/POLISH/DEMO "in_review"
 records in the old active context are history: their branches are not present
