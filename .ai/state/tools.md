@@ -46,3 +46,10 @@ Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `.agent/OPS-0
 - `frontend/tsconfig.json` incremental, cache `frontend/.tsbuildinfo/` (ignored).
 - Open: estate trigger set (reader file?), D-2 agent-workflow rewrite (A9), deletion of advisory guards (declutter step 5).
 
+
+## DECLUTTER-3 - generated evidence out of the repo
+
+- Settled: 22,300 `.agent/` files (1.70 GB: evidence, logs, pid/err, transcripts) untracked; copies with sha256 in `/opt/assetecon/evidence/repo-untracked-2026-11-18/MANIFEST.tsv`. Tracked files 27,492 to 5,194.
+- Code-read data moved byte-identical: `host/fixtures/diesel-f0/`, `host/fixtures/diesel-d0/`, `frontend/src/estate/__tests__/fixtures/w3-02/`.
+- Guard `tools/checks/tracked_evidence.py` (check-all, with `--self-test`): no tracked logs, evidence folders, images outside mocks/Docs/fixtures, files over 1 MiB outside fixtures and mocks, or `.agent/` paths other than root md/html/py/sh. `tools/evidence-retention.py` lists items older than 14 days and deletes only on `--delete` plus typed confirmation.
+- Open: `probe_kisiwa_nights.py --check` (G6) reports the D0 result's `assumptions.template` path as stale until it is rewritten with `--write`; root `.agent/*.py|sh` one-off scripts and the `.agent/` text homes are steps 4-5; first purge needs the owner.

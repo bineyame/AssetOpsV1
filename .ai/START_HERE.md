@@ -4,7 +4,7 @@ A router. It says where the current truth is; it does not hold it.
 
 Current milestone: demo sprint (live product on `main`) running alongside the
 Layer 4 product-direction design, which awaits owner decisions. Repo declutter
-in progress (step 2 of 5). Detail: `.ai/NOW.md`.
+in progress (step 3 of 5). Detail: `.ai/NOW.md`.
 
 Planning status: the S1-S7 queue is built; new product work waits on the owner's
 Layer 4 decisions (Q1-Q16, D1-D12). Demo-sprint fixes are sequenced by the

@@ -26,11 +26,13 @@ Last updated 2026-11-18.
   `.agent/owner-repo-declutter-request-2026-11-18.md`.
 - Step 1 (start path, text only): reviewed (ACCEPT WITH NOTES, notes fixed)
   and merged to `main` from `task/declutter-01-on-main`.
-- Step 2 (indexes; DECISIONS and CODE_STATE split verbatim): built on
-  `task/declutter-02-indexes`, packet `.agent/packet-declutter-02.md`, in review.
-- Next: steps 3 (evidence out of
-  the repo, 2-week retention), 4 (specs, owner files and history), 5 (Docs and
-  tools). Each on its own branch, reviewed and merged before the next.
+- Step 2 (indexes; DECISIONS and CODE_STATE split verbatim): reviewed and
+  merged to `main`.
+- Step 3 (evidence out of the repo, 2-week retention): built on
+  `task/declutter-03-untrack-evidence`, packet `.agent/packet-declutter-03.md`,
+  in review. Evidence now goes to `/opt/assetecon/evidence/` (RULES section 9).
+- Next: steps 4 (specs, owner files and history), 5 (Docs and tools). Each on
+  its own branch, reviewed and merged before the next.
 
 ## 3. Demo sprint (live product on `main`)
 
