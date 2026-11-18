@@ -51,3 +51,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 137. `OWN-G1` add-dates · demo.md
 138. `PIPE-1` guard speed-up and D-1 · tools.md
 139. `DECLUTTER-3` generated evidence out of the repo · tools.md
+140. `DECLUTTER-4a` specs, owner files and history out of `.agent/` · tools.md

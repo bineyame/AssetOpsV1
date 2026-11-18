@@ -18,6 +18,7 @@ Excluded files (verbatim records, data read at run time, mocks, uncommitted else
 Everything not rewritten is covered by specs/CITATION_MAP.md (same rules).
 
 Usage: python tools/declutter/rewrite_citations.py [--dry-run] [--report <file>]
+       python tools/declutter/rewrite_citations.py --verify <rewrite-commit>   # code changed only in comments
 Re-running on the result changes nothing (idempotent): the new paths no longer match.
 """
 from __future__ import annotations
@@ -231,7 +232,37 @@ def candidates() -> list[str]:
     return out
 
 
+def strip_spans(path: str, text: str) -> str:
+    spans = allowed_spans(path, text) or []
+    out, last = [], 0
+    for a, b in sorted(spans):
+        out.append(text[last:a])
+        last = max(last, b)
+    return "".join(out) + text[last:]
+
+
+def verify(commit: str) -> int:
+    """Every code file the rewrite commit changed differs only inside comments and docstrings."""
+    names = git("diff", "--name-only", f"{commit}^", commit).split()
+    code = [n for n in names if n.endswith(JS + (".py", ".css"))]
+    bad = []
+    for n in code:
+        old = subprocess.run(["git", "-C", str(ROOT), "show", f"{commit}^:{n}"], capture_output=True,
+                             check=True).stdout.decode("utf-8")
+        new = subprocess.run(["git", "-C", str(ROOT), "show", f"{commit}:{n}"], capture_output=True,
+                             check=True).stdout.decode("utf-8")
+        if strip_spans(n, old) != strip_spans(n, new):
+            bad.append(n)
+    for n in bad:
+        print(f"FAIL {n}: changed outside comments/docstrings")
+    print(f"rewrite verify: {len(names)} files changed in {commit}, {len(code)} code files, "
+          f"{len(code) - len(bad)} changed only in comments/docstrings")
+    return 1 if bad else 0
+
+
 def main() -> int:
+    if "--verify" in sys.argv:
+        return verify(sys.argv[sys.argv.index("--verify") + 1])
     dry = "--dry-run" in sys.argv
     stats, left, changed = Counter(), [], 0
     for f in candidates():

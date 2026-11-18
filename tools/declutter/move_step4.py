@@ -3,8 +3,9 @@
 Usage: python tools/declutter/move_step4.py owner|specs|archive [--dry-run]
        python tools/declutter/move_step4.py --verify
 --verify checks, for every file tracked under `.agent/` at BASE, that its new location exists
-and, for a plain move, holds the BASE bytes exactly (an archived file: BASE bytes after its one
-header line; a split sheet: see split_specs.py --verify).
+and, for a move, holds the BASE bytes exactly (an archived file: BASE bytes after its one header
+line; a split sheet: see split_specs.py --verify). Kept files are checked for presence, and the two
+in UNCHANGED for identical bytes.
 """
 from __future__ import annotations
 
@@ -16,6 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from step4_map import ARCHIVE, BASE, SPECS, new_location  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
+APPENDED = ("packet-declutter-03.md",)  # BASE bytes kept as a prefix; a step-4 lane addendum follows them
+UNCHANGED = ("owner-walkthrough-notes-2026-11-01.md", "W1-UX-combined-owner-walkthrough.md")  # kept byte-identical
 
 
 def git(*args: str, text: bool = True):
@@ -70,8 +73,11 @@ def verify() -> int:
         now = path.read_bytes()
         if stage == "archive":
             now = strip_header(new, now)
-        if old.endswith("coordinator-handoff.md"):
-            continue  # trimmed; the full BASE text is archived verbatim (see archive_headers.py)
+        if stage == "keep" and not old.endswith(UNCHANGED):
+            continue  # kept in place and live: the handoff is trimmed (its BASE text is in .ai/history/),
+            # the others had citations rewritten (rewrite_citations.py --verify)
+        if old.endswith(APPENDED) and now.startswith(was):
+            continue
         if now != was:
             bad.append(f"bytes differ: {new} vs {BASE}:{old}")
     for b in bad:

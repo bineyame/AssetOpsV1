@@ -54,3 +54,10 @@ Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `archive/agen
 - Guard `tools/checks/tracked_evidence.py` (check-all, with `--self-test`): no tracked logs, evidence folders, images outside mocks/Docs/fixtures, files over 1 MiB outside fixtures and mocks, or `.agent/` paths other than root md/html/py/sh. `tools/evidence-retention.py` lists items older than 14 days and deletes only on `--delete` plus typed confirmation.
 - Revision 2: retention works only under `/opt/assetecon/evidence/`, dates items max(last commit, `COPIED_AT`) so this batch is purgeable from 2026-12-02, and keeps batch capture scripts; D0 probe result re-pinned to the fixture path (G6 current).
 - Open: root `.agent/*.py|sh` one-off scripts and the `.agent/` text homes are steps 4-5; lower the 1 MiB guard cap after step 4; first purge needs the owner.
+
+## DECLUTTER-4a - specs, owner files and history out of `.agent/`
+
+- Settled: of 2,096 tracked `.agent/` files, 60 specs moved to `specs/<ID>/` (24 over-cap sheets split verbatim into `spec.md`/`rulings*.md`, each with a `README.md` line map), 186 owner files to `owner/`, 1,840 finished-work files to `archive/agent-history/` (one header line each); 10 stay (`tools/declutter/step4_map.py` KEEP). Coordinator handoff trimmed to one block; old text in `.ai/history/coordinator-handoff-to-2026-11-18.md`.
+- Citations: `tools/declutter/rewrite_citations.py` rewrote 2,489 (comments/docstrings only in code); the rest resolve through `specs/CITATION_MAP.md`; `tools/declutter/check_links.py` finds 0 broken by the step.
+- Guards: `check-decision-index.py` (owner/spec rows; owner files or sheets tracked in `.agent/` fail), `tracked_evidence.py` (text-only homes; cap 512 KiB), `check-agent-workflow.ps1` (handoff 8000-byte cap).
+- Open: `.agent/owner-walkthrough-notes-2026-11-01.md` waits for its uncommitted change; O4 owner summary (step 4b); packets/reviews outside `specs/` and the role briefs' `.agent/` packet path (step 5); lanes move their new `.agent/owner-*` files on merge.

@@ -160,3 +160,11 @@ confirm). RULES §9 now says where evidence is written and how retention runs.
 3. `git merge main`. Git removes the lane's local copies of the untracked evidence; read them at
    `/opt/assetecon/evidence/repo-untracked-2026-11-18/.agent/...`.
 4. `pwsh -NoProfile -File tools/check-all.ps1`; it must pass, including "Tracked evidence and logs".
+
+### Step 4 addendum (2026-11-18, declutter step 4)
+
+5. After step 4 merges, the same merge also moves `.agent/` specs, owner files and history (owner files to
+   `owner/`, specs to `specs/<ID>/`, the rest to `archive/agent-history/`). Follow "How lanes merge main after
+   step 4" in `specs/DECLUTTER/packet-declutter-04.md`: merge with `git -c merge.renameLimit=20000 merge main`
+   so rename detection carries the lane's edits, then move any `.agent/owner-*.md` or build sheet the lane added
+   (with its index row) before check-all.
