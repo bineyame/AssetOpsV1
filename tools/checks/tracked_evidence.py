@@ -6,10 +6,12 @@ Fails when the git index holds:
      `*-wip`, `*-probe`) anywhere in the tree;
   3. an image (png, jpg, jpeg, gif, webp) outside the allowed folders;
   4. a file over MAX_BYTES outside the allowed folders;
-  5. under `.agent/`: anything other than a root-level md/html/py/sh file (live coordination files and files
-     code reads; declutter step 4 moved the rest to `specs/`, `owner/` and `archive/agent-history/`);
-  6. under the text homes `owner/` (md only), `specs/` (md, html, txt) and `archive/` (md, html, py, sh, txt):
-     any other file, so no evidence lands beside the specs, owner words or history.
+  5. under `.agent/`: any file not in AGENT_KEEP (live coordination files and files code reads; declutter step 4
+     moved the rest to `specs/`, `owner/` and `archive/agent-history/`). A new packet, review or handoff belongs in
+     `specs/<ID>/` (RULES 9); adding a name here is a reviewed decision, not a convenience;
+  6. under the text homes `owner/` (md only), `specs/` (md, html, txt) and `archive/` (md, html, txt and scripts:
+     py, sh, mjs, cjs, js; plus the retired guard data under ARCHIVE_DATA): any other file, so no evidence lands
+     beside the specs, owner words or history.
 
 Allowed folders (rules 3 and 4): `frontend/mockups/`, `frontend/public/`, `Docs/`, `contract-fixtures/`, and any
 `fixtures/` or `__fixtures__/` folder. A test fixture is the only evidence that may be committed, and only there.
@@ -37,9 +39,19 @@ LOG = re.compile(r"\.(log|err|pid|out)$|-(log|last)\.txt$", re.I)
 TRANSCRIPT = re.compile(r"\.jsonl$", re.I)
 IMAGE = re.compile(r"\.(png|jpe?g|gif|webp)$", re.I)
 EVIDENCE_DIR = re.compile(r"-(captures|evidence|recapture)(-.*)?$|-(screens|shots|wip|probe)$", re.I)
-AGENT_KEPT = re.compile(r"\.agent/[^/]+\.(md|html|py|sh)$")
+AGENT_KEEP = {  # the only files tracked under .agent/ (declutter step 4 KEEP, less the two moved to Docs/ in step 5)
+    "coordinator-handoff.md": "live coordination state (one current block)",
+    "lane-rules-vps-2026-11-12.md": "live lane rules on this machine",
+    "architect-sequence-client-scope-2026-11-11.md": "live demo-sprint plan",
+    "backlog-post-demo.md": "live post-demo backlog",
+    "page-load-architecture-review-2026-11-14.html": "owner decisions D1-D6 pending",
+    "mock-departure-register.md": "read by tools/checks/mock-deviation-labels.mjs",
+    "W1-UX-combined-owner-walkthrough.md": "read by tools/checks/test_evidence_checks.mjs",
+    "owner-walkthrough-notes-2026-11-01.md": "pending: uncommitted change in the main checkout",
+}
 TEXT_HOMES = {"owner/": re.compile(r"\.md$"), "specs/": re.compile(r"\.(md|html|txt)$"),
-              "archive/": re.compile(r"\.(md|html|py|sh|txt)$")}
+              "archive/": re.compile(r"\.(md|html|py|sh|mjs|cjs|js|txt)$")}
+ARCHIVE_DATA = ("archive/frontend/docs/architecture/",)  # JSON read only by the guards retired in declutter step 5
 
 
 def allowed(path: str, segments: tuple[str, ...]) -> bool:
@@ -60,11 +72,11 @@ def problems(entries: list[tuple[str, int]]) -> list[str]:
             out.append(f"{path}: image outside frontend/mockups, frontend/public, Docs or a fixtures folder")
         if size > MAX_BYTES and not allowed(path, SIZE_ALLOWED_SEGMENTS):
             out.append(f"{path}: {size} bytes, over the {MAX_BYTES}-byte cap outside fixtures and mocks")
-        if path.startswith(".agent/") and not AGENT_KEPT.fullmatch(path):
-            out.append(f"{path}: only root md/html/py/sh text is tracked under .agent/ (evidence goes to "
-                       "/opt/assetecon/evidence/<task>/<run>/)")
+        if path.startswith(".agent/") and path[len(".agent/"):] not in AGENT_KEEP:
+            out.append(f"{path}: not in the .agent/ keep list (AGENT_KEEP); packets, reviews and handoffs go to "
+                       "specs/<ID>/, evidence to /opt/assetecon/evidence/<task>/<run>/")
         home = next((h for h in TEXT_HOMES if path.startswith(h)), None)
-        if home and not TEXT_HOMES[home].search(path):
+        if home and not TEXT_HOMES[home].search(path) and not (path.startswith(ARCHIVE_DATA) and path.endswith(".json")):
             out.append(f"{path}: {home} holds text only (evidence goes to /opt/assetecon/evidence/<task>/<run>/)")
     return out
 
@@ -92,14 +104,17 @@ def self_test() -> int:
            (".agent/planner-X-log.txt", 4_000_000), ("frontend/src/shot.png", 10), ("notes/session.jsonl", 10),
            (".agent/next-work.json", 10), ("backend/big.json", MAX_BYTES + 1), (".agent/X-wip/a.py", 10),
            (".agent/delivery-drafts/x.md", 10), ("specs/W9-01/capture.json", 10), ("owner/notes.html", 10),
-           ("archive/agent-history/run.json", 10)]
+           ("archive/agent-history/run.json", 10), (".agent/review-PLANT-new.md", 10),
+           (".agent/S9-01-review-packet.md", 10), ("archive/tools/run.json", 10)]
     good = [(".agent/coordinator-handoff.md", 9000), ("specs/DIESEL-1/rulings-2.md", 45_000),
             ("owner/owner-x-2026-11-18.md", 10), ("archive/agent-history/T026-guard-probes.py", 10),
             ("frontend/mockups/v70/previews/portfolio.png", 307_133), ("Docs/UI Design/Motivation/x.png", 1_747_141),
             ("backend/tests/fixtures/w2/ev-w206-vectors.json", 2_047_695),
             ("frontend/src/shell/__tests__/kobo-degraded-evidence-deltas.json", 1_377_522),
             ("backend/assetops_backend/evidence/__init__.py", 10), ("host/fixtures/diesel-f0/probe-result.json", 10),
-            ("tools/layout-evidence.mjs", 285_412), ("frontend/src/shell/__fixtures__/a.png", 10)]
+            ("tools/layout-evidence.mjs", 285_412), ("frontend/src/shell/__fixtures__/a.png", 10),
+            (".agent/mock-departure-register.md", 10), ("archive/tools/s5-overview-evidence.mjs", 10),
+            ("archive/frontend/docs/architecture/v69-model-homes.json", 10)]
     failures = [f"not flagged: {p}" for p, s in bad if not problems([(p, s)])]
     failures += [f"wrongly flagged: {m}" for p, s in good for m in problems([(p, s)])]
     for f in failures:

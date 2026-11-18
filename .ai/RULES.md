@@ -170,7 +170,8 @@ round the Architect folds rulings into one current unit card.
   worktree at a time; evidence measured while another agent held the tree is
   not evidence.
 - Focused commits; stage by explicit path. Never `git add -A`, `git add .` or
-  `-f` on a directory; `git add -f` only on a named `.agent/` file. Check
+  `-f` on a directory; `git add -f` only on a file in the `.agent/` keep list
+  (`AGENT_KEEP` in `tools/checks/tracked_evidence.py`). Check
   `git diff --cached --stat` before committing.
 - Do not discard others' changes. Merge `main` into a branch; do not rebase
   published history.
@@ -180,12 +181,14 @@ round the Architect folds rulings into one current unit card.
 - **Where agents write (declutter step 4).** Agent scratch and session
   transcripts: the session scratchpad or `.agent/` (git-ignored; the only
   tracked files there are live coordination files and files code reads, listed
-  in `tools/declutter/step4_map.py` KEEP). New owner files: `owner/`, verbatim,
+  in `AGENT_KEEP` in `tools/checks/tracked_evidence.py`; check-all fails on any
+  other). New owner files: `owner/`, verbatim,
   named `owner-<topic>-<date>.md`, with a row in the last `owner/index-*.md`,
   never `.agent/`. New specs: `specs/<ID>/` (`spec.md`; rulings and pre-flight
   answers in `rulings.md`, continued in `rulings-2.md` past the 15k cap), with a
-  row in `specs/INDEX.md`. A spec's packets and reviews go in its folder; work
-  without a `specs/` folder keeps them in `.agent/` by named path. Finished or
+  row in `specs/INDEX.md`. A spec's packets, reviews (one section per round)
+  and handoffs go in its folder; work without one gets a `specs/<ID>/` folder
+  for them, never `.agent/`. Finished or
   superseded text goes to `archive/agent-history/` or `.ai/history/` with a
   header line; neither is a default read. Old `.agent/` paths resolve through
   `specs/CITATION_MAP.md`.

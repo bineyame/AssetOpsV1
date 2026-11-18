@@ -4,7 +4,7 @@ A router. It says where the current truth is; it does not hold it.
 
 Current milestone: demo sprint (live product on `main`) running alongside the
 Layer 4 product-direction design, which awaits owner decisions. Repo declutter
-in progress (step 4 of 5). Detail: `.ai/NOW.md`.
+in progress (step 5 of 5). Detail: `.ai/NOW.md`.
 
 Planning status: the S1-S7 queue is built; new product work waits on the owner's
 Layer 4 decisions (Q1-Q16, D1-D12). Demo-sprint fixes are sequenced by the
@@ -66,7 +66,8 @@ decision (`.ai/decisions/`, or the active rulings file, plus an index line).
 - Specs (build sheets, specs and their rulings, in `specs/<ID>/`): `specs/INDEX.md`.
   Old `.agent/` paths: `specs/CITATION_MAP.md`.
 - Owner feedback by status: `owner/INDEX.md` (current files listed there).
-- S1-S7 queue tables (machine-read by guards): `tasks/README.md`.
+- S1-S7 queue tables (history; no guard reads them since declutter step 5):
+  `tasks/archive/site-first-2026-10/queue-tables.md`.
 - UI defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
 - Tests: `backend/TESTING.md`. Guards: `tools/check-all.ps1`.
 

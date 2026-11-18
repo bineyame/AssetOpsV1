@@ -27,8 +27,8 @@ keep its conclusion and file:line anchors. Read with `grep -n` then bounded
 reads (about 150 lines). Batch independent calls. Trim test output to failures
 and the summary line; write long logs to a file. Run long jobs in the
 background and act on the notification. Near 120k context: commit what is
-safe, write `<task-id>-handoff.md` (done, anchors, next, risks; marked partial
-if so) and stop. A phased dispatch builds only its phase and ends with a
+safe, write `specs/<task-id>/handoff.md` (done, anchors, next, risks; marked
+partial if so) and stop. A phased dispatch builds only its phase and ends with a
 handoff.
 
 ## Work standard
@@ -62,8 +62,10 @@ handoff.
 
 - Focused commits on the task branch, never `main`, ending with the session's
   attribution lines. Evidence outside the repo (`.ai/RULES.md` §9).
-- Review packet `.agent/<task-id>-review-packet.md` per `.ai/RULES.md` §5.
-- Task `Status: in_review`, left in `tasks/`.
+- Review packet `specs/<task-id>/packet.md` per `.ai/RULES.md` §5 and §9 (a
+  spec without a folder gets one, with its `specs/INDEX.md` row). Never write
+  a packet, review or handoff into `.agent/`.
+- Spec `Status: in_review`.
 - A short built-state entry in the area file under `.ai/state/` plus its
   `index-*.md` line (what the slice settled and left open);
   update `.ai/NOW.md` only if the lane's state line changed.

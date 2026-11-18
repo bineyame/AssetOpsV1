@@ -8,7 +8,8 @@ this map resolves the rest: verbatim records (archived files, owner files, spec 
 
 ## Rules
 
-1. Kept in `.agent/` (same path):
+1. Kept in `.agent/` (same path; the live list, which check-all enforces, is `AGENT_KEEP` in
+   `tools/checks/tracked_evidence.py`):
 - `.agent/coordinator-handoff.md`: tracked live coordination state (trimmed to one current block).
 - `.agent/lane-rules-vps-2026-11-12.md`: live lane rules on this machine (cited by .ai/NOW.md).
 - `.agent/architect-sequence-client-scope-2026-11-11.md`: live demo-sprint plan (cited by .ai/NOW.md).
