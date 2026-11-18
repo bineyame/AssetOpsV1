@@ -31,6 +31,8 @@ node_modules/
 node_modules
 dist/
 coverage/
+# PIPE-1 A10: tsc --incremental cache, kept inside each worktree (node_modules is shared by symlink, so not there).
+frontend/.tsbuildinfo/
 
 # Agent session state
 .codex/
