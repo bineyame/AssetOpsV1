@@ -1,3 +1,11 @@
+param(
+    # PIPE-1 A4: run only these registered module files (check-all runs one module per parallel job). The manifest
+    # check below always runs; an unregistered name is a failure. Empty: every module, as before.
+    [string[]]$Only = @(),
+    # Print the registered module files in manifest order, one per line, and exit (check-all reads this list).
+    [switch]$List
+)
+
 $ErrorActionPreference = "Stop"
 
 # CI architecture guard.
@@ -66,12 +74,24 @@ try {
         exit 1
     }
 
+    if ($List) {
+        $checkModules | ForEach-Object { Write-Output $_.File }
+        exit 0
+    }
+    $unknown = @($Only | Where-Object { $declared -notcontains $_ })
+    if ($unknown.Count -gt 0) {
+        Write-Host "Architecture check failed:"
+        foreach ($name in $unknown) { Write-Host "- -Only names $name, which is not a registered module." }
+        exit 1
+    }
+    $selected = @($checkModules | Where-Object { $Only.Count -eq 0 -or $Only -contains $_.File })
+
     . (Join-Path $checksRoot "_common.ps1")
 
     $failuresBySeam = New-Object System.Collections.Generic.List[object]
     $failureCount = 0
 
-    foreach ($check in $checkModules) {
+    foreach ($check in $selected) {
         . (Join-Path $checksRoot $check.File)
 
         if (-not (Get-Command $check.Function -CommandType Function -ErrorAction SilentlyContinue)) {
@@ -102,7 +122,11 @@ try {
         exit 1
     }
 
-    Write-Host "Architecture check passed."
+    if ($Only.Count -gt 0) {
+        Write-Host "Architecture check passed ($(@($selected | ForEach-Object { $_.Seam }) -join ', '))."
+    } else {
+        Write-Host "Architecture check passed."
+    }
 }
 finally {
     Pop-Location
