@@ -21,9 +21,15 @@ HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="
         '.toc{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:20px 0}.toc ul{margin:6px 0;padding-left:18px}.toc .l3{margin-left:16px;font-size:.93em}\n'
         ':focus-visible{outline:2px solid var(--accent);outline-offset:2px}</style></head><body><main class="wrap">')
 FOOT = ('<p style="color:var(--muted);font-size:13px">Rendered from layer4-transformation-design.md. Diagrams render with Mermaid from the '
-        'jsDelivr CDN; offline, the diagram source is shown.</p></main>\n'
+        'jsDelivr CDN; offline, the diagram source is shown. On a narrow screen a wide diagram keeps its text at a legible size '
+        'and scrolls sideways inside its frame.</p></main>\n'
         '<script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";'
-        'const dark=matchMedia("(prefers-color-scheme: dark)").matches;mermaid.initialize({startOnLoad:true,theme:dark?"dark":"default",securityLevel:"strict"});'
+        'const dark=matchMedia("(prefers-color-scheme: dark)").matches;mermaid.initialize({startOnLoad:false,theme:dark?"dark":"default",securityLevel:"strict"});'
+        # narrow screens: never shrink a diagram's smallest text below 11 px; the frame (pre, overflow-x:auto) scrolls instead
+        'const fit=()=>{for(const s of document.querySelectorAll("pre.mermaid svg")){s.style.minWidth="";if(!matchMedia("(max-width:700px)").matches)continue;const vb=s.viewBox.baseVal;let mf=99;'
+        's.querySelectorAll(".nodeLabel,.edgeLabel,text").forEach(t=>{const f=parseFloat(getComputedStyle(t).fontSize);if(f&&f<mf)mf=f});'
+        'const need=vb.width*11/mf;if(mf<99&&need>s.getBoundingClientRect().width)s.style.minWidth=Math.min(need,vb.width)+"px"}};'
+        'await mermaid.run({querySelector:"pre.mermaid"});fit();addEventListener("resize",fit);'
         '</script></body></html>')
 
 

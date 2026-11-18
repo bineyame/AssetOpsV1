@@ -97,38 +97,67 @@ def vstack(entries):
             y += h; prev = (y, xs, bw); nxt = ("", "ar")
     return NW, y + 12, "".join(b)
 
-# ---------------------------------------------------------------- diagram 1: today vs Layer 4
+# ---------------------------------------------------------------- diagram 1: today vs Layer 4, today's chain re-grounded (rev 4)
 def d1():
     b = []
+    bw, xs = 210, [10, 242, 474, 706, 938]
+    cx = [x + bw / 2 for x in xs]
     b.append(label(10, 24, "Today: signal first", fs=14, weight="600"))
-    xs = [10, 206, 402, 598, 794]
     today = [["Telemetry and", "operational records"], ["Analyses", "dispatch, fuel balance,", "excursions, faults"],
              ["Findings", "what looks wrong"], ["Gross exposure", "up to this much"], ["One setting trial,", "recorded work actions", "(verified: mini-grid)"]]
-    for x, t in zip(xs, today): b.append(box(x, 38, 186, 70, t, fs=12))
-    for i in range(4): b.append(arrow([(xs[i]+186, 73), (xs[i+1]-2, 73)]))
-    b.append(label(10, 190, "Layer 4: structure first", fs=14, weight="600"))
-    l4 = [["Define", "each outcome as factors", "down to source records"], ["Observe", "factors from records;", "outcome computed upward"],
-          ["Evaluate", "options as factor changes,", "against no action"], ["Choose", "one plan within budget,", "crews, rules, rights"],
-          ["Prove", "same factors after;", "three verdicts"]]
-    for x, t in zip(xs, l4): b.append(box(x, 204, 186, 76, t, cls="bxa", fs=12))
-    for i in range(4): b.append(arrow([(xs[i]+186, 242), (xs[i+1]-2, 242)]))
-    b.append(arrow([(887, 280), (887, 306), (299, 306), (299, 282)]))
-    b.append(label(593, 320, "the loop repeats each period", anchor="middle", fs=11.5))
-    b.append(arrow([(299, 108), (299, 202)], cls="ard"))
-    b.append(label(310, 150, "today's analyses become", fs=11.5))
-    b.append(label(310, 165, "observers of factors", fs=11.5))
+    for x, t in zip(xs, today): b.append(box(x, 38, bw, 70, t, fs=12))
+    for i in range(4): b.append(arrow([(xs[i] + bw, 73), (xs[i + 1] - 2, 73)]))
+    # how today's constructs take their places (Figure 8 and §3.7 give the full mapping)
+    b.append(arrow([(cx[1], 108), (cx[1], 232)], cls="ard"))
+    b.append(label(cx[1] - 8, 160, "become observers", anchor="end", fs=11.5)); b.append(label(cx[1] - 8, 175, "of factors", anchor="end", fs=11.5))
+    b.append(arrow([(cx[2] - 30, 108), (cx[1] + 70, 232)], cls="ard"))
+    b.append(label(cx[2] - 22, 160, "become conditions", fs=11.5)); b.append(label(cx[2] - 22, 175, "on factor keys", fs=11.5))
+    b.append(label(cx[3], 130, "becomes an at-stake bound on", anchor="middle", fs=11.5))
+    b.append(label(cx[3], 145, "its factor, never a value", anchor="middle", fs=11.5))
+    b.append(arrow([(cx[4], 108), (cx[4], 232)], cls="ard"))
+    b.append(label(cx[4] - 8, 172, "carry the chosen", anchor="end", fs=11.5)); b.append(label(cx[4] - 8, 187, "option as Actions", anchor="end", fs=11.5))
+    b.append(label(cx[4] - 8, 202, "operational verdict kept", anchor="end", fs=11.5))
+    # Layer 4, grounded on one registry
+    b.append('<rect class="grp" x="2" y="200" width="1154" height="290" rx="10"/>')
+    b.append(label(16, 222, "Layer 4: structure first, today's chain re-grounded on it", fs=14, weight="600"))
+    l4 = [["Define", "each outcome as factors", "down to source records"],
+          ["Observe", "factors from records; outcome", "computed upward; Findings:", "conditions on factor keys"],
+          ["Evaluate", "decisions on factor keys:", "options, always with no action,", "valued against no action"],
+          ["Choose", "one plan within budget, crews,", "rules, rights; the chosen", "option rides an Action"],
+          ["Prove", "the same factors after;", "three verdicts"]]
+    for x, t in zip(xs, l4): b.append(box(x, 234, bw, 84, t, cls="bxa", fs=12))
+    for i in range(4): b.append(arrow([(xs[i] + bw, 276), (xs[i + 1] - 2, 276)]))
+    b.append(arrow([(cx[4], 318), (cx[4], 336), (cx[1], 336), (cx[1], 320)]))
+    b.append(label((cx[1] + cx[4]) / 2, 350, "the loop repeats each period", anchor="middle", fs=11.5))
+    b.append(box(10, 376, 790, 96, ["One structure registry", "leaf factors → factors → outcomes, read upward · factor ID · period ID · unit · plan · bounds",
+                                     "every leaf: evidence class and provenance; a node takes its weakest part",
+                                     "Findings, decisions, options, Actions and verdicts all key to its factors"], cls="bxa", fs=12))
+    b.append(arrow([(cx[0], 374), (cx[0], 320)], cls="ard"))
+    b.append(label(cx[0] + 8, 354, "declares", fs=11.5))
+    b.append(box(830, 376, 318, 96, ["Sources, one canonical contract", "telemetry and operational records;", "emulated exports as placeholders,",
+                                      "then the operator's own exports;", "one contract test runs on both"], fs=12))
+    b.append(arrow([(830, 424), (802, 424)]))
+    b.append(label(10, 512, "No construct carries an outcome value of its own: Findings attach at a factor and outcomes are read upward through the factors (§3.7, §3.8).", fs=11.5))
     narrow = vstack([("h", "Today: signal first"),
                      ("r", [(["Telemetry and operational records"], "bx")]), ("r", [(["Analyses", "dispatch, fuel balance, excursions"], "bx")]),
                      ("r", [(["Findings", "what looks wrong"], "bx")]), ("r", [(["Gross exposure", "up to this much"], "bx")]),
                      ("r", [(["One setting trial, recorded work", "(verified: mini-grid only)"], "bx")]),
-                     ("n", "Today's analyses become observers of factors."),
-                     ("h", "Layer 4: structure first"),
-                     ("r", [(["Define", "each outcome as factors, to records"], "bxa")]), ("r", [(["Observe", "factors from records; outcome upward"], "bxa")]),
-                     ("r", [(["Evaluate", "options as factor changes vs no action"], "bxa")]),
-                     ("r", [(["Choose", "one plan within budget, crews, rights"], "bxa")]), ("r", [(["Prove", "same factors after; three verdicts"], "bxa")]),
+                     ("n", "Re-grounded: analyses become observers of\nfactors; Findings become conditions on factor\nkeys; gross exposure an at-stake bound, never\na value; trials and work carry the chosen\noption as Actions; the operational verdict stays."),
+                     ("h", "Layer 4, on one registry"),
+                     ("r", [(["Sources, one canonical contract", "telemetry and operational records;", "emulated exports as placeholders, then", "the operator's own; one contract test on both"], "bx")]),
+                     ("r", [(["One structure registry", "leaf factors → factors → outcomes, read", "upward; every leaf: class and provenance;", "everything below keys to its factors"], "bxa")]),
+                     ("a", "declares", "ar"),
+                     ("r", [(["Define", "each outcome as factors, to records"], "bxa")]),
+                     ("r", [(["Observe", "factors from records; outcome upward;", "Findings: conditions on factor keys"], "bxa")]),
+                     ("r", [(["Evaluate", "decisions on factor keys: options,", "always with no action"], "bxa")]),
+                     ("r", [(["Choose", "one plan within budget, crews, rights;", "the chosen option rides an Action"], "bxa")]),
+                     ("r", [(["Prove", "the same factors after; three verdicts"], "bxa")]),
                      ("n", "The loop repeats each period: Prove feeds Observe.")])
-    return svg(990, 330, "".join(b), "Figure 1. Today's product and Layer 4",
-               "Today: records, analyses, findings, gross exposure, one setting trial and recorded work actions. Layer 4: define, observe, evaluate, choose, prove, in a loop; today's analyses become observers of factors.", narrow)
+    return svg(1160, 524, "".join(b), "Figure 1. Today's product and Layer 4: today's chain re-grounded on one registry",
+               "Today: records, analyses, findings, gross exposure, one setting trial and recorded work actions. In Layer 4 analyses become observers of factors, "
+               "Findings become conditions on factor keys, gross exposure an at-stake bound, and trials and work carry the chosen option as Actions. "
+               "Define, observe, evaluate, choose and prove run in a loop over one structure registry, fed by telemetry and emulated exports, then the operator's own, through one canonical contract with one contract test.", narrow)
+
 
 # ---------------------------------------------------------------- diagram 2: Kobo waterfall, from derived-values.json
 def kobo_steps():
@@ -307,30 +336,118 @@ def d5():
     return svg(1170, 420, "".join(b), "Figure 5. Transition steps, dependencies and the critical path",
                "Critical path: commercial records, structure and factor bridge, decisions, plan. Proof and then rights run in the second lane after decisions; the full plan gate waits for rights. Parallel lanes: pilot lane, Lane B, calibration lane, honest screens. Verticals follow plan and proof; pilot hardening follows plan and proof.", narrow)
 
-# ---------------------------------------------------------------- diagram 6: adapters
+# ---------------------------------------------------------------- diagram 6: emulators as placeholders, one adapter shape, one contract test
 def d6():
     b = []
-    srcs = [["Demo: emulated export", "'source-emulated'"], ["Bench: real device or", "sample export, 'bench-tested'"],
-            ["Pilot: operator's export", "'field-integrated' /", "'observed-financial'"]]
-    for i, t in enumerate(srcs): b.append(box(10, 20 + i*90, 230, 72, t, fs=12))
-    b.append(f'<rect class="grp" x="280" y="70" width="680" height="150" rx="10"/>')
-    b.append(label(295, 92, "Adapter = transport + parser + profile", fs=13, weight="600"))
-    b.append(box(300, 110, 190, 90, ["Transport", "upload, scheduled drop", "(later: API)"], cls="bxa", fs=12))
-    b.append(box(530, 110, 190, 90, ["Parser", "bytes to typed rows", "(pure, versioned)"], cls="bxa", fs=12))
-    b.append(box(760, 110, 185, 90, ["Profile", "columns, units, timezone,", "personal-data fields"], cls="bxa", fs=12))
-    b.append(box(990, 110, 180, 90, ["Commercial record store", "or evidence ledger"], fs=12))
-    for i in range(3): b.append(arrow([(240, 56 + i*90), (265, 56 + i*90), (265, 155), (298, 155)]))
-    b.append(arrow([(490, 155), (528, 155)])); b.append(arrow([(720, 155), (758, 155)])); b.append(arrow([(945, 155), (988, 155)]))
-    b.append(label(620, 250, "From demo to pilot only transport and profile change; parser, records, observers and structure stay the same.", anchor="middle", fs=11.5))
-    narrow = vstack([("r", [(["Sources", "demo: emulated export", "bench: device or sample export", "pilot: the operator's export"], "bx")]),
-                     ("h", "Adapter"),
-                     ("r", [(["Transport", "upload, scheduled drop (later: API)"], "bxa")]),
-                     ("r", [(["Parser", "bytes to typed rows (pure, versioned)"], "bxa")]),
-                     ("r", [(["Profile", "columns, units, timezone, personal data"], "bxa")]),
-                     ("r", [(["Commercial record store", "or evidence ledger"], "bx")]),
-                     ("n", "From demo to pilot only transport and profile\nchange; parser, records and structure stay.")])
-    return svg(1180, 270, "".join(b), "Figure 6. File import first: one adapter shape from demo to pilot",
-               "Emulated, bench and pilot exports enter through transport, parser and profile into the commercial record store or the evidence ledger.", narrow)
+    b.append(box(10, 20, 262, 96, ["Emulator: a placeholder source", "native-shape files from the manifest;", "nothing a real source lacks;", "source-emulated, shown Emulated"], fs=12))
+    b.append(box(10, 136, 262, 96, ["Real source", "bench: a device or sample export;", "pilot: the operator's export;", "bench-tested · field-integrated ·", "observed-financial"], fs=12))
+    b.append('<rect class="grp" x="312" y="34" width="590" height="150" rx="10"/>')
+    b.append(label(326, 56, "Adapter = transport + parser + profile, same authenticated intake", fs=13, weight="600"))
+    b.append(box(326, 72, 176, 96, ["Transport", "emulator's file writer →", "upload or scheduled drop", "(API later)"], cls="bxa", fs=12))
+    b.append(box(520, 72, 176, 96, ["Parser", "bytes to typed rows", "pure, versioned;", "the same for both"], cls="bxa", fs=12))
+    b.append(box(714, 72, 176, 96, ["Profile", "columns, units, timezone,", "personal data;", "illustrative → pinned"], cls="bxa", fs=12))
+    b.append(arrow([(502, 120), (518, 120)])); b.append(arrow([(696, 120), (712, 120)]))
+    b.append(arrow([(272, 68), (292, 68), (292, 110), (310, 110)]))
+    b.append(arrow([(272, 184), (292, 184), (292, 130), (310, 130)]))
+    b.append(box(940, 34, 230, 100, ["Canonical records", "CHARGE · RECEIPT · PLAN_LINE ·", "EXPENSE …; telemetry: ledger;", "provenance on every revision"], fs=12))
+    b.append(arrow([(902, 84), (938, 84)]))
+    b.append(box(940, 166, 230, 100, ["Downstream, unchanged", "leaf factors · structure ·", "observers · Evaluate · screens;", "branches only on labels,", "coverage and the benefit gate"], fs=12))
+    b.append(arrow([(1055, 134), (1055, 164)]))
+    b.append(box(312, 214, 590, 84, ["Contract test, one suite per source type, run on both", "the emulator's output and the operator's pinned sample: kinds, fields, units,",
+                                      "four clocks, idempotency key, disorder, refusals; same content gives", "the same canonical records and the same factor values"], cls="bxp", fs=12))
+    b.append(arrow([(312, 256), (141, 256), (141, 234)], cls="ard"))
+    b.append(label(160, 274, "runs on both sources", fs=11.5))
+    b.append(arrow([(902, 256), (922, 256), (922, 110), (938, 110)], cls="ard"))
+    b.append(label(10, 326, "From emulator to real source only transport and profile change. A real adapter replaces the emulator once it passes the contract test; the emulator stays as the test's fixture.", fs=11.5))
+    narrow = vstack([("r", [(["Emulator", "placeholder;", "shown Emulated"], "bx"), (["Real source", "bench, then the", "operator's export"], "bx")]),
+                     ("r", [(["Adapter: transport", "emulator's writer → upload or drop"], "bxa")]),
+                     ("r", [(["Parser", "bytes to typed rows; the same for both"], "bxa")]),
+                     ("r", [(["Profile", "columns, units, timezone, personal data;", "illustrative → pinned"], "bxa")]),
+                     ("r", [(["Canonical records", "provenance on every revision"], "bx")]),
+                     ("r", [(["Downstream, unchanged", "structure, observers, Evaluate, screens"], "bx")]),
+                     ("n", "Contract test: one suite per source type, run\non the emulator's output and on the operator's\npinned sample; same content gives the same\ncanonical records and factor values. A real\nadapter replaces the emulator once it passes;\nonly transport and profile change.")])
+    return svg(1180, 338, "".join(b), "Figure 6. File import first: emulators are placeholders, replaced by real adapters that pass the same contract test",
+               "An emulator and a real source of the same type enter the same adapter (transport, parser, profile) and produce the same canonical records; everything downstream is unchanged. "
+               "One contract test per source type runs on the emulator's output and on the operator's pinned sample. From emulator to real source only transport and profile change.", narrow)
+
+
+# ---------------------------------------------------------------- diagram 7: visible first, screen by screen (from the §3.6 tables)
+VINC = [("V1", ["findings on their", "factors, honest screens"], "lane 2", "W1 (observer rows)", "chw"),
+        ("V2", ["factor views on", "observed factors"], "lane 2", "W1", "chw"),
+        ("V3", ["the first live", "decision view"], "lane 2", "W1; 4b, spike K", "chw"),
+        ("V4", ["contribution against", "plan, factor by factor"], "lane 1", "step 2 records", "chr"),
+        ("V5", ["the whole loop"], "lanes 1, 2", "step 2 records", "chr")]
+VSCREENS = [("Portfolio · Overview", "Findings on factors, thread counts, placement (triage)", {1: "attention on factors", 4: "outcome figures", 5: "first moves"}),
+            ("Portfolio · Outcomes by site", "outcome catalogue, objectives, depth reads, source health", {2: "operational factors", 4: "money"}),
+            ("Portfolio · Demand and capacity", "headroom study, PRODUCTIVE_LOAD what-if", {1: "relabelled", 5: "valued demand"}),
+            ("Portfolio · Act first", "Findings, decisions, placement as triage", {3: "decisions", 5: "plan"}),
+            ("Portfolio · What changed", "Actions, domain actions, work cases, verdict", {3: "Actions, operational\nverdict", 5: "three verdicts,\nrights"}),
+            ("Portfolio · Scope & coverage", "source health, evidence ledger, provenance labels", {2: "sources per leaf"}),
+            ("Site · Overview", "board rows and reasons, Findings, threads", {1: "relabel", 2: "factor structure", 3: "decisions"}),
+            ("Site · Financials", "price assumptions, consequence history", {2: "prices, at stake", 4: "recorded money"}),
+            ("Site · Performance and Findings", "dispatch-3.2, fuel balance, depth reads, Findings", {1: "observers per factor"}),
+            ("Decision view", "reserve recommendation, what-ifs, tariff contexts", {3: "cost-side options", 5: "all decisions"}),
+            ("Actions and Work", "today's carriers: trial, domain actions, work cases", {3: "chosen option's\ncarrier"})]
+
+def d7v():
+    b = []
+    L, cw = 384, 156
+    cxs = [L + i * cw + cw / 2 for i in range(5)]
+    b.append(label(10, 30, "Screen", fs=13, cls="t", weight="600"))
+    b.append(label(10, 47, "carried by (today's construct)", fs=11.5))
+    for (vid, title, lane, wait, wcls), x in zip(VINC, cxs):
+        b.append(label(x, 22, vid, anchor="middle", fs=15, cls="t", weight="700"))
+        for k, t in enumerate(title): b.append(label(x, 40 + k * 15, t, anchor="middle", fs=11.5, cls="t"))
+        b.append(label(x, 84, lane, anchor="middle", fs=11.5))
+        b.append(f'<rect class="{wcls}" x="{x - cw/2 + 6}" y="94" width="{cw - 12}" height="24" rx="12"/>')
+        b.append(label(x, 110, wait, anchor="middle", fs=11.5, cls="t"))
+    b.append(label(L - 10, 110, "waits for", anchor="end", fs=11.5))
+    top, rh = 130, 46
+    for i in range(6):
+        x = L + i * cw
+        b.append(f'<line class="grid" x1="{x}" x2="{x}" y1="{top - 4}" y2="{top + len(VSCREENS) * rh}"/>')
+    for r, (name, carried, cells_) in enumerate(VSCREENS):
+        y = top + r * rh
+        if r % 2 == 0: b.append(f'<rect class="lane" x="0" y="{y}" width="{L + 5 * cw + 6}" height="{rh}"/>')
+        b.append(label(10, y + 19, name, fs=13, cls="t", weight="600"))
+        b.append(label(10, y + 36, carried, fs=11.5))
+        for v, t in cells_.items():
+            x = L + (v - 1) * cw
+            b.append(f'<rect class="bxa" x="{x + 6}" y="{y + 5}" width="{cw - 12}" height="{rh - 10}" rx="8"/>')
+            ls = t.split("\n")   # every line of a cell in the same weight (box() would bold only the first)
+            for k, ln in enumerate(ls):
+                b.append(label(x + cw / 2, y + rh / 2 + 4 + (k - (len(ls) - 1) / 2) * 14, ln, anchor="middle", fs=11.5, cls="t", weight="600"))
+    y = top + len(VSCREENS) * rh + 22
+    b.append(f'<rect class="chw" x="10" y="{y - 13}" width="30" height="16" rx="8"/>')
+    b.append(label(48, y, "W1: the owner's approval of the structure; lane 2's work starts after it (V1's findings on factors rest on the observer rows, 3a′).", fs=11.5, cls="t"))
+    b.append(f'<rect class="chr" x="10" y="{y + 9}" width="30" height="16" rx="8"/>')
+    b.append(label(48, y + 22, "Step 2 records: the commercial record store and its emulators. V4 on emulated records reads “demonstrated on emulated records”; on a diagnostic's records it is reconciled.", fs=11.5, cls="t"))
+    H = y + 40
+    # narrow: one section per increment, the screens it makes useful and the construct that carries each
+    n, ny = [], 10
+    for v, (vid, title, lane, wait, wcls) in enumerate(VINC, start=1):
+        ny += 8
+        for k, t in enumerate(title):   # one title line per row, so no header leaves the 400-unit viewBox
+            n.append(label(10, ny + 16, f"{vid} · {t}" if k == 0 else f"       {t}", fs=15, cls="t", weight="600")); ny += 20
+        ny += 6
+        n.append(f'<rect class="{wcls}" x="10" y="{ny}" width="380" height="24" rx="12"/>')
+        n.append(label(22, ny + 17, f"{lane} · waits for {wait}", fs=13, cls="t")); ny += 34
+        for name, carried, cells_ in VSCREENS:
+            if v not in cells_: continue
+            n.append(label(14, ny + 14, f"{name}: {cells_[v].replace(chr(10), ' ')}", fs=13, cls="t")); ny += 18
+            parts = [carried] if len(carried) <= 50 else [carried[:50].rsplit(" ", 1)[0], carried[len(carried[:50].rsplit(" ", 1)[0]) + 1:]]
+            for t in parts:   # wrapped, never truncated
+                n.append(label(26, ny + 14, t, fs=13)); ny += 17
+            ny += 5
+    ny += 6
+    for t in ("W1: the owner's structure approval. Step 2:", "commercial records (store and emulators).", "V4 on emulated records is labelled", "“demonstrated on emulated records”."):
+        n.append(label(10, ny + 14, t, fs=13)); ny += 18
+    return svg(L + 5 * cw + 10, H, "".join(b), "Figure 7. Visible first: when each client screen becomes economically useful, what carries it, and what it waits for",
+               "Five increments. V1 findings on their factors and honest screens, lane 2, waits for W1 for the observer rows. V2 factor views on observed factors, lane 2, waits for W1. "
+               "V3 the first live decision view, lane 2, waits for W1, the bounds (4b) and spike K. V4 contribution against plan, lane 1, waits for step 2's commercial records. "
+               "V5 the whole loop, both lanes, waits for step 2's records. " +
+               " ".join(f"{nm}: " + ", ".join(f"V{v} {t.replace(chr(10), ' ')}" for v, t in c.items()) + f" (carried by {cr})." for nm, cr, c in VSCREENS),
+               (400, ny + 8, "".join(n)))
 
 # ---------------------------------------------------------------- diagram 7: roadmap swimlanes
 def _lanes():
@@ -378,7 +495,7 @@ def d7():
     body += label(300, H - 12, "Months from the owner's approval of the path. Estimates; ranges in §4.3. Pilot timing depends on a qualified prospect.", fs=11)
     nb, nend = gantt(22, NW - 14, 30, 22, 13, True)
     nb += label(8, nend + 22, "Months from approval. Estimates (§4.3).", fs=12)
-    return svg(1170, H, body, "Figure 7. Roadmap in four lanes: product, data, pilots, commercial",
+    return svg(1170, H, body, "Figure 10. Roadmap in four lanes: product, data, pilots, commercial",
                "Swimlane timeline over ten months: product steps, data work, pilots and commercial milestones, as listed in the mermaid source.", (NW, nend + 34, nb))
 
 # ---------------------------------------------------------------- diagram 8: Layer 4 pack rounds by cause
@@ -420,7 +537,7 @@ def d8():
         n.append(f'<rect class="{CAUSES[k][1]}" x="10" y="{y + 22}" width="{cnt * 44}" height="18" rx="4"><title>{esc(which)}</title></rect>')
         n.append(label(16 + cnt * 44, y + 36, f"{cnt}: {which}" if len(which) < 22 else f"{cnt} rounds", fs=12.5))
         y += 52
-    return svg(W, H, "".join(b), "Figure 9. The Layer 4 pack's review rounds, by the cause of the next round (the author's classification, a judgement)",
+    return svg(W, H, "".join(b), "Figure 12. The Layer 4 pack's review rounds, by the cause of the next round (the author's classification, a judgement)",
                "Seventeen rounds: four lost to a direction not approved before building, two to requirements added while a round ran (revisions 5 and 7), six to typed figures found one at a time (revisions 6 and 8-12), three to fixing instances rather than classes; two were accepted work or a new request.",
                (NW, y + 4, "".join(n)))
 
@@ -452,7 +569,7 @@ def d9():
                      ("r", [(["Class fix and sweep (W6)", "stop rule after two repeats (W7)"], "bxa")]),
                      ("r", [(["Phase-end walkthrough (W8)", "one sitting"], "bx")]),
                      ("n", "Pilot calendar (W9) runs alongside: agreement,\ndiagnostic, after-window, closed month.")])
-    return svg(1140, 330, "".join(b), "Figure 10. The build workflow for one phase",
+    return svg(1140, 330, "".join(b), "Figure 13. The build workflow for one phase",
                "Structure specification, owner approval of the structure, independent checks, readiness dry-read, build in two lanes, review by risk, class fixes with a stop rule, phase-end walkthrough; a decision queue with defaults feeds the build; the pilot calendar runs alongside.", narrow)
 
 # ---------------------------------------------------------------- diagram 10: effort ranges, revision 1 against revised (weeks)
@@ -492,7 +609,7 @@ def d10():
     nb += f'<rect class="rold" x="10" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(30, ny + 15, "Revision 1", fs=12.5, cls="t")
     nb += f'<rect class="rnew" x="150" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(170, ny + 15, "Revised", fs=12.5, cls="t")
     nb += label(10, ny + 36, "Last row: the §4.3 elapsed range, not a sum.", fs=12.5)
-    return svg(960, wy + 52, wb, "Figure 8. Build effort in weeks: revision 1 against the revised ranges (estimates)",
+    return svg(960, wy + 52, wb, "Figure 11. Build effort in weeks: revision 1 against the revised ranges (estimates)",
                "Revised bars are build time at one to three days per reviewed change, on the grounded path. Calibration and step 1 (lane 2, alongside steps 2-3): 2-4 weeks to about 1-3.5. Steps 2-3: 6-10 to about 2-5.5. Step 4: revision 1 counted it with steps 5 and 6 (8-14); revised about 1.5-5. Step 5 in lane 1 beside step 7 then step 6 in lane 2: revision 1 gave step 7 alone 2-4; revised about 1-3. Core elapsed, the §4.3 range with rework and owner time and not a sum of the bars: 17-30 weeks (4-7 months) to about 8-16 weeks (2-4 months).",
                (NW, ny + 46, nb))
 
@@ -538,7 +655,7 @@ def d11():
                ("r", [(["Factors", "factor and period IDs, unit, plan,", "evidence class, bounds, cost-bearer"], "bxa")]), ("a", "computed into", "ar"),
                ("r", [(["Outcomes", "contribution, Protect measures"], "bx")]),
                ("n", "Every role above is keyed to a factor.\nFindings attach at a factor; outcomes are\nread upward; nothing carries its own outcome.")]
-    return svg(1180, bot + 46, "".join(b), "Figure 11. Grounding today's chain on the Layer 4 primitives",
+    return svg(1180, bot + 46, "".join(b), "Figure 8. Grounding today's chain on the Layer 4 primitives",
                "Five of today's constructs, each mapped to its role on the primitives: a finding becomes an observation on a factor key that Evaluate acts on; the outcome map becomes registry rows and obligation bounds; what-ifs and the reserve recommendation become options against no action; actions, domain actions and work cases carry the chosen option, which the user acts on and tracks; verification becomes three verdicts. Every role is keyed to one structure registry, in which leaf factors from source records are read upward to outcomes.", vstack(narrow))
 
 # ---------------------------------------------------------------- diagram 12: the compromise register, parsed from its table
@@ -585,12 +702,12 @@ def d12():
     nb, ny = body(24, NW - 16, 44, 12.5, True)
     nb += label(8, ny + 18, "Bar: in force from the step that takes it to the", fs=12.5)
     nb += label(8, ny + 36, "step that retires it (dot). Steps as in §3.1.", fs=12.5)
-    return svg(1180, wy + 40, wb, "Figure 12. Purity catches up: when each early compromise is taken and retired",
+    return svg(1180, wy + 40, wb, "Figure 9. Purity catches up: when each early compromise is taken and retired",
                "One bar per compromise in the register of §3.9, from the step that takes it to the step that retires it: " +
                "; ".join(f"{c} step {a} to {z}" for c, _, a, z in R) + ".", (NW, ny + 48, nb))
 
 DIAGRAMS = [d1, d2, d3, d4, d5, d6, d7, d8, d9]   # in the order of the mermaid blocks
-MARKERS = {"effort": d10, "mapping": d11, "register": d12}
+MARKERS = {"visible": d7v, "effort": d10, "mapping": d11, "register": d12}
 
 # ---------------------------------------------------------------- markdown subset
 def slug(t):
@@ -699,7 +816,7 @@ svg .arc{fill:none;stroke:var(--neg);stroke-width:3.2}svg .mk{fill:var(--muted)}
 svg .grid{stroke:var(--line);stroke-width:1}svg .conn{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
 svg .wneg{fill:var(--neg)}svg .wpos{fill:var(--pos)}svg .wtot{fill:var(--tot)}
 svg .c1{fill:var(--c1)}svg .c2{fill:var(--c2)}svg .c3{fill:var(--c3)}svg .c4{fill:var(--c4)}svg .cn{fill:var(--cn)}svg .rold{fill:var(--tot)}svg .rnew{fill:var(--accent)}
-svg .lane{fill:var(--lane)}svg .bar0,svg .bar1,svg .bar2,svg .bar3{fill:var(--accent)}svg .bar1{opacity:.75}svg .bar2{opacity:.6}svg .bar3{opacity:.45}svg .ms{fill:var(--neg)}
+svg .lane{fill:var(--lane)}svg .chw{fill:var(--acard);stroke:var(--accent);stroke-width:1.2;stroke-dasharray:4 3}svg .chr{fill:var(--pcard);stroke:var(--neg);stroke-width:1.4}svg .bar0,svg .bar1,svg .bar2,svg .bar3{fill:var(--accent)}svg .bar1{opacity:.75}svg .bar2{opacity:.6}svg .bar3{opacity:.45}svg .ms{fill:var(--neg)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}"""
 
 page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'

@@ -39,7 +39,7 @@ Every node, at every level, carries the same attributes so it can be composed, c
 - **Shared factor ID and period ID** (brief line 130: "shared driver IDs and period IDs prevent the same fuel, bill adjustment or recovered payment appearing as several independent gains"). A factor appears once; every outcome that depends on it references it. The brief's *driver* is called *factor* here because it also covers non-money factors (temperatures, departures).
 
 - **Quantity and unit** in the vertical's own units (kWh, L, crate-day, departure, kW, USD).
-- **Money class** (`money_class`, §4.4): what kind of number it is. Classes never sum with one another.
+- **Money class** (`money_class`, §4.4): what kind of number it is. Figures of different kinds (observed, modelled, at stake, verified) never sum with one another; inside the structure a node takes the weakest class of its children and carries every provenance beneath them (§4.4).
 - **Coverage**: RECORDED, ESTIMATED (plan amount carried with a label because the record is missing), MISSING (no value; never zero) or NOT_APPLICABLE (the node does not exist for this business model; never zero).
 - **Four clocks** for any commercial leaf: **service period** (when the kWh, crate-day or departure happened), **effective period** (when a tariff, contract term or meter mapping applies), **recognition period** (the accounting month a charge or expense is booked), **settlement instant** (when cash arrived). Telemetry leaves carry only the service clock.
 - **Lineage** to the source records that observed the leaf, and the observer (model id and version) that computed a derived node.
@@ -423,11 +423,11 @@ Consequences:
 
 *Brief:* the unit hierarchy (economic actual, operational actual, derived, estimated/modelled, exposure, verified effect) and its rule "should not sum different evidence classes".
 
-Every node and every option effect carries one class. Different classes are shown side by side and **never summed**. The field is named `money_class` because `evidence_class` already exists in code as a *source-basis* column with a different vocabulary (MEASURED, RECORDED, DECLARED, MODELLED, EXTERNAL): `0042_chain_threads.py:50` on `finding_thread_occurrence` and `0043_chain_snapshots.py:37` on the measure snapshots [code-observed].
+Every node and every option effect carries one class. Figures of different kinds (observed, modelled, at stake, verified) are shown side by side and **never summed**. Within one structure a node composes its children whatever their classes (Kobo's contribution is Emulated revenue minus a fuel cost Calculated from records) and takes the **weakest** class of them, carrying every provenance beneath it (the paragraph below). The field is named `money_class` because `evidence_class` already exists in code as a *source-basis* column with a different vocabulary (MEASURED, RECORDED, DECLARED, MODELLED, EXTERNAL): `0042_chain_threads.py:50` on `finding_thread_occurrence` and `0043_chain_snapshots.py:37` on the measure snapshots [code-observed].
 
 | `money_class` | On screen | Meaning | Example | May be summed with |
 |---|---|---|---|---|
-| ECONOMIC_ACTUAL | Recorded (Quoted for a supplier quote; Estimated when the plan amount stands in) | sourced revenue, expense, receipt, settlement | Mto billed 2,160.00 | same class, currency, period |
+| ECONOMIC_ACTUAL | Recorded (Quoted for a supplier quote; Estimated when the plan amount stands in) | sourced revenue, expense, receipt, settlement | Mto billed 2,160.00 | same currency and period; inside the structure also with DERIVED and OPERATIONAL children, the node taking the weakest class |
 | OPERATIONAL_ACTUAL | Measured | physical quantity from telemetry or operational records | Kobo 1,180 L consumed | same unit |
 | DERIVED | Calculated from records | computed from actuals by a stated method | Kirinyaga +970 kWh above model | its own components |
 | MODELLED | Modelled | counterfactual, forecast or forward replay | Kobo 2,916.00<!--fig:options.KOB-STOPSOC.value--> over 12 months | MODELLED effects on **distinct** factor nodes |

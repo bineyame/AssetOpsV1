@@ -1381,3 +1381,21 @@ Each finding is answered as a class, with the sweep across the pack. The directi
   - Contrast 38/38; preserved screens 65/65.
 - Transition HTML at 390 and 1280 px, light and dark: no text outside its viewBox, no horizontal scroll.
 - No test suite, database or Docker was used.
+
+---
+
+## Author note: rev 4 diagrams, and combined-review fixes GL1–GL3, GM2 (Architect, 18 Nov)
+
+**Diagrams.**
+- Main design doc (Mermaid): the loop's source node now shows real or emulated sources, the evidence class + provenance label on every leaf, and the weakest-part rule (§2); the factor-structure diagram shows Findings attaching at factors beside bounds and rights (§2.1); new "grounded chain" diagram after Refusal M5 (§2.5): registry → observer / structure read → Finding (condition on a factor key) → thread → lever? → decision (options with no action) → chosen option → Action (carrier) → three verdicts → later periods' observed factors; new "emulator, canonical contract, downstream" diagram in §4 after decision 2, with the contract test on both. Renderer: on screens ≤ 700 px a Mermaid diagram keeps its smallest text at 11 px and scrolls inside its frame (before: about 4 px at 390).
+- Transition doc: Figure 1 and Figure 6 redrawn; new Figure 7 (V1–V5 by screen, carrying construct, waits for W1 or step 2 records) in §3.6; renumbered in reading order (old 11→8, 12→9, 7→10, 8→11, 9→12, 10→13); in-text references in §2.7 and §5.1 fixed.
+
+**Review fixes.**
+- **GL1.** The literal "never sum different classes" sentences are restated as: figures of different kinds (observed, modelled, at stake, verified) are never added; a composed node takes the weakest class and carries every provenance; benefit totals admit only field records. Swept: transition §1.2 and §2.2 point 5; contracts §2.1 bullet, §4.4 lead and the ECONOMIC_ACTUAL row; design §2.6 invariant 3, Refusal M4, §6.1 point 4 (which also lacked *Emulated*).
+- **GL2.** The 4d/4f/4g-before-commit and 7b-before-after-window dependency (and the replay adapter) added to the one-page row, §2.2 point 6 and Q19.
+- **GL3.** §4.4 now cites the commercial plan rev 3 (3.8–5.9 weeks with the steps, 5.2–9.7 without, onboarding included); the roadmap's own assumption stays at about 5–6 weeks.
+- **GM2, ruling.** Spike K builds the forward replay adapter and its port method; PR 4c only wires the evaluator to it (two changes, as the lane counts already assume). Reasons: spike K is the first item in lane 1 and cannot replay anything without the adapter, so building it in 4c would either duplicate it or leave spike K empty; V3 already lists spike K as its prerequisite. `phase-plan-and-acceptance.md` PR 4c restated. D15's replay on the operator's own export depends on spike K's adapter (plus onboarding: site model and controller-export profile); D15's commit depends on 4d, 4f, 4g; its after-window on 7b. Stated in D15, §4.4, §2.2 point 6 and Q19.
+
+**Text inconsistency found while drawing (not changed).** §3.6 and Appendix B say that if the W1 sitting slips "V2 and V3 slip with it", but V1 is built from step 1 plus the observer rows (3a′), and 3a′ also waits for W1 (phase plan PR 3a′; design §9). V1's findings-on-factors part therefore slips too; only the step 1 relabels do not. Figure 7 shows V1 as waiting for W1 for the observer rows. Recommended fix: "V1's findings on factors, V2 and V3 slip with it".
+
+**Checks.** `check_manifest.py` 3721 passed, 0 failed. Both renderers reproduce the committed `.html` byte for byte. Playwright at 390 and 1280, light and dark: no page horizontal scroll, no text outside its viewBox, no text-on-text overlap; smallest text at 390 is 10.0 px (transition, inline SVG) and 11 px (design, Mermaid, scrolling inside its frame). No DB, Docker, ports or test suite used.

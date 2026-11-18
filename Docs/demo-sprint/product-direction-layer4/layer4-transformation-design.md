@@ -73,7 +73,8 @@ flowchart LR
   V --> C["4 Choose<br/>a plan under budget,<br/>crews, deadlines"]
   C --> P["5 Prove<br/>observe the same factors<br/>after the change"]
   P --> O
-  S[("Source facts<br/>telemetry · operational records<br/>billing · receipts · plans<br/>rosters · contracts")] --> O
+  S[("Source facts<br/>telemetry<br/>operational records<br/>billing · receipts · plans<br/>rosters · contracts<br/>real, or emulated<br/>as placeholders (§4)")] -- "every leaf: evidence<br/>class + provenance" --> O
+  O -.- W["Weakest part: a node takes<br/>the weakest class and every<br/>provenance of its leaves;<br/>Emulated is never shown as<br/>Recorded, nor as benefit"]
 ```
 
 Each mechanic has one job, one identity that must always hold, and one refusal rule, and each comes from the brief. The rest of the product is these five, instantiated per vertical.
@@ -101,13 +102,15 @@ flowchart TB
   CHG --> SRV["Service delivered ≤ usable capacity in its window"]
   CST --> QTY["Purchased quantity × price<br/>(litres, kWh by tariff interval)"]
   QTY --> PHY["Physical sub-structure<br/>(necessary vs candidate running; base + k × activity;<br/>chargers in service × power × window)"]
-  SRV & CHG & REV & QTY & PHY --> LEAF[("Leaf factors<br/>each evidenced by a source fact,<br/>with factor ID, period ID, evidence class")]
+  SRV & CHG & REV & QTY & PHY --> LEAF[("Leaf factors<br/>each evidenced by a source fact,<br/>with factor ID, period ID,<br/>evidence class and provenance")]
   PLAN["Plan values at every factor"] -.-> OUT
   BND[("Obligation bounds on factors<br/>critical supply · temperature limits ·<br/>departures · operating limits")] -.-> SRV
   RGT[("Rights: who bears a cost factor, and when")] -.-> CST
+  FND["Findings: conditions on factor keys<br/>deviation from plan · bound at risk ·<br/>latent factor; never an outcome value"] -. "attach at a factor" .-> PHY
+  FND -.-> CHG
 ```
 
-*The same shape is filled in by each asset type with its own factors, levers and limits (§3.1a). In the mini-grid instance, for example, the physical sub-structure splits litres into necessary running, candidate running and litres not explained by the generator model. How much of the candidate running an option could avoid is not a node of this observed structure: it is that option's effect, computed in Evaluate (§2.3), and it differs by option.*
+*Findings, obligation bounds and rights all attach at factors, never at the outcome node (§2.2, §2.3). The same shape is filled in by each asset type with its own factors, levers and limits (§3.1a). In the mini-grid instance, for example, the physical sub-structure splits litres into necessary running, candidate running and litres not explained by the generator model. How much of the candidate running an option could avoid is not a node of this observed structure: it is that option's effect, computed in Evaluate (§2.3), and it differs by option.*
 
 Three further elements sit on the structure, each from the brief:
 - **Plans are declared at factor level** (S2's "plan assumptions; service volumes; tariffs/contract rates; purchased energy/fuel"), so the planned outcome is the same structure evaluated on planned factors.
@@ -190,7 +193,7 @@ Three orderings are kept apart, as the commission requires: **triage** (what to 
 
 **Different defensible allocations** (brief EV-C5: "COO/CFO/CEO see same evidence but different defensible allocations") are produced by the switches, set by a person — a different budget, a stricter crew limit, a different assumption such as whether a tariff applies — over one evidence base. They are never role views, and each setting's plan shows its reasons.
 
-**Refusal M4.** The plan never sums different evidence classes; restored charges, potential credits and covered asset value are listed beside the plan, not added to it.
+**Refusal M4.** The plan never sums figures of different kinds (modelled, at stake, verified); restored charges, potential credits and covered asset value are listed beside the plan, not added to it.
 
 ### 2.5 Mechanic 5 — Prove: observe the same factors after the change
 
@@ -210,11 +213,32 @@ Rights verify by **state**, each a recorded event set by a person: potential →
 
 **Refusal M5.** Insufficient evidence is a verdict ("not proven yet"), not a pass.
 
+**The grounded chain, on the structure.** Observe, Evaluate, Choose and Prove, as the user meets them, from a Finding to its verdicts. Every element is keyed to the factor IDs of one structure registry: a Finding through its observer row, a decision through its factor key, options through the factors they change, bounds through the factors they limit, an Action through its chosen option, verdicts through the factors of the frozen prediction. How today's constructs take these places is §8.5.
+
+```mermaid
+flowchart TB
+  REG["One structure registry<br/>leaf factors from source facts → factors → outcome state, computed upward<br/>factor ID · period ID · unit · plan · bounds · observer rows · levers"]
+  REG -- "leaf factors" --> OB["Observer, through its observer row<br/>dispatch · fuel balance · excursions · faults"]
+  REG -- "structure read" --> SR["Condition with no physical observer<br/>computed from the structure"]
+  OB --> F["Finding<br/>a condition on a factor key (site, factor ID, period):<br/>deviation · bound at risk · latent factor<br/>claims its condition in the factor's unit;<br/>never an outcome value or money"]
+  SR --> F
+  F -.- TH["Thread<br/>history of the physical<br/>observation on the same key"]
+  F --> LV{"Lever declared<br/>for the factor?"}
+  LV -- "no" --> INV["Stays a Finding<br/>next step: investigate"]
+  LV -- "yes: the Finding is<br/>the frozen trigger" --> DEC["Decision on the factor key<br/>options = factor changes, always with no action;<br/>each valued against no action, checked<br/>against bounds, given a disposition"]
+  DEC -- "Choose: the plan takes<br/>one option per decision" --> CO["Chosen option<br/>a commitment: frozen prediction<br/>on its factors and bounds"]
+  CO -- "decision-to-carrier link" --> ACT["Action, which the user acts on and tracks<br/>carrier: trial · domain action ·<br/>work case · supplier claim"]
+  ACT -- "after the change" --> VD["Three verdicts on the same factors<br/>operational · economic · causal"]
+  VD -. "seen only as observed<br/>factors of later periods" .-> REG
+```
+
+*Nothing in the chain carries an outcome value of its own: the Finding states a condition on a factor, the decision values factor changes against no action, the Action carries the chosen option and its frozen prediction, and the verdicts observe the same factors afterwards. Gross exposure stays an at-stake bound on its factor (§2.3).*
+
 ### 2.6 Cross-cutting invariants (brief L1.2 invariants, made general)
 
 1. Every number on screen is a node of a declared structure with period, evidence class in words, coverage and lineage (source within two interactions).
 2. Unknown is never zero; an unobserved site is excluded and named.
-3. Different evidence classes are never summed: Recorded, Modelled, At stake and Verified sit side by side.
+3. Figures of different kinds are never summed: Recorded, Modelled, At stake and Verified sit side by side. Inside the structure a node composed from mixed leaves takes the weakest class and carries every provenance beneath it; a benefit total admits only field records.
 4. A factor appears once (shared factor and period IDs); every outcome that depends on it references it.
 5. The system evaluates and recommends; a named person decides, approves and records rights events.
 6. No legal or insurance conclusion is drawn: "Coverage is decided by the supplier or insurer."
@@ -345,6 +369,28 @@ The structures of §2.1 end in leaf factors, and each leaf factor needs one fami
 4. **Identity is effective-dated**: meter → customer, serial → asset, idTag → bus, batch → customer; late records revise closed periods.
 5. **Rights and permissions are hard constraints**: tenant isolation at ingestion, customer data minimisation (customer identifiers are personal data), no provider API assumed without contractual access.
 
+**Emulator, canonical contract, downstream** (decision 2; `integration-source-to-canonical-design.md` §7.2–§7.3). The emulator and the real source of a type feed the same adapter and the same canonical records; one contract test runs on both.
+
+```mermaid
+flowchart TB
+  EM["Emulator: a placeholder source<br/>native-shape files, values from the manifest;<br/>encodes nothing a real source of its type lacks<br/>provenance: source-emulated"]
+  RL["Real source<br/>bench: a device or a sample export<br/>pilot: the operator's export<br/>bench-tested · field-integrated · observed-financial"]
+  CT{{"Contract test, one suite per source type<br/>on the emulator's output and the pinned sample:<br/>kinds · required fields · units · four clocks ·<br/>idempotency key · disorder · refusals;<br/>same content → same canonical records<br/>and the same factor values"}}
+  CT -. "runs on" .-> EM
+  CT -. "runs on" .-> RL
+  EM --> AD
+  RL -- "replaces the emulator<br/>once it passes" --> AD
+  subgraph AD["Adapter, on the same authenticated intake"]
+    direction LR
+    TR["Transport<br/>emulator's file writer → upload<br/>or scheduled drop; API later"] --> PA["Parser<br/>bytes → typed rows<br/>pure, versioned; the same"] --> PF["Profile<br/>columns · units · timezone · personal data<br/>illustrative → pinned to the operator's sample"]
+  end
+  AD --> CR[("Canonical records<br/>CHARGE · RECEIPT · PLAN_LINE · EXPENSE …<br/>telemetry: evidence ledger<br/>provenance on every revision")]
+  CT -. "checks" .-> CR
+  CR --> DS["Downstream, unchanged<br/>leaf factors · structure · observers · Evaluate · screens<br/>branch only on labels, coverage and the benefit gate"]
+```
+
+*From emulator to real source only transport and profile change; the parser, the canonical records, the observers and the structure stay. A real adapter is admitted only when it passes; the replaced emulator stays only as the contract test's fixture.*
+
 **Minimum pilot asks per vertical** (five to seven source categories, stated in the pilot request on screen): mini-grid — EMS export, meter register, billing export, settlement statements, fuel records, plan, one asset's contract set; cold — storage ledger, energy bills, chamber log, invoices/receipts, QA notes, plan, refrigeration contract; EV — CPMS log, roster, utility invoice, service tickets, plan, charger warranty/SLA.
 
 ---
@@ -391,7 +437,7 @@ Each mechanic needs specific computations. Deterministic first: every first-demo
 1. **The loop is the information architecture, and outcomes are always shown with their factors.** The Portfolio's sections follow Observe → Evaluate/Choose → Prove, with coverage beside them; no outcome appears without a route to the factors that define it and the source facts behind them. The executive questions are answered by how the information is organised, not by role filters, and they are **never printed on screen**: headings name the business content ("Contribution by site, plan against actual", "The plan for November", "Crew visits and remote changes", "Demand that adds contribution"), and each question emerges from the section that holds its answer (owner, 17 Nov). The same applies to tab and section names and to the demo walkthrough script: the presenter may talk through an executive's concerns; the screens never spell them out. Every role sees the same numbers.
 2. **Keep the product's navigation.** No new menu items. The left rail is unchanged (Portfolio, Sites, Assets, Findings, Actions, Incidents, Maintenance, Operational records, Evidence, Financials, Settings). The Portfolio keeps six tabs, judged one by one against the loop: ordered Observe → Evaluate/Choose → Prove, five owner-approved names kept and one renamed because its old name no longer describes its content (§6.2). Decisions open as drill-down pages from factor rows, site pages and the plan — like Finding and Action details today — not as a menu.
 3. **Lead with the business result, read through its factors, and the choice**: the first screen states each outcome against plan with the factors that produce it, which factors are off plan or near a bound, what the plan is and what it is expected to change. Attention comes from factors (off plan, at a bound, a new latent factor), so a risk is visible before the books close.
-4. **Evidence class in words, everywhere.** *Recorded*, *Measured*, *Calculated from records*, *Estimated*, *Quoted*, *Modelled*, *At stake, not money*, *Verified*, *Not available yet* are visible text next to every number, not colour alone. Different classes are placed side by side, never totalled.
+4. **Evidence class in words, everywhere.** *Recorded*, *Emulated*, *Measured*, *Calculated from records*, *Estimated*, *Quoted*, *Modelled*, *At stake, not money*, *Verified*, *Not available yet* are visible text next to every number, with its provenance, not colour alone. Figures of different kinds (observed, modelled, at stake, verified) are placed side by side, never totalled; a node composed from mixed leaves shows its weakest class.
 5. **Two interactions to source.** Any number opens the evidence drawer: definition, formula with values, source rows, clocks, coverage, provenance label.
 6. **Comparison always includes no action and the rejected options**, with the reason in one plain sentence; the counter-intuitive contrast ("the highest diesel user has nothing to save") is surfaced on the Overview, because that is what sells.
 7. **Switches, not scenarios menus.** Assumptions that change the plan are switches next to the plan (budget, letter of intent), and the plan visibly re-computes.
