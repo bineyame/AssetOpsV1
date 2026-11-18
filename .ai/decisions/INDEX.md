@@ -1,7 +1,9 @@
 # Decision index
 
 Decisions by ID. The former `.ai/DECISIONS.md` was split verbatim on 2026-11-18;
-its four parts concatenate, in this order, to the original (headers aside):
+at the split commit its four parts concatenate, in this order, to the original
+(headers aside; `python tools/check-split-preservation.py`). Since then only
+citation paths were rewritten (declutter steps 4 and 5, `specs/CITATION_MAP.md`):
 
 | Part | Holds | Size |
 | --- | --- | --- |
