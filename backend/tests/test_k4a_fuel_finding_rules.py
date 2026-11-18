@@ -26,7 +26,7 @@ from assetops_backend.fuel_balance import findings_service as fs
 from assetops_backend.fuel_balance.model import FuelBalanceWindow, FuelFinding
 
 REPO = Path(__file__).resolve().parents[2]
-PROBE = json.loads((REPO / ".agent" / "DIESEL-F0" / "probe-result.json").read_text(encoding="utf-8"))
+PROBE = json.loads((REPO / "host" / "fixtures" / "diesel-f0" / "probe-result.json").read_text(encoding="utf-8"))
 TZ = "Africa/Dar_es_Salaam"
 NIGHT4 = date(2026, 10, 4)
 BAND = PROBE["nights"][3]["readings"]

@@ -19,7 +19,7 @@ from assetops_backend.fuel_balance import night_text as nt
 from assetops_backend.fuel_balance.model import REASONS, STATES, FuelBalanceWindow, FuelFinding
 
 REPO = Path(__file__).resolve().parents[2]
-PROBE = json.loads((REPO / ".agent" / "DIESEL-F0" / "probe-result.json").read_text(encoding="utf-8"))
+PROBE = json.loads((REPO / "host" / "fixtures" / "diesel-f0" / "probe-result.json").read_text(encoding="utf-8"))
 TZ = "Africa/Dar_es_Salaam"
 SFC = Fraction("0.355")
 FORBIDDEN = ("theft", "stolen", "stole", "siphon", "pilfer")

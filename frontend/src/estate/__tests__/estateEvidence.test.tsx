@@ -655,7 +655,7 @@ describe("W3-02 estate Evidence root", () => {
   it("meetsMeasuredNarrowLayoutWithoutDocumentOverflow", async () => {
     // jsdom has no layout: this reads the real-browser 390 px measurements of the mounted page (capture.mjs).
     for (const state of ["positive", "partial"]) {
-      const file = `../.agent/W3-02-evidence/app-${state}.json`;
+      const file = `src/estate/__tests__/fixtures/w3-02/app-${state}.json`;
       const narrow = (JSON.parse(await readDisk(file)).results as Record<string, any>[]).find((r) => r.width === 390);
       expect(narrow, `${state} 390 measurement present`).toBeDefined();
       expect(narrow!.ready).toBe(true);

@@ -7,7 +7,7 @@ Nights 2, 4 and 6 (delivery, incident, after-phase dips): each run starts from F
 on the registered basis (product mini-grid v7, registered-kobo-publication v5), gets F0's actions through the probe's
 own hook (`probe_kisiwa_fuel.apply_actions`), and is published and accepted through a real gateway. The delivery and
 the dips are posted through `WorkService.post_operational_record` (K2). Each night is assessed by
-`FuelBalanceService` and compared with `.agent/DIESEL-F0/probe-result.json` `nights[k-1]["readings"]`.
+`FuelBalanceService` and compared with `host/fixtures/diesel-f0/probe-result.json` `nights[k-1]["readings"]`.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ pytestmark = pytest.mark.skipif(
     not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)"
 )
 
-REFERENCE = ROOT / ".agent" / "DIESEL-F0" / "probe-result.json"
+REFERENCE = ROOT / "host" / "fixtures" / "diesel-f0" / "probe-result.json"
 IMPORT_AT = datetime(2026, 9, 29, 9, 0, tzinfo=timezone.utc)
 INSTALL_AT = datetime(2026, 9, 29, 9, 30, tzinfo=timezone.utc)
 SETUP_AT = "2026-09-29T11:00:00Z"
