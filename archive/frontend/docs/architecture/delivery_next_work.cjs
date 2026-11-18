@@ -1,3 +1,4 @@
+// Retired (PIPE-1 A6): the S1-S7 next-work checker; the S1-S7 queue is built (.ai/NOW.md). Archived from frontend/docs/architecture/delivery_next_work.cjs on 2026-11-18 (declutter step 5).
 // Delivery-plan validation and the deterministic `next-work` report (PRE-S3-03).
 // Implements D-2026-10-09-owner-delivery-strategy "Selection within the active wave".
 // Pure functions over already-loaded inputs, so fixtures can exercise every refusal;

@@ -1,3 +1,4 @@
+# Retired guard (PIPE-1 A6; the v69 mock is not read, O2). Archived from frontend/docs/architecture/check_v69_ledger.py on 2026-11-18 (declutter step 5).
 """Check the planning overlays against the v6.9 screen manifest.
 
 Run from any directory: python frontend/docs/architecture/check_v69_ledger.py

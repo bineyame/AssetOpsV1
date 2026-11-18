@@ -1,3 +1,4 @@
+// Retired guard (PIPE-1 A6; v69 and S1-S7 are not read, O1/O2); the live gap catalogue is frontend/docs/architecture/check_mock_gaps.cjs. Archived from frontend/docs/architecture/check_v69_dependency_registry.cjs on 2026-11-18 (declutter step 5).
 // Validate the pilot dependency overlay against the existing mock panel inventory.
 // Run from any directory: node frontend/docs/architecture/check_v69_dependency_registry.cjs
 const fs = require('node:fs');

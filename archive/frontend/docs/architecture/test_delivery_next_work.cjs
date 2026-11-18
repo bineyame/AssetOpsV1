@@ -1,3 +1,4 @@
+// Retired (PIPE-1 A6): fixtures of the retired S1-S7 next-work checker. Archived from frontend/docs/architecture/test_delivery_next_work.cjs on 2026-11-18 (declutter step 5).
 // Fixtures for the PRE-S3-03 next-work report. Run: node --test frontend/docs/architecture/test_delivery_next_work.cjs
 const test = require('node:test');
 const assert = require('node:assert/strict');
