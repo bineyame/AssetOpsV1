@@ -1,7 +1,7 @@
 // Mock-gap catalogue validation (G-01, D-2026-10-12-mock-gap-closure-mechanism sections 1-2).
 // Pure: callers supply the parsed registry, panel contracts and (optionally) manifest screen IDs and ledger rows.
-// check_v69_dependency_registry.cjs runs it with requirePresent: true; delivery_next_work.cjs nextWork runs it with
-// requirePresent: false and never lets gaps touch candidates, scores, paths or the decision.
+// check_mock_gaps.cjs runs it with requirePresent: true. (The retired check_v69_dependency_registry.cjs did the same,
+// and the retired delivery_next_work.cjs ran it with requirePresent: false; both in archive/frontend/docs/architecture/.)
 
 const GAP_ID_RE = /^G-[a-z0-9]+(-[a-z0-9]+)+$/;
 const ELEMENT_RE = /^([a-z0-9-]+):(\d+)\.([a-z0-9-]+)$/;

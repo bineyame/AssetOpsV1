@@ -37,10 +37,11 @@ Last updated 2026-11-18.
   coordinator backup. Lanes merge `main` as in the packet's lane note.
 - Step 4a (specs to `specs/<ID>/`, owner files to `owner/`, history to
   `archive/agent-history/`, citation rewrite and `specs/CITATION_MAP.md`):
-  built on `task/declutter-04-specs-history`, packet
-  `specs/DECLUTTER/packet-declutter-04.md`, in review. Step 4b (owner summary,
-  O4) on `task/declutter-04b-owner-summary`, for the owner to confirm.
-- Next: step 5 (Docs and tools), on its own branch, reviewed and merged.
+  reviewed (ACCEPT WITH NOTES) and merged. Step 4b (owner summary, O4) on
+  `task/declutter-04b-owner-summary`, for the owner to confirm.
+- Step 5 (Docs and tools, plus the step-4 notes L1-L5): built on
+  `task/declutter-05-docs-tools`, packet `specs/DECLUTTER/packet-declutter-05.md`,
+  in review. O5 (history rewrite, worktree pruning) waits until after the demo.
 
 ## 3. Demo sprint (live product on `main`)
 
