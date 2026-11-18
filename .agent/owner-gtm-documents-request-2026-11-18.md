@@ -8,3 +8,15 @@ Context:
 - The owner's demo objective (verbatim, same day): "the primary objective of the demo is to convert minigrid, ev and colchain operator executives and decision makers to adopt the product with real value that is not offered by monitoring tools they probably have and competitors in africa".
 - The owner challenged the roadmap's effort estimates the same day: "what does really take that long to do(2-4 months), in angentic era when products are prototyped in a weekend?" The coordinator answered that build is about 3–8 weeks of the range, the rest being rework, decision waiting, real-data adaptation and padding; that a diagnostic on one operator's data could take days with the existing evaluator; steps A+B plausibly 2–3 weeks; the mini-grid core plausibly 6–8 weeks if decisions are batched and the first operator's data is not badly messy; first proved change still about months 6–7 because of the pilot calendar.
 - Adopted workflow: D11 (W1–W9), roadmap §5.
+
+## Owner follow-up (verbatim), 2026-11-18
+
+The coordinator asked whether a website already exists or the site starts from nothing. The owner replied:
+
+> i do have a website that is under development based on the previous version of the product
+
+Location and access not yet given (coordinator has asked).
+
+Owner, later the same day (verbatim):
+
+> the wesbite path in this machine is the following ; /opt/asseteconsite/assetecon, put your recommendation under docs there once you see what exists
