@@ -24,6 +24,8 @@ $requiredFiles = @(
     ".ai/PLANNING_GUIDANCE.md",
     ".ai/ROLE_CONFIG.md",
     ".ai/DECISIONS.md",
+    ".ai/decisions/INDEX.md",
+    ".ai/state/INDEX.md",
     ".ai/ARTIFACT_INDEX.md",
     ".claude/commands/assetops-architect.md",
     ".claude/commands/assetops-planner.md",
@@ -58,7 +60,7 @@ if (Test-Path -LiteralPath ".ai/START_HERE.md") {
 # Every agent reads .ai/ACTIVE_CONTEXT.md in full, so its growth is paid on
 # every task. It was trimmed once and grew back to nearly four times the
 # trimmed size in six slices, because per-slice records accumulated in it.
-# Those belong in .ai/CODE_STATE.md, which is read one entry at a time.
+# Those belong in the .ai/state/ area files, which are read one entry at a time.
 #
 # The cap is the file's own stated rule. Raising it is a decision to make
 # deliberately, not a way to land a task.
@@ -69,7 +71,7 @@ if (Test-Path -LiteralPath ".ai/ACTIVE_CONTEXT.md") {
     if ($activeContextLines -gt $activeContextLineCap) {
         Add-Failure (".ai/ACTIVE_CONTEXT.md is $activeContextLines lines, over " +
             "its $activeContextLineCap-line cap. It is a routing document: move " +
-            "per-slice records into .ai/CODE_STATE.md rather than raising the cap.")
+            "per-slice records into the .ai/state/ area files rather than raising the cap.")
     }
 }
 

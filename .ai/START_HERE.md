@@ -4,7 +4,7 @@ A router. It says where the current truth is; it does not hold it.
 
 Current milestone: demo sprint (live product on `main`) running alongside the
 Layer 4 product-direction design, which awaits owner decisions. Repo declutter
-in progress (step 1 of 5). Detail: `.ai/NOW.md`.
+in progress (step 2 of 5). Detail: `.ai/NOW.md`.
 
 Planning status: the S1-S7 queue is built; new product work waits on the owner's
 Layer 4 decisions (Q1-Q16, D1-D12). Demo-sprint fixes are sequenced by the
@@ -55,17 +55,18 @@ it does not authorise a claim the data cannot support. Show a missing source as
 6. Existing code and tests.
 
 When two conflict, follow the higher one and record the consequence as a
-decision (`.ai/DECISIONS.md` or the active rulings file).
+decision (`.ai/decisions/`, or the active rulings file, plus an index line).
 
 ## Where things are (find on demand)
 
 - Active work: `.ai/NOW.md`. Coordinator state: `.agent/coordinator-handoff.md`.
-- Decisions: `.ai/DECISIONS.md` (by ID); demo-sprint rulings
-  `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (D-SR.*, D-ANY.*, D-DATA.* ...).
-- Built state: `.ai/CODE_STATE.md` (by slice ID).
+- Decisions, every ID family (dated, D-SR, D-E5, D-ANY ...): grep the ID in
+  `.ai/decisions/index-*.md`; how-to in `.ai/decisions/INDEX.md`.
+- Built state: `.ai/state/INDEX.md`; grep the slice ID in `.ai/state/index-*.md`.
+- Specs (build sheets and specs, still in `.agent/`): `specs/INDEX.md`.
+- Owner feedback by status: `owner/INDEX.md` (current files listed there).
 - S1-S7 queue tables (machine-read by guards): `tasks/README.md`.
 - UI defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
 - Tests: `backend/TESTING.md`. Guards: `tools/check-all.ps1`.
 
-Indexes for decisions, state, specs and owner files arrive in declutter step 2;
-until then, grep by ID.
+`python tools/check-decision-index.py` (in check-all) keeps the indexes whole.

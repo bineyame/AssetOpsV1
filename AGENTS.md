@@ -17,10 +17,12 @@ Stop there. Everything else is found on demand.
 
 ## Find on demand
 
-- Decisions: `.ai/DECISIONS.md` and the rulings files that `.ai/NOW.md` names,
-  by decision ID (grep the ID; never read the file whole).
-- Built state: `.ai/CODE_STATE.md`, one entry at a time (grep the slice ID).
-- Owner words: `.agent/owner-*.md`, verbatim, by the file a spec or NOW cites.
+- Decisions: grep the ID in `.ai/decisions/index-*.md` (`.ai/decisions/INDEX.md`
+  explains), then open the named file at that ID; never read a part whole.
+- Built state: grep the slice ID in `.ai/state/index-*.md`, then read that one
+  section of the area file.
+- Specs: `specs/INDEX.md`. Owner words: `owner/INDEX.md` (files verbatim in
+  `.agent/owner-*.md`), by the file a spec or NOW cites.
 - Product glossary and old boundaries: `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md`,
   only where `.ai/START_HERE.md` says they still apply.
 

@@ -26,7 +26,9 @@ Last updated 2026-11-18.
   `.agent/owner-repo-declutter-request-2026-11-18.md`.
 - Step 1 (start path, text only): reviewed (ACCEPT WITH NOTES, notes fixed)
   and merged to `main` from `task/declutter-01-on-main`.
-- Next: steps 2 (indexes; split DECISIONS and CODE_STATE), 3 (evidence out of
+- Step 2 (indexes; DECISIONS and CODE_STATE split verbatim): built on
+  `task/declutter-02-indexes`, packet `.agent/packet-declutter-02.md`, in review.
+- Next: steps 3 (evidence out of
   the repo, 2-week retention), 4 (specs, owner files and history), 5 (Docs and
   tools). Each on its own branch, reviewed and merged before the next.
 

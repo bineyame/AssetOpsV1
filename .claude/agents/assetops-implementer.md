@@ -15,7 +15,8 @@ what is specific to the task.
 2. The spec the dispatch names, completely in its binding part: every
    acceptance criterion, seam, check and scope limit binds.
 3. Only the sections and mock screens the spec names. Find built state
-   (`.ai/CODE_STATE.md`), decisions and rulings by ID, never whole.
+   (`.ai/state/index-*.md`), decisions and rulings (`.ai/decisions/index-*.md`)
+   by ID, never whole.
 4. The `tools/checks/` modules for the seams you touch, before writing code, so
    the work lands in a shape the guards accept.
 
@@ -63,6 +64,7 @@ handoff.
   attribution lines. Evidence outside the repo (`.ai/RULES.md` §9).
 - Review packet `.agent/<task-id>-review-packet.md` per `.ai/RULES.md` §5.
 - Task `Status: in_review`, left in `tasks/`.
-- A short `.ai/CODE_STATE.md` entry (what the slice settled and left open);
+- A short built-state entry in the area file under `.ai/state/` plus its
+  `index-*.md` line (what the slice settled and left open);
   update `.ai/NOW.md` only if the lane's state line changed.
 - Say whether user review is needed, from `USER_REVIEW_REQUIRED`.
