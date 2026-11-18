@@ -12,9 +12,19 @@
 **/*-recapture/
 **/*-screens/
 **/*-shots/
+**/*-wip/
+**/*-probe/
 *.pid
 *.err
 *.log
+*.out
+*-log.txt
+*-last.txt
+# Session transcripts; a deliberate fixture under fixtures/ or __fixtures__/ stays addable.
+*.jsonl
+!**/fixtures/**/*.jsonl
+!**/__fixtures__/**/*.jsonl
+!contract-fixtures/**/*.jsonl
 Docs/**/*.html.tmp
 
 # Writable user-authored configuration store. Site documents a user creates

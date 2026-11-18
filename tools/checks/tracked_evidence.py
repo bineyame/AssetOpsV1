@@ -14,7 +14,8 @@ Allowed folders (rules 3 and 4): `frontend/mockups/`, `frontend/public/`, `Docs/
 
 MAX_BYTES is 1 MiB. Outside the allowed folders the largest tracked files are a 0.68 MB build sheet and a 0.36 MB
 registry JSON, while evidence bulk ranges from 0.1-0.5 MB screenshots (caught by rule 3) to 4.4 MB session
-transcripts; 1 MiB leaves about 50% headroom over legitimate text and still catches transcripts and dumps. Test data
+transcripts; 1 MiB leaves about 50% headroom over legitimate text and still catches transcripts and dumps. Lower it
+after declutter step 4 moves the large build sheets (review L3). Test data
 colocated in `__tests__/` (e.g. frontend/src/shell/__tests__/kobo-degraded-evidence-deltas.json, 1.38 MB) is allowed.
 
 Sizes are read from the index (`git cat-file --batch-check`), so a staged file is checked as committed.
