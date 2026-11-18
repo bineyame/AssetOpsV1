@@ -182,13 +182,19 @@ round the Architect folds rulings into one current unit card.
   files stay where they are today until declutter steps 2 and 4 give them
   indexed homes; `.ai/NOW.md` will say when that changes.
 - **Evidence (owner O3, 2026-11-18).** Generated evidence (screenshots,
-  captures, audit JSON, logs) goes outside the repo, under
-  `/opt/assetecon/evidence/<task>/<run>/`, and is kept for 2 weeks, then
-  deleted. A packet cites the run by path with a 5-10 line summary. Evidence is
-  never committed, except a deliberate test fixture under a fixtures folder.
-  Existing in-repo evidence moves in declutter step 3; until then, files that
-  code or tests read stay in place. To confirm: whether the 2 weeks run from
-  capture or from slice acceptance.
+  captures, audit JSON, logs, transcripts) is written outside the repo, to
+  `/opt/assetecon/evidence/<task>/<run>/`, never into the tree or `.agent/`.
+  A packet cites the run by path with a 5-10 line summary. Only a deliberate
+  test fixture under a `fixtures/` or `__fixtures__/` folder is committed;
+  `tools/checks/tracked_evidence.py` (check-all) fails otherwise. The evidence
+  untracked in declutter step 3 is in
+  `/opt/assetecon/evidence/repo-untracked-2026-11-18/` (paths kept;
+  `MANIFEST.tsv` holds size, sha256, class and last commit date).
+- **Retention: 2 weeks from capture.** `python tools/evidence-retention.py`
+  lists items older than 14 days (manifest date, else mtime) and their size;
+  it deletes only with `--delete` and a typed confirmation. The coordinator
+  asks the owner before the first purge. To confirm: whether the 2 weeks run
+  from capture or from slice acceptance.
 - **Caps.** AGENTS, START_HERE, NOW: 1.5k tokens each. ROLE_CONFIG: 3k.
   RULES: 4k. A role brief: 1.5k. An index: 2k. A task spec's binding part: 15k.
   A packet: 3k. A review round: a summary of at most 15 lines plus findings.
