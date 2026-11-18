@@ -3252,3 +3252,123 @@ All four can be fixed on the branch without changing direction. A verification r
 
 - D15 turns the diagnostic into the first customer onboarding: replay model, telemetry intake, verification family and field-evidence admission. The analyst-and-owner effort for that (go-to-market `commercial-plan.md` §4.1) is assumed to be about half a day.
 - If the structure sitting slips, lane 2's early work (3a and 4a) either waits, and V2 and V3 lose their gain, or is built ahead of W1.
+
+---
+
+## Review of design intro and §0 (68c3d9934)
+
+Reviewer: fresh Claude reviewer (did not author the work). Discovery depth (W5): the owner request and follow-up, the 17 Nov direction feedback and `.ai/RULES.md` read first; §0, the three figures and their generator read in full; every code citation in §0 re-read at its file:line; the code then searched for capabilities §0 does not mention. The author note in `REVIEW-response.md` was read last. Line references: `D` = `layer4-transformation-design.md` at `68c3d9934`; code paths under `backend/assetops_backend/` unless they start with `frontend/`.
+
+**Verdict: REVISE (text and figure tags only; no change to the mechanics or figures' values).**
+- The introduction is the owner-approved text. The only changes are the voice change and the evidence-rule rewording, and the meaning is kept.
+- Most of §0's claims check out against the code: no billing, receipt, money-plan or invoice record; every money figure Estimated or Modelled; the fixed −5 step; only the productive load calculates; the change's cost fixed at 0; the mini Optimize card on the window's last day; nodes computed but rendered for Grow only. Testing the intro's "drifted" claim, and finding the gap is in means, not direction, is honest.
+- The sceptic's test fails in one direction. §0 leaves out the existing capability that comes closest to Layer 4's factor view (H1). It also leaves out today's post-trial money check (M1) and understates today's fuel money (M5).
+- The must-change reasoning overstates one item (M2). The closing calls the change small while 22 rework rows sit under "repurposable" (M3). Several real gaps are not in the lists (M4).
+- Mechanical checks pass: manifest 3,747, both renderers byte-identical, the pointer is correct, and the figures are legible.
+- A verification re-review of H1 and M1–M5, with their sweeps, is enough.
+
+### High
+
+**H1 (advocacy: strength omitted). Today's site outcome board already sets out, per outcome row, what drives it, what is wrong, what can be done, what is in hand and what was done before, and §0 never mentions it.**
+- *Where:* D:159-169 (presentation strengths), D:189-195 (the ceiling and its partial answer), D:199-204 (lists), D:87-89 ("none composes one outcome from others"), Figure 0.3.
+- *What the code has:*
+  - Every outcome row on the site Overview, for all three verticals, renders five columns: "What drives it", "Issues", "What can be done", "Already in hand" and "Earlier interventions" (`frontend/src/sites/OutcomeBoard.tsx:42-48`, `:262-330`).
+  - Each row also has a "Must not harm" line (`:265-272`).
+  - The contributors are server-built per vertical (`site_outcomes/board.py:276` `Contributor`; for example mini Optimize: generator use in avoidable and unclear minutes, fuel, fuel price, `site_outcomes/mini.py:1156-1177`; cold Cost: maintenance effectiveness, repair and call-out, cooling energy, `site_outcomes/cold.py:366-384`). Each carries a confidence chip and a link, and missing drivers are stated ("Repair costs are not connected yet", `cold.py:380`).
+  - Options link to the what-if, the trial and the Foundation change (`mini.py:634-639`).
+  - `grep -i contributor` finds no hit in the design, the reuse matrix or the transition document.
+- *Why it matters:* this is today's outcome → drivers → issues → lever → in hand → earlier result layout, the shape the owner asked the mechanism to have. It partly answers the presentation question "which factor is moving it", per site and in words, though not quantified, not as plan against actual and with no money attribution. Leaving it out understates today and hides the most obvious repurposable presentation element. That is the advocacy the owner's follow-up warns against.
+- *Fix:*
+  - Add the board to §0.3's strengths and to "what today answers in part" ("per site, which drivers bear on each outcome and their state, in words; not quantified, not against a plan").
+  - Add it to the repurposable list: contributors become factor rows, "What can be done" becomes the options entry point, "Must not harm" becomes the bound display, and "In hand" and "Earlier" become Actions and verdicts.
+  - Qualify D:88: no record composes an outcome *numerically*, while the board names its drivers as text.
+  - Add the board to Figure 0.3's left panel.
+  - Sweep: add a row to the matrix's F section and recount §K; §0.4's counts follow.
+
+### Medium
+
+**M1 (advocacy: strength omitted). §0.2 omits the existing modelled money check after a verified trial and the credit rule.**
+- *Where:* D:143 ("did the money follow … cannot be stated, even for a verified change"), D:145 (partial answer: operational verdict only), D:152, D:154, Figure 0.2.
+- *What the code has:*
+  - `financials/trial_fuel_comparison.py:1-13` computes the modelled fuel cost per kWh of demand before and after a verified trial (`MODELLED_IMPROVEMENT` / `MODELLED_NO_IMPROVEMENT`, labelled "Modelled change after the trial · not realised savings"). Under `/2` it computes a priced total for the trial hour.
+  - `outcomes/credit.py:1-3` credits money only when that check is `MODELLED_IMPROVEMENT` with a stored priced positive total *and* the verdict is `VERIFIED`.
+  - The Portfolio lists those results and never sums them (`estate/portfolio.py:679-682`; Assure lines at `site_outcomes/read.py:952-955`). The matrix knows this code (row at `repo-reuse-and-gap-matrix.md:173`); §0 does not.
+- *Why it matters:* "did the money follow" is partly answered today: modelled, not realised, and not net, because the change's cost is fixed at 0 and "stated beside the change and never subtracted" (`trial_fuel_comparison.py:6-7`). The sentence at D:143 is true only because of the word "net".
+- *Fix:*
+  - In "answers in part", add "after a verified trial, a modelled change in fuel cost per kWh, credited only when verified".
+  - Add the cost check and the credit rule to the repurposable list as the seed of the economic verdict.
+  - Keep the must-change item "cost set to 0".
+  - Add the cost check to Figure 0.2's trial box.
+
+**M2 (advocacy: gap overstated). The fixed −5 reserve step does not mislead; it blocks.**
+- *Where:* D:151, and its duplicate at D:153 (repurposable).
+- *What the code does:*
+  - Today's recommendation states its own limits: "A five-percentage-point battery-reserve trial chosen by a fixed rule. It tests whether the reserve setting matters; it does not say the reserve caused this finding and does not predict less generator running time, any saving or any safety effect" (`actions/reserve_trial.py:42-45`). The limitation travels with it to the screen (`actions/service.py:351`, `:693`).
+  - It never claims to be the best choice, so "cannot be shown as the best choice" argues against a claim that today does not make.
+  - "The demo shows a month where it breaks the dawn bound" is the Layer 4 design world's replay, not today's behaviour. Today a trial is eligible only with the battery more than 10 points above the reserve in the cited segment (`reserve_trial.py:3-8`).
+- *Fix:*
+  - State the reason as "blocks: one fixed option per Finding, compared with nothing, including no action". Cite the limitation text as a strength.
+  - Mark the dawn case as the design world's illustration.
+  - Keep the item in one column only, or say plainly why it sits in two (its qualification checks are reused; its role as the only recommendation is not).
+
+**M3 (advocacy: conclusion shaped by the column definitions). "The must-change list is short" (D:211) while 22 rework rows sit inside "repurposable".**
+- *What is wrong:*
+  - "Must change" is defined narrowly as "misleads or blocks" (D:36). "Repurposable" absorbs every rework row: D:210 counts 40 reuse, 21 extend and 22 rework as repurposable.
+  - Matrix §K puts 7 of 13 Evaluate rows and 6 of 21 UI rows in rework: the outcome map and evaluator, the strategies, CHECKED, scenarios and alternatives, the reserve path, the Portfolio cards, the pulse counts, Outcomes by site, What changed and the objective declaration.
+  - Read with item 3 ("correct the few figures"), the close suggests a smaller change than the matrix records.
+- *Why it matters:* the owner asked for what "should change in a way that makes clear objective sense". Substantial rework presented as reuse is the mirror image of manufacturing a reason.
+- *Fix:* in §0.4, separate kept and extended (61 rows) from reworked (22, concentrated in evaluation and the Portfolio tab bodies). Say that the must-change column names only what misleads or blocks, and that the rework is where the product's meaning changes. That is the matrix's own reading (`repo-reuse-and-gap-matrix.md` §K, last paragraph).
+
+**M4 (accuracy: gaps omitted). Three real gaps are missing from the lists, and one strength is overstated.**
+- (a) No operator approval exists. Every trial command is a SYSTEM demonstration, and "no operator approval is recorded" (`actions/lifecycle.py:44-55`; matrix row 156, rework). This blocks "One plan fits the operator's budget…" and "Action carries the chosen option". It belongs in §0.2's must-change or missing list.
+- (b) D:112 says the three families are verified "without breaking a guardrail". The midday mill shift has none (`actions/verification_families.py:175` `"guardrails": {}`). Qualify the sentence.
+- (c) Cold: today has no cooling energy meter (`site_outcomes/cold.py:72`, `:382`), and repair costs are not connected (`cold.py:380`). The Kirinyaga case (D:93) names only occupancy, yet its "5,000 kWh metered" is also not held today. Add both to §0.1's missing list. The O&M and staff costs in the mini-grid structure (Figure 0.1) also have no record today; say whether "commercial records" covers them.
+
+**M5 (advocacy: strength understated). Today already puts money on both fuel components, as modelled ranges.**
+- *Where:* D:91 ("in operational terms") and D:41.
+- *What the code has:*
+  - Candidate running carries the possible extra fuel cost (`avoided_cost@1`).
+  - Unexplained fuel carries its own priced range per night, "a modelled range, shown on its own" (`fuel-residual-1`; `site_outcomes/mini.py:202-203`, `:920-936`), listed on the Protect card (`site_outcomes/read.py:957-960`).
+- *Why it matters:* the fuel side of the data ceiling question is partly answered in money today: as ranges, per Finding or night, never summed and not against a plan. "Operational terms" understates that.
+- *Fix:* say so in D:91. In D:41, list the unexplained-fuel range beside the possible extra fuel cost. Add `fuel-residual-1` to the repurposable list as the priced unexplained-litres leaf.
+
+### Low
+
+**L1 (accuracy) Citations.**
+- D:191 cites `chain/read.py:190`, which is `lead_finding`. The last-day rule is `window_day` (`chain/read.py:138-146`), applied to mini sites in `site_outcomes/read.py:676-682`.
+- D:193 cites `OutcomeBoard.tsx:118`, the `GROW_PARTS` constant. The Grow-only gate is `:238` and `:263`.
+
+**L2 (accuracy) Figure tags disagree with the text.**
+- Figure 0.2's "Trial, then operational verdict" box lists two must-change items (the cost set to 0; positive evidence only simulated or authored) but is tagged "kept as the operational verdict".
+- "One recommendation" is tagged "one option generator", although D:151 puts it under must change.
+- Figure 0.3's Grow card is tagged "kept, with its factors". Its total includes the EV estimated charging income (`chain/vocabulary.py:323` `INCOME_LABELS`), which D:202 lists as must change.
+- The dashed style means "not held", "must change", "repurposable what-if" and "rejected option" in different places, and there is no legend.
+- *Fix:* split or retag the boxes so that each of today's elements carries exactly one of kept, re-keyed or must change, and add a one-line legend.
+
+**L3 (accuracy) Embakasi is not in today's product.** D:197 says "Today its Charger use outcome still carries…". The code has no captive-fleet notion (no hit for "captive"). Today's depot (`outcomes/catalogue.py:57`, "Buses ready for service") is the one that carries the estimate. Reword it as today's depot. Part of the fix is *missing* (a declared business model per site), not only *must change*.
+
+**L4 (advocacy) The presentation ceiling question fails mostly on data,** which D:189 admits ("part of the reason is data"). A fairer presentation test is a question whose data today computes but hides. For example: "What did generator running that was not needed cost Kobo over these 30 days?" Today the answer is one Finding's figure on the last day. Consider adding or substituting it.
+
+**L5 (advocacy) Headroom as Grow "potential" (D:98, D:203).** It is shown as a separate "Potential" part, never added to "Estimated income" (`OutcomeBoard.tsx:118`), with basis `per_hour_of_use`. "Misleads" is mild. Say that it is labelled apart, and that the change is to its category (capacity, not revenue).
+
+**L6 (accuracy, optional) Intro wording.** "Figures of different kinds are never added together (a total built from mixed evidence takes its weakest class…)" can read as a contradiction. The pack's rule (D:453) says "inside the structure a node composed from mixed leaves…". "(inside the structure, a node built from mixed evidence…)" keeps the owner's meaning and removes the apparent conflict.
+
+### The author's open choices
+
+- **§0 before the mechanics:** keep it there. It is evidence for the introduction, it says it does not shape the mechanics, and it borrows only two terms. Its ceiling answers use the design world's values, and the text says so.
+- **The must-change lists:** not complete, but not hiding much once M2–M4 are applied. The bigger risk is the framing (M3), not the list length.
+- **The ceiling questions** are realistic executive questions. The data and processing questions are fair. The presentation question needs L4.
+- **The closing (D:208-220)** follows from the lists, apart from M3's framing and item 3's "few", which should follow the corrected count.
+
+### Checks run (this review)
+
+- `python3 check_manifest.py`: `3747 checks passed, 0 failed`.
+- `render_design_html.py` and `render_product_transition_html.py` re-run into scratch: both byte-identical to the committed `.html` (`cmp` silent).
+- Transition pointer: `product-transition-and-roadmap.md:55` points to design §0. §1.2 (`:57`), §3.6 (`:359`), §3.7 (`:397`) and Appendix C (`:689`) exist.
+- Figures: `motivation_figures.py` reads every Kobo value from `derived-values.json` (`KP`, `KA`, `OPT`). The values checked against the file: contribution 1,445 and 883; candidate 0 → 330 L; unexplained 0 → 120 L; necessary 700 → 730 L; diesel 1.25; 1,133.50 = 883 + 250.50.
+- Playwright on the design HTML at 390 and 1280 px, light and dark: three figures, no horizontal overflow. The smallest SVG text box is 14.0 px at 390 px and 19.0 px at 1280 px. Screenshots, in the scratchpad only, are legible in both themes.
+- Not run: test suites, databases, Docker, ports 5490/8990 (not needed for a document review).
+
+### Residual risk
+
+- Once H1 is in the record, the visible-first path (transition §3.6–§3.7) may find that the board's five columns are a cheaper first slice than a new factor view. The ordering there should be re-read after H1, not only §0.
