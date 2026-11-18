@@ -14,3 +14,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-18 `owner-product-transition-request-2026-11-18.md` Product transition and roadmap document · current — roadmap basis for Layer 4 and D11
 - 2026-11-18 `owner-repo-declutter-request-2026-11-18.md` Repo declutter; v70 + v72 style; D11 · current — declutter in progress
 - 2026-11-18 `owner-sitting1-answers-2026-11-18.md` Answers to open-question items 1-12 (D13, D14, TW23, OD-4, OD-6, TW11, TW7, C4; D1, D15 need context; TW3 after pack review) · current — sitting-1 answers in progress
+- 2026-11-18 `owner-d1-engagement-path-2026-11-18.md` D1 revised: call → alignment → deep-dive → integration pack + pilot → monitor → SaaS; file-export value early; pilot fee/credit · current — governs engagement path
