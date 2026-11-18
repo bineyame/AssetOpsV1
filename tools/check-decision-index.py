@@ -6,7 +6,8 @@
    A dated token also resolves when it is the start of an indexed ID: line-wrapped
    citations (`D-2026-10-09-pre-s3`) and bare dates (`D-2026-10-09`) are common.
    File names such as `.agent/D-SR63-67-review.md` are not citations.
-2. Every file an index names exists; a `file:line` pointer's line holds the ID.
+2. Every file an index names exists and holds the IDs indexed to it. A `file:line`
+   pointer whose line no longer holds the ID is a note, not a failure (live files grow).
 
 Usage: python tools/check-decision-index.py [--self-test]
 """
@@ -30,6 +31,7 @@ INDEXES = {  # index glob -> folders a bare file name resolves against, in order
     "owner/INDEX.md": [".agent", "owner"],
     "owner/index-*.md": [".agent", "owner"],
 }
+WARNINGS: list[str] = []
 ID_LINE = re.compile(r"^- `([^`]+)` .* · ([^ ·]+?)(?::(\d+))?$")
 FILE_TOKEN = re.compile(r"`([A-Za-z0-9_.-]+\.(?:md|html|txt))`|· ([A-Za-z0-9_.-]+\.md)(?::\d+)?$")
 
@@ -37,7 +39,7 @@ FILE_TOKEN = re.compile(r"`([A-Za-z0-9_.-]+\.(?:md|html|txt))`|· ([A-Za-z0-9_.-
 def tracked_citations(root: Path) -> dict[str, set[str]]:
     out = subprocess.run(
         ["git", "-C", str(root), "grep", "-I", "-o", "-P", GREP, "--",
-         ".", ":(exclude).ai/decisions/index-*.md"],
+         ".", ":(exclude).ai/decisions/index-*.md", ":(exclude)tools/check-decision-index.py"],
         capture_output=True, text=True, check=False)
     if out.returncode not in (0, 1):
         raise SystemExit(f"git grep failed: {out.stderr.strip()}")
@@ -83,8 +85,10 @@ def indexed(root: Path, planted: str = "") -> tuple[dict[str, tuple[str, str | N
                     if at:
                         lines = text.splitlines()
                         held = int(at) <= len(lines) and (ident in lines[int(at) - 1] or stem in lines[int(at) - 1])
-                        if not held:
-                            problems.append(f"{rel}:{n}: `{ident}` is not on {name}:{at}")
+                        if not held and ident not in text and stem not in text:
+                            problems.append(f"{rel}:{n}: `{ident}` does not occur in {name}")
+                        elif not held:  # the file grew above the line: a stale pointer, not a lost decision
+                            WARNINGS.append(f"{rel}:{n}: `{ident}` moved off {name}:{at}")
                     elif ident not in text:
                         problems.append(f"{rel}:{n}: `{ident}` does not occur in {name}")
     return ids, problems
@@ -130,6 +134,8 @@ def main() -> int:
     if problems:
         print(f"decision/state/spec/owner indexes: {len(problems)} problem(s)")
         return 1
+    for w in sorted(set(WARNINGS)):
+        print(f"note {w} (update the line number)")
     ids, _ = indexed(ROOT)
     print(f"decision/state/spec/owner indexes: OK ({len(ids)} indexed decision IDs; every cited ID resolves; every named file exists)")
     return 0
