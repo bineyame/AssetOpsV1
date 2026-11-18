@@ -238,9 +238,9 @@ def d3():
 def d4():
     b = []
     y, h = 40, 76
-    b.append(box(10, y, 150, h, ["Client demo", "mock-up, design", "values labelled"], fs=12))
+    b.append(box(10, y, 150, h, ["Client demo", "loop on the mock-up;", "live: what runs today"], fs=12))
     b.append(diamond(255, y + h/2, 150, 96, ["Qualified?", "data access, a decision", "to investigate"]))
-    b.append(box(345, y, 175, h, ["Paid diagnostic", "3 sites, ~4 weeks after", "data; analyst-prepared"], cls="bxa", fs=12))
+    b.append(box(345, y, 175, h, ["Paid diagnostic", "design partnership:", "3 sites, ~4 weeks after", "data; analyst-prepared"], cls="bxa", fs=12))
     b.append(diamond(615, y + h/2, 150, 96, ["Factor bridge", "reconciled and", "compelling?"]))
     b.append(box(705, y, 175, h, ["Pilot / field validation", "~3 months; product on", "their data; one change"], cls="bxa", fs=12))
     b.append(diamond(975, y + h/2, 150, 96, ["Verdicts and", "the buyer's own", "judgement?"]))
@@ -254,15 +254,15 @@ def d4():
     b.append(box(705, 200, 175, 70, ["Stop or rethink", "record why"], fs=12))
     b.append(arrow([(615, cy + 48), (615, 235), (703, 235)])); b.append(label(622, 170, "no", fs=11))
     b.append(arrow([(975, cy + 48), (975, 235), (882, 235)])); b.append(label(982, 170, "no", fs=11))
-    narrow = vstack([("r", [(["Client demo", "mock-up, design values labelled"], "bx")]),
+    narrow = vstack([("r", [(["Client demo", "loop on the mock-up, design values", "labelled; live: what runs today"], "bx")]),
                      ("r", [(["Qualified? data access, a decision", "not yet: data assessment (cold, EV)"], "bxp")]),
-                     ("a", "yes", "ar"), ("r", [(["Paid diagnostic", "3 sites, ~4 weeks; analyst-prepared"], "bxa")]),
+                     ("a", "yes", "ar"), ("r", [(["Paid diagnostic", "design partnership: 3 sites, ~4 weeks", "analyst-prepared"], "bxa")]),
                      ("r", [(["Factor bridge reconciled, compelling?", "no: stop or rethink, record why"], "bxp")]),
                      ("a", "yes", "ar"), ("r", [(["Pilot / field validation", "~3 months; one change proved"], "bxa")]),
                      ("r", [(["Verdicts and the buyer's judgement?", "no: stop or rethink"], "bxp")]),
                      ("a", "yes", "ar"), ("r", [(["Paid continuation", "and reference case"], "bxa")])])
     return svg(1210, 290, "".join(b), "Figure 4. The engagement path, with its gates",
-               "Demo, then a qualification gate; qualified prospects get a paid diagnostic, others a data assessment. If the factor bridge is reconciled and compelling, a pilot follows; if its verdicts hold, paid continuation. Failed gates lead to stop or rethink.", narrow)
+               "Demo of the loop on the mock-up, then the live product as what runs today; then a qualification gate; qualified prospects get a paid diagnostic offered as a design partnership, others a data assessment. If the factor bridge is reconciled and compelling, a pilot follows; if its verdicts hold, paid continuation. Failed gates lead to stop or rethink.", narrow)
 
 # ---------------------------------------------------------------- diagram 5: dependencies (rights and plan in parallel)
 def d5():
@@ -338,7 +338,7 @@ LANES = [("Product", [("Calibration lane + honest screens", 0, 1), ("Records and
                       ("Second vertical (8a or 8b)", 4, 6), ("Third vertical", 6, 8)]),
          ("Data", [("Diagnostic kit and profiles", 0, 1), ("Pilot profiles pinned", 2, 4), ("Field calibration on pilot data", 4, 6)]),
          ("Pilots", [("First mini-grid diagnostic", 1, 3), ("Mini-grid pilot (field validation)", 3, 7), ("Second-vertical diagnostic", 4, 6)]),
-         ("Commercial", [("Demos and qualification", 0, 10), ("First conversion decision", 7, 7), ("Investor and lender evidence pack", 6, 8)])]
+         ("Commercial", [("Demos and qualification", 0, 10), ("Kit ready: diagnostics can be signed", 1, 1), ("First conversion decision", 7, 7), ("Investor and lender evidence pack", 6, 8)])]
 
 def gantt(L, R, top, rh, lbl_fs, stacked):
     mw = (R - L) / 10
@@ -376,10 +376,10 @@ def d7():
                "Swimlane timeline over ten months: product steps, data work, pilots and commercial milestones, as listed in the mermaid source.", (NW, nend + 34, nb))
 
 # ---------------------------------------------------------------- diagram 8: Layer 4 pack rounds by cause
-CAUSES = {"A": ("Direction not approved before building", "c1"), "B": ("Owner requirements arrived mid-round", "c3"),
+CAUSES = {"A": ("Direction not approved before building", "c1"), "B": ("New requirements added while a round ran", "c3"),
           "C": ("Figures typed; checks shared the author's assumptions", "c2"), "D": ("Fixed by instance, not by class", "c4"),
           "-": ("Accepted, or a new owner request", "cn")}
-ROUNDS = [("rev 1", "A"), ("rev 2", "A"), ("rev 3", "A"), ("rev 4", "A"), ("rev 5", "B"), ("rev 6", "B"), ("rev 7", "C"), ("rev 8", "C"),
+ROUNDS = [("rev 1", "A"), ("rev 2", "A"), ("rev 3", "A"), ("rev 4", "A"), ("rev 5", "B"), ("rev 6", "C"), ("rev 7", "B"), ("rev 8", "C"),
           ("rev 9", "C"), ("rev 10", "C"), ("rev 11", "C"), ("rev 12", "C"), ("rev 13", "-"), ("§7 r1", "-"), ("§7 r2", "D"),
           ("§7 r3", "D"), ("pack", "D")]
 
@@ -391,7 +391,7 @@ def d8():
         b.append(f'<rect class="{CAUSES[c][1]}" x="{x}" y="{y0}" width="{sz}" height="{sz}" rx="4"><title>{esc(nm)}: {esc(CAUSES[c][0])}</title></rect>')
         b.append(label(x + sz/2, y0 + sz/2 + 6, c if c != "-" else "✓", anchor="middle", fs=16, cls="on", weight="700"))
         b.append(label(x + sz/2, y0 + sz + 18, nm, anchor="middle", fs=11.5))
-    b.append(label(x0, 18, "16 Nov 16:52  →  18 Nov 05:38 (commit times)", fs=12))
+    b.append(label(x0, 18, "16 Nov 16:52  →  18 Nov 05:38 (commit times). Classification: the author's judgement from the review verdicts.", fs=12))
     ly = y0 + sz + 48
     for j, k in enumerate(("A", "B", "C", "D", "-")):
         cnt = sum(1 for _, c in ROUNDS if c == k)
@@ -405,12 +405,17 @@ def d8():
     for k in ("A", "B", "C", "D", "-"):
         cnt = sum(1 for _, c in ROUNDS if c == k)
         which = ", ".join(nm for nm, c in ROUNDS if c == k)
-        n.append(label(10, y + 14, f"{k if k != '-' else '✓'}  {CAUSES[k][0]}", fs=13, cls="t", weight="600"))
+        words, lines_ = f"{k if k != '-' else '✓'}  {CAUSES[k][0]}".split(" "), [""]
+        for w_ in words:   # wrap at about 40 characters so no label leaves the 400-unit viewBox
+            lines_[-1:] = [lines_[-1] + " " + w_] if len(lines_[-1] + " " + w_) <= 41 else [lines_[-1], "   " + w_]
+        for li_, t_ in enumerate(lines_):
+            n.append(label(10, y + 14 + li_ * 17, t_.strip() if li_ == 0 else t_, fs=13, cls="t", weight="600"))
+        y += (len(lines_) - 1) * 17
         n.append(f'<rect class="{CAUSES[k][1]}" x="10" y="{y + 22}" width="{cnt * 44}" height="18" rx="4"><title>{esc(which)}</title></rect>')
         n.append(label(16 + cnt * 44, y + 36, f"{cnt}: {which}" if len(which) < 22 else f"{cnt} rounds", fs=12.5))
         y += 52
-    return svg(W, H, "".join(b), "Figure 9. The Layer 4 pack's review rounds, by the cause of the next round",
-               "Seventeen rounds: four lost to a direction not approved before building, two to requirements arriving mid-round, six to typed figures found one at a time, three to fixing instances rather than classes; two were accepted work or a new request.",
+    return svg(W, H, "".join(b), "Figure 9. The Layer 4 pack's review rounds, by the cause of the next round (the author's classification, a judgement)",
+               "Seventeen rounds: four lost to a direction not approved before building, two to requirements added while a round ran (revisions 5 and 7), six to typed figures found one at a time (revisions 6 and 8-12), three to fixing instances rather than classes; two were accepted work or a new request.",
                (NW, y + 4, "".join(n)))
 
 # ---------------------------------------------------------------- diagram 9: the build workflow
@@ -419,7 +424,7 @@ def d9():
     steps = [(["Structure spec", "factors, decisions,", "screens, tests"], "bxa"), (["Owner approves", "the structure", "(one sitting)"], "bx"),
              (["Independent", "checks written", "and reviewed"], "bxa"), (["Readiness", "dry-read", "against code"], "bxa"),
              (["Build", "two lanes,", "small units"], "bxa"), (["Review", "depth by risk"], "bxa"), (["Class fix", "and sweep;", "stop rule"], "bxa"),
-             (["Phase-end owner", "walkthrough", "(one sitting)"], "bx")]
+             (["Phase end:", "owner", "walkthrough", "(one sitting)"], "bx")]
     w, h, gx = 118, 76, 22
     for i, (t, c) in enumerate(steps):
         x = 20 + i * (w + gx)
@@ -427,7 +432,7 @@ def d9():
         if i: b.append(arrow([(x - gx, 108), (x - 2, 108)]))
         b.append(label(x + w/2, 62, f"W{[1, 1, 2, 4, 4, 5, 6, 8][i]}" + ("/W7" if i == 6 else "/W3" if i in (1, 7) else ""), anchor="middle", fs=11))
     xb = 20 + 4 * (w + gx)
-    b.append(box(xb - 60, 190, 240, 52, ["Decision queue (W3)", "defaults applied; owner answers in batch"], cls="bxp", fs=12))
+    b.append(box(xb - 90, 190, 300, 52, ["Decision queue (W3)", "defaults applied; owner answers in batch"], cls="bxp", fs=12))
     b.append(arrow([(xb + w/2, 190), (xb + w/2, 148)], cls="ard"))
     b.append(box(20, 268, 1100, 46, ["Pilot calendar (W9): data agreement → diagnostic → after-window → closed month, alongside the build"], cls="bxp", fs=12.5))
     b.append(label(20, 30, "One phase of the build. Owner time sits in two fixed sittings plus the queue; agents never wait.", fs=12.5, cls="t"))
@@ -445,8 +450,12 @@ def d9():
                "Structure specification, owner approval of the structure, independent checks, readiness dry-read, build in two lanes, review by risk, class fixes with a stop rule, phase-end walkthrough; a decision queue with defaults feeds the build; the pilot calendar runs alongside.", narrow)
 
 # ---------------------------------------------------------------- diagram 10: effort ranges, revision 1 against revised (weeks)
-EFFORT = [("Calibration lane + step 1", (2, 4), (1, 2)), ("Steps 2–3", (6, 10), (3, 6)), ("Steps 4, 5 and 6", (8, 14), (4, 8)),
-          ("Step 7", (2, 4), (1, 2)), ("Mini-grid core, total", (17, 30), (9, 17))]
+# Revised bars: build at 1-3 days per reviewed change, five working days to the week (§4.3 table). The last row is the §4.3
+# elapsed range (the 19-change chain plus 15-20% rework plus four weeks of owner time), not a sum of the bars above.
+EFFORT = [("Calibration + step 1 (lane 2)", (2, 4), (1, 3.5)), ("Steps 2–3 (lane 1)", (6, 10), (1.5, 5)),
+          ("Step 4, then 5 ‖ 6", (8, 14), (2, 5.5)), ("Step 7 (lane 2, after 6)", (2, 4), (0.5, 1)),
+          ("Core, elapsed (§4.3)", (17, 30), (8, 18))]
+TOTAL = "Core, elapsed (§4.3)"
 
 def d10():
     def body(L, R, rh, lab_above, fs):
@@ -457,25 +466,29 @@ def d10():
             b.append(f'<line class="grid" x1="{x:.1f}" x2="{x:.1f}" y1="26" y2="{34 + len(EFFORT) * rh}"/>')
             b.append(label(x, 20, f"{v} wk", anchor="middle", fs=12 if lab_above else 11))
         for name, old, new in EFFORT:
+            if name == TOTAL:
+                b.append(f'<line class="conn" x1="8" x2="{R}" y1="{y - 4}" y2="{y - 4}"/>')
             if lab_above:
                 b.append(label(8, y + 14, name, fs=fs, cls="t")); yb = y + 20
             else:
                 b.append(label(L - 12, y + 22, name, anchor="end", fs=fs, cls="t")); yb = y + 6
             for k, (lo, hi), cls in ((0, old, "rold"), (1, new, "rnew")):
                 yy = yb + k * 16
-                b.append(f'<rect class="{cls}" x="{L + lo*sx:.1f}" y="{yy}" width="{(hi-lo)*sx:.1f}" height="12" rx="4"><title>{esc(name)}: {lo}–{hi} weeks ({"revision 1" if k == 0 else "revised"})</title></rect>')
-                b.append(label(L + hi*sx + 6, yy + 11, f"{lo}–{hi}", fs=12))
+                b.append(f'<rect class="{cls}" x="{L + lo*sx:.1f}" y="{yy}" width="{(hi-lo)*sx:.1f}" height="12" rx="4"><title>{esc(name)}: {lo:g}–{hi:g} weeks ({"revision 1" if k == 0 else "revised"})</title></rect>')
+                b.append(label(L + hi*sx + 6, yy + 11, f"{lo:g}–{hi:g}", fs=12))
             y += rh
         return "".join(b), y
     wb, wy = body(260, 900, 46, False, 12.5)
     wb += f'<rect class="rold" x="260" y="{wy + 8}" width="14" height="10" rx="3"/>' + label(280, wy + 17, "Revision 1 (1–2 weeks per reviewed change)", fs=12, cls="t")
     wb += f'<rect class="rnew" x="580" y="{wy + 8}" width="14" height="10" rx="3"/>' + label(600, wy + 17, "Revised (observed pace, workflow in §5)", fs=12, cls="t")
+    wb += label(260, wy + 40, "Bars above the line: build on each lane. Below: the §4.3 elapsed range, with rework and owner time; not a sum.", fs=11.5)
     nb, ny = body(24, NW - 50, 60, True, 13)
     nb += f'<rect class="rold" x="10" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(30, ny + 15, "Revision 1", fs=12.5, cls="t")
     nb += f'<rect class="rnew" x="150" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(170, ny + 15, "Revised", fs=12.5, cls="t")
-    return svg(960, wy + 30, wb, "Figure 8. Build effort in weeks: revision 1 against the revised ranges (estimates)",
-               "Calibration and step 1: 2–4 weeks to 1–2. Steps 2–3: 6–10 to 3–6. Steps 4–6: 8–14 to 4–8. Step 7: 2–4 to 1–2. Mini-grid core: 17–30 weeks (4–7 months) to 9–17 weeks (2–4 months).",
-               (NW, ny + 26, nb))
+    nb += label(10, ny + 36, "Last row: the §4.3 elapsed range, not a sum.", fs=12.5)
+    return svg(960, wy + 52, wb, "Figure 8. Build effort in weeks: revision 1 against the revised ranges (estimates)",
+               "Revised bars are build time at one to three days per reviewed change. Calibration and step 1 (lane 2, alongside steps 2-3): 2-4 weeks to about 1-3.5. Steps 2-3: 6-10 to about 1.5-5. Step 4, then steps 5 and 6 in parallel: 8-14 to about 2-5.5. Step 7, after step 6 in lane 2: 2-4 to about 0.5-1. Core elapsed, the §4.3 range with rework and owner time and not a sum of the bars: 17-30 weeks (4-7 months) to about 8-18 weeks (2-4 months).",
+               (NW, ny + 46, nb))
 
 DIAGRAMS = [d1, d2, d3, d4, d5, d6, d7, d8, d9]   # in the order of the mermaid blocks
 MARKERS = {"effort": d10}

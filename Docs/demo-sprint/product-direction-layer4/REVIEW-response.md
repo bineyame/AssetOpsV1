@@ -1208,3 +1208,86 @@ I inspected Figures 2, 4, 5, 7, 8, 9 and 10 in both layouts.
 - The roadmap's product lane is shortened. The pilot and commercial lanes are unchanged, because the calendar sets them; the first proved change on a customer site is still about M6–M7. This is shown in Figure 8.
 
 **HTML.** Rebuilt with `render_product_transition_html.py`; a second run is byte-identical. The page has 10 figures (20 SVG layouts), no external requests, and no test suite, database, Docker or port use.
+
+## Author response to the re-review of product transition and roadmap rev 2 (21c329aeb)
+
+Architect (Claude), 18 Nov 2026, revision 3. Scope: L-A to L-E, plus the coordinator's three pitch points, which the owner asked to have weighed on merit ("let the architect consider the three point and incldued them on merit or say why not", `.agent/owner-product-transition-request-2026-11-18.md`). Changed: `product-transition-and-roadmap.md` / `.html`, `render_product_transition_html.py`, `check_manifest.py`, and this file. No other pack document, application code, test, database, Docker container or port was touched.
+
+**The three pitch points.** §2.7 is now the one place for every point where the document departs from the coordinator; the three points are its last rows.
+- **1. Keep the live product in the demo: included, with the order changed.** The demo opens on the loop (the brief's demo opens on a business result, not a technical page, line 376; opening on monitoring is option A's risk) and switches to the live product at the Investigate step (line 382), as the layer the loop is built on. That answers "what is real" and meets the brief's ban on "a simulator-only story without source-shaped records" (line 386). Only surfaces that are honest today are shown: reading intake with a dry run (`frontend/src/sites/ReadingUpload.tsx`), the necessary/candidate split, fuel balance, and verified trials and work actions, with their provenance labels. The Portfolio's Optimize card stays out until step 1 ships. Placed in §2.3, Figure 4, the phase 0 row and D12.
+- **2. Design-partner framing: included, with limits.** It is honest because the gap is stated and the brief treats differentiation as a hypothesis for pilots to test (lines 94, 100). The limits: the diagnostic stays paid (D2), the qualification gate stands, partners shape their option lists and profiles but not the general core, and at most two run at a time. Placed in §2.3 (offer table and paragraph), Figure 4, and D12.
+- **3. Conversations in parallel with phase 0; no signature before the kit and a data agreement: included.** It was implied by Figure 7 and W9; it is now explicit in the phase 0 and phase 1 rows and as a milestone in Figure 7 ("Kit ready: diagnostics can be signed", M1). It has one consequence: the exposure rule for design values (D6 / Q13) has to be decided at phase 0's entry, before the first pitch, not at its exit. Phase 0's exit decision is now "offer the first diagnostic to a qualified prospect".
+
+**L-A: fixed as a class (lane arithmetic, estimate wording, figure totals).**
+- **Lanes.** The derivation now follows the lanes. Lane 1 has 17 changes on the dependency critical path; lane 2 has 11. After step 4, plan (3), rights (3) and proof (2) cannot all run at once in two lanes, so the longest chain is 19 changes. At 1–3 days per change and 5-day weeks, that is about 4–11.5 weeks of build.
+- **Baseline.** The rework allowance is now the post-W1 rate of 15–20%, called "estimated", as `ROLE_CONFIG.md` says "about". Owner time stays at about four weeks.
+- **Result.** About 8–18 weeks, still **about 2–4 months**, now with the remark that there is little slack at the top.
+- **Without §5.** This is now an explicit assumption: one extra owner-and-revision round of about a week per phase. That gives about 12–22 weeks, or **about 3–5 months**. It replaces "add a third to a half" from the W1-era figure, because W4 and W5 stay in any case.
+- **Table.** The §4.3 table now has a lane column, and its revised column is build time at 1–3 days per change, called "about". The per-vertical build is now about 0.5–2.5 weeks; it was 2–3.
+- **A + B (§2.7).** A is about 0.5–2 weeks alongside B; B is about 3–7 weeks including rework and owner approval. It was 1–2 months.
+- **Figure 8.** The bars are build time per block, with the lane shown. The last row is set apart by a rule and labelled as the §4.3 elapsed range, "not a sum": revision 1's stated 17–30 weeks against the revised 8–18.
+
+**Ranges, before → after:**
+- mini-grid core: 2–4 months (unchanged; its basis is now 8–18 weeks);
+- without the new rules: 3–5 months (unchanged; the basis is now an explicit assumption);
+- build of the core: 3–8.5 → about 4–11.5 weeks;
+- A + B: 1–2 months → B about 3–7 weeks, with A alongside;
+- build per vertical: 2–3 → about 0.5–2.5 weeks;
+- elapsed per vertical: 1–2.5 months (unchanged);
+- first proved change on a customer site: about M6–M7 (unchanged);
+- human team: 7–12 months (unchanged).
+
+**L-B: fixed.**
+- **Selection rule (§4.3).** First-parent merges on main whose subject starts "Merge task/" or "Merge branch 'task/", 18 Oct–14 Nov. Time runs from the branch's earliest non-merge commit to the merge. Recomputed: 238 merges (rev 2 said 233), a median of 2.67 h, 74.8% within 6 h, a longest of 75.4 h.
+- **Fix rates.** The claim now says what each count measures:
+  - 70% of merges have a branch commit whose subject contains "fix";
+  - 47% have one that names a fix round or a review fix;
+  - the first count includes fixes no review asked for, and neither counts reviews that found something.
+  - This applies in §4.3, the §5.1 table and W5.
+- **Owner messages.** Messages 7 and 8 arrived during the rev 5 round. Owner-requested review points were added to the rev 5 and rev 7 reviews. Messages 9–11 were answers on revs 8 and 9, given between rounds and folded into the next. Fixed in §5.1 and W3.
+- **Figure 9.** Rev 6 is now C: its REVISE was N-M1 (a contradiction) and N-M2 (unlabelled replay figures). Rev 7 is now B: its REVISE came from points relayed at the owner's request (CP-1..CP-3). The class counts are unchanged (A 4, B 2, C 6, D 3, other 2). Cause B is renamed "New requirements added while a round ran". The title, the subtitle and §5.1 say the classification is the author's judgement from the review verdicts. W2 and W7 now cite revisions 6 and 8–12, and 8–12.
+
+**L-C: fixed in `check_manifest.py` `expr_value`. It stays independent: values come only from `independent_model.compute`, and there is no evaluator import, shared list or expected figure.** An arithmetic tag now fails, with its reason in the check label, if any of these holds:
+- it uses no path;
+- some part of it (each operation and `round` call) does not move when one distinct path is perturbed, so `{a}-{a}` is constant;
+- it holds a number literal other than `round`'s places, or 100 as a factor or divisor of a term that holds a path;
+- it does not evaluate. Decimal and arithmetic errors such as `DivisionByZero` are caught and reported as a failed check, with no crash.
+
+Planted on a scratch copy at `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/36691a1d-3a44-455a-947e-9acaa1af47c0/scratchpad/plantLC` (script `plant_lc.sh` beside it; the copy is removed after each run), each plant replacing the −562.00 tag:
+
+| Plant | Result | Reason given |
+|---|---|---|
+| `-562` | 3713 passed, 1 failed | uses no path |
+| `{tariff}*0-562` | 3713 passed, 1 failed | literal 0 |
+| `{C}-{C}-562` | 3713 passed, 1 failed | literal 562 |
+| `-(100+…+{C}-{C})` | 3713 passed, 1 failed | does not depend |
+| `-{C}/{C}*100*5.62` | 3713 passed, 1 failed | literal 5.62 |
+| `({C}-{C})*{tariff}` (no literal) | 3713 passed, 1 failed | does not depend |
+| `1/0` | 3713 passed, 1 failed | uses no path |
+| `{tariff}/({C}-{C})` | 3713 passed, 1 failed | does not evaluate (DivisionByZero) |
+| sign flip (control) | 3713 passed, 1 failed | value mismatch |
+| unchanged (control) | 3714 passed, 0 failed | – |
+
+The 9 real tags all still pass.
+
+Residual: perturbation tests dependence, not size, so an expression could still mix a negligible path term into a constant built from 100s. The literal rule blocks the 100s outside a scaled path term, which closes the forms I could construct.
+
+**L-D: fixed.**
+- **Figure 9, stacked layout.** Cause labels wrap at about 40 characters.
+- **Figure 10, wide layout.** "Phase-end owner" is split over two lines ("Phase end:" / "owner"), and the decision-queue box is widened from 240 to 300 units.
+- **Headless Chromium, 390 and 1280 px, light and dark:**
+  - 10 figures; no text outside its viewBox; no overlapping text;
+  - no box text within 2 px of its box edge;
+  - no page-level horizontal scroll; 0 console errors; 0 requests;
+  - smallest SVG text 10.0 px at 390 and 9.8 px at 1280.
+- **Inspected:** Figures 4, 7, 8, 9 and 10.
+
+**L-E: fixed.**
+- **§5 pointer.** It now names the committed recommendation and the owner's O1–O7 decisions.
+- **D11.** It records the owner's adoption on 18 Nov ("yes, adopt D11 and start the declutter after"). The workflow goes in the lean agent start path that the declutter creates (its rules file, `.ai/RULES.md`, recommendation §2.2–§2.3), not in today's `.ai/ROLE_CONFIG.md`.
+
+**Checks.**
+- `python3 check_manifest.py`: 3714 passed, 0 failed.
+- `render_product_transition_html.py` re-run into scratch: byte-identical to the committed `.html`.
+- No test suite was run.
+- The `.md` grew from 10,348 to 11,614 words, mostly the three §2.7 rows, the two §2.3 paragraphs and the lane arithmetic.

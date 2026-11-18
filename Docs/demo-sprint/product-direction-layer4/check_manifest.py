@@ -12,7 +12,9 @@ and the manifest alone. Against that independent recomputation the checker compa
   4. narratives(): rendered manifest strings carry {fig:path} / {rec:path} placeholders that resolve, and state no evaluated
      figure as a literal;
   5. anchors(): every <!--fig:path--> figure in the documents equals the independent value at that path, signed; every
-     <!--figx:expression--> figure equals that arithmetic (+ - * / and brackets) over {independent paths}, signed; record tags
+     <!--figx:expression--> figure equals that arithmetic (+ - * / and brackets) over {independent paths}, signed (the
+     expression must use at least one path, its value must move when a path value moves, and its only number literals are
+     round()'s places and the unit factor 100, so no expected figure can sit in a tag); record tags
      are manifest money records; headline paths are tagged; no untagged copy of an evaluated plan or option money figure
      (with or without cents) or of an O2 percentage appears in a figure-bearing document;
   6. documents(): untagged money figures in main §2-§10, the walkthroughs and the transition document's §1-§4 are
@@ -370,38 +372,70 @@ RECORDS: set = set()
 
 
 def expr_value(ref, expr):
-    """Arithmetic over {independent paths}: numbers, + - * /, brackets and round(x, places) only, in Decimal. None if a
-    path is missing or the expression uses anything else. Values come from the independent model only."""
-    import ast
-    vals = {}
+    """Arithmetic over {independent paths}: + - * /, brackets and round(x, places) only, in Decimal. Returns (value, None),
+    or (None, reason) when a path is missing, the expression uses anything else, uses no path, does not depend on its paths,
+    holds a number literal other than round()'s places or the unit factor 100, or fails to evaluate (e.g. division by zero).
+    Values come from the independent model only; the tag can hold no expected figure."""
+    import ast, decimal
+    vals, names = {}, {}
 
-    def sub(m):
-        v = get(ref, m.group(1).strip())
-        if not isinstance(v, (int, float)) or isinstance(v, bool):
-            raise KeyError(m.group(1))
-        vals[f"v{len(vals)}"] = D(str(v)); return f" v{len(vals) - 1} "
+    def sub(m):   # one name per distinct path, so {a}-{a} is seen as constant
+        path = m.group(1).strip()
+        if path not in names:
+            v = get(ref, path)
+            if not isinstance(v, (int, float)) or isinstance(v, bool):
+                raise KeyError(path)
+            names[path] = f"v{len(names)}"; vals[names[path]] = D(str(v))
+        return f" {names[path]} "
     try:
         tree = ast.parse(re.sub(r"\{([^}]+)\}", sub, expr.replace("−", "-")).strip(), mode="eval")
-    except (KeyError, SyntaxError):
-        return None
+    except KeyError as e:
+        return None, f"path {e} is not an independent number"
+    except SyntaxError:
+        return None, "not an expression"
+    if not vals:
+        return None, "uses no independent path"
 
-    def ev(n):
-        if isinstance(n, ast.Expression): return ev(n.body)
-        if isinstance(n, ast.Name) and n.id in vals: return vals[n.id]
-        if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)): return D(str(n.value))
-        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub): return -ev(n.operand)
+    def ev(n, env, rounding=True):
+        if isinstance(n, ast.Expression): return ev(n.body, env, rounding)
+        if isinstance(n, ast.Name) and n.id in env: return env[n.id]
+        if isinstance(n, ast.Constant) and type(n.value) in (int, float) and n.value == 100: return D(100)   # unit factor only
+        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub): return -ev(n.operand, env, rounding)
         if (isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "round" and len(n.args) == 2
-                and isinstance(n.args[1], ast.Constant) and isinstance(n.args[1].value, int)):   # round(x, places), half up
-            return ev(n.args[0]).quantize(D(1).scaleb(-n.args[1].value), rounding="ROUND_HALF_UP")
+                and isinstance(n.args[1], ast.Constant) and type(n.args[1].value) is int):   # round(x, places), half up
+            x = ev(n.args[0], env, rounding)
+            return x.quantize(D(1).scaleb(-n.args[1].value), rounding="ROUND_HALF_UP") if rounding else x
         if isinstance(n, ast.BinOp):
-            a, b = ev(n.left), ev(n.right)
+            a, b = ev(n.left, env, rounding), ev(n.right, env, rounding)
             ops = {ast.Add: lambda: a + b, ast.Sub: lambda: a - b, ast.Mult: lambda: a * b, ast.Div: lambda: a / b}
             if type(n.op) in ops: return ops[type(n.op)]()
-        raise ValueError(ast.dump(n))
+        raise ValueError(ast.dump(n)[:60])
+    def has_path(n): return any(isinstance(x, ast.Name) and x.id in vals for x in ast.walk(n))
+
+    def moves(n):   # some path, perturbed alone, changes this subexpression (unrounded)
+        base = ev(n, vals, rounding=False)
+        for k in vals:
+            try:
+                if ev(n, {**vals, k: vals[k] * D("1.1") + D("0.37")}, rounding=False) != base:
+                    return True
+            except (ArithmeticError, decimal.DecimalException):
+                return True
+        return False
     try:
-        return ev(tree)
-    except ValueError:
-        return None
+        value = ev(tree, vals)
+        for n in ast.walk(tree):
+            for c in ast.iter_child_nodes(n):   # 100 only as a factor or divisor of a term that holds a path
+                if isinstance(c, ast.Constant) and not (n is not tree and isinstance(n, ast.BinOp) and isinstance(n.op, (ast.Mult, ast.Div))
+                                                         and has_path(n.right if c is n.left else n.left)) \
+                        and not (isinstance(n, ast.Call) and c is n.args[1]):
+                    return None, "a number literal stands outside a scaled path term"
+            if isinstance(n, (ast.BinOp, ast.UnaryOp, ast.Call)) and not moves(n):
+                return None, "a part of it does not depend on its paths"
+    except ValueError as e:
+        return None, f"uses something other than paths, + - * /, round(x, places) and 100: {e}"
+    except (ArithmeticError, decimal.DecimalException) as e:
+        return None, f"does not evaluate ({type(e).__name__})"
+    return value, None
 DOC: dict = {}
 
 
@@ -466,9 +500,9 @@ def anchors(root, ref):
         for m in FIGX.finditer(txt):
             n += 1
             sign = -1 if (m.group(1) or "").strip() in ("−", "-") else 1
-            want = expr_value(ref, m.group(5))
+            want, why = expr_value(ref, m.group(5))
             if want is None:
-                check(f"computed figure in {fn}: {m.group(2)} -> {m.group(5)} resolves over independent paths", False); continue
+                check(f"computed figure in {fn}: {m.group(2)} -> {m.group(5)} resolves over independent paths ({why})", False); continue
             eq(f"computed figure in {fn}: {(m.group(1) or '').strip()}{m.group(2)} = {m.group(5)} (signed)", sign * D(m.group(2).replace(",", "")), want)
         for m in re.finditer(r"([\d,]*\d(?:\.\d+)?)\**<!--rec-->", txt):
             check(f"{fn}: record-tagged figure {m.group(1)} is a manifest money record", round(abs(float(m.group(1).replace(",", ""))), 2) in RECORDS)
