@@ -1,5 +1,8 @@
 # Coordinator handoff — 2026-11-09 (replaces all earlier versions; older text is in git history)
 
+> **2026-11-18 (PIPE-1 merged to main, 5d9cd0047):** the central check-all queue is ended. Builders run `pwsh -NoProfile -File tools/check-all.ps1` themselves (fast mode ~40 s; `-Full` ~3.5 min; at most 2 runs at once via slot locks; full set runs automatically on main). Summary line: `All <B> guards passed (blocking; <A> advisory, <W> warned).` References below to `checkall-queue.sh`, the central queue or Windows guard commands are superseded. Current lanes: `.ai/NOW.md`.
+
+
 ## >>> RESUME STATE — 2026-11-13 ~08:55 UTC (session resumed after a network loss; read first) <<<
 
 - Walkthrough 16:00 EAT = 13:00 UTC (`owner-walkthrough-4pm-2026-11-13.md`).
