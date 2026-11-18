@@ -69,3 +69,28 @@ Step B is the single most important: the cheapest piece that clearly beats monit
 Not to do: don't sell the current product as it is; don't promise all three verticals in the first pilots; don't quote replay savings as real until step C has run on the pilot's data; don't keep polishing the design pack.
 
 Risks: analyst work doesn't scale (cap pilots, automate each manual step next); data is messy or missing (start with file imports; a pilot that can't supply billing or fuel data qualifies itself out); the money story is smaller than expected on real data (decide after step B with the first operator); effort: A and B roughly weeks, D–F a few months for mini-grid, rest follows — rough, needs a planning pass.
+
+## Owner follow-ups after the first review (verbatim)
+
+Owner question:
+
+> are these time estaimtes for agentic deveopment or human dev?
+
+The coordinator answered: agentic, at this repo's pace (observed 1–3 days per specified slice; the document assumes 1–2 weeks per reviewed change with two lanes, so heavily padded); the real limits are owner review time, rework from getting the design wrong (the Layer 4 pack took 13 revisions), and pilot calendar time; a human team would likely be several times slower (a judgement, not a measurement). The coordinator proposed that the document state this plainly.
+
+The coordinator then proposed a fix round on the review findings (REVIEW.md "## Review of product transition and roadmap (0dd950ffd)", M1–M3, L1–L7) plus that effort clarification. The owner replied:
+
+> yes, include that in the fix round along with workflow change to avoid rework and cutback on time
+
+### Reference: owner-approved working rules from the Layer 4 pack (2026-11-17)
+
+These were approved by the owner after the 13 revisions (twelfth message in `.agent/owner-layer4-direction-feedback-2026-11-17.md`, plus the coordinator's briefing rules the owner approved):
+- Write the complete structure specification before any figure; figures are outputs, never targets.
+- Checks independent of what they check: no shared logic, lists or hard-coded expected figures.
+- Fix rounds address classes of problem, not lists of instances; keep a register of everything not derived.
+- Keep agent scope small enough to hold; narrow helpers checked against the specification.
+- If two review rounds in a row expect to be the last and still find new instances of the same class, stop and take the pattern to the owner.
+
+Root cause the coordinator gave the owner for the rework: the Architect wrote the demo story first and fitted the structure to it; typed rules kept figures in place and reviews found them one at a time.
+
+A separate, concurrent assessment covers repo declutter and agent context efficiency (`.agent/owner-repo-declutter-request-2026-11-18.md`); its recommendation file is `.agent/repo-declutter-recommendation-2026-11-18.md` once written. The workflow section here should focus on the development process (how work is specified, built, reviewed and approved) and may point to that assessment for repo organisation and context, without duplicating it.
