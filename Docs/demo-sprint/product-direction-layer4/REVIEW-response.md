@@ -1132,3 +1132,79 @@ Architect (Claude), 18 Nov. The owner approved addressing M1 and L1. No figure c
 
 **Checks.** `python3 check_manifest.py`: **3674 passed, 0 failed**. After the edits, the residual grep for the old phrases returns nothing outside the review files and the generated history.
 - `tools/run-audit.sh --shots`: exit 0. Routes 202/202. Console errors, bad links and overflow at 390 px: 0 / 0 / 0. Vocabulary, identifier, role or question wording and filter-control hits: 0. Switch cases 8/8. Contrast 38/38. Preserved screens 65/65 identical. Hand-typed figures: 0 in code and 0 in 216 manifest strings. Unresolved placeholders: 0. `CHANGE-REGISTER.md` and `browser-audit.md` regenerated unchanged. Screenshots were refreshed: the Act first pages carry the new sentence, and the other changed PNGs differ by rendering noise only.
+
+## Author response to the review of product transition and roadmap (0dd950ffd)
+
+Architect (Claude), 18 Nov. Revision 2 of `product-transition-and-roadmap.md` / `.html`. It fixes every finding as a class, and adds the two owner follow-ups: the effort basis (§4.3) and the workflow change (new §5). Decisions become §6, with D11 added. No other pack document changed, apart from `check_manifest.py` (M3).
+
+**M1: accepted; fixed by re-verifying every code claim, not only the summing one.** Every citation in §1.2–§1.6, §2.6 and §3 was re-read against the code. Four claims were wrong or incomplete:
+- **Summing.** Possible extra fuel cost is never summed (`site_outcomes/read.py:901-903`). Credited results are never summed (`estate/portfolio.py:680-681`). Estimated income is summed when every site uses the same currency (`chain/vocabulary.py:459-508`, from `site_outcomes/read.py:777`). The §1.6 verdict is now "Partly".
+- **Fuel-cost quote.** The quote "versus the generator being off" does not appear in `financials/fuel_cost.py`. The text now states the model as coded: `POTENTIAL_FUEL_COST`, `MODELLED_CONDITIONAL`, from 0 up to an upper bound during candidate running. It also cites the one-day read (`site_outcomes/read.py:602-606`).
+- **Mini-grid scenarios.** They do not "only read the Finding". They calculate energy and gross sales over measured headroom at an authored tariff (`mini_decisions/scenario_rules.py:191`). Alternatives are the part that only reads the Finding.
+- **Domain work actions and verification families** (also L4). These are in the Choices, Proof, §1.4 and §2.6 text, with `fuel_verification.py` and migrations 0033, 0035, 0051 and 0057.
+
+Smaller citation fixes: `dispatch_v3.py:290-291`; `evidence/service.py:484-492`; `host/execution_adapter.py:869` named as `run_to_end`.
+
+**M2: accepted.** The document now says what each half of the calibration proves:
+- The demo-data replay turns a typed design value into a simulator output, labelled *Modelled on simulated data*. That is consistency with the simulated world, not a measurement.
+- Only a replay on an operator's recorded series supports a client claim.
+
+This is tied into the text as follows:
+- the "How figures are labelled" box, control 4 and §2.7;
+- the calibration-lane exit, with a "Later" row for field calibration;
+- the phase 0 exit ("a consistency check, not a calibration") and the phase 3 deliverable;
+- a new risk row;
+- D6, which is now a three-label rule linked to Q13.
+
+The contradiction about when the label drops is removed: the phase plan's "spike passes" (R13, A21) is read as a change to the second label, not as evidence. If the owner adopts D6, that wording is clarified in the next decision round. I did not edit it here (D10, freeze).
+
+**M3: accepted; the document is now under the independent checker.** `check_manifest.py` changes:
+- `product-transition-and-roadmap.md` is added to `FIG_DOCS`, with five required headline paths.
+- A new `<!--figx:expression-->` anchor evaluates arithmetic over `{independent-model paths}`. Only numbers, `+ - * /`, brackets and `round(x, n)` are allowed, parsed by `ast`; nothing else is evaluated. It recomputes the derived figures (the Kobo factor effects, O&M plus staff, the −562.00, and the Mwea and Kirinyaga percentages) from `independent_model.py`, never from the evaluator. It holds no expected figure.
+- The untagged-figure exclusion now covers `figx`.
+- `documents()` now also scans this document's §1–§4 for untraced money figures. Figures tagged `figx` are left to the stricter anchor check.
+
+Every figure tag now sits directly after its figure. The Kobo flow diagram in the .md no longer repeats numbers; they are in the tagged table. In the HTML, Figure 2 reads `derived-values.json` and asserts that the bridge closes, instead of hard-coding numbers.
+
+Result: **3714 checks passed, 0 failed** (3674 before, plus 40 new). A negative test in scratch caught all four planted errors: a wrong anchored figure (884), a wrong computed effect (−412.00), a wrong percentage (+25%), and an untagged plan value.
+
+**L1:** the cross-references now point to §1.6 and §2.7.
+
+**L2:** "avoidable" is now "candidate" in Figure 2, §1.4 and the checklist (a class sweep of the document).
+
+**L3: accepted; the layout changed rather than being argued.** Rights (6) and the plan (5) run in parallel after decisions, as in the pack. Only the full plan gate waits for rights. This changed:
+- the mermaid source and Figure 5;
+- §3.1–§3.2 (step headings carry the lane);
+- §2.7 and D1 (the change from the pack is withdrawn);
+- §4.1–§4.3 (the Gantt chart and the effort blocks).
+
+**L4:** fixed under M1.
+
+**L5:** Q14–Q16 are listed as open structure questions.
+
+**L6:** the hand transcription is named in control 1 and D5 as the main analyst cost. Its controls are a second-person check and reconciliation to the buyer's totals; step 2 automates it.
+
+**L7: accepted; the diagrams are now legible at phone width, not just scrollable.** Every figure has a second, stacked layout, 400 units wide, shown below 1000 px. That includes the waterfall as horizontal bars and the Gantt chart with labels above the bars. The old `min-width:640px` is removed. Marker ids are unique per layout, because a hidden layout's markers would not render. Headless Chromium results (scratch only):
+- At 390 px, light and dark: the smallest SVG text is 10.0 px (it was about 6–7 px), there is no page-level horizontal scroll, no text falls outside its viewBox, and there are no console or request errors.
+- At 1280 px: the same results.
+
+I inspected Figures 2, 4, 5, 7, 8, 9 and 10 in both layouts.
+
+**Owner follow-up 1: the effort basis (§4.3).**
+- The estimates are stated to assume agentic development: Architect, Implementer and Reviewer agents, owner checkpoints, two lanes.
+- Observed pace (git): 233 task merges between 18 Oct and 14 Nov; a median of 2.7 h from first commit to merge; 75% within 6 h; the longest about 3 days. With specification and pre-flight added, that reads as 1–3 days per reviewed change, against the 1–2 weeks revision 1 assumed.
+- What limits the pace: owner review and decision time, rework, and the pilot calendar.
+- A human-team comparison is given as a labelled judgement: about 7–12 months for the mini-grid core.
+
+**Owner follow-up 2: the workflow change (§5).**
+- Evidence: Figure 9 classifies the pack's 17 review rounds by the cause of the next round (A 4, B 2, C 6, D 3, other 2); also git slice history, the 83 mid-build rulings, and the W1/W2 lessons in `.ai/ROLE_CONFIG.md`.
+- Nine changes, W1–W9, each with what it removes and its evidence. Figure 10 shows the workflow for one phase.
+- Repository organisation and agent context are pointed to the separate declutter assessment, not repeated.
+
+**Effort ranges revised:**
+- Mini-grid core: 4–7 months → **2–4 months** (3–5 months without the workflow).
+- Each further vertical: 1.5–3 months → **1–2.5 months**, mostly data time.
+- A + B: 1.5–3 months → 1–2 months.
+- The roadmap's product lane is shortened. The pilot and commercial lanes are unchanged, because the calendar sets them; the first proved change on a customer site is still about M6–M7. This is shown in Figure 8.
+
+**HTML.** Rebuilt with `render_product_transition_html.py`; a second run is byte-identical. The page has 10 figures (20 SVG layouts), no external requests, and no test suite, database, Docker or port use.

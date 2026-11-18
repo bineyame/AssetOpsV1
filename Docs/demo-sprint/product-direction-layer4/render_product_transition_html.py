@@ -1,10 +1,14 @@
 """Render product-transition-and-roadmap.md to a self-contained HTML page with inline SVG diagrams (offline).
 
 Usage: python3 render_product_transition_html.py product-transition-and-roadmap.md product-transition-and-roadmap.html
-The seven diagrams are drawn here, in the order of the mermaid blocks in the .md (which stay as the plain-text source)."""
-import html, re, sys, zlib
+The diagrams are drawn here, in the order of the mermaid blocks in the .md (which stay as the plain-text source); a line
+`<!--diagram:effort-->` in the .md places the effort chart. Each diagram has a wide layout and a stacked narrow layout
+for phone widths (shown below 1000 px), so labels stay legible instead of shrinking. Demo figures in Figure 2 are read
+from derived-values.json (the evaluator's output, which check_manifest.py checks against the independent model)."""
+import html, json, pathlib, re, sys, zlib
 
 SRC, OUT = sys.argv[1], sys.argv[2]
+DV = json.loads((pathlib.Path(SRC).resolve().parent / "derived-values.json").read_text(encoding="utf-8"))
 
 # ---------------------------------------------------------------- SVG helpers
 def esc(s): return html.escape(s, quote=True)
@@ -39,10 +43,59 @@ DEFS = ('<defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth=
         '<marker id="mc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
         '<path d="M0,0 L10,5 L0,10 z" class="mkc"/></marker></defs>')
 
-def svg(w, h, body, title, desc):
-    return (f'<figure class="dg"><svg viewBox="0 0 {w} {h}" role="img" aria-labelledby="t{zlib.crc32(title.encode())} d{zlib.crc32(title.encode())}">'
-            f'<title id="t{zlib.crc32(title.encode())}">{esc(title)}</title><desc id="d{zlib.crc32(title.encode())}">{esc(desc)}</desc>{DEFS}{body}</svg>'
-            f'<figcaption>{esc(title)}</figcaption></figure>')
+def svg(w, h, body, title, desc, narrow=None):
+    """A figure with the wide layout and, when given, a narrow (nw, nh, body) layout for phone widths."""
+    k = zlib.crc32(title.encode())
+    def one(cls, w_, h_, b_, sfx):
+        # marker ids are unique per svg: a hidden layout's markers would not render for the visible one
+        mid = f"{k}{sfx}"
+        defs = DEFS.replace('id="m"', f'id="m{mid}"').replace('id="mc"', f'id="mc{mid}"')
+        b_ = b_.replace("url(#m)", f"url(#m{mid})").replace("url(#mc)", f"url(#mc{mid})")
+        return (f'<svg class="{cls}" viewBox="0 0 {w_} {h_}" role="img" aria-labelledby="t{k}{sfx} d{k}{sfx}">'
+                f'<title id="t{k}{sfx}">{esc(title)}</title><desc id="d{k}{sfx}">{esc(desc)}</desc>{defs}{b_}</svg>')
+    parts = one("wide", w, h, body, "w")
+    if narrow:
+        parts += one("narrow", *narrow, "n")
+    return f'<figure class="dg">{parts}<figcaption>{esc(title)}</figcaption></figure>'
+
+# ---------------------------------------------------------------- narrow (stacked) layout, 400 units wide
+NW, NFS = 400, 14
+
+def vstack(entries):
+    """Entries: ("h", text) header; ("n", text) muted note; ("x",) no arrow into the next row; ("a", label, cls) style of the next arrow;
+    ("r", [(lines, cls), ...]) a row of one or two boxes, joined by arrows to the previous box row."""
+    b, y, prev, nxt = [], 8, None, ("", "ar")
+    for e in entries:
+        if e[0] == "h":
+            y += 8; b.append(label(10, y + 14, e[1], fs=15, cls="t", weight="600")); y += 26; prev = None
+        elif e[0] == "n":
+            for ln in e[1].split("\n"):
+                b.append(label(10, y + 14, ln, fs=13)); y += 19
+            y += 6; prev = None
+        elif e[0] == "x":
+            prev = None; y += 10
+        elif e[0] == "a":
+            nxt = (e[1], e[2])
+        else:
+            row = e[1]; n = len(row)
+            bw = (NW - 20 - (n - 1) * 12) / n
+            h = max(len(t) for t, _ in row) * (NFS + 4) + 16
+            gap = 30 if prev is not None else 0
+            y += gap
+            xs = [10 + i * (bw + 12) for i in range(n)]
+            if prev is not None:
+                py, pxs, pbw = prev
+                lbl, cls = nxt
+                mk = "mc" if cls == "arc" else "m"
+                for i, x in enumerate(xs):
+                    src = pxs[min(i, len(pxs) - 1)] + pbw / 2 if len(pxs) > 1 else pxs[0] + pbw / 2
+                    b.append(arrow([(src, py + 2), (x + bw / 2, y - 3)], cls=cls, marker=mk))
+                if lbl:
+                    b.append(label(NW / 2 + 12, y - gap / 2 + 4, lbl, fs=12.5))
+            for x, (t, cls) in zip(xs, row):
+                b.append(box(x, y, bw, h, t, cls=cls, fs=NFS))
+            y += h; prev = (y, xs, bw); nxt = ("", "ar")
+    return NW, y + 12, "".join(b)
 
 # ---------------------------------------------------------------- diagram 1: today vs Layer 4
 def d1():
@@ -50,7 +103,7 @@ def d1():
     b.append(label(10, 24, "Today: signal first", fs=14, weight="600"))
     xs = [10, 206, 402, 598, 794]
     today = [["Telemetry and", "operational records"], ["Analyses", "dispatch, fuel balance,", "excursions, faults"],
-             ["Findings", "what looks wrong"], ["Gross exposure", "up to this much"], ["One fixed trial", "(mini-grid only)"]]
+             ["Findings", "what looks wrong"], ["Gross exposure", "up to this much"], ["One setting trial,", "recorded work actions", "(verified: mini-grid)"]]
     for x, t in zip(xs, today): b.append(box(x, 38, 186, 70, t, fs=12))
     for i in range(4): b.append(arrow([(xs[i]+186, 73), (xs[i+1]-2, 73)]))
     b.append(label(10, 190, "Layer 4: structure first", fs=14, weight="600"))
@@ -64,13 +117,39 @@ def d1():
     b.append(arrow([(299, 108), (299, 202)], cls="ard"))
     b.append(label(310, 150, "today's analyses become", fs=11.5))
     b.append(label(310, 165, "observers of factors", fs=11.5))
+    narrow = vstack([("h", "Today: signal first"),
+                     ("r", [(["Telemetry and operational records"], "bx")]), ("r", [(["Analyses", "dispatch, fuel balance, excursions"], "bx")]),
+                     ("r", [(["Findings", "what looks wrong"], "bx")]), ("r", [(["Gross exposure", "up to this much"], "bx")]),
+                     ("r", [(["One setting trial, recorded work", "(verified: mini-grid only)"], "bx")]),
+                     ("n", "Today's analyses become observers of factors."),
+                     ("h", "Layer 4: structure first"),
+                     ("r", [(["Define", "each outcome as factors, to records"], "bxa")]), ("r", [(["Observe", "factors from records; outcome upward"], "bxa")]),
+                     ("r", [(["Evaluate", "options as factor changes vs no action"], "bxa")]),
+                     ("r", [(["Choose", "one plan within budget, crews, rights"], "bxa")]), ("r", [(["Prove", "same factors after; three verdicts"], "bxa")]),
+                     ("n", "The loop repeats each period: Prove feeds Observe.")])
     return svg(990, 330, "".join(b), "Figure 1. Today's product and Layer 4",
-               "Today: records, analyses, findings, gross exposure, one fixed trial. Layer 4: define, observe, evaluate, choose, prove, in a loop; today's analyses become observers of factors.")
+               "Today: records, analyses, findings, gross exposure, one setting trial and recorded work actions. Layer 4: define, observe, evaluate, choose, prove, in a loop; today's analyses become observers of factors.", narrow)
 
-# ---------------------------------------------------------------- diagram 2: Kobo waterfall
+# ---------------------------------------------------------------- diagram 2: Kobo waterfall, from derived-values.json
+def kobo_steps():
+    P = DV["sites"]["lakeside-power/Kobo"]["plan"]["nodes"]; A = DV["sites"]["lakeside-power/Kobo"]["actual"]["nodes"]
+    price, tariff = A["diesel_price"], A["tariff"]
+    d = lambda k: A[k] - P[k]   # noqa: E731
+    steps = [("Plan|contribution", P["contribution"], "tot"),
+             (f"Candidate running|{d('candidate_l'):,.0f} L", -d("candidate_l") * price, "neg"),
+             (f"Necessary above|plan, {d('necessary_l'):,.0f} L", -d("necessary_l") * price, "neg"),
+             (f"Unexplained fuel|{d('unexplained_l'):,.0f} L", -d("unexplained_l") * price, "neg"),
+             (f"More kWh billed|{d('billed_kwh'):,.0f} kWh", d("billed_kwh") * tariff, "pos"),
+             ("Actual|contribution", A["contribution"], "tot")]
+    # the bridge must close: other factors (O&M, staff, wear, collection cost) are on plan in the demo month
+    assert abs(steps[0][1] + sum(v for _, v, k in steps[1:-1]) - steps[-1][1]) < 0.005, "Kobo bridge does not close"
+    return steps, price, tariff
+
+def money(v, kind):
+    return f"{v:,.0f}" if kind == "tot" else f"{v:+,.2f}".replace("-", "−")
+
 def d2():
-    steps = [("Plan|contribution", 1445, "tot"), ("Avoidable running|330 L", -412.5, "neg"), ("Necessary above|plan, 30 L", -37.5, "neg"),
-             ("Unexplained fuel|120 L", -150.0, "neg"), ("More kWh billed|95 kWh", 38.0, "pos"), ("Actual|contribution", 883, "tot")]
+    steps, price, tariff = kobo_steps()
     W, H, top, base = 960, 360, 30, 280
     scale = (base - top) / 1500
     bw, gap, x0 = 110, 30, 70
@@ -87,7 +166,7 @@ def d2():
         else:
             lo, hi = sorted((run, run + v)); run += v
         y1, y2 = base - hi * scale, base - lo * scale
-        val = f"{v:,.0f}" if kind == "tot" else (f"{v:+,.2f}".replace("+", "+").replace("-", "−"))
+        val = money(v, kind)
         b.append(f'<rect class="w{kind}" x="{x}" y="{y1:.1f}" width="{bw}" height="{max(y2-y1,2):.1f}" rx="4"><title>{esc(name.replace("|", " "))}: {esc(val)}</title></rect>')
         b.append(label(x + bw/2, y1 - 7, val, anchor="middle", fs=12.5, cls="t", weight="600"))
         l1, l2 = name.split("|")
@@ -96,9 +175,33 @@ def d2():
         if i < len(steps) - 1:
             yr = base - run * scale
             b.append(f'<line class="conn" x1="{x+bw}" x2="{x+bw+gap}" y1="{yr:.1f}" y2="{yr:.1f}"/>')
-    b.append(label(x0, H - 8, "Demo values (derived-values.json). Orange lowers contribution, blue raises it; grey bars are totals. Diesel at 1.25 per litre, tariff 0.40 per kWh.", fs=11))
-    return svg(W, H, "".join(b), "Figure 2. Kobo, October: contribution 1,445 planned, 883 actual (demo values)",
-               "Waterfall: plan 1,445; minus 412.50 avoidable running; minus 37.50 necessary running above plan; minus 150.00 unexplained fuel; plus 38.00 more kWh billed; actual 883.")
+    note = f"Demo values (derived-values.json). Orange lowers contribution, blue raises it; grey bars are totals. Diesel at {price:.2f} per litre, tariff {tariff:.2f} per kWh."
+    b.append(label(x0, H - 8, note, fs=11))
+    # narrow: horizontal waterfall, one row per step
+    n, L, R, rh = [], 150, 318, 46
+    sx = (R - L) / 1500
+    for v in (0, 500, 1000, 1500):
+        x = L + v * sx
+        n.append(f'<line class="grid" x1="{x:.1f}" x2="{x:.1f}" y1="14" y2="{20 + len(steps)*rh}"/>')
+        n.append(label(x, 12, f"{v:,}", anchor="middle", fs=12))
+    run = 0
+    for i, (name, v, kind) in enumerate(steps):
+        y = 22 + i * rh
+        if kind == "tot":
+            lo, hi = 0, v; run = v
+        else:
+            lo, hi = sorted((run, run + v)); run += v
+        l1, l2 = name.split("|")
+        n.append(label(10, y + 16, l1, fs=13, cls="t")); n.append(label(10, y + 33, l2, fs=13))
+        n.append(f'<rect class="w{kind}" x="{L + lo*sx:.1f}" y="{y + 8}" width="{max((hi-lo)*sx, 2):.1f}" height="24" rx="4"><title>{esc(name.replace("|", " "))}: {esc(money(v, kind))}</title></rect>')
+        n.append(label(NW - 6, y + 25, money(v, kind), anchor="end", fs=13, cls="t", weight="600"))
+    nh = 22 + len(steps) * rh
+    n.append(label(10, nh + 16, "Demo values. Orange lowers contribution, blue", fs=12))
+    n.append(label(10, nh + 33, f"raises it; grey are totals. Diesel {price:.2f}/L, tariff {tariff:.2f}/kWh.", fs=12))
+    P, A = steps[0][1], steps[-1][1]
+    title = f"Figure 2. Kobo, October: contribution {P:,.0f} planned, {A:,.0f} actual (demo values)"
+    desc = "Waterfall: " + "; ".join(f"{nm.replace('|', ' ')} {money(v, k)}" for nm, v, k in steps) + "."
+    return svg(W, H, "".join(b), title, desc, (NW, nh + 44, "".join(n)))
 
 # ---------------------------------------------------------------- diagram 3: what operators have vs what AssetEcon adds
 def d3():
@@ -118,8 +221,18 @@ def d3():
     b.append(arrow([(530, 166), (554, 166)])); b.append(arrow([(716, 166), (740, 166)])); b.append(arrow([(892, 166), (916, 166)]))
     b.append(arrow([(995, 212), (995, 250), (440, 250), (440, 214)]))
     b.append(label(718, 268, "proof feeds the next period's observation", anchor="middle", fs=11.5))
+    narrow = vstack([("h", "What operators already have"),
+                     ("r", [(["Monitoring / EMS / CPMS", "what the assets are doing"], "bx")]),
+                     ("r", [(["Billing, vending, ERP", "what was charged and paid"], "bx")]),
+                     ("r", [(["Contracts and spreadsheets", "warranties, SLAs, plans"], "bx")]),
+                     ("n", "All three feed the outcome structure."),
+                     ("h", "What AssetEcon adds: the join"),
+                     ("r", [(["Outcome structure", "figures from factors, with evidence"], "bxa")]),
+                     ("r", [(["Options", "vs no action, with rules and rights"], "bxa")]),
+                     ("r", [(["One plan", "within budget and crews"], "bxa")]), ("r", [(["Proof", "in three verdicts"], "bxa")]),
+                     ("n", "Proof feeds the next period's observation.")])
     return svg(1100, 300, "".join(b), "Figure 3. Where the differentiation sits: the join across systems the operator already has",
-               "Monitoring, billing and contract systems feed an outcome structure, which leads to options, one plan, and proof, in a loop.")
+               "Monitoring, billing and contract systems feed an outcome structure, which leads to options, one plan, and proof, in a loop.", narrow)
 
 # ---------------------------------------------------------------- diagram 4: engagement path
 def d4():
@@ -141,40 +254,58 @@ def d4():
     b.append(box(705, 200, 175, 70, ["Stop or rethink", "record why"], fs=12))
     b.append(arrow([(615, cy + 48), (615, 235), (703, 235)])); b.append(label(622, 170, "no", fs=11))
     b.append(arrow([(975, cy + 48), (975, 235), (882, 235)])); b.append(label(982, 170, "no", fs=11))
+    narrow = vstack([("r", [(["Client demo", "mock-up, design values labelled"], "bx")]),
+                     ("r", [(["Qualified? data access, a decision", "not yet: data assessment (cold, EV)"], "bxp")]),
+                     ("a", "yes", "ar"), ("r", [(["Paid diagnostic", "3 sites, ~4 weeks; analyst-prepared"], "bxa")]),
+                     ("r", [(["Factor bridge reconciled, compelling?", "no: stop or rethink, record why"], "bxp")]),
+                     ("a", "yes", "ar"), ("r", [(["Pilot / field validation", "~3 months; one change proved"], "bxa")]),
+                     ("r", [(["Verdicts and the buyer's judgement?", "no: stop or rethink"], "bxp")]),
+                     ("a", "yes", "ar"), ("r", [(["Paid continuation", "and reference case"], "bxa")])])
     return svg(1210, 290, "".join(b), "Figure 4. The engagement path, with its gates",
-               "Demo, then a qualification gate; qualified prospects get a paid diagnostic, others a data assessment. If the factor bridge is reconciled and compelling, a pilot follows; if its verdicts hold, paid continuation. Failed gates lead to stop or rethink.")
+               "Demo, then a qualification gate; qualified prospects get a paid diagnostic, others a data assessment. If the factor bridge is reconciled and compelling, a pilot follows; if its verdicts hold, paid continuation. Failed gates lead to stop or rethink.", narrow)
 
-# ---------------------------------------------------------------- diagram 5: dependencies
+# ---------------------------------------------------------------- diagram 5: dependencies (rights and plan in parallel)
 def d5():
     b = []
     W = 125; xs = [20 + i*147 for i in range(7)]
-    crit = [["2 Commercial", "records and", "file intake"], ["3 Structure and", "factor bridge"], ["4 Decisions:", "options, rules,", "no action"],
-            ["6 Rights in", "repair decisions"], ["5 Plan and the", "restructured", "Portfolio"], ["8a Cold", "(or EV first)"], ["8b EV", "(or cold)"]]
-    yc, hc = 150, 74
-    for x, t in zip(xs, crit): b.append(box(x, yc, W, hc, t, cls="bxa", fs=11.5))
-    for i in range(6):
-        cls = "arc" if i < 5 else "ar"
-        b.append(arrow([(xs[i]+W, yc+hc/2), (xs[i+1]-2, yc+hc/2)], cls=cls, marker="mc" if i < 5 else "m"))
-    yt = 30
-    b.append(box(xs[0], yt, W, 66, ["Pilot lane", "agreements,", "profiles,", "diagnostics"], cls="bxp", fs=12))
-    b.append(box(xs[1], yt, W, 66, ["Lane B", "build speed,", "re-benchmark"], cls="bxp", fs=12))
-    b.append(box(xs[2], yt, W, 66, ["Calibration lane", "replays on", "demo data"], cls="bxp", fs=12))
-    b.append(box(xs[4], yt, W, 66, ["1 Honest screens", "(UI only)"], cls="bxp", fs=12))
+    yt, yc, yb, hc = 30, 150, 290, 74
+    mid = [(0, ["2 Commercial", "records and", "file intake"]), (1, ["3 Structure and", "factor bridge"]), (2, ["4 Decisions:", "options, rules,", "no action"]),
+           (3, ["5 Plan and the", "restructured", "Portfolio"]), (5, ["8a Cold", "(or EV first)"]), (6, ["8b EV", "(or cold)"])]
+    for c, t in mid: b.append(box(xs[c], yc, W, hc, t, cls="bxa", fs=11.5))
+    for i in range(3):
+        b.append(arrow([(xs[i]+W, yc+hc/2), (xs[i+1]-2, yc+hc/2)], cls="arc", marker="mc"))
+    b.append(arrow([(xs[3]+W, yc+hc/2), (xs[5]-2, yc+hc/2)]))
+    b.append(arrow([(xs[5]+W, yc+hc/2), (xs[6]-2, yc+hc/2)]))
+    for c, t in ((0, ["Pilot lane", "agreements,", "profiles,", "diagnostics"]), (1, ["Lane B", "build speed,", "re-benchmark"]),
+                 (2, ["Calibration lane", "replays on", "demo data"]), (3, ["1 Honest screens", "(UI only)"])):
+        b.append(box(xs[c], yt, W, 66, t, cls="bxp", fs=12))
     b.append(arrow([(xs[0]+W/2, yt+66), (xs[0]+W/2, yc-2)], cls="ard"))
     b.append(arrow([(xs[1]+W/2, yt+66), (xs[2]+20, yc-2)], cls="ard"))
     b.append(arrow([(xs[2]+W/2, yt+66), (xs[2]+W/2, yc-2)], cls="ard"))
-    b.append(arrow([(xs[4]+W/2, yt+66), (xs[4]+W/2, yc-2)]))
-    yb = 290
-    b.append(box(xs[3], yb, W, 66, ["7 Proof:", "three verdicts"], cls="bxa", fs=12))
-    b.append(box(xs[6], yb, W, 66, ["9 Pilot hardening", "field calibration", "evidence pack"], cls="bxa", fs=12))
-    b.append(arrow([(xs[2]+W/2, yc+hc), (xs[3]+20, yb-2)]))
-    b.append(arrow([(xs[3]+W, yb+12), (xs[5]+30, yb+12), (xs[5]+30, yc+hc+2)]))
-    b.append(f'<path class="ar" d="M{xs[4]+W/2},{yc+hc} L{xs[4]+W/2},{yb+46}"/>')
-    b.append(arrow([(xs[3]+W, yb+46), (xs[6]-2, yb+46)]))
-    b.append(arrow([(xs[0]+20, yt), (xs[0]+20, 12), (1150, 12), (1150, yb+33), (xs[6]+W+2, yb+33)], cls="ard"))
-    b.append(label(20, 392, "Thick orange arrows: the critical path (records → structure → decisions → rights → plan). Dashed: parallel lanes that feed a step.", fs=11.5))
-    return svg(1170, 400, "".join(b), "Figure 5. Transition steps, dependencies and the critical path",
-               "Critical path: commercial records, structure and factor bridge, decisions, rights, plan, then cold and EV. Parallel lanes: pilot lane, Lane B, calibration lane, honest screens. Proof follows decisions and precedes the second vertical; pilot hardening follows plan and proof.")
+    b.append(arrow([(xs[3]+W/2, yt+66), (xs[3]+W/2, yc-2)]))
+    b.append(box(xs[2], yb, W, 66, ["7 Proof:", "three verdicts", "(lane 2)"], cls="bxa", fs=12))
+    b.append(box(xs[3], yb, W, 66, ["6 Rights in", "repair decisions", "(lane 2)"], cls="bxa", fs=12))
+    b.append(box(xs[5], yb, W, 66, ["9 Pilot hardening", "field calibration", "evidence pack"], cls="bxa", fs=12))
+    b.append(arrow([(xs[2]+W/2, yc+hc), (xs[2]+W/2, yb-2)]))
+    b.append(arrow([(xs[2]+W-10, yc+hc), (xs[3]+20, yb-2)]))
+    b.append(arrow([(xs[3]+W/2, yb), (xs[3]+W/2, yc+hc+2)], cls="ard"))
+    b.append(label(xs[3]+W/2+6, yb-22, "full plan gate", fs=11))
+    b.append(arrow([(xs[3]+W, yc+hc-14), (xs[4]+60, yc+hc-14), (xs[4]+60, yb+40), (xs[5]-2, yb+40)]))
+    b.append(arrow([(xs[2]+W/2, yb+66), (xs[2]+W/2, yb+86), (xs[5]+W/2, yb+86), (xs[5]+W/2, yb+68)]))
+    b.append(arrow([(xs[0]+20, yt), (xs[0]+20, 12), (1150, 12), (1150, yb+33), (xs[5]+W+2, yb+33)], cls="ard"))
+    b.append(label(20, 410, "Thick orange arrows: the critical path (records → structure → decisions → plan). Rights and proof run in lane 2 after decisions; dashed: parallel lanes and the plan gate.", fs=11.5))
+    narrow = vstack([("h", "Parallel from the start"),
+                     ("r", [(["Pilot lane", "agreements, profiles"], "bxp"), (["Lane B", "build speed"], "bxp")]), ("x",),
+                     ("r", [(["Calibration lane", "replays, demo data"], "bxp"), (["1 Honest screens", "UI only"], "bxp")]),
+                     ("h", "Critical path (lane 1)"),
+                     ("r", [(["2 Commercial records", "and file intake"], "bxa")]),
+                     ("a", "", "arc"), ("r", [(["3 Structure and factor bridge"], "bxa")]),
+                     ("a", "", "arc"), ("r", [(["4 Decisions", "options, rules, no action"], "bxa")]),
+                     ("a", "", "arc"), ("r", [(["5 Plan, Portfolio", "lane 1"], "bxa"), (["6 Rights, 7 Proof", "lane 2"], "bxa")]),
+                     ("n", "The full plan gate waits for rights (6)."),
+                     ("r", [(["8a Cold, then 8b EV", "(order set by prospect)"], "bxa"), (["9 Pilot hardening", "field calibration"], "bxa")])])
+    return svg(1170, 420, "".join(b), "Figure 5. Transition steps, dependencies and the critical path",
+               "Critical path: commercial records, structure and factor bridge, decisions, plan. Rights and proof run in the second lane after decisions; the full plan gate waits for rights. Parallel lanes: pilot lane, Lane B, calibration lane, honest screens. Verticals follow plan and proof; pilot hardening follows plan and proof.", narrow)
 
 # ---------------------------------------------------------------- diagram 6: adapters
 def d6():
@@ -191,44 +322,163 @@ def d6():
     for i in range(3): b.append(arrow([(240, 56 + i*90), (265, 56 + i*90), (265, 155), (298, 155)]))
     b.append(arrow([(490, 155), (528, 155)])); b.append(arrow([(720, 155), (758, 155)])); b.append(arrow([(945, 155), (988, 155)]))
     b.append(label(620, 250, "From demo to pilot only transport and profile change; parser, records, observers and structure stay the same.", anchor="middle", fs=11.5))
+    narrow = vstack([("r", [(["Sources", "demo: emulated export", "bench: device or sample export", "pilot: the operator's export"], "bx")]),
+                     ("h", "Adapter"),
+                     ("r", [(["Transport", "upload, scheduled drop (later: API)"], "bxa")]),
+                     ("r", [(["Parser", "bytes to typed rows (pure, versioned)"], "bxa")]),
+                     ("r", [(["Profile", "columns, units, timezone, personal data"], "bxa")]),
+                     ("r", [(["Commercial record store", "or evidence ledger"], "bx")]),
+                     ("n", "From demo to pilot only transport and profile\nchange; parser, records and structure stay.")])
     return svg(1180, 270, "".join(b), "Figure 6. File import first: one adapter shape from demo to pilot",
-               "Emulated, bench and pilot exports enter through transport, parser and profile into the commercial record store or the evidence ledger.")
+               "Emulated, bench and pilot exports enter through transport, parser and profile into the commercial record store or the evidence ledger.", narrow)
 
 # ---------------------------------------------------------------- diagram 7: roadmap swimlanes
-def d7():
-    lanes = [("Product", [("Calibration lane + honest screens", 0, 1), ("Records and factor bridge (steps 2–3)", 0, 3),
-                          ("Decisions and rights (steps 4, 6)", 2, 5), ("Plan and Portfolio (step 5)", 4, 6), ("Proof (step 7)", 4, 6),
-                          ("Second vertical (8a or 8b)", 6, 8), ("Third vertical", 8, 10)]),
-             ("Data", [("Diagnostic kit and profiles", 0, 1), ("Pilot profiles pinned", 2, 5), ("Field calibration on pilot data", 5, 7)]),
-             ("Pilots", [("First mini-grid diagnostic", 1, 3), ("Mini-grid pilot (field validation)", 3, 7), ("Second-vertical diagnostic", 5, 7)]),
-             ("Commercial", [("Demos and qualification", 0, 10), ("First conversion decision", 7, 7), ("Investor and lender evidence pack", 7, 9)])]
-    L, R, top, rh = 300, 1150, 40, 24
+LANES = [("Product", [("Calibration lane + honest screens", 0, 1), ("Records and factor bridge (steps 2–3)", 0, 2),
+                      ("Decisions (step 4)", 1, 3), ("Plan and Portfolio (step 5)", 2, 4), ("Rights (step 6), then proof (step 7)", 2, 4),
+                      ("Second vertical (8a or 8b)", 4, 6), ("Third vertical", 6, 8)]),
+         ("Data", [("Diagnostic kit and profiles", 0, 1), ("Pilot profiles pinned", 2, 4), ("Field calibration on pilot data", 4, 6)]),
+         ("Pilots", [("First mini-grid diagnostic", 1, 3), ("Mini-grid pilot (field validation)", 3, 7), ("Second-vertical diagnostic", 4, 6)]),
+         ("Commercial", [("Demos and qualification", 0, 10), ("First conversion decision", 7, 7), ("Investor and lender evidence pack", 6, 8)])]
+
+def gantt(L, R, top, rh, lbl_fs, stacked):
     mw = (R - L) / 10
     b = []
-    rows = sum(len(x[1]) + 1 for x in lanes)
-    H = top + rows * rh + 40
+    rows = sum(len(x[1]) * (2 if stacked else 1) + 1 for x in LANES)
     for m in range(11):
         x = L + m * mw
         b.append(f'<line class="grid" x1="{x:.1f}" x2="{x:.1f}" y1="{top-6}" y2="{top + rows*rh}"/>')
-        b.append(label(x, top - 12, f"M{m}", anchor="middle", fs=11))
+        b.append(label(x, top - 12, f"M{m}", anchor="middle", fs=12 if stacked else 11))
     y = top
-    for li, (lane, items) in enumerate(lanes):
+    for li, (lane, items) in enumerate(LANES):
         b.append(f'<rect class="lane" x="0" y="{y}" width="{R+10}" height="{rh}"/>')
         b.append(label(8, y + 17, lane, fs=13, weight="600", cls="t"))
         y += rh
         for name, s, e in items:
-            b.append(label(16, y + 16, name, fs=12))
+            if stacked:
+                b.append(label(8, y + 17, name, fs=lbl_fs)); y += rh
+            else:
+                b.append(label(16, y + 16, name, fs=lbl_fs))
             if s == e:
                 cx = L + s * mw; cy = y + rh/2
                 b.append(f'<polygon class="ms" points="{cx},{cy-8} {cx+8},{cy} {cx},{cy+8} {cx-8},{cy}"><title>{esc(name)}: M{s}</title></polygon>')
             else:
                 b.append(f'<rect class="bar{li}" x="{L + s*mw + 1:.1f}" y="{y+5}" width="{(e-s)*mw - 2:.1f}" height="{rh-10}" rx="4"><title>{esc(name)}: M{s} to M{e}</title></rect>')
             y += rh
-    b.append(label(L, H - 12, "Months from the owner's approval of the path. Estimates; ranges in §4.3. Pilot timing depends on a qualified prospect.", fs=11))
-    return svg(R + 20, H, "".join(b), "Figure 7. Roadmap in four lanes: product, data, pilots, commercial",
-               "Swimlane timeline over ten months: product steps, data work, pilots and commercial milestones, as listed in the table below it.")
+    return "".join(b), top + rows * rh
 
-DIAGRAMS = [d1, d2, d3, d4, d5, d6, d7]
+def d7():
+    body, end = gantt(300, 1150, 40, 24, 12, False)
+    H = end + 40
+    body += label(300, H - 12, "Months from the owner's approval of the path. Estimates; ranges in §4.3. Pilot timing depends on a qualified prospect.", fs=11)
+    nb, nend = gantt(22, NW - 14, 30, 22, 13, True)
+    nb += label(8, nend + 22, "Months from approval. Estimates (§4.3).", fs=12)
+    return svg(1170, H, body, "Figure 7. Roadmap in four lanes: product, data, pilots, commercial",
+               "Swimlane timeline over ten months: product steps, data work, pilots and commercial milestones, as listed in the mermaid source.", (NW, nend + 34, nb))
+
+# ---------------------------------------------------------------- diagram 8: Layer 4 pack rounds by cause
+CAUSES = {"A": ("Direction not approved before building", "c1"), "B": ("Owner requirements arrived mid-round", "c3"),
+          "C": ("Figures typed; checks shared the author's assumptions", "c2"), "D": ("Fixed by instance, not by class", "c4"),
+          "-": ("Accepted, or a new owner request", "cn")}
+ROUNDS = [("rev 1", "A"), ("rev 2", "A"), ("rev 3", "A"), ("rev 4", "A"), ("rev 5", "B"), ("rev 6", "B"), ("rev 7", "C"), ("rev 8", "C"),
+          ("rev 9", "C"), ("rev 10", "C"), ("rev 11", "C"), ("rev 12", "C"), ("rev 13", "-"), ("§7 r1", "-"), ("§7 r2", "D"),
+          ("§7 r3", "D"), ("pack", "D")]
+
+def d8():
+    b = []
+    sz, gap, x0, y0 = 54, 8, 20, 30
+    for i, (nm, c) in enumerate(ROUNDS):
+        x = x0 + i * (sz + gap)
+        b.append(f'<rect class="{CAUSES[c][1]}" x="{x}" y="{y0}" width="{sz}" height="{sz}" rx="4"><title>{esc(nm)}: {esc(CAUSES[c][0])}</title></rect>')
+        b.append(label(x + sz/2, y0 + sz/2 + 6, c if c != "-" else "✓", anchor="middle", fs=16, cls="on", weight="700"))
+        b.append(label(x + sz/2, y0 + sz + 18, nm, anchor="middle", fs=11.5))
+    b.append(label(x0, 18, "16 Nov 16:52  →  18 Nov 05:38 (commit times)", fs=12))
+    ly = y0 + sz + 48
+    for j, k in enumerate(("A", "B", "C", "D", "-")):
+        cnt = sum(1 for _, c in ROUNDS if c == k)
+        x = x0 + (j % 2) * 540; y = ly + (j // 2) * 26
+        b.append(f'<rect class="{CAUSES[k][1]}" x="{x}" y="{y - 13}" width="16" height="16" rx="3"/>')
+        b.append(label(x + 24, y, f"{k if k != '-' else '✓'}  {CAUSES[k][0]} ({cnt})", fs=12.5, cls="t"))
+    H = ly + 3 * 26 + 6
+    W = x0 + len(ROUNDS) * (sz + gap) + 12
+    # narrow: one bar per cause, length = rounds
+    n, y = [], 10
+    for k in ("A", "B", "C", "D", "-"):
+        cnt = sum(1 for _, c in ROUNDS if c == k)
+        which = ", ".join(nm for nm, c in ROUNDS if c == k)
+        n.append(label(10, y + 14, f"{k if k != '-' else '✓'}  {CAUSES[k][0]}", fs=13, cls="t", weight="600"))
+        n.append(f'<rect class="{CAUSES[k][1]}" x="10" y="{y + 22}" width="{cnt * 44}" height="18" rx="4"><title>{esc(which)}</title></rect>')
+        n.append(label(16 + cnt * 44, y + 36, f"{cnt}: {which}" if len(which) < 22 else f"{cnt} rounds", fs=12.5))
+        y += 52
+    return svg(W, H, "".join(b), "Figure 9. The Layer 4 pack's review rounds, by the cause of the next round",
+               "Seventeen rounds: four lost to a direction not approved before building, two to requirements arriving mid-round, six to typed figures found one at a time, three to fixing instances rather than classes; two were accepted work or a new request.",
+               (NW, y + 4, "".join(n)))
+
+# ---------------------------------------------------------------- diagram 9: the build workflow
+def d9():
+    b = []
+    steps = [(["Structure spec", "factors, decisions,", "screens, tests"], "bxa"), (["Owner approves", "the structure", "(one sitting)"], "bx"),
+             (["Independent", "checks written", "and reviewed"], "bxa"), (["Readiness", "dry-read", "against code"], "bxa"),
+             (["Build", "two lanes,", "small units"], "bxa"), (["Review", "depth by risk"], "bxa"), (["Class fix", "and sweep;", "stop rule"], "bxa"),
+             (["Phase-end owner", "walkthrough", "(one sitting)"], "bx")]
+    w, h, gx = 118, 76, 22
+    for i, (t, c) in enumerate(steps):
+        x = 20 + i * (w + gx)
+        b.append(box(x, 70, w, h, t, cls=c, fs=12))
+        if i: b.append(arrow([(x - gx, 108), (x - 2, 108)]))
+        b.append(label(x + w/2, 62, f"W{[1, 1, 2, 4, 4, 5, 6, 8][i]}" + ("/W7" if i == 6 else "/W3" if i in (1, 7) else ""), anchor="middle", fs=11))
+    xb = 20 + 4 * (w + gx)
+    b.append(box(xb - 60, 190, 240, 52, ["Decision queue (W3)", "defaults applied; owner answers in batch"], cls="bxp", fs=12))
+    b.append(arrow([(xb + w/2, 190), (xb + w/2, 148)], cls="ard"))
+    b.append(box(20, 268, 1100, 46, ["Pilot calendar (W9): data agreement → diagnostic → after-window → closed month, alongside the build"], cls="bxp", fs=12.5))
+    b.append(label(20, 30, "One phase of the build. Owner time sits in two fixed sittings plus the queue; agents never wait.", fs=12.5, cls="t"))
+    narrow = vstack([("r", [(["Structure spec (W1)", "factors, decisions, screens, tests"], "bxa")]),
+                     ("r", [(["Owner approves structure", "one sitting (W1, W3)"], "bx")]),
+                     ("r", [(["Independent checks (W2)", "written and reviewed first"], "bxa")]),
+                     ("r", [(["Readiness dry-read (W4)", "against the code"], "bxa")]),
+                     ("r", [(["Build (W4)", "two lanes, small units"], "bxa")]),
+                     ("n", "Decision queue (W3): defaults applied,\nthe owner answers in batches; no agent waits."),
+                     ("r", [(["Review by risk (W5)"], "bxa")]),
+                     ("r", [(["Class fix and sweep (W6)", "stop rule after two repeats (W7)"], "bxa")]),
+                     ("r", [(["Phase-end walkthrough (W8)", "one sitting"], "bx")]),
+                     ("n", "Pilot calendar (W9) runs alongside: agreement,\ndiagnostic, after-window, closed month.")])
+    return svg(1140, 330, "".join(b), "Figure 10. The build workflow for one phase",
+               "Structure specification, owner approval of the structure, independent checks, readiness dry-read, build in two lanes, review by risk, class fixes with a stop rule, phase-end walkthrough; a decision queue with defaults feeds the build; the pilot calendar runs alongside.", narrow)
+
+# ---------------------------------------------------------------- diagram 10: effort ranges, revision 1 against revised (weeks)
+EFFORT = [("Calibration lane + step 1", (2, 4), (1, 2)), ("Steps 2–3", (6, 10), (3, 6)), ("Steps 4, 5 and 6", (8, 14), (4, 8)),
+          ("Step 7", (2, 4), (1, 2)), ("Mini-grid core, total", (17, 30), (9, 17))]
+
+def d10():
+    def body(L, R, rh, lab_above, fs):
+        sx = (R - L) / 30
+        b, y = [], 34
+        for v in range(0, 31, 5):
+            x = L + v * sx
+            b.append(f'<line class="grid" x1="{x:.1f}" x2="{x:.1f}" y1="26" y2="{34 + len(EFFORT) * rh}"/>')
+            b.append(label(x, 20, f"{v} wk", anchor="middle", fs=12 if lab_above else 11))
+        for name, old, new in EFFORT:
+            if lab_above:
+                b.append(label(8, y + 14, name, fs=fs, cls="t")); yb = y + 20
+            else:
+                b.append(label(L - 12, y + 22, name, anchor="end", fs=fs, cls="t")); yb = y + 6
+            for k, (lo, hi), cls in ((0, old, "rold"), (1, new, "rnew")):
+                yy = yb + k * 16
+                b.append(f'<rect class="{cls}" x="{L + lo*sx:.1f}" y="{yy}" width="{(hi-lo)*sx:.1f}" height="12" rx="4"><title>{esc(name)}: {lo}–{hi} weeks ({"revision 1" if k == 0 else "revised"})</title></rect>')
+                b.append(label(L + hi*sx + 6, yy + 11, f"{lo}–{hi}", fs=12))
+            y += rh
+        return "".join(b), y
+    wb, wy = body(260, 900, 46, False, 12.5)
+    wb += f'<rect class="rold" x="260" y="{wy + 8}" width="14" height="10" rx="3"/>' + label(280, wy + 17, "Revision 1 (1–2 weeks per reviewed change)", fs=12, cls="t")
+    wb += f'<rect class="rnew" x="580" y="{wy + 8}" width="14" height="10" rx="3"/>' + label(600, wy + 17, "Revised (observed pace, workflow in §5)", fs=12, cls="t")
+    nb, ny = body(24, NW - 50, 60, True, 13)
+    nb += f'<rect class="rold" x="10" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(30, ny + 15, "Revision 1", fs=12.5, cls="t")
+    nb += f'<rect class="rnew" x="150" y="{ny + 6}" width="14" height="10" rx="3"/>' + label(170, ny + 15, "Revised", fs=12.5, cls="t")
+    return svg(960, wy + 30, wb, "Figure 8. Build effort in weeks: revision 1 against the revised ranges (estimates)",
+               "Calibration and step 1: 2–4 weeks to 1–2. Steps 2–3: 6–10 to 3–6. Steps 4–6: 8–14 to 4–8. Step 7: 2–4 to 1–2. Mini-grid core: 17–30 weeks (4–7 months) to 9–17 weeks (2–4 months).",
+               (NW, ny + 26, nb))
+
+DIAGRAMS = [d1, d2, d3, d4, d5, d6, d7, d8, d9]   # in the order of the mermaid blocks
+MARKERS = {"effort": d10}
 
 # ---------------------------------------------------------------- markdown subset
 def slug(t):
@@ -252,7 +502,7 @@ def inline(s):
 
 def cells(row):
     row = row.strip().strip("|")
-    return [c.strip() for c in row.split("|")]
+    return [c.strip() for c in re.split(r"(?<!\\)\|", row)]
 
 lines = open(SRC, encoding="utf-8").read().split("\n")
 body, toc, i, dg = [], [], 0, 0
@@ -263,6 +513,9 @@ while i < len(lines):
         while not lines[i].startswith("```"):
             i += 1
         body.append(DIAGRAMS[dg]()); dg += 1; i += 1; continue
+    mk = re.fullmatch(r"<!--diagram:(\w+)-->", ln.strip())
+    if mk:
+        body.append(MARKERS[mk.group(1)]()); i += 1; continue
     m = re.match(r"^(#{1,4}) (.*)", ln)
     if m:
         lvl, txt = len(m.group(1)), m.group(2)
@@ -306,34 +559,38 @@ while i < len(lines):
     body.append(f"<p>{inline(' '.join(para))}</p>")
 
 assert dg == len(DIAGRAMS), (dg, len(DIAGRAMS))
-h1_end = next(k for k, x in enumerate(body) if x.startswith("<h1"))
 tochtml = '<nav class="toc" aria-label="Contents"><strong>Contents</strong><ul>' + "".join(
     f'<li class="l{l}"><a href="#{s}">{t}</a></li>' for l, s, t in toc) + "</ul></nav>"
 # place the contents after the header block (before the first <hr>)
 first_hr = body.index("<hr>")
 body.insert(first_hr, tochtml)
 
-CSS = """:root{--bg:#f6f7f9;--fg:#18212f;--muted:#5d6878;--line:#dfe3ea;--card:#fff;--accent:#1d4ed8;--code:#eef1f5;--acard:#eef3ff;--pcard:#f4f5f7;--neg:#c2410c;--pos:#2563eb;--tot:#8a94a3;--lane:#eef1f5}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733;--acard:#1a2540;--pcard:#1b212b;--neg:#ea580c;--pos:#3b82f6;--tot:#6b7584;--lane:#1f2733}}
-:root[data-theme=dark]{--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733;--acard:#1a2540;--pcard:#1b212b;--neg:#ea580c;--pos:#3b82f6;--tot:#6b7584;--lane:#1f2733}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+TOK_L = "--bg:#f6f7f9;--fg:#18212f;--muted:#5d6878;--line:#dfe3ea;--card:#fff;--accent:#1d4ed8;--code:#eef1f5;--acard:#eef3ff;--pcard:#f4f5f7;--neg:#c2410c;--pos:#2563eb;--tot:#8a94a3;--lane:#eef1f5;--c1:#2563eb;--c2:#c2410c;--c3:#7c3aed;--c4:#0d9488;--cn:#8a94a3"
+TOK_D = "--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733;--acard:#1a2540;--pcard:#1b212b;--neg:#ea580c;--pos:#3b82f6;--tot:#6b7584;--lane:#1f2733;--c1:#3b82f6;--c2:#ea580c;--c3:#8b5cf6;--c4:#0d9488;--cn:#6b7584"
+CSS = f""":root{{{TOK_L}}}
+@media (prefers-color-scheme:dark){{:root:not([data-theme=light]){{{TOK_D}}}}}
+:root[data-theme=dark]{{{TOK_D}}}
+""" + """body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
 .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px}h1{font-size:28px;line-height:1.25}h2{margin-top:44px;padding-top:12px;border-top:1px solid var(--line)}h3{margin-top:28px}
 a{color:var(--accent)}code{background:var(--code);padding:1px 4px;border-radius:3px;font-size:.88em;overflow-wrap:anywhere}
 .tw{overflow-x:auto;margin:12px 0;border:1px solid var(--line);border-radius:6px;background:var(--card)}table{border-collapse:collapse;width:100%;font-size:13.5px}th,td{text-align:left;vertical-align:top;padding:7px 9px;border-bottom:1px solid var(--line)}th{background:var(--code);font-weight:600}
 blockquote{margin:16px 0;padding:10px 14px;border-left:4px solid var(--accent);background:var(--card)}hr{border:0;border-top:1px solid var(--line);margin:32px 0}
 .toc{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:20px 0}.toc ul{margin:6px 0;padding-left:18px}.toc .l3{margin-left:16px;font-size:.93em}
-figure.dg{margin:16px 0;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:6px;overflow-x:auto}figure.dg svg{display:block;width:100%;min-width:640px;height:auto}
+figure.dg{margin:16px 0;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:6px}figure.dg svg{display:block;width:100%;height:auto}
+figure.dg svg.narrow{display:none;max-width:520px;margin:0 auto}
+@media (max-width:999px){figure.dg svg.wide{display:none}figure.dg svg.narrow{display:block}}
 figcaption{color:var(--muted);font-size:13px;margin-top:6px}
 svg .bx{fill:var(--card);stroke:var(--muted);stroke-width:1.2}svg .bxa{fill:var(--acard);stroke:var(--accent);stroke-width:1.4}svg .bxp{fill:var(--pcard);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}
 svg .grp{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:6 4}
-svg .t{fill:var(--fg)}svg .lb{fill:var(--muted)}svg .ar{fill:none;stroke:var(--muted);stroke-width:1.6}svg .ard{fill:none;stroke:var(--muted);stroke-width:1.4;stroke-dasharray:5 4}
+svg .t{fill:var(--fg)}svg .lb{fill:var(--muted)}svg .on{fill:#fff}svg .ar{fill:none;stroke:var(--muted);stroke-width:1.6}svg .ard{fill:none;stroke:var(--muted);stroke-width:1.4;stroke-dasharray:5 4}
 svg .arc{fill:none;stroke:var(--neg);stroke-width:3.2}svg .mk{fill:var(--muted)}svg .mkc{fill:var(--neg)}
 svg .grid{stroke:var(--line);stroke-width:1}svg .conn{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
 svg .wneg{fill:var(--neg)}svg .wpos{fill:var(--pos)}svg .wtot{fill:var(--tot)}
+svg .c1{fill:var(--c1)}svg .c2{fill:var(--c2)}svg .c3{fill:var(--c3)}svg .c4{fill:var(--c4)}svg .cn{fill:var(--cn)}svg .rold{fill:var(--tot)}svg .rnew{fill:var(--accent)}
 svg .lane{fill:var(--lane)}svg .bar0,svg .bar1,svg .bar2,svg .bar3{fill:var(--accent)}svg .bar1{opacity:.75}svg .bar2{opacity:.6}svg .bar3{opacity:.45}svg .ms{fill:var(--neg)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}"""
 
 page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
         '<title>Product Transition Roadmap</title><style>' + CSS + '</style></head><body><main class="wrap">' + "".join(body) + "</main></body></html>")
 open(OUT, "w", encoding="utf-8").write(page)
-print("ok", len(page), "diagrams", dg)
+print("ok", len(page), "diagrams", dg + sum(1 for x in lines if re.fullmatch(r"<!--diagram:(\w+)-->", x.strip())))

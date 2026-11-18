@@ -11,10 +11,12 @@ and the manifest alone. Against that independent recomputation the checker compa
      has deciding options;
   4. narratives(): rendered manifest strings carry {fig:path} / {rec:path} placeholders that resolve, and state no evaluated
      figure as a literal;
-  5. anchors(): every <!--fig:path--> figure in the documents equals the independent value at that path, signed; record tags
+  5. anchors(): every <!--fig:path--> figure in the documents equals the independent value at that path, signed; every
+     <!--figx:expression--> figure equals that arithmetic (+ - * / and brackets) over {independent paths}, signed; record tags
      are manifest money records; headline paths are tagged; no untagged copy of an evaluated plan or option money figure
      (with or without cents) or of an O2 percentage appears in a figure-bearing document;
-  6. documents(): untagged money figures in main §2-§10 and the walkthroughs are independent values or declared inputs.
+  6. documents(): untagged money figures in main §2-§10, the walkthroughs and the transition document's §1-§4 are
+     independent values or declared inputs.
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -350,7 +352,7 @@ def narratives(doc, ref):
 # ---------------- 5. document anchors ----------------
 FIG_DOCS = ("layer4-transformation-design.md", "economic-metric-and-effect-contracts.md", "domain-and-decision-models.md",
             "phase-plan-and-acceptance.md", "integration-source-to-canonical-design.md", "demo-build-cost-plan.md", "interactive-mockup-vNEXT/walkthroughs.md",
-            "design-questions-and-decisions.md")
+            "design-questions-and-decisions.md", "product-transition-and-roadmap.md")
 REQUIRED = {"layer4-transformation-design.md": [f"plans.{t}.default.{k}" for t in ("lakeside-power", "harvest-cold", "metro-bus")
                                                 for k in ("spend", "value", "crew_visits_used")] +
             ["sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy", "sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy",
@@ -359,9 +361,47 @@ REQUIRED = {"layer4-transformation-design.md": [f"plans.{t}.default.{k}" for t i
             "interactive-mockup-vNEXT/walkthroughs.md": [f"plans.{t}.default.{k}" for t in ("lakeside-power", "harvest-cold", "metro-bus") for k in ("spend", "value")] +
             ["sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed", "sites.metro-bus/Kasarani.november_to_date.nodes.penalties"],
             "design-questions-and-decisions.md": ["owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value", "owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value_change_vs_applied",
-                                                  "owner_question_variants.Q15.C.lakeside-power.cases.5000/False.value"]}
+                                                  "owner_question_variants.Q15.C.lakeside-power.cases.5000/False.value"],
+            "product-transition-and-roadmap.md": ["sites.lakeside-power/Kobo.plan.nodes.contribution", "sites.lakeside-power/Kobo.actual.nodes.contribution",
+                                                  "plans.lakeside-power.default.spend", "plans.lakeside-power.default.value", "plans.lakeside-power.downside"]}
 ANCHOR = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--fig:(-?)([^>]+)-->", re.M)
+FIGX = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--figx:([^>]+)-->", re.M)
 RECORDS: set = set()
+
+
+def expr_value(ref, expr):
+    """Arithmetic over {independent paths}: numbers, + - * /, brackets and round(x, places) only, in Decimal. None if a
+    path is missing or the expression uses anything else. Values come from the independent model only."""
+    import ast
+    vals = {}
+
+    def sub(m):
+        v = get(ref, m.group(1).strip())
+        if not isinstance(v, (int, float)) or isinstance(v, bool):
+            raise KeyError(m.group(1))
+        vals[f"v{len(vals)}"] = D(str(v)); return f" v{len(vals) - 1} "
+    try:
+        tree = ast.parse(re.sub(r"\{([^}]+)\}", sub, expr.replace("−", "-")).strip(), mode="eval")
+    except (KeyError, SyntaxError):
+        return None
+
+    def ev(n):
+        if isinstance(n, ast.Expression): return ev(n.body)
+        if isinstance(n, ast.Name) and n.id in vals: return vals[n.id]
+        if isinstance(n, ast.Constant) and isinstance(n.value, (int, float)): return D(str(n.value))
+        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub): return -ev(n.operand)
+        if (isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "round" and len(n.args) == 2
+                and isinstance(n.args[1], ast.Constant) and isinstance(n.args[1].value, int)):   # round(x, places), half up
+            return ev(n.args[0]).quantize(D(1).scaleb(-n.args[1].value), rounding="ROUND_HALF_UP")
+        if isinstance(n, ast.BinOp):
+            a, b = ev(n.left), ev(n.right)
+            ops = {ast.Add: lambda: a + b, ast.Sub: lambda: a - b, ast.Mult: lambda: a * b, ast.Div: lambda: a / b}
+            if type(n.op) in ops: return ops[type(n.op)]()
+        raise ValueError(ast.dump(n))
+    try:
+        return ev(tree)
+    except ValueError:
+        return None
 DOC: dict = {}
 
 
@@ -423,6 +463,13 @@ def anchors(root, ref):
             window = txt[max(0, m.start() - 90):m.start()].lower()
             if path.startswith("options.") and ("to date" in window or "so far" in window):
                 check(f"anchored figure in {fn}: {m.group(2)} stated for a period to date is anchored to an option path {path}", False)
+        for m in FIGX.finditer(txt):
+            n += 1
+            sign = -1 if (m.group(1) or "").strip() in ("−", "-") else 1
+            want = expr_value(ref, m.group(5))
+            if want is None:
+                check(f"computed figure in {fn}: {m.group(2)} -> {m.group(5)} resolves over independent paths", False); continue
+            eq(f"computed figure in {fn}: {(m.group(1) or '').strip()}{m.group(2)} = {m.group(5)} (signed)", sign * D(m.group(2).replace(",", "")), want)
         for m in re.finditer(r"([\d,]*\d(?:\.\d+)?)\**<!--rec-->", txt):
             check(f"{fn}: record-tagged figure {m.group(1)} is a manifest money record", round(abs(float(m.group(1).replace(",", ""))), 2) in RECORDS)
         for m in re.finditer(r"([\d,]*\d(?:\.\d+)?)\**<!--rec:([^>]+)-->", txt):   # record at an exact manifest path
@@ -431,7 +478,7 @@ def anchors(root, ref):
             check(f"{fn}: headline figure {path} is anchored", path in found)
         body = re.sub(r"`[^`]*`", lambda m: " " * len(m.group(0)), txt)
         loose = []
-        for m in re.finditer(r"(?<![\w.,/])(\d{1,3}(?:,\d{3})*\.\d{2}|\d{1,3}(?:,\d{3})+)(%?)(?!\d)(?!,\d)(?!\.\d)(?!\**<!--(?:fig:|rec))", body):
+        for m in re.finditer(r"(?<![\w.,/])(\d{1,3}(?:,\d{3})*\.\d{2}|\d{1,3}(?:,\d{3})+)(%?)(?!\d)(?!,\d)(?!\.\d)(?!\**<!--(?:fig:|figx:|rec))", body):
             v = D(m.group(1).replace(",", "")).quantize(D("0.01"))
             if (m.group(2) == "%" and v in pcts) or (m.group(2) == "" and v in keys):
                 loose.append(m.group(1) + m.group(2))
@@ -460,7 +507,10 @@ def documents(root, doc, ref):
     main_doc = (root / "layer4-transformation-design.md").read_text(encoding="utf-8")
     sections = [("main §2-§10", main_doc[main_doc.index("## 2. The five mechanics"):main_doc.index("## 11.")]),
                 ("walkthroughs", (root / "interactive-mockup-vNEXT" / "walkthroughs.md").read_text(encoding="utf-8"))]
+    tr = (root / "product-transition-and-roadmap.md").read_text(encoding="utf-8")
+    sections.append(("transition §1-§4", tr[tr.index("## 1. Where we are"):tr.index("## 5. ")]))
     for name, body in sections:
+        body = re.sub(r"[\d,]*\d(?:\.\d+)?%?\**<!--figx:[^>]*-->", "", body)   # recomputed by anchors() instead
         body = re.sub(r"`[^`]*`|<!--[^>]*-->", "", body)
         bad = [m.group(1) for m in re.finditer(r"(?<![\w.:/§-])(\d{1,3}(?:,\d{3})+(?:\.\d{2})?|\d+\.\d{2})(?![\d]| px)", body)
                if round(float(m.group(1).replace(",", "")), 2) not in allowed]
