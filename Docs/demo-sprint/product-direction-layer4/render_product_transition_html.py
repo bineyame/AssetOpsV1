@@ -265,33 +265,39 @@ def d3():
 
 # ---------------------------------------------------------------- diagram 4: engagement path
 def d4():
+    """The owner's engagement path (D1 as revised on 18 Nov), with its gates."""
     b = []
-    y, h = 40, 76
+    y, h = 40, 86                       # row 1: demo, the call, the deep-dive and its gate; row 2: from the pack to SaaS
+    cy = y + h / 2
+    y2 = 290; cy2 = y2 + h / 2
     b.append(box(10, y, 150, h, ["Client demo", "loop on the mock-up;", "live: what runs today"], fs=12))
-    b.append(diamond(255, y + h/2, 150, 96, ["Qualified?", "data access, a decision", "to investigate"]))
-    b.append(box(345, y, 175, h, ["Paid diagnostic", "design partnership:", "3 sites, ~4 weeks after", "data; analyst-prepared"], cls="bxa", fs=12))
-    b.append(diamond(615, y + h/2, 150, 96, ["Factor bridge", "reconciled and", "compelling?"]))
-    b.append(box(705, y, 175, h, ["Pilot / field validation", "~3 months; product on", "their data; one change"], cls="bxa", fs=12))
-    b.append(diamond(975, y + h/2, 150, 96, ["Verdicts and", "the buyer's own", "judgement?"]))
-    b.append(box(1065, y, 135, h, ["Paid", "continuation", "and reference"], cls="bxa", fs=12))
-    cy = y + h/2
-    for x1, x2 in ((160, 180), (330, 343), (520, 540), (690, 703), (880, 900), (1050, 1063)):
-        b.append(arrow([(x1, cy), (x2, cy)]))
-    for x, t in ((337, "yes"), (697, "yes"), (1057, "yes")): b.append(label(x - 4, cy - 8, t, anchor="end", fs=11))
-    b.append(box(165, 200, 180, 70, ["Data assessment", "for cold and EV", "prospects until their", "vertical is built"], fs=12))
-    b.append(arrow([(255, cy + 48), (255, 198)])); b.append(label(262, 170, "not yet", fs=11))
-    b.append(box(705, 200, 175, 70, ["Stop or rethink", "record why"], fs=12))
-    b.append(arrow([(615, cy + 48), (615, 235), (703, 235)])); b.append(label(622, 170, "no", fs=11))
-    b.append(arrow([(975, cy + 48), (975, 235), (882, 235)])); b.append(label(982, 170, "no", fs=11))
+    b.append(diamond(270, cy, 170, 110, ["Initial call:", "aligned on privacy,", "processes and", "integrations?"]))
+    b.append(box(380, y, 190, h, ["Deep-dive with", "process owners", "file exports through the", "canonical contract"], cls="bxa", fs=12))
+    b.append(diamond(680, cy, 170, 110, ["Their plan", "against actual", "reconciled and", "compelling?"]))
+    b.append(box(790, y, 160, h, ["Stop or rethink", "record why"], fs=12))
+    b.append(box(180, 170, 180, 66, ["Data assessment", "cold and EV prospects", "until their vertical", "is built"], fs=12))
+    b.append(box(10, y2, 190, h, ["Integration pack", "and pilot timeline", "sources in order;", "pilot fee or SaaS credit"], cls="bxa", fs=12))
+    b.append(box(225, y2, 180, h, ["Pilot and", "monitoring", "options vs no action;", "first change proved"], cls="bxa", fs=12))
+    b.append(diamond(515, cy2, 170, 110, ["Verdicts and", "the buyer's own", "judgement?"]))
+    b.append(box(625, y2, 150, h, ["SaaS", "subscription", "and reference"], cls="bxa", fs=12))
+    for x1, x2, yy in ((160, 183, cy), (355, 378, cy), (570, 593, cy), (765, 788, cy), (200, 223, cy2), (405, 428, cy2), (600, 623, cy2)):
+        b.append(arrow([(x1, yy), (x2, yy)]))
+    for x, yy, t in ((366, cy, "yes"), (776, cy, "no"), (611, cy2, "yes")): b.append(label(x, yy - 8, t, anchor="middle", fs=11))
+    b.append(arrow([(270, cy + 55), (270, 168)])); b.append(label(277, 158, "not yet", fs=11))
+    b.append(arrow([(680, cy + 55), (680, 256), (105, 256), (105, y2 - 2)])); b.append(label(687, 160, "yes", fs=11))
+    b.append(arrow([(515, cy2 + 55), (515, 405), (870, 405), (870, y + h + 2)])); b.append(label(522, 400, "no", fs=11))
+    b.append(label(10, 436, "The product computes the deep-dive's figures from the operator's own exports; nothing is transcribed by hand.", fs=11.5))
+    b.append(label(10, 452, "Price is disclosed after the client conversation.", fs=11.5))
     narrow = vstack([("r", [(["Client demo", "loop on the mock-up, design values", "labelled; live: what runs today"], "bx")]),
-                     ("r", [(["Qualified? data access, a decision", "not yet: data assessment (cold, EV)"], "bxp")]),
-                     ("a", "yes", "ar"), ("r", [(["Paid diagnostic", "design partnership: 3 sites, ~4 weeks", "analyst-prepared"], "bxa")]),
-                     ("r", [(["Factor bridge reconciled, compelling?", "no: stop or rethink, record why"], "bxp")]),
-                     ("a", "yes", "ar"), ("r", [(["Pilot / field validation", "~3 months; one change proved"], "bxa")]),
+                     ("r", [(["Initial call: aligned on data privacy,", "processes, integrations, who signs?", "not yet: data assessment (cold, EV)"], "bxp")]),
+                     ("a", "yes", "ar"), ("r", [(["Deep-dive with process owners", "file exports through the canonical", "contract; first decision to test"], "bxa")]),
+                     ("r", [(["Their plan against actual in the", "product, reconciled and compelling?", "no: stop or rethink, record why"], "bxp")]),
+                     ("a", "yes", "ar"), ("r", [(["Integration pack and pilot timeline", "sources in order, files first;", "pilot fee or credit on SaaS year 1"], "bxa")]),
+                     ("r", [(["Pilot and monitoring", "options vs no action; one change proved"], "bxa")]),
                      ("r", [(["Verdicts and the buyer's judgement?", "no: stop or rethink"], "bxp")]),
-                     ("a", "yes", "ar"), ("r", [(["Paid continuation", "and reference case"], "bxa")])])
-    return svg(1210, 290, "".join(b), "Figure 4. The engagement path, with its gates",
-               "Demo of the loop on the mock-up, then the live product as what runs today; then a qualification gate; qualified prospects get a paid diagnostic offered as a design partnership, others a data assessment. If the factor bridge is reconciled and compelling, a pilot follows; if its verdicts hold, paid continuation. Failed gates lead to stop or rethink.", narrow)
+                     ("a", "yes", "ar"), ("r", [(["SaaS subscription", "and reference case"], "bxa")])])
+    return svg(960, 462, "".join(b), "Figure 4. The engagement path, with its gates (D1, as revised by the owner on 18 Nov)",
+               "Demo of the loop on the mock-up, then the live product as what runs today; an initial call checks alignment on data privacy, processes, integrations and who signs; aligned prospects get a deep-dive with their process owners, in which their file exports go through the canonical contract, others a data assessment. If their plan against actual in the product is reconciled and compelling, an integration pack and pilot timeline follow, with a pilot fee or a credit against the first SaaS year; then the pilot and monitoring; if its verdicts hold, a SaaS subscription. Failed gates lead to stop or rethink.", narrow)
 
 # ---------------------------------------------------------------- diagram 5: dependencies (rights and plan in parallel)
 def d5():
@@ -305,7 +311,7 @@ def d5():
         b.append(arrow([(xs[i]+W, yc+hc/2), (xs[i+1]-2, yc+hc/2)], cls="arc", marker="mc"))
     b.append(arrow([(xs[3]+W, yc+hc/2), (xs[5]-2, yc+hc/2)]))
     b.append(arrow([(xs[5]+W, yc+hc/2), (xs[6]-2, yc+hc/2)]))
-    for c, t in ((0, ["Pilot lane", "agreements,", "profiles,", "diagnostics"]), (1, ["Lane B", "build speed,", "re-benchmark"]),
+    for c, t in ((0, ["Pilot lane", "agreements,", "profiles,", "deep-dives"]), (1, ["Lane B", "build speed,", "re-benchmark"]),
                  (2, ["Calibration lane", "replays on", "demo data"]), (3, ["1 Honest screens", "(UI only)"])):
         b.append(box(xs[c], yt, W, 66, t, cls="bxp", fs=12))
     b.append(arrow([(xs[0]+W/2, yt+66), (xs[0]+W/2, yc-2)], cls="ard"))
@@ -421,7 +427,7 @@ def d7v():
     b.append(f'<rect class="chw" x="10" y="{y - 13}" width="30" height="16" rx="8"/>')
     b.append(label(48, y, "W1: the owner's approval of the structure; lane 2's work starts after it (V1's findings on factors rest on the observer rows, 3a′).", fs=11.5, cls="t"))
     b.append(f'<rect class="chr" x="10" y="{y + 9}" width="30" height="16" rx="8"/>')
-    b.append(label(48, y + 22, "Step 2 records: the commercial record store and its emulators. V4 on emulated records reads “demonstrated on emulated records”; on a diagnostic's records it is reconciled.", fs=11.5, cls="t"))
+    b.append(label(48, y + 22, "Step 2 records: the commercial record store and its emulators. V4 on emulated records reads “demonstrated on emulated records”; on a deep-dive's exports it is reconciled.", fs=11.5, cls="t"))
     H = y + 40
     # narrow: one section per increment, the screens it makes useful and the construct that carries each
     n, ny = [], 10
@@ -557,7 +563,7 @@ def d9():
     xb = 20 + 4 * (w + gx)
     b.append(box(xb - 90, 190, 300, 52, ["Decision queue (W3)", "defaults applied; owner answers in batch"], cls="bxp", fs=12))
     b.append(arrow([(xb + w/2, 190), (xb + w/2, 148)], cls="ard"))
-    b.append(box(20, 268, 1100, 46, ["Pilot calendar (W9): data agreement → diagnostic → after-window → closed month, alongside the build"], cls="bxp", fs=12.5))
+    b.append(box(20, 268, 1100, 46, ["Pilot calendar (W9): data agreement → deep-dive → after-window → closed month, alongside the build"], cls="bxp", fs=12.5))
     b.append(label(20, 30, "One phase of the build. Owner time sits in two fixed sittings plus the queue; agents never wait.", fs=12.5, cls="t"))
     narrow = vstack([("r", [(["Structure spec (W1)", "factors, decisions, screens, tests"], "bxa")]),
                      ("r", [(["Owner approves structure", "one sitting (W1, W3)"], "bx")]),
@@ -568,7 +574,7 @@ def d9():
                      ("r", [(["Review by risk (W5)"], "bxa")]),
                      ("r", [(["Class fix and sweep (W6)", "stop rule after two repeats (W7)"], "bxa")]),
                      ("r", [(["Phase-end walkthrough (W8)", "one sitting"], "bx")]),
-                     ("n", "Pilot calendar (W9) runs alongside: agreement,\ndiagnostic, after-window, closed month.")])
+                     ("n", "Pilot calendar (W9) runs alongside: agreement,\ndeep-dive, after-window, closed month.")])
     return svg(1140, 330, "".join(b), "Figure 13. The build workflow for one phase",
                "Structure specification, owner approval of the structure, independent checks, readiness dry-read, build in two lanes, review by risk, class fixes with a stop rule, phase-end walkthrough; a decision queue with defaults feeds the build; the pilot calendar runs alongside.", narrow)
 

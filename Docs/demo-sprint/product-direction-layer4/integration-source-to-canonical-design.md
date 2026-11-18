@@ -705,19 +705,19 @@ An emulator is a **placeholder source**, replaced by real integration (owner, 18
 
 | Source type | Canonical records (§6.1) | Emulated in | Replaced first by |
 |---|---|---|---|
-| Billing or vending | `CHARGE`, `CUSTOMER_METER_READ`, `ADJUSTMENT` | slice 2 | the first diagnostic's billing export |
-| Collections | `RECEIPT`, `SETTLEMENT` | slice 2 | the first diagnostic's settlement statements |
-| Plan or budget | `PLAN_LINE` | slice 2 | the first diagnostic's plan |
-| Quotes | `EXPENSE` (status QUOTE, with validity date) | slice 4 | the first diagnostic's open quotes |
+| Billing or vending | `CHARGE`, `CUSTOMER_METER_READ`, `ADJUSTMENT` | slice 2 | the first deep-dive's billing export |
+| Collections | `RECEIPT`, `SETTLEMENT` | slice 2 | the first deep-dive's settlement statements |
+| Plan or budget | `PLAN_LINE` | slice 2 | the first deep-dive's plan |
+| Quotes | `EXPENSE` (status QUOTE, with validity date) | slice 4 | the first deep-dive's open quotes |
 | Contracts and warranties | `CONTRACT_DOCUMENT`, then `rights_term` rows after review (§6.3) | slice 6 | the first operator's contract set for its most important asset |
-| Fuel deliveries and dips | operational records `FUEL_DELIVERY`, `TANK_DIP` (`0054:3`) [code-observed]; fuel invoices as `EXPENSE` FUEL | exists (demo-authored) | the first diagnostic's delivery notes and dips |
+| Fuel deliveries and dips | operational records `FUEL_DELIVERY`, `TANK_DIP` (`0054:3`) [code-observed]; fuel invoices as `EXPENSE` FUEL | exists (demo-authored) | the first deep-dive's delivery notes and dips |
 | Cold and EV families | `STORAGE_MOVEMENT`; `FLEET_ROSTER`, `DEPARTURE`, `TARIFF_SCHEDULE`, `SERVICE_TICKET` | slice 8 | the second vertical's design partner |
 
 **Replacement rule.** An emulator may encode only what a real source of its type provides: the required fields of §6.1, in native shape and units, with the disorder classes of §8, with values derived from the manifest. It may not encode semantics a real source lacks: no factor IDs, classifications, attributions, plan splits, option effects or verdicts inside records, no field a real export of that type does not carry, no typed figure. Its outputs carry the provenance *source-emulated* and are shown as **Emulated** where a real record would read Recorded, until replaced (the class and composition rule: `economic-metric-and-effect-contracts.md` §4.4); nothing downstream branches on that except labels, coverage reporting (emulated coverage, never Recorded coverage) and the benefit gate (no "realised", "saved" or "money followed" on emulated records).
 
 **Contract test.** One suite per source type runs against both the emulator and every real adapter, on the emulator's output and on the operator's pinned sample. It checks kinds, required fields, units, the four clocks, the idempotency key, disorder handling and plain-word refusals, and that the same logical content gives the same canonical records and the same factor values (§6.2). A real adapter is admitted only when it passes; a change the suite rejects is a contract change, decided by the Architect.
 
-**Order of replacement** (diagnostic-led): the first mini-grid diagnostic's exported files (billing, collections, plan, fuel, quotes), one closed month reconciled before money is Recorded; the same operator's contract set; scheduled drops in the pilot; the second vertical's files; APIs only with contractual access, replacing transport only. A replaced emulator stays only as the contract test's fixture.
+**Order of replacement** (engagement path, D1 as revised by the owner on 18 Nov): the first mini-grid deep-dive's exported files (billing, collections, plan, fuel, quotes), one closed month reconciled before money is Recorded; the same operator's contract set; scheduled drops in the pilot; the second vertical's files; APIs only with contractual access, replacing transport only. A replaced emulator stays only as the contract test's fixture.
 
 ## 8. Disorder and isolation tests
 

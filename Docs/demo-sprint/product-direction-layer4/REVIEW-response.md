@@ -1505,3 +1505,51 @@ It says that the must-change column names only what misleads or blocks, and that
 - Both renderers reproduce byte for byte.
 - Playwright at 390 and 1280 px, light and dark: no horizontal scroll. The smallest SVG text is 11.1 px and 15.3 px.
 - Figure arrows now start at each box's own bottom.
+
+---
+
+## Author note: the pack revised to the owner's D1 engagement path; D13 and D14 adopted, D15 pending (Architect, 18 Nov)
+
+**Sources.** Two owner files, cited by path and not copied into this worktree:
+- `/opt/assetecon/AssetOpsV1/owner/owner-d1-engagement-path-2026-11-18.md`
+- `/opt/assetecon/AssetOpsV1/owner/owner-sitting1-answers-2026-11-18.md`
+
+The adoptions are recorded at the coordinator's instruction, from those verbatim files.
+
+**Roadmap (`product-transition-and-roadmap.md`, revision 4.1).**
+- *§2.1–§2.3 rewritten.*
+  - Option C is now the owner's path. Its departure from the brief's priced diagnostic is stated as an owner decision.
+  - §2.2 has the new flow, the stage table and controls 1–6. Control 1 says the product computes and nothing is transcribed by hand. Control 6 is the first change agreed at the end of the deep-dive, as D15, pending.
+  - §2.3 offers a demo and initial call, a free deep-dive, an integration pack and pilot timeline (pilot fee, or a credit against the first SaaS year, priced after the conversation), then the pilot and SaaS.
+  - The design-partnership limits are restated.
+- *Figure 4 redrawn* as the engagement path with its gates, in two rows so its text stays legible at 1280 px. The narrow layout is updated too.
+- *Also updated:* the one-page rows; §2.4–§2.5; §2.7 (first row, rights, pitches 2 and 3); the risks; the §3.8 stage table; C9; phases 0, 1 and 3; Figure 10's lanes; §4.3–§4.4; Figures 6 and 7's pilot-calendar wording; Appendix B (marked superseded in part); Appendix C.
+- *C9 rewritten.* The hand transcription the revised path no longer uses is replaced by the compromise it does take: manual file uploads through the canonical intake, retired by step 9.
+- *§6.*
+  - D1 is revised and adopted. An Architect default sits under it: a deep-dive that starts before file intake waits for intake for its baseline.
+  - D2 follows from it: the deep-dive is free; the pilot carries a fee or credit; the price is disclosed after the conversation (TW7).
+  - D5 is superseded.
+  - D13 and D14 are adopted by the owner on 18 Nov.
+  - D15 is reworded to "first change agreed at the end of the deep-dive" and marked pending, with the default applied (W3).
+  - D4, D6, D12 and Q8 follow the new wording.
+
+**Elsewhere in the pack.**
+- `phase-plan-and-acceptance.md`: the rev 5.1 note, slice 7's reason, the observation list, and the customer-facing offer template ("A deep-dive and pilot on your data").
+- `design-questions-and-decisions.md`: Q17 and Q18 adopted; Q19 reworded and pending.
+- `integration-source-to-canonical-design.md` (order of replacement) and `demo-build-cost-plan.md` (time to fit).
+- Design document:
+  - The owner-approved introduction keeps its wording, with a dated note that D1 was since revised.
+  - The header rev 15.1 line, §9's text and its slice 9 row.
+- Mock-up: the client-facing pilot page is now "A deep-dive and pilot on your data", with a first-call form and the pilot fee or credit note (`loop-portfolio.js`, `loop-init.js`, `tools/gen_docs.cjs`). It was rebuilt with `node build.mjs`.
+
+**Sweep.** No "diagnostic" is left in the pack except in four kinds of place:
+- the approved introduction's wording, kept with its note;
+- explicit history ("revision 4 recommended a paid diagnostic");
+- the brief's own path, cited as what the owner departs from;
+- Appendix B's go-to-market rows, which another Architect is revising and which are marked superseded.
+
+**Checks.**
+- `check_manifest.py`: 3747 passed, 0 failed.
+- Both renderers reproduce byte for byte.
+- Transition HTML at 390 and 1280 px, light and dark: no text outside a viewBox, no horizontal scroll.
+- Mock-up `tools/run-audit.sh`: exit 0, with contrast 38/38, preserved screens 65/65, 0 hand-typed figures and 0 unresolved placeholders.
