@@ -2734,3 +2734,100 @@ Fresh independent reviewer, 18 Nov. Diff `626a090df..5ac8c6f69`. Judged against 
 - `python3 Docs/demo-sprint/product-direction-layer4/check_manifest.py` returned **3680 checks passed, 0 failed**. The checker does not test labels, the reference basis of a cell, or prose descriptions of the mechanism (M1 above).
 - I tested the +152.00 claim in a scratch copy, outside the repo. The checker gave 3679 passed, 1 failed, as the author stated.
 - No test suite was run. No database, Docker container or port was touched. No pack file was edited.
+
+## Third review of §7 (3b1ef5ff0)
+
+Fresh independent reviewer, 18 Nov. Diff `09d383c75..3b1ef5ff0`. Judged against the owner's thirteenth message and the standing rules in `.agent/owner-layer4-direction-feedback-2026-11-17.md`. I read `evaluate_structure.py` `best()` and `candidates()` and formed this view before reading the author response.
+
+**Verdict: ACCEPT WITH NOTES.** M1 and L1–L4 are resolved as classes inside §7. Every plan-choice sentence in §7 now matches `best()`, and every plan and switch row recomputes. §7 is now something the owner can follow. One Low remains inside §7. One Medium sits outside this commit's scope: the rest of the pack still describes the search as "must-do first". It does not block §7, but it should be fixed before the owner reads the whole document or anyone builds from the phase plan.
+
+### Earlier findings
+
+- **M1, resolved.**
+  - `:669` says: one search, one option per decision, none allowed for money-valued decisions except the Mto inverter. That matches `optional: false` and `[None] + opts`.
+  - An option that breaks its decision's rule is left out, unless no option can keep it. That matches `candidates()` and the `least_violation` fallback.
+  - The combination must meet the budget, the crew visits and the dated dependency. The ranking is "breaks the rules least, then worth most, then spends least", which is `key = (-pen, v, -spend)`.
+  - The intro (`:439`), the Kisiwa note (`:603`), §7.2 (`:846`) and §7.3 (`:997`) say the same thing. §7.3's order of action is now labelled as the order the items are acted on, not how the plan is chosen.
+  - No §7 sentence still implies a separate first step.
+- **M1, new sentence (`:733`), verified.** At 5,000 with the letter not extended, the combination Kisiwa no action + battery evidence + stop threshold + buy now + huller spends 0 + 430 + 90 + 2,910 + 1,200 = 4,630. That is within 5,000, at 0 + 1 + 0 + 1 + 0 = 2 of 3 crew visits. Its value is 2,916.00 + 3,540.00 − 2,947.50 = 3,508.50, above 2,548.50. Its violation is 125 against 15 (`derived-values.json` `violations.redundancy`), so it ranks below the plan. The sentence is correct, and it is the case the old two-step text could not explain.
+- **Switch rows, recomputed.**
+
+  | Budget / letter extended | Result |
+  |---|---|
+  | 5,000 / yes | claim + huller: 3,750.00, +6,088.50. The dependency: 28 Nov is a Saturday, +5 working days = 4 Dec, before 31 Dec. |
+  | 5,000 / no | claim, no huller: 2,550.00, +2,548.50. 4 Dec is after 30 Nov. |
+  | 6,500 / yes | Buying now fits (6,430.00) but is worth 3,508.50 < 6,088.50, so the plan is as at 5,000. |
+  | 6,500 / no | Buy now + huller: 6,430.00, +3,508.50. 12 Nov (Thu) +5 = 19 Nov. |
+
+  All four match `plans.lakeside-power.switch_cases` and `least_violation_total` 15.0. The Harvest Cold and Metro rows (450.00 / +1,512.40 / 1 visit; 90.00 / +150.00) match too.
+- **L1, resolved.**
+  - Crew visits are labelled "(Declared input)" in all three Choose tables.
+  - The Ruiru change rule is an Assumption row (`:985`).
+  - 6 Nov is a Declared input and 30 Nov a Plan limit (`:439`).
+  - Kisiwa's warranty end and missed service are Record (`:593`).
+  - The labels I sampled against the manifest's `basis` texts are right: KIS-REPAIR repair time "workshop estimate" (Quote); BUYNOW supply and installation (Quote); KAS local repair (Quote); MWEA handling "handling estimate" (Assumption); KIRI-REPLACE 0.95 (Assumption, vendor datasheet).
+- **L2, resolved.** Every necessary, candidate and unexplained row and sentence carries "*stands in for a calculation*" (`:482-483`, `:489-491`, `:504`, `:508-509`, `:522`, `:544`). This is right for the unexplained litres too: in the manifest they are a typed leaf (`unexplained_l: "record.unexplained_l | 0"`), not computed from the fuel balance. The 1,060 L modelled litres are a plain Declared input (`fuel_balance.model_implied_l`), which is also correct.
+- **L3, resolved.**
+  - Each decision has its own inputs table directly above its option table: 6 at Lakeside, 3 at Harvest Cold and 3 at Metro.
+  - The sensitivities have one row per option, with the plan on its own row (`:703-712`, `:867-872`).
+  - §7 now reads in the order the owner asked for: Observe per Site, Evaluate per decision, Choose in six numbered steps, then Prove.
+- **L4, resolved.** One name per measure throughout: "evening hours with no backup", "daytime hours at half inverter capacity", "nights with stock and no backup cover", "days with dawn charge below 35%" and "crew visits".
+
+### Findings
+
+**Medium (outside this commit's scope; does not block §7)**
+
+- **M1. The rest of the pack still describes the plan search as two steps, or says the cheapest protective option is taken.**
+  - The author flagged two of these places. There are more:
+    - `layer4-transformation-design.md:176`: "after **must-do** options that hard bounds require".
+    - `:371`: "Allocator (must-do, exhaustive subsets, …)".
+    - `domain-and-decision-models.md:587`: the same sentence as `:176`.
+    - `phase-plan-and-acceptance.md:148`: PR 5a "allocation run (must-do first, exhaustive subsets …)".
+    - `repo-reuse-and-gap-matrix.md:155`: "must-do first".
+    - `design-questions-and-decisions.md:57` (A25): "protective decisions take the cheapest option meeting their hard bounds".
+    - `demo-site-scenario-manifest.yaml:1200-1201`: the `plans:` comment.
+    - `demo-site-scenario-manifest.yaml:385`: `method: "must-do first, …; tie-break 12-month net, then downside"`. The tie-break is also wrong: `best()` breaks ties on lower spend, and there is no downside tie-break.
+  - **Does it contradict §7 for a reader of the whole document? Yes.**
+    - §2 contradicts itself: `:176` says "after must-do", while `:182`, six lines later, says "enumerated together … never one choice at a time".
+    - §7 now states only the joint search.
+    - Lexicographic least-violation does give hard-bound decisions priority. So "must-do first" is defensible as a paraphrase of the ranking's first criterion. As a description of a step, it is wrong:
+      - Kisiwa's choice is the least violation among combinations that fit together with the rest of the plan.
+      - The Mto inverter, which carries warranty-cover rules, is chosen by value (buy now in the 6,500 / not extended case). Neither is fixed before the money-valued options.
+  - No figure is wrong, because in this data every non-fallback protective decision has exactly one admissible option. The phase plan, however, instructs builders to build a "must-do first" allocator.
+  - **Fix:** in one class pass, reword these texts to the §7 `:669` sentence. Keep "must-do" only as a property of a decision (no action fails a hard bound), not as a step.
+
+**Low**
+
+- **L1. One model premise is still stated as fact: welding fuel** (`layer4-transformation-design.md:650`; inputs table `:638-645`).
+  - "every evening kWh is generator energy: 660 × 0.33 = 217.8 L" is the option's change rule. The manifest MTO-WELDING note reads "every evening kWh is generator energy (no solar, battery at reserve)", and `extra_l = load × hours × days × sfc`.
+  - This is the same class as the Ruiru rule that L1 of the last round turned into an Assumption row. The owner's eleventh message names the welding 217.8 L as carrying no flag.
+  - **Fix:** add an inputs row, "Evening load is carried by the generator (no solar; battery at reserve) | the model's change rule | Assumption".
+
+### Redundancy
+
+The word count went from 9,175 to 9,233 (anchors stripped; I reproduced both figures). I found nothing that should go:
+
+- The arithmetic sentence at `:733` repeats figures from the tables. It is what makes each switch row followable from the items above.
+- The opening of `:724` restates the huller dependency. It is the switch's reason, so it belongs there.
+- The §7.4 rights table repeats Evaluate content, but it was not changed in this round and serves a different reading.
+
+### Scope
+
+- **The .md:** all hunks fall within 439–1013, inside §7 (437–1041).
+- **The .html:**
+  - The changed span is characters 92,748–156,264 of 185,426. §7 runs from 92,371 to 159,637, so nothing outside §7 changed.
+  - Both §7s have 51 tables, 12 `h4` and 12 `h5` headings.
+  - No anchor, `**` or `|---` remains in the .html.
+  - A token comparison of the .md and .html §7 differs only in dashes and the closing rule.
+- **Anchors:** the 497 → 491 drop loses no anchor path. Every path still appears at least once. Seven paths lost a duplicate occurrence, all on option rows that restate a figure anchored in the inputs row directly above. One path gained one. Nothing that matters was lost.
+
+### Checks run
+
+- `python3 Docs/demo-sprint/product-direction-layer4/check_manifest.py` returned **3674 checks passed, 0 failed**.
+- I recomputed by hand every changed calculation in §7 and found no mismatch with `derived-values.json` or the manifest:
+  - Kisiwa: 25, 3 and 21 days; 125, 15 and 105 hours.
+  - Mto: restore dates, the warranty notice date of 27 Nov, and 22, 6 and 2 days.
+  - Kasarani: 2 Nov + 5 business days = 9 Nov.
+  - Sensitivities: +2,286.00, +3,744.00, −340.00 and +5,690.00; +2,166.00 and +5,338.50; +1,046.80 and +2,716.80.
+  - Embakasi: 706.80, 22,144.80 and 21,438.00.
+- Not run: no browser render of the .html, and no test suite. No database, Docker container or port was touched. No pack file was edited.
