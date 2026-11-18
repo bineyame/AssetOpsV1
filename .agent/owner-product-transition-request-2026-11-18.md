@@ -94,3 +94,17 @@ These were approved by the owner after the 13 revisions (twelfth message in `.ag
 Root cause the coordinator gave the owner for the rework: the Architect wrote the demo story first and fitted the structure to it; typed rules kept figures in place and reviews found them one at a time.
 
 A separate, concurrent assessment covers repo declutter and agent context efficiency (`.agent/owner-repo-declutter-request-2026-11-18.md`); its recommendation file is `.agent/repo-declutter-recommendation-2026-11-18.md` once written. The workflow section here should focus on the development process (how work is specified, built, reviewed and approved) and may point to that assessment for repo organisation and context, without duplicating it.
+
+## Owner instruction on the coordinator's three pitch points (verbatim)
+
+After rev 2's re-review (REVIEW.md "## Re-review of product transition and roadmap rev 2 (21c329aeb)", ACCEPT WITH NOTES, L-A..L-E), the coordinator proposed a last small pass on the five Low findings plus its three pitch points. The owner replied:
+
+> let the architect consider the three point and incldued them on merit or say why not
+
+The coordinator's three points, as given to the owner (coordinator's analysis, not the owner's):
+
+1. **Keep the live product in the demo.** Executives will ask "what's real today?" Show the live monitoring and findings as the foundation, then the decision layer as what's being built with design partners. A demo that is only a mock-up invites the question and loses trust when it's answered. (The document's current demo is mostly the Layer 4 mock-up; the live product appears only after its misleading figures are fixed.)
+2. **Frame the pitch as a design-partner offer.** Turn the gap between today's product and Layer 4 into a reason to join early.
+3. **Let early conversations run in parallel with Phase 0.** Pitch to friendly prospects while the diagnostic kit is prepared; don't sign a diagnostic until the kit and the data agreement exist.
+
+The coordinator also said the Architect's paid-diagnostic close with a qualification gate is better than the coordinator's original pilot offer.
