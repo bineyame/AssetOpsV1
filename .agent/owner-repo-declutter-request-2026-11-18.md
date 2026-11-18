@@ -27,3 +27,7 @@ After the coordinator explained D11 (adopt workflow W1–W9 from `Docs/demo-spri
 ## Owner instruction (verbatim), 2026-11-18: step 2
 
 > go ahead with declutter step 2
+
+## Owner instruction (verbatim), 2026-11-18: step 3
+
+> go ahead with declutter step 3 after the review
