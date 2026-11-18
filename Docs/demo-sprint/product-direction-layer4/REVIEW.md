@@ -2966,3 +2966,132 @@ Fresh independent reviewer (Claude), 18 Nov 2026. Scope: `product-transition-and
 - The mermaid blocks in the `.md` were not rendered by a mermaid engine.
 - No test suite was run, and no database, Docker container or port 5490/8990 was touched.
 - No pack file other than this one was edited.
+
+## Re-review of product transition and roadmap rev 2 (21c329aeb)
+
+Fresh independent reviewer (Claude), 18 Nov 2026. Scope: rev 2 of `product-transition-and-roadmap.md` / `.html`, `render_product_transition_html.py`, and the `check_manifest.py` change, compared with `8085d0d26`. Read against the owner's request and follow-ups (`.agent/owner-product-transition-request-2026-11-18.md`), the standing rules (`.agent/owner-layer4-direction-feedback-2026-11-17.md`), and the prior review (M1–M3, L1–L7). I formed my view before reading the author response.
+
+**Verdict: ACCEPT WITH NOTES.**
+- All ten prior findings are resolved as classes.
+- The checker extension is independent, safe, and catches planted errors. It does not weaken the earlier documents' checks.
+- The pace figures reproduce from git to within rounding.
+- The effort and workflow sections answer both owner follow-ups, with their assumptions stated.
+
+The notes below are Low. They concern how precisely some workflow evidence is worded, one effort-derivation shortcut, a latent loophole in the new `figx` grammar, and one clipped label at phone width. None changes the recommendation, the ranges' order of magnitude, or any figure.
+
+### Prior findings
+
+- **M1: resolved as a class.** I re-read every code citation in §1.2–§1.6, §2.6 and §3.2 against the code:
+  - **Summing:** `chain/vocabulary.py:459-508` `estate_income` sums into one total when there is one currency; it is called from `site_outcomes/read.py:777`. `_optimize_card` (`:901-903`) states "Never summed across Sites". `estate/portfolio.py:680-681` "never summed" is about credited results.
+  - **Fuel cost:** `financials/fuel_cost.py` defines `POTENTIAL_FUEL_COST`, `MODELLED_CONDITIONAL` and `quantity_low = 0 L`. The one-day mini-grid read is at `read.py:602-606`, and `lead_finding` at `chain/read.py:190`.
+  - **Scenarios:** `mini_decisions/scenario_rules.py:191` calculates only `PRODUCTIVE_LOAD`, giving energy and gross sales at an authored tariff, with no cost or net. Alternatives (`alternatives.py:1-14`) only read the Finding.
+  - **Work actions:** `domain_action` is created in 0033. MINI is admitted by 0051 (and EV by 0035), and FUEL_BALANCE by 0057. `work/domain_action.py:119,134` pins MINI and FUEL to `site_type="MINIGRID"`.
+  - **Verification families:** `verification_families.py:502` holds reserve and midday; fuel balance is in `fuel_verification.py`. So "mini-grid only, three families" holds.
+  - **Other citations, all correct:** `dispatch_v3.py:290-291`; `evidence/service.py:484-492`; `reading_upload/service.py:244-248`; `execution_adapter.py:869` `run_to_end`; `verification_rules.py:688`; `verification.py:1167`; `reserve_trial.py:37`; `sites/models.py:167`; `battery_boundary.py:26`; `period_read.py:138-139`; `chain/graph.py:177`.
+- **M2: resolved, and consistent throughout.** The two halves of calibration are separated and named the same way in every place: the label box (`:8`), control 4 (`:179`), §2.7 (`:235`), the calibration-lane exit and "Later" row (`:290-291`), the risk row (`:403`), the phase 0 exit ("a consistency check, not a calibration", `:450`), W8, and D6 (`:552`). D6 states openly that the phase plan's "until the spike passes" (R13 `phase-plan-and-acceptance.md:294`, A21 `:53`) is read as a change to the second label. It defers the wording change to the decision round, as D10 requires. Q13's (a)/(b) options are compatible with D6's three labels.
+- **M3: resolved.** The document is in `FIG_DOCS`, with five required headline paths. Every tag sits directly after its figure, and `documents()` now scans §1–§4. See "Checker" below.
+- **L1–L7: resolved.**
+  - L1: the cross-references at `:6` are correct.
+  - L2: no "avoidable" wording is left for the 330 L in the `.md` or the renderer.
+  - L3: rights and the plan run in parallel after step 4, and only the full plan gate waits for rights. This matches `phase-plan-and-acceptance.md` §2 (S4→S6, S6→S5c, S4→S7) in the mermaid source, Figure 5, §3.1 note, §2.7 and D1. "Step 7 (lane 2, after step 6)" at `:344` is lane scheduling, not a dependency; Figure 5 draws 4→7.
+  - L4: fixed under M1.
+  - L5: Q14–Q16 are listed as structure questions at `:559`.
+  - L6: the hand transcription is named, with its controls, at `:176` and in D5.
+  - L7: there is now a stacked layout at phone width, with the smallest SVG text measured at 10.0 px (below).
+
+### Checker (`check_manifest.py`)
+
+- **Independence holds.**
+  - `expr_value` (`:372-404`) resolves `{path}` only through `get(ref, …)`, where `ref = independent_model.compute(...)` (`:526`).
+  - It does not import, copy or call `evaluate_structure.py`.
+  - It shares no list with the evaluator. `REQUIRED` adds path names only, as for the other documents.
+  - The checker itself holds no expected figure.
+- **Safety holds.** The expression is parsed with `ast` and walked by a whitelist: names bound to resolved values; int and float constants; unary minus; `+ - * /`; `round(x, <int literal>)`. Anything else gives `None`, and that is reported as a failure. There is no `eval`.
+  - Planted in scratch: `__import__('os').system(...)` and `(1).__class__`. Both were refused as "resolves over independent paths" FAILs, and nothing was executed.
+- **Planted-error test.** I reproduced it on a scratch copy of the pack. Each plant gave 3,713 passed and 1 failed:
+  - the author's four (884; −412.00; +25%; an untagged 3,750.00);
+  - mine: a sign flip (+562.00 for −562.00); a misspelt path; an untraced 1,234.56 in §3.
+- **Earlier documents are not weakened.** I ran the old checker (from `8085d0d26`) on the same tree: 3,674 passed, 0 failed. I then instrumented both checkers' `check()` labels. Every old label is still present; the only changed label is the anchor-count line (926 → 957). There are 7 new labels and 31 new anchor equalities. The `figx` strip in `documents()` touches only `figx`-tagged numbers, and no other document contains one.
+- **Result:** `python3 check_manifest.py` gives **3714 passed, 0 failed**.
+
+### Effort basis (§4.3): recomputed from git
+
+I took first-parent merges on `main` with subjects `Merge task/…` or `Merge branch 'task/…`, from 18 Oct to 14 Nov. For each, I measured from the branch's first commit (`p1..p2`) to the merge:
+- **Count:** 239 merges, 238 distinct branches. The document says 233; I could not reproduce that exactly, but the difference does not matter.
+- **Median:** 2.68 h, which matches.
+- **Within 6 h:** 74% (the document says 75%).
+- **Longest:** 75.4 h, about three days, which matches.
+
+**"71% of merges with a fix commit" reproduces only as "a non-merge commit whose subject contains *fix*"** (70–71%). See L-B.
+
+**The method is sound as a lower bound,** and the document says it understates the cycle. Going from 2.7 h to "1–3 days per specified, reviewed change" is a judgement, not a derivation, but it is plausible: 238 merges in 28 days is far above what 28 changes at 1–3 days needs. The document labels it, gives a factor-of-two uncertainty, and names what limits the pace. The ranges hang together:
+- A + B (1–2 months) equals 1–2 weeks plus 3–6 weeks.
+- The Gantt core ends at M4.
+- Per-vertical time is 1–2.5 months, mostly data.
+- The human-team range (7–12 months, 3–4 developers, 1–2 months to learn the codebase) is labelled a judgement, and "two to four times" is a fair summary of 7–12 against 2–4.
+
+There is no false precision, with the exceptions in L-A.
+
+### Workflow (§5)
+
+The cited facts check out:
+- **"66 questions"** is in `.ai/ROLE_CONFIG.md:524` (W4-01 + W3-01 dry-read, 20 Oct).
+- **"Six question rounds"** for W2-02 is at `:503`.
+- **"30–40% then 15–20%"** is at `:491`.
+- **The 83 rulings:** D-SR.1 to D-SR.83 (95 headings with a/b sub-rulings) first appear in commits on 12 Nov (Architect rev 8 + D-SR.1-8, 13:02) and run through 13 Nov.
+- **The revision verdicts** match: revs 1–3 were ACCEPT WITH NOTES, rev 4 REVISE, revs 6–12 REVISE, rev 13 ACCEPT.
+- **"W7 would have saved about three rounds"** is a counterfactual, honestly worded "would have".
+
+W1–W9 are concrete and actionable, and each one names what it removes. They agree with the owner-approved rules (twelfth message; batched walkthroughs; Architect defaults during absence). They point to the declutter assessment rather than repeating it.
+
+### Rendering
+
+- **Reproducibility:** `render_product_transition_html.py` re-run into scratch is **byte-identical** to the committed `.html`.
+- **Headless Chromium** (playwright-core in scratch; screenshots only in scratch), at 1280 light/dark and 390 light/dark:
+  - 10 figures visible, 0 console errors, 0 network requests, body background set in both themes;
+  - no page-level horizontal scroll (scrollWidth equals the viewport width);
+  - smallest SVG text 9.8 px at 1280 and 10.0 px at 390, with no overlapping SVG text.
+  - At 390, one text node falls outside its viewBox (L-D).
+- **Inspected:** Figures 2, 5, 7, 8, 9 and 10 in the wide layout and/or the stacked phone layout. They are correct against their sources. Figure 2 reads `derived-values.json`. Figure 8's bars match the §4.3 table. Figure 9's 17 rounds and counts (4/2/6/3/2) match `ROUNDS`.
+- **Growth:** the `.md` went from 7,408 to 10,348 words (+40%), and the `.html` from 97 KB to 178 KB, mostly because every figure now has two layouts. The new material is the two sections the owner asked for (§4.3 basis, §5). "On one page" still summarises the document in eight rows. The growth is reasonable.
+
+### Findings (all Low)
+
+- **L-A. The effort derivation balances lanes that the workflow does not balance, and calls an estimate "measured".**
+  - `product-transition-and-roadmap.md:480` says "about 28 reviewed changes, or 14 per lane … 3–8.5 weeks". But W4 (`:520`) puts the whole critical path (steps 2→3→4→5 = 8 + 6 + 3 = 17 serial changes) in lane 1, and lane 2 gets 11. The critical path at 1–3 days is about 3.5–10 weeks, so the 2–4-month top end has less slack than the text implies.
+  - The same line calls the W1 rework "measured" at 30–40%. `.ai/ROLE_CONFIG.md:491` says "about", which makes it an estimate.
+  - It uses the W1-era figure as the "without §5" counterfactual (3–5 months), but W4 and W5 already exist and stay. The relevant baseline is closer to the post-W1 15–20%.
+  - Figure 8's "total" bars (`render_product_transition_html.py:449`: 17–30 and 9–17 weeks) are not the sums of the block bars above them (18–32 and 9–18), and step 7 is summed although it runs in lane 2.
+  - Fix: size from the critical-path lane; say "estimated"; state which baseline the "without workflow" range assumes; caption the totals as the §4.3 ranges, not sums.
+- **L-B. Some workflow evidence is worded more precisely than the source supports.**
+  - "71% of task merges carried at least one fix commit after review" (`:466`, `:505`, and W5 `:521`). The heuristic counts any branch commit whose subject contains "fix". That includes non-review fixes such as "post-merge guard fixes". An explicit fix-round or review-fix commit appears in about 44% of merges; a review with findings, or a fix round, in about 60%. Say "a commit subject containing *fix*", or use the stricter count.
+  - "233" does not reproduce (I get 238–239 with the stated window). State the selection rule.
+  - `:503` and W3 `:519` say owner messages 9–11 arrived "during revisions 8–10". The direction file records message 9 as "on rev 8" and message 10 as "on rev 9": they were answers between rounds that were folded into the next round. Only message 7 (and 12) is recorded as arriving while a round ran.
+  - Figure 9 classifies rev 6 as B ("requirements arrived mid-round"), but rev 6's REVISE findings (N-M1, N-M2) were a contradiction and replay figures that were still unlabelled.
+  - The class counts are the author's judgement. That is fine, but the caption should say so.
+- **L-C. The `figx` grammar admits an expression with no dependence on the independent model.** `check_manifest.py:391` accepts bare numeric constants, and nothing requires a `{path}`. So `−562.00<!--figx:-562-->`, or `{…tariff}*0-562`, passes both `anchors()` and `documents()`. I planted both in scratch, and both gave **3714 passed, 0 failed**. That would let a document carry a hard-coded expected figure under a "checked" tag, which is the thing the owner's rule 3 forbids.
+  - No current tag does this. All 9 expressions reference paths, and the only constant is 100.
+  - Fix: require at least one `{path}`, and reject an expression whose value does not change when its path values are perturbed. Or allow constants only as `round`'s places and an explicit whitelist (100).
+  - Also, `1/0` raises an uncaught `decimal.DivisionByZero` (`:398`). The run fails loudly but prints no summary. Catch it and report it as a failed check.
+- **L-D. One clipped label at phone width.** In Figure 9's stacked layout (`render_product_transition_html.py:408`), "C Figures typed; checks shared the author's assumptions" is cut off at the right edge at 390 px. It is the one text node outside its viewBox. Wrap it or shorten it. Separately, in Figure 10's wide layout, "Phase-end owner" and "defaults applied; owner answers in batch" touch their box borders.
+- **L-E. The declutter pointer and D11's home are stale.**
+  - `:492` says the declutter recommendation is coming "once written". It was committed before this revision (`e2e11fb43`), and the owner has answered O1–O7 (`738cec6bb`).
+  - D11 (`:557`) records W1–W9 in `.ai/ROLE_CONFIG.md`. The declutter target layout (`.agent/repo-declutter-recommendation-2026-11-18.md` §2.2–§2.3) slims ROLE_CONFIG to bindings, with rules in a separate file, and the owner put that rework after the roadmap round (O6).
+  - Fix: name the destination as "the live rules file of the declutter layout (ROLE_CONFIG until then)".
+
+### Checks run
+
+- `python3 check_manifest.py`: 3714 passed, 0 failed.
+- Old checker on the same tree: 3674 passed, 0 failed. Old and new check labels compared.
+- 14 planted-error runs on a scratch copy, results as above.
+- Renderer re-run: byte-identical.
+- Headless render at 4 viewport/scheme combinations, with figure screenshots in scratch.
+- Git pace recomputation (scripts in scratch).
+- Code citations re-read, as listed under M1.
+
+### Not verified
+
+- Figures 1, 3, 4 and 6 were measured but not inspected visually this round.
+- The mermaid blocks were not rendered by a mermaid engine.
+- The 1–3 days per change and the human-team range are judgements I can only test for plausibility.
+- No test suite was run. No database, Docker container or port 5490/8990 was touched. No pack file other than this one was edited, and `.agent/owner-walkthrough-notes-2026-11-01.md` was left alone.
