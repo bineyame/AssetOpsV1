@@ -1,0 +1,59 @@
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-AW-5 to D-E5.13)
+
+One line per decision ID: ID, title, status, file. Status is `live` unless the text says otherwise; "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+
+- `D-AW-5` no Grow total across Sites; away log untracked · reversed in part? see build-sheet-CH-6.md:408 · architect-handoff-demo-plan-2026-11-04.md:211
+- `D-AW-6` I-22 in part; away log untracked · reversed in part? see build-sheet-CH-9.md:120 · architect-handoff-demo-plan-2026-11-04.md:211
+- `D-AW-7` CH-9 before/after, not "verified"; away log untracked · reversed in part? see build-sheet-CH-9b.md:3 · architect-handoff-demo-plan-2026-11-04.md:211
+- `D-AW-8` daylight declaration file; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:211
+- `D-AW-9` EV "Low"; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:253
+- `D-AW-10` withheld Finding shown, with a stop; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:253
+- `D-AW-11` CH-5c at 3; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:253
+- `D-DATA.1` 6 DATA-17N packet Q1-Q6: diagnostics clocks, due dates,… · live · build-sheet-OWN-GAPS-2026-11-08.md:4649
+- `D-DATA.2` Q2) Health reads the real server clock; a… · live · build-sheet-OWN-GAPS-2026-11-08.md:4657
+- `D-DATA.3` Q3) Due = raised + 14 days, confirmed.… · live · build-sheet-OWN-GAPS-2026-11-08.md:4674
+- `D-DATA.4` Q4) Kisiwa service plan: written S-8d 09:00 is… · live · build-sheet-OWN-GAPS-2026-11-08.md:4681
+- `D-DATA.5` Q5) DATA-4 spec: Charger use from declared ratings;… · live · build-sheet-OWN-GAPS-2026-11-08.md:4688
+- `D-DATA.6` Q6) Cold store and water pump PRODUCTIVE: accepted.… · live · build-sheet-OWN-GAPS-2026-11-08.md:4739
+- `D-E2.1` The scheduleinputs DB-clock read is a tick writer's… · live · build-sheet-OWN-GAPS-2026-11-08.md:2524
+- `D-E2.2` The container copies the four tracked test inputs… · live · build-sheet-OWN-GAPS-2026-11-08.md:2527
+- `D-E2.3` ch6b: comparing the full nodes over the week… · live · build-sheet-OWN-GAPS-2026-11-08.md:2530
+- `D-E2.4` s502 lags the K8 R-LOAD fixture change. Share… · live · build-sheet-OWN-GAPS-2026-11-08.md:2533
+- `D-E2.5` Of the 25 P failures: G-a to G-d… · live · build-sheet-OWN-GAPS-2026-11-08.md:2535
+- `D-E2.6` T6 moves from E2 to FR-B. FR-A changes… · live · build-sheet-OWN-GAPS-2026-11-08.md:2538
+- `D-E2.7` Close-template build: ensure builds each variant in a… · live · build-sheet-OWN-GAPS-2026-11-08.md:2540
+- `D-E2.8` E3 starts after FR-A merges, when every red… · live · build-sheet-OWN-GAPS-2026-11-08.md:2543
+- `D-E2.9` G-e is a real inconsistency that no presented… · live · build-sheet-OWN-GAPS-2026-11-08.md:2735
+- `D-E2.10` G-h: the k6b normalizer left date keys absolute… · live · build-sheet-OWN-GAPS-2026-11-08.md:2742
+- `D-E2.11` The G-g deviation is accepted. The test's Site… · live · build-sheet-OWN-GAPS-2026-11-08.md:2746
+- `D-E2.12` The pinreadat import-order hole goes to FR-B. Patch… · live · build-sheet-OWN-GAPS-2026-11-08.md:2748
+- `D-E2.13` E3 starts after FR-A merges. That needs R-1… · live · build-sheet-OWN-GAPS-2026-11-08.md:2750
+- `D-E3.1` G-m test fix on task/E3-gm-story-fixture (Sonnet builder, fresh… · live · build-sheet-OWN-GAPS-2026-11-08.md:2781
+- `D-E3.2` E4-env runs the fixed files in the E3… · live · build-sheet-OWN-GAPS-2026-11-08.md:2789
+- `D-E3.3` New check E4-PARITY: with the demo server up,… · live · build-sheet-OWN-GAPS-2026-11-08.md:2790
+- `D-E3.4` FLAG 2 is not a defect. New check… · live · build-sheet-OWN-GAPS-2026-11-08.md:2793
+- `D-E4.1` STOP 1 (E4-PARITY): a defect. The warm list… · live · build-sheet-OWN-GAPS-2026-11-08.md:2805
+- `D-E4.2` STOP 2 (Cold/EV "Pending"): a defect. The Portfolio… · live · build-sheet-OWN-GAPS-2026-11-08.md:2851
+- `D-E4.3` STOP 3 (E4-GE any-outcome sweep): all 4 hits… · live · build-sheet-OWN-GAPS-2026-11-08.md:2892
+- `D-E4.4` Items E4 did not run · live · build-sheet-OWN-GAPS-2026-11-08.md:2919
+- `D-E4.5` Re-prepare: yes, once C1 and C2 have merged · live · build-sheet-OWN-GAPS-2026-11-08.md:2945
+- `D-E4.6` Observation, not an E4 stop: the board gap… · live · build-sheet-OWN-GAPS-2026-11-08.md:2952
+- `D-E4.7` Order of work · live · build-sheet-OWN-GAPS-2026-11-08.md:2966
+- `D-E4.8` The per-tick rebuild is a defect: the serve… · live · build-sheet-OWN-GAPS-2026-11-08.md:2995
+- `D-E4.9` PF3, measured honestly · live · build-sheet-OWN-GAPS-2026-11-08.md:3046
+- `D-E4.10` C2's longer list stands; no scoping down · live · build-sheet-OWN-GAPS-2026-11-08.md:3061
+- `D-E4.11` Order (amends D-E4.7 · live · build-sheet-OWN-GAPS-2026-11-08.md:3076
+- `D-E5.0` How a fix reaches client4 without a rebuild… · live · build-sheet-OWN-GAPS-2026-11-08.md:3267
+- `D-E5.1` STOP-1, "Yesterday arrives": R4.2 stands for demo day;… · live · build-sheet-OWN-GAPS-2026-11-08.md:3275
+- `D-E5.2` STOP-2, the dip: no dip on client4 today;… · live · build-sheet-OWN-GAPS-2026-11-08.md:3305
+- `D-E5.3` STOP-3, service:w401-fixture in the By column: a product… · live · build-sheet-OWN-GAPS-2026-11-08.md:3326
+- `D-E5.4` The Kobo finding link pins revision 1 of… · live · build-sheet-OWN-GAPS-2026-11-08.md:3354
+- `D-E5.5` The Kobo opportunity hop lands on OPP-000005: the… · live · build-sheet-OWN-GAPS-2026-11-08.md:3369
+- `D-E5.6` "4.50 USD" is not stale; the Portfolio writes… · live · build-sheet-OWN-GAPS-2026-11-08.md:3383
+- `D-E5.7` DS-1f brief (Sonnet, after E5b; fresh Opus light… · live · build-sheet-OWN-GAPS-2026-11-08.md:3391
+- `D-E5.8` Cold third visit: product defect (Cold composer lacks… · live · build-sheet-OWN-GAPS-2026-11-08.md:3435
+- `D-E5.9` EV "connector 2": data/story defect (fixture literal); fix… · live · build-sheet-OWN-GAPS-2026-11-08.md:3443
+- `D-E5.10` One rebuild · live · build-sheet-OWN-GAPS-2026-11-08.md:3449
+- `D-E5.11` Root cause: the v3 calendar, not the product… · live · build-sheet-OWN-GAPS-2026-11-08.md:3463
+- `D-E5.12` The fix: calendar v4, S-4 missed, S partly… · live · build-sheet-OWN-GAPS-2026-11-08.md:3481
+- `D-E5.13` Fix card FX-KOBO-GAPS (Opus, S, about 0.5 unit… · live · build-sheet-OWN-GAPS-2026-11-08.md:3505

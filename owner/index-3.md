@@ -1,0 +1,49 @@
+# Owner feedback index, part 3 of 5 (2026-10-26 to 2026-11-08)
+
+One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+
+- 2026-10-26 `owner-local-servers-authorization-2026-10-26.md` Local preview servers for recapture · historical — scoped to final recapture batches
+- 2026-10-26 `owner-s3walk-authorization-2026-10-26.md` Rebuild s3walk DB for recapture · historical — scoped to batch-02 recapture
+- 2026-10-27 `owner-answers-open-questions-1-2026-10-27.md` Source is displayed data, not screen logic · current — to confirm; data origin principle
+- 2026-10-27 `owner-answers-open-questions-2-2026-10-27.md` Open questions 4-17 answers · historical — October telemetry and money answers
+- 2026-10-27 `owner-build-plan-depth-2026-10-27.md` Architect plans explain implementation approach · current — Architect full technical design rule
+- 2026-10-27 `owner-claude-architect-commercial-html-2026-10-27.md` Implementer-friendly commercial doc request · historical — document request done
+- 2026-10-27 `owner-claude-architect-telemetry-2026-10-27.md` Claude telemetry plan with BeagleBone · historical — document request done
+- 2026-10-27 `owner-claude-architect-telemetry-revision-2026-10-27.md` Telemetry plan cloud export weighting · historical — document revision done
+- 2026-10-27 `owner-commercial-architecture-reframe-2026-10-27.md` Outcome-led commercial architecture reframe · current — to confirm; may be folded into Layer 4
+- 2026-10-27 `owner-default-architect-claude-2026-10-27.md` Default Architect is Claude · current — standing role binding
+- 2026-10-27 `owner-parallel-and-open-questions-2026-10-27.md` Telemetry and commercial plans parallel · historical — question answered
+- 2026-10-27 `owner-telemetry-integration-plan-2026-10-27.md` Telemetry integration plan document request · historical — document delivered
+- 2026-10-27 `owner-telemetry-plan-feedback-2026-10-27.md` Telemetry plan approved with adjustments · current — to confirm; Modbus proof and VRM honesty
+- 2026-10-28 `owner-answers-demo-data-2026-10-28.md` Demo data strategy question answers · current — to confirm; source labels and realistic limits
+- 2026-10-28 `owner-demo-data-strategy-2026-10-28.md` Evidence-grounded demo data strategy request · historical — strategy delivered and accepted
+- 2026-10-28 `owner-demo-sprint-md-removal-2026-10-28.md` Remove demo-sprint md, keep html · historical — one-off cleanup
+- 2026-10-28 `owner-long-running-accepted-2026-10-28.md` Efficient long-run approach accepted · historical — design accepted and built
+- 2026-10-28 `owner-long-running-proposal-2026-10-28.md` Illustrated long-run algorithm document · historical — document delivered
+- 2026-10-28 `owner-simpler-long-run-2026-10-28.md` Efficient elegant long-run solution · historical — answered by long-run proposal
+- 2026-10-28 `owner-test-pipeline-review-2026-10-28.md` Cut test runtime and memory · historical — review done
+- 2026-10-31 `owner-client-demo-sequence-2026-10-31.md` Board lineage, coverage, DEMO-B start · historical — decisions built
+- 2026-11-01 `owner-walkthrough-notes-2026-11-01.md` Walkthrough notes Nov 1-3 · current — to confirm; file edited locally, open items
+- 2026-11-05 `owner-efficiency-2026-11-05.md` Boost usage efficiency, keep quality · current — token efficiency standing rule
+- 2026-11-05 `owner-mill-pass-margin-2026-11-05.md` Mill pass margin 10 percent · historical — demo check parameter built
+- 2026-11-05 `owner-scope-backlog-2026-11-05.md` Demo-critical only; rest to backlog · superseded — by owner-deferred-is-queued-2026-11-13.md; to confirm
+- 2026-11-06 `owner-build-time-2026-11-06.md` Demo history build length · historical — demo data build parameter
+- 2026-11-06 `owner-cold-days-2026-11-06.md` Cold-lab example days partly checked · historical — demo data parameter built
+- 2026-11-06 `owner-efficiency-2026-11-06.md` Implement suggested usage optimizations · historical — optimizations applied; rule in 11-05 file
+- 2026-11-06 `owner-kobo-nights-2026-11-06.md` Kobo night data by domain knowledge · historical — demo data built
+- 2026-11-07 `owner-dd1a2-answers-2026-11-07.md` Kobo and mill example day answers · historical — demo data parameters built
+- 2026-11-07 `owner-diesel-night-window-2026-11-07.md` Diesel night window 6pm to noon · historical — built into diesel trial
+- 2026-11-07 `owner-diesel-site-2026-11-07.md` Kisiwa diesel site and pass mark · historical — built before demo
+- 2026-11-07 `owner-feature-shortlist-answers-2026-11-07.md` Honest fuel story via injected days · historical — led to fuel scope decisions
+- 2026-11-07 `owner-feature-shortlist-request-2026-11-07.md` High-impact medium-effort features · historical — shortlist delivered
+- 2026-11-07 `owner-fuel-scope-2026-11-07.md` Idle fuel and shortlist items · historical — built for demo
+- 2026-11-07 `owner-grow-size-2026-11-07.md` Grow row size left as is · historical — one-off demo choice
+- 2026-11-07 `owner-kisiwa-scope-2026-11-07.md` Kisiwa action link in scope · historical — built
+- 2026-11-07 `owner-kobo-partial-days-2026-11-07.md` Kobo edge days partly checked · historical — demo data built
+- 2026-11-07 `owner-mill-route-2026-11-07.md` Mill result via route link · superseded — by owner-fuel-scope-2026-11-07.md
+- 2026-11-07 `owner-missing-fuel-2026-11-07.md` Kisiwa missing fuel before demo · historical — built
+- 2026-11-07 `owner-rehearsal-whole-list-2026-11-07.md` Whole-list rehearsal exception · historical — one-off exception
+- 2026-11-07 `owner-scenario-data-2026-11-07.md` Scenario data via operational actions · current — standing data principle
+- 2026-11-08 `owner-answers-endgame-2026-11-08.md` Endgame prepare skip; 10 Nov session · historical — client date later moved to 17 Nov
+- 2026-11-08 `owner-answers-own-gaps-2026-11-08.md` All fixes now; add-dates option · historical — OWN-GAPS build round
+- 2026-11-08 `owner-away-architect-decides-2026-11-08.md` Away: Architect decides on real-site understanding · current — standing pattern for delegated absence

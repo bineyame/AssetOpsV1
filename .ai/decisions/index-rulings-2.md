@@ -1,0 +1,55 @@
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-SR.52 to D-AW-4)
+
+One line per decision ID: ID, title, status, file. Status is `live` unless the text says otherwise; "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+
+- `D-SR.52` The kill switch (interpretation 5 · live · build-sheet-OWN-GAPS-2026-11-08.md:5052
+- `D-SR.53` The rebuild test (interpretation 6 · live · build-sheet-OWN-GAPS-2026-11-08.md:5056
+- `D-SR.54` Day-kind build time in the prepare and the… · live · build-sheet-OWN-GAPS-2026-11-08.md:5059
+- `D-SR.55` SR-10k Q1-Q4 (Architect, Claude, 2026-11-12 night, owner-delegated, logged… · live · build-sheet-OWN-GAPS-2026-11-08.md:5069
+- `D-SR.56` SR-6 review M2 and L1: the local-day grade… · live · build-sheet-OWN-GAPS-2026-11-08.md:5080
+- `D-SR.57` SR-4c review L2, L3 and the two-declarer risk… · live · build-sheet-OWN-GAPS-2026-11-08.md:5095
+- `D-SR.58` SR-11 Q1-Q3 (Architect, Claude, 2026-11-12 night, owner-delegated, logged… · withdrawn in part? see build-sheet-OWN-GAPS-2026-11-08.md:5169 · build-sheet-OWN-GAPS-2026-11-08.md:5114
+- `D-SR.59` SR-4a+b review H-1, L-1, L-4: short ranges on… · live · build-sheet-OWN-GAPS-2026-11-08.md:5137
+- `D-SR.60` SR-11: start successes stay the hour-card sum; D-SR.58… · live · build-sheet-OWN-GAPS-2026-11-08.md:5169
+- `D-SR.61` SR-4: negative-offset zones use the range's date strings… · live · build-sheet-OWN-GAPS-2026-11-08.md:5192
+- `D-SR.62` SR-8 parity: the one-day read follows the stored… · live · build-sheet-OWN-GAPS-2026-11-08.md:5202
+- `D-SR.63` The rows-on switch for the 17 Nov build… · live · build-sheet-OWN-GAPS-2026-11-08.md:5226
+- `D-SR.64` 68 SR-4 live check (F1-F3, the migration 409)… · live · build-sheet-OWN-GAPS-2026-11-08.md:5243
+- `D-SR.65` F1: Kisiwa Fuel nights · live · build-sheet-OWN-GAPS-2026-11-08.md:5253
+- `D-SR.66` F3: Cold/EV financial assumptions. Corrects the D-SR.44 row · live · build-sheet-OWN-GAPS-2026-11-08.md:5257
+- `D-SR.67` The evidence-migration 409 · live · build-sheet-OWN-GAPS-2026-11-08.md:5261
+- `D-SR.68` SR-8: a day with no solar reading at… · live · build-sheet-OWN-GAPS-2026-11-08.md:5268
+- `D-SR.69` KOBO-001 10-31: a story gap; the SR-10/11 head… · live · build-sheet-OWN-GAPS-2026-11-08.md:5275
+- `D-SR.70` 72 SR-10/11 parity findings: pre-data days, the precise… · live · build-sheet-OWN-GAPS-2026-11-08.md:5290
+- `D-SR.71` The head gate follows the enqueue rule exactly… · live · build-sheet-OWN-GAPS-2026-11-08.md:5314
+- `D-SR.72` NODATA days read one state (finding 3 · live · build-sheet-OWN-GAPS-2026-11-08.md:5327
+- `D-SR.73` Estate "Current view" label after SR-4; R339 /… · live · build-sheet-OWN-GAPS-2026-11-08.md:5347
+- `D-SR.74` Lane G: SR-12b Q1-Q3 and WARM-1 gate refusals… · live · build-sheet-OWN-GAPS-2026-11-08.md:5368
+- `D-SR.75` AP-1 analytics readiness port sized; database stays PostgreSQL… · live · build-sheet-OWN-GAPS-2026-11-08.md:5408
+- `D-SR.76` Lane K SR-8/SR-10 page questions (Architect, Claude, 2026-11-14,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5420
+- `D-SR.77` Lane H SR-5 questions; AP-1 size corrected (Architect,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5456
+- `D-SR.78` AP-1 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged… · live · build-sheet-OWN-GAPS-2026-11-08.md:5495
+- `D-SR.79` AP-1 review H1 and Lows: where the stored… · live · build-sheet-OWN-GAPS-2026-11-08.md:5566
+- `D-SR.80` AP-1 parity: what replaces it, the Kisiwa 409,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5643
+- `D-SR.81` CO-10 "16 min unknown": a reported charging state… · live · build-sheet-OWN-GAPS-2026-11-08.md:5668
+- `D-SR.82` A range before the Site was imported reads… · live · build-sheet-OWN-GAPS-2026-11-08.md:5688
+- `D-SR.83` Kisiwa/Kobo Overview and Finding-index reads become stored, prebuilt… · live · build-sheet-OWN-GAPS-2026-11-08.md:5706
+- `D-SR.83a` The Overview's wall-clock fields go through the read-instant… · superseded in part? see build-sheet-OWN-GAPS-2026-11-08.md:5747 · build-sheet-OWN-GAPS-2026-11-08.md:5727
+- `D-SR.83b` The stored Overview carries schedule facts, not schedule… · live · build-sheet-OWN-GAPS-2026-11-08.md:5747
+- `D-ANY.1` The full fix is BL-66, and it reverses… · live · build-sheet-OWN-GAPS-2026-11-08.md:3222
+- `D-ANY.2` Pre-demo partial step: slice ANY-1 (boards), after FR-B · live · build-sheet-OWN-GAPS-2026-11-08.md:3229
+- `D-ANY.3` No range-agnostic warm-up and no longer pre-load list · reversed in part? see architect-sequence-client-scope-2026-11-11.md:1163 · build-sheet-OWN-GAPS-2026-11-08.md:3236
+- `D-ANY.4` Presenter rule until the fix lands · narrowed in part? see architect-sequence-client-scope-2026-11-11.md:1164 · build-sheet-OWN-GAPS-2026-11-08.md:3241
+- `D-ANY.5` ANY-1 Phase 1 review M1/M2: period-row knowledge time… · live · build-sheet-OWN-GAPS-2026-11-08.md:4168
+- `D-ANY.6` Tonight's speed build for the Thursday 12 Nov… · live · build-sheet-OWN-GAPS-2026-11-08.md:4259
+- `D-ANY.6a` AR-2 rows path misses a recompute job created… · live · build-sheet-OWN-GAPS-2026-11-08.md:4293
+- `D-ANY.6b` / D-E5.49a Tonight's build fails one check, CO-10… · live · build-sheet-OWN-GAPS-2026-11-08.md:4307
+- `D-ANY.7` AR-4 claim-day rows vs D-ANY.5 (commit 5f82f5fa0, task/ANY-2-AR4 · live · build-sheet-OWN-GAPS-2026-11-08.md:4360
+- `D-ANY.8` Order of the remaining any-range speed work for… · live · build-sheet-OWN-GAPS-2026-11-08.md:4382
+- `D-ANY.9` AR-4: Portfolio consequence money, receipt-less productive rows, the… · live · build-sheet-OWN-GAPS-2026-11-08.md:4401
+- `D-ANY.10` AR-4 client4 evidence: the beforebuild mismatch and the… · live · build-sheet-OWN-GAPS-2026-11-08.md:4424
+- `D-ANY.11` DISP-1: the remaining dispatch-day lookups are Finding money… · live · build-sheet-OWN-GAPS-2026-11-08.md:4493
+- `D-AW-1` owner-away decision; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:276
+- `D-AW-2` OD-P11/OD-P12, waiting on DD-0b; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:217
+- `D-AW-3` recurrence while CHANGE_APPLIED, waiting on MD-0; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:217
+- `D-AW-4` CH-6 split; away log untracked · live · architect-handoff-demo-plan-2026-11-04.md:211

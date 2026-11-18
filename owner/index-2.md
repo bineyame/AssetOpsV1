@@ -1,0 +1,49 @@
+# Owner feedback index, part 2 of 5 (2026-10-14 to 2026-10-26)
+
+One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+
+- 2026-10-14 `owner-next-work-2026-10-14.md` Next-work: S4-02b fuel cost · historical — contest choice
+- 2026-10-14 `owner-next-work-2026-10-14b.md` Next-work: S4-02c recalculation · historical — contest choice
+- 2026-10-14 `owner-process-speed-2026-10-14.md` Faster turnaround without lower quality · current — to confirm; turnaround speed rules
+- 2026-10-15 `owner-LR01-S501-acceptance-2026-10-15.md` LR-01 and S5-01 walkthrough acceptance · historical — wording condition folded into W1-conclusion pass
+- 2026-10-15 `owner-autonomy-2026-10-15.md` Absence window, Architect decides · historical — window closed; decisions logged
+- 2026-10-15 `owner-next-work-2026-10-15.md` Next-work: late readings · historical — contest choice
+- 2026-10-16 `owner-S302b-acceptance-2026-10-16.md` S3-02b claim-limit walkthrough accepted · historical — conditional; presentation carried to UI/UX pass
+- 2026-10-16 `owner-S404-S601b-acceptance-2026-10-16.md` S4-04 and S6-01b walkthroughs accepted · historical — plain-language ask carried by T028 presentation rule
+- 2026-10-16 `owner-S405b-acceptance-2026-10-16.md` S4-05b accepted; vocabulary leak theme · historical — theme addressed in W1-conclusion pass
+- 2026-10-16 `owner-S502-acceptance-2026-10-16.md` S5-02 finding list accepted · historical — merged slice
+- 2026-10-16 `owner-walkthrough-policy-2026-10-16.md` Walkthroughs deferred to W1 end · superseded — by owner-walkthrough-after-w6-2026-10-20.md
+- 2026-10-17 `owner-W1-walkthrough-verdict-2026-10-17.md` W1 rejected for mockup drift · superseded — by owner-W1-acceptance-2026-10-18.md
+- 2026-10-17 `owner-autonomy-2026-10-17.md` Away; progress waves 1 and 2 · historical — window closed
+- 2026-10-17 `owner-rail-decision-2026-10-17.md` Full mockup left menu, greyed items · historical — built
+- 2026-10-18 `owner-W1-acceptance-2026-10-18.md` W1 repeat walkthrough conditional acceptance · historical — W1 closed; UI/UX refinement after waves
+- 2026-10-18 `owner-W2-mockup-authority-2026-10-18.md` v69 W2 screens are authority · historical — W2 done; mock reference now v70 + v72 style
+- 2026-10-18 `owner-client-conversations-2026-10-18.md` Build all waves before client talks · historical — waves done; client demos now running
+- 2026-10-18 `owner-fidelity-and-design-ownership-2026-10-18.md` Mockup fidelity; Architect owns design · current — mock now v70 + v72 style
+- 2026-10-18 `owner-post-W2-parallel-plan-2026-10-18.md` Two-lane post-W2 sequence · historical — waves done
+- 2026-10-18 `owner-test-db-authorization-2026-10-18.md` Create and drop test DBs · current — standing DB authorization
+- 2026-10-19 `owner-W2-walkthrough-not-blocking-2026-10-19.md` W2 walkthrough not a gate · superseded — by owner-walkthrough-after-w6-2026-10-20.md
+- 2026-10-20 `owner-W3-W4-wave-start-2026-10-20.md` W3/W4 start on Architect scope · historical — waves done
+- 2026-10-20 `owner-test-suite-policy-2026-10-20.md` Full suite alongside first review · superseded — by owner-tiered-testing-2026-10-22.md
+- 2026-10-20 `owner-walkthrough-after-w6-2026-10-20.md` Single walkthrough after W6 · historical — W6 done
+- 2026-10-21 `owner-W5-W6-spec-readiness-2026-10-21.md` Spec-vs-code readiness before building · current — to confirm; split slices over 6 units
+- 2026-10-22 `owner-architect-mock-fidelity-2026-10-22.md` Architects must follow the mockup · current — mock now v70 + v72 style
+- 2026-10-22 `owner-claude-architect-2026-10-22.md` Claude Architect until Codex reset · superseded — by owner-default-architect-claude-2026-10-27.md
+- 2026-10-22 `owner-speed-preflight-quiet-suite-2026-10-22.md` Builder pre-flight; suites on quiet machine · current — standing pre-flight rule
+- 2026-10-22 `owner-tiered-testing-2026-10-22.md` Tiered testing per unit and slice · superseded — by owner-overnight-2026-11-10.md; to confirm
+- 2026-10-23 `owner-build-during-suite-2026-10-23.md` Keep building during full suite · current — to confirm against PIPE-1 rules
+- 2026-10-23 `owner-departure-categories-2026-10-23.md` Categorise mockup departures · current — standing MOCK DEVIATION labelling
+- 2026-10-23 `owner-ops04-suite-speed-memory-2026-10-23.md` 90-minute suite and memory fix · historical — OPS-04 done
+- 2026-10-24 `owner-producer-scratch-db-authorization-2026-10-24.md` Producer scratch audit DBs allowed · current — standing DB authorization
+- 2026-10-25 `owner-demo-sprint-answers-2026-10-25.md` Demo sprint scenarios and capacity · historical — sprint planning
+- 2026-10-25 `owner-demo-sprint-brief-2026-10-25.md` Client demo readiness sprint brief · historical — sprint planned and run
+- 2026-10-25 `owner-demo-sprint-feedback-2-2026-10-25.md` Scenario selection reasoning matters most · historical — sprint planning
+- 2026-10-25 `owner-demo-sprint-feedback-3-2026-10-25.md` More mini-grid scenarios for Africa · historical — sprint planning
+- 2026-10-25 `owner-test-db-authorization-2026-10-25.md` Three producer test DBs allowed · historical — scoped to one recapture
+- 2026-10-25 `owner-ui-ux-guidance-2026-10-25.md` Modern UI guidelines for decisions · current — standing UI/UX bar
+- 2026-10-26 `owner-commercial-capability-brief-2026-10-26.md` Commercial capability readiness brief · historical — iteration done
+- 2026-10-26 `owner-commercial-capability-deep-review-2026-10-26.md` Commercial readiness iteration 3 review · historical — iteration done
+- 2026-10-26 `owner-commercial-capability-direction-2026-10-26.md` Commercial outcomes drive everything · current — standing product principle
+- 2026-10-26 `owner-commercial-capability-feedback-2-2026-10-26.md` Commercial readiness iteration 3 feedback · historical — iteration done
+- 2026-10-26 `owner-commercial-capability-feedback-2026-10-26.md` Commercial vs capability assessment feedback · historical — iteration done
+- 2026-10-26 `owner-commercial-capability-final-clarifications-2026-10-26.md` Commercial baseline accepted with clarifications · superseded — by owner-commercial-architecture-reframe-2026-10-27.md

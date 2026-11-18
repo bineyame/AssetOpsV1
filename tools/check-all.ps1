@@ -280,6 +280,9 @@ try {
     }
     # PIPE-1 A5: no standalone navigation-truthfulness call; the architecture runner already runs the same module.
     Add-Guard "Agent workflow"                $powershell @("-NoProfile", "-File", "tools/check-agent-workflow.ps1")
+    # Declutter 2: every cited decision ID resolves through .ai/decisions/index-*.md; every file an index names exists.
+    Add-Guard "Decision, state, spec and owner indexes" $Python @("tools/check-decision-index.py")
+    Add-Guard "Decision index self-test (planted ID and file)" $Python @("tools/check-decision-index.py", "--self-test")
     # PIPE-1 A6: the v69 registry, the S1-S7 queue (delivery checker) and the v69 screen ledger are advisory; the live
     # honest-gap catalogue they shared stays blocking as its own guard.
     Add-Guard "v69 dependency registry and S1-S7 queue (advisory)" $Node @("frontend/docs/architecture/check_v69_dependency_registry.cjs") -Advisory

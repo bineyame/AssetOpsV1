@@ -1,0 +1,50 @@
+# Owner feedback index, part 1 of 5 (2026-10-02 to 2026-10-14)
+
+One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+
+- 2026-10-02 `owner-acceptance-demo-led-replan-2026-10-02.md` Demo-led replan accepted · historical — early plan, later replaced by S1-S7
+- 2026-10-02 `owner-approval-final-recommendation-2026-10-02.md` Final Architect recommendation approved · historical — early planning
+- 2026-10-02 `owner-instruction-final-recommendation-2026-10-02.md` Final recommendation then Planner · historical — early planning
+- 2026-10-02 `owner-review-architect-recommendation-2026-10-02.md` Review of Architect demo recommendation · historical — early planning
+- 2026-10-03 `owner-T027-phase-1-hands-on-2026-10-03.md` T027 phase 1 hands-on check · historical — superseded T-queue history
+- 2026-10-03 `owner-T027-phase-2-hands-on-2026-10-03.md` T027 phase 2 UI validation · historical — superseded T-queue history
+- 2026-10-03 `owner-T028-phase-1-questions-2026-10-03.md` T028 phase 1 rulings · historical — recommendations accepted; T-queue history
+- 2026-10-04 `owner-T028-acceptance-2026-10-04.md` T028 quick UI acceptance and merge · historical — T-queue history
+- 2026-10-04 `owner-T028-audience-question-2026-10-04.md` T028 client vs technical audience question · historical — answered by presentation direction file
+- 2026-10-04 `owner-T028-closeout-2026-10-04.md` Readiness gap rule; decisions to Architect · current — standing rule: decision requests go to active Architect
+- 2026-10-04 `owner-T028-presentation-direction-2026-10-04.md` Client-facing plain text, graphs, deep tab · current — standing client-facing presentation rule
+- 2026-10-06 `owner-v69-site-mockup-comparison-2026-10-06.md` Compare v69 Site mockup with doc · historical — v69 pivot done
+- 2026-10-08 `owner-S1-acceptance-2026-10-08.md` S1 foundation UI check · historical — S1 accepted for now
+- 2026-10-08 `owner-S1-ui-feedback-2026-10-08.md` S1 foundation page looks like dump · historical — led to V-01 fidelity work; resolved
+- 2026-10-09 `owner-S2-02-acceptance-2026-10-09.md` S2-02 evidence checkpoint passed · historical — walkthrough of merged slice
+- 2026-10-09 `owner-S2-closeout-2026-10-09.md` S2-02 merge and V-01 adoption · historical — merged; V-01 done
+- 2026-10-09 `owner-delivery-strategy-draft-2026-10-09.md` Delivery strategy draft decision · superseded — by owner-delivery-strategy-final-2026-10-09.md
+- 2026-10-09 `owner-delivery-strategy-final-2026-10-09.md` Delivery strategy final confirmation · current — to confirm; may be replaced by D11 workflow
+- 2026-10-09 `owner-delivery-strategy-review-1-2026-10-09.md` Delivery strategy review 1 · historical — addressed in final strategy
+- 2026-10-09 `owner-delivery-strategy-review-2-2026-10-09.md` Delivery strategy review 2 · historical — addressed in final strategy
+- 2026-10-09 `owner-delivery-strategy-review-3-2026-10-09.md` Delivery strategy review 3 · historical — addressed in final strategy
+- 2026-10-11 `owner-W1-confirmation-2026-10-11.md` W1 wave-start scope confirmation · historical — W1 closed
+- 2026-10-11 `owner-review-routing-and-merge-2026-10-11.md` Review routing: Claude per slice, batched Codex · current — standing review routing
+- 2026-10-12 `owner-S3-01-acceptance-2026-10-12.md` S3-01 checkpoint and merge · historical — merged slice
+- 2026-10-12 `owner-S4-01-acceptance-2026-10-12.md` S4-01 checkpoint passed · historical — merged slice
+- 2026-10-12 `owner-V-01a-acceptance-2026-10-12.md` V-01a round 3 visual acceptance · historical — conditional acceptance of merged slice
+- 2026-10-12 `owner-V-01a-feedback-2026-10-12.md` V-01a mockup comparison feedback · historical — round 1 rulings applied
+- 2026-10-12 `owner-V-01a-round2-feedback-2026-10-12.md` Readiness drift; state missing data · current — standing: missing data stated as not available in UI
+- 2026-10-12 `owner-contest-rule-2026-10-12.md` Story path first in close calls · historical — rule held until S4 done
+- 2026-10-12 `owner-mock-gap-confirmation-2026-10-12.md` Gap catalogue and orphan guard confirmed · current — to confirm mechanism still in use
+- 2026-10-12 `owner-mock-gap-mechanism-2026-10-12.md` Mock gap closure mechanism question · historical — answered by confirmation file
+- 2026-10-13 `owner-G-01-acceptance-2026-10-13.md` G-01 firmware missing-state acceptance · historical — conditional acceptance of merged slice
+- 2026-10-13 `owner-G-02-acceptance-2026-10-13.md` G-02 missing-state treatments acceptance · historical — conditional acceptance; 390 px caption ok for now
+- 2026-10-13 `owner-S4-03-acceptance-2026-10-13.md` S4-03 finding evidence/history accepted · historical — conditional acceptance of merged slice
+- 2026-10-13 `owner-V-01b-fix3-return-2026-10-13.md` V-01b fix-3 return option · historical — one-off review choice
+- 2026-10-13 `owner-V-01b-second-return-2026-10-13.md` V-01b second return option · historical — one-off review choice
+- 2026-10-13 `owner-V-01b-walkthrough-2026-10-13.md` V-01b walkthrough and headings · historical — conditional acceptance of merged slice
+- 2026-10-13 `owner-next-work-2026-10-13.md` Next-work: finding evidence · historical — contest choice
+- 2026-10-13 `owner-next-work-2026-10-13b.md` Next-work: money decision · historical — contest choice
+- 2026-10-13 `owner-next-work-2026-10-13c.md` Next-work: money; mind prioritization workflow · historical — contest choice
+- 2026-10-13 `owner-next-work-2026-10-13d.md` Next-work: S4-02 money · historical — contest choice
+- 2026-10-13 `owner-next-work-2026-10-13e.md` Next-work: S4-02a first slice · historical — contest choice
+- 2026-10-14 `owner-S4-02a-acceptance-2026-10-14.md` S4-02a money assumptions walkthrough · historical — conditional acceptance; minor carries
+- 2026-10-14 `owner-S4-02b-acceptance-2026-10-14.md` S4-02b fuel cost walkthrough · historical — conditional acceptance of merged slice
+- 2026-10-14 `owner-S4-02b-money-demo-2026-10-14.md` S4-02b demo case for fuel cost · historical — backlog: simulated and real sites supply analysis data
+- 2026-10-14 `owner-autonomy-2026-10-14.md` Two-hour no-input window · historical — window closed

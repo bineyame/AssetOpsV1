@@ -1,0 +1,59 @@
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-R3.7 to D-W1-8)
+
+One line per decision ID: ID, title, status, file. Status is `live` unless the text says otherwise; "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.agent/`. Top index: `INDEX.md`.
+
+- `D-R3.7` for owner review). The night re-check trigger now… · live · build-sheet-OWN-GAPS-2026-11-08.md:1529
+- `D-R3.8` for owner review). A correction that moves a… · live · build-sheet-OWN-GAPS-2026-11-08.md:1786
+- `D-R3.9` for owner review). Not changed now: a night… · live · build-sheet-OWN-GAPS-2026-11-08.md:1791
+- `D-R3.10` for owner review). A problem with one night's… · live · build-sheet-OWN-GAPS-2026-11-08.md:1795
+- `D-R4.1` for owner review). The Portfolio now reads "Pending"… · live · build-sheet-OWN-GAPS-2026-11-08.md:1887
+- `D-R4.2` for owner review). Step 7 shows one real… · live · build-sheet-OWN-GAPS-2026-11-08.md:1959
+- `D-R5.1` Cause of the G1 rehearsal failure: the tool… · live · build-sheet-OWN-GAPS-2026-11-08.md:2146
+- `D-R5.2` Fix: before add-dates reports a day checked or… · live · build-sheet-OWN-GAPS-2026-11-08.md:2150
+- `D-R5.3` The failing check (F-THREADS: no board may say… · live · build-sheet-OWN-GAPS-2026-11-08.md:2154
+- `D-R5.4` Rehearsal: first on the failing clone (proves the… · live · build-sheet-OWN-GAPS-2026-11-08.md:2156
+- `D-R5.5` The stale Kisiwa test count (12 → 13… · live · build-sheet-OWN-GAPS-2026-11-08.md:2158
+- `D-R6.1` When the background schedule has stopped, the product… · live · build-sheet-OWN-GAPS-2026-11-08.md:2292
+- `D-R6.2` The productive-use check now picks the study that… · live · build-sheet-OWN-GAPS-2026-11-08.md:2295
+- `D-R6.3` A build's code folder is never replaced on… · live · build-sheet-OWN-GAPS-2026-11-08.md:2298
+- `D-R6.4` Rehearsal keeps both fresh-clone runs (A: add and… · live · build-sheet-OWN-GAPS-2026-11-08.md:2300
+- `D-UI.1` , look and layout specs. v7.2 is the… · live · architect-plan-pre-client-2026-11-10.md:140
+- `D-UI.2` , the theme and language choices are per-browser… · live · architect-plan-pre-client-2026-11-10.md:141
+- `D-UP.1` 11 UP-1 pre-flight questions Q1-Q9 and the guard… · live · build-sheet-OWN-GAPS-2026-11-08.md:4511
+- `D-UP.2` Q2) The demo upload gateway: real servetls, one… · live · build-sheet-OWN-GAPS-2026-11-08.md:4520
+- `D-UP.3` Q3) "Analysed" is reachable. Positive binding is not… · live · build-sheet-OWN-GAPS-2026-11-08.md:4529
+- `D-UP.4` Q4) Entry: Kobo Health, as the mockup draws… · live · build-sheet-OWN-GAPS-2026-11-08.md:4554
+- `D-UP.5` Q5) The body is raw text/csv, with ?filename=.… · live · build-sheet-OWN-GAPS-2026-11-08.md:4556
+- `D-UP.6` Q6) The Excel BOM stays refused. The TEL-06… · live · build-sheet-OWN-GAPS-2026-11-08.md:4565
+- `D-UP.7` Q7) The path takes the Site code (/api/sites/KOBO-001/reading-uploads),… · live · build-sheet-OWN-GAPS-2026-11-08.md:4567
+- `D-UP.8` Q8) Migration 0061readingupload with downrevision = 0059siteperiodread on… · live · build-sheet-OWN-GAPS-2026-11-08.md:4569
+- `D-UP.9` Q9) The extra columns are accepted, all append-only · live · build-sheet-OWN-GAPS-2026-11-08.md:4571
+- `D-UP.10` The guard fix is correct: register the store,… · live · build-sheet-OWN-GAPS-2026-11-08.md:4575
+- `D-UP.11` Process note and lane order · live · build-sheet-OWN-GAPS-2026-11-08.md:4583
+- `D-UP.12` UP-1 review L2: a stale FAILED job must… · live · build-sheet-OWN-GAPS-2026-11-08.md:5515
+- `D-UQFI.1` (read at the cited line) · live · architect-sequence-client-scope-2026-11-11.md:1434
+- `D-UQFI.2` Type scale and mapping · live · architect-sequence-client-scope-2026-11-11.md:1476
+- `D-UQFI.3` Style ratchet (shrink-only), tools/checks/style-ratchet.mjs · live · architect-sequence-client-scope-2026-11-11.md:1517
+- `D-UQFI.4` That example was a factual error: the six… · live · build-sheet-OWN-GAPS-2026-11-08.md:5473
+- `D-UQFI.5` Collisions with work merging this week · live · architect-sequence-client-scope-2026-11-11.md:1554
+- `D-UQFI.6` 10 UQ-FI builder questions (Architect, Claude, 2026-11-13, owner-delegated,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5469
+- `D-UQFI.7` Figures: 20 px confirmed for UQ-FI-1/2; 30 px… · live · build-sheet-OWN-GAPS-2026-11-08.md:5477
+- `D-UQFI.8` P3 headline: yes, build it only after SR-5… · live · build-sheet-OWN-GAPS-2026-11-08.md:5481
+- `D-UQFI.9` primitives.css spacing: no, not for 17 Nov · live · build-sheet-OWN-GAPS-2026-11-08.md:5484
+- `D-UQFI.10` Merge order: confirmed, with two additions · live · build-sheet-OWN-GAPS-2026-11-08.md:5487
+- `D-UQFI.11` 12 UQ-FI-3 builder questions (Architect, Claude, 2026-11-13, owner-delegated,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5542
+- `D-UQFI.12` Portfolio card foot pill: leave it out for… · live · build-sheet-OWN-GAPS-2026-11-08.md:5556
+- `D-UQFI.13` 18 UQ-FI-2 session-2 questions (Architect, Claude, 2026-11-13, owner-delegated,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5619
+- `D-UQFI.14` P2) The h1 is the Site name; the… · live · build-sheet-OWN-GAPS-2026-11-08.md:5625
+- `D-UQFI.15` P6) Keep the h1 "Findings". The All-lens panel… · live · build-sheet-OWN-GAPS-2026-11-08.md:5627
+- `D-UQFI.16` P7) Keep the Site name as the h1… · live · build-sheet-OWN-GAPS-2026-11-08.md:5630
+- `D-UQFI.17` P1) No Portfolio card collapse for 17 Nov,… · live · build-sheet-OWN-GAPS-2026-11-08.md:5631
+- `D-UQFI.18` P3) Remove the body copy: it is a… · live · build-sheet-OWN-GAPS-2026-11-08.md:5635
+- `D-W1-1` Depot tariff 0.30 USD per kWh, from the… · live · build-sheet-WALK1.md:351
+- `D-W1-2` Kobo productive-use price 0.25 USD per kWh, from… · live · build-sheet-WALK1.md:352
+- `D-W1-3` Kobo solar uncertainty 3 kW and retained margin… · live · build-sheet-WALK1.md:353
+- `D-W1-4` money is not summed over partly checked periods… · live · build-sheet-WALK1.md:354
+- `D-W1-5` idle-generator fuel rate stays parked (own slice after… · live · build-sheet-WALK1.md:355
+- `D-W1-6` for owner review. Below it, a single heavy… · live · build-sheet-WALK1.md:462
+- `D-W1-7` v6 model and publication v5), D-W1-8 (raw request)… · live · build-sheet-WALK1.md:658
+- `D-W1-8` raw request) and D-W1-9 (all days behind the… · live · build-sheet-WALK1.md:658
