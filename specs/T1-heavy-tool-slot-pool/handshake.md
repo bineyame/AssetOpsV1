@@ -278,4 +278,5 @@ R13 (`vite build`), R14 (`bash tools/heavy-slot.sh`), R16 (I measured K7 at 6.3,
 
 ## Status
 
-Open: 21 (R1-R21). Answered: 0. Handshake: reviewer questions in; implementer pre-flight pending.
+Open: 0. Answered: 36 (R1-R21, I1-I15), in `rulings.md` "Handshake answers (round 1)", folded into `spec.md` rev 2.
+Handshake: **closed** (2026-11-19). Coding may start.

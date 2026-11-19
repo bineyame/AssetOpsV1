@@ -1,103 +1,167 @@
 # T1: the heavy-tool slot pool, enforced (implementer spec)
 
-Status: live. Architect spec rev 1, 2026-11-19. Branch `task/T1-heavy-tool-slot-pool`
-(worktree `/opt/assetecon/AssetOpsV1-t1`). Review depth: discovery (new mechanism, W5).
-Reviewer guide: `reviewer-guide.md`. Questions: `handshake.md`. Answers and design rulings:
-`rulings.md` (D-T1.1 to D-T1.10), folded into this file.
+Status: live. Architect spec **rev 2**, 2026-11-19.
 
-Sources: delivery plan row `T1` (`Docs/demo-sprint/product-direction-layer4/delivery-plan.md:59`, pack branch);
-the retired go-to-market plan §2.4 "B03" (same slice, 2-3 units); PIPE-1 A3
-(`Docs/engineering/build-pipeline-and-checks-speedup.md`); owner TW23 (item 7,
-`owner/owner-sitting1-answers-2026-11-18.md`): four build lanes, with B03 merged and enforced before
-lanes 3 and 4 open; owner "yes, start T1 now" (`.agent/owner-start-t1-2026-11-19.md`).
+Rev 2 does two things:
+- It switches enforcement to **option C, in-tool tripwires**. The owner chose this: "yes install playwright, and
+  C for T1" (`owner/owner-playwright-and-t1-c-2026-11-19.md`). There is **no Claude Code hook and no
+  `.claude/settings.json`**.
+- It folds in the answers from handshake round 1: R1-R21 and I1-I15 (`rulings.md`).
 
-`USER_REVIEW_REQUIRED: false` (tooling only; no screen, copy or semantics). The three default rulings in
-`rulings.md` "For the owner" are applied pending the owner's answer (W3).
+Branch `task/T1-heavy-tool-slot-pool` (worktree `/opt/assetecon/AssetOpsV1-t1`). Review depth: discovery (W5).
+Reviewer guide: `reviewer-guide.md`. Rulings: `rulings.md` (D-T1.1-D-T1.18; D-T1.6 and D-T1.8 are
+superseded).
+
+Sources:
+- the delivery plan row `T1` (pack branch, `delivery-plan.md:59`);
+- the go-to-market plan §2.4 "B03" (2-3 units);
+- PIPE-1 A3;
+- owner TW23 (`owner/owner-sitting1-answers-2026-11-18.md` item 7): lanes 3 and 4 open once B03 is merged and
+  enforced;
+- `.agent/owner-start-t1-2026-11-19.md`.
+
+`USER_REVIEW_REQUIRED: false`.
 
 ## 0. Before you start
 
-1. `git merge main` (main has RULES §4 items 6-7; the worktree copy `.agent/RULES-main-2026-11-19.md` is
-   only a convenience). Never rebase.
-2. Pre-flight this spec against `main` together with the Reviewer's questions (RULES §4 item 6): write your
-   questions in `handshake.md` "Implementer pre-flight". Code starts only after `rulings.md` answers them.
-3. No suites, no DBs, no Docker. Stay off ports 5490 and 8990. Every self-test in this slice uses a private
-   temp slot directory; nothing you run may hold a real slot for more than a few seconds.
+1. The handshake round is closed (`handshake.md` Status). Code may start.
+2. Stay off ports 5490 and 8990. Run no full suites and no Docker. The Postgres smoke run in §10 needs the
+   coordinator's DB turn.
+3. Every self-test that takes locks uses its own temp repository (§7.1). The exception is the few check-all runs
+   (I11c): start one only when `tools/heavy-slot.sh --status` shows both slots free.
+4. Commit plan (I11):
+   - commit 1: the pool and its tests;
+   - commit 2: the tripwires and their tests;
+   - commit 3: the documents and `select-tests`.
+
+   The handshake commits and the closing commit (packet, spec status, `.ai/state` entry) do not count toward the
+   three.
 
 ## 1. Outcome and why
 
 With four build lanes, agents running `tsc`, vitest, Postgres test files, browser captures and the heavy
-database job at the same time exhaust the server's memory (no swap) and stall it. Today only check-all takes
-a slot (PIPE-1 A3: `tools/check-all.ps1:202-221`, a lock file per slot in `<git-common-dir>/check-all-slots`,
-opened with `FileShare.None`, 2 slots, 2 s poll, 20 min limit). T1 puts every heavy tool through **the same
-two slots**, and a project hook refuses an unpooled run, so the memory worst case in the go-to-market plan
-(11.6 GB with the pool) holds. Lanes 3 and 4 open when T1 is merged and the post-merge live check (§9, A13)
-passes.
+database job side by side exhaust the server's memory, and it has no swap. Today only check-all takes a slot
+(`tools/check-all.ps1:202-221`).
 
-## 2. Structure: the records and the rules
+T1 puts every heavy tool through **the same two slots**. Each heavy tool then **refuses to start by itself
+outside a held slot**, whoever starts it: a Claude agent, Codex or a human terminal.
 
-**Slot directory** `D` = `$ASSETOPS_HEAVY_SLOT_DIR` if set (test use only, D-T1.3), else
-`<absolute git-common-dir of the script's own repository>/check-all-slots`, else (no git)
-`<system temp>/assetops-check-all-slots`. All 61 checkouts on this server share
-`/opt/assetecon/AssetOpsV1/.git`, so `D` is machine-wide. Resolve from the script's location
-(`$PSScriptRoot/..`, `"$(dirname "$0")/.."`), never from the caller's cwd.
+Lanes 3 and 4 open after the merge and the post-merge check A16.
 
-| File in `D` | Meaning | Authority |
-| --- | --- | --- |
-| `slot-1.lock`, `slot-2.lock` | a heavy slot; held = an exclusive advisory lock on an open file | the lock, nothing else |
-| `db-job.lock` | the one-at-a-time heavy database job (D-T1.4) | the lock |
-| `slot-N.owner`, `db-job.owner` | diagnostics only: `pid=`, `child=`, `label=`, `since=` (UTC ISO 8601), `cwd=`, `db=yes|no`, one per line | never authority; may be stale |
+## 2. Structure: records and rules
 
-**Lock protocol (D-T1.2).** Exclusive, non-blocking `flock(2)` on the file, polled every 2 s.
-- pwsh: `[IO.File]::Open($path, 'OpenOrCreate', 'ReadWrite', 'None')` exactly as check-all does today. .NET on
-  Linux implements `FileShare.None` as `flock(LOCK_EX|LOCK_NB)` and opens with close-on-exec; on Windows it is a
-  share-mode-0 handle, not inherited by children. A held lock throws `System.IO.IOException`.
-- bash (Linux): `exec {fd}>>"$path"` then `flock -n -x "$fd"` (util-linux `/usr/bin/flock`). Never `>` (no
-  truncation). Children never inherit the fd: the command is started with `{fd}>&-`.
-- The interop self-test (§7, P2 and P3) is the proof that the two see each other. If it fails on this server,
-  stop with `SPEC_AMBIGUITY`; do not substitute another mechanism.
-- `DOTNET_SYSTEM_IO_DISABLEFILELOCKING` set to anything non-empty turns .NET locking off: both wrappers refuse to
-  run (exit 69, `heavy-slot: refused: DOTNET_SYSTEM_IO_DISABLEFILELOCKING is set; the slot locks would not hold.`),
-  and check-all fails with the same text before taking its slot.
+### The pool directory `D` (D-T1.12)
 
-**The holder is the wrapper process, not its children.** A slot is released when the wrapper (or check-all)
-exits, however it exits, because the kernel drops the lock with the last fd. On SIGTERM, SIGHUP or SIGINT the
-wrapper stops its child's whole process tree first (§3.3). On SIGKILL of the wrapper the slot is released at
-once and the child may run on unpooled; this is accepted (D-T1.2: a leaked lock would block every lane for up to
-20 min, an orphan over-subscribes once). Orphans such as a Chrome a capture script failed to stop therefore never
-hold a slot.
+One function per language computes `D`. Every wrapper, check-all and every tripwire calls it.
 
-**Nesting marker (D-T1.3).** A process that holds a slot exports `ASSETOPS_HEAVY_SLOT=<absolute path of its
-slot-N.lock>`; a holder of the DB lock also exports `ASSETOPS_HEAVY_DB=<absolute path of db-job.lock>`. A pool
-entry (either wrapper or check-all) that finds `ASSETOPS_HEAVY_SLOT` set checks it:
-- valid when its directory equals `D`, its name matches `^slot-[1-8]\.lock$`, and a non-blocking lock attempt on it
-  fails (someone holds it): the entry is **nested** and takes no slot. The wrapper `exec`s the command (bash) or
-  runs it directly (pwsh); check-all prints `check-all: inside a held heavy slot (<path>); not taking another.`
-- otherwise **stale**: release the probe lock if it was taken, print
-  `heavy-slot: ignoring stale ASSETOPS_HEAVY_SLOT=<value>` to stderr, and acquire normally.
-- `--db` when nested: if `ASSETOPS_HEAVY_DB` is valid by the same test (name `db-job.lock`), nothing more is
-  taken; else acquire `db-job.lock` only (no second slot), within the same wait budget.
-Forging the marker is refused by the hook (rule H0). The test-only `ASSETOPS_HEAVY_SLOT_DIR` is refused the same
-way, so an agent cannot point the pool at a private empty directory.
+1. Run `git -C <the directory of the calling module or script> rev-parse --path-format=absolute
+   --git-common-dir`. Remove **every** environment variable whose name starts with `GIT_` from that git call's
+   environment. This stops `GIT_DIR` and the like from redirecting the pool (R3).
+2. Make the path canonical with `realpath` semantics:
+   - bash: `realpath -e`;
+   - node: `fs.realpathSync`;
+   - python: `os.path.realpath`;
+   - pwsh on Linux: `& realpath -e -- <p>`;
+   - pwsh on Windows: `[IO.Path]::GetFullPath`, compared without case.
+3. Append `/check-all-slots`.
+4. If git fails:
+   - a tripwire retries step 1 from the current directory;
+   - a wrapper falls back to `<canonical system temp>/assetops-check-all-slots`.
 
-**Acquisition order and deadlock freedom.** Order is always `db-job.lock`, then the lowest free slot. Every holder
-takes at most one slot and at most the DB lock. Nested entries take nothing (or only the DB lock). So no process
-ever waits for a second slot while holding one, and every wait is bounded by the wait budget (default 1200 s,
-exit 75). Heavy database jobs take one slot (D-T1.4; two slots only after the DM05 measurement, out of scope).
+All 61 checkouts on this server resolve to `/opt/assetecon/AssetOpsV1/.git/check-all-slots`.
 
-## 3. The pool: files and interfaces
+`ASSETOPS_HEAVY_SLOT_DIR` replaces `D` **in the wrappers and in `Enter-HeavySlot` only**, so that self-tests can
+use a private directory. **Tripwires never read it.** A slot held in a private directory therefore never
+satisfies a tripwire.
 
-### 3.1 `tools/checks/_heavy_slot.ps1` (new; the one pwsh implementation)
+### Files in `D`
 
-Dot-sourced by `tools/check-all.ps1` and `tools/heavy-slot.ps1`. Functions (names fixed; internals yours):
+| File | Meaning |
+| --- | --- |
+| `slot-1.lock`, `slot-2.lock` | the two heavy slots. A slot is held when a process has an exclusive `flock` on an open fd of the file. The shared pool has exactly 2 (R8c) |
+| `db-job.lock` | one heavy database job at a time (D-T1.4) |
+| `slot-N.owner`, `db-job.owner` | one field per line: `pid=`, `child=`, `label=`, `since=` (UTC ISO 8601), `cwd=`, `db=yes|no`. The ancestry check uses `pid=` (D-T1.14). The lock stays the authority on "held" |
+
+### Lock protocol (D-T1.2)
+
+The lock is an exclusive, non-blocking `flock(2)`, polled every 2 s. The pre-flight proved it on this server:
+cases (A)-(G) in `handshake.md`, and `/proc/locks` shows `FLOCK ADVISORY WRITE`.
+
+- **Acquire.** pwsh: `[IO.File]::Open($p, 'OpenOrCreate', 'ReadWrite', 'None')`. bash: `exec {fd}>>"$p"`, then
+  `flock -n -x "$fd"`.
+- **Probe.** Open in pwsh with mode `Open`, and in bash with `<`. A probe never creates the file. A missing file
+  is free. In pwsh, catch `FileNotFoundException` and `DirectoryNotFoundException` before `IOException`
+  (I12d, R8b).
+- **Locking disabled.** If `DOTNET_SYSTEM_IO_DISABLEFILELOCKING` is non-empty, both wrappers and check-all
+  refuse with exit 69: `heavy-slot: refused: DOTNET_SYSTEM_IO_DISABLEFILELOCKING is set; the slot locks would
+  not hold.`
+
+### The wrapper holds the lock, the child does not (D-T1.2)
+
+- **pwsh.** .NET opens files close-on-exec, so the child inherits nothing.
+- **bash.** Compute every value before the first lock open. After it, use builtins only: no `git`, `date` or
+  `realpath`. For timestamps use `printf '%(%Y-%m-%dT%H:%M:%SZ)T' -1` under `TZ=UTC`.
+- **Starting the child (bash, I4).** Use `( exec {slotfd}>&-; <only if db> exec {dbfd}>&-; exec "$@" ) <&0 &`.
+  The explicit `<&0` keeps stdin; bash would otherwise give a background job `/dev/null`.
+- **Process group (D-T1.15).** The child stays in the wrapper's process group: there is no `set -m`. A group
+  kill stops both.
+- **TERM, HUP or INT to the wrapper.** Collect the child's descendants by walking `/proc/<pid>/task/*/children`
+  recursively. Send TERM to all of them, wait up to 5 s, then send KILL. Exit 128+signal (TERM 143, HUP 129,
+  INT 130).
+- **SIGKILL of the wrapper alone.** The slot frees at once and the child runs on unpooled. This is accepted. A
+  tripwired tool that is already running does not check again.
+
+### Nesting marker (D-T1.3, D-T1.14)
+
+A holder exports `ASSETOPS_HEAVY_SLOT=<D>/slot-N.lock`. A `--db` holder also exports
+`ASSETOPS_HEAVY_DB=<D>/db-job.lock`. Both paths are canonical and absolute.
+
+The **marker test** passes when all four hold, checked in this order:
+1. The variable is non-empty.
+2. Its canonical directory equals `D`, and its name matches `^slot-[12]\.lock$`.
+3. On Linux: the `pid=` in `slot-N.owner` is alive and is the caller itself or an ancestor of the caller. Walk
+   the 4th field of `/proc/<pid>/stat`, parsed after the last `)`, for at most 64 steps. On Windows, skip this
+   check.
+4. A probe finds the lock held.
+
+For `db`, apply the same test to `ASSETOPS_HEAVY_DB`, with the name `db-job.lock`.
+
+A wrapper, check-all or `Enter-HeavySlot` that finds a marker:
+- **Marker passes.** The caller is **nested** and takes nothing:
+  - bash runs `exec "$@"`;
+  - pwsh runs the command directly;
+  - check-all prints `check-all: inside a held heavy slot (<path>); not taking another.`
+- **Marker fails.** Print `heavy-slot: ignoring stale ASSETOPS_HEAVY_SLOT=<value> (<reason>)` to stderr, then
+  acquire normally.
+- **Nested `--db`.** If `ASSETOPS_HEAVY_DB` does not pass, refuse at once with exit 69: `heavy-slot: refused:
+  --db inside a held slot; put --db on the outermost wrapper.` (D-T1.13, R4). No nested entry ever waits for any
+  lock.
+
+### Order and deadlock freedom
+
+- An outer entry takes `db-job.lock` first, then the lowest free slot.
+- It holds at most one slot plus the DB lock.
+- A nested entry takes nothing.
+- The only process that waits while holding a lock is an outer `--db` entry. It holds the DB lock only, and
+  every slot holder is a non-DB job (or that same entry). So no cycle can form.
+- Waits are bounded: default 1200 s, then exit 75.
+
+## 3. The pool
+
+### 3.1 `tools/checks/_heavy_slot.ps1` (new)
+
+Also change the exclusion in `tools/check-architecture.ps1:58-72` from `_common.ps1` to `_*.ps1` (one line, I1).
 
 | Function | Contract |
 | --- | --- |
-| `Get-HeavySlotDir([string]$RepoRoot)` | `D` as in §2; creates it (`New-Item -ItemType Directory -Force`) |
-| `Test-HeavyLockHeld([string]$Path)` | `$true` when an open with `FileShare.None` throws `IOException`; otherwise disposes the probe and returns `$false` |
-| `Enter-HeavySlot -SlotDir <s> [-Slots 2] -WaitSeconds <n> [-Db] [-Label <s>] [-Announce <s>]` | Applies the marker test, then acquires in the §2 order with a 2 s poll. Prints `-Announce` once (to the host) the first time it has to wait. Returns `[pscustomobject]@{ Nested; SlotPath; SlotStream; DbPath; DbStream; WaitedSeconds }`, or `$null` on timeout (having released anything it took). Writes the `.owner` file(s) after acquiring |
-| `Exit-HeavySlot $Handle` | Disposes the streams; deletes an `.owner` file only if its `pid=` is this process. `$null`-safe |
-| `Write-HeavySlotOwner $Path $Fields` | writes the owner file (UTF-8, LF) |
-| `Assert-HeavySlotLocking` | throws the D-T1.2 refusal text when `DOTNET_SYSTEM_IO_DISABLEFILELOCKING` is non-empty |
+| `Get-HeavySlotDir([string]$RepoRoot)` | returns `D` per §2 and creates it; the override env applies |
+| `Get-HeavyCanonicalPath([string]$Path)` | the §2 canonicalisation |
+| `Test-HeavyLockHeld([string]$Path)` | a §2 probe; `$true` only when someone holds the lock |
+| `Test-HeavyMarker([string]$Value, [string]$SlotDir, [string]$Name)` | the §2 marker test, `Name` `slot` or `db`; returns `@{ Ok; Reason }` |
+| `Enter-HeavySlot -SlotDir <s> [-Slots 2] -WaitSeconds <n> [-Db] [-Label <s>] [-Announce <s>]` | applies the marker rules, then acquires. Prints `-Announce` once, at the first wait. Returns `@{ Nested; SlotPath; SlotStream; DbPath; DbStream; WaitedSeconds }`, or `$null` on timeout (after releasing everything). `-Slots` above 2: exit 64, `the shared pool has 2 slots (T1)`. Writes the owner files |
+| `Exit-HeavySlot $Handle` | disposes the streams; deletes an owner file only if its `pid=` is `$PID`; `$null`-safe |
+| `Assert-HeavySlotLocking` | the D-T1.2 refusal |
+| `Assert-HeavySlotHeld -Tool <s> [-Db]` | the pwsh tripwire (§5); resolves `D` with **no** override |
 
 ### 3.2 `tools/heavy-slot.ps1` (new)
 
@@ -105,344 +169,397 @@ Dot-sourced by `tools/check-all.ps1` and `tools/heavy-slot.ps1`. Functions (name
 pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db] [-SlotWaitSeconds <n>] [-Label <text>] -- <command> [args...]
 pwsh -NoProfile -File tools/heavy-slot.ps1 -Status
 ```
-- A plain script with no `param()` block, no `[CmdletBinding()]`: it parses `$args` itself, like
-  `tools/run-host-tests.ps1`, so `--noEmit`, `-q`, `-k x` and a second `--` reach the command untouched. Options
-  are read only before the first `--`; an unknown option, a missing `--` or an empty command is a usage error
-  (exit 64, one line naming the form above).
-- Default wait 1200 s. Default label: the first two words of the command.
-- Runs the command as a child (`System.Diagnostics.Process`, `UseShellExecute = $false`, no redirection, each
-  argument through `ArgumentList`; a bare name resolved with `Get-Command -CommandType Application`, first hit).
-  Exports the marker variables in the child's environment only.
-- SIGTERM and SIGHUP: a `PosixSignalRegistration` handler (pwsh 7.2+, as `tools/check-all.ps1:140-175`) kills the
-  child tree (`Kill($true)`); the wrapper then exits 143 (TERM) or 129 (HUP). Ctrl-C unwinds through `finally`
-  and kills the child tree. Windows PowerShell 5.1 is not supported (pwsh 7 only), as today.
-- Exit code: the child's; 64 usage; 69 refused or unavailable; 75 no slot within the wait
-  (`heavy-slot: no slot came free in <n> s (-SlotWaitSeconds).`).
-- `-Status`: one line per lock file, `slot-1: free` or `slot-1: busy pid=<p> child=<c> label=<l> since=<t> cwd=<d>`;
-  a busy lock whose owner file is missing or whose `pid=` is not alive prints
-  `slot-1: busy, holder unknown (owner file stale); find it with: fuser -v <path>`. Exit 0.
 
-### 3.3 `tools/heavy-slot.sh` (new, LF, mode 100755: `git update-index --chmod=+x`)
+- **Supported form (I3).** Only the `pwsh -NoProfile -File` form is supported, and the usage line says so. A
+  missing `--` gives exit 64. A `-name:value` argument is split by pwsh into two arguments: this is a documented
+  limitation, so use `--name=value` forms.
+- **Parsing.** A plain script that parses `$args`, like `tools/run-host-tests.ps1`. Options are read only before
+  the first `--`.
+- **Defaults.** Wait 1200 s. The label defaults to the first two words of the command, made into one line with
+  newlines and `=` replaced by spaces (I12e).
+- **Running the child.** Use `System.Diagnostics.Process` with `UseShellExecute = $false` and `ArgumentList`.
+  - A first word that ends in `.ps1` and names a file runs as `(Get-Process -Id $PID).Path -NoProfile -File
+    <script> <args>` (I2).
+  - Any other first word is resolved with `Get-Command -CommandType Application`, taking the first hit.
+  - The marker variables are set in the child's environment only.
+  - A first word of `setsid` is refused with exit 64: `put setsid/nohup before the wrapper` (I5b).
+- **Signals.** SIGTERM and SIGHUP use `PosixSignalRegistration`, as `check-all.ps1:140-175` does. The handler
+  kills the child tree with `Kill($true)` and exits 143 or 129. Ctrl-C kills the tree and exits 130 (I12b).
+- **Exit codes.**
+
+  | Code | Meaning |
+  | --- | --- |
+  | the child's | the command ran |
+  | 64 | usage error |
+  | 69 | refused |
+  | 75 | no slot came free |
+
+  A child that itself exits 64, 69 or 75 can be told from the wrapper only by the wrapper's stderr line (R20,
+  accepted; stated in TESTING.md).
+- **Messages (I12a).** Each goes to stderr, printed once:
+  - `heavy-slot: both heavy slots are busy (tools/heavy-slot.sh --status); waiting up to <n> s.`
+  - `heavy-slot: another database job holds db-job.lock; waiting up to <n> s.`
+  - on timeout: `heavy-slot: no slot came free in <n> s (-SlotWaitSeconds).`
+- **`-Status` (I12c).** Always prints `slot-1`, `slot-2` and `db-job`, plus any other `slot-N.lock` that
+  exists. Exit 0. Each line is one of:
+  - `free` (a missing file is free);
+  - `busy pid=<p> child=<c> label=<l> since=<t> cwd=<d>`;
+  - `busy, holder unknown (owner file stale); find it with: fuser -v <path>`.
+
+### 3.3 `tools/heavy-slot.sh` (new, LF, `git update-index --chmod=+x`)
 
 ```
 tools/heavy-slot.sh [--db] [--wait-seconds <n>] [--label <text>] -- <command> [args...]
 tools/heavy-slot.sh --status
 ```
-- `#!/usr/bin/env bash`, `set -u` (not `-e` around the wait loop). Same options, defaults, messages (with the bash
-  option names), exit codes and status format as §3.2.
-- No `flock` on `PATH` (Git Bash on Windows): `exec pwsh -NoProfile -File "<dir>/heavy-slot.ps1"` with the options
-  translated (`--db` to `-Db`, `--wait-seconds` to `-SlotWaitSeconds`, `--label` to `-Label`, `--status` to
-  `-Status`). No pwsh either: exit 69.
-- Run: `set -m`; `"$@" {slotfd}>&- {dbfd}>&- &`; `child=$!`; rewrite the owner file with `child=`;
-  `trap` TERM, HUP, INT: `kill -TERM -- -$child`, wait up to 5 s, then `kill -KILL -- -$child`, exit 128+signal.
-  Loop on `wait "$child"` until it has really exited (a trapped signal interrupts `wait`). `trap EXIT` removes the
-  owner file only if its `pid=` is `$$`.
-- Nested (§2): `exec "$@"`.
 
-### 3.4 `tools/check-all.ps1` (edit; behaviour unchanged for a run that takes a slot)
+- `#!/usr/bin/env bash`, `set -u`. Same options, defaults, messages, exit codes and status format as §3.2, with
+  the bash option names.
+- No `flock` on `PATH`: `exec pwsh -NoProfile -File "<dir>/heavy-slot.ps1"` with the options translated. No pwsh
+  either: exit 69.
+- Child start and tree kill: as in §2. Wait in a loop on `wait "$child"` until the child has really exited.
+- `trap EXIT` removes the owner file if its `pid=` is `$$`.
+- Nested: `exec "$@"`.
 
-- Dot-source `tools/checks/_heavy_slot.ps1` after `$repoRoot` is set. Call `Assert-HeavySlotLocking` before the slot.
-- Replace the loop at `:202-221` with `Get-HeavySlotDir` + `Enter-HeavySlot -Slots $Slots -WaitSeconds
-  ($SlotWaitMinutes * 60) -Label "check-all" -Announce "check-all: all $Slots slots are in use by other runs;
-  waiting for one."`. On `$null`: the existing line `Check failed: no check-all slot came free in $SlotWaitMinutes
-  min (-SlotWaitMinutes).` and exit 1. `$slotWait` keeps its meaning. Not nested: set
-  `$env:ASSETOPS_HEAVY_SLOT = $handle.SlotPath` before any guard starts, so a guard that ever calls the pool runs
-  nested. Nested: print the §2 line and take nothing.
-- `finally`: `Exit-HeavySlot $handle` replaces `$slotStream.Dispose()`; remove `$slotStream`.
-- New guards (in the pool, not `-Alone`):
-  - `Add-Guard "Heavy-slot hook (planted unpooled runs, T1)" $Node @("--test", "tools/checks/test_heavy_slot_hook.mjs")`, every run.
-  - `Add-Guard "Heavy-slot pool self-test (T1)" $Node @("--test", "tools/checks/test_heavy_slot_pool.mjs")`, only
-    when `-Full`, on main, when `$diffError` is set, or when `$changed` contains one of
-    `$heavySlotFiles = @("tools/heavy-slot.sh", "tools/heavy-slot.ps1", "tools/checks/_heavy_slot.ps1",
-    "tools/checks/test_heavy_slot_pool.mjs", "tools/check-all.ps1")`. Otherwise print, next to the estate SKIP line,
-    `[SKIP] Heavy-slot pool self-test: no pool file changed. It runs with -Full and on main.`
-- Header comment: one line under the PIPE-1 bullets: `- T1: the same slots pool tsc, vitest, backend pytest,
-  browser captures and heavy database jobs (tools/heavy-slot.sh, tools/heavy-slot.ps1).`
+### 3.4 `tools/check-all.ps1` (edit)
 
-## 4. What goes through the pool (D-T1.5), how it runs today, what runs instead
+- **Module.** Dot-source `_heavy_slot.ps1` and call `Assert-HeavySlotLocking`.
+- **Acquire.** Replace `:202-221` with `Enter-HeavySlot -Slots $Slots -WaitSeconds ($SlotWaitMinutes * 60)
+  -Label "check-all" -Announce "check-all: all $Slots slots are in use by other runs; waiting for one."`.
+  - On timeout, keep the existing failure line and exit 1.
+  - When it takes a slot, set `$env:ASSETOPS_HEAVY_SLOT` before any guard starts, so a tripwired tool started by
+    a guard passes.
+  - When nested, print the §2 line.
+- **Release.** `finally` calls `Exit-HeavySlot`; remove `$slotStream`.
+- **Messages.** Every other message and the summary lines stay byte-identical.
+- **New guards**, all run in the pool:
 
-Pooled form from the worktree root; from `frontend/` use `../tools/heavy-slot.sh`. pwsh form:
-`pwsh -NoProfile -File tools/heavy-slot.ps1 -- ...` (`-Db` for a database job).
+  | Guard | Command | When it runs |
+  | --- | --- | --- |
+  | `Heavy-slot tripwire inventory (T1)` | `$Node --test tools/checks/test_heavy_slot_inventory.mjs` | every run (static, under 2 s) |
+  | `Heavy-slot pool and tripwire self-test (T1)` | `$Node --test tools/checks/test_heavy_slot_pool.mjs` | only when the trigger rule selects it |
+  | `tsc shim installed (T1)` | `$Node tools/heavy-slot-shims.mjs check frontend/node_modules` | only with `-Full` and on main, so the coordinator's after-merge run catches a missing shim (§5.2) |
 
-| Class | Runs today as | Run instead |
+- **Trigger rule (I15).** Generalise `Get-SelfTestDecision` with a file-list parameter, and use it for both the
+  estate rule and the pool rule.
+  - The pool rule's list: `$heavySlotFiles = tools/heavy-slot.sh, tools/heavy-slot.ps1,
+    tools/checks/_heavy_slot.ps1, tools/heavy_slot_check.cjs, tools/heavy_slot_check.py,
+    tools/heavy-slot-shims.mjs, tools/checks/test_heavy_slot_pool.mjs, tools/check-all.ps1`.
+  - Add four `-SelfTestSelection` cases: a pool file changed, none changed, `-Full`, a diff error.
+  - When skipped, print `[SKIP] Heavy-slot pool self-test: no pool file changed. It runs with -Full and on
+    main.`
+
+## 4. What is pooled, and what refuses it (D-T1.5 as revised by D-T1.16)
+
+Pooled forms are given from the worktree root. From `frontend/`, use `../tools/heavy-slot.sh`. A database job
+adds `--db` (pwsh `-Db`).
+
+| Class | Pooled form | Tripwire (§5) |
 | --- | --- | --- |
-| H1 type check | `cd frontend && npx tsc --noEmit`, `npm run typecheck`, `npm run build` (`tsc --noEmit && vite build`) | `cd frontend && ../tools/heavy-slot.sh -- npx tsc --noEmit` |
-| H2 vitest | `npx vitest run <files>`, `npx vitest related --run <files>` (select-tests), `npm test` | `cd frontend && ../tools/heavy-slot.sh -- npx vitest run <files>` |
-| H3 backend pytest | VPS: `.venv/bin/python -m pytest <files>` with `PYTHONPATH` and `ASSETOPS_TEST_DATABASE_URL`; Windows: `tools\run-host-tests.ps1 -- <files>`; Docker: `tools/run-backend-suite-in-container.ps1` (its `.sh` half runs inside the container), `tools/profile-tests-in-container.*` | `tools/heavy-slot.sh -- .venv/bin/python -m pytest <files> -q`; `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-backend-suite-in-container.ps1 ...` |
-| H4 browser captures | `node tools/<name>-evidence.mjs`, `node tools/uqfi-captures.mjs`, `node tools/measure-mock-panels.mjs`, `node tools/evidence-checks.mjs --self-test`, `node frontend/mockups/v70/review-browser.mjs`, `node frontend/docs/architecture/extract_v69_panels.mjs`, a direct headless Chrome (`$ASSETOPS_CHROME`) | `tools/heavy-slot.sh -- node tools/layout-evidence.mjs <base-url>` |
-| H5 heavy database job | `python tools/demo_combined.py ... prepare|add-day|add-dates|tick|after-children`; `tools/demo_combined_{kobo,cold,ev,kisiwa,mill,finish,ex1,after}.py` run directly; `tools/chain_clone.py create|settle`; `tools/mechanism_dataset.py build|derive`; pytest naming `test_demo_combined_postgres.py` | `setsid nohup tools/heavy-slot.sh --db -- .venv/bin/python tools/demo_combined.py --db <db> --work <w> prepare > <log> 2>&1 &` |
+| type check | `cd frontend && ../tools/heavy-slot.sh -- npx tsc --noEmit` (also `npm run typecheck`, `npm run build`) | the `tsc` shim in `node_modules/.bin` |
+| vitest | `cd frontend && ../tools/heavy-slot.sh -- npx vitest run <files>` | `frontend/vite.config.ts` when `process.env.VITEST` is set |
+| pytest with Postgres (`ASSETOPS_TEST_DATABASE_URL` non-empty) | `tools/heavy-slot.sh -- .venv/bin/python -m pytest <files> -q`, or `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-backend-suite-in-container.ps1 ...`. A run whose tier includes slow needs `--db`, because `test_demo_combined_postgres.py` runs a prepare | `backend/tests/conftest.py` and `host/conftest.py` `pytest_configure`; the container runners |
+| browser capture | `tools/heavy-slot.sh -- node tools/layout-evidence.mjs <base-url>` | each of the 30 launching scripts, and any future Playwright config or script (§5.4) |
+| heavy database job | `setsid nohup tools/heavy-slot.sh --db -- .venv/bin/python tools/demo_combined.py --db <db> --work <w> prepare > <log> 2>&1 &` | the dispatch of each entry point (§5.5) |
 
-Not pooled (D-T1.7): check-all itself (it takes its own slot; `-Full` on main included); long-running servers
-(`demo_combined.py serve|links|drop|live-field`, `npm run dev`, `vite`, uvicorn, `host/lab_app.py`) because they
-would hold a slot for hours; guard self-tests under `tools/` run with pytest or `node --test`; `select-tests.py`.
-A capture's servers start outside the pool; the capture run is pooled.
+Not pooled (D-T1.7):
+- check-all, which takes its own slot;
+- servers: `serve`, `links`, `drop`, `live-field`, `npm run dev`, vite, uvicorn, `lab_app`;
+- pytest without a database URL (D-T1.16);
+- guard tests under `tools/`, including a hand-run `test_estate_guard.py -n 4` (R15b: accepted, since check-all
+  runs it inside its slot);
+- `npx vite build` alone;
+- `select-tests.py`.
 
-## 5. The refusal: `.claude/settings.json` and `tools/heavy-slot-hook.mjs` (D-T1.6)
+## 5. The tripwires (D-T1.11)
 
-### 5.1 `.claude/settings.json` (new, tracked; no other keys)
+### 5.1 Check modules
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      { "matcher": "Bash",
-        "hooks": [ { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/tools/heavy-slot-hook.mjs\"", "timeout": 10 } ] }
-    ]
-  }
-}
+- **`tools/heavy_slot_check.cjs`** (CommonJS, Node standard library only; exports written as `exports.x = x`
+  lines so ESM named imports work):
+  - `slotDir({ from })`: `D` per §2, with no override;
+  - `checkMarker(env, { slotDir, pid, procRoot, platform, inContainer })`: pure apart from reading files and
+    `/proc`; returns `{ ok, reason }`;
+  - `assertHeavySlot(tool, { db = false } = {})`: on failure, writes the message to stderr and calls
+    `process.exit(69)`.
+- **`tools/heavy_slot_check.py`**, the same contract:
+  - `slot_dir(start)`;
+  - `check_marker(env, *, slot_dir, pid, proc_root, platform, in_container)`;
+  - `require(tool, *, db=False, exit_with=None)`: on failure, prints the message and calls `exit_with` if given
+    (pytest passes `pytest.exit`, which is called with `returncode=69`); otherwise calls `sys.exit(69)`.
+- **pwsh:** `Assert-HeavySlotHeld` (§3.1).
+
+**Container rule.** Inside a container (`/.dockerenv` exists), the marker test is replaced by one check:
+`ASSETOPS_HEAVY_SLOT_CONTAINER` is `slot` or `db`. A `db` caller needs `db`. Outside a container, the variable is
+ignored.
+
+**Refusal message (exact):**
 ```
-It takes effect from `main`'s checkout (the coordinator's project directory) after the merge, in sessions
-started after it (the coordinator restarts; §9 A13). Do not touch `~/.claude/settings.json` or any
-`settings.local.json`.
+heavy-slot: refused: <tool> runs only inside the heavy-tool slot pool (<reason>).
+Run it as: tools/heavy-slot.sh <--db >-- <your command>   (from frontend/: ../tools/heavy-slot.sh; pwsh: pwsh -NoProfile -File tools/heavy-slot.ps1 <-Db >-- ...)
+RULES §7 (T1).
+```
 
-### 5.2 `tools/heavy-slot-hook.mjs` (new; ES module, Node standard library only)
+`<reason>` is one of:
+- `ASSETOPS_HEAVY_SLOT is not set`
+- `the marker is not a slot of this machine's pool`
+- `the slot's holder is not this process or an ancestor`
+- `the slot is not held`
+- `a database job needs --db on the outermost wrapper`
+- `in a container without ASSETOPS_HEAVY_SLOT_CONTAINER`
 
-- `export function classify(command)` returns `{ decision: "allow" | "refuse", rule, segment, suggestion }`
-  (`rule` one of `H0`-`H5`, `null` on allow). `export function sweepDoc(text)` returns
-  `[{ line, command, rule }]` for every refused command found in a document (§5.4). Run as a script (`import.meta`
-  main check) it reads the hook JSON from stdin, takes `tool_input.command` (absent or not a string: exit 0),
-  and on refuse writes the message below to stderr and exits **2**; on allow exits 0 with no output.
-- Refusal message (exact form):
+The `--db` and `-Db` text appears only when `db` is true.
+
+### 5.2 tsc: the shim (`tools/heavy-slot-shims.mjs`, new)
+
+- **`install <node_modules>`** first makes `<nm>` canonical, so a worktree's symlink resolves to main's install.
+  Then it:
+  1. writes `<nm>/.heavy-slot/tsc.cjs` with mode 755:
+     ```
+     #!/usr/bin/env node
+     // T1 heavy-slot shim (tools/heavy-slot-shims.mjs); the real tsc is ../typescript/bin/tsc
+     require(<JSON string of canonical <nm>/../../tools/heavy_slot_check.cjs>).assertHeavySlot("tsc");
+     require("../typescript/bin/tsc");
+     ```
+  2. replaces `<nm>/.bin/tsc` with a symlink to `../.heavy-slot/tsc.cjs`. The `.cjs` extension fixes the module
+     format whatever `frontend/package.json`'s `"type"` is.
+
+  It is idempotent.
+- **`check <nm>`** exits 0 only when the symlink resolves to that shim and the shim names an existing check
+  module. Otherwise it exits 1 with one line.
+- **`frontend/package.json`** gets `"postinstall": "node ../tools/heavy-slot-shims.mjs install node_modules"`, so
+  that `npm ci` keeps the shim.
+- **When it is installed.** The coordinator installs the shim on main's `node_modules` **after the merge**
+  (A16). The shim requires main's `tools/heavy_slot_check.cjs`, which does not exist on main before the merge.
+  Before the merge, prove the shim only against a fake `node_modules` in a temp repository (P-T5).
+- **Documented gaps.** Running `node node_modules/typescript/bin/tsc` directly, and the Windows `.cmd` shims.
+
+### 5.3 vitest and pytest
+
+- **`frontend/vite.config.ts`.** Add, after the imports:
   ```
-  heavy-slot: refused (<rule> <class name>): `<segment, first 120 chars>` runs a heavy tool outside the slot pool.
-  Run it as: <suggestion>
-  RULES §7: tsc, vitest, backend pytest, browser captures and heavy database jobs run only through tools/heavy-slot.sh (T1).
+  import { createRequire } from "node:module";
+  if (process.env.VITEST) createRequire(import.meta.url)("../tools/heavy_slot_check.cjs").assertHeavySlot("vitest");
   ```
-  `<suggestion>` is `tools/heavy-slot.sh -- <segment>` (H5: `tools/heavy-slot.sh --db -- <segment>`), plus
-  ` (from frontend/: ../tools/heavy-slot.sh)` for H1 and H2. For H0: `do not set <name>; the pool sets it.`
-  Class names: H0 marker, H1 type check, H2 vitest, H3 backend pytest, H4 browser capture, H5 database job.
-- Fail closed, narrowly: any exception inside `classify` refuses (exit 2, `heavy-slot: hook could not parse the
-  command; refused. Simplify it or report to the coordinator.`) **only** when the raw command matches the prefilter
-  `/tsc|vitest|pytest|py\.test|-evidence|captures|chrom|playwright|demo_combined|chain_clone|mechanism_dataset|run-host-tests|run-backend-suite|profile-tests|backend-test-runner|npm|ASSETOPS_HEAVY|DISABLEFILELOCKING/`;
-  otherwise it allows. Budget: under 150 ms per call (median of 20, §7 K5).
+  - Proof (P-T6): an unpooled `npx vitest run src/<one small test>` exits 69 with the message, and the pooled
+    form passes.
+  - **Fallback**, only if Vite's bundled config resolves `import.meta.url` elsewhere: set `test.globalSetup:
+    ["../tools/heavy-slot-vitest-setup.mjs"]`, where that file's `export function setup()` calls the same
+    assert. Record in the packet which form you used. This is the specified fallback, not a design choice.
+- **`backend/tests/conftest.py` and `host/conftest.py`.** The first statement of `pytest_configure` is
+  `if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres",
+  exit_with=pytest.exit)`.
+  - `_heavy_slot_check()` loads `<repo>/tools/heavy_slot_check.py` with
+    `importlib.util.spec_from_file_location`, found from `Path(__file__).resolve()`.
+  - xdist workers check too, and pass by ancestry.
+- **Container runners.** `tools/run-backend-suite-in-container.ps1` and `tools/profile-tests-in-container.ps1`
+  call `Assert-HeavySlotHeld -Tool "the container test runner"` before `docker compose`. They set
+  `$env:ASSETOPS_HEAVY_SLOT_CONTAINER` to `db` when `ASSETOPS_HEAVY_DB` passes the marker test, otherwise to
+  `slot`.
+  - In `docker-compose.test.yml`, the `environment:` of `backend-test-runner` gets
+    `ASSETOPS_HEAVY_SLOT_CONTAINER: ${ASSETOPS_HEAVY_SLOT_CONTAINER:-}`.
+  - The `.sh` halves are unchanged.
 
-### 5.3 The classification algorithm (fixed; tests in §7 pin it)
+### 5.4 Browser captures
 
-1. **Heredocs.** Remove every heredoc body: after a `<<` or `<<-` with delimiter `WORD`, `'WORD'` or `"WORD"`,
-   drop the following lines up to the line equal to `WORD` (leading tabs ignored for `<<-`).
-2. **Substitutions.** Every `$( ... )`, `` ` ... ` `` and `<( ... )` body (nesting-aware) is classified as a command
-   line of its own (recursively), in addition to its segment.
-3. **Segments.** Split on `&&`, `||`, `;`, `|`, `&` and newline outside single and double quotes (backslash escapes
-   honoured; `>&`, `&>`, `2>&1` and `|&`'s `&` are not separators). Strip leading `(`, `{` and `!`.
-4. **Leading word.** Skip assignments `NAME=value` and the prefix commands `env` (with `-u NAME`, `-i`,
-   assignments), `time`, `/usr/bin/time` (`-v`, `-f X`, `-o X`), `nohup`, `setsid` (`-f`, `-w`), `nice`
-   (`-n N`), `timeout` (options, then the duration), `exec`, `stdbuf` (`-oL` style). The next word is the leading
-   word; compare by basename, splitting on `/` and `\`.
-5. **H0 marker**, on every segment whose leading word is not `grep`, `rg`, `git`, `cat`, `head`, `tail`, `sed`,
-   `less`: refuse an assignment to `ASSETOPS_HEAVY_SLOT`, `ASSETOPS_HEAVY_DB`, `ASSETOPS_HEAVY_SLOT_DIR` or
-   `DOTNET_SYSTEM_IO_DISABLEFILELOCKING`, in shell (`NAME=`, `export NAME=`, `env NAME=`) or PowerShell
-   (`$env:NAME =`) form.
-6. **Pooled segment.** The leading word is `heavy-slot.sh` or `heavy-slot.ps1`, or it is `pwsh`/`powershell`
-   (`.exe` too) with a `-File` (or `&`) argument whose basename is `heavy-slot.ps1`: allow, except refuse H5 when the
-   text after the wrapper's `--` matches H5 and the wrapper options before `--` lack `--db`/`-Db`.
-7. **Exempt leading words** (allow without scanning): `grep egrep fgrep rg git gh echo printf cat head tail less
-   sed awk ls wc diff sort uniq cut tr jq test [ true false : cd pushd popd which type command cp mv rm mkdir
-   touch chmod stat file du realpath readlink basename dirname codex claude`. (`find` and `xargs` are not exempt.)
-8. **Heavy patterns** on the segment's whole text, quoted parts included. `B` = start, whitespace, `/`, `\`, a
-   quote, `(` or `=`; `E` = end, whitespace, a quote or `)`.
-   - H1: `B tsc E`; `npm [opts] run|run-script typecheck|build`.
-   - H2: `B vitest E`; `npm [opts] test`, `npm [opts] t`, `npm [opts] run|run-script test`.
-   - H3: `B (pytest|py.test) E`, allowed when the pytest arguments have at least one positional target and every
-     positional target starts with `tools/` or `./tools/` (positional = not starting with `-`, not the value of
-     `-k -m -n -p -o -c -W -r --deselect --rootdir --basetemp --dist --maxfail --tb --durations --confcutdir
-     --ignore --log-level`, not a redirection or its file); and, always, a word whose basename is
-     `run-host-tests.ps1`, `run-backend-suite-in-container.ps1|.sh`, `profile-tests-in-container.ps1|.sh`, or the
-     word `backend-test-runner`.
-   - H4: a word whose basename matches `^[A-Za-z0-9_.-]+-(evidence|captures)\.mjs$`, `measure-mock-panels.mjs`,
-     `review-browser.mjs` or `extract_v69_panels.mjs`; `evidence-checks.mjs` followed by `--self-test`; a word whose
-     basename is `chrome`, `chrome.exe`, `google-chrome`, `google-chrome-stable`, `chromium`, `chromium-browser`,
-     `headless_shell` or `playwright`; the text `$ASSETOPS_CHROME` or `${ASSETOPS_CHROME}` used as a command.
-   - H5: a word with basename `demo_combined.py` and a later word in `prepare add-day add-dates tick
-     after-children`; `chain_clone.py` with `create`/`settle`; `mechanism_dataset.py` with `build`/`derive`;
-     basenames `demo_combined_kobo.py demo_combined_cold.py demo_combined_ev.py demo_combined_kisiwa.py
-     demo_combined_mill.py demo_combined_finish.py demo_combined_ex1.py demo_combined_after.py
-     test_demo_combined_postgres.py` (any arguments).
-   First match, in the order H0, H5, H1, H2, H3, H4, names the rule. No match: allow.
+**Which files.** Every tracked file outside `archive/`, `frontend/mockups/v69/` and `frontend/mockups/v71/` that
+contains `remote-debugging-port`, `playwright` or `puppeteer`. Today that is 30 files: `git grep -l -E
+"remote-debugging-port|playwright|puppeteer"` with those exclusions. Excluded: the check module itself and the
+inventory test.
 
-Known gaps, accepted and documented in RULES (D-T1.6): a heavy tool started from inside a script file, a heredoc
-fed to a shell, `eval` of a variable, an alias; Codex sessions (no Claude hook); a human terminal. The rule binds
-them; the hook catches the copyable forms.
+**What each one does.** It calls `assertHeavySlot("browser capture")` before it launches anything, importing it
+with `import { assertHeavySlot } from "<relative>/heavy_slot_check.cjs";`.
 
-### 5.4 The document sweep (the class fix, D-T1.8)
+**Where the call goes.**
+- By default, at the top level.
+- If a test imports the file (check with `git grep -n "<basename>" -- tools/checks frontend/src`; today only
+  `tools/evidence-checks.mjs`), the call goes inside the launching branch instead. In `evidence-checks.mjs`
+  that is the `--self-test` path.
 
-`sweepDoc(text)` classifies (a) every non-blank line inside a fenced code block that does not start with `#`,
-and (b) every inline code span that contains a space and whose first word is `node npx npm python python3 pytest
-pwsh powershell cd docker bash sh` or starts with `tools/`, `tools\`, `.venv`, `./` or `../`. The hook test runs it
-over the agent-read documents in §6 and fails on any refused command, naming `file:line`.
+**Playwright.** The owner is having it installed separately. Its config or scripts fall under this rule as soon
+as they are tracked.
 
-## 6. Commands agents copy: edits
+### 5.5 Heavy database jobs
+
+Each entry point calls `heavy_slot_check.require("database job", db=True)`. The `import heavy_slot_check` goes
+inside the dispatch, never at import time, because tests import these modules (for example
+`backend/tests/test_ar2_prepare_period_rows.py`).
+
+| Entry point | Where the call goes |
+| --- | --- |
+| `tools/demo_combined.py` | `main()`, after argument parsing, for `prepare`, `add-day`, `add-dates`, `tick`, `after-children` |
+| `tools/chain_clone.py` | `main()`, for `create`, `settle` |
+| `tools/mechanism_dataset.py` | `main()`, for `build`, `derive`, `ensure` (I7) |
+| `demo_combined_{kobo,cold,ev,kisiwa,mill,finish,ex1,after}.py` | the `if __name__ == "__main__":` block; as children of a pooled `prepare` they pass by ancestry |
+
+`demo_combined_drain.py` and `demo_combined_rows.py` are helpers and stay out.
+
+## 6. Documents
 
 | File | Change |
 | --- | --- |
-| `.claude/agents/assetops-reviewer.md:35-38` | the pytest and vitest/tsc lines become `tools/heavy-slot.sh -- .venv/bin/python -m pytest <focused backend files> -q` and `cd frontend && ../tools/heavy-slot.sh -- sh -c 'npx vitest run <focused files> && npx tsc --noEmit'`; the check-architecture and check-agent-workflow lines stay |
+| `.claude/agents/assetops-reviewer.md:35-38` | `tools/heavy-slot.sh -- .venv/bin/python -m pytest <focused backend files> -q` and `cd frontend && ../tools/heavy-slot.sh -- sh -c 'npx vitest run <focused files> && npx tsc --noEmit'` |
 | `.claude/agents/assetops-implementer.md:54` | `tools/heavy-slot.sh -- node tools/layout-evidence.mjs <base-url>` |
-| `.agent/lane-rules-vps-2026-11-12.md` (tracked, `AGENT_KEEP`) | **vitest** line: the pooled form; **Database** line: Postgres test files and heavy DB jobs through the pool (`--db` for a job), the coordinator's turn rule unchanged; one new bullet **Heavy tools** pointing to RULES §7 |
-| `backend/TESTING.md` | a section `## The heavy-tool slot pool (T1)` after "When to run what" (≤ 25 lines: what is pooled, both forms, `--db`, `--status`, exit 75, nesting, the hook); every fenced and inline command the §5.4 sweep refuses rewritten to the pooled form (today lines 19, 162, the four `tools\run-host-tests.ps1` lines of the S1-S4 block, 347 as prose or pooled) |
-| `.ai/RULES.md` §7, Guards bullet | replace "it allows 2 runs at once machine-wide and waits for a free slot" with "it takes one of 2 heavy slots machine-wide and waits for a free one"; add one bullet after it: "Heavy tools (tsc, vitest, backend pytest, browser captures) and heavy database jobs run only through the slot pool, `tools/heavy-slot.sh -- <command>` (`--db` for a database job; pwsh `tools/heavy-slot.ps1`); a project hook refuses an unpooled run, and the rule binds what the hook cannot see (T1, `backend/TESTING.md`)." |
+| `.agent/lane-rules-vps-2026-11-12.md` | line 7: "allows 2 runs at once machine-wide (a third waits for a slot by itself)" becomes "takes one of 2 heavy slots machine-wide and waits for a free one" (I9). The vitest line in pooled form. The Database line: Postgres test files and DB jobs through the pool (`--db` for a job), with the turn rule unchanged. A new bullet **Heavy tools**: see RULES §7; a tool refuses to run outside the pool |
+| `backend/TESTING.md` | a new section `## The heavy-tool slot pool (T1)` after "When to run what", at most 25 lines. It covers: what is pooled and the tripwires; both forms; `--db`, including for slow-tier and full runs; `--status`; exit 75; nesting; R20; the tsc shim reinstalls on `npm ci`. Also rewrite in pooled form (I8a): line 19; the five `tools\run-host-tests.ps1` lines 147-159; lines 162-168; the fenced block at 210-213 (`pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-backend-suite-in-container.ps1 ...`); line 347 |
+| `.ai/RULES.md` §7, Guards bullet | replace "it allows 2 runs at once machine-wide and waits for a free slot" with "it takes one of 2 heavy slots machine-wide and waits for a free one". Add one bullet: "Heavy tools (tsc, vitest, pytest with a database, browser captures) and heavy database jobs run only through the slot pool, `tools/heavy-slot.sh -- <command>` (`--db` for a database job; pwsh `tools/heavy-slot.ps1`); each refuses to start outside it (T1, `backend/TESTING.md`)." |
 | `.ai/START_HERE.md:72` | `- Tests: \`backend/TESTING.md\`; heavy tools through \`tools/heavy-slot.sh\`. Guards: \`tools/check-all.ps1\`.` |
-| `tools/select-tests.py` | the printed lines only (`select()`'s return value and `--json` unchanged): `backend: tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-backend-suite-in-container.ps1 -Tier fast -Targets '<files>'` and `frontend (in frontend/): ../tools/heavy-slot.sh -- <command>`; add `"tools/heavy-slot.sh", "tools/heavy-slot.ps1", "tools/select-tests.py"` to `TOOLS_EXEMPT` (D-T1.9: no backend test runs or reads them; check with `git grep -n "heavy-slot\|select-tests\|select_tests" backend host gateway`) |
+| `tools/select-tests.py` | the printed lines only, in pooled form. Add `tools/heavy-slot.sh`, `tools/heavy-slot.ps1`, `tools/select-tests.py` and `tools/heavy_slot_check.py` to `TOOLS_EXEMPT` (D-T1.9). `--json` output is unchanged |
 
-Not edited: `.gitattributes` (ALWAYS_FULL in select-tests; a change would select the full suite; the Linux
-checkouts are LF and Windows uses the pwsh form, D-T1.10), `.ai/NOW.md` (coordinator), `AGENTS.md`.
+## 7. Tests (written first)
 
-## 7. Tests (written first, W2)
+Every spawn removes `ASSETOPS_HEAVY_SLOT`, `ASSETOPS_HEAVY_DB`, `ASSETOPS_HEAVY_SLOT_CONTAINER` and
+`DOTNET_SYSTEM_IO_DISABLEFILELOCKING` from its environment, unless the case sets them (I10).
 
-### 7.1 `tools/checks/test_heavy_slot_hook.mjs` (`node --test`; under 10 s, K5 and K7 spawn processes)
+### 7.1 `tools/checks/test_heavy_slot_pool.mjs` (concurrent cases, each in its own `mkdtemp`; under 30 s in total)
 
-K1, the fixture table: `classify` returns exactly these. Add cases, never remove them.
+**Harness (R2).** Create a temp git repository `M` with one commit and a worktree `W`. Copy `heavy-slot.sh`,
+`heavy-slot.ps1`, `checks/_heavy_slot.ps1`, `heavy_slot_check.cjs` and `heavy_slot_check.py` into both
+`M/tools` and `W/tools`. `D` is then `M/.git/check-all-slots`, the real pool of **that** repository. No case
+needs the override unless it says so.
 
-| # | Command | Expect |
+**Pool cases**
+
+| Case | What it does | Expect |
 | --- | --- | --- |
-| 1 | `cd frontend && npx tsc --noEmit` | refuse H1 (the planted violation) |
-| 2 | `cd frontend && ../tools/heavy-slot.sh -- npx tsc --noEmit` | allow |
-| 3 | `npx vitest run src/App.test.tsx` | refuse H2 |
-| 4 | `npm --prefix frontend test` | refuse H2 |
-| 5 | `npm run build` | refuse H1 |
-| 6 | `frontend/node_modules/.bin/vitest related --run src/a.ts` | refuse H2 |
-| 7 | `bash -c "cd frontend && npx tsc --noEmit"` | refuse H1 |
-| 8 | `echo ok; npx tsc` | refuse H1 |
-| 9 | `tools/heavy-slot.sh -- true && npx vitest run x` | refuse H2 |
-| 10 | `echo $(npx tsc --noEmit)` | refuse H1 |
-| 11 | `npx tsc --noEmit \| tail -5` | refuse H1 |
-| 12 | `PYTHONPATH=a:b .venv/bin/python -m pytest backend/tests/test_s1_foundation_postgres.py -q` | refuse H3 |
-| 13 | `.venv/bin/python -m pytest tools/checks/test_chain_coherence.py -q -p no:cacheprovider` | allow |
-| 14 | `python -m pytest -q` | refuse H3 |
-| 15 | `python -m pytest -k tools backend/tests/test_x.py` | refuse H3 |
-| 16 | `pwsh -NoProfile -File tools/run-backend-suite-in-container.ps1 -Tier fast` | refuse H3 |
-| 17 | `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-backend-suite-in-container.ps1 -Tier fast` | allow |
-| 18 | `tools\run-host-tests.ps1 -- backend/tests/test_x.py` | refuse H3 |
-| 19 | `pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_x.py` | allow |
-| 20 | `node tools/layout-evidence.mjs http://127.0.0.1:5173` | refuse H4 |
-| 21 | `tools/heavy-slot.sh -- node tools/uqfi-captures.mjs` | allow |
-| 22 | `node tools/evidence-checks.mjs --self-test` | refuse H4 |
-| 23 | `node --test tools/checks/test_evidence_checks.mjs` | allow |
-| 24 | `"$ASSETOPS_CHROME" --headless=new --dump-dom about:blank` | refuse H4 |
-| 25 | `setsid nohup .venv/bin/python tools/demo_combined.py --db x_test --work var/x prepare > log 2>&1 &` | refuse H5 |
-| 26 | `setsid nohup tools/heavy-slot.sh --db -- .venv/bin/python tools/demo_combined.py --db x_test --work var/x prepare > log 2>&1 &` | allow |
-| 27 | `tools/heavy-slot.sh -- python tools/demo_combined.py --db x_test --work var/x add-dates` | refuse H5 (no `--db`) |
-| 28 | `python tools/demo_combined.py --db x_test --work var/x serve --port 8990` | allow |
-| 29 | `python tools/chain_clone.py create t1probe --migrate` | refuse H5 |
-| 30 | `python tools/chain_clone.py drop t1probe` | allow |
-| 31 | `ASSETOPS_HEAVY_SLOT=/x/slot-1.lock npx tsc` | refuse H0 |
-| 32 | `export ASSETOPS_HEAVY_SLOT_DIR=/tmp/mine` | refuse H0 |
-| 33 | `pwsh -c '$env:ASSETOPS_HEAVY_SLOT = "x"'` | refuse H0 |
-| 34 | `grep -rn "npx tsc --noEmit" .claude` | allow |
-| 35 | `git commit -m "run npx vitest run through the pool"` | allow |
-| 36 | `cat > /tmp/x.md <<'EOF'` + newline + `npx tsc --noEmit` + newline + `EOF` | allow |
-| 37 | `pwsh -NoProfile -File tools/check-all.ps1` | allow |
-| 38 | `find frontend/src -name '*.test.tsx' -exec npx vitest run {} +` | refuse H2 |
-| 39 | `ls frontend/node_modules/.bin/tsc` | allow |
-| 40 | `cat frontend/vitest.config.ts` | allow |
-| 41 | `python tools/select-tests.py --base main` | allow |
-| 42 | `tools/heavy-slot.sh --status` | allow |
-| 43 | `DOTNET_SYSTEM_IO_DISABLEFILELOCKING=1 pwsh -NoProfile -File tools/check-all.ps1` | refuse H0 |
-| 44 | `timeout 600 env PYTHONPATH=x python3 -m pytest host/tests/test_y.py` | refuse H3 |
+| P1 | `-- sh -c 'echo "$ASSETOPS_HEAVY_SLOT"; exit 7'` | exit 7; prints the canonical `D/slot-1.lock`; the slot is free afterwards |
+| P2 | a pwsh holder on both slots; bash with `--wait-seconds 3` | exit 75 within 3-6 s, with the timeout line |
+| P2c | race (R1b): one bash entry and one pwsh entry started together, one slot free and the other held; 20 iterations | exactly one wins each time |
+| P3 | two bash holders; `heavy-slot.ps1 -SlotWaitSeconds 3` | exit 75; `Test-HeavyLockHeld` is true for both slots |
+| P4 | X holds slot 2; an outer bash entry runs a nested bash entry, then a nested pwsh entry | both finish in under 5 s |
+| P4b | the outer entry is pwsh `heavy-slot.ps1`, then a pwsh script calling `Enter-HeavySlot` (the check-all path); the nested entry is bash (R1a) | under 5 s |
+| P4c | the outer entry runs from `M/tools`, the inner from `W/tools`; then the reverse; then the outer through a symlinked path to `M` (R2) | nested every time |
+| P5 | stale markers: (a) one naming a free slot; (b) one in another directory; (c) on Linux, a held slot whose holder is not an ancestor (R5) | each acquires normally and prints `ignoring stale` with its reason |
+| P5b | `GIT_DIR=/tmp/x` and `GIT_COMMON_DIR=/tmp/x` set on the wrapper (R3) | it still uses `M/.git/check-all-slots` |
+| P6, P6b | `kill -9` of the bash wrapper, then of the pwsh wrapper (R7b) | the slot is free within 3 s; the test then kills the orphan by its `child=` pid |
+| P6c | a pwsh process calls `Enter-HeavySlot`, then `Start-Process sleep`; `kill -9` the pwsh process (the check-all mechanism) | the slot is free, and `/proc/<sleep>/fd` holds no fd on the lock |
+| P7, P8 | TERM to the bash wrapper, then to the pwsh wrapper, each running `sh -c 'sleep 30 & wait'` | exit 143 within 6 s; the whole tree is gone; the slot is free |
+| P7b | TERM to the bash wrapper's process group (D-T1.15) | the wrapper and its child stop together |
+| P9 | one `--db` holder; then a second `--db` entry and a plain entry | the second `--db` exits 75 although a slot is free; the plain entry exits 0 |
+| P9b | a nested `--db` inside a non-DB slot (R4) | exit 69 at once, with the D-T1.13 line |
+| P10 | `--status` | the specified format; a missing `db-job.lock` shows as `free` |
+| P11 | locking disabled | exit 69 from both wrappers |
+| P12 | `heavy-slot.sh npx tsc` (no `--`), and `heavy-slot.sh -- setsid x` | exit 64 for both |
+| P13 | stdin (R6): `heavy-slot.sh -- sh -c 'read x; echo $x' <<<y` | prints `y` |
+| P14 | `heavy-slot.ps1 -- <tmp>/x.ps1 a b`, where the script exits 5 (I2) | both arguments arrive; exit code 5 passes through |
+| P15 | `-Slots 3` through `Enter-HeavySlot` (R8c) | refused |
 
-K2, the script: spawn `node tools/heavy-slot-hook.mjs` with stdin
-`{"tool_name":"Bash","tool_input":{"command":"cd frontend && npx tsc --noEmit"}}`: exit 2, stderr starts
-`heavy-slot: refused (H1 type check)` and contains `Run it as: tools/heavy-slot.sh -- npx tsc --noEmit`. Case 2:
-exit 0, empty stdout and stderr. `{}` and non-JSON stdin: exit 0.
+**Tripwire cases.** Same harness; the check modules run from `M/tools`.
 
-K3, fail closed: a `classify` that throws (inject through an exported test seam, e.g. `main(stdin, { classify })`)
-refuses a command containing `vitest` and allows `ls -la`.
-
-K4, the wiring: `.claude/settings.json` parses; it has exactly one `PreToolUse` entry with `matcher` `Bash`
-whose command names `tools/heavy-slot-hook.mjs`; that file exists.
-
-K5, latency: 20 spawns of the script on case 2; median under 150 ms (reported in the test name's output).
-
-K6, the document sweep over `backend/TESTING.md`, `.claude/agents/*.md`, `.claude/commands/*.md`,
-`.claude/skills/**/*.md`, `.agent/lane-rules-vps-2026-11-12.md`, `.ai/RULES.md`, `.ai/START_HERE.md`,
-`.ai/ROLE_CONFIG.md`, `AGENTS.md`: no refused command. Plus a planted case: a fenced block holding
-`cd frontend && npx vitest run x` is reported with its line number.
-
-K7, `tools/select-tests.py --files frontend/src/App.tsx backend/assetops_backend/estate/adapters/postgres_estate_read.py` (Python: `process.env.ASSETOPS_GUARD_PYTHON`, which check-all sets,
-else `python3`, on Windows `python`): the command after `frontend (in frontend/): ` and the command after `backend: ` (the second file gives mode `selected`, so a backend line is printed) are each classified allow.
-
-### 7.2 `tools/checks/test_heavy_slot_pool.mjs` (`node --test`; under 30 s; Linux cases skip on Windows)
-
-Every case uses `ASSETOPS_HEAVY_SLOT_DIR` = a fresh `mkdtemp` directory, deleted after; `--wait-seconds 3`
-where a wait is measured; every spawned process is stopped by PID in `after()`. A holder is
-`tools/heavy-slot.sh -- sleep <n>` or a `pwsh -NoProfile -c` that opens the named lock files with
-`FileShare.None`, prints `READY` and sleeps; the test waits for `READY` or for the owner file.
-
-| Case | Setup | Expect |
+| Case | What it does | Expect |
 | --- | --- | --- |
-| P1 pass-through | `heavy-slot.sh -- sh -c 'echo "$ASSETOPS_HEAVY_SLOT"; exit 7'` | exit 7; stdout is `<dir>/slot-1.lock`; slot free afterwards |
-| P2 pwsh holds, bash waits | pwsh holder on slot-1 and slot-2 | `heavy-slot.sh --wait-seconds 3 -- true` exits 75 in 3-6 s with the §3.2 message |
-| P3 bash holds, pwsh waits | two `heavy-slot.sh -- sleep 20` | `heavy-slot.ps1 -SlotWaitSeconds 3 -- true` exits 75; `Test-HeavyLockHeld` is true for both |
-| P4 nesting, no deadlock | holder X on slot-2; outer `heavy-slot.sh -- sh -c '<tools>/heavy-slot.sh -- true && pwsh -NoProfile -File <tools>/heavy-slot.ps1 -- true'` (`<tools>` = absolute `tools/`) | outer exits 0 in under 5 s; no third lock file is created |
-| P5 stale marker | `ASSETOPS_HEAVY_SLOT=<dir>/slot-1.lock` with slot-1 free | stderr has `ignoring stale`; runs on a slot; exit 0 |
-| P6 SIGKILL releases | `heavy-slot.sh -- sleep 30`, X on the other slot; `kill -9` the wrapper | `heavy-slot.sh --wait-seconds 3 -- true` exits 0 within 3 s; the orphan `sleep` (its pid from the owner file's `child=`) is then killed by the test |
-| P7 SIGTERM stops the tree | `heavy-slot.sh -- sh -c 'sleep 30 & wait'`; `kill -TERM` the wrapper | wrapper exits 143 within 6 s; neither `sh` nor `sleep` is alive; slot free |
-| P8 pwsh SIGTERM | as P7 with `heavy-slot.ps1` | exit 143; child gone; slot free |
-| P9 one DB job at a time | `heavy-slot.sh --db -- sleep 20` running | a second `--db --wait-seconds 3` exits 75 although a slot is free; `heavy-slot.sh -- true` exits 0 |
-| P10 status | one holder with label `probe` | `--status` prints `slot-1: busy pid=... label=probe` and `slot-2: free` and `db-job: free` |
-| P11 locking off | `DOTNET_SYSTEM_IO_DISABLEFILELOCKING=1` | both wrappers exit 69 with the D-T1.2 text |
-| P12 usage | `heavy-slot.sh npx tsc` (no `--`) | exit 64 |
-| P13 check-all uses the module | static: `tools/check-all.ps1` dot-sources `_heavy_slot.ps1`, calls `Enter-HeavySlot` and `Exit-HeavySlot`, sets `ASSETOPS_HEAVY_SLOT`, and has no `[IO.File]::Open(` of its own | holds |
+| P-T1 | node and python `require`, under `M/tools/heavy-slot.sh --` and unpooled | pooled: both pass. Unpooled: both exit 69 with the exact message and reason `ASSETOPS_HEAVY_SLOT is not set` |
+| P-T2 | a wrapper run with `ASSETOPS_HEAVY_SLOT_DIR=<private>` holds a slot | both tripwires refuse with `not a slot of this machine's pool`, so this bypass is closed |
+| P-T3 | a forged marker: `ASSETOPS_HEAVY_SLOT=<D>/slot-1.lock` while another process holds slot 1 | refused with `not this process or an ancestor` |
+| P-T4 | db: `require(db=True)` under a non-`--db` wrapper, then under `--db`. Container (a fake `/.dockerenv`, injected through the `in_container`/`inContainer` parameter): `slot` and `db`, with a non-db and a db caller | non-`--db`: refused, database-job reason; `--db`: passes. `slot` passes a non-db caller and refuses a db caller; `db` passes both |
+| P-T5 | shim: a fake `<M>/frontend/node_modules/typescript/bin/tsc` that prints `REAL TSC`, then `install` | unpooled `.bin/tsc` exits 69; pooled prints `REAL TSC`; `check` is 0 after install and 1 after `.bin/tsc` is restored to the original symlink; a second `install` changes nothing |
+| P-T6 | **live, in this worktree: run once by hand and record it in the packet; not part of check-all.** `cd frontend && npx vitest run <one small test file>`, then its pooled form | refused unpooled; passes pooled. This is the only live vitest run in T1 |
+| P-T7 | the pwsh `Assert-HeavySlotHeld` | behaves as in P-T1 to P-T3 |
 
-Postgres, vitest and tsc are not run by these tests: the pool is proved with `sleep`, `true` and `sh`.
+### 7.2 `tools/checks/test_heavy_slot_inventory.mjs` (static, under 2 s, every check-all run)
 
-## 8. Planted-violation proof (RULES §7: a new guard must fail on a real violation)
+1. Every browser-launching file (per §5.4) contains `assertHeavySlot(`. A planted string fixture without it is
+   reported.
+2. Each §5.5 entry point calls `require("database job", db=True)` inside `main()` or the `__main__` block, never
+   at module level. A planted module-level call is reported.
+3. `vite.config.ts` has the VITEST tripwire, or its `globalSetup` names the fallback file.
+4. Both conftests call `require(` in `pytest_configure`.
+5. `package.json` has the postinstall line.
+6. Both container `.ps1` runners call `Assert-HeavySlotHeld`, and `docker-compose.test.yml` passes
+   `ASSETOPS_HEAVY_SLOT_CONTAINER`.
+7. The §6 documents contain no command span for `npx tsc`, `npx vitest`, `-m pytest`, `run-host-tests.ps1 --`,
+   `run-backend-suite-in-container.ps1 -` or `-evidence.mjs ` unless `heavy-slot.` comes before it on the same
+   line. Two kinds of line are skipped: a line that contains the word `unpooled` or `refused`, which is how a
+   document shows a refused example (R17a), and a line under a `##` heading whose name contains "history". A
+   planted line is reported with its line number.
 
-Record each in the packet with the real output, then restore:
-- V1: comment out the H1 rule in `classify`; `node --test tools/checks/test_heavy_slot_hook.mjs` fails on case 1.
-- V2: in `backend/TESTING.md` add a fenced line `cd frontend && npx vitest run x`; K6 fails naming the line.
-- V3: delete `.claude/settings.json`; K4 fails.
-- V4: make `heavy-slot.sh` open its lock with `>` and no `flock`; P2 or P3 fails.
-- V5: drop the `{slotfd}>&-` close; P6 fails (the orphan keeps the slot).
-- V6: through check-all on the branch, the "Heavy-slot hook" guard reports FAIL with V1 planted.
+## 8. Planted-violation proof (RULES §7)
 
-## 9. Acceptance (questions the work must answer yes to)
+For each planted violation, record the real output, then restore the code.
 
-- A1 Do check-all and both wrappers use the same two lock files in `D`, and does a lock held by either shell
-  block the other (P2, P3)?
-- A2 Can a pooled command start a nested pooled command, or check-all, without waiting for a second slot (P4)?
-- A3 Is a slot free within one poll after its wrapper is SIGKILLed, and after SIGTERM is its child tree gone (P6-P8)?
-- A4 Can two heavy database jobs never run at once (P9)?
-- A5 Does every fixture in §7.1 classify as listed, and does the hook script exit 2 with the exact message (K1, K2)?
-- A6 Does the hook refuse when its classifier throws on a heavy-looking command, and allow otherwise (K3)?
-- A7 Is the hook wired in `.claude/settings.json` (K4), and is its median latency under 150 ms (K5)?
-- A8 Do the agent-read documents and select-tests' printed lines hold no unpooled command (K6, K7)?
-- A9 Does each of V1-V6 fail as stated?
-- A10 Fast path: is the hook guard's printed time at most 10 s (it runs in the parallel pool); when the measured change holds no pool file, does
-  check-all print the pool self-test SKIP line; and is fast-mode wall time within 3 s of the same measurement on
-  `main` (method: `reviewer-guide.md` R6; commit 3 is the docs commit, so `-Base <T1 head>~1` measures a change
-  with no pool file)?
-- A11 With a slot free, does `Enter-HeavySlot` return within 100 ms (printed `waiting for a slot` value ≤ 0.1 s)?
-- A12 Is `python tools/select-tests.py --base main` on the T1 branch `mode: none` (D-T1.9)?
-- A13 (post-merge, coordinator) In a Claude session started after the merge, is `cd frontend && npx tsc --noEmit`
-  refused with the §5.2 message, and does `cd frontend && ../tools/heavy-slot.sh -- npx tsc --noEmit` run? Lanes 3
-  and 4 open only after this.
+| Violation | Planted change | Expect |
+| --- | --- | --- |
+| V1 | remove `assertHeavySlot(` from `tools/layout-evidence.mjs` | inventory check 1 fails |
+| V2 | move the conftest `require` to module level, or delete it | inventory check 4 fails |
+| V3 | `checkMarker` skips the directory comparison | P-T2 fails |
+| V4 | `checkMarker` skips ancestry | P-T3 and P5c fail |
+| V5 | the bash wrapper uses `>` and no `flock` | P2 and P3 **both** fail (R18a) |
+| V6 | drop the child's fd close | P6 fails: the orphan keeps the lock |
+| V7 | treat the marker as nested whenever it is set | P5 fails |
+| V8 | skip `db-job.lock` | P9 fails |
+| V9 | no TERM trap | P7 fails |
+| V10 | V1 planted and uncommitted, then run check-all | the inventory guard shows FAIL |
 
-## 10. Checks to run, and done
+## 9. Acceptance (questions the build must answer yes)
 
-- `node --test tools/checks/test_heavy_slot_hook.mjs`, `node --test tools/checks/test_heavy_slot_pool.mjs`.
-- `pwsh -NoProfile -File tools/check-all.ps1` once, fast mode, at the end (it runs both, since this branch changes
-  pool files). `python tools/select-tests.py --base main` (expect `mode: none` and no frontend line).
-- No backend or frontend suite, no Postgres, no Docker, no browser.
+- **A1** Do check-all and both wrappers take the same two locks, and does each shell see the other's (P2, P2c,
+  P3)?
+- **A2** Is nesting free of deadlock across shells and checkouts (P4, P4b, P4c, P9b)?
+- **A3** Is `D` the same for every caller, and immune to `GIT_*` and to the override (P4c, P5b, P-T2)?
+- **A4** Are slots free after a SIGKILL of either wrapper or of the check-all path, and are trees gone after a
+  TERM (P6-P8)?
+- **A5** Does only one heavy database job run at a time (P9)?
+- **A6** Does every tripwire refuse an unpooled run with the exact message, and pass a pooled one (P-T1 to
+  P-T7)?
+- **A7** Does the inventory hold, and does it catch each planted defect (§7.2)?
+- **A8** Does each of V1-V10 fail as stated?
+- **A9** Do the documents carry only pooled commands (§7.2 check 7)?
+- **A10** Fast path: is the inventory guard at most 2 s; does the pool self-test print its SKIP line when no
+  pool file changed; and is fast-mode wall time within 3 s of `main`'s (reviewer guide R6: 3 runs each,
+  medians)?
+- **A11** Does `Enter-HeavySlot` return within 0.1 s when a slot is free?
+- **A12** Does `select-tests --base main` report `full`, for ALWAYS_FULL reasons only (conftest, compose,
+  container runner, `vite.config.ts`, `package.json`)? Under D-T1.17 the §10 smoke set replaces the full suites.
+- **A13** Is the pooled smoke set green (§10)?
+- **A14** Is the `--json` output of `select-tests` unchanged?
+- **A15** Does the packet record the mid-build question count?
+- **A16** (post-merge, coordinator):
+  - On main, `npm ci` or `node tools/heavy-slot-shims.mjs install frontend/node_modules` has been run, and
+    `check-all -Full` shows `tsc shim installed` PASS.
+  - In a lane worktree that has merged main, `cd frontend && npx tsc --noEmit` and `npx vitest run <file>` are
+    refused, and the pooled forms run.
+  - Each lane merges main before its next heavy command. Lanes 3 and 4 open only after that.
 
-Done when: A1-A12 hold with real output in the packet; V1-V6 are recorded; the docs in §6 are edited; three
-commits at most (pool and check-all; hook, settings and tests; docs and select-tests), staged by explicit path.
+## 10. Checks and done
 
-Packet: `specs/T1-heavy-tool-slot-pool/packet.md` (≤ 3k tokens, RULES §5). It records **the count of mid-build
-questions** (RULES §4 item 7; above zero is a spec-template defect) and the K5 and A10 figures.
+Checks:
+- `node --test tools/checks/test_heavy_slot_pool.mjs tools/checks/test_heavy_slot_inventory.mjs`.
+- P-T6, by hand.
+- One fast check-all run at the end.
+- The smoke set (D-T1.17), pooled:
+  - `npx tsc --noEmit`;
+  - one focused vitest file;
+  - on the coordinator's DB turn, `tests/test_pg_harness.py` and one host Postgres file
+    (`host/tests/test_up1_reading_upload_flow_postgres.py`), each run once unpooled (refused) and once pooled
+    (passes).
+- No full suites. They wait for the next milestone run, which uses `--db`.
+
+**Done** when:
+- A1-A15 hold, with real output in the packet;
+- V1-V10 are recorded;
+- the build used at most three commits, staged by explicit path.
+
+The packet is `specs/T1-heavy-tool-slot-pool/packet.md`, at most 3k tokens. It records the mid-build question
+count, the A10 figures and which vitest tripwire form was used.
 
 ## 11. Out of scope
 
-- Two slots for one database job (until DM05's `/usr/bin/time -v` measurement; D-T1.4); a third slot or a
-  memory-aware scheduler.
-- In-tool tripwires (a pytest conftest or vitest config refusing unpooled runs): conftest is ALWAYS_FULL in
-  select-tests and would force a full suite; recorded as a follow-up if a bypass is seen (D-T1.6).
-- Codex enforcement, the PowerShell tool on Windows, the Monitor tool, scripts and heredocs fed to a shell
-  (documented gaps, D-T1.6).
-- Pooling long-running servers; changing check-all's guard set, `-Slots` or timeouts; the one-at-a-time rule for
-  full suites (stays a coordinator rule); PIPE-2; `.gitattributes`.
-- Windows hardware verification (D-T1.10: the pwsh path is the same .NET call check-all already uses on Windows).
+- Two slots for one database job, until DM05 is measured (D-T1.4).
+- A FIFO queue against starvation (D-T1.18; a follow-up if starvation is seen).
+- The Claude Code hook, `classify` and `sweepDoc` (D-T1.6 and D-T1.8 are superseded).
+- Windows hardware verification, and the Windows `.cmd` tsc shim.
+- `frontend/mockups/v69` and `frontend/mockups/v71`.
+- Pooling servers, and changing check-all's guard set, its timeouts or its `-Slots` default.
 
 ## 12. Sizing
 
-2.5 units holds: the pool, the shared module and the check-all change with P1-P13 (1.0); the hook, settings and
-K1-K7 (1.0); the documents, select-tests and the sweep fixes (0.5). If the bash/.NET interop (P2, P3) fails,
-stop: that is a design change, not a fix.
+About 2.75 units, still inside B03's 2-3:
+
+| Part | Units |
+| --- | --- |
+| pool, module, check-all, P1-P15 | 1.0 |
+| check modules, shim, P-T1 to P-T7 | 0.75 |
+| 30 capture files, 11 database entry points, conftests, runners and the inventory guard (mechanical) | 0.75 |
+| documents and `select-tests` | 0.25 |
+
+No split. If P2 or P3 is flaky, or P-T6 fails in both vitest forms, stop and raise it.

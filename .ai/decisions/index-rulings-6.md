@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-W1-10 to D-T1.10)
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-W1-10 to D-T1.18)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
 
@@ -28,9 +28,17 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-T1.2` T1 Lock protocol: exclusive flock, held by the wrapper only · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.3` T1 Nesting by a verified marker · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.4` T1 Database jobs: the DB lock plus one slot · live · specs/T1-heavy-tool-slot-pool/rulings.md
-- `D-T1.5` T1 What is pooled: tsc, vitest, all backend pytest, captures, DB jobs · live · specs/T1-heavy-tool-slot-pool/rulings.md
-- `D-T1.6` T1 Enforcement: Claude Code PreToolUse hook plus the rule · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.5` T1 What is pooled (pytest scope revised by D-T1.16) · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.6` T1 Enforcement by hook · superseded by D-T1.11 · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.7` T1 Not pooled: check-all and long-running servers · live · specs/T1-heavy-tool-slot-pool/rulings.md
-- `D-T1.8` T1 Class fix: document sweep of copyable commands · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.8` T1 Class fix: document sweep · superseded by D-T1.11 · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.9` T1 select-tests exemptions for the pool files · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.10` T1 Windows by parity, not hardware · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.11` T1 Enforcement is option C, in-tool tripwires (owner) · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.12` T1 Canonical pool directory, GIT_* removed, override ignored by tripwires · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.13` T1 Nested --db refuses at once · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.14` T1 Holder ancestry required for a marker (Linux) · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.15` T1 Child stays in the wrapper's process group; tree kill · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.16` T1 Pytest pooled when the test database URL is set · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.17` T1 Slice-end checks are a pooled smoke set, not full suites · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.18` T1 Starvation under a long DB job accepted · live · specs/T1-heavy-tool-slot-pool/rulings.md
