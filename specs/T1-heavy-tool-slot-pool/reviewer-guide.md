@@ -20,9 +20,13 @@ rev 1 hook and classifier are gone.
 
 - Every question A1-A15 in spec §9 answers yes, and you have seen the output yourself.
 - V1-V10 fail as stated. Reproduce V3, V4, V5, V6 and V10 yourself.
-- The files touched are exactly those in spec §3-§7 plus the packet. Anything else is a finding. That includes a
-  `.claude/settings.json`, which must not exist.
-- The packet records the **count of mid-build questions** (RULES §4 item 7). A missing count is a finding. A
+- The files touched are exactly those in spec §3-§7, plus the packet, `mid-build-questions.md` and
+  `.gitignore` (mid-build Q2). Anything else is a finding.
+  - Nothing under `.claude/` may be touched (mid-build Q1). That rules out `.claude/settings.json` and the two
+    agent briefs.
+  - Test `7b` stays a `todo` that reports 4 lines. That is correct until `T1-F1`.
+- A refused unpooled vitest run leaves no untracked file in `git status` (mid-build Q2).
+- The packet records the **count of mid-build questions** (RULES §4 item 7). Expect 2, ruled in `rulings.md`. A missing count is a finding. A
   count above zero is a spec-template defect, so report it, but not against the Implementer.
 - The packet names which vitest tripwire form was used (spec §5.3).
 - A16 is post-merge and the coordinator's job. Your verdict states that it is pending and that lanes 3 and 4 wait
@@ -118,7 +122,7 @@ The inventory guard (spec §7.2) must name the file and line for each of:
 - a capture script with the assert removed;
 - a module-level `require` in a database script;
 - a conftest without the check;
-- an unpooled command in `.claude/agents/assetops-reviewer.md`.
+- an unpooled command in `backend/TESTING.md`.
 
 ### R6 No slowdown of the fast check-all path
 

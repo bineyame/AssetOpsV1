@@ -264,5 +264,22 @@ question. If neither form works, that is a mid-build stop under RULES §4 item 7
 
 ## Mid-build rulings
 
-(None yet. Each one stops only the affected part (RULES §4 item 7). If the done criteria change, the reviewer
-guide is updated too.)
+These answer `mid-build-questions.md`, which holds 2 questions. Both come from a single spec-template defect: the
+spec did not check its file list against the dispatch's limits on `.claude/` and on files outside that list.
+
+- **Q1: the `.claude/agents` edits are dropped from T1, and an owner-approved follow-up is proposed.**
+  - **What changes in T1.** Spec §6 rows 1 and 2 are out of scope. Check 7 blocks on the five non-`.claude`
+    documents. Test `7b` (`DOCS_PENDING`, a node:test `todo`) stays as it is: it reports the 4 lines and tracks
+    the follow-up.
+  - **Why this is safe.** The tripwires still refuse an agent who copies the old brief commands, and the refusal
+    gives the pooled form.
+  - **The follow-up, `T1-F1`, for the owner to approve.** Put the two briefs in pooled form, as in spec §6 rows 1
+    and 2. Then move both paths from `DOCS_PENDING` to `DOCS` and drop the `todo`.
+- **Q2: add the `.gitignore` line `frontend/vite.config.ts.timestamp-*` (option a).**
+  - **Why.** Every refused vitest run would otherwise leave a stray untracked file in a lane's tree. In the first
+    days, refusals will be common.
+  - **Why not the other options.** One line prevents it, and it changes no tripwire. Accepting the strays leaves
+    noise that risks being staged by mistake. The `globalSetup` fallback is reserved for when the primary form
+    fails, and it does not fail.
+  - **Scope.** `.gitignore` joins T1's file list. It is not an ALWAYS_FULL file in select-tests. The packet notes
+    that the file left on disk by a refusal is harmless, and that `git clean` is not needed.
