@@ -15,3 +15,7 @@ Context: the coordinator explained how a plan is created and how it relates to F
 The coordinator then asked for plan approval and for answers to Q-F1 to Q-F4. The owner answered:
 
 > more clarity on the action plan aspect would be great to add, in its workflow document that combines workflow, finan ces, ownership and system mechanics.regrdging the road,map, yes retire the old one. and recreat tehe two week plan focussed on advancing as much as possible towarfs the new features, not the markting element. i agree with the rest of the defaults. on the mockup, let it be more professional in temrs of ites usage of space and modern state of the art ui/ux as well as not using technical workds that should not be user facing.
+
+## Owner on the crew-visit threshold (Architect's call in rev 16.7)
+
+> the crew-visit threshold default of zero is fine so long as it is configurable
