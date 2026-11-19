@@ -33,3 +33,7 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's answers to Q-A1 to Q-A3
 
 > 1-a finding should have impact on the bottomline or is a risk or an opportunity - which means it needs to be acted on and the user likely reate one more action against it 2-yes lets have a few sensible roles 3-is plan different from action ? let teh archtiect explain who owns it and why it is necessary
+
+## Owner's answers to the three open questions (plan vs Action, spend threshold, deviation tolerance)
+
+> 1.i believe a plan is  a legitmate new construct and need to be added as such and integrated with the existing constructs. e.g an action be raised against a plan or a finding. push back if i got this wrong 2.this should be configurable and a matter of site/portfolio setting 3. yes configurable tolerance should dictate this
