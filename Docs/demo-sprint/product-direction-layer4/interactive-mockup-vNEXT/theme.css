@@ -1,0 +1,344 @@
+/* theme.css: professional layout and light/dark theme layer. Loaded LAST, after mockups.css, portfolio.css,
+   outcomes.css and economics.css, so the re-based v7.0 sources stay byte-reproducible.
+   Approach: (1) tokens; (2) old tokens remapped to new ones; (3) every hard-coded colour in the earlier sheets is
+   re-pointed at a token (unscoped), so light and dark follow from the token blocks alone; (4) layout and density;
+   (5) new utilities for the Act first / plan layout; (6) review bar; (7) focus; (8) breakpoints. */
+
+/* 1. Tokens: light (default) ------------------------------------------------------------------ */
+:root{
+  color-scheme:light;
+  --bg:#f3f5f9; --surface:#ffffff; --surface-2:#f6f8fb; --surface-3:#eaeff6;
+  --text:#17243b; --text-2:#566479; --line:#e3e8ef; --line-strong:#cdd6e3;
+  --accent:#1d4ed8; --accent-solid:#1d4ed8; --accent-soft:#e8effd; --accent-line:#bcd0f7;
+  --good:#166b50; --good-soft:#e3f4ed; --good-line:#9fd2bd;
+  --warn:#8a540a; --warn-soft:#fdf0d8; --warn-line:#ecd29f;
+  --bad:#a13838; --bad-soft:#fcebea; --bad-line:#eec2c2;
+  --violet:#6d4a91; --violet-soft:#f0eafa; --violet-line:#d8c8ee;
+  --focus:#2563eb; --rail-bg:#16233f; --rail-hover:#243956; --overlay:#11244166;
+  --rb-bg:#f1f4fa; --rb-text:#3b4f75; --rb-line:#dbe3f1;
+  --shadow-sm:0 1px 2px rgba(16,36,68,.06),0 1px 1px rgba(16,36,68,.04);
+  --shadow-md:0 10px 30px rgba(16,36,68,.14);
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+  --r1:6px; --r2:8px;
+  --fs-xs:12px; --fs-sm:13px; --fs-md:14px; --fs-lg:16px; --fs-xl:20px; --fs-2xl:24px;
+  /* remap of the v7.0 tokens so existing rules follow the theme */
+  --ink:var(--text); --muted:var(--text-2); --page:var(--bg); --white:var(--surface); --blue:var(--accent);
+  --navy:var(--rail-bg); --green:var(--good); --amber:var(--warn); --red:var(--bad); --purple:var(--violet);
+  --worse:var(--bad); --better:var(--good); --plan:var(--text-2);
+  font-size:var(--fs-md); line-height:1.45;
+}
+
+/* 2. Tokens: dark (system preference unless forced light, and forced dark). Duplicated on purpose. */
+@media screen and (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0e131b; --surface:#151b25; --surface-2:#1a212d; --surface-3:#232c3b;
+    --text:#e5eaf1; --text-2:#a2adbd; --line:#283243; --line-strong:#3a4659;
+    --accent:#8cb0ff; --accent-solid:#2f5fd6; --accent-soft:#1b2944; --accent-line:#34508a;
+    --good:#5cc99a; --good-soft:#12302a; --good-line:#2a6550;
+    --warn:#eeb25a; --warn-soft:#352713; --warn-line:#6b4f22;
+    --bad:#f19090; --bad-soft:#3a1d21; --bad-line:#6e3338;
+    --violet:#c4a8f0; --violet-soft:#2a2240; --violet-line:#55457a;
+    --focus:#8cb0ff; --rail-bg:#0a0f17; --rail-hover:#1b2638; --overlay:#000000a0;
+    --rb-bg:#121926; --rb-text:#a9b6cc; --rb-line:#222c3c;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4); --shadow-md:0 12px 32px rgba(0,0,0,.55);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0e131b; --surface:#151b25; --surface-2:#1a212d; --surface-3:#232c3b;
+  --text:#e5eaf1; --text-2:#a2adbd; --line:#283243; --line-strong:#3a4659;
+  --accent:#8cb0ff; --accent-solid:#2f5fd6; --accent-soft:#1b2944; --accent-line:#34508a;
+  --good:#5cc99a; --good-soft:#12302a; --good-line:#2a6550;
+  --warn:#eeb25a; --warn-soft:#352713; --warn-line:#6b4f22;
+  --bad:#f19090; --bad-soft:#3a1d21; --bad-line:#6e3338;
+  --violet:#c4a8f0; --violet-soft:#2a2240; --violet-line:#55457a;
+  --focus:#8cb0ff; --rail-bg:#0a0f17; --rail-hover:#1b2638; --overlay:#000000a0;
+  --rb-bg:#121926; --rb-text:#a9b6cc; --rb-line:#222c3c;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4); --shadow-md:0 12px 32px rgba(0,0,0,.55);
+}
+
+/* 3. Base ---------------------------------------------------------------------------------------- */
+body{background:var(--bg);color:var(--text);line-height:1.45;-webkit-font-smoothing:antialiased}
+p{line-height:1.5}
+h1{font-size:var(--fs-2xl);font-weight:600;letter-spacing:-.3px;line-height:1.25}
+h2{font-size:var(--fs-lg);font-weight:600;letter-spacing:-.1px;line-height:1.3}
+h3{font-size:var(--fs-sm);font-weight:600}
+small,.small{font-size:var(--fs-xs);color:var(--text-2)}
+.eyebrow{font-size:11px;letter-spacing:.6px;color:var(--text-2)}
+.mono{font-size:var(--fs-xs)}
+table,.metric-value,.kpi-value,.period-strip strong,.total strong,.opportunity-quantity,.value-number,.wfval,.cbval,.hero strong{font-variant-numeric:tabular-nums}
+.workspace{overflow-x:clip} /* safety net: no horizontal page scroll from a stray wide child */
+
+/* 4. Shell: rail, top bar, canvas, headings, tabs ------------------------------------------------ */
+.shell{grid-template-columns:208px minmax(0,1fr);min-height:calc(100vh - 32px)}
+.rail{background:var(--rail-bg);padding:var(--s4) var(--s2);gap:var(--s3)}
+.brand{padding:0 var(--s3) var(--s3);font-size:18px}
+.rail a{padding:7px var(--s3);font-size:var(--fs-sm);border-radius:var(--r1);margin:1px 0}
+.rail a:hover{background:var(--rail-hover)}
+.rail-group .eyebrow{font-size:11px;letter-spacing:.6px;padding:0 var(--s3) var(--s1)}
+.rail-footer{padding:var(--s4) var(--s3) 0;font-size:var(--fs-xs)}
+.topbar{height:56px;background:var(--surface);border-bottom-color:var(--line);padding:0 var(--s5);gap:var(--s4)}
+.portfolio-name{font-size:var(--fs-sm)}
+.topbar .right{gap:var(--s3);font-size:var(--fs-xs);color:var(--text-2)}
+.avatar{background:var(--accent-soft);color:var(--accent);width:28px;height:28px}
+.searchbox{background:var(--surface-2);border-color:var(--line);color:var(--text-2);font-size:var(--fs-xs);padding:6px 10px;border-radius:var(--r1)}
+.canvas{max-width:1600px;margin:0 auto;padding:var(--s5) var(--s5) var(--s6)}
+.breadcrumbs{font-size:var(--fs-xs);margin-bottom:var(--s3)}
+.breadcrumbs a{color:var(--text-2)}
+.page-heading{margin-bottom:var(--s4);gap:var(--s4)}
+.page-heading p{font-size:var(--fs-sm);margin-top:var(--s1);color:var(--text-2);max-width:80ch}
+.tabs{gap:var(--s5);margin:0 0 var(--s4);border-bottom-color:var(--line)}
+.tabs a{font-size:var(--fs-sm);color:var(--text-2);padding:10px 0}
+.tabs a.active{color:var(--accent);border-color:var(--accent);font-weight:600}
+.tabs a:hover{color:var(--text)}
+.tabs.subtabs{gap:var(--s4);margin:-4px 0 var(--s4)}
+.tabs.subtabs a{font-size:var(--fs-xs);padding:6px 0 8px}
+.screen-foot{color:var(--text-2);font-size:var(--fs-xs)}
+.screen-foot button{color:var(--text-2);font-size:var(--fs-xs)}
+
+/* 5. Surfaces: panels, cards and everything that had a white or near-white box -------------------- */
+.panel{background:var(--surface);border-radius:var(--r2);padding:var(--s4);margin-bottom:var(--s4);box-shadow:var(--shadow-sm)}
+.panel-head{margin-bottom:var(--s3);gap:var(--s3)}
+.panel-head p{font-size:var(--fs-sm);margin-top:2px;color:var(--text-2)}
+.panel-head small{font-size:var(--fs-xs)}
+.two-col,.grid2{gap:var(--s4);margin-bottom:var(--s4)}
+.cards{gap:var(--s3);margin-bottom:var(--s4)}
+.metric{background:var(--surface);border-radius:var(--r2);padding:var(--s3) var(--s4);box-shadow:var(--shadow-sm)}
+.metric-label{font-size:var(--fs-xs);color:var(--text-2)}
+.metric-value{font-size:var(--fs-2xl);letter-spacing:-.4px;margin:6px 0 4px}
+.metric-note,.metric-link{font-size:var(--fs-xs);line-height:1.45}
+.assessment .metric-value{font-size:var(--fs-lg)}
+.metric,.value-card,.oc-ocard,.ob,.headline,.hero,.chainfig,.ocard,.switch,.moves-strip,.fix-head,.period-bar,.mheader,.asset-id,.tpl-card,.reg-steps li,.drawer,.range-pop,.conf-pop,.chain .stage.na,.ec-na,.oc-cell.tone-none,.oc-chip.tone-none,.oc-pill.quiet,.oc-affects.quiet,.path{background:var(--surface);color:var(--text)}
+/* only the boxes whose border was hard-coded; others already use var(--line) and keep their coloured top/left accents */
+.chain .stage.na,.oc-cell.tone-none,.oc-chip.tone-none,.oc-pill.quiet,.oc-affects.quiet,.ec-na{border-color:var(--line-strong)}
+.value-card,.oc-ocard,.ob,.headline,.hero,.chainfig,.ocard,.switch,.moves-strip,.fix-head,.period-bar,.mheader,.asset-id,.tpl-card,.path{border-radius:var(--r2)}
+.headline{border-left-color:var(--accent);padding:var(--s3) var(--s4)}
+.hero,.ocard,.oc-ocard,.value-card{padding:var(--s3) var(--s4)}
+.heroes,.ocards,.value-grid,.oc-ocards,.verdicts,.paths{gap:var(--s3);margin-bottom:var(--s4)}
+.value-card:hover{box-shadow:var(--shadow-md)}
+/* subtle (surface-2) boxes */
+th,.flow-box,.code,.empty,.screen-tile,.dropzone,.gw-src,.oc-ocard.later,.ob-later,.ob-part,.ob-guard,.chain .stage,.ftab tr.root,.wfrow.total,.srcrows th,.oc-state,.ec-plan,.why-btn,.book-caption,.conf-chip{background:var(--surface-2);border-color:var(--line);color:inherit}
+.why-btn,.conf-chip.medium{color:var(--accent)}
+/* neutral tag/track fills (surface-3) */
+.badge,.rank,.track,.lifecycle li,.cause-tag,.oc-steps span,.oc-meter,.oc-chip.tone-gray,.oc-cell.tone-gray,.oc-conf,.attn-k,.ec-der,.metertrack,.htrack,.cbtrack,.ministeps i,.objective-cell,.oc-key i.tone-gray,.oc-sitedots i,.fill.unknown,.segment.gap{background:var(--surface-3);color:var(--text-2);border-color:var(--line)}
+.steps li::before{background:var(--line-strong)}
+.fill.unknown,.segment.gap{background:repeating-linear-gradient(135deg,var(--surface-3) 0 4px,var(--surface-2) 4px 8px)}
+.objective-cell.na{background:transparent;color:var(--text-2)}
+/* accent-soft */
+.chip.active,.badge.blue,.statusbar,.notice.blue,.slim-banner,.range-button[aria-expanded="true"],.conf-chip.medium,.cause-tag.coverage,.tpl-card.active,.oc-chip.tone-blue,.oc-cell.tone-blue,.oc-affects,.oc-pill,.oc-cat,.oc-cat-protect,.rk,.attn-new .attn-k,.attn-k.attn-new,.ec-mod,.portfolio-evidence,.oc-key i.tone-blue{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+.oc-pill,.statusbar,.portfolio-evidence,.notice.blue,.slim-banner{color:var(--text)}
+.button:hover,button.wfrow:hover,.oc-info:hover,.why-btn:hover,.chip:hover{background:var(--surface-3)}
+.chip.active:hover{background:var(--accent-soft)}
+/* status soft fills */
+.badge.green,.reg-steps li.done,.lifecycle li.done,.oc-chip.tone-green,.oc-cell.tone-green,.oc-kind.opp,.oc-cat-grow,.ec-rec,.ec-ver,.public,.path.win,.plant-node,.oc-key i.tone-green{background:var(--good-soft);border-color:var(--good-line);color:var(--good)}
+.opts tr.rec{background:var(--good-soft)}
+.badge.amber,.notice,.legal,.conf-chip.low,.cause-tag.availability,.cause-tag.stale,.reg-steps li.todo,.oc-chip.tone-amber,.oc-cell.tone-amber,.oc-kind.risk,.oc-cat-cost,.ec-est,.attn-at .attn-k,.attn-near .attn-k,.attn-due .attn-k,.attn-k.attn-at,.attn-k.attn-near,.attn-k.attn-due,.deadline.soon,.objective-cell.attention,.segment,.oc-key i.tone-amber{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
+.notice,.legal,.deadline.soon{color:var(--text)}
+.hsolar{background:var(--warn-soft)}
+.badge.red,.notice.red,.ec-stake,.attn-off .attn-k,.attn-k.attn-off,.objective-cell.degraded{background:var(--bad-soft);border-color:var(--bad-line);color:var(--bad)}
+.notice.red{color:var(--text)}
+.badge.purple,.prov-tag,.cause-tag.config,.cause-tag.mapping,.oc-kind.stress,.oc-cat-assure,.attn-unobs .attn-k,.attn-k.attn-unobs,.private,.dv,.objective-cell.limited{background:var(--violet-soft);border-color:var(--violet-line);color:var(--violet)}
+.ftab tr.resid th,.ftab tr.resid td{background:var(--violet-soft)}
+.badge{font-size:var(--fs-xs);padding:2px 8px;border-radius:999px;font-weight:600}
+.badge.outline{background:transparent;border-color:var(--line-strong)}
+/* tone accents on top borders / text */
+.value-card.amber .value-number,.tone-amber .oc-ostate,.oc-recur,.oc-recurline,.fix-line,.oc-pfgrow .oc-pfnote,.opp-list .opp-limit,.obl-cost,.src-tag.missing,#portfolio-findings .impact.amber{color:var(--warn)}
+.value-card.red .value-number,.obl-fail,#portfolio-findings .impact.red{color:var(--bad)}
+.value-card.green .value-number,.tone-green .oc-ostate,.obl-pass,.opportunity-quantity,#portfolio-findings .impact.green{color:var(--good)}
+.value-card.purple .value-number,.src-tag.declared{color:var(--violet)}
+.tone-blue .oc-ostate,.fix-tl li.current b,.range-button .range-name,.prov span.on,details.tech summary,.claim-link,.oc-info,.why-close{color:var(--accent)}
+.prov span.on{border-color:var(--accent)}
+/* body-text colours that were hard-coded dark navy: follow --text */
+.prose,.prose strong,.lede,.h3s,.list,.contrast p,.verdicts p,.meterhead,.downside,.wf figcaption,.chainfig figcaption,.big-claim,.story-claim,.flow-box strong,.review-section strong,.ocard ul,.oc-orow,.ob-head,.ob-part b,.fix-line b,.fix-tl li.done b,.portfolio-pulse strong,.oc-warn h3,.ob-guard b,.lens,.sld .sld-label,.field input,.field select,.op-select select,.book-caption strong{color:var(--text)}
+/* muted text that was hard-coded mid-grey (many below 4.5:1): follow --text-2 */
+.value-label,.value-card p,.value-basis,.portfolio-pulse,.portfolio-pulse .icon,.portfolio-pulse .pulse-note,.workflow-text,.panel-bottom>span,.matrix-head,.matrix-head a,.matrix-row>span,.portfolio-evidence p,.opportunity-story p,.change-line>span:last-child,.outcome-note,.portfolio-context-footer,.portfolio-context-footer strong,.oc-oname,.oc-stepnote,.oc-k,.oc-warn small,.oc-mhead,.oc-key,.ob-name small,.ob-counts,.ob-sub,.ob-col h4,.ob-contrib small,.oc-pfdef,.ob-days,.oc-pfgrow,.oc-pfgrow dt,.ob-plabel,.fix-tl li b,.fix-tl li small,.oc-noact,.opp-list small,.oc-sitedots,.oc-pill small,.ob-sum .icon,.note,.cellnote,.hero>span,.hero small,.chain .stage small,.chain .stage span,.ocard h4,.fac small,.lgrid tbody th small,.opts tbody th small,.switch small,.total strong small,.total>small,.wflabel small,.wfval small,.hscale,.steps li,.prov span,.moves small,.moves-strip li small,.field,.drawer p,.chip,.button,.close,.objective,.empty .icon,.attention-item p,.flow-arrow,.fac-branch,.timeline-event.gap strong,.period-note,.tpl-card small,.tpl-card span,.oc-colic,.plant-bus,.cause-tag,.segment-times,.legend,.chart-note,.table-footer,.key-values dt,.reg-check span,.mheader dt{color:var(--text-2)}
+.button{color:var(--text)}
+.chart text{fill:var(--text-2)}
+.chart .grid{stroke:var(--line)}
+/* hairline rules that were hard-coded */
+.attention-item,.key-values dt,.key-values dd,.table-footer,.period-strip,.conf-cause,.value-basis,.panel-bottom,.matrix-row,.change-line,.oc-warn,.ob-grid,.ob-col,.ocard li,.attn li,.moves li,.wfrow,.opp-list li,.review-section,details.tech{border-color:var(--line)}
+.ob-part,.ob-guard,.srcrows th,.srcrows td,.prov span,.oc-info,.why-btn,.why-close,.metertrack,.empty,.dropzone,.capbox,.chain .stage,.fix-tl li,.reg-check{border-color:var(--line-strong)}
+.reg-check.green,.fix-tl li.done{border-color:var(--good)}
+.reg-check.amber{border-color:var(--warn)}
+.fix-tl li.current,.tpl-card.active{border-color:var(--accent)}
+.tpl-card.active{box-shadow:0 0 0 1px var(--accent)}
+.ministeps i.on{background:var(--accent)}
+.steps .dot,.timeline-event:before{border-color:var(--surface)}
+.steps .dot{background:var(--surface);border-color:var(--line-strong)}
+.steps li.done .dot{background:var(--accent);border-color:var(--accent)}
+.steps li.now .dot{box-shadow:0 0 0 4px var(--accent-soft)}
+.gw-dot.none,.sld-legend .dot.none,.oc-sitedots .tone-none i,.timeline-event.gap:before{background:var(--surface)}
+.wfbar.res{background:var(--surface)!important} /* beats the !important in economics.css */
+/* background-color, not the shorthand, so hatched modifiers (.wfbar.mod) keep their background-image */
+.wfbar.total,.wfbar,.cblimit{background-color:var(--text-2)}
+.wfbar.worse,.cbbar.over,.hbar.bad{background-color:var(--bad)}
+.wfbar.better,.hbar.good{background-color:var(--good)}
+.cbbar,.metertrack span,.fill,.oc-meter span,.oc-steps .s2{background-color:var(--accent)}
+.oc-steps .s1{background:repeating-linear-gradient(90deg,var(--accent) 0 4px,var(--accent-soft) 4px 7px)}
+/* modal, drawer, toast */
+.modal-backdrop{background:var(--overlay)}
+.drawer{padding:var(--s5);box-shadow:var(--shadow-md);border-left:1px solid var(--line)}
+.drawer-header{margin-bottom:var(--s4)}
+.drawer-header h2{font-size:var(--fs-xl)}
+.drawer h3{margin:var(--s4) 0 var(--s2)}
+.drawer p{font-size:var(--fs-sm)}
+.close{background:var(--surface);border-color:var(--line);border-radius:var(--r1)}
+.toast{border:1px solid var(--line-strong)}
+/* single-line diagram (SVG classes) */
+.sld .sld-small{fill:var(--text-2)}
+.sld .sld-small.strong,.sld .sld-glyph{fill:var(--text)}
+.sld .sld-head{fill:var(--accent)}
+.sld-sym,.sld-gen,.sld-batcell,.sld-meter,.sld-load{fill:var(--surface)}
+.sld-sym,.sld-meter,.sld-load,.sld-ac{stroke:var(--text)}
+.sld-bus{stroke:var(--text)}
+.sld-box,.sld-box.grid,.sld-box.mon,.sld-cell{fill:var(--surface-2)}
+.sld-box.pv,.sld-box.gen{fill:var(--warn-soft)}
+.sld-box.bat{fill:var(--good-soft)}
+.sld-box.conv{fill:var(--violet-soft)}
+/* inline styles in screens.js that fight dark mode (only these two are fixable without JS) */
+.sld-legend .legend-swatch[style*="#16233f"]{background:var(--text)!important}
+.chart [style*="fill:#a13838"]{fill:var(--bad)!important}
+
+/* 6. Controls: buttons, chips, inputs ----------------------------------------------------------- */
+.button{background:var(--surface);border-color:var(--line-strong);border-radius:var(--r1);padding:6px 12px;font-size:var(--fs-sm);font-weight:500;min-height:32px}
+.button.primary{background:var(--accent-solid);border-color:var(--accent-solid);color:#fff}
+.button.primary:hover{filter:brightness(1.08);background:var(--accent-solid)}
+.chip{background:var(--surface);border-color:var(--line);border-radius:999px;font-size:var(--fs-xs);padding:5px 12px}
+.field{font-size:var(--fs-xs);gap:var(--s1)}
+.field input,.field select,textarea,.site-switch select,.period-custom input,.range-button,.op-select select,.pform input{background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r1);color:var(--text)}
+.field input,.field select{padding:7px 10px;font-size:var(--fs-sm)}
+.range-button{font-size:var(--fs-xs);padding:5px 10px}
+.input-row{gap:var(--s4);margin-bottom:var(--s4)}
+.oc-info,.why-close{background:var(--surface)}
+
+/* 7. Tables: dense, calm, hairline rules, sticky headers in scroll regions ---------------------- */
+table{font-size:var(--fs-sm)}
+th,.ftab thead th,.opts thead th,.cf thead th,.lgrid thead th{font-size:var(--fs-xs);font-weight:600;text-transform:none;letter-spacing:0;color:var(--text-2);background:var(--surface-2);padding:8px 12px;border-bottom:1px solid var(--line)}
+td,.ftab td,.opts td,.cf td,.lgrid td,.ftab tbody th,.opts tbody th,.cf tbody th,.lgrid tbody th{padding:8px 12px;border-bottom:1px solid var(--line);line-height:1.45}
+td small{font-size:var(--fs-xs);line-height:1.45;color:var(--text-2)}
+td.num,th.num,.num{text-align:right}
+tbody tr:hover>td,tbody tr:hover>th{background:var(--surface-2)}
+.table-wrap.scroll-region{max-height:72vh;overflow:auto;border-radius:var(--r1)}
+.scroll-region thead th{position:sticky;top:0;z-index:2;background:var(--surface-2);box-shadow:inset 0 -1px 0 var(--line)}
+.table-footer{font-size:var(--fs-xs);padding-top:var(--s2)}
+.key-values{font-size:var(--fs-sm)}
+.key-values dt,.key-values dd{padding:7px 0}
+
+/* 8. Small-text floor: the earlier sheets go down to 8-10px; lift to the 12px floor ------------- */
+.legend,.chart-note,.attention-item p,.attention-item a,.notice,.statusbar,.value-card p,.value-basis,.value-label,.portfolio-pulse,.portfolio-pulse .pulse-note,.workflow-text,.panel-bottom,.panel-bottom>span,.matrix-head,.matrix-row>span,.portfolio-evidence p,.opportunity-story p,.change-line,.change-line>span:last-child,.outcome-note,.portfolio-context-footer,.oc-stepnote,.oc-key,.oc-mhead,.ob-col h4,.oc-k,.oc-sitedots,.oc-pfgrow,.oc-pfgrow dt,.fix-tl li small,.cellnote,.note,.hero>span,.hero small,.chain .stage small,.chain .stage span,.ocard h4,.wflabel small,.wfval small,.steps li,.prov span,.segment,.segment-times,.timeline-event,.conf-chip,.cause-tag,.prov-tag,.src-tag,.mheader dt,.mheader dd,.period-strip span,.period-note,.reg-steps li,.lifecycle li,.tpl-card small,.tpl-card span,.dv,.attn-k,.oc-chip,.oc-conf,.oc-state,.ec,.lens,.ob-days,.oc-pfdef,.ob-plabel,.metric-link,.gw-src{font-size:var(--fs-xs)}
+.objective-cell{font-size:11px}
+.prose{font-size:var(--fs-sm);line-height:1.6}
+.prose p+p{margin-top:var(--s2)}
+.notice{padding:var(--s2) var(--s3);line-height:1.5;margin-bottom:var(--s4);border-radius:var(--r1)}
+.statusbar{padding:var(--s2) var(--s3);margin-bottom:var(--s4);border-radius:var(--r1)}
+.big-claim{font-size:var(--fs-xl);line-height:1.4}
+.story-claim{font-size:var(--fs-lg);line-height:1.45}
+.attention-item{padding:var(--s2) 0}
+.attention-item h3{font-size:var(--fs-sm)}
+.empty{padding:var(--s6) var(--s5);margin:var(--s3) 0;border-radius:var(--r2)}
+
+/* 9. New utilities (Act first, the plan, decision pages) ---------------------------------------- */
+/* <div class="layout-main-side"><main>…</main><aside class="side-panel panel">…</aside></div> */
+.layout-main-side{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:var(--s4);align-items:start;margin-bottom:var(--s4)}
+.layout-main-side>*{min-width:0}
+.layout-main-side>.panel,.layout-main-side>*>.panel:last-child{margin-bottom:0}
+.side-panel{position:sticky;top:var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
+.side-panel>.panel{margin-bottom:0}
+/* <span class="status-pill is-proposed">Proposed</span> */
+.status-pill{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 10px;border-radius:999px;font-size:var(--fs-xs);font-weight:600;line-height:1;white-space:nowrap;background:var(--surface-3);color:var(--text-2);border:1px solid var(--line)}
+.status-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.status-pill.is-proposed{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+.status-pill.is-approved{background:var(--good-soft);color:var(--good);border-color:var(--good-line)}
+.status-pill.is-waiting{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
+.status-pill.is-done{background:var(--surface-3);color:var(--text-2);border-color:var(--line-strong)}
+.status-pill.is-done::before{content:"\2713";width:auto;height:auto;background:none;font-size:11px}
+/* <span class="who"><strong>Operator executive</strong> approves</span> */
+.who{display:inline-flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-size:var(--fs-sm);color:var(--text-2)}
+.who>strong,.who>b,.who .role{font-weight:600;color:var(--text)}
+.who>strong::after,.who>b::after,.who .role::after{content:"\00b7";margin-left:6px;color:var(--text-2);font-weight:400}
+/* <ul class="action-list"><li class="action-list-head"><span>What</span><span>Owner</span><span>Due</span><span>State</span></li>
+   <li><span class="what">…<small>…</small></span><span class="owner">…</span><span class="due">…</span><span class="state">…</span></li></ul> */
+.action-list{list-style:none;margin:0;padding:0;font-size:var(--fs-sm)}
+.action-list>li{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.3fr) 96px 128px;gap:var(--s3);align-items:center;padding:var(--s2) 0;border-bottom:1px solid var(--line)}
+.action-list>li:last-child{border-bottom:0}
+.action-list>.action-list-head{font-size:var(--fs-xs);font-weight:600;color:var(--text-2);padding-top:0;border-bottom-color:var(--line-strong)}
+.action-list .what{min-width:0;color:var(--text)}
+.action-list .what small{display:block;margin-top:2px}
+.action-list .owner{color:var(--text-2);min-width:0}
+.action-list .due{font-variant-numeric:tabular-nums;color:var(--text-2);white-space:nowrap}
+.action-list .state{justify-self:start}
+/* <div class="kpi-row"><div class="kpi"><div class="kpi-label">…</div><div class="kpi-value">…</div><div class="kpi-sub">…</div></div></div> */
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:var(--s3);margin-bottom:var(--s4)}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3) var(--s4);min-width:0;box-shadow:var(--shadow-sm)}
+.panel .kpi,.side-panel .kpi{background:var(--surface-2);box-shadow:none}
+.kpi-label{font-size:var(--fs-xs);color:var(--text-2);font-weight:500}
+.kpi-value{font-size:var(--fs-xl);font-weight:600;line-height:1.2;margin-top:var(--s1);color:var(--text);font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.kpi-value small{font-size:var(--fs-xs);font-weight:400;color:var(--text-2)}
+.kpi-sub{font-size:var(--fs-xs);color:var(--text-2);margin-top:2px;line-height:1.4}
+/* <button class="theme-toggle" aria-label="Theme: system"><svg class="icon">…</svg></button> */
+.theme-toggle{display:inline-grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text-2);cursor:pointer;flex:none}
+.theme-toggle:hover{background:var(--surface-3);color:var(--text)}
+.theme-toggle .icon,.theme-toggle svg{width:16px;height:16px}
+.theme-toggle[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+
+/* 10. Review bar (review tooling): compact and quiet, every control kept ------------------------ */
+.reviewbar{min-height:32px;padding:3px var(--s4);gap:var(--s3);background:var(--rb-bg);border-bottom:1px solid var(--rb-line);color:var(--rb-text);font-size:var(--fs-xs)}
+.reviewbar .left,.reviewbar .right{gap:var(--s2)}
+.reviewbar strong{letter-spacing:0;font-weight:600}
+.reviewbar button,.reviewbar select,.reviewbar a{background:transparent;border:1px solid var(--rb-line);color:var(--rb-text);padding:2px 8px;border-radius:4px;font-size:var(--fs-xs);line-height:1.4}
+.reviewbar button:hover,.reviewbar a:hover{background:var(--surface-3);text-decoration:none}
+.reviewbar select{background:var(--surface)}
+.book-heading{background:var(--rb-bg);border-color:var(--rb-line);color:var(--rb-text)}
+
+/* 11. Visible focus ------------------------------------------------------------------------------ */
+:is(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.oc-info:focus-visible,.oc-cell:focus-visible,.why-btn:focus-visible,.why-close:focus-visible,.scroll-region:focus-visible,.theme-toggle:focus-visible,.reviewbar :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.ob-sum:focus-visible,.oc-cardlink:focus-visible::after{outline:2px solid var(--focus);outline-offset:-2px}
+.segment:hover,.segment.selected{outline-color:var(--focus)}
+
+/* 12. Breakpoints: laptop (1366, 1280), small laptop/tablet (<1200, <1100), phone (<760, 390) ---- */
+@media (max-width:1400px){
+  .shell{grid-template-columns:196px minmax(0,1fr)}
+  .layout-main-side{grid-template-columns:minmax(0,1fr) 340px}
+  .value-grid{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+  .cards.five{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+}
+@media (max-width:1200px){
+  .layout-main-side{grid-template-columns:minmax(0,1fr)}
+  .side-panel{position:static}
+  .heroes,.ocards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cards{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+}
+@media (max-width:1100px){
+  .canvas{padding:var(--s4)}
+  .topbar{padding:0 var(--s4)}
+  .shell{grid-template-columns:176px minmax(0,1fr)}
+  .tabs{gap:var(--s4)}
+}
+@media (max-width:760px){
+  .shell{grid-template-columns:1fr;min-height:0}
+  .canvas{padding:var(--s4) var(--s4) var(--s5)}
+  .topbar{padding:var(--s2) var(--s4);min-height:52px}
+  h1{font-size:var(--fs-xl)}
+  .metric-value{font-size:var(--fs-xl)}
+  .cards,.cards.three,.cards.five,.value-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .action-list>li{grid-template-columns:minmax(0,1fr) auto;row-gap:2px}
+  .action-list>.action-list-head{display:none}
+  .action-list .owner,.action-list .due{grid-column:1;font-size:var(--fs-xs)}
+  .action-list .state{grid-column:2;grid-row:1}
+  .table-wrap.scroll-region{max-height:none}
+  .reviewbar{padding:4px var(--s3)}
+  .drawer{padding:var(--s4)}
+}
+@media (max-width:420px){
+  .cards,.cards.three,.cards.five,.value-grid,.heroes,.ocards{grid-template-columns:minmax(0,1fr)}
+  .page-heading{flex-direction:column}
+  .heading-actions{flex-wrap:wrap}
+}
+@media print{
+  .table-wrap.scroll-region{max-height:none;overflow:visible}
+  .scroll-region thead th{position:static}
+  .theme-toggle{display:none}
+  .panel,.metric,.kpi{box-shadow:none}
+}

@@ -49,6 +49,11 @@ HOOKS = {
   # click and change handlers: loop-core.js handles its own data attributes first
   ("document.addEventListener('click',e=>{\n", "document.addEventListener('click',e=>{\n if(loopClick(e))return;\n"),
   ("document.addEventListener('change',e=>{", "document.addEventListener('change',e=>{if(loopChange(e))return;"),
+  # rev 16.6 professional pass: plain footer (owner, 19 Nov: no technical words user-facing); review notes stay one click away
+  ("<span>Illustrative mockup data · proposal for implementation · not connected to site telemetry</span><button data-notes>Canonical basis & implementation notes</button>",
+   "<span>Illustrative demo data · not connected to live site data</span><button data-notes>Review notes</button>"),
+  # theme toggle (light, dark, follow the system) in the top bar, before the avatar
+  ("<span class=\"avatar\">BY</span>", "${themeToggle()}<span class=\"avatar\">BY</span>"),
   # initial render moves to the end of loop-init.js (after loop screens register)
   ("window.mockupManifest=SCREENS.map(({render,...meta})=>meta);\nrender();", "/* Layer 4: manifest and initial render() moved to loop-init.js */"),
  ],
@@ -68,6 +73,7 @@ NAMES = [
  (r"MG-DEMO-01", "KOBO-001"),
  (r"CR-DEMO-01", "COLD-THIKA"),
  (r"EV-DEMO-01", "EV-RUI"),
+ (r"Tenant configuration", "Organisation settings"),  # rev 16.6 plain-words pass
 ]
 
 def main():

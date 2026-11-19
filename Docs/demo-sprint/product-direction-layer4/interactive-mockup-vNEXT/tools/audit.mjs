@@ -123,7 +123,7 @@ await page.selectOption('#op-switch', 'lakeside'); await go(url + '#/portfolio')
 out.rev6.tabOrder = await page.evaluate(() => [...document.querySelectorAll('.canvas .tabs a')].map(a => a.textContent.trim()));
 out.rev6.tabOrderOk = JSON.stringify(out.rev6.tabOrder) === JSON.stringify(['Overview', 'Outcomes by site', 'Demand and capacity', 'Act first', 'What changed', 'Scope & coverage']);
 await page.goto(url + '#/portfolio/opportunity'); await page.waitForFunction(() => window.mockupReady); out.rev6.oldRouteRedirect = await page.evaluate(() => location.hash);
-const DVT = 'Design value: the replay has not yet been run on site data';
+const DVT = 'Design estimate: not yet tested on your recorded data';
 out.rev6.dvDecisionPages = {};
 for (const d of ['kobo-generator', 'mto-demand', 'embakasi-schedule', 'kirinyaga-energy', 'mto-inverter']) { await go(url + '#/decision/' + d); out.rev6.dvDecisionPages[d] = await page.evaluate(() => [...document.querySelectorAll('.dv')].map(x => x.textContent)); }
 out.rev6.dvOk = Object.values(out.rev6.dvDecisionPages).every(a => a.length > 0);
