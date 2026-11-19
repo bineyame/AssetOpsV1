@@ -250,39 +250,40 @@ hs_collect() {  # <pid>: it and its descendants, through /proc/<pid>/task/*/chil
         for c in "${kids[@]}"; do hs_collect "$c"; done
     done
 }
-hs_on_signal() {  # <exit code> <signal>: forward that signal to the child's tree, wait up to 5 s, KILL what is left
-    local i p alive
+hs_on_term() {  # TERM, the deliberate stop (D-T1.15a): TERM the child's tree, wait up to 30 s, KILL what is left
+    local i p alive rc
     trap '' TERM HUP INT
     if [[ -n $hs_child ]]; then
         hs_tree=()
         hs_collect "$hs_child"
-        if [[ $2 != TERM ]]; then
-            # INT and HUP from a terminal or a group kill already reach the child. Give it 2 s to finish its own
-            # cleanup before the forwarded copy, so a second KeyboardInterrupt cannot cut the `finally` short.
-            for ((i = 0; i < 20; i++)); do
-                alive=0
-                for p in "${hs_tree[@]}"; do hs_alive "$p" && { alive=1; break; }; done
-                ((alive)) || break
-                read -r -t 0.1 -u "$hs_sleepfd" _
-            done
-            ((alive)) && kill -"$2" "${hs_tree[@]}" 2>/dev/null
-        else
-            kill -TERM "${hs_tree[@]}" 2>/dev/null
-        fi
-        for ((i = 0; i < 50; i++)); do
+        kill -TERM "${hs_tree[@]}" 2>/dev/null
+        for ((i = 0; i < 300; i++)); do
             alive=0
             for p in "${hs_tree[@]}"; do hs_alive "$p" && { alive=1; break; }; done
             ((alive)) || break
             read -r -t 0.1 -u "$hs_sleepfd" _
         done
         kill -KILL "${hs_tree[@]}" 2>/dev/null
+        wait "$hs_child" 2>/dev/null; rc=$?
+        ((rc == 127)) && rc=143
+        exit "$rc"
     fi
-    exit "$1"
+    exit 143
+}
+hs_nsig=0
+hs_on_intr() {  # INT or HUP (D-T1.15a): the first is not forwarded (a terminal or group signal already reached
+                # the child); a second is forwarded once to the tree. No timer, never KILL.
+    hs_nsig=$((hs_nsig + 1))
+    if ((hs_nsig == 2)) && [[ -n $hs_child ]]; then
+        hs_tree=()
+        hs_collect "$hs_child"
+        kill -"$1" "${hs_tree[@]}" 2>/dev/null
+    fi
 }
 trap hs_on_exit EXIT
-trap 'hs_on_signal 143 TERM' TERM
-trap 'hs_on_signal 129 HUP' HUP
-trap 'hs_on_signal 130 INT' INT
+trap hs_on_term TERM
+trap 'hs_on_intr HUP' HUP
+trap 'hs_on_intr INT' INT
 
 # ---- the child: it closes the lock fds, keeps stdin and stays in this process group (D-T1.15) ----
 if ((hs_db)); then
@@ -297,6 +298,11 @@ fi
 hs_child=$!
 for hs_o in "${hs_owners[@]}"; do printf 'child=%s\n' "$hs_child" >> "$hs_o"; done
 
-wait "$hs_child"; hs_rc=$?
-while hs_alive "$hs_child"; do wait "$hs_child"; hs_rc=$?; done
+# A trapped INT or HUP interrupts `wait`; keep waiting, with no limit, and exit with the child's own status.
+while :; do
+    wait "$hs_child"; hs_rc=$?
+    hs_alive "$hs_child" || break
+done
+wait "$hs_child" 2>/dev/null; hs_rc2=$?
+((hs_rc2 != 127)) && hs_rc=$hs_rc2
 exit "$hs_rc"

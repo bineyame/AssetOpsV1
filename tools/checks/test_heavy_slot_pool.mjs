@@ -416,20 +416,60 @@ Start-Sleep -Seconds 120
     } finally { killQuiet(child); killQuiet(h.child.pid); cleanup(r); }
   });
 
-  test("P7c Ctrl-C (SIGINT to the group) reaches a pooled python job: its finally runs, the slot frees", async () => {
+  // D-T1.15a. A python job whose cleanup (a `finally`) takes 9 s; SIGTERM is turned into SystemExit so TERM runs it too.
+  const FIN9 = 'import signal, sys, time\nsignal.signal(signal.SIGTERM, lambda *a: sys.exit(143))\n' +
+               'try:\n    print("started", flush=True)\n    time.sleep(60)\nfinally:\n    time.sleep(9)\n    print("cleanup ran", flush=True)\n';
+  async function finJob(kind) {
     const r = makeRepo();
     const script = path.join(r.root, "fin.py");
-    fs.writeFileSync(script, 'import time\ntry:\n    print("started", flush=True)\n    time.sleep(30)\nfinally:\n    time.sleep(0.3)\n    print("cleanup ran", flush=True)\n');
-    const h = start("bash", [r.sh, "--", "python3", script], { cwd: r.M, detached: true });
-    let child = 0;
+    fs.writeFileSync(script, FIN9);
+    const h = kind === "bash" ? start("bash", [r.sh, "--", "python3", script], { cwd: r.M, detached: true })
+                              : start(PWSH, ["-NoProfile", "-File", r.ps, "--", "python3", script], { cwd: r.M, detached: true });
+    await waitFor(() => ownerField(r.slot(1), "child") !== "", 10000, "the child");
+    const child = Number(ownerField(r.slot(1), "child"));
+    await waitFor(() => h.out().includes("started"), 8000, "python to start");
+    return { r, h, child };
+  }
+  for (const kind of ["bash", "pwsh"]) {
+    test(`${kind === "bash" ? "P7c" : "P8c"} Ctrl-C (SIGINT to the group) on the ${kind} wrapper: a 9 s finally finishes, no KILL, the slot frees`, async () => {
+      const { r, h, child } = await finJob(kind);
+      try {
+        process.kill(-h.child.pid, "SIGINT");
+        const out = await h.done;
+        assert.match(out.stdout, /cleanup ran/, `stdout ${out.stdout} stderr ${out.stderr}`);
+        assert.equal(out.code, 130, out.stderr);
+        assert.equal(alive(child), false);
+        assert.equal(held(r.slot(1)), false);
+      } finally { killQuiet(child); killQuiet(h.child.pid); cleanup(r); }
+    });
+  }
+
+  test("P7d INT to the bash wrapper only: not forwarded (child still running at 5 s); a second INT lets the cleanup finish", async () => {
+    const { r, h, child } = await finJob("bash");
     try {
-      await waitFor(() => ownerField(r.slot(1), "child") !== "", 10000, "the child");
-      child = Number(ownerField(r.slot(1), "child"));
-      await waitFor(() => h.out().includes("started"), 5000, "python to start");
-      process.kill(-h.child.pid, "SIGINT");
+      process.kill(h.child.pid, "SIGINT");
+      await new Promise((res) => setTimeout(res, 5000));
+      assert.equal(alive(child), true, "the child was stopped by a single INT to the wrapper");
+      assert.equal(alive(h.child.pid), true);
+      assert.ok(!h.out().includes("cleanup ran"));
+      process.kill(h.child.pid, "SIGINT");
       const out = await h.done;
       assert.match(out.stdout, /cleanup ran/, `stdout ${out.stdout} stderr ${out.stderr}`);
       assert.equal(out.code, 130, out.stderr);
+      assert.notEqual(out.signal, "SIGKILL");
+      assert.equal(held(r.slot(1)), false);
+    } finally { killQuiet(child); killQuiet(h.child.pid); cleanup(r); }
+  });
+
+  test("P7e TERM to the bash wrapper: the 9 s cleanup finishes inside the 30 s grace, exit is the child's", async () => {
+    const { r, h, child } = await finJob("bash");
+    try {
+      const t0 = Date.now();
+      process.kill(h.child.pid, "SIGTERM");
+      const out = await h.done;
+      assert.match(out.stdout, /cleanup ran/, `stdout ${out.stdout} stderr ${out.stderr}`);
+      assert.equal(out.code, 143, out.stderr);
+      assert.ok(Date.now() - t0 < 30000, `took ${Date.now() - t0} ms`);
       assert.equal(alive(child), false);
       assert.equal(held(r.slot(1)), false);
     } finally { killQuiet(child); killQuiet(h.child.pid); cleanup(r); }

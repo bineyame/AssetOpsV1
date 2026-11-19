@@ -72,7 +72,9 @@ if ($first -like '*.ps1' -and (Test-Path -LiteralPath $first -PathType Leaf)) {
     $childArgs = $rest
 }
 
-# TERM, HUP and INT: kill the child's tree, drop this process's owner files, exit 128+signal (I12b).
+# D-T1.15a. TERM: TERM the child's tree, wait up to 30 s, KILL, drop this process's owner files, exit with the child's
+# status (I12b). INT and HUP on Unix: the first is not forwarded and starts no timer; a second is forwarded once to the
+# tree; never KILL. Windows Ctrl-C keeps killing the child's tree at once.
 if ($PSVersionTable.PSVersion.Major -ge 7 -and ("System.Runtime.InteropServices.PosixSignalRegistration" -as [type])) {
     if (-not ("HeavySlotReaper" -as [type])) {
         Add-Type -TypeDefinition @'
@@ -107,14 +109,28 @@ public static class HeavySlotReaper {
         using (var kp = Process.Start(psi)) { kp.WaitForExit(2000); }
     }
     static bool Alive(int pid) { return Directory.Exists("/proc/" + pid) && !File.ReadAllText("/proc/" + pid + "/stat").Contains(") Z"); }
+    static int nsig = 0;
+    static bool Unix { get { return Environment.OSVersion.Platform == PlatformID.Unix; } }
+    // INT or HUP on Unix: wait for the child with no limit; forward only the second signal, once, never KILL.
+    static void Interrupt(PosixSignalContext ctx, string sig) {
+        ctx.Cancel = true;
+        int n = System.Threading.Interlocked.Increment(ref nsig);
+        Process p = child;
+        if (n == 2 && p != null) {
+            try {
+                var tree = new System.Collections.Generic.List<int>();
+                if (!p.HasExited) { Collect(p.Id, tree); Signal(sig, tree); }
+            } catch { }
+        }
+    }
     static void Stop(PosixSignalContext ctx, int code) {
         ctx.Cancel = true;
         Process p = child;
-        // As heavy-slot.sh: TERM the tree, wait up to 5 s, then KILL what is left.
+        // As heavy-slot.sh: TERM the tree, wait up to 30 s, then KILL what is left.
         var tree = new System.Collections.Generic.List<int>();
-        try { if (p != null && !p.HasExited) { Collect(p.Id, tree); Signal("TERM", tree); } } catch { }
+        try { if (p != null && !p.HasExited) { if (Unix) { Collect(p.Id, tree); Signal("TERM", tree); } else p.Kill(true); } } catch { }
         try {
-            var until = DateTime.UtcNow.AddSeconds(5);
+            var until = DateTime.UtcNow.AddSeconds(30);
             while (DateTime.UtcNow < until && tree.Exists(x => { try { return Alive(x); } catch { return false; } })) System.Threading.Thread.Sleep(100);
         } catch { }
         try { Signal("KILL", tree.FindAll(x => { try { return Alive(x); } catch { return false; } })); } catch { }
@@ -122,12 +138,13 @@ public static class HeavySlotReaper {
         foreach (var path in owners) {
             try { if (Array.IndexOf(File.ReadAllLines(path), "pid=" + Environment.ProcessId) >= 0) File.Delete(path); } catch { }
         }
+        try { if (p != null && p.HasExited) code = p.ExitCode; } catch { }
         Environment.Exit(code);
     }
     public static void Register() {
         try { term = PosixSignalRegistration.Create(PosixSignal.SIGTERM, ctx => Stop(ctx, 143)); } catch { }
-        try { hup = PosixSignalRegistration.Create(PosixSignal.SIGHUP, ctx => Stop(ctx, 129)); } catch { }
-        try { intr = PosixSignalRegistration.Create(PosixSignal.SIGINT, ctx => Stop(ctx, 130)); } catch { }
+        try { hup = PosixSignalRegistration.Create(PosixSignal.SIGHUP, ctx => { if (Unix) Interrupt(ctx, "HUP"); else Stop(ctx, 129); }); } catch { }
+        try { intr = PosixSignalRegistration.Create(PosixSignal.SIGINT, ctx => { if (Unix) Interrupt(ctx, "INT"); else Stop(ctx, 130); }); } catch { }
     }
 }
 '@
