@@ -37,3 +37,10 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's answers to the three open questions (plan vs Action, spend threshold, deviation tolerance)
 
 > 1.i believe a plan is  a legitmate new construct and need to be added as such and integrated with the existing constructs. e.g an action be raised against a plan or a finding. push back if i got this wrong 2.this should be configurable and a matter of site/portfolio setting 3. yes configurable tolerance should dictate this
+
+## Coordinator's refinement on the plan (owner approved passing it to the Architect: "yes, pass the refinement to the architect")
+
+Coordinator's text, as given to the owner:
+- An Action's **origin** is either a Finding (reactive: something observed) or a plan item (proactive work no Finding triggered: scheduled maintenance, a budgeted battery replacement, a new customer connection, an expansion).
+- Separately, an Action has a **plan membership** (what it is funded and scheduled under): an Action raised against a Finding that spends shared budget or crew time also joins the period's plan, so the executive approves it with everything else.
+- Rule: one origin per Action, plus at most one plan membership, so the same work is never counted twice.
