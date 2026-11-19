@@ -1,6 +1,6 @@
 # Website content: what the site says now, what it says is coming, and the rules every line passes
 
-**AssetEcon · go-to-market document for the owner and the site editor · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.8 and the owner's commercial answers of 19 Nov (T2 and T13 now met)**
+**AssetEcon · go-to-market document for the owner and the site editor · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.9 and the owner's commercial answers of 19 Nov (T2 and T13 now met)**
 
 **Status.** Recreated from scratch at the owner's order (`.agent/owner-recreate-document-packs-2026-11-19.md`; document #10 in `regeneration/F-pack-recreation-plan.md`). It replaces the copy deck of 18 Nov. The recommendation for the owner's site repository (#11) follows from this document, later and separately.
 
@@ -69,6 +69,8 @@ These lines come from design §1.1, §1.2 and §1.4. Each is something the produ
 > Running today on cold rooms: temperature excursions and backup starts. On EV depots: sessions, energy and charger availability.
 
 > Every site and the portfolio are read in four categories: Grow, Optimize, Protect and Assure. Each names the records still missing.
+
+> Coming: the same four headings, each built from the figures that make it up, with how each figure is known.
 
 > Not yet connected: billing, payments, budgets and contracts. Where a record is missing, the screen says so; it is never shown as zero.
 

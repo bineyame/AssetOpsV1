@@ -1,6 +1,6 @@
 # Commercial approach: what converts operator executives, how they engage, and the first committed pilot
 
-**AssetEcon · go-to-market document for the owner · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.8 and the owner's commercial answers of 19 Nov (C2, C12 to C15)**
+**AssetEcon · go-to-market document for the owner · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.9 and the owner's commercial answers of 19 Nov (C2, C12 to C15)**
 
 **Status.** Recreated from scratch at the owner's order (`.agent/owner-recreate-document-packs-2026-11-19.md`; `regeneration/F-pack-recreation-plan.md`, document #9). It replaces revision 4.1 of 18 Nov, whose framing predates the design's Part 2; only its selling facts are kept.
 
@@ -33,7 +33,7 @@ No conversion rate, market size or competitor capability is claimed. `render_com
 | Open for the owner | Seven items, each with a default (§8). The offer's terms (C2, C12, C13) and the owner's month (C14, C15) were decided on 19 Nov. The owner's weigh-in now matters most on C10, the second person who checks each mapping, and on D15, the first change |
 
 ## 1. What converts an executive, and why it should
-<!--derives: Part 1; §1.1; §1.5; §2.0; §2.2; §2.4; §2.5; §2.6; §2.7; Figure 3; Figure 5; WP §1.1; WP §1.2; WP §1.3; WP §1.5-->
+<!--derives: Part 1; §1.1; §1.5; §2.0; §2.2; §2.4; §2.5; §2.6; §2.7; Figure 1b; Figure 3; Figure 5; OD-21; WP §1.1; WP §1.2; WP §1.3; WP §1.5-->
 
 *Serves the objective:* this is the differentiation. Executives already see what their assets did. What they lack is economic judgement across their systems: why the month came in below target, which lever moves it, what it is worth, and whether it paid off (design Introduction).
 
@@ -42,6 +42,8 @@ No conversion rate, market size or competitor capability is claimed. `render_com
 Today's product turns Site evidence into honest, bounded operational judgement that a person can act on and later verify (design §1.1). For a mini-grid it answers five questions: what happened and how sure we are; whether fuel is missing; what it might be worth, as a modelled range never summed; what to look at first and what can be done; and whether the response was made and worked. Money is credited only after a Verified verdict.
 
 This is the base of the sale: today's product already labels how every figure is known, never adds figures of different kinds, names missing records, and claims savings only after proof (design Rules). What it cannot yet do is state money or record who decided (design §1.5, L1–L6, G1).
+
+**The four headings the executive already knows stay** (OD-21). Grow revenue, Optimize cost and efficiency, Protect asset and capital, and Assure performance and returns remain the Portfolio's headings. What changes is underneath: each heading is built from the factors under it, so a buyer reads their money by the headings they think in, and Grow and Optimize together explain the contribution gap (design Figure 1b). Productive use is Grow; headroom with no customer is shown as potential, never as Grow's actual.
 
 ### 1.2 What is added on top, and what each should do for the buyer
 
@@ -122,7 +124,7 @@ flowchart LR
 |---|---|---|---|---|
 | **Initial call** | today's product live on their vertical, and the coming constructs on the mock-up once the owner approves it for clients (D12); then alignment | an hour of executive time | owner | free |
 | **Deep-dive with process owners** | their sources mapped to the canonical contract; their own target against actual in the product, reconciled to one closed month (safeguard 1); the first change valued against doing nothing and its prediction frozen (D15) | files they already export for three Sites, one to four months; a signed data agreement; a few hours from each process owner | owner, the product computing | no fee, timeboxed, only after the four checks and a signed data agreement (C12, decided) |
-| **Integration pack and pilot timeline** | which sources come in what order (files first, then feeds); the pilot's scope, dates and success criteria; the five roles named, with each person's sign-in and the roles their executive grants (OD-13, OD-14); the executive's budget, spend threshold and crew-visit threshold set (OD-2, OD-12) | their IT's time; the signer's commitment (safeguard 2) | owner and their IT | the pilot fee, credited against the first subscription year if they subscribe within 60 days (C2, decided) |
+| **Integration pack and pilot timeline** | which sources come in what order: files first (EMS, billing and budget exports), then the EMS API, then the edge gateway over Modbus on their hardware (OD-22); the pilot's scope, dates and success criteria; the five roles named, with each person's sign-in and the roles their executive grants (OD-13, OD-14); the executive's budget, spend threshold and crew-visit threshold set (OD-2, OD-12) | their IT's time; the signer's commitment (safeguard 2) | owner and their IT | the pilot fee, credited against the first subscription year if they subscribe within 60 days (C2, decided) |
 | **Pilot and monitoring** | a monthly review on their data; the first change proved operationally, then in money, then as caused; one more change the same way | continuing exports; the process owners' time; approval of each plan version | the product, the owner overseeing | the pilot fee |
 | **SaaS** | the loop every month on all their Sites | a subscription | – | a framework of options (§4) |
 
