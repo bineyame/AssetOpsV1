@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-W1-10 to D-WARM.8)
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-W1-10 to D-T1.10)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
 
@@ -24,3 +24,13 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-WARM.6` Retries on race, unstored and composed are accepted,… · live · specs/OWN-GAPS/rulings-6.md:305
 - `D-WARM.7` WARM-1 review L2: warm the Findings state chips… · live · specs/OWN-GAPS/rulings-7.md:186
 - `D-WARM.8` Portfolio scope-ids under each lens are warmed · live · specs/OWN-GAPS/rulings-7.md:230
+- `D-T1.1` T1 One pool: check-all's two slots · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.2` T1 Lock protocol: exclusive flock, held by the wrapper only · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.3` T1 Nesting by a verified marker · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.4` T1 Database jobs: the DB lock plus one slot · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.5` T1 What is pooled: tsc, vitest, all backend pytest, captures, DB jobs · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.6` T1 Enforcement: Claude Code PreToolUse hook plus the rule · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.7` T1 Not pooled: check-all and long-running servers · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.8` T1 Class fix: document sweep of copyable commands · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.9` T1 select-tests exemptions for the pool files · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.10` T1 Windows by parity, not hardware · live · specs/T1-heavy-tool-slot-pool/rulings.md
