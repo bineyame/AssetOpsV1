@@ -17,3 +17,7 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's addition (on size and form)
 
 > also, i don't need a large doc, i want very intentional, clearly explained , well illustrated document that addressess the core topics well
+
+## Owner's addition (on diagrams)
+
+> also let the architect add sequence and usecase diagrams , process flows..etc for clarity with mingrid for demonstration
