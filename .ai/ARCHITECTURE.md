@@ -3,7 +3,8 @@
 ## Source And Implementation Status
 
 Simulator direction is normative in `Docs/simulator_design_v4.md`; demo
-sequencing is in `Docs/mini-grid-demo-architecture-and-roadmap.md`.
+sequencing was in `Docs/archive/2026-09/mini-grid-demo-architecture-and-roadmap.md`
+(archived 2026-11-18; the live sequencing is the Site-first plan in `.ai/START_HERE.md`).
 This file records the protected seams and points to those mechanics, not their
 full implementation specification. `.ai/CODE_STATE.md` records what is built.
 

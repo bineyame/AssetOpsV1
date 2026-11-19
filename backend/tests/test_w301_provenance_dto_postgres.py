@@ -1,6 +1,6 @@
 """W3-01 commit 1: the shared public `source_provenance` DTO over PostgreSQL.
 
-`.agent/W3-01-build-spec.md` "Shared provenance DTO resolution", "Review closure" B8/B10 and "Review closure 2"
+`specs/W3-01/` "Shared provenance DTO resolution", "Review closure" B8/B10 and "Review closure 2"
 D2/D6; `D-2026-10-20-shared-provenance-dto` and its amendments. Every vector is a real stored binding (authored
 P01/P02, one and two registered runs, unbound uploads) or a missing, foreign-Site, foreign-tenant or broken link
 (built inside a rolled-back transaction, as `test_s405_resolver_postgres.py` does). Each asserts the public keys,

@@ -3,7 +3,7 @@
 Status: in_review
 
 Lane C (commercial). Branch `task/CC-R1-claim-links-beneficiary`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-cc`.
-The implementation contract is `.agent/build-spec-commercial-2026-10-27.md` section 0.4 and section "CC-R1", including "Implementer questions and resolutions". The index is `.agent/build-sequence-2026-10-27.md`.
+The implementation contract is `specs/Lane-C/` section 0.4 and section "CC-R1", including "Implementer questions and resolutions". The index is `archive/agent-history/build-sequence-2026-10-27.md`.
 
 PYTHONPATH (PowerShell):
 ```
@@ -18,4 +18,4 @@ $env:PYTHONPATH = "C:\Users\assef\Bineyame\AssetOpsV1-cc\backend;C:\Users\assef\
 - Tier 2: `test_w303_portfolio_comparison_postgres.py` and `test_w303_portfolio_fixture_postgres.py`.
 - Stop: adding `beneficiary` breaks an exact-key test outside `test_w303_*`.
 
-Wording questions `.agent/CC-R1-questions.md` Q1/Q2 are ruled and applied. Packet: `.agent/CC-R1-review-packet.md`.
+Wording questions `archive/agent-history/CC-R1-questions.md` Q1/Q2 are ruled and applied. Packet: `archive/agent-history/CC-R1-review-packet.md`.

@@ -1,4 +1,4 @@
-"""W4-03 unit 2b: the mini-decision routes (`.agent/W4-03-build-spec.md` "API, exact wire, ordering and errors";
+"""W4-03 unit 2b: the mini-decision routes (`specs/W4-03/spec.md` "API, exact wire, ordering and errors";
 closure 1 Q1-Q3/Q12-Q16; closure 2 Q1; closure 4 B2, S10, S15, N8).
 
 - `GET /api/sites/{site_code}/financials/scenarios?from=&to=&known_at=&limit=&cursor=` (`mini-scenarios-1`).

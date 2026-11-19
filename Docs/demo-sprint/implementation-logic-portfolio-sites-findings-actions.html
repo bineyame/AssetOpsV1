@@ -1511,7 +1511,7 @@ ol.rank>li{margin:8px 0}
     <li>Commercial Capability Architecture rev 6, 29 Oct (<code>Docs/demo-sprint/commercial-capability-readiness.html</code>): "Most of the mockup is wiring and labelling over existing reads … built first from what exists".</li>
     <li>Dates: Portfolio <code>estate/portfolio.py</code> created in W3-03 (450f5f9fe, 2026-10-21); <code>site_outcomes/board.py</code> in OUT-B1 (6e5ff8306, 2026-10-30).</li>
     <li>Composers take ports onto existing services (<code>B/site_outcomes/read.py:210 mini_ports</code>, <code>:292 cold_ports</code>, <code>:307 ev_ports</code>), so the Cold lab copies an API path as its link (<code>cold.py:217</code>).</li>
-    <li>LINK-LINEAGE (31 Oct) fixed the Action join on the board only: "Do not touch <code>estate/**</code> (the estate Finding→Action join … stays exact; out of scope)" (<code>.agent/build-sheet-LINK-LINEAGE.md:17,63</code>; <code>D-2026-10-31-board-action-refresh-lineage</code>, <code>.ai/DECISIONS.md:4355</code>).</li>
+    <li>LINK-LINEAGE (31 Oct) fixed the Action join on the board only: "Do not touch <code>estate/**</code> (the estate Finding→Action join … stays exact; out of scope)" (<code>specs/LINK-LINEAGE/spec.md:17,63</code>; <code>D-2026-10-31-board-action-refresh-lineage</code>, <code>.ai/DECISIONS.md:4355</code>).</li>
   </ul>
 </td></tr>
 <tr><td><b>RC2</b> Finding identity is shaped by its first mechanism</td><td>
@@ -1524,9 +1524,9 @@ ol.rank>li{margin:8px 0}
   </ul>
 </td><td>
   <ul>
-    <li>W4-03 build spec: <code>finding</code> requires <code>anchor_assessment_revision_id</code>, and <code>finding_revision</code> requires dispatch minutes. "A renewable opportunity cannot be inserted with fabricated dispatch IDs/minutes. New typed opportunity tables and union adapters below own this gap" (<code>.agent/W4-03-build-spec.md:9-10</code>, migration 0009).</li>
+    <li>W4-03 build spec: <code>finding</code> requires <code>anchor_assessment_revision_id</code>, and <code>finding_revision</code> requires dispatch minutes. "A renewable opportunity cannot be inserted with fabricated dispatch IDs/minutes. New typed opportunity tables and union adapters below own this gap" (<code>specs/W4-03/spec.md:9-10</code>, migration 0009).</li>
     <li>The planned "typed <code>mini_opportunity</code> arm to the Site/estate Opportunity lens" was never built (<code>B/estate/index.py:127-128</code> sets no OPPORTUNITY flag).</li>
-    <li>OUT-C knew this: "Opportunities (none exist now, so that list renders nothing)" (<code>.agent/build-sheet-OUT-C.md:230-231</code>).</li>
+    <li>OUT-C knew this: "Opportunities (none exist now, so that list renders nothing)" (<code>specs/OUT-C/spec.md:230-231</code>).</li>
     <li>Cold and EV recurrence is roadmap step 8, horizon H1–H2, not built (rev 6 §11.2).</li>
   </ul>
 </td></tr>
@@ -1538,7 +1538,7 @@ ol.rank>li{margin:8px 0}
   </ul>
 </td><td>
   <ul>
-    <li>OUT-E's stated outcome: "the Optimize cost row's Earlier interventions entry and the Assure row's Verified results line show …" (<code>.agent/build-sheet-OUT-E.md:11-15</code>).</li>
+    <li>OUT-E's stated outcome: "the Optimize cost row's Earlier interventions entry and the Assure row's Verified results line show …" (<code>specs/OUT-E/spec.md:11-15</code>).</li>
     <li>Rev 6 §4.4: "Today this runs to VERIFIED. The reassessment and the before-and-after status are missing (11.2, step 5)." Step 5 was then built as text.</li>
     <li>The design document assumes closure ("later recurrence able to reopen the Finding", <code>production-shaped-mvp.md:57</code>), but no closing transition exists (<code>finding_episode.py:39-42</code> lists only UNCONFIRMED and NO_LONGER_SUPPORTED).</li>
     <li>Domain Actions are "never a verification outcome" (<code>B/work/domain_action.py:8</code>).</li>
@@ -1551,7 +1551,7 @@ ol.rank>li{margin:8px 0}
   </ul>
 </td><td>
   <ul>
-    <li>OUT-W added <code>LATEST_EVENT</code> for the Cold lab and EV depot and left Kobo on "the UTC day of <code>to</code>" (<code>.agent/build-sheet-OUT-W.md:17,87-104</code>).</li>
+    <li>OUT-W added <code>LATEST_EVENT</code> for the Cold lab and EV depot and left Kobo on "the UTC day of <code>to</code>" (<code>specs/OUT-W/spec.md:17,87-104</code>).</li>
     <li>COV-PARTIAL defined estate checked days (<code>coverage.py:216</code>).</li>
     <li>WALK1-3b defined MG-1 checked days as "any GOOD coverage" (<code>build-sheet-WALK1.md</code> A2.2; <code>mini.py:570</code>).</li>
     <li>W4-03 and WALK1-5 defined the noon-hour study days (<code>rules.py:393-411</code>).</li>
@@ -1667,10 +1667,10 @@ ol.rank>li{margin:8px 0}
   <li><b>Work dir</b>: <code>var/polish_full/{story,days,kobo,cold,ev,objectives,check,manifest}.json</code>.</li>
   <li><b>Specs and history</b>:
     <ul>
-      <li><code>AssetOpsV1-plan2/.agent/build-sheet-WALK1.md</code> (verdicts, Addendum 2 on separating KPI and potential);</li>
+      <li><code>AssetOpsV1-plan2/specs/WALK1/</code> (verdicts, Addendum 2 on separating KPI and potential);</li>
       <li><code>.agent/decisions-while-owner-away-2026-11-02.md</code> (D-W1-7…23);</li>
       <li><code>.agent/owner-walkthrough-notes-2026-11-01.md</code>;</li>
-      <li>polC <code>.agent/POLISH-runbook.md</code>, <code>.agent/WALK1-G2-report.md</code>;</li>
+      <li>polC <code>archive/agent-history/POLISH-runbook.md</code>, <code>.agent/WALK1-G2-report.md</code>;</li>
       <li><code>frontend/docs/architecture/production-shaped-mvp.md:57</code>;</li>
       <li>v70 mock <code>frontend/mockups/v70/portfolio.js</code> (Finding F-109 "Productive-use headroom").</li>
     </ul>

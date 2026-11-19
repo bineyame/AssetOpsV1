@@ -1,12 +1,12 @@
 """OUT-E E2: the modelled cost change after a verified generator trial (pure, exact `Fraction` arithmetic).
 
-`.agent/build-sheet-OUT-E.md` E2, with the CC-D2 "Interfaces", "Reason conditions", "Compute" and "Output split" of
+`specs/OUT-E/spec.md` E2, with the CC-D2 "Interfaces", "Reason conditions", "Compute" and "Output split" of
 the commercial design spec. Per window: fuel = SFC x generator kWh (upper x `fuel_cost.MULTIPLIER`), cost = fuel x
 diesel price, cost per kWh of feeder demand = cost / feeder kWh. The change is baseline - later, nominal and upper;
 `MODELLED_IMPROVEMENT` iff the nominal change is > 0. The intervention cost is stated beside the change and never
 subtracted from it (it is a total; the change is per kWh). No annualising, no realised-savings claim.
 
-FUEL-1 A2 (`.agent/build-sheet-FUEL-1.md` §4.2): `trial-fuel-comparison/2` applies iff one positive declared
+FUEL-1 A2 (`specs/FUEL-1/` §4.2): `trial-fuel-comparison/2` applies iff one positive declared
 generator no-load fuel rate r (L/h) is in force over each of the two windows. Its window fuel adds the idle term,
 SFC x generator kWh + r x idle seconds / 3600 (upper x the same multiplier), and a MODELLED_IMPROVEMENT result gains
 the stored, priced total of the trial hour (`priced_total`, stored only when the amount is above 0). Without a rate in force over both windows the result is

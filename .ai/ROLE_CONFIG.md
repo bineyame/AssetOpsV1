@@ -38,7 +38,7 @@ resumed. State in every review which reviewer produced it.
 - When the owner is away and has delegated, the Architect decides and each call
   is logged for owner review; reviews still gate merges.
 - Options put to the owner include what the owner already asked for (check the
-  `.agent/owner-*.md` files first), and a workaround is called a workaround.
+  `owner/` files first), and a workaround is called a workaround.
 - A contest within 5% between the top two candidates goes back to the owner.
 
 ## Dispatch rules (coordinator)

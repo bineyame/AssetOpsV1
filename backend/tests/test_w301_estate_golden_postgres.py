@@ -1,6 +1,6 @@
 """W3-01 commit 2: the structural `w301-estate-golden/2` manifest replayed through the public estate router.
 
-Spec: `.agent/W3-01-build-spec.md` "Run 9 rulings (q9)" item 1, with the Finding wire `estate-finding-index-2`
+Spec: `specs/W3-01/rulings-3.md` "Run 9 rulings (q9)" item 1, with the Finding wire `estate-finding-index-2`
 (Run 8 rulings 3 and 5). One manifest, separate `mini_grid`, `cold`, `ev` and `mixed` branches; each branch runs in
 its own private test DB (a parametrized replay of the one test); the `mixed` branch builds all four Sites in that one
 DB (q10 ruling 1). Every expected body is the whole normalized

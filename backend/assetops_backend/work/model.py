@@ -1,4 +1,4 @@
-"""W4-01 commit 2: pure work-case rules (`.agent/W4-01-build-spec.md`).
+"""W4-01 commit 2: pure work-case rules (`specs/W4-01/`).
 
 Refusal codes and messages ("API wire and refusals", S14-S17, Q6/Q28, Run 1 ruling 1), the state table and its
 pure reducer over `(recorded_at, id)` ("Identity, time and frozen domain rules"), closed command shapes (B4), the

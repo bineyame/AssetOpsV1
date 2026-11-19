@@ -1,6 +1,6 @@
 # FIX-W301 Estate index test fixtures
 
-Status: **in_review**. Test-fixture fix only; no product code changed. Packet: [.agent/FIX-W301-packet.md](../.agent/FIX-W301-packet.md).
+Status: **in_review**. Test-fixture fix only; no product code changed. Packet: [archive/agent-history/FIX-W301-packet.md](../archive/agent-history/FIX-W301-packet.md).
 
 ## Scope
 

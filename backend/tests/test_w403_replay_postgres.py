@@ -1,6 +1,6 @@
 """W4-03 unit 9a: the private two-Site replay of `backend/tests/fixtures/w4/w403-mini-decisions.json`.
 
-`.agent/W4-03-build-spec.md` "Fixture and one-run commit proof", closure 2 Q1, closure 4 B1/B2/S6/S16 and u5 9a. The
+`specs/W4-03/spec.md` "Fixture and one-run commit proof", closure 2 Q1, closure 4 B1/B2/S6/S16 and u5 9a. The
 replay is `tools/w403_mini_decisions_walkthrough.py:run_replay` itself; here its HTTP side is a TestClient over
 `main.create_app` with the walkthrough's two injected callbacks, so the same bearer/scope/grant rules apply. W4-01
 cases are seeded in process through `WorkService` (B2); nothing inserts accepted evidence directly.

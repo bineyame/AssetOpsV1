@@ -1,5 +1,5 @@
 /**
- * W3-02 commit 4 named frontend tests (`.agent/W3-02-build-spec.md` "Proof and builder handoff"): the estate
+ * W3-02 commit 4 named frontend tests (`specs/W3-02/` "Proof and builder handoff"): the estate
  * Financials root under a local MemoryRouter (Lane A mounts the shell route), against the v6.9 `globalfinancials`
  * panel structure, with every column, chip, link, note and grouping result asserted. Bodies are shaped as the
  * reviewed `estate-financials-1` wire; IDs are synthetic, and no mock Site, value or basis survives.

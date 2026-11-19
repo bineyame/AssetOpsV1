@@ -1,6 +1,6 @@
 """Source clock attestations: the public proof that lets S3 order a channel by source time (LR-01 phase 1).
 
-Authority: `D-2026-10-15-lr01-source-time-cohort` and `.agent/architect-LR-01-answers.md` (Q1-Q4, Follow-up M1).
+Authority: `D-2026-10-15-lr01-source-time-cohort` and `archive/agent-history/architect-LR-01-answers.md` (Q1-Q4, Follow-up M1).
 
 An attestation is scoped to one tenant/Site/registered source/sequence epoch. It names its authority, the
 proven maximum UTC error of the source clock (an admission ceiling of 60 seconds, not a claim about any

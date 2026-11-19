@@ -1,7 +1,7 @@
 /**
  * Read-only client for a cold-chain Site's selected configuration
  * (`GET /api/sites/{code}/cold/foundation?at=`, W2-01; design
- * `.agent/W2-technical-design-cold.md` section 3 D-I).
+ * `archive/agent-history/W2-technical-design-cold.md` section 3 D-I).
  *
  * The read describes configuration only: rooms and their policy band, the
  * configured topology, channel bindings, readiness messages, commissioning

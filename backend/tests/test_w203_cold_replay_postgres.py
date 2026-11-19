@@ -1,6 +1,6 @@
 """W2-03 commit 3: the cold worker over the six registered W2-02 replays, through authenticated Batch V2 intake.
 
-`.agent/W2-03-build-spec.md` "Commits 3-5 exact contract", commit 3. Each case runs the W2-02 chain (real gateway
+`specs/W2-03/spec.md` "Commits 3-5 exact contract", commit 3. Each case runs the W2-02 chain (real gateway
 process, Batch V2 over TLS into the S2 ledger) in a fresh private `*_test` database; the only setup added here is
 the SYSTEM attester's labelled simulated clock attestation for the lab's sources, recorded before any upload
 (the cold rules need an attested source clock). Accepted rows are never inserted by hand; negative records enter

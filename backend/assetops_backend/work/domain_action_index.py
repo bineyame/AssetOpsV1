@@ -1,6 +1,6 @@
 """W5-02a K1b / W5-04a V1b: the domain Action detail (cold, EV) and the Site Action union index (reads only).
 
-`.agent/W5-02-build-spec.md` "Command/read wire", "Site Action index", "Backend wire ... (K1a-K1c)" lines K1b,
+`specs/W5-02/` "Command/read wire", "Site Action index", "Backend wire ... (K1a-K1c)" lines K1b,
 and the Architect pre-flight ruling B1-B3:
 
 - `GET /api/sites/{site_code}/domain-work/actions/{action_id}?known_at=` -> `domain-action-intent-read-1`.

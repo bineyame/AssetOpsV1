@@ -1,4 +1,4 @@
-"""DIESEL-K5 (`.agent/build-sheet-DIESEL-1.md` §9l.2, ruling DIESEL-1-R3l): the fuel-balance night and fuel Finding
+"""DIESEL-K5 (`specs/DIESEL-1/` §9l.2, ruling DIESEL-1-R3l): the fuel-balance night and fuel Finding
 reads.
 
 - `GET /api/sites/{site_code}/fuel-balance/nights?from=&to=&known_at=` has two forms (D-SR.55), told apart by a `T`

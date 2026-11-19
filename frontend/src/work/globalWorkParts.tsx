@@ -1,5 +1,5 @@
 /**
- * W6-01b B2 (`.agent/W6-01-build-spec.md` "B1-B3 pre-flight rulings" P-B2-1): the global work list parts shared by
+ * W6-01b B2 (`specs/W6-01/` "B1-B3 pre-flight rulings" P-B2-1): the global work list parts shared by
  * the Incidents (A2), Maintenance (B2), Preventive (B3) and Operational records (E2) roots, extracted from the A2
  * page without changing its DOM, `data-*` hooks, copy, URLs or behaviour: the trail, the three-line clamp, the
  * link-or-text cell, the A2Q6 refusal block, the control bar, the status line, the A2Q10 pager, the A2Q4 work

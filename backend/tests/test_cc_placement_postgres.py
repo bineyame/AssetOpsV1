@@ -1,7 +1,7 @@
 """CC-R2 (D5) producer assertions on the W3-03 `build_portfolio_fixture` (cold `excursion`, EV `complete`, KOBO-001
 W1; one `demo` tenant; a `*_test` DB). Needs ASSETOPS_TEST_DATABASE_URL.
 
-CC-00 facts pinned from this fixture (recorded in `.agent/CC-R2-review-packet.md`): both selected cold Findings
+CC-00 facts pinned from this fixture (recorded in `archive/agent-history/CC-R2-review-packet.md`): both selected cold Findings
 (`COLD_EXCURSION` and `COLD_START_FAILURE`) have a null stored `episode_end`, so each is ACT_NOW with
 `EPISODE_OPEN` + `NO_ACTION_RECORDED`; the EV `complete` producer selects no EV Finding, so no EV row exists in this
 fixture (pinned as `ev == []`); KOBO-001's W1 row is PRICED in a SINGLE_LINE group with a closed episode, so it is

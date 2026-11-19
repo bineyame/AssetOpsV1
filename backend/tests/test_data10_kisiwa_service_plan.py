@@ -1,6 +1,6 @@
 """DATA-10 (D-17N.4, K14): Kisiwa's generator service plan on the story calendar. No database: the story resolution and
 the `WorkService.post_plan` call are pinned with a fake service; the Postgres proof is the VPS scratch prepare named in
-`.agent/DATA-17N-packet.md`."""
+`archive/agent-history/DATA-17N-packet.md`."""
 
 from __future__ import annotations
 

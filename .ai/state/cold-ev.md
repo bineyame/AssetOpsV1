@@ -2,7 +2,7 @@
 
 ## W2-01 - cold Foundation, readiness and configured topology (built, in_review)
 
-Branch `task/W2-01-cold-foundation` (base main `8e0af014`; design `.agent/W2-technical-design-cold.md` section 3 A-I, panel map section 6). Packet `.agent/W2-01-review-packet.md`; phase-1 handoff `.agent/W2-01-phase-1-handoff.md`.
+Branch `task/W2-01-cold-foundation` (base main `8e0af014`; design `archive/agent-history/W2-technical-design-cold.md` section 3 A-I, panel map section 6). Packet `archive/agent-history/W2-01-review-packet.md`; phase-1 handoff `archive/agent-history/W2-01-phase-1-handoff.md`.
 
 - Backend (phase 1): `0021_w2_cold_config` no-op anchor; cold component types, node roles, media, `event`/`degC` units and the 13 `cold-*` properties in `sites/models.py`/`foundation_parsing.py`; immutable `cold-roles-1` (14 roles, EVENT value kind, role-specific state ENUMs, 300 s periodic cadence) in `sites/binding_roles.py`; `sites/cold_foundation.py` validator (runs on import and every revision) and `cold_foundation_document`; `GET /api/sites/{code}/cold/foundation?at=` (`cold_foundation_api.py`); `FoundationService.publish_topology`; W2-00 Low 2 folded (`ChannelMapping.role`, ledger `MAPPING_INCOMPATIBLE` on role drift, `BINDING_CHANNEL_ROLE_MISMATCH`). Fixtures `backend/tests/fixtures/w2/cold-00{1,2}.yaml` + `backend/conversions/cold-00{1,2}-bindings.json`.
 - Frontend (phase 2): `SiteFoundationFrame` reads the Site record (`useSiteRecord`) and, for `site_type=COLDCHAIN`, renders `sites/ColdFoundationViews.tsx` (`ColdFoundationFrame`) from `sites/coldFoundationClient.ts` on the existing `/foundation`, `/foundation/readiness`, `/foundation/sld` routes; MINIGRID is unchanged. A refused Foundation read waits for the record before choosing views.
@@ -15,7 +15,7 @@ Branch `task/W2-01-cold-foundation` (base main `8e0af014`; design `.agent/W2-tec
 
 ## W2-03 - cold assessment, episodes, Findings and the four cold screens (built, in_review)
 
-Branch `task/W2-03-cold-assessment` (base main `e74309db`; spec `.agent/W2-03-build-spec.md` incl. `D-2026-10-18-w2-03-answers` and the commit-4 freshness amendment). Packet `.agent/W2-03-review-packet.md`; handoff `.agent/W2-03-phase-1-handoff.md`.
+Branch `task/W2-03-cold-assessment` (base main `e74309db`; spec `specs/W2-03/spec.md` incl. `D-2026-10-18-w2-03-answers` and the commit-4 freshness amendment). Packet `archive/agent-history/W2-03-review-packet.md`; handoff `archive/agent-history/W2-03-phase-1-handoff.md`.
 
 - Migration `0022_w2_cold_assessment`: `cold_episode`, `cold_episode_revision`, `cold_episode_evidence`, Finding `domain` (`mini_grid|cold_chain`); the fuel consequence trigger fires only for `domain='mini_grid'`.
 - Pure rules `analytics/cold.py` (`cold-excursion/1`, `cold-start-response/1`, pinned vectors) and `analytics/cold_reads.py` (one `probe_fresh`, `currentness_state`, cursor codec).
@@ -27,7 +27,7 @@ Branch `task/W2-03-cold-assessment` (base main `e74309db`; spec `.agent/W2-03-bu
 
 ## W2-04 - cold Site, evidence and unpriced consequence (built, in_review)
 
-Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `.agent/W2-04-build-spec.md` incl. Run-5/7/8 rulings). Packet `.agent/W2-04-review-packet.md`; handoff `.agent/W2-04-phase-handoff.md`.
+Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `specs/W2-04/` incl. Run-5/7/8 rulings). Packet `archive/agent-history/W2-04-review-packet.md`; handoff `archive/agent-history/W2-04-phase-handoff.md`.
 
 - Migration `0023_w2_cold_consequence`: append-only `cold_consequence_revision`, `_evidence`, `_work`, `_work_attempt`; trigger-only work on cold FindingRevision/episode revision and source-gate link; adds `batch_publication_link_scope_unique`; guarded downgrade.
 - Money: `financials/cold_consequence.py` (pure rules: `PRODUCT_EXPOSURE` degC_min bounds, open episode null high + `OPEN_EPISODE_UPPER_UNKNOWN`, no price/currency), `financials/cold_recompute.py` worker (advisory lock, SUCCEEDED/FAILED attempts); sole writer `adapters/postgres_consequence_store.py`.
@@ -38,7 +38,7 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 
 ## post-W6 W2-EV - EV Site screens D3 fixes (built, in_review)
 
-- Rulings `.agent/post-W6-W2-EV-rulings.md` (cross-card ownership 1-8, Q1-Q31) and `.agent/post-W6-W1-rulings.md` cross-card contract; packet `.agent/post-W6-W2-EV-packet.md`; build history `.agent/post-W6-W2-EV-phase-1-handoff.md`.
+- Rulings `archive/agent-history/post-W6-W2-EV-rulings.md` (cross-card ownership 1-8, Q1-Q31) and `archive/agent-history/post-W6-W1-rulings.md` cross-card contract; packet `archive/agent-history/post-W6-W2-EV-packet.md`; build history `archive/agent-history/post-W6-W2-EV-phase-1-handoff.md`.
 - Tabs: `shell/operatorSiteTabs.tsx` optional `hrefs`/`search` override and `operatorSiteTabHref()` (R347 common mechanism; W2-cold and W5-EV-Work consume it); `evSiteRoutes.tsx` `EV_SITE_TAB_HREFS`; `sites/evSelectedWindow.ts` `selectedWindowSearch(read)`, `EvTabs` = ReactNode | (search) => ReactNode. Tabs carry the loaded read's `from`/`to`/`known_at`, never the raw URL; refused/no-window reads carry none; depth pages pass "" (W5-EV-Work).
 - Bare `/sites/:id` redirects an `EV_CHARGING` Site to `/ev` (`SiteDetailFrame.tsx`), keeping the query.
 - Readiness Financials/Assumptions links (`/ev/financials`, `/ev/financial-assumptions`); unique ExactReferences labels.
@@ -53,7 +53,7 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 
 ## post-W6 W2-cold - cold Site screens D3 fixes (built, in_review)
 
-- Rulings `.agent/post-W6-W2-cold-rulings.md` (cross-card ownership 1-8, Q0-Q15); packet `.agent/post-W6-W2-cold-packet.md`; recapture `.agent/post-W6-W2-cold-recapture/`.
+- Rulings `archive/agent-history/post-W6-W2-cold-rulings.md` (cross-card ownership 1-8, Q0-Q15); packet `archive/agent-history/post-W6-W2-cold-packet.md`; recapture `.agent/post-W6-W2-cold-recapture/`.
 - Refusals (cross-card ruling 5): `refusalText` classifies `COLD_TIME_INVALID`/`COLD_WINDOW_INVALID`/`COLD_WINDOW_TOO_LONG` before the generic 422; refused Temperature/Backup use `PerformanceRefusal` (strip, `Not assessed` tiles, no banner); every cold page carries the sentence once in panel 1 and later panels say `Not assessed` (`RefusedGap repeat` in `coldSiteViews.tsx`, `REPEATED_GAP` in `ColdAssessmentViews.tsx`). Window refusals show no requested-window line.
 - Cold Findings index: `ColdFindingIndex` (`ColdAssessmentViews.tsx`), COLDCHAIN branch first in `SiteFindingsFrame` (then EV, then mini), `App.tsx` `coldAssessment`; shared `LensChips`; `finding-index-row` treatment; D1 R435/R436 visible labels.
 - Overview: five "View detail →" cards (Maintenance D1 R437 label in the card), strip outcomes joined from `getBackupChain` by `evidence_id`, SLD link, deduplicated limitations. `ColdSiteRoutes` gains `sld`, `workMaintenance`, `portfolioEvidence`.
@@ -63,7 +63,7 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 
 ## post-W6 W5-EV-Work - EV depth and Work D3 fixes (built, in_review)
 
-- Branch `task/post-W6-W5-EV-work` (main `104e9c33`); rulings `.agent/post-W6-W5-rulings.md` 3-5; packet `.agent/post-W6-W5-EV-packet.md`; evidence `.agent/post-W6-W5-EV/`.
+- Branch `task/post-W6-W5-EV-work` (main `104e9c33`); rulings `archive/agent-history/post-W6-W5-rulings.md` 3-5; packet `archive/agent-history/post-W6-W5-EV-packet.md`; evidence `.agent/post-W6-W5-EV/`.
 - `EvAvailability.tsx` `EvDepthRefusal` is the one refusal block for all four depth pages (RefusedHead + RefusedGap + `Read without a selected window` link for window refusals + Reload for 503/409/unreached); old `data-ev-depth-error` marker is gone. `connectorHoursText` uses `plural`, tiles show decimal `connector-h` with exact `X h Y min` in the title.
 - `EvEnergy.tsx` `bridgeRows`: WITHHELD + null quantity shows metered kWh in row 1; visible `MOCK DEVIATION D1 (R06)` line. `ev_site_reads.py` `MONEY_COPY["STALE_BASIS"]` = `No stored gross tariff estimate matches the current evidence.` (wire unchanged).
 - `sites/evSelectedWindow.ts` `ReportSelected` / `useReportSelectedWindow`: depth pages report the window they read; `SiteHealthFrames.tsx` EV uses `EvHealthWithTabs`; `shell/evSiteRoutes.tsx` `evWorkTabHrefs/evWorkTabSearch` feed the Work mounts (explicit valid URL window only).
@@ -71,11 +71,11 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - `tools/w504_ev_work_walkthrough.py` Site Work router passes `details=` (R373 EV case-detail 503 fix). `evHealthDepth.css`: Asset column 40/30/30 at <=640 px (R470).
 - Cap tooling: `.agent/post-W6-W5-EV/tools/measure-caps.mjs` (closed height, labelled 160-char DOM stress probe, refusal block, text probe), `run_ev_all.sh`, `startvite.ps1` (start Vite with Start-Process; a bare `nohup` Vite died twice). Provisional caps for unruled EV panels are in the packet; ruled ev-health 400/800 and ev-work 550/800 hold.
 - Open: unknown/pending/stale EV modes, missing-meter, historical depth, authored scenario, non-Open Action states have no unmodified producer (selected-DTO tests only); backend full suite held by the coordinator. Register: R345-R350 closed, R06 noted, R470 added.
-- Fix round (R350 ruling 1, `.agent/post-W6-W5-EV-r350-rulings.md`): `/plan /execution /evidence /history` on cold/EV go through `DomainActionRoute` with `unserved`: domain probe first; loaded domain Action = `DomainActionUnknownSection` at the same URL (no redirect, no W1 read); non-loaded probe = `w1()` with the original section. `evActionRefusal` checks `INVALID_KNOWN_AT` before unreached; `evWorkTabSearch` carries a valid UTC `known_at` alone. Evidence `.agent/post-W6-W5-EV-fix/` (`cap.sh`, targets). Producers have no W1 Action: the W1-ID landing is a W1-shaped unknown ID; a loaded W1 section is jsdom-only.
+- Fix round (R350 ruling 1, `archive/agent-history/post-W6-W5-EV-r350-rulings.md`): `/plan /execution /evidence /history` on cold/EV go through `DomainActionRoute` with `unserved`: domain probe first; loaded domain Action = `DomainActionUnknownSection` at the same URL (no redirect, no W1 read); non-loaded probe = `w1()` with the original section. `evActionRefusal` checks `INVALID_KNOWN_AT` before unreached; `evWorkTabSearch` carries a valid UTC `known_at` alone. Evidence `.agent/post-W6-W5-EV-fix/` (`cap.sh`, targets). Producers have no W1 Action: the W1-ID landing is a W1-shaped unknown ID; a loaded W1 section is jsdom-only.
 
 ## post-W6 W5-cold-Work - cold depth and Work D3 fixes (built, in_review)
 
-- Branch `task/post-W6-W5-cold-work`; rulings `.agent/post-W6-W5-rulings.md` 1-2; packet `.agent/post-W6-W5-cold-packet.md`; handoff `.agent/post-W6-W5-cold-handoff.md`.
+- Branch `task/post-W6-W5-cold-work`; rulings `archive/agent-history/post-W6-W5-rulings.md` 1-2; packet `archive/agent-history/post-W6-W5-cold-packet.md`; handoff `archive/agent-history/post-W6-W5-cold-handoff.md`.
 - `defaultWorkWindow` (`sites/workClient.ts`) is `[today−6d, tomorrow)` UTC for every Site Work consumer (cold/EV Actions, all cases incl. mini).
 - `DomainWorkWindow` requires `basis` (`actions|incidents|maintenance`) and states `DOMAIN_WORK_WINDOW_BASIS` under the control; mini cases form has none.
 - `DomainActionPresentation.refusal?` maps a refusal to `{message, retry}`; cold uses `coldActionRefusal` (exact code, Retry only 503/unreached, `role="alert"`); EV absent = unchanged.
@@ -84,8 +84,8 @@ Branch `task/W2-04-cold-site-evidence-money` (merge-base main `54b0bece`; spec `
 - Evidence `.agent/post-W6-W5-cold-recapture/` (cold b14/b15 sets, EV, mini, tab row; all pass except the baseline 6+6 state-panel pairs and forbidden/unavailable cold-action 2 each). Open: R344 VERIFICATION_WINDOW/linked CANCELLED no producer; ruled-cap stress clones not re-measured; W5-EV edits the same shared files next. Rows R334/R336-R339/R344 closed, R460/R461 added.
 ## FIX-COLD-DRAIN - the scheduled tick drives the cold and EV producers (built, in_review)
 
-Branch `task/FIX-COLD-DRAIN-tick` (from main `ce5df006c`). Spec: plan2 `.agent/build-sheet-FIX-COLD-DRAIN.md` U1-U4. Packet
-`.agent/FIX-COLD-DRAIN-packet.md`. No migration, no reader change.
+Branch `task/FIX-COLD-DRAIN-tick` (from main `ce5df006c`). Spec: plan2 `specs/FIX-COLD-DRAIN/spec.md` U1-U4. Packet
+`archive/agent-history/FIX-COLD-DRAIN-packet.md`. No migration, no reader change.
 - Tick order per Site (`scheduling/tick.py` `_site`): `S3: s3 -> cold_assess -> ev_assess` · `MINI` · `OPPORTUNITY` · `S4` ·
   `CONSEQUENCE: consequence -> cold_consequence -> ev_consequence`. Each new child re-checks the Site claim with the existing
   marker (`set_stage("S3")` / `set_stage("CONSEQUENCE")`; the 0030 CHECK is unchanged) and is its own killable child.

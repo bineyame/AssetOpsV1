@@ -1,7 +1,7 @@
 """S4-05a phase 2: the exact-revision source provenance resolver over PostgreSQL.
 
 `tasks/S4-05a-provenance-binding-resolver.md` phase 2; `tasks/S4-05-stored-demo-provenance.md` shared contract
-item 3; `.agent/architect-S4-05-answers.md` Q2 and Follow-up M1; N-L2. Every class of the truth table is proved
+item 3; `archive/agent-history/architect-S4-05-answers.md` Q2 and Follow-up M1; N-L2. Every class of the truth table is proved
 from real publications and uploads (authored P01/P02, one and several registered runs, unbound uploads), plus
 foreign-Site, missing and broken links (constructed inside a rolled-back transaction), a real FindingRevision
 and its consequence revision, consequence-only mixed power input, and a selected historical revision that keeps

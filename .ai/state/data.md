@@ -2,7 +2,7 @@
 
 ## T027 phase 1 - Commit, ingestion and Site > Evidence
 
-Packet `.agent/T027-phase-1-review-packet.md`; handoff `.agent/T027-phase-1-handoff.md`.
+Packet `archive/agent-history/T027-phase-1-review-packet.md`; handoff `archive/agent-history/T027-phase-1-handoff.md`.
 In review (phase 1); phase 2 (Overview, AC11, AC22) not started.
 
 - Commit: a release-eligible stage seals once into `var/commits` (contracts
@@ -36,14 +36,14 @@ In review (phase 1); phase 2 (Overview, AC11, AC22) not started.
 ## T028 - Dispatch Finding and Evidence capability table
 
 In review (independent review and owner UI walk pending). Packet
-`.agent/T028-review-packet.md`; handoffs `.agent/T028-phase-{1,2,3a}-handoff.md`,
+`archive/agent-history/T028-review-packet.md`; handoffs `.agent/T028-phase-{1,2,3a}-handoff.md`,
 `.agent/T028-presentation-cp{1,2a}-handoff.md`; final layout evidence
 `.agent/T028-layout-evidence-final.txt` (presentation cp2b).
 
 - Analytic `analytics/dispatch.py` (model `dispatch-2`, `assess()`); rules and
   thresholds in `backend/tests/dispatch_decision_table.md`. Classification uses
   accepted evidence only; never observed PV as capability, never simulator truth.
-  Fix round 1 (Codex R1-R5, `.agent/T028-review-packet.md` "Fix round 1"):
+  Fix round 1 (Codex R1-R5, `archive/agent-history/T028-review-packet.md` "Fix round 1"):
   segments split at constraint-record effective times between reports; 5b
   enforces SOC headroom; equal-rank differing policy/override records are
   classified under each (agree or Indeterminate); evidence digest covers
@@ -130,7 +130,7 @@ In review (independent review and owner UI walk pending). Packet
 
 ## S2-02 - Authenticated ingestion and Site Evidence (in review)
 
-Packet `.agent/S2-02-review-packet.md`; walkthrough `.agent/S2-02-owner-walkthrough.md`; handoffs `.agent/S2-02-phase-{1,2,3a,3a2,3b}-handoff.md`, `.agent/S2-02-corrections-handoff.md`.
+Packet `archive/agent-history/S2-02-review-packet.md`; walkthrough `archive/agent-history/S2-02-owner-walkthrough.md`; handoffs `.agent/S2-02-phase-{1,2,3a,3a2,3b}-handoff.md`, `archive/agent-history/S2-02-corrections-handoff.md`.
 
 - Postgres ledger (migrations 0005/0006): `ingestion_batch`, `accepted_evidence`, `evidence_rejection`, `ingestion_disposition`, `batch_refusal`, `recompute_job` (`dispatch` domain); `gateway_credential` (selector + SHA-256 verifier), `gateway_access_event`, `gateway_diagnostic`(+refusal). Three confined writers (guard `tools/checks/configuration-persistence.ps1`).
 - Ingestion: `evidence/ledger_service.py` `BatchIngestionService.submit` (413/422/403/409/202/200, per-chunk transactions, first-receipt `received_at`); Receipt V2 contract `contracts/assetops_contracts/ingestion_receipt_v2.py`.
@@ -145,14 +145,14 @@ Packet `.agent/S2-02-review-packet.md`; walkthrough `.agent/S2-02-owner-walkthro
 
 ### Open
 
-- Questions-7 (Q37-Q40) await the Architect (fail-closed defaults shipped); questions-5/6 answered in `.agent/architect-batch-answers-4.md`.
+- Questions-7 (Q37-Q40) await the Architect (fail-closed defaults shipped); questions-5/6 answered in `archive/agent-history/architect-batch-answers-4.md`.
 - C3/N2 full seeded layout run still unverified.
 - Crash/resume 202 and closing-boundary rejection are Postgres test evidence only; the rejected sibling is live via the labelled fault fixture.
 - Generator-status run and capability channels unconfigured; no S3 projection; physical devices remain a pilot gate.
 
 ## S3-01 phase 1 - Role vocabulary and `s3-dispatch-cases-v1` fixture (reviewed, accepted with carries)
 
-Built on `task/S3-01-dispatch-assessment` (1a `e68da1c`, 1b `7e9da8c`..`f508bae`); packet `.agent/S3-01-phase-1-review-packet.md`, questions `.agent/S3-01-questions-1.md`.
+Built on `task/S3-01-dispatch-assessment` (1a `e68da1c`, 1b `7e9da8c`..`f508bae`); packet `archive/agent-history/S3-01-phase-1-review-packet.md`, questions `archive/agent-history/S3-01-questions-1.md`.
 
 ### What it settled in code
 
@@ -173,7 +173,7 @@ Built on `task/S3-01-dispatch-assessment` (1a `e68da1c`, 1b `7e9da8c`..`f508bae`
 
 ## S3-01 phase 2 - Typed seam and durable dispatch assessment (active, phase review pending)
 
-Built on `task/S3-01-dispatch-assessment` (`75886d1`..HEAD); packet `.agent/S3-01-phase-2-review-packet.md`, questions `.agent/S3-01-questions-2.md`, table `backend/tests/dispatch_3_decision_table.md`.
+Built on `task/S3-01-dispatch-assessment` (`75886d1`..HEAD); packet `archive/agent-history/S3-01-phase-2-review-packet.md`, questions `archive/agent-history/S3-01-questions-2.md`, table `backend/tests/dispatch_3_decision_table.md`.
 
 ### What it settled in code
 
@@ -188,12 +188,12 @@ Built on `task/S3-01-dispatch-assessment` (`75886d1`..HEAD); packet `.agent/S3-0
 ### Open
 
 - No read API, projection table, UI or Performance cutover (phase 3); phase 3 derives `CURRENT/STALE_PROJECTION/...` from runs + overlapping jobs unless Q7 rules otherwise.
-- Questions Q1-Q8 in `.agent/S3-01-questions-2.md` (controls at cutoff vs as-accepted, minimum runtime mapping, day windows, fixture-epoch default read, in-flight cutoff, interval key anchoring).
+- Questions Q1-Q8 in `archive/agent-history/S3-01-questions-2.md` (controls at cutoff vs as-accepted, minimum runtime mapping, day windows, fixture-epoch default read, in-flight cutoff, interval key anchoring).
 - Same-epoch overlap (10-04) yields a window `INDETERMINATE` with no intervals (generator series ambiguous).
 
 ## S3-01 phase 3a - Durable dispatch read, comparison and cutover gate (active, phase review pending)
 
-Built on `task/S3-01-dispatch-assessment` (`aaa47ae`..HEAD); packet `.agent/S3-01-phase-3a-review-packet.md`, questions `.agent/S3-01-questions-3.md` (Q9-Q13), handoff `.agent/S3-01-phase-3a-handoff.md`.
+Built on `task/S3-01-dispatch-assessment` (`aaa47ae`..HEAD); packet `archive/agent-history/S3-01-phase-3a-review-packet.md`, questions `archive/agent-history/S3-01-questions-3.md` (Q9-Q13), handoff `archive/agent-history/S3-01-phase-3a-handoff.md`.
 
 ### What it settled in code
 
@@ -214,7 +214,7 @@ Built on `task/S3-01-dispatch-assessment` (`aaa47ae`..HEAD); packet `.agent/S3-0
 
 ## S3-01 dispatch-3.1 - Model version bump, stored-window reassessment, stricter comparison (active, review pending)
 
-Built on `task/S3-01-dispatch-assessment` (`05f9b4d`..HEAD) under `D-2026-10-11-s3-phase-3a-version-and-cutover`. Packet: the "dispatch-3.1" section of `.agent/S3-01-phase-3a-review-packet.md`. Handoff to 3b: `.agent/S3-01-dispatch-3-1-handoff.md`. Questions: `.agent/S3-01-questions-4.md` (Q14-Q16).
+Built on `task/S3-01-dispatch-assessment` (`05f9b4d`..HEAD) under `D-2026-10-11-s3-phase-3a-version-and-cutover`. Packet: the "dispatch-3.1" section of `archive/agent-history/S3-01-phase-3a-review-packet.md`. Handoff to 3b: `archive/agent-history/S3-01-dispatch-3-1-handoff.md`. Questions: `archive/agent-history/S3-01-questions-4.md` (Q14-Q16).
 
 ### What it settled in code
 
@@ -239,7 +239,7 @@ Built on `task/S3-01-dispatch-assessment` (`05f9b4d`..HEAD) under `D-2026-10-11-
 
 ## S3-01 phase 3b - Performance > Dispatch UI, cutover summary, walkthrough (in review)
 
-Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `.agent/S3-01-review-packet.md`; questions Q17-Q22 in `.agent/S3-01-questions-5.md`.
+Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `archive/agent-history/S3-01-review-packet.md`; questions Q17-Q22 in `archive/agent-history/S3-01-questions-5.md`.
 
 ### What it settled in code
 
@@ -258,7 +258,7 @@ Built on `task/S3-01-dispatch-assessment` (`b04b904`..closeout). Packet: `.agent
 
 ## S4-05a - immutable source binding and exact-revision resolver (built, in_review)
 
-Branch `task/S4-05a-provenance-binding-resolver` from main `fd7afd2c`. Handoffs `.agent/S4-05a-phase-1-handoff.md`, `.agent/S4-05a-phase-2-handoff.md` (resolver field contract for S4-05b); packet `.agent/S4-05a-review-packet.md`. Authority `D-2026-10-15-s405-stored-demo-provenance`, `.agent/architect-S4-05-answers.md`.
+Branch `task/S4-05a-provenance-binding-resolver` from main `fd7afd2c`. Handoffs `archive/agent-history/S4-05a-phase-1-handoff.md`, `archive/agent-history/S4-05a-phase-2-handoff.md` (resolver field contract for S4-05b); packet `archive/agent-history/S4-05a-review-packet.md`. Authority `D-2026-10-15-s405-stored-demo-provenance`, `archive/agent-history/architect-S4-05-answers.md`.
 
 - Migration `0017_evidence_publication`: insert-only `evidence_publication` (SYSTEM actor, class CHECK: authored fixture ID+version or run ID+64-hex run digest) and `batch_publication_link` (composite FKs to the exact batch and publication commitment); UPDATE/DELETE triggers; downgrade refuses while publications exist (tested).
 - Ledger writer (`postgres_evidence_ledger.py`) is the only provenance writer: `register_publication` and `open_batch` share `pg_advisory_xact_lock` on (tenant, Site, external batch ID); registration refuses after any admission, needs a registered gateway/source and (phase-1 review M1) a `SIMULATED` gateway for every class; `open_batch` binds the exact commitment or refuses 409 `PUBLICATION_MISMATCH`. Unpublished uploads stay accepted and unbound.
@@ -269,7 +269,7 @@ Branch `task/S4-05a-provenance-binding-resolver` from main `fd7afd2c`. Handoffs 
 - Open: N-L1 producer registration in a non-route module (S4-05b); migration re-chain vs LR-01/S6-01a; run identity digest is not re-verified after registration (file-backed run store); lock key is the admission slot, stricter than the packet wording; no TRUNCATE trigger (rule 8 only); S5-01 amendment (N-L3).
 ## S4-07 - evidence decided_at on DB time (built, review pending)
 
-Branch `task/S4-07-evidence-decided-at` from main `5bfff665`; packet `.agent/S4-07-review-packet.md`.
+Branch `task/S4-07-evidence-decided-at` from main `5bfff665`; packet `archive/agent-history/S4-07-review-packet.md`.
 
 - `PostgresEvidenceLedger.decide_chunk` takes one DB `clock_timestamp()` per chunk after the batch row lock (`_decision_instant`), inside the write transaction; it stamps every newly decided ordinal's `decided_at` and a newly inserted `recompute_job`'s `available_at`/`created_at`. A widened PENDING job keeps `created_at` and has `available_at` lifted to `GREATEST(available_at, decision)` (Known Deviation 1; closes the cutoff-sampled-before-commit race, proved failing without it).
 - `EvidenceLedger.decide_chunk(..., completed_at=)` replaces `decided_at=`: `BatchIngestionService` passes its app clock only for the receipt `completed_at`; `received_at` unchanged.
@@ -278,7 +278,7 @@ Branch `task/S4-07-evidence-decided-at` from main `5bfff665`; packet `.agent/S4-
 - Open: manual app-clock `process-jobs` beside the tick (README-db); configuration `recorded_at` vs `reconcile`; `clock_timestamp()` vs `now()` (an instant predating a batch-lock wait) is reasoned, not mutation-proved (no batch-lock contention test).
 ## LR-01 - late-reading series and money limit (phases 1-2 built, slice review pending)
 
-Branch `task/LR-01-late-reading-series-and-money-limit`; handoffs `.agent/LR-01-phase-1-handoff.md`, `.agent/LR-01-phase-2-handoff.md`; packet `.agent/LR-01-review-packet.md`; decision `D-2026-10-15-lr01-source-time-cohort`.
+Branch `task/LR-01-late-reading-series-and-money-limit`; handoffs `archive/agent-history/LR-01-phase-1-handoff.md`, `archive/agent-history/LR-01-phase-2-handoff.md`; packet `archive/agent-history/LR-01-review-packet.md`; decision `D-2026-10-15-lr01-source-time-cohort`.
 
 - Clock attestation: append-only `source_clock_attestation` (migration 0014), SYSTEM-only CLI `assetops_backend.record_clock_attestation`, `SIMULATED` proof class only; attestation change requeues old+new validity (`postgres_assessment_store.record_clock_attestation`).
 - cohort-4 / `dispatch-3.2`: source-time order only under one covering attestation (`analytics/cohort.py`); a reading's clock reason depends only on attestations touching it (phase-1 review F1); overlap checks span attestation boundaries (L1).
@@ -286,14 +286,14 @@ Branch `task/LR-01-late-reading-series-and-money-limit`; handoffs `.agent/LR-01-
 - Shared money gate `financials/money_eligibility.py` (`money-eligibility-1`): PENDING_REASSESSMENT > WITHHELD_GENERATOR_SERIES > ELIGIBLE, read-derived on every read, fails closed. Consumed by `ConsequenceReadService(eligibility=...)` (gates `presented_as_current`/`current_amount_shown`), `finding_api.bridge_consequence` (states + `recorded_consequence_revision_id`), and `scheduling/upstream.py` `findings[].money_eligibility` for S5-01. ELIGIBLE is not an amount authorization.
 - Migration 0015 `0015_finding_returning_basis`: FindingRevision basis may return (A -> B -> A); replay guard compares with the latest revision only.
 - UI: Financials bridge shows withheld/pending with the refused span and an exact link to the recorded consequence; Finding page states a SERIES_LIMIT end.
-- Walkthrough: `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01*`; browser claims `tools/lr01-money-evidence.mjs`.
+- Walkthrough: `tools/s402c_late_power_walkthrough.py run|attest|tick|serve|drop --db assetops_lr01*`; browser claims `archive/tools/lr01-money-evidence.mjs`.
 - Open: real-source clock proof has no write path (by design); S5-01 owns its own UI over the seam; the schedule install gate stays closed until this slice is reviewed and merged; broader per-analytic input/clock coverage remains the owner analysis-input backlog.
 
 ## S4-05b - registered producers, stored-source reads and owner walkthrough (phases 1-2 built, in_review)
 
 Branch `task/S4-05b-producers-reads-walkthrough` (unmerged; owner W1 copy checkpoint first). Packet
-`.agent/S4-05b-review-packet.md`; owner steps `.agent/S4-05b-owner-walkthrough.md`; ruling D-2026-10-16-s405b-label
-(`.agent/architect-S4-05b-answers.md`).
+`archive/agent-history/S4-05b-review-packet.md`; owner steps `archive/agent-history/S4-05b-owner-walkthrough.md`; ruling D-2026-10-16-s405b-label
+(`archive/agent-history/architect-S4-05b-answers.md`).
 
 - Producers: `tools/s4_finding_cases.py` `publish_authored`/`post(fixture=)` publish each exact batch before upload
   (P01/P02); Lab Commit registers the whole sealed Stage first (`runs/registered_release.py` `publisher_for`, wired in
@@ -307,13 +307,13 @@ Branch `task/S4-05b-producers-reads-walkthrough` (unmerged; owner W1 copy checkp
   Finding, Evidence, consequence/Financials, Overview, Action, Recommendation; marker `[data-source-provenance]`.
 - Pilot install gate (`tools/schedule-install-gate.py`) always requires `I-attested-real-source-provenance`.
 - Walkthrough `tools/s405_provenance_walkthrough.py` (DBs `assetops_s405_{owner,old,mixed}<suffix>`, work
-  `var/s405_*`, API 8935/web 5435, `serve --case`); browser claims `tools/s405-provenance-evidence.mjs`.
+  `var/s405_*`, API 8935/web 5435, `serve --case`); browser claims `archive/tools/s405-provenance-evidence.mjs`.
 - S5-01 packet amended (shared contract item 5).
 - Open: owner copy approval; `ATTESTED_REAL_SOURCE` class (separate task); `MoneyInputs.provenance_resolved`
   default True for unit tests; per-row provenance queries in consequence history; Action fixture size.
 ## S3-02a - selected-assessment capability and claim-limit read (built, slice review pending)
 
-Branch `task/S3-02a-capability-read` (base main `71009bf6`, unmerged); packet `.agent/S3-02a-review-packet.md`; S3-02b handoff `.agent/S3-02a-handoff.md`. No migration.
+Branch `task/S3-02a-capability-read` (base main `71009bf6`, unmerged); packet `archive/agent-history/S3-02a-review-packet.md`; S3-02b handoff `archive/agent-history/S3-02a-handoff.md`. No migration.
 
 - Read: `analytics/claim_limit_read.py` `ClaimLimitReadService.read(tenant, site, day, revision_id, rule)`, rule `s3-claim-limit-1` over `dispatch-3.2` only (`SUPPORTED_MODELS`). Capability = per required role (`generator_state`, `feeder_demand`, `pv_available_power`, `pcs_discharge_capability`, `battery_soc`) exact COVERED/MISSING/POOR_QUALITY/CONFLICTED/NOT_EVALUATED spans with minutes and pinned accepted Evidence IDs, derived from the revision's stored segments (unknown problem text fails closed to MISSING). Claim limit: interval ceiling CANDIDATE_AVOIDABLE/NECESSARY (COMPLETE or LIMITED, `supported_minutes` = that class's segment sum) or INDETERMINATE; withheld (INDETERMINATE) on unusable cohort or a non-covered required role inside a claim-carrying segment. Current ceiling only when the window projection is CURRENT and the revision is in the selected run; otherwise `currentness` PENDING/FAILED/STALE_PROJECTION/HISTORICAL and only `historical_ceiling`. No revision -> `UNASSESSED` + `NO_REVISION_SELECTED`. Window revisions list `interval_ceilings (top level only when CURRENT; otherwise under historical_ceiling)`, no single ceiling.
 - Store: `PostgresAssessmentStore.claim_limit_snapshot` reads the window snapshot and the revision detail in one REPEATABLE READ snapshot (`_window`, `_revision_detail` extracted; existing methods unchanged in behaviour). Reads only; no new SQL writer.
@@ -324,7 +324,7 @@ Branch `task/S3-02a-capability-read` (base main `71009bf6`, unmerged); packet `.
 
 ## S3-02b - Evidence Analysis selected claim limit UI (built, in_review; owner walkthrough before merge)
 
-Branch `task/S3-02b-claim-limit-ui` (base main `8b5d8137`, S3-02a merged); packet `.agent/S3-02b-review-packet.md`; owner steps `.agent/S3-02b-owner-walkthrough.md`. Frontend and a walkthrough tool only; no backend change, no migration.
+Branch `task/S3-02b-claim-limit-ui` (base main `8b5d8137`, S3-02a merged); packet `archive/agent-history/S3-02b-review-packet.md`; owner steps `archive/agent-history/S3-02b-owner-walkthrough.md`. Frontend and a walkthrough tool only; no backend change, no migration.
 
 - Client `frontend/src/sites/claimLimitClient.ts`: `getClaimLimit(site, day, revision|null, signal)` over the S3-02a route; `getAssessedDay(site, day, signal)` maps the S3 dispatch window read to periods (whole-day revision + interval revisions, interval bounds from segments). Results are named: loaded / unauthenticated / forbidden / not_found(code) / closed / refused(code: 422 and 409 lineage) / unavailable / aborted.
 - Section `frontend/src/sites/EvidenceClaimLimit.tsx` ("What the selected assessment can support"), rendered on every Evidence Analysis view beneath S2's `ClaimLimit` (`LedgerSiteEvidence.tsx`) and on the legacy analysis view (`SiteEvidence.tsx`). Selection is `day=<YYYY-MM-DD>&revision=<id>`; the legacy `assessment` parameter is not read. No day -> no read, "No assessment selected"; day without revision -> UNASSESSED read + period links. Positive sentence only when `currentness === CURRENT` with the rule's current claim (INDETERMINATE stated as such); others say no current conclusion and show the earlier ceiling as "At the time ...". Accepted IDs link in-page (`record=`, day/revision kept); pinned revision links to Performance > Dispatch through a shell-built `assessmentHref` (`SiteEvidenceFrame.tsx`). Rule, codes, IDs, run/cohort and watermarks sit in a closed "Technical details" disclosure. Stale answers are dropped (AbortController per selection).

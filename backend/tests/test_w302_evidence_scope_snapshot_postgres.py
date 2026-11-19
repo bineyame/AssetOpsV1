@@ -43,7 +43,7 @@ if URL:
 
 
 def evidence_read(engine):  # noqa: F811
-    """TEST-SCOPED stand-in for Lane A's composition (`.agent/W3-02-lane-a-requests.md`): the W3-01 estate read's
+    """TEST-SCOPED stand-in for Lane A's composition (`archive/agent-history/W3-02-lane-a-requests.md`): the W3-01 estate read's
     exact collaborators plus the W1 claim-limit service over the same assessment store."""
     url = engine.url.render_as_string(hide_password=False)
     base = build_estate_read(url)

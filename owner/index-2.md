@@ -1,6 +1,6 @@
 # Owner feedback index, part 2 of 5 (2026-10-14 to 2026-10-26)
 
-One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
 - 2026-10-14 `owner-S4-02b-money-demo-2026-10-14.md` S4-02b demo case for fuel cost · historical — backlog: simulated and real sites supply analysis data
 - 2026-10-14 `owner-autonomy-2026-10-14.md` Two-hour no-input window · current — window historical; owner-absent rule standing

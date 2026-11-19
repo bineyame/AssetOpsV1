@@ -1,6 +1,6 @@
 """W4-01 commit 3: the Site-scoped work command routes over real Postgres.
 
-`.agent/W4-01-build-spec.md` "API wire and refusals", Review closure S25/S28, closure 2 Q6/Q28, closure 3 Q28 and
+`specs/W4-01/spec.md` "API wire and refusals", Review closure S25/S28, closure 2 Q6/Q28, closure 3 Q28 and
 "Run 1 rulings (q1)" / "Run 2 rulings (q2)". The server SERVICE principal is injected server-side
 (`W401_FIXTURE_SERVICE_PRINCIPAL_ID`); a client actor ID never authenticates it. Requires
 ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.

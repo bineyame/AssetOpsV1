@@ -1,6 +1,6 @@
 """T028 fix round 1: regressions for Codex review findings R1-R5 (dispatch-2, readiness-3).
 
-Each test reproduces the review's recorded case (`.agent/T028-codex-review.md`)
+Each test reproduces the review's recorded case (`archive/agent-history/T028-codex-review.md`)
 and asserts the corrected behaviour. Rules: `dispatch_decision_table.md`.
 """
 

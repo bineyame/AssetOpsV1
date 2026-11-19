@@ -1,4 +1,4 @@
-"""DIESEL-K3 (`.agent/build-sheet-DIESEL-1.md` §9d.4, ruling DIESEL-1-R3d): the `fuel-balance-1` night windows.
+"""DIESEL-K3 (`specs/DIESEL-1/` §9d.4, ruling DIESEL-1-R3d): the `fuel-balance-1` night windows.
 
 One append-only row per assessed night per tank and revision. A new revision is written only when the inputs, as
 known, change (`input_sha256`). Rows are never updated or deleted (`ledger_append_only`). The table is not a

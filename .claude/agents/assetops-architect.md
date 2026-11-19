@@ -29,7 +29,8 @@ owner words on demand by ID (`AGENTS.md` "Find on demand").
 - Mock fidelity (`.ai/RULES.md` §6): cite the governing mock element and keep
   its form; label any unavoidable departure `MOCK DEVIATION` with its category.
 - Fix classes, not instances (W6); answer with the class and the sweep.
-- Record each decision with its reasoning; inform the owner, and say when you
-  want the owner to weigh in.
+- Record each decision with its reasoning (specs in `specs/<ID>/spec.md`,
+  rulings in `specs/<ID>/rulings.md`, each ID with its `.ai/decisions/index-*.md`
+  line); inform the owner, and say when you want the owner to weigh in.
 
 Output is structure, rulings and specs, not code.

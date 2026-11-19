@@ -870,7 +870,7 @@ change and should be a commit that says so.
 
 T027 complete; owner accepted 2026-10-03 after hands-on checks of both phases (Claude reviews ACCEPT after fix rounds; Codex retrospective pending).
 
-Packet `.agent/T027-phase-2-review-packet.md`. In review (task-level, both phases).
+Packet `archive/agent-history/T027-phase-2-review-packet.md`. In review (task-level, both phases).
 
 - Read model `evidence/overview.py` (`OverviewReadModel`), route
   `GET /api/sites/{id}/overview` in `evidence_api.py` beside Site evidence, so
@@ -966,7 +966,7 @@ Branch `task/S1-01-persisted-foundation`; packet `.agent/S1-01-review-packet.md`
 
 ## S1-02 - Versioned bindings, Readiness and configured SLD (in review)
 
-Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agent/S1-02-review-packet.md`. Decision `D-2026-10-08-s1-bindings-roles-and-snapshot` (answers in `.agent/architect-S1-02-answers-2026-10-08.md`).
+Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agent/S1-02-review-packet.md`. Decision `D-2026-10-08-s1-bindings-roles-and-snapshot` (answers in `archive/agent-history/architect-S1-02-answers-2026-10-08.md`).
 
 ### What it settled in code
 
@@ -1009,7 +1009,7 @@ Branch `task/S1-02-bindings-readiness` (cut from S1-01 `06ac8f5`); packet `.agen
 
 ## S1-03 - Foundation organized as Site model, SLD and Readiness views (in review)
 
-Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning `f639990`); packet `.agent/S1-03-review-packet.md`. Decision `D-2026-10-08-s1-foundation-organization` (`.agent/architect-S1-ui-organization-2026-10-08.md`). Frontend and guards only; no backend or API change.
+Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning `f639990`); packet `archive/agent-history/S1-03-review-packet.md`. Decision `D-2026-10-08-s1-foundation-organization` (`archive/agent-history/architect-S1-ui-organization-2026-10-08.md`). Frontend and guards only; no backend or API change.
 
 ### What it settled in code
 
@@ -1036,7 +1036,7 @@ Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning
 ### What this leaves open
 
 - Owner side-by-side UI acceptance; S1 merge is held on it.
-- Decisions taken under the ambiguity rule are in `.agent/S1-03-questions.md`: the narrow-shell stacking, the legacy view-route state, and the omitted legacy-only panels.
+- Decisions taken under the ambiguity rule are in `archive/agent-history/S1-03-questions.md`: the narrow-shell stacking, the legacy view-route state, and the omitted legacy-only panels.
 - Lab layout claims are still unmeasured. The run aborts at Lab run-setup when served by the product backend, as in S1-02.
 
 
@@ -1050,7 +1050,7 @@ Branch `task/S1-03-foundation-organization` (cut from S1-02 `d8dd3e9` + planning
 
 ## S5-01 - selected-window Site Overview (phases 1-2 built, slice review pending)
 
-Branch `task/S5-01-site-overview` (LR-01 merged in, unmerged to main); handoffs `.agent/S5-01-phase-1-handoff.md`, `.agent/S5-01-phase-2-handoff.md`; packet `.agent/S5-01-review-packet.md`; owner steps `.agent/S5-01-owner-walkthrough.md`.
+Branch `task/S5-01-site-overview` (LR-01 merged in, unmerged to main); handoffs `archive/agent-history/S5-01-phase-1-handoff.md`, `archive/agent-history/S5-01-phase-2-handoff.md`; packet `archive/agent-history/S5-01-review-packet.md`; owner steps `archive/agent-history/S5-01-owner-walkthrough.md`.
 
 - Read: `site_overview/read.py` `SiteOverviewRead.read` builds `site-window-summary-1` for one UTC day over committed records (no projection table): accepted-source fingerprint fence, S4-02d `UpstreamCurrentness.window`, fenced S3 day detail, ledger context, one Finding by `D-2026-10-15-s501-finding-choice`, exact-head money with the real Performance gate. `money_state.py` is the pure no-amount precedence.
 - Money: `PRICED` also requires the LR-01 seam row's `current_amount_permitted` (fail closed as `CONSEQUENCE_STALE`); the raw gate is S5's own exact read, never the seam's rewrite.
@@ -1058,12 +1058,12 @@ Branch `task/S5-01-site-overview` (LR-01 merged in, unmerged to main); handoffs 
 - Route: `site_overview/route.py` at the existing `GET /api/sites/{site}/overview` (evidence router delegates first): access 401/403, scope (typed 503 `SITE_STORE_UNAVAILABLE`), S2 409, UTC day 422s, Performance gate. Legacy `date=` becomes the midnight pair.
 - Composition: one seam per process; S5 reuses the seam's consequence read and Finding store; `main.py` disposes through `app.router.on_shutdown` (FastAPI 0.141 has no `add_event_handler`).
 - UI: `sites/SiteWindowOverview.tsx` (no SVG; CSS-bar timeline), `SiteOverview.tsx` S5 branch with URL `date`/pin written back from the served values, `siteOverviewClient.ts` validator; destinations from `shell/SiteDetailFrame.tsx`. Day navigation is links.
-- Walkthrough: `tools/s5_overview_walkthrough.py` (`assetops_s501_owner*`, `var/s501_owner*`, ports 8925/5425, ticks env `default`); browser claims `tools/s5-overview-evidence.mjs <base> <initial|pending|eligible|stopped|closed>`.
+- Walkthrough: `tools/s5_overview_walkthrough.py` (`assetops_s501_owner*`, `var/s501_owner*`, ports 8925/5425, ticks env `default`); browser claims `archive/tools/s5-overview-evidence.mjs <base> <initial|pending|eligible|stopped|closed>`.
 - Open: Site Finding index (list stays unavailable); `mini:3#a/b` (S4-04/S5-02); L5 fence placement and Postgres merge/midnight cases (fakes only); production schedule thresholds make demo amounts lapse 5 minutes after a manual tick; merge and `mini:1#a/2#a/4#a` promotion held for the owner record.
 
 ## S5-02 - Finding list in Site Overview (built, slice review pending)
 
-Branch `task/S5-02-overview-finding-list` (base main `5c1d9d42`, unmerged); packet `.agent/S5-02-review-packet.md`; owner steps `.agent/S5-02-owner-walkthrough.md`. No backend change.
+Branch `task/S5-02-overview-finding-list` (base main `5c1d9d42`, unmerged); packet `archive/agent-history/S5-02-review-packet.md`; owner steps `archive/agent-history/S5-02-owner-walkthrough.md`. No backend change.
 
 - UI: `sites/OverviewFindingList.tsx` reads the S4-04 index for the Overview's served `window.start/end` (domain `mini-grid-dispatch`, `OVERVIEW_FINDING_PREVIEW_LIMIT = 2`, first page), drops older answers, renders `current-empty` / non-current status / refusal / `current-rows` (`data-overview-finding-list`), full-list link with the identical window.
 - Parity: `compareParity` implements `D-2026-10-16-s502-parity` (index CURRENT+is_current with a row; card `DISCOVERED`, source open, not audit; both episodes intersect the day; Site, window, day selection seq, run, assessment record, model, input/config hashes, match pass and matched-through all present and equal; day matched) -> `same` / `different` / `not-compared` with both bases and "Reload both". Rows are never hidden.
@@ -1074,7 +1074,7 @@ Branch `task/S5-02-overview-finding-list` (base main `5c1d9d42`, unmerged); pack
 
 ## S7-01a - Site source-health and battery boundary reads (built, slice review pending)
 
-Branch `task/S7-01a-health-read` (base main `8b5d8137`, unmerged); packet `.agent/S7-01a-review-packet.md`; S7-01b contract `.agent/S7-01a-handoff.md`. No migration.
+Branch `task/S7-01a-health-read` (base main `8b5d8137`, unmerged); packet `archive/agent-history/S7-01a-review-packet.md`; S7-01b contract `archive/agent-history/S7-01a-handoff.md`. No migration.
 
 - Source health: `evidence/source_health.py` (schema `assetops.site-source-health` v1, rule `assetops.source-health.two-clock.v1`): contact `CURRENT|STALE|UNKNOWN` from server receipt (`freshness`), reported facts `CURRENT|OLD|UNKNOWN` from `observed_at` and clock trust (`|offset| > 5000 ms` UNTRUSTED, null UNKNOWN), queue/disk as `LAST_REPORTED`, per-source contact only when the diagnostic carries it. `check_consistent` refuses a non-snapshot isolation, duplicate/foreign/unregistered rows, row/text mismatch and a receipt after `read_at`. No derived projection: `stale_projection.applicable = false`.
 - Store: `PostgresGatewayAccess.source_health_snapshot` (read only; `_health_registration`, `_health_latest` `DISTINCT ON` with the S2 order) in one REPEATABLE READ transaction. S2 `gateway_health` and its route unchanged.
@@ -1086,7 +1086,7 @@ Branch `task/S7-01a-health-read` (base main `8b5d8137`, unmerged); packet `.agen
 
 ## S7-01b - Site Health and battery boundary UI (built, slice review then owner walkthrough)
 
-Branch `task/S7-01b-health-ui` (base main `f3de235a`, unmerged); packet `.agent/S7-01b-review-packet.md`; owner steps `.agent/S7-01b-owner-walkthrough.md`. No migration.
+Branch `task/S7-01b-health-ui` (base main `f3de235a`, unmerged); packet `archive/agent-history/S7-01b-review-packet.md`; owner steps `archive/agent-history/S7-01b-owner-walkthrough.md`. No migration.
 
 - Backend follow-up (`D-2026-10-16-s701-clock`): `evidence/source_health.py` `CLOCK_OFFSET_LIMIT_MS` and `OBSERVED_AFTER_RECEIPT_ALLOWANCE_MS` (both 5000, inclusive; the latter disclosed as `clock.observed_after_receipt_allowance_ms`); `summary.reason` `NO_ENABLED_GATEWAY|NO_REGISTERED_GATEWAY|null`; `reported_age` nulls `fact_age_seconds` / `reported_contact_age_seconds` under an UNTRUSTED clock or a time after `read_at`. `sites/battery_boundary.py` raises `BindingBasisInconsistent` (409 `FOUNDATION_BASIS_UNAVAILABLE`) when the binding set names another Foundation revision (review L6).
 - Fixture: `s7_health_cases.HealthCases.deliver(keys)` re-posts each case's last facts; `CURRENT_CONTACT_KEYS` for the walkthrough.
@@ -1097,7 +1097,7 @@ Branch `task/S7-01b-health-ui` (base main `f3de235a`, unmerged); packet `.agent/
 
 ## post-W6 W1-mini-Action-a - W1 mini Overview, Dispatch, Finding and Site Findings D3 fixes (built, in_review)
 
-- Rulings `.agent/post-W6-W1-rulings.md`; packet `.agent/post-W6-W1-a-packet.md`; handoff `.agent/post-W6-W1-a-handoff.md`.
+- Rulings `archive/agent-history/post-W6-W1-rulings.md`; packet `archive/agent-history/post-W6-W1-a-packet.md`; handoff `archive/agent-history/post-W6-W1-a-handoff.md`.
 - Time: `sites/siteTime.ts` is canonical (blob identical to W2-EV 3c533f0f); `sites/findingTime.ts` reshapes it (`findingLocalTime`, `findingLocalPeriod`); shell's `usableZone`/`zoneAbbreviation`/`selectedLocalDay`/`measuredTime` in `LedgerSiteEvidence.tsx` delegate to it (extra EAT set for Asmara/Djibouti/Mogadishu kept in the wrapper).
 - Overview: `SiteDetails` `siteHref` prop gives `Sites › {site} › Overview`; `WindowOverviewLinks.assets`/`sld` (optional); objective card links in `MetricCard link`; Dispatch `assessment` border only when CURRENT (`data-objective-card-tone`).
 - Dispatch: `isIntervalRevision` (performanceDispatchClient) guards `WindowView`; refusal `name="not-interval"`.
@@ -1111,7 +1111,7 @@ Branch `task/S7-01b-health-ui` (base main `f3de235a`, unmerged); packet `.agent/
 
 ## post-W6 W1-mini-Action-b - W1 mini Recommendation, Action, Financials and Site Findings table D3 fixes (built, in_review)
 
-- Rulings `.agent/post-W6-W1-rulings.md` (W1-b 30-63) amended by `.agent/post-W6-W1-b-preflight-rulings.md`; packet `.agent/post-W6-W1-b-packet.md`; handoff `.agent/post-W6-W1-b-handoff.md`.
+- Rulings `archive/agent-history/post-W6-W1-rulings.md` (W1-b 30-63) amended by `archive/agent-history/post-W6-W1-b-preflight-rulings.md`; packet `archive/agent-history/post-W6-W1-b-packet.md`; handoff `archive/agent-history/post-W6-W1-b-handoff.md`.
 - Rail: `OperatorShellLayout.tsx` `railActiveLabel` (exact ruled line, pinned at `navigation-truthfulness.ps1` `$railHelper`): Finding detail paths select Findings, Action detail paths select Actions; index keeps NavLink matching.
 - Site Findings table: Domain cell `Dispatch` link (UTC day of episode start; `revision` only when in `assessment.interval_assessment_revision_ids`, a type-only field in `findingIndexClient.ts`); renewable helper link.
 - Financials: `FinancialsStatusBar` `Portfolio roll-up` to `/financials`; Trade-offs `Inspect technical basis` to Dispatch `?day=&view=analysis` (day-only; never a whole-window revision); assumptions footer `Return to financial overview`.
@@ -1126,7 +1126,7 @@ Branch `task/S7-01b-health-ui` (base main `f3de235a`, unmerged); packet `.agent/
 
 ## post-W6 W4-mini - mini depth, mini decisions and Site Work text (built, in_review)
 
-Branch `task/post-W6-W4-mini` (main `4d51df61` merged). Packet `.agent/post-W6-W4-packet.md`; rulings `.agent/post-W6-W4-rulings.md`, `.agent/post-W6-W4-build-rulings.md`; evidence `.agent/post-W6-W4-recapture/`. No backend change.
+Branch `task/post-W6-W4-mini` (main `4d51df61` merged). Packet `archive/agent-history/post-W6-W4-packet.md`; rulings `archive/agent-history/post-W6-W4-rulings.md`, `archive/agent-history/post-W6-W4-build-rulings.md`; evidence `.agent/post-W6-W4-recapture/`. No backend change.
 
 - Mini Performance/Scenarios/Alternatives/Opportunity: tones, chips and bars per v69 (contrast min 3.47:1 bars, 5.3:1 chips); neutral `Lens: Opportunity` (D1 R454); recurrence wording through the Q19 predicate; refused-window frame keeps every v69 panel (service, fuel, backup) and is scoped to 422 only (`miniRefusalScope.test.tsx`: 4 screens x 5 statuses).
 - Refusal copy by exact code before status (Q4); Scenarios `To (EAT, included)` and Work `to (EAT, included)` via `siteLocalLastDay`/`nextIsoDate`/`siteLocalEndUtc` in `lib/siteTime.ts` (month-end and Europe/London clock-change tests).

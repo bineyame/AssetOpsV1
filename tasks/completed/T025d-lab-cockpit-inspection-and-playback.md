@@ -101,7 +101,7 @@ historical controls and guarded playback. Review outcome: pending.
 Accepted by the owner on 2026-09-30 after a hands-on check: functional
 behaviour is OK. The owner found the page poorly organised and flickering
 during playback; that is routed to T025e (Lab cockpit organisation and
-playback smoothness, frontend only) per `.agent/T025e-architect-guidance.md`
+playback smoothness, frontend only) per `archive/agent-history/T025e-architect-guidance.md`
 and is not a T025d defect.
 
 Independent review: Codex first review 2026-09-30, ACCEPT WITH CARRIES

@@ -1,6 +1,6 @@
 # Owner feedback index, part 3 of 5 (2026-10-26 to 2026-11-07)
 
-One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
 - 2026-10-26 `owner-commercial-capability-feedback-2-2026-10-26.md` Commercial readiness iteration 3 feedback · current — iteration done; claim ladder, never label simulated realized; to confirm
 - 2026-10-26 `owner-commercial-capability-feedback-2026-10-26.md` Commercial vs capability assessment feedback · historical — iteration done
@@ -26,7 +26,7 @@ One line per `.agent/owner-*.md` file: date, file, topic, status (current / supe
 - 2026-10-28 `owner-simpler-long-run-2026-10-28.md` Efficient elegant long-run solution · historical — answered by long-run proposal
 - 2026-10-28 `owner-test-pipeline-review-2026-10-28.md` Cut test runtime and memory · historical — review done
 - 2026-10-31 `owner-client-demo-sequence-2026-10-31.md` Board lineage, coverage, DEMO-B start · historical — decisions built
-- 2026-11-01 `owner-walkthrough-notes-2026-11-01.md` Walkthrough notes Nov 1-3 · current — to confirm; file edited locally, open items
+- 2026-11-01 `owner-walkthrough-notes-2026-11-01.md` Walkthrough notes Nov 1-4 · current — owner confirmed the 3-4 Nov additions (19 Nov); some content may not be relevant to the updated goals
 - 2026-11-05 `owner-efficiency-2026-11-05.md` Boost usage efficiency, keep quality · current — token efficiency standing rule
 - 2026-11-05 `owner-mill-pass-margin-2026-11-05.md` Mill pass margin 10 percent · historical — demo check parameter built
 - 2026-11-05 `owner-scope-backlog-2026-11-05.md` Demo-critical only; rest to backlog · superseded — by owner-deferred-is-queued-2026-11-13.md; to confirm

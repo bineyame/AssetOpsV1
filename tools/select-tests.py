@@ -44,12 +44,13 @@ ALWAYS_FULL = [
 ]
 # Review M3: a tools/ file other than the guard scripts and .mjs evidence tools, and a non-code frontend file
 # (JSON, docs and other data), can be read by a backend test at run time: the whole suite.
-TOOLS_EXEMPT = ["tools/*.mjs", "tools/check*.ps1", "tools/checks/*"]
+TOOLS_EXEMPT = ["tools/*.mjs", "tools/check*.ps1", "tools/checks/*", "tools/declutter/*"]
 FRONTEND_MANIFESTS = ["frontend/package.json", "frontend/package-lock.json", "frontend/tsconfig*.json",
                       "frontend/vite.config.ts"]  # frontend-only: no backend test reads them
 FRONTEND_CODE = ["frontend/src/*.ts", "frontend/src/*.tsx", "frontend/src/*.css", "frontend/*.md"]
-NO_BACKEND = ["*.md", ".agent/*", "Docs/*", "docs/*", "frontend/*", "tasks/*", ".ai/*", "AGENTS.md",
-              "tools/*.mjs", "tools/check*.ps1", "tools/checks/*"]
+NO_BACKEND = ["*.md", ".agent/*", "specs/*", "owner/*", "archive/*", "Docs/*", "docs/*", "frontend/*", "tasks/*",
+              ".ai/*", "AGENTS.md", "tools/*.mjs", "tools/check*.ps1", "tools/checks/*",
+              "tools/declutter/*"]
 FRONTEND_FULL = ["frontend/package.json", "frontend/package-lock.json", "frontend/vite.config.ts",
                  "frontend/tsconfig*.json", "frontend/src/test/*"]
 

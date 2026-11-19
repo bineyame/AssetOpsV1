@@ -1,4 +1,4 @@
-"""DIESEL-K3 L0 (`.agent/build-sheet-DIESEL-1.md` §9d.6 A1-A12): the `fuel-balance-1` rules, no database.
+"""DIESEL-K3 L0 (`specs/DIESEL-1/` §9d.6 A1-A12): the `fuel-balance-1` rules, no database.
 
 Each "must fail" names the mutation the test kills.
 """

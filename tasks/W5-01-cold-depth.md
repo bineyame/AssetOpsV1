@@ -1,6 +1,6 @@
 # W5-01 Cold depth
 
-Status: planned, build contract amended for readiness closure in [`.agent/W5-01-build-spec.md`](../.agent/W5-01-build-spec.md). Lane A. Decision `D-2026-10-22-w5-01-w5-03-buildspec`.
+Status: planned, build contract amended for readiness closure in [`specs/W5-01/`](../specs/W5-01/). Lane A. Decision `D-2026-10-22-w5-01-w5-03-buildspec`.
 
 ## Purpose and order
 

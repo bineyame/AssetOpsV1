@@ -1,6 +1,6 @@
 /**
  * W5-01a C2: the cold Site Cooling page body (v6.9 `cooling`), from the selected `/cold/cooling` depth read
- * (`.agent/W5-01-build-spec.md` literal ledger, C2 card, C2 state matrix and readiness pass 3).
+ * (`specs/W5-01/` literal ledger, C2 card, C2 state matrix and readiness pass 3).
  *
  * The W2 selected start chain does not establish an ordered recovery, so the four cards never show a measured
  * recovery time or difference; `Recovery curves` lists the selected first observations only (no chart).

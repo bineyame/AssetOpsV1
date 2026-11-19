@@ -27,7 +27,9 @@ $requiredFiles = @(
     ".ai/decisions/INDEX.md",
     ".ai/state/INDEX.md",
     "specs/INDEX.md",
+    "specs/CITATION_MAP.md",
     "owner/INDEX.md",
+    ".agent/coordinator-handoff.md",
     ".ai/ARTIFACT_INDEX.md",
     ".claude/commands/assetops-architect.md",
     ".claude/commands/assetops-planner.md",
@@ -136,6 +138,19 @@ foreach ($task in $taskFiles) {
 
     if ($content -notmatch "USER_REVIEW_REQUIRED:\s*(true|false)") {
         Add-Failure "$($task.Name) must declare USER_REVIEW_REQUIRED: true|false"
+    }
+}
+
+# Declutter step 4: the coordinator handoff is one current block of at most 2k
+# tokens (.ai/RULES.md section 9), replaced rather than appended; history goes to
+# .ai/history/. 8000 bytes is the 2k-token cap at 4 bytes per token.
+$handoffByteCap = 8000
+if (Test-Path -LiteralPath ".agent/coordinator-handoff.md") {
+    $handoffBytes = (Get-Item -LiteralPath ".agent/coordinator-handoff.md").Length
+    if ($handoffBytes -gt $handoffByteCap) {
+        Add-Failure (".agent/coordinator-handoff.md is $handoffBytes bytes, over its " +
+            "$handoffByteCap-byte (2k-token) cap. Replace the current block and move " +
+            "the old text to .ai/history/.")
     }
 }
 

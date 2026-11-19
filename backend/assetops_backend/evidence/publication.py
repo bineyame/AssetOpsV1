@@ -1,6 +1,6 @@
 """S4-05a phase 1: server-authorized pre-admission source publication.
 
-`D-2026-10-15-s405-stored-demo-provenance`, `.agent/architect-S4-05-answers.md` Q1 and Follow-up M1. A
+`D-2026-10-15-s405-stored-demo-provenance`, `archive/agent-history/architect-S4-05-answers.md` Q1 and Follow-up M1. A
 publication positively designates one exact Batch V2 commitment (tenant/Site, gateway/source, external batch
 ID, canonical payload SHA-256) before it is admitted, as either
 

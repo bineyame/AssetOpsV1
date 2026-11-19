@@ -5,7 +5,7 @@
  * sentence, the before/after line and the not-judged text are the server's own (`verification_families`).
  *
  * MOCK DEVIATION D1 (R700, MD-CH9b-1): v70 has no mill verdict page. The page, its "Target met" headline, the
- * not-judged line and the table are new; see `.agent/review-packet-CH-9b3.md` "Mock to new".
+ * not-judged line and the table are new; see `archive/agent-history/review-packet-CH-9b3.md` "Mock to new".
  *
  * MOCK DEVIATION MD-FUEL-MV1-1 (MV-1, FUEL-1 §2.3): v70 has no mill verdict page (D1, R700). The value line
  * ("About … USD a day more in estimated sales …") and the cost line are new. The page shows a single basis

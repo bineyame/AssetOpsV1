@@ -1,4 +1,4 @@
-"""OUT-E E4: the Kobo `verified` cost check read back on the real Site outcome board (`.agent/build-sheet-OUT-E.md`).
+"""OUT-E E4: the Kobo `verified` cost check read back on the real Site outcome board (`specs/OUT-E/spec.md`).
 
 The s602b `verified` case builds in a child into a fresh `assetops_out_e_board_test` database (the OUT-B4 helpers:
 `_case_db`, `_build_kobo`, `_serve`, `_pin_kobo` with the case's `pinned_at`), the OUT-D demo objectives are declared

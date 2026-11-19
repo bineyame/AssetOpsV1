@@ -1,6 +1,6 @@
 """W5-02a K1c: explicit cold domain Action case links beneath the W4 Site reads, on real Postgres.
 
-`.agent/W5-02-build-spec.md` K1c card, "Backend wire" K1c paragraph and the Architect pre-flight ruling C1/C2.
+`specs/W5-02/` K1c card, "Backend wire" K1c paragraph and the Architect pre-flight ruling C1/C2.
 The cold Finding comes from the ordinary W2-02 `backup-failed` replay (`cold` fixture); the domain root and its case
 links are written through the K1a service and the W4 cases through the W4 service. A domain link reaches the W4
 Site index, the case detail and link coverage with `action_event_id: null`, the `Action {id[:8]}` label and the

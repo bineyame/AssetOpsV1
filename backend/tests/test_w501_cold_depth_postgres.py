@@ -1,5 +1,5 @@
 """W5-01 C1: the selected cold Cooling depth read over the registered W2-02 replays
-(`.agent/W5-01-build-spec.md` "Shared selected read and guards", "C1" and its derivation table).
+(`specs/W5-01/spec.md` "Shared selected read and guards", "C1" and its derivation table).
 
 Each test opens a fresh W2-02 replay (`test_w203_cold_replay_postgres.opened`), runs the cold worker and reads
 `/cold/cooling` through the real gate and `ColdReadService`. Current reads omit `known_at` and use the committed

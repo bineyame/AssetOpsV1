@@ -1,6 +1,6 @@
 """W2-05b commit 1: six strict `ev-scenario/1` documents, the EV catalog route and the EV-only freeze.
 
-`.agent/W2-05b-build-spec.md` "Run 1 rulings (q1)" Q1-Q12: the closed document shape, forcing/observation
+`specs/W2-05b/rulings.md` "Run 1 rulings (q1)" Q1-Q12: the closed document shape, forcing/observation
 order and vocabularies, the two digests, the Site-filtered choice list with its refusals, and a frozen
 identity that carries the EV digests while legacy and cold identities keep their bytes.
 """

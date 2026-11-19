@@ -1,4 +1,4 @@
-"""W2-07 commit 3: the five selected EV Site reads over the registered W2-05b replays (`.agent/W2-07-build-spec.md`
+"""W2-07 commit 3: the five selected EV Site reads over the registered W2-05b replays (`specs/W2-07/`
 "Five selected reads", concrete-artifact closure section 2, the post-W2-06 reconciliation and q1-q4).
 
 The routes go through `build_ev_site_router` with the real `EvSiteReads` (W2-06 `EvReadService` + `EvMoneyReads`),

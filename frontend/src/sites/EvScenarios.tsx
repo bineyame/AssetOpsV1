@@ -1,7 +1,7 @@
 /**
  * W5-03b E6: the EV Site Financials > Scenarios body (v6.9 `ev-scenarios`, `index.html:859-862`), from the authored
- * E5 list (`.agent/W5-03-build-spec.md` E6 card, page literals, E6 consolidated correction and
- * `.agent/W5-03b-ui-preflight-rulings.md` points 11-13 and 16).
+ * E5 list (`specs/W5-03/` E6 card, page literals, E6 consolidated correction and
+ * `archive/agent-history/W5-03b-ui-preflight-rulings.md` points 11-13 and 16).
  *
  * The mock panel is `Financial scenarios` (`Placeholder · to be designed with the owner`) with its empty block, then
  * the blue closing notice. Authored definitions are labelled what-ifs: no observed outcome, no measured comparison

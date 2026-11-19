@@ -1,4 +1,4 @@
-"""W4-03 unit 5: the persisted opportunity list/detail reads over Postgres (`.agent/W4-03-build-spec.md` "API, exact
+"""W4-03 unit 5: the persisted opportunity list/detail reads over Postgres (`specs/W4-03/` "API, exact
 wire, ordering and errors"; closure 1 Q1-Q16; closure 4 S5/S7-S10/S14/S20; u4b read-side ownership; "Unit-5..12
 rulings (u5)" unit 5 rulings 1-7).
 

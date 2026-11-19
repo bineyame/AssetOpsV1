@@ -1,4 +1,4 @@
-"""W4-03 unit 4: the frozen `mini-opportunity/1` result (`.agent/W4-03-build-spec.md` "Unit-4 rulings (u4)"):
+"""W4-03 unit 4: the frozen `mini-opportunity/1` result (`specs/W4-03/rulings-3.md` "Unit-4 rulings (u4)"):
 day rows, the weakest-eligible-hour headroom predicate, stored status precedence and limitation aggregation. Pure;
 no database.
 """

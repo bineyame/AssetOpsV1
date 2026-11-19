@@ -1,6 +1,6 @@
 # Build pipeline and checks: what to cut, what to run in parallel, what to keep
 
-Architect evaluation, 2026-11-18. Branch `task/build-pipeline-speedup`. Owner request (verbatim): `.agent/owner-build-pipeline-speedup-request-2026-11-18.md`. It feeds the speed-up asked for in the two-week conversion plan (`Docs/go-to-market/two-week-conversion-plan.md`, branch `task/gtm-documents`).
+Architect evaluation, 2026-11-18. Branch `task/build-pipeline-speedup`. Owner request (verbatim): `owner/owner-build-pipeline-speedup-request-2026-11-18.md`. It feeds the speed-up asked for in the two-week conversion plan (`Docs/go-to-market/two-week-conversion-plan.md`, branch `task/gtm-documents`).
 
 **This is a recommendation. Nothing has been changed:** no pipeline, check, test or code. Under W1 and W3 the owner approves first. Every open question has a default in §8.
 
@@ -43,11 +43,11 @@ Nothing heavy was run: no full suite, no database build, no recapture.
 | Work | Outcome | Source |
 | --- | --- | --- |
 | OPS-01 to OPS-04 | Per-worker template databases, `pytest -n`, DELETE cleanup, 4 workers, `synchronous_commit` off. Full suite 80 → 46–50 min | `backend/TESTING.md` "Timing" |
-| PERF-01 | Test-only Postgres server (fsync off), slow tier, memory-sized workers, vitest threads. 74.2 → 57.2 min | `.agent/PERF-01-packet.md` |
-| PERF-02 | Build once, copy per test (set-up cache) and `tools/select-tests.py`. 57.2 → 36.0 cold / 33.9 warm | `.agent/PERF-02-packet.md` |
-| PERF-02 options O1–O4, O6 and PERF-03 (ingest batching, owner-approved "B") | **Not built.** Estimated 33.9 → about 15–16 min warm | `.agent/PERF-02-packet.md` "Options for the owner" |
-| Demo-sprint test policy | No full suite until the end-game unless the owner asks. Slices use the L0–L4 ladder of localised tests | `.ai/RULES.md` §7; `.agent/architect-handoff-demo-plan-2026-11-04.md` |
-| WALK-perf | Warm only on change; performance gate inside compose | merge `f37b0ad9f`; `.agent/WALK-perf-ruling-2026-11-14.md` |
+| PERF-01 | Test-only Postgres server (fsync off), slow tier, memory-sized workers, vitest threads. 74.2 → 57.2 min | `archive/agent-history/PERF-01-packet.md` |
+| PERF-02 | Build once, copy per test (set-up cache) and `tools/select-tests.py`. 57.2 → 36.0 cold / 33.9 warm | `archive/agent-history/PERF-02-packet.md` |
+| PERF-02 options O1–O4, O6 and PERF-03 (ingest batching, owner-approved "B") | **Not built.** Estimated 33.9 → about 15–16 min warm | `archive/agent-history/PERF-02-packet.md` "Options for the owner" |
+| Demo-sprint test policy | No full suite until the end-game unless the owner asks. Slices use the L0–L4 ladder of localised tests | `.ai/RULES.md` §7; `archive/agent-history/architect-handoff-demo-plan-2026-11-04.md` |
+| WALK-perf | Warm only on change; performance gate inside compose | merge `f37b0ad9f`; `archive/agent-history/WALK-perf-ruling-2026-11-14.md` |
 
 The backend suite is already fast where it runs. This evaluation therefore concentrates on what runs **around every slice today**: the guards, the guard queue, focused tests, live checks and the demo database.
 
@@ -305,6 +305,6 @@ Demo database: **about 2 h → about 1 h 20 min** with A7 and later A12. With A8
 - `tsc --noEmit`: timed in `frontend/`.
 - `select-tests.py`: run on merges `f37b0ad9f`, `5e1a37e39`, `972dced4a`, `e818a3040` and `b4f17871e`.
 - The `PYTHONPATH` defect: reproduced with a `;`-joined path and printing `assetops_backend.__file__`.
-- Recorded figures: the prepare log `/opt/assetecon/AssetOpsV1-walk/var/polish_walk1113-prepare.log` (read only), `backend/TESTING.md`, `.agent/PERF-02-packet.md`, `.agent/lane-rules-vps-2026-11-12.md`, `.agent/coordinator-handoff.md` and the packets cited above.
+- Recorded figures: the prepare log `/opt/assetecon/AssetOpsV1-walk/var/polish_walk1113-prepare.log` (read only), `backend/TESTING.md`, `archive/agent-history/PERF-02-packet.md`, `.agent/lane-rules-vps-2026-11-12.md`, `.agent/coordinator-handoff.md` and the packets cited above.
 - Merge counts: `git log main` since 8 Nov.
 - No database was touched. No process was left running.

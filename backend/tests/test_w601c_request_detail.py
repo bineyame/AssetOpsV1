@@ -1,6 +1,6 @@
 """W6-01c (C1): the exact global request detail `GET /api/work/requests/{case_id}?site_id=&known_at=`.
 
-`.agent/W6-01-build-spec.md` section 1 Detail DTO, the C1 card, G5, X4, CL3-3, CL3-5 and the "C1-C3 pre-flight
+`specs/W6-01/` section 1 Detail DTO, the C1 card, G5, X4, CL3-3, CL3-5 and the "C1-C3 pre-flight
 rulings" (P-C1-1..11). Rows are written by `tools/w601_seed.py` through the real W4 `WorkService` on the B1 clock
 `2026-10-20T12:00:00Z` and read through the constructor read-clock override. The missing-CREATED case is inserted by
 raw SQL inside a rolled-back transaction. Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test` DB.

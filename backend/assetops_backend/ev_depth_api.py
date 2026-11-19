@@ -1,4 +1,4 @@
-"""W5-03a E1b: the three cursorless selected EV depth reads (`.agent/W5-03-build-spec.md` E1b).
+"""W5-03a E1b: the three cursorless selected EV depth reads (`specs/W5-03/` E1b).
 
 `GET /api/sites/{code}/ev/availability`, `/ev/energy` and `/ev/health` reuse W2-06's gate unchanged
 (`ev_assessment_api.ev_gate`): authentication before the Site lookup, repeated or unknown keys 422

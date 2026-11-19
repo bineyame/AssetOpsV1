@@ -1,9 +1,9 @@
 /**
  * The approved v69 panel title map (`D-2026-10-17-mockup-layout-spec`,
- * `.agent/architect-W1-fidelity.md`). It is exhaustive: every screen's expected
+ * `archive/agent-history/architect-W1-fidelity.md`). It is exhaustive: every screen's expected
  * panel titles are exactly `frontend/docs/architecture/v69-rendered-panels.json`,
  * except the substitutions below, which the Architect approved: the six W1 rules and the two
- * W2-01 cold rules (`D-2026-10-17-w2-techdesign-cold`, `.agent/W2-technical-design-cold.md` D-I). Do not add
+ * W2-01 cold rules (`D-2026-10-17-w2-techdesign-cold`, `archive/agent-history/W2-technical-design-cold.md` D-I). Do not add
  * an entry to keep an extra app panel; move its content into its owning panel.
  *
  * A dynamic title is a function of the selected read, never of a mock fixture.

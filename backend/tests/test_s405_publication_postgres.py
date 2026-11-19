@@ -1,6 +1,6 @@
 """S4-05a phase 1: immutable pre-admission source publication and batch binding over PostgreSQL.
 
-`D-2026-10-15-s405-stored-demo-provenance`; `.agent/architect-S4-05-answers.md` Q1, rule 8, Follow-up M1.
+`D-2026-10-15-s405-stored-demo-provenance`; `archive/agent-history/architect-S4-05-answers.md` Q1, rule 8, Follow-up M1.
 Covers authored and registered-run positive paths, server SYSTEM authority, scope refusals (two tenants, wrong
 Site/gateway/source/digest, LIVE, manifest-only), identical retry and conflicting reuse, refusal after partial
 admission, the shared slot lock (registration/upload race), commitment mismatch at upload, chunk restart,

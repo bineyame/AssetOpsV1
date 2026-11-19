@@ -263,9 +263,9 @@ inside the truth barrier.
 ### Guards
 
 The normal local/CI check command runs every repository guard and reports each
-one: architecture seams, navigation truthfulness, agent workflow, the v6.9
-dependency registry (including the delivery-plan claim-portion mapping), the
-delivery checker fixtures and the v6.9 screen ledger. A failing guard or a
+one: architecture seams, navigation truthfulness, agent workflow, the
+decision/state/spec/owner indexes, tracked-evidence hygiene, the mock-gap
+catalogue and the other `tools/checks/` guards. A failing guard or a
 missing tool (Node, or the `.venv` Python; override with `-Python`/`-Node`)
 exits nonzero.
 
@@ -273,13 +273,10 @@ exits nonzero.
 powershell -NoProfile -File tools\check-all.ps1
 ```
 
-The delivery `next-work` report (PRE-S3-03) is run separately by the
-coordinator; it exits 3 when it refuses to rank:
-
-```
-node frontend\docs\architecture\check_v69_dependency_registry.cjs --next-work --out next-work.json
-node frontend\docs\architecture\check_v69_dependency_registry.cjs --verify-report next-work.json
-```
+The S1-S7 delivery `next-work` report (PRE-S3-03), the v6.9 dependency-registry
+guard and the v6.9 screen ledger were retired in declutter step 5 (2026-11-18;
+`archive/frontend/docs/architecture/`); the coordinator sequences work in
+`.ai/NOW.md`.
 
 The individual guards remain runnable on their own:
 

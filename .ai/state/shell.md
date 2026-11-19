@@ -199,7 +199,7 @@ What this slice leaves open.
 
 ## V-01a - Site and Foundation visual fidelity (in_review)
 
-Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. Visual gate only; no new data claim.
+Branch `task/V-01a-foundation-visual`; packet `archive/agent-history/V-01a-review-packet.md`. Visual gate only; no new data claim.
 
 - `FoundationPeriodStrip` (`FoundationRevisionPanel.tsx`): an `?at=` instant that is not a period start now
   gets its own selected option ("At ... (from the address)"). Before this, the controlled select fell back to
@@ -266,8 +266,8 @@ Branch `task/V-01a-foundation-visual`; packet `.agent/V-01a-review-packet.md`. V
 ## V-01b - Lab and Evidence visual fidelity (in_review)
 
 Task `tasks/V-01b-evidence-lab-visual-fidelity.md`, branch `task/V-01b-evidence-lab-visual`, diff base `b1ac0a8`.
-Packet `.agent/V-01b-review-packet.md`, handoff `.agent/V-01b-handoff.md`, questions `.agent/V-01b-questions-1.md`
-(Q1-Q8, fail-closed defaults shipped), owner guide `.agent/V-01b-owner-walkthrough.md`. No backend change.
+Packet `archive/agent-history/V-01b-review-packet.md`, handoff `archive/agent-history/V-01b-handoff.md`, questions `archive/agent-history/V-01b-questions-1.md`
+(Q1-Q8, fail-closed defaults shipped), owner guide `archive/agent-history/V-01b-owner-walkthrough.md`. No backend change.
 
 - Site Evidence (`frontend/src/sites/LedgerSiteEvidence.tsx`, `ui/primitives.css` "V-01b Evidence" block): status bar
   of window facts with neutral "No capability conclusion yet" badge and "Analysis →"; `evidence:1` "What we can
@@ -287,8 +287,8 @@ Packet `.agent/V-01b-review-packet.md`, handoff `.agent/V-01b-handoff.md`, quest
   (non-vacuity proven in the packet). `overflowContainment.test.tsx` asserts the class.
 - Tests: `shell/__tests__/v01bEvidenceVisual.test.tsx` (10), `v01bLabIngestion.test.tsx` (9); order/name updates in
   `cockpitLayout`, `runExecution`, `simulatorLabGate`, `s2LedgerEvidence`, `runsInventory` (Commit first).
-- Tools: `tools/v01b_lab_evidence_walkthrough.py` (prepare/links/serve/drop, `--db/--empty-db/--work-name`, owner
-  ports 8862/8863/5362/5363); `tools/v01b-lab-evidence-evidence.mjs` (101 claims at 1440/390, SourceEnvelope trace,
+- Tools: `archive/tools/v01b_lab_evidence_walkthrough.py` (prepare/links/serve/drop, `--db/--empty-db/--work-name`, owner
+  ports 8862/8863/5362/5363); `archive/tools/v01b-lab-evidence-evidence.mjs` (101 claims at 1440/390, SourceEnvelope trace,
   intercepted 503 gateway variant); `tools/layout-evidence.mjs` registered Lab Site/dates/profiles, Kobo registered run
   section (`ASSETOPS_LAYOUT_V01B_ONLY`, `ASSETOPS_LAYOUT_V01B_RELEASED_RUN`), `ASSETOPS_CDP_PORT`, run-setup overflow
   proof at 390px. Full run with KOBO-001: 398 PASS / 5 FAIL, all named preconditions.
@@ -299,8 +299,8 @@ Packet `.agent/V-01b-review-packet.md`, handoff `.agent/V-01b-handoff.md`, quest
 ## G-01 - Mock-gap catalogue and orphan guard (in_review)
 
 Task `tasks/G-01-mock-gap-catalogue-and-guard.md`, branch `task/G-01-mock-gap-catalogue-and-guard`, diff base `db98e54`.
-Packet `.agent/G-01-review-packet.md`, handoff `.agent/G-01-handoff.md` (design + phase log), questions
-`.agent/G-01-questions-1.md` (Q1-Q4, fail-closed defaults shipped), owner guide `.agent/G-01-owner-walkthrough.md`.
+Packet `archive/agent-history/G-01-review-packet.md`, handoff `archive/agent-history/G-01-handoff.md` (design + phase log), questions
+`archive/agent-history/G-01-questions-1.md` (Q1-Q4, fail-closed defaults shipped), owner guide `archive/agent-history/G-01-owner-walkthrough.md`.
 No backend change.
 
 - Registry schema `assetops.v69.dependency-registry.pilot.v3` with top-level `mock_gaps` (version 1,
@@ -326,8 +326,8 @@ No backend change.
 ## G-02 - V-01a mock-gap pilot (in_review)
 
 Task `tasks/G-02-v01a-gap-pilot.md`, branch `task/G-02-v01a-gap-pilot`, diff base `42bd74d` (main `5625447`).
-Packet `.agent/G-02-review-packet.md`, handoff `.agent/G-02-handoff.md`, questions `.agent/G-02-questions-1.md`
-(Q1-Q6, fail-closed defaults shipped), owner guide `.agent/G-02-owner-walkthrough.md`. No backend change.
+Packet `archive/agent-history/G-02-review-packet.md`, handoff `archive/agent-history/G-02-handoff.md`, questions `archive/agent-history/G-02-questions-1.md`
+(Q1-Q6, fail-closed defaults shipped), owner guide `archive/agent-history/G-02-owner-walkthrough.md`. No backend change.
 
 - Registry `mock_gaps.gap_enrolled_screens = [sites, foundation, readiness, sld]`; 20 new gaps (23 total). Every
   non-core open portion of the four carries `gap_ids` (`sites:2#a`, `foundation:2#b`, `readiness:2#a/#b`, `3#a/#b`,
@@ -349,7 +349,7 @@ Packet `.agent/G-02-review-packet.md`, handoff `.agent/G-02-handoff.md`, questio
 
 ## W1-UX-01 - shared product presentation (built, in_review)
 
-Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01-review-packet.md`; shared API `.agent/W1-UX-01-handoff.md`. Frontend only.
+Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `archive/agent-history/W1-UX-01-review-packet.md`; shared API `archive/agent-history/W1-UX-01-handoff.md`. Frontend only.
 
 - Words: `frontend/src/ui/productWords.ts` - `currentnessWords`, `readResultWords`, `moneyWords`, `outcomeWords(outcome, reasons, sourceClass)`, `limitationWords`, `sourceQualification`, `asOfText`/`plainTime`; unknown codes -> `UNRECOGNISED_SENTENCE`, never positive.
 - Components: `frontend/src/ui/ProductStatus.tsx` - `ProductStatus`, `ProductOutcome`, `ProductLimitation`, `HeadlineVisualCard`, `ExactReferences` (closed "How this was worked out"), `ValueBars` (null = hatched "not known"), `StepStrip`; CSS at the end of `primitives.css`.
@@ -360,7 +360,7 @@ Branch `task/W1-UX-01` (base main `3e6dbc88`, unmerged); packet `.agent/W1-UX-01
 
 ## W1-UX-02 - Site, Finding and money presentation (built, in_review)
 
-Branch `task/W1-UX-02` (base main `a8cbb3d1`, code `bc1cea1b`, unmerged); packet `.agent/W1-UX-02-review-packet.md`; handoff `.agent/W1-UX-02-handoff.md`. Frontend only.
+Branch `task/W1-UX-02` (base main `a8cbb3d1`, code `bc1cea1b`, unmerged); packet `archive/agent-history/W1-UX-02-review-packet.md`; handoff `archive/agent-history/W1-UX-02-handoff.md`. Frontend only.
 
 - Migrated to the W1-UX-01 layer and opted into the W1 set: `sites` (`SitesIndex.tsx` `SitesAnswer`), `mini` freshness/money/timeline/Finding list (`SiteWindowOverview.tsx`, `OverviewFindingList.tsx`), `sitefindings` (`SiteFindingIndex.tsx`), `finding`/`finding-evidence`/`finding-history` (`SiteFinding.tsx`, `SiteFindingEvidence.tsx`, `SiteFindingHistory.tsx`), `financials` (`FindingConsequence.tsx`), `assumptions` (`SiteFinancials.tsx`, `ConsequenceHistory.tsx`).
 - Word maps: `findingCurrentnessWords` (`findingWords.ts`), `consequenceWords` (`FindingConsequence.tsx`), `MONEY_STATE_WORDS` on `moneyWords`; `FRESHNESS_WORDS`, `CURRENTNESS_WORDS`, `STATE_HEADLINE` removed. `FindingRefusalCard` (`findingPresentation.tsx`).
@@ -370,7 +370,7 @@ Branch `task/W1-UX-02` (base main `a8cbb3d1`, code `bc1cea1b`, unmerged); packet
 - Open: untimed reads say "As of: time not recorded"; `LINK_DISPLAY_OVERRIDES` awaits a backend rewording; there is no Financials Analysis tab; `FindingDetail.tsx` (legacy route) is not migrated; `s502-overview-finding-list-evidence.mjs:148` is stale.
 ## W1-UX-03 - Evidence, Dispatch and Analysis presentation (built, in_review)
 
-Branch `task/W1-UX-03` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-03-review-packet.md`; handoff `.agent/W1-UX-03-handoff.md`. Frontend only.
+Branch `task/W1-UX-03` (base main `b4a89314`, unmerged); packet `archive/agent-history/W1-UX-03-review-packet.md`; handoff `archive/agent-history/W1-UX-03-handoff.md`. Frontend only.
 
 - `frontend/src/sites/periodStrip.tsx` (+ `.css`): local `PeriodStrip` - rows of read-returned time segments on the period's own bounds, optional exact links per segment, required summary text, hatched "not known" row; used by Evidence and Dispatch.
 - Evidence Overview: `ReportingFacts` (readings / gateway contact / analysis up to date as separate facts, as-of, per-source latest-taken strip). Evidence Analysis: lead question; S2 limit panel and the S3-02b section ("What the readings can support") precede the inspector.
@@ -381,7 +381,7 @@ Branch `task/W1-UX-03` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-03
 - Open: G-04 baselined fuel/money sentence keeps "claim" (W1 scan allows only it); no-day claim-limit state has no read instant; source strip shows latest-taken only (no per-source span in the read).
 ## W1-UX-04 - Action, work, change and verification presentation (built, in_review)
 
-Branch `task/W1-UX-04` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-04-review-packet.md`. Frontend only. All nine routes opted into the W1 vocabulary set (action-overview was opted in by W1-UX-01).
+Branch `task/W1-UX-04` (base main `b4a89314`, unmerged); packet `archive/agent-history/W1-UX-04-review-packet.md`. Frontend only. All nine routes opted into the W1 vocabulary set (action-overview was opted in by W1-UX-01).
 
 - Answer cards (shared `HeadlineVisualCard`, `data-headline-card`): `recommendation` (`SiteRecommendation.tsx` `RecommendationCard`), `change` (`SiteFoundationChange.tsx` `ChangeCard`), `action-work` / `action-history` (`SiteAction.tsx` `WorkCard`, `HistoryCard`), `site-work` (`SiteWorkActions.tsx` `SiteWorkCard`), `verification` / `action-plan` / `action-evidence` (`verificationCards.tsx`, mounted in `SiteActionVerification.tsx`).
 - Domain-local words in `actionPresentation.tsx`: `applicationWords`, `recommendationWords` (holds are problem/waiting, never positive), `plainEventWords`, `trialStep` (moved from `SiteAction.tsx`).
@@ -394,7 +394,7 @@ Branch `task/W1-UX-04` (base main `b4a89314`, unmerged); packet `.agent/W1-UX-04
 
 ## W1-UX-05 - Foundation, Readiness, SLD, Health and battery presentation (built, in_review)
 
-Branch `task/W1-UX-05` (base main `815888f0`). Packet `.agent/W1-UX-05-review-packet.md`.
+Branch `task/W1-UX-05` (base main `815888f0`). Packet `archive/agent-history/W1-UX-05-review-packet.md`.
 
 - Settled: the five routes `foundation`, `readiness`, `sld`, `health`, `asset` lead with the shared `HeadlineVisualCard` and are opted into the W1 vocabulary set. Cards live in `frontend/src/sites/foundationHeadlines.tsx` and `healthHeadlines.tsx`, with domain-local `ProductWords` (period, set-up readiness, contact summary, gateway contact, battery condition); none is `positive`.
 - Foundation wording: signal binding -> "channel link", digest -> "content reference", type labels "Solar array"/"Supplied users"; single values marked via `frontend/src/sites/exactValues.tsx` (`UserName`, `ExactRef`).
@@ -406,7 +406,7 @@ Branch `task/W1-UX-05` (base main `815888f0`). Packet `.agent/W1-UX-05-review-pa
 
 ## W1-UX-06 - W1 presentation closeout and combined owner walkthrough (built, in_review)
 
-Branch `task/W1-UX-06` (base main `a9b3b297`, main merged at `22df6d7d`). Packet `.agent/W1-UX-06-review-packet.md`; phase-1 handoff `.agent/W1-UX-06-phase-1-handoff.md`; ruling `D-2026-10-17-w1-ux-06`.
+Branch `task/W1-UX-06` (base main `a9b3b297`, main merged at `22df6d7d`). Packet `archive/agent-history/W1-UX-06-review-packet.md`; phase-1 handoff `archive/agent-history/W1-UX-06-phase-1-handoff.md`; ruling `D-2026-10-17-w1-ux-06`.
 
 - Settled: one shared evidence width check `tools/evidence-checks.mjs` (`widthGuard`, `AS_OF_PATTERN`) in all 24 browser evidence scripts, enforced by `tools/checks/test_evidence_checks.mjs` (inventory + proximity rule ignoring commented guards) in `check-all.ps1`; shared `expectStateLineVisible` accepts only a formatted UTC instant or "As of: time not recorded".
 - Backend: negative `receipt_lag_seconds` -> null; no-set sentences say "channel-link set"; `READINESS_STATEMENT` says "Set up to report means ..." (configuration only); `BINDINGS_NOT_REGISTERED` refusal reworded (code unchanged).
@@ -419,7 +419,7 @@ Branch `task/W1-UX-06` (base main `a9b3b297`, main merged at `22df6d7d`). Packet
 
 ## W1-UX-07 - full v6.9 left menu with unavailable entries (built, in_review)
 
-Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `.agent/W1-UX-07-review-packet.md`; ruling `D-2026-10-17-w1-rail`.
+Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-UX-07-review-packet.md`; ruling `D-2026-10-17-w1-rail`.
 
 - Settled: `NavRailItem` is a discriminated union (`NavRailUnavailableItem`: `kind: "unavailable"; to?: never`); unavailable roots render as `li.nav-rail__unavailable` text with visible `NAV_RAIL_UNAVAILABLE_STATUS` ("Not available yet") and `aria-label="<label>, Not available yet"`, no link/handler/tabindex.
 - `OperatorShellLayout.operatorRailItems`: six groups / eleven roots in v6.9 order; live only Sites `/sites` and Findings `/findings`. One item per line (the guard parses it).
@@ -448,7 +448,7 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `.agent/W1-UX-07-review-pa
   ids are checked on all visible main text and only `[data-technical-details]` hides them; `data-vocabulary-exempt`
   exempts product kinds only, `data-time-zone-note` only UTC; MOCK DEVIATION never exempt. Tests sit in guard 12.
 - Open: `[data-repeat-check]` (PB-3), `[data-technical-details]`/`[data-time-zone-note]` (PB-1/PB-2) not yet rendered;
-  the strict baseline in `.agent/POLISH-PB-0-packet.md` is the hit list later slices clear.
+  the strict baseline in `archive/agent-history/POLISH-PB-0-packet.md` is the hit list later slices clear.
 
 ## POLISH PB-1 - shell, time consolidation, P-03 (built, in_review)
 
@@ -472,7 +472,7 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `.agent/W1-UX-07-review-pa
 - Shell: rail "Simulator Lab"; `OperatorShellLayout` banner `[data-demonstration-banner]` (R651); `SitePageHeader`
   badge "Example data" for the SIMULATED mode word. P-03 CSS in `estatePortfolio.css`.
 - Test helper `AS_OF_PATTERN` (and its mirror in `tools/evidence-checks.mjs`) no longer expects " UTC".
-- Open (listed for PB-3 in `.agent/POLISH-PB-1-packet.md`): visible "UTC" left in non-capture screens
+- Open (listed for PB-3 in `archive/agent-history/POLISH-PB-1-packet.md`): visible "UTC" left in non-capture screens
   (PerformanceDispatch, SiteFinding*, LedgerSiteEvidence, EvidenceClaimLimit, EvAvailability, assessmentGraphics,
   MiniPerformance, MiniScenarios, ColdScenarios, ColdCooling, coldDepthGraphics, evDepthGraphics, siteWorkCases,
   coldWorkPresentation, SiteAction, Foundation panels, Simulator Lab tooling) and their page notes.

@@ -7,12 +7,12 @@ USER_REVIEW_REQUIRED: false
 Product fix (no UI, no migration). Branch `task/FIX-COLD-DRAIN-tick`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-drain`,
 from main `ce5df006c`. Merges before DEMO-A, independently of LINK-LINEAGE and COV-PARTIAL (no shared files).
 
-Spec: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-FIX-COLD-DRAIN.md` units U1-U4 (Architect ruling
+Spec: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\specs\FIX-COLD-DRAIN\spec.md` units U1-U4 (Architect ruling
 (a), DEMO-A CO-6). Coordinator corrections: register IDs R623 (D3, resolved) and R624 (D5, open); Q1 ruled (b):
 a failed cold/EV consequence item keeps the drain stage `OK` and retries under its own `retry_due_at`, with no
 Site back-off; P4 "byte-identical" read as the packet states.
 
-Packet: [.agent/FIX-COLD-DRAIN-packet.md](../.agent/FIX-COLD-DRAIN-packet.md).
+Packet: [archive/agent-history/FIX-COLD-DRAIN-packet.md](../archive/agent-history/FIX-COLD-DRAIN-packet.md).
 
 ## Acceptance
 

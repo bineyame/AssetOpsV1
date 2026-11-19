@@ -1,4 +1,4 @@
-"""DIESEL-K4a (`.agent/build-sheet-DIESEL-1.md` §9j.3, ruling DIESEL-1-R3j): the unexplained-fuel Finding domain
+"""DIESEL-K4a (`specs/DIESEL-1/` §9j.3, ruling DIESEL-1-R3j): the unexplained-fuel Finding domain
 and its own money table.
 
 - `finding_domain_subject` and `finding_revision_domain_minutes` are recreated exactly as 0025 left them plus one

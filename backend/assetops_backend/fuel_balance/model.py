@@ -1,4 +1,4 @@
-"""DIESEL-K3 (`.agent/build-sheet-DIESEL-1.md` §9d.5, ruling DIESEL-1-R3d): the stored `fuel-balance-1` night window
+"""DIESEL-K3 (`specs/DIESEL-1/` §9d.5, ruling DIESEL-1-R3d): the stored `fuel-balance-1` night window
 and the read port K4 (Finding) and K6 (verification) use; K4a adds the unexplained-fuel Finding read (§9j.5).
 
 Reason and limitation codes are internal. Client wording belongs to K4/K5.

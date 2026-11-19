@@ -3037,7 +3037,7 @@ Contract 9 and history schema 2 kept: wire additions only, no persisted change.
 
 ## T025e - Lab cockpit organisation and live playback (L1c)
 
-Complete; owner accepted 2026-10-01 (packet `.agent/T025e-review-packet.md`, evidence
+Complete; owner accepted 2026-10-01 (packet `archive/agent-history/T025e-review-packet.md`, evidence
 `.agent/T025e-layout-evidence.txt`). Contract 9 and history schema 2 kept;
 `contract9_gate` unedited. Three phases; handoffs in `.agent/`.
 
@@ -3077,7 +3077,7 @@ Complete; owner accepted 2026-10-01 (packet `.agent/T025e-review-packet.md`, evi
 
 ## T025f - Template versioning and site lineage staleness (S0)
 
-Complete (fast lane; packet `.agent/T025f-review-packet.md`; Claude review ACCEPT WITH CARRIES). No
+Complete (fast lane; packet `archive/agent-history/T025f-review-packet.md`; Claude review ACCEPT WITH CARRIES). No
 contract move; no Site record rewritten; no run reads a template.
 
 ### What it settled in code
@@ -3113,7 +3113,7 @@ contract move; no Site record rewritten; no run reads a template.
 
 ## T025g - The run is the only join of scenario and site (S1)
 
-Complete; owner accepted 2026-10-02 (packet `.agent/T025g-review-packet.md`; `USER_REVIEW_REQUIRED: true`).
+Complete; owner accepted 2026-10-02 (packet `archive/agent-history/T025g-review-packet.md`; `USER_REVIEW_REQUIRED: true`).
 Rule `D-2026-10-01-run-binds-scenario-to-site`; contract stays 9 (gate unedited).
 
 ### What it settled in code
@@ -3158,7 +3158,7 @@ Rule `D-2026-10-01-run-binds-scenario-to-site`; contract stays 9 (gate unedited)
 
 Complete; owner accepted 2026-10-02 after hands-on check (Claude review ACCEPT after fix rounds 1-2; Codex retrospective pending).
 
-Branch `task/T026-dispatch-capable-evidence`; packet `.agent/T026-review-packet.md`,
+Branch `task/T026-dispatch-capable-evidence`; packet `archive/agent-history/T026-review-packet.md`,
 handoffs `.agent/T026-phase-{1,2,3a}-handoff.md`. Contract stays 9
 (`host/tests/contract9_gate` green, execution_contract.py untouched); every change
 reaches new Drafts only.
@@ -3227,7 +3227,7 @@ reaches new Drafts only.
 
 ## S2-01a - Registered Kobo Lab basis (in review)
 
-Branch `task/S2-01a-registered-lab-basis`. Phase 1: commits `ce65b8d`, `fabbfc2`, `f1b78bd`, `ad0b210`. Phase 2: commits `8d0e1d3`, `7c2b271`, `d0042fb`. Packet `.agent/S2-01a-review-packet.md`; phase-1 anchors `.agent/S2-01a-phase-1-handoff.md`. Decision `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` with its amendment; Architect answers are in `.agent/architect-S2-01a-answers-2.md`.
+Branch `task/S2-01a-registered-lab-basis`. Phase 1: commits `ce65b8d`, `fabbfc2`, `f1b78bd`, `ad0b210`. Phase 2: commits `8d0e1d3`, `7c2b271`, `d0042fb`. Packet `archive/agent-history/S2-01a-review-packet.md`; phase-1 anchors `archive/agent-history/S2-01a-phase-1-handoff.md`. Decision `D-2026-10-08-s2-lab-snapshot-selection-and-run-boundary` with its amendment; Architect answers are in `archive/agent-history/architect-S2-01a-answers-2.md`.
 
 ### What it settled in code
 
@@ -3273,7 +3273,7 @@ Branch `task/S2-01a-registered-lab-basis`. Phase 1: commits `ce65b8d`, `fabbfc2`
 
 ## S2-01b - Durable simulated gateway (in review)
 
-Packet `.agent/S2-01b-review-packet.md`; phase handoffs `.agent/S2-01b-phase-{1,2,3a}-handoff.md`.
+Packet `archive/agent-history/S2-01b-review-packet.md`; phase handoffs `.agent/S2-01b-phase-{1,2,3a}-handoff.md`.
 
 - Wire: `contracts/assetops_contracts/source_envelope_v3.py` (length-delimited message id, canonical V3 text), `ingestion_batch_v2.py` (sealed, bounded, source-homogeneous Batch V2; digest excludes `payload_sha256`), `gateway_report.py` (`assetops.simulated-device-report` v1, the only text that crosses the process boundary), `gateway_stage.py` (`RegisteredStageView`, `GATEWAY_LEDGER`, upload always `PENDING`). Vectors: `contract-fixtures/source-envelope-v3-vectors.json`.
 - Gateway: `gateway/assetops_gateway/` is a separate process (`python -m assetops_gateway serve --config`), importing contracts only. WAL SQLite ledger with single-writer file lock, immutability triggers, per-(gateway,source,epoch) sequence, `report_admission` dedupe, `mapping_hold` holds; authenticated local IPC with a protected credential file.
@@ -3292,7 +3292,7 @@ Packet `.agent/S2-01b-review-packet.md`; phase handoffs `.agent/S2-01b-phase-{1,
 
 ## S2-01c - Gateway diagnostics and fault scenarios (in review)
 
-Packet `.agent/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-handoff.md`; open questions `.agent/S2-01c-questions-6.md` (3, 4, 5 answered).
+Packet `archive/agent-history/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-handoff.md`; open questions `archive/agent-history/S2-01c-questions-6.md` (3, 4, 5 answered).
 
 - Gateway ledger: schema 3 keys `seal_refusal` by `(source, epoch, snapshot, outbox_state)` (R1); `diagnostic_config` (frozen), `diagnostic_outbox` (one immutable report per cadence slot, READY only, never received), `health_observation` (contacts, injected faults). Schema 4 `publication_clock(lab_run_ref)` forward-only.
 - Wire: `contracts/assetops_contracts/gateway_diagnostics.py` `GatewayDiagnosticsV1` + `DiagnosticConfig` (60 s cadence, 1 GiB/256 MiB WARN/STOP demo triggers); vectors `contract-fixtures/gateway-diagnostics-v1-vectors.json`. `publication_schedule.py` holds the Lab-private `PublicationSchedule`/`DelayedReport`.
@@ -3307,7 +3307,7 @@ Packet `.agent/S2-01c-review-packet.md`; handoffs `.agent/S2-01c-phase-{1,2,3a}-
 
 ### Open
 
-- Architect: questions-6 (legacy schedules without a boundary count, live terminal-gap clock movement, first-start schedule failure, refusal shape, which refusal is terminal). questions-5 answered in `.agent/architect-S2-batch-answers-2026-10-09.md`; questions-3/-4 in `.agent/architect-S2-01c-answers-4.md`.
+- Architect: questions-6 (legacy schedules without a boundary count, live terminal-gap clock movement, first-start schedule failure, refusal shape, which refusal is terminal). questions-5 answered in `archive/agent-history/architect-S2-batch-answers-2026-10-09.md`; questions-3/-4 in `archive/agent-history/architect-S2-01c-answers-4.md`.
 - N1 (exact IPC key-set refusal kind) and N2 (HELD/SCHEDULE_MISSING strings at 640 px) carried to the S2 checkpoint.
 - Carries C2 (AC5 diagnostic bytes across a real reconnect not asserted) and C3 (full seeded layout run unverified) for the S2 milestone checkpoint.
 - A seal refusal after admission leaves a delayed report PENDING until the next advance. S2-02 owns upload, central receipt and diagnostic freshness.

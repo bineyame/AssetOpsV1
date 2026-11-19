@@ -1,6 +1,6 @@
 """W6-01b (B1): the global Maintenance and Preventive roots `GET /api/work/maintenance` and `/api/work/preventive`.
 
-`.agent/W6-01-build-spec.md` section 1, the B1 card, section 3.1 (A1Q2 R2/R3, A2Q1 X1/X2/X9, CL3-4) and the
+`specs/W6-01/` section 1, the B1 card, section 3.1 (A1Q2 R2/R3, A2Q1 X1/X2/X9, CL3-4) and the
 "B1-B3 pre-flight rulings" P-B1-1..13. Rows are written by `tools/w601_seed.py` through the real W4 `WorkService` and
 the ordered write clock from the B1 `--clock 2026-10-20T12:00:00Z` (P-B1-1), read through the constructor
 read-clock override. Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test` DB.

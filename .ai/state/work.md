@@ -2,7 +2,7 @@
 
 ## S6-01a - Action store, controlled application and exact read (in_review)
 
-Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Packet `.agent/S6-01a-review-packet.md`; handoffs `.agent/S6-01a-phase-1-handoff.md`, `.agent/S6-01a-phase-2-handoff.md`. Authority `D-2026-10-15-s601-action-store-and-ui` (`.agent/architect-S6-01-answers.md` Q1-Q5, M1-M3).
+Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Packet `archive/agent-history/S6-01a-review-packet.md`; handoffs `archive/agent-history/S6-01a-phase-1-handoff.md`, `archive/agent-history/S6-01a-phase-2-handoff.md`. Authority `D-2026-10-15-s601-action-store-and-ui` (`archive/agent-history/architect-S6-01-answers.md` Q1-Q5, M1-M3).
 
 - Migration `0016_action_store` (down `0013_schedule_state`): `action` (accepted-recommendation snapshot), `action_basis_assessment`/`_evidence`, `action_event`, `action_policy_change`, `action_policy_change_binding`; all append-only (`ledger_append_only`), same-Site composite FKs, `action_code_seq`. Event expected/current Foundation IDs carry same-Site FKs; the change's APPLIED event must be its own Action's (`action_event_action_unique`).
 - `backend/assetops_backend/actions/`: `reserve_trial.py` (pure `reserve-trial-1`), `lifecycle.py` (transition table, reducer, selectors, `SYSTEM_DEMO`), `capability.py` (grants v2: tenant ID + Site ID + command + fixture record Finding IDs), `service.py` (`ActionService`), `composition.py` (`foundation_publish(registry)` maps S1 refusals to Action failure codes), adapter `adapters/postgres_action_store.py` (ninth writer, INSERT only).
@@ -16,7 +16,7 @@ Branch `task/S6-01a-action-store-read` from main `fd7afd2c`. Packet `.agent/S6-0
 
 ## S6-01b - Action, recommendation and change surfaces (in_review)
 
-Branch `task/S6-01b-action-ui`, stacked on unmerged S6-01a `c341599b`; no backend change. Packet `.agent/S6-01b-review-packet.md`; handoffs `.agent/S6-01b-phase-1-handoff.md`, `.agent/S6-01b-phase-2-handoff.md`; owner steps `.agent/S6-01b-owner-walkthrough.md`.
+Branch `task/S6-01b-action-ui`, stacked on unmerged S6-01a `c341599b`; no backend change. Packet `archive/agent-history/S6-01b-review-packet.md`; handoffs `archive/agent-history/S6-01b-phase-1-handoff.md`, `archive/agent-history/S6-01b-phase-2-handoff.md`; owner steps `archive/agent-history/S6-01b-owner-walkthrough.md`.
 
 - Client `frontend/src/sites/actionClient.ts`: recommendation, Action, events and change reads, accept and apply POSTs. Every refusal is a typed `Refusal`. `system_demo_capability` is optional; when it is absent or `allowed:false` the screens are read-only.
 - Shared words `sites/actionPresentation.tsx`:
@@ -49,7 +49,7 @@ Branch `task/S6-01b-action-ui`, stacked on unmerged S6-01a `c341599b`; no backen
   - S6-02 owns Plan, Evidence and Verification, the change index and effect verdicts.
 ## S6-02a - frozen verification, evaluator and exact read (phases 1-2 built, slice review pending)
 
-Branch `task/S6-02a-verification-core` (main `e39a3c20` merged in; unmerged). Packet `.agent/S6-02a-review-packet.md`; handoffs `.agent/S6-02a-phase-1-handoff.md`, `.agent/S6-02a-phase-2-handoff.md`. Authority `D-2026-10-16-s6-verification`, `-s602-questions`, `-s602a-cutoff`.
+Branch `task/S6-02a-verification-core` (main `e39a3c20` merged in; unmerged). Packet `archive/agent-history/S6-02a-review-packet.md`; handoffs `archive/agent-history/S6-02a-phase-1-handoff.md`, `archive/agent-history/S6-02a-phase-2-handoff.md`. Authority `D-2026-10-16-s6-verification`, `-s602-questions`, `-s602a-cutoff`.
 
 - Migration `0019_verification_core`: insert-only plan, later selection binding (now with `idempotency_key`/`payload_sha256`), evaluation request, outcome, metric; `action_event` RESOLVED/RESOLUTION_WITHDRAWN only via the evaluator job (SYSTEM_JOB). Ninth writer only; rule 8 entries literal.
 - Rules `actions/verification_rules.py`: slots/coverage/bands/target plus `decide` (VERIFIED/INEFFECTIVE/INCONCLUSIVE, unknown overrides known failure) and `source_pair` (per window, never the union). Timestamps `+00:00`.
@@ -62,7 +62,7 @@ Branch `task/S6-02a-verification-core` (main `e39a3c20` merged in; unmerged). Pa
 
 ## S6-02b - Action verification surfaces (phases 1-2 built, in_review)
 
-Branch `task/S6-02b-verification-ui` (from main `cdb09767`; unmerged; owner walkthrough required). Packet `.agent/S6-02b-review-packet.md`; handoffs `.agent/S6-02b-phase-1-handoff.md`, `.agent/S6-02b-phase-2-handoff.md`. Authority `D-2026-10-16-s6-verification`, `-s602-questions`, `-s602a-replay`, `-s602a-holds`.
+Branch `task/S6-02b-verification-ui` (from main `cdb09767`; unmerged; owner walkthrough required). Packet `archive/agent-history/S6-02b-review-packet.md`; handoffs `archive/agent-history/S6-02b-phase-1-handoff.md`, `archive/agent-history/S6-02b-phase-2-handoff.md`. Authority `D-2026-10-16-s6-verification`, `-s602-questions`, `-s602a-replay`, `-s602a-holds`.
 
 - Simulator: `mini-grid` v5 (`packs/mini_grid.py` `decide_v5`, `START_HEADROOM_OVER_RESERVE = 5`) starts the generator at min(Site start threshold, reserve in effect + 5); v1-v4 unchanged. Registered in `runs/profiles.py`, `host/execution_adapter.py`. Scenario `kobo-mini-grid-reserve-trial` v1 (fingerprint pinned).
 - Replay: `backend/conversions/d-verification-window-v2.json` (windows predeclared) reaches VERIFIED through gateway/S2/S3/S4 and the Action API; `host/tests/test_s6_verification_replay.py` parametrized v1 (INCONCLUSIVE) and v2.
@@ -71,7 +71,7 @@ Branch `task/S6-02b-verification-ui` (from main `cdb09767`; unmerged; owner walk
 - Open: `I-sim-verification-cases`, `D-verification-window` stay open (non-pass variants are test-scoped, not Lab runs); served REASSESSMENT_PENDING proven only in fixture tests; inconclusive case has no data-carried test-scoped label; mock-fidelity copy pass at W1 conclusion; `siteFoundationChange.test.tsx` h1 wait is load-sensitive in the full parallel run.
 ## S6-03 - Site Work Action list (phases 1-2 built, in_review)
 
-Branch `task/S6-03-site-work-list` (base main `cdb09767`, unmerged); packet `.agent/S6-03-review-packet.md`; owner steps `.agent/S6-03-owner-walkthrough.md`. No migration (head stays `0019_verification_core`); no new SQL writer.
+Branch `task/S6-03-site-work-list` (base main `cdb09767`, unmerged); packet `archive/agent-history/S6-03-review-packet.md`; owner steps `archive/agent-history/S6-03-owner-walkthrough.md`. No migration (head stays `0019_verification_core`); no new SQL writer.
 
 - Store: `PostgresActionStore.site_window(tenant, site, start, end)` (`actions/adapters/postgres_action_store.py`) reads every Action created in `[start,end)` and all their events in one REPEATABLE READ, READ ONLY snapshot (SELECT only).
 - Read: `actions/site_index.py` `ActionIndexService.read` + `parse_request` (UTC, `from<to`, <=31 days, limit 1-100 default 25, opaque base64 cursor). Latest event by `(recorded_at,id)`; state = `actions.lifecycle.reduce` (same as detail); links via `actions/service.py` `selected_action_links` (module function extracted from `ActionService._links`; detail unchanged). Fence = max created, max event recorded, Action count, event count (+ token `sai1-...`); cursor binds tenant/Site/window/fence/last key. Refusals: 422 `WINDOW_REQUIRED|INVALID_WINDOW|INVALID_LIMIT|INVALID_CURSOR`, 409 `ACTION_INDEX_BASIS_CHANGED` (`SCOPE_CHANGED|FENCE_CHANGED`), 409 `ACTION_INDEX_INCONSISTENT` (event without Action, Action without any ACCEPTED event), 503 `ACTION_STORE_UNAVAILABLE`; all carry `rows: null, total_count: null`.
@@ -83,7 +83,7 @@ Branch `task/S6-03-site-work-list` (base main `cdb09767`, unmerged); packet `.ag
 - Open: registry `I-site-action-index-read`/`I-sitework-ui`/`I-S6-03`/`sitework:1#a` stay open until review; Incidents/Maintenance tabs not rendered; owner/due/priority absent; plain-language copy for the W1-conclusion task; whole-window load (no SQL paging) is fine at W1 sizes.
 ## post-W6 W6-global-Work - global work list/WR D3 fixes and caps fix round (built, in_review)
 
-Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-W6-rulings.md` (Q1-Q21) and `.agent/post-W6-W6-caps-rulings.md` (1-5). Packet `.agent/post-W6-W6-packet.md`; handoff `.agent/post-W6-W6-handoff.md`.
+Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `archive/agent-history/post-W6-W6-rulings.md` (Q1-Q21) and `archive/agent-history/post-W6-W6-caps-rulings.md` (1-5). Packet `archive/agent-history/post-W6-W6-packet.md`; handoff `archive/agent-history/post-W6-W6-handoff.md`.
 
 - Backend (`fe52c862`): `site_domain` on global list rows and detail `selected`; `links.site` via `estate/evidence_money.site_home_href`; incident `linked_requests` [{label, href}] with IDs in the basis; Site incidents/maintenance fallbacks carry `known_at` only for an explicit cutoff; global Action labels use stored `ACT-` codes. Files `work/{global_index,global_detail,operational_index}.py`, `work/adapters/postgres_global_read.py`; tests `test_w601{a,b,c,e}`.
 - Frontend (`5685abad`): R352-R372 D3s across `frontend/src/work/*`, R371 route `/maintenance/requests/:caseId/*`, guard rule in `tools/checks/navigation-truthfulness.ps1`.
@@ -94,8 +94,8 @@ Branch `task/post-W6-W6-global` (from main `821ad6bf`). Rulings `.agent/post-W6-
 - Open: VERIFICATION_WINDOW has no writer (capture gap); cold/EV preventive and operational rows, one list with all three domains, and pending/stale global states have no producer; registry chain Q19 nodes remain open (see packet); the other 3-line title/body clamps keep their existing "Full ... text" disclosures (not changed by ruling 4).
 
 ## LINK-LINEAGE - the board links an Action across basis-only Finding revisions (built, in_review)
-Branch `task/LINK-LINEAGE-board-action` (from main 15eed62c8). Sheet `AssetOpsV1-plan2/.agent/build-sheet-LINK-LINEAGE.md`;
-decision `D-2026-10-31-board-action-refresh-lineage`; packet `.agent/LINK-LINEAGE-packet.md`.
+Branch `task/LINK-LINEAGE-board-action` (from main 15eed62c8). Sheet `AssetOpsV1-plan2/specs/LINK-LINEAGE/spec.md`;
+decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-history/LINK-LINEAGE-packet.md`.
 - `site_outcomes/board.py`: pure `refresh_chain(revisions, origin_id, shown_id)` (sheet §2; reads only revisions up to
   the shown one) and `BASIS_REFRESHED`; `FindingFact.refreshed_from: tuple[str, ...] = ()` (last field);
   `assemble`'s join is `linked_actions` (exact revision or `origin_revision_id in f.refreshed_from`), used only by the

@@ -1,7 +1,7 @@
 """DATA-8 (D-17N.4, K10/K11; owner "both" 2026-11-12): Kisiwa's cold store and water pump are productive users, and the
 Site has a declared price per kWh. No database: the declaration is pinned on the in-memory Foundation store by
 `test_k1_kisiwa_fixtures.py::test_register_in_on_the_in_memory_store`; here the price publication's commands. The
-Postgres proof is the VPS scratch prepare named in `.agent/DATA-17N-packet.md`."""
+Postgres proof is the VPS scratch prepare named in `archive/agent-history/DATA-17N-packet.md`."""
 
 from __future__ import annotations
 

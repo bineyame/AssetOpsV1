@@ -37,7 +37,7 @@ import {
 import { executionMethods } from "./executionFixtures";
 
 /**
- * W2-05b: the EV charging run setup (`.agent/W2-05b-build-spec.md` Q8-Q11).
+ * W2-05b: the EV charging run setup (`specs/W2-05b/` Q8-Q11).
  * Site first; only an EV_CHARGING Site reads the EV choices for that exact
  * Site; a row writes nothing; Create sends the document's own values.
  */

@@ -1,6 +1,6 @@
 """W3-03 seam run 0b: the single persisted one-day three-domain Portfolio fixture and its exact public root reads.
 
-Spec: `.agent/W3-03-build-spec.md` closure 4 B3/B4 (closure 2 Q9 as amended there, closure 3). One private `*_test`
+Spec: `specs/W3-03/` closure 4 B3/B4 (closure 2 Q9 as amended there, closure 3). One private `*_test`
 database and the one `demo` tenant compose, without the golden `S4_CASES["F03"]` KOBO import:
 
 * the W3-01 golden `mixed_replay` mechanics - cold `excursion` (drained) and EV `complete` with their second database reset

@@ -4,7 +4,7 @@ Status: in_review
 
 USER_REVIEW_REQUIRED: no (merges on review ACCEPT; walkthroughs deferred to the owner walkthrough after this round).
 
-Contract: `.agent/build-sheet-POLISH.md` §1.4 (backend), §3 "Asset labels", §5 Lane A PA-2, §7 (R640 asset part, R641),
+Contract: `specs/POLISH/` §1.4 (backend), §3 "Asset labels", §5 Lane A PA-2, §7 (R640 asset part, R641),
 Addendum 3 (captures) and Addendum 6 (Q2, Q4). Branch `task/POLISH-PA-2b-plan-due-assets` from main `816448bec`.
 
 ## Acceptance

@@ -1,6 +1,6 @@
 # W5-02 Cold Work and intervention
 
-Status: planned; build instructions in [`.agent/W5-02-build-spec.md`](../.agent/W5-02-build-spec.md). Architect decision `D-2026-10-22-w5-02-w5-04-buildspec`.
+Status: planned; build instructions in [`specs/W5-02/`](../specs/W5-02/). Architect decision `D-2026-10-22-w5-02-w5-04-buildspec`.
 
 ## Order and ownership
 

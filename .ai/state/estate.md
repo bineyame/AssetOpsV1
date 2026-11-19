@@ -2,7 +2,7 @@
 
 ## CC-R1 - links, claim labels, beneficiary key, no-double-count check (built, in_review)
 
-Lane C, branch `task/CC-R1-claim-links-beneficiary`. Spec: `.agent/build-spec-commercial-2026-10-27.md` sections 0.4 and CC-R1. Packet: `.agent/CC-R1-review-packet.md`.
+Lane C, branch `task/CC-R1-claim-links-beneficiary`. Spec: `specs/Lane-C/` sections 0.4 and CC-R1. Packet: `archive/agent-history/CC-R1-review-packet.md`.
 - `estate/financials.py`: `BENEFICIARY_OF_CATEGORY` (owner Q9; five categories, including `PRODUCTIVE_USE_CONTRIBUTION_SCENARIO` for D1 and `RECORDED_REPAIR` -> `COOLING_PROVIDER`). `_line` emits a public `beneficiary` after `category`. `_beneficiary(line)` falls back to the category default, so hand-built test lines work. `_partition` has seven elements, and `compare()` unpacks seven.
 - `estate/evidence_money.group_key_for_partition(..., *, beneficiary=None)` adds `beneficiary` to the hashed payload only when it differs from the category default. Default keys are byte-identical: a pinned value is asserted in `test_w303_portfolio_reduction.py`. The map is imported lazily because `financials` imports `evidence_money`.
 - New `estate/money_invariants.double_count_violations(portfolio, financials=None)`. It is pure, takes parsed bodies, and uses `portfolio.selected_lines` as the member set. It emits violation texts prefixed `TOTAL_NOT_NULL`, `MEMBER_NOT_FOUND`, `MEMBERS_DISAGREE` or `MEMBERS_INTERSECT`. Tests and the scope-snapshot `Portfolio.ok()` helper call it. It is not called at runtime.
@@ -17,7 +17,7 @@ Lane C, branch `task/CC-R1-claim-links-beneficiary`. Spec: `.agent/build-spec-co
 
 ## CC-R2 - Portfolio placement (D5) and the estate producer case (built, in_review)
 
-Lane C, branch `task/CC-R2-placement`. Spec: `.agent/build-spec-commercial-2026-10-27.md` "CC-R2". Packet: `.agent/CC-R2-review-packet.md`. Open: `.agent/CC-R2-questions.md`.
+Lane C, branch `task/CC-R2-placement`. Spec: `specs/Lane-C/rulings.md` "CC-R2". Packet: `archive/agent-history/CC-R2-review-packet.md`. Open: `archive/agent-history/CC-R2-questions.md`.
 - New pure `estate/placement.py`:
   - `POLICY_VERSION` `estate-placement/1`, `GROUPS`, `GROUP_LABEL`, `REASON_TEXT` (20 codes; `VERIFIED_WATCH_RETURN` follows CC-R1-Q1) and `place(row, action, site_cov, line_group) -> Placement` with `.wire()`.
   - Rules run in order: 1, 2, Monitor, Compare, Unpriced, 6.
@@ -57,12 +57,12 @@ Lane C, branch `task/CC-R2-placement`. Spec: `.agent/build-spec-commercial-2026-
 
 ## OUT-A - outcome category labels and links (built, in_review)
 
-Outcome sprint slice A, branch `task/OUT-A-category-labels` (main `cbc32703` merged in). Spec: `AssetOpsV1-plan2/.agent/build-spec-outcome-sprint-2026-10-29.md` Slice A + rulings A, addenda 1-2. Packet `.agent/OUT-A-packet.md`.
+Outcome sprint slice A, branch `task/OUT-A-category-labels` (main `cbc32703` merged in). Spec: `AssetOpsV1-plan2/.agent/build-spec-outcome-sprint-2026-10-29.md` Slice A + rulings A, addenda 1-2. Packet `archive/agent-history/OUT-A-packet.md`.
 - Backend:
   - New pure `outcomes/catalogue.py`, which holds four categories and the site-level outcomes.
   - New pure `outcomes/outcome_map.py` (`outcome-map/1`: `categories_for(signal, domain)`, `finding_signal_key`, `outcome_roles`). NOT_MAPPED is used when the mechanism or the domain is unknown.
   - `categories` are on estate index rows (`estate/index.py`), Portfolio rows plus `summary.category_counts` (`estate/portfolio.py`), the mini Finding index and read (`analytics/finding_index.py`, `finding_read.py`), cold and EV Finding reads (`adapters/postgres_assessment_store.py`) and the mini Action read (`actions/service.py`).
-- Fixtures: w301 golden and both S6 contracts were regenerated through write flags. Proof: `.agent/OUT-A-golden-equality.py`, which strips only `categories` and `selection_seq`.
+- Fixtures: w301 golden and both S6 contracts were regenerated through write flags. Proof: `archive/agent-history/OUT-A-golden-equality.py`, which strips only `categories` and `selection_seq`.
 - Frontend:
   - `sites/outcomeCategories.tsx` holds `CategoryTags` (solid = moves, outlined = touches), `AffectsLine` (prop `subject`, not `variant`; a guard bans `variant`) and `OutcomeIcon`/`OutcomeGlyph`. Styles are in `sites/outcomes.css`.
   - Pills are on the estate, Site, cold and EV Findings lists.
@@ -79,7 +79,7 @@ Outcome sprint slice A, branch `task/OUT-A-category-labels` (main `cbc32703` mer
   - No three-domain demo estate exists (R535).
 
 ## OUT-B - Site outcome board and Portfolio outcome matrix (built, in_review)
-Branch `task/OUT-B-site-outcome-board` (head d3554aca before closeout commit; cut from OUT-A 7b826e97). Packet `.agent/OUT-B-packet.md`; history `.agent/OUT-B-phase-handoff.md`.
+Branch `task/OUT-B-site-outcome-board` (head d3554aca before closeout commit; cut from OUT-A 7b826e97). Packet `archive/agent-history/OUT-B-packet.md`; history `archive/agent-history/OUT-B-phase-handoff.md`.
 - Backend: `outcomes/status.py` (roll-up of outcome states); `site_outcomes/` (`board.py` facts -> four-outcome board, `mini.py`/`cold.py`/`ev.py` composers over bound `*Ports`,
   `read.py` binds the real reads incl. covering-day widening for cold/EV). Routes `GET /api/sites/{site}/outcome-board` (`site-outcome-board-1`) and `GET /api/estate/outcome-summary`
   (`estate-outcome-summary-1`). The board reads existing sources only; nothing stored. Read gates per source are listed in the packet and bound in `main.py` (`work_access=site_read_access`).
@@ -94,7 +94,7 @@ Branch `task/OUT-B-site-outcome-board` (head d3554aca before closeout commit; cu
   `test_s4_consequence_store_postgres.py:111`; under separate investigation); check-all 11/11.
 
 ## OUT-C - early warnings, first set (built, in_review)
-Branch `task/OUT-C-early-warnings` (cut from main e8cf8a36). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-C.md`; packet `.agent/OUT-C-packet.md`; history `.agent/OUT-C-phase-handoff.md`.
+Branch `task/OUT-C-early-warnings` (cut from main e8cf8a36). Contract `AssetOpsV1-plan2/specs/OUT-C/spec.md`; packet `archive/agent-history/OUT-C-packet.md`; history `archive/agent-history/OUT-C-phase-handoff.md`.
 - Backend: `outcomes/warnings.py` pure producer (`early-warnings/1`; seven rules; no money; `subject`/`visit_ids` never on the wire); catalogue/2 measures MG-4, CC-3.
   `site_outcomes/visits.py` reads maintenance over three recorded-time windows `[to-62,to-31) [to-31,to) [to,to+31)`, filtered by occurrence (60 days);
   board/summary carry `warnings[]`, summary `categories[].warning_count`; cold/mini/ev composers feed reserve counts, faults, connectors, peak, plans.
@@ -107,7 +107,7 @@ Branch `task/OUT-C-early-warnings` (cut from main e8cf8a36). Contract `AssetOpsV
   dataset; R561, R562, R565, R566, R569 open; full vitest, full backend and captures await the coordinator's go.
 
 ## OUT-W - estate event windows for cold and EV Sites (built, in_review)
-Branch `task/OUT-W-estate-event-windows` (cut from main 833e7c95). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-W.md`; packet `.agent/OUT-W-packet.md`; history `.agent/OUT-W-phase-handoff.md`.
+Branch `task/OUT-W-estate-event-windows` (cut from main 833e7c95). Contract `AssetOpsV1-plan2/specs/OUT-W/spec.md`; packet `archive/agent-history/OUT-W-packet.md`; history `archive/agent-history/OUT-W-phase-handoff.md`.
 - Backend: `EstateEvidenceService.site_selected_windows` (`estate/evidence_money.py`, after `site_readiness`): the Evidence root's selected windows of one
   cold/EV Site on one snapshot (same `snap.selected_windows` arguments as `coverage._windowed`), deduplicated, ascending, forward and <= 31 days; [] for
   mini/unsupported/no cutoff, None outside the authorized set; window rule and `known_at` refusals as `site_readiness`. No new SQL, no new port.
@@ -122,8 +122,8 @@ Branch `task/OUT-W-estate-event-windows` (cut from main 833e7c95). Contract `Ass
   Maintenance card 4 reads "Not assessed" while the summary is loading (pre-existing OUT-C behaviour, observed in capture).
 
 ## OUT-D - declared objectives and status (built, in_review)
-Branch `task/OUT-D-declared-objectives` (from main 833e7c95, OUT-W merged in). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-D.md`; packet
-`.agent/OUT-D-packet.md`; history `.agent/OUT-D-phase-handoff.md`; U4 review `AssetOpsV1-plan2/.agent/OUT-D4-review.md` (REVISE, fixed f6be0782).
+Branch `task/OUT-D-declared-objectives` (from main 833e7c95, OUT-W merged in). Contract `AssetOpsV1-plan2/specs/OUT-D/spec.md`; packet
+`archive/agent-history/OUT-D-packet.md`; history `archive/agent-history/OUT-D-phase-handoff.md`; U4 review `AssetOpsV1-plan2/.agent/OUT-D4-review.md` (REVISE, fixed f6be0782).
 - Schema: migration `0038_out_objectives` (head; append-only objective revisions, named CHECKs, site FK, UPDATE/DELETE trigger). 20 head-literal
   test files name it; downgrade targets untouched. Writer guard `configuration-persistence.ps1` registers the store (anti-vacuity counter) and an
   `objectives` configuration domain.
@@ -141,8 +141,8 @@ Branch `task/OUT-D-declared-objectives` (from main 833e7c95, OUT-W merged in). C
   (no combined dataset, R535); Depot estate summary 409 (R577, FIX-01). Register R580-R586 + R542 note.
 
 ## OUT-E - cost check after the generator trial (built, in_review)
-Branch `task/OUT-E-cost-proof` (from main b94aee17). Contract `AssetOpsV1-plan2/.agent/build-sheet-OUT-E.md`; packet `.agent/OUT-E-packet.md`;
-history `.agent/OUT-E-phase-handoff.md`; E2/E3 review `AssetOpsV1-plan2/.agent/OUT-E2-3-review.md` (REVISE, fixed); E4 Architect ruling option b.
+Branch `task/OUT-E-cost-proof` (from main b94aee17). Contract `AssetOpsV1-plan2/specs/OUT-E/spec.md`; packet `archive/agent-history/OUT-E-packet.md`;
+history `archive/agent-history/OUT-E-phase-handoff.md`; E2/E3 review `AssetOpsV1-plan2/.agent/OUT-E2-3-review.md` (REVISE, fixed); E4 Architect ruling option b.
 - Schema: CC-M merged (0036 productive-use kind, 0037 `trial_cost_comparison_revision`); empty merge `0039_merge_objectives_cc` (down 0037+0038) is
   the head; the 20 head-literal files and `mini_depth_probe` name it; 0036/0037 docstrings reworded only.
 - `verification_rules.window_evidence` returns `generator_kwh` (outside `plan_sha256` and stored `details`; served on the evidence read).
@@ -160,8 +160,8 @@ history `.agent/OUT-E-phase-handoff.md`; E2/E3 review `AssetOpsV1-plan2/.agent/O
   Cost-row line is proven on fakes only until the combined dataset. No re-run command (R592).
 
 ## COV-PARTIAL - estate coverage estate-coverage/2 (built, in_review)
-Branch `task/COV-PARTIAL-estate-coverage` (from main 15eed62c8). Contract `AssetOpsV1-plan2/.agent/build-sheet-COV-PARTIAL.md`
-plus Addendum 1. Packet `.agent/COV-PARTIAL-packet.md`. Decision `D-2026-10-31-estate-coverage-v2`.
+Branch `task/COV-PARTIAL-estate-coverage` (from main 15eed62c8). Contract `AssetOpsV1-plan2/specs/COV-PARTIAL/spec.md`
+plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision `D-2026-10-31-estate-coverage-v2`.
 - `estate/coverage.py` `_mini_grid_basis` adds `PARTIAL` (not in `COVERED`). An unchecked day sets `gap`. PARTIAL needs
   all four: a live read, `len(days) == _requested_days(from, to)`, at least one selected day, and every selected day
   clean. Any other gap folds into `unknown`, which is today's rule byte for byte.
@@ -187,7 +187,7 @@ plus Addendum 1. Packet `.agent/COV-PARTIAL-packet.md`. Decision `D-2026-10-31-e
 
 ## POLISH PA-1 - board truth (built, in_review)
 
-- Contract: `.agent/build-sheet-POLISH.md` §1.1/§1.3/§1.6/§1.7/§6 D-2 and Addendum 2; packet `.agent/POLISH-PA-1-packet.md`.
+- Contract: `specs/POLISH/` §1.1/§1.3/§1.6/§1.7/§6 D-2 and Addendum 2; packet `archive/agent-history/POLISH-PA-1-packet.md`.
 - `site_outcomes/mini.py`: Cost copy "possible extra fuel cost on this day" / "No fuel cost estimated for this day";
   a PRICED `amount_high == 0` gives `COST_ZERO` and no headline money (R626 backend; idle fuel not modelled, owner Q1).
 - `mini.no_run_day`: MG-7 settles when the overview day reading is `claim_level == "COMPLETE"` with no

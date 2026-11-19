@@ -1,6 +1,6 @@
 """W5-02a K1b: the cold domain Action detail and the Site Action union index on real Postgres.
 
-`.agent/W5-02-build-spec.md` "Command/read wire", "Site Action index", K1b lines and the Architect pre-flight ruling
+`specs/W5-02/` "Command/read wire", "Site Action index", K1b lines and the Architect pre-flight ruling
 B1-B3. The cold Finding comes from the ordinary W2-02 `backup-failed` replay (`cold` fixture of
 `test_w502_domain_intent_postgres.py`); domain roots, intents and case links are written through the K1a service
 and W4 cases through the W4 service. The one W1 battery Action is a direct-SQL row (a cold Site cannot accept one

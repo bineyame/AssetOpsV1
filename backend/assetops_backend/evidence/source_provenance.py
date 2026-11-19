@@ -1,7 +1,7 @@
 """S4-05a phase 2: the exact-revision source provenance resolver.
 
 `D-2026-10-15-s405-stored-demo-provenance`, `tasks/S4-05-stored-demo-provenance.md` shared contract item 3,
-`.agent/architect-S4-05-answers.md` Q2 and Follow-up M1. One tenant/Site-scoped resolver states where a set of
+`archive/agent-history/architect-S4-05-answers.md` Q2 and Follow-up M1. One tenant/Site-scoped resolver states where a set of
 accepted evidence IDs came from, from the immutable pre-admission bindings only
 (`accepted_evidence.batch_id -> batch_publication_link -> evidence_publication`). Nothing here reads a date, a
 spec file, a `SIMULATED`/`LIVE` mode or a Site/day match: an accepted ID without a binding is unknown

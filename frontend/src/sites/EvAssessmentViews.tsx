@@ -41,7 +41,7 @@ import { AffectsLine } from "./outcomeCategories";
 
 /*
  * W2-06 commit 5: an EV_CHARGING Site's `sessions` and `ev-finding` screens in their exact v69 panel slots
- * (`.agent/W2-06-build-spec.md` "Commit 5: UI route and copy dry-read", as overridden by "Run 5 rulings (r5)"
+ * (`specs/W2-06/rulings-2.md` "Commit 5: UI route and copy dry-read", as overridden by "Run 5 rulings (r5)"
  * state copy and "Run 7 rulings (r6)" commit-5 dry-read):
  *
  *   sessions    1 Session service records, 2 How to read the denominator, 3 Cause remains bounded

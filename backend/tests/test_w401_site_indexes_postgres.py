@@ -1,6 +1,6 @@
 """W4-01 commit 4: the Site Incident/Maintenance lists over real Postgres (`site-work-index-1`).
 
-`.agent/W4-01-build-spec.md` B1/B8/B9/B10, closure 2 Q8/Q11, Run 5 r1-r5, Run 6 rulings 1-2 and Run 7 q7-1..q7-5
+`specs/W4-01/` B1/B8/B9/B10, closure 2 Q8/Q11, Run 5 r1-r5, Run 6 rulings 1-2 and Run 7 q7-1..q7-5
 with the commit-4 dry-read. Cases are written through the W4 command service (the q2 private command clock where
 a fixed instant is needed); lists read through `WorkIndexService` over `PostgresWorkRead` with the q4-1 private read
 clock. Tests on the shared `runner` fixture come before the cold/EV `chain` test, whose fresh-database reset

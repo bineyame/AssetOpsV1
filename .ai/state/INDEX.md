@@ -1,7 +1,8 @@
 # Built-state index
 
 What completed slices settled in code, and what they left open. This folder replaces
-the single `.ai/CODE_STATE.md` (split verbatim by product area on 2026-11-18).
+the single `.ai/CODE_STATE.md` (split verbatim by product area on 2026-11-18; since
+then: citation path rewrites in declutter steps 4-5, and new entries per RULES §9).
 
 Find a slice: grep its ID in `index-*.md` (one line per slice, original order), then
 open the named area file at that `## ` heading. Never read an area file whole.

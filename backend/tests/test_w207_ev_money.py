@@ -1,6 +1,6 @@
 """W2-07 commit 2: the pure EV gross tariff scenario and the EV money worker's refusal path (no database).
 
-`.agent/W2-07-build-spec.md` q1 R5/R6 precedence and composition tables, q3 R8 (pending is a retryable FAILED
+`specs/W2-07/` q1 R5/R6 precedence and composition tables, q3 R8 (pending is a retryable FAILED
 attempt, never a stored revision) and C1-C5. The Postgres replay vectors and the named R8 settlement regression are
 in `test_w207_ev_money_postgres.py`.
 """

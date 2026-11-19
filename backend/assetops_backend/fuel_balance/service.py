@@ -1,4 +1,4 @@
-"""DIESEL-K3 (`.agent/build-sheet-DIESEL-1.md` §9d.4): assess one named night, explicitly (no tick stage in v1).
+"""DIESEL-K3 (`specs/DIESEL-1/` §9d.4): assess one named night, explicitly (no tick stage in v1).
 
 `assess_night` runs in one store transaction: the Site's one active FUEL_TANK and one active GENERATOR, the night
 window in the Site timezone, the closed-window check, the per-night lock, the inputs as known at the transaction's

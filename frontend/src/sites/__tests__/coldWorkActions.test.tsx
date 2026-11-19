@@ -1,5 +1,5 @@
 /**
- * W5-02 K2a/K2b (`.agent/W5-02-build-spec.md` U1-U4, P-K2a-33..48): the COLDCHAIN Site > Work > Actions tab over the
+ * W5-02 K2a/K2b (`specs/W5-02/` U1-U4, P-K2a-33..48): the COLDCHAIN Site > Work > Actions tab over the
  * union Site Action index, and the domain Action placeholder shell, against the v69 `cold-work` / `cold-action` mock.
  */
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -332,7 +332,7 @@ describe("cold Site Actions tab (v69 cold-work)", () => {
     expect(main.textContent).not.toContain(WORK_CONTEXT_NOTICE);
     expect(main.textContent).not.toContain("global create flow");
     // The server's ruled criterion summary contains "runs" (a T028 term); no cold-work screen gloss is registered for
-    // it yet (question filed in .agent/W5-02b-questions.md), so only that exact literal is set aside here.
+    // it yet (question filed in archive/agent-history/W5-02b-questions.md), so only that exact literal is set aside here.
     const { violations } = scanProductVocabulary(main, "cold-work");
     // K2 ruling 14: exactly that one text-node literal is set aside, never a subtree.
     const others = violations.filter((v) => !(v.where === "text" && v.text === "Start requested → generator runs → power → cooling"));

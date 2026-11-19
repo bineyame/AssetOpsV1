@@ -1,6 +1,6 @@
 """W2-04 commit 2: pure cold consequence derivation (`cold-exposure/1`). No SQL and no driver.
 
-`.agent/W2-04-build-spec.md` "Money schema `0023` and rules", "Implementer dry-read: exact backend behavior" and
+`specs/W2-04/spec.md` "Money schema `0023` and rules", "Implementer dry-read: exact backend behavior" and
 rulings Q3-Q6. Input is one exact basis the consequence store read in the worker's repeatable-read snapshot: a
 cold FindingRevision, the episode revision its claim names, that revision's assessment (window, knowledge cutoff,
 chamber room) and the exact accepted evidence both cite, with their S4-05 publication link rows.

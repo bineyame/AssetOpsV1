@@ -1,4 +1,4 @@
-"""DIESEL-K5 L0 (`.agent/build-sheet-DIESEL-1.md` §9l.2 A1-A7): the Fuel page's night-mode wording, with no database.
+"""DIESEL-K5 L0 (`specs/DIESEL-1/` §9l.2 A1-A7): the Fuel page's night-mode wording, with no database.
 Every "must fail" names the mutation it kills."""
 
 from __future__ import annotations

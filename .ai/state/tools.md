@@ -2,9 +2,9 @@
 
 ## PRE-S3-03 - Delivery checker and next-work report (in review)
 
-Built on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, questions `.agent/PRE-S3-03-questions.md`.
+Built on `plan/pre-S3-startup`; packet `archive/agent-history/PRE-S3-03-review-packet.md`, questions `archive/agent-history/PRE-S3-03-questions.md`.
 
-- `frontend/docs/architecture/delivery_next_work.cjs` owns delivery-plan validation and the `next-work` report; `check_v69_dependency_registry.cjs --next-work [--out f]` / `--verify-report f` drive it (exit 3 on refusal or stale inputs). Fixtures: `test_delivery_next_work.cjs` (node:test).
+- `archive/frontend/docs/architecture/delivery_next_work.cjs` owns delivery-plan validation and the `next-work` report; `check_v69_dependency_registry.cjs --next-work [--out f]` / `--verify-report f` drive it (exit 3 on refusal or stale inputs). Fixtures: `test_delivery_next_work.cjs` (node:test).
 - Registry claim portions now carry `id`, `core`, `variant` (bounded/positive/unknown) and `state` (delivered/open/unmapped/excluded). Only `open` portions with real-node `technical_requires` and no proposed IDs are reviewed paths; `delivered` needs resolved `delivered_by` plus evidence. `real` panels need every portion delivered and an accepted visual gate.
 - 15 S1/S2 bounded portions recorded delivered (14 panels `reviewed_mapping:true`, all `partial`); V-01 is `delivery_plan.visual_gates.V-01` (effort unrecorded, so blocked); `outside_ranking` holds A-finding-index and A-money-comparability.
 - `tools/check-all.ps1` is the normal check command (architecture, navigation, workflow, registry, delivery fixtures, ledger).
@@ -12,7 +12,7 @@ Built on `plan/pre-S3-startup`; packet `.agent/PRE-S3-03-review-packet.md`, ques
 
 ## OPS-01 - backend test turnaround (phases 1-2 built, review pending)
 
-Branch `task/OPS-01-backend-test-speed` from main `52189ec7`. Handoffs `.agent/OPS-01-phase-1-handoff.md`, `.agent/OPS-01-phase-2-handoff.md`; packet `.agent/OPS-01-review-packet.md`. Guide: `backend/TESTING.md`.
+Branch `task/OPS-01-backend-test-speed` from main `52189ec7`. Handoffs `archive/agent-history/OPS-01-phase-1-handoff.md`, `archive/agent-history/OPS-01-phase-2-handoff.md`; packet `archive/agent-history/OPS-01-review-packet.md`. Guide: `backend/TESTING.md`.
 
 - `backend/tests/pg_harness.py`: run-owned databases `<stem>_pt<run>_<tag>_test`, one migrated template per run (`ALLOW_CONNECTIONS false`), per-module `DROP ... WITH (FORCE)` + `CREATE ... TEMPLATE`, `assert_at_head`, lease-guarded orphan sweep, `empty_tables` (DELETE over the TRUNCATE CASCADE closure under `session_replication_role = replica`), `dispose`.
 - xdist (`pytest-xdist==3.8.0`, dev extra): controller makes the run id (`conftest.pytest_configure_node` -> `workerinput`), routes nothing; workers `route(tag=gwN, run=...)` before collection and return early from basetemp handling; first worker builds the shared template under `pg_advisory_lock`; workers drop only their own DB; controller `cleanup_run` drops the rest (covers crashed workers). Workers move `conftest.START_FIRST` modules to the front.
@@ -24,7 +24,7 @@ Branch `task/OPS-01-backend-test-speed` from main `52189ec7`. Handoffs `.agent/O
 
 ## OPS-02 - statement-level rule 8 writer guard (done, pending merge)
 
-Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `.agent/OPS-02-review-packet.md`; closes S4-02d phase-2 review F-B and OPS-01 L1.
+Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `archive/agent-history/OPS-02-review-packet.md`; closes S4-02d phase-2 review F-B and OPS-01 L1.
 
 - `tools/checks/sql_statements.py`: table-agnostic AST extractor. Renders whole string expressions (implicit concatenation, triple quotes, escapes; `+`, f-string, `%`, `.format`, `"".join` with dynamic parts as `{?}`), strips SQL comments, collapses whitespace, splits on `;` and at each write head (INSERT INTO/UPDATE/DELETE/TRUNCATE/MERGE/COPY/CREATE/ALTER/DROP/GRANT; `DO|THEN|FOR|KEY UPDATE` stay in their clause), and synthesises SQLAlchemy Core `insert/update/delete` (aliased imports, `sa.` attributes, `table("x").delete()`) into SQL. Bare string statements (docstrings) are skipped.
 - `configuration-persistence.ps1` rule 8 applies the unchanged per-writer policy tables to clauses (`$line` = clause, `$lineNumber` = expression start line); the driver-import check stays per line. New global refusals: MERGE/COPY, a DML clause whose target is not a literal identifier, a dangling write head (`sql +=` assembly). Schedule UPDATE allows a table alias; its "one line" rule became "one statement". Writer non-vacuity is reported only when the extractor ran (its own failure is reported instead).
@@ -33,7 +33,7 @@ Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `.agent/OPS-0
 - `backend/tests/conftest.py` `refuse_template_opt_out_under_xdist`: `ASSETOPS_TEST_TEMPLATE=0` under xdist (controller or worker) is a `pytest.UsageError` before routing; serial and `-n 0` unchanged.
 - Adding a writer table (LR-01 `source_clock_attestation`, S6-01a Action tables, S4-05a provenance tables): extend the rule-8 policy arrays only; the extractor needs no change.
 - Merge with main `0d3114a3` (2026-10-16): rule 8 statements carry the ninth writer (Action store, insert-only), LR-01 `source_clock_attestation` (assessment store, insert-only) and S4-05a provenance (ledger, insert-only; three DO NOTHING arbiters). S4-05a's provenance verb refusal and S6-01a's Action every-line refusal run on source lines (driver loop) and on clauses; new: an insert-only table (attestation, Action, provenance) is never upserted (`DO UPDATE`).
-- Open: SQL read from files, or assembled across statements other than a dangling head, is not resolved; `.agent/S4-02d-phase-1-probes.py` "split update" is now an allowed form (see packet).
+- Open: SQL read from files, or assembled across statements other than a dangling head, is not resolved; `archive/agent-history/S4-02d-phase-1-probes.py` "split update" is now an allowed form (see packet).
 ## PIPE-1: guard speed-up and D-1 (2026-11-18, `task/PIPE-1-checks-speedup`, in review)
 
 - `tools/check-all.ps1`: 4-process pool (`-Jobs`), one job per architecture module (`check-architecture.ps1 -List`,
@@ -54,3 +54,16 @@ Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `.agent/OPS-0
 - Guard `tools/checks/tracked_evidence.py` (check-all, with `--self-test`): no tracked logs, evidence folders, images outside mocks/Docs/fixtures, files over 1 MiB outside fixtures and mocks, or `.agent/` paths other than root md/html/py/sh. `tools/evidence-retention.py` lists items older than 14 days and deletes only on `--delete` plus typed confirmation.
 - Revision 2: retention works only under `/opt/assetecon/evidence/`, dates items max(last commit, `COPIED_AT`) so this batch is purgeable from 2026-12-02, and keeps batch capture scripts; D0 probe result re-pinned to the fixture path (G6 current).
 - Open: root `.agent/*.py|sh` one-off scripts and the `.agent/` text homes are steps 4-5; lower the 1 MiB guard cap after step 4; first purge needs the owner.
+
+## DECLUTTER-4a - specs, owner files and history out of `.agent/`
+
+- Settled: of 2,096 tracked `.agent/` files, 60 specs moved to `specs/<ID>/` (24 over-cap sheets split verbatim into `spec.md`/`rulings*.md`, each with a `README.md` line map), 186 owner files to `owner/`, 1,840 finished-work files to `archive/agent-history/` (one header line each); 10 stay (`tools/declutter/step4_map.py` KEEP). Coordinator handoff trimmed to one block; old text in `.ai/history/coordinator-handoff-to-2026-11-18.md`.
+- Citations: `tools/declutter/rewrite_citations.py` rewrote 2,489 (comments/docstrings only in code); the rest resolve through `specs/CITATION_MAP.md`; `tools/declutter/check_links.py` finds 0 broken by the step.
+- Guards: `check-decision-index.py` (owner/spec rows; owner files or sheets tracked in `.agent/` fail), `tracked_evidence.py` (text-only homes; cap 512 KiB), `check-agent-workflow.ps1` (handoff 8000-byte cap).
+- Open: `.agent/owner-walkthrough-notes-2026-11-01.md` waits for its uncommitted change; O4 owner summary (step 4b); packets/reviews outside `specs/` and the role briefs' `.agent/` packet path (step 5); lanes move their new `.agent/owner-*` files on merge.
+
+## DECLUTTER-5 - Docs and tools (2026-11-18, `task/declutter-05-docs-tools`, in review)
+
+- Settled: 12 September `Docs/` generations to `Docs/archive/2026-09/` (status in `Docs/archive/README.md`; owner words and draft byte-exact); the two owner-facing HTML documents from `.agent/` to `Docs/demo-sprint/`; 28 finished one-off probe/evidence scripts to `archive/tools/`; the PIPE-1 A6 advisory guards (v69 registry and S1-S7 queue, delivery-checker fixtures, v69 ledger) and the two JSON files only they read to `archive/frontend/docs/architecture/`; check-all has no advisory guard left. `tasks/README.md` is a short pointer; its S1-S7 tables are `tasks/archive/site-first-2026-10/queue-tables.md`. Map: `tools/declutter/step5_map.py`, `specs/CITATION_MAP.md` "Step 5".
+- Guards: `tracked_evidence.py` rule 5 checks `.agent/` against `AGENT_KEEP`; `check_mock_gaps.cjs` stays blocking. Briefs write packets, reviews and handoffs to `specs/<ID>/`.
+- Open: O5 (history rewrite, worktree pruning) after the demo; `tools/` still holds finished-slice walkthrough and evidence scripts that the W1-UX owner walkthrough or the evidence-width inventory names; `.ai/ARTIFACT_INDEX.md` and other stale `.ai/` planning files untouched.

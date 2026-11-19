@@ -16,7 +16,7 @@ import { settledScreen } from "../../test/settled";
 import { FINANCIALS_PATH } from "../operatorSiteRoutes";
 
 /**
- * W3-02 commit 4 (`.agent/W3-02-lane-a-requests.md` commit-4 items 1-3): the estate Financials root is mounted in
+ * W3-02 commit 4 (`archive/agent-history/W3-02-lane-a-requests.md` commit-4 items 1-3): the estate Financials root is mounted in
  * the operator shell at `/financials` through `EstateFinancialsFrame` (which owns `<main>`), the rail's Financials
  * root is live, and the Site-relative `/sites/{code}/financials` route keeps its own handler.
  */

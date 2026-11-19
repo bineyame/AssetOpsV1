@@ -1,6 +1,6 @@
 """W5-02a K1c item 29: the test-only cold generated-scenario producer (build rulings (K1c) 2 and 3).
 
-`.agent/W5-02-build-spec.md` "W5-02a build rulings (K1c)". The registered `config/scenarios/cold-backup-failed.yaml`
+`specs/W5-02/rulings-2.md` "W5-02a build rulings (K1c)". The registered `config/scenarios/cold-backup-failed.yaml`
 is loaded into memory, given a unique `cold-...` scenario ID and moved by one delta so its source interval is
 `[D+16h, D+17h)` with `D = floorUTCday(R) - 1 day` for the DB time `R` of the run. Every absolute instant moves
 (`start`, `end`, `forcings[].at`, `observations[].at`, `observations[].release_at`), as do the W2 test helper's

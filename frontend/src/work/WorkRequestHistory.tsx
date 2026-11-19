@@ -2,7 +2,7 @@
  * W6-01d C4: the work request History (v6.9 `wr-history`, `index.html:971`), read from
  * `GET /api/work/requests/{case_id}?site_id={site_code}[&known_at=]` (`global-work-detail-1`). Mock order: breadcrumb,
  * heading with `Open site`, the `Context tabs` row, the date bar, the `wrHeader` mheader, then the one `History`
- * panel with the mock's `Time | Event | By` table. Copy follows `.agent/W6-01-build-spec.md` "C4 pre-flight rulings"
+ * panel with the mock's `Time | Event | By` table. Copy follows `specs/W6-01/spec-3.md` "C4 pre-flight rulings"
  * (P-C4-1..22), which supersede the earlier C4 card wording.
  *
  * Rows are the selected `work_detail.events` plus the successor `history.revisions` (revision 1 is the CREATED row),

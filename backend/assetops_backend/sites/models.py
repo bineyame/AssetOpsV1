@@ -266,7 +266,7 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "backup-recovery-target": PropertyDefinition(
         unit="min", kind="CONTROL", display_name="Backup recovery target"
     ),
-    # FUEL-1 A1 (`.agent/build-sheet-FUEL-1.md` §4.1): the generator's fuel
+    # FUEL-1 A1 (`specs/FUEL-1/` §4.1): the generator's fuel
     # rate while running at zero load, read by `financials/fuel_cost_v2.py`.
     # A no-load rate is defined at exactly one operating point, zero load,
     # which is exactly what it states, so `L/h` is its honest unit. The

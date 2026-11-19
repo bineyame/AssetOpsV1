@@ -5,12 +5,14 @@
    `D-ANY.6a`, `D-W1-4`, `D-AW-2` ... (any `D-<LETTERS/DIGITS>` then `.n` or `-n`).
    A dated token also resolves when it is the start of an indexed ID: line-wrapped
    citations (`D-2026-10-09-pre-s3`) and bare dates (`D-2026-10-09`) are common.
-   File names such as `.agent/D-SR63-67-review.md` are not citations.
+   File names such as `archive/agent-history/D-SR63-67-review.md` are not citations.
    Reserved example IDs (`D-EG.n`, `D-2099-...`, .ai/RULES.md §9) are skipped.
 2. Every file an index names exists and holds the IDs indexed to it, as whole tokens.
    A `file:line` pointer whose line no longer holds the ID is a note (live files grow).
-3. Every tracked `.agent/owner-*.md` and build sheet/spec has an index row, and every
-   index file is under the 2k-token cap.
+3. Every tracked owner file (`owner/owner-*.md`) and spec folder (`specs/<ID>/`) has an index
+   row; no owner file or build sheet/spec is tracked in `.agent/` (declutter step 4 moved them;
+   PENDING lists the one owner file still waiting there); every index file is under the 2k-token cap.
+   A file an index names resolves against the index's home folders or, with a `/`, the repo root.
 
 Usage: python tools/check-decision-index.py [--self-test]
 """
@@ -26,17 +28,19 @@ DATED = r"D-20\d\d-\d\d-\d\d(?:-[A-Za-z0-9]+)*"
 FAMILY = r"D-[A-Z][A-Z0-9]*(?:\.\d+[a-z]?|-\d+[a-z]?)"
 GREP = rf"(^|[^A-Za-z0-9_/.-])({DATED}|{FAMILY})([^ ]{{0,3}})"
 INDEXES = {  # index glob -> folders a bare file name resolves against, in order
-    ".ai/decisions/index-*.md": [".ai/decisions", ".agent"],
+    ".ai/decisions/index-*.md": [".ai/decisions", ".agent", ""],
     ".ai/decisions/INDEX.md": [".ai/decisions"],
     ".ai/state/index-*.md": [".ai/state"],
     ".ai/state/INDEX.md": [".ai/state"],
-    "specs/INDEX.md": [".agent"],
-    "owner/INDEX.md": [".agent", "owner"],
-    "owner/index-*.md": [".agent", "owner"],
+    "specs/INDEX.md": ["specs", ""],
+    "owner/INDEX.md": ["owner", ".agent", ""],
+    "owner/index-*.md": ["owner", ".agent", ""],
 }
 WARNINGS: list[str] = []
 ID_LINE = re.compile(r"^- `([^`]+)` .* · ([^ ·]+?)(?::(\d+))?$")
-FILE_TOKEN = re.compile(r"`([A-Za-z0-9_.-]+\.(?:md|html|txt))`|· ([A-Za-z0-9_.-]+\.md)(?::\d+)?$")
+FILE_TOKEN = re.compile(r"`([A-Za-z0-9_./-]+\.(?:md|html|txt))`|· ([A-Za-z0-9_./-]+\.md)(?::\d+)?$")
+# Owner files still tracked in `.agent/` (uncommitted change elsewhere); each still needs its index row.
+PENDING = {".agent/owner-walkthrough-notes-2026-11-01.md"}
 
 
 def tracked_citations(root: Path) -> dict[str, set[str]]:
@@ -117,18 +121,25 @@ def indexed(root: Path, planted: str = "", virtual: dict[str, str] | None = None
 
 
 def coverage(root: Path, extra_tracked: list[str] | None = None) -> list[str]:
-    """Every tracked owner file and build sheet/spec has an index row."""
-    tracked = subprocess.run(["git", "-C", str(root), "ls-files", ".agent"],
+    """Every tracked owner file and spec folder has an index row; none is tracked in `.agent/`."""
+    tracked = subprocess.run(["git", "-C", str(root), "ls-files", ".agent", "owner", "specs"],
                              capture_output=True, text=True, check=True).stdout.split() + (extra_tracked or [])
     owner = "".join(p.read_text(encoding="utf-8") for p in sorted(root.glob("owner/index-*.md")))
     specs = (root / "specs/INDEX.md").read_text(encoding="utf-8") if (root / "specs/INDEX.md").is_file() else ""
     problems = []
     for path in tracked:
         name = path.rsplit("/", 1)[-1]
-        if re.fullmatch(r"owner-.*\.md", name) and f"`{name}`" not in owner:
+        top = path.split("/", 1)[0]
+        is_owner = re.fullmatch(r"owner-.*\.md", name) is not None
+        if top == ".agent" and "/" not in path[len(".agent/"):]:
+            if is_owner and path not in PENDING:
+                problems.append(f"{path}: owner files live in owner/ (RULES section 9)")
+            if re.search(r"build-sheet|build-spec", name):
+                problems.append(f"{path}: specs live in specs/<ID>/ with a row in specs/INDEX.md (RULES section 9)")
+        if is_owner and top in (".agent", "owner") and f"`{name}`" not in owner:
             problems.append(f"{path} has no row in owner/index-*.md")
-        if re.search(r"build-sheet|build-spec", name) and f"`{name}`" not in specs:
-            problems.append(f"{path} has no row in specs/INDEX.md")
+        if top == "specs" and path.count("/") >= 2 and f"`{path.split('/')[1]}/" not in specs:
+            problems.append(f"{path}: spec folder has no row in specs/INDEX.md")
     return problems
 
 
@@ -158,10 +169,13 @@ def self_test() -> int:
     problems = check(ROOT, {"D-ZZ.4242": {"(planted citation)"}, "D-EG.7": {"(example)"},
                             "D-2099-01-01-example": {"(example)"}},
                      planted, {"prefix-trap-selftest.md": "Only D-SR.20 and D-SR.21 are here.\n"},
-                     [".agent/owner-selftest-unindexed-2099-01-01.md", ".agent/build-sheet-SELFTEST.md"])
+                     [".agent/owner-selftest-unindexed-2099-01-01.md", ".agent/build-sheet-SELFTEST.md",
+                      "owner/owner-selftest-unindexed-2099-01-02.md", "specs/SELFTEST/spec.md"])
     want = ["`D-ZZ.4242`", "`no-such-file-selftest.md`", "`D-SR.2` does not occur in prefix-trap-selftest.md",
             "(planted index): ", "owner-selftest-unindexed-2099-01-01.md has no row",
-            "build-sheet-SELFTEST.md has no row"]
+            ".agent/owner-selftest-unindexed-2099-01-01.md: owner files live in owner/",
+            ".agent/build-sheet-SELFTEST.md: specs live in specs/<ID>/",
+            "owner-selftest-unindexed-2099-01-02.md has no row", "specs/SELFTEST/spec.md: spec folder has no row"]
     missing = [w for w in want if not any(w in p for p in problems)]
     leaked = [p for p in problems if "D-EG.7" in p or "D-2099-01-01" in p]
     if missing or leaked:

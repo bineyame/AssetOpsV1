@@ -14,7 +14,7 @@ and the causal prerequisites that make them truthful.
 ## Source Material
 
 For this replan, direction comes only from `Docs/simulator_design_v4.md`
-(mechanisms) and `Docs/mini-grid-demo-architecture-and-roadmap.md` (demo path).
+(mechanisms) and `Docs/archive/2026-09/mini-grid-demo-architecture-and-roadmap.md` (demo path).
 This replaces the previous instruction to start sequencing from UI references.
 
 `.ai/FEATURE_MAP.md` maps the corrected sources onto the built-state record.

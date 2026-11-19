@@ -4,7 +4,7 @@ A router. It says where the current truth is; it does not hold it.
 
 Current milestone: demo sprint (live product on `main`) running alongside the
 Layer 4 product-direction design, which awaits owner decisions. Repo declutter
-in progress (step 3 of 5). Detail: `.ai/NOW.md`.
+in progress (step 5 of 5). Detail: `.ai/NOW.md`.
 
 Planning status: the S1-S7 queue is built; new product work waits on the owner's
 Layer 4 decisions (Q1-Q16, D1-D12). Demo-sprint fixes are sequenced by the
@@ -47,7 +47,7 @@ it does not authorise a claim the data cannot support. Show a missing source as
 
 ## Authority order
 
-1. The owner's instructions (verbatim files `.agent/owner-*.md`).
+1. The owner's instructions (verbatim files in `owner/`).
 2. The active spec's acceptance criteria and rulings.
 3. `.ai/RULES.md` and `.ai/ROLE_CONFIG.md`.
 4. The direction documents above, inside the O1 boundary.
@@ -63,9 +63,11 @@ decision (`.ai/decisions/`, or the active rulings file, plus an index line).
 - Decisions, every ID family (dated, D-SR, D-E5, D-ANY ...): grep the ID in
   `.ai/decisions/index-*.md`; how-to in `.ai/decisions/INDEX.md`.
 - Built state: `.ai/state/INDEX.md`; grep the slice ID in `.ai/state/index-*.md`.
-- Specs (build sheets and specs, still in `.agent/`): `specs/INDEX.md`.
+- Specs (build sheets, specs and their rulings, in `specs/<ID>/`): `specs/INDEX.md`.
+  Old `.agent/` paths: `specs/CITATION_MAP.md`.
 - Owner feedback by status: `owner/INDEX.md` (current files listed there).
-- S1-S7 queue tables (machine-read by guards): `tasks/README.md`.
+- S1-S7 queue tables (history; no guard reads them since declutter step 5):
+  `tasks/archive/site-first-2026-10/queue-tables.md`.
 - UI defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
 - Tests: `backend/TESTING.md`. Guards: `tools/check-all.ps1`.
 

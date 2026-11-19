@@ -59,7 +59,7 @@ def resolved_manifest(base: dict, story: dict) -> dict:
     return M
 
 
-#: Q1 ruling (`.agent/DEMO-SPARSE-preflight.md`): the two labelled demo configurations take effect at Kobo
+#: Q1 ruling (`archive/agent-history/DEMO-SPARSE-preflight.md`): the two labelled demo configurations take effect at Kobo
 #: commissioning instead of their build dates; values byte-identical, only `effective_from` moves.
 CONFIG_OFFSETS = {"properties": timedelta(minutes=10), "roles2": timedelta(minutes=10),
                   "roles3": timedelta(minutes=20), "known": timedelta(minutes=30),

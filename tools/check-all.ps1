@@ -34,7 +34,8 @@ param(
 #   main (Architect ruling 4 Nov). They run after the pool, alone, with pytest -n 4, to keep peak memory bounded.
 #   The writer seam itself (rule 8, configuration-persistence) runs on every run.
 # - At most $Slots check-all runs at once on the machine (a lock file per slot in the shared git directory).
-# - Advisory guards (retired v69 and S1-S7 plumbing) report WARN and never fail the run.
+# - An advisory guard (-Advisory) reports WARN and never fails the run. None at present: declutter step 5 retired
+#   the v69 and S1-S7 advisory guards (PIPE-1 A6) to archive/frontend/docs/architecture/.
 #
 # Guards run directly with no execution-policy override (owner rule). Never add
 # -ExecutionPolicy to this script or to any guard invocation.
@@ -254,8 +255,8 @@ try {
     }
 
     $guards = New-Object System.Collections.Generic.List[object]
-    # -Advisory: the guard runs and reports, but a failure is a WARN that never fails check-all (PIPE-1 A6: retired
-    # v69 and S1-S7 plumbing, kept visible until declutter step 5 deletes it). -Alone: runs after the pool, by itself.
+    # -Advisory: the guard runs and reports, but a failure is a WARN that never fails check-all (none at present;
+    # declutter step 5 retired the PIPE-1 A6 advisory guards). -Alone: runs after the pool, by itself.
     function Add-Guard([string]$name, [string]$tool, [string[]]$arguments, [hashtable]$environment = @{}, [switch]$Advisory, [switch]$Alone) {
         $guards.Add([pscustomobject]@{
             Name = $name; Tool = $tool; Arguments = $arguments; Environment = $environment
@@ -286,17 +287,14 @@ try {
     # Declutter 3 (recommendation 5.5): no tracked evidence, logs, pid/err, transcripts or oversize files outside fixtures.
     Add-Guard "Tracked evidence and logs (declutter 3)" $Python @("tools/checks/tracked_evidence.py")
     Add-Guard "Tracked evidence self-test (planted paths)" $Python @("tools/checks/tracked_evidence.py", "--self-test")
-    # PIPE-1 A6: the v69 registry, the S1-S7 queue (delivery checker) and the v69 screen ledger are advisory; the live
-    # honest-gap catalogue they shared stays blocking as its own guard.
-    Add-Guard "v69 dependency registry and S1-S7 queue (advisory)" $Node @("frontend/docs/architecture/check_v69_dependency_registry.cjs") -Advisory
-    Add-Guard "Delivery checker fixtures, S1-S7 (advisory)" $Node @("--test", "frontend/docs/architecture/test_delivery_next_work.cjs") -Advisory
+    # The live honest-gap catalogue (blocking). Declutter step 5 retired the advisory v69 registry/S1-S7 queue guard,
+    # the S1-S7 delivery-checker fixtures and the v69 screen ledger (PIPE-1 A6; archive/frontend/docs/architecture/).
     Add-Guard "Mock-gap catalogue (live registry)" $Node @("frontend/docs/architecture/check_mock_gaps.cjs")
     Add-Guard "Mock-gap catalogue fixtures"   $Node @("--test", "frontend/docs/architecture/test_mock_gaps.cjs")
     Add-Guard "Missing-claim orphan scan"     $Node @("tools/checks/missing-claim-scan.mjs")
     Add-Guard "Missing-claim scan fixtures"   $Node @("--test", "tools/checks/test_missing_claim_scan.mjs")
     Add-Guard "Evidence width check (W1-UX-06)" $Node @("--test", "tools/checks/test_evidence_checks.mjs")
     Add-Guard "Mock deviation labels and client vocabulary" $Node @("--test", "tools/checks/test_mock_deviation_labels.mjs")
-    Add-Guard "v69 screen ledger (advisory)"  $Python @("frontend/docs/architecture/check_v69_ledger.py") -Advisory
     Add-Guard "Chain coherence rules (fixtures)" $Python @("-m", "pytest", "tools/checks/test_chain_coherence.py", "-q", "-p", "no:cacheprovider")
     Add-Guard "Event register guard (CH-1b)" $Python @("-m", "pytest", "tools/checks/test_event_register.py", "-q", "-p", "no:cacheprovider")
     # DIESEL-1 H4 (K9): served copy never says theft, stolen, stole, siphon or pilfer (self-test plus repository scan).

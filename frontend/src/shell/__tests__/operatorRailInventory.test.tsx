@@ -184,7 +184,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
 });
 
 /**
- * W5-02c K4a (`.agent/W5-02c-K4-preflight-rulings.md` rulings 1-2; register R69 resolved): every Site Action detail
+ * W5-02c K4a (`archive/agent-history/W5-02c-K4-preflight-rulings.md` rulings 1-2; register R69 resolved): every Site Action detail
  * path, for any Site type, selects the Actions root as the v69 rail does (`index.html:729,742,1114`). Only Actions has
  * `nav-rail__link active` and `aria-current="page"` there; ordinary Site paths, global Actions and Operational records
  * keep their NavLink selection. The nine live links and their focus order never change.

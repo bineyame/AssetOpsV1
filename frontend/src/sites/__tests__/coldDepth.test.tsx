@@ -1,5 +1,5 @@
 /**
- * W5-01a C2 (`.agent/W5-01-build-spec.md` C2, literal ledger and readiness pass 3): the cold depth client's exact
+ * W5-01a C2 (`specs/W5-01/` C2, literal ledger and readiness pass 3): the cold depth client's exact
  * Cooling validation and labels, and the Cooling page through the real App route with a stubbed depth client
  * (`cooling_dto_and_labels`, `cooling_state_copy`, `cooling_panels`, `cooling_nav_and_routes`).
  */

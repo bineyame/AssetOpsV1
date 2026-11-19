@@ -35,13 +35,13 @@
   `D-2026-09-22-expiry-follows-the-condition`.
 - `Docs/simulator_design_v4.md` — normative simulator mechanics; the feature
   map and the Planner handoff cite it by section rather than restating it
-- `Docs/mini-grid-demo-architecture-and-roadmap.md` - corrected intended demo
+- `Docs/archive/2026-09/mini-grid-demo-architecture-and-roadmap.md` - corrected intended demo
   path, screens, A-I sequence and finish lines; v4 governs simulator mechanisms.
   This replaces the former two-roadmap precedence claim. The "(1)" file is not
   a second planning authority.
 - `Docs/simulator-scenario-authoring-and-runtime.md` — the reference the
   2026-09-21 and 2026-09-22 simulator decisions cite
-- `Docs/declared-capability-and-what-checks-it.md` — Architect reflection on
+- `Docs/archive/2026-09/declared-capability-and-what-checks-it.md` — Architect reflection on
   why `cadence_resolution`, `supported_states` and OQ3 are one defect and not
   three; records no decision. Delete when the pattern has a durable name or
   the user decides it should not have one.

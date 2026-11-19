@@ -8,7 +8,7 @@
         [--to D|yesterday] [--kind K] [--dry-run] [--no-check]     (OWN-G1: catch the Sites up to yesterday)
     python tools/demo_combined.py --db assetops_demo3_main_test --work var/demo3_main drop
 
-Build sheet: `AssetOpsV1-plan2/.agent/build-sheet-DEMO-COMBINED.md` (rev 1 + Addendum 1). Every story instant comes
+Build sheet: `AssetOpsV1-plan2/specs/DEMO-COMBINED/spec.md` (rev 1 + Addendum 1). Every story instant comes
 from `backend/conversions/demo-combined-story-v1.json` resolved against one story day
 S = floor_utc_day(DB now at prepare) - 2 d (written to `<work>/story.json`); nothing reads `datetime.now()` for a
 story instant. The data is registered Lab simulation placed on a story calendar plus prepared example work records

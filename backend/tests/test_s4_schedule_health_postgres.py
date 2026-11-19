@@ -1,7 +1,7 @@
 """S4-02d phase 2: schedule health and alarms, the S5 upstream currentness seam, DB time (I3) and the
 overlapping-ingestion race (I4); plus the phase-1 review carries F2 (Site back-off) and F3 (lost Site claim).
 
-Packet `tasks/S4-02d-analytic-finding-worker-schedule.md` phase 2 and `.agent/S4-02d-phase-1-review.md`.
+Packet `tasks/S4-02d-analytic-finding-worker-schedule.md` phase 2 and `archive/agent-history/S4-02d-phase-1-review.md`.
 Requires ASSETOPS_TEST_DATABASE_URL.
 """
 

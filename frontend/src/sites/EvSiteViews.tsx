@@ -53,7 +53,7 @@ import type { OutcomeBoardClient } from "./outcomeBoardClient";
 
 /*
  * W2-07 commits 4-5: the five EV Site screens of an EV_CHARGING Site in their exact v69 panel slots
- * (`.agent/W2-07-build-spec.md` "Commits 4-5", closure section 4, "Run 6 rulings (q5)" and "Run 7 rulings (q6)"):
+ * (`specs/W2-07/rulings-3.md` "Commits 4-5", closure section 4, "Run 6 rulings (q5)" and "Run 7 rulings (q6)"):
  *
  *   ev                    1 What happened on the service day, 2 Charging activity and site power, 3 Needs attention,
  *                         4 Estimated income (R694), 5 Next step

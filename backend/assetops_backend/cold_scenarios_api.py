@@ -1,4 +1,4 @@
-"""W5-01b C4: the authored cold scenario routes (`.agent/W5-01-build-spec.md` C4 card, refusal table and pre-flight
+"""W5-01b C4: the authored cold scenario routes (`specs/W5-01/` C4 card, refusal table and pre-flight
 rulings P-C4-7..14, 21).
 
 - `GET /api/sites/{site_code}/cold/financials/scenarios?from=&to=&known_at=&scenario_at=&limit=&cursor=`

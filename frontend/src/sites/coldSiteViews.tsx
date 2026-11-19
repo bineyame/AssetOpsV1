@@ -58,7 +58,7 @@ import type { AnalysedPeriodsRead } from "./coldAssessmentClient";
 
 /*
  * W2-04 commit 4: the five cold Site screens of a COLDCHAIN Site in their exact v69 panel slots
- * (`.agent/W2-04-build-spec.md` "v69 panel contract and UI", "Final Run-5 Architect rulings" and its
+ * (`specs/W2-04/` "v69 panel contract and UI", "Final Run-5 Architect rulings" and its
  * "Commit-4 copy ledger"; `D-2026-10-17-mockup-layout-spec`):
  *
  *   cold                    1 What happened · power → cooling → product conditions, 2 Chamber temperature,

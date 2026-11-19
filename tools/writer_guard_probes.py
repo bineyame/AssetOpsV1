@@ -9,7 +9,7 @@ persistence module that holds rule 8 (about 14 s a probe); use it while iteratin
 The guard's Python is this interpreter (passed as ASSETOPS_GUARD_PYTHON).
 
 Sets:
-- `F-B n`: the 11 forms `.agent/S4-02d-phase-2-review.md` F-B recorded as missed by the line-based guard.
+- `F-B n`: the 11 forms `archive/agent-history/S4-02d-phase-2-review.md` F-B recorded as missed by the line-based guard.
 - `split <writer>`: a two-line UPDATE of a table the writer does not own (S4-05a phase-1 review L1), one per writer.
 - `reverse <table family>`: a two-line write by the Foundation store into another writer's table.
 - `dynamic ...` / `core ...` / `fragment` / `cte` / `upsert` / `second writer`: unresolved or non-text forms.

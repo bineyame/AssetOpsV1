@@ -1,5 +1,5 @@
 /**
- * W3-03 run 2: the Portfolio page's literal copy (`.agent/W3-03-build-spec.md` mock ledger as amended by closures
+ * W3-03 run 2: the Portfolio page's literal copy (`specs/W3-03/` mock ledger as amended by closures
  * 1-5, r1a, r1b, r1b2 and r1b4). The page never invents a value: every slot without a reviewed source keeps its
  * mock position and says so.
  */

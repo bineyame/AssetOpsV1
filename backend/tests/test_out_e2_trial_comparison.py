@@ -1,6 +1,6 @@
 """OUT-E E2: the pure trial cost comparison (`financials/trial_fuel_comparison.py`), no database.
 
-`.agent/build-sheet-OUT-E.md` E2: the worked example (generator 40/28 kWh, feeder 120/126 kWh, SFC 0.3 L/kWh,
+`specs/OUT-E/spec.md` E2: the worked example (generator 40/28 kWh, feeder 120/126 kWh, SFC 0.3 L/kWh,
 1.25 USD/L, intervention cost 0), one isolating test per reason, the precedence order, change 0, and the reason
 list equal to 0037's table CHECK.
 """

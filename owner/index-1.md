@@ -1,6 +1,6 @@
 # Owner feedback index, part 1 of 5 (2026-10-02 to 2026-10-14)
 
-One line per `.agent/owner-*.md` file: date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
 - 2026-10-02 `owner-acceptance-demo-led-replan-2026-10-02.md` Demo-led replan accepted · historical — early plan, later replaced by S1-S7
 - 2026-10-02 `owner-approval-final-recommendation-2026-10-02.md` Final Architect recommendation approved · historical — early planning

@@ -1,4 +1,4 @@
-"""DATA-11 (D-E5.37, `.agent/architect-answer-non-kobo-sites-2026-11-10.md`): the Cold story week holds an ordinary
+"""DATA-11 (D-E5.37, `archive/agent-history/architect-answer-non-kobo-sites-2026-11-10.md`): the Cold story week holds an ordinary
 day on every day S-7..S, through the existing prepare path (`tools/demo_story_days.py`, the v4 day list). Pure: the
 resolved calendar and plan only (no prepare runs here; Saturday's rehearsal build proves the rows)."""
 

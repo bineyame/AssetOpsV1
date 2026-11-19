@@ -1,6 +1,6 @@
 """W2-06 commit 4: the selected EV session and Finding reads over the six registered W2-05b replays.
 
-`.agent/W2-06-build-spec.md` "Commit 4: selected reads and refusal dry-read" and "Run 5 rulings (r5)". Each chain
+`specs/W2-06/rulings-2.md` "Commit 4: selected reads and refusal dry-read" and "Run 5 rulings (r5)". Each chain
 runs through the registered Commit/gateway/S2 path (`test_w205b_ev_replay_postgres.chain`), the EV worker writes
 the assessment, and the reads go through `build_ev_assessment_router` with the real `EvReadService`. Nothing here
 seeds analytic results or accepted evidence. Needs ASSETOPS_TEST_DATABASE_URL.

@@ -1,5 +1,5 @@
 /**
- * W5-02 K2a (`.agent/W5-02-build-spec.md` "Shared Site UI and mock slots", U1, U3, P-K2a-33..36/48): the typed
+ * W5-02 K2a (`specs/W5-02/` "Shared Site UI and mock slots", U1, U3, P-K2a-33..36/48): the typed
  * client for the Site domain Action reads mounted by `backend/assetops_backend/domain_work_api.py`.
  *
  * - `GET /api/sites/{site}/domain-work/action-index?from=&to=&limit=5[&known_at=][&cursor=]` is the union of the

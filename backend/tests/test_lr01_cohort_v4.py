@@ -1,6 +1,6 @@
 """LR-01 phase 1: cohort-4 source-time ordering under clock attestations (pure).
 
-Authority: D-2026-10-15-lr01-source-time-cohort, `.agent/architect-LR-01-answers.md` Q1-Q4 and Follow-up M1.
+Authority: D-2026-10-15-lr01-source-time-cohort, `archive/agent-history/architect-LR-01-answers.md` Q1-Q4 and Follow-up M1.
 """
 
 from __future__ import annotations

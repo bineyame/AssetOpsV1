@@ -1,6 +1,6 @@
 """W5-03b unit E5: authored EV scenario store, migration `0034_w5_ev_scenarios`, command/list service and API.
 
-`.agent/W5-03-build-spec.md` E5 card, "E5 exact persisted schema and wire contract", "E5 consolidated correction"
+`specs/W5-03/` E5 card, "E5 exact persisted schema and wire contract", "E5 consolidated correction"
 (P-E5-1..10) and P-34-2/3. The persisted positive producer is the in-process POST over W2-05b's registered `Chain`
 (`ev_depth_cases.py`, window `[2026-10-06T08:00Z, 09:00Z)`), with the E1 selected IDs. Requires
 ASSETOPS_TEST_DATABASE_URL for every test except the pure rules tests.

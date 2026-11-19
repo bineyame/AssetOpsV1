@@ -7,12 +7,12 @@
 
 Re-derived on 2026-09-24 from only
 [simulator design v4](../Docs/simulator_design_v4.md) and the corrected
-[mini-grid demo roadmap](../Docs/mini-grid-demo-architecture-and-roadmap.md).
+[mini-grid demo roadmap](../Docs/archive/2026-09/mini-grid-demo-architecture-and-roadmap.md).
 v4 governs simulator mechanisms; the roadmap governs demo outcomes and order.
 Built-state evidence is in `.ai/CODE_STATE.md` and `tasks/completed/`.
 
 2026-09-30 scoped addition: the owner explicitly commissioned review of
-`Docs/lab-cockpit-proposal.md` (aeb4c99) alongside those sources. It adds
+`Docs/archive/2026-09/lab-cockpit-proposal.md` (aeb4c99) alongside those sources. It adds
 Lab inspection features, not a new physics/evidence authority. The owner
 accepted the two-slice priority on 2026-09-30; the recommendations are in
 [the Lab cockpit handoff](PLANNING_HANDOFF_LAB_COCKPIT.md). v4 mechanisms,

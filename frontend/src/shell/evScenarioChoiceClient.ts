@@ -1,6 +1,6 @@
 /**
  * W2-05b: the registered EV charging Lab choices for one selected Site
- * (`.agent/W2-05b-build-spec.md`, Run 1 rulings Q8-Q11).
+ * (`specs/W2-05b/`, Run 1 rulings Q8-Q11).
  *
  * Read after an EV_CHARGING Site is selected, and only for that Site: the
  * backend answers the six EV test runs for the registered `EV-LAB-001` Site

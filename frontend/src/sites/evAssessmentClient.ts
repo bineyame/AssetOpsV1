@@ -1,6 +1,6 @@
 /**
  * Read-only client for an EV_CHARGING Site's selected session assessment (W2-06 commit 4 routes,
- * `.agent/W2-06-build-spec.md` "Commit 4", "Run 5 rulings (r5)" and "Run 7 rulings (r6)"):
+ * `specs/W2-06/rulings-2.md` "Commit 4", "Run 5 rulings (r5)" and "Run 7 rulings (r6)"):
  *
  *   GET /api/sites/{code}/ev/sessions             (from, to, known_at, cursor, limit)
  *   GET /api/sites/{code}/ev/sessions/{id}        (from, to, known_at)

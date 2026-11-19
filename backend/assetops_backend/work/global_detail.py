@@ -1,4 +1,4 @@
-"""W6-01c C1: the exact global work request detail (`global-work-detail-1`; `.agent/W6-01-build-spec.md` section 1
+"""W6-01c C1: the exact global work request detail (`global-work-detail-1`; `specs/W6-01/` section 1
 Detail DTO and the "C1-C3 pre-flight rulings", paragraph "C1 outer wire and selection").
 
 `GlobalWorkDetailService.detail` runs after the route has authenticated, validated one `site_id`, authorized and

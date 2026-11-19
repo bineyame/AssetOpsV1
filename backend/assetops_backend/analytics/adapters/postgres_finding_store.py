@@ -603,7 +603,7 @@ class PostgresFindingStore:
         return {"assessments": cites, "evidence": evidence, "runs": runs}
 
     # --- cold_chain (W2-03): Findings on the cold worker's connection ----------------------------------------
-    # `.agent/W2-03-build-spec.md` commit 3: this module alone inserts cold `finding`, `finding_revision`,
+    # `specs/W2-03/spec.md` commit 3: this module alone inserts cold `finding`, `finding_revision`,
     # `finding_revision_assessment` and `finding_revision_evidence`, on the caller's transaction. The dispatch
     # `_insert_finding/_insert_revision` paths are untouched. A cold Finding carries `domain='cold_chain'`, its
     # `subject_asset_id`, NULL `generator_asset_id` and NULL dispatch minute fields; its claim names the exact
