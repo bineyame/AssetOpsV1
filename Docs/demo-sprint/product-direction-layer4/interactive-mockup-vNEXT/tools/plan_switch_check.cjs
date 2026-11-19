@@ -57,12 +57,12 @@ function itemsCheck(op, d, c, label) {
     ok(card && own.includes(it.owner) && own.includes(it.chosen_by) && word && own.includes(word) && !/\b(CHOSEN|RELEASED)\b/.test(squash(card.textContent)), `${label}: ${it.item} card owner ${it.owner}, state ${word}`);
     if (it.kind === 'PROACTIVE') {
       const tx = squash(card?.textContent);
-      ok(card.classList.contains('proactive') && tx.includes(it.label) && tx.toLowerCase().includes(it.factor) && /no value claimed/i.test(tx), `${label}: proactive ${it.item} declared with its factor and no value claimed`);
+      ok(!!card && card.classList.contains('proactive') && tx.includes(it.label) && tx.toLowerCase().includes(it.factor) && /no value claimed/i.test(tx), `${label}: proactive ${it.item} declared with its factor and no value claimed`);
       ok(tx.includes(it.depends_reason) && tx.includes(fdate(it.service_date)) && tx.includes(`in ${MONTH[+it.crew_month.split('-')[1] - 1]}`) && tx.includes('$' + it.planned_spend), `${label}: proactive ${it.item} dependency, date ${fdate(it.service_date)}, crew month and spend`);
     }
     if (it.capital) {
       const tx = squash(card?.textContent), ex = wf.people.find(p => p.role === 'OPERATOR_EXECUTIVE').name;
-      ok(/waits as capital/i.test(tx) && (it.actions_after_approval || []).every(a => tx.includes(a)) && tx.includes(`${it.owner} creates its Action only after ${ex}`) && !card.querySelector('.action-list'), `${label}: capital ${it.item} waits, Action by ${it.owner} after ${ex}'s approval`);
+      ok(/waits as capital/i.test(tx) && (it.actions_after_approval || []).every(a => tx.includes(a)) && tx.includes(`${it.owner} creates its Action only after ${ex}`) && !!card && !card.querySelector('.action-list'), `${label}: capital ${it.item} waits, Action by ${it.owner} after ${ex}'s approval`);
     }
   }
   ok(d.querySelectorAll('.plan-item').length === c.items.length + proOf(op).length, `${label}: ${c.items.length} case items plus ${proOf(op).length} declared`);
