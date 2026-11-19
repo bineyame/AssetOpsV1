@@ -560,7 +560,9 @@ def prose_facts():
             "sittings on days " + ", ".join(map(str, SIT[:-1])) + " and " + str(SIT[-1]),
             f"{fmt(landed_units(PLAN))} units", f"{len(LAND)} slices", f"{len(COMMITTED)} slices committed",
             f"through step {f}" if f else "no step complete",
-            f"{sum(OWN_LOAD.values())} owner minutes"]
+            f"{sum(OWN_LOAD.values())} owner minutes",
+            f"the furthest complete step moves from step {furthest(PLAN)} to step {furthest(NO_REWORK)}",
+            f"the stretch line reaches step {furthest(OBS)}", f"At the slip pace the fortnight still completes step {furthest(SLIP)}"]
 
 
 # Which documents carry which tables and facts. A table block present anywhere must match; these must be present.
