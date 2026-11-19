@@ -92,3 +92,25 @@ Demo plan review: "regarding the client session date, will update based on actua
 Demo-shaped sweep: "let put this as a task for later. After current scope finshes, but if current plans implementation touches upon it, make sure it is fixed."
 
 MA-1 mock addendum: "approved"
+
+Finding->outcome link deferral: "so long as there is a clear strucured way to do this and its later conversion is clear, it can wait: \"Adding a new kind of finding, or changing what it affects, still means a code change until CH-8.\""
+
+2026-11-04 owner: "What must happen is that we should have bullet proof mechanisms as part of the implementation such that later we focus on data to tell a unified compelling story for a client with interestnig and normal data ; is that the direction?"
+
+Owner: "yes, let the architect revise the plan" (normal baseline + injected story days; mechanism test dataset; presentation consistency; cost)
+
+Owner on plan revision ODs: "run the probe; 3 and 4 as recommended" (OD-P13 author labelled steady-day scenarios; OD-P14 keep ACT-001 monitoring; OD-P11/P12 pending probe DD-0)
+
+Owner on injecting/filling days: "Does this also allow me to inject missing days as needed ?" ... then "yes, add that to the demo-data batch"
+
+2026-11-04 owner away ~2h: "i'll be away for the next 2 hours,do not hold for my input, let the architect make a call in in interim"
+
+2026-11-04 owner: "i am back"
+
+Owner review of away decisions (verbatim): "Regarding the 6 earlier decisions, 1. I don't understand why such restriction is imposed by the tools, is it demo vs test dataset or some wrong hard wiring ? 2. that is ok 3.i don't understand why that should be the case, the bases can be configurable in the future but i don't know why adding is an issue 4. why is it specific to a particuar site, it is not clear to me what the issue is 5.running the mill at midday is an action that can be verified in terms of the outcome it was designed for, no? what does the later verification entail? 6. is that handwavy, is that the rigth way to do it?"
+
+Owner decisions: "all as recommended, stop the leftover processes" (revised D-AW-1,3,4,5,6 positions accepted; OD-P11/P12 option A B-22 + two levers, 3 h cap, after ~30-min re-probe; MD0-S2 Kobo-only; MD-0 Q2 option C two tiers; D-AW-3 record and keep under check; stop orphaned gateway processes)
+
+Owner on performance (CH5c-R2 EX-3): "go with option A" (CH-5c grows to ~5 units, moves to lane 1 right after CH-5a2, before CH-5b: batching + stored route responses keyed by chain watermark/request/code version with demo-script routes pre-built + Portfolio payload trim)
+
+Owner on CH5a2-R Q7 (summary card day): "fix the summary now as recommended"
