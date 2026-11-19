@@ -91,6 +91,13 @@ Also standing: builders pre-flight a unit against `main` and the mock and batch
 every open point into one Architect request before coding; after a ruling
 round the Architect folds rulings into one current unit card.
 
+**Spec handshake before code (owner, 2026-11-19, `owner/owner-build-start-and-spec-handshake-2026-11-19.md`).** For every build unit:
+1. The Architect writes a clear spec for the Implementer and a reviewer guide for the Reviewer: what to check, how, and what counts as done.
+2. Before any coding starts, the Reviewer reads both and puts its questions to the Architect.
+3. The Architect answers in the spec. The handshake ends when the Reviewer has no open questions.
+4. Coding starts only then, so mid-implementation back-and-forth is avoided.
+5. Execution stays efficient: make progress without lowering quality.
+
 ## 5. Specs, slices and packets
 
 - A slice delivers or directly unlocks a UI-verifiable outcome. A task spec
