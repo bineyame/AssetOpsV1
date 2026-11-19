@@ -1,7 +1,11 @@
 # T1 review packet: the heavy-tool slot pool, enforced (option C)
 
 Branch `task/T1-heavy-tool-slot-pool`, worktree `/opt/assetecon/AssetOpsV1-t1`. Spec rev 2, rulings D-T1.11-18.
-`USER_REVIEW_REQUIRED: false`. **Mid-build questions: 2** (`mid-build-questions.md`). Vitest tripwire form:
+`USER_REVIEW_REQUIRED: false`. **Mid-build questions: 2** (`mid-build-questions.md`), both ruled
+(`rulings.md` "Mid-build rulings", commit `5d5cedfe3`): **Q1** the `.claude/agents` edits are dropped from T1;
+check 7b stays a todo until follow-up T1-F1. **Q2** `.gitignore` gains `frontend/vite.config.ts.timestamp-*`:
+a refused `npx vitest run` (exit 69) still leaves the temp file on disk, harmless, and `git status` stays clean
+(checked); no `git clean` needed. Vitest tripwire form:
 **primary** (`createRequire(import.meta.url)` in `vite.config.ts`), typed without `@types/node` (deviation 1).
 Evidence: `/opt/assetecon/evidence/T1-heavy-tool-slot-pool/build-2026-11-19/`.
 
@@ -88,7 +92,7 @@ that run also exposed the `chain_clone` ordering defect, fixed in commit 2).
 1. `vite.config.ts`: the spec's two lines fail `tsc` (no `@types/node`: TS2307 `node:module`, TS2591
    `process`). Same statements, with `// @ts-expect-error` on the import and `process` read off `globalThis`,
    as the file's `apiPort` already does. Inventory check 3 accepts it.
-2. `.claude/agents` edits of §6 not made (dispatch forbids `.claude/`): Q1.
+2. `.claude/agents` edits of §6 not made: dropped from T1 by the Q1 ruling (follow-up T1-F1).
 3. A12: `select-tests --base main` is `full`; besides the ALWAYS_FULL files it also names the §5.5 tools
    (`demo_combined*.py`, `chain_clone.py`, `mechanism_dataset.py`), `heavy_slot_check.cjs`,
    `profile-tests-in-container.ps1` ("a tool a test may run or read") and the two frontend `.mjs` capture
@@ -108,7 +112,7 @@ that run also exposed the `chain_clone` ordering defect, fixed in commit 2).
   `process.kill(0)` bug (fixed: `killQuiet` ignores pid ≤ 0). Not seen in the 7 runs since.
 - The pool self-test spawns about 40 pwsh processes; under heavy load its 5 s nesting bounds include pwsh
   start-up (seen failing at concurrency 8 under load 14; concurrency is now 4).
-- Q2: a refused vitest leaves one untracked Vite temp file per run.
+- Q2 (ruled): a refused vitest leaves one ignored Vite temp file per run on disk.
 
 ## Review focus
 
@@ -116,4 +120,4 @@ that run also exposed the `chain_clone` ordering defect, fixed in commit 2).
 2. `Test-HeavyMarker` / `checkMarker` / `check_marker` agree (order, reasons, ancestry, `/proc/locks` probe in
    the Node and Python halves, flock probe in bash, .NET probe in pwsh).
 3. The check-all diff: slot block, marker export, three guards, trigger generalisation, SKIP line, `finally`.
-4. Q1 and Q2.
+4. The `.gitignore` line (Q2 ruling) and 7b as a todo (Q1 ruling).

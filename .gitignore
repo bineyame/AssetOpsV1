@@ -64,3 +64,5 @@ frontend/.tsbuildinfo/
 # Agent session state
 .codex/
 .demo/
+# T1: a refused vitest run (exit 69 at config load) leaves Vite's bundled config behind; it is harmless.
+frontend/vite.config.ts.timestamp-*
