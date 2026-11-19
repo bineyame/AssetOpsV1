@@ -46,3 +46,11 @@ The coordinator also proposed two tightenings:
 The owner answered:
 
 > defaults for the three, and tighten the hero and badges
+
+## Owner on the Coming tag for the Home promise in the first screen (after the M8 fix)
+
+The coordinator recommended keeping the Coming tag on the Home promise, rather than rewording the promise down to what runs today.
+
+The owner answered:
+
+> keep the tag
