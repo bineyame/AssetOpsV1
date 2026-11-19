@@ -31,3 +31,18 @@ What holds it back:
 The owner answered:
 
 > yes, have the copy pass done
+
+## Owner's answers on the copy pass result (WC7 lint, WC6 badge forms, replay counts) and the coordinator's two tightenings
+
+The coordinator's recommended defaults:
+- WC7: add a lint rule against copy that argues against monitoring tools.
+- WC6: two badge forms, "Demo data" and "Demo data · Emulated".
+- Keep the replay-based counts, with the Demo data badge.
+
+The coordinator also proposed two tightenings:
+- The hero's first fold holds only the question, the one-line promise and one example; the rest sits below as scannable blocks.
+- Badges become small visual tags, not prefixes at the start of each line.
+
+The owner answered:
+
+> defaults for the three, and tighten the hero and badges
