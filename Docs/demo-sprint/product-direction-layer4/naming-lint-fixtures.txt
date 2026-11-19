@@ -1,0 +1,30 @@
+# Naming lint fixtures (OD-6: "plan" means only the new construct). Read by check_alignment.py self_test().
+# FAIL lines: each, checked alone, must be reported. They are the 12 sentences review G planted (G-verify-rev16.6.md, N1),
+# written out in full; five of them passed the rev 16.6 lint. PASS lines: construct uses that must not be reported.
+# Add a line here for every new phrasing a review finds; never delete one.
+
+FAIL: Kobo is over plan on diesel this month.
+FAIL: Room A ran warmer than its target suggested (30% planned, 55% actual).
+FAIL: **October: on plan.**
+FAIL: Plan cost to serve
+FAIL: The plan states only billed kWh, so the comparison starts at the meter: target 5,600 kWh against metered 5,580 kWh.
+FAIL: Kobo's generator ran well beyond the month against its plan of litres.
+FAIL: Kasarani's availability is shown actual against plan this month.
+FAIL: The site keeps an operational plan for diesel.
+FAIL: Operators set monthly plans for diesel litres.
+FAIL: The bridge starts from diesel compared with the plan figure the operator typed.
+FAIL: The plan item is approved. Revenue came in under plan.
+FAIL: Kobo's diesel came in above a plan of 700 litres.
+
+PASS: The executive approves the plan or sends it back, with a trade-off.
+PASS: Spend is counted once, on the plan item.
+PASS: The plan's own state is derived from its items and Actions.
+PASS: The system opens the period's draft plan automatically when the period starts.
+PASS: A change above a threshold creates a new plan version for the executive to approve.
+PASS: An Action whose item the approved plan leaves out is not released.
+PASS: P: the plan, a first-class construct (new)
+PASS: The next period's bridge shows each planned change beside the observed one.
+PASS: The Finding triage stays first, with the plan beside it.
+PASS: Renamed "Actual against target" (OD-6), so that "plan" means only the new construct.
+PASS: Lakeside's plan proposes the nearest set that fits the budget.
+PASS: Every Action's spend and crew visits count in the period's plan, on its plan item.

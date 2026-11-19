@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.6 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.7 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -30,7 +30,7 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 
 **What it's ultimately for:** differentiation and usefulness that convert operator executives. They see their own money explained, their decisions compared, and results proven, which their monitoring tools can't do. The commercial path follows from that: demo, then a paid diagnostic on their records, then a proven change.
 
-*Since revised by the owner (D1, 18 Nov): the engagement path is an initial call, a deep-dive, an integration pack, a pilot and then SaaS (`product-transition-and-roadmap.md` §2).*
+*Since revised by the owner (D1, 18 Nov): the engagement path is an initial call, a deep-dive, an integration pack, a pilot and then SaaS (D1 in `decisions-register.md`; the path in detail in `commercial-plan.md`).*
 
 ## How to read this document
 
@@ -50,11 +50,11 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 - **Switch.** An assumption a person can change, such as the budget, after which the proposal is recomputed.
 - **Σ/Σ.** A portfolio ratio taken as the sum of numerators over the sum of denominators.
 - **Parity test.** A check that the new structure reproduces today's outcome map before the map is removed.
-- **Action.** One unit of work a person creates and tracks. Today three record types carry it: the trial action (Finding origin), the domain action (exactly one origin, a Finding or an opportunity study) and the work case (no origin of its own; it links to Findings and Actions). In this design every carrier, work cases included, records one origin and at most one plan membership (§2.5).
+- **Action.** One unit of tracked work. Today three record types carry it: the trial action (Finding origin; recorded today with a SYSTEM actor, `0016_action_store.py:131`), the domain action (exactly one origin, a Finding or an opportunity study) and the work case (no origin of its own; it links to Findings and Actions). In this design a person creates every Action, and every carrier, work cases included, records one origin and at most one plan membership (§2.5). A work case's origin is the Finding or plan item it was opened from; its other links stay links (Architect's call).
 - **Lever.** A change that a decision may make to a factor, such as the generator stop threshold acting on candidate litres.
 - **Calibration replays K, M, E.** Scheduled re-runs of recorded data under a new setting: Kobo's stop threshold (K), Mto's headroom load (M), Embakasi's charging schedule (E). Until each passes, its figures are design values.
-- **D-numbers.** Owner decisions, recorded in `decisions-register.md` (as proposed in plan F, pending approval).
-- **Manifest key `plan`.** In the demonstration data, a Site's target side is the machine path `plan`, kept under OD-6 because renaming it would touch the manifest, evaluator, independent model and fixtures with no gain for a reader. Prose says "target" (Architect's call).
+- **D-numbers.** Owner decisions, recorded in `decisions-register.md` (pack file set approved by the owner, 19 Nov: `regeneration/F-pack-recreation-plan.md`).
+- **Manifest key `plan`.** In the demonstration data, a Site's target side is the machine path `plan`, kept as a machine-only exception to OD-6 (Architect's call) because renaming it would touch the manifest, evaluator, independent model and fixtures with no gain for a reader. Prose says "target".
 
 **Rules every figure follows** (unchanged from rev 15):
 1. Every figure states how it is known, in words: *Recorded*, *Emulated*, *Measured*, *Calculated*, *Estimated*, *Quoted*, *Modelled*, *At stake, not money*, *Verified*, *Not available yet*.
@@ -232,8 +232,8 @@ flowchart TB
   VE -- "later periods observed" --> FS
   FS --> SC
   classDef keep fill:#f4f5f7,stroke:#9aa5b4,color:#5d6878
-  classDef new fill:#eef3ff,stroke:#1d4ed8
-  classDef chg fill:#fff7e6,stroke:#b45309
+  classDef new fill:#eef3ff,stroke:#1d4ed8,color:#18212f
+  classDef chg fill:#fff7e6,stroke:#b45309,color:#18212f
 ```
 
 *Figure 1. Where the new constructs fit. Grey stays as it is; blue is new; amber is existing, with a named change. A verified change comes back only as observed factors of later periods.*
@@ -371,7 +371,7 @@ flowchart TB
 1. **The system raises the Finding and proposes.** It values the options and marks one Recommended, found by one search across the period's decisions so that the recommended set fits. It picks nothing. A hard-bound rejection can be overridden only by a recorded change to the bound (Architect's call).
 2. **The accountable role chooses** an option, or none: the site or operations manager for operations and O&M, the finance and commercial lead for billing, collection, claims and notices, and the executive for capital choices.
 3. **That role creates one or more Actions**, against the Finding or against a plan item (§2.5). Each records its creator, owner and due date.
-4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2; a Site setting wins over the portfolio one, Architect's call), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below the threshold has its Actions released when they are created, provided the plan still fits its budget and crew visits. The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait.
+4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2; a Site setting wins over the portfolio one, Architect's call), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below both the spend threshold and the crew-visit threshold (OD-12) has its Actions released when they are created, provided the plan still fits its budget and crew visits. With the crew-visit threshold at its default of zero, a change that uses a crew visit waits for approval, whatever its spend (Architect's reading of OD-11 and OD-12). The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait. The same rule releases the Actions of a proactive item.
 
 ### 2.5 P: the plan, a first-class construct (new)
 
@@ -383,7 +383,7 @@ flowchart TB
 - the items left out, each with its reason;
 - the switches set, the approver and the version.
 
-Its states are draft, proposed, approved, revised and closed.
+Its states and versions are set out below, in *The plan's life in a period*.
 
 *Serves the objective (why it is needed):* The objective asks which Sites and investments earn most from existing capital, and where limited crews should work. Choices made Site by Site can each be right while the set breaks the budget, overruns the crew visits, or misses a dated dependency. For example, the Mto huller needs the inverter restored first. No budget, crew or cross-Site construct exists in today's backend or schema (the only "budget" hits are frontend layout code).
 
@@ -423,7 +423,34 @@ flowchart LR
 
 *Figure 6. The plan among the constructs. Each Action has one origin: a Finding (reactive) or a proactive plan item. It also has at most one plan membership, which says what funds and schedules it. Spend is counted once, on the item. The plan releases what needs approval and is reviewed against observed factors.*
 
-**Settled with the owner (19 Nov):** OD-1 and OD-4 to OD-8, listed under Decisions. The open Architect's calls are listed there too.
+**The plan's life in a period** (owner decisions OD-10 and OD-11, 19 Nov).
+- *Period.* A plan covers one portfolio's budget period: a month, unless the executive sets another (Architect's call).
+- *Opening (OD-10).* The system opens the period's draft plan automatically when the period starts, within the limits the executive has set: the budget, the crew visits, the spend and crew-visit thresholds (both Site or portfolio settings; the crew-visit threshold defaults to zero, OD-12) and the switches. Opening chooses nothing. The draft carries forward the previous period's unfinished items with their approval, spend and owners, and a carried item is approved again only if its spend changes (Architect's call).
+- *Proposing and approving.* The system assembles the chosen and declared items, checks the fit and proposes a version. The executive approves it or sends it back with a trade-off. A version sent back returns to draft, and each item it changes returns to its creator with the reason (OD-4).
+- *Versions (OD-11).* An approved version stays in force until the next one is approved. A change that alters the total spend by more than the spend threshold, or the crew visits by more than the crew-visit threshold, creates a new version for the executive to approve. Smaller changes are recorded on the version in force, with the person and the time, and need no new approval. Changes are counted together since the last approved version, so a run of small changes cannot slip past a threshold (Architect's call, the same reading as OD-2). The crew-visit threshold is a Site or portfolio setting beside the spend threshold. Until it is set it is zero, so any added crew visit needs approval (OD-12).
+- *States.* **Draft**: open, collecting items. **Proposed**: awaiting the executive. **Approved**: a version in force. **Revised**: a version in force while its successor is proposed; the version in force governs, and the Actions of the change wait. **Closed**: the period has ended and been reviewed.
+- *Money, counted once.* Each item's spend moves through three steps: *planned* (the chosen option's or declared item's one-off), *released* (what its released Actions may spend) and *incurred* (expense records linked to the item in the commercial record store). The budget in use counts each item once: its incurred spend where expense records exist, otherwise its released spend, otherwise its planned spend (Architect's call). Realised value still comes only from economic verdicts (§2.7).
+- *Ownership.* Each item has an owner, the person who chose its option or declared it. Each Action has an owner and a due date; its owner may differ from its creator. The executive approves every version. A version awaiting approval appears beside the Finding triage on Act first. No notification is sent, as today (§1.4).
+- *Closing.* At the period's end the system runs the plan review: each item's predicted factor changes against the observed ones. The executive closes the period's plan, and its unfinished items carry into the next draft.
+
+<!--Figure 6b: the plan's states-->
+
+```mermaid
+stateDiagram-v2
+  [*] --> Draft: the system opens it when the period starts (OD-10)
+  Draft --> Proposed: the system proposes a set that fits
+  Proposed --> Approved: the executive approves (version 1)
+  Proposed --> Draft: the executive sends it back, with a trade-off
+  Approved --> Approved: a change below both thresholds, recorded (OD-11)
+  Approved --> Revised: a change above a threshold proposes a new version (OD-11)
+  Revised --> Approved: approved (the new version in force) or sent back (the old one stays)
+  Approved --> Closed: the period ends, the review runs, the executive closes
+  Closed --> [*]
+```
+
+*Figure 6b. The plan's states. Each approval makes a version, and the version in force governs until the next one is approved. At Lakeside, if the cooperative does not extend its letter of intent mid-period, buying the Mto inverter now and dropping the Kisiwa repair is a revision. If it moves the total spend or crew visits by more than the thresholds, it proposes a new version for the executive. If not, it is recorded on the version in force.*
+
+**Settled with the owner (19 Nov):** OD-1, OD-4 to OD-8, OD-10 and OD-11, listed under Decisions. The open Architect's calls are listed there too.
 
 The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (`verification_plan`, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
 
@@ -448,7 +475,7 @@ The plan's own state is derived from its items and Actions. It is not a second e
 
 | Role | Decides | Does |
 |---|---|---|
-| **Operator executive** | Approves the plan; sets the budget, the switches and the spend threshold; makes capital choices and declares capital items (expansion, new connections) | Approves or sends back the plan, with a trade-off |
+| **Operator executive** | Approves each plan version; sets the budget, the switches, and the spend and crew-visit thresholds; makes capital choices and declares capital items (expansion, new connections) | Approves or sends back the plan, with a trade-off |
 | **Finance and commercial lead** | Declares budget lines and money targets; accepts imported records; chooses claims, notices and collection actions; sets money tolerances | Creates Actions against money and rights Findings; files rights events |
 | **Operations or site manager** | Chooses options within operational decisions; declares operational targets (availability, dawn charge, departures) and proactive items (maintenance, replacements); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work |
 | **Field technician or O&M contractor** | — | Does the work; records readings, dips and completion |
@@ -467,7 +494,7 @@ flowchart LR
   AO(["Analyst"]):::actor
   SYS(["System"]):::sys
   EX --> U1(("Approve the plan")):::new
-  EX --> U2(("Set budget, switches, spend threshold")):::new
+  EX --> U2(("Set budget, switches, thresholds")):::new
   SM --> U3(("Choose an option, or none")):::new
   SM --> U12(("Create Actions from a Finding or a proactive item")):::new
   SM --> U13(("Declare proactive items: maintenance, replacement")):::new
@@ -479,9 +506,9 @@ flowchart LR
   AO --> U11(("Map sources, review contract rows")):::new
   SYS --> U9(("Prepare decisions, check the plan")):::new
   SYS --> U10(("Raise Findings, record events, judge verdicts")):::keep
-  classDef actor fill:#ffffff,stroke:#18212f
-  classDef sys fill:#f4f5f7,stroke:#5d6878
-  classDef new fill:#eef3ff,stroke:#1d4ed8
+  classDef actor fill:#ffffff,stroke:#18212f,color:#18212f
+  classDef sys fill:#f4f5f7,stroke:#5d6878,color:#18212f
+  classDef new fill:#eef3ff,stroke:#1d4ed8,color:#18212f
   classDef keep fill:#f4f5f7,stroke:#9aa5b4,color:#5d6878
 ```
 
@@ -531,7 +558,7 @@ sequenceDiagram
   S->>S: evaluator: operational, economic and causal verdicts, then the plan review
 ```
 
-*Figure 8. Before: one option, and the manager's acts are recorded as SYSTEM. After: the system proposes; the manager chooses, which adds a reactive plan item; the manager creates the Actions (origin: the Finding; membership: that item); and the executive's approval releases them. The approval step applies because the change's total one-off of 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, summed over both Actions, is above this example's spend threshold. Under a higher threshold both would be released at once. Each act carries its person.*
+*Figure 8. Before: one option, and the manager's acts are recorded as SYSTEM. After: the system proposes; the manager chooses, which adds a reactive plan item; the manager creates the Actions (origin: the Finding; membership: that item); and the executive's approval releases them. The approval step applies because the change's total one-off of 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, summed over both Actions, is above this example's spend threshold. Under a higher threshold both would be released at once, as in the demonstration, where Lakeside's threshold is 250.00 (`worked-portfolios.md` §1.5). Each act carries its person.*
 
 ### 2.7 CH4: proof that the money followed
 
@@ -572,7 +599,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 
 ### 2.9 Change register and delivery order
 
-*Serves the objective:* the core changes only where it blocks that value. A construct stays unless a row below names its shortfall. Dispositions at function level are in `repo-reuse-and-gap-matrix.md`.
+*Serves the objective:* the core changes only where it blocks that value. A construct stays unless a row below names its shortfall. Dispositions at function level are in `reuse-and-gap-matrix.md`.
 
 | Construct | Stays or changes | Shortfall, with evidence | Change |
 |---|---|---|---|
@@ -583,7 +610,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Reserve recommendation, what-ifs | Change (CH3) | Sole option, gross only: `reserve_trial.py:42-45`; `scenario_rules.py:191-228` | One option generator; an option's calculation record |
 | Possible extra fuel cost | Stays | — | An at-stake bound, never an option's value |
 | Opportunity study → thread → mill Action | Stays, extended | Headroom with demand "unverified": `opportunities.py:366-401` | Stays as capacity evidence and an Action origin. With customer evidence, an opportunity Finding on the demand factor carries new Actions |
-| Actions, domain actions, work cases, rail | Stay, plus CH2 and P | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | Recorded creator, owner and due date; one origin (a Finding or a proactive plan item; legacy: the opportunity study) and at most one plan membership; released by the plan above the threshold. Today's one-origin check (`0051_action_opportunity_origin.py:73-77`) stays and gains a plan-item arm. The forced mini-grid opportunity origin (`:78-79`) is replaced by a rule that admits no new opportunity origin (OD-7). Trial actions and work cases gain the same links. `chain_action_thread`'s one-origin check and the `chain_action` view (`0051:10`, `:53-62`) must widen in the same migration |
+| Actions, domain actions, work cases, rail | Stay, plus CH2 and P | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | Recorded creator, owner and due date; one origin (a Finding or a proactive plan item; legacy: the opportunity study) and at most one plan membership; released by the plan above the threshold. Today's one-origin check (`0051_action_opportunity_origin.py:73-77`) stays and gains a plan-item arm. The forced mini-grid opportunity origin (`:78-79`) is replaced by a rule that admits no new opportunity origin (OD-7). Trial actions and work cases gain the same links. `chain_action_thread`'s one-origin check (`0051:87-88`), its target trigger `chain_action_thread_target()` (`:34-50`, which matches each link to its Action's origin pair) and the `chain_action` view (`:53-62`) must widen in the same migration |
 | Verification | Stays, plus CH4 | Cost 0; simulated evidence only: `verification.py:1167`; `verification_rules.py:688` | Economic and causal verdicts; field evidence |
 | Portfolio cards, Optimize figure, site board | Change (CH5) | Counts; one day over a period: `read.py:676-682` | Read from factors |
 | Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
@@ -632,11 +659,11 @@ flowchart LR
 - D13, the visible-first path;
 - D14, emulators as placeholder sources.
 
-D15 (the first change agreed at the end of the deep-dive) is pending; its context and default are in `decisions-register.md` (as proposed in plan F, pending approval).
+D15 (the first change agreed at the end of the deep-dive) is pending; its context and default are in `decisions-register.md`.
 
 **Owner decisions of 19 Nov, applied in this revision:**
 
-| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`) | Where applied |
+| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 and OD-11 in `.agent/owner-recreate-document-packs-2026-11-19.md`) | Where applied |
 |---|---|---|
 | Q-A1 | A Finding has a bottom-line impact, or is a risk or an opportunity, and is to be acted on with one or more Actions | §1.3, §2.1 |
 | Q-A2 | A few sensible roles | §2.6 |
@@ -649,18 +676,26 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-7 | Today's opportunity-study origin stays as a legacy third origin for existing mill-shift Actions only ("OD-7 and OD-8 yes", 19 Nov) | §2.5 |
 | OD-8 | A Finding-origin Action that spends always joins the plan and waits for approval only above the spend threshold ("OD-7 and OD-8 yes", 19 Nov) | §2.4, §2.5 |
 | OD-9 | Delivery order: agree the canonical format and leaf factor IDs first, then build the sources (lane A) and the factor structure (lane B) in parallel, joining at the money leaves (the owner's question and "yes, send it", 19 Nov). The Architect's refinement (cost-side decisions start before the join) and caution (the format is version 1) are in §2.9, for the owner | §2.9, Figure 10 |
+| OD-10 | The system opens the period's draft plan automatically when the period starts, within the executive's limits ("i agree with the rest of the defaults", 19 Nov) | §2.5, Figure 6b |
+| OD-11 | A change that alters total spend or crew use above the threshold creates a new plan version for the executive to approve; smaller changes are recorded without a new approval (same answer) | §2.5, Figure 6b |
+| OD-12 | The crew-visit threshold defaults to zero and is configurable, a Site or portfolio setting like the spend threshold (owner, 19 Nov: "the crew-visit threshold default of zero is fine so long as it is configurable") | §2.5 |
+
+**Other owner decisions, outside this design** (commercial and process; each with its owner record and status in `decisions-register.md`): D2, D3, D4, D5, D6, D7, D8, D9, D10 and D12.
 
 **Architect's calls, not settled by the owner:**
 - the threshold applies to the whole chosen change, summed over its Actions (§2.4 step 4);
 - an Action already released stops and returns to its creator when the approved plan drops its item (§2.5);
 - cost-side decisions start before the join; only revenue-side options wait for the money leaves (§2.9, Figure 10);
-- a spending Action with no decision behind it creates its own reactive item; work cases carry an origin (§2.5, "Words used here");
+- a spending Action with no decision behind it creates its own reactive item; a work case's origin is the Finding or plan item it was opened from (§2.5, "Words used here");
+- a plan covers the portfolio's budget period, a month by default; a carried-over item is approved again only if its spend changes (§2.5);
+- changes are counted together since the last approved version (§2.5, OD-11);
+- an item's budget in use is its incurred spend, else its released spend, else its planned spend (§2.5);
 - a Site's threshold wins over the portfolio's; an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);
-- the manifest key `plan` stays as a machine path, and prose says "target" (G-F5, "Words used here").
+- the manifest key `plan` stays as a machine-only exception to OD-6, and prose says "target" (G-F5, "Words used here").
 
 ## Appendix. Where the detail lives
 
-The file set is as proposed in plan F (`regeneration/F-pack-recreation-plan.md`), pending the owner's approval.
+The file set was approved by the owner on 19 Nov (`regeneration/F-pack-recreation-plan.md`, `.agent/owner-recreate-document-packs-2026-11-19.md`).
 
 | Topic | File |
 |---|---|
@@ -672,5 +707,7 @@ The file set is as proposed in plan F (`regeneration/F-pack-recreation-plan.md`)
 | The evaluation contract for the independent model | `structure-specification.md` |
 | Function-level dispositions, by register row | `reuse-and-gap-matrix.md` |
 | Delivery order, slices, gates and the demonstration build | `delivery-plan.md` |
+| The first fortnight's build: scope, days, capacity | `two-week-build-plan.md` |
+| The plan and Action workflow: roles, money, ownership, states, the system's part | `plan-and-action-workflow.md` |
 | The evidence for Part 1, the audit of rev 15 and the reviews | `regeneration/` |
 | The figures | `demo-site-scenario-manifest.yaml` → `evaluate_structure.py` → `derived-values.json`, checked by `check_manifest.py` |

@@ -1,6 +1,6 @@
 # Structure specification (the contract every figure is computed under)
 
-**Layer 4 companion artifact 12 · rev 13 · AssetOps Architect (Claude) · 17 Nov 2026**
+**Layer 4 companion artifact 12 · rev 13 · AssetOps Architect (Claude) · 17 Nov 2026** · rev 13.1 (19 Nov): naming only, under the design's OD-6 (rev 16.7). No rule, path or meaning changed, so the independent model written from rev 13 stays valid.
 
 The owner's twelfth message asked for this order of work: write the whole structure specification first, then make the data, code and screens conform to it. This document is that specification. It contains no figures.
 
@@ -26,8 +26,8 @@ Terms: *record path* means a dotted path into the site's context (§2.3). *Expre
 | Quote | a price, lead time or duration offered by a supplier or contractor | option `params` and `cost_lines`, with `basis` | `basis` |
 | Replay design value | a figure a calibration replay must reproduce before it is relied on | option `params` with `design_value: K\|M\|E`, and physical fields marked as spike outputs | "design value" label wherever shown |
 | Assumption | a value with no record or quote | option `params` with `assumption:` | "assumption" label |
-| Policy declaration | the operator's obligation bounds and how each decision treats them | `evaluation.bounds`, plan `decisions[].kind / hard / fallback / optional` | reason text; owner question where open (Q15) |
-| Owner or person decision | budget, crew limits, switches, horizon | tenant `portfolio_constraints`, plan `budget`, `switches` | switch shown on screen |
+| Policy declaration | the operator's obligation bounds and how each decision treats them | `evaluation.bounds`, `plan.decisions[].kind / hard / fallback / optional` | reason text; owner question where open (Q15) |
+| Owner or person decision | budget, crew limits, switches, horizon | tenant `portfolio_constraints`, `plan.budget`, `plan.switches` | switch shown on screen |
 | Presentation | labels, names, ordering, narrative text with no figure | rows' `reason`, names, routes | none needed |
 
 ---
@@ -43,6 +43,8 @@ Terms: *record path* means a dotted path into the site's context (§2.3). *Expre
 - **Business days** are Monday to Friday. There is no holiday calendar.
 
 ### 2.2 Sides evaluated per site
+
+The side `plan` is a Site's **target** side. Its key stays as a machine-only exception to the design's OD-6, under which "plan" means only the portfolio's plan of §6 (design "Words used here", Architect's call).
 
 | Side | Record |
 |---|---|
@@ -173,7 +175,7 @@ A right is every `entitlement` and `entitlements[]` entry of a site, and every `
 
 ---
 
-## 6. Plans (M4)
+## 6. The plan's items: the allocator
 
 ### 6.1 Candidates
 
@@ -191,7 +193,7 @@ Each decision in a plan is protective, valued or comparator. Comparators are eva
 
 A combination (one candidate per decision, in declared order) is feasible when all of these hold:
 
-1. **Budget.** Σ operator one-off ≤ the budget, which is the case's `budget` switch if present, else the plan's `budget`.
+1. **Budget.** Σ operator one-off ≤ the budget, which is the case's `budget` switch if present, else the plan's budget (`budget`).
 2. **Crew visits.** Σ crew visits ≤ the tenant's `portfolio_constraints[plan.crew_limit]`.
 3. **Switch requirements.** Every option with `requires_switch: s` has switch s true in the case.
 4. **Dated dependencies.** Every option with `requires_restore` meets it:
@@ -201,7 +203,7 @@ A combination (one candidate per decision, in declared order) is feasible when a
 
 ### 6.3 Choosing the plan
 
-- **Plan figures.** Spend = Σ operator one-off of the items. Valued option costs = Σ operator one-off of the valued-in-money items. Not valued in money = spend − valued option costs, a money figure (amended, ambiguity A20).
+- **Figures of the plan.** Spend = Σ operator one-off of the items. Valued option costs = Σ operator one-off of the valued-in-money items. Not valued in money = spend − valued option costs, a money figure (amended, ambiguity A20).
 - **Ranking.** The plan is the feasible combination with the greatest key: (− total violation, value, − spend).
   - Total violation is summed over the decisions that are on their fallback.
   - Value is the sum of valued-in-money options' values.
@@ -235,6 +237,6 @@ For each `owner_question_variants[q][v].patch`:
 - **Tagged figures.**
   - A figure tagged `<!--fig:path-->` in a document equals the value at that path, with the sign written before it. `fig:-path` means the negated value.
   - A record figure tagged `<!--rec-->` is a money record of the manifest.
-  - Every written occurrence of an evaluated plan or option money figure (with or without cents) and of an O2 percentage in a figure-bearing document is tagged.
+  - Every written occurrence of a plan's or an option's evaluated money figure (with or without cents) and of an O2 percentage in a figure-bearing document is tagged.
 - **Rendered manifest strings.** A string in the manifest that is rendered on screen and states a figure the structure computes carries it as a `{fig:path}` placeholder, which the screen fills from the evaluation. The checker rejects such a string that states the figure as a literal.
 - **Screen code.** The screen code holds no literal equal to an evaluated figure, except the entries of a per-file, per-literal allow-list, each with a reason.

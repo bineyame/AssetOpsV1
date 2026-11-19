@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.6)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.7)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.6 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.7 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -72,12 +72,18 @@ Industry claims rest on the brief's ledger [R1]–[R12] (AMDA benchmarking; ESMA
   - the pushbacks the owner agreed are recorded as OD-7 and OD-8.
 - **Rev 16.5 (19 Nov).** OD-7 and OD-8 confirmed explicitly ("OD-7 and OD-8 yes"). Figure 10 redrawn to the delivery order the owner approved (OD-9): canonical format and leaf factor IDs first, then sources (lane A) and factor structure (lane B) in parallel, joining at the money leaves.
   Architect's note on the order: lanes agreed; refinement applied (cost-side decisions start before the join); caution (the canonical format is version 1).
-- **Rev 16.6 (19 Nov).** Fixes for review E (`regeneration/E-review-rev16.5.md`) and the design gaps G-F1 to G-F5 from plan F:
+- **Rev 16.6 (19 Nov).** Fixes for review E (`regeneration/E-review-rev16.5.md`) and the design gaps G-F1 to G-F5 from the pack recreation (`regeneration/F-pack-recreation-plan.md`):
   - the decisions table renders whole;
   - a naming lint guards OD-6;
   - the Figure 10 caption follows the step order;
   - "Action" is defined, and the schema's origin constraints are credited and changed by name;
   - the documented limits moved here (§6).
+- **Rev 16.7 (19 Nov).** The pack recreation plan is approved (`.agent/owner-recreate-document-packs-2026-11-19.md`). Fixes for verification review G (`regeneration/G-verify-rev16.6.md`, N1 to N9), and the design-first additions the plan and Action workflow document needs:
+  - the owner's OD-10 (the system opens the period's draft plan) and OD-11 (a change above a threshold makes a new version for approval) are added to §2.5 and Decisions, with Figure 6b, the plan's states;
+  - the plan's life in a period is defined: its period, carry-over, versions, the crew-visit threshold, the three spend steps counted once, item and Action ownership, and where approval requests appear;
+  - the spend threshold rule is stated for proactive items too;
+  - the naming lint judges each "plan" in its own sentence and is now rule A3 of `check_alignment.py`, with the review's 12 planted sentences as permanent fixtures;
+  - stale file pointers are re-pointed, the limit IDs below are renamed DL1 to DL6, and the diagram classes carry a text colour for the dark theme.
 
 ## 5. Minimum pilot asks per vertical
 
@@ -88,7 +94,7 @@ Moved from design §2.3 in rev 16.2.
 
 ## 6. Documented limits of the illustration
 
-Moved from `derivation-register.md` §9 in rev 16.6 (G-F3). These are kept as limits, not fixed. The section references (§3.1, §7) point to `derivation-register.md`.
+Moved from `derivation-register.md` §9 in rev 16.6 (G-F3). These are kept as limits, not fixed. The section references (§3.1, §7) point to `evidence/derivation-register.md`, where the pack recreation moves that file. The IDs are local to this section: DL1 to DL6 are not the design's gaps L1 to L7.
 
 - **H2.** Violations of different bounds add when two decisions are on their fallback at once.
 - **H3.** There is no holiday calendar.
@@ -102,9 +108,9 @@ Moved from `derivation-register.md` §9 in rev 16.6 (G-F3). These are kept as li
 - **F3 (final review).** Rendered typed copies are unchecked. Numeric manifest leaves the screen renders directly are not compared with anything: `listed_not_summed`; MTO-BILLING charges; the huller's revenue and fuel; the `forward_replay` copies of the K and M parameters; `portfolio_constraints.budget_usd_nov_dec` beside `plans.*.budget`; the coverage shares; KAS-OEM-STOPGAP `nights`; site variances and bridge amounts, checked only against each other; the `excluded`, `recommended` and `switches[].cases` labels. They are correct today, and they can drift unseen.
 - **F4.** The plan-facing option fields `value` and `valued_in_money` are not defined in the specification and are not compared by the checker (`NOT_COMPARED`), although the screens read them. Planting a wrong value there passes (EV1).
 - **F6.** Typed narrative counts that restate evaluated figures, e.g. "the spare bus on one night" on the Kasarani page, §7 rows 170 and 175, and "6 more buses". The label L-RS ("records restated") understates them: these restate evaluated figures.
-- **L1.** The influence scan covered 2,438 of 2,613 manifest leaves. The 175 left out include `oracle`, 32 leaves of illustration expectations that nothing enforces, which are (b) illustration expectations, unenforced. They also include `checks`, 8 statements of identities, some of which no code checks; these are (c) text.
-- **L2.** H2 above: summing violations across bounds is reachable (G20).
-- **L3.** Fallback eligibility is static: a decision falls back only when none of its options can meet the bound at all. A plan with crews 1 or budget 600 is therefore infeasible, although declared fallbacks exist. This is put to the owner as Q16.
-- **L4.** The specification's authority over the independent model rests on review. The checker never reads the specification, so an edit to the specification alone passes (SP1). The specification-first order cannot be shown from the repository, because the files were committed together.
-- **L5.** A wrong untagged figure that equals no key figure, outside the scanned documents (the design's Parts 1–2, `worked-portfolios.md` and the walkthroughs), is not caught (Dr4); see also H13.
-- **L6 (presentation).** "inverter inverter 2" on Act first (the huller condition), and "spare bus free on 0 night" under a changed roster. The evaluator docstring is corrected.
+- **DL1.** The influence scan covered 2,438 of 2,613 manifest leaves. The 175 left out include `oracle`, 32 leaves of illustration expectations that nothing enforces, which are (b) illustration expectations, unenforced. They also include `checks`, 8 statements of identities, some of which no code checks; these are (c) text.
+- **DL2.** H2 above: summing violations across bounds is reachable (G20).
+- **DL3.** Fallback eligibility is static: a decision falls back only when none of its options can meet the bound at all. A plan with crews 1 or budget 600 is therefore infeasible, although declared fallbacks exist. This is put to the owner as Q16.
+- **DL4.** The specification's authority over the independent model rests on review. The checker never reads the specification, so an edit to the specification alone passes (SP1). The specification-first order cannot be shown from the repository, because the files were committed together.
+- **DL5.** A wrong untagged figure that equals no key figure, outside the scanned documents (the design's Parts 1–2, `worked-portfolios.md` and the walkthroughs), is not caught (Dr4); see also H13.
+- **DL6 (presentation).** "inverter inverter 2" on Act first (the huller condition), and "spare bus free on 0 night" under a changed roster. The evaluator docstring is corrected.
