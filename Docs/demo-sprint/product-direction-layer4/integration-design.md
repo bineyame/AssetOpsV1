@@ -1,6 +1,6 @@
 # Integration design: from source records to leaf factors
 
-**AssetEcon Layer 4 · builder and analyst specification for B3 · recreated from the design rev 16.7 (with OD-12) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · builder and analyst specification for B3 · recreated from the design rev 16.7, updated to rev 16.8 (OD-15; the deep-dive tied to its steps) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This document specifies how the operator's commercial and operational records reach the factor structure: the canonical format, the stores, the emulators, the contract test, the path to a pilot adapter, and the tests. It replaces `integration-source-to-canonical-design.md` (regeneration F, #3). It adds detail beneath B3 and never a new construct, role, decision or figure.
 
@@ -97,7 +97,7 @@ Each fact lives in the store whose shape and life already fit it. One new store 
 
 ## 5. Emulators and the contract test
 
-<!--derives: §2.3; D14; Figure 4; Figure 10; owner: .agent/owner-grounded-transition-request-2026-11-18.md-->
+<!--derives: §2.3; D14; OD-15; Figure 4; Figure 10; owner: .agent/owner-grounded-transition-request-2026-11-18.md-->
 
 **What an emulator is** (owner, 18 Nov, verbatim): "the emulator is a palcehodler that should be replaced by real integration , it jsut defines a practical canonical  data to use downstream". It writes native-shape files through the same adapter an operator's export uses (Figure 4).
 
@@ -110,12 +110,13 @@ Each fact lives in the store whose shape and life already fit it. One new store 
 
 **Order (lane 3A, Figure 10).** Billing, collections, fuel purchases and budget are emulated first, then the contract test runs on all of them. At the join (step 4) the money leaves appear: contribution, cost to serve and collections. For Kobo that includes the 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> of collections outstanding, labelled *Emulated*.
 
-**Who.** The analyst onboards each source and maps it to factors. The finance and commercial lead accepts imported records. The system validates, records and recomputes. It accepts nothing on a person's behalf.
+**Who.** The analyst onboards each source and maps it to factors. The finance and commercial lead accepts imported records. When the lead is absent, the operator executive can accept them instead, and the acceptance is recorded as the executive's, never as the lead's (OD-15). The system validates, records and recomputes. It accepts nothing on a person's behalf.
 
 ```mermaid
 sequenceDiagram
   actor A as Analyst
   actor F as Finance and commercial lead
+  actor E as Operator executive
   participant I as Intake
   participant S as Commercial record store
   participant R as Structure read
@@ -124,16 +125,20 @@ sequenceDiagram
   I-->>A: typed rows, refusals in plain words, nothing written
   A->>I: uploads it for real
   I->>S: revisions written, status submitted, actor = the analyst
-  F->>S: accepts the import (actor = the finance lead)
+  alt the finance lead accepts
+    F->>S: accepts the import (actor = the finance lead)
+  else the lead is absent (OD-15)
+    E->>S: accepts the import (actor = the executive, recorded as the executive's acceptance)
+  end
   S->>R: input changed, the affected periods recompute
   R-->>F: the money leaves appear on the board, with their evidence word
 ```
 
-*A record import, from mapping to acceptance. The analyst maps and uploads; the finance and commercial lead accepts; only accepted records count. Each step carries its person.*
+*A record import, from mapping to acceptance. The analyst maps and uploads; the finance and commercial lead accepts, or the executive in the lead's place (OD-15); only accepted records count. Each step carries its person.*
 
 ## 6. From emulator to pilot adapter
 
-<!--derives: §2.3; D1; D14; DA §5; §2.9-->
+<!--derives: §2.3; D1; D14; DA §5; §2.9; Figure 10-->
 
 An adapter has three parts: **transport** (how bytes arrive), **parser** (bytes to typed rows, pure) and **profile** (columns, units, timezone, mutability, personal-data fields). The field package already separates them: profiles are data files (`field/profiles/`), and the poller reads but never uploads (`field/assetops_field/modbus_poller.py:16-17`).
 
@@ -147,6 +152,8 @@ Only transport and profile change. The parser, canonical records, observers and 
 **Pilot gate.** One closed month is reconciled against the operator's management accounts, on revenue and on fuel or energy cost, before any money is shown as Recorded. Until then the money leaves carry their provenance.
 
 **Order of replacement** (D1). The first mini-grid deep-dive's exported files (billing, collections, budget, fuel, quotes); then that operator's contract set; then scheduled drops in the pilot; then the second vertical's files. An interface to the operator's system replaces only the transport, and only with contractual access. A replaced emulator stays as the contract test's fixture.
+
+**The deep-dive, tied to the build** (design §2.9). The deep-dive's safeguard, the operator's own target against actual within weeks, holds only once steps 3A (intake and contract test), 4 (the money leaves) and 5 (targets and the bridge) are live. The first deep-dive's exports are onboarded by a person in the Analyst role through step 3A's intake, with no step-9 work. Step 9's pilot onboarding is onboarding at scale: real adapters per source type replacing the emulators source by source, for more than one operator.
 
 **The pilot asks** per vertical are in `design-appendix.md` §5.
 
@@ -183,13 +190,15 @@ Each test is a question that must answer yes on the emulated fixture before any 
 | SRC-1 | An upload from an unregistered source, or through the unauthenticated legacy path, is refused with nothing written? |
 | EMU-1 | No total marked as realised or saved includes an emulated record? |
 | REV-1 | A record the finance lead has not accepted never reaches a money leaf? |
+| REV-2 | A record the executive accepts in the lead's place reaches the money leaf and is recorded as the executive's acceptance (OD-15)? |
 
 ## 9. Open questions
 
-<!--derives: Decisions; §2.3; §2.6; D9-->
+<!--derives: Decisions; §2.3; §2.6; D9; OD-15-->
+
+Settled since the first draft: who accepts imports when the finance and commercial lead is absent. The operator executive can, recorded as the executive's acceptance (OD-15; §5 above).
 
 | Question | Context | Default |
 |---|---|---|
-| Who accepts imports when the finance and commercial lead is absent? | The design gives acceptance to that role alone (§2.6) | No one else; imports wait. A second accepting role would need the design first |
 | Retention of raw files | Raw files hold personal data | Operator-configurable, with a default set in the data-processing agreement |
 | Contract extraction posture (D9) | Pending with the owner | AI-assisted, a person approves every row (`decisions-register.md` §5) |

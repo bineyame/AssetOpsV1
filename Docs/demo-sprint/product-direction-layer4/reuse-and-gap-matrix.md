@@ -1,6 +1,6 @@
 # Reuse and gap matrix
 
-**AssetEcon Layer 4 · function-level dispositions, by change-register row · recreated from the design rev 16.7 (with OD-12) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · function-level dispositions, by change-register row · recreated from the design rev 16.7, updated to rev 16.8 (OD-13, OD-14) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This is the inventory beneath the design's change register (§2.9). For each register row it lists the functions and records involved, what each does today, whether it stays, extends or changes, the migration rule, and the test gap. It replaces `repo-reuse-and-gap-matrix.md` (regeneration F, #5). It argues nothing the design does not: the reasons are the shortfalls the register names.
 
@@ -158,7 +158,7 @@ Shortfall: counts; one day over a period (`site_outcomes/read.py:676-682`).
 
 ## 11. New components, in migration order
 
-<!--derives: §2.9; Figure 10; OD-9; B1; B2; B3; CH2; CH3; P; CH4-->
+<!--derives: §2.9; Figure 10; OD-9; OD-13; OD-14; B1; B2; B3; CH2; CH3; P; CH4-->
 
 Migration numbers start at the next free number after `0061_reading_upload.py`. They are placeholders until `delivery-plan.md` sets each slice. Every migration refuses downgrade while its rows exist, and registers an input-change trigger where a cached route reads it (`0047_chain_response.py`).
 
@@ -168,7 +168,7 @@ Migration numbers start at the next free number after `0061_reading_upload.py`. 
 | 2 | Leaf factor IDs and canonical format version 1 | 2 | none | the manifest's `factor_map` |
 | 3 | Commercial record store and intake | 3A | first | reading-upload dry run and receipt (`0061`) |
 | 4 | Factor registry, structure read, structure observer | 3B | none (code rows) | `chain/graph.py:177`; `chain/period_read.py:249` |
-| 5 | Recorded person, owner and due date on every carrier | 3C | second | the human-actor check (`0010_financial_assumptions.py:57-78`) |
+| 5 | Operator accounts and role grants (OD-13, OD-14), then the recorded person, owner and due date on every carrier | 3C | second | new: no sign-in exists today; the human-actor check (`0010_financial_assumptions.py:57-78`) for the person on each write |
 | 6 | Target and budget lines; the bridge | 5 | third | objective revisions |
 | 7 | Decision and option records | 6 | fourth | the origin-pair checks of `0051` |
 | 8 | The plan; Action origin and membership arms | 7 | fifth | `0051` |

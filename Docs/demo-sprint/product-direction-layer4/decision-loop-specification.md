@@ -1,6 +1,6 @@
 # Decision loop specification
 
-**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7 (with OD-12) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7, updated to rev 16.8 (OD-13 to OD-18, plan item states) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This document gives the records, rules, states, interfaces and acceptance tests for each construct of the design's Part 2. It replaces `economic-metric-and-effect-contracts.md` and `domain-and-decision-models.md` (regeneration F, #2). It adds detail beneath the design's constructs and never a new construct, role, decision, status or figure. Where the design leaves something undefined, this document says so in §12 and stops.
 
@@ -53,6 +53,8 @@ erDiagram
   PLAN_ITEM ||--o{ CARRIER : "origin, proactive"
   CARRIER ||--o{ VERDICT : "operational, economic, causal"
   PRINCIPAL ||--o{ CARRIER : "creator and owner"
+  PRINCIPAL ||--o{ PLAN_ITEM : "chose, so owns"
+  PRINCIPAL ||--o{ ROLE_GRANT : "roles, granted by the executive"
 ```
 
 *The carrier is any of today's three Action records: trial action, domain action or work case. Each records one origin and at most one plan membership (design "Words used here").*
@@ -115,7 +117,7 @@ erDiagram
 | Unexplained fuel | unexplained litres |
 | Cold excursion | crate-minutes above limit |
 | EV interruption | chargers in service |
-| Backup start failure | not named in the design (§12, gap 1) |
+| Backup start failure | nights without backup cover, a Protect measure (design §2.1; Thika in `worked-portfolios.md` §1.2) |
 
 **The structure observer.** It reads the evaluated structure each period and stores a deviation as a Finding, with the same identity, revisions and thread. It raises one only under the owner's rule (Q-A1) and only outside the factor's tolerance (OD-3):
 - an adverse bottom-line deviation, a risk to an obligation, asset or right, or an opportunity someone can act on;
@@ -164,7 +166,7 @@ The "N of M objectives met" line stays beside the bridge. The Assure row line is
 
 ## 6. CH3: decisions and options valued against doing nothing
 
-<!--derives: §2.4; CH3; L5; OD-2; OD-8; OD-11; OD-12; Figure 5; Words; WP §1.5-->
+<!--derives: §2.4; CH3; L5; OD-2; OD-8; OD-11; OD-12; OD-17; OD-18; Figure 5; Words; WP §1.5-->
 
 *Serves the objective:* executives see their choices compared in money, net of cost, for every Site, with the option that breaks a service rule shown and rejected.
 
@@ -191,10 +193,11 @@ The demonstration arithmetic is fixed in `structure-specification.md` §5.
 **Recommended set.** The Recommended option of each decision is found by one search across the period's decisions, so that the recommended set fits the budget and crew visits. The search order is the plan's: fewest service-rule breaches first, then the highest value, then the lowest spend (§7).
 
 **Choosing and release.** The accountable role chooses an option, or none (§8). The choice is recorded with the person and time. The chosen option becomes a reactive plan item if it spends shared budget or crew visits (§7). Release follows the threshold rule:
-- the spend threshold (OD-2) and the crew-visit threshold (OD-12, default zero) are Site or portfolio settings; the Site's wins (Architect's call);
+- the spend threshold (OD-2) and the crew-visit threshold (OD-12, default zero) are Site or portfolio settings; for a change at one Site the Site's setting wins, and a change spanning Sites is judged against the portfolio's (OD-18);
 - the rule applies to the item's total one-off and crew visits, summed over all its Actions, never one Action at a time (Architect's call);
 - at or below both thresholds, an Action is released when it is created, provided the plan still fits its budget and crew visits. The fit is checked at each creation, in order, so two changes created together cannot jointly overrun it;
-- otherwise the Actions wait for the plan's approval (OD-8). The same rule releases a proactive item's Actions.
+- otherwise the Actions wait for the plan's approval (OD-8). The same rule releases a proactive item's Actions;
+- a capital item (an expansion, or a new connection the site manager proposed, OD-17) is never released at creation: it waits for the executive's approval of the version that holds it, whatever the thresholds, and its Actions are created after that approval (Architect's reading of OD-17).
 
 **Acceptance tests.**
 - Does every decision hold exactly one no-action option?
@@ -205,10 +208,12 @@ The demonstration arithmetic is fixed in `structure-specification.md` §5.
 - Does splitting a change into several small Actions leave the threshold test unchanged?
 - With the crew-visit threshold at its default of zero, does a change that uses a crew visit wait for approval, whatever its spend?
 - In the demonstration on 6 Nov, does each Action's state (released at creation, or awaiting approval) match `worked-portfolios.md` §1.5?
+- With a Site crew-visit threshold of 1 and a portfolio threshold of 0, is a one-visit change at that Site released at creation, and is a change spanning two Sites judged against the portfolio's 0 (OD-18)?
+- Is a new connection's item held for the executive's approval even when its one-off is within the spend threshold, and is an Action against it refused before that approval (OD-17)?
 
 ## 7. P: the plan
 
-<!--derives: §2.5; P; OD-1; OD-4; OD-5; OD-7; OD-8; OD-10; OD-11; OD-12; Figure 6; Figure 6b; G1; L5-->
+<!--derives: §2.5; P; OD-1; OD-4; OD-5; OD-7; OD-8; OD-10; OD-11; OD-12; OD-16; OD-17; OD-18; Figure 6; Figure 6b; Figure 6c; G1; L5-->
 
 *Serves the objective:* choices made Site by Site can each be right while the set breaks the budget or the crews. The plan is where the executive trades one Site against another, with no other home today.
 
@@ -216,17 +221,30 @@ The demonstration arithmetic is fixed in `structure-specification.md` §5.
 
 | Record | Fields |
 |---|---|
-| `portfolio_plan` | Tenant (portfolio), period (a month unless the executive sets another), state, opened at |
+| `portfolio_plan` | Tenant (portfolio), period (a month unless the executive sets another), the crew-visit limit for each month of the period, state, opened at |
 | `portfolio_plan_version` | Plan, version number, the items in it, the switches set, budget, crew visits, both thresholds, proposed at, approved at and approver, or sent back with its trade-off and person |
-| `plan_item` | Plan, kind (reactive or proactive), Site, target factor IDs or "no factor (upkeep or compliance)" (OD-5), frozen prediction, planned, released and incurred spend, crew visits, dates, dependencies, item owner, the triggering Finding and chosen option (reactive) |
+| `plan_item` | Plan, kind (reactive or proactive), capital kind (none, expansion or new connection; OD-17), Site, target factor IDs or "no factor (upkeep or compliance)" (OD-5), frozen prediction, planned, released and incurred spend, crew visits and the month of each, dates, dependencies, chosen by (the person who chose the option or declared the item) and item owner, always the same person (OD-16), the triggering Finding and chosen option (reactive). Its state is derived, not stored |
 | `plan_item_left_out` | Version, item, reason |
 | `plan_change` | Version in force, item, what changed, spend and crew-visit difference, person, time |
 
-**States** (Figure 6b): Draft, Proposed, Approved, Revised, Closed. The plan's state is derived from its items and Actions. It is not a second execution workflow.
+**States.** The plan (Figure 6b): Draft, Proposed, Approved, Revised, Closed. The plan's state is derived from its items and Actions. It is not a second execution workflow.
+
+A plan item (design Figure 6c, Architect's call), derived from its Actions and the plan's versions at read time:
+
+| Item state | Derived when |
+|---|---|
+| Chosen | chosen or declared; held in the draft or a proposed version only; not within both thresholds, or a capital item |
+| Released | its whole change is within both thresholds, it is not a capital item and the plan fits; or the version in force holds it |
+| Left out | the latest approved version leaves it out; its owner has neither revised nor withdrawn it (OD-4) |
+| Done | every Action against it is closed; its spend is incurred |
+| Withdrawn | its owner withdrew it |
+
+Carrying an item into the next draft at close is an event recorded on the item, not a state.
 
 **Rules.**
 1. *Opening (OD-10).* The system opens the period's draft automatically when the period starts, within the executive's limits. Opening chooses nothing. Unfinished items carry forward with their approval, spend and owners; a carried item is approved again only if its spend changes (Architect's call).
-2. *Items.* A reactive item comes from a chosen option. A proactive item is declared straight into the plan by its role (§8). A spending Finding-origin Action with no decision behind it creates its own reactive item, recording the Finding and the spend (Architect's call).
+2. *Items.* A reactive item comes from a chosen option. A proactive item is declared straight into the plan by its role (§8). A spending Finding-origin Action with no decision behind it creates its own reactive item, recording the Finding and the spend (Architect's call). The person who chose or declared it is its owner, and stays its owner when other roles create its Actions (OD-16). A new connection is proposed by the site manager and is a capital item (OD-17).
+2a. *Crew visits by month.* Where a period spans months, each month has its own crew-visit limit, and each crew visit counts in the month it falls (Architect's call).
 3. *Fit and proposal.* The system checks the items against budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend. Every left-out item has a reason. The demonstration's search is fixed in `structure-specification.md` §6.
 4. *Approval.* The executive approves a version or sends it back with a trade-off. A version sent back returns to draft, and each changed item returns to its creator with the reason (OD-4).
 5. *Versions (OD-11).* A change that alters total spend by more than the spend threshold, or crew visits by more than the crew-visit threshold, creates a new version for approval. Smaller changes are recorded on the version in force with the person and time. Changes are counted together since the last approved version (Architect's call). While a successor is proposed, the version in force governs and the change's Actions wait.
@@ -270,16 +288,30 @@ stateDiagram-v2
 - Is a proactive item without a factor marked "no factor (upkeep or compliance)" and given no value?
 - Is a new opportunity-study origin refused, while existing mill-shift Actions still read?
 - At Lakeside, if the cooperative does not extend its letter of intent, does buying the Mto inverter now and dropping the Kisiwa repair appear as a revision (`worked-portfolios.md` §1.1)?
+- Is every item's owner the person who chose it, so that at Mto David owns the inverter-claim item while Joseph creates and owns the notice Action (OD-16)?
+- On 6 Nov, is the Kobo stop-threshold item Released and every other Lakeside item Chosen (Figure 6c)?
+- Does the Kisiwa generator service count its crew visit against December's limit, not November's, and leave the November search unchanged?
 
 ## 8. CH2: the person in the loop, recorded
 
-<!--derives: §2.6; §1.4; CH2; G1; Q-A2; Figure 7; Figure 8b; WP §1.5-->
+<!--derives: §2.6; §2.3; §1.4; CH2; G1; Q-A2; OD-13; OD-14; OD-15; OD-17; Figure 7; Figure 8b; WP §1.5-->
 
 *Serves the objective:* an executive adopts what shows who decided, who approved and who is accountable.
 
 **Named change (G1).** Today trial commands are a "SYSTEM demonstration" (`actions/lifecycle.py:43-58`), work writes refuse a user actor (`work/model.py:280-285`, `WORK_USER_AUTH_REQUIRED`), and a price write without a verified person is refused (`financial_api.py:205-212`, `HUMAN_PRINCIPAL_REQUIRED`). The schema already has the pattern: a human actor needs an author (`0010_financial_assumptions.py:57-78`).
 
-**Principal.** Every command carries an authenticated person: person ID, tenant, the roles they hold, and the time. Stored SYSTEM events keep their actor and are never rewritten. Where people's identities come from is not defined in the design (§12, gap 2). In the demonstration a person is shown by role title, the Site for a Site manager, and a fictional first name labelled "Illustrative" (`worked-portfolios.md` §1.5).
+**Principal.** Every command carries an authenticated person: person ID, tenant, the roles they hold, and the time. Stored SYSTEM events keep their actor and are never rewritten.
+
+**Sign-in and roles** (OD-13, OD-14; *proposed* records `operator_account` and `role_grant`):
+
+| Record | Fields |
+|---|---|
+| `operator_account` | Person ID, tenant (one set of accounts per operator), email, password hash (never the password), active or disabled, created at and by |
+| `role_grant` | Person, role (one of the five), Site where the role is Site-bound, granted or removed, by whom (the operator executive), at what time. Append-only: a removal is a new row |
+
+- People sign in with email and password. Single sign-on comes later, for larger clients, behind the same principal (OD-13).
+- The operator executive grants and removes roles in Organisation settings. Every change is a `role_grant` row with its person and time (OD-14). The first executive of a tenant is created when the operator is onboarded.
+- A principal's roles are read from its current grants at each command. In the demonstration a person is shown by role title, the Site for a Site manager, and a fictional first name labelled "Illustrative" (`worked-portfolios.md` §1.5).
 
 **Who may do what.** Roles govern who may decide and what is recorded. They are not views: every role sees the same screens.
 
@@ -287,9 +319,11 @@ stateDiagram-v2
 |---|---|---|---|---|---|---|
 | Approve or send back a plan version | yes | | | | | never |
 | Set budget, switches, spend and crew-visit thresholds | yes | | | | | never |
-| Declare capital items (expansion, connection) | yes | | | | | never |
+| Grant or remove a role in Organisation settings (OD-14) | yes | | | | | never |
+| Declare an expansion; approve a new connection as capital (OD-17) | yes | | | | | never |
+| Propose a new connection as a plan item (OD-17) | | | yes | | | never |
 | Declare budget lines and money targets; set money tolerances | | yes | | | | never |
-| Accept imported records | | yes | | | | never |
+| Accept imported records | yes, as the lead's backup, recorded as the executive's acceptance (OD-15) | yes | | | | never |
 | Choose an option, or none | capital choices | billing, collection, claims, notices | operations and O&M | | | never |
 | Declare operational targets, proactive items; set operational tolerances | | | yes | | | never |
 | Create an Action | | money and rights Findings | Findings and proactive items | | | never |
@@ -313,6 +347,9 @@ A command from a principal without the role is refused with a typed reason. The 
 - Is a command from a person without the role refused, with its reason?
 - Does an Action past its due date show as overdue on the Actions rail?
 - At Kobo, do the manager's choice, the executive's approval and the technician's record each carry their own person (Figure 8b)?
+- Does a person sign in with email and password, and is a command without a signed-in person refused (OD-13)?
+- Is a role grant or removal by anyone but the operator executive refused, and is each grant and removal recorded with its person and time (OD-14)?
+- Is an import the executive accepts recorded as the executive's acceptance, not the finance lead's (OD-15)?
 
 ## 9. CH4: three verdicts, field evidence and the option's cost
 
@@ -383,12 +420,11 @@ Negative tests, each a question that must answer yes:
 
 ## 12. Open questions and design gaps
 
-<!--derives: Decisions; §2.1; §2.6-->
+<!--derives: Decisions; §2.1; §2.6; OD-13; OD-14-->
 
-These need the design first (regeneration F §3, gaps rule). This document stops at each.
-
-1. **Backup start failure has no pinned factor.** The design pins four of today's five mechanisms (§2.1). Default proposed to the design: pin it to the Protect measure the cold-room bound "backup start" names (`worked-portfolios.md` §1.0).
-2. **Where identities come from.** CH2 requires an authenticated person on every command, but no sign-in or identity source is defined, and none exists in the backend today. Default proposed to the design: one sign-in per tenant user, with roles granted by the operator executive.
-3. **Who grants roles.** The five roles are defined; how a person is given one is not. Default as in gap 2.
+No design gap remains open here. The three gaps of the first draft are settled in design rev 16.8:
+1. **Backup start failure** is pinned to nights without backup cover (design §2.1; §4 above).
+2. **Where identities come from:** email-and-password accounts per operator, single sign-on later (OD-13; §8 above).
+3. **Who grants roles:** the operator executive, in Organisation settings, every change recorded (OD-14; §8 above).
 
 The structure observer's Finding key in §4 and the attribution rule for products in §5 are detail beneath CH1 and B2, flagged for the reviewer.

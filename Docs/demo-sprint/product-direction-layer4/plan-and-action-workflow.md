@@ -1,6 +1,6 @@
 # Plan and Action workflow: who acts, the money, approval and the system's part
 
-**AssetEcon · Layer 4 pack document 12 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7 (with OD-12 and the demonstration workflow of WP §1.5)**
+**AssetEcon · Layer 4 pack document 12 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7, updated to rev 16.8 (OD-13 to OD-18, item states, Lakeside's proactive item; the demonstration workflow of WP §1.5)**
 
 **Why this document exists.** The owner asked for more clarity about how the plan and Action work together, "in its workflow document that combines workflow, finan ces, ownership and system mechanics" (`.agent/owner-recreate-document-packs-2026-11-19.md`). Every rule here is the design's (`layer4-transformation-design.md` §2.4–§2.6, Figures 5–8 and 6b). This document adds no construct, role, state or figure. Where the design leaves something open, it is listed as a design gap in §10, not decided here. The Architect's calls quoted here are the design's own and are labelled as such.
 
@@ -25,15 +25,15 @@ What is added on top:
 *Serves the objective:* acting and tracking are what turn a Finding into money. Recording the person is what lets an executive trust that record.
 
 ## 2. The five roles: what each decides, does and has recorded
-<!--derives: §2.6; Figure 7; OD-2; OD-3; OD-12; Q-A2; WP §1.5-->
+<!--derives: §2.6; Figure 7; OD-2; OD-3; OD-12; OD-14; OD-15; OD-17; OD-18; Q-A2; WP §1.5-->
 
 Roles govern who may decide; they are not views, and every role sees the same screens. Everything a role does is recorded under the person's name, with the time (§2.6).
 
 | Role | Decides, in this workflow | Does | Recorded |
 |---|---|---|---|
-| **Operator executive** | Approves every plan version or sends it back with a trade-off. Sets the budget, the crew visits, the switches, the spend threshold (OD-2) and the crew-visit threshold (OD-12). Makes capital choices and declares capital items (expansion, new connections) | Approves; sends back; closes the period's plan | Each approval, send-back, setting and close, as the approver |
-| **Finance and commercial lead** | Chooses claims, notices and collection actions; declares budget lines and money targets; sets money tolerances | Creates Actions against money and rights Findings; files rights events | Each choice as an item owner; each Action as its creator |
-| **Operations or site manager** | Chooses options within operational decisions; declares proactive items (maintenance, replacements); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work | Each choice and declared item as the item owner; each Action as its creator |
+| **Operator executive** | Approves every plan version or sends it back with a trade-off. Sets the budget, the crew visits, the switches, the spend threshold (OD-2) and the crew-visit threshold (OD-12). Makes capital choices: declares expansions and approves new connections as capital (OD-17). Grants and removes roles in Organisation settings (OD-14) | Approves; sends back; closes the period's plan; accepts imported records when the finance and commercial lead is absent (OD-15) | Each approval, send-back, setting, role grant and close, as the approver; a backup acceptance as the executive's own |
+| **Finance and commercial lead** | Chooses claims, notices and collection actions; declares budget lines and money targets; sets money tolerances | Creates Actions against money and rights Findings, and against other owners' items where the filing is theirs; files rights events | Each choice as an item owner (OD-16); each Action as its creator |
+| **Operations or site manager** | Chooses options within operational decisions; declares proactive items (maintenance, replacements); proposes new connections as plan items (OD-17); sets operational tolerances | Creates Actions from Findings or proactive items, and a new connection's Actions once it is approved; applies setting changes; assigns work | Each choice, declared item and proposed connection as the item owner (OD-16); each Action as its creator |
 | **Field technician or O&M contractor** | — | Does the work; records readings, dips and completion | Each record and completion as the actor |
 | **Analyst** | Maps sources to factors; places data-quality holds | Onboards sources, including the expense records that make spend *incurred* (§6) | Each mapping and hold |
 
@@ -41,7 +41,7 @@ Roles govern who may decide; they are not views, and every role sees the same sc
 - the **spend threshold**: the most a chosen change's total one-off may be and still be released without approval;
 - the **crew-visit threshold**: the most crew visits a change may add and still be released without approval. It **defaults to zero** until the executive sets it, so by default any change that uses a crew visit waits for approval (owner, 19 Nov: "the crew-visit threshold default of zero is fine so long as it is configurable").
 
-A change is released at creation only if it is at or below **both** (§2.4 step 4, the design's Architect's reading of OD-11 and OD-12). A Site's spend threshold wins over the portfolio's (design Architect's call, §2.4). Whether the same precedence applies to the crew-visit threshold is design gap 1 (§10). A spend threshold that is not set releases nothing without approval (§2.4 step 4).
+A change is released at creation only if it is at or below **both** (§2.4 step 4, the design's Architect's reading of OD-11 and OD-12), and is not a capital item (the design's reading of OD-17). For both thresholds a Site's setting wins over the portfolio's, and a change spanning Sites is judged against the portfolio's (OD-18). A spend threshold that is not set releases nothing without approval (§2.4 step 4).
 
 **In the demonstration** (WP §1.5, illustrative): each operator's spend threshold is 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold-->, a portfolio setting with no Site setting, and the crew-visit threshold is 0<!--rec:demo_workflow.tenants[lakeside-power].crew_visit_threshold-->, OD-12's default. Each role is shown by its title with a fictional first name, for example "Site manager, Kobo · Peter".
 
@@ -57,7 +57,7 @@ A period is one portfolio's budget period: a month unless the executive sets ano
 ```mermaid
 flowchart TB
   O["Period starts: the system opens the draft<br/>within the executive's limits (OD-10)<br/>unfinished items carried forward"] --> C["Items are added by people<br/>chosen options (reactive) · declared items (proactive)"]
-  C --> K{"Within both thresholds,<br/>and the plan still fits?"}
+  C --> K{"Within both thresholds, not capital,<br/>and the plan still fits?"}
   K -- "yes" --> RL["Its Actions are released at creation<br/>and counted on their item"]
   K -- "no" --> PR["The system proposes a version that fits<br/>every item left out has a reason"]
   PR --> AP{"Operator executive"}
@@ -76,7 +76,7 @@ flowchart TB
 Step by step:
 1. **Opening (OD-10).** When the period starts, the system opens the draft within the limits the executive has set. These are the budget, the crew visits, both thresholds and the switches. Opening chooses nothing. Unfinished items carry forward with their approval, spend and owners. A carried item is approved again only if its spend changes (design Architect's call).
 2. **Collecting.** People add items: an option they chose from a decision (a **reactive** item), or a change declared straight into the plan (a **proactive** item). Each item records its Site, target factors, frozen prediction, spend, crew visits, dates and dependencies (§2.5).
-3. **Release at creation.** A change within both thresholds has its Actions released when they are created, provided the plan still fits its budget and crew visits. The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it (§2.4 step 4).
+3. **Release at creation.** A change within both thresholds has its Actions released when they are created, provided the plan still fits its budget and crew visits and the item is not a capital item (OD-17). The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it (§2.4 step 4).
 4. **Proposing.** For everything else, the system assembles the items, checks budget, crew visits and dates, and proposes the nearest set that fits. Its order is fewest service-rule breaches, then the highest value, then the lowest spend, and every item left out has a reason (§2.5).
 5. **Approving.** The executive approves the version or sends it back with a trade-off. A version sent back returns to draft, and each item it changes returns to its creator with the reason (OD-4).
 6. **Changing (OD-11, OD-12).** A version stays in force until the next is approved. A change that moves total spend by more than the spend threshold, or crew visits by more than the crew-visit threshold, proposes a new version (state *Revised*). Until that version is approved, the version in force governs and the change's Actions wait. Smaller changes are recorded on the version in force. Changes are counted together since the last approved version, so a run of small ones cannot slip past a threshold (design Architect's call).
@@ -123,26 +123,27 @@ Three things in this walk-through are rules, not choices of the example:
 A Finding-origin Action that spends, with no decision behind it, creates its own reactive item, which records the Finding and the spend (design Architect's call, §2.5).
 
 ## 5. Lakeside: the whole portfolio, and a revision across Sites
-<!--derives: §2.4; §2.5; Figure 6b; OD-4; OD-5; OD-11; OD-12; WP §1.1; WP §1.5-->
+<!--derives: §2.4; §2.5; Figure 6b; Figure 6c; OD-4; OD-5; OD-11; OD-12; OD-16; OD-17; OD-18; WP §1.1; WP §1.5-->
 
-**The limits** (set by the operator, `worked-portfolios.md` §1.1): budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December, and 3 crew visits in November. Every decision is taken on 6 Nov, the demonstration's today. The system opened the draft on 1 Nov (OD-10), and on 6 Nov version 1 is *proposed*, awaiting Amina, the operator executive (WP §1.5).
+**The limits** (set by the operator, `worked-portfolios.md` §1.1): budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December, and 3 crew visits in November and 3<!--rec:tenants[lakeside-power].portfolio_constraints.crew_visits_dec--> in December, each visit counted in its month (design §2.5). Every decision is taken on 6 Nov, the demonstration's today. The system opened the draft on 1 Nov (OD-10), and on 6 Nov version 1 is *proposed*, awaiting Amina, the operator executive (WP §1.5).
 
-**Version 1.** The managers take the Recommended options, and the five items fit. The Actions and their state on 6 Nov are WP §1.5's:
+**Version 1.** The managers take the Recommended options, and the five chosen items fit. Halima also declares one proactive item. The items, their owners, the Actions and their state on 6 Nov are WP §1.5's:
 
-| Item (Site) | Finding it answers (§1.3) | One-off | Crew visits | Actions: creator → owner, due | On 6 Nov, and why |
+| Item (Site; owner, OD-16) | Finding it answers (§1.3) | One-off | Crew visits | Actions: creator → owner, due | On 6 Nov, and why |
 |---|---|---:|---:|---|---|
-| Stop-threshold change (Kobo) | bottom-line: candidate running | 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> | 0 | reconfigure, Peter → Peter, 9 Nov; supervise the trial, Peter → Musa, 23 Nov | **released at creation**: within the spend threshold, no crew visit |
-| Alternator repair (Kisiwa) | risk: evening hours with no backup | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 1 | repair, Halima → Musa, 9 Nov | waits: above the spend threshold, and a crew visit |
-| Battery evidence (Kobo) | risk: warranty cover that cannot be claimed | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | 1 | capacity test and sensor, Joseph → Joseph, 20 Nov | waits: above the spend threshold, and a crew visit |
-| Inverter warranty claim (Mto) | risk: half inverter capacity, cover at stake | 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> | 1 | file the notice (deadline 27 Nov), Joseph → Joseph, 13 Nov; install the unit, David → David, 28 Nov | **waits on the crew visit alone**: within the spend threshold, but one crew visit at a threshold of 0 (OD-12) |
-| Huller connection (Mto) | opportunity: the cooperative's signed letter of intent | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> | 0 | connect, after the inverter, David → David, 5 Dec | waits: above the spend threshold |
-| **Version 1** | | **3,750.00<!--fig:plans.lakeside-power.default.spend-->** | **3 of 3** | | proposed; Amina's approval releases the waiting Actions together |
+| Stop-threshold change (Kobo; Peter) | bottom-line: candidate running | 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> | 0 | reconfigure, Peter → Peter, 9 Nov; supervise the trial, Peter → Musa, 23 Nov | **released at creation**: within the spend threshold, no crew visit; the item is *Released* |
+| Alternator repair (Kisiwa; Halima) | risk: evening hours with no backup | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 1 | repair, Halima → Musa, 9 Nov | waits: above the spend threshold, and a crew visit |
+| Battery evidence (Kobo; Joseph) | risk: warranty cover that cannot be claimed | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | 1 | capacity test and sensor, Joseph → Joseph, 20 Nov | waits: above the spend threshold, and a crew visit |
+| Inverter warranty claim (Mto; David) | risk: half inverter capacity, cover at stake | 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> | 1 | file the notice (deadline 27 Nov), Joseph → Joseph, 13 Nov; install the unit, David → David, 28 Nov | **waits on the crew visit alone**: within the spend threshold, but one crew visit at a threshold of 0 (OD-12) |
+| Huller connection (Mto; David) | opportunity: the cooperative's signed letter of intent | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> | 0 | none yet: David creates "connect, after the inverter" (due 5 Dec) once Amina approves | waits as **capital** (OD-17): a new connection waits for the executive whatever its spend |
+| Generator service (Kisiwa; Halima), **proactive** | none: declared upkeep, "no factor (upkeep or compliance)" (OD-5) | 0.00<!--rec:demo_workflow.tenants[lakeside-power].items[KIS-SERVICE].planned_spend--> | 1, in December | none yet: Halima creates the service Action (owner Musa, 8 Dec) when she books the visit | waits: one crew visit at a threshold of 0; once version 1 is in force, its Action is released at creation |
+| **Version 1** | | **3,750.00<!--fig:plans.lakeside-power.default.spend-->** | **3 of 3 in November; 1 of 3 in December** | | proposed; Amina's approval releases the waiting Actions together, and its items become *Released* (design Figure 6c) |
 
 **The Mto claim is the demonstration's crew-visit case.** Its 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> is within the 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> spend threshold, so spend alone would release it. Its crew visit holds it for Amina. Under OD-12 the executive can raise the crew-visit threshold, and then a one-visit change like this one would be released at creation, provided the plan still fits its 3 crew visits.
 
-**Who owns the items.** The design makes the item owner the person who chose the option (§2.5). WP §1.5 names each Action's creator and owner but not each item's chooser. So the Kobo and Kisiwa items read directly (Peter and Halima chose and created), while for Mto's two items the claim is created by Joseph and the install and connection by David. Gap 3 (§10) asks the design to name the chooser.
+**Who owns the items (OD-16).** Each item's owner is the person who chose its option or declared it, and each Action keeps its own creator and owner. So David owns the Mto inverter-claim item, which he chose, while Joseph creates and owns its warranty-notice Action and David the install. David also owns the huller connection, which he proposed (OD-17). If Amina sends version 1 back, each changed item returns to its owner, and each Action to its creator (OD-4).
 
-All five are **reactive**: each is a chosen option from a decision that the system prepared on a Finding (§2.4). The worked portfolio declares no proactive item, so the proactive path is shown generically below (gap 4).
+**Reactive and proactive.** The five chosen items are **reactive**: each is a chosen option from a decision that the system prepared on a Finding (§2.4). The Kisiwa generator service is **proactive**: no Finding triggered it, it is the origin and the plan membership of its own Actions, and it carries no value (OD-5). It depends on the Kisiwa repair, because GEN-KS-01 must be back before GEN-KS-02 goes off for its service.
 
 **A later revision: the cooperative does not extend its letter of intent.** This happens after Amina approves version 1, and it is not part of the 6 Nov demonstration. The huller needs the inverter restored plus 5 working days before the letter lapses on 30 Nov. The claim restores the inverter on 28 Nov, so the huller can no longer connect in time (WP §1.1).
 
@@ -151,23 +152,22 @@ All five are **reactive**: each is a chosen option from a decision that the syst
 ```mermaid
 sequenceDiagram
   actor E as Operator executive
-  actor F as Finance and commercial lead
-  actor M as Site manager
+  actor M as Site managers
   participant S as System
-  Note over S: later in the period, version 1 approved and in force, five items, three crew visits of three
+  Note over S: later in the period, version 1 approved and in force, six items, three November crew visits of three
   E->>S: sets the switch, letter of intent not extended
   S->>S: the huller can no longer connect in time, proposes the nearest set that fits
   S->>S: the change moves total spend by more than the spend threshold, so version 2 is proposed
   Note over E,S: version 2 waits beside the Finding triage on Act first, version 1 governs (Revised)
   E->>S: sends it back with a trade-off, buy the Mto inverter now and drop the Kisiwa repair
-  S->>S: the Kisiwa and Mto inverter items return to their creators with the reason
-  M->>S: defers or withdraws the Kisiwa repair
-  F->>S: revises the Mto inverter item to buy now
+  S->>S: the Kisiwa repair, the Kisiwa service and the Mto inverter items return to their owners with the reason
+  M->>S: Halima withdraws the Kisiwa repair and defers the service, which has lost its dependency
+  M->>S: David revises the Mto inverter item to buy now
   S->>S: checks the fit and proposes version 2 again
   E->>S: approves version 2, releasing the changed Actions
 ```
 
-*Figure 12.3. A revision across Sites. The system proposes. The executive alone makes the trade between Kisiwa and Mto, and each item's owner revises their own item (OD-4).*
+*Figure 12.3. A revision across Sites. The system proposes. The executive alone makes the trade between Kisiwa and Mto, and each item's owner, Halima and David, revises their own item (OD-4, OD-16). The trade spans two Sites, so it is judged against the portfolio's thresholds (OD-18).*
 
 What each path costs, and why only the executive can choose:
 
@@ -180,7 +180,7 @@ What each path costs, and why only the executive can choose:
 - **Both paths make a new version.** The proposal moves total spend by 1,200.00<!--figx:{plans.lakeside-power.default.spend}-{plans.lakeside-power.switch_cases.5000/False.spend}-->, above the demonstration's 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> threshold. The trade also removes a crew visit, and at a crew-visit threshold of 0 any change in crew visits needs approval (OD-11, OD-12).
 - **Timing matters.** If the Kisiwa repair's Actions were already released and its crew visit on 8 Nov has happened, the repair cannot be undone. Its Actions stop at their next step, and the spend incurred stays recorded against the item (§2.5).
 
-**Proactive items, generically.** An operations or site manager declares scheduled maintenance or a replacement, and the executive declares a capital item such as an expansion or a new connection (§2.6). The item is the Action's **origin** and also its **plan membership**. The same thresholds release its Actions. It names the factor or Protect measure it moves, or is marked "no factor (upkeep or compliance)" and carries no value (OD-5).
+**Proactive and capital items, generally.** An operations or site manager declares scheduled maintenance or a replacement, as Halima does at Kisiwa. The executive declares an expansion. A new customer connection is proposed by the site manager and approved by the executive as capital, and its Actions are created after that approval (OD-17). A proactive item is the Action's **origin** and also its **plan membership**. The same thresholds release its Actions, except that a capital item always waits for the executive. It names the factor or Protect measure it moves, or is marked "no factor (upkeep or compliance)" and carries no value (OD-5).
 
 *Serves the objective:* this is the cross-Site judgement that monitoring tools cannot make. It weighs money against service obligations within one budget, and it records who made the trade.
 
@@ -215,23 +215,24 @@ flowchart LR
 *Serves the objective:* an executive trusts a money figure only if each amount appears once and says how it is known.
 
 ## 7. Ownership and approval
-<!--derives: §2.5; §2.6; §1.4; OD-4; OD-10-->
+<!--derives: §2.5; §2.6; §1.4; OD-4; OD-10; OD-14; OD-16; OD-17-->
 
 | Who | Holds | Recorded |
 |---|---|---|
-| **Item owner** | the person who chose the item's option or declared the item | name and time, on the item |
+| **Item owner** | the person who chose the item's option or declared it, who stays its owner whoever creates its Actions (OD-16) | name and time, on the item, as its chooser and owner |
 | **Action creator** | the person who created the Action, against a Finding or a plan item | name and time; the origin and the plan membership |
 | **Action owner** | the person accountable for doing it, who may differ from the creator | name and a **due date**; overdue is computed, as it already is for maintenance schedules (§2.6) |
-| **Approver** | the operator executive, for every version | name, time and the version number |
+| **Approver** | the operator executive, for every version, and for each capital item in it (OD-17) | name, time and the version number |
+| **Role grants** | the operator executive, in Organisation settings (OD-14) | each grant and removal, with its person and time |
 
-**Send-back and return (OD-4).** When the executive sends a version back, or an approved version leaves an item out, that item's Actions are not released. Each returns to its creator with the reason. The creator revises it, defers it to the next period's draft, or withdraws it.
+**Send-back and return (OD-4).** When the executive sends a version back, or an approved version leaves an item out, that item's Actions are not released. The item returns to its owner and each Action to its creator, with the reason. Each revises, defers to the next period's draft, or withdraws.
 
 **Where approval waits.** A version awaiting approval appears beside the Finding triage on Act first. No notification is sent, as today (§1.4). The executive finds it there, among the Findings.
 
 ## 8. The Action's release, step by step
-<!--derives: §2.4; §2.5; OD-4; OD-8; OD-11-->
+<!--derives: §2.4; §2.5; Figure 6c; OD-4; OD-8; OD-11-->
 
-The plan version's states are design Figure 6b. The design defines no states for a plan item beyond its three spend steps (§6 above; gap 2). An Action keeps its carrier's existing lifecycle, which stays (§1.4). What is new is its release:
+The plan version's states are design Figure 6b, and a plan item's five states (Chosen, Released, Left out, Done, Withdrawn) are design Figure 6c; neither is redrawn here. An item's state is derived from its Actions and the plan's versions, and its spend moves through its three steps (§6 above) alongside. An Action keeps its carrier's existing lifecycle, which stays (§1.4). What is new is its release:
 
 <!--diagram:action-release-->
 
@@ -261,22 +262,21 @@ stateDiagram-v2
 | Item | records it with its owner; checks fit at each creation, in order | a person chooses the option or declares the item |
 | Action | records origin, membership, creator, owner and due date; releases it within the thresholds; holds it otherwise | a person creates it and owns it |
 | Version | proposes the nearest set that fits, with reasons; counts changes since the last version | the executive approves or sends back |
-| Spend | links expense records to the item; counts the budget in use once | the finance and commercial lead accepts imported records |
+| Spend | links expense records to the item; counts the budget in use once | the finance and commercial lead accepts imported records, or the executive in the lead's place (OD-15) |
 | Close | runs the plan review: predicted against observed factors | the executive closes |
 
 **It never chooses, approves or creates an Action** (§2.6). It never sends a notification and writes no device command (§1.4). Opening a draft chooses nothing (OD-10). A hard-bound rejection is overridden only by a recorded change to the bound (design Architect's call, §2.4).
 
 ## 10. Open questions and design gaps
-<!--derives: Decisions; §2.4; §2.5; §2.6; OD-12; WP §1.1-->
+<!--derives: Decisions; §2.4; §2.5; §2.6; OD-12; OD-16; OD-18; WP §1.1-->
 
-These are gaps in the design, not decisions taken here. Each has the Architect's proposed default for the design's next revision, for the owner.
+The five design gaps of this document's first draft are settled in design rev 16.8, the first and third by the owner (`.agent/owner-pack-questions-defaults-2026-11-19.md`), the rest as approved housekeeping:
+1. **Threshold precedence:** a Site setting wins for both thresholds, and a change spanning Sites is judged against the portfolio's (OD-18; §2 above).
+2. **Item states:** five, derived from the item's Actions and the plan's versions (design Figure 6c; §8 above).
+3. **Who owns an item whose Actions different roles create:** the person who chose it; at Mto, David (OD-16; §5 above).
+4. **A proactive item in the worked portfolio:** the Kisiwa generator service (WP §1.1; §5 above).
+5. **The crew-visit limit across a two-month period:** a limit per month, 3 in November and 3 in December (design §2.5; WP §1.1).
 
-| # | Gap | Context and example | Proposed default |
-|---|---|---|---|
-| 1 | Does a Site's crew-visit threshold win over the portfolio's, as the spend threshold does? Which threshold applies when the changes counted since the last version span Sites with different settings? | OD-12 says the crew-visit threshold works like the spend threshold, but the precedence rule (§2.4) names only spend. The demonstration sets no Site setting (WP §1.5), so it does not test this. Lakeside's trade changes Kisiwa and Mto at once | A Site setting wins for a change at that Site. Changes across Sites are judged against the portfolio settings |
-| 2 | A plan item has no states of its own | An item is chosen, held in a version, left out, returned, carried over or finished. The design names these events but not as states | The design states them as derived from the item's Actions and versions, like the plan's own state (§2.5) |
-| 3 | Who chooses, and so owns, an item whose Actions different roles create | WP §1.5 has Joseph (finance and commercial lead) file Mto's claim and David (Site manager) install the unit, both under one item. The huller is a demand option and also a new connection, which §2.6 gives the executive, yet David creates its Action | The design names each Lakeside item's chooser in WP §1.5: the claim item Joseph's, the huller David's under the executive's approval of the version |
-| 4 | The worked portfolio has no proactive item | §5 can show only the generic path | Add one, such as a scheduled service at Kisiwa, to WP §1.1 with its figures in the manifest |
-| 5 | The crew-visit limit and the period differ | The period is November and December (WP §1.5), but the crew-visit limit is 3 in November (WP §1.1). Nothing says what bounds December's crew visits | The limit is stated for the whole period, or per month inside it, in WP §1.1 |
+No new gap is open.
 
-**When I want the owner to weigh in:** gaps 1 and 3, because they set who is accountable for money at more than one Site. Two earlier gaps are settled by the design since this document's first draft: Lakeside's period (WP §1.5) and the crew-visit default's label (OD-12).
+**When I want the owner to weigh in:** the design's reading of OD-17, that a capital item waits for the executive whatever the thresholds, because it decides whether a small connection can ever be released at creation.
