@@ -250,13 +250,25 @@ hs_collect() {  # <pid>: it and its descendants, through /proc/<pid>/task/*/chil
         for c in "${kids[@]}"; do hs_collect "$c"; done
     done
 }
-hs_on_signal() {  # <exit code>: TERM the child's tree, wait up to 5 s, KILL what is left
+hs_on_signal() {  # <exit code> <signal>: forward that signal to the child's tree, wait up to 5 s, KILL what is left
     local i p alive
     trap '' TERM HUP INT
     if [[ -n $hs_child ]]; then
         hs_tree=()
         hs_collect "$hs_child"
-        kill -TERM "${hs_tree[@]}" 2>/dev/null
+        if [[ $2 != TERM ]]; then
+            # INT and HUP from a terminal or a group kill already reach the child. Give it 2 s to finish its own
+            # cleanup before the forwarded copy, so a second KeyboardInterrupt cannot cut the `finally` short.
+            for ((i = 0; i < 20; i++)); do
+                alive=0
+                for p in "${hs_tree[@]}"; do hs_alive "$p" && { alive=1; break; }; done
+                ((alive)) || break
+                read -r -t 0.1 -u "$hs_sleepfd" _
+            done
+            ((alive)) && kill -"$2" "${hs_tree[@]}" 2>/dev/null
+        else
+            kill -TERM "${hs_tree[@]}" 2>/dev/null
+        fi
         for ((i = 0; i < 50; i++)); do
             alive=0
             for p in "${hs_tree[@]}"; do hs_alive "$p" && { alive=1; break; }; done
@@ -268,17 +280,17 @@ hs_on_signal() {  # <exit code>: TERM the child's tree, wait up to 5 s, KILL wha
     exit "$1"
 }
 trap hs_on_exit EXIT
-trap 'hs_on_signal 143' TERM
-trap 'hs_on_signal 129' HUP
-trap 'hs_on_signal 130' INT
+trap 'hs_on_signal 143 TERM' TERM
+trap 'hs_on_signal 129 HUP' HUP
+trap 'hs_on_signal 130 INT' INT
 
 # ---- the child: it closes the lock fds, keeps stdin and stays in this process group (D-T1.15) ----
 if ((hs_db)); then
-    ( exec {hs_slotfd}>&- {hs_dbfd}>&- {hs_sleepfd}>&-
+    ( trap - INT QUIT; exec {hs_slotfd}>&- {hs_dbfd}>&- {hs_sleepfd}>&-
       export ASSETOPS_HEAVY_SLOT="$hs_slot_path" ASSETOPS_HEAVY_DB="$hs_db_path"
       exec "$@" ) <&0 &
 else
-    ( exec {hs_slotfd}>&- {hs_sleepfd}>&-
+    ( trap - INT QUIT; exec {hs_slotfd}>&- {hs_sleepfd}>&-
       export ASSETOPS_HEAVY_SLOT="$hs_slot_path"; unset ASSETOPS_HEAVY_DB
       exec "$@" ) <&0 &
 fi

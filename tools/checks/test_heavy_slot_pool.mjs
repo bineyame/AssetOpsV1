@@ -72,7 +72,7 @@ function start(cmd, args, { cwd, env = {}, input, detached = false } = {}) {
   const done = new Promise((resolve) => {
     child.on("close", (code, signal) => { live.delete(child); resolve({ code, signal, stdout, stderr, ms: Date.now() - t0 }); });
   });
-  return { child, done };
+  return { child, done, out: () => stdout };
 }
 const run = (cmd, args, opts) => start(cmd, args, opts).done;
 const bashW = (repo, args, opts = {}) => run("bash", [opts.via || repo.sh, ...args], { cwd: repo.M, ...opts });
@@ -412,6 +412,25 @@ Start-Sleep -Seconds 120
       assert.ok(out.code === 143 || out.signal === "SIGTERM", `wrapper: code ${out.code} signal ${out.signal}`);
       await waitFor(() => !alive(child), 2000, "the child to stop");
       assert.ok(Date.now() - t0 <= 6000);
+      assert.equal(held(r.slot(1)), false);
+    } finally { killQuiet(child); killQuiet(h.child.pid); cleanup(r); }
+  });
+
+  test("P7c Ctrl-C (SIGINT to the group) reaches a pooled python job: its finally runs, the slot frees", async () => {
+    const r = makeRepo();
+    const script = path.join(r.root, "fin.py");
+    fs.writeFileSync(script, 'import time\ntry:\n    print("started", flush=True)\n    time.sleep(30)\nfinally:\n    time.sleep(0.3)\n    print("cleanup ran", flush=True)\n');
+    const h = start("bash", [r.sh, "--", "python3", script], { cwd: r.M, detached: true });
+    let child = 0;
+    try {
+      await waitFor(() => ownerField(r.slot(1), "child") !== "", 10000, "the child");
+      child = Number(ownerField(r.slot(1), "child"));
+      await waitFor(() => h.out().includes("started"), 5000, "python to start");
+      process.kill(-h.child.pid, "SIGINT");
+      const out = await h.done;
+      assert.match(out.stdout, /cleanup ran/, `stdout ${out.stdout} stderr ${out.stderr}`);
+      assert.equal(out.code, 130, out.stderr);
+      assert.equal(alive(child), false);
       assert.equal(held(r.slot(1)), false);
     } finally { killQuiet(child); killQuiet(h.child.pid); cleanup(r); }
   });

@@ -86,11 +86,39 @@ public static class HeavySlotReaper {
     static PosixSignalRegistration term, hup, intr;
     public static void SetChild(Process p) { child = p; }
     public static void SetOwners(string[] paths) { owners = paths ?? new string[0]; }
+    static void Collect(int pid, System.Collections.Generic.List<int> acc) {
+        acc.Add(pid);
+        try {
+            foreach (var t in Directory.GetDirectories("/proc/" + pid + "/task")) {
+                string f = Path.Combine(t, "children");
+                if (!File.Exists(f)) continue;
+                foreach (var c in File.ReadAllText(f).Split(new[] { ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+                    int k; if (int.TryParse(c, out k)) Collect(k, acc);
+                }
+            }
+        } catch { }
+    }
+    static void Signal(string sig, System.Collections.Generic.List<int> pids) {
+        if (pids.Count == 0) return;
+        var psi = new ProcessStartInfo("kill");
+        psi.ArgumentList.Add("-" + sig);
+        foreach (var k in pids) psi.ArgumentList.Add(k.ToString());
+        psi.RedirectStandardError = true;
+        using (var kp = Process.Start(psi)) { kp.WaitForExit(2000); }
+    }
+    static bool Alive(int pid) { return Directory.Exists("/proc/" + pid) && !File.ReadAllText("/proc/" + pid + "/stat").Contains(") Z"); }
     static void Stop(PosixSignalContext ctx, int code) {
         ctx.Cancel = true;
         Process p = child;
+        // As heavy-slot.sh: TERM the tree, wait up to 5 s, then KILL what is left.
+        var tree = new System.Collections.Generic.List<int>();
+        try { if (p != null && !p.HasExited) { Collect(p.Id, tree); Signal("TERM", tree); } } catch { }
+        try {
+            var until = DateTime.UtcNow.AddSeconds(5);
+            while (DateTime.UtcNow < until && tree.Exists(x => { try { return Alive(x); } catch { return false; } })) System.Threading.Thread.Sleep(100);
+        } catch { }
+        try { Signal("KILL", tree.FindAll(x => { try { return Alive(x); } catch { return false; } })); } catch { }
         try { if (p != null && !p.HasExited) p.Kill(true); } catch { }
-        try { if (p != null) p.WaitForExit(5000); } catch { }
         foreach (var path in owners) {
             try { if (Array.IndexOf(File.ReadAllLines(path), "pid=" + Environment.ProcessId) >= 0) File.Delete(path); } catch { }
         }

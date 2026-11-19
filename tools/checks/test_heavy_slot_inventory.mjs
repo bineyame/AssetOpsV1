@@ -25,8 +25,13 @@ function launchingFiles() {
   return r.stdout.split("\n").filter((f) => f && SCRIPT.test(f) && !LAUNCH_EXEMPT.has(f));
 }
 
+// A call on a line that is not a comment (`//`, `#`, `*` or `/*` first).
+function hasAssertCall(text) {
+  return text.split("\n").some((l) => l.includes("assertHeavySlot(") && !/^\s*(\/\/|#|\*|\/\*)/.test(l));
+}
+
 export function missingCaptureAssert(files) {
-  return files.filter((f) => LAUNCH.test(f.text) && !f.text.includes("assertHeavySlot(")).map((f) => `${f.name}: no assertHeavySlot( call`);
+  return files.filter((f) => LAUNCH.test(f.text) && !hasAssertCall(f.text)).map((f) => `${f.name}: no assertHeavySlot( call`);
 }
 
 // ---- 2. database entry points (spec §5.5) ----
@@ -87,7 +92,7 @@ const DOCS = [".agent/lane-rules-vps-2026-11-12.md", "backend/TESTING.md", ".ai/
 // Spec §6 also lists these two; the T1 dispatch forbids any `.claude/` change. Mid-build question 1
 // (specs/T1-heavy-tool-slot-pool/mid-build-questions.md): reported below as a todo, not yet blocking.
 const DOCS_PENDING = [".claude/agents/assetops-reviewer.md", ".claude/agents/assetops-implementer.md"];
-const HEAVY = ["npx tsc", "npx vitest", "-m pytest", "run-host-tests.ps1 --", "run-backend-suite-in-container.ps1 -", "-evidence.mjs "];
+const HEAVY = ["npx tsc", "npx vitest", "-m pytest", "run-host-tests.ps1 --", "run-backend-suite-in-container.ps1 -", "-evidence.mjs"];
 
 export function unpooledLines(name, text) {
   const out = [];
@@ -99,8 +104,9 @@ export function unpooledLines(name, text) {
     for (const pat of HEAVY) {
       let at = line.indexOf(pat);
       while (at >= 0) {
-        const pooled = line.lastIndexOf("heavy-slot.", at);
-        if (pooled < 0) { out.push(`${name}:${i + 1}: unpooled \`${pat.trim()}\`: ${line.trim()}`); break; }
+        // The wrapper must sit in the same command span: after the last backtick before the pattern.
+        const span = line.slice(line.lastIndexOf("`", at) + 1, at);
+        if (!span.includes("heavy-slot.")) { out.push(`${name}:${i + 1}: unpooled \`${pat.trim()}\`: ${line.trim()}`); break; }
         at = line.indexOf(pat, at + 1);
       }
     }
@@ -113,6 +119,8 @@ export function unpooledLines(name, text) {
 test("1 every browser-launching script calls assertHeavySlot (planted fixture reported)", () => {
   assert.deepEqual(missingCaptureAssert([{ name: "tools/planted-evidence.mjs", text: 'spawn(CHROME, ["--remote-debugging-port=9222"]);' }]),
                    ["tools/planted-evidence.mjs: no assertHeavySlot( call"]);
+  assert.deepEqual(missingCaptureAssert([{ name: "tools/planted-comment.mjs", text: '// assertHeavySlot(x)\n# assertHeavySlot(\n * assertHeavySlot(\nspawn(CHROME, ["--remote-debugging-port=9222"]);' }]),
+                   ["tools/planted-comment.mjs: no assertHeavySlot( call"]);
   const files = launchingFiles();
   assert.ok(files.length >= 30, `only ${files.length} browser-launching scripts found; the inventory lost its files`);
   assert.deepEqual(missingCaptureAssert(files.map((f) => ({ name: f, text: read(f) }))), []);
@@ -158,14 +166,17 @@ test("6 both container runners call Assert-HeavySlotHeld and the compose file pa
 
 test("7 the spec §6 documents carry only pooled heavy commands", () => {
   const planted = "Run it:\n`cd frontend && npx vitest run x`\n`tools/heavy-slot.sh -- npx tsc --noEmit`\n" +
-                  "An unpooled `npx tsc` is refused.\n## History\n`npx tsc --noEmit`\n## Now\n`node tools/layout-evidence.mjs <url>`\n";
+                  "An unpooled `npx tsc` is refused.\n`tools/heavy-slot.sh --status`, then `npx tsc`\n## History\n`npx tsc --noEmit`\n## Now\n`node tools/layout-evidence.mjs <url>`\n";
   assert.deepEqual(unpooledLines("planted.md", planted), [
     "planted.md:2: unpooled `npx vitest`: `cd frontend && npx vitest run x`",
-    "planted.md:8: unpooled `-evidence.mjs`: `node tools/layout-evidence.mjs <url>`",
+    "planted.md:5: unpooled `npx tsc`: `tools/heavy-slot.sh --status`, then `npx tsc`",
+    "planted.md:9: unpooled `-evidence.mjs`: `node tools/layout-evidence.mjs <url>`",
   ]);
   assert.deepEqual(DOCS.flatMap((f) => unpooledLines(f, read(f))), []);
 });
 
-test("7b the two .claude/agents briefs of spec §6 (pending mid-build question 1)", { todo: "the T1 dispatch forbids .claude/ changes" }, () => {
-  assert.deepEqual(DOCS_PENDING.flatMap((f) => unpooledLines(f, read(f))), []);
+test("7b the two .claude/agents briefs of spec §6 (pending mid-build question 1)", { todo: "the T1 dispatch forbids .claude/ changes" }, (t) => {
+  // Reported as a diagnostic, not a failing assertion, so check-all's excerpt shows the real failure (review-1 L2).
+  const lines = DOCS_PENDING.flatMap((f) => unpooledLines(f, read(f)));
+  t.diagnostic(`7b pending T1-F1: ${lines.length} unpooled line(s) in .claude/agents`);
 });
