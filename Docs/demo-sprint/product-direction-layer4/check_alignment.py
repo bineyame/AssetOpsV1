@@ -39,13 +39,14 @@ DERIVED = {
     "delivery-plan.md": "builder",
     "plan-and-action-workflow.md": "builder",
     "two-week-build-plan.md": "derived",
+    "interactive-mockup-vNEXT/walkthroughs.md": "derived",   # #8, recreated after the mock-up lane (plan F §6 step 7)
     GTM + "commercial-plan.md": "gtm",
     GTM + "website-content.md": "gtm",
 }
 # Kept documents (not recreated): lexicon and retired-term rules only.
 KEPT = {"structure-specification.md": "kept"}
 # Recreated later (plan F lane order). Move into DERIVED in the commit that recreates them.
-PENDING = ("interactive-mockup-vNEXT/walkthroughs.md",)
+PENDING = ()
 RULES = ("A1", "A2", "A3", "A4", "A5", "A6")
 
 
@@ -381,7 +382,8 @@ def run(root=ROOT, extra=()):
     else:
         notes.append(f"A6 pending: {len(builders)} of {nb} builder documents written")
     notes.append("not yet written: " + ", ".join(fn for fn in DERIVED if not (root / fn).is_file()))
-    notes.append("pending recreation (not checked): " + ", ".join(PENDING))
+    if PENDING:
+        notes.append("pending recreation (not checked): " + ", ".join(PENDING))
     for label, ok, detail in self_test(lx, root):
         results.append((label + (f" (missed: {detail})" if detail else ""), ok))
     return results, warnings, notes

@@ -1,23 +1,6 @@
-# AssetEcon Layer 4 mock-up (rev 4): the restructured Portfolio
+# AssetEcon Layer 4 mock-up: builder notes
 
-**Not approved: awaits owner inspection.** Rev 9 (targeted revisions after review): see CHANGE-REGISTER §7, §7a–§7d.
-
-A new version of the v7.0 interactive mock-up, built to the Layer 4 design (`../layer4-transformation-design.md`, §2, §3.4, §6, §7). It keeps the v7.0 shell and left menu, keeps the Portfolio's six owner-approved tabs (Overview, Act first, Outcomes by site, Opportunity, What changed, Scope & coverage) and re-bases their content on the five mechanics: outcomes are computed from declared factor structures, deviations show at the factor where they arise, options change factors and are compared with no action, a plan is chosen under budget and crews, and proof is three separate verdicts. Three demo operators (Lakeside Power mini-grids, Harvest Cold Network cold rooms, Metro Bus Depots captive EV fleet), October 2026, books closed 6 Nov. Every figure is illustrative and comes from `../demo-site-scenario-manifest.yaml`.
-
-| | Path |
-|---|---|
-| Old version | `frontend/mockups/v70/` (`index.html`, 110 screens) |
-| New version | `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/` (`index.html`, 184 screens) |
-| v7.0 sources, byte-identical, for diffing | `src-v70-baseline/` |
-
-## Launch
-
-- Open `index.html` directly in a browser (no server needed), or
-- from this folder: `python3 -m http.server 8790 --bind 127.0.0.1`, then open `http://127.0.0.1:8790/`.
-
-It opens on the Portfolio Overview (`#/portfolio`). Choose the **Demo operator** in the blue review bar at the top (review tooling, not part of the product). The review bar's screen selector lists every screen; "What changed" summarises the restructure.
-
-Main routes (rev 6 tab order): `#/portfolio`, `#/portfolio/outcomes-by-site`, `#/portfolio/demand-and-capacity` (old `#/portfolio/opportunity` redirects), `#/portfolio/act-first`, `#/portfolio/what-changed`, `#/portfolio/scope`, `#/portfolio/scope/pilot`, `#/sites`, `#/site/<kobo|kisiwa|mto|mwea|thika|kirinyaga|embakasi|kasarani|ruiru>`, `#/site/<site>/economics`, `#/decision/<id>` (14 decisions), `#/globalfinancials`. Every v7.0 route still works; merged ones redirect to the site economics page that absorbed them.
+**The owner's guide is `walkthroughs.md`** (what the mock-up shows, how to open it, the guided tour, and the owner's checklist; plan F #8, which folded in this README's owner content and the former `owner-inspection-checklist.md`). This file keeps only what a builder needs. No API is wired; every figure comes from `../demo-site-scenario-manifest.yaml` through `../evaluate_structure.py`.
 
 ## Rebuild
 
@@ -40,16 +23,6 @@ CHROME=/path/to/chrome PW=/tmp/pw/node_modules/playwright-core tools/run-audit.s
 
 Writes `tools/audit-results.json`, `screen-manifest-vnext.json`, `screenshots/`, then regenerates `CHANGE-REGISTER.md` and `browser-audit.md` (`tools/gen_docs.cjs`).
 
-## Review pack
+## Data the screens read
 
-| File | Contents |
-|---|---|
-| `CHANGE-REGISTER.md` | All 110 v7.0 screens (Preserved / Changed / Merged / Retired) and the 74 added screens; shell changes; six-tab before/after; owner approvals; conflicts found |
-| `fixture-mapping.md` | Every on-screen figure → scenario-file path or stated derivation |
-| `screenshots/INDEX.md` | Key changed screens at 1440 px and 390 px, the four switch cases, and v7.0 "before" captures |
-| `browser-audit.md` | Scripted audit results |
-| `walkthroughs.md` | Seven-minute walkthrough per vertical with an opening insight and exact clicks |
-| `owner-inspection-checklist.md` | Owner decisions and what to click |
-| `screen-manifest-vnext.json` | Screen inventory with status and note |
-
-No API is wired: this is a design mock-up. No product code, test, database or other mock-up version was changed.
+`fixtures.js` embeds the manifest (`MANIFEST`, oracle removed) and the evaluator output (`DERIVED`). Since design rev 16.11 it also carries `MANIFEST.home_categories` (every node's heading, the bridge-driver map, the decisions' headings) and `MANIFEST.snapshot` (as-of time and pending recalculation per portfolio).
