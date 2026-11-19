@@ -15,7 +15,8 @@ Checks, run before writing (the build fails on any violation, SystemExit):
 - stage gates (§4.2): while a trigger's state is "not met", its gated phrase may not appear in any copy block, and
   "available to see in a walkthrough" may not appear until one of the step triggers is met; each trigger's prepared copy
   must carry its gated phrase, pass the lint and hold no figure;
-- computed gates T13 and T14: read from the commercial plan's durations table (every owner-time case still open);
+- computed gates T13 and T14: read from the commercial plan's durations table (every owner-time case within the owner's
+  C14 and C15 decisions of 19 Nov; rows named "sensitivity ..." are left out);
 - planted violations: every line of website-copy-lint-fixtures.txt must FAIL, or the build fails;
 - the five stage names equal the commercial plan's;
 - rendering is deterministic."""
@@ -60,7 +61,8 @@ BANNED = [
     r"(?<!possibly )\bavoidable\b",
     # D1 revised (18 Nov): the paid diagnostic is retired
     r"\bdiagnos",
-    # open commercial defaults are never stated as settled (C2 the credit, C12 the free deep-dive)
+    # the pilot fee's credit (C2) and the deep-dive's terms (C12), decided 19 Nov, are disclosed after the client
+    # conversation like the price (D2), so they never appear on the site (website-content.md WC5)
     r"\bcredit(?:ed|s)?\b", r"\b(?:free|no[- ]fee|no charge|at no cost|without charge)\b[^.]{0,60}\bdeep-dive",
     r"\bdeep-dive\b[^.]{0,60}\b(?:is free|for free|free of charge|at no charge|no fee|at no cost|without charge)\b",
     # design rev 16.7, A3 class C2 in public words: the system proposes, people decide
@@ -189,7 +191,7 @@ def gates(md):
 
 
 def computed_gates(md, rows):
-    """T13 and T14 hold only over every owner-time case the commercial plan still has open (C14, C15)."""
+    """T13 and T14 hold only over every owner-time case within the owner's C14 and C15 decisions (rows not named "sensitivity")."""
     cp = (HERE / "commercial-plan.md").read_text(encoding="utf-8")
     bl = RC.blocks(cp)
     if "durations" not in bl:
@@ -197,9 +199,10 @@ def computed_gates(md, rows):
     cases = []
     for r in RC.rows(bl["durations"]):
         bd, tot = RC.rng(r[2]), RC.rng(r[3])
-        cases.append(dict(name=r[0], bd=bd, tot=tot))
+        if not r[0].strip().lower().startswith("sensitivity"):
+            cases.append(dict(name=r[0], bd=bd, tot=tot))
     if not cases:
-        fail("no open owner-time case")
+        fail("no owner-time case within the owner's decisions")
     state = {r[0].strip("*"): r[2].lower() for r in rows}
     t6 = state.get("T6", "").startswith("met:")
     lo, hi = min(c["tot"][0] for c in cases), max(c["tot"][1] for c in cases)
@@ -210,7 +213,7 @@ def computed_gates(md, rows):
             fail(f"§4.2 has no {t} row")
         if state[t].startswith("met:") != ok:
             fail(f"§4.2 {t} says '{state[t]}' but the renderer computes {'met' if ok else 'not met'} "
-                 f"(open cases: deep-dive and pack {lo:g}–{hi:g} weeks, first view up to {bd_hi:g}; T6 {'met' if t6 else 'not met'})")
+                 f"(cases within the decisions: deep-dive and pack {lo:g}–{hi:g} weeks, first view up to {bd_hi:g}; T6 {'met' if t6 else 'not met'})")
     return want
 
 

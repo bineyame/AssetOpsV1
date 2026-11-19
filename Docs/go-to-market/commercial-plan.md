@@ -1,12 +1,12 @@
 # Commercial approach: what converts operator executives, how they engage, and the first committed pilot
 
-**AssetEcon · go-to-market document for the owner · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7)**
+**AssetEcon · go-to-market document for the owner · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.8 and the owner's commercial answers of 19 Nov (C2, C12 to C15)**
 
 **Status.** Recreated from scratch at the owner's order (`.agent/owner-recreate-document-packs-2026-11-19.md`; `regeneration/F-pack-recreation-plan.md`, document #9). It replaces revision 4.1 of 18 Nov, whose framing predates the design's Part 2; only its selling facts are kept.
 
 **Two source layers** (P4 in `F-pack-recreation-plan.md`).
-- *Product claims* come only from the design, `Docs/demo-sprint/product-direction-layer4/layer4-transformation-design.md` (rev 16.7), with `worked-portfolios.md` and `design-appendix.md`. Every section names the design sections it derives from.
-- *Commercial facts* come from the owner's decisions in `/opt/assetecon/AssetOpsV1/owner/`: the engagement path (`owner-d1-engagement-path-2026-11-18.md`), the sitting-1 answers (`owner-sitting1-answers-2026-11-18.md`), the analyst answer (`owner-gtm-documents-request-2026-11-18.md`). Where no decision exists, a planning assumption is stated as one, with its default.
+- *Product claims* come only from the design, `Docs/demo-sprint/product-direction-layer4/layer4-transformation-design.md` (rev 16.7), with `worked-portfolios.md` and `design-appendix.md`, now at rev 16.8. Every section names the design sections it derives from.
+- *Commercial facts* come from the owner's decisions in `/opt/assetecon/AssetOpsV1/owner/`: the engagement path (`owner-d1-engagement-path-2026-11-18.md`), the sitting-1 answers (`owner-sitting1-answers-2026-11-18.md`), the analyst answer (`owner-gtm-documents-request-2026-11-18.md`); and, on this branch, the ten pack answers of 19 Nov (`.agent/owner-pack-questions-defaults-2026-11-19.md`: "defaults for all 10, go ahead"), which decide C2, C12, C13, C14 and C15. Where no decision exists, a planning assumption is stated as one, with its default.
 
 **Three kinds of number.**
 - *Demo illustration*: computed from the demonstration world and checked by `check_manifest.py`. It is never a customer result. A figure read from the demonstration world's commercial records is *Emulated* (D14).
@@ -27,10 +27,10 @@ No conversion rate, market size or competitor capability is claimed. `render_com
 | Who first | Mini-grid portfolio operators with three or more Sites, a budget per Site and billing exports, whose CEO, CFO or COO cannot say why a month came in below target (§2; D3) |
 | The path | **Initial call → Deep-dive with process owners → Integration pack and pilot timeline → Pilot and monitoring → SaaS** (D1, decided by the owner, 18 Nov). Their own target against actual appears in the product during the deep-dive, from files they already export (§3) |
 | What the product must have built | The deep-dive's first view needs delivery steps 3A, 4 and 5 live; its first change needs step 6; the pilot's proof needs step 8 (Figure 10). Until a step is live, what depends on it waits; nothing is done by hand (§3.3) |
-| Price | Disclosed after the client conversation, never listed (decided, 18 Nov). The pilot carries a fee; its form is open (C2, default: credited against the first SaaS year). The deep-dive's terms are open (C12, default: no fee, timeboxed) (§4) |
+| Price | Disclosed after the client conversation, never listed (decided, 18 Nov). The pilot carries a fee, credited against the first subscription year if they subscribe within 60 days (C2, decided 19 Nov). The deep-dive carries no fee, is timeboxed, and is offered only after the alignment checks pass and a data agreement is signed (C12, decided 19 Nov) (§4) |
 | The constraint | The owner's time: the owner runs every call, deep-dive and mapping, and the product computes (D5). One deep-dive at a time, with a pilot beside it (§5) |
-| First revenue | The pilot commitment, at about weeks 7–14 after the path is approved in the planning case, if the build is ready; the first change proved at about M4–M5 (§5.2) |
-| Open for the owner | Twelve items, each with a default (§8). The owner's weigh-in matters most on C2, C12 and C13 together (the offer's terms) and on C14 and C15 (the owner's month, which sets every date) |
+| First revenue | The pilot commitment, at about weeks 7–14 after the path is approved in the owner's decided month (C14, C15), if the build is ready; the first change proved at about M4–M5 (§5.2) |
+| Open for the owner | Seven items, each with a default (§8). The offer's terms (C2, C12, C13) and the owner's month (C14, C15) were decided on 19 Nov. The owner's weigh-in now matters most on C10, the second person who checks each mapping, and on D15, the first change |
 
 ## 1. What converts an executive, and why it should
 <!--derives: Part 1; §1.1; §1.5; §2.0; §2.2; §2.4; §2.5; §2.6; §2.7; Figure 3; Figure 5; WP §1.1; WP §1.2; WP §1.3; WP §1.5-->
@@ -121,15 +121,15 @@ flowchart LR
 | Stage | Buyer gets | Buyer gives | Who does the work | Terms |
 |---|---|---|---|---|
 | **Initial call** | today's product live on their vertical, and the coming constructs on the mock-up once the owner approves it for clients (D12); then alignment | an hour of executive time | owner | free |
-| **Deep-dive with process owners** | their sources mapped to the canonical contract; their own target against actual in the product, reconciled to one closed month (safeguard 1); the first change valued against doing nothing and its prediction frozen (D15) | files they already export for three Sites, one to four months; a signed data agreement; a few hours from each process owner | owner, the product computing | open (C12; default: no fee, timeboxed) |
-| **Integration pack and pilot timeline** | which sources come in what order (files first, then feeds); the pilot's scope, dates and success criteria; the five roles named; the executive's budget, spend threshold and crew-visit threshold set (OD-2, OD-12) | their IT's time; the signer's commitment (safeguard 2) | owner and their IT | the pilot fee, its form open (C2) |
+| **Deep-dive with process owners** | their sources mapped to the canonical contract; their own target against actual in the product, reconciled to one closed month (safeguard 1); the first change valued against doing nothing and its prediction frozen (D15) | files they already export for three Sites, one to four months; a signed data agreement; a few hours from each process owner | owner, the product computing | no fee, timeboxed, only after the four checks and a signed data agreement (C12, decided) |
+| **Integration pack and pilot timeline** | which sources come in what order (files first, then feeds); the pilot's scope, dates and success criteria; the five roles named, with each person's sign-in and the roles their executive grants (OD-13, OD-14); the executive's budget, spend threshold and crew-visit threshold set (OD-2, OD-12) | their IT's time; the signer's commitment (safeguard 2) | owner and their IT | the pilot fee, credited against the first subscription year if they subscribe within 60 days (C2, decided) |
 | **Pilot and monitoring** | a monthly review on their data; the first change proved operationally, then in money, then as caused; one more change the same way | continuing exports; the process owners' time; approval of each plan version | the product, the owner overseeing | the pilot fee |
 | **SaaS** | the loop every month on all their Sites | a subscription | – | a framework of options (§4) |
 
 ### 3.2 The two safeguards
 
-1. **Value on their own data before any integration is built.** The deep-dive takes their exports through the same canonical contract later feeds will use, so their target against actual appears within weeks (design §2.3). It is the pilot's baseline. Until an export passes the contract test it is not read, and an emulator's figure is never shown as theirs (D14).
-2. **A commitment before the pilot.** A new vendor should not charge for analysis before trust exists, so by default the deep-dive is free and timeboxed (C12). The pilot carries a fee agreed in the integration pack. A prospect who will not commit after seeing their own target against actual is unlikely to adopt.
+1. **Value on their own data before any integration is built.** The deep-dive takes their exports through the same canonical contract later feeds will use, so their target against actual appears within weeks (design §2.3). The safeguard holds only once delivery steps 3A, 4 and 5 are live (design §2.9; §3.3 below). A person in the Analyst role, the owner in the first deep-dives (D5), onboards their exports through step 3A's intake. It is the pilot's baseline. Until an export passes the contract test it is not read, and an emulator's figure is never shown as theirs (D14).
+2. **A commitment before the pilot.** A new vendor should not charge for analysis before trust exists, so the deep-dive carries no fee and is timeboxed (C12, decided 19 Nov). The pilot carries a fee agreed in the integration pack. A prospect who will not commit after seeing their own target against actual is unlikely to adopt.
 
 ### 3.3 What each stage needs the product to have built
 
@@ -142,7 +142,7 @@ The path and the delivery order meet here. Each stage can sell only what is live
 | Deep-dive: first view | their target against actual, cause by cause | 3A (record store, contract test), 4 (money leaves), 5 (targets and the bridge) | the deep-dive maps sources and agrees the pack; the baseline waits |
 | Deep-dive: first change | a cost-side option valued against doing nothing | 3B, 3C (recorded person), 6 (decisions) | the first change moves into the pilot |
 | Pilot | the plan approved by the executive; the three verdicts | 7 (the plan and the Portfolio), 8 (three verdicts) | proof waits; the pilot's length is stated in the pack |
-| Second vertical; rights | cold, then EV; contract rights in repair decisions | 9 | the cold or EV route (§3.4) |
+| Second vertical; rights; onboarding at scale | cold, then EV; contract rights in repair decisions; real adapters for more operators | 9 | the cold or EV route (§3.4) |
 
 When each step lands is set by `delivery-plan.md` and `two-week-build-plan.md`, not here. The dates in §5.2 assume the deep-dive's steps are live when the first deep-dive starts.
 
@@ -153,13 +153,14 @@ When each step lands is set by `delivery-plan.md` and `two-week-build-plan.md`, 
 **Cold and EV.** Mini-grid is built first (D3). The first cold or EV prospect that passes every alignment check chooses the second vertical and runs its deep-dive as its design partner; if none does by about M2, the default is cold (D4, C8). Its pilot starts when that vertical's step 9 work is built for its records. Meanwhile it gets the data assessment and a say in what is built.
 
 ## 4. Pricing
-<!--derives: D2; D1; owner: .agent/owner-gtm-documents-request-2026-11-18.md-->
+<!--derives: D2; D1; owner: .agent/owner-gtm-documents-request-2026-11-18.md; owner: .agent/owner-pack-questions-defaults-2026-11-19.md-->
 
 *Serves the objective:* the terms must make a pilot an easy, real commitment without charging for analysis before trust exists.
 
 - **No list price.** The price is disclosed after the client conversation (owner, 18 Nov: "it is disclosed after client conversation"). Nothing sent before a call carries a figure.
-- **The pilot fee.** One fee for a three-month pilot on three Sites, agreed in the integration pack. *Form open (C2). Default:* credited in full against the first subscription year if they subscribe within 60 days of the pilot's end; half at the commitment and half a month later. Alternative: a modest fee, kept.
-- **The deep-dive.** *Open (C12). Default:* no fee, timeboxed, offered only after the four checks pass and the data agreement is signed. *Open (C13). Default:* after two in a row end without a commitment, the owner reviews the checks and C12 before offering another.
+- **The pilot fee.** One fee for a three-month pilot on three Sites, agreed in the integration pack. *Its form (C2, decided 19 Nov):* credited in full against the first subscription year if they subscribe within 60 days of the pilot's end. *Still a planning default:* half paid at the commitment and half a month later.
+- **The deep-dive** (C12, decided 19 Nov): no fee, timeboxed, offered only after the four checks pass and the data agreement is signed. *Its review (C13, decided 19 Nov):* after two deep-dives in a row end without a commitment, the owner reviews the checks and C12 before offering another.
+- **What the client hears, and when.** The credit and the deep-dive's terms are disclosed after the client conversation, like the price (D2). The website states neither (`website-content.md` WC5).
 - **The subscription** stays a framework without prices until the first pilots measure three things: the owner-days a Site needs once feeds run, the buyer's own judgement of the pilot's value, and what they pay today for the tools they use. Candidates: per Site with a minimum, a portfolio band, or a base with modules (cold, EV, rights).
 - **Gain-share: not now** (C7). It needs proof in money and of cause; revisit at the first subscription decision.
 - **Currency.** Fees are quoted in the buyer's currency at the rate on the proposal date.
@@ -167,7 +168,7 @@ When each step lands is set by `delivery-plan.md` and `two-week-build-plan.md`, 
 The internal guide to the fee is in §6.
 
 ## 5. The owner's time and the sales motion
-<!--derives: D5; D1; owner: .agent/owner-gtm-documents-request-2026-11-18.md-->
+<!--derives: D5; D1; owner: .agent/owner-gtm-documents-request-2026-11-18.md; owner: .agent/owner-pack-questions-defaults-2026-11-19.md-->
 
 *Serves the objective:* the owner is the only seller and the analyst (owner, 18 Nov: "The owner is the analyst"), so the owner's month sets how many executives can be converted, and when.
 
@@ -180,15 +181,15 @@ The internal guide to the fee is in §6.
 
 ### 5.2 The owner's month, and how long an engagement takes
 
-The owner's day is 240 minutes, up to 480 on peak days (decided, 18 Nov). Two inputs are the owner's own answers: peak days a month (C14) and owner-days kept for the product (C15). The tables are computed from the inputs in §6.
+The owner's day is 240 minutes, up to 480 on peak days (decided, 18 Nov). The owner decided the other two inputs on 19 Nov: up to eight peak days a month (C14) and two owner-days a month kept for the product (C15). Because C14 says "up to", the month with no peak days is also within the decision. The four-day reserve rows are kept only as a sensitivity. The tables are computed from the inputs in §6.
 
 <!--table:owner-month-->
 | Case | Peak days a month (C14) | Product reserve, owner-days (C15) | Owner-days a month | For commercial work | Delivery limit, after the selling floor |
 |---|---:|---:|---:|---:|---:|
-| planning case (both defaults) | 8 | 2 | 13 | 11 | 9.5 |
-| no peak days | 0 | 2 | 9 | 7 | 5.5 |
-| four-day product reserve | 8 | 4 | 13 | 9 | 7.5 |
-| no peak days, four-day reserve | 0 | 4 | 9 | 5 | 3.5 |
+| decided: up to 8 peak days, 2-day reserve (C14, C15) | 8 | 2 | 13 | 11 | 9.5 |
+| within the decision: no peak days | 0 | 2 | 9 | 7 | 5.5 |
+| sensitivity only: four-day reserve | 8 | 4 | 13 | 9 | 7.5 |
+| sensitivity only: no peak days, four-day reserve | 0 | 4 | 9 | 5 | 3.5 |
 <!--/table-->
 
 The selling floor keeps four initial calls a month going even while a deep-dive runs, so the pipeline does not empty. Each part of an engagement takes the longer of the owner's days at the delivery limit and its calendar minimum. The commitment dates assume the deep-dive starts 4–8 weeks after the path is approved and that steps 3A to 6 are live by then (§3.3).
@@ -196,13 +197,13 @@ The selling floor keeps four initial calls a month going even while a deep-dive 
 <!--table:durations-->
 | Case | Delivery limit | First view of their target against actual (weeks into the deep-dive) | Deep-dive and integration pack (weeks) | Commitment (weeks from approval) | First change proved |
 |---|---:|---:|---:|---|---|
-| planning case (both defaults) | 9.5 | 1.1–2.5 | 3.1–5.7 | weeks 7–14 | about M4–M5 |
-| no peak days | 5.5 | 2–4.3 | 4.7–9.9 | weeks 9–18 | about M4–M6 |
-| four-day product reserve | 7.5 | 1.4–3.2 | 3.6–7.2 | weeks 8–15 | about M4–M6 |
-| no peak days, four-day reserve | 3.5 | 3.1–6.8 | 7.5–15.5 | weeks 12–24 | about M5–M8 |
+| decided: up to 8 peak days, 2-day reserve (C14, C15) | 9.5 | 1.1–2.5 | 3.1–5.7 | weeks 7–14 | about M4–M5 |
+| within the decision: no peak days | 5.5 | 2–4.3 | 4.7–9.9 | weeks 9–18 | about M4–M6 |
+| sensitivity only: four-day reserve | 7.5 | 1.4–3.2 | 3.6–7.2 | weeks 8–15 | about M4–M6 |
+| sensitivity only: no peak days, four-day reserve | 3.5 | 3.1–6.8 | 7.5–15.5 | weeks 12–24 | about M5–M8 |
 <!--/table-->
 
-**What this means.** In the planning case one deep-dive fits at a time, with a pilot beside it; a second at once needs a few days of the second person's help (C11). Without peak days and with a four-day reserve, the commitment, and the first revenue, moves to about weeks 12–24, and "within a few weeks" no longer holds for the first view. The website states no week figure while that case is open (`website-content.md` §4).
+**What this means.** In the decided month one deep-dive fits at a time, with a pilot beside it; a second at once needs a few days of the second person's help (C11). If no peak day is available in a month, which C14 allows, the commitment moves to about weeks 9–18, and the deep-dive and pack still fit three to ten weeks. So the website may now state that duration (T13 in `website-content.md` §4). The first view stays unstated until the bridge is live in the demo (T6, T14). Only the four-day reserve, which the owner did not choose, would push the commitment to about weeks 12–24.
 
 ### 5.3 Finding prospects, and what to track
 
@@ -292,14 +293,11 @@ The selling floor keeps four initial calls a month going even while a deep-dive 
 
 **Decided (18 Nov):** D1, the path; C1, price disclosed after the conversation, with Option C as the internal guide's default; C3, the owner does the work and the product computes (D5); C4, design partners.
 
+**Decided (19 Nov, the owner's defaults; `decisions-register.md` §3):** C2, the pilot fee credited against the first subscription year if they subscribe within 60 days; C12, no fee for a timeboxed deep-dive, only after the alignment checks pass and a data agreement is signed; C13, the owner reviews after two deep-dives in a row end without a commitment; C14, up to eight peak days a month; C15, two owner-days a month kept for the product.
+
 | # | Item | Context and example | Default |
 |---|---|---|---|
-| **C2** | The pilot fee's form | Kobo's operator commits after its deep-dive: is the fee a credit or kept? | Credited in full against the first subscription year if they subscribe within 60 days; half at commitment, half a month later |
-| **C12** | Whether the deep-dive carries a fee | A new vendor asking for money before trust exists loses the first yes | No fee, timeboxed, only after the four checks and a signed data agreement |
-| **C13** | How many free deep-dives may end without a commitment before the terms are reviewed | Each costs the owner's only delivery slot for about a month | Two in a row, then review the checks and C12 |
 | **C10** | Whether a second person checks each mapping and the first reconciled month, and who | The owner cannot check their own mapping | Keep the check: a part-time contract checker, named before the first file is mapped |
-| **C14** | Peak days a month at up to 480 minutes | Sets the delivery limit and every date (§5.2) | Up to eight, at most two a week, on client-session days |
-| **C15** | Owner-days a month kept for the product | Sittings, reviews and approvals; also sets every date | Two |
 | **C5** | How demo values are described in sales | A replay-based value said as a result breaks trust | As D6: design value, then modelled on simulated data, then modelled on your recorded data; emulated figures said as Emulated (D14) |
 | **C6** | The pitch shape | The executive must meet their money first | As D12: the loop on the approved mock-up, then today's product live; close on the deep-dive and pilot as a design partnership |
 | **C8** | How the second vertical is chosen | A cold or EV executive passes every check first | That prospect chooses (D4); cold if none by about M2 |
@@ -308,6 +306,6 @@ The selling floor keeps four initial calls a month going even while a deep-dive 
 
 **Also pending: D15**, the first change agreed at the end of the deep-dive, whose context and default are in `decisions-register.md`. Its default here: where the operator says yes to the first-change question at alignment, the deep-dive ends with the first change agreed and its prediction frozen, and it is made when the pilot starts.
 
-**Where I want the owner to weigh in most:** C2, C12 and C13 together, because they make the offer ready to send; and C14 and C15, because they set every date and whether the website may state a duration.
+**Where I want the owner to weigh in most:** C10, because the mapping check is the main guard on the baseline and has a cash cost; and D15, because it decides whether the first change is agreed in the deep-dive or moved into the pilot.
 
-**Pushback, with reasons.** I recommend against publishing any pilot-fee figure or any duration until C14 and C15 are answered: in the open case with no peak days and a four-day reserve, the first view can take 6.8 weeks and the commitment 24, and a public promise must hold in every case still open.
+**Pushback, with reasons.** With C14 and C15 decided, the deep-dive and pack fit three to ten weeks in every month the decisions allow, so the website may state that duration. I still recommend against publishing the pilot fee, its credit or the deep-dive's terms: D2 keeps every price term for after the conversation, and a stated "no fee" invites deep-dives that skip the alignment checks C12 requires.

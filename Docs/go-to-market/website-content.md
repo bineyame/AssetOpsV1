@@ -1,6 +1,6 @@
 # Website content: what the site says now, what it says is coming, and the rules every line passes
 
-**AssetEcon · go-to-market document for the owner and the site editor · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7)**
+**AssetEcon · go-to-market document for the owner and the site editor · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.8 and the owner's commercial answers of 19 Nov (T2 and T13 now met)**
 
 **Status.** Recreated from scratch at the owner's order (`.agent/owner-recreate-document-packs-2026-11-19.md`; document #10 in `regeneration/F-pack-recreation-plan.md`). It replaces the copy deck of 18 Nov. The recommendation for the owner's site repository (#11) follows from this document, later and separately.
 
@@ -18,7 +18,7 @@
 | Question | Answer |
 |---|---|
 | Who it is for | CEOs, CFOs and COOs of mini-grid, cold-room and captive-EV operators in Africa; second, their heads of operations and finance |
-| The one call to action | Book a conversation: the initial call of the engagement path (D1) |
+| The one call to action | Book a conversation: the initial call of the engagement path (D1). The deep-dive page words it "Talk to us about a deep-dive" (T2, met) |
 | What it says is running now | Honest, bounded judgement on Site evidence: what happened and how sure we are, missing fuel, what it might be worth as a labelled range, what to look at first, and whether a change worked, with proof before credit (Part 1) |
 | What it says is coming | Their money explained against target, choices valued against doing nothing net of their cost, the Sites' changes in one plan approved by the executive, proof that the money followed, and who decided on record (Part 2, in delivery order) |
 | What it never says | Savings, customer claims, competitor names, a price, a duration not on the approved list, or a coming construct as available (§5) |
@@ -189,7 +189,11 @@ The five stages, named as in `commercial-plan.md` (D1): **Initial call → Deep-
 
 > SaaS: a subscription, once the pilot has shown you what it is worth.
 
+> The deep-dive and the integration pack take about three to ten weeks from the deep-dive's start to the pilot, depending on how complete your records are.
+
 > The pilot has a fee, agreed after we have talked. We do not publish prices.
+
+> Talk to us about a deep-dive.
 
 ### 3.8 How we handle evidence
 
@@ -227,7 +231,7 @@ The renderer reads this table. While a row says "not met", its gated phrase may 
 | # | Trigger (design step) | State | Gated phrase | Copy the site may then use | Checked by |
 |---|---|---|---|---|---|
 | T1 | The owner approves the mock-up for client use | not met | "the full loop on a demo operator" | "We will show you the full loop on a demo operator in your sector, then what runs today." | coordinator |
-| T2 | The offer is ready to send: C2, C12 and C13 answered | not met | – | the deep-dive page's call to action becomes "Talk to us about a deep-dive" | coordinator |
+| T2 | The offer is ready to send: C2, C12 and C13 answered | met: the owner answered C2, C12 and C13 on 19 Nov (`.agent/owner-pack-questions-defaults-2026-11-19.md`); the call to action is in §3.7 | – | the deep-dive page's call to action becomes "Talk to us about a deep-dive" | coordinator |
 | T3 | Step 1: the period's cost figure corrected (CH5) | not met | – | none: a correction, not a claim | Architect |
 | T4 | Step 3B: outcomes built from their factors, on today's operational records (B1, CH1) | not met | "outcomes broken into what drives them" | "Available to see in a walkthrough, on a demonstration operator: each site's outcomes broken into what drives them, with what is recorded, what is emulated and what is missing." | Architect |
 | T5 | Step 3C: the recorded person (CH2) | not met | "who decided and who approved, on record" | "Available to see in a walkthrough, on a demonstration operator: each action with who decided and who approved, on record, with its owner and due date." | Architect |
@@ -238,13 +242,13 @@ The renderer reads this table. While a row says "not met", its gated phrase may 
 | T10 | Step 9: contract rights | not met | "contract rights inside the repair decision, on a demonstration operator" | "Available to see in a walkthrough: contract rights inside the repair decision, on a demonstration operator, with the deadline." | Architect |
 | T11 | Step 9: the second vertical, cold first | not met | "cold rooms read through what drives them, on a demonstration operator" | "Available to see in a walkthrough: cold rooms read through what drives them, on a demonstration operator, occupancy kept apart from efficiency." | Architect |
 | T12 | A real file of a record type passes the contract test in a deep-dive (D14) | not met | "available in the deep-dive" | "Available in the deep-dive: your billing and budget read from your files." (name only the record types that passed) | Architect |
-| T13 | The deep-dive and pack fit three to ten weeks in every owner-time case still open (computed) | not met | "about three to ten weeks from the deep-dive's start to the pilot" | "The deep-dive and the integration pack take about three to ten weeks from the deep-dive's start to the pilot, depending on how complete your records are." | renderer |
-| T14 | The first view comes at most six weeks into the deep-dive in every open case, and T6 is met (computed) | not met | "within a few weeks of receiving your files" | "Your target against actual, in the product, within a few weeks of receiving your files." | renderer |
+| T13 | The deep-dive and pack fit three to ten weeks in every owner-time case within the owner's decisions (computed) | met: computed from `commercial-plan.md` §5.2 over the two cases within C14 and C15 (3.1 to 9.9 weeks); the copy is in §3.7 | "about three to ten weeks from the deep-dive's start to the pilot" | "The deep-dive and the integration pack take about three to ten weeks from the deep-dive's start to the pilot, depending on how complete your records are." | renderer |
+| T14 | The first view comes at most six weeks into the deep-dive in every case within the owner's decisions, and T6 is met (computed) | not met | "within a few weeks of receiving your files" | "Your target against actual, in the product, within a few weeks of receiving your files." | renderer |
 | T15 | A first change proved in money on field records, with the operator's written consent | not met | – | a case story, only in the operator's words | owner |
 
-### 4.3 Why T13 and T14 are not met today
+### 4.3 Why T13 is met and T14 is not, yet
 
-In `commercial-plan.md` §5.2, the open case with no peak days and a four-day product reserve gives a deep-dive and pack of up to 15.5 weeks and a first view up to 6.8 weeks into the deep-dive. Both stay open until the owner answers C14 and C15. T14 also needs the money leaves, targets and the bridge live in the demo (T6).
+The owner decided C14 (up to eight peak days a month) and C15 (two owner-days a month kept for the product) on 19 Nov. In `commercial-plan.md` §5.2 the two cases within those decisions give a deep-dive and pack of 3.1 to 9.9 weeks, so T13 holds and its copy is in §3.7. The four-day reserve rows are a sensitivity the owner did not choose, and the renderer leaves them out. The first view comes at most 4.3 weeks into the deep-dive in both cases, but T14 also needs the money leaves, targets and the bridge live in the demo (T6), so it is not met yet.
 
 ## 5. Honesty rules for copy, and what the lint enforces
 <!--derives: Rules; Words; D6; D14; Decisions-->
@@ -267,7 +271,7 @@ In `commercial-plan.md` §5.2, the open case with no peak days and a four-day pr
 **What still needs a reader.** Tone, whether a line overstates by implication, and whether each "Running today" line still matches design Part 1 after a release.
 
 ## 6. Decisions for the owner
-<!--derives: D1; D2; D6; D12; D14-->
+<!--derives: D1; D2; D6; D12; D14; owner: .agent/owner-pack-questions-defaults-2026-11-19.md-->
 
 *Serves the objective:* these settle what the site may say and when it may say more.
 
@@ -275,7 +279,8 @@ In `commercial-plan.md` §5.2, the open case with no peak days and a four-day pr
 |---|---|---|---|
 | **WC1** | Publish the "Coming" list now, or only "Running today" | A visitor sees "Coming: options valued against doing nothing" before the demo can show it | Publish it, labelled "Coming", in delivery order, with no figure and no date |
 | **WC2** | One demo illustration per vertical page | The Kobo figures are Emulated and the reserve figure rests on a replay | Keep them, each labelled as in §3; the Kobo stop-threshold value stays off the site (rule 3) |
-| **WC3** | The deep-dive page before T2 | The offer's terms (C2, C12, C13) are open | Describe the path only; the call to action stays "Book a conversation" |
+| **WC3** | The deep-dive page before T2 | Settled: T2 is met, because the owner answered C2, C12 and C13 on 19 Nov | The deep-dive page now ends "Talk to us about a deep-dive"; every other page keeps "Book a conversation" |
+| **WC5** | Does the site state the decided terms: no fee for the deep-dive (C12), or the pilot fee's credit (C2)? | The terms are decided, but D2 discloses price terms after the client conversation, and C12 offers the deep-dive only after the alignment checks pass | No. The site says the pilot has a fee agreed after we have talked; the terms are given in the conversation. The lint keeps refusing "free deep-dive" and "credited" |
 | **WC4** | Who records a trigger as met | A merged step is not yet live in the refreshed demo | The checker in §4.2 records it with the evidence; the owner sees each change before publication |
 
 **Pushback, with reasons.** The 18 Nov deck gave dated "Coming" increments. I recommend stage words only: the delivery dates belong to `delivery-plan.md` and `two-week-build-plan.md`, which change at each sitting, and a public date that slips costs more trust than it earns.

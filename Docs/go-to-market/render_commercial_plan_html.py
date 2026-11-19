@@ -91,7 +91,12 @@ def mid(t):
 
 
 # ---------------------------------------------------------------- computed tables
-CASES = [("planning case (both defaults)", 8, 2), ("no peak days", 0, 2), ("four-day product reserve", 8, 4), ("no peak days, four-day reserve", 0, 4)]
+# The owner's month (owner, 19 Nov: C14 "up to eight peak days a month", C15 "two owner-days a month kept for the product").
+# The first two cases lie within those decisions (eight peak days, and none, since C14 is "up to"); the last two keep a
+# four-day reserve the owner did not choose and are shown as sensitivity only. website-content.md's computed gates read
+# only the cases whose name does not start with "sensitivity".
+CASES = [("decided: up to 8 peak days, 2-day reserve (C14, C15)", 8, 2), ("within the decision: no peak days", 0, 2),
+         ("sensitivity only: four-day reserve", 8, 4), ("sensitivity only: no peak days, four-day reserve", 0, 4)]
 
 
 def month(A, peak):
