@@ -1,6 +1,6 @@
 # Plan and Action workflow: who acts, the money, approval and the system's part
 
-**AssetEcon · Layer 4 pack document 12 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7 (with OD-12)**
+**AssetEcon · Layer 4 pack document 12 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7 (with OD-12 and the demonstration workflow of WP §1.5)**
 
 **Why this document exists.** The owner asked for more clarity about how the plan and Action work together, "in its workflow document that combines workflow, finan ces, ownership and system mechanics" (`.agent/owner-recreate-document-packs-2026-11-19.md`). Every rule here is the design's (`layer4-transformation-design.md` §2.4–§2.6, Figures 5–8 and 6b). This document adds no construct, role, state or figure. Where the design leaves something open, it is listed as a design gap in §10, not decided here. The Architect's calls quoted here are the design's own and are labelled as such.
 
@@ -25,7 +25,7 @@ What is added on top:
 *Serves the objective:* acting and tracking are what turn a Finding into money. Recording the person is what lets an executive trust that record.
 
 ## 2. The five roles: what each decides, does and has recorded
-<!--derives: §2.6; Figure 7; OD-2; OD-3; OD-12; Q-A2-->
+<!--derives: §2.6; Figure 7; OD-2; OD-3; OD-12; Q-A2; WP §1.5-->
 
 Roles govern who may decide; they are not views, and every role sees the same screens. Everything a role does is recorded under the person's name, with the time (§2.6).
 
@@ -38,17 +38,19 @@ Roles govern who may decide; they are not views, and every role sees the same sc
 | **Analyst** | Maps sources to factors; places data-quality holds | Onboards sources, including the expense records that make spend *incurred* (§6) | Each mapping and hold |
 
 **The two thresholds (OD-2, OD-12).** Both are Site or portfolio settings that the executive sets and can change at any time:
-- the **spend threshold**: a chosen change whose total one-off is at or below it is released without approval;
-- the **crew-visit threshold**: a change that adds more crew visits than it needs approval. It **defaults to zero** until the executive sets it, so by default any added crew visit needs approval (owner, 19 Nov: "the crew-visit threshold default of zero is fine so long as it is configurable").
+- the **spend threshold**: the most a chosen change's total one-off may be and still be released without approval;
+- the **crew-visit threshold**: the most crew visits a change may add and still be released without approval. It **defaults to zero** until the executive sets it, so by default any change that uses a crew visit waits for approval (owner, 19 Nov: "the crew-visit threshold default of zero is fine so long as it is configurable").
 
-A Site's spend threshold wins over the portfolio's (design Architect's call, §2.4). Whether the same precedence applies to the crew-visit threshold is design gap 1 (§10). A spend threshold that is not set releases nothing without approval (§2.4 step 4).
+A change is released at creation only if it is at or below **both** (§2.4 step 4, the design's Architect's reading of OD-11 and OD-12). A Site's spend threshold wins over the portfolio's (design Architect's call, §2.4). Whether the same precedence applies to the crew-visit threshold is design gap 1 (§10). A spend threshold that is not set releases nothing without approval (§2.4 step 4).
+
+**In the demonstration** (WP §1.5, illustrative): each operator's spend threshold is 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold-->, a portfolio setting with no Site setting, and the crew-visit threshold is 0<!--rec:demo_workflow.tenants[lakeside-power].crew_visit_threshold-->, OD-12's default. Each role is shown by its title with a fictional first name, for example "Site manager, Kobo · Peter".
 
 *Serves the objective:* a few clear roles mean an executive sees exactly who is accountable at each Site, without a new menu or a role-specific screen.
 
 ## 3. One period, from opening to close
 <!--derives: §2.5; Figure 6b; OD-10; OD-11; OD-12; OD-4-->
 
-A period is one portfolio's budget period: a month unless the executive sets another (design Architect's call, §2.5). The flow below is the plan's life in that period. Its five states (Draft, Proposed, Approved, Revised and Closed) are drawn in design Figure 6b and are not redrawn here.
+A period is one portfolio's budget period: a month unless the executive sets another (design Architect's call, §2.5). Lakeside's executive set November and December, to match the budget (WP §1.5). The flow below is the plan's life in that period. Its five states (Draft, Proposed, Approved, Revised and Closed) are drawn in design Figure 6b and are not redrawn here.
 
 <!--diagram:period-flow-->
 
@@ -83,9 +85,9 @@ Step by step:
 *Serves the objective:* one approval per version, on Act first, gives the executive control over money and crews without a sign-off for every small task.
 
 ## 4. Kobo: from a Finding to released Actions
-<!--derives: §2.4; §2.5; Figure 5; Figure 8; OD-1; OD-2; OD-8; OD-12; WP §1.1-->
+<!--derives: §2.4; §2.5; Figure 5; Figure 8; OD-1; OD-2; OD-8; OD-12; WP §1.1; WP §1.5-->
 
-Kobo's candidate-running Finding is a bottom-line impact: 330 L of generator running in October that the solar and battery could have carried (§2.1). The system prepares a decision on the candidate-litres factor (design Figure 5). The site manager compares the options and chooses the stop-threshold change, recorded under their name. Its total one-off is 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, the vendor's remote reconfiguration plus the trial supervision. It needs no crew visit.
+Kobo's candidate-running Finding is a bottom-line impact: 330 L of generator running in October that the solar and battery could have carried (§2.1). The system prepares a decision on the candidate-litres factor (design Figure 5). Peter, Kobo's Site manager, compares the options and chooses the stop-threshold change, recorded under his name. Its total one-off is 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, the vendor's remote reconfiguration plus the trial supervision. It needs no crew visit. Peter creates two Actions (WP §1.5): the reconfiguration, which he owns, due 9 Nov, and the 14-day supervised trial, owned by Musa, the field technician, due 23 Nov. Creator and owner differ on the second, as the design allows (§2.5).
 
 <!--diagram:kobo-sequence-->
 
@@ -111,7 +113,7 @@ sequenceDiagram
   S->>S: operational, economic and causal verdicts, then the plan review
 ```
 
-*Figure 12.2. Kobo, below and above the spend threshold. Under a spend threshold of at least 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, both Actions are released at once and still counted in the plan. Under a lower threshold, or none set, both wait for the executive (§2.4 step 4; design Figure 8). The crew-visit threshold's default of zero does not hold this change back, because it adds no crew visit (OD-12).*
+*Figure 12.2. Kobo, below and above the spend threshold. The demonstration takes the first branch: its 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> threshold is above the change's one-off, so on 6 Nov both Actions are released at creation (WP §1.5). Under a spend threshold of at least 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, both Actions are released at once and still counted in the plan. Under a lower threshold, or none set, both wait for the executive (§2.4 step 4; design Figure 8). The crew-visit threshold's default of zero does not hold this change back, because it adds no crew visit (OD-12).*
 
 Three things in this walk-through are rules, not choices of the example:
 - **The threshold applies to the whole chosen change**, summed over its Actions, never one Action at a time. Splitting the change into smaller Actions cannot slip it under the threshold (design Architect's call, §2.4 step 4).
@@ -121,24 +123,28 @@ Three things in this walk-through are rules, not choices of the example:
 A Finding-origin Action that spends, with no decision behind it, creates its own reactive item, which records the Finding and the spend (design Architect's call, §2.5).
 
 ## 5. Lakeside: the whole portfolio, and a revision across Sites
-<!--derives: §2.5; Figure 6b; OD-4; OD-5; OD-11; OD-12; WP §1.1-->
+<!--derives: §2.4; §2.5; Figure 6b; OD-4; OD-5; OD-11; OD-12; WP §1.1; WP §1.5-->
 
-**The limits** (set by the operator, `worked-portfolios.md` §1.1): budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December, and 3 crew visits in November. Every decision is taken on 6 Nov, the demonstration's today.
+**The limits** (set by the operator, `worked-portfolios.md` §1.1): budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December, and 3 crew visits in November. Every decision is taken on 6 Nov, the demonstration's today. The system opened the draft on 1 Nov (OD-10), and on 6 Nov version 1 is *proposed*, awaiting Amina, the operator executive (WP §1.5).
 
-**Version 1.** The managers take the Recommended options, and the five items fit:
+**Version 1.** The managers take the Recommended options, and the five items fit. The Actions and their state on 6 Nov are WP §1.5's:
 
-| Item (Site) | Finding it answers (§1.3) | Chooser and item owner (§2.4 step 2, §2.6) | One-off | Crew visits |
-|---|---|---|---:|---:|
-| Alternator repair (Kisiwa) | risk: evening hours with no backup | operations or site manager | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 1 |
-| Battery evidence (Kobo) | risk: warranty cover that cannot be claimed | finance and commercial lead (rights) | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | 1 |
-| Stop-threshold change (Kobo) | bottom-line: candidate running | operations or site manager | 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> | 0 |
-| Inverter warranty claim (Mto) | risk: half inverter capacity, cover at stake | finance and commercial lead (claims); see gap 3 | 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> | 1 |
-| Huller connection (Mto) | opportunity: the cooperative's signed letter of intent | operator executive (new connection, a capital item); see gap 3 | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> | 0 |
-| **Version 1** | | | **3,750.00<!--fig:plans.lakeside-power.default.spend-->** | **3 of 3** |
+| Item (Site) | Finding it answers (§1.3) | One-off | Crew visits | Actions: creator → owner, due | On 6 Nov, and why |
+|---|---|---:|---:|---|---|
+| Stop-threshold change (Kobo) | bottom-line: candidate running | 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> | 0 | reconfigure, Peter → Peter, 9 Nov; supervise the trial, Peter → Musa, 23 Nov | **released at creation**: within the spend threshold, no crew visit |
+| Alternator repair (Kisiwa) | risk: evening hours with no backup | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 1 | repair, Halima → Musa, 9 Nov | waits: above the spend threshold, and a crew visit |
+| Battery evidence (Kobo) | risk: warranty cover that cannot be claimed | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | 1 | capacity test and sensor, Joseph → Joseph, 20 Nov | waits: above the spend threshold, and a crew visit |
+| Inverter warranty claim (Mto) | risk: half inverter capacity, cover at stake | 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> | 1 | file the notice (deadline 27 Nov), Joseph → Joseph, 13 Nov; install the unit, David → David, 28 Nov | **waits on the crew visit alone**: within the spend threshold, but one crew visit at a threshold of 0 (OD-12) |
+| Huller connection (Mto) | opportunity: the cooperative's signed letter of intent | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> | 0 | connect, after the inverter, David → David, 5 Dec | waits: above the spend threshold |
+| **Version 1** | | **3,750.00<!--fig:plans.lakeside-power.default.spend-->** | **3 of 3** | | proposed; Amina's approval releases the waiting Actions together |
+
+**The Mto claim is the demonstration's crew-visit case.** Its 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> is within the 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> spend threshold, so spend alone would release it. Its crew visit holds it for Amina. Under OD-12 the executive can raise the crew-visit threshold, and then a one-visit change like this one would be released at creation, provided the plan still fits its 3 crew visits.
+
+**Who owns the items.** The design makes the item owner the person who chose the option (§2.5). WP §1.5 names each Action's creator and owner but not each item's chooser. So the Kobo and Kisiwa items read directly (Peter and Halima chose and created), while for Mto's two items the claim is created by Joseph and the install and connection by David. Gap 3 (§10) asks the design to name the chooser.
 
 All five are **reactive**: each is a chosen option from a decision that the system prepared on a Finding (§2.4). The worked portfolio declares no proactive item, so the proactive path is shown generically below (gap 4).
 
-**The revision: the cooperative does not extend its letter of intent.** The huller needs the inverter restored plus 5 working days before the letter lapses on 30 Nov. The claim restores the inverter on 28 Nov, so the huller can no longer connect in time (WP §1.1).
+**A later revision: the cooperative does not extend its letter of intent.** This happens after Amina approves version 1, and it is not part of the 6 Nov demonstration. The huller needs the inverter restored plus 5 working days before the letter lapses on 30 Nov. The claim restores the inverter on 28 Nov, so the huller can no longer connect in time (WP §1.1).
 
 <!--diagram:lakeside-revision-->
 
@@ -148,7 +154,7 @@ sequenceDiagram
   actor F as Finance and commercial lead
   actor M as Site manager
   participant S as System
-  Note over S: version 1 in force, five items, three crew visits of three
+  Note over S: later in the period, version 1 approved and in force, five items, three crew visits of three
   E->>S: sets the switch, letter of intent not extended
   S->>S: the huller can no longer connect in time, proposes the nearest set that fits
   S->>S: the change moves total spend by more than the spend threshold, so version 2 is proposed
@@ -171,7 +177,7 @@ What each path costs, and why only the executive can choose:
 | The executive's trade: buy the inverter now, keep the huller, drop the repair | 4,630.00<!--figx:{plans.lakeside-power.default.spend}-{options.KIS-REPAIR.operator_one_off}-{options.MTO-INV-CLAIM.operator_one_off}+{options.MTO-INV-BUYNOW.operator_one_off}--> | 2 | 125 |
 
 - **The proposal keeps the repair** because the search breaks service rules least before it weighs money. The trade is worth more in money but leaves 125 evening hours without backup instead of 15 (WP §1.1). That trade belongs to the budget holder (§2.5).
-- **Both paths make a new version.** The proposal moves total spend by 1,200.00<!--figx:{plans.lakeside-power.default.spend}-{plans.lakeside-power.switch_cases.5000/False.spend}-->, which needs approval if that is above the spend threshold. The trade removes a crew visit, and at the default crew-visit threshold of zero any change of more than zero visits needs approval (OD-11, OD-12).
+- **Both paths make a new version.** The proposal moves total spend by 1,200.00<!--figx:{plans.lakeside-power.default.spend}-{plans.lakeside-power.switch_cases.5000/False.spend}-->, above the demonstration's 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> threshold. The trade also removes a crew visit, and at a crew-visit threshold of 0 any change in crew visits needs approval (OD-11, OD-12).
 - **Timing matters.** If the Kisiwa repair's Actions were already released and its crew visit on 8 Nov has happened, the repair cannot be undone. Its Actions stop at their next step, and the spend incurred stays recorded against the item (§2.5).
 
 **Proactive items, generically.** An operations or site manager declares scheduled maintenance or a replacement, and the executive declares a capital item such as an expansion or a new connection (§2.6). The item is the Action's **origin** and also its **plan membership**. The same thresholds release its Actions. It names the factor or Protect measure it moves, or is marked "no factor (upkeep or compliance)" and carries no value (OD-5).
@@ -267,11 +273,10 @@ These are gaps in the design, not decisions taken here. Each has the Architect's
 
 | # | Gap | Context and example | Proposed default |
 |---|---|---|---|
-| 1 | Does a Site's crew-visit threshold win over the portfolio's, as the spend threshold does? Which threshold applies when the changes counted since the last version span Sites with different settings? | OD-12 says the crew-visit threshold works "like the spend threshold", but the precedence rule (§2.4) names only spend. Lakeside's trade changes Kisiwa and Mto at once | A Site setting wins for a change at that Site. Changes across Sites are judged against the portfolio settings |
+| 1 | Does a Site's crew-visit threshold win over the portfolio's, as the spend threshold does? Which threshold applies when the changes counted since the last version span Sites with different settings? | OD-12 says the crew-visit threshold works like the spend threshold, but the precedence rule (§2.4) names only spend. The demonstration sets no Site setting (WP §1.5), so it does not test this. Lakeside's trade changes Kisiwa and Mto at once | A Site setting wins for a change at that Site. Changes across Sites are judged against the portfolio settings |
 | 2 | A plan item has no states of its own | An item is chosen, held in a version, left out, returned, carried over or finished. The design names these events but not as states | The design states them as derived from the item's Actions and versions, like the plan's own state (§2.5) |
-| 3 | The accountable role for decisions that mix two kinds | Mto's inverter decision mixes a claim (finance and commercial lead) with buying a unit (operations). The huller is a demand option and also a new connection (executive) | The design names the accountable role per decision in WP §1.1. This document's table uses the roles §2.4 step 2 and §2.6 give |
+| 3 | Who chooses, and so owns, an item whose Actions different roles create | WP §1.5 has Joseph (finance and commercial lead) file Mto's claim and David (Site manager) install the unit, both under one item. The huller is a demand option and also a new connection, which §2.6 gives the executive, yet David creates its Action | The design names each Lakeside item's chooser in WP §1.5: the claim item Joseph's, the huller David's under the executive's approval of the version |
 | 4 | The worked portfolio has no proactive item | §5 can show only the generic path | Add one, such as a scheduled service at Kisiwa, to WP §1.1 with its figures in the manifest |
-| 5 | Lakeside's period | The budget covers November and December, and the crew-visit limit November. The default period is a month (§2.5) | The design states Lakeside's period explicitly |
-| 6 | A stale label in the design | §2.5's versions bullet still marks the zero crew-visit default "(Architect's call)". It is now OD-12 | Drop the label in the next design revision |
+| 5 | The crew-visit limit and the period differ | The period is November and December (WP §1.5), but the crew-visit limit is 3 in November (WP §1.1). Nothing says what bounds December's crew visits | The limit is stated for the whole period, or per month inside it, in WP §1.1 |
 
-**When I want the owner to weigh in:** gaps 1 and 3, because they set who is accountable for money at more than one Site.
+**When I want the owner to weigh in:** gaps 1 and 3, because they set who is accountable for money at more than one Site. Two earlier gaps are settled by the design since this document's first draft: Lakeside's period (WP §1.5) and the crew-visit default's label (OD-12).
