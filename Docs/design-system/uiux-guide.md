@@ -284,7 +284,7 @@ Status is one of five states. Each always carries a word, and an icon where spac
 
 ### 4.7 Brand packs (wave 2; owner, 19 Nov: "some african design identity … configurable")
 
-A brand pack is a named set of tokens, applied as `data-brand="<name>"` on the page root (`brand.css`). The product ships **Neutral** (the default, no attribute) and **African identity**.
+A brand pack is a named set of tokens, applied as `data-brand="<name>"` on the page root (`brand.css`). The product ships **Neutral** (the default, no attribute) and **East Africa** (`data-brand="east-africa"`). Regional packs share one structure, so **West Africa**, **Southern Africa** or others are new token blocks, not new code.
 
 | A pack may change | A pack may never change |
 |---|---|
@@ -292,8 +292,8 @@ A brand pack is a named set of tokens, applied as `data-brand="<name>"` on the p
 | The brand mark, a 6 px motif band under the top bar, the rail footer rule, the active-item rule | Chart series meaning, type sizes, spacing, radius, layout, components |
 | The empty-state mark and the loading shimmer | Anything behind data: no motif in a chart, table, tile or card body |
 
-- **African identity**: a sunlit palette (sand surfaces; terracotta, ochre, deep indigo and earth accents) and geometric accents in the spirit of kente strips and Ndebele triangles. They are contemporary and sparing, never pictorial or a stereotype.
-- **To add a pack:** copy the three `africa` token blocks in `brand.css` under a new name (light, dark by preference, dark by choice), and register it in `UX_BRANDS` (`loop-ux.js`). No component or layout changes. Then run the contrast measure for the pack in light and dark: 0 text below AA.
+- **East Africa**: a sunlit palette (sand surfaces; terracotta, ochre, deep indigo and earth accents) and accents from the region: kikoi and kanga stripe bands, a Maasai beadwork row, and the stud-and-link chain of Swahili-coast carved doors. The active rail item takes the pack's indigo. The accents are contemporary and sparing, never pictorial or a stereotype.
+- **To add a pack:** copy the three `east-africa` token blocks in `brand.css` under a new name (light, dark by preference, dark by choice), and register it in `UX_BRANDS` (`loop-ux.js`). No component or layout changes. Then run the contrast measure for the pack in light and dark: 0 text below AA.
 - **Resolution:** the tenant's setting (`UX_BRAND_BY_TENANT`), else Neutral. In the mock-up, a review-bar switch overrides it for comparison.
 - A display typeface for headings is optional: set `--font-heading` with a system fallback. It is not used in the demo, which must work offline.
 
@@ -319,6 +319,8 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 - legends where direct labels fit.
 
 **Wave 2 additions.**
+- **The bridge is a stepped waterfall and the page's hero**, full width under the decision queue (the queue stays above the fold). Steps float from the running total with a connector at each; the axis may start above zero only with a drawn break mark and a caption that says where it starts. Tooltip figures never break across lines.
+- **Bars take the guide's thresholds:** on or better than target is green; within 5% is amber; further off is red.
 - **Where value leaks** draws the losses, not the stages. Each stage is a labelled value. Under it, each loss is a bar drawn against the largest loss, with its share of the stage before it ("1,350 kWh · 5.9% of delivered"). The title names the biggest leak. With no measurable leak, the title says "no leak measured".
 - **The bridge is the page's interactive chart.** Each step links to the decision on its driver, and shows its detail (amount, share of the gap, the decision) on hover and on keyboard focus. A step with no decision says so in its detail.
 - **Trend slot.** Each money tile reserves a trend line. Until earlier months are loaded it shows a dashed placeholder and "Trend not available yet", never an invented line.
@@ -366,7 +368,7 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 
 ---
 
-**Wave 2: one provenance control.** Under the page title, a single quiet "ⓘ About these figures" popover replaces the scope lines. It holds the baseline evidence word, the † meaning (its summary shows "· † design estimates" when the page has any), "Names are illustrative" and how to open a figure's working. Esc closes it.
+**Wave 2: one provenance control.** Under the page title, a single quiet "ⓘ About these figures" popover replaces the scope lines, the section-level "About" notes and the footer's demo-data line. Certainty markers stay only where §6 requires them (a figure that is not the page's baseline). It holds the baseline evidence word, the † meaning (its summary shows "· † design estimates" when the page has any), "Names are illustrative" and how to open a figure's working. Esc closes it.
 
 ## 7. Workflow surfaces
 
@@ -380,11 +382,13 @@ The system proposes; people choose, approve and act (design §2.6). Every surfac
 - **Phone**: each row becomes a card with the chip and Site on the first line, the issue, then the at-stake value and due date, then the person chip and **Decide**.
 
 **Wave 2 row anatomy (replaces the sentence row).**
-- A status chip, then a **short title**: the decision's name, for example "Kobo generator stop setting".
+- **One row per decision.** Every issue behind it is a status chip on the row, and "Why (2 issues)" lists each issue. Counts on every screen are decisions, not issues.
+- A short **title**: the decision's name, for example "Kobo generator stop setting".
 - Columns: Site · At stake · Due · Who decides · **Decide**. The person chip never wraps.
 - **Why ▾** expands the explanation and the certainty ("How sure: Modelled · † design estimate"). Certainty markers stay out of the row itself.
-- **Controls** above the list: Site, Status, Sort (priority, due date, at stake) and Group (by Site), with a live "n of m" count. A control appears only when it can change something: Site and Group need at least two Sites.
-- **At 50 to 300 Sites:** filters and sort run on the server and are kept in the URL; 25 rows a page; grouping by Site shows collapsed groups with counts; saved views per person. The Metro operator, with 3 Sites, 4 statuses and 7 issues, demonstrates the controls in the mock-up.
+- **Controls** above the list: a type-ahead Site filter, Status, Sort (priority, due date, at stake), Group (by urgency: due this week, this month, later, no deadline; or by Site) and a Compact toggle, with a live "n of m" count. A control appears only when it can change something.
+- **The row lays itself out by the room it has** (a container query): with less than 880 px it stacks, as in a side column or on a phone. No cell may run into its neighbour; `ux_interaction_check` asserts it at 1280 and 1440.
+- **At 50 to 300 Sites:** filters and sort run on the server and are kept in the URL; 25 rows a page; grouping by Site shows collapsed groups with counts; saved views per person. A worked count: 300 Sites with about four open decisions each is about 1,200 rows. That is 48 pages at 25 a page, or 1 page of the 25 due this week when grouped by urgency. The scope switcher and the Site filter are type-ahead for the same reason. The Metro operator, with 3 Sites, 4 statuses and 7 issues, demonstrates the controls in the mock-up.
 
 ### 7.2 Option comparison (Decision page L2)
 
@@ -710,7 +714,7 @@ Each proposal changes how a design rule is presented, not the rule itself. The A
 |---|---|---|---|
 | **U8** | Merge the rail's six legacy groups into four (Portfolio, Sites; Work: Findings, Actions, Incidents, Maintenance, Records; Evidence; Financials, Settings) and drop the group labels. Every destination stays. | The rail is the most dated element left. The frame rule forbids new menus, not fewer labels. | **Keep the items and labels for now**; visual compaction only, until the owner agrees. |
 | **U9** | Load the July to September ledger history the scenario already declares, so the trend slot and "against September" become real. | Time context is standard in executive products. Today it is honestly "not available yet". | **Adopt**, in the data lane, not in this screen step. |
-| **U10** | African identity as the starting pack for the three demo operators, which are East African. Neutral stays the product default. | It shows the configurability and suits the demo audience. | **Adopt** after the owner compares the two packs in the shots. |
+| **U10** | East Africa as the starting pack for the three demo operators, which are East African. Neutral stays the product default. | It shows the configurability and suits the demo audience. | **Adopt** after the owner compares the two packs in the shots. |
 
 ## Appendix A. Applying the guide to the mock-up
 

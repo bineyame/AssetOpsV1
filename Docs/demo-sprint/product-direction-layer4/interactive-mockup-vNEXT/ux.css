@@ -496,3 +496,52 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-tip{left:auto;right:0;max-width:min(320px,90%)}
 .reviewbar .right{flex-wrap:wrap;justify-content:flex-end;min-width:0}.reviewbar{flex-wrap:wrap}
 @media (max-width:760px){.ux-q-who .who{white-space:normal}.ux-queue>li.ux-q{grid-template-areas:"issue issue" "site due" "stake stake" "who who" "go go"}.ux-q-go.button{justify-self:end}}
+
+/* ===== wave 2b fixes ===== */
+/* M1: the decider column has room, and a long role drops to a second line instead of running under Decide */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 76px minmax(170px,220px) 84px}
+@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 80px 140px 68px minmax(150px,180px) 78px}}
+.ux-q-who{min-width:0}
+.ux-q-who .who{white-space:normal}
+.ux-q-who .who>b,.ux-q-who .who>span{white-space:nowrap}
+.ux-q-top .ux-chip+.ux-chip{margin-left:-4px}
+.ux-q-issue-line{display:block;margin-top:4px}
+.ux-queue-wrap.is-dense .ux-queue>li.ux-q{padding:4px 0}
+.ux-queue-wrap.is-dense .ux-q-more{display:none}
+.ux-queue-wrap.is-dense .ux-q-stake small{display:none}
+.ux-qtools input[type="search"]{font:inherit;font-size:var(--fs-sm);color:var(--text);background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r1);padding:4px 8px;min-height:32px;width:150px}
+.ux-dense{gap:4px}
+/* the hero waterfall: steps float from the running total, a connector marks each running total, the break is drawn */
+.ux-hero{margin-bottom:var(--s5)}
+.ux-hero .ux-wf-row,.ux-hero .ux-wf-a{grid-template-columns:minmax(160px,1fr) 84px minmax(0,3fr)}
+.ux-hero .ux-wf-track{height:24px;border-left:0}
+.ux-hero .ux-wf-bar{top:4px;height:16px}
+.ux-wf-conn{position:absolute;top:-6px;height:12px;border-left:1px dashed var(--line-strong)}
+.ux-wf-break{position:absolute;left:0;top:2px;width:8px;height:20px;z-index:2;background:linear-gradient(135deg,transparent 40%,var(--surface) 40% 60%,transparent 60%)}
+.ux-wf-break.is-key{position:relative;display:inline-block;width:12px;height:12px;vertical-align:middle;background:linear-gradient(135deg,var(--series-total) 40%,var(--surface) 40% 60%,var(--series-total) 60%)}
+.ux-nw{white-space:nowrap}
+.ux-aside-stack{display:flex;flex-direction:column;gap:var(--s4)}
+.ux-overview .ux-two .ux-aside{display:flex}
+/* tiles: one-line headings at desktop widths, the link on a shared baseline */
+.ux-cats.ocards{align-items:stretch}
+@media (min-width:1280px){.ux-cat-h h3{white-space:nowrap}}
+.ux-cat-st{margin:0}
+.ux-cat-go{margin-top:auto}
+.ux-bullet-bar.is-warn{background:var(--warn)}
+/* quieter trend placeholders */
+.ux-spark-na{width:28px;border-bottom:1px dotted var(--line)}
+.ux-trend{color:var(--text-2);opacity:.85}
+/* one provenance control: the footer's demo-data line is in the popover */
+.screen-foot>span:first-child{display:none}
+.ux-sw-q{font:inherit;font-size:var(--fs-sm);width:100%;box-sizing:border-box;margin-bottom:var(--s1);padding:6px 8px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
+/* the queue lays itself out by the room it has (a container query), not by the window: in a side-by-side column it stacks */
+.ux-queue-wrap{container-type:inline-size}
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 88px minmax(170px,220px) 84px}
+.ux-q-due{white-space:normal}
+.ux-q-who .who>b{white-space:normal}
+@container (max-width:880px){
+  .ux-qh{display:none}
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"issue issue" "site due" "stake stake" "who go"}
+  .ux-q-issue{grid-area:issue}.ux-q-site{grid-area:site}.ux-q-stake{grid-area:stake}.ux-q-due{grid-area:due;justify-self:end}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go;justify-self:end}
+  .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
+}

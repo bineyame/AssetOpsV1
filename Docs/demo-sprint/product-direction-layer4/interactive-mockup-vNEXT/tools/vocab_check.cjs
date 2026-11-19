@@ -20,6 +20,7 @@ const BANNED = [
   ['design jargon (review, round 2)', /\b(?:switch(?:es)?|obligations?|rights)\b/i],
   ['design jargon (review, round 3)', /\b(?:factors?|protect measures?|candidate running|necessary running|item state|item released|rate-card|ledger to invoice)\b/i],
   ['design jargon (review, round 4)', /\b(?:the structure|protect nodes?|money drivers?|at this driver)\b/i],
+  ['system voice (review, wave 2b)', /\bthe system (?:recommends|values)\b|\bobserved through\b|\bfind a screen\b/i],
   ['asset or record code', /\b(?:GEN|INV|BAT|CH|CN|PM)-[A-Z0-9]{1,4}(?:-\d+)?\b/],
   ['retired word: plan used for a target (OD-6)', /\b(?:against|off|to|versus|vs\.?|from|than) (?:the )?plan\b(?! (?:for|item|items|approval|beside))|\bActual against plan\b/i],
 ];

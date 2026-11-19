@@ -77,16 +77,41 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     await p.click('.ux-queue>li.ux-q .ux-q-more'); await p.waitForTimeout(100);
     const why = await p.evaluate(() => { const b = document.querySelector('.ux-queue>li.ux-q .ux-q-more'), t = document.getElementById(b.getAttribute('aria-controls')); return b.getAttribute('aria-expanded') === 'true' && t.offsetParent !== null && t.textContent.length > 20; });
     ok(why, 'queue: Why expands the explanation (aria-expanded)');
-    await p.selectOption('.ux-overview [data-qf="site"]', 'embakasi'); await p.waitForTimeout(100);
+    await p.fill('.ux-overview [data-qf="site"]', 'Emb'); await p.waitForTimeout(100);
     const f = await p.evaluate(() => { const li = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')].filter(x => !x.hidden); return { n: li.length, all: li.every(x => x.dataset.site === 'embakasi'), count: document.querySelector('.ux-overview .ux-qcount').textContent }; });
     ok(f.n > 0 && f.all && /^\d+ of \d+$/.test(f.count), `queue filter by Site: ${f.n} Embakasi rows only (${f.count})`);
-    await p.selectOption('.ux-overview [data-qf="site"]', ''); await p.selectOption('.ux-overview [data-qs]', 'due'); await p.waitForTimeout(100);
+    await p.fill('.ux-overview [data-qf="site"]', ''); await p.selectOption('.ux-overview [data-qs]', 'due'); await p.waitForTimeout(100);
     const due = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')].map(x => x.dataset.due || '9999'));
     ok(due.every((d, i) => i === 0 || due[i - 1] <= d), `queue sort by due date: ${due.join(', ')}`);
     await p.selectOption('.ux-overview [data-qg]', 'site'); await p.waitForTimeout(100);
     const g = await p.evaluate(() => ({ heads: [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-grp h3')].map(h => h.textContent.trim()), sites: new Set([...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')].map(x => x.dataset.site)).size }));
     ok(g.heads.length === g.sites && g.sites > 1, `queue group by Site: ${g.heads.join(' | ')}`);
     await p.context().close(); }
+  // wave 2b: one row per decision (counts are decisions); urgency grouping; compact mode; the scope switcher filters as you type
+  for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
+    const r = await p.evaluate(() => { const li = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')], titles = li.map(x => x.querySelector('.ux-q-title').textContent), cnt = +document.querySelector('#uxq-h .ux-count').textContent; return { dup: titles.length - new Set(titles).size, n: li.length, cnt, multi: li.filter(x => x.querySelectorAll('.ux-chip').length > 1).length }; });
+    ok(r.dup === 0 && r.n <= r.cnt && r.cnt === new Set(await p.evaluate(() => ATTN[LS.op].map(x => x[4]))).size, `${op} queue: one row per decision (${r.n} rows, count ${r.cnt}, ${r.multi} with more than one issue, no duplicate titles)`);
+    await p.context().close(); }
+  { const p = await page('portfolio', { op: 'metro' });
+    await p.selectOption('.ux-overview [data-qg]', 'urg'); await p.waitForTimeout(100);
+    const g = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-grp h3')].map(h => h.textContent.trim()));
+    ok(g.length >= 1 && g.every(t => /^(Due this week|Due this month|Due later|No deadline)/.test(t)), `queue group by urgency: ${g.join(' | ')}`);
+    await p.check('.ux-overview [data-qd]'); await p.waitForTimeout(100);
+    ok(await p.evaluate(() => document.querySelector('.ux-overview .ux-queue-wrap').classList.contains('is-dense')), 'queue compact mode on');
+    await p.click('.ux-scope-sw>summary'); await p.fill('.ux-sw-q', 'emb'); await p.waitForTimeout(100);
+    const sw = await p.evaluate(() => [...document.querySelectorAll('.ux-scope-sw a[role="menuitem"]')].filter(a => !a.hidden).map(a => a.textContent));
+    ok(sw.length === 1 && /Embakasi/.test(sw[0]), `scope switcher type-ahead: "emb" leaves ${sw.join(', ')}`);
+    await p.context().close(); }
+  // no queue cell overlaps its neighbour (review 2b M1), at 1280 and 1440, on the three Portfolios, Act first and the Kobo site
+  for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'portfolio/act-first'], ['lakeside', 'site/kobo']]) for (const w of [1280, 1440]) {
+    const p = await page(r, { op, w, h: 900 });
+    const bad = await p.evaluate(() => { const out = [];
+      for (const li of document.querySelectorAll('.ux-queue>li.ux-q')) { const cells = [...li.children].filter(c => c.offsetParent !== null);
+        for (const c of cells) { if (c.scrollWidth > c.clientWidth + 1) out.push(`${c.className} overflows (${c.scrollWidth} > ${c.clientWidth})`);
+          for (const e of c.querySelectorAll('*')) { const a = e.getBoundingClientRect(), b = c.getBoundingClientRect(); if (a.width && a.right > b.right + 1) { out.push(`${c.className}: "${e.textContent.trim().slice(0, 24)}" past its cell`); break; } } }
+        for (let i = 1; i < cells.length; i++) { const a = cells[i - 1].getBoundingClientRect(), b = cells[i].getBoundingClientRect(); if (Math.abs(a.top - b.top) < 4 && a.right > b.left + 1) out.push(`${cells[i - 1].className} overlaps ${cells[i].className}`); } }
+      return [...new Set(out)]; });
+    ok(!bad.length, `${op} ${r} at ${w}: no queue cell overlaps its neighbour (${bad.slice(0, 2).join('; ') || 'none'})`); await p.context().close(); }
   // wave 2: the provenance popover, the command search, the scope switcher, the period menu
   { const p = await page('portfolio');
     await p.click('.ux-prov>summary'); await p.waitForTimeout(100);
@@ -126,11 +151,11 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
   // brand packs: the review-bar switch applies a pack; status colours and layout stay; text contrast holds in both packs
   { const p = await page('portfolio');
     const before = await p.evaluate(() => ({ b: document.documentElement.getAttribute('data-brand'), bad: getComputedStyle(document.querySelector('.ux-chip.is-bad')).color, h: document.documentElement.scrollHeight }));
-    await p.selectOption('#ux-brand', 'africa'); await p.waitForTimeout(200);
+    await p.selectOption('#ux-brand', 'east-africa'); await p.waitForTimeout(200);
     const after = await p.evaluate(() => ({ b: document.documentElement.getAttribute('data-brand'), bad: getComputedStyle(document.querySelector('.ux-chip.is-bad')).color, h: document.documentElement.scrollHeight, band: getComputedStyle(document.querySelector('.topbar'), '::after').backgroundImage !== 'none' }));
     await p.reload(); await p.waitForTimeout(400);
     const kept = await p.evaluate(() => document.documentElement.getAttribute('data-brand'));
-    ok(!before.b && after.b === 'africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) < 12 && kept === 'africa', `brand switch: neutral to African identity, motif band on, status colour unchanged, layout height within 12 px (${before.h} to ${after.h}), kept on reload`);
+    ok(!before.b && after.b === 'east-africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) < 12 && kept === 'east-africa', `brand switch: neutral to East Africa, motif band on, status colour unchanged, layout height within 12 px (${before.h} to ${after.h}), kept on reload`);
     await p.selectOption('#ux-brand', 'neutral'); await p.waitForTimeout(150);
     ok(await p.evaluate(() => !document.documentElement.hasAttribute('data-brand')), 'brand switch: back to neutral');
     await p.context().close(); }

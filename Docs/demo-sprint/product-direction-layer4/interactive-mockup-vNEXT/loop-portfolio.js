@@ -396,7 +396,7 @@ function planSummary(op){const P=planCase(op),o=OPS[op],M2=o.t.portfolio_constra
  ${btn('portfolio/act-first/plan','Open the plan',true)}
  <details class="ux-more-d"><summary>Release thresholds</summary>${thresholdsKv(op)}</details>${ILLUS}</section>`;}
 function actFirstScreen(){const op=LS.op;
- return `<div class="layout-main-side"><div>${sec(`Issues needing a decision <span class="ux-count">${num(ATTN[op].length)}</span>`,triageList(op),'Each issue with its site and who decides. The system values the options; a person chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
+ return `<div class="layout-main-side"><div>${sec(`Decisions waiting <span class="ux-count">${num(uxDecCount(ATTN[op]))}</span>`,triageList(op),'One row per decision, with the issues behind it. AssetOps values the options; your team chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
 
 /* ---------- The plan (drill-down from Act first): items, their Actions, approval ---------- */
 function itemActions(op,id){return laterActions(op,id)||actionRows(op,actionsOf(op,id));}

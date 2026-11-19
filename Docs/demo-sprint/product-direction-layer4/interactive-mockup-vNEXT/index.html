@@ -1244,52 +1244,103 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .reviewbar .right{flex-wrap:wrap;justify-content:flex-end;min-width:0}.reviewbar{flex-wrap:wrap}
 @media (max-width:760px){.ux-q-who .who{white-space:normal}.ux-queue>li.ux-q{grid-template-areas:"issue issue" "site due" "stake stake" "who who" "go go"}.ux-q-go.button{justify-self:end}}
 
+/* ===== wave 2b fixes ===== */
+/* M1: the decider column has room, and a long role drops to a second line instead of running under Decide */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 76px minmax(170px,220px) 84px}
+@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 80px 140px 68px minmax(150px,180px) 78px}}
+.ux-q-who{min-width:0}
+.ux-q-who .who{white-space:normal}
+.ux-q-who .who>b,.ux-q-who .who>span{white-space:nowrap}
+.ux-q-top .ux-chip+.ux-chip{margin-left:-4px}
+.ux-q-issue-line{display:block;margin-top:4px}
+.ux-queue-wrap.is-dense .ux-queue>li.ux-q{padding:4px 0}
+.ux-queue-wrap.is-dense .ux-q-more{display:none}
+.ux-queue-wrap.is-dense .ux-q-stake small{display:none}
+.ux-qtools input[type="search"]{font:inherit;font-size:var(--fs-sm);color:var(--text);background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r1);padding:4px 8px;min-height:32px;width:150px}
+.ux-dense{gap:4px}
+/* the hero waterfall: steps float from the running total, a connector marks each running total, the break is drawn */
+.ux-hero{margin-bottom:var(--s5)}
+.ux-hero .ux-wf-row,.ux-hero .ux-wf-a{grid-template-columns:minmax(160px,1fr) 84px minmax(0,3fr)}
+.ux-hero .ux-wf-track{height:24px;border-left:0}
+.ux-hero .ux-wf-bar{top:4px;height:16px}
+.ux-wf-conn{position:absolute;top:-6px;height:12px;border-left:1px dashed var(--line-strong)}
+.ux-wf-break{position:absolute;left:0;top:2px;width:8px;height:20px;z-index:2;background:linear-gradient(135deg,transparent 40%,var(--surface) 40% 60%,transparent 60%)}
+.ux-wf-break.is-key{position:relative;display:inline-block;width:12px;height:12px;vertical-align:middle;background:linear-gradient(135deg,var(--series-total) 40%,var(--surface) 40% 60%,var(--series-total) 60%)}
+.ux-nw{white-space:nowrap}
+.ux-aside-stack{display:flex;flex-direction:column;gap:var(--s4)}
+.ux-overview .ux-two .ux-aside{display:flex}
+/* tiles: one-line headings at desktop widths, the link on a shared baseline */
+.ux-cats.ocards{align-items:stretch}
+@media (min-width:1280px){.ux-cat-h h3{white-space:nowrap}}
+.ux-cat-st{margin:0}
+.ux-cat-go{margin-top:auto}
+.ux-bullet-bar.is-warn{background:var(--warn)}
+/* quieter trend placeholders */
+.ux-spark-na{width:28px;border-bottom:1px dotted var(--line)}
+.ux-trend{color:var(--text-2);opacity:.85}
+/* one provenance control: the footer's demo-data line is in the popover */
+.screen-foot>span:first-child{display:none}
+.ux-sw-q{font:inherit;font-size:var(--fs-sm);width:100%;box-sizing:border-box;margin-bottom:var(--s1);padding:6px 8px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
+/* the queue lays itself out by the room it has (a container query), not by the window: in a side-by-side column it stacks */
+.ux-queue-wrap{container-type:inline-size}
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 88px minmax(170px,220px) 84px}
+.ux-q-due{white-space:normal}
+.ux-q-who .who>b{white-space:normal}
+@container (max-width:880px){
+  .ux-qh{display:none}
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"issue issue" "site due" "stake stake" "who go"}
+  .ux-q-issue{grid-area:issue}.ux-q-site{grid-area:site}.ux-q-stake{grid-area:stake}.ux-q-due{grid-area:due;justify-self:end}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go;justify-self:end}
+  .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
+}
+
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
    status colours, chart series meaning, type sizes, spacing or layout, and a motif never sits behind data. Default: neutral
-   (no attribute, or data-brand="neutral"). To add a pack: copy the three "africa" blocks with a new name and register it in
+   (no attribute, or data-brand="neutral"). To add a pack: copy the three "east-africa" blocks with a new name and register it in
    UX_BRANDS (loop-ux.js); nothing else changes. Contrast is checked in light and dark for every pack. */
 :root{--motif-band:none;--brand-mark:var(--accent);--brand-mark-bg:transparent}
 
-/* African identity: a warm, sunlit palette (sand, terracotta, ochre, deep indigo, earth) and geometric accents in the spirit
-   of kente strips and Ndebele triangles, used sparingly */
-:root[data-brand="africa"]{
+/* East Africa: a warm, sunlit palette (sand, terracotta, ochre, deep indigo, earth) and accents from the region: kikoi and
+   kanga stripe bands, Maasai beadwork rows and the chain geometry of Swahili-coast carved doors, used sparingly.
+   Regional packs share this structure: copy these three blocks as data-brand="west-africa", "southern-africa" and so on. */
+:root[data-brand="east-africa"]{
   --bg:#f6f1e8; --surface:#fffdf9; --surface-2:#f8f2e8; --surface-3:#efe6d6;
   --text:#221d17; --text-2:#5c5244; --line:#e7dccb; --line-strong:#d4c3a8;
   --accent:#2f3e9e; --accent-solid:#2f3e9e; --accent-soft:#e8eaf7; --accent-line:#bcc3ec; --focus:#2f3e9e;
   --rail-bg:#1d1b3a; --rail-hover:#2c2954; --series-1:#5b6189; --series-total:#a39a8a; --hatch:#d6c9b4;
   --brand-terracotta:#b4532a; --brand-ochre:#c98b1e; --brand-indigo:#2f3e9e; --brand-earth:#5b3a22;
   --brand-mark:#c98b1e; --brand-mark-bg:#2c2954;
-  --motif-band:linear-gradient(135deg,#1d1b3a 25%,transparent 25%) 0 0/12px 6px,linear-gradient(225deg,#1d1b3a 25%,transparent 25%) 0 0/12px 6px,repeating-linear-gradient(90deg,#b4532a 0 18px,#c98b1e 18px 24px,#2f3e9e 24px 42px,#5b3a22 42px 46px,#c98b1e 46px 64px,#2f3e9e 64px 70px);
+  --motif-band:repeating-linear-gradient(90deg,#b23a2e 0 6px,#f4ead8 6px 8px,#2f5aa8 8px 14px,#f4ead8 14px 16px,#d9822b 16px 22px,#f4ead8 22px 24px,#2e7d4f 24px 30px,#f4ead8 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#1d1b3a 0 22px,#b4532a 22px 25px,#c98b1e 25px 28px,#1d1b3a 28px 46px,#c98b1e 46px 48px) 0 3px/100% 3px no-repeat;
 }
 @media screen and (prefers-color-scheme:dark){
-  :root[data-brand="africa"]:not([data-theme="light"]){
+  :root[data-brand="east-africa"]:not([data-theme="light"]){
     --bg:#14110d; --surface:#1c1813; --surface-2:#221d17; --surface-3:#2c251d;
     --text:#efe7da; --text-2:#b9ab97; --line:#342b21; --line-strong:#4a3d2e;
     --accent:#a9b4ff; --accent-solid:#4153c4; --accent-soft:#232642; --accent-line:#3d4680; --focus:#a9b4ff;
     --rail-bg:#110f22; --rail-hover:#1f1c3a; --series-1:#9aa0cf; --series-total:#6b6152; --hatch:#4a3d2e;
     --brand-mark:#e0a83a; --brand-mark-bg:#1f1c3a;
-    --motif-band:linear-gradient(135deg,#110f22 25%,transparent 25%) 0 0/12px 6px,linear-gradient(225deg,#110f22 25%,transparent 25%) 0 0/12px 6px,repeating-linear-gradient(90deg,#c0643a 0 18px,#e0a83a 18px 24px,#5d6fd6 24px 42px,#8a5a36 42px 46px,#e0a83a 46px 64px,#5d6fd6 64px 70px);
+    --motif-band:repeating-linear-gradient(90deg,#d0574a 0 6px,#3a3226 6px 8px,#5d86d6 8px 14px,#3a3226 14px 16px,#e89a4a 16px 22px,#3a3226 22px 24px,#4fa374 24px 30px,#3a3226 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#110f22 0 22px,#c0643a 22px 25px,#e0a83a 25px 28px,#110f22 28px 46px,#e0a83a 46px 48px) 0 3px/100% 3px no-repeat;
   }
 }
-:root[data-brand="africa"][data-theme="dark"]{
+:root[data-brand="east-africa"][data-theme="dark"]{
   --bg:#14110d; --surface:#1c1813; --surface-2:#221d17; --surface-3:#2c251d;
   --text:#efe7da; --text-2:#b9ab97; --line:#342b21; --line-strong:#4a3d2e;
   --accent:#a9b4ff; --accent-solid:#4153c4; --accent-soft:#232642; --accent-line:#3d4680; --focus:#a9b4ff;
   --rail-bg:#110f22; --rail-hover:#1f1c3a; --series-1:#9aa0cf; --series-total:#6b6152; --hatch:#4a3d2e;
   --brand-mark:#e0a83a; --brand-mark-bg:#1f1c3a;
-  --motif-band:linear-gradient(135deg,#110f22 25%,transparent 25%) 0 0/12px 6px,linear-gradient(225deg,#110f22 25%,transparent 25%) 0 0/12px 6px,repeating-linear-gradient(90deg,#c0643a 0 18px,#e0a83a 18px 24px,#5d6fd6 24px 42px,#8a5a36 42px 46px,#e0a83a 46px 64px,#5d6fd6 64px 70px);
+  --motif-band:repeating-linear-gradient(90deg,#d0574a 0 6px,#3a3226 6px 8px,#5d86d6 8px 14px,#3a3226 14px 16px,#e89a4a 16px 22px,#3a3226 22px 24px,#4fa374 24px 30px,#3a3226 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#110f22 0 22px,#c0643a 22px 25px,#e0a83a 25px 28px,#110f22 28px 46px,#e0a83a 46px 48px) 0 3px/100% 3px no-repeat;
 }
 
 /* where a pack's accents may appear (and nowhere else) */
 .topbar{position:relative}
-:root[data-brand="africa"] .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:var(--motif-band);pointer-events:none;z-index:1}
+:root[data-brand="east-africa"] .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:var(--motif-band);pointer-events:none;z-index:1}
 .rail .brandmark{color:var(--brand-mark)}
-:root[data-brand="africa"] .rail .brandmark{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:var(--s2);border-radius:var(--r1);background:var(--brand-mark-bg);box-shadow:inset 0 -3px 0 var(--brand-terracotta)}
-:root[data-brand="africa"] .rail-footer{border-top:4px solid transparent;border-image:repeating-linear-gradient(90deg,var(--brand-terracotta) 0 10px,var(--brand-ochre) 10px 14px,var(--brand-indigo) 14px 24px) 4}
-:root[data-brand="africa"] .ux-empty::before{content:"";display:inline-block;width:18px;height:6px;margin-right:var(--s2);vertical-align:middle;border-radius:1px;background:var(--motif-band)}
-:root[data-brand="africa"] .ux-skel-row{background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));background-size:200% 100%}
-:root[data-brand="africa"] .rail a.active{box-shadow:inset 3px 0 0 var(--brand-ochre)}
+:root[data-brand="east-africa"] .rail .brandmark{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:var(--s2);border-radius:var(--r1);background:var(--brand-mark-bg);box-shadow:inset 0 -3px 0 var(--brand-terracotta)}
+:root[data-brand="east-africa"] .rail-footer{border-top:4px solid transparent;border-image:repeating-linear-gradient(90deg,var(--brand-terracotta) 0 14px,var(--brand-ochre) 14px 16px,var(--brand-indigo) 16px 30px,var(--brand-ochre) 30px 32px) 4}
+:root[data-brand="east-africa"] .ux-empty::before{content:"";display:inline-block;width:20px;height:10px;margin-right:var(--s2);vertical-align:middle;background:radial-gradient(circle at 5px 5px,var(--brand-ochre) 2px,transparent 2.5px) 0 0/10px 10px,linear-gradient(90deg,transparent 4px,var(--brand-terracotta) 4px 6px,transparent 6px) 0 0/10px 10px} /* Swahili-door chain: studs and links */
+:root[data-brand="east-africa"] .ux-skel-row{background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));background-size:200% 100%}
+:root[data-brand="east-africa"] .rail a.active{background:var(--brand-indigo);box-shadow:inset 3px 0 0 var(--brand-ochre)}
+:root[data-brand="east-africa"][data-theme="dark"] .rail a.active{background:var(--accent-solid)}
 /* the review-bar switch (mock tooling) */
 .ux-brand-sw{display:inline-flex;align-items:center;gap:var(--s1);font-size:var(--fs-xs)}
 </style></head><body><div id="app"></div><div id="overlay"></div><script>/* Portfolio composition: presentation of site-owned results, never a second analytic. */
@@ -3112,7 +3163,7 @@ const PLAIN_WORDS=[
  [/\bBackup generator start controller \(backup generator\)/g,'Backup generator start controller'],[/\b([A-Za-z]+(?: [A-Za-z]+){0,4}) \1\b/g,'$1'],[/\+ −\$/g,'− $'],[/\+ \+\$/g,'+ $'],
  [/\bfactor by factor\b/g,'driver by driver'],[/\bbase factors\b/g,'base drivers'],[/\bbase factor\b/g,'base driver'],[/\bFactors\b/g,'Drivers'],[/\bfactors\b/g,'drivers'],[/\bFactor\b/g,'Driver'],[/\bfactor\b/g,'driver'],
  [/\bObligation hours without redundancy\b/g,'Hours without backup supply'],[/\bobligation hours without redundancy\b/g,'hours without backup supply'],[/\b[Oo]bligation hours with no backup supply\b/g,'hours with no backup supply'],[/\bobligation hours\b/gi,'hours without backup supply'],[/\b(service|supply|departure) obligation(s?)\b/g,'$1 limit$2'],[/\ba (hard|firm) obligation\b/g,'a $1 limit'],[/\bObligations\b/g,'Limits'],[/\bobligations\b/g,'limits'],[/\bObligation\b/g,'Limit'],[/\bobligation\b/g,'limit'],
- [/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
+ [/\bObserved through the generator model, /g,'From the generator records, '],[/\bobserved through the generator model\b/g,'read from the generator records'],[/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
 ];
 const plainText = t => PLAIN_WORDS.reduce((v,[r,s])=>v.replace(r,s),String(t??''));window.plainText=plainText; /* the same display words, for checks that compare data text with the screen */
 function plainWords(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&n.parentElement.closest('details.tech,pre.code,script,style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});let n;
@@ -3123,12 +3174,12 @@ function uxFixSigns(root){if(!root)return;const w=document.createTreeWalker(root
  for(let i=0;i<a.length-1;i++){const t=a[i],u=a[i+1],m=t.nodeValue.match(/\+\s*$/),k=u.nodeValue.match(/^\s*([+−])/);if(m&&k){if(k[1]==='−')t.nodeValue=t.nodeValue.replace(/\+(\s*)$/,'−$1');u.nodeValue=u.nodeValue.replace(/^(\s*)[+−]/,'$1');}}}
 function uxDedupeUnits(root){if(!root)return;root.querySelectorAll('small').forEach(sm=>{const p=sm.previousElementSibling;if(!p)return;const pt=p.textContent.trim().toLowerCase(),u=sm.textContent.trim(),head=u.split(/[,·]/)[0].trim();
  if(!head||!pt.endsWith(head.toLowerCase()))return;if(head===u){sm.remove();return;}const f=sm.firstChild;if(f&&f.nodeType===3&&f.nodeValue.includes(head))f.nodeValue=f.nodeValue.replace(head,'').replace(/^\s*[,·]\s*/,'');});} /* a name followed by its own unit drops the unit */
-function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxApplyBrand==='function'){uxApplyBrand();uxBrandSwitch();} /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
+function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxApplyBrand==='function'){uxApplyBrand();uxBrandSwitch();}if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
  const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);c.insertBefore(row,c.firstChild);}
- const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<details class="ux-pop ux-prov"><summary><span aria-hidden="true">ⓘ</span> About these figures${dv?' <span class="ux-prov-dag">· † design estimates</span>':''}</summary><div class="ux-pop-menu ux-scope" role="note"><p>Figures are recorded or measured unless marked; all are simulated demo data.</p>${dv?'<p><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</p>':''}${il.length?'<p>Names are illustrative.</p>':''}<p>Open any figure to see how it is worked out.</p></div></details>`);} /* wave 2: one quiet provenance control */
+ const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<details class="ux-pop ux-prov"><summary><span aria-hidden="true">ⓘ</span> About these figures${dv?' <span class="ux-prov-dag">· † design estimates</span>':''}</summary><div class="ux-pop-menu ux-scope" role="note"><p>Figures are recorded or measured unless marked; all are simulated demo data.</p>${dv?'<p><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</p>':''}${il.length?'<p>Names are illustrative.</p>':''}${[...c.querySelectorAll('.ux-prov-extra')].map(x=>`<p>${x.dataset.prov}</p>`).join('')}<p>Open any figure to see how it is worked out.</p></div></details>`);c.querySelectorAll('.ux-prov-extra').forEach(x=>x.remove());} /* wave 2: one quiet provenance control */
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
 const THEMES=['system','light','dark'],THEME_WORD={system:'Theme: follows your system',light:'Theme: light',dark:'Theme: dark'};
@@ -4002,7 +4053,7 @@ function planSummary(op){const P=planCase(op),o=OPS[op],M2=o.t.portfolio_constra
  ${btn('portfolio/act-first/plan','Open the plan',true)}
  <details class="ux-more-d"><summary>Release thresholds</summary>${thresholdsKv(op)}</details>${ILLUS}</section>`;}
 function actFirstScreen(){const op=LS.op;
- return `<div class="layout-main-side"><div>${sec(`Issues needing a decision <span class="ux-count">${num(ATTN[op].length)}</span>`,triageList(op),'Each issue with its site and who decides. The system values the options; a person chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
+ return `<div class="layout-main-side"><div>${sec(`Decisions waiting <span class="ux-count">${num(uxDecCount(ATTN[op]))}</span>`,triageList(op),'One row per decision, with the issues behind it. AssetOps values the options; your team chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
 
 /* ---------- The plan (drill-down from Act first): items, their Actions, approval ---------- */
 function itemActions(op,id){return laterActions(op,id)||actionRows(op,actionsOf(op,id));}
@@ -4186,10 +4237,10 @@ function siteOverview(sk){const s=siteM(sk),op=SK[sk].op,o=OPS[op],t=tree(sk),v=
  const obl=v==='mini'?(s.service_obligations||[]).map(x=>x.replace(' (MG-5 hard constraint)','').replace(' (evening-to-dawn adequacy)','').replace('>=','at least').replace(' (capacity short every evening: load > PV + PCS)',': the evening load is larger than solar plus battery')):v==='cold'?['Chamber 2–4 °C band','Each batch below its commodity limit; the operator is liable above 15 minutes over the limit']:['Every required departure met with the charge its route needs',`Import at most ${s.physical.import_limit_kw} kW`];
  const rk=Object.entries({kobo:['kobo-battery'],kisiwa:['kisiwa-genset','kisiwa-om'],mto:['mto-inverter'],thika:['thika-epc','thika-insurance'],kasarani:['kasarani-charger'],ruiru:['ruiru-connector']}).find(([k])=>k===sk)?.[1]||[];
  const res=t.plan!=null?`${o.kind==='cost'?'Cost per required departure met':'Contribution'}: ${fig(`node:${sk}:root`,fmtU(t.actual,t.unit))} against a target of ${fmtU(t.plan,t.unit)} (${usd(s.period.variance,true)} ${o.kind==='cost'?'on cost':''} against target).`:'';
- const att=ATTN[op].filter(r=>r[2]===sk);
- const lead=t.plan!=null?`${o.kind==='cost'?'Cost per required departure met is':'Contribution is'} ${o.kind==='cost'?fmtU(Math.abs(t.actual-t.plan),t.unit):usdW(Math.abs(s.period.variance))} ${(o.kind==='cost'?t.actual>t.plan:s.period.variance<0)?(o.kind==='cost'?'over':'below'):(o.kind==='cost'?'under':'above')} target in October${att.length?`; ${num(att.length)} issue${att.length===1?' needs':'s need'} a decision`:''}.`:res;
+ const att=ATTN[op].filter(r=>r[2]===sk),nd=uxDecCount(att);
+ const lead=t.plan!=null?`${o.kind==='cost'?'Cost per required departure met is':'Contribution is'} ${o.kind==='cost'?fmtU(Math.abs(t.actual-t.plan),t.unit):usdW(Math.abs(s.period.variance))} ${(o.kind==='cost'?t.actual>t.plan:s.period.variance<0)?(o.kind==='cost'?'over':'below'):(o.kind==='cost'?'under':'above')} target in October${att.length?`; ${num(nd)} decision${nd===1?' is':'s are'} waiting`:''}.`:res;
  return `<p class="headline ux-headline">${lead}</p>${uxSiteTiles(sk)}
- <div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Needs a decision at this site <span class="ux-count">${num(att.length)}</span></h2><p>Each issue with who decides; the decision page compares every option against no action.</p></div></div>${uxQueue(op,att)}</section>
+ <div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Needs a decision at this site <span class="ux-count">${num(nd)}</span></h2><p>Each issue with who decides; the decision page compares every option against no action.</p></div></div>${uxQueue(op,att)}</section>
  ${sec('Decisions at this site',decRows.length?region('Decisions at this site',table(['Decision','Recommended','Rejected or deferred','No action'],decRows)):'<p class="note">No decision is open at this site.</p>')}</div>
  <div class="ux-aside">${uxChain(op,sk)}</div></div>
  ${sec('Breakdown',factorTable(sk),`${t.label} = ${t.how}. Target against October at every factor.`)}
@@ -4219,7 +4270,7 @@ const OPT_KIND = {CONFIG_TRIAL:'Controller setting, changed remotely',CAPEX:'Cap
 function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inPlan=planItemsV1(op);
  const rec=d.opts.find(x=>OPT[x].disposition==='RECOMMENDED')||d.opts.find(x=>inPlan.includes(x));
  const item=D.item||d.opts.find(x=>inPlan.includes(x)),acts=item?actionsOf(op,item):[];
- const recTxt=rec?`<b>${optLabel(rec)}</b><small>Each option valued against no action. The system recommends; it never chooses or creates an Action.</small>`:'<b>No option recommended</b><small>Each option valued against no action; none fits the limits better than the others.</small>';
+ const recTxt=rec?`<b>${optLabel(rec)}</b><small>Each option valued against no action. AssetOps recommends; your team decides and creates the Actions.</small>`:'<b>No option recommended</b><small>Each option valued against no action; none fits the limits better than the others.</small>';
  const it=D.item?itemOf(op,D.item):null;
  const chooseTxt=`${who(op,D.p)}<small>${D.item?`Chose ${optLabel(D.item)}, recorded under their name${it&&it.owner===it.chosen_by?', and so owns the item':''}.${it&&it.owner!==it.chosen_by?` Item owner: ${it.owner}.`:''}${it?` Item state: ${ITEM_STATE_WORD[it.item_state]||'not available yet'}.`:''}`:'Chooses an option, or none, and creates the Actions. Nothing chosen yet.'}</small>`;
  const oneBy=acts.length&&acts.every(a=>a.created_by===acts[0].created_by),actTxt=acts.length?`${oneBy?`<small class="wd-by">Created by ${who(op,acts[0].created_by)}</small>`:''}<ul class="wd-acts">${acts.map(a=>`<li>${a.action}<small>${oneBy?(a.owner===a.created_by?'Owned by the creator':`Owner ${who(op,a.owner)}`):a.owner===a.created_by?`Created by ${who(op,a.owner)}, who owns it`:`Created by ${who(op,a.created_by)} · owner ${who(op,a.owner)}`} · due ${fdate(a.due)}</small></li>`).join('')}</ul><small>Raised against this issue; counted in the plan on the item “${SHORT[item]||optLabel(item)}”.</small>`:it?.capital?`<b>None yet</b>${(it.actions_after_approval||[]).length?`<ul class="wd-acts">${it.actions_after_approval.map(a=>`<li>${a}<small>Created by ${who(op,it.owner)} after approval</small></li>`).join('')}</ul>`:''}<small>A capital item: ${it.owner} creates its Action only after ${execOf(op)?.name||'the operator executive'} approves the version that holds it.</small>`
@@ -4228,7 +4279,7 @@ function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inP
  if(item&&inPlan.includes(item)){const r=releaseOf(op,item);relTxt=`<span class="status-pill ${r.at?'is-approved':'is-waiting'}" data-release="${r.at?'RELEASED':'WAITING'}">${RELEASE_WORD[r.at?'RELEASED':'WAITING']}</span><small>${r.reason}.</small>`;}
  else{const w=WF(op);relTxt=`<b>Not in the proposed plan</b><small>A change is released when created only at or below the ${usd(w.spend_threshold)} spend threshold with no ${crewOne(op)}; otherwise it waits for the plan’s approval.</small>`;}
  return `<section class="panel who-decides" aria-labelledby="wd-h-${id}"><h2 id="wd-h-${id}" class="vh">Who decides</h2><ol class="wd-steps">
- <li><span class="wd-k">1 · The system recommends</span>${recTxt}</li><li><span class="wd-k">2 · Who chooses</span>${chooseTxt}</li><li><span class="wd-k">3 · Actions created</span>${actTxt}</li><li><span class="wd-k">4 · Release</span>${relTxt}</li></ol>${ILLUS}</section>`;}
+ <li><span class="wd-k">1 · AssetOps recommends</span>${recTxt}</li><li><span class="wd-k">2 · Who chooses</span>${chooseTxt}</li><li><span class="wd-k">3 · Actions created</span>${actTxt}</li><li><span class="wd-k">4 · Release</span>${relTxt}</li></ol>${ILLUS}</section>`;}
 function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null,chosenId=deciderOf(id).item;
  const rows=d.opts.map(oid=>{const x=OPT[oid],[cv,cn]=optCost(x),[ev,en]=optEffect(x);const recd=x.disposition==='RECOMMENDED';
   const detail=`<dl class="ux-optd"><div><dt>Result against no action</dt><dd>${ev} <small>${en}</small> ${/^Not /.test(ev)?'':ec(optClass(x))}</dd></div><div><dt>Effect under each heading</dt><dd>${x.kind==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</dd></div><div><dt>Limits</dt><dd class="ux-obl">${obligations(x)}</dd></div><div><dt>Condition</dt><dd>${fx(x.condition)||'None'}</dd></div><div><dt>Status and reason</dt><dd>${dispBadge(x)} ${optWhy(x)}</dd></div></dl>`;
@@ -4277,8 +4328,8 @@ function uxMark(cls) {
 function uxBullet(actual, target, label, invert = false) {
   if (actual == null || target == null || !(target > 0)) return '';
   const max = Math.max(actual, target) * 1.08, a = Math.max(0, actual) / max * 100, t = target / max * 100;
-  const bad = invert ? actual > target : actual < target;
-  return `<div class="ux-bullet" role="img" aria-label="${escapeHtml(label)}"><span class="ux-bullet-bar ${bad ? 'is-bad' : 'is-good'}" style="width:${a.toFixed(1)}%"></span><span class="ux-bullet-t" style="left:${t.toFixed(1)}%"></span></div>`;
+  const r = actual / target, off = invert ? r - 1 : 1 - r, st = off <= 0 ? 'is-good' : off <= 0.05 ? 'is-warn' : 'is-bad';
+  return `<div class="ux-bullet" role="img" aria-label="${escapeHtml(label)}"><span class="ux-bullet-bar ${st}" style="width:${a.toFixed(1)}%"></span><span class="ux-bullet-t" style="left:${t.toFixed(1)}%"></span></div>`;
 }
 function uxMeterBar(used, cap, label) {
   if (!(cap > 0)) return '';
@@ -4330,28 +4381,6 @@ function uxDueIso(decId, txt) {
   const m = String(txt).match(new RegExp(`(?:due|lapses(?: on)?|by|deadline)\\s+(\\d{1,2}) (${UX_MON})`)); return m ? `2026-${UX_ISO_MON[m[2]]}-${m[1].padStart(2, '0')}` : '';
 }
 /* decision queue (guide §7.1, wave 2): a short title and scannable columns; the explanation and the certainty one click away */
-let UX_QN = 0;
-function uxQueue(op, rows, cls = '') {
-  if (UX_STATE === 'loading') return `<div class="ux-skel" role="status"><span class="vh">Loading decisions…</span>${'<span class="ux-skel-row" aria-hidden="true"></span>'.repeat(3)}</div>`;
-  if (UX_STATE === 'empty' || !rows.length) return '<p class="ux-empty" role="status">No decisions waiting. New issues appear here when the next day of records is in.</p>';
-  const seen = {};
-  const items = rows.map(([k, t, s, txt, d], i) => {
-    const D = deciderOf(d), first = seen[d], dec = decById(d), id = `uxq-${++UX_QN}`, P = uxStakeParts(d), due = uxDueIso(d, txt);
-    seen[d] = seen[d] || `the ${String(t).toLowerCase()} issue above`;
-    const stake = first ? `<span class="ux-q-word">Same decision as ${first}</span>` : P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
-    const ck = P.cls && (CLS[P.cls] || [])[1], cert = !first && P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
-    return `<li class="attn-${k} ux-q" data-order="${i}" data-site="${s}" data-kind="${uxTone(k, t)}" data-due="${due}" data-stake="${first ? 0 : P.num || 0}"><div class="ux-q-issue"><div class="ux-q-top">${uxChip(k, t)}<b class="ux-q-title">${dec ? dec.q : t}</b></div><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why<span class="vh">: ${escapeHtml(dec ? dec.q : t)}</span></button><div class="ux-q-why is-collapsed" id="${id}">${txt}${cert ? `<br>${cert}` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="muted">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : t)}, ${SK[s].name}</span>`, 'button ux-q-go')}</li>`;
-  });
-  const sites = [...new Set(rows.map(r => r[2]))], kinds = [...new Set(rows.map(([k, t]) => uxTone(k, t)))];
-  const KW = { bad: 'Off target or breached', warn: 'At a limit or deadline', info: 'New or opportunity', neutral: 'Not explained yet', good: 'On target' };
-  const tools = rows.length > 1 ? `<div class="ux-qtools" role="group" aria-label="Filter, sort and group the decisions">
-   ${sites.length > 1 ? `<label>Site <select data-qf="site"><option value="">All sites</option>${sites.map(s => `<option value="${s}">${SK[s].name}</option>`).join('')}</select></label>` : ''}
-   ${kinds.length > 1 ? `<label>Status <select data-qf="kind"><option value="">All</option>${kinds.map(k => `<option value="${k}">${KW[k]}</option>`).join('')}</select></label>` : ''}
-   <label>Sort <select data-qs><option value="order">Priority</option><option value="due">Due date</option><option value="stake">At stake</option></select></label>
-   ${sites.length > 1 ? `<label>Group <select data-qg><option value="">None</option><option value="site">By site</option></select></label>` : ''}
-   <span class="ux-qcount" role="status" aria-live="polite">${num(rows.length)} of ${num(rows.length)}</span></div>` : '';
-  return `<div class="ux-queue-wrap">${tools}<div class="ux-qh" aria-hidden="true"><span>Issue</span><span>Site</span><span>At stake</span><span>Due</span><span>Who decides</span><span></span></div><ul class="attn triage ux-queue ${cls}">${items.join('')}</ul></div>`;
-}
 /* the value chain as leaks (guide §5, wave 2): each stage, then what is lost before the next one, drawn on the leaks' own scale */
 function uxChain(op, sk) {
   const st = chainStages(op, sk), unitOf = v => /^\$/.test(v) ? '$' : (String(v).match(/(kWh|crate-days|L)\b/) || [, ''])[1], valOf = v => Number((String(v).match(/[\d,.]+/) || ['0'])[0].replace(/,/g, ''));
@@ -4380,7 +4409,89 @@ function uxCatTile(op, k, C) {
   if (k === 'optimize') { const a = o.kind === 'cost' ? opTotals(op).actual : sumNodes(op, 'actual', 'cost_to_serve'), t = o.kind === 'cost' ? opTotals(op).plan : sumNodes(op, 'plan', 'cost_to_serve'); vis = uxBullet(a, t, `Cost ${usdW(a)} against a target of ${usdW(t)}`, true); }
   if (k === 'protect') { const pc = protectCard(op); vis = pc.total ? `<div class="ux-seg" role="img" aria-label="${num(pc.broken)} of ${num(pc.total)} limits broken">${Array.from({ length: pc.total }, (_, i) => `<span class="${i < pc.broken ? 'is-bad' : 'is-good'}"></span>`).join('')}</div>` : ''; }
   if (k === 'assure') { const c = o.t.portfolio.coverage.cost_recorded_share; vis = `<div class="ux-meterbar is-neutral" role="img" aria-label="${pct(c, 1)} of October cost backed by records"><span style="width:${(c * 100).toFixed(1)}%"></span></div>`; }
-  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3>${uxTileStatus(k, op)}</div><p class="ux-cat-pos">${wholeText(pos)}</p>${vis}<p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'drivers'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
+  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div>${uxTileStatus(k, op)}<p class="ux-cat-pos">${wholeText(pos)}</p>${vis}<p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'drivers'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
+}
+
+/* one row per decision (review 2b): the issues behind it become its chips and its "Why"; counts are decisions, not issues */
+function uxMergeRows(rows) {
+  const by = new Map();
+  rows.forEach(([k, t, s, txt, d], i) => { if (!by.has(d)) by.set(d, { d, s, i, issues: [] }); by.get(d).issues.push([k, t, txt]); });
+  return [...by.values()];
+}
+const uxDecCount = rows => new Set(rows.map(r => r[4])).size;
+const UX_RANK = { bad: 0, warn: 1, info: 2, neutral: 3, good: 4 };
+const uxUrgency = iso => { if (!iso) return 'none'; const d = daysUntil(iso); return d <= 7 ? 'week' : iso.slice(0, 7) === String(AS_OF).slice(0, 7) || d <= 31 ? 'month' : 'later'; };
+const UX_URG = { week: 'Due this week', month: 'Due this month', later: 'Due later', none: 'No deadline' };
+let UX_QN = 0;
+function uxQueue(op, rows, cls = '') {
+  if (UX_STATE === 'loading') return `<div class="ux-skel" role="status"><span class="vh">Loading decisions…</span>${'<span class="ux-skel-row" aria-hidden="true"></span>'.repeat(3)}</div>`;
+  if (UX_STATE === 'empty' || !rows.length) return '<p class="ux-empty" role="status">No decisions waiting. New issues appear here when the next day of records is in.</p>';
+  const M = uxMergeRows(rows);
+  const items = M.map((m, i) => {
+    const { d, s } = m, D = deciderOf(d), dec = decById(d), id = `uxq-${++UX_QN}`, P = uxStakeParts(d), due = m.issues.map(([, , txt]) => uxDueIso(d, txt)).filter(Boolean).sort()[0] || '';
+    const tones = m.issues.map(([k, t]) => uxTone(k, t)), worst = [...tones].sort((a, b) => UX_RANK[a] - UX_RANK[b])[0];
+    const stake = P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
+    const ck = P.cls && (CLS[P.cls] || [])[1], cert = P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
+    const why = m.issues.map(([k, t, txt]) => `<span class="ux-q-issue-line"><b>${t}:</b> ${txt}</span>`).join('');
+    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}<b class="ux-q-title">${dec ? dec.q : m.issues[0][1]}</b></div><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="muted">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, 'button ux-q-go')}</li>`;
+  });
+  const sites = [...new Set(M.map(m => m.s))], kinds = [...new Set(M.flatMap(m => m.issues.map(([k, t]) => uxTone(k, t))))];
+  const KW = { bad: 'Off target or breached', warn: 'At a limit or deadline', info: 'New or opportunity', neutral: 'Not explained yet', good: 'On target' };
+  const dl = `uxsl-${UX_QN}`;
+  const tools = M.length > 1 ? `<div class="ux-qtools" role="group" aria-label="Filter, sort and group the decisions">
+   ${sites.length > 1 ? `<label>Site <input type="search" data-qf="site" list="${dl}" placeholder="All sites" autocomplete="off" aria-label="Filter by Site: type a Site name"><datalist id="${dl}">${sites.map(s => `<option value="${SK[s].name}"></option>`).join('')}</datalist></label>` : ''}
+   ${kinds.length > 1 ? `<label>Status <select data-qf="kind"><option value="">All</option>${kinds.map(k => `<option value="${k}">${KW[k]}</option>`).join('')}</select></label>` : ''}
+   <label>Sort <select data-qs><option value="order">Priority</option><option value="due">Due date</option><option value="stake">At stake</option></select></label>
+   <label>Group <select data-qg><option value="">None</option><option value="urg">By urgency</option>${sites.length > 1 ? '<option value="site">By site</option>' : ''}</select></label>
+   <label class="ux-dense"><input type="checkbox" data-qd> Compact</label>
+   <span class="ux-qcount" role="status" aria-live="polite">${num(M.length)} of ${num(M.length)}</span></div>` : '';
+  return `<div class="ux-queue-wrap">${tools}<div class="ux-qh" aria-hidden="true"><span>Decision</span><span>Site</span><span>At stake</span><span>Due</span><span>Who decides</span><span></span></div><ul class="attn triage ux-queue ${cls}">${items.join('')}</ul></div>`;
+}
+function uxApplyQueue(wrap) {
+  const ul = wrap.querySelector('.ux-queue'), get = s => wrap.querySelector(s)?.value || '';
+  const q = get('[data-qf="site"]').trim().toLowerCase(), fKind = get('[data-qf="kind"]'), sort = get('[data-qs]') || 'order', group = get('[data-qg]');
+  wrap.classList.toggle('is-dense', !!wrap.querySelector('[data-qd]')?.checked);
+  ul.querySelectorAll('.ux-grp').forEach(g => g.remove());
+  const li = [...ul.querySelectorAll('li.ux-q')];
+  li.forEach(x => { x.hidden = !!((q && !SK[x.dataset.site].name.toLowerCase().includes(q)) || (fKind && !x.dataset.kinds.split(' ').includes(fKind))); });
+  const key = x => sort === 'due' ? (x.dataset.due || '9999') : sort === 'stake' ? -Math.abs(+x.dataset.stake || 0) : +x.dataset.order;
+  const gk = x => group === 'site' ? SK[x.dataset.site].name : group === 'urg' ? ['week', 'month', 'later', 'none'].indexOf(x.dataset.urg) : '';
+  const gl = x => group === 'site' ? SK[x.dataset.site].name : UX_URG[x.dataset.urg];
+  li.sort((a, b) => (group ? (gk(a) < gk(b) ? -1 : gk(a) > gk(b) ? 1 : 0) : 0) || (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : +a.dataset.order - +b.dataset.order));
+  let last = null;
+  li.forEach(x => { if (group && !x.hidden && gk(x) !== last) { last = gk(x); const n = li.filter(y => !y.hidden && gk(y) === last).length; ul.insertAdjacentHTML('beforeend', `<li class="ux-grp"><h3>${gl(x)} <span class="ux-count">${num(n)}</span></h3></li>`); } ul.appendChild(x); });
+  const shown = li.filter(x => !x.hidden).length; wrap.querySelector('.ux-qcount').textContent = `${num(shown)} of ${num(li.length)}`;
+  ul.classList.toggle('is-filtered', !!(q || fKind || group || sort !== 'order'));
+}
+
+/* the bridge as a stepped waterfall, the page's hero chart (guide §5, review 2b): target, each factor's step from the running
+   total, October. The axis starts at a round value below the lowest point and the break is drawn and said; each step links
+   to the decision on its driver, with its detail on hover and keyboard focus. */
+function uxBridge(op) {
+  const o = OPS[op], T = opTotals(op), G = gapByHeading(op), cost = o.kind === 'cost';
+  const sum = G.rows.reduce((a, r) => a + r.total, 0), dir = Math.abs(T.actual - T.plan - sum) < Math.abs(T.actual - T.plan + sum) ? 1 : -1;
+  let rows = [...G.rows].sort((a, b) => (a.lens === b.lens ? 0 : a.lens === 'grow' ? -1 : 1) || Math.abs(b.total) - Math.abs(a.total));
+  if (rows.length > 8) { const keep = rows.slice(0, 7), rest = rows.slice(7); rows = [...keep, { word: 'Other factors', lens: 'other', total: r2(rest.reduce((a, r) => a + r.total, 0)) }]; }
+  let run = T.plan; const pts = [T.plan, T.actual];
+  const steps = rows.map(r => { const a = run, b = run + dir * r.total; run = b; pts.push(a, b); return { ...r, a, b }; });
+  const mn = Math.min(...pts), mx = Math.max(...pts), span = Math.max(1, mx - mn), mag = Math.pow(10, Math.floor(Math.log10(span)));
+  const lo = Math.max(0, Math.floor((mn - span * 0.5) / mag) * mag), hi = mx + span * 0.04, X = v => ((v - lo) / (hi - lo) * 100);
+  const bar = (a, b, c) => `<span class="ux-wf-bar ${c}" style="left:${X(Math.min(a, b)).toFixed(2)}%;width:${Math.max(0.6, X(Math.max(a, b)) - X(Math.min(a, b))).toFixed(2)}%"></span>`;
+  const head = cost ? 'Cost' : 'Contribution', shown = st => cost ? dir * st.total : st.total, gapAbs = Math.abs(T.actual - T.plan) || 1;
+  const tone = r => { const worse = cost ? dir * r.total > 0 : dir * r.total < 0; return worse ? 'is-bad' : 'is-good'; };
+  const brk = lo > 0 ? '<span class="ux-wf-break" aria-hidden="true"></span>' : '';
+  const names = OPS[op].sites.map(k => SK[k].name);
+  const decFor = st => { const f = (HC.findings || []).find(f => names.includes(String(f.site).replace(/^Room [A-C] · /, '')) && (st.hkeys || []).includes(f.factor)); return f ? f.decision : null; };
+  const nw = t => `<span class="ux-nw">${t}</span>`;
+  const total = (lab, v, c) => `<li class="ux-wf-row is-end"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${usdW(v)}</span><span class="ux-wf-track">${brk}${bar(lo, v, c)}</span></li>`;
+  const list = steps.map((st, i) => { const lab = `${st.lens === 'other' ? '' : `<span class="ux-wf-h">${st.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[st.word] || st.word}`, val = usdW(shown(st), true), b = bar(st.a, st.b, tone(st) + (st.residual ? ' is-resid' : '')) + `<span class="ux-wf-conn" style="left:${X(st.b).toFixed(2)}%" aria-hidden="true"></span>`, dk = decFor(st), dec = dk && decById(dk);
+    const share = Math.round(Math.abs(st.total) / gapAbs * 100), tip = `${GAP_SHORT[st.word] || st.word}: ${nw(val)}, ${nw(`${share}%`)} of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`;
+    return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span></a><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip} ›</span></li>`
+      : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip}</span></li>`; }).join('');
+  const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
+  const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(gapAbs)} over target`
+    : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(gapAbs)} gap`;
+  return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step to see its decision.</p></div></div><ol class="ux-wf" aria-label="${head} from target to October, step by step">${total(`${head} target`, T.plan, 'is-total')}${list}${total(`${head}, October`, T.actual, 'is-total is-actual')}</ol>${lo > 0 ? `<p class="ux-axis-note"><span class="ux-wf-break is-key" aria-hidden="true"></span> The axis starts at ${usdW(lo)}, not zero, so the steps can be read; the totals are drawn from the same start.</p>` : ''}${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- side drawer (guide §8): stays in the page (closed: hidden from view and focus), opened by a named button ---------- */
@@ -4427,34 +4538,6 @@ function uxTabs(items, active, sub = false) {
 
 /* ---------- the bridge as a horizontal waterfall (guide §5): target, each factor's effect, actual ---------- */
 const GAP_SHORT = { 'kWh sold (demand volume)': 'kWh sold', 'Fuel the generator model does not explain': 'Fuel not explained', 'Meters not yet mapped to a customer': 'Unmapped meters' };
-function uxBridge(op) {
-  const o = OPS[op], T = opTotals(op), G = gapByHeading(op), cost = o.kind === 'cost';
-  const sum = G.rows.reduce((a, r) => a + r.total, 0), dir = Math.abs(T.actual - T.plan - sum) < Math.abs(T.actual - T.plan + sum) ? 1 : -1;
-  let rows = [...G.rows].sort((a, b) => (a.lens === b.lens ? 0 : a.lens === 'grow' ? -1 : 1) || Math.abs(b.total) - Math.abs(a.total));
-  if (rows.length > 8) { const keep = rows.slice(0, 7), rest = rows.slice(7); rows = [...keep, { word: 'Other factors', lens: 'other', total: r2(rest.reduce((a, r) => a + r.total, 0)) }]; }
-  let run = T.plan; const pts = [T.plan, T.actual];
-  const steps = rows.map(r => { const a = run, b = run + dir * r.total; run = b; pts.push(a, b); return { ...r, a, b }; });
-  const mn = Math.min(...pts), mx = Math.max(...pts), mag = Math.pow(10, Math.floor(Math.log10(Math.max(1, mx)))) / 2;
-  const lo = Math.min(0, mn), hi = mx * 1.03, X = v => ((v - lo) / (hi - lo) * 100).toFixed(2); /* a zero axis, so totals compare truthfully */
-  const bar = (a, b, c) => `<span class="ux-wf-bar ${c}" style="left:${X(Math.min(a, b))}%;width:${Math.max(0.6, X(Math.max(a, b)) - X(Math.min(a, b))).toFixed(2)}%"></span>`;
-  const head = cost ? 'Cost' : 'Contribution';
-  const line = (lab, val, b, cls = '') => `<li class="ux-wf-row ${cls}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span></li>`;
-  const tone = r => { const worse = cost ? dir * r.total > 0 : dir * r.total < 0; return worse ? 'is-bad' : 'is-good'; };
-  const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
-  const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(Math.abs(T.actual - T.plan))} over target`
-    : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(Math.abs(T.actual - T.plan))} gap`;
-  /* review round 2: the totals on a zero axis; the steps on their own scale, diverging from a centre line, so small steps stay readable */
-  const shown = s => cost ? dir * s.total : s.total, maxStep = Math.max(1, ...steps.map(s => Math.abs(shown(s))));
-  const dbar = (v, c) => { const w = Math.max(0.8, Math.abs(v) / maxStep * 48); return `<span class="ux-wf-mid" aria-hidden="true"></span><span class="ux-wf-bar ${c}" style="left:${(v < 0 ? 50 - w : 50).toFixed(2)}%;width:${w.toFixed(2)}%"></span>`; };
-  const totals = [line(`${head} target`, usdW(T.plan), bar(0, T.plan, 'is-total'), 'is-end'), line(`${head}, October`, usdW(T.actual), bar(0, T.actual, 'is-total is-actual'), 'is-end')].join('');
-  const names = OPS[op].sites.map(k => SK[k].name), gapAbs = Math.abs(T.actual - T.plan) || 1;
-  const decFor = st => { const f = (HC.findings || []).find(f => names.includes(String(f.site).replace(/^Room [A-C] · /, '')) && (st.hkeys || []).includes(f.factor)); return f ? f.decision : null; };
-  const list = steps.map((st, i) => { const lab = `${st.lens === 'other' ? '' : `<span class="ux-wf-h">${st.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[st.word] || st.word}`, val = usdW(shown(st), true), b = dbar(shown(st), tone(st) + (st.residual ? ' is-resid' : '')), dk = decFor(st), dec = dk && decById(dk);
-    const share = Math.round(Math.abs(st.total) / gapAbs * 100), tip = `${GAP_SHORT[st.word] || st.word}: ${val}, ${share}% of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`;
-    return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span></a><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip} ›</span></li>`
-      : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip}</span></li>`; }).join('');
-  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><h3 class="ux-wf-k">Target and October, from zero</h3><ol class="ux-wf" aria-label="${head}: target and October">${totals}</ol><h3 class="ux-wf-k">The steps between them, on their own scale${cost ? ' (cost up is worse)' : ''}; open a step to see its decision</h3><ol class="ux-wf ux-wf-steps" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
-}
 
 /* ---------- the value chain as bars on one baseline (guide §5): a stage with no source is an outlined empty bar ---------- */
 
@@ -4462,7 +4545,7 @@ function uxBridge(op) {
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
   const about = 'The four headings sit over one structure: each factor under one heading, so no figure is counted twice and the headings are never added together. Grow and Optimize effects explain the contribution gap; cash collected sits under Optimize, outside that gap; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence, with the bridge, and adds no money.';
-  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><details class="ux-about"><summary>About these figures</summary><p>${about}</p></details></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], categoryCard(op, k, C), true)).join('')}</section>`;
+  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], categoryCard(op, k, C), true)).join('')}</section>`;
 }
 
 /* ---------- the plan card and the insight (L2 aside) ---------- */
@@ -4496,12 +4579,13 @@ function uxOverview(op) {
     [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting the operator executive’s approval`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi('Options’ value, 12 months', `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
     [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : 'Valued options only; not realised until records show it']);
-  const n = ATTN[op].length;
+  const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
- <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>Each issue with its site and who decides. The system values the options; a person chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].slice(0, 6))}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
- <div class="ux-aside">${uxPlanCard(op)}${uxInsight(op)}</div></div>
- <div class="ux-two">${uxBridge(op)}${uxChain(op)}</div>
+ <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])))}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
+ </div>
+ ${uxBridge(op)}
+ <div class="ux-two">${uxChain(op)}<div class="ux-aside ux-aside-stack">${uxPlanCard(op)}${uxInsight(op)}</div></div>
  ${uxCats(op)}</div>`;
 }
 
@@ -4572,20 +4656,7 @@ document.addEventListener('click', e => {
   b.setAttribute('aria-expanded', String(open)); t?.classList.toggle('is-collapsed', !open);
 });
 /* queue: filter, sort and group, in the page (a real product keeps the choice in the URL and filters on the server past 50 Sites) */
-function uxApplyQueue(wrap) {
-  const ul = wrap.querySelector('.ux-queue'), get = s => wrap.querySelector(s)?.value || '';
-  const fSite = get('[data-qf="site"]'), fKind = get('[data-qf="kind"]'), sort = get('[data-qs]') || 'order', group = get('[data-qg]');
-  ul.querySelectorAll('.ux-grp').forEach(g => g.remove());
-  const li = [...ul.querySelectorAll('li.ux-q')];
-  li.forEach(x => { x.hidden = !!((fSite && x.dataset.site !== fSite) || (fKind && x.dataset.kind !== fKind)); });
-  const key = x => sort === 'due' ? (x.dataset.due || '9999') : sort === 'stake' ? -Math.abs(+x.dataset.stake || 0) : +x.dataset.order;
-  li.sort((a, b) => (group ? a.dataset.site.localeCompare(b.dataset.site) : 0) || (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : +a.dataset.order - +b.dataset.order));
-  let last = null;
-  li.forEach(x => { if (group && !x.hidden && x.dataset.site !== last) { last = x.dataset.site; const n = li.filter(y => !y.hidden && y.dataset.site === last).length; ul.insertAdjacentHTML('beforeend', `<li class="ux-grp"><h3>${SK[last].name} <span class="ux-count">${num(n)}</span></h3></li>`); } ul.appendChild(x); });
-  const shown = li.filter(x => !x.hidden).length; wrap.querySelector('.ux-qcount').textContent = `${num(shown)} of ${num(li.length)}`;
-  ul.classList.toggle('is-filtered', !!(fSite || fKind || group || sort !== 'order'));
-}
-document.addEventListener('change', e => { const w = e.target.closest('.ux-qtools'); if (w) uxApplyQueue(w.closest('.ux-queue-wrap')); });
+['change', 'input'].forEach(ev => document.addEventListener(ev, e => { const w = e.target.closest('.ux-qtools'); if (w) uxApplyQueue(w.closest('.ux-queue-wrap')); }));
 
 /* provenance popover and other popovers: Esc closes and returns focus */
 document.addEventListener('keydown', e => {
@@ -4639,7 +4710,7 @@ function uxChrome(s) {
   const bar = document.querySelector('.topbar'); if (!bar || bar.querySelector('.ux-scope-sw')) return;
   const op = LS.op, cur = s && (s.site || (s.crumbs && null)), name = bar.querySelector('.portfolio-name');
   const here = location.hash.replace(/^#\//, ''), site = (here.match(/^site\/([a-z]+)/) || [])[1];
-  name?.insertAdjacentHTML('afterend', `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${site ? SK[site]?.name || 'All sites' : 'All sites'} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><a role="menuitem" href="#/portfolio"${!site ? ' aria-current="page"' : ''}>All sites · ${OPS[op].name}</a>${OPS[op].sites.map(k => `<a role="menuitem" href="#/site/${k}"${site === k ? ' aria-current="page"' : ''}>${SK[k].name}</a>`).join('')}</div></details>`);
+  name?.insertAdjacentHTML('afterend', `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${site ? SK[site]?.name || 'All sites' : 'All sites'} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><input type="search" class="ux-sw-q" placeholder="Type a Site name" aria-label="Filter Sites" autocomplete="off"><a role="menuitem" href="#/portfolio"${!site ? ' aria-current="page"' : ''}>All sites · ${OPS[op].name}</a>${OPS[op].sites.map(k => `<a role="menuitem" href="#/site/${k}"${site === k ? ' aria-current="page"' : ''}>${SK[k].name}</a>`).join('')}</div></details>`);
   const chip = bar.querySelector('.period-chip');
   if (chip && !chip.closest('.ux-period')) { const w = document.createElement('details'); w.className = 'ux-pop ux-period'; const sm = document.createElement('summary'); sm.setAttribute('aria-label', 'Period: October 2026. Choose a period'); chip.replaceWith(w); sm.appendChild(chip); w.appendChild(sm);
     w.insertAdjacentHTML('beforeend', '<div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span><span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span><span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div>'); }
@@ -4647,7 +4718,7 @@ function uxChrome(s) {
 
 /* ===== brand packs (guide §4.7): a configurable identity over the same tokens and components. Resolution order: the
    review-bar choice (mock tooling), then the tenant's setting (UX_BRAND_BY_TENANT, empty in the demo data), then neutral. ===== */
-const UX_BRANDS = { neutral: 'Neutral', africa: 'African identity' };
+const UX_BRANDS = { neutral: 'Neutral', 'east-africa': 'East Africa' }; /* add 'west-africa', 'southern-africa' … as packs in brand.css */
 const UX_BRAND_BY_TENANT = {};
 function uxBrand() { let b = null; try { b = localStorage.getItem('l4-brand'); } catch (e) {} return UX_BRANDS[b] ? b : (UX_BRAND_BY_TENANT[OPS?.[LS?.op]?.t?.tenant] || 'neutral'); }
 function uxApplyBrand() { const b = uxBrand(); if (b === 'neutral') document.documentElement.removeAttribute('data-brand'); else document.documentElement.setAttribute('data-brand', b); }
@@ -4657,6 +4728,11 @@ function uxBrandSwitch() {
   rb.insertAdjacentHTML('afterbegin', `<label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
 }
 document.addEventListener('change', e => { if (e.target.id !== 'ux-brand') return; try { localStorage.setItem('l4-brand', e.target.value); } catch (x) {} uxApplyBrand(); });
+
+document.addEventListener('input', e => { if (!e.target.classList.contains('ux-sw-q')) return; const q = e.target.value.trim().toLowerCase(); e.target.parentElement.querySelectorAll('a[role="menuitem"]').forEach(a => { a.hidden = !!q && !a.textContent.toLowerCase().includes(q); }); });
+
+/* the top bar's search names what it searches, on every screen */
+function uxSearchLabel() { const sb = document.querySelector('.topbar [data-index]'); if (!sb) return; [...sb.childNodes].filter(n => n.nodeType === 3 && n.nodeValue.trim()).forEach(n => { n.nodeValue = 'Search sites, decisions, screens'; }); sb.setAttribute('aria-label', 'Search sites, decisions and screens (Ctrl K)'); }
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */
 const V70IDS = new Set(SCREENS.map(s=>s.id));
