@@ -420,16 +420,15 @@ flowchart LR
 
 *Figure 6. The plan among the constructs. Each Action has one origin: a Finding (reactive) or a proactive plan item. It also has at most one plan membership, which says what funds and schedules it. Spend is counted once, on the item. The plan releases what needs approval and is reviewed against observed factors.*
 
-**Settled with the owner (19 Nov).**
-- The plan is a first-class construct (OD-1). An Action may be raised against a plan item or a Finding.
-- The coordinator's refinement is adopted on merit: an Action's *origin* (why the work exists) is kept separate from its *plan membership* (what funds and schedules it). Without the split, a Finding-origin Action that spends budget would need a second origin, and its spend could be counted twice. With it, spend is counted once, on the item.
-- A proactive item names the factor or Protect measure it moves. Otherwise it is marked "no factor (upkeep or compliance)" and carries no value (OD-5).
-- "Plan" means only this construct. B2 uses "targets and budget lines" (OD-6).
+**Settled with the owner (19 Nov; Decisions OD-1, OD-5 to OD-8).**
+- The plan is first-class.
+- *Origin* stays separate from *plan membership*, so spend is counted once, on the item. This is the coordinator's refinement, adopted on merit.
+- A proactive item names what it moves, or carries no value.
+- "Plan" has one meaning.
+- Today's opportunity-study origin is legacy only: no new Action takes it.
+- A spending Finding-origin Action always joins the plan and waits only above the threshold. The owner confirmed this explicitly ("OD-7 and OD-8 yes").
 
-- Today's mill-shift Actions keep their opportunity-study origin as a third, legacy origin (`0051_action_opportunity_origin.py:1-12`). No new Action takes that origin; new demand work goes through an opportunity Finding or a proactive item (OD-7).
-- A Finding-origin Action that spends always *joins* the plan, so it is always counted. It waits for approval only above the spend threshold (OD-8).
-
-The owner confirmed OD-7 and OD-8 explicitly on 19 Nov ("OD-7 and OD-8 yes"). The Architect's calls that remain are the reading that the threshold applies per change (§2.4) and the rule for an Action already released (above).
+The Architect's calls that remain are the per-change threshold (§2.4) and the rule for an Action already released (above).
 
 The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (the verification plan, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
 
@@ -595,11 +594,15 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
 
 **Delivery order** (shape approved by the owner, 19 Nov: the source emulators are built "in parallel with work related factor structure"):
-1. Before both lanes, the canonical format (record types and fields) and the leaf factor IDs are agreed. This is a small step, approved under W1, and gives both lanes one contract.
-2. **Lane A, sources (B3)**, builds the commercial record store, the emulators (billing, collections, fuel purchases, the budget spreadsheet) and the contract test. **Lane B, structure (B1, CH1)**, builds the factor structure, the pinned Findings and the structure observer, starting on the operational leaves that today's telemetry and fuel records already feed.
-3. The lanes join at the money leaves (contribution, cost to serve, collections). Targets and the bridge (B2) follow, then the rest.
+1. Agree the canonical format and leaf factor IDs first, a small step under W1.
+2. Then build lane A (sources: record store, emulators, contract test) and lane B (structure on today's operational leaves) in parallel.
+3. Join the lanes at the money leaves, then build targets and the bridge.
 
 The CH5 quick fix still comes first, and the recorded person (CH2) still comes before decisions. Emulated figures are never Recorded and never benefit (D14).
+
+**Architect's note to the owner on this order.** I agree with the parallel lanes: lane B needs no commercial record to start, and step 1 keeps the two lanes consistent.
+- *Refinement, applied:* cost-side decisions do not wait for the join. Kobo's stop threshold is valued from litres at the typed diesel price (Estimated), which lane B provides. So, as before this redraw (D13), the first decision reaches a client sooner. Only revenue-side options wait for the join.
+- *Caution:* the step-1 format is set before any operator export has been seen. Treat it as version 1, to be revised under the contract test when the first operator sample is pinned in the deep-dive (D1).
 
 <!--Figure 10: delivery order-->
 
@@ -613,8 +616,9 @@ flowchart LR
   LA --> J["4 Join at the money leaves:<br/>contribution, cost to serve, collections"]
   LB --> J
   J --> T["5 Targets and the bridge (B2)"]
-  J --> D["6 Decisions and options (CH3)"]
+  LB --> D["6 Decisions and options (CH3)"]
   PC --> D
+  J -. "revenue-side options" .-> D
   D --> P["7 The plan and the Portfolio (P, CH5)"]
   D --> V["8 Three verdicts (CH4)"]
   T --> P
@@ -650,7 +654,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 
 | OD-7 | Today's opportunity-study origin stays as a legacy third origin for existing mill-shift Actions only ("OD-7 and OD-8 yes", 19 Nov) | §2.5 |
 | OD-8 | A Finding-origin Action that spends always joins the plan and waits for approval only above the spend threshold ("OD-7 and OD-8 yes", 19 Nov) | §2.4, §2.5 |
-| OD-9 | Delivery order: agree the canonical format and leaf factor IDs first, then build the sources (lane A) and the factor structure (lane B) in parallel, joining at the money leaves (the owner's question and "yes, send it", 19 Nov) | §2.9, Figure 10 |
+| OD-9 | Delivery order: agree the canonical format and leaf factor IDs first, then build the sources (lane A) and the factor structure (lane B) in parallel, joining at the money leaves (the owner's question and "yes, send it", 19 Nov). The Architect's refinement (cost-side decisions start before the join) and caution (the format is version 1) are in §2.9, for the owner | §2.9, Figure 10 |
 
 **Architect's calls, not settled by the owner:**
 - the threshold applies to the whole chosen change, summed over its Actions (§2.4 step 4);

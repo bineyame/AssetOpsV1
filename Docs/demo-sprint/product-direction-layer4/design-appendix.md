@@ -78,3 +78,4 @@ Moved from design §2.3 in rev 16.2.
   - a released Action whose item the plan drops is covered;
   - the pushbacks the owner agreed are recorded as OD-7 and OD-8.
 - **Rev 16.5 (19 Nov).** OD-7 and OD-8 confirmed explicitly ("OD-7 and OD-8 yes"). Figure 10 redrawn to the delivery order the owner approved (OD-9): canonical format and leaf factor IDs first, then sources (lane A) and factor structure (lane B) in parallel, joining at the money leaves.
+  Architect's note on the order: lanes agreed; refinement applied (cost-side decisions start before the join); caution (the canonical format is version 1).
