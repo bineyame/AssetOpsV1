@@ -352,10 +352,13 @@ def narratives(doc, ref):
 
 
 # ---------------- 5. document anchors ----------------
-FIG_DOCS = ("layer4-transformation-design.md", "economic-metric-and-effect-contracts.md", "domain-and-decision-models.md",
+FIG_DOCS = ("layer4-transformation-design.md", "worked-portfolios.md", "design-appendix.md", "economic-metric-and-effect-contracts.md", "domain-and-decision-models.md",
             "phase-plan-and-acceptance.md", "integration-source-to-canonical-design.md", "demo-build-cost-plan.md", "interactive-mockup-vNEXT/walkthroughs.md",
             "design-questions-and-decisions.md", "product-transition-and-roadmap.md")
-REQUIRED = {"layer4-transformation-design.md": [f"plans.{t}.default.{k}" for t in ("lakeside-power", "harvest-cold", "metro-bus")
+REQUIRED = {"layer4-transformation-design.md": ["sites.lakeside-power/Kobo.plan.nodes.contribution", "sites.lakeside-power/Kobo.actual.nodes.contribution",
+                                             "plans.lakeside-power.default.spend", "plans.lakeside-power.default.value", "plans.lakeside-power.default.crew_visits_used"],
+            # rev 16: the three worked portfolios and the demonstration world moved to the companion file
+            "worked-portfolios.md": [f"plans.{t}.default.{k}" for t in ("lakeside-power", "harvest-cold", "metro-bus")
                                                 for k in ("spend", "value", "crew_visits_used")] +
             ["sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy", "sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy",
              "sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover", "sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed",
@@ -539,7 +542,9 @@ def documents(root, doc, ref):
                 except ValueError: pass
     walk({k: v for k, v in doc.items() if k != "oracle"}); walk(ref)
     main_doc = (root / "layer4-transformation-design.md").read_text(encoding="utf-8")
-    sections = [("main §2-§10", main_doc[main_doc.index("## 2. The five mechanics"):main_doc.index("## 11.")]),
+    wp = (root / "worked-portfolios.md").read_text(encoding="utf-8")
+    sections = [("main Parts 1-2", main_doc[main_doc.index("## Part 1."):main_doc.index("## Appendix")]),
+                ("worked portfolios", wp[wp.index("## 1. The worked portfolios"):]),
                 ("walkthroughs", (root / "interactive-mockup-vNEXT" / "walkthroughs.md").read_text(encoding="utf-8"))]
     tr = (root / "product-transition-and-roadmap.md").read_text(encoding="utf-8")
     sections.append(("transition §1-§4", tr[tr.index("## 1. Where we are"):tr.index("## 5. ")]))

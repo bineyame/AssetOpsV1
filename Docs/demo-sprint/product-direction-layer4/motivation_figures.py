@@ -1,11 +1,14 @@
-"""Figures 0.1-0.3 of layer4-transformation-design.md §0 (today's product against Layer 4), as inline SVG.
+"""The inline SVG figures of layer4-transformation-design.md (rev 16): Figure 2, the factor structure, and Figure 3,
+plan against actual. Each shows a change, with today's construct as context on the left (owner, 19 Nov: diagrams only
+where something changes).
 
 Imported by render_design_html.py: a line `<!--diagram:NAME-->` in the .md, followed by a mermaid block (the plain-text
-source a Markdown viewer shows), is replaced in the HTML by `FIGURES[NAME]()`. Each figure has a wide layout (today and
-Layer 4 side by side) and a narrow layout (stacked, 404 units wide, shown below 1000 px), so the smallest text stays at
-about 11 px or more on a 390 px phone instead of shrinking. Every Kobo and Kirinyaga figure is read from
-derived-values.json (the evaluator's output, which check_manifest.py checks against the independent model); none is
-typed here. Claims about today's code are the section's, with their file:line citations, not this file's."""
+source a Markdown viewer shows), is replaced in the HTML by `FIGURES[NAME]()`. Each figure has a wide layout (two
+panels side by side) and a narrow layout (stacked, 404 units wide, shown below 1000 px), so the smallest text stays at
+about 11 px or more on a 390 px phone instead of shrinking. Every Kobo figure is read from derived-values.json (the
+evaluator's output, which check_manifest.py checks against the independent model); none is typed here. Claims about
+today's code are the document's, with their file:line citations, not this file's.
+Check: python3 motivation_figures.py --check"""
 import html, json, pathlib, zlib
 
 DV = json.loads((pathlib.Path(__file__).resolve().parent / "derived-values.json").read_text(encoding="utf-8"))
@@ -125,175 +128,95 @@ def legend():
     """The one legend, drawn under each layout: (wide body, wide height, narrow body, narrow height)."""
     def sample(x, y, cls, t):
         return f'<rect class="{cls}" x="{x}" y="{y}" width="26" height="15" rx="4"/>' + text(x + 34, y + 12, t, cls="lb", anchor="start")
-    exp = "Italic line: what becomes of today's element"
-    wide = sample(0, 0, "bxp", "not held today") + sample(170, 0, "bxa", "Layer 4") + text(300, 12, exp, cls="tg", anchor="start")
-    narrow = sample(0, 0, "bxp", "not held today") + sample(170, 0, "bxa", "Layer 4") + text(0, 36, exp, cls="tg", anchor="start")
+    exp = "Italic line: stays or changes"
+    wide = sample(0, 0, "bxp", "not held today") + sample(170, 0, "bxa", "proposed") + text(300, 12, exp, cls="tg", anchor="start")
+    narrow = sample(0, 0, "bxp", "not held today") + sample(170, 0, "bxa", "proposed") + text(0, 36, exp, cls="tg", anchor="start")
     return wide, 22, narrow, 44
 
 
-def fig_data():
-    today = panel("Today: separate stores, each keyed its own way", [
-        ("r", [B(["Evidence ledger", "every reading: source, unit, quality,", "live or simulated, envelope hash"],
-                 tag="kept: the telemetry source of leaves")]),
-        ("r", [B(["Findings", "per site, mechanism", "and asset"], tag="re-keyed to factors"),
-               B(["Threads", "per site, mechanism", "and subject"], tag="re-keyed: history")], [0, 0]),
-        ("r", [B(["Outcome map", "16 signal rows point straight at", "outcome keys (moves, checks)"],
-                 tag="reworked into registry rows")], [[0, 1]]),
-        ("r", [B(["Outcome board per site", "drivers named in words, per outcome:",
-                  "e.g. generator minutes, fuel, fuel price"], tag="reworked: drivers become factor rows")]),
+
+
+def fig_structure():
+    """Figure 2 (§2.1): the factor structure (B1) with today's Findings pinned to their factors (CH1)."""
+    today = panel("Today (context): an outcome is flagged", [
+        ("r", [B(["Outcome: supply cost per kWh", "state from Findings, warnings and", "objective verdicts"],
+                 tag="changes: computed from its factors")]),
+        ("r", [B(["Fixed map row", "mechanism → outcome key;", "no quantity between them"],
+                 tag="changes: becomes a structure row")]),
+        ("r", [B(["Finding: candidate running", "revised result of dispatch-3.2:", "history, thread, claim ceiling"],
+                 tag="stays; gains its factor")]),
+        ("r", [B(["Possible extra fuel cost", "0 up to an upper bound, per", "Finding, never summed"],
+                 tag="stays: an at-stake bound, not a value")]),
         ("x",),
-        ("r", [B(["Declared prices", "productive tariff,", "diesel price"], tag="kept: Estimated leaves"),
-               B(["Objectives", "operational targets,", "e.g. generator minutes"], tag="re-keyed: factor plans")]),
-        ("x",),
-        ("r", [B(["Not held today", "billing, receipts, money plans, cost", "invoices, contracts; cold: occupancy,",
-                  "cooling energy, repair costs"], cls="bxp")]),
-        ("n", "Period reads (one revisioned row per site, kind and\nperiod) sit under the screens: kept as a pattern."),
+        ("r", [B(["Not held", "billing, receipts, O&M and", "staff costs, a money plan"], cls="bxp")]),
     ])
     fuel_p, fuel_a = KP["necessary_l"] + KP["candidate_l"] + KP["unexplained_l"], KA["diesel_l"]
-    l4 = panel("Layer 4: one structure, read upward (Kobo, Oct.)", [
+    l4 = panel("With the factor structure (Kobo, October)", [
         ("r", [B(["Contribution", f"plan {n0(KP['contribution'])} · actual {n0(KA['contribution'])}"], cls="bxa")]),
-        ("r", [B(["Revenue", "billed kWh × tariff"], cls="bxa"),
-               B(["Cost to serve", "fuel + O&M + staff"], cls="bxa")], [0, 0]),
+        ("r", [B(["Revenue", "billed kWh × tariff", f"{n0(KP['revenue'])} → {n0(KA['revenue'])}"], cls="bxa"),
+               B(["Cost to serve", "fuel + O&M + staff", f"{n0(KP['cost_to_serve'])} → {n0(KA['cost_to_serve'])}"],
+                 cls="bxa")], [0, 0]),
         ("r", [B(["Billed kWh", f"{n0(KP['billed_kwh'])} → {n0(KA['billed_kwh'])}"], cls="bxa"),
                B(["Fuel litres", f"{n0(fuel_p)} → {n0(fuel_a)}", f"× {m2(KA['diesel_price'])} per L"], cls="bxa"),
                B(["O&M, staff", f"{n0(KP['om'] + KP['staff'])} → {n0(KA['om'] + KA['staff'])}"], cls="bxa")],
          [0, 1, 1]),
         ("r", [B(["Necessary", f"{n0(KP['necessary_l'])} → {n0(KA['necessary_l'])} L"], cls="bxa"),
-               B(["Candidate", f"{n0(KP['candidate_l'])} → {n0(KA['candidate_l'])} L"], cls="bxa"),
-               B(["Unexplained", f"{n0(KP['unexplained_l'])} → {n0(KA['unexplained_l'])} L"], cls="bxa")],
-         [1, 1, 1]),
-        ("n", "Every leaf: factor ID, period ID, unit, plan, evidence\nclass and provenance. Findings, decisions, "
-              "options,\nActions and verdicts key to these factor IDs."),
-        ("r", [B(["Telemetry ledger", "dispatch split,", "fuel balance"], cls="bxa"),
-               B(["Commercial records", "billing, receipts, plan,", "cost invoices, contracts"], cls="bxp")]),
-        ("n", "Commercial records come from emulated exports first,\nthen the operator's own."),
+               B(["Candidate", f"{n0(KP['candidate_l'])} → {n0(KA['candidate_l'])} L", "◆ Finding"], cls="bxa"),
+               B(["Unexplained", f"{n0(KP['unexplained_l'])} → {n0(KA['unexplained_l'])} L", "◆ Finding"],
+                 cls="bxa")], [1, 1, 1]),
+        ("n", f"Cash: {n0(KA['collected'])} collected of {n0(KA['revenue'])} billed,\n"
+              f"{n0(KA['outstanding'])} outstanding.\n◆ Today's Findings stay, pinned to their factor.\n"
+              "Every leaf: factor ID, period, unit, plan, evidence\nclass and provenance."),
+        ("r", [B(["Telemetry (held today)", "dispatch split,", "fuel balance, dips"]),
+               B(["Commercial records", "billing, receipts, plan,", "O&M and staff invoices"], cls="bxp")]),
     ], up=True)
-    return figure("Figure 0.1. How data is organised: today's stores beside one structure registry",
-                  "Left, today: an evidence ledger (kept), Findings and threads keyed by site and mechanism (re-keyed "
-                  "to factors), an outcome map pointing signals at outcome keys (reworked into registry rows), the "
-                  "per-site outcome board whose drivers are named in words (reworked into factor rows), declared prices "
-                  "and objectives; billing, receipts, money plans, cost invoices, contracts and, for cold rooms, "
-                  "occupancy, cooling energy and repair costs are not held. Right, Layer 4: Kobo's contribution read "
-                  "upward from revenue and cost to serve, billed kWh, fuel litres split into necessary, candidate and "
-                  "unexplained, and O&M, over leaves fed by the telemetry ledger and new commercial records.",
-                  today, l4)
+    return figure("Figure 2. The factor structure: Kobo's contribution read upward, with today's Findings pinned to "
+                  "their factors",
+                  "Left, today as context: an outcome's state is set from Findings, warnings and objective verdicts "
+                  "through a fixed map row with no quantity between signal and outcome; the candidate-running "
+                  "Finding stays and gains its factor; the possible extra fuel cost stays as an at-stake bound; "
+                  "billing, receipts, O&M and staff costs and a money plan are not held. Right: Kobo's October "
+                  "contribution read upward from revenue and cost to serve, billed kWh, fuel litres split into "
+                  "necessary, candidate and unexplained, and O&M and staff; the two existing Findings pin to the "
+                  "candidate and unexplained litres; leaves come from telemetry held today and from new commercial "
+                  "records.", today, l4)
 
 
-def fig_processing():
-    so, rs = OPT["KOB-STOPSOC"], OPT["KOB-RESERVE"]
-    today = panel("Today: from readings to findings and trials", [
-        ("r", [B(["Readings", "from the evidence ledger"])]),
-        ("r", [B(["Mini-grid observers", "dispatch-3.2: necessary", "or candidate running;", "the fuel balance"],
-                 tag="kept: observe factors"),
-               B(["Cold and EV observers", "excursions, backup", "starts, interruptions"], tag="kept")], [0, 0]),
-        ("r", [B(["Finding rules", "one episode per site, mechanism, asset;",
-                  "a claim ceiling; next-step text"], tag="re-keyed: conditions on factors")], [[0, 1]]),
-        ("r", [B(["Fuel money ranges", "extra fuel cost and", "unexplained fuel per", "night: modelled"],
-                 tag="kept: at-stake bounds"),
-               B(["One recommendation", "reserve −5 points,", "fixed; it predicts", "no saving"],
-                 tag="must change: sole option")], [0, 0]),
-        ("r", [B(["Trial and verdict", "frozen plan and", "comparability; reserve", "trial: guardrails"], tag="kept"),
-               B(["Cost check", "modelled fuel cost per", "kWh; credited only", "when verified"], tag="reworked")],
-         [1, 1]),
-        ("r", [B(["Verification rules", "the change's own cost set to 0; positive",
-                  "evidence simulated or authored; SYSTEM actor"], tag="must change")], [[0, 1]]),
+def fig_bridge():
+    """Figure 3 (§2.2): performance against target, before and after (B2)."""
+    ef = lambda k: -(KA[k] - KP[k]) * KA["diesel_price"]
+    today = panel("Today (context): the Assure row", [
+        ("r", [B(["Actual against plan", "\"N of M declared objectives met\""], tag="stays as operational targets")]),
+        ("r", [B(["Objective: avoidable generator", "minutes per day at most a target;", "MET, MISSED or not judged"],
+                 tag="stays; becomes a factor's plan")]),
+        ("r", [B(["Declared by the system", "\"not a customer target\"; no money", "target is ever judged"],
+                 tag="changes: the operator declares plans")]),
         ("x",),
-        ("r", [B(["What-ifs beside the chain", "productive load: energy × authored tariff,",
-                  "gross sales; stop setting not calculated"], tag="reworked: option calculations")]),
-        ("n", "No step re-computes an outcome under a choice."),
+        ("r", [B(["Not held", "a planned contribution, plan lines", "per factor, a month's bridge"], cls="bxp")]),
     ])
-    l4 = panel("Layer 4: from factors to a plan and proof", [
-        ("r", [B(["Leaf factors observed", "today's observers + commercial records"], cls="bxa")]),
-        ("r", [B(["Structure evaluated upward", f"contribution: plan {n0(KP['contribution'])}, "
-                  f"actual {n0(KA['contribution'])}"], cls="bxa")]),
-        ("r", [B(["Attention on factors (Findings)", f"candidate +{n0(KA['candidate_l'])} L, "
-                  f"unexplained +{n0(KA['unexplained_l'])} L"], cls="bxa")]),
-        ("r", [B(["Decision on candidate litres", "options are factor changes, valued",
-                  f"against no action ({n0(KA['contribution'])} a month)"], cls="bxa")]),
-        ("r", [B(["Lower stop threshold", f"−{n0(so['params']['avoided_candidate_l'])} L diesel,",
-                  f"+{n0(so['params']['added_throughput_kwh'])} kWh battery",
-                  f"→ {m2(KA['contribution'] + so['monthly_or_horizon_change'])} a month"], cls="bxa"),
-               B(["Reserve −5 points", "dawn charge below 35%",
-                  f"on {n0(rs['params']['dawn_days_below_35pct'])} of 61 days:", "rejected by a bound"], cls="bxa")],
-         [0, 0]),
-        ("r", [B(["Plan within budget and crews", "approved by a named person"], cls="bxa")], [0]),
-        ("r", [B(["Action carries the chosen option", "frozen prediction on the same factors"], cls="bxa")]),
-        ("r", [B(["Three verdicts", "it happened · the money followed, net ·", "the action caused it"], cls="bxa")]),
-        ("n", f"Stop threshold: {m2(so['value'])} over 12 months, net of its\n{m2(so['operator_one_off'])} one-off; "
-              "design-world values, a design value\nuntil replay K runs."),
+    l4 = panel("With plans at factor level (Kobo, October)", [
+        ("r", [B(["Planned contribution", n0(KP["contribution"])], cls="bxa")]),
+        ("r", [B(["Candidate running", f"{m2(ef('candidate_l'))}", "◆ Finding"], cls="bxa"),
+               B(["Unexplained fuel", f"{m2(ef('unexplained_l'))}", "◆ Finding"], cls="bxa")], [0, 0]),
+        ("r", [B(["Necessary running", f"{m2(ef('necessary_l'))}", "no Finding today"], cls="bxa"),
+               B(["kWh billed", f"+{m2((KA['billed_kwh'] - KP['billed_kwh']) * KA['tariff'])}", "favourable"],
+                 cls="bxa")], [0, 1]),
+        ("r", [B(["Actual contribution", n0(KA["contribution"]),
+                  f"{m2(KA['contribution'] - KP['contribution'])} in all"], cls="bxa")], [[0, 1]]),
+        ("n", "O&M and staff on plan. Each effect is\n(actual − plan) × its price; they add up exactly.\n"
+              "A month with no Finding still shows its bridge."),
     ])
-    return figure("Figure 0.2. How it is processed: from readings to proof (Kobo's generator decision, demo values)",
-                  "Left, today: readings, observers (kept), Finding rules (re-keyed), modelled fuel money ranges "
-                  "(kept as at-stake bounds), one fixed reserve recommendation that predicts no saving (must change: "
-                  "the sole option), a trial with an operational verdict (kept), a modelled cost check credited only "
-                  "when verified (reworked), verification rules with the change's cost at 0, simulated or authored "
-                  "positive evidence and a SYSTEM actor (must change), and what-ifs beside the chain (reworked). "
-                  "Right, Layer 4: observed leaf factors, the structure evaluated upward, Findings on factors, a "
-                  "decision whose options are valued against no action, the reserve change rejected by the dawn "
-                  "bound, one approved plan, an Action and three verdicts.", today, l4)
+    return figure("Figure 3. Performance against target: from objectives met to a plan-against-actual bridge",
+                  "Left, today as context: the Assure row counts declared objectives met; an objective such as "
+                  "avoidable generator minutes is judged MET or MISSED; objectives are declared by the system, not "
+                  "the customer, and no money target is judged; a planned contribution and plan lines are not held. "
+                  "Right: Kobo's planned contribution, the four factor effects (candidate running and unexplained "
+                  "fuel, each with an existing Finding; necessary running; kWh billed, favourable) and the actual "
+                  "contribution, with the effects adding up to the change.", today, l4)
 
 
-def fig_presentation():
-    today = panel("Today: what the screens show", [
-        ("r", [B(["Rail and Portfolio tabs", "Portfolio · Sites · Findings · Actions ·",
-                  "Evidence · Financials; six Portfolio tabs"], tag="kept: no new menu")]),
-        ("x",),
-        ("r", [B(["Grow card", "estimated income,", "summed across sites"], tag="reworked"),
-               B(["Optimize card", "possible extra fuel", "cost; mini-grid:", "the window's last day"],
-                 tag="must change")]),
-        ("x",),
-        ("r", [B(["Protect card", "counts and fuel", "lines, per site"], tag="reworked"),
-               B(["Assure card", "targets; verified", "results, listed"], tag="reworked")]),
-        ("x",),
-        ("r", [B(["Site outcome board", "what drives it · issues · what can be done",
-                  "· in hand · earlier · must not harm"], tag="extended: the first factor view")]),
-        ("x",),
-        ("r", [B(["Act first", "Findings in placement groups: where to", "look first, never a value ranking"],
-                 tag="reworked: the plan; placement kept")]),
-        ("x",),
-        ("r", [B(["Outcomes by site", "a status per site and outcome; row", "nodes computed but mostly not shown"],
-                 tag="reworked: the factor view")]),
-        ("x",),
-        ("r", [B(["Finding page", "Overview · Analysis · Evidence ·", "Alternatives · Recommendation · History"],
-                 tag="kept as the drill-down")]),
-    ])
-    l4 = panel("Layer 4: the same frame, organised by the movers", [
-        ("r", [B(["Rail and tab frame", "unchanged; tabs in the loop's order"], cls="bxa")]),
-        ("x",),
-        ("r", [B(["Overview", "each outcome against plan, the factors", "moving it, the plan's first three moves"],
-                 cls="bxa")]),
-        ("x",),
-        ("r", [B(["Site board and Outcomes by site · Kobo",
-                  f"Contribution {n0(KP['contribution'])} → {n0(KA['contribution'])}",
-                  f"Candidate running {m2(-(KA['candidate_l'] - KP['candidate_l']) * KA['diesel_price'])} · "
-                  f"Unexplained fuel {m2(-(KA['unexplained_l'] - KP['unexplained_l']) * KA['diesel_price'])}",
-                  f"Necessary running {m2(-(KA['necessary_l'] - KP['necessary_l']) * KA['diesel_price'])} · "
-                  f"kWh billed +{m2((KA['billed_kwh'] - KP['billed_kwh']) * KA['tariff'])}",
-                  "Emulated, with simulated telemetry"], cls="bxa")]),
-        ("x",),
-        ("r", [B(["Act first", "the plan within budget", "and crew visits"], cls="bxa"),
-               B(["What changed", "Actions, frozen", "predictions, verdicts"], cls="bxa")]),
-        ("x",),
-        ("r", [B(["Decision page (drill-down)", "options with no action, value, who pays,",
-                  "the bound or rule that rejected one"], cls="bxa")]),
-        ("x",),
-        ("r", [B(["A depot charging its own fleet", "revenue: not applicable;",
-                  "cost per departure met"], cls="bxa")]),
-        ("n", "Every figure carries its evidence class in words.\nHeadings name business content, never a question."),
-    ])
-    return figure("Figure 0.3. How it is presented: the same frame, different contents",
-                  "Left, today: the rail and six Portfolio tabs (kept); four outcome cards of different kinds, an "
-                  "estimated income total, a possible extra fuel cost that for mini-grid is the window's last day "
-                  "(must change), counts and targets (the others reworked); the site outcome board with what drives "
-                  "it, issues, what can be done, in hand, earlier and must not harm (extended into the first factor "
-                  "view); Act first as Findings in placement groups and Outcomes by site as statuses (reworked); the "
-                  "Finding page (kept). Right, Layer 4: the same frame; each outcome against plan with its factors "
-                  "(Kobo's contribution and its four factor effects, labelled Emulated), the plan, Actions and "
-                  "verdicts, a decision page, and a fleet operator's depot with revenue not applicable.", today, l4)
+FIGURES = {"factor-structure": fig_structure, "plan-against-actual": fig_bridge}
 
-
-FIGURES = {"motivation-data": fig_data, "motivation-processing": fig_processing,
-           "motivation-presentation": fig_presentation}
 
 CSS = ('figure.dg{margin:16px 0;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:6px}'
        'figure.dg svg{display:block;width:100%;height:auto}figure.dg svg.narrow{display:none;max-width:520px;margin:0 auto}\n'
@@ -303,3 +226,24 @@ CSS = ('figure.dg{margin:16px 0;padding:12px;background:var(--card);border:1px s
        'svg .bxp{fill:var(--pcard);stroke:var(--muted);stroke-width:1.2;stroke-dasharray:5 4}\n'
        'svg .t{fill:var(--fg)}svg .lb{fill:var(--muted)}svg .tg{fill:var(--accent);font-style:italic}'
        'svg .ar{fill:none;stroke:var(--muted);stroke-width:1.5}svg .mk{fill:var(--muted)}svg .div{stroke:var(--line);stroke-width:1.5}\n')
+
+
+def _check(md):
+    """`--check`: every figure builds (each line is asserted to fit its box), every `<!--diagram:NAME-->` in the
+    document has a figure, and every figure is used."""
+    import re
+    names = re.findall(r"<!--diagram:([\w-]+)-->", md)
+    missing = [n for n in names if n not in FIGURES]
+    unused = [n for n in FIGURES if n not in names]
+    for n in FIGURES.values():
+        n()
+    print(f"{len(FIGURES)} figures built; markers {names}; missing {missing}; unused {unused}")
+    return 1 if missing or unused else 0
+
+
+if __name__ == "__main__":
+    import sys
+    if sys.argv[1:2] != ["--check"]:
+        sys.exit("usage: python3 motivation_figures.py --check [layer4-transformation-design.md]")
+    doc = sys.argv[2] if len(sys.argv) > 2 else str(pathlib.Path(__file__).resolve().parent / "layer4-transformation-design.md")
+    sys.exit(_check(pathlib.Path(doc).read_text(encoding="utf-8")))
