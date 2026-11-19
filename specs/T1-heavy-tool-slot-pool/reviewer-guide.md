@@ -54,6 +54,12 @@ rev 1 hook and classifier are gone.
 ### R2 A leaked lock
 
 - Run P6, P6b, P6c, P7, P7b and P8 by hand. After a `kill -9`, `--status` shows the slot free at once.
+- Signals, per D-T1.15a:
+  - A group INT (P7c, P8c) lets a cleanup longer than 2 s finish.
+  - A wrapper-only INT (P7d) forwards only on the second INT.
+  - INT and HUP never lead to a KILL.
+  - TERM gives 30 s of grace (P7e).
+  - Any cut cleanup is High.
 - Check `/proc/<child>/fd` for the bash child, the pwsh child and the `Enter-HeavySlot` child: none holds a lock
   fd.
 - Capture-style orphan: `tools/heavy-slot.sh -- sh -c 'sleep 60 & exit 0'` frees the slot when the wrapper

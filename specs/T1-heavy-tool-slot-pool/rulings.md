@@ -283,3 +283,22 @@ spec did not check its file list against the dispatch's limits on `.claude/` and
     fails, and it does not fail.
   - **Scope.** `.gitignore` joins T1's file list. It is not an ALWAYS_FULL file in select-tests. The packet notes
     that the file left on disk by a refusal is harmless, and that `git clean` is not needed.
+
+### Review-2 rulings (2026-11-19)
+
+- `D-T1.15a` **(amends D-T1.15) INT and HUP never cut a cleanup short (M2).** This adopts the coordinator's
+  proposal, but without its terminal-foreground test.
+  - **Why the foreground test is dropped.** The Bash tool has no tty, so a check of the tty's foreground group
+    would always say "differs" and would forward a group Ctrl-C twice. That is the defect M2 measured.
+  - **The rule.** The first INT or HUP is not forwarded, starts no timer and leads to no KILL. The wrapper waits
+    for the child without a limit, as an unpooled run does. A second INT or HUP is forwarded once to the tree,
+    still with no KILL.
+  - **TERM.** TERM is the deliberate stop. It goes to the tree with 30 s of grace before KILL, up from 5 s, which
+    is enough for a Postgres teardown.
+  - **Exit status.** The wrapper always exits with the child's status.
+  - **The cost, accepted and documented.** An INT sent to the wrapper alone waits for a second one. Such an INT
+    is rare, because a deliberate stop is TERM.
+  - **Tests.** P7c, P7d, P7e and P8c.
+- **L-a.** L5, L6 and the D-T1.15a cost are added to the spec's "Documented gaps" (§5.2).
+- **L-b.** The pwsh wrapper on Linux follows D-T1.15a: its INT and HUP handlers set `Cancel`, forward only on
+  the second signal and never KILL (P8c). Windows Ctrl-C is unchanged.

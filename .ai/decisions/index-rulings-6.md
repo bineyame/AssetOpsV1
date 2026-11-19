@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-W1-10 to D-T1.18)
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-W1-10 to D-T1.18, with D-T1.15a)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
 
@@ -39,6 +39,7 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-T1.13` T1 Nested --db refuses at once · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.14` T1 Holder ancestry required for a marker (Linux) · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.15` T1 Child stays in the wrapper's process group; tree kill · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.15a` T1 INT/HUP never forwarded on first signal, never KILL; TERM 30 s grace (amends D-T1.15) · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.16` T1 Pytest pooled when the test database URL is set · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.17` T1 Slice-end checks are a pooled smoke set, not full suites · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.18` T1 Starvation under a long DB job accepted · live · specs/T1-heavy-tool-slot-pool/rulings.md

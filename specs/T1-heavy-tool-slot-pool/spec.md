@@ -105,9 +105,14 @@ cases (A)-(G) in `handshake.md`, and `/proc/locks` shows `FLOCK ADVISORY WRITE`.
   The explicit `<&0` keeps stdin; bash would otherwise give a background job `/dev/null`.
 - **Process group (D-T1.15).** The child stays in the wrapper's process group: there is no `set -m`. A group
   kill stops both.
-- **TERM, HUP or INT to the wrapper.** Collect the child's descendants by walking `/proc/<pid>/task/*/children`
-  recursively. Send TERM to all of them, wait up to 5 s, then send KILL. Exit 128+signal (TERM 143, HUP 129,
-  INT 130).
+- **INT or HUP (D-T1.15a; the M2 fix).** The **first** INT or HUP is never forwarded, starts no timer and never
+  leads to a KILL. A Ctrl-C or a hangup reaches the whole group, so the child already has it. The wrapper keeps
+  waiting for the child with no time limit, as an unpooled run would. A **second** INT or HUP, while the child is
+  still alive, is forwarded once to the child's tree, and there is again no KILL.
+- **TERM (the deliberate stop).** Collect the child's descendants by walking `/proc/<pid>/task/*/children`
+  recursively. Send them TERM, wait up to **30 s**, then send KILL.
+- **Exit code.** On every path, the wrapper exits with the child's own status. A child killed by a signal gives
+  128+signal (TERM 143).
 - **SIGKILL of the wrapper alone.** The slot frees at once and the child runs on unpooled. This is accepted. A
   tripwired tool that is already running does not check again.
 
@@ -183,8 +188,13 @@ pwsh -NoProfile -File tools/heavy-slot.ps1 -Status
   - Any other first word is resolved with `Get-Command -CommandType Application`, taking the first hit.
   - The marker variables are set in the child's environment only.
   - A first word of `setsid` is refused with exit 64: `put setsid/nohup before the wrapper` (I5b).
-- **Signals.** SIGTERM and SIGHUP use `PosixSignalRegistration`, as `check-all.ps1:140-175` does. The handler
-  kills the child tree with `Kill($true)` and exits 143 or 129. Ctrl-C kills the tree and exits 130 (I12b).
+- **Signals (D-T1.15a).** The behaviour is the same as in §2.
+  - **SIGTERM:** TERM goes to the tree, then `Kill($true)` after 30 s.
+  - **SIGINT and SIGHUP, on Linux:** use `PosixSignalRegistration` handlers that set `$ctx.Cancel = $true`. The
+    first signal does nothing. A second one sends INT to the tree (`kill -INT` for each pid, collected as in §2).
+    There is no KILL.
+  - **Exit code:** the child's own status.
+  - **On Windows:** Ctrl-C stays as it is today: the child gets the console event, and the wrapper waits.
 - **Exit codes.**
 
   | Code | Meaning |
@@ -332,7 +342,13 @@ The `--db` and `-Db` text appears only when `db` is true.
 - **When it is installed.** The coordinator installs the shim on main's `node_modules` **after the merge**
   (A16). The shim requires main's `tools/heavy_slot_check.cjs`, which does not exist on main before the merge.
   Before the merge, prove the shim only against a fake `node_modules` in a temp repository (P-T5).
-- **Documented gaps.** Running `node node_modules/typescript/bin/tsc` directly, and the Windows `.cmd` shims.
+- **Documented gaps.**
+  - Running `node node_modules/typescript/bin/tsc` directly, and the Windows `.cmd` shims.
+  - L5: a process that writes its own pid into a held slot's owner file, then sets the marker, passes the
+    tripwires. This takes deliberate effort.
+  - L6: an interrupted self-test leaves `/tmp/t1-pool-*` behind.
+  - An INT or HUP sent to the wrapper alone, rather than to its whole group, is not passed to the child until a
+    second one arrives (D-T1.15a).
 
 ### 5.3 vitest and pytest
 
@@ -435,6 +451,10 @@ needs the override unless it says so.
 | P6c | a pwsh process calls `Enter-HeavySlot`, then `Start-Process sleep`; `kill -9` the pwsh process (the check-all mechanism) | the slot is free, and `/proc/<sleep>/fd` holds no fd on the lock |
 | P7, P8 | TERM to the bash wrapper, then to the pwsh wrapper, each running `sh -c 'sleep 30 & wait'` | exit 143 within 6 s; the whole tree is gone; the slot is free |
 | P7b | TERM to the bash wrapper's process group (D-T1.15) | the wrapper and its child stop together |
+| P7c | a pooled `python3` job whose `finally` sleeps 9 s, writing a file at its end; `kill -INT -<pgid>` (D-T1.15a) | the cleanup completes and the file is written; the wrapper exits with the child's status after about 9 s; the slot is free |
+| P7d | the same job, with `kill -INT <wrapper>` once, then again after 2 s | after the first INT the child is still running at 5 s; the second INT starts the cleanup, which completes; nothing is SIGKILLed |
+| P7e | the same job, with `kill -TERM <wrapper>`, where the child turns SIGTERM into its `finally` | the 9 s cleanup completes within the 30 s grace |
+| P8c | P7c with the pwsh wrapper | the cleanup completes |
 | P9 | one `--db` holder; then a second `--db` entry and a plain entry | the second `--db` exits 75 although a slot is free; the plain entry exits 0 |
 | P9b | a nested `--db` inside a non-DB slot (R4) | exit 69 at once, with the D-T1.13 line |
 | P10 | `--status` | the specified format; a missing `db-job.lock` shows as `free` |
