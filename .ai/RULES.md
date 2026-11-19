@@ -109,6 +109,14 @@ round the Architect folds rulings into one current unit card.
 3. The Architect answers in the spec. The handshake ends when the Reviewer has no open questions.
 4. Coding starts only then, so mid-implementation back-and-forth is avoided.
 5. Execution stays efficient: make progress without lowering quality.
+6. One combined round (owner, 2026-11-19). The Reviewer's questions and the
+   Implementer's pre-flight (spec against `main` and the mock) run together.
+   Both batch their questions, the Architect answers everything once in the
+   spec (`rulings.md`), and both work from the same answers.
+7. Mid-build, a question about something the spec did not fix stops only the
+   affected part. The Architect rules in `rulings.md`, and the reviewer guide is
+   updated if the done criteria change. Record the count of mid-build questions
+   in each unit's packet; a count above zero is a spec-template defect to fix.
 
 ## 5. Specs, slices and packets
 
