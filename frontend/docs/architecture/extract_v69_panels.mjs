@@ -4,6 +4,8 @@ import {mkdtempSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import { assertHeavySlot } from "../../../tools/heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 
 const here=fileURLToPath(new URL('./',import.meta.url));
 const mock=new URL('../../mockups/v69/index.html',import.meta.url);

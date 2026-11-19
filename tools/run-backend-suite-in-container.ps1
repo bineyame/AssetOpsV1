@@ -45,6 +45,10 @@ param(
 # explicitly through `$LASTEXITCODE` and -ErrorAction Stop instead.
 $ErrorActionPreference = 'Continue'
 $worktree = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+# T1 (spec §5.3): refuse to start outside the heavy-tool slot pool; tell the container which marker it runs under.
+. (Join-Path $PSScriptRoot 'checks/_heavy_slot.ps1')
+Assert-HeavySlotHeld -Tool "the container test runner"
+$env:ASSETOPS_HEAVY_SLOT_CONTAINER = Get-HeavyContainerMarker
 $project = 'assetopsv1'
 $pgService = if ($Server -eq 'dedicated') { 'postgres-test' } else { 'postgres' }
 $pgContainer = "assetopsv1-$pgService-1"

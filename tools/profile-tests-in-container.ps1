@@ -4,6 +4,10 @@
 param([Parameter(Mandatory = $true)][string[]]$Targets, [int]$CapMinutes = 30, [switch]$Idle)
 $ErrorActionPreference = 'Continue'
 $worktree = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+# T1 (spec §5.3): refuse to start outside the heavy-tool slot pool; tell the container which marker it runs under.
+. (Join-Path $PSScriptRoot 'checks/_heavy_slot.ps1')
+Assert-HeavySlotHeld -Tool "the container test runner"
+$env:ASSETOPS_HEAVY_SLOT_CONTAINER = Get-HeavyContainerMarker
 $composeArgs = @('compose', '-p', 'assetopsv1', '-f', (Join-Path $worktree 'docker-compose.yml'),
                  '-f', (Join-Path $worktree 'docker-compose.test.yml'), '-f', (Join-Path $worktree 'docker-compose.profile.yml'))
 $runId = 'profile-{0}-{1}' -f (Get-Date -Format 'yyyyMMdd-HHmmss'), ([guid]::NewGuid().ToString('N').Substring(0, 6))

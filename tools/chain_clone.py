@@ -239,6 +239,11 @@ def main(argv: list[str] | None = None) -> int:
     d = sub.add_parser("drop")
     d.add_argument("name")
     args = parser.parse_args(argv)
+    if args.command in ("create", "settle"):
+        # CH3-R: a bad name is refused before any process starts, the tripwire's git call included.
+        settle_env(args.name) if args.command == "settle" else create_sql(args.name)
+        import heavy_slot_check  # T1 (spec §5.5): in the dispatch, never at import time (tests import this module)
+        heavy_slot_check.require("database job", db=True)
     if args.command == "create":
         create(args.name, args.migrate)
     elif args.command == "settle":

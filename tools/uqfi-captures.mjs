@@ -22,6 +22,8 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { widthGuard } from "./evidence-checks.mjs";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 
 const args = process.argv.slice(2);
 const flag = (name, fallback) => {

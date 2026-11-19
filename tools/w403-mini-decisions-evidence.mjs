@@ -15,6 +15,8 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { widthGuard } from "./evidence-checks.mjs";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 
 const [, , WEB = "http://localhost:6147", OUT, PHASE = "late"] = process.argv;
 if (!["positive", "late"].includes(PHASE)) { console.error(`unknown phase ${PHASE}`); process.exit(2); }

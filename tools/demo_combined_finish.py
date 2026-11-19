@@ -1741,6 +1741,8 @@ def get_once(url: str, work: Path, path: str, params: str) -> int:
 
 
 if __name__ == "__main__":
+    import heavy_slot_check  # T1 (spec §5.5): only when run as a script; children of a pooled prepare pass by ancestry
+    heavy_slot_check.require("database job", db=True)
     if len(sys.argv) == 4 and sys.argv[1] == "check":
         raise SystemExit(run(sys.argv[2], Path(sys.argv[3])))
     if len(sys.argv) == 6 and sys.argv[1] == "get":

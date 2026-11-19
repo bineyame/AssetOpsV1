@@ -129,6 +129,7 @@ function tree(pid) {
 }
 
 function killQuiet(pid, sig = "SIGKILL") {
+  if (!Number.isInteger(pid) || pid <= 0) return; // 0 or a negative pid would signal a whole process group
   try { process.kill(pid, sig); } catch { /* gone */ }
 }
 
@@ -145,7 +146,15 @@ async function wrapHold(repo, kind, n, extra = []) {
   const args = [...extra, "--", "sleep", "120"];
   const h = kind === "bash" ? start("bash", [repo.sh, ...args], { cwd: repo.M })
                             : start(PWSH, ["-NoProfile", "-File", repo.ps, ...args], { cwd: repo.M });
-  await waitFor(() => held(repo.slot(n)) && ownerField(repo.slot(n), "child") !== "", 10000, `${kind} hold of slot-${n}`);
+  // Wait on the owner file, never on a lock probe: a probe that coincides with the holder's own try would push it
+  // to the next slot (R8a), which is the pool working as designed, not the case under test.
+  try {
+    await waitFor(() => ownerField(repo.slot(n), "child") !== "", 10000, `${kind} hold of slot-${n}`);
+  } catch (e) {
+    await stop(h);
+    throw e;
+  }
+  assert.ok(held(repo.slot(n)), `slot-${n} is held by the ${kind} holder`);
   return h;
 }
 
@@ -161,7 +170,7 @@ process.on("exit", () => { for (const c of live) killQuiet(c.pid); });
 
 const TIMEOUT_LINE = /heavy-slot: no slot came free in 3 s \((--wait-seconds|-SlotWaitSeconds)\)\./;
 
-describe("T1 heavy-slot pool", { concurrency: 8 }, () => {
+describe("T1 heavy-slot pool", { concurrency: 4 }, () => {
   test("P1 a pooled command gets the canonical slot-1 marker; its exit code passes through; the slot frees", async () => {
     const r = makeRepo();
     try {
@@ -513,6 +522,136 @@ Start-Sleep -Seconds 120
   });
 
 
+});
+
+const REFUSAL = (tool, reason, db = false) =>
+  `heavy-slot: refused: ${tool} runs only inside the heavy-tool slot pool (${reason}).\n` +
+  `Run it as: tools/heavy-slot.sh ${db ? "--db " : ""}-- <your command>   (from frontend/: ../tools/heavy-slot.sh; ` +
+  `pwsh: pwsh -NoProfile -File tools/heavy-slot.ps1 ${db ? "-Db " : ""}-- ...)\nRULES §7 (T1).\n`;
+const NOT_SET = "ASSETOPS_HEAVY_SLOT is not set";
+const NOT_POOL = "the marker is not a slot of this machine's pool";
+const NOT_ANCESTOR = "the slot's holder is not this process or an ancestor";
+const DB_REASON = "a database job needs --db on the outermost wrapper";
+
+// The tripwires as their tools call them, run from M/tools: node, python and pwsh.
+const nodeTrip = (r, tool, db = false) => ["node", "-e",
+  `require(${JSON.stringify(path.join(r.M, "tools", "heavy_slot_check.cjs"))}).assertHeavySlot(${JSON.stringify(tool)}, { db: ${db} }); console.log("PASSED")`];
+const pyTrip = (r, tool, db = false) => ["python3", "-c",
+  `import sys; sys.path.insert(0, ${JSON.stringify(path.join(r.M, "tools"))}); import heavy_slot_check as h; ` +
+  `h.require(${JSON.stringify(tool)}, db=${db ? "True" : "False"}); print("PASSED")`];
+const psTrip = (r, tool, db = false) => [PWSH, "-NoProfile", "-Command",
+  `. '${r.mod}'; Assert-HeavySlotHeld -Tool '${tool}'${db ? " -Db" : ""}; 'PASSED'`];
+const pooled = (r, argv, extra = [], opts = {}) => run("bash", [r.sh, ...extra, "--", ...argv], { cwd: r.M, ...opts });
+const unpooled = (r, argv, opts = {}) => run(argv[0], argv.slice(1), { cwd: r.M, ...opts });
+
+function refused(out, tool, reason, db = false) {
+  assert.equal(out.code, 69, `${tool}: code ${out.code}; ${out.stdout}${out.stderr}`);
+  assert.ok(out.stderr.includes(REFUSAL(tool, reason, db)), `${tool}: stderr was:\n${out.stderr}`);
+  assert.doesNotMatch(out.stdout, /PASSED/);
+}
+function passed(out, what) {
+  assert.equal(out.code, 0, `${what}: ${out.stderr}`);
+  assert.match(out.stdout, /PASSED/);
+}
+
+describe("T1 heavy-slot tripwires", { concurrency: 4 }, () => {
+  test("P-T1 node and python: pooled both pass; unpooled both exit 69 with the exact message", async () => {
+    const r = makeRepo();
+    try {
+      for (const trip of [nodeTrip, pyTrip]) {
+        passed(await pooled(r, trip(r, "tsc")), "pooled");
+        refused(await unpooled(r, trip(r, "tsc")), "tsc", NOT_SET);
+        // The container marker means nothing outside a container (reviewer guide R3).
+        refused(await unpooled(r, trip(r, "tsc"), { env: { ASSETOPS_HEAVY_SLOT_CONTAINER: "slot" } }), "tsc", NOT_SET);
+      }
+    } finally { cleanup(r); }
+  });
+
+  test("P-T2 a slot in a private ASSETOPS_HEAVY_SLOT_DIR never satisfies a tripwire", async () => {
+    const r = makeRepo();
+    try {
+      const env = { ASSETOPS_HEAVY_SLOT_DIR: path.join(r.root, "private") };
+      for (const trip of [nodeTrip, pyTrip]) refused(await pooled(r, trip(r, "vitest"), [], { env }), "vitest", NOT_POOL);
+    } finally { cleanup(r); }
+  });
+
+  test("P-T3 a forged marker naming another holder's slot is refused", async () => {
+    const r = makeRepo();
+    let h;
+    try {
+      h = await wrapHold(r, "bash", 1);
+      const env = { ASSETOPS_HEAVY_SLOT: path.join(fs.realpathSync(r.D), "slot-1.lock") };
+      for (const trip of [nodeTrip, pyTrip]) refused(await unpooled(r, trip(r, "tsc"), { env }), "tsc", NOT_ANCESTOR);
+    } finally { await stop(h); cleanup(r); }
+  });
+
+  test("P-T4 database jobs need --db; the container rule (slot, db) by injected inContainer", async () => {
+    const r = makeRepo();
+    try {
+      for (const trip of [nodeTrip, pyTrip]) {
+        refused(await pooled(r, trip(r, "database job", true)), "database job", DB_REASON, true);
+        passed(await pooled(r, trip(r, "database job", true), ["--db"]), "--db");
+      }
+      const cjs = JSON.stringify(path.join(r.M, "tools", "heavy_slot_check.cjs"));
+      const node = await run("node", ["-e", `const { checkMarker } = require(${cjs});
+        const c = (v, db) => checkMarker({ ASSETOPS_HEAVY_SLOT_CONTAINER: v }, { inContainer: true, db });
+        console.log(JSON.stringify([c("slot", false), c("slot", true), c("db", false), c("db", true), c(undefined, false)]));`]);
+      const py = await run("python3", ["-c", `import sys, json; sys.path.insert(0, ${JSON.stringify(path.join(r.M, "tools"))})
+import heavy_slot_check as h
+c = lambda v, db: dict(zip(("ok", "reason"), h.check_marker({"ASSETOPS_HEAVY_SLOT_CONTAINER": v} if v else {}, slot_dir=None, in_container=True, db=db)))
+print(json.dumps([c("slot", False), c("slot", True), c("db", False), c("db", True), c(None, False)]))`]);
+      const want = [{ ok: true, reason: "" }, { ok: false, reason: DB_REASON }, { ok: true, reason: "" }, { ok: true, reason: "" },
+                    { ok: false, reason: "in a container without ASSETOPS_HEAVY_SLOT_CONTAINER" }];
+      assert.deepEqual(JSON.parse(node.stdout), want, node.stderr);
+      assert.deepEqual(JSON.parse(py.stdout), want, py.stderr);
+    } finally { cleanup(r); }
+  });
+
+  test("P-T5 the tsc shim: refused unpooled, the real tsc pooled, check 0 then 1, a second install changes nothing", async () => {
+    const r = makeRepo();
+    try {
+      const nm = path.join(r.M, "frontend", "node_modules");
+      fs.mkdirSync(path.join(nm, "typescript", "bin"), { recursive: true });
+      fs.mkdirSync(path.join(nm, ".bin"), { recursive: true });
+      fs.writeFileSync(path.join(nm, "typescript", "bin", "tsc"), '#!/usr/bin/env node\nconsole.log("REAL TSC " + process.argv.slice(2).join(" "));\n', { mode: 0o755 });
+      fs.symlinkSync("../typescript/bin/tsc", path.join(nm, ".bin", "tsc"));
+      const shims = path.join(r.M, "tools", "heavy-slot-shims.mjs");
+      const install = await run("node", [shims, "install", nm]);
+      assert.equal(install.code, 0, install.stderr);
+      assert.equal((await run("node", [shims, "check", nm])).code, 0);
+      const bin = path.join(nm, ".bin", "tsc");
+      const out = await unpooled(r, [bin, "--noEmit"]);
+      assert.equal(out.code, 69, out.stderr);
+      assert.ok(out.stderr.includes(REFUSAL("tsc", NOT_SET)), out.stderr);
+      const ok = await pooled(r, [bin, "--noEmit"]);
+      assert.equal(ok.code, 0, ok.stderr);
+      assert.equal(ok.stdout.trim(), "REAL TSC --noEmit");
+      const shim = path.join(nm, ".heavy-slot", "tsc.cjs");
+      const before = [fs.statSync(shim).mtimeMs, fs.readFileSync(shim, "utf8"), fs.readlinkSync(bin), fs.lstatSync(bin).mtimeMs];
+      assert.equal((fs.statSync(shim).mode & 0o777).toString(8), "755");
+      assert.equal((await run("node", [shims, "install", nm])).code, 0);
+      assert.deepEqual([fs.statSync(shim).mtimeMs, fs.readFileSync(shim, "utf8"), fs.readlinkSync(bin), fs.lstatSync(bin).mtimeMs], before);
+      fs.rmSync(bin);
+      fs.symlinkSync("../typescript/bin/tsc", bin);
+      const check = await run("node", [shims, "check", nm]);
+      assert.equal(check.code, 1, check.stdout);
+      assert.equal(check.stdout.trim().split("\n").length, 1);
+    } finally { cleanup(r); }
+  });
+
+  test("P-T7 the pwsh Assert-HeavySlotHeld behaves as P-T1 to P-T3", async () => {
+    const r = makeRepo();
+    let h;
+    try {
+      const tool = "the container test runner";
+      passed(await pooled(r, psTrip(r, tool)), "pooled");
+      refused(await unpooled(r, psTrip(r, tool)), tool, NOT_SET);
+      refused(await pooled(r, psTrip(r, tool), [], { env: { ASSETOPS_HEAVY_SLOT_DIR: path.join(r.root, "private") } }), tool, NOT_POOL);
+      refused(await pooled(r, psTrip(r, tool, true)), tool, DB_REASON, true);
+      h = await wrapHold(r, "bash", 1);
+      refused(await unpooled(r, psTrip(r, tool), { env: { ASSETOPS_HEAVY_SLOT: path.join(fs.realpathSync(r.D), "slot-1.lock") } }), tool, NOT_ANCESTOR);
+    } finally { await stop(h); cleanup(r); }
+  });
 });
 
 // Measured alone, after the concurrent cases, so the figure is not the load of 8 parallel cases.

@@ -342,8 +342,14 @@ try {
     Add-Guard "Style ratchet fixtures (UQ-FI)" $Node @("--test", "tools/checks/test_style_ratchet.mjs")
     # PIPE-1 A2: the trigger rule itself is guarded, so a broken rule cannot silently skip the self-tests.
     Add-Guard "check-all self-test trigger rule (PIPE-1)" $powershell @("-NoProfile", "-File", "tools/check-all.ps1", "-SelfTestSelection")
+    # T1: every heavy tool refuses to start outside the slot pool; the static inventory keeps that class closed.
+    Add-Guard "Heavy-slot tripwire inventory (T1)" $Node @("--test", "tools/checks/test_heavy_slot_inventory.mjs")
     if ($pool.Run) {
         Add-Guard "Heavy-slot pool and tripwire self-test (T1)" $Node @("--test", "tools/checks/test_heavy_slot_pool.mjs")
+    }
+    # T1 (spec §5.2): the tsc shim lives in node_modules, outside git; the after-merge run on main catches a missing one.
+    if ($Full -or $onMain) {
+        Add-Guard "tsc shim installed (T1)" $Node @("tools/heavy-slot-shims.mjs", "check", "frontend/node_modules")
     }
     if ($estate.Run) {
         Add-Guard "Estate guard self-tests, pytest -n 4 ($($estate.Reason))" $Python @("-m", "pytest", "tools/checks/test_estate_guard.py", "-q", "-p", "no:cacheprovider", "-n", "4") -Alone

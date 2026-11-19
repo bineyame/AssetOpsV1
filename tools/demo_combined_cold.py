@@ -246,6 +246,8 @@ def add_day(url: str, work: Path, planned: dict) -> dict:
 
 
 if __name__ == "__main__":
+    import heavy_slot_check  # T1 (spec §5.5): only when run as a script; children of a pooled prepare pass by ancestry
+    heavy_slot_check.require("database job", db=True)
     if len(sys.argv) == 5 and sys.argv[1] == "add-day":
         add_day(sys.argv[2], Path(sys.argv[3]), json.loads(sys.argv[4]))
         raise SystemExit(0)
