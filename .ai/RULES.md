@@ -19,6 +19,16 @@ Bindings: `.ai/ROLE_CONFIG.md`.
   range, the same way for every Site type (owner, 2026-11-12). Setup facts
   (foundation, single-line diagram) are not managed by date range for now;
   versioning may come later and is not a priority (owner, 2026-11-19).
+- Owner product rules (confirmed 2026-11-19; sources in `owner/SUMMARY.md`):
+  - Say "unexplained fuel", never "theft".
+  - Simulated or emulated data is never shown as observed. Every figure carries
+    its evidence class. Claim only what was tested.
+  - "Not analysed yet" appears only while system work is pending.
+  - Missing data lowers confidence but still computes. A contributor of zero is
+    shown as zero.
+  - The source is a displayed data element. Ingest works for any Site.
+  - Every capability claimed as available must be demonstrable.
+  - Executive questions are never written on screen.
 
 ## 2. Roles and lanes
 
@@ -170,6 +180,11 @@ round the Architect folds rulings into one current unit card.
   Walkthroughs run on a clean, good DB (owner).
 - Keep `var/sites` and the Lab data intact. Do not switch branches in a
   checkout while an agent is working in it.
+- Refused by a safety check: stop and report. Never work around it (owner).
+- Stop old walkthrough servers found running, by PID, unless they are serving
+  the owner's validation; if so, ask first (owner).
+- Tag every demo build. The deferred list is a queue, not a cut list. Estimate
+  at agent speed (owner).
 - A unit that touches shared code or schema is reviewed before the next unit
   builds on it. An implementer choice the spec did not fix is a spec defect:
   raise it, don't decide it.
