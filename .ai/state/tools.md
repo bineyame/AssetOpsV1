@@ -67,3 +67,15 @@ Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `archive/agen
 - Settled: 12 September `Docs/` generations to `Docs/archive/2026-09/` (status in `Docs/archive/README.md`; owner words and draft byte-exact); the two owner-facing HTML documents from `.agent/` to `Docs/demo-sprint/`; 28 finished one-off probe/evidence scripts to `archive/tools/`; the PIPE-1 A6 advisory guards (v69 registry and S1-S7 queue, delivery-checker fixtures, v69 ledger) and the two JSON files only they read to `archive/frontend/docs/architecture/`; check-all has no advisory guard left. `tasks/README.md` is a short pointer; its S1-S7 tables are `tasks/archive/site-first-2026-10/queue-tables.md`. Map: `tools/declutter/step5_map.py`, `specs/CITATION_MAP.md` "Step 5".
 - Guards: `tracked_evidence.py` rule 5 checks `.agent/` against `AGENT_KEEP`; `check_mock_gaps.cjs` stays blocking. Briefs write packets, reviews and handoffs to `specs/<ID>/`.
 - Open: O5 (history rewrite, worktree pruning) after the demo; `tools/` still holds finished-slice walkthrough and evidence scripts that the W1-UX owner walkthrough or the evidence-width inventory names; `.ai/ARTIFACT_INDEX.md` and other stale `.ai/` planning files untouched.
+
+## T1: the heavy-tool slot pool, enforced (2026-11-19, `task/T1-heavy-tool-slot-pool`, in review)
+
+- One pool for every heavy tool: check-all's 2 slots in `<git common dir>/check-all-slots` plus `db-job.lock`
+  (`tools/checks/_heavy_slot.ps1`, `tools/heavy-slot.sh`, `tools/heavy-slot.ps1`; `--status`, `--db`, exit 75 on
+  wait timeout, nesting by a verified marker with Linux ancestry).
+- Option C tripwires refuse an unpooled run with exit 69: tsc shim (`tools/heavy-slot-shims.mjs`, postinstall),
+  `vite.config.ts` (vitest), both conftests (pytest with a database URL), the container runners, 30 capture
+  scripts, 11 database entry points. Static inventory guard in every check-all run; pool self-test when a pool
+  file changes; tsc-shim guard with `-Full` and on main.
+- Open: the tsc shim is installed on main's `node_modules` only after the merge (A16); the `.claude/agents`
+  briefs are not yet pooled (mid-build Q1); a refused vitest leaves a Vite temp config file (Q2).

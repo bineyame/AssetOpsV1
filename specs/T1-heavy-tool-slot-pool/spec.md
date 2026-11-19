@@ -1,6 +1,6 @@
 # T1: the heavy-tool slot pool, enforced (implementer spec)
 
-Status: live. Architect spec **rev 2**, 2026-11-19.
+Status: in_review. Architect spec **rev 2**, 2026-11-19; built on `task/T1-heavy-tool-slot-pool`; review packet `specs/T1-heavy-tool-slot-pool/packet.md`.
 
 Rev 2 does two things:
 - It switches enforcement to **option C, in-tool tripwires**. The owner chose this: "yes install playwright, and
