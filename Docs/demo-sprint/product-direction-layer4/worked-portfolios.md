@@ -1,16 +1,16 @@
 # Worked portfolios: the three demonstration operators
 
-**Companion to `layer4-transformation-design.md` (rev 16.2)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.4)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
 This file holds the full worked examples that the design document summarises: Lakeside Power (mini-grid), Harvest Cold Network (cold rooms) and Metro Bus Depots (EV depots), each read up from its factors, evaluated, planned and proved. The text was §7 and §10 of the design document up to rev 15. It moved here unchanged except for two things:
 - the system's output is described as *recommended* or *proposed*, never as *chosen*. The accountable manager chooses within each decision and creates the Actions; the system checks the chosen set; and the executive approves the plan, which releases the Actions above the spend threshold (design §2.4–§2.5; owner, 19 Nov);
-- section numbers are local to this file, and cross-references point to it or to design rev 16.2.
+- section numbers are local to this file, and cross-references point to it or to design rev 16.4.
 
-Every figure carries its marker and is checked by `check_manifest.py`. The roles are the five of design §2.5 (owner, Q-A2).
+Every figure carries its marker and is checked by `check_manifest.py`. The roles are the five of design §2.6 (owner, Q-A2).
 
 ## 1. The worked portfolios: the loop, run three times
 
-Each portfolio runs the same loop. **Observe** reads each Site's outcome up from its factors, plan against actual. **Evaluate** writes every option as a change to factors and lets the structure give its value. **Choose**: the system recommends one option per decision, found by one search over all the decisions so that the recommended set fits the budget, the crew visits and each decision's rules. Each accountable manager chooses (this demo assumes the Recommended option) and creates the Actions. The system checks the chosen set and, if it does not fit, proposes the nearest set that does. The executive approves the plan, which releases the Actions above the spend threshold (design §2.4–§2.5). **Prove** names what will be measured afterwards. The tables below give every input a reader needs to follow each figure without opening the data file. Every decision is taken on 6 Nov, the demo's today (Declared input), and Protect effects are counted to 30 Nov, the reporting horizon (Plan limit). Full models and test vectors are in `domain-and-decision-models.md`.
+Each portfolio runs the same loop. **Observe** reads each Site's outcome up from its factors, target against actual. **Evaluate** writes every option as a change to factors and lets the structure give its value. **Choose**: the system recommends one option per decision, found by one search over all the decisions so that the recommended set fits the budget, the crew visits and each decision's rules. Each accountable manager chooses (this demo assumes the Recommended option) and creates the Actions. The system checks the chosen set and, if it does not fit, proposes the nearest set that does. The executive approves the plan, which releases the Actions above the spend threshold (design §2.4–§2.5). **Prove** names what will be measured afterwards. The tables below give every input a reader needs to follow each figure without opening the data file. Every decision is taken on 6 Nov, the demo's today (Declared input), and Protect effects are counted to 30 Nov, the reporting horizon (a limit set by the operator). Full models and test vectors are in `domain-and-decision-models.md`.
 
 ### 1.0 The shared structure across the three verticals
 
@@ -21,7 +21,7 @@ Moved from the design document's §2.1 in rev 16.2. The structure is shared, and
 | Outcome backbone | contribution = billed kWh × tariff − (fuel + O&M + staff) | contribution = chargeable crate-days × rate − (energy + staff + maintenance + customer compensation) | cost per required departure met = (energy + demand charge + maintenance + penalties) ÷ departures met; revenue NOT_APPLICABLE |
 | Value chain | usable supply → delivered → metered → billed → collected / in transit / outstanding | crate-days available → occupied → chargeable → invoiced → received | deliverable kWh per night → delivered kWh → departures readied against required |
 | Cost to serve | litres split necessary / candidate / unexplained × diesel price; O&M; staff | kWh = base + k × crate-days, ambient-corrected, + excess; electricity price | kWh by tariff interval; monthly peak kW × demand rate |
-| Operations (O2, October) | asset availability 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio--> (428 of 434 asset-days; plan 100%) | cooling availability 99.997%<!--fig:operations.harvest-cold.cooling_availability.portfolio--> (4 minutes lost at Thika) | deliverable energy used (import-limited) 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio--> Σ/Σ (Embakasi 46.67%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Embakasi-->, Kasarani 85.71%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Kasarani-->, Ruiru 61.25%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Ruiru-->) |
+| Operations (O2, October) | asset availability 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio--> (428 of 434 asset-days; target 100%) | cooling availability 99.997%<!--fig:operations.harvest-cold.cooling_availability.portfolio--> (4 minutes lost at Thika) | deliverable energy used (import-limited) 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio--> Σ/Σ (Embakasi 46.67%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Embakasi-->, Kasarani 85.71%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Kasarani-->, Ruiru 61.25%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Ruiru-->) |
 | Protect and bounds | clinic critical load; dawn battery charge ≥ 35%; evening redundancy | batch temperature ≤ commodity limit; backup start | every required departure; import limit |
 | Contracts and capital | inverter, battery and genset warranties; O&M response SLA; replace-or-repair as a lifecycle comparison | EPC workmanship warranty; goods-in-custody insurance | charger parts warranty and service SLA |
 
@@ -33,16 +33,16 @@ Protect is a structure of measured factors too, and Assure reads the evidence cl
 
 | Word | Meaning |
 |---|---|
-| Plan | the operator's monthly plan line, from its plan spreadsheet: a target the operator declares, not a record |
+| Target | the operator's monthly target or budget line, from its budget spreadsheet: a figure the operator declares, not a record |
 | Record | read from a meter, dip, invoice, log, roster or contract |
-| Estimate | an actual cost whose invoice has not arrived; the plan amount is carried until it does, and it is left out of the recorded share |
+| Estimate | an actual cost whose invoice has not arrived; the budget amount is carried until it does, and it is left out of the recorded share |
 | Calculated | computed by the structure from records and declared inputs (in this pack by `evaluate_structure.py`, rechecked by `independent_model.py`) |
 | Declared input | typed into the demo data. Where marked *stands in for a calculation*, the product will compute it from records; the demo types it. Where marked *source not recorded*, the demo data holds the figure without saying whether it is a quote, a record or an assumption |
 | Design value | a figure that re-running the Site's recorded data through the new setting (a replay) must reproduce before it is relied on |
 | Quote / Assumption | a supplier or contractor price, lead time or duration / a value with no record or quote |
-| Plan limit | the budget, crew visits, horizon and service rules the operator sets |
+| Limit set by the operator | the budget, crew visits, horizon and service rules the operator sets |
 
-In every factor table the Plan column is a Plan figure, and "How it is known" describes the Actual column. The money effect of a factor is always *(actual − plan) × its price*. The checker confirms that each Site's effects add up to its deviation.
+In every factor table the Target column is a Target figure, and "How it is known" describes the Actual column. The money effect of a factor is always *(actual − target) × its price*. The checker confirms that each Site's effects add up to its deviation.
 
 ### 1.1 Mini-grid — Lakeside Power (Kobo, Kisiwa, Mto)
 
@@ -73,9 +73,9 @@ The productive-use tariff and battery wear are not used in October (no productiv
 | Classifying each generator interval splits the modelled litres | necessary 730<!--fig:sites.lakeside-power/Kobo.actual.nodes.necessary_l--> L + candidate 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L = 1,060 L | Declared input, *stands in for a calculation*: the product classifies each generator interval; the demo types the result |
 | Unexplained = consumed − modelled | 1,180 − 1,060 = 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L | Declared input, *stands in for a calculation*. Tolerance 2% (Declared input): about 24 L of 1,180 L, so 120 L is far above it: investigate |
 
-**Plan against actual, per factor.**
+**Target against actual, per factor.**
 
-| Factor | Plan | Actual | Change | Price | Money effect | How it is known |
+| Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Necessary running (L) | 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.necessary_l--> | 730 | +30 | 1.25 | −37.50<!--rec--> | Declared input, *stands in for a calculation* |
 | Candidate running (L) | 0<!--fig:sites.lakeside-power/Kobo.plan.nodes.candidate_l--> | 330 | +330 | 1.25 | −412.50<!--rec--> | Declared input, *stands in for a calculation* |
@@ -94,7 +94,7 @@ Sum of the effects: −412.50 − 37.50 − 150.00<!--rec--> + 38.00 = **−562.
 
 **How the October litres are obtained.** The fuel balance holds litres consumed 2,400<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.consumed_l--> L (Record; the dips and deliveries behind it are not itemised in the demo data) and modelled litres 2,380<!--rec:tenants[lakeside-power].sites[Kisiwa].period.fuel_balance.model_implied_l--> L (Declared input; as at Kobo, the generator-energy reading behind it is not in the demo data). Every generator interval is classified necessary, because evening load exceeds what the solar and battery can carry: necessary 2,380<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.necessary_l--> L, candidate 0 L (Declared input, *stands in for a calculation*). Unexplained 2,400 − 2,380 = 20<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l--> L, inside the 2% tolerance (about 48 L): reported, not investigated.
 
-| Factor | Plan | Actual | Change | Price | Money effect | How it is known |
+| Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Necessary running (L), a rainy month | 2,300<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.necessary_l--> | 2,380 | +80 | 1.30 | −104.00<!--rec--> | Declared input, *stands in for a calculation* |
 | Unexplained litres (L) | 0 | 20 | +20 | 1.30 | −26.00<!--rec--> | Declared input, *stands in for a calculation* |
@@ -104,13 +104,13 @@ Sum of the effects: −412.50 − 37.50 − 150.00<!--rec--> + 38.00 = **−562.
 | Staff | 500.00 | 500.00 | 0 | | 0.00 | Record |
 | **Contribution** | **−65.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.contribution-->** | **−250.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.contribution-->** | | | **−185.00** | Calculated |
 
-Sum: −104.00 − 26.00 − 55.00 = **−185.00**, which is −250.00 − (−65.00). Energy to cash: delivered 7,950<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.delivered_kwh--> − losses 520<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.technical_loss_kwh--> = metered 7,430<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.metered_kwh--> − adjustments 30 = billed 7,400 → revenue 4,070.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.revenue--> (plan 4,125.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.revenue-->) → collected 3,800.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.collected-->.
+Sum: −104.00 − 26.00 − 55.00 = **−185.00**, which is −250.00 − (−65.00). Energy to cash: delivered 7,950<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.delivered_kwh--> − losses 520<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.technical_loss_kwh--> = metered 7,430<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.metered_kwh--> − adjustments 30 = billed 7,400 → revenue 4,070.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.revenue--> (target 4,125.00<!--fig:sites.lakeside-power/Kisiwa.plan.nodes.revenue-->) → collected 3,800.00<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.collected-->.
 
 Protect, observed: generator GEN-KS-01 failed on 30 Oct, so the evening supply (18:00–23:00, Record: service obligation) ran on GEN-KS-02 alone on 30 and 31 Oct: 2 days × 5 hours = 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours with no backup (Calculated from the fault log).
 
 ##### Mto
 
-**How the October litres are obtained.** Mto has no fuel balance record; its litres are the recorded 320<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_l--> L, all classified necessary evening running (the split is a Declared input, *stands in for a calculation*), against a plan of 300<!--fig:sites.lakeside-power/Mto.plan.nodes.necessary_l--> L.
+**How the October litres are obtained.** Mto has no fuel balance record; its litres are the recorded 320<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_l--> L, all classified necessary evening running (the split is a Declared input, *stands in for a calculation*), against a target of 300<!--fig:sites.lakeside-power/Mto.plan.nodes.necessary_l--> L.
 
 **Energy to cash, where Mto's revenue leaks (Record, then Calculated).**
 
@@ -122,11 +122,11 @@ Protect, observed: generator GEN-KS-01 failed on 30 Oct, so the evening supply (
 | = Metered | 5,580<!--fig:sites.lakeside-power/Mto.actual.nodes.metered_kwh--> | |
 | − unmapped meters (6 customers, meter swap on 3 Oct not applied) | 140<!--fig:sites.lakeside-power/Mto.actual.nodes.unmapped_kwh--> | |
 | − authorised adjustment (clinic allowance) | 40<!--fig:sites.lakeside-power/Mto.actual.nodes.adjustments_kwh--> | |
-| = Billed | 5,400<!--fig:sites.lakeside-power/Mto.actual.nodes.billed_kwh--> | plan 5,600<!--fig:sites.lakeside-power/Mto.plan.nodes.billed_kwh--> |
+| = Billed | 5,400<!--fig:sites.lakeside-power/Mto.actual.nodes.billed_kwh--> | target 5,600<!--fig:sites.lakeside-power/Mto.plan.nodes.billed_kwh--> |
 
-The plan states only billed kWh, so the comparison starts at the meter: plan 5,600 kWh against metered 5,580 kWh, then the two billing leaks.
+The plan states only billed kWh, so the comparison starts at the meter: target 5,600 kWh against metered 5,580 kWh, then the two billing leaks.
 
-| Factor | Plan | Actual | Change | Price | Money effect | How it is known |
+| Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Metered kWh | 5,600 | 5,580 | −20 | 0.40 | −8.00<!--rec--> | Record |
 | Unmapped meters (kWh) | 0 | 140 | +140 not billed | 0.40 | −56.00<!--rec--> | Record |
@@ -143,7 +143,7 @@ Protect, observed: inverter INV-MT-02 failed on 28 Oct, so the daytime supply (1
 
 ##### The portfolio
 
-| Site | Plan contribution | Actual | Deviation | Of which revenue | Of which cost |
+| Site | Target contribution | Actual | Deviation | Of which revenue | Of which cost |
 |---|---:|---:|---:|---:|---:|
 | Kobo | 1,445.00 | 883.00 | −562.00 | +38.00 | −600.00 |
 | Kisiwa | −65.00 | −250.00 | −185.00 | −55.00 | −130.00 |
@@ -166,7 +166,7 @@ Each option is a change to factors. The structure re-evaluates the Site with the
 | Battery reserve 30% → 25%: candidate running avoided; days with dawn charge below 35% | 20 L a month; 4 of 61 replayed days | Design value |
 | Stop-threshold trial: vendor reconfiguration; trial supervision | 60.00<!--fig:options.KOB-STOPSOC.cost_lines.vendor_remote_reconfiguration.amount-->; 30.00<!--fig:options.KOB-STOPSOC.cost_lines.trial_supervision.amount--> | Declared input, source not recorded |
 | 100 kWh battery | 28,000.00<!--rec:tenants[lakeside-power].sites[Kobo].decision.options[KOB-BATT100].capex--> | Declared input, source not recorded |
-| No day with dawn charge below 35% (at 05:00) | service rule | Plan limit |
+| No day with dawn charge below 35% (at 05:00) | service rule | Limit set by the operator |
 
 | Option | Factor changes | How the value follows | Result |
 |---|---|---|---|
@@ -192,7 +192,7 @@ The stop-threshold change leaves 330 − 210 = 120 L a month of candidate runnin
 | Repair the alternator (crew visit 8 Nov + 1 repair day: restored 9 Nov) | days out: 3<!--fig:options.KIS-REPAIR.params.days_to_restore--> (6–8 Nov) | not valued in money; one-off 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 3 × 5 = 15<!--fig:options.KIS-REPAIR.protect.obligation_hours_without_backup--> | **Recommended** |
 | Replace the generator (21-day lead time: restored 27 Nov) | days out: 21<!--fig:options.KIS-REPLACE.params.days_to_restore--> | not valued in money; one-off 9,500.00<!--fig:options.KIS-REPLACE.operator_one_off--> | 21 × 5 = 105<!--fig:options.KIS-REPLACE.protect.obligation_hours_without_backup--> | Rejected |
 
-No option restores a backup at once, so every option breaks the rule and all three stay in the plan search; the search breaks the service rules as little as possible before it weighs money, so it recommends the repair.
+No option restores a backup at once, so every option breaks the rule and all three stay in the recommendation search; the search breaks the service rules as little as possible before it weighs money, so it recommends the repair.
 
 **Kisiwa: evening storage.** A separate decision, not an alternative to the repair: it looks forward from the repair with both generators in service and is compared with Kisiwa's October running (contribution −250.00). Its hours column does not compare with the 125, 15 and 105 above, which count 6–30 Nov while GEN-KS-01 is out.
 
@@ -260,7 +260,7 @@ On every path the idle generator backs the daytime shortfall, so no hour is with
 
 #### Plan: proposed by the system, decided by people
 
-**1. The plan and its limits.** Budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December; 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November; 12-month horizon (all Plan limits). **How the recommendations are found:** one search over all the decisions together, so that the recommended set fits (design §2.4–§2.5). This demo assumes each manager chooses the Recommended option, so the chosen set is the combination below and fits, and the executive approves it. It tries every combination that takes one option per decision (a money-valued decision may take none, except the Mto inverter, which must be restored). An option that breaks one of its decision's rules (a service rule, or keeping warranty cover) is left out, unless no option of that decision can keep the rule, as at Kisiwa. A combination must fit the budget and the crew visits and meet the dates one option depends on (the huller needs the inverter first). The recommended set is the combination that breaks the rules least, then is worth most, then spends least.
+**1. The plan and its limits.** Budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December; 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November; 12-month horizon (all limits set by the operator). **How the recommendations are found:** one search over all the decisions together, so that the recommended set fits (design §2.4–§2.5). This demo assumes each manager chooses the Recommended option, so the chosen set is the combination below and fits, and the executive approves it. It tries every combination that takes one option per decision (a money-valued decision may take none, except the Mto inverter, which must be restored). An option that breaks one of its decision's rules (a service rule, or keeping warranty cover) is left out, unless no option of that decision can keep the rule, as at Kisiwa. A combination must fit the budget and the crew visits and meet the dates one option depends on (the huller needs the inverter first). The recommended set is the combination that breaks the rules least, then is worth most, then spends least.
 
 | Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
@@ -342,9 +342,9 @@ A cold room's contribution is revenue minus cost to serve. Revenue is occupied c
 
 ##### Mwea
 
-| Factor | Plan | Actual | Change | Price | Money effect | How it is known |
+| Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
-| Occupied crate-days (60% planned, 35% actual) | 7,440<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.crate_days--> | 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.crate_days--> | −3,100 | 0.20 | −620.00<!--rec--> | Record |
+| Occupied crate-days (60% targeted, 35% actual) | 7,440<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.crate_days--> | 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.crate_days--> | −3,100 | 0.20 | −620.00<!--rec--> | Record |
 | Energy the model expects (kWh): 1,550 + 0.25 × crate-days | 3,410<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.kwh_model--> | 2,635<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.kwh_model--> | −775 | 0.20 | +155.00<!--rec--> (less energy at lower occupancy, not a saving) | Calculated |
 | Energy above the model (kWh) | 0 | 15<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.excess_kwh--> | +15 | 0.20 | −3.00<!--rec--> | Calculated from the meter: 2,650 kWh metered |
 | Staff | 300.00<!--fig:sites.harvest-cold/Room A · Mwea.plan.nodes.staff--> | 300.00<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.staff--> | 0 | | 0.00 | Record |
@@ -355,7 +355,7 @@ Sum: −620.00<!--rec--> + 155.00 − 3.00 = **−468.00**. Its 15 kWh above the
 
 ##### Thika
 
-| Factor | Plan | Actual | Change | Price | Money effect | How it is known |
+| Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (70%) | 8,680<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.crate_days--> | 8,680 | 0 | 0.20 | 0.00 | Record |
 | Energy (kWh), on the model | 3,720<!--fig:sites.harvest-cold/Room B · Thika.plan.nodes.kwh--> | 3,720<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.kwh--> | 0 | 0.20 | 0.00 | Record |
@@ -369,7 +369,7 @@ Protect, observed: from 6 Oct the backup start was unproven and stock was presen
 
 ##### Kirinyaga
 
-| Factor | Plan | Actual | Change | Price | Money effect | How it is known |
+| Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Occupied crate-days (80%) | 9,920<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.crate_days--> | 9,920 | 0 | 0.20 | 0.00 | Record |
 | Energy the model expects (kWh) | 4,030<!--fig:sites.harvest-cold/Room C · Kirinyaga.plan.nodes.kwh_model--> | 4,030<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.kwh_model--> | 0 | 0.20 | 0.00 | Calculated |
@@ -379,14 +379,14 @@ Protect, observed: from 6 Oct the backup start was unproven and stock was presen
 
 ##### The portfolio
 
-| Room | Plan contribution | Actual | Deviation | Of which revenue | Of which cost |
+| Room | Target contribution | Actual | Deviation | Of which revenue | Of which cost |
 |---|---:|---:|---:|---:|---:|
 | Mwea | 456.00 | −12.00 | −468.00 | −620.00<!--rec--> | +155.00 − 3.00 |
 | Thika | 562.00 | 454.00 | −108.00 | 0.00 | −108.00 |
 | Kirinyaga | 698.00 | 504.00 | −194.00 | 0.00 | −194.00 |
 | **Harvest Cold** | **1,716.00<!--fig:portfolio.harvest-cold.plan.sums.contribution-->** | **946.00<!--fig:portfolio.harvest-cold.actual.sums.contribution-->** | **−770.00** | **−620.00<!--rec-->** | **−150.00<!--rec-->** |
 
-Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_days--> of 3 × 12,400 = 37,200 crate-days (plan 26,040<!--fig:portfolio.harvest-cold.plan.sums.occupied_total_crate_days-->). Cost to serve 3,492.00<!--fig:portfolio.harvest-cold.plan.sums.cost_to_serve--> → 3,642.00<!--fig:portfolio.harvest-cold.actual.sums.cost_to_serve--> (+155.00 − 3.00 − 108.00 − 194.00 = −150.00<!--rec--> against plan). Everything except Thika's maintenance (80.00, an Estimate) is recorded: (3,642.00 − 80.00) ÷ 3,642.00 = 97.8%.
+Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_days--> of 3 × 12,400 = 37,200 crate-days (target 26,040<!--fig:portfolio.harvest-cold.plan.sums.occupied_total_crate_days-->). Cost to serve 3,492.00<!--fig:portfolio.harvest-cold.plan.sums.cost_to_serve--> → 3,642.00<!--fig:portfolio.harvest-cold.actual.sums.cost_to_serve--> (+155.00 − 3.00 − 108.00 − 194.00 = −150.00<!--rec--> against target). Everything except Thika's maintenance (80.00, an Estimate) is recorded: (3,642.00 − 80.00) ÷ 3,642.00 = 97.8%.
 
 **The surprise.** Mwea has the *highest* energy cost per crate-day (2,650 kWh × 0.20 = 530.00, ÷ 4,340 crate-days = 0.1221<!--rec:tenants[harvest-cold].sites[Room A · Mwea].period.energy_per_crate_day-->) and nothing wrong with its equipment. Kirinyaga looks efficient (5,000 kWh × 0.20 = 1,000.00, ÷ 9,920 = 0.1008<!--rec:tenants[harvest-cold].sites[Room C · Kirinyaga].period.energy_per_crate_day-->) but uses 970 ÷ 4,030 = 24% more energy than its occupancy explains.
 
@@ -425,7 +425,7 @@ Occupied 22,940<!--fig:portfolio.harvest-cold.actual.sums.occupied_total_crate_d
 | EPC workmanship warranty: term; claim; supplier's replacement date; cover | to 2027; accepted 17 Oct; 8 Nov; 710.00<!--fig:options.THIKA-EPC-WAIT.rights.claimable_cover--> | Record (EPC warranty claim) |
 | Stopgap: SMS alarm relay; night rota labour | 40.00; 60.00 | Declared input, source not recorded |
 | Goods-in-custody insurance deductible | 500.00 | Record (policy) |
-| No night with stock and no backup cover | service rule | Plan limit |
+| No night with stock and no backup cover | service rule | Limit set by the operator |
 
 | Option | Factor changes | One-off | Nights with stock and no backup cover | Rights | Result |
 |---|---|---|---:|---|---|
@@ -437,7 +437,7 @@ Goods-in-custody insurance is not claimed: the 108.00 loss is below the 500.00 d
 
 #### Plan: proposed by the system, decided by people
 
-**1. The plan and its limits.** Budget 2,500<!--rec:tenants[harvest-cold].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.harvest-cold.default.crew_visits_limit--> crew visits in November; 12-month horizon (all Plan limits). Recommendations are found as at Lakeside: one search over all the decisions together, recommending the combination that breaks the rules least, then is worth most, then spends least. The demo's managers choose them, and the executive approves the plan.
+**1. The plan and its limits.** Budget 2,500<!--rec:tenants[harvest-cold].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.harvest-cold.default.crew_visits_limit--> crew visits in November; 12-month horizon (all limits set by the operator). Recommendations are found as at Lakeside: one search over all the decisions together, recommending the combination that breaks the rules least, then is worth most, then spends least. The demo's managers choose them, and the executive approves the plan.
 
 | Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
@@ -485,7 +485,7 @@ Charging is a cost centre; there is no charging revenue. The outcome is **cost p
 
 **Inputs (Record).** Tariff C-114: peak (18:00–22:00) 0.24<!--fig:sites.metro-bus/Embakasi.actual.nodes.peak_price-->, off-peak 0.12<!--fig:sites.metro-bus/Embakasi.actual.nodes.offpeak_price-->, demand 12.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.demand_rate--> per kW a month. A new 00:00–05:00 tier at 0.09<!--rec:tenants[metro-bus].sites[Embakasi].tariff.prices.night_from_1_nov--> starts on 1 Nov, so October's after-midnight energy was billed at 0.12. 20<!--fig:sites.metro-bus/Embakasi.actual.nodes.buses--> buses × 140 kWh = 2,800<!--fig:sites.metro-bus/Embakasi.actual.nodes.required_kwh_night--> kWh needed a night; the lower of 10 chargers × 60 kW = 600 kW and the import limit of 500<!--fig:sites.metro-bus/Embakasi.actual.nodes.import_limit_kw--> kW, over a 12-hour window: 500 × 12 = 6,000<!--fig:sites.metro-bus/Embakasi.actual.nodes.deliverable_kwh_night--> kWh deliverable.
 
-| Factor | Plan | Actual | Change | Price | Money effect | How it is known |
+| Factor | Target | Actual | Change | Price | Money effect | How it is known |
 |---|---:|---:|---:|---:|---:|---|
 | Energy, all hours (kWh) | 86,800 | 86,800 | 0 | | | Record |
 | of which at peak (30% planned, 55% actual) | 26,040<!--fig:sites.metro-bus/Embakasi.plan.nodes.peak_kwh--> | 47,740<!--fig:sites.metro-bus/Embakasi.actual.nodes.peak_kwh--> | +21,700 moved from 0.12 to 0.24 | +0.12 | −2,604.00<!--rec--> | Record (meter intervals) |
@@ -494,13 +494,13 @@ Charging is a cost centre; there is no charging revenue. The outcome is **cost p
 | *Bill lines* | *peak 26,040 × 0.24 = 6,249.60<!--fig:sites.metro-bus/Embakasi.plan.nodes.peak_cost-->, off-peak 60,760<!--fig:sites.metro-bus/Embakasi.plan.nodes.kwh_2200_2400--> × 0.12 = 7,291.20<!--fig:sites.metro-bus/Embakasi.plan.nodes.offpeak_cost-->, demand 450 × 12.00 = 5,400.00<!--fig:sites.metro-bus/Embakasi.plan.nodes.demand_cost-->* | *peak 47,740 × 0.24 = 11,457.60<!--fig:sites.metro-bus/Embakasi.actual.nodes.peak_cost-->, 22:00–24:00 15,500<!--fig:sites.metro-bus/Embakasi.actual.nodes.kwh_2200_2400--> × 0.12 = 1,860.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.offpeak_cost-->, 00:00–05:00 23,560<!--fig:sites.metro-bus/Embakasi.actual.nodes.kwh_0000_0500--> × 0.12 = 2,827.20<!--fig:sites.metro-bus/Embakasi.actual.nodes.night_cost-->, demand 500 × 12.00 = 6,000.00<!--fig:sites.metro-bus/Embakasi.actual.nodes.demand_cost-->* | | | | Calculated |
 | **Cost to serve** | **19,540.80<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_to_serve-->** | **22,744.80<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_to_serve-->** | | | **−3,204.00** | Calculated |
 
-Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met (Record); 22,744.80 ÷ 620 = 36.69<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_per_departure_met--> per departure (plan 19,540.80 ÷ 620 = 31.52<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_per_departure_met-->).
+Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met (Record); 22,744.80 ÷ 620 = 36.69<!--fig:sites.metro-bus/Embakasi.actual.nodes.cost_per_departure_met--> per departure (target 19,540.80 ÷ 620 = 31.52<!--fig:sites.metro-bus/Embakasi.plan.nodes.cost_per_departure_met-->).
 
 ##### Kasarani
 
 **Inputs (Record).** Flat tariff 0.15<!--fig:sites.metro-bus/Kasarani.actual.nodes.offpeak_price--> per kWh, no demand charge. 8<!--fig:sites.metro-bus/Kasarani.actual.nodes.buses--> buses × 150 kWh = 1,200<!--fig:sites.metro-bus/Kasarani.actual.nodes.required_kwh_night--> kWh needed a night; the lower of 4 chargers × 50 kW = 200 kW and the import limit of 250 kW, over a 7-hour window: 200 × 7 = 1,400<!--fig:sites.metro-bus/Kasarani.actual.nodes.deliverable_kwh_night--> kWh deliverable. Penalty 120.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalty_rate--> per missed departure (service contract). One spare bus.
 
-**October: on plan.** Energy 1,200<!--fig:sites.metro-bus/Kasarani.actual.nodes.required_kwh_night--> kWh × 31 nights = 37,200 kWh × 0.15 = 5,580.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.energy_cost--> + maintenance 300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance--> (Estimate: the invoice has not arrived) = 5,880.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.cost_to_serve-->, the same as plan; all 248 departures met (Record).
+**October: on plan.** Energy 1,200<!--fig:sites.metro-bus/Kasarani.actual.nodes.required_kwh_night--> kWh × 31 nights = 37,200 kWh × 0.15 = 5,580.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.energy_cost--> + maintenance 300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance--> (Estimate: the invoice has not arrived) = 5,880.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.cost_to_serve-->, the same as target; all 248 departures met (Record).
 
 **November to date (1–5 Nov).** Charger CH-K2 failed at 23:40 on 1 Nov. The structure reads the consequence from the chargers-in-service factor before any invoice:
 
@@ -520,7 +520,7 @@ Sum: −2,604.00 − 600.00 = **−3,204.00**. All 620 departures met (Record); 
 
 **October, actual by factor (Calculated).** Peak 6,076<!--fig:sites.metro-bus/Ruiru.actual.nodes.peak_kwh--> kWh × 0.24 = 1,458.24<!--fig:sites.metro-bus/Ruiru.actual.nodes.peak_cost-->; off-peak 54,684<!--fig:sites.metro-bus/Ruiru.actual.nodes.kwh_2200_2400--> kWh × 0.12 = 6,562.08<!--fig:sites.metro-bus/Ruiru.actual.nodes.offpeak_cost-->; demand 380<!--fig:sites.metro-bus/Ruiru.actual.nodes.max_kw--> kW × 12.00 = 4,560.00<!--fig:sites.metro-bus/Ruiru.actual.nodes.demand_cost-->; maintenance 500.00; cost to serve 1,458.24 + 6,562.08 + 4,560.00 + 500.00 = 13,080.32<!--fig:sites.metro-bus/Ruiru.actual.nodes.cost_to_serve-->; all 434 departures met (Record).
 
-**Plan: a stated total only.** Ruiru's plan is 13,100.00<!--fig:sites.metro-bus/Ruiru.plan.stated_total--> (energy 12,600 + maintenance 500), with no kWh, peak share or kW behind it. So the plan cannot be split into factors, and the deviation, 13,100.00 − 13,080.32 = +19.68, **cannot be attributed to factors**. This is an honest gap in the plan record, not a calculation.
+**Plan: a stated total only.** Ruiru's target is 13,100.00<!--fig:sites.metro-bus/Ruiru.plan.stated_total--> (energy 12,600 + maintenance 500), with no kWh, peak share or kW behind it. So the target cannot be split into factors, and the deviation, 13,100.00 − 13,080.32 = +19.68, **cannot be attributed to factors**. This is an honest gap in the budget record, not a calculation.
 
 Connector 2 of charger CH-R7 has been out since 6 Oct (26<!--fig:sites.metro-bus/Ruiru.actual.nodes.charger_days_out_of_service--> charger-days in October); no departure depended on it.
 
@@ -533,7 +533,7 @@ Connector 2 of charger CH-R7 has been out since 6 Oct (26<!--fig:sites.metro-bus
 | Ruiru | 13,100.00 (stated total) | 13,080.32 | +19.68 (not attributable) | 434 of 434 |
 | **Metro Bus** | **38,520.80<!--fig:portfolio.metro-bus.plan.sums.outcome_total_with_stated_totals-->** | **41,705.12<!--fig:portfolio.metro-bus.actual.sums.cost_to_serve-->** | **−3,184.32** | **1,302<!--fig:portfolio.metro-bus.actual.sums.departures_met--> of 1,302** |
 
-The deviation is −3,204.00 + 0.00 + 19.68 = −3,184.32. Cost per departure met: 41,705.12 ÷ 1,302 = **32.03<!--fig:portfolio.metro-bus.actual.sums.cost_per_departure_met-->** (plan 38,520.80 ÷ 1,302 = 29.59<!--fig:portfolio.metro-bus.plan.sums.cost_per_departure_required-->). Everything except Kasarani's maintenance (300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance-->, an Estimate) is recorded: (41,705.12 − 300.00<!--fig:-sites.metro-bus/Kasarani.actual.nodes.maintenance-->) ÷ 41,705.12 = 99.3%.
+The deviation is −3,204.00 + 0.00 + 19.68 = −3,184.32. Cost per departure met: 41,705.12 ÷ 1,302 = **32.03<!--fig:portfolio.metro-bus.actual.sums.cost_per_departure_met-->** (target 38,520.80 ÷ 1,302 = 29.59<!--fig:portfolio.metro-bus.plan.sums.cost_per_departure_required-->). Everything except Kasarani's maintenance (300.00<!--fig:sites.metro-bus/Kasarani.actual.nodes.maintenance-->, an Estimate) is recorded: (41,705.12 − 300.00<!--fig:-sites.metro-bus/Kasarani.actual.nodes.maintenance-->) ÷ 41,705.12 = 99.3%.
 
 #### Evaluate
 
@@ -544,7 +544,7 @@ The deviation is −3,204.00 + 0.00 + 19.68 = −3,184.32. Cost per departure me
 | Deadline-aware schedule: charging power; hours charged | 400 kW; 2 hours (22:00–24:00) + 5 hours (00:00–05:00), with 05:00–05:15 kept as slack | Declared input (the schedule's design) |
 | Schedule: nights it would have met every departure | 31 of 31 replayed October nights | Design value |
 | Schedule set-up and supervision | 1,500.00<!--fig:options.EMB-DEADLINE.operator_one_off--> | Declared input, source not recorded |
-| Every required departure is met | service rule | Plan limit |
+| Every required departure is met | service rule | Limit set by the operator |
 
 | Option | Factor changes (a month) | Bill a month | How the value follows | Result |
 |---|---|---:|---|---|
@@ -561,7 +561,7 @@ The deviation is −3,204.00 + 0.00 + 19.68 = −3,184.32. Cost per departure me
 | Nights the roster frees the spare bus, 6–8 Nov | 1 | Record (roster) |
 | Cover: charging an uncovered bus at Ruiru | 45.00<!--fig:options.KAS-OEM-STOPGAP.params.cost_per_bus_night--> a bus-night (driver overtime 35 + energy 10) | Quote |
 | Local repair: time; cost | 1 day; 380.00<!--fig:options.KAS-LOCAL.operator_one_off--> | time Quote (local electrician); cost Declared input, source not recorded |
-| Every required departure is met | service rule | Plan limit |
+| Every required departure is met | service rule | Limit set by the operator |
 
 | Option | Factor changes | One-off | Departures missed | How the value follows | Result |
 |---|---|---:|---:|---|---|
@@ -588,7 +588,7 @@ The idle connector at Ruiru (CH-R7 connector 2, one interrupted session on 6 Oct
 
 #### Plan: proposed by the system, decided by people
 
-**1. The plan and its limits.** Budget 5,000<!--rec:tenants[metro-bus].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.metro-bus.default.crew_visits_limit--> crew visits in November; 12-month horizon (all Plan limits). Recommendations are found as at Lakeside: one search over the Kasarani and Embakasi decisions together, recommending the combination that breaks the rules least, then is worth most, then spends least. The demo's managers choose them and create the Actions; once the executive approves the plan, the Actions are released in this order (Declared input): Kasarani cover (departures at risk now), Embakasi schedule (largest money), Ruiru contract (a decision), CH-R7 claim (no consequence).
+**1. The plan and its limits.** Budget 5,000<!--rec:tenants[metro-bus].portfolio_constraints.budget_usd_nov_dec-->; 2<!--fig:plans.metro-bus.default.crew_visits_limit--> crew visits in November; 12-month horizon (all limits set by the operator). Recommendations are found as at Lakeside: one search over the Kasarani and Embakasi decisions together, recommending the combination that breaks the rules least, then is worth most, then spends least. The demo's managers choose them and create the Actions. Each change whose total one-off is above the spend threshold waits for the executive's approval of the plan (design §2.4). The Actions are taken up in this order (Declared input): Kasarani cover (departures at risk now), Embakasi schedule (largest money), Ruiru contract (a decision), CH-R7 claim (no consequence).
 
 | Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
@@ -638,7 +638,7 @@ Every state is set by a person from a recorded document or event. The screen alw
 
 `demo-site-scenario-manifest.yaml` defines three operators with three sites each, built backwards from each portfolio's executive choice: every site carries one contrast and one negative control, and the rights contrast is embedded in repair decisions rather than added as extra sites. The manifest's rev 4 re-expresses every site period as a factor structure with the value chain as backbone, re-bases Thika and Ruiru on the v7.0 incidents so the preserved drill-down pages and the figures describe one world, and values Embakasi's schedule against November no-action. Ground truth lives only in the manifest's private `oracle:`; every product figure must be computed through the real ingest and analytics path and compared against it.
 
-**The illustration is itself evaluated, all the way down** (owner, 17 Nov, ninth to eleventh messages). The manifest holds only inputs. `structures:` declares every layer of each vertical: value-chain stages and leaks; physical splits and capacity (necessary and candidate running, normalised energy, chargers in service against the import limit, crate-days against room capacity); cost to serve and the outcome; and the Protect and O2 measures. `factor_map:` turns each site's source records into leaf factors, including dated records (a generator failed on 30 Oct, an inverter on 28 Oct, a backup start unproven since 6 Oct, a connector out since 6 Oct), so the period's own Protect measures — obligation hours without redundancy at Kisiwa 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> and Mto 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy-->, 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika (unproven, stock present and no rota, each a record), 6 asset-days out; and for November to date at Kasarani 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures missed and 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties — are evaluated, not typed. `evaluation:` gives each option's parameters with provenance, its factor changes as expressions, its cost lines with the right that could bear each (eligibility and claim progress kept apart), the rights it sets or voids, and restore dates derived from what drives them; it also declares the obligation bounds of each vertical with their reasons. `plans:` lists each portfolio's decisions with their bound policy: protective and valued decisions are searched together under the budget, the crew-visit limit and the dated dependencies; an option that breaks its decision's hard bounds is left out unless no option of that decision can keep them, and the recommended set breaks the bounds least, then is worth most, then spends least (Kisiwa: no option restores a backup at once, so all three stay in the search and the 15-hour repair is recommended over the 105-hour replacement). One redundancy rule applies to every Lakeside decision: obligation hours with no backup supply (owner question Q15). No option carries a typed admissibility: rights lapse at their notice deadlines, unauthorised repairs void cover, and the cover bound tests what is lost. `evaluate_structure.py` produces every figure in `derived-values.json`; the mock-up takes them from it; `check_manifest.py` asserts every stated figure in the manifest against the evaluation, every figure tagged in the documents (`<!--fig:path-->`) against its evaluated value with its sign, that the headline figures (spend, value and visits per plan; the period's Protect statement) are tagged, that no evaluated plan or option money figure appears untagged in a figure-bearing document (record figures carry a record tag, checked against the manifest), the absence of superseded figures, and that untagged money figures are evaluated values or declared inputs. **Inputs by design, and flagged where shown:** the calibration-spike design values (Kobo avoided litres and dawn days, the huller's added fuel, fuel at half inverter capacity, Embakasi's feasible nights); quotes (repair, installation, the 45 per bus charged away from Kasarani, a 1-day local repair); the depot roster (the spare bus is free on 1 of the nights to a restore); one procurement assumption (Thika's self-funded controller fitted the same day); the batch-exposure observer's output (crate-minutes above the limit) and the battery-evidence record count; one assumption with no model (Kisiwa's 60 kWh battery saving, Q14). Ruiru's October plan is a bill total and is labelled "not decomposed", never counted as evaluated.
+**The illustration is itself evaluated, all the way down** (owner, 17 Nov, ninth to eleventh messages). The manifest holds only inputs. `structures:` declares every layer of each vertical: value-chain stages and leaks; physical splits and capacity (necessary and candidate running, normalised energy, chargers in service against the import limit, crate-days against room capacity); cost to serve and the outcome; and the Protect and O2 measures. `factor_map:` turns each site's source records into leaf factors, including dated records (a generator failed on 30 Oct, an inverter on 28 Oct, a backup start unproven since 6 Oct, a connector out since 6 Oct), so the period's own Protect measures — obligation hours without redundancy at Kisiwa 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> and Mto 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy-->, 26<!--fig:sites.harvest-cold/Room B · Thika.actual.nodes.nights_without_backup_cover--> nights without backup cover at Thika (unproven, stock present and no rota, each a record), 6 asset-days out; and for November to date at Kasarani 2<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed--> departures missed and 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> of penalties — are evaluated, not typed. `evaluation:` gives each option's parameters with provenance, its factor changes as expressions, its cost lines with the right that could bear each (eligibility and claim progress kept apart), the rights it sets or voids, and restore dates derived from what drives them; it also declares the obligation bounds of each vertical with their reasons. `plans:` lists each portfolio's decisions with their bound policy: protective and valued decisions are searched together under the budget, the crew-visit limit and the dated dependencies; an option that breaks its decision's hard bounds is left out unless no option of that decision can keep them, and the recommended set breaks the bounds least, then is worth most, then spends least (Kisiwa: no option restores a backup at once, so all three stay in the search and the 15-hour repair is recommended over the 105-hour replacement). One redundancy rule applies to every Lakeside decision: obligation hours with no backup supply (owner question Q15). No option carries a typed admissibility: rights lapse at their notice deadlines, unauthorised repairs void cover, and the cover bound tests what is lost. `evaluate_structure.py` produces every figure in `derived-values.json`; the mock-up takes them from it; `check_manifest.py` asserts every stated figure in the manifest against the evaluation, every figure tagged in the documents (`<!--fig:path-->`) against its evaluated value with its sign, that the headline figures (spend, value and visits per plan; the period's Protect statement) are tagged, that no evaluated plan or option money figure appears untagged in a figure-bearing document (record figures carry a record tag, checked against the manifest), the absence of superseded figures, and that untagged money figures are evaluated values or declared inputs. **Inputs by design, and flagged where shown:** the calibration-spike design values (Kobo avoided litres and dawn days, the huller's added fuel, fuel at half inverter capacity, Embakasi's feasible nights); quotes (repair, installation, the 45 per bus charged away from Kasarani, a 1-day local repair); the depot roster (the spare bus is free on 1 of the nights to a restore); one procurement assumption (Thika's self-funded controller fitted the same day); the batch-exposure observer's output (crate-minutes above the limit) and the battery-evidence record count; one assumption with no model (Kisiwa's 60 kWh battery saving, Q14). Ruiru's October target is a bill total and is labelled "not decomposed", never counted as evaluated.
 
 **Documented limits of the illustration** (rev 13 final review, class ii; full list in `derivation-register.md` §9):
 - **Unchecked rendered copies (F3).** Some manifest copies the screen renders are not checked against anything. These include listed-beside amounts, billing charges, the huller's revenue and fuel lines, replay-record copies, the budget copy, coverage shares, site variances and bridge amounts. All are correct today.

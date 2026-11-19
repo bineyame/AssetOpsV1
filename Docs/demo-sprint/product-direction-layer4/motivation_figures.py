@@ -186,7 +186,7 @@ def fig_bridge():
     """Figure 3 (§2.2): performance against target, before and after (B2)."""
     ef = lambda k: -(KA[k] - KP[k]) * KA["diesel_price"]
     today = panel("Today (context): the Assure row", [
-        ("r", [B(["Actual against plan", "\"N of M declared objectives met\""], tag="stays as operational targets")]),
+        ("r", [B(["Actual against plan", "\"N of M declared objectives met\""], tag="renamed: Actual against target")]),
         ("r", [B(["Objective: avoidable generator", "minutes per day at most a target;", "MET, MISSED or not judged"],
                  tag="stays; becomes a factor's target")]),
         ("r", [B(["Declared by the system", "\"not a customer target\"; no money", "target is ever judged"],

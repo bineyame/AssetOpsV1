@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.2)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.4)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.2 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.4 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -21,9 +21,9 @@ These sections were §11, §12 and Appendix B of the design document up to rev 1
 
 ## 2. Self-check against the brief's final acceptance test
 
-| The executive must understand… | Where in the design (rev 16.2) |
+| The executive must understand… | Where in the design (rev 16.4) |
 |---|---|
-| which business outcome is underperforming | §2.1 and §2.2: outcomes read through their factors, against plan |
+| which business outcome is underperforming | §2.1 and §2.2: outcomes read through their factors, against target |
 | which researched lever is relevant | §2.4: a lever is declared on the factor it changes |
 | whether AssetEcon can meaningfully improve the choice | §2.4: option dispositions; Conditional where influence is conditional |
 | which alternatives win or lose and why | §2.4: decision with no action and the rule that rejected an option |
@@ -31,8 +31,8 @@ These sections were §11, §12 and Appendix B of the design document up to rev 1
 | who bears the cost given contract rights | §2.4 and `worked-portfolios.md` §1.4: residual cost per remedy path |
 | what is observed versus modelled | "Rules every figure follows" and §2.3: evidence classes in words on every figure |
 | what intervention can be undertaken | §2.4–§2.6: the Actions the accountable role creates against a Finding or a plan item, released by the plan the executive approves |
-| how it will be verified | §2.6: three verdicts |
-| what pilot data and engagement is needed | §2.3: the pilot asks per vertical |
+| how it will be verified | §2.7: three verdicts |
+| what pilot data and engagement is needed | §2.3 (sources) and §5 below (the pilot asks per vertical) |
 
 **What this design does not establish:** that any prospect's figures resemble the manifest; that the forward replay is calibrated on a real site; that a tariff or contract clause applies to a given operator; that any supplier will accept a claim; or that AssetEcon's differentiation holds. Those are pilot questions (`design-questions-and-decisions.md`).
 
@@ -66,3 +66,14 @@ Moved from design §2.3 in rev 16.2.
 - **Mini-grid:** EMS export, meter register, billing export, settlement statements, fuel records, budget, and one asset's contract set.
 - **Cold:** storage ledger, energy bills, chamber log, invoices and receipts, QA notes, budget, and the refrigeration contract.
 - **EV:** CPMS log, roster, utility invoice, service tickets, budget, and the charger warranty or SLA.
+- **Rev 16.3 (19 Nov).** The owner's answers ("Q-B1 yes, agree with the architect's pushbacks") are recorded as OD-4 to OD-6. The standing owner brief (`.ai/RULES.md` §10) is applied, and every section now states how it serves the overall objective.
+- **Rev 16.4 (19 Nov).** Fixes for review D (`regeneration/D-review-rev16.3.md`). "Plan" now means only the new construct, everywhere:
+  - targets and budget lines replace it in the worked portfolios;
+  - "verification baseline" replaces it for verification;
+  - "maintenance schedule" replaces it for maintenance;
+  - the on-screen "Actual against plan" is renamed.
+
+  Other changes:
+  - the spend threshold applies to the whole chosen change;
+  - a released Action whose item the plan drops is covered;
+  - the pushbacks the owner agreed are recorded as OD-7 and OD-8.

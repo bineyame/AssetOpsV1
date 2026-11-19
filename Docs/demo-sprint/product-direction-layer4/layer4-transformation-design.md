@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.3 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.4 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -76,6 +76,8 @@ Today's product turns raw Site evidence into **honest, bounded operational judge
 
 Every Site and the Portfolio show four economic categories (Grow, Optimize, Protect, Assure). Each says plainly which records are still missing.
 
+*Serves the objective:* this honesty is the credibility executives need before they trust a money figure. Part 2 adds the money on top of it.
+
 ### 1.2 The mechanics, layer by layer
 
 *Serves the objective:* this is the trusted evidence chain that every money figure in Part 2 builds on. It already answers the operational half of the executive's question.
@@ -87,9 +89,9 @@ Every Site and the Portfolio show four economic categories (Grow, Optimize, Prot
 | **Findings** | The stored, revised result of each evaluation (§1.3), with next-step text. Mini-grid dispatch Findings also carry a claim ceiling and rival explanations | Identity stable across re-evaluation; full history | `0009_finding_store.py:33-106`; `analytics/claim_limit_read.py:1-19`; `mini_decisions/alternatives.py:45-48` |
 | **Act** | Accept a recommended trial; raise a domain action or a work case linked to a Finding; raise the mill-shift domain action from a headroom study (§1.4) | Event-sourced, idempotent, typed refusals | `action_api.py:152-232`; `work/domain_action.py:24-136`; `work/model.py:107-151`; `0051_action_opportunity_origin.py:1-12` |
 | **Track** | Action and work events. The Finding's thread moves to action in hand, change applied, resolved and monitoring, or recurred. The Actions rail | The thread joins a Finding to what was done about it | `0042_chain_threads.py:64-71`; `chain/lifecycle.py:46-58`; `frontend/src/estate/actionIndex.tsx:38-160` |
-| **Verify** | Three mini-grid families (reserve trial, midday mill shift, fuel residual) with frozen plans, comparability and guardrails. Verdicts are Verified, Ineffective or Inconclusive | Proof before credit; unknown families fail closed | `actions/verification_rules.py:675-815`; `actions/verification_families.py:502-516`; `actions/fuel_verification.py:146-164` |
+| **Verify** | Three mini-grid families (reserve trial, midday mill shift, fuel residual) with frozen verification baselines, comparability and guardrails. Verdicts are Verified, Ineffective or Inconclusive | Proof before credit; unknown families fail closed | `actions/verification_rules.py:675-815`; `actions/verification_families.py:502-516`; `actions/fuel_verification.py:146-164` |
 | **Money** | Estimated (observed kWh × typed price) and Modelled (possible extra fuel cost, from 0 up to a bound). A post-trial cost check is credited only when Verified | Labelled; never summed across kinds | `financials/fuel_cost.py:22`; `financials/trial_fuel_comparison.py:1-44`; `outcomes/credit.py:57-73` |
-| **Targets** | Six operational objectives, judged Met, Missed, On pace or Behind pace. They drive the outcome's state | Performance against target exists, in operational form | `outcomes/objectives.py:57-143`; `outcomes/status.py:55-104` |
+| **Targets** | Six objectives, judged Met, Missed, On pace or Behind pace, which drive the outcome's state. Five are operational; one, EV energy cost per km, is a money target that can be declared but is never judged | Performance against target exists, in operational form | `outcomes/objectives.py:57-143`; `outcomes/status.py:55-104` |
 | **Present** | The Site outcome board: per outcome, "What drives it", "Issues", "What can be done", "Already in hand", "Earlier interventions" and "Must not harm". The Portfolio: six tabs and four category cards. Act first groups Findings by placement, "never a value ranking" | The board's columns already run outcome → driver → issue → lever → action → result | `frontend/src/sites/OutcomeBoard.tsx:42-48`, `:262-330`; `site_outcomes/read.py:926-977`; `estate/placement.py:1-8` |
 
 ### 1.3 What a Finding is
@@ -124,8 +126,8 @@ Dispatch also marks *indeterminate* running as raising a Finding (`analytics/dis
 | Operator executive | Portfolio cards, Act first, Outcomes by site, What changed | Decides where to look first | Nothing is recorded |
 | Site or operations manager | The Finding, its evidence, alternatives and next step; the recommendation (Kobo: battery reserve 5 points lower) | **Accepts** the trial, then **applies** it from a chosen time. Applying publishes a Site configuration revision, not a device command | ACCEPTED and APPLIED events, **recorded as a "SYSTEM demonstration" actor**, "no operator approval is recorded" (`actions/lifecycle.py:43-58`; `0016_action_store.py:131-132`) |
 | Site manager or technician | Site Work: domain actions (cold, EV, mill shift, fuel-balance work) and work cases | Raises a domain action (with an optional owner label and due date) or a work case (a title, plus an assignee once assigned); assigns, completes, closes | Events with actor and time. A user actor is refused and a server service principal is required (`work/model.py:284-285`). No UI control creates them yet |
-| Site manager | A five-day headroom study, with demand and collection "unverified" | Raises the mill-shift domain action from the study | Same limits as the row above: a service principal and no UI control. The mill plan is frozen once, at story time, with no route (`actions/verification_families.py:7-9`). The Action carries its opportunity origin (`0051_action_opportunity_origin.py:1-12`), and the study sits on its own thread with no Finding (`0042_chain_threads.py:43-62`) |
-| System | — | A VERIFY command freezes the verification plan; the evaluator then judges the after-window | The command never supplies a verdict (`actions/lifecycle.py:26-28`). The evaluator appends it (`:24-25`) |
+| Site manager | A five-day headroom study, with demand and collection "unverified" | Raises the mill-shift domain action from the study | Same limits as the row above: a service principal and no UI control. The mill verification baseline is frozen once, at story time, with no route (`actions/verification_families.py:7-9`). The Action carries its opportunity origin (`0051_action_opportunity_origin.py:1-12`), and the study sits on its own thread with no Finding (`0042_chain_threads.py:43-62`) |
+| System | — | A VERIFY call freezes the verification baseline; the evaluator then judges the after-window | The command never supplies a verdict (`actions/lifecycle.py:26-28`). The evaluator appends it (`:24-25`) |
 
 **Kobo, end to end, today:**
 1. Dispatch opens a candidate-running Finding for October.
@@ -147,7 +149,7 @@ The headroom study takes a separate path, with no Finding: study → mill-shift 
 | Service delivered | **Held**: telemetry; dispatch, service and backup reads | **Held**: temperatures, backup starts | **Held**: sessions, kWh, availability |
 | Billing and collection | Not held ("billing and payment records are not connected yet") | Not held (occupancy, storage contracts) | Not held. A captive fleet earns no charging revenue, which today's model cannot express |
 | Cost to serve | Fuel litres held; diesel price typed; O&M and staff not held | Cooling energy not held | Tariff typed; utility invoices not held |
-| O&M and work | Work cases, maintenance plans and operational records held, for all three verticals | Same | Same |
+| O&M and work | Work cases, maintenance schedules (named `plan` in the code) and operational records held, for all three verticals | Same | Same |
 | Contracts and capital | Warranty only as withheld fields (`sites/battery_boundary.py:26`); no capital view | None | None |
 | Targets | Operational objectives only | Backup-start objective; chamber policy | Interrupted-session objective; a cost-per-km target, never judged |
 
@@ -157,7 +159,7 @@ Sources: `outcomes/catalogue.py:43-68`; `chain/strategies/recorded_amount.py:1-1
 |---|---|---|
 | L1 | **Outcomes are flagged, not computed.** A fixed map links signals to outcomes, and drivers are named only in words. So no one can say how far below target the month is, or which factor moved it | `outcomes/outcome_map.py:17-37`, `:149-180`; `site_outcomes/mini.py:1156-1177` |
 | L2 | **No value chain and no recorded money.** Revenue, cash, cost to serve and contribution cannot be stated (the table above) | `chain/strategies/recorded_amount.py:1-10` |
-| L3 | **Targets are operational and system-declared** ("not a customer target"). There are no money targets and no budget, so there is no target-against-actual bridge | `objectives/model.py:23-24`; `site_outcomes/ev.py:109` |
+| L3 | **Targets are operational and system-declared** ("not a customer target"). The one money objective (EV energy cost per km) is never judged, and there is no budget, so there is no target-against-actual bridge | `objectives/model.py:23-24`; `site_outcomes/ev.py:109` |
 | L4 | **Few inputs beyond telemetry.** Inputs are the field gateway, reading upload, operational entries and typed prices. No client calls any external system | `reading_upload_api.py:113`; `work/operational_entry.py:25-30`; `financials/assumptions.py:32-58` |
 | L5 | **One fixed option, never compared with doing nothing.** The only option is reserve − 5 points, which "does not predict … any saving", and the what-ifs are gross figures only | `actions/reserve_trial.py:37`, `:42-45`; `mini_decisions/scenario_rules.py:191-228` |
 | **G1** | **No recorded person.** Trial commands are a SYSTEM demonstration, work writes refuse a user actor, and trials have no owner or due date. Acting and tracking hold on screen but not in the records | `actions/lifecycle.py:43-58`; `work/model.py:284-285`; `estate/coverage.py:530`; `main.py:640-661` |
@@ -279,7 +281,7 @@ flowchart BT
 - by a declared rule, for products;
 - with an explicit residual only where a leaf is unobserved.
 
-*Serves the objective:* it is meant to answer the question the brief puts first, *why did the month come in below plan, and by how much from each cause?*
+*Serves the objective:* it is meant to answer the question the brief puts first, *why did the month come in below target, and by how much from each cause?*
 
 **Where it fits.** Today's objectives stay, and each becomes the target of the factor it measures. **Named change (L3):** today a SYSTEM declarer sets them, "for the demonstration; not a customer target" (`objectives/model.py:23-24`). Under B2 the operator declares targets and budget lines, and the declarer is recorded (CH2). The "N of M objectives met" line stays beside the bridge.
 
@@ -366,7 +368,7 @@ flowchart TB
 1. **The system raises the Finding and proposes.** It values the options and marks one Recommended. It picks nothing.
 2. **The accountable role chooses** an option, or none: the site or operations manager for operations and O&M, the finance and commercial lead for billing, collection, claims and notices, and the executive for capital choices.
 3. **That role creates one or more Actions**, against the Finding or against a plan item (§2.5). Each records its creator, owner and due date.
-4. **Release.** Every Action's spend and crew visits count in the period's plan. An Action is released when it is created if its one-off spend is at or below the **spend threshold**, a Site or portfolio setting (owner, 19 Nov), and the plan still fits its budget and crew visits. Otherwise it waits for the plan's approval. Kobo's stop-threshold change spends 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> and no crew visit. Under a threshold of at least that amount it goes ahead at once, still counted in the plan. Under a lower threshold, or none set, it waits.
+4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below the threshold has its Actions released when they are created, provided the plan still fits its budget and crew visits. The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait.
 
 ### 2.5 P: the plan, a first-class construct (new)
 
@@ -380,7 +382,7 @@ flowchart TB
 
 Its states are draft, proposed, approved, revised and closed.
 
-*Serves the objective (why it is needed):* The objective asks which Sites and investments earn most from existing capital, and where limited crews should work (brief L1.3). Choices made Site by Site can each be right while the set breaks the budget, overruns the crew visits, or misses a dated dependency. For example, the Mto huller needs the inverter restored first. No budget, crew or cross-Site construct exists in today's backend or schema (the only "budget" hits are frontend layout code).
+*Serves the objective (why it is needed):* The objective asks which Sites and investments earn most from existing capital, and where limited crews should work. Choices made Site by Site can each be right while the set breaks the budget, overruns the crew visits, or misses a dated dependency. For example, the Mto huller needs the inverter restored first. No budget, crew or cross-Site construct exists in today's backend or schema (the only "budget" hits are frontend layout code).
 
 **Who owns it.** The **operator executive** owns the plan, because it commits the budget and crews and trades one Site against another. If the cooperative does not extend its letter of intent, keeping the Mto huller means buying the inverter now and dropping the Kisiwa repair. That leaves 125 evening hours without backup instead of 15 (`worked-portfolios.md` §1.1). Only the budget holder can make that trade.
 
@@ -394,7 +396,7 @@ Its states are draft, proposed, approved, revised and closed.
 | Verdict | Each item's Actions are verified as today, plus the economic and causal verdicts (§2.7). At the period's end the plan's predicted factor changes are set against what the bridge observed. The plan's realised value comes only from economic verdicts |
 | Registry | Items key to the factor IDs their options change, so the next period's bridge shows each planned change beside the observed one |
 
-**The system's part.** The system assembles the chosen items. It checks them against the budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend, with a reason for every item left out. That is a proposal; the executive approves the plan or sends it back. An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, and the creator revises it, defers it to the next plan, or withdraws it (owner decision OD-4). In Lakeside's demonstration the managers take the Recommended options, and the full proposal is in `worked-portfolios.md` §1.1.
+**The system's part.** The system assembles the chosen items. It checks them against the budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend, with a reason for every item left out. That is a proposal; the executive approves the plan or sends it back. An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, and the creator revises it, defers it to the next plan, or withdraws it (owner decision OD-4). If the Action was already released below the threshold, it stops at its next step: no further spend is released, it returns to its creator with the reason in the same way, and the spend already incurred stays recorded against the item (Architect's call, consistent with OD-4). In Lakeside's demonstration the managers take the Recommended options, and the full proposal is in `worked-portfolios.md` §1.1.
 
 <!--Figure 6: the plan among the constructs-->
 
@@ -424,11 +426,12 @@ flowchart LR
 - A proactive item names the factor or Protect measure it moves. Otherwise it is marked "no factor (upkeep or compliance)" and carries no value (OD-5).
 - "Plan" means only this construct. B2 uses "targets and budget lines" (OD-6).
 
-*Architect's call.*
-- Today's mill-shift Actions keep their opportunity-study origin as a third, legacy origin (`0051_action_opportunity_origin.py:1-12`). New demand work goes through an opportunity Finding or a proactive item.
-- A Finding-origin Action that spends always *joins* the plan, so it is always counted. It waits for approval only above the spend threshold.
+- Today's mill-shift Actions keep their opportunity-study origin as a third, legacy origin (`0051_action_opportunity_origin.py:1-12`). No new Action takes that origin; new demand work goes through an opportunity Finding or a proactive item (OD-7).
+- A Finding-origin Action that spends always *joins* the plan, so it is always counted. It waits for approval only above the spend threshold (OD-8).
 
-The plan's own state is derived from its items and Actions. It is not a second execution workflow.
+The owner settled OD-7 and OD-8 with "agree with the architect's pushbacks": rev 16.2 put both to the owner in this note. The Architect's calls that remain are the reading that the threshold applies per change (§2.4) and the rule for an Action already released (above).
+
+The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (the verification plan, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
 
 ### 2.6 CH2: the person in the loop, recorded
 
@@ -445,15 +448,15 @@ The plan's own state is derived from its items and Actions. It is not a second e
 - An authenticated user is recorded on every command. The schema already has the pattern: a HUMAN actor needs an author, though the API refuses one today (`0010_financial_assumptions.py:57-78`; `financial_api.py:209`).
 - Every Action records its creator, owner, due date and origin.
 - The UI gains the controls that exist today only as API routes.
-- Overdue is computed for Actions, as it already is for maintenance plans (`outcomes/plan_due.py:1-33`).
+- Overdue is computed for Actions, as it already is for maintenance schedules (`outcomes/plan_due.py:1-33`).
 
 **Roles** (owner, Q-A2: "a few sensible roles"). Roles govern who may decide and what is recorded. They are not views: every role sees the same screens (owner, 17 Nov). Everything a role does is recorded under the person's name, with the time.
 
 | Role | Decides | Does |
 |---|---|---|
 | **Operator executive** | Approves the plan; sets the budget, the switches and the spend threshold; makes capital choices and declares capital items (expansion, new connections) | Approves or sends back the plan, with a trade-off |
-| **Finance and commercial lead** | Declares budget lines; accepts imported records; chooses claims, notices and collection actions; sets money tolerances | Creates Actions against money and rights Findings; files rights events |
-| **Operations or site manager** | Chooses options within operational decisions; declares proactive items (maintenance, replacements); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work |
+| **Finance and commercial lead** | Declares budget lines and money targets; accepts imported records; chooses claims, notices and collection actions; sets money tolerances | Creates Actions against money and rights Findings; files rights events |
+| **Operations or site manager** | Chooses options within operational decisions; declares operational targets (availability, dawn charge, departures) and proactive items (maintenance, replacements); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work |
 | **Field technician or O&M contractor** | — | Does the work; records readings, dips and completion |
 | **Analyst** | Maps sources to factors; places data-quality holds | Onboards sources; reviews extracted contract rows |
 
@@ -480,8 +483,8 @@ flowchart LR
   FC --> U7(("Declare budget lines, accept records")):::new
   FC --> U8(("Create Actions on cash and rights")):::new
   AO --> U11(("Map sources, review contract rows")):::new
-  SYS --> U9(("Raise Findings, prepare decisions, check the plan")):::new
-  SYS --> U10(("Record events, judge verdicts")):::keep
+  SYS --> U9(("Prepare decisions, check the plan")):::new
+  SYS --> U10(("Raise Findings, record events, judge verdicts")):::keep
   classDef actor fill:#eef3ff,stroke:#1d4ed8
   classDef sys fill:#f4f5f7,stroke:#5d6878
   classDef new fill:#eef3ff,stroke:#1d4ed8
@@ -506,8 +509,9 @@ sequenceDiagram
   UI->>API: POST recommendation/accept
   API->>S: action + ACCEPTED, actor = SYSTEM demonstration
   M->>UI: Apply from a chosen time
+  UI->>API: POST actions/apply
   API->>S: Foundation revision + APPLIED (SYSTEM), thread moves to change applied
-  UI->>API: VERIFY (SYSTEM command, freezes the verification plan)
+  API->>S: VERIFY, a SYSTEM demonstration call (not from the UI), freezes the verification baseline
   S->>S: evaluator judges the after-window: verdict, cost check, credit if Verified
 ```
 
@@ -526,21 +530,21 @@ sequenceDiagram
   M->>UI: compares the options, their values and the rejected one's reason
   M->>API: chooses the stop threshold (actor = the manager), a reactive plan item is added for its spend
   M->>API: creates the setting change and a supervised trial, origin = the Finding, member of that item
-  S->>S: the one-off is above the spend threshold, so the Actions wait for the plan
+  S->>S: the change totals more than the spend threshold over both Actions, so both wait for the plan
   E->>API: approves the plan (actor = the executive), releasing the Actions
   T->>API: records the change and the supervision (actor = the technician)
   API->>S: thread moves to change applied, overdue shown if late
   S->>S: evaluator: operational, economic and causal verdicts, then the plan review
 ```
 
-*Figure 8. Before: one option, and the manager's acts are recorded as SYSTEM. After: the system proposes; the manager chooses, which adds a reactive plan item; the manager creates the Actions (origin: the Finding; membership: that item); and the executive's approval releases them. The approval step applies because the change's 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> one-off is above this example's spend threshold; under a higher threshold the Actions would be released at once. Each act carries its person.*
+*Figure 8. Before: one option, and the manager's acts are recorded as SYSTEM. After: the system proposes; the manager chooses, which adds a reactive plan item; the manager creates the Actions (origin: the Finding; membership: that item); and the executive's approval releases them. The approval step applies because the change's total one-off of 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, summed over both Actions, is above this example's spend threshold. Under a higher threshold both would be released at once. Each act carries its person.*
 
 ### 2.7 CH4: proof that the money followed
 
 *Serves the objective:* proof on the client's own Site is the pilot's purpose and the case for SaaS.
 
 **Named change (L6).** Today's verdict is operational and mini-grid only. The change's cost is fixed at 0 (`actions/verification.py:1167`), and positive evidence must be simulated or authored (`actions/verification_rules.py:688`), so money cannot be proven on a customer's Site.
-- *Stays:* the plan freeze, comparability, guardrails, fail-closed families and the operational verdict. The post-trial cost check and its credit rule seed the economic verdict.
+- *Stays:* the baseline freeze, comparability, guardrails, fail-closed families and the operational verdict. The post-trial cost check and its credit rule seed the economic verdict.
 - *Brings:* the frozen prediction becomes the target, and its bounds become the guardrails. Three verdicts are given on the same factors: **operational** (did the factor move, with the bounds held?), **economic** (did money move, in recorded records?) and **causal** (comparable days and untreated Sites as controls). Field evidence is admitted with its label. The option's cost replaces 0. "Not proven yet" is a verdict, not a pass.
 
 <!--Figure 9: proof-->
@@ -548,7 +552,7 @@ sequenceDiagram
 ```mermaid
 flowchart LR
   FP["Frozen prediction<br/>stop threshold: generator time after dawn −50% or more,<br/>dawn charge ≥ 35% every day"] --> W["After-window<br/>14 matched days before and after"]
-  W --> OPV["Operational verdict (stays)<br/>telemetry, frozen plan"]
+  W --> OPV["Operational verdict (stays)<br/>telemetry, frozen baseline"]
   W --> ECV["Economic verdict (new)<br/>dips, delivery notes, invoices"]
   W --> CAV["Causal verdict (new)<br/>untreated Sites: Kisiwa, Mto"]
   ECV --> RM["Realised money only from records,<br/>option cost subtracted"]
@@ -569,6 +573,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Act first | Findings in placement groups | The Finding triage stays first, with the plan beside it |
 | Outcomes by site and the site board | Statuses; drivers in words | Drivers become factor rows. "Issues" shows Findings on their factors; "What can be done" opens the decision; "Already in hand" shows Actions and plan items |
 | Opportunity | A headroom study | Renamed *Demand and capacity*: headroom stays capacity, and demand needs evidence |
+| Assure row line "Actual against plan" | "N of M declared objectives met" (`site_outcomes/mini.py:692`) | Renamed "Actual against target" (OD-6), so that "plan" means only the new construct |
 | What changed | Accepted actions, verifications | Actions with owners, the plan's review and the three verdicts |
 
 ### 2.9 Change register and delivery order
@@ -587,6 +592,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Actions, domain actions, work cases, rail | Stay, plus CH2 and P | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | Recorded creator, owner and due date; one origin (a Finding or a proactive plan item; legacy: the opportunity study) and at most one plan membership; released by the plan above the threshold |
 | Verification | Stays, plus CH4 | Cost 0; simulated evidence only: `verification.py:1167`; `verification_rules.py:688` | Economic and causal verdicts; field evidence |
 | Portfolio cards, Optimize figure, site board | Change (CH5) | Counts; one day over a period: `read.py:676-682` | Read from factors |
+| Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
 
 <!--Figure 10: delivery order-->
 
@@ -613,7 +619,7 @@ flowchart LR
 - D13, the visible-first path;
 - D14, emulators as placeholder sources.
 
-D15 is pending.
+D15 (the first change agreed at the end of the deep-dive) is pending; its context and default are in `product-transition-and-roadmap.md` §6.
 
 **Owner decisions of 19 Nov, applied in this revision:**
 
@@ -628,7 +634,12 @@ D15 is pending.
 | OD-5 | A proactive plan item names the factor or Protect measure it moves, or is marked "no factor (upkeep or compliance)" with no value ("agree with the architect's pushbacks") | §2.5 |
 | OD-6 | "Plan" means only the new construct; B2 uses "targets and budget lines" (same answer) | §2.2, §2.5, figures |
 
-**Architect's call, not settled by the owner:** the legacy opportunity-study origin, and the reading that a Finding-origin Action always joins the plan but waits for approval only above the threshold (§2.5).
+| OD-7 | Today's opportunity-study origin stays as a legacy third origin for existing mill-shift Actions only (the Architect's pushback, agreed) | §2.5 |
+| OD-8 | A Finding-origin Action that spends always joins the plan and waits for approval only above the spend threshold (the Architect's pushback, agreed) | §2.4, §2.5 |
+
+**Architect's calls, not settled by the owner:**
+- the threshold applies to the whole chosen change, summed over its Actions (§2.4 step 4);
+- an Action already released stops and returns to its creator when the approved plan drops its item (§2.5).
 
 ## Appendix. Where the detail lives
 
