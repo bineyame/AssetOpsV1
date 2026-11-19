@@ -686,6 +686,7 @@ Each proposal changes how a design rule is presented, not the rule itself. The A
 - Act first lists the same issues as the Overview. Give it a reason to exist, for example grouping by urgency next to the plan.
 - About 620 hard-coded colours remain in the earlier stylesheets, which theme.css re-points at tokens. Move them onto the tokens.
 - The remaining screens (Outcomes by site, Demand and capacity, What changed, Scope, Financials, the other Site and Decision pages) still need the wave-1 treatment.
+- The older v7.0 pages kept from the earlier mock-up still use system words ("Candidate avoidable", "Candidate runtime", "Factor"). The copy checks report them separately and do not fail on them; rewrite them in operator words.
 
 Each slice is specified by the Architect before code, under the handshake rule (RULES §4). G3 runs on the installed headless Chromium (§10.3).
 

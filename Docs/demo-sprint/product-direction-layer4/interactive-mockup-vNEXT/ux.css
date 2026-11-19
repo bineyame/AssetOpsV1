@@ -389,3 +389,5 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-about-inline{margin-top:var(--s3);max-width:none}
 .ux-about-inline>summary{text-align:left}
 @media (max-width:600px){.ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}.ux-chart{overflow-wrap:anywhere}}
+/* ---- copy round 4 ---- */
+table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100%}
