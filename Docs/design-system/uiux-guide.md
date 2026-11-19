@@ -680,6 +680,13 @@ Each proposal changes how a design rule is presented, not the rule itself. The A
 3. **Slice UX-2: the Decision page**: the recommendation header, the options table (§7.2), and the L3 sections collapsed.
 4. **Then Plan, Site, Findings and Financials**, one screen per slice. Each passes G1 to G4.
 
+**Wave 2 queue** (from the wave-1 design reviews, 19 Nov; not done in wave 1):
+- The Decision page is long: the options table starts below the fold. Move the comparison up, directly under the recommendation, and fold the explanation sections further.
+- Content repeats across pages: the same issues appear on the Overview, Act first and the Site page, and the plan facts appear on the Overview, Act first and the plan. Give each page one job, and link instead of repeating.
+- Act first lists the same issues as the Overview. Give it a reason to exist, for example grouping by urgency next to the plan.
+- About 620 hard-coded colours remain in the earlier stylesheets, which theme.css re-points at tokens. Move them onto the tokens.
+- The remaining screens (Outcomes by site, Demand and capacity, What changed, Scope, Financials, the other Site and Decision pages) still need the wave-1 treatment.
+
 Each slice is specified by the Architect before code, under the handshake rule (RULES §4). G3 runs on the installed headless Chromium (§10.3).
 
 ## Appendix B. Sources relied on

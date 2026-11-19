@@ -1130,6 +1130,12 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 @media (min-width:1024px) and (max-height:820px){.ux-kpi{padding:var(--s2) var(--s4)}.tabs.subtabs{margin-top:0;margin-bottom:var(--s2)}}
 .ux-q-who .who>span{margin-left:4px}
 @media (max-width:760px){table.ux-opts tr.rec>th:first-child{box-shadow:none}table.ux-opts tr.rec{border-left:3px solid var(--accent-solid)}}
+
+/* ---- fix round 3 ---- */
+.ux-cat-st{margin:0}
+.ux-about-inline{margin-top:var(--s3);max-width:none}
+.ux-about-inline>summary{text-align:left}
+@media (max-width:600px){.ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}.ux-chart{overflow-wrap:anywhere}}
 </style></head><body><div id="app"></div><div id="overlay"></div><script>/* Portfolio composition: presentation of site-owned results, never a second analytic. */
 const portfolioReview = {
  references:['v6.9 §8.1, p24: Portfolio command center','Client Demo Recommendation, Screen 1 and Appendix A1, p11'],
@@ -2885,7 +2891,7 @@ function preBody(s){
  if(s.loop)return '';
  if(GLOBAL_ROOTS.includes(s.root)&&(!s.section||s.gtabs))return `<div class="slim-banner">${icon('info')}<p>Example items from the three demo operators shown together: Kobo (Lakeside Power), Thika (Harvest Cold Network) and Ruiru (Metro Bus Depots). A real operator sees only its own sites.</p></div>`;
  if(s.root==='Sites'&&s.section&&s.domain==='ev')return `<div class="slim-banner">${icon('info')}<p>Detailed views from the earlier demo: they show Ruiru’s charger 7 (connectors 1 and 2) on 6 Oct, with that example’s 2-connector, 80 kW set-up. Depot-wide figures (${num(SN('ruiru').chargers_installed)} chargers, ${num(SN('ruiru').import_limit_kw)} kW import limit) are on the ${link('site/ruiru','Ruiru overview')}.</p></div>`;
- if(s.id==='opportunity-finding'||s.id==='renewable')return `<div class="slim-banner">${icon('info')}<p>Spare daytime solar without a paying customer is capacity, not an opportunity value. The Portfolio shows it as capacity; only customer evidence makes it a demand factor. ${link('portfolio/demand-and-capacity','Open Demand and capacity →')}</p></div>`;
+ if(s.id==='opportunity-finding'||s.id==='renewable')return `<div class="slim-banner">${icon('info')}<p>Spare daytime solar without a paying customer is capacity, not an opportunity value. The Portfolio shows it as capacity; only customer evidence makes it demand. ${link('portfolio/demand-and-capacity','Open Demand and capacity →')}</p></div>`;
  return '';}
 function selectorLabel(p){const st=REG_STATUS(p);return `${st==='Merged'?'[Merged] ':st==='Added'?'[New] ':''}${p.root} · ${typeof p.title==='function'?p.title():p.title}${p.section?' / '+p.section:''}`;}
 
@@ -2932,6 +2938,15 @@ const PLAIN_WORDS=[
  [/\bwarranty and insurance rights\b/g,'warranty and insurance cover'],[/\bSide effect on rights\b/g,'Side effect on warranty cover'],[/\(rights value at stake\)/g,'(warranty value at stake)'],[/\bthe rights factor\b/g,'the warranty factor'],
  [/\ban obligation(['’]s)?\b/g,(m,p)=>p?'a service’s':'a service limit'],[/\bobligation window\b/g,'service window'],[/\bclaim-versus-buy switch\b/g,'claim-versus-buy choice'],[/\(see the switch on Act first\)/g,'(see the cases on the plan)'],[/\bbeside the switch\b/g,'beside the choice'],
  [/\bRights\b/g,'Warranties and contracts'],[/\brights\b/g,'warranty cover'],[/\bswitch\b/g,'choice'],
+ [/\s?\(candidate running\)/g,''],[/\b(is|was) candidate running while\b/g,'ran while'],[/\bCandidate running litres\b/g,'Generator litres while solar could carry the load'],
+ [/\bCandidate running\b/g,'Generator ran while solar could carry the load'],[/\bcandidate running\b/g,'generator running while solar could carry the load'],[/\bNecessary running\b/g,'Generator needed'],[/\bnecessary running\b/g,'needed generator running'],
+ [/\bthe departures factor went below its limit\b/g,'departures fell below their limit'],[/\bThe backup-start factor\b/g,'The backup start'],[/\bthe backup-start factor\b/g,'the backup start'],[/\bthe compensation factor\b/g,'compensation'],
+ [/\bItem state: /g,'State: '],[/\bItem state\b/g,'State'],[/\bitem state\b/g,'state'],
+ [/\bno incompatible or off-rate-card occupancy recorded\b/g,'no occupancy recorded off the price list or with incompatible produce'],[/\bat a rate-card price\b/g,'at a listed price'],[/\brate-card\b/g,'price list'],
+ [/\(ledger to invoice reconciliation\)/g,'(stock records checked against invoices)'],[/\bledger[- ]to[- ]invoice difference\b/g,'difference between stock records and invoices'],[/\bledger to invoice\b/g,'stock records to invoices'],
+ [/\bEach option’s Protect measures\b/g,'Each option’s service and asset limits'],[/\bthrough the Protect measures\b/g,'against the service and asset limits'],[/\bProtect measures\b/g,'Service and asset limits'],[/\bprotect measures\b/gi,'service and asset limits'],[/\bProtect measure\b/g,'Limit'],
+ [/(\d+(?:\.\d+)?%) of cost on (?:emulated|simulated) records\b/g,'$1 of October cost backed by records; the rest estimated'],
+ [/\bfactor by factor\b/g,'driver by driver'],[/\bbase factors\b/g,'base drivers'],[/\bbase factor\b/g,'base driver'],[/\bFactors\b/g,'Drivers'],[/\bfactors\b/g,'drivers'],[/\bFactor\b/g,'Driver'],[/\bfactor\b/g,'driver'],
  [/\bObligation hours without redundancy\b/g,'Hours without backup supply'],[/\bobligation hours without redundancy\b/g,'hours without backup supply'],[/\bobligation hours\b/gi,'hours without backup supply'],[/\bObligations\b/g,'Service limits'],[/\bobligations\b/g,'service limits'],[/\bObligation\b/g,'Service limit'],[/\bobligation\b/g,'service limit'],
  [/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
 ];
@@ -3373,7 +3388,7 @@ function protectCard(op){const ms=protectOf(op),ev=OPS[op].vertical==='ev',lines
  const st=[];ms.filter(m=>m.stake).forEach(m=>{if(m.items)m.items.forEach(it=>{const k=siteKeyOf(op,it.site);st.push(`${rightName(SK[k].name,it.right)} ${typeof it.value==='number'?usd(it.value):it.value}`);});else Object.entries(m.sites).forEach(([k,v])=>{if(v)st.push(`${SK[k].name} ${m.name.toLowerCase()} ${usd(v)}`);});});
  ms.filter(m=>m.na).forEach(m=>lines.push([`${m.name}: not available yet (needs a failure-likelihood basis)`,'MISSING']));
  lines.push([`Listed, never summed: ${st.join('; ')}`,'EXPOSURE']);
- return {pos:`${above} of ${tot} measures above their target of 0${ev?' (October or November to date)':''}`,f:lines};}
+ return {pos:`${above?`${above} of ${tot} limits broken`:`All ${tot} limits held`}${ev?' (October or November to date)':' in October'}`,f:lines,broken:above,total:tot};}
 function protectCell(op,sk){const ms=protectOf(op).filter(m=>!m.stake&&!m.na),out=[];
  ms.forEach(m=>{const v=m.sites[sk],nv=m.nov?m.nov[sk]:undefined;if(pnum(v)>0||pnum(nv)>0)out.push(`${m.name}: ${pfmt(m,v)}${nv!==undefined?` (Oct) · ${pfmt(m,nv)} (to 6 Nov)`:''}`);});
  return out.length?out.join('<br>'):'<span class="muted">Every measure at its target of 0</span>';}
@@ -3853,7 +3868,7 @@ function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).concat(proactiveOf(op).map(it=>['Field work',`${SK[siteKeyOf(op,it.site)]?.name||it.site}: ${it.label}`,`${num(it.crew_visits||0)} ${it.crew_visits===1?crewOne(op):o.crewWord}${it.crew_month?` in ${monthOf(it.crew_month)}`:''}${it.service_date?`, on ${fdate(it.service_date)}`:''}`])).sort((a,b)=>a[0].localeCompare(b[0]));
  const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
  return `${uxPlanBand(op,P,budget)}<div class="layout-main-side"><div>
- ${sec(`The plan for ${periodWords()}: items and their Actions`,uxItemHead()+rows.join('')+total+ILLUS,`One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.`)}
+ ${sec(`The plan for ${periodWords()}: items and their Actions`,uxItemHead()+rows.join('')+total+`<details class="ux-about ux-about-inline"><summary>How the plan is chosen</summary><p>One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.</p></details>`+ILLUS,`One option per decision, within the budget, ${o.crewWord}, deadlines and dependencies.`)}
  ${paths}
  <div class="grid2">${secD('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.length)} lines`)}${secD('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
  ${secD('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options`)}
@@ -4047,8 +4062,8 @@ function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inP
  <li><span class="wd-k">1 · The system recommends</span>${recTxt}</li><li><span class="wd-k">2 · Who chooses</span>${chooseTxt}</li><li><span class="wd-k">3 · Actions created</span>${actTxt}</li><li><span class="wd-k">4 · Release</span>${relTxt}</li></ol>${ILLUS}</section>`;}
 function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null,chosenId=deciderOf(id).item;
  const rows=d.opts.map(oid=>{const x=OPT[oid],[cv,cn]=optCost(x),[ev,en]=optEffect(x);const recd=x.disposition==='RECOMMENDED';
-  const detail=`<dl class="ux-optd"><div><dt>Result against no action</dt><dd>${ev} <small>${en}</small> ${ec(optClass(x))}</dd></div><div><dt>Effect under each heading</dt><dd>${x.kind==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</dd></div><div><dt>Limits</dt><dd class="ux-obl">${obligations(x)}</dd></div><div><dt>Condition</dt><dd>${fx(x.condition)||'None'}</dd></div><div><dt>Status and reason</dt><dd>${dispBadge(x)} ${optWhy(x)}</dd></div></dl>`;
-  return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="Result against no action"><div class="ux-cell">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${ec(optClass(x))}${DV_OPT[oid]?dvTag(DV_OPT[oid]):''}</div></td><td data-label="Limits"><div class="ux-cell">${uxOblSummary(obligations(x))}</div></td><td data-label="One-off cost · who pays"><div class="ux-cell">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></div></td><td data-label="Status"><div class="ux-cell">${chosenId===oid?`<span class="status-pill is-approved">Chosen</span><small class="cellnote">${x.disposition==='RECOMMENDED'?'Recommended by the system':''}</small>`:dispBadge(x)}${x.kind==='NO_ACTION'&&chosenId!==oid?'<small class="cellnote">The reference: nothing changes</small>':''}</div></td><td data-label="Details"><div class="ux-cell">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</div></td></tr>`;}).join('');
+  const detail=`<dl class="ux-optd"><div><dt>Result against no action</dt><dd>${ev} <small>${en}</small> ${/^Not /.test(ev)?'':ec(optClass(x))}</dd></div><div><dt>Effect under each heading</dt><dd>${x.kind==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</dd></div><div><dt>Limits</dt><dd class="ux-obl">${obligations(x)}</dd></div><div><dt>Condition</dt><dd>${fx(x.condition)||'None'}</dd></div><div><dt>Status and reason</dt><dd>${dispBadge(x)} ${optWhy(x)}</dd></div></dl>`;
+  return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="Result against no action"><div class="ux-cell">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${/^Not /.test(ev)?'':ec(optClass(x))}${DV_OPT[oid]&&!/^Not /.test(ev)?dvTag(DV_OPT[oid]):''}</div></td><td data-label="Limits"><div class="ux-cell">${uxOblSummary(obligations(x))}</div></td><td data-label="One-off cost · who pays"><div class="ux-cell">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></div></td><td data-label="Status"><div class="ux-cell">${chosenId===oid?`<span class="status-pill is-approved">Chosen</span><small class="cellnote">${x.disposition==='RECOMMENDED'?'Recommended by the system':''}</small>`:x.kind==='NO_ACTION'?badge('The reference: nothing changes','outline'):dispBadge(x)}</div></td><td data-label="Details"><div class="ux-cell">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</div></td></tr>`;}).join('');
  const comp=`<table class="opts ux-opts"><thead><tr><th>Option</th><th>Result against no action</th><th>Limits</th><th>One-off cost · who pays</th><th>Status</th><th><span class="vh">Details</span></th></tr></thead><tbody>${rows}</tbody></table>`;
  const cf=`<table class="cf"><thead><tr>${T.cfHead.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${T.cf.map(r=>`<tr><th scope="row">${r[0]}</th>${r.slice(1).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
  return `${uxDecisionHead(id)}${whoDecides(id)}<section class="panel anchor"><div class="eyebrow">What this decision changes</div><p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} target`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}</section>
@@ -4106,9 +4121,10 @@ function uxKpi(label, value, lines = [], extra = '') {
 }
 
 /* ---------- status chip (guide §4.6): five states, each with a word; colour follows meaning ---------- */
-const UX_TONE = { off: 'bad', at: 'warn', due: 'warn', new: 'info', unobs: 'neutral' };
+const UX_TONE = { off: 'bad', at: 'warn', due: 'warn', new: 'info', unobs: 'neutral', ok: 'good' };
 function uxTone(k, t) { return /breach|below its limit/i.test(t) ? 'bad' : UX_TONE[k] || 'neutral'; }
 const UX_GLYPH = { bad: '↘', warn: '▲', info: '✦', neutral: '?', good: '✓' };
+const uxTileStatus = (k, op) => { if (k !== 'protect') return ''; const pc = protectCard(op); return `<p class="ux-cat-st">${uxChip(pc.broken ? 'off' : 'ok', pc.broken ? 'Limits broken' : 'All held')}</p>`; };
 function uxChip(k, t) { const tone = uxTone(k, t); return `<span class="ux-chip attn-k is-${tone}"><span aria-hidden="true">${UX_GLYPH[tone]}</span>${t}</span>`; }
 
 /* ---------- decision queue (guide §7.1): the data's order (design §2.8: never a value ranking); at stake, due and who decides on each row.
@@ -4230,7 +4246,7 @@ function uxCatTile(op, k, C) {
   const items = P.ids.filter(id => optHeadings(id).some(h => h[0] === k)).length + (k === 'protect' ? proactiveOf(op).length : 0);
   const pos = k === 'assure' ? (C.assure?.pos || 'The evidence behind every heading') : k === 'protect' ? protectCard(op).pos : (C[k]?.pos || '');
   const counts = [finds ? `${num(finds)} Finding${finds === 1 ? '' : 's'}` : 'No Finding', items ? `${num(items)} plan item${items === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ');
-  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos">${wholeText(pos)}</p><p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'factors'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
+  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div>${uxTileStatus(k, op)}<p class="ux-cat-pos">${wholeText(pos)}</p><p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'factors'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
 }
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
@@ -4261,7 +4277,7 @@ function uxOverview(op) {
     : `Contribution is ${usdW(Math.abs(gap))} ${gap < 0 ? 'below' : 'above'} target in October; ${big[0] === 'optimize' ? 'cost and efficiency explain' : 'revenue explains'} ${usdW(Math.abs(big[1]))} of it.`;
   const resid = Math.abs(G.residual) > 0.005;
   const k1 = uxKpi(cost ? 'Charging and depot cost' : 'Contribution', fig(`port:${op}:actual`, usdW(T.actual)),
-    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost on records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
+    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost backed by records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
   const k2 = uxKpi('Gap to target', fig(`port:${op}:variance`, usdW(T.variance, true)),
     cost ? [`Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
       : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
@@ -4286,7 +4302,7 @@ function uxDecisionHead(id) {
   const choose = `<p class="prose">Choosing records the choice under the chooser’s name. The steps below say which Actions it creates and whether it is released at once or waits for the plan’s approval.</p><div class="ux-choose-steps" data-ux-clone=".who-decides .wd-steps"></div><p class="note">Choosing is not wired in this mock-up.</p>`;
   return `<section class="panel ux-dhead" aria-labelledby="uxdh-h"><div class="ux-eyebrow">${rec ? 'Recommended' : 'No option recommended'}</div><h2 id="uxdh-h">${rec ? optLabel(rec) : 'Each option valued against no action'}</h2>
  ${rec ? `<dl class="ux-dfacts"><div><dt>Result against no action</dt><dd>${fig(`opt:${rec}:effect`, ev)} ${uxMark(optClass(x))}${DV_OPT[rec] ? dvTag(DV_OPT[rec]) : ''}</dd></div><div><dt>One-off cost · who pays</dt><dd>${cv} <small>${whoPays(x)}</small></dd></div><div><dt>Who chooses</dt><dd>${who(op, D.p)}</dd></div></dl>` : ''}
- ${D.item ? `<div class="ux-dgo ux-chosen"><span class="status-pill is-approved">Chosen</span><span>${optLabel(D.item)}, by ${who(op, D.p)}${itemOf(op, D.item) ? ` · item ${(ITEM_STATE_WORD[itemOf(op, D.item).item_state] || '').toLowerCase()}` : ''}</span><a class="ux-link" href="#wd-h-${id}">See its Actions</a><a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>`
+ ${D.item ? `<div class="ux-dgo ux-chosen"><span class="status-pill is-approved">Chosen</span><span>${optLabel(D.item)}, by ${who(op, D.p)}${itemOf(op, D.item) ? ` · ${(ITEM_STATE_WORD[itemOf(op, D.item).item_state] || '').toLowerCase()} in the plan` : ''}</span><a class="ux-link" href="#wd-h-${id}">See its Actions</a><a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>`
   : `<div class="ux-dgo">${rec ? uxOpener(`uxc-${id}`, 'Choose this option', 'button primary') : ''}<a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>${rec ? uxDrawer(`uxc-${id}`, `Choose: ${optLabel(rec)}`, choose) : ''}`}</section>`;
 }
 document.addEventListener('click', e => { /* the choose drawer shows the page's own "who decides" steps */
@@ -4325,14 +4341,13 @@ function uxPlanBand(op, P, budget) {
  ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
  ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
  ${uxKpi('Options’ value, 12 months', `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, ['Not realised until records show it'])}
- ${uxKpi('Approval', `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span>`, [`Approver: ${who(op, execOf(op))}`])}
- </div><div class="ux-planact"><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this mock-up. It is recorded under the executive’s name and the time.</span></div></section>`;
+ </div><div class="ux-planact"><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this mock-up. It is recorded under the executive’s name and the time.</span></div></section>`;
 }
 const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>12-month result</span><span>State</span></div>';
 function uxItemRow(op, id, f) {
   const it = itemOf(op, id), acts = actionsOf(op, id), due = acts.map(a => a.due).filter(Boolean).sort()[0] || it?.service_date || null;
   const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
-  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not available yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${wholeText(f.result)} ${f.cls ? uxMark(f.cls) : ''}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
+  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not available yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */

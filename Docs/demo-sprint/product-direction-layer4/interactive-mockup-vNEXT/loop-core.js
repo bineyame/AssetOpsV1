@@ -327,7 +327,7 @@ function preBody(s){
  if(s.loop)return '';
  if(GLOBAL_ROOTS.includes(s.root)&&(!s.section||s.gtabs))return `<div class="slim-banner">${icon('info')}<p>Example items from the three demo operators shown together: Kobo (Lakeside Power), Thika (Harvest Cold Network) and Ruiru (Metro Bus Depots). A real operator sees only its own sites.</p></div>`;
  if(s.root==='Sites'&&s.section&&s.domain==='ev')return `<div class="slim-banner">${icon('info')}<p>Detailed views from the earlier demo: they show Ruiru’s charger 7 (connectors 1 and 2) on 6 Oct, with that example’s 2-connector, 80 kW set-up. Depot-wide figures (${num(SN('ruiru').chargers_installed)} chargers, ${num(SN('ruiru').import_limit_kw)} kW import limit) are on the ${link('site/ruiru','Ruiru overview')}.</p></div>`;
- if(s.id==='opportunity-finding'||s.id==='renewable')return `<div class="slim-banner">${icon('info')}<p>Spare daytime solar without a paying customer is capacity, not an opportunity value. The Portfolio shows it as capacity; only customer evidence makes it a demand factor. ${link('portfolio/demand-and-capacity','Open Demand and capacity →')}</p></div>`;
+ if(s.id==='opportunity-finding'||s.id==='renewable')return `<div class="slim-banner">${icon('info')}<p>Spare daytime solar without a paying customer is capacity, not an opportunity value. The Portfolio shows it as capacity; only customer evidence makes it demand. ${link('portfolio/demand-and-capacity','Open Demand and capacity →')}</p></div>`;
  return '';}
 function selectorLabel(p){const st=REG_STATUS(p);return `${st==='Merged'?'[Merged] ':st==='Added'?'[New] ':''}${p.root} · ${typeof p.title==='function'?p.title():p.title}${p.section?' / '+p.section:''}`;}
 
@@ -374,6 +374,15 @@ const PLAIN_WORDS=[
  [/\bwarranty and insurance rights\b/g,'warranty and insurance cover'],[/\bSide effect on rights\b/g,'Side effect on warranty cover'],[/\(rights value at stake\)/g,'(warranty value at stake)'],[/\bthe rights factor\b/g,'the warranty factor'],
  [/\ban obligation(['’]s)?\b/g,(m,p)=>p?'a service’s':'a service limit'],[/\bobligation window\b/g,'service window'],[/\bclaim-versus-buy switch\b/g,'claim-versus-buy choice'],[/\(see the switch on Act first\)/g,'(see the cases on the plan)'],[/\bbeside the switch\b/g,'beside the choice'],
  [/\bRights\b/g,'Warranties and contracts'],[/\brights\b/g,'warranty cover'],[/\bswitch\b/g,'choice'],
+ [/\s?\(candidate running\)/g,''],[/\b(is|was) candidate running while\b/g,'ran while'],[/\bCandidate running litres\b/g,'Generator litres while solar could carry the load'],
+ [/\bCandidate running\b/g,'Generator ran while solar could carry the load'],[/\bcandidate running\b/g,'generator running while solar could carry the load'],[/\bNecessary running\b/g,'Generator needed'],[/\bnecessary running\b/g,'needed generator running'],
+ [/\bthe departures factor went below its limit\b/g,'departures fell below their limit'],[/\bThe backup-start factor\b/g,'The backup start'],[/\bthe backup-start factor\b/g,'the backup start'],[/\bthe compensation factor\b/g,'compensation'],
+ [/\bItem state: /g,'State: '],[/\bItem state\b/g,'State'],[/\bitem state\b/g,'state'],
+ [/\bno incompatible or off-rate-card occupancy recorded\b/g,'no occupancy recorded off the price list or with incompatible produce'],[/\bat a rate-card price\b/g,'at a listed price'],[/\brate-card\b/g,'price list'],
+ [/\(ledger to invoice reconciliation\)/g,'(stock records checked against invoices)'],[/\bledger[- ]to[- ]invoice difference\b/g,'difference between stock records and invoices'],[/\bledger to invoice\b/g,'stock records to invoices'],
+ [/\bEach option’s Protect measures\b/g,'Each option’s service and asset limits'],[/\bthrough the Protect measures\b/g,'against the service and asset limits'],[/\bProtect measures\b/g,'Service and asset limits'],[/\bprotect measures\b/gi,'service and asset limits'],[/\bProtect measure\b/g,'Limit'],
+ [/(\d+(?:\.\d+)?%) of cost on (?:emulated|simulated) records\b/g,'$1 of October cost backed by records; the rest estimated'],
+ [/\bfactor by factor\b/g,'driver by driver'],[/\bbase factors\b/g,'base drivers'],[/\bbase factor\b/g,'base driver'],[/\bFactors\b/g,'Drivers'],[/\bfactors\b/g,'drivers'],[/\bFactor\b/g,'Driver'],[/\bfactor\b/g,'driver'],
  [/\bObligation hours without redundancy\b/g,'Hours without backup supply'],[/\bobligation hours without redundancy\b/g,'hours without backup supply'],[/\bobligation hours\b/gi,'hours without backup supply'],[/\bObligations\b/g,'Service limits'],[/\bobligations\b/g,'service limits'],[/\bObligation\b/g,'Service limit'],[/\bobligation\b/g,'service limit'],
  [/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
 ];

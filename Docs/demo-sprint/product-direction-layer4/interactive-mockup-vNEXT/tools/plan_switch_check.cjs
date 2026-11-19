@@ -230,7 +230,7 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const gapsSeen = [];
   dom.window.close(); }
 // no dollar figure in any Protect option table (decision pages: "Protect measures under each option")
 for (const dc of MAN.home_categories.decisions) { const op = Object.keys(T).find(k => MAN.tenants.find(t => t.tenant === T[k]).sites.some(s => s.site === dc.site));
-  const dom = boot(op, `decision/${dc.id}`), regs = [...dom.window.document.querySelectorAll('[aria-label="Protect measures under each option"]')];
+  const dom = boot(op, `decision/${dc.id}`), regs = [...dom.window.document.querySelectorAll('[aria-label="Service and asset limits under each option"]')];
   regs.forEach((rg, j) => { const t = squash(rg.textContent); ok(!/\$\s?\d/.test(t), `${dc.id}: Protect option table ${j + 1} shows no dollar figure${/\$\s?\d/.test(t) ? ' (' + t.match(/.{50}\$\s?\d.{10}/)?.[0] + ')' : ''}`); });
   dom.window.close(); }
 { const hu = MAN.tenants[0].sites.find(s => s.site === 'Mto').decision.options.find(o => o.id === 'MTO-HULLER').economics, cost = hu.fuel_monthly + hu.collection_cost_monthly;

@@ -35,9 +35,10 @@ function uxKpi(label, value, lines = [], extra = '') {
 }
 
 /* ---------- status chip (guide §4.6): five states, each with a word; colour follows meaning ---------- */
-const UX_TONE = { off: 'bad', at: 'warn', due: 'warn', new: 'info', unobs: 'neutral' };
+const UX_TONE = { off: 'bad', at: 'warn', due: 'warn', new: 'info', unobs: 'neutral', ok: 'good' };
 function uxTone(k, t) { return /breach|below its limit/i.test(t) ? 'bad' : UX_TONE[k] || 'neutral'; }
 const UX_GLYPH = { bad: '↘', warn: '▲', info: '✦', neutral: '?', good: '✓' };
+const uxTileStatus = (k, op) => { if (k !== 'protect') return ''; const pc = protectCard(op); return `<p class="ux-cat-st">${uxChip(pc.broken ? 'off' : 'ok', pc.broken ? 'Limits broken' : 'All held')}</p>`; };
 function uxChip(k, t) { const tone = uxTone(k, t); return `<span class="ux-chip attn-k is-${tone}"><span aria-hidden="true">${UX_GLYPH[tone]}</span>${t}</span>`; }
 
 /* ---------- decision queue (guide §7.1): the data's order (design §2.8: never a value ranking); at stake, due and who decides on each row.
@@ -159,7 +160,7 @@ function uxCatTile(op, k, C) {
   const items = P.ids.filter(id => optHeadings(id).some(h => h[0] === k)).length + (k === 'protect' ? proactiveOf(op).length : 0);
   const pos = k === 'assure' ? (C.assure?.pos || 'The evidence behind every heading') : k === 'protect' ? protectCard(op).pos : (C[k]?.pos || '');
   const counts = [finds ? `${num(finds)} Finding${finds === 1 ? '' : 's'}` : 'No Finding', items ? `${num(items)} plan item${items === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ');
-  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos">${wholeText(pos)}</p><p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'factors'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
+  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div>${uxTileStatus(k, op)}<p class="ux-cat-pos">${wholeText(pos)}</p><p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'factors'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
 }
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
@@ -190,7 +191,7 @@ function uxOverview(op) {
     : `Contribution is ${usdW(Math.abs(gap))} ${gap < 0 ? 'below' : 'above'} target in October; ${big[0] === 'optimize' ? 'cost and efficiency explain' : 'revenue explains'} ${usdW(Math.abs(big[1]))} of it.`;
   const resid = Math.abs(G.residual) > 0.005;
   const k1 = uxKpi(cost ? 'Charging and depot cost' : 'Contribution', fig(`port:${op}:actual`, usdW(T.actual)),
-    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost on records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
+    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost backed by records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
   const k2 = uxKpi('Gap to target', fig(`port:${op}:variance`, usdW(T.variance, true)),
     cost ? [`Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
       : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
@@ -215,7 +216,7 @@ function uxDecisionHead(id) {
   const choose = `<p class="prose">Choosing records the choice under the chooser’s name. The steps below say which Actions it creates and whether it is released at once or waits for the plan’s approval.</p><div class="ux-choose-steps" data-ux-clone=".who-decides .wd-steps"></div><p class="note">Choosing is not wired in this mock-up.</p>`;
   return `<section class="panel ux-dhead" aria-labelledby="uxdh-h"><div class="ux-eyebrow">${rec ? 'Recommended' : 'No option recommended'}</div><h2 id="uxdh-h">${rec ? optLabel(rec) : 'Each option valued against no action'}</h2>
  ${rec ? `<dl class="ux-dfacts"><div><dt>Result against no action</dt><dd>${fig(`opt:${rec}:effect`, ev)} ${uxMark(optClass(x))}${DV_OPT[rec] ? dvTag(DV_OPT[rec]) : ''}</dd></div><div><dt>One-off cost · who pays</dt><dd>${cv} <small>${whoPays(x)}</small></dd></div><div><dt>Who chooses</dt><dd>${who(op, D.p)}</dd></div></dl>` : ''}
- ${D.item ? `<div class="ux-dgo ux-chosen"><span class="status-pill is-approved">Chosen</span><span>${optLabel(D.item)}, by ${who(op, D.p)}${itemOf(op, D.item) ? ` · item ${(ITEM_STATE_WORD[itemOf(op, D.item).item_state] || '').toLowerCase()}` : ''}</span><a class="ux-link" href="#wd-h-${id}">See its Actions</a><a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>`
+ ${D.item ? `<div class="ux-dgo ux-chosen"><span class="status-pill is-approved">Chosen</span><span>${optLabel(D.item)}, by ${who(op, D.p)}${itemOf(op, D.item) ? ` · ${(ITEM_STATE_WORD[itemOf(op, D.item).item_state] || '').toLowerCase()} in the plan` : ''}</span><a class="ux-link" href="#wd-h-${id}">See its Actions</a><a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>`
   : `<div class="ux-dgo">${rec ? uxOpener(`uxc-${id}`, 'Choose this option', 'button primary') : ''}<a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>${rec ? uxDrawer(`uxc-${id}`, `Choose: ${optLabel(rec)}`, choose) : ''}`}</section>`;
 }
 document.addEventListener('click', e => { /* the choose drawer shows the page's own "who decides" steps */
@@ -254,12 +255,11 @@ function uxPlanBand(op, P, budget) {
  ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
  ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
  ${uxKpi('Options’ value, 12 months', `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, ['Not realised until records show it'])}
- ${uxKpi('Approval', `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span>`, [`Approver: ${who(op, execOf(op))}`])}
- </div><div class="ux-planact"><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this mock-up. It is recorded under the executive’s name and the time.</span></div></section>`;
+ </div><div class="ux-planact"><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this mock-up. It is recorded under the executive’s name and the time.</span></div></section>`;
 }
 const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>12-month result</span><span>State</span></div>';
 function uxItemRow(op, id, f) {
   const it = itemOf(op, id), acts = actionsOf(op, id), due = acts.map(a => a.due).filter(Boolean).sort()[0] || it?.service_date || null;
   const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
-  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not available yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${wholeText(f.result)} ${f.cls ? uxMark(f.cls) : ''}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
+  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not available yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
