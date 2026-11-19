@@ -27,3 +27,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-19 `owner-decision-heading-rule-2026-11-19.md` Decision heading follows its Finding's factor (lever heading when no Finding); option effects per factor; Architect may push back or improve · current
 - 2026-11-19 `owner-freeze-and-build-sequence-2026-11-19.md` Freeze the pack after the fix round; new items to the decision queue; build sequence agreed · current — governs build start
 - 2026-11-19 `owner-data-and-build-strategy-2026-11-19.md` Data/DB strategy: scale later but foundation now; small contract-tested real-path slice; Postgres/Timescale per app needs; Q4 yes; data source configurable for speed · current — governs the data-and-build strategy
+- 2026-11-19 `owner-start-t1-2026-11-19.md` Start T1 (heavy-tool slot pool) now, during pack review, via spec handshake · current
