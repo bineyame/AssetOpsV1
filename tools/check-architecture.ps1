@@ -56,7 +56,7 @@ try {
     # unregistered would never run; a module registered but absent would take
     # its seam with it.
     $discovered = @(Get-ChildItem -LiteralPath $checksRoot -Filter "*.ps1" -File |
-        Where-Object { $_.Name -ne "_common.ps1" } |
+        Where-Object { $_.Name -notlike "_*.ps1" } |
         ForEach-Object { $_.Name } | Sort-Object)
     $declared = @($checkModules | ForEach-Object { $_.File } | Sort-Object)
 

@@ -46,6 +46,8 @@ param(
 $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
+# T1: the heavy-tool slot pool (one pwsh implementation; check-all takes one of its two slots).
+. (Join-Path $PSScriptRoot "checks/_heavy_slot.ps1")
 
 # PIPE-1 A2: the files whose change makes the estate-guard self-tests run (spec G1 and P1): the writer guard, its
 # shared code and its tests, plus (review L3) every real file the self-tests assert on, derived from the path
@@ -79,15 +81,33 @@ if (Test-Path -LiteralPath $estateTestPath -PathType Leaf) {
 if ($estateAnchors.Count -lt 10) { $triggerError = "only $($estateAnchors.Count) anchor paths derived from test_estate_guard.py" }
 $estateTriggers = @($estateGuardFiles + $estateAnchors | Sort-Object -Unique)
 
-# The trigger rule. Unknown is never a skip: if the change set cannot be computed, the self-tests run.
-function Get-SelfTestDecision([string[]]$changed, [bool]$full, [bool]$onMain, [string]$diffError) {
+# T1 (I15): the files whose change makes the heavy-slot pool and tripwire self-test run.
+$heavySlotFiles = @(
+    "tools/heavy-slot.sh",
+    "tools/heavy-slot.ps1",
+    "tools/checks/_heavy_slot.ps1",
+    "tools/heavy_slot_check.cjs",
+    "tools/heavy_slot_check.py",
+    "tools/heavy-slot-shims.mjs",
+    "tools/checks/test_heavy_slot_pool.mjs",
+    "tools/check-all.ps1"
+)
+
+# The trigger rule, for any trigger list (the estate rule and the T1 pool rule). Unknown is never a skip: if the
+# change set or the trigger list cannot be computed, the self-tests run.
+function Get-SelfTestDecision([string[]]$changed, [bool]$full, [bool]$onMain, [string]$diffError,
+                              [string[]]$triggers = $estateTriggers, [string]$listError = $triggerError,
+                              [string]$unchanged = "writer guard, its tests and their $($estateAnchors.Count) anchor files unchanged against $Base") {
     if ($full) { return [pscustomobject]@{ Run = $true; Reason = "-Full" } }
     if ($onMain) { return [pscustomobject]@{ Run = $true; Reason = "on main (full run after merge)" } }
     if ($diffError) { return [pscustomobject]@{ Run = $true; Reason = "change set unknown ($diffError)" } }
-    if ($triggerError) { return [pscustomobject]@{ Run = $true; Reason = "trigger list unknown ($triggerError)" } }
-    $hits = @($changed | Where-Object { $estateTriggers -contains $_ })
+    if ($listError) { return [pscustomobject]@{ Run = $true; Reason = "trigger list unknown ($listError)" } }
+    $hits = @($changed | Where-Object { $triggers -contains $_ })
     if ($hits.Count -gt 0) { return [pscustomobject]@{ Run = $true; Reason = "changed: $($hits -join ', ')" } }
-    return [pscustomobject]@{ Run = $false; Reason = "writer guard, its tests and their $($estateAnchors.Count) anchor files unchanged against $Base" }
+    return [pscustomobject]@{ Run = $false; Reason = $unchanged }
+}
+function Get-PoolSelfTestDecision([string[]]$changed, [bool]$full, [bool]$onMain, [string]$diffError) {
+    Get-SelfTestDecision $changed $full $onMain $diffError $heavySlotFiles "" "no pool file changed"
 }
 
 if ($SelfTestSelection) {
@@ -127,13 +147,29 @@ if ($SelfTestSelection) {
         $got = Get-SelfTestDecision $case.Changed $case.Full $case.Main $case.Err
         if ($got.Run -ne $case.Want) { $bad++; Write-Output "FAIL $($case.Name): run=$($got.Run), expected $($case.Want)" }
     }
+    # T1 (I15): the pool rule. Written out, so dropping a pool file from $heavySlotFiles fails this self-test.
+    $poolCases = @(
+        @{ Name = "pool: -Full"; Changed = @(); Full = $true; Err = ""; Want = $true },
+        @{ Name = "pool: diff unknown"; Changed = @(); Full = $false; Err = "no merge base"; Want = $true },
+        @{ Name = "pool: no pool file changed"; Changed = @("frontend/src/App.tsx", "tools/checks/test_heavy_slot_inventory.mjs"); Full = $false; Err = ""; Want = $false }
+    )
+    foreach ($file in @("tools/heavy-slot.sh", "tools/heavy-slot.ps1", "tools/checks/_heavy_slot.ps1", "tools/heavy_slot_check.cjs",
+                        "tools/heavy_slot_check.py", "tools/heavy-slot-shims.mjs", "tools/checks/test_heavy_slot_pool.mjs", "tools/check-all.ps1")) {
+        $poolCases += @{ Name = "pool: changed $file"; Changed = @("frontend/src/App.tsx", $file); Full = $false; Err = ""; Want = $true }
+    }
+    foreach ($case in $poolCases) {
+        $got = Get-PoolSelfTestDecision $case.Changed $case.Full $false $case.Err
+        if ($got.Run -ne $case.Want) { $bad++; Write-Output "FAIL $($case.Name): run=$($got.Run), expected $($case.Want)" }
+    }
+    $cases += $poolCases
     Pop-Location
     if ($bad -gt 0) { exit 1 }
     Write-Output "Self-test trigger rule: $($cases.Count)/$($cases.Count) cases as expected; $($estateAnchors.Count) anchors derived from test_estate_guard.py."
     exit 0
 }
 
-$slotStream = $null
+$slotHandle = $null
+$previousHeavySlot = $env:ASSETOPS_HEAVY_SLOT
 $running = New-Object System.Collections.Generic.List[object]
 $previousPythonPath = $env:PYTHONPATH
 
@@ -199,25 +235,18 @@ try {
     $powershell = (Get-Process -Id $PID).Path
     $clock = [Diagnostics.Stopwatch]::StartNew()
 
-    # ---- PIPE-1 A3: at most $Slots runs at once, machine-wide. The lock is released when this process exits. ----
-    $commonDir = (& git rev-parse --git-common-dir 2>$null)
-    $slotDir = if ($LASTEXITCODE -eq 0 -and $commonDir) { [IO.Path]::Combine($repoRoot, $commonDir.Trim(), "check-all-slots") } else { [IO.Path]::Combine([IO.Path]::GetTempPath(), "assetops-check-all-slots") }
-    New-Item -ItemType Directory -Force -Path $slotDir | Out-Null
-    $announced = $false
-    while (-not $slotStream) {
-        for ($i = 1; $i -le $Slots -and -not $slotStream; $i++) {
-            try { $slotStream = [IO.File]::Open([IO.Path]::Combine($slotDir, "slot-$i.lock"), 'OpenOrCreate', 'ReadWrite', 'None') }
-            catch [System.IO.IOException] { }
-        }
-        if (-not $slotStream -and $clock.Elapsed.TotalMinutes -ge $SlotWaitMinutes) {
-            Write-Host "Check failed: no check-all slot came free in $SlotWaitMinutes min (-SlotWaitMinutes)."
-            exit 1
-        }
-        if (-not $slotStream) {
-            if (-not $announced) { Write-Host "check-all: all $Slots slots are in use by other runs; waiting for one."; $announced = $true }
-            Start-Sleep -Seconds 2
-        }
+    # ---- PIPE-1 A3 and T1: one of the heavy-tool pool's 2 slots, machine-wide (tools/checks/_heavy_slot.ps1). ----
+    # The lock is released when this process exits. Inside a held slot (a pooled command started this run), nested.
+    Assert-HeavySlotLocking
+    $slotDir = Get-HeavySlotDir $repoRoot
+    $slotHandle = Enter-HeavySlot -SlotDir $slotDir -Slots $Slots -WaitSeconds ($SlotWaitMinutes * 60) -Label "check-all" `
+        -Announce "check-all: all $Slots slots are in use by other runs; waiting for one."
+    if (-not $slotHandle) {
+        Write-Host "Check failed: no check-all slot came free in $SlotWaitMinutes min (-SlotWaitMinutes)."
+        exit 1
     }
+    if ($slotHandle.Nested) { Write-Host "check-all: inside a held heavy slot ($($slotHandle.SlotPath)); not taking another." }
+    else { $env:ASSETOPS_HEAVY_SLOT = $slotHandle.SlotPath }  # before any guard starts: a tripwired tool a guard runs passes
     $slotWait = $clock.Elapsed.TotalSeconds
 
     # ---- PIPE-1 A2: decide the conditional self-tests ----
@@ -245,6 +274,7 @@ try {
         }
     }
     $estate = Get-SelfTestDecision $changed $Full.IsPresent $onMain $diffError
+    $pool = Get-PoolSelfTestDecision $changed $Full.IsPresent $onMain $diffError
 
     # ---- the guards ----
     function Resolve-Tool([string]$tool) {
@@ -312,6 +342,9 @@ try {
     Add-Guard "Style ratchet fixtures (UQ-FI)" $Node @("--test", "tools/checks/test_style_ratchet.mjs")
     # PIPE-1 A2: the trigger rule itself is guarded, so a broken rule cannot silently skip the self-tests.
     Add-Guard "check-all self-test trigger rule (PIPE-1)" $powershell @("-NoProfile", "-File", "tools/check-all.ps1", "-SelfTestSelection")
+    if ($pool.Run) {
+        Add-Guard "Heavy-slot pool and tripwire self-test (T1)" $Node @("--test", "tools/checks/test_heavy_slot_pool.mjs")
+    }
     if ($estate.Run) {
         Add-Guard "Estate guard self-tests, pytest -n 4 ($($estate.Reason))" $Python @("-m", "pytest", "tools/checks/test_estate_guard.py", "-q", "-p", "no:cacheprovider", "-n", "4") -Alone
     }
@@ -402,6 +435,7 @@ try {
         }
     }
     if (-not $estate.Run) { Write-Host "[SKIP] Estate guard self-tests: $($estate.Reason). They run with -Full and on main." }
+    if (-not $pool.Run) { Write-Host "[SKIP] Heavy-slot pool self-test: no pool file changed. It runs with -Full and on main." }
     Write-Host ("check-all: {0:N1} s wall ({1:N1} s waiting for a slot), {2} jobs at once." -f $clock.Elapsed.TotalSeconds, $slotWait, $Jobs)
     # Summary line formats (coordinator scripts match these):
     #   All <B> guards passed (blocking; <A> advisory, <W> warned).
@@ -419,7 +453,8 @@ finally {
     # Never leave a guard process behind: an exception or Ctrl-C stops the running guards here (SIGTERM and SIGHUP
     # through the signal handler above).
     foreach ($guard in $running.ToArray()) { if ($guard.Process) { Stop-GuardTree $guard.Process } }
-    if ($slotStream) { $slotStream.Dispose() }
+    Exit-HeavySlot $slotHandle
+    $env:ASSETOPS_HEAVY_SLOT = $previousHeavySlot
     $env:PYTHONPATH = $previousPythonPath
     Pop-Location
 }
