@@ -52,7 +52,7 @@
 
 ### 2.1 The core message
 
-> Know which sites earn, which leak, and where this month's budget and crews should go. Then know whether the money followed.
+> <!--tag:coming--> Know which sites earn, which leak, and where this month's budget and crews should go. Then know whether the money followed.
 
 > Every figure shows how it's known.
 
@@ -70,7 +70,7 @@ These lines come from design §1.1, §1.2 and §1.4. Each is something the produ
 
 > <!--tag:today--> **What to do first** · Know what to look at first, the next step, and, where the rule allows, the setting to change.
 
-> <!--tag:today--> **Whether it worked** · Follow each response from accepted to applied, then see whether it worked. Nothing counts as a result until that judgement is made.
+> <!--tag:today--> **Whether it worked** · On mini-grids, follow each setting change from accepted to applied, then see whether it worked. Nothing counts as a result until that judgement is made.
 
 > <!--tag:today--> **Cold rooms** · Know when each room left its temperature limit and whether its backup started.
 
@@ -96,7 +96,7 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 
 > <!--tag:coming--> **The gap, explained** · The month's gap to target, split cause by cause, so you know how much each cause took.
 
-> <!--tag:coming--> **Choices, valued** · For each issue, options valued against doing nothing, net of their cost, within your service rules. One is recommended, and every option ruled out says why. Your site and operations managers choose.
+> <!--tag:coming--> **Choices, valued** · For each issue, options valued against doing nothing, net of their cost, within your service rules. One is recommended, and every option ruled out says why. The person accountable for the issue chooses.
 
 > <!--tag:coming--> **Changes in one place** · The changes across your sites combined in one plan within your budget and crews, for your executive to approve or send back.
 
@@ -108,7 +108,7 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 
 > We believe the value is in joining your operational, commercial and contract records into one economic judgement. A pilot on your own sites is how we both find out.
 
-> Some sites may have nothing to save. The comparison against doing nothing says so, before anyone calls it a saving.
+> <!--tag:coming--> Some sites may have nothing to save. The comparison against doing nothing says so, before anyone calls it a saving.
 
 ## 3. Copy deck by page
 <!--derives: Part 1; §2.0; §2.1; §2.2; §2.4; §2.5; §2.6; §2.7; Figure 3; Figure 5; WP §1.1; WP §1.2; WP §1.3; D1; D14-->
@@ -127,7 +127,7 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 | `<!--tag:demo-emulated-->` | Demo data · Emulated | an illustration with a figure from emulated billing, budget or contract records (D14) |
 
 - *On the page.* Each copy block is a card. Its tags sit together in the card's top-right corner as small pills: Today green, Coming and Not yet connected amber, the demo badges grey. A block that opens `**Heading** · ` shows that heading as the card's title. On Home, `<!--fold-->` marks the end of the first fold.
-- *What the lint checks* (§5). It reads each tag as words in front of its block, so every earlier rule reads what it read when the labels were typed. It also fails a block on any of these: an unknown tag; more than one of Today, Coming and Not yet connected; a coming construct anywhere in a Today block; a figure without a demo badge; or a tag typed as a prefix in the sentence. On Home it fails unless the first fold holds just the question, the promise and one badged example, and unless every block below the fold has a two-to-four-word heading, with the reassurance just before the call to action.
+- *What the lint checks* (§5). It reads each tag as words in front of its block, so every earlier rule reads what it read when the labels were typed. It also fails a block on any of these: an unknown tag; more than one of Today, Coming and Not yet connected; a coming construct anywhere in a Today block; a coming construct stated in a block with no state tag; a figure without a demo badge; or a tag typed as a prefix in the sentence. On Home it fails unless the first fold holds just the question, the promise and one badged example, and unless every block below the fold has a two-to-four-word heading, with the reassurance just before the call to action.
 
 ### 3.1 Sitemap
 
@@ -153,7 +153,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > Which of your sites earn, which leak, and where should this month's budget and crews go?
 
-> See where the money went, choose where it goes next, and know whether it followed. Every figure shows how it's known.
+> <!--tag:coming--> See where the money went, choose where it goes next, and know whether it followed. Every figure shows how it's known.
 
 > <!--tag:today--><!--tag:demo--> Lakeside Power, October. Kisiwa burned the most diesel, 2,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l--> litres, and has nothing to fix on fuel: all of its generator running was needed. Kobo burned half that, and 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres went on running its solar and battery could have carried.
 
@@ -161,7 +161,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > <!--tag:coming--><!--tag:demo-emulated--> **Where the money goes** · A budget of 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December; 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November. Kisiwa's failed backup generator is repaired: evening hours without backup fall from 125<!--fig:options.KIS-NOACT.protect.obligation_hours_without_backup--> to 15<!--fig:options.KIS-REPAIR.protect.obligation_hours_without_backup-->. Kobo gets a remote trial, no crew needed. Mto claims its inverter under warranty and connects a new business customer. Spend: 3,750<!--fig:plans.lakeside-power.default.spend--> of 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec-->.
 
-> <!--tag:coming--> **Your people decide** · Site managers choose. Your executive approves the plan, or sends it back.
+> <!--tag:coming--> **Your people decide** · The person accountable chooses: a site manager, your finance lead, or your executive for capital. Your executive approves the plan, or sends it back.
 
 > <!--tag:coming--> **Proof, site by site** · Did the change happen? Did the money follow in your records? Did the change cause it? Three answers, kept apart.
 
@@ -215,15 +215,17 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > Five steps, one loop, from the reading to the proof.
 
-> **See** · Every figure says how it is known: recorded, emulated, measured, calculated, estimated, quoted or modelled.
+> <!--tag:coming--> **See** · Every figure labelled with how it is known: recorded, emulated, measured, calculated, estimated, quoted or modelled.
 
-> **Decide** · The product prepares the options and recommends one. Your site and operations managers choose, or choose nothing.
+> <!--tag:coming--> **Decide** · Options prepared for every issue, one recommended, each beside doing nothing. The person accountable chooses, or chooses nothing: your site and operations managers, your finance lead for billing and claims, your executive for capital.
 
-> **Act** · Your team creates the actions, each with an owner and a due date. Spend above the limit your executive sets waits for their approval.
+> <!--tag:coming--> **Act** · Your team creates the actions, each with an owner and a due date. Spend above the limit your executive sets waits for their approval.
 
-> **Track** · Every action followed to done, with overdue shown.
+> <!--tag:coming--> **Track** · Every action followed to done, and anything overdue flagged.
 
-> **Prove** · After a change, the product judges whether it happened, whether the money followed and whether the change caused it. A result is claimed only after that judgement.
+> <!--tag:today--> **Proof on mini-grids** · A setting change is already judged against a frozen baseline, and nothing counts as a result before that judgement.
+
+> <!--tag:coming--> **Prove** · After every change, three answers: did it happen, did the money follow in your records, and did the change cause it. A result is claimed only after all three.
 
 > The product proposes; your people decide and act. It sends no command to your equipment.
 
@@ -259,7 +261,9 @@ The five stages, named as in `commercial-plan.md` (D1): **Initial call → Deep-
 
 > The same litre never carries money twice.
 
-> We do not promise savings; we show how they would be proven. Doing nothing is always shown beside every option.
+> We do not promise savings; we show how they would be proven.
+
+> <!--tag:coming--> Every option shown beside doing nothing, so no change is called a gain until it beats doing nothing.
 
 > Coverage is decided by the supplier or insurer.
 
@@ -320,7 +324,7 @@ The owner decided C14 (up to eight peak days a month) and C15 (two owner-days a 
 8. No legal or insurance conclusion: "Coverage is decided by the supplier or insurer."
 9. No internal words: no Finding, leaf, registry, lane, slice, evaluator or mock-up.
 
-**What the lint enforces.** `render_website_content_html.py` checks every quoted block in §2 and §3 against rules 1–9, the stage gates of §4.2 and the walkthrough wording before T1. It imports the design's retired terms and the naming lint from `check_alignment.py`, so the site and the design pack can never drift apart. It refuses to render if any of the planted violations in `website-copy-lint-fixtures.txt` passes; the 19 Nov additions plant `AssetEcon decides for you`, `See actual against plan`, a coming construct called `Running today`, a legal conclusion and each gated phrase. The copy pass of 19 Nov adds two planted sets, each of which must fail for its own rule, not by accident: `[WC7]` lines that argue against monitoring tools or competitors (the stage name "Pilot and monitoring" must still pass), and `[TAG]` lines that break the tag rules. The renderer also breaks the Home first fold five ways and must refuse each one.
+**What the lint enforces.** `render_website_content_html.py` checks every quoted block in §2 and §3 against rules 1–9, the stage gates of §4.2 and the walkthrough wording before T1. It imports the design's retired terms and the naming lint from `check_alignment.py`, so the site and the design pack can never drift apart. It refuses to render if any of the planted violations in `website-copy-lint-fixtures.txt` passes; the 19 Nov additions plant `AssetEcon decides for you`, `See actual against plan`, a coming construct called `Running today`, a legal conclusion and each gated phrase. The copy pass of 19 Nov adds two planted sets, each of which must fail for its own rule, not by accident: `[WC7]` lines that argue against monitoring tools or competitors (the stage name "Pilot and monitoring" must still pass), `[TAG]` lines that break the tag rules, and `[M8]` lines that state a coming construct in a block with no Coming tag (whole-pack review H, M8: untagged blocks are now checked too; a question may name a coming construct). The M8 sweep of 19 Nov found 9 untagged blocks stating coming constructs and 1 Today line not limited to mini-grids; all 10 are fixed. The renderer also breaks the Home first fold five ways and must refuse each one.
 
 **What still needs a reader.** Tone; whether a line overstates by implication; whether a line argues against another tool by implication, beyond what the WC7 patterns catch; and whether each "Today" line still matches design Part 1 after a release.
 

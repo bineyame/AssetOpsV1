@@ -95,3 +95,13 @@ Kisiwa burned 2,400 litres in October, on demo data.
 <!--tag:verified--> Kobo's change worked.
 **Demo data** · Kisiwa burned 2,400 litres in October.
 <!--tag:today--><!--tag:coming--> Fuel balanced night by night.
+# [M8] Added 19 Nov (whole-pack review H, M8): a coming construct stated in a block with no Coming tag. Each line passes
+# every other rule and must fail for this one; a question naming a coming construct is allowed and is not planted here.
+The product prepares the options and recommends one.
+Every action followed to done, with overdue shown.
+Each action carries an owner and a due date.
+Doing nothing is always shown beside every option.
+After a change, the product judges whether the money followed.
+Every figure says how it is known: recorded, emulated, measured or modelled.
+<!--tag:demo--> Kobo's reserve change is ruled out, valued against doing nothing.
+Your executive approves the plan each month.

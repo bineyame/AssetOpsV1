@@ -29,6 +29,8 @@ Added 19 Nov (owner: "defaults for the three, and tighten the hero and badges"):
   reads exactly what it read when the words were typed; tag_check() adds: a known tag, at most one of Today or Coming,
   no coming construct anywhere in a Today block, a demo badge on every block that holds a figure, and no tag typed as a
   line prefix. Each planted [TAG] line must fail for a tag reason;
+- M8 (whole-pack review H): a block with no Today, Coming or Not yet connected tag may not state a coming construct
+  (COMING_CONSTRUCT); a question may. Each planted [M8] line must fail for that reason alone;
 - the Home first fold (§3.2): question, promise and one badged example above <!--fold-->; below it, short blocks each
   with a two-to-four-word heading, the reassurance just before the call to action. Self-tested on broken variants."""
 import json, pathlib, re, sys
@@ -185,6 +187,13 @@ TAG = re.compile(r"<!--tag:([\w-]+)-->")
 STATE_TAGS = {"today", "coming", "not-connected"}
 DEMO_TAGS = {"demo", "demo-emulated"}
 MARKED = re.compile(r"<!--(?:figx?|rec)[:-]")
+# M8 (whole-pack review H, 19 Nov): a block with no state tag may not name a coming construct (design Part 2) in a
+# statement; a question may. The vocabulary is COMING_WORDS plus the Part 2 constructs the review found untagged.
+COMING_CONSTRUCT = re.compile(COMING_WORDS.pattern[:-3] + r"|against doing nothing|beside doing nothing|prepares? (?:the )?options|"
+                              r"recommends? one|options? (?:valued|ruled out|prepared)|due dates?|spend above|waits? for (?:their|your executive's|the executive's) approval|"
+                              r"overdue|whether the money followed|(?:did|whether) the change caus\w*|three answers|who decided|"
+                              r"recorded, emulated|evidence words?|doing nothing|approves? (?:the|your) plan|on record|"
+                              r"(?:know|see) whether (?:it|the money) followed|where (?:it|the money) goes next|budget and crews should go)\b", re.I)
 TYPED_TAG = re.compile(r"^\W*(?:Today|Coming|Not yet connected|Demo data)\b[^.·:]{0,30}?\**\s*[·:]", re.I)
 
 
@@ -212,6 +221,11 @@ def tag_check(b):
     plain = re.sub(r"<!--.*?-->", "", rest)
     if "today" in tags and COMING_WORDS.search(plain):
         return f"a coming construct in a Today block: {COMING_WORDS.search(plain).group(0)!r}"
+    if not set(tags) & STATE_TAGS:                                     # M8: untagged statements are checked too
+        for sent in re.split(r"(?<=[.!?])\s+", plain):
+            m = COMING_CONSTRUCT.search(sent)
+            if m and not sent.rstrip().endswith("?"):
+                return f"a coming construct in a block without the Coming tag: {m.group(0)!r}"
     if (MARKED.search(rest) or NUMERIC.search(plain)) and not set(tags) & DEMO_TAGS:
         return "an illustration without its Demo data badge"
     return None
@@ -363,6 +377,8 @@ def fixtures(rows):
             fail(f"WC7 no longer catches the planted line: {l} (got {lint_block(l)!r})")
         if sect == "TAG" and not (tag_check(l) and not lint_block(l)):
             fail(f"the tag check no longer catches the planted line, or the line fails another rule first: {l}")
+        if sect == "M8" and not ("without the Coming tag" in (tag_check(l) or "") and not lint_block(l)):
+            fail(f"the M8 check no longer catches the planted line, or the line fails another rule first: {l}")
     stage = "Pilot and monitoring: a pilot of about three months on your own sites, with a monthly review."
     if lint_block(stage):
         fail(f"WC7 catches the stage name 'Pilot and monitoring': {lint_block(stage)}")
