@@ -1,6 +1,6 @@
 # Decision loop specification
 
-**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7, updated to rev 16.9 and its 19 Nov correction (OD-13 to OD-18, plan item states; OD-21 categories per the brief, OD-23 daily snapshot) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7, updated to `rev 16.12` (OD-13 to OD-18, plan item states; OD-21 categories per the brief, OD-23 daily snapshot; the placement rules of `rev 16.11`; OD-25 decision headings, the chooser ruling and the release machine of `rev 16.12`) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This document gives the records, rules, states, interfaces and acceptance tests for each construct of the design's Part 2. It replaces `economic-metric-and-effect-contracts.md` and `domain-and-decision-models.md` (regeneration F, #2). It adds detail beneath the design's constructs and never a new construct, role, decision, status or figure. Where the design leaves something undefined, this document says so in §12 and stops.
 
@@ -79,10 +79,17 @@ erDiagram
 | `vertical`, `business_model` | Which Sites the node exists for. A node that does not apply is *not applicable*, never zero |
 | `tolerance` | The OD-3 tolerance, in the factor's unit (§4) |
 | `levers` | The levers declared on the factor (§6) |
-| `home_category` | Exactly one of GROW_REVENUE, OPTIMIZE_COST, PROTECT_ASSET, ASSURE_PERFORMANCE, today's catalogue codes (`outcomes/catalogue.py:43-68`). The executive heading the node sits under (OD-21, design §2.0) |
+| `home_category` | Exactly one of GROW_REVENUE, OPTIMIZE_COST, PROTECT_ASSET, ASSURE_PERFORMANCE, today's catalogue codes (`outcomes/catalogue.py:43-68`), with the brief's objective under that heading; or ABOVE for the outcome the money headings explain; or CALENDAR for a period constant. Named on every row, never inherited from a parent (design §2.0, `rev 16.11`). The demonstration's rows are the manifest's `home_categories.nodes` |
+| `money` | Whether the node carries money (a price × a quantity, or a money record). A money node's heading is Grow or Optimize; only a value *At stake, not money* may sit under Protect (design §2.0) |
 | `version` | Rows are versioned; a change is a new version |
 
-**Start-up check.** The process refuses to start if the structure is cyclic, a leaf has neither source nor observer, units do not compose, or a named observer does not exist at its version. This follows today's chain check (`chain/graph.py:132`, `:177`).
+**Start-up check.** The process refuses to start if the structure is cyclic, a leaf has neither source nor observer, units do not compose, or a named observer does not exist at its version. This follows today's chain check (`chain/graph.py:132`, `:177`). It also refuses, naming the row (design §2.0, `rev 16.11` and `rev 16.12`):
+- a row with no `home_category` of its own, including a row that would take its parent's: a node is never placed by inheritance;
+- a `home_category` whose objective letter is another heading's (P1 under Optimize, for example);
+- a money node whose home is Protect or Assure, unless it is a value *At stake, not money*: so customer compensation and penalties can only be Optimize cost lines;
+- a measure whose heading is not its objective's;
+- a mechanism pin (§4) that names a factor with no row, or a parent total whose change its children explain;
+- a declared lever (§6) whose purpose factor sits under another heading from the factor the lever is declared on, which is where its triggering Finding is pinned. A mismatch is ruled by the Architect, never picked by the code.
 
 **Evaluation.** One function evaluates a node for a Site and period on any side: actual, target, or an option's factors.
 - A leaf returns its value, evidence class and provenance.
@@ -94,7 +101,7 @@ erDiagram
 
 **Categories (OD-21).** A category is a read over `home_category`, never a second model:
 - a category's figures are the nodes under it, unchanged; nothing is summed across categories;
-- a Finding's category is its pinned factor's; a decision's is its lever factor's; an option or plan item shows each factor change under that factor's category; an item with "no factor (upkeep or compliance)" reads under Protect; a verdict is Assure, and an economic verdict's realised money reads under the moved factor's category;
+- a Finding's category is its pinned factor's, and it is pinned to the most specific factor it observes (§4); a decision's category is its triggering Finding's factor's, or its lever's when no Finding stands behind it (OD-25, §6); an option or plan item shows each factor change under that factor's category, each money factor once (the demonstration's are the manifest's `home_categories.option_money_factors`); an item with "no factor (upkeep or compliance)" reads under Protect; a verdict is Assure, and an economic verdict's realised money reads under the moved factor's category;
 - contribution's bridge effects split into Grow and Optimize, and they add to its gap; the bridge itself, with its sources and coverage, is presented under Assure (A1);
 - Optimize holds collection of billed value (billed against collected, in transit, outstanding) and service-to-charge leaks (unmapped meters, adjustments) as the brief's O3; collection is cash and never enters contribution;
 - Assure reads no money of its own: it presents A1 (target against actual, sources, coverage), A2 (options' value and bounds), A3 (Actions and verdicts), A4 (the evidence kept; a packaged lender report is out of scope, OD-19) and A5 (contract notices and remedies). A verified operational change never establishes a realised saving, causation or audit certification by itself;
@@ -115,6 +122,10 @@ erDiagram
 - Does a captive EV depot show revenue as *not applicable*, and never as zero?
 - With one leaf's record removed, is the node partial, with the missing record named?
 - Does a structure with a unit mismatch stop the process at start-up?
+- Named, never inherited: with the `home_category` removed from Mto's unmapped-meters row, does the process refuse to start, rather than place unmapped meters under billed kWh's Grow?
+- No money under Protect or Assure: with Thika's customer compensation (`liability`) given the home Protect, does the process refuse to start, naming the row? With it under Optimize, does the Protect card show the nights without backup cover in its own unit and only link to the compensation?
+- Is Kasarani's penalty line Optimize, and are departures missed shown under Protect in departures, never in money?
+- Does an explicit residual (Ruiru's stated-total target) carry a row of its own, under Optimize, and is it the only residual shown at Ruiru?
 
 ## 4. CH1: Findings pinned to their factors, and the structure observer
 
@@ -124,7 +135,7 @@ erDiagram
 
 **What stays.** A Finding remains the stored, living result of an analysis evaluating a declared condition over evidence: its identity, revisions, thread, claim ceiling and next step (`0009_finding_store.py:33-106`).
 
-**The pin.** One registry row per mechanism names the factor it observes. It is read at query time, so no Finding column is added.
+**The pin.** One registry row per mechanism names the factor it observes. It is read at query time, so no Finding column is added. A Finding is pinned to the most specific factor it observes: the node whose deviation, limit, right or opportunity it reports, never a parent total whose change its children explain (design §2.0, `rev 16.12`). The structure observer follows the same rule: it raises a deviation on the leaf that carries it, not again on each total above.
 
 | Mechanism | Factor it observes (design §2.1) |
 |---|---|
@@ -139,7 +150,7 @@ erDiagram
 - the deviation lies outside the factor's tolerance; with no tolerance set, every adverse deviation is raised (Architect's call);
 - a favourable or neutral movement stays in the figures and raises nothing.
 
-Its Finding key is (Site, factor ID, period, direction), so a re-run revises the same Finding rather than opening a second.
+Its Finding key is (Site, factor ID, period, direction), so a re-run revises the same Finding rather than opening a second. A customer's own record (a signed letter of intent, a route offer) raises an opportunity Finding on the potential factor it fills (design §1.3).
 
 **What a Finding may claim.** Its condition, in its factor's unit and period, within its claim ceiling. Never an outcome value of its own, and never the value of acting.
 
@@ -150,6 +161,7 @@ Its Finding key is (Site, factor ID, period, direction), so a re-run revises the
 - Are outstanding bills of 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> raised as a cash risk, visible to the finance lead?
 - With a tolerance wider than the necessary-running effect, is no Finding raised for it, and with none set, is one raised?
 - Does headroom with no signed letter of intent stay a capacity factor and raise no opportunity Finding?
+- At Mto after the meter swap, is the unbilled-charges Finding raised on unmapped meters (Optimize) and not again on billed kWh or revenue (Grow)?
 - Does re-running the observer on unchanged records add no revision?
 - Does every registry row carry exactly one home category, and does the start-up check refuse a row without one?
 - At Kobo in October, do the Grow effects (+38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->) and the Optimize effects (−600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->) add to the contribution gap, with no figure under two headings?
@@ -197,11 +209,13 @@ The "N of M objectives met" line stays beside the bridge. The Assure row line is
 
 | Record | Fields |
 |---|---|
-| `decision` | Site, factor ID with the declared lever, the triggering Finding (when there is one), period, horizon, preparing rule version, prepared at |
+| `decision` | Site, factor ID with the declared lever, the triggering Finding (when there is one), period, horizon, preparing rule version, prepared at. Its heading is never stored: it is read as the triggering Finding's factor's `home_category`, or the lever's with no Finding (OD-25) |
 | `decision_option` | Decision, generator, factor changes over the horizon, the operator's one-off cost and its evidence class, crew visits, calculation record reference, value, disposition, reason. Exactly one option per decision is **no action** |
 | `option_bound_result` | Option, bound, kind (hard, costed or advisory), measured value, limit, held or broken, price of a breach for a costed bound |
 
 **Preparing a decision.** When a Finding sits on a factor with a declared lever, the system prepares a decision. It always includes no action, with current factors projected forward.
+
+**Its heading (OD-25; design §2.0, `rev 16.12`).** A decision sits under the heading of its triggering Finding's factor, because that is where the executive met the problem. With no Finding behind it, such as a capital choice the executive declares, it sits under its lever's heading: the factor whose change is its purpose. Other Findings it answers are linked and keep their own headings. Every option shows each effect under the heading of the factor that effect is on, and each money figure once. The start-up check (§3) refuses a lever whose purpose factor sits under another heading from its Finding's factor, so the two rules cannot disagree at run time. A decision never sits under Assure, which presents every decision's evidence as A2.
 
 **Value.** One rule, exactly as the design states it (§2.4):
 
@@ -231,6 +245,11 @@ The demonstration arithmetic is fixed in `structure-specification.md` §5.
 - In the demonstration on 6 Nov, does each Action's state (released at creation, or awaiting approval) match `worked-portfolios.md` §1.5?
 - With a Site crew-visit threshold of 1 and a portfolio threshold of 0, is a one-visit change at that Site released at creation, and is a change spanning two Sites judged against the portfolio's 0 (OD-18)?
 - Is a new connection's item held for the executive's approval even when its one-off is within the spend threshold, and is an Action against it refused before that approval (OD-17)?
+- Is the Kisiwa genset decision under Protect, because its Finding is on evening hours without backup, although its options also move necessary litres, and does the repair option still show its fuel effect under Optimize?
+- Is Thika's backup decision under Protect, because its Finding is on nights without backup cover, and does its compensation stay an Optimize cost line, linked and not counted under Protect?
+- Is the Mto billing fix under Optimize, because its Finding is on unmapped meters, and is Kobo's stop-threshold decision under Optimize, on candidate litres?
+- For each of the fourteen demonstration decisions, does its heading match `home_categories.decisions`, and is there no decision under Assure?
+- At Mto, does the inverter claim show its extra fuel to the restore (−137.50<!--fig:options.MTO-INV-CLAIM.monthly_or_horizon_change-->) under Optimize and its one-off (230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off-->) as the one-off, never labelling the option's value (−367.50<!--fig:options.MTO-INV-CLAIM.value-->) as its one-off?
 
 ## 7. P: the plan
 
@@ -269,7 +288,7 @@ Carrying an item into the next draft at close is an event recorded on the item, 
 3. *Fit and proposal.* The system checks the items against budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend. Every left-out item has a reason. The demonstration's search is fixed in `structure-specification.md` §6.
 4. *Approval.* The executive approves a version or sends it back with a trade-off. A version sent back returns to draft, and each changed item returns to its creator with the reason (OD-4).
 5. *Versions (OD-11).* A change that alters total spend by more than the spend threshold, or crew visits by more than the crew-visit threshold, creates a new version for approval. Smaller changes are recorded on the version in force with the person and time. Changes are counted together since the last approved version (Architect's call). While a successor is proposed, the version in force governs and the change's Actions wait.
-6. *Spend, counted once.* Each item's spend moves through planned, released and incurred. Incurred is the expense records linked to the item in the commercial record store. The budget in use counts each item once: incurred where expense records exist, else released, else planned (Architect's call). Realised value comes only from economic verdicts (§9).
+6. *Spend, counted once.* Each item's spend moves through planned, released and incurred. Incurred is the expense records linked to the item in the commercial record store. The budget in use counts each item once: incurred where expense records exist, else released, else planned spend (Architect's call). Realised value comes only from economic verdicts (§9).
 7. *Closing.* At the period's end the system runs the plan review: each item's predicted factor changes against those the bridge observed. The executive closes the plan; unfinished items carry into the next draft.
 
 **Action links.** Every carrier records two links (design §2.5):
@@ -283,33 +302,20 @@ Carrying an item into the next draft at close is an event recorded on the item, 
 - `chain_action_thread`'s one-origin check (`0051:87-88`), the `chain_action_thread_target()` trigger (`:34-50`) and the `chain_action` view (`:53-62`) widen in the same migration;
 - the downgrade refuses while rows use the new arms.
 
-```mermaid
-stateDiagram-v2
-  [*] --> Created: a person creates it, origin and membership recorded
-  Created --> Released: at or below both thresholds and the plan still fits
-  Created --> Waiting: above a threshold, or it would not fit in the plan
-  Waiting --> Released: the executive approves a version that keeps its item
-  Waiting --> Returned: the approved version leaves its item out (OD-4)
-  Released --> Returned: its item is dropped later, stopped at its next step
-  Returned --> Created: the creator revises it
-  state "Deferred into the next plan" as NextPlan
-  Returned --> NextPlan: the creator defers it
-  Returned --> Withdrawn: the creator withdraws it
-  Released --> [*]: today's carrier lifecycle continues
-```
-
-*The release states of an Action, beside today's carrier lifecycle. Released Actions follow their carrier's existing events (accept, apply, assign, complete). Spend already incurred stays recorded against the item.*
+**Release states.** An Action's release is design Figure 6d (`rev 16.12`), not redrawn here: **Waiting**, **Released**, **Returned** and **Withdrawn**, following its item's state (Figure 6c). The *proposed* column `release_state` holds one of the four. Deferral is not a state: an Action deferred with its item is Waiting in the next draft. An Action added to a Released item is checked as a change to that item (OD-11). An Action with no plan membership has no release state. Released Actions follow their carrier's existing events (accept, apply, assign, complete). Spend already incurred stays recorded against the item.
 
 **Acceptance tests.**
 - Does the system open each period's draft without choosing any item?
 - Does a Finding-origin Action that spends always carry a plan membership, and an Action never carry two?
-- Is an Action whose item the approved version leaves out returned to its creator with the reason, and not released?
+- Is an Action whose item the approved version leaves out Returned to its creator with the reason, and not released?
+- Does each Action's release state always follow design Figure 6d, so that no state outside Waiting, Released, Returned and Withdrawn is ever stored?
+- Is an Action added to a Released item within the thresholds released at creation, and one that takes the item's change above a threshold left Waiting while the item's earlier Actions stay Released?
 - Does a run of small changes that together pass a threshold create a new version?
 - Is each item's spend counted once in the budget in use?
 - Is a proactive item without a factor marked "no factor (upkeep or compliance)" and given no value?
 - Is a new opportunity-study origin refused, while existing mill-shift Actions still read?
 - At Lakeside, if the cooperative does not extend its letter of intent, does buying the Mto inverter now and dropping the Kisiwa repair appear as a revision (`worked-portfolios.md` §1.1)?
-- Is every item's owner the person who chose it, so that at Mto David owns the inverter-claim item while Joseph creates and owns the notice Action (OD-16)?
+- Is every item's owner the person who chose it, so that at Mto David owns the inverter-claim item while Joseph creates and owns the notice Action, and at Kobo Peter owns the battery-evidence item while Joseph creates its Action (OD-16; design §2.4 step 2)?
 - On 6 Nov, is the Kobo stop-threshold item Released and every other Lakeside item Chosen (Figure 6c)?
 - Does the Kisiwa generator service count its crew visit against December's limit, not November's, and leave the November search unchanged?
 
@@ -334,6 +340,12 @@ stateDiagram-v2
 - The operator executive grants and removes roles in Organisation settings. Every change is a `role_grant` row with its person and time (OD-14). The first executive of a tenant is created when the operator is onboarded.
 - A principal's roles are read from its current grants at each command. In the demonstration a person is shown by role title, the Site for a Site manager, and a fictional first name labelled "Illustrative" (`worked-portfolios.md` §1.5).
 
+**Organisation settings: what the screen shows** (OD-13, OD-14, OD-2, OD-12, OD-18; review H, M7). One screen, read by every role and changed only by the operator executive. The governing mock element is vNEXT `#/settings-tenant`, panel "Users and roles", once it shows the rows below (D7).
+- *People and roles.* One row per person: name, email, the role held (one of the five in design §2.6, with the Site for a Site manager), active or disabled. No other role exists: no Admin, no Viewer. In the demonstration these are the manifest's `demo_workflow.tenants[].people`, labelled "Illustrative" on screen (Lakeside: Amina, executive; Joseph, finance and commercial lead; Peter, Halima and David, Site managers at Kobo, Kisiwa and Mto; Musa, field technician; Wanjiru, analyst).
+- *Grant and removal record.* Every `role_grant` row, newest first: person, role, Site, granted or removed, by whom, when. Grant and remove controls appear only for the executive; anyone else sees the record without them.
+- *Thresholds and limits, at portfolio and Site level.* The spend threshold and the crew-visit threshold, each as a portfolio setting and an optional Site setting, with which one governs each Site (a Site setting wins; a change spanning Sites is judged against the portfolio's, OD-18). An unset spend threshold reads "not set: nothing is released without approval"; an unset crew-visit threshold reads 0 (OD-12). Beside them, the period's budget and the crew-visit limit per month (design §2.5). In the demonstration: spend 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> and crew visits 0<!--rec:demo_workflow.tenants[lakeside-power].crew_visit_threshold--> at portfolio level, with no Site setting.
+- *Each change* to a threshold or limit is recorded with its person and time, and fires the snapshot's trigger 4 (§3).
+
 **Who may do what.** Roles govern who may decide and what is recorded. They are not views: every role sees the same screens.
 
 | Command | Operator executive | Finance and commercial lead | Operations or site manager | Field technician or O&M contractor | Analyst | System |
@@ -345,9 +357,9 @@ stateDiagram-v2
 | Propose a new connection as a plan item (OD-17) | | | yes | | | never |
 | Declare budget lines and money targets; set money tolerances | | yes | | | | never |
 | Accept imported records | yes, as the lead's backup, recorded as the executive's acceptance (OD-15) | yes | | | | never |
-| Choose an option, or none | capital choices | billing, collection, claims, notices | operations and O&M | | | never |
+| Choose an option, or none (design §2.4 step 2) | capital choices: expansions, new connections, capital purchases | billing, collection and customer accounts | the Site's assets and operations, including the remedy path under an asset's warranty or service contract (Mto inverter: David, OD-16) | | | never |
 | Declare operational targets, proactive items; set operational tolerances | | | yes | | | never |
-| Create an Action | | money and rights Findings | Findings and proactive items | | | never |
+| Create an Action | | Actions on money Findings; every notice and claim Action, including one under an item another role chose | operational Actions on Findings and on the items they chose or declared | | | never |
 | Apply a setting change; assign work | | | yes | | | never |
 | File a rights event | | yes | | | | never |
 | Record readings, dips, completion | | | | yes | | never |
@@ -420,12 +432,28 @@ Each screen keeps its frame (the rail with no new menu items, the six Portfolio 
 | Assure row line | "Actual against target" (`site_outcomes/mini.py:692`) |
 | What changed | Actions with owners, the plan review and the three verdicts |
 
+**How the overview reads a contribution gap** (design §2.0, §2.2; review H, M9). The overview splits the gap one way only, by heading: Grow, then Optimize, which add to the gap. It shows no second split by revenue and cost beside it. A residual line appears only where a leaf is unobserved, and it is then the registry's residual row (Ruiru's stated total), never the sum of factors that are attributed. Unexplained fuel is an attributed factor, `unexplained_l`, under Optimize, named "fuel the generator model does not explain"; it is never "not explained by the model" in a residual. At Lakeside in October, from `derived-values.json` and the manifest's bridge rows:
+
+| Heading | Factor | Kobo | Kisiwa | Mto | Lakeside |
+|---|---|---:|---:|---:|---:|
+| Grow | kWh sold (demand volume) | +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}--> | −55.00<!--figx:({sites.lakeside-power/Kisiwa.actual.nodes.billed_kwh}-{sites.lakeside-power/Kisiwa.plan.nodes.billed_kwh})*{sites.lakeside-power/Kisiwa.actual.nodes.tariff}--> | −8.00<!--figx:({sites.lakeside-power/Mto.actual.nodes.metered_kwh}-{sites.lakeside-power/Mto.plan.nodes.metered_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> | **−25.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}+({sites.lakeside-power/Kisiwa.actual.nodes.billed_kwh}-{sites.lakeside-power/Kisiwa.plan.nodes.billed_kwh})*{sites.lakeside-power/Kisiwa.actual.nodes.tariff}+({sites.lakeside-power/Mto.actual.nodes.metered_kwh}-{sites.lakeside-power/Mto.plan.nodes.metered_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->** |
+| Optimize | candidate running | −412.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> | — | — | −412.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> |
+| Optimize | necessary running | −37.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> | −104.00<!--figx:-({sites.lakeside-power/Kisiwa.actual.nodes.necessary_l}-{sites.lakeside-power/Kisiwa.plan.nodes.necessary_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}--> | −25.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.necessary_l}-{sites.lakeside-power/Mto.plan.nodes.necessary_l})*{sites.lakeside-power/Mto.actual.nodes.diesel_price}--> | −166.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}+-({sites.lakeside-power/Kisiwa.actual.nodes.necessary_l}-{sites.lakeside-power/Kisiwa.plan.nodes.necessary_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}+-({sites.lakeside-power/Mto.actual.nodes.necessary_l}-{sites.lakeside-power/Mto.plan.nodes.necessary_l})*{sites.lakeside-power/Mto.actual.nodes.diesel_price}--> |
+| Optimize | fuel the generator model does not explain | −150.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> | −26.00<!--figx:-({sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l}-{sites.lakeside-power/Kisiwa.plan.nodes.unexplained_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}--> | — | −176.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}+-({sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l}-{sites.lakeside-power/Kisiwa.plan.nodes.unexplained_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}--> |
+| Optimize | meters not yet mapped to a customer | — | — | −56.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> | −56.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> |
+| Optimize | authorised adjustments | — | — | −16.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> | −16.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> |
+| Optimize | **total** | −600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}+-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}+-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> | −130.00<!--figx:-({sites.lakeside-power/Kisiwa.actual.nodes.necessary_l}-{sites.lakeside-power/Kisiwa.plan.nodes.necessary_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}+-({sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l}-{sites.lakeside-power/Kisiwa.plan.nodes.unexplained_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}--> | −97.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.necessary_l}-{sites.lakeside-power/Mto.plan.nodes.necessary_l})*{sites.lakeside-power/Mto.actual.nodes.diesel_price}+-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}+-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> | **−827.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}+-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}+-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}+-({sites.lakeside-power/Kisiwa.actual.nodes.necessary_l}-{sites.lakeside-power/Kisiwa.plan.nodes.necessary_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}+-({sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l}-{sites.lakeside-power/Kisiwa.plan.nodes.unexplained_l})*{sites.lakeside-power/Kisiwa.actual.nodes.diesel_price}+-({sites.lakeside-power/Mto.actual.nodes.necessary_l}-{sites.lakeside-power/Mto.plan.nodes.necessary_l})*{sites.lakeside-power/Mto.actual.nodes.diesel_price}+-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}+-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->** |
+| | **Contribution gap**, actual 1,443.00<!--fig:portfolio.lakeside-power.actual.sums.contribution--> against target 2,295.00<!--fig:portfolio.lakeside-power.plan.sums.contribution--> | −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> | −185.00<!--figx:{sites.lakeside-power/Kisiwa.actual.nodes.contribution}-{sites.lakeside-power/Kisiwa.plan.nodes.contribution}--> | −105.00<!--figx:{sites.lakeside-power/Mto.actual.nodes.contribution}-{sites.lakeside-power/Mto.plan.nodes.contribution}--> | **−852.00<!--figx:{portfolio.lakeside-power.actual.sums.contribution}-{portfolio.lakeside-power.plan.sums.contribution}-->**, residual 0 |
+
+The Assure card's bridge table and the overview's split read the same rows, so they cannot disagree.
+
 **Acceptance tests.**
 - Does the Optimize card state its period, not one day over a period range?
 - Does every figure on these screens carry its evidence word?
 - Does no screen use "plan" for a target?
 - Is headroom with no customer shown as potential beside Grow, never as Grow's actual?
 - Does every screen read the snapshot, never evaluate on a request?
+- At Lakeside, does the overview show the October gap exactly as the table above splits it, Grow then Optimize, with no "not explained" residual and no revenue-and-cost split beside it, and is unexplained fuel a named line under Optimize?
 
 ## 11. Evidence classes and negative accounting tests
 

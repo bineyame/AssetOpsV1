@@ -1,6 +1,6 @@
 # The first fortnight's build: as far along Figure 10 as fourteen days can go
 
-**AssetEcon · Layer 4 pack document 6b · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7 and `delivery-plan.md`; re-cut for rev 16.8 (sign-in and roles added to step 3C, OD-13, OD-14; structure of steps 1 and 3C approved with the pack, OD-20); checked against rev 16.9**
+**AssetEcon · Layer 4 pack document 6b · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7 and `delivery-plan.md`; re-cut for rev 16.8 (sign-in and roles added to step 3C, OD-13, OD-14; structure of steps 1 and 3C approved with the pack, OD-20); checked against `rev 16.9` to `rev 16.12` (step 3C no longer waits for step 1; the day table corrected)**
 
 **The owner's direction** (`.agent/owner-recreate-document-packs-2026-11-19.md`): the fortnight is to be recreated "focussed on advancing as much as possible towarfs the new features, not the markting element". So this is a build schedule and nothing else. It has no selling track, no demo days and no offer kit. Day 1 is the first build day after the owner approves the recreated pack.
 
@@ -14,7 +14,7 @@
 **The aim** is the furthest point on Figure 10 that capacity allows, built in delivery order. That means step 1, then step 2's format and leaf IDs, then lanes 3A, 3B and 3C together, then the join, and then as far towards steps 5–8 as the lanes can reach.
 
 **The headline, at the planning pace:**
-- **4 build lanes** run from day 1. The heavy-tool slot pool (`T1`, numbered `B03` in `two-week-conversion-plan.md`) merges first, so lanes 3 and 4 open as soon as it lands.
+- **4 build lanes**. The heavy-tool slot pool (`T1`, numbered `B03` in the retired `two-week-conversion-plan.md`) merges first, on day 1, and lane 4 starts step 1 the same day. Lanes 1 and 2 start on day 3, once sitting 1 approves their pages. Lane 3 starts calibration spike `0K` on day 3 and step 3C on day 5 (`3C0`), because slices are taken in delivery order and step 0 comes first (§4).
 - By day 14, 111.5 units land in 37 slices, of which 30 slices committed land by day 12.
 - **Figure 10 is complete through step 5.** Steps 1, 2, 3A, 3B and 3C, the join, and targets and the bridge are all built, with the bridge on screen. Step 3C now starts with sign-in and roles (`3C0`, OD-13, OD-14).
 - **Step 6 is built except its screen,** because cost-side decisions start before the join (design §2.9): the decision records, bounds, the evaluator, the stop-threshold carrier and its verification family, and Mto's demand and repair decisions. The Kobo decision view (`6f`) is stretch.
@@ -96,7 +96,7 @@
 <!--derives: D11; Figure 10; plan_model-->
 
 **Structure first (W1).** No slice builds before the owner approves its structure page. The pages are written from the recreated pack, so most take a quarter or half of a day.
-- **Steps 1 and 3C are approved with the pack** (owner, OD-20). Their structure is already the pack's: design CH5 and CH2, `decision-loop-specification.md` §8 (sign-in and roles) and `plan-and-action-workflow.md`. So their slices start on day 1.
+- **Steps 1 and 3C are approved with the pack** (owner, OD-20). Their structure is already the pack's: design CH5 and CH2, `decision-loop-specification.md` §8 (sign-in and roles) and `plan-and-action-workflow.md`. So their slices need no sitting. In the computed schedule step 1 starts on day 1, on lane 4, once the slot pool merges; step 3C starts on day 5, on lane 3, after spike `0K` (days 3 to 5). Step 3C needs nothing from step 1, so `3C0` has no dependency on `1a` (`rev 16.12`). Lane 3 is idle on days 1 and 2: the model starts a lane that waits for the slot pool only at the next event it can already see, here sitting 1's release, and not the moment the pool merges. That is a known pessimism of the model (§7, decision 6).
 - **The sitting days are searched by the model.** It picks the days that land the most work by day 14, then the furthest step, then the fewest sittings. The result is sittings on days 2 and 8.
 
 **Structure pages** (computed):
@@ -120,20 +120,20 @@
 <!--table:days-->
 | Day | Lane 1 · sources and money | Lane 2 · structure and the plan's records | Lane 3 · person, decisions and proof | Lane 4 · screens and tooling | Owner |
 |---|---|---|---|---|---|
-| 1 | — | — | — | `T1` ✓, `1a`, `1b` | reads 3 pages for sitting 1 |
-| 2 | — | `2a`, `3B1` | `0K` | `1a` ✓, `1b` | sitting 1 |
-| 3 | `3A1` | `2a` ✓, `3B1` | `0K` | `1b` | — |
-| 4 | `3A1`, `3A2` | `3B1`, `3B3` | `0K`, `3C0` | `1b` ✓, `3A5` | — |
-| 5 | `3A1` ✓, `3A2`, `3A3` | `3B1` ✓, `3B3`, `3B6`, `3B2` | `0K` ✓, `3C0`, `3C1` | `3A5`, `0M` | — |
-| 6 | `3A2` ✓, `3A3`, `3A4` | `3B3` ✓, `3B6` ✓, `3B2`, `3B4` | `3C0` ✓, `3C1`, `3C2` | `3A5` ✓, `0M`, `3B5` | — |
-| 7 | `3A3` ✓, `3A4`, `4b` | `3B2` ✓, `3B4`, `0E` | `3C1` ✓, `3C2` | `0M` ✓, `3B5` | reads 5 pages for sitting 2 |
-| 8 | `3A4` ✓, `4b`, `4a` | `3B4` ✓, `0E` | `3C2` ✓, `6a` | `3B5`, `3C3` | sitting 2 |
-| 9 | `4b` ✓, `4a`, `5a` | `0E`, `7a` | `6a`, `6d` | `3B5` ✓, `3C3` | — |
-| 10 | `4a` ✓, `5a`, `9a` | `0E` ✓, `7a` | `6a` ✓, `6d`, `6e` | `3C3` ✓, `5d` | — |
-| 11 | `5a` ✓, `9a` | `7a`, `5b` | `6d` ✓, `6e`, `6c` | `5d` | — |
-| 12 | `9a`, `6g` | `7a` ✓, `5b`, `7b` | `6e` ✓, `6c`, `6b` | `5d` ✓, `WK`, `5c` | — |
-| 13 | `9a` ✓, `6g`, `7d` | `5b` ✓, `7b` | `6c` ✓, `6b`, `8a` | `WK` ✓, `5c`, `6f` | reads the day-14 pack |
-| 14 | `6g` ✓, `7d`, `9b` | `7b`, `7c` | `6b` ✓, `8a`, `8b` | `5c` ✓, `6f` | walkthrough of the built screens and the next ranked list |
+| 1 | — | — | — | `T1` ✓, `1a` | reads 3 pages for sitting 1 |
+| 2 | — | — | — | `1a` ✓, `1b` | sitting 1 |
+| 3 | — | `2a` ✓, `3B1` | `0K` | `1b` | — |
+| 4 | `3A1` | `3B1` | `0K` | `1b` ✓ | — |
+| 5 | `3A1` ✓, `3A2` | `3B1` ✓, `3B3` | `0K` ✓, `3C0` | `3A5` | — |
+| 6 | `3A2` ✓, `3A3` | `3B3` ✓, `3B6` ✓, `3B2` | `3C0` ✓, `3C1` | `3A5` ✓, `0M` | — |
+| 7 | `3A3` ✓, `3A4` | `3B2` ✓, `3B4` | `3C1` ✓, `3C2` | `0M` ✓, `3B5` | reads 5 pages for sitting 2 |
+| 8 | `3A4` ✓, `4b` | `3B4` ✓, `0E` | `3C2` ✓ | `3B5` | sitting 2 |
+| 9 | `4b` ✓, `4a` | `0E` | `6a` | `3B5` ✓, `3C3` | — |
+| 10 | `4a` ✓, `5a` | `0E` ✓, `7a` | `6a` ✓, `6d` | `3C3` ✓ | — |
+| 11 | `5a` ✓, `9a` | `7a` | `6d` ✓, `6e` | `5d` | — |
+| 12 | `9a` | `7a` ✓, `5b` | `6e` ✓, `6c` | `5d` ✓ | — |
+| 13 | `9a` ✓, `6g` | `5b` ✓, `7b` | `6c` ✓, `6b` | `WK` ✓, `5c` | reads the day-14 pack |
+| 14 | `6g` ✓, `7d` | `7b` | `6b` ✓, `8a` | `5c` ✓, `6f` | walkthrough of the built screens and the next ranked list |
 <!--/table-->
 
 **The fortnight on one chart** (computed). Bars marked critical are committed: they land by day 12.
@@ -236,7 +236,7 @@ gantt
 
 **Reading.**
 - **Lanes matter more than pace here.** At the slip pace the fortnight still completes step 4. Without the slot pool, two lanes reach only the same step with far fewer units. The pool is therefore worth more than any single slice.
-- **The rework allowance costs no complete step here.** Without it, the furthest complete step moves from step 5 to step 5, though 13.5 more units land (125 against 111.5). The allowance stays, because this fortnight's work is new schema and money.
+- **The rework allowance costs no complete step here.** Without it, the furthest complete step stays at step 5, though 13.5 more units land (125 against 111.5). The allowance stays, because this fortnight's work is new schema and money.
 
 **The stretch line** (computed): what lands by day 14 at the observed pace but not at the planning pace. If the first week runs at the observed pace, these are next, in delivery order:
 
@@ -300,10 +300,12 @@ Their screens are on the stretch line (§5). The walkthrough says so plainly rat
 
 | # | Decision | Context | Default, applied until the owner answers |
 |---|---|---|---|
-| 1 | Does approving the recreated pack also approve the structure of steps 1 and 3C? | Their structure is the pack's own (design CH5 and CH2; `plan-and-action-workflow.md`). Without this, lanes 3 and 4 wait for sitting 1 | **Decided by the owner, 19 Nov (OD-20): yes** |
+| 1 | Does approving the recreated pack also approve the structure of steps 1 and 3C? | Their structure is the pack's own (design CH5 and CH2; `plan-and-action-workflow.md`). Without this, steps 1 and 3C wait for sitting 1. With it, step 1 starts on day 1 and step 3C on day 5, after spike `0K` | **Decided by the owner, 19 Nov (OD-20): yes** |
 | 2 | Hold the two sittings on days 2 and 8 | Computed: the model's search picks these days. Sitting 2 approves steps 5 to 9's pages together | Yes |
 | 3 | The planning pace, with a rework allowance | 3 units per lane-day, against 4.8 units per lane-day observed, plus 15 in 100 for rework | Yes |
 | 4 | The heavy-tool slot pool first | W4 as amended (sitting 1, item 7) | Already decided by the owner |
 | 5 | Re-cut after the first week | If week 1 runs at the observed pace, the stretch line (§5) comes in. If it slips, the drop order applies | Re-run `plan_model.py` at the end of day 7 and bring the result to the owner |
+| 6 | Two known biases of the model, corrected together at the day-7 re-cut | *Pessimistic:* a lane waiting for the slot pool starts at the next event it can see, so lane 3 idles on days 1 and 2; corrected, `0K` starts on day 1 and the fortnight reaches further. *Optimistic:* the owner's build-start handshake (`.agent/owner-build-start-and-spec-handshake-2026-11-19.md`: an Architect spec, a reviewer guide and a reviewer Q&A before each unit's code) has no time in the model, and nor has the snapshot slice (§3). The two pull opposite ways and touch the dates in `commercial-plan.md`, so they are changed together, once | Keep the model as it is for the pack approval; correct both at the day-7 re-cut, with `commercial-plan.md` re-checked |
+| 7 | Which mock governs the fortnight's screen slices (`3B5`, `3C3`, `5c`, `5d`; review H, M6) | The screen slices start from day 7. The recreated mock-up vNEXT has not had the owner's inspection | **Owner question** (`decisions-register.md` D7): once the owner has approved the pack and inspected vNEXT, vNEXT governs these slices, each spec citing the element D7 names. Until then a screen slice may build, but it does not merge without the owner's walkthrough of it |
 
-**Pushback, for the owner.** The owner asked to advance "as much as possible". The model's answer is that the binding limits are memory and the structure sittings, not effort. Decision 1, now decided (OD-20), puts lanes 3 and 4 to work on day 1. The next lever is sitting 2: on day 8 it lands the bridge but leaves the Kobo decision view as stretch. Re-running the model at day 7 (decision 5) is where to revisit it.
+**Pushback, for the owner.** The owner asked to advance "as much as possible". The model's answer is that the binding limits are memory and the structure sittings, not effort. Decision 1, now decided (OD-20), lets step 1 start on day 1 and step 3C on day 5 with no sitting. The next lever is sitting 2: on day 8 it lands the bridge but leaves the Kobo decision view as stretch. Re-running the model at day 7 (decision 5) is where to revisit it.

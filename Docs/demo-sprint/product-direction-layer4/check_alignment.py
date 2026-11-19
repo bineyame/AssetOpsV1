@@ -60,9 +60,10 @@ def blank(txt, pattern, flags=0):
 def prose(txt, keep_mermaid=True):
     """Text a reader sees: no HTML comments, no code spans, no non-mermaid code blocks, no bold markers."""
     txt = blank(txt, r"<!--.*?-->", re.S)
-    txt = blank(txt, r"```(?!mermaid)[^\n]*\n.*?```", re.S)
-    if not keep_mermaid:
-        txt = blank(txt, r"```mermaid\n.*?```", re.S)
+    # fences are paired in order (rev 16.12: the old pattern could pair a mermaid block's closing fence with the next
+    # block's opening one, so the prose between two diagrams was hidden from every rule)
+    txt = re.sub(r"```([^\n]*)\n.*?```", lambda m: m.group(0) if (keep_mermaid and m.group(1).strip() == "mermaid")
+                 else re.sub(r"[^\n]", " ", m.group(0)), txt, flags=re.S)
     txt = blank(txt, r"`[^`\n]*`")
     return txt.replace("**", "  ")
 
@@ -107,6 +108,7 @@ ALLOW_RIGHT = re.compile(
     r"beside|and\s+its\s+limits|among\s+the\s+constructs|and\s+the\s+Portfolio|and\s+Action|as\s+(?:proposed|approved)|"
     r"with\s+(?:crews?|a\s+budget|budget))\b"
     r"|^'s\s+states\b|^-facing\b"
+    r"|^-item\b|^\s+(?:changes?|screen)\b|^\s+is\s+where\b|^'s:|^\s+\(Figure\b|^,\s+(?:version\s+number|kind)\b"   # rev 16.12: construct uses the fence bug hid
     r"|^\s*:\s+(?:a|one)\s+portfolio's"
     r"|^\s*:\s+(?:proposed\s+by\s+the\s+system|portfolio\s+and\s+period|the\s+period's)"
     r"|^\s*,?\s+(?:proposed|approved|opened|owned|reviewed)\s+by\b"
@@ -117,7 +119,7 @@ ALLOW_LEFT = re.compile(
     r"sends?\s+back|sent\s+back|revises?|revised|closes?|closed|version\s+of|items?\s+of|member\s+of|membership\s+of|"
     r"in|into|from|of|with|for|through|and|within|outside|whether)\s+" + DET + r"\s+" + QUAL + r"$)"
     r"|(?:\bP:\s+the\s+$)|(?:\bThe\s+\w+'s\s+$)", re.I)
-PLANNED_OK = re.compile(r"^\s+(?:changes?|spend)\b", re.I)          # the plan's predicted change; an item's planned spend step
+PLANNED_OK = re.compile(r"^\*?\s*(?:changes?|spend\b|\(the\s+chosen|,\s+released\b)", re.I)          # the plan's predicted change; an item's planned spend step
 RAISED_AGAINST = re.compile(r"\b(?:raised|created|opened|raise|create)\s+against\s+(?:a|the)\s+$", re.I)   # OD-1: "an action be raised against a plan"
 ALONE = re.compile(r"^[\s*#>-]*(?:the\s+)?plan[\s*]*$", re.I)               # a heading or label that is just "The plan"
 QUOTED = r"[\"“](?:actual\s+against\s+plan|plans?)[\"”]"      # meta mentions and the retired label as a quoted name
@@ -382,7 +384,9 @@ def run(root=ROOT, extra=()):
         results.append((f"A6 coverage of §2.x by the builder documents ({miss})", not miss))
     else:
         notes.append(f"A6 pending: {len(builders)} of {nb} builder documents written")
-    notes.append("not yet written: " + ", ".join(fn for fn in DERIVED if not (root / fn).is_file()))
+    unwritten = [fn for fn in DERIVED if not (root / fn).is_file()]
+    if unwritten:
+        notes.append("not yet written: " + ", ".join(unwritten))
     if PENDING:
         notes.append("pending recreation (not checked): " + ", ".join(PENDING))
     for label, ok, detail in self_test(lx, root):

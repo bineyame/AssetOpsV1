@@ -1,6 +1,6 @@
 # Plan and Action workflow: who acts, the money, approval and the system's part
 
-**AssetEcon · Layer 4 pack document 12 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7, updated to rev 16.8 (OD-13 to OD-18, item states, Lakeside's proactive item; the demonstration workflow of WP §1.5)**
+**AssetEcon · Layer 4 pack document 12 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7, updated to `rev 16.12` (OD-13 to OD-18, item states, Lakeside's proactive item; the demonstration workflow of WP §1.5; checked against `rev 16.10` and `rev 16.11`; the chooser ruling and the release machine of `rev 16.12`)**
 
 **Why this document exists.** The owner asked for more clarity about how the plan and Action work together, "in its workflow document that combines workflow, finan ces, ownership and system mechanics" (`.agent/owner-recreate-document-packs-2026-11-19.md`). Every rule here is the design's (`layer4-transformation-design.md` §2.4–§2.6, Figures 5–8 and 6b). This document adds no construct, role, state or figure. Where the design leaves something open, it is listed as a design gap in §10, not decided here. The Architect's calls quoted here are the design's own and are labelled as such.
 
@@ -32,8 +32,8 @@ Roles govern who may decide; they are not views, and every role sees the same sc
 | Role | Decides, in this workflow | Does | Recorded |
 |---|---|---|---|
 | **Operator executive** | Approves every plan version or sends it back with a trade-off. Sets the budget, the crew visits, the switches, the spend threshold (OD-2) and the crew-visit threshold (OD-12). Makes capital choices: declares expansions and approves new connections as capital (OD-17). Grants and removes roles in Organisation settings (OD-14) | Approves; sends back; closes the period's plan; accepts imported records when the finance and commercial lead is absent (OD-15) | Each approval, send-back, setting, role grant and close, as the approver; a backup acceptance as the executive's own |
-| **Finance and commercial lead** | Chooses claims, notices and collection actions; declares budget lines and money targets; sets money tolerances | Creates Actions against money and rights Findings, and against other owners' items where the filing is theirs; files rights events | Each choice as an item owner (OD-16); each Action as its creator |
-| **Operations or site manager** | Chooses options within operational decisions; declares proactive items (maintenance, replacements); proposes new connections as plan items (OD-17); sets operational tolerances | Creates Actions from Findings or proactive items, and a new connection's Actions once it is approved; applies setting changes; assigns work | Each choice, declared item and proposed connection as the item owner (OD-16); each Action as its creator |
+| **Finance and commercial lead** | Chooses billing, collection and customer-account options; declares budget lines and money targets; sets money tolerances | Creates Actions against money Findings, and every notice and claim Action, including under items other roles chose (design §2.4 step 3); files rights events | Each choice as an item owner (OD-16); each Action as its creator |
+| **Operations or site manager** | Chooses options within decisions on the Site's assets and operations, including an asset's warranty or service remedy (Mto inverter, OD-16); declares proactive items (maintenance, replacements); proposes new connections as plan items (OD-17); sets operational tolerances | Creates Actions from Findings or proactive items, and a new connection's Actions once it is approved; applies setting changes; assigns work | Each choice, declared item and proposed connection as the item owner (OD-16); each Action as its creator |
 | **Field technician or O&M contractor** | — | Does the work; records readings, dips and completion | Each record and completion as the actor |
 | **Analyst** | Maps sources to factors; places data-quality holds | Onboards sources, including the expense records that make spend *incurred* (§6) | Each mapping and hold |
 
@@ -133,7 +133,7 @@ A Finding-origin Action that spends, with no decision behind it, creates its own
 |---|---|---:|---:|---|---|
 | Stop-threshold change (Kobo; Peter) | bottom-line: candidate running | 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> | 0 | reconfigure, Peter → Peter, 9 Nov; supervise the trial, Peter → Musa, 23 Nov | **released at creation**: within the spend threshold, no crew visit; the item is *Released* |
 | Alternator repair (Kisiwa; Halima) | risk: evening hours with no backup | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 1 | repair, Halima → Musa, 9 Nov | waits: above the spend threshold, and a crew visit |
-| Battery evidence (Kobo; Joseph) | risk: warranty cover that cannot be claimed | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | 1 | capacity test and sensor, Joseph → Joseph, 20 Nov | waits: above the spend threshold, and a crew visit |
+| Battery evidence (Kobo; Peter) | risk: warranty cover that cannot be claimed | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | 1 | capacity test and sensor, Joseph → Joseph, 20 Nov | waits: above the spend threshold, and a crew visit |
 | Inverter warranty claim (Mto; David) | risk: half inverter capacity, cover at stake | 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> | 1 | file the notice (deadline 27 Nov), Joseph → Joseph, 13 Nov; install the unit, David → David, 28 Nov | **waits on the crew visit alone**: within the spend threshold, but one crew visit at a threshold of 0 (OD-12) |
 | Huller connection (Mto; David) | opportunity: the cooperative's signed letter of intent | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> | 0 | none yet: David creates "connect, after the inverter" (due 5 Dec) once Amina approves | waits as **capital** (OD-17): a new connection waits for the executive whatever its spend |
 | Generator service (Kisiwa; Halima), **proactive** | none: declared upkeep, "no factor (upkeep or compliance)" (OD-5) | 0.00<!--rec:demo_workflow.tenants[lakeside-power].items[KIS-SERVICE].planned_spend--> | 1, in December | none yet: Halima creates the service Action (owner Musa, 8 Dec) when she books the visit | waits: one crew visit at a threshold of 0; once version 1 is in force, its Action is released at creation |
@@ -210,7 +210,7 @@ flowchart LR
 | Spend (OD-2) | a chosen change's total one-off, over all its Actions, for release at creation; the total spend change since the last approved version, for a new version | not set, so nothing is released without approval (§2.4 step 4) |
 | Crew visits (OD-12) | the crew visits a change adds, and the crew-visit change since the last approved version | zero, so any added crew visit needs approval |
 
-**What the money is not.** Spend is the operator's outlay. Realised value comes only from economic verdicts on recorded records (§2.7). A plan's modelled value, its spend and its realised value are different kinds and are never added together (Rules 2 and 5).
+**What the money is not.** Spend is the operator's outlay. Realised value comes only from economic verdicts on recorded records (§2.7). The modelled value of a plan, its spend and its realised value are different kinds and are never added together (Rules 2 and 5).
 
 *Serves the objective:* an executive trusts a money figure only if each amount appears once and says how it is known.
 
@@ -219,8 +219,9 @@ flowchart LR
 
 | Who | Holds | Recorded |
 |---|---|---|
+| **Chooser** | the role accountable for what the decision concerns: the Site manager for the Site's assets and operations, including an asset's warranty or service remedy (Mto inverter: David, OD-16); the finance and commercial lead for billing, collection and customer accounts; the executive for capital (design §2.4 step 2) | name and time, on the item |
 | **Item owner** | the person who chose the item's option or declared it, who stays its owner whoever creates its Actions (OD-16) | name and time, on the item, as its chooser and owner |
-| **Action creator** | the person who created the Action, against a Finding or a plan item | name and time; the origin and the plan membership |
+| **Action creator** | the person who created the Action, against a Finding or a plan item: the chooser for operational Actions; the finance and commercial lead for every notice and claim Action (design §2.4 step 3) | name and time; the origin and the plan membership |
 | **Action owner** | the person accountable for doing it, who may differ from the creator | name and a **due date**; overdue is computed, as it already is for maintenance schedules (§2.6) |
 | **Approver** | the operator executive, for every version, and for each capital item in it (OD-17) | name, time and the version number |
 | **Role grants** | the operator executive, in Organisation settings (OD-14) | each grant and removal, with its person and time |
@@ -232,25 +233,12 @@ flowchart LR
 ## 8. The Action's release, step by step
 <!--derives: §2.4; §2.5; Figure 6c; OD-4; OD-8; OD-11-->
 
-The plan version's states are design Figure 6b, and a plan item's five states (Chosen, Released, Left out, Done, Withdrawn) are design Figure 6c; neither is redrawn here. An item's state is derived from its Actions and the plan's versions, and its spend moves through its three steps (§6 above) alongside. An Action keeps its carrier's existing lifecycle, which stays (§1.4). What is new is its release:
+The plan version's states are design Figure 6b, a plan item's five states (Chosen, Released, Left out, Done, Withdrawn) are design Figure 6c, and an Action's release is design Figure 6d (`rev 16.12`). None is redrawn here. An item's state is derived from its Actions and the plan's versions, and its spend moves through its three steps (§6 above) alongside. An Action keeps its carrier's existing lifecycle, which stays (§1.4). What is new is its release, step by step, in the terms of Figure 6d:
 
-<!--diagram:action-release-->
-
-```mermaid
-stateDiagram-v2
-  [*] --> Checked: created by a person, with origin and membership
-  Checked --> Released: within both thresholds and the plan still fits
-  Checked --> Waiting: above a threshold, or it would not fit the plan
-  Waiting --> Released: the executive approves the version
-  Waiting --> Returned: the approved version leaves its item out (OD-4)
-  Released --> Stopped: an approved version drops its item
-  Stopped --> Returned: back to its creator, incurred spend kept
-  Returned --> Checked: revised by its creator
-  Returned --> [*]: deferred to the next draft, or withdrawn
-  Released --> [*]: work done and verified, as today
-```
-
-*Figure 12.5. An Action's release. While it is Released, today's carrier lifecycle and thread states run unchanged.*
+1. **Created and checked.** A person creates the Action, with its origin and membership. The system checks it against both thresholds and the plan's fit, as a change to its item.
+2. **Released** if its item is Released, or its item's whole change is within both thresholds and the plan still fits. Today's carrier lifecycle and thread states then run unchanged.
+3. **Waiting** otherwise, until the executive approves a version that holds its item; then **Released**.
+4. **Returned** when a send-back or an approved version leaves its item out (OD-4). A released Action stops at its next step, and incurred spend stays recorded against the item. Its creator revises it (checked again, as at step 1), defers it with its item to the next draft (Waiting there), or withdraws it (**Withdrawn**).
 
 ## 9. What the system does, and what it never does
 <!--derives: §2.4; §2.5; §2.6; §1.4; OD-10; Figure 7-->

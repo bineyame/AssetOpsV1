@@ -1,6 +1,6 @@
 # Integration design: from source records to leaf factors
 
-**AssetEcon Layer 4 · builder and analyst specification for B3 · recreated from the design rev 16.7, updated to rev 16.9 (OD-15; the deep-dive tied to its steps; OD-22 integration order; OD-23 snapshot triggers) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · builder and analyst specification for B3 · recreated from the design rev 16.7, updated to `rev 16.12` (OD-15; the deep-dive tied to its steps; OD-22 integration order; OD-23 snapshot triggers and its serving rule; checked against `rev 16.10` to `rev 16.12`) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This document specifies how the operator's commercial and operational records reach the factor structure: the canonical format, the stores, the emulators, the contract test, the path to a pilot adapter, and the tests. It replaces `integration-source-to-canonical-design.md` (regeneration F, #3). It adds detail beneath B3 and never a new construct, role, decision or figure.
 
@@ -87,9 +87,9 @@ Each fact lives in the store whose shape and life already fit it. One new store 
 | Telemetry, device events, charger logs | Evidence ledger (stays) | First write wins is right for a device that does not correct its past |
 | Fuel deliveries, dips, manual readings | Operational records (stay) | Version chain, review state, occurred and recorded time |
 | Charges, receipts, expenses, budget and target lines, assignments, storage movements, rosters, contracts | **Commercial record store (new)** | Money records arrive in bulk, are corrected by their source, and carry currency and effective periods |
-| Factor values, outcomes, bridges | Not stored as totals | Computed on read from leaves (`chain/period_read.py:139`) |
+| Factor values, outcomes, bridges | The calculated daily snapshot (OD-23; design §2.8) | Evaluated from leaves and served from the snapshot, never recomputed on a screen read and never a source: no stored figure is an input, and every snapshot can be rebuilt from these records. Replaces today's compute-on-read (`chain/period_read.py:139`) |
 
-**Named change (design §2.3).** The commercial store is separate because today's intake is first-write-wins and refuses late intervals (`evidence/service.py:484-492`; `reading_upload/service.py:244-248`). That suits telemetry and does not suit bills. A late record appends a revision and revises the closed periods it touches, which then recompute.
+**Named change (design §2.3).** The commercial store is separate because today's intake is first-write-wins and refuses late intervals (`evidence/service.py:484-492`; `reading_upload/service.py:244-248`). That suits telemetry and does not suit bills. A late record appends a revision and revises the closed periods it touches. Its input-change row fires the snapshot's trigger 2, so only those Sites and periods are recalculated (design §2.8).
 
 **What is reused from today's intake.** The dry run that writes nothing; the size limit and receipt; the append-only trigger; per-row refusal that never sinks its siblings; tenant and Site from the credential (`evidence/ledger_service.py:194-211`). Money records enter only on the authenticated, Site-bound path. The unauthenticated legacy batch path (`evidence_api.py:201-204`) never accepts them.
 
@@ -171,7 +171,7 @@ Each transport passes the same source-type contract test before it replaces the 
 - No source is connected without the operator's contractual right to share it, and a signed data-processing agreement naming the hosting location precedes any per-customer intake.
 - Customer, meter, payer and driver references are pseudonymised at intake with a per-tenant keyed hash. Names, phone numbers and addresses are dropped before storage, per the profile. The raw file sits in an access-restricted store.
 - Each source is registered per tenant with its profile. An unregistered source is refused.
-- Reads follow the roles (`decision-loop-specification.md` §8). Everyone sees factor values and counts. Customer-level rows and contract documents are shown only to the roles that work with them: the finance and commercial lead and the analyst.
+- Every role of the operator sees the same screens, customer-level rows and contract documents included (design §2.6: roles are not views). Roles govern only who may accept, change or act on a record (`decision-loop-specification.md` §8), so the executive who accepts imports in the lead's place (OD-15) sees what they accept. Privacy is kept at intake, by pseudonymising people, not by hiding rows from a role.
 
 ## 8. Disorder and isolation tests
 

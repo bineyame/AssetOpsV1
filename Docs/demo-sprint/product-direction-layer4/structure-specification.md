@@ -21,7 +21,7 @@ Terms: *record path* means a dotted path into the site's context (§2.3). *Expre
 
 | Class | Meaning | Where in the manifest | Flag carried |
 |---|---|---|---|
-| Structure declaration | the node expressions of each vertical and the record-to-leaf map | `structures`, `factor_map`, site `factor_sources` | the spec itself (M1) |
+| Structure declaration | the node expressions of each vertical and the record-to-leaf map | `structures`, `factor_map`, site `factor_sources` | the spec itself |
 | Record | an observed fact, a contract term or a dated event | tenant and site records (period, observations, physical, tariff, prices, incident, entitlement, decision rows) | coverage class (RECORDED, ESTIMATED) |
 | Quote | a price, lead time or duration offered by a supplier or contractor | option `params` and `cost_lines`, with `basis` | `basis` |
 | Replay design value | a figure a calibration replay must reproduce before it is relied on | option `params` with `design_value: K\|M\|E`, and physical fields marked as spike outputs | "design value" label wherever shown |
@@ -78,7 +78,7 @@ All arithmetic is decimal. Reported money and quantities are rounded half-even t
 
 ---
 
-## 3. Factors and layers (M1, M2)
+## 3. Factors and layers
 
 - **Leaves.** For a site of vertical V, each leaf is `factor_map[V][leaf]`, unless the site declares `factor_sources[leaf]`, which then replaces it. The leaf is evaluated in the side's context.
 - **Nodes.** Each node is `structures[V][node]`, evaluated over the leaves and the other nodes. The evaluation order is any order consistent with the references. Every node and every leaf is reported for each evaluated side.
@@ -93,7 +93,7 @@ All arithmetic is decimal. Reported money and quantities are rounded half-even t
 
 ---
 
-## 4. Rights and restore (M3)
+## 4. Rights and restore
 
 ### 4.1 Rights
 
@@ -151,7 +151,7 @@ A right is every `entitlement` and `entitlements[]` entry of a site, and every `
 
 ---
 
-## 5. Option evaluation (M3)
+## 5. Option evaluation
 
 1. **Forward baseline.** The option starts from the site's `actual` leaves. The leaves listed in `evaluation.forward_baseline[V]` are then reset to their declared expressions, because options look forward from `as_of`.
 2. **Reference.**
@@ -179,15 +179,15 @@ A right is every `entitlement` and `entitlements[]` entry of a site, and every `
 
 ### 6.1 Candidates
 
-Each decision in a plan is protective, valued or comparator. Comparators are evaluated and listed, never chosen.
+Each decision in a plan is protective, valued or comparator. Comparators are evaluated and listed, never in the proposed set. The allocator proposes; people choose (design §2.6).
 
 - **Protective decision.** The candidates are the options whose violation over the decision's `hard` bounds is 0.
   - If there are none and the decision declares `fallback: least_violation`, every option is a candidate.
   - If there are none and no fallback is declared, the plan is infeasible.
-  - Exactly one option is taken.
+  - Exactly one option is taken in the proposal.
 - **Valued decision.** The candidates are the options valued in money (or with an evaluable value) whose hard violation is 0, with the same fallback rule.
   - "No option" is also a candidate when the decision is `optional` (the default) or has no candidate.
-  - A non-optional decision must take one of its options.
+  - A non-optional decision has one of its options in the proposal.
 
 ### 6.2 Feasibility of a combination
 
@@ -201,14 +201,14 @@ A combination (one candidate per decision, in declared order) is feasible when a
    - r + `plus_business_days` business days ≤ the deadline;
    - the deadline is `by`, replaced by `by_if_switch[s]` when switch s is true in the case.
 
-### 6.3 Choosing the plan
+### 6.3 The proposed set
 
 - **Figures of the plan.** Spend = Σ operator one-off of the items. Valued option costs = Σ operator one-off of the valued-in-money items. Not valued in money = spend − valued option costs, a money figure (amended, ambiguity A20).
-- **Ranking.** The plan is the feasible combination with the greatest key: (− total violation, value, − spend).
+- **Ranking.** The proposed set is the feasible combination with the greatest key: (− total violation, value, − spend).
   - Total violation is summed over the decisions that are on their fallback.
   - Value is the sum of valued-in-money options' values.
   - Ties go to the combination found first when decisions are enumerated in declared order, with options in declared order and "no option" first.
-- **Protective choices** are read from the chosen combination.
+- **Protective options** are read from the proposed set.
   - Each is "meets its hard bounds", or "least violation within the plan" with the violation.
   - A trade-off is reported when another option of the decision has a smaller violation.
 - **Admissible** (per option) means a hard violation of 0 under its decision. Options in no decision are admissible.

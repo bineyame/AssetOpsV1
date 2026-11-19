@@ -627,7 +627,7 @@ HEAD_OF = {"G": "grow", "O": "optimize", "P": "protect", "A": "assure"}
 def homes(doc):
     """Every node of every vertical is named once in home_categories (never inherited); objectives match headings; every
     measure takes its objective's heading and no money figure sits under Protect or Assure (At stake excepted); every bridge
-    driver maps to a named node; each decision's heading is its lever's home (restores_protect -> Protect); the snapshot
+    driver maps to a named node; each decision's heading is its origin Finding's factor's home, which its lever's home must equal; the snapshot
     names each portfolio once, and a pending recalculation names a trigger, the Sites and periods it affects."""
     hc = doc.get("home_categories") or {}
     reg = hc.get("nodes") or {}
@@ -670,18 +670,65 @@ def homes(doc):
     kinds = {d["name"]: d["kind"] for t in doc["plans"].values() for d in t["decisions"]}
     ids = [d["id"] for d in hc.get("decisions", [])]
     check(f"homes: each decision is listed once ({len(ids)})", len(ids) == len(set(ids)) and ids)
+    pot = {v: {p_["name"] for p_ in ps} for v, ps in (hc.get("potential") or {}).items()}
+    def home(v, n):   # a registry node's heading; a potential entry sits beside Grow (never Grow's actual)
+        r = (reg.get(v) or {}).get(n)
+        return r[0] if r else ("grow" if n in pot.get(v, set()) else None)
     for d in hc.get("decisions", []):
-        rows = reg.get(sites.get(d["site"])) or {}
-        lever = rows.get(d["lever"]) or [None]
-        check(f"homes decision {d['id']}: its lever {d['lever']} is a named node of its Site's vertical", lever[0] is not None and d["opened_from"] in rows)
-        check(f"homes decision {d['id']}: its heading {d['heading']} is its lever's home ({lever[0]})", d["heading"] == lever[0])
-        check(f"homes decision {d['id']}: rule {d['rule']} fits its heading",
-              {"restores_protect": d["heading"] == "protect", "money_factor": d["heading"] in ("grow", "optimize"),
-               "comparator": d["heading"] in ("grow", "optimize")}.get(d["rule"], False))
+        v = sites.get(d["site"])
+        lh, fh = home(v, d["lever"]), (home(v, d["finding_factor"]) if d.get("finding") else None)
+        check(f"homes decision {d['id']}: its lever {d['lever']} is a named node of its Site's vertical", lh is not None)
+        if d.get("finding"):
+            check(f"homes decision {d['id']}: its Finding's factor {d.get('finding_factor')} is a named node or potential entry", fh is not None)
+            check(f"homes decision {d['id']}: its heading {d['heading']} is its Finding's factor's home ({fh}) (owner, 19 Nov)", d["heading"] == fh)
+            check(f"homes decision {d['id']}: its Finding's factor and its lever share a heading ({fh} / {lh}); a mismatch is ruled, never picked", fh == lh)
+        else:
+            check(f"homes decision {d['id']}: with no Finding, its heading {d['heading']} is its lever's home ({lh})", d["heading"] == lh)
+        check(f"homes decision {d['id']}: its heading is Grow, Optimize or Protect (Assure holds no decision of its own)", d["heading"] in ("grow", "optimize", "protect"))
+        check(f"homes decision {d['id']}: its chooser is one of the three choosing roles ({d.get('chooser')})", d.get("chooser") in ("SITE_MANAGER", "FINANCE_AND_COMMERCIAL_LEAD", "OPERATOR_EXECUTIVE"))
         if d.get("plan"):
             check(f"homes decision {d['id']}: names an allocator decision ({d['plan']})", d["plan"] in kinds)
             if kinds.get(d["plan"]) == "protective":
-                check(f"homes decision {d['id']}: a protective decision restores a Protect measure", d["rule"] == "restores_protect")
+                check(f"homes decision {d['id']}: a protective decision sits under Protect", d["heading"] == "protect")
+    res = hc.get("residuals") or {}
+    for v, rows_ in res.items():
+        for n, r in rows_.items():
+            check(f"homes residual {v}/{n}: an explicit residual sits under Grow or Optimize ({r})", r and r[0] in ("grow", "optimize") and HEAD_OF.get(str(r[1])[:1]) == r[0])
+    omf = hc.get("option_money_factors") or {}
+    try:
+        dv = json.loads((pathlib.Path(__file__).resolve().parent / "derived-values.json").read_text())["options"]
+    except Exception:
+        dv = {}
+    opts = doc["evaluation"]["options"]
+    vert_site = {s_["site"]: vert_of[t["tenant"]] for t in doc["tenants"] for s_ in t["sites"]}
+    for k, o in dv.items():
+        if o.get("valued_in_money"):
+            check(f"homes option {k}: a valued option states its money factors", k in omf)
+    for k, ns in omf.items():
+        v = vert_site.get((opts.get(k) or {}).get("site"))
+        scl = {l_.get("node") for t in doc["tenants"] for l_ in t["portfolio"].get("service_cost_lines", [])}
+        for n in ns:
+            r = (reg.get(v) or {}).get(n) or [None]
+            check(f"homes option {k}: money factor {n} is one it changes (or a linked service cost line)", n in (opts.get(k) or {}).get("changes", {}) or n in scl)
+            check(f"homes option {k}: money factor {n} sits under Grow or Optimize ({r[0]})", r[0] in ("grow", "optimize"))
+    # the chooser of each plan item is a person holding its decision's chooser role (design §2.4 step 2; OD-16)
+    dec_of_opt = {}
+    for t_ in doc["tenants"]:
+        for s_ in t_["sites"]:
+            for blk in (s_.get("decision") or {}, *(s_.get("decisions") or [])):
+                for o_ in (blk.get("options") or []) if isinstance(blk, dict) else []:
+                    if isinstance(o_, dict) and o_.get("id"):
+                        dec_of_opt[o_["id"]] = s_["site"]
+    plan_dec = {d_["name"]: d_ for tp in doc["plans"].values() for d_ in tp["decisions"]}
+    by_plan = {d["plan"]: d for d in hc.get("decisions", []) if d.get("plan")}
+    for tw in doc["demo_workflow"]["tenants"]:
+        role_of = {p_["name"]: p_["role"] for p_ in tw["people"]}
+        for it in tw["items"]:
+            if it.get("kind") != "REACTIVE":
+                continue
+            hd = next((by_plan[n_] for n_, pd in plan_dec.items() if n_ in by_plan and it["item"] in (pd.get("options") or [])), None)
+            if hd:
+                check(f"workflow {tw['tenant']} {it['item']}: chosen by the role its decision names ({role_of.get(it['chosen_by'])} = {hd['chooser']})", role_of.get(it["chosen_by"]) == hd["chooser"])
     sn = doc.get("snapshot") or {}
     tenants = [p_["tenant"] for p_ in sn.get("portfolios", [])]
     check(f"snapshot: an as-of time is recorded ({sn.get('as_of')})", bool(re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", str(sn.get("as_of", "")))))
@@ -751,6 +798,11 @@ def map_problems(map_text, csv_text, doc, brief_text):
     """Every reason the map or the traceability file fails, as a list of strings (empty = pass)."""
     import csv as _csv, io as _io
     bad, known, want = [], known_ids(doc), brief_levers(brief_text)
+    want_dec = {d["id"]: (d["finding_factor"], d["lever"], d["heading"]) for d in doc["home_categories"].get("decisions", [])}
+    got_dec = {r.group(1): (r.group(2), r.group(3), HEAD_WORD.get(r.group(4))) for r in
+               re.finditer(r"^\| `([a-z]+-[a-z-]+)` \|[^|]*\|[^|]*\| `([a-z0-9_]+)` \| `([a-z0-9_]+)` \| (\w+) \|", map_text, re.M)}
+    if got_dec != want_dec:
+        bad.append(f"map: the decision headings differ from home_categories.decisions ({sorted(set(want_dec.items()) ^ set(got_dec.items()))[:2]})")
     M = parse_map(map_text)
     for v, ids in want.items():
         sec = M.get(v)
@@ -826,6 +878,7 @@ def factor_map(root, doc):
         "a wrong heading": (re.sub(r"^(\| `penalties` \| )Optimize `O1`", r"\1Protect `P3`", mt, count=1, flags=re.M), ct),
         "a traceability row with another factor": (mt, re.sub(r"(,MG-L3,[^\n]*?,)(candidate_l[^,]*),", r"\1billed_kwh,", ct, count=1)),
         "a 'plan' for a target in the traceability text": (mt, ct.replace("target 100.0", "plan 100.0", 1)),
+        "a decision under another heading": (re.sub(r"^(\| `kisiwa-genset` \|.*\| )Protect( \|)$", r"\1Optimize\2", mt, count=1, flags=re.M), ct),
     }
     for label, (m_, c_) in plants.items():
         changed = (m_, c_) != (mt, ct)

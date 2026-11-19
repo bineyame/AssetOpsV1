@@ -1,6 +1,6 @@
 # Reuse and gap matrix
 
-**AssetEcon Layer 4 · function-level dispositions, by change-register row · recreated from the design rev 16.7, updated to rev 16.8 (OD-13, OD-14) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · function-level dispositions, by change-register row · recreated from the design rev 16.7, updated to `rev 16.12` (OD-13, OD-14; OD-21 categories and OD-23 snapshot as in the design's change register; checked against `rev 16.10` to `rev 16.12`) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This is the inventory beneath the design's change register (§2.9). For each register row it lists the functions and records involved, what each does today, whether it stays, extends or changes, the migration rule, and the test gap. It replaces `repo-reuse-and-gap-matrix.md` (regeneration F, #5). It argues nothing the design does not: the reasons are the shortfalls the register names.
 
@@ -27,7 +27,7 @@ The register's first row: they stay, and the analyses also observe leaves.
 | EV sessions and availability (`analytics/ev.py:540-713`) | Sessions, interruptions, availability | Stays; observes chargers in service | — | — |
 | Placement (`estate/placement.py:1-8`, `:150`) | Act first groups, "never a value ranking" | Stays as Finding triage | — | — |
 | Never-sum rules: money overlap (`estate/financials.py:361`), invariants (`estate/money_invariants.py:1`) | One money per overlap group | Extends to structure reads: one money per factor ID | — | No test that a quantity used by two outcomes is counted once |
-| No stored totals (`chain/period_read.py:46-47`, `:139`) | Period reads carry no totals | Stays; the structure is computed on read | A cached structure body obeys the same rule | — |
+| No stored totals (`chain/period_read.py:46-47`, `:139`) | Period reads carry no totals | Stays as the rule that no stored figure is a source. Evaluated values are served from a rebuildable daily snapshot (§12, OD-23), not computed on each read | A snapshot body obeys the same rule: rebuilt from records, never typed, never an input | — |
 
 ## 2. Findings, revisions, threads, alternatives: stay, plus CH1
 
@@ -58,7 +58,7 @@ Shortfall: no quantity between signal and outcome (`outcomes/outcome_map.py:149-
 | Outcome evaluator (`chain/outcomes.py:86`, `:94`) | Builds nodes from contributions | Changes: part of the structure read | Cache version bump for boards and Portfolio | — |
 | Strategies (`chain/strategies/__init__.py:12`); `recorded_amount@1` (`chain/strategies/recorded_amount.py:1-10`) | Six strategies; recorded amounts always missing | Extends: a second version of `recorded_amount` reads commercial records | Add versions; never edit a published one | — |
 | Board drivers (`site_outcomes/mini.py:1156-1177`) | Driver lines written per vertical | Changes: generated from the registry | Per-vertical "not connected yet" texts kept as the factor's missing reason | — |
-| Catalogue (`outcomes/catalogue.py:43-68`) | Four categories; honest missing text | Stays | — | — |
+| Catalogue (`outcomes/catalogue.py:43-68`) | Four categories; honest missing text | Stays, re-grounded (§11, OD-21) | — | — |
 
 ## 4. Objectives: extended (B2)
 
@@ -140,7 +140,7 @@ Shortfall: cost 0; simulated evidence only (`actions/verification.py:1167`; `act
 | Families (`actions/verification_families.py:502-516`) | Reserve, midday, fuel residual; no cold or EV family | Extends: cold and EV families | Each family is a new arm on the family check | Cold and EV can never reach Verified today |
 | Intervention cost (`actions/verification.py:1167`) | Fixed at 0 | Changes: the option's one-off cost | Stored checks keep their 0 basis | No test with a non-zero cost |
 | Trial cost comparison (`0037_cc_trial_cost_comparison.py:27`) and credit (`outcomes/credit.py:57-73`) | Modelled cost change; credit after Verified | Stays; seeds the economic verdict | — | — |
-| Economic and causal verdicts | — | New (§11, step 8) | Stored beside the operational outcome | "Not proven yet" before the after-window closes |
+| Economic and causal verdicts | — | New (§13, step 8) | Stored beside the operational outcome | "Not proven yet" before the after-window closes |
 
 ## 10. Portfolio cards, Optimize figure, site board: change (CH5)
 
@@ -156,7 +156,33 @@ Shortfall: counts; one day over a period (`site_outcomes/read.py:676-682`).
 | Portfolio tabs and rail (`frontend/src/estate/portfolioWords.ts:29-37`; `frontend/src/shell/OperatorShellLayout.tsx:61-71`) | Six tabs; the rail | Stays; one tab renamed | Old addresses redirect | — |
 | Act first (`frontend/src/estate/EstatePortfolio.tsx:314`) | Findings in placement groups | Extends: the version awaiting approval beside the triage | — | — |
 
-## 11. New components, in migration order
+## 11. The four categories (catalogue): stay, re-grounded (OD-21)
+
+<!--derives: §2.9; §2.0; OD-21; Figure 1b-->
+
+Shortfall: rows are flagged from signals, not computed (`outcomes/catalogue.py:43-68`). The four cards stay as the executive's headings; each now reads the structure nodes whose registry row names it (design §2.0). *Serves the objective:* the executive finds each concern under the heading they already use, now with its figure.
+
+| Function (reference) | Today | Disposition | Migration rule | Test gap |
+|---|---|---|---|---|
+| Category codes (`outcomes/catalogue.py:43-68`) | GROW_REVENUE, OPTIMIZE_COST, PROTECT_ASSET, ASSURE_PERFORMANCE; 22 rows | Stays: the codes become the registry's `home_category` (`decision-loop-specification.md` §3) | Every registry row names its heading; none inherited; a money node never under Protect or Assure | No test that every node has exactly one heading, or that no money sits under Protect or Assure |
+| "Site profitability" row (`catalogue.py:46`) | A Grow row | Changes: contribution is the outcome the two money headings explain; its bridge is presented under Assure (A1) | Row kept as the card's line, read from the outcome | Grow plus Optimize effects add to the gap, to the cent |
+| "Fuel accounted for" row (`catalogue.py:51`) | A Protect row | Changes: unexplained litres are Optimize (O1); the Protect card links the fuel-loss Finding without counting it | Row moves cards | The Protect card carries no money |
+| "Cash collected" row (`catalogue.py:45`) | A Grow row | Changes: collection is Optimize (O3), cash outside contribution | Row moves cards | Collection never enters the contribution gap |
+| Decision placement | — | New: a decision takes its Finding's factor's heading, or its lever's with no Finding (OD-25) | Read, never stored | A lever whose purpose factor and Finding factor differ in heading is refused at start-up |
+
+## 12. Stored route responses and the period read: extended (OD-23)
+
+<!--derives: §2.9; §2.8; OD-23-->
+
+Shortfall: totals are recomputed on each read (`chain/period_read.py:46-47`), and pages load slowly (owner, 1 Nov). *Serves the objective:* the executive's pages open fast and say how current their figures are.
+
+| Function (reference) | Today | Disposition | Migration rule | Test gap |
+|---|---|---|---|---|
+| Stored route responses (`0047_chain_response.py:1-14`) | A read route's bytes kept under a watermark of its inputs | Extends: the pattern for the calculated daily snapshot of the structure, the bridge and the Portfolio figures | Each new input table registers its trigger in the input-change log | A fresh evaluation equals the snapshot, node by node, with evidence class and provenance |
+| Input-change log and triggers (`0047`) | Invalidates a stored response when an input changes | Extends: fires the snapshot's six triggers for only the affected Sites and periods (design §2.8) | — | An unchanged input rebuilds nothing |
+| Period read (`chain/period_read.py:46-47`, `:139`) | Computes totals on read, stores none | Changes: served from the snapshot, never recomputed on a screen read; the no-source rule stays | The snapshot is rebuildable and never an input | A screen shows the "as of" time, and says so while a recalculation is pending |
+
+## 13. New components, in migration order
 
 <!--derives: §2.9; Figure 10; OD-9; OD-13; OD-14; B1; B2; B3; CH2; CH3; P; CH4-->
 
@@ -168,6 +194,7 @@ Migration numbers start at the next free number after `0061_reading_upload.py`. 
 | 2 | Leaf factor IDs and canonical format version 1 | 2 | none | the manifest's `factor_map` |
 | 3 | Commercial record store and intake | 3A | first | reading-upload dry run and receipt (`0061`) |
 | 4 | Factor registry, structure read, structure observer | 3B | none (code rows) | `chain/graph.py:177`; `chain/period_read.py:249` |
+| 4a | Daily snapshot and its six triggers (OD-23) | 3B, after `3B3`; its slice is cut after the strategy conversation on the database build | its own, numbered when the slice is cut | stored route responses and input-change log (`0047_chain_response.py:1-14`) |
 | 5 | Operator accounts and role grants (OD-13, OD-14), then the recorded person, owner and due date on every carrier | 3C | second | new: no sign-in exists today; the human-actor check (`0010_financial_assumptions.py:57-78`) for the person on each write |
 | 6 | Target and budget lines; the bridge | 5 | third | objective revisions |
 | 7 | Decision and option records | 6 | fourth | the origin-pair checks of `0051` |
@@ -177,7 +204,7 @@ Migration numbers start at the next free number after `0061_reading_upload.py`. 
 
 Calibration replays K, M and E run in parallel from the start (step 0) and need no migration.
 
-## 12. Open questions
+## 14. Open questions
 
 <!--derives: Decisions; §2.9-->
 

@@ -1276,7 +1276,7 @@ demo_workflow:   # design rev 16.8 §2.4-§2.6 (plan F mock-up lane, 19 Nov; own
       items:   # one row per item of version 1; chosen_by = the person who chose the option (reactive) or declared the item (proactive)
         - {item: KOB-STOPSOC, kind: REACTIVE, site: Kobo, chosen_by: Peter, owner: Peter, item_state: RELEASED}
         - {item: KIS-REPAIR, kind: REACTIVE, site: Kisiwa, chosen_by: Halima, owner: Halima, item_state: CHOSEN}
-        - {item: BAT-EVIDENCE, kind: REACTIVE, site: Kobo, chosen_by: Joseph, owner: Joseph, item_state: CHOSEN}
+        - {item: BAT-EVIDENCE, kind: REACTIVE, site: Kobo, chosen_by: Peter, owner: Peter, item_state: CHOSEN}   # rev 16.12 (M3): the site manager chooses for the Site's asset; Joseph creates the claim-evidence Action
         - {item: MTO-INV-CLAIM, kind: REACTIVE, site: Mto, chosen_by: David, owner: David, item_state: CHOSEN}   # OD-16: "Mto: David"
         - {item: MTO-HULLER, kind: REACTIVE, site: Mto, chosen_by: David, owner: David, item_state: CHOSEN, capital: NEW_CONNECTION,
            actions_after_approval: ["Connect the cooperative's huller (contractor), after the inverter is restored"]}   # OD-17
@@ -1490,25 +1490,52 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     CUSTOMER_COMPENSATION: liability
     PEAK_ENERGY_SHARE: peak_kwh
     DEMAND_CHARGE: max_kw
-  decisions:   # design rev 16.11 §2.0: a decision's heading is the home of its LEVER factor, never of the factor it was opened from.
-               # Rule, in order: restores_protect = its options exist to restore a Protect measure or keep a right claimable -> that
-               # measure (Protect), even when money also moves; money_factor = the money factor its options change; comparator = the
-               # factor it compares. Each option still shows each effect under the home of the factor that effect is on.
+  residuals:   # rev 16.12 (H known gap): an explicit residual is a registry row like a node, so its heading is never typed in a screen.
+               # Only where a leaf is unobserved (design §2.2): Ruiru's target is a stated total (energy + maintenance) with no factor behind it.
+    EV_DEPOT_CAPTIVE:
+      stated_total_unattributed: [optimize, O1]   # Ruiru: actual cost to serve against a stated-total target, not attributable to a factor
+  option_money_factors:   # rev 16.12 (H known gap; owner rule 3): the money factors each valued option changes, so each effect is
+                          # placed under its own factor's heading and counted once. Each is a factor the option's `changes` name (or,
+                          # for a cover option, the service cost line linked to the Protect measure it moves). check_manifest.py homes().
+    KOB-STOPSOC: [candidate_l, battery_throughput_kwh]
+    MTO-HULLER: [productive_kwh, extra_l, collection_cost]
+    MTO-WELDING: [delivered_kwh, extra_l]
+    KIS-BATT60: [necessary_l]                 # the fuel shifted to the battery (a flagged assumption, Q14); its one-off is the battery
+    MTO-INV-CLAIM: [extra_l]                  # extra fuel at half inverter capacity until the restore; the one-off is its own column
+    MTO-INV-BUYNOW: [extra_l]
+    MWEA-AGG: [contract_crate_days, contract_rate, handling]
+    KIRI-REPAIR: [excess_kwh]
+    KIRI-REPLACE: [excess_kwh]
+    EMB-DEADLINE: [peak_kwh, kwh_0000_0500, kwh_2200_2400, max_kw]
+    KAS-OEM-STOPGAP: [penalties]              # the avoided penalties: Optimize, linked to departures missed (Protect, in its own unit)
+  decisions:   # design rev 16.12 §2.0 (owner, 19 Nov, .agent/owner-decision-heading-rule-2026-11-19.md; replaces register call 18's
+               # lever-first order): a decision's heading is the home of its ORIGIN FINDING's factor, because that is where the
+               # executive met the problem. A Finding is pinned to the factor it observes: the most specific node whose deviation,
+               # limit, right or opportunity it reports, never a parent total (so the meter-swap Finding is on unmapped kWh, not on
+               # billed kWh). A decision with no Finding behind it (a proactive or capital choice) takes its lever's heading.
+               # lever = the factor whose change is the decision's purpose. check_manifest.py homes() checks heading == home of
+               # finding_factor (or of lever when finding is null) AND home(lever) == home(finding_factor): a mismatch fails and is
+               # ruled by the Architect, never picked silently. A potential entry's home is Grow (shown beside Grow, never its
+               # actual). Each option still shows each effect under the home of the factor that effect is on.
+               # chooser = the role design §2.4 step 2 names (rev 16.12, the ruling on OD-16): the Site manager for a Site's assets and
+               # operations, including an asset's warranty or service remedy; the finance and commercial lead for billing, collection and
+               # customer accounts; the executive for capital. Every notice and claim Action is the finance lead's whoever chooses.
                # Keyed by the decision's screen route (#/decision/<id>); plan = the allocator's decision name, where it has one.
-    - {id: kobo-generator, site: Kobo, plan: kobo_generator, rule: money_factor, lever: candidate_l, opened_from: diesel_l, heading: optimize}
-    - {id: kobo-battery, site: Kobo, plan: kobo_battery_evidence, rule: restores_protect, lever: cover_not_claimable, opened_from: cover_not_claimable, heading: protect}
-    - {id: kisiwa-genset, site: Kisiwa, plan: kisiwa_genset, rule: restores_protect, lever: obligation_hours_without_redundancy, opened_from: necessary_l, heading: protect}
-    - {id: kisiwa-om, site: Kisiwa, rule: money_factor, lever: om, opened_from: om, heading: optimize}
-    - {id: mto-demand, site: Mto, plan: mto_demand, rule: money_factor, lever: productive_kwh, opened_from: billed_kwh, heading: grow}
-    - {id: mto-billing, site: Mto, rule: money_factor, lever: unmapped_kwh, opened_from: billed_kwh, heading: optimize}
-    - {id: mto-inverter, site: Mto, plan: mto_inverter, rule: restores_protect, lever: cover_not_claimable, opened_from: obligation_hours_without_redundancy, heading: protect}
-    - {id: mwea-occupancy, site: "Room A · Mwea", plan: mwea_occupancy, rule: money_factor, lever: contract_crate_days, opened_from: crate_days, heading: grow}
-    - {id: thika-backup, site: "Room B · Thika", plan: thika_backup, rule: restores_protect, lever: nights_without_backup_cover, opened_from: liability, heading: protect}
-    - {id: kirinyaga-energy, site: "Room C · Kirinyaga", plan: kirinyaga_energy, rule: money_factor, lever: excess_kwh, opened_from: excess_kwh, heading: optimize}
-    - {id: embakasi-schedule, site: Embakasi, plan: embakasi_schedule, rule: money_factor, lever: peak_kwh, opened_from: peak_kwh, heading: optimize}
-    - {id: kasarani-charger, site: Kasarani, plan: kasarani_charger, rule: restores_protect, lever: departures_missed, opened_from: deliverable_kwh_night, heading: protect}
-    - {id: ruiru-expansion, site: Ruiru, plan: ruiru_expansion, rule: comparator, lever: buses, opened_from: departures_met, heading: grow}
-    - {id: ruiru-connector, site: Ruiru, rule: restores_protect, lever: charger_days_out_of_service, opened_from: charger_days_out_of_service, heading: protect}
+    - {id: kobo-generator, site: Kobo, plan: kobo_generator, finding: "Candidate running: the generator runs while solar and the battery could carry the load", finding_factor: candidate_l, lever: candidate_l, heading: optimize, chooser: SITE_MANAGER}
+    - {id: kobo-battery, site: Kobo, plan: kobo_battery_evidence, finding: "Risk to a right: the battery warranty cannot be claimed without a capacity test and a temperature record", finding_factor: cover_not_claimable, lever: cover_not_claimable, heading: protect, chooser: SITE_MANAGER}
+    - {id: kisiwa-genset, site: Kisiwa, plan: kisiwa_genset, finding: "At its limit: the evening supply runs on one generator since generator 1 failed", finding_factor: obligation_hours_without_redundancy, lever: obligation_hours_without_redundancy, heading: protect, chooser: SITE_MANAGER}
+    - {id: kisiwa-om, site: Kisiwa, finding: "Late repair response: 96 h against the O&M contract's 48 h, so a fee credit may be due", finding_factor: om, lever: om, heading: optimize, chooser: SITE_MANAGER,
+       pin_note: "the response time is contract performance, presented under Assure (A5), which holds no factor; the Finding is pinned to the O&M fee line its remedy would credit (Architect's ruling, rev 16.12)"}
+    - {id: mto-demand, site: Mto, plan: mto_demand, finding: "Opportunity: the cooperative's signed letter of intent for a daytime rice huller", finding_factor: letter_of_intent_demand, lever: productive_kwh, heading: grow, chooser: SITE_MANAGER}
+    - {id: mto-billing, site: Mto, finding: "Unbilled charges: kWh metered but not billed after the 3 Oct meter swap", finding_factor: unmapped_kwh, lever: unmapped_kwh, heading: optimize, chooser: FINANCE_AND_COMMERCIAL_LEAD}
+    - {id: mto-inverter, site: Mto, plan: mto_inverter, finding: "Deadline on a right: inverter 2's warranty notice is due by 27 Nov", finding_factor: cover_not_claimable, lever: cover_not_claimable, heading: protect, chooser: SITE_MANAGER}
+    - {id: mwea-occupancy, site: "Room A · Mwea", plan: mwea_occupancy, finding: "Off target: occupied crate-days below target", finding_factor: crate_days, lever: contract_crate_days, heading: grow, chooser: SITE_MANAGER}
+    - {id: thika-backup, site: "Room B · Thika", plan: thika_backup, finding: "Limit breached: the backup start failed and a batch went above its limit", finding_factor: nights_without_backup_cover, lever: nights_without_backup_cover, heading: protect, chooser: SITE_MANAGER}
+    - {id: kirinyaga-energy, site: "Room C · Kirinyaga", plan: kirinyaga_energy, finding: "Off target: electricity above what occupancy explains", finding_factor: excess_kwh, lever: excess_kwh, heading: optimize, chooser: SITE_MANAGER}
+    - {id: embakasi-schedule, site: Embakasi, plan: embakasi_schedule, finding: "Off target: the share of charging at peak price", finding_factor: peak_kwh, lever: peak_kwh, heading: optimize, chooser: SITE_MANAGER}
+    - {id: kasarani-charger, site: Kasarani, plan: kasarani_charger, finding: "EV interruption: charger 2 down, so deliverable energy is below what the roster needs", finding_factor: chargers_in_service, lever: departures_missed, heading: protect, chooser: SITE_MANAGER}
+    - {id: ruiru-expansion, site: Ruiru, plan: ruiru_expansion, finding: "Opportunity: the city offers 6 more buses on a new route", finding_factor: spare_deliverable_energy, lever: buses, heading: grow, chooser: OPERATOR_EXECUTIVE}
+    - {id: ruiru-connector, site: Ruiru, finding: "EV interruption: charger 7, connector 2 stopped on a fault on 6 Oct and has reported nothing since", finding_factor: chargers_in_service, lever: charger_days_out_of_service, heading: protect, chooser: SITE_MANAGER}
 
 snapshot:   # design rev 16.11 §2.8 (OD-23): the calculated daily snapshot every screen reads, and the demo's pending recalculation.
             # A snapshot is an output: rebuilt from records, never a source. `as_of` is when it was computed; a portfolio whose

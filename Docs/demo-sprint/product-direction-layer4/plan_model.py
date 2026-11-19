@@ -103,11 +103,11 @@ SLICES = [
     ("3A5", "3A", "B3", "Evidence labels: Emulated beside Recorded on every figure; no total above its weakest part; benefit only from field records (D14)", "SCR", (2, 3), ["3A1"], "P3A", "money"),
     ("3B1", "3B", "B1", "Structure registry in code: mini-grid in full from leaves to outcomes; Protect and operations measures", "STR", (3, 5), ["2a"], "P3B", "schema"),
     ("3B2", "3B", "CH1", "Findings pinned: one registry row per mechanism today; the outcome map's literal removed only after its parity test", "STR", (2, 3), ["3B1"], "P3B", ""),
-    ("3B3", "3B", "B1", "Structure read, Site and portfolio: bottom-up on today's operational leaves, coverage, evidence class, nothing stored as a total", "STR", (2, 4), ["3B1"], "P3B", ""),
+    ("3B3", "3B", "B1", "Structure read, Site and portfolio: bottom-up on today's operational leaves, coverage, evidence class; no stored figure is a source (its values are later served from the daily snapshot, OD-23)", "STR", (2, 4), ["3B1"], "P3B", ""),
     ("3B4", "3B", "CH1", "Structure observer: deviations stored as Findings under the owner's rule and outside the factor's tolerance (OD-3)", "STR", (2, 3), ["3B3", "3C1"], "P3B", "new"),
     ("3B5", "3B", "B1", "Site board: driver lines become factor rows generated from the registry, with their Findings on their factors", "SCR", (3, 5), ["3B2", "3B3"], "P3B", ""),
     ("3B6", "3B", "B1", "Cold-room and captive-EV structures declared and tested from the start (revenue not applicable, never zero)", "STR", (1, 2), ["3B1"], "P3B", ""),
-    ("3C0", "3C", "CH2", "Operator accounts: email-and-password sign-in, one set per operator (OD-13); the executive grants and removes roles in Organisation settings, each change recorded (OD-14)", "DEC", (2, 4), ["1a"], "P1", "schema new"),
+    ("3C0", "3C", "CH2", "Operator accounts: email-and-password sign-in, one set per operator (OD-13); the executive grants and removes roles in Organisation settings, each change recorded (OD-14)", "DEC", (2, 4), [], "P1", "schema new"),   # rev 16.12: no dependency on 1a (none was ever stated)
     ("3C1", "3C", "CH2", "An authenticated user recorded on every command: trial, domain action and work case writes accept the person", "DEC", (2, 4), ["3C0"], "P1", "schema new"),
     ("3C2", "3C", "CH2", "Every Action records creator, owner and due date; overdue computed as for maintenance schedules", "DEC", (2, 3), ["3C1"], "P1", "schema new"),
     ("3C3", "3C", "CH2", "UI controls for the work routes that exist only in the API: raise, assign, complete and close, under the person's name", "SCR", (3, 5), ["3C2"], "P1", "new"),
@@ -483,7 +483,7 @@ def table_days():
     for d in range(1, 15):
         cells = []
         for l in BUILD_LANES:
-            xs = [x for x, w in PLAN["where"].items() if w == l and PLAN["start"][x] < d - 1e-9 + 1 and PLAN["fin"][x] > d - 1 + 1e-9]
+            xs = [x for x, w in PLAN["where"].items() if w == l and PLAN["start"][x] < d - 1e-9 and PLAN["fin"][x] > d - 1 + 1e-9]   # rev 16.12: was start < d + 1, listing a slice a day early
             xs = sorted(xs, key=lambda x: PLAN["start"][x])
             cells.append(", ".join(f"`{x}`" + (" ✓" if day(PLAN["fin"][x], True) == d else "") for x in xs) or "—")
         own = "; ".join(OWN_NOTES[d]) or "—"
@@ -564,7 +564,7 @@ def prose_facts():
             f"{fmt(landed_units(PLAN))} units", f"{len(LAND)} slices", f"{len(COMMITTED)} slices committed",
             f"through step {f}" if f else "no step complete",
             f"{sum(OWN_LOAD.values())} owner minutes",
-            f"the furthest complete step moves from step {furthest(PLAN)} to step {furthest(NO_REWORK)}",
+            (f"the furthest complete step stays at step {furthest(PLAN)}" if furthest(PLAN) == furthest(NO_REWORK) else f"the furthest complete step moves from step {furthest(PLAN)} to step {furthest(NO_REWORK)}"),
             f"the stretch line reaches step {furthest(OBS)}", f"At the slip pace the fortnight still completes step {furthest(SLIP)}"]
 
 

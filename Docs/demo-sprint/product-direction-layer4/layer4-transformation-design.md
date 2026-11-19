@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.11 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.12 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -16,7 +16,7 @@
 In short: **the brief exists to turn AssetEcon from a tool that tells operators what their assets did into one that tells them what it did to their money, what's worth doing about it, and whether it paid off. Every screen should earn its place by answering that.**
 
 **The motivation:**
-- **Operators already have monitoring.** Mini-grid, cold-chain and EV executives can see telemetry, alarms and dashboards. What they lack is economic judgement across their systems. Operational, commercial and contract facts sit in separate places, so no one can say with confidence why the month came in below plan, which lever moves it, and what it's worth.
+- **Operators already have monitoring.** Mini-grid, cold-chain and EV executives can see telemetry, alarms and dashboards. What they lack is economic judgement across their systems. Operational, commercial and contract facts sit in separate places, so no one can say with confidence why the month came in below target, which lever moves it, and what it's worth.
 - **The product had drifted towards "interesting signals with economic hints".** It showed findings and exposure figures, but not intentionally organised around the movers of the business. The brief corrects that.
 - **Credibility is the differentiator.** Executives act only on figures they trust. So the brief insists on honest evidence: every figure says how it is known, figures of different kinds are never added together (inside the structure, a node built from mixed evidence takes its weakest class and names every source beneath it, and a benefit total admits only field records), savings are claimed only after proof, and the no-action baseline is always shown.
 
@@ -264,13 +264,13 @@ flowchart TB
 *How the categories relate to the outcomes.* Contribution (revenue − cost to serve) is the outcome the two money headings explain. This is substance, not screen placement: every money effect in its bridge sits on one leaf, so under one of Grow or Optimize, and those effects, plus any explicit residual, equal its gap to the cent. Its governed presentation, the bridge with sources and coverage, is Assure's A1. Optimize holds two kinds of money figure that are never added together: cost and service-to-charge effects, which are inside the contribution gap; and collection of what was billed, which is cash and leaves contribution unchanged. Protect's measures are bounds on decisions, never summed with money. So the four headings are never added together, and no figure is counted under two of them (Rules 2 and 4).
 
 *How everything else ties back.*
-- A **Finding** takes the home category of the factor it is pinned to (CH1).
-- A **decision** sits under the category of its **lever factor**, the factor whose change is the decision's purpose, never under the factor it was opened from (Architect's call, `rev 16.11`). The lever is found in this order:
-  1. if the options exist to restore a Protect measure or keep a right claimable, the lever is that measure, so the decision is Protect, even when money also moves (Kisiwa's genset, opened from necessary litres, restores evening redundancy; Thika's night cover, opened from the compensation, restores backup cover; Kasarani's cover restores departures);
-  2. otherwise, the money factor its options change (the Mto billing fix acts on unmapped meters, so it is Optimize, though opened from billed kWh);
-  3. for a comparator, the factor it compares (Ruiru's extra buses are service on chargers already in place, so Grow, though opened from departures met).
+- A **Finding** takes the home category of the factor it is pinned to (CH1). It is pinned to the factor it observes: the most specific node whose deviation, limit, right or opportunity it reports, never a parent total whose change its children already explain (Architect's call, `rev 16.12`). So the meter-swap Finding at Mto is on unmapped meters (Optimize), not on billed kWh (Grow), and Kisiwa's generator failure is on evening hours without backup (Protect), not on necessary litres.
+- A **decision** takes the heading of its **Finding's factor**, because that is where the executive met the problem (owner, 19 Nov, `.agent/owner-decision-heading-rule-2026-11-19.md`; this replaces `rev 16.11`'s lever-first order). A decision has at most one triggering Finding, its origin; other Findings it answers are linked and keep their own headings.
+  1. *With a Finding behind it,* the heading is that Finding's factor's. Kisiwa's genset decision answers the at-limit Finding on evening hours without backup, so it is Protect, though litres also move. The Mto billing fix answers the unbilled-charges Finding on unmapped meters, so it is Optimize. Ruiru's extra buses answer the city's route offer, an opportunity Finding (§1.3) on spare deliverable energy, which is potential beside Grow, so they are Grow.
+  2. *With no Finding behind it,* such as a capital choice the executive declares, the heading is its **lever's**: the factor whose change is the decision's purpose.
+  3. *The check.* For every decision with a Finding, the Finding's factor and the lever share a heading. A mismatch is never settled by picking one of the two: it fails the check, and the Architect rules it and tells the owner. In the demonstration all fourteen decisions have a Finding, and none mismatches (manifest `home_categories.decisions`, checked by `check_manifest.py`). One pin is a judgement, named here: Kisiwa's late repair response is contract performance, which Assure presents (A5) and which has no factor of its own, so its Finding is pinned to the O&M fee line its remedy would credit (Optimize).
 
-  Each option still shows each effect under the category of the factor that effect is on, whatever the decision's heading: the Mto huller adds billed kWh (Grow) and extra fuel (Optimize), each counted once on its own leaf, and the Kasarani cover's avoided penalties are Optimize. Its feasibility and value are presented under Assure as A2.
+  Each option still shows each effect under the category of the factor that effect is on, whatever the decision's heading, and each figure is counted once: the Mto huller adds billed kWh (Grow) and extra fuel (Optimize), each on its own leaf; the Kasarani cover's avoided penalties are Optimize; the Mto claim's extra fuel to the restore is Optimize, while its one-off stays the option's cost. Each valued option names the money factors it changes (manifest `home_categories.option_money_factors`). Its feasibility and value are presented under Assure as A2, and Assure holds no decision of its own.
 - A **plan item** shows its option's effects the same way. A protective item sits under Protect. An item marked "no factor (upkeep or compliance)" sits under Protect as upkeep, with no value (Architect's call).
 - A **verdict** is Assure (A3). An economic verdict's realised money is credited under the category of the factor it moved, and only from field records (§2.7).
 
@@ -460,8 +460,11 @@ flowchart TB
 
 **Who chooses, and who creates the Action.** The owner said a Finding "needs to be acted on and the user likely reate one more action against it", and asked first about "users to act on the bases of context given to them, then tracked". So the system evaluates and proposes, and people choose and act:
 1. **The system raises the Finding and proposes.** It values the options and marks one Recommended, found by one search across the period's decisions so that the recommended set fits. It picks nothing. A hard-bound rejection can be overridden only by a recorded change to the bound (Architect's call).
-2. **The accountable role chooses** an option, or none: the site or operations manager for operations and O&M, the finance and commercial lead for billing, collection, claims and notices, and the executive for capital choices. A new customer connection is proposed by the site manager as a plan item and approved by the executive as capital; only then does the site manager create its Actions (OD-17).
-3. **That role creates one or more Actions**, against the Finding or against a plan item (§2.5). Each records its creator, owner and due date.
+2. **The role accountable for what the decision concerns chooses** an option, or none (the Architect's ruling on OD-16, `rev 16.12`):
+   - the site or operations manager for a Site's assets and operations, including the remedy path under an asset's warranty or service contract (at Mto, David, the site manager, chooses the inverter claim, OD-16; at Kobo, Peter chooses to assemble the battery evidence);
+   - the finance and commercial lead for billing, collection and customer accounts (the Mto billing fix);
+   - the executive for capital choices. A new customer connection is proposed by the site manager as a plan item and approved by the executive as capital; only then does the site manager create its Actions (OD-17).
+3. **People create one or more Actions**, against the Finding or against a plan item (§2.5). The chooser creates the operational Actions. The finance and commercial lead creates every notice and claim Action, because filing a rights event is the lead's (at Mto, Joseph files the inverter warranty notice; at Kobo, he assembles the warranty evidence). Each Action records its creator, owner and due date.
 4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2; a Site setting wins over the portfolio's, and a change spanning Sites is judged against the portfolio's, OD-18), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below both the spend threshold and the crew-visit threshold (OD-12) has its Actions released when they are created, provided the plan still fits its budget and crew visits. With the crew-visit threshold at its default of zero, a change that uses a crew visit waits for approval, whatever its spend (Architect's reading of OD-11 and OD-12). The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait. The same rule releases the Actions of a proactive item.
 
 ### 2.5 P: the plan, a first-class construct (new)
@@ -490,7 +493,7 @@ Its states and versions are set out below, in *The plan's life in a period*.
 | Verdict | Each item's Actions are verified as today, plus the economic and causal verdicts (§2.7). At the period's end the plan's predicted factor changes are set against what the bridge observed. The plan's realised value comes only from economic verdicts |
 | Registry | Items key to the factor IDs their options change, so the next period's bridge shows each planned change beside the observed one |
 
-**The system's part.** The system assembles the chosen items. It checks them against the budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend, with a reason for every item left out. That is a proposal; the executive approves the plan or sends it back. An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, and the creator revises it, defers it to the next plan, or withdraws it (owner decision OD-4). If the Action was already released below the threshold, it stops at its next step: no further spend is released, it returns to its creator with the reason in the same way, and the spend already incurred stays recorded against the item (Architect's call, consistent with OD-4). In Lakeside's demonstration the managers take the Recommended options, and the full proposal is in `worked-portfolios.md` §1.1.
+**The system's part.** The system assembles the chosen items. It checks them against the budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend, with a reason for every item left out. That is a proposal; the executive approves the plan or sends it back. An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, and the creator revises it, defers it into the next draft, or withdraws it (owner decision OD-4). If the Action was already released below the threshold, it stops at its next step: no further spend is released, it returns to its creator with the reason in the same way, and the spend already incurred stays recorded against the item (Architect's call, consistent with OD-4). In Lakeside's demonstration the managers take the Recommended options, and the full proposal is in `worked-portfolios.md` §1.1.
 
 <!--Figure 6: the plan among the constructs-->
 
@@ -571,6 +574,35 @@ stateDiagram-v2
 
 *Figure 6c. A plan item's states. On 6 Nov at Lakeside, the Kobo stop-threshold item is Released, because its whole change is within both thresholds. Every other item is Chosen, waiting for version 1's approval. The Mto huller connection is a capital item, so it waits whatever its spend, and its Action is created after the approval (OD-17).*
 
+**An Action's release** (Architect's call, `rev 16.12`). This is the one release machine; `decision-loop-specification.md` §7 and `plan-and-action-workflow.md` §8 cite it and do not redraw it. Release concerns only an Action with a plan membership. An Action that spends nothing and uses no crew visit has none, and starts its carrier's lifecycle when it is created. An Action's release state follows its item's state (Figure 6c), with one difference: an Action added to an item already Released is a change to that item, and is checked by the same thresholds (OD-11).
+- **Waiting:** its item is Chosen, or adding it takes the item's change above a threshold. Its carrier's lifecycle has not started.
+- **Released:** its item is Released. Today's carrier lifecycle runs unchanged: accept, apply, assign, complete.
+- **Returned:** its item is Left out, by a send-back or a later approved version (OD-4). A released Action stops at its next step, and spend already incurred stays recorded against the item. It is back with its creator, with the reason.
+- **Withdrawn:** its creator withdrew it, or its item was withdrawn.
+
+Deferral is not a state. An Action deferred with its item to the next draft is Waiting in that draft, because carrying over is an event (Figure 6c).
+
+<!--Figure 6d: an Action's release-->
+
+```mermaid
+stateDiagram-v2
+  state check <<choice>>
+  [*] --> check: a person creates it, with its origin and membership
+  check --> Released: its item is Released, or its whole change is within both thresholds and the plan fits
+  check --> Waiting: above a threshold, or it does not fit the plan
+  Waiting --> Released: the executive approves a version that holds its item
+  Waiting --> Returned: a send-back or an approved version leaves its item out (OD-4)
+  Released --> Returned: a later approved version drops its item, and it stops at its next step
+  Returned --> check: its creator revises it
+  Returned --> Waiting: its creator defers it with its item to the next draft
+  Returned --> Withdrawn: its creator withdraws it
+  Waiting --> Withdrawn: its creator withdraws it
+  Released --> [*]: today's carrier lifecycle continues
+  Withdrawn --> [*]
+```
+
+*Figure 6d. An Action's release. On 6 Nov at Lakeside, Kobo's two stop-threshold Actions are Released and the other four Lakeside Actions are Waiting for version 1's approval. The Mto huller connection has no Action yet: a capital item's Actions are created after its approval, so they are Released when created (OD-17).*
+
 **Settled with the owner (19 Nov):** OD-1, OD-4 to OD-8, OD-10, OD-11 and OD-16 to OD-18, listed under Decisions. The open Architect's calls are listed there too.
 
 The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (`verification_plan`, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
@@ -599,8 +631,8 @@ The plan's own state is derived from its items and Actions. It is not a second e
 | Role | Decides | Does |
 |---|---|---|
 | **Operator executive** | Approves each plan version; sets the budget, the switches, and the spend and crew-visit thresholds; makes capital choices, declares expansions and approves new connections as capital (OD-17); grants and removes roles (OD-14) | Approves or sends back the plan, with a trade-off; may accept imported records in the finance and commercial lead's place, recorded as the executive's acceptance (OD-15) |
-| **Finance and commercial lead** | Declares budget lines and money targets; accepts imported records; chooses claims, notices and collection actions; sets money tolerances | Creates Actions against money and rights Findings; files rights events |
-| **Operations or site manager** | Chooses options within operational decisions; declares operational targets (availability, dawn charge, departures) and proactive items (maintenance, replacements); proposes new connections as plan items (OD-17); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work |
+| **Finance and commercial lead** | Declares budget lines and money targets; accepts imported records; chooses billing, collection and customer-account options; sets money tolerances | Creates Actions against money Findings, and every notice and claim Action; files rights events |
+| **Operations or site manager** | Chooses options within decisions on the Site's assets and operations, including an asset's warranty or service remedy; declares operational targets (availability, dawn charge, departures) and proactive items (maintenance, replacements); proposes new connections as plan items (OD-17); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work |
 | **Field technician or O&M contractor** | — | Does the work; records readings, dips and completion |
 | **Analyst** | Maps sources to factors; places data-quality holds | Onboards sources; reviews extracted contract rows |
 
@@ -768,7 +800,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 
 The recorded person still comes before decisions. Emulated figures are never Recorded and never benefit (D14).
 
-**Structure approval (OD-20).** Approving the recreated pack also approves the structure of steps 1 and 3C, so their slices start on the first build day.
+**Structure approval (OD-20).** Approving the recreated pack also approves the structure of steps 1 and 3C, so their slices need no structure sitting. In the computed schedule step 1 starts on day 1, once the heavy-tool pool merges, and step 3C starts on day 5, after calibration spike 0K on the same lane (`two-week-build-plan.md`, from `plan_model.py`). Step 3C needs nothing from step 1, so Figure 10 draws no edge between them (`rev 16.12`: the edge had no reason).
 
 **The engagement path, tied to the steps** (owner-approved housekeeping, `.agent/owner-pack-questions-defaults-2026-11-19.md`):
 - *The deep-dive safeguard.* The operator's own target against actual appears within weeks of the deep-dive only once steps 3A, 4 and 5 are live.
@@ -787,7 +819,7 @@ flowchart LR
   S1["1 Correct the last-day figure,<br/>show what the API computes (CH5)"] --> S2["2 Canonical format and<br/>leaf factor IDs (W1)"]
   S2 --> LA["3A Sources (B3): record store,<br/>emulators for billing, collections,<br/>fuel purchases, budget, contract test"]
   S2 --> LB["3B Structure (B1, CH1): factors,<br/>Findings pinned, structure observer,<br/>on operational leaves today"]
-  S1 --> PC["3C Recorded person,<br/>owner, due date (CH2)"]
+  PC["3C Recorded person,<br/>owner, due date (CH2)"]
   LA --> J["4 Join at the money leaves:<br/>contribution, cost to serve, collections"]
   LB --> J
   J --> T["5 Targets and the bridge (B2)"]
@@ -844,6 +876,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-22 | Operational integrations come in this order: EMS data upload and API first, then the edge gateway talking Modbus to hardware; Modbus stays in the emulation scope so the path is proven before hardware, and a BeagleBone Black running the edge gateway against the backend gateway is the hardware test (same record) | §2.3; §2.9, Figure 10 |
 | OD-23 | The UI reads a calculated daily snapshot of the structure, the bridge and the Portfolio figures, recalculated only when a defined trigger fires, with evidence class and provenance kept on every node (same record) | §2.1; §2.8; §2.9 |
 | OD-24 | Layer 4's evidence words replace the earlier four-level claim ladder; a simulated or emulated result is still never shown as Verified or realised (same record) | Rules |
+| OD-25 | A decision takes the heading of its Finding's factor, because that is where the executive met the problem; with no Finding behind it, it takes its lever's heading; each option's effects show under their own factors' headings, money counted once; every Finding-backed decision is checked for a Finding factor and lever under one heading (the coordinator's proposal, owner-approved, with the Architect's refinements) | §2.0; manifest `home_categories.decisions` |
 
 **Other owner decisions, outside this design** (commercial and process; each with its owner record and status in `decisions-register.md`): D2, D3, D4, D5, D6, D7, D8, D9, D10 and D12. The owner's process answers of 19 Nov (Docker restarts allowed on this server as needed; the 10 Nov walkthrough asks superseded by the new direction) are recorded in the register only. The owner's commercial answers of 19 Nov (the pilot fee's form, the deep-dive's terms and their review, peak days and the product reserve: items C2, C12, C13, C14 and C15 of `commercial-plan.md`) are recorded in the register and `commercial-plan.md`, not here (P4 of regeneration F).
 
@@ -861,7 +894,9 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 - a crew-visit limit is set per month inside a longer period, and each crew visit counts in the month it falls (§2.5);
 - every structure node has exactly one home category; contribution's money effects sit in Grow and Optimize and its bridge is presented under Assure (A1); unexplained litres are Optimize; an item with no factor sits under Protect as upkeep (§2.0, OD-21);
 - a node's home is named on its row, never inherited from its parent; a measure takes its objective's heading; money never sits under Protect or Assure, so customer compensation and penalties are Optimize cost lines and Protect shows their failure in its own unit (§2.0, `rev 16.11`);
-- a decision sits under the home of its lever factor, found in the order: restores a Protect measure, else the money factor it changes, else the factor it compares (§2.0, `rev 16.11`);
+- a Finding is pinned to the most specific factor it observes, never a parent total its children explain (§2.0, `rev 16.12`); a decision takes the heading of its Finding's factor (owner, 19 Nov), or its lever's when no Finding stands behind it, and a Finding-backed decision whose lever sits under another heading fails the check and is ruled (§2.0, `rev 16.12`);
+- the role accountable for what a decision concerns chooses its option: the site manager for a Site's assets, including their warranty claims; the finance and commercial lead for billing, collection and customer accounts, and for filing every notice and claim; the executive for capital (§2.4 step 2, the Architect's ruling on OD-16, `rev 16.12`);
+- an Action's release has one machine, Waiting, Released, Returned and Withdrawn, following its item's state; deferral is an event, not a state (§2.5, Figure 6d, `rev 16.12`);
 - the daily snapshot is an output, rebuildable from its records and checked against a fresh evaluation, and shows its "as of" time; each portfolio's snapshot records its as-of time and any pending recalculation with its trigger, Sites and periods (§2.8, OD-23);
 - the EMS API and the edge gateway on hardware are step-9 work, outside the first fortnight (§2.9, OD-22);
 - an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);

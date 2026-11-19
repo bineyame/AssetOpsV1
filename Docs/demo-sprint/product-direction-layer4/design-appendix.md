@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.11)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.12)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.11 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.12 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -96,6 +96,7 @@ Industry claims rest on the brief's ledger [R1]–[R12] (AMDA benchmarking; ESMA
   - OD-24: the evidence words replace the old claim ladder (Rules).
 - **Rev 16.10 (19 Nov).** OD-21 corrected to the brief's own terms, with the owner's approval (`.agent/owner-assure-per-brief-2026-11-19.md`): Assure carries no money and presents A1 to A5; collection of billed value moves from Grow to Optimize (O3), correcting rev 16.9; A4 stays an Assure objective met by the evidence kept, beside OD-19; each heading is checked against the brief's G1 to G3, O1 to O3 and P1 to P4. Kobo's split is unchanged (+38.00 Grow, −600.00 Optimize): collection is cash, outside contribution.
 - **Rev 16.11 (19 Nov).** The mock-up's data gaps closed in the design first (coordinator's request after the mock-up packet `specs/mockup-vnext-categories-snapshot/packet.md`). Every node's home category is named, never inherited; the manifest gains the registry (`home_categories`) and `check_manifest.py` checks it is complete. Kasarani's charging energy deliverable per night and Ruiru's charger 7, connector 2 are Protect (P1, P2). Technical losses (O2) and losses beyond expected (O3) move from inherited Grow to Optimize; the others the mock-up inherited are confirmed and named. A decision sits under its lever factor's home, by a stated rule. Operations measures are Optimize (O2). Customer compensation and penalties leave the Protect measures: money a failure has cost is an Optimize cost line, and Protect shows the failure in its own unit. Each portfolio's daily snapshot records its as-of time and any pending recalculation; Harvest Cold carries the pending demonstration case. No figure changed. The same day the owner approved a vertical factor map (`vertical-factor-map.md`, #13): the brief's 28 levers mapped to registry factors, with no factor added; it joins the appendix table.
+- **Rev 16.12 (19 Nov).** The final fix round after review H (`regeneration/H-whole-pack-review.md`). A decision takes the heading of its Finding's factor (owner, `.agent/owner-decision-heading-rule-2026-11-19.md`), or its lever's with no Finding; a Finding is pinned to the most specific factor it observes, never a parent total; every Finding-backed decision's Finding factor and lever share a heading, checked (register call 18 replaced). The role accountable for what a decision concerns chooses its option, and the finance and commercial lead creates every notice and claim Action (the Architect's ruling on OD-16, M3; Kobo's battery evidence is now Peter's item). One Action release machine, Figure 6d (M4). Figure 10 loses the edge from step 1 to step 3C, which had no reason, and the OD-20 sentence states what the schedule computes (M5). Each valued option names its money factors, and Ruiru's stated-total residual has a registry row (known gaps).
 
 ## 5. Minimum pilot asks per vertical
 

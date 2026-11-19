@@ -1,6 +1,6 @@
 # Walkthroughs: the owner's guided tour of the mock-up
 
-**AssetEcon Layer 4 mock-up · recreated from the design (`rev 16.11`) and the mock-up as it is built today · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 mock-up · recreated from the design (`rev 16.12`) and the mock-up as it is built today · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** Not approved: awaits the owner's inspection. **The visual check is not yet done:** this server has no browser, so no screenshot, layout or phone-width check was made for this text. Every step below was checked against the screen text the mock-up renders (`tools/render_text.cjs`), not against how it looks. All figures are illustrative demonstration data.
 
@@ -14,7 +14,7 @@
 **How to open it.**
 - Open `index.html` in a browser; no server is needed. Or, from this folder, run `python3 -m http.server 8790 --bind 127.0.0.1` and open the local address.
 - Choose the operator in the blue review bar at the top (**Demo operator**). The review bar is review tooling, not part of the product. Its screen selector lists every screen.
-- The top bar of every screen shows the period and the snapshot's date: "October 2026 · Figures as of 6 Nov".
+- The top bar of every screen shows the period and the snapshot's date: "October 2026 · Figures as of 06:00, 6 Nov".
 - Main routes: `#/portfolio` and its tabs (`/outcomes-by-site`, `/demand-and-capacity`, `/act-first`, `/act-first/plan`, `/what-changed`, `/scope`); `#/site/<site>`; `#/decision/<id>`.
 
 **Who appears on screen.** People are shown by role title, with the Site for a Site manager, and a fictional first name, labelled illustrative. The roles are the design's five: the operator executive, the finance and commercial lead, the Site manager, the field technician and the analyst. The system recommends; a person chooses, creates the Actions and approves.
@@ -52,7 +52,7 @@
 **Step 6. The executive approves the plan.** Routes `#/portfolio/act-first`, then `#/portfolio/act-first/plan`.
 - *Sees:* first the issues needing a decision, each with who decides. Then the plan, proposed by the system for November and December: version 1, awaiting Amina's approval; $3,750.00<!--fig:plans.lakeside-power.default.spend--> of the $5,000.00<!--rec:plans.lakeside-power.budget--> budget; a modelled +$6,088.50<!--fig:plans.lakeside-power.default.value--> from the valued options only. Each item names its owner, its state and an "Effect under each heading": the Kisiwa repair under Protect, the Mto huller under Grow and Optimize. The huller is a capital item, so its Action is created only after approval.
 - *Why it matters:* the plan trades Sites against one budget and one crew, which no single Site can do, and nothing spends above the threshold until the executive approves.
-- *Who:* Amina approves or sends back the version; each item's owner (Halima, Joseph, David, Peter) creates its Actions.
+- *Who:* Amina approves or sends back the version; each item's owner (Halima, David, Peter) creates its operational Actions, and Joseph creates the notice and claim Actions.
 - *Try:* under "What if", switch the budget to $6,500.00<!--rec:plans.lakeside-power.switches.budget[1]--> and the letter of intent to "No"; the plan shows its new spend and value, and the four-case table shows each result.
 
 **Step 7. Who is doing what.** Route `#/portfolio/what-changed`.
@@ -110,10 +110,9 @@
 
 | Where to look | Question, and the default that applies now |
 |---|---|
-| `#/portfolio`, the decision links on each card | Register call 18: a decision sits under the heading of the factor it changes, not the one it was opened from. Default: applied |
+| `#/portfolio`, the decision links on each card | OD-25 (owner, 19 Nov): a decision sits under the heading of its Finding's factor, or its lever's with no Finding; register call 18 now says how a Finding is pinned. In the data all fourteen agree with the screens' headings |
 | `#/portfolio`, the Protect card | Register call 17: Protect shows no money; compensation and penalties are Optimize costs. Default: applied in the data |
 | `#/decision/kobo-generator` | Register item D6: design estimates are shown to clients with their label, and said aloud. Default: shown, labelled |
 | `#/decision/kisiwa-genset` | Register item Q14: keep Kisiwa's battery fuel saving as a flagged assumption. Default: kept, flagged |
 | `#/decision/mto-inverter` | Register item Q15: when losing a unit breaches redundancy. Default: it follows the capacity computed from records |
 
-**Not on screen yet** (the next build reads these from the data, so do not present them): the time of day of the snapshot and the "recalculation pending" notice (Harvest Cold is the demonstration case); the heading of every factor from the data's registry; and the Optimize line for the money an option avoids under a Protect decision. One known defect: Harvest's "Across Harvest Cold Network" cash line shows nothing received; read the Site lines instead.
