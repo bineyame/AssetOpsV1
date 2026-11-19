@@ -17,7 +17,7 @@ Sources: design §2.4–§2.6, §2.8, OD-1 to OD-12; `worked-portfolios.md` §1.
 - `node tools/render_text.cjs`: 205 renders, 0 script errors.
 - `node tools/vocab_check.cjs`: 205 screens scanned, 0 hits. Earlier-view body residual: 256 hits on 60 routes, reported but not failing.
 - `python3 tools/hand_typed_scan.py`: count 0; manifest count 0; allow-list 46 entries, all used.
-- `python3 ../check_manifest.py` and `python3 ../check_alignment.py`: results in the report.
+- `python3 ../check_manifest.py`: 3805 passed, 0 failed. `python3 ../check_alignment.py`: 41 passed, 0 failed (6 words left for the reviewer, as before).
 - New check, `node tools/plan_switch_check.cjs`: 66 passed, 0 failed, 0 script errors. It covers four Lakeside cases plus two each for Harvest and Metro: spend, value, item count, and each Action's state against the data. It also checks the Act first layout, version, state, executive, thresholds and meters.
   - Planted violation: every change treated as above the threshold gave 12 failed and 24 script errors. Reverted.
 
