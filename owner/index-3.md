@@ -2,7 +2,7 @@
 
 One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
-- 2026-10-26 `owner-commercial-capability-feedback-2-2026-10-26.md` Commercial readiness iteration 3 feedback · current — iteration done; claim ladder, never label simulated realized; to confirm
+- 2026-10-26 `owner-commercial-capability-feedback-2-2026-10-26.md` Commercial readiness iteration 3 feedback · current — iteration done; claim ladder, never label simulated realized; confirmed 19 Nov (summary Q4)
 - 2026-10-26 `owner-commercial-capability-feedback-2026-10-26.md` Commercial vs capability assessment feedback · historical — iteration done
 - 2026-10-26 `owner-commercial-capability-final-clarifications-2026-10-26.md` Commercial baseline accepted with clarifications · superseded — by owner-commercial-architecture-reframe-2026-10-27.md
 - 2026-10-26 `owner-local-servers-authorization-2026-10-26.md` Local preview servers for recapture · current — batch scope historical; no execution-policy bypass standing
@@ -13,12 +13,12 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-10-27 `owner-claude-architect-commercial-html-2026-10-27.md` Implementer-friendly commercial doc request · historical — document request done
 - 2026-10-27 `owner-claude-architect-telemetry-2026-10-27.md` Claude telemetry plan with BeagleBone · historical — document request done
 - 2026-10-27 `owner-claude-architect-telemetry-revision-2026-10-27.md` Telemetry plan cloud export weighting · historical — document revision done
-- 2026-10-27 `owner-commercial-architecture-reframe-2026-10-27.md` Outcome-led commercial architecture reframe · current — to confirm; may be folded into Layer 4
+- 2026-10-27 `owner-commercial-architecture-reframe-2026-10-27.md` Outcome-led commercial architecture reframe · current — confirmed 19 Nov (summary Q3); may be folded into Layer 4
 - 2026-10-27 `owner-default-architect-claude-2026-10-27.md` Default Architect is Claude · current — standing role binding
 - 2026-10-27 `owner-parallel-and-open-questions-2026-10-27.md` Telemetry and commercial plans parallel · historical — question answered
 - 2026-10-27 `owner-telemetry-integration-plan-2026-10-27.md` Telemetry integration plan document request · historical — document delivered
-- 2026-10-27 `owner-telemetry-plan-feedback-2026-10-27.md` Telemetry plan approved with adjustments · current — to confirm; Modbus proof and VRM honesty
-- 2026-10-28 `owner-answers-demo-data-2026-10-28.md` Demo data strategy question answers · current — to confirm; source labels and realistic limits
+- 2026-10-27 `owner-telemetry-plan-feedback-2026-10-27.md` Telemetry plan approved with adjustments · current — confirmed 19 Nov (summary Q5); Modbus proof and VRM honesty
+- 2026-10-28 `owner-answers-demo-data-2026-10-28.md` Demo data strategy question answers · current — confirmed 19 Nov (summary Q1): not carried into the summary; source labels and realistic limits
 - 2026-10-28 `owner-demo-data-strategy-2026-10-28.md` Evidence-grounded demo data strategy request · current — strategy done; traceability, never synthetic as observed; to confirm
 - 2026-10-28 `owner-demo-sprint-md-removal-2026-10-28.md` Remove demo-sprint md, keep html · historical — one-off cleanup
 - 2026-10-28 `owner-long-running-accepted-2026-10-28.md` Efficient long-run approach accepted · historical — design accepted and built
@@ -29,10 +29,10 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-01 `owner-walkthrough-notes-2026-11-01.md` Walkthrough notes Nov 1-4 · current — owner confirmed the 3-4 Nov additions (19 Nov); some content may not be relevant to the updated goals
 - 2026-11-05 `owner-efficiency-2026-11-05.md` Boost usage efficiency, keep quality · current — token efficiency standing rule
 - 2026-11-05 `owner-mill-pass-margin-2026-11-05.md` Mill pass margin 10 percent · historical — demo check parameter built
-- 2026-11-05 `owner-scope-backlog-2026-11-05.md` Demo-critical only; rest to backlog · superseded — by owner-deferred-is-queued-2026-11-13.md; to confirm
+- 2026-11-05 `owner-scope-backlog-2026-11-05.md` Demo-critical only; rest to backlog · superseded — by owner-deferred-is-queued-2026-11-13.md; confirmed 19 Nov (summary Q1): not carried into the summary
 - 2026-11-06 `owner-build-time-2026-11-06.md` Demo history build length · historical — demo data build parameter
 - 2026-11-06 `owner-cold-days-2026-11-06.md` Cold-lab example days partly checked · historical — demo data parameter built
-- 2026-11-06 `owner-efficiency-2026-11-06.md` Implement suggested usage optimizations · current — approves standing usage optimizations (ROLE_CONFIG); to confirm
+- 2026-11-06 `owner-efficiency-2026-11-06.md` Implement suggested usage optimizations · current — approves standing usage optimizations (ROLE_CONFIG); confirmed 19 Nov (summary Q1): not carried into the summary
 - 2026-11-06 `owner-kobo-nights-2026-11-06.md` Kobo night data by domain knowledge · historical — demo data built
 - 2026-11-07 `owner-dd1a2-answers-2026-11-07.md` Kobo and mill example day answers · historical — demo data parameters built
 - 2026-11-07 `owner-diesel-night-window-2026-11-07.md` Diesel night window 6pm to noon · historical — built into diesel trial

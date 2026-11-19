@@ -7,23 +7,23 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-08 `owner-answers-endgame-2026-11-08.md` Endgame prepare skip; 10 Nov session · historical — client date later moved to 17 Nov
 - 2026-11-08 `owner-answers-own-gaps-2026-11-08.md` All fixes now; add-dates option · historical — OWN-GAPS build round
 - 2026-11-08 `owner-away-architect-decides-2026-11-08.md` Away: Architect decides on real-site understanding · current — standing pattern for delegated absence
-- 2026-11-08 `owner-decisions-ingest-gaps-2026-11-08.md` Ingest gaps; save operational records · current — to confirm; diesel night auto-check
+- 2026-11-08 `owner-decisions-ingest-gaps-2026-11-08.md` Ingest gaps; save operational records · current — confirmed 19 Nov (summary Q1): not carried into the summary; diesel night auto-check
 - 2026-11-08 `owner-demo-script-format-2026-11-08.md` Two illustrated HTML demo scripts · historical — DS-1 delivered
 - 2026-11-08 `owner-final-check-scope-2026-11-08.md` Kisiwa final check affected rows · historical — one-off check scope
 - 2026-11-08 `owner-followup-dates-roles-2026-11-08.md` Why session date needed precisely · historical — question answered
 - 2026-11-08 `owner-kisiwa-measure-applicability-2026-11-08.md` Zero contributors shown as zero · current — to confirm; general measure applicability rule
 - 2026-11-08 `owner-next-order-2026-11-08.md` Screenshots, Architect pass, scripts order · historical — sequence done
-- 2026-11-08 `owner-proceed-own-gaps-2026-11-08.md` Estimates are human speed; proceed · current — go-ahead historical; estimate at agent not human speed; to confirm
+- 2026-11-08 `owner-proceed-own-gaps-2026-11-08.md` Estimates are human speed; proceed · current — go-ahead historical; estimate at agent not human speed; confirmed 19 Nov (summary Q1): not carried into the summary
 - 2026-11-08 `owner-questions-ingest-captures-2026-11-08.md` Real ingest must work for any site · current — to confirm; real-life upload principle
 - 2026-11-09 `owner-question-simulator-dependency-2026-11-09.md` Ingestion dependency on simulator · historical — question answered
 - 2026-11-10 `owner-any-range-speed-2026-11-10.md` Any date range fast via snapshots · current — natural app behaviour, daily snapshots
 - 2026-11-10 `owner-e5-answers-2026-11-10.md` Prepared dip label and pictures · historical — E5 rulings applied
 - 2026-11-10 `owner-kobo-gap-pattern-2026-11-10.md` Kobo gap days not defensible · historical — demo data fix
-- 2026-11-10 `owner-money-snapshot-2026-11-10.md` Save money outcomes in snapshots · current — to confirm; backlog item
-- 2026-11-10 `owner-overnight-2026-11-10.md` Targeted tests; heavy ops batched · current — to confirm against PIPE-1 rules
+- 2026-11-10 `owner-money-snapshot-2026-11-10.md` Save money outcomes in snapshots · current — confirmed 19 Nov (summary Q10): the intent is kept as the daily calculated snapshot with recalculation triggers (owner-summary-confirmations-2026-11-19.md)
+- 2026-11-10 `owner-overnight-2026-11-10.md` Targeted tests; heavy ops batched · current — confirmed 19 Nov (summary Q8)
 - 2026-11-10 `owner-portfolio-logic-doc-2026-11-10.md` Portfolio numbers in technical script · historical — DS-1b updated
 - 2026-11-10 `owner-thursday-technical-demo-2026-11-10.md` Thursday technical demo to associates · historical — demo past
-- 2026-11-10 `owner-walkthrough-2026-11-10.md` Walkthrough feedback items 11-10 · current — to confirm which items remain open
+- 2026-11-10 `owner-walkthrough-2026-11-10.md` Walkthrough feedback items 11-10 · current — confirmed 19 Nov (summary Q11)
 - 2026-11-11 `owner-answers-17nov-scope-2026-11-11.md` 17 Nov scope answers; partial money · current — to confirm; option 2 partial-days money labelling
 - 2026-11-11 `owner-price-it-and-speed-priority-2026-11-11.md` Price-it journey and range speed · historical — prioritised for 17 Nov
 - 2026-11-11 `owner-speed-before-thursday-2026-11-11.md` Speed work before Thursday demo · historical — rebuild done
