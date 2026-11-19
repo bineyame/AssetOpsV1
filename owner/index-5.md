@@ -29,3 +29,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-19 `owner-data-and-build-strategy-2026-11-19.md` Data/DB strategy: scale later but foundation now; small contract-tested real-path slice; Postgres/Timescale per app needs; Q4 yes; data source configurable for speed · current — governs the data-and-build strategy
 - 2026-11-19 `owner-start-t1-2026-11-19.md` Start T1 (heavy-tool slot pool) now, during pack review, via spec handshake · current
 - 2026-11-19 `owner-uiux-guide-request-2026-11-19.md` Portfolio page judged unattractive, confusing, no progressive disclosure or intentional scalable use of space, not state of the art; Architect to write a UI/UX guide for state-of-the-art professional UI/UX · current — governs all screen work
+- 2026-11-19 `owner-playwright-and-t1-c-2026-11-19.md` Install Playwright (local headless browser for screenshot checks); T1 enforcement = C (in-tool tripwires) · current
