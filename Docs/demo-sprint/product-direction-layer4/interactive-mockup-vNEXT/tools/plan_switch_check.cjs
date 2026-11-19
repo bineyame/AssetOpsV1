@@ -12,6 +12,10 @@
    Headings (rev 16.10, OD-21/OD-23): each Overview card lists exactly its heading's money effects; Grow + Optimize equal the
    evaluated contribution gap per Site; the Assure card shows no money; every screen shows the snapshot "as of" date; the
    huller's Grow and Optimize effects on its decision page and plan item; outstanding sits under Optimize as cash; the bridge opens from Assure.
+   Rev 16.11 (register calls 17-19): every factor row's heading equals the data's registry row (home_categories), rows with no
+   row listed under Assure; no dollar figure on the Protect card (values at stake excepted) or in any Protect option table;
+   Kasarani's avoided penalties are an Optimize line; the per-portfolio snapshot time with its hour and the pending notice;
+   the portfolio cash line equals the data (received at cold rooms, collected on mini-grids) and is not zero.
    Run: node tools/plan_switch_check.cjs   (from the interactive-mockup-vNEXT folder; exit 1 on any failure) */
 const fs = require('fs'), path = require('path');
 const root = path.resolve(__dirname, '..');
@@ -33,7 +37,8 @@ const pick = (w, name, val) => { const el = w.document.querySelector(`input[name
 const T = { lakeside: 'lakeside-power', harvest: 'harvest-cold', metro: 'metro-bus' };
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-const fdate = iso => { const [, m, d] = iso.split('-').map(Number); return `${d} ${MON[m - 1]}`; };
+const fdate = iso => { const [, m, d] = iso.slice(0, 10).split('-').map(Number); return `${d} ${MON[m - 1]}`; };
+const hhmm = iso => /T\d{2}:\d{2}/.test(iso || '') ? iso.slice(11, 16) : null;
 const squash = s => (s || '').replace(/\s+/g, ' ');
 const wfOf = op => MAN.demo_workflow.tenants.find(t => t.tenant === T[op]);
 const consOf = op => MAN.tenants.find(t => t.tenant === T[op]).portfolio_constraints;
@@ -170,9 +175,53 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
   if (op !== 'metro') SITES[op].forEach((sk, i) => { const ou = DV.sites[`${T[op]}/${bridgeOf(op, i).site}`].actual.nodes.outstanding;
     const li = card('optimize')?.querySelector(`li[data-cash="${sk}"]`);
     ok(li && squash(li.textContent).includes(`${usd(ou)} outstanding`) && !squash(card('grow')?.textContent).includes('outstanding') && !li.hasAttribute('data-effect'), `${op} ${sk}: ${ou} outstanding sits under Optimize as cash, outside the gap`); });
-  const chip = squash(d.querySelector('.period-chip')?.textContent);
-  ok(chip.includes(`Figures as of ${fdate(MAN.snapshot?.as_of || MAN.as_of)}`), `${op}: snapshot "as of" shown (${chip})`);
-  ok(!d.querySelector('.snap-pending') === !(MAN.snapshot?.recalculation_pending === true), `${op}: recalculation-pending notice only where the data says so`);
+  const chip = squash(d.querySelector('.period-chip')?.textContent), snap = MAN.snapshot.portfolios.find(p => p.tenant === T[op]);
+  ok(chip.includes(`Figures as of ${hhmm(snap.as_of)}, ${fdate(snap.as_of)}`), `${op}: snapshot "as of" shown with its hour (${chip})`);
+  ok(!d.querySelector('.snap-pending') === !(snap.recalculation_pending === true), `${op}: recalculation-pending notice only where the data says so`);
+  // rev 16.11 (register call 19): the per-portfolio pending notice names what arrived, when, and the Sites it affects, in plain words
+  if (snap.recalculation_pending) { const nt = squash(d.querySelector('.snap-pending')?.textContent), pd = snap.pending;
+    const names = pd.sites.map(n => n.split('·').pop().trim());
+    ok(nt.startsWith('Recalculation pending.') && nt.includes(`At ${hhmm(pd.received)} on ${fdate(pd.received)}`) && nt.includes(pd.what) && names.every(n => nt.includes(n)) && (!pd.portfolio_also || nt.includes('the portfolio')) && nt.includes(`${hhmm(snap.as_of)} figures`) && !/[a-z]+_[a-z_]+|\b\d{4}-\d{2}-\d{2}/.test(nt),
+      `${op}: pending notice in plain words: what arrived at ${hhmm(pd.received)}, ${names.join(', ')}${pd.portfolio_also ? ' and the portfolio' : ''} (${nt})`); }
+  // cash: the portfolio's cash line equals the data's sum (received at cold rooms, collected on mini-grids) and is not zero
+  if (op !== 'metro') { const ck = op === 'harvest' ? 'received' : 'collected', exp = r2c(SITES[op].reduce((a, sk, i) => a + (DV.sites[`${T[op]}/${bridgeOf(op, i).site}`].actual.nodes[ck] || 0), 0));
+    const pl = card('optimize')?.querySelector('li[data-cash="portfolio"]'), pt = squash(pl?.textContent);
+    ok(exp > 0 && pt.includes(`${usd(exp)} ${ck}`) && Math.abs(+pl.dataset.cashValue - exp) < 0.005, `${op}: portfolio cash ${exp} ${ck}, not zero (${pt})`); }
+  // no money under Protect: no dollar figure on the Protect card outside the values at stake (class At stake, listed never summed)
+  { const pc = card('protect')?.cloneNode(true); pc?.querySelectorAll('li').forEach(li => { if (li.querySelector('.ec-stake')) li.remove(); });
+    const pt = squash(pc?.textContent); ok(pt && !/\$\s?\d/.test(pt), `${op}: no dollar figure on the Protect card outside the values at stake${/\$\s?\d/.test(pt) ? ' (found: ' + pt.match(/.{60}\$\s?\d.{20}/)?.[0] + ')' : ''}`); }
+  dom.window.close(); }
+// rev 16.11 (design §2.0, register call 17): every factor row's heading is the data's registry row (home_categories.nodes),
+// never inherited. A bridge row's key is checked against the data's bridge (driver -> bridge_drivers); every other key must be an
+// evaluated node of that Site. Rows with no registry row show no heading and are listed under Assure. One row is stated by the
+// dispatch rather than the registry: Ruiru's unattributed bill-total residual, Optimize (worked-portfolios §1.0, EV depot, O1).
+const HC = MAN.home_categories, VK = { lakeside: 'MINI_GRID', harvest: 'COLD_CHAIN', metro: 'EV_DEPOT_CAPTIVE' }, STATED = { resid: 'optimize' };
+for (const op of ['lakeside', 'harvest', 'metro']) { const gapsSeen = [];
+  SITES[op].forEach((sk, i) => { const dom = boot(op, `site/${sk}`), d = dom.window.document, rows = [...d.querySelectorAll('tr[data-node]')], site = bridgeOf(op, i), nodes = DV.sites[`${T[op]}/${site.site}`].actual.nodes;
+    ok(rows.length > 5, `${op} ${sk}: factor rows found (${rows.length})`);
+    for (const r of rows) { const id = r.dataset.node, key = r.dataset.key, got = r.dataset.heading, home = r.dataset.home;
+      const bm = id.match(/^f(\d+)$/), drv = bm ? site.period.bridge[+bm[1]]?.driver : null;
+      if (bm) ok(key === HC.bridge_drivers[drv], `${op} ${sk} ${id}: bridge row ${drv} keyed ${HC.bridge_drivers[drv]} (got ${key})`);
+      let exp;
+      if (STATED[id]) exp = STATED[id];
+      else if (home === 'potential') { ok((HC.potential[VK[op]] || []).some(p => p.name === key), `${op} ${sk} ${id}: potential ${key} is in the data's potential list`); exp = 'grow'; }
+      else { const row = key ? HC.nodes[VK[op]][key] : null; exp = row && ['grow', 'optimize', 'protect', 'assure'].includes(row[0]) ? row[0] : '';
+        if (key && !bm) ok(key in nodes, `${op} ${sk} ${id}: key ${key} is an evaluated node of the Site`);
+        if (!row) gapsSeen.push(r.querySelector('b')?.textContent); }
+      ok(got === exp, `${op} ${sk} ${id}: heading ${exp || '(none)'} from the registry row ${key || '(none)'} (got ${got || '(none)'})`); }
+    dom.window.close(); });
+  const dom = boot(op, 'portfolio'), at = squash(dom.window.document.querySelector('.ocard[data-heading="assure"]')?.textContent);
+  ok(gapsSeen.every(g => at.includes(g)) && (gapsSeen.length > 0) === at.includes('Not yet under a heading'), `${op}: rows with no registry row listed under Assure (${gapsSeen.join('; ') || 'none'})`);
+  dom.window.close(); }
+// a money line takes its own factor's heading (§2.0): Kasarani's cover is a Protect decision, and its avoided penalties are Optimize
+{ const dv = DV.options['KAS-OEM-STOPGAP'], dom = boot('metro', 'portfolio/act-first/plan'), el = dom.window.document.querySelector('.plan-item[data-item="KAS-OEM-STOPGAP"]');
+  const o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent), p = squash(el?.querySelector('[data-heading="protect"]')?.textContent);
+  ok(o.startsWith('Optimize cost and efficiency +') && o.includes(usd(dv.monthly_or_horizon_change)) && p && !/\$/.test(p), `Kasarani cover: Optimize +${dv.monthly_or_horizon_change} and a Protect line with no money (${o} | ${p})`);
+  dom.window.close(); }
+// no dollar figure in any Protect option table (decision pages: "Protect measures under each option")
+for (const dc of MAN.home_categories.decisions) { const op = Object.keys(T).find(k => MAN.tenants.find(t => t.tenant === T[k]).sites.some(s => s.site === dc.site));
+  const dom = boot(op, `decision/${dc.id}`), regs = [...dom.window.document.querySelectorAll('[aria-label="Protect measures under each option"]')];
+  regs.forEach((rg, j) => { const t = squash(rg.textContent); ok(!/\$\s?\d/.test(t), `${dc.id}: Protect option table ${j + 1} shows no dollar figure${/\$\s?\d/.test(t) ? ' (' + t.match(/.{50}\$\s?\d.{10}/)?.[0] + ')' : ''}`); });
   dom.window.close(); }
 { const hu = MAN.tenants[0].sites.find(s => s.site === 'Mto').decision.options.find(o => o.id === 'MTO-HULLER').economics, cost = hu.fuel_monthly + hu.collection_cost_monthly;
   for (const [hash, sel] of [['decision/mto-demand', '.opts tbody tr:first-child'], ['portfolio/act-first/plan', '.plan-item[data-item="MTO-HULLER"]']]) {

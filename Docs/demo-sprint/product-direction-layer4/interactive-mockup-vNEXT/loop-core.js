@@ -65,26 +65,33 @@ const fig = (key,text) => `<button class="ev-num" data-evd="${key}" aria-haspopu
 /* ---------- outcome lenses (main design §3.1): outcomes over one factor structure; never summed ---------- */
 const LENS = {grow:['Grow revenue','sun'],optimize:['Optimize cost and efficiency','money'],protect:['Protect asset and capital','asset'],assure:['Assure performance and returns','evidence']};
 const lensTag = l => `<span class="lens lens-${l}">${LENS[l][0]}</span>`;
-/* ---------- home categories (design rev 16.10 §2.0 and Figure 1b, OD-21; worked-portfolios §1.0 "Home categories" row) ----------
-   A bridge row is keyed by its factor (driver) where it sits on a different heading from its parent leaf (unmapped meters and
-   adjustments are Optimize's service-to-charge part, below billed kWh, which is Grow).
-   Every node of the structure sits under exactly one of the four headings, so it carries money once. A node is NAMED when the
-   Home categories row (or the §2.0 definition of the heading) names it; a part of a placed node INHERITS its parent's heading
-   (§2.0: every money effect sits on one leaf, so under one heading). The outcome at the root sits ABOVE the headings. A node
-   that is neither is a GAP: it shows no heading and is listed in HOME_GAPS; its heading is never guessed.
-   [heading, what the row names, potential] — potential: capacity with no customer, shown beside Grow, never as Grow's actual. */
-const HOME = {
- mini:{rev:['grow','revenue (§2.0: the revenue side of the value chain)'],billed:['grow','billed kWh'],tariff:['grow','tariff'],meter:['grow','metered kWh'],adj:['optimize','adjustments'],METER_MAPPING_UNBILLED:['optimize','unmapped meters'],AUTHORISED_ADJUSTMENT:['optimize','adjustments'],cash:['optimize','billed against collected (cash, outside the contribution gap)'],
-  cost:['optimize','cost to serve (§2.0)'],diesel:['optimize','litres at their price'],litres:['optimize','litres at their price'],dprice:['optimize','litres at their price'],om:['optimize','O&M'],staff:['optimize','staff']},
- cold:{rev:['grow','revenue (§2.0: the revenue side of the value chain)'],charge:['grow','chargeable crate-days'],cash:['optimize','invoiced against received (cash, outside the contribution gap)'],idle:['grow','headroom with no customer (§2.0)',true],
-  cost:['optimize','cost to serve (§2.0)'],elec:['optimize','cooling energy'],kwh:['optimize','cooling energy'],staff:['optimize','staff'],maint:['optimize','maintenance']},
- ev:{cost:['optimize','cost to serve (§2.0)'],bill:['optimize','energy by tariff interval'],maxkw:['optimize','demand charge'],demand:['optimize','demand charge'],pen:['optimize','penalties'],dep:['protect','departures']}};
+/* ---------- home categories (design rev 16.11 §2.0, register calls 17 and 18; worked-portfolios §1.0 "Home categories" row) ----------
+   Read from the data's registry (MANIFEST.home_categories), never typed here and never inherited from a parent. A mock-up node
+   is matched to its registry row by NODE_KEY (the evaluated node its figure reads); a bridge row by its factor
+   (home_categories.bridge_drivers). The outcome at the root is `above` the headings. Potential (capacity with no customer)
+   sits beside Grow, never as Grow's actual. A node with no registry row is a GAP: it shows no heading and is listed in
+   HOME_GAPS; its heading is never guessed. */
+const HC = M.home_categories||{nodes:{},potential:{},bridge_drivers:{},decisions:[]};
+const VKEY = {mini:'MINI_GRID',cold:'COLD_CHAIN',ev:'EV_DEPOT_CAPTIVE'};
+const NODE_KEY = {
+ mini:{root:'contribution',rev:'revenue',billed:'billed_kwh',deliv:'delivered_kwh',loss:'technical_loss_kwh',lossx:'unexplained_loss_kwh',meter:'metered_kwh',adj:'adjustments_kwh',
+  tariff:'tariff',cash:'collected',cost:'cost_to_serve',diesel:'fuel_cost',litres:'diesel_l',fb:'diesel_l',dprice:'diesel_price',om:'om',staff:'staff'},
+ cold:{root:'contribution',rev:'revenue',cd:'crate_days',charge:'crate_days',idle:{potential:'idle_capacity'},rate:'rate',cash:'received',cost:'cost_to_serve',elec:'energy',kwh:'kwh',
+  kmodel:'kwh_model',kexcess:'excess_kwh',staff:'staff',maint:'maint',liab:'liability'},
+ ev:{root:'cost_per_departure_met',dep:'departures_met',chg:'deliverable_kwh_night',conn:'charger_days_out_of_service',cost:'cost_to_serve',bill:'energy_cost',
+  peak:n=>n.unit==='$'?'peak_cost':'peak_kwh',off:'offpeak_cost',demand:'demand_cost',maxkw:'max_kw',pen:'penalties',maint:'maintenance',
+  resid:{heading:['optimize','O1'],why:'the part of a bill-total target that cannot be attributed (worked-portfolios §1.0, EV depot: Optimize, O1)'}}};
 const HOME_GAPS = [];
-function placeHomes(sk,root){const H=HOME[OPS[SK[sk].op].vertical];
- walk(root,(n,d,p)=>{if(d===0){n.lens=null;n.above=true;return;}const h=H[n.id]||(n.driver&&H[n.driver]);
-  if(h){n.lens=h[0];n.home='named';if(h[2])n.potential=true;}
-  else if(p&&p.lens){n.lens=p.lens;n.home='inherited';if(p.potential)n.potential=true;}
-  else{n.lens=null;n.home='gap';HOME_GAPS.push({site:sk,node:n.id,label:n.label});}});
+function homeRow(v,key){const r=HC.nodes[VKEY[v]]?.[key];return Array.isArray(r)?r:null;}
+function placeHomes(sk,root){const v=OPS[SK[sk].op].vertical,K=NODE_KEY[v];
+ walk(root,n=>{let k=K[n.id];if(typeof k==='function')k=k(n);
+  if(k&&typeof k==='object'){if(k.potential){const p=(HC.potential[VKEY[v]]||[]).find(x=>x.name===k.potential);if(p){n.lens='grow';n.potential=true;n.home='potential';n.obj=p.objective;n.hkey=p.name;return;}}
+   else if(k.heading){[n.lens,n.obj]=k.heading;n.home='named';n.hkey=n.id;return;}k=null;}
+  if(!k&&n.driver)k=HC.bridge_drivers[n.driver];
+  const row=k?homeRow(v,k):null;n.hkey=k||null;
+  if(row&&row[0]==='above'){n.lens=null;n.above=true;n.home='above';}
+  else if(row&&['grow','optimize','protect','assure'].includes(row[0])){n.lens=row[0];n.obj=row[1];n.home='named';}
+  else{n.lens=null;n.home='gap';HOME_GAPS.push({site:sk,node:n.id,key:k||null,label:n.label});}});
  return root;}
 window.HOME_GAPS = HOME_GAPS;
 
@@ -160,7 +167,7 @@ function coldTree(sk){const s=siteM(sk),P=s.period.plan,A=s.period.actual,C=s.pe
     {id:'kwh',label:'Electricity used',how:'Room energy meter',unit:'kWh',plan:P.kwh,actual:A.kwh,eff:r2(P.energy-A.energy),cls:'MEASURED',src:'energymeter',kids:kwhKids}]},
    {id:'staff',label:'Staff',how:'Monthly staff cost',unit:'$',plan:P.staff,actual:A.staff,eff:0,cls:C.staff,src:'staff'},
    {id:'maint',label:'Maintenance',how:C.maint==='ESTIMATED'?'October refrigeration service invoice not received: target amount carried as an estimate, never as zero':'Monthly service invoice',unit:'$',plan:P.maint,actual:A.maint,eff:0,cls:C.maint,src:'om'},
-   ...(P.liability!==undefined?[{...B(['CUSTOMER_COMPENSATION'])[0],id:'liab',label:'Customer compensation',how:plain(br[0].basis)+'. Same factor as the Protect measure “damage confirmed by inspection”',unit:'$',plan:P.liability,actual:A.liability,dev:null,src:'qa',bound:{text:'The French-bean batch (B-1031, limit 5 °C) was above its limit for 20–30 minutes on 6 Oct; the contract makes the operator liable above 15 minutes',state:'off'}}]:[])]}];
+   ...(P.liability!==undefined?[{...B(['CUSTOMER_COMPENSATION'])[0],id:'liab',label:'Customer compensation',how:plain(br[0].basis)+'. A cost to serve, under Optimize. Its Protect side is the batch exposed above its limit, counted under Protect in batches, never in money',unit:'$',plan:P.liability,actual:A.liability,dev:null,src:'qa',bound:{text:'The French-bean batch (B-1031, limit 5 °C) was above its limit for 20–30 minutes on 6 Oct; the contract makes the operator liable above 15 minutes',state:'off'}}]:[])]}];
  return {id:'root',label:'Contribution',how:'Revenue − cost to serve',unit:'$',plan:P.contribution,actual:A.contribution,eff:s.period.variance,cls:C.maint==='ESTIMATED'?'ESTIMATED':'RECORDED',src:'statement',kids};}
 function evTree(sk){const s=siteM(sk),P=s.period.plan,A=s.period.actual,C=s.period.coverage,br=s.period.bridge||[];
  const B=d=>br.map((b,i)=>[b,i]).filter(([b])=>d.includes(b.driver)).map(([b,i])=>bridgeNode(sk,b,i,true));
@@ -185,7 +192,7 @@ function evTree(sk){const s=siteM(sk),P=s.period.plan,A=s.period.actual,C=s.peri
  const costP=P.total,costA=A.total,dp=r2(costP/P.departures_required),da=r2(costA/A.departures_met);
  return {id:'root',label:'Cost per required departure met',how:'Charging and depot cost ÷ required departures met',unit:'$/dep',plan:dp,actual:da,eff:s.period.variance,cls:C.maintenance==='ESTIMATED'?'ESTIMATED':'RECORDED',src:'statement',kids:[dep,...extra,
   {id:'cost',label:'Charging and depot cost',how:'Electricity bill + maintenance',unit:'$',plan:costP,actual:costA,eff:s.period.variance,cls:C.maintenance==='ESTIMATED'?'ESTIMATED':'RECORDED',src:'statement',kids:[bill,
-   {id:'pen',label:'Penalties for missed departures',how:`Missed departures × ${usd(SN('kasarani').penalty_rate)} from the transport authority’s penalty statement; none in October because every required departure was met. Same factor as the Protect measure “service penalties”`,unit:'$',plan:0,actual:0,eff:0,cls:'DERIVED',src:'penalty'},
+   {id:'pen',label:'Penalties for missed departures',how:`Missed departures × ${usd(SN('kasarani').penalty_rate)} from the transport authority’s penalty statement; none in October because every required departure was met. A cost to serve, under Optimize. Its Protect side is the required departures missed, counted under Protect in departures, never in money`,unit:'$',plan:0,actual:0,eff:0,cls:'DERIVED',src:'penalty'},
    {id:'maint',label:'Maintenance',how:C.maintenance==='ESTIMATED'?'October invoice from the service contractor not received: target amount carried as an estimate, never as zero':'Monthly charger service fee',unit:'$',plan:P.maintenance,actual:A.maintenance,eff:0,cls:C.maintenance,src:'om'}]}]};}
 function walk(n,f,d=0,parent=null){f(n,d,parent);(n.kids||[]).forEach(k=>walk(k,f,d+1,n));}
 function findNode(sk,id){let r=null;walk(tree(sk),n=>{if(n.id===id)r=n;});return r;}
@@ -290,12 +297,19 @@ const tabRoute = (sk,tab) => tab==='Overview'?`site/${sk}`:tab==='Financials'?`s
 function siteRoutes(domain){const sk=V70SITE[domain];return LOOP_SITE_TABS.map(t=>tabRoute(sk,t));}
 function siteTabRow(sk,active){return tabRow(LOOP_SITE_TABS.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
 function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Switch site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
-/* the calculated daily snapshot (design §2.8, OD-23): every figure screen shows the snapshot's "as of" time, and says so while a
-   triggered recalculation is pending. The data holds no snapshot record yet (MANIFEST.snapshot / DERIVED.snapshot), so the screen
-   falls back to the books-closed date the mock-up already uses (MANIFEST.as_of); listed as a gap in the review packet. */
-const SNAP = (()=>{const s=M.snapshot||DERIVED.snapshot||null;return {asOf:s?.as_of||null,pending:s?.recalculation_pending===true,books:AS_OF};})();
-function snapText(){return SNAP.asOf?`Figures as of ${fdate(SNAP.asOf)}`:`Figures as of ${fdate(SNAP.books)}, when the October books closed`;}
-function periodChip(){return `<span class="period-chip" data-snapshot="${SNAP.asOf||SNAP.books}">${icon('clock')}October 2026 · ${snapText()}</span>${SNAP.pending?` <span class="snap-pending" role="status">${badge('Recalculation pending: these figures are about to change','amber')}</span>`:''}`;}
+/* the calculated daily snapshot (design §2.8, OD-23; register call 19): each portfolio's record (MANIFEST.snapshot.portfolios)
+   gives its "as of" time and whether a recalculation is pending, with what triggered it, when, and the Sites it affects. Every
+   figure screen shows the "as of" time with the hour, and says so while a recalculation is pending. */
+const hhmm = iso => /T\d{2}:\d{2}/.test(iso||'')?iso.slice(11,16):null;
+function snapOf(op){const t=OPS[op].t.tenant,s=M.snapshot||{},p=(s.portfolios||[]).find(x=>x.tenant===t)||null;
+ return {asOf:p?.as_of||s.as_of||null,pending:p?.recalculation_pending===true,detail:p?.pending||null,books:AS_OF};}
+function snapText(op=LS.op){const S=snapOf(op),h=hhmm(S.asOf);return S.asOf?`Figures as of ${h?h+', ':''}${fdate(S.asOf)}`:`Figures as of ${fdate(S.books)}, when the October books closed`;}
+function pendingText(op=LS.op){const S=snapOf(op),p=S.detail;if(!S.pending)return '';
+ const names=(p?.sites||[]).map(n=>{const k=siteKeyOf(op,n);return k?SK[k].name:n;}),who=[...names,...(p?.portfolio_also?['the portfolio']:[])],at=p?.received?`At ${hhmm(p.received)||''}${hhmm(p.received)?' on ':''}${fdate(p.received)}, `:'';
+ const what=p?.what?`${at}${at?p.what:cap(p.what)}. `:'';
+ return `Recalculation pending. ${what}${who.length?`${who.join(' and ')} still show${who.length===1?'s':''} the ${hhmm(S.asOf)||fdate(S.asOf)} figures until ${who.length===1?'it is':'they are'} recalculated.`:'These figures are about to change.'}`;}
+function periodChip(s){const sk=s&&s.site,op=sk&&SK[sk]?SK[sk].op:LS.op,S=snapOf(op);
+ return `<span class="period-chip" data-snapshot="${S.asOf||S.books}">${icon('clock')}October 2026 · ${snapText(op)}</span>${S.pending?` <span class="snap-pending" role="status" data-op="${op}">${badge(pendingText(op),'amber')}</span>`:''}`;}
 function reviewOperatorSelect(){return `<label class="op-select">Demo operator <select id="op-switch" aria-label="Demo operator (review tool, not part of the product)">${Object.entries(OPS).map(([k,o])=>`<option value="${k}" ${k===LS.op?'selected':''}>${o.name}</option>`).join('')}</select></label>`;}
 function loopCrumbs(s){return `<div class="breadcrumbs">${s.crumbs(s).map(([t,id])=>id?link(id,t):escapeHtml(t)).join('<span>›</span>')}</div>`;}
 const GLOBAL_ROOTS=['Assets','Findings','Actions','Incidents','Maintenance','Operational records','Evidence','Settings'];
