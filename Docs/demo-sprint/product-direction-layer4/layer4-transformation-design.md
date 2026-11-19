@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.9 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.10 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -241,66 +241,76 @@ flowchart TB
 
 *Figure 1. Where the new constructs fit. Grey stays as it is; blue is new; amber is existing, with a named change. A verified change comes back only as observed factors of later periods.*
 
-**The four outcome categories: the executive's headings over the structure** (owner, OD-21: "building from factors doesn't mean these categories are irrelevant, things tie back to them").
+**The four outcome categories: the executive's headings over the structure** (owner, OD-21: "building from factors doesn't mean these categories are irrelevant, things tie back to them"; Assure and collections as the brief defines them, owner-approved, `.agent/owner-assure-per-brief-2026-11-19.md`).
 
 *What exists today, and stays.* Every Site and the Portfolio show the four categories, each a card with its rows and its plain "not connected yet" text (§1.1). An executive finds their concern under its heading at once. What the rows lack is a quantity: each is flagged from signals, not computed (L1).
 
-*What a category is in the model.* A category is a **heading, not a second outcome model**. Every node of the factor structure, whether a leaf, a factor, a Protect measure or an Assure measure, carries exactly one **home category** on its registry row (§2.1). A category computes nothing the structure does not already compute; its figures are the structure's nodes under it, read as they are.
-- **Grow revenue:** the revenue side of the value chain. Billed kWh and tariff, chargeable crate-days, productive-use demand, and the collection of what was billed. For a captive EV depot, whose revenue is *not applicable*, Grow is service growth on existing assets, such as routes absorbed, valued only by the cost it avoids.
-- **Optimize cost and efficiency:** cost to serve. Litres (necessary, candidate, unexplained) at their price, O&M, staff, energy and demand charges.
-- **Protect asset and capital:** obligations, bounds and rights. Evening hours without backup, nights without backup cover, departures missed, dawn charge, warranty cover that stays claimable, asset life. Each is measured in its own unit; money appears only as *At stake, not money*.
-- **Assure performance and returns:** the evidence about all of the above. Coverage, evidence class, target against actual with its provenance, the three verdicts, and contract and supplier performance. It adds no money of its own, because Assure is about whether outcomes can be evidenced, not a fifth savings stream (the brief).
+*What a category is in the model.* A category is a **heading, not a second outcome model** (the brief: "category lenses", not "four underlying financial truths"). Every node of the factor structure, whether a leaf, a factor, a Protect measure or an Assure measure, carries exactly one **home category** on its registry row (§2.1). A category computes nothing the structure does not already compute; its figures are the structure's nodes under it, read as they are. Each heading follows the brief's objectives (L1.1):
+- **Grow revenue** (the brief's G1 to G3): contribution-positive service sold from existing assets, more useful use of available capacity, and returns on new commercial demand. Its nodes are what is sold: metered and billed kWh, tariff, chargeable crate-days, productive-use demand, new connections. For a captive EV depot, whose revenue is *not applicable*, Grow is the useful use of chargers already in place, such as routes absorbed; the capital it avoids is listed beside, never added. The money of returns sits here and in Optimize, never in Assure. *Never assumed:* that more kWh always means more margin, or that headroom is sellable.
+- **Optimize cost and efficiency** (O1 to O3): controllable cost per unit of service (litres necessary, candidate and unexplained at their price, O&M, staff, energy and demand charges); throughput and productivity without service loss; and **service-to-charge and settlement discrepancies (O3)**: metered against billed (unmapped meters, authorised adjustments), billed against collected, in transit and outstanding. *Never assumed:* that gross fuel exposure is money saved, or that an unexplained metering residual is theft or collectible.
+- **Protect asset and capital** (P1 to P4): service obligations (evening hours without backup, nights without backup cover, departures missed, unserved critical load, dawn charge); equipment deterioration (battery and compressor life); substantiated exposure (stock at risk); and preserved entitlement rights (warranty cover that stays claimable). Each is measured in its own unit; money appears only as *At stake, not money*.
+- **Assure performance and returns** (A1 to A5): the governed, evidenced view of everything above. It carries **no money of its own**: the brief says it "should not be added on top of the same cash benefits as a fifth savings stream". It presents:
+  - **A1** actual against target with its sources and coverage, including contribution's bridge (§2.2);
+  - **A2** why each option is feasible and valuable: its value against no action, its bounds and the rejected options' reasons (§2.4);
+  - **A3** Actions tracked and benefit established, through the three verdicts (§2.6, §2.7);
+  - **A4** investor, lender and audit-ready evidence: the provenance, evidence class, records and verdicts the product already keeps. A packaged lender or financier report is out of scope for now (OD-19); A4 stays an objective, met by that evidence;
+  - **A5** contract performance, notices and remedies: deadlines, supplier response against its terms, and credits only when a credit note arrives.
 
-*How the categories relate to the outcomes.* Contribution (revenue − cost to serve) is the outcome both money headings explain. In the bridge every money effect sits on one leaf, so under one heading. The Grow effects plus the Optimize effects, plus any explicit residual, equal the contribution gap to the cent. Obligations sit under Protect as bounds on decisions, never summed with money. Assure reads every node. So the four headings are never added together, and no figure is counted under two of them (Rules 2 and 4).
+  *Never assumed* (the brief): a verified operational change does not establish a realised saving, causation or an audit certification. Each needs its own verdict or its own auditor (§2.7).
+
+*How the categories relate to the outcomes.* Contribution (revenue − cost to serve) is the outcome the two money headings explain. This is substance, not screen placement: every money effect in its bridge sits on one leaf, so under one of Grow or Optimize, and those effects, plus any explicit residual, equal its gap to the cent. Its governed presentation, the bridge with sources and coverage, is Assure's A1. Optimize holds two kinds of money figure that are never added together: cost and service-to-charge effects, which are inside the contribution gap; and collection of what was billed, which is cash and leaves contribution unchanged. Protect's measures are bounds on decisions, never summed with money. So the four headings are never added together, and no figure is counted under two of them (Rules 2 and 4).
 
 *How everything else ties back.*
 - A **Finding** takes the home category of the factor it is pinned to (CH1).
-- A **decision** sits under the category of the factor its lever acts on. Each option shows its effects under the categories of the factors it changes: the Mto huller adds billed kWh (Grow) and extra fuel (Optimize), each counted once on its own leaf.
+- A **decision** sits under the category of the factor its lever acts on. Each option shows its effects under the categories of the factors it changes: the Mto huller adds billed kWh (Grow) and extra fuel (Optimize), each counted once on its own leaf. Its feasibility and value are presented under Assure as A2.
 - A **plan item** shows its option's effects the same way. A protective item sits under Protect. An item marked "no factor (upkeep or compliance)" sits under Protect as upkeep, with no value (Architect's call).
-- A **verdict** is Assure. An economic verdict's realised money is credited under the category of the factor it moved, and only from field records (§2.7).
+- A **verdict** is Assure (A3). An economic verdict's realised money is credited under the category of the factor it moved, and only from field records (§2.7).
 
-*How the executive reads the Portfolio through them.* The four category cards stay as the Portfolio's headings (§2.8). Each card shows, for its heading: the factors against target (money for Grow and Optimize, measures for Protect, evidence state for Assure), the Findings on those factors, the options and plan items that would move them, and the verdicts on what was done. Realised performance and potential are never mixed. Headroom with no customer is capacity, shown as potential beside Grow and never as Grow's actual (owner, 1 Nov: "why are we conflating KPI with potential ?"). Productive use is Grow revenue (owner, 1 Nov: "under grow revenue or elsewhere?").
+*How the executive reads the Portfolio through them.* The four category cards stay as the Portfolio's headings (§2.8). Grow, Optimize and Protect each show their factors against target, the Findings on them, the options and plan items that would move them, and the verdicts on what was done. Assure shows A1 to A5 for the portfolio: coverage and the bridge's sources, the decisions' evidence, Actions and verdicts, and contract performance. Realised performance and potential are never mixed. Headroom with no customer is capacity, shown as potential beside Grow and never as Grow's actual (owner, 1 Nov: "why are we conflating KPI with potential ?"). Productive use is Grow revenue (owner, 1 Nov: "under grow revenue or elsewhere?").
 
 <!--Figure 1b: the four headings over the structure-->
 
 ```mermaid
 flowchart TB
-  CO["Contribution = revenue − cost to serve<br/>the outcome the two money headings explain"]
-  subgraph GRW["Grow revenue"]
-    gra["Billed kWh at Kobo"]
+  CO["Contribution = revenue − cost to serve<br/>its money effects sit in Grow and Optimize"]
+  subgraph GRW["Grow revenue: G1 to G3"]
+    gra["Billed kWh at Kobo, against target"]
     grb["Productive-use demand at Mto<br/>headroom is capacity until a signed letter of intent"]
-    grc["Collections: billed, collected, outstanding"]
   end
-  subgraph OPT["Optimize cost and efficiency"]
+  subgraph OPT["Optimize cost and efficiency: O1 to O3"]
     opa["Candidate litres at Kobo"]
     opb["Unexplained and necessary litres, O&M, staff"]
+    opc["Service-to-charge and settlement, O3<br/>unmapped meters at Mto; billed against collected"]
   end
-  subgraph PRT["Protect asset and capital"]
+  subgraph PRT["Protect asset and capital: P1 to P4"]
     pra["Evening hours without backup at Kisiwa"]
     prb["Battery cover kept claimable at Kobo"]
     prc["Nights without backup cover, cold rooms"]
   end
-  subgraph ASR["Assure performance and returns"]
-    asa["Coverage and evidence class of every node"]
-    asb["The three verdicts on Kobo's change"]
+  subgraph ASR["Assure performance and returns: A1 to A5, no money of its own"]
+    asa["A1 the bridge with sources and coverage"]
+    asb["A2 options against no action"]
+    asc["A3 Actions and the three verdicts"]
+    asd["A4 evidence kept · A5 notices and remedies"]
   end
   GRW -- "revenue effects" --> CO
-  OPT -- "cost effects" --> CO
+  OPT -- "cost and service-to-charge effects" --> CO
+  CO -. "presented as" .-> asa
   FD["Findings, pinned to a factor"] -.-> opa
   DC["Decision: Kobo's stop threshold"] -.-> opa
+  DC -. "its evidence" .-> asb
   PI["Plan items: the Kisiwa repair, the battery evidence"] -.-> pra
   PI -.-> prb
   HU["Decision and item: the Mto huller"] -.-> grb
-  VD["Verdicts"] --> asb
-  classDef keep fill:#f4f5f7,stroke:#9aa5b4,color:#5d6878
+  VD["Verdicts"] --> asc
 ```
 
-*Figure 1b. The four headings over the structure, at Lakeside. Kobo in October: kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}--> sits under Grow; candidate, unexplained and necessary running, −600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> together, sit under Optimize; the two add to Kobo's −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> contribution gap. Kobo's 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> outstanding is Grow revenue not yet realised. Kisiwa's 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours without backup and Kobo's battery cover are Protect measures, never added to money. Assure holds the evidence: every node's coverage and class, and the verdicts on Kobo's change.*
+*Figure 1b. The four headings over the structure, at Lakeside, in October. Kobo: kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}--> sits under Grow; candidate, unexplained and necessary running, −600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> together, sit under Optimize; the two add to Kobo's −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> contribution gap. Kobo's target is declared at billed kWh, so its bridge stops there (§2.2). Mto shows the service-to-charge part of Optimize (O3): meters not yet mapped to a customer −56.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> and authorised adjustments −16.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->, beside a Grow effect of −8.00<!--figx:({sites.lakeside-power/Mto.actual.nodes.metered_kwh}-{sites.lakeside-power/Mto.plan.nodes.metered_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> in metered kWh. Collection is also O3, and is cash, outside contribution: Kobo's 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> outstanding, and across Lakeside 8,870.00<!--fig:portfolio.lakeside-power.actual.sums.collected--> collected of 9,688.00<!--fig:portfolio.lakeside-power.actual.sums.revenue--> billed. Kisiwa's 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours without backup and Kobo's battery cover are Protect measures, never added to money. Assure adds no figure: it presents the bridge, the options' evidence, the verdicts and contract performance.*
 
 *Named changes, on merit* (owner: "push back with reason is welcome").
-1. **Contribution moves above the headings.** Today "Site profitability" is a Grow row (`outcomes/catalogue.py:46`). Contribution's gap is the sum of Grow and Optimize effects, so it becomes the outcome above both money headings, not a row inside one.
-2. **Unexplained litres move to Optimize.** Today "Fuel accounted for" is a Protect row (`catalogue.py:51`). Unexplained litres carry money in cost to serve, so their home is Optimize. The fuel-loss Finding stays a risk, and the Protect card links to it without counting it.
-3. **Collections stay under Grow, not Assure.** The coordinator's example placed collections under Assure. I keep them under Grow revenue, as today's catalogue does ("Cash collected", `catalogue.py:45`) and as the brief defines Grow (recognised and collected revenue), because Assure must carry no money of its own. Assure holds the evidence about collections: their coverage and the settlement records behind them.
+1. **Contribution is the outcome the money headings explain, not a Grow row.** Today "Site profitability" is a Grow row (`outcomes/catalogue.py:46`). Its gap is the sum of Grow and Optimize effects, so it cannot sit inside one heading. Its bridge is presented under Assure (A1).
+2. **Unexplained litres move to Optimize.** Today "Fuel accounted for" is a Protect row (`catalogue.py:51`). Unexplained litres carry money in cost to serve (O1), so their home is Optimize. The fuel-loss Finding stays a risk, and the Protect card links to it without counting it.
+3. **Collection moves from Grow to Optimize (O3).** Today "Cash collected" is a Grow row (`catalogue.py:45`). The brief puts reconciled billed, recognised and collected value under Optimize's O3, so billed against collected, in transit and outstanding move there. Growing what is sold stays in Grow. This corrects rev 16.9, which kept collections under Grow by citing today's row.
 
 ### 2.1 B1: the factor structure, discipline from drivers to outcomes
 
@@ -696,7 +706,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 
 | Screen | Today | Change |
 |---|---|---|
-| Overview cards | The four category cards: estimated income; a cost claim per Site; counts | The four cards stay as the executive's headings (OD-21). Each reads the structure nodes whose home category it is, against target, with their evidence class, Findings, options and verdicts (L1, L2; Figure 1b) |
+| Overview cards | The four category cards: estimated income; a cost claim per Site; counts | The four cards stay as the executive's headings (OD-21). Grow, Optimize and Protect each read the structure nodes whose home category it is, against target, with their evidence class, Findings, options and verdicts; Assure presents A1 to A5 and adds no money (L1, L2; Figure 1b) |
 | Optimize (mini-grid) | The window's last day over a period range | Corrected first, then the period's cost factors (L7, `site_outcomes/read.py:676-682`) |
 | Act first | Findings in placement groups | The Finding triage stays first, with the plan beside it |
 | Outcomes by site and the site board | Statuses; drivers in words | Drivers become factor rows. "Issues" shows Findings on their factors; "What can be done" opens the decision; "Already in hand" shows Actions and plan items |
@@ -718,7 +728,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 - *Named change, on merit.* Today's period read computes outcome totals on read and stores none (`chain/period_read.py:46-47`). The snapshot replaces recompute-on-read with recompute-on-trigger, for load speed. The rule it served stays: no stored figure is ever a source.
 - *Left open on purpose.* Storage, partitioning and incremental recalculation are inputs to the owner's coming strategy conversation on test data and the database build (`.agent/owner-build-start-and-spec-handshake-2026-11-19.md`). They are not set here.
 
-**Not designed (OD-19).** No lender or financier evidence pack is designed. The record of who decided, approved and verified is what such a pack would draw on; it is added to the design if a client asks.
+**Not designed (OD-19).** No packaged lender or financier evidence report is designed. The brief's A4, investor, lender and audit-ready evidence, stays an Assure objective, and it is met by what the product already keeps: provenance and evidence class on every figure, the records, the verdicts, and who decided and approved. A packaged report drawing on that evidence is added to the design if a client asks.
 
 ### 2.9 Change register and delivery order
 
@@ -797,7 +807,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 
 **Owner decisions of 19 Nov, applied in this revision:**
 
-| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 to OD-12 in `.agent/owner-recreate-document-packs-2026-11-19.md`; OD-13 to OD-20 in `.agent/owner-pack-questions-defaults-2026-11-19.md`; OD-21 to OD-24 in `.agent/owner-summary-confirmations-2026-11-19.md`) | Where applied |
+| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 to OD-12 in `.agent/owner-recreate-document-packs-2026-11-19.md`; OD-13 to OD-20 in `.agent/owner-pack-questions-defaults-2026-11-19.md`; OD-21 to OD-24 in `.agent/owner-summary-confirmations-2026-11-19.md`, OD-21 amended per `.agent/owner-assure-per-brief-2026-11-19.md`) | Where applied |
 |---|---|---|
 | Q-A1 | A Finding has a bottom-line impact, or is a risk or an opportunity, and is to be acted on with one or more Actions | §1.3, §2.1 |
 | Q-A2 | A few sensible roles | §2.6 |
@@ -819,9 +829,9 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-16 | A plan item's owner is the person who chose its option (at Mto, David, the site manager); each Action keeps its own creator and owner (same answer) | §2.5; `worked-portfolios.md` §1.5 |
 | OD-17 | A new customer connection is proposed by the site manager as a plan item and approved by the executive as capital; the site manager then creates its Actions (same answer) | §2.4, §2.5, §2.6, Figure 6c; `worked-portfolios.md` §1.5 |
 | OD-18 | As for spend, a Site's crew-visit threshold wins over the portfolio's; a change spanning Sites is judged against the portfolio's thresholds (same answer) | §2.4 step 4, §2.5 |
-| OD-19 | A lender or financier evidence pack is out of scope for now; it is added to the design later if a client asks (same answer) | §2.8 |
+| OD-19 | A lender or financier evidence pack is out of scope for now; it is added to the design later if a client asks (same answer) | §2.8; §2.0, where the brief's A4 stays an Assure objective met by the evidence kept |
 | OD-20 | Approving the recreated pack also approves the structure of build steps 1 and 3C (same answer) | §2.9 |
-| OD-21 | The four outcome categories stay as the executive's headings over the factor-based outcomes: every structure node has one home category, and Findings, decisions, plan items and verdicts tie back through it ("a version of b basically", 19 Nov) | §2.0, Figure 1b; §2.1; §2.2; §2.8; §2.9 |
+| OD-21 | The four outcome categories stay as the executive's headings over the factor-based outcomes: every structure node has one home category, and Findings, decisions, plan items and verdicts tie back through it ("a version of b basically", 19 Nov). As the brief defines them, Assure carries no money of its own and presents the governed, evidenced view (A1 to A5), and collection of billed value is Optimize (O3) (owner approval, 19 Nov: "yes, send it to the architect") | §2.0, Figure 1b; §2.1; §2.2; §2.8; §2.9 |
 | OD-22 | Operational integrations come in this order: EMS data upload and API first, then the edge gateway talking Modbus to hardware; Modbus stays in the emulation scope so the path is proven before hardware, and a BeagleBone Black running the edge gateway against the backend gateway is the hardware test (same record) | §2.3; §2.9, Figure 10 |
 | OD-23 | The UI reads a calculated daily snapshot of the structure, the bridge and the Portfolio figures, recalculated only when a defined trigger fires, with evidence class and provenance kept on every node (same record) | §2.1; §2.8; §2.9 |
 | OD-24 | Layer 4's evidence words replace the earlier four-level claim ladder; a simulated or emulated result is still never shown as Verified or realised (same record) | Rules |
@@ -840,7 +850,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 - an item's budget in use is its incurred spend, else its released spend, else its planned spend (§2.5);
 - a plan item has five states, Chosen, Released, Left out, Done and Withdrawn, derived from its Actions and the plan's versions (§2.5, Figure 6c);
 - a crew-visit limit is set per month inside a longer period, and each crew visit counts in the month it falls (§2.5);
-- every structure node has exactly one home category; contribution sits above the two money headings; unexplained litres are Optimize; collections are Grow, not Assure; an item with no factor sits under Protect as upkeep (§2.0, OD-21);
+- every structure node has exactly one home category; contribution's money effects sit in Grow and Optimize and its bridge is presented under Assure (A1); unexplained litres are Optimize; an item with no factor sits under Protect as upkeep (§2.0, OD-21);
 - the daily snapshot is an output, rebuildable from its records and checked against a fresh evaluation, and shows its "as of" time (§2.8, OD-23);
 - the EMS API and the edge gateway on hardware are step-9 work, outside the first fortnight (§2.9, OD-22);
 - an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);

@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.9)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.10)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.9 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.10 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -94,6 +94,7 @@ Industry claims rest on the brief's ledger [R1]–[R12] (AMDA benchmarking; ESMA
   - OD-22: the integration order, EMS upload and API first, then the edge gateway over Modbus, proven first on the Modbus emulator and then on a BeagleBone Black (§2.3, §2.9);
   - OD-23: a calculated daily snapshot that the UI reads, with six recalculation triggers, rebuildable and checked (§2.8);
   - OD-24: the evidence words replace the old claim ladder (Rules).
+- **Rev 16.10 (19 Nov).** OD-21 corrected to the brief's own terms, with the owner's approval (`.agent/owner-assure-per-brief-2026-11-19.md`): Assure carries no money and presents A1 to A5; collection of billed value moves from Grow to Optimize (O3), correcting rev 16.9; A4 stays an Assure objective met by the evidence kept, beside OD-19; each heading is checked against the brief's G1 to G3, O1 to O3 and P1 to P4. Kobo's split is unchanged (+38.00 Grow, −600.00 Optimize): collection is cash, outside contribution.
 
 ## 5. Minimum pilot asks per vertical
 

@@ -1,10 +1,10 @@
 # Worked portfolios: the three demonstration operators
 
-**Companion to `layer4-transformation-design.md` (rev 16.9)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.10)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
 This file holds the full worked examples that the design document summarises: Lakeside Power (mini-grid), Harvest Cold Network (cold rooms) and Metro Bus Depots (EV depots), each read up from its factors, evaluated, planned and proved. The text was §7 and §10 of the design document up to rev 15. It moved here unchanged except for two things:
 - the system's output is described as *recommended* or *proposed*, never as *chosen*. The accountable manager chooses within each decision and creates the Actions; the system checks the chosen set; and the executive approves the plan, which releases the Actions above the spend threshold (design §2.4–§2.5; owner, 19 Nov);
-- section numbers are local to this file, and cross-references point to it or to design rev 16.9.
+- section numbers are local to this file, and cross-references point to it or to design rev 16.10.
 
 Every figure carries its marker and is checked by `check_manifest.py`. The roles are the five of design §2.6 (owner, Q-A2).
 
@@ -24,7 +24,7 @@ Moved from the design document's §2.1 in rev 16.2. The structure is shared, and
 | Operations (O2, October) | asset availability 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio--> (428 of 434 asset-days; target 100%) | cooling availability 99.997%<!--fig:operations.harvest-cold.cooling_availability.portfolio--> (4 minutes lost at Thika) | deliverable energy used (import-limited) 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio--> Σ/Σ (Embakasi 46.67%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Embakasi-->, Kasarani 85.71%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Kasarani-->, Ruiru 61.25%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Ruiru-->) |
 | Protect and bounds | clinic critical load; dawn battery charge ≥ 35%; evening redundancy | batch temperature ≤ commodity limit; backup start | every required departure; import limit |
 | Contracts and capital | inverter, battery and genset warranties; O&M response SLA; replace-or-repair as a lifecycle comparison | EPC workmanship warranty; goods-in-custody insurance | charger parts warranty and service SLA |
-| Home categories (design §2.0, OD-21) | Grow: billed kWh, tariff, productive-use demand, collections. Optimize: litres at their price, O&M, staff. Protect: clinic load, dawn charge, evening redundancy, warranty cover. Assure: coverage, evidence class, verdicts | Grow: chargeable crate-days, invoiced and received. Optimize: cooling energy, staff, maintenance. Protect: batch temperature, nights without backup cover, insured and warranted cover. Assure: the same evidence | Grow: service growth on existing assets, revenue *not applicable*. Optimize: energy by tariff interval, demand charge, penalties. Protect: departures, import limit, charger cover. Assure: the same evidence |
+| Home categories (design §2.0, OD-21) | Grow (G1 to G3): metered and billed kWh, tariff, productive-use demand, new connections. Optimize (O1 to O3): litres at their price, O&M, staff; unmapped meters, adjustments, billed against collected. Protect (P1 to P4): clinic load, dawn charge, evening redundancy, battery life, warranty cover. Assure (A1 to A5, no money): the bridge's sources and coverage, options' evidence, Actions and verdicts, contract notices and remedies | Grow: chargeable crate-days, new storage contracts. Optimize: cooling energy, staff, maintenance; invoiced against received. Protect: batch temperature, nights without backup cover, stock at risk, insured and warranted cover. Assure: the same five | Grow: useful use of chargers in place, revenue *not applicable*. Optimize: energy by tariff interval, demand charge, penalties. Protect: departures, import limit, charger life and cover. Assure: the same five |
 
 Protect is a structure of measured factors too, and Assure reads the evidence class, coverage and verification state of every factor. That is why the four categories are never added together.
 

@@ -1,6 +1,6 @@
 # Decision loop specification
 
-**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7, updated to rev 16.9 (OD-13 to OD-18, plan item states; OD-21 categories, OD-23 daily snapshot) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7, updated to rev 16.9 and its 19 Nov correction (OD-13 to OD-18, plan item states; OD-21 categories per the brief, OD-23 daily snapshot) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This document gives the records, rules, states, interfaces and acceptance tests for each construct of the design's Part 2. It replaces `economic-metric-and-effect-contracts.md` and `domain-and-decision-models.md` (regeneration F, #2). It adds detail beneath the design's constructs and never a new construct, role, decision, status or figure. Where the design leaves something undefined, this document says so in §12 and stops.
 
@@ -95,8 +95,10 @@ erDiagram
 **Categories (OD-21).** A category is a read over `home_category`, never a second model:
 - a category's figures are the nodes under it, unchanged; nothing is summed across categories;
 - a Finding's category is its pinned factor's; a decision's is its lever factor's; an option or plan item shows each factor change under that factor's category; an item with "no factor (upkeep or compliance)" reads under Protect; a verdict is Assure, and an economic verdict's realised money reads under the moved factor's category;
-- contribution is above the two money headings: its bridge effects split into Grow and Optimize, and they add to its gap;
-- today's catalogue rows stay as each card's rows, re-grounded: "Site profitability" becomes the contribution above the headings, and unexplained litres read under Optimize, with the Protect card linking the fuel-loss Finding without counting it (design §2.0, named changes).
+- contribution's bridge effects split into Grow and Optimize, and they add to its gap; the bridge itself, with its sources and coverage, is presented under Assure (A1);
+- Optimize holds collection of billed value (billed against collected, in transit, outstanding) and service-to-charge leaks (unmapped meters, adjustments) as the brief's O3; collection is cash and never enters contribution;
+- Assure reads no money of its own: it presents A1 (target against actual, sources, coverage), A2 (options' value and bounds), A3 (Actions and verdicts), A4 (the evidence kept; a packaged lender report is out of scope, OD-19) and A5 (contract notices and remedies). A verified operational change never establishes a realised saving, causation or audit certification by itself;
+- today's catalogue rows stay as each card's rows, re-grounded: "Site profitability" becomes the contribution the money headings explain; unexplained litres read under Optimize, with the Protect card linking the fuel-loss Finding without counting it; "Cash collected" moves from Grow to Optimize (O3) (design §2.0, named changes).
 
 **The daily snapshot (OD-23).** *Proposed* record `structure_snapshot`: tenant, Site or portfolio, day or period, the structure and rule versions, the input watermark, computed at, and per node its value, evidence class, provenance (record revisions), coverage, parts and partial or missing state.
 - Built once a day per Site and portfolio, and rebuilt only for the affected scope when a trigger fires: a new day of records; a record added or corrected (late reading, re-issued invoice, accepted import); a target or budget line changed; a setting changed (price, tariff, tolerance, threshold, switch, source mapping); a plan version approved or a plan change recorded; a new structure or rule version.
@@ -151,6 +153,7 @@ Its Finding key is (Site, factor ID, period, direction), so a re-run revises the
 - Does re-running the observer on unchanged records add no revision?
 - Does every registry row carry exactly one home category, and does the start-up check refuse a row without one?
 - At Kobo in October, do the Grow effects (+38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->) and the Optimize effects (−600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->) add to the contribution gap, with no figure under two headings?
+- Is Kobo's 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> outstanding read under Optimize, outside the contribution gap, and does the Assure card show no money figure of its own?
 - Does a fresh evaluation equal the stored snapshot, node by node, including evidence class and provenance?
 - Does each of the six triggers rebuild exactly the affected Sites and periods, and does an unchanged input rebuild nothing?
 - Does a screen show the snapshot's "as of" time, and say so while a rebuild is pending?
@@ -409,7 +412,7 @@ Each screen keeps its frame (the rail with no new menu items, the six Portfolio 
 
 | Screen | Read model |
 |---|---|
-| Overview cards | The four category cards (OD-21): each reads the snapshot's nodes under its home category, against target, with their evidence class, Findings, options and verdicts; realised and potential kept apart |
+| Overview cards | The four category cards (OD-21): Grow, Optimize and Protect each read the snapshot's nodes under their home category, against target, with their evidence class, Findings, options and verdicts; Assure presents A1 to A5 and shows no money of its own; realised and potential kept apart |
 | Optimize (mini-grid) | First, the last-day figure corrected (`site_outcomes/read.py:676-682`); then the period's cost factors |
 | Act first | The Finding triage stays first (`estate/placement.py:1-8`), with the plan version awaiting approval beside it |
 | Outcomes by site; site board | Drivers as factor rows; "Issues" shows Findings on their factors; "What can be done" opens the decision; "Already in hand" shows Actions and plan items (`frontend/src/sites/OutcomeBoard.tsx:42-48`) |

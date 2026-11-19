@@ -43,7 +43,7 @@ Today's product turns Site evidence into honest, bounded operational judgement t
 
 This is the base of the sale: today's product already labels how every figure is known, never adds figures of different kinds, names missing records, and claims savings only after proof (design Rules). What it cannot yet do is state money or record who decided (design §1.5, L1–L6, G1).
 
-**The four headings the executive already knows stay** (OD-21). Grow revenue, Optimize cost and efficiency, Protect asset and capital, and Assure performance and returns remain the Portfolio's headings. What changes is underneath: each heading is built from the factors under it, so a buyer reads their money by the headings they think in, and Grow and Optimize together explain the contribution gap (design Figure 1b). Productive use is Grow; headroom with no customer is shown as potential, never as Grow's actual.
+**The four headings the executive already knows stay** (OD-21). Grow revenue, Optimize cost and efficiency, Protect asset and capital, and Assure performance and returns remain the Portfolio's headings. What changes is underneath: each heading is built from the factors under it, so a buyer reads their money by the headings they think in. Grow and Optimize together explain the contribution gap, and collecting what was billed is Optimize. Assure carries no money of its own: it presents the evidence, from target against actual with its sources to the verdicts and contract remedies, which is what boards and lenders ask for (design Figure 1b). Productive use is Grow; headroom with no customer is shown as potential, never as Grow's actual.
 
 ### 1.2 What is added on top, and what each should do for the buyer
 
