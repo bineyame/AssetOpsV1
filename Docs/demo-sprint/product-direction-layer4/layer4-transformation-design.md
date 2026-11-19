@@ -1,6 +1,8 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16 (regenerated) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.1 (regenerated; review fixes) · AssetOps Architect (Claude) · 19 Nov 2026**
+
+**Rev 16.1.** Fixes the independent review of rev 16 (`regeneration/B-review.md`: H1, M1–M3, L1–L12, I2, I3). The most important fix (M1): the system evaluates and proposes; a named person chooses and creates the Actions.
 
 **Why rev 16 exists.** The owner ordered this document thoroughly checked and regenerated, and set its structure: first today's architecture, with the value it delivers and the mechanics it uses; then the proposed architecture, "changes that deliver even better value on top of the existing one". The owner's words are verbatim in `.agent/owner-design-regeneration-request-2026-11-19.md`.
 
@@ -11,7 +13,7 @@
 - replacement framing;
 - the owner's boosters not recognised as boosters.
 
-Rev 16 is written from that audit and from the code. It is not an edit of rev 15.
+Rev 16 was written from that audit and from the code. It is not an edit of rev 15.
 
 **Status:** design for owner review. No application code, test or database was changed. Branch: `task/layer4-design-regeneration`.
 
@@ -61,6 +63,18 @@ The operator's own exports go through the canonical contract early, as the pilot
 - **Diagrams** appear only where something changes (owner, 19 Nov). Today's parts appear in them only as greyed context.
 - **Companion files:** `worked-portfolios.md` holds the full three-operator worked examples and the demonstration world; `design-appendix.md` holds the reconciliation with the brief's baseline, the self-check and the research basis.
 
+**Words used in this document, in plain terms** (L11):
+- **Claim ceiling.** The most a Finding may claim, given how complete its evidence is.
+- **Factor** and **leaf factor.** A measured quantity an outcome is built from, such as litres or kWh billed. A leaf is one that a source record evidences directly.
+- **Observer.** An analysis that measures a factor, such as dispatch classification measuring candidate litres. A **structure observer** watches the computed structure itself, for example for a factor running above plan.
+- **Bound.** A service or contract limit an option must respect, such as dawn battery charge of at least 35%. A bound is *hard* (break it and the option is rejected), *costed* (the breach is priced into the option's value) or *advisory* (shown, never decisive).
+- **Disposition.** The system's verdict on an option, with its reason: Recommended, Conditional, Acceptable, Deferred or Rejected. It is a recommendation, never a choice.
+- **Switch.** An assumption a person can change, such as the budget or whether a customer extends a letter of intent, after which the proposal is recomputed.
+- **Σ/Σ.** A portfolio ratio computed as the sum of numerators over the sum of denominators, never an average of Site percentages.
+- **Parity test.** A test that the new structure gives exactly what today's outcome map gives before the old map is removed.
+- **Replay K.** A planned check that re-runs Kobo's recorded data under the new setting. Until it passes, the stop-threshold figures are design values.
+- **D-numbers and W-numbers.** Owner decisions (roadmap §6) and workflow rules (`.ai/RULES.md`). W3 means a default applies until the owner answers.
+
 **Rules every figure follows** (carried over from rev 15, unchanged):
 1. Every figure states how it is known, in words: *Recorded*, *Emulated*, *Measured*, *Calculated*, *Estimated*, *Quoted*, *Modelled*, *At stake, not money*, *Verified*, *Not available yet*.
 2. Figures of different kinds are never added together. A node built from mixed evidence takes its weakest class and names every source beneath it. A benefit total admits only field records.
@@ -90,12 +104,12 @@ Executives get four economic categories (Grow, Optimize, Protect, Assure) on eve
 |---|---|---|---|
 | **Evidence** | Append-only ledger of every reading: source, unit before and after conversion, quality, live or simulated, envelope hash | Provenance on every reading | `0005_evidence_ledger.py:161-197` |
 | **Analyses** | Dispatch classification (necessary, candidate or indeterminate running); fuel balance per tank night; mini-grid depth reads (headroom, unserved kWh, backup chain); cold excursions and backup starts; EV sessions and availability | Deterministic, versioned; withholds rather than over-claims | `analytics/dispatch_v3.py:290-316`; `fuel_balance/rules.py:216-237`; `mini_depth/rules.py:285-384`; `analytics/cold.py:355-653`; `analytics/ev.py:540-713` |
-| **Findings** | The stored, revised result of each evaluation (§1.3), with a claim ceiling, rival explanations and next-step text | Identity stable across re-evaluation; full history | `0009_finding_store.py:33-106`; `analytics/claim_limit_read.py:1-19`; `mini_decisions/alternatives.py:45-48` |
-| **Act** | Accept a recommended trial; raise a domain action or a work case linked to the Finding (§1.4) | Event-sourced, idempotent, typed refusals | `action_api.py:152-232`; `work/domain_action.py:24-136`; `work/model.py:107-151` |
+| **Findings** | The stored, revised result of each evaluation (§1.3), with next-step text; mini-grid dispatch Findings also carry a claim ceiling and rival explanations | Identity stable across re-evaluation; full history | `0009_finding_store.py:33-106`; `analytics/claim_limit_read.py:1-19`; `mini_decisions/alternatives.py:45-48` |
+| **Act** | Accept a recommended trial; raise a domain action or a work case linked to the Finding; raise the mill-shift domain action from a headroom (opportunity) study (§1.4) | Event-sourced, idempotent, typed refusals | `action_api.py:152-232`; `work/domain_action.py:24-136`; `work/model.py:107-151`; `0051_action_opportunity_origin.py:1-12` |
 | **Track** | Action events; work events; the Finding's thread moves to "action in hand", "change applied", "resolved, monitoring" or "recurred"; the Actions rail | The thread joins the Finding to what was done about it | `0042_chain_threads.py:64-71`; `chain/lifecycle.py:46-58`; `frontend/src/estate/actionIndex.tsx:38-160` |
 | **Verify** | Three mini-grid families (reserve trial, midday mill shift, fuel residual) with frozen plans, comparability and guardrails. Verdicts: Verified, Ineffective, Inconclusive. Unknown families fail closed | Proof before credit | `actions/verification_rules.py:675-815`; `actions/verification_families.py:502-516`; `actions/fuel_verification.py:146-164` |
-| **Money** | Estimated (observed kWh × typed price) and Modelled (possible extra fuel cost, from 0 up to an upper bound). A post-trial modelled cost check is credited only when Verified | Labelled, never summed across kinds | `financials/fuel_cost.py:22`; `financials/trial_fuel_comparison.py:1-44`; `outcomes/credit.py:200-237` |
-| **Targets** | Six operational objectives, judged Met, Missed, On pace or Behind pace, which drive the outcome's state | Performance against target exists, in operational form | `outcomes/objectives.py:57-143`; `outcomes/status.py:138-185` |
+| **Money** | Estimated (observed kWh × typed price) and Modelled (possible extra fuel cost, from 0 up to an upper bound). A post-trial modelled cost check is credited only when Verified | Labelled, never summed across kinds | `financials/fuel_cost.py:22`; `financials/trial_fuel_comparison.py:1-44`; `outcomes/credit.py:57-73` |
+| **Targets** | Six operational objectives, judged Met, Missed, On pace or Behind pace, which drive the outcome's state | Performance against target exists, in operational form | `outcomes/objectives.py:57-143`; `outcomes/status.py:55-104` |
 | **Present** | Site outcome board: per outcome, "What drives it", "Issues", "What can be done", "Already in hand", "Earlier interventions" and "Must not harm". Portfolio: six tabs and four category cards; Act first groups Findings by placement, "never a value ranking" | The board's columns already run outcome → driver → issue → lever → action → result | `frontend/src/sites/OutcomeBoard.tsx:42-48`, `:262-330`; `site_outcomes/read.py:926-977`; `estate/placement.py:1-8` |
 
 ### 1.3 What a Finding is
@@ -127,8 +141,9 @@ The dispatch output also marks *indeterminate* running as raising a Finding (`an
 |---|---|---|---|
 | Operator executive | Portfolio: four category cards, Act first, Outcomes by site, What changed | Where to look first | Nothing is recorded (reads only) |
 | Site or operations manager | The Finding with its evidence, claim limit, alternatives and next step; the recommendation (Kobo: battery reserve 5 points lower) | **Accepts** the trial, then **applies** it from a chosen time (a new Site configuration revision, not a device command) | Action events ACCEPTED and APPLIED, **recorded as a "SYSTEM demonstration" actor**, "no operator approval is recorded" (`actions/lifecycle.py:43-58`; `0016_action_store.py:131-132`) |
-| Site manager or technician | Site Work: domain actions (cold, EV, the mill shift, the fuel-balance work), work cases | Raises an action or case with title, owner and due date; assigns, completes, closes | Domain and work events with actor and time. A user actor is refused and a server service principal is required (`work/model.py:284-285`). No UI control creates them yet |
-| Verifier (system) | — | Freezes the plan and judges the after-window | The verdict, appended by the evaluator, never by a command (`actions/lifecycle.py:24-25`) |
+| Site manager or technician | Site Work: domain actions (cold, EV, the mill shift, the fuel-balance work), work cases | Raises a domain action (with an optional owner label and due date) or a work case (title; an assignee when assigned); assigns, completes, closes | Domain and work events with actor and time. A user actor is refused and a server service principal is required (`work/model.py:284-285`). No UI control creates them yet |
+| Site manager | The opportunity study: midday headroom over five days, with demand and collection "unverified" | Raises the mill-shift domain action from the study | The domain action with its opportunity origin (`0051_action_opportunity_origin.py:1-12`); the study is an occurrence on its own thread (`0042_chain_threads.py:43-62`), with no Finding involved |
+| System | — | A VERIFY command freezes the verification plan; the evaluator then judges the after-window | The VERIFY command never supplies a verdict (`actions/lifecycle.py:26-28`); the verdict is appended by the evaluator (`:24-25`) |
 
 **Kobo, today, end to end.**
 1. Dispatch classifies October's generator running and opens a candidate-running Finding.
@@ -136,6 +151,8 @@ The dispatch output also marks *indeterminate* running as raising a Finding (`an
 3. The thread moves to *action in hand*, then *change applied*.
 4. The reserve-trial family compares two matched hours and returns Verified, Ineffective or Inconclusive.
 5. If Verified and the modelled fuel cost per kWh fell, the result is credited on the Portfolio, listed and never summed.
+
+**Opportunities today travel a separate path, with no Finding.** A five-day headroom study measures spare midday solar. It sits on its own thread, and the site manager can raise the mill-shift domain action from it, which the midday-shift family later verifies (`mini_decisions/projection.py:29`; `0051_action_opportunity_origin.py:1-12`; `actions/verification_families.py:12-22`). The study's demand and collection stay "unverified" (`mini_decisions/opportunities.py:366-401`): it shows headroom, not a customer.
 
 **The system never acts on its own.** It writes no device command and sends no notification. "No telemetry creates an Action or a case link" (`work/domain_intent.py:17`) [code-observed].
 
@@ -159,7 +176,7 @@ Sources: `outcomes/catalogue.py:43-68`; `chain/strategies/recorded_amount.py:1-1
 | L1 | Outcomes are **flagged, not computed**: a fixed map links signals to outcomes, and drivers are named in words | No one can say how far below plan the month is, or which factor moved it | `outcomes/outcome_map.py:17-37`, `:149-180`; `site_outcomes/mini.py:1156-1177` |
 | L2 | **No value chain and no recorded money**: only gross kWh × typed price exists | Revenue, cash, cost to serve and contribution cannot be stated | `chain/strategies/recorded_amount.py:1-10`; `outcomes/catalogue.py:45-46` |
 | L3 | **Targets are operational and system-declared** ("not a customer target"); there are no money plans | No plan against actual, so no bridge | `objectives/model.py:17-22`; `site_outcomes/ev.py:109` |
-| L4 | **Few integrations beyond telemetry**: no billing, receipts, invoices, plans, rosters, meter register or contracts | L1–L3 cannot be closed without them | `chain/adapters/http_prebuild_client.py:1-10` (the only HTTP client) |
+| L4 | **Few integrations beyond telemetry**: no billing, receipts, invoices, plans, rosters, meter register or contracts | L1–L3 cannot be closed without them | Inputs today are the field gateway, reading upload, operational entries and typed prices (`gateway_api.py`, `reading_upload_api.py:113`, `work/operational_entry.py:25-30`, `financials/assumptions.py:32-58`); no client calls any external system |
 | L5 | **One fixed option, never compared with doing nothing**: reserve − 5 points, which "does not predict … any saving"; what-ifs compute gross figures only | A choice is not valued, so it cannot be weighed against another | `actions/reserve_trial.py:37`, `:42-45`; `mini_decisions/scenario_rules.py:191-228` |
 | **G1** | **No recorded person.** Every trial command is a SYSTEM demonstration; work and domain writes refuse a user actor; trials have no owner or due date | "A person acts and it is tracked" holds on screen but not in the records, so no decision, approval or accountability can be shown to a client | `actions/lifecycle.py:43-58`; `work/model.py:284-285`; `estate/coverage.py:530`; `main.py:640-661` |
 | L6 | **Verification is operational only**: mini-grid only, the change's own cost fixed at 0, positive evidence only simulated or authored | No economic or causal verdict; no proof on a customer's Site | `actions/verification.py:1167`; `actions/verification_rules.py:688` |
@@ -171,7 +188,7 @@ Sources: `outcomes/catalogue.py:43-68`; `chain/strategies/recorded_amount.py:1-1
 
 ### 2.0 What is added, and where it fits
 
-The core of Part 1 stays: evidence, analyses, Findings and threads, the act-and-track carriers, verification, the honesty rules and the screens' frame. Part 2 adds three **boosters** that the owner named, and five deliberate **changes to the core** that the boosters need or that the audit found. Each is grounded in what converts an operator executive: *their own money explained, their choices compared, and results proven, which monitoring tools cannot do.*
+The core of Part 1 stays: evidence, analyses, Findings and threads, the act-and-track carriers, verification, the honesty rules and the screens' frame. Part 2 adds three **boosters** that the owner named, and five deliberate **changes to the core** that the boosters need or that the audit found. Each is grounded in what converts an operator executive: *their own money explained, their choices compared, and results proven.* That this beats their monitoring tools is the differentiation hypothesis the pilots must confirm.
 
 | ID | Construct | What it brings | Fills limit |
 |---|---|---|---|
@@ -198,8 +215,8 @@ flowchart TB
     PL["Plans at factor level<br/>extends objectives · B2"]:::chg
   end
   subgraph DEC["Decide"]
-    OP["Decision: options valued against no action<br/>reserve trial becomes one option · CH3"]:::chg
-    PR["A named person chooses and approves<br/>CH2, new"]:::new
+    OP["Decision prepared by the system: options valued<br/>against no action, one recommended · CH3"]:::chg
+    PR["Named people choose, approve<br/>and create the Actions · CH2, new"]:::new
   end
   subgraph ACTN["Act, track, verify"]
     AC["Actions, domain actions, work cases<br/>(stay) + owner, due date, decision origin: CH2"]:::chg
@@ -231,7 +248,7 @@ flowchart TB
 - **value-chain stages**: delivered → metered → billed → collected, with losses, unmapped meters and adjustments as named leaks;
 - **physical splits**: generator litres = necessary + candidate + unexplained, as dispatch and the fuel balance already observe them.
 
-Every leaf carries a shared factor ID, a period, a unit, a plan, an evidence class and its provenance, so a factor appears once and carries money once. **Why it converts:** the executive sees their money explained by the movers of the business. A monitoring tool shows the generator ran; AssetEcon shows what that did to contribution.
+Every leaf carries a shared factor ID, a period, a unit, a plan, an evidence class and its provenance, so a factor appears once and carries money once. **Why it should convert** (a hypothesis to test with prospects, `design-appendix.md` §3): the executive sees their money explained by the movers of the business. Monitoring shows the generator ran; this is meant to show what that did to contribution.
 
 **Where it fits.**
 - It sits above the evidence ledger and beside the analyses, which become the observers of its physical leaves (they stay).
@@ -245,10 +262,10 @@ Every leaf carries a shared factor ID, a period, a unit, a plan, an evidence cla
 - *Mapping:* candidate running → candidate litres; unexplained fuel → unexplained litres; cold excursion → crate-minutes above limit; backup start failure → backup cover; EV interruption → chargers in service.
 - *Deviations the structure finds* (a condition with no physical observer) are produced by a **structure observer**, which stores them as Findings with the same identity, revisions and thread, **only when the owner's rule is met** (§1.3; owner, Q-A1).
 - **Kobo, October, under that rule:**
-  - necessary running above plan (−37.50) is a bottom-line impact, so it is raised: investigate load growth or the plan;
-  - collection is a risk to cash: 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> of the month's bills is outstanding, so it is raised, for the commercial lead;
-  - kWh billed above plan (+38.00) is favourable with nothing to act on, so it is **not a Finding**; it shows in the bridge only;
-  - daytime headroom with no customer is a capacity factor, not a Finding; the same headroom with a signed letter of intent is an opportunity Finding.
+- *Kobo:* necessary running above plan (−37.50) is a bottom-line impact, so it is raised: investigate load growth or the plan;
+- *Kobo:* collection is a risk to cash: 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> of the month's bills is outstanding, so it is raised, for the commercial lead;
+- *Kobo:* kWh billed above plan (+38.00) is favourable with nothing to act on, so it is **not a Finding**; it shows in the bridge only;
+- *Kobo:* daytime headroom with no customer is a capacity factor, not a Finding; the same headroom with a signed letter of intent is an opportunity Finding (how this relates to today's opportunity study: §2.8).
 - **Where this changes rev 15:** rev 15 would have shown "kWh billed below plan" and any deviation as a Finding. Under the owner's rule, a deviation is a Finding only when it is adverse to the bottom line, a risk or an actionable opportunity. A small adverse deviation inside the factor's declared tolerance stays in the bridge without a Finding.
 - *What a Finding may claim:* its condition, in its factor's unit and period, within its claim ceiling, citing the structure's attribution. It never claims an outcome value of its own or the value of acting.
 
@@ -270,7 +287,7 @@ flowchart BT
 | Outcome backbone | contribution = billed kWh × tariff − (fuel + O&M + staff) | contribution = chargeable crate-days × rate − (energy + staff + maintenance + customer compensation) | cost per required departure met = (energy + demand charge + maintenance + penalties) ÷ departures met; revenue NOT_APPLICABLE |
 | Value chain | usable supply → delivered → metered → billed → collected / in transit / outstanding | crate-days available → occupied → chargeable → invoiced → received | deliverable kWh per night → delivered kWh → departures readied against required |
 | Cost to serve | litres split necessary / candidate / unexplained × diesel price; O&M; staff | kWh = base + k × crate-days, ambient-corrected, + excess; electricity price | kWh by tariff interval; monthly peak kW × demand rate |
-| Operations (O2, October) | asset availability 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio--> (428 of 434 asset-days; plan 100%) | cooling availability 99.997% (4 minutes lost at Thika) | deliverable energy used (import-limited) 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio--> Σ/Σ (Embakasi 46.67%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Embakasi-->, Kasarani 85.71%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Kasarani-->, Ruiru 61.25%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Ruiru-->) |
+| Operations (O2, October) | asset availability 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio--> (428 of 434 asset-days; plan 100%) | cooling availability 99.997%<!--fig:operations.harvest-cold.cooling_availability.portfolio--> (4 minutes lost at Thika) | deliverable energy used (import-limited) 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio--> Σ/Σ (Embakasi 46.67%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Embakasi-->, Kasarani 85.71%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Kasarani-->, Ruiru 61.25%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Ruiru-->) |
 | Protect and bounds | clinic critical load; dawn battery charge ≥ 35%; evening redundancy | batch temperature ≤ commodity limit; backup start | every required departure; import limit |
 | Contracts and capital | inverter, battery and genset warranties; O&M response SLA; replace-or-repair as a lifecycle comparison | EPC workmanship warranty; goods-in-custody insurance | charger parts warranty and service SLA |
 
@@ -283,7 +300,7 @@ Protect is a structure of measured factors too: unserved critical kWh, obligatio
 - for products, by a declared rule (volume effect at plan price, then price effect at actual volume);
 - with an explicit unexplained residual only where a leaf is not observed.
 
-**Why it converts:** it answers the question every executive asks first, *why did the month come in below plan, and by how much from each cause?* No monitoring tool can answer that.
+**Why it should convert:** it is meant to answer the question the brief puts first for executives: *why did the month come in below plan, and by how much from each cause?* Monitoring dashboards show readings; this shows the money effect of each factor.
 
 **Where it fits.** Today's objectives already carry targets, are judged for pace and drive the outcome's state (§1.2). They **stay**, and each becomes the plan of the factor its measure observes. The change is named, with its merit (L3): today a SYSTEM declarer sets them, "for the demonstration; not a customer target" (`objectives/model.py:17-22`), and no money target is ever judged (`site_outcomes/ev.py:109`). Under B2:
 - the operator declares plans, recorded with the declarer (CH2);
@@ -317,7 +334,7 @@ Every Portfolio figure opens onto the Site factors that produce it. The full thr
 
 **What it brings.** B1 and B2 need records that today's product does not hold (L4). Each leaf factor needs one family of source facts. That defines the integration scope, no more and no less.
 
-**Why it converts:** the engagement path (D1) runs the operator's own exports through the canonical contract during the deep-dive. So their plan against actual appears in the product within weeks, as the pilot's baseline.
+**Why it should convert:** the engagement path (D1) runs the operator's own exports through the canonical contract during the deep-dive. So their plan against actual appears in the product within weeks, as the pilot's baseline.
 
 | Value-chain stage | Mini-grid source | Cold-room source | EV depot source | Held today? |
 |---|---|---|---|---|
@@ -337,11 +354,11 @@ Every Portfolio figure opens onto the Site factors that produce it. The full thr
 
 ```mermaid
 flowchart LR
-  EM["Emulator: placeholder source<br/>native-shape files · labelled Emulated"] --> AD
-  RS["Operator's own export<br/>bench, then field"] -- "replaces the emulator once it passes" --> AD
   subgraph AD["Adapter on the authenticated intake"]
     TR["Transport: upload or drop"] --> PA["Parser: bytes → typed rows"] --> PF["Profile: columns · units · timezone"]
   end
+  EM["Emulator: placeholder source<br/>native-shape files · labelled Emulated"] --> AD
+  RS["Operator's own export<br/>bench, then field"] -- "replaces the emulator once it passes" --> AD
   CT{{"One contract test per source type<br/>runs on both"}} -.-> AD
   AD --> CR[("Commercial record store<br/>CHARGE · RECEIPT · PLAN_LINE · EXPENSE")]
   TL[("Evidence ledger<br/>telemetry, stays")]:::keep
@@ -372,7 +389,7 @@ flowchart LR
 
 Each option is checked against **bounds** derived from the Protect measures (hard, costed or advisory) and given a disposition with its reason: Recommended, Conditional, Acceptable, Deferred or Rejected. A Finding with no declared lever keeps "investigate" as its next step.
 
-**Why it converts:** the contrast sells. The highest diesel user may have nothing worth changing, and the obvious setting change may fail a service rule.
+**Why it should convert:** the contrast is meant to persuade. The highest diesel user may have nothing worth changing, and the obvious setting change may fail a service rule.
 
 <!--Figure 5: a decision at Kobo-->
 
@@ -385,16 +402,22 @@ flowchart TB
   O1 --> V1["Worth most against no action,<br/>net of its one-off · Recommended"]
   O2 --> V2["Rejected: dawn charge below 35%<br/>on 4 of 61 replayed days (hard bound)"]
   O0 --> V0["The reference every option is valued against"]
-  V1 & V2 & V0 --> P["The site manager chooses; the choice is recorded (CH2)"]
+  V1 & V2 & V0 --> P["The site manager chooses an option, or none,<br/>and creates the Actions · recorded under their name (CH2)"]
 ```
 
 *Figure 5. A decision at Kobo. Lowering the stop threshold cuts candidate running by 210<!--fig:options.KOB-STOPSOC.params.avoided_candidate_l--> L a month and adds 150<!--fig:options.KOB-STOPSOC.params.added_throughput_kwh--> kWh of battery throughput. That is worth +250.50<!--fig:options.KOB-STOPSOC.monthly_or_horizon_change--> a month against no action, and 2,916.00<!--fig:options.KOB-STOPSOC.value--> over twelve months after its 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> one-off. It is a design value until replay K has run. The reserve change fails the dawn bound on 4<!--fig:options.KOB-RESERVE.params.dawn_days_below_35pct--> of 61 replayed days.*
 
-**Across the portfolio: a plan proposed for approval.** Options from every Site compete for the same budget, crew visits, deadlines and dependencies.
-- The system searches every combination of one option per decision. It keeps those that fit, and proposes the one that breaks service rules least, then is worth most, then spends least, with the reasons for every option it leaves out.
-- **The operator executive approves the plan** (CH2). Switches such as the budget or a customer's letter of intent re-compute the proposal for the person to weigh. They do not replace the approval.
-- Lakeside's proposed plan for November and December: spend 3,750.00<!--fig:plans.lakeside-power.default.spend--> within a 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> budget, 3<!--fig:plans.lakeside-power.default.crew_visits_used--> of 3 crew visits, worth +6,088.50<!--fig:plans.lakeside-power.default.value--> over twelve months (modelled, not realised). It covers a generator repair, battery evidence, the stop-threshold change, an inverter warranty claim and a rice-huller connection. Contract rights decide who bears each repair cost (`worked-portfolios.md` §1.1, §1.4).
-- Triage (where to look first: today's placement groups), comparison (options within one decision) and allocation (a set across Sites) stay three separate orderings.
+**Who chooses, and who creates the Action** (M1; owner, 19 Nov: a Finding "needs to be acted on and the user likely reate one more action against it"; the owner's first question was about "users to act on the bases of context given to them, then tracked"). The system evaluates and proposes. People choose and act:
+1. **The system evaluates and proposes.** It raises the Finding under the owner's rule, prepares the decision, values each option against no action, applies the bounds, and marks one option *Recommended*. It picks nothing.
+2. **The site or operations manager chooses** an option within the decision. That may be the recommended one, another admissible one, or none.
+3. **The manager then creates one or more Actions against the Finding.** Examples are the setting change, a supervised trial, or a work case to inspect the generator. The manager may also create Actions straight from a Finding that has no decision (for example "investigate"). Each Action records its creator, owner and due date (§2.5).
+4. **Actions that spend budget or crew visits enter the period's plan.** Actions that spend neither (a remote setting change, an investigation) go ahead without it.
+
+**Across the portfolio: the plan.** Choices made Site by Site can each be right while together they break the budget, use more crew visits than exist, or miss a dated dependency.
+- *The system checks the managers' chosen set* against the budget, the crew visits and the dated dependencies. Where the set does not fit, it shows the nearest combinations that do, ranked by fewest service-rule breaches, then highest value, then lowest spend, with the reason for every option left out. This is a proposal. It changes no one's choice.
+- *The operator executive approves the plan*, or sends it back to the managers with a trade-off to make. Approval releases the spend and crew visits of the Actions in it. Switches such as the budget or a customer's letter of intent recompute the proposal for the people to weigh; they never replace a choice or the approval.
+- *Lakeside's proposal for November and December:* spend 3,750.00<!--fig:plans.lakeside-power.default.spend--> within a 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> budget, using 3<!--fig:plans.lakeside-power.default.crew_visits_used--> of 3 crew visits, worth +6,088.50<!--fig:plans.lakeside-power.default.value--> over twelve months (modelled, not realised). It covers five items: a generator repair, battery evidence, the stop-threshold change, an inverter warranty claim and a rice-huller connection. Contract rights decide who bears each repair cost (`worked-portfolios.md` §1.1, §1.4).
+- *Three orderings stay separate:* triage (where to look first: today's placement groups), comparison (options within one decision) and allocation (a set across Sites).
 
 **Is the plan different from an Action? Who owns it, and why is it needed?** (The owner's question on Q-A3.)
 
@@ -402,22 +425,23 @@ flowchart TB
 
 | | The plan | An Action |
 |---|---|---|
-| What it is | The set of options chosen across all of the operator's Sites for a period, with the spend, crew visits and dependencies they commit, the options left out and the reason for each | The execution of one chosen option at one Site: a setting change, field work or a supplier claim |
+| What it is | The set of options the managers chose across all of the operator's Sites for a period, with the spend, crew visits and dependencies they commit, and any trade-off the executive made | The execution of one chosen option at one Site: a setting change, field work or a supplier claim |
 | Grain | Portfolio and period (Lakeside, November–December) | Site and task (Kobo, the stop-threshold change) |
 | Owned by | The **operator executive**, who holds the budget | The **site or operations manager**, who answers for doing it |
-| Its life | Proposed → approved → revised when a switch or a fact changes | Created from the approved plan → applied → tracked → verified, as today |
+| Who creates it | The system assembles the managers' choices and proposes a fitting set; the executive approves it | **The site or operations manager creates it** against the Finding: one or more per Finding |
+| Its life | Assembled → proposed → approved (or sent back) → revised when a switch or a fact changes | Created by the manager → released by the plan if it spends budget or crew → applied → tracked → verified, as today |
 | What it claims | A modelled value for the set, its spend and its downside | What was chosen, by whom, its frozen prediction and its state; never the result |
 | Where it is recorded | A versioned plan record: options in and out, switches, approver, time | Today's carriers, plus owner, due date and the decision it came from (CH2) |
 
-*Why the plan is owned by the executive.* It commits resources that no single Site owns: the operator's budget and its crews. It also trades one Site against another. At Lakeside, buying the Mto inverter now would keep the huller connection only if the Kisiwa repair were dropped, which would leave 125 evening hours with no backup instead of 15 (`worked-portfolios.md` §1.1). A site manager can choose well inside a decision but cannot make that trade across Sites. Only the budget holder can.
+*Why the plan is owned by the executive.* It commits resources that no single Site owns: the operator's budget and its crews. It also trades one Site against another. At Lakeside, if the cooperative does not extend its letter of intent, buying the Mto inverter now would keep the huller connection only if the Kisiwa repair were dropped, which would leave 125 evening hours with no backup instead of 15 (`worked-portfolios.md` §1.1). A site manager can choose well inside a decision but cannot make that trade across Sites. Only the budget holder can.
 
 *Why it is necessary, on merit.* The objective asks which Sites and investments earn most from existing capital, and where limited crews should work (brief L1.3; §2.4). The plan answers that question, and nothing in today's product can:
-- no budget, crew or cross-Site constraint exists today (grep `budget|crew` finds nothing);
+- no budget, crew or cross-Site constraint exists in today's backend or schema (the only "budget" hits are layout code in the frontend);
 - every Action is created and judged inside one Site (§1.3, §1.4).
 
 If each decision were approved on its own, each choice could be right while the set breaks the budget, runs out of crew visits, or misses a dated dependency. The huller needs the inverter restored first.
 
-*Where it does not earn a separate step.* When only one decision is open, or the choices fit the budget and crews with room to spare, the plan is just the chosen options. It needs no separate approval, unless the spend threshold option (§2.5) applies. So the plan is a **thin record**, not a second workflow: execution always runs through Actions. My recommendation is to keep it as that thin record and not fold it into Actions, because the cross-Site trade-off and its approval have no other home.
+*Where it does not earn a separate step.* When only one decision is open, or the choices fit the budget and crews with room to spare, the plan is just the managers' choices. It needs no separate approval, unless the spend threshold option (§2.5) applies. So the plan is a **thin record**, not a second workflow: execution always runs through Actions. My recommendation is to keep it as that thin record and not fold it into Actions, because the cross-Site trade-off and its approval have no other home. **Awaiting the owner (Q-A3).**
 
 ### 2.5 CH2: the person in the loop, recorded
 
@@ -431,22 +455,22 @@ A client cannot be shown who decided, who approved or who is accountable, and th
 **What stays:** the carriers, their events and commands, idempotency, the thread link and the Actions rail.
 
 **What changes:**
-- an authenticated user principal is recorded on every command;
-- each carrier records its owner and due date, and a chosen option carries its decision origin (one migration, in the pattern of `0051_action_opportunity_origin.py`);
-- the UI gains the controls that today exist only as API routes: raise a case or domain action from a Finding, and assign it;
+- an authenticated user principal is recorded on every command. The schema already has the pattern: a financial assumption requires an author when the actor is HUMAN, though the API refuses one today with `HUMAN_PRINCIPAL_REQUIRED` (`0010_financial_assumptions.py:57-78`; `financial_api.py:209`);
+- each carrier records its creator, owner and due date, and an Action records the decision and option it came from (one migration, in the pattern of `0051_action_opportunity_origin.py`);
+- the UI gains the controls that today exist only as API routes: the manager creates one or more Actions (a case or a domain action) against a Finding, and assigns them;
 - overdue is computed for Actions as it already is for maintenance plans (`outcomes/plan_due.py:1-33`).
 
 **Roles** (owner, Q-A2: "a few sensible roles"). Roles govern who may decide and what is recorded. They are not views: every role reads the same screens, with no role toggle or filter (owner, 17 Nov). The five roles cover the whole business, from the generation or service delivered through billing, collection, cost to serve, O&M and contracts, to capital.
 
 | Role | Sees | Decides | Does | Recorded |
 |---|---|---|---|---|
-| **Operator executive** (CEO or managing director) | The Portfolio: outcomes against plan, the bridge, the proposed plan and its downside, verdicts | Approves the plan; sets the budget and assumptions (switches); approves capital choices (replace or repair, new capacity) | Approves or sends back | Plan approval with its version, switches and time |
+| **Operator executive** (CEO or managing director) | The Portfolio: outcomes against plan, the bridge, the proposed plan and its downside, verdicts | Approves the plan, which releases the budget and crew visits of the Actions in it; sets the budget and assumptions (switches); approves capital choices (replace or repair, new capacity) | Approves or sends back with a trade-off | Plan approval with its version, switches and time |
 | **Finance and commercial lead** | Billing, collection, cost to serve, contracts and rights, money Findings (Kobo's outstanding bills) | Declares money plans; accepts imported commercial records; decides to file a claim or notice; acts on collection | Approves plan lines and records; files rights events | Declarer of each plan line; approver of each record and extracted contract row; each rights event |
-| **Operations or site manager** | Site boards, Findings, decisions and their options, Actions | Chooses the option within each decision; assigns Actions | Accepts or applies setting changes; raises work from a Finding | Chooser; owner and due date of each Action; each command |
+| **Operations or site manager** | Site boards, Findings, decisions and their options, Actions | Chooses the option within each decision (or none) | Creates one or more Actions against each Finding; accepts or applies setting changes; assigns work | Chooser; creator, owner and due date of each Action; each command |
 | **Field technician or O&M contractor** | Their assigned Actions and work | — | Does the work; records readings, dips and completion | Work events and operational records under their name |
 | **Analyst** (the operator's, or AssetEcon's during onboarding) | Evidence, coverage, source health, mappings | Mappings from source to factor; data-quality holds | Onboards sources; reviews AI-extracted contract rows | Each mapping and review |
 
-The system prepares decisions, values options, refuses those that break a bound, and records events and verdicts. **It never decides.**
+The system raises Findings, prepares decisions, values options, recommends one, rejects options that break a hard bound, checks that the chosen set fits, and records events and verdicts. **It never chooses, approves or creates an Action.**
 
 *Option, not decided by the owner:* a spend threshold above which a single choice also needs the executive's approval.
 <!--Figure 6: who decides, acts and is recorded-->
@@ -461,14 +485,15 @@ flowchart LR
   SYS(["System"]):::sys
   EX --> U1(("Approve the plan")):::new
   EX --> U2(("Set switches: budget, assumptions")):::new
-  SM --> U3(("Choose an option")):::new
+  SM --> U3(("Choose an option, or none")):::new
+  SM --> U12(("Create one or more Actions against a Finding")):::new
   SM --> U4(("Own the Action: owner, due date")):::new
   SM --> U5(("Accept or apply a change")):::keep
   FT --> U6(("Do the work, record it")):::keep
   FC --> U7(("Declare money plans, accept records")):::new
   FC --> U8(("File claims and notices")):::new
   AO --> U11(("Map sources, review contract rows")):::new
-  SYS --> U9(("Prepare decisions, value, refuse")):::new
+  SYS --> U9(("Raise Findings, prepare decisions, recommend, check fit")):::new
   SYS --> U10(("Record events, judge verdicts")):::keep
   classDef actor fill:#eef3ff,stroke:#1d4ed8
   classDef sys fill:#f4f5f7,stroke:#5d6878
@@ -494,8 +519,9 @@ sequenceDiagram
   UI->>API: POST recommendation/accept
   API->>S: action + ACCEPTED, actor = SYSTEM demonstration
   M->>UI: Apply from a chosen time
-  API->>S: Foundation revision + APPLIED (SYSTEM); thread: change applied
-  API->>S: VERIFY → verdict, cost check, credit if Verified
+  API->>S: Foundation revision + APPLIED (SYSTEM), thread moves to change applied
+  UI->>API: VERIFY (SYSTEM command, freezes the verification plan)
+  S->>S: evaluator judges the after-window: verdict, cost check, credit if Verified
 ```
 
 <!--Figure 7b: with the boosters-->
@@ -508,19 +534,21 @@ sequenceDiagram
   participant UI
   participant API
   participant S as Stores
-  S->>S: Finding revised; pinned to candidate litres; the bridge shows its effect
-  S->>S: decision prepared: stop threshold · reserve (rejected) · no action
-  M->>UI: compares options, values and the rejected one's reason
-  M->>API: choose "stop threshold" (actor = the manager)
-  E->>API: approve the plan (actor = the executive)
-  API->>S: Action with owner, due date, frozen prediction, decision origin
-  T->>API: record the change (actor = the technician)
-  API->>S: thread: change applied; overdue shown if late
-  API->>S: after-window: operational, economic and causal verdicts
+  S->>S: Finding raised (owner's rule), pinned to candidate litres, effect shown in the bridge
+  S->>S: decision prepared: stop threshold (Recommended), reserve (Rejected), no action
+  M->>UI: compares the options, their values and the rejected one's reason
+  M->>API: chooses the stop threshold (actor = the manager)
+  M->>API: creates two Actions against the Finding: the setting change and a supervised trial, with owner and due date
+  API->>S: Actions stored with creator, owner, due date, frozen prediction and decision origin
+  S->>S: plan check: the chosen set fits budget, crew visits and dependencies
+  E->>API: approves the plan (actor = the executive), releasing spend and crew visits
+  T->>API: records the change and the supervision (actor = the technician)
+  API->>S: thread moves to change applied, overdue shown if late
+  S->>S: evaluator: operational, economic and causal verdicts
   S->>S: next month's bridge observes the same factors
 ```
 
-*Figure 7. Before: the manager's acts are recorded under a SYSTEM actor, and there is one option. After: the decision, the choice, the approval and the work each carry their person, and the result returns as observed factors.*
+*Figure 7. Before: the manager's acts are recorded under a SYSTEM actor, and there is one option. After: the system proposes, the manager chooses and creates the Actions, the executive approves the plan that releases their spend, and the technician records the work. Each act carries its person, and the result returns as observed factors. The stop-threshold change needs no crew visit, so its Actions would also proceed without the plan. It is shown inside the plan here only to show the approval step.*
 
 ### 2.6 CH4: proof that the money followed
 
@@ -538,7 +566,7 @@ So no one can prove on a customer's Site that money followed.
 - **Economic:** did the money factors move, on recorded records in the after-window?
 - **Causal:** how sure are we the change caused it, using comparable days and untreated Sites as controls?
 
-Field evidence is admitted with its label. The option's cost replaces 0. Insufficient evidence is a verdict ("not proven yet"), not a pass. **Why it converts:** a proven change on the client's own Site is the pilot's purpose and the SaaS case.
+Field evidence is admitted with its label. The option's cost replaces 0. Insufficient evidence is a verdict ("not proven yet"), not a pass. **Why it should convert:** a proven change on the client's own Site is the pilot's purpose and the SaaS case.
 
 <!--Figure 8: proof-->
 
@@ -574,15 +602,16 @@ The default is that a construct stays. A change is listed only with its shortfal
 |---|---|---|---|
 | Evidence ledger, gateway, reading upload | Stays | — | — |
 | Analyses (dispatch, fuel balance, depth, cold, EV) | Stays | — | They also observe leaf factors |
-| Findings, revisions, threads, claim ceilings, alternatives | Stays, plus CH1 | No factor link: `outcome_map.py:17-23` | Pinned to a factor; a structure observer stores deviation Findings |
+| Findings, revisions, threads, claim ceilings, alternatives | Stays, plus CH1 | No factor link: `outcome_map.py:17-23` | Pinned to a factor; a structure observer stores a Finding only under the owner's rule (§1.3) |
 | Outcome map | Changes (B1) | Flat rows with no quantity between signal and outcome: `outcome_map.py:149-180` | Becomes structure rows, behind a parity test |
 | Objectives | Stays, extended (B2) | System-declared; no money target judged: `objectives/model.py:17-22` | Plan of a factor, declared by the operator |
 | Reserve-trial recommendation | Changes (CH3) | Sole option, no saving predicted: `reserve_trial.py:42-45` | One option generator |
 | What-ifs | Changes (CH3) | Gross only, no cost, no comparison: `scenario_rules.py:191-228` | An option's calculation record |
 | Possible extra fuel cost | Stays | — | Labelled at stake, never an option's value |
-| Actions, domain actions, work cases, rail | Stays, plus CH2 | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | User principal, owner, due date, decision origin |
+| Actions, domain actions, work cases, rail | Stays, plus CH2 | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | User principal; created by the manager, one or more per Finding; owner, due date, decision origin |
 | Verification | Stays, plus CH4 | Cost 0; simulated evidence only: `verification.py:1167`; `verification_rules.py:688` | Economic and causal verdicts; field evidence |
 | Placement and the never-sum rules | Stays | — | Placement stays for triage |
+| Opportunity study (headroom) → its thread → the mill-shift Action | Stays, extended | It shows headroom with demand and collection "unverified" (`mini_decisions/opportunities.py:366-401`), so it cannot tell capacity from a customer | Stays as the evidence of capacity, on its thread, and as an Action origin (`0051`). When customer evidence exists (a signed letter of intent), the structure observer raises an **opportunity Finding** on the demand factor, with the study as its evidence. New Actions on that demand originate from the Finding. Existing opportunity-origin Actions stay valid. This gives one carrier per thing: capacity on the study, demand on the Finding |
 | Portfolio cards; Optimize figure | Changes (CH5) | Counts and estimates; last day over a period: `read.py:676-682` | Read from factors |
 | Site outcome board | Stays, extended | Drivers in words: `site_outcomes/mini.py:1156-1177` | Drivers generated from the structure |
 
@@ -621,7 +650,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending.
 |---|---|---|
 | Q-A1 | What is a Finding, and is a deviation found from the structure one? | A Finding has a bottom-line impact, or is a risk or an opportunity, and is to be acted on. Applied in §1.3 and §2.1: structure-found deviations are stored Findings only when that holds. Kobo's favourable kWh-billed deviation is not one |
 | Q-A2 | Roles | "A few sensible roles": the five roles of §2.5 |
-| Q-A3 | Is the plan different from an Action? Who owns it, and why is it needed? | Explained in §2.4: a thin, executive-owned record of choices across Sites; Actions carry the execution. **Awaiting the owner's confirmation**, with Act first's triage kept first |
+| Q-A3 | Is the plan different from an Action? Who owns it, and why is it needed? | Explained in §2.4: managers choose and create the Actions; the plan is a thin, executive-owned record of those choices across Sites, which releases the Actions that spend budget or crew. **Awaiting the owner's confirmation** (default applied), with Act first's triage kept first |
 
 **Open for the owner:** the spend threshold (§2.5), an option, not decided.
 
