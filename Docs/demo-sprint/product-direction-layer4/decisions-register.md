@@ -1,6 +1,6 @@
 # Decisions register
 
-**AssetEcon Layer 4 · recreated from the design rev 16.7, updated to `rev 16.10` (OD-13 to OD-24, OD-21 amended per the brief, and the commercial answers of 19 Nov) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · recreated from the design rev 16.7, updated to `rev 16.11` (OD-13 to OD-24, OD-21 amended per the brief, the placement rules of `rev 16.11`, and the commercial answers of 19 Nov) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This register holds every owner decision behind the Layer 4 design, every Architect's call the owner has not yet settled, and the open queue with a default for each item. It replaces `design-questions-and-decisions.md` and the roadmap's §6 (regeneration F, #1). The design cites decisions by ID; this is the one place their words are kept.
 
@@ -91,7 +91,7 @@ The design carries D1, D11, D13 and D14 over and treats the rest as commercial o
 
 ## 4. Architect's calls the owner has not settled
 
-<!--derives: Decisions; §1.3; §2.4; §2.5; §2.9; Words; WP §1.5-->
+<!--derives: Decisions; §1.3; §2.0; §2.4; §2.5; §2.8; §2.9; Words; WP §1.0; WP §1.5-->
 
 Each stands until the owner overrules it. The reason is given in the design section named. OD-12 settled the crew-visit threshold's default, and OD-18 settled the threshold precedence (call 8's first sentence), so neither is a call any more.
 
@@ -114,12 +114,15 @@ Each stands until the owner overrules it. The reason is given in the design sect
 14. Every structure node has exactly one home category, following the brief's objectives for each heading (L1.1). Contribution's money effects sit in Grow and Optimize, and its bridge is presented under Assure (A1); unexplained litres are Optimize (O1); collection of billed value, in transit and outstanding is Optimize (O3), corrected in `rev 16.10` from rev 16.9's Grow, per the brief and the owner's approval (h); an item with no factor sits under Protect as upkeep (design §2.0, OD-21). Reason: each figure is counted once, Grow and Optimize effects add to the contribution gap, and Assure carries no money of its own.
 15. The daily snapshot is an output of the evaluation, rebuildable from its records and checked against a fresh evaluation, showing its "as of" time (design §2.8, OD-23). Reason: it keeps today's rule that no stored figure is a source, while removing recompute-on-read.
 16. The EMS API and the edge gateway on hardware are step-9 work, outside the first fortnight (design §2.9, OD-22). Reason: the deep-dive needs files, which work today, and no operator hardware exists yet.
+17. A node's home category is named on its registry row, never inherited from its parent; a measure takes the heading of its objective; money never sits under Protect or Assure, except a value at stake. So customer compensation and penalties are Optimize cost lines, and Protect shows the failure behind them in its own unit (design §2.0, `rev 16.11`; `worked-portfolios.md` §1.0). Reason: a part can belong under a different heading from its whole (unmapped meters under billed kWh), and a dollar under Protect would be counted twice or read as a saving.
+18. A decision sits under the home of its lever factor, found in this order: its options restore a Protect measure or keep a right (Protect); else the money factor they change; else the factor a comparator compares. The factor the decision was opened from never sets its heading, and each option's effects still sit under their own factors' homes (design §2.0, `rev 16.11`). Reason: the executive should find a decision where its purpose lies; the Kisiwa genset is about evening backup, not about litres.
+19. Each portfolio's daily snapshot records its as-of time and whether a recalculation is pending, with the trigger, Sites and periods; in the demonstration, Harvest Cold is pending after Thika's October service invoice arrived (design §2.8; manifest `snapshot`). Reason: a screen must never show an older figure as current.
 
 **Process answers of 19 Nov** ((g), not design): Docker restarts are allowed on this server as needed (answer 8, "if it helps on this server, on a need bases"); the 10 Nov walkthrough asks are superseded by the new direction (answer 11, "it was done with findings, but it is not very relevant now, the new direction is"); a close prioritisation contest no longer returns to the owner, as progress overrides it (answer 9, "progress overrides this").
 
 **Demonstration choices of rev 16.8** (Architect, illustrative): each item records who chose it, and so owns it (OD-16); the Mto huller connection is a capital item with no Action on 6 Nov (OD-17); Lakeside's proactive item is the Kisiwa generator service on 8 Dec, with no spend from the budget (oil and filters already held) and one December crew visit (`worked-portfolios.md` §1.1).
 
-**Where the owner's view would help most:** calls 1, 6, 10 and 11, because they decide how often the executive is asked to approve; and call 14, which the brief now settles: collection is Optimize (O3), and Assure carries no money.
+**Where the owner's view would help most:** calls 1, 6, 10 and 11, because they decide how often the executive is asked to approve; call 14, which the brief now settles: collection is Optimize (O3), and Assure carries no money; and call 18, because it decides where the executive finds each decision.
 
 ## 5. Open queue
 

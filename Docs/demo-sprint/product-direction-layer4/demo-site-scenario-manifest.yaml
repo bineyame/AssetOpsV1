@@ -349,8 +349,13 @@ tenants:
         - {id: tracked_assets_with_complete_contract_evidence, objective: A5, class: RECORDED, items: {complete: ["INV-MT-02"], incomplete: ["BAT-001 (no temperature record, no commissioning capacity test)"], expired_or_excluded: ["GEN-KS-01"]}, share: "1 of 3"}
         - {id: rights_with_open_deadline, objective: P4, class: RECORDED, count: 1, nearest: "{rec:tenants[lakeside-power].sites[Mto].entitlement.notice_deadline} (INV-MT-02 notice)"}
         - {id: remedy_completion_days, objective: A5, class: RECORDED, items: [], note: "no remedy delivered yet"}
-        - {id: operator_funded_residual_expense, unit: USD, objective: P4, class: ECONOMIC_ACTUAL, october: 0.00, note: "repairs fall in November; shared factor with cost to serve"}
-        - {id: recognised_credits, unit: USD, objective: A5, class: ECONOMIC_ACTUAL, october: 0.00, note: "Kisiwa O&M credit {rec:tenants[lakeside-power].sites[Kisiwa].entitlements[1].potential_credit} is potential (review required), not recognised"}
+        - {id: operator_funded_residual_expense, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, october: 0.00, note: "repairs fall in November; shared factor with cost to serve"}
+        - {id: recognised_credits, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, october: 0.00, note: "Kisiwa O&M credit {rec:tenants[lakeside-power].sites[Kisiwa].entitlements[1].potential_credit} is potential (review required), not recognised"}
+    service_cost_lines:   # design rev 16.11 §2.0 (Architect's call): money a service failure has cost (customer compensation, penalties)
+                          # is a cost-to-serve factor whose home is Optimize (O1), never a Protect measure. Protect shows the failure in its
+                          # own unit (protect_measure) and never its money. Moved from protect.measures; stated values still checked against the nodes.
+      - {id: customer_liability, node: liability, unit: USD, objective: O1, target: 0.00, class: ECONOMIC_ACTUAL, sites: {Kobo: 0.00, Kisiwa: 0.00, Mto: 0.00}, portfolio: 0.00,
+         shared_factor: "cost-to-serve liability factor (same factor ID; never added twice)", protect_measure: null}
     protect:   # main design §2.1 / §3.1a: Protect is a declared structure of measured factors; targets 0; Σ over sites; classes never mixed
       period: "2026-10"
       measures:
@@ -365,8 +370,6 @@ tenants:
            detail: {Kisiwa: "30-31 Oct, 18:00-23:00 evening supply on GEN-KS-02 alone", Mto: "28-31 Oct, 10:00-15:00 daytime supply at half inverter capacity"}}
         - {id: asset_days_out_of_service, node: asset_days_out_of_service, unit: asset-days, objective: P2, target: 0, class: RECORDED, basis: "fault logs: failure to period end",
            sites: {Kobo: 0, Kisiwa: 2, Mto: 4}, portfolio: 6}
-        - {id: customer_liability, node: liability, unit: USD, objective: P3, target: 0.00, class: ECONOMIC_ACTUAL, sites: {Kobo: 0.00, Kisiwa: 0.00, Mto: 0.00}, portfolio: 0.00,
-           shared_factor: "cost-to-serve liability factor (same factor ID; never added twice)"}
         - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE, target: "no right lost to a missed deadline or missing evidence",
            items: [{site: Kobo, right: "BAT-001 battery warranty", value: 64000.00, state: "insufficient evidence"},
                    {site: Mto, right: "INV-MT-02 inverter warranty (replacement unit)", value: 2600.00, state: "evidence assembled; notice due {rec:tenants[lakeside-power].sites[Mto].entitlement.notice_deadline}"},
@@ -542,8 +545,13 @@ tenants:
         - {id: tracked_assets_with_complete_contract_evidence, objective: A5, class: RECORDED, items: {complete: ["GEN-CR-01 start controller"]}, share: "1 of 1"}
         - {id: rights_with_open_deadline, objective: P4, class: RECORDED, count: 0, nearest: "none (claim accepted 17 Oct)"}
         - {id: remedy_completion_days, objective: A5, class: RECORDED, items: [{right: "GEN-CR-01 EPC remedy", from: "17 Oct acceptance", to: "{rec:tenants[harvest-cold].sites[Room B · Thika].entitlement.remedy_scheduled} scheduled", days: 22, state: "in progress, inside the 30-day term"}]}
-        - {id: operator_funded_residual_expense, unit: USD, objective: P4, class: ECONOMIC_ACTUAL, october: 0.00, note: "stopgap {fig:options.THIKA-EPC-STOPGAP.net_one_off} falls in November"}
-        - {id: recognised_credits, unit: USD, objective: A5, class: ECONOMIC_ACTUAL, october: 0.00}
+        - {id: operator_funded_residual_expense, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, october: 0.00, note: "stopgap {fig:options.THIKA-EPC-STOPGAP.net_one_off} falls in November"}
+        - {id: recognised_credits, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, october: 0.00}
+    service_cost_lines:   # design rev 16.11 §2.0 (Architect's call): money a service failure has cost (customer compensation, penalties)
+                          # is a cost-to-serve factor whose home is Optimize (O1), never a Protect measure. Protect shows the failure in its
+                          # own unit (protect_measure) and never its money. Moved from protect.measures; stated values still checked against the nodes.
+      - {id: qa_confirmed_damage_liability, node: liability, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, target: 0.00, sites: {"Room A · Mwea": 0.00, "Room B · Thika": 108.00, "Room C · Kirinyaga": 0.00}, portfolio: 108.00,
+         shared_factor: "customer compensation factor of cost to serve (same factor ID; never added twice)", protect_measure: batches_exposed}
     protect:
       period: "2026-10"
       measures:
@@ -556,8 +564,6 @@ tenants:
         - {id: nights_without_backup_cover, node: nights_without_backup_cover, unit: nights, objective: P1, target: 0, class: DERIVED, basis: "nights with stock present, backup start unproven and no manual-start cover (rota)",
            sites: {"Room A · Mwea": 0, "Room B · Thika": 26, "Room C · Kirinyaga": 0}, portfolio: 26, detail: {"Room B · Thika": "nights 6/7 to 31 Oct/1 Nov: no rota in October"}}
         - {id: stock_value_exposed, unit: USD, objective: P3, class: EXPOSURE, target: 0.00, sites: {"Room B · Thika": 2160.00}, portfolio: LISTED, note: "customer-owned stock; at stake, not money; exposure values are listed by site, never summed"}
-        - {id: qa_confirmed_damage_liability, node: liability, unit: USD, objective: P3, class: ECONOMIC_ACTUAL, target: 0.00, sites: {"Room A · Mwea": 0.00, "Room B · Thika": 108.00, "Room C · Kirinyaga": 0.00}, portfolio: 108.00,
-           shared_factor: "customer compensation factor of cost to serve (same factor ID; never added twice)"}
         - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE, items: [{site: "Room B · Thika", right: "EPC workmanship warranty on the start controller", value: 710.00, state: "accepted 17 Oct; replacement {rec:tenants[harvest-cold].sites[Room B · Thika].entitlement.remedy_scheduled}"}]}
     plan_contribution: 1716.00
     actual_contribution: 946.00
@@ -730,8 +736,13 @@ tenants:
         - {id: tracked_assets_with_complete_contract_evidence, objective: A5, class: RECORDED, items: {complete: ["CH-K2", "CH-R7"]}, share: "2 of 2"}
         - {id: rights_with_open_deadline, objective: P4, class: RECORDED, count: 1, nearest: "{fig:options.KAS-OEM-WAIT.restore_date} (CH-K2 SLA restore)"}
         - {id: remedy_completion_days, objective: A5, class: RECORDED, items: [{right: "CH-K2 SLA", from: "2 Nov notice", state: "open; restore due {fig:options.KAS-OEM-WAIT.restore_date}"}]}
-        - {id: operator_funded_residual_expense, unit: USD, objective: P4, class: ECONOMIC_ACTUAL, october: 0.00, note: "stopgap {fig:options.KAS-OEM-STOPGAP.net_one_off} falls in November"}
-        - {id: recognised_credits, unit: USD, objective: A5, class: ECONOMIC_ACTUAL, october: 0.00}
+        - {id: operator_funded_residual_expense, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, october: 0.00, note: "stopgap {fig:options.KAS-OEM-STOPGAP.net_one_off} falls in November"}
+        - {id: recognised_credits, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, october: 0.00}
+    service_cost_lines:   # design rev 16.11 §2.0 (Architect's call): money a service failure has cost (customer compensation, penalties)
+                          # is a cost-to-serve factor whose home is Optimize (O1), never a Protect measure. Protect shows the failure in its
+                          # own unit (protect_measure) and never its money. Moved from protect.measures; stated values still checked against the nodes.
+      - {id: service_penalties, node: penalties, unit: USD, objective: O1, class: ECONOMIC_ACTUAL, target: 0.00, sites: {Embakasi: 0.00, Kasarani: 0.00, Ruiru: 0.00}, portfolio: 0.00,
+         november_to_date: {Kasarani: 240.00}, shared_factor: "penalties factor of cost to serve (same factor ID; never added twice)", protect_measure: departures_missed}
     protect:
       period: "2026-10 (and November to 6 Nov, shown separately)"
       measures:
@@ -741,8 +752,6 @@ tenants:
            sites: {Embakasi: 0, Kasarani: 0, Ruiru: 0}, portfolio: 0, november_to_date: {Kasarani: 5, portfolio: 5, detail: "nights 1/2 to 5/6 Nov; spare bus lent on {fig:sites[metro-bus/Kasarani].november_to_date.nodes.spare_bus_nights}, departure missed on {fig:sites[metro-bus/Kasarani].november_to_date.nodes.departures_missed}"}}
         - {id: charger_days_out_of_service, node: charger_days_out_of_service, unit: charger-days, objective: P2, target: 0, class: RECORDED,
            sites: {Embakasi: 0, Kasarani: 0, Ruiru: 26}, portfolio: 26, november_to_date: {Kasarani: 5, Ruiru: 6}, detail: {Ruiru: "CH-R7 connector 2, 6-31 Oct; no departure depended on it"}}
-        - {id: service_penalties, node: penalties, unit: USD, objective: P3, class: ECONOMIC_ACTUAL, target: 0.00, sites: {Embakasi: 0.00, Kasarani: 0.00, Ruiru: 0.00}, portfolio: 0.00,
-           november_to_date: {Kasarani: 240.00}, shared_factor: "penalties factor of cost to serve (same factor ID; never added twice)"}
         - {id: rights_value_at_stake, unit: USD, objective: P4, class: EXPOSURE,
            items: [{site: Kasarani, right: "CH-K2 parts warranty + service SLA", value: "repair at supplier cost", state: "acknowledged; restore due {fig:options.KAS-OEM-WAIT.restore_date}"},
                    {site: Ruiru, right: "CH-R7 connector warranty", value: "repair at supplier cost", state: "potential; claim at next routine visit"}]}
@@ -1320,6 +1329,200 @@ demo_workflow:   # design rev 16.8 §2.4-§2.6 (plan F mock-up lane, 19 Nov; own
       actions:
         - {item: KAS-OEM-STOPGAP, action: "Cover the short night with the spare bus until the OEM restore", created_by: Mercy, owner: Mercy, due: "2026-11-09", release: AT_CREATION}
         - {item: EMB-DEADLINE, action: "Set the staggered 22:00-05:15 charging schedule", created_by: Ibrahim, owner: Ibrahim, due: "2026-11-10", release: AWAITS_APPROVAL}
+
+home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the registry row of every node, so each node sits under exactly
+                   # one of the four executive headings. A node is NAMED here or it is a gap: no heading is inherited from a parent.
+                   # Values: grow | optimize | protect | assure, with the brief's objective (G1-G3, O1-O3, P1-P4, A1-A5); `above` for the
+                   # outcome the two money headings explain; `calendar` for a period constant (days, minutes), which is not a factor.
+                   # A measure (protect, operations, rights, service_cost_lines) takes the heading of its objective's letter.
+                   # The evaluator and independent model do not read this block; check_manifest.py homes() checks it is complete.
+  rule: "named, never inherited; a measure's heading is its objective's letter; a money figure is never under Protect or Assure (At stake excepted)"
+  nodes:
+    MINI_GRID:
+      delivered_kwh: [grow, G1]               # value chain: the service delivered, the start of what is sold
+      technical_loss_kwh: [optimize, O2]      # rev 16.11: corrected from inherited Grow; energy lost before a meter is throughput lost
+      unexplained_loss_kwh: [optimize, O3]    # rev 16.11: corrected from inherited Grow; delivered but not charged, not priced, never called theft
+      metered_kwh: [grow, G1]
+      adjustments_kwh: [optimize, O3]
+      unmapped_kwh: [optimize, O3]
+      billed_kwh: [grow, G1]
+      tariff: [grow, G1]
+      productive_kwh: [grow, G3]
+      productive_tariff: [grow, G3]
+      revenue: [grow, G1]
+      in_transit: [optimize, O3]
+      outstanding: [optimize, O3]
+      collected: [optimize, O3]               # cash, outside the contribution gap
+      necessary_l: [optimize, O1]
+      candidate_l: [optimize, O1]
+      unexplained_l: [optimize, O1]
+      extra_l: [optimize, O1]
+      diesel_l: [optimize, O1]                # also the fuel balance (dips and deliveries): the record of the same litres
+      diesel_price: [optimize, O1]
+      fuel_cost: [optimize, O1]
+      battery_throughput_kwh: [optimize, O1]
+      wear_rate: [optimize, O1]
+      battery_wear: [optimize, O1]
+      om: [optimize, O1]
+      staff: [optimize, O1]
+      collection_cost: [optimize, O1]
+      liability: [optimize, O1]               # customer compensation: money, so a cost line, never a Protect measure
+      cost_to_serve: [optimize, O1]
+      contribution: [above]
+      reduced_days: [protect, P2]
+      hours_per_day: [protect, P1]
+      obligation_hours_without_redundancy: [protect, P1]
+      standby_kw: [protect, P1]
+      lost_unit_kw: [protect, P1]
+      shortfall_backed: [protect, P1]
+      obligation_hours_without_backup: [protect, P1]
+      dawn_days_below: [protect, P1]
+      replayed_dawn_days_below_safeguard: [protect, P1]
+      unserved_critical_kwh: [protect, P1]
+      customer_hours_interrupted: [protect, P1]
+      asset_days_out_of_service: [protect, P2]
+      unclaimable_cover: [protect, P4]
+      cover_not_claimable: [protect, P4]
+      major_assets: [optimize, O2]            # operations measures (O2): availability, field visits, kWh per visit
+      asset_days_total: [optimize, O2]
+      asset_days_available: [optimize, O2]
+      field_visits: [optimize, O2]
+      period_days: [calendar]
+    COLD_CHAIN:
+      capacity_crate_days: [grow, G2]
+      crate_days: [grow, G1]                  # occupied = chargeable crate-days in October
+      contract_crate_days: [grow, G3]
+      occupied_total_crate_days: [grow, G1]
+      rate: [grow, G1]                        # the storage rate: the price of what is sold, like a tariff
+      contract_rate: [grow, G3]
+      revenue: [grow, G1]
+      outstanding: [optimize, O3]
+      received: [optimize, O3]
+      base_kwh: [optimize, O1]
+      k_kwh_per_crate_day: [optimize, O1]
+      model_factor: [optimize, O1]
+      kwh_model: [optimize, O1]
+      excess_kwh: [optimize, O1]
+      kwh: [optimize, O1]
+      elec_price: [optimize, O1]
+      energy: [optimize, O1]
+      staff: [optimize, O1]
+      maint: [optimize, O1]
+      liability: [optimize, O1]               # Thika's customer compensation (credit note): money, so a cost line
+      handling: [optimize, O1]
+      cost_to_serve: [optimize, O1]
+      contribution: [above]
+      uncovered_nights: [protect, P1]
+      nights_without_backup_cover: [protect, P1]
+      backup_unproven_days: [protect, P1]
+      days_backup_start_unproven: [protect, P1]
+      excursion_crates: [protect, P1]
+      excursion_days: [protect, P1]
+      batches_exposed: [protect, P1]
+      cover_not_claimable: [protect, P4]
+      crate_days_without_excursion: [optimize, O2]
+      chamber_minutes: [optimize, O2]
+      cooling_minutes_unavailable: [optimize, O2]
+      cooling_available_minutes: [optimize, O2]
+      minutes_per_day: [calendar]
+      period_days: [calendar]
+    EV_DEPOT_CAPTIVE:
+      buses: [grow, G2]                       # the service on chargers already in place (revenue not applicable)
+      departures_required: [grow, G2]
+      chargers_in_service: [protect, P1]
+      charger_kw: [protect, P1]
+      import_limit_kw: [protect, P1]
+      window_h: [protect, P1]
+      deliverable_kwh_night: [protect, P1]    # rev 16.11: Kasarani "Charging energy deliverable per night" (was a gap)
+      kwh_per_bus_night: [protect, P1]
+      required_kwh_night: [protect, P1]
+      supplied_kwh_night: [protect, P1]
+      buses_short_per_night: [protect, P1]
+      short_nights: [protect, P1]
+      spare_bus_nights: [protect, P1]
+      covered_bus_nights: [protect, P1]
+      extra_missed_departures: [protect, P1]
+      departures_missed: [protect, P1]
+      nights_below_required: [protect, P1]
+      departures_met: [protect, P1]
+      charger_out_days: [protect, P2]
+      charger_days_out_of_service: [protect, P2]   # rev 16.11: Ruiru "Charger 7, connector 2" (was a gap)
+      cover_not_claimable: [protect, P4]
+      chargers_installed: [optimize, O2]
+      scheduled_kwh_night: [optimize, O2]
+      peak_kwh: [optimize, O1]
+      kwh_2200_2400: [optimize, O1]
+      kwh_0000_0500: [optimize, O1]
+      peak_price: [optimize, O1]
+      offpeak_price: [optimize, O1]
+      night_price: [optimize, O1]
+      peak_cost: [optimize, O1]
+      offpeak_cost: [optimize, O1]
+      night_cost: [optimize, O1]
+      max_kw: [optimize, O1]
+      demand_rate: [optimize, O1]
+      demand_cost: [optimize, O1]
+      energy_cost: [optimize, O1]
+      maintenance: [optimize, O1]             # EV maintenance (charger service fee): named, no longer inherited
+      penalty_rate: [optimize, O1]
+      penalties: [optimize, O1]
+      cost_to_serve: [optimize, O1]
+      cost_per_departure_met: [above]
+      contribution: [above]
+      nights_in_period: [calendar]
+  potential:   # capacity with no customer: shown beside Grow, never as Grow's actual and never added to it (owner, 1 Nov)
+    MINI_GRID: [{name: headroom, measure: "usable capacity minus delivered kWh, by time window", objective: G2, shown: "not available yet until the energy management export by time window"},
+                {name: letter_of_intent_demand, measure: "kWh a month a signed letter of intent names (Mto huller)", objective: G3}]
+    COLD_CHAIN: [{name: idle_capacity, measure: "capacity_crate_days - occupied_total_crate_days", objective: G2}]
+    EV_DEPOT_CAPTIVE: [{name: spare_deliverable_energy, measure: "deliverable_kwh_night - required_kwh_night (Ruiru: 6 more buses fit)", objective: G2}]
+  bridge_drivers:   # a bridge row's factor (manifest key `driver`, rule R6) -> its node, whose home it takes
+    CANDIDATE_RUNNING: candidate_l
+    UNEXPLAINED_RESIDUAL: unexplained_l
+    EVENING_LOAD_GROWTH: necessary_l
+    SOLAR_SHORTFALL_NECESSARY_GEN: necessary_l
+    EVENING_NECESSARY_GEN: necessary_l
+    DEMAND_VOLUME: metered_kwh
+    METER_MAPPING_UNBILLED: unmapped_kwh
+    AUTHORISED_ADJUSTMENT: adjustments_kwh
+    OCCUPANCY_REVENUE: crate_days
+    OCCUPANCY_ENERGY_VOLUME: kwh_model
+    ENERGY_EFFICIENCY: excess_kwh
+    CUSTOMER_COMPENSATION: liability
+    PEAK_ENERGY_SHARE: peak_kwh
+    DEMAND_CHARGE: max_kw
+  decisions:   # design rev 16.11 §2.0: a decision's heading is the home of its LEVER factor, never of the factor it was opened from.
+               # Rule, in order: restores_protect = its options exist to restore a Protect measure or keep a right claimable -> that
+               # measure (Protect), even when money also moves; money_factor = the money factor its options change; comparator = the
+               # factor it compares. Each option still shows each effect under the home of the factor that effect is on.
+               # Keyed by the decision's screen route (#/decision/<id>); plan = the allocator's decision name, where it has one.
+    - {id: kobo-generator, site: Kobo, plan: kobo_generator, rule: money_factor, lever: candidate_l, opened_from: diesel_l, heading: optimize}
+    - {id: kobo-battery, site: Kobo, plan: kobo_battery_evidence, rule: restores_protect, lever: cover_not_claimable, opened_from: cover_not_claimable, heading: protect}
+    - {id: kisiwa-genset, site: Kisiwa, plan: kisiwa_genset, rule: restores_protect, lever: obligation_hours_without_redundancy, opened_from: necessary_l, heading: protect}
+    - {id: kisiwa-om, site: Kisiwa, rule: money_factor, lever: om, opened_from: om, heading: optimize}
+    - {id: mto-demand, site: Mto, plan: mto_demand, rule: money_factor, lever: productive_kwh, opened_from: billed_kwh, heading: grow}
+    - {id: mto-billing, site: Mto, rule: money_factor, lever: unmapped_kwh, opened_from: billed_kwh, heading: optimize}
+    - {id: mto-inverter, site: Mto, plan: mto_inverter, rule: restores_protect, lever: cover_not_claimable, opened_from: obligation_hours_without_redundancy, heading: protect}
+    - {id: mwea-occupancy, site: "Room A · Mwea", plan: mwea_occupancy, rule: money_factor, lever: contract_crate_days, opened_from: crate_days, heading: grow}
+    - {id: thika-backup, site: "Room B · Thika", plan: thika_backup, rule: restores_protect, lever: nights_without_backup_cover, opened_from: liability, heading: protect}
+    - {id: kirinyaga-energy, site: "Room C · Kirinyaga", plan: kirinyaga_energy, rule: money_factor, lever: excess_kwh, opened_from: excess_kwh, heading: optimize}
+    - {id: embakasi-schedule, site: Embakasi, plan: embakasi_schedule, rule: money_factor, lever: peak_kwh, opened_from: peak_kwh, heading: optimize}
+    - {id: kasarani-charger, site: Kasarani, plan: kasarani_charger, rule: restores_protect, lever: departures_missed, opened_from: deliverable_kwh_night, heading: protect}
+    - {id: ruiru-expansion, site: Ruiru, plan: ruiru_expansion, rule: comparator, lever: buses, opened_from: departures_met, heading: grow}
+    - {id: ruiru-connector, site: Ruiru, rule: restores_protect, lever: charger_days_out_of_service, opened_from: charger_days_out_of_service, heading: protect}
+
+snapshot:   # design rev 16.11 §2.8 (OD-23): the calculated daily snapshot every screen reads, and the demo's pending recalculation.
+            # A snapshot is an output: rebuilt from records, never a source. `as_of` is when it was computed; a portfolio whose
+            # trigger has fired since shows its snapshot figures and says a recalculation is pending, naming what fired.
+            # Illustrative demo choices (Architect). The evaluator and independent model do not read this block.
+  as_of: "2026-11-06T06:00:00+03:00"       # the daily run after the 5 Nov records closed; every portfolio below unless it says otherwise
+  trigger_kinds: {1: "a new day of records", 2: "a record added or corrected", 3: "a target or budget line changed", 4: "a setting changed",
+                  5: "a plan version approved or a plan change recorded", 6: "a new version of the structure or a rule"}
+  portfolios:
+    - {tenant: lakeside-power, as_of: "2026-11-06T06:00:00+03:00", recalculation_pending: false}
+    - {tenant: harvest-cold, as_of: "2026-11-06T06:00:00+03:00", recalculation_pending: true,
+       pending: {trigger: 2, what: "Thika's October refrigeration service invoice arrived, replacing the estimate carried at target",
+                 received: "2026-11-06T09:40:00+03:00", sites: ["Room B · Thika"], periods: ["2026-10"], portfolio_also: true}}
+    - {tenant: metro-bus, as_of: "2026-11-06T06:00:00+03:00", recalculation_pending: false}
 
 owner_question_variants:   # rev 13 (M4): the owner question's alternatives are evaluated, not described; the evaluator runs each patch on a copy
   Q15:

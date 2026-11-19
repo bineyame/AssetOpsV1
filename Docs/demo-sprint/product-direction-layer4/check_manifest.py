@@ -20,7 +20,10 @@ and the manifest alone. Against that independent recomputation the checker compa
   6. documents(): untagged money figures in main §2-§10, the walkthroughs and the transition document's §1-§4 are
      independent values or declared inputs;
   7. workflow(): the demonstration workflow (demo_workflow) obeys the design's ownership, capital and release rules
-     (OD-5, OD-16, OD-17; design §2.4 step 4).
+     (OD-5, OD-16, OD-17; design §2.4 step 4);
+  8. homes(): every node has exactly one named home category, measures take their objective's heading, no money sits under
+     Protect or Assure, each decision's heading is its lever's home, and the snapshot record is well formed (design rev 16.11
+     §2.0, §2.8; OD-21, OD-23).
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -123,7 +126,7 @@ def identities(t):
             eq(f"{s['site']} bridge sums to variance", sum(D(str(b["amount"])) for b in p["bridge"]), p["variance"])
         total += D(str(p["variance"]))
     eq(f"{t['tenant']} portfolio variance = Σ sites", t["portfolio"]["variance"], total)
-    for m in t["portfolio"]["protect"]["measures"]:
+    for m in t["portfolio"]["protect"]["measures"] + t["portfolio"].get("service_cost_lines", []):
         if "sites" in m and isinstance(m.get("portfolio"), (int, float)):
             eq(f"{t['tenant']} protect {m['id']} portfolio = Σ sites", m["portfolio"], sum(D(str(v)) for v in m["sites"].values()))
         if m.get("class") == "EXPOSURE":
@@ -160,7 +163,7 @@ def stated(doc, ref):
                 for field, node in NODE_OF.items():
                     if field in r and node in ev_["nodes"]:
                         eq(f"stated {tid}/{s_['site']} {k} {field}", r[field], ev_["nodes"][node])
-        for m in t["portfolio"]["protect"]["measures"]:
+        for m in t["portfolio"]["protect"]["measures"] + t["portfolio"].get("service_cost_lines", []):
             if "node" not in m:
                 continue
             for side, key in (("actual", "sites"), ("november_to_date", "november_to_date")):
@@ -613,6 +616,84 @@ def workflow(doc, ref):
             check(f"workflow {tn}: December crew visits {dec} within the December limit", dec <= lim[tn].get("crew_visits_dec", 0))
 
 
+# ---------------- 8. home categories and the snapshot (design rev 16.11 §2.0, §2.8; OD-21, OD-23) ----------------
+HEAD_OF = {"G": "grow", "O": "optimize", "P": "protect", "A": "assure"}
+
+
+def homes(doc):
+    """Every node of every vertical is named once in home_categories (never inherited); objectives match headings; every
+    measure takes its objective's heading and no money figure sits under Protect or Assure (At stake excepted); every bridge
+    driver maps to a named node; each decision's heading is its lever's home (restores_protect -> Protect); the snapshot
+    names each portfolio once, and a pending recalculation names a trigger, the Sites and periods it affects."""
+    hc = doc.get("home_categories") or {}
+    reg = hc.get("nodes") or {}
+    vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
+    for v in doc["structures"]:
+        names = set(doc["structures"][v]) | set(doc["factor_map"][v]) | set(doc["evaluation"]["protect_nodes"].get(v, []))
+        rows = reg.get(v) or {}
+        check(f"homes {v}: every node is named once ({sorted(names - set(rows))[:6]} unnamed)", names <= set(rows))
+        check(f"homes {v}: no row names an unknown node ({sorted(set(rows) - names)[:6]})", set(rows) <= names)
+        bad = [k for k, r in rows.items() if not (r and (r[0] in ("above", "calendar") and len(r) == 1
+                                                         or r[0] in HEAD_OF.values() and len(r) == 2 and HEAD_OF.get(str(r[1])[:1]) == r[0]))]
+        check(f"homes {v}: each row is a heading with a matching objective, or above, or calendar ({bad[:4]})", not bad)
+        outcome = doc["chain_model"][v]["result"]
+        check(f"homes {v}: the outcome {outcome} sits above the headings", (rows.get(outcome) or [None])[0] == "above")
+    drivers = hc.get("bridge_drivers") or {}
+    for t in doc["tenants"]:
+        v, rows = vert_of[t["tenant"]], reg.get(vert_of[t["tenant"]]) or {}
+        for s_ in t["sites"]:
+            for b in s_["period"].get("bridge", []):
+                n = drivers.get(b["driver"])
+                check(f"homes {t['tenant']}/{s_['site']}: bridge factor {b['driver']} maps to a named node ({n})", n in rows and rows[n][0] in ("grow", "optimize"))
+        P = t["portfolio"]
+        for blk, ms in (("protect", P["protect"]["measures"]), ("operations", P["operations"]["measures"]), ("rights", P["rights"]["measures"]),
+                        ("service_cost_lines", P.get("service_cost_lines", []))):
+            for m in ms:
+                h = HEAD_OF.get(str(m.get("objective", ""))[:1])
+                check(f"homes {t['tenant']} {blk} {m['id']}: has an objective with a heading ({m.get('objective')})", h is not None)
+                if m.get("unit") == "USD" and m.get("class") != "EXPOSURE":
+                    check(f"homes {t['tenant']} {blk} {m['id']}: a money figure is under Grow or Optimize, never Protect or Assure ({h})", h in ("grow", "optimize"))
+                if blk == "protect":
+                    check(f"homes {t['tenant']} protect {m['id']}: a Protect measure is a P objective", h == "protect")
+                if blk == "operations":
+                    check(f"homes {t['tenant']} operations {m['id']}: an operations measure is Optimize (O2)", m.get("objective") in ("O2",) or h == "assure" or h == "protect")
+                if blk == "service_cost_lines":
+                    check(f"homes {t['tenant']} {m['id']}: its node {m.get('node')} is an Optimize cost line", (rows.get(m.get("node")) or [None])[0] == "optimize")
+                    pm = m.get("protect_measure")
+                    check(f"homes {t['tenant']} {m['id']}: its Protect side is a Protect measure in its own unit ({pm})",
+                          pm is None or any(x["id"] == pm and x.get("unit") != "USD" for x in P["protect"]["measures"]))
+    sites = {s_["site"]: vert_of[t["tenant"]] for t in doc["tenants"] for s_ in t["sites"]}
+    kinds = {d["name"]: d["kind"] for t in doc["plans"].values() for d in t["decisions"]}
+    ids = [d["id"] for d in hc.get("decisions", [])]
+    check(f"homes: each decision is listed once ({len(ids)})", len(ids) == len(set(ids)) and ids)
+    for d in hc.get("decisions", []):
+        rows = reg.get(sites.get(d["site"])) or {}
+        lever = rows.get(d["lever"]) or [None]
+        check(f"homes decision {d['id']}: its lever {d['lever']} is a named node of its Site's vertical", lever[0] is not None and d["opened_from"] in rows)
+        check(f"homes decision {d['id']}: its heading {d['heading']} is its lever's home ({lever[0]})", d["heading"] == lever[0])
+        check(f"homes decision {d['id']}: rule {d['rule']} fits its heading",
+              {"restores_protect": d["heading"] == "protect", "money_factor": d["heading"] in ("grow", "optimize"),
+               "comparator": d["heading"] in ("grow", "optimize")}.get(d["rule"], False))
+        if d.get("plan"):
+            check(f"homes decision {d['id']}: names an allocator decision ({d['plan']})", d["plan"] in kinds)
+            if kinds.get(d["plan"]) == "protective":
+                check(f"homes decision {d['id']}: a protective decision restores a Protect measure", d["rule"] == "restores_protect")
+    sn = doc.get("snapshot") or {}
+    tenants = [p_["tenant"] for p_ in sn.get("portfolios", [])]
+    check(f"snapshot: an as-of time is recorded ({sn.get('as_of')})", bool(re.match(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", str(sn.get("as_of", "")))))
+    check(f"snapshot: each portfolio once ({tenants})", sorted(tenants) == sorted(vert_of))
+    check("snapshot: at least one portfolio current and one with a recalculation pending (demo cases)",
+          any(p_.get("recalculation_pending") for p_ in sn.get("portfolios", [])) and any(not p_.get("recalculation_pending") for p_ in sn.get("portfolios", [])))
+    tsites = {t["tenant"]: {s_["site"] for s_ in t["sites"]} for t in doc["tenants"]}
+    for p_ in sn.get("portfolios", []):
+        pe = p_.get("pending")
+        check(f"snapshot {p_['tenant']}: pending flag and pending record agree", bool(p_.get("recalculation_pending")) == bool(pe))
+        if pe:
+            check(f"snapshot {p_['tenant']}: the pending trigger is one of the six ({pe.get('trigger')})", pe.get("trigger") in (sn.get("trigger_kinds") or {}))
+            check(f"snapshot {p_['tenant']}: the pending Sites are the portfolio's ({pe.get('sites')})", pe.get("sites") and set(pe["sites"]) <= tsites[p_["tenant"]])
+            check(f"snapshot {p_['tenant']}: the trigger fired after the snapshot was computed", str(pe.get("received", "")) > str(p_.get("as_of", "")))
+
+
 def alignment(root):
     spec = importlib.util.spec_from_file_location("check_alignment", root / "check_alignment.py")
     ca = importlib.util.module_from_spec(spec); spec.loader.exec_module(ca)
@@ -656,6 +737,7 @@ def main(path):
     anchors(root, ref)
     documents(root, doc, ref)
     workflow(doc, ref)
+    homes(doc)
     alignment(root)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
