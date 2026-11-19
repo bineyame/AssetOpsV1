@@ -1,6 +1,6 @@
 # Decisions register
 
-**AssetEcon Layer 4 · recreated from the design rev 16.7, updated to rev 16.8 (OD-13 to OD-20 and the commercial answers of 19 Nov) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · recreated from the design rev 16.7, updated to rev 16.9 (OD-13 to OD-24 and the commercial answers of 19 Nov) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This register holds every owner decision behind the Layer 4 design, every Architect's call the owner has not yet settled, and the open queue with a default for each item. It replaces `design-questions-and-decisions.md` and the roadmap's §6 (regeneration F, #1). The design cites decisions by ID; this is the one place their words are kept.
 
@@ -20,9 +20,9 @@ Who sees, decides, acts and tracks: the owner decides; the Architect records eac
 
 ## 2. Owner decisions on the design (19 Nov)
 
-<!--derives: Decisions; §1.3; §2.3; §2.4; §2.5; §2.6; §2.8; §2.9; owner: .agent/owner-design-regeneration-request-2026-11-19.md; owner: .agent/owner-recreate-document-packs-2026-11-19.md; owner: .agent/owner-pack-questions-defaults-2026-11-19.md-->
+<!--derives: Decisions; §1.3; §2.3; §2.4; §2.5; §2.6; §2.8; §2.9; owner: .agent/owner-design-regeneration-request-2026-11-19.md; owner: .agent/owner-recreate-document-packs-2026-11-19.md; owner: .agent/owner-pack-questions-defaults-2026-11-19.md; owner: .agent/owner-summary-confirmations-2026-11-19.md; §2.0; Figure 1b-->
 
-The second column is the design's wording, exactly as in its Decisions table. The third is the owner's words. Records: (a) `.agent/owner-design-regeneration-request-2026-11-19.md`; (b) `.agent/owner-recreate-document-packs-2026-11-19.md`; (f) `.agent/owner-pack-questions-defaults-2026-11-19.md`, where the owner took the coordinator's default on all ten pack questions. For OD-13 to OD-20 the third column quotes the owner's answer and the default it accepted.
+The second column is the design's wording, exactly as in its Decisions table. The third is the owner's words. Records: (a) `.agent/owner-design-regeneration-request-2026-11-19.md`; (b) `.agent/owner-recreate-document-packs-2026-11-19.md`; (f) `.agent/owner-pack-questions-defaults-2026-11-19.md`, where the owner took the coordinator's default on all ten pack questions; (g) `.agent/owner-summary-confirmations-2026-11-19.md`, the owner's answers to the eleven owner-summary confirmations. For OD-13 to OD-20 the third column quotes the owner's answer and the default it accepted; for OD-21 to OD-24 it quotes the numbered answer.
 
 | ID | Decision (design wording) | Owner's words, verbatim | Record · where applied |
 |---|---|---|---|
@@ -48,6 +48,10 @@ The second column is the design's wording, exactly as in its Decisions table. Th
 | OD-18 | As for spend, a Site's crew-visit threshold wins over the portfolio's; a change spanning Sites is judged against the portfolio's thresholds (same answer) | "defaults for all 10, go ahead", to question 6, whose default was: "as for spend, a Site setting wins over the portfolio's; a change spanning Sites is judged against the portfolio threshold" | (f) · §2.4 step 4, §2.5. Also settles the spend half of the former Architect's call 8 ("as for spend") |
 | OD-19 | A lender or financier evidence pack is out of scope for now; it is added to the design later if a client asks (same answer) | "defaults for all 10, go ahead", to question 7, whose default was: "keep it out for now; add it to the design later if a client asks" | (f) · §2.8. |
 | OD-20 | Approving the recreated pack also approves the structure of build steps 1 and 3C (same answer) | "defaults for all 10, go ahead", to question 8, whose default was: "approving the recreated pack also approves the structure of build steps 1 and 3C" | (f) · §2.9. |
+| OD-21 | The four outcome categories stay as the executive's headings over the factor-based outcomes: every structure node has one home category, and Findings, decisions, plan items and verdicts tie back through it ("a version of b basically", 19 Nov) | "3.read the brief, building from factors doesn't mean these categories are irrelevant, things tie back to them , architect should address it in the design do with diagram, it is very important; ofcourse push back with reason is welcome , a version of b basically" | (g) · §2.0, Figure 1b; §2.1; §2.2; §2.8; §2.9 |
+| OD-22 | Operational integrations come in this order: EMS data upload and API first, then the edge gateway talking Modbus to hardware; Modbus stays in the emulation scope so the path is proven before hardware, and a BeagleBone Black running the edge gateway against the backend gateway is the hardware test (same record) | "5.EMS data upload, api..first then edge gateway that talks to hardware via modbus. the modbus is mentioned in emulation scope to esnrue we are able to talk modbus before a hardware is made available(beaglebone blak and edge gateway running on it talking to the backend gateway is what will test)" | (g) · §2.3; §2.9, Figure 10 |
+| OD-23 | The UI reads a calculated daily snapshot of the structure, the bridge and the Portfolio figures, recalculated only when a defined trigger fires, with evidence class and provenance kept on every node (same record) | "10.the point was to avoiud recalculation and keep a calcualted daily snapshot that the UI would use ,ofcourse with triggers to recalulate and udpate if things change(defined as triggers)" | (g) · §2.1; §2.8; §2.9 |
+| OD-24 | Layer 4's evidence words replace the earlier four-level claim ladder; a simulated or emulated result is still never shown as Verified or realised (same record) | "4.evidence class is also fine" | (g) · Rules |
 
 The owner also set the standing document brief that every Layer 4 document follows (`.ai/RULES.md` §10): existing before new, mechanism tied to value, change on merit, the overall objective in every part, the person in the loop, precise names, short and illustrated, and the owner decides.
 
@@ -107,9 +111,15 @@ Each stands until the owner overrules it. The reason is given in the design sect
 
 **Demonstration choices** (Architect, all illustrative; `worked-portfolios.md` §1.5 and the manifest's `demo_workflow`): people shown by role title, Site and a fictional first name; a due date on every Action; one spend threshold per operator and the crew-visit threshold at zero; on 6 Nov version 1 of each operator's plan is proposed and awaits the executive.
 
+14. Every structure node has exactly one home category. Contribution sits above the two money headings; unexplained litres are Optimize; collections are Grow, not Assure (the coordinator's example put them under Assure); an item with no factor sits under Protect as upkeep (design §2.0, OD-21). Reason: each figure is counted once, Grow and Optimize effects add to the contribution gap, and Assure carries no money.
+15. The daily snapshot is an output of the evaluation, rebuildable from its records and checked against a fresh evaluation, showing its "as of" time (design §2.8, OD-23). Reason: it keeps today's rule that no stored figure is a source, while removing recompute-on-read.
+16. The EMS API and the edge gateway on hardware are step-9 work, outside the first fortnight (design §2.9, OD-22). Reason: the deep-dive needs files, which work today, and no operator hardware exists yet.
+
+**Process answers of 19 Nov** ((g), not design): Docker restarts are allowed on this server as needed (answer 8, "if it helps on this server, on a need bases"); the 10 Nov walkthrough asks are superseded by the new direction (answer 11, "it was done with findings, but it is not very relevant now, the new direction is"); a close prioritisation contest no longer returns to the owner, as progress overrides it (answer 9, "progress overrides this").
+
 **Demonstration choices of rev 16.8** (Architect, illustrative): each item records who chose it, and so owns it (OD-16); the Mto huller connection is a capital item with no Action on 6 Nov (OD-17); Lakeside's proactive item is the Kisiwa generator service on 8 Dec, with no spend from the budget (oil and filters already held) and one December crew visit (`worked-portfolios.md` §1.1).
 
-**Where the owner's view would help most:** calls 1, 6, 10 and 11, because they decide how often the executive is asked to approve.
+**Where the owner's view would help most:** calls 1, 6, 10 and 11, because they decide how often the executive is asked to approve; and call 14's collections placement, where I pushed back on the coordinator's example.
 
 ## 5. Open queue
 

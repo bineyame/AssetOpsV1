@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.8 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.9 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -52,6 +52,7 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 - **Parity test.** A check that the new structure reproduces today's outcome map before the map is removed.
 - **Action.** One unit of tracked work. Today three record types carry it: the trial action (Finding origin; recorded today with a SYSTEM actor, `0016_action_store.py:131`), the domain action (exactly one origin, a Finding or an opportunity study) and the work case (no origin of its own; it links to Findings and Actions). In this design a person creates every Action, and every carrier, work cases included, records one origin and at most one plan membership (§2.5). A work case's origin is the Finding or plan item it was opened from; its other links stay links (Architect's call).
 - **Lever.** A change that a decision may make to a factor, such as the generator stop threshold acting on candidate litres.
+- **Outcome category.** One of the four executive headings: Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns. A heading over the structure, never a second outcome model (§2.0, OD-21).
 - **Calibration replays K, M, E.** Scheduled re-runs of recorded data under a new setting: Kobo's stop threshold (K), Mto's headroom load (M), Embakasi's charging schedule (E). Until each passes, its figures are design values.
 - **D-numbers.** Owner decisions, recorded in `decisions-register.md` (pack file set approved by the owner, 19 Nov: `regeneration/F-pack-recreation-plan.md`).
 - **Manifest key `plan`.** In the demonstration data, a Site's target side is the machine path `plan`, kept as a machine-only exception to OD-6 (Architect's call) because renaming it would touch the manifest, evaluator, independent model and fixtures with no gain for a reader. Prose says "target".
@@ -63,6 +64,8 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 4. A factor appears once, so the same litre never carries money twice.
 5. Savings are claimed only after proof. The no-action baseline is always shown.
 6. No legal or insurance conclusion is drawn: "Coverage is decided by the supplier or insurer."
+
+These evidence words replace the earlier four-level claim ladder (owner, OD-24: "evidence class is also fine"). The ladder's one hard rule stays, in Rules 1 and 5 and D14: a simulated or emulated result is never shown as Verified or as realised money.
 
 ---
 
@@ -77,7 +80,7 @@ Today's product turns raw Site evidence into **honest, bounded operational judge
 - *What should be looked at first, and what can be done?* A next step and, where the rule allows, a recommended setting change.
 - *Was it done, and did it work?* The response is tracked, and a verification family judges it. Money is credited only after a Verified verdict.
 
-Every Site and the Portfolio show four economic categories (Grow, Optimize, Protect, Assure). Each says plainly which records are still missing.
+Every Site and the Portfolio show four economic categories (Grow, Optimize, Protect, Assure), over 22 outcome rows across the three verticals (`outcomes/catalogue.py:43-68`). Each says plainly which records are still missing.
 
 *Serves the objective:* this honesty is the credibility executives need before they trust a money figure. Part 2 adds the money on top of it.
 
@@ -238,6 +241,67 @@ flowchart TB
 
 *Figure 1. Where the new constructs fit. Grey stays as it is; blue is new; amber is existing, with a named change. A verified change comes back only as observed factors of later periods.*
 
+**The four outcome categories: the executive's headings over the structure** (owner, OD-21: "building from factors doesn't mean these categories are irrelevant, things tie back to them").
+
+*What exists today, and stays.* Every Site and the Portfolio show the four categories, each a card with its rows and its plain "not connected yet" text (§1.1). An executive finds their concern under its heading at once. What the rows lack is a quantity: each is flagged from signals, not computed (L1).
+
+*What a category is in the model.* A category is a **heading, not a second outcome model**. Every node of the factor structure, whether a leaf, a factor, a Protect measure or an Assure measure, carries exactly one **home category** on its registry row (§2.1). A category computes nothing the structure does not already compute; its figures are the structure's nodes under it, read as they are.
+- **Grow revenue:** the revenue side of the value chain. Billed kWh and tariff, chargeable crate-days, productive-use demand, and the collection of what was billed. For a captive EV depot, whose revenue is *not applicable*, Grow is service growth on existing assets, such as routes absorbed, valued only by the cost it avoids.
+- **Optimize cost and efficiency:** cost to serve. Litres (necessary, candidate, unexplained) at their price, O&M, staff, energy and demand charges.
+- **Protect asset and capital:** obligations, bounds and rights. Evening hours without backup, nights without backup cover, departures missed, dawn charge, warranty cover that stays claimable, asset life. Each is measured in its own unit; money appears only as *At stake, not money*.
+- **Assure performance and returns:** the evidence about all of the above. Coverage, evidence class, target against actual with its provenance, the three verdicts, and contract and supplier performance. It adds no money of its own, because Assure is about whether outcomes can be evidenced, not a fifth savings stream (the brief).
+
+*How the categories relate to the outcomes.* Contribution (revenue − cost to serve) is the outcome both money headings explain. In the bridge every money effect sits on one leaf, so under one heading. The Grow effects plus the Optimize effects, plus any explicit residual, equal the contribution gap to the cent. Obligations sit under Protect as bounds on decisions, never summed with money. Assure reads every node. So the four headings are never added together, and no figure is counted under two of them (Rules 2 and 4).
+
+*How everything else ties back.*
+- A **Finding** takes the home category of the factor it is pinned to (CH1).
+- A **decision** sits under the category of the factor its lever acts on. Each option shows its effects under the categories of the factors it changes: the Mto huller adds billed kWh (Grow) and extra fuel (Optimize), each counted once on its own leaf.
+- A **plan item** shows its option's effects the same way. A protective item sits under Protect. An item marked "no factor (upkeep or compliance)" sits under Protect as upkeep, with no value (Architect's call).
+- A **verdict** is Assure. An economic verdict's realised money is credited under the category of the factor it moved, and only from field records (§2.7).
+
+*How the executive reads the Portfolio through them.* The four category cards stay as the Portfolio's headings (§2.8). Each card shows, for its heading: the factors against target (money for Grow and Optimize, measures for Protect, evidence state for Assure), the Findings on those factors, the options and plan items that would move them, and the verdicts on what was done. Realised performance and potential are never mixed. Headroom with no customer is capacity, shown as potential beside Grow and never as Grow's actual (owner, 1 Nov: "why are we conflating KPI with potential ?"). Productive use is Grow revenue (owner, 1 Nov: "under grow revenue or elsewhere?").
+
+<!--Figure 1b: the four headings over the structure-->
+
+```mermaid
+flowchart TB
+  CO["Contribution = revenue − cost to serve<br/>the outcome the two money headings explain"]
+  subgraph GRW["Grow revenue"]
+    gra["Billed kWh at Kobo"]
+    grb["Productive-use demand at Mto<br/>headroom is capacity until a signed letter of intent"]
+    grc["Collections: billed, collected, outstanding"]
+  end
+  subgraph OPT["Optimize cost and efficiency"]
+    opa["Candidate litres at Kobo"]
+    opb["Unexplained and necessary litres, O&M, staff"]
+  end
+  subgraph PRT["Protect asset and capital"]
+    pra["Evening hours without backup at Kisiwa"]
+    prb["Battery cover kept claimable at Kobo"]
+    prc["Nights without backup cover, cold rooms"]
+  end
+  subgraph ASR["Assure performance and returns"]
+    asa["Coverage and evidence class of every node"]
+    asb["The three verdicts on Kobo's change"]
+  end
+  GRW -- "revenue effects" --> CO
+  OPT -- "cost effects" --> CO
+  FD["Findings, pinned to a factor"] -.-> opa
+  DC["Decision: Kobo's stop threshold"] -.-> opa
+  PI["Plan items: the Kisiwa repair, the battery evidence"] -.-> pra
+  PI -.-> prb
+  HU["Decision and item: the Mto huller"] -.-> grb
+  VD["Verdicts"] --> asb
+  classDef keep fill:#f4f5f7,stroke:#9aa5b4,color:#5d6878
+```
+
+*Figure 1b. The four headings over the structure, at Lakeside. Kobo in October: kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}--> sits under Grow; candidate, unexplained and necessary running, −600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> together, sit under Optimize; the two add to Kobo's −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> contribution gap. Kobo's 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> outstanding is Grow revenue not yet realised. Kisiwa's 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours without backup and Kobo's battery cover are Protect measures, never added to money. Assure holds the evidence: every node's coverage and class, and the verdicts on Kobo's change.*
+
+*Named changes, on merit* (owner: "push back with reason is welcome").
+1. **Contribution moves above the headings.** Today "Site profitability" is a Grow row (`outcomes/catalogue.py:46`). Contribution's gap is the sum of Grow and Optimize effects, so it becomes the outcome above both money headings, not a row inside one.
+2. **Unexplained litres move to Optimize.** Today "Fuel accounted for" is a Protect row (`catalogue.py:51`). Unexplained litres carry money in cost to serve, so their home is Optimize. The fuel-loss Finding stays a risk, and the Protect card links to it without counting it.
+3. **Collections stay under Grow, not Assure.** The coordinator's example placed collections under Assure. I keep them under Grow revenue, as today's catalogue does ("Cash collected", `catalogue.py:45`) and as the brief defines Grow (recognised and collected revenue), because Assure must carry no money of its own. Assure holds the evidence about collections: their coverage and the settlement records behind them.
+
 ### 2.1 B1: the factor structure, discipline from drivers to outcomes
 
 **What it brings.** Each outcome is declared as a structure of factors down to leaves that a source record evidences, and outcomes are computed upward, never typed in. Four relations are used, all from the brief:
@@ -246,12 +310,13 @@ flowchart TB
 - value-chain stages: delivered → metered → billed → collected, with losses and adjustments as named leaks;
 - physical splits: generator litres = necessary + candidate + unexplained, as dispatch and the fuel balance already observe.
 
-Each leaf carries a shared factor ID, a period, a unit, a target, an evidence class and its provenance, so it carries money once. *Serves the objective:* monitoring shows that the generator ran; this is meant to show what that did to contribution.
+Each leaf carries a shared factor ID, a period, a unit, a target, an evidence class, its provenance and its home category (OD-21, §2.0), so it carries money once and sits under one executive heading. *Serves the objective:* monitoring shows that the generator ran; this is meant to show what that did to contribution.
 
 **Where it fits.**
 - It sits above the evidence ledger. The analyses (which stay) become the observers of its physical leaves.
 - **Named change (L1):** today's outcome map, a fixed list of signal-to-outcome rows, becomes rows of this structure. It keeps its code-registry form and start-up check, and the old literal is removed only after a parity test passes.
 - The site board's driver lines, written per vertical today, are generated from the structure.
+- **The evaluated structure is served from a calculated daily snapshot** (OD-23), recalculated when a defined trigger fires, never on a screen read (§2.8).
 - **The same shape serves every vertical.** A cold room's contribution is chargeable crate-days × rate − cost to serve. A captive EV depot is judged on cost per required departure met, with revenue *not applicable*, never zero. Protect is a structure of measured factors too (unserved critical kWh, crate-minutes above limit, departures missed). Capital choices are options over a longer horizon. The three-vertical table is in `worked-portfolios.md` §1.0.
 
 **CH1: Findings pinned to their factors.**
@@ -295,7 +360,7 @@ flowchart LR
   P["Target contribution"] --> A["Candidate running (Finding)"] --> B["Unexplained fuel (Finding)"] --> N["Necessary running"] --> K["kWh billed"] --> X["Actual contribution"]
 ```
 
-*Figure 3 (drawn in the HTML twin). Kobo, October: −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> in all. Candidate running −412.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, unexplained fuel −150.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, necessary running −37.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->. Two of the four effects already have a Finding today. A month with no Finding still shows its bridge.*
+*Figure 3 (drawn in the HTML twin). Kobo, October: −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> in all. Candidate running −412.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, unexplained fuel −150.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, necessary running −37.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->. Two of the four effects already have a Finding today. A month with no Finding still shows its bridge. Under the four headings (Figure 1b), kWh billed is Grow revenue and the three litre effects are Optimize cost.*
 
 **At Portfolio level.** Portfolio outcomes compose Site factors as Σ amounts and Σ/Σ ratios. Lakeside in October:
 - **Volume:** metered 21,700<!--fig:portfolio.lakeside-power.actual.sums.metered_kwh--> kWh; billed 21,445<!--fig:portfolio.lakeside-power.actual.sums.billed_kwh--> against a target of 21,650<!--fig:portfolio.lakeside-power.plan.sums.billed_kwh-->.
@@ -322,6 +387,13 @@ flowchart LR
 - **Named change:** this store is separate because today's intake is first-write-wins and refuses late intervals (`evidence/service.py:484-492`; `reading_upload/service.py:244-248`). That suits telemetry and does not suit bills.
 - Imported records are accepted by the finance and commercial lead. The operator executive can also accept them, and that is recorded as the executive's acceptance (OD-15).
 - Contract rows are extracted with AI assistance, and a person approves each one. The pilot asks per vertical are in `design-appendix.md` §5.
+
+**The order of operational integrations** (owner, OD-22: "EMS data upload, api..first then edge gateway that talks to hardware via modbus").
+1. **EMS data upload.** The operator's EMS exports arrive as files through today's reading upload (`reading_upload_api.py:113`) and the field package's CSV path (`field/assetops_field/csv_upload.py`). This is what the deep-dive uses.
+2. **EMS API.** The same profile and parser, with a pull transport in place of the file. Only the transport changes (`integration-design.md` §6).
+3. **The edge gateway, talking Modbus to the hardware.** Modbus is in the emulation scope, so the path is proven before any hardware exists. Today's Modbus TCP poller already runs end to end against a GX-shaped emulator through the real gateway (`field/assetops_field/modbus_poller.py`; `host/tests/test_field_modbus_tcp_proof.py`). The hardware test that follows is a BeagleBone Black running the edge gateway and talking to the backend gateway.
+
+Each step passes the same contract test as the emulator before it replaces it (Figure 4).
 
 <!--Figure 4: one contract for every source-->
 
@@ -624,13 +696,27 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 
 | Screen | Today | Change |
 |---|---|---|
-| Overview cards | Estimated income; a cost claim per Site; counts | Each card read from its factors against target, with its evidence class (L1, L2) |
+| Overview cards | The four category cards: estimated income; a cost claim per Site; counts | The four cards stay as the executive's headings (OD-21). Each reads the structure nodes whose home category it is, against target, with their evidence class, Findings, options and verdicts (L1, L2; Figure 1b) |
 | Optimize (mini-grid) | The window's last day over a period range | Corrected first, then the period's cost factors (L7, `site_outcomes/read.py:676-682`) |
 | Act first | Findings in placement groups | The Finding triage stays first, with the plan beside it |
 | Outcomes by site and the site board | Statuses; drivers in words | Drivers become factor rows. "Issues" shows Findings on their factors; "What can be done" opens the decision; "Already in hand" shows Actions and plan items |
 | Opportunity | A headroom study | Renamed *Demand and capacity*: headroom stays capacity, and demand needs evidence |
 | Assure row line "Actual against plan" | "N of M declared objectives met" (`site_outcomes/mini.py:692`) | Renamed "Actual against target" (OD-6), so that "plan" means only the new construct |
 | What changed | Accepted actions, verifications | Actions with owners, the plan's review and the three verdicts |
+
+**A calculated daily snapshot** (owner, OD-23: "keep a calcualted daily snapshot that the UI would use, ofcourse with triggers to recalulate and udpate if things change").
+- *What exists today.* Stored route responses: a read route's served bytes are kept under a watermark of its inputs, and every input table writes an input-change row through triggers, so a changed input invalidates the stored response (`0047_chain_response.py:1-14`). It answers the owner's concern that Site and Portfolio pages load slowly (1 Nov walkthrough).
+- *What is required.* The structure read, the bridge and the Portfolio figures are served from a **calculated daily snapshot**: the evaluated structure for each Site and the portfolio, per day and per period. It is computed once and read by the UI, never recomputed on a screen read.
+- *Its recalculation triggers.* Only the affected Sites and periods, and the portfolio above them, are recalculated, when:
+  1. a new day of records becomes available (owner, 1 Nov: "when a new day is available, it should trigger a re-assessment");
+  2. a record is added or corrected, including a late-arriving reading, a re-issued invoice or an accepted import (§2.3);
+  3. a target or budget line changes (§2.2);
+  4. a setting changes: a price, tariff, tolerance, threshold, switch or source mapping;
+  5. a plan version is approved, or a plan change is recorded (§2.5);
+  6. the structure or a rule takes a new version.
+- *How it keeps the honest-figure rules.* Every node in the snapshot keeps its evidence class, its provenance (the record revisions it was computed from), its coverage and its parts, so the weakest-class and never-sum rules read the same as on a fresh evaluation (Rules 1 to 4). Unknown stays unknown. A snapshot is an output of the evaluation, never an input: no total is typed or edited, every snapshot can be rebuilt from its records, and a check compares it with a fresh evaluation. A screen shows the snapshot's "as of" time, and says so while a triggered recalculation is pending, rather than present an older figure as current.
+- *Named change, on merit.* Today's period read computes outcome totals on read and stores none (`chain/period_read.py:46-47`). The snapshot replaces recompute-on-read with recompute-on-trigger, for load speed. The rule it served stays: no stored figure is ever a source.
+- *Left open on purpose.* Storage, partitioning and incremental recalculation are inputs to the owner's coming strategy conversation on test data and the database build (`.agent/owner-build-start-and-spec-handshake-2026-11-19.md`). They are not set here.
 
 **Not designed (OD-19).** No lender or financier evidence pack is designed. The record of who decided, approved and verified is what such a pack would draw on; it is added to the design if a client asks.
 
@@ -650,6 +736,8 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Actions, domain actions, work cases, rail | Stay, plus CH2 and P | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | Recorded creator, owner and due date; one origin (a Finding or a proactive plan item; legacy: the opportunity study) and at most one plan membership; released by the plan above the threshold. Today's one-origin check (`0051_action_opportunity_origin.py:73-77`) stays and gains a plan-item arm. The forced mini-grid opportunity origin (`:78-79`) is replaced by a rule that admits no new opportunity origin (OD-7). Trial actions and work cases gain the same links. `chain_action_thread`'s one-origin check (`0051:87-88`), its target trigger `chain_action_thread_target()` (`:34-50`, which matches each link to its Action's origin pair) and the `chain_action` view (`:53-62`) must widen in the same migration |
 | Verification | Stays, plus CH4 | Cost 0; simulated evidence only: `verification.py:1167`; `verification_rules.py:688` | Economic and causal verdicts; field evidence |
 | Portfolio cards, Optimize figure, site board | Change (CH5) | Counts; one day over a period: `read.py:676-682` | Read from factors |
+| The four categories (catalogue) | Stay, re-grounded (OD-21) | Rows flagged from signals, not computed: `catalogue.py:43-68` | Each structure node carries one home category; the cards read the nodes under them (§2.0) |
+| Stored route responses, period read | Extended (OD-23) | Totals recomputed on read: `period_read.py:46-47`; slow pages (owner, 1 Nov) | A calculated daily snapshot, recalculated on named triggers, rebuildable and checked (§2.8) |
 | Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
 
 **Delivery order** (shape approved by the owner, 19 Nov: the source emulators are built "in parallel with work related factor structure"):
@@ -667,6 +755,8 @@ The recorded person still comes before decisions. Emulated figures are never Rec
 - *The deep-dive safeguard.* The operator's own target against actual appears within weeks of the deep-dive only once steps 3A, 4 and 5 are live.
 - *The first deep-dive's sources* are onboarded by a person in the Analyst role, through step 3A's intake and contract test. It needs no step-9 work.
 - *Step 9's pilot onboarding* means onboarding at scale: real adapters for each source type, replacing the emulators source by source, for more than one operator.
+- *Operational integrations, in the owner's order* (OD-22, §2.3). EMS file upload works today and serves the deep-dive. The EMS API transport and then the edge gateway on hardware are step-9 work, in that order. The Modbus emulation proof stays green throughout under the contract test. None of it is in the first fortnight: the deep-dive needs files, and no operator hardware exists yet.
+- *The daily snapshot* (OD-23) is built beside the structure read in step 3B, and the bridge (step 5) and the Portfolio cards (step 7) read through it. Its slice is cut after the strategy conversation on the database build.
 
 **Architect's note to the owner on this order.** I agree with the lanes. *Refinement, applied:* cost-side decisions start before the join. Kobo's stop threshold is valued from lane B's litres at the typed diesel price, so the first decision reaches a client sooner (D13). *Caution:* the step-2 format is version 1, to be revised under the contract test when the first operator sample is pinned (D1).
 
@@ -688,7 +778,7 @@ flowchart LR
   D --> P["7 The plan and the Portfolio (P, CH5)"]
   D --> V["8 Three verdicts (CH4)"]
   T --> P
-  P --> R["9 Rights, cold then EV,<br/>pilot onboarding at scale"]
+  P --> R["9 Rights, cold then EV,<br/>pilot onboarding at scale:<br/>EMS API, then the edge gateway"]
   V --> R
   S0 -.-> D
 ```
@@ -707,7 +797,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 
 **Owner decisions of 19 Nov, applied in this revision:**
 
-| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 to OD-12 in `.agent/owner-recreate-document-packs-2026-11-19.md`; OD-13 to OD-20 in `.agent/owner-pack-questions-defaults-2026-11-19.md`) | Where applied |
+| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 to OD-12 in `.agent/owner-recreate-document-packs-2026-11-19.md`; OD-13 to OD-20 in `.agent/owner-pack-questions-defaults-2026-11-19.md`; OD-21 to OD-24 in `.agent/owner-summary-confirmations-2026-11-19.md`) | Where applied |
 |---|---|---|
 | Q-A1 | A Finding has a bottom-line impact, or is a risk or an opportunity, and is to be acted on with one or more Actions | §1.3, §2.1 |
 | Q-A2 | A few sensible roles | §2.6 |
@@ -731,8 +821,12 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-18 | As for spend, a Site's crew-visit threshold wins over the portfolio's; a change spanning Sites is judged against the portfolio's thresholds (same answer) | §2.4 step 4, §2.5 |
 | OD-19 | A lender or financier evidence pack is out of scope for now; it is added to the design later if a client asks (same answer) | §2.8 |
 | OD-20 | Approving the recreated pack also approves the structure of build steps 1 and 3C (same answer) | §2.9 |
+| OD-21 | The four outcome categories stay as the executive's headings over the factor-based outcomes: every structure node has one home category, and Findings, decisions, plan items and verdicts tie back through it ("a version of b basically", 19 Nov) | §2.0, Figure 1b; §2.1; §2.2; §2.8; §2.9 |
+| OD-22 | Operational integrations come in this order: EMS data upload and API first, then the edge gateway talking Modbus to hardware; Modbus stays in the emulation scope so the path is proven before hardware, and a BeagleBone Black running the edge gateway against the backend gateway is the hardware test (same record) | §2.3; §2.9, Figure 10 |
+| OD-23 | The UI reads a calculated daily snapshot of the structure, the bridge and the Portfolio figures, recalculated only when a defined trigger fires, with evidence class and provenance kept on every node (same record) | §2.1; §2.8; §2.9 |
+| OD-24 | Layer 4's evidence words replace the earlier four-level claim ladder; a simulated or emulated result is still never shown as Verified or realised (same record) | Rules |
 
-**Other owner decisions, outside this design** (commercial and process; each with its owner record and status in `decisions-register.md`): D2, D3, D4, D5, D6, D7, D8, D9, D10 and D12. The owner's commercial answers of 19 Nov (the pilot fee's form, the deep-dive's terms and their review, peak days and the product reserve: items C2, C12, C13, C14 and C15 of `commercial-plan.md`) are recorded in the register and `commercial-plan.md`, not here (P4 of regeneration F).
+**Other owner decisions, outside this design** (commercial and process; each with its owner record and status in `decisions-register.md`): D2, D3, D4, D5, D6, D7, D8, D9, D10 and D12. The owner's process answers of 19 Nov (Docker restarts allowed on this server as needed; the 10 Nov walkthrough asks superseded by the new direction) are recorded in the register only. The owner's commercial answers of 19 Nov (the pilot fee's form, the deep-dive's terms and their review, peak days and the product reserve: items C2, C12, C13, C14 and C15 of `commercial-plan.md`) are recorded in the register and `commercial-plan.md`, not here (P4 of regeneration F).
 
 **Architect's calls, not settled by the owner:**
 - the threshold applies to the whole chosen change, summed over its Actions (§2.4 step 4);
@@ -746,6 +840,9 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 - an item's budget in use is its incurred spend, else its released spend, else its planned spend (§2.5);
 - a plan item has five states, Chosen, Released, Left out, Done and Withdrawn, derived from its Actions and the plan's versions (§2.5, Figure 6c);
 - a crew-visit limit is set per month inside a longer period, and each crew visit counts in the month it falls (§2.5);
+- every structure node has exactly one home category; contribution sits above the two money headings; unexplained litres are Optimize; collections are Grow, not Assure; an item with no factor sits under Protect as upkeep (§2.0, OD-21);
+- the daily snapshot is an output, rebuildable from its records and checked against a fresh evaluation, and shows its "as of" time (§2.8, OD-23);
+- the EMS API and the edge gateway on hardware are step-9 work, outside the first fortnight (§2.9, OD-22);
 - an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);
 - the manifest key `plan` stays as a machine-only exception to OD-6, and prose says "target" (G-F5, "Words used here").
 

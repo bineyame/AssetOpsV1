@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.8)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.9)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.8 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.9 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -89,6 +89,11 @@ Industry claims rest on the brief's ledger [R1]–[R12] (AMDA benchmarking; ESMA
   - answers 9 and 10 are commercial (C2, C12 to C15) and go to the register and `commercial-plan.md`, not here (P4);
   - the approved housekeeping: the backup-start Finding is pinned to nights without backup cover (§2.1); the both-thresholds rule is listed as an Architect's call; the deep-dive safeguard and pilot onboarding are tied to steps 3A, 4, 5 and 9 (§2.3, §2.9); plan items have their own states (§2.5, Figure 6c); Lakeside has a proactive item, the Kisiwa generator service, and a December crew-visit limit (`worked-portfolios.md` §1.1, §1.5);
   - the demonstration workflow names each item's chooser and owner, and `check_manifest.py` checks it against OD-5, OD-16, OD-17 and the release rule.
+- **Rev 16.9 (19 Nov).** The owner's summary confirmations (`.agent/owner-summary-confirmations-2026-11-19.md`) add OD-21 to OD-24:
+  - OD-21: the four outcome categories are the executive's headings over the structure. Each node has one home category, and Findings, decisions, plan items and verdicts tie back through it (§2.0, Figure 1b). Three named changes on merit: contribution sits above the money headings, unexplained litres move to Optimize, and collections stay under Grow rather than Assure;
+  - OD-22: the integration order, EMS upload and API first, then the edge gateway over Modbus, proven first on the Modbus emulator and then on a BeagleBone Black (§2.3, §2.9);
+  - OD-23: a calculated daily snapshot that the UI reads, with six recalculation triggers, rebuildable and checked (§2.8);
+  - OD-24: the evidence words replace the old claim ladder (Rules).
 
 ## 5. Minimum pilot asks per vertical
 
