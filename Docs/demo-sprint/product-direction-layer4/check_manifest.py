@@ -480,7 +480,7 @@ def o2_percentages(ref):
 def anchors(root, ref):
     n = 0
     keys, pcts = key_figures(ref), o2_percentages(ref)
-    for fn in FIG_DOCS:
+    for fn in FIG_DOCS + derived_fig_docs(root):
         p = root / fn
         if not p.exists():
             check(f"{fn} exists", False); continue
@@ -557,39 +557,25 @@ def documents(root, doc, ref):
         check(f"{name}: figures are independent values or declared inputs (untraced: {sorted(set(bad))})", not bad)
 
 
-# ---------------- 7. naming lint (OD-6, rev 16.6; review E M2) ----------------
-# "Plan" means only the new construct (owner, OD-6). Outside markers, code spans and the owner-approved
-# Introduction, every "plan" in the design and its companions must match an explicit allowlist entry.
-NAMING_DOCS = ("layer4-transformation-design.md", "worked-portfolios.md", "design-appendix.md")
-PLAN_WORD = re.compile(r"\bplan(?:s|ned|'s)?\b", re.I)
-PLAN_ALLOW = [re.compile(x, re.I) for x in (
-    r"\b(?:the|a|this|its|each|one|next|period's|approved|proposed|whole|portfolio's|every|their|your)\s+plan\b",  # the construct
-    r"\bplan(?:'s)?\s+(?:item|items|membership|review|record|construct|check)\b",                               # its parts
-    r"\bplan\s+(?:and its limits|among the constructs|and the Portfolio)\b",                                     # headings and figure labels
-    r"\bPlan:\s+proposed by the system",                                                                         # worked-portfolios headings
-    r"\bplan\b[^.|]{0,40}\b(?:approv|propos|releas|fits|still fits)",                                            # the plan being approved, proposed
-    r"\b(?:approv\w*|propos\w*|joins?|enter\w*|counts? in|beside|left out of|drops?|leaves?)\b[^.|]{0,30}\bplan\b",
-    r"\bplanned change\b", r"evaluated, planned and proved",                                                       # the plan's predicted change
-    r"Actual against plan",                                                                                       # the rename rows (OD-6)
-    r"\bplan F\b",                                                                                                 # the pack recreation plan (a document)
-    r"\bP:\s+the plan\b", r"The \*\*plan\*\*", r"\*\*plan\*\* for this construct", r'"Plan"', r"\bplan\b has one meaning",
-)]
+# ---------------- 7. alignment (plan F A1-A6, rev 16.7; review G N1) ----------------
+# The naming lint (OD-6) and the derived documents' alignment with the design live in check_alignment.py, which also
+# proves itself on its planted fixtures every run. Each of its results is one check here, so one command checks the pack.
+def alignment(root):
+    spec = importlib.util.spec_from_file_location("check_alignment", root / "check_alignment.py")
+    ca = importlib.util.module_from_spec(spec); spec.loader.exec_module(ca)
+    results, warnings, notes = ca.run(root)
+    for label, ok in results:
+        check(f"alignment: {label}", ok)
+    for n_ in notes:
+        print("note:", n_)
+    print(f"note: {len(warnings)} C4 words left for the reviewer (check_alignment.py prints them)")
 
 
-def naming(root):
-    bad = []
-    for fn in NAMING_DOCS:
-        txt = (root / fn).read_text(encoding="utf-8")
-        if fn == "layer4-transformation-design.md":   # the owner-approved Introduction is kept verbatim
-            a, b = txt.index("## Introduction"), txt.index("## How to read")
-            txt = txt[:a] + " " * (b - a) + txt[b:]
-        txt = re.sub(r"<!--.*?-->|`[^`\n]*`", lambda m: " " * len(m.group(0)), txt, flags=re.S)
-        for m in PLAN_WORD.finditer(txt):
-            win = txt[max(0, m.start() - 45):m.end() + 45]
-            if not any(p.search(win) for p in PLAN_ALLOW):
-                line = txt.count("\n", 0, m.start()) + 1
-                bad.append(f"{fn}:{line}: ...{win.strip()}...")
-    check(f"naming lint: 'plan' means only the new construct (OD-6) (violations: {bad[:6]} x{len(bad)})", not bad)
+def derived_fig_docs(root):
+    """Every derived document present joins the anchor scan, so each of its figures keeps a checked home (A5)."""
+    spec = importlib.util.spec_from_file_location("check_alignment", root / "check_alignment.py")
+    ca = importlib.util.module_from_spec(spec); spec.loader.exec_module(ca)
+    return tuple(fn for fn in ca.derived_present(root) if fn not in FIG_DOCS)
 
 
 def main(path):
@@ -616,7 +602,7 @@ def main(path):
     narratives(doc, ref)
     anchors(root, ref)
     documents(root, doc, ref)
-    naming(root)
+    alignment(root)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
         print("FAIL", f)

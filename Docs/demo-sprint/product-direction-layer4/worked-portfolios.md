@@ -1,10 +1,10 @@
 # Worked portfolios: the three demonstration operators
 
-**Companion to `layer4-transformation-design.md` (rev 16.6)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.7)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
 This file holds the full worked examples that the design document summarises: Lakeside Power (mini-grid), Harvest Cold Network (cold rooms) and Metro Bus Depots (EV depots), each read up from its factors, evaluated, planned and proved. The text was §7 and §10 of the design document up to rev 15. It moved here unchanged except for two things:
 - the system's output is described as *recommended* or *proposed*, never as *chosen*. The accountable manager chooses within each decision and creates the Actions; the system checks the chosen set; and the executive approves the plan, which releases the Actions above the spend threshold (design §2.4–§2.5; owner, 19 Nov);
-- section numbers are local to this file, and cross-references point to it or to design rev 16.6.
+- section numbers are local to this file, and cross-references point to it or to design rev 16.7.
 
 Every figure carries its marker and is checked by `check_manifest.py`. The roles are the five of design §2.6 (owner, Q-A2).
 
@@ -651,4 +651,4 @@ Every state is set by a person from a recorded document or event. The screen alw
 - **Untagged figures (L5).** A wrong untagged figure that equals no key figure is not caught outside the scanned documents (the design's Parts 1–2, this file, the walkthroughs and the transition document's §1–§4).
 - **Wording (L6).** Two wording defects remain on screen.
 
-Three time scales keep it cheap (`delivery-plan.md`, as proposed in plan F, pending approval): monthly ledger history generated directly from coherent ledgers (no physics), sparse cached operational context, and short high-fidelity evidence windows only where a claim needs them (5-minute dispatch and verification slots, 5-minute chamber readings around an incident, event-level OCPP). The historical cost (≈62 s per built site-day for ingest, assessment and matching; ≈147 s for the whole build) is [implementation-report] and must be re-measured; this commission was not authorised to run a build.
+Three time scales keep it cheap (`delivery-plan.md`, in the pack file set the owner approved on 19 Nov): monthly ledger history generated directly from coherent ledgers (no physics), sparse cached operational context, and short high-fidelity evidence windows only where a claim needs them (5-minute dispatch and verification slots, 5-minute chamber readings around an incident, event-level OCPP). The historical cost (≈62 s per built site-day for ingest, assessment and matching; ≈147 s for the whole build) is [implementation-report] and must be re-measured; this commission was not authorised to run a build.

@@ -95,12 +95,19 @@ while i < len(lines):
     if ln.strip() == "---":
         body.append("<hr>"); i += 1; continue
     if ln.startswith("|"):
-        rows = []
+        start, rows = i, []
         while i < len(lines) and lines[i].startswith("|"):
             rows.append(lines[i]); i += 1
         head = cells(rows[0]); data = [cells(r) for r in rows[2:]]
-        # rev 16.6 (review E, M1): a blank line inside a table makes a data row the header and drops the next row
-        assert not re.match(r"(OD|Q-[AB]|D)-?\d", head[0]), f"table split: a data row ({head[0]}) begins a table"
+        # rev 16.6 (review E, M1) and 16.7 (review G, N8): a blank line inside a table makes a data row the header and
+        # drops the next row. Refuse (SystemExit, so `python -O` cannot skip it): a table without a |--- separator, a
+        # table that begins with a decision ID, and a table directly after another of the same width across one blank line.
+        if len(rows) < 2 or not re.fullmatch(r"\|(\s*:?-{3,}:?\s*\|)+", rows[1].strip()):
+            raise SystemExit(f"table split: line {start + 1} starts a table without a separator row: {rows[0][:60]}")
+        if re.match(r"(OD|Q-[AB]|D)-?\d", head[0]):
+            raise SystemExit(f"table split: a data row ({head[0]}) begins a table at line {start + 1}")
+        if start >= 2 and not lines[start - 1].strip() and lines[start - 2].startswith("|") and len(cells(lines[start - 2])) == len(head):
+            raise SystemExit(f"table split: line {start + 1} continues the table above across a blank line")
         t = ['<div class="tw" tabindex="0" role="region" aria-label="table"><table><thead><tr>']
         t += [f"<th>{inline(c)}</th>" for c in head]
         t.append("</tr></thead><tbody>")
@@ -133,8 +140,5 @@ tochtml = '<nav class="toc" aria-label="Contents"><strong>Contents</strong><ul>'
     f'<li class="l{l}"><a href="#{s}">{t}</a></li>' for l, s, t in toc) + "</ul></nav>"
 body.insert(next(k for k, x in enumerate(body) if x.startswith("<h2")), tochtml)
 page = HEAD + "".join(body) + FOOT
-# the pack index row links the sibling rendered page (the .md has no link syntax in this subset)
-page = page.replace("<td><code>product-transition-and-roadmap.md</code> + <code>.html</code>",
-                    '<td><a href="product-transition-and-roadmap.html"><code>product-transition-and-roadmap.md</code> + <code>.html</code></a>', 1)
 open(OUT, "w", encoding="utf-8").write(page)
 print("ok", OUT)
