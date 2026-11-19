@@ -13,7 +13,7 @@ SOURCES) to build its lexicon, then checks every derived document that exists ag
      (C2), and "plan" for a target (OD-6: the naming lint, also run on the design itself). C4 words are warnings.
   A4 Decisions. The register's text for each design decision equals the design's Decisions table, and lists all of
      them; any other document cites a decision by ID and never restates it as a table row.
-  A5 Figures. Every money or percentage figure carries a fig/figx marker (checked to the cent by check_manifest.py,
+  A5 Figures. Every money or percentage figure carries a fig/figx marker or a rec:PATH marker (a declared input) (checked to the cent by check_manifest.py,
      which adds every derived document present to its anchor scan), or sits in a plan_model table block.
   A6 Coverage. Once every builder document exists, their markers together cite every §2.x section of the design.
 
@@ -206,7 +206,7 @@ RETIRED = [
 ]
 C4_WARN = re.compile(r"\b(?:replac\w*|retir\w*|no\s+longer)\b", re.I)
 MONEY_RE = re.compile(r"(?<![\w.§/-])(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d{2}|\d+(?:\.\d+)?%)(?![\d])")
-MARKER_AFTER = re.compile(r"\**<!--figx?:")
+MARKER_AFTER = re.compile(r"\**<!--(?:figx?|rec):")   # rec:PATH is checked to the exact manifest value by check_manifest.py
 
 
 def ref_ok(ref, lx):
@@ -278,7 +278,7 @@ def check_doc(name, text, kind, lx):
             out["A4"].append(f"{name}:{line_of(text, m.start())}: restates decision {m.group(1)} as a table row; cite it by ID")
     if kind != "kept":                                                   # A5
         t = blank(text, r"<!--table:[\w-]+-->.*?<!--/table-->", re.S)
-        t = blank(t, r"<!--(?!figx?:).*?-->", re.S)
+        t = blank(t, r"<!--(?!(?:figx?|rec):).*?-->", re.S)
         t = blank(t, r"`[^`\n]*`")
         for m in MONEY_RE.finditer(t):
             if not MARKER_AFTER.match(t, m.end()):
