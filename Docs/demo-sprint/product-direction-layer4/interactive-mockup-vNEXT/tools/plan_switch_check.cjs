@@ -27,6 +27,7 @@ const DV = JSON.parse(fs.readFileSync(path.join(root, '..', 'derived-values.json
 const MAN = JSON.parse(fs.readFileSync(path.join(root, 'fixtures.js'), 'utf8').match(/const MANIFEST = (.*);\nconst MANIFEST_SHA/s)[1]);
 const usd = n => '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
 const fails = [], errors = [], log = [];
+const RELEASE_STATES = ['Waiting', 'Released', 'Returned', 'Withdrawn'];
 function boot(op, hash) {
   const vc = new VirtualConsole(); vc.on('jsdomError', e => errors.push(String(e.message || e).slice(0, 200))); vc.on('error', e => errors.push(String(e).slice(0, 200)));
   return new JSDOM(html, { virtualConsole: vc, runScripts: 'dangerously', pretendToBeVisual: true, url: 'http://127.0.0.1:8790/#/' + hash,
@@ -89,9 +90,12 @@ function actionsCheck(op, d, caseItems, label) {
   for (const a of wf.actions) {
     const li = text.find(t => t.includes(a.action));
     if (!v1.includes(a.item)) { ok(!li, `${label}: ${a.item} not in version 1, not listed`); continue; }
-    if (!caseItems.includes(a.item)) { ok(li && li.includes('Returns to its creator'), `${label}: ${a.action.slice(0, 30)} returns to its creator`); continue; }
-    ok(li && li.includes(a.release === 'AT_CREATION' ? 'Released' : 'Waiting for approval'), `${label}: ${a.action.slice(0, 30)} ${a.release}`);
+    if (!caseItems.includes(a.item)) { ok(li && li.includes('Returned') && li.includes('To its creator'), `${label}: ${a.action.slice(0, 30)} Returned to its creator`); continue; }
+    ok(li && li.includes(a.release === 'AT_CREATION' ? 'Released' : 'Waiting'), `${label}: ${a.action.slice(0, 30)} ${a.release}`);
   }
+  // rev 16.12 (design §2.5, Figure 6d): an Action's release shows only Waiting, Released, Returned or Withdrawn; deferral is an event
+  for (const p of d.querySelectorAll('.action-list .state .status-pill')) ok(RELEASE_STATES.includes(squash(p.textContent).trim()), `${label}: release state "${squash(p.textContent).trim()}" is one of Figure 6d's four`);
+  { const n = d.querySelectorAll('.action-list .state .status-pill').length; ok(n > 0, `${label}: ${n} release states shown`); }
 }
 // Lakeside: the four switch cases
 { const dom = boot('lakeside', 'portfolio/act-first/plan'), w = dom.window, d = w.document;
@@ -195,7 +199,7 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
 // never inherited. A bridge row's key is checked against the data's bridge (driver -> bridge_drivers); every other key must be an
 // evaluated node of that Site. Rows with no registry row show no heading and are listed under Assure. One row is stated by the
 // dispatch rather than the registry: Ruiru's unattributed bill-total residual, Optimize (worked-portfolios §1.0, EV depot, O1).
-const HC = MAN.home_categories, VK = { lakeside: 'MINI_GRID', harvest: 'COLD_CHAIN', metro: 'EV_DEPOT_CAPTIVE' }, STATED = { resid: 'optimize' };
+const HC = MAN.home_categories, VK = { lakeside: 'MINI_GRID', harvest: 'COLD_CHAIN', metro: 'EV_DEPOT_CAPTIVE' }, STATED = { resid: (HC.residuals?.EV_DEPOT_CAPTIVE?.stated_total_unattributed || [])[0] };
 for (const op of ['lakeside', 'harvest', 'metro']) { const gapsSeen = [];
   SITES[op].forEach((sk, i) => { const dom = boot(op, `site/${sk}`), d = dom.window.document, rows = [...d.querySelectorAll('tr[data-node]')], site = bridgeOf(op, i), nodes = DV.sites[`${T[op]}/${site.site}`].actual.nodes;
     ok(rows.length > 5, `${op} ${sk}: factor rows found (${rows.length})`);
@@ -205,6 +209,9 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const gapsSeen = [];
       let exp;
       if (STATED[id]) exp = STATED[id];
       else if (home === 'potential') { ok((HC.potential[VK[op]] || []).some(p => p.name === key), `${op} ${sk} ${id}: potential ${key} is in the data's potential list`); exp = 'grow'; }
+      else if (key && key.includes('+')) { const parts = key.split('+'), rows = parts.map(k => HC.nodes[VK[op]][k]);
+        ok(parts.every(k => k in nodes) && rows.every(r => r && r[0] === rows[0][0] && r[1] === rows[0][1]) && (r.dataset.actual === '' || Math.abs(+r.dataset.actual - parts.reduce((a, k) => a + nodes[k], 0)) < 0.01), `${op} ${sk} ${id}: summed node ${key}: evaluated parts with one registry row, figure ${r.dataset.actual} is their sum`);
+        exp = rows.every(r => r && r[0] === rows[0][0]) ? rows[0][0] : ''; }
       else { const row = key ? HC.nodes[VK[op]][key] : null; exp = row && ['grow', 'optimize', 'protect', 'assure'].includes(row[0]) ? row[0] : '';
         if (key && !bm) ok(key in nodes, `${op} ${sk} ${id}: key ${key} is an evaluated node of the Site`);
         // the key is the right one: the row's October figure is that evaluated node's value (or its November-to-date value, for a row shown since 1 Nov)
@@ -231,6 +238,89 @@ for (const dc of MAN.home_categories.decisions) { const op = Object.keys(T).find
     const dom = boot('lakeside', hash), el = dom.window.document.querySelector(sel), g = squash(el?.querySelector('[data-heading="grow"]')?.textContent), o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent);
     ok(g.includes(usd(hu.revenue_monthly)) && g.startsWith('Grow revenue +') && o.includes(usd(cost)) && o.startsWith('Optimize cost and efficiency −'), `${hash}: huller Grow +${hu.revenue_monthly} and Optimize −${cost} (${g} | ${o})`);
     dom.window.close(); } }
+// ---- Rev 16.12 (review H fix round, the Architect's list) ----
+const usd2s = n => { const v = r2c(n || 0), a = Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return (v < -0.0001 ? '−' : v > 0.0001 ? '+' : '') + '$' + a; };
+const opOfSite = site => Object.keys(T).find(k => MAN.tenants.find(t => t.tenant === T[k]).sites.some(s => s.site === site));
+const ROLE_WORDS = { OPERATOR_EXECUTIVE: 'Operator executive', FINANCE_AND_COMMERCIAL_LEAD: 'Finance and commercial lead', SITE_MANAGER: 'Site manager', FIELD_TECHNICIAN: 'Field technician', ANALYST: 'Analyst' };
+// (1) Organisation settings (spec §8): the data's people in the five roles, a grant record, thresholds at portfolio and Site level
+// with their defaults, the period's budget and each month's crew-visit limit; no Admin, no Viewer, no B. Yohannes
+for (const op of ['lakeside', 'harvest', 'metro']) {
+  const dom = boot(op, 'settings-tenant'), d = dom.window.document, wf = wfOf(op), C = consOf(op), mt = MAN.tenants.find(t => t.tenant === T[op]);
+  const pn = [...d.querySelectorAll('.panel')].find(x => squash(x.querySelector('h2')?.textContent) === 'Users and roles'), tx = squash(pn?.textContent), all = squash(d.querySelector('#app .canvas')?.textContent);
+  const tabs = [...(pn?.querySelectorAll('table') || [])], rowsOf = i => [...(tabs[i]?.querySelectorAll('tbody tr') || [])].map(r => [...r.querySelectorAll('td')].map(c => squash(c.textContent).trim()).join(' | '));
+  ok(pn && !/\bAdmin\b|\bViewer\b|B\. Yohannes/.test(all), `${op} settings: no Admin, no Viewer, no B. Yohannes${/\bAdmin\b|\bViewer\b|B\. Yohannes/.test(all) ? ' (found: ' + all.match(/.{30}(?:\bAdmin\b|\bViewer\b|B\. Yohannes).{20}/)?.[0] + ')' : ''}`);
+  const site = p => p.site ? p.site.split(' · ').pop() : '';
+  ok(rowsOf(0).length === wf.people.length && wf.people.every((p, i) => rowsOf(0)[i].includes(p.name) && rowsOf(0)[i].includes(ROLE_WORDS[p.role]) && rowsOf(0)[i].includes(site(p)) && rowsOf(0)[i].includes('Illustrative')), `${op} settings: ${wf.people.length} people, each with the data's role and Site, labelled Illustrative`);
+  ok(new Set(wf.people.map(p => p.role)).size === 5 && Object.values(ROLE_WORDS).every(w => rowsOf(0).some(r => r.includes(w))), `${op} settings: the five roles shown`);
+  ok(rowsOf(1).length === wf.people.length && wf.people.every(p => rowsOf(1).some(r => r.startsWith(p.name) && r.includes('Granted'))), `${op} settings: a grant record row per person (${rowsOf(1).length})`);
+  const thr = rowsOf(2), sites = mt.sites.map(s => s.site.split(' · ').pop());
+  ok(thr[0]?.includes(usd(wf.spend_threshold)) && thr[0]?.includes(String(wf.crew_visit_threshold)) && sites.every(s => thr.some(r => r.startsWith(`Site: ${s}`) && r.includes('No Site setting'))) && thr.some(r => r.startsWith('Default when unset') && r.includes('Not set: nothing is released without approval') && /\b0\b/.test(r)),
+    `${op} settings: spend ${wf.spend_threshold} and visit threshold ${wf.crew_visit_threshold} at portfolio level, each Site, and the defaults (${thr.join(' | ').slice(0, 160)})`);
+  const lim = rowsOf(3), keys = Object.keys(C).filter(k => /_visits_[a-z]{3}$/.test(k));
+  ok(lim[0]?.includes(usd(C.budget_usd_nov_dec)) && keys.every(k => lim.some(r => r.startsWith(MONTH[MON.findIndex(m => m.toLowerCase() === k.slice(-3))]) && r.endsWith(String(C[k])))), `${op} settings: budget ${C.budget_usd_nov_dec} and the month limits ${keys.map(k => k + '=' + C[k]).join(', ')}`);
+  dom.window.close(); }
+// (2) the overview's one split of the gap, by heading (spec §10): each line is the sum of the bridge rows on its factors (bridge
+// driver -> registry key -> heading, from the data), subtotals per heading, Grow + Optimize = the evaluated gap, residual only on
+// an unobserved leaf; no revenue-and-cost split and no "not explained" residual beside it
+for (const op of ['lakeside', 'harvest', 'metro']) {
+  const dom = boot(op, 'portfolio'), d = dom.window.document, cost = op === 'metro', keyTot = {}, keySite = {}, headTot = { grow: 0, optimize: 0 };
+  SITES[op].forEach((sk, i) => (bridgeOf(op, i).period.bridge || []).forEach(b => { if (Math.abs(b.amount) < 0.005) return; const k = HC.bridge_drivers[b.driver], h = HC.nodes[VK[op]][k][0];
+    keyTot[k] = r2c((keyTot[k] || 0) + b.amount); (keySite[k] = keySite[k] || {})[sk] = r2c((keySite[k]?.[sk] || 0) + b.amount); headTot[h] = r2c(headTot[h] + b.amount); }));
+  const gap = r2c(SITES[op].reduce((a, sk, i) => a + dvGap(op, i), 0)), rows = [...d.querySelectorAll('table.gapsplit tr[data-split-key]')], seen = [];
+  ok(d.querySelectorAll('table.gapsplit').length === 1 && rows.length > 0, `${op} overview: one split of the gap (${rows.length} lines)`);
+  for (const r of rows) { const ks = r.dataset.splitKey.split(',').filter(Boolean), h = r.dataset.splitHeading;
+    if (ks.length === 1 && HC.residuals?.[VK[op]]?.[ks[0]]) { const res = HC.residuals[VK[op]][ks[0]]; const exp = r2c(SITES[op].reduce((a, sk, i) => a + ((bridgeOf(op, i).period.bridge || []).length ? 0 : dvGap(op, i)), 0));
+      ok(h === res[0] && Math.abs(+r.dataset.splitTotal - exp) < 0.005, `${op} overview: residual line ${ks[0]} under ${res[0]} is the unobserved Sites' gap ${exp} (got ${h} ${r.dataset.splitTotal})`); seen.push(...ks); continue; }
+    const exp = r2c(ks.reduce((a, k) => a + (keyTot[k] || 0), 0));
+    ok(ks.every(k => HC.nodes[VK[op]][k]?.[0] === h) && Math.abs(+r.dataset.splitTotal - exp) < 0.005 && SITES[op].every(sk => { const c = r.querySelector(`td[data-site="${sk}"]`), v = r2c(ks.reduce((a, k) => a + (keySite[k]?.[sk] || 0), 0)); return c && (c.dataset.v === '' ? Math.abs(v) < 0.005 : Math.abs(+c.dataset.v - v) < 0.005); }),
+      `${op} overview: ${h} line ${ks.join('+')} = ${exp} from the bridge rows, per Site (got ${r.dataset.splitTotal})`); seen.push(...ks); }
+  ok(Object.keys(keyTot).every(k => seen.filter(x => x === k).length === 1), `${op} overview: every bridge factor on exactly one line (${Object.keys(keyTot).join(', ')})`);
+  const sub = k => +d.querySelector(`table.gapsplit tr.subtotal[data-split-heading="${k}"]`)?.dataset.splitSubtotal, root = d.querySelector('table.gapsplit tr.root');
+  const resExp = cost ? r2c(gap - headTot.optimize) : 0;
+  ok((cost || Math.abs(sub('grow') - headTot.grow) < 0.005) && Math.abs(sub('optimize') - r2c(headTot.optimize + resExp)) < 0.005 && Math.abs(+root?.dataset.splitGap - gap) < 0.005 && Math.abs(+root?.dataset.splitResidual - resExp) < 0.005 && Math.abs((cost ? 0 : sub('grow')) + sub('optimize') - gap) < 0.005,
+    `${op} overview: Grow ${headTot.grow} + Optimize ${r2c(headTot.optimize + resExp)} = gap ${gap}, residual ${resExp} (got ${sub('grow')} + ${sub('optimize')} = ${root?.dataset.splitGap}, residual ${root?.dataset.splitResidual})`);
+  const top = squash(d.querySelector('.headline')?.textContent) + ' ' + squash(d.querySelector('.heroes')?.textContent);
+  ok(!/Revenue factors|cost factors move|attributed to factors ·|not explained by the model/.test(top) && (cost || top.includes(`Grow ${usd2s(headTot.grow)}`) && top.includes(`Optimize ${usd2s(headTot.optimize)}`)), `${op} overview: headline and figures split by heading only (${top.slice(0, 200)})`);
+  if (op === 'lakeside') { const ux = rows.find(r => r.dataset.splitKey === 'unexplained_l'), ub = keySite.unexplained_l || {};
+    ok(ux && squash(ux.textContent).includes('Fuel the generator model does not explain') && ux.dataset.splitHeading === 'optimize' && Object.keys(ub).length === 2 && Object.entries(ub).every(([sk, v]) => squash(ux.querySelector(`td[data-site="${sk}"]`)?.textContent) === usd2s(v)),
+      `lakeside overview: fuel the generator model does not explain, under Optimize, ${Object.entries(ub).map(([s, v]) => s + ' ' + v).join(', ')}`); }
+  dom.window.close(); }
+// (4) who chooses (design §2.4 step 2, OD-16 ruling): the role the data names (home_categories.decisions[].chooser), the Site's manager
+// for a Site role; the item, where there is one, chosen by that person; its Actions shown with their creators
+// (5) each valued option's money lines under the headings of the money factors the data names (home_categories.option_money_factors)
+// (11) the decision page's release state is one of Figure 6d's four
+const optSeen = new Set();
+for (const dc of HC.decisions) { const op = opOfSite(dc.site), wf = wfOf(op), dom = boot(op, `decision/${dc.id}`), d = dom.window.document;
+  const p = wf.people.find(x => x.role === dc.chooser && (dc.chooser !== 'SITE_MANAGER' || x.site === dc.site)), wd = squash(d.querySelector('.who-decides .wd-steps li:nth-child(2)')?.textContent);
+  const it = (wf.items || []).find(i => i.kind !== 'PROACTIVE' && DV.options[i.item]?.decision === dc.plan), acts = it ? wf.actions.filter(a => a.item === it.item) : [], st3 = squash(d.querySelector('.who-decides .wd-steps li:nth-child(3)')?.textContent);
+  ok(p && wd.includes(p.name) && wd.includes(ROLE_WORDS[p.role]) && (!it || it.chosen_by === p.name) && acts.every(a => st3.includes(a.action) && st3.includes(`Created by ${ROLE_WORDS[wf.people.find(x => x.name === a.created_by).role]}`) && st3.includes(a.created_by)),
+    `${dc.id}: chosen by ${p?.name} (${dc.chooser})${it ? `, item ${it.item} chosen by ${it.chosen_by}` : ''}${acts.length ? `, Actions created by ${[...new Set(acts.map(a => a.created_by))].join(', ')}` : ''} (${wd.slice(0, 80)})`);
+  for (const rp of d.querySelectorAll('.who-decides [data-release], .action-list .state .status-pill')) ok(RELEASE_STATES.includes(squash(rp.textContent).trim()), `${dc.id}: release state "${squash(rp.textContent).trim()}" is one of Figure 6d's four`);
+  for (const [id, F] of Object.entries(HC.option_money_factors)) { const tr = d.querySelector(`tr[data-opt="${id}"]`); if (!tr) continue; optSeen.add(id);
+    const hs = [...new Set(F.map(f => HC.nodes[VK[op]][f]?.[0]))].sort(), got = [...tr.querySelectorAll('[data-heading]')].map(l => l.dataset.heading).filter(h => h === 'grow' || h === 'optimize').sort(), dv = DV.options[id];
+    const one = hs.length === 1 ? squash(tr.querySelector(`[data-heading="${hs[0]}"]`)?.textContent) : '';
+    ok(JSON.stringify(got) === JSON.stringify(hs) && (hs.length !== 1 || !dv?.monthly_or_horizon_change || one.includes(usd(dv.monthly_or_horizon_change))), `${dc.id} ${id}: money lines under ${hs.join(' and ')} from its factors ${F.join(', ')} (got ${got.join(', ') || 'none'}${one ? ': ' + one : ''})`); } }
+ok(Object.keys(HC.option_money_factors).every(id => optSeen.has(id)), `every option with money factors is on its decision page (missing: ${Object.keys(HC.option_money_factors).filter(id => !optSeen.has(id)).join(', ') || 'none'})`);
+// (7) the Mto claim: its one-off is what the operator bears, the supplier's share is named, the extra fuel is an Optimize line,
+// and the option's value is the 12-month result, never a one-off cost
+{ const dv = DV.options['MTO-INV-CLAIM'], cov = Object.values(dv.cost_lines).filter(l => l.covered_by && l.operator_share === 0).reduce((a, l) => a + l.amount, 0);
+  for (const [hash, sel] of [['portfolio/act-first/plan', '.plan-item[data-item="MTO-INV-CLAIM"]'], ['decision/mto-inverter', 'tr[data-opt="MTO-INV-CLAIM"]']]) {
+    const dom = boot('lakeside', hash), el = dom.window.document.querySelector(sel), tx = squash(el?.textContent);
+    const oneOff = hash.startsWith('decision') ? squash(el?.querySelector('td:nth-child(4)')?.textContent) : squash([...(el?.querySelectorAll('.plan-item-figs > div') || [])].find(x => /^One-off cost/.test(squash(x.querySelector('dt')?.textContent)))?.querySelector('dd')?.textContent);
+    const o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent);
+    ok(oneOff.startsWith(usd(dv.net_one_off)) && oneOff.includes(`supplier bears ${usd(cov)}`) && !oneOff.includes(usd(-dv.value)) && tx.includes('−' + usd(dv.value)) && o.startsWith('Optimize cost and efficiency −') && o.includes(usd(dv.monthly_or_horizon_change)),
+      `${hash}: Mto claim one-off ${dv.net_one_off}, supplier bears ${cov}, extra fuel ${dv.monthly_or_horizon_change} under Optimize, value ${dv.value} not a one-off (${oneOff} | ${o})`);
+    dom.window.close(); } }
+// (8) and (11) What changed: each chosen option's state derives from its item and Actions; release states are Figure 6d's four
+for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portfolio/what-changed'), d = dom.window.document, wf = wfOf(op);
+  const rows = [...d.querySelectorAll('[aria-label="Chosen options"] tbody tr')];
+  for (const r of rows) { const dc = HC.decisions.find(x => r.querySelector('a')?.getAttribute('href') === `#/decision/${x.id}`), it = dc ? (wf.items || []).find(i => i.kind !== 'PROACTIVE' && DV.options[i.item]?.decision === dc.plan) : null, acts = it ? wf.actions.filter(a => a.item === it.item) : [];
+    const exp = !it ? 'BESIDE' : it.capital && !acts.length ? 'CAPITAL' : acts.length && acts.every(a => a.release === 'AT_CREATION') ? 'RELEASED' : 'WAITING', got = r.querySelector('[data-commit-state]')?.dataset.commitState;
+    ok(dc && got === exp && (exp !== 'WAITING' || /Waiting for approval/.test(squash(r.textContent))) && (exp !== 'CAPITAL' || /capital approval/.test(squash(r.textContent)) && /No Action yet/.test(squash(r.textContent))), `${op} what changed: ${dc?.id} ${exp} (got ${got})`); }
+  ok(rows.length > 0, `${op} what changed: ${rows.length} chosen options`);
+  const pills = [...d.querySelectorAll('.action-list .state .status-pill')];
+  ok(pills.length > 0 && pills.every(p => RELEASE_STATES.includes(squash(p.textContent).trim())), `${op} what changed: ${pills.length} release states, each one of Figure 6d's four (${[...new Set(pills.map(p => squash(p.textContent).trim()))].join(', ')})`);
+  dom.window.close(); }
 console.log(`plan_switch_check: ${log.length} passed, ${fails.length} failed, script errors ${errors.length}`);
 if (fails.length) console.log(fails.join('\n')); if (errors.length) console.log(errors.slice(0, 5).join('\n'));
 if (fails.length || errors.length) process.exitCode = 1;

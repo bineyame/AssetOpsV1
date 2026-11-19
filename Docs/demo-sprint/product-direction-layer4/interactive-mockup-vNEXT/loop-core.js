@@ -65,11 +65,13 @@ const fig = (key,text) => `<button class="ev-num" data-evd="${key}" aria-haspopu
 /* ---------- outcome lenses (main design §3.1): outcomes over one factor structure; never summed ---------- */
 const LENS = {grow:['Grow revenue','sun'],optimize:['Optimize cost and efficiency','money'],protect:['Protect asset and capital','asset'],assure:['Assure performance and returns','evidence']};
 const lensTag = l => `<span class="lens lens-${l}">${LENS[l][0]}</span>`;
-/* ---------- home categories (design rev 16.11 §2.0, register calls 17 and 18; worked-portfolios §1.0 "Home categories" row) ----------
+/* ---------- home categories (design rev 16.11 §2.0, register call 17; decisions under their Finding's factor, rev 16.12 OD-25;
+   worked-portfolios §1.0 "Home categories" row) ----------
    Read from the data's registry (MANIFEST.home_categories), never typed here and never inherited from a parent. A mock-up node
    is matched to its registry row by NODE_KEY (the evaluated node its figure reads); a bridge row by its factor
    (home_categories.bridge_drivers). The outcome at the root is `above` the headings. Potential (capacity with no customer)
-   sits beside Grow, never as Grow's actual. A node with no registry row is a GAP: it shows no heading and is listed in
+   sits beside Grow, never as Grow's actual. A residual row is the data's (home_categories.residuals); a node whose figure is the sum of
+   several evaluated nodes (EV "Energy charged": peak, 22:00–24:00 and 00:00–05:00 kWh) takes their rows' common heading. A node with no registry row is a GAP: it shows no heading and is listed in
    HOME_GAPS; its heading is never guessed. */
 const HC = M.home_categories||{nodes:{},potential:{},bridge_drivers:{},decisions:[]};
 const VKEY = {mini:'MINI_GRID',cold:'COLD_CHAIN',ev:'EV_DEPOT_CAPTIVE'};
@@ -80,13 +82,15 @@ const NODE_KEY = {
   kmodel:'kwh_model',kexcess:'excess_kwh',staff:'staff',maint:'maint',liab:'liability'},
  ev:{root:'cost_per_departure_met',dep:'departures_met',chg:'deliverable_kwh_night',conn:'charger_days_out_of_service',cost:'cost_to_serve',bill:'energy_cost',
   peak:n=>n.unit==='$'?'peak_cost':'peak_kwh',off:'offpeak_cost',demand:'demand_cost',maxkw:'max_kw',pen:'penalties',maint:'maintenance',
-  resid:{heading:['optimize','O1'],why:'the part of a bill-total target that cannot be attributed (worked-portfolios §1.0, EV depot: Optimize, O1)'}}};
+  kwh:{parts:['peak_kwh','kwh_2200_2400','kwh_0000_0500']},resid:{residual:'stated_total_unattributed'}}};
 const HOME_GAPS = [];
 function homeRow(v,key){const r=HC.nodes[VKEY[v]]?.[key];return Array.isArray(r)?r:null;}
 function placeHomes(sk,root){const v=OPS[SK[sk].op].vertical,K=NODE_KEY[v];
  walk(root,n=>{let k=K[n.id];if(typeof k==='function')k=k(n);
   if(k&&typeof k==='object'){if(k.potential){const p=(HC.potential[VKEY[v]]||[]).find(x=>x.name===k.potential);if(p){n.lens='grow';n.potential=true;n.home='potential';n.obj=p.objective;n.hkey=p.name;return;}}
-   else if(k.heading){[n.lens,n.obj]=k.heading;n.home='named';n.hkey=n.id;return;}k=null;}
+   else if(k.residual){const r=(HC.residuals||{})[VKEY[v]]?.[k.residual];if(Array.isArray(r)&&['grow','optimize'].includes(r[0])){[n.lens,n.obj]=r;n.home='named';n.hkey=k.residual;n.hvia='residual';return;}}
+   else if(k.parts){const rs=k.parts.map(p=>homeRow(v,p)),h=rs[0]?.[0];if(rs.every(r=>r&&r[0]===h&&r[1]===rs[0][1])&&['grow','optimize','protect','assure'].includes(h)){[n.lens,n.obj]=rs[0];n.home='named';n.hkey=k.parts.join('+');n.hvia='parts';return;}}
+   k=null;}
   n.hvia=k?'node':null;if(!k&&n.driver){k=HC.bridge_drivers[n.driver];n.hvia=k?'factor':null;}
   const row=k?homeRow(v,k):null;n.hkey=k||null;
   if(row&&row[0]==='above'){n.lens=null;n.above=true;n.home='above';}
@@ -114,11 +118,13 @@ function qtyOf(basis){const m=String(basis).match(/^([\d,]+(?:\.\d+)?) (kWh|L|cr
 
 /* ---------- factor structures per site (outcome → factors → leaf factors) ---------- */
 /* node: {id,label,how,unit,plan,actual,eff,dev,cls,lens,src,kids,dec,bound,residual,obs,note}
-   eff = effect of this factor's deviation on the site outcome in $ (+ better), only where attributed. */
+   eff = effect of this factor's deviation on the site outcome in $ (+ better), only where attributed.
+   residual marks only a leaf that is not observed (Ruiru's bill total, Mto's unpriced losses); fuel the generator model does not
+   explain is an attributed factor, unexplained_l under Optimize, never a residual (spec §10, review H M9). */
 const UNIT = {'$':v=>usd(v),'$/kWh':v=>usd2(v)+' a kWh','$/L':v=>usd2(v)+' a litre','$/dep':v=>usd2(v),'$/cd':v=>usd2(v)+' a crate-day',kWh:v=>num(v)+' kWh',L:v=>num(v)+' L','crate-days':v=>num(v)+' crate-days','%':v=>v+'%',kW:v=>num(v)+' kW',dep:v=>num(v),'kWh/night':v=>num(v)+' kWh a night',n:v=>num(v)};
 const fmtU = (v,u) => v===null||v===undefined?null:(UNIT[u]||num)(v);
 function bridgeNode(sk,b,i,costSide){const q=qtyOf(b.basis),[label]=FAC[b.driver];const sg=costSide?-Math.sign(b.amount):Math.sign(b.amount);
- return {id:'f'+i,label,how:plain(b.basis),unit:q?q[1]:'$',dev:q?sg*q[0]:null,eff:b.amount,cls:b.class,driver:b.driver,residual:b.driver==='UNEXPLAINED_RESIDUAL',src:SRC_OF[b.driver]||'model',evd:`bridge:${sk}:${i}`,dec:DEC_OF_FACTOR[sk]?.[b.driver]};}
+ return {id:'f'+i,label,how:plain(b.basis),unit:q?q[1]:'$',dev:q?sg*q[0]:null,eff:b.amount,cls:b.class,driver:b.driver,residual:false,src:SRC_OF[b.driver]||'model',evd:`bridge:${sk}:${i}`,dec:DEC_OF_FACTOR[sk]?.[b.driver]};}
 const SRC_OF = {CANDIDATE_RUNNING:'ems',DEMAND_VOLUME:'billing',METER_MAPPING_UNBILLED:'meterreg',AUTHORISED_ADJUSTMENT:'billing',EVENING_LOAD_GROWTH:'ems',SOLAR_SHORTFALL_NECESSARY_GEN:'ems',EVENING_NECESSARY_GEN:'ems',UNEXPLAINED_RESIDUAL:'fuel',
  OCCUPANCY_REVENUE:'ledger',OCCUPANCY_ENERGY_VOLUME:'energymeter',ENERGY_EFFICIENCY:'energymeter',CUSTOMER_COMPENSATION:'qa',PEAK_ENERGY_SHARE:'utility',DEMAND_CHARGE:'utility'};
 const DEC_OF_FACTOR = {kobo:{CANDIDATE_RUNNING:'kobo-generator',UNEXPLAINED_RESIDUAL:'kobo-generator'},kisiwa:{SOLAR_SHORTFALL_NECESSARY_GEN:'kisiwa-genset'},
@@ -199,6 +205,10 @@ function findNode(sk,id){let r=null;walk(tree(sk),n=>{if(n.id===id)r=n;});return
 
 /* portfolio composition (identity M1): Σ eligible sites; ratios as Σ/Σ */
 function opTotals(op){const o=OPS[op],cost=o.kind==='cost';let plan=0,actual=0;const ov=X=>X.status==='evaluated'?X.nodes[cost?'cost_to_serve':'contribution']:X.stated_total;o.sites.forEach(sk=>{const d=DERIVED.sites[`${o.t.tenant}/${siteM(sk).site}`];plan+=ov(d.plan);actual+=ov(d.actual);});plan=r2(plan);actual=r2(actual);return {plan,actual,variance:r2(cost?plan-actual:actual-plan)}; /* Σ of the evaluator's site outcomes */}
+/* the plan's spend, item by item (demo_workflow items[]); an option the search recommends that has no plan item (the billing fix:
+   office work, no spend, no crew visit) sits beside the plan, never in the plan-spend drawer */
+const spendRows=op=>Object.entries(OPS[op].t.portfolio.allocation.spend_breakdown).filter(([k])=>(WF(op).items||[]).some(i=>i.item===k));
+const spendBeside=op=>Object.entries(OPS[op].t.portfolio.allocation.spend_breakdown).filter(([k])=>!(WF(op).items||[]).some(i=>i.item===k));
 function residualOf(op){let r=0;OPS[op].sites.forEach(sk=>{walk(tree(sk),n=>{if(n.residual&&n.eff!=null)r+=n.eff;});});
  const v=opTotals(op).variance;return {residual:r2(r),attributed:r2(v-r)};}
 
@@ -262,7 +272,7 @@ function evRecord(key){const [kind,a,b,c]=key.split(':');
   const rows=o.sites.map(sk=>{const r=tree(sk);return [SK[sk].name,fmtU(cost?siteM(sk).period.plan.total:r.plan,'$'),fmtU(cost?siteM(sk).period.actual.total:r.actual,'$'),usd(siteM(sk).period.variance,true)];});
   if(b==='cov'){const cv=P.coverage;return {title:`${o.name} · cost on emulated records`,value:pct(cv.cost_recorded_share,1),cls:'DERIVED',def:'Share of the period cost to serve that rests on received invoices and records; the rest is carried as an estimate.',formula:`${usd(cv.cost_recorded_usd)} recorded ÷ ${usd(cv.cost_total_usd)} total = ${(cv.cost_recorded_share*100).toFixed(2)}%`,parts:[],sys:SRCDEF.om[0],head:'site, line, amount, class',rows:o.sites.flatMap(sk=>{const out=[];walk(tree(sk),n=>{if(n.cls==='ESTIMATED'&&!n.kids)out.push([SK[sk].name,n.label,fmtU(n.actual,'$'),'Estimated']);});return out;}),prov:'source-emulated',clocks:[['Service period','1–31 Oct'],['As of','6 Nov']],coverage:`${pct(cv.cost_recorded_share,1)} recorded`,path:`tenants[${o.ti}].portfolio.coverage`};}
   if(b==='m12')return planValueRecord(a);
-  if(b==='spend'){const A=P.allocation;return {title:`${o.name} · plan spend`,value:usd(A.spend),cls:'QUOTE',def:'Sum of the one-off costs of the options in the plan, against the November–December budget.',formula:Object.entries(A.spend_breakdown).map(([k,v])=>usd(v)).join(' + ')+` = ${usd(A.spend)}`,parts:[],sys:'Quotes, contract terms and price lists',head:'option, spend',rows:Object.entries(A.spend_breakdown).map(([k,v])=>[optLabel(k),usd(v)]),prov:'source-emulated',clocks:[['Budget period','November–December']],coverage:'Quoted costs',path:`tenants[${o.ti}].portfolio.allocation.spend`};}
+  if(b==='spend'){const A=P.allocation;return {title:`${o.name} · plan spend`,value:usd(A.spend),cls:'QUOTE',def:'Sum of the one-off costs of the options in the plan, against the November–December budget.',formula:spendRows(a).map(([k,v])=>usd(v)).join(' + ')+` = ${usd(A.spend)}`+(spendBeside(a).length?`; beside the plan, not in its spend: ${spendBeside(a).map(([k])=>optLabel(k).replace(/^./,c=>c.toLowerCase())).join(', ')}`:''),parts:[],sys:'Quotes, contract terms and price lists',head:'option, spend',rows:spendRows(a).map(([k,v])=>[optLabel(k),usd(v)]),prov:'source-emulated',clocks:[['Budget period','November–December']],coverage:'Quoted costs',path:`tenants[${o.ti}].portfolio.allocation.spend`};}
   const v=b==='plan'?T.plan:b==='actual'?T.actual:T.variance;
   return {title:`${o.name} · ${cost?'charging and depot cost':'contribution'} · ${b==='plan'?'plan':b==='actual'?'October':'difference from target'}`,value:usd(v,b==='variance'),cls:b==='plan'?'PLAN':'RECORDED',def:`Portfolio ${cost?'cost':'contribution'} is the sum of the three sites, computed from each site's factors (never an average of site percentages).`,formula:rows.map(r=>r[b==='plan'?1:b==='actual'?2:3]).join(' + ')+` = ${usd(v,b==='variance')}`,parts:rows.map(r=>[r[0],r[1],r[2],r[3],'']),sys:b==='plan'?SRCDEF.plan[0]:'Site economics (billing, fuel, invoices, ledgers)',head:'site, plan, actual, difference',rows,prov:'source-emulated',clocks:[['Service period','1–31 Oct'],['Recognised in','October books, closed 6 Nov']],coverage:`${pct(P.coverage.cost_recorded_share,1)} of cost on emulated records`,path:`tenants[${o.ti}].portfolio`};}
  if(kind==='opt'){const x=OPT[a],cost=b==='cost',[val,note]=cost?optCost(x):optEffect(x),e=x.economics||{};

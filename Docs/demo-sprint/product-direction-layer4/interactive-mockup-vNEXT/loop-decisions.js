@@ -56,7 +56,9 @@ const NODE_FIELD={contribution:'contribution',revenue:'revenue',fuel_cost:'diese
   if(d.valued_in_money&&d.value!==null){if(id==='KIS-BATT60'){o.net_12m=d.value;o.monthly_fuel_saving_modelled=d.monthly_or_horizon_change;}
    else if(e.net_contract!==undefined)e.net_contract=d.value;else if(e.net_12m!==undefined)e.net_12m=d.value;
    if(d.months>1)['net_monthly','monthly','saving_monthly'].forEach(k=>{if(e[k]!==undefined)e[k]=d.monthly_or_horizon_change;});
-   if(o.residual_cost!==undefined&&d.months<=1)o.residual_cost=d.value>0?d.net_one_off:r2(-d.value);}
+   /* the one-off is what the operator bears (net_one_off); the option's value adds its money effect to the restore (Mto's extra
+      fuel, under Optimize), so the value is never shown as a one-off cost (rev 16.12 §2.0) */
+   if(o.residual_cost!==undefined&&d.months<=1&&d.net_one_off!=null)o.residual_cost=d.net_one_off;}
   if(d.energy_bill_option!==undefined&&e.energy_cost_monthly!==undefined)e.energy_cost_monthly=d.energy_bill_option;
   if(d.energy_bill_reference!==undefined&&/^EMB-/.test(id)&&OPT['EMB-NOACT'])OPT['EMB-NOACT'].economics.energy_cost_monthly=d.energy_bill_reference;
   if(d.sensitivities&&o.sensitivity)Object.entries(d.sensitivities).forEach(([k,v])=>{const val=typeof v==='object'?v.value:v;if(o.sensitivity[k+'_net_12m']!==undefined)o.sensitivity[k+'_net_12m']=val;});});
@@ -149,7 +151,8 @@ function optEffect(o){const e=o.economics||{};
  if(['REPAIR','SUPPLIER_REMEDY','STOPGAP_PLUS_CLAIM','INVESTIGATION','RIGHTS_REVIEW'].includes(o.kind))return ['No saving claimed','a cost to keep service, evidence or rights'];
  return ['Not modelled','no money effect modelled'];}
 function optClass(o){if(optEffect(o)[0]==='Not valued')return o.forward_replay?'MODELLED':'NA';const c=o.economics?.class||o.avoided_capex_class;if(c)return c;if(o.kind==='NO_ACTION')return 'MODELLED';if(o.expected_penalties!==undefined)return 'MODELLED';return 'QUOTE';}
-function whoPays(o){if(optCost(o)[0]==='Not costed')return '—';if(o.residual_cost!==undefined)return o.kind==='STOPGAP_PLUS_CLAIM'?'We pay now; the supplier replaces the failed unit (it becomes a spare, not cash)':o.kind==='SUPPLIER_REMEDY'?'Supplier remedies the fault; we pay the cost shown':'We pay';
+function whoPays(o){if(optCost(o)[0]==='Not costed')return '—';if(o.residual_cost!==undefined){const cov=Object.values(DOPT(o.id)?.cost_lines||{}).filter(l=>l.covered_by&&l.operator_share===0).reduce((a,l)=>a+l.amount,0),cv=cov?`; the supplier bears ${usd(cov)} under warranty`:'';
+  return o.kind==='STOPGAP_PLUS_CLAIM'?`We pay now${cv}: the supplier replaces the failed unit (it becomes a spare, not cash)`:o.kind==='SUPPLIER_REMEDY'?`We pay the cost shown${cv||': the supplier remedies the fault'}`:'We pay';}
  if(o.kind==='NO_ACTION')return '—';if(o.id==='MTO-HULLER')return 'We pay the connection contractor';if(o.id==='MTO-METER-AUDIT')return 'Routine maintenance budget';if(o.id==='KIS-REPAIR')return 'We pay: the warranty ended on 30 Jun 2026';return 'We pay';}
 const CL=(id,k)=>DOPT(id)?.cost_lines?.[k]?.amount, SN=(sk,per='actual')=>DSITE(sk)[per].nodes, VIS=(id,w='crew visit')=>{const n=DOPT(id)?.crew_visits??0;return `${n===1?'one':num(n)} ${w}${n===1?'':'s'}`;},
  SCREDIT=sc=>String(sc).replace(/^(\d+%) of monthly( service)? fee \((\d+)\)/,(m,p,a,n)=>`${p} of the $${num(+n)} monthly${a||''} fee`);

@@ -54,6 +54,14 @@ HOOKS = {
    "<span>Illustrative demo data · not connected to live site data</span><button data-notes>Review notes</button>"),
   # theme toggle (light, dark, follow the system) in the top bar, before the avatar
   ("<span class=\"avatar\">BY</span>", "${themeToggle()}<span class=\"avatar\">BY</span>"),
+  # rev 16.12 Organisation settings (spec §8, OD-13, OD-14, OD-2, OD-12, OD-18): the five roles, the grant record, thresholds
+  # and limits come from loop-portfolio.js orgUsersAndRoles(); no Admin and no Viewer role exists
+  ("function settingsTenant(){return status(badge('Admin','blue'),'Organisation-wide settings for this demo tenant')+",
+   "function settingsTenant(){return status(badge('Operator executive changes these','blue'),'Organisation-wide settings, read by every role')+"),
+  ("['Organisation','Bineyame Operations']", "['Organisation',opName()]"),
+  ("'Deployment-wide','Admin only. ", "'Deployment-wide','Operator executive only. "),
+  (" panel('Users and roles',table(['User','Role','Can'],[['B. Yohannes','Admin','Everything, including settings'],['Operations manager','Manager','Accept recommendations, assign work'],['Site controls lead','Operator','Record changes and readings'],['Maintenance lead','Technician','Complete work and maintenance records'],['Finance analyst','Viewer','Read sites, findings and financials']]),'Small illustrative list');}",
+   " orgUsersAndRoles();}"),
   # initial render moves to the end of loop-init.js (after loop screens register)
   ("window.mockupManifest=SCREENS.map(({render,...meta})=>meta);\nrender();", "/* Layer 4: manifest and initial render() moved to loop-init.js */"),
  ],

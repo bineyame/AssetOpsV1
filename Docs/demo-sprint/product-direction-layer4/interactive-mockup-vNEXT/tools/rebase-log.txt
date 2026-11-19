@@ -27,6 +27,10 @@ screens.js: hook "document.addEventListener('click',e=>{\n"
 screens.js: hook "document.addEventListener('change',e=>{"
 screens.js: hook '<span>Illustrative mockup data · proposal for implementation'
 screens.js: hook '<span class="avatar">BY</span>'
+screens.js: hook "function settingsTenant(){return status(badge('Admin','blue'"
+screens.js: hook "['Organisation','Bineyame Operations']"
+screens.js: hook "'Deployment-wide','Admin only. "
+screens.js: hook " panel('Users and roles',table(['User','Role','Can'],[['B. Y"
 screens.js: hook 'window.mockupManifest=SCREENS.map(({render,...meta})=>meta);'
 screens.js: name 'GreenHarvest Cold Room' -> 'Thika cold room' x14
 screens.js: name 'GreenHarvest' -> 'Thika' x27
