@@ -21,3 +21,7 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's addition (on diagrams)
 
 > also let the architect add sequence and usecase diagrams , process flows..etc for clarity with mingrid for demonstration
+
+## Owner's addition (diagram focus)
+
+> the diagrams should focus on only aspects that pertain to the chanes to the current product
