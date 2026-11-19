@@ -19,7 +19,7 @@ be relevant in light of our updated goals".
 - **Spec handshake.** After the owner reviews the file paths, work begins; the Architect specifies clearly to the implementer and gives a reviewer guide, and "the reviwer asks and clarifies questions with the architect before coding begingsg to avoid mid-implementation back and forth". A strategy round on test data and database build follows. `owner-build-start-and-spec-handshake-2026-11-19.md`
 - **Test policy.** "to avoid expensive full test that holds back progress, so regression or smoke test or isolated test could be used then full test for key milestones". `owner-rules-clarification-2026-11-19.md`
 - **Engagement path.** Initial call, alignment, deep-dive, integration pack and pilot timeline, monitor, then SaaS; file exports show value early; pilot fee or credit; price "disclosed after client conversation". D13 and D14 yes; first change agreed at the end of the deep-dive. `owner-d1-engagement-path-2026-11-18.md`; `owner-sitting1-answers-2026-11-18.md`
-- **Decisions OD-1 to OD-20** (including OD-7 and OD-8, delivery lanes, "yes") are in the Layer 4 design pack's decisions register (`Docs/demo-sprint/product-direction-layer4/`, on branch `task/layer4-design-regeneration` until merged), not copied here. Delivery order: emulator lane and factor lane in parallel. `owner-design-regeneration-request-2026-11-19.md`
+- **Decisions OD-1 to OD-20** (including OD-7 and OD-8, delivery lanes, "yes") are in the Layer 4 pack's `decisions-register.md` (`Docs/demo-sprint/product-direction-layer4/`, on branch `task/pack-recreate-integrate` until merged; OD-1 to OD-20 as of design rev 16.8), not copied here. Delivery order: emulator lane and factor lane in parallel. `owner-design-regeneration-request-2026-11-19.md`
 
 ## 2. Product direction: economic outcomes built from structured factors
 - **The product starts from what customers earn, save, protect or improve, not from what it can detect.** "The starting point is no longer what AssetOps can detect, but what customers stand to earn, save, protect, or improve financially." `owner-commercial-capability-direction-2026-10-26.md`
@@ -105,19 +105,9 @@ be relevant in light of our updated goals".
 | Versioned setup facts | "later ... not a priority" | `owner-rules-clarification-2026-11-19.md` |
 | Test-data and database strategy round | to come | `owner-build-start-and-spec-handshake-2026-11-19.md` |
 
-## 10. Pending owner confirmation
+## 10. Owner rules now in `.ai/RULES.md`
 
-Standing owner rules not yet in `.ai/RULES.md` (the owner has not answered; they stay
-here until confirmed):
-
-1. "Unexplained fuel", never "theft".
-2. Synthetic never shown as observed; claims only for what was tested.
-3. "Not analysed yet" only while system work is pending.
-4. Missing data lowers confidence but still computes; zero contributors shown as zero.
-5. Source is a displayed data element; ingest works for any site.
-6. Refused by a safety check: stop and report, no workaround.
-7. Stop old walkthrough servers found running.
-8. Tag every demo build; the deferred list is a queue; estimate at agent speed.
-9. Every capability claimed as available must be demonstrable.
-10. Executive questions never written on screen.
-11. Decision routing, the owner-absent rule and review routing (consistent; no change needed).
+The ten standing rules this summary listed as pending were confirmed by the owner on
+19 Nov ("yes, add the 10 rules", `owner-summary-confirmations-2026-11-19.md`). They are
+in `.ai/RULES.md` §1 and §7. Decision routing, the owner-absent rule and review routing
+need no change.

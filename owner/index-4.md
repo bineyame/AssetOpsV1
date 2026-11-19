@@ -19,7 +19,7 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-10 `owner-any-range-speed-2026-11-10.md` Any date range fast via snapshots · current — natural app behaviour, daily snapshots
 - 2026-11-10 `owner-e5-answers-2026-11-10.md` Prepared dip label and pictures · historical — E5 rulings applied
 - 2026-11-10 `owner-kobo-gap-pattern-2026-11-10.md` Kobo gap days not defensible · historical — demo data fix
-- 2026-11-10 `owner-money-snapshot-2026-11-10.md` Save money outcomes in snapshots · current — confirmed 19 Nov (summary Q1): not carried into the summary; backlog item
+- 2026-11-10 `owner-money-snapshot-2026-11-10.md` Save money outcomes in snapshots · current — confirmed 19 Nov (summary Q10): the intent is kept as the daily calculated snapshot with recalculation triggers (owner-summary-confirmations-2026-11-19.md)
 - 2026-11-10 `owner-overnight-2026-11-10.md` Targeted tests; heavy ops batched · current — confirmed 19 Nov (summary Q8)
 - 2026-11-10 `owner-portfolio-logic-doc-2026-11-10.md` Portfolio numbers in technical script · historical — DS-1b updated
 - 2026-11-10 `owner-thursday-technical-demo-2026-11-10.md` Thursday technical demo to associates · historical — demo past
