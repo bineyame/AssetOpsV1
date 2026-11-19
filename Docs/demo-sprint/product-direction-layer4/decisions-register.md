@@ -69,7 +69,7 @@ The design carries D1, D11, D13 and D14 over and treats the rest as commercial o
 
 ## 4. Architect's calls the owner has not settled
 
-<!--derives: Decisions; §1.3; §2.4; §2.5; §2.9; Words-->
+<!--derives: Decisions; §1.3; §2.4; §2.5; §2.9; Words; WP §1.5-->
 
 Each stands until the owner overrules it. The reason is given in the design section named. OD-12 settled the crew-visit threshold's default, so it is no longer a call.
 
@@ -82,8 +82,11 @@ Each stands until the owner overrules it. The reason is given in the design sect
 7. An item's budget in use is its incurred spend, else its released spend, else its planned spend (§2.5).
 8. A Site's threshold wins over the portfolio's. An unset tolerance raises every adverse deviation. A hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4).
 9. The manifest key `plan` stays as a machine-only exception to OD-6, and prose says "target" ("Words used here").
+10. Release at creation needs the change to be at or below both the spend threshold and the crew-visit threshold. With the crew-visit threshold at its default of zero, a change that uses a crew visit waits for approval, whatever its spend (§2.4 step 4, the Architect's reading of OD-11 and OD-12; recorded as `D-2026-11-19-l4-demo-workflow`).
 
-**Where the owner's view would help most:** calls 1 and 6, because they decide how often the executive is asked to approve.
+**Demonstration choices** (Architect, all illustrative; `worked-portfolios.md` §1.5 and the manifest's `demo_workflow`): people shown by role title, Site and a fictional first name; a due date on every Action; one spend threshold per operator and the crew-visit threshold at zero; on 6 Nov version 1 of each operator's plan is proposed and awaits the executive.
+
+**Where the owner's view would help most:** calls 1, 6 and 10, because they decide how often the executive is asked to approve.
 
 ## 5. Open queue
 

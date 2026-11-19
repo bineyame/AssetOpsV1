@@ -164,7 +164,7 @@ The "N of M objectives met" line stays beside the bridge. The Assure row line is
 
 ## 6. CH3: decisions and options valued against doing nothing
 
-<!--derives: §2.4; CH3; L5; OD-2; OD-8; OD-12; Figure 5; Words-->
+<!--derives: §2.4; CH3; L5; OD-2; OD-8; OD-11; OD-12; Figure 5; Words; WP §1.5-->
 
 *Serves the objective:* executives see their choices compared in money, net of cost, for every Site, with the option that breaks a service rule shown and rejected.
 
@@ -203,7 +203,8 @@ The demonstration arithmetic is fixed in `structure-specification.md` §5.
 - Is the possible extra fuel cost never used as any option's value?
 - With a spend threshold at or above 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, are both of the stop-threshold change's Actions released at creation and still counted in the plan, and with a lower threshold or none, do both wait?
 - Does splitting a change into several small Actions leave the threshold test unchanged?
-- With the crew-visit threshold unset, does any added crew visit wait for approval?
+- With the crew-visit threshold at its default of zero, does a change that uses a crew visit wait for approval, whatever its spend?
+- In the demonstration on 6 Nov, does each Action's state (released at creation, or awaiting approval) match `worked-portfolios.md` §1.5?
 
 ## 7. P: the plan
 
@@ -272,13 +273,13 @@ stateDiagram-v2
 
 ## 8. CH2: the person in the loop, recorded
 
-<!--derives: §2.6; §1.4; CH2; G1; Q-A2; Figure 7; Figure 8b-->
+<!--derives: §2.6; §1.4; CH2; G1; Q-A2; Figure 7; Figure 8b; WP §1.5-->
 
 *Serves the objective:* an executive adopts what shows who decided, who approved and who is accountable.
 
 **Named change (G1).** Today trial commands are a "SYSTEM demonstration" (`actions/lifecycle.py:43-58`), work writes refuse a user actor (`work/model.py:280-285`, `WORK_USER_AUTH_REQUIRED`), and a price write without a verified person is refused (`financial_api.py:205-212`, `HUMAN_PRINCIPAL_REQUIRED`). The schema already has the pattern: a human actor needs an author (`0010_financial_assumptions.py:57-78`).
 
-**Principal.** Every command carries an authenticated person: person ID, tenant, the roles they hold, and the time. Stored SYSTEM events keep their actor and are never rewritten. Where people's identities come from is not defined in the design (§12, gap 2).
+**Principal.** Every command carries an authenticated person: person ID, tenant, the roles they hold, and the time. Stored SYSTEM events keep their actor and are never rewritten. Where people's identities come from is not defined in the design (§12, gap 2). In the demonstration a person is shown by role title, the Site for a Site manager, and a fictional first name labelled "Illustrative" (`worked-portfolios.md` §1.5).
 
 **Who may do what.** Roles govern who may decide and what is recorded. They are not views: every role sees the same screens.
 
