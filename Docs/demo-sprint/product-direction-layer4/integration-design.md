@@ -1,6 +1,6 @@
 # Integration design: from source records to leaf factors
 
-**AssetEcon Layer 4 · builder and analyst specification for B3 · recreated from the design rev 16.7, updated to rev 16.8 (OD-15; the deep-dive tied to its steps) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · builder and analyst specification for B3 · recreated from the design rev 16.7, updated to rev 16.9 (OD-15; the deep-dive tied to its steps; OD-22 integration order; OD-23 snapshot triggers) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This document specifies how the operator's commercial and operational records reach the factor structure: the canonical format, the stores, the emulators, the contract test, the path to a pilot adapter, and the tests. It replaces `integration-source-to-canonical-design.md` (regeneration F, #3). It adds detail beneath B3 and never a new construct, role, decision or figure.
 
@@ -78,7 +78,7 @@ Step 2 of the delivery order agrees the canonical format and the leaf factor IDs
 
 ## 4. Stores, by the nature of the fact
 
-<!--derives: §2.3; B3; Figure 4; Rules-->
+<!--derives: §2.3; B3; Figure 4; Rules; OD-23-->
 
 Each fact lives in the store whose shape and life already fit it. One new store is added, only for facts no existing store can hold.
 
@@ -93,7 +93,7 @@ Each fact lives in the store whose shape and life already fit it. One new store 
 
 **What is reused from today's intake.** The dry run that writes nothing; the size limit and receipt; the append-only trigger; per-row refusal that never sinks its siblings; tenant and Site from the credential (`evidence/ledger_service.py:194-211`). Money records enter only on the authenticated, Site-bound path. The unauthenticated legacy batch path (`evidence_api.py:201-204`) never accepts them.
 
-**Cached reads.** Every new table that feeds a cached route registers an input-change trigger, as today's cached responses require (`0047`), or the boards go stale silently.
+**Cached reads.** Every new table that feeds a cached route registers an input-change trigger, as today's cached responses require (`0047`), or the boards go stale silently. The same triggers drive the daily snapshot's rebuild (OD-23, design §2.8): a new or corrected record, a late reading, a re-issued invoice or an accepted import rebuilds the affected Sites and periods.
 
 ## 5. Emulators and the contract test
 
@@ -138,7 +138,7 @@ sequenceDiagram
 
 ## 6. From emulator to pilot adapter
 
-<!--derives: §2.3; D1; D14; DA §5; §2.9; Figure 10-->
+<!--derives: §2.3; D1; D14; DA §5; §2.9; Figure 10; OD-22-->
 
 An adapter has three parts: **transport** (how bytes arrive), **parser** (bytes to typed rows, pure) and **profile** (columns, units, timezone, mutability, personal-data fields). The field package already separates them: profiles are data files (`field/profiles/`), and the poller reads but never uploads (`field/assetops_field/modbus_poller.py:16-17`).
 
@@ -152,6 +152,13 @@ Only transport and profile change. The parser, canonical records, observers and 
 **Pilot gate.** One closed month is reconciled against the operator's management accounts, on revenue and on fuel or energy cost, before any money is shown as Recorded. Until then the money leaves carry their provenance.
 
 **Order of replacement** (D1). The first mini-grid deep-dive's exported files (billing, collections, budget, fuel, quotes); then that operator's contract set; then scheduled drops in the pilot; then the second vertical's files. An interface to the operator's system replaces only the transport, and only with contractual access. A replaced emulator stays as the contract test's fixture.
+
+**The order of operational integrations (OD-22).**
+1. *EMS data upload.* Files through today's reading upload and the field package's CSV path (`field/assetops_field/csv_upload.py`). It works today and serves the deep-dive.
+2. *EMS API.* The same profile and parser behind a pull transport. Only the transport changes, as above.
+3. *The edge gateway over Modbus to the hardware.* Modbus is in the emulation scope, so the path is proven before hardware exists. Today's poller already runs against a GX-shaped emulator through the real gateway (`field/assetops_field/modbus_poller.py`; `host/tests/test_field_modbus_tcp_proof.py`), and that proof stays green. The hardware test that follows is a BeagleBone Black running the edge gateway and talking to the backend gateway.
+
+Each transport passes the same source-type contract test before it replaces the one before it. The EMS API and the hardware test are step-9 work (design §2.9).
 
 **The deep-dive, tied to the build** (design §2.9). The deep-dive's safeguard, the operator's own target against actual within weeks, holds only once steps 3A (intake and contract test), 4 (the money leaves) and 5 (targets and the bridge) are live. The first deep-dive's exports are onboarded by a person in the Analyst role through step 3A's intake, with no step-9 work. Step 9's pilot onboarding is onboarding at scale: real adapters per source type replacing the emulators source by source, for more than one operator.
 

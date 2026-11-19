@@ -1,6 +1,6 @@
 # Decision loop specification
 
-**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7, updated to rev 16.8 (OD-13 to OD-18, plan item states) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · builder specification · recreated from the design rev 16.7, updated to rev 16.9 (OD-13 to OD-18, plan item states; OD-21 categories, OD-23 daily snapshot) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This document gives the records, rules, states, interfaces and acceptance tests for each construct of the design's Part 2. It replaces `economic-metric-and-effect-contracts.md` and `domain-and-decision-models.md` (regeneration F, #2). It adds detail beneath the design's constructs and never a new construct, role, decision, status or figure. Where the design leaves something undefined, this document says so in §12 and stops.
 
@@ -63,7 +63,7 @@ erDiagram
 
 ## 3. B1: the factor structure
 
-<!--derives: §2.1; §2.9; B1; L1; L2; Rules; WP §1.0-->
+<!--derives: §2.0; §2.1; §2.8; §2.9; B1; L1; L2; OD-21; OD-23; Figure 1b; Rules; WP §1.0-->
 
 *Serves the objective:* every outcome becomes a computed quantity, so the executive can see how far below target the month is and which factor moved it.
 
@@ -79,6 +79,7 @@ erDiagram
 | `vertical`, `business_model` | Which Sites the node exists for. A node that does not apply is *not applicable*, never zero |
 | `tolerance` | The OD-3 tolerance, in the factor's unit (§4) |
 | `levers` | The levers declared on the factor (§6) |
+| `home_category` | Exactly one of GROW_REVENUE, OPTIMIZE_COST, PROTECT_ASSET, ASSURE_PERFORMANCE, today's catalogue codes (`outcomes/catalogue.py:43-68`). The executive heading the node sits under (OD-21, design §2.0) |
 | `version` | Rows are versioned; a change is a new version |
 
 **Start-up check.** The process refuses to start if the structure is cyclic, a leaf has neither source nor observer, units do not compose, or a named observer does not exist at its version. This follows today's chain check (`chain/graph.py:132`, `:177`).
@@ -87,9 +88,21 @@ erDiagram
 - A leaf returns its value, evidence class and provenance.
 - A node combines its children by its kind. A missing child makes the node partial and names the missing record. It is never zero-filled (Rules 3).
 - A node's evidence class is the weakest of its children, and it lists every source beneath it (Rules 2).
-- Outcome totals are computed on read and never stored, as today's period read already requires (`chain/period_read.py:46-47`, `:139`).
+- No total is ever an input or typed. Evaluated values are served from the daily snapshot below (OD-23), which replaces today's compute-on-read (`chain/period_read.py:46-47`, `:139`) and is always rebuildable from records.
 - Portfolio nodes compose Site nodes as Σ amounts and Σ/Σ ratios. A Site that cannot be evaluated is excluded by name.
 - The exact arithmetic for the demonstration is fixed in `structure-specification.md` §2 to §3.
+
+**Categories (OD-21).** A category is a read over `home_category`, never a second model:
+- a category's figures are the nodes under it, unchanged; nothing is summed across categories;
+- a Finding's category is its pinned factor's; a decision's is its lever factor's; an option or plan item shows each factor change under that factor's category; an item with "no factor (upkeep or compliance)" reads under Protect; a verdict is Assure, and an economic verdict's realised money reads under the moved factor's category;
+- contribution is above the two money headings: its bridge effects split into Grow and Optimize, and they add to its gap;
+- today's catalogue rows stay as each card's rows, re-grounded: "Site profitability" becomes the contribution above the headings, and unexplained litres read under Optimize, with the Protect card linking the fuel-loss Finding without counting it (design §2.0, named changes).
+
+**The daily snapshot (OD-23).** *Proposed* record `structure_snapshot`: tenant, Site or portfolio, day or period, the structure and rule versions, the input watermark, computed at, and per node its value, evidence class, provenance (record revisions), coverage, parts and partial or missing state.
+- Built once a day per Site and portfolio, and rebuilt only for the affected scope when a trigger fires: a new day of records; a record added or corrected (late reading, re-issued invoice, accepted import); a target or budget line changed; a setting changed (price, tariff, tolerance, threshold, switch, source mapping); a plan version approved or a plan change recorded; a new structure or rule version.
+- Triggers extend today's input-change log (`0047_chain_response.py`): each new input table registers its trigger, as `integration-design.md` §4 already requires.
+- Screens read the latest snapshot and show its "as of" time; while a rebuild is pending the screen says so.
+- Storage, partitioning and incremental rebuild are left to the strategy conversation on the database build (design §2.8).
 
 **Named change (L1): the outcome map becomes structure rows.** Today's fixed signal-to-outcome rows (`outcomes/outcome_map.py:17-37`, `:149-180`) are computed from the registry behind their unchanged wire. The literal is removed only after the parity test passes. The site board's driver lines, written per vertical today (`site_outcomes/mini.py:1156-1177`), are generated from the same rows.
 
@@ -136,6 +149,11 @@ Its Finding key is (Site, factor ID, period, direction), so a re-run revises the
 - With a tolerance wider than the necessary-running effect, is no Finding raised for it, and with none set, is one raised?
 - Does headroom with no signed letter of intent stay a capacity factor and raise no opportunity Finding?
 - Does re-running the observer on unchanged records add no revision?
+- Does every registry row carry exactly one home category, and does the start-up check refuse a row without one?
+- At Kobo in October, do the Grow effects (+38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->) and the Optimize effects (−600.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->) add to the contribution gap, with no figure under two headings?
+- Does a fresh evaluation equal the stored snapshot, node by node, including evidence class and provenance?
+- Does each of the six triggers rebuild exactly the affected Sites and periods, and does an unchanged input rebuild nothing?
+- Does a screen show the snapshot's "as of" time, and say so while a rebuild is pending?
 
 ## 5. B2: targets, budget lines and the bridge
 
@@ -383,7 +401,7 @@ A command from a principal without the role is refused with a typed reason. The 
 
 ## 10. CH5: what the screens read
 
-<!--derives: §2.8; CH5; L7; OD-6-->
+<!--derives: §2.8; CH5; L7; OD-6; OD-21; OD-23; Figure 1b-->
 
 *Serves the objective:* the screens are where the executive meets the value.
 
@@ -391,7 +409,7 @@ Each screen keeps its frame (the rail with no new menu items, the six Portfolio 
 
 | Screen | Read model |
 |---|---|
-| Overview cards | Each card read from its factors against target, with its evidence class |
+| Overview cards | The four category cards (OD-21): each reads the snapshot's nodes under its home category, against target, with their evidence class, Findings, options and verdicts; realised and potential kept apart |
 | Optimize (mini-grid) | First, the last-day figure corrected (`site_outcomes/read.py:676-682`); then the period's cost factors |
 | Act first | The Finding triage stays first (`estate/placement.py:1-8`), with the plan version awaiting approval beside it |
 | Outcomes by site; site board | Drivers as factor rows; "Issues" shows Findings on their factors; "What can be done" opens the decision; "Already in hand" shows Actions and plan items (`frontend/src/sites/OutcomeBoard.tsx:42-48`) |
@@ -403,6 +421,8 @@ Each screen keeps its frame (the rail with no new menu items, the six Portfolio 
 - Does the Optimize card state its period, not one day over a period range?
 - Does every figure on these screens carry its evidence word?
 - Does no screen use "plan" for a target?
+- Is headroom with no customer shown as potential beside Grow, never as Grow's actual?
+- Does every screen read the snapshot, never evaluate on a request?
 
 ## 11. Evidence classes and negative accounting tests
 

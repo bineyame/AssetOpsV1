@@ -1,6 +1,6 @@
 # The first fortnight's build: as far along Figure 10 as fourteen days can go
 
-**AssetEcon · Layer 4 pack document 6b · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7 and `delivery-plan.md`; re-cut for rev 16.8 (sign-in and roles added to step 3C, OD-13, OD-14; structure of steps 1 and 3C approved with the pack, OD-20)**
+**AssetEcon · Layer 4 pack document 6b · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7 and `delivery-plan.md`; re-cut for rev 16.8 (sign-in and roles added to step 3C, OD-13, OD-14; structure of steps 1 and 3C approved with the pack, OD-20); checked against rev 16.9**
 
 **The owner's direction** (`.agent/owner-recreate-document-packs-2026-11-19.md`): the fortnight is to be recreated "focussed on advancing as much as possible towarfs the new features, not the markting element". So this is a build schedule and nothing else. It has no selling track, no demo days and no offer kit. Day 1 is the first build day after the owner approves the recreated pack.
 
@@ -88,6 +88,8 @@
 - **The rest of step 9:** the claim case, remedy paths, and cold rooms and EV depots follow proof and the plan (Figure 10).
 - **Pilot onboarding at scale** (step 9) waits for an operator's consent and data. The first deep-dive needs none of it: its sources are onboarded by the Analyst role through step 3A's intake, which lands by day 8 (design §2.9).
 - **The deep-dive safeguard,** the operator's own target against actual within weeks, needs steps 3A, 4 and 5 live (design §2.9). At the planning pace all three are complete by day 14 (table above).
+- **The EMS API and the edge gateway on hardware** (OD-22) are step-9 work: the deep-dive needs only files, which upload today, and no operator hardware exists yet.
+- **The daily snapshot** (OD-23) is not yet a slice: it is cut after the strategy conversation on the database build (`delivery-plan.md` §7, question 4). When it is, the model is re-run, and the fortnight's reach shrinks by its size.
 - The **selling work** is out of scope by the owner's direction.
 
 ## 4. The fourteen days

@@ -1,13 +1,13 @@
 # Delivery: the order, the slices, the gates and the demonstration build
 
-**AssetEcon · Layer 4 pack document 6 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7, updated to rev 16.8 (sign-in and roles in step 3C; OD-20; the engagement path tied to its steps)**
+**AssetEcon · Layer 4 pack document 6 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7, updated to rev 16.9 (sign-in and roles in step 3C; OD-20; the engagement path tied to its steps; OD-21 to OD-23)**
 
 **What this document is.** The whole path from today's product to the Layer 4 design, in the order the owner approved (OD-9, design §2.9 and Figure 10). It merges and replaces three earlier documents: `phase-plan-and-acceptance.md`, §3–§4 of the retired `product-transition-and-roadmap.md`, and `demo-build-cost-plan.md`. It adds slices, gates and tests beneath the design's constructs and no construct of its own. The first fortnight's schedule is a separate document, `two-week-build-plan.md`, which cites this document's slices by ID.
 
 *Serves the objective:* operator executives adopt the product for economic value beyond their monitoring tools. The order below puts that value on their screens as early as the evidence allows, and never ahead of it.
 
 ## 1. Where delivery starts, and the order it follows
-<!--derives: §2.9; Figure 10; OD-9; OD-13; OD-14; OD-20; D13; D14; D1; Part 1; §2.0-->
+<!--derives: §2.9; Figure 10; OD-9; OD-13; OD-14; OD-20; OD-21; OD-22; OD-23; D13; D14; D1; Part 1; §2.0-->
 
 **What exists, and stays.** Today's product is the start, not something to clear away (design Part 1). The evidence ledger, the analyses, Findings and threads, the act-and-track carriers, verification, the honesty rules and the screens' frame all stay. Each slice below extends one of them or adds a construct beside it. The single register of changes is design §2.9. Every slice that changes an existing construct names that row.
 
@@ -23,7 +23,7 @@
 6. **Step 6:** decisions and options (CH3). Cost-side decisions start before the join; revenue-side options wait for it.
 7. **Step 7:** the plan and the Portfolio (P, CH5).
 8. **Step 8:** the three verdicts (CH4).
-9. **Step 9:** rights, then cold rooms and EV depots, then pilot onboarding at scale.
+9. **Step 9:** rights, then cold rooms and EV depots, then pilot onboarding at scale: the EMS API transport, then the edge gateway over Modbus on hardware, tested on a BeagleBone Black (OD-22).
 
 The calibration replays K, M and E (step 0) run in parallel throughout.
 
@@ -42,6 +42,9 @@ The calibration replays K, M and E (step 0) run in parallel throughout.
 - **The deep-dive safeguard,** the operator's own target against actual within weeks, holds only once steps 3A, 4 and 5 are live.
 - **The first deep-dive's sources** are onboarded by a person in the Analyst role, through 3A's intake and contract test (`3A2`, `3A3`). No step-9 work is needed.
 - **Step 9's pilot onboarding** means onboarding at scale: real adapters per source type, replacing the emulators source by source, for more than one operator.
+- **Operational integrations (OD-22).** EMS file upload works today and is all the deep-dive needs. The EMS API and the edge gateway on hardware come in step 9, in that order; the Modbus emulator proof stays green meanwhile. None is in the first fortnight.
+- **The four categories (OD-21)** need no step of their own: each registry row carries its home category from `3B1`, and the cards read them in `7g`.
+- **The daily snapshot (OD-23)** belongs beside the structure read in step 3B; the bridge (`5c`) and the cards (`7g`) read through it. Its slice is not yet in the model (§7, question 4).
 
 ## 2. The slices
 <!--derives: §2.1; §2.2; §2.3; §2.4; §2.5; §2.6; §2.7; §2.8; §2.9; Figure 10; plan_model-->
@@ -126,7 +129,7 @@ W1 states acceptance as questions the screens must answer. A step's gate is that
 | **1** | Can any figure on the Portfolio or the site board be read as a period total when it is one day's figure? (It must not.) Is every field the API computes and the screen hid now shown with its existing evidence wording? |
 | **2** | Does every source type have a version 1 canonical format with its units and timezone? Does every leaf of the mini-grid structure have a shared factor ID that both the store and the registry use? |
 | **3A** | Does a duplicate upload add nothing? Does a late record revise a closed period and keep the earlier revision? Is another operator's row refused at intake? Does each emulator's output pass the same contract test a real export must pass? Is every emulated figure labelled *Emulated*, never *Recorded*? |
-| **3B** | Does every stored Finding mechanism resolve to the factor it observes, through one registry row? Does the structure reproduce today's outcome map before the literal is removed (the parity test)? Does Kobo read 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L candidate and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L unexplained litres, from today's records? Is a deviation raised as a Finding only under the owner's rule and outside its tolerance (OD-3)? Does a captive EV depot show revenue as *not applicable*, never zero? |
+| **3B** | Does every registry row carry one home category (OD-21)? Does every stored Finding mechanism resolve to the factor it observes, through one registry row? Does the structure reproduce today's outcome map before the literal is removed (the parity test)? Does Kobo read 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L candidate and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L unexplained litres, from today's records? Is a deviation raised as a Finding only under the owner's rule and outside its tolerance (OD-3)? Does a captive EV depot show revenue as *not applicable*, never zero? |
 | **3C** | Does each person sign in with an email-and-password account of their own operator, and is a command without a signed-in person refused (OD-13)? Are roles granted and removed only by the operator executive, in Organisation settings, each change on record (OD-14)? Is every command, from every role, recorded under the authenticated person, with no "SYSTEM demonstration" actor left on a new write? Does every Action carry its creator, owner and due date, and show overdue when late? |
 | **4** | Do the money leaves appear from records: Kobo's 3,458.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.revenue--> billed, 3,180.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.collected--> collected and 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> outstanding? Is each node built from mixed evidence given its weakest class, with every source named? |
 | **5** | Is Lakeside's October contribution 1,443.00<!--fig:portfolio.lakeside-power.actual.sums.contribution--> against a target of 2,295.00<!--fig:portfolio.lakeside-power.plan.sums.contribution-->, to the cent? Does Kobo's gap of −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> split into candidate running −412.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, unexplained fuel −150.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, necessary running −37.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}--> and kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->? Is the declarer of each target recorded? Does the Assure line read "Actual against target" (OD-6)? |
@@ -224,5 +227,6 @@ Simulation is a small part of that cost. The product pipeline, idle stage start-
 | 1 | Where does the "Actual against target" relabel (OD-6) fall? | The design names the change (§2.8) but not its step. The word "target" first matters when targets are declared | In step 5, beside target declaration (slice `5d`). Architect's call |
 | 2 | Where does the origin and membership migration fall? | §2.9 widens today's one-origin check with a plan-item arm. The arm needs plan items to exist | In step 7 (slice `7a`), not 3C. Step 3C records the person only. Architect's call |
 | 3 | Is the order of steps 8 and 9 kept? | Figure 10 puts the three verdicts beside the plan, and rights after both | Kept, because D15's first change needs proof before rights |
+| 4 | Where does the daily snapshot's slice (OD-23) fall, and how big is it? | It needs the structure read (`3B3`) and today's input-change log; its storage and incremental rebuild wait for the owner's strategy conversation on the database build | A slice in step 3B after `3B3`, cut after that conversation; then `plan_model.py` is re-run. Until then the fortnight's figures leave it out, so they are optimistic by its size. Architect's call |
 
 **Pushback, for the owner.** None on the order: Figure 10 holds against the slices. One caution. Steps 5 and 7 hold the most new money logic, so they get discovery reviews and should not be compressed to make a date.
