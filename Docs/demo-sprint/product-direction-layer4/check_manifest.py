@@ -704,13 +704,36 @@ def homes(doc):
     for k, o in dv.items():
         if o.get("valued_in_money"):
             check(f"homes option {k}: a valued option states its money factors", k in omf)
+    site_of_opt = {}
+    for t_ in doc["tenants"]:
+        for s_ in t_["sites"]:
+            for o_ in ((s_.get("decision") or {}).get("options") or []):
+                if isinstance(o_, dict) and o_.get("id"):
+                    site_of_opt[o_["id"]] = s_["site"]
+    listed = {k for tp in doc["plans"].values() for k in (tp.get("listed_not_added") or {})}
     for k, ns in omf.items():
-        v = vert_site.get((opts.get(k) or {}).get("site"))
+        in_eval = k in opts
+        check(f"homes option {k}: an option with money factors is evaluated, or listed beside the plan and not added", in_eval or k in listed)
+        v = vert_site.get((opts.get(k) or {}).get("site") or site_of_opt.get(k))
         scl = {l_.get("node") for t in doc["tenants"] for l_ in t["portfolio"].get("service_cost_lines", [])}
         for n in ns:
             r = (reg.get(v) or {}).get(n) or [None]
-            check(f"homes option {k}: money factor {n} is one it changes (or a linked service cost line)", n in (opts.get(k) or {}).get("changes", {}) or n in scl)
+            check(f"homes option {k}: money factor {n} is one it changes (or a linked service cost line)", not in_eval or n in (opts.get(k) or {}).get("changes", {}) or n in scl)
             check(f"homes option {k}: money factor {n} sits under Grow or Optimize ({r[0]})", r[0] in ("grow", "optimize"))
+    # every Finding the screens show names its own factor and heading; linked Findings keep their own (design §2.0, rev 16.12)
+    fr = hc.get("findings") or []
+    fids = [f_.get("id") for f_ in fr]
+    check(f"homes: each Finding row is listed once ({len(fids)})", fids and len(fids) == len(set(fids)))
+    decs = {d["id"]: d for d in hc.get("decisions", [])}
+    for f_ in fr:
+        v = sites.get(f_.get("site"))
+        h = home(v, f_["factor"]) if f_.get("factor") else None
+        check(f"homes Finding {f_.get('id')}: names a factor with a registry row or potential entry ({f_.get('factor')})", h is not None)
+        check(f"homes Finding {f_.get('id')}: its heading {f_.get('heading')} is its own factor's home ({h})", h is not None and f_.get("heading") == h)
+        check(f"homes Finding {f_.get('id')}: its decision {f_.get('decision')} exists, at its Site", f_.get("decision") in decs and decs[f_["decision"]]["site"] == f_.get("site"))
+    for did, d in decs.items():
+        org = [f_ for f_ in fr if f_.get("decision") == did and f_.get("origin")]
+        check(f"homes decision {did}: exactly one origin Finding row, on its finding_factor ({[f_['factor'] for f_ in org]})", len(org) == 1 and org[0]["factor"] == d["finding_factor"])
     # the chooser of each plan item is a person holding its decision's chooser role (design §2.4 step 2; OD-16)
     dec_of_opt = {}
     for t_ in doc["tenants"]:
@@ -743,6 +766,24 @@ def homes(doc):
             check(f"snapshot {p_['tenant']}: the pending trigger is one of the six ({pe.get('trigger')})", pe.get("trigger") in (sn.get("trigger_kinds") or {}))
             check(f"snapshot {p_['tenant']}: the pending Sites are the portfolio's ({pe.get('sites')})", pe.get("sites") and set(pe["sites"]) <= tsites[p_["tenant"]])
             check(f"snapshot {p_['tenant']}: the trigger fired after the snapshot was computed", str(pe.get("received", "")) > str(p_.get("as_of", "")))
+
+
+def homes_selftest(doc):
+    """Planted copies of the Finding rows: each must fail homes() (rev 16.12: a linked Finding keeps its own factor)."""
+    import copy
+    def row(d, i): return next(x for x in d["home_categories"]["findings"] if x["id"] == i)
+    plants = {"a linked Finding with no factor": lambda d: row(d, "embakasi-import-limit").pop("factor"),
+              "a linked Finding on a node with no registry row": lambda d: row(d, "ruiru-import-limit").update(factor="peak_import_kw"),
+              "a linked Finding taking its decision's heading": lambda d: row(d, "embakasi-import-limit").update(heading="optimize"),
+              "a decision with no origin Finding": lambda d: row(d, "kobo-candidate").update(origin=False)}
+    for label, mut in plants.items():
+        d = copy.deepcopy(doc); mut(d)
+        keep, kp = list(failures), passes
+        homes(d)
+        caught = len(failures) > len(keep)
+        failures[:] = keep
+        globals()["passes"] = kp
+        check(f"homes self-test: {label} is planted and fails", caught)
 
 
 # ---------------- 9. the vertical factor map and the traceability file (owner, 19 Nov: vertical-factor-map.md) ----------------
@@ -929,6 +970,7 @@ def main(path):
     documents(root, doc, ref)
     workflow(doc, ref)
     homes(doc)
+    homes_selftest(doc)
     factor_map(root, doc)
     alignment(root)
     print(f"{passes} checks passed, {len(failures)} failed")

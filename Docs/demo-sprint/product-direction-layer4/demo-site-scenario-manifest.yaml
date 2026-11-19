@@ -1226,7 +1226,7 @@ plans:   # inputs to the allocator (M4): one joint search over all decisions (ev
          reason: "a battery shifts solar to the evening; looking forward from the repair it leaves no hours without backup"}
     switches: {budget: [5000, 6500], loi_extended: [true, false]}
     downside_drops: {cooperative_does_not_sign: [MTO-HULLER]}
-    listed_not_added: {MTO-BILLING: "restored charges await the corrected billing run; collection is a separate step"}
+    listed_not_added: {MTO-BILLING: "restored charges await the corrected billing run; listed, not yet valued against no action"}
   harvest-cold:
     budget: 2500
     crew_limit: technician_visits_nov
@@ -1490,6 +1490,32 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     CUSTOMER_COMPENSATION: liability
     PEAK_ENERGY_SHARE: peak_kwh
     DEMAND_CHARGE: max_kw
+  findings:   # rev 16.12 (coordinator, after mock-up commit fb13bba7f; design §2.0): EVERY Finding the screens show, origin or linked,
+              # names the factor it is pinned to (the most specific factor it observes) and so its own heading. A decision's
+              # origin Finding (origin: true) is the one in home_categories.decisions; a linked Finding (origin: false) answers the
+              # same decision but keeps its own heading, read from its own factor, never from the decision. An at-limit Finding is
+              # pinned to the Protect measure whose limit it reports; a new price to the price factor. check_manifest.py homes():
+              # every row has a factor with a registry row (or a potential entry), its heading matches, and each decision has
+              # exactly one origin row, equal to its finding_factor. Keyed by `id`; `decision` is the linked decision's route id.
+    - {id: kobo-candidate, site: Kobo, decision: kobo-generator, origin: true, factor: candidate_l, heading: optimize}
+    - {id: kobo-unexplained-fuel, site: Kobo, decision: kobo-generator, origin: false, factor: unexplained_l, heading: optimize}
+    - {id: kobo-battery-evidence, site: Kobo, decision: kobo-battery, origin: true, factor: cover_not_claimable, heading: protect}
+    - {id: kisiwa-one-generator, site: Kisiwa, decision: kisiwa-genset, origin: true, factor: obligation_hours_without_redundancy, heading: protect}
+    - {id: kisiwa-late-response, site: Kisiwa, decision: kisiwa-om, origin: true, factor: om, heading: optimize}
+    - {id: mto-letter-of-intent, site: Mto, decision: mto-demand, origin: true, factor: letter_of_intent_demand, heading: grow}
+    - {id: mto-unbilled, site: Mto, decision: mto-billing, origin: true, factor: unmapped_kwh, heading: optimize}
+    - {id: mto-inverter-notice, site: Mto, decision: mto-inverter, origin: true, factor: cover_not_claimable, heading: protect}
+    - {id: mwea-occupancy, site: "Room A · Mwea", decision: mwea-occupancy, origin: true, factor: crate_days, heading: grow}
+    - {id: mwea-aggregator, site: "Room A · Mwea", decision: mwea-occupancy, origin: false, factor: contract_crate_days, heading: grow}
+    - {id: thika-backup-start, site: "Room B · Thika", decision: thika-backup, origin: true, factor: nights_without_backup_cover, heading: protect}
+    - {id: kirinyaga-excess, site: "Room C · Kirinyaga", decision: kirinyaga-energy, origin: true, factor: excess_kwh, heading: optimize}
+    - {id: embakasi-peak-share, site: Embakasi, decision: embakasi-schedule, origin: true, factor: peak_kwh, heading: optimize}
+    - {id: embakasi-import-limit, site: Embakasi, decision: embakasi-schedule, origin: false, factor: import_limit_kw, heading: protect}
+    - {id: embakasi-night-rate, site: Embakasi, decision: embakasi-schedule, origin: false, factor: night_price, heading: optimize}
+    - {id: kasarani-charger-down, site: Kasarani, decision: kasarani-charger, origin: true, factor: chargers_in_service, heading: protect}
+    - {id: ruiru-route-offer, site: Ruiru, decision: ruiru-expansion, origin: true, factor: spare_deliverable_energy, heading: grow}
+    - {id: ruiru-import-limit, site: Ruiru, decision: ruiru-expansion, origin: false, factor: import_limit_kw, heading: protect}
+    - {id: ruiru-connector-fault, site: Ruiru, decision: ruiru-connector, origin: true, factor: chargers_in_service, heading: protect}
   residuals:   # rev 16.12 (H known gap): an explicit residual is a registry row like a node, so its heading is never typed in a screen.
                # Only where a leaf is unobserved (design §2.2): Ruiru's target is a stated total (energy + maintenance) with no factor behind it.
     EV_DEPOT_CAPTIVE:
@@ -1508,6 +1534,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     KIRI-REPLACE: [excess_kwh]
     EMB-DEADLINE: [peak_kwh, kwh_0000_0500, kwh_2200_2400, max_kw]
     KAS-OEM-STOPGAP: [penalties]              # the avoided penalties: Optimize, linked to departures missed (Protect, in its own unit)
+    MTO-BILLING: [unmapped_kwh]               # listed beside the plan, not yet valued against no action (O3 data round): its restored charges sit on unmapped meters, Optimize (O3)
   decisions:   # design rev 16.12 §2.0 (owner, 19 Nov, .agent/owner-decision-heading-rule-2026-11-19.md; replaces register call 18's
                # lever-first order): a decision's heading is the home of its ORIGIN FINDING's factor, because that is where the
                # executive met the problem. A Finding is pinned to the factor it observes: the most specific node whose deviation,
