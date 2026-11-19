@@ -1,0 +1,76 @@
+# Planted copy violations. render_website_content_html.py checks each line as a website copy block, with every stage trigger
+# forced to "not met", and fails the build if ANY line passes. Never delete a line; add one for every phrasing a review finds.
+# Carried over from the 18 Nov brief (rev 4.1), with one change: "A pilot of about three months follows." is now an approved
+# duration (commercial plan rev of 19 Nov: a three-month pilot), so it is replaced by "A pilot of about six weeks.".
+# Added 19 Nov (plan F: "the lint adds the A3 terms"): the design's retired terms, the system or product deciding for the
+# operator, "plan" for a target (OD-6), a coming construct claimed as available now, and a legal or insurance conclusion.
+Operators cut diesel spend 40% in the first month. Book a demo walkthrough.
+Reduce diesel spend by 30% across your portfolio; see the demo.
+Proven across Africa on 40 sites.
+Kenya's leading operators rely on AssetEcon every day.
+Better answers than PowerGen's or Odyssey's dashboards.
+In our demo portfolio, Kobo's change would earn 2.9k a year.
+Operators save up to 20% on diesel.
+Contribution up 1,200 a month at a typical site.
+Trusted by leading operators.
+Verified savings on every site.
+Running today: generator running split into necessary and avoidable.
+Fuel bills come in 25% lower after the first quarter. Illustration on demo data.
+The Embakasi schedule is worth 8,082 a month. Illustration on demo data.
+ROI in under a year.
+Used by 12 operators across East Africa.
+Our evaluator explains every Finding.
+The only way to join your money and your assets.
+Margins improved by 15% in the first month for our partner, demo included.
+A setting trial verified on your sites.
+Better than the Acme platform your engineers use.
+About four weeks from receiving your data.
+Your diagnostic report in 30 days.
+A pilot of 60 to 90 days.
+About five to eight weeks from receiving your data.
+A pilot of about six weeks.
+Kobo, October: contribution 883 against a plan of 1,445. Illustration on demo data, not a customer result.
+Collections reached 1,200 at Kobo last month. Illustration on demo data.
+Every figure in this story is recorded. Illustration on demo data, not a customer result.
+Available in the diagnostic: your billing and plan read from your files.
+Available to see in a walkthrough, on a demonstration operator: each site's outcomes broken into what drives them.
+See decisions valued against doing nothing, on a demonstration operator.
+About four to six weeks from receiving your data, depending on how complete your records are.
+About four to eight weeks from receiving your data.
+Available now: a walkthrough of the full loop on a demo operator in your sector.
+A paid diagnostic on three of your sites, prepared by us.
+Start with an economic diagnostic on your own records.
+Talk to us about a diagnostic.
+The pilot costs 15,000 for three sites.
+About four to ten weeks from receiving your data.
+About four to six weeks from receiving your data, depending on how complete your records are.
+A deep-dive of about four to six weeks.
+Your plan against actual, in the product, within a few weeks of receiving your files.
+The deep-dive and the integration pack take about three to ten weeks from the deep-dive's start to the pilot.
+The pilot carries a fee, credited against the first subscription year if you continue.
+The deep-dive is free: we only charge for the pilot.
+A free deep-dive with your process owners.
+A first call. We show you the product on a demo operator in your sector.
+We walk you through the loop on a demo operator in your sector.
+AssetEcon decides for you which sites to fix first.
+The system chooses the best option and approves your spend.
+The product creates the Actions for your team.
+AssetEcon acts on its own to cut generator hours.
+See actual against plan for every site, every month.
+Track your sites against plan, cause by cause.
+Kobo is over plan on diesel this month.
+Your monthly plan for diesel, read against what you burned.
+Every alert is a condition on a factor key.
+M2 Observe reads your outcomes bottom-up.
+Available now: your result against target, cause by cause.
+Running today: options valued against doing nothing, net of their cost.
+Today you can see who approved each change.
+Live now: proof that the money followed.
+Your warranty covers the failed inverter, so the supplier is liable.
+The insurer must pay for the spoiled stock.
+Kobo, October: contribution 883 against a target of 1,445. Illustration on demo data, not a customer result.
+Automatically approves changes within your budget.
+We make the decisions so your managers do not have to.
+See changes across your sites in one plan, approved by your executive, on a demonstration operator.
+See your result against target, built up cause by cause, on a demonstration operator.
+Your target against actual, in the product, within a few weeks of receiving your files.
