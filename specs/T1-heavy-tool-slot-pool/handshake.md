@@ -165,7 +165,116 @@ unpooled commands only in the §6 files today. **(done)** marks a question whose
 
 ## Implementer pre-flight questions
 
-(none yet)
+Implementer (Claude, pre-flight against `main` f074a4cc5; branch head 3d5b67e82 already contains `main`, so the §0
+merge is a no-op). Tools: util-linux `flock` 2.41.3, pwsh 7.7.0, node v24.22.3, git 2.53.0, bash 5.3.9.
+
+**Lock interop (§2, D-T1.2), scratch file only: passes.** (A) pwsh `[IO.File]::Open(p,'OpenOrCreate','ReadWrite',
+'None')` held: bash `exec {fd}>>p; flock -n -x $fd` returns 1 (busy); free after pwsh exits. (B) bash `flock` held:
+the pwsh open throws `System.IO.IOException` ("being used by another process"); free after bash exits. (C)
+`/proc/locks` shows the .NET lock as `FLOCK ADVISORY WRITE`, so it is `flock(2)`. (D) a pwsh holder that exits
+without `Dispose` while its `Start-Process` child lives: the lock is free (close-on-exec, no inheritance). (E) bash
+child started with `{fd}>&-` after its parent exits: free. (F) the same without `{fd}>&-`: the child keeps the lock
+(the V5 premise holds). (G) a second `FileShare.None` open of a file in the same pwsh process throws `IOException`.
+
+**Already asked by the Reviewer** (no separate number; my implementation default in brackets): R2 [both sides
+resolve `D` with `git -C <repo> rev-parse --path-format=absolute --git-common-dir` (git 2.53 here; both checkouts
+print `/opt/assetecon/AssetOpsV1/.git`) and compare the strings exactly; no symlink resolution on either side],
+R4 [refuse at once, exit 69], R5 [accepted residual risk], R8b [see I12], R10 (also: in a pre-T1 worktree the hook's
+own suggestion `tools/heavy-slot.sh -- ...` fails with "No such file", so every lane must merge main before its next
+heavy command, or the suggestion names `/opt/assetecon/AssetOpsV1/tools/heavy-slot.sh`, which resolves the same `D`),
+R13 (`vite build`), R14 (`bash tools/heavy-slot.sh`), R16 (I measured K7 at 6.3, 6.7 and 6.4 s, load 1.7).
+
+- **I1 (§3.1) `tools/checks/_heavy_slot.ps1` fails check-architecture as placed.** `tools/check-architecture.ps1:58-72`
+  discovers every `tools/checks/*.ps1` except `_common.ps1` and fails "is not registered in
+  tools/check-architecture.ps1, so it never runs". Expected: either (a) the exclusion becomes `_*.ps1` (adds
+  `tools/check-architecture.ps1` to the files I touch, one line), or (b) the module moves to `tools/_heavy_slot.ps1`
+  (then it joins `TOOLS_EXEMPT` and `$heavySlotFiles`). My default: (a).
+- **I2 (§3.2) `heavy-slot.ps1` cannot start a `.ps1` command.** A bare name is resolved with `Get-Command
+  -CommandType Application`, which does not return scripts, and `Process.Start` with `UseShellExecute=false` cannot run a
+  `.ps1` on either OS. That breaks K1 row 19 (`... heavy-slot.ps1 -- tools\run-host-tests.ps1 -- ...`) and every pooled
+  rewrite of the TESTING.md PowerShell lines (I8). Expected: when the first command word ends in `.ps1` and names a
+  file, the child is `(Get-Process -Id $PID).Path -NoProfile -File <script> <args>`. Add a P case
+  (`heavy-slot.ps1 -- <tmp>/x.ps1 a b` sees both arguments and its exit code passes through).
+- **I3 (§3.2) Only the `pwsh -File` form keeps the `--`.** Tested on pwsh 7.7: `pwsh -NoProfile -File s.ps1 -Db --
+  npx tsc -- -q` gives `$args` with both `--`, but in-session `& s.ps1 -Db -- npx tsc -- -q` drops the **first** `--`,
+  so the "missing `--` is exit 64" rule refuses every in-session call. Also `-File` splits a `-name:value` token
+  (`-c:1` arrives as `-c`, `1`); `--tb=short` survives. Expected: only the `pwsh -NoProfile -File tools/heavy-slot.ps1`
+  form is supported and documented (TESTING.md's PowerShell lines use it), the usage line says so, and the colon split
+  is a documented limitation. Or: accept a missing `--` when the first non-option word is not an option.
+- **I4 (§3.3) The child start line as written fails on every non-`--db` run.** `"$@" {slotfd}>&- {dbfd}>&- &` with
+  `dbfd` unset (or empty) is `bash: dbfd: ambiguous redirect`, exit 1, with or without `set -u` (tested bash 5.3).
+  Expected (my default): `( exec {slotfd}>&-; <if db> exec {dbfd}>&-; exec "$@" ) &`, so `$!` is the command's own PID
+  and only open fds are closed.
+- **I5 (§5.2) The refusal's suggestion breaks on assignments and prefix commands.** `tools/heavy-slot.sh --
+  <segment>` for K1 row 12 gives `tools/heavy-slot.sh -- PYTHONPATH=a:b .venv/bin/python ...` (the wrapper tries to
+  run `PYTHONPATH=a:b`), and for row 25 puts `setsid nohup` inside the wrapper: `setsid` forks when its caller leads a
+  process group (the child does, under `set -m`), so the wrapper returns at once, frees the slot and the job runs
+  unpooled. Expected: (a) the suggestion hoists the step-4 prefix (assignments, `env`, `setsid`, `nohup`, `timeout`,
+  `nice`, `time`, `stdbuf`, `exec`) before the wrapper, giving `PYTHONPATH=a:b tools/heavy-slot.sh -- .venv/bin/python
+  -m pytest ...` and `setsid nohup tools/heavy-slot.sh --db -- .venv/bin/python tools/demo_combined.py ... > log 2>&1`
+  (§4's form), with K2 rows for both; (b) a pooled segment whose command after `--` starts with `setsid` (or `nohup`)
+  is refused, under the rule of the inner command, with the hoisted suggestion. Confirm both.
+- **I6 (§5.3 step 8) `npm [opts]` is undefined.** K1 row 4 (`npm --prefix frontend test`) needs to know that
+  `--prefix` takes a value. Expected (my default): skip `--x=y`, flags starting with `-`, and the value after `--prefix`,
+  `-C`, `--workspace`, `-w`, `--userconfig`, `--cache`; the next word is the npm command.
+- **I7 (§5.3 H5) One heavy database entry point is missing.** `tools/mechanism_dataset.py ensure` builds the
+  templates when they do not match (`tools/mechanism_dataset.py:396-408`, "build it now, with no budget"); it is not in
+  H5 (`status` and `drop` rightly are not). `tools/demo_combined_drain.py` and `demo_combined_rows.py` exist but are
+  helpers that the parent runs; I leave them out. Expected: add `ensure` to H5 with a K1 row; confirm the two helpers
+  stay out.
+- **I8 (§5.4, §6) TESTING.md: the sweep refuses more lines than §6 lists.** By the §5.3 rules: 19; all **five**
+  `tools\run-host-tests.ps1` lines 147, 150, 153, 156, 159 (§6 says four); 162; 163-164 and 167-168 (inline spans that
+  run over a line break); the fenced block 210-213 (`tools\run-backend-suite-in-container.ps1`, H3 always); 347. Lines
+  24-25 are single-word spans and are not swept. Expected: (a) all of these are rewritten (fenced 210-213 to
+  `pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-backend-suite-in-container.ps1 ...`, which needs I2); (b)
+  an inline span that crosses a line break is joined into one span (CommonMark) and reported at its first line.
+- **I9 (§6) The lane rules' Guards line keeps the old wording.** `.agent/lane-rules-vps-2026-11-12.md:7` says
+  check-all "allows 2 runs at once machine-wide (a third waits for a slot by itself)", the clause §6 rewords in RULES
+  §7. Expected: reword it the same way (one clause); §6 lists only the vitest and Database lines.
+- **I10 (§7.2) The pool self-test exceeds 30 s run serially, and inherits a real marker inside check-all.** P2, P3,
+  P6, P7, P8 and P9 each wait 3-6 s, and about eight pwsh starts add 0.5-1 s each: roughly 30-35 s in sequence.
+  Inside check-all every spawned case would also inherit check-all's real `ASSETOPS_HEAVY_SLOT` and print
+  `ignoring stale` (its directory is not the temp `D`). Expected (my defaults): the cases run concurrently
+  (`node:test` `concurrency`, each case its own `mkdtemp` directory), and every spawn removes `ASSETOPS_HEAVY_SLOT`,
+  `ASSETOPS_HEAVY_DB` and `DOTNET_SYSTEM_IO_DISABLEFILELOCKING` from its environment unless the case sets them. The
+  same scrub applies to K2-K5 spawns.
+- **I11 (§10, §0.3, §8) The commit plan and the real-slot rule.** (a) Commit 1 ("pool and check-all") would add both
+  `Add-Guard` lines while `test_heavy_slot_hook.mjs` arrives in commit 2, so check-all at commit 1 fails ("a guard
+  that cannot run is a failure"); W2 also asks for tests first. My default: commit 1 = shared module, both wrappers,
+  `test_heavy_slot_pool.mjs`, check-all with the slot change, the pool self-test guard and the SKIP line; commit 2 =
+  hook, settings, `test_heavy_slot_hook.mjs` and the hook guard line in check-all; commit 3 = docs and select-tests.
+  check-all then changes in two commits; `-Base <head>~1` (A10) still measures commit 3 alone. (b) Do this handshake
+  commit and the closing commit (packet, spec `Status`, `.ai/state` entry) count against "three commits at most"? My
+  default: no. (c) §0.3 says nothing I run may hold a real slot for more than a few seconds, but §10 runs check-all
+  once and V6 a second time (about a minute each of a real slot). My default: check-all runs are exempt, run only when
+  `--status` shows a free slot; V6 is run with the plant uncommitted (check-all's diff includes the working tree).
+- **I12 (§3.1-§3.3) Texts and edge cases the spec leaves open.** My defaults, to confirm or replace: (a) the wrappers'
+  first-wait line: `heavy-slot: both heavy slots are busy (tools/heavy-slot.sh --status); waiting up to <n> s.`, and
+  for the DB lock `heavy-slot: another database job holds db-job.lock; waiting up to <n> s.`, each printed once, to
+  stderr; (b) Ctrl-C: both wrappers exit 130 after stopping the child tree; (c) `--status` prints `slot-1`, `slot-2`
+  and `db-job` always (a missing file is `free`), plus any other existing `slot-N.lock`; (d) extends R8b:
+  `FileNotFoundException` and `DirectoryNotFoundException` are subclasses of `IOException`, so `Test-HeavyLockHeld`
+  as specified ("true when the open throws `IOException`") reports a missing file as **held**. Default: open with
+  mode `Open` (never create), catch the two not-found exceptions first and return `$false`; bash probes open with
+  `<` and treat a missing file as free; (e) a label is reduced to one line (newlines and `=` to spaces) before it
+  is written to the owner file.
+- **I13 (§3.3 `set -m`, D-T1.2) A group kill now spares the child.** Extends R6. Without `set -m` the child shares the
+  wrapper's process group, so a SIGKILL (or TERM) sent to the Bash tool's whole group stops both. With `set -m` the
+  child has its own group: a group SIGKILL kills the wrapper only and the child runs on unpooled. That widens D-T1.2's
+  accepted case from "a SIGKILLed wrapper, rare" to "any group kill". I could not find how the Claude Bash tool stops
+  a timed-out command. Expected: either accept this (and record it in the spec), or drop `set -m`, keep the child in
+  the wrapper's group, and on TERM/HUP/INT stop the tree by walking `/proc/<pid>/task/*/children` (`pkill -P`
+  recursively). P7 holds either way; P6 kills the wrapper by PID, not by group, so it does not see the difference.
+- **I14 (§5.1, owner approval pending) Commit `.claude/settings.json` on the branch?** Extends R21 (which asks what
+  replaces the hook if it is refused). Until the owner answers: my default is to build everything, commit
+  `.claude/settings.json` on the branch (no running session reads it, since every session's project directory is the
+  main checkout, and it acts only after the merge and a restart), and mark the merge as gated on the owner's approval
+  in the packet. Or should it stay uncommitted, with K4 and V3 recorded as pending?
+- **I15 (§3.4) The pool self-test's trigger rule has no self-test.** check-all proves its estate trigger with fixed
+  cases (`-SelfTestSelection`, `tools/check-all.ps1:83-133`); §3.4 adds a second trigger rule with none. Default:
+  generalise `Get-SelfTestDecision` with a file-list parameter, use it for both, and add four cases (pool file
+  changed, none changed, `-Full`, diff error) to `-SelfTestSelection`. Also: should `tools/heavy-slot-hook.mjs` and
+  `tools/select-tests.py` join `$heavySlotFiles` if K7 moves into the pool self-test (R16)? Default: yes, if it moves.
 
 ## Status
 
