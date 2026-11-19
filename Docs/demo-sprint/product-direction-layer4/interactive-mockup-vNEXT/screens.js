@@ -39,7 +39,7 @@ const kv = (rows) => `<dl class="key-values">${rows.map(([k,v])=>`<dt>${k}</dt><
 const pair = (a,b,equal=false) => `<div class="two-col ${equal?'equal':''}">${a}${b}</div>`;
 const attention = (rows) => rows.map(([title,desc,id,action],i)=>`<div class="attention-item"><span class="rank">${i+1}</span><div><h3>${title}</h3><p>${desc}</p>${id?(id.startsWith('new:')?newAct(id.slice(4),(action||'Open').replace(/ →$/,'')):link(id,action||'Open detail →')):''}</div></div>`).join('');
 const status = (text,other='',action='') => `<div class="statusbar">${text}${other?`<span class="muted">${other}</span>`:''}<span class="spacer"></span>${action}</div>`;
-const footer = () => `<footer class="screen-foot"><span>Illustrative mockup data · proposal for implementation · not connected to site telemetry</span><button data-notes>Canonical basis & implementation notes</button></footer>`;
+const footer = () => `<footer class="screen-foot"><span>Illustrative demo data · not connected to live site data</span><button data-notes>Review notes</button></footer>`;
 const empty = (label,detail) => `<div class="empty">${icon('evidence')}<h3>${label}</h3><p>${detail}</p></div>`;
 const stage = {tpl:'cold',batchFixed:[],batchDone:false,view:'populated',price:1.2,accepted:false,selected:0,range:{preset:'event',from:'2026-09-30',to:'2026-10-06'}};
 const money = () => {
@@ -56,7 +56,7 @@ const SITE_GTABS=[['Directory','sites'],['Add site · form','site-create-form'],
 const ASSET_GTABS=[['Inventory','assets'],['Warranty & vendors','assets-warranty'],['Register asset','asset-register']];
 const FIND_GTABS=[['All findings','findings'],['Cost','findings-cost'],['Risks','findings-risks'],['Opportunities','findings-opportunities']];
 const MAINT_GTABS=[['Corrective','maintenance'],['Preventive · scheduled','maintenance-preventive']];
-const SET_GTABS=[['Operational policies','settings-policies'],['Tenant configuration','settings-tenant']];
+const SET_GTABS=[['Operational policies','settings-policies'],['Organisation settings','settings-tenant']];
 function add(id,title,root,section,anchor,question,models,render,extra={}) {
  SCREENS.push({id,title,root,section,anchor,question,models,render,domain:'mini',
   preserved:'Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.',
@@ -937,7 +937,7 @@ add('wr-record','Starter and control-circuit inspection','Maintenance','Maintena
 add('wr-history','Starter and control-circuit inspection','Maintenance','History','8.34','How did the work progress?',['WorkEvent'],wrHistory,{domain:'cold',book:false,obj:'WR-019',subtitle:'WR-019 · Thika · corrective'});
 add('oprecords','Operational records','Operational records','','Owner outline · 8.33 basis (Operator record)','What did people on site record, and what does it feed?',['OperationalRecord'],opRecordsScreen,{subtitle:'Operator logs, manual readings, shift notes and site visits'});
 add('settings-policies','Settings','Settings','Operational policies','3.10 · demo scope','Which operating policies apply, and in which version?',['PolicyVersion'],settingsPolicies,{book:false,gtabs:SET_GTABS,subtitle:'Versioned operating policies'});
-add('settings-tenant','Settings','Settings','Tenant configuration','3.10 · demo scope','How is this organisation set up?',['TenantConfiguration'],settingsTenant,{book:false,gtabs:SET_GTABS,subtitle:'Organisation, users, roles and feature switches'});
+add('settings-tenant','Settings','Settings','Organisation settings','3.10 · demo scope','How is this organisation set up?',['TenantConfiguration'],settingsTenant,{book:false,gtabs:SET_GTABS,subtitle:'Organisation, users, roles and feature switches'});
 
 const ROOTS=[['Portfolio','portfolio','grid'],['Sites','sites','site'],['Assets','assets','asset'],['Findings','findings','finding'],['Actions','actions','action'],['Incidents','incidents','incident'],['Maintenance','maintenance','work'],['Operational records','oprecords','log'],['Evidence','globalevidence','evidence'],['Financials','globalfinancials','money'],['Settings','settings-policies','gear']];
 function currentScreen(){return resolveScreen(location.hash.replace(/^#\//,''));}
@@ -993,7 +993,7 @@ function shell(s,book=false){
  const sensitive=['mini','dispatch','renewable','finding','financials','asset','cold','temperature','cooling','ev','sessions','availability','energy','evidence'];
  const fid=(s.root==='Findings'||s.root==='Actions')&&s.section&&!s.gtabs?(s.obj||OBJ[s.id]):null;
  const body=preBody(s)+(fid?affectsLine(fid):'')+(!book&&stage.view!=='populated'&&sensitive.includes(s.id)?variant(s):s.render());
- return `<div class="shell">${rail(s)}<main class="workspace"><header class="topbar"><div class="portfolio-name">${lab?'Simulator Lab · KOBO-001':opName()} <span class="muted">/ Demo operator</span></div><div class="right"><button class="searchbox" data-index>${icon('search')}Find a screen</button>${lab?`<span id="topbar-window">${SITES[s.domain].window}</span>`:`${s.root==='Sites'&&s.section&&!s.gtabs?siteSwitch(s):''}${s.loop?periodChip(s):rangePicker(global?null:s.domain)}`}<span class="avatar">BY</span></div></header><div class="canvas">${breadcrumbs(s)}<div class="page-heading"><div><div class="title-row"><h1>${s.title}</h1>${s.root==='Sites'&&s.section&&!s.gtabs&&!s.loop?provTag(s.domain):''}</div><p>${s.subtitle||s.question}</p></div><div class="heading-actions">${s.actions?s.actions(s):!global&&!lab&&s.root!=='Sites'?btn(siteOverviewFor(s.domain),'Open site'):''}</div></div>${tabs(s)}${body}${footer()}</div></main></div>`;
+ return `<div class="shell">${rail(s)}<main class="workspace"><header class="topbar"><div class="portfolio-name">${lab?'Simulator Lab · KOBO-001':opName()} <span class="muted">/ Demo operator</span></div><div class="right"><button class="searchbox" data-index>${icon('search')}Find a screen</button>${lab?`<span id="topbar-window">${SITES[s.domain].window}</span>`:`${s.root==='Sites'&&s.section&&!s.gtabs?siteSwitch(s):''}${s.loop?periodChip(s):rangePicker(global?null:s.domain)}`}${themeToggle()}<span class="avatar">BY</span></div></header><div class="canvas">${breadcrumbs(s)}<div class="page-heading"><div><div class="title-row"><h1>${s.title}</h1>${s.root==='Sites'&&s.section&&!s.gtabs&&!s.loop?provTag(s.domain):''}</div><p>${s.subtitle||s.question}</p></div><div class="heading-actions">${s.actions?s.actions(s):!global&&!lab&&s.root!=='Sites'?btn(siteOverviewFor(s.domain),'Open site'):''}</div></div>${tabs(s)}${body}${footer()}</div></main></div>`;
 }
 function render(){
  const s=currentScreen();document.querySelector('.conf-pop')?.remove();

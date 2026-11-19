@@ -45,7 +45,7 @@ const ID_CHECK = (rootSel) => { const R = document.querySelector(rootSel); if (!
   return hits; };
 const ROLE_CHECK = () => { const R = document.querySelector('.canvas'); const txt = R.textContent; const hits = []; const m1 = txt.match(/\b(?:CEO|COO|CFO|CCO)\b|Which sites and investments|Where should limited crews|Why is performance off plan|Which demand can be sold/); if (m1) hits.push({ kind: 'role or question stem', match: m1[0] });
   R.querySelectorAll('h1,h2,h3,h4,.page-heading p,figcaption,.eyebrow,th,legend').forEach(h => { if (/\?\s*$/.test(h.textContent.trim())) hits.push({ kind: 'heading phrased as a question', match: h.textContent.trim().slice(0, 100) }); }); return hits; };
-const DRAWER_SAMPLE = new Set(['portfolio', 'portfolio/outcomes-by-site', 'portfolio/act-first', 'decision/kobo-generator', 'decision/thika-backup', 'decision/embakasi-schedule', 'site/kasarani', 'globalfinancials']);
+const DRAWER_SAMPLE = new Set(['portfolio', 'portfolio/outcomes-by-site', 'portfolio/act-first', 'portfolio/act-first/plan', 'decision/kobo-generator', 'decision/thika-backup', 'decision/embakasi-schedule', 'site/kasarani', 'globalfinancials']);
 for (const op of ['lakeside', 'harvest', 'metro']) {
   await go(url); await page.selectOption('#op-switch', op);
   for (const id of ids) {
@@ -67,7 +67,7 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
       const nb = await page.locator('.ev-num').count(); for (let k = 0; k < Math.min(nb, 60); k++) { await page.locator('.ev-num').nth(k).click(); out.dvScan.drawersOpened++; const dd = await page.evaluate(DV_SCAN, ['.drawer', REPLAY.patterns]); out.dvScan.occurrences += dd.n; dd.bad.forEach(b => out.dvScan.unlabelled.push({ op, id: id + ' (drawer ' + k + ')', ...b })); await page.keyboard.press('Escape'); } }
     if (DRAWER_SAMPLE.has(id)) { const n = await page.locator('.ev-num').count(); for (let k = 0; k < Math.min(n, 6); k++) { await page.locator('.ev-num').nth(k).click(); const dt = (await page.evaluate(() => { const d = document.querySelector('.drawer').cloneNode(true); d.querySelectorAll('details.tech,.srcrows thead').forEach(x => x.remove()); return d.textContent; })); const dh = await page.evaluate(ID_CHECK, '.drawer'); if (/\b(?:CEO|COO|CFO|CCO)\b|Which sites and investments|Where should limited crews|Why is performance off plan|Which demand can be sold/.test(dt)) out.roleHits.push({ op, id: id + ' (drawer ' + k + ')', kind: 'role or question stem in drawer' }); dh.forEach(x => out.idHits.push({ op, id: id + ' (drawer ' + k + ')', ...x })); const m2 = dt.match(VOCAB); if (m2) out.vocab.push({ op, id: id + ' (drawer ' + k + ')', match: m2[0], at: dt.slice(Math.max(0, m2.index - 50), m2.index + 50) }); await page.keyboard.press('Escape'); } }
     out.routes.push({ op, id, status: s, ok: !!r.h1 && errs.length === 0, h1: r.h1, landed: r.hash.slice(2), errors: errs.slice(0, 3), topbarOperatorSelect: r.topbarOp, reviewOperatorSelect: r.reviewOp });
-    if (shots && op !== 'lakeside' && ['portfolio', 'portfolio/act-first', 'portfolio/outcomes-by-site', 'portfolio/demand-and-capacity'].includes(id)) await page.screenshot({ path: path.join(root, `screenshots/vnext/${op}-${id.replace(/\//g, '_')}-1440.png`), fullPage: true });
+    if (shots && op !== 'lakeside' && ['portfolio', 'portfolio/act-first', 'portfolio/act-first/plan', 'portfolio/outcomes-by-site', 'portfolio/demand-and-capacity'].includes(id)) await page.screenshot({ path: path.join(root, `screenshots/vnext/${op}-${id.replace(/\//g, '_')}-1440.png`), fullPage: true });
     if (shots && op === 'lakeside' && LOOPLIKE(s) && (id.startsWith('portfolio') || id.startsWith('decision/') || /^site\/(kobo|thika|ruiru|kisiwa|kasarani)(\/economics)?$/.test(id) || ['sites', 'globalfinancials', 'mini', 'findings', 'ev-health'].includes(id))) await page.screenshot({ path: path.join(root, `screenshots/vnext/${id.replace(/\//g, '_')}-1440.png`), fullPage: true });
   }
 }
@@ -80,7 +80,7 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
     await go(url + '#/' + id);
     const w = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, culprits: [...document.querySelectorAll('body *')].filter(e => { const b = e.getBoundingClientRect(); return b.right > document.documentElement.clientWidth + 1 && !e.closest('.table-wrap,.tabs,pre,.scroll-region,.reviewbar') && getComputedStyle(e).position !== 'fixed'; }).slice(0, 3).map(e => e.tagName + '.' + [...e.classList].join('.')) }));
     if (w.sw > w.cw) out.overflow390.push({ op, id, status: st(id), scrollWidth: w.sw, culprits: w.culprits });
-    if (shots && op === 'lakeside' && ['portfolio', 'portfolio/act-first', 'portfolio/outcomes-by-site', 'decision/kobo-generator', 'site/kobo'].includes(id)) await page.screenshot({ path: path.join(root, `screenshots/vnext/${id.replace(/\//g, '_')}-390.png`), fullPage: true });
+    if (shots && op === 'lakeside' && ['portfolio', 'portfolio/act-first', 'portfolio/act-first/plan', 'portfolio/outcomes-by-site', 'decision/kobo-generator', 'site/kobo'].includes(id)) await page.screenshot({ path: path.join(root, `screenshots/vnext/${id.replace(/\//g, '_')}-390.png`), fullPage: true });
     if (shots && op === 'metro' && id === 'portfolio') await page.screenshot({ path: path.join(root, `screenshots/vnext/metro-portfolio-390.png`), fullPage: true });
   }
 }
@@ -88,7 +88,7 @@ await page.setViewportSize({ width: 1440, height: 1000 });
 /* switches re-compute the plan */
 const M = JSON.parse(readFileSync(path.join(root, 'fixtures.js'), 'utf8').match(/const MANIFEST = (.*);\nconst MANIFEST_SHA/s)[1]);
 const usd = n => '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2 });
-await go(url); await page.selectOption('#op-switch', 'lakeside'); await go(url + '#/portfolio/act-first');
+await go(url); await page.selectOption('#op-switch', 'lakeside'); await go(url + '#/portfolio/act-first/plan');
 /* rev 13: expectations from the evaluator's switch cases (derived-values.json), not typed copies */
 const DV = JSON.parse(readFileSync(path.join(root, '..', 'derived-values.json'), 'utf8')), YN = s => s === 'True' ? 'yes' : 'no';
 const cases = Object.fromEntries(Object.entries(DV.plans['lakeside-power'].switch_cases).map(([k, c]) => { const [b, l] = k.split('/'); return [`${b}/${YN(l)}`, { ...c, inverter: c.items.includes('MTO-INV-BUYNOW') ? 'BUYNOW' : 'CLAIM', huller: c.items.includes('MTO-HULLER') }]; }));
@@ -100,11 +100,11 @@ for (const [k, c] of Object.entries(cases)) {
   if (shots) await page.screenshot({ path: path.join(root, `screenshots/vnext/act-first-lakeside-${k.replace('/', '-')}-1440.png`), fullPage: true });
 }
 await page.check('input[name="sw-budget"][value="5000"]'); await page.check('input[name="sw-loi"][value="yes"]');
-await page.selectOption('#op-switch', 'harvest'); await go(url + '#/portfolio/act-first');
+await page.selectOption('#op-switch', 'harvest'); await go(url + '#/portfolio/act-first/plan');
 const HD = DV.plans['harvest-cold'], MD = DV.plans['metro-bus'], VS = c => [usd(c.spend), `${c.crew_visits_used} of ${c.crew_visits_limit}`, (c.value < 0 ? '−' : '+') + usd(c.value)];
 for (const [v, sp, vis, val] of [['yes', ...VS(HD.switch_cases.True)], ['no', ...VS(HD.switch_cases.False)]]) { await page.check(`input[name="sw-agg"][value="${v}"]`); const r = await page.evaluate(() => [...document.querySelectorAll('.meterhead strong')].map(x => x.innerText)); const tt = await page.evaluate(() => document.querySelector('.total strong').innerText); const dn = await page.evaluate(() => document.querySelector('.downside')?.textContent || ''); out.switches['harvest aggregator ' + v] = { spendOk: r[0].startsWith(sp), visitsOk: r[1].startsWith(vis), valueOk: tt.startsWith(val), downsideOk: v === 'yes' ? dn.startsWith('Downside: +' + usd(HD.downside)) : dn.startsWith('Downside shown for the default plan: +' + usd(HD.downside)), got: r.concat(tt) }; }
 await page.check('input[name="sw-agg"][value="yes"]');
-await page.selectOption('#op-switch', 'metro'); await go(url + '#/portfolio/act-first');
+await page.selectOption('#op-switch', 'metro'); await go(url + '#/portfolio/act-first/plan');
 for (const [v, sp, val] of [['yes', ...VS(MD.switch_cases.True).filter((x, i) => i !== 1)], ['no', ...VS(MD.switch_cases.False).filter((x, i) => i !== 1)]]) { await page.check(`input[name="sw-tou"][value="${v}"]`); const r = await page.evaluate(() => ({ m: document.querySelector('.meterhead strong').innerText, t: document.querySelector('.total strong').innerText, d: document.querySelector('.downside')?.textContent || '' })); out.switches['metro tariff ' + v] = { spendOk: r.m.startsWith(sp), valueOk: r.t.startsWith(val), downsideOk: v === 'yes' ? r.d.startsWith('Downside: +' + usd(MD.downside)) : r.d.startsWith('Downside shown for the default plan: +' + usd(MD.downside)), got: r }; }
 await page.check('input[name="sw-tou"][value="yes"]');
 /* owner rule also covers drawers and tab/section names: review-notes drawer on every added screen, tab rows on every added/changed screen */
@@ -123,7 +123,7 @@ await page.selectOption('#op-switch', 'lakeside'); await go(url + '#/portfolio')
 out.rev6.tabOrder = await page.evaluate(() => [...document.querySelectorAll('.canvas .tabs a')].map(a => a.textContent.trim()));
 out.rev6.tabOrderOk = JSON.stringify(out.rev6.tabOrder) === JSON.stringify(['Overview', 'Outcomes by site', 'Demand and capacity', 'Act first', 'What changed', 'Scope & coverage']);
 await page.goto(url + '#/portfolio/opportunity'); await page.waitForFunction(() => window.mockupReady); out.rev6.oldRouteRedirect = await page.evaluate(() => location.hash);
-const DVT = 'Design value: the replay has not yet been run on site data';
+const DVT = 'Design estimate: not yet tested on your recorded data';
 out.rev6.dvDecisionPages = {};
 for (const d of ['kobo-generator', 'mto-demand', 'embakasi-schedule', 'kirinyaga-energy', 'mto-inverter']) { await go(url + '#/decision/' + d); out.rev6.dvDecisionPages[d] = await page.evaluate(() => [...document.querySelectorAll('.dv')].map(x => x.textContent)); }
 out.rev6.dvOk = Object.values(out.rev6.dvDecisionPages).every(a => a.length > 0);
@@ -153,7 +153,7 @@ out.drawer = { openedWithKeyboard: true, focusInside: inDrawer, focusTrapped: tr
 out.tabsKeyboard = await page.evaluate(() => [...document.querySelectorAll('.canvas .tabs a')].every(a => a.tabIndex >= 0));
 /* focus visible */
 for (const sel of ['.rail a', '.tabs a', '.ev-num', '#op-switch', 'button.wfrow', 'input[name="sw-budget"]', 'details.astable summary']) {
-  const target = sel === 'button.wfrow' || sel === 'details.astable summary' ? 'portfolio/outcomes-by-site' : sel.startsWith('input') ? 'portfolio/act-first' : 'portfolio';
+  const target = sel === 'button.wfrow' || sel === 'details.astable summary' ? 'portfolio/outcomes-by-site' : sel.startsWith('input') ? 'portfolio/act-first/plan' : 'portfolio';
   await go(url + '#/' + target); const el = page.locator(sel).first(); await el.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
   const o = await page.evaluate(() => { const e = document.activeElement, s = getComputedStyle(e); return { tag: e.tagName, outline: s.outlineStyle + ' ' + s.outlineWidth, shadow: s.boxShadow }; });
   out.focus.push({ sel, ...o, visible: !/none|0px/.test(o.outline) || o.shadow !== 'none' });
