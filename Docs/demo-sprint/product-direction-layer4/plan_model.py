@@ -87,7 +87,7 @@ PATH = ["1", "2", "3A", "3B", "3C", "4", "5", "6", "7", "8", "9"]   # Figure 10'
 STEP_NAME = {"T": "Tooling: the heavy-tool slot pool", "0": "0 Calibration replays K, M, E", "1": "1 Correct the last-day figure",
              "2": "2 Canonical format and leaf factor IDs", "3A": "3A Sources", "3B": "3B Structure", "3C": "3C Recorded person",
              "4": "4 Join at the money leaves", "5": "5 Targets and the bridge", "6": "6 Decisions and options",
-             "7": "7 The plan and the Portfolio", "8": "8 Three verdicts", "9": "9 Rights, cold then EV, pilot onboarding", "W": "The day-14 walkthrough database"}
+             "7": "7 The plan and the Portfolio", "8": "8 Three verdicts", "9": "9 Rights, cold then EV, pilot onboarding at scale", "W": "The day-14 walkthrough database"}
 SLICES = [
     ("T1", "T", "tooling", "Heavy-tool slot pool, enforced: tsc, vitest, Postgres test files, browser captures and the heavy database job take one of check-all's two slots; a hook refuses an unpooled run", "SCR", (2, 3), [], None, ""),
     ("0K", "0", "CH3", "Spike K: the forward replay adapter behind a new port method, and Kobo's stop-threshold replay on the simulated series", "DEC", (5, 9), [], None, ""),
@@ -107,7 +107,8 @@ SLICES = [
     ("3B4", "3B", "CH1", "Structure observer: deviations stored as Findings under the owner's rule and outside the factor's tolerance (OD-3)", "STR", (2, 3), ["3B3", "3C1"], "P3B", "new"),
     ("3B5", "3B", "B1", "Site board: driver lines become factor rows generated from the registry, with their Findings on their factors", "SCR", (3, 5), ["3B2", "3B3"], "P3B", ""),
     ("3B6", "3B", "B1", "Cold-room and captive-EV structures declared and tested from the start (revenue not applicable, never zero)", "STR", (1, 2), ["3B1"], "P3B", ""),
-    ("3C1", "3C", "CH2", "An authenticated user recorded on every command: trial, domain action and work case writes accept the person", "DEC", (2, 4), ["1a"], "P1", "schema new"),
+    ("3C0", "3C", "CH2", "Operator accounts: email-and-password sign-in, one set per operator (OD-13); the executive grants and removes roles in Organisation settings, each change recorded (OD-14)", "DEC", (2, 4), ["1a"], "P1", "schema new"),
+    ("3C1", "3C", "CH2", "An authenticated user recorded on every command: trial, domain action and work case writes accept the person", "DEC", (2, 4), ["3C0"], "P1", "schema new"),
     ("3C2", "3C", "CH2", "Every Action records creator, owner and due date; overdue computed as for maintenance schedules", "DEC", (2, 3), ["3C1"], "P1", "schema new"),
     ("3C3", "3C", "CH2", "UI controls for the work routes that exist only in the API: raise, assign, complete and close, under the person's name", "SCR", (3, 5), ["3C2"], "P1", "new"),
     ("4a", "4", "B1", "Energy-to-cash observer: delivered, metered, billed, collected, with named leaks", "SRC", (2, 3), ["3A4", "3B3"], None, "money"),
@@ -123,8 +124,8 @@ SLICES = [
     ("6e", "6", "CH4", "Stop-setting verification family (an unknown rule fails closed today)", "DEC", (2, 3), ["6d"], "P6", "schema"),
     ("6f", "6", "CH3", "Decision view from What can be done: options with no action, values, the rejected one's reason; the choice recorded", "SCR", (3, 5), ["6b", "6c", "6d"], "P6", ""),
     ("6g", "6", "CH3", "Mto demand and repair decisions (revenue side, after the join), with the quotes emulator", "SRC", (3, 5), ["6c", "4a", "0M"], "P6", "money"),
-    ("7a", "7", "P", "Plan records (portfolio_plan): items, versions, settings; one origin and at most one membership, the origin checks widened in one migration", "STR", (4, 6), ["6a", "3C2"], "P7", "schema"),
-    ("7b", "7", "P", "Release: spend and crew-visit thresholds as Site or portfolio settings (OD-2, OD-12); the fit checked at each creation; changes counted since the last version", "STR", (3, 5), ["7a"], "P7", "money new"),
+    ("7a", "7", "P", "Plan records (portfolio_plan): items with their chooser and owner (OD-16) and derived states, versions, settings, crew-visit limits by month; one origin and at most one membership, the origin checks widened in one migration", "STR", (4, 6), ["6a", "3C2"], "P7", "schema"),
+    ("7b", "7", "P", "Release: spend and crew-visit thresholds as Site or portfolio settings, the Site's winning (OD-2, OD-12, OD-18); capital items wait for the executive (OD-17); the fit checked at each creation; changes counted since the last version", "STR", (3, 5), ["7a"], "P7", "money new"),
     ("7c", "7", "P", "Proposal: the nearest set that fits budget, crew visits and dates, every exclusion with its reason", "STR", (3, 5), ["7b", "6c"], "P7", "money"),
     ("7d", "7", "P", "Spend steps on the item: planned spend, released spend, and incurred spend from linked expense records, counted once", "SRC", (2, 3), ["7a", "3A4"], "P7", "money new"),
     ("7e", "7", "CH5", "Act first: the Finding triage first, the version awaiting approval beside it; approve or send back with a trade-off", "SCR", (4, 6), ["7b", "7c"], "P7", ""),
@@ -143,8 +144,8 @@ SLICES = [
 ]
 # Structure pages (W1): one page and a figure per step, written by the Architect from the pack and approved at a sitting.
 # "P1" covers steps 1 and 3C, whose structure the recreated pack already holds (#2, #12): it is approved with the pack
-# itself, before day 1 (Architect's call for the owner, two-week-build-plan.md §7). Effort in Architect lane-days.
-PAGES = [("P1", "Steps 1 and 3C: the corrected figure; the person on every command (pack #2, #12)", 0.0, True),
+# itself, before day 1 (owner decision OD-20, 19 Nov). Effort in Architect lane-days.
+PAGES = [("P1", "Steps 1 and 3C: the corrected figure; sign-in, roles and the person on every command (pack #2, #12; OD-20)", 0.0, True),
          ("P2", "Step 2: canonical format version 1 and the leaf factor IDs", 0.5, False),
          ("P3A", "Step 3A: record kinds, intake, emulator rules, the contract test", 0.25, False),
          ("P3B", "Step 3B: registry rows, parity, the structure read and observer", 0.25, False),
@@ -164,7 +165,7 @@ assert all(i["gate"] in PAGE or i["gate"] in (None, "DAY13") for i in IT), "unkn
 BUILD_LANES = ("SRC", "STR", "DEC", "SCR")
 LANE_NAME = {"SRC": "Lane 1 · sources and money", "STR": "Lane 2 · structure and the plan's records",
              "DEC": "Lane 3 · person, decisions and proof", "SCR": "Lane 4 · screens and tooling", "ANY": "any lane's gaps"}
-MUST_KEEP = {"T1", "1a", "1b", "2a", "3A1", "3A2", "3A3", "3A4", "3B1", "3B2", "3B3", "3C1", "3C2", "WK"}   # land by day 12 (WK by 14)
+MUST_KEEP = {"T1", "1a", "1b", "2a", "3A1", "3A2", "3A3", "3A4", "3B1", "3B2", "3B3", "3C0", "3C1", "3C2", "WK"}   # land by day 12 (WK by 14)
 
 
 def units(i):
@@ -379,7 +380,9 @@ OWN_LOAD, OWN_NOTES = owner_load(PLAN)
 
 
 # ================================================================ 6. owner-time model for commercial-plan.md (#9), carried over
-# unchanged from the go-to-market model (commercial plan rev 4 §4.1, §6.1; TW11, TW25, TW26 open). Lane C owns its wording.
+# unchanged from the go-to-market model (commercial plan rev 4 §4.1, §6.1). TW25 and TW26 are commercial-plan.md's C14 and
+# C15, decided by the owner on 19 Nov at their defaults (8 peak days, 2 owner-days kept for the product), so no input changes.
+# No pack document carries these tables now: render_commercial_plan_html.py owns the commercial plan's (see DOCS below).
 ENGAGE = {"low": dict(align=1.0, dd=4.5, pack=1.5, to_bd=2.5, chk=0.5), "mid": dict(align=1.5, dd=7.0, pack=2.25, to_bd=4.0, chk=0.75),
           "high": dict(align=2.0, dd=9.5, pack=3.0, to_bd=5.5, chk=1.0)}
 DD_FLOOR, PACK_FLOOR, BD_FLOOR = {"low": 2.0, "mid": 2.5, "high": 3.0}, 1.0, 1.0
@@ -411,7 +414,7 @@ def engage(cap):
 
 ENG1, ENG1_BASE = engage(DELIVERY_CAP), engage(DELIVERY_CAP_BASE)
 span = lambda E: (min(v["commit"][0] for v in E.values()), max(v["commit"][1] for v in E.values()))  # noqa: E731
-OWNER_CASES = [("planning case (the defaults)", PEAK_DAYS_MONTH, PRODUCT_RESERVE), ("no peak days", 0, PRODUCT_RESERVE),
+OWNER_CASES = [("decided (C14, C15)", PEAK_DAYS_MONTH, PRODUCT_RESERVE), ("no peak days", 0, PRODUCT_RESERVE),
                (f"{RESERVE_ALT}-day product reserve", PEAK_DAYS_MONTH, RESERVE_ALT), (f"no peak days and a {RESERVE_ALT}-day reserve", 0, RESERVE_ALT)]
 
 
