@@ -19,7 +19,18 @@ Checks, run before writing (the build fails on any violation, SystemExit):
   C14 and C15 decisions of 19 Nov; rows named "sensitivity ..." are left out);
 - planted violations: every line of website-copy-lint-fixtures.txt must FAIL, or the build fails;
 - the five stage names equal the commercial plan's;
-- rendering is deterministic."""
+- rendering is deterministic.
+
+Added 19 Nov (owner: "defaults for the three, and tighten the hero and badges"):
+- WC7: copy that names or argues against monitoring tools or competitors fails (ARGUE), checked first, so each planted
+  [WC7] line must fail for that reason; the stage name "Pilot and monitoring" must still pass;
+- tags (§3 "How tags render"): Today, Coming, Demo data and Demo data · Emulated are <!--tag:...--> markers, rendered as
+  small corner tags on the copy card. The lint reads each tag as words in front of the block, so every earlier check
+  reads exactly what it read when the words were typed; tag_check() adds: a known tag, at most one of Today or Coming,
+  no coming construct anywhere in a Today block, a demo badge on every block that holds a figure, and no tag typed as a
+  line prefix. Each planted [TAG] line must fail for a tag reason;
+- the Home first fold (§3.2): question, promise and one badged example above <!--fold-->; below it, short blocks each
+  with a two-to-four-word heading, the reassurance just before the call to action. Self-tested on broken variants."""
 import json, pathlib, re, sys
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -70,6 +81,16 @@ BANNED = [
     r"\b(?:we|it|AssetEcon)\s+(?:will\s+)?(?:make|take)s?\s+(?:the\s+)?decisions?\b",
     # design Rules 6: no legal or insurance conclusion
     r"\bliab(?:le|ility)\b", r"\b(?:is|are|will be)\s+covered\b", r"\bwarranty\s+covers\b", r"\binsurer\s+(?:will|must)\s+pay\b",
+]
+# WC7 (owner, 19 Nov): the site never names or argues against monitoring tools or competitors; the unexpected demo result
+# makes the point. The stage name "Pilot and monitoring" is not matched.
+ARGUE = [
+    r"\b(?:your|their|our|existing|current|other|today's)\s+(?:remote\s+)?monitoring\b",
+    r"\bmonitoring\s+(?:tools?|systems?|platforms?|dashboards?|software|vendors?|providers?|products?|solutions?|companies|apps?)\b",
+    r"\bmonitoring\s+(?:only\s+)?(?:shows?|tells?|gives?|stops?|misses|can(?:not|'t)|does(?:n't| not)|just|only)\b",
+    r"\b(?:beyond|more than(?: an?)?|not (?:just |only )?an?|instead of|replaces?)\s+(?:\w+\s+)?(?:monitoring|dashboards?|telemetry tools?|SCADA)\b",
+    r"\b(?:competitors?|competition|competing|rivals?)\b",
+    r"\bother\s+(?:tools?|vendors?|providers?|platforms?|products?|software|solutions?)\b",
 ]
 CASED = {r"\bFinding"}
 NOW_WORDS = re.compile(r"\b(?:available now|now available|running today|today|live now|in the product now)\b", re.I)
@@ -123,6 +144,9 @@ def lint_block(b):
     t = re.sub(r"<!--.*?-->", "", b)
     for a in ALLOWED:
         t = t.replace(a, "")
+    for pat in ARGUE:                                                  # WC7, first so its planted lines fail for it
+        if re.search(pat, t, re.I):
+            return f"WC7: names or argues against another tool /{pat[:50]}/"
     tl = t
     for a in APPROVED_DURATIONS:
         tl = re.sub(re.escape(a), "", tl, flags=re.I)
@@ -152,6 +176,94 @@ def lint_block(b):
     if LABEL.search(t) and re.search(r"\brecorded\b", t, re.I):
         return "a demo figure called 'recorded': no figure is stronger than its weakest part (D14)"
     return None
+
+
+# ---------------------------------------------------------------- tags (§3 "How tags render")
+TAGS = {"today": "Today", "coming": "Coming", "demo": "Demo data", "demo-emulated": "Demo data · Emulated",
+        "not-connected": "Not yet connected"}
+TAG = re.compile(r"<!--tag:([\w-]+)-->")
+STATE_TAGS = {"today", "coming", "not-connected"}
+DEMO_TAGS = {"demo", "demo-emulated"}
+MARKED = re.compile(r"<!--(?:figx?|rec)[:-]")
+TYPED_TAG = re.compile(r"^\W*(?:Today|Coming|Not yet connected|Demo data)\b[^.·:]{0,30}?\**\s*[·:]", re.I)
+
+
+def expand(b):
+    """The block as the lint reads it: its tags as words in front, then the copy without the markers."""
+    tags = TAG.findall(b)
+    words = " · ".join(TAGS.get(x, x) for x in tags)
+    rest = TAG.sub("", b).strip()
+    return f"{words}: {rest}" if words else rest
+
+
+def tag_check(b):
+    """Return the reason a block's tags fail, or None."""
+    tags = TAG.findall(b)
+    for x in tags:
+        if x not in TAGS:
+            return f"unknown tag '{x}'"
+    if len(tags) != len(set(tags)):
+        return "a tag repeated"
+    if len(set(tags) & STATE_TAGS) > 1:
+        return "a block carries more than one of Today, Coming and Not yet connected"
+    rest = TAG.sub("", b).strip()
+    if TYPED_TAG.search(re.sub(r"<!--.*?-->", "", rest)):
+        return "a tag typed as a line prefix: use a <!--tag:...--> marker"
+    plain = re.sub(r"<!--.*?-->", "", rest)
+    if "today" in tags and COMING_WORDS.search(plain):
+        return f"a coming construct in a Today block: {COMING_WORDS.search(plain).group(0)!r}"
+    if (MARKED.search(rest) or NUMERIC.search(plain)) and not set(tags) & DEMO_TAGS:
+        return "an illustration without its Demo data badge"
+    return None
+
+
+def hero(md):
+    """The Home first fold: question, promise, one badged example; then headed blocks; reassurance before the call."""
+    m = re.search(r"^### 3\.2 Home\n(.*?)(?=^### )", md, re.S | re.M)
+    if not m:
+        return "cannot find §3.2 Home"
+    sec = m.group(1)
+    if sec.count("<!--fold-->") != 1:
+        return "§3.2 needs exactly one <!--fold--> marker"
+    above, below = sec.split("<!--fold-->")
+    q = lambda s: [" ".join(x[1:].strip() for x in g.split("\n")) for g in re.findall(r"(?:^>.*\n?)+", s, re.M)]  # noqa: E731
+    a, b = q(above), q(below)
+    if len(a) != 3:
+        return f"the first fold holds {len(a)} copy blocks; it holds the question, the promise and one example"
+    if not a[0].rstrip().endswith("?"):
+        return "the first fold opens with the executive's question"
+    if not set(TAG.findall(a[2])) & DEMO_TAGS or not MARKED.search(a[2]):
+        return "the first fold's example carries figures and its Demo data badge"
+    if len(b) < 3 or not b[-1].startswith("Book a conversation"):
+        return "§3.2 ends with the call to action"
+    if "sends no command" not in b[-2]:
+        return "the reassurance sits just before the call to action"
+    for x in b[:-1]:
+        h = re.match(r"^\*\*([^*]+)\*\* · ", TAG.sub("", x).strip())
+        if not h or not 2 <= len(h.group(1).split()) <= 4:
+            return f"a block below the fold without a two-to-four-word heading: {TAG.sub('', x).strip()[:50]!r}"
+    return None
+
+
+def hero_self_test(md):
+    """hero() must pass the deck and fail each broken variant, or the check has weakened."""
+    why = hero(md)
+    if why:
+        fail(f"§3.2 first fold: {why}")
+    m = re.search(r"^### 3\.2 Home\n(.*?)(?=^### )", md, re.S | re.M)
+    sec = m.group(1)
+    blocks = re.findall(r"(?:^>.*\n)+", sec, re.M)
+    variants = {
+        "no fold": sec.replace("<!--fold-->", ""),
+        "fold one block late": sec.replace("<!--fold-->\n", "").replace(blocks[3], blocks[3] + "\n<!--fold-->\n", 1),
+        "example without badge": sec.replace(blocks[2], TAG.sub("", blocks[2]), 1),
+        "reassurance first below the fold": sec.replace(blocks[-2], "", 1).replace("<!--fold-->\n", "<!--fold-->\n\n" + blocks[-2], 1),
+        "a heading of one word": sec.replace(blocks[3], re.sub(r"\*\*([^*]+)\*\*", "**Allocation**", blocks[3], count=1), 1),
+    }
+    for name, v in variants.items():
+        if v == sec or not hero(md.replace(sec, v)):
+            fail(f"the first-fold check no longer catches: {name}")
+    return len(variants)
 
 
 def t1_walkthrough(b):
@@ -236,11 +348,27 @@ def copy_blocks(md):
 def fixtures(rows):
     """Every planted violation must fail, with every trigger forced to 'not met', or the lint has weakened."""
     gated_all = [(r[0].strip("*"), r[3].strip("*\" ")) for r in rows if r[3].strip("*\" ") not in ("–", "-")] + [("T4–T11", "available to see in a walkthrough")]
-    lines = [l.strip() for l in (HERE / "website-copy-lint-fixtures.txt").read_text(encoding="utf-8").split("\n") if l.strip() and not l.startswith("#")]
+    lines, sect = [], None
+    for l in (HERE / "website-copy-lint-fixtures.txt").read_text(encoding="utf-8").split("\n"):
+        if l.startswith("#"):
+            s = re.match(r"^# \[(\w+)\]", l)
+            if s:
+                sect = s.group(1)
+        elif l.strip():
+            lines.append((sect, l.strip()))
     if len(lines) < 40:
         fail("lint fixtures missing")
+    for sect, l in lines:                                              # each planted set fails for its own rule
+        if sect == "WC7" and not (lint_block(l) or "").startswith("WC7"):
+            fail(f"WC7 no longer catches the planted line: {l} (got {lint_block(l)!r})")
+        if sect == "TAG" and not (tag_check(l) and not lint_block(l)):
+            fail(f"the tag check no longer catches the planted line, or the line fails another rule first: {l}")
+    stage = "Pilot and monitoring: a pilot of about three months on your own sites, with a monthly review."
+    if lint_block(stage):
+        fail(f"WC7 catches the stage name 'Pilot and monitoring': {lint_block(stage)}")
+    lines = [l for _, l in lines]
     for l in lines:
-        why = lint_block(l) or t1_walkthrough(l)
+        why = tag_check(l) or lint_block(expand(l)) or t1_walkthrough(l)
         if not why:
             why = next((f"gated {tid}" for tid, ph in gated_all if ph.lower() in l.lower()), None)
         if why is None:
@@ -253,7 +381,7 @@ def run(md, lint_only=False):
     t1_gated = any(tid == "T1" for tid, _ in gated)
 
     def check(b):
-        why = lint_block(b)
+        why = tag_check(b) or lint_block(expand(b))
         if why:
             return why
         if t1_gated:
@@ -292,11 +420,58 @@ def run(md, lint_only=False):
                 fail(f"§4.2 {tid} prepared copy holds a figure; money stays out of trigger copy")
             n_trig += 1
     computed_gates(md, rows)
+    hero_self_test(md)
     n_fix = fixtures(rows)
     for s in RC.STAGES:
         if s not in md:
             fail(f"stage name '{s}' missing")
     return len(blocks), n_trig, n_fix
+
+
+# ---------------------------------------------------------------- rendering the tags
+TAG_CSS = ('<style>:root{--tag-today:#166534;--tag-today-bg:#dcfce7;--tag-coming:#92400e;--tag-coming-bg:#fef3c7;'
+           '--tag-demo:#334155;--tag-demo-bg:#e2e8f0}\n'
+           '@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--tag-today:#86efac;--tag-today-bg:#14301f;'
+           '--tag-coming:#fcd34d;--tag-coming-bg:#3a2a0c;--tag-demo:#cbd5e1;--tag-demo-bg:#263040}}\n'
+           ':root[data-theme=dark]{--tag-today:#86efac;--tag-today-bg:#14301f;--tag-coming:#fcd34d;--tag-coming-bg:#3a2a0c;'
+           '--tag-demo:#cbd5e1;--tag-demo-bg:#263040}\n'
+           'blockquote.card{border-radius:8px;border:1px solid var(--line);border-left:4px solid var(--accent);padding:10px 14px}\n'
+           'blockquote.card .tags{float:right;display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;margin:0 0 6px 12px;max-width:55%}\n'
+           '.tag{font-size:11px;line-height:1;font-weight:600;letter-spacing:.02em;padding:4px 7px;border-radius:999px;white-space:nowrap}\n'
+           '.tag-today{color:var(--tag-today);background:var(--tag-today-bg)}.tag-coming,.tag-not-connected{color:var(--tag-coming);background:var(--tag-coming-bg)}\n'
+           '.tag-demo,.tag-demo-emulated{color:var(--tag-demo);background:var(--tag-demo-bg)}\n'
+           'blockquote.card h4{margin:0 0 4px;font-size:15px}blockquote.card p{margin:0}\n'
+           '.fold{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:18px 0}'
+           '.fold::before,.fold::after{content:"";flex:1;border-top:1px dashed var(--line)}</style>')
+
+
+def render(md, src):
+    """The page, with each <!--tag:...--> rendered as a corner tag on its copy card and <!--fold--> as a divider."""
+    md = re.sub(r"`[^`\n]*`", lambda m: m.group(0).replace("<!--", "\u27e6lt\u27e7!--"), md)   # a marker quoted in code shows as text
+    md = re.sub(r"^<!--fold-->$", "\u27e6fold\u27e7", md, flags=re.M)
+    md = re.sub(r"^>.*$", lambda q: re.sub(r"<!--tag:([\w-]+)-->\s*", lambda m: f"\u27e6tag:{m.group(1)}\u27e7", q.group(0)), md, flags=re.M)
+    page = RC.to_html(md, "Website Content", src)
+
+    def card(m):
+        inner = m.group(1)
+        tags = re.findall(r"\u27e6tag:([\w-]+)\u27e7", inner)
+        inner = re.sub(r"\u27e6tag:[\w-]+\u27e7", "", inner)
+        head = ""
+        h = re.match(r"<strong>([^<]+)</strong> · ", inner)
+        if h:
+            head, inner = f"<h4>{h.group(1)}</h4>", inner[h.end():]
+        if not tags and not head:
+            return m.group(0)
+        spans = "".join(f'<span class="tag tag-{x}">{TAGS[x]}</span>' for x in tags)
+        tg = f'<div class="tags" aria-label="Tags">{spans}</div>' if spans else ""
+        return f'<blockquote class="card">{tg}{head}<p>{inner}</p></blockquote>'
+
+    page = re.sub(r"<blockquote><p>(.*?)</p></blockquote>", card, page)
+    page = page.replace("<p>\u27e6fold\u27e7</p>", '<div class="fold" role="separator">first fold ends here</div>')
+    page = page.replace("\u27e6lt\u27e7", "&lt;")
+    if "\u27e6" in page:
+        fail("a tag or fold marker was left unrendered")
+    return page.replace("</head>", TAG_CSS + "</head>", 1)
 
 
 def main(argv):
@@ -308,13 +483,16 @@ def main(argv):
     if argv and argv[0] == "--lint-only":
         md = pathlib.Path(argv[1]).read_text(encoding="utf-8")
         n, _, _ = run(md, lint_only=True)
+        why = hero(md)
+        if why:
+            fail(f"§3.2 first fold: {why}")
         print(f"lint ok: {n} copy blocks")
         return 0
     src, out = pathlib.Path(argv[0]), pathlib.Path(argv[1])
     md = src.read_text(encoding="utf-8")
     n, n_trig, n_fix = run(md)
-    page = RC.to_html(md, "Website Content", src.name)
-    if RC.to_html(md, "Website Content", src.name) != page:
+    page = render(md, src.name)
+    if render(md, src.name) != page:
         fail("rendering is not deterministic")
     out.write_text(page, encoding="utf-8")
     print(f"ok: {n} copy blocks pass the lint; {n_trig} prepared trigger lines pass; {n_fix} planted violations caught; "

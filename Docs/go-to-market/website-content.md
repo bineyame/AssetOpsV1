@@ -5,9 +5,9 @@
 **Status.** Recreated from scratch at the owner's order (`.agent/owner-recreate-document-packs-2026-11-19.md`; document #10 in `regeneration/F-pack-recreation-plan.md`). It replaces the copy deck of 18 Nov. The copy pass of 19 Nov rewrote §2 and §3 so each page opens on outcomes, put portfolio allocation and proof on Home, frame every page in the four outcome categories, and move the honesty detail into one badge and the evidence page. No rule in §4 or §5 and no lint pattern was weakened. The recommendation for the owner's site repository (#11) follows from this document, later and separately.
 
 **How it is built.**
-- **Now** is the design's Part 1: today's product, as the code runs it. Its lines carry the tag **Today**.
-- **Coming** is the design's Part 2, in the delivery order of design §2.9 and Figure 10. Its lines carry the tag **Coming**. A coming line moves to "now" only when its trigger in §4 is met.
-- **Every illustration** carries one badge, **Demo data**, and adds **Emulated** when a figure comes from the demonstration world's commercial records (§5 rule 1). What the badge means is said once, on the evidence page (§3.8).
+- **Now** is the design's Part 1: today's product, as the code runs it. Its lines carry the Today tag.
+- **Coming** is the design's Part 2, in the delivery order of design §2.9 and Figure 10. Its lines carry the Coming tag. A coming line moves to "now" only when its trigger in §4 is met.
+- **Every illustration** carries a badge in one of two forms, Demo data or Demo data · Emulated, the second when a figure comes from the demonstration world's commercial records (§5 rule 1, WC6). What the badge means is said once, on the evidence page (§3.8). Tags and badges render as small corner tags, never as words in the sentence (§3, "How tags render").
 - **Every line of copy** is a quoted block in §2 and §3. `render_website_content_html.py` lints each one, enforces the stage gates and proves the lint on planted violations (`website-copy-lint-fixtures.txt`) before it renders the page.
 - **Commercial facts** (the path, the price policy, durations) come from `commercial-plan.md`, which derives them from the owner's decisions.
 
@@ -60,47 +60,49 @@
 
 These lines come from design §1.1, §1.2 and §1.4. Each is something the product does on Site evidence as the code runs it, stated as what the executive gets.
 
-> **Today** · Trust every reading. Each one keeps where it came from, its unit, its quality and whether it was live or simulated.
+> <!--tag:today--> **Every reading, trusted** · Each one keeps where it came from, its unit, its quality and whether it was live or simulated.
 
-> **Today, on mini-grids** · Know, interval by interval, which generator running was needed, which your solar and battery could have carried, and which cannot be judged yet.
+> <!--tag:today--> **Mini-grid generator running** · Know, interval by interval, which generator running was needed, which your solar and battery could have carried, and which cannot be judged yet.
 
-> **Today, on mini-grids** · Know, night by night, how much fuel your generators cannot explain.
+> <!--tag:today--> **Mini-grid fuel** · Know, night by night, how much fuel your generators cannot explain.
 
-> **Today** · See what each issue could be worth, as a range labelled as modelled. Ranges of different kinds are never added up.
+> <!--tag:today--> **What it might be worth** · See what each issue could be worth, as a range labelled as modelled. Ranges of different kinds are never added up.
 
-> **Today** · Know what to look at first, the next step, and, where the rule allows, the setting to change.
+> <!--tag:today--> **What to do first** · Know what to look at first, the next step, and, where the rule allows, the setting to change.
 
-> **Today** · Follow each response from accepted to applied, then see whether it worked. Nothing counts as a result until that judgement is made.
+> <!--tag:today--> **Whether it worked** · Follow each response from accepted to applied, then see whether it worked. Nothing counts as a result until that judgement is made.
 
-> **Today, on cold rooms** · Know when each room left its temperature limit and whether its backup started. **On EV depots** · every charging session, the energy it took and which chargers were available.
+> <!--tag:today--> **Cold rooms** · Know when each room left its temperature limit and whether its backup started.
 
-> **Today** · Every site and your portfolio, under four headings: Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns. Each heading names the records it still lacks.
+> <!--tag:today--> **EV depots** · Know every charging session, the energy it took and which chargers were available.
 
-> **Coming** · Each heading built from the figures that make it up, each figure saying how it is known.
+> <!--tag:today--> **Four headings** · Every site and your portfolio, under four headings: Grow revenue, Optimize cost and efficiency, Protect asset and capital, Assure performance and returns. Each heading names the records it still lacks.
 
-> **Not yet connected** · Billing, payments, budgets and contracts. A missing record is named on screen, never shown as zero.
+> <!--tag:coming--> **Headings from figures** · Each heading built from the figures that make it up, each figure saying how it is known.
+
+> <!--tag:not-connected--> **Commercial records** · Billing, payments, budgets and contracts. A missing record is named on screen, never shown as zero.
 
 ### 2.3 Coming: in the order we are building it
 
 These lines follow the delivery order of design §2.9 and Figure 10. None carries a figure. Each says "coming" until its trigger in §4 is met.
 
-> **Coming first** · Your billing, collections, fuel purchases and budget, read from the files you already export, each checked before it is used.
+> <!--tag:coming--> **First: your files** · Your billing, collections, fuel purchases and budget, read from the files you already export, each checked before it is used.
 
-> **Coming** · Every outcome built from what drives it, from the litre and the kWh up.
+> <!--tag:coming--> **Outcomes from drivers** · Every outcome built from what drives it, from the litre and the kWh up.
 
-> **Coming** · Who raised each action, who owns it, when it is due and who approved the spend, on record.
+> <!--tag:coming--> **Who did what** · Who raised each action, who owns it, when it is due and who approved the spend, on record.
 
-> **Coming** · Contribution, cost to serve and collections for every site, from your own records, against your targets.
+> <!--tag:coming--> **Site economics** · Contribution, cost to serve and collections for every site, from your own records, against your targets.
 
-> **Coming** · The month's gap to target, split cause by cause, so you know how much each cause took.
+> <!--tag:coming--> **The gap, explained** · The month's gap to target, split cause by cause, so you know how much each cause took.
 
-> **Coming** · For each issue, options valued against doing nothing, net of their cost, within your service rules. One is recommended, and every option ruled out says why. Your site and operations managers choose.
+> <!--tag:coming--> **Choices, valued** · For each issue, options valued against doing nothing, net of their cost, within your service rules. One is recommended, and every option ruled out says why. Your site and operations managers choose.
 
-> **Coming** · The changes across your sites combined in one plan within your budget and crews, for your executive to approve or send back.
+> <!--tag:coming--> **Changes in one place** · The changes across your sites combined in one plan within your budget and crews, for your executive to approve or send back.
 
-> **Coming** · After a change, three answers kept apart: did it happen, did the money follow in your records, and did the change cause it.
+> <!--tag:coming--> **Proof** · After a change, three answers kept apart: did it happen, did the money follow in your records, and did the change cause it.
 
-> **Coming after that** · Contract rights inside repair decisions, then cold rooms and EV depots on the same core.
+> <!--tag:coming--> **After that** · Contract rights inside repair decisions, then cold rooms and EV depots on the same core.
 
 ### 2.4 Confident, and still a hypothesis
 
@@ -112,6 +114,20 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 <!--derives: Part 1; §2.0; §2.1; §2.2; §2.4; §2.5; §2.6; §2.7; Figure 3; Figure 5; WP §1.1; WP §1.2; WP §1.3; D1; D14-->
 
 *Serves the objective:* each page carries one vertical's money question to the same call to action, with claims a demo can back.
+
+**How tags render** (owner, 19 Nov: "tighten the hero and badges").
+*In the deck,* a tag is a marker at the start of a copy block, never a word in the sentence. There are five:
+
+| Marker | Tag shown | Used on |
+|---|---|---|
+| `<!--tag:today-->` | Today | a line about what runs now (design Part 1) |
+| `<!--tag:coming-->` | Coming | a line about a coming construct (design Part 2) |
+| `<!--tag:not-connected-->` | Not yet connected | the line naming records not yet connected |
+| `<!--tag:demo-->` | Demo data | an illustration on demonstration telemetry or replays |
+| `<!--tag:demo-emulated-->` | Demo data · Emulated | an illustration with a figure from emulated billing, budget or contract records (D14) |
+
+- *On the page.* Each copy block is a card. Its tags sit together in the card's top-right corner as small pills: Today green, Coming and Not yet connected amber, the demo badges grey. A block that opens `**Heading** · ` shows that heading as the card's title. On Home, `<!--fold-->` marks the end of the first fold.
+- *What the lint checks* (§5). It reads each tag as words in front of its block, so every earlier rule reads what it read when the labels were typed. It also fails a block on any of these: an unknown tag; more than one of Today, Coming and Not yet connected; a coming construct anywhere in a Today block; a figure without a demo badge; or a tag typed as a prefix in the sentence. On Home it fails unless the first fold holds just the question, the promise and one badged example, and unless every block below the fold has a two-to-four-word heading, with the reassurance just before the call to action.
 
 ### 3.1 Sitemap
 
@@ -127,31 +143,33 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 
 The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduced by:
 
-> **Today** marks what the product does on site evidence now.
+> The Today tag marks what the product does on site evidence now.
 
-> **Coming** marks what is in build, in the order shown. A line moves up only once it runs in our demonstration and has been checked.
+> The Coming tag marks what is in build, in the order shown. A line moves up only once it runs in our demonstration and has been checked.
 
 ### 3.2 Home
 
-*Order:* the question; the result in one line; one demo portfolio: its gap, the changes its executive approves, and the proof; today's value; the four headings; reassurance; the call to action.
+*Order:* above the fold, only the question, the one-line promise and one example (Lakeside's diesel contrast). Below the fold, short headed blocks: where the money goes, who decides, the proof, today's value, the four questions; then the reassurance, just before the call to action. The renderer checks this order (§5).
 
 > Which of your sites earn, which leak, and where should this month's budget and crews go?
 
-> See where the money went. Choose where it goes next. Know whether it followed. For mini-grid, cold-room and EV depot operators. Every figure shows how it's known.
+> See where the money went, choose where it goes next, and know whether it followed. Every figure shows how it's known.
 
-> **Coming · Demo data · Emulated** · Lakeside Power, October: three mini-grids, 852<!--figx:{portfolio.lakeside-power.plan.sums.contribution}-{portfolio.lakeside-power.actual.sums.contribution}--> below target. The biggest diesel user, Kisiwa, burned 2,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l--> litres and has nothing to fix on fuel: all of its generator running was needed. Kobo burned half that, and 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres of it went on generator running its solar and battery could have carried.
+> <!--tag:today--><!--tag:demo--> Lakeside Power, October. Kisiwa burned the most diesel, 2,400<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_l--> litres, and has nothing to fix on fuel: all of its generator running was needed. Kobo burned half that, and 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres went on running its solar and battery could have carried.
 
-> **Coming · Demo data** · Where the money goes next: a budget of 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December, and 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November. The recommended set repairs Kisiwa's failed backup generator, so evening hours without backup this month fall from 125<!--fig:options.KIS-NOACT.protect.obligation_hours_without_backup--> to 15<!--fig:options.KIS-REPAIR.protect.obligation_hours_without_backup-->. Kobo gets a remote setting trial that needs no crew. Mto claims its failed inverter under warranty and connects a new business customer. Spend: 3,750<!--fig:plans.lakeside-power.default.spend--> of 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec-->.
+<!--fold-->
 
-> **Coming** · Your site managers choose. Your executive approves the plan, or sends it back.
+> <!--tag:coming--><!--tag:demo-emulated--> **Where the money goes** · A budget of 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December; 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November. Kisiwa's failed backup generator is repaired: evening hours without backup fall from 125<!--fig:options.KIS-NOACT.protect.obligation_hours_without_backup--> to 15<!--fig:options.KIS-REPAIR.protect.obligation_hours_without_backup-->. Kobo gets a remote trial, no crew needed. Mto claims its inverter under warranty and connects a new business customer. Spend: 3,750<!--fig:plans.lakeside-power.default.spend--> of 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec-->.
 
-> **Coming** · Then proof, site by site: did the change happen, did the money follow in your records, and did the change cause it. Three answers, kept apart.
+> <!--tag:coming--> **Your people decide** · Site managers choose. Your executive approves the plan, or sends it back.
 
-> **Today** · Know, interval by interval, which generator running your solar and battery could have carried, and night by night, how much fuel your generators cannot explain. Then see whether the change you made worked.
+> <!--tag:coming--> **Proof, site by site** · Did the change happen? Did the money follow in your records? Did the change cause it? Three answers, kept apart.
 
-> Four questions, one view of the business. **Grow revenue**: are you selling all your assets can deliver? **Optimize cost and efficiency**: what does each litre, kWh and crew visit cost, and is what you billed collected? **Protect asset and capital**: are your service promises, equipment and warranty rights kept? **Assure performance and returns**: is every figure, choice and result proven?
+> <!--tag:today--> **Every litre accounted** · Know which generator running your solar and battery could have carried, and how much fuel your generators cannot explain. Then see whether your change worked.
 
-> The product proposes. Your people decide and act. It sends no command to your equipment.
+> **Four questions, one view** · Grow revenue: are you selling all your assets can deliver? Optimize cost and efficiency: what does each litre, kWh and crew visit cost, and is what you billed collected? Protect asset and capital: are service promises, equipment and warranty rights kept? Assure performance and returns: is every figure, choice and result proven?
+
+> **You stay in control** · The product proposes. Your people decide and act. It sends no command to your equipment.
 
 > Book a conversation. In an hour, see what the product does today on a demo operator in your sector, then talk through what a deep-dive on your sites would need.
 
@@ -159,39 +177,39 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > Which sites lost money last month, and why: fuel, billing, collections or losses?
 
-> **Coming · Demo data · Emulated** · Kobo sold more power than its target in October and still came in 562<!--figx:{sites.lakeside-power/Kobo.plan.nodes.contribution}-{sites.lakeside-power/Kobo.actual.nodes.contribution}--> below its contribution target. Fuel took it all: 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres of generator running the solar and battery could have carried, and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> litres no generator explains.
+> <!--tag:coming--><!--tag:demo-emulated--> Kobo sold more power than its target in October and still came in 562<!--figx:{sites.lakeside-power/Kobo.plan.nodes.contribution}-{sites.lakeside-power/Kobo.actual.nodes.contribution}--> below its contribution target. Fuel took it all: 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> litres of generator running the solar and battery could have carried, and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> litres no generator explains.
 
-> **Coming · Demo data** · The obvious fix can be the wrong one. A lower battery reserve looks like the answer at Kobo. It puts dawn battery charge too low on 4<!--fig:options.KOB-RESERVE.params.dawn_days_below_35pct--> of 61 replayed days, so it is ruled out.
+> <!--tag:coming--><!--tag:demo--> The obvious fix can be the wrong one. A lower battery reserve looks like the answer at Kobo. It puts dawn battery charge too low on 4<!--fig:options.KOB-RESERVE.params.dawn_days_below_35pct--> of 61 replayed days, so it is ruled out.
 
-> **Today** · Know, interval by interval, which generator running was needed and which your solar and battery could have carried, and night by night, how much fuel your generators cannot explain.
+> <!--tag:today--> Know, interval by interval, which generator running was needed and which your solar and battery could have carried, and night by night, how much fuel your generators cannot explain.
 
-> **Coming** · Every site's gap to target, split cause by cause. Then options for each issue, valued against doing nothing, net of their cost.
+> <!--tag:coming--> Every site's gap to target, split cause by cause. Then options for each issue, valued against doing nothing, net of their cost.
 
-> **Coming** · Demand counted as demand only when a customer stands behind it. Spare capacity is shown as capacity.
+> <!--tag:coming--> Demand counted as demand only when a customer stands behind it. Spare capacity is shown as capacity.
 
 ### 3.4 Cold rooms
 
 > Is this room losing money because it is empty, or because it is inefficient?
 
-> **Coming · Demo data · Emulated** · The room with the highest energy cost per crate-day has nothing wrong with its equipment: only 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.occupied_total_crate_days--> of its 12,400<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.capacity_crate_days--> crate-days were filled. The room that looks efficient draws 970<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> kWh a month more than its occupancy explains, and repairing it is the recommended option.
+> <!--tag:coming--><!--tag:demo-emulated--> The room with the highest energy cost per crate-day has nothing wrong with its equipment: only 4,340<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.occupied_total_crate_days--> of its 12,400<!--fig:sites.harvest-cold/Room A · Mwea.actual.nodes.capacity_crate_days--> crate-days were filled. The room that looks efficient draws 970<!--fig:sites.harvest-cold/Room C · Kirinyaga.actual.nodes.excess_kwh--> kWh a month more than its occupancy explains, and repairing it is the recommended option.
 
-> **Today** · Know, room by room, when temperature left its limit and whether the backup started.
+> <!--tag:today--> Know, room by room, when temperature left its limit and whether the backup started.
 
-> **Coming** · Return per room, with occupancy kept apart from efficiency, and repair or replace valued against doing nothing.
+> <!--tag:coming--> Return per room, with occupancy kept apart from efficiency, and repair or replace valued against doing nothing.
 
-> **Coming** · Stock at risk shown in batches and minutes above the limit. Coverage is decided by the supplier or insurer.
+> <!--tag:coming--> Stock at risk shown in batches and minutes above the limit. Coverage is decided by the supplier or insurer.
 
 ### 3.5 EV depots
 
 > Can you meet every departure for less, with the chargers you already have?
 
-> **Coming · Demo data** · The cheapest charging schedule would miss 93<!--fig:options.EMB-CHEAPEST.protect.departures_missed--> departures in the month. It is cheaper only because it buys less energy, so it is ruled out. The schedule recommended instead meets every departure on 31<!--fig:options.EMB-DEADLINE.params.feasible_nights--> of 31 replayed nights.
+> <!--tag:coming--><!--tag:demo--> The cheapest charging schedule would miss 93<!--fig:options.EMB-CHEAPEST.protect.departures_missed--> departures in the month. It is cheaper only because it buys less energy, so it is ruled out. The schedule recommended instead meets every departure on 31<!--fig:options.EMB-DEADLINE.params.feasible_nights--> of 31 replayed nights.
 
-> **Coming · Demo data** · Another depot can take 6<!--fig:options.RUI-ABSORB6.params.added_buses--> more buses on the chargers it already has, with no departure missed.
+> <!--tag:coming--><!--tag:demo--> Another depot can take 6<!--fig:options.RUI-ABSORB6.params.added_buses--> more buses on the chargers it already has, with no departure missed.
 
-> **Today** · Know, depot by depot, every charging session, the energy it took and which chargers were out of service.
+> <!--tag:today--> Know, depot by depot, every charging session, the energy it took and which chargers were out of service.
 
-> **Coming** · Cost per departure met, the schedule that meets every departure for the least cost, and how many more buses your chargers can carry.
+> <!--tag:coming--> Cost per departure met, the schedule that meets every departure for the least cost, and how many more buses your chargers can carry.
 
 ### 3.6 How it works
 
@@ -233,7 +251,7 @@ The five stages, named as in `commercial-plan.md` (D1): **Initial call → Deep-
 
 > Every figure shows how it's known.
 
-> **Demo data** marks an illustration on a demonstration operator, never a customer result. **Emulated** means the figure comes from stand-in billing, budget or contract records, used until your own files replace them.
+> The Demo data tag marks an illustration on a demonstration operator, never a customer result. Emulated means the figure comes from stand-in billing, budget or contract records, used until your own files replace them.
 
 > Figures of different kinds are never added together. A total is never stronger than its weakest part.
 
@@ -292,8 +310,8 @@ The owner decided C14 (up to eight peak days a month) and C15 (two owner-days a 
 *Serves the objective:* credibility is the differentiator (design Introduction); one overclaim on the site costs the trust every money figure needs.
 
 **The rules** (the design's figure rules, in public form):
-1. Every figure says how it is known. Every demo illustration carries the one badge "Demo data", and a figure from the demonstration world's commercial records adds "Emulated" to it (D14). What the badge means, a demonstration operator and never a customer result, is said once, on the evidence page (§3.8), not repeated in each line. A line that shows a coming construct also carries the "Coming" tag.
-2. No savings, in any phrasing; no proof or customer claims; no competitor or product names; no superlatives.
+1. Every figure says how it is known. Every demo illustration carries a badge tag: "Demo data", or "Demo data · Emulated" when a figure comes from the demonstration world's commercial records (D14; WC6). What the badge means, a demonstration operator and never a customer result, is said once, on the evidence page (§3.8), not repeated in each line. A line that shows a coming construct also carries the Coming tag. Tags are markers that render as corner tags (§3, "How tags render").
+2. No savings, in any phrasing; no proof or customer claims; no competitor or product names; no superlatives; and no line that names or argues against monitoring tools or competitors (WC7). The unexpected demo result makes the point.
 3. A replay-based value is a design value until the replay runs on recorded data (D6). It never appears on the site.
 4. No price, and only the approved durations, each gated where §4 says.
 5. People decide. The site never claims that the product makes the operator's choices or approvals, or acts on its own.
@@ -302,9 +320,9 @@ The owner decided C14 (up to eight peak days a month) and C15 (two owner-days a 
 8. No legal or insurance conclusion: "Coverage is decided by the supplier or insurer."
 9. No internal words: no Finding, leaf, registry, lane, slice, evaluator or mock-up.
 
-**What the lint enforces.** `render_website_content_html.py` checks every quoted block in §2 and §3 against rules 1–9, the stage gates of §4.2 and the walkthrough wording before T1. It imports the design's retired terms and the naming lint from `check_alignment.py`, so the site and the design pack can never drift apart. It refuses to render if any of the planted violations in `website-copy-lint-fixtures.txt` passes; the 19 Nov additions plant `AssetEcon decides for you`, `See actual against plan`, a coming construct called `Running today`, a legal conclusion and each gated phrase.
+**What the lint enforces.** `render_website_content_html.py` checks every quoted block in §2 and §3 against rules 1–9, the stage gates of §4.2 and the walkthrough wording before T1. It imports the design's retired terms and the naming lint from `check_alignment.py`, so the site and the design pack can never drift apart. It refuses to render if any of the planted violations in `website-copy-lint-fixtures.txt` passes; the 19 Nov additions plant `AssetEcon decides for you`, `See actual against plan`, a coming construct called `Running today`, a legal conclusion and each gated phrase. The copy pass of 19 Nov adds two planted sets, each of which must fail for its own rule, not by accident: `[WC7]` lines that argue against monitoring tools or competitors (the stage name "Pilot and monitoring" must still pass), and `[TAG]` lines that break the tag rules. The renderer also breaks the Home first fold five ways and must refuse each one.
 
-**What still needs a reader.** Tone; whether a line overstates by implication; whether a line names or argues against another tool, which the site never does (the unexpected demo result makes the point); and whether each "Today" line still matches design Part 1 after a release.
+**What still needs a reader.** Tone; whether a line overstates by implication; whether a line argues against another tool by implication, beyond what the WC7 patterns catch; and whether each "Today" line still matches design Part 1 after a release.
 
 ## 6. Decisions for the owner
 <!--derives: D1; D2; D6; D12; D14; owner: .agent/owner-pack-questions-defaults-2026-11-19.md-->
@@ -314,11 +332,11 @@ The owner decided C14 (up to eight peak days a month) and C15 (two owner-days a 
 | # | Decision | Context and example | Default |
 |---|---|---|---|
 | **WC1** | Publish the "Coming" list now, or only "Running today" | A visitor sees "Coming: options valued against doing nothing" before the demo can show it | Publish it, labelled "Coming", in delivery order, with no figure and no date |
-| **WC2** | One demo illustration per vertical page | The Kobo figures are Emulated and the reserve figure rests on a replay | Keep them, each with the badge of §5 rule 1; the Kobo stop-threshold value and every other replay-based money value stay off the site (rule 3). The 19 Nov copy pass adds a second, unexpected result where the demo has one (EV: buses absorbed on existing chargers), and shows Kobo's litres, not their money, because one money split sits within the lint's design-value tolerance |
+| **WC2** | One demo illustration per vertical page | The Kobo figures are Emulated and the reserve figure rests on a replay | Keep them, each with the badge of §5 rule 1; the Kobo stop-threshold value and every other replay-based money value stay off the site (rule 3). The replay counts "4 of 61 replayed days" and "31 of 31 replayed nights" stay, each with the Demo data badge (owner, 19 Nov: "defaults for the three"). The 19 Nov copy pass adds a second, unexpected result where the demo has one (EV: buses absorbed on existing chargers), and shows Kobo's litres, not their money, because one money split sits within the lint's design-value tolerance |
 | **WC3** | The deep-dive page before T2 | Settled: T2 is met, because the owner answered C2, C12 and C13 on 19 Nov | The deep-dive page now ends "Talk to us about a deep-dive"; every other page keeps "Book a conversation" |
 | **WC5** | Does the site state the decided terms: no fee for the deep-dive (C12), or the pilot fee's credit (C2)? | The terms are decided, but D2 discloses price terms after the client conversation, and C12 offers the deep-dive only after the alignment checks pass | No. The site says the pilot has a fee agreed after we have talked; the terms are given in the conversation. The lint keeps refusing "free deep-dive" and "credited" |
-| **WC6** | The badge: one form, or two | The owner asked for one short badge on every illustration. D14 requires a figure from emulated commercial records to say Emulated, and rule 7 requires a coming construct to be marked | Two forms of one badge: "Demo data" on operational figures, "Demo data · Emulated" on figures from emulated billing, budget or contract records, each preceded by "Coming" where the line shows a coming construct (Architect's call, 19 Nov copy pass) |
-| **WC7** | Should the lint refuse copy that argues against another tool? | The 18 Nov core message named monitoring as the foil. The owner's copy-pass terms keep the lint unchanged, so a reader checks it today (§5) | Yes, in a later lint change with its own planted lines ("Your monitoring shows what your assets did", "Monitoring tells you…"), a pattern that leaves the stage name "Pilot and monitoring" alone. Owner to confirm, since it changes the lint |
+| **WC6** | The badge: one form, or two | The owner asked for one short badge on every illustration. D14 requires a figure from emulated commercial records to say Emulated, and rule 7 requires a coming construct to be marked | Two forms of one badge: "Demo data" on operational figures, "Demo data · Emulated" on figures from emulated billing, budget or contract records, each beside the Coming tag where the line shows a coming construct. **Accepted by the owner, 19 Nov** ("defaults for the three"); rendered as corner tags (§3) |
+| **WC7** | Should the lint refuse copy that argues against another tool? | The 18 Nov core message named monitoring as the foil. The owner's copy-pass terms keep the lint unchanged, so a reader checks it today (§5) | Yes. **Accepted by the owner, 19 Nov** ("defaults for the three") and now in the lint (`ARGUE` in the renderer), with its own `[WC7]` planted lines, each proved to fail for this rule. The stage name "Pilot and monitoring" is proved to pass |
 | **WC4** | Who records a trigger as met | A merged step is not yet live in the refreshed demo | The checker in §4.2 records it with the evidence; the owner sees each change before publication |
 
 **Pushback, with reasons.** The 18 Nov deck gave dated "Coming" increments. I recommend stage words only: the delivery dates belong to `delivery-plan.md` and `two-week-build-plan.md`, which change at each sitting, and a public date that slips costs more trust than it earns.

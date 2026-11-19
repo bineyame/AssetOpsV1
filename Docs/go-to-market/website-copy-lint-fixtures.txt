@@ -74,3 +74,24 @@ We make the decisions so your managers do not have to.
 See changes across your sites in one plan, approved by your executive, on a demonstration operator.
 See your result against target, built up cause by cause, on a demonstration operator.
 Your target against actual, in the product, within a few weeks of receiving your files.
+# [WC7] Added 19 Nov (owner: "defaults for the three"): copy that names or argues against monitoring tools or competitors.
+# Each line must fail for the WC7 rule itself, not by accident; the stage name "Pilot and monitoring" must still pass.
+Your monitoring shows what your assets did.
+Monitoring tells you what your assets did; we tell you what it did to your money.
+Monitoring tools stop at alarms. AssetEcon goes further.
+More than a monitoring platform: economic judgement for your sites.
+Tell us the question your monitoring cannot answer.
+Beyond monitoring: what your assets did to your money.
+Other tools show telemetry; we show money.
+What your current monitoring system misses.
+Our competitors only give you alarms.
+Ahead of the competition across Africa.
+Not just a dashboard: a decision tool.
+# [TAG] Added 19 Nov (owner: "tighten the hero and badges"): tag rules. Each line passes every other rule and must fail
+# for a tag reason: a figure with the label typed in the sentence but no badge tag; a coming construct in a Today block
+# outside the sentence the tag opens; an unknown tag; a tag typed as a line prefix; two state tags on one block.
+Kisiwa burned 2,400 litres in October, on demo data.
+<!--tag:today--> Know your fuel, night by night. See contribution against your targets.
+<!--tag:verified--> Kobo's change worked.
+**Demo data** · Kisiwa burned 2,400 litres in October.
+<!--tag:today--><!--tag:coming--> Fuel balanced night by night.
