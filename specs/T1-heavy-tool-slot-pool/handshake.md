@@ -93,8 +93,7 @@ unpooled commands only in the §6 files today. **(done)** marks a question whose
   documented gap (added to D-T1.6's list and RULES §7). **(done)**
 - **R12 (§5.3 steps 1-3) Tokenizer corner cases.** Rule for each, with a K1 row: (a) backslash-newline continues the
   line and is not a newline separator; (b) `#` comment text (`ls # npx tsc`) is not classified; (c) `$( )` and
-  backticks inside single quotes are literal, inside double quotes they are classified (`git commit -m 'see
-  \`npx tsc\`'` allows, `echo "$(npx tsc)"` refuses); (d) `$'...'` quoting; (e) the standard commit form
+  backticks inside single quotes are literal, inside double quotes they are classified (``git commit -m 'see `npx tsc`'`` allows, `echo "$(npx tsc)"` refuses); (d) `$'...'` quoting; (e) the standard commit form
   `git commit -m "$(cat <<'EOF'` ... `EOF` `)"` with a heavy word in the body (heredoc removal must happen inside
   the substitution); (f) `<<<` here-strings are not heredocs; (g) an unterminated heredoc or quote: allow, refuse, or
   fail-closed under the prefilter? **(done)**
