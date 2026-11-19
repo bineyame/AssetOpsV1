@@ -1,6 +1,6 @@
 # Decisions register
 
-**AssetEcon Layer 4 · recreated from the design rev 16.7 (with OD-12) · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon Layer 4 · recreated from the design rev 16.7, updated to rev 16.8 (OD-13 to OD-20 and the commercial answers of 19 Nov) · AssetOps Architect (Claude) · 19 Nov 2026**
 
 This register holds every owner decision behind the Layer 4 design, every Architect's call the owner has not yet settled, and the open queue with a default for each item. It replaces `design-questions-and-decisions.md` and the roadmap's §6 (regeneration F, #1). The design cites decisions by ID; this is the one place their words are kept.
 
@@ -20,9 +20,9 @@ Who sees, decides, acts and tracks: the owner decides; the Architect records eac
 
 ## 2. Owner decisions on the design (19 Nov)
 
-<!--derives: Decisions; §1.3; §2.4; §2.5; §2.6; §2.9; owner: .agent/owner-design-regeneration-request-2026-11-19.md; owner: .agent/owner-recreate-document-packs-2026-11-19.md-->
+<!--derives: Decisions; §1.3; §2.3; §2.4; §2.5; §2.6; §2.8; §2.9; owner: .agent/owner-design-regeneration-request-2026-11-19.md; owner: .agent/owner-recreate-document-packs-2026-11-19.md; owner: .agent/owner-pack-questions-defaults-2026-11-19.md-->
 
-The second column is the design's wording, exactly as in its Decisions table. The third is the owner's words. Records: (a) `.agent/owner-design-regeneration-request-2026-11-19.md`; (b) `.agent/owner-recreate-document-packs-2026-11-19.md`.
+The second column is the design's wording, exactly as in its Decisions table. The third is the owner's words. Records: (a) `.agent/owner-design-regeneration-request-2026-11-19.md`; (b) `.agent/owner-recreate-document-packs-2026-11-19.md`; (f) `.agent/owner-pack-questions-defaults-2026-11-19.md`, where the owner took the coordinator's default on all ten pack questions. For OD-13 to OD-20 the third column quotes the owner's answer and the default it accepted.
 
 | ID | Decision (design wording) | Owner's words, verbatim | Record · where applied |
 |---|---|---|---|
@@ -40,19 +40,27 @@ The second column is the design's wording, exactly as in its Decisions table. Th
 | OD-10 | The system opens the period's draft plan automatically when the period starts, within the executive's limits ("i agree with the rest of the defaults", 19 Nov) | "i agree with the rest of the defaults" | (b) · §2.5, Figure 6b |
 | OD-11 | A change that alters total spend or crew use above the threshold creates a new plan version for the executive to approve; smaller changes are recorded without a new approval (same answer) | same answer | (b) · §2.5, Figure 6b |
 | OD-12 | The crew-visit threshold defaults to zero and is configurable, a Site or portfolio setting like the spend threshold (owner, 19 Nov: "the crew-visit threshold default of zero is fine so long as it is configurable") | "the crew-visit threshold default of zero is fine so long as it is configurable" | (b) · §2.5 |
+| OD-13 | People sign in with email-and-password accounts, one set per operator; single sign-on comes later, for larger clients ("defaults for all 10, go ahead", 19 Nov) | "defaults for all 10, go ahead", to question 1, whose default was: "email and password accounts per operator; single sign-on later for larger clients" | (f) · §2.6; §2.9 step 3. |
+| OD-14 | The operator executive grants and removes roles in Organisation settings, and every change is recorded (same answer) | "defaults for all 10, go ahead", to question 2, whose default was: "the operator executive grants and removes roles in Organisation settings; every change is recorded" | (f) · §2.6, Figure 7. |
+| OD-15 | The operator executive can also accept imported records, recorded as the executive's acceptance, as the finance and commercial lead's backup (same answer) | "defaults for all 10, go ahead", to question 3, whose default was: "the executive can also accept imported records, recorded as the executive's acceptance" | (f) · §2.3, §2.6, Figure 7. |
+| OD-16 | A plan item's owner is the person who chose its option (at Mto, David, the site manager); each Action keeps its own creator and owner (same answer) | "defaults for all 10, go ahead", to question 4, whose default was: "the item's owner is whoever chose the option (Mto: David, site manager); each Action keeps its own creator and owner" | (f) · §2.5; `worked-portfolios.md` §1.5. |
+| OD-17 | A new customer connection is proposed by the site manager as a plan item and approved by the executive as capital; the site manager then creates its Actions (same answer) | "defaults for all 10, go ahead", to question 5, whose default was: "the site manager proposes the connection as a plan item, the executive approves it as capital, then the site manager creates the Actions" | (f) · §2.4, §2.5, §2.6, Figure 6c; `worked-portfolios.md` §1.5. |
+| OD-18 | As for spend, a Site's crew-visit threshold wins over the portfolio's; a change spanning Sites is judged against the portfolio's thresholds (same answer) | "defaults for all 10, go ahead", to question 6, whose default was: "as for spend, a Site setting wins over the portfolio's; a change spanning Sites is judged against the portfolio threshold" | (f) · §2.4 step 4, §2.5. Also settles the spend half of the former Architect's call 8 ("as for spend") |
+| OD-19 | A lender or financier evidence pack is out of scope for now; it is added to the design later if a client asks (same answer) | "defaults for all 10, go ahead", to question 7, whose default was: "keep it out for now; add it to the design later if a client asks" | (f) · §2.8. |
+| OD-20 | Approving the recreated pack also approves the structure of build steps 1 and 3C (same answer) | "defaults for all 10, go ahead", to question 8, whose default was: "approving the recreated pack also approves the structure of build steps 1 and 3C" | (f) · §2.9. |
 
 The owner also set the standing document brief that every Layer 4 document follows (`.ai/RULES.md` §10): existing before new, mechanism tied to value, change on merit, the overall objective in every part, the person in the loop, precise names, short and illustrated, and the owner decides.
 
 ## 3. Earlier owner decisions, D1 to D15
 
-<!--derives: Decisions; Introduction; §2.3; §2.9; owner: .agent/owner-grounded-transition-request-2026-11-18.md-->
+<!--derives: Decisions; Introduction; §2.3; §2.9; owner: .agent/owner-grounded-transition-request-2026-11-18.md; owner: .agent/owner-pack-questions-defaults-2026-11-19.md-->
 
 The design carries D1, D11, D13 and D14 over and treats the rest as commercial or process decisions outside it. Records: (c) `owner/owner-d1-engagement-path-2026-11-18.md`; (d) `owner/owner-sitting1-answers-2026-11-18.md`; (e) `.agent/owner-grounded-transition-request-2026-11-18.md`.
 
 | ID | Subject | State | Owner's words, verbatim · record | Where applied |
 |---|---|---|---|---|
 | **D1** | Engagement path: initial call, deep-dive with process owners, integration pack and pilot timeline, pilot and monitoring, then SaaS | Decided, 18 Nov (revised) | "yes, have the architect revise D1 that way" · (c) | Introduction; §2.3 (exports pass the canonical contract during the deep-dive); `commercial-plan.md` |
-| **D2** | Deep-dive and pilot terms | Part decided, 18 Nov: the pilot fee is disclosed after the client conversation. The fee's form and the deep-dive's terms are go-to-market defaults | "it is disclosed after client conversation" · (d), item 11 | `commercial-plan.md` |
+| **D2** | Deep-dive and pilot terms | Decided, 18 and 19 Nov: the pilot fee is disclosed after the client conversation (18 Nov); its form and the deep-dive's terms are C2, C12 and C13 below (19 Nov) | "it is disclosed after client conversation" · (d), item 11; "defaults for all 10, go ahead" · (f), question 9 | `commercial-plan.md` |
 | **D3** | Lead vertical | Pending; default mini-grid | — | §2.9 step 5 proves each construct on mini-grid first |
 | **D4** | Second vertical | Pending until a qualified prospect; default cold | — | Figure 10 step 9: cold, then EV |
 | **D5** | Who does the deep-dive's work | Decided with D1, 18 Nov: the owner runs the call, the deep-dive and the source mapping, and the product computes. Whether a second person checks each mapping is a go-to-market question | the D1 record's stage table · (c) | `commercial-plan.md`; the Analyst role in §2.6 |
@@ -67,11 +75,21 @@ The design carries D1, D11, D13 and D14 over and treats the rest as commercial o
 | **D14** | Emulators are placeholder sources for the canonical contract; their output is labelled Emulated and never counted as benefit | Decided, 18 Nov | "D14:yes" · (d), item 3; "the emulator is a palcehodler that should be replaced by real integration" · (e) | §2.3, Figure 4; §2.9 |
 | **D15** | The first change agreed at the end of the deep-dive and made when the pilot starts | Pending; the owner asked for context (§5) | "D15:I am not clear on this, i need more context" · (d), item 4 | — |
 
+**Commercial decisions of 19 Nov.** The owner took the default on question 9 (C2, C12, C13) and question 10 (C14, C15) of the pack questions ((f): "defaults for all 10, go ahead"). Their IDs are `commercial-plan.md`'s items, named there; they are commercial facts, so they live here and in that document, not in the design (P4 of regeneration F).
+
+| Item (`commercial-plan.md`) | Decided | Default the owner accepted, verbatim from (f) | Where applied |
+|---|---|---|---|
+| **C2** The pilot fee's form | Credited against the first subscription year if they subscribe within 60 days | "pilot fee credited against year one if they subscribe within 60 days" | `commercial-plan.md` §4 |
+| **C12** Whether the deep-dive carries a fee | No fee; timeboxed; offered only after the alignment checks pass and a data agreement is signed | "no fee, timeboxed deep-dive, only after the alignment checks pass and a data agreement is signed" | `commercial-plan.md` §3, §4 |
+| **C13** When the deep-dive terms are reviewed | After two deep-dives in a row end without a commitment, the owner reviews | "after two deep-dives in a row without a commitment, the owner reviews" | `commercial-plan.md` §4, §7 |
+| **C14** Peak days a month | Up to eight peak days a month | "up to eight peak days a month" | `commercial-plan.md` §5.2; the website's computed gates |
+| **C15** Owner-days kept for the product | Two owner-days a month | "two owner-days a month kept for the product" | `commercial-plan.md` §5.2; the website's computed gates |
+
 ## 4. Architect's calls the owner has not settled
 
 <!--derives: Decisions; §1.3; §2.4; §2.5; §2.9; Words; WP §1.5-->
 
-Each stands until the owner overrules it. The reason is given in the design section named. OD-12 settled the crew-visit threshold's default, so it is no longer a call.
+Each stands until the owner overrules it. The reason is given in the design section named. OD-12 settled the crew-visit threshold's default, and OD-18 settled the threshold precedence (call 8's first sentence), so neither is a call any more.
 
 1. The spend threshold applies to the whole chosen change, summed over its Actions, never one Action at a time (§2.4 step 4). Reason: splitting a change must not slip it under the threshold.
 2. An Action already released stops at its next step and returns to its creator when the approved plan drops its item; spend already incurred stays recorded against the item (§2.5).
@@ -80,13 +98,18 @@ Each stands until the owner overrules it. The reason is given in the design sect
 5. A plan covers the portfolio's budget period, a month by default. A carried-over item is approved again only if its spend changes (§2.5).
 6. Changes are counted together since the last approved version, so a run of small changes cannot pass a threshold unseen (§2.5, OD-11).
 7. An item's budget in use is its incurred spend, else its released spend, else its planned spend (§2.5).
-8. A Site's threshold wins over the portfolio's. An unset tolerance raises every adverse deviation. A hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4).
+8. An unset tolerance raises every adverse deviation. A hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4). (Its former first sentence, a Site's threshold winning over the portfolio's, is now OD-18.)
 9. The manifest key `plan` stays as a machine-only exception to OD-6, and prose says "target" ("Words used here").
-10. Release at creation needs the change to be at or below both the spend threshold and the crew-visit threshold. With the crew-visit threshold at its default of zero, a change that uses a crew visit waits for approval, whatever its spend (§2.4 step 4, the Architect's reading of OD-11 and OD-12; recorded as `D-2026-11-19-l4-demo-workflow`).
+10. Release at creation needs the change to be at or below both the spend threshold and the crew-visit threshold. With the crew-visit threshold at its default of zero, a change that uses a crew visit waits for approval, whatever its spend (§2.4 step 4, the Architect's reading of OD-11 and OD-12; recorded as `D-2026-11-19-l4-demo-workflow`). Rev 16.8 lists it among the design's Architect's calls.
+11. A capital item, an expansion or a new connection, waits for the executive's approval whatever the thresholds, and its Actions are created after that approval (§2.5, the Architect's reading of OD-17). Reason: the owner's "approves it as capital" is an approval, not a threshold test.
+12. A plan item has five states, Chosen, Released, Left out, Done and Withdrawn, derived from its Actions and the plan's versions; carrying over is an event, not a state (§2.5, Figure 6c). Reason: the owner approved giving items states; deriving them keeps one execution workflow, as for the plan's own state.
+13. A crew-visit limit is set per month inside a longer period, and each crew visit counts in the month it falls (§2.5; Lakeside: 3 in November and 3 in December, `worked-portfolios.md` §1.1). Reason: crews are scheduled by the month; one figure for two months would let all visits fall in one.
 
 **Demonstration choices** (Architect, all illustrative; `worked-portfolios.md` §1.5 and the manifest's `demo_workflow`): people shown by role title, Site and a fictional first name; a due date on every Action; one spend threshold per operator and the crew-visit threshold at zero; on 6 Nov version 1 of each operator's plan is proposed and awaits the executive.
 
-**Where the owner's view would help most:** calls 1, 6 and 10, because they decide how often the executive is asked to approve.
+**Demonstration choices of rev 16.8** (Architect, illustrative): each item records who chose it, and so owns it (OD-16); the Mto huller connection is a capital item with no Action on 6 Nov (OD-17); Lakeside's proactive item is the Kisiwa generator service on 8 Dec, with no spend from the budget (oil and filters already held) and one December crew visit (`worked-portfolios.md` §1.1).
+
+**Where the owner's view would help most:** calls 1, 6, 10 and 11, because they decide how often the executive is asked to approve.
 
 ## 5. Open queue
 
@@ -106,7 +129,7 @@ Each item gives its context, an example and the default that applies until the o
 | **Q15** When losing a unit breaches redundancy | Whether a generator carrying the shortfall keeps the obligation met is a policy, not a computed fact | Kisiwa and Mto in `worked-portfolios.md` §1.1 | The breach follows the capacity computed from records: if the standby unit covers the lost unit, it is not a breach. Overrule if the operator's licence counts any unit out as a breach |
 | **Q16** Protective fallback when no set fits | When no affordable set meets every hard bound, should a decision fall back to an option that meets its bound but cannot be afforded with the rest (`design-appendix.md` §6, DL3) | At Lakeside with one crew visit, the plan proposed is infeasible | Report the set as not fitting, with its reason, and put it to the executive; never choose silently |
 
-Commercial and schedule questions (owner time, peak days, free deep-dive limits, pilot fee form) live in `commercial-plan.md` and `two-week-build-plan.md`, under P4 of regeneration F.
+The commercial questions the owner answered on 19 Nov (C2, C12 to C15) are in §3. The commercial items still open live in `commercial-plan.md` §8, and the schedule's in `two-week-build-plan.md` §7, under P4 of regeneration F.
 
 ## 6. Superseded items from earlier revisions
 

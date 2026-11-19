@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.7)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.8)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.7 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.8 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -84,6 +84,11 @@ Industry claims rest on the brief's ledger [R1]–[R12] (AMDA benchmarking; ESMA
   - the spend threshold rule is stated for proactive items too;
   - the naming lint judges each "plan" in its own sentence and is now rule A3 of `check_alignment.py`, with the review's 12 planted sentences as permanent fixtures;
   - stale file pointers are re-pointed, the limit IDs below are renamed DL1 to DL6, and the diagram classes carry a text colour for the dark theme.
+- **Rev 16.8 (19 Nov).** The owner took the default on all ten pack questions ("defaults for all 10, go ahead", `.agent/owner-pack-questions-defaults-2026-11-19.md`):
+  - answers 1 to 8 are OD-13 to OD-20: sign-in, who grants roles, the executive as the finance lead's backup for imports, the item owner as the person who chose, new connections as capital, the threshold precedence, no lender evidence pack, and structure approval of steps 1 and 3C with the pack;
+  - answers 9 and 10 are commercial (C2, C12 to C15) and go to the register and `commercial-plan.md`, not here (P4);
+  - the approved housekeeping: the backup-start Finding is pinned to nights without backup cover (§2.1); the both-thresholds rule is listed as an Architect's call; the deep-dive safeguard and pilot onboarding are tied to steps 3A, 4, 5 and 9 (§2.3, §2.9); plan items have their own states (§2.5, Figure 6c); Lakeside has a proactive item, the Kisiwa generator service, and a December crew-visit limit (`worked-portfolios.md` §1.1, §1.5);
+  - the demonstration workflow names each item's chooser and owner, and `check_manifest.py` checks it against OD-5, OD-16, OD-17 and the release rule.
 
 ## 5. Minimum pilot asks per vertical
 

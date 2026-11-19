@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.7 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.8 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -256,7 +256,7 @@ Each leaf carries a shared factor ID, a period, a unit, a target, an evidence cl
 
 **CH1: Findings pinned to their factors.**
 - *Stays:* everything that makes a Finding a living artifact: its identity, revisions, thread, claim ceiling and next step.
-- *Changes:* each mechanism gains the factor it observes through one row of the registry, derived at read time, so no column is added. Candidate running maps to candidate litres, unexplained fuel to unexplained litres, a cold excursion to crate-minutes above limit, and an EV interruption to chargers in service. Merit: today a Finding's only link to an outcome is a fixed row (`outcomes/outcome_map.py:17-23`), so it cannot enter a bridge.
+- *Changes:* each mechanism gains the factor it observes through one row of the registry, derived at read time, so no column is added. Candidate running maps to candidate litres, unexplained fuel to unexplained litres, a cold excursion to crate-minutes above limit, an EV interruption to chargers in service, and a backup start failure to nights without backup cover, a Protect measure (`worked-portfolios.md` §1.2, Thika). Merit: today a Finding's only link to an outcome is a fixed row (`outcomes/outcome_map.py:17-23`), so it cannot enter a bridge.
 - *Deviations found in the structure:* a **structure observer** stores these as Findings, with the same identity, revisions and thread, but only under the owner's rule and outside the factor's tolerance (§1.3).
 - *What a Finding may claim:* its condition, in its factor's unit and period, within its claim ceiling. It never claims an outcome value of its own, or the value of acting.
 
@@ -305,7 +305,7 @@ flowchart LR
 
 ### 2.3 B3: commercial and operational integrations fill the data gap
 
-**What it brings.** Each leaf needs one family of source records, which sets the integration scope. *Serves the objective:* during the deep-dive (D1), the operator's own exports pass through the canonical contract, so their target against actual appears in the product within weeks.
+**What it brings.** Each leaf needs one family of source records, which sets the integration scope. *Serves the objective:* during the deep-dive (D1), the operator's own exports pass through the canonical contract, so their target against actual appears in the product within weeks. That safeguard holds once steps 3A, 4 and 5 are live (Figure 10). A person in the Analyst role onboards the first deep-dive's exports through step 3A's intake and contract test (§2.9).
 
 | Value-chain stage | Mini-grid source | Cold-room source | EV depot source | Held today? |
 |---|---|---|---|---|
@@ -320,6 +320,7 @@ flowchart LR
 - Telemetry and today's operational records stay where they are.
 - Money records get **one new commercial record store**, with an immutable raw payload and source-versioned revisions. A late record revises closed periods.
 - **Named change:** this store is separate because today's intake is first-write-wins and refuses late intervals (`evidence/service.py:484-492`; `reading_upload/service.py:244-248`). That suits telemetry and does not suit bills.
+- Imported records are accepted by the finance and commercial lead. The operator executive can also accept them, and that is recorded as the executive's acceptance (OD-15).
 - Contract rows are extracted with AI assistance, and a person approves each one. The pilot asks per vertical are in `design-appendix.md` §5.
 
 <!--Figure 4: one contract for every source-->
@@ -369,9 +370,9 @@ flowchart TB
 
 **Who chooses, and who creates the Action.** The owner said a Finding "needs to be acted on and the user likely reate one more action against it", and asked first about "users to act on the bases of context given to them, then tracked". So the system evaluates and proposes, and people choose and act:
 1. **The system raises the Finding and proposes.** It values the options and marks one Recommended, found by one search across the period's decisions so that the recommended set fits. It picks nothing. A hard-bound rejection can be overridden only by a recorded change to the bound (Architect's call).
-2. **The accountable role chooses** an option, or none: the site or operations manager for operations and O&M, the finance and commercial lead for billing, collection, claims and notices, and the executive for capital choices.
+2. **The accountable role chooses** an option, or none: the site or operations manager for operations and O&M, the finance and commercial lead for billing, collection, claims and notices, and the executive for capital choices. A new customer connection is proposed by the site manager as a plan item and approved by the executive as capital; only then does the site manager create its Actions (OD-17).
 3. **That role creates one or more Actions**, against the Finding or against a plan item (§2.5). Each records its creator, owner and due date.
-4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2; a Site setting wins over the portfolio one, Architect's call), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below both the spend threshold and the crew-visit threshold (OD-12) has its Actions released when they are created, provided the plan still fits its budget and crew visits. With the crew-visit threshold at its default of zero, a change that uses a crew visit waits for approval, whatever its spend (Architect's reading of OD-11 and OD-12). The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait. The same rule releases the Actions of a proactive item.
+4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2; a Site setting wins over the portfolio's, and a change spanning Sites is judged against the portfolio's, OD-18), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below both the spend threshold and the crew-visit threshold (OD-12) has its Actions released when they are created, provided the plan still fits its budget and crew visits. With the crew-visit threshold at its default of zero, a change that uses a crew visit waits for approval, whatever its spend (Architect's reading of OD-11 and OD-12). The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait. The same rule releases the Actions of a proactive item.
 
 ### 2.5 P: the plan, a first-class construct (new)
 
@@ -425,12 +426,14 @@ flowchart LR
 
 **The plan's life in a period** (owner decisions OD-10 and OD-11, 19 Nov).
 - *Period.* A plan covers one portfolio's budget period: a month, unless the executive sets another (Architect's call).
-- *Opening (OD-10).* The system opens the period's draft plan automatically when the period starts, within the limits the executive has set: the budget, the crew visits, the spend and crew-visit thresholds (both Site or portfolio settings; the crew-visit threshold defaults to zero, OD-12) and the switches. Opening chooses nothing. The draft carries forward the previous period's unfinished items with their approval, spend and owners, and a carried item is approved again only if its spend changes (Architect's call).
+- *Opening (OD-10).* The system opens the period's draft plan automatically when the period starts, within the limits the executive has set: the budget, the crew visits, the spend and crew-visit thresholds (both Site or portfolio settings, a Site setting winning, OD-18; the crew-visit threshold defaults to zero, OD-12) and the switches. Opening chooses nothing. The draft carries forward the previous period's unfinished items with their approval, spend and owners, and a carried item is approved again only if its spend changes (Architect's call).
 - *Proposing and approving.* The system assembles the chosen and declared items, checks the fit and proposes a version. The executive approves it or sends it back with a trade-off. A version sent back returns to draft, and each item it changes returns to its creator with the reason (OD-4).
-- *Versions (OD-11).* An approved version stays in force until the next one is approved. A change that alters the total spend by more than the spend threshold, or the crew visits by more than the crew-visit threshold, creates a new version for the executive to approve. Smaller changes are recorded on the version in force, with the person and the time, and need no new approval. Changes are counted together since the last approved version, so a run of small changes cannot slip past a threshold (Architect's call, the same reading as OD-2). The crew-visit threshold is a Site or portfolio setting beside the spend threshold. Until it is set it is zero, so any added crew visit needs approval (OD-12).
+- *Versions (OD-11).* An approved version stays in force until the next one is approved. A change that alters the total spend by more than the spend threshold, or the crew visits by more than the crew-visit threshold, creates a new version for the executive to approve. Smaller changes are recorded on the version in force, with the person and the time, and need no new approval. Changes are counted together since the last approved version, so a run of small changes cannot slip past a threshold (Architect's call, the same reading as OD-2). The crew-visit threshold is a Site or portfolio setting beside the spend threshold. Until it is set it is zero, so any added crew visit needs approval (OD-12). A change spanning Sites is judged against the portfolio's thresholds (OD-18).
+- *Crew-visit limits by month.* When a period spans months, the executive sets the crew-visit limit for each month inside it, and each crew visit counts in the month it falls (Architect's call). Lakeside's November and December each allow 3 (`worked-portfolios.md` §1.1).
 - *States.* **Draft**: open, collecting items. **Proposed**: awaiting the executive. **Approved**: a version in force. **Revised**: a version in force while its successor is proposed; the version in force governs, and the Actions of the change wait. **Closed**: the period has ended and been reviewed.
 - *Money, counted once.* Each item's spend moves through three steps: *planned* (the chosen option's or declared item's one-off), *released* (what its released Actions may spend) and *incurred* (expense records linked to the item in the commercial record store). The budget in use counts each item once: its incurred spend where expense records exist, otherwise its released spend, otherwise its planned spend (Architect's call). Realised value still comes only from economic verdicts (§2.7).
-- *Ownership.* Each item has an owner, the person who chose its option or declared it. Each Action has an owner and a due date; its owner may differ from its creator. The executive approves every version. A version awaiting approval appears beside the Finding triage on Act first. No notification is sent, as today (§1.4).
+- *Ownership (OD-16).* Each item's owner is the person who chose its option or declared it. At Mto, David, the site manager, chose the inverter claim and owns that item, although the finance and commercial lead files its notice. Each Action keeps its own creator and owner, with a due date; its owner may differ from its creator.
+- *Capital items (OD-17).* The executive declares an expansion. A new customer connection is proposed by the site manager as a plan item and approved by the executive as capital. A capital item waits for the executive's approval of the version that holds it, whatever the thresholds (the Architect's reading of OD-17), and its Actions are created after that approval. The executive approves every version. A version awaiting approval appears beside the Finding triage on Act first. No notification is sent, as today (§1.4).
 - *Closing.* At the period's end the system runs the plan review: each item's predicted factor changes against the observed ones. The executive closes the period's plan, and its unfinished items carry into the next draft.
 
 <!--Figure 6b: the plan's states-->
@@ -450,7 +453,35 @@ stateDiagram-v2
 
 *Figure 6b. The plan's states. Each approval makes a version, and the version in force governs until the next one is approved. At Lakeside, if the cooperative does not extend its letter of intent mid-period, buying the Mto inverter now and dropping the Kisiwa repair is a revision. If it moves the total spend or crew visits by more than the thresholds, it proposes a new version for the executive. If not, it is recorded on the version in force.*
 
-**Settled with the owner (19 Nov):** OD-1, OD-4 to OD-8, OD-10 and OD-11, listed under Decisions. The open Architect's calls are listed there too.
+**A plan item's states** (Architect's call; like the plan's own state, derived from the item's Actions and the plan's versions, never a second workflow):
+- **Chosen:** a person chose its option or declared it, and it sits in the draft or a proposed version. Its Actions wait.
+- **Released:** its Actions may spend, either because its whole change is within both thresholds and the plan still fits, or because the version in force holds it. An Action created later under a released item is released at creation.
+- **Left out:** an approved version leaves it out. It returns to its owner with the reason, to revise, defer to the next draft, or withdraw (OD-4).
+- **Done:** every Action is closed and its spend is incurred. It waits for the plan review.
+- **Withdrawn:** its owner withdrew it.
+
+At the period's close an item that is not Done carries into the next draft with its state. Carrying over is an event, not a state.
+
+<!--Figure 6c: a plan item's states-->
+
+```mermaid
+stateDiagram-v2
+  state "Left out" as LeftOut
+  [*] --> Chosen: a person chooses the option or declares the item
+  Chosen --> Released: within both thresholds and the plan fits, or a version holding it is approved
+  Chosen --> LeftOut: an approved version leaves it out (OD-4)
+  Released --> LeftOut: a later approved version drops it, and its Actions stop
+  LeftOut --> Chosen: its owner revises it, or defers it to the next draft
+  LeftOut --> Withdrawn: its owner withdraws it
+  Chosen --> Withdrawn: its owner withdraws it
+  Released --> Done: every Action closed, its spend incurred
+  Done --> [*]: reviewed when the period closes
+  Withdrawn --> [*]
+```
+
+*Figure 6c. A plan item's states. On 6 Nov at Lakeside, the Kobo stop-threshold item is Released, because its whole change is within both thresholds. Every other item is Chosen, waiting for version 1's approval. The Mto huller connection is a capital item, so it waits whatever its spend, and its Action is created after the approval (OD-17).*
+
+**Settled with the owner (19 Nov):** OD-1, OD-4 to OD-8, OD-10, OD-11 and OD-16 to OD-18, listed under Decisions. The open Architect's calls are listed there too.
 
 The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (`verification_plan`, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
 
@@ -467,6 +498,8 @@ The plan's own state is derived from its items and Actions. It is not a second e
 
 **What changes:**
 - An authenticated user is recorded on every command. The schema already has the pattern: a HUMAN actor needs an author, though the API refuses one today (`0010_financial_assumptions.py:57-78`; `financial_api.py:209`).
+- People sign in with email-and-password accounts, one set per operator; single sign-on comes later, for larger clients (OD-13). No sign-in exists in the backend today.
+- The operator executive grants and removes each person's roles in Organisation settings, and every change is recorded (OD-14).
 - Every Action records its creator, owner, due date and origin.
 - The UI gains the controls that exist today only as API routes.
 - Overdue is computed for Actions, as it already is for maintenance schedules (`outcomes/plan_due.py:1-33`).
@@ -475,9 +508,9 @@ The plan's own state is derived from its items and Actions. It is not a second e
 
 | Role | Decides | Does |
 |---|---|---|
-| **Operator executive** | Approves each plan version; sets the budget, the switches, and the spend and crew-visit thresholds; makes capital choices and declares capital items (expansion, new connections) | Approves or sends back the plan, with a trade-off |
+| **Operator executive** | Approves each plan version; sets the budget, the switches, and the spend and crew-visit thresholds; makes capital choices, declares expansions and approves new connections as capital (OD-17); grants and removes roles (OD-14) | Approves or sends back the plan, with a trade-off; may accept imported records in the finance and commercial lead's place, recorded as the executive's acceptance (OD-15) |
 | **Finance and commercial lead** | Declares budget lines and money targets; accepts imported records; chooses claims, notices and collection actions; sets money tolerances | Creates Actions against money and rights Findings; files rights events |
-| **Operations or site manager** | Chooses options within operational decisions; declares operational targets (availability, dawn charge, departures) and proactive items (maintenance, replacements); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work |
+| **Operations or site manager** | Chooses options within operational decisions; declares operational targets (availability, dawn charge, departures) and proactive items (maintenance, replacements); proposes new connections as plan items (OD-17); sets operational tolerances | Creates Actions from Findings or proactive items; applies setting changes; assigns work |
 | **Field technician or O&M contractor** | — | Does the work; records readings, dips and completion |
 | **Analyst** | Maps sources to factors; places data-quality holds | Onboards sources; reviews extracted contract rows |
 
@@ -497,11 +530,13 @@ flowchart LR
   EX --> U2(("Set budget, switches, thresholds")):::new
   SM --> U3(("Choose an option, or none")):::new
   SM --> U12(("Create Actions from a Finding or a proactive item")):::new
-  SM --> U13(("Declare proactive items: maintenance, replacement")):::new
-  EX --> U14(("Declare capital items: expansion, connection")):::new
+  SM --> U13(("Declare proactive items, propose a new connection")):::new
+  EX --> U14(("Declare an expansion, approve a connection as capital")):::new
+  EX --> U15(("Grant and remove roles")):::new
   SM --> U5(("Accept or apply a change")):::keep
   FT --> U6(("Do the work, record it")):::keep
   FC --> U7(("Declare budget lines, accept records")):::new
+  EX -. "backup, OD-15" .-> U7
   FC --> U8(("Create Actions on cash and rights")):::new
   AO --> U11(("Map sources, review contract rows")):::new
   SYS --> U9(("Prepare decisions, check the plan")):::new
@@ -597,6 +632,8 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Assure row line "Actual against plan" | "N of M declared objectives met" (`site_outcomes/mini.py:692`) | Renamed "Actual against target" (OD-6), so that "plan" means only the new construct |
 | What changed | Accepted actions, verifications | Actions with owners, the plan's review and the three verdicts |
 
+**Not designed (OD-19).** No lender or financier evidence pack is designed. The record of who decided, approved and verified is what such a pack would draw on; it is added to the design if a client asks.
+
 ### 2.9 Change register and delivery order
 
 *Serves the objective:* the core changes only where it blocks that value. A construct stays unless a row below names its shortfall. Dispositions at function level are in `reuse-and-gap-matrix.md`.
@@ -618,11 +655,18 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 **Delivery order** (shape approved by the owner, 19 Nov: the source emulators are built "in parallel with work related factor structure"):
 1. Correct the last-day figure (CH5).
 2. Agree the canonical format and leaf factor IDs, a small step under W1.
-3. Build lane A (sources: record store, emulators, contract test) and lane B (structure on today's operational leaves) in parallel, with the recorded person (CH2) beside them.
+3. Build lane A (sources: record store, emulators, contract test) and lane B (structure on today's operational leaves) in parallel, with the recorded person (CH2) beside them: sign-in and roles (OD-13, OD-14), then the person on every command.
 4. Join the lanes at the money leaves.
 5. Build targets and the bridge, then the rest, each proven first on mini-grid with a cold and an EV test case.
 
 The recorded person still comes before decisions. Emulated figures are never Recorded and never benefit (D14).
+
+**Structure approval (OD-20).** Approving the recreated pack also approves the structure of steps 1 and 3C, so their slices start on the first build day.
+
+**The engagement path, tied to the steps** (owner-approved housekeeping, `.agent/owner-pack-questions-defaults-2026-11-19.md`):
+- *The deep-dive safeguard.* The operator's own target against actual appears within weeks of the deep-dive only once steps 3A, 4 and 5 are live.
+- *The first deep-dive's sources* are onboarded by a person in the Analyst role, through step 3A's intake and contract test. It needs no step-9 work.
+- *Step 9's pilot onboarding* means onboarding at scale: real adapters for each source type, replacing the emulators source by source, for more than one operator.
 
 **Architect's note to the owner on this order.** I agree with the lanes. *Refinement, applied:* cost-side decisions start before the join. Kobo's stop threshold is valued from lane B's litres at the typed diesel price, so the first decision reaches a client sooner (D13). *Caution:* the step-2 format is version 1, to be revised under the contract test when the first operator sample is pinned (D1).
 
@@ -644,7 +688,7 @@ flowchart LR
   D --> P["7 The plan and the Portfolio (P, CH5)"]
   D --> V["8 Three verdicts (CH4)"]
   T --> P
-  P --> R["9 Rights, cold then EV,<br/>pilot onboarding"]
+  P --> R["9 Rights, cold then EV,<br/>pilot onboarding at scale"]
   V --> R
   S0 -.-> D
 ```
@@ -663,7 +707,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 
 **Owner decisions of 19 Nov, applied in this revision:**
 
-| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 and OD-11 in `.agent/owner-recreate-document-packs-2026-11-19.md`) | Where applied |
+| # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 to OD-12 in `.agent/owner-recreate-document-packs-2026-11-19.md`; OD-13 to OD-20 in `.agent/owner-pack-questions-defaults-2026-11-19.md`) | Where applied |
 |---|---|---|
 | Q-A1 | A Finding has a bottom-line impact, or is a risk or an opportunity, and is to be acted on with one or more Actions | §1.3, §2.1 |
 | Q-A2 | A few sensible roles | §2.6 |
@@ -679,18 +723,30 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-10 | The system opens the period's draft plan automatically when the period starts, within the executive's limits ("i agree with the rest of the defaults", 19 Nov) | §2.5, Figure 6b |
 | OD-11 | A change that alters total spend or crew use above the threshold creates a new plan version for the executive to approve; smaller changes are recorded without a new approval (same answer) | §2.5, Figure 6b |
 | OD-12 | The crew-visit threshold defaults to zero and is configurable, a Site or portfolio setting like the spend threshold (owner, 19 Nov: "the crew-visit threshold default of zero is fine so long as it is configurable") | §2.5 |
+| OD-13 | People sign in with email-and-password accounts, one set per operator; single sign-on comes later, for larger clients ("defaults for all 10, go ahead", 19 Nov) | §2.6; §2.9 step 3 |
+| OD-14 | The operator executive grants and removes roles in Organisation settings, and every change is recorded (same answer) | §2.6, Figure 7 |
+| OD-15 | The operator executive can also accept imported records, recorded as the executive's acceptance, as the finance and commercial lead's backup (same answer) | §2.3, §2.6, Figure 7 |
+| OD-16 | A plan item's owner is the person who chose its option (at Mto, David, the site manager); each Action keeps its own creator and owner (same answer) | §2.5; `worked-portfolios.md` §1.5 |
+| OD-17 | A new customer connection is proposed by the site manager as a plan item and approved by the executive as capital; the site manager then creates its Actions (same answer) | §2.4, §2.5, §2.6, Figure 6c; `worked-portfolios.md` §1.5 |
+| OD-18 | As for spend, a Site's crew-visit threshold wins over the portfolio's; a change spanning Sites is judged against the portfolio's thresholds (same answer) | §2.4 step 4, §2.5 |
+| OD-19 | A lender or financier evidence pack is out of scope for now; it is added to the design later if a client asks (same answer) | §2.8 |
+| OD-20 | Approving the recreated pack also approves the structure of build steps 1 and 3C (same answer) | §2.9 |
 
-**Other owner decisions, outside this design** (commercial and process; each with its owner record and status in `decisions-register.md`): D2, D3, D4, D5, D6, D7, D8, D9, D10 and D12.
+**Other owner decisions, outside this design** (commercial and process; each with its owner record and status in `decisions-register.md`): D2, D3, D4, D5, D6, D7, D8, D9, D10 and D12. The owner's commercial answers of 19 Nov (the pilot fee's form, the deep-dive's terms and their review, peak days and the product reserve: items C2, C12, C13, C14 and C15 of `commercial-plan.md`) are recorded in the register and `commercial-plan.md`, not here (P4 of regeneration F).
 
 **Architect's calls, not settled by the owner:**
 - the threshold applies to the whole chosen change, summed over its Actions (§2.4 step 4);
+- release at creation needs the change at or below both the spend and the crew-visit thresholds, so with the crew-visit threshold at zero a change that uses a crew visit waits whatever its spend (§2.4 step 4; the Architect's reading of OD-11 and OD-12);
+- a capital item, an expansion or a new connection, waits for the executive's approval whatever the thresholds, and its Actions are created after it (§2.5; the Architect's reading of OD-17);
 - an Action already released stops and returns to its creator when the approved plan drops its item (§2.5);
 - cost-side decisions start before the join; only revenue-side options wait for the money leaves (§2.9, Figure 10);
 - a spending Action with no decision behind it creates its own reactive item; a work case's origin is the Finding or plan item it was opened from (§2.5, "Words used here");
 - a plan covers the portfolio's budget period, a month by default; a carried-over item is approved again only if its spend changes (§2.5);
 - changes are counted together since the last approved version (§2.5, OD-11);
 - an item's budget in use is its incurred spend, else its released spend, else its planned spend (§2.5);
-- a Site's threshold wins over the portfolio's; an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);
+- a plan item has five states, Chosen, Released, Left out, Done and Withdrawn, derived from its Actions and the plan's versions (§2.5, Figure 6c);
+- a crew-visit limit is set per month inside a longer period, and each crew visit counts in the month it falls (§2.5);
+- an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);
 - the manifest key `plan` stays as a machine-only exception to OD-6, and prose says "target" (G-F5, "Words used here").
 
 ## Appendix. Where the detail lives

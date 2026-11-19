@@ -67,6 +67,7 @@ tenants:
   portfolio_constraints:
     budget_usd_nov_dec: 5000
     crew_visits_nov: 3
+    crew_visits_dec: 3   # rev 16.8 (housekeeping): the crew-visit limit is per month inside the Nov-Dec period; every searched item's visit falls in November
     horizon_months: 12
   prices:
     diesel_usd_per_l: {Kobo: 1.25, Kisiwa: 1.30, Mto: 1.25}
@@ -1238,12 +1239,16 @@ plans:   # inputs to the allocator (M4): one joint search over all decisions (ev
     switch_sensitivity: {tariff_applies: {false: flat_tariff}}
     listed_not_added: {RUI-ABSORB6: "service expansion (different comparator)", RUI-4CHARGERS: "capacity purchase comparator"}
 
-demo_workflow:   # design rev 16.7 §2.4-§2.6 (plan F mock-up lane, 19 Nov). ARCHITECT'S DEMO CHOICES, all illustrative: who acts,
-                 # each Action's owner and due date, the thresholds, and the plan's state on as_of. People are fictional first names
-                 # beside their role title, shown "Illustrative" on screen. The evaluator, independent model and allocator do not read
-                 # this block; check_manifest.py checks the figures worked-portfolios.md states from it. Release follows design §2.4
-                 # step 4: at creation when the item's whole change is at or below both thresholds and the plan still fits; else it
-                 # waits for the executive's approval of the version.
+demo_workflow:   # design rev 16.8 §2.4-§2.6 (plan F mock-up lane, 19 Nov; owner decisions OD-16 and OD-17 of 19 Nov). ARCHITECT'S DEMO
+                 # CHOICES, all illustrative: who chose each item, each item's owner (OD-16: the person who chose the option or declared
+                 # the item), each Action's creator, owner and due date, the thresholds, and the plan's state on as_of. People are fictional
+                 # first names beside their role title, shown "Illustrative" on screen. The evaluator, independent model and allocator do
+                 # not read this block; check_manifest.py checks the figures worked-portfolios.md states from it and the workflow rules
+                 # below (workflow()). Release follows design §2.4 step 4: at creation when the item's whole change is at or below both
+                 # thresholds, the item is not a capital item, and the plan still fits; else it waits for the executive's approval of the
+                 # version. A new connection is a capital item (OD-17): the site manager proposes it, the executive approves it as capital,
+                 # and only then does the site manager create its Actions, so on as_of it has none (actions_after_approval).
+                 # Version 1 holds the evaluator's default items (derived-values.json plans.<tenant>.default.items) plus any declared item.
   people_shown_as: "role title, with the Site for a Site-bound role, and a fictional first name, labelled Illustrative"
   plan_state: {period: "2026-11 to 2026-12", period_basis: "the executive set a two-month period to match the Nov-Dec budget",
                opened: "2026-11-01", opened_by: SYSTEM, version: 1, state: PROPOSED, proposed: "2026-11-06", awaiting: OPERATOR_EXECUTIVE}
@@ -1259,6 +1264,19 @@ demo_workflow:   # design rev 16.7 §2.4-§2.6 (plan F mock-up lane, 19 Nov). AR
         - {role: SITE_MANAGER, site: Mto, name: David}
         - {role: FIELD_TECHNICIAN, name: Musa}
         - {role: ANALYST, name: Wanjiru}
+      items:   # one row per item of version 1; chosen_by = the person who chose the option (reactive) or declared the item (proactive)
+        - {item: KOB-STOPSOC, kind: REACTIVE, site: Kobo, chosen_by: Peter, owner: Peter, item_state: RELEASED}
+        - {item: KIS-REPAIR, kind: REACTIVE, site: Kisiwa, chosen_by: Halima, owner: Halima, item_state: CHOSEN}
+        - {item: BAT-EVIDENCE, kind: REACTIVE, site: Kobo, chosen_by: Joseph, owner: Joseph, item_state: CHOSEN}
+        - {item: MTO-INV-CLAIM, kind: REACTIVE, site: Mto, chosen_by: David, owner: David, item_state: CHOSEN}   # OD-16: "Mto: David"
+        - {item: MTO-HULLER, kind: REACTIVE, site: Mto, chosen_by: David, owner: David, item_state: CHOSEN, capital: NEW_CONNECTION,
+           actions_after_approval: ["Connect the cooperative's huller (contractor), after the inverter is restored"]}   # OD-17
+        - {item: KIS-SERVICE, kind: PROACTIVE, site: Kisiwa, chosen_by: Halima, owner: Halima, item_state: CHOSEN,
+           label: "Scheduled service of the evening generator GEN-KS-02", factor: "no factor (upkeep or compliance)",
+           planned_spend: 0.00, spend_basis: "own field technician; oil and filters already held in the Kisiwa O&M stock (Declared input)",
+           crew_visits: 1, crew_month: "2026-12", depends_on: KIS-REPAIR,
+           depends_reason: "GEN-KS-01 must be back (repair restores it on 9 Nov) so the evening supply keeps a backup while GEN-KS-02 is off",
+           service_date: "2026-12-08", action_note: "no Action on 6 Nov: Halima creates it when she books the December visit; it is released at creation once a version holding the item is in force"}
       actions:
         - {item: KOB-STOPSOC, action: "Reconfigure the generator stop threshold 90% to 70% (vendor, remote)", created_by: Peter, owner: Peter, due: "2026-11-09", release: AT_CREATION}
         - {item: KOB-STOPSOC, action: "Supervise the 14-day trial", created_by: Peter, owner: Musa, due: "2026-11-23", release: AT_CREATION}
@@ -1266,7 +1284,6 @@ demo_workflow:   # design rev 16.7 §2.4-§2.6 (plan F mock-up lane, 19 Nov). AR
         - {item: BAT-EVIDENCE, action: "Capacity test and temperature sensor for the Kobo battery warranty", created_by: Joseph, owner: Joseph, due: "2026-11-20", release: AWAITS_APPROVAL}
         - {item: MTO-INV-CLAIM, action: "File the inverter warranty notice (INV-MT-02, deadline 27 Nov)", created_by: Joseph, owner: Joseph, due: "2026-11-13", release: AWAITS_APPROVAL}
         - {item: MTO-INV-CLAIM, action: "Install the replacement inverter", created_by: David, owner: David, due: "2026-11-28", release: AWAITS_APPROVAL}
-        - {item: MTO-HULLER, action: "Connect the cooperative's huller (contractor), after the inverter is restored", created_by: David, owner: David, due: "2026-12-05", release: AWAITS_APPROVAL}
     - tenant: harvest-cold
       spend_threshold: 250.00
       crew_visit_threshold: 0
@@ -1278,6 +1295,10 @@ demo_workflow:   # design rev 16.7 §2.4-§2.6 (plan F mock-up lane, 19 Nov). AR
         - {role: SITE_MANAGER, site: "Room C · Kirinyaga", name: Faith}
         - {role: FIELD_TECHNICIAN, name: Samuel}
         - {role: ANALYST, name: Njeri}
+      items:
+        - {item: THIKA-EPC-STOPGAP, kind: REACTIVE, site: "Room B · Thika", chosen_by: Brian, owner: Brian, item_state: RELEASED}
+        - {item: KIRI-REPAIR, kind: REACTIVE, site: "Room C · Kirinyaga", chosen_by: Faith, owner: Faith, item_state: CHOSEN}
+        - {item: MWEA-AGG, kind: REACTIVE, site: "Room A · Mwea", chosen_by: Ann, owner: Ann, item_state: CHOSEN}
       actions:
         - {item: THIKA-EPC-STOPGAP, action: "Start the night manual-start rota and the SMS alarm relay", created_by: Brian, owner: Brian, due: "2026-11-06", release: AT_CREATION}
         - {item: KIRI-REPAIR, action: "Clean the condenser and repair the leak", created_by: Faith, owner: Samuel, due: "2026-11-13", release: AWAITS_APPROVAL}
@@ -1293,6 +1314,9 @@ demo_workflow:   # design rev 16.7 §2.4-§2.6 (plan F mock-up lane, 19 Nov). AR
         - {role: SITE_MANAGER, site: Ruiru, name: Tom}
         - {role: FIELD_TECHNICIAN, name: Otieno}
         - {role: ANALYST, name: Achieng}
+      items:
+        - {item: KAS-OEM-STOPGAP, kind: REACTIVE, site: Kasarani, chosen_by: Mercy, owner: Mercy, item_state: RELEASED}
+        - {item: EMB-DEADLINE, kind: REACTIVE, site: Embakasi, chosen_by: Ibrahim, owner: Ibrahim, item_state: CHOSEN}
       actions:
         - {item: KAS-OEM-STOPGAP, action: "Cover the short night with the spare bus until the OEM restore", created_by: Mercy, owner: Mercy, due: "2026-11-09", release: AT_CREATION}
         - {item: EMB-DEADLINE, action: "Set the staggered 22:00-05:15 charging schedule", created_by: Ibrahim, owner: Ibrahim, due: "2026-11-10", release: AWAITS_APPROVAL}

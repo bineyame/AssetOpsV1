@@ -1,10 +1,10 @@
 # Worked portfolios: the three demonstration operators
 
-**Companion to `layer4-transformation-design.md` (rev 16.7)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.8)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
 This file holds the full worked examples that the design document summarises: Lakeside Power (mini-grid), Harvest Cold Network (cold rooms) and Metro Bus Depots (EV depots), each read up from its factors, evaluated, planned and proved. The text was §7 and §10 of the design document up to rev 15. It moved here unchanged except for two things:
 - the system's output is described as *recommended* or *proposed*, never as *chosen*. The accountable manager chooses within each decision and creates the Actions; the system checks the chosen set; and the executive approves the plan, which releases the Actions above the spend threshold (design §2.4–§2.5; owner, 19 Nov);
-- section numbers are local to this file, and cross-references point to it or to design rev 16.7.
+- section numbers are local to this file, and cross-references point to it or to design rev 16.8.
 
 Every figure carries its marker and is checked by `check_manifest.py`. The roles are the five of design §2.6 (owner, Q-A2).
 
@@ -260,7 +260,7 @@ On every path the idle generator backs the daytime shortfall, so no hour is with
 
 #### Plan: proposed by the system, decided by people
 
-**1. The plan and its limits.** Budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December; 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November; 12-month horizon (all limits set by the operator). **How the recommendations are found:** one search over all the decisions together, so that the recommended set fits (design §2.4–§2.5). This demo assumes each manager chooses the Recommended option, so the chosen set is the combination below and fits, and the executive approves it. It tries every combination that takes one option per decision (a money-valued decision may take none, except the Mto inverter, which must be restored). An option that breaks one of its decision's rules (a service rule, or keeping warranty cover) is left out, unless no option of that decision can keep the rule, as at Kisiwa. A combination must fit the budget and the crew visits and meet the dates one option depends on (the huller needs the inverter first). The recommended set is the combination that breaks the rules least, then is worth most, then spends least.
+**1. The plan and its limits.** Budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December; 3<!--fig:plans.lakeside-power.default.crew_visits_limit--> crew visits in November and 3<!--rec:tenants[lakeside-power].portfolio_constraints.crew_visits_dec--> in December, each visit counted in the month it falls (design §2.5); 12-month horizon (all limits set by the operator). Every option the search weighs has its crew visit in November. **How the recommendations are found:** one search over all the decisions together, so that the recommended set fits (design §2.4–§2.5). This demo assumes each manager chooses the Recommended option, so the chosen set is the combination below and fits, and the executive approves it. It tries every combination that takes one option per decision (a money-valued decision may take none, except the Mto inverter, which must be restored). An option that breaks one of its decision's rules (a service rule, or keeping warranty cover) is left out, unless no option of that decision can keep the rule, as at Kisiwa. A combination must fit the budget and the crew visits and meet the dates one option depends on (the huller needs the inverter first). The recommended set is the combination that breaks the rules least, then is worth most, then spends least.
 
 | Item | One-off | Crew visits (Declared input) |
 |---|---:|---|
@@ -272,6 +272,14 @@ On every path the idle generator backs the daytime shortfall, so no hour is with
 | **Spend** | **3,750.00<!--fig:plans.lakeside-power.default.spend-->** | **3<!--fig:plans.lakeside-power.default.crew_visits_used--> of 3** |
 
 The Mto billing fix and meter audit go ahead beside the plan at no cost to this budget.
+
+**A proactive item, declared beside the search** (design §2.5; OD-5). Halima, Kisiwa's Site manager, declares the scheduled service of the evening generator GEN-KS-02 for 8 Dec: oil, filters and a load test. It answers no Finding and is the origin of its own Actions. GEN-KS-02 has carried the evening supply alone since 30 Oct, so the service depends on the Kisiwa repair: GEN-KS-01 must be back, from 9 Nov, to keep a backup while GEN-KS-02 is off.
+
+| Item | Factor it moves | One-off from this budget | Crew visits (Declared input) | Value |
+|---|---|---:|---|---|
+| Kisiwa generator service (proactive) | no factor (upkeep or compliance) | 0.00<!--rec:demo_workflow.tenants[lakeside-power].items[KIS-SERVICE].planned_spend--> (own technician; oil and filters already held in the O&M stock, Declared input) | 1, in December: 1 of 3 | none: upkeep carries no value (OD-5) |
+
+It adds nothing to the 3,750.00<!--fig:plans.lakeside-power.default.spend--> spend and nothing to November's crew visits, so the search above is unchanged. It is not released at creation, because it uses a crew visit and the crew-visit threshold is 0 (OD-12); it is released when version 1 is approved.
 
 **2. What is valued in money, and how the total is composed.**
 
@@ -636,23 +644,27 @@ Every state is set by a person from a recorded document or event. The screen alw
 
 ### 1.5 Who acts in the demonstration, and the state of each operator's plan on 6 Nov
 
-*Architect's demo choices, all illustrative* (`demo-site-scenario-manifest.yaml`, `demo_workflow`). They follow the design's rules (design §2.4 step 4, §2.5 and §2.6) and add no rule of their own.
+*Architect's demo choices, all illustrative* (`demo-site-scenario-manifest.yaml`, `demo_workflow`). They follow the design's rules (design §2.4 step 4, §2.5 and §2.6, and the owner's OD-16 and OD-17) and add no rule of their own. `check_manifest.py` checks them against those rules.
 
 - **People.** Each role is shown by its title, with the Site for a Site manager, and a fictional first name, labelled *Illustrative*: for example "Site manager, Kobo · Peter". Every operator has an operator executive, a finance and commercial lead, a Site manager per Site, a field technician and an analyst.
 - **Thresholds.** Each operator's spend threshold is 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold-->, a portfolio setting with no Site setting. The crew-visit threshold is 0<!--rec:demo_workflow.tenants[lakeside-power].crew_visit_threshold--> (OD-12's default). So a change is released when it is created only if it spends no more than the threshold and uses no crew visit.
 - **The plan's state.** The executive set the plan's period to November and December, to match the budget. The system opened the draft on 1 Nov (OD-10). On 6 Nov version 1 is *proposed*, awaiting the operator executive's approval. That is the moment the demonstration shows.
+- **Who chose, and so owns, each item (OD-16).** Each item's owner is the person who chose its option or declared it. Each Action keeps its own creator and owner. So at Mto, David owns the inverter-claim item, while Joseph creates and owns the warranty notice.
+- **Items' states on 6 Nov** (design Figure 6c). An item whose whole change is within both thresholds is *Released*; every other item is *Chosen*, waiting for version 1's approval.
+- **A new connection (OD-17).** David proposed the Mto huller connection as a plan item. It is a capital item, so it waits for Amina's approval whatever its spend, and David creates its Action only after that approval. On 6 Nov it has none.
 
 **Lakeside Power** (executive Amina; finance and commercial lead Joseph; Site managers Peter at Kobo, Halima at Kisiwa, David at Mto; field technician Musa; analyst Wanjiru).
 
-| Item | Action | Created by → owner | Due | On 6 Nov |
-|---|---|---|---|---|
-| Kobo stop threshold | Reconfigure the stop threshold 90% to 70% (vendor, remote) | Peter → Peter | 9 Nov | Released at creation: 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over both Actions, no crew visit |
-| Kobo stop threshold | Supervise the 14-day trial | Peter → Musa | 23 Nov | Released at creation, with the change above |
-| Kisiwa repair | Repair the alternator | Halima → Musa | 9 Nov | Awaits approval: above the spend threshold, and one crew visit |
-| Kobo battery evidence | Capacity test and temperature sensor | Joseph → Joseph | 20 Nov | Awaits approval: above the spend threshold, and one crew visit |
-| Mto inverter claim | File the warranty notice (deadline 27 Nov) | Joseph → Joseph | 13 Nov | Awaits approval: within the spend threshold, but one crew visit |
-| Mto inverter claim | Install the replacement unit | David → David | 28 Nov | Awaits approval, with the claim |
-| Mto huller | Connect the huller (contractor), after the inverter | David → David | 5 Dec | Awaits approval: above the spend threshold |
+| Item (chosen by, so owned by) | Item state | Action | Created by → owner | Due | On 6 Nov |
+|---|---|---|---|---|---|
+| Kobo stop threshold (Peter) | Released | Reconfigure the stop threshold 90% to 70% (vendor, remote) | Peter → Peter | 9 Nov | Released at creation: 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over both Actions, no crew visit |
+| Kobo stop threshold (Peter) | Released | Supervise the 14-day trial | Peter → Musa | 23 Nov | Released at creation, with the change above |
+| Kisiwa repair (Halima) | Chosen | Repair the alternator | Halima → Musa | 9 Nov | Awaits approval: above the spend threshold, and one crew visit |
+| Kobo battery evidence (Joseph) | Chosen | Capacity test and temperature sensor | Joseph → Joseph | 20 Nov | Awaits approval: above the spend threshold, and one crew visit |
+| Mto inverter claim (David) | Chosen | File the warranty notice (deadline 27 Nov) | Joseph → Joseph | 13 Nov | Awaits approval: within the spend threshold, but one crew visit |
+| Mto inverter claim (David) | Chosen | Install the replacement unit | David → David | 28 Nov | Awaits approval, with the claim |
+| Mto huller connection (David) | Chosen, capital (OD-17) | none yet: "Connect the huller (contractor), after the inverter", created by David after approval | – | 5 Dec | Awaits Amina's approval as capital |
+| Kisiwa generator service (Halima), proactive | Chosen | none yet: Halima creates it when she books the 8 Dec visit | – | 8 Dec | Awaits approval: one crew visit in December; once version 1 is approved, its Action is released at creation |
 
 **Harvest Cold Network** (executive Esther; finance and commercial lead Kevin; Site managers Ann at Mwea, Brian at Thika, Faith at Kirinyaga; field technician Samuel; analyst Njeri).
 
@@ -669,7 +681,9 @@ Every state is set by a person from a recorded document or event. The screen alw
 | Kasarani stopgap | Cover the short night with the spare bus until the restore | Mercy → Mercy | 9 Nov | Released at creation: within the threshold, no crew visit |
 | Embakasi schedule | Set the staggered 22:00–05:15 charging schedule | Ibrahim → Ibrahim | 10 Nov | Awaits approval: above the threshold |
 
-Each released Action still counts in the plan, on its item (design §2.4 step 4). When the executive approves version 1, the waiting Actions are released together.
+Harvest Cold's items are chosen by the Site managers who created their Actions (Brian, Faith and Ann), and Metro Bus's by Mercy and Ibrahim; the Thika and Kasarani stopgaps are Released, the rest Chosen.
+
+Each released Action still counts in the plan, on its item (design §2.4 step 4). When the executive approves version 1, the waiting Actions are released together, and the items held in it become Released.
 
 ## 2. The demonstration world and its cost
 

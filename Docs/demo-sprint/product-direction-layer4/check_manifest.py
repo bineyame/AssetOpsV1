@@ -18,7 +18,9 @@ and the manifest alone. Against that independent recomputation the checker compa
      are manifest money records; headline paths are tagged; no untagged copy of an evaluated plan or option money figure
      (with or without cents) or of an O2 percentage appears in a figure-bearing document;
   6. documents(): untagged money figures in main §2-§10, the walkthroughs and the transition document's §1-§4 are
-     independent values or declared inputs.
+     independent values or declared inputs;
+  7. workflow(): the demonstration workflow (demo_workflow) obeys the design's ownership, capital and release rules
+     (OD-5, OD-16, OD-17; design §2.4 step 4).
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -316,7 +318,7 @@ def manifest_get(doc, path):
         if part.startswith("["):
             key = part[1:-1]
             if isinstance(cur, list):
-                cur = cur[int(key)] if key.isdigit() else next((x for x in cur if isinstance(x, dict) and key in (x.get("tenant"), x.get("site"), x.get("id"), x.get("batch"), x.get("asset"))), None)
+                cur = cur[int(key)] if key.isdigit() else next((x for x in cur if isinstance(x, dict) and key in (x.get("tenant"), x.get("site"), x.get("id"), x.get("batch"), x.get("asset"), x.get("item"))), None)
             elif isinstance(cur, dict):
                 cur = cur.get(key)
         else:
@@ -562,6 +564,55 @@ def documents(root, doc, ref):
 # ---------------- 7. alignment (plan F A1-A6, rev 16.7; review G N1) ----------------
 # The naming lint (OD-6) and the derived documents' alignment with the design live in check_alignment.py, which also
 # proves itself on its planted fixtures every run. Each of its results is one check here, so one command checks the pack.
+def workflow(doc, ref):
+    """The demonstration workflow (manifest demo_workflow; worked-portfolios.md §1.5) obeys the design's rules (rev 16.8):
+    OD-16 the item's owner is the person who chose its option or declared it; every person named is one of the tenant's
+    people; version 1's items are the default plan's items plus the declared (proactive) ones; OD-17 a new connection is a
+    capital item with no Action until the executive approves it; each Action's release is the design §2.4 step 4 rule
+    recomputed from the item's whole one-off and crew visits against both thresholds; an item is Released only when its
+    Actions were released at creation; OD-5 a declared item with no factor carries no value; a declared item's December
+    crew visits fit the December limit; a dependency names an item of the same version."""
+    wf = doc.get("demo_workflow", {})
+    lim = {t["tenant"]: t.get("portfolio_constraints", {}) for t in doc.get("tenants", [])}
+    for t in wf.get("tenants", []):
+        tn, people = t["tenant"], {p["name"] for p in t["people"]}
+        items = {i["item"]: i for i in t.get("items", [])}
+        acts = t.get("actions", [])
+        default = set(ref["plans"][tn]["default"]["items"])
+        declared = {k for k, i in items.items() if i["kind"] == "PROACTIVE"}
+        check(f"workflow {tn}: version 1's items are the default plan's items plus the declared ones", set(items) == default | declared)
+        check(f"workflow {tn}: every reactive item is a chosen option of the default plan",
+              all(k in default for k, i in items.items() if i["kind"] == "REACTIVE"))
+        for k, i in items.items():
+            check(f"workflow {tn} {k}: chooser and owner are the tenant's people", i["chosen_by"] in people and i["owner"] in people)
+            check(f"workflow {tn} {k}: the item's owner is the person who chose it (OD-16)", i["owner"] == i["chosen_by"])
+            if i["kind"] == "PROACTIVE":
+                check(f"workflow {tn} {k}: a declared item names its factor or 'no factor (upkeep or compliance)' and then carries no value (OD-5)",
+                      bool(i.get("factor")) and (i["factor"] != "no factor (upkeep or compliance)" or "value" not in i))
+            if i.get("depends_on"):
+                check(f"workflow {tn} {k}: its dependency is an item of the same version", i["depends_on"] in items)
+            mine = [a for a in acts if a["item"] == k]
+            if i.get("capital"):
+                check(f"workflow {tn} {k}: a capital item has no Action before the executive approves it (OD-17)",
+                      not mine and bool(i.get("actions_after_approval")))
+            if i["kind"] == "PROACTIVE":
+                spend, crew = i["planned_spend"], i["crew_visits"]
+            else:
+                spend, crew = ref["options"][k]["operator_one_off"] or 0, ref["options"][k].get("crew_visits") or 0
+            at = (not i.get("capital")) and spend <= t["spend_threshold"] and crew <= t["crew_visit_threshold"]
+            for a in mine:
+                check(f"workflow {tn} {k}: '{a['action'][:40]}' release {a['release']} follows design §2.4 step 4",
+                      a["release"] == ("AT_CREATION" if at else "AWAITS_APPROVAL"))
+            want = "RELEASED" if (mine and at) else "CHOSEN"
+            check(f"workflow {tn} {k}: item state {i['item_state']} is derived from its Actions and the proposed version ({want})", i["item_state"] == want)
+        for a in acts:
+            check(f"workflow {tn}: '{a['action'][:40]}' belongs to an item of version 1", a["item"] in items)
+            check(f"workflow {tn}: '{a['action'][:40]}' creator and owner are the tenant's people", a["created_by"] in people and a["owner"] in people)
+        dec = sum(i.get("crew_visits", 0) for i in items.values() if i["kind"] == "PROACTIVE" and i.get("crew_month") == "2026-12")
+        if dec:
+            check(f"workflow {tn}: December crew visits {dec} within the December limit", dec <= lim[tn].get("crew_visits_dec", 0))
+
+
 def alignment(root):
     spec = importlib.util.spec_from_file_location("check_alignment", root / "check_alignment.py")
     ca = importlib.util.module_from_spec(spec); spec.loader.exec_module(ca)
@@ -604,6 +655,7 @@ def main(path):
     narratives(doc, ref)
     anchors(root, ref)
     documents(root, doc, ref)
+    workflow(doc, ref)
     alignment(root)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
