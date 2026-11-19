@@ -121,3 +121,16 @@ that run also exposed the `chain_clone` ordering defect, fixed in commit 2).
    the Node and Python halves, flock probe in bash, .NET probe in pwsh).
 3. The check-all diff: slot block, marker export, three guards, trigger generalisation, SKIP line, `finally`.
 4. The `.gitignore` line (Q2 ruling) and 7b as a todo (Q1 ruling).
+
+## Fix round 1 (review-1: M1, L1-L6)
+
+Commit `3bca18cfe`. Pooled runs: pool self-test 32 pass, 0 fail (31 plus the new P7c), about 20.4 s, two runs; inventory test 7 pass, 0 fail, 1 todo (`7b`).
+
+- **M1 fixed.** The bash child starts with `trap - INT QUIT;`, clearing the SIGINT/SIGQUIT ignore of an async list. `hs_on_signal` forwards the signal received (INT, HUP or TERM) to the child's tree, then waits up to 5 s and sends KILL. New **P7c**: a group SIGINT to a pooled python job with a `finally` runs the cleanup, exits 130, and the slot is free. Proven: with `trap - INT QUIT;` removed, P7c fails.
+- **Decision to review (INT/HUP only).** A terminal Ctrl-C or a group kill already reaches the child, so an immediate forwarded copy gave Python a second KeyboardInterrupt inside its `finally` (seen in the first P7c run). For INT and HUP the wrapper therefore waits up to 2 s for the tree to finish on its own, forwards the signal to what is still alive, then waits up to 5 s and sends KILL. TERM is forwarded at once. A signal sent to the wrapper alone reaches the child after at most 2 s.
+- **L1 fixed (inspection plus Linux pwsh).** `tools/heavy-slot.ps1` collects the child's tree from `/proc`, sends TERM, waits up to 5 s, sends KILL to survivors, then `Kill(true)`. P8 (pwsh TERM) passes on Linux. The Windows branch of the shell is not run.
+- **L2 fixed.** `7b` is a todo that reports its count through `t.diagnostic`, with no failing assertion, so check-all's excerpt shows the real failure. The count reads 5 instead of 4 because L3 is stricter.
+- **L3 fixed in part.** The wrapper must be in the same backtick span before the heavy pattern, and the `-evidence.mjs ` trailing space is gone. A planted `` `tools/heavy-slot.sh --status`, then `npx tsc` `` is now reported. **Known gap:** bare `pytest`, `npm run typecheck`, `npm run build` and `npm test` are still not matched. Adding them flagged about 20 prose mentions in `backend/TESTING.md`, `.ai/RULES.md` and the lane rules, so it is not small.
+- **L4 fixed.** Check 1 counts only an `assertHeavySlot(` on a line that does not begin with a comment marker (`//`, `#`, `*`, `/*`). A planted comment-only file is reported.
+- **L5 documented gap, no code.** A process that writes its own pid into a held slot's owner file, then sets the marker, passes the tripwires. It takes deliberate effort, like the §5.2 gaps.
+- **L6 documented gap, no code.** An interrupted self-test leaves `/tmp/t1-pool-*` behind, because `cleanup()` runs only in `finally`. The two directories from 16:10 were not touched.
