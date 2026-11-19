@@ -16,3 +16,7 @@ Context: `owner/SUMMARY.md` §11 (draft on `task/declutter-04b-owner-summary`). 
 The owner answered:
 
 > 1.yes 2.yes, some content may not be relevant in light of our updated goals 3.read the brief, building from factors doesn't mean these categories are irrelevant, things tie back to them , architect should address it in the design do with diagram, it is very important; ofcourse push back with reason is welcome , a version of b basically 4.evidence class is also fine 5.EMS data upload, api..first then edge gateway that talks to hardware via modbus. the modbus is mentioned in emulation scope to esnrue we are able to talk modbus before a hardware is made available(beaglebone blak and edge gateway running on it talking to the backend gateway is what will test) 6.yes 7.yes 8.if it helps on this server, on a need bases 9.progress overrides this and i agree with your recommendation 10.the point was to avoiud recalculation and keep a calcualted daily snapshot that the UI would use ,ofcourse with triggers to recalulate and udpate if things change(defined as triggers) 11.it was done with findings, but it is not very relevant now, the new direction is
+
+## Owner on the 10 owner rules missing from `.ai/RULES.md` (SUMMARY §10 items 1-10)
+
+> yes, add the 10 rules
