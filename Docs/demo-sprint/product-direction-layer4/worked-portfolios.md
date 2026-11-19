@@ -634,6 +634,43 @@ Every state is set by a person from a recorded document or event. The screen alw
 
 ---
 
+### 1.5 Who acts in the demonstration, and the state of each operator's plan on 6 Nov
+
+*Architect's demo choices, all illustrative* (`demo-site-scenario-manifest.yaml`, `demo_workflow`). They follow the design's rules (design §2.4 step 4, §2.5 and §2.6) and add no rule of their own.
+
+- **People.** Each role is shown by its title, with the Site for a Site manager, and a fictional first name, labelled *Illustrative*: for example "Site manager, Kobo · Peter". Every operator has an operator executive, a finance and commercial lead, a Site manager per Site, a field technician and an analyst.
+- **Thresholds.** Each operator's spend threshold is 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold-->, a portfolio setting with no Site setting. The crew-visit threshold is 0<!--rec:demo_workflow.tenants[lakeside-power].crew_visit_threshold--> (OD-12's default). So a change is released when it is created only if it spends no more than the threshold and uses no crew visit.
+- **The plan's state.** The executive set the plan's period to November and December, to match the budget. The system opened the draft on 1 Nov (OD-10). On 6 Nov version 1 is *proposed*, awaiting the operator executive's approval. That is the moment the demonstration shows.
+
+**Lakeside Power** (executive Amina; finance and commercial lead Joseph; Site managers Peter at Kobo, Halima at Kisiwa, David at Mto; field technician Musa; analyst Wanjiru).
+
+| Item | Action | Created by → owner | Due | On 6 Nov |
+|---|---|---|---|---|
+| Kobo stop threshold | Reconfigure the stop threshold 90% to 70% (vendor, remote) | Peter → Peter | 9 Nov | Released at creation: 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over both Actions, no crew visit |
+| Kobo stop threshold | Supervise the 14-day trial | Peter → Musa | 23 Nov | Released at creation, with the change above |
+| Kisiwa repair | Repair the alternator | Halima → Musa | 9 Nov | Awaits approval: above the spend threshold, and one crew visit |
+| Kobo battery evidence | Capacity test and temperature sensor | Joseph → Joseph | 20 Nov | Awaits approval: above the spend threshold, and one crew visit |
+| Mto inverter claim | File the warranty notice (deadline 27 Nov) | Joseph → Joseph | 13 Nov | Awaits approval: within the spend threshold, but one crew visit |
+| Mto inverter claim | Install the replacement unit | David → David | 28 Nov | Awaits approval, with the claim |
+| Mto huller | Connect the huller (contractor), after the inverter | David → David | 5 Dec | Awaits approval: above the spend threshold |
+
+**Harvest Cold Network** (executive Esther; finance and commercial lead Kevin; Site managers Ann at Mwea, Brian at Thika, Faith at Kirinyaga; field technician Samuel; analyst Njeri).
+
+| Item | Action | Created by → owner | Due | On 6 Nov |
+|---|---|---|---|---|
+| Thika stopgap | Start the night manual-start rota and the SMS alarm relay | Brian → Brian | 6 Nov | Released at creation: within the threshold, no crew visit |
+| Kirinyaga repair | Clean the condenser and repair the leak | Faith → Samuel | 13 Nov | Awaits approval: above the threshold, and one crew visit |
+| Mwea aggregator | Sign the storage contract and prepare the room | Ann → Ann | 30 Nov | Awaits approval: above the threshold, and one crew visit |
+
+**Metro Bus Depots** (executive Daniel; finance and commercial lead Lucy; Site managers Ibrahim at Embakasi, Mercy at Kasarani, Tom at Ruiru; field technician Otieno; analyst Achieng).
+
+| Item | Action | Created by → owner | Due | On 6 Nov |
+|---|---|---|---|---|
+| Kasarani stopgap | Cover the short night with the spare bus until the restore | Mercy → Mercy | 9 Nov | Released at creation: within the threshold, no crew visit |
+| Embakasi schedule | Set the staggered 22:00–05:15 charging schedule | Ibrahim → Ibrahim | 10 Nov | Awaits approval: above the threshold |
+
+Each released Action still counts in the plan, on its item (design §2.4 step 4). When the executive approves version 1, the waiting Actions are released together.
+
 ## 2. The demonstration world and its cost
 
 `demo-site-scenario-manifest.yaml` defines three operators with three sites each, built backwards from each portfolio's executive choice: every site carries one contrast and one negative control, and the rights contrast is embedded in repair decisions rather than added as extra sites. The manifest's rev 4 re-expresses every site period as a factor structure with the value chain as backbone, re-bases Thika and Ruiru on the v7.0 incidents so the preserved drill-down pages and the figures describe one world, and values Embakasi's schedule against November no-action. Ground truth lives only in the manifest's private `oracle:`; every product figure must be computed through the real ingest and analytics path and compared against it.

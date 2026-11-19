@@ -1238,6 +1238,65 @@ plans:   # inputs to the allocator (M4): one joint search over all decisions (ev
     switch_sensitivity: {tariff_applies: {false: flat_tariff}}
     listed_not_added: {RUI-ABSORB6: "service expansion (different comparator)", RUI-4CHARGERS: "capacity purchase comparator"}
 
+demo_workflow:   # design rev 16.7 §2.4-§2.6 (plan F mock-up lane, 19 Nov). ARCHITECT'S DEMO CHOICES, all illustrative: who acts,
+                 # each Action's owner and due date, the thresholds, and the plan's state on as_of. People are fictional first names
+                 # beside their role title, shown "Illustrative" on screen. The evaluator, independent model and allocator do not read
+                 # this block; check_manifest.py checks the figures worked-portfolios.md states from it. Release follows design §2.4
+                 # step 4: at creation when the item's whole change is at or below both thresholds and the plan still fits; else it
+                 # waits for the executive's approval of the version.
+  people_shown_as: "role title, with the Site for a Site-bound role, and a fictional first name, labelled Illustrative"
+  plan_state: {period: "2026-11 to 2026-12", period_basis: "the executive set a two-month period to match the Nov-Dec budget",
+               opened: "2026-11-01", opened_by: SYSTEM, version: 1, state: PROPOSED, proposed: "2026-11-06", awaiting: OPERATOR_EXECUTIVE}
+  tenants:
+    - tenant: lakeside-power
+      spend_threshold: 250.00      # portfolio setting; no Site setting, so it applies to every Site
+      crew_visit_threshold: 0      # OD-12 default
+      people:
+        - {role: OPERATOR_EXECUTIVE, name: Amina}
+        - {role: FINANCE_AND_COMMERCIAL_LEAD, name: Joseph}
+        - {role: SITE_MANAGER, site: Kobo, name: Peter}
+        - {role: SITE_MANAGER, site: Kisiwa, name: Halima}
+        - {role: SITE_MANAGER, site: Mto, name: David}
+        - {role: FIELD_TECHNICIAN, name: Musa}
+        - {role: ANALYST, name: Wanjiru}
+      actions:
+        - {item: KOB-STOPSOC, action: "Reconfigure the generator stop threshold 90% to 70% (vendor, remote)", created_by: Peter, owner: Peter, due: "2026-11-09", release: AT_CREATION}
+        - {item: KOB-STOPSOC, action: "Supervise the 14-day trial", created_by: Peter, owner: Musa, due: "2026-11-23", release: AT_CREATION}
+        - {item: KIS-REPAIR, action: "Repair the Kisiwa alternator", created_by: Halima, owner: Musa, due: "2026-11-09", release: AWAITS_APPROVAL}
+        - {item: BAT-EVIDENCE, action: "Capacity test and temperature sensor for the Kobo battery warranty", created_by: Joseph, owner: Joseph, due: "2026-11-20", release: AWAITS_APPROVAL}
+        - {item: MTO-INV-CLAIM, action: "File the inverter warranty notice (INV-MT-02, deadline 27 Nov)", created_by: Joseph, owner: Joseph, due: "2026-11-13", release: AWAITS_APPROVAL}
+        - {item: MTO-INV-CLAIM, action: "Install the replacement inverter", created_by: David, owner: David, due: "2026-11-28", release: AWAITS_APPROVAL}
+        - {item: MTO-HULLER, action: "Connect the cooperative's huller (contractor), after the inverter is restored", created_by: David, owner: David, due: "2026-12-05", release: AWAITS_APPROVAL}
+    - tenant: harvest-cold
+      spend_threshold: 250.00
+      crew_visit_threshold: 0
+      people:
+        - {role: OPERATOR_EXECUTIVE, name: Esther}
+        - {role: FINANCE_AND_COMMERCIAL_LEAD, name: Kevin}
+        - {role: SITE_MANAGER, site: "Room A · Mwea", name: Ann}
+        - {role: SITE_MANAGER, site: "Room B · Thika", name: Brian}
+        - {role: SITE_MANAGER, site: "Room C · Kirinyaga", name: Faith}
+        - {role: FIELD_TECHNICIAN, name: Samuel}
+        - {role: ANALYST, name: Njeri}
+      actions:
+        - {item: THIKA-EPC-STOPGAP, action: "Start the night manual-start rota and the SMS alarm relay", created_by: Brian, owner: Brian, due: "2026-11-06", release: AT_CREATION}
+        - {item: KIRI-REPAIR, action: "Clean the condenser and repair the leak", created_by: Faith, owner: Samuel, due: "2026-11-13", release: AWAITS_APPROVAL}
+        - {item: MWEA-AGG, action: "Sign the aggregator storage contract and prepare the room for December", created_by: Ann, owner: Ann, due: "2026-11-30", release: AWAITS_APPROVAL}
+    - tenant: metro-bus
+      spend_threshold: 250.00
+      crew_visit_threshold: 0
+      people:
+        - {role: OPERATOR_EXECUTIVE, name: Daniel}
+        - {role: FINANCE_AND_COMMERCIAL_LEAD, name: Lucy}
+        - {role: SITE_MANAGER, site: Embakasi, name: Ibrahim}
+        - {role: SITE_MANAGER, site: Kasarani, name: Mercy}
+        - {role: SITE_MANAGER, site: Ruiru, name: Tom}
+        - {role: FIELD_TECHNICIAN, name: Otieno}
+        - {role: ANALYST, name: Achieng}
+      actions:
+        - {item: KAS-OEM-STOPGAP, action: "Cover the short night with the spare bus until the OEM restore", created_by: Mercy, owner: Mercy, due: "2026-11-09", release: AT_CREATION}
+        - {item: EMB-DEADLINE, action: "Set the staggered 22:00-05:15 charging schedule", created_by: Ibrahim, owner: Ibrahim, due: "2026-11-10", release: AWAITS_APPROVAL}
+
 owner_question_variants:   # rev 13 (M4): the owner question's alternatives are evaluated, not described; the evaluator runs each patch on a copy
   Q15:
     applied: A
