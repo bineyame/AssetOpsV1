@@ -377,3 +377,7 @@ tbody tr:hover>td,tbody tr:hover>th{background:var(--surface-2)}
   .theme-toggle{display:none}
   .panel,.metric,.kpi{box-shadow:none}
 }
+/* plan items: owner and state line (OD-16), Actions created after approval */
+.item-owner{display:flex;flex-wrap:wrap;align-items:center;gap:6px var(--s2);margin:var(--s2) 0 0;font-size:var(--fs-sm)}
+.item-owner-k{font-size:var(--fs-xs);color:var(--text-2);font-weight:500}
+.later-acts .wd-acts{margin:var(--s2) 0 0}
