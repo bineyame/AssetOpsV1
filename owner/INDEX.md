@@ -1,8 +1,7 @@
 # Owner feedback index
 
-The owner's words, verbatim, in `owner/` (186 files, moved from `.agent/` in declutter
-step 4; `owner-walkthrough-notes-2026-11-01.md` stays in `.agent/` until its pending
-change is committed). Authority: owner words come first (`.ai/START_HERE.md`). Status is
+The owner's words, verbatim, in `owner/` (moved from `.agent/` in declutter step 4; the 1 Nov walkthrough notes
+followed on 19 Nov with the owner's confirmed 3-4 Nov additions). Authority: owner words come first (`.ai/START_HERE.md`). Status is
 read from what later owner files say: 63 current, 12 superseded, 112 historical.
 "to confirm" marks a status the owner has not confirmed. The concise summary of what
 matters now (owner O4) is a later step that the owner confirms; this index prepares it.
@@ -44,7 +43,7 @@ Current files:
 - `owner-telemetry-plan-feedback-2026-10-27.md` Telemetry plan approved with adjustments (to confirm)
 - `owner-answers-demo-data-2026-10-28.md` Demo data strategy question answers (to confirm)
 - `owner-demo-data-strategy-2026-10-28.md` Evidence-grounded demo data strategy request (to confirm)
-- `owner-walkthrough-notes-2026-11-01.md` Walkthrough notes Nov 1-3 (to confirm)
+- `owner-walkthrough-notes-2026-11-01.md` Walkthrough notes Nov 1-4 (confirmed 19 Nov)
 - `owner-efficiency-2026-11-05.md` Boost usage efficiency, keep quality
 - `owner-efficiency-2026-11-06.md` Implement suggested usage optimizations (to confirm)
 - `owner-missing-fuel-2026-11-07.md` Kisiwa missing fuel before demo
