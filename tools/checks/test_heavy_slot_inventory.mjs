@@ -82,6 +82,32 @@ export function runnerProblems(name, text) {
   return text.split("\n").some((l) => /^\s*Assert-HeavySlotHeld\b/.test(l)) ? [] : [`${name}: no Assert-HeavySlotHeld call`];
 }
 
+// ---- 7. the spec §6 documents carry only pooled commands ----
+const DOCS = [".agent/lane-rules-vps-2026-11-12.md", "backend/TESTING.md", ".ai/RULES.md", ".ai/START_HERE.md", "tools/select-tests.py"];
+// Spec §6 also lists these two; the T1 dispatch forbids any `.claude/` change. Mid-build question 1
+// (specs/T1-heavy-tool-slot-pool/mid-build-questions.md): reported below as a todo, not yet blocking.
+const DOCS_PENDING = [".claude/agents/assetops-reviewer.md", ".claude/agents/assetops-implementer.md"];
+const HEAVY = ["npx tsc", "npx vitest", "-m pytest", "run-host-tests.ps1 --", "run-backend-suite-in-container.ps1 -", "-evidence.mjs "];
+
+export function unpooledLines(name, text) {
+  const out = [];
+  let history = false;
+  text.split("\n").forEach((line, i) => {
+    const h = /^##\s+(.*)$/.exec(line);
+    if (h) history = /history/i.test(h[1]);
+    if (history || /\b(unpooled|refused)\b/i.test(line)) return;
+    for (const pat of HEAVY) {
+      let at = line.indexOf(pat);
+      while (at >= 0) {
+        const pooled = line.lastIndexOf("heavy-slot.", at);
+        if (pooled < 0) { out.push(`${name}:${i + 1}: unpooled \`${pat.trim()}\`: ${line.trim()}`); break; }
+        at = line.indexOf(pat, at + 1);
+      }
+    }
+  });
+  return out;
+}
+
 // ---------------------------------------------------------------------------------------------------------------
 
 test("1 every browser-launching script calls assertHeavySlot (planted fixture reported)", () => {
@@ -128,4 +154,18 @@ test("6 both container runners call Assert-HeavySlotHeld and the compose file pa
   const compose = read("docker-compose.test.yml");
   const runner = compose.slice(compose.indexOf("backend-test-runner:"));
   assert.ok(compose.includes("backend-test-runner:") && runner.includes(COMPOSE_LINE), `docker-compose.test.yml: backend-test-runner lacks ${COMPOSE_LINE}`);
+});
+
+test("7 the spec §6 documents carry only pooled heavy commands", () => {
+  const planted = "Run it:\n`cd frontend && npx vitest run x`\n`tools/heavy-slot.sh -- npx tsc --noEmit`\n" +
+                  "An unpooled `npx tsc` is refused.\n## History\n`npx tsc --noEmit`\n## Now\n`node tools/layout-evidence.mjs <url>`\n";
+  assert.deepEqual(unpooledLines("planted.md", planted), [
+    "planted.md:2: unpooled `npx vitest`: `cd frontend && npx vitest run x`",
+    "planted.md:8: unpooled `-evidence.mjs`: `node tools/layout-evidence.mjs <url>`",
+  ]);
+  assert.deepEqual(DOCS.flatMap((f) => unpooledLines(f, read(f))), []);
+});
+
+test("7b the two .claude/agents briefs of spec §6 (pending mid-build question 1)", { todo: "the T1 dispatch forbids .claude/ changes" }, () => {
+  assert.deepEqual(DOCS_PENDING.flatMap((f) => unpooledLines(f, read(f))), []);
 });

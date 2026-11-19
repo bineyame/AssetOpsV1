@@ -69,6 +69,6 @@ decision (`.ai/decisions/`, or the active rulings file, plus an index line).
 - S1-S7 queue tables (history; no guard reads them since declutter step 5):
   `tasks/archive/site-first-2026-10/queue-tables.md`.
 - UI defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
-- Tests: `backend/TESTING.md`. Guards: `tools/check-all.ps1`.
+- Tests: `backend/TESTING.md`; heavy tools through `tools/heavy-slot.sh`. Guards: `tools/check-all.ps1`.
 
 `python tools/check-decision-index.py` (in check-all) keeps the indexes whole.
