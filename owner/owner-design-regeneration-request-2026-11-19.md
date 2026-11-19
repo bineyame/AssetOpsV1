@@ -44,3 +44,7 @@ Coordinator's text, as given to the owner:
 - An Action's **origin** is either a Finding (reactive: something observed) or a plan item (proactive work no Finding triggered: scheduled maintenance, a budgeted battery replacement, a new customer connection, an expansion).
 - Separately, an Action has a **plan membership** (what it is funded and scheduled under): an Action raised against a Finding that spends shared budget or crew time also joins the period's plan, so the executive approves it with everything else.
 - Rule: one origin per Action, plus at most one plan membership, so the same work is never counted twice.
+
+## Owner's addition to the standing document brief
+
+> one more things, i want overall objective to be considerd, not narrow slice that is detacehd

@@ -248,6 +248,7 @@ Every design, strategy or explainer document for the owner starts in this shape 
 2. **Mechanism to value.** Tie each mechanism or construct to the business value it delivers and to the differentiation that converts clients.
 3. **Change on merit.** Each change names the issue it fixes, measured against the objective, with code evidence. Name what stays. No silent changes and no advocacy.
 4. **Structure first.** State core concepts and how they connect before the specifics. A worked example (a mini-grid, e.g. Kobo) illustrates the structure; it does not define it. Cover the operator's whole business, never one slice.
+   **The overall objective governs every part** (owner: "i want overall objective to be considerd, not narrow slice that is detacehd"). Each section, construct and change says how it serves the overall objective; analysis that is detached from it is incomplete.
 5. **Person in the loop.** State who sees, decides, acts and tracks, and how each is recorded. The system proposes; people choose and act.
 6. **Precise concepts.** Use one name per meaning (e.g. a Finding is the living result of evaluating a condition, not the condition).
 7. **Short and illustrated.** Cover a few core topics. Put diagrams (use case, sequence, process flow) only where something changes. Move detail to appendices.
