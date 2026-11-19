@@ -48,3 +48,7 @@ Coordinator's text, as given to the owner:
 ## Owner's addition to the standing document brief
 
 > one more things, i want overall objective to be considerd, not narrow slice that is detacehd
+
+## Owner's answers on rev 16.2 open points
+
+> Q-B1 yes, agree with the architect's pushbacks
