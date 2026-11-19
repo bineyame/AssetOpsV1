@@ -6,7 +6,7 @@ const base = 'file://' + process.argv[2];
 const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}`);
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
-  const page = async (hash, o = {}) => { const ctx = await b.newContext({ viewport: { width: o.w || 1440, height: o.h || 900 }, colorScheme: o.dark ? 'dark' : 'light', reducedMotion: o.rm ? 'reduce' : 'no-preference' }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; return p; };
+  const page = async (hash, o = {}) => { const ctx = await b.newContext({ viewport: { width: o.w || 1440, height: o.h || 900 }, colorScheme: o.dark ? 'dark' : 'light', reducedMotion: o.rm ? 'reduce' : 'no-preference' }); if (o.op) await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, o.op); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; return p; };
   // 1 drawers on the Overview: open, focus, trap, Esc, return focus
   { const p = await page('portfolio');
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {
@@ -50,6 +50,28 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const opt = await (async () => { await p.goto(base + '#/decision/kobo-generator'); await p.waitForTimeout(400); return p.evaluate(() => { const tr = document.querySelector('table.ux-opts tbody tr'); return getComputedStyle(tr).display === 'block' && document.documentElement.scrollWidth <= innerWidth; }); })();
     ok(opt, 'phone decision: options as stacked cards, no sideways page scroll');
     await p.context().close(); }
+  // phone option cards: every value starts in the same column, right of the labels (catches content wrapping into the label column)
+  { const p = await page('decision/kobo-generator', { w: 390, h: 844 });
+    const r = await p.evaluate(() => { const bad = []; let cards = 0;
+      for (const tr of document.querySelectorAll('table.ux-opts tbody tr')) { cards++; const xs = [];
+        for (const td of tr.querySelectorAll('td')) { const cell = td.querySelector(':scope>.ux-cell'), tl = td.getBoundingClientRect().left;
+          if (!cell || td.children.length !== 1) { bad.push('cell not wrapped'); continue; }
+          const x = cell.getBoundingClientRect().left; xs.push(x);
+          if (x < tl + 90) bad.push(`value inside the label column (${Math.round(x - tl)} px)`);
+          for (const e of cell.querySelectorAll('*')) { if (e.closest('.ux-drawer')) continue; const r = e.getBoundingClientRect(); if (r.width && r.left < x - 1) bad.push('child left of its value column'); } }
+        if (xs.length && Math.max(...xs) - Math.min(...xs) > 1) bad.push('value columns differ within a card'); }
+      return { cards, bad: [...new Set(bad)] }; });
+    ok(r.cards === 4 && !r.bad.length, `phone decision cards: label and value columns consistent in ${r.cards} cards (${r.bad.join('; ') || 'no fault'})`);
+    await p.context().close(); }
+  // short laptop: the first queue row is above the fold at 1280 x 720 (guide §3.5)
+  for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first']]) {
+    const p = await page(r, { w: 1280, h: 720, op });
+    const y = await p.evaluate(() => { const li = document.querySelector('.ux-queue>li'); return li ? Math.round(li.getBoundingClientRect().bottom + scrollY) : null; });
+    ok(y !== null && y <= 720, `${op} ${r} at 1280 x 720: first queue row ends at ${y} px (fold 720)`); await p.context().close(); }
+  // the header holds one row; a recalculation notice has its own row under it
+  for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
+    const r = await p.evaluate(() => ({ h: Math.round(document.querySelector('.topbar').getBoundingClientRect().height), inBar: !!document.querySelector('.topbar .snap-pending'), row: !!document.querySelector('.canvas>.ux-pending .snap-pending'), ovf: document.documentElement.scrollWidth > innerWidth }));
+    ok(r.h <= 64 && !r.inBar && !r.ovf, `${op} header at 1440: one row (${r.h} px), notice ${r.row ? 'on its own row' : 'none'}, no overflow`); await p.context().close(); }
   // 5 heading order on the five screens
   for (const r of ['portfolio', 'portfolio/act-first', 'portfolio/act-first/plan', 'decision/kobo-generator', 'site/kobo']) {
     const p = await page(r);

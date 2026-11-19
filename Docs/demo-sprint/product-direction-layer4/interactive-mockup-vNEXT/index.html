@@ -1077,6 +1077,59 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
   .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{grid-column:3;grid-row:1}
   .ux-it-c::before{content:attr(data-k) ": ";color:var(--text-2);font-size:var(--fs-xs)}
 }
+
+/* ---- fix round 2 ---- */
+/* H1: a phone option card has two columns, label and value; the cell content is one wrapper in the value column */
+.ux-cell{min-width:0}
+@media (max-width:760px){table.ux-opts td>.ux-cell{grid-column:2}}
+/* H2: the recalculation notice on its own full-width row under the header */
+.ux-pending{margin:0 0 var(--s3)}
+.ux-pending .snap-pending{display:block}
+.ux-pending .badge{display:block;width:auto;white-space:normal;text-align:left;padding:var(--s2) var(--s3);border-radius:var(--r1);font-size:var(--fs-sm);font-weight:500;line-height:20px}
+/* M1: the waterfall's two panels */
+.ux-wf-k{font-size:var(--fs-xs);font-weight:500;color:var(--text-2);margin:var(--s3) 0 0}
+.ux-wf-steps .ux-wf-track{border-left:0}
+.ux-wf-mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-strong)}
+/* M2: no spaced capitals in the canvas (guide §4.2) */
+.canvas .eyebrow{text-transform:none;letter-spacing:0;font-size:var(--fs-xs);font-weight:500}
+.wd-by{display:block;margin-bottom:var(--s1)}
+/* M4: a short laptop (1280 x 720 class) keeps the first queue row above the fold */
+@media (min-width:1024px) and (max-height:820px){
+  .page-heading{margin-bottom:var(--s2)}
+  .page-heading p{margin-top:2px}
+  .ux-scope{margin-top:2px}
+  .canvas .breadcrumbs{margin-bottom:var(--s1)}
+  .canvas{padding-top:var(--s4)}
+  .headline.ux-headline{margin-bottom:var(--s3);font-size:var(--fs-lg);line-height:24px}
+  .heroes.ux-kpis{margin-bottom:var(--s4);gap:var(--s3)}
+  .ux-kpi{padding:var(--s3) var(--s4);gap:2px}
+  .ux-kpi-v{font-size:var(--fs-2xl);line-height:32px}
+  .ux-kpi-s+.ux-kpi-s{display:none}
+  .ux-overview .ux-queue-panel .panel-head p{display:none}
+  .tabs{margin-bottom:var(--s3)}
+}
+/* low: the decider's name never truncates */
+.ux-q-who .who{white-space:normal;display:inline;overflow:visible}
+.ux-q-who .who>span{white-space:nowrap}
+@media (min-width:1024px) and (max-height:820px){
+  .canvas .breadcrumbs{display:none}
+  .page-heading>div>p:not(.ux-scope){display:none} /* the operator and period are in the top bar */
+  .ux-main-aside{grid-template-columns:minmax(0,1fr)} /* the queue first, full width; the plan card follows */
+  .ux-queue>li.ux-q{padding:var(--s2) 0}
+  .ux-site-tiles .ux-kpi-s{display:none}
+}
+@media (min-width:1024px) and (max-height:820px){
+  .canvas{padding-top:var(--s3)}
+  .ux-kpi-v{font-size:var(--fs-xl);line-height:28px}
+  .heroes.ux-kpis{margin-bottom:var(--s3)}
+  .headline.ux-headline{margin-bottom:var(--s2)}
+  .tabs{margin-bottom:var(--s2)}
+  .ux-queue-panel .panel-head{margin-bottom:var(--s2)}
+  .ux-qh{padding-bottom:var(--s1)}
+}
+@media (min-width:1024px) and (max-height:820px){.ux-kpi{padding:var(--s2) var(--s4)}.tabs.subtabs{margin-top:0;margin-bottom:var(--s2)}}
+.ux-q-who .who>span{margin-left:4px}
+@media (max-width:760px){table.ux-opts tr.rec>th:first-child{box-shadow:none}table.ux-opts tr.rec{border-left:3px solid var(--accent-solid)}}
 </style></head><body><div id="app"></div><div id="overlay"></div><script>/* Portfolio composition: presentation of site-owned results, never a second analytic. */
 const portfolioReview = {
  references:['v6.9 §8.1, p24: Portfolio command center','Client Demo Recommendation, Screen 1 and Appendix A1, p11'],
@@ -2811,7 +2864,7 @@ const DEEP = {kobo:{Foundation:'foundation',Health:'health',Performance:'dispatc
 const tabRoute = (sk,tab) => tab==='Overview'?`site/${sk}`:tab==='Financials'?`site/${sk}/economics`:DEEP[sk]?DEEP[sk][tab]:`site/${sk}/${tab.toLowerCase()}`;
 function siteRoutes(domain){const sk=V70SITE[domain];return LOOP_SITE_TABS.map(t=>tabRoute(sk,t));}
 function siteTabRow(sk,active){return uxTabs(LOOP_SITE_TABS.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
-function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Switch site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
+function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Choose a site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
 /* the calculated daily snapshot (design §2.8, OD-23; register call 19): each portfolio's record (MANIFEST.snapshot.portfolios)
    gives its "as of" time and whether a recalculation is pending, with what triggered it, when, and the Sites it affects. Every
    figure screen shows the "as of" time with the hour, and says so while a recalculation is pending. */
@@ -2875,6 +2928,11 @@ const PLAIN_WORDS=[
  [/\s?\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d|CN-\d{4}|PM-\d{4})\)/g,''],[/\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d)[;,]\s*/g,'('],
  [/\b(generator|inverter|charger) (?:GEN-[A-Z]{2}-0?(\d)|INV-[A-Z]{2}-0?(\d)|CH-[A-Z](\d))\b/g,(m,w,a,b,c)=>`${w} ${a||b||c}`],
  [/\bGEN-KS-0?(\d)\b/g,'generator $1'],[/\bGEN-CR-01\b/g,'the backup generator'],[/\bINV-MT-0?(\d)\b/g,'inverter $1'],[/\bBAT-001\b/g,'the battery'],[/\bCH-[A-Z](\d)\b/g,'charger $1'],[/\s?\b(?:PM|CN)-\d{4}\b/g,''],
+ [/\ba right or an obligation\b/g,'a warranty, contract or service limit'],[/\bContract rights: who bears the cost\b/g,'Warranties and contracts: who pays'],[/\bcontract-rights\b/g,'warranty and contract'],
+ [/\bwarranty and insurance rights\b/g,'warranty and insurance cover'],[/\bSide effect on rights\b/g,'Side effect on warranty cover'],[/\(rights value at stake\)/g,'(warranty value at stake)'],[/\bthe rights factor\b/g,'the warranty factor'],
+ [/\ban obligation(['’]s)?\b/g,(m,p)=>p?'a service’s':'a service limit'],[/\bobligation window\b/g,'service window'],[/\bclaim-versus-buy switch\b/g,'claim-versus-buy choice'],[/\(see the switch on Act first\)/g,'(see the cases on the plan)'],[/\bbeside the switch\b/g,'beside the choice'],
+ [/\bRights\b/g,'Warranties and contracts'],[/\brights\b/g,'warranty cover'],[/\bswitch\b/g,'choice'],
+ [/\bObligation hours without redundancy\b/g,'Hours without backup supply'],[/\bobligation hours without redundancy\b/g,'hours without backup supply'],[/\bobligation hours\b/gi,'hours without backup supply'],[/\bObligations\b/g,'Service limits'],[/\bobligations\b/g,'service limits'],[/\bObligation\b/g,'Service limit'],[/\bobligation\b/g,'service limit'],
  [/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
 ];
 const plainText = t => PLAIN_WORDS.reduce((v,[r,s])=>v.replace(r,s),String(t??''));window.plainText=plainText; /* the same display words, for checks that compare data text with the screen */
@@ -2885,6 +2943,7 @@ function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector(
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
+ const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);c.insertBefore(row,c.firstChild);}
  const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<p class="ux-scope" role="note"><span>Figures are recorded or measured unless marked; all are simulated demo data.</span>${dv?'<span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span>':''}${il.length?'<span>Names are illustrative.</span>':''}</p>`);}
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
@@ -3380,7 +3439,7 @@ function factorTable(sk,opts={}){const rows=[];
   const ac=n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—';
   rows.push(`<tr class="${n.residual?'resid':''} ${d===0?'root':''}" data-node="${n.id}" data-key="${n.hkey||''}" data-home="${n.home||''}" data-via="${n.hvia||''}" data-actual="${typeof n.actual==='number'?n.actual:''}" data-heading="${n.lens||''}"><th scope="row">${lab}</th><td>${n.obs&&n.plan==null?'<span class="muted">—</span>':pl}</td><td>${ac}</td><td>${devText(n)}</td><td>${n.eff!=null&&!n.obs?(n.evd&&n.actual==null?fig(n.evd,usd(n.eff,true)):usd(n.eff,true)):'—'}</td><td>${ec(n.cls)}</td><td>${n.lens?lensTag(n.lens)+(n.potential?' <small class="cellnote">potential, beside Grow, not its actual</small>':''):''}</td><td>${n.dec?link(`decision/${n.dec}`,'Decision →'):''}</td></tr>`);});
  const cost=OPS[SK[sk].op].kind==='cost';
- return region(`Factor structure for ${SK[sk].name}`,`<table class="ftab"><thead><tr><th>Factor and how it composes</th><th>Target</th><th>October</th><th>Deviation</th><th>Effect on ${cost?'cost (+ lower)':'contribution'}</th><th>Evidence, if not recorded</th><th>Outcome</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`);}
+ return region(`Factor structure for ${SK[sk].name}`,`<table class="ftab"><thead><tr><th>What drives it, and how</th><th>Target</th><th>October</th><th>Deviation</th><th>Effect on ${cost?'cost (+ lower)':'contribution'}</th><th>Evidence, if not recorded</th><th>Outcome</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`);}
 
 /* ---------- value chain strip (stages with leaks between them) ---------- */
 function chainStages(op,sk){const o=OPS[op];let st;
@@ -3591,7 +3650,7 @@ const PLAN_EFFECT={'MTO-INV-CLAIM':()=>restoreValue('MTO-INV-CLAIM'),'MTO-INV-BU
 const harvestValue=()=>derivedPlan('harvest').value;
 const ruiruDeliverable=()=>Math.round(OPS.metro.t.portfolio.operations.measures.find(m=>m.id==='deliverable_energy_used').sites_pct.Ruiru)+'%';
 const inv0=c=>c.items.find(i=>/^MTO-INV-/.test(i));
-function mtoCapacityLine(){const h=id=>num(DOPT(id).protect.obligation_hours_without_redundancy);return `Reduced daytime capacity from ${fdate(AS_OF)} to ${fdate(DERIVED.horizons.protect_horizon_end)}: claim and wait ${h('MTO-INV-CLAIM')} h, buy now ${h('MTO-INV-BUYNOW')} h (Protect; the switch itself is decided on money).`;}
+function mtoCapacityLine(){const h=id=>num(DOPT(id).protect.obligation_hours_without_redundancy);return `Reduced daytime capacity from ${fdate(AS_OF)} to ${fdate(DERIVED.horizons.protect_horizon_end)}: claim and wait ${h('MTO-INV-CLAIM')} h, buy now ${h('MTO-INV-BUYNOW')} h (a protection measure; the choice between the two is decided on money).`;}
 const DVTEXT='Design estimate: not yet tested on your recorded data';
 const dvTag=(t=DVTEXT)=>{if(String(t).startsWith(DVTEXT)){const rest=String(t).slice(DVTEXT.length).replace(/^:\s*/,'');return `<span class="dv dv-mark" title="${DVTEXT}"><span aria-hidden="true">†</span><span class="vh"> Design estimate</span></span>${rest?`<span class="dv-rest"> ${rest}</span>`:''}`;}return `<span class="dv dv-assume">${t}</span>`;}; /* guide U2 */
 const SHORT={'KOB-STOPSOC':'Kobo stop setting','MTO-HULLER':'Mto rice huller','MTO-INV-CLAIM':'Mto inverter claim','MTO-INV-BUYNOW':'Mto inverter bought now','KIRI-REPAIR':'Kirinyaga repair','MWEA-AGG':'Mwea contract','EMB-DEADLINE':'Embakasi schedule','KAS-OEM-STOPGAP':'Kasarani cover','KIS-REPAIR':'Kisiwa repair','BAT-EVIDENCE':'Kobo battery evidence','THIKA-EPC-STOPGAP':'Thika night cover'};
@@ -3787,9 +3846,9 @@ function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.
  const listed=op==='lakeside'?[['Charges restored at Mto (12 months)',fig('stake:charges',usd(L['MTO-BILLING_charges_12m'])),'ECONOMIC_ACTUAL_FORWARD','Billed, not yet collected'],['Possible Kisiwa service credit',fig('stake:credit',usd(L['KIS-OM-SLA_potential_credit'])),'EXPOSURE','Counted only when a credit note arrives'],['Kobo battery cover',fig('stake:battery',usd(L['BAT-001_cover_exposure'])),'EXPOSURE','Protected, not gained']]
   :op==='harvest'?[['Thika French-bean batch (B-1031) exposed on 6 Oct',fig('stake:batch',usd(siteM('thika').incident.batches[0].exposed_value)),'EXPOSURE',`The customer’s produce; only the ${usd(SN('thika').liability)} downgrade became a liability`],['Insurance reimbursement','$0','RECORDED',`Not claimed: ${usd(SN('thika').liability)} is below the ${usd(siteM('thika').incident.insurance.deductible)} deductible`]]
   :[[`Ruiru purchase avoided by taking ${num(DOPT('RUI-ABSORB6').params.added_buses)} buses`,fig('opt:RUI-ABSORB6:effect',usd(OPT['RUI-ABSORB6'].avoided_capex)),'MODELLED','Avoided capital, not a saving in the books'],['Kasarani penalties so far in November',fig('stake:penalty',usd(KN().penalties)),'DERIVED','Already incurred; not reversed by the plan'],['Possible Kasarani service credit if the repair is late',SCREDIT(siteM('kasarani').entitlement.contracts[1].service_credit),'EXPOSURE','Counted only on a credit note']];
- const total=op==='lakeside'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${fig('port:lakeside:m12',usdW(P.value,true))}</strong><small>${valueNote(op,P)} Each valued option changes a different factor, so each is counted once. ${dvTag()} for the generator stop setting and the rice huller.</small><p class="downside">${downside(op)}</p></div>`
-  :op==='harvest'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${usdW(harvestValue(),true)}</strong><small>${valueNote(op,P)} ${dvTag('Assumption: Kirinyaga recovery share 80%, range 60–90%')}.</small><p class="downside">${downside(op)}</p></div>`
-  :`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${derivedPlan('metro').value?usdW(derivedPlan('metro').value,true):'$0'}</strong><small>${valueNote(op,P)} ${dvTag()} (schedule feasibility, ${num(DOPT('EMB-DEADLINE').params.feasible_nights)} of ${num(SN('embakasi').nights_in_period)} nights).</small><p class="downside">${downside(op)}</p></div>`;
+ const total=op==='lakeside'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${fig('port:lakeside:m12',usdW(P.value,true))}</strong><details class="ux-more-d"><summary>How this is worked out, and the downside</summary><small>${wholeText(`${valueNote(op,P)} Each valued option changes a different factor, so each is counted once. ${dvTag()} for the generator stop setting and the rice huller.`)}</small><p class="downside">${wholeText(downside(op))}</p></details></div>`
+  :op==='harvest'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${usdW(harvestValue(),true)}</strong><details class="ux-more-d"><summary>How this is worked out, and the downside</summary><small>${wholeText(`${valueNote(op,P)} ${dvTag('Assumption: Kirinyaga recovery share 80%, range 60–90%')}.`)}</small><p class="downside">${wholeText(downside(op))}</p></details></div>`
+  :`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${derivedPlan('metro').value?usdW(derivedPlan('metro').value,true):'$0'}</strong><details class="ux-more-d"><summary>How this is worked out, and the downside</summary><small>${wholeText(`${valueNote(op,P)} ${dvTag()} (schedule feasibility, ${num(DOPT('EMB-DEADLINE').params.feasible_nights)} of ${num(SN('embakasi').nights_in_period)} nights).`)}</small><p class="downside">${wholeText(downside(op))}</p></details></div>`;
  const paths=op==='lakeside'?sec('Two ways to restore Mto’s inverter, under this assumption',`<div class="paths">${[P.win,P.lose].filter(Boolean).map((x,i)=>`<div class="path ${i===0?'win':''}"><div class="eyebrow">${i===0?'In the plan':'Competing path'}</div><h3>${optLabel(x.id)}</h3>${kv([['Plan spend',usd(x.spend)],['Modelled 12-month change from the valued options',usdW(x.value,true)],['Inverter back',fdate(DOPT(x.id).restore_date)],['Rice huller',x.huller?'Kept':cap(hullerCell(x.id))],['Fits the budget',x.spend<=budget?'Yes':'No']])}</div>`).join('')}</div><p class="note">${mtoCapacityLine()}</p>`,'Both paths shown side by side; the proposal takes the better one that fits; you choose.'):'';
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).concat(proactiveOf(op).map(it=>['Field work',`${SK[siteKeyOf(op,it.site)]?.name||it.site}: ${it.label}`,`${num(it.crew_visits||0)} ${it.crew_visits===1?crewOne(op):o.crewWord}${it.crew_month?` in ${monthOf(it.crew_month)}`:''}${it.service_date?`, on ${fdate(it.service_date)}`:''}`])).sort((a,b)=>a[0].localeCompare(b[0]));
  const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
@@ -3952,8 +4011,8 @@ function siteOverview(sk){const s=siteM(sk),op=SK[sk].op,o=OPS[op],t=tree(sk),v=
  ${sec('Breakdown',factorTable(sk),`${t.label} = ${t.how}. Target against October at every factor.`)}
  ${opsSite(sk)?secD('Operations measures at this site',opsSite(sk),'Availability, field visits and output per visit, against target'):''}
  ${secD('Protect measures at this site',protectSite(sk),`Measured against a target of 0 for October${v==='ev'?', with November to 6 Nov shown separately':''}; at-stake values listed, never summed.`)}
- ${secD('Obligations and rights',`<h3 class="h3s">Obligations (limits on factors)</h3><ul class="list">${obl.map(x=>`<li>${cap(x)}</li>`).join('')}</ul><h3 class="h3s">Rights (who bears a cost)</h3>${rk.length?`<ul class="list">${rk.map(k=>{const r=rightsOf(k);return `<li>${link(`decision/${r.dec}`,`${r.asset} · ${r.type}`)} <small class="cellnote">${r.elig[0]}${r.deadline?` · ${fdate(r.deadline)}`:''}</small></li>`;}).join('')}</ul><p class="legal">This is not a legal decision. Coverage is decided by the supplier or insurer.</p>`:'<p class="note">No contract right is open at this site.</p>'}`,`${num(obl.length)} obligations · ${num(rk.length)} right${rk.length===1?'':'s'}`)}
- ${secD(`How a ${v==='mini'?'mini-grid':v==='cold'?'cold room':'captive bus depot'} fills the shared structure`,`<div class="fills">${kv([["Its factors",F.factors],["Its levers",F.levers],["Its limits",F.limits]])}</div>`,'The same outcome structure for every site type; each type fills it with its own factors, levers and limits.')}
+ ${secD('Limits and warranties',`<h3 class="h3s">Limits the site must keep</h3><ul class="list">${obl.map(x=>`<li>${cap(x)}</li>`).join('')}</ul><h3 class="h3s">Warranties and contracts (who pays)</h3>${rk.length?`<ul class="list">${rk.map(k=>{const r=rightsOf(k);return `<li>${link(`decision/${r.dec}`,`${r.asset} · ${r.type}`)} <small class="cellnote">${r.elig[0]}${r.deadline?` · ${fdate(r.deadline)}`:''}</small></li>`;}).join('')}</ul><p class="legal">This is not a legal decision. Coverage is decided by the supplier or insurer.</p>`:'<p class="note">No contract right is open at this site.</p>'}`,`${num(obl.length)} limits · ${num(rk.length)} warrant${rk.length===1?'y or contract':'ies or contracts'}`)}
+ ${secD(`How a ${v==='mini'?'mini-grid':v==='cold'?'cold room':'captive bus depot'} ’s economics are built`,`<div class="fills">${kv([["Its factors",F.factors],["Its levers",F.levers],["Its limits",F.limits]])}</div>`,'The same outcome structure for every site type; each type fills it with its own factors, levers and limits.')}
  ${SK[sk].v70?'':notice(`Detailed views (Foundation, Health, Performance, Findings, Work, Evidence) are not built for ${SK[sk].name} in this mock-up; see ${link('site/kobo','Kobo')}, ${link('site/thika','Thika')} or ${link('site/ruiru','Ruiru')} for the pattern.`,'blue')}`;}
 function assumptionsOf(sk){const o=OPS[SK[sk].op],s=siteM(sk),v=o.vertical,t=o.t;
  if(v==='mini')return [['Residential tariff',`${usd2(t.prices.tariff_usd_per_kwh[s.site])} a kWh`,'Tariff schedule','RECORDED'],['Productive-use tariff',`${usd2(t.prices.productive_tariff_usd_per_kwh)} a kWh`,'Tariff schedule','RECORDED'],['Diesel price',`${usd2(t.prices.diesel_usd_per_l[s.site])} a litre`,'Delivery notes','RECORDED'],['Battery wear',`${usd2(t.prices.battery_wear_usd_per_kwh_throughput)} a kWh of throughput`,'Assumption, to check against the warranty’s throughput terms','MODELLED'],['Generator fuel use',`${s.physical.sfc_l_per_kwh??'—'} litres a kWh`,'Site configuration','RECORDED']];
@@ -3979,29 +4038,29 @@ function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inP
  const recTxt=rec?`<b>${optLabel(rec)}</b><small>Each option valued against no action. The system recommends; it never chooses or creates an Action.</small>`:'<b>No option recommended</b><small>Each option valued against no action; none fits the limits better than the others.</small>';
  const it=D.item?itemOf(op,D.item):null;
  const chooseTxt=`${who(op,D.p)}<small>${D.item?`Chose ${optLabel(D.item)}, recorded under their name${it&&it.owner===it.chosen_by?', and so owns the item':''}.${it&&it.owner!==it.chosen_by?` Item owner: ${it.owner}.`:''}${it?` Item state: ${ITEM_STATE_WORD[it.item_state]||'not available yet'}.`:''}`:'Chooses an option, or none, and creates the Actions. Nothing chosen yet.'}</small>`;
- const actTxt=acts.length?`<ul class="wd-acts">${acts.map(a=>`<li>${a.action}<small>Created by ${who(op,a.created_by)} · owner ${who(op,a.owner)} · due ${fdate(a.due)}</small></li>`).join('')}</ul><small>Raised against this issue; counted in the plan on the item “${SHORT[item]||optLabel(item)}”.</small>`:it?.capital?`<b>None yet</b>${(it.actions_after_approval||[]).length?`<ul class="wd-acts">${it.actions_after_approval.map(a=>`<li>${a}<small>Created by ${who(op,it.owner)} after approval</small></li>`).join('')}</ul>`:''}<small>A capital item: ${it.owner} creates its Action only after ${execOf(op)?.name||'the operator executive'} approves the version that holds it.</small>`
+ const oneBy=acts.length&&acts.every(a=>a.created_by===acts[0].created_by),actTxt=acts.length?`${oneBy?`<small class="wd-by">Created by ${who(op,acts[0].created_by)}</small>`:''}<ul class="wd-acts">${acts.map(a=>`<li>${a.action}<small>${oneBy?'':`Created by ${who(op,a.created_by)} · `}${a.owner===a.created_by&&oneBy?'Owned by the creator':`Owner ${who(op,a.owner)}`} · due ${fdate(a.due)}</small></li>`).join('')}</ul><small>Raised against this issue; counted in the plan on the item “${SHORT[item]||optLabel(item)}”.</small>`:it?.capital?`<b>None yet</b>${(it.actions_after_approval||[]).length?`<ul class="wd-acts">${it.actions_after_approval.map(a=>`<li>${a}<small>Created by ${who(op,it.owner)} after approval</small></li>`).join('')}</ul>`:''}<small>A capital item: ${it.owner} creates its Action only after ${execOf(op)?.name||'the operator executive'} approves the version that holds it.</small>`
   :'<b>None yet</b><small>Each Action is raised against this issue and counted in the plan on its item.</small>';
  let relTxt;
  if(item&&inPlan.includes(item)){const r=releaseOf(op,item);relTxt=`<span class="status-pill ${r.at?'is-approved':'is-waiting'}" data-release="${r.at?'RELEASED':'WAITING'}">${RELEASE_WORD[r.at?'RELEASED':'WAITING']}</span><small>${r.reason}.</small>`;}
  else{const w=WF(op);relTxt=`<b>Not in the proposed plan</b><small>A change is released when created only at or below the ${usd(w.spend_threshold)} spend threshold with no ${crewOne(op)}; otherwise it waits for the plan’s approval.</small>`;}
  return `<section class="panel who-decides" aria-labelledby="wd-h-${id}"><h2 id="wd-h-${id}" class="vh">Who decides</h2><ol class="wd-steps">
  <li><span class="wd-k">1 · The system recommends</span>${recTxt}</li><li><span class="wd-k">2 · Who chooses</span>${chooseTxt}</li><li><span class="wd-k">3 · Actions created</span>${actTxt}</li><li><span class="wd-k">4 · Release</span>${relTxt}</li></ol>${ILLUS}</section>`;}
-function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null;
+function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null,chosenId=deciderOf(id).item;
  const rows=d.opts.map(oid=>{const x=OPT[oid],[cv,cn]=optCost(x),[ev,en]=optEffect(x);const recd=x.disposition==='RECOMMENDED';
   const detail=`<dl class="ux-optd"><div><dt>Result against no action</dt><dd>${ev} <small>${en}</small> ${ec(optClass(x))}</dd></div><div><dt>Effect under each heading</dt><dd>${x.kind==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</dd></div><div><dt>Limits</dt><dd class="ux-obl">${obligations(x)}</dd></div><div><dt>Condition</dt><dd>${fx(x.condition)||'None'}</dd></div><div><dt>Status and reason</dt><dd>${dispBadge(x)} ${optWhy(x)}</dd></div></dl>`;
-  return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="Result against no action">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${ec(optClass(x))}${DV_OPT[oid]?dvTag(DV_OPT[oid]):''}</td><td data-label="Limits">${uxOblSummary(obligations(x))}</td><td data-label="One-off cost · who pays">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></td><td data-label="Status">${dispBadge(x)}</td><td data-label="Details">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</td></tr>`;}).join('');
+  return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="Result against no action"><div class="ux-cell">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${ec(optClass(x))}${DV_OPT[oid]?dvTag(DV_OPT[oid]):''}</div></td><td data-label="Limits"><div class="ux-cell">${uxOblSummary(obligations(x))}</div></td><td data-label="One-off cost · who pays"><div class="ux-cell">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></div></td><td data-label="Status"><div class="ux-cell">${chosenId===oid?`<span class="status-pill is-approved">Chosen</span><small class="cellnote">${x.disposition==='RECOMMENDED'?'Recommended by the system':''}</small>`:dispBadge(x)}${x.kind==='NO_ACTION'&&chosenId!==oid?'<small class="cellnote">The reference: nothing changes</small>':''}</div></td><td data-label="Details"><div class="ux-cell">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</div></td></tr>`;}).join('');
  const comp=`<table class="opts ux-opts"><thead><tr><th>Option</th><th>Result against no action</th><th>Limits</th><th>One-off cost · who pays</th><th>Status</th><th><span class="vh">Details</span></th></tr></thead><tbody>${rows}</tbody></table>`;
  const cf=`<table class="cf"><thead><tr>${T.cfHead.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${T.cf.map(r=>`<tr><th scope="row">${r[0]}</th>${r.slice(1).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
- return `${uxDecisionHead(id)}${whoDecides(id)}<section class="panel anchor"><div class="eyebrow">The factor this decision changes</div><p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} target`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}</section>
+ return `${uxDecisionHead(id)}${whoDecides(id)}<section class="panel anchor"><div class="eyebrow">What this decision changes</div><p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} target`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}</section>
  ${sec('Options compared, including no action',region('Options compared',comp),'Same factor structure, horizon, prices and contracts for every option; the result is the change against no action, net of the one-off cost.','',`uxopts-${id}`)}
  ${secD('How each option changes what drives the result',region('What each option changes',cf))}
  ${protectiveChoice(id)?`<section class="panel anchor"><div class="eyebrow">Protective choice</div><p class="prose">${protectiveChoice(id)}</p></section>`:''}
  ${boundTable(id)?secD('Limits under each option',boundTable(id),'Each option’s Protect measures against this decision’s limits: an option that breaks a hard limit is not allowed.'):''}
  ${restoreTable(id)?secD('Restore dates and what sets them',restoreTable(id)):''}
  ${rightsCoverTable(id)?secD('Cover under each option',rightsCoverTable(id)):''}
- ${costLinesTable(id)?secD('Cost lines and who bears each',costLinesTable(id),'Rights decide who bears a cost line; the right’s state is shown in words.'):''}
+ ${costLinesTable(id)?secD('Cost lines and who pays each',costLinesTable(id),'A warranty or contract decides who pays each cost; its status is shown in words.'):''}
  ${capacityTable(id)?secD('Capacity bound under each option',capacityTable(id),'Evaluated through the depot structure: required against deliverable energy a night, buses short, departures missed and cost per required departure met.'):''}
- ${protectEffectsFor(id).length?secD('Protect measures under each option',protectEffectsPanel(id),'Each option evaluated through the Protect structure over the stated horizon; the evidence class is in words.'):''}
+ ${protectEffectsFor(id).length?secD('Service and asset limits under each option',protectEffectsPanel(id),'Each option evaluated through the Protect structure over the stated horizon; the evidence class is in words.'):''}
  <div class="grid2">${sec('The reasoning',`<p class="prose">${T.why}</p>`)}${sec('What would change the recommendation',`<ul class="list">${T.sens.map(x=>`<li>${x}</li>`).join('')}</ul>`)}</div>
  ${secD('Verification plan: three separate verdicts',`<div class="verdicts">${T.verify.map(([k,v])=>`<article><div class="eyebrow">${k} verdict</div>${badge('Not yet','amber')}<p>${v}</p></article>`).join('')}</div><p class="note">Three separate verdicts. A finished job does not prove the money arrived; money arriving does not prove the change caused it. Not proven yet is a verdict, not a pass.</p>`)}
  ${secD('Records behind this',`<ul class="list">${T.records.map(([k,l])=>`<li>${fig(k,l)}</li>`).join('')}</ul>`)}
@@ -4061,7 +4120,8 @@ function uxRec(d) { const op = SK[d.site].op, inPlan = planItemsV1(op); return d
 function uxStake(decId) {
   const d = decById(decId); if (!d) return '<span class="muted">Not available yet</span>';
   const rec = uxRec(d), x = rec ? OPT[rec] : null, ev = x ? String(optEffect(x)[0]) : '';
-  if (/^[+−-]?\$/.test(ev)) return `<span class="ux-q-v">${wholeText(ev)}</span> ${uxMark(optClass(x))}<small>12 months, if chosen</small>`;
+  if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec), capAv = x.avoided_capex != null && !/^[+−-]/.test(ev);
+    return `<span class="ux-q-v">${wholeText(ev)}</span> ${uxMark(optClass(x))}<small>${capAv ? 'capital avoided, not a saving' : '12 months'} · ${inP ? 'in the plan' : 'not in the plan'}</small>`; }
   const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
   if (amt) return `<span class="ux-q-v">${wholeText(amt)}</span> ${uxMark('EXPOSURE')}<small>${/cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake'}</small>`;
   if (ev && !/^Not (valued|modelled)/i.test(ev)) return `<span class="ux-q-word">${ev}</span>`;
@@ -4143,10 +4203,12 @@ function uxBridge(op) {
   const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(Math.abs(T.actual - T.plan))} over target`
     : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(Math.abs(T.actual - T.plan))} gap`;
-  const list = [line(`${head} target`, usdW(T.plan), bar(lo, T.plan, 'is-total'), 'is-end'),
-    ...steps.map(s => line(`${s.lens === 'other' ? '' : `<span class="ux-wf-h">${s.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[s.word] || s.word}`, usdW(cost ? dir * s.total : s.total, true), bar(s.a, s.b, tone(s) + (s.residual ? ' is-resid' : '')))),
-    line(`${head}, October`, usdW(T.actual), bar(lo, T.actual, 'is-total is-actual'), 'is-end')].join('');
-  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><ol class="ux-wf" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+  /* review round 2: the totals on a zero axis; the steps on their own scale, diverging from a centre line, so small steps stay readable */
+  const shown = s => cost ? dir * s.total : s.total, maxStep = Math.max(1, ...steps.map(s => Math.abs(shown(s))));
+  const dbar = (v, c) => { const w = Math.max(0.8, Math.abs(v) / maxStep * 48); return `<span class="ux-wf-mid" aria-hidden="true"></span><span class="ux-wf-bar ${c}" style="left:${(v < 0 ? 50 - w : 50).toFixed(2)}%;width:${w.toFixed(2)}%"></span>`; };
+  const totals = [line(`${head} target`, usdW(T.plan), bar(0, T.plan, 'is-total'), 'is-end'), line(`${head}, October`, usdW(T.actual), bar(0, T.actual, 'is-total is-actual'), 'is-end')].join('');
+  const list = steps.map(s => line(`${s.lens === 'other' ? '' : `<span class="ux-wf-h">${s.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[s.word] || s.word}`, usdW(shown(s), true), dbar(shown(s), tone(s) + (s.residual ? ' is-resid' : '')), 'is-step')).join('');
+  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><h3 class="ux-wf-k">Target and October, from zero</h3><ol class="ux-wf" aria-label="${head}: target and October">${totals}</ol><h3 class="ux-wf-k">The steps between them, on their own scale${cost ? ' (cost up is worse)' : ''}</h3><ol class="ux-wf ux-wf-steps" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- the value chain as bars on one baseline (guide §5): a stage with no source is an outlined empty bar ---------- */
@@ -4243,7 +4305,7 @@ function uxSiteTiles(sk) {
  ${(() => { const v = decs.map(d => [d, uxRec(d)]).filter(([, r]) => r && /^[+−-]?\$/.test(String(optEffect(OPT[r])[0])));
    return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, 12 months against no action`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
  ${(() => { const st = decs.flatMap(uxRights).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+/) || [])[0];
-   return uxKpi('Value at stake', amt ? `${amt} ${uxMark('EXPOSURE')}` : '<span class="ux-kpi-na">None open</span>', [st ? `${st.asset} · ${String(st.type).toLowerCase()}` : 'No right at stake at this site']); })()}</div>`;
+   return uxKpi('At stake, not money', amt ? `${amt} <small>${/cover/i.test(st.stake) ? 'of cover' : 'at stake'}</small>` : '<span class="ux-kpi-na">None open</span>', [st ? `${st.asset} ${String(st.type).toLowerCase()}: protected, never added to money` : 'No warranty or contract at stake at this site']); })()}</div>`;
 }
 
 /* ---------- Decision options: the limits in one word per kind; the detail opens in the option's drawer (review finding 2) ---------- */

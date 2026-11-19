@@ -306,7 +306,7 @@ const DEEP = {kobo:{Foundation:'foundation',Health:'health',Performance:'dispatc
 const tabRoute = (sk,tab) => tab==='Overview'?`site/${sk}`:tab==='Financials'?`site/${sk}/economics`:DEEP[sk]?DEEP[sk][tab]:`site/${sk}/${tab.toLowerCase()}`;
 function siteRoutes(domain){const sk=V70SITE[domain];return LOOP_SITE_TABS.map(t=>tabRoute(sk,t));}
 function siteTabRow(sk,active){return uxTabs(LOOP_SITE_TABS.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
-function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Switch site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
+function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Choose a site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
 /* the calculated daily snapshot (design §2.8, OD-23; register call 19): each portfolio's record (MANIFEST.snapshot.portfolios)
    gives its "as of" time and whether a recalculation is pending, with what triggered it, when, and the Sites it affects. Every
    figure screen shows the "as of" time with the hour, and says so while a recalculation is pending. */
@@ -370,6 +370,11 @@ const PLAIN_WORDS=[
  [/\s?\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d|CN-\d{4}|PM-\d{4})\)/g,''],[/\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d)[;,]\s*/g,'('],
  [/\b(generator|inverter|charger) (?:GEN-[A-Z]{2}-0?(\d)|INV-[A-Z]{2}-0?(\d)|CH-[A-Z](\d))\b/g,(m,w,a,b,c)=>`${w} ${a||b||c}`],
  [/\bGEN-KS-0?(\d)\b/g,'generator $1'],[/\bGEN-CR-01\b/g,'the backup generator'],[/\bINV-MT-0?(\d)\b/g,'inverter $1'],[/\bBAT-001\b/g,'the battery'],[/\bCH-[A-Z](\d)\b/g,'charger $1'],[/\s?\b(?:PM|CN)-\d{4}\b/g,''],
+ [/\ba right or an obligation\b/g,'a warranty, contract or service limit'],[/\bContract rights: who bears the cost\b/g,'Warranties and contracts: who pays'],[/\bcontract-rights\b/g,'warranty and contract'],
+ [/\bwarranty and insurance rights\b/g,'warranty and insurance cover'],[/\bSide effect on rights\b/g,'Side effect on warranty cover'],[/\(rights value at stake\)/g,'(warranty value at stake)'],[/\bthe rights factor\b/g,'the warranty factor'],
+ [/\ban obligation(['’]s)?\b/g,(m,p)=>p?'a service’s':'a service limit'],[/\bobligation window\b/g,'service window'],[/\bclaim-versus-buy switch\b/g,'claim-versus-buy choice'],[/\(see the switch on Act first\)/g,'(see the cases on the plan)'],[/\bbeside the switch\b/g,'beside the choice'],
+ [/\bRights\b/g,'Warranties and contracts'],[/\brights\b/g,'warranty cover'],[/\bswitch\b/g,'choice'],
+ [/\bObligation hours without redundancy\b/g,'Hours without backup supply'],[/\bobligation hours without redundancy\b/g,'hours without backup supply'],[/\bobligation hours\b/gi,'hours without backup supply'],[/\bObligations\b/g,'Service limits'],[/\bobligations\b/g,'service limits'],[/\bObligation\b/g,'Service limit'],[/\bobligation\b/g,'service limit'],
  [/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
 ];
 const plainText = t => PLAIN_WORDS.reduce((v,[r,s])=>v.replace(r,s),String(t??''));window.plainText=plainText; /* the same display words, for checks that compare data text with the screen */
@@ -380,6 +385,7 @@ function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector(
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
+ const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);c.insertBefore(row,c.firstChild);}
  const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<p class="ux-scope" role="note"><span>Figures are recorded or measured unless marked; all are simulated demo data.</span>${dv?'<span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span>':''}${il.length?'<span>Names are illustrative.</span>':''}</p>`);}
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */

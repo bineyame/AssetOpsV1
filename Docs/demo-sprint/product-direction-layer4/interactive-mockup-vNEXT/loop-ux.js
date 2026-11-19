@@ -49,7 +49,8 @@ function uxRec(d) { const op = SK[d.site].op, inPlan = planItemsV1(op); return d
 function uxStake(decId) {
   const d = decById(decId); if (!d) return '<span class="muted">Not available yet</span>';
   const rec = uxRec(d), x = rec ? OPT[rec] : null, ev = x ? String(optEffect(x)[0]) : '';
-  if (/^[+−-]?\$/.test(ev)) return `<span class="ux-q-v">${wholeText(ev)}</span> ${uxMark(optClass(x))}<small>12 months, if chosen</small>`;
+  if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec), capAv = x.avoided_capex != null && !/^[+−-]/.test(ev);
+    return `<span class="ux-q-v">${wholeText(ev)}</span> ${uxMark(optClass(x))}<small>${capAv ? 'capital avoided, not a saving' : '12 months'} · ${inP ? 'in the plan' : 'not in the plan'}</small>`; }
   const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
   if (amt) return `<span class="ux-q-v">${wholeText(amt)}</span> ${uxMark('EXPOSURE')}<small>${/cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake'}</small>`;
   if (ev && !/^Not (valued|modelled)/i.test(ev)) return `<span class="ux-q-word">${ev}</span>`;
@@ -131,10 +132,12 @@ function uxBridge(op) {
   const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(Math.abs(T.actual - T.plan))} over target`
     : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(Math.abs(T.actual - T.plan))} gap`;
-  const list = [line(`${head} target`, usdW(T.plan), bar(lo, T.plan, 'is-total'), 'is-end'),
-    ...steps.map(s => line(`${s.lens === 'other' ? '' : `<span class="ux-wf-h">${s.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[s.word] || s.word}`, usdW(cost ? dir * s.total : s.total, true), bar(s.a, s.b, tone(s) + (s.residual ? ' is-resid' : '')))),
-    line(`${head}, October`, usdW(T.actual), bar(lo, T.actual, 'is-total is-actual'), 'is-end')].join('');
-  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><ol class="ux-wf" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+  /* review round 2: the totals on a zero axis; the steps on their own scale, diverging from a centre line, so small steps stay readable */
+  const shown = s => cost ? dir * s.total : s.total, maxStep = Math.max(1, ...steps.map(s => Math.abs(shown(s))));
+  const dbar = (v, c) => { const w = Math.max(0.8, Math.abs(v) / maxStep * 48); return `<span class="ux-wf-mid" aria-hidden="true"></span><span class="ux-wf-bar ${c}" style="left:${(v < 0 ? 50 - w : 50).toFixed(2)}%;width:${w.toFixed(2)}%"></span>`; };
+  const totals = [line(`${head} target`, usdW(T.plan), bar(0, T.plan, 'is-total'), 'is-end'), line(`${head}, October`, usdW(T.actual), bar(0, T.actual, 'is-total is-actual'), 'is-end')].join('');
+  const list = steps.map(s => line(`${s.lens === 'other' ? '' : `<span class="ux-wf-h">${s.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[s.word] || s.word}`, usdW(shown(s), true), dbar(shown(s), tone(s) + (s.residual ? ' is-resid' : '')), 'is-step')).join('');
+  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><h3 class="ux-wf-k">Target and October, from zero</h3><ol class="ux-wf" aria-label="${head}: target and October">${totals}</ol><h3 class="ux-wf-k">The steps between them, on their own scale${cost ? ' (cost up is worse)' : ''}</h3><ol class="ux-wf ux-wf-steps" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- the value chain as bars on one baseline (guide §5): a stage with no source is an outlined empty bar ---------- */
@@ -231,7 +234,7 @@ function uxSiteTiles(sk) {
  ${(() => { const v = decs.map(d => [d, uxRec(d)]).filter(([, r]) => r && /^[+−-]?\$/.test(String(optEffect(OPT[r])[0])));
    return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, 12 months against no action`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
  ${(() => { const st = decs.flatMap(uxRights).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+/) || [])[0];
-   return uxKpi('Value at stake', amt ? `${amt} ${uxMark('EXPOSURE')}` : '<span class="ux-kpi-na">None open</span>', [st ? `${st.asset} · ${String(st.type).toLowerCase()}` : 'No right at stake at this site']); })()}</div>`;
+   return uxKpi('At stake, not money', amt ? `${amt} <small>${/cover/i.test(st.stake) ? 'of cover' : 'at stake'}</small>` : '<span class="ux-kpi-na">None open</span>', [st ? `${st.asset} ${String(st.type).toLowerCase()}: protected, never added to money` : 'No warranty or contract at stake at this site']); })()}</div>`;
 }
 
 /* ---------- Decision options: the limits in one word per kind; the detail opens in the option's drawer (review finding 2) ---------- */
