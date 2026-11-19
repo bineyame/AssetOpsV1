@@ -172,11 +172,15 @@ round the Architect folds rulings into one current unit card.
   `tools/check-architecture.ps1` and `tools/check-agent-workflow.ps1`; never
   with an execution-policy override. A guard you add must be shown to fail on
   a real violation. Builders run check-all themselves (fast mode, at the end of
-  the build, before review); it allows 2 runs at once machine-wide and waits
-  for a free slot. The coordinator runs it on `main` after every merge, where
+  the build, before review); it takes one of 2 heavy slots machine-wide and
+  waits for a free one. The coordinator runs it on `main` after every merge, where
   it is full by itself (the estate self-tests run there, with `-Full`, and on
   any branch that changes the writer guard or its tests). The central queue of
   12 Nov is ended (PIPE-1, coordinator rule).
+- Heavy tools (tsc, vitest, pytest with a database, browser captures) and
+  heavy database jobs run only through the slot pool, `tools/heavy-slot.sh --
+  <command>` (`--db` for a database job; pwsh `tools/heavy-slot.ps1`); each
+  refuses to start outside it (T1, `backend/TESTING.md`).
 - Databases: only `*_test` and `<prefix>_audit*` databases in
   `assetopsv1-postgres-1`; never others. Drop your own when done.
 - Walkthrough and demo: do nothing that interferes with tests or with the

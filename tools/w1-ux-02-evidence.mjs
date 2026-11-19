@@ -18,6 +18,8 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { AS_OF_PATTERN, widthGuard } from "./evidence-checks.mjs";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 
 const OUT = process.argv[2];
 const TARGETS = process.argv.slice(3).map((arg) => {

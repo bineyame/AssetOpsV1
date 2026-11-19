@@ -1361,4 +1361,6 @@ def main(argv: list[str]) -> int:
 
 
 if __name__ == "__main__":
+    import heavy_slot_check  # T1 (spec §5.5): only when run as a script; children of a pooled prepare pass by ancestry
+    heavy_slot_check.require("database job", db=True)
     raise SystemExit(main(sys.argv[1:]))

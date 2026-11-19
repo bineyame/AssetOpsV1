@@ -11,6 +11,8 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { widthGuard } from "./evidence-checks.mjs";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 
 const [BASE, WORK, OUT] = process.argv.slice(2);
 mkdirSync(OUT, { recursive: true });

@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 import { join, resolve, dirname } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { widthGuard } from "./evidence-checks.mjs";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 const PORT = 9488;
 const CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe";
 // OUT-A A6: `--mock <dir>` (anywhere in the arguments) picks the mock folder, default frontend/mockups/v69; a relative

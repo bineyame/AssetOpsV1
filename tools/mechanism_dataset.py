@@ -498,6 +498,9 @@ def main(argv: list[str] | None = None) -> int:
     d = sub.add_parser("drop")
     d.add_argument("--variant", default="full")
     args = parser.parse_args(argv)
+    if args.command in ("build", "derive", "ensure"):
+        import heavy_slot_check  # T1 (spec §5.5): in the dispatch, never at import time (tests import this module)
+        heavy_slot_check.require("database job", db=True)
     if args.command == "build":
         return build(args.variant, args.budget, args.resume)
     if args.command == "derive":

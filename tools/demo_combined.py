@@ -2002,6 +2002,9 @@ def main(argv: list[str] | None = None) -> None:
     lf.add_argument("--hours", type=int, default=live_field.MAX_HOURS)
     sub.add_parser("drop")
     args = parser.parse_args(argv)
+    if args.cmd in ("prepare", "add-day", "add-dates", "tick", "after-children"):
+        import heavy_slot_check  # T1 (spec §5.5): in the dispatch, never at import time (tests import this module)
+        heavy_slot_check.require("database job", db=True)
     demo = Demo(args.db, args.work)
     if args.cmd == "prepare":
         sites = tuple(s for s in args.sites.split(",") if s)
