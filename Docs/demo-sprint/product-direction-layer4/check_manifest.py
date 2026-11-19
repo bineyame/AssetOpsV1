@@ -23,7 +23,11 @@ and the manifest alone. Against that independent recomputation the checker compa
      (OD-5, OD-16, OD-17; design §2.4 step 4);
   8. homes(): every node has exactly one named home category, measures take their objective's heading, no money sits under
      Protect or Assure, each decision's heading is its lever's home, and the snapshot record is well formed (design rev 16.11
-     §2.0, §2.8; OD-21, OD-23).
+     §2.0, §2.8; OD-21, OD-23);
+  9. factor_map(): vertical-factor-map.md covers every lever of the brief's catalogues L2.2-L2.4, maps each in-scope lever to
+     factors that exist in the registry (or a manifest measure or potential entry) with a heading equal to the registry's
+     and a Site and a portfolio read; the traceability CSV's factor column uses the same IDs and its text passes the naming
+     lint (OD-6). It proves itself on planted copies every run.
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -694,6 +698,140 @@ def homes(doc):
             check(f"snapshot {p_['tenant']}: the trigger fired after the snapshot was computed", str(pe.get("received", "")) > str(p_.get("as_of", "")))
 
 
+# ---------------- 9. the vertical factor map and the traceability file (owner, 19 Nov: vertical-factor-map.md) ----------------
+BRIEF = pathlib.Path(__file__).resolve().parents[3] / ".agent" / "AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md"
+MAP_DOC = "vertical-factor-map.md"
+TRACE = "outcome-lever-capability-traceability.csv"
+CSV_VERT = {"MINI_GRID": "MINI_GRID", "COLD_CHAIN": "COLD_CHAIN", "EV_DEPOT": "EV_DEPOT_CAPTIVE"}
+OUT_OF_SCOPE = re.compile(r"^(?:Not in scope now|Not applicable here|Later)\b")
+HEAD_WORD = {"Grow": "grow", "Optimize": "optimize", "Protect": "protect", "Assure": "assure"}
+
+
+def brief_levers(text):
+    out = {}
+    for v, sec in (("MINI_GRID", "L2.2"), ("COLD_CHAIN", "L2.3"), ("EV_DEPOT_CAPTIVE", "L2.4")):
+        a = text.index(f"## {sec} ")
+        b = text.index("\n## ", a + 5)
+        out[v] = set(re.findall(r"^\| \*\*((?:MG|CC|EV)-L\d+) ", text[a:b], re.M))
+    return out
+
+
+def known_ids(doc):
+    """Per vertical: registry node -> (heading, objective), plus manifest measures and potential entries."""
+    hc = doc["home_categories"]
+    vert_of = {t["tenant"]: CSV_VERT.get(t["vertical"], t["vertical"]) for t in doc["tenants"]}
+    known = {v: {k: (r[0], r[1] if len(r) > 1 else None) for k, r in rows.items()} for v, rows in hc["nodes"].items()}
+    for t in doc["tenants"]:
+        P, v = t["portfolio"], vert_of[t["tenant"]]
+        for blk in (P["protect"]["measures"], P["operations"]["measures"], P["rights"]["measures"], P.get("service_cost_lines", [])):
+            for m in blk:
+                o = str(m.get("objective", ""))
+                known[v].setdefault(m["id"], (HEAD_OF.get(o[:1]), o))
+    for v, ps in (hc.get("potential") or {}).items():
+        for p_ in ps:
+            known[v].setdefault(p_["name"], ("grow", p_["objective"]))
+    return known
+
+
+def parse_map(text):
+    """{vertical: {"levers": {id: (scope, [factors])}, "factors": {id: (heading, objective, site, portfolio)}}}"""
+    out = {}
+    for m in re.finditer(r"<!--vertical:(\w+)-->(.*?)(?=^## |\Z)", text, re.S | re.M):
+        v, body = m.group(1), m.group(2)
+        lev, fac = {}, {}
+        for row in re.finditer(r"^\| \*\*((?:MG|CC|EV)-L\d+)\*\*[^|]*\| ([^|]*) \| ([^|]*) \|", body, re.M):
+            lev[row.group(1)] = (row.group(2).strip(), re.findall(r"`([a-z0-9_]+)`", row.group(3)))
+        for row in re.finditer(r"^\| `([a-z0-9_]+)` \| (\w+) `(\w+)`[^|]*\| ([^|]*) \| ([^|]*) \|", body, re.M):
+            fac[row.group(1)] = (HEAD_WORD.get(row.group(2)), row.group(3), row.group(4).strip(), row.group(5).strip())
+        out[v] = {"levers": lev, "factors": fac}
+    return out
+
+
+def map_problems(map_text, csv_text, doc, brief_text):
+    """Every reason the map or the traceability file fails, as a list of strings (empty = pass)."""
+    import csv as _csv, io as _io
+    bad, known, want = [], known_ids(doc), brief_levers(brief_text)
+    M = parse_map(map_text)
+    for v, ids in want.items():
+        sec = M.get(v)
+        if not sec:
+            bad.append(f"map: no section for {v}"); continue
+        for lid in sorted(ids - set(sec["levers"])):
+            bad.append(f"map {v}: brief lever {lid} missing")
+        for lid in sorted(set(sec["levers"]) - ids):
+            bad.append(f"map {v}: {lid} is not a lever of the brief")
+        for lid, (scope, fs) in sec["levers"].items():
+            if not fs and not OUT_OF_SCOPE.match(scope):
+                bad.append(f"map {v} {lid}: in scope but maps to no factor")
+            for f in fs:
+                if f not in known[v]:
+                    bad.append(f"map {v} {lid}: factor {f} is not in the registry or manifest")
+                elif f not in sec["factors"]:
+                    bad.append(f"map {v} {lid}: factor {f} has no row in the factor table")
+        for f, (h, o, site, port) in sec["factors"].items():
+            k = known[v].get(f)
+            if not k:
+                bad.append(f"map {v}: factor row {f} is not in the registry or manifest"); continue
+            if (h, o) != k:
+                bad.append(f"map {v}: {f} heading {h} {o} differs from the registry's {k}")
+            if not site or site in ("—", "-") or not port or port in ("—", "-"):
+                bad.append(f"map {v}: {f} has no Site or portfolio read")
+    rows = list(_csv.DictReader(_io.StringIO(csv_text)))
+    if not rows or "factor_description" not in rows[0]:
+        bad.append("csv: no factor_description column (the factor column must hold IDs)")
+    ca = _ca()
+    for r in rows:
+        v = CSV_VERT.get(r["vertical"])
+        toks = r["factor"].split()
+        if toks == ["—"]:
+            toks = []
+        if v is None:
+            if toks: bad.append(f"csv {r['row_id']}: a cross-vertical row names factors {toks}")
+        else:
+            for f in toks:
+                if f not in known[v]:
+                    bad.append(f"csv {r['row_id']}: factor {f} is not in the {v} registry or manifest")
+            lev = M.get(v, {}).get("levers", {}).get(r["lever_id"])
+            if r["row_kind"] in ("lever-objective", "lever-capability") and lev is not None and set(toks) != set(lev[1]):
+                bad.append(f"csv {r['row_id']}: {r['lever_id']} factors {sorted(toks)} differ from the map's {sorted(lev[1])}")
+        for k in ("factor_description", "declared_measure", "model_or_algorithm", "notes"):
+            for ln, s in ca.naming_violations(r.get(k, "")):
+                bad.append(f"csv {r['row_id']} {k}: 'plan' not the construct (OD-6): {s[:60]}")
+            if re.search(r"\bM[1-5]\b", r.get(k, "")):
+                bad.append(f"csv {r['row_id']} {k}: retired mechanic number")
+    return bad
+
+
+def _ca():
+    spec = importlib.util.spec_from_file_location("check_alignment", pathlib.Path(__file__).resolve().parent / "check_alignment.py")
+    ca = importlib.util.module_from_spec(spec); spec.loader.exec_module(ca)
+    return ca
+
+
+def factor_map(root, doc):
+    if not BRIEF.is_file():
+        check(f"factor map: the brief is readable ({BRIEF})", False); return
+    brief = BRIEF.read_text(encoding="utf-8")
+    mt, ct = (root / MAP_DOC).read_text(encoding="utf-8"), (root / TRACE).read_text(encoding="utf-8")
+    want = brief_levers(brief)
+    check(f"factor map: the brief's catalogues list 10, 9 and 9 levers ({[len(want[v]) for v in want]})", [len(want[v]) for v in want] == [10, 9, 9])
+    bad = map_problems(mt, ct, doc, brief)
+    check(f"factor map and traceability file agree with the registry ({bad[:4]} x{len(bad)})", not bad)
+    # planted copies: each must fail
+    first = next(iter(sorted(want["COLD_CHAIN"])))
+    plants = {
+        "a brief lever removed": (re.sub(r"^\| \*\*" + first + r"\*\*.*\n", "", mt, count=1, flags=re.M), ct),
+        "an unknown factor": (mt.replace("`candidate_l` `necessary_l` `diesel_price`", "`candidate_l` `necessary_l` `diesel_prices`", 1), ct),
+        "a blank Site read": (re.sub(r"^(\| `excess_kwh` \| [^|]*\| )[^|]*( \|)", r"\1—\2", mt, count=1, flags=re.M), ct),
+        "a wrong heading": (re.sub(r"^(\| `penalties` \| )Optimize `O1`", r"\1Protect `P3`", mt, count=1, flags=re.M), ct),
+        "a traceability row with another factor": (mt, re.sub(r"(,MG-L3,[^\n]*?,)(candidate_l[^,]*),", r"\1billed_kwh,", ct, count=1)),
+        "a 'plan' for a target in the traceability text": (mt, ct.replace("target 100.0", "plan 100.0", 1)),
+    }
+    for label, (m_, c_) in plants.items():
+        changed = (m_, c_) != (mt, ct)
+        check(f"factor map self-test: {label} is planted and fails", changed and bool(map_problems(m_, c_, doc, brief)))
+
+
 def alignment(root):
     spec = importlib.util.spec_from_file_location("check_alignment", root / "check_alignment.py")
     ca = importlib.util.module_from_spec(spec); spec.loader.exec_module(ca)
@@ -738,6 +876,7 @@ def main(path):
     documents(root, doc, ref)
     workflow(doc, ref)
     homes(doc)
+    factor_map(root, doc)
     alignment(root)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:

@@ -38,6 +38,7 @@ DERIVED = {
     "reuse-and-gap-matrix.md": "builder",
     "delivery-plan.md": "builder",
     "plan-and-action-workflow.md": "builder",
+    "vertical-factor-map.md": "builder",          # #13, the brief's levers -> registry factors (owner, 19 Nov)
     "two-week-build-plan.md": "derived",
     "interactive-mockup-vNEXT/walkthroughs.md": "derived",   # #8, recreated after the mock-up lane (plan F §6 step 7)
     GTM + "commercial-plan.md": "gtm",

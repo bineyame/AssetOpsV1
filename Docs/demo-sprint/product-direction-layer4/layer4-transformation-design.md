@@ -883,5 +883,6 @@ The file set was approved by the owner on 19 Nov (`regeneration/F-pack-recreatio
 | Delivery order, slices, gates and the demonstration build | `delivery-plan.md` |
 | The first fortnight's build: scope, days, capacity | `two-week-build-plan.md` |
 | The plan and Action workflow: roles, money, ownership, states, the system's part | `plan-and-action-workflow.md` |
+| The brief's researched levers per vertical, mapped to registry factors, Sites and the portfolio | `vertical-factor-map.md` |
 | The evidence for Part 1, the audit of rev 15 and the reviews | `regeneration/` |
 | The figures | `demo-site-scenario-manifest.yaml` → `evaluate_structure.py` → `derived-values.json`, checked by `check_manifest.py` |
