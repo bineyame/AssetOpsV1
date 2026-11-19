@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.1)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.2)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.1 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.2 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -21,7 +21,7 @@ These sections were §11, §12 and Appendix B of the design document up to rev 1
 
 ## 2. Self-check against the brief's final acceptance test
 
-| The executive must understand… | Where in the design (rev 16.1) |
+| The executive must understand… | Where in the design (rev 16.2) |
 |---|---|
 | which business outcome is underperforming | §2.1 and §2.2: outcomes read through their factors, against plan |
 | which researched lever is relevant | §2.4: a lever is declared on the factor it changes |
@@ -30,7 +30,7 @@ These sections were §11, §12 and Appendix B of the design document up to rev 1
 | how the value is calculated | §2.4: the valuation rule; every figure opens to its source |
 | who bears the cost given contract rights | §2.4 and `worked-portfolios.md` §1.4: residual cost per remedy path |
 | what is observed versus modelled | "Rules every figure follows" and §2.3: evidence classes in words on every figure |
-| what intervention can be undertaken | §2.4 and §2.5: the proposed plan, approved by a named person |
+| what intervention can be undertaken | §2.4–§2.6: the Actions the accountable role creates against a Finding or a plan item, released by the plan the executive approves |
 | how it will be verified | §2.6: three verdicts |
 | what pilot data and engagement is needed | §2.3: the pilot asks per vertical |
 
@@ -39,3 +39,30 @@ These sections were §11, §12 and Appendix B of the design document up to rev 1
 ## 3. Research basis
 
 Industry claims rest on the brief's ledger [R1]–[R12] (AMDA benchmarking; ESMAP productive use; World Bank mini-grids; Efficiency for Access / IIR cold rooms; three EV depot scheduling papers; NREL O&M; DOE FEMP; Solar Best Practices; ABB E-mobility SLAs). They support the existence and materiality of lever families. They do not support any site-specific magnitude, conversion rate or AssetEcon's differentiation, which remains a hypothesis to validate with prospects and pilots.
+
+## 4. Change log
+
+- **Rev 16 (19 Nov).** Regenerated at the owner's order, in the structure the owner set: today's architecture first, then what is added on top (`.agent/owner-design-regeneration-request-2026-11-19.md`). It was written from the Phase A audit (`regeneration/A-current-mechanics-and-design-audit.md`), which found 50 errors in rev 15 in five classes:
+  - a Finding treated as a condition rather than the living result it is;
+  - the person who decides, acts and tracks left implicit;
+  - today's mechanics understated;
+  - replacement framing;
+  - the owner's boosters not recognised.
+- **Rev 16.1 (19 Nov).** Fixes for review B (`regeneration/B-review.md`). The system evaluates and proposes, and a named person chooses and creates the Actions. Today's opportunity path was added to Part 1. The Mermaid hazards and the wrong citations were fixed.
+- **Rev 16.2 (19 Nov).** Fixes for review C (`regeneration/C-rereview.md`, N1–N4 and the Lows), plus the owner's three decisions of 19 Nov:
+  - the plan is a first-class construct (§2.5);
+  - the spend threshold is a Site or portfolio setting;
+  - a configurable tolerance applies per factor.
+
+  The document was also trimmed to about 12 pages:
+  - the three-vertical table moved to `worked-portfolios.md` §1.0;
+  - the pilot asks moved to §5 below;
+  - the revision history moved here;
+  - restated prose was cut.
+
+## 5. Minimum pilot asks per vertical
+
+Moved from design §2.3 in rev 16.2.
+- **Mini-grid:** EMS export, meter register, billing export, settlement statements, fuel records, budget, and one asset's contract set.
+- **Cold:** storage ledger, energy bills, chamber log, invoices and receipts, QA notes, budget, and the refrigeration contract.
+- **EV:** CPMS log, roster, utility invoice, service tickets, budget, and the charger warranty or SLA.

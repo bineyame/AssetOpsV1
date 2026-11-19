@@ -190,7 +190,7 @@ The owner's description, "results of condition evaluation as living artifact (ou
 - **Objectives: performance to target exists, in operational form.**
   - Six measures can carry a target: MG-2 avoidable generator minutes, MG-1 productive kWh (monthly, judged for pace), MG-5 unserved critical kWh, CC-6 backup start failures, EV-1 interrupted sessions, and EV-2 energy cost per km (the one money target, never judged because nothing measures it). CC-1 takes its range from the chamber policy (`outcomes/objectives.py:57-77`; `site_outcomes/ev.py:109`) [code-observed].
   - Verdicts are MET / MISSED / NOT_JUDGED, and ON_PACE / BEHIND_PACE / TOO_EARLY. **They drive outcome status**: MISSED gives NEEDS_ATTENTION, MET gives ON_TRACK (`outcomes/objectives.py:112-143`; `outcomes/status.py:55-104`) [code-observed].
-  - Only a SYSTEM declarer sets them, "for the demonstration; not a customer target". There is no owner, no period and no UI (`objectives/model.py:17-22`; `objectives/adapters/postgres_objective_store.py:104-105`) [code-observed].
+  - Only a SYSTEM declarer sets them, "for the demonstration; not a customer target". There is no owner, no period and no UI (`objectives/model.py:17-24`; `objectives/adapters/postgres_objective_store.py:104-105`) [code-observed].
 - **Depth reads.** These are historical reads of the selected heads (CURRENT, PENDING_RECOMPUTE, STALE_SOURCE, HISTORICAL), and "the read never writes" (`mini_depth/read.py:1-17`) [code-observed]. Cold depth's comparison is always CONTEXT_MISSING (`analytics/cold_depth.py:287-307`) [code-observed].
 
 **Lacks.**
@@ -208,7 +208,7 @@ The owner's description, "results of condition evaluation as living artifact (ou
   - `CONTRIBUTIONS`: 10 one-step node records (kpi, earnings or potential), each with a strategy and, for four of them, a price (`:149-180`).
 
   The list is flat: no record composes one outcome from others [inferred from the structure].
-- **Outcome status `outcome-status/4`.** First match wins, over Findings, warnings, objective verdicts and opportunities. Rows are "never combined into a score" (`outcomes/status.py:55-113`) [code-observed].
+- **Outcome status `outcome-status/4`.** First match wins, over Findings, warnings, objective verdicts and opportunities. Rows are "never combined into a score" (`outcomes/status.py:5-6`, `:55-104`) [code-observed].
 - **Site outcome board.**
   - It always has four rows (`site_outcomes/board.py:671-712`). Each row carries contributors (drivers, mostly in words), issues, options, in hand, earlier, potential and nodes (`board.py:860-930`) [code-observed].
   - On screen the row columns are "What drives it", "Issues", "What can be done", "Already in hand" and "Earlier interventions", plus "Must not harm" (`frontend/src/sites/OutcomeBoard.tsx:42-48`, `:262-330`) [code-observed].

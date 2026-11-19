@@ -356,7 +356,8 @@ FIG_DOCS = ("layer4-transformation-design.md", "worked-portfolios.md", "design-a
             "phase-plan-and-acceptance.md", "integration-source-to-canonical-design.md", "demo-build-cost-plan.md", "interactive-mockup-vNEXT/walkthroughs.md",
             "design-questions-and-decisions.md", "product-transition-and-roadmap.md")
 REQUIRED = {"layer4-transformation-design.md": ["sites.lakeside-power/Kobo.plan.nodes.contribution", "sites.lakeside-power/Kobo.actual.nodes.contribution",
-                                             "plans.lakeside-power.default.spend", "plans.lakeside-power.default.value", "plans.lakeside-power.default.crew_visits_used"],
+                                             # rev 16.2: Lakeside's plan figures live in worked-portfolios.md (required there)
+                                             "portfolio.lakeside-power.actual.sums.contribution", "options.KOB-STOPSOC.value"],
             # rev 16: the three worked portfolios and the demonstration world moved to the companion file
             "worked-portfolios.md": [f"plans.{t}.default.{k}" for t in ("lakeside-power", "harvest-cold", "metro-bus")
                                                 for k in ("spend", "value", "crew_visits_used")] +
