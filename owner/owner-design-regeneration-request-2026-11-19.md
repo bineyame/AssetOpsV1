@@ -13,3 +13,7 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's addition (later the same day, on changes to the core)
 
 > i am not agaisnt change of the core but it needs to be for merit and intentional clearly exposing the issue against the objective we are trying to achive
+
+## Owner's addition (on size and form)
+
+> also, i don't need a large doc, i want very intentional, clearly explained , well illustrated document that addressess the core topics well
