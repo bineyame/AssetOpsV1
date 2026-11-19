@@ -515,6 +515,8 @@ def anchors(root, ref):
         for path in REQUIRED.get(fn, []):
             check(f"{fn}: headline figure {path} is anchored", path in found)
         body = re.sub(r"`[^`]*`", lambda m: " " * len(m.group(0)), txt)
+        # A5: a computed table block (plan_model, or a go-to-market renderer's checked table) holds planning figures, not copies
+        body = re.sub(r"<!--table:[\w-]+-->.*?<!--/table-->", lambda m: re.sub(r"[^\n]", " ", m.group(0)), body, flags=re.S)
         loose = []
         for m in re.finditer(r"(?<![\w.,/])(\d{1,3}(?:,\d{3})*\.\d{2}|\d{1,3}(?:,\d{3})+)(%?)(?!\d)(?!,\d)(?!\.\d)(?!\**<!--(?:fig:|figx:|rec))", body):
             v = D(m.group(1).replace(",", "")).quantize(D("0.01"))
