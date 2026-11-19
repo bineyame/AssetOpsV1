@@ -1,12 +1,12 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.2 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.3 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
 **Labels.**
 - **[code-observed]**: read in code on this branch. Paths are under `backend/assetops_backend/`, or `backend/migrations/versions/` for migrations.
-- **Default, awaiting the owner**: applied until the owner answers.
+- **Architect's call**: a choice the owner has not settled, marked where it is made.
 - **Money**: every money figure is illustrative. It comes from `demo-site-scenario-manifest.yaml` and is checked to the cent by `check_manifest.py`.
 
 ## Introduction
@@ -34,8 +34,9 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 
 ## How to read this document
 
+- **The overall objective governs every part:** operator executives adopt the product for economic value beyond their monitoring tools, across their whole business. Each section says how it serves that objective, in a line marked *Serves the objective*.
 - **Part 1** describes today's product as the code runs it: the value it delivers, how an operator meets it, and its honest limits.
-- **Part 2** describes what is added on top. For each construct it says what the construct brings, where it fits, and why it should help convert a client.
+- **Part 2** describes what is added on top. For each construct it says what the construct brings and where it fits.
 - **Changes to existing constructs.** Every change is named, with its shortfall against the objective and the code evidence (owner, 19 Nov: change "for merit and intentional clearly exposing the issue against the objective"). §2.9 is the single register of those changes.
 - **Worked example.** The worked example is Kobo, a solar, battery and diesel mini-grid owned by the demonstration operator Lakeside Power. The design still covers the whole business: all Sites, all three verticals, the full value chain, O&M, contracts and capital.
 - **Diagrams** appear only where something changes. Today's parts are greyed context. Full three-operator examples are in `worked-portfolios.md`.
@@ -77,6 +78,8 @@ Every Site and the Portfolio show four economic categories (Grow, Optimize, Prot
 
 ### 1.2 The mechanics, layer by layer
 
+*Serves the objective:* this is the trusted evidence chain that every money figure in Part 2 builds on. It already answers the operational half of the executive's question.
+
 | Layer | What it does | Done well | Evidence [code-observed] |
 |---|---|---|---|
 | **Evidence** | Append-only ledger of every reading, with its source, unit, quality, live or simulated flag and an envelope hash | Provenance on every reading | `0005_evidence_ledger.py:161-197` |
@@ -90,6 +93,8 @@ Every Site and the Portfolio show four economic categories (Grow, Optimize, Prot
 | **Present** | The Site outcome board: per outcome, "What drives it", "Issues", "What can be done", "Already in hand", "Earlier interventions" and "Must not harm". The Portfolio: six tabs and four category cards. Act first groups Findings by placement, "never a value ranking" | The board's columns already run outcome → driver → issue → lever → action → result | `frontend/src/sites/OutcomeBoard.tsx:42-48`, `:262-330`; `site_outcomes/read.py:926-977`; `estate/placement.py:1-8` |
 
 ### 1.3 What a Finding is
+
+*Serves the objective:* Findings are the operator's reasons to act. The owner's rule below keeps them about money, risk and opportunity, not about signals.
 
 **A Finding is the stored result of an analysis evaluating a declared condition over evidence, kept alive as the evaluation is re-run.** It is the output of the condition, not the condition itself [code-observed]:
 - *Identity.* A Finding is unique per Site by its key. It names its analytic, mechanism and asset, and the Finding it recurs after (`0009_finding_store.py:33-60`).
@@ -112,6 +117,8 @@ Dispatch also marks *indeterminate* running as raising a Finding (`analytics/dis
 
 ### 1.4 The user's workflow today
 
+*Serves the objective:* acting and tracking are what turn insight into value. G1, the missing recorded person, is why that cannot yet be shown to an executive.
+
 | Who | Sees | Does | How it is recorded today |
 |---|---|---|---|
 | Operator executive | Portfolio cards, Act first, Outcomes by site, What changed | Decides where to look first | Nothing is recorded |
@@ -133,6 +140,8 @@ The headroom study takes a separate path, with no Finding: study → mill-shift 
 
 ### 1.5 The whole business today, and its limits
 
+*Serves the objective:* the executive's question spans this whole table. Today answers its first row; Part 2 is built to answer the rest.
+
 | Stage of the business | Mini-grid | Cold room | EV depot |
 |---|---|---|---|
 | Service delivered | **Held**: telemetry; dispatch, service and backup reads | **Held**: temperatures, backup starts | **Held**: sessions, kWh, availability |
@@ -146,9 +155,9 @@ Sources: `outcomes/catalogue.py:43-68`; `chain/strategies/recorded_amount.py:1-1
 
 | # | Limit, measured against the objective | Evidence [code-observed] |
 |---|---|---|
-| L1 | **Outcomes are flagged, not computed.** A fixed map links signals to outcomes, and drivers are named only in words. So no one can say how far below plan the month is, or which factor moved it | `outcomes/outcome_map.py:17-37`, `:149-180`; `site_outcomes/mini.py:1156-1177` |
+| L1 | **Outcomes are flagged, not computed.** A fixed map links signals to outcomes, and drivers are named only in words. So no one can say how far below target the month is, or which factor moved it | `outcomes/outcome_map.py:17-37`, `:149-180`; `site_outcomes/mini.py:1156-1177` |
 | L2 | **No value chain and no recorded money.** Revenue, cash, cost to serve and contribution cannot be stated (the table above) | `chain/strategies/recorded_amount.py:1-10` |
-| L3 | **Targets are operational and system-declared** ("not a customer target"). There are no money targets and no budget, so there is no plan-against-actual bridge | `objectives/model.py:23-24`; `site_outcomes/ev.py:109` |
+| L3 | **Targets are operational and system-declared** ("not a customer target"). There are no money targets and no budget, so there is no target-against-actual bridge | `objectives/model.py:23-24`; `site_outcomes/ev.py:109` |
 | L4 | **Few inputs beyond telemetry.** Inputs are the field gateway, reading upload, operational entries and typed prices. No client calls any external system | `reading_upload_api.py:113`; `work/operational_entry.py:25-30`; `financials/assumptions.py:32-58` |
 | L5 | **One fixed option, never compared with doing nothing.** The only option is reserve − 5 points, which "does not predict … any saving", and the what-ifs are gross figures only | `actions/reserve_trial.py:37`, `:42-45`; `mini_decisions/scenario_rules.py:191-228` |
 | **G1** | **No recorded person.** Trial commands are a SYSTEM demonstration, work writes refuse a user actor, and trials have no owner or due date. Acting and tracking hold on screen but not in the records | `actions/lifecycle.py:43-58`; `work/model.py:284-285`; `estate/coverage.py:530`; `main.py:640-661` |
@@ -168,7 +177,7 @@ Sources: `outcomes/catalogue.py:43-68`; `chain/strategies/recorded_amount.py:1-1
 - The **plan**, a new construct the owner confirmed (P).
 - Five named **changes to the core** (CH1–CH5).
 
-The aim is to convert operator executives by showing them their own money explained, their choices compared and results proven. That this beats their monitoring tools is the hypothesis the pilots must confirm.
+*Serves the objective:* together these show operator executives their own money explained, their choices compared and results proven, across the whole business. That this beats their monitoring tools is the hypothesis the pilots must confirm.
 
 | ID | Construct | What it brings | Fills |
 |---|---|---|---|
@@ -232,7 +241,7 @@ flowchart TB
 - value-chain stages: delivered → metered → billed → collected, with losses and adjustments as named leaks;
 - physical splits: generator litres = necessary + candidate + unexplained, as dispatch and the fuel balance already observe.
 
-Each leaf carries a shared factor ID, a period, a unit, a target, an evidence class and its provenance, so it carries money once. **Why it should convert:** monitoring shows that the generator ran; this is meant to show what that did to contribution.
+Each leaf carries a shared factor ID, a period, a unit, a target, an evidence class and its provenance, so it carries money once. *Serves the objective:* monitoring shows that the generator ran; this is meant to show what that did to contribution.
 
 **Where it fits.**
 - It sits above the evidence ledger. The analyses (which stay) become the observers of its physical leaves.
@@ -261,7 +270,7 @@ flowchart BT
   FD["Today's Findings (stay), pinned: candidate running → candidate litres, unexplained fuel → unexplained litres"] -.-> L
 ```
 
-*Figure 2 (drawn in the HTML twin). Kobo's October contribution, read upward: 1,445<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution--> planned and 883<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> actual. Today's two Findings are pinned to the candidate litres (330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L) and the unexplained litres (120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L). Of 3,458.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.revenue--> billed, 3,180.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.collected--> was collected.*
+*Figure 2 (drawn in the HTML twin). Kobo's October contribution, read upward: 1,445<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution--> targeted and 883<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> actual. Today's two Findings are pinned to the candidate litres (330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L) and the unexplained litres (120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L). Of 3,458.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.revenue--> billed, 3,180.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.collected--> was collected.*
 
 ### 2.2 B2: performance against target, from objectives to a bridge
 
@@ -270,7 +279,7 @@ flowchart BT
 - by a declared rule, for products;
 - with an explicit residual only where a leaf is unobserved.
 
-**Why it should convert:** it is meant to answer the question the brief puts first, *why did the month come in below plan, and by how much from each cause?*
+*Serves the objective:* it is meant to answer the question the brief puts first, *why did the month come in below plan, and by how much from each cause?*
 
 **Where it fits.** Today's objectives stay, and each becomes the target of the factor it measures. **Named change (L3):** today a SYSTEM declarer sets them, "for the demonstration; not a customer target" (`objectives/model.py:23-24`). Under B2 the operator declares targets and budget lines, and the declarer is recorded (CH2). The "N of M objectives met" line stays beside the bridge.
 
@@ -278,7 +287,7 @@ flowchart BT
 
 ```mermaid
 flowchart LR
-  P["Planned contribution"] --> A["Candidate running (Finding)"] --> B["Unexplained fuel (Finding)"] --> N["Necessary running"] --> K["kWh billed"] --> X["Actual contribution"]
+  P["Target contribution"] --> A["Candidate running (Finding)"] --> B["Unexplained fuel (Finding)"] --> N["Necessary running"] --> K["kWh billed"] --> X["Actual contribution"]
 ```
 
 *Figure 3 (drawn in the HTML twin). Kobo, October: −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> in all. Candidate running −412.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.candidate_l}-{sites.lakeside-power/Kobo.plan.nodes.candidate_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, unexplained fuel −150.00<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.unexplained_l}-{sites.lakeside-power/Kobo.plan.nodes.unexplained_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, necessary running −37.50<!--figx:-({sites.lakeside-power/Kobo.actual.nodes.necessary_l}-{sites.lakeside-power/Kobo.plan.nodes.necessary_l})*{sites.lakeside-power/Kobo.actual.nodes.diesel_price}-->, kWh billed +38.00<!--figx:({sites.lakeside-power/Kobo.actual.nodes.billed_kwh}-{sites.lakeside-power/Kobo.plan.nodes.billed_kwh})*{sites.lakeside-power/Kobo.actual.nodes.tariff}-->. Two of the four effects already have a Finding today. A month with no Finding still shows its bridge.*
@@ -291,7 +300,7 @@ flowchart LR
 
 ### 2.3 B3: commercial and operational integrations fill the data gap
 
-**What it brings.** Each leaf needs one family of source records, which sets the integration scope. **Why it should convert:** during the deep-dive (D1), the operator's own exports pass through the canonical contract, so their plan against actual appears in the product within weeks.
+**What it brings.** Each leaf needs one family of source records, which sets the integration scope. *Serves the objective:* during the deep-dive (D1), the operator's own exports pass through the canonical contract, so their target against actual appears in the product within weeks.
 
 | Value-chain stage | Mini-grid source | Cold-room source | EV depot source | Held today? |
 |---|---|---|---|---|
@@ -335,7 +344,7 @@ flowchart LR
 
 > value(option) = Σ over the horizon [ outcome(structure | the option's factor changes) − outcome(structure | no action) ] − ( the operator's one-off cost under the option − under no action )
 
-Each option is checked against the bounds and given a disposition. **Why it should convert:** the contrast is meant to persuade. The highest diesel user may have nothing worth changing, and the obvious setting may fail a service rule.
+Each option is checked against the bounds and given a disposition. *Serves the objective:* executives see their choices compared in money for every Site and vertical. The highest diesel user may have nothing worth changing, and the obvious setting may fail a service rule.
 
 <!--Figure 5: a decision at Kobo-->
 
@@ -371,7 +380,7 @@ flowchart TB
 
 Its states are draft, proposed, approved, revised and closed.
 
-**Why it is needed, on merit.** The objective asks which Sites and investments earn most from existing capital, and where limited crews should work (brief L1.3). Choices made Site by Site can each be right while the set breaks the budget, overruns the crew visits, or misses a dated dependency. For example, the Mto huller needs the inverter restored first. No budget, crew or cross-Site construct exists in today's backend or schema (the only "budget" hits are frontend layout code).
+*Serves the objective (why it is needed):* The objective asks which Sites and investments earn most from existing capital, and where limited crews should work (brief L1.3). Choices made Site by Site can each be right while the set breaks the budget, overruns the crew visits, or misses a dated dependency. For example, the Mto huller needs the inverter restored first. No budget, crew or cross-Site construct exists in today's backend or schema (the only "budget" hits are frontend layout code).
 
 **Who owns it.** The **operator executive** owns the plan, because it commits the budget and crews and trades one Site against another. If the cooperative does not extend its letter of intent, keeping the Mto huller means buying the inverter now and dropping the Kisiwa repair. That leaves 125 evening hours without backup instead of 15 (`worked-portfolios.md` §1.1). Only the budget holder can make that trade.
 
@@ -385,7 +394,7 @@ Its states are draft, proposed, approved, revised and closed.
 | Verdict | Each item's Actions are verified as today, plus the economic and causal verdicts (§2.7). At the period's end the plan's predicted factor changes are set against what the bridge observed. The plan's realised value comes only from economic verdicts |
 | Registry | Items key to the factor IDs their options change, so the next period's bridge shows each planned change beside the observed one |
 
-**The system's part.** The system assembles the chosen items. It checks them against the budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend, with a reason for every item left out. That is a proposal; the executive approves the plan or sends it back. An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, and the creator revises it, defers it to the next plan, or withdraws it (**default, awaiting the owner, Q-B1**). In Lakeside's demonstration the managers take the Recommended options, and the full proposal is in `worked-portfolios.md` §1.1.
+**The system's part.** The system assembles the chosen items. It checks them against the budget, crew visits and dates. Where they do not fit, it proposes the nearest set that does: fewest service-rule breaches first, then the highest value, then the lowest spend, with a reason for every item left out. That is a proposal; the executive approves the plan or sends it back. An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, and the creator revises it, defers it to the next plan, or withdraws it (owner decision OD-4). In Lakeside's demonstration the managers take the Recommended options, and the full proposal is in `worked-portfolios.md` §1.1.
 
 <!--Figure 6: the plan among the constructs-->
 
@@ -409,16 +418,21 @@ flowchart LR
 
 *Figure 6. The plan among the constructs. Each Action has one origin: a Finding (reactive) or a proactive plan item. It also has at most one plan membership, which says what funds and schedules it. Spend is counted once, on the item. The plan releases what needs approval and is reviewed against observed factors.*
 
-**Architect's note to the owner: where I agree, and two refinements you asked me to raise.**
-- **Agreed.** The plan is a first-class construct. It is the only home for the cross-Site trade-off and its approval, and an Action may be raised against a plan item or a Finding.
-- **The coordinator's refinement, adopted on merit.** It separates an Action's *origin* (why the work exists) from its *plan membership* (what funds and schedules it). Merit: without the split, a Finding-origin Action that spends budget would need either a second origin or a plan item standing in for its Finding. Either way its spend could be counted under both. With the split, spend and crew are counted once, on the item, and the Finding stays the reason.
-- **One refinement to it: keep a third, legacy origin.** Today's mill-shift Actions originate from an opportunity study (`0051_action_opportunity_origin.py:1-12`). They stay valid and keep that origin. New demand work comes through an opportunity Finding (a Finding origin) or a proactive item, so no new Action takes the legacy origin. Separately, the rule says a Finding-origin Action "joins the plan so the executive approves it". With your spend threshold, it always *joins* the plan, so it is always counted, but it waits for approval only above the threshold.
-- **Refinement 1: an item must name what it moves.** An item declared straight into the plan, with no Finding or decision behind it, should still name the factor or Protect measure it is meant to move. Otherwise it should be marked "no factor (upkeep or compliance)" and carry no value. Without this, the plan's value would include claims that cannot be verified.
-- **Refinement 2: one name, one meaning.** "Plan" already meant targets and budget in rev 16. This revision calls those **targets and budget lines** (B2) and keeps **plan** for this construct only. If you prefer another screen name, such as "action plan", it is a label change.
+**Settled with the owner (19 Nov).**
+- The plan is a first-class construct (OD-1). An Action may be raised against a plan item or a Finding.
+- The coordinator's refinement is adopted on merit: an Action's *origin* (why the work exists) is kept separate from its *plan membership* (what funds and schedules it). Without the split, a Finding-origin Action that spends budget would need a second origin, and its spend could be counted twice. With it, spend is counted once, on the item.
+- A proactive item names the factor or Protect measure it moves. Otherwise it is marked "no factor (upkeep or compliance)" and carries no value (OD-5).
+- "Plan" means only this construct. B2 uses "targets and budget lines" (OD-6).
+
+*Architect's call.*
+- Today's mill-shift Actions keep their opportunity-study origin as a third, legacy origin (`0051_action_opportunity_origin.py:1-12`). New demand work goes through an opportunity Finding or a proactive item.
+- A Finding-origin Action that spends always *joins* the plan, so it is always counted. It waits for approval only above the spend threshold.
 
 The plan's own state is derived from its items and Actions. It is not a second execution workflow.
 
 ### 2.6 CH2: the person in the loop, recorded
+
+*Serves the objective:* an executive adopts what shows who decided, who approved and who is accountable, across every Site and role.
 
 **Named change (G1).** Today the act-and-track path is built for a person, but no person is recorded:
 - trial commands are a "SYSTEM demonstration" (`actions/lifecycle.py:43-58`);
@@ -523,6 +537,8 @@ sequenceDiagram
 
 ### 2.7 CH4: proof that the money followed
 
+*Serves the objective:* proof on the client's own Site is the pilot's purpose and the case for SaaS.
+
 **Named change (L6).** Today's verdict is operational and mini-grid only. The change's cost is fixed at 0 (`actions/verification.py:1167`), and positive evidence must be simulated or authored (`actions/verification_rules.py:688`), so money cannot be proven on a customer's Site.
 - *Stays:* the plan freeze, comparability, guardrails, fail-closed families and the operational verdict. The post-trial cost check and its credit rule seed the economic verdict.
 - *Brings:* the frozen prediction becomes the target, and its bounds become the guardrails. Three verdicts are given on the same factors: **operational** (did the factor move, with the bounds held?), **economic** (did money move, in recorded records?) and **causal** (comparable days and untreated Sites as controls). Field evidence is admitted with its label. The option's cost replaces 0. "Not proven yet" is a verdict, not a pass.
@@ -542,6 +558,8 @@ flowchart LR
 
 ### 2.8 CH5: what the client sees
 
+*Serves the objective:* the screens are where the executive meets the value. Each change below makes one answer the money question for the whole portfolio.
+
 The frame stays: the rail with no new menu items, the six Portfolio tabs, the range bar, the coverage line, the drill-down pages and "not available yet".
 
 | Screen | Today | Change |
@@ -555,7 +573,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 
 ### 2.9 Change register and delivery order
 
-A construct stays unless a row below names its shortfall. Dispositions at function level are in `repo-reuse-and-gap-matrix.md`.
+*Serves the objective:* the core changes only where it blocks that value. A construct stays unless a row below names its shortfall. Dispositions at function level are in `repo-reuse-and-gap-matrix.md`.
 
 | Construct | Stays or changes | Shortfall, with evidence | Change |
 |---|---|---|---|
@@ -603,13 +621,14 @@ D15 is pending.
 |---|---|---|
 | Q-A1 | A Finding has a bottom-line impact, or is a risk or an opportunity, and is to be acted on with one or more Actions | §1.3, §2.1 |
 | Q-A2 | A few sensible roles | §2.6 |
-| OD-1 | The plan is a legitimate new construct, integrated with the existing ones; an Action can be raised against a plan or a Finding | §2.5. The coordinator's refinement (owner-approved to pass on) is adopted: one origin (Finding or proactive plan item) and at most one plan membership. The Architect's refinements are for the owner |
+| OD-1 | The plan is a legitimate new construct, integrated with the existing ones; an Action can be raised against a plan or a Finding | §2.5. The coordinator's refinement (owner-approved to pass on) is adopted: one origin (Finding or proactive plan item) and at most one plan membership |
 | OD-2 | The spend threshold is configurable, as a Site or portfolio setting | §2.4 step 4; §2.6 |
 | OD-3 | A configurable tolerance per factor decides whether an adverse deviation raises a Finding | §1.3, §2.1 |
+| OD-4 | An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, to revise, defer or withdraw ("Q-B1 yes") | §2.5 |
+| OD-5 | A proactive plan item names the factor or Protect measure it moves, or is marked "no factor (upkeep or compliance)" with no value ("agree with the architect's pushbacks") | §2.5 |
+| OD-6 | "Plan" means only the new construct; B2 uses "targets and budget lines" (same answer) | §2.2, §2.5, figures |
 
-**Default, awaiting the owner:**
-- **Q-B1.** An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason (§2.5).
-- **Refinements 1 and 2** of the note in §2.5, and the legacy opportunity origin and threshold reading added to the coordinator's refinement.
+**Architect's call, not settled by the owner:** the legacy opportunity-study origin, and the reading that a Finding-origin Action always joins the plan but waits for approval only above the threshold (§2.5).
 
 ## Appendix. Where the detail lives
 

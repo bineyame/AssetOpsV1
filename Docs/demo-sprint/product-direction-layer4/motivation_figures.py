@@ -1,5 +1,5 @@
 """The inline SVG figures of layer4-transformation-design.md (rev 16): Figure 2, the factor structure, and Figure 3,
-plan against actual. Each shows a change, with today's construct as context on the left (owner, 19 Nov: diagrams only
+target against actual. Each shows a change, with today's construct as context on the left (owner, 19 Nov: diagrams only
 where something changes).
 
 Imported by render_design_html.py: a line `<!--diagram:NAME-->` in the .md, followed by a mermaid block (the plain-text
@@ -148,11 +148,11 @@ def fig_structure():
         ("r", [B(["Possible extra fuel cost", "0 up to an upper bound, per", "Finding, never summed"],
                  tag="stays: an at-stake bound, not a value")]),
         ("x",),
-        ("r", [B(["Not held", "billing, receipts, O&M and", "staff costs, a money plan"], cls="bxp")]),
+        ("r", [B(["Not held", "billing, receipts, O&M and", "staff costs, a money target"], cls="bxp")]),
     ])
     fuel_p, fuel_a = KP["necessary_l"] + KP["candidate_l"] + KP["unexplained_l"], KA["diesel_l"]
     l4 = panel("With the factor structure (Kobo, October)", [
-        ("r", [B(["Contribution", f"plan {n0(KP['contribution'])} · actual {n0(KA['contribution'])}"], cls="bxa")]),
+        ("r", [B(["Contribution", f"target {n0(KP['contribution'])} · actual {n0(KA['contribution'])}"], cls="bxa")]),
         ("r", [B(["Revenue", "billed kWh × tariff", f"{n0(KP['revenue'])} → {n0(KA['revenue'])}"], cls="bxa"),
                B(["Cost to serve", "fuel + O&M + staff", f"{n0(KP['cost_to_serve'])} → {n0(KA['cost_to_serve'])}"],
                  cls="bxa")], [0, 0]),
@@ -166,16 +166,16 @@ def fig_structure():
                  cls="bxa")], [1, 1, 1]),
         ("n", f"Cash: {n0(KA['collected'])} collected of {n0(KA['revenue'])} billed,\n"
               f"{n0(KA['outstanding'])} outstanding.\n◆ Today's Findings stay, pinned to their factor.\n"
-              "Every leaf: factor ID, period, unit, plan, evidence\nclass and provenance."),
+              "Every leaf: factor ID, period, unit, target, evidence\nclass and provenance."),
         ("r", [B(["Telemetry (held today)", "dispatch split,", "fuel balance, dips"]),
-               B(["Commercial records", "billing, receipts, plan,", "O&M and staff invoices"], cls="bxp")]),
+               B(["Commercial records", "billing, receipts,", "budgets, O&M invoices"], cls="bxp")]),
     ], up=True)
     return figure("Figure 2. The factor structure: Kobo's contribution read upward, with today's Findings pinned to "
                   "their factors",
                   "Left, today as context: an outcome's state is set from Findings, warnings and objective verdicts "
                   "through a fixed map row with no quantity between signal and outcome; the candidate-running "
                   "Finding stays and gains its factor; the possible extra fuel cost stays as an at-stake bound; "
-                  "billing, receipts, O&M and staff costs and a money plan are not held. Right: Kobo's October "
+                  "billing, receipts, O&M and staff costs and a money target are not held. Right: Kobo's October "
                   "contribution read upward from revenue and cost to serve, billed kWh, fuel litres split into "
                   "necessary, candidate and unexplained, and O&M and staff; the two existing Findings pin to the "
                   "candidate and unexplained litres; leaves come from telemetry held today and from new commercial "
@@ -188,14 +188,14 @@ def fig_bridge():
     today = panel("Today (context): the Assure row", [
         ("r", [B(["Actual against plan", "\"N of M declared objectives met\""], tag="stays as operational targets")]),
         ("r", [B(["Objective: avoidable generator", "minutes per day at most a target;", "MET, MISSED or not judged"],
-                 tag="stays; becomes a factor's plan")]),
+                 tag="stays; becomes a factor's target")]),
         ("r", [B(["Declared by the system", "\"not a customer target\"; no money", "target is ever judged"],
-                 tag="changes: the operator declares plans")]),
+                 tag="changes: the operator declares targets")]),
         ("x",),
-        ("r", [B(["Not held", "a planned contribution, plan lines", "per factor, a month's bridge"], cls="bxp")]),
+        ("r", [B(["Not held", "a target contribution, budget lines", "per factor, a month's bridge"], cls="bxp")]),
     ])
-    l4 = panel("With plans at factor level (Kobo, October)", [
-        ("r", [B(["Planned contribution", n0(KP["contribution"])], cls="bxa")]),
+    l4 = panel("With targets at factor level (Kobo, October)", [
+        ("r", [B(["Target contribution", n0(KP["contribution"])], cls="bxa")]),
         ("r", [B(["Candidate running", f"{m2(ef('candidate_l'))}", "◆ Finding"], cls="bxa"),
                B(["Unexplained fuel", f"{m2(ef('unexplained_l'))}", "◆ Finding"], cls="bxa")], [0, 0]),
         ("r", [B(["Necessary running", f"{m2(ef('necessary_l'))}", "no Finding today"], cls="bxa"),
@@ -203,14 +203,14 @@ def fig_bridge():
                  cls="bxa")], [0, 1]),
         ("r", [B(["Actual contribution", n0(KA["contribution"]),
                   f"{m2(KA['contribution'] - KP['contribution'])} in all"], cls="bxa")], [[0, 1]]),
-        ("n", "O&M and staff on plan. Each effect is\n(actual − plan) × its price; they add up exactly.\n"
+        ("n", "O&M and staff on target. Each effect is\n(actual − target) × its price; they add up exactly.\n"
               "A month with no Finding still shows its bridge."),
     ])
-    return figure("Figure 3. Performance against target: from objectives met to a plan-against-actual bridge",
+    return figure("Figure 3. Performance against target: from objectives met to a target-against-actual bridge",
                   "Left, today as context: the Assure row counts declared objectives met; an objective such as "
                   "avoidable generator minutes is judged MET or MISSED; objectives are declared by the system, not "
-                  "the customer, and no money target is judged; a planned contribution and plan lines are not held. "
-                  "Right: Kobo's planned contribution, the four factor effects (candidate running and unexplained "
+                  "the customer, and no money target is judged; a target contribution and budget lines are not held. "
+                  "Right: Kobo's target contribution, the four factor effects (candidate running and unexplained "
                   "fuel, each with an existing Finding; necessary running; kWh billed, favourable) and the actual "
                   "contribution, with the effects adding up to the change.", today, l4)
 
