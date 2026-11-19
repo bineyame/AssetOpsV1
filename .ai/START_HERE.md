@@ -65,7 +65,7 @@ decision (`.ai/decisions/`, or the active rulings file, plus an index line).
 - Built state: `.ai/state/INDEX.md`; grep the slice ID in `.ai/state/index-*.md`.
 - Specs (build sheets, specs and their rulings, in `specs/<ID>/`): `specs/INDEX.md`.
   Old `.agent/` paths: `specs/CITATION_MAP.md`.
-- Owner feedback by status: `owner/INDEX.md` (current files listed there).
+- Owner words: read `owner/SUMMARY.md` first, then the verbatim files it names; status in `owner/INDEX.md`.
 - S1-S7 queue tables (history; no guard reads them since declutter step 5):
   `tasks/archive/site-first-2026-10/queue-tables.md`.
 - UI defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.

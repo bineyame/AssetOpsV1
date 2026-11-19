@@ -21,8 +21,8 @@ Stop there. Everything else is found on demand.
   explains), then open the named file at that ID; never read a part whole.
 - Built state: grep the slice ID in `.ai/state/index-*.md`, then read that one
   section of the area file.
-- Specs: `specs/INDEX.md`. Owner words: `owner/INDEX.md` (files verbatim in
-  `owner/`), by the file a spec or NOW cites.
+- Specs: `specs/INDEX.md`. Owner words: `owner/SUMMARY.md` first, then
+  `owner/INDEX.md` (files verbatim in `owner/`), by the file a spec or NOW cites.
 - Product glossary and old boundaries: `.ai/PRODUCT.md`, `.ai/ARCHITECTURE.md`,
   only where `.ai/START_HERE.md` says they still apply.
 

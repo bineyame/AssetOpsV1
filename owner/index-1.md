@@ -5,7 +5,7 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-10-02 `owner-acceptance-demo-led-replan-2026-10-02.md` Demo-led replan accepted · historical — early plan, later replaced by S1-S7
 - 2026-10-02 `owner-approval-final-recommendation-2026-10-02.md` Final Architect recommendation approved · historical — early planning
 - 2026-10-02 `owner-instruction-final-recommendation-2026-10-02.md` Final recommendation then Planner · historical — early planning
-- 2026-10-02 `owner-review-architect-recommendation-2026-10-02.md` Review of Architect demo recommendation · superseded — meaningful-tabs-only rule replaced by owner-rail-decision-2026-10-17.md; to confirm
+- 2026-10-02 `owner-review-architect-recommendation-2026-10-02.md` Review of Architect demo recommendation · superseded — meaningful-tabs-only rule replaced by owner-rail-decision-2026-10-17.md; confirmed 19 Nov (summary Q1): not carried into the summary
 - 2026-10-03 `owner-T027-phase-1-hands-on-2026-10-03.md` T027 phase 1 hands-on check · historical — superseded T-queue history
 - 2026-10-03 `owner-T027-phase-2-hands-on-2026-10-03.md` T027 phase 2 UI validation · historical — superseded T-queue history
 - 2026-10-03 `owner-T028-phase-1-questions-2026-10-03.md` T028 phase 1 rulings · historical — recommendations accepted; T-queue history
@@ -13,13 +13,13 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-10-04 `owner-T028-audience-question-2026-10-04.md` T028 client vs technical audience question · historical — answered by presentation direction file
 - 2026-10-04 `owner-T028-closeout-2026-10-04.md` Readiness gap rule; decisions to Architect · current — standing rule: decision requests go to active Architect
 - 2026-10-04 `owner-T028-presentation-direction-2026-10-04.md` Client-facing plain text, graphs, deep tab · current — standing client-facing presentation rule
-- 2026-10-06 `owner-v69-site-mockup-comparison-2026-10-06.md` Compare v69 Site mockup with doc · current — pivot done; site templates tenant-specific later direction; to confirm
+- 2026-10-06 `owner-v69-site-mockup-comparison-2026-10-06.md` Compare v69 Site mockup with doc · current — pivot done; site templates tenant-specific later direction; confirmed 19 Nov (summary Q1): not carried into the summary
 - 2026-10-08 `owner-S1-acceptance-2026-10-08.md` S1 foundation UI check · historical — S1 accepted for now
 - 2026-10-08 `owner-S1-ui-feedback-2026-10-08.md` S1 foundation page looks like dump · historical — led to V-01 fidelity work; resolved
 - 2026-10-09 `owner-S2-02-acceptance-2026-10-09.md` S2-02 evidence checkpoint passed · historical — walkthrough of merged slice
 - 2026-10-09 `owner-S2-closeout-2026-10-09.md` S2-02 merge and V-01 adoption · historical — merged; V-01 done
 - 2026-10-09 `owner-delivery-strategy-draft-2026-10-09.md` Delivery strategy draft decision · superseded — by owner-delivery-strategy-final-2026-10-09.md
-- 2026-10-09 `owner-delivery-strategy-final-2026-10-09.md` Delivery strategy final confirmation · current — to confirm; may be replaced by D11 workflow
+- 2026-10-09 `owner-delivery-strategy-final-2026-10-09.md` Delivery strategy final confirmation · current — confirmed 19 Nov (summary Q1): not carried into the summary; may be replaced by D11 workflow
 - 2026-10-09 `owner-delivery-strategy-review-1-2026-10-09.md` Delivery strategy review 1 · historical — addressed in final strategy
 - 2026-10-09 `owner-delivery-strategy-review-2-2026-10-09.md` Delivery strategy review 2 · historical — addressed in final strategy
 - 2026-10-09 `owner-delivery-strategy-review-3-2026-10-09.md` Delivery strategy review 3 · historical — addressed in final strategy
@@ -31,7 +31,7 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-10-12 `owner-V-01a-feedback-2026-10-12.md` V-01a mockup comparison feedback · historical — round 1 rulings applied
 - 2026-10-12 `owner-V-01a-round2-feedback-2026-10-12.md` Readiness drift; state missing data · current — standing: missing data stated as not available in UI
 - 2026-10-12 `owner-contest-rule-2026-10-12.md` Story path first in close calls · historical — rule held until S4 done
-- 2026-10-12 `owner-mock-gap-confirmation-2026-10-12.md` Gap catalogue and orphan guard confirmed · current — to confirm mechanism still in use
+- 2026-10-12 `owner-mock-gap-confirmation-2026-10-12.md` Gap catalogue and orphan guard confirmed · current — confirmed 19 Nov (summary Q1): not carried into the summary
 - 2026-10-12 `owner-mock-gap-mechanism-2026-10-12.md` Mock gap closure mechanism question · historical — answered by confirmation file
 - 2026-10-13 `owner-G-01-acceptance-2026-10-13.md` G-01 firmware missing-state acceptance · historical — conditional acceptance of merged slice
 - 2026-10-13 `owner-G-02-acceptance-2026-10-13.md` G-02 missing-state treatments acceptance · historical — conditional acceptance; 390 px caption ok for now
