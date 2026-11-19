@@ -65,9 +65,9 @@ function itemsCheck(op, d, c, label) {
     const own = squash(card?.querySelector('.item-owner')?.textContent), word = { CHOSEN: 'Chosen', RELEASED: 'Released' }[it.item_state];
     ok(card && own.includes(it.owner) && own.includes(it.chosen_by) && word && own.includes(word) && !/\b(CHOSEN|RELEASED)\b/.test(squash(card.textContent)), `${label}: ${it.item} card owner ${it.owner}, state ${word}`);
     if (it.kind === 'PROACTIVE') {
-      const tx = squash(card?.textContent);
-      ok(!!card && card.classList.contains('proactive') && tx.includes(it.label) && tx.toLowerCase().includes(it.factor) && /no value claimed/i.test(tx), `${label}: proactive ${it.item} declared with its factor and no value claimed`);
-      ok(tx.includes(it.depends_reason) && tx.includes(fdate(it.service_date)) && tx.includes(`in ${MONTH[+it.crew_month.split('-')[1] - 1]}`) && tx.includes('$' + it.planned_spend), `${label}: proactive ${it.item} dependency, date ${fdate(it.service_date)}, crew month and spend`);
+      const tx = squash(card?.textContent), P = t => (d.defaultView.plainText ? d.defaultView.plainText(t) : t); /* the screen's display words: asset codes as plain names */
+      ok(!!card && card.classList.contains('proactive') && tx.includes(P(it.label)) && tx.toLowerCase().includes(P(it.factor).toLowerCase()) && /no value claimed/i.test(tx), `${label}: proactive ${it.item} declared with its factor and no value claimed`);
+      ok(tx.includes(P(it.depends_reason)) && tx.includes(fdate(it.service_date)) && tx.includes(`in ${MONTH[+it.crew_month.split('-')[1] - 1]}`) && tx.includes('$' + it.planned_spend), `${label}: proactive ${it.item} dependency, date ${fdate(it.service_date)}, crew month and spend`);
     }
     if (it.capital) {
       const tx = squash(card?.textContent), ex = wf.people.find(p => p.role === 'OPERATOR_EXECUTIVE').name;
@@ -88,7 +88,7 @@ function actionsCheck(op, d, caseItems, label) {
   const wf = MAN.demo_workflow.tenants.find(t => t.tenant === T[op]), v1 = DV.plans[T[op]].default.items;
   const text = [...d.querySelectorAll('.action-list li')].map(li => li.textContent.replace(/\s+/g, ' '));
   for (const a of wf.actions) {
-    const li = text.find(t => t.includes(a.action));
+    const shown = d.defaultView.plainText ? d.defaultView.plainText(a.action) : a.action, li = text.find(t => t.includes(shown)); /* the screen shows asset codes as plain names */
     if (!v1.includes(a.item)) { ok(!li, `${label}: ${a.item} not in version 1, not listed`); continue; }
     if (!caseItems.includes(a.item)) { ok(li && li.includes('Returned') && li.includes('To its creator'), `${label}: ${a.action.slice(0, 30)} Returned to its creator`); continue; }
     ok(li && li.includes(a.release === 'AT_CREATION' ? 'Released' : 'Waiting'), `${label}: ${a.action.slice(0, 30)} ${a.release}`);
@@ -103,7 +103,7 @@ function actionsCheck(op, d, caseItems, label) {
     const [b, l] = k.split('/'); pick(w, 'sw-budget', b); pick(w, 'sw-loi', l === 'True' ? 'yes' : 'no');
     const meter = d.querySelector('.approval .meterhead strong')?.textContent, total = d.querySelector('.total strong')?.textContent;
     ok(meter && meter.startsWith(usd(c.spend)), `lakeside ${k}: budget meter ${meter} starts ${usd(c.spend)}`);
-    ok(total && total.startsWith((c.value < 0 ? '−' : '+') + usd(c.value)), `lakeside ${k}: value ${total}`);
+    ok(total && [usd(c.value), usd(Math.round(c.value))].some(v => total.startsWith((c.value < 0 ? '−' : '+') + v)), `lakeside ${k}: value ${total}`); /* UI/UX guide U3: whole dollars at the plan total */
     actionsCheck('lakeside', d, c.items, `lakeside ${k}`);
     itemsCheck('lakeside', d, c, `lakeside ${k}`); metersCheck('lakeside', d.querySelector('.approval'), c, `lakeside ${k} approval`); approvalCheck('lakeside', d, `lakeside ${k}`);
   }
@@ -295,7 +295,7 @@ const optSeen = new Set();
 for (const dc of HC.decisions) { const op = opOfSite(dc.site), wf = wfOf(op), dom = boot(op, `decision/${dc.id}`), d = dom.window.document;
   const p = wf.people.find(x => x.role === dc.chooser && (dc.chooser !== 'SITE_MANAGER' || x.site === dc.site)), wd = squash(d.querySelector('.who-decides .wd-steps li:nth-child(2)')?.textContent);
   const it = (wf.items || []).find(i => i.kind !== 'PROACTIVE' && DV.options[i.item]?.decision === dc.plan), acts = it ? wf.actions.filter(a => a.item === it.item) : [], st3 = squash(d.querySelector('.who-decides .wd-steps li:nth-child(3)')?.textContent);
-  ok(p && wd.includes(p.name) && wd.includes(ROLE_WORDS[p.role]) && (!it || it.chosen_by === p.name) && acts.every(a => st3.includes(a.action) && st3.includes(`Created by ${ROLE_WORDS[wf.people.find(x => x.name === a.created_by).role]}`) && st3.includes(a.created_by)),
+  ok(p && wd.includes(p.name) && wd.includes(ROLE_WORDS[p.role]) && (!it || it.chosen_by === p.name) && acts.every(a => st3.includes(dom.window.plainText ? dom.window.plainText(a.action) : a.action) && st3.includes(`Created by ${ROLE_WORDS[wf.people.find(x => x.name === a.created_by).role]}`) && st3.includes(a.created_by)),
     `${dc.id}: chosen by ${p?.name} (${dc.chooser})${it ? `, item ${it.item} chosen by ${it.chosen_by}` : ''}${acts.length ? `, Actions created by ${[...new Set(acts.map(a => a.created_by))].join(', ')}` : ''} (${wd.slice(0, 80)})`);
   for (const rp of d.querySelectorAll('.who-decides [data-release], .action-list .state .status-pill')) ok(RELEASE_STATES.includes(squash(rp.textContent).trim()), `${dc.id}: release state "${squash(rp.textContent).trim()}" is one of Figure 6d's four`);
   for (const [id, F] of Object.entries(HC.option_money_factors)) { const tr = d.querySelector(`tr[data-opt="${id}"]`); if (!tr) continue; optSeen.add(id);

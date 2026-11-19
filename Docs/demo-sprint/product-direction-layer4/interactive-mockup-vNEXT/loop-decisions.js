@@ -101,7 +101,7 @@ function boundCells(id){const x=DOPT(id);if(!x||!x.violations)return null;const 
 function boundTable(decId){const d=decById(decId),rows=d.opts.map(id=>{const c=boundCells(id);if(!c)return null;const x=DOPT(id);
   return [optLabel(id),c.map(b=>`${b.pass?'Passes':'Fails'} · ${b.text}${b.dv?' '+dvTag():''}`).join('<br>'),x.admissible?'Admissible':'Not admissible'];}).filter(Boolean);
  const pol=d.opts.map(boundPolicy).find(Boolean);
- return rows.length?region('Bound check under each option',table(['Option','Hard limits of this decision (measured value)','Admissibility'],rows))+(pol?.reason?`<p class="note">${fx(pol.reason)}.</p>`:''):'';}
+ return rows.length?region('Limits under each option',table(['Option','Hard limits of this decision (measured value)','Admissibility'],rows))+(pol?.reason?`<p class="note">${fx(pol.reason)}.</p>`:''):'';}
 function rightsCoverTable(decId){const d=decById(decId),rows=d.opts.map(id=>{const x=DOPT(id);if(!x||!x.rights)return null;const r=x.rights;if(!r.claimable_cover&&!r.unclaimable_cover&&!r.cover_lost)return [optLabel(id),'$0','$0','$0'];return [optLabel(id),usd(r.claimable_cover),usd(r.unclaimable_cover),usd(r.cover_lost)];}).filter(Boolean);
  if(!rows.length||rows.every(r=>r.slice(1).every(c=>c==='$0')))return '';
  return region('Cover under each option',table(['Option','Cover kept claimable','Cover not claimable','Cover lost'],rows.map(r=>[r[0],...r.slice(1).map(c=>c==='$0'?c:`${c} ${ec('EXPOSURE')}`)])))+'<p class="note">Cover values are at stake, not money: listed, never added. This is not a legal decision; coverage is decided by the supplier or insurer.</p>';}

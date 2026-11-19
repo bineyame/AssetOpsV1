@@ -57,7 +57,7 @@ const cap = t => t?t[0].toUpperCase()+t.slice(1):'';
 const CLS = {ECONOMIC_ACTUAL:['Emulated','rec'],RECORDED:['Emulated','rec'],ESTIMATED:['Estimated','est'],MEASURED:['Measured','rec'],DERIVED:['Calculated from records','der'],
  MODELLED:['Modelled','mod'],EXPOSURE:['At stake (not money)','stake'],VERIFIED:['Verified','ver'],MISSING:['Not available yet','na'],ECONOMIC_ACTUAL_FORWARD:['Emulated','rec'],
  PLAN:['Emulated','rec'],QUOTE:['Quoted','quo'],NA:['Not available yet','na'],CONTRACT:['Emulated','rec']};
-const ec = c => {const [t,k]=CLS[c]||[c,'na'];return `<span class="ec ec-${k}">${t}</span>`;};
+const ec = c => {const [t,k]=CLS[c]||[c,'na'];return k==='rec'||k==='der'?`<span class="ec ec-${k}"><span class="vh">${t}</span></span>`:`<span class="ec ec-${k}">${t}</span>`;}; /* UI/UX guide U1: the baseline class is said once per page, not on each figure */
 const ecw = c => (CLS[c]||[c])[0];
 /* a figure that opens the evidence drawer (two interactions to source) */
 const fig = (key,text) => `<button class="ev-num" data-evd="${key}" aria-haspopup="dialog">${text}${vh(' · show how this is worked out')}</button>`;
@@ -345,7 +345,7 @@ const REPLAY_RE=new RegExp(REPLAY_PATTERNS.join('|')); /* derived from the manif
 const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
 function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Set();let n;
  while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest('.dv,.vh,select,option,details.tech,script,style'))continue;if(REPLAY_RE.test(n.textContent)){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector('.dv'))conts.add(c);}}
- conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c;t.insertAdjacentHTML('beforeend',' '+dvTag());});}
+ conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;t.insertAdjacentHTML('beforeend',' '+dvTag());});}
 /* ---------- plain words (owner, 19 Nov: no technical words on anything user-facing) ----------
    One display vocabulary for every string a loop screen shows, whether typed in these modules or read from the demo
    data file: applied to the text of the canvas and of each evidence drawer after render. Figures are never touched
@@ -365,8 +365,14 @@ const PLAIN_WORDS=[
  [/\bevidence classes\b/g,'evidence types'],[/\bevidence class\b/g,'evidence type'],[/\bEvidence class\b/g,'Evidence type'],
  [/\bIts levers\b/g,'What can be changed'],[/\blevers\b/g,'moves'],[/\blever\b/g,'move'],
  [/\bleaf factors\b/g,'base factors'],[/\bleaf factor\b/g,'base factor'],[/\bLeaf factors?\b/g,'Base factor'],
+ [/\bEmulated\b/g,'Simulated'],[/\bemulated\b/g,'simulated'],[/\bcounterfactual\b/gi,'with each option'],[/\bObligations check\b/g,'Limits'],[/\bexplained by factors\b/g,'explained'],
+ [/\binverter inverter\b/g,'inverter'],
+ [/\s?\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d|CN-\d{4}|PM-\d{4})\)/g,''],[/\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d)[;,]\s*/g,'('],
+ [/\b(generator|inverter|charger) (?:GEN-[A-Z]{2}-0?(\d)|INV-[A-Z]{2}-0?(\d)|CH-[A-Z](\d))\b/g,(m,w,a,b,c)=>`${w} ${a||b||c}`],
+ [/\bGEN-KS-0?(\d)\b/g,'generator $1'],[/\bGEN-CR-01\b/g,'the backup generator'],[/\bINV-MT-0?(\d)\b/g,'inverter $1'],[/\bBAT-001\b/g,'the battery'],[/\bCH-[A-Z](\d)\b/g,'charger $1'],[/\s?\b(?:PM|CN)-\d{4}\b/g,''],
  [/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
 ];
+const plainText = t => PLAIN_WORDS.reduce((v,[r,s])=>v.replace(r,s),String(t??''));window.plainText=plainText; /* the same display words, for checks that compare data text with the screen */
 function plainWords(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&n.parentElement.closest('details.tech,pre.code,script,style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});let n;
  while((n=w.nextNode())){let v=n.nodeValue;if(!/[A-Za-zΣ]/.test(v))continue;const o=v;for(const [r,s] of PLAIN_WORDS)v=v.replace(r,s);if(v!==o)n.nodeValue=v;}
  root.querySelectorAll('[aria-label],[title]').forEach(e=>['aria-label','title'].forEach(a=>{const v=e.getAttribute(a);if(!v)return;let x=v;for(const [r,s] of PLAIN_WORDS)x=x.replace(r,s);if(x!==v)e.setAttribute(a,x);}));}
@@ -374,7 +380,7 @@ function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector(
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
- const dv=!!c.querySelector('.dv-mark');h.insertAdjacentHTML('beforeend',`<p class="ux-scope" role="note"><span>Figures are recorded or measured unless marked; all are simulated demo data.</span>${dv?'<span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span>':''}</p>`);}
+ const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<p class="ux-scope" role="note"><span>Figures are recorded or measured unless marked; all are simulated demo data.</span>${dv?'<span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span>':''}${il.length?'<span>Names are illustrative.</span>':''}</p>`);}
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
 const THEMES=['system','light','dark'],THEME_WORD={system:'Theme: follows your system',light:'Theme: light',dark:'Theme: dark'};

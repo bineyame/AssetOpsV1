@@ -996,6 +996,87 @@ table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{ba
   .ux-tabmenu{margin-bottom:var(--s3)}
 }
 .ux-choose-steps .wd-steps{grid-template-columns:minmax(0,1fr)}
+
+/* ---- fix round 1 (design review of wave 1) ---- */
+/* queue with At stake and Due columns (finding 1) */
+.ux-qh,.ux-queue>li.ux-q{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(112px,1fr) 72px minmax(140px,1fr) auto;gap:var(--s2) var(--s4);align-items:center}
+.ux-qh{padding:0 0 var(--s2);border-bottom:1px solid var(--line);font-size:var(--fs-xs);font-weight:500;color:var(--text-2)}
+.ux-queue>li.ux-q{align-items:start}
+.ux-q-issue{min-width:0;display:flex;flex-direction:column;gap:4px}
+.ux-q-top{flex-direction:row;align-items:center;gap:var(--s2)}
+.ux-q-k{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ux-q-stake{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font-size:var(--fs-sm)}
+.ux-q-stake small{flex-basis:100%;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-q-v{font-weight:600;font-size:var(--fs-md);font-variant-numeric:tabular-nums}
+.ux-q-word{color:var(--text-2)}
+.ux-q-due{font-size:var(--fs-sm);font-weight:500;white-space:nowrap}
+.ux-q-go.button{align-self:center}
+.ux-skel{display:flex;flex-direction:column;gap:var(--s3);padding:var(--s3) 0}
+.ux-skel-row{display:block;height:44px;border-radius:var(--r1);background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));background-size:200% 100%;animation:ux-shimmer 1.4s linear infinite}
+@keyframes ux-shimmer{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.ux-skel-row{animation:none}}
+.ux-more-phone{display:none}
+@media (max-width:760px){
+  .ux-qh{display:none}
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"issue issue" "stake due" "who go"}
+  .ux-q-issue{grid-area:issue}.ux-q-stake{grid-area:stake}.ux-q-due{grid-area:due;justify-self:end}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go}
+  .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
+}
+@media (max-width:600px){
+  .ux-overview .ux-queue>li.ux-q:nth-child(n+4){display:none}
+  .ux-overview .ux-more-phone{display:block}
+}
+.ux-kpi-na{font-size:var(--fs-lg);font-weight:500;color:var(--text-2)}
+
+/* decision options: five columns, detail in a drawer; stacked cards on phone (finding 2) */
+table.ux-opts td,table.ux-opts th{min-width:0}
+table.ux-opts tbody th{min-width:200px}
+.ux-lim{display:inline-block;font-size:var(--fs-sm);font-weight:600;white-space:nowrap;margin-right:6px}
+.ux-lim.is-good{color:var(--good)}.ux-lim.is-bad{color:var(--bad)}.ux-lim.is-na{font-weight:400;color:var(--text-2);white-space:normal}
+.ux-optgo{font-size:var(--fs-sm);font-weight:500;white-space:nowrap;min-height:24px}
+.ux-optd{display:flex;flex-direction:column;gap:var(--s4);margin:0}
+.ux-optd dt{font-size:var(--fs-sm);color:var(--text-2);margin-bottom:4px}
+.ux-optd dd{margin:0;font-size:var(--fs-md)}
+.ux-optd .obl{display:flex;gap:6px;align-items:flex-start;margin-bottom:var(--s2)}
+@media (max-width:760px){
+  table.ux-opts thead{display:none}
+  table.ux-opts,table.ux-opts tbody,table.ux-opts tr,table.ux-opts tbody th,table.ux-opts td{display:block;width:auto}
+  table.ux-opts tr{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);margin-bottom:var(--s3);background:var(--surface)}
+  table.ux-opts tbody th{min-width:0;padding:0 0 var(--s2);border:0}
+  table.ux-opts td{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--s2);padding:4px 0;border:0}
+  table.ux-opts td::before{content:attr(data-label);font-size:var(--fs-xs);color:var(--text-2)}
+  .ux-opts-wrap,.scroll-region:has(table.ux-opts){overflow:visible}
+}
+.ux-chosen{gap:var(--s3)}
+.ux-chosen>span:not(.status-pill){font-size:var(--fs-md)}
+
+/* the plan: L1 band with the approval actions, one line per item (finding 6) */
+.ux-planband{margin-bottom:var(--s5)}
+.ux-planband .heroes.ux-kpis{margin-bottom:var(--s3)}
+.ux-planact{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
+.ux-note{font-size:var(--fs-sm);color:var(--text-2)}
+.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(130px,1.2fr) 64px 80px minmax(110px,1fr) 84px 16px;gap:var(--s3);align-items:center}
+.ux-itemh{padding:0 var(--s3) var(--s2);font-size:var(--fs-xs);font-weight:500;color:var(--text-2);border-bottom:1px solid var(--line)}
+details.ux-item{border-bottom:1px solid var(--line)}
+details.ux-item>summary{list-style:none;cursor:pointer;padding:var(--s3)}
+details.ux-item>summary::-webkit-details-marker{display:none}
+details.ux-item>summary:hover{background:var(--surface-2)}
+details.ux-item>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
+.ux-it-main{display:flex;flex-direction:column;min-width:0}
+.ux-it-main small{font-size:var(--fs-xs);color:var(--text-2)}
+.ux-it-main b{font-size:var(--fs-md);font-weight:600}
+.ux-it-c{font-size:var(--fs-sm);min-width:0}
+.ux-num{font-variant-numeric:tabular-nums}
+.ux-state{display:inline-block;padding:0 8px;border:1px solid var(--line-strong);border-radius:999px;font-size:var(--fs-xs);font-weight:500;line-height:20px}
+.ux-item-body{padding:0 var(--s3) var(--s4)}
+.ux-item-body>.plan-item{border:0;box-shadow:none;margin:0}
+@media (max-width:760px){
+  .ux-itemh{display:none}
+  .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 16px}
+  .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{grid-column:3;grid-row:1}
+  .ux-it-c::before{content:attr(data-k) ": ";color:var(--text-2);font-size:var(--fs-xs)}
+}
 </style></head><body><div id="app"></div><div id="overlay"></div><script>/* Portfolio composition: presentation of site-owned results, never a second analytic. */
 const portfolioReview = {
  references:['v6.9 §8.1, p24: Portfolio command center','Client Demo Recommendation, Screen 1 and Appendix A1, p11'],
@@ -2481,7 +2562,7 @@ const cap = t => t?t[0].toUpperCase()+t.slice(1):'';
 const CLS = {ECONOMIC_ACTUAL:['Emulated','rec'],RECORDED:['Emulated','rec'],ESTIMATED:['Estimated','est'],MEASURED:['Measured','rec'],DERIVED:['Calculated from records','der'],
  MODELLED:['Modelled','mod'],EXPOSURE:['At stake (not money)','stake'],VERIFIED:['Verified','ver'],MISSING:['Not available yet','na'],ECONOMIC_ACTUAL_FORWARD:['Emulated','rec'],
  PLAN:['Emulated','rec'],QUOTE:['Quoted','quo'],NA:['Not available yet','na'],CONTRACT:['Emulated','rec']};
-const ec = c => {const [t,k]=CLS[c]||[c,'na'];return `<span class="ec ec-${k}">${t}</span>`;};
+const ec = c => {const [t,k]=CLS[c]||[c,'na'];return k==='rec'||k==='der'?`<span class="ec ec-${k}"><span class="vh">${t}</span></span>`:`<span class="ec ec-${k}">${t}</span>`;}; /* UI/UX guide U1: the baseline class is said once per page, not on each figure */
 const ecw = c => (CLS[c]||[c])[0];
 /* a figure that opens the evidence drawer (two interactions to source) */
 const fig = (key,text) => `<button class="ev-num" data-evd="${key}" aria-haspopup="dialog">${text}${vh(' · show how this is worked out')}</button>`;
@@ -2769,7 +2850,7 @@ const REPLAY_RE=new RegExp(REPLAY_PATTERNS.join('|')); /* derived from the manif
 const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
 function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Set();let n;
  while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest('.dv,.vh,select,option,details.tech,script,style'))continue;if(REPLAY_RE.test(n.textContent)){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector('.dv'))conts.add(c);}}
- conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c;t.insertAdjacentHTML('beforeend',' '+dvTag());});}
+ conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;t.insertAdjacentHTML('beforeend',' '+dvTag());});}
 /* ---------- plain words (owner, 19 Nov: no technical words on anything user-facing) ----------
    One display vocabulary for every string a loop screen shows, whether typed in these modules or read from the demo
    data file: applied to the text of the canvas and of each evidence drawer after render. Figures are never touched
@@ -2789,8 +2870,14 @@ const PLAIN_WORDS=[
  [/\bevidence classes\b/g,'evidence types'],[/\bevidence class\b/g,'evidence type'],[/\bEvidence class\b/g,'Evidence type'],
  [/\bIts levers\b/g,'What can be changed'],[/\blevers\b/g,'moves'],[/\blever\b/g,'move'],
  [/\bleaf factors\b/g,'base factors'],[/\bleaf factor\b/g,'base factor'],[/\bLeaf factors?\b/g,'Base factor'],
+ [/\bEmulated\b/g,'Simulated'],[/\bemulated\b/g,'simulated'],[/\bcounterfactual\b/gi,'with each option'],[/\bObligations check\b/g,'Limits'],[/\bexplained by factors\b/g,'explained'],
+ [/\binverter inverter\b/g,'inverter'],
+ [/\s?\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d|CN-\d{4}|PM-\d{4})\)/g,''],[/\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d)[;,]\s*/g,'('],
+ [/\b(generator|inverter|charger) (?:GEN-[A-Z]{2}-0?(\d)|INV-[A-Z]{2}-0?(\d)|CH-[A-Z](\d))\b/g,(m,w,a,b,c)=>`${w} ${a||b||c}`],
+ [/\bGEN-KS-0?(\d)\b/g,'generator $1'],[/\bGEN-CR-01\b/g,'the backup generator'],[/\bINV-MT-0?(\d)\b/g,'inverter $1'],[/\bBAT-001\b/g,'the battery'],[/\bCH-[A-Z](\d)\b/g,'charger $1'],[/\s?\b(?:PM|CN)-\d{4}\b/g,''],
  [/\bDisposition\b/g,'Status'],[/\bdisposition\b/g,'status'],[/\bguardrails\b/g,'safety limits'],[/\bguardrail\b/g,'safety limit'],
 ];
+const plainText = t => PLAIN_WORDS.reduce((v,[r,s])=>v.replace(r,s),String(t??''));window.plainText=plainText; /* the same display words, for checks that compare data text with the screen */
 function plainWords(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&n.parentElement.closest('details.tech,pre.code,script,style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});let n;
  while((n=w.nextNode())){let v=n.nodeValue;if(!/[A-Za-zΣ]/.test(v))continue;const o=v;for(const [r,s] of PLAIN_WORDS)v=v.replace(r,s);if(v!==o)n.nodeValue=v;}
  root.querySelectorAll('[aria-label],[title]').forEach(e=>['aria-label','title'].forEach(a=>{const v=e.getAttribute(a);if(!v)return;let x=v;for(const [r,s] of PLAIN_WORDS)x=x.replace(r,s);if(x!==v)e.setAttribute(a,x);}));}
@@ -2798,7 +2885,7 @@ function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector(
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
- const dv=!!c.querySelector('.dv-mark');h.insertAdjacentHTML('beforeend',`<p class="ux-scope" role="note"><span>Figures are recorded or measured unless marked; all are simulated demo data.</span>${dv?'<span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span>':''}</p>`);}
+ const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<p class="ux-scope" role="note"><span>Figures are recorded or measured unless marked; all are simulated demo data.</span>${dv?'<span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span>':''}${il.length?'<span>Names are illustrative.</span>':''}</p>`);}
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
 const THEMES=['system','light','dark'],THEME_WORD={system:'Theme: follows your system',light:'Theme: light',dark:'Theme: dark'};
@@ -2926,7 +3013,7 @@ function boundCells(id){const x=DOPT(id);if(!x||!x.violations)return null;const 
 function boundTable(decId){const d=decById(decId),rows=d.opts.map(id=>{const c=boundCells(id);if(!c)return null;const x=DOPT(id);
   return [optLabel(id),c.map(b=>`${b.pass?'Passes':'Fails'} · ${b.text}${b.dv?' '+dvTag():''}`).join('<br>'),x.admissible?'Admissible':'Not admissible'];}).filter(Boolean);
  const pol=d.opts.map(boundPolicy).find(Boolean);
- return rows.length?region('Bound check under each option',table(['Option','Hard limits of this decision (measured value)','Admissibility'],rows))+(pol?.reason?`<p class="note">${fx(pol.reason)}.</p>`:''):'';}
+ return rows.length?region('Limits under each option',table(['Option','Hard limits of this decision (measured value)','Admissibility'],rows))+(pol?.reason?`<p class="note">${fx(pol.reason)}.</p>`:''):'';}
 function rightsCoverTable(decId){const d=decById(decId),rows=d.opts.map(id=>{const x=DOPT(id);if(!x||!x.rights)return null;const r=x.rights;if(!r.claimable_cover&&!r.unclaimable_cover&&!r.cover_lost)return [optLabel(id),'$0','$0','$0'];return [optLabel(id),usd(r.claimable_cover),usd(r.unclaimable_cover),usd(r.cover_lost)];}).filter(Boolean);
  if(!rows.length||rows.every(r=>r.slice(1).every(c=>c==='$0')))return '';
  return region('Cover under each option',table(['Option','Cover kept claimable','Cover not claimable','Cover lost'],rows.map(r=>[r[0],...r.slice(1).map(c=>c==='$0'?c:`${c} ${ec('EXPOSURE')}`)])))+'<p class="note">Cover values are at stake, not money: listed, never added. This is not a legal decision; coverage is decided by the supplier or insurer.</p>';}
@@ -3293,7 +3380,7 @@ function factorTable(sk,opts={}){const rows=[];
   const ac=n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—';
   rows.push(`<tr class="${n.residual?'resid':''} ${d===0?'root':''}" data-node="${n.id}" data-key="${n.hkey||''}" data-home="${n.home||''}" data-via="${n.hvia||''}" data-actual="${typeof n.actual==='number'?n.actual:''}" data-heading="${n.lens||''}"><th scope="row">${lab}</th><td>${n.obs&&n.plan==null?'<span class="muted">—</span>':pl}</td><td>${ac}</td><td>${devText(n)}</td><td>${n.eff!=null&&!n.obs?(n.evd&&n.actual==null?fig(n.evd,usd(n.eff,true)):usd(n.eff,true)):'—'}</td><td>${ec(n.cls)}</td><td>${n.lens?lensTag(n.lens)+(n.potential?' <small class="cellnote">potential, beside Grow, not its actual</small>':''):''}</td><td>${n.dec?link(`decision/${n.dec}`,'Decision →'):''}</td></tr>`);});
  const cost=OPS[SK[sk].op].kind==='cost';
- return region(`Factor structure for ${SK[sk].name}`,`<table class="ftab"><thead><tr><th>Factor and how it composes</th><th>Target</th><th>October</th><th>Deviation</th><th>Effect on ${cost?'cost (+ lower)':'contribution'}</th><th>Evidence</th><th>Outcome</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`);}
+ return region(`Factor structure for ${SK[sk].name}`,`<table class="ftab"><thead><tr><th>Factor and how it composes</th><th>Target</th><th>October</th><th>Deviation</th><th>Effect on ${cost?'cost (+ lower)':'contribution'}</th><th>Evidence, if not recorded</th><th>Outcome</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`);}
 
 /* ---------- value chain strip (stages with leaks between them) ---------- */
 function chainStages(op,sk){const o=OPS[op];let st;
@@ -3685,13 +3772,12 @@ function approvalPanel(op,P,budget){const S=PSTATE(),W=waitingSummary(op),def=DE
  ${meter('Budget used',P.spend,budget,usd)}${crewMeters(op,P)}
  <p class="approval-releases">Approving releases ${num(W.wait)} waiting Action${W.wait===1?'':'s'} and ${num(W.waitItems.length)} item${W.waitItems.length===1?'':'s'}, ${usd(W.spend)} of one-off spend${W.capital.length?`, including ${usd(W.capSpend)} of capital (${W.capital.map(id=>itemProse(op,id)).join(', ')})`:''}.${W.later.length?` After approval, ${W.later.map(id=>`${itemOf(op,id).owner} creates the Action for ${itemProse(op,id)}`).join('; ')}.`:''}</p>
  ${def?'':`<p class="notice">The case shown is not the proposed version. Version ${num(S.version)} was proposed for the default switches; approving a different case makes a new version.</p>`}
- <div class="approval-buttons"><button type="button" class="button primary" disabled title="Not wired in this mock-up">Approve version ${num(S.version)}</button><button type="button" class="button" disabled title="Not wired in this mock-up">Send back with a trade-off</button></div>
  <p class="note">Recorded under the executive’s name and the time. Sending it back returns each changed item to its creator with the reason.</p>
  <h3 class="h3s">Release thresholds</h3>${thresholdsKv(op)}${ILLUS}</section>`;}
 function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec;
  const rows=P.ids.map(id=>{const x=OPT[id],[cv,cn]=optCost(x),[ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(x),d=DEC_SEE_ALSO[id]||decOf(id).id;
   const costc=id==='MTO-METER-AUDIT'?`${usd(OPT['MTO-METER-AUDIT'].cost)} <small class="cellnote">routine maintenance budget</small>`:`${fig(`opt:${id}:cost`,cv)} <small class="cellnote">${whoPays(x)}</small>`,effc=`${ev} <small class="cellnote">${en}</small>${ec(id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x))}${DV_OPT[id]?dvTag(DV_OPT[id]):''}`,cond=fx(x.condition);
-  return `<article class="plan-item" data-item="${id}"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header>${itemOwnerLine(op,id)}<dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div><div><dt>Effect under each heading</dt><dd>${byHeading(id)}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article>`;}).concat(proactiveOf(op).map(it=>proactiveCard(op,it,P)));
+  return uxItemRow(op,id,{site:SK[x._site].name,why:WHY_FIRST[id],label:optLabel(id),cost:id==='MTO-METER-AUDIT'?usd(OPT['MTO-METER-AUDIT'].cost):cv,result:ev,cls:id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x)})+`<article class="plan-item" data-item="${id}"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header>${itemOwnerLine(op,id)}<dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div><div><dt>Effect under each heading</dt><dd>${byHeading(id)}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article></div></details>`;}).concat(proactiveOf(op).map(it=>uxItemRow(op,it.item,{site:SK[siteKeyOf(op,it.site)]?.name||it.site,why:'Declared work',label:it.label,cost:usd(it.planned_spend||0),result:'Upkeep, no value claimed',cls:''})+proactiveCard(op,it,P)+'</div></details>'));
  const say=op==='lakeside'?`Plan re-computed: spend ${usd(P.spend)}, modelled 12-month change ${usd(P.value,true)}.`:`Plan re-computed: spend ${usd(P.spend)}.`;
  let excl=[];
  if(op==='lakeside'){excl=A.excluded.filter(x=>!['MTO-INV-BUYNOW'].includes(x.id)).map(x=>[x.id,fx(x.reason)]);if(P.lose)excl.unshift([P.lose.id,P.loseAffordable?`Under this assumption it gives ${usd(P.lose.value,true)} against ${usd(P.win.value,true)}`:`Needs ${usd(P.lose.spend)} with everything else; the budget is ${usd(budget)}`]);if(!P.huller)excl.unshift(['MTO-HULLER',cap(hullerCell(inv0(P.c)))]);}
@@ -3701,20 +3787,20 @@ function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.
  const listed=op==='lakeside'?[['Charges restored at Mto (12 months)',fig('stake:charges',usd(L['MTO-BILLING_charges_12m'])),'ECONOMIC_ACTUAL_FORWARD','Billed, not yet collected'],['Possible Kisiwa service credit',fig('stake:credit',usd(L['KIS-OM-SLA_potential_credit'])),'EXPOSURE','Counted only when a credit note arrives'],['Kobo battery cover',fig('stake:battery',usd(L['BAT-001_cover_exposure'])),'EXPOSURE','Protected, not gained']]
   :op==='harvest'?[['Thika French-bean batch (B-1031) exposed on 6 Oct',fig('stake:batch',usd(siteM('thika').incident.batches[0].exposed_value)),'EXPOSURE',`The customer’s produce; only the ${usd(SN('thika').liability)} downgrade became a liability`],['Insurance reimbursement','$0','RECORDED',`Not claimed: ${usd(SN('thika').liability)} is below the ${usd(siteM('thika').incident.insurance.deductible)} deductible`]]
   :[[`Ruiru purchase avoided by taking ${num(DOPT('RUI-ABSORB6').params.added_buses)} buses`,fig('opt:RUI-ABSORB6:effect',usd(OPT['RUI-ABSORB6'].avoided_capex)),'MODELLED','Avoided capital, not a saving in the books'],['Kasarani penalties so far in November',fig('stake:penalty',usd(KN().penalties)),'DERIVED','Already incurred; not reversed by the plan'],['Possible Kasarani service credit if the repair is late',SCREDIT(siteM('kasarani').entitlement.contracts[1].service_credit),'EXPOSURE','Counted only on a credit note']];
- const total=op==='lakeside'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${fig('port:lakeside:m12',usd(P.value,true))}</strong><small>${valueNote(op,P)} Each valued option changes a different factor, so each is counted once. ${dvTag()} for the generator stop setting and the rice huller.</small><p class="downside">${downside(op)}</p></div>`
-  :op==='harvest'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${usd(harvestValue(),true)}</strong><small>${valueNote(op,P)} ${dvTag('Assumption: Kirinyaga recovery share 80%, range 60–90%')}.</small><p class="downside">${downside(op)}</p></div>`
-  :`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${derivedPlan('metro').value?usd(derivedPlan('metro').value,true):'$0'}</strong><small>${valueNote(op,P)} ${dvTag()} (schedule feasibility, ${num(DOPT('EMB-DEADLINE').params.feasible_nights)} of ${num(SN('embakasi').nights_in_period)} nights).</small><p class="downside">${downside(op)}</p></div>`;
- const paths=op==='lakeside'?sec('Two ways to restore Mto’s inverter, under this assumption',`<div class="paths">${[P.win,P.lose].filter(Boolean).map((x,i)=>`<div class="path ${i===0?'win':''}"><div class="eyebrow">${i===0?'In the plan':'Competing path'}</div><h3>${optLabel(x.id)}</h3>${kv([['Plan spend',usd(x.spend)],['Modelled 12-month change from the valued options',usd(x.value,true)],['Inverter back',fdate(DOPT(x.id).restore_date)],['Rice huller',x.huller?'Kept':cap(hullerCell(x.id))],['Fits the budget',x.spend<=budget?'Yes':'No']])}</div>`).join('')}</div><p class="note">${mtoCapacityLine()}</p>`,'Both paths shown side by side; the proposal takes the better one that fits; you choose.'):'';
+ const total=op==='lakeside'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${fig('port:lakeside:m12',usdW(P.value,true))}</strong><small>${valueNote(op,P)} Each valued option changes a different factor, so each is counted once. ${dvTag()} for the generator stop setting and the rice huller.</small><p class="downside">${downside(op)}</p></div>`
+  :op==='harvest'?`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${usdW(harvestValue(),true)}</strong><small>${valueNote(op,P)} ${dvTag('Assumption: Kirinyaga recovery share 80%, range 60–90%')}.</small><p class="downside">${downside(op)}</p></div>`
+  :`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${derivedPlan('metro').value?usdW(derivedPlan('metro').value,true):'$0'}</strong><small>${valueNote(op,P)} ${dvTag()} (schedule feasibility, ${num(DOPT('EMB-DEADLINE').params.feasible_nights)} of ${num(SN('embakasi').nights_in_period)} nights).</small><p class="downside">${downside(op)}</p></div>`;
+ const paths=op==='lakeside'?sec('Two ways to restore Mto’s inverter, under this assumption',`<div class="paths">${[P.win,P.lose].filter(Boolean).map((x,i)=>`<div class="path ${i===0?'win':''}"><div class="eyebrow">${i===0?'In the plan':'Competing path'}</div><h3>${optLabel(x.id)}</h3>${kv([['Plan spend',usd(x.spend)],['Modelled 12-month change from the valued options',usdW(x.value,true)],['Inverter back',fdate(DOPT(x.id).restore_date)],['Rice huller',x.huller?'Kept':cap(hullerCell(x.id))],['Fits the budget',x.spend<=budget?'Yes':'No']])}</div>`).join('')}</div><p class="note">${mtoCapacityLine()}</p>`,'Both paths shown side by side; the proposal takes the better one that fits; you choose.'):'';
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).concat(proactiveOf(op).map(it=>['Field work',`${SK[siteKeyOf(op,it.site)]?.name||it.site}: ${it.label}`,`${num(it.crew_visits||0)} ${it.crew_visits===1?crewOne(op):o.crewWord}${it.crew_month?` in ${monthOf(it.crew_month)}`:''}${it.service_date?`, on ${fdate(it.service_date)}`:''}`])).sort((a,b)=>a[0].localeCompare(b[0]));
  const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
- return `<div class="layout-main-side"><div>
- ${sec(`The plan for ${periodWords()}: items and their Actions`,rows.join('')+total+ILLUS,`One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.`)}
+ return `${uxPlanBand(op,P,budget)}<div class="layout-main-side"><div>
+ ${sec(`The plan for ${periodWords()}: items and their Actions`,uxItemHead()+rows.join('')+total+ILLUS,`One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.`)}
  ${paths}
  <div class="grid2">${secD('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.length)} lines`)}${secD('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
  ${secD('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options`)}
- ${op==='lakeside'?secD('All four cases of the two switches',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend','Modelled 12-month change'],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
+ ${op==='lakeside'?secD('All four cases of the two assumptions',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend','Modelled 12-month change'],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
  ${gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):''}
- </div><aside class="side-panel">${approvalPanel(op,P,budget)}<section class="panel controls" aria-labelledby="sw-h"><div class="eyebrow">What if</div><h2 id="sw-h">Switches</h2>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section></aside></div>`;}
+ </div><aside class="side-panel">${approvalPanel(op,P,budget)}<section class="panel controls" aria-labelledby="sw-h"><h2 id="sw-h">Try another case</h2><p class="note">Change an assumption to see the plan worked out again.</p>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section></aside></div>`;}
 
 /* ---------- Outcomes by site: each outcome's factor structure by site ---------- */
 function lensGrid(op){const o=OPS[op];
@@ -3902,14 +3988,15 @@ function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inP
  <li><span class="wd-k">1 · The system recommends</span>${recTxt}</li><li><span class="wd-k">2 · Who chooses</span>${chooseTxt}</li><li><span class="wd-k">3 · Actions created</span>${actTxt}</li><li><span class="wd-k">4 · Release</span>${relTxt}</li></ol>${ILLUS}</section>`;}
 function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null;
  const rows=d.opts.map(oid=>{const x=OPT[oid],[cv,cn]=optCost(x),[ev,en]=optEffect(x);const recd=x.disposition==='RECOMMENDED';
-  return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td>${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${ec(optClass(x))}${DV_OPT[oid]?dvTag(DV_OPT[oid]):''}</td><td>${x.kind==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</td><td>${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></td><td>${obligations(x)}</td><td>${fx(x.condition)||'—'}</td><td>${dispBadge(x)}<small class="cellnote">${optWhy(x)}</small></td></tr>`;}).join('');
- const comp=`<table class="opts"><thead><tr><th>Option</th><th>Result against no action</th><th>Effect under each heading</th><th>One-off cost · who pays</th><th>Obligations check</th><th>Condition</th><th>Disposition and reason</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const detail=`<dl class="ux-optd"><div><dt>Result against no action</dt><dd>${ev} <small>${en}</small> ${ec(optClass(x))}</dd></div><div><dt>Effect under each heading</dt><dd>${x.kind==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</dd></div><div><dt>Limits</dt><dd class="ux-obl">${obligations(x)}</dd></div><div><dt>Condition</dt><dd>${fx(x.condition)||'None'}</dd></div><div><dt>Status and reason</dt><dd>${dispBadge(x)} ${optWhy(x)}</dd></div></dl>`;
+  return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="Result against no action">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${ec(optClass(x))}${DV_OPT[oid]?dvTag(DV_OPT[oid]):''}</td><td data-label="Limits">${uxOblSummary(obligations(x))}</td><td data-label="One-off cost · who pays">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></td><td data-label="Status">${dispBadge(x)}</td><td data-label="Details">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</td></tr>`;}).join('');
+ const comp=`<table class="opts ux-opts"><thead><tr><th>Option</th><th>Result against no action</th><th>Limits</th><th>One-off cost · who pays</th><th>Status</th><th><span class="vh">Details</span></th></tr></thead><tbody>${rows}</tbody></table>`;
  const cf=`<table class="cf"><thead><tr>${T.cfHead.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${T.cf.map(r=>`<tr><th scope="row">${r[0]}</th>${r.slice(1).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
  return `${uxDecisionHead(id)}${whoDecides(id)}<section class="panel anchor"><div class="eyebrow">The factor this decision changes</div><p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} target`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}</section>
  ${sec('Options compared, including no action',region('Options compared',comp),'Same factor structure, horizon, prices and contracts for every option; the result is the change against no action, net of the one-off cost.','',`uxopts-${id}`)}
- ${secD('How each option changes the factor structure',region('Counterfactual factor structure',cf))}
+ ${secD('How each option changes what drives the result',region('What each option changes',cf))}
  ${protectiveChoice(id)?`<section class="panel anchor"><div class="eyebrow">Protective choice</div><p class="prose">${protectiveChoice(id)}</p></section>`:''}
- ${boundTable(id)?secD('Bound check under each option',boundTable(id),'Each option’s counterfactual Protect values against this decision’s limits, from the structure evaluator: a hard limit of the decision decides admissibility.'):''}
+ ${boundTable(id)?secD('Limits under each option',boundTable(id),'Each option’s Protect measures against this decision’s limits: an option that breaks a hard limit is not allowed.'):''}
  ${restoreTable(id)?secD('Restore dates and what sets them',restoreTable(id)):''}
  ${rightsCoverTable(id)?secD('Cover under each option',rightsCoverTable(id)):''}
  ${costLinesTable(id)?secD('Cost lines and who bears each',costLinesTable(id),'Rights decide who bears a cost line; the right’s state is shown in words.'):''}
@@ -3932,6 +4019,9 @@ function loopChanges(){drawer('What changed in this mock-up',`<p class="prose">T
 
 /* ---------- numbers at a glance (guide §5.1, proposal U3): whole currency at L1 and L2 ---------- */
 const usdW = (n, sign = false) => n === null || n === undefined ? usd(n) : usd(Math.round(n), sign);
+const wholeText = t => String(t).replace(/\$([\d,]+\.\d{1,2})\b/g, (m, v) => '$' + Math.round(+v.replace(/,/g, '')).toLocaleString('en-US'));
+/* review states (guide §7.6): ?state=empty or ?state=loading shows the designed empty and loading states */
+const UX_STATE = (() => { try { return new URLSearchParams(location.search).get('state'); } catch (e) { return null; } })();
 
 /* ---------- certainty marker (guide §6, U1): the scope's baseline class is unmarked; others carry one quiet marker ---------- */
 function uxMark(cls) {
@@ -3962,13 +4052,35 @@ function uxTone(k, t) { return /breach|below its limit/i.test(t) ? 'bad' : UX_TO
 const UX_GLYPH = { bad: '↘', warn: '▲', info: '✦', neutral: '?', good: '✓' };
 function uxChip(k, t) { const tone = uxTone(k, t); return `<span class="ux-chip attn-k is-${tone}"><span aria-hidden="true">${UX_GLYPH[tone]}</span>${t}</span>`; }
 
-/* ---------- decision queue (guide §7.1): the data's order (design §2.8: never a value ranking); who decides on each row ---------- */
+/* ---------- decision queue (guide §7.1): the data's order (design §2.8: never a value ranking); at stake, due and who decides on each row.
+   At stake: the recommended option's 12-month result against no action, with its marker; else the right's value at stake; else the
+   option's own words ("No saving claimed"); else "Not available yet". Due: the right's deadline; else the date the issue names. ---------- */
+const UX_MON = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)';
+const uxRights = d => (d.rights || []).map(k => { try { return rightsOf(k); } catch (e) { return null; } }).filter(Boolean);
+function uxRec(d) { const op = SK[d.site].op, inPlan = planItemsV1(op); return d.opts.find(x => OPT[x].disposition === 'RECOMMENDED') || d.opts.find(x => inPlan.includes(x)); }
+function uxStake(decId) {
+  const d = decById(decId); if (!d) return '<span class="muted">Not available yet</span>';
+  const rec = uxRec(d), x = rec ? OPT[rec] : null, ev = x ? String(optEffect(x)[0]) : '';
+  if (/^[+−-]?\$/.test(ev)) return `<span class="ux-q-v">${wholeText(ev)}</span> ${uxMark(optClass(x))}<small>12 months, if chosen</small>`;
+  const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
+  if (amt) return `<span class="ux-q-v">${wholeText(amt)}</span> ${uxMark('EXPOSURE')}<small>${/cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake'}</small>`;
+  if (ev && !/^Not (valued|modelled)/i.test(ev)) return `<span class="ux-q-word">${ev}</span>`;
+  return '<span class="muted">Not available yet</span>';
+}
+function uxDue(decId, txt) {
+  const d = decById(decId), r = d && uxRights(d).find(r => r.deadline);
+  if (r) return fdate(r.deadline);
+  const m = String(txt).match(new RegExp(`(?:due|lapses(?: on)?|by|deadline)\\s+(\\d{1,2} ${UX_MON})`));
+  return m ? m[1] : '<span class="muted">No deadline</span>';
+}
 function uxQueue(op, rows, cls = '') {
-  if (!rows.length) return '<p class="ux-empty" role="status">No decisions waiting.</p>';
-  return `<ul class="attn triage ux-queue ${cls}">${rows.map(([k, t, s, txt, d]) => {
-    const D = deciderOf(d);
-    return `<li class="attn-${k} ux-q"><div class="ux-q-top">${uxChip(k, t)}<b class="ux-q-site">${SK[s].name}</b></div><div class="ux-q-txt">${txt}</div><div class="ux-q-who"><span class="vh">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${SK[s].name}, ${escapeHtml(t)}</span>`, 'button ux-q-go')}</li>`;
-  }).join('')}</ul>`;
+  if (UX_STATE === 'loading') return `<div class="ux-skel" role="status"><span class="vh">Loading decisions…</span>${'<span class="ux-skel-row" aria-hidden="true"></span>'.repeat(3)}</div>`;
+  if (UX_STATE === 'empty' || !rows.length) return '<p class="ux-empty" role="status">No decisions waiting. New issues appear here when the next day of records is in.</p>';
+  const seen = {};
+  return `<div class="ux-queue-wrap"><div class="ux-qh" aria-hidden="true"><span>Issue</span><span>At stake</span><span>Due</span><span>Who decides</span><span></span></div><ul class="attn triage ux-queue ${cls}">${rows.map(([k, t, s, txt, d]) => {
+    const D = deciderOf(d), first = seen[d]; seen[d] = seen[d] || `the ${String(t).toLowerCase()} issue above`;
+    return `<li class="attn-${k} ux-q"><div class="ux-q-issue"><div class="ux-q-top">${uxChip(k, t)}<b class="ux-q-site">${SK[s].name}</b></div><div class="ux-q-txt">${txt}</div></div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${first ? `<span class="ux-q-word">Same decision as ${first}</span>` : uxStake(d)}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${uxDue(d, txt)}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${SK[s].name}, ${escapeHtml(t)}</span>`, 'button ux-q-go')}</li>`;
+  }).join('')}</ul></div>`;
 }
 
 /* ---------- side drawer (guide §8): stays in the page (closed: hidden from view and focus), opened by a named button ---------- */
@@ -4023,7 +4135,7 @@ function uxBridge(op) {
   let run = T.plan; const pts = [T.plan, T.actual];
   const steps = rows.map(r => { const a = run, b = run + dir * r.total; run = b; pts.push(a, b); return { ...r, a, b }; });
   const mn = Math.min(...pts), mx = Math.max(...pts), mag = Math.pow(10, Math.floor(Math.log10(Math.max(1, mx)))) / 2;
-  const lo = Math.max(0, Math.floor((mn - (mx - mn) * 0.6) / mag) * mag), hi = mx + (mx - lo) * 0.03, X = v => ((v - lo) / (hi - lo) * 100).toFixed(2); /* axis starts at a round value below the lowest point; said in the caption */
+  const lo = Math.min(0, mn), hi = mx * 1.03, X = v => ((v - lo) / (hi - lo) * 100).toFixed(2); /* a zero axis, so totals compare truthfully */
   const bar = (a, b, c) => `<span class="ux-wf-bar ${c}" style="left:${X(Math.min(a, b))}%;width:${Math.max(0.6, X(Math.max(a, b)) - X(Math.min(a, b))).toFixed(2)}%"></span>`;
   const head = cost ? 'Cost' : 'Contribution';
   const line = (lab, val, b, cls = '') => `<li class="ux-wf-row ${cls}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span></li>`;
@@ -4034,7 +4146,7 @@ function uxBridge(op) {
   const list = [line(`${head} target`, usdW(T.plan), bar(lo, T.plan, 'is-total'), 'is-end'),
     ...steps.map(s => line(`${s.lens === 'other' ? '' : `<span class="ux-wf-h">${s.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[s.word] || s.word}`, usdW(cost ? dir * s.total : s.total, true), bar(s.a, s.b, tone(s) + (s.residual ? ' is-resid' : '')))),
     line(`${head}, October`, usdW(T.actual), bar(lo, T.actual, 'is-total is-actual'), 'is-end')].join('');
-  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><ol class="ux-wf" aria-label="${head} from target to October, factor by factor">${list}</ol>${lo > 0 ? `<p class="ux-axis-note">Bars start at ${usdW(lo)}, not at zero, so the factors’ effects can be compared.</p>` : ''}${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><ol class="ux-wf" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- the value chain as bars on one baseline (guide §5): a stage with no source is an outlined empty bar ---------- */
@@ -4055,9 +4167,8 @@ function uxCatTile(op, k, C) {
   const [name, ico] = LENS[k], finds = ATTN[op].filter(r => findingHeading(r) === k).length, P = planCase(op);
   const items = P.ids.filter(id => optHeadings(id).some(h => h[0] === k)).length + (k === 'protect' ? proactiveOf(op).length : 0);
   const pos = k === 'assure' ? (C.assure?.pos || 'The evidence behind every heading') : k === 'protect' ? protectCard(op).pos : (C[k]?.pos || '');
-  const whole = t => String(t).replace(/\$([\d,]+\.\d{2})\b/g, (m, v) => '$' + Math.round(+v.replace(/,/g, '')).toLocaleString('en-US')); /* U3 at the tile */
   const counts = [finds ? `${num(finds)} Finding${finds === 1 ? '' : 's'}` : 'No Finding', items ? `${num(items)} plan item${items === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ');
-  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos">${whole(pos)}</p><p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'factors'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
+  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos">${wholeText(pos)}</p><p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'factors'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
 }
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
@@ -4090,8 +4201,8 @@ function uxOverview(op) {
   const k1 = uxKpi(cost ? 'Charging and depot cost' : 'Contribution', fig(`port:${op}:actual`, usdW(T.actual)),
     [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost on records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
   const k2 = uxKpi('Gap to target', fig(`port:${op}:variance`, usdW(T.variance, true)),
-    cost ? [`Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained by factors']
-      : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained by factors']);
+    cost ? [`Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
+      : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
     [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting the operator executive’s approval`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi('Options’ value, 12 months', `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
@@ -4099,7 +4210,7 @@ function uxOverview(op) {
   const n = ATTN[op].length;
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
- <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>Each issue with its site and who decides. The system values the options; a person chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].slice(0, 6))}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
+ <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>Each issue with its site and who decides. The system values the options; a person chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].slice(0, 6))}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
  <div class="ux-aside">${uxPlanCard(op)}${uxInsight(op)}</div></div>
  <div class="ux-two">${uxBridge(op)}${uxChain(op)}</div>
  ${uxCats(op)}</div>`;
@@ -4113,7 +4224,8 @@ function uxDecisionHead(id) {
   const choose = `<p class="prose">Choosing records the choice under the chooser’s name. The steps below say which Actions it creates and whether it is released at once or waits for the plan’s approval.</p><div class="ux-choose-steps" data-ux-clone=".who-decides .wd-steps"></div><p class="note">Choosing is not wired in this mock-up.</p>`;
   return `<section class="panel ux-dhead" aria-labelledby="uxdh-h"><div class="ux-eyebrow">${rec ? 'Recommended' : 'No option recommended'}</div><h2 id="uxdh-h">${rec ? optLabel(rec) : 'Each option valued against no action'}</h2>
  ${rec ? `<dl class="ux-dfacts"><div><dt>Result against no action</dt><dd>${fig(`opt:${rec}:effect`, ev)} ${uxMark(optClass(x))}${DV_OPT[rec] ? dvTag(DV_OPT[rec]) : ''}</dd></div><div><dt>One-off cost · who pays</dt><dd>${cv} <small>${whoPays(x)}</small></dd></div><div><dt>Who chooses</dt><dd>${who(op, D.p)}</dd></div></dl>` : ''}
- <div class="ux-dgo">${rec ? uxOpener(`uxc-${id}`, 'Choose this option', 'button primary') : ''}<a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>${rec ? uxDrawer(`uxc-${id}`, `Choose: ${optLabel(rec)}`, choose) : ''}</section>`;
+ ${D.item ? `<div class="ux-dgo ux-chosen"><span class="status-pill is-approved">Chosen</span><span>${optLabel(D.item)}, by ${who(op, D.p)}${itemOf(op, D.item) ? ` · item ${(ITEM_STATE_WORD[itemOf(op, D.item).item_state] || '').toLowerCase()}` : ''}</span><a class="ux-link" href="#wd-h-${id}">See its Actions</a><a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>`
+  : `<div class="ux-dgo">${rec ? uxOpener(`uxc-${id}`, 'Choose this option', 'button primary') : ''}<a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>${rec ? uxDrawer(`uxc-${id}`, `Choose: ${optLabel(rec)}`, choose) : ''}`}</section>`;
 }
 document.addEventListener('click', e => { /* the choose drawer shows the page's own "who decides" steps */
   const o = e.target.closest('[data-ux-drawer^="uxc-"]'); if (!o) return;
@@ -4128,8 +4240,37 @@ function uxSiteTiles(sk) {
   const cost = o.kind === 'cost';
   return `<div class="heroes ux-kpis">${uxKpi(cost ? 'Cost per required departure met' : 'Contribution', fig(`node:${sk}:root`, cost ? fmtU(t.actual, t.unit) : usdW(t.actual)), [`Target ${cost ? fmtU(t.plan, t.unit) : usdW(t.plan)}`], cost ? '' : uxBullet(t.actual, t.plan, `Contribution ${usdW(t.actual)} against a target of ${usdW(t.plan)}`))}
  ${uxKpi('Gap to target', usdW(s.period.variance, true), [cost ? 'on cost' : 'October'])}
- ${uxKpi('Needs a decision', `${num(att.length)}`, [att.length ? att.map(r => r[1]).join(' · ') : 'Nothing waiting'])}
- ${uxKpi('Decisions open', `${num(decs.length)}`, [decs.length ? `${decs.map(d => d.q).slice(0, 2).join(' · ')}` : 'None'])}</div>`;
+ ${(() => { const v = decs.map(d => [d, uxRec(d)]).filter(([, r]) => r && /^[+−-]?\$/.test(String(optEffect(OPT[r])[0])));
+   return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, 12 months against no action`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
+ ${(() => { const st = decs.flatMap(uxRights).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+/) || [])[0];
+   return uxKpi('Value at stake', amt ? `${amt} ${uxMark('EXPOSURE')}` : '<span class="ux-kpi-na">None open</span>', [st ? `${st.asset} · ${String(st.type).toLowerCase()}` : 'No right at stake at this site']); })()}</div>`;
+}
+
+/* ---------- Decision options: the limits in one word per kind; the detail opens in the option's drawer (review finding 2) ---------- */
+function uxOblSummary(html) {
+  const n = k => (String(html).match(new RegExp(`obl-${k}\\b`, 'g')) || []).length, out = [];
+  if (n('fail')) out.push('<span class="ux-lim is-bad">Fails</span>');
+  if (n('pass')) out.push('<span class="ux-lim is-good">Passes</span>');
+  if (n('cost')) out.push('<span class="ux-lim">Costed</span>');
+  if (n('unknown')) out.push('<span class="ux-lim is-na">Cannot be checked yet</span>');
+  return out.join(' ') || '<span class="muted">None</span>';
+}
+
+/* ---------- The plan: an L1 band with the approval actions, and one line per item (review finding 6) ---------- */
+function uxPlanBand(op, P, budget) {
+  const o = OPS[op], S = PSTATE(), val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value, ms = crewByMonth(op, P);
+  return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">
+ ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
+ ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
+ ${uxKpi('Options’ value, 12 months', `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, ['Not realised until records show it'])}
+ ${uxKpi('Approval', `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span>`, [`Approver: ${who(op, execOf(op))}`])}
+ </div><div class="ux-planact"><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this mock-up. It is recorded under the executive’s name and the time.</span></div></section>`;
+}
+const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>12-month result</span><span>State</span></div>';
+function uxItemRow(op, id, f) {
+  const it = itemOf(op, id), acts = actionsOf(op, id), due = acts.map(a => a.due).filter(Boolean).sort()[0] || it?.service_date || null;
+  const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
+  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not available yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${wholeText(f.result)} ${f.cls ? uxMark(f.cls) : ''}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */
