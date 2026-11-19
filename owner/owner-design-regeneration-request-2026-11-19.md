@@ -52,3 +52,19 @@ Coordinator's text, as given to the owner:
 ## Owner's answers on rev 16.2 open points
 
 > Q-B1 yes, agree with the architect's pushbacks
+
+## Owner on delivery order and OD-7/OD-8 (rev 16.4)
+
+The owner asked:
+
+> in terms of delivery order, builing of external source emulators can happen in parallel with work related factor structure, right?
+
+The coordinator answered yes, and proposed redrawing Figure 10:
+1. Agree the canonical format and the leaf factor IDs (small, under W1).
+2. Run two lanes in parallel. Lane A: the commercial record store, the emulators and the contract test. Lane B: the factor structure, Findings pinned, and the structure observer on operational leaves from today's telemetry and fuel records.
+3. Join the lanes at the money leaves.
+4. Then targets and the bridge.
+
+The coordinator also asked the owner to confirm OD-7 and OD-8. The owner answered:
+
+> yes, send it along with OD-7 and OD-8 yes
