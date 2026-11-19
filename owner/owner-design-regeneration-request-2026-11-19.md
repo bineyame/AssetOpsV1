@@ -9,3 +9,7 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's direction (after the coordinator's reply)
 
 > this is not just a fix, i see it as a gap in the understanding  of the way the current product mechanics works, and what it lacks. Desciplined factor connection to outcome, value chain and performance to target, financial and operational integrations are clear boosters to an otherwise solid core in the current product and i feel that is not well recognizes. I want the design doc to be throughly checked and regenerated
+
+## Owner's addition (later the same day, on changes to the core)
+
+> i am not agaisnt change of the core but it needs to be for merit and intentional clearly exposing the issue against the objective we are trying to achive
