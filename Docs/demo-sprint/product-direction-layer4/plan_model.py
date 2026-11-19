@@ -567,8 +567,9 @@ def prose_facts():
 
 # Which documents carry which tables and facts. A table block present anywhere must match; these must be present.
 DOCS = {"two-week-build-plan.md": dict(tables={"capacity", "steps", "pages", "days", "pace", "stretch", "drop", "gantt", "owner"}, facts=True),
-        "delivery-plan.md": dict(tables={"slices"}, facts=False),
-        "../../go-to-market/commercial-plan.md": dict(tables=set(), facts=False)}   # Lane C adds ownertime/diagnostic blocks
+        "delivery-plan.md": dict(tables={"slices"}, facts=False)}
+# The commercial plan's tables are owned by ../../go-to-market/render_commercial_plan_html.py (it computes and checks them
+# from the input tables inside that document); plan_model does not generate them, so it does not compare them.
 
 
 def blocks(text):
