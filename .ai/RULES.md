@@ -240,3 +240,15 @@ round the Architect folds rulings into one current unit card.
   and updates `.ai/START_HERE.md` if authority moved.
 - **No new process artifacts** (guide, role, checklist, handoff category)
   unless the same need appeared in two tasks or the owner asks.
+
+## 10. Owner document brief (owner, 2026-11-19)
+
+Every design, strategy or explainer document for the owner starts in this shape (`owner/owner-design-regeneration-request-2026-11-19.md`):
+1. **Existing before new.** Describe what exists today first, accurately, and credit the value it delivers. Then describe what is added on top. Never frame the new as a replacement for the old.
+2. **Mechanism to value.** Tie each mechanism or construct to the business value it delivers and to the differentiation that converts clients.
+3. **Change on merit.** Each change names the issue it fixes, measured against the objective, with code evidence. Name what stays. No silent changes and no advocacy.
+4. **Structure first.** State core concepts and how they connect before the specifics. A worked example (a mini-grid, e.g. Kobo) illustrates the structure; it does not define it. Cover the operator's whole business, never one slice.
+5. **Person in the loop.** State who sees, decides, acts and tracks, and how each is recorded. The system proposes; people choose and act.
+6. **Precise concepts.** Use one name per meaning (e.g. a Finding is the living result of evaluating a condition, not the condition).
+7. **Short and illustrated.** Cover a few core topics. Put diagrams (use case, sequence, process flow) only where something changes. Move detail to appendices.
+8. **The owner decides.** Lay out each open question with context, an example and a default. Push back on the owner's view when you have reasons. Give recommendations, not option surveys.
