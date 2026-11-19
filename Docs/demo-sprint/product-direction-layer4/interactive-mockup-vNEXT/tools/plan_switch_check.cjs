@@ -207,6 +207,9 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const gapsSeen = [];
       else if (home === 'potential') { ok((HC.potential[VK[op]] || []).some(p => p.name === key), `${op} ${sk} ${id}: potential ${key} is in the data's potential list`); exp = 'grow'; }
       else { const row = key ? HC.nodes[VK[op]][key] : null; exp = row && ['grow', 'optimize', 'protect', 'assure'].includes(row[0]) ? row[0] : '';
         if (key && !bm) ok(key in nodes, `${op} ${sk} ${id}: key ${key} is an evaluated node of the Site`);
+        // the key is the right one: the row's October figure is that evaluated node's value (or its November-to-date value, for a row shown since 1 Nov)
+        if (key && r.dataset.via === 'node' && r.dataset.actual !== '') { const a = +r.dataset.actual, nv = DV.sites[`${T[op]}/${site.site}`].november_to_date?.nodes?.[key];
+          ok(Math.abs(a - nodes[key]) < 0.01 || (nv !== undefined && Math.abs(a - nv) < 0.01), `${op} ${sk} ${id}: figure ${a} is the evaluated ${key} (${nodes[key]}${nv !== undefined ? ', November ' + nv : ''})`); }
         if (!row) gapsSeen.push(r.querySelector('b')?.textContent); }
       ok(got === exp, `${op} ${sk} ${id}: heading ${exp || '(none)'} from the registry row ${key || '(none)'} (got ${got || '(none)'})`); }
     dom.window.close(); });

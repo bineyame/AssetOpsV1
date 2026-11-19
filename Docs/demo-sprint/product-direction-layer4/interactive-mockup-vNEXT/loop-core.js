@@ -87,7 +87,7 @@ function placeHomes(sk,root){const v=OPS[SK[sk].op].vertical,K=NODE_KEY[v];
  walk(root,n=>{let k=K[n.id];if(typeof k==='function')k=k(n);
   if(k&&typeof k==='object'){if(k.potential){const p=(HC.potential[VKEY[v]]||[]).find(x=>x.name===k.potential);if(p){n.lens='grow';n.potential=true;n.home='potential';n.obj=p.objective;n.hkey=p.name;return;}}
    else if(k.heading){[n.lens,n.obj]=k.heading;n.home='named';n.hkey=n.id;return;}k=null;}
-  if(!k&&n.driver)k=HC.bridge_drivers[n.driver];
+  n.hvia=k?'node':null;if(!k&&n.driver){k=HC.bridge_drivers[n.driver];n.hvia=k?'factor':null;}
   const row=k?homeRow(v,k):null;n.hkey=k||null;
   if(row&&row[0]==='above'){n.lens=null;n.above=true;n.home='above';}
   else if(row&&['grow','optimize','protect','assure'].includes(row[0])){n.lens=row[0];n.obj=row[1];n.home='named';}

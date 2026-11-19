@@ -2259,7 +2259,7 @@ function placeHomes(sk,root){const v=OPS[SK[sk].op].vertical,K=NODE_KEY[v];
  walk(root,n=>{let k=K[n.id];if(typeof k==='function')k=k(n);
   if(k&&typeof k==='object'){if(k.potential){const p=(HC.potential[VKEY[v]]||[]).find(x=>x.name===k.potential);if(p){n.lens='grow';n.potential=true;n.home='potential';n.obj=p.objective;n.hkey=p.name;return;}}
    else if(k.heading){[n.lens,n.obj]=k.heading;n.home='named';n.hkey=n.id;return;}k=null;}
-  if(!k&&n.driver)k=HC.bridge_drivers[n.driver];
+  n.hvia=k?'node':null;if(!k&&n.driver){k=HC.bridge_drivers[n.driver];n.hvia=k?'factor':null;}
   const row=k?homeRow(v,k):null;n.hkey=k||null;
   if(row&&row[0]==='above'){n.lens=null;n.above=true;n.home='above';}
   else if(row&&['grow','optimize','protect','assure'].includes(row[0])){n.lens=row[0];n.obj=row[1];n.home='named';}
@@ -3023,7 +3023,7 @@ function factorTable(sk,opts={}){const rows=[];
   const lab=`<div class="fac" style="--d:${d}">${d?'<span class="fac-branch" aria-hidden="true">└</span>':''}<div><b>${n.label}</b>${n.residual?` <span class="badge outline">${n.resLabel||'not explained by the model yet'}</span>`:''}<small>${n.how}</small>${n.bound?`<small class="bnd">${badge(...BOUND[n.bound.state])} ${n.bound.text}</small>`:''}</div></div>`;
   const pl=n.plan!=null?fmtU(n.plan,n.unit):'<span class="muted">not declared</span>';
   const ac=n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—';
-  rows.push(`<tr class="${n.residual?'resid':''} ${d===0?'root':''}" data-node="${n.id}" data-key="${n.hkey||''}" data-home="${n.home||''}" data-heading="${n.lens||''}"><th scope="row">${lab}</th><td>${n.obs&&n.plan==null?'<span class="muted">—</span>':pl}</td><td>${ac}</td><td>${devText(n)}</td><td>${n.eff!=null&&!n.obs?(n.evd&&n.actual==null?fig(n.evd,usd(n.eff,true)):usd(n.eff,true)):'—'}</td><td>${ec(n.cls)}</td><td>${n.lens?lensTag(n.lens)+(n.potential?' <small class="cellnote">potential, beside Grow, not its actual</small>':''):''}</td><td>${n.dec?link(`decision/${n.dec}`,'Decision →'):''}</td></tr>`);});
+  rows.push(`<tr class="${n.residual?'resid':''} ${d===0?'root':''}" data-node="${n.id}" data-key="${n.hkey||''}" data-home="${n.home||''}" data-via="${n.hvia||''}" data-actual="${typeof n.actual==='number'?n.actual:''}" data-heading="${n.lens||''}"><th scope="row">${lab}</th><td>${n.obs&&n.plan==null?'<span class="muted">—</span>':pl}</td><td>${ac}</td><td>${devText(n)}</td><td>${n.eff!=null&&!n.obs?(n.evd&&n.actual==null?fig(n.evd,usd(n.eff,true)):usd(n.eff,true)):'—'}</td><td>${ec(n.cls)}</td><td>${n.lens?lensTag(n.lens)+(n.potential?' <small class="cellnote">potential, beside Grow, not its actual</small>':''):''}</td><td>${n.dec?link(`decision/${n.dec}`,'Decision →'):''}</td></tr>`);});
  const cost=OPS[SK[sk].op].kind==='cost';
  return region(`Factor structure for ${SK[sk].name}`,`<table class="ftab"><thead><tr><th>Factor and how it composes</th><th>Target</th><th>October</th><th>Deviation</th><th>Effect on ${cost?'cost (+ lower)':'contribution'}</th><th>Evidence</th><th>Outcome</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`);}
 
