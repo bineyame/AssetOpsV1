@@ -25,3 +25,7 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's addition (diagram focus)
 
 > the diagrams should focus on only aspects that pertain to the chanes to the current product
+
+## Owner's direction on the document structure (after Phase A, commit d372c3682)
+
+> I want the document to be structured as follows 1- current overall architecture and business value it delivers , mecahnics it uses to deliver it  2- proposed architecture and changes that deliver even better value on top  of the existing one: focus on what the new constructs bring and they fit :e.g  factor(factor leaf..) he;p descipline connection of drivers to outcomes and commercial and operational integration address the data gap for perfromance to taget feature...etc all grounded on the differtiation we want the product to bring and convert client. Pay attention to workflow as well that involves the user. We also need to have broader view of the business in the analysis and design, not just focus on isolated slice.
