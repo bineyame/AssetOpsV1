@@ -16,7 +16,9 @@ Bindings: `.ai/ROLE_CONFIG.md`.
 - Demo shortcuts never silently redefine product semantics. Data without a
   source is shown as "not available yet", never invented.
 - If there is data in the selected range, every page shows output for that
-  range, the same way for every Site type (owner, 2026-11-12).
+  range, the same way for every Site type (owner, 2026-11-12). Setup facts
+  (foundation, single-line diagram) are not managed by date range for now;
+  versioning may come later and is not a priority (owner, 2026-11-19).
 
 ## 2. Roles and lanes
 
@@ -141,9 +143,10 @@ round the Architect folds rulings into one current unit card.
 ## 7. Tests, guards and the machine
 
 - Tests: `backend/TESTING.md`. Focused and adjacent files while building;
-  `python tools/select-tests.py --base main` picks the slice-end set. Full
-  suites only when the owner asks (owner rule from the demo sprint, still
-  applied): if asked, one at a time, on a quiet
+  `python tools/select-tests.py --base main` picks the slice-end set. The aim
+  is that expensive full runs never hold back progress (owner, 2026-11-19):
+  use isolated, smoke and regression tests while building, and run a full
+  suite at key milestones. Every full suite runs one at a time, on a quiet
   machine, with `tools/keep-awake-during-tests.ps1` started and a cap of twice
   the expected wall time (stop and report past the cap). Never a bare
   `docker compose up` for tests.
@@ -158,11 +161,13 @@ round the Architect folds rulings into one current unit card.
   12 Nov is ended (PIPE-1, coordinator rule).
 - Databases: only `*_test` and `<prefix>_audit*` databases in
   `assetopsv1-postgres-1`; never others. Drop your own when done.
-- Walkthrough and demo (owner): never touch port 5490 (walkthrough server,
-  `/opt/assetecon/AssetOpsV1-walk`) or Docker during task work; never write
-  to the walkthrough DB except through its own serve; port 8990 (uvicorn
-  `lab_app`) is not ours, leave it alone. Walkthroughs run only on a clean,
-  good DB; no fallback DB.
+- Walkthrough and demo: do nothing that interferes with tests or with the
+  owner's validation (owner, 2026-11-19). In practice that means:
+  - never disturb the walkthrough server on port 5490
+    (`/opt/assetecon/AssetOpsV1-walk`), the server on port 8990
+    (uvicorn `lab_app`), or Docker while they are in use;
+  - never write to the walkthrough DB except through its own serve.
+  Walkthroughs run on a clean, good DB (owner).
 - Keep `var/sites` and the Lab data intact. Do not switch branches in a
   checkout while an agent is working in it.
 - A unit that touches shared code or schema is reviewed before the next unit
