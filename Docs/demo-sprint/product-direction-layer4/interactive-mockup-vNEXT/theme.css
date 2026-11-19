@@ -297,6 +297,41 @@ tbody tr:hover>td,tbody tr:hover>th{background:var(--surface-2)}
 .ob-sum:focus-visible,.oc-cardlink:focus-visible::after{outline:2px solid var(--focus);outline-offset:-2px}
 .segment:hover,.segment.selected{outline-color:var(--focus)}
 
+/* 11b. Plan, Actions and who decides (Act first, the plan, decision pages, What changed) ------------ */
+.action-list.wide>li{grid-template-columns:minmax(0,2fr) minmax(0,1.3fr) 92px minmax(0,1.7fr);align-items:start}
+.action-list small{display:block;margin-top:2px;font-size:var(--fs-xs);color:var(--text-2);line-height:1.4}
+.action-list .state small{margin-top:4px}
+.action-list .what small .who,.action-list small .who{font-size:var(--fs-xs)}
+.plan-item{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3) var(--s4);margin-bottom:var(--s3);background:var(--surface)}
+.plan-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s3)}
+.plan-item-head h3{margin:2px 0 0;font-size:var(--fs-lg);font-weight:600;color:var(--text)}
+.plan-item-head .eyebrow{text-transform:none;letter-spacing:0}
+.plan-item-link{white-space:nowrap;font-size:var(--fs-sm)}
+.plan-item-figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:var(--s2) var(--s4);margin:var(--s3) 0;padding:var(--s2) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.plan-item-figs dt{font-size:var(--fs-xs);color:var(--text-2);font-weight:500}
+.plan-item-figs dd{margin:2px 0 0;font-size:var(--fs-sm);color:var(--text);font-variant-numeric:tabular-nums}
+.plan-status{display:flex;align-items:center;gap:var(--s2);margin:var(--s2) 0 var(--s1)}
+.plan-version{font-size:var(--fs-sm);font-weight:600;color:var(--text)}
+.plan-status-line,.plan-approver,.plan-actions-line,.approval-releases{margin:var(--s1) 0;font-size:var(--fs-sm);color:var(--text-2)}
+.plan-summary h2,.approval h2{margin:2px 0 0;font-size:var(--fs-lg)}
+.plan-summary .meter,.approval .meter{margin:var(--s3) 0}
+.plan-summary .kpi{margin:var(--s3) 0}
+.plan-summary .button.primary{display:flex;justify-content:center;margin-top:var(--s3)}
+.approval-buttons{display:flex;flex-wrap:wrap;gap:var(--s2);margin:var(--s3) 0 var(--s2)}
+.approval-buttons button[disabled]{opacity:.75;cursor:not-allowed}
+.illus{margin-top:var(--s2);font-style:italic}
+.triage li{grid-template-columns:110px minmax(0,1fr) auto}
+.triage-who{display:block;margin-top:4px;font-size:var(--fs-xs);color:var(--text-2)}
+.who-decides{padding:var(--s3) var(--s4)}
+.wd-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s3)}
+.wd-steps>li{min-width:0;padding:var(--s2) var(--s3);border-left:3px solid var(--accent-line);background:var(--surface-2);border-radius:0 var(--r1) var(--r1) 0;font-size:var(--fs-sm);color:var(--text)}
+.wd-steps>li>small,.wd-acts small{display:block;margin-top:4px;font-size:var(--fs-xs);color:var(--text-2);line-height:1.4}
+.wd-k{display:block;font-size:var(--fs-xs);font-weight:600;color:var(--text-2);margin-bottom:4px}
+.wd-acts{list-style:none;margin:0;padding:0}
+.wd-acts li+li{margin-top:var(--s2)}
+@media (max-width:1100px){.wd-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.wd-steps{grid-template-columns:minmax(0,1fr)}.triage li{grid-template-columns:1fr}.plan-item-head{flex-direction:column}.action-list.wide>li{grid-template-columns:minmax(0,1fr) auto}.action-list.wide .state{grid-column:1/-1;grid-row:auto}}
+
 /* 12. Breakpoints: laptop (1366, 1280), small laptop/tablet (<1200, <1100), phone (<760, 390) ---- */
 @media (max-width:1400px){
   .shell{grid-template-columns:196px minmax(0,1fr)}

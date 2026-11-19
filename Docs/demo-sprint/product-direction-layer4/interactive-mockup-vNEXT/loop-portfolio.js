@@ -145,9 +145,86 @@ function switches(op){const M=OPS[op].t.portfolio_constraints;
  if(op==='harvest')return `<fieldset class="switch"><legend>Aggregator signs the off-season contract</legend>${radio('sw-agg','yes','Yes',LS.agg)}${radio('sw-agg','no','No',!LS.agg)}<small>Budget ${usd(M.budget_usd_nov_dec)} for November and December.</small></fieldset>`;
  return `<fieldset class="switch"><legend>Embakasi’s time-of-use and demand-charge tariff applies (to confirm from the utility invoice)</legend>${radio('sw-tou','yes','Yes',LS.tou)}${radio('sw-tou','no','No',!LS.tou)}<small>Budget ${usd(M.budget_usd_nov_dec)} for November and December.</small></fieldset>`;}
 function meter(label,used,capv,fmt){const p=Math.min(100,used/capv*100);return `<div class="meter"><div class="meterhead"><span>${label}</span><strong>${fmt(used)} of ${fmt(capv)}</strong></div><div class="metertrack" role="img" aria-label="${label}: ${fmt(used)} of ${fmt(capv)}"><span style="width:${p}%"></span></div></div>`;}
-function actFirstScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec,crew=derivedPlan(op).crew_visits_limit;
+/* ---------- The plan's workflow: who acts, each Action and its release (design §2.4 step 4, §2.5, §2.6).
+   People, thresholds, Actions and the plan's state are read from MANIFEST.demo_workflow; the release reason is computed
+   from the rule (the item's whole one-off and crew visits against both thresholds) and checked against the stated release. */
+const TKEY={lakeside:'lakeside-power',harvest:'harvest-cold',metro:'metro-bus'};
+const WF=op=>M.demo_workflow.tenants.find(t=>t.tenant===TKEY[op]);
+const PSTATE=()=>M.demo_workflow.plan_state;
+const ROLE_WORD={OPERATOR_EXECUTIVE:'Operator executive',FINANCE_AND_COMMERCIAL_LEAD:'Finance and commercial lead',SITE_MANAGER:'Site manager',FIELD_TECHNICIAN:'Field technician',ANALYST:'Analyst'};
+const STATE_WORD={DRAFT:'Draft',PROPOSED:'Proposed',APPROVED:'Approved',REVISED:'Revised',CLOSED:'Closed'};
+const personSite=p=>p.site?p.site.split(' · ').pop():'';
+const personOf=(op,name)=>WF(op).people.find(p=>p.name===name);
+const personByRole=(op,role,site)=>WF(op).people.find(p=>p.role===role&&(!site||personSite(p)===site));
+const roleTitle=p=>ROLE_WORD[p.role]+(p.site?`, ${personSite(p)}`:'');
+const who=(op,p)=>{if(typeof p==='string')p=personOf(op,p);return p?`<span class="who"><b>${roleTitle(p)}</b><span>${p.name}</span></span>`:'not available yet';};
+const ILLUS='<p class="note illus">Names are illustrative.</p>';
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function periodWords(){const [a,b]=PSTATE().period.split(' to ').map(s=>+s.split('-')[1]);return a===b?MONTHS[a-1]:b===a+1?`${MONTHS[a-1]} and ${MONTHS[b-1]}`:`${MONTHS[a-1]} to ${MONTHS[b-1]}`;}
+function periodEnd(){const [y,m]=PSTATE().period.split(' to ').pop().split('-').map(Number);return new Date(Date.UTC(y,m,0)).toISOString().slice(0,10);}
+const crewOne=op=>OPS[op].crewWord.replace(/s$/,'');
+const execOf=op=>personByRole(op,'OPERATOR_EXECUTIVE');
+const actionsOf=(op,id)=>WF(op).actions.filter(a=>a.item===id);
+/* version 1 was proposed for the evaluated default case (the case whose items the stated Actions belong to) */
+function planItemsV1(op){return [...DERIVED.plans[TKEY[op]].default.items];}
+function releaseOf(op,id){const w=WF(op),x=DOPT(id),spend=x.operator_one_off||0,crew=x.crew_visits||0,n=actionsOf(op,id).length;
+ const overS=spend>w.spend_threshold,overC=crew>w.crew_visit_threshold,at=!overS&&!overC;
+ const amt=`${usd(spend)}${n===2?' over both Actions':n>2?` over its ${num(n)} Actions`:''}`;
+ const cw=crew===1?`a ${crewOne(op)}`:`${num(crew)} ${OPS[op].crewWord}`;
+ const reason=at?`Released when created: ${amt}, within the ${usd(w.spend_threshold)} spend threshold, no ${crewOne(op)}`
+  :`Waits for the plan’s approval: ${overS?`${amt}, above the ${usd(w.spend_threshold)} spend threshold`:`${amt}, within the spend threshold`}${overC?`${overS?', and':', but'} uses ${cw}`:''}`;
+ return {at,spend,crew,reason,code:at?'AT_CREATION':'AWAITS_APPROVAL'};}
+function dueWords(iso){const n=daysUntil(iso);return n<0?`overdue by ${num(-n)} day${n===-1?'':'s'}`:n===0?'due today':`in ${num(n)} day${n===1?'':'s'}`;}
+function actionState(op,a,inCase){const r=releaseOf(op,a.item);
+ if(r.code!==a.release)console.error(`release rule and stated release differ for ${a.item}: ${r.code} vs ${a.release}`);
+ if(!inCase)return [`<span class="status-pill">Returns to its creator</span>`,'Its item is left out in this case: the creator revises, defers or withdraws it'];
+ return r.at?[`<span class="status-pill is-approved">Released</span>`,r.reason]:[`<span class="status-pill is-waiting">Waiting for approval</span>`,r.reason];}
+function actionRows(op,acts,inCase=()=>true,showItem=false){if(!acts.length)return '<p class="note">No Action created for this item yet.</p>';
+ return `<ul class="action-list wide"><li class="action-list-head" aria-hidden="true"><span>Action</span><span>Owner</span><span>Due</span><span>State</span></li>${acts.map(a=>{const [pill,why]=actionState(op,a,inCase(a.item));
+  return `<li><span class="what">${a.action}<small>${showItem?`${SHORT[a.item]||optLabel(a.item)} · `:''}Created by ${who(op,a.created_by)}</small></span><span class="owner">${who(op,a.owner)}</span><span class="due">${fdate(a.due)}<small>${dueWords(a.due)}</small></span><span class="state">${pill}<small>${why}</small></span></li>`;}).join('')}</ul>`;}
+function waitingSummary(op){const ids=planItemsV1(op),acts=WF(op).actions.filter(a=>ids.includes(a.item)),wait=acts.filter(a=>!releaseOf(op,a.item).at),rel=acts.length-wait.length;
+ const waitItems=[...new Set(wait.map(a=>a.item))],spend=waitItems.reduce((s,id)=>s+(DOPT(id).operator_one_off||0),0);
+ return {n:acts.length,rel,wait:wait.length,waitItems,spend};}
+function planStatusBlock(op){const S=PSTATE();
+ return `<div class="plan-status"><span class="status-pill is-${S.state==='PROPOSED'?'proposed':S.state==='APPROVED'?'approved':'waiting'}">${STATE_WORD[S.state]}</span><span class="plan-version">Version ${num(S.version)}</span></div>
+ <p class="plan-status-line">Proposed by the system on ${fdate(S.proposed)} · awaiting the operator executive’s approval</p><p class="plan-approver">Approver: ${who(op,execOf(op))}</p>`;}
+function thresholdsKv(op){const w=WF(op);return kv([['Spend threshold',`${usd(w.spend_threshold)} <small class="cellnote">portfolio setting; no site setting</small>`],[`${cap(crewOne(op)).replace(' ','-')} threshold`,`${num(w.crew_visit_threshold)} <small class="cellnote">${w.crew_visit_threshold===0?'the default: any visit needs approval':'portfolio setting'}</small>`]])+`<p class="note">A change is released when it is created only if its whole one-off is at or below the spend threshold and its ${OPS[op].crewWord} are at or below their threshold, and the plan still fits. Otherwise its Actions wait for the executive’s approval of the version.</p>`;}
+
+/* ---------- Act first: the Finding triage first, the plan beside it ---------- */
+const DECIDER_BY_SUBJECT={'kisiwa-om':'FINANCE_AND_COMMERCIAL_LEAD','mto-billing':'FINANCE_AND_COMMERCIAL_LEAD','ruiru-connector':'FINANCE_AND_COMMERCIAL_LEAD','ruiru-expansion':'OPERATOR_EXECUTIVE'};
+/* who chooses (design §2.4 step 2): in the demonstration, the person who created the chosen item's Actions; with no Action yet,
+   the role §2.4 step 2 names for the decision's subject (billing and claims: finance and commercial lead; capital: executive;
+   operations and O&M: the site manager) */
+function deciderOf(decId){const d=decById(decId),op=SK[d.site].op,item=d.opts.find(id=>actionsOf(op,id).length);
+ if(item)return {op,p:personOf(op,actionsOf(op,item)[0].created_by),item};
+ const role=DECIDER_BY_SUBJECT[decId]||'SITE_MANAGER';return {op,p:personByRole(op,role,role==='SITE_MANAGER'?SK[d.site].name:''),item:null};}
+function triageList(op){return `<ul class="attn triage">${ATTN[op].map(([k,t,s,txt,d])=>{const D=deciderOf(d);
+ return `<li class="attn-${k}"><span class="attn-k">${t}</span><div><b>${SK[s].name}</b> · ${txt}<small class="triage-who">Decides: ${who(op,D.p)}</small></div>${link(`decision/${d}`,'Decision →')}</li>`;}).join('')}</ul>`;}
+function planSummary(op){const P=planCase(op),o=OPS[op],M2=o.t.portfolio_constraints,budget=op==='lakeside'?LS.budget:M2.budget_usd_nov_dec,crew=derivedPlan(op).crew_visits_limit,W=waitingSummary(op);
+ return `<section class="panel plan-summary" aria-labelledby="ps-h"><h2 id="ps-h">The plan for ${periodWords()}</h2>${planStatusBlock(op)}
+ ${meter('Budget used',P.spend,budget,usd)}${meter(cap(o.crewWord)+' used',P.visits,crew,num)}
+ <div class="kpi"><div class="kpi-label">Modelled 12-month change from the valued options</div><div class="kpi-value">${usd(P.value??derivedPlan(op).value,true)}</div><div class="kpi-sub">Not realised: money is counted only when records show it</div></div>
+ <p class="plan-actions-line">${num(W.n)} Actions: ${num(W.rel)} released when created, ${num(W.wait)} waiting for approval</p>
+ <h3 class="h3s">Release thresholds</h3>${thresholdsKv(op)}
+ ${btn('portfolio/act-first/plan','Open the plan',true)}${ILLUS}</section>`;}
+function actFirstScreen(){const op=LS.op;
+ return `<div class="layout-main-side"><div>${sec('Issues needing a decision',triageList(op),'Each issue with its site, what is at stake and who decides. The system values the options; a person chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
+
+/* ---------- The plan (drill-down from Act first): items, their Actions, approval ---------- */
+function itemActions(op,id){return actionRows(op,actionsOf(op,id));}
+function approvalPanel(op,P,budget,crew){const S=PSTATE(),W=waitingSummary(op),def=DEFAULT_CASE(op);
+ return `<section class="panel approval" aria-labelledby="ap-h"><h2 id="ap-h">Approval</h2>${planStatusBlock(op)}
+ ${kv([['Opened',`${fdate(S.opened)}, by the system, within the executive’s limits`],['Proposed',`${fdate(S.proposed)}, by the system`]])}
+ ${meter('Budget used',P.spend,budget,usd)}${meter(cap(OPS[op].crewWord)+' used',P.visits,crew,num)}
+ <p class="approval-releases">Approving releases ${num(W.wait)} waiting Action${W.wait===1?'':'s'} on ${num(W.waitItems.length)} item${W.waitItems.length===1?'':'s'}, ${usd(W.spend)} of one-off spend.</p>
+ ${def?'':`<p class="notice">The case shown is not the proposed version. Version ${num(S.version)} was proposed for the default switches; approving a different case makes a new version.</p>`}
+ <div class="approval-buttons"><button type="button" class="button primary" disabled title="Not wired in this mock-up">Approve version ${num(S.version)}</button><button type="button" class="button" disabled title="Not wired in this mock-up">Send back with a trade-off</button></div>
+ <p class="note">Recorded under the executive’s name and the time. Sending it back returns each changed item to its creator with the reason.</p>
+ <h3 class="h3s">Release thresholds</h3>${thresholdsKv(op)}${ILLUS}</section>`;}
+function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec,crew=derivedPlan(op).crew_visits_limit;
  const rows=P.ids.map(id=>{const x=OPT[id],[cv,cn]=optCost(x),[ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(x),d=DEC_SEE_ALSO[id]||decOf(id).id;
-  return [`${siteLink(x._site)}`,`<b>${optLabel(id)}</b>`,WHY_FIRST[id]||'',id==='MTO-METER-AUDIT'?`${usd(OPT['MTO-METER-AUDIT'].cost)} <small class="cellnote">routine maintenance budget</small>`:`${fig(`opt:${id}:cost`,cv)} <small class="cellnote">${whoPays(x)}</small>`,VISIT[id]?.[0]?.()||'—',`${ev} <small class="cellnote">${en}</small>${ec(id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x))}${DV_OPT[id]?dvTag(DV_OPT[id]):''}`,fx(x.condition)||'—',link(`decision/${d}`,'Decision →')];});
+  const costc=id==='MTO-METER-AUDIT'?`${usd(OPT['MTO-METER-AUDIT'].cost)} <small class="cellnote">routine maintenance budget</small>`:`${fig(`opt:${id}:cost`,cv)} <small class="cellnote">${whoPays(x)}</small>`,effc=`${ev} <small class="cellnote">${en}</small>${ec(id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x))}${DV_OPT[id]?dvTag(DV_OPT[id]):''}`,cond=fx(x.condition);
+  return `<article class="plan-item"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header><dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article>`;});
  const say=op==='lakeside'?`Plan re-computed: spend ${usd(P.spend)}, modelled 12-month change ${usd(P.value,true)}.`:`Plan re-computed: spend ${usd(P.spend)}.`;
  let excl=[];
  if(op==='lakeside'){excl=A.excluded.filter(x=>!['MTO-INV-BUYNOW'].includes(x.id)).map(x=>[x.id,fx(x.reason)]);if(P.lose)excl.unshift([P.lose.id,P.loseAffordable?`Under this assumption it gives ${usd(P.lose.value,true)} against ${usd(P.win.value,true)}`:`Needs ${usd(P.lose.spend)} with everything else; the budget is ${usd(budget)}`]);if(!P.huller)excl.unshift(['MTO-HULLER',cap(hullerCell(inv0(P.c)))]);}
@@ -162,12 +239,15 @@ function actFirstScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=
   :`<div class="total"><span>Modelled 12-month change from the valued options, not realised</span><strong>${derivedPlan('metro').value?usd(derivedPlan('metro').value,true):'$0'}</strong><small>${valueNote(op,P)} ${dvTag()} (schedule feasibility, ${num(DOPT('EMB-DEADLINE').params.feasible_nights)} of ${num(SN('embakasi').nights_in_period)} nights).</small><p class="downside">${downside(op)}</p></div>`;
  const paths=op==='lakeside'?sec('Two ways to restore Mto’s inverter, under this assumption',`<div class="paths">${[P.win,P.lose].filter(Boolean).map((x,i)=>`<div class="path ${i===0?'win':''}"><div class="eyebrow">${i===0?'In the plan':'Competing path'}</div><h3>${optLabel(x.id)}</h3>${kv([['Plan spend',usd(x.spend)],['Modelled 12-month change from the valued options',usd(x.value,true)],['Inverter back',fdate(DOPT(x.id).restore_date)],['Rice huller',x.huller?'Kept':cap(hullerCell(x.id))],['Fits the budget',x.spend<=budget?'Yes':'No']])}</div>`).join('')}</div><p class="note">${mtoCapacityLine()}</p>`,'Both paths shown side by side; the plan picks the better one that fits.'):'';
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).sort((a,b)=>a[0].localeCompare(b[0]));
- return `<div class="grid2 controls"><div>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></div><div>${meter('Budget used',P.spend,budget,usd)}${meter(cap(o.crewWord)+' used',P.visits,crew,num)}${op==='harvest'&&!LS.agg?'':''}</div></div>
- ${sec('The plan for November and December',region('Recommended set',table(['Site','What','Reason it comes first','Cost · who pays','Crew or technician','12-month result · evidence','Condition',''],rows))+total,`One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least.`)}
+ const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
+ return `<div class="layout-main-side"><div>
+ ${sec(`The plan for ${periodWords()}: items and their Actions`,rows.join('')+total+ILLUS,`One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.`)}
  ${paths}
  <div class="grid2">${sec('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)))}${sec('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))))}</div>
- ${sec('Excluded or deferred, and why',region('Excluded options',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))))}
- ${op==='lakeside'?sec('All four cases of the two switches',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend','Modelled 12-month change'],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}`;}
+ ${sec('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))))}
+ ${op==='lakeside'?sec('All four cases of the two switches',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend','Modelled 12-month change'],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
+ ${gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):''}
+ </div><aside class="side-panel">${approvalPanel(op,P,budget,crew)}<section class="panel controls" aria-labelledby="sw-h"><div class="eyebrow">What if</div><h2 id="sw-h">Switches</h2>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section></aside></div>`;}
 
 /* ---------- Outcomes by site: each outcome's factor structure by site ---------- */
 function lensGrid(op){const o=OPS[op];
@@ -231,7 +311,12 @@ const COMMIT=new Proxy({},{get:(_,op)=>COMMIT_OF(op)});
 function whatChangedScreen(){const op=LS.op;
  const rows=COMMIT[op].map(([d,what,pred,state])=>[link(`decision/${d}`,what),pred+ec('MODELLED'),state,badge('Not yet','amber'),badge('Not yet','amber'),badge('Not yet','amber')]);
  const rt=RIGHTS_OF_OP[op].map(k=>{const r=rightsOf(k),cur=STAGE_IX[r.state];return [link(`decision/${r.dec}`,r.asset),r.type,`<span class="ministeps" aria-label="Stage ${cur+1} of 8: ${cur>=0?STAGES[cur]:'no claim stage'}">${STAGES.map((st,i)=>`<i class="${i<=cur?'on':''}" title="${st}"></i>`).join('')}</span><small class="cellnote">${cur>=0?STAGES[cur]:'No claim possible'}${r.stopped?' · '+r.stopped:''}</small>`,r.deadline?`${fdate(r.deadline)} <small class="cellnote">${daysUntil(r.deadline)} days</small>`:'—',r.cost,'None'];});
- return `${sec('Actions: what was chosen, its frozen prediction and three verdicts',region('Actions',table(['Action (the chosen option)','Frozen prediction','State','Operational verdict: factor moved, limits held','Economic verdict: money moved','Causal verdict: strength of attribution'],rows))+'<p class="note">Each chosen option is tracked here as an Action from the moment it is chosen. Each verdict is separate. Not proven yet is a verdict, not a pass; a prediction is never relabelled as realised.</p>')}
+ const S=PSTATE(),v1=planItemsV1(op),acts=WF(op).actions;
+ const review=v1.map(id=>{const x=OPT[id],[ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(x),A=actionsOf(op,id);return [`<b>${optLabel(id)}</b><small class="cellnote">${SK[x._site].name}</small>`,`${ev} <small class="cellnote">${en}</small>`,A.length?A.map(a=>who(op,a.owner)).filter((v,i,l)=>l.indexOf(v)===i).join('<br>'):'No Action yet','Not yet',badge('Not yet','amber')];});
+ return `<div class="kpi-row"><div class="kpi"><div class="kpi-label">The plan</div><div class="kpi-value">Version ${num(S.version)}</div><div class="kpi-sub">${STATE_WORD[S.state]}, awaiting the operator executive’s approval</div></div><div class="kpi"><div class="kpi-label">Actions</div><div class="kpi-value">${num(acts.length)}</div><div class="kpi-sub">${num(waitingSummary(op).rel)} released, ${num(waitingSummary(op).wait)} waiting for approval</div></div><div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-value">${num(acts.filter(a=>daysUntil(a.due)<0).length)}</div><div class="kpi-sub">as of ${fdate(AS_OF)}</div></div><div class="kpi"><div class="kpi-label">Plan review</div><div class="kpi-value">${fdate(periodEnd())}</div><div class="kpi-sub">when the period ends</div></div></div>
+ ${sec('Actions and their owners',actionRows(op,acts,()=>true,true)+ILLUS,'Every Action with who created it, who owns it, when it is due and whether it is released. Overdue is shown when a due date passes.',btn('portfolio/act-first/plan','Open the plan'))}
+ ${sec('The plan’s review',region('Plan review',table(['Item','Predicted change','Owners','Observed change','State'],review))+`<p class="note">At the end of the period, ${fdate(periodEnd())}, each item’s predicted factor change is set against what was observed. The plan’s realised value comes only from the money verdicts. Not run yet: the period is open.</p>`)}
+ ${sec('What was chosen: its frozen prediction and three verdicts',region('Chosen options',table(['The chosen option','Frozen prediction','State','Operational verdict: factor moved, limits held','Economic verdict: money moved','Causal verdict: strength of attribution'],rows))+'<p class="note">Each chosen option is tracked from the moment it is chosen, through the Actions people create for it. Each verdict is separate. Not proven yet is a verdict, not a pass; a prediction is never relabelled as realised.</p>')}
  ${sec('Rights measures by contract and period (as of 6 Nov)',rightsMeasures(op))}
  ${sec('Rights tracker',region('Rights tracker',table(['Asset or contract','Type','State','Deadline','Our cost','Money recorded'],rt))+'<p class="note">Every state is set by a person from a recorded document or event. Money is recorded only when a credit note or receipt arrives.</p><p class="legal">This is not a legal decision. Coverage is decided by the supplier or insurer.</p>')}`;}
 
