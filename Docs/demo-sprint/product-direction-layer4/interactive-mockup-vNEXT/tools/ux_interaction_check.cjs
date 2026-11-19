@@ -72,11 +72,73 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
         const a = e.getBoundingClientRect(), c = card.getBoundingClientRect(); if (a.width && (a.right > c.right + 1 || a.right > innerWidth)) out.push(`${e.textContent.trim().slice(0, 30)} (${Math.round(a.right)} > ${Math.round(c.right)})`); }
       return out; });
     ok(!bad.length, `${op} ${r} at 390: chips and pills inside their cards (${bad.slice(0, 3).join('; ') || 'none past'})`); await p.context().close(); }
+  // wave 2: the queue's Why, filters, sort and group (Metro: 3 Sites)
+  { const p = await page('portfolio', { op: 'metro' });
+    await p.click('.ux-queue>li.ux-q .ux-q-more'); await p.waitForTimeout(100);
+    const why = await p.evaluate(() => { const b = document.querySelector('.ux-queue>li.ux-q .ux-q-more'), t = document.getElementById(b.getAttribute('aria-controls')); return b.getAttribute('aria-expanded') === 'true' && t.offsetParent !== null && t.textContent.length > 20; });
+    ok(why, 'queue: Why expands the explanation (aria-expanded)');
+    await p.selectOption('.ux-overview [data-qf="site"]', 'embakasi'); await p.waitForTimeout(100);
+    const f = await p.evaluate(() => { const li = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')].filter(x => !x.hidden); return { n: li.length, all: li.every(x => x.dataset.site === 'embakasi'), count: document.querySelector('.ux-overview .ux-qcount').textContent }; });
+    ok(f.n > 0 && f.all && /^\d+ of \d+$/.test(f.count), `queue filter by Site: ${f.n} Embakasi rows only (${f.count})`);
+    await p.selectOption('.ux-overview [data-qf="site"]', ''); await p.selectOption('.ux-overview [data-qs]', 'due'); await p.waitForTimeout(100);
+    const due = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')].map(x => x.dataset.due || '9999'));
+    ok(due.every((d, i) => i === 0 || due[i - 1] <= d), `queue sort by due date: ${due.join(', ')}`);
+    await p.selectOption('.ux-overview [data-qg]', 'site'); await p.waitForTimeout(100);
+    const g = await p.evaluate(() => ({ heads: [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-grp h3')].map(h => h.textContent.trim()), sites: new Set([...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')].map(x => x.dataset.site)).size }));
+    ok(g.heads.length === g.sites && g.sites > 1, `queue group by Site: ${g.heads.join(' | ')}`);
+    await p.context().close(); }
+  // wave 2: the provenance popover, the command search, the scope switcher, the period menu
+  { const p = await page('portfolio');
+    await p.click('.ux-prov>summary'); await p.waitForTimeout(100);
+    const pv = await p.evaluate(() => { const d = document.querySelector('.ux-prov'); return d.open && /Design estimate/.test(d.textContent) && d.querySelector('.ux-pop-menu').offsetParent !== null; });
+    await p.keyboard.press('Escape'); await p.waitForTimeout(100);
+    const pc = await p.evaluate(() => !document.querySelector('.ux-prov').open && document.activeElement === document.querySelector('.ux-prov>summary'));
+    ok(pv && pc, 'provenance: About these figures opens with the † meaning; Esc closes it and returns focus');
+    await p.keyboard.press('Control+k'); await p.waitForTimeout(150);
+    const op1 = await p.evaluate(() => document.getElementById('ux-cmd')?.dataset.open === 'true' && document.activeElement.classList.contains('ux-cmd-in'));
+    await p.keyboard.type('kobo gen'); await p.waitForTimeout(100);
+    const first = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent);
+    await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+    const at = await p.evaluate(() => location.hash);
+    ok(op1 && /Kobo generator stop setting/.test(first || '') && at === '#/decision/kobo-generator', `command search: Ctrl+K opens, "kobo gen" finds "${first}", Enter opens ${at}`);
+    await p.click('.topbar [data-index]'); await p.waitForTimeout(150);
+    const op2 = await p.evaluate(() => document.getElementById('ux-cmd').dataset.open === 'true');
+    await p.keyboard.press('Escape'); await p.waitForTimeout(100);
+    const cl = await p.evaluate(() => document.getElementById('ux-cmd').dataset.open === 'false');
+    ok(op2 && cl, 'command search: the top bar search opens it; Esc closes it');
+    await p.goto(base + '#/portfolio'); await p.waitForTimeout(400);
+    await p.click('.ux-scope-sw>summary'); await p.click('.ux-scope-sw a[href="#/site/kobo"]'); await p.waitForTimeout(400);
+    ok(await p.evaluate(() => location.hash === '#/site/kobo' && /Kobo/.test(document.querySelector('.ux-scope-sw>summary').textContent)), 'scope switcher: opens a Site and names it');
+    await p.click('.ux-period>summary'); await p.waitForTimeout(100);
+    ok(await p.evaluate(() => { const d = document.querySelector('.ux-period'); return d.open && /not available yet/.test(d.textContent) && !!d.querySelector('.period-chip'); }), 'period menu: the current period, earlier periods "not available yet"');
+    await p.context().close(); }
+  // wave 2: the bridge links each step to its decision, with detail on focus; the value chain draws its losses; tiles have a visual
+  for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
+    const a = await p.$('.ux-wf-a'); let tip = false, href = null;
+    if (a) { await a.focus(); await p.waitForTimeout(200); href = await a.getAttribute('href'); tip = await p.evaluate(() => { const t = document.activeElement.parentElement.querySelector('.ux-tip'); return +getComputedStyle(t).opacity > 0.9 && getComputedStyle(t).visibility === 'visible'; }); }
+    const vc = await p.evaluate(() => [...document.querySelectorAll('.ux-vc-loss .ux-vc-bar')].filter(b => b.getBoundingClientRect().width > 1).length);
+    const tiles = await p.evaluate(() => [...document.querySelectorAll('.ux-cat')].map(t => !!t.querySelector('.ux-bullet, .ux-seg, .ux-meterbar')));
+    ok(!!href && /^#\/decision\//.test(href) && tip, `${op} bridge: a step links to ${href} and shows its detail on focus`);
+    const noLeak = await p.evaluate(() => /no leak measured/.test(document.querySelector('[id^="uxv-h-"]')?.parentElement?.textContent || ''));
+    ok(vc >= 1 || noLeak, `${op} value chain: ${vc} loss bars drawn${noLeak ? ' (no leak measured, said in the title)' : ''}`);
+    ok(tiles.filter(Boolean).length >= 3, `${op} outcome tiles: ${tiles.filter(Boolean).length} of 4 with a target-against-actual visual`);
+    await p.context().close(); }
+  // brand packs: the review-bar switch applies a pack; status colours and layout stay; text contrast holds in both packs
+  { const p = await page('portfolio');
+    const before = await p.evaluate(() => ({ b: document.documentElement.getAttribute('data-brand'), bad: getComputedStyle(document.querySelector('.ux-chip.is-bad')).color, h: document.documentElement.scrollHeight }));
+    await p.selectOption('#ux-brand', 'africa'); await p.waitForTimeout(200);
+    const after = await p.evaluate(() => ({ b: document.documentElement.getAttribute('data-brand'), bad: getComputedStyle(document.querySelector('.ux-chip.is-bad')).color, h: document.documentElement.scrollHeight, band: getComputedStyle(document.querySelector('.topbar'), '::after').backgroundImage !== 'none' }));
+    await p.reload(); await p.waitForTimeout(400);
+    const kept = await p.evaluate(() => document.documentElement.getAttribute('data-brand'));
+    ok(!before.b && after.b === 'africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) < 12 && kept === 'africa', `brand switch: neutral to African identity, motif band on, status colour unchanged, layout height within 12 px (${before.h} to ${after.h}), kept on reload`);
+    await p.selectOption('#ux-brand', 'neutral'); await p.waitForTimeout(150);
+    ok(await p.evaluate(() => !document.documentElement.hasAttribute('data-brand')), 'brand switch: back to neutral');
+    await p.context().close(); }
   // short laptop: the first queue row is above the fold at 1280 x 720 (guide §3.5)
   for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first']]) {
     const p = await page(r, { w: 1280, h: 720, op });
-    const y = await p.evaluate(() => { const li = document.querySelector('.ux-queue>li'); return li ? Math.round(li.getBoundingClientRect().bottom + scrollY) : null; });
-    ok(y !== null && y <= 720, `${op} ${r} at 1280 x 720: first queue row ends at ${y} px (fold 720)`); await p.context().close(); }
+    const y = await p.evaluate(() => { const li = document.querySelector('.ux-queue>li'); return li ? Math.round(li.getBoundingClientRect().bottom + scrollY) : null; }), ovf = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+    ok(y !== null && y <= 720 && !ovf, `${op} ${r} at 1280 x 720: first queue row ends at ${y} px (fold 720), no sideways scroll`); await p.context().close(); }
   // the header holds one row; a recalculation notice has its own row under it
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
     const r = await p.evaluate(() => ({ h: Math.round(document.querySelector('.topbar').getBoundingClientRect().height), inBar: !!document.querySelector('.topbar .snap-pending'), row: !!document.querySelector('.canvas>.ux-pending .snap-pending'), ovf: document.documentElement.scrollWidth > innerWidth }));

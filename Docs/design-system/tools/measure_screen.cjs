@@ -6,7 +6,10 @@ const { chromium } = require(process.env.PW);
 (async () => {
   const [src, w = '1440', h = '900', dark, names = 'Needs a decision|Factors needing attention'] = process.argv.slice(2);
   const b = await chromium.launch({ executablePath: process.env.CHROME });
-  const p = await b.newPage({ viewport: { width: +w, height: +h }, colorScheme: dark === 'dark' ? 'dark' : 'light' });
+  const ctx = await b.newContext({ viewport: { width: +w, height: +h }, colorScheme: dark === 'dark' ? 'dark' : 'light' });
+  /* optional: L4_OP (demo operator) and L4_BRAND (brand pack) */
+  await ctx.addInitScript(([o, br]) => { try { if (o) sessionStorage.setItem('l4-op', o); if (br) localStorage.setItem('l4-brand', br); } catch (e) {} }, [process.env.L4_OP || '', process.env.L4_BRAND || '']);
+  const p = await ctx.newPage();
   const errors = []; p.on('pageerror', e => errors.push(e.message));
   await p.goto(src); await p.waitForTimeout(800);
   const r = await p.evaluate(({ names, vh }) => {

@@ -34,7 +34,7 @@ function visible(doc) {
    element's own spacing kept (no space added between inline nodes), so a doubled word or a stray space shows as it renders */
 function segments(root) {
   const c = root.cloneNode(true); c.querySelectorAll('.reviewbar, script, style, [hidden], .sr-only-tech, details.tech').forEach(x => x.remove());
-  c.querySelectorAll('small, br').forEach(x => x.before(' ¶ ')); /* a line break or a note under a label reads as a new line, not run-on text */
+  c.querySelectorAll('small, br, .ux-tip, .ux-wf-val, .ux-q-why').forEach(x => x.before(' ¶ ')); /* a line break or a note under a label reads as a new line, not run-on text */
   const seen = new Set();
   for (const e of c.querySelectorAll('p, li, td, th, dd, dt, h1, h2, h3, h4, summary, figcaption, small, label')) { if (e.querySelector('.ux-drawer, select, .vh')) continue; const t = e.textContent.replace(/\s+/g, ' ').trim(); if (t) seen.add(t); }
   return [...seen];

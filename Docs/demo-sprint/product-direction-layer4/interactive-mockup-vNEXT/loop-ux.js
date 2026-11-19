@@ -47,30 +47,85 @@ function uxChip(k, t) { const tone = uxTone(k, t); return `<span class="ux-chip 
 const UX_MON = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)';
 const uxRights = d => (d.rights || []).map(k => { try { return rightsOf(k); } catch (e) { return null; } }).filter(Boolean);
 function uxRec(d) { const op = SK[d.site].op, inPlan = planItemsV1(op); return d.opts.find(x => OPT[x].disposition === 'RECOMMENDED') || d.opts.find(x => inPlan.includes(x)); }
-function uxStake(decId) {
-  const d = decById(decId); if (!d) return '<span class="muted">Not available yet</span>';
-  const rec = uxRec(d), x = rec ? OPT[rec] : null, ev = x ? String(optEffect(x)[0]) : '';
-  if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec), capAv = x.avoided_capex != null && !/^[+−-]/.test(ev);
-    return `<span class="ux-q-v">${wholeText(ev)}</span> ${uxMark(optClass(x))}<small>${capAv ? 'capital avoided, not a saving' : '12 months'} · ${inP ? 'in the plan' : 'not in the plan'}</small>`; }
-  const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
-  if (amt) return `<span class="ux-q-v">${wholeText(amt)}</span> ${uxMark('EXPOSURE')}<small>${/cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake'}</small>`;
-  if (ev && !/^Not (valued|modelled)/i.test(ev)) return `<span class="ux-q-word">${ev}</span>`;
-  return '<span class="muted">Not available yet</span>';
-}
 function uxDue(decId, txt) {
   const d = decById(decId), r = d && uxRights(d).find(r => r.deadline);
   if (r) return fdate(r.deadline);
   const m = String(txt).match(new RegExp(`(?:due|lapses(?: on)?|by|deadline)\\s+(\\d{1,2} ${UX_MON})`));
   return m ? m[1] : '<span class="muted">No deadline</span>';
 }
+
+function uxStake(decId) {
+  const p = uxStakeParts(decId);
+  return p.value ? `<span class="ux-q-v">${p.value}</span><small>${p.note}</small>` : p.word ? `<span class="ux-q-word">${p.word}</span>` : '<span class="muted">Not available yet</span>';
+}
+/* the at-stake figure in parts (value, note, certainty), so the row stays scannable and the certainty sits in the row's detail */
+function uxStakeParts(decId) {
+  const d = decById(decId); if (!d) return {};
+  const rec = uxRec(d), x = rec ? OPT[rec] : null, ev = x ? String(optEffect(x)[0]) : '';
+  if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec), capAv = x.avoided_capex != null && !/^[+−-]/.test(ev);
+    return { value: wholeText(ev), num: Number(ev.replace(/[^\d.−-]/g, '').replace('−', '-')) || 0, note: `${capAv ? 'capital avoided, not a saving' : '12 months'} · ${inP ? 'in the plan' : 'not in the plan'}`, cls: optClass(x), dv: !!DV_OPT[rec], rec }; }
+  const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
+  if (amt) return { value: wholeText(amt), num: Number(amt.replace(/[^\d.]/g, '')) || 0, note: /cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake', cls: 'EXPOSURE', rec };
+  if (ev && !/^Not (valued|modelled)/i.test(ev)) return { word: ev, num: 0, rec };
+  return { num: 0, rec };
+}
+const UX_ISO_MON = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+function uxDueIso(decId, txt) {
+  const d = decById(decId), r = d && uxRights(d).find(r => r.deadline); if (r) return String(r.deadline).slice(0, 10);
+  const m = String(txt).match(new RegExp(`(?:due|lapses(?: on)?|by|deadline)\\s+(\\d{1,2}) (${UX_MON})`)); return m ? `2026-${UX_ISO_MON[m[2]]}-${m[1].padStart(2, '0')}` : '';
+}
+/* decision queue (guide §7.1, wave 2): a short title and scannable columns; the explanation and the certainty one click away */
+let UX_QN = 0;
 function uxQueue(op, rows, cls = '') {
   if (UX_STATE === 'loading') return `<div class="ux-skel" role="status"><span class="vh">Loading decisions…</span>${'<span class="ux-skel-row" aria-hidden="true"></span>'.repeat(3)}</div>`;
   if (UX_STATE === 'empty' || !rows.length) return '<p class="ux-empty" role="status">No decisions waiting. New issues appear here when the next day of records is in.</p>';
   const seen = {};
-  return `<div class="ux-queue-wrap"><div class="ux-qh" aria-hidden="true"><span>Issue</span><span>At stake</span><span>Due</span><span>Who decides</span><span></span></div><ul class="attn triage ux-queue ${cls}">${rows.map(([k, t, s, txt, d]) => {
-    const D = deciderOf(d), first = seen[d]; seen[d] = seen[d] || `the ${String(t).toLowerCase()} issue above`;
-    return `<li class="attn-${k} ux-q"><div class="ux-q-issue"><div class="ux-q-top">${uxChip(k, t)}<b class="ux-q-site">${SK[s].name}</b></div><div class="ux-q-txt">${txt}</div></div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${first ? `<span class="ux-q-word">Same decision as ${first}</span>` : uxStake(d)}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${uxDue(d, txt)}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${SK[s].name}, ${escapeHtml(t)}</span>`, 'button ux-q-go')}</li>`;
-  }).join('')}</ul></div>`;
+  const items = rows.map(([k, t, s, txt, d], i) => {
+    const D = deciderOf(d), first = seen[d], dec = decById(d), id = `uxq-${++UX_QN}`, P = uxStakeParts(d), due = uxDueIso(d, txt);
+    seen[d] = seen[d] || `the ${String(t).toLowerCase()} issue above`;
+    const stake = first ? `<span class="ux-q-word">Same decision as ${first}</span>` : P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
+    const ck = P.cls && (CLS[P.cls] || [])[1], cert = !first && P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
+    return `<li class="attn-${k} ux-q" data-order="${i}" data-site="${s}" data-kind="${uxTone(k, t)}" data-due="${due}" data-stake="${first ? 0 : P.num || 0}"><div class="ux-q-issue"><div class="ux-q-top">${uxChip(k, t)}<b class="ux-q-title">${dec ? dec.q : t}</b></div><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why<span class="vh">: ${escapeHtml(dec ? dec.q : t)}</span></button><div class="ux-q-why is-collapsed" id="${id}">${txt}${cert ? `<br>${cert}` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="muted">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : t)}, ${SK[s].name}</span>`, 'button ux-q-go')}</li>`;
+  });
+  const sites = [...new Set(rows.map(r => r[2]))], kinds = [...new Set(rows.map(([k, t]) => uxTone(k, t)))];
+  const KW = { bad: 'Off target or breached', warn: 'At a limit or deadline', info: 'New or opportunity', neutral: 'Not explained yet', good: 'On target' };
+  const tools = rows.length > 1 ? `<div class="ux-qtools" role="group" aria-label="Filter, sort and group the decisions">
+   ${sites.length > 1 ? `<label>Site <select data-qf="site"><option value="">All sites</option>${sites.map(s => `<option value="${s}">${SK[s].name}</option>`).join('')}</select></label>` : ''}
+   ${kinds.length > 1 ? `<label>Status <select data-qf="kind"><option value="">All</option>${kinds.map(k => `<option value="${k}">${KW[k]}</option>`).join('')}</select></label>` : ''}
+   <label>Sort <select data-qs><option value="order">Priority</option><option value="due">Due date</option><option value="stake">At stake</option></select></label>
+   ${sites.length > 1 ? `<label>Group <select data-qg><option value="">None</option><option value="site">By site</option></select></label>` : ''}
+   <span class="ux-qcount" role="status" aria-live="polite">${num(rows.length)} of ${num(rows.length)}</span></div>` : '';
+  return `<div class="ux-queue-wrap">${tools}<div class="ux-qh" aria-hidden="true"><span>Issue</span><span>Site</span><span>At stake</span><span>Due</span><span>Who decides</span><span></span></div><ul class="attn triage ux-queue ${cls}">${items.join('')}</ul></div>`;
+}
+/* the value chain as leaks (guide §5, wave 2): each stage, then what is lost before the next one, drawn on the leaks' own scale */
+function uxChain(op, sk) {
+  const st = chainStages(op, sk), unitOf = v => /^\$/.test(v) ? '$' : (String(v).match(/(kWh|crate-days|L)\b/) || [, ''])[1], valOf = v => Number((String(v).match(/[\d,.]+/) || ['0'])[0].replace(/,/g, ''));
+  const quiet = s => String(s || '').replace(/\s*·\s*(Emulated|Recorded|Measured)\b/g, '').replace(/^(Emulated|Recorded|Measured)$/, '');
+  let prev = null; const leaks = [];
+  const rows = st.map(x => {
+    if (x[0] !== 'leak') { const na = x[3] === 'na' || !/\d/.test(x[1]); prev = na ? null : { v: valOf(x[1]), u: unitOf(x[1]), name: x[0] }; return { stage: x, na }; }
+    const parts = String(x[1] || '').split(/\s*·\s*/).filter(Boolean).map(p => { const m = p.match(/^(.*?)(\$[\d,.]+|[\d,.]+\s*(?:kWh|crate-days|L)|\b\d[\d,.]*\b)\s*$/) || p.match(/^(.*?)(\$[\d,.]+|[\d,.]+\s*(?:kWh|crate-days|L))/);
+      if (!m || !prev) return { text: p }; const v = valOf(m[2]), pct = prev.v ? v / prev.v * 100 : null; const L = { text: p, label: m[1].replace(/[:\s]+$/, ''), amount: m[2].trim(), pct, of: prev.name.toLowerCase() }; leaks.push(L); return L; });
+    return { parts };
+  });
+  const maxPct = Math.max(1, ...leaks.map(l => l.pct || 0)), top = [...leaks].sort((a, b) => (b.pct || 0) - (a.pct || 0))[0];
+  const html = rows.map(r => r.stage ? `<li class="ux-vc-stage ${r.na ? 'is-na' : ''}"><span class="ux-vc-lab">${r.stage[0]}<small>${quiet(r.stage[2])}</small></span><span class="ux-vc-val">${r.stage[1]}</span></li>`
+    : (r.parts || []).map(p => p.pct != null ? `<li class="ux-vc-loss"><span class="ux-vc-lab"><span aria-hidden="true">↳</span> ${p.label || 'Lost'}</span><span class="ux-vc-val">${p.amount}<small>${p.pct < 0.05 ? 'none' : `${p.pct.toFixed(1)}% of ${p.of}`}</small></span><span class="ux-vc-track"><span class="ux-vc-bar" style="width:${Math.max(p.pct > 0.05 ? 1.5 : 0, p.pct / maxPct * 100).toFixed(1)}%"></span></span></li>` : `<li class="ux-vc-leak"><span aria-hidden="true">↳</span> ${p.text}</li>`).join('')).join('');
+  const title = top && top.pct > 0.05 ? `The biggest leak: ${top.label || 'lost'} ${top.amount}, ${top.pct.toFixed(1)}% of ${top.of}` : `${sk ? SK[sk].name : OPS[op].name}, October: no leak measured`;
+  return `<section class="panel ux-chart" aria-labelledby="uxv-h-${sk || op}"><div class="panel-head"><div><h2 id="uxv-h-${sk || op}">Where value leaks</h2><p>${title}</p></div></div><ol class="ux-vc">${html}</ol><p class="ux-axis-note">Loss bars are drawn against the largest loss; each says its share of the stage before it.</p>${uxTableView('Show the stages in detail', chainStrip(op, sk))}</section>`;
+}
+/* an outcome tile: its position, a target-against-actual visual and its counts (wave 2) */
+function uxCatTile(op, k, C) {
+  const [name, ico] = LENS[k], finds = ATTN[op].filter(r => findingHeading(r) === k).length, P = planCase(op), o = OPS[op];
+  const items = P.ids.filter(id => optHeadings(id).some(h => h[0] === k)).length + (k === 'protect' ? proactiveOf(op).length : 0);
+  const pos = k === 'assure' ? (C.assure?.pos || 'The evidence behind every heading') : k === 'protect' ? protectCard(op).pos : (C[k]?.pos || '');
+  const counts = [finds ? `${num(finds)} Finding${finds === 1 ? '' : 's'}` : 'No Finding', items ? `${num(items)} plan item${items === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ');
+  let vis = '';
+  if (k === 'grow' && o.kind !== 'cost') { const a = sumNodes(op, 'actual', 'revenue'), t = sumNodes(op, 'plan', 'revenue'); vis = uxBullet(a, t, `Revenue ${usdW(a)} against a target of ${usdW(t)}`); }
+  if (k === 'optimize') { const a = o.kind === 'cost' ? opTotals(op).actual : sumNodes(op, 'actual', 'cost_to_serve'), t = o.kind === 'cost' ? opTotals(op).plan : sumNodes(op, 'plan', 'cost_to_serve'); vis = uxBullet(a, t, `Cost ${usdW(a)} against a target of ${usdW(t)}`, true); }
+  if (k === 'protect') { const pc = protectCard(op); vis = pc.total ? `<div class="ux-seg" role="img" aria-label="${num(pc.broken)} of ${num(pc.total)} limits broken">${Array.from({ length: pc.total }, (_, i) => `<span class="${i < pc.broken ? 'is-bad' : 'is-good'}"></span>`).join('')}</div>` : ''; }
+  if (k === 'assure') { const c = o.t.portfolio.coverage.cost_recorded_share; vis = `<div class="ux-meterbar is-neutral" role="img" aria-label="${pct(c, 1)} of October cost backed by records"><span style="width:${(c * 100).toFixed(1)}%"></span></div>`; }
+  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3>${uxTileStatus(k, op)}</div><p class="ux-cat-pos">${wholeText(pos)}</p>${vis}<p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'drivers'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
 }
 
 /* ---------- side drawer (guide §8): stays in the page (closed: hidden from view and focus), opened by a named button ---------- */
@@ -137,31 +192,18 @@ function uxBridge(op) {
   const shown = s => cost ? dir * s.total : s.total, maxStep = Math.max(1, ...steps.map(s => Math.abs(shown(s))));
   const dbar = (v, c) => { const w = Math.max(0.8, Math.abs(v) / maxStep * 48); return `<span class="ux-wf-mid" aria-hidden="true"></span><span class="ux-wf-bar ${c}" style="left:${(v < 0 ? 50 - w : 50).toFixed(2)}%;width:${w.toFixed(2)}%"></span>`; };
   const totals = [line(`${head} target`, usdW(T.plan), bar(0, T.plan, 'is-total'), 'is-end'), line(`${head}, October`, usdW(T.actual), bar(0, T.actual, 'is-total is-actual'), 'is-end')].join('');
-  const list = steps.map(s => line(`${s.lens === 'other' ? '' : `<span class="ux-wf-h">${s.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[s.word] || s.word}`, usdW(shown(s), true), dbar(shown(s), tone(s) + (s.residual ? ' is-resid' : '')), 'is-step')).join('');
-  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><h3 class="ux-wf-k">Target and October, from zero</h3><ol class="ux-wf" aria-label="${head}: target and October">${totals}</ol><h3 class="ux-wf-k">The steps between them, on their own scale${cost ? ' (cost up is worse)' : ''}</h3><ol class="ux-wf ux-wf-steps" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+  const names = OPS[op].sites.map(k => SK[k].name), gapAbs = Math.abs(T.actual - T.plan) || 1;
+  const decFor = st => { const f = (HC.findings || []).find(f => names.includes(String(f.site).replace(/^Room [A-C] · /, '')) && (st.hkeys || []).includes(f.factor)); return f ? f.decision : null; };
+  const list = steps.map((st, i) => { const lab = `${st.lens === 'other' ? '' : `<span class="ux-wf-h">${st.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[st.word] || st.word}`, val = usdW(shown(st), true), b = dbar(shown(st), tone(st) + (st.residual ? ' is-resid' : '')), dk = decFor(st), dec = dk && decById(dk);
+    const share = Math.round(Math.abs(st.total) / gapAbs * 100), tip = `${GAP_SHORT[st.word] || st.word}: ${val}, ${share}% of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`;
+    return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span></a><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip} ›</span></li>`
+      : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip}</span></li>`; }).join('');
+  return `<section class="panel ux-chart" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}</p></div></div><h3 class="ux-wf-k">Target and October, from zero</h3><ol class="ux-wf" aria-label="${head}: target and October">${totals}</ol><h3 class="ux-wf-k">The steps between them, on their own scale${cost ? ' (cost up is worse)' : ''}; open a step to see its decision</h3><ol class="ux-wf ux-wf-steps" aria-label="${head} from target to October, factor by factor">${list}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- the value chain as bars on one baseline (guide §5): a stage with no source is an outlined empty bar ---------- */
-function uxChain(op, sk) {
-  const st = chainStages(op, sk), unitOf = v => /^\$/.test(v) ? '$' : (String(v).match(/(kWh|crate-days|L)\b/) || [, ''])[1], valOf = v => Number((String(v).match(/[\d,.]+/) || ['0'])[0].replace(/,/g, ''));
-  const max = {}; st.forEach(x => { if (x[0] !== 'leak' && x[3] !== 'na' && /\d/.test(x[1])) { const u = unitOf(x[1]); max[u] = Math.max(max[u] || 0, valOf(x[1])); } });
-  const quiet = s => String(s || '').replace(/\s*·\s*(Emulated|Recorded|Measured)\b/g, '').replace(/^(Emulated|Recorded|Measured)$/, '');
-  const rows = st.map(x => {
-    if (x[0] === 'leak') return x[1] ? `<li class="ux-vc-leak"><span aria-hidden="true">↳</span> ${x[1]}</li>` : '';
-    const na = x[3] === 'na' || !/\d/.test(x[1]), u = unitOf(x[1]), w = na ? 100 : (max[u] ? valOf(x[1]) / max[u] * 100 : 0);
-    return `<li class="ux-vc-stage ${na ? 'is-na' : ''}"><span class="ux-vc-lab">${x[0]}<small>${quiet(x[2])}</small></span><span class="ux-vc-val">${x[1]}</span><span class="ux-vc-track"><span class="ux-vc-bar" style="width:${w.toFixed(1)}%"></span></span></li>`;
-  }).join('');
-  return `<section class="panel ux-chart" aria-labelledby="uxv-h-${sk || op}"><div class="panel-head"><div><h2 id="uxv-h-${sk || op}">Where value leaks</h2><p>${sk ? SK[sk].name : OPS[op].name}, October: each stage against the one before it</p></div></div><ol class="ux-vc">${rows}</ol>${uxTableView('Show the stages in detail', chainStrip(op, sk))}</section>`;
-}
 
 /* ---------- the four headings as tiles, each opening its full card in a drawer (guide §9, proposal U5) ---------- */
-function uxCatTile(op, k, C) {
-  const [name, ico] = LENS[k], finds = ATTN[op].filter(r => findingHeading(r) === k).length, P = planCase(op);
-  const items = P.ids.filter(id => optHeadings(id).some(h => h[0] === k)).length + (k === 'protect' ? proactiveOf(op).length : 0);
-  const pos = k === 'assure' ? (C.assure?.pos || 'The evidence behind every heading') : k === 'protect' ? protectCard(op).pos : (C[k]?.pos || '');
-  const counts = [finds ? `${num(finds)} Finding${finds === 1 ? '' : 's'}` : 'No Finding', items ? `${num(items)} plan item${items === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ');
-  return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div>${uxTileStatus(k, op)}<p class="ux-cat-pos">${wholeText(pos)}</p><p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'factors'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
-}
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
   const about = 'The four headings sit over one structure: each factor under one heading, so no figure is counted twice and the headings are never added together. Grow and Optimize effects explain the contribution gap; cash collected sits under Optimize, outside that gap; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence, with the bridge, and adds no money.';
@@ -191,10 +233,10 @@ function uxOverview(op) {
     : `Contribution is ${usdW(Math.abs(gap))} ${gap < 0 ? 'below' : 'above'} target in October; ${big[0] === 'optimize' ? 'cost and efficiency explain' : 'revenue explains'} ${usdW(Math.abs(big[1]))} of it.`;
   const resid = Math.abs(G.residual) > 0.005;
   const k1 = uxKpi(cost ? 'Charging and depot cost' : 'Contribution', fig(`port:${op}:actual`, usdW(T.actual)),
-    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost backed by records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
+    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, uxTrendNA(), `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost backed by records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
   const k2 = uxKpi('Gap to target', fig(`port:${op}:variance`, usdW(T.variance, true)),
-    cost ? [`Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
-      : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
+    cost ? [`Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
+      : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
     [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting the operator executive’s approval`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi('Options’ value, 12 months', `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
@@ -230,8 +272,8 @@ function uxSiteTiles(sk) {
   const s = siteM(sk), op = SK[sk].op, o = OPS[op], t = tree(sk), decs = DEC.filter(d => d.site === sk), att = ATTN[op].filter(r => r[2] === sk);
   if (t.plan == null) return '';
   const cost = o.kind === 'cost';
-  return `<div class="heroes ux-kpis">${uxKpi(cost ? 'Cost per required departure met' : 'Contribution', fig(`node:${sk}:root`, cost ? fmtU(t.actual, t.unit) : usdW(t.actual)), [`Target ${cost ? fmtU(t.plan, t.unit) : usdW(t.plan)}`], cost ? '' : uxBullet(t.actual, t.plan, `Contribution ${usdW(t.actual)} against a target of ${usdW(t.plan)}`))}
- ${uxKpi('Gap to target', usdW(s.period.variance, true), [cost ? 'on cost' : 'October'])}
+  return `<div class="heroes ux-kpis">${uxKpi(cost ? 'Cost per required departure met' : 'Contribution', fig(`node:${sk}:root`, cost ? fmtU(t.actual, t.unit) : usdW(t.actual)), [`Target ${cost ? fmtU(t.plan, t.unit) : usdW(t.plan)}`, uxTrendNA()], cost ? '' : uxBullet(t.actual, t.plan, `Contribution ${usdW(t.actual)} against a target of ${usdW(t.plan)}`))}
+ ${uxKpi('Gap to target', usdW(s.period.variance, true), [cost ? 'on cost' : 'October', uxTrendNA()])}
  ${(() => { const v = decs.map(d => [d, uxRec(d)]).filter(([, r]) => r && /^[+−-]?\$/.test(String(optEffect(OPT[r])[0])));
    return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, 12 months against no action`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
  ${(() => { const st = decs.flatMap(uxRights).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+/) || [])[0];
@@ -263,3 +305,100 @@ function uxItemRow(op, id, f) {
   const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
   return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not available yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
+
+/* ===== wave 2, Portfolio polish: queue controls, the row's "Why", the provenance popover, the command search, the scope
+   switcher and the period menu (guide §7.1, §8). Presentation only; every list is built from the data the screen shows. ===== */
+const uxTrendNA = () => '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
+
+/* queue: expand a row's explanation */
+document.addEventListener('click', e => {
+  const b = e.target.closest('.ux-q-more'); if (!b) return;
+  const t = document.getElementById(b.getAttribute('aria-controls')), open = b.getAttribute('aria-expanded') !== 'true';
+  b.setAttribute('aria-expanded', String(open)); t?.classList.toggle('is-collapsed', !open);
+});
+/* queue: filter, sort and group, in the page (a real product keeps the choice in the URL and filters on the server past 50 Sites) */
+function uxApplyQueue(wrap) {
+  const ul = wrap.querySelector('.ux-queue'), get = s => wrap.querySelector(s)?.value || '';
+  const fSite = get('[data-qf="site"]'), fKind = get('[data-qf="kind"]'), sort = get('[data-qs]') || 'order', group = get('[data-qg]');
+  ul.querySelectorAll('.ux-grp').forEach(g => g.remove());
+  const li = [...ul.querySelectorAll('li.ux-q')];
+  li.forEach(x => { x.hidden = !!((fSite && x.dataset.site !== fSite) || (fKind && x.dataset.kind !== fKind)); });
+  const key = x => sort === 'due' ? (x.dataset.due || '9999') : sort === 'stake' ? -Math.abs(+x.dataset.stake || 0) : +x.dataset.order;
+  li.sort((a, b) => (group ? a.dataset.site.localeCompare(b.dataset.site) : 0) || (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : +a.dataset.order - +b.dataset.order));
+  let last = null;
+  li.forEach(x => { if (group && !x.hidden && x.dataset.site !== last) { last = x.dataset.site; const n = li.filter(y => !y.hidden && y.dataset.site === last).length; ul.insertAdjacentHTML('beforeend', `<li class="ux-grp"><h3>${SK[last].name} <span class="ux-count">${num(n)}</span></h3></li>`); } ul.appendChild(x); });
+  const shown = li.filter(x => !x.hidden).length; wrap.querySelector('.ux-qcount').textContent = `${num(shown)} of ${num(li.length)}`;
+  ul.classList.toggle('is-filtered', !!(fSite || fKind || group || sort !== 'order'));
+}
+document.addEventListener('change', e => { const w = e.target.closest('.ux-qtools'); if (w) uxApplyQueue(w.closest('.ux-queue-wrap')); });
+
+/* provenance popover and other popovers: Esc closes and returns focus */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  const d = document.querySelector('details.ux-pop[open]'); if (d) { d.open = false; d.querySelector('summary')?.focus(); }
+});
+document.addEventListener('click', e => { document.querySelectorAll('details.ux-pop[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; }); });
+
+/* command search (guide §8): Ctrl+K, ⌘K or "/" anywhere, or the top bar's search button */
+function uxCommands() {
+  const op = LS.op, o = OPS[op], out = [];
+  PTABS.forEach(([l, id]) => out.push([l, 'Portfolio', id]));
+  out.push(['The plan', 'Portfolio', 'portfolio/act-first/plan']);
+  o.sites.forEach(sk => out.push([SK[sk].name, 'Site', `site/${sk}`]));
+  DEC.filter(d => SK[d.site].op === op).forEach(d => out.push([d.q, `Decision · ${SK[d.site].name}`, `decision/${d.id}`]));
+  [['Financials', 'globalfinancials'], ['Findings', 'findings'], ['Actions', 'actions'], ['Evidence', 'globalevidence']].forEach(([l, id]) => out.push([l, 'Go to', id]));
+  return out;
+}
+function uxPalette(open = true) {
+  let d = document.getElementById('ux-cmd');
+  if (!d) { document.body.insertAdjacentHTML('beforeend', `<div class="ux-cmd" id="ux-cmd" role="dialog" aria-modal="true" aria-label="Search screens, sites and decisions" data-open="false"><div class="ux-cmd-scrim" data-ux-cmd-close></div><div class="ux-cmd-box"><input type="text" class="ux-cmd-in" role="combobox" aria-expanded="true" aria-controls="ux-cmd-list" aria-autocomplete="list" placeholder="Search screens, sites and decisions" aria-label="Search screens, sites and decisions"><ul class="ux-cmd-list" id="ux-cmd-list" role="listbox"></ul><p class="ux-cmd-hint">↑ ↓ to move · Enter to open · Esc to close</p></div></div>`); d = document.getElementById('ux-cmd'); }
+  if (!open) { d.dataset.open = 'false'; UX_LAST?.focus?.(); return; }
+  UX_LAST = document.activeElement; d.dataset.open = 'true'; const inp = d.querySelector('.ux-cmd-in'); inp.value = ''; uxPaletteFill(''); setTimeout(() => inp.focus(), 0);
+}
+function uxPaletteFill(q) {
+  const list = document.getElementById('ux-cmd-list'), w = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = uxCommands().filter(([l, k]) => w.every(x => (l + ' ' + k).toLowerCase().includes(x))).slice(0, 12);
+  list.innerHTML = hits.length ? hits.map(([l, k, id], i) => `<li role="option" id="ux-cmd-${i}" data-go="${id}" aria-selected="${i === 0}"><span>${l}</span><small>${k}</small></li>`).join('') : '<li class="ux-cmd-none" role="option" aria-disabled="true">Nothing matches</li>';
+  document.querySelector('.ux-cmd-in').setAttribute('aria-activedescendant', hits.length ? 'ux-cmd-0' : '');
+}
+function uxPaletteGo(li) { if (!li || !li.dataset.go) return; uxPalette(false); location.hash = '#/' + li.dataset.go; }
+document.addEventListener('keydown', e => {
+  const d = document.getElementById('ux-cmd'), open = d && d.dataset.open === 'true';
+  if (!open && ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !/input|textarea|select/i.test(document.activeElement?.tagName || '')))) { e.preventDefault(); uxPalette(true); return; }
+  if (!open) return;
+  if (e.key === 'Escape') { e.preventDefault(); uxPalette(false); return; }
+  const opts = [...d.querySelectorAll('[role="option"][data-go]')], cur = opts.findIndex(x => x.getAttribute('aria-selected') === 'true');
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const n = Math.max(0, Math.min(opts.length - 1, cur + (e.key === 'ArrowDown' ? 1 : -1))); opts.forEach((x, i) => x.setAttribute('aria-selected', String(i === n))); d.querySelector('.ux-cmd-in').setAttribute('aria-activedescendant', opts[n]?.id || ''); opts[n]?.scrollIntoView({ block: 'nearest' }); }
+  if (e.key === 'Enter') { e.preventDefault(); uxPaletteGo(opts[cur]); }
+  if (e.key === 'Tab') e.preventDefault();
+});
+document.addEventListener('input', e => { if (e.target.classList.contains('ux-cmd-in')) uxPaletteFill(e.target.value); });
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-ux-cmd-close]')) { uxPalette(false); return; }
+  const li = e.target.closest('#ux-cmd-list [data-go]'); if (li) { uxPaletteGo(li); return; }
+  const sb = e.target.closest('.topbar [data-index]'); if (sb && !location.search.includes('index=1')) { e.preventDefault(); e.stopImmediatePropagation(); uxPalette(true); }
+}, true);
+
+/* the top bar: a scope switcher (the whole portfolio or one Site) and the period as a menu; injected after render */
+function uxChrome(s) {
+  const bar = document.querySelector('.topbar'); if (!bar || bar.querySelector('.ux-scope-sw')) return;
+  const op = LS.op, cur = s && (s.site || (s.crumbs && null)), name = bar.querySelector('.portfolio-name');
+  const here = location.hash.replace(/^#\//, ''), site = (here.match(/^site\/([a-z]+)/) || [])[1];
+  name?.insertAdjacentHTML('afterend', `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${site ? SK[site]?.name || 'All sites' : 'All sites'} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><a role="menuitem" href="#/portfolio"${!site ? ' aria-current="page"' : ''}>All sites · ${OPS[op].name}</a>${OPS[op].sites.map(k => `<a role="menuitem" href="#/site/${k}"${site === k ? ' aria-current="page"' : ''}>${SK[k].name}</a>`).join('')}</div></details>`);
+  const chip = bar.querySelector('.period-chip');
+  if (chip && !chip.closest('.ux-period')) { const w = document.createElement('details'); w.className = 'ux-pop ux-period'; const sm = document.createElement('summary'); sm.setAttribute('aria-label', 'Period: October 2026. Choose a period'); chip.replaceWith(w); sm.appendChild(chip); w.appendChild(sm);
+    w.insertAdjacentHTML('beforeend', '<div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span><span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span><span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div>'); }
+}
+
+/* ===== brand packs (guide §4.7): a configurable identity over the same tokens and components. Resolution order: the
+   review-bar choice (mock tooling), then the tenant's setting (UX_BRAND_BY_TENANT, empty in the demo data), then neutral. ===== */
+const UX_BRANDS = { neutral: 'Neutral', africa: 'African identity' };
+const UX_BRAND_BY_TENANT = {};
+function uxBrand() { let b = null; try { b = localStorage.getItem('l4-brand'); } catch (e) {} return UX_BRANDS[b] ? b : (UX_BRAND_BY_TENANT[OPS?.[LS?.op]?.t?.tenant] || 'neutral'); }
+function uxApplyBrand() { const b = uxBrand(); if (b === 'neutral') document.documentElement.removeAttribute('data-brand'); else document.documentElement.setAttribute('data-brand', b); }
+function uxBrandSwitch() {
+  const rb = document.querySelector('.reviewbar .right'); if (!rb || rb.querySelector('.ux-brand-sw')) return;
+  const b = uxBrand();
+  rb.insertAdjacentHTML('afterbegin', `<label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
+}
+document.addEventListener('change', e => { if (e.target.id !== 'ux-brand') return; try { localStorage.setItem('l4-brand', e.target.value); } catch (x) {} uxApplyBrand(); });

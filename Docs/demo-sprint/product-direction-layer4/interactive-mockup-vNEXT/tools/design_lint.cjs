@@ -17,9 +17,9 @@ let html = read('index.html');
 if (PLANT) html = html.replace('</style>', '.ux-headline{font-size:11px!important}</style>');
 const css = (html.match(/<style>([\s\S]*?)<\/style>/) || ['', ''])[1];
 for (const m of css.matchAll(/font(?:-size)?:\s*(?:\d{3}\s+)?([\d.]+)px/g)) if (!SCALE.includes(+m[1])) fails.push(`bundled CSS: font size ${m[1]}px is not on the scale`);
-const stripTokens = t => t.replace(/:root(\[data-theme="dark"\]|:not\(\[data-theme="light"\]\))?\s*\{[^}]*\}/g, '').replace(/\[style\*="[^"]*"\]/g, '');
+const stripTokens = t => t.replace(/:root(?:\[[^\]]+\]|:not\(\[[^\]]+\]\))*\s*\{[^}]*\}/g, '').replace(/\[style\*="[^"]*"\]/g, ''); /* token blocks, including brand packs ([data-brand]) */
 const COLOR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(/g;
-const owned = { 'ux.css': read('ux.css') + (PLANT ? '\n.lint-plant{color:#123456}' : ''), 'loop-ux.js': read('loop-ux.js'), 'theme.css': read('theme.css') };
+const owned = { 'ux.css': read('ux.css') + (PLANT ? '\n.lint-plant{color:#123456}' : ''), 'loop-ux.js': read('loop-ux.js'), 'theme.css': read('theme.css'), 'brand.css': read('brand.css') };
 for (const [f, t] of Object.entries(owned)) { const n = (stripTokens(t).match(COLOR) || []).length; if (n) fails.push(`${f}: ${n} colour literal(s) outside the token blocks`); }
 for (const f of fs.readdirSync(root).filter(f => /^loop-.*\.js$/.test(f))) { const n = (read(f).match(/style="[^"]*(?:#[0-9a-fA-F]{3,8}|rgba?\(|color:)[^"]*"/g) || []).length; if (n) fails.push(`${f}: ${n} inline style colour(s)`); }
 for (const f of ['economics.css', 'mockups.css', 'portfolio.css', 'outcomes.css']) notes.push(`${f}: ${(read(f).match(COLOR) || []).length} colour literals, re-pointed by theme.css (residual, not failing)`);

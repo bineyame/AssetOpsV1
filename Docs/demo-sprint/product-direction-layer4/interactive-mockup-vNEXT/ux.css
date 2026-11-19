@@ -276,7 +276,7 @@ table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{ba
   .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
 }
 @media (max-width:600px){
-  .ux-overview .ux-queue>li.ux-q:nth-child(n+4){display:none}
+  .ux-overview .ux-queue:not(.is-filtered)>li.ux-q:nth-child(n+4){display:none}
   .ux-overview .ux-more-phone{display:block}
 }
 .ux-kpi-na{font-size:var(--fs-lg);font-weight:500;color:var(--text-2)}
@@ -391,3 +391,108 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 @media (max-width:600px){.ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}.ux-chart{overflow-wrap:anywhere}}
 /* ---- copy round 4 ---- */
 table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100%}
+
+/* ===== wave 2: Portfolio polish ===== */
+/* queue: title + scannable columns; explanation on demand; controls */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,2fr) 88px minmax(120px,1fr) 64px minmax(150px,auto) auto}
+.ux-q-title{font-size:var(--fs-md);font-weight:600;line-height:20px}
+.ux-q-top{flex-wrap:wrap}
+.ux-q-more{align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--accent);font:inherit;font-size:var(--fs-sm);cursor:pointer;min-height:24px}
+.ux-q-more::after{content:" ▾";font-size:var(--fs-xs)}
+.ux-q-more[aria-expanded="true"]::after{content:" ▴"}
+.ux-q-why{font-size:var(--fs-sm);color:var(--text-2);line-height:20px;max-width:70ch}
+.ux-q-why.is-collapsed{display:none}
+.ux-q-cert{font-size:var(--fs-xs)}
+.ux-q-site{font-size:var(--fs-sm);font-weight:500}
+.ux-q-who .who{white-space:nowrap}
+.ux-queue>li.ux-grp{padding:var(--s3) 0 var(--s1);border-top:1px solid var(--line)}
+.ux-queue>li.ux-grp h3{font-size:var(--fs-sm);font-weight:600;color:var(--text-2)}
+.ux-qtools{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s4);margin:0 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
+.ux-qtools label{display:inline-flex;align-items:center;gap:var(--s2)}
+.ux-qtools select{font:inherit;font-size:var(--fs-sm);color:var(--text);background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r1);padding:4px 8px;min-height:32px}
+.ux-qcount{margin-left:auto}
+@media (max-width:760px){
+  .ux-queue>li.ux-q{grid-template-areas:"issue issue" "site due" "stake stake" "who go"}
+  .ux-q-site{grid-area:site}
+  .ux-qtools label{flex:1 1 40%}.ux-qtools select{flex:1}.ux-qcount{margin-left:0}
+}
+/* KPI: the trend slot says when no history is loaded */
+.ux-trend{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--fs-xs);color:var(--text-2)}
+.ux-spark-na{display:inline-block;width:48px;height:12px;border-bottom:1px dashed var(--line-strong);transform:translateY(-3px)}
+/* value chain as leaks */
+.ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}
+.ux-vc-loss{display:grid;grid-template-columns:minmax(120px,1fr) minmax(110px,auto) minmax(0,1.2fr);gap:var(--s3);align-items:center;padding:4px 0 8px var(--s3);font-size:var(--fs-sm)}
+.ux-vc-loss .ux-vc-val{font-weight:600;color:var(--bad)}
+.ux-vc-loss .ux-vc-val small{display:block;font-weight:400;color:var(--text-2);font-size:var(--fs-xs)}
+.ux-vc-loss .ux-vc-bar{background:var(--bad)}
+@media (max-width:600px){.ux-vc-loss{grid-template-columns:minmax(0,1fr) auto}.ux-vc-loss .ux-vc-track{grid-column:1/-1}}
+/* outcome tiles: a visual, no empty space */
+.ux-cats.ocards{align-items:start}
+.ux-cat{gap:var(--s2)}
+.ux-cat-h{flex-wrap:wrap}
+.ux-cat-h .ux-cat-st{margin-left:auto}
+.ux-cat-go{margin-top:0}
+.ux-seg{display:flex;gap:4px;height:8px;margin:var(--s1) 0}
+.ux-seg span{flex:1;border-radius:2px}
+.ux-seg .is-bad{background:var(--bad)}.ux-seg .is-good{background:var(--good)}
+/* the bridge: each step links to its decision; detail on hover and focus */
+.ux-wf-row.is-link{display:block;padding:0;position:relative}
+.ux-wf-a{display:grid;grid-template-columns:minmax(120px,1.1fr) 76px minmax(0,1.6fr);gap:var(--s3);align-items:center;padding:6px var(--s1);margin:0 calc(-1 * var(--s1));border-radius:var(--r1);color:inherit;text-decoration:none}
+.ux-wf-a:hover,.ux-wf-a:focus-visible{background:var(--surface-2);text-decoration:none}
+.ux-wf-row{position:relative}
+.ux-tip{position:absolute;z-index:30;left:40%;bottom:calc(100% - 4px);max-width:320px;padding:var(--s2) var(--s3);border-radius:var(--r1);background:var(--text);color:var(--surface);font-size:var(--fs-xs);line-height:16px;box-shadow:var(--shadow-md);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s var(--ease)}
+.ux-wf-row:hover>.ux-tip,.ux-wf-row:focus-within>.ux-tip,.ux-wf-row:focus>.ux-tip{opacity:1;visibility:visible}
+@media (max-width:600px){.ux-wf-a{grid-template-columns:minmax(0,1fr) 76px}.ux-wf-a .ux-wf-track{grid-column:1/-1}.ux-tip{left:0}}
+@media (prefers-reduced-motion:reduce){.ux-tip{transition:none}}
+/* popovers: provenance, scope switcher, period */
+details.ux-pop{position:relative;display:inline-block}
+details.ux-pop>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:var(--s1);min-height:28px;border-radius:var(--r1)}
+details.ux-pop>summary::-webkit-details-marker{display:none}
+details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.ux-pop-menu{position:absolute;z-index:40;top:calc(100% + 6px);left:0;min-width:240px;max-width:min(360px,90vw);display:flex;flex-direction:column;gap:2px;padding:var(--s2);background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow-md);font-size:var(--fs-sm)}
+.ux-pop-menu a,.ux-pop-menu [role="menuitem"]{display:block;padding:8px var(--s3);border-radius:var(--r1);color:var(--text)}
+.ux-pop-menu a:hover{background:var(--surface-2);text-decoration:none}
+.ux-pop-menu [aria-current]{font-weight:600}
+.ux-pop-menu [aria-disabled="true"]{color:var(--text-2)}
+.ux-pop-menu small{display:block;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-prov{margin-top:var(--s1)}
+.ux-prov>summary{font-size:var(--fs-xs);color:var(--text-2);padding:0 2px}
+.ux-prov .ux-pop-menu p{margin:0 0 var(--s2);line-height:18px}
+.ux-prov .ux-pop-menu p:last-child{margin:0;color:var(--text-2)}
+.ux-scope-sw{margin-left:var(--s3)}
+.ux-scope-sw>summary{padding:4px 10px;border:1px solid var(--line-strong);font-size:var(--fs-sm);font-weight:500;background:var(--surface)}
+.ux-period>summary{padding:0}
+.ux-period .ux-pop-menu{left:auto;right:0}
+/* command search */
+.ux-cmd{position:fixed;inset:0;z-index:80;visibility:hidden}
+.ux-cmd[data-open="true"]{visibility:visible}
+.ux-cmd-scrim{position:absolute;inset:0;background:var(--overlay)}
+.ux-cmd-box{position:relative;margin:12vh auto 0;width:min(560px,calc(100% - 32px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r3);box-shadow:var(--shadow-md);overflow:hidden}
+.ux-cmd-in{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--line);padding:var(--s4);font:inherit;font-size:var(--fs-lg);background:var(--surface);color:var(--text)}
+.ux-cmd-in:focus{outline:none}
+.ux-cmd-box:focus-within{outline:2px solid var(--focus);outline-offset:0}
+.ux-cmd-list{list-style:none;margin:0;padding:var(--s2);max-height:50vh;overflow:auto}
+.ux-cmd-list li{display:flex;justify-content:space-between;gap:var(--s3);padding:10px var(--s3);border-radius:var(--r1);cursor:pointer;font-size:var(--fs-md)}
+.ux-cmd-list li small{color:var(--text-2);font-size:var(--fs-xs)}
+.ux-cmd-list li[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.ux-cmd-hint{margin:0;padding:var(--s2) var(--s4);border-top:1px solid var(--line);font-size:var(--fs-xs);color:var(--text-2)}
+.topbar .searchbox::after{content:"Ctrl K";margin-left:var(--s2);padding:0 6px;border:1px solid var(--line-strong);border-radius:4px;font-size:var(--fs-xs);color:var(--text-2)}
+/* a compact rail: same items, less height (the frame keeps its items; proposal U8 in the guide) */
+.rail{gap:var(--s2)}
+.rail a{padding:6px var(--s3);font-size:var(--fs-sm);min-height:32px;display:flex;align-items:center;gap:var(--s2)}
+.rail .rail-group .eyebrow{padding-top:var(--s1);font-size:var(--fs-xs);letter-spacing:.4px;opacity:.75}
+.rail .brand{padding-bottom:var(--s2)}
+@media (max-width:600px){.ux-scope-sw{margin-left:0}.ux-scope-sw>summary{padding:2px 8px}}
+/* the queue takes the full width (six columns need it); the plan card and the insight sit side by side under it */
+.ux-overview .ux-main-aside{grid-template-columns:minmax(0,1fr)}
+.ux-overview .ux-aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s4);align-items:start}
+@media (max-width:1023px){.ux-overview .ux-aside{grid-template-columns:minmax(0,1fr)}}
+.ux-meterbar.is-neutral span{background:var(--series-1)}
+/* fixed column tracks, so every row of the queue lines up */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 176px 84px 236px 84px}
+@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 84px 150px 72px 200px 80px}}
+@media (max-width:760px){.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto}}
+@media (min-width:1024px) and (max-height:820px){.ux-qh{display:none}.ux-qtools{margin-bottom:var(--s2)}.ux-queue>li.ux-q{padding:6px 0}}
+.ux-tip{left:auto;right:0;max-width:min(320px,90%)}
+.reviewbar .right{flex-wrap:wrap;justify-content:flex-end;min-width:0}.reviewbar{flex-wrap:wrap}
+@media (max-width:760px){.ux-q-who .who{white-space:normal}.ux-queue>li.ux-q{grid-template-areas:"issue issue" "site due" "stake stake" "who who" "go go"}.ux-q-go.button{justify-self:end}}

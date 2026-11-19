@@ -282,6 +282,21 @@ Status is one of five states. Each always carries a word, and an icon where spac
 
 ---
 
+### 4.7 Brand packs (wave 2; owner, 19 Nov: "some african design identity … configurable")
+
+A brand pack is a named set of tokens, applied as `data-brand="<name>"` on the page root (`brand.css`). The product ships **Neutral** (the default, no attribute) and **African identity**.
+
+| A pack may change | A pack may never change |
+|---|---|
+| Surface warmth (`--bg`, `--surface*`, `--line*`), text tints within AA, the interactive accent, the rail colour | Status colours and their meanings (§4.6) |
+| The brand mark, a 6 px motif band under the top bar, the rail footer rule, the active-item rule | Chart series meaning, type sizes, spacing, radius, layout, components |
+| The empty-state mark and the loading shimmer | Anything behind data: no motif in a chart, table, tile or card body |
+
+- **African identity**: a sunlit palette (sand surfaces; terracotta, ochre, deep indigo and earth accents) and geometric accents in the spirit of kente strips and Ndebele triangles. They are contemporary and sparing, never pictorial or a stereotype.
+- **To add a pack:** copy the three `africa` token blocks in `brand.css` under a new name (light, dark by preference, dark by choice), and register it in `UX_BRANDS` (`loop-ux.js`). No component or layout changes. Then run the contrast measure for the pack in light and dark: 0 text below AA.
+- **Resolution:** the tenant's setting (`UX_BRAND_BY_TENANT`), else Neutral. In the mock-up, a review-bar switch overrides it for comparison.
+- A display typeface for headings is optional: set `--font-heading` with a system fallback. It is not used in the demo, which must work offline.
+
 ## 5. Data visualisation
 
 Each chart answers one question. Its title states the answer, for example "Cost to serve explains $755 of the $852 gap". Every chart has a "Show as table" toggle and a text alternative.
@@ -302,6 +317,11 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 - stacked or added marks of different certainty (Rule 2). A modelled bar never stacks on a recorded one: it sits beside it, outlined or hatched;
 - red and green as the only difference between marks;
 - legends where direct labels fit.
+
+**Wave 2 additions.**
+- **Where value leaks** draws the losses, not the stages. Each stage is a labelled value. Under it, each loss is a bar drawn against the largest loss, with its share of the stage before it ("1,350 kWh · 5.9% of delivered"). The title names the biggest leak. With no measurable leak, the title says "no leak measured".
+- **The bridge is the page's interactive chart.** Each step links to the decision on its driver, and shows its detail (amount, share of the gap, the decision) on hover and on keyboard focus. A step with no decision says so in its detail.
+- **Trend slot.** Each money tile reserves a trend line. Until earlier months are loaded it shows a dashed placeholder and "Trend not available yet", never an invented line.
 
 ### 5.1 Numbers
 
@@ -346,6 +366,8 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 
 ---
 
+**Wave 2: one provenance control.** Under the page title, a single quiet "ⓘ About these figures" popover replaces the scope lines. It holds the baseline evidence word, the † meaning (its summary shows "· † design estimates" when the page has any), "Names are illustrative" and how to open a figure's working. Esc closes it.
+
 ## 7. Workflow surfaces
 
 The system proposes; people choose, approve and act (design §2.6). Every surface below shows **who** decides and records it under their name.
@@ -356,6 +378,13 @@ The system proposes; people choose, approve and act (design §2.6). Every surfac
 - **Order**: the design's placement (must do, deadline, value, evidence; design §2.8, "never a value ranking"), shown as groups with headers. The UI never re-ranks.
 - **Header**: a count and urgency, such as "6 need a decision · 2 due this week".
 - **Phone**: each row becomes a card with the chip and Site on the first line, the issue, then the at-stake value and due date, then the person chip and **Decide**.
+
+**Wave 2 row anatomy (replaces the sentence row).**
+- A status chip, then a **short title**: the decision's name, for example "Kobo generator stop setting".
+- Columns: Site · At stake · Due · Who decides · **Decide**. The person chip never wraps.
+- **Why ▾** expands the explanation and the certainty ("How sure: Modelled · † design estimate"). Certainty markers stay out of the row itself.
+- **Controls** above the list: Site, Status, Sort (priority, due date, at stake) and Group (by Site), with a live "n of m" count. A control appears only when it can change something: Site and Group need at least two Sites.
+- **At 50 to 300 Sites:** filters and sort run on the server and are kept in the URL; 25 rows a page; grouping by Site shows collapsed groups with counts; saved views per person. The Metro operator, with 3 Sites, 4 statuses and 7 issues, demonstrates the controls in the mock-up.
 
 ### 7.2 Option comparison (Decision page L2)
 
@@ -444,6 +473,12 @@ There is no role switcher, role view or role filter (design §2.6; memory "no bo
   - drag never required.
 
 ---
+
+**Wave 2 navigation.**
+- **Command search:** Ctrl K, ⌘K or "/" anywhere, or the top bar's search. It finds Portfolio views, the plan, Sites, decisions and the main screens. Use ↑ ↓ to move, Enter to open and Esc to close.
+- **Scope switcher:** "All sites ▾" in the top bar opens the portfolio or one Site. It is a switch of scope, never of role.
+- **Period menu:** the period chip is a menu. It shows the current period; earlier periods and custom ranges say "not available yet" until history is loaded.
+- **The rail** keeps every item (the frame rule) and is visually compacted. Merging its legacy groups is proposal U8.
 
 ## 9. Worked example: the Portfolio redesigned
 
@@ -668,6 +703,14 @@ Each proposal changes how a design rule is presented, not the rule itself. The A
 | **U7** | RULES §6 cites this guide beside the builder decision guide, and the G2 to G4 gates join the screen-slice review. | Makes the bar enforceable on every screen. | **Adopt** after the owner reads this guide (memory: align before doc revision). |
 
 ---
+
+**Wave 2 proposals** (defaults apply unless the owner says otherwise):
+
+| ID | Proposal | Why | Default |
+|---|---|---|---|
+| **U8** | Merge the rail's six legacy groups into four (Portfolio, Sites; Work: Findings, Actions, Incidents, Maintenance, Records; Evidence; Financials, Settings) and drop the group labels. Every destination stays. | The rail is the most dated element left. The frame rule forbids new menus, not fewer labels. | **Keep the items and labels for now**; visual compaction only, until the owner agrees. |
+| **U9** | Load the July to September ledger history the scenario already declares, so the trend slot and "against September" become real. | Time context is standard in executive products. Today it is honestly "not available yet". | **Adopt**, in the data lane, not in this screen step. |
+| **U10** | African identity as the starting pack for the three demo operators, which are East African. Neutral stays the product default. | It shows the configurability and suits the demo audience. | **Adopt** after the owner compares the two packs in the shots. |
 
 ## Appendix A. Applying the guide to the mock-up
 
