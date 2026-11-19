@@ -68,3 +68,5 @@ The coordinator answered yes, and proposed redrawing Figure 10:
 The coordinator also asked the owner to confirm OD-7 and OD-8. The owner answered:
 
 > yes, send it along with OD-7 and OD-8 yes
+
+> if the architect does not agree, pushbacks are welcome with reason
