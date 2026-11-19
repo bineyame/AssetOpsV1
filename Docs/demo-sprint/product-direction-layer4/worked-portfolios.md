@@ -1,10 +1,10 @@
 # Worked portfolios: the three demonstration operators
 
-**Companion to `layer4-transformation-design.md` (rev 16.4)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.5)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
 This file holds the full worked examples that the design document summarises: Lakeside Power (mini-grid), Harvest Cold Network (cold rooms) and Metro Bus Depots (EV depots), each read up from its factors, evaluated, planned and proved. The text was §7 and §10 of the design document up to rev 15. It moved here unchanged except for two things:
 - the system's output is described as *recommended* or *proposed*, never as *chosen*. The accountable manager chooses within each decision and creates the Actions; the system checks the chosen set; and the executive approves the plan, which releases the Actions above the spend threshold (design §2.4–§2.5; owner, 19 Nov);
-- section numbers are local to this file, and cross-references point to it or to design rev 16.4.
+- section numbers are local to this file, and cross-references point to it or to design rev 16.5.
 
 Every figure carries its marker and is checked by `check_manifest.py`. The roles are the five of design §2.6 (owner, Q-A2).
 

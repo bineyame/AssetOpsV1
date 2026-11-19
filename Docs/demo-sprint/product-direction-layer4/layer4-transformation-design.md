@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.4 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.5 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -429,7 +429,7 @@ flowchart LR
 - Today's mill-shift Actions keep their opportunity-study origin as a third, legacy origin (`0051_action_opportunity_origin.py:1-12`). No new Action takes that origin; new demand work goes through an opportunity Finding or a proactive item (OD-7).
 - A Finding-origin Action that spends always *joins* the plan, so it is always counted. It waits for approval only above the spend threshold (OD-8).
 
-The owner settled OD-7 and OD-8 with "agree with the architect's pushbacks": rev 16.2 put both to the owner in this note. The Architect's calls that remain are the reading that the threshold applies per change (§2.4) and the rule for an Action already released (above).
+The owner confirmed OD-7 and OD-8 explicitly on 19 Nov ("OD-7 and OD-8 yes"). The Architect's calls that remain are the reading that the threshold applies per change (§2.4) and the rule for an Action already released (above).
 
 The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (the verification plan, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
 
@@ -594,22 +594,36 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Portfolio cards, Optimize figure, site board | Change (CH5) | Counts; one day over a period: `read.py:676-682` | Read from factors |
 | Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
 
+**Delivery order** (shape approved by the owner, 19 Nov: the source emulators are built "in parallel with work related factor structure"):
+1. Before both lanes, the canonical format (record types and fields) and the leaf factor IDs are agreed. This is a small step, approved under W1, and gives both lanes one contract.
+2. **Lane A, sources (B3)**, builds the commercial record store, the emulators (billing, collections, fuel purchases, the budget spreadsheet) and the contract test. **Lane B, structure (B1, CH1)**, builds the factor structure, the pinned Findings and the structure observer, starting on the operational leaves that today's telemetry and fuel records already feed.
+3. The lanes join at the money leaves (contribution, cost to serve, collections). Targets and the bridge (B2) follow, then the rest.
+
+The CH5 quick fix still comes first, and the recorded person (CH2) still comes before decisions. Emulated figures are never Recorded and never benefit (D14).
+
 <!--Figure 10: delivery order-->
 
 ```mermaid
 flowchart LR
-  S0["0 Calibration replays<br/>(K, M, E), in parallel"] --> S1["1 Correct the last-day<br/>figure, show what the API<br/>already computes (CH5)"]
-  S1 --> S2["2 Recorded person,<br/>owner, due date (CH2)"]
-  S1 --> S3["3 Commercial record store<br/>and money leaves (B3)"]
-  S2 --> S6
-  S3 --> S4["4 Factor structure, Findings<br/>pinned, structure observer<br/>(B1, CH1)"] --> S5["5 Targets and the bridge (B2)"]
-  S4 --> S6["6 Decisions and options<br/>(CH3)"] --> S7["7 The plan and the Portfolio<br/>(P, CH5)"]
-  S6 --> S8["8 Three verdicts (CH4)"]
-  S7 --> S9["9 Rights, cold then EV,<br/>pilot onboarding"]
-  S8 --> S9
+  S0["0 Calibration replays<br/>(K, M, E), in parallel"]
+  S1["1 Correct the last-day figure,<br/>show what the API computes (CH5)"] --> S2["2 Canonical format and<br/>leaf factor IDs (W1)"]
+  S2 --> LA["3A Sources (B3): record store,<br/>emulators for billing, collections,<br/>fuel purchases, budget, contract test"]
+  S2 --> LB["3B Structure (B1, CH1): factors,<br/>Findings pinned, structure observer,<br/>on operational leaves today"]
+  S1 --> PC["3C Recorded person,<br/>owner, due date (CH2)"]
+  LA --> J["4 Join at the money leaves:<br/>contribution, cost to serve, collections"]
+  LB --> J
+  J --> T["5 Targets and the bridge (B2)"]
+  J --> D["6 Decisions and options (CH3)"]
+  PC --> D
+  D --> P["7 The plan and the Portfolio (P, CH5)"]
+  D --> V["8 Three verdicts (CH4)"]
+  T --> P
+  P --> R["9 Rights, cold then EV,<br/>pilot onboarding"]
+  V --> R
+  S0 -.-> D
 ```
 
-*Figure 10. The delivery order follows which client screen becomes useful first (D13), within the dependencies. Each primitive is proven first on mini-grid, with a cold and an EV case in its tests. The recorded person comes before decisions, because a choice with no chooser cannot be shown to a client.*
+*Figure 10. Delivery order, at Kobo. While lane A builds the emulators, lane B already reads Kobo's diesel litres against target, 1,180<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L against 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.diesel_l--> L. It also reads generator running against target, from today's telemetry and fuel records. Today's candidate-running (330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L) and unexplained-fuel (120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L) Findings are pinned to their factors. Once the billing and collection emulators pass the contract test, the lanes join. The contribution gap of −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> and the 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> of collections outstanding then appear, labelled Emulated until the operator's own exports replace the emulators. Each primitive is proven first on mini-grid, with a cold and an EV case in its tests.*
 
 ## Decisions
 
@@ -634,8 +648,9 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-5 | A proactive plan item names the factor or Protect measure it moves, or is marked "no factor (upkeep or compliance)" with no value ("agree with the architect's pushbacks") | §2.5 |
 | OD-6 | "Plan" means only the new construct; B2 uses "targets and budget lines" (same answer) | §2.2, §2.5, figures |
 
-| OD-7 | Today's opportunity-study origin stays as a legacy third origin for existing mill-shift Actions only (the Architect's pushback, agreed) | §2.5 |
-| OD-8 | A Finding-origin Action that spends always joins the plan and waits for approval only above the spend threshold (the Architect's pushback, agreed) | §2.4, §2.5 |
+| OD-7 | Today's opportunity-study origin stays as a legacy third origin for existing mill-shift Actions only ("OD-7 and OD-8 yes", 19 Nov) | §2.5 |
+| OD-8 | A Finding-origin Action that spends always joins the plan and waits for approval only above the spend threshold ("OD-7 and OD-8 yes", 19 Nov) | §2.4, §2.5 |
+| OD-9 | Delivery order: agree the canonical format and leaf factor IDs first, then build the sources (lane A) and the factor structure (lane B) in parallel, joining at the money leaves (the owner's question and "yes, send it", 19 Nov) | §2.9, Figure 10 |
 
 **Architect's calls, not settled by the owner:**
 - the threshold applies to the whole chosen change, summed over its Actions (§2.4 step 4);

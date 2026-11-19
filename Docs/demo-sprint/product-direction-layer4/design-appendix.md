@@ -1,8 +1,8 @@
 # Design appendix: baseline reconciliation, self-check and research basis
 
-**Companion to `layer4-transformation-design.md` (rev 16.4)** · AssetOps Architect (Claude) · 19 Nov 2026.
+**Companion to `layer4-transformation-design.md` (rev 16.5)** · AssetOps Architect (Claude) · 19 Nov 2026.
 
-These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.4 sections.
+These sections were §11, §12 and Appendix B of the design document up to rev 15. §1 is unchanged, and §2 is re-pointed to the rev 16.5 sections.
 
 ## 1. Reconciling the brief's reported baseline (C2)
 
@@ -21,7 +21,7 @@ These sections were §11, §12 and Appendix B of the design document up to rev 1
 
 ## 2. Self-check against the brief's final acceptance test
 
-| The executive must understand… | Where in the design (rev 16.4) |
+| The executive must understand… | Where in the design (rev 16.5) |
 |---|---|
 | which business outcome is underperforming | §2.1 and §2.2: outcomes read through their factors, against target |
 | which researched lever is relevant | §2.4: a lever is declared on the factor it changes |
@@ -77,3 +77,4 @@ Moved from design §2.3 in rev 16.2.
   - the spend threshold applies to the whole chosen change;
   - a released Action whose item the plan drops is covered;
   - the pushbacks the owner agreed are recorded as OD-7 and OD-8.
+- **Rev 16.5 (19 Nov).** OD-7 and OD-8 confirmed explicitly ("OD-7 and OD-8 yes"). Figure 10 redrawn to the delivery order the owner approved (OD-9): canonical format and leaf factor IDs first, then sources (lane A) and factor structure (lane B) in parallel, joining at the money leaves.
