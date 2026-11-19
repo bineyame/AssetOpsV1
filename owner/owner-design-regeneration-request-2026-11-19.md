@@ -29,3 +29,7 @@ Context: the owner was reading `product-transition-and-roadmap.md` §1.1 (Layer 
 ## Owner's direction on the document structure (after Phase A, commit d372c3682)
 
 > I want the document to be structured as follows 1- current overall architecture and business value it delivers , mecahnics it uses to deliver it  2- proposed architecture and changes that deliver even better value on top  of the existing one: focus on what the new constructs bring and they fit :e.g  factor(factor leaf..) he;p descipline connection of drivers to outcomes and commercial and operational integration address the data gap for perfromance to taget feature...etc all grounded on the differtiation we want the product to bring and convert client. Pay attention to workflow as well that involves the user. We also need to have broader view of the business in the analysis and design, not just focus on isolated slice.
+
+## Owner's answers to Q-A1 to Q-A3
+
+> 1-a finding should have impact on the bottomline or is a risk or an opportunity - which means it needs to be acted on and the user likely reate one more action against it 2-yes lets have a few sensible roles 3-is plan different from action ? let teh archtiect explain who owns it and why it is necessary
