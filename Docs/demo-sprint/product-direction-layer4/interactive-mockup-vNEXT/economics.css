@@ -114,3 +114,8 @@ table.srcrows{width:100%;border-collapse:collapse;font-family:Consolas,monospace
 .hero small{white-space:normal}
 .downside{font-size:12px;margin-top:8px;color:#33425a}
 @media(max-width:760px){.moves-strip ol{flex-direction:column}.hero small{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}}
+
+/* rev 16.9 (OD-21, OD-23): effects under each heading, the contribution bridge above Grow and Optimize, the snapshot notice */
+.byhead{list-style:none;margin:0;padding:0;display:grid;gap:3px}.byhead li{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;font-size:11.5px;line-height:1.4}
+.contrib-bridge .cbtab td,.contrib-bridge .cbtab th{white-space:nowrap}.contrib-bridge .cbtab td{text-align:right;font-variant-numeric:tabular-nums}
+.ocard li.linked{color:#56657c;font-style:italic}.snap-pending{display:inline-flex;margin-left:6px}.src-order li{margin-bottom:6px}

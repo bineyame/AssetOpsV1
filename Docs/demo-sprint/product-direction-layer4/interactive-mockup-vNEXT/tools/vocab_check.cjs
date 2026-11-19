@@ -11,6 +11,7 @@ const fs = require('fs'), path = require('path');
 const BANNED = [
   ['option or record code', /\b(?:KOB|BAT|KIS|MTO|MWEA|THIKA|KIRI|EMB|KAS|RUI)-[A-Z][A-Z0-9-]*\b|\b(?:F|ACT|WR|INC)-\d+\b/],
   ['data key (snake_case)', /\b[a-z]+_[a-z0-9_]+\b/],
+  ['outcome category code', /\b(?:GROW_REVENUE|OPTIMIZE_COST(?:_AND_EFFICIENCY)?|PROTECT_ASSET(?:_AND_CAPITAL)?|ASSURE_PERFORMANCE(?:_AND_RETURNS)?|GROW|OPTIMIZE|PROTECT|ASSURE)\b/],
   ['class or state code', /\b[A-Z]{3,}_[A-Z_]+\b|\b(?:EXPOSURE|MODELLED|RECOMMENDED|REJECTED|RECORDED|DERIVED|MEASURED|ESTIMATED|INSUFFICIENT|CANDIDATE|SYSTEM)\b/],
   ['design or workflow code', /\b(?:L[1-7]|B[1-3]|CH[1-5]|G-?F?\d|OD-\d+|D1[0-9]|Q-[A-Z]\d|W[1-9]|S[1-6]-\d+)\b/],
   ['system or build term', /\b(?:registry|observer|evaluator|manifest|fixtures?|oracle|canonical|schema|payload|endpoint|API|JSON|YAML|tenant|slice|spec|specification|backend|frontend|idempoten\w*|enum|undefined|NaN|null)\b|\[object|\.py\b|\.js\b|[<>]=/i],

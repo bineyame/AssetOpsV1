@@ -1,6 +1,8 @@
 portfolio.js: hook 'href="previews/portfolio-previous.png"'
 portfolio.js: name 'GreenHarvest' -> 'Thika' x2
 portfolio.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru' x3
+outcomes.js: hook ",['Site earnings',`${NAY} · needs site income, operating cos"
+outcomes.js: hook "const CAT_OF={'MG-1':'grow','MG-3':'grow',"
 outcomes.js: name 'GreenHarvest' -> 'Thika' x14
 outcomes.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru' x15
 screens.js: hook 'function currentScreen(){return SCREENS.find(s=>s.id===locat'

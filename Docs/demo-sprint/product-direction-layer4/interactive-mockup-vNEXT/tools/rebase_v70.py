@@ -60,6 +60,11 @@ HOOKS = {
  'portfolio.js': [
   ("href=\"previews/portfolio-previous.png\"", "href=\"../../../../frontend/mockups/v70/previews/portfolio-previous.png\""),
  ],
+ 'outcomes.js': [
+  # design rev 16.9 §2.0 named change 1 (OD-21): contribution is the outcome above Grow and Optimize, not a Grow row
+  (",['Site earnings',`${NAY} · needs site income, operating cost and capital records`,null,null]]", "]"),
+  ("const CAT_OF={'MG-1':'grow','MG-3':'grow',", "const CAT_OF={'MG-1':'grow','MG-3':'above',"),
+ ],
 }
 STORE = [("assetops-v70-review-notes", "assetecon-layer4-review-notes"), ("AssetOps-v70-review-notes.json", "AssetEcon-layer4-review-notes.json")]
 

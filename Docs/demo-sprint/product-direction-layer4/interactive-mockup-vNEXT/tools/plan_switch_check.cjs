@@ -9,6 +9,9 @@
    (crew_visits_<mon>), counting the case's visits in the first month and each proactive visit in its month; the capital
    item waits with its after-approval Action and no created Action; "Approving releases" counts every waiting item's
    planned spend once, capital included.
+   Headings (rev 16.9, OD-21/OD-23): each Overview card lists exactly its heading's money effects; Grow + Optimize equal the
+   evaluated contribution gap per Site; the Assure card shows no money; every screen shows the snapshot "as of" date; the
+   huller's Grow and Optimize effects on its decision page and plan item.
    Run: node tools/plan_switch_check.cjs   (from the interactive-mockup-vNEXT folder; exit 1 on any failure) */
 const fs = require('fs'), path = require('path');
 const root = path.resolve(__dirname, '..');
@@ -128,6 +131,48 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
   ok(st.replace(/ /g, '').includes(`Spendthreshold${usd(wf.spend_threshold)}`) && /visit threshold ?0/.test(st) === (wf.crew_visit_threshold === 0) && side.querySelector('a[href="#/portfolio/act-first/plan"]'), `${op} act first: thresholds and Open the plan`);
   metersCheck(op, side, DV.plans[T[op]].default, `${op} act first`);
   w.close(); }
+// ---- Rev 16.9 (design §2.0, Figure 1b, OD-21; §2.8, OD-23): the four headings over the structure ----
+// Independent of the mock-up's HOME table: a bridge row is Grow when its leaf is on the revenue side (worked-portfolios §1.0
+// Home categories: billed kWh, collections, chargeable crate-days), else Optimize (litres at their price, energy, demand
+// charge, cost to serve). Checks: each card lists exactly its heading's effects; Grow + Optimize = the evaluated contribution
+// gap per Site; the Assure card shows no money; every screen shows the snapshot's "as of" date; the huller's effects sit
+// under both money headings on its decision page and plan item.
+const GROW_DRIVERS = ['DEMAND_VOLUME', 'METER_MAPPING_UNBILLED', 'AUTHORISED_ADJUSTMENT', 'OCCUPANCY_REVENUE'];
+const SITES = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] };
+const r2c = x => Math.round(x * 100) / 100;
+const bridgeOf = (op, i) => MAN.tenants.find(t => t.tenant === T[op]).sites[i];
+function dvGap(op, i) { const s = bridgeOf(op, i), dv = DV.sites[`${T[op]}/${s.site}`]; const a = dv.actual.nodes.contribution, p = dv.plan.nodes?.contribution;
+  return p != null ? r2c(a - p) : r2c(a + dv.plan.stated_total); }
+for (const op of ['lakeside', 'harvest', 'metro']) {
+  const dom = boot(op, 'portfolio'), d = dom.window.document;
+  const card = k => d.querySelector(`.ocard[data-heading="${k}"]`);
+  ok(['grow', 'optimize', 'protect', 'assure'].every(card), `${op}: four heading cards`);
+  SITES[op].forEach((sk, i) => {
+    const br = bridgeOf(op, i).period.bridge || [], gap = dvGap(op, i);
+    const exp = { grow: r2c(br.filter(b => GROW_DRIVERS.includes(b.driver)).reduce((a, b) => a + b.amount, 0)), optimize: r2c(br.filter(b => !GROW_DRIVERS.includes(b.driver)).reduce((a, b) => a + b.amount, 0)) };
+    if (!br.length) exp.optimize = gap; // no bridge: the explicit residual on the cost leaf (Ruiru) is the whole gap
+    for (const k of ['grow', 'optimize']) {
+      const lis = [...(card(k)?.querySelectorAll(`li[data-site="${sk}"][data-effect]`) || [])], got = r2c(lis.reduce((a, l) => a + +l.dataset.effect, 0));
+      const n = br.length ? br.filter(b => GROW_DRIVERS.includes(b.driver) === (k === 'grow') && Math.abs(b.amount) > 0.004).length : (k === 'optimize' && Math.abs(gap) > 0.004 ? 1 : 0);
+      ok(lis.length === n && Math.abs(got - exp[k]) < 0.005, `${op} ${sk}: ${k} card lists ${n} effect(s) summing ${exp[k]} (got ${lis.length}, ${got})`);
+    }
+    const others = ['protect', 'assure'].some(k => card(k)?.querySelector(`li[data-site="${sk}"][data-effect]`));
+    ok(!others, `${op} ${sk}: no money effect under Protect or Assure`);
+    const row = d.querySelector(`.contrib-bridge tr[data-site="${sk}"]`);
+    ok(row && Math.abs(+row.dataset.grow + +row.dataset.optimize - gap) < 0.005 && Math.abs(+row.dataset.gap - gap) < 0.005 && Math.abs(+row.dataset.grow - exp.grow) < 0.005,
+      `${op} ${sk}: Grow ${exp.grow} + Optimize ${exp.optimize} = contribution gap ${gap} (row ${row?.dataset.grow} + ${row?.dataset.optimize} = ${row?.dataset.gap})`);
+  });
+  const at = squash(card('assure')?.textContent);
+  ok(at && !/\$|\d+(?:\.\d+)? (?:a month|dollars)/.test(at), `${op}: the Assure card shows no money`);
+  const chip = squash(d.querySelector('.period-chip')?.textContent);
+  ok(chip.includes(`Figures as of ${fdate(MAN.snapshot?.as_of || MAN.as_of)}`), `${op}: snapshot "as of" shown (${chip})`);
+  ok(!d.querySelector('.snap-pending') === !(MAN.snapshot?.recalculation_pending === true), `${op}: recalculation-pending notice only where the data says so`);
+  dom.window.close(); }
+{ const hu = MAN.tenants[0].sites.find(s => s.site === 'Mto').decision.options.find(o => o.id === 'MTO-HULLER').economics, cost = hu.fuel_monthly + hu.collection_cost_monthly;
+  for (const [hash, sel] of [['decision/mto-demand', '.opts tbody tr:first-child'], ['portfolio/act-first/plan', '.plan-item[data-item="MTO-HULLER"]']]) {
+    const dom = boot('lakeside', hash), el = dom.window.document.querySelector(sel), g = squash(el?.querySelector('[data-heading="grow"]')?.textContent), o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent);
+    ok(g.includes(usd(hu.revenue_monthly)) && g.startsWith('Grow revenue +') && o.includes(usd(cost)) && o.startsWith('Optimize cost and efficiency −'), `${hash}: huller Grow +${hu.revenue_monthly} and Optimize −${cost} (${g} | ${o})`);
+    dom.window.close(); } }
 console.log(`plan_switch_check: ${log.length} passed, ${fails.length} failed, script errors ${errors.length}`);
 if (fails.length) console.log(fails.join('\n')); if (errors.length) console.log(errors.slice(0, 5).join('\n'));
 if (fails.length || errors.length) process.exitCode = 1;
