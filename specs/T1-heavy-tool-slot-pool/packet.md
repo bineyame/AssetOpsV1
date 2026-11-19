@@ -134,3 +134,11 @@ Commit `3bca18cfe`. Pooled runs: pool self-test 32 pass, 0 fail (31 plus the new
 - **L4 fixed.** Check 1 counts only an `assertHeavySlot(` on a line that does not begin with a comment marker (`//`, `#`, `*`, `/*`). A planted comment-only file is reported.
 - **L5 documented gap, no code.** A process that writes its own pid into a held slot's owner file, then sets the marker, passes the tripwires. It takes deliberate effort, like the §5.2 gaps.
 - **L6 documented gap, no code.** An interrupted self-test leaves `/tmp/t1-pool-*` behind, because `cleanup()` runs only in `finally`. The two directories from 16:10 were not touched.
+
+## Fix round 2 (review-2 M2, ruling D-T1.15a)
+
+Commit: "T1 fix round 2" (see `git log`). Pooled runs: pool self-test 35 pass, 0 fail (two runs, about 29-32 s); inventory 7 pass, 0 fail, 1 todo (`7b`).
+
+- **Bash wrapper.** The 2 s wait and the INT/HUP KILL are gone. A first INT or HUP is counted and not forwarded; the wrapper keeps waiting for the child with no time limit. A second INT/HUP is forwarded once to the child's tree, never KILL. TERM goes to the tree, waits up to 30 s (was 5 s), then KILL. The wrapper exits with the child's own status (143 when TERM stopped it, 137 if it needed KILL).
+- **pwsh wrapper on Linux.** The INT and HUP handlers set `Cancel`, follow the same first/second rule and never KILL. TERM: TERM tree, 30 s, KILL, exit with the child's status. Windows Ctrl-C still kills the child's tree at once, by inspection only.
+- **Tests.** Cleanup is a Python `finally` that sleeps 9 s. P7c: group INT, cleanup finishes, exit 130, slot free. P7d: INT to the wrapper alone, child still running at 5 s, the second INT lets the cleanup finish, no KILL. P7e: TERM, cleanup finishes within 30 s, exit 143. P8c: P7c on the pwsh wrapper. With the first INT forwarded (plant), P7c and P7d fail.
