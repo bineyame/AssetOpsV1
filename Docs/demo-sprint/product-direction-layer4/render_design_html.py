@@ -99,6 +99,8 @@ while i < len(lines):
         while i < len(lines) and lines[i].startswith("|"):
             rows.append(lines[i]); i += 1
         head = cells(rows[0]); data = [cells(r) for r in rows[2:]]
+        # rev 16.6 (review E, M1): a blank line inside a table makes a data row the header and drops the next row
+        assert not re.match(r"(OD|Q-[AB]|D)-?\d", head[0]), f"table split: a data row ({head[0]}) begins a table"
         t = ['<div class="tw" tabindex="0" role="region" aria-label="table"><table><thead><tr>']
         t += [f"<th>{inline(c)}</th>" for c in head]
         t.append("</tr></thead><tbody>")

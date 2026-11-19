@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.5 · AssetOps Architect (Claude) · 19 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.6 · AssetOps Architect (Claude) · 19 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -50,8 +50,11 @@ In short: **the brief exists to turn AssetEcon from a tool that tells operators 
 - **Switch.** An assumption a person can change, such as the budget, after which the proposal is recomputed.
 - **Σ/Σ.** A portfolio ratio taken as the sum of numerators over the sum of denominators.
 - **Parity test.** A check that the new structure reproduces today's outcome map before the map is removed.
-- **Replay K.** A planned re-run of Kobo's recorded data under the new setting.
-- **D-numbers.** Owner decisions (roadmap §6).
+- **Action.** One unit of work a person creates and tracks. Today three record types carry it: the trial action (Finding origin), the domain action (exactly one origin, a Finding or an opportunity study) and the work case (no origin of its own; it links to Findings and Actions). In this design every carrier, work cases included, records one origin and at most one plan membership (§2.5).
+- **Lever.** A change that a decision may make to a factor, such as the generator stop threshold acting on candidate litres.
+- **Calibration replays K, M, E.** Scheduled re-runs of recorded data under a new setting: Kobo's stop threshold (K), Mto's headroom load (M), Embakasi's charging schedule (E). Until each passes, its figures are design values.
+- **D-numbers.** Owner decisions, recorded in `decisions-register.md` (as proposed in plan F, pending approval).
+- **Manifest key `plan`.** In the demonstration data, a Site's target side is the machine path `plan`, kept under OD-6 because renaming it would touch the manifest, evaluator, independent model and fixtures with no gain for a reader. Prose says "target" (Architect's call).
 
 **Rules every figure follows** (unchanged from rev 15):
 1. Every figure states how it is known, in words: *Recorded*, *Emulated*, *Measured*, *Calculated*, *Estimated*, *Quoted*, *Modelled*, *At stake, not money*, *Verified*, *Not available yet*.
@@ -100,8 +103,8 @@ Every Site and the Portfolio show four economic categories (Grow, Optimize, Prot
 
 **A Finding is the stored result of an analysis evaluating a declared condition over evidence, kept alive as the evaluation is re-run.** It is the output of the condition, not the condition itself [code-observed]:
 - *Identity.* A Finding is unique per Site by its key. It names its analytic, mechanism and asset, and the Finding it recurs after (`0009_finding_store.py:33-60`).
-- *Living history.* Each re-run appends a revision with a typed transition: opened, support changed, re-evaluated, split, merged, unconfirmed, no longer supported, reopened. Each revision carries a claim, limitations and evidence digests (`0009:62-106`).
-- *Thread.* The thread is its recurrence history. Its states record the response: action in hand, change applied, resolved and monitoring, recurred, withdrawn (`0042_chain_threads.py:64-71`).
+- *Living history.* Each re-run appends a revision with a typed transition: opened, support changed, re-evaluated, split, merged, merged into, unconfirmed, no longer supported, basis refreshed, reopened. Each revision carries a claim, limitations and evidence digests (`0009:62-106`).
+- *Thread.* The thread is its recurrence history. Its states record the response: open, action in hand, change applied, resolved and monitoring, closed, recurred, reopened, withdrawn (`0042_chain_threads.py:64-71`).
 - *What it does not carry.* No money: that sits in separate consequence tables. No owner, and no link to an outcome except a fixed mechanism-to-outcome row (`outcomes/outcome_map.py:17-23`).
 
 **When a Finding is raised: the owner's rule** (19 Nov, verbatim): "a finding should have impact on the bottomline or is a risk or an opportunity - which means it needs to be acted on and the user likely reate one more action against it". I read this as follows. A Finding is raised only for one of three things:
@@ -109,7 +112,7 @@ Every Site and the Portfolio show four economic categories (Grow, Optimize, Prot
 - a **risk** to an obligation, asset or right;
 - an **opportunity** someone can act on, such as customer demand with evidence.
 
-**The owner decided (19 Nov) that a configurable tolerance per factor decides** whether a small adverse deviation is raised. A favourable or neutral movement with nothing to act on stays in the figures and is not a Finding.
+**The owner decided (19 Nov) that a configurable tolerance per factor decides** whether a small adverse deviation is raised. Until a tolerance is set, every adverse deviation is raised (Architect's call). A favourable or neutral movement with nothing to act on stays in the figures and is not a Finding.
 
 Today's five mechanisms all pass this rule:
 - candidate running and unexplained fuel are bottom-line impacts;
@@ -126,7 +129,7 @@ Dispatch also marks *indeterminate* running as raising a Finding (`analytics/dis
 | Operator executive | Portfolio cards, Act first, Outcomes by site, What changed | Decides where to look first | Nothing is recorded |
 | Site or operations manager | The Finding, its evidence, alternatives and next step; the recommendation (Kobo: battery reserve 5 points lower) | **Accepts** the trial, then **applies** it from a chosen time. Applying publishes a Site configuration revision, not a device command | ACCEPTED and APPLIED events, **recorded as a "SYSTEM demonstration" actor**, "no operator approval is recorded" (`actions/lifecycle.py:43-58`; `0016_action_store.py:131-132`) |
 | Site manager or technician | Site Work: domain actions (cold, EV, mill shift, fuel-balance work) and work cases | Raises a domain action (with an optional owner label and due date) or a work case (a title, plus an assignee once assigned); assigns, completes, closes | Events with actor and time. A user actor is refused and a server service principal is required (`work/model.py:284-285`). No UI control creates them yet |
-| Site manager | A five-day headroom study, with demand and collection "unverified" | Raises the mill-shift domain action from the study | Same limits as the row above: a service principal and no UI control. The mill verification baseline is frozen once, at story time, with no route (`actions/verification_families.py:7-9`). The Action carries its opportunity origin (`0051_action_opportunity_origin.py:1-12`), and the study sits on its own thread with no Finding (`0042_chain_threads.py:43-62`) |
+| Site manager | A five-day headroom study, with demand and collection "unverified" | Raises the mill-shift domain action from the study | Same limits as the row above: a service principal and no UI control. The mill verification baseline is frozen once, at story time, with no route (`actions/verification_families.py:7-9`). The domain action already has exactly one origin, a Finding or an opportunity study, and a mini-grid domain action must take the opportunity origin (`0051_action_opportunity_origin.py:73-79`), and the study sits on its own thread with no Finding (`0042_chain_threads.py:43-62`) |
 | System | — | A VERIFY call freezes the verification baseline; the evaluator then judges the after-window | The command never supplies a verdict (`actions/lifecycle.py:26-28`). The evaluator appends it (`:24-25`) |
 
 **Kobo, end to end, today:**
@@ -365,10 +368,10 @@ flowchart TB
 *Figure 5. A decision at Kobo. The stop-threshold change cuts candidate running by 210<!--fig:options.KOB-STOPSOC.params.avoided_candidate_l--> L a month and adds 150<!--fig:options.KOB-STOPSOC.params.added_throughput_kwh--> kWh of battery throughput. It is worth +250.50<!--fig:options.KOB-STOPSOC.monthly_or_horizon_change--> a month against no action, and 2,916.00<!--fig:options.KOB-STOPSOC.value--> over twelve months after its 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> one-off. These are design values until replay K runs. The reserve change fails the dawn bound on 4<!--fig:options.KOB-RESERVE.params.dawn_days_below_35pct--> of 61 replayed days.*
 
 **Who chooses, and who creates the Action.** The owner said a Finding "needs to be acted on and the user likely reate one more action against it", and asked first about "users to act on the bases of context given to them, then tracked". So the system evaluates and proposes, and people choose and act:
-1. **The system raises the Finding and proposes.** It values the options and marks one Recommended. It picks nothing.
+1. **The system raises the Finding and proposes.** It values the options and marks one Recommended, found by one search across the period's decisions so that the recommended set fits. It picks nothing. A hard-bound rejection can be overridden only by a recorded change to the bound (Architect's call).
 2. **The accountable role chooses** an option, or none: the site or operations manager for operations and O&M, the finance and commercial lead for billing, collection, claims and notices, and the executive for capital choices.
 3. **That role creates one or more Actions**, against the Finding or against a plan item (§2.5). Each records its creator, owner and due date.
-4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below the threshold has its Actions released when they are created, provided the plan still fits its budget and crew visits. The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait.
+4. **Release.** Every Action's spend and crew visits count in the period's plan, on its plan item. The **spend threshold**, a Site or portfolio setting (owner, OD-2; a Site setting wins over the portfolio one, Architect's call), applies to the **whole chosen change**: the plan item's total one-off, summed over all its Actions, never one Action at a time. *Architect's reading of OD-2:* splitting a change into several small Actions must not slip it under the threshold. A change at or below the threshold has its Actions released when they are created, provided the plan still fits its budget and crew visits. The system checks that fit at each creation, in order, so two changes created together cannot jointly overrun it. Otherwise the Actions wait for the plan's approval. Kobo's stop-threshold change totals 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over its two Actions, with no crew visit. Under a threshold of at least that amount, both are released at once and still counted in the plan. Under a lower threshold, or none set, both wait.
 
 ### 2.5 P: the plan, a first-class construct (new)
 
@@ -392,7 +395,7 @@ Its states are draft, proposed, approved, revised and closed.
 |---|---|
 | Finding | A chosen option from a decision on the Finding becomes a **reactive** plan item if it spends shared budget or crew. The Finding stays its trigger and evidence |
 | Decision | Supplies the options and their values. Only a person's choice turns an option into an item |
-| Action | Two separate links (coordinator's refinement, adopted): **Origin**, exactly one, saying why the work exists. It is a **Finding** (reactive) or a **plan item** (proactive work no Finding triggered: scheduled maintenance, a budgeted replacement, a new connection, an expansion). Today's opportunity study stays a third, legacy origin; see the note below. **Plan membership**, at most one, saying what the work is funded and scheduled under. It is the plan item that counts its spend and crew visits. A Finding-origin Action that spends shared budget or crew joins the period's plan through the reactive item for its chosen option. A proactive item's Actions are members of that same item. So the same work is never counted twice: spend and crew are counted once, on the item. An Action may also name the decision option it carries |
+| Action | Two separate links (coordinator's refinement, adopted): **Origin**, exactly one, saying why the work exists. It is a **Finding** (reactive) or a **plan item** (proactive work no Finding triggered: scheduled maintenance, a budgeted replacement, a new connection, an expansion). Today's opportunity study stays a third, legacy origin; see the note below. **Plan membership**, at most one, saying what the work is funded and scheduled under. It is the plan item that counts its spend and crew visits. A Finding-origin Action that spends shared budget or crew joins the period's plan through the reactive item for its chosen option. If no decision sits behind it, the Action creates its own reactive item, which records the Finding and the spend (Architect's call). A proactive item's Actions are members of that same item. So the same work is never counted twice: spend and crew are counted once, on the item. An Action may also name the decision option it carries |
 | Verdict | Each item's Actions are verified as today, plus the economic and causal verdicts (§2.7). At the period's end the plan's predicted factor changes are set against what the bridge observed. The plan's realised value comes only from economic verdicts |
 | Registry | Items key to the factor IDs their options change, so the next period's bridge shows each planned change beside the observed one |
 
@@ -420,17 +423,9 @@ flowchart LR
 
 *Figure 6. The plan among the constructs. Each Action has one origin: a Finding (reactive) or a proactive plan item. It also has at most one plan membership, which says what funds and schedules it. Spend is counted once, on the item. The plan releases what needs approval and is reviewed against observed factors.*
 
-**Settled with the owner (19 Nov; Decisions OD-1, OD-5 to OD-8).**
-- The plan is first-class.
-- *Origin* stays separate from *plan membership*, so spend is counted once, on the item. This is the coordinator's refinement, adopted on merit.
-- A proactive item names what it moves, or carries no value.
-- "Plan" has one meaning.
-- Today's opportunity-study origin is legacy only: no new Action takes it.
-- A spending Finding-origin Action always joins the plan and waits only above the threshold. The owner confirmed this explicitly ("OD-7 and OD-8 yes").
+**Settled with the owner (19 Nov):** OD-1 and OD-4 to OD-8, listed under Decisions. The open Architect's calls are listed there too.
 
-The Architect's calls that remain are the per-change threshold (§2.4) and the rule for an Action already released (above).
-
-The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (the verification plan, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
+The plan's own state is derived from its items and Actions. It is not a second execution workflow. In code it needs a name that cannot collide with today's `plan` uses (`verification_plan`, `plan_due`, `actual_against_plan`); `portfolio_plan` is proposed.
 
 ### 2.6 CH2: the person in the loop, recorded
 
@@ -484,7 +479,7 @@ flowchart LR
   AO --> U11(("Map sources, review contract rows")):::new
   SYS --> U9(("Prepare decisions, check the plan")):::new
   SYS --> U10(("Raise Findings, record events, judge verdicts")):::keep
-  classDef actor fill:#eef3ff,stroke:#1d4ed8
+  classDef actor fill:#ffffff,stroke:#18212f
   classDef sys fill:#f4f5f7,stroke:#5d6878
   classDef new fill:#eef3ff,stroke:#1d4ed8
   classDef keep fill:#f4f5f7,stroke:#9aa5b4,color:#5d6878
@@ -588,21 +583,21 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Reserve recommendation, what-ifs | Change (CH3) | Sole option, gross only: `reserve_trial.py:42-45`; `scenario_rules.py:191-228` | One option generator; an option's calculation record |
 | Possible extra fuel cost | Stays | — | An at-stake bound, never an option's value |
 | Opportunity study → thread → mill Action | Stays, extended | Headroom with demand "unverified": `opportunities.py:366-401` | Stays as capacity evidence and an Action origin. With customer evidence, an opportunity Finding on the demand factor carries new Actions |
-| Actions, domain actions, work cases, rail | Stay, plus CH2 and P | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | Recorded creator, owner and due date; one origin (a Finding or a proactive plan item; legacy: the opportunity study) and at most one plan membership; released by the plan above the threshold |
+| Actions, domain actions, work cases, rail | Stay, plus CH2 and P | No recorded person: `lifecycle.py:43-58`; `work/model.py:284` | Recorded creator, owner and due date; one origin (a Finding or a proactive plan item; legacy: the opportunity study) and at most one plan membership; released by the plan above the threshold. Today's one-origin check (`0051_action_opportunity_origin.py:73-77`) stays and gains a plan-item arm. The forced mini-grid opportunity origin (`:78-79`) is replaced by a rule that admits no new opportunity origin (OD-7). Trial actions and work cases gain the same links. `chain_action_thread`'s one-origin check and the `chain_action` view (`0051:10`, `:53-62`) must widen in the same migration |
 | Verification | Stays, plus CH4 | Cost 0; simulated evidence only: `verification.py:1167`; `verification_rules.py:688` | Economic and causal verdicts; field evidence |
 | Portfolio cards, Optimize figure, site board | Change (CH5) | Counts; one day over a period: `read.py:676-682` | Read from factors |
 | Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
 
 **Delivery order** (shape approved by the owner, 19 Nov: the source emulators are built "in parallel with work related factor structure"):
-1. Agree the canonical format and leaf factor IDs first, a small step under W1.
-2. Then build lane A (sources: record store, emulators, contract test) and lane B (structure on today's operational leaves) in parallel.
-3. Join the lanes at the money leaves, then build targets and the bridge.
+1. Correct the last-day figure (CH5).
+2. Agree the canonical format and leaf factor IDs, a small step under W1.
+3. Build lane A (sources: record store, emulators, contract test) and lane B (structure on today's operational leaves) in parallel, with the recorded person (CH2) beside them.
+4. Join the lanes at the money leaves.
+5. Build targets and the bridge, then the rest, each proven first on mini-grid with a cold and an EV test case.
 
-The CH5 quick fix still comes first, and the recorded person (CH2) still comes before decisions. Emulated figures are never Recorded and never benefit (D14).
+The recorded person still comes before decisions. Emulated figures are never Recorded and never benefit (D14).
 
-**Architect's note to the owner on this order.** I agree with the parallel lanes: lane B needs no commercial record to start, and step 1 keeps the two lanes consistent.
-- *Refinement, applied:* cost-side decisions do not wait for the join. Kobo's stop threshold is valued from litres at the typed diesel price (Estimated), which lane B provides. So, as before this redraw (D13), the first decision reaches a client sooner. Only revenue-side options wait for the join.
-- *Caution:* the step-1 format is set before any operator export has been seen. Treat it as version 1, to be revised under the contract test when the first operator sample is pinned in the deep-dive (D1).
+**Architect's note to the owner on this order.** I agree with the lanes. *Refinement, applied:* cost-side decisions start before the join. Kobo's stop threshold is valued from lane B's litres at the typed diesel price, so the first decision reaches a client sooner (D13). *Caution:* the step-2 format is version 1, to be revised under the contract test when the first operator sample is pinned (D1).
 
 <!--Figure 10: delivery order-->
 
@@ -627,7 +622,7 @@ flowchart LR
   S0 -.-> D
 ```
 
-*Figure 10. Delivery order, at Kobo. While lane A builds the emulators, lane B already reads Kobo's diesel litres against target, 1,180<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L against 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.diesel_l--> L. It also reads generator running against target, from today's telemetry and fuel records. Today's candidate-running (330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L) and unexplained-fuel (120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L) Findings are pinned to their factors. Once the billing and collection emulators pass the contract test, the lanes join. The contribution gap of −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> and the 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> of collections outstanding then appear, labelled Emulated until the operator's own exports replace the emulators. Each primitive is proven first on mini-grid, with a cold and an EV case in its tests.*
+*Figure 10. Delivery order, at Kobo. While lane A builds the emulators, lane B already reads Kobo's actual diesel litres, 1,180<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L, and their split by generator running, from today's telemetry and fuel records. Today's candidate-running (330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L) and unexplained-fuel (120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L) Findings are pinned to those factors. At the join, once the billing and collection emulators pass the contract test, the money leaves appear, including the 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> of collections outstanding. Targets and budget lines are lane A records too, such as 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.diesel_l--> L of diesel. They take effect at step 5, where the contribution gap of −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> appears in the bridge. Everything stays labelled Emulated until the operator's own exports replace the emulators.*
 
 ## Decisions
 
@@ -637,7 +632,7 @@ flowchart LR
 - D13, the visible-first path;
 - D14, emulators as placeholder sources.
 
-D15 (the first change agreed at the end of the deep-dive) is pending; its context and default are in `product-transition-and-roadmap.md` §6.
+D15 (the first change agreed at the end of the deep-dive) is pending; its context and default are in `decisions-register.md` (as proposed in plan F, pending approval).
 
 **Owner decisions of 19 Nov, applied in this revision:**
 
@@ -651,24 +646,31 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-4 | An Action whose item the approved plan leaves out is not released. It returns to its creator with the reason, to revise, defer or withdraw ("Q-B1 yes") | §2.5 |
 | OD-5 | A proactive plan item names the factor or Protect measure it moves, or is marked "no factor (upkeep or compliance)" with no value ("agree with the architect's pushbacks") | §2.5 |
 | OD-6 | "Plan" means only the new construct; B2 uses "targets and budget lines" (same answer) | §2.2, §2.5, figures |
-
 | OD-7 | Today's opportunity-study origin stays as a legacy third origin for existing mill-shift Actions only ("OD-7 and OD-8 yes", 19 Nov) | §2.5 |
 | OD-8 | A Finding-origin Action that spends always joins the plan and waits for approval only above the spend threshold ("OD-7 and OD-8 yes", 19 Nov) | §2.4, §2.5 |
 | OD-9 | Delivery order: agree the canonical format and leaf factor IDs first, then build the sources (lane A) and the factor structure (lane B) in parallel, joining at the money leaves (the owner's question and "yes, send it", 19 Nov). The Architect's refinement (cost-side decisions start before the join) and caution (the format is version 1) are in §2.9, for the owner | §2.9, Figure 10 |
 
 **Architect's calls, not settled by the owner:**
 - the threshold applies to the whole chosen change, summed over its Actions (§2.4 step 4);
-- an Action already released stops and returns to its creator when the approved plan drops its item (§2.5).
+- an Action already released stops and returns to its creator when the approved plan drops its item (§2.5);
+- cost-side decisions start before the join; only revenue-side options wait for the money leaves (§2.9, Figure 10);
+- a spending Action with no decision behind it creates its own reactive item; work cases carry an origin (§2.5, "Words used here");
+- a Site's threshold wins over the portfolio's; an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);
+- the manifest key `plan` stays as a machine path, and prose says "target" (G-F5, "Words used here").
 
 ## Appendix. Where the detail lives
+
+The file set is as proposed in plan F (`regeneration/F-pack-recreation-plan.md`), pending the owner's approval.
 
 | Topic | File |
 |---|---|
 | The worked portfolios (three operators); the three-vertical structure table; the demonstration world | `worked-portfolios.md` |
-| Baseline reconciliation, self-check, research basis, change log, pilot asks | `design-appendix.md` |
-| The evidence for Part 1 and the audit of rev 15; the reviews | `regeneration/` |
-| Structures, valuation identities, evidence classes | `economic-metric-and-effect-contracts.md` |
-| Sources → canonical records → leaves | `integration-source-to-canonical-design.md` |
-| Algorithms and refusal policies | `domain-and-decision-models.md` |
-| Dispositions; slices; roadmap | `repo-reuse-and-gap-matrix.md`; `phase-plan-and-acceptance.md`; `product-transition-and-roadmap.md` |
+| Baseline reconciliation, self-check, research basis, change log, pilot asks, documented limits | `design-appendix.md` |
+| Owner decisions, Architect's calls, open queue | `decisions-register.md` |
+| Records, rules, states and tests for each construct | `decision-loop-specification.md` |
+| Sources → canonical records → leaves; emulators and the contract test | `integration-design.md` |
+| The evaluation contract for the independent model | `structure-specification.md` |
+| Function-level dispositions, by register row | `reuse-and-gap-matrix.md` |
+| Delivery order, slices, gates and the demonstration build | `delivery-plan.md` |
+| The evidence for Part 1, the audit of rev 15 and the reviews | `regeneration/` |
 | The figures | `demo-site-scenario-manifest.yaml` → `evaluate_structure.py` → `derived-values.json`, checked by `check_manifest.py` |
