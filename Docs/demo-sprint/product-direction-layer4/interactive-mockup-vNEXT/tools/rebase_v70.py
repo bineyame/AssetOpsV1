@@ -53,7 +53,7 @@ HOOKS = {
   ("<span>Illustrative mockup data · proposal for implementation · not connected to site telemetry</span><button data-notes>Canonical basis & implementation notes</button>",
    "<span>Illustrative demo data · not connected to live site data</span><button data-notes>Review notes</button>"),
   # theme toggle (light, dark, follow the system) in the top bar, before the avatar
-  ("<span class=\"avatar\">BY</span>", "${themeToggle()}<span class=\"avatar\">BY</span>"),
+  ("<span class=\"avatar\">BY</span>", "${themeToggle()}<span class=\"avatar\" title=\"${avatarName()}, illustrative operator executive\">${avatarInitial()}</span>"),
   # rev 16.12 Organisation settings (spec §8, OD-13, OD-14, OD-2, OD-12, OD-18): the five roles, the grant record, thresholds
   # and limits come from loop-portfolio.js orgUsersAndRoles(); no Admin and no Viewer role exists
   ("function settingsTenant(){return status(badge('Admin','blue'),'Organisation-wide settings for this demo tenant')+",
@@ -88,6 +88,7 @@ NAMES = [
  (r"MG-DEMO-01", "KOBO-001"),
  (r"CR-DEMO-01", "COLD-THIKA"),
  (r"EV-DEMO-01", "EV-RUI"),
+ (r"'B\. Yohannes'", "avatarName()"),  # a former real user's name; the setup history names the illustrative operator executive
  (r"Tenant configuration", "Organisation settings"),  # rev 16.6 plain-words pass
 ]
 

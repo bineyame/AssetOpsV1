@@ -40,4 +40,5 @@ screens.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru
 screens.js: name 'MG-DEMO-01' -> 'KOBO-001' x8
 screens.js: name 'CR-DEMO-01' -> 'COLD-THIKA' x2
 screens.js: name 'EV-DEMO-01' -> 'EV-RUI' x2
+screens.js: name "'B\\. Yohannes'" -> 'avatarName()' x3
 screens.js: name 'Tenant configuration' -> 'Organisation settings' x2

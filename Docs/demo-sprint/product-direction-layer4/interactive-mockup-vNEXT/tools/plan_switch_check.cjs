@@ -321,6 +321,29 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portf
   const pills = [...d.querySelectorAll('.action-list .state .status-pill')];
   ok(pills.length > 0 && pills.every(p => RELEASE_STATES.includes(squash(p.textContent).trim())), `${op} what changed: ${pills.length} release states, each one of Figure 6d's four (${[...new Set(pills.map(p => squash(p.textContent).trim()))].join(', ')})`);
   dom.window.close(); }
+// (12) final wiring (design rev 16.12 §2.0, OD-25): each attention row is keyed to its Finding row, so a linked Finding takes its own heading
+// (Embakasi "At its limit" Protect, "New tariff" Optimize; Ruiru "Near its limit" Protect); no row without a Finding id (FIND_GAPS empty)
+{ const dom = boot('metro', 'portfolio'), d = dom.window.document, cards = [...d.querySelectorAll('article.ocard[data-heading]')];
+  const under = (title, site) => cards.filter(c => [...c.querySelectorAll('li')].some(li => squash(li.querySelector('b')?.textContent) === title && squash(li.textContent).includes(`· ${site}:`))).map(c => c.dataset.heading);
+  for (const [title, site, fid] of [['At its limit', 'Embakasi', 'embakasi-import-limit'], ['New tariff', 'Embakasi', 'embakasi-night-rate'], ['Near its limit', 'Ruiru', 'ruiru-import-limit']]) {
+    const exp = HC.findings.find(f => f.id === fid).heading, got = under(title, site);
+    ok(got.length === 1 && got[0] === exp, `metro overview: linked Finding ${fid} "${title}" at ${site} under its own heading ${exp} (got ${got.join(', ') || 'none'})`); }
+  dom.window.close(); }
+for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portfolio'); ok(Array.isArray(dom.window.FIND_GAPS) && dom.window.FIND_GAPS.length === 0, `${op} overview: FIND_GAPS empty (${(dom.window.FIND_GAPS || ['no list']).join(', ')})`); dom.window.close(); }
+// the money residual column on "Outcomes by site" only where the data has a residuals row (Metro Bus: Ruiru's bill total); never Lakeside or Harvest
+for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portfolio/outcomes-by-site'), d = dom.window.document, tb = d.querySelector('[aria-label="Portfolio composition"] table') || d.querySelector('table'), hd = [...tb.querySelectorAll('thead th')].map(x => squash(x.textContent)), has = !!HC.residuals?.[VK[op]];
+  const ru = [...tb.querySelectorAll('tbody tr')].find(r => /Ruiru/.test(r.cells[0].textContent)), rv = DV.sites[`${T[op]}/Ruiru`];
+  ok(hd.some(h => /^Of which/.test(h)) === has && (!has || (hd[hd.length - 1] === 'Of which not attributed yet' && ru && ru.cells.length === hd.length && /\$[\d,.]+/.test(ru.cells[ru.cells.length - 1].textContent))) && (has || [...tb.querySelectorAll('tr')].every(r => r.cells.length === 4)), `${op} outcomes by site: residual column ${has ? 'present, "Of which not attributed yet", with Ruiru’s figure' : 'absent'} (${hd.join(' | ')})`);
+  dom.window.close(); }
+// MTO-BILLING: an Optimize money line for the restored charges, "listed, not added"
+{ const dom = boot('lakeside', 'decision/mto-billing'), tr = dom.window.document.querySelector('tr[data-opt="MTO-BILLING"]'), li = tr?.querySelector('[data-heading="optimize"]'), tx = squash(li?.textContent);
+  ok(li && /listed, not added/.test(tx) && /\$\d/.test(tx), `mto-billing: MTO-BILLING Optimize money line "listed, not added" (${tx})`); dom.window.close(); }
+// no former user's initials or name on any screen; the avatar is the portfolio's illustrative operator executive
+for (const op of ['lakeside', 'harvest', 'metro']) { const man = (() => { const f = boot(op, 'portfolio'), m = f.window.mockupManifest || []; f.window.close(); return m; })(), exec = wfOf(op).people.find(x => x.role === 'OPERATOR_EXECUTIVE').name; let n = 0, bad = [], wrong = 0;
+  for (const sc of man) { if (op !== 'lakeside' && !sc.id.startsWith('portfolio') && sc.id !== 'sites' && sc.id !== 'globalfinancials') continue;
+    const dom = boot(op, sc.id), d = dom.window.document; n++; const av = squash(d.querySelector('.topbar .avatar')?.textContent), tx = d.body.textContent;
+    if (/\bBY\b|Yohannes/.test(tx) || av === 'BY') bad.push(sc.id); if (d.querySelector('.topbar') && !(sc.id.startsWith('portfolio') ? av === exec[0] : ['A', 'E', 'D'].includes(av))) wrong++; dom.window.close(); }
+  ok(n >= 5 && !bad.length && !wrong, `${op}: ${n} screens, no "BY" or "Yohannes", avatar is an executive's initial (portfolio screens: ${exec[0]}, ${exec}) (bad: ${bad.slice(0, 5).join(', ') || 'none'}; wrong avatar ${wrong})`); }
 console.log(`plan_switch_check: ${log.length} passed, ${fails.length} failed, script errors ${errors.length}`);
 if (fails.length) console.log(fails.join('\n')); if (errors.length) console.log(errors.slice(0, 5).join('\n'));
 if (fails.length || errors.length) process.exitCode = 1;
