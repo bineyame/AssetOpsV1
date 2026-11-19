@@ -23,7 +23,8 @@ const { chromium } = require(process.env.PW);
       if (!vis(e) || ![...e.childNodes].some(c => c.nodeType === 3 && c.textContent.trim())) continue;
       const fs = parseFloat(getComputedStyle(e).fontSize); sizes[fs] = (sizes[fs] || 0) + 1; texts++; if (fs < 12) under12++;
     }
-    const chips = [...root.querySelectorAll('.badge,.ec,.chip')].filter(vis).length;
+    const chipLike = e => { const c = getComputedStyle(e); return c.backgroundColor !== 'rgba(0, 0, 0, 0)' || parseFloat(c.borderTopWidth) > 0; };
+    const chips = [...root.querySelectorAll('.badge,.ec,.chip,.ux-mark,.ux-chip,.dv')].filter(e => vis(e) && chipLike(e)).length; /* styled as a chip: a fill or a border */
     const caveats = (root.innerText.match(/not yet tested on your recorded data/gi) || []).length;
     return { height: document.documentElement.scrollHeight, width: document.documentElement.scrollWidth, sections,
       fontSizes: Object.keys(sizes).length, sizes, textElements: texts, under12, chips, caveats };

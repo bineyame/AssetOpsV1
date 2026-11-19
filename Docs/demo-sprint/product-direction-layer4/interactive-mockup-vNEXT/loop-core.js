@@ -56,7 +56,7 @@ const cap = t => t?t[0].toUpperCase()+t.slice(1):'';
 /* ---------- evidence classes, in words ---------- */
 const CLS = {ECONOMIC_ACTUAL:['Emulated','rec'],RECORDED:['Emulated','rec'],ESTIMATED:['Estimated','est'],MEASURED:['Measured','rec'],DERIVED:['Calculated from records','der'],
  MODELLED:['Modelled','mod'],EXPOSURE:['At stake (not money)','stake'],VERIFIED:['Verified','ver'],MISSING:['Not available yet','na'],ECONOMIC_ACTUAL_FORWARD:['Emulated','rec'],
- PLAN:['Emulated','rec'],QUOTE:['Quoted','der'],NA:['Not available yet','na'],CONTRACT:['Emulated','rec']};
+ PLAN:['Emulated','rec'],QUOTE:['Quoted','quo'],NA:['Not available yet','na'],CONTRACT:['Emulated','rec']};
 const ec = c => {const [t,k]=CLS[c]||[c,'na'];return `<span class="ec ec-${k}">${t}</span>`;};
 const ecw = c => (CLS[c]||[c])[0];
 /* a figure that opens the evidence drawer (two interactions to source) */
@@ -296,7 +296,7 @@ function openEvidence(key){const r=evRecord(key);
  <h3>Coverage</h3><p>${r.coverage}</p>
  <h3>Where the data came from</h3>${provChips(r.prov)}<p class="note">Demo data only: nothing here is field connected or from a client’s books.</p>
  ${r.legal?'<p class="legal">This is not a legal decision. Coverage is decided by the supplier or insurer.</p>':''}
- <details class="tech"><summary>For reviewers: demo data reference</summary><pre class="code">${escapeHtml(r.path)}\ndemo data version ${MANIFEST_SHA}</pre></details>`,true);tagReplay(document.querySelector('.drawer'));plainWords(document.querySelector('.drawer'));}
+ <details class="tech"><summary>For reviewers: demo data reference</summary><pre class="code">${escapeHtml(r.path)}\ndemo data version ${MANIFEST_SHA}</pre></details>`,true);tagReplay(document.querySelector('.drawer'));{const dw=document.querySelector('.drawer');if(dw&&dw.querySelector('.dv-mark'))dw.insertAdjacentHTML('beforeend','<p class="ux-scope" role="note"><span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span></p>');}plainWords(document.querySelector('.drawer'));}
 
 /* ---------- shell hooks used by the re-based v7.0 screens.js ---------- */
 const LOOP_SITE_TABS=['Overview','Foundation','Health','Performance','Findings','Work','Financials','Evidence'];
@@ -305,7 +305,7 @@ const DEEP = {kobo:{Foundation:'foundation',Health:'health',Performance:'dispatc
  ruiru:{Foundation:'ev-foundation',Health:'ev-health',Performance:'sessions',Findings:'ev-findings',Work:'ev-work',Evidence:'ev-evidence'}};
 const tabRoute = (sk,tab) => tab==='Overview'?`site/${sk}`:tab==='Financials'?`site/${sk}/economics`:DEEP[sk]?DEEP[sk][tab]:`site/${sk}/${tab.toLowerCase()}`;
 function siteRoutes(domain){const sk=V70SITE[domain];return LOOP_SITE_TABS.map(t=>tabRoute(sk,t));}
-function siteTabRow(sk,active){return tabRow(LOOP_SITE_TABS.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
+function siteTabRow(sk,active){return uxTabs(LOOP_SITE_TABS.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
 function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Switch site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
 /* the calculated daily snapshot (design §2.8, OD-23; register call 19): each portfolio's record (MANIFEST.snapshot.portfolios)
    gives its "as of" time and whether a recalculation is pending, with what triggered it, when, and the Sites it affects. Every
@@ -370,8 +370,11 @@ const PLAIN_WORDS=[
 function plainWords(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&n.parentElement.closest('details.tech,pre.code,script,style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});let n;
  while((n=w.nextNode())){let v=n.nodeValue;if(!/[A-Za-zΣ]/.test(v))continue;const o=v;for(const [r,s] of PLAIN_WORDS)v=v.replace(r,s);if(v!==o)n.nodeValue=v;}
  root.querySelectorAll('[aria-label],[title]').forEach(e=>['aria-label','title'].forEach(a=>{const v=e.getAttribute(a);if(!v)return;let x=v;for(const [r,s] of PLAIN_WORDS)x=x.replace(r,s);if(x!==v)e.setAttribute(a,x);}));}
-function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector('.canvas'));plainWords(document.querySelector('.canvas'));} /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
+function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));} /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
 
+/* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
+function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
+ const dv=!!c.querySelector('.dv-mark');h.insertAdjacentHTML('beforeend',`<p class="ux-scope" role="note"><span>Figures are recorded or measured unless marked; all are simulated demo data.</span>${dv?'<span><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</span>':''}</p>`);}
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
 const THEMES=['system','light','dark'],THEME_WORD={system:'Theme: follows your system',light:'Theme: light',dark:'Theme: dark'};

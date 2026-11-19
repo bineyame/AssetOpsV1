@@ -1,6 +1,6 @@
 /* ===== Layer 4 rev 4 mock-up · Portfolio (six owner-approved tabs), Sites directory, Financials root, pilot request ===== */
 const PTABS = [['Overview','portfolio'],['Outcomes by site','portfolio/outcomes-by-site'],['Demand and capacity','portfolio/demand-and-capacity'],['Act first','portfolio/act-first'],['What changed','portfolio/what-changed'],['Scope & coverage','portfolio/scope']];
-const ptabs = s => tabRow(PTABS,s.ptab||s.id);
+const ptabs = s => uxTabs(PTABS,s.ptab||s.id); /* guide U4: a Section menu at phone width */
 const sec = (title,body,sub='',right='',id='') => `<section class="panel"${id?` id="${id}"`:''}><div class="panel-head"><div><h2>${title}</h2>${sub?`<p>${sub}</p>`:''}</div>${right}</div>${body}</section>`;
 const region = (label,html) => `<div class="table-wrap scroll-region" tabindex="0" role="region" aria-label="${escapeHtml(label)}">${html}</div>`;
 const siteLink = sk => link(`site/${sk}`,SK[sk].name,'strong');
@@ -20,7 +20,7 @@ function factorTable(sk,opts={}){const rows=[];
  return region(`Factor structure for ${SK[sk].name}`,`<table class="ftab"><thead><tr><th>Factor and how it composes</th><th>Target</th><th>October</th><th>Deviation</th><th>Effect on ${cost?'cost (+ lower)':'contribution'}</th><th>Evidence</th><th>Outcome</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table>`);}
 
 /* ---------- value chain strip (stages with leaks between them) ---------- */
-function chainStrip(op,sk){const o=OPS[op];let st;
+function chainStages(op,sk){const o=OPS[op];let st;
  if(o.vertical==='mini'){const C=sk?{...siteM(sk).period.actual,plan_billed_kwh:siteM(sk).period.plan.billed_kwh,plan_revenue:siteM(sk).period.plan.revenue}:o.t.portfolio.chain;
   const loss=sk?(C.technical_loss_kwh??C.expected_technical_loss_kwh)+(C.unexplained_kwh||0):C.delivered_kwh-C.metered_kwh,unb=sk?(C.adjustments_kwh+(C.unbilled_mapping_kwh||0)):C.metered_kwh-C.billed_kwh;
   st=[['Usable capacity','Not available yet','needs the energy management export by time window','na'],['leak','idle capacity: not available yet'],['Delivered',num(C.delivered_kwh)+' kWh','Measured'],['leak',`losses ${num(loss)} kWh`],['Metered',num(C.metered_kwh)+' kWh','Measured'],['leak',`adjustments and unmapped meters ${num(unb)} kWh`],
@@ -29,6 +29,8 @@ function chainStrip(op,sk){const o=OPS[op];let st;
   st=[['Capacity',num(C.capacity_crate_days)+' crate-days','Recorded'],['leak',`idle ${num(C.capacity_crate_days-C.occupied_crate_days)} crate-days`],['Occupied',num(C.occupied_crate_days)+' crate-days',`target ${num(C.plan_crate_days)} · Emulated`],['leak','no incompatible or off-rate-card occupancy recorded'],['Chargeable',num(C.revenue/t.prices.storage_usd_per_crate_day)+' crate-days','Calculated from records (ledger to invoice reconciliation)'],['leak','no ledger-to-invoice difference in October'],['Invoiced',usd(C.revenue),`target ${usd(C.plan_revenue)} · Emulated`],['leak',`outstanding ${usd(C.outstanding)}`],['Received',usd(C.collected),'Recorded']];}
  else {const C=sk?{delivered_kwh:siteM(sk).period.actual.kwh,departures_required:siteM(sk).period.actual.departures_required,departures_met:siteM(sk).period.actual.departures_met}:o.t.portfolio.chain;const dl=sk==='ruiru'?[`${num(NV('ruiru','actual','deliverable_kwh_night'))} kWh a night`,`from the depot structure, at the ${siteM('ruiru').physical.import_limit_kw} kW import limit`]:sk==='kasarani'?[`${num(KN().deliverable_kwh_night)} of ${num(KN().required_kwh_night)} kWh a night`,'since 1 Nov, calculated from records; full in October']:['Not available yet','needs the depot charging model per night'];
   st=[['Deliverable energy',dl[0],dl[1],sk?'':'na'],['leak',''],['Delivered',num(C.delivered_kwh)+' kWh','Measured'],['leak',''],['Required departures',num(C.departures_required),'Emulated (roster)'],['leak',`missed in October: ${num(C.departures_required-C.departures_met)}`],['Departures met',num(C.departures_met),'Recorded'],['leak',''],['Revenue','Not applicable','charging is a cost centre','na']];}
+ return st;}
+function chainStrip(op,sk){const o=OPS[op],st=chainStages(op,sk);
  const html=st.map(x=>x[0]==='leak'?`<li class="leak" aria-label="Leak: ${escapeHtml(x[1]||'none recorded')}"><span>${x[1]||'—'}</span></li>`:`<li class="stage ${x[3]==='na'?'na':''}"><small>${x[0]}</small><b>${x[1]}</b><span>${x[2]}</span></li>`).join('');
  return `<figure class="chainfig"><figcaption><strong>${sk?SK[sk].name:o.name} value chain, October</strong> · stages are factors; the gaps between them are leaks</figcaption><ol class="chain">${html}</ol></figure>`;}
 
@@ -211,10 +213,7 @@ function CONTRAST_OF(op){const ks=siteM('kisiwa').period.actual,ko=siteM('kobo')
 const CONTRAST=new Proxy({},{get:(_,op)=>CONTRAST_OF(op)});
 function contrastPanel(op){return sec('Sites that look alike need different levers',CONTRAST[op].map(([h,p,d,l])=>`<article class="contrast"><h3>${h}</h3><p>${p}</p>${link(`decision/${d}`,`Open ${l} →`)}</article>`).join(''));}
 function firstMoves(op){const P=planCase(op);return `<section class="moves-strip" aria-labelledby="fm-h"><h2 id="fm-h">The plan’s first three moves</h2><ol>${P.rows.slice(0,3).map(r=>`<li>${link(`decision/${DEC_SEE_ALSO[r.id]||decOf(r.id).id}`,optLabel(r.id))} <small>${SK[OPT[r.id]._site].name}</small></li>`).join('')}</ol>${link('portfolio/act-first','Open the plan →')}</section>`;}
-function overviewScreen(){const op=LS.op;return `<div class="headline"><p>${headline(op)}</p></div>${heroFigs(op)}${gapSplit(op)}${firstMoves(op)}
- <details class="chain-disc" ${window.innerWidth>760?'open':''}><summary>Value chain, October</summary>${chainStrip(op)}</details>
- <h2 class="h2s">Each outcome and the factors that make it</h2>${outcomeCards(op)}
- <div class="grid2">${sec('Factors needing attention',attentionList(op),'Off target, at or near an obligation limit, or newly appeared. Seen at the factor before the books show it.')}<div>${contrastPanel(op)}</div></div>`;}
+function overviewScreen(){return uxOverview(LS.op);} /* UI/UX guide §9: glance, decide, explain, evidence (loop-ux.js) */
 
 /* ---------- Act first: the plan under budget and crews, with switches ---------- */
 const WHY_FIRST = {'KIS-REPAIR':'Must do: evening supply has no backup','KOB-STOPSOC':'Value: less generator running after dawn; remote change','MTO-INV-CLAIM':`Deadline: warranty notice by ${fdate(siteM('mto').entitlement.notice_deadline)}; the huller depends on it`,'MTO-INV-BUYNOW':`Deadline: the huller’s letter of intent lapses ${fdate(siteM('mto').decision.options.find(x=>x.id==='MTO-HULLER').customer_loi.lapses)}`,'MTO-HULLER':'Value: new paying daytime demand','MTO-BILLING':'Value: restores billed charges; office work','MTO-METER-AUDIT':`Evidence: ${num(siteM('mto').period.actual.unexplained_kwh)} kWh not explained yet`,'BAT-EVIDENCE':`Protects ${usd(OPS.lakeside.t.portfolio.allocation.listed_not_summed['BAT-001_cover_exposure'])} of cover; nothing breaks if it waits a month`,
@@ -231,7 +230,7 @@ const ruiruDeliverable=()=>Math.round(OPS.metro.t.portfolio.operations.measures.
 const inv0=c=>c.items.find(i=>/^MTO-INV-/.test(i));
 function mtoCapacityLine(){const h=id=>num(DOPT(id).protect.obligation_hours_without_redundancy);return `Reduced daytime capacity from ${fdate(AS_OF)} to ${fdate(DERIVED.horizons.protect_horizon_end)}: claim and wait ${h('MTO-INV-CLAIM')} h, buy now ${h('MTO-INV-BUYNOW')} h (Protect; the switch itself is decided on money).`;}
 const DVTEXT='Design estimate: not yet tested on your recorded data';
-const dvTag=(t=DVTEXT)=>`<span class="dv">${t}</span>`;
+const dvTag=(t=DVTEXT)=>{if(String(t).startsWith(DVTEXT)){const rest=String(t).slice(DVTEXT.length).replace(/^:\s*/,'');return `<span class="dv dv-mark" title="${DVTEXT}"><span aria-hidden="true">†</span><span class="vh"> Design estimate</span></span>${rest?`<span class="dv-rest"> ${rest}</span>`:''}`;}return `<span class="dv dv-assume">${t}</span>`;}; /* guide U2 */
 const SHORT={'KOB-STOPSOC':'Kobo stop setting','MTO-HULLER':'Mto rice huller','MTO-INV-CLAIM':'Mto inverter claim','MTO-INV-BUYNOW':'Mto inverter bought now','KIRI-REPAIR':'Kirinyaga repair','MWEA-AGG':'Mwea contract','EMB-DEADLINE':'Embakasi schedule','KAS-OEM-STOPGAP':'Kasarani cover','KIS-REPAIR':'Kisiwa repair','BAT-EVIDENCE':'Kobo battery evidence','THIKA-EPC-STOPGAP':'Thika night cover'};
 function valueNote(op,P){const dp=derivedPlan(op),nv=dp.items.filter(i=>!dp.valued_options.includes(i));
  const v=dp.valued_options.map(id=>`${SHORT[id]||optLabel(id)} ${usd(DOPT(id).value,true)}${id==='KAS-OEM-STOPGAP'?` (penalties avoided ${usd(DOPT(id).monthly_or_horizon_change)} − ${usd(DOPT(id).operator_one_off)})`:''}`);
@@ -388,17 +387,16 @@ function deciderOf(decId){const d=decById(decId),op=SK[d.site].op,item=d.opts.fi
  const role=r?.chooser,p=role?personByRole(op,role,role==='SITE_MANAGER'?SK[d.site].name:''):null;
  if(!p||(item&&itemOf(op,item).chosen_by!==p.name)){if(!CHOOSER_GAPS.includes(decId))CHOOSER_GAPS.push(decId);}
  return {op,p:p||null,item:item||null};}
-function triageList(op){return `<ul class="attn triage">${ATTN[op].map(([k,t,s,txt,d])=>{const D=deciderOf(d);
- return `<li class="attn-${k}"><span class="attn-k">${t}</span><div><b>${SK[s].name}</b> · ${txt}<small class="triage-who">Decides: ${who(op,D.p)}</small></div>${link(`decision/${d}`,'Decision →')}</li>`;}).join('')}</ul>`;}
+function triageList(op){return uxQueue(op,ATTN[op]);} /* guide §7.1 (loop-ux.js) */
 function planSummary(op){const P=planCase(op),o=OPS[op],M2=o.t.portfolio_constraints,budget=op==='lakeside'?LS.budget:M2.budget_usd_nov_dec,W=waitingSummary(op);
  return `<section class="panel plan-summary" aria-labelledby="ps-h"><h2 id="ps-h">The plan for ${periodWords()}</h2>${planStatusBlock(op)}
  ${meter('Budget used',P.spend,budget,usd)}${crewMeters(op,P)}
- <div class="kpi"><div class="kpi-label">Modelled 12-month change from the valued options</div><div class="kpi-value">${usd(P.value??derivedPlan(op).value,true)}</div><div class="kpi-sub">Not realised: money is counted only when records show it</div></div>
+ <div class="kpi"><div class="kpi-label">Modelled 12-month change from the valued options</div><div class="kpi-value">${usdW(P.value??derivedPlan(op).value,true)}</div><div class="kpi-sub">Not realised: money is counted only when records show it</div></div>
  <p class="plan-actions-line">${num(W.n)} Actions: ${num(W.rel)} released when created, ${num(W.wait)} waiting for approval${W.later.length?`; ${num(W.later.length)} more item${W.later.length===1?'':'s'} (${W.later.map(id=>itemProse(op,id)).join(', ')}) create${W.later.length===1?'s':''} ${W.later.length===1?'its Action':'their Actions'} after approval`:''}</p>
- <h3 class="h3s">Release thresholds</h3>${thresholdsKv(op)}
- ${btn('portfolio/act-first/plan','Open the plan',true)}${ILLUS}</section>`;}
+ ${btn('portfolio/act-first/plan','Open the plan',true)}
+ <details class="ux-more-d"><summary>Release thresholds</summary>${thresholdsKv(op)}</details>${ILLUS}</section>`;}
 function actFirstScreen(){const op=LS.op;
- return `<div class="layout-main-side"><div>${sec('Issues needing a decision',triageList(op),'Each issue with its site, what is at stake and who decides. The system values the options; a person chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
+ return `<div class="layout-main-side"><div>${sec(`Issues needing a decision <span class="ux-count">${num(ATTN[op].length)}</span>`,triageList(op),'Each issue with its site and who decides. The system values the options; a person chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
 
 /* ---------- The plan (drill-down from Act first): items, their Actions, approval ---------- */
 function itemActions(op,id){return laterActions(op,id)||actionRows(op,actionsOf(op,id));}
@@ -436,9 +434,9 @@ function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.
  return `<div class="layout-main-side"><div>
  ${sec(`The plan for ${periodWords()}: items and their Actions`,rows.join('')+total+ILLUS,`One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.`)}
  ${paths}
- <div class="grid2">${sec('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)))}${sec('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))))}</div>
- ${sec('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))))}
- ${op==='lakeside'?sec('All four cases of the two switches',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend','Modelled 12-month change'],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
+ <div class="grid2">${secD('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.length)} lines`)}${secD('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
+ ${secD('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options`)}
+ ${op==='lakeside'?secD('All four cases of the two switches',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend','Modelled 12-month change'],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
  ${gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):''}
  </div><aside class="side-panel">${approvalPanel(op,P,budget)}<section class="panel controls" aria-labelledby="sw-h"><div class="eyebrow">What if</div><h2 id="sw-h">Switches</h2>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section></aside></div>`;}
 

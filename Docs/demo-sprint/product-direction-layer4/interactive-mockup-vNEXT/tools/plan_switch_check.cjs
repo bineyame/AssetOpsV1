@@ -279,8 +279,10 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
   const resExp = cost ? r2c(gap - headTot.optimize) : 0;
   ok((cost || Math.abs(sub('grow') - headTot.grow) < 0.005) && Math.abs(sub('optimize') - r2c(headTot.optimize + resExp)) < 0.005 && Math.abs(+root?.dataset.splitGap - gap) < 0.005 && Math.abs(+root?.dataset.splitResidual - resExp) < 0.005 && Math.abs((cost ? 0 : sub('grow')) + sub('optimize') - gap) < 0.005,
     `${op} overview: Grow ${headTot.grow} + Optimize ${r2c(headTot.optimize + resExp)} = gap ${gap}, residual ${resExp} (got ${sub('grow')} + ${sub('optimize')} = ${root?.dataset.splitGap}, residual ${root?.dataset.splitResidual})`);
+  /* UI/UX guide U3: glance figures show whole currency, so the split is compared at the precision shown (cents or whole dollars) */
+  const usd0s = n => { const v = Math.round(n || 0); return (v < 0 ? '−' : v > 0 ? '+' : '') + '$' + Math.abs(v).toLocaleString('en-US'); };
   const top = squash(d.querySelector('.headline')?.textContent) + ' ' + squash(d.querySelector('.heroes')?.textContent);
-  ok(!/Revenue factors|cost factors move|attributed to factors ·|not explained by the model/.test(top) && (cost || top.includes(`Grow ${usd2s(headTot.grow)}`) && top.includes(`Optimize ${usd2s(headTot.optimize)}`)), `${op} overview: headline and figures split by heading only (${top.slice(0, 200)})`);
+  ok(!/Revenue factors|cost factors move|attributed to factors ·|not explained by the model/.test(top) && (cost || [usd2s, usd0s].some(f => top.includes(`Grow ${f(headTot.grow)}`) && top.includes(`Optimize ${f(headTot.optimize)}`))), `${op} overview: headline and figures split by heading only (${top.slice(0, 200)})`);
   if (op === 'lakeside') { const ux = rows.find(r => r.dataset.splitKey === 'unexplained_l'), ub = keySite.unexplained_l || {};
     ok(ux && squash(ux.textContent).includes('Fuel the generator model does not explain') && ux.dataset.splitHeading === 'optimize' && Object.keys(ub).length === 2 && Object.entries(ub).every(([sk, v]) => squash(ux.querySelector(`td[data-site="${sk}"]`)?.textContent) === usd2s(v)),
       `lakeside overview: fuel the generator model does not explain, under Optimize, ${Object.entries(ub).map(([s, v]) => s + ' ' + v).join(', ')}`); }
