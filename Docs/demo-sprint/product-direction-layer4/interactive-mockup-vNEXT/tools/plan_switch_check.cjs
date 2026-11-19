@@ -9,9 +9,9 @@
    (crew_visits_<mon>), counting the case's visits in the first month and each proactive visit in its month; the capital
    item waits with its after-approval Action and no created Action; "Approving releases" counts every waiting item's
    planned spend once, capital included.
-   Headings (rev 16.9, OD-21/OD-23): each Overview card lists exactly its heading's money effects; Grow + Optimize equal the
+   Headings (rev 16.10, OD-21/OD-23): each Overview card lists exactly its heading's money effects; Grow + Optimize equal the
    evaluated contribution gap per Site; the Assure card shows no money; every screen shows the snapshot "as of" date; the
-   huller's Grow and Optimize effects on its decision page and plan item.
+   huller's Grow and Optimize effects on its decision page and plan item; outstanding sits under Optimize as cash; the bridge opens from Assure.
    Run: node tools/plan_switch_check.cjs   (from the interactive-mockup-vNEXT folder; exit 1 on any failure) */
 const fs = require('fs'), path = require('path');
 const root = path.resolve(__dirname, '..');
@@ -132,12 +132,12 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
   metersCheck(op, side, DV.plans[T[op]].default, `${op} act first`);
   w.close(); }
 // ---- Rev 16.9 (design §2.0, Figure 1b, OD-21; §2.8, OD-23): the four headings over the structure ----
-// Independent of the mock-up's HOME table: a bridge row is Grow when its leaf is on the revenue side (worked-portfolios §1.0
-// Home categories: billed kWh, collections, chargeable crate-days), else Optimize (litres at their price, energy, demand
-// charge, cost to serve). Checks: each card lists exactly its heading's effects; Grow + Optimize = the evaluated contribution
+// Independent of the mock-up's HOME table (design rev 16.10): a bridge row is Grow when it is growth in what is sold (metered
+// and billed kWh, occupied crate-days; worked-portfolios §1.0 Home categories), else Optimize (litres at their price, energy,
+// demand charge, and the service-to-charge part: unmapped meters, adjustments). Collection is Optimize, as cash outside the gap. Checks: each card lists exactly its heading's effects; Grow + Optimize = the evaluated contribution
 // gap per Site; the Assure card shows no money; every screen shows the snapshot's "as of" date; the huller's effects sit
 // under both money headings on its decision page and plan item.
-const GROW_DRIVERS = ['DEMAND_VOLUME', 'METER_MAPPING_UNBILLED', 'AUTHORISED_ADJUSTMENT', 'OCCUPANCY_REVENUE'];
+const GROW_DRIVERS = ['DEMAND_VOLUME', 'OCCUPANCY_REVENUE'];
 const SITES = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] };
 const r2c = x => Math.round(x * 100) / 100;
 const bridgeOf = (op, i) => MAN.tenants.find(t => t.tenant === T[op]).sites[i];
@@ -162,8 +162,14 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
     ok(row && Math.abs(+row.dataset.grow + +row.dataset.optimize - gap) < 0.005 && Math.abs(+row.dataset.gap - gap) < 0.005 && Math.abs(+row.dataset.grow - exp.grow) < 0.005,
       `${op} ${sk}: Grow ${exp.grow} + Optimize ${exp.optimize} = contribution gap ${gap} (row ${row?.dataset.grow} + ${row?.dataset.optimize} = ${row?.dataset.gap})`);
   });
-  const at = squash(card('assure')?.textContent);
-  ok(at && !/\$|\d+(?:\.\d+)? (?:a month|dollars)/.test(at), `${op}: the Assure card shows no money`);
+  // Assure has no money of its own: outside the bridge it presents (whose figures are the Grow and Optimize ones), no money at all
+  const ac = card('assure')?.cloneNode(true); ac?.querySelectorAll('.cb-disc').forEach(x => x.remove());
+  const at = squash(ac?.textContent);
+  ok(at && !/\$|\d+(?:\.\d+)? (?:a month|dollars)/.test(at), `${op}: the Assure card shows no money of its own`);
+  ok(card('assure')?.querySelector('.cb-disc.contrib-bridge') && d.querySelectorAll('.contrib-bridge').length === 1, `${op}: contribution's bridge opens from Assure, not as a layer of its own`);
+  if (op !== 'metro') SITES[op].forEach((sk, i) => { const ou = DV.sites[`${T[op]}/${bridgeOf(op, i).site}`].actual.nodes.outstanding;
+    const li = card('optimize')?.querySelector(`li[data-cash="${sk}"]`);
+    ok(li && squash(li.textContent).includes(`${usd(ou)} outstanding`) && !squash(card('grow')?.textContent).includes('outstanding') && !li.hasAttribute('data-effect'), `${op} ${sk}: ${ou} outstanding sits under Optimize as cash, outside the gap`); });
   const chip = squash(d.querySelector('.period-chip')?.textContent);
   ok(chip.includes(`Figures as of ${fdate(MAN.snapshot?.as_of || MAN.as_of)}`), `${op}: snapshot "as of" shown (${chip})`);
   ok(!d.querySelector('.snap-pending') === !(MAN.snapshot?.recalculation_pending === true), `${op}: recalculation-pending notice only where the data says so`);

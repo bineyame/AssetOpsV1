@@ -15,7 +15,7 @@ const OUTCOMES=[
  ['assure','Assure performance and returns','Establish with defensible evidence whether the infrastructure is delivering expected results']];
 const CATN=Object.fromEntries(OUTCOMES.map(([k,n])=>[k,n]));
 /* Which category each site-level outcome belongs to. */
-const CAT_OF={'MG-1':'grow','MG-3':'above','MG-6':'grow','MG-2':'cost','MG-4':'protect','MG-5':'protect','MG-7':'assure',
+const CAT_OF={'MG-1':'grow','MG-3':'above','MG-6':'cost','MG-2':'cost','MG-4':'protect','MG-5':'protect','MG-7':'assure',
  'EV-3':'grow','EV-6':'grow','EV-2':'cost','EV-1':'protect','EV-4':'protect','EV-5':'protect','EV-7':'assure',
  'CC-2':'grow','CC-4':'grow','CC-3':'cost','CC-1':'protect','CC-5':'protect','CC-6':'protect','CC-7':'assure'};
 
@@ -56,12 +56,12 @@ const NAY='Not available yet';
 const BOARD={
  mini:{
   grow:{st:'opp',lead:'MG-1',head:'18–20 kW of daytime solar unused',sub:'Sales to productive users are not metered, so revenue itself is not measured yet',
-   contrib:[['Productive use','Spare solar on 3 of 5 well-observed days','f109','renewable'],['Cash collected',`${NAY} · no billing or payment records`,null,null]],
+   contrib:[['Productive use','Spare solar on 3 of 5 well-observed days','f109','renewable']],
    issues:[['opp','F-109 · Productive-use headroom','opportunity-finding']],
    can:[['Grain-mill what-if · $2.50 gross per eligible window','opportunity-finding'],['Site what-ifs','scenarios']],hand:[],prev:null,ev:['Renewable evidence','renewable']},
   cost:{st:'needs',lead:'MG-2',head:()=>`${money()} exposure in this hour`,sub:'Generator ran 30 minutes longer than the load needed · seen on 24 of the last 30 days',
    guard:['Reliable service and battery life are checked as safeguards in the generator trial; a fuel saving that harms them does not count','verification'],
-   contrib:[['Generator use','30 min avoidable, 30 min unclear','f104','dispatch'],['Fuel','No complete fuel balance yet','Unknown','fuel'],['Fuel price','Declared at $1.20 per litre','Declared','assumptions']],
+   contrib:[['Generator use','30 min avoidable, 30 min unclear','f104','dispatch'],['Cash collected',`${NAY} · no billing or payment records`,null,null],['Fuel','No complete fuel balance yet','Unknown','fuel'],['Fuel price','Declared at $1.20 per litre','Declared','assumptions']],
    issues:[['finding','F-104 · Generator support review','finding'],['finding','F-108 · Battery report missing limits this conclusion','evidence']],
    can:[['Trial a lower generator stop setting','recommendation'],['Proposed setting change CHG-019','changes']],
    hand:[['ACT-048 · Generator stop trial','verification',()=>stage.accepted?'Awaiting verification':'Plan ready']],

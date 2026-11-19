@@ -61,9 +61,11 @@ HOOKS = {
   ("href=\"previews/portfolio-previous.png\"", "href=\"../../../../frontend/mockups/v70/previews/portfolio-previous.png\""),
  ],
  'outcomes.js': [
-  # design rev 16.9 §2.0 named change 1 (OD-21): contribution is the outcome above Grow and Optimize, not a Grow row
-  (",['Site earnings',`${NAY} · needs site income, operating cost and capital records`,null,null]]", "]"),
-  ("const CAT_OF={'MG-1':'grow','MG-3':'grow',", "const CAT_OF={'MG-1':'grow','MG-3':'above',"),
+  # design rev 16.9/16.10 §2.0 named change 1 (OD-21): contribution is the outcome above Grow and Optimize, not a Grow row
+  (",['Cash collected',`${NAY} · no billing or payment records`,null,null],['Site earnings',`${NAY} · needs site income, operating cost and capital records`,null,null]]", "]"),
+  # rev 16.10 §2.0 (OD-21 corrected): collection of what was billed is Optimize (billed against collected), cash outside contribution
+  ("contrib:[['Generator use','30 min avoidable, 30 min unclear','f104','dispatch'],", "contrib:[['Generator use','30 min avoidable, 30 min unclear','f104','dispatch'],['Cash collected',`${NAY} · no billing or payment records`,null,null],"),
+  ("const CAT_OF={'MG-1':'grow','MG-3':'grow','MG-6':'grow',", "const CAT_OF={'MG-1':'grow','MG-3':'above','MG-6':'cost',"),
  ],
 }
 STORE = [("assetops-v70-review-notes", "assetecon-layer4-review-notes"), ("AssetOps-v70-review-notes.json", "AssetEcon-layer4-review-notes.json")]

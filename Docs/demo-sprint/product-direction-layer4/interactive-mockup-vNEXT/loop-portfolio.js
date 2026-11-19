@@ -53,7 +53,7 @@ const sgnK=v=>(v>0?'+':v<0?'−':'')+num(Math.abs(v));
 const perCD=sk=>siteM(sk).period.actual.energy/siteM(sk).period.actual.crate_days;
 const overPct=sk=>{const a=siteM(sk).period.actual;return (a.kwh-a.kwh_model)/a.kwh_model*100;};
 const sumNodes=(op,side,node)=>OPS[op].sites.reduce((a,sk)=>a+(NV(sk,side,node)||0),0);
-/* Rev 16.9 (OD-21): the four cards read the structure nodes whose home category they are (categoryCard below). CARDS holds only
+/* Rev 16.9/16.10 (OD-21): the four cards read the structure nodes whose home category they are (categoryCard below). CARDS holds only
    each card's position line and the context lines that are not a factor effect: ctx are realised, pot are potential (shown beside
    Grow, never as its actual). Every value is read from the evaluated nodes, bridge rows or the data; none is typed. */
 const CARDS = {
@@ -91,8 +91,8 @@ function siteSplit(sk){const s={grow:0,optimize:0,unplaced:0};effectsOf(sk).forE
  return {grow:r2(s.grow),optimize:r2(s.optimize),unplaced:r2(s.unplaced),gap:contribGap(sk)};}
 /* a decision sits under the heading of the factor its lever acts on (§2.0). Named where the factor the page anchors on is not
    the lever's: the Kisiwa repair restores evening redundancy and Thika's night cover restores backup cover (Figure 1b: Protect); Ruiru's extra buses are service growth on
-   existing assets (worked-portfolios §1.0, EV depot: Grow). */
-const DEC_HOME={'kisiwa-genset':'protect','thika-backup':'protect','ruiru-expansion':'grow'};
+   existing assets (worked-portfolios §1.0, EV depot: Grow); the Mto billing fix maps meters to customers (§2.0: unmapped meters are Optimize). */
+const DEC_HOME={'mto-billing':'optimize','kisiwa-genset':'protect','thika-backup':'protect','ruiru-expansion':'grow'};
 function decHeading(id){const d=decById(id);if(!d)return null;if(DEC_HOME[id])return DEC_HOME[id];const n=d.node?findNode(d.site,d.node):null;if(n&&n.lens)return n.lens;
  let k=null;walk(tree(d.site),x=>{if(!k&&x.dec===id&&x.lens)k=x.lens;});if(k)return k;return protectEffectsFor(id).length||(RIGHTS_OF_OP[SK[d.site].op]||[]).some(r=>rightsOf(r).dec===id)?'protect':null;}
 /* a Finding takes the heading of the factor it is pinned to (§2.0); one at or near a limit, or a deadline on a right, is a Protect bound */
@@ -102,34 +102,51 @@ const findingHeading=([k,t,s,txt,d])=>/limit|deadline/i.test(t)?'protect':decHea
 const COST_LINES=['fuel_monthly','collection_cost_monthly','energy_monthly','handling_monthly'];
 function optHeadings(id){const x=OPT[id];if(!x)return [];const e=x.economics||{},dd=DOPT(id),out=[];
  if(e.revenue_monthly!=null){const c=COST_LINES.reduce((a,k)=>a+(e[k]||0),0);if(e.net_monthly!=null&&Math.abs(e.revenue_monthly-c-e.net_monthly)<0.005){out.push(['grow',`${usd(e.revenue_monthly,true)} a month`,e.revenue_monthly]);out.push(['optimize',`${usd(-c,true)} a month`,-c]);}}
- else if(e.charges_monthly!=null)out.push(['grow',`${usd(e.charges_monthly,true)} a month of billed charges`,e.charges_monthly]);
+ else if(e.charges_monthly!=null)out.push(['optimize',`${usd(e.charges_monthly,true)} a month of billed charges`,e.charges_monthly]);
  else if(dd&&dd.valued_in_money&&dd.value!=null&&dd.monthly_or_horizon_change){const d=DEC_SEE_ALSO[id]||decOf(id)?.id,k=d?decHeading(d):null;if(k==='grow'||k==='optimize')out.push([k,`${usd(dd.monthly_or_horizon_change,true)} ${dd.months>1?'a month':'to the restore'}`,dd.monthly_or_horizon_change]);}
  const pe=protectEffectLine(id);if(pe)out.push(['protect',cap(pe)+' (not money)',null]);
  return out;}
 function byHeading(id){const h=optHeadings(id);return h.length?`<ul class="byhead">${h.map(([k,t])=>`<li data-heading="${k}">${lensTag(k)} <span>${t}</span></li>`).join('')}</ul>`:'<span class="muted">No effect under a heading yet</span>';}
-const CAT_NOTE={grow:'Factor effects on contribution',optimize:'Factor effects on contribution',protect:'Measures against target',assure:'Evidence on every factor'};
+const CAT_NOTE={grow:'Factor effects on contribution',optimize:'Factor effects on contribution',protect:'Measures against target'};
 function evidenceMix(op){const c={};OPS[op].sites.forEach(sk=>walk(tree(sk),n=>{if(n.cls&&!n.kids){const w=ecw(n.cls);c[w]=(c[w]||0)+1;}}));return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([w,n])=>`${w} ${num(n)}`).join(' · ');}
-function categoryCard(op,k,C){const o=OPS[op],[name,ico]=LENS[k],P=planCase(op),li=([t,c])=>`<li><span>${t}</span>${c?ec(c):''}</li>`,grp=(h,rows)=>rows.length?`<h4>${h}</h4><ul>${rows.join('')}</ul>`:'';
- let pos=C[k].pos||'',facts=[],pot=(C[k].pot||[]).map(li);
- if(k==='grow'||k==='optimize'){o.sites.forEach(sk=>effectsOf(sk).filter(n=>n.lens===k).sort((a,b)=>Math.abs(b.eff)-Math.abs(a.eff)).forEach(n=>facts.push(`<li data-effect="${r2(n.eff)}" data-site="${sk}"><span>${SK[sk].name} · ${n.label}${n.residual&&!/not attributed/i.test(n.label)?' (not explained yet)':''}: <b>${usd(n.eff,true)}</b></span>${ec(n.cls)}</li>`)));
-  facts.push(...(C[k].ctx||[]).map(li));if(k==='optimize')facts.push(...opsCardLines(op).map(li));
-  if(k==='grow'&&o.vertical!=='ev'){const out=o.sites.map(sk=>[sk,NV(sk,'actual','outstanding')]).filter(([,v])=>v);if(out.length)pot.unshift(li([`Billed, not yet collected: ${out.map(([sk,v])=>`${SK[sk].name} ${usd(v)}`).join(', ')}`,'RECORDED']));}}
- else if(k==='protect'){const pc=protectCard(op);pos=pc.pos;facts=pc.f.map(li);
-  ATTN[op].filter(r=>r[0]==='unobs'&&findingHeading(r)==='optimize').forEach(([,,s,txt,d])=>facts.push(`<li class="linked" data-linked="${d}"><span>Possible fuel loss, linked and not counted here: ${SK[s].name} · ${txt}. Its cost sits under Optimize. ${link(`decision/${d}`,'Open the finding →')}</span></li>`));}
- else {facts=[li([`Evidence by type, every factor: ${evidenceMix(op)}`,'']),...(C[k].ctx||[]).map(li)];
-  if(HOME_GAPS.some(g=>o.sites.includes(g.site)))facts.push(li([`Not yet under a heading: ${HOME_GAPS.filter(g=>o.sites.includes(g.site)).map(g=>`${SK[g.site].name}: ${g.label}`).join('; ')}`,'MISSING']));}
- const finds=ATTN[op].filter(r=>findingHeading(r)===k).map(([,t,s,txt,d])=>`<li><span><b>${t}</b> · ${SK[s].name}: ${k==='assure'?'':txt} ${link(`decision/${d}`,'Decision →')}</span></li>`);
- const items=k==='assure'?[]:P.ids.map(id=>[id,optHeadings(id).find(h=>h[0]===k)]).filter(([,h])=>h).map(([id,h])=>`<li data-item="${id}"><span>${optLabel(id)} · ${SK[OPT[id]._site].name}: ${h[1]}</span></li>`);
- if(k==='protect')proactiveOf(op).forEach(it=>items.push(`<li data-item="${it.item}"><span>${it.label}: upkeep, no value claimed</span></li>`));
- const chosen=COMMIT[op].filter(([d])=>k==='assure'||decHeading(d)===k);
- const verd=k==='assure'?COMMIT[op].map(([d,what,,state])=>`<li><span>${what.replace(/\$[\d,.]+/g,'')}: operational, economic and causal verdicts not yet</span><small class="cellnote">${state.replace(/\$[\d,.]+/g,'')}</small></li>`):[`<li><span>${chosen.length?`${num(chosen.length)} chosen option${chosen.length===1?'':'s'} tracked; three verdicts not yet`:'No chosen option yet'}</span></li>`];
- return `<article class="ocard lens-b-${k}" data-heading="${k}"><div class="ocard-h">${icon(ico)}<h3>${name}</h3></div><p class="ocard-pos">${pos}</p>${grp(CAT_NOTE[k],facts)}${k==='grow'?grp('Potential, not realised',pot):''}${grp('Findings on these factors',finds)}${grp('Plan items that would move them',items)}${grp('Verdicts',verd)}${link('portfolio/outcomes-by-site','Open the factor structure →')}</article>`;}
-function contributionBridge(op){const o=OPS[op],cost=o.kind==='cost',rows=o.sites.map(sk=>[sk,siteSplit(sk)]),tot=rows.reduce((a,[,s])=>({grow:a.grow+s.grow,optimize:a.optimize+s.optimize,gap:a.gap+(s.gap||0)}),{grow:0,optimize:0,gap:0});
+/* collection of what was billed (design rev 16.10 §2.0, Optimize: billed against collected): cash, outside the contribution gap */
+function cashLines(op){const o=OPS[op];if(o.vertical==='ev')return [];const w=o.vertical==='cold'?['received','invoiced']:['collected','billed'];
+ const rows=o.sites.map(sk=>{const A=siteM(sk).period.actual,c=NV(sk,'actual','collected')??A.collected,b=NV(sk,'actual','revenue')??A.revenue,tr=NV(sk,'actual','in_transit')??A.in_transit,ou=NV(sk,'actual','outstanding')??A.outstanding;
+  return `<li data-cash="${sk}"><span>${SK[sk].name}: ${usd(c)} ${w[0]} of ${usd(b)} ${w[1]}${tr?`; ${usd(tr)} in transit`:''}; ${usd(ou)} outstanding</span>${ec('RECORDED')}</li>`;});
+ const C=sumNodes(op,'actual','collected'),B=sumNodes(op,'actual','revenue');
+ return [...rows,`<li data-cash="portfolio"><span>Across ${o.name}: ${usd(C)} ${w[0]} of ${usd(B)} ${w[1]}</span></li>`];}
+/* contribution's bridge, presented under Assure (actual against target, with sources and coverage); every figure in it is a Grow or
+   Optimize figure, tagged with its heading, so Assure adds no money of its own */
+function bridgeTable(op){const o=OPS[op],cost=o.kind==='cost',rows=o.sites.map(sk=>[sk,siteSplit(sk)]),tot=rows.reduce((a,[,s])=>({grow:a.grow+s.grow,optimize:a.optimize+s.optimize,gap:a.gap+(s.gap||0)}),{grow:0,optimize:0,gap:0});
  const cell=v=>usd(r2(v),true),gw=v=>cost?'<span class="muted">Not applicable</span>':cell(v);
  const body=rows.map(([sk,s])=>`<tr data-site="${sk}" data-grow="${s.grow}" data-optimize="${s.optimize}" data-gap="${s.gap}"><th scope="row">${siteLink(sk)}</th><td>${gw(s.grow)}</td><td>${cell(s.optimize)}</td><td><b>${s.gap==null?'not available yet':fig(`node:${sk}:root`,cell(s.gap))}</b></td></tr>`).join('');
- return `<section class="panel contrib-bridge" aria-labelledby="cb-h"><div class="panel-head"><div><h2 id="cb-h">${cost?'Charging and depot cost':'Contribution'}: the outcome above Grow and Optimize</h2><p>${cost?'Revenue is not applicable at a captive depot, so the cost gap sits under Optimize.':'Revenue − cost to serve.'} Each money effect sits on one factor, so under one heading; the two add up to the gap. Protect and Assure carry no money and are never added.</p></div></div>
- ${region('Contribution gap by heading',`<table class="ftab cbtab"><thead><tr><th>Site</th><th>${LENS.grow[0]}</th><th>${LENS.optimize[0]}</th><th>${cost?'Cost against target (− is over)':'Contribution against target'}</th></tr></thead><tbody>${body}<tr class="root" data-site="portfolio"><th scope="row">${o.name}</th><td>${gw(tot.grow)}</td><td>${cell(tot.optimize)}</td><td><b>${cell(tot.gap)}</b></td></tr></tbody></table>`)}</section>`;}
-function outcomeCards(op){const C=CARDS[op]();return `${contributionBridge(op)}<div class="ocards">${Object.keys(LENS).map(k=>categoryCard(op,k,C)).join('')}</div><p class="note">The four headings sit over one structure: each factor under one heading, so no figure is counted twice. Grow and Optimize explain the contribution gap above them; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence and the verdicts.</p>`;}
+ return `<details class="cb-disc contrib-bridge"><summary>${cost?'Cost':'Contribution'}’s bridge by heading</summary>${region('Bridge by heading',`<table class="ftab cbtab"><thead><tr><th>Site</th><th>Grow</th><th>Optimize</th><th>${cost?'Cost against target':'Against target'}</th></tr></thead><tbody>${body}<tr class="root" data-site="portfolio"><th scope="row">All sites</th><td>${gw(tot.grow)}</td><td>${cell(tot.optimize)}</td><td><b>${cell(tot.gap)}</b></td></tr></tbody></table>`)}<p class="note">${cost?'Revenue is not applicable at a captive depot, so the whole gap sits under Optimize.':'Grow and Optimize effects add up to each gap.'} These are Grow and Optimize figures; Assure adds none.</p></details>`;}
+/* Assure (design rev 16.10 §2.0): the governed, evidenced view of everything above, in five parts, with no money of its own */
+function assureGroups(op,C){const o=OPS[op],li=([t,c])=>`<li><span>${t}</span>${c?ec(c):''}</li>`,decs=DEC.filter(d=>SK[d.site].op===op),opts=decs.flatMap(d=>d.opts.map(id=>OPT[id]).filter(Boolean));
+ const rej=opts.filter(x=>x.disposition==='REJECTED').length,lim=opts.filter(x=>(x.safeguard||{}).result==='FAIL').length,acts=(WF(op).actions||[]).length;
+ const rights=(RIGHTS_OF_OP[op]||[]).map(k=>{const r=rightsOf(k),i=STAGE_IX[r.state];return li([`${r.asset}: ${i>=0?STAGES[i].toLowerCase():'no claim possible'}${r.deadline?`; deadline ${fdate(r.deadline)}, ${daysUntil(r.deadline)} days`:''}${r.stopped?`; ${r.stopped}`:''}`.replace(/\$[\d,.]+/g,'').replace(/\s+;/g,';'),'']);});
+ const verd=COMMIT[op].map(([d,what,,state])=>li([`${what.replace(/\$[\d,.]+/g,'')}: three verdicts not yet · ${state.replace(/\$[\d,.]+/g,'')}`,'']));
+ return [['Actual against target, with sources and coverage',[li([C.assure.pos,'']),li([`Evidence by type, every factor: ${evidenceMix(op)}`,'']),`<li class="cb-li">${bridgeTable(op)}</li>`]],
+  ['Options against doing nothing, with their limits',[li([`${num(decs.length)} decisions compare every option with doing nothing; ${num(rej)} option${rej===1?'':'s'} rejected, each with its reason${lim?`; ${num(lim)} fail${lim===1?'s':''} a limit`:''}`,''])]],
+  ['Actions and the three verdicts',[li([`${num(acts)} Actions tracked, each with its owner`,'']),...verd]],
+  ['Evidence the product keeps',[li(['Every figure keeps its source records, its evidence type and where it came from','']),...(C.assure.ctx||[]).map(li),
+   ...(HOME_GAPS.some(g=>o.sites.includes(g.site))?[li([`Not yet under a heading: ${HOME_GAPS.filter(g=>o.sites.includes(g.site)).map(g=>`${SK[g.site].name}: ${g.label}`).join('; ')}`,'MISSING'])]:[])]],
+  ['Contract notices and remedies',rights.length?rights:[li(['No right or contract notice open',''])]]];}
+function categoryCard(op,k,C){const o=OPS[op],[name,ico]=LENS[k],P=planCase(op),li=([t,c])=>`<li><span>${t}</span>${c?ec(c):''}</li>`,grp=(h,rows)=>rows.length?`<h4>${h}</h4><ul>${rows.join('')}</ul>`:'';
+ const head=`<article class="ocard lens-b-${k}" data-heading="${k}"><div class="ocard-h">${icon(ico)}<h3>${name}</h3></div>`;
+ if(k==='assure')return `${head}<p class="ocard-pos">The evidence behind every heading; no money of its own</p>${assureGroups(op,C).map(([h,r])=>grp(h,r)).join('')}${link('portfolio/scope','Open Scope & coverage →')}</article>`;
+ let pos=C[k].pos||'',facts=[],pot=(C[k].pot||[]).map(li);
+ if(k==='grow'||k==='optimize'){o.sites.forEach(sk=>effectsOf(sk).filter(n=>n.lens===k).sort((a,b)=>Math.abs(b.eff)-Math.abs(a.eff)).forEach(n=>facts.push(`<li data-effect="${r2(n.eff)}" data-site="${sk}"><span>${SK[sk].name} · ${n.label}${n.residual&&!/not attributed/i.test(n.label)?' (not explained yet)':''}: <b>${usd(n.eff,true)}</b></span>${ec(n.cls)}</li>`)));
+  facts.push(...(C[k].ctx||[]).map(li));if(k==='optimize')facts.push(...opsCardLines(op).map(li));}
+ else {const pc=protectCard(op);pos=pc.pos;facts=pc.f.map(li);
+  ATTN[op].filter(r=>r[0]==='unobs'&&findingHeading(r)==='optimize').forEach(([,,s,txt,d])=>facts.push(`<li class="linked" data-linked="${d}"><span>Possible fuel loss, linked and not counted here: ${SK[s].name} · ${txt}. Its cost sits under Optimize. ${link(`decision/${d}`,'Open the finding →')}</span></li>`));}
+ const finds=ATTN[op].filter(r=>findingHeading(r)===k).map(([,t,s,txt,d])=>`<li><span><b>${t}</b> · ${SK[s].name}: ${txt} ${link(`decision/${d}`,'Decision →')}</span></li>`);
+ const items=P.ids.map(id=>[id,optHeadings(id).find(h=>h[0]===k)]).filter(([,h])=>h).map(([id,h])=>`<li data-item="${id}"><span>${optLabel(id)} · ${SK[OPT[id]._site].name}: ${h[1]}</span></li>`);
+ if(k==='protect')proactiveOf(op).forEach(it=>items.push(`<li data-item="${it.item}"><span>${it.label}: upkeep, no value claimed</span></li>`));
+ const chosen=COMMIT[op].filter(([d])=>decHeading(d)===k);
+ const verd=[`<li><span>${chosen.length?`${num(chosen.length)} chosen option${chosen.length===1?'':'s'} tracked; three verdicts not yet`:'No chosen option yet'}</span></li>`];
+ return `${head}<p class="ocard-pos">${pos}</p>${grp(CAT_NOTE[k],facts)}${k==='optimize'?grp('Cash collected, outside the contribution gap',cashLines(op)):''}${k==='grow'?grp('Potential, not realised',pot):''}${grp('Findings on these factors',finds)}${grp('Plan items that would move them',items)}${grp('Verdicts',verd)}${link('portfolio/outcomes-by-site','Open the factor structure →')}</article>`;}
+function outcomeCards(op){const C=CARDS[op]();return `<div class="ocards">${Object.keys(LENS).map(k=>categoryCard(op,k,C)).join('')}</div><p class="note">The four headings sit over one structure: each factor under one heading, so no figure is counted twice and the headings are never added together. Grow and Optimize effects explain the contribution gap; cash collected sits under Optimize, outside that gap; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence, with the bridge, and adds no money.</p>`;}
 function ATTN_OF(op){const ko=siteM('kobo').period,cand=BR('kobo','CANDIDATE_RUNNING'),mto=siteM('mto'),kfb=ko.fuel_balance,mw=siteM('mwea').period,emb=siteM('embakasi'),ka=siteM('kasarani').incident,ru=siteM('ruiru');
  return {
  lakeside:[['off','Off target','kobo',`Litres used ${num(ko.actual.diesel_l)} against ${num(ko.plan.diesel_l)} target; ${num(qtyOf(cand.basis)[0])} L of it is candidate running while solar and the battery could carry the load`,'kobo-generator'],['at','At its limit','kisiwa','Evening supply on one generator at 95% load since generator 1 failed on 30 Oct','kisiwa-genset'],['new','New factor','mto',`The cooperative’s signed letter of intent for a daytime rice huller; it lapses on ${fdate('2026-11-30')}`,'mto-demand'],['due','Deadline','mto',`Inverter 2 failed on ${fdate(mto.entitlement.occurrence.failed)}: half the daytime capacity; warranty notice due ${fdate(mto.entitlement.notice_deadline)}`,'mto-inverter'],['off','Off target','mto',`${num(mto.period.actual.unbilled_mapping_kwh)} kWh metered but not billed after the 3 Oct meter swap`,'mto-billing'],['unobs','Not explained','kobo',`${num(kfb.residual_l)} L of fuel beyond what the generator model explains (above the ${kfb.tolerance_pct}% tolerance): investigation, no recovery claimed`,'kobo-generator']],

@@ -119,3 +119,4 @@ table.srcrows{width:100%;border-collapse:collapse;font-family:Consolas,monospace
 .byhead{list-style:none;margin:0;padding:0;display:grid;gap:3px}.byhead li{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;font-size:11.5px;line-height:1.4}
 .contrib-bridge .cbtab td,.contrib-bridge .cbtab th{white-space:nowrap}.contrib-bridge .cbtab td{text-align:right;font-variant-numeric:tabular-nums}
 .ocard li.linked{color:#56657c;font-style:italic}.snap-pending{display:inline-flex;margin-left:6px}.src-order li{margin-bottom:6px}
+.ocard li.cb-li{padding:4px 0}.cb-disc summary{cursor:pointer;font-weight:600;font-size:11.5px}.cb-disc .cbtab{font-size:11px}.cb-disc .cbtab th,.cb-disc .cbtab td{padding:4px 5px}.cb-disc .note{margin:4px 0 0;font-size:11px}

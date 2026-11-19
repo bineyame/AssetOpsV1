@@ -65,21 +65,23 @@ const fig = (key,text) => `<button class="ev-num" data-evd="${key}" aria-haspopu
 /* ---------- outcome lenses (main design §3.1): outcomes over one factor structure; never summed ---------- */
 const LENS = {grow:['Grow revenue','sun'],optimize:['Optimize cost and efficiency','money'],protect:['Protect asset and capital','asset'],assure:['Assure performance and returns','evidence']};
 const lensTag = l => `<span class="lens lens-${l}">${LENS[l][0]}</span>`;
-/* ---------- home categories (design rev 16.9 §2.0 and Figure 1b, OD-21; worked-portfolios §1.0 "Home categories" row) ----------
+/* ---------- home categories (design rev 16.10 §2.0 and Figure 1b, OD-21; worked-portfolios §1.0 "Home categories" row) ----------
+   A bridge row is keyed by its factor (driver) where it sits on a different heading from its parent leaf (unmapped meters and
+   adjustments are Optimize's service-to-charge part, below billed kWh, which is Grow).
    Every node of the structure sits under exactly one of the four headings, so it carries money once. A node is NAMED when the
    Home categories row (or the §2.0 definition of the heading) names it; a part of a placed node INHERITS its parent's heading
    (§2.0: every money effect sits on one leaf, so under one heading). The outcome at the root sits ABOVE the headings. A node
    that is neither is a GAP: it shows no heading and is listed in HOME_GAPS; its heading is never guessed.
    [heading, what the row names, potential] — potential: capacity with no customer, shown beside Grow, never as Grow's actual. */
 const HOME = {
- mini:{rev:['grow','revenue (§2.0: the revenue side of the value chain)'],billed:['grow','billed kWh'],tariff:['grow','tariff'],cash:['grow','collections'],
+ mini:{rev:['grow','revenue (§2.0: the revenue side of the value chain)'],billed:['grow','billed kWh'],tariff:['grow','tariff'],meter:['grow','metered kWh'],adj:['optimize','adjustments'],METER_MAPPING_UNBILLED:['optimize','unmapped meters'],AUTHORISED_ADJUSTMENT:['optimize','adjustments'],cash:['optimize','billed against collected (cash, outside the contribution gap)'],
   cost:['optimize','cost to serve (§2.0)'],diesel:['optimize','litres at their price'],litres:['optimize','litres at their price'],dprice:['optimize','litres at their price'],om:['optimize','O&M'],staff:['optimize','staff']},
- cold:{rev:['grow','revenue (§2.0: the revenue side of the value chain)'],charge:['grow','chargeable crate-days'],cash:['grow','invoiced and received'],idle:['grow','headroom with no customer (§2.0)',true],
+ cold:{rev:['grow','revenue (§2.0: the revenue side of the value chain)'],charge:['grow','chargeable crate-days'],cash:['optimize','invoiced against received (cash, outside the contribution gap)'],idle:['grow','headroom with no customer (§2.0)',true],
   cost:['optimize','cost to serve (§2.0)'],elec:['optimize','cooling energy'],kwh:['optimize','cooling energy'],staff:['optimize','staff'],maint:['optimize','maintenance']},
  ev:{cost:['optimize','cost to serve (§2.0)'],bill:['optimize','energy by tariff interval'],maxkw:['optimize','demand charge'],demand:['optimize','demand charge'],pen:['optimize','penalties'],dep:['protect','departures']}};
 const HOME_GAPS = [];
 function placeHomes(sk,root){const H=HOME[OPS[SK[sk].op].vertical];
- walk(root,(n,d,p)=>{if(d===0){n.lens=null;n.above=true;return;}const h=H[n.id];
+ walk(root,(n,d,p)=>{if(d===0){n.lens=null;n.above=true;return;}const h=H[n.id]||(n.driver&&H[n.driver]);
   if(h){n.lens=h[0];n.home='named';if(h[2])n.potential=true;}
   else if(p&&p.lens){n.lens=p.lens;n.home='inherited';if(p.potential)n.potential=true;}
   else{n.lens=null;n.home='gap';HOME_GAPS.push({site:sk,node:n.id,label:n.label});}});
@@ -109,7 +111,7 @@ function qtyOf(basis){const m=String(basis).match(/^([\d,]+(?:\.\d+)?) (kWh|L|cr
 const UNIT = {'$':v=>usd(v),'$/kWh':v=>usd2(v)+' a kWh','$/L':v=>usd2(v)+' a litre','$/dep':v=>usd2(v),'$/cd':v=>usd2(v)+' a crate-day',kWh:v=>num(v)+' kWh',L:v=>num(v)+' L','crate-days':v=>num(v)+' crate-days','%':v=>v+'%',kW:v=>num(v)+' kW',dep:v=>num(v),'kWh/night':v=>num(v)+' kWh a night',n:v=>num(v)};
 const fmtU = (v,u) => v===null||v===undefined?null:(UNIT[u]||num)(v);
 function bridgeNode(sk,b,i,costSide){const q=qtyOf(b.basis),[label]=FAC[b.driver];const sg=costSide?-Math.sign(b.amount):Math.sign(b.amount);
- return {id:'f'+i,label,how:plain(b.basis),unit:q?q[1]:'$',dev:q?sg*q[0]:null,eff:b.amount,cls:b.class,residual:b.driver==='UNEXPLAINED_RESIDUAL',src:SRC_OF[b.driver]||'model',evd:`bridge:${sk}:${i}`,dec:DEC_OF_FACTOR[sk]?.[b.driver]};}
+ return {id:'f'+i,label,how:plain(b.basis),unit:q?q[1]:'$',dev:q?sg*q[0]:null,eff:b.amount,cls:b.class,driver:b.driver,residual:b.driver==='UNEXPLAINED_RESIDUAL',src:SRC_OF[b.driver]||'model',evd:`bridge:${sk}:${i}`,dec:DEC_OF_FACTOR[sk]?.[b.driver]};}
 const SRC_OF = {CANDIDATE_RUNNING:'ems',DEMAND_VOLUME:'billing',METER_MAPPING_UNBILLED:'meterreg',AUTHORISED_ADJUSTMENT:'billing',EVENING_LOAD_GROWTH:'ems',SOLAR_SHORTFALL_NECESSARY_GEN:'ems',EVENING_NECESSARY_GEN:'ems',UNEXPLAINED_RESIDUAL:'fuel',
  OCCUPANCY_REVENUE:'ledger',OCCUPANCY_ENERGY_VOLUME:'energymeter',ENERGY_EFFICIENCY:'energymeter',CUSTOMER_COMPENSATION:'qa',PEAK_ENERGY_SHARE:'utility',DEMAND_CHARGE:'utility'};
 const DEC_OF_FACTOR = {kobo:{CANDIDATE_RUNNING:'kobo-generator',UNEXPLAINED_RESIDUAL:'kobo-generator'},kisiwa:{SOLAR_SHORTFALL_NECESSARY_GEN:'kisiwa-genset'},
