@@ -24,3 +24,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-19 `owner-assure-per-brief-2026-11-19.md` Assure per brief L1.1 (A1-A5, no money of its own); collections split Optimize O3 / Grow; OD-19 reconciled with A4 · current
 - 2026-11-19 `owner-vertical-factor-map-2026-11-19.md` Vertical factor map: brief needle movers per vertical → registry factors → site/portfolio, with a check; CSV aligned; nothing retired before content moves · current
 - 2026-11-19 `owner-website-copy-pass-2026-11-19.md` Website copy pass: outcome-led, show not state differentiation, allocation and proof as hero, four categories, honesty in badges; rules and lint unchanged · current
+- 2026-11-19 `owner-decision-heading-rule-2026-11-19.md` Decision heading follows its Finding's factor (lever heading when no Finding); option effects per factor; Architect may push back or improve · current
