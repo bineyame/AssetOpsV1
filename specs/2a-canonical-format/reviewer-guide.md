@@ -10,7 +10,7 @@ mechanism and a protected seam from now on (D-2A.2).
    commit may hold only tests and the fixture (spec §12).
 2. **Scope.** `git diff --stat main...HEAD` lists only `contracts/assetops_contracts/canonical/*`,
    `contracts/tests/test_canonical_*.py`, `contracts/tests/fixtures/canonical_v1_examples.json` and the packet.
-3. **Fixture.** `cmp specs/2a-canonical-format/examples-v1.json contracts/tests/fixtures/canonical_v1_examples.json`
+3. **Fixture.** `cmp specs/2a-canonical-format/examples-v1.json.txt contracts/tests/fixtures/canonical_v1_examples.json`
    reports no difference.
 
 ## Done means

@@ -81,7 +81,7 @@ New package `contracts/assetops_contracts/canonical/` (standard library only; D-
 | `sources_v1.py` | `SourceType`, `SOURCE_TYPES`, `EXISTING_FORMATS` (§7) |
 
 Tests: `contracts/tests/test_canonical_v1.py`, `contracts/tests/test_canonical_manifest_parity.py`, fixture
-`contracts/tests/fixtures/canonical_v1_examples.json` (a byte copy of this folder's `examples-v1.json`). Add an empty
+`contracts/tests/fixtures/canonical_v1_examples.json` (a byte copy of this folder's `examples-v1.json.txt`). Add an empty
 `contracts/tests/fixtures/__init__.py` only if pytest needs it (it does not for a JSON file; do not add one).
 
 This package is a protected seam from this unit on (D-2A.2): a change that alters what a valid record is, or a factor
