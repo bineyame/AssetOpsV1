@@ -1,6 +1,6 @@
 # RC4-F1: the database a URL really connects to (fix unit, implementer spec)
 
-Status: **rev 1**, 2026-11-20. Decisions with reasons: `rulings.md` (D-RC4F1.1, D-RC4F1.2). Questions during the
+Status: **in_review** (rev 1), 2026-11-20. Decisions with reasons: `rulings.md` (D-RC4F1.1, D-RC4F1.2). Questions during the
 build: `mid-build-questions.md`. No separate handshake: the 3A3 handshake raised it (3A3 R1, ON1 R4) and this spec
 answers it; a Sonnet reviewer may still ask before code (units of 2 or fewer, `.ai/ROLE_CONFIG.md`).
 
