@@ -41,7 +41,8 @@ Mid-build count: **1** (Q2, open, default applied). Not merged.
 - Simulator `tests/world/test_4b_fixture_parity.py`: 1 passed.
 - Postgres, `heavy-slot.sh --db` + `run-host-tests.ps1`: `test_4b_money_leaves_postgres`,
   `test_3a4_commercial_months_postgres`, `test_3b3_structure_read_postgres`: **17 passed**, 59 s wall (`pg-run.txt`).
-- `check-architecture.ps1`, `check-agent-workflow.ps1`, fast `check-all.ps1`: see "Final checks" below.
+- At `8bb488bae`: `check-architecture.ps1` passed; fast `check-all.ps1`: "All 40 guards passed", 223 s (first run
+  failed only dependency-direction, fixed by deviation 1). `check-agent-workflow.ps1` passed at `af2c5be86`.
 - Plants (`plants.txt`; each planted, run, reverted with `git checkout`): V7 → tests 1, 3; V8 → 1, 3; V9 → 2;
   V10 (prefer declared / fallback on mixed currency / fallback in open month) → 1 / 6 / 2; V11 → 2, 7, 9-probe;
   V12 → 7; V13 → 9; V14 float / ambient → 11a / 11b; V15 (compose includes all Sites) → 3; V17 divide / fallback →
