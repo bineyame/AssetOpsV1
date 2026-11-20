@@ -22,7 +22,10 @@ Count: **3** (reset at spec rev 2, after handshake round 1; Q2 and Q3 raised in 
   (a file read, no import across the seam) and compares step 1's parsed records with `build_records` for those IDs.
   This adds a file outside spec §7 question 8's list, so it needs the ruling.
 
-## Q2 (units 2-3, spec §5 step 1 and §6 "Postgres" test 1): `loader:ds3` cannot be stored in Postgres: OPEN
+## Q2 (units 2-3, spec §5 step 1 and §6 "Postgres" test 1): `loader:ds3` cannot be stored in Postgres: ANSWERED
+
+**Answered** 2026-11-20 in `rulings.md` "Mid-build answers (round 2)": the literal becomes `service:ds3-loader` in
+the fixture, both test files and spec §5; the Postgres workaround (`PG_LOADER`) is removed.
 
 - **Stopped:** nothing in the in-memory file (it keeps the literal). **Built, as a workaround:** the Postgres file
   enters step 1 as `service:ds3-loader` (`PG_LOADER`, `test_5a_targets_postgres.py`) and passes that name to test
@@ -34,7 +37,10 @@ Count: **3** (reset at spec rev 2, after handshake round 1; Q2 and Q3 raised in 
   `service:ds3-loader`, so one literal serves both stores and the workaround goes; or keep it with the workaround.
   Touches unit 1's fixture, its parity test (which reads only records, so stays green) and test 1's literals.
 
-## Q3 (units 2-3, spec §3.2 steps 3 and 5; D-4B.18): which origins an assumed target carries: DEFAULT APPLIED
+## Q3 (units 2-3, spec §3.2 steps 3 and 5; D-4B.18): which origins an assumed target carries: ANSWERED
+
+**Answered** 2026-11-20 in `rulings.md` "Mid-build answers (round 2)" (D-5A.16): the builder's default is
+confirmed, `currency=` keyword included; spec §3.1 and §3.2 rev 3 name it.
 
 - **Stopped:** nothing; the evaluator refuses a valued, non-NEUTRAL, non-CALENDAR leaf with `()` origins
   (`STRUCTURE_ORIGIN`), and spec §3.2 (written before D-4B.18) names origins only for a line's target, so no
