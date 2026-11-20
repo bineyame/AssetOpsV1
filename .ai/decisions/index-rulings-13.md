@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-4D.1 to D-3C2.5)
+# Decision index: Demo-sprint and later rulings (index only) (D-4D.1 to D-3C2.13)
 
 - `D-4D.1` No new intake: litres read existing readings (dispatch-3.2), TANK_DIP/FUEL_DELIVERY records and the Foundation fuel curve · live · specs/4d-litre-split/rulings.md
 - `D-4D.2` A litre is a running slot's measured output at the fuel curve; any gap in output gives no month figure · live · specs/4d-litre-split/rulings.md
@@ -44,7 +44,15 @@
 - `D-DDR.9` G10 reads 3C2's store, then the screen's first row · live · specs/DDR-rehearsal/rulings.md
 - `D-DDR.10` Each DDR test case starts from empty tables; progress folded into the one full run · live · specs/DDR-rehearsal/rulings.md
 - `D-3C2.1` An agreed change is its own append-only record (0069), apart from the S6-01a finding Actions · live · specs/3C2-agreed-change-action/rulings.md
-- `D-3C2.2` Only the executive agrees a change; the owner's role must cover where it applies · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.2` Only the executive agrees a change; the owner's role must cover where it applies (amended by D-3C2.6) · live · specs/3C2-agreed-change-action/rulings.md
 - `D-3C2.3` record_action records in the agreeing person's name, once (idempotent) · live · specs/3C2-agreed-change-action/rulings.md
 - `D-3C2.4` State words Open and Overdue by the UTC date at the read · live · specs/3C2-agreed-change-action/rulings.md
 - `D-3C2.5` 3C2 adopts 5c's contract; domain read in actions/, the screen mapping in deep_dive/ · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.6` Owner rule by role (OWNER_COVER): executive and finance lead all, Site manager own Site only, others none · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.7` A re-run is recognised before the due check; the agreed_action_once violation is caught · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.8` A factor must belong to the registry of its Site's type (FACTOR_SITE_TYPE) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.9` Migration numbered at the live head (D-3A1.12); 3A6 merged is the build gate; 5c unit 2 gates unit 2 · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.10` One clock read per call, whole seconds; a re-run prints the stored created_at · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.11` Title kept as typed: U+0020 stripped, controls refused, no normalisation · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.12` record_action is a trusted act, not a sign-in (residual risk R-AUTH) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.13` TRUNCATE on agreed_action is refused (statement trigger) · live · specs/3C2-agreed-change-action/rulings.md
