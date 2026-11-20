@@ -187,3 +187,70 @@ lane B builds `DS2` first (D-BW1.1).
 - **Ruling.** The canonical tests are `backend/tests/test_2a_*.py`, with their fixture in `backend/tests/fixtures/`.
 - **Why.** They are the only guard on a protected seam and its parity with the manifest. Only `backend/tests` runs at
   every merge.
+
+## Review round 1 answers (2a, 2026-11-20; `review.md`, REVISE: 2 Mediums, 3 Lows)
+
+Folded into `spec.md` rev 3 (§3, §6.2, §6.3, §6.5, §6.6, §6.8, the new §6.8a, T7, the new T11 and done question 8).
+One Sonnet fix round builds them. A verification re-review then checks the named items only.
+
+### Mediums
+
+- **M1: a surrogate key is refused with `CANONICAL_REF` at the container path.**
+  - A key holding a code point U+D800 to U+DFFF is refused as `CANONICAL_REF <container path>`, with the key left
+    out of the path. In `loads_canonical` the refusal is `CANONICAL_REF json`.
+  - Keys are checked for surrogates before unknown, missing and duplicate keys.
+  - **The class.** Any other unknown or duplicate key enters a path escaped to ASCII and capped at 64 characters (§6.8a,
+    D-2A.11). Every refusal text is then encodable and bounded. This also closes the review's unbounded-path risk.
+  - **Tests.** T7 adds key mutations, and asserts that every refusal text encodes as ASCII. T11 adds the full-text
+    cases.
+- **M2: one order, the root cause first** (§6.8a, D-2A.12).
+  - When a controlling value is absent or not in its enum, the fields that depend on it get only their shape checks.
+    The controlling field's own refusal is reported at its step.
+  - **EXPENSE changes.** Its `quantity` default becomes the undecided state, as CHARGE's does, and its unit check uses
+    the unconditional `("L",)`.
+  - **The sweep (W6).** Every `_When` default in `_SPECS` follows the rule. The reviewer's list is lines 163-166,
+    202, 225, 231, 234-235 and 282. STORAGE `currency` and SERVICE_TICKET `restored_at` are keyed on presence and
+    status, which are always decided by then, so they stay.
+  - **Tests.** T11 adds the absent and the invalid control case for CHARGE, EXPENSE and CUSTOMER_METER_READ.
+
+### The four filled gaps
+
+The packet records 4 mid-build questions: these four choices should have been raised.
+- **Gap 1: ratified.** A quantity unit outside the five is `CANONICAL_UNIT`.
+- **Gap 2: ratified, with the index stated.** An array fault points at the element. An overlap points at the later
+  band's `from`, where "later" is by `from` order and the index is that band's input index.
+- **Gap 3: settled by M2.**
+- **Gap 4: ratified.** `FORMAT_VERSION` is defined in `records_v1.py` and re-exported. Spec §3 is amended.
+
+### Lows
+
+- **Low 1: adopted.** T11 adds one trailing-junk case per pattern site: site, tenant, currency, sha, period, date,
+  time and instant.
+- **Low 2: adopted.** T11 adds an NFD ref that round-trips byte-identical and does not equal its NFC form.
+- **Low 3, spec text:**
+  1. `FORMAT_VERSION`, as gap 4.
+  2. **One order for batch and record.** `format_version` comes first, then the key set, then the fields. The batch
+     code changes to match (`records_v1.py:743-746`). The reason: a version-2 batch's new keys are expected, so the
+     version is the root cause.
+  3. **A null on an F row is `CANONICAL_FORBIDDEN`.** The key's presence is the fault. §6.2 now says a null where the
+     field is allowed is `CANONICAL_TYPE`. The code already does this.
+  4. **R12 is corrected:** digests are of the canonical text. The code is right.
+
+### The residual risks
+
+- **Unhashable records.** Stated in §6.5: callers key records by `record_digest`. `3A2` and `DS1b` follow this.
+- **Unbounded paths.** Closed by D-2A.11.
+- **Contract freeze.** Stated in §6.8a: the codes and paths are part of version 1, so changing one is a version 2.
+  That is why the M1 and M2 fixes land now, before `3A2` and `DS1b` pin them.
+
+## D-2A.11 Key text in refusal paths is ASCII-escaped and capped; surrogate keys are `CANONICAL_REF`
+
+- **Ruling.** As M1.
+- **Why.** Intake stores refusals as text. A refusal that cannot be encoded, or a key a megabyte long, would fail
+  intake one step downstream, outside the format's own refusal codes.
+
+## D-2A.12 Conditional fields report the root cause
+
+- **Ruling.** As M2.
+- **Why.** The operator correcting an export is told what is wrong (the missing category), not a consequence of it
+  (a forbidden quantity). One rule across the kinds keeps §6.4 as data.

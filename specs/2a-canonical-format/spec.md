@@ -1,6 +1,6 @@
 # 2a: canonical format version 1 and the leaf factor IDs (implementer spec)
 
-Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in: `rulings.md` "Handshake answers (round 1)", D-2A.10). Rev 1 was spec handshake step 1 (`.ai/RULES.md` §4). Lane B, first unit of the
+Architect (Claude), 2026-11-20. **Rev 3** (review round 1 folded in: `rulings.md` "Review round 1 answers", D-2A.11, D-2A.12). **Rev 2** (handshake round 1 folded in: `rulings.md` "Handshake answers (round 1)", D-2A.10). Rev 1 was spec handshake step 1 (`.ai/RULES.md` §4). Lane B, first unit of the
 non-screen build (`specs/BW1-build-wave1/rulings.md` D-BW1.1). Decisions with their reasons: `rulings.md` (D-2A.1 to
 D-2A.9). Reviewer: `reviewer-guide.md`. Questions: `handshake.md` (before code), `mid-build-questions.md` (during).
 
@@ -77,7 +77,7 @@ New package `contracts/assetops_contracts/canonical/` (standard library only; D-
 
 | File | Holds |
 |---|---|
-| `__init__.py` | `FORMAT_VERSION = 1`; re-exports every public name below; a module docstring citing this spec |
+| `__init__.py` | re-exports every public name below, `FORMAT_VERSION` included (defined in `records_v1.py`, which `__init__` imports; defining it in `__init__` would be circular; RV1 gap 4); a module docstring citing this spec |
 | `units.py` | `Unit`, the dimensions, `parse_unit`, the named units, `QUANTITY_UNITS`, `BAND_UNITS` (§4) |
 | `factors.py` | `Factor`, `STRUCTURE_KEYS`, `LEAF_FACTORS`, `leaves_of`, `FACTOR_ID_PATTERN` (§5) |
 | `records_v1.py` | `KINDS`, `KIND_SPECS`, `CanonicalRecordV1`, `CanonicalBatchV1`, `BatchResult`, `CanonicalRefused`, `loads_canonical`, `parse_record`, `parse_batch`, `to_canonical_json`, `record_digest`, `batch_digest` (§6, §8) |
@@ -228,7 +228,8 @@ A batch is one JSON object; every key below is required and no other key is allo
 
 Top-level keys (closed set; a key not listed is `CANONICAL_FORBIDDEN`): `format_version` (integer 1), `kind`,
 `source_record_id` (ref), `source_version` (ref, at most 64 characters), `site_code`, `subject`, `clocks`, `amount`,
-`quantity`, `status`, `body`. Absent optional keys are omitted, never `null` (a `null` anywhere is `CANONICAL_TYPE`).
+`quantity`, `status`, `body`. Absent optional keys are omitted, never `null`. A `null` where the field is allowed is `CANONICAL_TYPE`; a key on
+an F row is `CANONICAL_FORBIDDEN` whatever its value, `null` included (the key's presence is the fault; RV1 Low 3.3).
 `format_version`, `kind`, `source_record_id`, `source_version`, `clocks` and `body` are required for every kind;
 `site_code`, `subject`, `amount`, `quantity` and `status` follow the kind's row (R4).
 
@@ -264,7 +265,8 @@ Clock, date, period and time failures are `CANONICAL_CLOCK`. Every pattern in th
 Unicode `\d`) and applied with `re.fullmatch` (R5). Any string anywhere holding a code point U+D800 to U+DFFF is
 `CANONICAL_REF` at its path; a ref also refuses U+0080 to U+009F; "whitespace" is `str.strip()`'s set; refs are
 compared as given, with no Unicode normalisation (R6). Instants are compared as moments, never as text; digests are
-of the text as sent, since the format never converts zones (R12). Tariff bands are wall-clock times; a
+of the canonical text (`isoformat()` of the parsed instant, so `.1` becomes `.100000` and `Z` or `-00:00` becomes
+`+00:00`); the format never converts zones (R12, as corrected by RV1 Low 3.4). Tariff bands are wall-clock times; a
 daylight-saving day is the reader's (`3B3`) to resolve (R15).
 
 ### 6.4 The fourteen kinds
@@ -309,7 +311,8 @@ themselves, in the table's left-to-right order:
   `amount: tuple[Decimal, str] | None`, `quantity: tuple[Decimal, str] | None`, `status: str | None`,
   `body: Mapping[str, object]`. Mappings are `MappingProxyType`; set-lists are sorted tuples; instants keep their
   canonical text (§6.3); decimals are `Decimal`, written out as `format(d, "f")`, never `str(d)` and never
-  re-quantised (R2).
+  re-quantised (R2). A `CanonicalRecordV1` is **not hashable** (its mappings are `MappingProxyType`): callers key
+  records by `record_digest`, never by the object (RV1 residual risk).
 - `CanonicalBatchV1`: frozen dataclass `tenant_code`, `source_type`, `source_system`, `provenance`, `produced_at`.
 - `BatchResult`: frozen dataclass `batch: CanonicalBatchV1`, `outcomes: tuple[CanonicalRecordV1 | CanonicalRefused, ...]`
   in input order.
@@ -326,7 +329,9 @@ themselves, in the table's left-to-right order:
   first `CanonicalRefused` in this order: `format_version`, `kind`, the top-level key set, `source_record_id`,
   `source_version`, `site_code`, `subject`, `clocks`, `amount`, `quantity`, `status`, `body` (its keys, then each
   field in table order), then the cross-field rules.
-- `parse_batch(obj: object) -> BatchResult`: an envelope failure raises `CanonicalRefused` with a `batch.` path;
+- `parse_batch(obj: object) -> BatchResult`: the envelope is checked in the record's order, `format_version` first,
+  then the key set, then each field (RV1 Low 3.2: one order for batch and record); an envelope failure raises
+  `CanonicalRefused` with a `batch.` path;
   otherwise each record is parsed and its refusal is kept as that record's outcome, never stopping the others
   (intake's per-row rule, `integration-design.md` §4). Then: a record whose kind is not in its source type's kinds
   becomes `CANONICAL_SOURCE_TYPE record.kind`; then, among records that parsed and passed the source-type check only, a
@@ -354,7 +359,8 @@ departure, a register end or a ticket time out of order; bands overlapping), `CA
 
 | Check | Code and path |
 |---|---|
-| Key set of the envelope, a record, `clocks`, `amount`, `quantity`, `subject`, `body` or a band | first unknown key in sorted order: `CANONICAL_FORBIDDEN <path>.<key>`; checked before any missing key |
+| A key anywhere (any object, and in `loads_canonical`) holding a code point U+D800 to U+DFFF | `CANONICAL_REF <container path>` (the key is left out of the path; `CANONICAL_REF json` in `loads_canonical`); checked before unknown, missing and duplicate keys (RV1 M1, D-2A.11) |
+| Key set of the envelope, a record, `clocks`, `amount`, `quantity`, `subject`, `body` or a band | first unknown key in sorted order: `CANONICAL_FORBIDDEN <path>.<key>`, the key written as its key text (§6.8a); checked before any missing key |
 | A required key absent | `CANONICAL_FIELD <path>.<key>`, at that field's own step in §6.6's order |
 | `format_version` absent or not the integer 1 | `CANONICAL_VERSION <path>.format_version` |
 | `kind` absent / not a v1 kind | `CANONICAL_FIELD record.kind` / `CANONICAL_KIND record.kind` |
@@ -375,6 +381,24 @@ departure, a register end or a ticket time out of order; bands overlapping), `CA
 | Ticket times before `occurred_at`; `departure_at` not after `return_at`; ranges out of order; bands overlapping | `CANONICAL_RANGE <path>` |
 | `restored_at` absent with status RESTORED | `CANONICAL_FIELD record.body.restored_at` |
 | Unknown `source_type`; bad `provenance`; `produced_at` | `CANONICAL_SOURCE_TYPE batch.source_type`; `CANONICAL_PROVENANCE batch.provenance`; `CANONICAL_CLOCK batch.produced_at` |
+
+### 6.8a Key text in paths, conditional fields, and the contract (RV1)
+
+- **Key text in a path** (D-2A.11). An unknown or duplicate key enters a path as
+  `json.dumps(key, ensure_ascii=True)[1:-1]`, cut to its first 64 characters with `...` appended when longer. So a
+  path is always ASCII, encodable and bounded. Spec-named keys are unaffected.
+- **Conditional fields: the root cause first** (D-2A.12, RV1 M2). When whether a field is required, optional or
+  forbidden depends on a controlling value (CHARGE `quantity` on `line_type`; EXPENSE `quantity` on `category`;
+  CUSTOMER_METER_READ `quantity`, `register_start` and `register_end` on `read_type`) and that value is absent or not
+  in its enum, the dependent field gets only its shape checks (type, decimal syntax, sign, and a unit among those any
+  branch allows), and the controlling field's own refusal is reported at its step (`CANONICAL_FIELD` or
+  `CANONICAL_ENUM` on `record.body.<control>`). So an EXPENSE with a fuel quantity and no `category` gives
+  `CANONICAL_FIELD record.body.category`, never `CANONICAL_FORBIDDEN record.quantity`.
+- **Arrays** (RV1 gap 2). A fault in an array points at the element (`record.body.bands[1].to`). An overlap points at
+  the later band's `from`, where "later" is in order of `from` and the index is that band's **input** index.
+- **Quantity unit outside the five** is `CANONICAL_UNIT` (RV1 gap 1).
+- **The codes and paths are part of version 1** (D-2A.2): `3A2` shows them to operators and later tests pin them, so
+  a change to any code or path is a version 2.
 
 ## 7. Source types v1 (`sources_v1.py`)
 
@@ -456,7 +480,24 @@ this package's public names):
   `loads_canonical` on a repeated key, on `NaN` and on invalid UTF-8.
 - **T7** Robustness: 500 records generated by a seeded `random.Random(2026)` that mutates example records (drop a key,
   change a type, insert a control character or a lone surrogate, swap a sign) never raise anything but
-  `CanonicalRefused` from `parse_record`, and `to_canonical_json` never raises on a record that parsed.
+  `CanonicalRefused` from `parse_record`, and `to_canonical_json` never raises on a record that parsed. Mutations
+  also insert keys (a lone-surrogate key, a control-character key, a 1,000-character key) at every object level, and
+  for every refusal `str(refused).encode("ascii")` succeeds (RV1 M1).
+- **T11** (RV1). Each a full-text assertion:
+  - surrogate keys: `{"body": {"x\ud800": 1}}` gives `CANONICAL_REF record.body`; `loads_canonical` of
+    `{"\ud800":1,"\ud800":2}` gives `CANONICAL_REF json`; a 1,000-character unknown key's path ends in 64 escaped
+    characters and `...`;
+  - conditional order: for CHARGE (`line_type`), EXPENSE (`category`) and CUSTOMER_METER_READ (`read_type`), the
+    controlling value absent gives `CANONICAL_FIELD record.body.<control>` and invalid gives `CANONICAL_ENUM
+    record.body.<control>`, with a quantity present;
+  - batch order: a batch with `format_version: 2` and an unknown key gives `CANONICAL_VERSION batch.format_version`;
+  - `"subject": null` on a SETTLEMENT gives `CANONICAL_FORBIDDEN record.subject`;
+  - trailing junk, one case per pattern site (RV1 Low 1): `site_code` `"MTO-001 x"`, `tenant_code`, `currency`
+    `"USDx"`, `document_sha256` + `"0"`, `recognition_period` `"2026-10x"`, a local date, a band `from` `"05:00x"`,
+    an instant with trailing junk; each refused with its §6.8 code;
+  - no normalisation (RV1 Low 2): a ref in NFD (`"Cafe\u0301"`) round-trips byte-identical and is not equal to its NFC
+    form;
+  - overlap index: two overlapping bands given out of order point at the later-by-`from` band's input index.
 - **T8** `units`: `parse_unit(str(u)) == u` for every catalogue unit; `str(ONE / DAY) == "1/DAY"`; `KW * HOUR == KWH`;
   `MONEY / MONEY == ONE`; `parse_unit` refuses `"MONEY*HOUR/KWH"` (numerator out of order), `"KWH*L/KWH"`,
   `"KWH/KWH"`, `"kWh"` and `""` with the code text; `QUANTITY_UNITS` and `BAND_UNITS` equal §4's lists.
@@ -490,6 +531,7 @@ packet.
    the dependency-direction guard?
 6. Is nothing outside §0's file list changed (`git diff --stat main...HEAD`), the finish bookkeeping excepted (P10)?
 7. Are the canonical tests in `backend/tests`, so the merge's full tier runs them (D-2A.10)?
+8. Is every refusal's text ASCII and bounded, and does every conditional field report its root cause (T11)?
 
 Packet: `specs/2a-canonical-format/packet.md` (at most 3k tokens; RULES §5), with the mid-build question count.
 
