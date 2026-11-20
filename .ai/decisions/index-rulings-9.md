@@ -18,6 +18,8 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3A2.14` Only records 2a accepts are kept; refusals keep code and a cut path · live · specs/3A2-commercial-file-intake/rulings.md
 - `D-3A2.15` File name in a header, kept as given (owner queue Q6) · live · specs/3A2-commercial-file-intake/rulings.md
 - `D-3A2.16` One scrub for every adapter method, proved by a class test (widens D-3A2.2) · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.17` File I/O and driver imports in commercial adapters; one registered key-file writer · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.18` Words sit with their construct (summary on Counts); refusals use their owner's key · live · specs/3A2-commercial-file-intake/rulings.md
 - `D-3A4.1` Money by month is a read over latest revisions; nothing stored · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3A4.2` Recognition month; a settlement without one by its Site-local settlement month · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3A4.3` Never summed across currency, unit or evidence origin · live · specs/3A4-amounts-by-month/rulings.md

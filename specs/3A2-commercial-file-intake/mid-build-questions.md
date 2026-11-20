@@ -6,9 +6,9 @@ the packet; a count above zero is a spec-template defect to fix.
 
 Reset for spec rev 2 (handshake round 1 answered, 2026-11-20).
 
-Count: **2** (builder, 2026-11-20). Both are built on the reading below, pending a ruling; nothing else waits.
+Count: **2** (builder, 2026-11-20). **Both answered** (Architect, 2026-11-20, `rulings.md` "Mid-build answers (round 1)").
 
-## Q1. §4 places file I/O where the persistence guard refuses it
+## Q1. §4 places file I/O where the persistence guard refuses it (ANSWERED: D-3A2.17, ratified as built)
 
 - **Section.** §4 code table (`pseudonym.py` holds `FileKeyStore`; `pseudonym_key.py` writes the key;
   `UploadSettings.key_dir: Path | None`; `composition.py` imports `make_url` and the two SQLAlchemy errors) and §8 Q9
@@ -24,7 +24,7 @@ Count: **2** (builder, 2026-11-20). Both are built on the reading below, pending
   (`Writer = @(".../file_key_store.py")`), a line outside the commercial writer block.
 - **Ask.** Ratify this placement and the domain-entry line (or name another), and amend §4 and Q9.
 
-## Q2. Two word placements the spec does not fix
+## Q2. Two word placements the spec does not fix (ANSWERED: D-3A2.18, code change required)
 
 - **Section.** §5 Shapes and Words.
 - **Open.** (a) Where `commercial_upload.summary` is served (no shape names it). (b) Which words the Site path's

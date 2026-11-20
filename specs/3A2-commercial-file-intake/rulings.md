@@ -232,3 +232,50 @@ only its SHA-256) are built on their defaults; "If the owner changes" below says
   does not change beyond writing the bytes to that port before step 8.
 - **Q6 to "do not keep names":** the row keeps `file_sha256` and a label the person types at submit (or none); the
   header and API test 9 stay.
+
+## Mid-build answers (round 1)
+
+Answered 2026-11-20 against build head `186b31510`. Count 2: both are spec-template defects (§4 placed code without
+checking guard rule 8; §5 listed a word no shape serves and lent a role word to a scope refusal).
+
+## D-3A2.17 File I/O and driver imports live in commercial adapters; the domain registers one file writer (mid-build Q1)
+
+- **Ruling: ratified as built.** `commercial/adapters/file_key_store.py` holds `FileKeyStore` and `create_key_file`
+  (checks and messages unchanged, R12 included); `composition.py` re-exports them; `pseudonym_key.py` calls the
+  composition; `pseudonym.py` keeps the port, `PseudonymKeyMissing`, `PseudonymKeyUnusable`, the field sets and
+  `pseudonymise`. `UNAVAILABLE` and `database_name(url)` live in the Postgres adapter; `COMMERCIAL_UNAVAILABLE` is
+  re-exported unchanged. `UploadSettings.key_dir: str | None`. The guard's `commercial` domain entry registers
+  `Writer = @("$backendRoot/commercial/adapters/file_key_store.py")` with its comment, as `evidence` registers
+  `gateway_credential_file.py`. §4 and §8 Q9 are amended to match.
+- **Why.** Rule 8 is the protected seam (domain code is pure; I/O and drivers sit in registered adapters behind the
+  composition). The spec, not the guard, was wrong. The evidence credential file is the exact precedent: a
+  once-written, owner-only secret file is a domain file writer. Registering one named file keeps the seam as narrow
+  as before; `str` for `key_dir` is the cost of keeping `pathlib` out of the domain package.
+- **Class and sweep.** A spec's §4 code table is checked against guard rule 8 before handshake (file I/O,
+  `pathlib`, driver imports outside `adapters/`). The `3A4` spec is swept for the same before its build.
+- **Code change: none.** Packet evidence only: one more negative guard run, a planted `os.open` in
+  `commercial/uploads.py`, fails rule 8 (the registration admits that one file, not the domain).
+
+## D-3A2.18 Words sit with the construct they describe; a refusal uses its owner's key (mid-build Q2)
+
+- **(a) Ruling.** `commercial_upload.summary` is served on `Counts`, wherever counts appear (`Preview.counts`,
+  `Upload.preview`, `Upload.result.counts`): `Counts` gains `"words": message("commercial_upload.summary", new=,
+  revised=, unchanged=, refused=)` and `"text": render(words)`. `Preview.words`/`text` stay the state's words
+  (`commercial_upload.state.checked`), as built: a shape's `words` speak its state, as `UploadSummary`'s do.
+- **(b) Ruling.** 401 `UNAUTHENTICATED` and 401 `PERSON_REQUIRED` carry 3C1a's `person.person_required`; 403
+  `PERSON_ROLE_REQUIRED` carries 3C1a's `person.person_role_required` (as `work_api.py` does). 403
+  `SITE_SCOPE_FORBIDDEN` is a scope refusal, not a role one: it carries a new key `commercial_upload.site_forbidden`
+  = "No access to Site {site_code}." with `params {"site_code"}` (the product's existing words for this code,
+  `cold_*_api.py`). The copies `commercial_upload.person_required` and `commercial_upload.role_required` are deleted.
+- **Why.** A word no shape serves is dead copy, and the count sentence is the one line a person checking a file needs.
+  "Your role cannot do this here" misstates a wrong-Site refusal to a person whose role is right. One refusal code,
+  one key, owned by the unit that defined the code: copies drift.
+- **Class and sweep.** Every key in a spec's Words table names the shape or refusal that serves it; every refusal
+  code reuses its owner's key. Same defect outside 3A2's change list, queued, not fixed here: `reading_upload_api.py`
+  lines 82/84 answer 401/403 with `reading_upload.not_this_site`; `cold_*_api.py` and `claim_limit_api.py` hold
+  `SITE_SCOPE_FORBIDDEN` words as literals, not keys.
+- **Code change (builder, within Q9).** `commercial/uploads.py`: one `_counts(...)` helper adds `words`/`text` to every
+  `Counts`. `commercial_upload_api.py` lines 91, 94, 99, 101, 130, 134: the keys above (line 101 passes
+  `{"site_code": site_code}`). `i18n/messages.py` `# 3A2` block: add `commercial_upload.site_forbidden`, delete the
+  two copies. Tests: API test asserting 403 `SITE_SCOPE_FORBIDDEN` also asserts its words and params; a service test
+  asserts `Preview.counts.words == message("commercial_upload.summary", ...)` with the preview's counts.
