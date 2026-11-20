@@ -117,3 +117,12 @@ CLI's refusal path (exit 3, nothing created).
 
 `USER_REVIEW_REQUIRED`: the spec does not set it. The slice is non-screen and changes no direction, UI or narrative,
 so the builder's reading is **not required**. The coordinator makes the call.
+
+## Review round 1 follow-up
+
+Tests only, except one guard in `records.py` (item 3). Commit `d9c94c4a4` (after `git merge main`, which brought MB1 and MB2).
+
+- **L1.** `test_t3_actual_writers_derived_from_leaf_sources` now asserts spec §2.1's source-type column as a literal. Plant: COLD_CHAIN `liability` moved from `customer_invoicing` to `billing_export` fails T1 (golden) and T3 (new assertion); reverted.
+- **MB2.** T7 gains `test_t7_exponent_text_is_normalised_mb2` (October plan `crate_days` `"1e+03"` is written as 1000, and no batch or unwritten byte string matches `[0-9][eE][-+]?[0-9]`) and `test_t7_exponent_text_out_of_bounds_refused_mb2` (`"1e+30"` is refused `DS1B_FORMAT`).
+- **Overlap.** `build_records` refuses `DS1B_FORMAT PERIOD_IN_HISTORY <month>` when `accounting_period` is in `history.meta.months`. No new `DS1B_` code: `DS1B_FORMAT` is the code the duplicate would already have failed under. Test `test_t7_period_inside_history_months_refused`; plant (guard disabled) fails only that test; reverted.
+- **Results.** `simulator/tests/world` 125 passed; `tools/checks/neutral_tests.py` 484 simulator + 6 contracts passed. `golden/records_v1.json` and `golden/history_v1.json` are unchanged from `943f49dac`; the generated history's SHA-256 equals the golden's `file_sha256`; `Docs/.../history.json` unchanged.
