@@ -1,7 +1,9 @@
 # 5b: attribution, the gap explained by its drivers (implementer spec)
 
-Status: rev 1, for the handshake. Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain
-(`5a` → `5b` → `5c`; `two-week-build-plan.md` §0.1 row 11; D-BW1.8, D-BW1.10). **3 units.** Discovery review (W5):
+Status: rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)", D-5B.11 to D-5B.14).
+Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`5a` → `5b` → `5c`;
+`two-week-build-plan.md` §0.1 row 11; D-BW1.8, D-BW1.10). **3.25 units** (rev 1: 3; +0.25 for the SUM-only rule,
+`carried`, the pinned instant and the tolerance). Discovery review (W5):
 money figures and a new mechanism.
 - **Structure:** P5 rules 3, 4, 6, 7 and 8 (`specs/5a-targets/structure-page-P5.md`, approved 20 Nov): "the gap is
   split, never invented. Sums split exactly; a product (price times volume) splits by a declared rule; a residual
@@ -17,21 +19,22 @@ money figures and a new mechanism.
   `5a` (`TargetRead`, `SiteTargets`, `PortfolioTargets`, `TargetCheck`, `BudgetLineReader`), `3B1` (`REGISTRIES`,
   `FactorRow.home`, `parsed`), and the seam `SiteInputs` / `StructureRead.site_inputs` / `evaluate_inputs` (3B7a spec
   §2.1, D-3B7A.7).
-- **Decisions:** `rulings.md` (D-5B.1 to D-5B.10). **Reviewer guide:** `reviewer-guide.md`.
+- **Decisions:** `rulings.md` (D-5B.1 to D-5B.14). **Reviewer guide:** `reviewer-guide.md`.
 
 ## 0. Before you start
 
 - **Branch** `task/5b-attribution` off `main`, worktree `/opt/assetecon/AssetOpsV1-5b`. Start when the handshake has
-  no open question. Unit 1 needs only `main`.
+  no open question. Unit 1 needs only `main`. **Unit 2 starts only after 3B7a unit 0 (the seam) is merged to
+  `main`**; merge `main` into this branch then (D-3B7A.10).
 - **Read:** `rulings.md`; P5; 5a `spec.md` §3 and §5 and its `rulings.md` D-5A.13 to D-5A.16; 4b `spec.md` §3 and
   §4.1; 3B3 `spec.md` §2; 3B7a `spec.md` §2.1; `structure/evaluate.py`, `structure/expressions.py`,
   `structure/registry.py`, `structure/targets/read.py`; `backend/tests/test_4b_money_leaves.py:77-140`,
   `backend/tests/test_5a_targets.py:36-60` and `:595-610` (`_toy`).
 - **Databases:** `*_test` only, through `tools/heavy-slot.sh --db -- <command>`. Never ports 5490 or 8990, the
   walkthrough database or Docker. **No migration.**
-- **Collisions.** Your code lives in the new package `structure/attribution/`. The seam (3B7a spec §2.1) is written
-  once: if `3B7a` unit 1 has not merged when your unit 2 starts, write it exactly as 3B7a §2.1 says, and `3B7a` merges
-  `main`. No other existing module is edited.
+- **Collisions.** Your code lives in the new package `structure/attribution/`. You never write the seam (3B7a spec
+  §2.1): 3B7a unit 0 does, alone, and this branch has no diff in `structure/read.py`. No other existing module is
+  edited.
 
 ## 1. Outcome and why
 
@@ -60,7 +63,9 @@ RECORD_AND_FACTORS_DIFFER, RULE_NOT_DECLARED = "RECORD_AND_FACTORS_DIFFER", "RUL
 PRICE_NOT_DECLARED, SPLIT_INEXACT = "PRICE_NOT_DECLARED", "SPLIT_INEXACT"
 CURRENCY_MISMATCH = "CURRENCY_MISMATCH:"          # + sorted currencies, comma-joined
 UNPLACED = "UNPLACED"                              # by_home key for a row whose factor has no home
+SOLVE_TOLERANCE = Decimal("1E-12")                 # D-5B.14: agreement in steps 4 and 6; never a quantum
 ```
+Two values *agree* when `abs(x − y) <= SOLVE_TOLERANCE` (helper `agree(x, y) -> bool` in `rules.py`).
 
 ### 2.2 The row (`bridge.py`)
 
@@ -82,8 +87,8 @@ class BridgeRow:
     carried: bool                  # a leaf whose actual is carried at its target (missing.carried_as == "TARGET")
     split: str                     # SPLITS
     reason: str | None             # None unless NOT_SPLIT
-    unobserved_actual: tuple[str, ...]   # §2.3 step 6
-    unobserved_target: tuple[str, ...]
+    unobserved_actual: tuple[str, ...]   # §2.3 step 6: the inputs (leaves, or stated nodes whose record is
+    unobserved_target: tuple[str, ...]   # missing) that would fill this side; sorted as the side gives them
     rows: tuple["BridgeRow", ...]  # the split, in expression order; RESIDUAL last
 
 def bridge(registry: Registry, actual: Mapping[str, FactorValue], target: Mapping[str, FactorValue],
@@ -108,7 +113,8 @@ The root row: `kind` ROOT, `scale` `Decimal(1)`. For every row of factor `f` wit
    factor whose unit has `("MONEY", 1)` and is not `is_money`, the *quantity* the other; none or both:
    `NOT_SPLIT`, `PRICE_NOT_DECLARED`.
 4. **A record that its factors do not explain.** For each side whose `stated` is True with `computed` not None and
-   `computed != value`: `NOT_SPLIT`, `RECORD_AND_FACTORS_DIFFER` (5c shows both figures).
+   `not agree(computed, value)`: `NOT_SPLIT`, `RECORD_AND_FACTORS_DIFFER` (5c shows both figures). A solved target
+   (5a's 34-digit quotient) agrees with its record (D-5B.14).
 5. **Terms.** A term is *neutral* when any of its factors has evidence `NEUTRAL` on both sides: it gives no row (an
    option-only factor; it cannot move outside an option, D-5B.5). A term is *computable* when every factor in it has a
    value on both sides. For a computable term with sign `s`:
@@ -116,8 +122,8 @@ The root row: `kind` ROOT, `scale` `Decimal(1)`. For every row of factor `f` wit
    - `q × p`: a VOLUME row of `q`, AR2, `scale = m × s × t[p].value` (target price), then a PRICE row of `p`, AR2,
      `scale = m × s × a[q].value` (actual volume). Volume first, always (AT-3).
    Each child row is built by these same rules (it splits further if it is a node).
-6. **The split.** All terms neutral or computable: `SPLIT`, children as step 5; if `Σ child effects != effect`,
-   `NOT_SPLIT`, `SPLIT_INEXACT` with no children. Otherwise (some term not computable; possible only for a stated
+6. **The split.** All terms neutral or computable: `SPLIT`, children as step 5; if `not agree(Σ child effects,
+   effect)`, `NOT_SPLIT`, `SPLIT_INEXACT` with no children. Otherwise (some term not computable; possible only for a stated
    node): with at least one computable non-neutral term, `SPLIT` with those children and one RESIDUAL row last
    (`effect` = the row's `effect` − Σ children), else `NOT_SPLIT`, `DETAIL_NOT_AVAILABLE` with no children.
    `unobserved_actual` / `unobserved_target`: for `GAP_NOT_AVAILABLE`, the side's `missing_leaves`; for
@@ -188,12 +194,15 @@ def site_bridge(inputs: SiteInputs, targets: SiteTargets) -> SiteBridge
 class PortfolioRow:
     key: str                     # the factor id; "residual:<parent>" for residual rows
     kind: str                    # the Sites' row kind (ROOT, TERM, VOLUME, PRICE, RESIDUAL)
-    actual: Decimal | None; target: Decimal | None; gap: Decimal | None   # sums; None for RESIDUAL
-    effect: Decimal | None       # sum; None only on a currency mismatch
+    actual: Decimal | None; target: Decimal | None; gap: Decimal | None   # sums, only when the factor's row has
+                                 # composes == "SUM" (D-5B.11); else None; None for RESIDUAL
+    effect: Decimal | None       # sum (always: money on the root); None only on a currency mismatch
     currency: str | None; note: str | None     # note: "CURRENCY_MISMATCH:<a>,<b>" or None
     evidence: str; origins: tuple[str, ...]
     k: int; n: int
     out: tuple[tuple[str, tuple[str, ...]], ...]   # Sites not in k, in `asked` order, with their reasons
+    carried: tuple[str, ...]     # included Sites (asked order) whose own row rests on a carried leaf: the row's
+                                 # `carried`, or any descendant's (D-5B.12)
 
 @dataclass(frozen=True)
 class PortfolioBridge:
@@ -209,9 +218,11 @@ def portfolio_bridge(sites: Mapping[str, SiteBridge], asked: Sequence[str],
                      sites_excluded: Mapping[str, tuple[str, ...]], portfolio_lines: BudgetLines,
                      month: str, structure_key: str, structure_version: int) -> PortfolioBridge
 ```
-For each root and each key seen in any Site's tree: the *included* Sites are those whose tree has that row with an
-effect. `actual`, `target`, `gap` and `effect` are sums over the included Sites only, so a total is never one set
-minus another (D-5B.9). `k` = included count, `n = len(asked)`. Each Site not included is in `out` with: its
+For each root and each key seen in any Site's tree (a key repeated within one Site's tree under one root raises
+`ValueError("REPEATED_FACTOR:<factor_id>")`): the *included* Sites are those whose tree has that row with an effect.
+`effect` is the sum over the included Sites only; `actual`, `target` and `gap` are too when the key's factor has
+`composes == "SUM"`, else None (D-5B.11: a price or a rate never adds). A total is never one set minus another
+(D-5B.9). `k` = included count, `n = len(asked)`. Each Site not included is in `out` with: its
 `sites_excluded` reasons (another type: `("STRUCTURE_NOT_DECLARED",)`); else, when its root has no effect,
 `tuple(f"actual:{l}" for l in root.unobserved_actual) + tuple(f"target:{l}" for l in root.unobserved_target)`; else
 `("NOT_SPLIT",)` (its figure is not split this far). Two or more currencies among the included: sums and effect None,
@@ -222,20 +233,27 @@ rows. `by_home` sums over the Sites included in the `contribution` root.
 
 ```python
 class BridgeRead:
-    def __init__(self, actual: StructureRead, targets: TargetRead) -> None
+    def __init__(self, actual: StructureRead, targets: TargetRead, clock: Callable[[], datetime]) -> None
     def site(self, site: SiteRef, month: str, known_at: datetime | None = None) -> SiteBridge
     def portfolio(self, tenant_id: UUID, sites: Sequence[SiteRef], month: str,
                   known_at: datetime | None = None) -> PortfolioBridge
 ```
-`site`: `site_bridge(actual.site_inputs(site, month, known_at), targets.site(site, month, known_at))`. `portfolio`:
-`pt = targets.portfolio(tenant_id, sites, month, known_at)` (its refusals are the read's), then `site_bridge(
-actual.site_inputs(s, ...), pt.sites[s.site_code])` for each MINI_GRID Site, then `portfolio_bridge(...,
+Each call first pins `k = known_at if known_at is not None else clock()` (UTC), once, and passes `k` to every read
+below (D-5B.13). `site`: `site_bridge(actual.site_inputs(site, month, k), targets.site(site, month, k))`.
+`portfolio`: `pt = targets.portfolio(tenant_id, sites, month, k)` (its refusals are the read's), then `site_bridge(
+actual.site_inputs(s, month, k), pt.sites[s.site_code])` for each MINI_GRID Site, then `portfolio_bridge(...,
 pt.structure.composition.sites_excluded, pt.portfolio_lines, ...)`. From a snapshot, `5c` calls `site_bridge(
 snap.inputs, snap.targets)` and `portfolio_bridge` on the snapshot's Sites (3B7a D-3B7A.4): the same functions.
 
 `build_bridge_read(database_url) -> BridgeReadService(read, dispose)`: `actual = build_structure_read(url)`; `reads =
 build_commercial_reads(url)`; `BridgeRead(actual.read, TargetRead(BudgetLineReader(reads.months, reads.store),
-actual.read))`; a failure in the second disposes the first; `dispose` disposes both.
+actual.read), _utc_now)`; a failure in the second disposes the first; `dispose` disposes both. `composition.py` is
+the one module under `structure/attribution/` that may import `commercial` (wiring; handshake R6).
+
+**What a screen shows (D-5B.12; `5c` inherits).** A month's money for a structure is shown from these rows only: a
+Site's from `SiteBridge.roots`, the portfolio's from `PortfolioBridge.rows`, each with its "k of n", its `out` and its
+`carried` Sites. `StructureRead.portfolio`, `TargetRead.portfolio(...).structure` and 3B7a's
+`PortfolioMonthSnapshot.actual()`/`targets()` are inputs, never screen figures.
 
 ## 5. Fixtures (hand-computed; the tests write these literals, W2)
 
@@ -282,8 +300,9 @@ target billed 8550, revenue 3420.00, 700 L, 875.00, 1975.00, contribution 1445.0
 The world: 3A4's `new_world()`; every step of 4b's `money_leaves_lakeside.json` (4b §4.1); then steps 1 and 2 of
 5a's `targets_lakeside.json` with their `at` and `entered_by`; then this file's one step. Read through 4b's test
 reader (`CommercialLeafSource(months, store, fallback())`, `StructureRead(src, stated=src)`) and `TargetRead(
-BudgetLineReader(months, store), that read)`; `known_at` None (the months' clock is 3A4's `READ_AT`, so October is
-closed).
+BudgetLineReader(months, store), that read)`, all at `known_at = READ_AT` (3A4's clock, 2026-11-20T08:00Z, so
+October is closed and every record is known): unit 2's tests call `site_bridge(read.site_inputs(s, OCT, READ_AT),
+targets.site(s, OCT, READ_AT))`; unit 3's go through `BridgeRead(..., clock=lambda: READ_AT)` with `known_at` None.
 
 ```json
 {"_note": "5b spec §5.2: Mto's October billing, receipts and fuel invoice; loaded after money_leaves_lakeside.json and targets_lakeside.json",
@@ -327,6 +346,9 @@ Kobo: 4b §4.1 (883.00). Targets: 5a §5 (1445.00, −65.00, 915.00).
   "technical_loss_kwh", "unexplained_loss_kwh", "unmapped_kwh")`, `unobserved_target == ("delivered_kwh",
   "productive_tariff", "tariff")`. Kobo fuel_cost: `unobserved_actual == ("candidate_l", "necessary_l",
   "unexplained_l")`, `unobserved_target == ()`. Kobo root origins `("observed-financial", "source-emulated")`.
+- Kisiwa and Mto revenue and fuel cost (handshake R9): `NOT_SPLIT`, `DETAIL_NOT_AVAILABLE`, with exactly Kobo's
+  `unobserved_actual` and `unobserved_target` tuples above, written out per Site (same 4b readers on the same record
+  shapes; 5a's target rules are per factor). A run that differs is a mid-build question.
 - `by_home`: Kobo `{"GROW_REVENUE": 38.00, "OPTIMIZE_COST": −600.00}`; Kisiwa `{−55.00, −130.00}`; Mto `{−80.00,
   −25.00}`.
 - Cash roots (actual, target, gap; in_transit, outstanding effects): Kobo 3180.00, 3420.00, −240.00 (0, −278.00);
@@ -348,11 +370,16 @@ Kobo: 4b §4.1 (883.00). Targets: 5a §5 (1445.00, −65.00, 915.00).
 | om | 1800.00 | 1800.00 | 0.00 | 0.00 | 3 of 3 | ESTIMATED |
 | staff | 1450.00 | 1450.00 | 0.00 | 0.00 | 3 of 3 | DECLARED |
 
-`by_home == {"GROW_REVENUE": −97.00, "OPTIMIZE_COST": −755.00}`; `disagreements == (("KISIWA-001",
+`carried == ("KISIWA-001",)` on `om`, `cost_to_serve` and `contribution`, `()` on `revenue`, `fuel_cost` and
+`staff`. `by_home == {"GROW_REVENUE": −97.00, "OPTIMIZE_COST": −755.00}`; `disagreements == (("KISIWA-001",
 TargetCheck("contribution", Decimal("-60.00"), Decimal("-65.00"), "USD", False)),)`; `portfolio_lines.lines` one line,
 `staff` 1200.00 (not added). Cash root: collected 8870.00 against 9785.00, −915.00; in_transit effect −150.00;
 outstanding −668.00. These equal the pack's `portfolio.lakeside-power` and `sites.lakeside-power/<Site>` values in
-`derived-values.json` (test 6 reads the file).
+`derived-values.json` (tests 6 and 7 read the file). **Pack comparison (handshake R13):** Site name map `{"Kobo":
+"KOBO-001", "Kisiwa": "KISIWA-001", "Mto": "MTO-001"}`; nodes `revenue`, `collected`, `in_transit`, `outstanding`,
+`fuel_cost`, `om`, `staff`, `cost_to_serve`, `contribution`; the row's `actual` against the pack's `actual` (`nodes`;
+`sums` for the portfolio) and `target` against `plan`, as `Decimal(str(x)) == value`. Gaps, effects and evidence are
+checked against this section's literals only; `NONE` keys are never compared (the pack sums them, D-5B.11).
 
 **Without this file's step** (4b and 5a only): Mto's root `GAP_NOT_AVAILABLE`, `unobserved_actual` = 4b §4.1's
 thirteen Mto leaves, `unobserved_target == ()`; portfolio `contribution`: actual 633.00, target 1380.00, gap and
@@ -366,35 +393,54 @@ effect −747.00 (−562.00 − 185.00), 2 of 3, `out == (("MTO-001", tuple(f"ac
 2. *(unit 1)* AT-3 (price 1.30): volume −600.00 and price −59.00, never 35.00 and 624.00.
 3. *(unit 1)* The stops, (a) to (c) rooted at `revenue`: (a) a stated `revenue` of 3458.00 with `delivered_kwh` absent on both sides
    (`NOT_RECEIVED`) and target stated 3420.00: SPLIT with VOLUME `productive_kwh` 0, PRICE `productive_tariff` 0 and
-   a RESIDUAL +38.00 whose `unobserved_actual` is the actual's `detail_missing`; (b) the same with `productive_tariff`
+   a RESIDUAL +38.00 whose `unobserved_actual == ("delivered_kwh",)`; (b) the same with `productive_tariff`
    absent on both sides: `NOT_SPLIT`, `DETAIL_NOT_AVAILABLE`, no children; (c) §5.1's leaves with a stated actual
    revenue of 3500.00 (`computed` 3458.00): `NOT_SPLIT`, `RECORD_AND_FACTORS_DIFFER`; (d) `_toy("p * x")`
    (price first): VOLUME on `x`, PRICE on `p`; (e) `_toy`-style `y = x * z` with `z` in KWH: `PRICE_NOT_DECLARED`;
    (f) `y = x / z`: `RULE_NOT_DECLARED`; (g) actual `contribution` absent: ROOT `GAP_NOT_AVAILABLE`, effect None,
-   evidence NOT_AVAILABLE, never 0; (h) target money in KES: ROOT `CURRENCY_MISMATCH:KES,USD`.
+   evidence NOT_AVAILABLE, never 0; (h) target money in KES: ROOT `CURRENCY_MISMATCH:KES,USD`; (i) the solve
+   (D-5B.14): §5.1's leaves, but target `diesel_price` 1.27, target `necessary_l` from 5a's `solve_main(reg,
+   target_leaves, "fuel_cost", "necessary_l", Decimal("875.00"), currency="USD")[0]`, target evaluated with `stated=
+   {"fuel_cost": LeafValue(Decimal("875.00"), "DECLARED", ("budget:test",), None, None, "USD", ("source-emulated",))}`;
+   `bridge(reg, a, t, "fuel_cost")`: ROOT gap 600.00, effect 600.00, `SPLIT` (not `RECORD_AND_FACTORS_DIFFER`, not
+   `SPLIT_INEXACT`); PRICE `diesel_price` scale 1180, gap −0.02, effect −23.60 exactly; VOLUME `diesel_l` scale 1.27
+   with `effect.quantize(Decimal("0.01")) == Decimal("623.60")`; Σ children `!=` 600.00 and `agree(Σ, 600.00)` (the
+   case exercises the tolerance); (j) §5.1's leaves with a stated actual revenue of 3458.01 (`computed` 3458.00):
+   `NOT_SPLIT`, `RECORD_AND_FACTORS_DIFFER` (a cent is never within the tolerance).
 4. *(unit 1)* Invariants over every tree built in tests 1 to 3 and 6: each SPLIT row's children effects sum to its
-   effect exactly; Σ `by_home` equals the root effect; no `-0`; no row for a neutral term.
+   effect exactly (`==`) on every tree but 3(i), and within `SOLVE_TOLERANCE` on 3(i); Σ `by_home` equals the root
+   effect the same way; no `-0`; no row for a neutral term.
 5. *(unit 2)* Carrying (pure; Kisiwa's real inputs and targets from §5.2, then one field replaced): (a) as given:
    carried `("om",)`, the leaf field by field; (b) `om`'s note set to `MONTH_OPEN`: not carried, reason `MONTH_OPEN`,
    root `GAP_NOT_AVAILABLE`; (c) cause `NOT_CONNECTED`: reason `NOT_CONNECTED`; (d) target `om` replaced by an
    `ESTIMATED` value with source `assumption:at-actual`: `NO_TARGET_LINE`; (e) the stated `fuel_cost` absent
    (`NOT_RECEIVED`, note None) with its DECLARED target: still absent, in neither `carried` nor `not_carried`;
    (f) `diesel_price` absent: untouched.
-6. *(unit 2)* §5.2's three Site bridges: the table, every named field, the cash roots, origins, Kisiwa's carried
-   leaf and check, and the pack comparison per Site (read `derived-values.json`; compare to the cent).
-7. *(unit 3)* §5.2's portfolio: the table, `by_home`, cash, `disagreements`, `portfolio_lines`, the pack comparison.
-8. *(unit 3)* Never one set minus another: §5.2 without the step: Mto `GAP_NOT_AVAILABLE`; the portfolio row −747.00,
-   2 of 3, `out` as stated; and two hand-built Site bridges in USD and KES: `effect` None, `note
-   "CURRENCY_MISMATCH:KES,USD"`.
-9. *(unit 3)* `BridgeRead.portfolio` makes `TargetRead.portfolio`'s refusals (another tenant, a repeated Site:
+6. *(unit 2)* §5.2's three Site bridges: the table, every named field (Kisiwa's and Mto's revenue and fuel cost
+   literals included), the cash roots, origins, Kisiwa's carried leaf and check, and the pack comparison per Site
+   (§5.2's named fields).
+7. *(unit 3)* §5.2's portfolio: the table, `carried` on every row of the table, `by_home`, cash, `disagreements`,
+   `portfolio_lines`, the pack comparison (`SUM` keys only); every `NONE` row present in the trees has `actual`,
+   `target` and `gap` None.
+8. *(unit 3)* Never one set minus another, never a summed price: (a) §5.2 without the step: Mto `GAP_NOT_AVAILABLE`;
+   the portfolio row −747.00, 2 of 3, `out` as stated; (b) two hand-built Site bridges in USD and KES: `effect` None,
+   `note "CURRENCY_MISMATCH:KES,USD"`; (c) two Site bridges from §5.1's leaves (as given, and AT-3's actual price
+   1.30) through `portfolio_bridge`: `diesel_price` row `actual`, `target`, `gap` None, `effect` −59.00, `k` 2;
+   `tariff` row None, None, None, `effect` 0.00; `diesel_l` row 2360, 1400, 960, `effect` −1200.00 (D-5B.11).
+9. *(unit 3)* (a) `BridgeRead.portfolio` makes `TargetRead.portfolio`'s refusals (another tenant, a repeated Site:
    `STRUCTURE_COMPOSE`); a COLDCHAIN `SiteRef` is in `out` of every row with `("STRUCTURE_NOT_DECLARED",)` and in
-   `n`.
-10. Grep: no `float(` under `structure/attribution/`; nothing under it imports a `commercial` or `snapshot` module;
-    the packet lists every file changed.
+   `n`. (b) One instant (D-5B.13): recording wrappers around the `StructureRead` and `TargetRead` record every call's
+   `known_at`; `BridgeRead(..., clock=lambda: READ_AT)` with `known_at` None, for `site` and for `portfolio`, records
+   only `READ_AT`.
+10. Grep: no `float(` under `structure/attribution/`; no module under it but `composition.py` imports a `commercial`
+    module, and none imports a `snapshot` module; the packet lists every file changed; `git diff main...HEAD --
+    backend/assetops_backend/structure/read.py` is empty.
+11. *(unit 3)* A hand-built `SiteBridge` whose `contribution` tree holds `om` twice: `portfolio_bridge` raises
+    `ValueError("REPEATED_FACTOR:om")`.
 
 **Postgres** (pooled, `--db`; `backend/tests/test_5b_attribution_postgres.py`; Sites by 3A4's `NairobiSeeder`;
 fixtures through `PostgresCommercialStore` as `test_5a_targets_postgres.py`):
-1. Tests 6 and 7 against it.
+1. Tests 6 and 7 against it (`BridgeRead` with clock `READ_AT`).
 2. `build_bridge_read(url).read.portfolio(tid, [kobo, kisiwa, mto], "2026-10")`: `contribution` effect −852.00;
    `dispose()` runs.
 
@@ -413,10 +459,11 @@ fixtures through `PostgresCommercialStore` as `test_5a_targets_postgres.py`):
    never carried in an open month, from an assumption, or for a heading?
 5. Does every row carry the weakest evidence and the union of origins of what it rests on, with `unknown` weakest?
 6. Is a residual shown only beside unobserved leaves, and never when the split is complete?
-7. Is the portfolio gap always one set of Sites against the same set, with "k of n" and the Sites left out named?
+7. Is the portfolio gap always one set of Sites against the same set, with "k of n" and the Sites left out named,
+   does a price or rate never add across Sites, and does each row name the Sites whose figure is carried?
 8. Does Kisiwa's budget contribution line (−60.00) stay listed as a disagreement while the target is −65.00?
-9. Is nothing changed outside `structure/attribution/` (new), the fixture, the two test files, the packet, and the
-   seam if it arrived first through this branch?
+9. Is nothing changed outside `structure/attribution/` (new), the fixture, the two test files and the packet (no
+   diff in `structure/read.py`)?
 
 Packet: `specs/5b-attribution/packet.md`, with module paths and the mid-build count.
 
@@ -432,9 +479,9 @@ and EV (RC5).
 
 | Unit | Content | Needs | Commits |
 |---|---|---|---|
-| 1 | §2: rules, the engine, `by_home`; tests 1 to 4 (§5.1) | `main` | 1 |
-| 2 | §3: carrying, the Site bridge; the fixture; tests 5, 6 | the seam (3B7a §2.1) on `main`, or written here | 1 |
-| 3 | §4: portfolio, read, composition; tests 7 to 10; Postgres; check-all; packet | unit 2 | 1 |
+| 1 | §2: rules, the engine, `by_home`, the tolerance; tests 1 to 4 (§5.1, 3(i), 3(j)) | `main` | 1 |
+| 2 | §3: carrying, the Site bridge; the fixture; tests 5, 6 | 3B7a unit 0 (the seam) merged to `main` | 1 |
+| 3 | §4: portfolio (SUM-only, `carried`), read (pinned instant), composition; tests 7 to 11; Postgres; check-all; packet (1.25) | unit 2 | 1 |
 
 ## 10. Decision queue (W3; defaults applied)
 
@@ -444,3 +491,5 @@ and EV (RC5).
 | Q2 (owner) | Carry a missing cost in a month still open | No: every record is still due; the month reads as open |
 | Q3 | Which cost lines may be carried | O&M and staff (the cost lines a budget states); others as they gain budget lines |
 | Q4 | Order of the product split | Volume at target price, then price at actual volume (AR2, decision A13); never reversed |
+| Q5 (owner) | When a Site's actual is missing, show the full target over every Site with one (P5 rule 7: 2,295.00, 3 of 3) beside the like-for-like figures (1,380.00, 2 of 3)? | No (D-5B.12): the gap view shows only like-for-like figures, with the Site left out named and its own target beside ("Mto not compared: billing not received; its target 915.00"); no second contribution target appears |
+| Q6 | The pack sums prices (`derived-values.json` portfolio `sums`) | Pack fix queued for the pack lane (`evaluate_structure.py:562` sums only `SUM` factors; regenerate); no screen shows a summed price; not blocking 5b |
