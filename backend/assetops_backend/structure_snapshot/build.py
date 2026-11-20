@@ -29,6 +29,10 @@ from assetops_backend.structure_snapshot.store import StructureSnapshotStore
 _MONTH = re.compile(r"[0-9]{4}-(0[1-9]|1[0-2])", re.ASCII)
 
 
+class UnknownSnapshot(LookupError):
+    """The id is not a portfolio snapshot of the organisation (raised before any rebuild)."""
+
+
 @dataclass(frozen=True)
 class BuildResult:
     as_of: datetime
@@ -115,9 +119,12 @@ class SnapshotBuilder:
         return BuildResult(as_of, portfolio.id, MappingProxyType(built), tuple(excluded), self._rules)
 
     def verify(self, tenant_id: UUID, snapshot_id: UUID) -> Verification:
-        (row,) = self._store.get(tenant_id, [snapshot_id])
+        try:
+            (row,) = self._store.get(tenant_id, [snapshot_id])
+        except LookupError as error:
+            raise UnknownSnapshot(str(error)) from None
         if row.site_id is not None or row.site_snapshot_ids is None:
-            raise ValueError("verify takes a portfolio snapshot id")
+            raise UnknownSnapshot("verify takes a portfolio snapshot id")
         stored = codec.payload_of(row)
         differences: list[str] = []
         for site_row in self._store.get(tenant_id, row.site_snapshot_ids):

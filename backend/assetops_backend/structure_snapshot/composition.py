@@ -61,12 +61,16 @@ def build_structure_snapshot(database_url: str) -> StructureSnapshotService:
             finally:
                 store.dispose()
 
-    lines = BudgetLineReader(reads.months, reads.store)
-    targets = TargetRead(lines, actual.read)
-    kinds = StoreHeldKinds(reads.store)
-    rules = rules_digest()
-    builder = SnapshotBuilder(actual.read, targets, lines, store, kinds, rules, _utc_now)
-    read = SnapshotRead(store, reads.months, kinds, rules, _utc_now)
+    try:
+        lines = BudgetLineReader(reads.months, reads.store)
+        targets = TargetRead(lines, actual.read)
+        kinds = StoreHeldKinds(reads.store)
+        rules = rules_digest()  # file reads: may raise, with all three engines already open
+        builder = SnapshotBuilder(actual.read, targets, lines, store, kinds, rules, _utc_now)
+        read = SnapshotRead(store, reads.months, kinds, rules, _utc_now)
+    except BaseException:
+        dispose()
+        raise
     return StructureSnapshotService(builder, read, store, dispose)
 
 

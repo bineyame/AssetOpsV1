@@ -22,6 +22,7 @@ import sys
 from typing import Any, Sequence
 from uuid import UUID
 
+from assetops_backend.structure_snapshot.build import UnknownSnapshot
 from assetops_backend.structure_snapshot.model import BUILT_BY
 from assetops_backend.structure_snapshot.store import SnapshotExists
 
@@ -90,7 +91,7 @@ def _run(args: argparse.Namespace, service: Any) -> int:
             return 0
         try:
             v = service.builder.verify(tenant_id, args.snapshot)
-        except (LookupError, ValueError):
+        except UnknownSnapshot:
             raise _Stop(2, "UNKNOWN_SNAPSHOT") from None
         _line({"snapshot_id": str(v.snapshot_id), "matches": v.matches, "differences": list(v.differences),
                "rules_changed": v.rules_changed})

@@ -329,3 +329,15 @@ D-3B7A.15 follow the answers.
   3B7a fixture's `THIKA-001` is synthetic, so that fixture alone has n = 4. 5b's "3 of 3" stands; 5c reads n from
   the snapshot's `asked`.
 - **Why.** The owner's k-of-n answer and D-3B3.13 count the Sites asked; checking k alone hid a wrong n.
+
+## Review answers (r1)
+
+### F1 (Medium): the code digest covers every first-party package the build imports
+
+**Answer.** F1 applies D-3B7A.11 to all first-party packages: the ruling's text ("the source of every module the build
+can import") already says so, and "every `assetops_backend` module" in R3 was too narrow. The closure follows
+`assetops_backend` and `assetops_contracts` (`adapters/code_digest.PACKAGES`); the contracts directory is located
+without importing it. Tests 11(b) (closure holds `assetops_contracts.canonical.factors`) and 11(d) (a byte change in
+`contracts/.../canonical/factors.py` after a build reads as `RULES`). F2 (test 4(e), held kinds at `as_of`), F3
+(`UnknownSnapshot`: only an id that is not a portfolio snapshot of the organisation is `UNKNOWN_SNAPSHOT`; a rebuild
+fault propagates) and F4 (composition disposes all three engines when `rules_digest()` raises) are test-backed fixes.

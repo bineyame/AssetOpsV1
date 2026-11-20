@@ -361,6 +361,20 @@ def test_4c_one_build_one_instant() -> None:
     assert sv.freshness.reasons == ("RECORDS",) and len(sv.freshness.stale_stamps) == 1
 
 
+def test_4e_held_kinds_are_read_at_the_build_instant() -> None:
+    """F2: a first record of a new kind ingested after `as_of` is not in the frozen held kinds."""
+    w = lakeside()
+    ingest_charge(w)  # recorded at LATE_AT, after the build's instant AS_OF
+    s = setup(w)
+    s.builder.build(w["tid"], refs(w), OCT, built_by=BY)
+    mto = by_code(w)["MTO-001"]
+    assert "CHARGE" in s.kinds.of(w["tid"], mto.site_id)  # held by now ...
+    (row,) = [r for r in s.store.rows if r.site_id == mto.site_id]
+    assert "CHARGE" not in row.held_kinds  # ... but not at as_of
+    sv = reader(s, at=READ_LATE).site(w["tid"], mto, OCT)
+    assert sv.freshness.reasons == ("RECORDS",) and sv.freshness.changed_kinds == ("MTO-001:CHARGE",)
+
+
 def check_4d_new_kind(w, store=None) -> None:
     s = setup(w, store)
     mto = by_code(w)["MTO-001"]
@@ -562,7 +576,10 @@ def test_11b_the_import_closure() -> None:
                  "structure_snapshot.composition", "structure"):
         assert f"assetops_backend.{name}" in closure, name
     assert "assetops_backend" in closure
-    assert not [n for n in closure if not n.startswith("assetops_backend")]
+    # F1 (review r1): every first-party package the build imports is covered (D-3B7A.11 for all of them)
+    assert "assetops_contracts" in closure and "assetops_contracts.canonical" in closure
+    assert "assetops_contracts.canonical.factors" in closure
+    assert not [n for n in closure if not n.startswith(("assetops_backend", "assetops_contracts"))]
 
 
 def test_11c_the_digest_is_over_the_bytes(tmp_path) -> None:
@@ -576,6 +593,27 @@ def test_11c_the_digest_is_over_the_bytes(tmp_path) -> None:
     entry = text.index('"om", "staff"', start)  # one AT_ACTUAL entry of TARGET_RULE, reordered
     rules.write_text(text[:entry] + '"staff", "om"' + text[entry + len('"om", "staff"'):], encoding="utf-8")
     assert rules_digest(copy) != original
+
+
+def test_11d_a_contracts_change_is_rules(tmp_path) -> None:
+    """F1: a build under the contracts as they were, read after one byte of contracts/.../factors.py changes."""
+    contracts = tmp_path / "assetops_contracts"
+    import assetops_contracts
+    shutil.copytree(Path(assetops_contracts.__file__).parent, contracts, ignore=shutil.ignore_patterns("__pycache__"))
+    built = rules_digest(PKG, contracts)
+    assert built == rules_digest()  # the copy is the running contracts
+    w = lakeside()
+    s = setup(w, rules=built)
+    s.builder.build(w["tid"], refs(w), OCT, built_by=BY)
+    assert reader(s, rules=built).site(w["tid"], by_code(w)["KOBO-001"], OCT).freshness.current
+    factors = contracts / "canonical" / "factors.py"
+    factors.write_text(factors.read_text(encoding="utf-8") + "\n# planted\n", encoding="utf-8")
+    running = rules_digest(PKG, contracts)
+    assert running != built
+    read = reader(s, rules=running)
+    sv = read.site(w["tid"], by_code(w)["KOBO-001"], OCT)
+    assert sv.state == "SERVED" and not sv.freshness.current and sv.freshness.reasons == ("RULES",)
+    assert read.portfolio(w["tid"], OCT).freshness.reasons == ("RULES",)
 
 
 # --- unit 3: the command, with an injected in-memory service (spec §4.4) ------------------------------------------------
@@ -618,3 +656,51 @@ def test_command_build_verify_and_refusals(capsys, monkeypatch) -> None:
     assert "MTO-001:actual.diesel_price" in json.loads(capsys.readouterr().out)["differences"]
     assert main(["verify", "--tenant", "lakeside-power", "--snapshot", str(UUID(int=4242))], service=svc) == 2
     assert capsys.readouterr().err.startswith("UNKNOWN_SNAPSHOT ")
+
+
+def test_command_a_rebuild_fault_is_not_unknown_snapshot(capsys) -> None:
+    """F3: an error raised while verify rebuilds is not reported as an unknown snapshot."""
+    from assetops_backend.build_structure_snapshot import main
+
+    w = lakeside()
+    svc = _service(w)
+    assert main(["build", "--tenant", "lakeside-power", "--month", OCT, "--by", BY], service=svc) == 0
+    pid = json.loads(capsys.readouterr().out)["portfolio_snapshot_id"]
+
+    def boom(*a, **k):
+        raise ValueError("planted rebuild fault")
+
+    svc.s.builder._site_payload = boom
+    with pytest.raises(ValueError, match="planted rebuild fault"):
+        main(["verify", "--tenant", "lakeside-power", "--snapshot", pid], service=svc)
+    assert "UNKNOWN_SNAPSHOT" not in capsys.readouterr().err
+
+
+def test_composition_releases_all_three_engines_when_the_digest_fails(monkeypatch) -> None:
+    """F4: rules_digest() raising after the three services are built disposes all three."""
+    import assetops_backend.commercial.composition as cc
+    import assetops_backend.structure.composition as sc
+    import assetops_backend.structure_snapshot.adapters.code_digest as cd
+    import assetops_backend.structure_snapshot.adapters.postgres_structure_snapshot_store as ps
+    from assetops_backend.structure_snapshot.composition import build_structure_snapshot
+
+    disposed: list[str] = []
+
+    def fake(name):
+        return SimpleNamespace(read=object(), months=object(), store=object(), dispose=lambda: disposed.append(name))
+
+    class FakeStore:
+        def dispose(self) -> None:
+            disposed.append("snapshot")
+
+    monkeypatch.setattr(sc, "build_structure_read", lambda url: fake("actual"))
+    monkeypatch.setattr(cc, "build_commercial_reads", lambda url: fake("commercial"))
+    monkeypatch.setattr(ps, "PostgresStructureSnapshotStore", lambda url: FakeStore())
+
+    def broken(*a, **k):
+        raise OSError("planted digest failure")
+
+    monkeypatch.setattr(cd, "rules_digest", broken)
+    with pytest.raises(OSError, match="planted digest failure"):
+        build_structure_snapshot("postgresql://unused")
+    assert sorted(disposed) == ["actual", "commercial", "snapshot"]
