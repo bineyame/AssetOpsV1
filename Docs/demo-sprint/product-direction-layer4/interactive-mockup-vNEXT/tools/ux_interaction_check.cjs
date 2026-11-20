@@ -381,6 +381,25 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     ok(all.length > 30 && !bad.length, `RECON-1 X1-X7: ${all.length} tagged figures on ${new Set(all.map(f => f.op + f.r)).size} routes agree, tie, add up and count (${bad.slice(0, 4).join('; ') || 'all hold'})`); }
   { const p = await page('globalfinancials', { op: 'harvest' }); const t = await p.evaluate(() => [...document.querySelectorAll('.canvas table')].map(x => x.textContent).find(x => /Statement line/.test(x)) || '');
     ok(/none this month/.test(t), 'X4 Harvest Financials: the crossing cell reads "none this month"'); await p.context().close(); }
+  /* the Site page (owner, 20 Nov): the same structure on every Site; answer-titled sections; a driver row opens its drawer in
+     place and never navigates; counts from one source; the sticky bar; on a phone the KPI trend is words, not a sparkline */
+  { const sites = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] }, shapes = new Set();
+    for (const [op, sks] of Object.entries(sites)) for (const sk of sks) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
+      const p = await page(`site/${sk}`, { op, w, h });
+      const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-dsecs > .ux-ans-sec')];
+        return { labels: secs.map(s => s.querySelector('.ux-h2').textContent.trim()).filter(l => l !== 'Operations measures').join('|'), ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4),
+          h1: document.querySelectorAll('h1').length, spark: [...document.querySelectorAll('.ux-kpi .ux-spark')].some(x => x.getBoundingClientRect().width > 0), words: [...document.querySelectorAll('.ux-kpi .ux-trend')].filter(x => x.getBoundingClientRect().height > 0).map(x => x.textContent.trim()),
+          ovf: document.documentElement.scrollWidth > innerWidth, marks: [...document.querySelectorAll('.ux-board-go')].map(b => b.dataset.uxDrawer) }; });
+      shapes.add(r.labels);
+      let nav = 0, drw = 0; const h0 = await p.evaluate(() => location.hash);
+      if (w === 1440) for (const id of r.marks.slice(0, 4)) { await p.evaluate(id => { document.querySelector(`[data-ux-drawer="${id}"]`).click(); }, id); await p.waitForTimeout(150);
+        const st = await p.evaluate(id => ({ open: document.getElementById(id)?.dataset.open === 'true', hash: location.hash, done: /What is being done/.test(document.getElementById(id)?.textContent || '') }), id);
+        if (st.open && st.done) drw++; if (st.hash !== h0) nav++; await p.keyboard.press('Escape'); await p.waitForTimeout(100); }
+      await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150); const stickyOn = await p.evaluate(() => !!document.querySelector('.ux-dsticky.is-on .status-pill')); await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
+      const phoneOk = w >= 600 || (!r.spark && r.words.length >= 1 && r.words.every(x => /against|not available yet/i.test(x))); /* G3: at least one trend, in words */
+      ok(r.ans && r.h1 === 1 && !r.ovf && phoneOk && !nav && stickyOn && (w !== 1440 || drw === Math.min(4, r.marks.length)), `${op} site/${sk} at ${w}: answer-titled sections, sticky context after scroll, one h1, no sideways scroll${w < 600 ? ', KPI trend in words without a sparkline' : ''}${w === 1440 ? `, ${drw} driver rows open their drawers in place` : ''}`);
+      await p.context().close(); }
+    ok(shapes.size === 1, `Site pages: one section structure for every Site type (${[...shapes].join(' / ')})`); }
   /* r2 M3: the captive fleet's revenue row says "Not applicable", in its own words */
   { const p = await page('ev', { op: 'metro' }); const t = await p.evaluate(() => document.querySelector('.canvas').textContent);
     ok(/Not applicable/.test(t) && /Revenue not applicable: charging is a cost centre/.test(t) && !/Grow revenue\s*Not measured yet/.test(t), 'EV board: the revenue row reads "Not applicable" with its reason'); await p.context().close(); }

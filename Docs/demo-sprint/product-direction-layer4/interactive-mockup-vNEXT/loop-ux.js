@@ -31,7 +31,7 @@ function uxMeterBar(used, cap, label) {
   return `<div class="ux-meterbar ${p >= 100 ? 'is-full' : p >= 90 ? 'is-near' : ''}" role="img" aria-label="${escapeHtml(label)}"><span style="width:${p.toFixed(1)}%"></span></div>`;
 }
 function uxKpi(label, value, lines = [], extra = '', cls = '') {
-  return `<div class="ux-kpi ${cls}"><div class="ux-kpi-l">${label}</div><div class="ux-kpi-v">${value}</div>${extra}${lines.filter(Boolean).map(l => `<div class="ux-kpi-s">${l}</div>`).join('')}</div>`;
+  return `<div class="ux-kpi ${cls}"><div class="ux-kpi-l">${label}</div><div class="ux-kpi-v">${value}</div>${extra}${lines.filter(Boolean).map(l => `<div class="ux-kpi-s${/ux-trend/.test(l) ? ' has-trend' : ''}">${l}</div>`).join('')}</div>`;
 }
 
 /* ---------- status chip (guide §4.6): five states, each with a word; colour follows meaning ---------- */
@@ -393,7 +393,8 @@ function uxItemRow(op, id, f) {
    (proposal U9), so uxHistory returns null and the slot says so; nothing is ever drawn from invented months. */
 /* U9 adopted (owner, 20 Nov): the history comes from the data lane's generator, evaluated like October, as
    DERIVED.history[tenant].portfolio[key] = [{ m: 'Jul', v }, …] (keys: contribution or cost, gap). Until it exists, null. */
-const uxHistory = (op, key, sk) => { const h = (typeof DERIVED !== 'undefined' && DERIVED.history) || null, t = OPS[op]?.t?.tenant, b = h && h[t]; const s = b && (sk ? b.sites && b.sites[sk] && b.sites[sk][key] : b.portfolio && b.portfolio[key]); return Array.isArray(s) && s.length >= 2 ? s : null; }; /* series Jul–Oct; Site series keyed by the mock-up's Site keys */
+const uxHistory = (op, key, sk) => { const h = (typeof DERIVED !== 'undefined' && DERIVED.history) || null, t = OPS[op]?.t?.tenant, b = h && h[t]; const sv = b && b.sites && (b.sites[sk] || b.sites[Object.keys(b.sites).find(k => k.split(' · ').pop() === SK[sk]?.name)]); /* history keys Sites by name (R742) */
+  const s = b && (sk ? sv && sv[key] : b.portfolio && b.portfolio[key]); return Array.isArray(s) && s.length >= 2 ? s : null; }; /* series Jul–Oct; Site series keyed by the mock-up's Site keys */
 function uxTrend(series, fmt = v => usdW(v, true)) {
   if (!Array.isArray(series) || series.length < 2) return '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
   const vs = series.map(p => p.v), mn = Math.min(...vs), mx = Math.max(...vs), w = 64, h = 16, X = i => (i / (vs.length - 1) * w).toFixed(1), Y = v => (h - 1 - (mx === mn ? h / 2 : (v - mn) / (mx - mn) * (h - 2))).toFixed(1);
@@ -710,7 +711,7 @@ function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => 
 /* an answer-titled section: the label and its answer, visible when closed */
 const uxSecA = (label, answer, body) => `<details class="panel ux-disc ux-ans-sec"><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
 /* the sticky bar shows once the recommendation card has scrolled under the top bar */
-function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec'); if (!b || !r) return; const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on); }
+function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec') || document.querySelector('.ux-kpis') || document.querySelector('[data-ux-sticky-anchor]'); if (!b || !r) return; const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on); }
 window.addEventListener('scroll', uxStickyTick, { passive: true }); window.addEventListener('hashchange', () => setTimeout(uxStickyTick, 50));
 
 /* ===== empty states that name their data (placeholder audit, gap 4): a not-available state carries data-na-path; the check
@@ -846,3 +847,75 @@ function uxActionsScreen() {
   return `<section aria-labelledby="uxal-h"><div class="ux-row-head"><h2 id="uxal-h" data-count="${A.length}" data-count-of=".action-list li:not(.action-list-head)">${num(A.length)} Action${A.length === 1 ? '' : 's'} under the plan</h2><span class="ux-note">Grouped by plan item · creator, owner, due date and release</span></div>${A.length ? groups : '<p class="ux-empty" role="status">No Actions created yet.</p>'}</section>`;
 }
 function uxNotFound() { return `<section class="panel ux-empty-page" role="status"><h2>This page does not exist</h2><p>The link may be out of date. ${link('portfolio', 'Go to the Portfolio →')}</p></section>`; }
+
+/* ===== the Site page (owner, 20 Nov: "queue site and plan pages"; guide §2.3 Site row; the long-page standard).
+   L1 the Site against target, its gap and its open decisions as a count with money; L2 its queue and the Actions in hand;
+   L3 answer-titled sections (what drives the gap as factor rows: issues, what can be done, already in hand; where value leaks;
+   how it has moved; service and assets; every factor; limits and warranties); L4 in drawers. One drill-down grammar: a driver
+   row opens its drawer in place; leaving takes a named button. The Site tabs leave a slot for "Operations" (pending the owner). ===== */
+const SITE_TABS_PENDING = ['Operations']; /* the owner's call (reviewer's proposal): measures and assets for the period, the same on every Site */
+function uxSiteDrivers(sk) {
+  const op = SK[sk].op, M = uxGapModel(op), name = SK[sk].name;
+  return M.groups.flatMap(g => g.steps.filter(s => s.st.by[sk] != null).map(s => {
+    const node = s.nodes.filter(x => x.sk === sk), v = r2(node.reduce((a, x) => a + x.v, 0));
+    const finds = s.finds.filter(f => String(f.site).replace(/^Room [A-C] · /, '') === name);
+    const decs = s.decs.filter(dk => decById(dk).site === sk);
+    const inHand = decs.filter(dk => ['approval', 'released'].includes(uxDecState(dk).key)), open = decs.filter(dk => ['choose', 'none'].includes(uxDecState(dk).key));
+    return { k: g.k, s, v, node, finds, decs, inHand, open, id: `uxsdrv-${sk}-${g.k}-${s.i}` };
+  })).sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
+}
+function uxSiteDriverBody(sk, r) {
+  const op = SK[sk].op, issue = f => { const a = ATTN[op].find(x => x[5] === f.id); return a ? a[3] : 'No issue text recorded'; };
+  return `<p class="ux-drv-amt"><b>${usdW(r.v, true)}</b> at ${SK[sk].name}, October against target</p>
+   <h3 class="ux-drv-h">What is behind it</h3>${r.finds.length ? `<ul class="list">${r.finds.map(f => `<li>${issue(f)}</li>`).join('')}</ul>` : '<p class="muted">No Finding names this driver at this Site yet.</p>'}
+   <h3 class="ux-drv-h">What is being done</h3>${r.decs.length ? `<ul class="list ux-drv-decs">${r.decs.map(uxDecLine).join('')}</ul>` : '<p>No decision yet.</p>'}
+   <h3 class="ux-drv-h">Evidence</h3>${r.node.length ? `<ul class="list ux-drv-ev">${r.node.map(({ n, v }) => `<li data-site="${sk}" data-effect="${r2(n.eff)}">${fig(n.evd || `node:${sk}:${n.id}`, usdW(v, true))} ${ec(n.cls)}</li>`).join('')}</ul>` : '<p class="muted">Not available yet.</p>'}`;
+}
+/* the outcome board: one row per driver at this Site, with its issues, what can be done and what is already in hand */
+function uxSiteBoard(sk) {
+  const R = uxSiteDrivers(sk), dl = dk => link(`decision/${dk}`, `${uxTitle(decById(dk).q, SK[sk].name)} →`);
+  if (!R.length) return { html: '<p class="note">No driver moved this Site’s result in October.</p>', drawers: '', answer: 'No driver moved the result in October', n: 0 };
+  const rows = R.map((r, i) => `<tr${i >= 7 ? ' data-ux-over hidden' : ''}><th scope="row">${uxOpener(r.id, `${r.s.lab}<span class="vh">: what is behind it</span>`, 'ux-link ux-board-go')}<small>${LENS[r.k][0]}</small></th><td class="num">${usdW(r.v, true)}</td>
+    <td>${r.finds.length ? `${num(r.finds.length)} Finding${r.finds.length === 1 ? '' : 's'}` : '<span class="muted">None</span>'}</td>
+    <td>${r.open.length ? r.open.map(dl).join('<br>') : '<span class="muted">No decision waiting</span>'}</td>
+    <td>${r.inHand.length ? r.inHand.map(dk => `${uxDecState(dk).label}<br>${dl(dk)}`).join('<br>') : '<span class="muted">Nothing yet</span>'}</td></tr>`).join('');
+  const top = R.find(r => !r.s.st.residual), resid = R.find(r => r.s.st.residual), nOpen = new Set(R.flatMap(r => r.open)).size;
+  return { html: `<div class="table-wrap"><table class="ux-site-board" id="uxsb-${sk}"><thead><tr><th>Driver</th><th>Effect</th><th>Issues</th><th>What can be done</th><th>Already in hand</th></tr></thead><tbody>${rows}</tbody></table></div>${uxCapNote(R.length, 7, `uxsb-${sk}`)}`,
+    drawers: R.map(r => uxDrawer(r.id, r.s.lab, uxSiteDriverBody(sk, r))).join(''),
+    answer: `${top ? `${top.s.lab} ${usdW(top.v, true)} is the largest` : 'No measured driver moved the result'}${resid ? `; ${usdW(resid.v, true)} not attributed yet` : ''}${nOpen ? `; ${num(nOpen)} decision${nOpen === 1 ? '' : 's'} waiting on these drivers` : ''}`, n: R.length };
+}
+/* the Actions in hand at this Site: the plan's Actions on items chosen here */
+function uxSiteActions(sk) {
+  const op = SK[sk].op, A = (WF(op).actions || []).filter(a => (OPT[a.item]?._site || (itemOf(op, a.item)?.site || '').split(' · ').pop().toLowerCase()) === sk);
+  /* compact rows for the side column: the Action, its owner, due date and release state; the full reason is on the plan */
+  const row = a => { const [pill] = actionState(op, a, true); return `<li class="ux-sact"><span class="ux-sact-t">${a.action}</span><small>${who(op, a.owner)} · due ${fdate(a.due)}</small>${pill}</li>`; };
+  return { n: A.length, html: A.length ? `<ul class="list ux-sacts">${A.map(row).join('')}</ul>${link('actions', 'All the plan’s Actions →')}` : '<p class="note">No Action in hand at this Site yet.</p>' };
+}
+/* how the Site has moved, from the loaded history (DS1); "not available yet" when there is none */
+function uxSiteTrend(sk) {
+  const op = SK[sk].op, cost = OPS[op].kind === 'cost', key = cost ? 'cost' : 'contribution', S = uxHistory(op, key, sk), G = uxHistory(op, 'gap', sk);
+  if (!Array.isArray(S) || S.length < 2) return { answer: 'Not available yet: no earlier month is loaded', html: '<p class="muted">Not available yet: no earlier month is loaded.</p>' };
+  const ch = S[S.length - 1].v - S[S.length - 2].v, f = v => cost ? fmtU(v, '$') : usdW(v);
+  return { answer: `${cost ? 'Cost' : 'Contribution'} ${usdW(ch, true)} against ${S[S.length - 2].m}`, html: `<div class="table-wrap"><table><thead><tr><th>Month</th>${S.map(p => `<th>${p.m}</th>`).join('')}</tr></thead><tbody><tr><th scope="row">${cost ? 'Cost' : 'Contribution'}</th>${S.map(p => `<td class="num">${f(p.v)}</td>`).join('')}</tr>${Array.isArray(G) && G.length ? `<tr><th scope="row">Gap to target</th>${G.map(p => `<td class="num">${usdW(p.v, true)}</td>`).join('')}</tr>` : ''}</tbody></table></div><p class="note">From the loaded history; October is the period shown on the page.</p>` };
+}
+function uxSitePage(sk, P) {
+  const op = SK[sk].op, o = OPS[op], t = tree(sk), att = ATTN[op].filter(r => r[2] === sk), nd = uxDecCount(att);
+  const waiting = [...new Set(att.map(r => r[4]))].filter(id => uxDecState(id).key === 'choose'), B = uxSiteBoard(sk), A = uxSiteActions(sk), T = uxSiteTrend(sk);
+  const plain = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const chain = uxChain(op, sk), chainAns = plain((chain.match(/<p>([\s\S]*?)<\/p>/) || [, ''])[1]);
+  const prot = att.filter(r => findingHeading(r) === 'protect'), protAns = prot.length ? `${num(prot.length)} issue${prot.length === 1 ? '' : 's'} open on service or assets (${uxAnd([...new Set(prot.map(r => plain(r[1]).toLowerCase()))])})` : 'No service limit or asset issue open';
+  const sections = [
+    ['What is driving the gap', B.answer, `${B.html}`],
+    ['Where value leaks', chainAns, chain],
+    ['How it has moved', T.answer, T.html],
+    ['Service and assets', protAns, P.protect],
+    ...(P.ops ? [['Operations measures', 'Availability, field visits and output per visit, against target', P.ops]] : []),
+    ['Every money line against target', t.plan != null ? `${t.label}: ${fmtU(t.actual, t.unit)} against ${fmtU(t.plan, t.unit)}` : t.label, P.breakdown],
+    ['Limits and warranties', `${P.limits ? `${num(P.limits)} limit${P.limits === 1 ? '' : 's'} to keep` : 'No service limit declared'}; ${P.rights ? `${num(P.rights)} warrant${P.rights === 1 ? 'y or contract' : 'ies or contracts'}` : 'no warranty or contract open'}`, P.limitsHtml]
+  ];
+  const first = waiting[0], sticky = `<div class="ux-dsticky" role="region" aria-label="This Site" data-ux-sticky><span class="ux-dsticky-t">${SK[sk].name}</span><span class="ux-dsticky-n">${t.plan != null ? `${usdW(siteM(sk).period.variance, true)} <small>against target</small>` : ''}</span><span class="status-pill is-${waiting.length ? 'proposed' : 'approved'}">${num(nd)} open${waiting.length ? `, ${num(waiting.length)} waiting for a choice` : ''}</span>${first ? link(`decision/${first}`, 'Decide', 'button primary') : ''}</div>`;
+  return `${sticky}<p class="headline ux-headline" data-ux-sticky-anchor>${P.lead}</p>${uxSiteTiles(sk)}
+ <div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Needs a decision at this Site <span class="ux-count">${num(nd)}</span></h2><p>One row per decision, with who decides.</p></div></div>${uxQueue(op, att, '', nd)}</section></div>
+ <div class="ux-aside"><section class="panel" aria-labelledby="uxsa-h"><div class="panel-head"><div><h2 id="uxsa-h" data-count="${A.n}" data-count-of=".ux-site-acts .ux-sacts > li">Actions in hand <span class="ux-count">${num(A.n)}</span></h2><p>The plan’s Actions at this Site, with owner, due date and release.</p></div></div><div class="ux-site-acts">${A.html}</div></section></div></div>
+ <div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
+}
