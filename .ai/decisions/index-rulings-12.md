@@ -1,0 +1,20 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-3A7.7)
+
+- `D-5B.15` A RESIDUAL row carries NOT_SPLIT / DETAIL_NOT_AVAILABLE; 5c keys on kind first (mid-build Q1) · live · specs/5b-attribution/rulings.md
+- `D-3A6.1` A source profile is a JSON data file compiled to the one engine's Layout; new fields default to today's behaviour (amends D-3A3.2) · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.2` Profiles live in the tenant's database, admitted by command; only the sample's and expected file's hashes kept (RC4) · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.3` Admission is the contract test as product code (probes P1-P6) pinned by hand-written expected records · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.4` Invisible characters beyond C0 (Cc, Cf, Zl, Zp, Cs) refused per row (amends D-3A3.9) · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.5` One source system per source type per Site, enforced at the intake (amends D-3A3.7, D-3A3.14) · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.6` Coded paths must be mapped; the contract suite derives its probes from the canonical side · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.7` S1 sees dynamic imports, names built from strings and eval in data code (amends D-3A3.12) · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.8` Only the latest admitted version of a profile reads uploads · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.9` Single-sheet XLSX via the standard library; numbers to Excel's 15 significant digits · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.10` The emulated loader takes admitted profiles; the admission command runs where the real data lives · live · specs/3A6-source-profiles/rulings.md
+- `D-3A7.1` Reconcile exactly what the screen shows (4b's revenue and fuel cost; cross-checked) · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.2` One matched month opens the gate for the tenant; a month's own mismatch still reads not yet reconciled · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.3` The comparison is made live on every read; stored result is audit only · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.4` Tolerance 1% of the accounts' figure per heading (RC8); owner-cited per-operator setting up to 5% · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.5` The finance lead's statement recorded by command, marked scripted, closed months only · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.6` The standing is read live by 5c, not snapshotted by 3B7a · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.7` Each heading's sentence states both figures, the difference, its share and the amount allowed · live · specs/3A7-month-reconciled/rulings.md

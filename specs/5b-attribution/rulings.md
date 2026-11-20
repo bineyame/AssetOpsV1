@@ -289,3 +289,15 @@ are checked against the spec's literals only. `NONE` keys are not compared (R1).
 - **Why.** 5a's solve divides at 34 digits, so a solved target never multiplies back exactly; without a tolerance a
   heading with solved litres never splits. 1E-12 is far below any recorded unit, so a real difference (a cent) still
   stops the split.
+
+## D-5B.15 A RESIDUAL row carries `NOT_SPLIT` and `DETAIL_NOT_AVAILABLE` (mid-build Q1)
+
+- **Ruling.** Every RESIDUAL row has `split = "NOT_SPLIT"` and `reason = "DETAIL_NOT_AVAILABLE"`, with its
+  `unobserved_*` as spec §2.3 step 6 sets them. `SPLITS` gains no value. `5c` keys on `kind` first: a RESIDUAL reads as
+  "the rest of <parent heading>, not split until <the missing records>", never as a heading or a factor. Test 3(a)
+  asserts the pair, and test 4 gains the invariant that every RESIDUAL row carries it (review u1, finding 1).
+- **Why.** The residual is the part of a heading left unsplit because its detail is not observed, which is what
+  `DETAIL_NOT_AVAILABLE` means, and it already carries that reason's payload (the stated side's `detail_missing`). So
+  5c words every stop, the residual included, from one rule: reason plus the records that would fill it (D-5B.10).
+  `LEAF` with reason None would present it as an irreducible factor; it has no `factor_id` and its missing records
+  would have no reason to hang on. Builder's provisional choice and reviewer's view agree.
