@@ -8,6 +8,9 @@ The adapters are reached only through their domains' compositions (the configura
 4b2 (spec §3.5): the commercial reads (`commercial.composition.build_commercial_reads`) are built third, after the
 snapshots and the prices; `CommercialLeafSource` serves the money leaves and the stated nodes and falls back to
 `ProductLeafSource` for every other leaf. A failure in any builder disposes the ones already built (L1).
+
+4d (spec §4.3): the litre inputs (`structure.litres.composition.build_litre_inputs`) are built fourth;
+`LitreLeafSource` serves the three litre leaves between the commercial source and `ProductLeafSource`.
 """
 
 from __future__ import annotations
@@ -35,6 +38,8 @@ def build_structure_read(database_url: str | None) -> StructureReadService:
     from assetops_backend.chain.reader import SnapshotReader
     from assetops_backend.commercial.composition import build_commercial_reads
     from assetops_backend.financials.composition import build_window_price_selection
+    from assetops_backend.structure.litres.composition import build_litre_inputs
+    from assetops_backend.structure.litres.source import LitreLeafSource
     from assetops_backend.structure.money import CommercialLeafSource
     from assetops_backend.structure.sources import ProductLeafSource
 
@@ -52,14 +57,22 @@ def build_structure_read(database_url: str | None) -> StructureReadService:
         snapshots.dispose()  # L1, 4b2 test 13: the third builder's failure disposes both earlier stores
         prices.dispose()
         raise
+    try:
+        litres = build_litre_inputs(database_url)
+    except BaseException:
+        snapshots.dispose()  # L1, 4d: the fourth builder's failure disposes the three before it
+        prices.dispose()
+        reads.dispose()
+        raise
 
     def dispose() -> None:
         snapshots.dispose()
         prices.dispose()
         reads.dispose()
+        litres.dispose()
 
     fallback = ProductLeafSource(SnapshotReader(snapshots), prices.select, _utc_now)
-    source = CommercialLeafSource(reads.months, reads.store, fallback)
+    source = CommercialLeafSource(reads.months, reads.store, LitreLeafSource(litres.inputs, fallback, _utc_now))
     return StructureReadService(StructureRead(source, stated=source), dispose)
 
 

@@ -1,6 +1,6 @@
 # 4d: the monthly litre split (implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-20: handshake round 1 answered (`rulings.md`, "Handshake answers").
+Status: in_review (built 2026-11-20 on `task/4d-litre-split`, `packet.md`); rev 2, Architect (Claude), 2026-11-20: handshake round 1 answered (`rulings.md`, "Handshake answers").
 Lane B, on the deep-dive path (`two-week-build-plan.md` §0.1 row 12; D-BW1.8, D-BW1.11). **3.25 units.** Discovery review (W5): a new mechanism that
 puts litres, and through `5b` money, on the fuel line.
 - **Structure:** the MINI_GRID registry (`structure/rows_mini_grid.py`): `diesel_l = necessary_l + candidate_l +

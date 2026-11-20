@@ -45,9 +45,9 @@ SOURCE_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
         "productive_tariff": ASSUMED,
         "in_transit": PROVIDED,
         "outstanding": PROVIDED,
-        "necessary_l": HELD_NOT_CALCULATED,         # dispatch gives minutes, not litres
-        "candidate_l": HELD_NOT_CALCULATED,
-        "unexplained_l": HELD_NOT_CALCULATED,       # the night-window residual is not a monthly litre
+        "necessary_l": PROVIDED,                    # 4d: dispatch-3.2 slots at the fuel curve
+        "candidate_l": PROVIDED,                    # 4d: dispatch-3.2 slots at the fuel curve
+        "unexplained_l": PROVIDED,                  # 4d: dips and deliveries less the modelled litres
         "extra_l": OPTION_ONLY,
         "diesel_price": PROVIDED_ELSE_ASSUMED,
         "battery_throughput_kwh": OPTION_ONLY,
@@ -76,6 +76,9 @@ STATED_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
 #: 4b2: the PROVIDED leaves whose only provider is `structure.money.CommercialLeafSource`. Read alone (no commercial
 #: source wired), `ProductLeafSource` gives them NOT_CONNECTED naming their `filled_by`.
 COMMERCIAL_LEAVES = frozenset({"productive_kwh", "in_transit", "outstanding", "om", "staff"})
+#: 4d (spec §3.1): the PROVIDED leaves whose only provider is `structure.litres.source.LitreLeafSource`; read alone,
+#: `ProductLeafSource` gives them NOT_CONNECTED naming their `filled_by`, exactly as `COMMERCIAL_LEAVES`.
+LITRE_LEAVES = frozenset({"necessary_l", "candidate_l", "unexplained_l"})
 
 #: D-3B3.11: the literal words of each ASSUMED leaf (the product never reads the manifest).
 ASSUMPTION_WORDS: Mapping[str, str] = MappingProxyType({
@@ -148,7 +151,7 @@ class ProductLeafSource:
             return LeafValue(row.neutral, "NEUTRAL", (NEUTRAL_SOURCE,), None, None, None)
         if state == HELD_NOT_CALCULATED:
             return _absent(fb, "NOT_CALCULATED_YET")
-        if state == NOT_CONNECTED or (state == PROVIDED and factor_id in COMMERCIAL_LEAVES):
+        if state == NOT_CONNECTED or (state == PROVIDED and factor_id in COMMERCIAL_LEAVES | LITRE_LEAVES):
             return _absent(fb, "NOT_CONNECTED")
         if factor_id == "period_days":
             return self._period_days(ctx)
@@ -202,7 +205,7 @@ class ProductLeafSource:
 
 
 __all__ = [
-    "ASSUMPTION_WORDS", "COMMERCIAL_LEAVES", "PRICE_KEYS", "PROVIDED_ELSE_ASSUMED", "SOURCE_STATE", "STATED_STATE",
-    "STATES", "LeafSource", "ProductLeafSource", "ReadContext",
+    "ASSUMPTION_WORDS", "COMMERCIAL_LEAVES", "LITRE_LEAVES", "PRICE_KEYS", "PROVIDED_ELSE_ASSUMED", "SOURCE_STATE",
+    "STATED_STATE", "STATES", "LeafSource", "ProductLeafSource", "ReadContext",
     "StatedSource", "month_window",
 ]

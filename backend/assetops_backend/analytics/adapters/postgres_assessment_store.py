@@ -1051,6 +1051,42 @@ class PostgresAssessmentStore:
         return [self._dispatch_day_on(c, tenant_id, site_id, d, w, known_at, live, basis, prefetched=pf)
                 for d, w in spans]
 
+    def dispatch_spans(self, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                       known_at: datetime) -> tuple[dict[str, Any], ...]:
+        """4d (spec §4.2, D-4D.12): per UTC day meeting `[lo, hi)` as of `known_at`, the raw dispatch facts in one
+        read-only REPEATABLE READ transaction: `day`, `available`, `status`, `selected`, `accepted_reading_count`,
+        `run_id`, and `spans` `(start, end, classification)` of the selected run's interval revisions (never the
+        WINDOW revision), read only for a CURRENT selection. The day state is decided by the caller."""
+
+        def work(c: Connection) -> tuple[dict[str, Any], ...]:
+            c.execute(text("SET TRANSACTION READ ONLY"))
+            out = []
+            for d in self.select_dispatch_days_on(c, tenant_id, site_id, lo, hi, known_at):
+                selection = d["selection"]
+                run_id = None if selection is None else str(selection["run_id"])
+                spans: tuple[tuple[datetime, datetime, str], ...] = ()
+                if selection is not None and d["status"] == "CURRENT":
+                    ids = {str(i) for i in d["assessment_revision_ids"]}
+                    detail = self._run_detail(c, tenant_id, site_id, UUID(run_id)) or {"revisions": []}
+                    spans = tuple(
+                        (datetime.fromisoformat(seg["start"].replace("Z", "+00:00")),
+                         datetime.fromisoformat(seg["end"].replace("Z", "+00:00")), seg["classification"])
+                        for rev in detail["revisions"] if str(rev["id"]) in ids and rev.get("scope") != "WINDOW"
+                        for seg in (rev["result"] or {}).get("segments", []))
+                out.append({"day": d["day"], "available": d["available"], "status": d["status"],
+                            "selected": selection is not None,
+                            "accepted_reading_count": d["accepted_reading_count"], "run_id": run_id,
+                            "spans": spans})
+            return tuple(out)
+
+        return self._snapshot(work)
+
+    def dispose(self) -> None:
+        """4d (P1): release the store's engine."""
+        if self._engine is not None:
+            self._engine.dispose()
+            self._engine = None
+
     def dispatch_day_now(self, tenant_id: UUID, site_id: UUID, day: date) -> dict[str, Any] | None:
         """AR-3: the S3 dispatch day of UTC `day` exactly as `select_dispatch_days_on` composes it for a live read,
         in a read-only REPEATABLE READ transaction of its own at its clock (the `dispatch.day` row builder)."""
