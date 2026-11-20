@@ -91,6 +91,17 @@ Head used for the call sites (P15): `uxOverview` and `uxHistory` in `interactive
   measured only.
 - No full suites were run, and none was scheduled.
 
+## Merge note
+
+`main` moved after the base. From `54808af06` to `56300a810` it changed `demo-site-scenario-manifest.yaml` (the RECON-1
+data lane, D-RECON.5-7) and `check_manifest.py`. `derived-values.json`, `fixtures.js` and `index.html` did not change on
+`main`.
+- The merge is textually clean, but this branch's `fixtures.js` embeds the manifest at `54808af06` (sha `0800a0478f1f`).
+- Whoever merges must `git merge main` here and rerun `gen_fixtures.py` and `build.mjs` (spec §3: the branch that merges
+  last regenerates), then rerun the gates.
+- DS1m did not do that merge. A regeneration then would mix RECON-1's manifest changes into DS1m's "only the trends
+  change" diff.
+
 ## Review focus
 
 - MB7's choice: amend G3, or have the UI lane relax the compact rule. MB8: accept the carried wording.
