@@ -169,6 +169,7 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
 .q .qh{font-weight:700;font-size:13.5px;margin-bottom:3px}
 .q .df{margin-top:6px;font-size:12.5px;background:var(--bus-t);border-radius:5px;padding:5px 8px}
 .q .df b{color:var(--bus)}
+.gr{margin:12px 0 0;padding:10px 14px;border-radius:8px;background:var(--bus-t);border-left:4px solid var(--bus);font-size:13.5px;max-width:1100px}
 .foot{margin-top:18px;font-size:11.5px;color:var(--muted)}
 @media (max-width:900px){
   .g3,.g4,.rules,.axes,.scale,.fate,.mini{grid-template-columns:1fr}
@@ -181,8 +182,9 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
 <div class="wrap">
 
 <header>
-  <div class="sub">AssetOps · app-wide menu and page organization · proposal for the owner's input · Architect · 20 Nov 2026 · nothing is built yet</div>
+  <div class="sub">AssetOps · app-wide menu and page organization · Architect · 20 Nov 2026 · <b>direction approved by the owner on 20 Nov, with two guardrails</b> (rulings D-IA.1 to D-IA.14, <span class="mono">specs/IA-1-shape-rebuild/</span>) · being built shape by shape</div>
   <h1>Keep the six groups and the loop they follow. Give every object one home, one shape and one way in.</h1>
+  <div class="gr"><b>Guardrail G1.</b> Every executive journey ("what needs me", "why is this Site off target", "approve the plan") reaches its answer within 3 clicks of the Portfolio. <b>Guardrail G2.</b> The first two shapes, the hub and the decision, come to the owner as screens before the rest are built.</div>
   <p class="lead">Today's menu was designed with care, and the proposal keeps its groups and order. The contradictions come from the pages under it. Each object is drawn in two or three places, the new executive objects have no home, and each screen invents its own layout. Patching a screen cannot fix that, so the proposal fixes the structure.</p>
 </header>
 
@@ -225,7 +227,7 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
 <!-- 2. MENU -->
 <section id="s2">
   <h2><span class="n">2</span>The proposed menu</h2>
-  <div class="sub">The six groups stay. Three items are added, two merge, one is renamed, and the Lab moves out. Each item answers one person's question and serves one or more of the four objectives: <span class="obj G">G</span> Grow revenue, <span class="obj O">O</span> Optimize cost and efficiency, <span class="obj P">P</span> Protect asset and capital, <span class="obj A">A</span> Assure performance and returns. These questions guide the design and are never written on a screen.</div>
+  <div class="sub">The six groups stay. Three items are added, two merge, one is renamed, and the Lab is shown only to the developer role. Decisions and Plan sit under Work (owner, 20 Nov). Each item answers one person's question and serves one or more of the four objectives: <span class="obj G">G</span> Grow revenue, <span class="obj O">O</span> Optimize cost and efficiency, <span class="obj P">P</span> Protect asset and capital, <span class="obj A">A</span> Assure performance and returns. These questions guide the design and are never written on a screen.</div>
 
   <div class="topbar" aria-label="Proposed top bar">
     <span class="tb"><b>Lakeside Power</b> · All sites ▾</span>
@@ -267,8 +269,8 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
       <div class="it"><span>Assets &amp; cover</span><span class="tg ren">renamed</span></div>
       <div class="grp gc-int">Intelligence</div>
       <div class="it"><span>Findings</span></div>
-      <div class="it"><span>Decisions</span><span class="tg new">new</span></div>
       <div class="grp gc-work">Work</div>
+      <div class="it"><span>Decisions</span><span class="tg new">new</span></div>
       <div class="it"><span>Plan</span><span class="tg new">new</span></div>
       <div class="it"><span>Actions</span></div>
       <div class="it"><span>Incidents</span><span class="tg reb">rebuilt</span></div>
@@ -280,7 +282,7 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
       <div class="it"><span>Financials</span></div>
       <div class="grp gc-adm">Admin</div>
       <div class="it"><span>Settings</span></div>
-      <div class="foot"><div class="grp gc-adm">Workspace · demo builds only</div><div class="it"><span>Simulator Lab</span><span class="tg mov">moved</span></div></div>
+      <div class="foot"><div class="grp gc-adm">Workspace · developer role only</div><div class="it"><span>Simulator Lab</span><span class="tg mov">gated</span></div></div>
     </nav>
 
     <div>
@@ -293,8 +295,8 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
           <tr><td class="it">Assets &amp; cover</td><td>Site manager, finance lead: what do we run, is it in service, and who pays if it fails?</td><td><span class="obj P">P</span><span class="obj O">O</span></td><td><span class="chip c-renamed">renamed</span> Rights (warranty, insurance, O&amp;M contract) sit beside each asset (owner, item 1).</td></tr>
           <tr class="gh"><td colspan="4" style="color:var(--int)">Intelligence · what we learned</td></tr>
           <tr><td class="it">Findings</td><td>Site manager, analyst: what is off target, at risk or possible?</td><td><span class="obj G">G</span><span class="obj O">O</span><span class="obj P">P</span></td><td><span class="chip c-kept">kept</span> One store everywhere. The cost, risk and opportunity tabs become a filter by heading.</td></tr>
-          <tr><td class="it">Decisions</td><td>Executive, site manager, finance lead: what should we choose, and what is each option worth against doing nothing?</td><td><span class="obj G">G</span><span class="obj O">O</span><span class="obj P">P</span><span class="obj A">A</span></td><td><span class="chip c-new">new</span> Layer 4's main object has no home today: it hangs under Portfolio › Act first.</td></tr>
           <tr class="gh"><td colspan="4" style="color:var(--work)">Work · what we do</td></tr>
+          <tr><td class="it">Decisions</td><td>Executive, site manager, finance lead: what should we choose, and what is each option worth against doing nothing?</td><td><span class="obj G">G</span><span class="obj O">O</span><span class="obj P">P</span><span class="obj A">A</span></td><td><span class="chip c-new">new</span> Layer 4's main object has no home today: it hangs under Portfolio › Act first. Under Work, the group reads decide, commit, do, fix, maintain.</td></tr>
           <tr><td class="it">Plan</td><td>Executive: what do we commit this month, within the budget and crew visits?</td><td><span class="obj O">O</span><span class="obj P">P</span></td><td><span class="chip c-new">new</span> Today it is buried two levels down, at Portfolio › Act first › plan.</td></tr>
           <tr><td class="it">Actions</td><td>Site manager, technician: who is doing what, and by when?</td><td><span class="obj A">A</span></td><td><span class="chip c-kept">kept</span> Reads the plan's store, so the plan's Actions are the Actions. Today they are two different sets.</td></tr>
           <tr><td class="it">Incidents</td><td>Site manager: what failed, did it repeat, and what did it cost?</td><td><span class="obj P">P</span><span class="obj O">O</span></td><td><span class="chip c-rebuilt">rebuilt</span> Owner option B. One row per Site with its repeats; each incident opens in a drawer.</td></tr>
@@ -305,7 +307,7 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
           <tr class="gh"><td colspan="4" style="color:var(--bus)">Business · Admin</td></tr>
           <tr><td class="it">Financials</td><td>Executive, finance lead: revenue, cost to serve and contribution against budget.</td><td><span class="obj G">G</span><span class="obj O">O</span></td><td><span class="chip c-kept">kept</span> A Site's Financials tab is this same page at Site scope, so the figures match by construction.</td></tr>
           <tr><td class="it">Settings</td><td>Executive: who may decide, and which targets, thresholds and sources apply?</td><td><span class="obj A">A</span></td><td><span class="chip c-kept">kept</span> Four tabs: Organisation and roles, Targets and thresholds, Sources, Appearance.</td></tr>
-          <tr><td class="it">Simulator Lab</td><td>The demo team only.</td><td>–</td><td><span class="chip c-moved">moved</span> Out of the operator's menu, as the live product already does.</td></tr>
+          <tr><td class="it">Simulator Lab</td><td>Developers only.</td><td>–</td><td><span class="chip c-moved">gated</span> Shown only to a person with the developer role, in its own shell, as the live product keeps it.</td></tr>
         </tbody>
       </table>
     </div>
@@ -381,9 +383,9 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
     <text x="44" y="302" class="mut" style="font-size:10.5px">Pinned to its factor; takes its heading</text>
 
     <rect class="node" x="350" y="204" width="250" height="114" rx="7"/>
-    <rect x="350" y="204" width="250" height="5" fill="var(--int)" rx="2"/>
+    <rect x="350" y="204" width="250" height="5" fill="var(--work)" rx="2"/>
     <text x="364" y="228" style="font-weight:700;font-size:15px">Decision</text>
-    <text x="364" y="246" class="mut" style="font-size:11px">PAGE · Intelligence › Decisions</text>
+    <text x="364" y="246" class="mut" style="font-size:11px">PAGE · Work › Decisions</text>
     <text x="364" y="268" style="font-size:11px">No tabs: the answer, options against</text>
     <text x="364" y="283" style="font-size:11px">no action, then why (one level deep)</text>
     <text x="364" y="302" class="mut" style="font-size:10.5px">Choose this: dialog, toast with Undo</text>
@@ -481,7 +483,7 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
     <line x1="1005" y1="600" x2="1005" y2="716" stroke="var(--line-strong)" stroke-dasharray="4 4"/>
     <rect class="node drawer" x="1030" y="614" width="260" height="96" rx="7" style="stroke:var(--faint)"/>
     <text x="1044" y="638" class="mut" style="font-weight:700;font-size:15px">Simulator Lab</text>
-    <text x="1044" y="655" class="mut" style="font-size:11px">Separate workspace · demo builds only</text>
+    <text x="1044" y="655" class="mut" style="font-size:11px">Separate workspace · developer role only</text>
     <text x="1044" y="676" class="mut" style="font-size:11px">Never linked from a product page;</text>
     <text x="1044" y="692" class="mut" style="font-size:11px">its data never shown as observed</text>
 
@@ -677,51 +679,47 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
 
 <!-- 5. JOURNEYS -->
 <section id="s5">
-  <h2><span class="n">5</span>Three executive journeys across the structure</h2>
-  <div class="sub">Each step names the surface and the level it reaches. Kisiwa's facts come from the design (§2.10, Figure 11).</div>
+  <h2><span class="n">5</span>Three executive journeys, within 3 clicks of the Portfolio (G1)</h2>
+  <div class="sub">The clicks are navigations counted from the Portfolio Overview. Pressing an action button and confirming it are the act itself, so they are not counted. Evidence past the answer (a drawer, the asset) may sit deeper. A check walks these paths for every operator and fails past 3 (D-IA.10). Kisiwa's facts come from the design (§2.10, Figure 11).</div>
 
   <div class="jr">
-    <div class="jhead"><b>"What needs me?"</b><span class="small muted">Executive · 4 clicks to a recorded choice · entry from any page</span></div>
+    <div class="jhead"><b>"What needs me?"</b><span class="small muted">Executive · answer at click 1 · act on the same page</span></div>
     <div class="steps">
-      <div class="step"><span class="lv L1">L1</span><div class="wh">Top bar</div><div class="nm">Waiting for you · 3</div>Approve the October plan · choose Mto billing · accept 12 imported invoices</div>
+      <div class="step"><span class="lv L1">0</span><div class="wh">Operations › Portfolio · Overview</div><div class="nm">Decision queue and plan tile</div>What waits for a choice or an approval, with money at stake and who decides</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L4" style="border:0">drawer</span><div class="wh">Inbox drawer</div><div class="nm">Since you last looked</div>What moved, who did what, and the 3 items waiting, newest first</div>
+      <div class="step"><span class="lv L2">1</span><div class="wh">Queue row › Work › Decisions</div><div class="nm">Mto billing after the meter swap</div>Recommendation and options against no action. The same item is also reachable from "Waiting for you": badge, then item (2 clicks)</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L2">L2</span><div class="wh">Intelligence › Decisions</div><div class="nm">Mto billing after the meter swap</div>Recommendation, options against no action, who decides</div>
-      <div class="arr">›</div>
-      <div class="step"><span class="lv L1">L1</span><div class="wh">Decision page</div><div class="nm">Choose this</div>Dialog: what happens, who is recorded. Toast with Undo; the inbox shows 2</div>
+      <div class="step"><span class="lv L1">act</span><div class="wh">Decision page</div><div class="nm">Choose this</div>A dialog says what happens and who is recorded, then a toast with Undo. The queue and the badge drop by one</div>
     </div>
   </div>
 
   <div class="jr">
-    <div class="jhead"><b>"Why is this Site off target?"</b><span class="small muted">Executive, then site manager · from the gap to the asset in 5 clicks</span></div>
+    <div class="jhead"><b>"Why is this Site off target?"</b><span class="small muted">Executive · answer at click 2 · the Finding at click 3</span></div>
     <div class="steps">
-      <div class="step"><span class="lv L1">L1</span><div class="wh">Operations › Portfolio</div><div class="nm">Gap tile</div>Contribution against target, split by heading</div>
+      <div class="step"><span class="lv L1">0</span><div class="wh">Operations › Portfolio · Overview</div><div class="nm">Gap tile</div>Contribution against target, split by heading</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L2">L2</span><div class="wh">Portfolio › Outcomes</div><div class="nm">One row per Site</div>Sorted by gap; Kisiwa near the top</div>
+      <div class="step"><span class="lv L2">1</span><div class="wh">Portfolio › Outcomes</div><div class="nm">One row per Site</div>Sorted by gap; Kisiwa near the top</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L3">L3</span><div class="wh">Site › Kisiwa · Overview</div><div class="nm">Bridge by driver</div>Evening hours without backup (Protect), against target</div>
+      <div class="step"><span class="lv L3">2</span><div class="wh">Site › Kisiwa · Overview</div><div class="nm">The answer: drivers against target</div>Evening hours without backup (Protect) leads, with its Finding and decision named in the row</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L2">L2</span><div class="wh">Intelligence › Findings</div><div class="nm">Repeat failures, Generator 1</div>Linked to the genset decision</div>
+      <div class="step"><span class="lv L2">3</span><div class="wh">Driver row › Intelligence › Findings</div><div class="nm">Repeat failures, Generator 1</div>Linked to the genset decision</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L4" style="border:0">drawer</span><div class="wh">Incident drawer</div><div class="nm">Alternator fault, 14 Aug and 30 Oct</div>Repeat inside 90 days; time out of service</div>
-      <div class="arr">›</div>
-      <div class="step"><span class="lv L3">L3</span><div class="wh">Asset page</div><div class="nm">Generator 1 · Cover</div>Warranty expired; O&amp;M response late (A5)</div>
+      <div class="step" style="border-style:dashed"><span class="lv L4" style="border:0">evidence</span><div class="wh">Incident drawer, Asset page</div><div class="nm">Alternator fault, 14 Aug and 30 Oct</div>Warranty expired; O&amp;M response late (A5). Past the answer, so it may sit deeper</div>
     </div>
   </div>
 
   <div class="jr">
-    <div class="jhead"><b>"Approve the plan"</b><span class="small muted">Executive · review, check one item, approve and see what it released</span></div>
+    <div class="jhead"><b>"Approve the plan"</b><span class="small muted">Executive · the plan at click 1 · approve there</span></div>
     <div class="steps">
-      <div class="step"><span class="lv L1">L1</span><div class="wh">Portfolio · Plan tile, or Work › Plan</div><div class="nm">October plan · Proposed v1</div>Spend and crew visits against their limits</div>
+      <div class="step"><span class="lv L1">0</span><div class="wh">Operations › Portfolio · Overview</div><div class="nm">Plan tile · Proposed v1</div>Spend and crew visits against their limits</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L2">L2</span><div class="wh">Plan page · Items</div><div class="nm">Items and their meters</div>Option, Site, owner, dates and spend; Left out gives each reason</div>
+      <div class="step"><span class="lv L2">1</span><div class="wh">Work › Plan</div><div class="nm">Items, meters, left out</div>Option, Site, owner, dates and spend for each item, and the reason for each item left out</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L3">L3</span><div class="wh">Item row › Decision</div><div class="nm">Kisiwa evening backup</div>Options against no action; Back returns to the plan</div>
+      <div class="step"><span class="lv L3">2</span><div class="wh">Item row › Decision</div><div class="nm">Kisiwa evening backup</div>Options against no action; Back returns to the plan</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L1">L1</span><div class="wh">Plan page</div><div class="nm">Approve</div>Dialog: releases N Actions and their spend; recorded under the executive</div>
+      <div class="step"><span class="lv L1">act</span><div class="wh">Plan page</div><div class="nm">Approve</div>A dialog lists what it releases and records the executive, then a toast with Undo</div>
       <div class="arr">›</div>
-      <div class="step"><span class="lv L2">L2</span><div class="wh">Work › Actions · plan: Oct v1</div><div class="nm">Released Actions</div>Each with its owner and due date; the same records the plan holds</div>
+      <div class="step"><span class="lv L2">2</span><div class="wh">Toast link › Work › Actions</div><div class="nm">Released Actions</div>Filtered to this plan version, each with its owner and due date</div>
     </div>
   </div>
 </section>
@@ -742,7 +740,7 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
       <thead><tr><th class="n">#</th><th>Today</th><th>Fate</th><th>Becomes</th></tr></thead>
       <tbody>
         <tr><td class="n">1</td><td>Portfolio · Overview</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Portfolio hub, Overview</td></tr>
-        <tr><td class="n">1</td><td>Portfolio · Act first</td><td class="f"><span class="chip c-merged">merged</span></td><td>Intelligence › Decisions</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · Act first</td><td class="f"><span class="chip c-merged">merged</span></td><td>Work › Decisions and Work › Plan</td></tr>
         <tr><td class="n">1</td><td>Portfolio · Act first › plan</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Work › Plan (route outside the manifest)</td></tr>
         <tr><td class="n">1</td><td>Portfolio · Outcomes by site</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Portfolio › Outcomes, one row per Site</td></tr>
         <tr><td class="n">1</td><td>Portfolio · Demand and capacity</td><td class="f"><span class="chip c-kept">kept</span></td><td>Portfolio › Demand &amp; capacity</td></tr>
@@ -780,28 +778,35 @@ svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
         <tr><td class="n">4</td><td>Work request pages, work verification</td><td class="f"><span class="chip c-merged">merged</span></td><td>Maintenance drawer</td></tr>
         <tr><td class="n">2</td><td>Operational records, Evidence</td><td class="f"><span class="chip c-merged">merged</span></td><td>Evidence &amp; records (Records · Coverage)</td></tr>
         <tr><td class="n">3</td><td>Financials, Settings (2)</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Statement and settings shape</td></tr>
-        <tr><td class="n">1</td><td>Simulator Lab</td><td class="f"><span class="chip c-kept">kept</span></td><td>Workspace footer, demo builds only</td></tr>
+        <tr><td class="n">1</td><td>Simulator Lab</td><td class="f"><span class="chip c-kept">kept</span></td><td>Workspace, developer role only</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<!-- 7. QUESTIONS -->
+<!-- 7. ANSWERS -->
 <section id="s7">
-  <h2><span class="n">7</span>Questions for you, each with my default</h2>
-  <div class="sub">Defaults apply if you agree with the direction. Nothing is built in the mock-up until you have given your input.</div>
+  <h2><span class="n">7</span>The owner's answers (20 Nov) and the build order</h2>
+  <div class="sub">Recorded verbatim in <span class="mono">owner/owner-ia-proposal-answers-2026-11-20.md</span> and <span class="mono">owner/owner-ia-direction-approved-2026-11-20.md</span>. The rulings are in <span class="mono">specs/IA-1-shape-rebuild/rulings.md</span>.</div>
   <div class="grid g3">
-    <div class="q"><div class="qh">1 · Decisions and Plan as menu items?</div>The design's frame rule says "no new menu items" (§2.8). Layer 4's two executive objects then have no home and hang under Portfolio tabs.<div class="df"><b>Default: yes.</b> Decisions under Intelligence, Plan at the head of Work.</div></div>
-    <div class="q"><div class="qh">2 · Portfolio from six tabs to three?</div>Act first repeats the Overview's queue, What changed is not a list of changes, and Scope repeats Evidence. Each moves to its object's home list.<div class="df"><b>Default: yes.</b> The tabs become Overview, Outcomes, and Demand &amp; capacity.</div></div>
-    <div class="q"><div class="qh">3 · Site from eight tabs to six, the same for every vertical?</div>Findings and Work become the Overview queue and the Operations tab. Health and Performance merge.<div class="df"><b>Default: yes.</b> Overview, Operations, Performance, Financials, Evidence, Setup.</div></div>
-    <div class="q"><div class="qh">4 · Incidents and Maintenance as two items, not one "Operations" entry?</div>Pushback on the design's own §2.10. You chose option B, and the two answer different questions. They share one store, so they cannot contradict each other.<div class="df"><b>Default: two items in Work</b>, plus the Site's Operations tab.</div></div>
-    <div class="q"><div class="qh">5 · A "Results" item under Assurance?</div>The executive's reason to come back, and the proof that monitoring tools cannot give. Today the verdicts are scattered across What changed and the Action pages.<div class="df"><b>Default: yes.</b> Verdicts and the plan's review, by period.</div></div>
-    <div class="q"><div class="qh">6 · Merge Evidence and Operational records?</div>Records are the sources that fill the figures; coverage is how complete those sources are. They are one subject, with imports waiting for acceptance beside them.<div class="df"><b>Default: yes</b>, as "Evidence &amp; records".</div></div>
-    <div class="q"><div class="qh">7 · Site groups in the scope switch?</div>At 300 Sites one list is too long, even capped. A group (region, vertical or contract) scopes every list and the Portfolio hub.<div class="df"><b>Default: yes.</b> Groups are set in Settings; the demo groups by vertical.</div></div>
-    <div class="q"><div class="qh">8 · Simulator Lab out of the operator's menu?</div>The live product already keeps it in its own shell; the mock-up drifted. Engineering words one click from the executive cost trust.<div class="df"><b>Default: yes</b>, in a workspace footer in demo builds only.</div></div>
-    <div class="q"><div class="qh">9 · Build by shape, not by screen?</div>Each unit builds one shape and renders every object of its type. Its gate is that every route of that type renders from the shape, with no stub reachable.<div class="df"><b>Default order:</b> List, Hub, Record page and Drawer, Decision, Plan, Asset, Statement.</div></div>
+    <div class="q"><div class="qh">1 · Decisions and Plan: under Work</div>The order is Decisions, Plan, Actions, Incidents, Maintenance, and Findings stays in Intelligence. No pushback: Work now reads decide, commit, do, fix, maintain.<div class="df"><b>Decided</b> · D-IA.1</div></div>
+    <div class="q"><div class="qh">2 · Portfolio: Overview, Outcomes, Demand &amp; capacity</div>The other tabs are moved, not removed. Act first goes to Work › Decisions and Plan. What changed goes to Results, the inbox and Plan › Review. Scope goes to Evidence &amp; records.<div class="df"><b>Decided</b> · D-IA.2</div></div>
+    <div class="q"><div class="qh">3 · Site: six tabs on every vertical</div>Overview, Operations, Performance, Financials, Evidence, Setup.<div class="df"><b>Decided</b> · D-IA.3</div></div>
+    <div class="q"><div class="qh">4 · Incidents and Maintenance stay two items</div>They stay as two items under Work, as they are today, with their content rebuilt on the integrated operations data.<div class="df"><b>Decided</b> · D-IA.4</div></div>
+    <div class="q"><div class="qh">5 to 7 · Results, Evidence &amp; records, Site groups</div>All three are adopted as proposed.<div class="df"><b>Decided</b> · D-IA.5, D-IA.6</div></div>
+    <div class="q"><div class="qh">8 · Simulator Lab: developer role only</div>Gated by a person's role, not by the build, and never in an operator role's menu.<div class="df"><b>Decided</b> · D-IA.7</div></div>
   </div>
-  <p class="foot">Sources: owner files of 20 Nov (app-wide proposal, standing UI brief, design philosophy, eight answers, U8); the UX audit (<span class="mono">.agent/ux-audit-2026-11-20.md</span>); <span class="mono">Docs/design-system/uiux-guide.md</span> §2, §8; <span class="mono">layer4-transformation-design.md</span> §2.0, §2.3 to §2.6, §2.8, §2.10, Figures 1c and 11; the live product's navigation in <span class="mono">frontend/src</span>. No figures are shown here; the page is about structure only.</p>
+  <h3 style="margin-top:16px">9 · Build by shape: the order follows the journeys (D-IA.12)</h3>
+  <div class="steps" style="margin-top:6px">
+    <div class="step"><div class="wh">IA-1a</div><div class="nm">Frame and gates</div>Menu, top bar, route registry, the G1, shape and after-render checks</div><div class="arr">›</div>
+    <div class="step"><div class="wh">IA-1b</div><div class="nm">Hub</div>Portfolio (3 tabs) and the Overview of all 9 Sites</div><div class="arr">›</div>
+    <div class="step"><div class="wh">IA-1c</div><div class="nm">Decision</div>All 14 decisions, and the inbox</div><div class="arr">›</div>
+    <div class="step" style="background:var(--work-t)"><div class="wh">Stop · G2</div><div class="nm">Owner sees the screens</div>Nothing further is built until the owner has given input</div><div class="arr">›</div>
+    <div class="step"><div class="wh">IA-2a, 2b</div><div class="nm">Plan, then List</div>Decisions, Findings, Actions, Sites</div><div class="arr">›</div>
+    <div class="step"><div class="wh">IA-2c</div><div class="nm">Asset</div>With Assets &amp; cover, Incidents, Maintenance, and Site Operations, Performance, Setup</div><div class="arr">›</div>
+    <div class="step"><div class="wh">IA-2d, 2e</div><div class="nm">Drawers and record page, then statement</div>Then Results, Evidence &amp; records, Financials, Settings, the Lab gate</div>
+  </div>
+<p class="foot">Sources: owner files of 20 Nov (app-wide proposal, standing UI brief, design philosophy, eight answers, U8); the UX audit (<span class="mono">.agent/ux-audit-2026-11-20.md</span>); <span class="mono">Docs/design-system/uiux-guide.md</span> §2, §8; <span class="mono">layer4-transformation-design.md</span> §2.0, §2.3 to §2.6, §2.8, §2.10, Figures 1c and 11; the live product's navigation in <span class="mono">frontend/src</span>. No figures are shown here; the page is about structure only.</p>
 </section>
 
 </div>

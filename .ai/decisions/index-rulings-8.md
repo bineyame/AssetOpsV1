@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3A1.1 to D-3C1.13)
+# Decision index: Demo-sprint and later rulings (index only) (D-3A1.1 to D-IA.14)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -36,3 +36,17 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3C1.11` trial-action grant scope stays on the person path · live · specs/3C1-person-on-commands/rulings.md
 - `D-3C1.12` the person path opens no write closed today · live · specs/3C1-person-on-commands/rulings.md
 - `D-3C1.13` split 3C1a/3C1b; 3C0b depends on both · live · specs/3C1-person-on-commands/rulings.md
+- `D-IA.1` The menu: six groups, thirteen items; Decisions and Plan under Work (supersedes design §2.8 frame rule) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.2` Portfolio tabs: Overview, Outcomes, Demand & capacity (supersedes the six-tab frame) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.3` Site tabs: six, the same on every vertical · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.4` Incidents and Maintenance stay two Work items (supersedes design §2.10 single Operations entry) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.5` Assurance: Results, and Evidence & records · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.6` One scope switch: all Sites, a group, or one Site · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.7` Simulator Lab: developer role only · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.8` One object, one home, many scopes · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.9` Page or drawer, and one drill-down grammar · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.10` Guardrail G1: journeys within 3 clicks of the Portfolio · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.11` Guardrail G2: stop after the hub and decision shapes · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.12` Build by shape, in the order of the journeys · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.13` Start from the reviewed UI branch; no patching after render · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.14` The gates already earned stay · live · specs/IA-1-shape-rebuild/rulings.md
