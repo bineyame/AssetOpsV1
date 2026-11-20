@@ -19,6 +19,7 @@ _N, _R, _P, _MAXMEM, _DKLEN = 32768, 8, 1, 67108864, 32
 _FORM = re.compile(r"scrypt\$32768\$8\$1\$([A-Za-z0-9_-]{22})\$([A-Za-z0-9_-]{43})")
 #: Printable ASCII with no `@`, space or control character on either side (R3).
 _EMAIL = re.compile(r"[!-?A-~]{1,64}@[!-?A-~]{1,255}")
+_SURROGATE = re.compile("[\ud800-\udfff]")
 MAX_EMAIL = 320
 MIN_PASSWORD, MAX_PASSWORD = 12, 128
 
@@ -32,7 +33,7 @@ def _unb64(text: str) -> bytes:
 
 
 def _derive(password: str, salt: bytes) -> bytes:
-    return hashlib.scrypt(password.encode("utf-8"), salt=salt, n=_N, r=_R, p=_P, maxmem=_MAXMEM, dklen=_DKLEN)
+    return hashlib.scrypt(password.encode("utf-8", "surrogatepass"), salt=salt, n=_N, r=_R, p=_P, maxmem=_MAXMEM, dklen=_DKLEN)
 
 
 def _hash(password: str, salt: bytes) -> str:
@@ -63,7 +64,7 @@ DUMMY_HASH = _hash("assetops-dummy-password", b"assetops-dummy!!")
 def check_policy(password: str) -> None:
     """12 to 128 characters, not all whitespace, kept exactly as typed."""
     if (not isinstance(password, str) or not MIN_PASSWORD <= len(password) <= MAX_PASSWORD
-            or password.isspace()):
+            or password.isspace() or _SURROGATE.search(password) is not None):
         raise AccountRefused("PASSWORD_POLICY", 422)
 
 

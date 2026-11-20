@@ -262,7 +262,7 @@ def test_every_port_method_round_trips(world, accounts, engine) -> None:  # noqa
 
     with pytest.raises(StoreConflict) as held:
         accounts.add_grant(GrantRow(uuid4(), None, acme, joseph, "Joseph", "ANALYST", None, None, "GRANTED", exec_id,
-                                    "Amina", None, clock.now))
+                                    "Amina", None, clock.now), exec_id)
     assert held.value.code == "ROLE_ALREADY_HELD"
 
 
@@ -275,6 +275,26 @@ def test_guarded_attempt_counts_failures_and_locks(world, accounts) -> None:
     assert locked.locked and locked.retry_at == T0 + timedelta(minutes=15)
     ok = accounts.guarded_attempt(key, T0 + timedelta(minutes=15), lambda: (True, world["exec_id"]))
     assert (ok.locked, ok.succeeded, ok.person_id) == (False, True, world["exec_id"])
+
+
+def test_a_success_resets_the_count_in_postgres(world, accounts) -> None:
+    """RV1-L1: 4 failures, a success, 2 failures: not locked (the adapter's SQL, not the memory store's)."""
+    key = "d" * 64
+    for minute in range(4):
+        accounts.guarded_attempt(key, T0 + timedelta(minutes=minute), lambda: (False, None))
+    accounts.guarded_attempt(key, T0 + timedelta(minutes=4), lambda: (True, world["exec_id"]))
+    accounts.guarded_attempt(key, T0 + timedelta(minutes=5), lambda: (False, None))
+    assert not accounts.guarded_attempt(key, T0 + timedelta(minutes=6), lambda: (False, None)).locked
+
+
+def test_a_store_error_does_not_print_the_email(world, accounts) -> None:
+    """RV1-L2: `hide_parameters=True`; a CHECK failure carries no `[parameters: ...]`."""
+    from sqlalchemy.exc import IntegrityError
+    email = "leaky.person@acme.example"
+    with pytest.raises(IntegrityError) as failed:
+        accounts.create_account(Account(uuid4(), world["acme"], email, " Padded "), hash_password(PW), T0,
+                                "service:onboarding", None)
+    assert email not in str(failed.value) and "Padded" not in str(failed.value)
 
 
 # --- lock proofs (R2) -------------------------------------------------------------------------------------------
@@ -400,3 +420,43 @@ def test_downgrade_refused_with_an_account_then_down_and_up(world, engine) -> No
         c.execute(text("TRUNCATE reading_upload"))
     command.upgrade(cfg, "head")
     pg_harness.assert_at_head(engine)
+
+
+def test_lock_a_grant_waits_while_the_actors_role_is_removed(world, accounts, engine) -> None:  # noqa: F811
+    """RV1-R2: the grant by executive A waits on the tenant lock; the other executive removes A's role under it;
+    A's grant comes back ROLE_REQUIRED."""
+    from assetops_backend.accounts.adapters.postgres_account_store import _INSERT_GRANT, _grant_values
+    svc, acme = world["svc"], world["acme"]
+    joseph = svc.onboard_create("acme", "joseph@acme.example", "Joseph", PW, executive=False)
+    amina = svc.resolve(svc.sign_in("amina@acme.example", PW).token)
+    world["clock"].now = T0 + timedelta(seconds=1)
+    svc.grant(amina, joseph, EXEC, None)
+    mine = accounts.held_grants(acme, world["exec_id"])[0]
+    world["clock"].now = T0 + timedelta(seconds=2)
+    analyst = svc.onboard_create("acme", "zed@acme.example", "Zed", PW, executive=False)
+    removal = GrantRow(uuid4(), mine.row_id, acme, mine.person_id, mine.display_name, EXEC, None, None, "REMOVED",
+                       joseph, "Joseph", None, T0 + timedelta(seconds=3))
+    conn, tx = _hold(engine, TENANT_KEY, str(acme))
+    result: list[object] = []
+
+    def grant() -> None:
+        try:
+            result.append(svc.grant(amina, analyst, "ANALYST", None))
+        except AccountRefused as refused:
+            result.append(refused.code)
+
+    thread = threading.Thread(target=grant)
+    try:
+        thread.start()
+        deadline = time.monotonic() + 10
+        while _waiting_on_advisory(engine) < 1 and time.monotonic() < deadline:
+            time.sleep(0.05)
+        time.sleep(0.5)
+        assert thread.is_alive() and _waiting_on_advisory(engine) == 1, "the grant did not wait on the lock"
+        conn.execute(_INSERT_GRANT, _grant_values(removal))  # the other executive removes A's role under the lock
+    finally:
+        tx.commit()
+        conn.close()
+    thread.join(30)
+    assert result == ["ROLE_REQUIRED"], result
+    assert accounts.held_grants(acme, analyst) == ()

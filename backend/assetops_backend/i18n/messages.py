@@ -94,7 +94,7 @@ CATALOGUE: dict[str, dict[str, str]] = {
             "The file was not saved: a single cell is far too long to be a reading. Check the file and try again."),
         "reading_upload.check_unavailable": "The file could not be checked just now. Nothing was saved; try again.",
         "reading_upload.template_unavailable": "The upload template is not available for this site just now.",
-        # 3C0a (spec §5): operator accounts, sessions and role grants; keys `accounts.<code lower case>`. The last six
+        # 3C0a (spec §5): operator accounts, sessions and role grants; keys `accounts.<code lower case>`. The last eight
         # are the onboarding command's (rendered in English by it). SIGN_IN_LOCKED keeps `minutes` in its params (R15).
         "accounts.sign_in_refused": "The email or password is not right.",
         "accounts.sign_in_locked": "Too many attempts. Try again in a few minutes.",
@@ -115,6 +115,8 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "accounts.bad_email": "That is not an email address.",
         "accounts.email_taken": "An account already uses that email.",
         "accounts.password_policy": "A password has 12 to 128 characters and is not only spaces.",
+        "accounts.bad_name": "A name has 1 to 120 characters.",
+        "accounts.bad_reason": "A reason has 1 to 500 characters.",
         "accounts.executive_exists": "This organisation already has an operator executive.",
         "accounts.database_url_required": "Set DATABASE_URL to the product database.",
     },

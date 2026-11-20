@@ -71,6 +71,10 @@ def test_the_onboarding_command(routed: str) -> None:
     _refusal(onboard(routed, "create", "--tenant", "acme", "--email", "x@acme.example", "--name", "X",
                      stdin="short\n"), "PASSWORD_POLICY")
     _refusal(onboard(routed, "set-password", "--email", "nobody@acme.example"), "PERSON_NOT_FOUND")
+    for name in ("", "   ", "x" * 121):  # RV1-L2: a plain refusal, never a traceback with the email in it
+        refused = onboard(routed, "create", "--tenant", "acme", "--email", "leak@acme.example", "--name", name)
+        _refusal(refused, "BAD_NAME")
+        assert "leak@acme.example" not in refused.stderr and "A name has 1 to 120 characters." in refused.stderr
 
     joined = onboard(routed, "create", "--tenant", "acme", "--email", "joseph@acme.example", "--name", "Joseph")
     assert joined.returncode == 0, joined.stderr
@@ -88,7 +92,14 @@ def test_the_onboarding_command(routed: str) -> None:
         svc.sign_in("joseph@acme.example", PW)
     assert svc.sign_in("joseph@acme.example", NEW_PW).principal.person_id == joseph
 
-    disabled = onboard(routed, "disable", "--email", "joseph@acme.example", "--reason", "left the company")
+    for reason in ("", "  ", "r" * 501):
+        refused = onboard(routed, "disable", "--email", "joseph@acme.example", "--reason", reason)
+        _refusal(refused, "BAD_REASON")
+        assert "A reason has 1 to 500 characters." in refused.stderr and "Traceback" not in refused.stderr
+    padded = onboard(routed, "create", "--tenant", "acme", "--email", "padded@acme.example", "--name", "  Pat  ")
+    assert padded.returncode == 0, padded.stderr
+    assert [p.display_name for p in svc.people(signed.principal) if p.email == "padded@acme.example"] == ["Pat"]
+    disabled = onboard(routed, "disable", "--email", "joseph@acme.example", "--reason", "  left the company ")
     assert disabled.returncode == 0, disabled.stderr
     with pytest.raises(AccountRefused) as refused:
         svc.sign_in("joseph@acme.example", NEW_PW)

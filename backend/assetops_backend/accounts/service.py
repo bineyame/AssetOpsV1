@@ -24,7 +24,7 @@ from assetops_backend.accounts.store import AccountStore, StoreConflict
 
 #: The HTTP status each store refusal answers with.
 _CONFLICT_STATUS = {"ROLE_ALREADY_HELD": 409, "GRANT_ALREADY_REMOVED": 409, "LAST_EXECUTIVE": 409,
-                    "EMAIL_TAKEN": 409, "EXECUTIVE_EXISTS": 409}
+                    "EMAIL_TAKEN": 409, "EXECUTIVE_EXISTS": 409, "ROLE_REQUIRED": 403}
 STATUSES = ("ACTIVE", "DISABLED")
 
 
@@ -152,7 +152,7 @@ class AccountService:
         row = GrantRow(row_id, row_id, principal.tenant_id, target.id, target.display_name, role, site_id, site_code,
                        "GRANTED", principal.person_id, principal.display_name, None, self._clock())
         try:
-            return self._store.add_grant(row)  # the store answers the row as recorded (the Site's own code)
+            return self._store.add_grant(row, principal.person_id)  # the store answers the row as recorded (the Site's own code)
         except StoreConflict as conflict:
             raise _conflict(conflict, name=target.display_name) from None
 
@@ -167,7 +167,7 @@ class AccountService:
                        granted.role, granted.site_id, granted.site_code, "REMOVED", principal.person_id,
                        principal.display_name, None, self._clock())
         try:
-            return self._store.add_removal(row)
+            return self._store.add_removal(row, principal.person_id)
         except StoreConflict as conflict:
             raise _conflict(conflict) from None
 
@@ -179,6 +179,9 @@ class AccountService:
         if tenant is None:
             raise AccountRefused("TENANT_NOT_FOUND", 404)
         email, key = passwords.normalise_email(email)
+        display_name = display_name.strip() if isinstance(display_name, str) else ""
+        if not 1 <= len(display_name) <= 120:
+            raise AccountRefused("BAD_NAME", 422)
         if self._store.account_by_email_key(key) is not None:
             raise AccountRefused("EMAIL_TAKEN", 409)
         passwords.check_policy(password)
@@ -217,6 +220,10 @@ class AccountService:
         if status not in STATUSES:
             raise ValueError(f"status must be one of {STATUSES}")
         account = self._onboard_account(email)
+        if reason is not None:
+            reason = reason.strip()
+            if not 1 <= len(reason) <= 500:
+                raise AccountRefused("BAD_REASON", 422)
         try:
             self._store.set_status(account.tenant_id, account.id, status, reason, self._clock(), ONBOARDING)
         except StoreConflict as conflict:

@@ -113,7 +113,7 @@ def _grant_values(row: GrantRow) -> dict:
 
 class PostgresAccountStore:
     def __init__(self, url: str) -> None:
-        self._engine = create_engine(url, pool_pre_ping=True)
+        self._engine = create_engine(url, pool_pre_ping=True, hide_parameters=True)
         self._local = threading.local()
 
     def dispose(self) -> None:
@@ -134,6 +134,12 @@ class PostgresAccountStore:
     @staticmethod
     def _active_executives(c: Connection, tenant_id: UUID) -> set[UUID]:
         return set(c.execute(_ACTIVE_EXECUTIVES, {"t": tenant_id}).scalars())
+
+    @classmethod
+    def _require_executive(cls, c: Connection, tenant_id: UUID, actor_person_id: UUID) -> None:
+        """RV1-R2: under the tenant lock, the actor still holds OPERATOR_EXECUTIVE on an ACTIVE account."""
+        if actor_person_id not in cls._active_executives(c, tenant_id):
+            raise StoreConflict("ROLE_REQUIRED")
 
     # --- reads ------------------------------------------------------------------------------------------------------
 
@@ -231,9 +237,10 @@ class PostgresAccountStore:
 
     # --- grants -----------------------------------------------------------------------------------------------------
 
-    def add_grant(self, row: GrantRow) -> GrantRow:
+    def add_grant(self, row: GrantRow, actor_person_id: UUID) -> GrantRow:
         with self._engine.begin() as c:
             self._lock_tenant(c, row.tenant_id)
+            self._require_executive(c, row.tenant_id, actor_person_id)
             if c.execute(_HELD_SAME, {"t": row.tenant_id, "p": row.person_id, "role": row.role,
                                       "site": row.site_id}).first() is not None:
                 raise StoreConflict("ROLE_ALREADY_HELD")
@@ -242,9 +249,10 @@ class PostgresAccountStore:
         assert recorded is not None
         return recorded
 
-    def add_removal(self, row: GrantRow) -> GrantRow:
+    def add_removal(self, row: GrantRow, actor_person_id: UUID) -> GrantRow:
         with self._engine.begin() as c:
             self._lock_tenant(c, row.tenant_id)
+            self._require_executive(c, row.tenant_id, actor_person_id)
             if c.execute(_REMOVED, {"g": row.grant_id}).first() is not None:
                 raise StoreConflict("GRANT_ALREADY_REMOVED")
             if row.role == EXECUTIVE and not (self._active_executives(c, row.tenant_id) - {row.person_id}):

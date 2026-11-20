@@ -164,8 +164,13 @@ class MemoryStore:
         return tuple(sorted((g for g in self.grants if g.tenant_id == tenant_id),
                             key=lambda g: (g.at, str(g.row_id)), reverse=True))
 
-    def add_grant(self, row: GrantRow) -> GrantRow:
+    def _require_executive(self, tenant_id: UUID, actor_person_id: UUID) -> None:
+        if actor_person_id not in self._active_executives(tenant_id):
+            raise StoreConflict("ROLE_REQUIRED")
+
+    def add_grant(self, row: GrantRow, actor_person_id: UUID) -> GrantRow:
         with self._tenant_lock:
+            self._require_executive(row.tenant_id, actor_person_id)
             if any(g.person_id == row.person_id and g.role == row.role and g.site_id == row.site_id
                    for g in self._held(row.tenant_id)):
                 raise StoreConflict("ROLE_ALREADY_HELD")
@@ -173,8 +178,9 @@ class MemoryStore:
             self.grants.append(row)
             return row
 
-    def add_removal(self, row: GrantRow) -> GrantRow:
+    def add_removal(self, row: GrantRow, actor_person_id: UUID) -> GrantRow:
         with self._tenant_lock:
+            self._require_executive(row.tenant_id, actor_person_id)
             if any(g.action == "REMOVED" and g.grant_id == row.grant_id for g in self.grants):
                 raise StoreConflict("GRANT_ALREADY_REMOVED")
             if row.role == EXEC and not (self._active_executives(row.tenant_id) - {row.person_id}):
@@ -575,3 +581,75 @@ def test_onboarding_records_the_service_and_creates_no_other_role(world: World) 
     assert (grant.by_service, grant.by_person_id, grant.role, grant.site_id) == (
         "service:onboarding", None, EXEC, None)
     assert ROLES[0] == EXEC
+
+
+# --- RV1-L2: names and reasons ---------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("name", ["", "   ", "x" * 121])
+def test_a_bad_name_is_refused_bad_name_422(world: World, name: str) -> None:
+    w = world
+    _refused(lambda: w.svc.onboard_create("acme", "x@acme.example", name, PW, executive=False), "BAD_NAME", 422)
+    assert len(w.store.accounts) == 1
+
+
+def test_a_padded_name_is_trimmed(world: World) -> None:
+    w = world
+    pid = w.svc.onboard_create("acme", "x@acme.example", "  Padded Name \n", PW, executive=False)
+    assert w.store.accounts[pid].display_name == "Padded Name"
+    pid = w.svc.onboard_create("acme", "y@acme.example", "n" * 120, PW, executive=False)
+    assert w.store.accounts[pid].display_name == "n" * 120
+
+
+@pytest.mark.parametrize("reason", ["", "  ", "r" * 501])
+def test_a_bad_reason_is_refused_bad_reason_422(world: World, reason: str) -> None:
+    w = world
+    _person(w, "joseph@acme.example", "Joseph")
+    before = len(w.store.statuses)
+    _refused(lambda: w.svc.onboard_set_status("joseph@acme.example", "DISABLED", reason), "BAD_REASON", 422)
+    assert len(w.store.statuses) == before
+
+
+def test_a_padded_reason_is_trimmed(world: World) -> None:
+    w = world
+    _person(w, "joseph@acme.example", "Joseph")
+    w.svc.onboard_set_status("joseph@acme.example", "DISABLED", "  left  ")
+    assert w.store.statuses[-1][2] == "left"
+
+
+# --- RV1-L3: a lone surrogate ----------------------------------------------------------------------------------
+
+SURROGATE_PW = "\ud800" + "a" * 14
+
+
+@pytest.mark.parametrize("known", [True, False])
+def test_a_lone_surrogate_sign_in_is_the_one_401_after_one_verification(world: World, spy, known: bool) -> None:
+    w = world
+    email = "amina@acme.example" if known else "nobody@acme.example"
+    spy.clear()
+    refused = _refused(lambda: w.svc.sign_in(email, SURROGATE_PW), "SIGN_IN_REFUSED", 401)
+    assert refused.params == {}
+    assert len(spy) == 1
+
+
+def test_a_lone_surrogate_password_fails_the_policy(world: World) -> None:
+    w = world
+    for pw in ("\ud800" + "a" * 14, "a" * 14 + "\udfff", "a" * 6 + "\udc00" + "a" * 6):
+        _refused(lambda: w.svc.onboard_create("acme", "x@acme.example", "X", pw, executive=False),
+                 "PASSWORD_POLICY", 422)
+        _refused(lambda: w.svc.onboard_set_password("amina@acme.example", pw), "PASSWORD_POLICY", 422)
+
+
+# --- RV1-R2: the actor is re-checked inside the store -----------------------------------------------------------
+
+def test_the_memory_store_refuses_a_grant_and_a_removal_by_a_former_executive(world: World) -> None:
+    w = world
+    pid = _person(w, "joseph@acme.example", "Joseph")
+    executive = _principal(w, "amina@acme.example")
+    own = w.store.held_grants(w.tenant, w.exec_id)[0]
+    w.svc.grant(executive, pid, EXEC, None)
+    w.clock.advance(seconds=1)
+    w.svc.remove(executive, own.row_id)  # Amina is no longer an executive; her principal is stale
+    w.clock.advance(seconds=1)
+    _refused(lambda: w.svc.grant(executive, pid, "ANALYST", None), "ROLE_REQUIRED", 403)
+    mine = w.store.held_grants(w.tenant, pid)[0]
+    _refused(lambda: w.svc.remove(executive, mine.row_id), "ROLE_REQUIRED", 403)

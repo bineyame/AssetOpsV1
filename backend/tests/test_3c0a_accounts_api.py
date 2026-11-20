@@ -299,3 +299,12 @@ def test_me_without_a_tenant_row_is_503(client: TestClient, world: World) -> Non
     del world.store.tenants[world.tenant]
     response = client.get("/api/auth/me")
     assert response.status_code == 503 and _code(response) == "ACCOUNTS_UNAVAILABLE"
+
+
+def test_a_lone_surrogate_password_gets_the_one_401_body(client: TestClient, world: World) -> None:
+    def raw(email: str):  # the JSON escape `\\ud800` decodes to a lone surrogate `str` on the server
+        body = ('{"email": "%s", "password": "\\ud800aaaaaaaaaaaaaa"}' % email).encode("ascii")
+        return client.post("/api/auth/sign-in", content=body, headers={"content-type": "application/json"})
+    known, unknown = raw("amina@acme.example"), raw("nobody@acme.example")
+    assert known.status_code == 401 and _code(known) == "SIGN_IN_REFUSED"
+    assert unknown.status_code == 401 and unknown.content == known.content

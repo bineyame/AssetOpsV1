@@ -85,3 +85,11 @@ def test_normalise_email_refuses(text: str) -> None:
 def test_normalise_email_accepts_320_characters() -> None:
     email = "a" * 64 + "@" + "b" * 255
     assert len(email) == 320 and normalise_email(email)[1] == email
+
+
+@pytest.mark.parametrize("pw", ["\ud800" + "a" * 14, "a" * 14 + "\udfff", "a" * 7 + "\udc00" + "a" * 7])
+def test_a_lone_surrogate_fails_the_policy_and_verifies_false_without_raising(pw: str) -> None:
+    with pytest.raises(AccountRefused) as refused:
+        check_policy(pw)
+    assert (refused.value.code, refused.value.status) == ("PASSWORD_POLICY", 422)
+    assert verify_password(pw, hash_password(PW)) is False  # RV1-L3: surrogatepass, so no UnicodeEncodeError

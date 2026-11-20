@@ -56,12 +56,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     accounts = build_account_service(url)
     try:
         if args.command == "create":
-            person = accounts.onboard_create(args.tenant, args.email, args.name, _password(),
+            person = accounts.onboard_create(args.tenant, args.email, args.name.strip(), _password(),
                                              executive=args.executive)
         elif args.command == "set-password":
             person = accounts.onboard_set_password(args.email, _password())
         elif args.command == "disable":
-            person = accounts.onboard_set_status(args.email, "DISABLED", args.reason)
+            person = accounts.onboard_set_status(args.email, "DISABLED", args.reason.strip())
         else:
             person = accounts.onboard_set_status(args.email, "ACTIVE", None)
     except AccountRefused as refused:
