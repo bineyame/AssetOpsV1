@@ -29,7 +29,6 @@ from test_3a4_commercial_months import READ_AT, ingest_steps, new_world
 TREE = Path(__file__).resolve().parents[2]
 FIXTURE = TREE / "backend" / "tests" / "fixtures" / "money_leaves_lakeside.json"
 PACK = TREE / "Docs" / "demo-sprint" / "product-direction-layer4" / "derived-values.json"
-VIEW = TREE / "simulator" / "tests" / "world" / "fixtures" / "view_v1.json"
 NAIROBI = "Africa/Nairobi"
 E, OF, UNKNOWN = "source-emulated", "observed-financial", "unknown"
 KV, LF, GEN, KB, LA = ("commercial:kobo-vending", "commercial:lakeside-fuel", "commercial:assetops-world-generator",
@@ -370,26 +369,8 @@ def test_4_3a4_fixture():
 
 
 # ---------------------------------------------------------------- test 5: DS1b parity of batch E
-
-
-def test_5_batch_e_is_ds1b_verbatim():
-    from assetops_contracts.canonical.records_v1 import parse_record
-    from assetops_simulator.world.history import generate_history
-    from assetops_simulator.world.records import batch_file_name, build_records
-
-    step = fixture_steps()[4]["batch"]
-    ours = [parse_record(r) for r in step["records"]]
-    view = json.loads(VIEW.read_text(encoding="utf-8"))
-    (theirs,) = [b for b in build_records(view, generate_history(view)).batches
-                 if batch_file_name(b) == "lakeside-power.expense_ledger.json"]
-    by_id = {o.source_record_id: o for o in theirs.outcomes}
-    assert len(ours) == 5
-    assert ours == [by_id[r.source_record_id] for r in ours]
-    envelope_fields = {k: step[k] for k in ("tenant_code", "source_type", "source_system", "provenance",
-                                            "produced_at")}
-    assert envelope_fields == {"tenant_code": theirs.batch.tenant_code, "source_type": theirs.batch.source_type,
-                               "source_system": theirs.batch.source_system, "provenance": theirs.batch.provenance,
-                               "produced_at": theirs.batch.produced_at}
+# In `simulator/tests/world/test_4b_fixture_parity.py`: the dependency-direction guard bans a backend import of
+# `assetops_simulator` (Known Deviation, packet-4b2.md).
 
 
 # ---------------------------------------------------------------- test 6: currencies apart
