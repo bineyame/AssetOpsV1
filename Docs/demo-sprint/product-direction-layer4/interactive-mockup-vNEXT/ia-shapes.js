@@ -60,9 +60,9 @@ function iaRender(route, ctx) {
   iaFinish(frag, route);
   const slot = document.getElementById('ia-root'); if (!slot) return; slot.replaceWith(frag);
   const root = document.getElementById('ia-root');
+  iaFitTopbar(); /* D-IA.37: measured once inserted, before the after-render guard observes the frame */
   if (typeof window.__iaInserted === 'function') window.__iaInserted(root);
   iaBind(route);
-  iaFitTopbar();
 }
 /* after insertion: listeners, focus and the sticky bar's layout tick only */
 function iaBind(route) { setTimeout(() => typeof uxStickyTick === 'function' && uxStickyTick(), 0); }
