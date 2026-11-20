@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3A2.1 to D-DS1.15)
+# Decision index: Demo-sprint and later rulings (index only) (D-3A2.1 to D-3A3.8)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -45,3 +45,11 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.20` Plan interim split, output byte-identical · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-3B3.17` A counted day that does not state the summed value is unknown, not zero · live · specs/3B3-structure-read/rulings.md
 - `D-DS1.15` DS1m r3: trend gates check figure, source and visibility, form by measure (cost tile words); 9 Sites; G3 1280 shortened not hidden, 390 words; 9 plants; R742 closes in DS1m · live · specs/DS1-history-generator/rulings.md
+- `D-3A3.1` Every commercial record enters through 3A2 intake; emulators write files; one writer, class test S1 · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.2` Native layouts are data in assetops_contracts.native; one read/render engine; 3A6 loads profiles into it · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.3` Readers get the upload context (tenant, received_at) and may refuse a row; reader code wins · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.4` Emulated exports: October, mini-grid, manifest totals exact, ESTIMATED never written · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.5` A reader is in READERS only with a passing contract case · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.6` Emulated loading refuses any assetops_op* database before connecting (3A2 R4) · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.7` One path per source type per tenant (DS1b canonical or emulated native, never both) · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.8` Cross-Site waiting list for the finance lead comes with the upload screen, not now · live · specs/3A3-emulators-contract-test/rulings.md
