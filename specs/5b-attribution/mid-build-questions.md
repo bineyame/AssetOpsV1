@@ -4,7 +4,7 @@ A question about something the spec did not fix stops only the affected part. Wr
 section, what is stopped, what is built, and what you ask. The Architect rules in `rulings.md`. Record the count in
 the packet; a count above zero is a spec-template defect to fix.
 
-Count: **1** (reset for spec rev 2, 2026-11-20; Q1 raised in unit 1).
+Count: **1** (reset for spec rev 2, 2026-11-20; Q1 raised in unit 1; none in units 2-3).
 
 ## Q1 (unit 1): a RESIDUAL row's `split` and `reason`
 

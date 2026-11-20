@@ -1,23 +1,46 @@
-"""5b (spec `specs/5b-attribution/spec.md` rev 2; rulings D-5B.1 to D-5B.14): attribution, the gap explained by its drivers.
+"""5b (spec `specs/5b-attribution/spec.md` rev 2; rulings D-5B.1 to D-5B.15): attribution, the gap explained by its drivers.
 
-Unit 1 (spec §2, §5.1): the split rules, tests 1 to 4. No database. Every expected value is spec §5.1's hand-computed
-literal (W2), typed here; none is derived from the code under test. The leaves are hand-built and evaluated with 3B3's
-`evaluate`; the toy registry is 5a's `_toy` (imported, never edited).
+Unit 1 (spec §2, §5.1): the split rules, tests 1 to 4. Units 2 and 3 (spec §3, §4, §5.2): carrying, the Site and
+portfolio bridges and the read, tests 5 to 11. No database. Every expected value is spec §5's hand-computed literal
+(W2), typed here; none is derived from the code under test. Unit 1's leaves are hand-built and evaluated with 3B3's
+`evaluate`; the toy registry is 5a's `_toy`. Units 2 and 3 read §5.2's world through 4b's test reader and 5a's
+`TargetRead` (the world helpers of 3A4, 4b and 5a imported, never edited).
 """
 from __future__ import annotations
 
+import ast
 import dataclasses
+import functools
+import json
+import subprocess
+from datetime import datetime, timedelta, timezone
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
+from pathlib import Path
 
 import pytest
 
+import test_5a_targets as t5a
+from assetops_backend.chain.ports import SiteRef
 from assetops_backend.structure.attribution import rules
 from assetops_backend.structure.attribution.bridge import BridgeRow, bridge, by_home, lowest
+from assetops_backend.structure.attribution.carry import CARRIED_TEXT, NO_TARGET_LINE, carry_at_target
+from assetops_backend.structure.attribution.portfolio import PortfolioBridge, portfolio_bridge
+from assetops_backend.structure.attribution.read import BridgeRead
 from assetops_backend.structure.attribution.rules import SOLVE_TOLERANCE, agree
-from assetops_backend.structure.evaluate import LeafValue, Missing, evaluate
+from assetops_backend.structure.attribution.site import SiteBridge, site_bridge
+from assetops_backend.structure.check import StructureError
+from assetops_backend.structure.evaluate import LeafValue, Missing, SiteStructure, evaluate, weakest_origin
+from assetops_backend.structure.money import CommercialLeafSource
+from assetops_backend.structure.read import SiteInputs, StructureRead
 from assetops_backend.structure.registry import REGISTRIES, FactorRow, FilledBy, Registry
+from assetops_backend.structure.targets.lines import BudgetLineReader
+from assetops_backend.structure.targets.read import SiteTargets, TargetCheck, TargetRead
 from assetops_backend.structure.targets.rules import solve_main
 from assetops_contracts.canonical.units import KWH, MONEY
+from test_3a4_commercial_months import READ_AT, new_world
+from test_4b_money_leaves import MTO_MISSING, fallback
+from test_4b_money_leaves import fixture_steps as money_steps
+from test_4b_money_leaves import ingest as money_ingest
 from test_5a_targets import _toy
 
 D = Decimal
@@ -220,8 +243,7 @@ def test_3a_a_residual_sits_beside_the_unobserved_leaf() -> None:
     assert format(res.effect, "f") == "38.00" and res.rows == ()
     assert (res.unobserved_actual, res.unobserved_target) == (("delivered_kwh",), ("delivered_kwh",))
     assert res.evidence == "DECLARED" and res.currency == USD
-    # Mid-build Q1 (`mid-build-questions.md`): the RESIDUAL row's `split`/`reason` are not fixed by the spec; not
-    # asserted here until the Architect rules.
+    assert (res.split, res.reason) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE")  # D-5B.15 (mid-build Q1)
     assert dict(by_home(root)) == {"GROW_REVENUE": D("38.00")}
 
 
@@ -363,6 +385,10 @@ def _sum(values) -> Decimal:
 @pytest.mark.parametrize("name", [n for n, _, _ in _trees()])
 def test_4_invariants(name: str) -> None:  # plants V13, V14
     _, root, exact = next(t for t in _trees() if t[0] == name)
+    check_invariants(name, root, exact)
+
+
+def check_invariants(name: str, root: BridgeRow, exact: bool) -> None:
     for row in every(root):
         for v in (row.gap, row.effect, row.scale):
             assert v is None or not (v == 0 and v.is_signed()), (name, row.factor_id, v)  # never -0
@@ -378,6 +404,7 @@ def test_4_invariants(name: str) -> None:  # plants V13, V14
             assert row.evidence == "NOT_AVAILABLE"
         if row.kind == "RESIDUAL":
             assert row.factor_id is None and row.parent is not None
+            assert (row.split, row.reason) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE"), name  # D-5B.15
         assert row.factor_id not in ("collection_cost", "battery_wear", "extra_l"), (name, row.factor_id)
         assert all(c.kind != "RESIDUAL" for c in row.rows[:-1]), (name, row.factor_id)  # RESIDUAL last
     homes = by_home(root)
@@ -386,3 +413,511 @@ def test_4_invariants(name: str) -> None:  # plants V13, V14
     else:
         total = _sum(homes.values())
         assert total == root.effect if exact else agree(total, root.effect), name
+
+
+# =====================================================================================================================
+# Units 2 and 3 (spec §3, §4, §5.2): Lakeside's October, read through 4b's test reader and 5a's `TargetRead`.
+# =====================================================================================================================
+
+TREE = Path(__file__).resolve().parents[2]
+FIXTURE_5B = TREE / "backend" / "tests" / "fixtures" / "attribution_lakeside_mto.json"
+PACK = TREE / "Docs" / "demo-sprint" / "product-direction-layer4" / "derived-values.json"
+OCT = "2026-10"
+OF = "observed-financial"
+CR = "COMMERCIAL_RECORD"
+KOBO, KISIWA, MTO = "KOBO-001", "KISIWA-001", "MTO-001"
+CODES = (KOBO, KISIWA, MTO)
+PACK_NAMES = {"Kobo": KOBO, "Kisiwa": KISIWA, "Mto": MTO}
+PACK_NODES = ("revenue", "collected", "in_transit", "outstanding", "fuel_cost", "om", "staff", "cost_to_serve",
+              "contribution")
+#: Spec §5.2 (handshake R9): the leaves that would split revenue and fuel cost, the same on every Site.
+REVENUE_UNOBSERVED = (("adjustments_kwh", "delivered_kwh", "productive_tariff", "tariff", "technical_loss_kwh",
+                       "unexplained_loss_kwh", "unmapped_kwh"), ("delivered_kwh", "productive_tariff", "tariff"))
+FUEL_UNOBSERVED = (("candidate_l", "necessary_l", "unexplained_l"), ())
+CHECK_KISIWA = TargetCheck("contribution", D("-60.00"), D("-65.00"), USD, False)
+
+
+def mto_steps() -> list[dict]:
+    return json.loads(FIXTURE_5B.read_text(encoding="utf-8"))["steps"]
+
+
+def load_lakeside(w: dict, with_mto: bool = True) -> dict:
+    """Spec §5.2's world: 4b's money fixture, 5a's steps 1 and 2 (their `at` and `entered_by`), then this file's step."""
+    for step in money_steps():
+        money_ingest(w, step["at"], step["batch"], step["entered_by"])
+    t5a.load(w, 2)
+    if with_mto:
+        for step in mto_steps():
+            money_ingest(w, step["at"], step["batch"], step["entered_by"])
+    return w
+
+
+@functools.lru_cache(maxsize=None)
+def _world(with_mto: bool = True) -> dict:
+    return load_lakeside(new_world(), with_mto)
+
+
+def reads(w: dict) -> tuple[StructureRead, TargetRead]:
+    """4b's test reader and 5a's `TargetRead` over it (spec §5.2)."""
+    src = CommercialLeafSource(w["months"], w["store"], fallback())
+    actual = StructureRead(src, stated=src)
+    return actual, TargetRead(BudgetLineReader(w["months"], w["store"]), actual)
+
+
+def ref(w: dict, code: str) -> SiteRef:
+    return t5a.refs(w)[code]
+
+
+def unit2_site(w: dict, code: str) -> SiteBridge:
+    """Unit 2's call (spec §5.2): `site_bridge(read.site_inputs(s, OCT, READ_AT), targets.site(s, OCT, READ_AT))`."""
+    actual, targets = reads(w)
+    s = ref(w, code)
+    return site_bridge(actual.site_inputs(s, OCT, READ_AT), targets.site(s, OCT, READ_AT))
+
+
+def bridge_read(w: dict) -> BridgeRead:
+    actual, targets = reads(w)
+    return BridgeRead(actual, targets, clock=lambda: READ_AT)
+
+
+def lakeside_portfolio(w: dict) -> PortfolioBridge:
+    r = t5a.refs(w)
+    return bridge_read(w).portfolio(w["tid"], [r[c] for c in CODES], OCT)
+
+
+def money(v: Decimal | None, literal: str) -> None:
+    assert v == D(literal) and format(v, "f") == literal, (v, literal)
+
+
+# --- test 5: carrying (pure; Kisiwa's real inputs and targets, then one field replaced) -------------------------------
+
+def _kisiwa() -> tuple[SiteInputs, SiteTargets]:
+    w = _world()
+    actual, targets = reads(w)
+    s = ref(w, KISIWA)
+    return actual.site_inputs(s, OCT, READ_AT), targets.site(s, OCT, READ_AT)
+
+
+def _with_leaf(inputs: SiteInputs, factor: str, value: LeafValue, *, stated: bool = False) -> SiteInputs:
+    if stated:
+        return dataclasses.replace(inputs, stated={**inputs.stated, factor: value})
+    return dataclasses.replace(inputs, leaves={**inputs.leaves, factor: value})
+
+
+def _om_missing(**change) -> LeafValue:
+    m = Missing("EXPENSE (OM)", CR, "NOT_RECEIVED", None, (), "Service contractor invoice", None, None)
+    return LeafValue(None, "NOT_AVAILABLE", (), None, dataclasses.replace(m, **change), None)
+
+
+def test_5a_kisiwa_om_is_carried_at_its_budget_line() -> None:  # plant V7 (the leaf)
+    inputs, targets = _kisiwa()
+    c = carry_at_target(inputs, targets.structure.values)
+    assert c.carried == ("om",) and dict(c.not_carried) == {}
+    rid = t5a.revision_of(_world(), "gen:KISIWA-001:2026-10:plan:om").id
+    expected = LeafValue(D("700.00"), "ESTIMATED", (f"target:budget:{rid}",), None,
+                         Missing("EXPENSE (OM)", CR, "NOT_RECEIVED", "TARGET", (), "Service contractor invoice",
+                                 CARRIED_TEXT, None), USD, (E,))
+    assert c.inputs.leaves["om"] == expected
+    assert CARRIED_TEXT == "Not received: taken at its budget line for the month (estimate)"
+    assert all(c.inputs.leaves[f] is inputs.leaves[f] for f in inputs.leaves if f != "om")
+    assert c.inputs.stated is inputs.stated or dict(c.inputs.stated) == dict(inputs.stated)
+    assert list(c.inputs.leaves) == list(inputs.leaves)  # registry order kept
+
+
+def test_5b_an_open_month_is_never_carried() -> None:  # plant V5
+    inputs, targets = _kisiwa()
+    opened = _with_leaf(inputs, "om", _om_missing(note="MONTH_OPEN"))
+    c = carry_at_target(opened, targets.structure.values)
+    assert c.carried == () and dict(c.not_carried) == {"om": "MONTH_OPEN"}
+    root = site_bridge(opened, targets).roots["contribution"]
+    assert (root.split, root.reason, root.effect, root.evidence) == ("NOT_SPLIT", "GAP_NOT_AVAILABLE", None,
+                                                                     "NOT_AVAILABLE")
+
+
+def test_5c_a_source_not_connected_is_never_carried() -> None:
+    inputs, targets = _kisiwa()
+    c = carry_at_target(_with_leaf(inputs, "om", _om_missing(cause="NOT_CONNECTED")), targets.structure.values)
+    assert c.carried == () and dict(c.not_carried) == {"om": "NOT_CONNECTED"}
+
+
+def test_5d_an_assumed_target_is_never_carried() -> None:  # plant V6
+    inputs, targets = _kisiwa()
+    t = dict(targets.structure.values)
+    t["om"] = dataclasses.replace(t["om"], evidence="ESTIMATED", sources=("assumption:at-actual",))
+    c = carry_at_target(inputs, t)
+    assert c.carried == () and dict(c.not_carried) == {"om": NO_TARGET_LINE}
+    assert NO_TARGET_LINE == "NO_TARGET_LINE"
+
+
+def test_5e_a_stated_heading_is_never_carried() -> None:  # plant V4
+    inputs, targets = _kisiwa()
+    gone = LeafValue(None, "NOT_AVAILABLE", (), None,
+                     Missing("EXPENSE (FUEL)", CR, "NOT_RECEIVED", None, (), "Fuel invoices for the month", None),
+                     None)
+    given = _with_leaf(inputs, "fuel_cost", gone, stated=True)
+    assert targets.structure.values["fuel_cost"].evidence == "DECLARED"
+    c = carry_at_target(given, targets.structure.values)
+    assert c.inputs.stated["fuel_cost"] == gone and c.inputs.stated["fuel_cost"].value is None
+    assert "fuel_cost" not in c.carried and "fuel_cost" not in c.not_carried
+    assert c.carried == ("om",)
+
+
+def test_5f_a_leaf_outside_the_list_is_untouched() -> None:
+    inputs, targets = _kisiwa()
+    gone = dataclasses.replace(_om_missing(), missing=Missing("EXPENSE (FUEL)", CR, "NOT_RECEIVED", None, (), None,
+                                                              None))
+    c = carry_at_target(_with_leaf(inputs, "diesel_price", gone), targets.structure.values)
+    assert c.inputs.leaves["diesel_price"] == gone
+    assert "diesel_price" not in c.carried and "diesel_price" not in c.not_carried
+
+
+# --- test 6: the three Site bridges (spec §5.2) -----------------------------------------------------------------------
+
+#: Spec §5.2's table: root (actual, target, gap), evidence, revenue TERM effect, cost to serve TERM (fuel, om, staff).
+SITE_TABLE = {
+    KOBO: (("883.00", "1445.00", "-562.00"), "DECLARED", "38.00", "-600.00", ("-600.00", "0.00", "0.00")),
+    KISIWA: (("-250.00", "-65.00", "-185.00"), "ESTIMATED", "-55.00", "-130.00", ("-130.00", "0.00", "0.00")),
+    MTO: (("810.00", "915.00", "-105.00"), "DECLARED", "-80.00", "-25.00", ("-25.00", "0.00", "0.00")),
+}
+SITE_HOMES = {KOBO: ("38.00", "-600.00"), KISIWA: ("-55.00", "-130.00"), MTO: ("-80.00", "-25.00")}
+#: Cash roots (actual, target, gap; in_transit effect, outstanding effect).
+SITE_CASH = {KOBO: ("3180.00", "3420.00", "-240.00", "0", "-278.00"),
+             KISIWA: ("3800.00", "4125.00", "-325.00", "0", "-270.00"),
+             MTO: ("1890.00", "2240.00", "-350.00", "-150.00", "-120.00")}
+
+
+def check_site(sb: SiteBridge, code: str, w: dict) -> None:
+    (actual, target, gap), evidence, revenue, cts, (fuel, om, staff) = SITE_TABLE[code]
+    assert (sb.site_code, sb.month, sb.structure_key, sb.structure_version) == (code, OCT, "MINI_GRID", MG.version)
+    assert list(sb.roots) == ["contribution", "collected"]
+    root = sb.roots["contribution"]
+    assert (root.factor_id, root.kind, root.split, root.reason) == ("contribution", "ROOT", "SPLIT", None)
+    money(root.actual, actual), money(root.target, target), money(root.gap, gap), money(root.effect, gap)
+    assert root.evidence == evidence, (code, root.evidence)
+    assert [(r.factor_id, r.kind) for r in root.rows] == [("revenue", "TERM"), ("cost_to_serve", "TERM")]
+    rev, cost = root.rows
+    money(rev.effect, revenue)
+    assert (rev.split, rev.reason, rev.rows) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE", ()), code
+    assert (rev.unobserved_actual, rev.unobserved_target) == REVENUE_UNOBSERVED, code
+    money(cost.effect, cts)
+    assert cost.split == "SPLIT" and [r.factor_id for r in cost.rows] == ["fuel_cost", "om", "staff"], code
+    f, o, s = cost.rows
+    money(f.effect, fuel), money(o.effect, om), money(s.effect, staff)
+    assert (f.split, f.reason, f.rows) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE", ()), code
+    assert (f.unobserved_actual, f.unobserved_target) == FUEL_UNOBSERVED, code
+    assert (o.split, s.split) == ("LEAF", "LEAF")
+    assert o.carried is (code == KISIWA) and s.carried is False
+    if code == KISIWA:
+        assert o.evidence == "ESTIMATED"
+    grow, cut = SITE_HOMES[code]
+    assert dict(sb.by_home) == {"GROW_REVENUE": D(grow), "OPTIMIZE_COST": D(cut)}
+    assert [format(v, "f") for v in sb.by_home.values()] == [grow, cut]
+    # the cash root
+    ca, ct, cg, transit, outstanding = SITE_CASH[code]
+    cash = sb.roots["collected"]
+    money(cash.actual, ca), money(cash.target, ct), money(cash.gap, cg), money(cash.effect, cg)
+    assert cash.evidence == "ESTIMATED" and weakest_origin(cash.origins) == "unknown", (code, cash.origins)
+    cash_rows = {r.factor_id: r for r in cash.rows}
+    assert cash_rows["in_transit"].effect == D(transit) and cash_rows["outstanding"].effect == D(outstanding)
+    money(cash_rows["outstanding"].effect, outstanding)
+    # carried leaves and the target's own checks
+    if code == KISIWA:
+        assert sb.carried == ("om",) and dict(sb.not_carried) == {}
+        rid = t5a.revision_of(w, "gen:KISIWA-001:2026-10:plan:om").id
+        om_v = sb.actual.values["om"]
+        assert (om_v.value, om_v.evidence, om_v.sources, om_v.origins, om_v.currency) == (
+            D("700.00"), "ESTIMATED", (f"target:budget:{rid}",), (E,), USD)
+        assert om_v.missing == Missing("EXPENSE (OM)", CR, "NOT_RECEIVED", "TARGET", ("cost_to_serve", "contribution"),
+                                       "Service contractor invoice", CARRIED_TEXT, None)
+        assert sb.targets.checks == (CHECK_KISIWA,)
+    else:
+        assert sb.carried == () and dict(sb.not_carried) == {}
+    # the pack (handshake R13): actual against `actual.nodes`, target against `plan.nodes`
+    name = next(n for n, c in PACK_NAMES.items() if c == code)
+    pack = json.loads(PACK.read_text(encoding="utf-8"))["sites"][f"lakeside-power/{name}"]
+    rows = {r.factor_id: r for root_ in sb.roots.values() for r in every(root_) if r.factor_id is not None}
+    for node in PACK_NODES:
+        assert D(str(pack["actual"]["nodes"][node])) == rows[node].actual, (code, node)
+        assert D(str(pack["plan"]["nodes"][node])) == rows[node].target, (code, node)
+
+
+@pytest.mark.parametrize("code", CODES)
+def test_6_the_three_site_bridges(code: str) -> None:  # plants V7, V8, V11
+    w = _world()
+    check_site(unit2_site(w, code), code, w)
+
+
+def test_6_kobo_root_origins() -> None:
+    root = unit2_site(_world(), KOBO).roots["contribution"]
+    assert root.origins == (OF, E)
+
+
+def test_6_inputs_and_targets_must_share_key_version_and_month() -> None:
+    w = _world()
+    actual, targets = reads(w)
+    s = ref(w, KOBO)
+    inputs, t = actual.site_inputs(s, OCT, READ_AT), targets.site(s, OCT, READ_AT)
+    for bad in (dataclasses.replace(inputs, month="2026-09"), dataclasses.replace(inputs, structure_version=0)):
+        with pytest.raises(StructureError) as e:
+            site_bridge(bad, t)
+        assert (e.value.code, e.value.factor_id) == ("STRUCTURE_COMPOSE", KOBO)
+
+
+@pytest.mark.parametrize("code", CODES)
+@pytest.mark.parametrize("root", ["contribution", "collected"])
+def test_4_invariants_on_the_site_bridges(code: str, root: str) -> None:  # test 4 over test 6's trees
+    check_invariants(f"6-{code}-{root}", unit2_site(_world(), code).roots[root], True)
+
+
+# --- test 7: the portfolio (spec §5.2) --------------------------------------------------------------------------------
+
+#: key: (actual, target, gap, effect, evidence, carried)
+PORTFOLIO_TABLE = {
+    "contribution": ("1443.00", "2295.00", "-852.00", "-852.00", "ESTIMATED", (KISIWA,)),
+    "revenue": ("9688.00", "9785.00", "-97.00", "-97.00", "DECLARED", ()),
+    "cost_to_serve": ("8245.00", "7490.00", "755.00", "-755.00", "ESTIMATED", (KISIWA,)),
+    "fuel_cost": ("4995.00", "4240.00", "755.00", "-755.00", "DECLARED", ()),
+    "om": ("1800.00", "1800.00", "0.00", "0.00", "ESTIMATED", (KISIWA,)),
+    "staff": ("1450.00", "1450.00", "0.00", "0.00", "DECLARED", ()),
+}
+
+
+def check_portfolio(pb: PortfolioBridge, w: dict) -> None:
+    assert (pb.month, pb.structure_key, pb.structure_version, pb.asked) == (OCT, "MINI_GRID", MG.version, CODES)
+    assert tuple(pb.sites) == CODES and list(pb.rows) == ["contribution", "collected"]
+    rows = pb.rows["contribution"]
+    for key, (actual, target, gap, effect, evidence, carried) in PORTFOLIO_TABLE.items():
+        row = rows[key]
+        money(row.actual, actual), money(row.target, target), money(row.gap, gap), money(row.effect, effect)
+        assert (row.evidence, row.carried, row.k, row.n, row.out) == (evidence, carried, 3, 3, ()), key
+        assert (row.currency, row.note) == (USD, None), key
+    assert dict(pb.by_home) == {"GROW_REVENUE": D("-97.00"), "OPTIMIZE_COST": D("-755.00")}
+    assert pb.disagreements == ((KISIWA, CHECK_KISIWA),)
+    assert [(line.factor_id, line.value) for line in pb.portfolio_lines.lines] == [("staff", D("1200.00"))]
+    cash = pb.rows["collected"]
+    money(cash["collected"].actual, "8870.00"), money(cash["collected"].target, "9785.00")
+    money(cash["collected"].gap, "-915.00"), money(cash["collected"].effect, "-915.00")
+    money(cash["in_transit"].effect, "-150.00"), money(cash["outstanding"].effect, "-668.00")
+    # the pack (SUM keys only, handshake R13; D-5B.11)
+    sums = json.loads(PACK.read_text(encoding="utf-8"))["portfolio"]["lakeside-power"]
+    every_row = {k: r for tree in pb.rows.values() for k, r in tree.items()}
+    for node in PACK_NODES:
+        assert MG.row(node).composes == "SUM", node
+        assert D(str(sums["actual"]["sums"][node])) == every_row[node].actual, node
+        assert D(str(sums["plan"]["sums"][node])) == every_row[node].target, node
+    for key, row in every_row.items():
+        if row.kind != "RESIDUAL" and MG.row(key).composes != "SUM":
+            assert (row.actual, row.target, row.gap) == (None, None, None), key
+
+
+def test_7_the_portfolio_is_1443_against_2295_3_of_3() -> None:  # plants V8, V9, V15, V20
+    w = _world()
+    check_portfolio(lakeside_portfolio(w), w)
+
+
+# --- test 8: never one set minus another, never a summed price --------------------------------------------------------
+
+def test_8a_without_mto_billing_the_gap_is_747_over_2_of_3() -> None:  # plants V9, V10
+    w = _world(False)
+    mto = unit2_site(w, MTO).roots["contribution"]
+    assert (mto.split, mto.reason, mto.effect, mto.evidence) == ("NOT_SPLIT", "GAP_NOT_AVAILABLE", None,
+                                                                 "NOT_AVAILABLE")
+    assert (mto.unobserved_actual, mto.unobserved_target) == (MTO_MISSING, ())
+    row = lakeside_portfolio(w).rows["contribution"]["contribution"]
+    money(row.actual, "633.00"), money(row.target, "1380.00"), money(row.gap, "-747.00"), money(row.effect, "-747.00")
+    assert (row.k, row.n) == (2, 3)
+    assert row.out == ((MTO, tuple(f"actual:{leaf}" for leaf in MTO_MISSING)),)
+
+
+def _hand_site(code: str, currency: str = USD, **actual_values: str) -> SiteBridge:
+    """A Site bridge from §5.1's hand-built leaves (no records)."""
+    inputs = SiteInputs(code, OCT, "MINI_GRID", MG.version, leaves("actual", {**ACTUAL, **actual_values}, currency), {})
+    target = SiteStructure(code, OCT, "MINI_GRID", MG.version, side("target", currency=currency))
+    return site_bridge(inputs, SiteTargets(target, None, (), currency))
+
+
+def _hand_portfolio(*sites: SiteBridge) -> PortfolioBridge:
+    return portfolio_bridge({s.site_code: s for s in sites}, [s.site_code for s in sites], {}, None, OCT, "MINI_GRID",
+                            MG.version)
+
+
+def test_8b_two_currencies_are_never_added() -> None:
+    pb = _hand_portfolio(_hand_site("A-001"), _hand_site("B-001", KES))
+    row = pb.rows["contribution"]["contribution"]
+    assert (row.actual, row.target, row.gap, row.effect) == (None, None, None, None)
+    assert row.note == "CURRENCY_MISMATCH:KES,USD"
+    assert dict(pb.by_home) == {}
+
+
+def test_8c_a_price_never_adds_across_sites() -> None:  # plant V17 (D-5B.11)
+    pb = _hand_portfolio(_hand_site("A-001"), _hand_site("B-001", diesel_price="1.30"))
+    rows = pb.rows["contribution"]
+    price = rows["diesel_price"]
+    assert (price.actual, price.target, price.gap) == (None, None, None)
+    money(price.effect, "-59.00")
+    assert (price.k, price.n, price.kind) == (2, 2, "PRICE")
+    tariff = rows["tariff"]
+    assert (tariff.actual, tariff.target, tariff.gap) == (None, None, None)
+    money(tariff.effect, "0.00")
+    litres = rows["diesel_l"]
+    assert (litres.actual, litres.target, litres.gap) == (D("2360"), D("1400"), D("960"))
+    money(litres.effect, "-1200.00")
+
+
+
+def test_8d_an_open_month_shows_no_figure_never_zero() -> None:  # reviewer plant R3 (k = 0 written as 0.00)
+    w = _world()
+    r = t5a.refs(w)
+    pb = bridge_read(w).portfolio(w["tid"], [r[c] for c in CODES], "2026-11")
+    rows = [row for tree in pb.rows.values() for row in tree.values()]
+    assert rows
+    for row in rows:
+        assert row.k == 0 and row.n == 3, row.key
+        assert row.effect is None and row.evidence == "NOT_AVAILABLE", row.key
+    row = pb.rows["contribution"]["contribution"]
+    assert (row.actual, row.target, row.gap, row.effect) == (None, None, None, None)
+    assert {c for c, _ in row.out} == set(CODES)
+    assert dict(pb.by_home) == {}
+
+
+def test_8e_the_builders_refuse_mismatched_parts() -> None:
+    a = _hand_site("A-001")
+    for bad in (dataclasses.replace(a, month="2026-09"), dataclasses.replace(a, structure_key="OTHER"),
+                dataclasses.replace(a, structure_version=a.structure_version + 1)):
+        with pytest.raises(StructureError):
+            portfolio_bridge({"A-001": bad}, ["A-001"], {}, None, OCT, "MINI_GRID", MG.version)
+
+
+def test_8f_a_site_bridge_refuses_another_sites_targets() -> None:
+    inputs = SiteInputs("A-001", OCT, "MINI_GRID", MG.version, leaves("actual", ACTUAL, USD), {})
+    other = SiteStructure("B-001", OCT, "MINI_GRID", MG.version, side("target"))
+    with pytest.raises(StructureError):
+        site_bridge(inputs, SiteTargets(other, None, (), USD))
+
+
+# --- test 9: the read --------------------------------------------------------------------------------------------------
+
+def test_9a_the_portfolio_read_refuses_as_the_target_read_does() -> None:
+    w = _world()
+    r = t5a.refs(w)
+    for tenant, asked in ((w["tid"], [r[KOBO], r[KOBO]]), (w["tenants"]["harvest-cold"], [r[KOBO]])):
+        with pytest.raises(StructureError) as e:
+            bridge_read(w).portfolio(tenant, asked, OCT)
+        assert (e.value.code, e.value.factor_id) == ("STRUCTURE_COMPOSE", KOBO)
+    cold = SiteRef(w["tid"], w["sites"][KISIWA], KISIWA, "COLDCHAIN", t5a.TZ)
+    pb = bridge_read(w).portfolio(w["tid"], [r[KOBO], cold], OCT)
+    assert tuple(pb.sites) == (KOBO,) and pb.asked == (KOBO, KISIWA)
+    seen = 0
+    for tree in pb.rows.values():
+        for key, row in tree.items():
+            assert row.n == 2 and (KISIWA, ("STRUCTURE_NOT_DECLARED",)) in row.out, key
+            seen += 1
+    assert seen > 0
+
+
+class _Recorder:
+    """Records the `known_at` of every call it passes on (test 9(b))."""
+
+    def __init__(self, inner, seen: list) -> None:
+        self._inner, self._seen = inner, seen
+
+    def __getattr__(self, name):
+        method = getattr(self._inner, name)
+
+        def call(*args, **kwargs):
+            at = kwargs.get("known_at", next((a for a in args if isinstance(a, datetime)), None))
+            self._seen.append((name, at))
+            return method(*args, **kwargs)
+        return call
+
+
+def test_9b_one_instant_per_read() -> None:  # plant V19 (D-5B.13)
+    w = _world()
+    seen: list = []
+    src = CommercialLeafSource(w["months"], w["store"], fallback())
+    actual = _Recorder(StructureRead(src, stated=src), seen)
+    targets = _Recorder(TargetRead(BudgetLineReader(w["months"], w["store"]), actual), seen)
+    calls: list[datetime] = []
+
+    def clock() -> datetime:  # a clock that moves on every call
+        calls.append(READ_AT + timedelta(seconds=len(calls)))
+        return calls[-1]
+
+    read = BridgeRead(actual, targets, clock=clock)
+    r = t5a.refs(w)
+    read.site(r[KISIWA], OCT)
+    assert len(calls) == 1
+    assert {k for n, k in seen} == {calls[0]}, seen
+    seen.clear()
+    read.portfolio(w["tid"], [r[c] for c in CODES], OCT)
+    assert len(calls) == 2  # once per call, not once per Site
+    names = {name for name, _ in seen}
+    assert {"site_inputs", "site", "portfolio"} <= names, names
+    assert {k for _, k in seen} == {calls[1]}, seen
+
+
+def test_9c_a_naive_time_is_refused() -> None:
+    w = _world()
+    with pytest.raises(ValueError):
+        bridge_read(w).site(t5a.refs(w)[KISIWA], OCT, known_at=datetime(2026, 11, 1, 12, 0))
+
+
+# --- test 10: the boundaries -------------------------------------------------------------------------------------------
+
+ATTRIBUTION = TREE / "backend" / "assetops_backend" / "structure" / "attribution"
+
+
+def _imports(path: Path) -> list[str]:
+    out = []
+    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+        if isinstance(node, ast.Import):
+            out += [a.name for a in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            out.append(node.module)
+    return out
+
+
+def test_10_no_float_and_no_commercial_or_snapshot_import() -> None:  # plant: a commercial import in bridge.py
+    modules = sorted(ATTRIBUTION.glob("*.py"))
+    assert {m.name for m in modules} >= {"rules.py", "bridge.py", "carry.py", "site.py", "portfolio.py", "read.py",
+                                         "composition.py"}
+    for m in modules:
+        assert "float(" not in m.read_text(encoding="utf-8"), m.name
+        names = _imports(m)
+        assert not any("snapshot" in n for n in names), (m.name, names)
+        if m.name != "composition.py":
+            assert not any(n.split(".")[:2] == ["assetops_backend", "commercial"] for n in names), (m.name, names)
+
+
+def _git(*args: str) -> str:
+    return subprocess.run(["git", *args], cwd=TREE, capture_output=True, text=True, check=True).stdout
+
+
+def _on_5b_branch() -> bool:
+    try:
+        return _git("rev-parse", "--abbrev-ref", "HEAD").strip().startswith("task/5b-")
+    except (OSError, subprocess.CalledProcessError):
+        return False
+
+
+@pytest.mark.skipif(not _on_5b_branch(), reason="5b's branch check only (another lane may own structure/read.py)")
+def test_10_no_diff_in_the_seam_and_the_packet_lists_every_5b_file() -> None:  # plant V22
+    assert _git("diff", "main...HEAD", "--", "backend/assetops_backend/structure/read.py") == ""
+    changed = [p for p in _git("diff", "--name-only", "main...HEAD").split()
+               if p.startswith(("backend/assetops_backend/structure/attribution/", "backend/tests/test_5b_",
+                                "backend/tests/fixtures/attribution_", "specs/5b-attribution/"))]
+    packet = (TREE / "specs" / "5b-attribution" / "packet-u23.md").read_text(encoding="utf-8")
+    assert changed and [p for p in changed if p not in packet] == []
+
+
+# --- test 11: a repeated key ---------------------------------------------------------------------------------------------
+
+def test_11_a_factor_twice_in_one_tree_is_refused() -> None:  # plant V21
+    sb = _hand_site("A-001")
+    root = sb.roots["contribution"]
+    om = find(root, "om")
+    twice = dataclasses.replace(root, rows=(*root.rows, om))
+    bad = dataclasses.replace(sb, roots={**sb.roots, "contribution": twice})
+    with pytest.raises(ValueError) as e:
+        _hand_portfolio(bad, _hand_site("B-001"))
+    assert str(e.value) == "REPEATED_FACTOR:om"

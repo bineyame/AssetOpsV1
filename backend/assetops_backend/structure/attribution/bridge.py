@@ -191,7 +191,7 @@ class _Bridge:
         if any(c.effect is None for c in children):
             return made(gap, effect, "NOT_SPLIT", SPLIT_INEXACT)
         evidence, origins = _label((a, t))
-        # Mid-build Q1: the spec does not fix a RESIDUAL's `split`/`reason`; provisional (`mid-build-questions.md`).
+        # D-5B.15 (mid-build Q1): a RESIDUAL carries NOT_SPLIT / DETAIL_NOT_AVAILABLE.
         residual = BridgeRow(None, f, "RESIDUAL", "AR1", self._home(f), None, None, None, None,
                              _norm(effect - _sum([c.effect for c in children])), self.currency, evidence, origins,
                              False, "NOT_SPLIT", DETAIL_NOT_AVAILABLE, unobserved[0], unobserved[1], ())
