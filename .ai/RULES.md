@@ -160,6 +160,12 @@ round the Architect folds rulings into one current unit card.
 - UI/UX standard (owner, U7, 2026-11-20): `Docs/design-system/uiux-guide.md` is
   cited here beside the builder decision guide above, and its G2 to G4 gates
   join the screen-slice review.
+- UI standing brief (owner, 2026-11-20, `owner/owner-ui-standing-brief-2026-11-20.md`):
+  deliberate information architecture. Every element is placed at its level on purpose
+  and exposed by the right control; one interaction grammar app-wide; exposure that
+  scales (3 to 300 Sites, many verticals); simplicity by design, never by hiding; every
+  number honest with its basis. Fix the pattern, not the instance. Judge by using it;
+  no new documents for the owner.
 
 ## 7. Tests, guards and the machine
 
