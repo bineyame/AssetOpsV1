@@ -345,3 +345,11 @@ Branch `task/W2-00-source-events` (base merged main `dc643215`, rulings `D-2026-
 - Rule 8: `$ledgerOwnedTables`, the accepted-evidence message-arbiter check (with vacuity count) and the exact `_REREAD_ORDER` line; 11 `w200` negative probes and one control in `tools/writer_guard_probes.py` (two replace the order line).
 - Open: no runtime cold/EV publication profile or producer (W2-02/W2-05b); no closed tuple carries `INTERVAL_DELTA` yet, so a delta cannot be accepted until W2-05b; v4 metadata is not persisted on `signal_binding_revision` (W2-01 publishes it); read-model plain readings for the new rejection kinds are absent.
 
+
+## 2a - canonical format v1 and the leaf factor IDs (built, in_review)
+
+Branch `task/2a-canonical-format` (base main `184dc509e`); spec `specs/2a-canonical-format/spec.md` rev 2, rulings D-2A.1-D-2A.10; packet `specs/2a-canonical-format/packet.md`. Contracts only, no migration, no database.
+
+- Settled: `contracts/assetops_contracts/canonical/` (standard library only), a protected seam (D-2A.2: a change is version 2 beside v1). `units.py`: six dimensions, `Unit`, canonical unit text and strict `parse_unit`, `QUANTITY_UNITS`, `BAND_UNITS` (the only record-to-catalogue unit bridge). `factors.py`: the 73 leaf IDs of `factor_map` (MINI_GRID 31, COLD_CHAIN 23, EV_DEPOT_CAPTIVE 23; 4 shared), one unit each, `leaves_of`, `FACTOR_ID_PATTERN`. `records_v1.py`: the fourteen kinds as data (`KIND_SPECS`), `loads_canonical` (the only bytes entry; duplicate keys, NaN, bad UTF-8 refused), `parse_record`, `parse_batch` (per-row outcomes; source-type, then duplicate check), `to_canonical_json` (sorted keys, decimals `format(d, "f")`), `record_digest`, `batch_digest` (valid records only). `sources_v1.py`: 17 source types, `EXISTING_FORMATS` (readings and fuel records unchanged).
+- Tests (D-2A.10): `backend/tests/test_2a_canonical_v1.py`, `backend/tests/test_2a_canonical_manifest_parity.py`, fixture `backend/tests/fixtures/canonical_v1_examples.json` (byte copy of the spec folder's examples).
+- Open: `simulator/.../world/leaves.py` still has its own list until DS1b (D-2A.8); node IDs, `filled_by`/`absent` are 3B1/3B6; the store and intake are 3A1/3A2; literal-unit cases inside `min`/`max` are 3B1's (D-2A.4); `select-tests` answers "full" for any fixture change (tools item, not 2a).

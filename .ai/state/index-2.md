@@ -56,3 +56,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 142. `T1` heavy-tool slot pool, enforced · tools.md
 143. `3C0a` operator accounts, sessions and role grants (API) · work.md
 144. `T2` neutral package tests in check-all · tools.md
+145. `2a` canonical format v1 and the leaf factor IDs · data.md
