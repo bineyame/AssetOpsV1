@@ -1,6 +1,6 @@
 # P3A: step 3A, Sources (structure page)
 
-**Status: awaiting owner approval.** Architect (Claude), 2026-11-20. One page, in the form of P2
+**Status: approved by the owner, 20 Nov** ("approve both"; `owner/owner-approve-p3a-p3b-2026-11-20.md`). Architect (Claude), 2026-11-20. One page, in the form of P2
 (`specs/2a-canonical-format/spec.md` §2). It covers slices `3A1` to `3A5` (`delivery-plan.md` §2). Approving it lets
 the non-screen slices `3A1`, `3A2`, `3A3` and `3A4` build. `3A5` is a screen slice, so it also waits for the UI review.
 

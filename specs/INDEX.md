@@ -74,8 +74,9 @@ finished work are in `archive/agent-history/`.
 | DS1b | Generator canonical writers | in_review | `DS1b-canonical-writers/spec.md` | 20 KB |
 | T2 | Neutral package tests (check-all) | live — rev 2 | `T2-neutral-package-tests/spec.md` | small |
 | L4-OPS | Operations in the structure (OD-26, OD-28) | live — design rev 16.16 §2.10 | `L4-OPS/rulings.md` | 10 KB |
-| mockup-vnext-categories-snapshot | Mock-up: four headings, snapshot "as of" | finished | `mockup-vnext-categories-snapshot/packet.md` | small |
-| mockup-vnext-demo-items | Mock-up: demo workflow items | finished | `mockup-vnext-demo-items/packet.md` | small |
-| mockup-vnext-professional | Mock-up professional pass | superseded | `mockup-vnext-professional/packet.md` | small |
-| 3A1 | Sources: structure page P3A (3A1–3A5) | awaiting owner approval | `3A1-commercial-record-store/structure-page-P3A.md` | small |
-| 3B1 | Structure: structure page P3B (3B1–3B7b) | awaiting owner approval | `3B1-structure-registry/structure-page-P3B.md` | small |
+| mockup-vnext-categories-snapshot | Mock-up headings, as-of | finished | `mockup-vnext-categories-snapshot/packet.md` | small |
+| mockup-vnext-demo-items | Mock-up demo items | finished | `mockup-vnext-demo-items/packet.md` | small |
+| mockup-vnext-professional | Mock-up pass | superseded | `mockup-vnext-professional/packet.md` | small |
+| 3A1 | Commercial store; page P3A | P3A approved; handshake | `3A1-commercial-record-store/spec.md` | 20 KB |
+| 3B1 | Structure registry; page P3B | P3B approved; handshake | `3B1-structure-registry/spec.md` | 15 KB |
+| 3C1 | Person on commands | handshake | `3C1-person-on-commands/spec.md` | 15 KB |

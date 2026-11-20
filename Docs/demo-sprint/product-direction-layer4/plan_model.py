@@ -170,15 +170,16 @@ SLICES = [
 # itself, before day 1 (owner decision OD-20, 19 Nov). Effort in Architect lane-days.
 PAGES = [("P1", "Steps 1 and 3C: the corrected figure; sign-in, roles and the person on every command (pack #2, #12; OD-20)", 0.0, True),
          ("P2", "Step 2: canonical format version 1 and the leaf factor IDs (written 20 Nov: specs/2a-canonical-format/spec.md §2)", 0.0, "start"),
-         ("P3A", "Step 3A: record kinds, intake, emulator rules, the contract test (written 20 Nov: specs/3A1-commercial-record-store/structure-page-P3A.md)", 0.25, False),
-         ("P3B", "Step 3B: registry rows, parity, the structure read and observer (written 20 Nov: specs/3B1-structure-registry/structure-page-P3B.md)", 0.25, False),
+         ("P3A", "Step 3A: record kinds, intake, emulator rules, the contract test (written 20 Nov: specs/3A1-commercial-record-store/structure-page-P3A.md)", 0.0, "start"),
+         ("P3B", "Step 3B: registry rows, parity, the structure read and observer (written 20 Nov: specs/3B1-structure-registry/structure-page-P3B.md)", 0.0, "start"),
          ("P5", "Step 5: target declaration and the attribution rules", 0.5, False),
          ("P6", "Step 6: decision records, bounds, the evaluator and the carrier", 0.5, False),
          ("P7", "Step 7: plan records, release, versions, the proposal (pack #12)", 0.5, False),
          ("P8", "Step 8: economic and causal verdicts", 0.25, False),
          ("P9", "Step 9: rights rows and the claim case; cold and EV records", 0.75, False)]
 # with_pack: True = approved with the pack (OD-20); "start" = asked of the owner with the non-screen build start, 20 Nov, and
-# scheduled as approved on day 1. Approved by the owner, 20 Nov (item 2: "approved", owner/owner-answers-eight-open-questions-2026-11-20.md).
+# scheduled as approved on day 1. P2 approved by the owner, 20 Nov (item 2: "approved", owner/owner-answers-eight-open-questions-2026-11-20.md);
+# P3A and P3B approved by the owner, 20 Nov ("approve both", owner/owner-approve-p3a-p3b-2026-11-20.md).
 PAGE = {p: dict(id=p, name=n, eff=e, with_pack=w) for p, n, e, w in PAGES}
 KEYS = ("id", "step", "construct", "name", "lane", "rng", "deps", "gate", "flags")
 IT = [dict(zip(KEYS, r)) for r in SLICES]
@@ -389,7 +390,8 @@ def best_sittings():
     """Search the sitting days: two or three sittings after the pack's own approval. The most units landed by day 14 wins,
     then the furthest step, then fewer sittings (the owner's time), then earlier days."""
     best = None
-    combos = [(a, b) for a in range(1, 6) for b in range(a + 2, 13)] + \
+    combos = [(a,) for a in range(1, 13)] + \
+             [(a, b) for a in range(1, 6) for b in range(a + 2, 13)] + \
              [(a, b, c) for a in range(1, 6) for b in range(a + 2, 11) for c in range(b + 2, 13)]
     for c in combos:
         r = run(PACES["plan"], c)
@@ -435,7 +437,7 @@ def owner_load(r):
         load[k] += 30 + 15 * len(pages); notes[k].append(f"sitting {n}")
     start = [p for p in PAGE if PAGE[p]["with_pack"] == "start"]
     if start:                         # P2, asked with the build start: read and approved on day 1, as a sitting's page is
-        load[1] += 35 * len(start); notes[1].insert(0, f"reads and approves {', '.join(start)} (approved with the build start, 20 Nov)")
+        load[1] += 35 * len(start); notes[1].insert(0, f"reads and approves {', '.join(start)} (approved by the owner, 20 Nov)")
     load[13] += 30; notes[13].append("reads the day-14 pack")
     load[14] += 120; notes[14].append("walkthrough of the built screens and the next ranked list")
     return load, notes
@@ -551,7 +553,7 @@ def table_pages():
     out = ["| Page | Covers | Architect lane-days | Approved |", "|---|---|---:|---|"]
     for p, n, e, w in PAGES:
         k = approval_day(p, SIT)
-        when = 'with the pack, before day 1' if w is True else 'approved by the owner, 20 Nov (with the build start)' if w == "start" else ('sitting ' + str(SIT.index(k) + 1) + ', day ' + str(k)) if k else 'after day 14'
+        when = 'with the pack, before day 1' if w is True else 'approved by the owner, 20 Nov' if w == "start" else ('sitting ' + str(SIT.index(k) + 1) + ', day ' + str(k)) if k else 'after day 14'
         out.append(f"| {p} | {n} | {fmt(e)} | {when} |")
     return "\n".join(out)
 
@@ -645,7 +647,7 @@ TABLES = {"capacity": table_capacity, "slices": table_slices, "queued": table_qu
 def prose_facts():
     f = furthest(PLAN)
     return [f"**{BUILD_NOW} build lanes**", f"{fmt(PACES['plan'])} units per lane-day", f"{fmt(OBS_PACE)} units per lane-day",
-            "sittings on days " + ", ".join(map(str, SIT[:-1])) + " and " + str(SIT[-1]),
+            ("a sitting on day " + str(SIT[0])) if len(SIT) == 1 else ("sittings on days " + ", ".join(map(str, SIT[:-1])) + " and " + str(SIT[-1])),
             f"{fmt(landed_units(PLAN))} units", f"{len(LAND - DONE)} slices", f"{len(COMMITTED - DONE)} slices committed",
             f"through step {f}" if f else "no step complete",
             f"{sum(OWN_LOAD.values())} owner minutes",

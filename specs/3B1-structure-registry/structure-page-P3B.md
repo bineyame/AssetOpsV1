@@ -1,6 +1,6 @@
 # P3B: step 3B, Structure (structure page)
 
-**Status: awaiting owner approval.** Architect (Claude), 2026-11-20. One page, in the form of P2
+**Status: approved by the owner, 20 Nov** ("approve both"; `owner/owner-approve-p3a-p3b-2026-11-20.md`). Architect (Claude), 2026-11-20. One page, in the form of P2
 (`specs/2a-canonical-format/spec.md` §2). It covers slices `3B1` to `3B7b` (`delivery-plan.md` §2). Approving it lets
 the non-screen slices `3B1`, `3B2`, `3B3`, `3B4`, `3B6` and `3B7a` build. `3B5` (the site board) and `3B7b`'s
 *Recalculate now* control are screen work, so they also wait for the UI review.
