@@ -62,19 +62,20 @@ finished work are in `archive/agent-history/`.
 | SCN | Kobo scenario where reserve change matters | finished | `SCN/spec.md` | 15 KB |
 | TEST-drift | Five no-DB backend failures on main | finished | `TEST-drift/spec.md` | 9 KB |
 | WALK1 | Owner walkthrough fix round, 2026-11-01 | finished | `WALK1/README.md` (split) | 65 KB |
-| Lane C | Build spec, commercial lane | finished — CC-M schema via OUT-E; to confirm | `Lane-C/README.md` (split) | 79 KB |
-| Lane T | Build spec, telemetry lane | finished — as TEL-01 to TEL-06; to confirm | `Lane-T/README.md` (split) | 134 KB |
+| Lane C | Build spec, commercial lane | finished (CC-M via OUT-E) | `Lane-C/README.md` (split) | 79 KB |
+| Lane T | Build spec, telemetry lane | finished (TEL-01..06) | `Lane-T/README.md` (split) | 134 KB |
 | DECLUTTER | Repo declutter recommendation, packets and reviews | live — steps 4-5 | `DECLUTTER/repo-declutter-recommendation-2026-11-18.md` | 42 KB |
 | T1 | Heavy-tool slot pool, enforced | merged | `T1-heavy-tool-slot-pool/spec.md` | 36 KB |
 | DS1 | Generator core and the July-September history | DS1a, DS1p done; DS1m in progress | `DS1-history-generator/spec.md` | 94 KB |
-| RECON-1 | Figures that reconcile (UX audit C2), comparators that state their basis: rulings D-RECON.1 to .8 | live — applied in the pack; .5 to .7 data to the data lane | `RECON-1/rulings.md` | 22 KB |
+| RECON-1 | Reconciling figures, comparator basis (D-RECON.1-8) | applied | `RECON-1/rulings.md` | 22 KB |
 | BW1 | Non-screen build start: re-cut, waves (D-BW1.1-7) | live | `BW1-build-wave1/rulings.md` | small |
 | 2a | Canonical format v1, leaf factor IDs; lane B unit 1 | in_review | `2a-canonical-format/spec.md` | 30 KB |
 | 3C0a | Operator accounts and roles (API); lane C unit 1 | merged (773d9bafc) | `3C0a-operator-accounts/spec.md` | 35 KB |
 | DS1b | Generator canonical writers | in_review | `DS1b-canonical-writers/spec.md` | 20 KB |
 | T2 | Neutral package tests (check-all) | live — rev 2 | `T2-neutral-package-tests/spec.md` | small |
 | L4-OPS | Operations in the structure (OD-26, OD-28) | live — design rev 16.16 §2.10 | `L4-OPS/rulings.md` | 10 KB |
-| mockup-vnext-categories-snapshot | Mock-up vNEXT: the four headings and the snapshot "as of" (review packet) | finished — in the frozen pack | `mockup-vnext-categories-snapshot/packet.md` | small |
-| mockup-vnext-demo-items | Mock-up vNEXT: demo workflow items wired (review packet) | finished — in the frozen pack | `mockup-vnext-demo-items/packet.md` | small |
-| mockup-vnext-professional | Mock-up vNEXT professional pass (handoff, packet) | superseded — by the UI/UX guide waves | `mockup-vnext-professional/packet.md` | small |
-
+| mockup-vnext-categories-snapshot | Mock-up: four headings, snapshot "as of" | finished | `mockup-vnext-categories-snapshot/packet.md` | small |
+| mockup-vnext-demo-items | Mock-up: demo workflow items | finished | `mockup-vnext-demo-items/packet.md` | small |
+| mockup-vnext-professional | Mock-up professional pass | superseded | `mockup-vnext-professional/packet.md` | small |
+| 3A1 | Sources: structure page P3A (3A1–3A5) | awaiting owner approval | `3A1-commercial-record-store/structure-page-P3A.md` | small |
+| 3B1 | Structure: structure page P3B (3B1–3B7b) | awaiting owner approval | `3B1-structure-registry/structure-page-P3B.md` | small |
