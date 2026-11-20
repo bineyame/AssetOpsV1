@@ -1,6 +1,6 @@
 # 5a: targets per factor, declarer recorded (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-5A.13 to D-5A.15).
+Status: in_review (unit 1 built; units 2 and 3 wait for `4b1`). Spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-5A.13 to D-5A.15).
 P5 approved by the owner on 20 Nov (`owner/owner-p5-approved-and-defaults-2026-11-20.md`), so D-5A.12 is met: no 5a
 code is written before that approval, and unit 1 starts when the handshake has no open question.
 
@@ -301,7 +301,8 @@ its check agrees.
 9. *(unit 3)* `known_at = 2026-11-06T12:00:00+00:00` (after step 1, before step 2): Kobo has `om` and `staff` lines
    only, `revenue` and `fuel_cost` absent, contribution absent.
 10. *(unit 1)* DS1b parity: step 1's records equal, as parsed objects, those `build_records(view,
-    generate_history(view))` writes for those IDs.
+    generate_history(view))` writes for those IDs. Lives in `simulator/tests/world/test_5a_fixture_parity.py`, which reads the fixture by
+    path (mid-build Q1, `rulings.md` "Mid-build answers (round 1)").
 11. Grep: no `float(` under `structure/targets/`; `structure/targets/` edits no other module (the packet lists files).
 
 **Postgres** (pooled, `--db`; `backend/tests/test_5a_targets_postgres.py`; Sites by 3A4's `NairobiSeeder`):
@@ -324,7 +325,7 @@ Commands as 3B3 §6 with these files; check-all once at the end; `select-tests` 
    shown as a check, never used instead?
 6. Does the portfolio name every Site left out per factor, and keep operator-level lines out of the totals?
 7. Is the main factor solved only for a linear heading with a slope, through the evaluator?
-8. Is nothing changed outside `structure/targets/` (new), the fixture, the two test files and the packet?
+8. Is nothing changed outside `structure/targets/` (new), the fixture, the two test files, `simulator/tests/world/test_5a_fixture_parity.py` (mid-build Q1) and the packet?
 
 Packet: `specs/5a-targets/packet.md`, with module paths, the mid-build count, and P5's approval reference.
 

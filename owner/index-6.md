@@ -1,4 +1,4 @@
-# Owner feedback index, part 6 of 6 (2026-11-18 to 2026-11-20)
+# Owner feedback index, part 6 of 7 (2026-11-18 to 2026-11-20)
 
 One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
@@ -33,4 +33,3 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-20 `owner-recut-fortnight-deep-dive-2026-11-20.md` Architect re-cuts the remaining fortnight around the deep-dive path; pushback with reasons welcome · current
 - 2026-11-20 `owner-recut-decisions-rc1-rc9-2026-11-20.md` All re-cut defaults RC1–RC9 accepted (deep-dive path; 3A6; P5 day 3; own DB after DPA; mini-grid; 5c before IA-2; owner presents; 1% tolerance; first change an Action) · current
 - 2026-11-20 `owner-p5-approved-and-defaults-2026-11-20.md` P5 (targets structure page) approved; 4b/5a and 3A2 defaults accepted · current — unblocks 5a code (D-5A.12)
-- 2026-11-20 `owner-on1-roles-executive-approves-2026-11-20.md` Onboarding file proposes roles; the executive approves them at first sign-in (option A; keeps OD-14; supersedes D-ON1.3 default) · current
