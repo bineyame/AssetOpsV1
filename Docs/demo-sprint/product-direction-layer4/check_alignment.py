@@ -287,6 +287,7 @@ def check_doc(name, text, kind, lx):
         t = blank(text, r"<!--table:[\w-]+-->.*?<!--/table-->", re.S)
         t = blank(t, r"<!--(?!(?:figx?|rec):).*?-->", re.S)
         t = blank(t, r"`[^`\n]*`")
+        t = blank(t, r"^#{1,6} \d+(?:\.\d+)+", re.M)                       # section numbers in headings are not figures
         for m in MONEY_RE.finditer(t):
             if not MARKER_AFTER.match(t, m.end()):
                 out["A5"].append(f"{name}:{line_of(t, m.start())}: figure without a checked marker: {m.group(1)}")

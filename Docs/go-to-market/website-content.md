@@ -2,7 +2,7 @@
 
 **AssetEcon · go-to-market document for the owner and the site editor · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.9 and the owner's commercial answers of 19 Nov (T2 and T13 now met); copy pass of 19 Nov against the current design revision (`.agent/owner-website-copy-pass-2026-11-19.md`)**
 
-**Refresh of 20 Nov (owner: `owner/owner-website-refresh-2026-11-20.md`).** Adds Operations (design §2.10: failures, repeats and maintenance as cost, warranties and contracts as decisions; §2.2, §2.3, §3.10), the honesty line "not available yet", never zero, with totals that name the sites they cover (§2.2, §3.8), and the approved app structure: Decisions, the plan, Results and the "Waiting for you" inbox (§2.3, §3.6). Recommendation only: another agent maintains the site.
+**Refresh of 20 Nov (owner: `owner/owner-website-refresh-2026-11-20.md`).** Adds Operations (design §2.10: failures, repeats and maintenance as cost, warranties and contracts as decisions; §2.2, §2.3, §3.10), the honesty line "not available yet", never zero, with totals that name the sites they cover (§2.2, §3.8), and the approved app structure: Decisions, Results, a home for the plan and the "Waiting for you" inbox (§2.3, §3.6). Recommendation only: another agent maintains the site.
 
 **Status.** Recreated from scratch at the owner's order (`.agent/owner-recreate-document-packs-2026-11-19.md`; document #10 in `regeneration/F-pack-recreation-plan.md`). It replaces the copy deck of 18 Nov. The copy pass of 19 Nov rewrote §2 and §3 so each page opens on outcomes, put portfolio allocation and proof on Home, frame every page in the four outcome categories, and move the honesty detail into one badge and the evidence page. No rule in §4 or §5 and no lint pattern was weakened. The recommendation for the owner's site repository (#11) follows from this document, later and separately.
 
@@ -149,7 +149,7 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 |---|---|
 | Home | the allocation question, one demo portfolio: its gap, the changes its executive approves, and the proof, the four headings, the call to action |
 | Mini-grids · Cold rooms · EV depots | the vertical's question in its own words, one unexpected demo result, today's value, what is coming |
-| How it works | the loop: see, decide, act, track, prove; where each step lives in the product (Decisions, Plan, Results, "Waiting for you"); who decides at each step |
+| How it works | the loop: see, decide, act, track, prove; where each step lives in the product (Decisions, Results, a home for the plan, "Waiting for you"); who decides at each step |
 | Operations | incidents and repeats as visible cost, maintenance, and assets with their warranties and contracts, as decisions |
 | The deep-dive and the pilot | the engagement path and what the operator gives and gets |
 | Now and coming | the two lists of §2.2 and §2.3, kept in step with §4 |
