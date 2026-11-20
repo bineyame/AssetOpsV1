@@ -67,17 +67,25 @@ SUM = (
 NONE = ("tariff", "productive_tariff", "diesel_price", "wear_rate", "hours_per_day", "standby_kw", "lost_unit_kw",
         "shortfall_backed", "period_days")
 
-#: T6's own copy of spec §3's table (W2).
+#: T6's own copy of spec §3's table (W2), as 4b2 changes it (4b spec §3.2): five leaves PROVIDED by the commercial
+#: records, the diesel price PROVIDED_ELSE_ASSUMED.
 STATE_TABLE = {
-    "PROVIDED": {"period_days", "unserved_critical_kwh"},
-    "ASSUMED": {"productive_tariff", "diesel_price"},
+    "PROVIDED": {"period_days", "unserved_critical_kwh", "productive_kwh", "in_transit", "outstanding", "om",
+                 "staff"},
+    "ASSUMED": {"productive_tariff"},
     "HELD_NOT_CALCULATED": {"delivered_kwh", "necessary_l", "candidate_l", "unexplained_l", "reduced_days",
                             "hours_per_day", "customer_hours_interrupted", "field_visits", "dawn_days_below"},
-    "NOT_CONNECTED": {"productive_kwh", "technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh",
-                      "unmapped_kwh", "tariff", "in_transit", "outstanding", "wear_rate", "om", "staff",
+    "NOT_CONNECTED": {"technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh",
+                      "unmapped_kwh", "tariff", "wear_rate",
                       "major_assets", "liability", "standby_kw", "lost_unit_kw"},
     "OPTION_ONLY": {"extra_l", "battery_throughput_kwh", "collection_cost"},
+    "PROVIDED_ELSE_ASSUMED": {"diesel_price"},
 }
+#: 4b2 (spec §3.2): the PROVIDED state no longer has one cause. Read alone, `ProductLeafSource` has no provider for
+#: these five, so each is NOT_CONNECTED naming its `filled_by`; the others PROVIDED keep NOT_RECEIVED.
+PROVIDED_CAUSE = {"unserved_critical_kwh": "NOT_RECEIVED", "productive_kwh": "NOT_CONNECTED",
+                  "in_transit": "NOT_CONNECTED", "outstanding": "NOT_CONNECTED", "om": "NOT_CONNECTED",
+                  "staff": "NOT_CONNECTED"}
 
 
 def _cent(x) -> Decimal:
@@ -544,8 +552,9 @@ def test_t6_each_state_yields_its_leaf_value_on_its_own_record():
             assert got.value is None and got.evidence == "NOT_AVAILABLE", factor_id
             assert (got.missing.record_kind, got.missing.source_family) == (src["kind"], src["family"]), factor_id
             assert got.missing.record_words == src.get("words") and got.missing.blocks == ()
-            cause = {"HELD_NOT_CALCULATED": "NOT_CALCULATED_YET", "NOT_CONNECTED": "NOT_CONNECTED",
-                     "ASSUMED": "NOT_CONNECTED", "PROVIDED": "NOT_RECEIVED"}[state]
+            cause = PROVIDED_CAUSE[factor_id] if state == "PROVIDED" else {
+                "HELD_NOT_CALCULATED": "NOT_CALCULATED_YET", "NOT_CONNECTED": "NOT_CONNECTED",
+                "ASSUMED": "NOT_CONNECTED", "PROVIDED_ELSE_ASSUMED": "NOT_CONNECTED"}[state]
             assert got.missing.cause == cause, factor_id
     for factor_id, src in LEAF_SOURCES.items():
         if src["absent"] == "ZERO_WHEN_HELD":

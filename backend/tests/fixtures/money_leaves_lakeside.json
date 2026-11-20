@@ -1,0 +1,463 @@
+{
+ "_note": "4b spec §4.1 (batch E: DS1b's lakeside-power.expense_ledger October actual records, verbatim)",
+ "steps": [
+  {
+   "at": "2026-11-06T09:00:00+00:00",
+   "entered_by": "test:4b",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "billing_export",
+    "source_system": "kobo-vending",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-05T09:00:00+03:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-1001",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "2000.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "5000",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-1001",
+       "line_type": "USAGE",
+       "tariff_code": "T-RES",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-1002",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "1458.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "3645",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-1002",
+       "line_type": "USAGE",
+       "tariff_code": "T-RES"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "RECEIPT",
+      "source_record_id": "KOBO-RC-1001",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-20T10:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "2000.00",
+       "currency": "USD"
+      },
+      "status": "COLLECTED",
+      "body": {
+       "payer_ref": "C-1001",
+       "method": "MOBILE_MONEY"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "RECEIPT",
+      "source_record_id": "KOBO-RC-1002",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-25T10:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "1180.00",
+       "currency": "USD"
+      },
+      "status": "COLLECTED",
+      "body": {
+       "payer_ref": "C-1002",
+       "method": "CASH"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-1101",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-11-01",
+       "effective_to": "2026-12-01",
+       "recognition_period": "2026-11"
+      },
+      "amount": {
+       "value": "50.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "125",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-1001",
+       "line_type": "USAGE",
+       "tariff_code": "T-RES",
+       "tariff_class": "STANDARD"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-06T09:00:00+00:00",
+   "entered_by": "test:4b",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "expense_ledger",
+    "source_system": "lakeside-fuel",
+    "provenance": "observed-financial",
+    "produced_at": "2026-11-05T09:00:00+03:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-FUEL-1005",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-05T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "875.00",
+       "currency": "USD"
+      },
+      "status": "PAID",
+      "body": {
+       "counterparty_ref": "SUP-F",
+       "category": "FUEL",
+       "document_ref": "KOBO-EX-FUEL-1005"
+      },
+      "quantity": {
+       "value": "700",
+       "unit": "L"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-FUEL-1020",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-20T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "600.00",
+       "currency": "USD"
+      },
+      "status": "INVOICED",
+      "body": {
+       "counterparty_ref": "SUP-F",
+       "category": "FUEL",
+       "document_ref": "KOBO-EX-FUEL-1020"
+      },
+      "quantity": {
+       "value": "480",
+       "unit": "L"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-FUEL-Q1025",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-25T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "360.00",
+       "currency": "USD"
+      },
+      "status": "QUOTE",
+      "body": {
+       "counterparty_ref": "SUP-F",
+       "category": "FUEL",
+       "document_ref": "KOBO-EX-FUEL-Q1025"
+      },
+      "quantity": {
+       "value": "300",
+       "unit": "L"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-06T09:00:00+00:00",
+   "entered_by": "test:4b",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "billing_export",
+    "source_system": "kisiwa-billing",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-05T09:00:00+03:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KISIWA-CH-1001",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "4070.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "7400",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-2001",
+       "line_type": "USAGE",
+       "tariff_code": "T-KIS",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "RECEIPT",
+      "source_record_id": "KISIWA-RC-1001",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "occurred_at": "2026-10-28T10:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "3800.00",
+       "currency": "USD"
+      },
+      "status": "COLLECTED",
+      "body": {
+       "payer_ref": "C-2001",
+       "method": "MOBILE_MONEY"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-06T09:00:00+00:00",
+   "entered_by": "test:4b",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "expense_ledger",
+    "source_system": "lakeside-accounts",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-05T09:00:00+03:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KISIWA-EX-FUEL-1010",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "occurred_at": "2026-10-10T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "3120.00",
+       "currency": "USD"
+      },
+      "status": "PAID",
+      "body": {
+       "counterparty_ref": "SUP-F",
+       "category": "FUEL",
+       "document_ref": "KISIWA-EX-FUEL-1010"
+      },
+      "quantity": {
+       "value": "2400",
+       "unit": "L"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-06T09:00:00+00:00",
+   "entered_by": "test:4b",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "expense_ledger",
+    "source_system": "assetops-world-generator",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-06T06:00:00+03:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "gen:KOBO-001:2026-10:actual:om",
+      "source_version": "1",
+      "clocks": {
+       "occurred_at": "2026-10-31T17:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "counterparty_ref": "om-contractor",
+       "category": "OM",
+       "document_ref": "gen:KOBO-001:2026-10:actual:om"
+      },
+      "site_code": "KOBO-001",
+      "subject": {
+       "kind": "SITE",
+       "ref": "KOBO-001"
+      },
+      "amount": {
+       "value": "600.00",
+       "currency": "USD"
+      },
+      "status": "PAID"
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "gen:KOBO-001:2026-10:actual:staff",
+      "source_version": "1",
+      "clocks": {
+       "occurred_at": "2026-10-31T17:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "counterparty_ref": "payroll",
+       "category": "STAFF",
+       "document_ref": "gen:KOBO-001:2026-10:actual:staff"
+      },
+      "site_code": "KOBO-001",
+      "subject": {
+       "kind": "SITE",
+       "ref": "KOBO-001"
+      },
+      "amount": {
+       "value": "500.00",
+       "currency": "USD"
+      },
+      "status": "PAID"
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "gen:KISIWA-001:2026-10:actual:staff",
+      "source_version": "1",
+      "clocks": {
+       "occurred_at": "2026-10-31T17:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "counterparty_ref": "payroll",
+       "category": "STAFF",
+       "document_ref": "gen:KISIWA-001:2026-10:actual:staff"
+      },
+      "site_code": "KISIWA-001",
+      "subject": {
+       "kind": "SITE",
+       "ref": "KISIWA-001"
+      },
+      "amount": {
+       "value": "500.00",
+       "currency": "USD"
+      },
+      "status": "PAID"
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "gen:MTO-001:2026-10:actual:om",
+      "source_version": "1",
+      "clocks": {
+       "occurred_at": "2026-10-31T17:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "counterparty_ref": "om-contractor",
+       "category": "OM",
+       "document_ref": "gen:MTO-001:2026-10:actual:om"
+      },
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "SITE",
+       "ref": "MTO-001"
+      },
+      "amount": {
+       "value": "500.00",
+       "currency": "USD"
+      },
+      "status": "PAID"
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "gen:MTO-001:2026-10:actual:staff",
+      "source_version": "1",
+      "clocks": {
+       "occurred_at": "2026-10-31T17:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "counterparty_ref": "payroll",
+       "category": "STAFF",
+       "document_ref": "gen:MTO-001:2026-10:actual:staff"
+      },
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "SITE",
+       "ref": "MTO-001"
+      },
+      "amount": {
+       "value": "450.00",
+       "currency": "USD"
+      },
+      "status": "PAID"
+     }
+    ]
+   }
+  }
+ ]
+}
