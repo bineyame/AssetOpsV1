@@ -1,0 +1,17 @@
+[
+  {"format_version": 1, "kind": "CHARGE", "source_record_id": "INV-K-0001", "source_version": "1",
+   "site_code": "KOBO-001", "subject": {"kind": "CUSTOMER", "ref": "C-0412"},
+   "clocks": {"effective_from": "2026-10-01", "effective_to": "2026-11-01", "recognition_period": "2026-10"},
+   "quantity": {"value": "400", "unit": "kWh"}, "amount": {"value": "160.00", "currency": "USD"},
+   "body": {"account_ref": "C-0412", "tariff_code": "T-RES", "line_type": "USAGE"}},
+  {"format_version": 1, "kind": "CHARGE", "source_record_id": "INV-K-0002", "source_version": "1",
+   "site_code": "KOBO-001", "subject": {"kind": "CUSTOMER", "ref": "C-0413"},
+   "clocks": {"effective_from": "2026-10-01", "effective_to": "2026-11-01", "recognition_period": "2026-10"},
+   "quantity": {"value": "250", "unit": "kWh"}, "amount": {"value": "100.00", "currency": "USD"},
+   "body": {"account_ref": "C-0413", "tariff_code": "T-RES", "line_type": "USAGE"}},
+  {"format_version": 1, "kind": "CHARGE", "source_record_id": "INV-S-0001", "source_version": "1",
+   "site_code": "KISIWA-001", "subject": {"kind": "CUSTOMER", "ref": "C-0901"},
+   "clocks": {"effective_from": "2026-10-01", "effective_to": "2026-11-01", "recognition_period": "2026-10"},
+   "quantity": {"value": "100", "unit": "kWh"}, "amount": {"value": "55.00", "currency": "USD"},
+   "body": {"account_ref": "C-0901", "tariff_code": "T-RES", "line_type": "USAGE"}}
+]

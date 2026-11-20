@@ -12,6 +12,8 @@
 - `D-3A3.10` Layouts are also the owner's reshaping template; provenance follows the database · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.11` Loader reads held uploads once: path switch refused, waiting file not resent, submitter not accepter · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.12` Single-writer test reach: attribute, getattr and alias import caught; dynamic access not · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.13` Budget unit prices are plan money ÷ plan quantity, exact or EMU_PLAN_PRICE; never the price list · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.14` Across runs the submitter never accepts (submitted_by); a source type's path is its reader ID · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-RC4F1.1` database_target names the database libpq reaches; unclear URL or PG* environment refused · live · specs/RC4-F1-database-name/rulings.md
 - `D-RC4F1.2` Every name-based database decision uses it; database_name deleted; demo strips PG* · live · specs/RC4-F1-database-name/rulings.md
 - `D-RC4F1.3` database_target.py named in rule 8's $pgReaders; parse stays make_url; test 8 pins it · live · specs/RC4-F1-database-name/rulings.md

@@ -71,3 +71,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 157. `5a` targets per factor: units 2-3 target rules, Site and portfolio read · data.md
 158. `RC4-F1` the database a URL really reaches (`database_target`, RC4 settings, backfill, demo env) · data.md
 159. `4b2` money leaves from records (CommercialLeafSource, READ_AS, diesel price from invoices) · data.md
+160. `3A3` emulated native exports, layout readers, source contract test, emulated-export loader · data.md

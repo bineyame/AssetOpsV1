@@ -425,9 +425,17 @@ Branch `task/RC4-F1-database-name` (base main `e88641e97`); spec `specs/RC4-F1-d
 - Settled: Q1-Q3 answered (D-RC4F1.3-5); `$pgReaders` admits `database_target.py` (owner-approved line); plants F1-F9; test 8 pins the admission.
 - Open: backlog `RC4-F1-tools` (`tools/sweep-setup-cache.py` and one other tool still read the name); 3A3 `refuse_operator_database` and ON1 onboarding must call `database_target`; review residuals (test 7 misses `engine.url.database`, test 8 misses `importlib`).
 
-## 4b2 - the money leaves, providers (built, in_review)
+## 4b2 - the money leaves, providers (merged 20 Nov; r1 ACCEPT)
 
 Branch `task/4b2-money-providers` (base main `e88641e97`); spec `specs/4b-money-leaves/spec.md` rev 3 §3 to §5, rulings D-4B.3 to .9, .12 to .15, .18; packet `specs/4b-money-leaves/packet-4b2.md`. No migration, no route, no store.
 
 - Settled: `structure/money.py` `CommercialLeafSource(months, store, fallback)` serves `revenue` and `fuel_cost` (stated), `om`, `staff`, `productive_kwh`, `in_transit`, `outstanding` and `diesel_price` from 3A4's month; one `site_month` and one `latest_revisions` per context object. Connected = any record of the kind for the Site; open month = no value (`MONTH_OPEN`); QUOTE never cost; recorded 0 only for a held ZERO_WHEN_HELD kind; mixed currency `NOT_CALCULATED_YET`; the diesel price from INVOICED/PAID fuel invoices, the declared price only with no such invoice, none on zero litres. Absent values name `READ_AS`; valued ones carry record origins. `SOURCE_STATE` gains `PROVIDED_ELSE_ASSUMED`, `STATED_STATE` added; `build_structure_read` wires the commercial reads third.
 - Open: mid-build Q2 (Postgres `entered_by` literal; default applied); test 5 lives under `simulator/tests/world/` (dependency guard). Carrying a missing actual at target is `5b`; litres burned `4d`; settlement matching queue Q3.
+
+## 3A3 - emulated native exports and the source contract test (merged 20 Nov; r2 ACCEPT)
+
+Branch `task/3A3-emulators` (base main `3b3916d4f`); spec `specs/3A3-emulators-contract-test/spec.md` rev 2, rulings D-3A3.1-12; packet `packet.md`. No migration, no route, no screen.
+
+- Settled: `assetops_contracts.native` (`Layout`, `Column`, `read_layout`, `render_layout`, four `*-illustrative-1` layouts: billing, collections, expenses, budget). `commercial/readers.py` `ReadContext(tenant_code, received_at, real_data)`, `ReadResult.refused`, `LayoutReader` (provenance follows the database, D-3A3.10); `READERS` = canonical plus the four, each admitted by a case in `backend/tests/source_contracts.py` (C1-C10, S2). `_check` lets a reader's row refusal win; out-of-range is 500. Native refusal words (`NATIVE_ENCODING/HEADER/ROW/VALUE/CHARACTER`).
+- Settled: one writer of commercial records (S1 AST scan); `build_commercial_records` deleted; `refuse_operator_database` on `database_target`; `AccountService.onboard_person`; `CommercialUploads.held` / `held_uploads`. `python -m assetops_backend.load_emulated_exports` (exit 2 before any submission, 3 on a refused submission; `ALREADY_WAITING`, `NOTHING_NEW`, `decided_by_script`). `simulator/.../world/exports.py` + `tools/world_history.py exports`: October, mini-grid, totals equal the manifest (pinned SHA-256s).
+- Open: owner Q1 (`--accept-as` in rehearsal); `uploads_waiting` with the upload screen (D-3A3.8); `3A6` profiles append contract cases; S1 does not see `importlib`/string-built access.

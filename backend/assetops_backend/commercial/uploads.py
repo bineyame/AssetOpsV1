@@ -23,11 +23,11 @@ from datetime import datetime
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
-from assetops_backend.commercial.model import (Acceptance, UploadAlreadyDecided, UploadDecisionRow, UploadRecord,
-                                               UploadRow, UploadStale)
+from assetops_backend.commercial.model import (Acceptance, HeldUpload, UploadAlreadyDecided, UploadDecisionRow,
+                                               UploadRecord, UploadRow, UploadStale)
 from assetops_backend.commercial.pseudonym import (PseudonymKeyMissing, PseudonymKeys, PseudonymKeyUnusable,
                                                    cut_path, pseudonymise)
-from assetops_backend.commercial.readers import DEFAULT_READER, READERS, ReadResult, SourceReader
+from assetops_backend.commercial.readers import DEFAULT_READER, READERS, ReadContext, ReadResult, SourceReader
 from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.store import CommercialStore
 from assetops_backend.i18n import Message, message, render
@@ -164,16 +164,19 @@ class CommercialUploads:
         if len(data) > MAX_UPLOAD_BYTES:
             raise UploadRefused(413, "FILE_TOO_LARGE", {"limit_mb": MAX_UPLOAD_BYTES // 2**20})
         file_sha256 = hashlib.sha256(data).hexdigest()
+        slug = self._store.tenant_slug(tenant_id)
+        if slug is None:  # 3A3 (spec §2.4, P7): before reading, as the JSON reader's mismatch
+            raise UploadRefused(422, "UPLOAD_TENANT_MISMATCH")
         refused: CanonicalRefused | None = None
         try:
-            read: ReadResult = reader.read(data)
+            read: ReadResult = reader.read(data, context=ReadContext(slug, self._clock(), self._real_data))
             parsed = parse_batch(read.obj)
         except CanonicalRefused as error:
             refused = error
         if refused is not None:  # raised outside the handler: 2a's path may echo the operator's key text
             raise _file_refused(reader, refused.code, refused.path)
         batch = parsed.batch
-        if batch.tenant_code != self._store.tenant_slug(tenant_id):
+        if batch.tenant_code != slug:
             raise UploadRefused(422, "UPLOAD_TENANT_MISMATCH")
         if batch.provenance not in ADMITTED[self._real_data]:
             raise UploadRefused(422, "UPLOAD_PROVENANCE_NOT_ALLOWED", {"provenance": batch.provenance})
@@ -186,8 +189,13 @@ class CommercialUploads:
 
         refusals: list[tuple[int, str, str]] = []
         kept: list[int] = []
+        if any(index not in range(len(parsed.outcomes)) for index in read.refused):
+            raise UploadRefused(500, "COMMERCIAL_STORE_FAULT")  # 3A3 (spec §2.4): a reader bug
         for index, outcome in enumerate(parsed.outcomes):
-            if isinstance(outcome, CanonicalRefused):
+            if index in read.refused:  # 3A3 (D-3A3.3): the reader's refusal wins over 2a's verdict
+                code, path = read.refused[index]
+                refusals.append((index, code, cut_path(code, path)))
+            elif isinstance(outcome, CanonicalRefused):
                 refusals.append((index, outcome.code, cut_path(outcome.code, outcome.path)))
             else:
                 kept.append(index)
@@ -308,6 +316,10 @@ class CommercialUploads:
                 "preview": _counts(u.record_count, u.new_count, u.revised_count, u.unchanged_count, u.refused_count),
                 "months": [{"site_code": s, "period": p} for s, p in zip(u.month_site_code, u.month_period)],
                 **self._refusals(reader, u.row_map, refusals), "result": result}
+
+    def held(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
+        """3A3 (spec §2.8; D-3A3.11): every upload the tenant holds (not declined), one read, no write."""
+        return tuple(self._store.held_uploads(tenant_id))
 
     def list(self, tenant_id: UUID, scope: UploadScope) -> dict[str, Any]:
         records = self._store.uploads_in_scope(tenant_id, scope.site_id, MAX_LISTED)

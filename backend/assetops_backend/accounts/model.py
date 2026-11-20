@@ -77,6 +77,17 @@ class PersonView:
 
 
 @dataclass(frozen=True)
+class OnboardPerson:
+    """3A3 (spec §2.7): one person as a command-line loader sees them, read by email. No write."""
+    person_id: UUID
+    tenant_id: UUID
+    tenant_slug: str | None
+    display_name: str
+    active: bool
+    roles: frozenset[tuple[str, UUID | None]]
+
+
+@dataclass(frozen=True)
 class SessionRow:
     id: UUID
     tenant_id: UUID

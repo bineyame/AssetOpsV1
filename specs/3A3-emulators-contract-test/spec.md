@@ -1,6 +1,6 @@
 # 3A3: emulated native exports and the source contract test (implementer spec)
 
-Status: **rev 2**, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-3A3.9 to D-3A3.12).
+Status: **in_review** (rev 2; packet `packet.md`), handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-3A3.9 to D-3A3.12).
 Questions: `handshake.md` before code, `mid-build-questions.md` during it. Reviewer: `reviewer-guide.md` (rev 2).
 Decisions with reasons: `rulings.md` (D-3A3.1 to D-3A3.12). **Builds after `RC4-F1`** (`specs/RC4-F1-database-name/`,
 D-RC4F1.1, D-RC4F1.2), which must merge first.
@@ -235,9 +235,10 @@ tuple[dict, ...], data: bytes)`; `file_name(f) = f"{f.tenant}.{f.key}.csv"`; `KE
     `fuel-supplier`; `category` FUEL; `document_ref` the record ID; quantity `str(litres)` L.
   - **Budget lines** (`budget`), side `plan`, name the factor ID, recognition the month, `version_ref`
     `budget-2026-v1`, `line_ref` as the map key: `revenue` (p.revenue, money), `fuel_cost` (`diesel_cost`, money),
-    `billed_kwh` (int text, no currency), `diesel_l` (int text, no currency), `tariff` (`tariff_usd_per_kwh`,
-    `f"{Decimal(str(v)):.2f}"`, currency), `diesel_price` (`diesel_usd_per_l`, same). A plan field absent writes
-    nothing, listed `PLAN_FIELD_ABSENT`. DS1b's `om` and `staff` lines complete the set.
+    `billed_kwh` (int text, no currency), `diesel_l` (int text, no currency), `tariff` (`p.revenue / p.billed_kwh`,
+    `f"{Decimal(str(v)):.2f}"`, currency), `diesel_price` (`p.diesel_cost / p.diesel_l`, same); never from
+    `tenant.prices`; exact or `EMU_PLAN_PRICE <tenant>/<site> <field>` (D-3A3.13). A plan field absent writes
+    nothing, listed `PLAN_FIELD_ABSENT`; a plan quantity of 0 writes no price line, listed `PLAN_PRICE_UNDEFINED`. DS1b's `om` and `staff` lines complete the set.
   - Every record must pass `parse_record` (`EMU_FORMAT <tenant>/<site> <name>`).
 - **Order in each file:** by site code, then: billing by name; collections by name; expenses fuel by `k`, then DS1b's
   OM, then STAFF; budget `revenue, fuel_cost, om, staff, billed_kwh, diesel_l, tariff, diesel_price`.

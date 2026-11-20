@@ -57,6 +57,7 @@ _PURGE = text("DELETE FROM sign_in_attempt WHERE at < :before")
 
 _TENANT_BY_SLUG = text("SELECT id, name FROM tenant WHERE slug = :slug")
 _TENANT = text("SELECT slug, name FROM tenant WHERE id = :t")
+_TENANT_SLUG = text("SELECT slug FROM tenant WHERE id = :t")  # 3A3 (spec §2.7)
 _SITE = text("SELECT id FROM site WHERE tenant_id = :t AND site_code_key = lower(:code)")
 _ACCOUNT_COLUMNS = "SELECT id, tenant_id, email, display_name FROM operator_account "
 _ACCOUNT_BY_KEY = text(_ACCOUNT_COLUMNS + "WHERE email_key = :k")
@@ -166,6 +167,10 @@ class PostgresAccountStore:
         with self._read() as c:
             found = c.execute(_TENANT, {"t": tenant_id}).first()
         return None if found is None else (found.slug, found.name)
+
+    def tenant_slug(self, tenant_id: UUID) -> str | None:
+        with self._read() as c:
+            return c.execute(_TENANT_SLUG, {"t": tenant_id}).scalar()
 
     def site_id(self, tenant_id: UUID, site_code: str) -> UUID | None:
         with self._read() as c:

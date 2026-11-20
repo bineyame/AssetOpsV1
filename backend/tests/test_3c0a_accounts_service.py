@@ -87,6 +87,10 @@ class MemoryStore:
     def tenant(self, tenant_id: UUID) -> tuple[str, str] | None:
         return self.tenants.get(tenant_id)
 
+    def tenant_slug(self, tenant_id: UUID) -> str | None:
+        found = self.tenants.get(tenant_id)
+        return None if found is None else found[0]
+
     def site_id(self, tenant_id: UUID, site_code: str) -> UUID | None:
         found = self.sites.get((tenant_id, site_code.lower()))
         return None if found is None else found[0]
