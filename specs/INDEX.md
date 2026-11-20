@@ -69,7 +69,7 @@ finished work are in `archive/agent-history/`.
 | DS1 | Generator core and the July-September history | DS1a, DS1p done; DS1m in progress | `DS1-history-generator/spec.md` | 94 KB |
 | RECON-1 | Figures that reconcile (UX audit C2), comparators that state their basis: rulings D-RECON.1 to .8 | live — applied in the pack; .5 to .7 data to the data lane | `RECON-1/rulings.md` | 22 KB |
 | BW1 | Non-screen build start: re-cut, waves (D-BW1.1-7) | live | `BW1-build-wave1/rulings.md` | small |
-| 2a | Canonical format v1, leaf factor IDs; lane B unit 1 | in_review — built on `task/2a-canonical-format` | `2a-canonical-format/spec.md` | 30 KB |
+| 2a | Canonical format v1, leaf factor IDs; lane B unit 1 | in_review | `2a-canonical-format/spec.md` | 30 KB |
 | 3C0a | Operator accounts and roles (API); lane C unit 1 | merged (773d9bafc) | `3C0a-operator-accounts/spec.md` | 35 KB |
 | DS1b | Generator canonical writers | live — rev 2 | `DS1b-canonical-writers/spec.md` | 20 KB |
 | T2 | Neutral package tests (check-all) | live — rev 2 | `T2-neutral-package-tests/spec.md` | small |
