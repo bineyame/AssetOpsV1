@@ -130,3 +130,22 @@ Runbook line (coordinator adds to `Docs/engineering/operator-deep-dive-runbook.m
   (plus the G1 message, since nothing then matches). Tree restored after each. The coordinator applies the block after
   owner approval.
 - Fast check-all (80.6 s): `Check failed: 1 of 40 blocking guards`, only the persistence guard (`check-all-fast.txt`, tail only).
+
+## Fix round 2 (review r1 findings F1-F4; review copy `review.md`; ruling note "Review answers (r1)")
+
+- Code revision: `03d2df7de` (parent `260db0daf`); the earlier fix-round runs (252, 79) match `260db0daf` by content.
+- F1: `adapters/code_digest.py` follows `assetops_backend` and `assetops_contracts` (contracts dir located by
+  `find_spec`, nothing imported). Tests 11(b) (closure has `assetops_contracts.canonical.factors`) and 11(d) (build, then
+  append a line to a copy of `contracts/.../canonical/factors.py`: site and portfolio read `("RULES",)`).
+- F2: test 4(e): the Mto charge ingested after `as_of`, then built: the Mto row's `held_kinds` lacks `CHARGE`, and the
+  read is `RECORDS` with `changed_kinds == ("MTO-001:CHARGE",)`.
+- F3: `build.UnknownSnapshot`; the command maps only that to `UNKNOWN_SNAPSHOT`. Test: a rebuild that raises propagates.
+- F4: composition wraps the post-build wiring (including `rules_digest()`) and calls `dispose()` on failure. Fake-engine
+  test: all three disposed.
+- Plants (each reverted): F1 (contracts dropped from `_dirs`) fails 11(b) and 11(d); F2 (`known_at` removed at build.py:99)
+  fails 4(e); F3 (catch `LookupError, ValueError` again) fails its test; F4 (dispose removed) fails its test.
+- PYTHONPATH = worktree backend, contracts, simulator; `assetops_backend` and `assetops_contracts` resolved to the worktree.
+- No-database 3B7a (27 tests, was 23) + seam + 3B3, 4b1, 4b, 5a, 3A4: `256 passed in 14.68s`. Postgres through
+  `heavy-slot.sh --db` + `run-host-tests.ps1` (3B7a, 3A1, 3A2, 3A4, 4b, 5a, 3B3 read): `79 passed in 47.04s`.
+- Fast check-all: see the line below. Guard file `tools/checks/configuration-persistence.ps1` untouched.
+- Fast check-all (76.6 s): `Check failed: 1 of 40 blocking guards`, only the persistence guard (the block awaits owner approval).
