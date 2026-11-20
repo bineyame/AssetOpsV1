@@ -1,6 +1,6 @@
 # 3A4: amounts by month (implementer spec)
 
-Status: live, spec (handshake step 1; `.ai/RULES.md` §4).
+Status: live, spec **rev 2** (handshake round 1 answered in `rulings.md`; `.ai/RULES.md` §4).
 
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`3B3` → `3A4` → `4b` and `5a`;
 `two-week-build-plan.md` §0.1 row 3; D-BW1.8 to D-BW1.12; owner RC1 to RC9 accepted).
@@ -11,7 +11,7 @@ Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (
   D-3A1.8 "latest before any filter"), `2a` (`loads_canonical`, `parse_record`, `LEAF_FACTORS`, `PROVENANCES`).
   **Read by** `4b` and `5a` (through 3B3's `LeafSource` port: `structure/sources.py` `ReadContext`, `LeafSource`,
   `SOURCE_STATE`, on `task/3B3-structure-read`) and `3B7a` (the month stamps).
-- **Decisions:** `rulings.md` (D-3A4.1 to D-3A4.9). **Reviewer guide:** `reviewer-guide.md`.
+- **Decisions:** `rulings.md` (D-3A4.1 to D-3A4.11, and "Handshake answers (round 1)"; D-3A2.16 for store errors). **Reviewer guide:** `reviewer-guide.md`.
 
 Non-screen. **2 units, two commits.** Discovery review (W5): money figures and a new read seam.
 
@@ -55,7 +55,10 @@ Add to `CommercialStore`, the Postgres adapter and a test subclass of the in-mem
    byte-wise. At most two statements: the intake's revisions, then the superseded ones by ID.
 3. `site_zones(tenant_id) -> Mapping[UUID, str]`: `SELECT id, timezone FROM site WHERE tenant_id = :t`.
 
-No write, no lock, no guard change.
+No write, no lock, no guard change. **Store errors** (D-3A2.16): each of the three methods carries 3A2's `_scrubbed`
+decorator (a non-connection `DBAPIError` leaves as `StoreRefused`, no cause, no context). If `3A2` has not merged
+when this branch merges, leave them undecorated and `3A2` decorates them at its merge; if it has, decorate them and
+run 3A2's service test 21 after merging `main`.
 
 ## 3. Rules
 
@@ -78,7 +81,8 @@ revisions count, per D-3A1.8, as of `known_at` when given.
 
 Each placed revision is parsed once from its `canonical` (`parse_record(loads_canonical(text.encode("utf-8")))`; a
 failure is a `RuntimeError("stored canonical does not parse")`, a bug). It contributes to lines keyed by
-`(kind, dims, measure, currency, unit, provenance)`:
+`(kind, dims, measure, currency, unit, provenance, basis)` (D-3A4.10). An AMOUNT line has `currency =
+amount.currency`, `unit = None`; a QUANTITY line `currency = None`, `unit = quantity.unit`; a DECLARED line as below:
 
 | Kind | `dims` (names in order; value `None` when absent) | Measures |
 |---|---|---|
@@ -93,13 +97,15 @@ failure is a `RuntimeError("stored canonical does not parse")`, a bug). It contr
 
 - **Sums are exact** (D-3A4.9): inside `decimal.localcontext(Context(prec=200, traps=[Inexact, Rounded,
   InvalidOperation]))`; nothing is quantised; a zero result is normalised with `copy_abs()`. No `float` anywhere.
-- **Never across currency, unit or provenance** (D-3A4.3): they are part of the key. Nothing is converted.
+- **Never across currency, unit, provenance or basis** (D-3A4.3, D-3A4.10): they are part of the key. Nothing is
+  converted.
 - **Budget lines are never summed** (D-3A4.4): a DECLARED key with one record has its value; with two or more,
   `value = None`, `note = "DUPLICATE_DECLARATION"`, `record_count` the number.
 - **No record, no line** (D-3A4.5): a heading with no placed record is absent, never 0. A line whose records sum to
   0 is a recorded 0 and is shown.
 - `MonthLine` sort: `(MONEY_KINDS.index(kind), [(v is not None, v or "") for _, v in dims], MEASURES.index(measure),
-  currency or "", unit or "", PROVENANCE_ORDER.index(provenance))` with `MEASURES = ("AMOUNT", "QUANTITY",
+  currency or "", unit or "", PROVENANCE_ORDER.index(provenance), BASES.index(basis))` with `BASES =
+  ("RECOGNITION_PERIOD", "SETTLED_AT")`, `MEASURES = ("AMOUNT", "QUANTITY",
   "DECLARED")` and `PROVENANCE_ORDER = ("observed-financial", "field-integrated", "bench-tested", "source-emulated",
   "demo-simulated")`. Strings compare by code point.
 
@@ -125,7 +131,7 @@ failure is a `RuntimeError("stored canonical does not parse")`, a bug). It contr
 |---|---|
 | `MonthLine` | frozen: `kind`, `dims: tuple[tuple[str, str \| None], ...]`, `measure`, `value: Decimal \| None`, `currency`, `unit`, `provenance`, `record_count: int`, `basis` (`RECOGNITION_PERIOD` or `SETTLED_AT`), `source_systems: tuple[str, ...]` (sorted, distinct), `note: str \| None` |
 | `Received` | frozen: `source_system`, `provenance`, `record_count` (records placed in the month from that system and origin) |
-| `MonthAmounts` | frozen: `tenant_id`, `site_id: UUID \| None`, `period`, `closed: bool` (`clock() >= hi`), `known_at`, `lines: tuple[MonthLine, ...]`, `received: tuple[Received, ...]` (sorted by `(source_system, PROVENANCE_ORDER index)`), `stamp: MonthStamp` |
+| `MonthAmounts` | frozen: `tenant_id`, `site_id: UUID \| None`, `period`, `closed: bool` (`(known_at or clock()) >= hi`, D-3A4.11), `known_at`, `lines: tuple[MonthLine, ...]`, `received: tuple[Received, ...]` (sorted by `(source_system, PROVENANCE_ORDER index)`), `stamp: MonthStamp` |
 | `CommercialMonths(store, *, clock)` | `site_month(tenant_id, site_id, period, *, known_at=None) -> MonthAmounts`; `portfolio_month(tenant_id, period, *, known_at=None) -> MonthAmounts` (portfolio-level records only); `months_touched`; `stale` |
 | `month_bounds(period, tz)` | §3.2 |
 
@@ -147,7 +153,7 @@ time zone `Africa/Nairobi`. Each step is ingested with the store clock at `at`.
 | Step, `at` | Batch (`source_type`, `source_system`, provenance `source-emulated`) | Records |
 |---|---|---|
 | A, `2026-11-02T06:00:00+00:00` | `billing_export`, `kobo-vending` | `KOBO-CH-0001` CHARGE: period `2026-10`, effective `2026-10-01` to `2026-11-01`, 120.00, 400 kWh, USAGE, `tariff_code` `T-RES`, no `tariff_class`, `account_ref` `C-0001`. `KOBO-CH-0002` CHARGE: as 0001 but 75.50, 250 kWh, `tariff_class` STANDARD, `C-0002`. `KOBO-CH-0003` CHARGE: 300.00, 1000 kWh, `T-PROD`, PRODUCTIVE, `C-0003`. `KOBO-CH-0004` CHARGE: 10.00, FIXED, no quantity, `T-RES`, `C-0001`. `KOBO-RC-0001` RECEIPT: `2026-10-30T19:00:00+03:00`, period `2026-10`, 100.00, COLLECTED, MOBILE_MONEY, `payer_ref` `C-0001`. `KOBO-RC-0002` RECEIPT: same day, 60.00, PAID_IN_TRANSIT, MOBILE_MONEY, `C-0002` |
-| B, same | `mobile_money_statement`, `kobo-mm` | `KOBO-ST-1031` SETTLEMENT: `settled_at` `2026-10-31T22:30:00+00:00` (1 Nov 01:30 in Nairobi), no period, 60.00, `provider` `mobile-money`, `batch_ref` `SB-1031`, `receipts` `["KOBO-RC-0002"]`. `KOBO-ST-1030` SETTLEMENT: `2026-10-30T12:00:00+03:00`, no period, 100.00, `SB-1030`, `["KOBO-RC-0001"]` |
+| B, same | `mobile_money_statement`, `kobo-mm` | `KOBO-ST-1031` SETTLEMENT: `settled_at` `2026-10-31T22:30:00+00:00` (1 Nov 01:30 in Nairobi), no period, 60.00, `provider` `mobile-money`, `batch_ref` `SB-1031`, `receipts` `["KOBO-RC-0002"]`. `KOBO-ST-1030` SETTLEMENT: `2026-10-30T12:00:00+03:00`, no period, 100.00, `provider` `mobile-money`, `SB-1030`, `["KOBO-RC-0001"]` |
 | C, same | `expense_ledger`, `lakeside-accounts` | EXPENSEs, period `2026-10`, occurred `2026-10-14T11:00:00+03:00`, `counterparty_ref` `SUP-X`, `document_ref` = the ID: `KOBO-EX-FUEL-1014` 500.00, 400 L, PAID, FUEL. `KOBO-EX-FUEL-1028` 262.50, 210 L, INVOICED, FUEL. `KOBO-EX-OM-1001` 180.00, PAID, OM. `KOBO-EX-Q-1019` 900.00, QUOTE, REPAIR. `KOBO-EX-STAFF-10` 450.00, PAID, STAFF |
 | D, same | `budget_workbook`, `lakeside-budget-2026` | BUDGET_LINEs, period `2026-10`, `version_ref` `budget-2026-v1`: `BUD-2026-10:KOBO-001:diesel_l` `diesel_l` 700. `BUD-2026-10:KOBO-001:diesel_price` `diesel_price` 1.25 USD. `BUD-2026-10:PORTFOLIO:staff`, no Site, `staff` 1200.00 USD |
 | E, `2026-11-06T09:00:00+00:00` | `expense_ledger`, `lakeside-accounts` | `KOBO-EX-OM-1029` EXPENSE: period `2026-10`, 95.00, INVOICED, OM (late). `KOBO-EX-FUEL-1028` v`2`: 275.00, 220 L, INVOICED, FUEL (corrected) |
@@ -199,14 +205,22 @@ trigger (`3B7b`).
 `MemoryCommercialStore` (imported from `test_3a1_commercial_service`, never edited) adds §2's three methods, every
 Site in `Africa/Nairobi`; the world is 3A1's `make_world`.
 1. The fixture's expected tables of §4, line by line, every field (`value` compared as `Decimal` and as
-   `format(value, "f")` text).
-2. The `known_at` read, the November reads, the portfolio read, the stamps and `months_touched`, as §4.
-3. Settlement placement at the boundary: `KOBO-ST-1031` is in November, never October.
+   `format(value, "f")` text; `currency` and `unit` asserted on every line: USD and None on AMOUNT, None and the
+   unit on QUANTITY).
+2. The `known_at` read, the November reads, the portfolio read, the stamps and `months_touched`, as §4. Also October
+   with `known_at = 2026-10-31T20:00:00+00:00` (before October ends in Nairobi): `closed` false, `lines == ()`.
+3. Settlement placement at the boundary: `KOBO-ST-1031` is in November, never October. Then, after F, one more batch
+   (`mobile_money_statement`, `kobo-mm`, at `2026-11-08T09:00:00+00:00`): `KOBO-ST-1101` SETTLEMENT, `settled_at`
+   `2026-11-05T10:00:00+03:00`, `recognition_period` `2026-11`, 40.00, `provider` `mobile-money`, `SB-1101`,
+   `["KOBO-RC-0001"]`. November then has two `SETTLEMENT mobile-money` lines: 40.00 `RECOGNITION_PERIOD`, then
+   60.00 `SETTLED_AT`.
 4. Currency apart: a KES OM expense beside the USD one gives a second line.
-5. Provenance apart: an `observed-financial` OM PAID expense from `kobo-ledger` gives its own line, after the
-   emulated one.
-6. Exact: two ADJUSTMENTs of one `reason_code`, `"1000000000000"` and `"0.000000000001"`, sum to
-   `"1000000000000.000000000001"`; two of `"5.00"` and `"-5.00"` give a line `0.00` (a recorded zero, not absent).
+5. Provenance apart: an `observed-financial` OM PAID expense from `kobo-ledger` gives its own line, **before** the
+   emulated one (`PROVENANCE_ORDER`).
+6. Exact: two ADJUSTMENTs of one `reason_code`, `"1000000000000.000000000000000001"` and `"0.000000000001"`, sum to
+   `"1000000000000.000000000001000001"` (31 digits; the default context would give
+   `1000000000000.000000000001000`); `"1000000000000"` and `"0.000000000001"` sum to `"1000000000000.000000000001"`;
+   two of `"5.00"` and `"-5.00"` give a line `0.00` (a recorded zero, not absent).
 7. No line without a record: an empty month gives `lines == ()`, `received == ()` and the empty digest; a month with
    only a FUEL expense has no OM line.
 8. Budget duplicates: two records of one `(factor_id, version_ref, line_ref)` give `value None`, `note
@@ -217,10 +231,14 @@ Site in `Africa/Nairobi`; the world is 3A1's `make_world`.
 11. A bad period is `ValueError`; an unknown Site is `LookupError`.
 12. A grep test: no `float(` in `commercial/months.py`; no `structure` import in `commercial/**`.
 
-**Postgres** (pooled, `--db`; `backend/tests/test_3a4_commercial_months_postgres.py`): the fixture ingested through
-`PostgresCommercialStore` (Sites inserted with `timezone` `Africa/Nairobi`), then tests 1 to 3 and 6 against it;
-`latest_revisions(known_at=...)` against the in-memory store on the same data; `intake_revisions` round-trips;
-`site_zones` returns the Sites.
+**Postgres** (pooled, `--db`; `backend/tests/test_3a4_commercial_months_postgres.py`), Sites inserted by a
+`NairobiSeeder` subclass of 3A1's `Seeder` (`timezone` `Africa/Nairobi`; 3A1's file not edited):
+1. The fixture ingested through `PostgresCommercialStore`, then no-database tests 1 to 3 and 6 against it.
+2. `latest_revisions(known_at=...)` equals the in-memory store's on the same data, at each step's instant.
+3. `latest_revisions(tenant, recognition_period="2026-10")` after F does not hold `KOBO-CH-0004` (latest before the
+   filter, D-3A1.8).
+4. `intake_revisions` round-trips, with the superseded revision for E and F.
+5. `site_zones` returns the Sites.
 
 **Regression:** `test_3a1_commercial_service.py`, `test_3a1_commercial_postgres.py`, `test_pg_harness.py`.
 
@@ -228,7 +246,8 @@ Commands as 3A1 §6 with these files; check-all once at the end; `select-tests` 
 
 ## 7. Done (questions; each can fail)
 
-1. Does each heading of a month sum exactly, in its latest revisions, kept apart by currency, unit and origin?
+1. Does each heading of a month sum exactly, in its latest revisions, kept apart by currency, unit, origin and
+   basis, past Python's default 28 digits?
 2. Does a correction that moves a record's month count it once, in the new month, and a late record count in its
    own month?
 3. Is a heading with no record absent, never 0, and a recorded zero shown as 0?
@@ -236,9 +255,10 @@ Commands as 3A1 §6 with these files; check-all once at the end; `select-tests` 
 5. Does a settlement without a recognition month fall in its Site-local settlement month?
 6. Does a month's stamp go stale exactly when a record placed in it, or moved out of it, changes, and is
    `months_touched` right for every fixture step?
-7. Does `known_at` give the month as it was known then?
+7. Does `known_at` give the month as it was known then, `closed` included?
 8. Is nothing changed beyond `commercial/store.py`, `commercial/months.py`, `commercial/composition.py`, the
-   adapter's three read methods, the fixture, the two test files and the packet?
+   adapter's three read methods (and their `_scrubbed` decorators when `3A2` is on `main`), the fixture, the two test
+   files and the packet?
 
 Packet: `specs/3A4-amounts-by-month/packet.md`, with module paths and the mid-build count.
 

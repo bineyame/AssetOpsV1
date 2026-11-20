@@ -14,6 +14,10 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3A2.10` The raw file is never kept · live · specs/3A2-commercial-file-intake/rulings.md
 - `D-3A2.11` Migration 0065, renumbered at merge as D-3A1.12 · live · specs/3A2-commercial-file-intake/rulings.md
 - `D-3A2.12` A submission must add or correct something · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.13` Acceptance applies exactly what was checked (basis digest, UPLOAD_STALE) · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.14` Only records 2a accepts are kept; refusals keep code and a cut path · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.15` File name in a header, kept as given (owner queue Q6) · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.16` One scrub for every adapter method, proved by a class test (widens D-3A2.2) · live · specs/3A2-commercial-file-intake/rulings.md
 - `D-3A4.1` Money by month is a read over latest revisions; nothing stored · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3A4.2` Recognition month; a settlement without one by its Site-local settlement month · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3A4.3` Never summed across currency, unit or evidence origin · live · specs/3A4-amounts-by-month/rulings.md
@@ -23,6 +27,8 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3A4.7` known_at reads the month as it was known · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3A4.8` The structure provider is 4b's, not 3A4's (amends 3B3 spec §0 note) · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3A4.9` Exact sums, or an error · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.10` Line key holds basis; AMOUNT has no unit, QUANTITY no currency · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.11` Closed is judged at the read's cutoff · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3B3.11` A leaf rests on its own record or a labelled declared value of the same quantity · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.12` A summed reading leaf needs a closed, fully covered month · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.13` The portfolio excludes Sites per factor, by name · live · specs/3B3-structure-read/rulings.md
