@@ -17,6 +17,13 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   zero-skip check in the review packet. It covers `backend/tests` only. A
   change under `field/`, `host/` or `gateway/` also needs that package's own
   tests (for example `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- host/tests/<file>`).
+- **Neutral packages (T2):** `simulator/tests` and `contracts/tests` run whole in
+  check-all, against this tree's packages (in-process and in child processes).
+  `python tools/select-tests.py` prints `neutral:` when a change can affect them.
+  To run them alone: `python tools/checks/neutral_tests.py`; `contracts/tests`
+  alone is `pytest contracts/tests`. A `-k` on `simulator/tests` trips its own
+  session anti-vacuity test. A new package folder with its own tests needs a
+  line in the script's `DIRS`.
 - **At every merge to main:** the full backend fast tier in Docker (build once,
   copy per test, below), the full frontend suite and check-all. Schema or shared
   plumbing merges add the slow tier.

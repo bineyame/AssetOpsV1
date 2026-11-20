@@ -55,3 +55,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 141. `DECLUTTER-5` Docs and tools · tools.md
 142. `T1` heavy-tool slot pool, enforced · tools.md
 143. `3C0a` operator accounts, sessions and role grants (API) · work.md
+144. `T2` neutral package tests in check-all · tools.md
