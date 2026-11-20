@@ -13,7 +13,7 @@ finished work are in `archive/agent-history/`.
 | DIESEL-1 | Diesel-hybrid example Site Kisiwa | live — Handoff cites rulings through 9v; K8c unmerged | `DIESEL-1/README.md` (split) | 668 KB |
 | OWN-GAPS | Kisiwa add-day, diesel-night check, records | live — Demo sprint rulings in force (D-SR, D-E5, D-PRICE) | `OWN-GAPS/README.md` (split) | 524 KB |
 | DECLUTTER | Repo declutter recommendation, packets and reviews | live — steps 4-5 | `DECLUTTER/repo-declutter-recommendation-2026-11-18.md` | 42 KB |
-| DS1 | Generator core and the July-September history | DS1a, DS1p done; DS1m in progress | `DS1-history-generator/spec.md` | 94 KB |
+| DS1 | Generator core and the July-September history (spec, reviewer guide, rulings, handshake) | live — handshake closed, rev 2; DS1m in_review (MB7, MB8 open) | `DS1-history-generator/spec.md` | 94 KB |
 | BW1 | Non-screen build start: re-cut, waves (D-BW1.1-7) | live | `BW1-build-wave1/rulings.md` | small |
 | 2a | Canonical format v1, leaf factor IDs; lane B unit 1 | in_review | `2a-canonical-format/spec.md` | 30 KB |
 | DS1b | Generator canonical writers | in_review | `DS1b-canonical-writers/spec.md` | 20 KB |

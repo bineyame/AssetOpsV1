@@ -199,3 +199,16 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
 - Open: Kisiwa added-night board row in `finish check` is BL-52 (backlog). EX-2 = F-COH PASS in runs A and B (F-COH3 proves it is
   not vacuous); the standalone 8 findings are the old fixture's COH-10 x3 and the known BL-47 COH-2 x5, 0 from G1.
 
+
+## DS1m - Layer 4 mock-up trends from the July-September history (merged 20 Nov; r4 verification ACCEPT)
+
+- Branch `task/DS1-mockup-trends` off `main` `54808af06` (pack with DS1p merged). Packet
+  `specs/DS1-history-generator/packet-DS1m.md`.
+- `interactive-mockup-vNEXT/fixtures.js` and `index.html` regenerated (`tools/gen_fixtures.py`, `build.mjs`); pack
+  outputs unchanged. No screen code changed: `uxHistory` already read `DERIVED.history[tenant].portfolio`.
+- Portfolio overview KPI tiles 1 and 2 show the Jul-Oct sparkline and "<change> against Sep" for all three operators;
+  the last point equals the tile's headline (`ux_interaction_check.cjs` block 8, R20).
+- Kept: Site page tiles say "Trend not available yet" (register R742, `MOCK DEVIATION D5`, resolved by the UI lane's
+  Site trend wiring); the period menu keeps earlier months "not available yet" (R21).
+- Open: MB7 (the compact CSS rules hide the trend line at 1280x720 and 390x844, so G3 passes only at 1440x900); MB8
+  (one carried Lakeside wording change from the pack's manifest).
