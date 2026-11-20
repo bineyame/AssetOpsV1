@@ -24,7 +24,7 @@ finished work are in `archive/agent-history/`.
 | 3A3 | Emulated native exports and the source contract test (3 units) | live — spec rev 1, handshake open | `3A3-emulators-contract-test/spec.md` | 36 KB |
 | ON1 | Operator tenant from one onboarding file; served tenant; key erasure; runbook (1.75 units) | live — spec rev 1, handshake open | `ON1-operator-tenant/spec.md` | 29 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
-| IA-1 | Menu, page organization, shape rebuild | rev 2; IA-1a merged, IA-1b next | `IA-1-shape-rebuild/spec.md` | 22 KB |
+| IA-1 | Menu, page organization, shape rebuild | rev 3; IA-1a merged; IA-1b/IA-1c handshake answered (D-IA.21-30), IA-1b next | `IA-1-shape-rebuild/spec.md` | 45 KB |
 | 4b | Money leaves from records; stated headings (4b1 seam, 4b2 providers) | rev 2; 4b1 building | `4b-money-leaves/spec.md` | 31 KB |
 | 5a | Targets per factor, declarer recorded; page P5 | rev 2; P5 approved; unit 1 building | `5a-targets/spec.md` | 24 KB |
 

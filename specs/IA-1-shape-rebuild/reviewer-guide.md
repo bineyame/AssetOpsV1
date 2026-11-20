@@ -1,4 +1,4 @@
-# IA-1 reviewer guide (rev 2, after handshake round 1; review each unit separately)
+# IA-1 reviewer guide (rev 3, after the IA-1b/IA-1c handshake; review each unit separately)
 
 You are the fresh Reviewer.
 - **At the handshake:** read `spec.md`, `rulings.md` and this guide, plus the proposal page
@@ -13,11 +13,18 @@ You are the fresh Reviewer.
    plant of every landed unit fails** (spec §2.5). Run the runner and at least two plants by hand yourself; do not
    take the packet's word. A plant that the code under test neutralises is not a plant (D-IA.16, D-IA.17, D-IA.18).
 3. The gates already earned pass (spec §6, item 4).
-4. The menu, the tab labels and the copy match spec §2.7, §3.3 and §4.4 word for word.
+4. The menu, the tab labels and the copy match spec §2.7, §3.3 and §4.4 word for word; the review bar's popover
+   reads as D-IA.30.
 5. No unlanded destination is reachable: the rail item is unavailable, the tab is not drawn, there is no
    "View all" link, and every other link to it is unlinked by `iaUnlink` before insertion.
 6. IA-1a only: the `planParts` byte-identity output for each operator and switch case (D-IA.20); the Lab gate
    (D-IA.19); the Portfolio rail item is unavailable (D-IA.15).
+7. IA-1b and IA-1c: `tools/parts_identity.cjs` reports every operator, Site and decision byte-identical in both
+   states (D-IA.22), and the one Site-sticky diff is the only change; the reviewed screens look the same as on `main`
+   at 1440 (compare two screenshots per route), apart from the deviations of spec §7.
+8. IA-1b: the "IA-1b is done when" list of spec §6; IA-1c: its list, and P7 below in its three cases.
+9. Every gate added by D-IA.21 to D-IA.29 has its plant in the runner's table, failing; run `G1_PLANT=driver`,
+   `COUNT_PLANT=choose` and one `OUT_PLANT` yourself.
 
 ## First checks
 
@@ -29,7 +36,11 @@ You are the fresh Reviewer.
    then today's passes in today's order) and inserted once into `#ia-root`; `window.__iaInserted` is called straight
    after. For IA routes, `afterRender` adds only listeners, focus, the brand attribute on `<html>` and the
    `scrolls` mark.
-4. **Independence.** The crawl's href classifier in `tools/ia_crawl.cjs` does not call `iaLive`.
+4. **Independence.** The crawl's href classifier in `tools/ia_crawl.cjs` does not call `iaLive`; `count_check.cjs`
+   recomputes its expected counts from `ATTN`, `uxDecState` and `HC.decisions` and never calls `iaDecIds`,
+   `iaWaiting` or the inbox builders (D-IA.24).
+5. **Levels are structure only.** `[data-level]` regions and `[data-ia-drawers]` are `display: contents`; no reused
+   section was re-typed or re-ordered (D-IA.22).
 
 ## Probes
 
@@ -40,33 +51,40 @@ You are the fresh Reviewer.
   - Nothing reached is a stub, and nothing belongs to another operator.
 - **P2 Depth** (from IA-1b; in IA-1a only the self-test runs). Count the clicks yourself, over content only: never
   through the rail, the breadcrumb, the scope menu or search (D-IA.18):
-  - the plan: 1;
-  - the Kisiwa Overview: 2;
-  - the Kisiwa largest-driver drawer: 3;
-  - a waiting decision: 1 from the queue, 2 through the inbox.
+  - the plan: 1 (the plan tile);
+  - the Kisiwa Overview: 2 (Outcomes tab, then its row);
+  - the Kisiwa largest-driver drawer ("Necessary running"): 3 (then its board row's opener); Kasarani and Ruiru have
+    no driver against target and print `n/a`;
+  - a waiting decision: 1 from the queue, 2 through the inbox (control, then row).
+  A link inside a closed drawer is never a step from its page (D-IA.21).
 
   Compare with the packet's table.
 - **P3 After render.** In the browser, open devtools, add a `MutationObserver` on `#ia-root` and reload a live
   route. You should see no mutation after load until you click, except `is-on` on the sticky bar when you scroll
   and `scrolls` on a wide `.scroll-region`.
-- **P4 One source.** The Kisiwa gap on Portfolio › Outcomes equals the gap tile on `site/kisiwa`. The count of
-  decisions on Outcomes equals the Site's queue. The Overview's Grow and Optimize tiles still tie to the statement
-  with the "of which unbilled energy" line.
+- **P4 One source.** The Kisiwa gap on Portfolio › Outcomes equals the gap tile on `site/kisiwa`. Outcomes'
+  "Waiting for a choice" for each Site equals the "waiting for a choice" number on that Site's page, in the default
+  state and under `?state=no-recommendation`. The Overview's Grow and Optimize tiles still tie to the statement with
+  the "of which unbilled energy" line. On Metro, Outcomes reads "over target", Embakasi first.
 - **P5 Wayfinding.**
-  - The H1 differs on each Portfolio tab.
+  - The H1 differs on each Portfolio tab ("Portfolio", "Outcomes", "Demand & capacity").
   - The document title is "<view> · <operator>".
-  - A decision's breadcrumb starts at Decisions.
-  - An unknown hash shows not-found.
-  - Back restores the tab, the scope and an open drawer.
+  - A decision's breadcrumb is Decisions (text) › its Site (a link) › its subject; its H1 is the question while it
+    waits and the subject once chosen.
+  - An unknown hash shows not-found; `#/site/thika` under Lakeside shows not-found.
+  - Back restores the tab and the scope. (An open drawer's address is IA-2d's, D-IA.21.)
 - **P6 Scope.**
   - There is one scope switch.
   - Choosing a group on Outcomes filters the rows, and the address shows `?scope=group:…`.
   - Choosing a Site opens its page.
-- **P7 Acts** (IA-1c). Choose an option. You should see:
-  - the dialog, then the toast with Undo;
-  - the state step moving;
-  - the queue and the badge dropping by one;
-  - Undo restoring all three.
+- **P7 Acts** (IA-1c, D-IA.24). In each case you should see the dialog, then the toast with Undo, then the change,
+  and Undo restoring all of it:
+  - **a For-you decision** (Metro, the Ruiru route expansion): the stepper moves to its chosen step; its queue row
+    stays with its new state; every waiting count drops by one; the badge drops from 2 to 1; the inbox row leaves
+    "For you" and appears under "Since you last looked";
+  - **a portfolio decision** (Lakeside, the Kisiwa late repair): the same, with the badge unchanged at 1 and the row
+    leaving "In your portfolio";
+  - **the plan** (approve on `#/plan`): the badge drops by one, and the plan row leaves "For you".
 - **P8 Developer gate** (built in IA-1a, D-IA.19). With "Developer access" off, there is no footer, `#/lab` shows
   not-found, and the review select lists no Lab screen. With it on, the workspace footer shows "Workspace" ›
   "Simulator Lab" and opens the Lab.
@@ -74,6 +92,14 @@ You are the fresh Reviewer.
   - At 390: no sideways scroll, and the Section menu works.
   - At 1280: the top bar stays on one line.
   - Light and dark, both brand packs.
+
+- **P10 Outcomes** (IA-1b). One row per Site, sorted by gap, adverse first; column 5 names a driver and its heading,
+  or "No driver widens the gap" / "No driver raises the cost". Run `node tools/outcomes_table_check.cjs` and one of its
+  plants: the cap, grouping and scope rules are proven there on synthetic Sites, because every demo operator has three
+  Sites of one group (D-IA.27).
+- **P11 The decision page** (IA-1c). Open one decision per state (waiting, chosen awaiting approval, released) and one
+  under `?state=no-recommendation`: the levels follow D-IA.26; one primary at most, repeated by the sticky only with
+  the same act; no tiles; the stepper is the reviewed one.
 
 ## Class sweeps (W6)
 
@@ -84,6 +110,11 @@ You are the fresh Reviewer.
 - **One figure that differs between two screens:** list every figure the hub and the decision show twice, and
   compare each pair.
 - **One after-render mutation:** run the check on all three operators at 1440 and 390, not one.
+- **One count from another predicate:** every number that says "waiting" or counts decisions reads `iaDecIds` and
+  `iaWaiting`, or `uxStateCount` (the same predicate); grep for other filters on `uxDecState(…).key`.
+- **One primary the rule cannot see:** every `.primary` on every live route, in the three states, is classified by
+  D-IA.23.
+- **One alias that shadows or self-links:** shape_check items 6 and 7; read `IA_ALIASES` against `IA_RAIL` yourself.
 
 ## Risks
 
@@ -94,5 +125,7 @@ You are the fresh Reviewer.
   `render_text.cjs` output before and after; any difference is explained in the packet.
 - **The plan interim (spec §2.6).** It must not grow. IA-2a replaces it. Its split (`planParts`) changes no byte of
   `planScreen()`'s output.
+- **Hidden content counted as a step.** Drawers sit in the page markup; jsdom has no visibility. The edge reader's
+  fixture test (D-IA.21) is the guard; read it.
 - **Plants that cannot bite.** Each plant must reach past the mechanism it tests (`unlink`, `stub`, `text`). If a
   plant passes, the gate is broken, not the plant.
