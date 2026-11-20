@@ -43,6 +43,21 @@ resumed. State in every review which reviewer produced it.
 
 ## Dispatch rules (coordinator)
 
+- **Token budget (owner, 2026-11-20: "it appears cladude usage is not efficient, fix that").**
+  - At most 4 agents running at once; a new dispatch waits for a slot.
+  - No agent is resumed past about 300k context: an Architect or builder that large hands
+    off and the next task goes to a fresh agent with a short brief.
+  - Opus only for first builds, discovery reviews and Architect rulings; Sonnet for
+    handshake questions on units of 2 or fewer, fix rounds, verification re-reviews,
+    bookkeeping and merges.
+  - Briefs at most about 25 lines: the target, the files to read by path, the
+    constraints. They never restate the spec or list what a reviewer should judge.
+  - Reviewers cite the builder's gate run at the same commit and rerun only what a
+    finding needs; screenshots only for screen work, a lean set.
+  - Every hand-back at most 15 lines; detail goes in the packet or review file.
+  - The coordinator does not answer "still waiting" notifications, and keeps owner
+    updates to what changed and what is asked.
+
 - **Model by work.** Opus (session model): pre-flights, first builds of a unit,
   discovery reviews, Architect rulings. Sonnet: continuation builders working
   from a precise handoff, fix rounds against a written list, merge preparation,
