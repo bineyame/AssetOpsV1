@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3B3.11 to D-3B3.16)
+# Decision index: Demo-sprint and later rulings (index only) (D-3B3.11 to D-IA.20)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -8,3 +8,9 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3B3.14` What is summed is a declared row flag · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.15` An option-only neutral is an identity, not evidence · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.16` Money carries its currency; mixed currencies give no value · live · specs/3B3-structure-read/rulings.md
+- `D-IA.15` IA-1a gates start at plan; Portfolio item in IA-1b · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.16` One liveness rule before insertion; independent crawl · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.17` After-render check from the insert hook (corrects D-IA.13) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.18` G1 over content edges, per entry (clarifies D-IA.10) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.19` Lab gate lands in IA-1a (amends D-IA.12) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.20` Plan interim split, output byte-identical · live · specs/IA-1-shape-rebuild/rulings.md
