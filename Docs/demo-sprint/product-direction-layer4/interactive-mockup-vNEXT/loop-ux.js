@@ -320,7 +320,9 @@ function uxInsight(op) {
 }
 
 /* ---------- Portfolio Overview (guide §9) ---------- */
-function uxOverview(op) {
+/* IA-1b (D-IA.22): the Overview cut into parts at its element boundaries; uxOverview joins them into exactly today's string.
+   Every part is built eagerly, in today's order, so counters (UX_QN) advance as before. */
+function uxOverviewParts(op) {
   const o = OPS[op], T = opTotals(op), G = gapByHeading(op), cost = o.kind === 'cost', P = planCase(op), Pp = o.t.portfolio, M2 = o.t.portfolio_constraints;
   const budget = op === 'lakeside' ? LS.budget : M2.budget_usd_nov_dec, val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value;
   const gap = T.actual - T.plan, big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
@@ -337,13 +339,25 @@ function uxOverview(op) {
   const k4 = uxKpi(PLAN_TOTAL_TITLE, `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
     [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : planRestoreNote(op) || 'Valued options only; not realised until records show it'], '', 'is-modelled');
   const n = uxDecCount(ATTN[op]);
-  return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
- <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
- <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span> <small class="ux-split" data-ux-split>${uxStateSplit(ATTN[op].map(r => r[4]))}</small></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
- </div>
- ${uxBridge(op)}
- ${uxCats(op)}
- <p class="ux-more-tabs">More in the tabs: ${link('portfolio/demand-and-capacity', 'where value leaks')} · ${link('portfolio/outcomes-by-site', 'outcomes by site')} · ${link('portfolio/act-first/plan', 'the plan')}</p></div>`;
+  const headline = `<p class="headline ux-headline">${hl}</p>`, tiles = `<div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>`;
+  const qHead = `<div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span> <small class="ux-split" data-ux-split>${uxStateSplit(ATTN[op].map(r => r[4]))}</small></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>`;
+  const actFirst = link('portfolio/act-first', 'Act first ›', 'ux-link');
+  const qBody = `</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}`;
+  const more = n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : '';
+  const queue = (a, m) => `${qHead}${a}${qBody}${m}</section>
+ </div>`;
+  const bridge = uxBridge(op), cats = uxCats(op);
+  const moreTabs = `<p class="ux-more-tabs">More in the tabs: ${link('portfolio/demand-and-capacity', 'where value leaks')} · ${link('portfolio/outcomes-by-site', 'outcomes by site')} · ${link('portfolio/act-first/plan', 'the plan')}</p>`;
+  return { headline, tiles, queue, actFirst, more, bridge, cats, moreTabs };
+}
+function uxOverview(op) {
+  const P = uxOverviewParts(op);
+  return `<div class="ux-overview">${P.headline}
+ ${P.tiles}
+ ${P.queue(P.actFirst, P.more)}
+ ${P.bridge}
+ ${P.cats}
+ ${P.moreTabs}</div>`;
 }
 
 /* ---------- Decision page header (guide §2.3, §7.2): the recommendation in one line and the primary action ---------- */
@@ -955,7 +969,9 @@ function uxSiteTrend(sk) {
   const ch = Math.round(S[S.length - 1].v - S[S.length - 2].v), f = v => usdW(Math.round(v)); /* r1 L5 and the H1 class: whole dollars; cost moves up or down, unsigned */
   return { answer: cost ? `Monthly cost ${ch > 0 ? `up ${usdW(ch)}` : ch < 0 ? `down ${usdW(-ch)}` : 'unchanged'} against ${S[S.length - 2].m}` : `Contribution ${usdW(ch, true)} against ${S[S.length - 2].m}`, html: `<div class="table-wrap"><table><thead><tr><th>Month</th>${S.map(p => `<th>${p.m}</th>`).join('')}</tr></thead><tbody><tr><th scope="row">${cost ? 'Monthly cost' : 'Contribution'}</th>${S.map(p => `<td class="num">${f(p.v)}</td>`).join('')}</tr>${Array.isArray(G) && G.length ? `<tr><th scope="row">Gap to target</th>${G.map(p => `<td class="num">${usdW(p.v, true)}</td>`).join('')}</tr>` : ''}</tbody></table></div><p class="note">From the loaded history; October is the period shown on the page.</p>` };
 }
-function uxSitePage(sk, P) {
+/* IA-1b (D-IA.22): the Site page cut into parts; qMax caps the queue at its first qMax merged decisions (the hub passes 3, as the
+   Overview passes 6); uxSitePage joins uxSiteParts(sk, P, Infinity) into exactly today's string. */
+function uxSiteParts(sk, P, qMax) {
   const op = SK[sk].op, o = OPS[op], t = tree(sk), att = ATTN[op].filter(r => r[2] === sk), nd = uxDecCount(att);
   const waiting = [...new Set(att.map(r => r[4]))].filter(id => ['choose', 'none'].includes(uxDecState(id).key)), B = uxSiteBoard(sk), A = uxSiteActions(sk), T = uxSiteTrend(sk);
   const plain = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
@@ -973,10 +989,18 @@ function uxSitePage(sk, P) {
     ['Limits and warranties', `${P.limits ? `${num(P.limits)} limit${P.limits === 1 ? '' : 's'} to keep` : 'No service limit declared'}; ${P.rights ? `${num(P.rights)} warrant${P.rights === 1 ? 'y or contract' : 'ies or contracts'}` : 'no warranty or contract open'}`, P.limitsHtml]
   ];
   const first = waiting[0], sticky = `<div class="ux-dsticky" role="region" aria-label="This Site" data-ux-sticky><span class="ux-dsticky-t">${SK[sk].name}</span><span class="ux-dsticky-n">${t.plan != null ? `${usdW(siteM(sk).period.variance, true)} <small>against target</small>` : ''}</span><span class="status-pill is-${waiting.length ? 'proposed' : 'approved'}">${waiting.length ? `${num(waiting.length)} waiting for a choice` : `${num(nd)} decision${nd === 1 ? '' : 's'} in hand`}</span>${first ? link(`decision/${first}`, 'Decide', 'button primary') : ''}</div>`;
-  return `${sticky}<p class="headline ux-headline" data-ux-sticky-anchor>${P.lead}</p>${uxSiteTiles(sk)}
- <div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Decisions at this Site <span class="ux-count">${num(nd)}</span></h2><p data-ux-split>${uxStateCount(att.map(r => r[4]))}. One row each, with who decides.</p></div></div>${uxQueue(op, att, '', nd)}</section></div>
- <div class="ux-aside"><section class="panel" aria-labelledby="uxsa-h"><div class="panel-head"><div><h2 id="uxsa-h" data-count="${A.n}" data-count-of=".ux-site-acts .ux-sacts > li">Actions in hand <span class="ux-count">${num(A.n)}</span></h2><p>The plan’s Actions at this Site, with owner, due date and release.</p></div></div><div class="ux-site-acts">${A.html}</div></section></div></div>
- <div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
+  const lead = `<p class="headline ux-headline" data-ux-sticky-anchor>${P.lead}</p>`, tiles = uxSiteTiles(sk);
+  const queue = `<div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Decisions at this Site <span class="ux-count">${num(nd)}</span></h2><p data-ux-split>${uxStateCount(att.map(r => r[4]))}. One row each, with who decides.</p></div></div>${uxQueue(op, att.filter(r => uxMergeRows(att).slice(0, qMax).some(m => m.d === r[4])), '', nd)}</section></div>
+ <div class="ux-aside"><section class="panel" aria-labelledby="uxsa-h"><div class="panel-head"><div><h2 id="uxsa-h" data-count="${A.n}" data-count-of=".ux-site-acts .ux-sacts > li">Actions in hand <span class="ux-count">${num(A.n)}</span></h2><p>The plan’s Actions at this Site, with owner, due date and release.</p></div></div><div class="ux-site-acts">${A.html}</div></section></div></div>`;
+  const secs = `<div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>`, drawers = `${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}`;
+  const help = `<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
+  return { sticky, lead, tiles, queue, secs, help, drawers };
+}
+function uxSitePage(sk, P) {
+  const X = uxSiteParts(sk, P, Infinity);
+  return `${X.sticky}${X.lead}${X.tiles}
+ ${X.queue}
+ ${X.secs}${X.drawers}${X.help}`;
 }
 
 /* ===== one feedback pattern for every consequential action (UX audit C6; owner, 20 Nov): a confirmation that says what happens and
