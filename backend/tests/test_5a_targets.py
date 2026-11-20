@@ -24,7 +24,7 @@ OCT = "2026-10"
 V1, V2 = "budget-2026-v1", "budget-2026-v2"
 E = "source-emulated"
 GEN, BUD = "assetops-world-generator", "lakeside-budget-2026"
-LOADER = "loader:ds3"
+LOADER = "service:ds3-loader"
 PERSON_1 = "person:5a000000-0000-4000-8000-000000000001"
 PERSON_2 = "person:5a000000-0000-4000-8000-000000000002"
 PERSON_1_ID = UUID("5a000000-0000-4000-8000-000000000001")
@@ -714,6 +714,20 @@ def test_8a_a_blocked_leaf_is_unknown_never_zero() -> None:  # plants V1, V11, V
     assert_missing(v["om"], X_("DUPLICATE_DECLARATION", "NOT_CALCULATED_YET"))
     assert v["contribution"].value is None and v["contribution"].missing_leaves == ("om",)
     assert v["cost_to_serve"].value is None
+
+
+def test_8d_two_currencies_leave_the_money_leaks_unknown() -> None:  # D-5A.10, review r1 F1
+    w = lakeside()
+    ingest(w, STEP_3_AT, PERSON_1, budget_batch([
+        budget_line("KOBO-001", "BUD-2026-10:KOBO-001:fuel_cost", "fuel_cost", "875.00", currency="EUR",
+                    source_version="2")]))
+    st = read_site(w, "KOBO-001")
+    assert st.currency is None
+    v = st.structure.values
+    for leaf in ("in_transit", "outstanding", "liability"):
+        assert v[leaf].value is None, leaf
+        assert_missing(v[leaf], X_("TARGET_CURRENCY_UNKNOWN"))
+    assert (v["technical_loss_kwh"].value, v["technical_loss_kwh"].evidence) == (D("0"), "ESTIMATED")
 
 
 def test_8b_no_actual_price_leaves_the_main_factor_unsolved() -> None:  # plant V11
