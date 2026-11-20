@@ -47,11 +47,11 @@ _SENTENCES = {
     "EMULATED_ON_OPERATOR_DATABASE": "Emulated exports are never loaded into an operator's database.",
     "COMMERCIAL_UPLOAD_OFF": "Set ASSETOPS_PSEUDONYM_KEY_DIR: commercial uploads are off on this database.",
     "EXPORT_FILE_UNKNOWN": "The directory holds a file this loader does not read.",
-    "EXPORT_PATHS_MIXED": "The directory holds both a native and a canonical file for one source type.",
+    "EXPORT_PATHS_MIXED": "The directory holds two readers' files for one source type.",
     "PERSON_NOT_FOUND": "No active person of this organisation has that email.",
     "PERSON_ROLE_REQUIRED": "That person's role cannot do this.",
     "PERSON_SAME_FOR_BOTH": "The person who accepts must not be the person who submits.",
-    "EXPORT_PATH_SWITCHED": "This organisation already holds this source type through the other path.",
+    "EXPORT_PATH_SWITCHED": "This organisation already holds this source type through another reader.",
 }
 
 
@@ -97,9 +97,9 @@ def _files(directory: Path, slug: str) -> list[tuple[str, Path, str, str]]:
         else:
             raise _Stop(2, "EXPORT_FILE_UNKNOWN", name)
     ordered = [csvs[key] for key in KEYS if key in csvs] + jsons
-    native_types = {f[3] for f in ordered if f[2] != DEFAULT_READER}
-    for name, _, reader_id, source_type in ordered:
-        if reader_id == DEFAULT_READER and source_type in native_types:
+    readers: dict[str, str] = {}
+    for _, _, reader_id, source_type in ordered:
+        if readers.setdefault(source_type, reader_id) != reader_id:
             raise _Stop(2, "EXPORT_PATHS_MIXED", source_type)
     return ordered
 
@@ -114,10 +114,6 @@ def _person(accounts: Any, email: str, slug: str, command: str):
     if role is None:
         raise _Stop(2, "PERSON_ROLE_REQUIRED")
     return person, role
-
-
-def _path(reader_id: str) -> str:
-    return "canonical" if reader_id == DEFAULT_READER else "native"
 
 
 def _counts(answer: dict[str, Any]) -> dict[str, Any] | None:
@@ -158,9 +154,13 @@ def _run(args: argparse.Namespace, uploads: Any, accounts: Any) -> int:
     tenant_id = submitter.tenant_id
     held = uploads.held(tenant_id)  # step 5b: one read
     for _, _, reader_id, source_type in files:
-        if any(h.source_type == source_type and _path(h.reader) != _path(reader_id) for h in held):
+        if any(h.source_type == source_type and h.reader != reader_id for h in held):
             raise _Stop(2, "EXPORT_PATH_SWITCHED", source_type)
     waiting = {h.file_sha256: h for h in held if h.waiting}
+    if acceptor is not None:  # D-3A3.14: across runs, the submitter is never the acceptor
+        digests = {hashlib.sha256(path.read_bytes()).hexdigest() for _, path, _, _ in files}
+        if any(h.submitted_by == acceptor.person_id for sha, h in waiting.items() if sha in digests):
+            raise _Stop(2, "PERSON_SAME_FOR_BOTH")
     actor = Actor(submitter.person_id, submit_role)
     for name, path, reader_id, _ in files:
         data = path.read_bytes()

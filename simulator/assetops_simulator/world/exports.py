@@ -40,15 +40,19 @@ BUDGET_LINES = (
     ("fuel_cost", "diesel_cost", "plan", "diesel_cost", "money"),
     ("billed_kwh", "billed_kwh", "plan", "billed_kwh", "whole"),
     ("diesel_l", "diesel_l", "plan", "diesel_l", "whole"),
-    ("tariff", "tariff_usd_per_kwh", "prices", "tariff_usd_per_kwh", "price"),
-    ("diesel_price", "diesel_usd_per_l", "prices", "diesel_usd_per_l", "price"),
+    ("tariff", "tariff_usd_per_kwh", "plan", "tariff_usd_per_kwh", "price"),
+    ("diesel_price", "diesel_usd_per_l", "plan", "diesel_usd_per_l", "price"),
 )
+#: D-3A3.13: a budget unit price is the plan's own, plan money divided by plan quantity (never `tenant.prices`).
+PRICE_FROM_PLAN = {"tariff": ("revenue", "billed_kwh"), "diesel_price": ("diesel_cost", "diesel_l")}
 BUDGET_ORDER = ("revenue", "fuel_cost", "om", "staff", "billed_kwh", "diesel_l", "tariff", "diesel_price")
 EXPENSE_ORDER = ("FUEL", "OM", "STAFF")
 
 NOT_ON_PATH_VERTICAL = "NOT_ON_PATH_VERTICAL"
 NOT_IN_LAYOUT = "NOT_IN_LAYOUT"
 PLAN_FIELD_ABSENT = "PLAN_FIELD_ABSENT"
+PLAN_PRICE_UNDEFINED = "PLAN_PRICE_UNDEFINED"
+SITE_NOT_IN_TENANT = "SITE_NOT_IN_TENANT"
 AS_UNPAID_CHARGES = "AS_UNPAID_CHARGES"
 
 
@@ -230,7 +234,22 @@ def _budget_records(s: _Site, unwritten: list) -> tuple[list[dict], set[str]]:
     out = []
     written: set[str] = set()
     for factor, line, source, field, form in BUDGET_LINES:
-        value = s.p.get(field) if source == "plan" else s.price(field)
+        if form == "price":
+            money_field, qty_field = PRICE_FROM_PLAN[factor]
+            money, qty = s.p.get(money_field), s.p.get(qty_field)
+            if money is None or qty is None:
+                unwritten.append((s.tenant, s.code, s.month, "plan", field, PLAN_FIELD_ABSENT))
+                continue
+            if _number(qty) == 0:
+                unwritten.append((s.tenant, s.code, s.month, "plan", field, PLAN_PRICE_UNDEFINED))
+                continue
+            error = f"EMU_PLAN_PRICE {s.where()} {factor}"
+            price = _cents(_number(money) / _number(qty), error)
+            if price * _number(qty) != _number(money) * 100:
+                raise ValueError(error)
+            value = Decimal(price) / 100
+        else:
+            value = s.p.get(field)
         if value is None:
             unwritten.append((s.tenant, s.code, s.month, "plan", field, PLAN_FIELD_ABSENT))
             continue
@@ -315,6 +334,11 @@ def build_exports(view: dict, history: dict) -> ExportsResult:
             budget += ds1b.get(("budget", s.code), [])
             out["budget"] += sorted(budget, key=lambda r: BUDGET_ORDER.index(r["body"]["factor_id"]))
             written |= {(name, s.code, month, "plan", field) for field in fields}
+        codes = {x["code"] for x in tenant.get("sites", [])}
+        for (_, site_code), kept in ds1b.items():  # every kept DS1b record is written or listed
+            if site_code not in codes:
+                unwritten += [(name, site_code, month, r["kind"], r["source_record_id"], SITE_NOT_IN_TENANT)
+                              for r in kept]
         for row in records.unwritten:
             tenant_name, code, row_month, side, field, reason = row
             if tenant_name != name or row_month != month or (tenant_name, code, row_month, side, field) in written:

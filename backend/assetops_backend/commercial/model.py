@@ -169,6 +169,7 @@ class HeldUpload:
     reader: str
     file_sha256: str
     waiting: bool
+    submitted_by: UUID
 
 
 @dataclass(frozen=True)

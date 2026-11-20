@@ -158,11 +158,69 @@ def _planted(path: tuple[str, ...], value) -> dict:
     (("actual", "collected"), "3181.0", "EMU_COLLECTIONS lakeside-power/KOBO-001"),
     (("prices", "tariff_usd_per_kwh"), "0.405", "EMU_PRICE lakeside-power/KOBO-001 tariff_usd_per_kwh"),
     (("actual", "billed_kwh"), "8645.5", "EMU_QUANTITY lakeside-power/KOBO-001 billed_kwh"),
-], ids=["revenue", "fuel", "collections", "price", "quantity"])
+    (("plan", "diesel_cost"), "876.0", "EMU_PLAN_PRICE lakeside-power/KOBO-001 diesel_price"),
+], ids=["revenue", "fuel", "collections", "price", "quantity", "plan-price"])
 def test_e8_planted_manifest_stops(path, value, code) -> None:
     with pytest.raises(ValueError) as raised:
         build(_planted(path, value))
     assert str(raised.value) == code
+
+
+def test_e10_budget_prices_are_the_plans_own() -> None:
+    """D-3A3.13: plan money / plan quantity, independent of the price list that prices the actuals."""
+    view = load_fixture()
+    plan = site_of(view, TENANT, "Kobo")["period"]["plan"]
+    plan.update({"revenue": "3505.5", "diesel_cost": "910.0", "contribution": "1495.5"})
+    mto = site_of(view, TENANT, "Mto")["period"]["plan"]
+    mto["billed_kwh"] = 0
+    del mto["diesel_l"]
+    result = build(view)
+    budget = records(result, "budget")
+    kobo = {r["body"]["factor_id"]: r["body"]["value"] for r in of_site(budget, "KOBO-001")}
+    assert (kobo["tariff"], kobo["diesel_price"]) == ("0.41", "1.30")
+    assert money(of_site(records(result, "billing"), "KOBO-001")) == Decimal("3458.00")
+    assert money([r for r in of_site(records(result, "expenses"), "KOBO-001") if r["body"]["category"] == "FUEL"]) \
+        == Decimal("1475.00")
+    kisiwa = {r["body"]["factor_id"]: r["body"]["value"] for r in of_site(budget, "KISIWA-001")}
+    assert (kisiwa["tariff"], kisiwa["diesel_price"]) == ("0.55", "1.30")
+    mto_lines = {r["body"]["factor_id"]: r["body"]["value"] for r in of_site(budget, "MTO-001")}
+    assert mto_lines["billed_kwh"] == "0" and not {"tariff", "diesel_l", "diesel_price"} & set(mto_lines)
+    listed = {(r[1], r[4], r[5]) for r in result.unwritten}
+    assert ("MTO-001", "tariff_usd_per_kwh", "PLAN_PRICE_UNDEFINED") in listed
+    assert ("MTO-001", "diesel_l", "PLAN_FIELD_ABSENT") in listed
+    assert ("MTO-001", "diesel_usd_per_l", "PLAN_FIELD_ABSENT") in listed
+
+
+def test_e9_every_kept_ds1b_record_is_written_or_listed(monkeypatch) -> None:
+    """Residual: a DS1b record with no `site_code`, or a Site outside the tenant, is listed SITE_NOT_IN_TENANT."""
+    import json
+    from assetops_simulator.world import exports
+
+    real = exports.to_canonical_json
+
+    def planted(batch):
+        doc = json.loads(real(batch))
+        for kind in ("EXPENSE", "BUDGET_LINE"):
+            found = next((r for r in doc["records"] if r["kind"] == kind and r["clocks"].get("recognition_period")
+                          == "2026-10" and (r["body"].get("category") == "OM" or r["body"].get("factor_id") == "om")),
+                         None)
+            if found is not None:
+                for tag, code in (("nosite", None), ("other", "ELSEWHERE-9")):
+                    copy = json.loads(json.dumps(found))
+                    copy["source_record_id"] = f"plant:{kind}:{tag}"
+                    copy.pop("site_code", None)
+                    if code:
+                        copy["site_code"] = code
+                    doc["records"].append(copy)
+        return json.dumps(doc)
+
+    monkeypatch.setattr(exports, "to_canonical_json", planted)
+    result = build()
+    listed = {r[4]: r for r in result.unwritten if r[5] == "SITE_NOT_IN_TENANT"}
+    assert set(listed) == {f"plant:{k}:{t}" for k in ("EXPENSE", "BUDGET_LINE") for t in ("nosite", "other")}
+    assert listed["plant:EXPENSE:nosite"][1] == "" and listed["plant:EXPENSE:other"][1] == "ELSEWHERE-9"
+    written = {r["source_record_id"] for f in result.files for r in f.records}
+    assert not written & set(listed)
 
 
 def test_e9_unwritten_never_lists_a_written_field(result) -> None:

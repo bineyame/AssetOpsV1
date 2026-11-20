@@ -10,6 +10,7 @@ child process: product tests never import the simulator (dependency direction).
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import os
 import subprocess
@@ -71,7 +72,7 @@ class HeldMemoryStore(UploadMemoryStore):
             found = [d for d in self.decisions if d.tenant_id == tenant_id and d.upload_id == u.id]
             if found and found[0].decision != "ACCEPTED":
                 continue
-            out.append(HeldUpload(u.id, u.source_type, u.reader, u.file_sha256, not found))
+            out.append(HeldUpload(u.id, u.source_type, u.reader, u.file_sha256, not found, u.submitted_by))
         return tuple(out)
 
 
@@ -185,6 +186,15 @@ def test_l1_pgdatabase_in_the_environment_is_unclear(tmp_path, monkeypatch, caps
     assert uploads.touched == [] and accounts.touched == []
 
 
+def test_l1_composition_path_with_real_operator_data_on_still_refuses(tmp_path, monkeypatch, capsys) -> None:
+    """F5: no injected services and the operator switch on: step 2 is the only stop, and nothing connects."""
+    monkeypatch.setenv("ASSETOPS_REAL_OPERATOR_DATA", "on")
+    monkeypatch.setenv("DATABASE_URL", "postgresql+psycopg://u:p@rc4.invalid:1/assetops_op_x")
+    result = loader.main(["--dir", str(tmp_path), "--tenant", "acme", "--submit-as", "ana@acme.example"],
+                         uploads=None, accounts=None)
+    assert result == 2 and capsys.readouterr().err.startswith("EMULATED_ON_OPERATOR_DATABASE ")
+
+
 def test_l1_database_url_required(tmp_path, monkeypatch, capsys) -> None:
     monkeypatch.delenv("DATABASE_URL")
     assert loader.main(["--dir", str(tmp_path), "--tenant", "acme", "--submit-as", "a@b.c"],
@@ -222,6 +232,16 @@ def test_l6_without_accept_then_already_waiting_then_decided(w, tmp_path, emulat
     assert code == 0 and [(l["state"], l["decided_by_script"]) for l in decided] == [("ACCEPTED", True)] * 4
     assert [l["upload_id"] for l in decided] == [l["upload_id"] for l in first]
     assert len(w.store.uploads) == 4 and len(w.store.decisions) == 4
+
+
+def test_l6_submitter_cannot_accept_across_runs(w, tmp_path, emulated, capsys) -> None:
+    """D-3A3.14: run 1 fiona submits; run 2 asks fiona to accept: refused, nothing decided."""
+    directory = write_files(tmp_path / "x", emulated)
+    code, first, _ = run(w, directory, submit="fiona@acme.example", accept=None, capsys=capsys)
+    assert code == 0 and [l["state"] for l in first] == ["WAITING"] * 4
+    code, lines, err = run(w, directory, submit="ana@acme.example", accept="fiona@acme.example", capsys=capsys)
+    assert (code, lines) == (2, []) and err.startswith("PERSON_SAME_FOR_BOTH ")
+    assert len(w.store.uploads) == 4 and w.store.decisions == []
 
 
 # --- L3 to L5 --------------------------------------------------------------------------------------------------------
@@ -277,6 +297,19 @@ def test_l5_path_switched_across_runs(w, tmp_path, emulated, generated, capsys) 
     before = len(w.store.uploads)
     code, lines, err = run(w, other, capsys=capsys)
     assert (code, lines) == (2, []) and err.startswith("EXPORT_PATH_SWITCHED budget_workbook ")
+    assert len(w.store.uploads) == before
+
+
+def test_l5_path_is_the_reader_id(w, tmp_path, emulated, capsys) -> None:
+    """F6: a held expenses upload read by another reader (`profile-x`) refuses the illustrative layout."""
+    directory = write_files(tmp_path / "x", emulated)
+    assert run(w, directory, accept=None, capsys=capsys)[0] == 0
+    w.store.uploads = [dataclasses.replace(u, reader="profile-x") if u.source_type == "expense_ledger" else u
+                       for u in w.store.uploads]
+    assert any(u.reader == "profile-x" for u in w.store.uploads)
+    before = len(w.store.uploads)
+    code, lines, err = run(w, directory, accept=None, capsys=capsys)
+    assert (code, lines) == (2, []) and err.startswith("EXPORT_PATH_SWITCHED expense_ledger ")
     assert len(w.store.uploads) == before
 
 

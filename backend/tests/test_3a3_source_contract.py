@@ -135,7 +135,8 @@ def w(people):
 @parametrise
 def test_c1_check_submit_accept_on_the_organisation_path(w, case) -> None:
     checked = check(w, case, golden(case))
-    assert counts(checked) == (3, 3, 0, 0, 0)
+    rows = len(grid(case)) - 1  # the golden's data rows: the record count equals them
+    assert counts(checked) == (rows, rows, 0, 0, 0) and rows == len(expected(case))
     want_months = sorted({(r.get("site_code"), "2026-10") for r in expected(case)},
                          key=lambda m: (m[0] is not None, m[0] or ""))
     assert [(m["site_code"], m["period"]) for m in checked["months"]] == want_months
@@ -163,6 +164,21 @@ def test_c3_required_cell_blank_refuses_row_2_only(w, case, header) -> None:
     assert (row, got) == (2, field) and code in CANONICAL_CODES
     assert answer["refusals"][0]["text"] == f"Row 2, {field}: {render(reason_words(code))}"
     assert counts(answer) == (3, 2, 0, 0, 1)
+
+
+@pytest.mark.parametrize("case,header", [(c, h) for c in CONTRACT_CASES for h in grid(c)[0] if h not in c.required_headers],
+                         ids=[f"{c.reader_id}-{h}" for c in CONTRACT_CASES for h in grid(c)[0]
+                              if h not in c.required_headers])
+def test_c3_optional_cell_blank_keeps_row_2(w, case, header) -> None:
+    """The complement: every header not listed as required is optional, so the case fully states the required cells."""
+    n = len(grid(case)) - 1
+    answer = check(w, case, changed(case, header, ""))
+    assert refusals(answer) == [] and counts(answer) == (n, n, 0, 0, 0)
+
+
+@parametrise
+def test_c3_every_listed_header_is_a_header_of_the_file(case) -> None:
+    assert set(case.required_headers) <= set(grid(case)[0])
 
 
 @parametrise
@@ -209,6 +225,19 @@ def test_c8_native_refusals_on_the_service(w, case) -> None:
     error = refused(lambda: check(w, case, reordered))
     assert (error.status, error.code, error.params) == (422, "UPLOAD_FILE_REFUSED",
                                                         {"code": "NATIVE_HEADER", "field": "the file"})
+    # A case with no mapped cell is allowed only where the layout maps nothing: admission is never vacuous.
+    assert (case.mapped is None) == (not any(c.maps for c in LAYOUTS[case.reader_id].columns))
+    n = len(rows) - 1
+    short = [r[:] for r in rows]
+    short[2] = short[2][:-1]
+    answer = check(w, case, write(short))
+    assert refusals(answer) == [(3, "NATIVE_ROW", "row 3")] and counts(answer) == (n, n - 1, 0, 0, 1)
+    assert answer["refusals"][0]["text"] == f"Row 3, row 3: {NATIVE_WORDS['NATIVE_ROW']}"
+    nul = [r[:] for r in rows]
+    nul[2][-1] = "a\x00b"
+    answer = check(w, case, write(nul))
+    assert refusals(answer) == [(3, "NATIVE_CHARACTER", "row 3")] and counts(answer) == (n, n - 1, 0, 0, 1)
+    assert answer["refusals"][0]["text"] == f"Row 3, row 3: {NATIVE_WORDS['NATIVE_CHARACTER']}"
     if case.mapped is not None:
         header, value = case.mapped
         answer = check(w, case, changed(case, header, value))

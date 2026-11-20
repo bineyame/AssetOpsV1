@@ -74,6 +74,8 @@ def violations(rel: str, source: str) -> list[str]:
             names = [a.name.rsplit(".", 1)[-1] for a in node.names]
             if "CommercialRecords" in names and rel not in IMPORT_ALLOWED:
                 found.append(f"{rel}:{node.lineno}: import CommercialRecords")
+            if "build_commercial_uploads" in names and rel not in BUILD_CALLERS:
+                found.append(f"{rel}:{node.lineno}: import build_commercial_uploads")
     return found
 
 
@@ -112,6 +114,8 @@ PLANTED = {
     "construct": "from assetops_backend.commercial.composition import FileKeyStore\nCommercialRecords(store)\n",
     "builder": "from assetops_backend.commercial.composition import build_commercial_uploads as b\n"
                "build_commercial_uploads(url, settings)\n",
+    "builder-alias": "from assetops_backend.commercial.composition import build_commercial_uploads as b\n"
+                     "b(url, settings)\n",
     "deleted": "def build_commercial_records(url):\n    return None\n",
 }
 

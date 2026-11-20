@@ -162,7 +162,7 @@ _UPLOADS = text(
     "ORDER BY u.submitted_at DESC, u.id DESC LIMIT :n")
 #: 3A3 (spec §2.8): what the tenant holds, one read.
 _HELD = text(
-    "SELECT u.id, u.source_type, u.reader, u.file_sha256, d.decision IS NULL AS waiting FROM commercial_upload u "
+    "SELECT u.id, u.source_type, u.reader, u.file_sha256, d.decision IS NULL AS waiting, u.submitted_by FROM commercial_upload u "
     "LEFT JOIN commercial_upload_decision d ON d.tenant_id = u.tenant_id AND d.upload_id = u.id "
     "WHERE u.tenant_id = :t AND (d.decision IS NULL OR d.decision = 'ACCEPTED') ORDER BY u.id")
 _UPLOAD_ARRAYS = ("kept_index", "row_map", "refusal_index", "refusal_code", "refusal_path", "month_site_code",
@@ -366,7 +366,7 @@ class PostgresCommercialStore:
     @_scrubbed
     def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
         with self._engine.connect() as c:
-            return tuple(HeldUpload(r.id, r.source_type, r.reader, r.file_sha256, bool(r.waiting))
+            return tuple(HeldUpload(r.id, r.source_type, r.reader, r.file_sha256, bool(r.waiting), r.submitted_by)
                          for r in c.execute(_HELD, {"t": tenant_id}))
 
     @_scrubbed
