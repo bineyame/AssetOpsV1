@@ -4,4 +4,6 @@ A question about something the spec did not fix stops only the affected part. Wr
 section, what is stopped, what is built, and what you ask. The Architect rules in `rulings.md`. Record the count in
 the packet; a count above zero is a spec-template defect to fix.
 
+Reset for spec rev 2 (handshake round 1 answered, 2026-11-20).
+
 Count: **0**.

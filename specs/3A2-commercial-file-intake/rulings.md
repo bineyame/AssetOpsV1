@@ -101,6 +101,134 @@ Handshake answers go below, under "Handshake answers (round 1)".
 - **Why.** An upload that changes nothing would ask the finance lead to accept nothing; the check already told the
   person so.
 
+## D-3A2.13 An acceptance applies exactly what was checked (handshake R5, R6)
+
+- **Ruling.** The dry run records a `basis_sha256`: the SHA-256 of the store state it decided against (each named
+  record's latest revision ID, and each Site code it resolved). Submit keeps it on the upload. Accept passes it in
+  `Acceptance`; under the tenant's lock, after the "no decision yet" check, the decision recomputes the basis and, if
+  it differs, raises `UploadStale` and writes nothing (409 `UPLOAD_STALE`). An envelope refusal on accept (the
+  tenant's slug changed) is also `UploadStale`; it never writes a REFUSED intake.
+- **Why.** "Latest" is arrival order (3A1 R10) and arrival is now acceptance, so the order in which the finance lead
+  accepts waiting files would silently decide which figure a month shows. The intake decision is a pure function of
+  the batch, the stored records and the Site map, so an equal basis means the accepted outcomes are exactly the
+  previewed ones: the person accepts what they saw, or is told it changed. Comparing counts would miss a REVISED that
+  now supersedes a later correction. The order-of-versions question itself stays 3A1 R10's (a residual).
+
+## D-3A2.14 Only records 2a accepts are kept; a refusal keeps its code and a cut path (handshake R1, R11, P4)
+
+- **Ruling.** The stored `batch` holds the envelope and only the records that `parse_batch(obj)` accepted,
+  pseudonymised, in file order; `kept_index` maps each to its file index. Every refused record is dropped and kept only
+  as `(file index, code, path)` on the upload row. For `CANONICAL_FORBIDDEN`, and for any `json.` path, the path is cut
+  to its longest known parent (`record.body`, `record.subject`, ..., `batch`, `json`) before it is kept or returned
+  (it can echo a key the operator wrote, dots included).
+- **Why.** D-3A2.5 says a refused record is never stored beyond its code, and the upload table is append-only, so a
+  raw ref kept there could never be erased (deleting the key does not help: it was never keyed). Dropping the record
+  also makes the encoding question of P4 moot (2a refuses surrogates in values, so every kept string encodes).
+
+## D-3A2.15 The file name travels in a header and is kept as given (handshake R7)
+
+- **Ruling.** The name is sent as `X-File-Name` (percent-encoded UTF-8), never in the query string, which the access
+  log records; a `file_name` query parameter is refused. It is kept as given on the upload row and returned in
+  summaries, never logged. The pilot runbook says: name exports by content and month, never by a person.
+- **Why.** The person must recognise the file in the list, and the name is the operator's own label. It is still
+  personal data in an append-only row, so its exposure is cut to the product's own responses, and the residual is
+  named (queue Q6, owner to weigh in).
+
+## D-3A2.16 One scrub for every adapter method, proved by a class test (handshake R9; widens D-3A2.2)
+
+- **Ruling.** Every public method of `PostgresCommercialStore`, reads included and `3A4`'s three reads included, is
+  wrapped by one decorator `_scrubbed` that turns a non-connection `DBAPIError` into `StoreRefused(constraint)` raised
+  outside the handler. A no-database test asserts every public method carries it.
+- **Why.** A read's error text prints its parameters as a write's does. A rule applied method by method is the
+  instance fix; the decorator plus the sweep test is the class fix, and catches the method the parallel unit adds.
+
 ## Handshake answers (round 1)
 
-None yet.
+Answered once, 2026-11-20, and folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. "Adopted" means the
+writer's expected answer is the ruling. Owner queue Q1 (submitter may accept, both recorded) and Q2 (no raw file,
+only its SHA-256) are built on their defaults; "If the owner changes" below says what moves. **Estimate: 4 units**
+(was 3.5): the basis check, the kept-records batch and the settings test add half a unit to commit 2 and 3.
+
+**The Highs**
+- **R1: adopted, by dropping** (D-3A2.14). The stored batch holds only accepted records; `kept_index` (new column)
+  maps them to file rows; the refusal arrays on the row are the only account of a dropped record. Accept re-reads the
+  refusal arrays. Service test 3 runs on `B_MIXED`, whose row 4 is a CHARGE with `subject.ref` and `account_ref`
+  `C-0412` and amount `"12,5"`, and on test 5's receipt; it greps every stored string, row and exception for
+  `C-0412`. Plant **V11** (keep refused records in the batch) fails it.
+- **R2: adopted.** API test 8 is the settings test (cases in R3 below), and V10 names it. `create_app` runs the
+  check as its first statement, so the refusal comes before any store or router is built. Plants **V10** (admit
+  switch on with `assetops_test`) and **V13** (skip the check when `ASSETOPS_PSEUDONYM_KEY_DIR` is unset) each fail it.
+- **P1: adopted (first form).** `SPEC_ROLES` gains §3.1's three rows and `test_3c1a_person_work.py:478` becomes
+  `assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith("commercial.")}`. Q9 permits exactly that.
+  The `COMMAND_ROLES == SPEC_ROLES` assert is untouched, so V4 still fails it.
+- **P2: adopted, with `CASCADE`.** `test_3a1_commercial_postgres.py:427` becomes `"TRUNCATE " + ", ".join(TABLES) +
+  " CASCADE"`: it then empties any table that references the 0063 tables, now and later (the class, not one table).
+  The packet records the regression run failing without it ("cannot truncate a table referenced in a foreign key
+  constraint") and passing with it. Q9 permits that one line.
+
+**The Mediums**
+- **R3: adopted, with one widening.** (a) Switch on with `DATABASE_URL` unset: refused. Switch off and unset:
+  allowed. (b) The check always runs at `create_app`, whatever the key directory says. (c) The switch-on side is the
+  case-sensitive fullmatch as written; the switch-off side refuses any database whose name, lower-cased, starts with
+  `assetops_op` (so `ASSETOPS_OP_X` or a quoted variant is refused both ways). Detection is broad and admission is
+  strict. Switch values: unset or `off` is off, `on` is on, anything else (empty, `ON`, `true`) is
+  `ConfigurationError`.
+- **R4: adopted.** Q6 becomes "Is declared `observed-financial` refused off an `assetops_op_` database, and anything
+  else refused on one?". §1 says what the code holds: provenance is what the file declares. Two packet residuals: a
+  real export mislabelled `source-emulated` is admitted on the demo database (the DPA and the coordinator's process
+  cover it, not code); a writer other than this route (3A1 `ingest` from `3A3` emulators, seeds, story bootstrap)
+  is not gated here. Carried to `3A3`: its emulator entry points refuse a database named `assetops_op*`. Not added
+  to `create_app` now: those switches belong to their own units.
+- **R5: adopted, by a basis digest** (D-3A2.13), stricter than either proposal: any change to the store state the
+  check decided against refuses the accept with 409 `UPLOAD_STALE`; the upload stays WAITING and can be declined.
+  Service test 19: (a) U1 holds X v1 (NEW at check), U2 holds X v2 and is accepted first; accepting U1 is
+  `UPLOAD_STALE` and writes nothing; (b) X v0 stored, U1 holds X v1 (REVISED at check), U2 holds X v2 and is accepted;
+  accepting U1 is `UPLOAD_STALE` although its counts are unchanged. Plants **V12** (skip the basis comparison) fails
+  19a; **V14** (compare counts instead of the basis) fails 19b.
+- **R6: adopted.** A changed tenant slug on accept is `UploadStale` before any write (no REFUSED intake, no decision);
+  service test 20, plant **V15** (let `_refuse` write under an acceptance) fails it. All-UNCHANGED on accept cannot
+  occur: an equal basis gives the previewed outcomes, and submit refused a file with nothing new. Service test 2
+  asserts the accepted counts equal the preview's.
+- **R7: header, kept as given** (D-3A2.15). API test 9: the name in `X-File-Name` round-trips with a non-ASCII
+  character; a `file_name` query parameter is 422 `UPLOAD_BAD_REQUEST` field `file_name`; a header that does not
+  decode is the same 422. Owner queue Q6 added.
+- **R8: adopted.** `unavailable=(*ACCOUNTS_UNAVAILABLE, *COMMERCIAL_UNAVAILABLE, SiteStoreUnavailable,
+  FoundationStoreError)`; both answer 503 `COMMERCIAL_UPLOAD_UNAVAILABLE`. API test 10 raises each from `scope`.
+- **R9: adopted, as a class** (D-3A2.16). Postgres test 7: `uploads_in_scope(limit=-1)` (Postgres refuses a negative
+  `LIMIT` with a `DataError`) leaves as `StoreRefused` with no cause and no context. Service test 21 asserts every
+  public method of `PostgresCommercialStore` carries `_scrubbed` (it reads the decorator's marker attribute
+  `__scrubbed__`); plant **V16** (remove it from `upload`) fails it. `3A4` spec rev 2 states the same rule; whichever
+  unit merges second runs service test 21 after merging `main`.
+- **P3: adopted.** The key command writes with `sys.stderr.write(...)`; 3A1's guard test is not edited.
+- **P4: moot** (D-3A2.14). Only accepted records are encoded, and 2a refuses surrogates in every string value
+  (`records_v1.py` `_string`, `_check_decimal`). `ensure_ascii=False` stays.
+
+**The Lows**
+- **R10: partly adopted.** `EXPENSE.counterparty_ref` is pseudonymised (P) when `category` is `STAFF` or
+  `COLLECTION` (collection agents are often people). Queue Q3 now names `HANDLING` counterparties,
+  `CONTRACT_DOCUMENT.counterparty_ref` and `source_record_id` (a reader of `3A6` declares the last when its profile
+  builds IDs from account numbers). Service test 4 adds a COLLECTION expense.
+- **R11: adopted** (D-3A2.14): the cut path. Service test 22: a record whose body holds a key `John_Mwangi` (and one with
+  `John.Mwangi`) is `CANONICAL_FORBIDDEN` with field `body`; `John` appears in no stored string and no response.
+- **R12: adopted.** `FileKeyStore` opens with `O_RDONLY | O_NOFOLLOW` and checks with `fstat` on that descriptor:
+  a symlink is `PseudonymKeyUnusable`. The command refuses a missing `--dir` (exit 2, "The key directory does not
+  exist."); it never creates one. No ownership check (deployment users are not fixed yet). Service tests 13 and 17
+  add the two cases.
+- **P5: a literal, checked against 2a.** `REF_BODY_FIELDS` in `pseudonym.py` is the union over kinds of the body
+  fields 2a types `ref`; `ALLOWED_EXTRA = {"source_record_id", "subject.ref"} | {f"body.{n}" for n in
+  REF_BODY_FIELDS}`. Service test 16 compares it with `{f.name for s in KIND_SPECS.values() for f in s._body if f.type
+  == "ref"}` (a test may read 2a's private table; the code may not). `pseudonymise` raises `ValueError` on each call
+  for a path outside the set or a class outside `C`, `M`, `P`.
+- **P6, P7: as written.** `UploadMemoryStore` registers People's IDs directly; `{upload_id}` is a `str`, so a
+  malformed ID is the same 404.
+- **P8: import as is.** `_body_within` is imported from `reading_upload_api.py`; moving it is outside Q9.
+
+**If the owner changes a default**
+- **Q1 to "no":** the decision route refuses a decider equal to the submitter with 403 `UPLOAD_SELF_DECISION`
+  (checked under the lock with the other checks); one word key, API test 2 gains the case, a one-finance-person
+  operator then needs the executive to accept. Nothing else moves.
+- **Q2 to "keep the raw file":** a new unit for a restricted raw-file store (its own database or bucket, its own key,
+  24-month expiry job), and D-3A2.10 is superseded; this unit's schema keeps `file_sha256` as the link. 3A2's code
+  does not change beyond writing the bytes to that port before step 8.
+- **Q6 to "do not keep names":** the row keeps `file_sha256` and a label the person types at submit (or none); the
+  header and API test 9 stay.
