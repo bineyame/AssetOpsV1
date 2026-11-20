@@ -442,7 +442,8 @@ A decision page asks one question and makes the next step obvious. These are rul
    - **Actions:** the ones the data holds for it, with creator, owner and due date; otherwise who creates them, by decision-loop §8: the finance and commercial lead for every notice and claim and for a money Finding's decision; the Site manager for operational Actions on the items they chose; for an expansion, after the executive's approval, the Site manager (operational) and the finance lead (any notice or claim), never the executive (ruling D-2026-11-20-decision-page-rules).
    - **Approval**, by the design's rule: no approval when it is not a plan item; released when its Actions are created within both thresholds and while the plan still fits; otherwise it waits for the named executive's approval of the plan. Capital (an executive's choice, a new connection, a capital purchase) always waits, and its Actions are created after that approval.
    - **Recorded under:** the accountable role and name, with the time.
-   Then **Confirm the choice** (primary) and Cancel. In the demonstration, Confirm closes the dialog with a neutral notice, "Not recorded in this demonstration."
+   Then **Confirm the choice** (primary) and Cancel.
+   **One feedback pattern for every consequential action** (Choose, Approve, Send back; UX audit C6): a confirmation that says what happens and who is recorded, then a toast with **Undo**, then a visible state change on the page (the state pill and the status line). The toast is never the only record. In the demonstration the change lasts for the browser tab and is labelled "in this demonstration".
 2. **Create an Action** from a Finding or a plan item in a side drawer. The fields are: what, owner, due date, origin (prefilled and read-only) and plan item. Saving shows a toast, "Action created · View", and returns focus.
 3. **Track** an Action on its page as a horizontal step indicator through the thread's states (in hand → applied → monitoring → verified, or recurred). The three verdicts (operational, economic, causal) show as three separate chips, never one score.
 4. **Overdue** items show a `--warn` chip, "Overdue by 3 days", in every list.
@@ -453,6 +454,7 @@ A decision page asks one question and makes the next step obvious. These are rul
 - **For the approver**, a sticky action bar holds **Approve plan** (primary) and **Send back** (secondary). Send back requires a reason and a trade-off, in a dialog.
 - **For other roles**, the bar reads "The operator executive approves this plan". No disabled buttons without a reason.
 - **"Changes since version 2"** is a compact diff list at the top of a revised plan.
+- **Items** show the option, owner, due date, one-off cost, crew visits and the result with its period and basis ("over 12 months, against doing nothing"; "to the restore on 28 Nov, against an immediate restore at no cost"). Items left out are listed with their reasons. The rest of the page follows the long-page standard: answer-titled sections, capped lists, the sticky approver bar.
 
 ### 7.5 Who decides
 

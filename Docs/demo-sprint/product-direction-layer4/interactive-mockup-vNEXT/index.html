@@ -1055,7 +1055,7 @@ table.ux-opts tbody th{min-width:200px}
 .ux-planband .heroes.ux-kpis{margin-bottom:var(--s3)}
 .ux-planact{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
 .ux-note{font-size:var(--fs-sm);color:var(--text-2)}
-.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(130px,1.2fr) 64px 80px minmax(110px,1fr) 84px 16px;gap:var(--s3);align-items:center}
+.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(130px,1.1fr) 64px 72px 44px minmax(130px,1.2fr) 84px 16px;gap:var(--s3);align-items:center}
 .ux-itemh{padding:0 var(--s3) var(--s2);font-size:var(--fs-xs);font-weight:500;color:var(--text-2);border-bottom:1px solid var(--line)}
 details.ux-item{border-bottom:1px solid var(--line)}
 details.ux-item>summary{list-style:none;cursor:pointer;padding:var(--s3)}
@@ -1455,6 +1455,10 @@ html.ux-has-sticky{scroll-padding-top:64px}
 .ux-sact small{grid-column:1;color:var(--text-2)}
 .ux-sact .status-pill{grid-column:2;grid-row:1 / span 2;align-self:center}
 @media (max-width:600px){.ux-kpi-s.has-trend{display:block}} /* on a phone the trend stays, as words (the sparkline is hidden): DS1 recommendation, G3 */
+
+.ux-it-basis{display:block;font-weight:400;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-toast{display:flex;align-items:center;gap:var(--s3)}
+.ux-reason{width:100%;font:inherit;padding:var(--s2);border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -4282,9 +4286,9 @@ function waitingSummary(op){const ids=planItemsV1(op),acts=WF(op).actions.filter
  const waitItems=ids.filter(id=>!releaseOf(op,id).at),spend=waitItems.reduce((s,id)=>s+releaseOf(op,id).spend,0);
  const capital=waitItems.filter(id=>isCapital(op,id)),capSpend=capital.reduce((s,id)=>s+releaseOf(op,id).spend,0),later=waitItems.filter(id=>!actionsOf(op,id).length);
  return {n:acts.length,rel,wait:wait.length,waitItems,spend,capital,capSpend,later};}
-function planStatusBlock(op){const S=PSTATE();
+function planStatusBlock(op){const S=uxPlanState(op);
  return `<div class="plan-status"><span class="status-pill is-${S.state==='PROPOSED'?'proposed':S.state==='APPROVED'?'approved':'waiting'}">${STATE_WORD[S.state]}</span><span class="plan-version">Version ${num(S.version)}</span></div>
- <p class="plan-status-line">Proposed by the system on ${fdate(S.proposed)} · awaiting the operator executive’s approval</p><p class="plan-approver">Approver: ${who(op,execOf(op))}</p>`;}
+ <p class="plan-status-line">Proposed by the system on ${fdate(S.proposed)} · ${S.state==='PROPOSED'?'awaiting the operator executive’s approval':S.state==='APPROVED'?`approved by ${S.by} in this demonstration`:`sent back by ${S.by} in this demonstration`}</p><p class="plan-approver">Approver: ${who(op,execOf(op))}</p>`;}
 function thresholdsKv(op){const w=WF(op);return kv([['Spend threshold',`${usd(w.spend_threshold)} <small class="cellnote">portfolio setting; no site setting</small>`],[`${cap(crewOne(op)).replace(' ','-')} threshold`,`${num(w.crew_visit_threshold)} <small class="cellnote">${w.crew_visit_threshold===0?'the default: any visit needs approval':'portfolio setting'}</small>`]])+`<p class="note">A change is released when it is created only if its whole one-off is at or below the spend threshold and its ${OPS[op].crewWord} are at or below their threshold, and the plan still fits. Otherwise its Actions wait for the executive’s approval of the version.</p>`;}
 
 /* ---------- Organisation settings, "Users and roles" (spec §8; OD-13, OD-14, OD-2, OD-12, OD-18) ----------
@@ -4346,7 +4350,7 @@ function approvalPanel(op,P,budget){const S=PSTATE(),W=waitingSummary(op),def=DE
 function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec;
  const rows=P.ids.map(id=>{const x=OPT[id],[cv,cn]=optCost(x),[ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(x),d=DEC_SEE_ALSO[id]||decOf(id).id;
   const costc=id==='MTO-METER-AUDIT'?`${usd(OPT['MTO-METER-AUDIT'].cost)} <small class="cellnote">routine maintenance budget</small>`:`${fig(`opt:${id}:cost`,cv)} <small class="cellnote">${whoPays(x)}</small>`,effc=`${ev} <small class="cellnote">${en}</small>${ec(id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x))}${DV_OPT[id]?dvTag(DV_OPT[id]):''}`,cond=fx(x.condition);
-  return uxItemRow(op,id,{site:SK[x._site].name,why:WHY_FIRST[id],label:optLabel(id),cost:id==='MTO-METER-AUDIT'?usd(OPT['MTO-METER-AUDIT'].cost):cv,result:ev,cls:id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x)})+`<article class="plan-item" data-item="${id}"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header>${itemOwnerLine(op,id)}<dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div><div><dt>Effect under each heading</dt><dd>${byHeading(id)}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article></div></details>`;}).concat(proactiveOf(op).map(it=>uxItemRow(op,it.item,{site:SK[siteKeyOf(op,it.site)]?.name||it.site,why:'Declared work',label:it.label,cost:usd(it.planned_spend||0),result:'Upkeep, no value claimed',cls:''})+proactiveCard(op,it,P)+'</div></details>'));
+  return uxItemRow(op,id,{site:SK[x._site].name,why:WHY_FIRST[id],label:optLabel(id),cost:id==='MTO-METER-AUDIT'?usd(OPT['MTO-METER-AUDIT'].cost):cv,result:ev,basis:[en,BASIS_WORDS[optBasis(id)]].filter(Boolean).join(', '),cls:id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x)})+`<article class="plan-item" data-item="${id}"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header>${itemOwnerLine(op,id)}<dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div><div><dt>Effect under each heading</dt><dd>${byHeading(id)}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article></div></details>`;}).concat(proactiveOf(op).map(it=>uxItemRow(op,it.item,{site:SK[siteKeyOf(op,it.site)]?.name||it.site,why:'Declared work',label:it.label,cost:usd(it.planned_spend||0),result:'Upkeep, no value claimed',cls:''})+proactiveCard(op,it,P)+'</div></details>'));
  const say=op==='lakeside'?`Plan re-computed: spend ${usd(P.spend)}, change within the next 12 months ${usd(P.value,true)}.`:`Plan re-computed: spend ${usd(P.spend)}.`;
  let excl=[];
  if(op==='lakeside'){excl=A.excluded.filter(x=>!['MTO-INV-BUYNOW'].includes(x.id)).map(x=>[x.id,fx(x.reason)]);if(P.lose)excl.unshift([P.lose.id,P.loseAffordable?`Under this assumption it gives ${usd(P.lose.value,true)} against ${usd(P.win.value,true)}`:`Needs ${usd(P.lose.spend)} with everything else; the budget is ${usd(budget)}`]);if(!P.huller)excl.unshift(['MTO-HULLER',cap(hullerCell(inv0(P.c)))]);}
@@ -4362,12 +4366,13 @@ function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.
  const paths=op==='lakeside'?sec('Two ways to restore Mto’s inverter, under this assumption',`<div class="paths">${[P.win,P.lose].filter(Boolean).map((x,i)=>`<div class="path ${i===0?'win':''}"><div class="eyebrow">${i===0?'In the plan':'Competing path'}</div><h3>${optLabel(x.id)}</h3>${kv([['Plan spend',usd(x.spend)],[PLAN_TOTAL_TITLE,usdW(x.value,true)],['Inverter back',fdate(DOPT(x.id).restore_date)],['Rice huller',x.huller?'Kept':cap(hullerCell(x.id))],['Fits the budget',x.spend<=budget?'Yes':'No']])}</div>`).join('')}</div><p class="note">${mtoCapacityLine()}</p>`,'Both paths shown side by side; the proposal takes the better one that fits; you choose.'):'';
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).concat(proactiveOf(op).map(it=>['Field work',`${SK[siteKeyOf(op,it.site)]?.name||it.site}: ${it.label}`,`${num(it.crew_visits||0)} ${it.crew_visits===1?crewOne(op):o.crewWord}${it.crew_month?` in ${monthOf(it.crew_month)}`:''}${it.service_date?`, on ${fdate(it.service_date)}`:''}`])).sort((a,b)=>a[0].localeCompare(b[0]));
  const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
- return `${uxPlanBand(op,P,budget)}<div class="layout-main-side"><div>
+ return `${uxPlanSticky(op,P,budget)}${uxPlanBand(op,P,budget)}<div class="layout-main-side"><div>
  ${sec(`The plan for ${periodWords()}: items and their Actions`,uxItemHead()+rows.join('')+total+`<details class="ux-about ux-about-inline"><summary>How the plan is chosen</summary><p>One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.</p></details>`+ILLUS,`One option per decision, within the budget, ${o.crewWord}, deadlines and dependencies.`)}
+ ${uxPlanDiff(op,P)}
  ${paths}
- <div class="grid2">${secD('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.length)} lines`)}${secD('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
- ${secD('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options`)}
- ${op==='lakeside'?secD('All four cases of the two assumptions',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend',PLAN_TOTAL_TITLE],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
+ <div class="grid2">${uxSecAx('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.filter(r=>r[0]==='Field work').length)} field visits, ${num(fieldRows.filter(r=>r[0]!=='Field work').length)} remote, office or contractor`)}${uxSecAx('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
+ ${uxSecAx('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options, each with its reason`)}
+ ${op==='lakeside'?uxSecAx('All four cases of the two assumptions',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend',PLAN_TOTAL_TITLE],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
  ${gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):''}
  </div><aside class="side-panel">${approvalPanel(op,P,budget)}<section class="panel controls" aria-labelledby="sw-h"><h2 id="sw-h">Try another case</h2><p class="note">Change an assumption to see the plan worked out again.</p>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section></aside></div>`;}
 
@@ -4901,7 +4906,7 @@ function uxOverview(op) {
     cost ? [figS('optimize', op, G.optimize, `Optimize ${usdW(G.optimize, true)}`), uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
       : [`${figS('grow', op, G.grow, `Grow ${usdW(G.grow, true)}`)} · ${figS('optimize', op, G.optimize, `Optimize ${usdW(G.optimize, true)}`)}`, uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
-    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting approval · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
+    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[uxPlanState(op).state]}${uxPlanState(op).state === 'PROPOSED' ? ': awaiting approval' : ' in this demonstration'} · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi(PLAN_TOTAL_TITLE, `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
     [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : planRestoreNote(op) || 'Valued options only; not realised until records show it'], '', 'is-modelled');
   const n = uxDecCount(ATTN[op]);
@@ -4941,18 +4946,22 @@ function uxOblSummary(html) {
 
 /* ---------- The plan: an L1 band with the approval actions, and one line per item (review finding 6) ---------- */
 function uxPlanBand(op, P, budget) {
-  const o = OPS[op], S = PSTATE(), val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value, ms = crewByMonth(op, P);
+  const o = OPS[op], S = uxPlanState(op), val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value, ms = crewByMonth(op, P);
   return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">
  ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
  ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
  ${uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it'])}
- </div><div class="ux-planact"><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this demonstration. It is recorded under the executive’s name and the time.</span></div></section>`;
+ </div><div class="ux-planact">${uxPlanStateChip(op)}${uxPlanActions(op)}<span class="ux-note">Proposed by the system on ${fdate(S.proposed)} · approver ${who(op, execOf(op))}</span></div></section>`;
 }
-const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>12-month result</span><span>State</span></div>';
+/* the plan's state, version, who proposed it and who approves it, and the approver's two actions (one feedback pattern) */
+function uxPlanStateChip(op) { const S = uxPlanState(op); return `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}" data-plan-state="${S.state}">${STATE_WORD[S.state]}${S.by ? ` by ${S.by}` : ''} · version ${num(S.version)}</span>`; }
+function uxPlanActions(op) { const S = uxPlanState(op); return S.state === 'PROPOSED' ? `${uxActButton('approve-plan', `Approve version ${num(S.version)}`, 'button primary')}${uxActButton('send-back', 'Send back')}` : `<span class="ux-note">${S.state === 'APPROVED' ? 'Approved in this demonstration; its waiting Actions are released.' : `Sent back in this demonstration${S.reason ? `: “${S.reason}”` : ''}.`}</span>`;
+}
+const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>Crew</span><span>Result and its period</span><span>State</span></div>';
 function uxItemRow(op, id, f) {
   const it = itemOf(op, id), acts = actionsOf(op, id), due = acts.map(a => a.due).filter(Boolean).sort()[0] || it?.service_date || null;
   const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
-  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not chosen yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
+  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not chosen yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="Crew">${(() => { const it2 = itemOf(op, id), c = it2?.kind === 'PROACTIVE' ? it2.crew_visits || 0 : (DOPT(id)?.crew_visits || 0); return c ? num(c) : '<span class="muted">None</span>'; })()}</span><span class="ux-it-c ux-num" data-k="Result and its period">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}${f.basis ? `<small class="ux-it-basis">${f.basis}</small>` : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
 
 /* ===== wave 2, Portfolio polish: queue controls, the row's "Why", the provenance popover, the command search, the scope
@@ -5112,6 +5121,8 @@ function uxDecState(id) {
   const op = SK[d.site].op, D = deciderOf(id), it = D.item ? itemOf(op, D.item) : null, rec = uxRec(d);
   if (it && it.item_state === 'RELEASED') return { key: 'released', label: 'Released: Actions under way', btn: 'Review' };
   if (it) return { key: 'approval', label: 'Chosen · awaiting approval', btn: 'Awaiting approval' };
+  const mk = uxMock().chosen?.[id]; /* a choice made in this demonstration (one feedback pattern) */
+  if (mk) { const p = uxReleaseFor(op, mk).path; return p === 'at' || p === 'none' ? { key: 'released', label: 'Chosen in this demonstration: Actions go ahead', btn: 'Review' } : { key: 'approval', label: 'Chosen in this demonstration · awaiting approval', btn: 'Awaiting approval' }; }
   if (!rec) return { key: 'none', label: 'No option recommended', btn: 'Review' };
   return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide' };
 }
@@ -5174,7 +5185,7 @@ function uxCreatorText(op, d, oid) {
 /* the status line follows the real path (review r1 M2): a choice released at once never waited for approval; with nothing
    recommended, the first step says so */
 function uxDecSteps(id, st) {
-  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxRec(d) || d.opts.find(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED'), /* r2 L2: with nothing recommended, the path of an option that can be chosen */ path = oid ? uxReleaseFor(op, oid).path : 'wait';
+  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxMock().chosen?.[id] || uxRec(d) || d.opts.find(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED'), /* r2 L2: with nothing recommended, the path of an option that can be chosen */ path = oid ? uxReleaseFor(op, oid).path : 'wait';
   const it = deciderOf(id).item ? itemOf(op, deciderOf(id).item) : null, atOnce = st.key === 'released' && it && releaseOf(op, it.item).at;
   const tail = atOnce || path === 'at' ? ['Released at once'] : path === 'none' ? ['Actions go ahead'] : ['Awaiting approval', 'Actions released'];
   const steps = [st.key === 'none' ? 'No option recommended' : 'Recommended', 'Chosen', ...tail];
@@ -5206,15 +5217,16 @@ function uxChooseDialog(id, oid) {
   return uxDrawer(`uxc-${id}-${oid}`, `Choose: ${optLabel(oid)}`, `<dl class="ux-confirm"><div><dt>What happens</dt><dd>${what}</dd></div>
    <div><dt>${BASIS_LABEL[optBasis(oid)]}</dt><dd>${uxFigQ(wholeText(ev), uxQual(oid), 'ux-confirm-q')}${optContext(oid).length ? `<ul class="list ux-ctx">${optContext(oid).map(t => `<li>${t}</li>`).join('')}</ul>` : ''}</dd></div>
    <div><dt>Actions</dt><dd>${actHtml}</dd></div><div><dt>Approval</dt><dd>${R.text}.</dd></div><div><dt>Recorded under</dt><dd>${who(op, D.p)}, with the time.</dd></div></dl>
-   <div class="ux-confirm-go"><button type="button" class="button primary" data-ux-confirm>Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div>`);
+   <div class="ux-confirm-go"><button type="button" class="button primary" data-ux-act-go="choose:${id}:${oid}">Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div>`);
 }
 /* Confirm closes the dialog with a neutral notice (review r1 L6): the demonstration records nothing */
-document.addEventListener('click', e => { const b = e.target.closest('[data-ux-confirm]'); if (!b) return; e.preventDefault(); uxClose(b.closest('.ux-drawer')); toast('Not recorded in this demonstration.'); });
+/* Confirm the choice uses the one feedback pattern (uxActDo): toast with Undo, then the decision's state changes on the page */
+function uxChooseAct(id, oid) { return { title: `Choose: ${optLabel(oid)}`, primary: 'Confirm the choice', body: '', apply: () => ({ chosen: { [id]: oid } }), toast: `${optLabel(oid)} chosen` }; }
 
 function uxDecisionPage(id, parts) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), st = uxDecState(id), rec = uxRec(d), x = rec ? OPT[rec] : null, T = decText(d);
   const due = ATTN[op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
-  const ex = execOf(op), chosen = D.item;
+  const ex = execOf(op), chosen = D.item || uxMock().chosen?.[id] || null;
   const [ev] = x ? optEffect(x) : ['—'], [cv] = x ? optCost(x) : ['—'], money = v => /^[+−-]?\$/.test(String(v));
   /* certainty said once when every valued option shares it (guide §6, U1) */
   const valued = d.opts.filter(o => money(optEffect(OPT[o])[0]) && !isNoAction(o)), classes = [...new Set(valued.map(o => optClass(OPT[o])))];
@@ -5376,7 +5388,7 @@ function uxShell(s) {
   }
   /* the navigation never lists a v7.0 screen kept for review only */
   document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
-  if (/^decision\//.test(s.id)) uxCapLists(c);
+  if (/^decision\/|^site\/|^portfolio\/act-first\/plan$/.test(s.id)) uxCapLists(c);
   /* the product never navigates into a v7.0 screen kept for review only */
   c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
 }
@@ -5488,6 +5500,59 @@ function uxSitePage(sk, P) {
  <div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
 }
 
+/* ===== one feedback pattern for every consequential action (UX audit C6; owner, 20 Nov): a confirmation that says what happens and
+   who is recorded, then a toast with Undo, then a visible state change. The demonstration keeps the change in this browser tab
+   only (sessionStorage); nothing is sent. Used by Approve plan, Send back, and Confirm the choice. ===== */
+const UX_MOCK_KEY = 'l4-mock';
+function uxMock() { try { return JSON.parse(sessionStorage.getItem(UX_MOCK_KEY) || '{}'); } catch (e) { return {}; } }
+function uxMockSet(m) { try { sessionStorage.setItem(UX_MOCK_KEY, JSON.stringify(m)); } catch (e) {} }
+/* the plan's state as shown: the data's, unless an action in this demonstration changed it */
+function uxPlanState(op) { const S = PSTATE(), m = uxMock().plan?.[op]; return m ? { ...S, state: m.state, by: m.by, at: m.at, reason: m.reason } : S; }
+const UX_ACTS = {
+  'approve-plan': op => { const S = uxPlanState(op), ex = execOf(op), W = waitingSummary(op);
+    return { title: `Approve version ${num(S.version)} of the plan`, primary: 'Approve the plan',
+      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>Version ${num(S.version)} becomes the approved plan for ${periodWords()}. It releases ${num(W.wait)} waiting Action${W.wait === 1 ? '' : 's'} and ${num(W.waitItems.length)} item${W.waitItems.length === 1 ? '' : 's'}, ${usd(W.spend)} of one-off spend.</dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}, with the time.</dd></div></dl>`,
+      apply: () => ({ plan: { [op]: { state: 'APPROVED', by: ex?.name || '', at: 'now' } } }), toast: `Version ${num(S.version)} approved` }; },
+  'send-back': op => { const S = uxPlanState(op), ex = execOf(op);
+    return { title: `Send version ${num(S.version)} back`, primary: 'Send it back',
+      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>The plan returns to draft. Each changed item goes back to its creator with your reason; nothing is released.</dd></div><div><dt>Your reason</dt><dd><label class="vh" for="ux-sb-reason">Reason</label><textarea id="ux-sb-reason" rows="3" class="ux-reason">The budget should go first to the deadline items</textarea></dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}, with the time.</dd></div></dl>`,
+      apply: () => ({ plan: { [op]: { state: 'REVISED', by: ex?.name || '', at: 'now', reason: (document.getElementById('ux-sb-reason')?.value || '').trim() } } }), toast: `Version ${num(S.version)} sent back` }; }
+};
+function uxActButton(key, label, cls = 'button') { return `<button type="button" class="${cls}" data-ux-act="${key}">${label}</button>`; }
+/* the confirmation drawer for an action (built on demand, so every action uses the same one) */
+function uxActOpen(key, from) {
+  const [name, ...args] = key.split(':'), A = name === 'choose' ? uxChooseAct(...args) : UX_ACTS[name](LS.op);
+  document.getElementById('uxact')?.remove();
+  document.body.insertAdjacentHTML('beforeend', uxDrawer('uxact', A.title, `${A.body}<div class="ux-confirm-go"><button type="button" class="button primary" data-ux-act-go="${key}">${A.primary}</button><button type="button" class="button" data-ux-close>Cancel</button></div>`));
+  uxOpen('uxact', from);
+}
+function uxActDo(key) {
+  const [name, ...args] = key.split(':'), A = name === 'choose' ? uxChooseAct(...args) : UX_ACTS[name](LS.op), before = uxMock(), patch = A.apply();
+  const next = { ...before, plan: { ...(before.plan || {}), ...(patch.plan || {}) }, chosen: { ...(before.chosen || {}), ...(patch.chosen || {}) } };
+  uxMockSet(next); document.getElementById('uxact')?.remove(); document.querySelectorAll('.ux-drawer[data-open="true"]').forEach(d => uxClose(d));
+  render(); uxToast(`${A.toast}. Shown in this demonstration only.`, () => { uxMockSet(before); render(); uxToast('Undone.'); });
+}
+/* a toast that can undo what it reports (and is never the only record: the state on the page changes too) */
+function uxToast(msg, undo) {
+  document.querySelector('.toast')?.remove(); const e = document.createElement('div'); e.className = 'toast ux-toast'; e.setAttribute('role', 'status');
+  e.innerHTML = `<span>${msg}</span>${undo ? '<button type="button" class="button" data-ux-undo>Undo</button>' : ''}`; document.body.appendChild(e);
+  if (undo) e.querySelector('[data-ux-undo]').addEventListener('click', () => { e.remove(); undo(); });
+  setTimeout(() => { if (e.isConnected && !e.matches(':hover, :focus-within')) e.remove(); }, 8000);
+}
+document.addEventListener('click', e => { const a = e.target.closest('[data-ux-act]'); if (a) { e.preventDefault(); uxActOpen(a.dataset.uxAct, a); return; }
+  const g = e.target.closest('[data-ux-act-go]'); if (g) { e.preventDefault(); uxActDo(g.dataset.uxActGo); } });
+/* the plan page's sections: an answer-titled section from the old (title, body, subtitle) call */
+const uxSecAx = (title, body, sub = '') => uxSecA(title, sub || '', body);
+/* changes since the proposed version, as a compact difference (the switches can change the items) */
+function uxPlanDiff(op, P) {
+  const S = uxPlanState(op), v1 = planItemsV1(op), add = P.ids.filter(id => !v1.includes(id)), drop = v1.filter(id => !P.ids.includes(id) && !isProactive(op, id));
+  const line = (sign, id) => `<li class="ux-diff-${sign === '+' ? 'add' : 'drop'}"><span aria-hidden="true">${sign}</span> ${optLabel(id)} <small>${SK[OPT[id]._site].name}</small></li>`;
+  const ans = add.length || drop.length ? `${add.length ? `${num(add.length)} added` : ''}${add.length && drop.length ? ', ' : ''}${drop.length ? `${num(drop.length)} left out` : ''}, under the case shown` : `No change: this is version ${num(S.version)} as proposed`;
+  return uxSecA(`Changes since version ${num(S.version)}`, ans, add.length || drop.length ? `<ul class="list ux-diff">${add.map(id => line('+', id)).join('')}${drop.map(id => line('−', id)).join('')}</ul><p class="note">Approving a case that differs from the proposal makes a new version.</p>` : `<p class="prose">The items shown are version ${num(S.version)}, proposed by the system on ${fdate(S.proposed)}.</p>`);
+}
+/* the approver's sticky bar: the plan, its spend, its state and Approve / Send back (one feedback pattern) */
+function uxPlanSticky(op, P, budget) { return `<div class="ux-dsticky" role="region" aria-label="This plan" data-ux-sticky><span class="ux-dsticky-t">The plan for ${periodWords()}</span><span class="ux-dsticky-n">${usdW(P.spend)} <small>of ${usdW(budget)}</small></span>${uxPlanStateChip(op)}${uxPlanActions(op)}</div>`; }
+
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */
 const V70IDS = new Set(SCREENS.map(s=>s.id));
 const CHANGED = {
@@ -5514,7 +5579,7 @@ const portfolioCrumbs = s => [['Portfolio','portfolio'],...(s.id==='portfolio'?[
 PTABS.slice(1).forEach(([lab,id])=>{addL(id,'Portfolio','Portfolio','',PQ[id],PR[id],{opScoped:true,ltabs:ptabs,crumbs:portfolioCrumbs,loopNotes});dyn(SCREENS.at(-1),'subtitle',()=>`${opName()} · ${lab} · October 2026`);});
 addL('portfolio/scope/pilot','A deep-dive and pilot on your data','Portfolio','','Deep-dive and pilot: minimum records, what you get, and the steps to a subscription.',pilotScreen,{opScoped:true,ptab:'portfolio/scope',ltabs:ptabs,crumbs:portfolioCrumbs,loopNotes});dyn(SCREENS.at(-1),'subtitle',()=>`${opName()} · minimum records and deliverables`);
 
-addL('portfolio/act-first/plan','The plan for November and December','Portfolio','','The plan: its items and the Actions under each, with creator, owner, due date and release; the approval; items left out and why.',planScreen,{opScoped:true,ptab:'portfolio/act-first',crumbLabel:'The plan',ltabs:ptabs,crumbs:portfolioCrumbs,loopNotes});dyn(SCREENS.at(-1),'subtitle',()=>`${opName()} · version ${PSTATE().version}, ${STATE_WORD[PSTATE().state].toLowerCase()}`);
+addL('portfolio/act-first/plan','The plan for November and December','Portfolio','','The plan: its items and the Actions under each, with creator, owner, due date and release; the approval; items left out and why.',planScreen,{opScoped:true,ptab:'portfolio/act-first',crumbLabel:'The plan',ltabs:ptabs,crumbs:portfolioCrumbs,loopNotes});dyn(SCREENS.at(-1),'subtitle',()=>`${opName()} · version ${uxPlanState(LS.op).version}, ${STATE_WORD[uxPlanState(LS.op).state].toLowerCase()}`);
 
 /* Sites directory and Financials root, re-based on the operator */
 /* one shell model (UX audit C1.4): Findings and Actions read the plan's store, scoped to the operator; one page, no sub-tabs */

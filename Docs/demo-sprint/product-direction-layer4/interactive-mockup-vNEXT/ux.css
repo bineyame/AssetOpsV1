@@ -308,7 +308,7 @@ table.ux-opts tbody th{min-width:200px}
 .ux-planband .heroes.ux-kpis{margin-bottom:var(--s3)}
 .ux-planact{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
 .ux-note{font-size:var(--fs-sm);color:var(--text-2)}
-.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(130px,1.2fr) 64px 80px minmax(110px,1fr) 84px 16px;gap:var(--s3);align-items:center}
+.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(130px,1.1fr) 64px 72px 44px minmax(130px,1.2fr) 84px 16px;gap:var(--s3);align-items:center}
 .ux-itemh{padding:0 var(--s3) var(--s2);font-size:var(--fs-xs);font-weight:500;color:var(--text-2);border-bottom:1px solid var(--line)}
 details.ux-item{border-bottom:1px solid var(--line)}
 details.ux-item>summary{list-style:none;cursor:pointer;padding:var(--s3)}
@@ -708,3 +708,7 @@ html.ux-has-sticky{scroll-padding-top:64px}
 .ux-sact small{grid-column:1;color:var(--text-2)}
 .ux-sact .status-pill{grid-column:2;grid-row:1 / span 2;align-self:center}
 @media (max-width:600px){.ux-kpi-s.has-trend{display:block}} /* on a phone the trend stays, as words (the sparkline is hidden): DS1 recommendation, G3 */
+
+.ux-it-basis{display:block;font-weight:400;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-toast{display:flex;align-items:center;gap:var(--s3)}
+.ux-reason{width:100%;font:inherit;padding:var(--s2);border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}

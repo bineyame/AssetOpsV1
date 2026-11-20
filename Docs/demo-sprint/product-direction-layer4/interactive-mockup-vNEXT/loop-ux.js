@@ -333,7 +333,7 @@ function uxOverview(op) {
     cost ? [figS('optimize', op, G.optimize, `Optimize ${usdW(G.optimize, true)}`), uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
       : [`${figS('grow', op, G.grow, `Grow ${usdW(G.grow, true)}`)} · ${figS('optimize', op, G.optimize, `Optimize ${usdW(G.optimize, true)}`)}`, uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
-    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting approval · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
+    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[uxPlanState(op).state]}${uxPlanState(op).state === 'PROPOSED' ? ': awaiting approval' : ' in this demonstration'} · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi(PLAN_TOTAL_TITLE, `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
     [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : planRestoreNote(op) || 'Valued options only; not realised until records show it'], '', 'is-modelled');
   const n = uxDecCount(ATTN[op]);
@@ -373,18 +373,22 @@ function uxOblSummary(html) {
 
 /* ---------- The plan: an L1 band with the approval actions, and one line per item (review finding 6) ---------- */
 function uxPlanBand(op, P, budget) {
-  const o = OPS[op], S = PSTATE(), val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value, ms = crewByMonth(op, P);
+  const o = OPS[op], S = uxPlanState(op), val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value, ms = crewByMonth(op, P);
   return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">
  ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
  ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
  ${uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it'])}
- </div><div class="ux-planact"><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this demonstration. It is recorded under the executive’s name and the time.</span></div></section>`;
+ </div><div class="ux-planact">${uxPlanStateChip(op)}${uxPlanActions(op)}<span class="ux-note">Proposed by the system on ${fdate(S.proposed)} · approver ${who(op, execOf(op))}</span></div></section>`;
 }
-const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>12-month result</span><span>State</span></div>';
+/* the plan's state, version, who proposed it and who approves it, and the approver's two actions (one feedback pattern) */
+function uxPlanStateChip(op) { const S = uxPlanState(op); return `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}" data-plan-state="${S.state}">${STATE_WORD[S.state]}${S.by ? ` by ${S.by}` : ''} · version ${num(S.version)}</span>`; }
+function uxPlanActions(op) { const S = uxPlanState(op); return S.state === 'PROPOSED' ? `${uxActButton('approve-plan', `Approve version ${num(S.version)}`, 'button primary')}${uxActButton('send-back', 'Send back')}` : `<span class="ux-note">${S.state === 'APPROVED' ? 'Approved in this demonstration; its waiting Actions are released.' : `Sent back in this demonstration${S.reason ? `: “${S.reason}”` : ''}.`}</span>`;
+}
+const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>Crew</span><span>Result and its period</span><span>State</span></div>';
 function uxItemRow(op, id, f) {
   const it = itemOf(op, id), acts = actionsOf(op, id), due = acts.map(a => a.due).filter(Boolean).sort()[0] || it?.service_date || null;
   const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
-  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not chosen yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
+  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not chosen yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="Crew">${(() => { const it2 = itemOf(op, id), c = it2?.kind === 'PROACTIVE' ? it2.crew_visits || 0 : (DOPT(id)?.crew_visits || 0); return c ? num(c) : '<span class="muted">None</span>'; })()}</span><span class="ux-it-c ux-num" data-k="Result and its period">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}${f.basis ? `<small class="ux-it-basis">${f.basis}</small>` : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
 
 /* ===== wave 2, Portfolio polish: queue controls, the row's "Why", the provenance popover, the command search, the scope
@@ -544,6 +548,8 @@ function uxDecState(id) {
   const op = SK[d.site].op, D = deciderOf(id), it = D.item ? itemOf(op, D.item) : null, rec = uxRec(d);
   if (it && it.item_state === 'RELEASED') return { key: 'released', label: 'Released: Actions under way', btn: 'Review' };
   if (it) return { key: 'approval', label: 'Chosen · awaiting approval', btn: 'Awaiting approval' };
+  const mk = uxMock().chosen?.[id]; /* a choice made in this demonstration (one feedback pattern) */
+  if (mk) { const p = uxReleaseFor(op, mk).path; return p === 'at' || p === 'none' ? { key: 'released', label: 'Chosen in this demonstration: Actions go ahead', btn: 'Review' } : { key: 'approval', label: 'Chosen in this demonstration · awaiting approval', btn: 'Awaiting approval' }; }
   if (!rec) return { key: 'none', label: 'No option recommended', btn: 'Review' };
   return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide' };
 }
@@ -606,7 +612,7 @@ function uxCreatorText(op, d, oid) {
 /* the status line follows the real path (review r1 M2): a choice released at once never waited for approval; with nothing
    recommended, the first step says so */
 function uxDecSteps(id, st) {
-  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxRec(d) || d.opts.find(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED'), /* r2 L2: with nothing recommended, the path of an option that can be chosen */ path = oid ? uxReleaseFor(op, oid).path : 'wait';
+  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxMock().chosen?.[id] || uxRec(d) || d.opts.find(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED'), /* r2 L2: with nothing recommended, the path of an option that can be chosen */ path = oid ? uxReleaseFor(op, oid).path : 'wait';
   const it = deciderOf(id).item ? itemOf(op, deciderOf(id).item) : null, atOnce = st.key === 'released' && it && releaseOf(op, it.item).at;
   const tail = atOnce || path === 'at' ? ['Released at once'] : path === 'none' ? ['Actions go ahead'] : ['Awaiting approval', 'Actions released'];
   const steps = [st.key === 'none' ? 'No option recommended' : 'Recommended', 'Chosen', ...tail];
@@ -638,15 +644,16 @@ function uxChooseDialog(id, oid) {
   return uxDrawer(`uxc-${id}-${oid}`, `Choose: ${optLabel(oid)}`, `<dl class="ux-confirm"><div><dt>What happens</dt><dd>${what}</dd></div>
    <div><dt>${BASIS_LABEL[optBasis(oid)]}</dt><dd>${uxFigQ(wholeText(ev), uxQual(oid), 'ux-confirm-q')}${optContext(oid).length ? `<ul class="list ux-ctx">${optContext(oid).map(t => `<li>${t}</li>`).join('')}</ul>` : ''}</dd></div>
    <div><dt>Actions</dt><dd>${actHtml}</dd></div><div><dt>Approval</dt><dd>${R.text}.</dd></div><div><dt>Recorded under</dt><dd>${who(op, D.p)}, with the time.</dd></div></dl>
-   <div class="ux-confirm-go"><button type="button" class="button primary" data-ux-confirm>Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div>`);
+   <div class="ux-confirm-go"><button type="button" class="button primary" data-ux-act-go="choose:${id}:${oid}">Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div>`);
 }
 /* Confirm closes the dialog with a neutral notice (review r1 L6): the demonstration records nothing */
-document.addEventListener('click', e => { const b = e.target.closest('[data-ux-confirm]'); if (!b) return; e.preventDefault(); uxClose(b.closest('.ux-drawer')); toast('Not recorded in this demonstration.'); });
+/* Confirm the choice uses the one feedback pattern (uxActDo): toast with Undo, then the decision's state changes on the page */
+function uxChooseAct(id, oid) { return { title: `Choose: ${optLabel(oid)}`, primary: 'Confirm the choice', body: '', apply: () => ({ chosen: { [id]: oid } }), toast: `${optLabel(oid)} chosen` }; }
 
 function uxDecisionPage(id, parts) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), st = uxDecState(id), rec = uxRec(d), x = rec ? OPT[rec] : null, T = decText(d);
   const due = ATTN[op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
-  const ex = execOf(op), chosen = D.item;
+  const ex = execOf(op), chosen = D.item || uxMock().chosen?.[id] || null;
   const [ev] = x ? optEffect(x) : ['—'], [cv] = x ? optCost(x) : ['—'], money = v => /^[+−-]?\$/.test(String(v));
   /* certainty said once when every valued option shares it (guide §6, U1) */
   const valued = d.opts.filter(o => money(optEffect(OPT[o])[0]) && !isNoAction(o)), classes = [...new Set(valued.map(o => optClass(OPT[o])))];
@@ -808,7 +815,7 @@ function uxShell(s) {
   }
   /* the navigation never lists a v7.0 screen kept for review only */
   document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
-  if (/^decision\//.test(s.id)) uxCapLists(c);
+  if (/^decision\/|^site\/|^portfolio\/act-first\/plan$/.test(s.id)) uxCapLists(c);
   /* the product never navigates into a v7.0 screen kept for review only */
   c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
 }
@@ -919,3 +926,56 @@ function uxSitePage(sk, P) {
  <div class="ux-aside"><section class="panel" aria-labelledby="uxsa-h"><div class="panel-head"><div><h2 id="uxsa-h" data-count="${A.n}" data-count-of=".ux-site-acts .ux-sacts > li">Actions in hand <span class="ux-count">${num(A.n)}</span></h2><p>The plan’s Actions at this Site, with owner, due date and release.</p></div></div><div class="ux-site-acts">${A.html}</div></section></div></div>
  <div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
 }
+
+/* ===== one feedback pattern for every consequential action (UX audit C6; owner, 20 Nov): a confirmation that says what happens and
+   who is recorded, then a toast with Undo, then a visible state change. The demonstration keeps the change in this browser tab
+   only (sessionStorage); nothing is sent. Used by Approve plan, Send back, and Confirm the choice. ===== */
+const UX_MOCK_KEY = 'l4-mock';
+function uxMock() { try { return JSON.parse(sessionStorage.getItem(UX_MOCK_KEY) || '{}'); } catch (e) { return {}; } }
+function uxMockSet(m) { try { sessionStorage.setItem(UX_MOCK_KEY, JSON.stringify(m)); } catch (e) {} }
+/* the plan's state as shown: the data's, unless an action in this demonstration changed it */
+function uxPlanState(op) { const S = PSTATE(), m = uxMock().plan?.[op]; return m ? { ...S, state: m.state, by: m.by, at: m.at, reason: m.reason } : S; }
+const UX_ACTS = {
+  'approve-plan': op => { const S = uxPlanState(op), ex = execOf(op), W = waitingSummary(op);
+    return { title: `Approve version ${num(S.version)} of the plan`, primary: 'Approve the plan',
+      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>Version ${num(S.version)} becomes the approved plan for ${periodWords()}. It releases ${num(W.wait)} waiting Action${W.wait === 1 ? '' : 's'} and ${num(W.waitItems.length)} item${W.waitItems.length === 1 ? '' : 's'}, ${usd(W.spend)} of one-off spend.</dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}, with the time.</dd></div></dl>`,
+      apply: () => ({ plan: { [op]: { state: 'APPROVED', by: ex?.name || '', at: 'now' } } }), toast: `Version ${num(S.version)} approved` }; },
+  'send-back': op => { const S = uxPlanState(op), ex = execOf(op);
+    return { title: `Send version ${num(S.version)} back`, primary: 'Send it back',
+      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>The plan returns to draft. Each changed item goes back to its creator with your reason; nothing is released.</dd></div><div><dt>Your reason</dt><dd><label class="vh" for="ux-sb-reason">Reason</label><textarea id="ux-sb-reason" rows="3" class="ux-reason">The budget should go first to the deadline items</textarea></dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}, with the time.</dd></div></dl>`,
+      apply: () => ({ plan: { [op]: { state: 'REVISED', by: ex?.name || '', at: 'now', reason: (document.getElementById('ux-sb-reason')?.value || '').trim() } } }), toast: `Version ${num(S.version)} sent back` }; }
+};
+function uxActButton(key, label, cls = 'button') { return `<button type="button" class="${cls}" data-ux-act="${key}">${label}</button>`; }
+/* the confirmation drawer for an action (built on demand, so every action uses the same one) */
+function uxActOpen(key, from) {
+  const [name, ...args] = key.split(':'), A = name === 'choose' ? uxChooseAct(...args) : UX_ACTS[name](LS.op);
+  document.getElementById('uxact')?.remove();
+  document.body.insertAdjacentHTML('beforeend', uxDrawer('uxact', A.title, `${A.body}<div class="ux-confirm-go"><button type="button" class="button primary" data-ux-act-go="${key}">${A.primary}</button><button type="button" class="button" data-ux-close>Cancel</button></div>`));
+  uxOpen('uxact', from);
+}
+function uxActDo(key) {
+  const [name, ...args] = key.split(':'), A = name === 'choose' ? uxChooseAct(...args) : UX_ACTS[name](LS.op), before = uxMock(), patch = A.apply();
+  const next = { ...before, plan: { ...(before.plan || {}), ...(patch.plan || {}) }, chosen: { ...(before.chosen || {}), ...(patch.chosen || {}) } };
+  uxMockSet(next); document.getElementById('uxact')?.remove(); document.querySelectorAll('.ux-drawer[data-open="true"]').forEach(d => uxClose(d));
+  render(); uxToast(`${A.toast}. Shown in this demonstration only.`, () => { uxMockSet(before); render(); uxToast('Undone.'); });
+}
+/* a toast that can undo what it reports (and is never the only record: the state on the page changes too) */
+function uxToast(msg, undo) {
+  document.querySelector('.toast')?.remove(); const e = document.createElement('div'); e.className = 'toast ux-toast'; e.setAttribute('role', 'status');
+  e.innerHTML = `<span>${msg}</span>${undo ? '<button type="button" class="button" data-ux-undo>Undo</button>' : ''}`; document.body.appendChild(e);
+  if (undo) e.querySelector('[data-ux-undo]').addEventListener('click', () => { e.remove(); undo(); });
+  setTimeout(() => { if (e.isConnected && !e.matches(':hover, :focus-within')) e.remove(); }, 8000);
+}
+document.addEventListener('click', e => { const a = e.target.closest('[data-ux-act]'); if (a) { e.preventDefault(); uxActOpen(a.dataset.uxAct, a); return; }
+  const g = e.target.closest('[data-ux-act-go]'); if (g) { e.preventDefault(); uxActDo(g.dataset.uxActGo); } });
+/* the plan page's sections: an answer-titled section from the old (title, body, subtitle) call */
+const uxSecAx = (title, body, sub = '') => uxSecA(title, sub || '', body);
+/* changes since the proposed version, as a compact difference (the switches can change the items) */
+function uxPlanDiff(op, P) {
+  const S = uxPlanState(op), v1 = planItemsV1(op), add = P.ids.filter(id => !v1.includes(id)), drop = v1.filter(id => !P.ids.includes(id) && !isProactive(op, id));
+  const line = (sign, id) => `<li class="ux-diff-${sign === '+' ? 'add' : 'drop'}"><span aria-hidden="true">${sign}</span> ${optLabel(id)} <small>${SK[OPT[id]._site].name}</small></li>`;
+  const ans = add.length || drop.length ? `${add.length ? `${num(add.length)} added` : ''}${add.length && drop.length ? ', ' : ''}${drop.length ? `${num(drop.length)} left out` : ''}, under the case shown` : `No change: this is version ${num(S.version)} as proposed`;
+  return uxSecA(`Changes since version ${num(S.version)}`, ans, add.length || drop.length ? `<ul class="list ux-diff">${add.map(id => line('+', id)).join('')}${drop.map(id => line('−', id)).join('')}</ul><p class="note">Approving a case that differs from the proposal makes a new version.</p>` : `<p class="prose">The items shown are version ${num(S.version)}, proposed by the system on ${fdate(S.proposed)}.</p>`);
+}
+/* the approver's sticky bar: the plan, its spend, its state and Approve / Send back (one feedback pattern) */
+function uxPlanSticky(op, P, budget) { return `<div class="ux-dsticky" role="region" aria-label="This plan" data-ux-sticky><span class="ux-dsticky-t">The plan for ${periodWords()}</span><span class="ux-dsticky-n">${usdW(P.spend)} <small>of ${usdW(budget)}</small></span>${uxPlanStateChip(op)}${uxPlanActions(op)}</div>`; }

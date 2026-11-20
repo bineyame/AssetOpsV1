@@ -334,9 +334,11 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
   { const p = await page('decision/mto-billing'); await p.click('.ux-drec [data-ux-drawer^="uxc-"]'); await p.waitForTimeout(250);
     const d = await p.evaluate(() => { const dr = document.querySelector('.ux-drawer[data-open="true"]'); return dr ? { t: dr.textContent, f: document.activeElement.classList.contains('ux-x') } : null; });
     ok(d && /What happens/.test(d.t) && /Actions/.test(d.t) && /Approval/.test(d.t) && /(Released when|Waits for|No approval needed)/.test(d.t) && /Recorded under/.test(d.t) && /Finance and commercial lead/.test(d.t) && d.f, 'Choose this: the confirmation says what happens, the Actions, the approval rule and whose name it is recorded under');
-    await p.click('.ux-drawer[data-open="true"] [data-ux-confirm]'); await p.waitForTimeout(300);
-    const c = await p.evaluate(() => ({ open: !!document.querySelector('.ux-drawer[data-open="true"]'), toast: (document.querySelector('.toast') || {}).textContent || '' }));
-    ok(!c.open && /^Not recorded in this demonstration/.test(c.toast), `Confirm the choice closes the dialog with a neutral notice ("${c.toast}")`);
+    /* one feedback pattern (UX audit C6): confirm, then a toast with Undo, then a visible state change; Undo restores it */
+    await p.click('.ux-drawer[data-open="true"] [data-ux-act-go]'); await p.waitForTimeout(400);
+    const c = await p.evaluate(() => ({ open: !!document.querySelector('.ux-drawer[data-open="true"]'), toast: (document.querySelector('.toast') || {}).textContent || '', undo: !!document.querySelector('.toast [data-ux-undo]'), pill: document.querySelector('.ux-dmeta .status-pill')?.textContent || '' }));
+    await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(400); const back = await p.evaluate(() => document.querySelector('.ux-dmeta .status-pill')?.textContent || '');
+    ok(!c.open && c.undo && /chosen/i.test(c.toast) && /Chosen in this demonstration/.test(c.pill) && /Waiting for a choice/.test(back), `Confirm the choice: toast with Undo, the state changes ("${c.pill}"), Undo restores it ("${back}")`);
     await p.context().close(); }
   /* the fourth state, from its review fixture and the review-bar control (review r1 L2) */
   { const p = await page('decision/kisiwa-om', { op: 'lakeside' });
@@ -400,6 +402,24 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
       ok(r.ans && r.h1 === 1 && !r.ovf && phoneOk && !nav && stickyOn && (w !== 1440 || drw === Math.min(4, r.marks.length)), `${op} site/${sk} at ${w}: answer-titled sections, sticky context after scroll, one h1, no sideways scroll${w < 600 ? ', KPI trend in words without a sparkline' : ''}${w === 1440 ? `, ${drw} driver rows open their drawers in place` : ''}`);
       await p.context().close(); }
     ok(shapes.size === 1, `Site pages: one section structure for every Site type (${[...shapes].join(' / ')})`); }
+  /* the plan page: answer-titled sections, the approver's sticky bar, and Approve / Send back with the one feedback pattern */
+  for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
+    const p = await page('portfolio/act-first/plan', { op, w, h });
+    const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4), ovf: document.documentElement.scrollWidth > innerWidth, chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, diff: /Changes since version/.test(document.body.textContent), crew: !!document.querySelector('[data-k="Crew"]') }; });
+    await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150);
+    const st = await p.evaluate(() => ({ on: !!document.querySelector('.ux-dsticky.is-on [data-plan-state]'), act: !!document.querySelector('.ux-dsticky.is-on [data-ux-act="approve-plan"]') }));
+    let flow = true, desc = '';
+    if (w === 1440) { await p.evaluate(() => window.scrollTo(0, 0)); await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250);
+      const dlg = await p.evaluate(() => document.getElementById('uxact')?.dataset.open === 'true' && /What happens/.test(document.getElementById('uxact').textContent) && /Recorded under/.test(document.getElementById('uxact').textContent));
+      await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
+      const a = await p.evaluate(() => ({ chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, undo: !!document.querySelector('.toast [data-ux-undo]') }));
+      await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(400); const b = await p.evaluate(() => document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState);
+      await p.click('.ux-planband [data-ux-act="send-back"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
+      const sb = await p.evaluate(() => ({ chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, reason: /Sent back in this demonstration: “/.test(document.querySelector('.ux-planband').textContent) }));
+      await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(300);
+      flow = dlg && a.chip === 'APPROVED' && a.undo && b === 'PROPOSED' && sb.chip === 'REVISED' && sb.reason; desc = `; Approve: confirm, toast with Undo, ${a.chip}, Undo ${b}; Send back with a reason: ${sb.chip}`; }
+    ok(r.n >= 4 && r.ans && !r.ovf && r.chip === 'PROPOSED' && r.diff && (w < 600 || r.crew) && st.on && st.act && flow, `${op} plan at ${w}: ${r.n} answer-titled sections, changes since the version, crew per item, sticky approver bar${desc}`);
+    await p.context().close(); }
   /* r2 M3: the captive fleet's revenue row says "Not applicable", in its own words */
   { const p = await page('ev', { op: 'metro' }); const t = await p.evaluate(() => document.querySelector('.canvas').textContent);
     ok(/Not applicable/.test(t) && /Revenue not applicable: charging is a cost centre/.test(t) && !/Grow revenue\s*Not measured yet/.test(t), 'EV board: the revenue row reads "Not applicable" with its reason'); await p.context().close(); }
