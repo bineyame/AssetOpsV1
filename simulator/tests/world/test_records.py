@@ -403,6 +403,10 @@ def test_t5_zero_handling_and_no_totals() -> None:
     thika = lines["gen:COLD-THIKA:2026-10:plan:liability"]
     assert thika.kind == "BUDGET_LINE" and format(thika.body["value"], "f") == "0.00" and thika.body["currency"] == "USD"
     assert "gen:COLD-MWEA:2026-10:actual:liability" not in lines
+    # D-DS1B.3: a zero liability writes no row (Thika's history months hold 0); a written one is never 0.
+    adjustments = [r for r in lines.values() if r.kind == "ADJUSTMENT"]
+    assert adjustments and all(r.amount[0] != 0 for r in adjustments)
+    assert all(f"gen:COLD-THIKA:{m}:actual:liability" not in lines for m in ("2026-07", "2026-08", "2026-09"))
     for r in lines.values():
         if r.kind == "BUDGET_LINE":
             key = STRUCTURE_KEY[next(t["vertical"] for t in load_fixture()["tenants"]
