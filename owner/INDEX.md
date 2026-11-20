@@ -6,7 +6,7 @@ read from what later owner files say: 63 current, 12 superseded, 112 historical.
 "to confirm" marks a status the owner has not confirmed. Read `SUMMARY.md` first: the
 concise statement of what the owner wants now (owner O4, confirmed 2026-11-19).
 
-All files, by date: `index-1.md`, `index-2.md`, `index-3.md`, `index-4.md`, `index-5.md`.
+All files, by date: `index-1.md`, `index-2.md`, `index-3.md`, `index-4.md`, `index-5.md`, `index-6.md`.
 
 Current files:
 

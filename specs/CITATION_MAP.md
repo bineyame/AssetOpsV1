@@ -134,3 +134,10 @@ documents) keep their line numbers.
 | `frontend/docs/architecture/v69-subject-area-briefs.json`, `v69-model-homes.json` | `archive/frontend/docs/architecture/<same name>` | none (JSON) |
 | `tasks/README.md` before step 5 (the S1-S7 tables) | `tasks/archive/site-first-2026-10/queue-tables.md` | Superseded by X; `tasks/README.md` is now a short pointer |
 | `tools/<name>` for the 28 names in `step5_map.TOOLS_FINISHED` (`ap1_parity_probe.py`, `dd1a1_*`, `dd1a2_addday_l2.py`, `dd1b1_coh3_probe.py`, `dd1b2a_*`, `lr01-money-evidence.mjs`, `pr2a-`/`pr3-` price evidence, `s405-provenance-evidence.mjs`, `s5-overview-evidence.mjs`, `v01b-*`/`v01b_*`, `w1-fidelity-audit-index.mjs`, `w502-`/`w504-` work evidence, `w5f1-d3-evidence.mjs`) | `archive/tools/<name>` | Finished; historical |
+
+## Later moves (20 Nov 2026)
+
+| Old path | New path | Note |
+| --- | --- | --- |
+| `.agent/owner-assure-per-brief-2026-11-19.md`, `.agent/owner-design-regeneration-request-2026-11-19.md`, `.agent/owner-recreate-document-packs-2026-11-19.md`, `.agent/owner-summary-confirmations-2026-11-19.md` | `owner/<same name>` | Duplicates removed; the `owner/` copy is the record (summary-confirmations: the `owner/` copy is the superset) |
+| `.agent/owner-design-intro-and-motivation-request-2026-11-18.md`, `.agent/owner-grounded-transition-request-2026-11-18.md` | `owner/<same name>` | Moved; rows in `owner/index-6.md` |

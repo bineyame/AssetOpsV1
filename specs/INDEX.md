@@ -66,3 +66,8 @@ finished work are in `archive/agent-history/`.
 | Lane T | Build spec, telemetry lane | finished — as TEL-01 to TEL-06; to confirm | `Lane-T/README.md` (split) | 134 KB |
 | DECLUTTER | Repo declutter recommendation, packets and reviews | live — steps 4-5 | `DECLUTTER/repo-declutter-recommendation-2026-11-18.md` | 42 KB |
 | T1 | Heavy-tool slot pool, enforced (spec, reviewer guide, handshake, rulings) | in_review — rev 2 (option C) built; packet in the folder | `T1-heavy-tool-slot-pool/spec.md` | 36 KB |
+| DS1 | Generator core and the July-September history (spec, reviewer guide, rulings, handshake) | live — handshake closed, rev 2; DS1a may start | `DS1-history-generator/spec.md` | 94 KB |
+| mockup-vnext-categories-snapshot | Mock-up vNEXT: the four headings and the snapshot "as of" (review packet) | finished — in the frozen pack | `mockup-vnext-categories-snapshot/packet.md` | small |
+| mockup-vnext-demo-items | Mock-up vNEXT: demo workflow items wired (review packet) | finished — in the frozen pack | `mockup-vnext-demo-items/packet.md` | small |
+| mockup-vnext-professional | Mock-up vNEXT professional pass (handoff, packet) | superseded — by the UI/UX guide waves (merged 20 Nov) | `mockup-vnext-professional/packet.md` | small |
+

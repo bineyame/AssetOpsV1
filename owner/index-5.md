@@ -1,4 +1,4 @@
-# Owner feedback index, part 5 of 5 (2026-11-13 to 2026-11-18)
+# Owner feedback index, part 5 of 6 (2026-11-13 to 2026-11-18)
 
 One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
@@ -34,8 +34,3 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-19 `owner-portfolio-polish-wave2-2026-11-19.md` Owner approved sending the coordinator's 8 Portfolio gaps vs top-tier SaaS (scannability, trends, leak chart, scale controls, clutter, tile visuals, nav, hero chart) to the Architect as wave-2 Portfolio polish · current
 - 2026-11-19 `owner-african-design-identity-2026-11-19.md` Add an African design identity to the UI, configurable (theme/brand pack) in case AssetEcon expands elsewhere · current — governs the visual system
 - 2026-11-19 `owner-portfolio-polish-wave2c-2026-11-19.md` Owner approved sending the coordinator's 7 post-wave-2b Portfolio gaps vs top-tier SaaS (trends, page length, queue consistency, gap chart, tile weight/density, lower-half grid, stronger East Africa identity) to the Architect as wave 2c · current
-- 2026-11-20 `owner-answers-uiux-datastrat-d7-2026-11-20.md` U9 adopt, U10 yes, U8 keep 6 groups, U7 yes; data strategy Q1–Q8 defaults except Q7 (recalc once a day + on demand, for now), Q2 switchable, Q3 combination on merit but speed now; D7 default · current
-- 2026-11-20 `owner-start-ds1-2026-11-20.md` Start data slice DS1 now (July–September history, U9) under the spec handshake, ahead of the pack/strategy review · current
-- 2026-11-20 `owner-decision-page-redesign-2026-11-20.md` Owner finds the Decide page confusing; approved sending the coordinator's 8-point Decision page redesign (question first, one primary choice, option cards, collapsed why, confirm dialog, status line, state-aware queue button) to the Architect · current
-- 2026-11-20 `owner-placeholder-gaps-routing-2026-11-20.md` Owner approved routing the placeholder-audit gaps: 1, 5, unknown-as-zero to the design Architect; 4 + wording + Site-tile wiring to the UI Architect after the Decision page; 2, 3 with DS1 · current
-- 2026-11-20 `owner-merge-wave2c-ds1-defaults-2026-11-20.md` Merge UI wave 2c to main; DS1 owner questions (D-DS1.6, Q1–Q5) on their defaults · current

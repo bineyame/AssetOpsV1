@@ -43,3 +43,17 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-T1.16` T1 Pytest pooled when the test database URL is set · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.17` T1 Slice-end checks are a pooled smoke set, not full suites · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.18` T1 Starvation under a long DB job accepted · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-DS1.1` DS1 2a not built; DS1 at month grain, record writers to DS1b; 3 units · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.2` DS1 generator lives in simulator/assetops_simulator/world · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.3` DS1 three branches (main, pack-int, uiux); generated files rebuilt on one side only · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.4` DS1 history inputs are rules; leaves generated, totals evaluated · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.5` DS1 history.json meta plus tenants, money in integer cents · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.6` DS1 no bridge rows for history months · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.7` DS1 what history may and may not show · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.8` DS1 series Jul-Oct, keyed by manifest Site name · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.9` DS1 Harvest Cold after-recalculation state goes to 3B7b via a rolling: record · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.10` DS1 evidence words Simulated/Emulated; coverage RECORDED is not one · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.11` DS1 product series read is 3B7a; loading is DS3; no dependency on missing-record contract · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.12` DS1 history nodes carry the missing record (NOT_IN_HISTORY); no unknown reads as zero · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.13` DS1 DS1p based on the pack branch after 46b62c92b, main merged in · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.14` DS1 units (integer at month grain) and estimate (4 units, DS1b 1) · live · specs/DS1-history-generator/rulings.md
