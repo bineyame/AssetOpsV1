@@ -402,6 +402,13 @@ Branch `task/5a-targets` (base main `880ba4dbf`); spec `specs/5a-targets/spec.md
 - Settled: `structure/targets/lines.py` `BudgetLineReader.site/portfolio` turn 3A4's `BUDGET_LINE` lines into `TargetLine`s in rule order (two versions block every registry factor, `NOT_A_FACTOR`, `DUPLICATE_DECLARATION` never summed, `CURRENCY_MISSING`/`CURRENCY_ON_QUANTITY`), `LEAF`/`NODE` place, and the declarer from the intake of each line's latest revision (`person_id` from `person:<uuid>`; an unchanged re-upload does not re-declare). Fixture `targets_lakeside.json`.
 - Open: units 2 (target rules, `TargetRead.site`) and 3 (portfolio, composition, Postgres) wait for `4b1`; owner Q7 default (cost with no line at actual, D-5A.15) applies in unit 2.
 
+## 5a - targets per factor, units 2-3: target rules, Site and portfolio read (built 20 Nov; in_review)
+
+Branch `task/5a-targets-u23` (base main `e88641e97`); spec `specs/5a-targets/spec.md` rev 2 §3-§6, rulings D-5A.4-D-5A.15, D-4B.16, D-4B.18; packet `specs/5a-targets/packet-5a-u23.md`. New modules only (`structure/targets/{rules,read,composition}.py`); no migration, no route, nothing stored.
+
+- Settled: `TARGET_RULE`/`MAIN_OF` literals for the 31 MINI_GRID leaves; `solve_main` through `evaluate` (linear, non-zero slope). `TargetRead.site`: leaf line DECLARED, stated heading line DECLARED (D-5A.7), other node lines are `TargetCheck`s only; no line gives a labelled ESTIMATED assumption (`LEAK_ZERO`, `AT_ACTUAL` incl. costs per D-5A.15, `MAIN`) or an absent target naming `BUDGET_LINE` (blocked `NOT_CALCULATED_YET`, D-5A.13). `portfolio` composes per factor with "k of n"; operator lines only in `portfolio_lines`. `build_target_read`. Lakeside Oct 2,295.00, 3 of 3; Kisiwa −60.00 vs −65.00 check False.
+- Answered: Q2 (fixture declarer is `service:ds3-loader` everywhere) and Q3 (D-5A.16, origins of assumptions); merged 20 Nov (r1 ACCEPT, F1 test added). `5b` splits the gap from this read.
+
 ## 4b1 - the stated-node seam (merged 20 Nov; r2 ACCEPT + R2-1)
 
 Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-leaves/spec.md` rev 2 §2, rulings D-4B.1, .2, .10, .11, .16, .17, .18; packet `specs/4b-money-leaves/packet-4b1.md`; reviews `review-4b1.md` (r1, r2). No migration, no route, no store.
@@ -409,6 +416,14 @@ Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-lea
 - Settled: MINI_GRID v3: `FactorRow.stated_by` on `revenue` (CHARGE) and `fuel_cost` (EXPENSE (FUEL)); check `STRUCTURE_STATED` after `STRUCTURE_COMPOSES`. `evaluate(registry, leaves, stated=)`: a stated value governs and the expression stays as `computed`/`detail_missing`; `NOT_CONNECTED`/`NOT_RECEIVED` let the expression through, `NOT_CALCULATED_YET` blocks (D-4B.16). `LeafValue.origins`, `FactorValue.origins/stated/computed/detail_missing`, `ORIGIN_ORDER`, `weakest_origin`, runtime `STRUCTURE_ORIGIN`; compose carries origins and `Site:leaf` detail. `StatedSource`, `StructureRead(sources, stated=None)`; `commercial.composition.build_commercial_reads`. With `stated` empty the old fields equal 3B3's.
 - Fix round (D-4B.18): a valued part names its origin; only a NEUTRAL value or a CALENDAR row may carry `()`, else `STRUCTURE_ORIGIN`; `unknown` ranks last in `ORIGIN_ORDER`. S11(a) is parametrized from the registry over every valued non-CALENDAR leaf row (money and non-money, every registry) and every stated node (r2 R2-1), so the exemption cannot widen unnoticed; plants P1 (refuse `()` only with a currency) and P2 (exempt OPERATIONAL_RECORD too) now fail.
 - Open: every production leaf still has `origins == ()` until 4b2 (`weakest_origin` is `None`, not "no weak part"); 4b2 providers (`structure/money.py`, states, T6 edits); `5a` builds on the new fields.
+
+## RC4-F1 - the database a URL really reaches (merged 20 Nov; r1 ACCEPT)
+
+Branch `task/RC4-F1-database-name` (base main `e88641e97`); spec `specs/RC4-F1-database-name/spec.md` rev 2, rulings D-RC4F1.1-5; packet `specs/RC4-F1-database-name/packet.md`. No migration, no route.
+
+- Settled: `assetops_backend/database_target.py` `database_target(url, environ)` returns host, port and name as psycopg is handed them, or `DatabaseTargetUnclear(reason)` (query allowlist, one plain host, plain non-empty name, none of six `PG*` target variables; reasons hold no URL value). `commercial_upload_settings` decides RC4 on it (unclear: `ConfigurationError` "DATABASE_URL must name one database plainly (<reason>)."); `postgres_commercial_store.database_name` deleted; the backfill's protected check uses it; `tools/demo_combined.py` `Demo.env()` strips the six variables. Plants F1-F8 fail.
+- Settled: Q1-Q3 answered (D-RC4F1.3-5); `$pgReaders` admits `database_target.py` (owner-approved line); plants F1-F9; test 8 pins the admission.
+- Open: backlog `RC4-F1-tools` (`tools/sweep-setup-cache.py` and one other tool still read the name); 3A3 `refuse_operator_database` and ON1 onboarding must call `database_target`; review residuals (test 7 misses `engine.url.database`, test 8 misses `importlib`).
 
 ## 4b2 - the money leaves, providers (built, in_review)
 

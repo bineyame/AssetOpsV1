@@ -25,6 +25,7 @@ from uuid import UUID
 from assetops_backend.chain.lifecycle_run import run_lifecycle
 from assetops_backend.chain.threads import MemoryThreads, ThreadRegistry
 from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
+from assetops_backend.database_target import DatabaseTargetUnclear, database_target
 
 PROTECTED_DATABASES = ("assetops_polish_full_test", "assetops_demo3_full_test")
 STEPS = ("a", "b", "c", "d", "e")
@@ -177,9 +178,20 @@ def main(argv: Sequence[str] | None = None, *, reader: Any = None, store: Any = 
     if reader is None:
         print("DATABASE_URL is not set; nothing was written.", file=sys.stderr)
         return 1
-    if not args.dry_run and reader.database_name() in PROTECTED_DATABASES:
-        print(f"Database {reader.database_name()!r} is read-only for the backfill; use --dry-run.", file=sys.stderr)
-        return 2
+    if not args.dry_run:
+        # RC4-F1 (D-RC4F1.2): with a URL, the database psycopg is really handed decides; an injected reader's own
+        # name is still checked (D-RC4F1.4).
+        names = [reader.database_name()]
+        if url:
+            try:
+                names.insert(0, database_target(url).name)
+            except DatabaseTargetUnclear as e:
+                print(f"Database URL is not plain ({e.reason}); nothing was written.", file=sys.stderr)
+                return 2
+        protected = next((n for n in names if n in PROTECTED_DATABASES), None)
+        if protected is not None:
+            print(f"Database {protected!r} is read-only for the backfill; use --dry-run.", file=sys.stderr)
+            return 2
     tenant_id = reader.tenant_id(args.tenant)
     if tenant_id is None:
         print(f"No tenant {args.tenant!r}; nothing was written.", file=sys.stderr)

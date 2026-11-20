@@ -190,3 +190,35 @@ Architect (Claude), 2026-11-20, on `mid-build-questions.md` Q1 at `e28cd1e0c`. N
     `source_record_id`, fails (b). Revert after each; tree clean.
   - **Scope.** Spec §7 question 8 now also allows this one file; §6 test 10 names it. Test 10's stub in
     `backend/tests/test_5a_targets.py` is removed (no skipped test left behind).
+
+## Mid-build answers (round 2)
+
+Architect (Claude), 2026-11-20, on `mid-build-questions.md` Q2 and Q3 at `e6416e50a`. Spec rev 3 applies them.
+
+- **Q2 (units 2-3, the step-1 declarer literal).** Change the literal; drop the workaround. No new decision: the
+  declarer rule (D-5A.2, D-5A.14) is unchanged, only the fixture named a declarer production cannot hold.
+  - **Why.** One literal must serve both stores; a Postgres-only name means the in-memory tests prove a value the
+    product could never store (W6: a fixture must satisfy the production constraint, migration `0063`'s
+    `commercial_intake_entered_by_check`). Sweep of `backend/tests` and `simulator/tests`: this is the only
+    `entered_by` literal outside the pattern apart from `test_3a1_commercial_postgres.py:193`'s `"someone"`, which is
+    a deliberate refusal row and stays. The in-memory store is 3A1's and is not changed here.
+  - **Code it requires.** `backend/tests/fixtures/targets_lakeside.json` step 1 `entered_by` is `service:ds3-loader`;
+    `test_5a_targets.py` `LOADER = "service:ds3-loader"`; `test_5a_targets_postgres.py` drops `PG_LOADER` and its
+    workaround comment and uses the fixture's name (one literal); spec §5's step-1 row and every `declared_by`
+    `loader:ds3` read `service:ds3-loader`. The DS1b parity test (reads records only) is untouched and stays green.
+
+### D-5A.16 An assumed target carries the origins of the values it is computed from; one resting on none is `unknown` (Q3)
+
+- **Ruling.** The builder's default is confirmed as the rule: `LEAK_ZERO` carries `("unknown",)`; `AT_ACTUAL` carries
+  the actual's origins (`("unknown",)` if empty); a solved `MAIN` leaf carries the union of its heading line's origins
+  and those of the other leaves under that heading, in D-4B.18's order (Kobo `necessary_l`: `("source-emulated",
+  "unknown")`); `solve_main`'s probe leaf carries `("unknown",)` (spec's `("solve",)` was not a D-4B.18 origin; the
+  probe never reaches the result). `solve_main` gains keyword-only `currency: str | None = None`, used as the probe's
+  currency. Stated headings keep their line's origin.
+- **Why.** D-4B.18 makes an origin name what a value rests on, with an unnamed origin `unknown`. An assumption's
+  status is already carried by its label (`*_TEXT`, `assumption:` sources); its origins answer a different question,
+  where the numbers came from. Collapsing `MAIN` to `("unknown",)` would hide that it rests on a declared line; the
+  union keeps that and still ranks `unknown` weakest wherever an assumed part enters. The keyword argument is how the
+  spec's "the heading currency if the leaf is money" reaches the probe; positional order is unchanged.
+- **Code it requires.** None beyond the build; `test_3a_origins_of_assumptions` pins it. Spec §3.1's `solve_main`
+  signature and probe, and §3.2 steps 3 and 5, now name the origins.
