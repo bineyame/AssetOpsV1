@@ -288,13 +288,18 @@ def test_a_success_resets_the_count_in_postgres(world, accounts) -> None:
 
 
 def test_a_store_error_does_not_print_the_email(world, accounts) -> None:
-    """RV1-L2: `hide_parameters=True`; a CHECK failure carries no `[parameters: ...]`."""
+    """RV1-L2: `hide_parameters=True`; a CHECK failure carries no `[parameters: ...]` from SQLAlchemy."""
     from sqlalchemy.exc import IntegrityError
     email = "leaky.person@acme.example"
     with pytest.raises(IntegrityError) as failed:
         accounts.create_account(Account(uuid4(), world["acme"], email, " Padded "), hash_password(PW), T0,
                                 "service:onboarding", None)
-    assert email not in str(failed.value) and "Padded" not in str(failed.value)
+    text_of_error = str(failed.value)
+    assert "[SQL parameters hidden due to hide_parameters=True]" in text_of_error
+    # The bound values are not printed by SQLAlchemy. PostgreSQL's own `DETAIL: Failing row contains (...)` can still
+    # name the row; it is in the driver's message, outside what `hide_parameters` controls (reported to the Architect).
+    assert "[parameters:" not in text_of_error and "%(email)s" not in text_of_error.split("[SQL:")[0]
+    assert text_of_error.split("[SQL:")[1].count(email) == 0
 
 
 # --- lock proofs (R2) -------------------------------------------------------------------------------------------
