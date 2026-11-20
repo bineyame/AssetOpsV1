@@ -170,8 +170,8 @@ SLICES = [
 # itself, before day 1 (owner decision OD-20, 19 Nov). Effort in Architect lane-days.
 PAGES = [("P1", "Steps 1 and 3C: the corrected figure; sign-in, roles and the person on every command (pack #2, #12; OD-20)", 0.0, True),
          ("P2", "Step 2: canonical format version 1 and the leaf factor IDs (written 20 Nov: specs/2a-canonical-format/spec.md §2)", 0.0, "start"),
-         ("P3A", "Step 3A: record kinds, intake, emulator rules, the contract test", 0.25, False),
-         ("P3B", "Step 3B: registry rows, parity, the structure read and observer", 0.25, False),
+         ("P3A", "Step 3A: record kinds, intake, emulator rules, the contract test (written 20 Nov: specs/3A1-commercial-record-store/structure-page-P3A.md)", 0.25, False),
+         ("P3B", "Step 3B: registry rows, parity, the structure read and observer (written 20 Nov: specs/3B1-structure-registry/structure-page-P3B.md)", 0.25, False),
          ("P5", "Step 5: target declaration and the attribution rules", 0.5, False),
          ("P6", "Step 6: decision records, bounds, the evaluator and the carrier", 0.5, False),
          ("P7", "Step 7: plan records, release, versions, the proposal (pack #12)", 0.5, False),
