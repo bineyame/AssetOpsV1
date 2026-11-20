@@ -146,6 +146,13 @@ def test_pg_3_composition_and_command(pgworld) -> None:
     assert json.loads(verified.stdout)["matches"] is True
     refused = run("build", "--tenant", "nope", "--month", nodb.OCT, "--by", nodb.BY)
     assert refused.returncode == 2 and refused.stderr.startswith("UNKNOWN_TENANT ")
+    site_id = next(iter(line["sites"].values()))
+    other = run("build", "--tenant", "harvest-cold", "--month", nodb.OCT, "--by", nodb.BY)
+    assert other.returncode == 0, other.stderr
+    other_id = json.loads(other.stdout.strip().splitlines()[0])["portfolio_snapshot_id"]
+    for wrong in (site_id, other_id):  # D-3B7A Q3: a Site row's id and another organisation's id are both unknown
+        gone = run("verify", "--tenant", "lakeside-power", "--snapshot", wrong)
+        assert gone.returncode == 2 and gone.stderr.startswith("UNKNOWN_SNAPSHOT "), (wrong, gone.stderr)
 
 
 # --- 4: migration up, down (empty) and refusal (a row present) -------------------------------------------------------
@@ -166,7 +173,7 @@ def test_pg_4_migration_down_refused_then_down_and_up(pgworld, engine) -> None: 
     w, snapshots = pgworld
     cfg = pg_harness._alembic(URL)
     script = _this_migration(cfg)
-    assert script.revision == ScriptDirectory.from_config(cfg).get_current_head()
+    assert (script.revision, script.down_revision) == ("0066_structure_snapshot", "0065_commercial_upload")
     assert isinstance(script.down_revision, str) and script.down_revision != script.revision
     nodb.setup(w, snapshots).builder.build(w["tid"], nodb.refs(w), nodb.OCT, built_by=nodb.BY)
     snapshots.dispose()

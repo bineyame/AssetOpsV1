@@ -4,7 +4,7 @@ The actual side is `structure.composition.build_structure_read`; the budget line
 `commercial.composition.build_commercial_reads`; the snapshot store is this domain's Postgres adapter (only this
 module imports it). A failure in any builder disposes those already built; `dispose` disposes all three. The code
 digest (D-3B7A.11) is computed once and handed to both the builder and the read. This module is the root of that
-digest's import closure (`rules_digest.RULE_ROOTS`), so every module a build can reach is covered.
+digest's import closure (`adapters/code_digest.RULE_ROOTS`), so every module a build can reach is covered.
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ def build_structure_snapshot(database_url: str) -> StructureSnapshotService:
     from assetops_backend.structure_snapshot.adapters.postgres_structure_snapshot_store import \
         PostgresStructureSnapshotStore
     from assetops_backend.structure_snapshot.kinds import StoreHeldKinds
-    from assetops_backend.structure_snapshot.rules_digest import rules_digest
+    from assetops_backend.structure_snapshot.adapters.code_digest import rules_digest
 
     actual = build_structure_read(database_url)
     try:

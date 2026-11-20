@@ -111,3 +111,22 @@ anti-vacuity (E).
 Runbook line (coordinator adds to `Docs/engineering/operator-deep-dive-runbook.md` after ON1, R10):
 `python -m assetops_backend.build_structure_snapshot build --tenant <slug> --month <YYYY-MM> --by person:<their account id>`
 (the analyst, after each accepted import, and after a deploy).
+
+## Fix round 1 (rulings D-3B7A.13 to D-3B7A.15, Q3; evidence `/opt/assetecon/evidence/3B7a/fix-r1/`)
+
+- Merged `task/3B7a-midbuild-answers` (spec rev 3, rulings). Q1/D-3B7A.13: `rules_digest.py` moved to
+  `structure_snapshot/adapters/code_digest.py` (`parents[1]` became `parents[2]`, the only content change); only
+  `composition.py` imports it; tests 10 and 11 follow the path. The guard block is unchanged and now leaves 0
+  failures. Q2/D-3B7A.14: 3A2 test line 280 and this slice's Postgres test line 169 assert their own
+  `(revision, down_revision)`. Q3: Postgres test 3 checks a Site row's id and another organisation's id (harvest-cold
+  portfolio) both exit 2 `UNKNOWN_SNAPSHOT`. D-3B7A.15: test 3 asserts k, n and the Sites left out: actual 1 of 4
+  (KISIWA, MTO, THIKA out), targets 3 of 4 (THIKA out). The "Known deviations" bullet above on "1 of 3" is settled.
+- No-database focused + regression (3B7a, 3B3, 4b1, 4b, 5a, 3A4): `252 passed in 11.04s` (`nodb.txt`). Postgres through
+  `heavy-slot.sh --db` + `run-host-tests.ps1` (3B7a, 3A1, 3A2, 3A4, 4b, 5a, 3B3 read): `79 passed in 47.25s` (`pg.txt`).
+- Guard (repo file untouched; scratch copy of the tree, `guard-scratch-path.txt`; `guard-original.ps1` is the repo file
+  as copied, block built by `build-u1-3/block.py`): with the block, clean tree: `failures: 0` (`guard.txt`). Plants
+  (`guard-plants.txt`): existing day-snapshot plant G3 fails 3 refusals; new G1, G2 (2), G2b each fail; (E) with the
+  INSERT pattern planted to match nothing fails with "Rule 8 found no INSERT INTO structure_snapshot statement ... vacuous"
+  (plus the G1 message, since nothing then matches). Tree restored after each. The coordinator applies the block after
+  owner approval.
+- Fast check-all (80.6 s): `Check failed: 1 of 40 blocking guards`, only the persistence guard (`check-all-fast.txt`, tail only).

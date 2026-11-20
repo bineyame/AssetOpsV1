@@ -35,7 +35,7 @@ from assetops_backend.structure_snapshot.build import SnapshotBuilder
 from assetops_backend.structure_snapshot.kinds import StoreHeldKinds
 from assetops_backend.structure_snapshot.model import REASONS, SNAPSHOT_FORMAT, Freshness, Served, SnapshotRow
 from assetops_backend.structure_snapshot.read import SnapshotRead
-from assetops_backend.structure_snapshot.rules_digest import import_closure, rules_digest
+from assetops_backend.structure_snapshot.adapters.code_digest import import_closure, rules_digest
 from assetops_backend.structure_snapshot.store import MemoryStructureSnapshotStore, SnapshotExists
 from assetops_backend.structure_snapshot.untracked import untracked
 
@@ -289,9 +289,12 @@ def check_3_build_and_serve(w, store=None) -> SimpleNamespace:
     assert act == s.r.actual.portfolio(w["tid"], sites, OCT, AS_OF)
     assert tgt == s.r.targets.portfolio(w["tid"], sites, OCT, AS_OF)
     assert act.composition.values["contribution"].value.value == D("883.00")
-    assert site_count(act, "contribution").k == 1 and act.composition.values["contribution"].included == ("KOBO-001",)
+    ca = site_count(act, "contribution")
+    assert (ca.k, ca.n) == (1, 4) and {c for c, _ in ca.out} == set(CODES) - {"KOBO-001"} | {"THIKA-001"}
+    assert act.composition.values["contribution"].included == ("KOBO-001",)
     assert tgt.structure.composition.values["contribution"].value.value == D("2295.00")
-    assert site_count(tgt.structure, "contribution").k == 3
+    ct = site_count(tgt.structure, "contribution")
+    assert (ct.k, ct.n) == (3, 4) and [c for c, _ in ct.out] == ["THIKA-001"]
     assert tgt.structure.composition.values["staff"].value.value == D("1450.00")
     assert [(ln.factor_id, ln.value) for ln in p.portfolio_lines.lines] == [("staff", D("1200.00"))]
     return SimpleNamespace(s=s, result=result, served=served, portfolio=pf)

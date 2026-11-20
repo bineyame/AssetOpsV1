@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT_PACKAGE = "assetops_backend"
 RULE_ROOTS = ("assetops_backend.structure_snapshot.composition",)
-_PACKAGE_DIR = Path(__file__).resolve().parents[1]
+_PACKAGE_DIR = Path(__file__).resolve().parents[2]
 
 
 def _file(package_dir: Path, name: str) -> Path | None:
