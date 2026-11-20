@@ -11,8 +11,8 @@ Non-screen: no screen, route, store or migration changes. Discovery review (W5: 
 - **Branch** `task/2a-canonical-format` off `main` after the coordinator has merged `task/build-wave1-specs` (P1);
   worktree `/opt/assetecon/AssetOpsV1-2a`.
   Never work in `/opt/assetecon/AssetOpsV1` (the coordinator's `main` checkout).
-- **Gate.** Code starts when (a) the handshake has no open question and (b) the owner has approved §2, the step-2
-  structure page `P2` (W1; asked 20 Nov). Until (b) you may write the tests (§9, commit 1) but not the code.
+- **Gate.** Both conditions are met: the handshake closed (rev 2) and the owner approved §2, the step-2 structure page
+  `P2`, on 20 Nov (item 2: "approved"; `owner/owner-answers-eight-open-questions-2026-11-20.md`).
 - **Read:** this spec; `rulings.md`; `Docs/demo-sprint/product-direction-layer4/integration-design.md` §2-§4;
   `integration-source-to-canonical-design.md` §6.1, §6.4-§6.7 (search, do not read whole);
   `contracts/assetops_contracts/operational_records.py` (style); `simulator/assetops_simulator/world/leaves.py`;
@@ -69,7 +69,7 @@ flowchart LR
 - This is version 1. It is revised, as version 2, when the first operator's real export is pinned under the contract
   test (design D1; Architect's caution in §2.9).
 
-**Decision for the owner.** Approve this as step 2's structure. Default: approved; the build waits for it (W1).
+**Approved by the owner, 20 Nov** (item 2: "approved").
 
 ## 3. Files and public API
 
@@ -507,6 +507,6 @@ green. A third only for the review's fixes.
 
 | # | Question | Default applied |
 |---|---|---|
-| Q1 | Approve §2 as structure page P2 | Approved when the owner says so; code waits (W1) |
+| Q1 | Approve §2 as structure page P2 | **Approved by the owner, 20 Nov** |
 | Q2 | Are the six dimensions enough, with nights as days and counts dimensionless (D-2A.4)? | Yes. `3B1`'s unit check finds the cases they do not cover (literal `0` and `1` inside `min`, `max`) and the Architect rules them there |
 | Q3 | Budget lines may name a node, not only a leaf (D-2A.5) | Yes, as `decision-loop-specification.md` §5 allows targets above leaf level. Cost: a mistyped node ID passes the format and is refused only at intake against the registry (`3A2`) |

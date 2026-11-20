@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-3C0A.11)
+# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-DS1B.6)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -29,6 +29,13 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3C0A.10` Standard-library scrypt; no new dependency · live · specs/3C0a-operator-accounts/rulings.md
 - `D-2A.10` Canonical tests live in backend/tests so every merge's full tier runs them · live · specs/2a-canonical-format/rulings.md
 - `D-3C0A.11` Sign-in attempts: hashed key, no person on failure, purged after 30 days · live · specs/3C0a-operator-accounts/rulings.md
+- `D-BW1.7` Three lanes (owner item 3); P2 approved (item 2); the third lane opens with DS1b · live · specs/BW1-build-wave1/rulings.md
+- `D-DS1B.1` DS1b writes month cost lines and budget lines only · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.2` world/leaves.py keeps its record-field set; D-2A.8 amended · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.3` Zero liability writes no row; zero cost lines do · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.4` Budget lines follow the evaluator's first-present pass-through rule · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.5` DS1b records are source-emulated · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.6` DS1b tests in simulator/tests/world; merge gap is a tools item · live · specs/DS1b-canonical-writers/rulings.md
 - `D-L4OPS.1` Site Operations tab on all 9 Sites; asset page; incident, maintenance, right drawers; five rail lists become one Operations entry, one row per Site · live · specs/L4-OPS/rulings.md
 - `D-L4OPS.2` Incident: failure mode, out-of-service interval; consequences counted once on their nodes; cost a cut, never a leaf · live · specs/L4-OPS/rulings.md
 - `D-L4OPS.3` Repeat = same asset, same mode inside the window; repeat_failures (P2, Protect) raises a Finding linked to the asset's decision · live · specs/L4-OPS/rulings.md
