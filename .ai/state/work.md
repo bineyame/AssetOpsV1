@@ -111,3 +111,34 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   the rule inline from the history route (`_expected_link`).
 - Open: estate Finding->Action join stays exact (C5); R552 stays open until DEMO-SPARSE CO-1 passes on the combined
   dataset (DEMO-A edits `tools/demo_combined_finish.py` co1 after this merges).
+
+## 3C0a: operator accounts, sessions and role grants behind the API (2026-11-20, `task/3C0a-operator-accounts`, in review)
+
+- Migration `0062_operator_accounts`: `operator_account`, `account_credential`, `account_status`, `role_grant`
+  (append-only, 0005 trigger; a removal is a new row checked by `role_grant_removal_matches()`), `operator_session`
+  (revoke-only; token SHA-256 only) and `sign_in_attempt` (hashed email key, person only on success, purged after
+  30 days on every insert). Current password, status and held grants are derived from the latest rows.
+- `backend/assetops_backend/accounts/`: scrypt passwords, sign-in with one verification per path and a per-email
+  lockout (5 failures / 15 min) under an advisory lock, 12 h absolute sessions ended by a newer password (MB1),
+  grants and removals only by an OPERATOR_EXECUTIVE under a per-tenant lock (the tenant keeps one ACTIVE
+  executive), the onboarding command (`python -m assetops_backend.accounts.onboard`). Seven routes under
+  `/api/auth/` and `/api/organisation/` (`accounts_api.py`); `create_app(accounts=...)`.
+- Seam for `3C1`: `accounts.principal.person_from_request` (D-3C0A.9). No existing route or command reads a person
+  or is refused yet (D-3C0A.1).
+- Open: the sign-in page and Organisation settings (`3C0b`, held; the `Secure` cookie over the walkthrough's http
+  address is its question, Q4); recording the person on commands (`3C1`); erasure of a person's data (Q5, pilot).
+
+## 3C1a: the signed-in person on work and domain commands (2026-11-20, `task/3C1a-person-on-work`, in review)
+
+- `accounts/permissions.py`: `COMMAND_ROLES` (spec §3 as amended, D-3C1.10) and `person_step`, run by
+  `WorkGate.command_scope` after the Site scope on the 10 work and domain commands (the 7 work routes, the
+  operational entry, the 3 domain routes). Order: account-store error 503; no person -> 401 `PERSON_REQUIRED` when
+  `ASSETOPS_REQUIRE_PERSON=on`, else today's path; other tenant -> the unknown-Site 404; no gate (or entry) principal
+  -> 403 `WORK_WRITE_FORBIDDEN` (R6); no listed role -> 403 `PERSON_ROLE_REQUIRED` with `params.roles`.
+- The server composes `PersonActor`: `USER`, `person:<id>`, `person_id`, attestation
+  `person=<id>;session=<sid>;role=<role>`, basis `PERSON_ROLE:<role>` on the W4 tables only. The hash holds
+  `{kind, id}` (R1); SERVICE hashes are unchanged. Person shapes carry no `actor`.
+- Migration `0064_person_on_work` (D-3A1.12 numbering; 3A1 kept 0063): `person_id`, `<t>_person_fk` (tenant FK) and
+  `<t>_person_actor` (R8) on nine tables; the three domain kind checks widened to SERVICE/USER under their names.
+- The switch is read once in `create_app` and ships off; `3C0b` turns it on.
+- Open: trial actions (`3C1b`); names in reads (`3C2`, `3C3`); turning the switch on (`3C0b`).

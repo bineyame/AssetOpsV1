@@ -204,6 +204,26 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # 3C0a (spec section 4): operator accounts, sessions and role grants. Database-only; rule 8 confines its
+            # PostgreSQL writer ($accountWriter). Only its composition imports the adapter.
+            Name        = "accounts"
+            Package     = "$backendRoot/accounts"
+            Composition = "$backendRoot/accounts/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
+        @{
+            # 3A1 (spec section 4): the commercial record store. Database-only; rule 8 confines its PostgreSQL writer
+            # ($commercialWriter). Only its composition imports the adapter.
+            Name        = "commercial"
+            Package     = "$backendRoot/commercial"
+            Composition = "$backendRoot/commercial/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -926,6 +946,36 @@ function Invoke-ConfigurationPersistenceCheck {
     $uploadTables = @('reading_upload')
     $uploadInsertsSeen = @{}
     foreach ($table in $uploadTables) { $uploadInsertsSeen[$table] = 0 }
+    # 3C0a (spec section 8; migration 0062; D-3C0A.2, D-3C0A.11): the account store is the sole runtime writer of the six
+    # account tables, and it runs exactly these statement shapes: one plain INSERT INTO <table> (...) VALUES (...) per
+    # table (no ON CONFLICT, no SELECT source), the session revoke (UPDATE operator_session SET revoked_at = :at WHERE
+    # token_sha256 = :h AND revoked_at IS NULL) and the attempt purge (DELETE FROM sign_in_attempt WHERE at < :before).
+    # The 0062 triggers refuse every other change. The advisory-lock SELECTs are reads. Each shape keeps one owner
+    # statement (anti-vacuity below).
+    $accountWriter = "$backendRoot/accounts/adapters/postgres_account_store.py"
+    $accountTables = @('operator_account', 'account_credential', 'account_status', 'role_grant', 'operator_session',
+        'sign_in_attempt')
+    $accountShapes = [ordered]@{}
+    foreach ($table in $accountTables) {
+        $accountShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table + '\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$')
+    }
+    $accountShapes['operator_session revoke'] = ('(?i)^UPDATE\s+operator_session\s+SET\s+revoked_at\s*=\s*:at\s+WHERE\s+' +
+        'token_sha256\s*=\s*:h\s+AND\s+revoked_at\s+IS\s+NULL\s*;?\s*$')
+    $accountShapes['sign_in_attempt purge'] = '(?i)^DELETE\s+FROM\s+sign_in_attempt\s+WHERE\s+at\s*<\s*:before\s*;?\s*$'
+    $accountShapesSeen = @{}
+    foreach ($shape in $accountShapes.Keys) { $accountShapesSeen[$shape] = 0 }
+    # 3A1 (spec section 5; migration 0063; D-3A1.4): the commercial record store is the sole runtime writer of the four
+    # commercial tables, and it runs exactly one plain INSERT INTO <table> (...) VALUES (...) per table, binding plain
+    # parameters (no ON CONFLICT, no SELECT source), and no UPDATE, DELETE or TRUNCATE. The 0063 triggers refuse every
+    # change. The advisory-lock SELECT is a read. Each shape keeps one owner statement (anti-vacuity below).
+    $commercialWriter = "$backendRoot/commercial/adapters/postgres_commercial_store.py"
+    $commercialTables = @('commercial_intake', 'commercial_record', 'commercial_record_revision', 'commercial_rejection')
+    $commercialShapes = [ordered]@{}
+    foreach ($table in $commercialTables) {
+        $commercialShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table + '\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$')
+    }
+    $commercialShapesSeen = @{}
+    foreach ($shape in $commercialShapes.Keys) { $commercialShapesSeen[$shape] = 0 }
     # CH-1b (build sheet CH-1b section 7; migration 0044; ruling CH1b-R Q2): the event store is the sole runtime writer of
     # the event tables, and it runs exactly four statement shapes: INSERT INTO event_consumption (insert-only, no
     # ON CONFLICT); the snapshot_dirty mark (INSERT ... ON CONFLICT (pk) DO UPDATE SET marked_at = clock_timestamp(),
@@ -986,6 +1036,8 @@ function Invoke-ConfigurationPersistenceCheck {
         $consequenceWriter, $scheduleWriter, $actionWriter, $workWriter, $miniWriter, $decisionWriter, $coldScenarioWriter,
         $evScenarioWriter, $domainIntentWriter, $objectiveWriter, $threadWriter, $snapshotWriter, $eventWriter,
         $responseWriter, $fuelBalanceWriter, $trialComparisonWriter, $periodWriter, $uploadWriter)
+    $pgWriters += $accountWriter  # 3C0a: kept on its own line so the estate self-test anchors on the list above hold
+    $pgWriters += $commercialWriter  # 3A1: on its own line, as the account writer
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -1055,14 +1107,14 @@ function Invoke-ConfigurationPersistenceCheck {
         $miniWriter = 0; $decisionWriter = 0; $coldScenarioWriter = 0; $evScenarioWriter = 0
         $domainIntentWriter = 0; $objectiveWriter = 0; $trialComparisonWriter = 0
         $snapshotWriter = 0; $threadWriter = 0; $eventWriter = 0; $responseWriter = 0; $fuelBalanceWriter = 0
-        $periodWriter = 0; $uploadWriter = 0 }
+        $periodWriter = 0; $uploadWriter = 0; $accountWriter = 0; $commercialWriter = 0 }
     $pgDriverSeen = @{ $pgWriter = $false; $ledgerWriter = $false; $accessWriter = $false; $assessWriter = $false
         $findingWriter = $false; $assumptionWriter = $false; $consequenceWriter = $false; $scheduleWriter = $false
         $actionWriter = $false; $workWriter = $false; $miniWriter = $false; $decisionWriter = $false; $coldScenarioWriter = $false
         $evScenarioWriter = $false; $domainIntentWriter = $false; $objectiveWriter = $false
         $trialComparisonWriter = $false; $snapshotWriter = $false; $threadWriter = $false
         $eventWriter = $false; $responseWriter = $false; $fuelBalanceWriter = $false; $periodWriter = $false
-        $uploadWriter = $false }
+        $uploadWriter = $false; $accountWriter = $false; $commercialWriter = $false }
     # S4-05a phase-1 review L1 / fix L1: provenance is insert-only in every module (the ledger included):
     # UPDATE, DELETE FROM or TRUNCATE followed by a provenance table name, schema-qualified or quoted included.
     # The statement loop checks whole clauses; this source-line form is kept as well, so a verb ending one
@@ -1474,6 +1526,40 @@ function Invoke-ConfigurationPersistenceCheck {
                         $uploadInsertsSeen[$target]++
                     }
                 }
+                if ($module.Path -eq $accountWriter) {
+                    $accountShape = $null
+                    foreach ($shape in $accountShapes.Keys) {
+                        if ($line -match $accountShapes[$shape]) { $accountShape = $shape; break }
+                    }
+                    if ($null -eq $accountShape) {
+                        $failures.Add(("The account store runs only its declared statements (one plain INSERT per account " +
+                            "table, the operator_session revoke of revoked_at IS NULL, and the sign_in_attempt purge " +
+                            "WHERE at < :before); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $accountShapesSeen[$accountShape]++
+                    }
+                }
+                if ($null -ne $target -and $accountTables -contains $target -and $module.Path -ne $accountWriter) {
+                    $failures.Add(("Only $accountWriter writes account table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
+                if ($module.Path -eq $commercialWriter) {
+                    $commercialShape = $null
+                    foreach ($shape in $commercialShapes.Keys) {
+                        if ($line -match $commercialShapes[$shape]) { $commercialShape = $shape; break }
+                    }
+                    if ($null -eq $commercialShape) {
+                        $failures.Add(("The commercial record store runs only one plain INSERT per commercial table " +
+                            "(no UPDATE, DELETE, TRUNCATE, upsert or SELECT source); " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $commercialShapesSeen[$commercialShape]++
+                    }
+                }
+                if ($null -ne $target -and $commercialTables -contains $target -and $module.Path -ne $commercialWriter) {
+                    $failures.Add(("Only $commercialWriter writes commercial table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($module.Path -eq $eventWriter) {
                     $eventShape = $null
                     foreach ($shape in $eventShapes.Keys) {
@@ -1802,6 +1888,18 @@ function Invoke-ConfigurationPersistenceCheck {
         if ($extractorRan -and $responseShapesSeen[$shape] -lt 1) {
             $failures.Add(("Rule 8 found no $shape statement in $responseWriter, so the declared response-store statement " +
                 "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($shape in $accountShapes.Keys) {
+        if ($extractorRan -and $accountShapesSeen[$shape] -lt 1) {
+            $failures.Add(("Rule 8 found no $shape statement in $accountWriter, so the declared account-store statement " +
+                "check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
+    }
+    foreach ($shape in $commercialShapes.Keys) {
+        if ($extractorRan -and $commercialShapesSeen[$shape] -lt 1) {
+            $failures.Add(("Rule 8 found no $shape statement in $commercialWriter, so the declared commercial-store " +
+                "statement check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
     }
     foreach ($shape in $eventShapes.Keys) {

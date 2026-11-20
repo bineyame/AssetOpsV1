@@ -268,6 +268,43 @@ class Actor:
         return {"kind": self.kind, "id": self.id, "attestation": self.attestation}
 
 
+@dataclass(frozen=True)
+class PersonActor:
+    """3C1a (spec §2, R1, R4): the signed-in person's server-composed actor. The browser sends no actor on this path.
+
+    The hashed actor is the kind and the person only (D-3C1.8), so a person's retry after signing in again replays;
+    the session and the admitting role are in the attestation and basis, never in the hash."""
+    person_id: UUID
+    session_id: UUID
+    role: str
+    kind = "USER"
+
+    @property
+    def id(self) -> str:
+        return f"person:{self.person_id}"
+
+    @property
+    def attestation(self) -> str:
+        return f"person={self.person_id};session={self.session_id};role={self.role}"
+
+    @property
+    def authorization_basis(self) -> str:
+        return f"PERSON_ROLE:{self.role}"
+
+    def canonical(self) -> dict[str, str]:
+        return {"kind": self.kind, "id": self.id}
+
+
+def actor_person_id(actor: "Actor | PersonActor") -> str | None:
+    """The stored `person_id`: the person's ID on the person path, NULL for a SERVICE actor."""
+    return str(actor.person_id) if isinstance(actor, PersonActor) else None
+
+
+def without_actor(keys: Iterable[str], person: "PersonActor | None") -> tuple[str, ...]:
+    """A closed shape's keys; the person path's shape drops `actor` (P4), so a body carrying one is refused."""
+    return tuple(k for k in keys if person is None or k != "actor")
+
+
 def actor_shape(value: Any) -> dict[str, Any]:
     """The actor object has exactly `kind,id,attestation`; `authorization_basis` or any other key is refused."""
     actor = closed(value, ("kind", "id", "attestation"))

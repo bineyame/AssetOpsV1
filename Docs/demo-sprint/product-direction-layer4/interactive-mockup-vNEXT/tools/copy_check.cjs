@@ -7,12 +7,14 @@
    Run: node tools/render_text.cjs && node tools/copy_check.cjs     Plant test: COPY_PLANT=1 (one example of each; must fail). */
 const fs = require('fs'), path = require('path');
 let recs = JSON.parse(fs.readFileSync(path.join(__dirname, 'rendered-text.json'), 'utf8'));
-if (process.env.COPY_PLANT) recs = recs.map(r => r.id === 'portfolio' && r.op === 'lakeside' ? { ...r, segments: [...r.segments, 'Fails the evening service service limit', 'Hours without backup supply with no backup supply: 0 h', 'How a mini-grid ’s economics are built', 'Worked sum: $883 + +$19.68'] } : r);
+if (process.env.COPY_PLANT) recs = recs.map(r => r.id === 'portfolio' && r.op === 'lakeside' ? { ...r, segments: [...r.segments, 'Fails the evening service service limit', 'Hours without backup supply with no backup supply: 0 h', 'How a mini-grid ’s economics are built', 'Worked sum: $883 + +$19.68', 'Energy matches the occupancy model (0 more buses.6%)', 'Repair or claim · its record connector fault', 'Maintenance lead · /'] } : r);
 const RULES = [
   ['doubled word', /\b([A-Za-z]{2,})[ ]+\1\b/i],
   ['phrase repeated after itself', /\b([A-Za-z]{4,} [A-Za-z]{4,})\b[^¶]{0,24}?\b\1\b/i], /* ¶ marks a line break or a note under a label */
   ['space before an apostrophe or punctuation', /[A-Za-z)]\s+(?:[’'](?=s\b)|[,;:!?](?=\s|$)|\.(?=\s|$))/],
+  ['placeholder left by removed text (r2 M5)', /\bits record\b|·\s*\/|(^|\s)[·\/]\s*$/],
   ['doubled sign', /(?:^|\s)[+−-]\s*[+−-]\s?\$?\d/],
+  ['number broken by words (a rewrite rule split a figure; REVIEW-decision-page L7)', /\b\d+ [a-z]+(?: [a-z]+){0,3}\.\d/],
 ];
 const ALLOW = [/\b(\d+)\s+\1\b/, /\bthat that\b/i];
 const hits = [];

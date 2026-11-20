@@ -105,9 +105,10 @@ def entry_site_context(night_context: Callable[[UUID, UUID], tuple[Any, Any, Any
     return site_context
 
 
-def compose_entry(body: Any, zone: str, tank_id: str | None) -> dict[str, Any]:
+def compose_entry(body: Any, zone: str, tank_id: str | None, with_actor: bool = True) -> dict[str, Any]:
     """The `operational-record-1` command for one validated entry (§3.2 server mapping). A fuel entry with no single
-    active tank is 422 `OPREC_ENTRY_NO_TANK`."""
+    active tank is 422 `OPREC_ENTRY_NO_TANK`. 3C1a (P5): on the person path (`with_actor=False`) the command carries
+    no actor; the service records the signed-in person in place of `ENTRY_ACTOR`."""
     e = validate_entry(body)
     entry, value = e["entry"], e["value"]
     if entry in FUEL_ENTRIES and tank_id is None:
@@ -126,6 +127,8 @@ def compose_entry(body: Any, zone: str, tank_id: str | None) -> dict[str, Any]:
     command = {"kind": kind, "body": text, "occurred_at": occurred_utc(e["local"], zone), "period_end": None,
                "unit": unit, "quantity": value, "source_document_sha256": digest, "case_id": None,
                "actor": dict(ENTRY_ACTOR), "idempotency_key": e["key"]}
+    if not with_actor:
+        del command["actor"]
     if entry in FUEL_ENTRIES:
         command["asset_id"] = tank_id
     return command

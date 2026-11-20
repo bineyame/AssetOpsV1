@@ -345,3 +345,31 @@ Branch `task/W2-00-source-events` (base merged main `dc643215`, rulings `D-2026-
 - Rule 8: `$ledgerOwnedTables`, the accepted-evidence message-arbiter check (with vacuity count) and the exact `_REREAD_ORDER` line; 11 `w200` negative probes and one control in `tools/writer_guard_probes.py` (two replace the order line).
 - Open: no runtime cold/EV publication profile or producer (W2-02/W2-05b); no closed tuple carries `INTERVAL_DELTA` yet, so a delta cannot be accepted until W2-05b; v4 metadata is not persisted on `signal_binding_revision` (W2-01 publishes it); read-model plain readings for the new rejection kinds are absent.
 
+
+## 2a - canonical format v1 and the leaf factor IDs (built, in_review)
+
+Branch `task/2a-canonical-format` (base main `184dc509e`); spec `specs/2a-canonical-format/spec.md` rev 2, rulings D-2A.1-D-2A.10; packet `specs/2a-canonical-format/packet.md`. Contracts only, no migration, no database.
+
+- Settled: `contracts/assetops_contracts/canonical/` (standard library only), a protected seam (D-2A.2: a change is version 2 beside v1). `units.py`: six dimensions, `Unit`, canonical unit text and strict `parse_unit`, `QUANTITY_UNITS`, `BAND_UNITS` (the only record-to-catalogue unit bridge). `factors.py`: the 73 leaf IDs of `factor_map` (MINI_GRID 31, COLD_CHAIN 23, EV_DEPOT_CAPTIVE 23; 4 shared), one unit each, `leaves_of`, `FACTOR_ID_PATTERN`. `records_v1.py`: the fourteen kinds as data (`KIND_SPECS`), `loads_canonical` (the only bytes entry; duplicate keys, NaN, bad UTF-8 refused), `parse_record`, `parse_batch` (per-row outcomes; source-type, then duplicate check), `to_canonical_json` (sorted keys, decimals `format(d, "f")`), `record_digest`, `batch_digest` (valid records only). `sources_v1.py`: 17 source types, `EXISTING_FORMATS` (readings and fuel records unchanged).
+- Tests (D-2A.10): `backend/tests/test_2a_canonical_v1.py`, `backend/tests/test_2a_canonical_manifest_parity.py`, fixture `backend/tests/fixtures/canonical_v1_examples.json` (byte copy of the spec folder's examples).
+- Open: `simulator/.../world/leaves.py` still has its own list until DS1b (D-2A.8); node IDs, `filled_by`/`absent` are 3B1/3B6; the store and intake are 3A1/3A2; literal-unit cases inside `min`/`max` are 3B1's (D-2A.4); `select-tests` answers "full" for any fixture change (tools item, not 2a).
+
+## DS1b - the generator's canonical record writers (built, in_review)
+
+Branch `task/DS1b-canonical-writers` (base main `b28326e48`); spec `specs/DS1b-canonical-writers/spec.md` rev 2, rulings D-DS1B.1-D-DS1B.8; packet `specs/DS1b-canonical-writers/packet.md`. Simulator and tools only, no database.
+
+- Settled: `simulator/assetops_simulator/world/records.py` writes month EXPENSE lines (O&M, staff, maintenance), customer-compensation ADJUSTMENTs and own-field BUDGET_LINEs for Jul-Oct at the nine Sites as `source-emulated` canonical v1 batches (one per tenant and source type, `parse_batch`-validated, golden `simulator/tests/world/golden/records_v1.json`). ESTIMATED October lines, fallback plan fields, zero actual liabilities and unread fields are listed unwritten with a reason. CLI `tools/world_history.py records --manifest M --out DIR` (exit 3 on `DS1B_*`). `history.json` byte-identical.
+- Open: mid-build Q1/Q2 (edge reasons, no output depends on them); the coordinator's output run to `/opt/assetecon/generated/ds1b-<rev>/`; DS3 loads, 3A3 native files, 3A3/DS2 finer records reconcile to these month lines (D-DS1B.8).
+
+## 3A1 - the commercial record store (built, in_review)
+
+Branch `task/3A1-commercial-record-store` (base main `8c9af447b`); spec `specs/3A1-commercial-record-store/spec.md` rev 2, rulings D-3A1.1-D-3A1.12; packet `specs/3A1-commercial-record-store/packet.md`. Non-screen; no route.
+
+- Settled: migration `0063_commercial_records` (four append-only tables: intake, record, revision, rejection; composite FKs, R11). `backend/assetops_backend/commercial/`: `CommercialRecords.ingest(tenant_id, bytes)` runs 2a's `parse_batch`, refuses envelope and tenant mismatch as REFUSED intakes (SHA of the bytes only, R1), decides records in input order under the per-tenant advisory lock at READ COMMITTED with a re-read under it (R4, R9), and reports NEW/REVISED/UNCHANGED/REFUSED per record; `latest_revisions` picks latest before any filter (R7). Sole writer registered in `configuration-persistence.ps1`.
+- Open: 3A2 mounts the HTTP intake, caps declared provenance by path (D-3A1.9) and words STORED (R17); version order is arrival order (R10 residual for 3A3); erasure is a pilot residual (D-3A1.10); chain change-log registration waits for the first stored reader (D-3A1.6); migration renumbered at merge if 3C1a lands first (D-3A1.12).
+## 3B1 - the structure registry, mini-grid (built, in_review)
+
+Branch `task/3B1-structure-registry` (base main `8c9af447b`); spec `specs/3B1-structure-registry/spec.md` rev 2, rulings D-3B1.1-D-3B1.9; packet `specs/3B1-structure-registry/packet.md`. No migration, no route, no store.
+
+- Settled: `backend/assetops_backend/structure/`: `registry.py` (records without validation, `HOMES`, `ABSENT`, `FAMILIES`, `REGISTRIES` = MINI_GRID v1), `rows_mini_grid.py` (47 literal rows: 31 leaves, 16 nodes; tolerance only on `unexplained_l`, 2.0 % of `diesel_l`), `expressions.py` (`Expr` = `Num`/`Ref`/`Bin`/`Neg`/`Call`, the contract for 3B3; `parse` with Decimal literals; `unit_of` with the literal rule), `check.py` (twelve `STRUCTURE_*` codes run code-major; `check_all`, `check_at_start`). `create_app` calls `check_at_start()` right after `install_handle_error_hook()`; a bad structure raises `ConfigurationError` naming the row. Test `backend/tests/test_3b1_structure_registry.py` (T1-T5).
+- Open: evaluation and `missing` (3B3), Findings pins (3B2), observer and tolerance use (3B4), cold rooms and EV depots (3B6), snapshot (3B7a), rights and operations rows (9a0, OPS1), levers (step 6).

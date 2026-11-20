@@ -16,6 +16,8 @@ src = here / 'src-v70-baseline'
 
 HOOKS = {
  'screens.js': [
+  # a captive fleet earns no tariff revenue (economic-metric-and-effect-contracts.md:104,114; placeholder audit, 20 Nov)
+  ('pair(panel(\'Bounded money consequence\',`<div class="metric-value">$36.00</div><p class="prose">Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. <strong>Not cash collected.</strong> The interrupted session is not priced: unmet demand is not established.</p>', 'pair(panel(\'Bounded money consequence\',`<div class="metric-value">Not applicable</div><p class="prose">A captive fleet earns no charging revenue, so no tariff is estimated. Its money measure is charging cost per required departure met. The interrupted session is not priced: unmet demand is not established.</p>'),
   # routing: aliases for merged screens, loop screens, operator from the screen
   ("function currentScreen(){return SCREENS.find(s=>s.id===location.hash.replace(/^#\\//,''))||SCREENS[0];}",
    "function currentScreen(){return resolveScreen(location.hash.replace(/^#\\//,''));}"),
@@ -31,7 +33,12 @@ HOOKS = {
   ("const body=(fid?affectsLine(fid):'')+", "const body=preBody(s)+(fid?affectsLine(fid):'')+"),
   ("${lab?'Simulator Lab · MG-DEMO-01':'Bineyame Operations'} <span class=\"muted\">/ Demo estate</span>",
    "${lab?'Simulator Lab · MG-DEMO-01':opName()} <span class=\"muted\">/ Demo operator</span>"),
-  ("${rangePicker(global?null:s.domain)}", "${s.loop?periodChip(s):rangePicker(global?null:s.domain)}"),
+  ("${rangePicker(global?null:s.domain)}", "${uxInProduct(s)?periodChip(s):rangePicker(global?null:s.domain)}"),  # one period model in the product (UX audit C1.1)
+  # operator scope (UX audit C3): a setup page never points at another operator's Site
+  ("These gaps become its Readiness list, as on ${link('readiness','Kobo › Readiness')}.", "These gaps become its Readiness list."),
+  # the decision page's title is its question, with no repeated subtitle (REVIEW-decision-page L5)
+  ("<h1>${s.title}</h1>", "<h1>${s.h1?s.h1(s):s.title}</h1>"),
+  ("<p>${s.subtitle||s.question}</p></div><div class=\"heading-actions\">", "${s.h1?'':`<p>${s.subtitle||s.question}</p>`}</div><div class=\"heading-actions\">"),
   ("${s.root==='Sites'&&s.section&&!s.gtabs?provTag(s.domain):''}", "${s.root==='Sites'&&s.section&&!s.gtabs&&!s.loop?provTag(s.domain):''}"),
   ("${!global&&!lab&&s.root!=='Sites'?btn(SITES[s.domain].overview,'Open site'):''}",
    "${s.actions?s.actions(s):!global&&!lab&&s.root!=='Sites'?btn(siteOverviewFor(s.domain),'Open site'):''}"),
@@ -69,6 +76,10 @@ HOOKS = {
   ("href=\"previews/portfolio-previous.png\"", "href=\"../../../../frontend/mockups/v70/previews/portfolio-previous.png\""),
  ],
  'outcomes.js': [
+  # a row that does not apply says so with its own words (review r2 M3: the captive fleet's revenue)
+  ("if(x.st==='notyet')return `<div class=\"ob ob-later\">", "if(x.st==='na')return `<div class=\"ob ob-later\"><div class=\"ob-sum\">${obName(key,name,def)}<span class=\"oc-chip tone-none\">Not applicable</span><span class=\"ob-head muted\">${x.head}</span></div></div>`;\n if(x.st==='notyet')return `<div class=\"ob ob-later\">"),
+  # an empty history says what it means (placeholder audit, 20 Nov): nothing yet, not "not available yet"
+  ('<p class="ob-none">${NAY}</p>', '<p class="ob-none">Nothing yet</p>'),
   # design rev 16.9/16.10 §2.0 named change 1 (OD-21): contribution is the outcome above Grow and Optimize, not a Grow row
   (",['Cash collected',`${NAY} · no billing or payment records`,null,null],['Site earnings',`${NAY} · needs site income, operating cost and capital records`,null,null]]", "]"),
   # rev 16.10 §2.0 (OD-21 corrected): collection of what was billed is Optimize (billed against collected), cash outside contribution
@@ -80,10 +91,14 @@ STORE = [("assetops-v70-review-notes", "assetecon-layer4-review-notes"), ("Asset
 
 # Display names: one world (main design §6.2). Order matters (longest first).
 NAMES = [
- (r"GreenHarvest Cold Room", "Thika cold room"),
+ # one Site name everywhere: the name the product uses (SK), never a long form (UX audit C1.2)
+ (r"GreenHarvest Cold Room", "Thika"),
  (r"GreenHarvest", "Thika"),
- (r"Depot Charging Hub", "Ruiru depot"),
- (r"Depot charging hub", "Ruiru depot"),
+ (r"Depot Charging Hub", "Ruiru"),
+ (r"Depot charging hub", "Ruiru"),
+ (r"Kobo Mini-grid", "Kobo"),
+ (r"Thika cold room", "Thika"),
+ (r"Ruiru depot", "Ruiru"),
  (r"(?<!Westfield )\bDepot\b(?! auxiliary| attendant)", "Ruiru"),
  (r"MG-DEMO-01", "KOBO-001"),
  (r"CR-DEMO-01", "COLD-THIKA"),

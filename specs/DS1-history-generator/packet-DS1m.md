@@ -9,9 +9,39 @@ Head used for the call sites (P15): `uxOverview` and `uxHistory` in `interactive
 "DS1m mid-build answers"). MB7: G3 amended. MB8: the Lakeside sentence is accepted with DS1m. Each was a spec gap, not
 an implementer defect.
 
+**Round 3 status: plan_switch_check green; ux_interaction_check and G3 red from `main`'s UI change (see "Round 3").**
+
 **Round 2 status: one gate is red, caused by `main`'s data and not by DS1m; stopped and reported.** After merging `main`
 and regenerating, `plan_switch_check` gives 777 passed and 1 failed. The failure is `mto-losses: chosen by David
 (SITE_MANAGER) ()`. `main`'s own regenerated output fails identically (see "Round 2" below).
+
+## Round 3: after merging `main` at `e0aedb86b` (UI branch `25b3ae88b`)
+
+Merge conflicts: `.ai/state/index-2.md` (renumbered DS1m to line 150), `specs/INDEX.md` (main's rows, DS1 row kept), and
+`fixtures.js`, `index.html` (regenerated from the merged sources with `python3 tools/gen_fixtures.py` then
+`node build.mjs`, never hand-edited; sha `77fbcc841cd4`). A second regeneration is byte-identical to the first.
+Evidence: `/opt/assetecon/evidence/DS1/m-r3/` (ux, g3). Gate expectations were not changed.
+
+| Gate | Result |
+| --- | --- |
+| DS1 generator tests (`pytest simulator/tests/world`) | 125 passed |
+| render_text | 237 renders, script errors 0 |
+| **plan_switch_check** | **778 passed, 0 failed, script errors 0.** The round 2 red is gone: `main`'s check now expects the case on screen |
+| **ux_interaction_check** | **red**: `metro overview trends: 1 sparklines, 2 "against Sep"` (DS1m's G1+ check, block 8). Lakeside and Harvest pass |
+| **G3 (amended, MB7)** | **red, 4 of 30 pass** (the 1440 Portfolio Lakeside and Harvest shots) |
+| check_manifest.py | 3 FAIL: alignment A3 and A5 on `website-content.md`, and the H9 baseline (4498 before history == 4501). The same fails occur on a clean `main` checkout (which also has an A3 hit in `layer4-transformation-design.md`) |
+
+**Cause of the ux and G3 reds: `main`'s screen code, not the DS1 data.** The history data reaches every tile (series
+and last points match the headlines). The UI branch (`786e1f905` "a trend is its tile's measure", `a090e1220` "Site
+subtitle and trends shortened not hidden") changed what is drawn:
+- A cost operator's (Metro's) first KPI tile is now text only ("Monthly cost up $1,684 against Sep", `uxTrendCost`,
+  no `svg.ux-spark`). G1+ and G3 require two sparklines.
+- At 1280x720 and 390x844 the trends are no longer hidden by the compact rule (`compactHidden=false`, sparkline visible).
+  The MB7-amended G3 requires them hidden there.
+- Site pages now draw real trends (Kobo -$8 / -$90, Thika -$54 / -$86, Ruiru "Monthly cost up $259" / +$148). The
+  amended G3 requires "Trend not available yet" (D5, R742).
+The mock-up's register row R742 (Site trends "not available yet") is therefore stale against `main`.
+Needed from the Architect: a ruling on the expectations (G1+ block 8 for cost tiles; G3 compact and Site clauses; R742).
 
 ## Commits
 

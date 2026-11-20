@@ -79,3 +79,10 @@ Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `archive/agen
   file changes; tsc-shim guard with `-Full` and on main.
 - Open: the tsc shim is installed on main's `node_modules` only after the merge (A16); the `.claude/agents`
   briefs are not yet pooled (mid-build Q1); a refused vitest leaves a Vite temp config file (Q2).
+
+## T2: the neutral packages' tests run in check-all (2026-11-20, `task/T2-neutral-package-tests`, in review)
+
+- `tools/checks/neutral_tests.py` runs `simulator/tests` (455) and `contracts/tests` (6) against this tree's packages,
+  with the six roots on `sys.path` and `PYTHONPATH` (children inherit), exit-5 and per-directory floors; `--self-test`
+  and `test_select_tests_neutral.py` are their own guards. `select-tests` gains a `neutral` key (six triggers).
+- Open: the select-tests test costs about 38 s in check-all (the selector builds its import graph per call).

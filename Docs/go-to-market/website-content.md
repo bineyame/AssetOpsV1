@@ -2,9 +2,11 @@
 
 **AssetEcon · go-to-market document for the owner and the site editor · AssetOps Architect (Claude) · 19 Nov 2026 · recreated from the design (rev 16.7), updated for rev 16.9 and the owner's commercial answers of 19 Nov (T2 and T13 now met); copy pass of 19 Nov against the current design revision (`.agent/owner-website-copy-pass-2026-11-19.md`)**
 
+**Refresh of 20 Nov (owner: `owner/owner-website-refresh-2026-11-20.md`).** Adds Operations (design §2.10: failures, repeats and maintenance as cost, warranties and contracts as decisions; §2.2, §2.3, §3.10), the honesty line "not available yet", never zero, with totals that name the sites they cover (§2.2, §3.8), and the approved app structure: Decisions, the plan, Results and the "Waiting for you" inbox (§2.3, §3.6). Recommendation only: another agent maintains the site.
+
 **Status.** Recreated from scratch at the owner's order (`.agent/owner-recreate-document-packs-2026-11-19.md`; document #10 in `regeneration/F-pack-recreation-plan.md`). It replaces the copy deck of 18 Nov. The copy pass of 19 Nov rewrote §2 and §3 so each page opens on outcomes, put portfolio allocation and proof on Home, frame every page in the four outcome categories, and move the honesty detail into one badge and the evidence page. No rule in §4 or §5 and no lint pattern was weakened. The recommendation for the owner's site repository (#11) follows from this document, later and separately.
 
-**How it is built.**
+**How this deck is organised.**
 - **Now** is the design's Part 1: today's product, as the code runs it. Its lines carry the Today tag.
 - **Coming** is the design's Part 2, in the delivery order of design §2.9 and Figure 10. Its lines carry the Coming tag. A coming line moves to "now" only when its trigger in §4 is met.
 - **Every illustration** carries a badge in one of two forms, Demo data or Demo data · Emulated, the second when a figure comes from the demonstration world's commercial records (§5 rule 1, WC6). What the badge means is said once, on the evidence page (§3.8). Tags and badges render as small corner tags, never as words in the sentence (§3, "How tags render").
@@ -80,9 +82,13 @@ These lines come from design §1.1, §1.2 and §1.4. Each is something the produ
 
 > <!--tag:coming--> **Headings from figures** · Each heading built from the figures that make it up, each figure saying how it is known.
 
+> <!--tag:today--> **Failures and upkeep** · Every incident and maintenance request kept as one case from raised to closed, with the asset it concerns, and each asset's maintenance schedule showing what is due or overdue.
+
 > <!--tag:not-connected--> **Commercial records** · Billing, payments, budgets and contracts. A missing record is named on screen, never shown as zero.
 
-### 2.3 Coming: in the order we are building it
+> <!--tag:today--> **Not available yet** · Where a record has no source, the screen says "not available yet", never zero. A total names the sites it covers.
+
+### 2.3 Coming: in delivery order
 
 These lines follow the delivery order of design §2.9 and Figure 10. None carries a figure. Each says "coming" until its trigger in §4 is met.
 
@@ -101,6 +107,14 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 > <!--tag:coming--> **Changes in one place** · The changes across your sites combined in one plan within your budget and crews, for your executive to approve or send back.
 
 > <!--tag:coming--> **Proof** · After a change, three answers kept apart: did it happen, did the money follow in your records, and did the change cause it.
+
+> <!--tag:coming--> **Failures as cost** · Each incident with how long the asset was out of service and what it cost, counted once. The same failure on the same asset, again, is flagged as a repeat.
+
+> <!--tag:coming--> **Maintenance, weighed** · Scheduled visits and responsive repairs side by side, each with who pays: the fee, an invoice, or cover.
+
+> <!--tag:coming--> **Warranties and contracts, decided** · Each asset's warranty, insurance and service contract beside it, with the notice deadline, so a repair decision starts from who pays.
+
+> <!--tag:coming--> **One loop, three places** · Choose in Decisions. Your executive approves the plan. See in Results whether the money followed. A "Waiting for you" inbox holds what needs you.
 
 > <!--tag:coming--> **After that** · Contract rights inside repair decisions, then cold rooms and EV depots on the same core.
 
@@ -135,7 +149,8 @@ These lines follow the delivery order of design §2.9 and Figure 10. None carrie
 |---|---|
 | Home | the allocation question, one demo portfolio: its gap, the changes its executive approves, and the proof, the four headings, the call to action |
 | Mini-grids · Cold rooms · EV depots | the vertical's question in its own words, one unexpected demo result, today's value, what is coming |
-| How it works | the loop: see, decide, act, track, prove; who decides at each step |
+| How it works | the loop: see, decide, act, track, prove; where each step lives in the product (Decisions, Plan, Results, "Waiting for you"); who decides at each step |
+| Operations | incidents and repeats as visible cost, maintenance, and assets with their warranties and contracts, as decisions |
 | The deep-dive and the pilot | the engagement path and what the operator gives and gets |
 | Now and coming | the two lists of §2.2 and §2.3, kept in step with §4 |
 | How we handle evidence | what the badge means and the figure rules, in plain words |
@@ -145,7 +160,7 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > The Today tag marks what the product does on site evidence now.
 
-> The Coming tag marks what is in build, in the order shown. A line moves up only once it runs in our demonstration and has been checked.
+> The Coming tag marks what comes next, in the order shown. A line moves up only once it runs in our demonstration and has been checked.
 
 ### 3.2 Home
 
@@ -217,15 +232,17 @@ The Now and coming page carries the lines of §2.2 and §2.3 unchanged, introduc
 
 > <!--tag:coming--> **See** · Every figure labelled with how it is known: recorded, emulated, measured, calculated, estimated, quoted or modelled.
 
-> <!--tag:coming--> **Decide** · Options prepared for every issue, one recommended, each beside doing nothing. The person accountable chooses, or chooses nothing: your site and operations managers, your finance lead for billing and claims, your executive for capital.
+> <!--tag:coming--> **Decide** · Decisions is where the options wait: options prepared for every issue, one recommended, each beside doing nothing. The person accountable chooses, or chooses nothing: your site and operations managers, your finance lead for billing and claims, your executive for capital.
 
-> <!--tag:coming--> **Act** · Your team creates the actions, each with an owner and a due date. Spend above the limit your executive sets waits for their approval.
+> <!--tag:coming--> **Act** · The plan holds the approved set of changes. Your team creates the actions, each with an owner and a due date. Spend above the limit your executive sets waits for their approval.
 
 > <!--tag:coming--> **Track** · Every action followed to done, and anything overdue flagged.
 
 > <!--tag:today--> **Proof on mini-grids** · A setting change is already judged against a frozen baseline, and nothing counts as a result before that judgement.
 
-> <!--tag:coming--> **Prove** · After every change, three answers: did it happen, did the money follow in your records, and did the change cause it. A result is claimed only after all three.
+> <!--tag:coming--> **Prove** · Results is where it shows. After every change, three answers: did it happen, did the money follow in your records, and did the change cause it. A result is claimed only after all three.
+
+> <!--tag:coming--> **Waiting for you** · One inbox at the top of every page holds what needs you: a decision to make, an action due, the approval of the plan.
 
 > The product proposes; your people decide and act. It sends no command to your equipment.
 
@@ -257,7 +274,9 @@ The five stages, named as in `commercial-plan.md` (D1): **Initial call → Deep-
 
 > Figures of different kinds are never added together. A total is never stronger than its weakest part.
 
-> Unknown is never shown as zero, and a missing record is named.
+> Unknown is never shown as zero. Where a record has no source, the screen says "not available yet" and names it.
+
+> A total says which sites it covers, and a site with a missing record is named, not left out quietly.
 
 > The same litre never carries money twice.
 
@@ -272,6 +291,20 @@ The five stages, named as in `commercial-plan.md` (D1): **Initial call → Deep-
 > Tell us your sector, how many sites you run, and the money question you most want answered.
 
 > We reply to agree a time. The call is an hour: what the product does today on a demo operator in your sector, then your questions.
+
+### 3.10 Operations
+
+> What did your failures cost, which ones keep coming back, and who pays for the repair?
+
+> <!--tag:today--> Know every incident and maintenance request, from raised to closed, with its asset, and which scheduled maintenance is due or overdue.
+
+> <!--tag:coming--> Each incident with the time the asset was out of service and what it cost, counted once. The same failure on the same asset, again, is marked as a repeat and opens a decision.
+
+> <!--tag:coming--> Maintenance weighed as a choice: scheduled visits against breakdowns, each with who pays, the fee, an invoice or cover.
+
+> <!--tag:coming--> Warranties, insurance and service contracts shown beside each asset, with the notice deadline, so a repair decision starts from who pays. Coverage is decided by the supplier or insurer.
+
+> Where a site has no incident or maintenance record, the page says "not available yet" for that site, and a total names the sites it covers.
 
 ## 4. Stage gates tied to the delivery steps
 <!--derives: §2.9; Figure 10; D1; D14; D12-->

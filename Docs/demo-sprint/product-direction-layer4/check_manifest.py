@@ -42,6 +42,13 @@ and the manifest alone. Against that independent recomputation the checker compa
      evaluator's and the history's October gap (RC5); every shared headline figure reads one matrix term (RC6); a statement row and
      its line's heading shown on one route are tied, and each tie holds for every portfolio and Site (RC7). Runs after the history
      checks, so H9's baseline is unchanged. It proves itself on planted copies every run.
+ 14. operations(): the operations block (design rev 16.16 §2.10; rulings D-L4OPS.1 to D-L4OPS.9): one row per Site with its
+     registry, rights, schedules and an explicit incident list (OP1); every reference inside its own Site, scope by data (OP2);
+     the story's dates and assets (OP3); asset-days, charger-days, obligation hours and unproven days counted from the incidents
+     (OP4); repeats exactly the same-asset, same-mode pairs inside the window (OP5); each Site-month's maintenance leaf = contract
+     fees in term + invoiced records, October and the history (OP6); October field visits (OP7); right states derived from terms
+     and claims, and the open-deadline counts (OP8); the new measures' headings (OP9). Runs after the history checks. It proves
+     itself on planted copies every run.
  13. option_basis(): every evaluation option names its basis, NO_ACTION, RESTORE_REFERENCE or NOT_VALUED (B1); RESTORE_REFERENCE
      only where the decision's no-action option never restores (B2), and exactly where that holds and the decision is valued in money (B4, D-RECON.8); NOT_VALUED exactly on the comparator rows (B3) (design
      rev 16.14 §2.4; ruling D-RECON.6). Runs after the history checks. It proves itself on planted copies every run.
@@ -586,6 +593,7 @@ def documents(root, doc, ref):
     for name, body in sections:
         body = re.sub(r"[\d,]*\d(?:\.\d+)?%?\**<!--figx:[^>]*-->", "", body)   # recomputed by anchors() instead
         body = re.sub(r"`[^`]*`|<!--[^>]*-->", "", body)
+        body = re.sub(r"^(#{1,6} )\d+(?:\.\d+)+ ", r"\1", body, flags=re.M)   # a heading's own number (### 2.10) is not a figure
         bad = [m.group(1) for m in re.finditer(r"(?<![\w.:/§-])(\d{1,3}(?:,\d{3})+(?:\.\d{2})?|\d+\.\d{2})(?![\d]| px)", body)
                if round(float(m.group(1).replace(",", "")), 2) not in allowed]
         check(f"{name}: figures are independent values or declared inputs (untraced: {sorted(set(bad))})", not bad)
@@ -1189,7 +1197,7 @@ def empty_states(root, doc):
 # are the base commit's October digests (H8, H10). Lifetime (R14): the next slice that changes October replaces them in its diff.
 H8_DERIVED_SHA = "bfe2cbc54571963ea4f9c1ed18633dc84c6579a2fc1003bc51a7ff8d1ab3813a"   # derived-values.json at the DS1p base
 H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the DS1p base
-H10_MANIFEST_SHA = "5407c9869fa319126d9305bf39d0600b340ef0e6a7dea01dd95418798236accb"  # the manifest at the DS1p base, plus
+H10_MANIFEST_SHA = "65a88b8f3e1b693ed656901036885405ecdc462299608eaaae8718fa8d59abd0"  # the manifest at the DS1p base, plus
 # `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
 # view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
 # Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the
@@ -1197,7 +1205,13 @@ H10_MANIFEST_SHA = "5407c9869fa319126d9305bf39d0600b340ef0e6a7dea01dd95418798236
 # replaces `avoided_capex` and the Metro listed key is renamed (D-RECON.5); every evaluation option gains `basis` (D-RECON.6);
 # the `mto-losses` decision and its `mto-unexplained-loss` Finding rows (D-RECON.7). derived-values.json, missing-records.json
 # and history.json stayed byte-identical after evaluate_structure.py. The RECON-1 base was 09903eba1032bf6dc7b421c3c51855fe9fdb0929d090dda48a3c17d3d6dc2a85.
-H9_BASELINE = 4503   # 4487 (confirmed, D-RECON.8) plus the 16 figure anchors of design Figure 1c (owner, 20 Nov: "yes, add the figure");
+# Re-based again (20 Nov) for design rev 16.16 §2.10 (OD-26, OD-28; rulings D-L4OPS.1 to D-L4OPS.9): the new top-level
+# `operations` block (registry, rights, schedules, incidents, maintenance of the 9 Sites; read by no evaluator, model or generator,
+# outside view_digest) and the crossing's screen words "Unbilled energy". derived-values.json, missing-records.json and
+# history.json stayed byte-identical after evaluate_structure.py. The rev 16.14 base was 5407c9869fa319126d9305bf39d0600b340ef0e6a7dea01dd95418798236accb.
+H9_BASELINE = 4501   # re-cut of 20 Nov (D-BW1, specs/BW1-build-wave1/rulings.md): two-week-build-plan.md §6 drops the money-leaves row
+                     # (Kobo outstanding) and the bridge row (Kobo's gap), which no longer reach a screen by day 14: 2 figure anchors fewer.
+                     # Before it: 4503 = 4487 (confirmed, D-RECON.8) plus the 16 figure anchors of design Figure 1c (owner, 20 Nov: "yes, add the figure");
                      # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md): 4465, plus the
                      # 11 figure anchors of design §2.0 "How the statement and the headings reconcile" (rev 16.14, D-RECON.4),
                      # plus 11 for D-RECON.5 and D-RECON.7: stated() checks capex_not_needed's `against` (+1), and homes() checks
@@ -1699,6 +1713,262 @@ def option_basis(doc):
     return passes - n0
 
 
+# ------------------------------------------------------------------ operations (design rev 16.16 §2.10; D-L4OPS.1 to .9)
+OPS_LEAF = {"MINI_GRID": "om", "COLD_CHAIN": "maint", "EV_DEPOT": "maintenance"}
+OPS_FEE_TYPES = {"OM_CONTRACT", "OM_SLA", "SERVICE_CONTRACT", "SERVICE_SLA"}
+OPS_COUNTED = {"asset_days_out_of_service", "charger_days_out_of_service", "obligation_hours_without_redundancy", "days_backup_start_unproven"}
+
+
+def _d(x):
+    import datetime as _dt
+    return _dt.date.fromisoformat(str(x)[:10]) if x else None
+
+
+def _days(inc, start, end):
+    """Calendar days out of service inside [start, end]: from out_from to the day before restoration; open = to end."""
+    import datetime as _dt
+    a = _d(inc.get("out_from"))
+    if a is None:
+        return 0
+    z = _d(inc.get("restored")) - _dt.timedelta(days=1) if inc.get("restored") else end
+    lo, hi = max(a, start), min(z, end)
+    return max(0, (hi - lo).days + 1)
+
+
+def _month_bounds(m):
+    import calendar, datetime as _dt
+    y, mo = map(int, m.split("-"))
+    return _dt.date(y, mo, 1), _dt.date(y, mo, calendar.monthrange(y, mo)[1])
+
+
+def ops_problems(doc, hist):
+    """Every operations rule broken, as 'OPn text' strings (empty = all hold)."""
+    import datetime as _dt
+    bad = []
+    ops = doc.get("operations") or {}
+    as_of = _d(ops.get("as_of"))
+    window = int((ops.get("settings") or {}).get("repeat_window_days", 0))
+    tenants = {t["tenant"]: t for t in doc["tenants"]}
+    site_rows = {(s.get("tenant"), s.get("site")): s for s in ops.get("sites", [])}
+    # OP1: every Site of every tenant is declared once, with a registry, a right, a schedule and an explicit incident list
+    for t in doc["tenants"]:
+        for s in t["sites"]:
+            r = site_rows.get((t["tenant"], s["site"]))
+            if r is None:
+                bad.append(f"OP1 {t['tenant']}/{s['site']}: no operations row"); continue
+            prights = [p for p in ops.get("portfolio_rights", []) if p.get("tenant") == t["tenant"] and s["site"] in p.get("sites", [])]
+            if not r.get("assets") or not (r.get("rights") or prights) or not r.get("schedules"):
+                bad.append(f"OP1 {s['site']}: needs assets, a right and a schedule")
+            if not isinstance(r.get("incidents"), list) or (not r["incidents"] and not r.get("no_incidents")):
+                bad.append(f"OP1 {s['site']}: incidents must be a list; an empty one says why (no_incidents)")
+    if len(site_rows) != len(ops.get("sites", [])) or any(k not in {(t["tenant"], s["site"]) for t in doc["tenants"] for s in t["sites"]} for k in site_rows):
+        bad.append("OP1 operations rows are not one per Site")
+    # OP2: scope by data -- every reference resolves inside its own Site (or a portfolio right naming the Site)
+    seen = {}
+    for (tk, sk), r in site_rows.items():
+        for a in r.get("assets", []):
+            if a["code"] in seen:
+                bad.append(f"OP2 asset code {a['code']} declared at {seen[a['code']]} and {sk}")
+            seen[a["code"]] = sk
+    for (tk, sk), r in site_rows.items():
+        codes = {a["code"] for a in r.get("assets", [])}
+        rights = {x["key"]: x for x in r.get("rights", [])}
+        rights.update({p["key"]: p for p in ops.get("portfolio_rights", []) if p.get("tenant") == tk and sk in p.get("sites", [])})
+        incs = {i["key"]: i for i in r.get("incidents", [])}
+        for a in r.get("assets", []):
+            if a.get("parent") and a["parent"] not in codes:
+                bad.append(f"OP2 {sk}: parent {a['parent']} is not this Site's")
+        refs = [("right", x) for x in r.get("rights", [])] + [("schedule", x) for x in r.get("schedules", [])] + \
+               [("incident", x) for x in r.get("incidents", [])] + [("maintenance", x) for x in r.get("maintenance", [])]
+        for kind, x in refs:
+            for c in ([x["asset"]] if x.get("asset") else []) + list(x.get("assets", [])):
+                if c not in codes:
+                    bad.append(f"OP2 {sk}: {kind} {x.get('key')} names asset {c}, not in this Site's registry")
+            if x.get("right") and x["right"] not in rights:
+                bad.append(f"OP2 {sk}: {kind} {x.get('key')} cites right {x['right']}, not this Site's")
+            for k in ("incident", "repeat_of"):
+                if x.get(k) and x[k] not in incs:
+                    bad.append(f"OP2 {sk}: {kind} {x.get('key')} cites incident {x[k]}, not this Site's")
+            if kind == "right" and x.get("scope") != "SITE" and not x.get("asset"):
+                bad.append(f"OP2 {sk}: right {x['key']} names neither an asset nor the Site scope")
+        for x in rights.values():
+            if x.get("from") and manifest_get(doc, x["from"]) is None:
+                bad.append(f"OP2 {sk}: right {x['key']} from {x['from']} does not resolve")
+            if x.get("from") and not x["from"].startswith(f"tenants[{tk}]"):
+                bad.append(f"OP2 {sk}: right {x['key']} reads another operator's record")
+    # per-Site story agreement, counted measures, repeats, money, visits, rights
+    for t in doc["tenants"]:
+        tk, port, vert = t["tenant"], t["portfolio"], t["vertical"]
+        pm = {m["id"]: m for blk in ("protect", "operations", "rights") for m in (port.get(blk) or {}).get("measures", [])}
+        open_deadlines = 0
+        for s in t["sites"]:
+            sk, r = s["site"], site_rows.get((tk, s["site"]))
+            if r is None:
+                continue
+            obs = (s.get("observations") or {})
+            octo, nov = obs.get("october") or {}, obs.get("november_to_date") or {}
+            incs = r.get("incidents", [])
+            byasset = {}
+            for i in incs:
+                byasset.setdefault(i["asset"], []).append(i)
+            # OP3: the registry and the incidents agree with the rest of the manifest
+            av = pm.get("asset_availability")
+            if av and sk in av.get("assets", {}):
+                names = [a.get("availability_name") for a in r["assets"] if a.get("availability_name")]
+                if sorted(names) != sorted(av["assets"][sk]) or len(names) != octo.get("major_assets"):
+                    bad.append(f"OP3 {sk}: major assets {names} differ from asset_availability {av['assets'][sk]}")
+            if octo.get("reduced_capacity_from") and not any(i.get("out_from") == octo["reduced_capacity_from"] for i in incs):
+                bad.append(f"OP3 {sk}: no incident starts on the reduced-capacity date {octo['reduced_capacity_from']}")
+            ent = s.get("entitlement") or {}
+            occ = ent.get("occurrence")
+            if isinstance(occ, dict) and occ.get("failed") and not any(i["asset"] == ent.get("asset") and i.get("out_from") == occ["failed"] for i in incs):
+                bad.append(f"OP3 {sk}: no incident on {ent.get('asset')} from {occ['failed']}")
+            si = s.get("incident") or {}
+            if si.get("date") and not any(i["at"][:10] == si["date"] for i in incs):
+                bad.append(f"OP3 {sk}: no incident on the story's date {si['date']}")
+            fault = si.get("fault")
+            if isinstance(fault, dict) and not any(i["asset"] == si.get("asset") and i["at"] == fault.get("at") for i in incs):
+                bad.append(f"OP3 {sk}: no incident on {si.get('asset')} at {fault.get('at')}")
+            for blk in (octo, nov):   # out on that date: the incident started then, or started earlier and was still out
+                if blk.get("charger_out_from") and not any(i.get("out_from") and _d(i["out_from"]) <= _d(blk["charger_out_from"])
+                                                           and (not i.get("restored") or _d(i["restored"]) > _d(blk["charger_out_from"]))
+                                                           and (i["out_from"] == blk["charger_out_from"] or blk is nov) for i in incs):
+                    bad.append(f"OP3 {sk}: no incident out of service from {blk['charger_out_from']}")
+            # OP4: counted measures from the incidents
+            o0, o1 = _month_bounds("2026-10")
+            n0, n1 = _d("2026-11-01"), _d(nov.get("period_end")) if nov.get("period_end") else None
+            hours = octo.get("reduced_hours_per_day") or 0
+            out_oct = sum(_days(i, o0, o1) for i in incs if i.get("state") != "REDUCED" or vert == "EV_DEPOT")
+            for mid, val in (("asset_days_out_of_service", out_oct), ("obligation_hours_without_redundancy", out_oct * hours),
+                             ("charger_days_out_of_service", sum(_days(i, o0, o1) for i in incs)),
+                             ("days_backup_start_unproven", sum(_days(i, o0, o1) for i in incs if i.get("mode") == "START_FAILURE"))):
+                m = pm.get(mid)
+                if m and sk in (m.get("sites") or {}) and m["sites"][sk] != val:
+                    bad.append(f"OP4 {sk}: {mid} from incidents {val} != stated {m['sites'][sk]}")
+                if mid == "asset_days_out_of_service" and av and sk in av.get("denominator_asset_days", {}):
+                    if av["denominator_asset_days"][sk] - av["numerator_asset_days_available"][sk] != val:
+                        bad.append(f"OP4 {sk}: asset_availability's asset-days out {av['denominator_asset_days'][sk] - av['numerator_asset_days_available'][sk]} != incidents {val}")
+            m = pm.get("charger_days_out_of_service")
+            if m and n1 and sk in (m.get("november_to_date") or {}):
+                v = sum(_days(i, n0, n1) for i in incs)
+                if v != m["november_to_date"][sk]:
+                    bad.append(f"OP4 {sk}: November charger-days from incidents {v} != stated {m['november_to_date'][sk]}")
+            for i in incs:   # each declared consequence quantity of a counted node is the count itself
+                for c in i.get("consequences", []):
+                    if c.get("node") in OPS_COUNTED and "quantity" in c:
+                        lo, hi = (n0, n1) if c.get("period") == "november_to_date" else (_d(i["at"]).replace(day=1), _month_bounds(i["at"][:7])[1])
+                        v = _days(i, lo, hi) * (hours if c["node"] == "obligation_hours_without_redundancy" and lo.month == 10 else
+                                                5 if c["node"] == "obligation_hours_without_redundancy" else 1)
+                        if c["node"] != "cooling_minutes_unavailable" and v != c["quantity"]:
+                            bad.append(f"OP4 {sk}: {i['key']} declares {c['node']} {c['quantity']}, counted {v}")
+            # OP5: repeats are exactly the pairs inside the window; each repeat names a decision that exists on its Site
+            decisions = {x["id"]: x for x in doc["home_categories"]["decisions"]}
+            for code, lst in byasset.items():
+                lst = sorted(lst, key=lambda x: x["at"])
+                for k, i in enumerate(lst):
+                    prev = [p for p in lst[:k] if p["mode"] == i["mode"] and (_d(i["at"]) - _d(p["at"])).days <= window]
+                    want = prev[-1]["key"] if prev else None
+                    if i.get("repeat_of") != want:
+                        bad.append(f"OP5 {sk}: {i['key']} repeat_of {i.get('repeat_of')} != computed {want}")
+            for i in incs:
+                if i.get("decision") and (i["decision"] not in decisions or decisions[i["decision"]]["site"] != sk):
+                    bad.append(f"OP5 {sk}: {i['key']} cites decision {i['decision']}, not one of this Site's")
+            # OP6: the maintenance money leaf of every Site-month = fees of the contracts in term + invoiced records
+            leaf = OPS_LEAF.get(vert if vert in OPS_LEAF else ("EV_DEPOT" if "EV" in vert else vert))
+            rights_all = r.get("rights", [])
+            for mo in ops.get("months", []):
+                a, z = _month_bounds(mo)
+                fee = sum(D(str(x.get("monthly_fee", 0))) for x in rights_all if x.get("scope") == "SITE" and x.get("monthly_fee") is not None
+                          and _d(x.get("term_start")) <= a and _d(x.get("term_end")) >= z)
+                inv = sum(D(str(x.get("amount", 0))) for x in r.get("maintenance", []) if x.get("cost_basis") == "INVOICED" and x["at"][:7] == mo)
+                if mo == "2026-10":
+                    want = (s.get("period") or {}).get("actual", {}).get(leaf)
+                else:
+                    hv = (((hist or {}).get("tenants") or {}).get(tk) or {}).get(sk, {}).get(mo, {}).get("actual", {}).get(leaf)
+                    want = None if hv is None else D(hv) / 100
+                if want is None or D(str(want)) != fee + inv:
+                    bad.append(f"OP6 {sk} {mo}: fees {fee} + invoiced {inv} != {leaf} {want}")
+            for x in r.get("maintenance", []) + [dict(sc, at=dd) for sc in r.get("schedules", []) for dd in sc.get("done", [])]:
+                if x.get("cost_basis") == "UNDER_COVER":
+                    rt = next((y for y in rights_all if y["key"] == x.get("right")), None)
+                    term_end = rt and (rt.get("term_end") or ((manifest_get(doc, rt["from"]) or {}).get("term_end") if rt.get("from") else None))
+                    if not rt or (x.get("asset") not in [rt.get("asset")] + list(rt.get("assets", []))) or not term_end or _d(term_end) < _d(x["at"]):
+                        bad.append(f"OP6 {sk}: {x.get('key')} is under cover of a right that does not cover the asset on that date")
+                if x.get("cost_basis") == "IN_FEE":
+                    rt = next((y for y in rights_all if y["key"] == x.get("right")), None)
+                    if not rt or not (rt.get("type") in OPS_FEE_TYPES or rt.get("monthly_fee") is not None or rt.get("scope") == "SITE" or rt.get("from")):
+                        bad.append(f"OP6 {sk}: {x.get('key')} is in a fee with no contract behind it")
+            # OP7: October field visits = visit records in October
+            fv = pm.get("field_visits")
+            if fv and sk in fv.get("sites", {}):
+                n = sum(1 for sc in r.get("schedules", []) if sc.get("visit") for dd in sc.get("done", []) if dd.startswith("2026-10")) + \
+                    sum(1 for x in r.get("maintenance", []) if x.get("visit") and x["at"].startswith("2026-10"))
+                if n != fv["sites"][sk]:
+                    bad.append(f"OP7 {sk}: October visit records {n} != field_visits {fv['sites'][sk]}")
+            # OP8: each right's state follows from its terms and claim as of the as-of date
+            for x in rights_all:
+                c = (manifest_get(doc, x["from"]) if x.get("from") else {}) or {}
+                parent = re.sub(r"\.contracts\[\d+\]$", "", x.get("from", ""))   # a contract inside an entitlement: claims sit on the entitlement
+                src = (manifest_get(doc, parent) if x.get("from") else {}) or {}
+                c = c.get("contract") if isinstance(c.get("contract"), dict) else c
+                term_end = x.get("term_end") or c.get("term_end")
+                typ = x.get("type") or c.get("type")
+                if term_end and _d(term_end) < as_of:
+                    st = "EXPIRED"
+                elif typ in OPS_FEE_TYPES or typ == "INSURANCE":
+                    st = "IN_COVER"
+                elif src.get("claim_state") in ("NOTIFIED", "ACKNOWLEDGED", "ACCEPTED"):
+                    st = "CLAIM_OPEN"
+                elif src.get("notice_deadline"):
+                    st = "NOTICE_DUE"
+                elif src.get("eligibility") == "INSUFFICIENT_EVIDENCE":
+                    st = "CONDITIONS_INCOMPLETE"
+                else:
+                    st = "IN_COVER"
+                if x.get("state") and x["state"] != st:
+                    bad.append(f"OP8 {sk}: right {x['key']} declared {x['state']}, derived {st}")
+                x_state = x.get("state") or st
+                running = (src.get("sla_clock") or {}).get("status") == "RUNNING"
+                if st == "NOTICE_DUE" or (st == "CLAIM_OPEN" and running):
+                    open_deadlines += 1
+        rw = pm.get("rights_with_open_deadline")
+        if rw is not None and rw.get("count") != open_deadlines:
+            bad.append(f"OP8 {tk}: rights with an open deadline from the rows {open_deadlines} != stated {rw.get('count')}")
+    # OP9 (part): the new measures take their objective's heading
+    for m in ops.get("measures", []):
+        if HEAD_OF.get(m["objective"][0]) != m.get("heading"):
+            bad.append(f"OP9 measure {m['id']}: heading {m.get('heading')} is not its objective's ({m['objective']})")
+    return bad
+
+
+def operations(root, doc):
+    """design rev 16.16 §2.10: the operations block holds against the story, the counted measures and the money (OP1-OP9)."""
+    import copy
+    hp = root / "history.json"
+    hist = json.loads(hp.read_text(encoding="utf-8")) if hp.exists() else None
+    probs = ops_problems(doc, hist)
+    groups = ("OP1", "OP2", "OP3", "OP4", "OP5", "OP6", "OP7", "OP8", "OP9")
+    for g in groups:
+        mine = [p for p in probs if p.startswith(g + " ")]
+        check(f"{g} operations: " + ("; ".join(mine[:4]) if mine else "holds"), not mine)
+    sites = {s["site"]: s for s in doc["operations"]["sites"]}
+
+    def planted(edit, code, what):
+        d = copy.deepcopy(doc); edit(d)
+        got = {p.split(" ")[0] for p in ops_problems(d, hist)}
+        check(f"OP self-test: {what} fails {code} (got {sorted(got)})", code in got)
+
+    def s_(d, name): return next(x for x in d["operations"]["sites"] if x["site"] == name)
+    planted(lambda d: s_(d, "Kobo")["incidents"][0].__setitem__("asset", "CMP-003"), "OP2", "a Thika asset on a Kobo incident")
+    planted(lambda d: s_(d, "Kasarani")["incidents"][1].pop("repeat_of"), "OP5", "the Kasarani repeat unlinked")
+    planted(lambda d: s_(d, "Mto")["incidents"][0].__setitem__("out_from", "2026-10-27"), "OP3", "Mto's inverter out a day early")
+    planted(lambda d: s_(d, "Kisiwa")["incidents"][1].__setitem__("out_from", "2026-10-29"), "OP4", "Kisiwa's asset-days moved")
+    planted(lambda d: s_(d, "Ruiru")["rights"][1].__setitem__("monthly_fee", 550.00), "OP6", "a fee off the maintenance leaf")
+    planted(lambda d: s_(d, "Kobo")["schedules"][0]["done"].append("2026-10-30"), "OP7", "an extra October visit")
+    planted(lambda d: s_(d, "Kisiwa")["rights"][0].__setitem__("state", "IN_COVER"), "OP8", "an expired warranty shown in cover")
+    planted(lambda d: d["operations"]["sites"].pop(), "OP1", "a Site dropped")
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
@@ -1711,7 +1981,7 @@ def main(path):
     def walk(o):
         if isinstance(o, dict):
             for k, v in o.items():
-                if k not in ("oracle", "evaluation", "plans", "calibration_spikes", "owner_question_variants", "empty_states"): walk(v)
+                if k not in ("oracle", "evaluation", "plans", "calibration_spikes", "owner_question_variants", "empty_states", "operations"): walk(v)
         elif isinstance(o, list):
             for v in o: walk(v)
         elif isinstance(o, float):   # money records are written with cents (floats); counts and days are integers
@@ -1732,6 +2002,7 @@ def main(path):
     nh = history_checks(doc, dv, root, path, im) if (root / "history.json").exists() else 0
     reconciliation(doc, dv)   # after the history checks, so H9's baseline (checks before them) is unchanged
     option_basis(doc)         # after the history checks too (D-RECON.6)
+    operations(root, doc)     # after the history checks too (D-L4OPS.7)
     print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
         print("FAIL", f)

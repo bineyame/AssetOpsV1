@@ -1,6 +1,6 @@
 # AssetEcon Layer 4 design: more value on top of a solid core
 
-**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.15 · AssetOps Architect (Claude) · 20 Nov 2026**
+**AssetEcon · Layer 4 architecture and demonstrator design · rev 16.16 · AssetOps Architect (Claude) · 20 Nov 2026**
 
 **Status.** This is a design for owner review, regenerated at the owner's order and in the structure the owner set (`.agent/owner-design-regeneration-request-2026-11-19.md`). No code, test or database was changed. The revision history, the audit that drove it and the reviews are in `design-appendix.md` §4.
 
@@ -263,15 +263,15 @@ flowchart TB
 
 *How the categories relate to the outcomes.* Contribution (revenue − cost to serve) is the outcome the two money headings explain. This is substance, not screen placement: every money effect in its bridge sits on one leaf, so under one of Grow or Optimize, and those effects, plus any explicit residual, equal its gap to the cent. Its governed presentation, the bridge with sources and coverage, is Assure's A1. Optimize holds two kinds of money figure that are never added together: cost and service-to-charge effects, which are inside the contribution gap; and collection of what was billed, which is cash and leaves contribution unchanged. Protect's measures are bounds on decisions, never summed with money. So the four headings are never added together, and no figure is counted under two of them (Rules 2 and 4).
 
-*How the statement and the headings reconcile* (Architect's call, `rev 16.14`, 20 Nov; UX audit C2; rulings D-RECON.1 to D-RECON.4 in `specs/RECON-1/rulings.md`). The contribution gap is cut two ways, and both cuts are right. The **statement** cuts it by line, as finance reads it: revenue against target and cost to serve against target. The **headings** cut it by what the executive can act on: Grow and Optimize. Each bridge row sits on one leaf, so it has one line, the statement line its leaf sits under (a leaf under both lines, such as a cold room's crate-days, which drive both revenue and electricity, is read on the line of its own heading), and one heading, its leaf's home. The two cuts are the rows and the columns of one table, line by heading, and they differ only by **crossing rows**: rows on one line whose heading is the other line's. Today the only crossing rows are the service-to-charge rows on revenue under Optimize (O3), meters not yet mapped to a customer and authorised adjustments, which the screens call **metered but not billed**. Losses before the meter carry no price, and no cost row sits under Grow.
-- *Lakeside, October.* Revenue −97.00<!--figx:{portfolio.lakeside-power.actual.sums.revenue}-{portfolio.lakeside-power.plan.sums.revenue}--> is Grow −25.00<!--figx:{portfolio.lakeside-power.actual.sums.revenue}-{portfolio.lakeside-power.plan.sums.revenue}+({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}+({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> plus metered but not billed −72.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> (Mto: unmapped meters −56.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->, adjustments −16.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->). Optimize −827.00<!--figx:-({portfolio.lakeside-power.actual.sums.cost_to_serve}-{portfolio.lakeside-power.plan.sums.cost_to_serve})-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> is cost to serve −755.00<!--figx:-({portfolio.lakeside-power.actual.sums.cost_to_serve}-{portfolio.lakeside-power.plan.sums.cost_to_serve})--> plus the same −72.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->. Both cuts add to the gap of −852.00<!--figx:{portfolio.lakeside-power.actual.sums.contribution}-{portfolio.lakeside-power.plan.sums.contribution}-->.
+*How the statement and the headings reconcile* (Architect's call, `rev 16.14`, 20 Nov; UX audit C2; rulings D-RECON.1 to D-RECON.4 in `specs/RECON-1/rulings.md`). The contribution gap is cut two ways, and both cuts are right. The **statement** cuts it by line, as finance reads it: revenue against target and cost to serve against target. The **headings** cut it by what the executive can act on: Grow and Optimize. Each bridge row sits on one leaf, so it has one line, the statement line its leaf sits under (a leaf under both lines, such as a cold room's crate-days, which drive both revenue and electricity, is read on the line of its own heading), and one heading, its leaf's home. The two cuts are the rows and the columns of one table, line by heading, and they differ only by **crossing rows**: rows on one line whose heading is the other line's. Today the only crossing rows are the service-to-charge rows on revenue under Optimize (O3), meters not yet mapped to a customer and authorised adjustments, which the screens call **unbilled energy**, the industry's term for energy metered but not billed (OD-28; basis in `decisions-register.md` call 29). Losses before the meter carry no price, and no cost row sits under Grow.
+- *Lakeside, October.* Revenue −97.00<!--figx:{portfolio.lakeside-power.actual.sums.revenue}-{portfolio.lakeside-power.plan.sums.revenue}--> is Grow −25.00<!--figx:{portfolio.lakeside-power.actual.sums.revenue}-{portfolio.lakeside-power.plan.sums.revenue}+({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}+({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> plus unbilled energy −72.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> (Mto: unmapped meters −56.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->, adjustments −16.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->). Optimize −827.00<!--figx:-({portfolio.lakeside-power.actual.sums.cost_to_serve}-{portfolio.lakeside-power.plan.sums.cost_to_serve})-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}--> is cost to serve −755.00<!--figx:-({portfolio.lakeside-power.actual.sums.cost_to_serve}-{portfolio.lakeside-power.plan.sums.cost_to_serve})--> plus the same −72.00<!--figx:-({sites.lakeside-power/Mto.actual.nodes.unmapped_kwh}-{sites.lakeside-power/Mto.plan.nodes.unmapped_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-({sites.lakeside-power/Mto.actual.nodes.adjustments_kwh}-{sites.lakeside-power/Mto.plan.nodes.adjustments_kwh})*{sites.lakeside-power/Mto.actual.nodes.tariff}-->. Both cuts add to the gap of −852.00<!--figx:{portfolio.lakeside-power.actual.sums.contribution}-{portfolio.lakeside-power.plan.sums.contribution}-->.
 - *Harvest Cold.* No crossing row: revenue and Grow are both −620.00<!--figx:{portfolio.harvest-cold.actual.sums.revenue}-{portfolio.harvest-cold.plan.sums.revenue}-->, and cost to serve and Optimize both −150.00<!--figx:-({portfolio.harvest-cold.actual.sums.cost_to_serve}-{portfolio.harvest-cold.plan.sums.cost_to_serve})-->.
 - *Metro Bus.* No revenue line at a captive depot: the whole gap is Optimize, Ruiru's unattributed residual included, so nothing crosses.
 
 Neither cut is bent to match the other. Moving the crossing rows under Grow would undo the owner-approved O3 placement (OD-21); taking them out of revenue would misstate the operator's own statement. So the screens follow four rules:
 1. A heading figure is named by its heading and a statement figure by its line. "Revenue explains" never labels a Grow figure.
 2. One figure, one value. A headline figure shown on more than one screen reads one term of the table (manifest `home_categories.reconciliation.shared_figures`).
-3. Where a screen shows a line's figure and its own heading's figure for one scope, and they differ, the difference is a labelled line on that screen, in the same words everywhere: "of which metered but not billed", naming its rows.
+3. Where a screen shows a line's figure and its own heading's figure for one scope, and they differ, the difference is a labelled line on that screen, in the same words everywhere: "of which unbilled energy", naming its rows.
 4. Financials shows the table, from the statement to the headings, for every operator; a crossing cell of zero reads "none this month".
 
 `check_manifest.py` `reconciliation()` builds the table from the bridge, checks each line against the evaluator's change in that line, and checks every tie for every portfolio and Site; a new crossing row fails until it is named.
@@ -677,6 +677,8 @@ The plan's own state is derived from its items and Actions. It is not a second e
 
 The system raises Findings, prepares and values decisions, recommends, rejects options that break a hard bound, checks that the plan fits, and records. **It never chooses, approves or creates an Action.**
 
+**Who creates which Actions is a role setting** (OD-27). Once the executive approves an expansion, its operational Actions are created by the site manager and its notices by the finance and commercial lead. That assignment is a setting by role in Organisation settings, recorded when it changes, so an operator can move it later without a design change.
+
 <!--Figure 7: who decides, acts and is recorded-->
 
 ```mermaid
@@ -781,7 +783,7 @@ flowchart LR
 
 *Serves the objective:* the screens are where the executive meets the value. Each change below makes one answer the money question for the whole portfolio.
 
-The frame stays: the rail with no new menu items, the six Portfolio tabs, the range bar, the coverage line, the drill-down pages and "not available yet".
+*Amended 20 Nov by the app-wide menu and page organization (owner-approved; rulings D-IA.1 to D-IA.14, `specs/IA-1-shape-rebuild/rulings.md`): the rail gains Decisions, Plan and Results, and Evidence and Operational records merge (D-IA.1); the Portfolio has three tabs, Overview, Outcomes, and Demand & capacity, with Act first, What changed and Scope moved to their objects' home lists (D-IA.2). The rows below for those tabs and the rail now read through those rulings.* The frame stays: the rail with no new menu items (superseded by D-IA.1), the six Portfolio tabs (superseded by D-IA.2), the range bar, the coverage line, the drill-down pages and "not available yet".
 
 | Screen | Today | Change |
 |---|---|---|
@@ -792,6 +794,8 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Opportunity | A headroom study | Renamed *Demand and capacity*: headroom stays capacity, and demand needs evidence |
 | Assure row line "Actual against plan" | "N of M declared objectives met" (`site_outcomes/mini.py:692`) | Renamed "Actual against target" (OD-6), so that "plan" means only the new construct |
 | What changed | Accepted actions, verifications | Actions with owners, the plan's review and the three verdicts |
+| Site page tabs | Overview and Financials | An Operations tab between them, the same on all 9 Sites: assets and their state, what needs action, operations measures against target (§2.10) |
+| Rail: the earlier Incidents, Maintenance, Assets, Operational records and Evidence lists | Five lists apart from the plan and the Findings | One Operations entry with four views, one row per Site opening to its items; Evidence's coverage is the Scope tab (§2.10) |
 
 **A calculated daily snapshot** (owner, OD-23: "keep a calcualted daily snapshot that the UI would use, ofcourse with triggers to recalulate and udpate if things change").
 - *What exists today.* Stored route responses: a read route's served bytes are kept under a watermark of its inputs, and every input table writes an input-change row through triggers, so a changed input invalidates the stored response (`0047_chain_response.py:1-14`). It answers the owner's concern that Site and Portfolio pages load slowly (1 Nov walkthrough).
@@ -829,6 +833,10 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | The four categories (catalogue) | Stay, re-grounded (OD-21) | Rows flagged from signals, not computed: `catalogue.py:43-68` | Each structure node carries one home category; the cards read the nodes under them (§2.0) |
 | Stored route responses, period read | Extended (OD-23) | Totals recomputed on read: `period_read.py:46-47`; slow pages (owner, 1 Nov) | A calculated daily snapshot, marked by named triggers and recalculated at the daily run or on demand, rebuildable and checked (§2.8) |
 | Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
+| Work cases (incidents, requests) and maintenance records | Stay, extended (OD-26) | No time out of service, failure mode, kind, visit or cost basis: `0027_w4_work_cases.py:12-34`, `:145-162` | Failure mode and out-of-service interval on incidents; kind (scheduled or responsive), visit and cost basis on records; repeats observed as Findings (§2.10) |
+| Maintenance schedules | Stay, extended | A due state only; no plan item comes from it: `outcomes/plan_due.py:1-33` | An occurrence that uses a crew visit or spends becomes a proactive plan item (§2.10) |
+| Asset registry | Stays, extended | No cover on the asset: `sites/battery_boundary.py:26` | Rights rows on the asset or Site, with their state, and what each asset serves (§2.10) |
+| Operational records, evidence lists | Stay | — | Read as the records behind each factor (A1), on the Site's Operations tab and the Scope tab (§2.10) |
 
 **Delivery order** (shape approved by the owner, 19 Nov: the source emulators are built "in parallel with work related factor structure"):
 1. Correct the last-day figure (CH5).
@@ -875,6 +883,80 @@ flowchart LR
 
 *Figure 10. Delivery order, at Kobo. While lane A builds the emulators, lane B already reads Kobo's actual diesel litres, 1,180<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L, and their split by generator running, from today's telemetry and fuel records. Today's candidate-running (330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L) and unexplained-fuel (120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L) Findings are pinned to those factors. At the join, once the billing and collection emulators pass the contract test, the money leaves appear, including the 278.00<!--fig:sites.lakeside-power/Kobo.actual.nodes.outstanding--> of collections outstanding. Targets and budget lines are lane A records too, such as 700<!--fig:sites.lakeside-power/Kobo.plan.nodes.diesel_l--> L of diesel. They take effect at step 5, where the contribution gap of −562.00<!--figx:{sites.lakeside-power/Kobo.actual.nodes.contribution}-{sites.lakeside-power/Kobo.plan.nodes.contribution}--> appears in the bridge. Everything stays labelled Emulated until the operator's own exports replace the emulators.*
 
+### 2.10 Operations: assets, rights, incidents and maintenance inside the structure (OD-26)
+
+*Serves the objective:* an operator executive judges "value beyond monitoring tools" against the maintenance and asset tools they already run. Failures cost money, repeated failures most; maintenance is where cost and risk are traded; rights decide who pays for a repair. So these constructs sit inside the chain of Figure 1c, as drivers and evidence, not beside it (owner, 20 Nov: "they should be seamlessly integrated through propoer design not just a patch").
+
+**What exists today, and stays** [code-observed]. The core already records operations well; this section adds no second store.
+
+| Construct | What it does today | Evidence |
+|---|---|---|
+| Incident and maintenance request | One append-only work case per event, kind incident or request, with an optional asset, revisions, links to Findings, Actions and evidence, and events from raise to close; a request may name its incident | `0027_w4_work_cases.py:12-114`; `work/model.py:27-30`, `:107-151` |
+| Maintenance record | What was done on a case, and its outcome, append-only | `0027_w4_work_cases.py:145-162` |
+| Maintenance schedule | Calendar or run-hours schedules per asset, with a due state (overdue, due soon) shared by the board and the global list | `0027_w4_work_cases.py:116-144`; `outcomes/plan_due.py:1-33` |
+| Asset registry | The Foundation's assets: code, type, parent, commissioned and retired dates | `0001_foundation_identity.py:95-111` |
+| Rights | Warranty fields withheld on the battery read; rights exist only as the manifest's entitlement rows, and slice `9a` would extract them from contracts | `sites/battery_boundary.py:26` |
+| Operational records | Operator logs, manual readings, shift notes, site visits, tank dips and deliveries, each submitted then accepted or rejected | `0027_w4_work_cases.py:163-197`; `work/operational_entry.py:108-126` |
+| Routes and screens | Site and global reads for incidents, maintenance, schedules and records; the global lists and the work-request pages | `work_api.py:154-218`; `global_work_api.py:81-103`; `frontend/src/work/` |
+
+**Where it falls short, measured against the objective.**
+- An incident carries no time out of service, no failure mode and no link to what it cost, so its effect on the bottom line cannot be stated, and nothing notices a repeat.
+- A maintenance record carries no kind (scheduled or responsive), no visit and no cost basis, so maintenance spend cannot be reconciled to the O&M leaf, nor scheduled work weighed against breakdowns.
+- An asset has no cover. Who pays for a repair is decided in the manifest, not on the asset.
+- The lists stand apart from the plan and the Findings. In the mock-up they contradicted both and showed other operators' assets (review of 20 Nov, H3 and H4), and six Sites had none.
+
+**The model.** The asset is the anchor. Every other construct names its asset (or its Site, for a Site-wide contract), and each reaches the outcome through a node the registry already has or that slice `OPS1` adds.
+
+<!--Figure 11: operations inside the structure-->
+
+```mermaid
+flowchart LR
+  AS["Asset (registry, stays)<br/>serves an obligation"]:::keep
+  RT["Right on the asset or Site<br/>warranty · insurance · O&M or service contract<br/>state from its terms (9a0)"]:::new
+  SC["Maintenance schedule (stays)<br/>due, overdue"]:::keep
+  IN["Incident (work case, stays)<br/>+ failure mode, out of service from–to"]:::chg
+  RP["Repeat: same asset, same mode,<br/>inside the window → a Finding on<br/>repeat failures (Protect)"]:::new
+  MR["Maintenance record (stays)<br/>+ scheduled or responsive, visit,<br/>cost basis: in fee · invoiced · under cover"]:::chg
+  PR["Protect measures: obligation hours without backup,<br/>asset- or charger-days out, repeat failures, overdue schedules,<br/>rights at stake"]:::chg
+  OP["Optimize leaves: O&M or maintenance fee and invoices,<br/>compensation, penalties, extra fuel"]:::keep
+  AU["Assure: A5 contract performance;<br/>A1 records and coverage"]:::keep
+  AS --> RT
+  AS --> SC
+  AS --> IN
+  IN --> RP
+  IN -- "consequences, counted once" --> PR
+  IN -- "consequences, counted once" --> OP
+  SC -- "occurrence with a crew visit or spend" --> PI["Plan item (P)"]:::keep
+  RP -- "opens or joins a decision" --> DE["Decision (CH3)"]:::keep
+  DE --> PI
+  PI --> MR
+  RP --> MR
+  MR --> OP
+  RT -- "who pays" --> MR
+  RT --> AU
+  MR --> AU
+  classDef keep fill:#f4f5f7,stroke:#9aa5b4,color:#5d6878
+  classDef new fill:#eef3ff,stroke:#1d4ed8,color:#18212f
+  classDef chg fill:#fff7e6,stroke:#b45309,color:#18212f
+```
+
+*Figure 11. Operations inside the structure, at Kisiwa. Generator 1 failed on 14 Aug and again on 30 Oct with the same alternator fault: a repeat inside the 90-day window, so a Finding on repeat failures (Protect) joins the genset decision as a linked Finding. Its October consequences are the 10 evening hours without backup and 2 asset-days out of service the Protect card already shows, now counted from the incident. The warranty has expired, so the repair is the operator's; the O&M contract's late response is contract performance under Assure (A5).*
+
+- **Incident.** An event on an asset that takes it out of service or reduces it, with a failure mode and its out-of-service interval. Its consequences sit on the nodes they moved, under those nodes' headings, and are counted there once: obligation hours and asset-days under Protect; compensation, penalties, extra fuel and invoiced repair under Optimize. Its cost is a cut across those leaves, like the heading cut of §2.0, never a new leaf.
+- **Repeat.** A second incident on the same asset with the same failure mode inside the operator's repeat window (default 90 days, a setting). Frequency becomes a Protect measure, *repeat failures*, target zero; under OD-3 its tolerance defaults to zero, so every repeat raises a Finding pinned to it. That Finding carries the repeat set's cost and links to the decision on the asset (repair, replace, claim, or a remedy under the O&M contract). It keeps its own heading (OD-25). It reuses the Finding's recurrence history; nothing new tracks threads.
+- **Maintenance.** *Scheduled* work comes from a schedule. An occurrence that uses a crew visit or spends becomes a proactive plan item naming the right or Protect measure it keeps, or "no factor (upkeep or compliance)" (OD-5), so crew-visit limits and release apply to it as to any item. *Responsive* work is an Action on an incident's Finding, or on another Finding: a work case's origin stays the Finding or plan item it came from (call 4). Each record says whether it was a visit (the O2 field-visit measure) and its cost basis: inside a contract's fee, invoiced, or under a right's cover. The Site's O&M or maintenance leaf is the fees in force plus the invoices, checked to the cent every month. The scheduled share is an O2 measure, never money.
+- **Asset registry and rights.** The registry is the home of cover. A right is a row on an asset or a Site: an equipment or workmanship warranty, an insurance policy, an O&M or service contract. It holds its counterparty, term, conditions, exclusions, notice period, remedy and fee. Its state follows from its terms and claims: in cover, conditions incomplete, notice due, claim open, or expired. It feeds P4 (cover kept claimable, open deadlines), A5 (supplier and contractor performance) and the cost basis of every repair. Slice `9a` keeps its document extraction; the register itself (`9a0`) comes first, so rights exist before extraction does.
+- **Operational records and evidence.** Records are a source family that fills leaves (dips fill litres, visits fill field visits). On screen they are the Site's *records behind these figures*: what arrived, from which source, which factor it fills, its coverage. That is Assure's A1, and the Portfolio's Scope tab is its portfolio view.
+
+**Person in the loop.** The field technician or O&M contractor records the incident and the work done. The site manager owns the responsive Actions and chooses a remedy path under a right (call 20). The finance and commercial lead files every notice and claim. The executive approves the plan items that use crew visits or spend. The system counts, derives states and proposes the repeat Finding and due maintenance; it never raises or closes work. Each act is recorded under the person (step 3C).
+
+**Screens: one grammar** (`Docs/design-system/uiux-guide.md` §2.3, §8; the mock-up's Site Overview, "Operations measures at this site" and "obligations and rights").
+- **The Site page gains an Operations tab**, between Overview and Financials, the same on all 9 Sites. Its glance line states the assets in service, open incidents with their repeats, and the nearest deadline on a right. Its queue lists what needs action: open incidents, repeat Findings, overdue or due-soon schedules and notice deadlines, each with its owner, due date and the Action or decision it opens. Below them are the operations measures against target (moved from the Overview, which keeps the four headings' strip within its budget) and the asset table, one row per asset: what it serves, its state since when, its cover, its last incident with a repeat mark, and its next maintenance. A missing source reads "not available yet" inside that structure, never as a stub tab.
+- **The asset is a page** (an object with identity): state, rights, incidents and repeats on one timeline, maintenance done and due, and its measures. **An incident, a maintenance record and a right open in drawers** from any list, each linking to its asset page and to the Finding, Action or decision behind it.
+- *(Superseded 20 Nov by D-IA.4 and D-IA.5: Incidents and Maintenance stay two Work items, Assets & cover holds the registry and cover, records and coverage go to Evidence & records. The text below is kept for the record.)* - **The Portfolio's five earlier lists become one rail entry, Operations**, with four views: incidents, maintenance, assets and cover, and records. Each shows one row per Site (counts, repeats, overdue, deadlines, capped with "Show all"), opening to its items. Rows are scoped by their Site key, never by their text. Evidence's coverage view is the Portfolio's Scope tab. *MOCK DEVIATION, improvement category (flag to the owner):* five rail items become one, and the Site page gains a tab the mock-up does not draw. OD-26 asks for this design, and the UI lane records the register row.
+
+**Named change, on merit.** Today's lists stay as the data underneath. What changes is their place: they are read through the asset and the structure, so an incident, the Finding it raised, the decision and the plan item are one chain, and no list can contradict the plan's items again. The demonstration data now holds a registry, rights, schedules, incidents (two repeats) and maintenance for all 9 Sites (manifest `operations`, checked by `check_manifest.py` `operations()`, OP1 to OP9). Rulings: `specs/L4-OPS/rulings.md`.
+
 ## Decisions
 
 **Owner decisions carried over:**
@@ -885,7 +967,7 @@ flowchart LR
 
 D15 (the first change agreed at the end of the deep-dive) is pending; its context and default are in `decisions-register.md`.
 
-**Owner decisions of 19 Nov, applied in this revision:**
+**Owner decisions of 19 and 20 Nov, applied in this revision:**
 
 | # | Decision (owner's words in `.agent/owner-design-regeneration-request-2026-11-19.md`; OD-10 to OD-12 in `.agent/owner-recreate-document-packs-2026-11-19.md`; OD-13 to OD-20 in `.agent/owner-pack-questions-defaults-2026-11-19.md`; OD-21 to OD-24 in `.agent/owner-summary-confirmations-2026-11-19.md`, OD-21 amended per `.agent/owner-assure-per-brief-2026-11-19.md`) | Where applied |
 |---|---|---|
@@ -916,6 +998,9 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-23 | The UI reads a calculated daily snapshot of the structure, the bridge and the Portfolio figures, recalculated for the Sites and periods a defined trigger marks, at the daily run or when a user asks (for now; owner, 20 Nov), with evidence class and provenance kept on every node (same record) | §2.1; §2.8; §2.9 |
 | OD-24 | Layer 4's evidence words replace the earlier four-level claim ladder; a simulated or emulated result is still never shown as Verified or realised (same record) | Rules |
 | OD-25 | A decision takes the heading of its Finding's factor, because that is where the executive met the problem; with no Finding behind it, it takes its lever's heading; each option's effects show under their own factors' headings, money counted once; every Finding-backed decision is checked for a Finding factor and lever under one heading (the coordinator's proposal, owner-approved, with the Architect's refinements) | §2.0; manifest `home_categories.decisions` |
+| OD-26 | The earlier operations lists (incidents, maintenance, the asset registry with warranties, operational records, evidence) are rebuilt from the same records the Findings and the plan read (option B) and integrated by design: incidents and their repeats, scheduled and responsive maintenance, and the rights on each asset are drivers and evidence inside the structure ("i'd go for option B", 20 Nov) | §2.10, Figure 11; §2.8; §2.9 |
+| OD-27 | The people who create an approved expansion's Actions are set by role and can change later: by default the site manager for operational Actions and the finance and commercial lead for notices ("accept, it is configurable by role", 20 Nov) | §2.5; §2.6 |
+| OD-28 | The crossing's screen words are the industry-standard term ("use whichever is the industry standard term", 20 Nov): unbilled energy | §2.0 |
 
 **Other owner decisions, outside this design** (commercial and process; each with its owner record and status in `decisions-register.md`): D2, D3, D4, D5, D6, D7, D8, D9, D10 and D12. The owner's process answers of 19 Nov (Docker restarts allowed on this server as needed; the 10 Nov walkthrough asks superseded by the new direction) are recorded in the register only. The owner's commercial answers of 19 Nov (the pilot fee's form, the deep-dive's terms and their review, peak days and the product reserve: items C2, C12, C13, C14 and C15 of `commercial-plan.md`) are recorded in the register and `commercial-plan.md`, not here (P4 of regeneration F).
 
@@ -932,7 +1017,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 - a plan item has five states, Chosen, Released, Left out, Done and Withdrawn, derived from its Actions and the plan's versions (§2.5, Figure 6c);
 - a crew-visit limit is set per month inside a longer period, and each crew visit counts in the month it falls (§2.5);
 - every structure node has exactly one home category; contribution's money effects sit in Grow and Optimize and its bridge is presented under Assure (A1); unexplained litres are Optimize; an item with no factor sits under Protect as upkeep (§2.0, OD-21);
-- the statement and the headings are the rows and columns of one table; a figure shown on two screens reads one term of it, and where a line's figure and its heading's figure differ the crossing is a labelled line, "metered but not billed" (§2.0, `rev 16.14`);
+- the statement and the headings are the rows and columns of one table; a figure shown on two screens reads one term of it, and where a line's figure and its heading's figure differ the crossing is a labelled line, "unbilled energy" (§2.0, `rev 16.14`; the words by OD-28);
 - a node's home is named on its row, never inherited from its parent; a measure takes its objective's heading; money never sits under Protect or Assure, so customer compensation and penalties are Optimize cost lines and Protect shows their failure in its own unit (§2.0, `rev 16.11`);
 - a Finding is pinned to the most specific factor it observes, never a parent total its children explain (§2.0, `rev 16.12`); a decision takes the heading of its Finding's factor (owner, 19 Nov), or its lever's when no Finding stands behind it, and a Finding-backed decision whose lever sits under another heading fails the check and is ruled (§2.0, `rev 16.12`);
 - the role accountable for what a decision concerns chooses its option: the site manager for a Site's assets, including their warranty claims; the finance and commercial lead for billing, collection and customer accounts, and for filing every notice and claim; the executive for capital (§2.4 step 2, the Architect's ruling on OD-16, `rev 16.12`);
@@ -941,6 +1026,10 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 - the EMS API and the edge gateway on hardware are step-9 work, outside the first fortnight (§2.9, OD-22);
 - an unset tolerance raises every adverse deviation; a hard-bound rejection is overridden only by a recorded change to the bound (§1.3, §2.4);
 - the manifest key `plan` stays as a machine-only exception to OD-6, and prose says "target" (G-F5, "Words used here").
+- an incident's consequences sit on the nodes they moved and are counted there once; its cost is a cut across those leaves, never a leaf; a repeat is a second incident on one asset with one failure mode inside the operator's window (default 90 days), and it raises a Finding on repeat failures (Protect) under a default tolerance of zero (§2.10, OD-3);
+- a schedule occurrence that uses a crew visit or spends becomes a proactive plan item; responsive work is an Action on a Finding; the O&M or maintenance leaf is the fees in force plus the invoices (§2.10);
+- a right is a row on an asset or a Site, its state derived from its terms and claims, and the register (`9a0`) comes before document extraction (`9a`) (§2.10);
+- the Site page gains an Operations tab, the same on all 9 Sites, and the five earlier rail lists become one Operations entry, one row per Site (§2.10).
 
 ## Appendix. Where the detail lives
 

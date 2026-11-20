@@ -88,10 +88,8 @@ export function runnerProblems(name, text) {
 }
 
 // ---- 7. the spec §6 documents carry only pooled commands ----
-const DOCS = [".agent/lane-rules-vps-2026-11-12.md", "backend/TESTING.md", ".ai/RULES.md", ".ai/START_HERE.md", "tools/select-tests.py"];
-// Spec §6 also lists these two; the T1 dispatch forbids any `.claude/` change. Mid-build question 1
-// (specs/T1-heavy-tool-slot-pool/mid-build-questions.md): reported below as a todo, not yet blocking.
-const DOCS_PENDING = [".claude/agents/assetops-reviewer.md", ".claude/agents/assetops-implementer.md"];
+const DOCS = [".agent/lane-rules-vps-2026-11-12.md", "backend/TESTING.md", ".ai/RULES.md", ".ai/START_HERE.md", "tools/select-tests.py",
+  ".claude/agents/assetops-reviewer.md", ".claude/agents/assetops-implementer.md"];
 const HEAVY = ["npx tsc", "npx vitest", "-m pytest", "run-host-tests.ps1 --", "run-backend-suite-in-container.ps1 -", "-evidence.mjs"];
 
 export function unpooledLines(name, text) {
@@ -175,8 +173,11 @@ test("7 the spec §6 documents carry only pooled heavy commands", () => {
   assert.deepEqual(DOCS.flatMap((f) => unpooledLines(f, read(f))), []);
 });
 
-test("7b the two .claude/agents briefs of spec §6 (pending mid-build question 1)", { todo: "the T1 dispatch forbids .claude/ changes" }, (t) => {
-  // Reported as a diagnostic, not a failing assertion, so check-all's excerpt shows the real failure (review-1 L2).
-  const lines = DOCS_PENDING.flatMap((f) => unpooledLines(f, read(f)));
-  t.diagnostic(`7b pending T1-F1: ${lines.length} unpooled line(s) in .claude/agents`);
+test("7b the two .claude/agents briefs of spec §6 carry only pooled commands (T1-F1)", () => {
+  const planted = "Run:\n`cd frontend && npx vitest run x`\n";
+  assert.deepEqual(unpooledLines(".claude/agents/planted.md", planted),
+                   [".claude/agents/planted.md:2: unpooled `npx vitest`: `cd frontend && npx vitest run x`"]);
+  for (const f of [".claude/agents/assetops-reviewer.md", ".claude/agents/assetops-implementer.md"]) {
+    assert.deepEqual(unpooledLines(f, read(f)), []);
+  }
 });

@@ -1,0 +1,67 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-3A1.1 to D-IA.14)
+
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
+
+- `D-3A1.1` The store takes canonical batches only · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.2` A record's identity is (tenant, source system, source record ID) · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.3` Revisions are keyed by the source's own version · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.4` Refusals are results, and are stored · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.5` No time column in the revision table's uniqueness (pushback on strategy §7) · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.6` No chain change-log registration yet · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.7` Estimates and coverage are DS3's · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3B1.1` The registry is literal code rows, pinned to the manifest by test · live · specs/3B1-structure-registry/rulings.md
+- `D-3B1.2` A literal takes the unit its place needs · live · specs/3B1-structure-registry/rulings.md
+- `D-3B1.3` The start-up check refuses rather than repairs · live · specs/3B1-structure-registry/rulings.md
+- `D-3B1.4` Tolerance: one declared value in version 1 · live · specs/3B1-structure-registry/rulings.md
+- `D-3B1.5` Rights nodes and operations measures are not rows yet · live · specs/3B1-structure-registry/rulings.md
+- `D-3B1.6` Three of the design's start-up checks belong to later slices · live · specs/3B1-structure-registry/rulings.md
+- `D-3C1.1` The person path is added beside today's path, behind one switch · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.2` Role per command is one literal table · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.3` Verification, financial and decision writes keep their paths · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.4` The person is in the command's identity · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.5` USER is the person's actor kind everywhere · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.6` A cross-tenant person sees "not found" · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.7` The split if the handshake grows it · live · specs/3C1-person-on-commands/rulings.md
+- `D-3A1.8` latest revision picked before any filter · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.9` provenance declared here, capped by path in 3A2; provenance change is a conflict · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.10` personal data: pseudonymised refs only, no raw bytes, no logging; erasure a pilot residual · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.11` records in one batch decided in input order · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3A1.12` migration numbering for parallel slices; tests read head and down_revision · live · specs/3A1-commercial-record-store/rulings.md
+- `D-3B1.7` the expression is the record (no stored kind or signs) · live · specs/3B1-structure-registry/rulings.md
+- `D-3B1.8` Expr is a contract for 3B3 · live · specs/3B1-structure-registry/rulings.md
+- `D-3B1.9` start-up check right after the error hook · live · specs/3B1-structure-registry/rulings.md
+- `D-3C1.8` hash identity is the person, not the session (corrects D-3C1.4) · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.9` each route keeps its own refusal codes and envelopes · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.10` design deviation: site manager may record readings and completions · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.11` trial-action grant scope stays on the person path · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.12` the person path opens no write closed today · live · specs/3C1-person-on-commands/rulings.md
+- `D-3C1.13` split 3C1a/3C1b; 3C0b depends on both · live · specs/3C1-person-on-commands/rulings.md
+- `D-3B3.1` One pure evaluator, with sources behind a port · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.2` Evidence order, and the weakest part wins · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.3` The source state of every leaf is a literal, and states the truth on 20 Nov · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.4` Only exact sources fill a leaf; a partial source does not · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.5` No route and no storage in 3B3 · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.6` Assumptions are carried and labelled; their value comes from 5a · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.7` Division by zero is missing, never infinite and never zero · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.8` The portfolio excludes a Site by name and sums only additive factors · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.9` The registry gains neutral, which makes MINI_GRID version 2 · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.10` Months only, in the Site's calendar · live · specs/3B3-structure-read/rulings.md
+- `D-3B2.1` A pin is a code row keyed by mechanism · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.2` Cold and EV mechanisms wait in PENDING_PINS until 3B6 · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.3` The literal stays until 3B5 · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.4` UNEXPLAINED_FUEL reads under Optimize (design §2.0) · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.5` A pin may not sit on a total its children explain · live · specs/3B2-findings-pinned/rulings.md
+- `D-IA.1` The menu: six groups, thirteen items; Decisions and Plan under Work (supersedes design §2.8 frame rule) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.2` Portfolio tabs: Overview, Outcomes, Demand & capacity (supersedes the six-tab frame) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.3` Site tabs: six, the same on every vertical · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.4` Incidents and Maintenance stay two Work items (supersedes design §2.10 single Operations entry) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.5` Assurance: Results, and Evidence & records · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.6` One scope switch: all Sites, a group, or one Site · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.7` Simulator Lab: developer role only · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.8` One object, one home, many scopes · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.9` Page or drawer, and one drill-down grammar · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.10` Guardrail G1: journeys within 3 clicks of the Portfolio · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.11` Guardrail G2: stop after the hub and decision shapes · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.12` Build by shape, in the order of the journeys · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.13` Start from the reviewed UI branch; no patching after render · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.14` The gates already earned stay · live · specs/IA-1-shape-rebuild/rulings.md

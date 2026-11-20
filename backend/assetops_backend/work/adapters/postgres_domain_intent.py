@@ -142,17 +142,18 @@ class _DomainTx:
             self._c.execute(text(
                 "INSERT INTO domain_action (id, tenant_id, site_id, action_no, action_code, domain, "
                 "origin_opportunity_id, origin_opportunity_revision_id, title, owner_label, due_at, raised_at, "
-                "recorded_at, actor_kind, actor_id, attestation, idempotency_key, payload_sha256) VALUES (:id, :t, "
+                "recorded_at, actor_kind, actor_id, attestation, person_id, idempotency_key, payload_sha256) VALUES (:id, :t, "
                 ":s, :action_no, :action_code, :domain, :origin_opportunity_id, :origin_opportunity_revision_id, "
-                ":title, :owner_label, :due_at, :raised_at, :now, :actor_kind, :actor_id, :attestation, "
+                ":title, :owner_label, :due_at, :raised_at, :now, :actor_kind, :actor_id, :attestation, :person_id, "
                 ":idempotency_key, :payload_sha256)"), self._p(**row))
             return
         self._c.execute(text(
             "INSERT INTO domain_action (id, tenant_id, site_id, action_no, action_code, domain, origin_finding_id, "
             "origin_finding_revision_id, title, owner_label, due_at, raised_at, recorded_at, actor_kind, actor_id, "
-            "attestation, idempotency_key, payload_sha256) VALUES (:id, :t, :s, :action_no, :action_code, :domain, "
+            "attestation, person_id, idempotency_key, payload_sha256) VALUES (:id, :t, :s, :action_no, :action_code, "
+            ":domain, "
             ":origin_finding_id, :origin_finding_revision_id, :title, :owner_label, :due_at, :raised_at, :now, "
-            ":actor_kind, :actor_id, :attestation, :idempotency_key, :payload_sha256)"), self._p(**row))
+            ":actor_kind, :actor_id, :attestation, :person_id, :idempotency_key, :payload_sha256)"), self._p(**row))
 
     # ---- intent --------------------------------------------------------------------------------------------
 
@@ -171,9 +172,9 @@ class _DomainTx:
     def insert_intent(self, row: dict[str, Any]) -> None:
         self._c.execute(text(
             "INSERT INTO domain_action_intent (id, tenant_id, site_id, action_id, supersedes_id, declared_at, "
-            "recorded_at, criteria, basis, actor_kind, actor_id, attestation, idempotency_key, payload_sha256) "
+            "recorded_at, criteria, basis, actor_kind, actor_id, attestation, person_id, idempotency_key, payload_sha256) "
             "VALUES (:id, :t, :s, :action_id, :supersedes_id, :declared_at, :now, CAST(:criteria AS jsonb), "
-            "CAST(:basis AS jsonb), :actor_kind, :actor_id, :attestation, :idempotency_key, :payload_sha256)"),
+            "CAST(:basis AS jsonb), :actor_kind, :actor_id, :attestation, :person_id, :idempotency_key, :payload_sha256)"),
             self._p(**{**row, "criteria": json.dumps(row["criteria"]), "basis": json.dumps(row["basis"])}))
 
     # ---- W4 case selection and the explicit link ------------------------------------------------------------
@@ -220,9 +221,9 @@ class _DomainTx:
     def insert_case_link(self, row: dict[str, Any]) -> None:
         self._c.execute(text(
             "INSERT INTO domain_action_case_link (id, tenant_id, site_id, action_id, case_id, case_revision_id, "
-            "case_event_id, recorded_at, actor_kind, actor_id, attestation, idempotency_key, payload_sha256) "
+            "case_event_id, recorded_at, actor_kind, actor_id, attestation, person_id, idempotency_key, payload_sha256) "
             "VALUES (:id, :t, :s, :action_id, :case_id, :case_revision_id, :case_event_id, :now, :actor_kind, "
-            ":actor_id, :attestation, :idempotency_key, :payload_sha256)"), self._p(**row))
+            ":actor_id, :attestation, :person_id, :idempotency_key, :payload_sha256)"), self._p(**row))
 
 
 class PostgresDomainIntentStore:

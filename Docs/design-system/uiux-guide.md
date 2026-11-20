@@ -6,7 +6,7 @@ Owner, 19 Nov (verbatim, `owner/owner-uiux-guide-request-2026-11-19.md`): the Po
 
 **The objective every rule serves.** An operator executive at a mini-grid, cold-chain or EV-charging company opens a screen and, **within five seconds, knows what needs a decision and how much money is at stake**. Within thirty seconds they know why. Evidence is one click away. That is the value beyond monitoring tools: monitoring shows that the generator ran; AssetOps shows what that cost, what to do about it, who decides, and whether it paid off.
 
-**What this guide changes and what it does not.** It changes presentation: hierarchy, disclosure, layout, visual system, charts and interaction. It does not change the product's content or rules: the constructs, the figures, the six honesty rules, the roles and the frame (rail, six Portfolio tabs, range bar, drill-down pages) stay as the frozen design (`layer4-transformation-design.md` rev 16.12) defines them. Where good UX needs a design change, §11 lists it as a proposal with a default.
+**What this guide changes and what it does not.** It changes presentation: hierarchy, disclosure, layout, visual system, charts and interaction. It does not change the product's content or rules: the constructs, the figures, the six honesty rules, the roles and the frame (rail, six Portfolio tabs, range bar, drill-down pages) stay as the frozen design (`layer4-transformation-design.md` rev 16.12) defines them. Where good UX needs a design change, §11 lists it as a proposal with a default. *(Amended 20 Nov: the rail and the six Portfolio tabs of this frame are superseded by D-IA.1 and D-IA.2, `specs/IA-1-shape-rebuild/rulings.md`.)*
 
 ---
 
@@ -115,16 +115,16 @@ When two principles conflict, the higher one wins. Each one serves the objective
 
 ### 2.2a The overview budget (wave 2c)
 
-An overview page holds the answer and the next step, nothing more: **the headline, at most four KPI tiles, the decision queue, one chart, and a slim strip of the four outcome headings**. Everything else lives in its tab and is linked from a single "More in the tabs" line. At 1440 the page stays under about two and a half screens; `ux_interaction_check` asserts at most six blocks and 2,500 px. On the Portfolio, "Where value leaks" lives on Demand and capacity, the insight on Outcomes by site, and the plan behind the Plan tile's "Review the plan". The four headings stay on the Overview (OD-21), as a strip whose tiles open their drawers.
+An overview page holds the answer and the next step, nothing more: **the headline, at most four KPI tiles, the decision queue, one chart, and a slim strip of the four outcome headings**. Everything else lives in its tab and is linked from a single "More in the tabs" line. At 1440 the page stays under about two and a half screens; `ux_interaction_check` asserts at most six blocks and 2,500 px. On the Portfolio, "Where value leaks" lives on Demand and capacity, the insight on Outcomes by site, and the plan behind the Plan tile's "Review the plan". The four headings stay on the Overview (OD-21), as a strip whose tiles open their drawers. Grow and Optimize do not restate the gap chart's money: each tile gives its share of the gap and opens the same drawer as its chart group. This departs from RECON-1 item 2 (keep the Grow bullet "Revenue against target"): logged as MOCK DEVIATION D2 (improvement; register R743; the revenue tie sits in the Grow drawer). Protect and Assure keep their own measures.
 
 ### 2.3 What each screen holds at each level
 
 | Screen | L1 Glance | L2 Queue and decide | L3 Explain | L4 Evidence |
 |---|---|---|---|---|
 | **Portfolio** (Overview tab) | The headline; tiles for contribution against target, the gap by heading, plan spend against budget with the plan's state, and the options' modelled value | The decision queue across Sites (top 6, "View all in Act first"); the plan card with state, meters, first three moves and "Review plan" | The bridge waterfall by heading; the value-chain chart; the four category tiles, each opening its factor table; the "Sites that look alike" insight | A drawer per figure; the category drawer with factors, certainty words and listed, never-summed values |
-| **Portfolio** (other tabs) | The tab's one answer, such as "2 of 3 Sites below target" | Outcomes by site: a Site × heading table sorted by gap. Act first: the full queue and the plan summary | Demand and capacity: headroom against evidenced demand. What changed: Actions, verdicts, plan review. Scope: coverage by source | Source and coverage drawers |
+| **Portfolio** (other tabs; three tabs since 20 Nov, D-IA.2: Overview, Outcomes, Demand & capacity; Act first, What changed and Scope moved to Decisions and Plan, Results and the inbox, and Evidence & records) | The tab's one answer, such as "2 of 3 Sites below target" | Outcomes by site: a Site × heading table sorted by gap. Act first: the full queue and the plan summary | Demand and capacity: headroom against evidenced demand. What changed: Actions, verdicts, plan review. Scope: coverage by source | Source and coverage drawers |
 | **Site** | The Site's contribution against target, its gap, and its open decisions as a count with money | The Site's queue; Actions in hand with owner and due date | The outcome board (factor rows with Issues, What can be done, Already in hand); value chain; trends | Asset and record drawers |
-| **Decision** | The recommendation in one line: the option, its 12-month result against no action, its one-off cost, who decides and the deadline; the primary action **Choose this option** | The options table against no action (§7.2) | How each option changes what drives it; limits; cover; cost lines and who pays; the reasoning; what would change it; the verification plan, as collapsible sections | Records behind it; the calculation; the design-value status |
+| **Decision** | The question as the page title ("What should we do about the Mto new daytime demand?"), who decides, the due date, the state, and a slim status line that follows the decision's path (§7.2); the recommendation with **one number** and its own basis (for example "+$3,540 over 12 months against no action" · cost, who pays) and **one primary**: **Choose this**, with a secondary "Choose another option" | The option cards: the same three numbers on each (result, one-off cost, limits pass or fail), doing nothing as the dashed baseline, the recommended card ruled | "Why we recommend it", collapsed: the reasoning, what would change it, what the decision changes, every option in detail, limits, cover, who pays, verification, and who chooses, approves and creates the Actions | "Evidence and records" in a side drawer: the records and the warranty or contract rights |
 | **Findings** | Count by heading and by state, with money at stake | The Findings table, filterable by Site, heading and state, each with its decision or Action | The Finding page: what was seen, against what, since when, and its thread | Revisions and evidence |
 | **Plan** | State (Draft, Proposed, Approved, Revised, Closed), version, who proposed and who approves; **Approve** / **Send back** for the approver | Items with their option, owner, due date, cost and crew; budget and crew meters; switches | Items left out and why; the cases; changes since the last version | The plan's history; each item's decision |
 | **Financials** | Contribution, revenue, cost to serve and cash against target for the period | The lines most off target, each opening its factor | The bridge; the value chain; price and tariff versions | Records and versions |
@@ -334,6 +334,7 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 - **Trend slot.** Each money tile reserves a trend line. Until earlier months are loaded it shows a dashed placeholder and "Trend not available yet", never an invented line.
 
 - **Displayed figures reconcile** (wave 2c ruling). Parts are rounded with the largest-remainder method, so the shown parts add up to the shown total: steps to their heading's subtotal, subtotals to the gap. Shares add to 100%. A check asserts it for every operator.
+- **A trend is its tile's measure** (Site r1). The line under a tile moves the tile's own figure; another measure names itself ("Monthly cost up $1,246 against Sep"). Cost moves up or down, never with a gain's sign.
 - **Shares are of what widens the gap.** A step that works the other way is an **offset**: it shows "offsets" and its amount, never a share. Example: Harvest's +$155 electricity effect.
 - **One sign rule per page:** every figure is its effect on the headline result. For a cost centre, a cost overrun is negative (worse), as the tile, the drawer and the Site rows show. The bridge follows the same rule (Metro: −$2,604, −$600, +$20).
 - **Scales hold their marks.** When offsetting steps run past the target or October, the track widens to the lowest and highest running total, and Target and October sit at their scaled places. A check asserts every bar ends inside its track.
@@ -393,35 +394,57 @@ The system proposes; people choose, approve and act (design §2.6). Every surfac
 
 ### 7.1 Decision queue
 
-- **Row anatomy**: status chip · Site · the issue in one line (at most 90 characters) · at stake (money or unit, with its marker) · due date · who decides (person chip) · **Decide**, a button-styled link to the decision page.
+- **Row anatomy**: status chip · Site · the issue in one line (at most 90 characters) · at stake (money or unit, with its marker) · due date · who decides (person chip) · the state's button (**Decide**, **Awaiting approval** or **Review**, by the rule below), a button-styled link to the decision page.
+- **The row's button follows the decision's state**, everywhere the queue appears (Portfolio, Act first, Site): **Decide** while a choice is waiting; **Awaiting approval** once chosen and waiting on the executive; **Review** once released, or when no option is recommended. Only the first row waiting for a choice is primary.
 - **Order**: the design's placement (must do, deadline, value, evidence; design §2.8, "never a value ranking"), shown as groups with headers. The UI never re-ranks.
 - **Header**: a count and urgency, such as "6 need a decision · 2 due this week".
-- **Phone**: each row becomes a card with the chip and Site on the first line, the issue, then the at-stake value and due date, then the person chip and **Decide**.
+- **Phone**: each row becomes a card with the chip and Site on the first line, the issue, then the at-stake value and due date, then the person chip and the state's button.
 
-**Wave 2c row rules.** The status chips sit on their own line and the title starts on the next, so every row has the same left edge. A title never repeats a column: in the Kobo row, "Kobo generator stop setting" reads "Generator stop setting". An empty cell stays blank, and "No deadline" is said only to screen readers. Exactly one Decide is primary: the first row's, which is the first decision to take. The checks assert all four.
+**Wave 2c row rules.** The status chips sit on their own line and the title starts on the next, so every row has the same left edge. A title never repeats a column: in the Kobo row, "Kobo generator stop setting" reads "Generator stop setting". An empty cell stays blank, and "No deadline" is said only to screen readers. At most one button is primary: the first row waiting for a choice, and none when no decision is waiting (REVIEW-decision-page L7). The checks assert all four.
 
 **Wave 2 row anatomy (replaces the sentence row).**
 - **One row per decision.** Every issue behind it is a status chip on the row, and "Why (2 issues)" lists each issue. Counts on every screen are decisions, not issues.
 - A short **title**: the decision's name, for example "Kobo generator stop setting".
-- Columns: Site · At stake · Due · Who decides · **Decide**. The person chip never wraps.
+- Columns: Site · At stake · Due · Who decides · the state's button. The person chip never wraps. The at-stake note gives the figure's own basis ("over 12 months", "to the restore on 9 Nov", "capital avoided, not a saving"), never a period typed by hand.
 - **Why ▾** expands the explanation and the certainty ("How sure: Modelled · † design estimate"). Certainty markers stay out of the row itself.
 - **Controls** above the list: a type-ahead Site filter, Status, Sort (priority, due date, at stake), Group (by urgency: due this week, this month, later, no deadline; or by Site) and a Compact toggle, with a live "n of m" count. A control appears only when it can change something.
 - **The row lays itself out by the room it has** (a container query): with less than 880 px it stacks, as in a side column or on a phone. No cell may run into its neighbour; `ux_interaction_check` asserts it at 1280 and 1440.
 - **At 50 to 300 Sites:** filters and sort run on the server and are kept in the URL; 25 rows a page; grouping by Site shows collapsed groups with counts; saved views per person. A worked count: 300 Sites with about four open decisions each is about 1,200 rows. That is 48 pages at 25 a page, or 1 page of the 25 due this week when grouped by urgency. The scope switcher and the Site filter are type-ahead for the same reason. The Metro operator, with 3 Sites, 4 statuses and 7 issues, demonstrates the controls in the mock-up.
 
-### 7.2 Option comparison (Decision page L2)
+### 7.2 The Decision page (owner, 20 Nov: "i don't understand how 'decide' is supposed to work")
 
-- **Fixed columns**: Option · 12-month result against no action · one-off cost and who pays · limits (pass or fail, with words) · condition · recommendation.
+A decision page asks one question and makes the next step obvious. These are rules for every decision, operator and state.
+- **The question is the title while a choice waits** (UX audit C17). Once chosen or released, the h1 is the decision's subject and the state line carries the answer. While waiting, the h1 is the decision as a question ending in "?" ("What should we do about the Mwea occupancy?"), with no subtitle repeating it. It names the matter, never the answer: a question naming one option would prejudge the choice. The meta line names the Site, who decides (role and name), the due date and the state.
+- **One status line, never a process diagram. It follows the decision's real path** (decision-loop §6): Recommended → Chosen → then *Awaiting approval → Actions released* for a choice above a threshold or capital; *Released at once* for one within both thresholds; *Actions go ahead* for one that spends no shared budget or crew visit (not a plan item). A choice released at once never shows an approval step. With nothing recommended, the first step reads "No option recommended". How the product works (who chooses, who approves, the release rule) is in a "How this works" drawer beside the status line; who decides and approves stays on the page.
+- **Answer-titled sections, one level** (the long-page standard): Why we recommend it · What it changes · Limits and cover · Cost and who pays · How we will check it worked · All options in detail. Each heading carries its answer, visible while closed ("Limits and cover · The recommendation keeps every limit; 2 options break one"). Lists show 7 rows, then "Show all"; option comparisons are never cut.
+- **Context that stays.** Once the recommendation scrolls away, a slim bar keeps the title, the key figure, the state and the primary action; on a phone it sits at the bottom. It never covers the focused element.
+- **A hero without a number** shows the strongest fact the data holds (the cover or credit at stake), with the option's own words under it.
+- **The recommendation card** carries one number, **with its own basis** taken from the data (the options table's words): "+$2,916 over 12 months against no action", "+$1,670 over the 4-month contract", "+$150 to the restore on 9 Nov", "$60,000 capital not spent (avoided, not a saving)", "+$672 charges restored over 12 months (billed, not yet collected)". A specific estimate note (Kirinyaga's "recovery share 80%, range 60–90%") is kept. Then the cost and who pays ("no one-off cost" when it is $0). Under it, one plan line by the design's rule: not a plan item when it spends no shared budget or crew visit; an expansion listed beside the plan; a plan item not yet in the proposed plan, with the budget checked when its Actions are created. The page never claims a fit it has not checked. The action follows the state:
+  - *waiting for a choice:* **Choose this** (the page's only primary) and a secondary "Choose another option";
+  - *chosen:* "Chosen by <role · name>: <option>. Awaiting <executive>'s approval of the plan" and "Review the plan";
+  - *released:* "Chosen by … Its Actions are released" and "See the Actions";
+  - *no option recommended:* says so with the reason counted from the options ("of 2 options, 1 is rejected and 1 is deferred"); whoever decides can still choose one, or none. Review fixture: `?state=no-recommendation`, opened from the review bar on a decision waiting for a choice.
+- **Option cards, not a table**, each with the same three numbers: result, one-off cost (who pays) and limits (pass or fail). Doing nothing is the dashed baseline card. The recommended card has an accent rule, and the chosen card a "Chosen" chip. **One Recommended per decision** (decision-loop §6): when the data marks a second option Recommended, the first in the data's order is the recommendation and the other reads "Alongside the recommendation" with its reason (Mto: the meter audit beside the billing fix, both going ahead, worked-portfolios.md:275). A rejected or deferred card gives its reason. In the waiting state, other valid cards offer a secondary "Choose this instead". The full options table stays one click down, under "Why".
+- **Certainty said once; the basis on each card.** A shared class ("† design estimates") is stated once for the cards. The basis is stated on each card, and the cards' note says "Each result as stated on its card" unless every option shares one basis.
+- **Review marks stay in the review bar.** "MOCK DEVIATION" and the fixture control never appear in the canvas; vocab_check fails any canvas that shows one.
+- **Evidence in a side drawer**, never stacked on the page.
+
+### 7.2a Option comparison detail (under "Why")
+
+- **Fixed columns**: Option · result against no action, with its basis · limits · one-off cost and who pays · status · details.
 - **No action** is always the last row: the baseline, pinned and labelled.
-- **The recommended row** has a "Recommended" chip and an accent left rule, not a green fill. Its row holds the primary button **Choose this option**. Other rows hold a secondary "Choose instead".
-- **Rejected or deferred options** show their reason in the row. Limit detail expands inline.
+- **Rejected or deferred options** show their reason; limit detail opens in the option's drawer.
 
 ### 7.3 Choosing, creating and tracking Actions
 
-1. **Choose.** A dialog confirms in plain words what happens:
-   - which Actions are created, and who owns them, with due dates;
-   - whether the change is released now (within the spend and crew-visit thresholds, and not capital) or waits for the plan's approval;
-   - that the choice is recorded under the chooser's name.
+1. **Choose.** "Choose this" opens a confirmation, never an immediate change. In four labelled lines it says:
+   - **What happens**, by decision-loop §6: an option that spends no shared budget or crew visit is not a plan item and its Actions go ahead once created; one that does becomes a plan item (in the proposed plan, or checked against it when its Actions are created); a capital choice is held for the executive's approval; an expansion is listed beside the plan, not counted in it.
+   - **Result against doing nothing**, with its basis, as on the card.
+   - **Actions:** the ones the data holds for it, with creator, owner and due date; otherwise who creates them, by decision-loop §8: the finance and commercial lead for every notice and claim and for a money Finding's decision; the Site manager for operational Actions on the items they chose; for an expansion, after the executive's approval, the Site manager (operational) and the finance lead (any notice or claim), never the executive (ruling D-2026-11-20-decision-page-rules).
+   - **Approval**, by the design's rule: no approval when it is not a plan item; released when its Actions are created within both thresholds and while the plan still fits; otherwise it waits for the named executive's approval of the plan. Capital (an executive's choice, a new connection, a capital purchase) always waits, and its Actions are created after that approval.
+   - **Recorded under:** the accountable role and name, with the time.
+   Then **Confirm the choice** (primary) and Cancel.
+   **One feedback pattern for every consequential action** (Choose, Approve, Send back; UX audit C6): a confirmation that says what happens and who is recorded, then a toast with **Undo**, then a visible state change on the page (the state pill and the status line). The toast is never the only record. In the demonstration the change lasts for the browser tab and is labelled "in this demonstration".
 2. **Create an Action** from a Finding or a plan item in a side drawer. The fields are: what, owner, due date, origin (prefilled and read-only) and plan item. Saving shows a toast, "Action created · View", and returns focus.
 3. **Track** an Action on its page as a horizontal step indicator through the thread's states (in hand → applied → monitoring → verified, or recurred). The three verdicts (operational, economic, causal) show as three separate chips, never one score.
 4. **Overdue** items show a `--warn` chip, "Overdue by 3 days", in every list.
@@ -432,6 +455,7 @@ The system proposes; people choose, approve and act (design §2.6). Every surfac
 - **For the approver**, a sticky action bar holds **Approve plan** (primary) and **Send back** (secondary). Send back requires a reason and a trade-off, in a dialog.
 - **For other roles**, the bar reads "The operator executive approves this plan". No disabled buttons without a reason.
 - **"Changes since version 2"** is a compact diff list at the top of a revised plan.
+- **Items** show the option, owner, due date, one-off cost, crew visits and the result with its period and basis ("over 12 months, against doing nothing"; "to the restore on 28 Nov, against an immediate restore at no cost"). Items left out are listed with their reasons. The rest of the page follows the long-page standard: answer-titled sections, capped lists, the sticky approver bar.
 
 ### 7.5 Who decides
 
@@ -459,6 +483,7 @@ There is no role switcher, role view or role filter (design §2.6; memory "no bo
 
 - Sentence case. Verbs on buttons ("Choose this option", "Approve plan", not "Submit"). Units on every number.
 - Lead with the answer: "Contribution is $852 below target", not "October contribution, composed from the sites' factors: …".
+- **State words come from the one state source** (Site r1). "Needs a decision", "open" and "value if chosen" only for decisions still to choose; others are counted by state ("2 decisions: 1 awaiting approval, 1 under way").
 - No system vocabulary (`vocab_check` enforces its list). Write the user's words instead:
 
 | Not this | This |
@@ -484,7 +509,8 @@ There is no role switcher, role view or role filter (design §2.6; memory "no bo
 | **Inline expand** | Table row detail, long values (builder guide §1) | `aria-expanded` |
 
 - **Filters**: a filter bar under the page header (vertical, Site, heading, status), with applied-filter chips and "Clear". Filters are kept in the URL. The period selector is global, in the top bar.
-- **Drill-down**: a figure opens its evidence; a row opens its object. Each target is a single link or button; a whole-row link never contains other controls.
+- **Drill-down, one grammar on every page** (owner, 20 Nov): a chart mark, a chart heading, a tile or a figure opens a **drawer about that subject, in place**; it never navigates. A driver or heading drawer has one shape: the amount and its share, what is behind it (Findings), what is being done ("Open decision →", or "No decision yet"), then the evidence. Leaving the page takes an explicit, named button: a queue row's Decide or Review, "Open decision →", a breadcrumb. Each target is a single link or button; a whole-row link never contains other controls. Gate: `ux_interaction_check` clicks every chart step, chart heading and tile on each overview and fails one that does not open a drawer, changes the route, or leaves a driver drawer without "what is being done".
+- **One shell model** (UX audit C1, C3, C4): every screen the product navigates to shows the one period chip ("October 2026 · Figures as of …"), the Site's one name (never "Kobo Mini-grid" or a site code outside setup and the Lab), one status vocabulary per object, the plan's Findings and Actions, and only the active operator's Sites. A tab or page that is not built is not in the navigation. A v7.0 screen kept for review that is not converted leaves the navigation: the product never links into it (it stays in the review bar's Screen index), and a link to it renders as plain text. An unknown route says the page does not exist. Gate: `shell_check` crawls every navigable route per operator (rules S1–S8, with a plant).
 - **Motion**: 150 to 200 ms ease-out for drawers, expansion and toasts, and nothing else. `prefers-reduced-motion` removes it. There is no parallax, no count-up numbers and no hover lifts.
 - **Keyboard and accessibility (WCAG 2.2 AA)**:
   - a skip link, landmarks, one `h1`, ordered headings and `th scope` on tables;
@@ -501,7 +527,7 @@ There is no role switcher, role view or role filter (design §2.6; memory "no bo
 - **Command search:** Ctrl K, ⌘K or "/" anywhere, or the top bar's search. It finds Portfolio views, the plan, Sites, decisions and the main screens. Use ↑ ↓ to move, Enter to open and Esc to close.
 - **Scope switcher:** "All sites ▾" in the top bar opens the portfolio or one Site. It is a switch of scope, never of role.
 - **Period menu:** the period chip is a menu. It shows the current period; earlier periods and custom ranges say "not available yet" until history is loaded.
-- **The rail** keeps every item (the frame rule) and is visually compacted. Merging its legacy groups is proposal U8.
+- **The rail** follows the app-wide menu approved on 20 Nov (D-IA.1, `specs/IA-1-shape-rebuild/rulings.md`): the six groups stay; Decisions and Plan join Work, Results joins Assurance, Evidence & records replaces Evidence and Operational records, Assets becomes Assets & cover, and the Simulator Lab is shown only to the developer role. This supersedes "the rail keeps every item (the frame rule)".
 
 ## 9. Worked example: the Portfolio redesigned
 
@@ -620,6 +646,32 @@ The figures are the current mock's. Who decides and the at-stake values come fro
 | Sites that look alike need different levers | Insight card in the aside | L2 |
 | Tabs, breadcrumbs, context line, figures as of | Page header and top bar | L1 |
 | Footer | Unchanged | — |
+
+### 9b. Worked example: the Mto daytime demand decision (1440)
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│ What should we do about the Mto new daytime demand?                                      │
+│ Mto · Decides: Site manager, Mto · David · Due 30 Nov · [Chosen · awaiting approval]      │
+│ ● Recommended │ ● Chosen │ ◉ Awaiting approval │ ○ Actions released                      │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ We recommend                                                                             │
+│ Connect the cooperative's rice huller (daytime)                                          │
+│ +$3,540 over 12 months against no action ○ Modelled † · costs $1,200, we pay the contractor│
+│ Chosen by Site manager, Mto · David. Awaiting Operator executive · Amina's approval.     │
+│ [ Review the plan ]   Evidence and records                                               │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ The options, against doing nothing        Each result as stated on its card; † estimates │
+│ ┃Connect the huller   [Chosen] │ Evening welding     [Rejected] │ ┆Do nothing  baseline ┆ │
+│ ┃Result +$3,540 over 12 months │ Result −$8 a month, vs no action│ ┆Result     baseline  ┆ │
+│ ┃One-off     $1,200 we pay     │ One-off     not costed         │ ┆One-off    $0        ┆ │
+│ ┃Limits      no limit applies  │ Limits      no limit applies   │ ┆Limits     passes    ┆ │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ ▸ Why we recommend it   (reasoning, what drives it, limits, cover, who pays, all options)│
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+On a decision waiting for a choice (Mto billing), the card's actions read **[ Choose this ]  [ Choose another option ]**. "Choose this" opens the confirmation (§7.3): what happens ("spends no shared budget and no crew visits, so it is not a plan item; its Actions go ahead once created"), the result with its basis ("+$672 charges restored over 12 months (billed, not yet collected)"), who creates the Actions (the finance and commercial lead, Joseph), "No approval needed", and recorded under "Finance and commercial lead · Joseph". On the Ruiru expansion (the executive's choice), the confirmation says it is listed beside the plan, waits for Daniel's approval of the plan version that holds it, and that Tom (Site manager) and Lucy (finance lead) create its Actions after that approval.
 
 ### 9.4 Alternatives rejected
 
@@ -766,8 +818,16 @@ The history comes from the data lane's deterministic generator, never typed by h
   - Cold room leaf keys: crate-days, occupancy, revenue, collected, outstanding, model and metered kWh, energy, staff, maintenance.
   - EV depot leaf keys: the same leaves its October block has.
   - Proposed file: `history.json` beside the scenario, `{ "tenant": { "site": { "2026-07": { "plan": {…}, "actual": {…}, "coverage": {…}, "bridge": […] }, … } } }`.
-- **Output the mock-up reads:** `DERIVED.history[tenant].portfolio[key] = [{ "m": "Jul", "v": … }, …]`, with keys `contribution` (or `cost` for the depot operator) and `gap`, written by the evaluator next to `derived-values.json`. Site series take the same shape under `sites[site]`.
+- **Output the mock-up reads:** `DERIVED.history[tenant].portfolio[key] = [{ "m": "Jul", "v": … }, …, { "m": "Oct", "v": … }]`. The series runs **July to October**: October is the last point, so the slot can print the change "against September". Keys are `contribution` (or `cost` for the depot operator) and `gap`, written by the evaluator next to `derived-values.json`. Site series take the same shape under `sites[<site key>]`, keyed by the mock-up's Site keys (kobo, kisiwa, mto, mwea, thika, kirinyaga, kasarani, embakasi, ruiru). The Site tiles already read them.
 - **Today's derivation cannot supply it.** `evaluate_structure.py` and `plan_model.py` evaluate October's records only. The scenario declares a four-month ledger span but carries no July to September values, so computing them now would mean inventing inputs. Until the file exists, every slot reads "Trend not available yet".
+
+## Appendix A3. Empty states (placeholder audit, 20 Nov)
+
+- **An empty state never stands where the data has a value.** An empty state that can name its data carries `data-na-path`, and `ux_interaction_check` fails it when the data holds a value at that path. The earlier-view boards read the data where it exists: Kobo billing and target, Thika cooling energy, Ruiru's roster.
+- **Say what is meant:** "nothing yet" for an empty history, "not chosen yet" for an owner before anyone chooses, "the contract extract states no notice period", "not valued" for an option. "Not available yet" is only for data that will come.
+- **A captive fleet asks for nothing it cannot have:** no settlement records, no odometer readings, no tariff revenue.
+- **Usable capacity** (D-2026-11-20-l4-empty-states): "Not available yet · worked out from the solar, battery and generator readings already received; the calculation comes in a later release". It never blames an export.
+- **Held until the pack branch merges** (owner's pack review): the missing-records table read from `missing-records.json` instead of typed by hand; target-assumption labels; Embakasi's tariff applicability from its entry; and `usd(null)` / `num(null)` looking up an entry.
 
 ## Appendix B. Sources relied on
 
