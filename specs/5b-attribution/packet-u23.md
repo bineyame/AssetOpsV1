@@ -82,6 +82,8 @@ spec literals); true for the slice at `5c`.
 
 ## Fix round 1 (review-u23.md: M1, M2, L1, L2)
 
+Files: `specs/5b-attribution/review-u23.md` (the review, copied in).
+
 - M1: test 9(b) uses a clock that moves per call plus a call count (one call per read). Reviewer plant R1 (clock re-read per Site) now fails it.
 - M2: test 8(d) (November, open month: every row k 0 of 3, effect None, NOT_AVAILABLE, no 0.00, `by_home == {}`); 8(b) asserts `by_home == {}`. Plant writing `Decimal(0)` at k = 0 fails 8(d).
 - L1: tests 8(e) (mismatched month, key, version refused) and 9(c) (naive `known_at` refused). L2: `site_bridge` also checks `site_code`; test 8(f).
