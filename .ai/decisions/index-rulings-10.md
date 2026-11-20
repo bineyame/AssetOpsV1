@@ -54,3 +54,8 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.28` Addresses within the operator; no alias key shadows a route; fixed recommendation aliases · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.29` Plants on their hosts; G3, headline and landing gates for the hub · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.30` The review bar's rebuild list is a popover by design · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.31` Drawer focus trap bounds over what Tab reaches (`uxTabbable`); plant UXI_PLANT=trap · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.32` G1 counts opening a closed `<details>` as a click (details nodes); plants G1_PLANT=details|closed · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.33` Hub Site Overview opens "What is driving the gap" (G1 within 3); R752 D2; plant G1_PLANT=siteclosed · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.34` Capped queues rank waiting first (`iaQueueCap`) and say "And N more" (`iaCapMore`); R751, R749 amended; plants COUNT_PLANT=capsel|capmore · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.35` IA-1b review Lows: live retargets, IA-1c expiry, column 5 and headline one source, scope within operator, Outcomes cards at 390 · live · specs/IA-1-shape-rebuild/rulings-2.md

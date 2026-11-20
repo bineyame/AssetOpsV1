@@ -24,7 +24,7 @@ finished work are in `archive/agent-history/`.
 | RC4-F1 | The database a URL really connects to: one resolver for every RC4 decision (0.5 unit; merges before 3A3) | in_review — spec rev 1, packet | `RC4-F1-database-name/spec.md` | 11 KB |
 | ON1 | Operator tenant from one onboarding file; emulated roles granted automatically, real files refused until ON1b; served tenant; key erasure; runbook (2.0 units) | in_review — built on `task/ON1-operator-tenant`; mid-build Q1, Q2 open | `ON1-operator-tenant/spec.md` | 40 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
-| IA-1 | Menu, page organization, shape rebuild | rev 3; IA-1a merged; IA-1b/IA-1c handshake answered (D-IA.21-30), IA-1b next | `IA-1-shape-rebuild/spec.md` | 45 KB |
+| IA-1 | Menu, page organization, shape rebuild | rev 3; IA-1a merged; IA-1b in_review (`IA-1-shape-rebuild/packet-IA-1b.md`); IA-1c next | `IA-1-shape-rebuild/spec.md` | 45 KB |
 | 5a | Targets per factor, declarer recorded; page P5 | rev 2; unit 1 merged; units 2-3 in review | `5a-targets/spec.md` | 24 KB |
 | 3B7a | The frozen monthly snapshot: each Site-month's inputs, actual and target frozen with its "as of" and 3A4 stamps; served with freshness (out of date, and why); rebuilt by command; migration 0066; the seam merged alone first (2.75 units) | live — spec rev 2, handshake round 1 answered | `3B7a-structure-snapshot/spec.md` | 31 KB |
 | 5b | Attribution: the gap explained by its drivers (AR1 sums, AR2 volume then price), a missing cost carried at its budget line, cash apart, portfolio k of n, only SUM rows add (3.25 units) | live — spec rev 2; unit 1 merged; units 2-3 in review | `5b-attribution/spec.md` | 33 KB |

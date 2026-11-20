@@ -20,9 +20,11 @@ async function boot(op, hash, o = {}) {
 }
 /* the classifier: good only if the href's path is a landed IA_ROUTES entry (and not not-found); an alias, a stub, a legacy
    screen, an unlanded route and not-found are bad */
-function classifier(w) {
+function classifier(w, op) {
   const R = w.eval('IA_ROUTES.map(r => ({ id: r.id, unit: r.unit }))'), L = new Set(w.eval('[...IA_LANDED]')), A = w.eval('Object.keys(IA_ALIASES)');
-  const sites = w.eval('Object.keys(SK)'), decs = w.eval('DEC.map(d => d.id)');
+  /* D-IA.28: :site only from the booted operator's Sites, :dec only from those Sites' decisions (its own code, never iaPattern) */
+  op = op || w.eval('LS.op');
+  const sites = w.eval(`OPS[${JSON.stringify(op)}].sites`), decs = w.eval('DEC.map(d => [d.id, d.site])').filter(([, s]) => sites.includes(s)).map(([id]) => id);
   const match = (pat, p) => { const ps = pat.split('/'), xs = p.split('/'); if (ps.length !== xs.length) return false;
     return ps.every((s, i) => s === ':site' ? sites.includes(xs[i]) : s === ':dec' ? decs.includes(xs[i]) : s === xs[i]); };
   return href => { const h = String(href).replace(/^#\//, ''), q = h.indexOf('?'), p = q < 0 ? h : h.slice(0, q);
@@ -31,8 +33,9 @@ function classifier(w) {
     const r = R.find(x => match(x.id, p)); if (!r) return 'legacy or unknown';
     return L.has(r.unit) ? 'good' : `unlanded (${r.unit})`; };
 }
-/* a route's identity: its path plus its query keys, sorted */
-function identity(href) { const h = String(href).replace(/^#\//, ''), q = h.indexOf('?'); if (q < 0) return h; return h.slice(0, q) + '?' + [...new URLSearchParams(h.slice(q + 1)).keys()].sort().join('&'); }
+/* a route's identity: its path plus its query keys, sorted; the value of drawer is kept (D-IA.21) */
+function identity(href) { const h = String(href).replace(/^#\//, ''), q = h.indexOf('?'); if (q < 0) return h; const P = new URLSearchParams(h.slice(q + 1));
+  return h.slice(0, q) + '?' + [...P.keys()].sort().map(k => k === 'drawer' ? `drawer=${P.get('drawer')}` : k).join('&'); }
 /* every live route of an operator: landed IA_ROUTES with :site over the operator's Sites and :dec over their decisions */
 function liveRoutes(w, op) {
   return w.eval(`(() => { const sites = OPS[${JSON.stringify(op)}].sites, decs = DEC.filter(d => sites.includes(d.site)).map(d => d.id), out = [];

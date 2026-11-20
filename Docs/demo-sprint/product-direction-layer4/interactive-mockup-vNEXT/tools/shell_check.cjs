@@ -10,9 +10,9 @@
    S7 no link into a screen kept for review only;
    S8 an unknown route says the page does not exist.
    Run: node tools/shell_check.cjs   Plant: SHELL_PLANT=1 (puts each fault on the Portfolio; must fail). */
-const { JSDOM } = require('/opt/assetecon/AssetOpsV1/frontend/node_modules/jsdom');
-const fs = require('fs'), path = require('path');
-const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8'), PLANT = !!process.env.SHELL_PLANT;
+/* IA-1b (spec §6 item 3): booted through tools/ia_crawl.cjs, the one jsdom boot the IA checks share */
+const { boot } = require('./ia_crawl.cjs');
+const PLANT = !!process.env.SHELL_PLANT;
 const fails = [], seenAll = {};
 const LONG = /Kobo Mini-grid|Thika cold room|Ruiru depot|\b(?:KOBO-001|COLD-THIKA|EV-RUI)\b/;
 const OLD = /\(earlier view\)|Event window|shown together|not built in this mock-up|in this mock-up/i;
@@ -20,11 +20,12 @@ const OLD = /\(earlier view\)|Event window|shown together|not built in this mock
 const STATUS = ['Off target', 'At its limit', 'Opportunity', 'Deadline', 'Not explained', 'At risk', 'Limit breached', 'Below its limit', 'New tariff', 'Near its limit', 'Low', 'On target', 'Limits broken', 'All held'];
 (async () => {
   for (const op of ['lakeside', 'harvest', 'metro']) {
-    const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, url: 'http://x/#/portfolio', beforeParse(w) { w.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} }); w.scrollTo = () => {}; w.sessionStorage.setItem('l4-op', op); } });
-    const w = dom.window, doc = w.document; await new Promise(r => setTimeout(r, 400));
+    const B = await boot(op, 'portfolio'), w = B.w, doc = B.doc;
     const go = async id => { if (w.location.hash === '#/' + id) w.eval('render()'); else w.location.hash = '#/' + id; await new Promise(r => setTimeout(r, 25)); };
     /* the plant puts one fault of each rule on the product (S1 period chip, S2-S4 words, S5 a link to a stub, S6 a count and a status
        word, S7 a link into a review-only screen, S8 a broken not-found page, S9 a row of another operator, S10 invented text) */
+    /* the hub's Overview is an IA route from IA-1b: the plant puts the same faults on its L3 as well */
+    if (PLANT) w.eval(`{const r=IA_ROUTES.find(x=>x.id==='portfolio'),_r=r.render;r.render=c=>_r(c).replace('<div data-level="L3">','<div data-level="L3"><p>Kobo Mini-grid · KOBO-001 · Event window 6 Oct · (earlier view) <a href="#/finding">F-104</a> <a href="#/site/kisiwa/health">Health</a></p><p>Thika</p>');}`);
     if (PLANT) w.eval(`{const p=SCREENS.find(x=>x.id==='portfolio'),_o=p.render;p.render=()=>_o()+'<p>Kobo Mini-grid · KOBO-001 · Event window 6 Oct · (earlier view) <a href="#/finding">F-104</a> <a href="#/site/kisiwa/health">Health</a></p><p>Thika</p>';
       periodChip=()=>'<span>Window: event</span>';const f=SCREENS.find(x=>x.id==='findings'),_f=f.render;f.render=()=>_f().replace('</ul>','<li><span class="ux-chip">Linked</span></li></ul>');
       SCREENS.find(x=>x.id==='not-found').render=()=>'<p>x</p>';const _s=uxShell;uxShell=function(s){_s(s);const c=document.querySelector('.canvas');if(s.id==='assets'){c.insertAdjacentHTML('beforeend','<table><tbody><tr data-site="ruiru"><td>x</td></tr></tbody></table><p data-site="all">Invented sentence zebra.</p>');}if(s.id==='portfolio'){c.insertAdjacentHTML('beforeend','<a href="#/finding">F-104</a> <a href="#/site/kisiwa/health">Health</a>');}};}`);

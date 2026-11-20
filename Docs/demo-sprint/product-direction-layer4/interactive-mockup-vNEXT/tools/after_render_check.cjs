@@ -2,12 +2,12 @@
    operator, the observer is attached through window.__iaInserted, straight after the one insertion, to the frame root it is
    handed; it waits for idle (2 animation frames + 300 ms) and dispatches no event. Any mutation fails, except a class change
    whose only changed token is is-on on [data-ux-sticky] or scrolls on .scroll-region.
-   Run: node tools/after_render_check.cjs   Plants: AR_PLANT=text|attr|late|replace (host: every live route; each must fail). */
+   Run: node tools/after_render_check.cjs   Plants: AR_PLANT=text|attr|late|replace (hosts: one route per shape per operator, D-IA.29; each must fail). */
 const { boot, liveRoutes, OPS, sleep } = require('./ia_crawl.cjs');
 const PLANT = process.env.AR_PLANT || '';
 const PLANTS = {
   /* plain words skipped while finishing, then run on the inserted frame; the planted node must change or the plant did not bite */
-  text: `{ IA_ROUTES.forEach(r => { const _r = r.render; r.render = ctx => _r(ctx).replace(/(<section data-shape="[a-z]+">)/, '$1<p data-ar-plant>the evaluator</p>'); });
+  text: `{ IA_ROUTES.forEach(r => { const _r = r.render; r.render = ctx => _r(ctx).replace(/(<section data-shape="[a-z]+"[^>]*>)/, '$1<p data-ar-plant>the evaluator</p>'); });
     const _pw = plainWords; plainWords = root => { if (root && root.nodeType === 11) return; _pw(root); };
     const _b = iaBind; iaBind = route => { _b(route); setTimeout(() => { const rt = document.getElementById('ia-root'), n = rt.querySelector('[data-ar-plant]'), before = n && n.textContent; _pw(rt); if (!n || n.textContent === before) throw new Error('plant did not bite'); }, 0); }; }`,
   attr: `{ const _b = iaBind; iaBind = route => { _b(route); setTimeout(() => document.querySelector('#ia-root .canvas div').setAttribute('data-ar-plant', ''), 0); }; }`,
@@ -26,7 +26,11 @@ const allowed = (m, w) => { if (m.type !== 'attributes' || m.attributeName !== '
     const { w, doc, go } = B;
     if (PLANT) w.eval(PLANTS[PLANT]);
     const idle = () => new Promise(r => w.requestAnimationFrame(() => w.requestAnimationFrame(() => setTimeout(r, 300))));
-    for (const r of [...liveRoutes(w, op), { id: 'x-unknown' }]) {
+    /* D-IA.29: a planted run visits one route per shape per operator (plan, the three Portfolio tabs, the first Site; from IA-1c the
+       first decision); an unplanted run visits every live route and the typed not-found */
+    const live = liveRoutes(w, op), firstSite = live.find(r => r.id.startsWith('site/')), firstDec = live.find(r => r.id.startsWith('decision/'));
+    const hosts = PLANT ? live.filter(r => ['plan', 'portfolio', 'portfolio/outcomes', 'portfolio/demand-and-capacity'].includes(r.id) || r === firstSite || r === firstDec) : [...live, { id: 'x-unknown' }];
+    for (const r of hosts) {
       const h0 = hooked; recs = null; B.errors.length = 0; await go(r.id); await idle();
       if (hooked - h0 > 1) fails.push(`${B.opName} · #/${r.id}: rendered ${hooked - h0} times for one navigation`);
       if (hooked > h0 && doc.getElementById('ia-root') !== root0) { fails.push(`${B.opName} · #/${r.id}: the frame root was replaced after insertion`); w.__arObs.disconnect(); continue; }

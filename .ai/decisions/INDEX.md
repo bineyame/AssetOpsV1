@@ -33,7 +33,7 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-7.md` | Demo-sprint and later rulings | `D-BW1.1` to `D-2A.12` (49) |
 | `index-rulings-8.md` | Demo-sprint and later rulings | `D-3A1.1` to `D-IA.14` (63) |
 | `index-rulings-9.md` | Demo-sprint and later rulings | `D-3A2.1` to `D-3A3.8` (51) |
-| `index-rulings-10.md` | Demo-sprint and later rulings | `D-4B.1` to `D-IA.30` (50) |
+| `index-rulings-10.md` | Demo-sprint and later rulings | `D-4B.1` to `D-IA.31` (51) |
 | `index-rulings-11.md` | Demo-sprint and later rulings | `D-ON1.9` to `D-5B.14` (49) |
 | `index-rulings-12.md` | Demo-sprint and later rulings | `D-5B.15` to `D-3A7.7` (18) |
 
