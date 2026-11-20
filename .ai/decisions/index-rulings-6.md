@@ -64,3 +64,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-RECON.5` Ruiru expansion: "Not valued: listed beside the plan"; chargers as context (capex_not_needed against RUI-4CHARGERS) · live · specs/RECON-1/rulings.md
 - `D-RECON.6` Comparator: against no action unless no action never restores (then cost to restore); option basis key; plan totals by basis · live · specs/RECON-1/rulings.md
 - `D-RECON.7` Mto meter audit: its own decision on the unexplained-loss Finding (Optimize); manifest change for the data lane · live · specs/RECON-1/rulings.md
+- `D-RECON.8` RESTORE_REFERENCE iff no action never restores AND the decision is valued in money; Kisiwa stays NO_ACTION; converse check B4; H9 4487 confirmed · live · specs/RECON-1/rulings.md
