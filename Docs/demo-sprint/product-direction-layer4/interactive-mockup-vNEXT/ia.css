@@ -46,3 +46,8 @@
 @media (max-width:760px){.ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.ia-inbox{padding:0 8px}}
 /* at phone width the inbox and the theme toggle share the first row with the scope switch; the period chip takes the next row */
 @media (max-width:760px){.ia-frame .topbar .right{display:contents}.ia-frame .topbar .ia-inbox{margin-left:auto}.ia-frame .topbar .ux-period{order:1}}
+/* IA-1c: with the inbox control in the top bar, the search box gives way first (its words end in an ellipsis) and the period chip stays on
+   one line, so the bar holds on one line at 1280 */
+.ia-frame .topbar .searchbox{flex:0 1 auto;min-width:96px;overflow:hidden}
+.ia-frame .topbar .ia-search-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ia-frame .topbar .ux-period,.ia-frame .topbar .ux-period>summary,.ia-frame .topbar .period-chip,.ia-frame .topbar .avatar{flex:none;white-space:nowrap}
