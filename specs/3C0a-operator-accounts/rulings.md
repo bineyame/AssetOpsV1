@@ -204,3 +204,29 @@ with its default applied.
 - **Ruling.** As R1 above.
 - **Why.** The lockout needs only "failures for this key lately". Storing what people typed, or naming them on a
   failed attempt, keeps personal data for no purpose. Conservative by default (coordinator, 20 Nov).
+
+## Mid-build answers (3C0a, 2026-11-20)
+
+Both questions are port gaps in spec §4.1. The builder's suggestion is adopted, with two changes: the session read
+returns a named row, and the credential read returns its hash and time together. These signatures replace the §4.1
+entries they name. No done criterion changes. The stopped `xfail` test becomes a normal test.
+
+**MB1 (Q1, R8): the session and the credential carry their times.**
+- `session(token_sha256: str) -> SessionRow | None`. `SessionRow` is a new frozen dataclass in `model.py` with the
+  fields `id: UUID`, `tenant_id: UUID`, `person_id: UUID`, `created_at: datetime`, `expires_at: datetime` and
+  `revoked_at: datetime | None`. It replaces the 5-tuple.
+- `current_credential(person_id: UUID) -> tuple[str, datetime] | None`: `(password_hash, set_at)` of the latest row by
+  `(set_at, id)`. It replaces the `str | None` form.
+- **Why one read, not a separate `credential_set_at`.** Sign-in needs the hash and `resolve` needs the time. One read
+  gives both from the same row, so the two can never come from different rows.
+- **The rule, in `AccountService.resolve`.** It returns `None` when `credential is None` or when
+  `session.created_at < credential[1]`. A session whose `created_at` equals `set_at` is valid.
+
+**MB2 (Q2): the tenant by id, and the expiry on the principal.**
+- **A new port method.** `tenant(tenant_id: UUID) -> tuple[str, str] | None` returns `(slug, name)`.
+- **A new field on `PersonPrincipal`.** `session_expires_at: datetime`, filled by `resolve` from
+  `SessionRow.expires_at`. It is placed after `session_id`; the other fields keep their order.
+- **The bodies.** Sign-in and `GET /api/auth/me` fill `"tenant"` from `tenant(principal.tenant_id)`.
+  `session_expires_at` comes from `SignedIn.expires_at` at sign-in and from `principal.session_expires_at` at `/me`.
+- **If the tenant is missing.** `tenant()` cannot return `None` for a principal's tenant, because of the foreign key.
+  If it does, the route answers 503 `ACCOUNTS_UNAVAILABLE`. It never invents a slug or name.
