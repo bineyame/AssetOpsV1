@@ -249,3 +249,134 @@ to 4 units (the leaf-value checks, currency, the `composes` flag, `month_sum` an
 - **Per-factor "k of n Sites" display** (D-3B3.13). Default: shown beside every portfolio figure with a non-empty
   `excluded`. Owner view welcome before `3B5`.
 - **Who supplies `wear_rate`.** Default: step 6, when an option first adds throughput.
+
+## Mid-build answers (round 1)
+
+Architect (Claude), 2026-11-20, against `mid-build-questions.md` Q1-Q4 and the packet's "Deviations", test and
+"Not verified" sections (head `ae641e63b`). One new ruling (D-3B3.17); P1, P2, D-3B3.12 and D-3B3.13 are amended.
+The estimate stays at 4 units.
+
+### Q1. `month_sum` takes `measure`: the five-argument form is the ruling (P1 amended)
+
+- **Ruling.** `month_sum(rows, measure, lo, hi, key)`. P1's four-argument text was a transcription slip: the
+  handshake's proposed answer, which "adopted" made the ruling, has `measure`, and without it an empty month counts
+  every day NOT_EXPECTED, which would change `_month_reading` and turn the leaf's NOT_RECEIVED into NOT_CONNECTED.
+- **Code change.** None beyond Q2's return value. P1 now reads: `month_sum(rows, measure, lo, hi, key) ->
+  tuple[Decimal | None, GradeCounts, tuple[date, ...]]` (the third element is Q2's).
+
+### Q2. Yes: an analysed day with no value is being read as zero. It is unknown (D-3B3.17, D-3B3.12 amended)
+
+- **Finding.** `month_sum` counts a COMPLETE day whose row has `value = None` or no `key`, and sums the other days.
+  A closed month with all days COMPLETE then has a value that silently treats that day as 0. That breaks
+  "unknown is never zero" (design §6.7) and D-3B3.12, whose "every expected day is COMPLETE" was meant as "every
+  expected day has a measured value".
+- **Ruling (D-3B3.17).** A counted day that does not state the summed key is unknown. The fact lives in `month_sum`
+  (the one place that knows which days were counted); the decision lives in the leaf.
+- **Code change.**
+  1. `month_sum` returns a third element `unstated: tuple[date, ...]`: the counted days (COMPLETE or PARTIAL,
+     in `counted`) on which no counted row has `value[key]` not None, ascending. Value and `GradeCounts` are
+     unchanged.
+  2. `_month_reading` takes `value, days, _ = month_sum(...)`: board behaviour unchanged (P1 stays
+     behaviour-neutral).
+  3. `_unserved_critical`: `Coverage.covered` = `days.complete` minus the COMPLETE days in `unstated`; the grades
+     map is unchanged. The value rule becomes "closed, `expected > 0`, `covered == expected`". When `unstated` is
+     non-empty and the month otherwise qualifies, `Missing(..., "NOT_RECEIVED", ..., note=f"VALUE_NOT_STATED:{n}")`.
+     The screen then reads "30 of 31 days", never the 31-day figure.
+  4. Plants in T4: a closed month, every day COMPLETE, one row with `value=None`; the same with `value={}`. Each
+     must give no value, NOT_RECEIVED, covered = expected - 1 and the note. A third plant: `unstated` lists the
+     day for a PARTIAL day too.
+- **Sweep (W6), not in 3B3.** The same class sits in `chain/outcomes.py` `_month_reading` (the board's
+  month-to-date sum counts an unstated day as checked) and `energy_basis` (line 283, `kwh` skips an unstated
+  counted row). Both are board behaviour, so 3B3 does not touch them; they go to the decision queue below.
+
+### Q3. "Closed" against the wall clock when `known_at` is None: confirmed
+
+- **Ruling.** The seam is the injected `now` on `ProductLeafSource`, as built; `known_at` wins whenever given.
+  `3B7a` always passes `known_at` (its snapshot cutoff), so the wall clock decides only a live, unstored read and
+  never a stored figure. A month is closed when its window end (Site-local midnight of the next month, as UTC) is
+  at or before that instant.
+- **Code change.** None. If not already planted, add one T4 case with `known_at=None` and `now` one second before
+  the window end (no value, NOT_RECEIVED) and at the window end (value).
+
+### Q4. "n" is every Site the portfolio was asked for (D-3B3.13 amended)
+
+- **Ruling.** n = `PortfolioStructure.sites`; k = the factor's `included`. Named out = the factor's `excluded`
+  plus `Composition.sites_excluded`. A Site with no declared structure is part of the owner's portfolio, so "2 of 2
+  sites" when the user has 3 would hide one, against the owner's "k of n sites" (owner file
+  `owner-k-of-n-sites-2026-11-20.md`: "$6,200 · 2 of 3 sites (Kisiwa not available yet)").
+- **Code change.** So `3B5` designs nothing, add to `read.py` a pure
+  `site_count(portfolio: PortfolioStructure, factor_id: str) -> SiteCount | None`, with frozen
+  `SiteCount(k: int, n: int, out: tuple[tuple[str, tuple[str, ...]], ...])`. `out` is `(site_code, reasons)` in
+  `portfolio.sites` order, reasons from `excluded` or `NOT_DECLARED`. A factor in `not_composed` gives None. Test:
+  for every composed factor `k + len(out) == n`; a cold-room Site is counted in n and named out with
+  `STRUCTURE_NOT_DECLARED`. `3B5` shows "k of n" whenever `out` is non-empty; its screen words for each reason are
+  `3B5`'s.
+
+### The deviation: prices through the existing builders. A workaround; the right wiring is one builder (P2 amended)
+
+- **Finding.** The guard is right: only `financials/composition.py` may build the assumption adapter. But the
+  workaround builds two `PostgresAssumptionStore`s and an unused `PostgresTrialComparisonStore`, and `dispose()`
+  releases only the trial store, so both assumption-store engines leak. It is a workaround, and it stays out of
+  the merge.
+- **Ruling.** P2's form, at the seam the guard allows. `financials/composition.py` gains
+  `build_window_price_selection(database_url) -> WindowPriceSelection`, a frozen dataclass with
+  `select(tenant_id, site_id, key, start, end, known_at) -> PriceSelection` and `dispose() -> None`. It holds one
+  `PostgresAssumptionStore`. `select` is `prices.snapshot(tenant_id, site_id, key, known_at, 0, 1)` then
+  `fuel_cost.select_window_price(timeline, cited, start, end, key=key, unit=unit_for(key))`. `dispose` disposes
+  that store. The two existing builders are not changed (their callers are other slices').
+- **Code change.** `structure/composition.py` uses `build_window_price_selection` as `window_price` and its
+  `dispose` alongside `snapshots.dispose()`; `build_trial_comparison_ports` and `build_productive_price_selection`
+  are no longer imported there. Tests: for the diesel key, `select` equals `build_trial_comparison_ports(...)
+  .price_selection` on the same rows (PG test), and `dispose()` disposes every engine built (a fake-store unit
+  test counting the dispose calls). The packet's "Deviations" line is removed.
+
+### TEMPLATE_STALE: rebuild by the coordinator, after checking what the prune would drop
+
+- **Finding.** The fingerprint covers `chain/outcomes.py` (and, after the deviation fix, may cover
+  `financials/composition.py`), so 3B3 needs its own template. `publish_template` keeps the two newest
+  per-fingerprint templates (`TEMPLATES_KEPT = 2`), but there are two lanes plus main, so one build can drop
+  another live checkout's template. The builder was right not to build.
+- **Ruling.** The builder does not touch databases. After the code changes above, the coordinator, with the
+  machine quiet:
+  1. Runs `python tools/mechanism_dataset.py status` from main and from each active lane's worktree, and notes
+     each live checkout's template.
+  2. Builds in `/opt/assetecon/AssetOpsV1-3b3` (`python tools/mechanism_dataset.py ensure`) only if the prune would
+     drop no live checkout's template. That holds when at most one other per-fingerprint template is live.
+     Otherwise it waits until the other lane merges or no longer needs its template.
+  3. Runs the 11 errored tests, then puts the result in the packet.
+- **Before merge, not before review.** The 11 must pass before merge. The review may start with them listed under
+  "Not verified".
+- **Class fix (decision queue).** `TEMPLATES_KEPT` = lanes + 1 (3 today), as its own tooling task on its own
+  branch. 3B3 does not take it: `mechanism_dataset.py` changes would also require the close template.
+
+### The 32 failing test files: no action before review, with one condition
+
+- **Ruling.** A failure that is identical at base `bf72c735d` is not 3B3's. The condition: the packet must name
+  the evidence file listing the 32 files with their branch and base results side by side, plus the 3 that failed
+  only on the branch's full run and pass alone (flakes). The reviewer reruns those 3 alone. The host-run (not
+  Docker) cause is environmental. It is carried to the full-suite run at the next milestone (owner test-suite
+  policy, 2026-11-19), not fixed in 3B3.
+- **Code change.** None; packet only.
+
+## D-3B3.17 A counted day that does not state the summed value is unknown, not zero
+
+- **Ruling.** `month_sum` reports the counted days with no value for the key; a leaf's coverage does not count
+  them, so the month has no value.
+- **Why.** An analysed day with no value is a day we do not know. Summing around it reads it as 0 and shows a
+  lower bound as the month (design §6.7, D-3B3.12).
+
+### Amended (round 1)
+
+- **P1**: the five-argument form, with the `unstated` return (Q1, Q2).
+- **P2**: the prices come through `financials.composition.build_window_price_selection`, one store, disposed.
+- **D-3B3.12**: "every expected day is COMPLETE" means every expected day is COMPLETE and states the value
+  (D-3B3.17).
+- **D-3B3.13**: n is every Site asked for; `site_count` gives k, n and the Sites named out.
+
+### Decision queue (W3), round 1
+
+- **The board's unstated days** (`_month_reading`, `energy_basis`). Default: a small separate task after 3B3
+  merges, using `month_sum`'s `unstated`. A board day that states no kWh is not counted as checked and is named.
+  It changes board captures, so it is its own slice.
+- **`TEMPLATES_KEPT` = lanes + 1.** Default: 3, as its own tooling task before the next lane touches a traced
+  input writer.

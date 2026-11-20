@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3B3.11 to D-3B3.16)
+# Decision index: Demo-sprint and later rulings (index only) (D-3B3.11 to D-3B3.17)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -8,3 +8,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3B3.14` What is summed is a declared row flag · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.15` An option-only neutral is an identity, not evidence · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.16` Money carries its currency; mixed currencies give no value · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.17` A counted day that does not state the summed value is unknown, not zero · live · specs/3B3-structure-read/rulings.md
