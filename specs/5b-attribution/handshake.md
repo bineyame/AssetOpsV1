@@ -109,3 +109,9 @@ Implementer pre-flight (same agent, implementer hat), every citation checked aga
   `sites["lakeside-power/<Name>"].{plan,actual}.nodes` and `portfolio["lakeside-power"].{plan,actual}.sums`;
   every §5.2 node value matches (revenue, collected, in transit, outstanding, fuel, O&M, staff, cost to serve,
   contribution; Sites and portfolio, both sides). The comparison waits on R13.
+
+## Architect
+
+Round 1 answered in `rulings.md` "Handshake answers (round 1)" and folded into `spec.md` rev 2 and
+`reviewer-guide.md` rev 2 (Architect, Claude, 2026-11-20). No question is left open from this side; a round 2 opens
+only if the Reviewer or Implementer finds an answer unclear.
