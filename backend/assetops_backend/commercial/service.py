@@ -31,6 +31,7 @@ from uuid import UUID, uuid4
 from assetops_backend.commercial.model import (ExistingRecord, IntakeResult, IntakeRow, Plan, RecordOutcome,
                                                RecordRow, RejectionRow, RevisionRow)
 from assetops_backend.commercial.store import CommercialStore
+from assetops_contracts.canonical.records_v1 import PROVENANCES
 from assetops_contracts.canonical import (KIND_SPECS, BatchResult, CanonicalRecordV1, CanonicalRefused,
                                           loads_canonical, parse_batch, record_digest, to_canonical_json)
 
@@ -41,8 +42,6 @@ COMMERCIAL = "COMMERCIAL_RECORD"
 _STAGES = ("batch.tenant_code", "batch.source_type", "batch.source_system", "batch.provenance", "batch.produced_at",
            "batch.records")
 _ENVELOPE_FIELDS = ("source_type", "source_system", "provenance", "produced_at")
-_PROVENANCES = frozenset({"demo-simulated", "source-emulated", "bench-tested", "field-integrated",
-                          "observed-financial"})
 _SOURCE_TYPE = re.compile(r"[a-z][a-z_]{0,39}", re.ASCII)
 
 
@@ -63,7 +62,7 @@ def _column_value(name: str, value: object) -> object | None:
     if name == "source_system":
         return value if 1 <= len(value) <= 200 else None
     if name == "provenance":
-        return value if value in _PROVENANCES else None
+        return value if value in PROVENANCES else None
     try:
         moment = datetime.fromisoformat(value)
     except ValueError:

@@ -1,5 +1,7 @@
 # 3B1: the structure registry, mini-grid (implementer spec)
 
+Status: in_review (built on `task/3B1-structure-registry`; packet `packet.md`).
+
 Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in: `rulings.md` "Handshake answers (round 1)", D-3B1.7 to D-3B1.9). Rev 1 was spec handshake step 1. Lane B (structure). The structure is page P3B
 (`structure-page-P3B.md`, approved by the owner on 20 Nov). Decisions are in `rulings.md` (D-3B1.1 to D-3B1.6). The
 reviewer's guide is `reviewer-guide.md`. Questions go in `handshake.md`, then `mid-build-questions.md`.
@@ -205,7 +207,7 @@ All in `backend/tests/test_3b1_structure_registry.py`, no database:
   - every row's home equals `home_categories.nodes.MINI_GRID`, mapped through the test's **own** literal map, whose four
     category values are asserted against `outcomes.catalogue.CATEGORIES` (R7);
   - every leaf's `filled_by.words` equals `leaf_sources` `words` (R13);
-  - every mini-grid Site's `fuel_balance.tolerance_pct` in the manifest equals 2.0 (R12);
+  - every mini-grid Site that declares a `fuel_balance` (Kobo and Kisiwa; Mto has none) has `tolerance_pct` 2.0 (R12; review L3 wording)
   - the only home names without a row are `cover_not_claimable` and `unclaimable_cover`.
 - **T2 Units.** `check_all()` passes. The composed unit of each node equals §2.2's table, which the test lists itself.
   `unit_of` follows the literal rule on `max(x, 0)`, `0 - cost` and `min(1, …)`.

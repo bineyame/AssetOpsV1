@@ -435,3 +435,17 @@ def test_downgrade_refused_with_a_record_then_down_and_up(world, engine) -> None
     from alembic.script import ScriptDirectory
 
     assert pg_harness.alembic_head() == ScriptDirectory.from_config(cfg).get_current_head()
+
+
+def test_downgrade_refused_with_only_a_refused_intake(world, engine) -> None:  # noqa: F811 - L1: commercial_intake alone
+    from alembic import command
+
+    cfg = pg_harness._alembic(URL)
+    script = _this_migration(cfg)
+    result = ingest(world, b"not json")
+    assert result.state == "REFUSED"
+    assert [_count(engine, t) for t in TABLES] == [1, 0, 0, 0]
+    with pytest.raises(Exception, match="refused: commercial records exist"):
+        command.downgrade(cfg, script.down_revision)
+    with engine.connect() as c:
+        assert c.execute(text("SELECT to_regclass('commercial_intake')")).scalar_one() is not None
