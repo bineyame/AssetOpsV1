@@ -1,7 +1,9 @@
-"""Leaf identities at month grain (spec §4.4; D-DS1.1).
+"""Money record fields at month grain (spec §4.4; D-DS1.1; D-DS1B.2).
 
-The single mapping point the canonical format version 1 (`2a`) replaces: today the
-history is keyed by the manifest's own leaf keys, and a money leaf is known by name.
+`MONEY_LEAVES` names history *record fields* that hold money (written in cents), not
+factor IDs: the history's fields (`total`, `energy_cost` and so on) are record names.
+Factor IDs and units come only from `assetops_contracts.canonical`; the mapping from a
+record field to a leaf factor is DS1b's (`records.PASS_THROUGH`, `records.ACTUAL_WRITERS`).
 """
 
 from __future__ import annotations
