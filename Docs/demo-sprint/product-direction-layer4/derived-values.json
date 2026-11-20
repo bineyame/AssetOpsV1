@@ -3952,5 +3952,4855 @@
     }
    }
   }
+ },
+ "history": {
+  "lakeside-power": {
+   "kind": "contribution",
+   "evidence": "Simulated",
+   "months": [
+    "2026-07",
+    "2026-08",
+    "2026-09",
+    "2026-10"
+   ],
+   "portfolio": {
+    "contribution": [
+     {
+      "m": "Jul",
+      "p": "2026-07",
+      "v": 1310.85
+     },
+     {
+      "m": "Aug",
+      "p": "2026-08",
+      "v": 1429.85
+     },
+     {
+      "m": "Sep",
+      "p": "2026-09",
+      "v": 1594.15
+     },
+     {
+      "m": "Oct",
+      "p": "2026-10",
+      "v": 1443.0
+     }
+    ],
+    "gap": [
+     {
+      "m": "Jul",
+      "p": "2026-07",
+      "v": -984.15
+     },
+     {
+      "m": "Aug",
+      "p": "2026-08",
+      "v": -865.15
+     },
+     {
+      "m": "Sep",
+      "p": "2026-09",
+      "v": -522.4
+     },
+     {
+      "m": "Oct",
+      "p": "2026-10",
+      "v": -852.0
+     }
+    ]
+   },
+   "sites": {
+    "Kobo": {
+     "contribution": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 936.45
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 985.25
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 891.45
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 883.0
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -508.55
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": -459.75
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -471.9
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -562.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 8550.0,
+         "billed_kwh": 8550.0,
+         "revenue": 3420.0,
+         "collected": 3420.0,
+         "diesel_l": 700.0,
+         "fuel_cost": 875.0,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1975.0,
+         "contribution": 1445.0,
+         "obligation_hours_without_redundancy": 0.0,
+         "shortfall_backed": 0.0,
+         "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "asset_days_out_of_service": 0.0,
+         "delivered_kwh": 8550.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 700.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 600.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "reduced_days": 0.0,
+         "hours_per_day": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 0.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_total"
+        ],
+        "missing": [
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 8205.0,
+         "billed_kwh": 8163.0,
+         "revenue": 3265.2,
+         "collected": 3002.73,
+         "diesel_l": 983.0,
+         "fuel_cost": 1228.75,
+         "battery_wear": 0.0,
+         "cost_to_serve": 2328.75,
+         "contribution": 936.45,
+         "obligation_hours_without_redundancy": 0.0,
+         "shortfall_backed": 0.0,
+         "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "asset_days_out_of_service": 0.0,
+         "delivered_kwh": 8592.0,
+         "technical_loss_kwh": 387.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 42.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 262.47,
+         "necessary_l": 711.0,
+         "candidate_l": 260.0,
+         "unexplained_l": 12.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 600.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "reduced_days": 0.0,
+         "hours_per_day": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 0.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_total"
+        ],
+        "missing": [
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 8550.0,
+         "billed_kwh": 8550.0,
+         "revenue": 3420.0,
+         "collected": 3420.0,
+         "diesel_l": 700.0,
+         "fuel_cost": 875.0,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1975.0,
+         "contribution": 1445.0,
+         "obligation_hours_without_redundancy": 0.0,
+         "shortfall_backed": 0.0,
+         "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "asset_days_out_of_service": 0.0,
+         "delivered_kwh": 8550.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 700.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 600.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "reduced_days": 0.0,
+         "hours_per_day": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 0.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_total"
+        ],
+        "missing": [
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 8278.0,
+         "billed_kwh": 8235.0,
+         "revenue": 3294.0,
+         "collected": 3029.17,
+         "diesel_l": 967.0,
+         "fuel_cost": 1208.75,
+         "battery_wear": 0.0,
+         "cost_to_serve": 2308.75,
+         "contribution": 985.25,
+         "obligation_hours_without_redundancy": 0.0,
+         "shortfall_backed": 0.0,
+         "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "asset_days_out_of_service": 0.0,
+         "delivered_kwh": 8669.0,
+         "technical_loss_kwh": 391.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 43.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 264.83,
+         "necessary_l": 701.0,
+         "candidate_l": 254.0,
+         "unexplained_l": 12.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 600.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "reduced_days": 0.0,
+         "hours_per_day": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 0.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_total"
+        ],
+        "missing": [
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 8274.0,
+         "billed_kwh": 8274.0,
+         "revenue": 3309.6,
+         "collected": 3309.6,
+         "diesel_l": 677.0,
+         "fuel_cost": 846.25,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1946.25,
+         "contribution": 1363.35,
+         "obligation_hours_without_redundancy": 0.0,
+         "shortfall_backed": 0.0,
+         "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "asset_days_out_of_service": 0.0,
+         "delivered_kwh": 8274.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 677.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 600.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "reduced_days": 0.0,
+         "hours_per_day": 0.0,
+         "liability": 0.0,
+         "period_days": 30.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 0.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_total"
+        ],
+        "missing": [
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 8256.0,
+         "billed_kwh": 8213.0,
+         "revenue": 3285.2,
+         "collected": 3021.06,
+         "diesel_l": 1035.0,
+         "fuel_cost": 1293.75,
+         "battery_wear": 0.0,
+         "cost_to_serve": 2393.75,
+         "contribution": 891.45,
+         "obligation_hours_without_redundancy": 0.0,
+         "shortfall_backed": 0.0,
+         "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "asset_days_out_of_service": 0.0,
+         "delivered_kwh": 8646.0,
+         "technical_loss_kwh": 390.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 43.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 264.14,
+         "necessary_l": 658.0,
+         "candidate_l": 366.0,
+         "unexplained_l": 11.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 600.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "reduced_days": 0.0,
+         "hours_per_day": 0.0,
+         "liability": 0.0,
+         "period_days": 30.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 0.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_total"
+        ],
+        "missing": [
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      }
+     }
+    },
+    "Kisiwa": {
+     "contribution": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -397.9
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": -315.15
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -137.3
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -250.0
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -332.9
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": -250.15
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -35.4
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -185.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 7500.0,
+         "billed_kwh": 7500.0,
+         "revenue": 4125.0,
+         "collected": 4125.0,
+         "diesel_l": 2300.0,
+         "fuel_cost": 2990.0,
+         "battery_wear": 0.0,
+         "cost_to_serve": 4190.0,
+         "contribution": -65.0,
+         "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 7500.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.55,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 2300.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.3,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 700.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 60.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 7153.0,
+         "billed_kwh": 7124.0,
+         "revenue": 3918.2,
+         "collected": 3658.24,
+         "diesel_l": 2397.0,
+         "fuel_cost": 3116.1,
+         "battery_wear": 0.0,
+         "cost_to_serve": 4316.1,
+         "contribution": -397.9,
+         "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 7654.0,
+         "technical_loss_kwh": 501.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 29.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.55,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 259.96,
+         "necessary_l": 2377.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 20.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.3,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 700.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 60.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 7500.0,
+         "billed_kwh": 7500.0,
+         "revenue": 4125.0,
+         "collected": 4125.0,
+         "diesel_l": 2300.0,
+         "fuel_cost": 2990.0,
+         "battery_wear": 0.0,
+         "cost_to_serve": 4190.0,
+         "contribution": -65.0,
+         "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 7500.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.55,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 2300.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.3,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 700.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 60.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 7086.0,
+         "billed_kwh": 7057.0,
+         "revenue": 3881.35,
+         "collected": 3623.85,
+         "diesel_l": 2305.0,
+         "fuel_cost": 2996.5,
+         "battery_wear": 0.0,
+         "cost_to_serve": 4196.5,
+         "contribution": -315.15,
+         "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 7582.0,
+         "technical_loss_kwh": 496.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 29.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.55,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 257.5,
+         "necessary_l": 2286.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 19.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.3,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 700.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 60.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 7258.0,
+         "billed_kwh": 7258.0,
+         "revenue": 3991.9,
+         "collected": 3991.9,
+         "diesel_l": 2226.0,
+         "fuel_cost": 2893.8,
+         "battery_wear": 0.0,
+         "cost_to_serve": 4093.8,
+         "contribution": -101.9,
+         "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 7258.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.55,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 2226.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.3,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 700.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 30.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 60.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 7121.0,
+         "billed_kwh": 7092.0,
+         "revenue": 3900.6,
+         "collected": 3641.84,
+         "diesel_l": 2183.0,
+         "fuel_cost": 2837.9,
+         "battery_wear": 0.0,
+         "cost_to_serve": 4037.9,
+         "contribution": -137.3,
+         "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 7619.0,
+         "technical_loss_kwh": 498.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 29.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.55,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 258.76,
+         "necessary_l": 2165.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 18.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.3,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 700.0,
+         "staff": 500.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 30.0,
+         "standby_kw": 0.0,
+         "lost_unit_kw": 60.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      }
+     }
+    },
+    "Mto": {
+     "contribution": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 772.3
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 759.75
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 840.0
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 810.0
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -142.7
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": -155.25
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -15.1
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -105.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 5600.0,
+         "billed_kwh": 5600.0,
+         "revenue": 2240.0,
+         "collected": 2240.0,
+         "diesel_l": 300.0,
+         "fuel_cost": 375.0,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1325.0,
+         "contribution": 915.0,
+         "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 5600.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 300.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 500.0,
+         "staff": 450.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 30.0,
+         "lost_unit_kw": 25.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 5325.0,
+         "billed_kwh": 5287.0,
+         "revenue": 2114.8,
+         "collected": 2000.28,
+         "diesel_l": 314.0,
+         "fuel_cost": 392.5,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1342.5,
+         "contribution": 772.3,
+         "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 5726.0,
+         "technical_loss_kwh": 286.0,
+         "unexplained_loss_kwh": 115.0,
+         "adjustments_kwh": 38.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 114.52,
+         "necessary_l": 314.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 500.0,
+         "staff": 450.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 30.0,
+         "lost_unit_kw": 25.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 5600.0,
+         "billed_kwh": 5600.0,
+         "revenue": 2240.0,
+         "collected": 2240.0,
+         "diesel_l": 300.0,
+         "fuel_cost": 375.0,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1325.0,
+         "contribution": 915.0,
+         "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 5600.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 300.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 500.0,
+         "staff": 450.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 30.0,
+         "lost_unit_kw": 25.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 5278.0,
+         "billed_kwh": 5240.0,
+         "revenue": 2096.0,
+         "collected": 1982.49,
+         "diesel_l": 309.0,
+         "fuel_cost": 386.25,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1336.25,
+         "contribution": 759.75,
+         "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 5676.0,
+         "technical_loss_kwh": 284.0,
+         "unexplained_loss_kwh": 114.0,
+         "adjustments_kwh": 38.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 113.51,
+         "necessary_l": 309.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 500.0,
+         "staff": 450.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 31.0,
+         "standby_kw": 30.0,
+         "lost_unit_kw": 25.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 5419.0,
+         "billed_kwh": 5419.0,
+         "revenue": 2167.6,
+         "collected": 2167.6,
+         "diesel_l": 290.0,
+         "fuel_cost": 362.5,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1312.5,
+         "contribution": 855.1,
+         "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 5419.0,
+         "technical_loss_kwh": 0.0,
+         "unexplained_loss_kwh": 0.0,
+         "adjustments_kwh": 0.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 0.0,
+         "necessary_l": 290.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 500.0,
+         "staff": 450.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 30.0,
+         "standby_kw": 30.0,
+         "lost_unit_kw": 25.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "metered_kwh": 5414.0,
+         "billed_kwh": 5375.0,
+         "revenue": 2150.0,
+         "collected": 2033.57,
+         "diesel_l": 288.0,
+         "fuel_cost": 360.0,
+         "battery_wear": 0.0,
+         "cost_to_serve": 1310.0,
+         "contribution": 840.0,
+         "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
+         "delivered_kwh": 5821.0,
+         "technical_loss_kwh": 291.0,
+         "unexplained_loss_kwh": 116.0,
+         "adjustments_kwh": 39.0,
+         "unmapped_kwh": 0.0,
+         "tariff": 0.4,
+         "productive_kwh": 0.0,
+         "productive_tariff": 0.3,
+         "in_transit": 0.0,
+         "outstanding": 116.43,
+         "necessary_l": 288.0,
+         "candidate_l": 0.0,
+         "unexplained_l": 0.0,
+         "extra_l": 0.0,
+         "diesel_price": 1.25,
+         "battery_throughput_kwh": 0.0,
+         "wear_rate": 0.08,
+         "om": 500.0,
+         "staff": 450.0,
+         "collection_cost": 0.0,
+         "liability": 0.0,
+         "period_days": 30.0,
+         "standby_kw": 30.0,
+         "lost_unit_kw": 25.0,
+         "dawn_days_below": 0.0
+        },
+        "not_observed": [
+         "asset_days_available",
+         "asset_days_out_of_service",
+         "asset_days_total",
+         "obligation_hours_without_backup",
+         "obligation_hours_without_redundancy"
+        ],
+        "missing": [
+         {
+          "leaf": "reduced_days",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "asset_days_out_of_service",
+           "obligation_hours_without_backup",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "hours_per_day",
+          "record_kind": "work case (failure and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "obligation_hours_without_redundancy",
+           "obligation_hours_without_backup"
+          ]
+         },
+         {
+          "leaf": "major_assets",
+          "record_kind": "asset_register",
+          "source_family": "DECLARED",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "asset_days_total",
+           "asset_days_available"
+          ]
+         },
+         {
+          "leaf": "unserved_critical_kwh",
+          "record_kind": "critical_load_delivered_power",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "customer_hours_interrupted",
+          "record_kind": "feeder supply-loss flag",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "field_visits",
+          "record_kind": "work case (field visit)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "harvest-cold": {
+   "kind": "contribution",
+   "evidence": "Simulated",
+   "months": [
+    "2026-07",
+    "2026-08",
+    "2026-09",
+    "2026-10"
+   ],
+   "portfolio": {
+    "contribution": [
+     {
+      "m": "Jul",
+      "p": "2026-07",
+      "v": 1594.0
+     },
+     {
+      "m": "Aug",
+      "p": "2026-08",
+      "v": 1513.2
+     },
+     {
+      "m": "Sep",
+      "p": "2026-09",
+      "v": 1103.0
+     },
+     {
+      "m": "Oct",
+      "p": "2026-10",
+      "v": 946.0
+     }
+    ],
+    "gap": [
+     {
+      "m": "Jul",
+      "p": "2026-07",
+      "v": -122.0
+     },
+     {
+      "m": "Aug",
+      "p": "2026-08",
+      "v": -202.8
+     },
+     {
+      "m": "Sep",
+      "p": "2026-09",
+      "v": -517.0
+     },
+     {
+      "m": "Oct",
+      "p": "2026-10",
+      "v": -770.0
+     }
+    ]
+   },
+   "sites": {
+    "Room A · Mwea": {
+     "contribution": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 402.6
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 271.4
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 79.4
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -12.0
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -53.4
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": -184.6
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -350.6
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -468.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1488.0,
+         "received": 1488.0,
+         "kwh_model": 3410.0,
+         "kwh": 3410.0,
+         "energy": 682.0,
+         "cost_to_serve": 1032.0,
+         "contribution": 456.0,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 7440.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 7440.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 0.0,
+         "elec_price": 0.2,
+         "staff": 300.0,
+         "maint": 50.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1388.8,
+         "received": 1312.0,
+         "kwh_model": 3286.0,
+         "kwh": 3181.0,
+         "energy": 636.2,
+         "cost_to_serve": 986.2,
+         "contribution": 402.6,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 6944.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 6944.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": -105.0,
+         "elec_price": 0.2,
+         "staff": 300.0,
+         "maint": 50.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 76.8,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1488.0,
+         "received": 1488.0,
+         "kwh_model": 3410.0,
+         "kwh": 3410.0,
+         "energy": 682.0,
+         "cost_to_serve": 1032.0,
+         "contribution": 456.0,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 7440.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 7440.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 0.0,
+         "elec_price": 0.2,
+         "staff": 300.0,
+         "maint": 50.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1215.2,
+         "received": 1148.0,
+         "kwh_model": 3069.0,
+         "kwh": 2969.0,
+         "energy": 593.8,
+         "cost_to_serve": 943.8,
+         "contribution": 271.4,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 6076.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 6076.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": -100.0,
+         "elec_price": 0.2,
+         "staff": 300.0,
+         "maint": 50.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 67.2,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1440.0,
+         "received": 1440.0,
+         "kwh_model": 3350.0,
+         "kwh": 3300.0,
+         "energy": 660.0,
+         "cost_to_serve": 1010.0,
+         "contribution": 430.0,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 7200.0,
+         "chamber_minutes": 43200.0,
+         "crate_days": 7200.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": -50.0,
+         "elec_price": 0.2,
+         "staff": 300.0,
+         "maint": 50.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12000.0,
+         "period_days": 30.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1008.0,
+         "received": 952.26,
+         "kwh_model": 2810.0,
+         "kwh": 2893.0,
+         "energy": 578.6,
+         "cost_to_serve": 928.6,
+         "contribution": 79.4,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 5040.0,
+         "chamber_minutes": 43200.0,
+         "crate_days": 5040.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 83.0,
+         "elec_price": 0.2,
+         "staff": 300.0,
+         "maint": 50.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 55.74,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12000.0,
+         "period_days": 30.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "Room B · Thika": {
+     "contribution": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 552.0
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 606.4
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 508.0
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 454.0
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -10.0
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 44.4
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -22.0
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -108.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1736.0,
+         "received": 1736.0,
+         "kwh_model": 3720.0,
+         "kwh": 3720.0,
+         "energy": 744.0,
+         "cost_to_serve": 1174.0,
+         "contribution": 562.0,
+         "occupied_total_crate_days": 8680.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 8680.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 0.0,
+         "elec_price": 0.2,
+         "staff": 350.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion",
+         "days_backup_start_unproven",
+         "nights_without_backup_cover"
+        ],
+        "missing": [
+         {
+          "leaf": "uncovered_nights",
+          "record_kind": "work case (failed start, witnessed test) and the manual-start rota",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "nights_without_backup_cover"
+          ]
+         },
+         {
+          "leaf": "backup_unproven_days",
+          "record_kind": "work case (failed start, witnessed test)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "days_backup_start_unproven"
+          ]
+         },
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1686.4,
+         "received": 1602.86,
+         "kwh_model": 3658.0,
+         "kwh": 3522.0,
+         "energy": 704.4,
+         "cost_to_serve": 1134.4,
+         "contribution": 552.0,
+         "occupied_total_crate_days": 8432.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 8432.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": -136.0,
+         "elec_price": 0.2,
+         "staff": 350.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 83.54,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion",
+         "days_backup_start_unproven",
+         "nights_without_backup_cover"
+        ],
+        "missing": [
+         {
+          "leaf": "uncovered_nights",
+          "record_kind": "work case (failed start, witnessed test) and the manual-start rota",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "nights_without_backup_cover"
+          ]
+         },
+         {
+          "leaf": "backup_unproven_days",
+          "record_kind": "work case (failed start, witnessed test)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "days_backup_start_unproven"
+          ]
+         },
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1736.0,
+         "received": 1736.0,
+         "kwh_model": 3720.0,
+         "kwh": 3720.0,
+         "energy": 744.0,
+         "cost_to_serve": 1174.0,
+         "contribution": 562.0,
+         "occupied_total_crate_days": 8680.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 8680.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 0.0,
+         "elec_price": 0.2,
+         "staff": 350.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion",
+         "days_backup_start_unproven",
+         "nights_without_backup_cover"
+        ],
+        "missing": [
+         {
+          "leaf": "uncovered_nights",
+          "record_kind": "work case (failed start, witnessed test) and the manual-start rota",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "nights_without_backup_cover"
+          ]
+         },
+         {
+          "leaf": "backup_unproven_days",
+          "record_kind": "work case (failed start, witnessed test)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "days_backup_start_unproven"
+          ]
+         },
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1760.8,
+         "received": 1673.57,
+         "kwh_model": 3751.0,
+         "kwh": 3622.0,
+         "energy": 724.4,
+         "cost_to_serve": 1154.4,
+         "contribution": 606.4,
+         "occupied_total_crate_days": 8804.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 8804.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": -129.0,
+         "elec_price": 0.2,
+         "staff": 350.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 87.23,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion",
+         "days_backup_start_unproven",
+         "nights_without_backup_cover"
+        ],
+        "missing": [
+         {
+          "leaf": "uncovered_nights",
+          "record_kind": "work case (failed start, witnessed test) and the manual-start rota",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "nights_without_backup_cover"
+          ]
+         },
+         {
+          "leaf": "backup_unproven_days",
+          "record_kind": "work case (failed start, witnessed test)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "days_backup_start_unproven"
+          ]
+         },
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1680.0,
+         "received": 1680.0,
+         "kwh_model": 3650.0,
+         "kwh": 3600.0,
+         "energy": 720.0,
+         "cost_to_serve": 1150.0,
+         "contribution": 530.0,
+         "occupied_total_crate_days": 8400.0,
+         "chamber_minutes": 43200.0,
+         "crate_days": 8400.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": -50.0,
+         "elec_price": 0.2,
+         "staff": 350.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12000.0,
+         "period_days": 30.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion",
+         "days_backup_start_unproven",
+         "nights_without_backup_cover"
+        ],
+        "missing": [
+         {
+          "leaf": "uncovered_nights",
+          "record_kind": "work case (failed start, witnessed test) and the manual-start rota",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "nights_without_backup_cover"
+          ]
+         },
+         {
+          "leaf": "backup_unproven_days",
+          "record_kind": "work case (failed start, witnessed test)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "days_backup_start_unproven"
+          ]
+         },
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1680.0,
+         "received": 1596.77,
+         "kwh_model": 3650.0,
+         "kwh": 3710.0,
+         "energy": 742.0,
+         "cost_to_serve": 1172.0,
+         "contribution": 508.0,
+         "occupied_total_crate_days": 8400.0,
+         "chamber_minutes": 43200.0,
+         "crate_days": 8400.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 60.0,
+         "elec_price": 0.2,
+         "staff": 350.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 83.23,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12000.0,
+         "period_days": 30.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion",
+         "days_backup_start_unproven",
+         "nights_without_backup_cover"
+        ],
+        "missing": [
+         {
+          "leaf": "uncovered_nights",
+          "record_kind": "work case (failed start, witnessed test) and the manual-start rota",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "nights_without_backup_cover"
+          ]
+         },
+         {
+          "leaf": "backup_unproven_days",
+          "record_kind": "work case (failed start, witnessed test)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "days_backup_start_unproven"
+          ]
+         },
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    },
+    "Room C · Kirinyaga": {
+     "contribution": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 639.4
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 635.4
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 515.6
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 504.0
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -58.6
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": -62.6
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -144.4
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -194.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1984.0,
+         "received": 1984.0,
+         "kwh_model": 4030.0,
+         "kwh": 4030.0,
+         "energy": 806.0,
+         "cost_to_serve": 1286.0,
+         "contribution": 698.0,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 9920.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 9920.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 0.0,
+         "elec_price": 0.2,
+         "staff": 400.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1959.2,
+         "received": 1876.25,
+         "kwh_model": 3999.0,
+         "kwh": 4199.0,
+         "energy": 839.8,
+         "cost_to_serve": 1319.8,
+         "contribution": 639.4,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 9796.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 9796.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 200.0,
+         "elec_price": 0.2,
+         "staff": 400.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 82.95,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1984.0,
+         "received": 1984.0,
+         "kwh_model": 4030.0,
+         "kwh": 4030.0,
+         "energy": 806.0,
+         "cost_to_serve": 1286.0,
+         "contribution": 698.0,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 9920.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 9920.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 0.0,
+         "elec_price": 0.2,
+         "staff": 400.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 2008.8,
+         "received": 1923.75,
+         "kwh_model": 4061.0,
+         "kwh": 4467.0,
+         "energy": 893.4,
+         "cost_to_serve": 1373.4,
+         "contribution": 635.4,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 10044.0,
+         "chamber_minutes": 44640.0,
+         "crate_days": 10044.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 406.0,
+         "elec_price": 0.2,
+         "staff": 400.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 85.05,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12400.0,
+         "period_days": 31.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1920.0,
+         "received": 1920.0,
+         "kwh_model": 3950.0,
+         "kwh": 3900.0,
+         "energy": 780.0,
+         "cost_to_serve": 1260.0,
+         "contribution": 660.0,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 9600.0,
+         "chamber_minutes": 43200.0,
+         "crate_days": 9600.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": -50.0,
+         "elec_price": 0.2,
+         "staff": 400.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 0.0,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12000.0,
+         "period_days": 30.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "revenue": 1920.0,
+         "received": 1838.71,
+         "kwh_model": 3950.0,
+         "kwh": 4622.0,
+         "energy": 924.4,
+         "cost_to_serve": 1404.4,
+         "contribution": 515.6,
+         "nights_without_backup_cover": 0.0,
+         "days_backup_start_unproven": 0.0,
+         "occupied_total_crate_days": 9600.0,
+         "chamber_minutes": 43200.0,
+         "crate_days": 9600.0,
+         "rate": 0.2,
+         "contract_crate_days": 0.0,
+         "contract_rate": 0.0,
+         "base_kwh": 1550.0,
+         "k_kwh_per_crate_day": 0.25,
+         "model_factor": 1.0,
+         "excess_kwh": 672.0,
+         "elec_price": 0.2,
+         "staff": 400.0,
+         "maint": 80.0,
+         "liability": 0.0,
+         "handling": 0.0,
+         "outstanding": 81.29,
+         "uncovered_nights": 0.0,
+         "backup_unproven_days": 0.0,
+         "minutes_per_day": 1440.0,
+         "capacity_crate_days": 12000.0,
+         "period_days": 30.0
+        },
+        "not_observed": [
+         "cooling_available_minutes",
+         "crate_days_without_excursion"
+        ],
+        "missing": [
+         {
+          "leaf": "excursion_crates",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "excursion_days",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "crate_days_without_excursion"
+          ]
+         },
+         {
+          "leaf": "batches_exposed",
+          "record_kind": "exposure (chamber temperature, STORAGE_MOVEMENT)",
+          "source_family": "OBSERVER",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": []
+         },
+         {
+          "leaf": "cooling_minutes_unavailable",
+          "record_kind": "cooling state",
+          "source_family": "READING",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "cooling_available_minutes"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  "metro-bus": {
+   "kind": "cost",
+   "evidence": "Simulated",
+   "months": [
+    "2026-07",
+    "2026-08",
+    "2026-09",
+    "2026-10"
+   ],
+   "portfolio": {
+    "cost": [
+     {
+      "m": "Jul",
+      "p": "2026-07",
+      "v": 39246.08
+     },
+     {
+      "m": "Aug",
+      "p": "2026-08",
+      "v": 40155.2
+     },
+     {
+      "m": "Sep",
+      "p": "2026-09",
+      "v": 40020.8
+     },
+     {
+      "m": "Oct",
+      "p": "2026-10",
+      "v": 41705.12
+     }
+    ],
+    "gap": [
+     {
+      "m": "Jul",
+      "p": "2026-07",
+      "v": -725.28
+     },
+     {
+      "m": "Aug",
+      "p": "2026-08",
+      "v": -1634.4
+     },
+     {
+      "m": "Sep",
+      "p": "2026-09",
+      "v": -2523.25
+     },
+     {
+      "m": "Oct",
+      "p": "2026-10",
+      "v": -3184.32
+     }
+    ]
+   },
+   "sites": {
+    "Embakasi": {
+     "cost": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 20285.76
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 21194.88
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 21499.2
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 22744.8
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": -744.96
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": -1654.08
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -2395.2
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": -3204.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 6000.0,
+         "scheduled_kwh_night": 2800.0,
+         "supplied_kwh_night": 2800.0,
+         "required_kwh_night": 2800.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 620.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 620.0,
+         "peak_cost": 6249.6,
+         "offpeak_cost": 7291.2,
+         "night_cost": 0.0,
+         "demand_cost": 5400.0,
+         "energy_cost": 18940.8,
+         "penalties": 0.0,
+         "cost_to_serve": 19540.8,
+         "cost_per_departure_met": 31.52,
+         "contribution": -19540.8,
+         "chargers_in_service": 10.0,
+         "chargers_installed": 10.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 500.0,
+         "window_h": 12.0,
+         "buses": 20.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 26040.0,
+         "kwh_2200_2400": 60760.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 450.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 600.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 6000.0,
+         "scheduled_kwh_night": 2800.0,
+         "supplied_kwh_night": 2800.0,
+         "required_kwh_night": 2800.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 620.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 620.0,
+         "peak_cost": 7499.52,
+         "offpeak_cost": 2645.28,
+         "night_cost": 4020.96,
+         "demand_cost": 5520.0,
+         "energy_cost": 19685.76,
+         "penalties": 0.0,
+         "cost_to_serve": 20285.76,
+         "cost_per_departure_met": 32.72,
+         "contribution": -20285.76,
+         "chargers_in_service": 10.0,
+         "chargers_installed": 10.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 500.0,
+         "window_h": 12.0,
+         "buses": 20.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 31248.0,
+         "kwh_2200_2400": 22044.0,
+         "kwh_0000_0500": 33508.0,
+         "max_kw": 460.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 600.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 6000.0,
+         "scheduled_kwh_night": 2800.0,
+         "supplied_kwh_night": 2800.0,
+         "required_kwh_night": 2800.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 620.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 620.0,
+         "peak_cost": 6249.6,
+         "offpeak_cost": 7291.2,
+         "night_cost": 0.0,
+         "demand_cost": 5400.0,
+         "energy_cost": 18940.8,
+         "penalties": 0.0,
+         "cost_to_serve": 19540.8,
+         "cost_per_departure_met": 31.52,
+         "contribution": -19540.8,
+         "chargers_in_service": 10.0,
+         "chargers_installed": 10.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 500.0,
+         "window_h": 12.0,
+         "buses": 20.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 26040.0,
+         "kwh_2200_2400": 60760.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 450.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 600.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 6000.0,
+         "scheduled_kwh_night": 2800.0,
+         "supplied_kwh_night": 2800.0,
+         "required_kwh_night": 2800.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 620.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 620.0,
+         "peak_cost": 8957.76,
+         "offpeak_cost": 2355.96,
+         "night_cost": 3581.16,
+         "demand_cost": 5700.0,
+         "energy_cost": 20594.88,
+         "penalties": 0.0,
+         "cost_to_serve": 21194.88,
+         "cost_per_departure_met": 34.19,
+         "contribution": -21194.88,
+         "chargers_in_service": 10.0,
+         "chargers_installed": 10.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 500.0,
+         "window_h": 12.0,
+         "buses": 20.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 37324.0,
+         "kwh_2200_2400": 19633.0,
+         "kwh_0000_0500": 29843.0,
+         "max_kw": 475.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 600.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 6000.0,
+         "scheduled_kwh_night": 2800.0,
+         "supplied_kwh_night": 2800.0,
+         "required_kwh_night": 2800.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 600.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 600.0,
+         "peak_cost": 6048.0,
+         "offpeak_cost": 7056.0,
+         "night_cost": 0.0,
+         "demand_cost": 5400.0,
+         "energy_cost": 18504.0,
+         "penalties": 0.0,
+         "cost_to_serve": 19104.0,
+         "cost_per_departure_met": 31.84,
+         "contribution": -19104.0,
+         "chargers_in_service": 10.0,
+         "chargers_installed": 10.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 500.0,
+         "window_h": 12.0,
+         "buses": 20.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 30.0,
+         "peak_kwh": 25200.0,
+         "kwh_2200_2400": 58800.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 450.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 600.0,
+         "short_nights": 30.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 6000.0,
+         "scheduled_kwh_night": 2800.0,
+         "supplied_kwh_night": 2800.0,
+         "required_kwh_night": 2800.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 600.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 600.0,
+         "peak_cost": 9878.4,
+         "offpeak_cost": 2040.0,
+         "night_cost": 3100.8,
+         "demand_cost": 5880.0,
+         "energy_cost": 20899.2,
+         "penalties": 0.0,
+         "cost_to_serve": 21499.2,
+         "cost_per_departure_met": 35.83,
+         "contribution": -21499.2,
+         "chargers_in_service": 10.0,
+         "chargers_installed": 10.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 500.0,
+         "window_h": 12.0,
+         "buses": 20.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 30.0,
+         "peak_kwh": 41160.0,
+         "kwh_2200_2400": 17000.0,
+         "kwh_0000_0500": 25840.0,
+         "max_kw": 490.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 600.0,
+         "short_nights": 30.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       }
+      }
+     }
+    },
+    "Kasarani": {
+     "cost": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 5880.0
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 5880.0
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 5700.0
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 5880.0
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 0.0
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 0.0
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 0.0
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 0.0
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 1400.0,
+         "scheduled_kwh_night": 1200.0,
+         "supplied_kwh_night": 1200.0,
+         "required_kwh_night": 1200.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 248.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 248.0,
+         "peak_cost": 0.0,
+         "offpeak_cost": 5580.0,
+         "night_cost": 0.0,
+         "demand_cost": 0.0,
+         "energy_cost": 5580.0,
+         "penalties": 0.0,
+         "cost_to_serve": 5880.0,
+         "cost_per_departure_met": 23.71,
+         "contribution": -5880.0,
+         "chargers_in_service": 4.0,
+         "chargers_installed": 4.0,
+         "charger_kw": 50.0,
+         "import_limit_kw": 250.0,
+         "window_h": 7.0,
+         "buses": 8.0,
+         "kwh_per_bus_night": 150.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 0.0,
+         "kwh_2200_2400": 37200.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 0.0,
+         "peak_price": 0.15,
+         "offpeak_price": 0.15,
+         "night_price": 0.15,
+         "demand_rate": 0.0,
+         "maintenance": 300.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 1400.0,
+         "scheduled_kwh_night": 1200.0,
+         "supplied_kwh_night": 1200.0,
+         "required_kwh_night": 1200.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 248.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 248.0,
+         "peak_cost": 0.0,
+         "offpeak_cost": 5580.0,
+         "night_cost": 0.0,
+         "demand_cost": 0.0,
+         "energy_cost": 5580.0,
+         "penalties": 0.0,
+         "cost_to_serve": 5880.0,
+         "cost_per_departure_met": 23.71,
+         "contribution": -5880.0,
+         "chargers_in_service": 4.0,
+         "chargers_installed": 4.0,
+         "charger_kw": 50.0,
+         "import_limit_kw": 250.0,
+         "window_h": 7.0,
+         "buses": 8.0,
+         "kwh_per_bus_night": 150.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 0.0,
+         "kwh_2200_2400": 37200.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 0.0,
+         "peak_price": 0.15,
+         "offpeak_price": 0.15,
+         "night_price": 0.15,
+         "demand_rate": 0.0,
+         "maintenance": 300.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 1400.0,
+         "scheduled_kwh_night": 1200.0,
+         "supplied_kwh_night": 1200.0,
+         "required_kwh_night": 1200.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 248.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 248.0,
+         "peak_cost": 0.0,
+         "offpeak_cost": 5580.0,
+         "night_cost": 0.0,
+         "demand_cost": 0.0,
+         "energy_cost": 5580.0,
+         "penalties": 0.0,
+         "cost_to_serve": 5880.0,
+         "cost_per_departure_met": 23.71,
+         "contribution": -5880.0,
+         "chargers_in_service": 4.0,
+         "chargers_installed": 4.0,
+         "charger_kw": 50.0,
+         "import_limit_kw": 250.0,
+         "window_h": 7.0,
+         "buses": 8.0,
+         "kwh_per_bus_night": 150.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 0.0,
+         "kwh_2200_2400": 37200.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 0.0,
+         "peak_price": 0.15,
+         "offpeak_price": 0.15,
+         "night_price": 0.15,
+         "demand_rate": 0.0,
+         "maintenance": 300.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 1400.0,
+         "scheduled_kwh_night": 1200.0,
+         "supplied_kwh_night": 1200.0,
+         "required_kwh_night": 1200.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 248.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 248.0,
+         "peak_cost": 0.0,
+         "offpeak_cost": 5580.0,
+         "night_cost": 0.0,
+         "demand_cost": 0.0,
+         "energy_cost": 5580.0,
+         "penalties": 0.0,
+         "cost_to_serve": 5880.0,
+         "cost_per_departure_met": 23.71,
+         "contribution": -5880.0,
+         "chargers_in_service": 4.0,
+         "chargers_installed": 4.0,
+         "charger_kw": 50.0,
+         "import_limit_kw": 250.0,
+         "window_h": 7.0,
+         "buses": 8.0,
+         "kwh_per_bus_night": 150.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 0.0,
+         "kwh_2200_2400": 37200.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 0.0,
+         "peak_price": 0.15,
+         "offpeak_price": 0.15,
+         "night_price": 0.15,
+         "demand_rate": 0.0,
+         "maintenance": 300.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 1400.0,
+         "scheduled_kwh_night": 1200.0,
+         "supplied_kwh_night": 1200.0,
+         "required_kwh_night": 1200.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 240.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 240.0,
+         "peak_cost": 0.0,
+         "offpeak_cost": 5400.0,
+         "night_cost": 0.0,
+         "demand_cost": 0.0,
+         "energy_cost": 5400.0,
+         "penalties": 0.0,
+         "cost_to_serve": 5700.0,
+         "cost_per_departure_met": 23.75,
+         "contribution": -5700.0,
+         "chargers_in_service": 4.0,
+         "chargers_installed": 4.0,
+         "charger_kw": 50.0,
+         "import_limit_kw": 250.0,
+         "window_h": 7.0,
+         "buses": 8.0,
+         "kwh_per_bus_night": 150.0,
+         "nights_in_period": 30.0,
+         "peak_kwh": 0.0,
+         "kwh_2200_2400": 36000.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 0.0,
+         "peak_price": 0.15,
+         "offpeak_price": 0.15,
+         "night_price": 0.15,
+         "demand_rate": 0.0,
+         "maintenance": 300.0,
+         "short_nights": 30.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 1400.0,
+         "scheduled_kwh_night": 1200.0,
+         "supplied_kwh_night": 1200.0,
+         "required_kwh_night": 1200.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 240.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "charger_days_out_of_service": 0.0,
+         "departures_met": 240.0,
+         "peak_cost": 0.0,
+         "offpeak_cost": 5400.0,
+         "night_cost": 0.0,
+         "demand_cost": 0.0,
+         "energy_cost": 5400.0,
+         "penalties": 0.0,
+         "cost_to_serve": 5700.0,
+         "cost_per_departure_met": 23.75,
+         "contribution": -5700.0,
+         "chargers_in_service": 4.0,
+         "chargers_installed": 4.0,
+         "charger_kw": 50.0,
+         "import_limit_kw": 250.0,
+         "window_h": 7.0,
+         "buses": 8.0,
+         "kwh_per_bus_night": 150.0,
+         "nights_in_period": 30.0,
+         "peak_kwh": 0.0,
+         "kwh_2200_2400": 36000.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 0.0,
+         "peak_price": 0.15,
+         "offpeak_price": 0.15,
+         "night_price": 0.15,
+         "demand_rate": 0.0,
+         "maintenance": 300.0,
+         "short_nights": 30.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "charger_out_days": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [],
+        "missing": []
+       }
+      }
+     }
+    },
+    "Ruiru": {
+     "cost": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 13080.32
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 13080.32
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": 12821.6
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 13080.32
+      }
+     ],
+     "gap": [
+      {
+       "m": "Jul",
+       "p": "2026-07",
+       "v": 19.68
+      },
+      {
+       "m": "Aug",
+       "p": "2026-08",
+       "v": 19.68
+      },
+      {
+       "m": "Sep",
+       "p": "2026-09",
+       "v": -128.05
+      },
+      {
+       "m": "Oct",
+       "p": "2026-10",
+       "v": 19.68
+      }
+     ],
+     "periods": {
+      "2026-07": {
+       "plan": {
+        "status": "not decomposed: stated total (missing leaf kwh)",
+        "stated_total": 13100.0,
+        "nodes": {},
+        "not_observed": [
+         "charger_days_out_of_service"
+        ],
+        "missing": [
+         {
+          "leaf": "charger_out_days",
+          "record_kind": "SERVICE_TICKET (fault and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "charger_days_out_of_service"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 3200.0,
+         "scheduled_kwh_night": 1960.0,
+         "supplied_kwh_night": 1960.0,
+         "required_kwh_night": 1960.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 434.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "departures_met": 434.0,
+         "peak_cost": 1458.24,
+         "offpeak_cost": 6562.08,
+         "night_cost": 0.0,
+         "demand_cost": 4560.0,
+         "energy_cost": 12580.32,
+         "penalties": 0.0,
+         "cost_to_serve": 13080.32,
+         "cost_per_departure_met": 30.14,
+         "contribution": -13080.32,
+         "chargers_in_service": 12.0,
+         "chargers_installed": 12.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 400.0,
+         "window_h": 8.0,
+         "buses": 14.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 6076.0,
+         "kwh_2200_2400": 54684.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 380.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 500.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [
+         "charger_days_out_of_service"
+        ],
+        "missing": [
+         {
+          "leaf": "charger_out_days",
+          "record_kind": "SERVICE_TICKET (fault and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "charger_days_out_of_service"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-08": {
+       "plan": {
+        "status": "not decomposed: stated total (missing leaf kwh)",
+        "stated_total": 13100.0,
+        "nodes": {},
+        "not_observed": [
+         "charger_days_out_of_service"
+        ],
+        "missing": [
+         {
+          "leaf": "charger_out_days",
+          "record_kind": "SERVICE_TICKET (fault and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "charger_days_out_of_service"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 3200.0,
+         "scheduled_kwh_night": 1960.0,
+         "supplied_kwh_night": 1960.0,
+         "required_kwh_night": 1960.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 434.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "departures_met": 434.0,
+         "peak_cost": 1458.24,
+         "offpeak_cost": 6562.08,
+         "night_cost": 0.0,
+         "demand_cost": 4560.0,
+         "energy_cost": 12580.32,
+         "penalties": 0.0,
+         "cost_to_serve": 13080.32,
+         "cost_per_departure_met": 30.14,
+         "contribution": -13080.32,
+         "chargers_in_service": 12.0,
+         "chargers_installed": 12.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 400.0,
+         "window_h": 8.0,
+         "buses": 14.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 31.0,
+         "peak_kwh": 6076.0,
+         "kwh_2200_2400": 54684.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 380.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 500.0,
+         "short_nights": 31.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [
+         "charger_days_out_of_service"
+        ],
+        "missing": [
+         {
+          "leaf": "charger_out_days",
+          "record_kind": "SERVICE_TICKET (fault and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "charger_days_out_of_service"
+          ]
+         }
+        ]
+       }
+      },
+      "2026-09": {
+       "plan": {
+        "status": "not decomposed: stated total (missing leaf kwh)",
+        "stated_total": 12693.55,
+        "nodes": {},
+        "not_observed": [
+         "charger_days_out_of_service"
+        ],
+        "missing": [
+         {
+          "leaf": "charger_out_days",
+          "record_kind": "SERVICE_TICKET (fault and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "charger_days_out_of_service"
+          ]
+         }
+        ]
+       },
+       "actual": {
+        "status": "evaluated",
+        "nodes": {
+         "deliverable_kwh_night": 3200.0,
+         "scheduled_kwh_night": 1960.0,
+         "supplied_kwh_night": 1960.0,
+         "required_kwh_night": 1960.0,
+         "buses_short_per_night": 0.0,
+         "departures_required": 420.0,
+         "departures_missed": 0.0,
+         "nights_below_required": 0.0,
+         "departures_met": 420.0,
+         "peak_cost": 1411.2,
+         "offpeak_cost": 6350.4,
+         "night_cost": 0.0,
+         "demand_cost": 4560.0,
+         "energy_cost": 12321.6,
+         "penalties": 0.0,
+         "cost_to_serve": 12821.6,
+         "cost_per_departure_met": 30.53,
+         "contribution": -12821.6,
+         "chargers_in_service": 12.0,
+         "chargers_installed": 12.0,
+         "charger_kw": 60.0,
+         "import_limit_kw": 400.0,
+         "window_h": 8.0,
+         "buses": 14.0,
+         "kwh_per_bus_night": 140.0,
+         "nights_in_period": 30.0,
+         "peak_kwh": 5880.0,
+         "kwh_2200_2400": 52920.0,
+         "kwh_0000_0500": 0.0,
+         "max_kw": 380.0,
+         "peak_price": 0.24,
+         "offpeak_price": 0.12,
+         "night_price": 0.12,
+         "demand_rate": 12.0,
+         "maintenance": 500.0,
+         "short_nights": 30.0,
+         "spare_bus_nights": 0.0,
+         "covered_bus_nights": 0.0,
+         "extra_missed_departures": 0.0,
+         "penalty_rate": 0.0
+        },
+        "not_observed": [
+         "charger_days_out_of_service"
+        ],
+        "missing": [
+         {
+          "leaf": "charger_out_days",
+          "record_kind": "SERVICE_TICKET (fault and restore)",
+          "source_family": "OPERATIONAL_RECORD",
+          "cause": "NOT_IN_HISTORY",
+          "carried_as": null,
+          "blocks": [
+           "charger_days_out_of_service"
+          ]
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  }
  }
 }
