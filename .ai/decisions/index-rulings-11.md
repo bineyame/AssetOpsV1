@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-ON1.9 to D-RC4F1.5)
+# Decision index: Demo-sprint and later rulings (index only) (D-ON1.9 to D-5B.10)
 
 - `D-ON1.9` File proposes roles; nothing granted until the executive approves at sign-in with the confirmed digest (owner A) · deferred to ON1b by D-ON1.15 (rule for real data) · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.10` Executive confirms a roles digest; apply refuses other files; submitter never accepter · live · specs/ON1-operator-tenant/rulings.md
@@ -19,3 +19,22 @@
 - `D-RC4F1.3` database_target.py named in rule 8's $pgReaders; parse stays make_url; test 8 pins it · live · specs/RC4-F1-database-name/rulings.md
 - `D-RC4F1.4` Backfill refuses when the URL's target or the reader's own name is protected · live · specs/RC4-F1-database-name/rulings.md
 - `D-RC4F1.5` Test 7 exempts tools/sweep-setup-cache.py by path until RC4-F1-tools · live · specs/RC4-F1-database-name/rulings.md
+- `D-3B7A.1` Snapshot freezes one Site-month; portfolio row names its Site rows; append-only, latest served · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.2` One build, one instant: every read at known_at = as_of; stamps are 3A4's under it · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.3` Out of date: RECORDS, MONTH_CLOSED (served, not current); STRUCTURE_VERSION, FORMAT (not served) · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.4` Portfolio totals and the bridge derived on serve from frozen Site values (owner Q1) · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.5` Inputs no stamp covers listed as untracked until 3B7b (owner Q2) · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.6` Rebuilt by command after each accepted import; verify rebuilds at as_of · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.7` StructureRead.site_inputs is the seam shared with 5b, written once · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.8` Payload is canonical JSON, exact decimals, sha256 checked on decode · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.9` Migration 0066 structure_snapshot, one plain-INSERT writer in rule 8 · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-5B.1` Gap = actual − target, both valued, one currency; budget contribution line never the target · live · specs/5b-attribution/rulings.md
+- `D-5B.2` Split rules: exact sums (AR1); products volume at target price, then price at actual volume (AR2) · live · specs/5b-attribution/rulings.md
+- `D-5B.3` Effects pushed down by scale; a quantity's parts priced at target price · live · specs/5b-attribution/rulings.md
+- `D-5B.4` Stated heading splits only as far as factors explain it; residual only beside unobserved leaves · live · specs/5b-attribution/rulings.md
+- `D-5B.5` Option-only parts give no row · live · specs/5b-attribution/rulings.md
+- `D-5B.6` Each row's label is the weakest of what it rests on; origins union, unknown last · live · specs/5b-attribution/rulings.md
+- `D-5B.7` Only om and staff carried at their own budget line, closed month, Estimated; headings never (owner Q1, Q2) · live · specs/5b-attribution/rulings.md
+- `D-5B.8` Bridge by heading reads the lowest rows' own homes · live · specs/5b-attribution/rulings.md
+- `D-5B.9` Portfolio gap: one set of Sites against the same set, k of n · live · specs/5b-attribution/rulings.md
+- `D-5B.10` 5c shows every disagreement and every stop · live · specs/5b-attribution/rulings.md
