@@ -124,7 +124,7 @@ An overview page holds the answer and the next step, nothing more: **the headlin
 | **Portfolio** (Overview tab) | The headline; tiles for contribution against target, the gap by heading, plan spend against budget with the plan's state, and the options' modelled value | The decision queue across Sites (top 6, "View all in Act first"); the plan card with state, meters, first three moves and "Review plan" | The bridge waterfall by heading; the value-chain chart; the four category tiles, each opening its factor table; the "Sites that look alike" insight | A drawer per figure; the category drawer with factors, certainty words and listed, never-summed values |
 | **Portfolio** (other tabs) | The tab's one answer, such as "2 of 3 Sites below target" | Outcomes by site: a Site × heading table sorted by gap. Act first: the full queue and the plan summary | Demand and capacity: headroom against evidenced demand. What changed: Actions, verdicts, plan review. Scope: coverage by source | Source and coverage drawers |
 | **Site** | The Site's contribution against target, its gap, and its open decisions as a count with money | The Site's queue; Actions in hand with owner and due date | The outcome board (factor rows with Issues, What can be done, Already in hand); value chain; trends | Asset and record drawers |
-| **Decision** | The recommendation in one line: the option, its 12-month result against no action, its one-off cost, who decides and the deadline; the primary action **Choose this option** | The options table against no action (§7.2) | How each option changes what drives it; limits; cover; cost lines and who pays; the reasoning; what would change it; the verification plan, as collapsible sections | Records behind it; the calculation; the design-value status |
+| **Decision** | The question in one line ("What should we do about the Mto new daytime demand?"), who decides, the due date, the state, and a slim status line (Recommended → Chosen → Awaiting approval → Actions released); the recommendation with **one number** (12-month result against doing nothing · cost, who pays) and **one primary**: **Choose this**, with a secondary "Choose another option" | The option cards: the same three numbers on each (result, one-off cost, limits pass or fail), doing nothing as the dashed baseline, the recommended card ruled | "Why we recommend it", collapsed: the reasoning, what would change it, what the decision changes, every option in detail, limits, cover, who pays, verification, and who chooses, approves and creates the Actions | "Evidence and records" in a side drawer: the records and the warranty or contract rights |
 | **Findings** | Count by heading and by state, with money at stake | The Findings table, filterable by Site, heading and state, each with its decision or Action | The Finding page: what was seen, against what, since when, and its thread | Revisions and evidence |
 | **Plan** | State (Draft, Proposed, Approved, Revised, Closed), version, who proposed and who approves; **Approve** / **Send back** for the approver | Items with their option, owner, due date, cost and crew; budget and crew meters; switches | Items left out and why; the cases; changes since the last version | The plan's history; each item's decision |
 | **Financials** | Contribution, revenue, cost to serve and cash against target for the period | The lines most off target, each opening its factor | The bridge; the value chain; price and tariff versions | Records and versions |
@@ -394,6 +394,7 @@ The system proposes; people choose, approve and act (design §2.6). Every surfac
 ### 7.1 Decision queue
 
 - **Row anatomy**: status chip · Site · the issue in one line (at most 90 characters) · at stake (money or unit, with its marker) · due date · who decides (person chip) · **Decide**, a button-styled link to the decision page.
+- **The row's button follows the decision's state**, everywhere the queue appears (Portfolio, Act first, Site): **Decide** while a choice is waiting; **Awaiting approval** once chosen and waiting on the executive; **Review** once released, or when no option is recommended. Only the first row waiting for a choice is primary.
 - **Order**: the design's placement (must do, deadline, value, evidence; design §2.8, "never a value ranking"), shown as groups with headers. The UI never re-ranks.
 - **Header**: a count and urgency, such as "6 need a decision · 2 due this week".
 - **Phone**: each row becomes a card with the chip and Site on the first line, the issue, then the at-stake value and due date, then the person chip and **Decide**.
@@ -409,19 +410,34 @@ The system proposes; people choose, approve and act (design §2.6). Every surfac
 - **The row lays itself out by the room it has** (a container query): with less than 880 px it stacks, as in a side column or on a phone. No cell may run into its neighbour; `ux_interaction_check` asserts it at 1280 and 1440.
 - **At 50 to 300 Sites:** filters and sort run on the server and are kept in the URL; 25 rows a page; grouping by Site shows collapsed groups with counts; saved views per person. A worked count: 300 Sites with about four open decisions each is about 1,200 rows. That is 48 pages at 25 a page, or 1 page of the 25 due this week when grouped by urgency. The scope switcher and the Site filter are type-ahead for the same reason. The Metro operator, with 3 Sites, 4 statuses and 7 issues, demonstrates the controls in the mock-up.
 
-### 7.2 Option comparison (Decision page L2)
+### 7.2 The Decision page (owner, 20 Nov: "i don't understand how 'decide' is supposed to work")
 
-- **Fixed columns**: Option · 12-month result against no action · one-off cost and who pays · limits (pass or fail, with words) · condition · recommendation.
+A decision page asks one question and makes the next step obvious. These are rules for every decision, operator and state.
+- **The question first.** The page's lead line is a question ending in "?". The meta line names the Site, who decides (role and name), the due date and the state.
+- **One status line, never a process diagram.** Recommended → Chosen → Awaiting approval → Actions released, with the current step marked. How the product works (who chooses, who approves, the Actions and their release) is in "Why we recommend it", collapsed.
+- **The recommendation card** carries one number: the 12-month result against doing nothing, then the cost and who pays. The action follows the state:
+  - *waiting for a choice:* **Choose this** (the page's only primary) and a secondary "Choose another option";
+  - *chosen:* "Chosen by <role · name>: <option>. Awaiting <executive>'s approval of the plan" and "Review the plan";
+  - *released:* "Chosen by … Its Actions are released" and "See the Actions";
+  - *no option recommended:* says so; whoever decides can still choose.
+- **Option cards, not a table**, each with the same three numbers: result, one-off cost (who pays) and limits (pass or fail). Doing nothing is the dashed baseline card. The recommended card has an accent rule, and the chosen card a "Chosen" chip. A rejected or deferred card gives its reason. In the waiting state, other valid cards offer a secondary "Choose this instead". The full options table stays one click down, under "Why".
+- **Certainty said once.** A shared class ("Results over 12 months, as above"; "† design estimates") is stated once for the cards, not on every card.
+- **Evidence in a side drawer**, never stacked on the page.
+
+### 7.2a Option comparison detail (under "Why")
+
+- **Fixed columns**: Option · 12-month result against no action · limits · one-off cost and who pays · status · details.
 - **No action** is always the last row: the baseline, pinned and labelled.
-- **The recommended row** has a "Recommended" chip and an accent left rule, not a green fill. Its row holds the primary button **Choose this option**. Other rows hold a secondary "Choose instead".
-- **Rejected or deferred options** show their reason in the row. Limit detail expands inline.
+- **Rejected or deferred options** show their reason; limit detail opens in the option's drawer.
 
 ### 7.3 Choosing, creating and tracking Actions
 
-1. **Choose.** A dialog confirms in plain words what happens:
-   - which Actions are created, and who owns them, with due dates;
-   - whether the change is released now (within the spend and crew-visit thresholds, and not capital) or waits for the plan's approval;
-   - that the choice is recorded under the chooser's name.
+1. **Choose.** "Choose this" opens a confirmation, never an immediate change. In four labelled lines it says:
+   - **What happens:** the option becomes the decision's plan item, with its value.
+   - **Actions:** the ones the data holds for it, with creator, owner and due date; or who creates them after the choice.
+   - **Approval**, by the design's rule: released at once only within both the spend and crew-visit thresholds and when not capital; otherwise it waits for the named executive's approval of the plan.
+   - **Recorded under:** the accountable role and name, with the time.
+   Then **Confirm the choice** (primary) and Cancel.
 2. **Create an Action** from a Finding or a plan item in a side drawer. The fields are: what, owner, due date, origin (prefilled and read-only) and plan item. Saving shows a toast, "Action created · View", and returns focus.
 3. **Track** an Action on its page as a horizontal step indicator through the thread's states (in hand → applied → monitoring → verified, or recurred). The three verdicts (operational, economic, causal) show as three separate chips, never one score.
 4. **Overdue** items show a `--warn` chip, "Overdue by 3 days", in every list.
@@ -620,6 +636,32 @@ The figures are the current mock's. Who decides and the at-stake values come fro
 | Sites that look alike need different levers | Insight card in the aside | L2 |
 | Tabs, breadcrumbs, context line, figures as of | Page header and top bar | L1 |
 | Footer | Unchanged | — |
+
+### 9b. Worked example: the Mto daytime demand decision (1440)
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────┐
+│ What should we do about the Mto new daytime demand?                                      │
+│ Mto · Decides: Site manager, Mto · David · Due 30 Nov · [Chosen · awaiting approval]      │
+│ ● Recommended │ ● Chosen │ ◉ Awaiting approval │ ○ Actions released                      │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ We recommend                                                                             │
+│ Connect the cooperative's rice huller (daytime)                                          │
+│ +$3,540 over 12 months against doing nothing ○ Modelled † · costs $1,200, we pay          │
+│ Chosen by Site manager, Mto · David. Awaiting Operator executive · Amina's approval.     │
+│ [ Review the plan ]   Evidence and records                                               │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ The options, against doing nothing                 Results over 12 months; † estimates   │
+│ ┃Connect the huller   [Chosen] │ Evening welding     [Rejected] │ ┆Do nothing  baseline ┆ │
+│ ┃Result      +$3,540           │ Result      −$8 a month        │ ┆Result     baseline  ┆ │
+│ ┃One-off     $1,200 we pay     │ One-off     not costed         │ ┆One-off    $0        ┆ │
+│ ┃Limits      no limit applies  │ Limits      no limit applies   │ ┆Limits     passes    ┆ │
+├──────────────────────────────────────────────────────────────────────────────────────────┤
+│ ▸ Why we recommend it   (reasoning, what drives it, limits, cover, who pays, all options)│
+└──────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+On a decision waiting for a choice (Mto billing), the card's actions read **[ Choose this ]  [ Choose another option ]**. "Choose this" opens the confirmation (§7.3): what happens, the Actions, "Released at once: $0 is within the $250 spend threshold, with no crew visit", and recorded under "Finance and commercial lead · Joseph".
 
 ### 9.4 Alternatives rejected
 

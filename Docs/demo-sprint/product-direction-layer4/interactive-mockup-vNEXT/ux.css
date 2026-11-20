@@ -614,3 +614,53 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-recalc-row{flex:none;flex-direction:column;align-items:flex-end;gap:2px}
 @media (max-width:760px){.ux-pending{flex-direction:column;align-items:stretch}.ux-recalc-row{flex-direction:row;align-items:center}}
 @media (min-width:1024px) and (max-height:820px){.ux-pending{margin-bottom:var(--s2)}.ux-pending .badge{padding:4px var(--s3);line-height:18px}}
+
+/* ===== the Decision page (owner, 20 Nov; guide §7.2, §9b) ===== */
+.ux-dhd{display:flex;flex-direction:column;gap:var(--s2);margin:0 0 var(--s4)}
+.ux-dq{margin:0;font-size:var(--fs-xl);line-height:28px;font-weight:600;color:var(--text)}
+.ux-dmeta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) var(--s4);margin:0;font-size:var(--fs-sm);color:var(--text-2)}
+.ux-dmeta .who{font-size:var(--fs-sm)}
+.ux-dsteps{display:flex;flex-wrap:wrap;gap:0;margin:0;padding:0;list-style:none;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-dsteps li{display:flex;align-items:center;gap:6px;padding-right:var(--s3)}
+.ux-dsteps li::before{content:"";width:8px;height:8px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface)}
+.ux-dsteps li+li::after{content:none}
+.ux-dsteps li+li{padding-left:var(--s3);border-left:1px solid var(--line)}
+.ux-dsteps li.is-done::before{background:var(--good);border-color:var(--good)}
+.ux-dsteps li.is-current{color:var(--text);font-weight:600}
+.ux-dsteps li.is-current::before{background:var(--accent-solid);border-color:var(--accent-solid)}
+.ux-dhd .ux-mockdev{align-self:flex-start}
+.ux-drec{margin-bottom:var(--s4)}
+.ux-drec h2{font-size:var(--fs-xl);line-height:28px;margin:2px 0 var(--s1)}
+.ux-drec-n{margin:0 0 var(--s3);font-size:var(--fs-md);color:var(--text-2)}
+.ux-drec-n b{font-size:var(--fs-xl);color:var(--text);font-variant-numeric:tabular-nums}
+.ux-drec .ux-dgo{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-top:var(--s2);font-size:var(--fs-md)}
+.ux-ocards{margin-bottom:var(--s4)}
+.ux-ocards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3)}
+.ux-ocard{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r2)}
+.ux-ocard header{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.ux-ocard h3{font-size:var(--fs-md);font-weight:600;line-height:20px;margin:0}
+.ux-ocard.is-rec{border-color:var(--accent-line);box-shadow:inset 3px 0 0 var(--accent-solid)}
+.ux-ocard.is-base{background:var(--surface-2);border-style:dashed}
+.ux-ocard dl{display:grid;grid-template-columns:auto 1fr;gap:4px var(--s3);margin:0;font-size:var(--fs-sm)}
+.ux-ocard dl>div{display:contents}
+.ux-ocard dt{color:var(--text-2)}
+.ux-ocard dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.ux-ocard dd small{font-weight:400;color:var(--text-2)}
+.ux-ocard-why{margin:0;font-size:var(--fs-sm);color:var(--text-2)}
+.ux-ocard .button{align-self:flex-start;margin-top:auto}
+.ux-confirm{display:flex;flex-direction:column;gap:var(--s4);margin:0}
+.ux-confirm dt{font-size:var(--fs-sm);color:var(--text-2);margin-bottom:4px}
+.ux-confirm dd{margin:0;font-size:var(--fs-md)}
+.ux-confirm-go{display:flex;gap:var(--s3);margin-top:var(--s5)}
+.canvas .ev-num{text-decoration:none}
+.canvas .ev-num:hover,.canvas .ev-num:focus-visible{text-decoration:underline;text-underline-offset:4px}
+@media (max-width:600px){.ux-ocards-grid{grid-template-columns:minmax(0,1fr)}.ux-dsteps li+li{border-left:0;padding-left:0}}
+/* the queue's action column fits its longest state label ("Awaiting approval") */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 88px minmax(170px,220px) 148px}
+@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 80px 140px 68px minmax(150px,180px) 144px}}
+.ux-q-go.button{justify-self:end;white-space:nowrap}
+@container (max-width:880px){
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"issue issue" "site due" "stake stake" "who go"}
+}
+@media (max-width:1439px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 76px 140px 64px minmax(140px,176px) 144px}}
+@container (max-width:880px){.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto}}

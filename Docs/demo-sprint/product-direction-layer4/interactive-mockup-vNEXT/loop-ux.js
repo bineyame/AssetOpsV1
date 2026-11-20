@@ -122,14 +122,14 @@ let UX_QN = 0;
 function uxQueue(op, rows, cls = '') {
   if (UX_STATE === 'loading') return `<div class="ux-skel" role="status"><span class="vh">Loading decisions…</span>${'<span class="ux-skel-row" aria-hidden="true"></span>'.repeat(3)}</div>`;
   if (UX_STATE === 'empty' || !rows.length) return '<p class="ux-empty" role="status">No decisions waiting. New issues appear here when the next day of records is in.</p>';
-  const M = uxMergeRows(rows);
+  const M = uxMergeRows(rows), firstChoose = (M.find(m => uxDecState(m.d).key === 'choose') || {}).d; /* the button follows the state; one primary: the first decision waiting for a choice */
   const items = M.map((m, i) => {
-    const { d, s } = m, D = deciderOf(d), dec = decById(d), id = `uxq-${++UX_QN}`, P = uxStakeParts(d), due = m.issues.map(([, , txt]) => uxDueIso(d, txt)).filter(Boolean).sort()[0] || '';
+    const { d, s } = m, D = deciderOf(d), dec = decById(d), DS = uxDecState(d), id = `uxq-${++UX_QN}`, P = uxStakeParts(d), due = m.issues.map(([, , txt]) => uxDueIso(d, txt)).filter(Boolean).sort()[0] || '';
     const tones = m.issues.map(([k, t]) => uxTone(k, t)), worst = [...tones].sort((a, b) => UX_RANK[a] - UX_RANK[b])[0];
     const stake = P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
     const ck = P.cls && (CLS[P.cls] || [])[1], cert = P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
     const why = m.issues.map(([k, t, txt]) => `<span class="ux-q-issue-line"><b>${t}:</b> ${txt}</span>`).join('');
-    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}</div><b class="ux-q-title">${uxTitle(dec ? dec.q : m.issues[0][1], SK[s].name)}</b><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due${due ? '' : ' is-empty'}"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="vh">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, `button ux-q-go${i === 0 ? ' primary' : ''}`)}</li>`;
+    return `<li class="attn-${m.issues[0][0]} ux-q" data-state="${DS.key}" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}</div><b class="ux-q-title">${uxTitle(dec ? dec.q : m.issues[0][1], SK[s].name)}</b><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due${due ? '' : ' is-empty'}"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="vh">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `${DS.btn}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, `button ux-q-go${DS.key === 'choose' && d === firstChoose ? ' primary' : ''}`)}</li>`;
   });
   const sites = [...new Set(M.map(m => m.s))], kinds = [...new Set(M.flatMap(m => m.issues.map(([k, t]) => uxTone(k, t))))];
   const KW = { bad: 'Off target or breached', warn: 'At a limit or deadline', info: 'New or opportunity', neutral: 'Not explained yet', good: 'On target' };
@@ -306,21 +306,6 @@ function uxOverview(op) {
 }
 
 /* ---------- Decision page header (guide §2.3, §7.2): the recommendation in one line and the primary action ---------- */
-function uxDecisionHead(id) {
-  const d = decById(id), op = SK[d.site].op, D = deciderOf(id), inPlan = planItemsV1(op);
-  const rec = d.opts.find(x => OPT[x].disposition === 'RECOMMENDED') || d.opts.find(x => inPlan.includes(x));
-  const x = rec ? OPT[rec] : null, [ev] = x ? optEffect(x) : ['—'], [cv] = x ? optCost(x) : ['—'];
-  const choose = `<p class="prose">Choosing records the choice under the chooser’s name. The steps below say which Actions it creates and whether it is released at once or waits for the plan’s approval.</p><div class="ux-choose-steps" data-ux-clone=".who-decides .wd-steps"></div><p class="note">Choosing is not wired in this mock-up.</p>`;
-  return `<section class="panel ux-dhead" aria-labelledby="uxdh-h"><div class="ux-eyebrow">${rec ? 'Recommended' : 'No option recommended'}</div><h2 id="uxdh-h">${rec ? optLabel(rec) : 'Each option valued against no action'}</h2>
- ${rec ? `<dl class="ux-dfacts"><div><dt>Result against no action</dt><dd>${fig(`opt:${rec}:effect`, ev)} ${uxMark(optClass(x))}${DV_OPT[rec] ? dvTag(DV_OPT[rec]) : ''}</dd></div><div><dt>One-off cost · who pays</dt><dd>${cv} <small>${whoPays(x)}</small></dd></div><div><dt>Who chooses</dt><dd>${who(op, D.p)}</dd></div></dl>` : ''}
- ${D.item ? `<div class="ux-dgo ux-chosen"><span class="status-pill is-approved">Chosen</span><span>${optLabel(D.item)}, by ${who(op, D.p)}${itemOf(op, D.item) ? ` · ${(ITEM_STATE_WORD[itemOf(op, D.item).item_state] || '').toLowerCase()} in the plan` : ''}</span><a class="ux-link" href="#wd-h-${id}">See its Actions</a><a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>`
-  : `<div class="ux-dgo">${rec ? uxOpener(`uxc-${id}`, 'Choose this option', 'button primary') : ''}<a class="ux-link" href="#uxopts-${id}">Compare all options</a></div>${rec ? uxDrawer(`uxc-${id}`, `Choose: ${optLabel(rec)}`, choose) : ''}`}</section>`;
-}
-document.addEventListener('click', e => { /* the choose drawer shows the page's own "who decides" steps */
-  const o = e.target.closest('[data-ux-drawer^="uxc-"]'); if (!o) return;
-  const t = document.getElementById(o.dataset.uxDrawer)?.querySelector('[data-ux-clone]'), src = document.querySelector(t?.dataset.uxClone);
-  if (t && src && !t.childElementCount) t.innerHTML = src.outerHTML;
-}, true);
 
 /* ---------- Site overview tiles (guide §2.3 Site row) ---------- */
 function uxSiteTiles(sk) {
@@ -342,7 +327,7 @@ function uxOblSummary(html) {
   if (n('pass')) out.push('<span class="ux-lim is-good">Passes</span>');
   if (n('cost')) out.push('<span class="ux-lim">Costed</span>');
   if (n('unknown')) out.push('<span class="ux-lim is-na">Cannot be checked yet</span>');
-  return out.join(' ') || '<span class="muted">None</span>';
+  return out.join(' ') || '<span class="muted">No limit applies</span>';
 }
 
 /* ---------- The plan: an L1 band with the approval actions, and one line per item (review finding 6) ---------- */
@@ -470,3 +455,71 @@ document.addEventListener('click', e => {
   st.innerHTML = `<span class="badge green">Recalculated · figures as of ${hh}:${mm}, ${fdate(AS_OF)}${who ? ` · asked for by Operator executive · ${who}` : ''}. Figures updated: this demo holds no recalculated values, so the numbers shown are unchanged.</span>`;
   st.classList.add('is-done'); b.remove();
 });
+
+/* ===== the Decision page (owner, 20 Nov: "i don't understand how 'decide' is supposed to work"); guide §2.3, §7.1-§7.3, §9b =====
+   One question, one recommendation with one number and one primary choice, the options as cards with the same three numbers,
+   "Why we recommend it" collapsed, evidence in a drawer, a confirmation that says what happens, and a slim status line.
+   The rules stay the design's (§2.4-§2.6, decision-loop §6-§8): the accountable role chooses; a choice within both thresholds
+   and not capital is released at once, otherwise it waits for the executive's approval of the plan version. */
+function uxDecState(id) {
+  const d = decById(id); if (!d) return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide' };
+  const op = SK[d.site].op, D = deciderOf(id), it = D.item ? itemOf(op, D.item) : null, rec = uxRec(d);
+  if (it && it.item_state === 'RELEASED') return { key: 'released', label: 'Released: Actions under way', btn: 'Review', step: 3 };
+  if (it) return { key: 'approval', label: 'Chosen · awaiting approval', btn: 'Awaiting approval', step: 2 };
+  if (!rec) return { key: 'none', label: 'No option recommended', btn: 'Review', step: 0 }; /* every option rejected or deferred */
+  return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide', step: 0 };
+}
+/* what a choice would do, by the design's release rule (both thresholds, never capital) */
+function uxReleaseFor(op, oid) {
+  const w = WF(op), x = DOPT(oid) || {}, it = itemOf(op, oid), spend = x.operator_one_off || 0, crew = x.crew_visits || 0, ex = execOf(op);
+  const capital = !!(it && it.capital) || ['CAPEX', 'DEMAND_CONNECTION'].includes(OPT[oid]?.kind);
+  if (capital) return { at: false, text: `Waits for ${who(op, ex)}’s approval: it is capital, whatever its spend` };
+  const overS = spend > w.spend_threshold, overC = crew > w.crew_visit_threshold;
+  if (!overS && !overC) return { at: true, text: `Released at once: ${usdW(spend)} is within the ${usdW(w.spend_threshold)} spend threshold${crew ? '' : ', with no crew visit'}` };
+  return { at: false, text: `Waits for ${who(op, ex)}’s approval of the plan: ${overS ? `${usdW(spend)} is above the ${usdW(w.spend_threshold)} spend threshold` : ''}${overS && overC ? ' and ' : ''}${overC ? `it uses ${num(crew)} ${crew === 1 ? crewOne(op) : OPS[op].crewWord}, above the threshold of ${num(w.crew_visit_threshold)}` : ''}` };
+}
+const UX_STEPS = ['Recommended', 'Chosen', 'Awaiting approval', 'Actions released'];
+function uxDecStatus(st) {
+  const cur = st.key === 'released' ? 3 : st.key === 'approval' ? 2 : 0;
+  return `<ol class="ux-dsteps" aria-label="Where this decision is">${UX_STEPS.map((s, i) => `<li class="${i < cur ? 'is-done' : i === cur ? 'is-current' : ''}"${i === cur ? ' aria-current="step"' : ''}>${s}</li>`).join('')}</ol>`;
+}
+function uxChooseDialog(id, oid) {
+  const d = decById(id), op = SK[d.site].op, D = deciderOf(id), R = uxReleaseFor(op, oid), acts = actionsOf(op, oid), it = itemOf(op, oid);
+  const actHtml = acts.length ? `<ul class="list">${acts.map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner !== a.created_by ? `, owned by ${who(op, a.owner)}` : ''}, due ${fdate(a.due)}</small></li>`).join('')}</ul>`
+    : `<p>${it?.actions_after_approval?.length ? `After approval, ${it.owner} creates: ${it.actions_after_approval.join('; ')}.` : `The Actions are created after the choice by the person who owns the item; none exists yet in the demo data.`}</p>`;
+  return uxDrawer(`uxc-${id}-${oid}`, `Choose: ${optLabel(oid)}`, `<dl class="ux-confirm"><div><dt>What happens</dt><dd>${optLabel(oid)} becomes the plan item for this decision, valued at ${wholeText(optEffect(OPT[oid])[0])} over 12 months against doing nothing.</dd></div>
+   <div><dt>Actions</dt><dd>${actHtml}</dd></div><div><dt>Approval</dt><dd>${R.text}.</dd></div><div><dt>Recorded under</dt><dd>${who(op, D.p)}, with the time.</dd></div></dl>
+   <div class="ux-confirm-go"><button type="button" class="button primary" aria-describedby="uxnw-${id}-${oid}">Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div><p class="note" id="uxnw-${id}-${oid}">Choosing is not wired in this mock-up.</p>`);
+}
+function uxDecisionPage(id, parts) {
+  const d = decById(id), op = SK[d.site].op, D = deciderOf(id), st = uxDecState(id), rec = uxRec(d), x = rec ? OPT[rec] : null, T = decText(d);
+  const due = ATTN[op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
+  const ex = execOf(op), chosen = D.item;
+  const [ev, en] = x ? optEffect(x) : ['—', ''], [cv] = x ? optCost(x) : ['—'];
+  /* certainty said once when every valued option shares it (guide §6, U1) */
+  const valued = d.opts.filter(o => /^[+−-]?\$/.test(String(optEffect(OPT[o])[0])) && !isNoAction(o)), classes = [...new Set(valued.map(o => optClass(OPT[o])))];
+  const oneClass = classes.length === 1 ? classes[0] : null, anyDv = valued.some(o => DV_OPT[o]);
+  const head = `<section class="ux-dhd" aria-labelledby="uxdq-${id}"><p class="ux-dq" id="uxdq-${id}">What should we do about the ${d.q}?</p>
+  <p class="ux-dmeta"><span>${SK[d.site].name}</span><span>Decides: ${who(op, D.p)}</span><span>${due ? `Due ${fdate(due)}` : 'No deadline'}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span></p>
+  ${uxDecStatus(st)}<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION · decision page redesign</span></section>`;
+  const recNum = x ? `<p class="ux-drec-n"><b>${wholeText(ev)}</b> ${/^[+−-]?\$/.test(String(ev)) ? 'over 12 months against doing nothing' : ''}${oneClass && /^[+−-]?\$/.test(String(ev)) ? ` ${uxMark(oneClass)}${anyDv ? dvTag() : ''}` : ''} · costs ${wholeText(cv)}, ${whoPays(x).toLowerCase()}</p>` : '';
+  let act = '';
+  if (st.key === 'choose') act = `${x ? uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary') : ''}<a class="button" href="#uxcards-${id}">Choose another option</a>`;
+  else if (st.key === 'approval') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. Awaiting ${who(op, ex)}’s approval of the plan.</span>${link('portfolio/act-first/plan', 'Review the plan', 'button')}`;
+  else if (st.key === 'released') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. Its Actions are released.</span>${uxOpener(`uxacts-${id}`, 'See the Actions', 'button')}`;
+  else act = `<span>No option fits the limits better than doing nothing; ${who(op, D.p)} can still choose one.</span>`;
+  const notInPlan = x && st.key === 'choose' && !planCase(op).ids.includes(rec) ? `<p class="ux-note">Not in the proposed plan: choosing it adds it, within the plan’s budget and crew limits.</p>` : '';
+  const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : 'Each option valued against doing nothing'}</h2>${recNum}${notInPlan}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
+  const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o), rej = y.disposition === 'REJECTED';
+    const money = /^[+−-]?\$/.test(String(e2)), mark = money && !isNo && (!oneClass || optClass(y) !== oneClass) ? uxMark(optClass(y)) : '';
+    const go = st.key === 'choose' && !isRec && !isNo && !rej ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
+    return `<article class="ux-ocard${isRec ? ' is-rec' : ''}${isNo ? ' is-base' : ''}${o === chosen ? ' is-chosen' : ''}" data-opt-card="${o}"><header><h3>${optLabel(o)}</h3>${o === chosen ? '<span class="status-pill is-approved">Chosen</span>' : isNo ? '<span class="ux-chip is-neutral">The baseline</span>' : dispBadge(y)}</header>
+     <dl><div><dt>Result</dt><dd>${isNo ? 'The baseline' : wholeText(e2)} ${mark}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)} <small>${whoPays(y)}</small></dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
+     ${rej || y.disposition === 'DEFERRED' ? `<p class="ux-ocard-why">${optWhy(y)}</p>` : ''}${go}</article>`; }).join('');
+  const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">The options, against doing nothing</h2><span class="ux-note">Results over 12 months, as above${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
+  const dialogs = st.key === 'choose' ? d.opts.filter(o => !isNoAction(o) && OPT[o].disposition !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
+  const evidence = uxDrawer(`uxev-${id}`, 'Evidence and records', `<ul class="list">${T.records.map(([k, l]) => `<li>${fig(k, l)}</li>`).join('')}</ul>${(d.rights || []).map(rightsPanel).join('')}`, true);
+  const why = secD('Why we recommend it', `<div class="grid2">${sec('The reasoning', `<p class="prose">${T.why}</p>`)}${sec('What would change the recommendation', `<ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`)}</div>${parts.inner}<div id="uxwho-${id}">${secD('Who chooses, who approves, and the Actions', whoDecides(id), 'The accountable role chooses; the plan’s approval releases what waits', st.key === 'released')}</div>`, 'The reasoning, what drives the result, limits, cover, who pays, verification and all options in detail');
+  const actsDrawer = chosen ? uxDrawer(`uxacts-${id}`, 'The Actions', actionsOf(op, chosen).length ? `<ul class="list">${actionsOf(op, chosen).map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner === a.created_by ? ', who owns it' : `, owned by ${who(op, a.owner)}`}, due ${fdate(a.due)}</small></li>`).join('')}</ul>` : '<p>No Action exists yet in the demo data.</p>') : '';
+  return `${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}`;
+}

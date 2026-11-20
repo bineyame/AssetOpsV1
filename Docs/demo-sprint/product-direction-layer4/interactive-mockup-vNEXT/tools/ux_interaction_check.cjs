@@ -6,6 +6,7 @@ const base = 'file://' + process.argv[2];
 const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}`);
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
+  const openAll = p => p.evaluate(() => document.querySelectorAll('.canvas details').forEach(d => { d.open = true; }));
   const page = async (hash, o = {}) => { const ctx = await b.newContext({ viewport: { width: o.w || 1440, height: o.h || 900 }, colorScheme: o.dark ? 'dark' : 'light', reducedMotion: o.rm ? 'reduce' : 'no-preference' }); if (o.op) await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, o.op); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; return p; };
   // 1 drawers on the Overview: open, focus, trap, Esc, return focus
   { const p = await page('portfolio');
@@ -32,12 +33,12 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     ok(seen >= 20 && visible === seen, `overview keyboard: ${visible} of ${seen} focused elements show a visible focus indicator`);
     ok(!p._errs.length, 'overview: no page errors'); await p.context().close(); }
   // decision page: the option Details drawers, chosen state
-  { const p = await page('decision/kobo-generator');
+  { const p = await page('decision/kobo-generator'); await openAll(p); await p.waitForTimeout(100);
     const ids = await p.evaluate(() => [...document.querySelectorAll('[data-ux-drawer^="uxo-"]')].map(e => e.dataset.uxDrawer));
     let good = 0; for (const id of ids) { await p.click(`[data-ux-drawer="${id}"]`); await p.waitForTimeout(200); const s = await p.evaluate(id => { const d = document.getElementById(id); return d.dataset.open === 'true' && !!d.querySelector('.ux-obl') && !!d.querySelector('[data-heading],.muted'); }, id); await p.keyboard.press('Escape'); await p.waitForTimeout(150); if (s) good++; }
     ok(ids.length === 4 && good === ids.length, `decision: ${good} of ${ids.length} option Details drawers open with limits and effects`);
-    const chosen = await p.evaluate(() => !!document.querySelector('.ux-chosen') && !document.querySelector('[data-ux-drawer^="uxc-"]'));
-    ok(chosen, 'decision: chosen item shows its chosen state, no Choose button');
+    const chosen = await p.evaluate(() => /Released/.test(document.querySelector('.ux-dmeta .status-pill').textContent) && !document.querySelector('[data-ux-drawer^="uxc-"]'));
+    ok(chosen, 'decision: a released item shows its state in the header, and no Choose button');
     await p.context().close(); }
   // 3 phone Section menu
   { const p = await page('portfolio', { w: 390, h: 844 });
@@ -49,11 +50,11 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     await p.goto(base + '#/portfolio'); await p.waitForTimeout(400);
     const shown = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + ' / ' + (document.querySelector('.ux-more-phone')?.offsetParent ? 'link' : 'no link'));
     ok(shown === '3 / link', `phone overview: top 3 queue items and "View all" (${shown})`);
-    const opt = await (async () => { await p.goto(base + '#/decision/kobo-generator'); await p.waitForTimeout(400); return p.evaluate(() => { const tr = document.querySelector('table.ux-opts tbody tr'); return getComputedStyle(tr).display === 'block' && document.documentElement.scrollWidth <= innerWidth; }); })();
+    const opt = await (async () => { await p.goto(base + '#/decision/kobo-generator'); await p.waitForTimeout(400); await openAll(p); await p.waitForTimeout(100); return p.evaluate(() => { const tr = document.querySelector('table.ux-opts tbody tr'); return getComputedStyle(tr).display === 'block' && document.documentElement.scrollWidth <= innerWidth; }); })();
     ok(opt, 'phone decision: options as stacked cards, no sideways page scroll');
     await p.context().close(); }
   // phone option cards: every value starts in the same column, right of the labels (catches content wrapping into the label column)
-  { const p = await page('decision/kobo-generator', { w: 390, h: 844 });
+  { const p = await page('decision/kobo-generator', { w: 390, h: 844 }); await openAll(p); await p.waitForTimeout(100);
     const r = await p.evaluate(() => { const bad = []; let cards = 0;
       for (const tr of document.querySelectorAll('table.ux-opts tbody tr')) { cards++; const xs = [];
         for (const td of tr.querySelectorAll('td')) { const cell = td.querySelector(':scope>.ux-cell'), tl = td.getBoundingClientRect().left;
@@ -169,7 +170,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
       const rows = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')];
       const ragged = rows.filter(li => Math.abs(li.querySelector('.ux-q-title').getBoundingClientRect().left - li.querySelector('.ux-q-top').getBoundingClientRect().left) > 1).length;
       const repeat = rows.filter(li => li.querySelector('.ux-q-title').textContent.trim().toLowerCase().startsWith(li.querySelector('.ux-q-site').textContent.replace('Site: ', '').trim().toLowerCase())).length;
-      const prim = document.querySelectorAll('.ux-overview .ux-queue .ux-q-go.primary').length, firstPrim = rows[0]?.querySelector('.ux-q-go.primary') ? 1 : 0;
+      const prim = document.querySelectorAll('.ux-overview .ux-queue .ux-q-go.primary').length, fc = rows.find(li => li.dataset.state === 'choose'), firstPrim = fc ? (fc.querySelector('.ux-q-go.primary') ? 1 : 0) : 1;
       const vis = el => { const c = el.cloneNode(true); c.querySelectorAll('.vh, .ux-q-k').forEach(x => x.remove()); return c.textContent.trim(); }, blankDue = rows.filter(li => !li.dataset.due).every(li => vis(li.querySelector('.ux-q-due')) === '');
       const brk = document.querySelectorAll('.ux-hero .ux-wf-break').length, steps = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-bar')].map(b => b.getBoundingClientRect().width / b.parentElement.getBoundingClientRect().width);
       const groups = document.querySelectorAll('.ux-wf-gapscale .ux-wf-group').length, perRowHeading = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-h')].length;
@@ -178,7 +179,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
       return { blocks, h: document.documentElement.scrollHeight, ragged, repeat, prim, firstPrim, blankDue, brk, minStep: Math.min(...steps), groups, perRowHeading, modW: mod && act ? fs(mod) < fs(act) && getComputedStyle(mod).color !== getComputedStyle(act).color : false, small, leaks: !!document.querySelector('[id^="uxv-h-"]') };
     });
     ok(r.blocks <= 6 && r.h <= 2500 && !r.leaks, `${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440, value leaks not here`);
-    ok(r.ragged === 0 && r.repeat === 0 && r.prim === 1 && r.firstPrim === 1 && r.blankDue, `${op} queue: titles aligned (${r.ragged} ragged), no title repeats its Site (${r.repeat}), one primary Decide on the first row, no "No deadline" noise`);
+    ok(r.ragged === 0 && r.repeat === 0 && r.prim <= 1 && r.firstPrim === 1 && r.blankDue, `${op} queue: titles aligned (${r.ragged} ragged), no title repeats its Site (${r.repeat}), at most one primary: the first decision waiting for a choice, no "No deadline" noise`);
     ok(r.brk === 0 && r.minStep >= 0.007 && r.groups >= 1 && r.perRowHeading === 0, `${op} bridge: on the gap's scale (no axis break), smallest step ${(r.minStep * 100).toFixed(1)}% of the width, ${r.groups} heading groups, no heading repeated per row`);
     ok(r.modW && r.small === 0, `${op} tiles and text: the modelled tile lighter than actuals; ${r.small} prose elements under 14 px`);
     await p.context().close(); }
@@ -217,6 +218,31 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const after = await p.evaluate(() => { const t = document.querySelector('.ux-pending .snap-pending'); return { txt: t.textContent, status: t.getAttribute('role'), btn: !!document.querySelector('[data-ux-recalc]') }; });
     ok(has && reached && /^Recalculated · figures as of \d{2}:\d{2}/.test(after.txt.trim()) && /Operator executive/.test(after.txt) && /unchanged/.test(after.txt) && after.status === 'status' && !after.btn, `Recalculate now: reachable by keyboard, the notice reads "${after.txt.trim().slice(0, 70)}…"`);
     await p.context().close(); }
+  // the Decision page (owner, 20 Nov): question, one primary, state-aware queue buttons, the confirmation, L1 above the fold
+  const STATE_BTN = { choose: 'Decide', approval: 'Awaiting approval', released: 'Review', none: 'Review' };
+  for (const op of ['lakeside', 'harvest', 'metro']) {
+    const p = await page('portfolio/act-first', { op });
+    const rows = await p.evaluate(() => [...document.querySelectorAll('.ux-queue>li.ux-q')].map(li => ({ st: li.dataset.state, btn: li.querySelector('.ux-q-go').childNodes[0].textContent.trim(), href: li.querySelector('.ux-q-go').getAttribute('href') })));
+    ok(rows.length && rows.every(r => STATE_BTN[r.st] === r.btn), `${op} queue buttons follow the state: ${rows.map(r => `${r.st}=${r.btn}`).join(', ')}`);
+    const decs = await p.evaluate(op => DEC.filter(d => SK[d.site].op === op).map(d => d.id), op); await p.context().close();
+    for (const id of decs) for (const [w, h] of [[1280, 720], [1440, 900], [390, 844]]) {
+      const q = await page(`decision/${id}`, { op, w, h });
+      const r = await q.evaluate(() => {
+        const vis = e => e && e.offsetParent !== null && !e.closest('.ux-drawer') && !e.closest('details:not([open])');
+        const dq = document.querySelector('.ux-dq'), prims = [...document.querySelectorAll('.canvas .button.primary')].filter(vis).length;
+        const rec = document.querySelector('.ux-drec'), recBottom = rec ? Math.round(rec.getBoundingClientRect().bottom + scrollY) : 9999;
+        const steps = document.querySelectorAll('.ux-dsteps li').length, cur = document.querySelectorAll('.ux-dsteps li.is-current').length, grid = !!document.querySelector('.who-decides') && vis(document.querySelector('.who-decides'));
+        const cards = document.querySelectorAll('.ux-ocard').length, base = document.querySelectorAll('.ux-ocard.is-base').length;
+        return { q: dq && /\?$/.test(dq.textContent.trim()), prims, recBottom, steps, cur, grid, cards, base, h: innerHeight };
+      });
+      ok(r.q && r.prims <= 1 && r.steps === 4 && r.cur === 1 && !r.grid && r.cards >= 2 && r.base === 1 && (r.h > 720 || r.recBottom <= 720 || w < 600),
+        `${op} ${id} at ${w}: question, ${r.prims} primary, status line, process grid not on the page, ${r.cards} option cards with one baseline${w === 1280 ? `, recommendation ends at ${r.recBottom} px (fold 720)` : ''}`);
+      await q.context().close(); }
+  }
+  { const p = await page('decision/mto-billing'); await p.click('.ux-drec [data-ux-drawer^="uxc-"]'); await p.waitForTimeout(250);
+    const d = await p.evaluate(() => { const dr = document.querySelector('.ux-drawer[data-open="true"]'); return dr ? { t: dr.textContent, f: document.activeElement.classList.contains('ux-x') } : null; });
+    ok(d && /What happens/.test(d.t) && /Actions/.test(d.t) && /Approval/.test(d.t) && /(Released at once|Waits for)/.test(d.t) && /Recorded under/.test(d.t) && /Finance and commercial lead/.test(d.t) && d.f, 'Choose this: the confirmation says what happens, the Actions, the approval rule and whose name it is recorded under');
+    await p.keyboard.press('Escape'); await p.context().close(); }
   // short laptop: the first queue row is above the fold at 1280 x 720 (guide §3.5)
   for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first']]) {
     const p = await page(r, { w: 1280, h: 720, op });
