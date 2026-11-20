@@ -410,9 +410,10 @@ Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-lea
 - Fix round (D-4B.18): a valued part names its origin; only a NEUTRAL value or a CALENDAR row may carry `()`, else `STRUCTURE_ORIGIN`; `unknown` ranks last in `ORIGIN_ORDER`. S11(a) is parametrized from the registry over every valued non-CALENDAR leaf row (money and non-money, every registry) and every stated node (r2 R2-1), so the exemption cannot widen unnoticed; plants P1 (refuse `()` only with a currency) and P2 (exempt OPERATIONAL_RECORD too) now fail.
 - Open: every production leaf still has `origins == ()` until 4b2 (`weakest_origin` is `None`, not "no weak part"); 4b2 providers (`structure/money.py`, states, T6 edits); `5a` builds on the new fields.
 
-## RC4-F1 - the database a URL really reaches (built, in_review)
+## RC4-F1 - the database a URL really reaches (merged 20 Nov; r1 ACCEPT)
 
-Branch `task/RC4-F1-database-name` (base main `e88641e97`); spec `specs/RC4-F1-database-name/spec.md` rev 1, rulings D-RC4F1.1, D-RC4F1.2; packet `specs/RC4-F1-database-name/packet.md`. No migration, no route.
+Branch `task/RC4-F1-database-name` (base main `e88641e97`); spec `specs/RC4-F1-database-name/spec.md` rev 2, rulings D-RC4F1.1-5; packet `specs/RC4-F1-database-name/packet.md`. No migration, no route.
 
 - Settled: `assetops_backend/database_target.py` `database_target(url, environ)` returns host, port and name as psycopg is handed them, or `DatabaseTargetUnclear(reason)` (query allowlist, one plain host, plain non-empty name, none of six `PG*` target variables; reasons hold no URL value). `commercial_upload_settings` decides RC4 on it (unclear: `ConfigurationError` "DATABASE_URL must name one database plainly (<reason>)."); `postgres_commercial_store.database_name` deleted; the backfill's protected check uses it; `tools/demo_combined.py` `Demo.env()` strips the six variables. Plants F1-F8 fail.
-- Open: mid-build Q3 (persistence guard refuses the `make_url` import in `database_target.py`; check-all red on it, unruled), Q1 (backfill also keeps the reader's name) and Q2 (test 7 exempts `tools/sweep-setup-cache.py`, backlog `RC4-F1-tools`); 3A3 `refuse_operator_database` and ON1 onboarding must call `database_target`.
+- Settled: Q1-Q3 answered (D-RC4F1.3-5); `$pgReaders` admits `database_target.py` (owner-approved line); plants F1-F9; test 8 pins the admission.
+- Open: backlog `RC4-F1-tools` (`tools/sweep-setup-cache.py` and one other tool still read the name); 3A3 `refuse_operator_database` and ON1 onboarding must call `database_target`; review residuals (test 7 misses `engine.url.database`, test 8 misses `importlib`).

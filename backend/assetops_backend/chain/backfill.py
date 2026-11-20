@@ -180,7 +180,7 @@ def main(argv: Sequence[str] | None = None, *, reader: Any = None, store: Any = 
         return 1
     if not args.dry_run:
         # RC4-F1 (D-RC4F1.2): with a URL, the database psycopg is really handed decides; an injected reader's own
-        # name is still checked (mid-build Q1).
+        # name is still checked (D-RC4F1.4).
         names = [reader.database_name()]
         if url:
             try:
