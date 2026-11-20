@@ -164,3 +164,21 @@ which was made with `git archive 186b31510`. The clean run and the reverted run 
   that erasure ends intake under the old identities.
 - **No single list of waiting files.** The organisation path lists only organisation uploads, so the finance lead has
   no one list of everything waiting across Sites. This is for the screen unit (3A5 or later), not for this slice.
+# 3A2 review, round 2 (verification, W5), head ee61d3ee3
+
+Reviewer: fresh Claude, 2026-11-20. Worktree /opt/assetecon/AssetOpsV1-3a2, read only.
+
+## Summary
+- **Verdict: ACCEPT.** No findings.
+- F1 fixed as a class: `test_3b_every_pseudonymisation_row` has 15 table-driven cases (every §3.4 row and condition, positive and
+  negative; hand-written HMAC formula, a non-table field stays raw). My plant removing the CHARGE/METER row fails `[CHARGE meter]`.
+- F2 fixed as a class: service `test_11b` (3 scopes x 3 IDs x get/decide, byte-equal to unknown; other tenant), API `test_1c`, and
+  Postgres `test_5` (real second tenant). My plant dropping the `site_id` check fails 11b and 1c.
+- F3: `has_control_character` used for file name (API) and decline reason (service); both tests extended (NUL, LF, ESC, DEL).
+- D-3A2.17: adapter file and guard entry present; `check-architecture` passes (needs ASSETOPS_GUARD_PYTHON in a worktree without .venv).
+- D-3A2.18: `Counts` carries words and text; person/role refusals use 3C1a keys; `commercial_upload.site_forbidden` added; old keys deleted.
+- D-3A2.16: `_scrubbed` on `intake_revisions`, `site_zones` and `latest_revisions`; test_21 sweeps every public method. L1: 3A4 test +14 lines.
+- Runs: 3A2 service+API+3A4 months, 101 passed. 3A2 Postgres via `heavy-slot.sh --db` on assetops_test routed DBs, 39 passed, 0 skipped
+  (builder's 49 includes the 3A4 Postgres file, not rerun). `alembic heads`: one head, 0065_commercial_upload. check-agent-workflow passed.
+- Not verified: 133 regression and check-all 41/41 (cited, not rerun); the os.open rule-8 plant (guard passes; not planted).
+- Note: in my scratch copy `test_8_create_app_refuses_first` also failed; it is path-sensitive to the copy, not a plant effect. It passes in the worktree.
