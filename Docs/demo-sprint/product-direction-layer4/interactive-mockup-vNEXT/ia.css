@@ -34,8 +34,15 @@
 .ia-inbox svg,.ia-inbox .icon{width:14px;height:14px;flex:none}
 .ia-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent-solid);color:var(--on-accent);font-size:12px;font-weight:650;line-height:1}
 .ia-inbox-sec+.ia-inbox-sec{margin-top:var(--s5,24px)}
-.ia-inbox-sec h3{margin:0 0 var(--s2,8px);font-size:var(--fs-sm)}
-.ia-inbox-rows a{display:block}
-.ia-inbox-rows small{display:block;color:var(--text-2);font-weight:400}
-.ia-inbox-rows .who{display:inline}
+.ia-inbox-sec h3{margin:0 0 var(--s2,8px);font-size:var(--fs-sm);color:var(--text-2)}
+.ia-inbox-rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.ia-inbox-rows>li{margin:0;padding:0;border-bottom:1px solid var(--line)}
+.ia-inbox-rows>li::marker{content:none}
+.ia-inbox-rows a{display:block;padding:10px var(--s2,8px);color:var(--text);font-weight:550;border-radius:var(--r1)}
+.ia-inbox-rows a:hover{background:var(--surface-2);text-decoration:none}
+.ia-inbox-rows small{display:block;margin-top:2px;color:var(--text-2);font-size:var(--fs-sm);font-weight:400}
+.ia-inbox-rows small .who{font-size:inherit}
+.ia-inbox-sec h3{text-transform:none}
 @media (max-width:760px){.ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.ia-inbox{padding:0 8px}}
+/* at phone width the inbox and the theme toggle share the first row with the scope switch; the period chip takes the next row */
+@media (max-width:760px){.ia-frame .topbar .right{display:contents}.ia-frame .topbar .ia-inbox{margin-left:auto}.ia-frame .topbar .ux-period{order:1}}
