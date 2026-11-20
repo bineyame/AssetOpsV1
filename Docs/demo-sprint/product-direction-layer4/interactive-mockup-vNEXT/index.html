@@ -3461,7 +3461,7 @@ const DISP = {RECOMMENDED:['Recommended','green'],CONDITIONAL:['Conditional','am
 const dispBadge = o => o.disposition?badge(...DISP[o.disposition]):badge('No action (baseline)','outline');
 /* Rev 12: manifest reasons are put into plain words by rules, never by literal-keyed rewrites (no figure typed here) */
 const REASON_RULES=[[/\((\d[\d,]*(?:\.\d+)?) lost; evaluated\)/g,'($$$1 of cover lost)'],[/\s*\(evaluated\)/g,''],[/\bLOI\b/g,'letter of intent'],[/\s*>=\s*/g,' at least '],[/~/g,'about '],[/\bEXPOSURE\b/g,'at stake'],[/\s*\[assumption\]/g,', an assumption'],[/\s*\(P1 hard constraint\)/g,''],[/\s*\(EV-L\d+[^)]*\)/g,''],[/;\s*dominated( by the claim)?/g,''],
- [/\+(\d+)\b/g,'$1 more buses'],[/\bgenset\b/g,'generator'],[/\bEPC\b/g,'installation contractor’s'],[/\bQA\b/g,'quality inspection'],[/\bO&M\b/g,'maintenance contract'],[/\bstopgap\b/g,'cover'],[/\bSLA\b/g,'service agreement'],
+ [/(\bfor )\+(\d+)(?![\d.,%])/g,'$1$2 more buses'], /* a bus count only (Ruiru: "for +6"), never a signed decimal or percentage such as "+0.6%" (REVIEW-decision-page L7) */[/\bgenset\b/g,'generator'],[/\bEPC\b/g,'installation contractor’s'],[/\bQA\b/g,'quality inspection'],[/\bO&M\b/g,'maintenance contract'],[/\bstopgap\b/g,'cover'],[/\bSLA\b/g,'service agreement'],
  [/(^|[^$\d.,\w])(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d{2})(?![\d%]|\s?(?:kWh|kW|L|h\b|crate|bus|night|day))/g,'$1$$$2'],[/(^|[^$\d.,\w])(\d+)(?= (?:in penalties|for the (?:cover|stopgap)|a month)\b)/g,'$1$$$2'],[/\$(\d[\d,]*)\.00\b/g,'$$$1'],[/ L\/month/g,' L a month'],[/\/month/g,' a month']];
 const plainReason=t=>idPlain(REASON_RULES.reduce((a,[r,s])=>a.replace(r,s),String(t)));
 const fx = t => {if(!t)return '';return cap(plainReason(t));};
