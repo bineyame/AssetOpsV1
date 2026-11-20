@@ -3,3 +3,4 @@
 One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 
 - 2026-11-20 `owner-on1-roles-executive-approves-2026-11-20.md` Onboarding file proposes roles; the executive approves them at first sign-in (option A; keeps OD-14; supersedes D-ON1.3 default) · current
+- 2026-11-20 `owner-on1-approval-can-wait-2026-11-20.md` The ON1 approval step can wait if automatic approval for the demo saves time · current — Architect to re-scope ON1
