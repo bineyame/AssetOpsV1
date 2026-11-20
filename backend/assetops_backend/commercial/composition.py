@@ -71,10 +71,6 @@ def commercial_upload_settings(database_url: str | None) -> UploadSettings:
     return UploadSettings(key_dir or None, real_data)
 
 
-def build_commercial_records(database_url: str) -> CommercialRecords:
-    return CommercialRecords(PostgresCommercialStore(database_url), clock=_now)
-
-
 def build_commercial_uploads(database_url: str, settings: UploadSettings) -> CommercialUploads:
     if settings.key_dir is None:
         raise ConfigurationError("Commercial uploads need ASSETOPS_PSEUDONYM_KEY_DIR.")
