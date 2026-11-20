@@ -1108,7 +1108,7 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
   .ux-kpi{gap:2px}
 
   .ux-kpi-s+.ux-kpi-s:not(.has-trend){display:none} /* a trend is shortened, never hidden (review r4 L6) */
-  .ux-kpi-s.has-trend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ux-kpi-s.has-trend{white-space:normal} /* review r5 L-a: the trend wraps, never clipped */
   .ux-overview .ux-queue-panel .panel-head p{display:none}
 
 }
@@ -1496,8 +1496,11 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 .ia-frame .topbar .right{flex-wrap:nowrap;min-width:0}
 @media (max-width:1100px){.ia-rail-status{display:none}}
 @media (max-width:760px){.ia-frame .topbar{flex-wrap:wrap}.ia-frame .topbar .right{flex-wrap:wrap}}
-.reviewbar .ux-dev-sw{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
-.reviewbar .ux-rebuild{font-size:var(--fs-xs);opacity:.85}
+.reviewbar .ux-dev-sw,.reviewbar .ux-rebuild>summary{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-size:var(--fs-xs);line-height:16px}
+.reviewbar .ux-dev-sw input{margin:0;width:12px;height:12px}
+.reviewbar .ux-rebuild{position:relative;display:inline-block;line-height:16px}
+.reviewbar .ux-rebuild>summary{padding:0 4px;min-height:0;height:auto;border:0;background:none}
+.reviewbar .ux-rebuild .ux-pop-menu{right:0;left:auto;max-width:420px;white-space:normal}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -5145,7 +5148,7 @@ function uxReviewExtrasHtml(hash) {
   out.push(uxDecReviewMarks(h));
   out.push(`<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
   if (typeof IA_RAIL !== 'undefined') { const rest = IA_RAIL.filter(i => !IA_LANDED.has(i.unit)).map(i => i.label);
-    out.push(`<label class="ux-dev-sw"><input type="checkbox" data-ia-dev${iaDev() ? ' checked' : ''}> Developer access</label>${rest.length ? `<span class="ux-rebuild">Still to be rebuilt: ${rest.join(' · ')}</span>` : ''}`); }
+    out.push(`<label class="ux-dev-sw"><input type="checkbox" data-ia-dev${iaDev() ? ' checked' : ''}> Developer access</label>${rest.length ? `<details class="ux-pop ux-rebuild"><summary>Still to be rebuilt (${rest.length})</summary><div class="ux-pop-menu" role="note">Still to be rebuilt: ${rest.join(' · ')}</div></details>` : ''}`); }
   return out.join('');
 }
 document.addEventListener('change', e => { if (!e.target.matches || !e.target.matches('[data-ia-dev]')) return; try { if (e.target.checked) sessionStorage.setItem('l4-dev', '1'); else sessionStorage.removeItem('l4-dev'); } catch (x) {} render(); });

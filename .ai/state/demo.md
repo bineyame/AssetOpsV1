@@ -199,3 +199,14 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
 - Open: Kisiwa added-night board row in `finish check` is BL-52 (backlog). EX-2 = F-COH PASS in runs A and B (F-COH3 proves it is
   not vacuous); the standalone 8 findings are the old fixture's COH-10 x3 and the known BL-47 COH-2 x5, 0 from G1.
 
+
+## IA-1a - the frame and gates of the shape rebuild (built, in_review)
+
+- Mock-up only (`interactive-mockup-vNEXT/`). New: `ia-routes.js` (IA_ROUTES, IA_ALIASES, IA_RAIL, IA_LANDED, iaParse,
+  iaLive, iaStart, iaDev), `ia-shapes.js` (iaFrame, iaUnlink, iaFinish, iaRender, iaBind, the plan interim), `ia.css`.
+- Live in IA-1a: `plan` (shape plan, interim of D-IA.20; `planParts` byte-identical) and the typed `not-found`. Every
+  other rail item is an unavailable root; links to unlanded targets are unlinked before insertion.
+- Gates: `tools/ia_gates.cjs` runs `shape_check`, `click_depth_check` (self-test only until IA-1b), `after_render_check`
+  and their 10 plants. r5 G1 and L-a carried in `ux_interaction_check.cjs` (`UXI_PLANT=container`).
+- Open: G1 live surfaces from IA-1b; the empty hash still opens the legacy Portfolio; IA-1b adds hub tabs and
+  `IA_G1_SURFACES`.

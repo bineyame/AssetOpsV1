@@ -361,7 +361,7 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
   .ux-kpi{gap:2px}
 
   .ux-kpi-s+.ux-kpi-s:not(.has-trend){display:none} /* a trend is shortened, never hidden (review r4 L6) */
-  .ux-kpi-s.has-trend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ux-kpi-s.has-trend{white-space:normal} /* review r5 L-a: the trend wraps, never clipped */
   .ux-overview .ux-queue-panel .panel-head p{display:none}
 
 }
