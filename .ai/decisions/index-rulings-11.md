@@ -1,0 +1,14 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-ON1.9 to D-RC4F1.2)
+
+- `D-ON1.9` File proposes roles; nothing granted until the executive approves at sign-in with the confirmed digest (owner A) · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.10` Executive confirms a roles digest; apply refuses other files; submitter never accepter · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.11` Demo pins ASSETOPS_TENANT_SLUG=demo, drops operator settings; runbook uses subshells only · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.12` RC4 tests cannot connect: rc4.invalid host plus a no-connect fixture · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.13` Runbook test checks an exact command list; erasure deletes every copy · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.14` One lstat tombstone check, fails closed; erase always tombstones and unlinks · live · specs/ON1-operator-tenant/rulings.md
+- `D-3A3.9` A row with a control character is refused alone (NATIVE_CHARACTER) · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.10` Layouts are also the owner's reshaping template; provenance follows the database · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.11` Loader reads held uploads once: path switch refused, waiting file not resent, submitter not accepter · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3A3.12` Single-writer test reach: attribute, getattr and alias import caught; dynamic access not · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-RC4F1.1` database_target names the database libpq reaches; unclear URL or PG* environment refused · live · specs/RC4-F1-database-name/rulings.md
+- `D-RC4F1.2` Every name-based database decision uses it; database_name deleted; demo strips PG* · live · specs/RC4-F1-database-name/rulings.md
