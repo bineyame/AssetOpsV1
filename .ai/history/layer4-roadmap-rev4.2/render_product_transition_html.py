@@ -1,3 +1,4 @@
+# Superseded with product-transition-and-roadmap rev 4.2 (20 Nov 2026): it renders only that revision, whose nine figures it draws. Kept as history.
 """Render product-transition-and-roadmap.md to a self-contained HTML page with inline SVG diagrams (offline).
 
 Usage: python3 render_product_transition_html.py product-transition-and-roadmap.md product-transition-and-roadmap.html

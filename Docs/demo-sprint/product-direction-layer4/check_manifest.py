@@ -383,8 +383,9 @@ REQUIRED = {"layer4-transformation-design.md": ["sites.lakeside-power/Kobo.plan.
             ["sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed", "sites.metro-bus/Kasarani.november_to_date.nodes.penalties"],
             "design-questions-and-decisions.md": ["owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value", "owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value_change_vs_applied",
                                                   "owner_question_variants.Q15.C.lakeside-power.cases.5000/False.value"],
+            # rev 5 of the roadmap (20 Nov): a short roadmap; its three money figures are anchored
             "product-transition-and-roadmap.md": ["sites.lakeside-power/Kobo.plan.nodes.contribution", "sites.lakeside-power/Kobo.actual.nodes.contribution",
-                                                  "plans.lakeside-power.default.spend", "plans.lakeside-power.default.value", "plans.lakeside-power.downside"]}
+                                                  "options.KOB-STOPSOC.value"]}
 ANCHOR = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--fig:(-?)([^>]+)-->", re.M)
 FIGX = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--figx:([^>]+)-->", re.M)
 RECORDS: set = set()
@@ -565,7 +566,7 @@ def documents(root, doc, ref):
                 ("worked portfolios", wp[wp.index("## 1. The worked portfolios"):]),
                 ("walkthroughs", (root / "interactive-mockup-vNEXT" / "walkthroughs.md").read_text(encoding="utf-8"))]
     tr = (root / "product-transition-and-roadmap.md").read_text(encoding="utf-8")
-    sections.append(("transition §1-§4", tr[tr.index("## 1. Where we are"):tr.index("## 5. ")]))
+    sections.append(("roadmap", tr[tr.index("## 1. "):]))   # rev 5 (20 Nov): the whole short roadmap
     for name, body in sections:
         body = re.sub(r"[\d,]*\d(?:\.\d+)?%?\**<!--figx:[^>]*-->", "", body)   # recomputed by anchors() instead
         body = re.sub(r"`[^`]*`|<!--[^>]*-->", "", body)

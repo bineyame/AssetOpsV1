@@ -2,7 +2,7 @@
 
 **AssetEcon · Layer 4 pack document 6 · AssetOps Architect (Claude) · 19 Nov 2026 · derived from design rev 16.7, updated to `rev 16.12` (sign-in and roles in step 3C; OD-20; the engagement path tied to its steps; OD-21 to OD-23; checked against `rev 16.10` to `rev 16.12`: step 3C no longer waits for step 1, and `3B3` serves no stored figure as a source)**
 
-**What this document is.** The whole path from today's product to the Layer 4 design, in the order the owner approved (OD-9, design §2.9 and Figure 10). It merges and replaces three earlier documents: `phase-plan-and-acceptance.md`, §3–§4 of the retired `product-transition-and-roadmap.md`, and `demo-build-cost-plan.md`. It adds slices, gates and tests beneath the design's constructs and no construct of its own. The first fortnight's schedule is a separate document, `two-week-build-plan.md`, which cites this document's slices by ID.
+**What this document is.** The whole path from today's product to the Layer 4 design, in the order the owner approved (OD-9, design §2.9 and Figure 10). It merges and replaces three earlier documents: `phase-plan-and-acceptance.md`, §3–§4 of the retired rev 4.2 of `product-transition-and-roadmap.md` (`.ai/history/layer4-roadmap-rev4.2/`), and `demo-build-cost-plan.md`. It adds slices, gates and tests beneath the design's constructs and no construct of its own. The first fortnight's schedule is a separate document, `two-week-build-plan.md`, which cites this document's slices by ID.
 
 *Serves the objective:* operator executives adopt the product for economic value beyond their monitoring tools. The order below puts that value on their screens as early as the evidence allows, and never ahead of it.
 

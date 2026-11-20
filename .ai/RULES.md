@@ -47,8 +47,8 @@ Bindings: `.ai/ROLE_CONFIG.md`.
 
 ## 4. Workflow W1-W9 (D11, adopted by the owner 2026-11-18)
 
-Source: `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md` §5.2
-(on branch `task/product-direction-layer4-design` until it merges to `main`).
+Source: rev 4.2 of `product-transition-and-roadmap.md` §5.2, kept at
+`.ai/history/layer4-roadmap-rev4.2/product-transition-and-roadmap-rev4.2.md`.
 
 - **W1 Structure first, owner-approved.** Per phase, the Architect writes the
   structure specification (factors and records, decisions and bounds, screens

@@ -40,6 +40,7 @@ DERIVED = {
     "plan-and-action-workflow.md": "builder",
     "vertical-factor-map.md": "builder",          # #13, the brief's levers -> registry factors (owner, 19 Nov)
     "two-week-build-plan.md": "derived",
+    "product-transition-and-roadmap.md": "derived",   # rev 5 (20 Nov): the short roadmap, owner-roadmap-replace-2026-11-20
     "interactive-mockup-vNEXT/walkthroughs.md": "derived",   # #8, recreated after the mock-up lane (plan F §6 step 7)
     GTM + "commercial-plan.md": "gtm",
     GTM + "website-content.md": "gtm",

@@ -7,12 +7,12 @@ Last updated 2026-11-18.
 ## 1. Layer 4 product direction (awaiting the owner)
 
 - Branch `task/product-direction-layer4-design` (not merged to `main`).
-- Pack: `Docs/demo-sprint/product-direction-layer4/`; read
-  `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md`
-  first.
+- Pack: `Docs/demo-sprint/product-direction-layer4/`; read the design
+  (`layer4-transformation-design.md`) and `decisions-register.md` first; the
+  short roadmap is `product-transition-and-roadmap.md` (rev 5).
 - State: roadmap rev 3 done. Owner decisions open: Q1-Q16
   (`Docs/demo-sprint/product-direction-layer4/design-questions-and-decisions.md`)
-  and D1-D12 (roadmap §6). D11 (workflow W1-W9) is adopted and recorded in
+  and D1-D15 (`decisions-register.md`). D11 (workflow W1-W9) is adopted and recorded in
   `.ai/RULES.md`.
 - Owner words: `.agent/owner-layer4-direction-feedback-2026-11-17.md`,
   `.agent/owner-product-transition-request-2026-11-18.md`.
