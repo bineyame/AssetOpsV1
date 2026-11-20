@@ -2,7 +2,8 @@
    heading order, reduced motion, empty and loading states. Needs /opt/assetecon/tools/pw/env.sh sourced.
    Run: node tools/ux_interaction_check.cjs "$PWD/index.html" <folder for the two state screenshots>
    IA-1b fix round: D-IA.31 drawer walks (every press stays inside; sweep; unlinked last), D-IA.35 L1/L2 (EV board on its live route; text-accepting retargets
-   expire with IA-1c). Plants (each must fail): container, x5, palette, block7, tall, viewall, trap (D-IA.31), evrev, expiry (D-IA.35). */
+   expire with IA-1c). Plants (each must fail): container, x5, palette, block7, tall, viewall, trap (D-IA.31), evrev. expiry (D-IA.35) is retired with IA-1c:
+   its decision links are live, so the three evaluations pass on the real links and TEXT_OK is false whatever the plant. */
 const { chromium } = require(process.env.PW);
 const base = 'file://' + process.argv[2];
 const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}`);
@@ -42,17 +43,21 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       const lay = await p.evaluate(PLAN_LAYOUT); ok(lay.rows > 0 && !lay.bad.length, `plant container: ${op} plan at ${w}: ${lay.rows} rows${lay.bad.length ? `, ${lay.bad.join('; ')}` : ''}`); await p.context().close(); }
     await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   /* IA-1b (D-IA.16): on an IA route the palette lists only live entries, so "kobo gen" finds nothing until decisions land (IA-1c);
-     "kisiwa" finds the Site and Enter opens it. Retargeted from "kobo gen opens the decision"; UXI_PLANT=palette (filter off) must fail. */
+     "kisiwa" finds the Site and Enter opens it. Retargeted from "kobo gen opens the decision"; UXI_PLANT=palette (filter off) must fail.
+     IA-1c: decisions are live, so "kobo gen" finds the decision; the filter is then proven by "findings" (Findings is IA-2b's), which must
+     find nothing live. */
   async function paletteTest(p) {
     await p.keyboard.press('Control+k'); await p.waitForTimeout(150);
     const op1 = await p.evaluate(() => document.getElementById('ux-cmd')?.dataset.open === 'true' && document.activeElement.classList.contains('ux-cmd-in'));
     await p.keyboard.type('kobo gen'); await p.waitForTimeout(100);
-    const kg = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
+    const kg = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || ''), decLive = await p.evaluate(() => IA_LANDED.has('IA-1c'));
+    await p.fill('.ux-cmd-in', 'findings'); await p.waitForTimeout(100);
+    const fd = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
     await p.fill('.ux-cmd-in', 'kisiwa'); await p.waitForTimeout(100);
     const first = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
     await p.keyboard.press('Enter'); await p.waitForTimeout(400);
     const at = await p.evaluate(() => location.hash);
-    ok(op1 && !/Kobo generator/.test(kg) && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
+    ok(op1 && (decLive ? /Kobo generator/.test(kg) : !/Kobo generator/.test(kg)) && !fd && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "findings" finds ${fd ? `"${fd}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
     if (at !== '#/portfolio') { await p.goto(base + '#/portfolio'); await p.waitForTimeout(400); }
   }
   const evBoard = async () => { const p = await page('portfolio/demand-and-capacity', { op: 'metro' }); /* D-IA.35 L1: the live route, not the legacy builder */

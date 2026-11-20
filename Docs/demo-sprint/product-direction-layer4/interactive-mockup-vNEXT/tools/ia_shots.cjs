@@ -9,6 +9,8 @@
    Run under tools/heavy-slot.sh: node tools/ia_shots.cjs <index.html path> <out dir>
    D-IA.35 L5: at 390 every table.ux-stack stacks: each cell has scrollWidth <= clientWidth + 1 and the table is no wider than its container; #/portfolio/outcomes
    must measure at least one such table (a measured set that is empty fails).
+   IA-1c: every decision route of the operator, and the "Waiting for you" inbox opened from the top bar on #/portfolio, at 1440x900, 1280x720 and
+   390x844, light and dark, with the same measures; the inbox must be open and its panel inside the window. SHOTS_ONLY=decision runs only this set.
    Plants: SHOTS_PLANT=status (hides the status words), SHOTS_PLANT=headline (narrows the headline to force a third line), SHOTS_PLANT=stack (removes the stacking media rule). */
 const { chromium } = require(process.env.PW), fs = require('fs');
 const base = 'file://' + process.argv[2], out = process.argv[3]; fs.mkdirSync(out, { recursive: true });
@@ -28,24 +30,34 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
   return { stackN: st.length, stackBad: [...new Set(stackBad)], hlLines, frame: !!document.querySelector('#ia-root.ia-frame'), oneLine, kids: kids.length, tall, past, hscroll: document.documentElement.scrollWidth > innerWidth + 1, rail: !!rr, railPast: rp, un };
 };
 (async () => { const b = await chromium.launch({ executablePath: process.env.CHROME }); const lines = []; let bad = 0;
-  const run = async (op, w, h, dark, r, shot) => {
+  const run = async (op, w, h, dark, r, shot, act) => {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: dark ? 'dark' : 'light' }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
     const p = await ctx.newPage(); await p.goto(`${base}#/${r}`); await p.waitForTimeout(400);
     if (PLANT === 'status') await p.addStyleTag({ content: '.ia-rail-status{display:none!important}' });
     if (PLANT === 'headline') await p.addStyleTag({ content: '.ux-headline{max-width:220px!important}' });
     if (PLANT === 'stack') await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.type === CSSRule.MEDIA_RULE && /max-width:\s*760px/.test(r.conditionText) && /table\.ux-stack/.test(r.cssText)) sh.deleteRule(i); } });
+    if (act === 'inbox') { await p.click('[data-ia-inbox]'); await p.waitForTimeout(350); }
     const m = await p.evaluate(measure), why = [];
+    if (act === 'inbox') { const ib = await p.evaluate(() => { const d = document.getElementById('ia-inbox'), r = d && d.querySelector('.ux-drawer-panel').getBoundingClientRect(); return { open: !!d && d.dataset.open === 'true', fits: !!r && r.left >= -1 && r.right <= innerWidth + 1, rows: d ? d.querySelectorAll('a[data-ia-row]').length : 0 }; });
+      if (!ib.open) why.push('the inbox did not open'); if (!ib.fits) why.push('the inbox panel runs past the window'); m.inboxRows = ib.rows; }
     if (!m.frame) why.push('no frame'); if (m.hscroll) why.push('sideways scroll'); if (m.tall.length) why.push(`tall top-bar item ${m.tall[0]}`); if (m.past.length) why.push(`top bar runs past the window (${m.past[0]})`);
     if (w >= 1200 && !m.oneLine) why.push('top bar not on one line'); if (m.railPast.length) why.push(`rail overflow (${m.railPast[0]})`); const u = m.un.filter(x => !x.ok); if (u.length) why.push(`unavailable item reads as live or overflows: ${u.map(x => x.n).join(', ')}`);
     if (m.rail && !m.un.length) why.push('no unavailable items measured');
     if (w >= 1280 && m.hlLines !== null && m.hlLines > 2) why.push(`headline on ${m.hlLines} lines`);
     if (w <= 760 && m.stackBad.length) why.push(`stacked table does not fit: ${m.stackBad[0]}`); if (w === 390 && r === 'portfolio/outcomes' && !m.stackN) why.push('no table.ux-stack measured on Outcomes');
     if (!why.length) {} else bad++;
-    if (shot) await p.screenshot({ path: `${out}/${op}-${r === 'x-unknown' ? 'not-found' : r.replace(/\//g, '-')}-${w}-${dark ? 'dark' : 'light'}.png`, fullPage: false });
-    lines.push(`${why.length ? 'BAD' : 'ok '} ${op} #/${r} ${w}x${h} ${dark ? 'dark' : 'light'}: top bar one line ${m.oneLine} (${m.kids} items), rail ${m.rail ? `${m.un.length} unavailable items measured` : 'hidden'}${m.hlLines !== null ? `, headline ${m.hlLines} line(s)` : ''}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); };
+    if (shot) await p.screenshot({ path: `${out}/${op}-${r === 'x-unknown' ? 'not-found' : r.replace(/\//g, '-')}${act ? `-${act}` : ''}-${w}-${dark ? 'dark' : 'light'}.png`, fullPage: false });
+    lines.push(`${why.length ? 'BAD' : 'ok '} ${op} #/${r}${act ? ` (${act} open, ${m.inboxRows} rows)` : ''} ${w}x${h} ${dark ? 'dark' : 'light'}: top bar one line ${m.oneLine} (${m.kids} items), rail ${m.rail ? `${m.un.length} unavailable items measured` : 'hidden'}${m.hlLines !== null ? `, headline ${m.hlLines} line(s)` : ''}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); };
   const SITES = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] };
-  const ONLY = process.env.SHOTS_ONLY; /* optional: run only the hub routes (IA-1b's set) */
-  for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) for (const r of ['portfolio', 'portfolio/outcomes', 'portfolio/demand-and-capacity', ...SITES[op].map(k => `site/${k}`)]) await run(op, w, h, dark, r, !PLANT);
+  const ONLY = process.env.SHOTS_ONLY; /* optional: run only the hub routes (IA-1b's set), or only the decisions and the inbox (IA-1c's) */
+  /* IA-1c: every decision of each operator, and the inbox open */
+  const DECS = await (async () => { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300);
+    const x = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(op => [op, DEC.filter(d => OPS[op].sites.includes(d.site)).map(d => d.id)]))); await ctx.close(); return x; })();
+  if (ONLY !== 'hub') for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) {
+    for (const d of DECS[op]) await run(op, w, h, dark, `decision/${d}`, !PLANT);
+    await run(op, w, h, dark, 'portfolio', !PLANT, 'inbox'); }
+  if (ONLY === 'decision') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
+  for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) for (const r of ['portfolio', 'portfolio/outcomes', 'portfolio/demand-and-capacity', ...SITES[op].map(k => `site/${k}`)]) if (ONLY !== 'decision') await run(op, w, h, dark, r, !PLANT);
   if (ONLY === 'hub') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
   for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720], [1200, 800], [900, 800], [390, 844]]) for (const dark of [false, true]) for (const r of ['plan', 'x-unknown']) await run(op, w, h, dark, r, true);
   for (const op of ['lakeside', 'harvest', 'metro']) for (const w of [390, 600, 761, 1023, 1024, 1100, 1101, 1279, 1400, 1600, 1920]) for (const r of ['plan', 'x-unknown']) await run(op, w, 800, false, r, false);
