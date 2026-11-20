@@ -783,7 +783,7 @@ flowchart LR
 
 *Serves the objective:* the screens are where the executive meets the value. Each change below makes one answer the money question for the whole portfolio.
 
-*Amended 20 Nov by the app-wide menu and page organization (owner-approved; rulings D-IA.1 to D-IA.14, `specs/IA-1-shape-rebuild/rulings.md`): the rail gains Decisions, Plan and Results, and Evidence and Operational records merge (D-IA.1); the Portfolio has three tabs, Overview, Outcomes, and Demand & capacity, with Act first, What changed and Scope moved to their objects' home lists (D-IA.2). The rows below for those tabs and the rail now read through those rulings.* The frame stays: the rail with no new menu items (superseded by D-IA.1), the six Portfolio tabs (superseded by D-IA.2), the range bar, the coverage line, the drill-down pages and "not available yet".
+*Amended 20 Nov by the app-wide menu and page organization (owner-approved; rulings D-IA.1 to D-IA.14, `specs/IA-1-shape-rebuild/rulings.md`): the rail gains Decisions, Results and a home for the plan, and Evidence and Operational records merge (D-IA.1); the Portfolio has three tabs, Overview, Outcomes, and Demand & capacity, with Act first, What changed and Scope moved to their objects' home lists (D-IA.2). The rows below for those tabs and the rail now read through those rulings.* The frame stays: the rail with no new menu items (superseded by D-IA.1), the six Portfolio tabs (superseded by D-IA.2), the range bar, the coverage line, the drill-down pages and "not available yet".
 
 | Screen | Today | Change |
 |---|---|---|
