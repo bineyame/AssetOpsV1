@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3B3.11 to D-IA.20)
+# Decision index: Demo-sprint and later rulings (index only) (D-3B3.11 to D-DS1.15)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -14,3 +14,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.18` G1 over content edges, per entry (clarifies D-IA.10) · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.19` Lab gate lands in IA-1a (amends D-IA.12) · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.20` Plan interim split, output byte-identical · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-DS1.15` DS1m r3: trend gates check figure, source and visibility, form by measure (cost tile words); 9 Sites; G3 1280 shortened not hidden, 390 words; 9 plants; R742 closes in DS1m · live · specs/DS1-history-generator/rulings.md
