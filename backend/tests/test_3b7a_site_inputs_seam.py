@@ -10,6 +10,7 @@ from test_4b_money_leaves import fallback, money_world, site
 
 from assetops_backend.structure import registry as _registry
 from assetops_backend.structure.check import StructureError
+from assetops_backend.structure.evaluate import evaluate
 from assetops_backend.structure.money import CommercialLeafSource
 from assetops_backend.structure.read import SiteInputs, StructureRead, evaluate_inputs
 
@@ -41,6 +42,9 @@ def test_1_evaluate_inputs_equals_site(code):
     reg = _registry.REGISTRIES[inputs.structure_key]
     assert list(inputs.leaves) == [r.factor_id for r in reg.rows if r.is_leaf]
     assert len(inputs.leaves) == 31
+    assert evaluate_inputs(inputs).values == evaluate(reg, inputs.leaves, inputs.stated)
+    if code == "KOBO-001":  # the stated rows change the answer, so dropping them is seen
+        assert evaluate_inputs(inputs).values != evaluate(reg, inputs.leaves)
     assert list(inputs.stated) == [r.factor_id for r in reg.rows if r.stated_by is not None]
     assert list(inputs.stated) == ["revenue", "fuel_cost"]
     assert (inputs.site_code, inputs.month, inputs.structure_version) == (code, OCT, reg.version)
