@@ -31,7 +31,7 @@ if URL:
     from test_3a1_commercial_postgres import Seeder
     from test_3a1_commercial_service import Clock
     from test_3a2_commercial_upload_service import KISIWA, KOBO, T_SUBMIT
-    from test_3a3_load_emulated import KEYS, emulated, write_files  # noqa: F401 - the module-scoped fixture
+    from test_3a3_load_emulated import KEYS, emulated, generated, write_files  # noqa: F401 - module fixtures
 
 PW = "correct horse battery"
 FIN, ANALYST = "FINANCE_AND_COMMERCIAL_LEAD", "ANALYST"

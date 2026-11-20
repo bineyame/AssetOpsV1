@@ -4,11 +4,16 @@ D-3A3.6, D-3A3.7, D-3A3.11): the emulated-export loader over injected in-memory 
 No test here can reach a database: an autouse fixture makes every psycopg and SQLAlchemy connection attempt raise
 (proved by `test_no_connect_fixture_holds`), and every URL names the host `rc4.invalid`, port 1, which cannot
 resolve. No URL here names a real database.
+
+The emulator's files come from `tools/world_history.py` (`exports` and `records`) run on the fixture manifest in a
+child process: product tests never import the simulator (dependency direction).
 """
 from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import UUID
@@ -23,11 +28,7 @@ from assetops_backend.commercial.model import HeldUpload
 from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.uploads import CommercialUploads
 from assetops_backend.database_target import PG_TARGET_ENV
-from assetops_contracts.canonical import to_canonical_json
-from assetops_contracts.native import LAYOUTS, render_layout
-from assetops_simulator.world.exports import build_exports
-from assetops_simulator.world.history import generate_history
-from assetops_simulator.world.records import build_records
+from assetops_contracts.native import LAYOUTS, read_layout, render_layout
 from test_3a1_commercial_service import Clock
 from test_3a2_commercial_upload_service import KEY, T_SUBMIT, Keys, UploadMemoryStore
 from test_3c1a_person_work import KISIWA, KOBO, People
@@ -98,11 +99,27 @@ def w(people):
 
 
 @pytest.fixture(scope="module")
-def emulated() -> dict[str, list[dict]]:
+def generated(tmp_path_factory) -> Path:
+    """The emulator's files (`exports`) and DS1b's batches (`records`) for the fixture manifest."""
+    out = tmp_path_factory.mktemp("generated")
+    for command in ("exports", "records"):
+        run = subprocess.run([sys.executable, str(TREE / "tools" / "world_history.py"), command, "--manifest",
+                              str(VIEW), "--out", str(out / command)], capture_output=True, text=True, timeout=300)
+        assert run.returncode == 0, run.stderr
+    return out
+
+
+@pytest.fixture(scope="module")
+def emulated(generated) -> dict[str, list[dict]]:
     """The emulator's records for KOBO-001 and KISIWA-001 only, by key."""
-    view = json.loads(VIEW.read_text(encoding="utf-8"))
-    result = build_exports(view, generate_history(view))
-    return {f.key: [r for r in f.records if r.get("site_code") in (KOBO, KISIWA)] for f in result.files}
+    out = {}
+    for key in KEYS:
+        data = (generated / "exports" / f"lakeside-power.{key}.csv").read_bytes()
+        read = read_layout(LAYOUTS[f"{key}-illustrative-1"], data, tenant_code="lakeside-power",
+                           produced_at="2026-11-06T06:00:00+03:00", provenance="source-emulated")
+        assert dict(read.refused) == {}
+        out[key] = [r for r in read.obj["records"] if r.get("site_code") in (KOBO, KISIWA)]
+    return out
 
 
 def write_files(directory: Path, emulated: dict[str, list[dict]]) -> Path:
@@ -251,14 +268,12 @@ def test_l4_refused_submission_exits_3_after_earlier_files(w, tmp_path, emulated
     assert len(w.store.uploads) == 3
 
 
-def test_l5_path_switched_across_runs(w, tmp_path, emulated, capsys) -> None:
+def test_l5_path_switched_across_runs(w, tmp_path, emulated, generated, capsys) -> None:
     assert run(w, write_files(tmp_path / "x", emulated), capsys=capsys)[0] == 0
-    view = json.loads(VIEW.read_text(encoding="utf-8"))
-    batch = next(b for b in build_records(view, generate_history(view)).batches
-                 if b.batch.source_type == "budget_workbook" and b.batch.tenant_code == "lakeside-power")
+    batch = (generated / "records" / "lakeside-power.budget_workbook.json").read_bytes()  # a DS1b batch
     other = tmp_path / "y"
     other.mkdir()
-    (other / "acme.budget_workbook.json").write_bytes(to_canonical_json(batch))
+    (other / "acme.budget_workbook.json").write_bytes(batch)
     before = len(w.store.uploads)
     code, lines, err = run(w, other, capsys=capsys)
     assert (code, lines) == (2, []) and err.startswith("EXPORT_PATH_SWITCHED budget_workbook ")
