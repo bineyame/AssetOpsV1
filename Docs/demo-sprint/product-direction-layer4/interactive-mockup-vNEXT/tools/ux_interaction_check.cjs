@@ -80,9 +80,9 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
         if (pl === 'tall') { const hub = document.querySelector('[data-shape="hub"]'); l3.insertAdjacentHTML('beforeend', `<div style="height:${Math.max(200, 2501 - Math.round(hub.getBoundingClientRect().height))}px">plant</div>`); }
         if (pl === 'viewall') document.querySelector('[data-shape="hub"] .ux-queue-panel').insertAdjacentHTML('beforeend', '<p class="ux-more">View all</p>');
         const hub = document.querySelector('[data-shape="hub"]'), blocks = [...hub.querySelectorAll(':scope > [data-level] > *')].filter(e => !e.closest('.ux-drawer, [data-ia-drawers]') && getComputedStyle(e).display !== 'none' && e.getBoundingClientRect().height > 0).length;
-        const shown = [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + ' / ' + ([...document.querySelectorAll('.ux-overview .ux-more')].some(e => e.offsetParent) ? 'link' : 'no link');
+        const built = document.querySelectorAll('.ux-overview .ux-queue>li').length, shown = [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + (built ? '' : '') + ' of ' + built + ' / ' + ([...document.querySelectorAll('.ux-overview .ux-more')].some(e => e.offsetParent) ? 'link' : 'no link');
         return { blocks, h: Math.round(hub.getBoundingClientRect().height), shown }; }, PLANT);
-      if (PLANT === 'viewall') ok(r.shown === '3 / no link', `plant viewall: ${op} phone overview: top 3 queue items, no "View all" (${r.shown})`);
+      if (PLANT === 'viewall') ok(/^(\d+) of \1 \/ no link$/.test(r.shown), `plant viewall: ${op} phone overview: every capped row on screen, no "View all" (${r.shown})`);
       else ok(r.blocks <= 6 && r.h <= 2500, `plant ${PLANT}: ${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440`);
       await p.context().close(); }
     await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
@@ -141,8 +141,8 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     const at = await p.evaluate(() => location.hash);
     ok(vis && at === '#/portfolio/outcomes', 'phone: the three Portfolio tabs fit on one row and navigate');
     await p.goto(base + '#/portfolio'); await p.waitForTimeout(400);
-    const shown = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + ' / ' + ([...document.querySelectorAll('.ux-overview .ux-more')].some(e => e.offsetParent) ? 'link' : 'no link'));
-    ok(shown === '3 / no link', `phone overview: top 3 queue items, no "View all" until IA-2b (MOCK DEVIATION D5, D-IA.25) (${shown})`);
+    const shown = await p.evaluate(() => { const li = [...document.querySelectorAll('.ux-overview .ux-queue>li')]; return li.filter(e => e.offsetParent !== null).length + ' of ' + li.length + ' / ' + ([...document.querySelectorAll('.ux-overview .ux-more')].some(e => e.offsetParent) ? 'link' : 'no link'); });
+    ok(/^(\d+) of \1 \/ no link$/.test(shown), `phone overview: every capped row on screen (D-IA.34, M4), no "View all" until IA-2b (${shown})`);
     const opt = await (async () => { await p.goto(base + '#/decision/kobo-generator'); await p.waitForTimeout(400); await openAll(p); await p.waitForTimeout(100); return p.evaluate(() => { const tr = document.querySelector('table.ux-opts tbody tr'); return getComputedStyle(tr).display === 'block' && document.documentElement.scrollWidth <= innerWidth; }); })();
     ok(opt, 'phone decision: options as stacked cards, no sideways page scroll');
     await p.context().close(); }

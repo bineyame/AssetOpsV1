@@ -115,3 +115,15 @@ phone CSS shows 3 queue rows of 6 (R749 phone rule), so the line's count refers 
 - D-IA.34's inbox opener on the line applies from IA-1c (coded behind `IA_LANDED.has('IA-1c')`, not exercised yet).
 - The sweep's Outcomes and Demand & capacity routes have no drawer openers; the sweep asserts the per-operator total instead.
 - Queued to IA-2b by D-IA.35 L5: the other wide data tables take `ux-stack`.
+
+
+## Fix round r2 (M4: the phone queue cap)
+- `ux.css`: the phone `nth-child(n+4)` rule on the Overview queue is dropped; the 6-row cap and "And N more" stand at every width (D-IA.34).
+- `count_check` gains a 390 Chromium pass (3 operators x default and no-recommendation x Overview and each Site): rows on screen = capped rows,
+  every waiting decision on screen or counted on a visible inbox line, "And N more" = what is off screen; non-empty set asserted
+  (4 routes per run). Plant `COUNT_PLANT=phone` restores the rule: fails (Lakeside 3 of 6 on screen, "And 2" vs 5 off screen, mto-billing hidden;
+  Metro 3 of 4, ruiru-connector hidden). It is added to `ia_gates` (43 runs). `count_check` now needs PW/CHROME (env.sh).
+- `ux_interaction_check` phone line retargeted from "top 3, no View all" to "every capped row on screen, no View all"; plant `viewall` fails (3).
+- Seen at 390: Lakeside Overview 6 rows + "And 2 more: 2 awaiting approval"; Metro 4 of 4 rows, 2 waiting visible.
+- Main merged (d5af18b80). Results: ia_gates 43 runs all as expected (541 s); uxi 384 PASS 0 FAIL (534 s); ia_shots 234 / 0 bad;
+  G3 36 of 36; check_manifest 7572 passed, 0 failed.

@@ -154,3 +154,36 @@ of 237 differ, all routing). `check_manifest` H9 4502 vs 4501 fails on main too,
 
 Evidence: `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/36691a1d-3a44-455a-947e-9acaa1af47c0/scratchpad/rev-ia1b-r1/`
 (`shots/`, `iashots/`, `probe.cjs`, `p-*` plants, `uxi.txt`, `iashots.txt`; scratch, may be cleared).
+
+
+---
+
+# IA-1b review r2 (verification re-review, fix round aa9eb82f7..3b5c761fd)
+
+**Verdict: accept with findings fixed on the branch.** M1, M2, L1-L5 are fixed as classes. M3 is fixed at 1440 but recurs at 390 (new M4).
+
+Summary
+- M1 (focus trap, D-IA.31): fixed (`uxTabbable`, uxi 384/0 cited).
+- M2 (closed details, D-IA.32/33): fixed. G1 plant `closed` fails (plan depth 2 > 1, seen by me); Site hub opens its first section.
+- M3 (capped queue, D-IA.34): fixed at >= 761px: `iaQueueCap`/`iaCapMore`; plant `capsel` fails (mto-losses hidden; synthetic cap=1 wrong), seen by me.
+- L1-L5: diff matches D-IA.35; ia_shots 234/0 cited; Outcomes stacks at 390.
+- **M4 (Medium, fix now): at 390 the Overview's phone CSS (ux.css:279, `.ux-overview .ux-queue>li:nth-child(n+4){display:none}`) hides rows 4-6 after `iaQueueCap` has chosen them. "And N more" counts beyond six, not beyond the three seen.**
+
+## M4 (Medium; acceptance gap vs D-IA.34 invariant and the honesty class M3 was about)
+Measured by me at 390 (probe, jsdom-free, real Chromium):
+- Lakeside Overview: heading 8, 6 rows built, **3 visible, 1 of 3 waiting decisions visible**, line says "And 2 more: 2 awaiting approval." Five decisions are not on screen and two waiting ones are hidden with nothing leading to them. This is M3 again on the phone.
+- Metro Overview: heading 4, 4 rows built, 3 visible, 1 of 2 waiting visible, **no "more" line at all** (n <= 6), and the phone "View all" link is not visible either. A waiting decision is silently dropped.
+- Mto Site hub at 390: 3 of 3 shown, 2/2 waiting, "And 1 more" correct (the Site has no phone cap).
+- Harvest: no waiting decisions; fine.
+- At 1440 every figure matches (Lakeside 6 shown, 3/3 waiting, "And 2 more"; Mto 3 shown, 2/2 waiting).
+Why not defer to IA-2b: the D-IA.34 invariant ("no waiting decision hidden by a cap while the inbox is unlanded") is an IA-1b acceptance statement, and the owner sees 390 at the G2 stop. The gate (count_check) only runs at desktop width, so it cannot see this. The fix is small: for the hub (`[data-shape="hub"]`) either drop the phone `nth-child(n+4)` rule, or cap by the same selection (`iaQueueCap(ids, 3)` on phone is not possible in CSS, so drop the CSS rule and let the 6-cap with its honest line stand). Add a 390 viewport pass to `count_check` (rows visible + `data-ia-more` = heading; every waiting row visible) with a plant that restores the rule. Update the register row (R749) if phone shows fewer rows.
+Note: "no decision waiting for a choice hidden at 390" is false today on Lakeside and Metro Overviews (Mto Site and Harvest are fine).
+
+## Verified by me
+- `node tools/ia_gates.cjs`: "42 runs, landed IA-1a, IA-1b, all as expected (426.8 s)" (matches builder).
+- Own plants in scratch copy `scratch-r2-ia1b-copy`: `G1_PLANT=closed click_depth_check` FAIL (exit 1, plan depth 2 > 1); `COUNT_PLANT=capsel count_check` FAIL (exit 1, "waiting decision mto-losses is hidden by the cap" plus the synthetic cap=1 lines).
+- Shots seen: Lakeside Overview 390 (top of page only, queue below the fold, so the DOM probe above is the evidence), Mto Site 1440 (headline, tiles, "Decisions at this Site 4", filter bar "3 of 4"; fine).
+- Not verified: Mto 390 and Lakeside 1440 full-page visual; builder runs uxi 384/0, ia_shots 234/0, G3 36/36, plan_switch 785/0 are cited, not rerun. check_manifest H9 and check-architecture excluded per brief.
+
+## Residual risk
+Metro's missing phone "View all" link (n=4, `ux-more-phone`) appears hidden by the hub shape; confirm when fixing M4.

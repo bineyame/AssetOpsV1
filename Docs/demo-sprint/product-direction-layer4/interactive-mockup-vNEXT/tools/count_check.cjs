@@ -6,12 +6,14 @@
    D-IA.34: on the Overview and every Site, rows shown + data-ia-more = the heading's count; every waiting decision (this check's own rule) is a shown row
    (IA-1b) or counted on a line carrying the inbox opener (from IA-1c); the line's parts equal the hidden rows' states. D-IA.35 L3: Outcomes column 5 against the
    Site page's board, one source (the most negative non-residual vr from uxSiteDriversShown). Synthetic: iaQueueCap on Mto's ids with cap = 1.
-   Run: node tools/count_check.cjs   Plants: COUNT_PLANT=choose (iaWaiting drops "none"), capsel (the cap takes the first in reviewed order), capmore (iaCapMore = ''),
+   M4 (r2): a 390 pass in Chromium (needs PW and CHROME from /opt/assetecon/tools/pw/env.sh): the rows ON SCREEN equal the capped rows, every waiting decision is on screen or counted on a visible line, and "And N more" equals what is truly off screen.
+   Run: node tools/count_check.cjs   Plants: COUNT_PLANT=choose (iaWaiting drops "none"), capsel (the cap takes the first in reviewed order), capmore (iaCapMore = ''), phone (restores the phone rule that hides Overview queue rows 4-6 at 390, Chromium pass only),
    adverse (iaLargestAdverse picks the smallest adverse driver), foryou (IA-1c; "For you" drops the plan). */
 const { boot, OPS } = require('./ia_crawl.cjs');
 const PLANT = process.env.COUNT_PLANT || '';
 const PLANTS = { choose: `iaWaiting = id => uxDecState(id).key === 'choose';`, capsel: `iaQueueCap = (ids, cap) => ({ shown: ids.slice(0, cap), hidden: ids.slice(cap) });`,
   capmore: `iaCapMore = () => '';`,
+  phone: '0',
   adverse: `iaLargestAdverse = sk => { let best = null; uxSiteDriversShown(sk).forEach(r => { if (!r.s.st.residual && r.vr < 0 && (!best || r.vr > best.vr)) best = r; }); return best; };`,
   foryou: `typeof iaForYou === 'function' && (() => { const _f = iaForYou; iaForYou = op => _f(op).filter(x => x !== 'plan' && !(x && x.plan)); })();` };
 if (PLANT && !PLANTS[PLANT]) { console.error(`count_check: unknown plant ${PLANT}`); process.exit(2); }
@@ -92,6 +94,31 @@ const waitingIn = txt => { const m = String(txt || '').match(/(\d+) waiting for 
     if (S.hidden.length !== S.ids.length - 1 || S.hidden.includes(want)) fails.push(`synthetic: iaQueueCap(Mto, 1) hides ${S.hidden.join(',')}`);
     const wantT = `And ${S.ids.length - 1} more: ${partsOf(w, S.ids.filter(id => id !== want))}.`; if (d.textContent.trim() !== wantT) fails.push(`synthetic: iaCapMore reads "${d.textContent.trim()}", expected "${wantT}"`);
     log.push(`synthetic · Mto cap 1 · shown ${S.shown.join(',')} · "${d.textContent.trim()}"`); B.dom.window.close(); }
+  /* M4: the same counts as rendered at 390 (the media rules are in force only in a browser) */
+  if (!process.env.PW) { console.error('count_check: PW is not set (source /opt/assetecon/tools/pw/env.sh)'); process.exit(2); }
+  { const { chromium } = require(process.env.PW), br = await chromium.launch({ executablePath: process.env.CHROME }), base = 'file://' + require('path').resolve(__dirname, '..', 'index.html');
+    const PAGE = () => { const op = sessionStorage.getItem('l4-op'), vis = e => e.getClientRects().length > 0 && getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden';
+      const waiting = ids => ids.filter(id => ['choose', 'none'].includes(uxDecState(id).key)), ids = [], seen = new Set(); ATTN[op].forEach(r => { if (!seen.has(r[4])) { seen.add(r[4]); ids.push(r[4]); } });
+      const IDS = li => (li.innerHTML.match(/decision\/([\w-]+)/) || [])[1];
+      const read = (sk) => { const all = sk ? [...new Set(ATTN[op].filter(r => r[2] === sk).map(r => r[4]))] : ids, panel = document.querySelector('.ux-queue-panel'), rows = panel ? [...panel.querySelectorAll('li.ux-q')] : [],
+        built = rows.map(IDS).filter(Boolean), shown = rows.filter(vis).map(IDS).filter(Boolean), line = panel && panel.querySelector('[data-ia-more]'), lineVis = !!line && vis(line);
+        return { total: all.length, wait: waiting(all), built, shown, more: line ? +line.dataset.iaMore : 0, lineVis, inbox: !!(line && line.querySelector('[data-ux-drawer="ia-inbox"]')) }; };
+      return { read, sites: OPS[op].sites }; };
+    for (const op of OPS) for (const q of ['', '?state=no-recommendation']) {
+      const ctx = await br.newContext({ viewport: { width: 390, height: 844 } }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
+      const p = await ctx.newPage(), errs = []; p.on('pageerror', e => errs.push(String(e))); await p.goto(`${base}${q}#/portfolio`); await p.waitForTimeout(500);
+      if (PLANT === 'phone') await p.addStyleTag({ content: '@media (max-width:600px){.ux-overview .ux-queue:not(.is-filtered)>li.ux-q:nth-child(n+4){display:none}}' });
+      const routes = [['portfolio', null], ...(await p.evaluate(() => OPS[sessionStorage.getItem('l4-op')].sites)).map(sk => [`site/${sk}`, sk])], IAL = await p.evaluate('IA_LANDED.has("IA-1c")'); let nRows = 0;
+      for (const [r, sk] of routes) { await p.evaluate(h => { location.hash = h; }, `#/${r}`); await p.waitForTimeout(350);
+        const R = await p.evaluate(`(${PAGE.toString()})().read(${JSON.stringify(sk)})`), tag = `${op} ${q || 'default'} 390 ${r}`; nRows += R.shown.length;
+        const bad = m => fails.push(`${tag}: ${m}`), off = R.total - R.shown.length;
+        if (R.shown.length !== R.built.length) bad(`${R.shown.length} rows on screen, the cap built ${R.built.length} (${R.built.filter(x => !R.shown.includes(x)).join(',')} hidden by CSS)`);
+        if (R.more !== off) bad(`"And ${R.more} more" but ${off} of ${R.total} are off screen`);
+        if (R.more && !R.lineVis) bad('the "more" line is not on screen');
+        const hw = R.wait.filter(id => !R.shown.includes(id)); if (hw.length && !(IAL && R.inbox && R.lineVis)) bad(`waiting decision ${hw[0]} is neither on screen nor counted on a visible line`); }
+      log.push(`${op} · ${q || 'default'} · 390 · ${routes.length} routes, ${nRows} rows on screen`); if (!nRows) fails.push(`${op} ${q || 'default'} 390: no queue row measured`);
+      if (errs.length) fails.push(`390 ${op}: script error ${errs[0]}`); await ctx.close(); }
+    await br.close(); }
   log.forEach(l => console.log('  ' + l));
   console.log(fails.length ? `count_check${PLANT ? ` (plant ${PLANT})` : ''}: FAIL\n  ${fails.slice(0, 12).join('\n  ')}` : `count_check${PLANT ? ` (plant ${PLANT})` : ''}: PASS`);
   process.exit(fails.length ? 1 : 0);

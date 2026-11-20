@@ -276,7 +276,6 @@ table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{ba
   .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
 }
 @media (max-width:600px){
-  .ux-overview .ux-queue:not(.is-filtered)>li.ux-q:nth-child(n+4){display:none}
   .ux-overview .ux-more-phone{display:block}
 }
 .ux-kpi-na{font-size:var(--fs-lg);font-weight:500;color:var(--text-2)}
