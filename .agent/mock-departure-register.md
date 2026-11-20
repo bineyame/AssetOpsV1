@@ -8,7 +8,7 @@ Architect classification, 2026-10-24; counts refreshed 2026-10-26 (post-W6 final
 | D2 improvement | 76 | 73 |
 | D3 structural oversight | 140 | 2 |
 | D4 illustrative placeholder | 53 | 53 |
-| D5 build order | 7 | 2 |
+| D5 build order | 7 | 1 |
 | D6 technical constraint | 0 | 0 |
 | Backlog (non-departure) | 1 | 1 |
 | **Total** | **410** | **263** |
@@ -97,7 +97,7 @@ Architect classification, 2026-10-24; counts refreshed 2026-10-26 (post-W6 final
 | R33 | W6-01 B2→B3 | `maintenance` | Preventive View detail link | Interim unavailable slot | D5 | Preventive route is mounted by B3. | W6-01 B3 link promotion and review | resolved: built destination and link verified in audit |
 | R34 | W6-01 C3→E2 | `wr-record` | Live Operational records link | Interim plain REC codes | D5 | Operational records route is mounted by E2. | W6-01 E2 link promotion and review | resolved: W6-01 E2 `173cfc73`; audit verified |
 | R40 | W2-03→W5-01; W2-06→W5-03 | `temperature`, `coldbackup`, `cold-finding`, `sessions`, `ev-finding` | Cooling, Availability and Energy destinations; Recommendation separately D1 | Visible Not available yet entries in mock order | D5 | Cooling/Availability/Energy destinations were built in W5; cold/EV Recommendation remains unbuilt and is D1. Overview card and link promotion remain D3 in this audit. | W5-01/W5-03 route promotion and review | resolved for built depth destinations; remaining link defects tracked as D3 |
-| R742 | DS1m (spec `specs/DS1-history-generator/spec.md` §9.3; D-DS1.8) | Layer 4 mock-up (`interactive-mockup-vNEXT`) Site page KPI tiles, `site/<site>` (`loop-ux.js` Site tiles, `uxTrendNA()` without arguments) | Trend slot: a 64×16 sparkline of Jul to Oct and "<change> against Sep", as on the Portfolio overview | "Trend not available yet", although `DERIVED.history[tenant].sites` holds each Site's series | D5 | Build order: DS1m wires only the Portfolio overview; the Site tiles' call sites pass no series, and DS1m changes no screen code | UI lane's Site trend wiring | open (temporary) |
+| R742 | DS1m (spec `specs/DS1-history-generator/spec.md` §9.3; D-DS1.8) | Layer 4 mock-up (`interactive-mockup-vNEXT`) Site page KPI tiles, `site/<site>` (`loop-ux.js` Site tiles, `uxTrendNA()` without arguments) | Trend slot: a 64×16 sparkline of Jul to Oct and "<change> against Sep", as on the Portfolio overview | "Trend not available yet", although `DERIVED.history[tenant].sites` holds each Site's series | D5 | Build order: DS1m wires only the Portfolio overview; the Site tiles' call sites pass no series, and DS1m changes no screen code | UI lane's Site trend wiring | closed (DS1m r4: Site wiring 583bdd7c8 via 25b3ae88b; history.sites from DS1; G1+ 8a-8c on 9 Sites, G3 Site clauses) |
 
 ## D6 — technical constraint
 

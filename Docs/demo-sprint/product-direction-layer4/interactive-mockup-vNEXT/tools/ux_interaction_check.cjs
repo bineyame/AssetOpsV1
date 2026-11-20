@@ -572,12 +572,26 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const r = await p.evaluate(st => { const e = document.querySelector('.ux-queue-panel [role="status"]'); return e ? e.textContent.trim().slice(0, 60) || (st === 'loading' && e.querySelectorAll('.ux-skel-row').length + ' skeleton rows') : null; }, st);
     ok(!!r, `state=${st}: the queue shows its ${st} state (${r})`);
     await p.screenshot({ path: process.argv[3] + `/state-${st}-1440.png` }); await p.context().close(); }
-  // 8 overview trends (DS1m, R20): two sparklines from DERIVED.history, "against Sep", last point = the tile's headline
-  for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
-    const r = await p.evaluate(op => { const T = opTotals(op), k1 = OPS[op].kind === 'cost' ? 'cost' : 'contribution', s1 = uxHistory(op, k1), s2 = uxHistory(op, 'gap'), last = s => s ? s[s.length - 1].v : null, tr = [...document.querySelectorAll('.ux-overview .ux-kpi .ux-trend')].map(e => e.textContent.trim());
-      return { sparks: document.querySelectorAll('.ux-overview svg.ux-spark').length, sep: tr.filter(t => /against Sep/.test(t)).length, tr, a: [last(s1), T.actual], v: [last(s2), T.variance] }; }, op);
+  // 8 trends (DS1m, R20; D-DS1.15): the 3 Portfolio overviews and all 9 Site pages. 8a form, 8b source and headline, 8c stated change
+  const sweep = []; for (const op of ['lakeside', 'harvest', 'metro']) { sweep.push({ op, sk: null }); }
+  const sitesOf = await (async () => { const p = await page('portfolio'); const m = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(o => [o, OPS[o].sites]))); await p.context().close(); return m; })();
+  for (const op of Object.keys(sitesOf)) for (const sk of sitesOf[op]) sweep.push({ op, sk });
+  for (const { op, sk } of sweep) { const p = await page(sk ? 'site/' + sk : 'portfolio', { op }); const lab = `${op} ${sk ? 'Site ' + sk : 'overview'}`;
+    const r = await p.evaluate(([op, sk]) => { const cost = OPS[op].kind === 'cost', k1 = cost ? 'cost' : 'contribution', root = sk ? '#app .ux-kpis' : '#app .ux-overview';
+      const slots = [...document.querySelectorAll(`${root} .ux-kpi .ux-trend`)].map(e => ({ text: e.textContent.trim(), measure: e.getAttribute('data-measure'), sparks: e.querySelectorAll('svg.ux-spark').length }));
+      const s1 = sk ? uxHistory(op, k1, sk) : uxHistory(op, k1), s2 = sk ? uxHistory(op, 'gap', sk) : uxHistory(op, 'gap');
+      let head1 = null, head2 = null;
+      if (sk) { const ov = X => X.status === 'evaluated' ? X.nodes[cost ? 'cost_to_serve' : 'contribution'] : X.stated_total, d = DERIVED.sites[`${OPS[op].t.tenant}/${siteM(sk).site}`]; head1 = ov(d.actual); head2 = siteM(sk).period.variance; }
+      else { const T = opTotals(op); head1 = T.actual; head2 = T.variance; }
+      const last = s => s ? s[s.length - 1].v : null, chg = s => s ? s[s.length - 1].v - s[s.length - 2].v : null, sep = s => s ? s[s.length - 2].m : null;
+      const exp1 = !s1 ? null : cost ? (c => `Monthly cost ${c > 0 ? 'up ' + usdW(c) : c < 0 ? 'down ' + usdW(-c) : 'unchanged'} against ${sep(s1)}`)(Math.round(chg(s1))) : `${usdW(chg(s1), true)} against ${sep(s1)}`;
+      const exp2 = !s2 ? null : `${usdW(chg(s2), true)} against ${sep(s2)}`;
+      return { cost, slots, a: [last(s1), head1], v: [last(s2), head2], exp: [exp1, exp2] }; }, [op, sk]);
+    const sl = r.slots, form = (t, i) => !!t && (i === 0 && r.cost ? t.measure === 'monthly-cost' && t.sparks === 0 && /^Monthly cost (up \$[\d,]+|down \$[\d,]+|unchanged) against \w+$/.test(t.text) : t.measure === null && t.sparks === 1 && /^[−+-]?\$[\d,]+ against \w+$/.test(t.text));
+    ok(sl.length === 2 && sl.every(form) && !p._errs.length, `${lab} 8a form: ${sl.length} trend slots (${sl.map(t => `${t.measure || 'signed'}${t.sparks ? ' svg' : ''}: ${t.text}`).join(' | ')}); expected tile 1 ${r.cost ? 'measure-named' : 'signed'}, tile 2 signed`);
     const eq = ([x, y]) => x !== null && Math.abs(x - y) < 0.005;
-    ok(r.sparks === 2 && r.sep === 2 && eq(r.a) && eq(r.v) && !p._errs.length, `${op} overview trends: ${r.sparks} sparklines, ${r.sep} "against Sep" (${r.tr.join(' | ')}); last points ${r.a[0]} = ${r.a[1]} and ${r.v[0]} = ${r.v[1]}`);
+    ok(eq(r.a) && eq(r.v), `${lab} 8b source and headline: last points ${r.a[0]} = ${r.a[1]} and ${r.v[0]} = ${r.v[1]}`);
+    ok(r.exp[0] !== null && r.exp[1] !== null && sl.length === 2 && sl[0].text === r.exp[0] && sl[1].text === r.exp[1], `${lab} 8c stated change: "${sl.map(t => t.text).join('" and "')}" against series "${r.exp.join('" and "')}"`);
     await p.context().close(); }
   await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0);
 })();

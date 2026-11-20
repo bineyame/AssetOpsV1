@@ -9,11 +9,50 @@ Head used for the call sites (P15): `uxOverview` and `uxHistory` in `interactive
 "DS1m mid-build answers"). MB7: G3 amended. MB8: the Lakeside sentence is accepted with DS1m. Each was a spec gap, not
 an implementer defect.
 
-**Round 3 status: plan_switch_check green; ux_interaction_check and G3 red from `main`'s UI change (see "Round 3").**
+**Round 4 status: all gates green, 9 plants fail their clauses; R742 closed (see "Round 4").**
+
+**Round 3 status (superseded): plan_switch_check green; ux_interaction_check and G3 red from `main`'s UI change (see "Round 3").**
 
 **Round 2 status: one gate is red, caused by `main`'s data and not by DS1m; stopped and reported.** After merging `main`
 and regenerating, `plan_switch_check` gives 777 passed and 1 failed. The failure is `mto-losses: chosen by David
 (SITE_MANAGER) ()`. `main`'s own regenerated output fails identically (see "Round 2" below).
+
+## Round 4: D-DS1.15 built (merge of `main` `f4b8923a7`, then the amended gates)
+
+`main` merged (`df428ae17`, clean). `gen_fixtures.py` and `build.mjs` rerun: `fixtures.js` and `index.html` byte-identical
+(no diff). No screen code changed. Evidence: `/opt/assetecon/evidence/DS1/m-r4/` (green runs) and `m-r4-plant/` (plants).
+
+| Gate | Result |
+| --- | --- |
+| DS1 generator tests (`.venv/bin/python -m pytest simulator/tests/world`) | 125 passed |
+| render_text | 237 renders, script errors 0 |
+| plan_switch_check | 778 passed, 0 failed, script errors 0 |
+| ux_interaction_check (G1 + G1+ block 8 on 3 overviews and 9 Sites: 8a, 8b, 8c each x 12) | 360 PASS, 0 FAIL |
+| check_manifest.py | 7571 checks passed (2869 history), 0 failed (main's fix) |
+| G3 (`tools/g3_trends.cjs`, 36 shots) | 36 of 36 pass |
+
+Built: block 8 in `tools/ux_interaction_check.cjs` (sweep from `OPS[op].sites`, nothing skipped; 8a form by `kind`, 8b
+series last points = headline, 8c stated change from `last - Sep`); `tools/g3_trends.cjs` (36 shots, per-width clauses,
+figure measured with a `Range`). Decision for the reviewer: the signed form accepts an unsigned `$0` (Metro Kasarani's gap
+is unchanged, `usdW(0, true)` = "$0"); the ruling says "signed change", and a sign on zero would be invented.
+The G3 script now lives in the repo (it was outside it in rounds 1-3).
+
+**Plants** (each a copy of `index.html`, made by `scratchpad/ds1m_r4_plants.py`; generated file never edited; all reverted
+by being copies; logs `m-r4-plant/P*-ux.txt`, `P*-g3.txt`):
+| Plant | Result |
+| --- | --- |
+| P1 no `DERIVED.history` | 8a FAIL on all 12 pages (plus 8b, 8c as a consequence); G3 0 of 36 pass, form fails on all 36 |
+| P2 Oct +100 on Ruiru cost, Kobo gap | 8b FAIL on Ruiru and Kobo only (2 lines); nothing else |
+| P3 compare against first point | 8c FAIL on all 12 pages; nothing else |
+| P4 no `data-measure` | 8a FAIL on the 4 Metro pages; nothing else |
+| P5 trend `visibility:hidden` | G3 24 of 36: 12 fail, all 1440 |
+| P6 `max-width:40px` | 24 of 36: 12 fail, all 1280 |
+| P7 `.ux-kpi-s+.ux-kpi-s` hidden at 1280 | 24 of 36: 12 fail, all 1280 |
+| P8 sparkline shown at 390 | 24 of 36: 12 fail, all 390 |
+| P9 `.has-trend` hidden at 390 | 24 of 36: 12 fail, all 390 |
+
+**R742 closed** (`.agent/mock-departure-register.md`: status closed, D5 open count 2 to 1). `check_manifest.py` is now green
+on this branch after the merge.
 
 ## Round 3: after merging `main` at `e0aedb86b` (UI branch `25b3ae88b`)
 
