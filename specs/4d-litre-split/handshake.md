@@ -1,6 +1,7 @@
 # 4d handshake
 
-Reviewer questions and builder pre-flight, one combined round (`.ai/RULES.md` §4). Empty: no round yet.
+Reviewer questions and builder pre-flight, one combined round (`.ai/RULES.md` §4). Round 1 below; answered in
+`rulings.md`, "Handshake answers (round 1)", and folded into spec rev 2.
 
 ## Reviewer questions
 
