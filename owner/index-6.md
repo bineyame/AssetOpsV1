@@ -31,3 +31,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-20 `owner-website-refresh-2026-11-20.md` Queue the website recommendation and copy-deck refresh (operations, missing-data honesty, new app structure); recommendation role only · current
 - 2026-11-20 `owner-no-in-build-wording-2026-11-20.md` Prospect-facing copy never says the product is being built (erodes confidence); claim nothing untrue; the Demo data badge stays · current — governs website and pitch copy
 - 2026-11-20 `owner-recut-fortnight-deep-dive-2026-11-20.md` Architect re-cuts the remaining fortnight around the deep-dive path; pushback with reasons welcome · current
+- 2026-11-20 `owner-recut-decisions-rc1-rc9-2026-11-20.md` All re-cut defaults RC1–RC9 accepted (deep-dive path; 3A6; P5 day 3; own DB after DPA; mini-grid; 5c before IA-2; owner presents; 1% tolerance; first change an Action) · current
