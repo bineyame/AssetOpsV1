@@ -1197,7 +1197,9 @@ H10_MANIFEST_SHA = "5407c9869fa319126d9305bf39d0600b340ef0e6a7dea01dd95418798236
 # replaces `avoided_capex` and the Metro listed key is renamed (D-RECON.5); every evaluation option gains `basis` (D-RECON.6);
 # the `mto-losses` decision and its `mto-unexplained-loss` Finding rows (D-RECON.7). derived-values.json, missing-records.json
 # and history.json stayed byte-identical after evaluate_structure.py. The RECON-1 base was 09903eba1032bf6dc7b421c3c51855fe9fdb0929d090dda48a3c17d3d6dc2a85.
-H9_BASELINE = 4503   # 4487 (confirmed, D-RECON.8) plus the 16 figure anchors of design Figure 1c (owner, 20 Nov: "yes, add the figure");
+H9_BASELINE = 4501   # re-cut of 20 Nov (D-BW1, specs/BW1-build-wave1/rulings.md): two-week-build-plan.md §6 drops the money-leaves row
+                     # (Kobo outstanding) and the bridge row (Kobo's gap), which no longer reach a screen by day 14: 2 figure anchors fewer.
+                     # Before it: 4503 = 4487 (confirmed, D-RECON.8) plus the 16 figure anchors of design Figure 1c (owner, 20 Nov: "yes, add the figure");
                      # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md): 4465, plus the
                      # 11 figure anchors of design §2.0 "How the statement and the headings reconcile" (rev 16.14, D-RECON.4),
                      # plus 11 for D-RECON.5 and D-RECON.7: stated() checks capex_not_needed's `against` (+1), and homes() checks
