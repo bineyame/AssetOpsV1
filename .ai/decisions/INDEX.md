@@ -36,7 +36,7 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-10.md` | Demo-sprint and later rulings | `D-4B.1` to `D-IA.31` (51) |
 | `index-rulings-11.md` | Demo-sprint and later rulings | `D-ON1.9` to `D-5B.14` (49) |
 <<<<<<< HEAD
-| `index-rulings-12.md` | Demo-sprint and later rulings | `D-5B.15` to `D-IA.40` (23) |
+| `index-rulings-12.md` | Demo-sprint and later rulings | `D-5B.15` to `D-IA.42` (25) |
 =======
 | `index-rulings-12.md` | Demo-sprint and later rulings | `D-5B.15` to `D-3A7.13` (31) |
 | `index-rulings-13.md` | Demo-sprint and later rulings | `D-4D.1` to `D-DDR.6` (27) |

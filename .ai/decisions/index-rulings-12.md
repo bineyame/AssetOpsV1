@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-IA.40)
+# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-IA.42)
 
 - `D-5B.15` A RESIDUAL row carries NOT_SPLIT / DETAIL_NOT_AVAILABLE; 5c keys on kind first (mid-build Q1) · live · specs/5b-attribution/rulings.md
 - `D-3A6.1` A source profile is a JSON data file compiled to the one engine's Layout; new fields default to today's behaviour (amends D-3A3.2) · live · specs/3A6-source-profiles/rulings.md
@@ -30,6 +30,8 @@
 - `D-IA.38` Drill-down shapes keep crumbs at every size (answers Q2, option a); plants SHAPE_PLANT=sitecrumb, SHOTS_PLANT=crumbs · live · specs/IA-1-shape-rebuild/rulings-2.md
 - `D-IA.39` Act log gated in count_check after act and Undo; plant COUNT_PLANT=nolog · live · specs/IA-1-shape-rebuild/rulings-2.md
 - `D-IA.40` A route about one Site's object is scoped to that Site (`iaParamSite`); plant SHAPE_PLANT=decscope · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.41` Top bar collapse ends in a form that fits: level 4 period short (time in its menu), level 5 two rows as the phone; search never hidden; R755, R756 D2 (amends D-IA.37) · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.42` Builder's extras: fit before the guard confirmed (AR_PLANT=fitlate); `--ia-sticky-h` confirmed as the bar's bottom edge, gap a token (UXI_PLANT=stickyh) · live · specs/IA-1-shape-rebuild/rulings-2.md
 - `D-3A7.8` Only a statement matched on both headings against recorded lines opens the gate (amends D-3A7.2) · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.9` The standing is read at the known_at of the figure it labels; 5c passes the snapshot's as_of (amends D-3A7.6) · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.10` Compare exactly; display rounding directed so a sentence never contradicts its state · live · specs/3A7-month-reconciled/rulings.md

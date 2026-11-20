@@ -337,3 +337,115 @@ table. No reviewed function in `loop-ux.js` changes in this round; no copy is ad
 - **OQ-IA.4 The top bar collapses search to its icon where it does not fit; a decision always shows its way to its
   Site.** **Default:** as D-IA.37 and D-IA.38 rule; the owner sees both at the G2 stop. The alternatives (the bar
   wrapping to two rows between 761 and 1199; crumbs hidden on short laptop screens) read patched and strand a decision.
+
+## IA-1c fix-round answer
+
+Answers the packet's "Known deviation: D-IA.37's own stop condition is hit" (`packet-IA-1c.md`, head `ae29ce0b4`):
+at level 3 the bar still runs past the window at 761, 800 and 900 (inbox and theme off screen at 761). Measured, not
+tuned: the period chip alone is about 298 px, the scope switch about 200 px, beside a 174 to 204 px rail. Module paths
+as above. Brief: `owner/owner-ui-standing-brief-2026-11-20.md` (right control per content, one interaction grammar,
+simplicity by design).
+
+### D-IA.41 The top bar's collapse ends in a form that always fits: the period's short form, then the two-row bar (amends D-IA.37)
+
+- **Class.** D-IA.37's order ends at a level that only fits when the content is short enough, so any long label
+  (a Site name in the scope switch, D-IA.40; the period sentence) overflows with nothing left to give. A collapse
+  order is only a rule if its last level fits by construction. The phone already has that form (two rows, reviewed);
+  the narrow desktop must end in the same form, not in a third one.
+- **Ruling: two more levels, same order, same measure.** `data-fit` gains `4` and `5`:
+  - `0` to `3` as D-IA.37 rules (search icon, then inbox label, then avatar).
+  - `4`: also the period in short form: the clock icon and "October 2026"; the sentence " · Figures as of …" is
+    visually hidden with the clip pattern the inbox label uses. The menu still opens from the same summary.
+  - `5` (final): also the bar in two rows, the reviewed phone arrangement (`ia.css` lines 20 and 48: `.right`
+    `display:contents`, the inbox `margin-left:auto`, the period `order:1`). The scope switch may shrink here and
+    its label wraps between words: `.ia-frame .topbar[data-fit="5"] .ux-scope-sw{flex:0 1 auto;min-width:0}` and its
+    `summary{white-space:normal;overflow-wrap:normal;word-break:normal}`. Height as the phone's: `height:auto;
+    min-height:54px`; padding stays the width's own.
+- **The period's short form needs a split, not new copy.** `ia-shapes.js` gets `function iaPeriodChip(op)`, the
+  template of `periodChip` (`loop-core.js`, unchanged) with one change: the text after "October 2026" sits in
+  `<span class="ia-period-asof"> · ${snapText(op)}</span>`. Its text content is byte-identical (render_text unchanged);
+  the `snap-pending` span is emitted exactly as `periodChip` emits it. The frame calls
+  `uxPeriodMenuHtml(ctx.op, iaPeriodHtml(ctx.op))` through `function iaPeriodHtml(op)` (a declaration, so a plant can
+  reassign it): `uxPeriodMenuHtml(op, iaPeriodChip(op))` with the open menu's current item `<small>current period</small>`
+  replaced by `<small>current period · ${snapText(op)}</small>`, at every level (one menu form, not a state-dependent
+  one). That join of two existing strings is the only text change; no new words. `uxPeriodMenuHtml` stays unchanged.
+  So the figures' time is on screen in the chip wherever it fits, and one click away (in the period's own menu,
+  where a period is chosen) where it does not: the right control for it.
+- **The measure (`iaFitTopbar`).** At `innerWidth >= 761`: set `0`, step while it does not fit, through `4`; if `4`
+  does not fit, set `5` and stop (no test: `5` is the final form). Fits stays `scrollWidth <= clientWidth + 1` with
+  nowrap and `flex:none` for `0` to `4`. Below 761 it sets `data-fit="5"` (no measure): the phone is the final form,
+  so phone and narrow desktop are one form keyed one way. The `[data-fit="5"]` rules are written as second selectors
+  on the existing `@media (max-width:760px)` IA rules, not copies.
+- **Search is never hidden.** Inside `.ia-frame`, the search shows in icon form at every width (`data-fit >= 1`
+  rules), superseding the reviewed `ux.css` hide at ≤ 600 for IA routes: `.ia-frame .topbar[data-fit="5"] .searchbox
+  {display:flex}`. The avatar stays hidden at `3` and up (it is identity, not a control). The reviewed rules stay
+  for legacy screens.
+- **Rejected: the narrower rail** (option b). It moves a second element's band (the rail is full at 761 to 1023 and
+  icons at 1024 to 1279), changes every page's content width, and still guarantees nothing for a long Site name.
+  Recorded for IA-2 as a separate question (the rail's icon form below 1024), not taken here.
+- **Stop condition.** Only a single unbreakable word wider than the window can now overflow; if the sweep finds one,
+  the round stops and asks. No width, gap or label is tuned to pass.
+- **`MOCK DEVIATION`**, D2 improvement, two register rows (builder adds them to `.agent/mock-departure-register.md`):
+  **R755** frame top bar, every IA route · the period chip with its full sentence at every width · the period in
+  short form (icon and month) where the bar does not fit at level 3; the sentence stated in the period menu's current
+  item at every width · D2 · the collapse ends in a form that fits; the time stays one click away · none (final) · IA-1c.
+  **R756** frame top bar, every IA route · one row from 761 (D-IA.37); search hidden ≤ 600 · two rows wherever level 4
+  does not fit, the phone's arrangement; search in icon form at every width · D2 · one final form for phone and narrow
+  desktop; every control reachable 390 to 1920 · none (final) · IA-1c.
+- **Gates (`ia_shots.cjs`, the D-IA.37 sweep, widened).** Widths 390, 600, 601, 760 added to the fourteen; same routes
+  (portfolio, plan, x-unknown, each operator's longest-Site decision), light. Clauses, each with its own BAD reason:
+  - **past** (every width): no top-bar item's box left of 0 or right of `innerWidth`; no document horizontal scroll.
+  - **reach** (every width): each of the scope summary, `.searchbox`, the period summary, `.ia-inbox` and
+    `.theme-toggle` has a box at least 16 px wide, lies wholly inside the viewport, and `elementFromPoint` at its
+    centre is it or inside it. BAD reason names the control ("inbox not reachable").
+  - **trunc** (every width, from D-IA.37, now also below 761): no visible `.ia-search-t`, scope summary, period summary
+    or `.ia-inbox-label` with `scrollWidth > clientWidth + 1`.
+  - **midword** (every width): the scope summary's computed `overflow-wrap` and `word-break` are `normal` and its
+    `text-overflow` is not `ellipsis`.
+  - **rows**: `data-fit` 0 to 4 means `oneLine`; `5` means the item centres fall in exactly two bands; below 761
+    `data-fit` is `5`.
+  - **order**: per operator and route, `data-fit` never rises as the width rises.
+  - **full**: `data-fit="0"` at 1440 on `#/portfolio` for every operator (kept) and at 1920 on every swept route.
+  - **asof** (1440 and 390, every operator, `#/portfolio`): open the period menu; its `[aria-current="true"]` item's
+    text contains `snapText(op)`.
+- **Plants that must fail** (each run once; first failing line into the packet's plant table):
+  - `SHOTS_PLANT=fit` and `SHOTS_PLANT=truncate`: kept as D-IA.37 rules them.
+  - `SHOTS_PLANT=wrap`: the `[data-fit="5"]` selectors deleted from the sheet in the page, plus
+    `.ia-frame .topbar .ux-scope-sw>summary{padding-right:240px}` (a stand-in for a long Site name) → **past** at 761.
+  - `SHOTS_PLANT=longname` is the control and **must pass**: the same padding alone, every width 390 to 1920.
+  - `SHOTS_PLANT=phonesearch`: `@media (max-width:600px){.ia-frame .topbar .searchbox{display:none!important}}` →
+    **reach** at 390 ("search not reachable").
+  - `SHOTS_PLANT=midword`: the padding plus `.ia-frame .topbar .ux-scope-sw>summary{overflow-wrap:anywhere}` →
+    **midword** at 390.
+  - `SHOTS_PLANT=asof`: `iaPeriodHtml = op => uxPeriodMenuHtml(op, iaPeriodChip(op))` and re-render → **asof**.
+- **Why.** The brief asks for simplicity by design and one grammar: a collapse that ends in the phone's own form is
+  one rule from 390 to 1920, and every control is reachable because the last form fits by construction rather than by
+  measurement luck. The period's sentence is status, not the control: the control (the month) stays in the bar, the
+  status goes where the period is chosen.
+
+### D-IA.42 The builder's two changes beyond D-IA.37 and D-IA.36: one confirmed, one confirmed with a correction
+
+- **`iaFitTopbar` runs before the after-render guard observes: confirmed.** D-IA.37 said "at the end of `iaRender`";
+  the fit is part of the render, and `ia-shapes.js` calls it before `__iaInserted`. The guard's allow-list is not
+  widened for `data-fit`. A re-fit on `resize` or `document.fonts.ready` is a response to an event, outside the
+  guard's no-event window, and writes only `data-fit` on `.topbar`. **Plant that must fail:** `AR_PLANT=fitlate` in
+  `after_render_check.cjs`: `iaBind` wrapped to call `iaFitTopbar()` again in a `setTimeout(…, 0)` after insertion →
+  "attributes data-fit on header". It joins `ia_gates.cjs`'s IA-1c list.
+- **The scroll margin from a measured `--ia-sticky-h`: confirmed, corrected in two places.** Measuring the sticky bar
+  by showing it for one synchronous read (no paint) is the only way to get a rendered size for an element shown only
+  after the scroll; the `is-on` toggle is the class the guard already allows. Corrections: (1) the variable is the
+  shown bar's **bottom edge** in the viewport (`Math.ceil(getBoundingClientRect().bottom)`), not its height, so a bar
+  that starts below the top bar (`--ux-sticky-top`, now taller at level 5) is covered; (2) the `+ 8` leaves the
+  script: the gap is the token, `.ux-ocards{scroll-margin-top:calc(var(--ia-sticky-h,0px) + var(--s2))}`. On a
+  phone (≤ 600, the bar at the bottom) the variable is `0px` as now. **Plant that must fail:** `UXI_PLANT=stickyh`:
+  `iaInPage` sets `--ia-sticky-h` to `0px` → the uxi "in-page link" assertion that the section's `h2` top is at or
+  below the sticky bar's bottom fails at 1440.
+- **Why.** Both follow the measured-not-typed rule (r3 L4, D-IA.17): a fit that ran after insertion would be a
+  post-render rewrite, and a margin from a height alone is a typed assumption about where the bar starts.
+
+### Owner questions (W3; defaults applied)
+
+- **OQ-IA.5 Where the top bar cannot fit on one row it becomes two rows, as on the phone; the period shows its month
+  and states the figures' time in its menu.** **Default:** as D-IA.41 rules; the owner sees 800 and 390 at the G2
+  stop. Alternatives rejected: a narrower rail at 761 to 1023 (a second band patch, no guarantee); truncating the
+  scope or period label (the brief: never truncate a label).
