@@ -1,7 +1,7 @@
 # 3A3 packet: emulated native exports and the source contract test
 
 Implementer (Claude, fresh), 2026-11-20. Branch `task/3A3-emulators` (dispatch name; spec §0 says `-contract`), base
-`main` 3b3916d4f (RC4-F1 merged). Spec rev 2, rulings D-3A3.1-12. Mid-build questions: **0**. `USER_REVIEW_REQUIRED:
+`main` 3b3916d4f (RC4-F1 merged). Spec rev 2, rulings D-3A3.1-12. Mid-build questions: **1** (Q1, F3's spec gap; ruled D-3A3.13). `USER_REVIEW_REQUIRED:
 false` (non-screen; Q1 `--accept-as` stays "owner to weigh in", not blocking).
 
 Module paths (worktree `PYTHONPATH`): `assetops_backend` `/opt/assetecon/AssetOpsV1-3a3/backend/assetops_backend/__init__.py`,
@@ -44,11 +44,25 @@ test_3a3_single_writer,test_3a3_load_emulated,test_3a3_load_emulated_postgres}.p
 - Plants V1-V20 + V1b: plant, run named test(s), `git checkout`; each fails (`plants.log` in the scratchpad; V8 fails
   as the module fixture's `EMU_REVENUE` error). Tree clean after.
 
+## Fix round r1 (review `review.md`; rulings D-3A3.13, D-3A3.14; head `40abd7e7b`)
+- F3: budget prices = plan money / plan quantity, exact or `EMU_PLAN_PRICE <tenant>/<site> <factor>`; `PLAN_FIELD_ABSENT`
+  and `PLAN_PRICE_UNDEFINED` listed; no read of `tenant.prices`. E8 plan-price case, new E10. E7 hashes unchanged.
+- F1: `HeldUpload.submitted_by` (`_HELD` and mirror); `PERSON_SAME_FOR_BOTH` for a waiting upload the acceptor
+  submitted (L6 new case). F6: the path is the reader ID (`_path` deleted); L5 gains the `profile-x` case.
+- F2: C8 short-row and NUL-row cases for every case, C1 record count, C3 optional-header complement, `mapped=None`
+  allowed only where the layout maps nothing (billing). F4: S1 flags any import of `build_commercial_uploads`
+  outside `BUILD_CALLERS` (plant `builder-alias`). F5: L1 composition-path case (switch on, operator URL).
+- Residual fixed: a DS1b record with no or a foreign `site_code` is listed `SITE_NOT_IN_TENANT` (E9 plants both).
+- Plants, each failing as intended: V-F3a (E8 plan-price, E10), V-F3b (same), V-F3c (E8 plan-price), L6 (drop the
+  check), L5 (restore canonical-vs-native), S1 (drop alias import rule), reviewer's plant A (C8 x4).
+- Runs (worktree PYTHONPATH, paths verified): 3A3 focused 167 passed (14.6 s); 3A2 api/service, 3A4 months, RC4-F1,
+  3c0a service, contracts/tests 216 passed (27.7 s); `heavy-slot.sh --db` run-host-tests `test_3a3_load_emulated_postgres.py`
+  4 passed (10 s, routed `*_test`); fast check-all 40 guards passed (84 s).
+
 ## Known deviations
 - D1. Fuel delivery days use `days_in(month) // m`, not the literal `31 // m`: DS1 R25a's guard (test_core T6) bans the
   literal 31 in world modules. Identical for October.
-- D2. Budget `tariff` and `diesel_price` come from the tenant's `prices` (by Site name): the manifest plan holds no
-  such fields and E6 expects 0.40/1.25/0.55/1.30. Absent price: `PLAN_FIELD_ABSENT`.
+- D2. Withdrawn (review r1 F3): budget `tariff` and `diesel_price` are now plan money / plan quantity (D-3A3.13).
 - D3. A non-whole plan money value raises `EMU_PRICE <tenant>/<site> <field>` (the spec names no code for it).
 - D4. L2/L5 obtain the emulator's files by running `tools/world_history.py exports|records` in a child process: the
   dependency-direction guard bans `assetops_simulator` imports anywhere under `backend/`, tests included.
