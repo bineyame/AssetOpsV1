@@ -1,6 +1,6 @@
 # 3A1: the commercial record store (implementer spec)
 
-Architect (Claude), 2026-11-20. Rev 1, spec handshake step 1 (`.ai/RULES.md` §4). Lane A (sources and money). The
+Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in; `rulings.md` "Handshake answers (round 1)", D-3A1.8 to D-3A1.12). Rev 1 was spec handshake step 1 (`.ai/RULES.md` §4). Lane A (sources and money). The
 structure is page P3A (`structure-page-P3A.md`, approved by the owner on 20 Nov). Decisions and their reasons are in
 `rulings.md` (D-3A1.1 to D-3A1.7). The reviewer's guide is `reviewer-guide.md`. Questions go in `handshake.md` before
 code and in `mid-build-questions.md` during the build.
@@ -20,7 +20,7 @@ Non-screen. 3 units. Discovery review (W5): a new schema, money records and a st
   PY=/opt/assetecon/AssetOpsV1/.venv/bin/python
   $PY -c "import assetops_backend, assetops_contracts; print(assetops_backend.__file__, assetops_contracts.__file__)"   # both under the worktree
   ```
-  The packet records that output.
+  The packet records that output, plus `fixtures.__file__` (P1).
 - **Read:**
   - `rulings.md`;
   - P3A;
@@ -36,8 +36,9 @@ Non-screen. 3 units. Discovery review (W5): a new schema, money records and a st
   `ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test`. Every
   Postgres test file runs through `tools/heavy-slot.sh --db -- <command>`; the coordinator asked for `--db` on every
   database run in this wave. Never touch ports 5490 or 8990, the walkthrough DB or Docker.
-- **The migration** is written as `0063_commercial_records` (`down_revision = "0062_operator_accounts"`). `3C1` also
-  adds a migration. Whichever merges second is renumbered at merge preparation (RULES; `delivery-plan.md` §2).
+- **The migration** (D-3A1.12). The first of 3A1 and 3C1a to merge takes `0063` on `0062`. The second takes `0064`
+  on top of it, and is renumbered at merge preparation. Tests read the head (`pg_harness.alembic_head()`) and the
+  `down_revision` from the migration modules, never a literal name. Write it as `0063_commercial_records`.
 - **Collisions.** These are in other lanes:
   - `3B1` writes no migration and no backend store.
   - `3C1` edits command routes and work and action migrations. It shares only the migration head (above) and
@@ -63,12 +64,12 @@ string, `UPGRADE = r"""..."""`, with exactly this SQL:
 CREATE TABLE commercial_intake (
     id uuid PRIMARY KEY,
     tenant_id uuid NOT NULL REFERENCES tenant (id),
-    source_type text NOT NULL CHECK (source_type ~ '^[a-z][a-z_]{0,39}$'),
-    source_system text NOT NULL CHECK (char_length(source_system) BETWEEN 1 AND 200),
-    provenance text NOT NULL CHECK (provenance IN ('demo-simulated', 'source-emulated', 'bench-tested',
-                                                   'field-integrated', 'observed-financial')),
-    produced_at timestamptz NOT NULL,
-    batch_sha256 text NOT NULL CHECK (batch_sha256 ~ '^[0-9a-f]{64}$'),
+    source_type text NULL CHECK (source_type ~ '^[a-z][a-z_]{0,39}$'),
+    source_system text NULL CHECK (char_length(source_system) BETWEEN 1 AND 200),
+    provenance text NULL CHECK (provenance IN ('demo-simulated', 'source-emulated', 'bench-tested',
+                                               'field-integrated', 'observed-financial')),
+    produced_at timestamptz NULL,
+    batch_sha256 text NOT NULL CHECK (batch_sha256 ~ '^[0-9a-f]{64}$'),   -- SHA-256 of the bytes as received (R1)
     state text NOT NULL CHECK (state IN ('STORED', 'REFUSED')),
     refusal_code text NULL CHECK (refusal_code ~ '^[A-Z][A-Z_]{0,39}$'),
     refusal_path text NULL CHECK (refusal_path IS NULL OR char_length(refusal_path) <= 300),
@@ -80,6 +81,8 @@ CREATE TABLE commercial_intake (
     entered_by text NOT NULL CHECK (entered_by ~ '^(service:[a-z][a-z0-9-]{0,62}|person:[0-9a-f-]{36})$'),
     entered_at timestamptz NOT NULL,
     CHECK ((state = 'REFUSED') = (refusal_code IS NOT NULL)),
+    CHECK (state = 'REFUSED' OR (source_type IS NOT NULL AND source_system IS NOT NULL AND provenance IS NOT NULL
+                                AND produced_at IS NOT NULL)),
     CHECK (new_count + revised_count + unchanged_count + refused_count = record_count),
     UNIQUE (tenant_id, id)
 );
@@ -97,7 +100,8 @@ CREATE TABLE commercial_record (
     FOREIGN KEY (tenant_id, site_id) REFERENCES site (tenant_id, id),
     CHECK (site_id IS NOT NULL OR kind IN ('BUDGET_LINE', 'CONTRACT_DOCUMENT')),
     UNIQUE (tenant_id, source_system, source_record_id),
-    UNIQUE (tenant_id, id)
+    UNIQUE (tenant_id, id),
+    UNIQUE (tenant_id, id, kind)
 );
 CREATE TABLE commercial_record_revision (
     id uuid PRIMARY KEY,
@@ -122,16 +126,18 @@ CREATE TABLE commercial_record_revision (
     quantity numeric NULL,
     unit text NULL CHECK (unit IN ('kWh', 'kW', 'L', 'crate', 'crate_day')),
     status text NULL CHECK (status ~ '^[A-Z][A-Z_]{0,39}$'),
-    supersedes_revision_id uuid NULL REFERENCES commercial_record_revision (id),
+    supersedes_revision_id uuid NULL,
     recorded_at timestamptz NOT NULL,
-    FOREIGN KEY (tenant_id, record_id) REFERENCES commercial_record (tenant_id, id),
+    FOREIGN KEY (tenant_id, record_id, kind) REFERENCES commercial_record (tenant_id, id, kind),
+    FOREIGN KEY (record_id, supersedes_revision_id) REFERENCES commercial_record_revision (record_id, id),
     FOREIGN KEY (tenant_id, intake_id) REFERENCES commercial_intake (tenant_id, id),
     CHECK ((amount IS NULL) = (currency IS NULL)),
     CHECK ((quantity IS NULL) = (unit IS NULL)),
     CHECK ((revision_no = 1) = (supersedes_revision_id IS NULL)),
     CHECK (effective_to IS NULL OR effective_from IS NULL OR effective_to > effective_from),
     UNIQUE (record_id, source_version),
-    UNIQUE (record_id, revision_no)
+    UNIQUE (record_id, revision_no),
+    UNIQUE (record_id, id)
 );
 CREATE INDEX commercial_revision_read ON commercial_record_revision
     (tenant_id, site_id, kind, recognition_period, record_id, revision_no DESC);
@@ -151,49 +157,71 @@ CREATE TABLE commercial_rejection (
 
 Then `CREATE TRIGGER <table>_immutable BEFORE UPDATE OR DELETE ON <table> FOR EACH ROW EXECUTE FUNCTION
 ledger_append_only();` for all four tables. The downgrade follows 0061: lock the tables, refuse with
-`RAISE EXCEPTION 'Downgrade of 0063_commercial_records refused: commercial records exist'` if any table has a row,
+`RAISE EXCEPTION 'Downgrade refused: commercial records exist'` if any table has a row (tests match the text
+`refused: commercial records exist` and read the head and `down_revision` from the migrations, never a literal
+name; R14, D-3A1.12),
 then drop the tables in reverse order. There are no column defaults; the adapter writes every value and every time
 from the service clock. The tables do **not** join the chain change log (D-3A1.6).
 
 ## 3. Rules
 
-These are checked in this order, inside one transaction per intake. The transaction first takes
-`SELECT pg_advisory_xact_lock(hashtextextended('commercial:' || CAST(:tenant_id AS text), 0))`.
+These are checked in this order. The writing transaction runs at **READ COMMITTED** (R4). It first takes
+`SELECT pg_advisory_xact_lock(hashtextextended('commercial:' || CAST(:tenant_id AS text), 0))`, then re-reads the
+existing records and decides under the lock.
 
-1. **Bytes to batch.** `loads_canonical(data)` then `parse_batch(obj)`. An envelope refusal (`CanonicalRefused` with a
-   `json.` or `batch.` path) makes the intake REFUSED: one `commercial_intake` row with `refusal_code` and
-   `refusal_path`, all counts 0, nothing else written.
-2. **Tenant.** `batch.tenant_code` must equal the tenant's `slug`. Otherwise the intake is REFUSED with
-   `INTAKE_TENANT_MISMATCH` at path `batch.tenant_code` (P3A rule 3).
-3. **Per record**, in input order. A refused record writes one `commercial_rejection` row (code, path, and its
-   `source_record_id` if it parsed) and never stops the others (P3A rule 4):
-   - a format refusal from `parse_batch` keeps its own code and path;
-   - a kind whose store family is OPERATIONAL_RECORD (`SERVICE_TICKET`) is `INTAKE_NOT_COMMERCIAL record.kind`;
-   - a `site_code` not found by `site_code_key = lower(:code)` in the tenant is `INTAKE_SITE_UNKNOWN
-     record.site_code`.
-4. **Identity** (D-3A1.2). The key is (tenant, `source_system`, `source_record_id`), with `source_system` taken from
-   the batch. A record seen before must keep its kind and Site; otherwise it is refused `INTAKE_KIND_CHANGED
-   record.kind` or `INTAKE_SITE_CHANGED record.site_code`.
-5. **Revision** (D-3A1.3), keyed by the record's `source_version`:
-   - first sight of the record: write it and revision 1 (`NEW`);
-   - a new `source_version`: write revision `max + 1`, superseding the latest (`REVISED`);
-   - a known `source_version` with the same `record_sha256` (`record_digest`): write nothing (`UNCHANGED`), so a
-     repeated file adds nothing (P3A rule 1);
-   - a known `source_version` with a different digest: `INTAKE_VERSION_CONFLICT record.source_version`.
+1. **Bytes to batch.**
+   - `batch_sha256` is the SHA-256 of `data` exactly as received, for every intake (R1). The bytes themselves are
+     never stored.
+   - `loads_canonical(data)`, then `parse_batch(obj)`.
+   - An envelope refusal (a `json.` or `batch.` path) makes the intake REFUSED: one `commercial_intake` row with
+     `refusal_code` and `refusal_path`, and all counts 0.
+   - Each of `source_type`, `source_system`, `provenance` and `produced_at` is filled only if the envelope parsed that
+     far: from the raw object, and only when the value passes its CHECK. Otherwise it is NULL.
+2. **Tenant.**
+   - An unknown `tenant_id` raises `LookupError`. It is a programming error, not a stored intake (R15).
+   - If `batch.tenant_code` is not the tenant's `slug`, the intake is REFUSED with `INTAKE_TENANT_MISMATCH` at path
+     `batch.tenant_code`, and all counts 0.
+3. **Per record, in input order**, decided against a running state that includes the batch's earlier records (R9).
+   A refused record writes one `commercial_rejection` row and never stops the others. The row's `source_record_id` is
+   NULL for a 2a format refusal and the parsed ID for an `INTAKE_*` refusal (P3).
+   - A format refusal from `parse_batch` keeps its code and path.
+   - A store family of OPERATIONAL_RECORD: `INTAKE_NOT_COMMERCIAL record.kind`.
+   - An unknown `site_code`: `INTAKE_SITE_UNKNOWN record.site_code`.
+4. **Identity.** The key is (tenant, `source_system`, `source_record_id`). A record seen before, in the store or
+   earlier in this batch, keeps its kind and its Site. A change is refused with `INTAKE_KIND_CHANGED record.kind` or
+   `INTAKE_SITE_CHANGED record.site_code`.
+5. **Revision**, keyed by `source_version`:
+   - **NEW**: the first sighting writes the record and revision 1.
+   - **REVISED**: a new version writes revision `max + 1`, which supersedes the previous latest revision of the same
+     record. That includes one planned earlier in this batch.
+   - **UNCHANGED**: a known version with the same `record_sha256` **and the same provenance** writes nothing.
+   - A known version with a different digest is refused with `INTAKE_VERSION_CONFLICT record.source_version`.
+   - The same digest with a different provenance is refused with
+     `INTAKE_PROVENANCE_CHANGED record.source_version` (R12).
+   - **"Latest" means the last received** (R10). The source's own version order is not interpreted.
 6. **Stored columns.**
    - `canonical` is `to_canonical_json(record).decode()`.
-   - The clocks, amount, quantity and status come from the parsed record; `amount` and `quantity` are stored as
-     `Decimal`.
-   - `provenance` comes from the batch.
-   - `recorded_at` is the service clock, the same for the whole intake.
-7. **Dry run.** Steps 1 to 5 run and give the same outcomes, the store's state included, and nothing is written. The
-   lock is still taken, so the answer reflects committed state.
+   - Clocks, amount, quantity and status come from the parsed record. `amount` and `quantity` are `Decimal`, stored
+     as unbounded `numeric`.
+   - `provenance` is the batch's *declared* provenance (R12; `3A2` caps it by the path).
+   - `recorded_at` is the service clock, one value per intake.
+7. **Dry run.** Rules 1 to 5 run under the lock and give the same outcomes. Nothing is written, and the result has
+   `intake_id = None` (R15).
+8. **A repeated file** writes one STORED intake row, with every record UNCHANGED, and no record, revision or
+   rejection row (R8). `STORED` means the intake was processed and its account kept. It never means "accepted" (R17).
+9. **Personal data** (R13, D-3A1.10).
+   - The store holds the refs as the source adapter sent them. Pseudonymising them is the adapter's job, which `3A2`
+     and `3A3` own.
+   - Nothing in `commercial/**` logs `canonical`, a ref or a raw value. Refusal paths are 2a's bounded,
+     ASCII-escaped paths.
+   - Erasing a person's data on request is a named pilot residual: the tables are append-only, so it is done by
+     destroying the pseudonym key upstream.
 
 ## 4. Code: package `backend/assetops_backend/commercial/`
 
 | File | Holds |
 |---|---|
-| `model.py` | `OUTCOMES = ("NEW", "REVISED", "UNCHANGED", "REFUSED")`; frozen dataclasses `RecordOutcome(index, outcome, source_record_id, record_id, revision_no, code, path)`, `IntakeResult(intake_id, state, refusal_code, refusal_path, outcomes: tuple[RecordOutcome, ...], dry_run)`, `RevisionRow` (every column of `commercial_record_revision` plus `source_system` and `source_record_id`); `IntakeRefused(Exception)` is not used (refusals are results) |
+| `model.py` | `Plan` (the intake row, the rows to insert, the per-record outcomes; P2) and `IntakeSummary` (the intake row, its rejections in `record_index` order, the revision IDs it wrote; R6); `OUTCOMES = ("NEW", "REVISED", "UNCHANGED", "REFUSED")`; frozen dataclasses `RecordOutcome(index, outcome, source_record_id, record_id, revision_no, code, path)`, `IntakeResult(intake_id, state, refusal_code, refusal_path, outcomes: tuple[RecordOutcome, ...], dry_run)`, `RevisionRow` (every column of `commercial_record_revision` plus `source_system` and `source_record_id`); `IntakeRefused(Exception)` is not used (refusals are results) |
 | `store.py` | `CommercialStore` (Protocol) with the methods of §4.1 |
 | `service.py` | `CommercialRecords(store, *, clock)`, with `ingest(tenant_id, data: bytes, *, entered_by: str, dry_run: bool = False) -> IntakeResult` running §3 |
 | `composition.py` | `build_commercial_records(database_url) -> CommercialRecords`, the only importer of the adapter |
@@ -208,13 +236,20 @@ No route and no `create_app` change: `3A2` mounts the HTTP intake.
 - `existing(tenant_id, source_system, ids: set[str]) -> dict[str, ExistingRecord]`, where
   `ExistingRecord(record_id, kind, site_id, versions: dict[str, str])` maps each source version to its digest, and
   the record also carries its latest revision ID and number
-- `write_intake(intake_row, records, revisions, rejections, *, dry_run) -> None` runs one transaction: the advisory
-  lock, then a re-read of `existing` inside it (§3 is re-decided under the lock; the service passes a callable
-  `decide(existing) -> plan`), then the inserts, or no inserts on a dry run
-- `latest_revisions(tenant_id, *, site_id=None, kind=None, recognition_period=None) -> tuple[RevisionRow, ...]`: the
-  highest revision per record, sorted by `(site_id, kind, recognition_period, source_system, source_record_id)`
-- `record_history(tenant_id, record_id) -> tuple[RevisionRow, ...]`: ascending `revision_no`
-- `intake(tenant_id, intake_id) -> IntakeResult | None`: the outcomes rebuilt from revisions and rejections
+- `write_intake(tenant_id, source_system, ids, decide: Callable[[Mapping[str, ExistingRecord]], Plan], *, dry_run)
+  -> Plan`: one READ COMMITTED transaction. It takes the advisory lock, re-reads `existing` for `ids` under the lock,
+  calls `decide`, inserts the plan's rows unless `dry_run`, and returns the plan applied (P2). An envelope refusal or
+  a tenant refusal uses it with empty `ids`. The service builds `IntakeResult` from the returned plan only.
+- `latest_revisions(tenant_id, *, site_id=None, kind=None, recognition_period=None) -> tuple[RevisionRow, ...]`.
+  - "Latest" is picked per record over **all** of its revisions first. Only then do `site_id`, `kind` and
+    `recognition_period` filter the latest rows, so a correction that moves a record's month appears once, in the new
+    month (R7).
+  - `None` means no filter on that field (P7).
+  - The sort key is `(site_id NULLS FIRST, kind, recognition_period, source_system, source_record_id)`. The in-memory
+    store matches it with Python's `(site_id is not None, str(site_id or ""))`.
+- `record_history(tenant_id, record_id) -> tuple[RevisionRow, ...]`, ascending by `revision_no`.
+- `intake(tenant_id, intake_id) -> IntakeSummary | None` (R6). UNCHANGED records are counted, not listed.
+  `RecordOutcome` per input row is returned only by `ingest`.
 
 The in-memory test store implements the same port, with a `threading.Lock` per tenant.
 
@@ -237,15 +272,24 @@ Register `$commercialWriter = "$backendRoot/commercial/adapters/postgres_commerc
 - a SERVICE_TICKET (`INTAKE_NOT_COMMERCIAL`);
 - an unknown Site;
 - a changed kind and a changed Site;
-- the same file twice (all `UNCHANGED`, no new rows);
+- the same file twice: one more STORED intake row, every record `UNCHANGED`, no new record, revision or rejection row (R8);
+- two versions of one record in one batch: NEW then REVISED; a kind change inside one batch is refused (R9);
+- a record whose month moves in revision 2: `latest_revisions(recognition_period="2026-10")` is empty and November returns revision 2, in both stores (R7);
+- the same version and digest under another provenance: `INTAKE_PROVENANCE_CHANGED` (R12);
+- the three envelope stages (not JSON, bad `source_type`, bad `provenance`), each REFUSED with the filled columns of rule 1 (R1);
+- a dry run returns `intake_id = None`;
+- every amount and quantity: `format(row.amount, "f")` equals the record's decimal text in `canonical`, in both stores; no `float(` anywhere in `commercial/**` (grep test; R3);
+- no ref or record value appears in any refusal path or exception text (R13);
 - a corrected row with a new `source_version` (`REVISED`, revision 2 supersedes 1);
 - the same `source_version` with different content (`INTAKE_VERSION_CONFLICT`);
 - a dry run that equals the real run's outcomes and writes nothing;
 - the fixture `backend/tests/fixtures/canonical_v1_examples.json` (2a's 17 batches) ingested into a world of the
   three demo tenants and their Site codes, with every commercial record `NEW` and the one SERVICE_TICKET refused;
-- DS1b's batches: run `world_history.py records` on the fixture view into a scratch directory, then ingest them
-  twice: the first run is all `NEW`, the second all `UNCHANGED`. This is P3A rule 6's base: one record per Site,
-  month and field, by its stable ID.
+- DS1b's batches (R5): `subprocess.run([sys.executable, <tree>/tools/world_history.py, "records", "--manifest",
+  <tree>/simulator/tests/world/fixtures/view_v1.json, "--out", tmp_path / "ds1b"], check=True)`, `<tree>` from
+  `Path(__file__)`; ingest every `*.json` except `unwritten.json` twice: 142 `NEW`, then 142 `UNCHANGED`, no
+  rejection. One in-memory world holds the 3 tenants and all 9 Site codes for both fixtures (P5); every stored
+  provenance is `source-emulated`.
 
 **Postgres** (pooled, `--db`), `backend/tests/test_3a1_commercial_postgres.py`:
 - the tables, triggers and indexes exist;
@@ -255,18 +299,26 @@ Register `$commercialWriter = "$backendRoot/commercial/adapters/postgres_commerc
 - the uniqueness keys hold;
 - the adapter round-trips every port method;
 - `latest_revisions` returns revision 2 after a correction, and `record_history` returns both;
-- a lock proof in the 3C0a R2 shape: the test holds the tenant's commercial lock and starts two `ingest` calls of the
+- every revision `n > 1` supersedes revision `n-1` of the same record, and revision and record agree on `site_id` (R11);
+- no revision joins a REFUSED intake, after the full fixture run including refusals (R2);
+- a lock proof in the 3C0a R2 shape, which also asserts `pg_locks` advisory waiters `== 2` (R4), and fails in a
+  recorded negative run with the re-read under the lock removed: the test holds the tenant's commercial lock and starts two `ingest` calls of the
   same new record in threads; after 0.5 s both are still alive; the test releases the lock; the result is one `NEW`
   and one `UNCHANGED`, never two records;
 - downgrade is refused when there are rows, and down then up works on an empty clone.
 
-**Regression beside them:** `backend/tests/test_pg_harness.py` and `backend/tests/test_up1_reading_upload_postgres.py`.
+**Regression beside them:** `backend/tests/test_pg_harness.py`, `backend/tests/test_up1_reading_upload_postgres.py`,
+`backend/tests/test_3c0a_accounts_postgres.py` (its downgrade now crosses 0063; P6) and
+`tools/checks/test_estate_guard.py` (the guard registration; P4). The guard registration touches the `domains` entry,
+`$pgWriters`, `$pgWritesSeen`, `$pgDriverSeen`, the shape block and the anti-vacuity loop; INSERT VALUES bind plain
+parameters (no `CAST`).
 
 Commands:
 ```bash
 $PY -m pytest backend/tests/test_3a1_commercial_service.py -q
 ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test \
-  tools/heavy-slot.sh --db -- $PY -m pytest backend/tests/test_3a1_commercial_postgres.py backend/tests/test_pg_harness.py backend/tests/test_up1_reading_upload_postgres.py -q
+  tools/heavy-slot.sh --db -- $PY -m pytest backend/tests/test_3a1_commercial_postgres.py backend/tests/test_pg_harness.py backend/tests/test_up1_reading_upload_postgres.py backend/tests/test_3c0a_accounts_postgres.py -q
+$PY -m pytest tools/checks/test_estate_guard.py -q
 pwsh -NoProfile -File tools/check-all.ps1      # fast mode, once, at the end
 python3 tools/select-tests.py --base main      # "full" because of the migration: not run while building; the merge's full tier runs it
 ```
