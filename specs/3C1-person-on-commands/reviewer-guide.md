@@ -1,4 +1,4 @@
-# 3C1 reviewer guide
+# 3C1a and 3C1b reviewer guide (rev 2: handshake round 1 folded in; review each unit separately)
 
 You are the fresh Reviewer.
 - **At the handshake:** read `spec.md`, `rulings.md` and this guide, and write your questions in `handshake.md`.
@@ -20,9 +20,21 @@ You are the fresh Reviewer.
 - **P3 Tenant.** A Harvest Cold person posting to Kobo: the route's 404, with no row written.
 - **P4 Database.** Raw SQL inserting `actor_kind='USER'` without `person_id` fails. Inserting `person_id` with
   `SERVICE` fails.
-- **P5 Switch.** With `ASSETOPS_REQUIRE_PERSON=on` and no cookie: 401 `PERSON_REQUIRED` on all 13 commands.
-- **P6 Attestation.** The stored attestation and basis equal §2's forms exactly. The admitting role is the first
-  match in `COMMAND_ROLES` order.
+- **P5 Switch.** With `ASSETOPS_REQUIRE_PERSON=on` and no cookie, every command of the unit answers 401
+  `PERSON_REQUIRED`.
+- **P5b Nothing opened** (D-3C1.12).
+  - With no work principal composed, a signed-in person gets 403 `WORK_WRITE_FORBIDDEN`.
+  - With the entry switch off, the entry route refuses a person too.
+  - 3C1b: a Finding outside the grant file is refused as today.
+- **P5c Hash.** The same person in a new session replays with 200. A second person with the same key gets 409.
+  3C1b: a second person's identical accept gets 409, never a replay.
+- **P6 Attestation.**
+  - The stored attestation and basis equal spec §2's forms, per table.
+  - Domain tables have no basis, and `action_event` has no attestation.
+  - The admitting role is the first match in the order of `COMMAND_ROLES`.
+  - `actor_id` equals `person:` followed by `person_id` (the database checks this).
+- **P7 Reads.** Event and work reads are byte-equal for SYSTEM and SERVICE rows, and `person_id` is not in
+  `EVENT_COLUMNS`. A USER label reads "Recorded by a signed-in person", with no name.
 
 ## Class sweeps (W6)
 

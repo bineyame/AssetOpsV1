@@ -124,19 +124,20 @@ SLICES = [
     ("3B1", "3B", "B1", "Structure registry in code: mini-grid in full from leaves to outcomes; Protect and operations measures", "STR", (3, 5), ["2a"], "P3B", "schema"),
     ("3B2", "3B", "CH1", "Findings pinned: one registry row per mechanism today; the outcome map's literal removed only after its parity test", "STR", (2, 3), ["3B1"], "P3B", ""),
     ("3B3", "3B", "B1", "Structure read, Site and portfolio: bottom-up on today's operational leaves, coverage, evidence class; no stored figure is a source (its values are later served from the daily snapshot, OD-23)", "STR", (2, 4), ["3B1"], "P3B", ""),
-    ("3B4", "3B", "CH1", "Structure observer: deviations stored as Findings under the owner's rule and outside the factor's tolerance (OD-3)", "STR", (2, 3), ["3B3", "3C1"], "P3B", "new"),
+    ("3B4", "3B", "CH1", "Structure observer: deviations stored as Findings under the owner's rule and outside the factor's tolerance (OD-3)", "STR", (2, 3), ["3B3", "3C1a"], "P3B", "new"),
     ("3B5", "3B", "B1", "Site board: driver lines become factor rows generated from the registry, with their Findings on their factors", "SCR", (3, 5), ["3B2", "3B3"], "P3B", "screen"),
     ("3B7a", "3B", "B1", "Structure snapshot store (OD-23), the structure read served from it with its as of, and the rebuild check", "STR", (2.5, 2.5), ["3B3"], "P3B", "schema"),
     ("3B7b", "3B", "B1", "structure_dirty and triggers 1 to 6; recalculation pending; the worker at the daily run and on demand; Recalculate now on the pending note", "STR", (3, 3), ["3B7a"], "P3B", "schema screen"),
     ("3B6", "3B", "B1", "Cold-room and captive-EV structures declared and tested from the start (revenue not applicable, never zero)", "STR", (1, 2), ["3B1"], "P3B", ""),
     ("3C0a", "3C", "CH2", "Operator accounts behind the API: email-and-password sign-in, one set per operator (OD-13); roles granted and removed by the executive, each change recorded (OD-14)", "DEC", (2.5, 2.5), [], "P1", "schema new"),   # D-BW1.3: 3C0 split; 2.5 units (3C0a P14); rev 16.12: no dependency on 1a
-    ("3C0b", "3C", "CH2", "The sign-in page and Organisation settings' roles on screen", "SCR", (1, 1), ["3C0a"], "P1", "new screen"),
-    ("3C1", "3C", "CH2", "An authenticated user recorded on every command: trial, domain action and work case writes accept the person", "DEC", (2, 4), ["3C0a"], "P1", "schema new"),
-    ("3C2", "3C", "CH2", "Every Action records creator, owner and due date; overdue computed as for maintenance schedules", "DEC", (2, 3), ["3C1"], "P1", "schema new"),
+    ("3C0b", "3C", "CH2", "The sign-in page and Organisation settings' roles on screen", "SCR", (1, 1), ["3C0a", "3C1a", "3C1b"], "P1", "new screen"),
+    ("3C1a", "3C", "CH2", "The signed-in person on work and domain commands: recorded under the person, authorised by role (D-3C1.13)", "DEC", (3, 3), ["3C0a"], "P1", "schema new"),
+    ("3C1b", "3C", "CH2", "The signed-in person on trial-action commands, inside the demo grant scope (D-3C1.13)", "DEC", (2, 2), ["3C1a"], "P1", "schema new"),
+    ("3C2", "3C", "CH2", "Every Action records creator, owner and due date; overdue computed as for maintenance schedules", "DEC", (2, 3), ["3C1a"], "P1", "schema new"),
     ("3C3", "3C", "CH2", "UI controls for the work routes that exist only in the API: raise, assign, complete and close, under the person's name", "SCR", (3, 5), ["3C2"], "P1", "new screen"),
     ("4a", "4", "B1", "Energy-to-cash observer: delivered, metered, billed, collected, with named leaks", "SRC", (2, 3), ["3A4", "3B3"], None, "money"),
     ("4b", "4", "B1", "Money leaves from records: revenue, collections, O&M, staff and fuel purchases into the structure read", "SRC", (2, 3), ["3A3", "3A4", "3B3"], None, "money new"),
-    ("5a", "5", "B2", "Targets and budget lines at factor level, declared by the operator with the declarer recorded; objectives become factor targets", "SRC", (2, 4), ["4b", "3C1"], "P5", "schema money new"),
+    ("5a", "5", "B2", "Targets and budget lines at factor level, declared by the operator with the declarer recorded; objectives become factor targets", "SRC", (2, 4), ["4b", "3C1a"], "P5", "schema money new"),
     ("5b", "5", "B2", "Attribution: exact for sums, a declared rule for products, a residual only beside an unobserved leaf", "STR", (2, 4), ["5a"], "P5", "money"),
     ("5c", "5", "B2", "The bridge on screen, factor by factor, labelled Emulated until the operator's exports replace the emulators", "SCR", (2, 4), ["5b", "3A5", "3B5"], "P5", "money screen"),
     ("5d", "5", "CH5", "Relabel the Assure line to Actual against target (OD-6)", "SCR", (1, 1), ["5a"], "P5", "screen"),
@@ -215,7 +216,7 @@ QUEUED += [
 ]
 QUEUED_IDS = {q[0] for q in QUEUED}
 assert all(d in BY or d in QUEUED_IDS for q in QUEUED for d in q[6]), "unknown queued dependency"
-MUST_KEEP = {"T1", "1a", "1b", "2a", "3A1", "3A2", "3A3", "3A4", "3B1", "3B2", "3B3", "3C0a", "3C1", "3C2", "WK"}   # land by day 12 (WK by 14)
+MUST_KEEP = {"T1", "1a", "1b", "2a", "3A1", "3A2", "3A3", "3A4", "3B1", "3B2", "3B3", "3C0a", "3C1a", "3C1b", "3C2", "WK"}   # land by day 12 (WK by 14)
 
 
 def units(i):

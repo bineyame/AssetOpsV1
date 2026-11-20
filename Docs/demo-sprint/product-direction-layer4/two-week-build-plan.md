@@ -17,7 +17,7 @@
 - **3 build lanes**, four later (owner, 20 Nov, item 3: "accept"; `owner/owner-answers-eight-open-questions-2026-11-20.md`). The UI Architect's mock-up work holds the fourth. Lane A carries W4 lane 1's slices (sources and money); lane B lanes 2 and 4's (structure, the plan's records, data tools, screens); lane C lane 3's (the person, decisions, calibration).
 - **Non-screen first.** Screen slices wait until the Decision page, the Site page and the plan screen pass UI review (owner, 20 Nov), assumed here at the start of day 6. On three lanes the hold costs nothing: the lanes are full of non-screen work until then (§5).
 - **Day 1:** lane C builds `3C0a`, operator accounts and roles behind the API; lane B starts `2a`, the canonical format and the leaf factor IDs (its page `P2` approved by the owner, 20 Nov), which unblocks sources, structure and the data slices. Lane A opens with `DS1b`, the generator's canonical writers, as soon as `2a` lands (D-BW1.7).
-- By day 14, 91.5 units land in 33 slices, of which 29 slices committed land by day 12. Every must-keep slice lands by day 12.
+- By day 14, 90.5 units land in 33 slices, of which 28 slices committed land by day 12. Every must-keep slice lands by day 12.
 - **Figure 10 is complete through step 3A.** Steps 1 (day 9), 2 (day 1) and 3A (day 11) are built, and the join (step 4) by day 10. Step 3B is built except the observer and the daily snapshot; step 3C except its two screens. Targets (`5a`) land; spike K lands in two parts (`0K1`, `0K2`); the decision records, the carrier, its verification family, the evaluator and bounds (`6a` to `6e`) land, and the economic and causal verdicts (`8a`).
 - **The data slices land:** the shapes (`DS2`), the canonical writers (`DS1b`), the bulk loader (`DS3`) and the template ladder (`DS4`) with its re-benchmark, so the walkthrough database is built from templates.
 - **At the observed pace,** the stretch line reaches step 4: the structure observer, the daily snapshot and its recalculation, the sign-in page, the work controls, attribution, spikes M and E, Mto's decisions, and the claim case and remedy paths.
@@ -28,8 +28,8 @@
 - **Corrected:** the handshake's time, 0.1 lane-days a slice, which the model left out (decision 6's optimistic bias). The pessimistic bias is gone, because `T1` merged before day 1.
 - **Cut:** `3C0` into `3C0a` and `3C0b`, and `0K` into `0K1` and `0K2`, so non-screen work is not held behind a screen and no slice is over 6 units.
 - **Ranked:** on short lanes the must-keep set goes first (D-BW1.6). Under delivery order alone, `3B2` and `3C2` missed day 12 on two lanes.
-- **Effect:** 111.5 units and step 5 became 64.5 units and step 3A on two lanes. The owner's third lane (20 Nov, item 3) brings it to 91.5 units, still through step 3A; all four building would land 115 units, through step 4 (§5). The rest of the loss against the pack is the data slices and the snapshot the old model did not count.
-- **Since the first re-cut** (20 Nov, later): three lanes (owner, item 3); `P2` approved (item 2); `3C0a` at 2.5 units (its handshake, P14).
+- **Effect:** 111.5 units and step 5 became 64.5 units and step 3A on two lanes. The owner's third lane (20 Nov, item 3) brings it to 90.5 units, still through step 3A; all four building would land 116 units, through step 4 (§5). The rest of the loss against the pack is the data slices and the snapshot the old model did not count.
+- **Since the first re-cut** (20 Nov, later): three lanes (owner, item 3); `P2`, `P3A` and `P3B` approved; `3C0a` at 2.5 units (its handshake, P14); `3C1` split into `3C1a` (3 units) and `3C1b` (2 units), 5 units against 3 (its handshake, P10; D-3C1.13).
 
 ## 2. Capacity: the machine, the lanes and the people
 <!--derives: plan_model; D11-->
@@ -51,7 +51,7 @@
 | Observed pace | 237 task merges in 26.29 days, 1.88 branches open on average | 4.8 units per lane-day |
 | Planning pace | about 0.6 of observed: new schema and money, discovery reviews, checks first, four lanes merging | 3 units per lane-day (slip case 2) |
 | Rework allowance | explicit, on top of the pace | every unit takes 1.15 units of lane time |
-| Reviewer stream | one fresh-review slot, 14 h a day; 57 in 100 units need a discovery review | 18.3 units a day; 66 in 100 busy at the planning pace |
+| Reviewer stream | one fresh-review slot, 14 h a day; 57 in 100 units need a discovery review | 18.2 units a day; 66 in 100 busy at the planning pace |
 | Build capacity in 14 days | 3 lanes at the planning pace, less rework and the handshake | about 102 units |
 <!--/table-->
 
@@ -77,19 +77,19 @@
 | Step | Slices | Units | Done by day (planning pace) | Done by day 14 at slip · planning · observed pace |
 |---|---:|---:|---|---|
 | Tooling: the heavy-tool slot pool | 1 | 2.5 | day 1 | yes · yes · yes |
-| 0 Calibration replays K, M, E | 4 | 15 | after day 14 | 47 in 100 units · 47 in 100 units · yes |
+| 0 Calibration replays K, M, E | 4 | 15 | after day 14 | 47 in 100 units · 70 in 100 units · yes |
 | 1 Correct the last-day figure | 2 | 6.5 | day 9 | yes · yes · yes |
 | 2 Canonical format and leaf factor IDs | 1 | 1.5 | day 1 | yes · yes · yes |
 | D Data: the generated world, its loader and templates | 6 | 16 | after day 14 | 69 in 100 units · 84 in 100 units · 84 in 100 units |
 | 3A Sources | 5 | 13.5 | day 11 | 81 in 100 units · yes · yes |
 | 3B Structure | 8 | 23 | after day 14 | 41 in 100 units · 65 in 100 units · yes |
-| 3C Recorded person | 5 | 13 | after day 14 | 62 in 100 units · 62 in 100 units · yes |
-| 4 Join at the money leaves | 2 | 5 | day 10 | 50 in 100 units · yes · yes |
+| 3C Recorded person | 6 | 15 | after day 14 | 67 in 100 units · 67 in 100 units · yes |
+| 4 Join at the money leaves | 2 | 5 | day 10 | yes · yes · yes |
 | 5 Targets and the bridge | 4 | 10 | after day 14 | 0 in 100 units · 30 in 100 units · 90 in 100 units |
-| 6 Decisions and options | 7 | 21.5 | after day 14 | 26 in 100 units · 63 in 100 units · 81 in 100 units |
+| 6 Decisions and options | 7 | 21.5 | after day 14 | 14 in 100 units · 37 in 100 units · 81 in 100 units |
 | 7 The plan and the Portfolio | 8 | 27 | after day 14 | 0 in 100 units · 0 in 100 units · 0 in 100 units |
-| 8 Three verdicts | 3 | 8.5 | after day 14 | 0 in 100 units · 47 in 100 units · 71 in 100 units |
-| 9 Rights, cold then EV, pilot onboarding at scale | 5 | 24.5 | after day 14 | 0 in 100 units · 16 in 100 units · 43 in 100 units |
+| 8 Three verdicts | 3 | 8.5 | after day 14 | 0 in 100 units · 0 in 100 units · 47 in 100 units |
+| 9 Rights, cold then EV, pilot onboarding at scale | 5 | 24.5 | after day 14 | 0 in 100 units · 29 in 100 units · 29 in 100 units |
 | The day-14 walkthrough database | 1 | 1 | day 13 | yes · yes · yes |
 <!--/table-->
 
@@ -125,7 +125,7 @@
 **Structure first (W1).** No slice builds before the owner approves its structure page. The pages are written from the recreated pack, so most take a quarter or half of a day.
 - **Steps 1 and 3C are approved with the pack** (owner, OD-20). Their structure is already the pack's: design CH5 and CH2, `decision-loop-specification.md` §8 (sign-in and roles) and `plan-and-action-workflow.md`. So their slices need no sitting. `3C0a` starts on day 1 on lane C. Step 1 changes what the Portfolio and the site board show, so it is screen work and starts once the UI review passes (day 6 in the model).
 - **Step 2's page (`P2`)** is `specs/2a-canonical-format/spec.md` §2, approved by the owner on 20 Nov (item 2: "approved"). `2a` builds on day 1.
-- **The sitting days are searched by the model.** It picks the days that land the most work by day 14, then the furthest step, then the fewest sittings. The result is a sitting on day 4, for steps 5 to 9's pages; steps 2, 3A and 3B's pages were approved by the owner on 20 Nov (P2: item 2, "approved"; P3A and P3B: "approve both", `owner/owner-approve-p3a-p3b-2026-11-20.md`).
+- **The sitting days are searched by the model.** It picks the days that land the most work by day 14, then the furthest step, then the fewest sittings. The result is a sitting on day 9, for steps 5 to 9's pages; steps 2, 3A and 3B's pages were approved by the owner on 20 Nov (P2: item 2, "approved"; P3A and P3B: "approve both", `owner/owner-approve-p3a-p3b-2026-11-20.md`).
 
 **Structure pages** (computed):
 
@@ -136,11 +136,11 @@
 | P2 | Step 2: canonical format version 1 and the leaf factor IDs (written 20 Nov: specs/2a-canonical-format/spec.md §2) | 0 | approved by the owner, 20 Nov |
 | P3A | Step 3A: record kinds, intake, emulator rules, the contract test (written 20 Nov: specs/3A1-commercial-record-store/structure-page-P3A.md) | 0 | approved by the owner, 20 Nov |
 | P3B | Step 3B: registry rows, parity, the structure read and observer (written 20 Nov: specs/3B1-structure-registry/structure-page-P3B.md) | 0 | approved by the owner, 20 Nov |
-| P5 | Step 5: target declaration and the attribution rules | 0.5 | sitting 1, day 4 |
-| P6 | Step 6: decision records, bounds, the evaluator and the carrier | 0.5 | sitting 1, day 4 |
-| P7 | Step 7: plan records, release, versions, the proposal (pack #12) | 0.5 | sitting 1, day 4 |
-| P8 | Step 8: economic and causal verdicts | 0.25 | sitting 1, day 4 |
-| P9 | Step 9: rights rows and the claim case; cold and EV records | 0.75 | sitting 1, day 4 |
+| P5 | Step 5: target declaration and the attribution rules | 0.5 | sitting 1, day 9 |
+| P6 | Step 6: decision records, bounds, the evaluator and the carrier | 0.5 | sitting 1, day 9 |
+| P7 | Step 7: plan records, release, versions, the proposal (pack #12) | 0.5 | sitting 1, day 9 |
+| P8 | Step 8: economic and causal verdicts | 0.25 | sitting 1, day 9 |
+| P9 | Step 9: rights rows and the claim case; cold and EV records | 0.75 | sitting 1, day 9 |
 <!--/table-->
 
 **Day by day, at the planning pace** (computed; ✓ marks the day a slice merges):
@@ -149,19 +149,19 @@
 | Day | Lane A · sources and money | Lane B · structure, the plan's records, data tools, screens | Lane C · the person, decisions, calibration | Owner |
 |---|---|---|---|---|
 | 1 | — | `2a` ✓, `3B1` | `3C0a` | reads and approves P2, P3A, P3B (approved by the owner, 20 Nov) |
-| 2 | `3A1` | `3B1` | `3C0a` ✓, `3C1` | — |
-| 3 | `3A1` ✓, `3A2` | `3B1` ✓, `3B3` | `3C1` ✓, `3C2` | reads 5 pages for sitting 1 |
-| 4 | `3A2` ✓, `3A3` | `3B3` ✓, `3B2` | `3C2` ✓, `0K1` | sitting 1 |
-| 5 | `3A3` ✓, `3A4` | `3B2` ✓, `DS2` | `0K1` ✓, `0K2` | — |
-| 6 | `3A4` ✓, `DS1b` | `DS2` ✓, `1a` | `0K2` | — |
-| 7 | `DS1b` ✓, `DS3` | `1a` ✓, `1b` | `0K2` ✓, `6a` | — |
-| 8 | `DS3` ✓, `4b` | `1b` | `6a` ✓, `6d` | — |
-| 9 | `4b` ✓, `4a` | `1b` ✓, `DS4` | `6d` ✓, `6e` | — |
-| 10 | `4a` ✓, `5a` | `DS4` ✓, `3A5` | `6e` ✓, `6c` | — |
-| 11 | `5a` ✓, `9a` | `3A5` ✓, `3B6` | `6c` ✓, `6b` | — |
-| 12 | `9a` | `3B6` ✓, `3B5` | `6b` ✓, `8a` | — |
-| 13 | `9a` ✓, `WK` ✓, `9b` | `3B5` ✓, `3B7a` | `8a` | reads the day-14 pack |
-| 14 | `9b` | `3B7a` | `8a` ✓, `8b` | walkthrough of the built screens and the next ranked list |
+| 2 | `3A1` | `3B1` | `3C0a` ✓, `3C1a` | — |
+| 3 | `3A1` ✓, `3A2` | `3B1` ✓, `3B3` | `3C1a` ✓, `3C2` | — |
+| 4 | `3A2` ✓, `3A3` | `3B3` ✓, `3B2` | `3C2` ✓, `3C1b` | — |
+| 5 | `3A3` ✓, `3A4` | `3B2` ✓, `DS2` | `3C1b` ✓, `0K1` | — |
+| 6 | `3A4` ✓, `DS1b` | `DS2` ✓, `1a` | `0K1` ✓, `0K2` | — |
+| 7 | `DS1b` ✓, `DS3` | `1a` ✓, `1b` | `0K2` | — |
+| 8 | `DS3` ✓, `4b` | `1b` | `0K2` ✓, `0M` | reads 5 pages for sitting 1 |
+| 9 | `4b` ✓, `4a` | `1b` ✓, `DS4` | `0M` ✓ | sitting 1 |
+| 10 | `4a` ✓, `5a` | `DS4` ✓, `3A5` | `6a` | — |
+| 11 | `5a` ✓, `9a` | `3A5` ✓, `3B6` | `6a` ✓, `6d` | — |
+| 12 | `9a` | `3B6` ✓, `3B5` | `6d` ✓, `6e` | — |
+| 13 | `9a` ✓, `9b` | `3B5` ✓, `3B7a` | `6e` ✓, `WK` ✓, `6c` | reads the day-14 pack |
+| 14 | `9b` ✓ | `3B7a` | `6c` | walkthrough of the built screens and the next ranked list |
 <!--/table-->
 
 **The fortnight on one chart** (computed). Bars marked critical are committed: they land by day 12.
@@ -185,8 +185,7 @@ gantt
   4a B1 :crit, g4a, 8.47, 9.53
   5a B2 :crit, g5a, 9.53, 10.78
   9a B3 :g9a, 10.78, 12.41
-  WK tooling :gWK, 12.41, 12.89
-  9b B3 :g9b, 12.89, 14.0
+  9b B3 :g9b, 12.41, 13.66
   section Lane B
   2a B3 :crit, g2a, 0.0, 0.67
   3B1 B1 :crit, g3B1, 0.67, 2.31
@@ -202,19 +201,19 @@ gantt
   3B7a B1 :g3B7a, 12.98, 14.0
   section Lane C
   3C0a CH2 :crit, g3C0a, 0.0, 1.06
-  3C1 CH2 :crit, g3C1, 1.06, 2.31
+  3C1a CH2 :crit, g3C1a, 1.06, 2.31
   3C2 CH2 :crit, g3C2, 2.31, 3.37
-  0K1 CH3 :crit, g0K1, 3.37, 4.62
-  0K2 CH3 :crit, g0K2, 4.62, 6.25
-  6a CH3 :crit, g6a, 6.25, 7.5
-  6d CH3 :crit, g6d, 7.5, 8.56
-  6e CH4 :crit, g6e, 8.56, 9.62
-  6c CH3 :crit, g6c, 9.62, 10.87
-  6b CH3 :crit, g6b, 10.87, 11.93
-  8a CH4 :g8a, 11.93, 13.56
-  8b CH4 :g8b, 13.56, 14.0
+  3C1b CH2 :crit, g3C1b, 3.37, 4.23
+  0K1 CH3 :crit, g0K1, 4.23, 5.48
+  0K2 CH3 :crit, g0K2, 5.48, 7.12
+  0M CH3 :crit, g0M, 7.12, 8.56
+  6a CH3 :crit, g6a, 9.0, 10.25
+  6d CH3 :crit, g6d, 10.25, 11.31
+  6e CH4 :g6e, 11.31, 12.37
+  WK tooling :gWK, 12.37, 12.85
+  6c CH3 :g6c, 12.85, 14.0
   section Owner
-  Sitting 1 :milestone, s1, 3, 3
+  Sitting 1 :milestone, s1, 8, 8
   Walkthrough :milestone, s9, 13.5, 13.5
 ```
 <!--/table-->
@@ -225,8 +224,8 @@ gantt
 | Day | Owner minutes | What |
 |---:|---:|---|
 | 1 | 105 | reads and approves P2, P3A, P3B (approved by the owner, 20 Nov) |
-| 3 | 100 | reads 5 pages for sitting 1 |
-| 4 | 105 | sitting 1 |
+| 8 | 100 | reads 5 pages for sitting 1 |
+| 9 | 105 | sitting 1 |
 | 13 | 30 | reads the day-14 pack |
 | 14 | 120 | walkthrough of the built screens and the next ranked list |
 | **14 days** | **460** | busiest day 120 minutes, within the 240-minute day |
@@ -247,27 +246,26 @@ gantt
 <!--table:pace-->
 | Case | Units landed by day 14 | Furthest step complete | Slices landed |
 |---|---:|---|---:|
-| slip pace (2 units a lane-day) | 59.5 | 2 Canonical format and leaf factor IDs | 22 of 60 |
-| **planning pace (3), 3 lanes** | 91.5 | 3A Sources | 33 of 60 |
-| observed pace (4.8) | 131 | 4 Join at the money leaves | 46 of 60 |
-| planning pace, 2 lanes (the first re-cut) | 62 | 3A Sources | 23 of 60 |
-| planning pace, all 4 lanes building | 116 | 4 Join at the money leaves | 41 of 60 |
-| planning pace, no screen hold | 87.5 | 3A Sources | 32 of 60 |
-| planning pace, no rework allowance | 109 | 3A Sources | 39 of 60 |
+| slip pace (2 units a lane-day) | 61.5 | 2 Canonical format and leaf factor IDs | 23 of 61 |
+| **planning pace (3), 3 lanes** | 90.5 | 3A Sources | 33 of 61 |
+| observed pace (4.8) | 127.5 | 4 Join at the money leaves | 45 of 61 |
+| planning pace, 2 lanes (the first re-cut) | 64 | 3A Sources | 24 of 61 |
+| planning pace, all 4 lanes building | 116 | 4 Join at the money leaves | 41 of 61 |
+| planning pace, no screen hold | 83.5 | 3A Sources | 31 of 61 |
+| planning pace, no rework allowance | 101.5 | 3A Sources | 37 of 61 |
 <!--/table-->
 
 **Reading.**
-- **Lanes matter more than pace here.** The third lane lands 91.5 units against 64.5 on two; all four lanes building would land 115 and complete step 4. At the slip pace the fortnight still completes step 2.
-- **The screen hold costs nothing on three lanes.** With no hold 87.5 units land, 4 fewer: until day 6 every lane has non-screen work ready, and screen slices taken earlier only push must-keep work later. With more lanes the hold starts to bind, so the model is re-run the day the UI review passes.
-- **The rework allowance costs no complete step here.** Without it, the furthest complete step stays at step 3A, though 14 more units land (105.5 against 91.5). The allowance stays, because this fortnight's work is new schema and money.
+- **Lanes matter more than pace here.** The third lane lands 90.5 units against 64 on two; all four lanes building would land 116 and complete step 4. At the slip pace the fortnight still completes step 2.
+- **The screen hold costs nothing on three lanes.** With no hold 83.5 units land, 7 fewer: until day 6 every lane has non-screen work ready, and screen slices taken earlier only push must-keep work later. With more lanes the hold starts to bind, so the model is re-run the day the UI review passes.
+- **The rework allowance costs no complete step here.** Without it, the furthest complete step stays at step 3A, though 11 more units land (101.5 against 90.5). The allowance stays, because this fortnight's work is new schema and money.
 
 **The stretch line** (computed): what lands by day 14 at the observed pace but not at the planning pace. If the first week runs at the observed pace, these are next, in delivery order:
 
 <!--table:stretch-->
 | Slice | Step | Lands at the observed pace on day |
 |---|---|---:|
-| `0E` Spike E | 0 | 12 |
-| `0M` Spike M | 0 | 11 |
+| `0E` Spike E | 0 | 7 |
 | `3B4` Structure observer | 3B | 11 |
 | `3B7a` Structure snapshot store (OD-23), the structure read served from it with its as of, and the rebuild check | 3B | 6 |
 | `3B7b` structure_dirty and triggers 1 to 6; recalculation pending; the worker at the daily run and on demand; Recalculate now on the pending note | 3B | 11 |
@@ -275,10 +273,10 @@ gantt
 | `3C3` UI controls for the work routes that exist only in the API | 3C | 12 |
 | `5b` Attribution | 5 | 13 |
 | `5c` The bridge on screen, factor by factor, labelled Emulated until the operator's exports replace the emulators | 5 | 14 |
-| `6g` Mto demand and repair decisions (revenue side, after the join), with the quotes emulator | 6 | 12 |
-| `8b` Field evidence admitted with its label; the option's cost replaces 0 | 8 | 10 |
-| `9b` Supplier-claim case and its states | 9 | 9 |
-| `9c` Remedy paths inside decisions, with notice deadlines | 9 | 10 |
+| `6b` Bounds as rows | 6 | 13 |
+| `6c` Evaluator | 6 | 13 |
+| `6g` Mto demand and repair decisions (revenue side, after the join), with the quotes emulator | 6 | 14 |
+| `8a` Economic and causal verdicts beside the operational one | 8 | 14 |
 <!--/table-->
 
 **If it slips, what drops first** (computed): slices that land at the planning pace but not at the slip pace, latest step first. The must-keep slices never drop: the slot pool, steps 1, 2 and 3A's store, intake, emulators and amounts, the registry, the pinned Findings, the structure read, the recorded person (`3C0a`, `3C1`, `3C2`), and the walkthrough database. On two lanes they also go first (D-BW1.6).
@@ -286,17 +284,16 @@ gantt
 <!--table:drop-->
 | Order | Slice | Step | Lands at the planning pace on day |
 |---:|---|---|---:|
-| 1 | `9a` Rights rows from contract documents, AI-assisted, a person approving each row; contract-document emulator | 9 | 13 |
-| 2 | `8a` Economic and causal verdicts beside the operational one | 8 | 14 |
-| 3 | `6b` Bounds as rows | 6 | 12 |
-| 4 | `6c` Evaluator | 6 | 11 |
-| 5 | `6e` Stop-setting verification family (an unknown rule fails closed today) | 6 | 10 |
-| 6 | `5a` Targets and budget lines at factor level, declared by the operator with the declarer recorded; objectives become factor targets | 5 | 11 |
-| 7 | `4a` Energy-to-cash observer | 4 | 10 |
-| 8 | `3B5` Site board | 3B | 13 |
-| 9 | `3B6` Cold-room and captive-EV structures declared and tested from the start (revenue not applicable, never zero) | 3B | 12 |
-| 10 | `3A5` Evidence labels | 3A | 11 |
-| 11 | `DS4` Template ladder, the world commands and the build manifest; the stage-by-stage re-benchmark of the build cost (delivery §5) | D | 10 |
+| 1 | `9b` Supplier-claim case and its states | 9 | 14 |
+| 2 | `9a` Rights rows from contract documents, AI-assisted, a person approving each row; contract-document emulator | 9 | 13 |
+| 3 | `6e` Stop-setting verification family (an unknown rule fails closed today) | 6 | 13 |
+| 4 | `6d` Stop-threshold carrier as a domain-action apply path, linked to its decision option | 6 | 12 |
+| 5 | `5a` Targets and budget lines at factor level, declared by the operator with the declarer recorded; objectives become factor targets | 5 | 11 |
+| 6 | `3B5` Site board | 3B | 13 |
+| 7 | `3B6` Cold-room and captive-EV structures declared and tested from the start (revenue not applicable, never zero) | 3B | 12 |
+| 8 | `3A5` Evidence labels | 3A | 11 |
+| 9 | `DS4` Template ladder, the world commands and the build manifest; the stage-by-stage re-benchmark of the build cost (delivery §5) | D | 10 |
+| 10 | `0M` Spike M | 0 | 9 |
 <!--/table-->
 
 ## 6. What day 14 shows on screen
@@ -326,7 +323,7 @@ The walkthrough says so plainly rather than show a mock-up in their place.
 | # | Decision | Context | Default, applied until the owner answers |
 |---|---|---|---|
 | 1 | Does approving the recreated pack also approve the structure of steps 1 and 3C? | Their structure is the pack's own (design CH5 and CH2; `plan-and-action-workflow.md`). Without this, steps 1 and 3C wait for sitting 1. With it, step 1 starts on day 1 and step 3C on day 5, after spike `0K` | **Decided by the owner, 19 Nov (OD-20): yes** |
-| 2 | Hold one sitting, on day 4 | Computed (re-cut 20 Nov, after P3A and P3B were approved): the model's search picks the day. It approves steps 5 to 9's pages | Yes. **P3A and P3B approved by the owner, 20 Nov** ("approve both"); the default stands that a person's own change recalculates on demand, by the button |
+| 2 | Hold one sitting, on day 9 | Computed (re-cut 20 Nov, after P3A and P3B were approved): the model's search picks the day. It approves steps 5 to 9's pages | Yes. **P3A and P3B approved by the owner, 20 Nov** ("approve both"); the default stands that a person's own change recalculates on demand, by the button |
 | 3 | The planning pace, with a rework allowance | 3 units per lane-day, against 4.8 units per lane-day observed, plus 15 in 100 for rework | Yes |
 | 4 | The heavy-tool slot pool first | W4 as amended (sitting 1, item 7) | Already decided by the owner |
 | 5 | Re-cut after the first week | If week 1 runs at the observed pace, the stretch line (§5) comes in. If it slips, the drop order applies | **Done early, 20 Nov,** at the non-screen build start, because its inputs changed (data slices, two lanes, the screen hold). Re-run again when the UI review passes and when a lane opens |
@@ -335,4 +332,4 @@ The walkthrough says so plainly rather than show a mock-up in their place.
 | 8 | Approve step 2's structure page (`P2`) | Written 20 Nov as `specs/2a-canonical-format/spec.md` §2: one page, the canonical format version 1 and the leaf factor IDs, from `integration-design.md` §3. W1 needs the owner's approval before `2a` builds | **Approved by the owner, 20 Nov** (item 2: "approved"; `owner/owner-answers-eight-open-questions-2026-11-20.md`) |
 | 9 | Does "non-screen" include the person step's API (`3C0a`, `3C1`, `3C2`)? | The owner named "data, the calculation engine, integrations". `3C0a` is non-screen and must-keep, and steps 5 to 7 need the recorded person, but it is neither data nor the engine | **Yes** (D-BW1.3): `3C0a` is built (lane C). If the owner meant only those three, step 3C's next slices wait for the screens |
 
-**Pushback, for the owner.** The owner asked to advance "as much as possible". On 20 Nov the binding limit is lanes, not effort, memory or sittings. The third lane (owner, item 3) is worth 27 units in the fortnight; the fourth would add about 23.5 more and complete step 4. The screen hold costs nothing on three lanes, so it needs no change.
+**Pushback, for the owner.** The owner asked to advance "as much as possible". On 20 Nov the binding limit is lanes, not effort, memory or sittings. The third lane (owner, item 3) is worth 26.5 units in the fortnight; the fourth would add about 25.5 more and complete step 4. The screen hold costs nothing on three lanes, so it needs no change.

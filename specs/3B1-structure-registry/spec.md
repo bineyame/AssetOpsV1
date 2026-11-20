@@ -1,6 +1,6 @@
 # 3B1: the structure registry, mini-grid (implementer spec)
 
-Architect (Claude), 2026-11-20. Rev 1, spec handshake step 1. Lane B (structure). The structure is page P3B
+Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in: `rulings.md` "Handshake answers (round 1)", D-3B1.7 to D-3B1.9). Rev 1 was spec handshake step 1. Lane B (structure). The structure is page P3B
 (`structure-page-P3B.md`, approved by the owner on 20 Nov). Decisions are in `rulings.md` (D-3B1.1 to D-3B1.6). The
 reviewer's guide is `reviewer-guide.md`. Questions go in `handshake.md`, then `mid-build-questions.md`.
 
@@ -60,12 +60,12 @@ The leaves are exactly `canonical.leaves_of("MINI_GRID")`, in that order. For ea
 
 | Field | Value |
 |---|---|
-| `unit` | The catalogue unit (`LEAF_FACTORS[id].unit`) |
-| `filled_by` | `FilledBy(family, kind)`, copied verbatim from `empty_states.leaf_sources.MINI_GRID[id]` `family` and `kind` |
+| `unit` | The catalogue unit, written in `ROWS` as a literal unit constant (`KWH`, `MONEY / KWH` …), never `LEAF_FACTORS[id].unit`, so `STRUCTURE_CATALOGUE` compares two independent declarations (R19) |
+| `filled_by` | `FilledBy(family, kind, words)`, copied verbatim from `empty_states.leaf_sources.MINI_GRID[id]` `family`, `kind` and `words` (`None` where none is declared; R13). Written as literals in `ROWS`, never read from YAML (R19) |
 | `absent` | That row's `absent` |
 | `home` | `home_categories.nodes.MINI_GRID[id]`, mapped as in §2.3 |
 | `expression` | None |
-| `tolerance` | None, except `unexplained_l`: `Tolerance(of_factor="diesel_l", pct=Decimal("2.0"))`, the manifest's fuel-balance tolerance (D-3B1.4) |
+| `tolerance` | None, except `unexplained_l`: `Tolerance(of_factor="diesel_l", pct=Decimal("2.0"))`. It is the structure default, a per cent of `of_factor` (this supersedes the design's "in the factor's unit" for this row); a Site's declared value (step 5, `3B4`) overrides it (R12, D-3B1.4) |
 
 ### 2.2 Nodes (16)
 
@@ -98,14 +98,15 @@ overdue schedules, scheduled share) are `OPS1`'s rows.
 ### 2.3 Records and vocabularies (`structure/registry.py`)
 
 - `HOMES`: `grow` → `GROW_REVENUE`, `optimize` → `OPTIMIZE_COST`, `protect` → `PROTECT_ASSET`, `assure` →
-  `ASSURE_PERFORMANCE`, `above` → `ABOVE`, `calendar` → `CALENDAR`. These are the catalogue's codes
-  (`outcomes/catalogue.py:9`), plus `ABOVE` and `CALENDAR`.
+  `ASSURE_PERFORMANCE`, `above` → `ABOVE`, `calendar` → `CALENDAR`. The four category codes are imported from
+  `outcomes.catalogue.CATEGORIES`, not retyped. `ABOVE` and `CALENDAR` are placements, not categories: a category read
+  iterates `CATEGORIES`, never `HOMES` (R1).
 - `Home(category, objective)`. `objective` is `G1`..`G9`, `O1`..`O9`, `P1`..`P9`, `A1`..`A9`, or `None` for `ABOVE`
   and `CALENDAR`.
 - `ABSENT = ("MISSING", "ZERO_WHEN_HELD", "OPTION_ONLY", "NEVER_EMPTY")`.
 - `FAMILIES = ("COMMERCIAL_RECORD", "READING", "OPERATIONAL_RECORD", "OBSERVER", "DECLARED", "DOCUMENT", "CALENDAR")`.
 - Frozen dataclasses:
-  - `FilledBy(family, kind)`;
+  - `FilledBy(family, kind, words: str | None = None)`;
   - `Tolerance(of_factor, pct: Decimal)`;
   - `FactorRow(factor_id, expression: str | None, unit: Unit, home: Home, filled_by: FilledBy | None,
     absent: str | None, tolerance: Tolerance | None, levers: tuple[str, ...] = ())`, with the properties `is_leaf`
@@ -114,29 +115,50 @@ overdue schedules, scheduled share) are `OPS1`'s rows.
 - `REGISTRIES: Mapping[str, Registry]` holds only `MINI_GRID` (version 1) in this unit. `3B6` adds `COLD_CHAIN` and
   `EV_DEPOT_CAPTIVE`.
 - `levers` stays empty until step 6 declares levers (P6).
+- **The records do no validation** (no `__post_init__` checks): every refusal lives in `check`, so T3 can plant bad
+  values (R14).
+- **`ROWS` order:** the 31 leaves in `leaves_of` order, then the 16 nodes in §2.2's order (R9).
+- **The expression is the record** (D-3B1.7): the design's `kind` and signed children are read from the parsed `Expr`
+  by `3B2` and `3B3`, never stored. `children` is a tuple of distinct factor IDs in first-seen order, function names
+  excluded (R3).
 
 ## 3. The expression language (`structure/expressions.py`)
 
-- `parse(text) -> Expr` uses `ast.parse(text, mode="eval")`. It allows only:
-  - names;
-  - numeric literals, read from their source text as `Decimal`, never as a float;
-  - binary `+ - * /`;
-  - unary `-`;
-  - calls to `min`, `max`, `ceil` and `floor`, with positional arguments only.
+`Expr` is a contract for `3B3` (R15, D-3B1.8). It is made of frozen dataclasses:
+- `Num(value: Decimal)`;
+- `Ref(name: str)`;
+- `Bin(op: str, left: Expr, right: Expr)`, where `op` is one of `+ - * /`;
+- `Neg(operand: Expr)`;
+- `Call(func: str, args: tuple[Expr, ...])`, where `func` is one of `min max ceil floor`. `ceil` and `floor` take
+  exactly 1 argument; `min` and `max` take at least 2.
 
-  Anything else raises `StructureError("STRUCTURE_EXPRESSION <key>/<factor>")`.
-- `unit_of(expr, units: Mapping[str, Unit]) -> Unit` applies the literal rule (D-2A.4, ruled here as D-3B1.2):
-  - in `+`, `-`, `min` and `max`, a literal takes the unit of the other operands;
-  - all non-literal operands must have equal units;
-  - in `*` and `/`, a literal is dimensionless;
-  - `ceil` and `floor` keep their argument's unit;
-  - an expression made only of literals is dimensionless.
-- No evaluation here: `3B3` evaluates.
+**`parse(text) -> Expr`.**
+- It uses `ast.parse(text, mode="eval")`.
+- A numeric literal is `Decimal(<source segment>)`, and the segment must fullmatch `[0-9]+(\.[0-9]+)?`. `-1` is
+  `Neg(Num(1))`.
+- These are refused: exponents, hex, underscores, `True` and `False`, `None`, complex numbers, strings, bytes,
+  attributes, subscripts, `**`, keyword arguments, unknown functions and wrong arity.
+- `parse` raises `ExpressionError(reason)`, which is not a `StructureError`.
+- `check` turns any `ExpressionError`, `SyntaxError` or `ValueError` from parsing into
+  `StructureError("STRUCTURE_EXPRESSION", key, factor_id)` (R8).
+
+**`unit_of(expr, units) -> Unit`** follows the literal rule (D-3B1.2, as refined by R16):
+- **Unit-free subtrees.** A subtree made only of literals is unit-free. In `+`, `-`, `min` and `max` it takes the unit
+  of the other operands. It becomes `ONE` only at the top of the expression or as an operand of `*` or `/`.
+- **Equal operands.** All non-literal operands of `+`, `-`, `min` and `max` must have equal units.
+- **Other operators.** `Neg`, `ceil` and `floor` keep their operand's unit.
+- **Composing a node.** A node is composed from its children's **declared** units, so a node is blamed only for its
+  own expression (R9).
+
+There is no evaluation here; `3B3` evaluates.
 
 ## 4. The start-up check (`structure/check.py`)
 
-`check(registry) -> None` raises the first `StructureError(code, structure_key, factor_id)`. Its text is
-`"<CODE> <structure_key>/<factor_id>"`. The checks run in this order, over the rows in table order:
+`check(registry) -> None` raises the first `StructureError`. A `StructureError` carries `code`, `structure_key` and
+`factor_id`, and its text is `"<CODE> <structure_key>/<factor_id>"`.
+
+The checks run **code-major** (R9): each code runs over all rows, in `ROWS` order, before the next code starts.
+`CYCLE` names the first row in `ROWS` that lies on a cycle. The codes, in order:
 
 | Code | When |
 |---|---|
@@ -144,13 +166,14 @@ overdue schedules, scheduled share) are `OPS1`'s rows.
 | `STRUCTURE_EXPRESSION` | an expression outside §3 |
 | `STRUCTURE_UNKNOWN_FACTOR` | a name in an expression with no row |
 | `STRUCTURE_CYCLE` | a node reaches itself through its children |
-| `STRUCTURE_CATALOGUE` | a leaf not in `2a`'s catalogue for this structure key, or whose unit differs from the catalogue's |
-| `STRUCTURE_LEAF_SOURCE` | a leaf without `filled_by`, or a family outside `FAMILIES` |
-| `STRUCTURE_LEAF_ABSENT` | a leaf without `absent`, or a value outside `ABSENT`; `NEVER_EMPTY` only for family `CALENDAR` and the reverse |
+| `STRUCTURE_CATALOGUE` | Any of these (R10): a leaf not in `2a`'s catalogue for this structure key; a leaf whose unit differs from the catalogue's; a catalogue leaf of the key with no row (named by that ID); a node whose ID is a catalogue leaf ID; a `structure_key` outside `STRUCTURE_KEYS` (as `<key>/-`) |
+| `STRUCTURE_LEAF_SOURCE` | a leaf without `filled_by`, or a family outside `FAMILIES`, or a node that has `filled_by` (R17) |
+| `STRUCTURE_LEAF_ABSENT` | a leaf without `absent`, or a value outside `ABSENT`; `NEVER_EMPTY` only for family `CALENDAR` and the reverse; a node that has `absent` (R17) |
+| `STRUCTURE_TOLERANCE` | a tolerance whose `of_factor` has no row, has a unit different from its own row's, or has `pct <= 0` (R12). A node's tolerance is allowed |
 | `STRUCTURE_UNIT` | a node whose composed unit differs from its declared unit, or whose operands cannot compose |
-| `STRUCTURE_CATEGORY` | a row with no `home`, or a category outside `HOMES` (never taken from a parent: there is no inheritance code path) |
-| `STRUCTURE_OBJECTIVE` | an objective whose letter is not its category's (G for Grow, O for Optimize, P for Protect, A for Assure; none for `ABOVE` or `CALENDAR`) |
-| `STRUCTURE_MONEY_HOME` | a money row whose home is `PROTECT_ASSET` or `ASSURE_PERFORMANCE` |
+| `STRUCTURE_CATEGORY` | any of these (R1): a row with no `home`; a category outside `HOMES` (there is no inheritance code path); `CALENDAR` on anything but a leaf of family `CALENDAR`, and the reverse; `ABOVE` on a leaf |
+| `STRUCTURE_OBJECTIVE` | the four categories require an objective matching `[GOPA][1-9]` with their own letter; `ABOVE` and `CALENDAR` require `None` (R11) |
+| `STRUCTURE_MONEY_HOME` | a money row whose home is not in the allow-list `GROW_REVENUE`, `OPTIMIZE_COST` or `ABOVE` (R1) |
 
 `check_all()` runs `check` on every registry in `REGISTRIES`. Three checks from `decision-loop-specification.md` §3
 belong to later slices (D-3B1.6):
@@ -160,9 +183,15 @@ belong to later slices (D-3B1.6):
 
 ## 5. Start-up
 
-In `create_app` (`backend/assetops_backend/main.py`), before any router is built, add
-`structure.check.check_all()`. A `StructureError` becomes `ConfigurationError(str(error))`, so the process refuses to
-start and names the row. This is one call and one import. The cost is under 10 ms, measured in the packet.
+`structure/check.py` exposes `check_all(registries=None)`, which reads `registry.REGISTRIES` at call time so T4 can
+patch it (P3), and `check_at_start()`, which runs `check_all()` and re-raises `ConfigurationError(str(e)) from e`.
+
+In `main.py`, put a function-local import plus the call to `check_at_start()` immediately after
+`install_handle_error_hook()` (`main.py:341`), before the first `include_router` (P2). Do not import a name
+`registry` into `main`.
+
+The check runs wherever `create_app` runs, the lab app included, so it needs no second call (R5). The packet reports
+the time of the first `check_all()` call and the median of 1,000 calls (`timeit`); the bound is 10 ms (R6).
 
 ## 6. Tests (written first)
 
@@ -173,7 +202,10 @@ All in `backend/tests/test_3b1_structure_registry.py`, no database:
   - the node set and each node's expression text equal `structures.MINI_GRID`;
   - the leaf set equals `factor_map.MINI_GRID`'s keys;
   - every leaf's `filled_by` and `absent` equal `leaf_sources`;
-  - every row's home equals `home_categories.nodes.MINI_GRID`, mapped through `HOMES`;
+  - every row's home equals `home_categories.nodes.MINI_GRID`, mapped through the test's **own** literal map, whose four
+    category values are asserted against `outcomes.catalogue.CATEGORIES` (R7);
+  - every leaf's `filled_by.words` equals `leaf_sources` `words` (R13);
+  - every mini-grid Site's `fuel_balance.tolerance_pct` in the manifest equals 2.0 (R12);
   - the only home names without a row are `cover_not_claimable` and `unclaimable_cover`.
 - **T2 Units.** `check_all()` passes. The composed unit of each node equals §2.2's table, which the test lists itself.
   `unit_of` follows the literal rule on `max(x, 0)`, `0 - cost` and `min(1, …)`.
@@ -185,12 +217,15 @@ All in `backend/tests/test_3b1_structure_registry.py`, no database:
   - a unit mismatch gives `STRUCTURE_UNIT`.
 - **T4 Start-up.** `create_app()` with a monkeypatched bad registry raises `ConfigurationError` naming the row. With
   the real registry it starts, and existing routes are unchanged (`test_health.py` still passes).
+- **T2b Literal edges** (R16): `x - (1 + 1)` and `max(x, -1)` keep `x`'s unit.
 - **T5 Expressions.** Every disallowed form is refused: attribute access, subscripts, `**`, keyword arguments, an
   unknown function and a string literal. Numeric literals are `Decimal` (`"1.5"` is not `1.5` as a float).
 
-Commands:
+The manifest is loaded once per module, with `yaml.CSafeLoader` when available (P4).
+
+Commands (with `env -u DATABASE_URL -u ASSETOPS_TEST_DATABASE_URL`, P1):
 ```bash
-$PY -m pytest backend/tests/test_3b1_structure_registry.py backend/tests/test_health.py -q
+env -u DATABASE_URL -u ASSETOPS_TEST_DATABASE_URL $PY -m pytest backend/tests/test_3b1_structure_registry.py backend/tests/test_health.py -q
 pwsh -NoProfile -File tools/check-all.ps1      # fast mode, once, at the end
 python3 tools/select-tests.py --base main      # main.py changes, so "full"; not run while building; the merge's full tier runs it
 ```

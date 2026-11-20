@@ -1,6 +1,6 @@
 # 3C1 rulings
 
-Architect (Claude), 2026-11-20. Each ruling has its reason. Index lines: `.ai/decisions/index-rulings-7.md`. Handshake
+Architect (Claude), 2026-11-20. Each ruling has its reason. Index lines: `.ai/decisions/index-rulings-8.md`. Handshake
 answers go below, under "Handshake answers (round 1)".
 
 ## D-3C1.1 The person path is added beside today's path, behind one switch
@@ -58,3 +58,96 @@ answers go below, under "Handshake answers (round 1)".
   The migration splits the same way.
 - **Why.** W4 sets a limit of 6 units. The action tables carry the strictest CHECKs, so they are the part most likely
   to grow.
+
+## Handshake answers (round 1)
+
+Answered once, 2026-11-20, and folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. "Adopted" means the
+proposed answer is the ruling.
+
+**The Highs**
+- **R1: adopted.** The hashed actor is the kind and the person only; the session and the role stay out of the hash.
+  D-3C1.4 is corrected below (D-3C1.8).
+- **R3: adopted, as proposed.** The demo grant file's record scope, its 404s and `triggering_fixture` stay on the
+  person path. The person replaces only the actor, the channel and the basis (D-3C1.11).
+- **R4: adopted.** No columns are added beyond `person_id`:
+  - domain rows carry the role inside the attestation;
+  - action events carry it in `authorization_basis`;
+  - spec §2 gives the table per family.
+- **R6: adopted, strictly** (D-3C1.12):
+  - the gates' feature switches still apply to people;
+  - the entry switch still applies;
+  - the grant scope still applies to trial actions;
+  - spec §1 says the person path is live as each unit merges.
+
+**The rest**
+- **R2: adopted.** On the person path, `actor_id` joins the trial-action digests.
+- **R5:**
+  - (a) adopted: the executive does not apply.
+  - (b) a SITE_MANAGER may record readings and completions. This is labelled a design deviation (D-3C1.10).
+  - (c) `case_event` roles are keyed by event kind: COMPLETE and COMMENT also admit the field technician.
+  - (d) `domain.intent` follows `domain.create`.
+  - (e) stated in §2: only Site managers are bound to a Site.
+- **R7: adopted.** Labels and statements come from `actor_kind`. SYSTEM rows stay byte-equal; USER rows get neutral
+  text.
+- **R8: adopted.** `actor_id` is coupled to `person_id` on every table, and `action_event` gets one coupling check.
+- **R9: adopted.** Each route uses its own existing codes, with no field added. A cross-tenant 404 is byte-equal to
+  the route's unknown-Site 404.
+- **R10: adopted.** With `accounts` None there is no person. The switch is read once in `create_app`.
+- **R11: adopted, with one change.** No `application/json` requirement on the person path: today's shapes and the
+  `SameSite=Strict` cookie suffice, and adding it would change today's routes.
+- **R12: done.** `mid-build-questions.md` is reset.
+- **P1: adopted.** The named constraints are discovered with an asserted definition, and the downgrade restores the
+  exact texts.
+- **P2: adopted.** Lock first. `person_id` stays out of `EVENT_COLUMNS` and the read lists.
+- **P3: adopted.**
+- **P4: adopted.**
+- **P5: adopted.**
+- **P6: adopted.** `WorkGate` carries the person-step inputs. The action router gets keyword arguments. All of them
+  default to off.
+- **P7: adopted.** The routers are tested directly; `create_app` wiring is proven in the Postgres files.
+- **P8: adopted.**
+- **P9: adopted.**
+- **P10: adopted.** The split is ruled now: 3C1a is 3 units, 3C1b is 2. `plan_model.py` is re-run. `3C0b` depends on
+  both (D-3C1.13).
+
+**Open after round 1:** none.
+
+## D-3C1.8 Hash identity is the person, not the session (corrects D-3C1.4)
+
+- **Ruling.** As R1. Idempotency keys stay unique per Site or per case. A second person reusing a key gets the
+  duplicate-key 409.
+- **Why.** Putting the session in the hash would refuse a person's own retry after signing in again. And two people
+  are not "two commands" when the key is shared, so D-3C1.4's claim was wrong.
+
+## D-3C1.9 Each route keeps its own refusal codes and envelopes
+
+- **Ruling.** As R9.
+- **Why.** Existing clients and tests read those envelopes. A person path that answers in a different shape would be a
+  second contract on the same route.
+
+## D-3C1.10 Design deviation: the site manager may record readings and completions
+
+- **Ruling.** `observe`, maintenance records, operational records, the operational entry and a case's COMPLETE and
+  COMMENT events admit SITE_MANAGER as well as FIELD_TECHNICIAN. §8 of the design gives "record readings, dips,
+  completion" to the field technician only.
+- **Why.** At small Sites the manager often records the reading. The figures are unaffected, and the record still
+  names who did it. The owner may narrow this; it is one table (item 5: "configurable by role").
+
+## D-3C1.11 The trial-action grant scope stays on the person path
+
+- **Ruling.** As R3.
+- **Why.** The grant file is what limits trial actions to the fixture's Findings and supplies `triggering_fixture`.
+  Dropping it would open trial actions on any Finding, which is a scope decision for step 6, not this unit.
+
+## D-3C1.12 The person path opens no write that is closed today
+
+- **Ruling.** Feature switches and gates still apply to signed-in people.
+- **Why.** Sign-in is live (3C0a). Without this, any onboarded person could write where today's composition writes
+  nothing. That is a security change no slice has approved.
+
+## D-3C1.13 The split, and 3C0b's dependency
+
+- **Ruling.** `3C1a` (work and domain, 3 units) comes first; `3C1b` (trial actions, 2 units) follows. `3C0b` depends on
+  both.
+- **Why.** The work was about 5 units, and the trial-action part carries the R2, R3 and R7 changes. `3C0b`'s switch
+  would otherwise refuse unsigned trial actions that have no person path.
