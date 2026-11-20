@@ -92,6 +92,12 @@ class LeafSource(Protocol):
     def leaf(self, ctx: ReadContext, factor_id: str) -> LeafValue: ...
 
 
+class StatedSource(Protocol):
+    """4b1 (spec §2.5): the value a record states for a node with `stated_by`."""
+
+    def stated(self, ctx: ReadContext, factor_id: str) -> LeafValue: ...
+
+
 #: `window_price(tenant, site, key, start, end, known_at) -> fuel_cost.PriceSelection` (P2).
 WindowPrice = Callable[[UUID, UUID, str, datetime, datetime, "datetime | None"], Any]
 
@@ -186,5 +192,5 @@ class ProductLeafSource:
 
 __all__ = [
     "ASSUMPTION_WORDS", "PRICE_KEYS", "SOURCE_STATE", "STATES", "LeafSource", "ProductLeafSource", "ReadContext",
-    "month_window",
+    "StatedSource", "month_window",
 ]

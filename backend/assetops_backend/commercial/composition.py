@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -17,6 +18,7 @@ from assetops_backend.commercial.adapters import file_key_store
 from assetops_backend.commercial.adapters.postgres_commercial_store import (UNAVAILABLE, PostgresCommercialStore,
                                                                            database_name)
 from assetops_backend.commercial.months import CommercialMonths
+from assetops_backend.commercial.store import CommercialStore
 from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.uploads import CommercialUploads
 from assetops_backend.config import ConfigurationError
@@ -78,3 +80,18 @@ def build_commercial_uploads(database_url: str, settings: UploadSettings) -> Com
 def build_commercial_months(database_url: str) -> CommercialMonths:
     """3A4 (spec §3.5): money by month over the Postgres store, with the UTC clock."""
     return CommercialMonths(PostgresCommercialStore(database_url), clock=_now)
+
+
+@dataclass(frozen=True)
+class CommercialReads:
+    """4b1 (spec §2.6): the month reads and the store they rest on, for the structure's money leaves (4b2)."""
+
+    months: CommercialMonths
+    store: CommercialStore
+    dispose: Callable[[], None]
+
+
+def build_commercial_reads(database_url: str) -> CommercialReads:
+    """One Postgres store, the months over it; `dispose` disposes that store."""
+    store = PostgresCommercialStore(database_url)
+    return CommercialReads(CommercialMonths(store, clock=_now), store, store.dispose)

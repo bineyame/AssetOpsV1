@@ -74,6 +74,9 @@ class FactorRow:
     neutral: Decimal | None = None
     #: 3B3 (D-3B3.14): `SUM` (summed across Sites) or `NONE`; checked by `STRUCTURE_COMPOSES`.
     composes: str = "NONE"
+    #: 4b1 (D-4B.1): the record that states this node's total; product-only (no manifest counterpart). Checked by
+    #: `STRUCTURE_STATED`: a `SUM` node with a money unit, family `COMMERCIAL_RECORD`.
+    stated_by: FilledBy | None = None
 
     @property
     def is_leaf(self) -> bool:
@@ -149,5 +152,6 @@ from assetops_backend.structure.rows_mini_grid import ROWS as _MINI_GRID_ROWS  #
 
 #: Read at call time by `check.check_all` (P3). `3B6` adds COLD_CHAIN and EV_DEPOT_CAPTIVE.
 REGISTRIES: Mapping[str, Registry] = MappingProxyType({
-    "MINI_GRID": Registry("MINI_GRID", 2, _MINI_GRID_ROWS),  # 3B3 (D-3B3.9): v2, rows gained neutral and composes
+    # 3B3 (D-3B3.9): v2, rows gained neutral and composes. 4b1 (D-4B.10): v3, revenue and fuel_cost gained stated_by.
+    "MINI_GRID": Registry("MINI_GRID", 3, _MINI_GRID_ROWS),
 })

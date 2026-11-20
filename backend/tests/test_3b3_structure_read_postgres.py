@@ -79,7 +79,7 @@ def test_a_closed_fully_covered_month_and_a_declared_price(store, engine, servic
     _snapshots(engine, [_row(kobo, d) for d in OCT])
     _price(kobo, datetime(2026, 9, 1, tzinfo=UTC))
     result = service.read.site(kobo, MONTH)
-    assert (result.structure_key, result.structure_version) == ("MINI_GRID", 2)
+    assert (result.structure_key, result.structure_version) == ("MINI_GRID", 3)
     unserved = result.values["unserved_critical_kwh"]
     assert unserved.value == Decimal("77.5") and unserved.evidence == "MEASURED"
     assert (unserved.coverage.covered, unserved.coverage.expected) == (31, 31)

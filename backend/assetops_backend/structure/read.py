@@ -20,7 +20,7 @@ from assetops_backend.structure.check import StructureError
 from assetops_backend.structure.evaluate import Composition, SiteStructure, compose, evaluate
 
 if TYPE_CHECKING:
-    from assetops_backend.structure.sources import LeafSource
+    from assetops_backend.structure.sources import LeafSource, StatedSource
 
 #: R10: the Site types with a declared structure. Cold-room and EV Sites need `3B6`.
 SITE_TYPE_TO_STRUCTURE: Mapping[str, str] = MappingProxyType({"MINIGRID": "MINI_GRID"})
@@ -70,8 +70,9 @@ def _month(month: str) -> str:
 
 
 class StructureRead:
-    def __init__(self, sources: "LeafSource") -> None:
+    def __init__(self, sources: "LeafSource", stated: "StatedSource | None" = None) -> None:
         self._sources = sources
+        self._stated = stated  # 4b1 (spec §2.5): None reads every node from its expression, as 3B3
 
     def site(self, site: SiteRef, month: str, known_at: datetime | None = None) -> SiteStructure:
         """Every leaf of the Site's structure read through the port, then evaluated (spec §4)."""
@@ -83,7 +84,11 @@ class StructureRead:
         reg = _registry.REGISTRIES[key]
         ctx = ReadContext(site, _month(month), known_at)
         leaves = {row.factor_id: self._sources.leaf(ctx, row.factor_id) for row in reg.rows if row.is_leaf}
-        return SiteStructure(site.site_code, month, reg.structure_key, reg.version, evaluate(reg, leaves))
+        if self._stated is None:
+            return SiteStructure(site.site_code, month, reg.structure_key, reg.version, evaluate(reg, leaves))
+        stated = {row.factor_id: self._stated.stated(ctx, row.factor_id) for row in reg.rows
+                  if row.stated_by is not None}
+        return SiteStructure(site.site_code, month, reg.structure_key, reg.version, evaluate(reg, leaves, stated))
 
     def portfolio(self, tenant_id: UUID, sites: Sequence[SiteRef], month: str,
                   known_at: datetime | None = None) -> PortfolioStructure:
