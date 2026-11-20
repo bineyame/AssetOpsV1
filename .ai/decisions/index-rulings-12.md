@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-3A7.7)
+# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-IA.40)
 
 - `D-5B.15` A RESIDUAL row carries NOT_SPLIT / DETAIL_NOT_AVAILABLE; 5c keys on kind first (mid-build Q1) · live · specs/5b-attribution/rulings.md
 - `D-3A6.1` A source profile is a JSON data file compiled to the one engine's Layout; new fields default to today's behaviour (amends D-3A3.2) · live · specs/3A6-source-profiles/rulings.md
@@ -18,3 +18,8 @@
 - `D-3A7.5` The finance lead's statement recorded by command, marked scripted, closed months only · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.6` The standing is read live by 5c, not snapshotted by 3B7a · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.7` Each heading's sentence states both figures, the difference, its share and the amount allowed · live · specs/3A7-month-reconciled/rulings.md
+- `D-IA.36` In-page `#<id>` links scroll on the page (`iaInPage`), never route; plants SHAPE_PLANT=anchor, UXI_PLANT=anchor · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.37` Top bar one row from 761: `iaFitTopbar` collapse order search, inbox label, avatar; no truncation; R754 D2; plants SHOTS_PLANT=fit|truncate · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.38` Drill-down shapes keep crumbs at every size (answers Q2, option a); plants SHAPE_PLANT=sitecrumb, SHOTS_PLANT=crumbs · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.39` Act log gated in count_check after act and Undo; plant COUNT_PLANT=nolog · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.40` A route about one Site's object is scoped to that Site (`iaParamSite`); plant SHAPE_PLANT=decscope · live · specs/IA-1-shape-rebuild/rulings-2.md

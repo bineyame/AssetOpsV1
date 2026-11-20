@@ -201,3 +201,139 @@ Reviewed functions that change are named here; spec §7's reused-code list reads
 - **OQ-IA.3 The Site page opens on its drivers, and capped queues rank waiting decisions first.** **Default:** both, as
   D-IA.33 and D-IA.34 rule; the owner sees them at the G2 stop. The alternatives (all sections closed; queues cut in
   priority order with a "View all" from IA-2b) put the largest driver at 4 clicks and hide a waiting decision.
+
+## IA-1c review answers (r1)
+
+Answered against `task/IA-1c-decision` at `c139ac40b` and `.agent/review-IA-1c-r1.md`. Everything lands in IA-1c's fix
+round, before the G2 stop. Module paths are under `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`.
+Every new or changed gate names a plant that must fail it; a plant of a check `ia_gates.cjs` runs joins its `IA-1c` list,
+and a plant of `ia_shots.cjs` or uxi is run once by the round. Each plant's first failing line goes in the packet's plant
+table. No reviewed function in `loop-ux.js` changes in this round; no copy is added (spec §7).
+
+### D-IA.36 An in-page link scrolls on the page it is on; it is never a route (answers M1)
+
+- **Class.** The router reads every hash as an address, so any link of the form `#<id>` (an in-page anchor) leaves the
+  page for not-found. Today: "See the options" and "Choose another option" (`loop-ux.js`, `#uxcards-<id>`); any later
+  section with an `#id` link fails the same way. One rule in the IA router, not a fix in the reviewed card.
+- **Ruling (`ia-routes.js`, new code; the reviewed card markup stays byte-identical).**
+  - `function iaInPage(a)` (a function declaration, so a plant can reassign it). Returns `false` unless all hold: the
+    link's `getAttribute('href')` starts with `#`, is not `#` alone and does not start with `#/`; and
+    `document.getElementById(decodeURIComponent(href.slice(1)))` is an element inside `#app`. Then it scrolls that
+    element to the top of the view (`scrollIntoView({ block: 'start', behavior: 'auto' })` under
+    `prefers-reduced-motion: reduce`, else `'smooth'`), gives it `tabindex="-1"` if it is not focusable, focuses it with
+    `{ preventScroll: true }` and returns `true`.
+  - One listener, registered once in `ia-routes.js`: `document.addEventListener('click', e => { … }, true)`. It acts
+    only on a primary click with no modifier (`e.button === 0`, no Ctrl, Meta, Shift or Alt) on `e.target.closest('a[href^="#"]')`;
+    when `iaInPage(a)` returns `true` it calls `e.preventDefault()`. The hash, the route, its `?scope=` query and
+    `location.search` (`?state=`) are unchanged, so no `hashchange` fires and Back is unaffected.
+  - A link whose `#<id>` names no element falls through as today (not-found); the gate below makes that a defect.
+    A typed or pasted `#<id>` address is not a page and shows not-found, as today.
+  - If the sticky bar covers the target's heading after the scroll (uxi below measures it), `ia.css` gives the target's
+    class (`.ux-ocards`) `scroll-margin-top` equal to the sticky bar's rendered height; nothing else.
+- **Gates.**
+  - `shape_check.cjs`, on every live route of the three operators in its three states: every `a[href^="#"]` is either
+    a `#/` link whose path is landed (as the crawl already asserts) or names an element `id` present in the page.
+    First failing line names the route and the href.
+  - uxi, new "in-page link": Metro `#/decision/ruiru-connector?state=no-recommendation` (via `location.search`), at 1440
+    and 390: click "See the options"; assert the hash path is still `decision/ruiru-connector`, the H1 is unchanged, no
+    "Page not found", `document.activeElement.id === 'uxcards-ruiru-connector'`, and that section's `h2` top is at or
+    below the sticky bar's bottom and within the viewport.
+- **Plants that must fail.** `SHAPE_PLANT=anchor`: an `<a href="#nowhere">x</a>` appended to the decision's L1 region on
+  `#/decision/kisiwa-om`. `UXI_PLANT=anchor`: in the page, `iaInPage = () => false` (the not-found lands).
+- **Why.** An anchor is a position on a page, not a page; the router telling them apart once fixes every present and
+  future anchor. §7 is kept: the reviewed card is unchanged and the router is IA code.
+
+### D-IA.37 The top bar is one row from 761 px up: controls collapse in a fixed order, never truncate (answers M2)
+
+- **Class.** Each width band got its own patch (the reviewed `mockups.css` hide at ≤ 1100, IA-1c's ellipsis, the
+  761 to 1199 wrap, the 761 to 1023 inbox label), so the bar changes shape four times and a label reads as overflow.
+  Any breakpoint list also fails on content it was not tuned for (a long Site name in the scope switch, D-IA.40). One
+  content-measured rule replaces them.
+- **Ruling.**
+  - **Two forms of the search control.** Full: icon and "Search Sites, decisions and Findings". Icon: the same button,
+    its `aria-label` and Ctrl K unchanged, `.ia-search-t` visually hidden with the clip pattern the inbox label uses,
+    `padding: 0 8px`. No new copy.
+  - **The collapse order** (`ia.css` keyed on `data-fit` on `.ia-frame .topbar`): `0` all full; `1` the search in icon
+    form; `2` also the inbox label visually hidden (icon and badge stay); `3` also the avatar hidden. The scope switch,
+    the period chip and the theme toggle never collapse or truncate.
+  - **The measure** (`ia-routes.js`, `function iaFitTopbar()`, a function declaration): only when `innerWidth >= 761`;
+    set `data-fit="0"`, then step up while the bar does not fit, stopping at `3`. Fits means `tb.scrollWidth <=
+    tb.clientWidth + 1`, with the bar `flex-wrap: nowrap` and every item `flex: none` at ≥ 761 (nothing can shrink, so
+    overflow is the only way it can fail). Called at the end of `iaRender`, on `resize` (one `requestAnimationFrame`
+    per burst), and once on `document.fonts.ready`. Below 761 it removes `data-fit` and the phone rules hold as reviewed
+    (two rows by design; search hidden at ≤ 600).
+  - **Removed from `ia.css`:** the searchbox `flex:0 1 auto;min-width:96px;overflow:hidden`, the `.ia-search-t` ellipsis
+    rule, the 761 to 1199 wrap media rule and the 761 to 1023 inbox-label media rule. **Added:** at ≥ 761,
+    `.ia-frame .topbar .searchbox{display:flex}` (over the reviewed ≤ 1100 hide, which stays for legacy screens).
+  - If level 3 does not fit at some width the bar overflows and the gate fails; the round stops and asks. No width,
+    gap or label is tuned to pass.
+- **Gate (`ia_shots.cjs`, the width sweep).** Widths 761, 800, 900, 1023, 1024, 1100, 1101, 1199, 1200, 1280, 1366, 1440,
+  1600, 1920; routes `portfolio`, `plan`, `x-unknown` and, per operator, the decision whose Site name is longest; light.
+  At every width ≥ 761: `oneLine` (today asserted only at ≥ 1200), no item past the window, and no truncated control
+  (for each visible `.ia-search-t`, `.ux-scope-sw>summary`, period summary and `.ia-inbox-label`, `scrollWidth <=
+  clientWidth + 1`). At 1440 on `#/portfolio`, every operator: `data-fit="0"` (the full search is shown where it fits).
+- **Plants that must fail.** `SHOTS_PLANT=fit`: `iaFitTopbar = () => {}` and re-render (no collapse; the bar overflows
+  at 761 to about 1330). `SHOTS_PLANT=truncate`: a style tag `.ia-frame .topbar .searchbox{max-width:140px;overflow:hidden}
+  .ia-frame .topbar .ia-search-t{overflow:hidden;text-overflow:ellipsis}` (the truncation check bites alone).
+- **`MOCK DEVIATION`**, D2 improvement. Register row **R754**: frame top bar, every IA route · the search box (shown
+  ≥ 1101, hidden ≤ 1100) · the search in icon form wherever the full box does not fit beside the other items, from
+  761 up · D2 · one collapse rule keeps search present and the bar one row at every width · none (final) · IA-1c.
+- **Why.** The owner's standing brief asks for controls that read chosen; one ordered collapse is chosen, four bands
+  are not. Search collapses first because its icon is universally read and its label is the longest; the inbox label
+  next, because its count stays; the avatar last, as on the phone.
+
+### D-IA.38 A drill-down page keeps its breadcrumb at every size (answers M3 and Q2: option a)
+
+- **Class.** The reviewed `ux.css` rules hide `.canvas .breadcrumbs` at ≤ 600 and at ≥ 1024 with height ≤ 820, written
+  for hub routes that have the rail item and tabs as their way up. A drill-down page (no tab, no lit rail item) has
+  only its crumbs, so hiding them strands it. Today that is `decision`; IA-2's `record` and `asset` shapes are the same.
+- **Ruling.** `iaFrame` sets `data-ia-crumbs="keep"` on `.canvas` when `route.shape` is `decision`, `record` or `asset`.
+  `ia.css`: `.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{display:flex}` (the base display), and at ≤ 600
+  `margin-bottom: var(--s1)` (the reviewed short-height spacing). The reviewed `ux.css` rules and `uxDecisionSlots`
+  are unchanged; the meta line's Site name stays text (option b would add a second link to the same place).
+- **Gates.**
+  - `shape_check.cjs`, every `decision/*` route of the three operators in its three states: the crumbs are exactly
+    "Decisions" as text, then a link `#/site/<d.site>` reading `SK[d.site].name`, then the subject as text, and
+    `.canvas` carries `data-ia-crumbs="keep"`.
+  - `ia_shots.cjs`, the decision set (15 × 1440, 1280×720, 390 × light, dark) and the D-IA.37 sweep's decision routes:
+    the Site crumb link has `getClientRects().length > 0`, a computed `display` and `visibility` that show it, and its box
+    lies inside the viewport width.
+  - G1 is unchanged: it measures from the Portfolio; the way back is a page property, checked above.
+- **Plants that must fail.** `SHAPE_PLANT=sitecrumb` (the reviewer's plant C): the route's crumbs return the Site as
+  text. `SHOTS_PLANT=crumbs`: the keep rule deleted from the sheet in the page (1280×720 and 390 fail).
+- **Count.** Q2 stays counted (2). Template defect, extending D-IA.31's: spec §7's reused-code list must, from IA-2,
+  also name each reviewed CSS rule that hides or moves an element the spec makes load-bearing (here the crumb).
+- **Why.** Wayfinding must not depend on viewport height; 1280×720 is the common laptop. Keeping the crumbs is the
+  existing control in its existing place, and the shape rule covers IA-2's drill-downs before they are built.
+
+### D-IA.39 The act log and the decision's Site crumb are gated (answers L1)
+
+- **Site crumb:** D-IA.38's `shape_check` item and `SHAPE_PLANT=sitecrumb`.
+- **Act log (`count_check.cjs`, its after-act state, every operator).** After the act, "Since you last looked" in the
+  inbox holds exactly one row with `data-ia-row="log:0"`, its href `#/decision/<the chosen id>`; the For-you and
+  In-your-portfolio sets lose that id (as today). After Undo, no `log:` row names that id and the sets are restored.
+- **Plant that must fail.** `COUNT_PLANT=nolog` (the reviewer's plant B): in the page, `uxActDo` is wrapped so that
+  after the original runs, `uxMock().log.shift()` removes the entry it wrote.
+- **Why.** P7's 25 assertions lived in scratch; the act log is D-IA.24's record of what the user did, and an ungated
+  record decays silently.
+
+### D-IA.40 A route about one Site's object is scoped to that Site (answers L2)
+
+- **Class.** `iaCtx` defaults the scope to the Site only when the route has `:site`; a decision belongs to one Site
+  but reads "All sites". IA-2's records and assets belong to one Site the same way.
+- **Ruling (`ia-routes.js`).** New `function iaParamSite(params)` returns `params.site`, else the Site of
+  `decById(params.dec)` when `params.dec`, else `null` (IA-2 adds its object parameters here). `iaCtx` defaults to
+  `site:${iaParamSite(params)}` when that is non-null, else `all`. An explicit `?scope=` still wins and D-IA.35's
+  validation is unchanged. On a decision the switch reads `<operator> · <Site name>` and lights that Site's entry;
+  its entries are built as on the Site page (spec §2.3), unchanged.
+- **Gate (`shape_check.cjs`).** On every `site/*` and `decision/*` route of the three operators: the scope summary text
+  starts with `${OPS[op].name} · ${SK[site].name}`, and the lit entry is that Site.
+- **Plant that must fail.** `SHAPE_PLANT=decscope`: `iaParamSite = p => p.site || null`.
+- **Why.** The scope names what the page is about; the Site page and its decisions must agree. D-IA.37's sweep
+  covers the longer label this puts in the bar.
+
+### Owner questions (W3; defaults applied)
+
+- **OQ-IA.4 The top bar collapses search to its icon where it does not fit; a decision always shows its way to its
+  Site.** **Default:** as D-IA.37 and D-IA.38 rule; the owner sees both at the G2 stop. The alternatives (the bar
+  wrapping to two rows between 761 and 1199; crumbs hidden on short laptop screens) read patched and strand a decision.

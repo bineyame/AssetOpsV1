@@ -16,7 +16,7 @@ FAIL; main passes because the link is live there). **Stopped:** the fix only. **
 FAIL. **Asked:** may IA-1b correct the trap's filter (skip elements inside a closed `details` other than its `summary`), a change
 to a reviewed function that D-IA.22/24/28 do not list? Or does it wait for IA-2d, when the Scope link becomes live again?
 
-**Q2 (IA-1c, spec §4.2 and D-IA.26; open).** The decision page's way to its Site is the breadcrumb's Site crumb only ("Open site" is
+**Q2 (IA-1c, spec §4.2 and D-IA.26; answered: D-IA.38, option (a), `rulings-2.md`).** The decision page's way to its Site is the breadcrumb's Site crumb only ("Open site" is
 withdrawn). The reviewed rule in `ux.css` hides `.canvas .breadcrumbs` at width ≤ 600 px and at width ≥ 1024 px with height ≤ 820 px, so at
 390 × 844 and 1280 × 720 a decision has no link to its Site (the meta line's Site name is text). G1 is unaffected (measured from the
 Portfolio), and the hub routes have the same rule (they have the rail and tabs). **Stopped:** nothing else; the rule is left as reviewed.
