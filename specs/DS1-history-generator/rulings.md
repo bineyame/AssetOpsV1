@@ -344,3 +344,52 @@ plan-side entries):
 4. Update H2's text in `check_manifest.py` to the MB3 wording; the logic is as built.
 5. Re-run the evaluator and the checks: 0 failed. H8 (October) and H10 (manifest) still pass, and `history.json` is
    unchanged.
+
+## DS1p review round 1 answers (2026-11-20; `.agent/review-DS1p-r1.md`, ACCEPT with Lows)
+
+**M1: confirmed for both sides.** Every history month carries the `missing` entries October gives for the same side,
+computed on the history records by the same helper. The only exclusions are the kinds a history month cannot hold.
+- **Plan side.** The target-side entries: `RESIDUAL` where the plan is not decomposed, and `ASSUMPTION` for leaves with
+  no target line of their own. Kobo's `technical_loss_kwh`, `candidate_l` and `unexplained_l` carry their label. This is
+  MB5.
+- **Actual side.** These are carried:
+  - the observed-side `NOT_RECEIVED` leaves;
+  - the record-field assumptions (`empty_states.assumptions`; Embakasi's tariff applicability, under `energy_cost`);
+  - the deferred stages;
+  - the `NOT_IN_HISTORY` entries.
+- **Excluded, because they are October events:**
+  - the coverage-`ESTIMATED` (`carried_as: TARGET`) entries, since every history coverage is `RECORDED`;
+  - the rights-condition entries, since history runs no rights.
+- **New check H13 (completeness).** For every Site and month, the history side's entries, keyed by (subject,
+  `record_kind`, `cause`, `carried_as`), equal October's same-side entries in `missing-records.json`, minus the two
+  excluded kinds, plus the `NOT_IN_HISTORY` entries. It is shown failing on a planted dropped assumption.
+
+**L2: one shape.** Every history entry uses the `missing-records.json` entry shape:
+`{side, <subject: leaf | leaves | field | stage>, record_kind, source_family, cause, carried_as, blocks, slice, …extras}`.
+- `NOT_IN_HISTORY` entries take `side` and `slice` from `empty_states.leaf_sources`, with `carried_as: null`.
+- H4 and H12 read this shape.
+
+**L3 (Ruiru's September gap): accepted as realistic.**
+- Ruiru's plan is a bill total only. Holding a "fixed demand part" of it would invent a split the record does not have,
+  which is the very residual that the `RESIDUAL` entry declares.
+- A flat daily budget against a fixed monthly demand charge is exactly what such a plan does in a 30-day month.
+- No change to §5, and the golden is unchanged. The demo script names it.
+
+**Kasarani's gap of 0.00 in every month: honest, kept.**
+- October's plan equals October's actual. The tariff is flat and the fleet is fixed, so the rules (`per_day` and
+  `fleet_kwh`) give an equal plan and actual every month.
+- Adding variation would be invented. It carries the same *Simulated* label as everything else. The demo script presents
+  Kasarani as the Site on plan.
+
+**L4 (DS1a, a separate tiny commit on `main`).** The magnitude-bound test runs each planted call (`1e999999999`,
+`1e-999999999`) in a child process (`subprocess.run([sys.executable, "-c", …], timeout=1)`).
+- It passes only if the child exits within 1 s and prints the `HISTORY_NUMBER` refusal.
+- A timeout fails the test. The test is shown to fail, not hang, with the bound removed.
+
+**L1:** fix the stale comment.
+
+**The story wording** in spec §1 now reads "new, building or chronic", with the per-operator story the demo script
+should follow:
+- Lakeside: a chronic gap with a seasonal swing, worst in July.
+- Harvest Cold: building at Mwea and Kirinyaga.
+- Metro Bus: building at Embakasi, on plan at Kasarani, and a September dip at Ruiru.
