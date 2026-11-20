@@ -14,13 +14,15 @@
    IA-1c r1 (D-IA.37, D-IA.38): from 761 up the top bar is one line at every width and no visible search, scope, period or inbox label is truncated (scrollWidth <= clientWidth + 1); the width sweep
    (761..1920) runs portfolio, plan, x-unknown and, per operator, the decision of the longest Site name, and at 1440 on #/portfolio data-fit is "0" (the full search shows). Every decision run
    measures its Site crumb (shown, inside the width). SHOTS_ONLY=sweep runs only the sweep.
+   IA-1c fix round (D-IA.41): the sweep adds 390, 600, 601, 760 and checks at every width: past, reach, trunc, midword, rows (data-fit 0-4 one line, 5 two row bands, 5 below 761), order (data-fit never rises with width), full (0 at 1920), asof (period menu holds the figures' time; 1440 and 390 on #/portfolio).
+   Plants (D-IA.41, SHOTS_ONLY=sweep): wrap, phonesearch, midword, asof must fail; longname must pass.
    Plants: SHOTS_PLANT=fit (no collapse; with SHOTS_ONLY=sweep), truncate (the search box clipped; sweep), crumbs (the keep rule deleted; with SHOTS_ONLY=decision), status (hides the status words), SHOTS_PLANT=headline (narrows the headline to force a third line), SHOTS_PLANT=stack (removes the stacking media rule). */
 const { chromium } = require(process.env.PW), fs = require('fs');
 const base = 'file://' + process.argv[2], out = process.argv[3]; fs.mkdirSync(out, { recursive: true });
-const PLANT = process.env.SHOTS_PLANT || '';
+const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let SW_ORDER = false;
 const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), kids = tb ? [...tb.querySelectorAll(':scope > *, :scope > .right > *')].filter(e => e.getBoundingClientRect().height > 0) : [];
   const cs = kids.map(e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; }), oneLine = Math.max(...cs) - Math.min(...cs) <= 8;
-  const tall = kids.filter(e => e.getBoundingClientRect().height > 40).map(e => e.className || e.tagName), past = tb ? [...tb.querySelectorAll('*')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.right > innerWidth + 1; }).map(e => e.className || e.tagName) : [];
+  const fit5 = !!tb && tb.dataset.fit === '5', tall = kids.filter(e => !(fit5 && e.matches('.ux-scope-sw')) && e.getBoundingClientRect().height > 40).map(e => e.className || e.tagName), past = tb ? [...tb.querySelectorAll('*')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && !e.closest('details:not([open]) > :not(summary)') && (r.right > innerWidth + 1 || r.left < -1); }).map(e => e.className || e.tagName) : [];
   const rail = document.querySelector('.ia-frame .rail'), rr = rail && getComputedStyle(rail).display !== 'none' ? rail.getBoundingClientRect() : null, rp = [], un = [];
   if (rr) { rail.querySelectorAll('*').forEach(e => { const r = e.getBoundingClientRect(); if (r.width > 0 && r.right > rr.right + 1) rp.push(e.className || e.tagName); });
     rail.querySelectorAll('[data-rail-unavailable]').forEach(e => { const st = e.querySelector('[data-rail-status]'), r = st && st.getBoundingClientRect(), shown = !!r && r.width > 0 && r.height > 0 && r.height <= 20, cs = getComputedStyle(e);
@@ -33,7 +35,14 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
   const trunc = [...document.querySelectorAll('.ia-frame .topbar .ia-search-t, .ia-frame .topbar .ux-scope-sw>summary, .ia-frame .topbar .ux-period summary, .ia-frame .topbar .ia-inbox-label')].filter(e => e.getBoundingClientRect().width > 2 && e.scrollWidth > e.clientWidth + 1).map(e => `${e.className || e.tagName} ${e.scrollWidth} > ${e.clientWidth}`);
   const ca = document.querySelector('.ia-frame .canvas .breadcrumbs a[href^="#/site/"]'), cr = ca && ca.getBoundingClientRect(), cs2 = ca && getComputedStyle(ca), cb = ca && getComputedStyle(ca.parentElement);
   const crumb = ca ? { shown: ca.getClientRects().length > 0 && cs2.visibility !== 'hidden' && cb.display !== 'none' && cb.visibility !== 'hidden', inside: cr.left >= 0 && cr.right <= innerWidth + 1 } : null;
-  return { stackN: st.length, stackBad: [...new Set(stackBad)], hlLines, fit: tb ? tb.dataset.fit || null : null, trunc, crumb, frame: !!document.querySelector('#ia-root.ia-frame'), oneLine, kids: kids.length, tall, past, hscroll: document.documentElement.scrollWidth > innerWidth + 1, rail: !!rr, railPast: rp, un };
+  /* D-IA.41: reach (each control a real box, inside the window, hit at its centre), rows (centre bands), midword (the scope summary never breaks inside a word) */
+  const CTL = { scope: '.ux-scope-sw>summary', search: '.searchbox', period: '.ux-period>summary', inbox: '.ia-inbox', theme: '.theme-toggle' }, reach = [];
+  for (const [n, sel] of Object.entries(CTL)) { const e = tb && tb.querySelector(sel), r = e && e.getBoundingClientRect(); if (!r) { reach.push(`${n} not present`); continue; }
+    const hit = document.elementFromPoint(Math.min(Math.max(r.left + r.width / 2, 0), innerWidth - 1), Math.min(Math.max(r.top + r.height / 2, 0), innerHeight - 1));
+    if (r.width < 16 || r.left < -1 || r.right > innerWidth + 1 || r.top < -1 || r.bottom > innerHeight + 1 || !hit || !(e === hit || e.contains(hit))) reach.push(`${n} not reachable`); }
+  const bands = []; cs.slice().sort((a, b) => a - b).forEach(c => { if (!bands.length || c - bands[bands.length - 1] > 8) bands.push(c); });
+  const sw = tb && tb.querySelector('.ux-scope-sw>summary'), swc = sw && getComputedStyle(sw), mw = swc ? (swc.overflowWrap !== 'normal' || swc.wordBreak !== 'normal' || swc.textOverflow === 'ellipsis' ? `${swc.overflowWrap}/${swc.wordBreak}/${swc.textOverflow}` : '') : 'no scope switch';
+  return { reach, bandN: bands.length, mw, stackN: st.length, stackBad: [...new Set(stackBad)], hlLines, fit: tb ? tb.dataset.fit || null : null, trunc, crumb, frame: !!document.querySelector('#ia-root.ia-frame'), oneLine, kids: kids.length, tall, past, hscroll: document.documentElement.scrollWidth > innerWidth + 1, rail: !!rr, railPast: rp, un };
 };
 (async () => { const b = await chromium.launch({ executablePath: process.env.CHROME }); const lines = []; let bad = 0;
   const run = async (op, w, h, dark, r, shot, act) => {
@@ -42,6 +51,12 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (PLANT === 'status') await p.addStyleTag({ content: '.ia-rail-status{display:none!important}' });
     if (PLANT === 'fit') await p.evaluate(() => { iaFitTopbar = () => {}; render(); });
     if (PLANT === 'truncate') await p.addStyleTag({ content: '.ia-frame .topbar .searchbox{max-width:140px;overflow:hidden}.ia-frame .topbar .ia-search-t{overflow:hidden;text-overflow:ellipsis}' });
+    const PAD = '.ia-frame .topbar .ux-scope-sw>summary{padding-right:240px}';
+    if (PLANT === 'wrap') { await p.evaluate(() => { const del = l => { for (let i = l.length - 1; i >= 0; i--) { const r = l[i]; if (r.cssRules && r.type !== CSSRule.STYLE_RULE) del(r.cssRules); else if (/data-fit="5"/.test(r.selectorText || '')) (r.parentRule || r.parentStyleSheet).deleteRule(i); } }; for (const sh of document.styleSheets) del(sh.cssRules); }); await p.addStyleTag({ content: PAD }); await p.evaluate(() => iaFitTopbar()); }
+    if (PLANT === 'longname') await p.evaluate(() => { const s = document.querySelector('.ia-frame .topbar .ux-scope-sw>summary'); s.textContent = 'Lakeside Power · Kisiwa Generator and Fuel Depot, Northern Shore Extension ▾'; iaFitTopbar(); }); /* control: a long name made of words (the 240px padding stand-in cannot fit at 390 by any form) */
+    if (PLANT === 'phonesearch') await p.addStyleTag({ content: '@media (max-width:600px){.ia-frame .topbar .searchbox{display:none!important}}' });
+    if (PLANT === 'midword') { await p.addStyleTag({ content: PAD + '.ia-frame .topbar .ux-scope-sw>summary{overflow-wrap:anywhere!important}' }); await p.evaluate(() => iaFitTopbar()); }
+    if (PLANT === 'asof') await p.evaluate(() => { iaPeriodHtml = op => uxPeriodMenuHtml(op, iaPeriodChip(op)); render(); });
     if (PLANT === 'crumbs') await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) if (/data-ia-crumbs/.test(sh.cssRules[i].cssText)) sh.deleteRule(i); });
     if (PLANT === 'headline') await p.addStyleTag({ content: '.ux-headline{max-width:220px!important}' });
     if (PLANT === 'stack') await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.type === CSSRule.MEDIA_RULE && /max-width:\s*760px/.test(r.conditionText) && /table\.ux-stack/.test(r.cssText)) sh.deleteRule(i); } });
@@ -50,9 +65,14 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (act === 'inbox') { const ib = await p.evaluate(() => { const d = document.getElementById('ia-inbox'), r = d && d.querySelector('.ux-drawer-panel').getBoundingClientRect(); return { open: !!d && d.dataset.open === 'true', fits: !!r && r.left >= -1 && r.right <= innerWidth + 1, rows: d ? d.querySelectorAll('a[data-ia-row]').length : 0 }; });
       if (!ib.open) why.push('the inbox did not open'); if (!ib.fits) why.push('the inbox panel runs past the window'); m.inboxRows = ib.rows; }
     if (!m.frame) why.push('no frame'); if (m.hscroll) why.push('sideways scroll'); if (m.tall.length) why.push(`tall top-bar item ${m.tall[0]}`); if (m.past.length) why.push(`top bar runs past the window (${m.past[0]})`);
-    if (w >= 761 && !m.oneLine) why.push('top bar not on one line'); if (w >= 761 && m.trunc.length) why.push(`truncated control (${m.trunc[0]})`);
+    if (m.reach.length && !act) why.push(`${m.reach[0]} (reach)`); if (m.trunc.length) why.push(`truncated control (${m.trunc[0]})`); if (m.mw) why.push(`the scope label breaks inside a word or ends in an ellipsis (${m.mw}) (midword)`);
+    if (w < 761 && m.fit !== '5') why.push(`data-fit ${m.fit}, not 5 below 761 (rows)`);
+    if (m.fit !== null && m.fit !== '5' && !m.oneLine) why.push(`data-fit ${m.fit} but the top bar is not on one line (rows)`); if (m.fit === '5' && m.bandN !== 2) why.push(`data-fit 5 but the items fall in ${m.bandN} row band(s), not 2 (rows)`);
+    if (SW_ORDER && PLANT !== 'longname') { const k = `${op} ${r}`, f = +m.fit; if (LAST[k] !== undefined && f > LAST[k]) why.push(`data-fit rose from ${LAST[k]} to ${f} as the width rose to ${w} (order)`); LAST[k] = f; }
+    if (SW_ORDER && PLANT !== 'longname' && w === 1920 && m.fit !== '0') why.push(`data-fit ${m.fit}, not 0 at 1920 (full)`);
+    if (SW_ORDER && (w === 1440 || w === 390) && r === 'portfolio') { const a = await p.evaluate(async () => { const s = document.querySelector('.ia-frame .topbar .ux-period>summary'); s.click(); await new Promise(x => setTimeout(x, 100)); const it = document.querySelector('.ia-frame .topbar .ux-period [aria-current="true"]'); return { t: it ? it.textContent : '', want: snapText() }; }); if (!a.t.includes(a.want)) why.push(`the period menu's current item lacks "${a.want}" (asof)`); }
     if (r.startsWith('decision/')) { if (!m.crumb) why.push('no Site crumb link'); else if (!m.crumb.shown) why.push('the Site crumb is not shown'); else if (!m.crumb.inside) why.push('the Site crumb lies outside the viewport width'); }
-    if (r === 'portfolio' && w === 1440 && !act && m.fit !== '0') why.push(`data-fit ${m.fit}, not 0: the full search is not shown where it fits`);
+    if (r === 'portfolio' && w === 1440 && !act && PLANT !== 'longname' && m.fit !== '0') why.push(`data-fit ${m.fit}, not 0: the full search is not shown where it fits`);
     if (m.railPast.length) why.push(`rail overflow (${m.railPast[0]})`); const u = m.un.filter(x => !x.ok); if (u.length) why.push(`unavailable item reads as live or overflows: ${u.map(x => x.n).join(', ')}`);
     if (m.rail && !m.un.length) why.push('no unavailable items measured');
     if (w >= 1280 && m.hlLines !== null && m.hlLines > 2) why.push(`headline on ${m.hlLines} lines`);
@@ -69,8 +89,11 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     for (const d of DECS[op]) if (ONLY !== 'sweep') await run(op, w, h, dark, `decision/${d}`, !PLANT);
     if (ONLY !== 'sweep') await run(op, w, h, dark, 'portfolio', !PLANT, 'inbox'); }
   /* D-IA.37: the width sweep, 761 up */
-  const SW = [761, 800, 900, 1023, 1024, 1100, 1101, 1199, 1200, 1280, 1366, 1440, 1600, 1920];
+  const SW0 = [390, 600, 601, 760, 761, 800, 900, 1023, 1024, 1100, 1101, 1199, 1200, 1280, 1366, 1440, 1600, 1920];
+  const SW = process.env.SHOTS_W ? process.env.SHOTS_W.split(',').map(Number) : SW0; /* SHOTS_W=390,761 narrows the sweep (debug) */
+  SW_ORDER = ONLY === 'sweep' || !ONLY;
   if (ONLY === 'sweep' || !ONLY) for (const op of Object.keys(SITES)) for (const w of SW) for (const r of ['portfolio', 'plan', 'x-unknown', `decision/${DECS.longest[op]}`]) await run(op, w, 800, false, r, false);
+  SW_ORDER = false;
   if (ONLY === 'sweep') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
   if (ONLY === 'decision') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
   for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) for (const r of ['portfolio', 'portfolio/outcomes', 'portfolio/demand-and-capacity', ...SITES[op].map(k => `site/${k}`)]) if (ONLY !== 'decision') await run(op, w, h, dark, r, !PLANT);

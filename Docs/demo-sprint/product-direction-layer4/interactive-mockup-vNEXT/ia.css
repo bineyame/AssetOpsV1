@@ -58,5 +58,20 @@
 /* D-IA.38: a drill-down page (decision, record, asset) has only its crumbs as the way up, so they stay at every size */
 .ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{display:flex}
 @media (max-width:600px){.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{margin-bottom:var(--s1)}}
-/* D-IA.36: an in-page target stays below the sticky bar after the scroll (iaInPage sets --ia-sticky-h to the bar's measured height) */
-.ux-ocards{scroll-margin-top:var(--ia-sticky-h,0px)}
+/* D-IA.36: an in-page target stays below the sticky bar after the scroll (iaInPage sets --ia-sticky-h to the shown bar's bottom edge; the gap is the --s2 token) */
+.ux-ocards{scroll-margin-top:calc(var(--ia-sticky-h,0px) + var(--s2))}
+/* D-IA.41: fit levels 4 and 5. 4: the period as "October 2026" only (its sentence is in the period menu). 5 (final, every width below 761 too): two rows,
+   the phone's arrangement; the scope switch may shrink and wrap between words; search stays as its icon at every width */
+.ia-frame .topbar[data-fit="4"] .ia-period-asof,.ia-frame .topbar[data-fit="5"] .ia-period-asof{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="4"] .ia-search-t,.ia-frame .topbar[data-fit="5"] .ia-search-t,.ia-frame .topbar[data-fit="4"] .ia-inbox-label,.ia-frame .topbar[data-fit="5"] .ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="4"] .searchbox,.ia-frame .topbar[data-fit="5"] .searchbox,.ia-frame .topbar[data-fit="4"] .ia-inbox,.ia-frame .topbar[data-fit="5"] .ia-inbox{padding:0 8px}
+.ia-frame .topbar[data-fit="4"] .avatar,.ia-frame .topbar[data-fit="5"] .avatar{display:none}
+.ia-frame .topbar[data-fit="5"]{flex-wrap:wrap;height:auto;min-height:54px}
+.ia-frame .topbar[data-fit="5"] .right{display:contents}
+.ia-frame .topbar[data-fit="5"] .ia-inbox{margin-left:auto}
+.ia-frame .topbar[data-fit="5"] .ux-period{order:1;flex:0 0 100%}
+.ia-frame .topbar[data-fit="5"] .ux-period .ux-pop-menu{left:0;right:auto}
+.ia-frame .topbar[data-fit="5"] .searchbox{display:flex}
+.ia-frame .topbar[data-fit="5"] .ux-scope-sw{flex:1 1 0;min-width:0;max-width:max-content}
+.ia-frame .topbar[data-fit="5"] .ux-scope-sw>summary{white-space:normal;overflow-wrap:normal;word-break:normal}
+.ia-frame .topbar[data-fit="5"] .searchbox::after{display:none}

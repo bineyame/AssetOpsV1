@@ -32,7 +32,7 @@ function iaTabsHtml(route, ctx) {
 function iaFrame(route, ctx, body) {
   const title = route.title(ctx), sub = route.subtitle ? route.subtitle(ctx) : '';
   const crumbs = `<div class="breadcrumbs">${route.crumbs(ctx).map(([t, id]) => id ? link(id, t) : escapeHtml(t)).join('<span>›</span>')}</div>`;
-  return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}<span class="ia-search-t">Search Sites, decisions and Findings</span></button>${uxPeriodMenuHtml(ctx.op)}${IA_LANDED.has('IA-1c') ? iaInboxControl(ctx.op) : ''}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas"${["decision", "record", "asset"].includes(route.shape) ? ' data-ia-crumbs="keep"' : ''}>${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div>${IA_LANDED.has('IA-1c') ? iaInboxDrawer(ctx.op) : ''}</main></div>`;
+  return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}<span class="ia-search-t">Search Sites, decisions and Findings</span></button>${iaPeriodHtml(ctx.op)}${IA_LANDED.has('IA-1c') ? iaInboxControl(ctx.op) : ''}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas"${["decision", "record", "asset"].includes(route.shape) ? ' data-ia-crumbs="keep"' : ''}>${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div>${IA_LANDED.has('IA-1c') ? iaInboxDrawer(ctx.op) : ''}</main></div>`;
 }
 /* D-IA.16: every link whose target is not live becomes text (its trailing arrow dropped); a tab to it is removed; a live alias
    gets its target's canonical address. Runs first, on the detached fragment. */
@@ -183,4 +183,13 @@ function iaInboxDrawer(op) {
   const sec = (k, title, body) => `<section class="ia-inbox-sec" data-ia-section="${k}" aria-labelledby="ia-inbox-${k}"><h3 id="ia-inbox-${k}">${title}</h3>${body}</section>`;
   const snap = `<p class="ux-note">${snapText(op)}</p>${snapOf(op).pending ? `<p class="ux-note">${pendingText(op)}</p>` : ''}`;
   return uxDrawer('ia-inbox', 'Waiting for you', `${sec('for-you', 'For you', list(iaForYou(op).map(item), 'Nothing is waiting for you'))}${sec('portfolio', 'In your portfolio', list(iaInPortfolio(op).map(item), 'Nothing else is waiting for a choice'))}${sec('since', 'Since you last looked', `${list(L.map(logRow), 'No change recorded in this session')}${snap}`)}`, true);
+}
+
+/* D-IA.41: the period chip split so its sentence can be hidden at fit level 4 (text content identical to periodChip) and stated in the period menu */
+function iaPeriodChip(op) {
+  const S = snapOf(op);
+  return `<span class="period-chip" data-snapshot="${S.asOf || S.books}">${icon('clock')}October 2026<span class="ia-period-asof"> · ${snapText(op)}</span></span>${S.pending ? ` <span class="snap-pending" role="status" data-op="${op}">${badge(pendingText(op), 'amber')}</span>` : ''}`;
+}
+function iaPeriodHtml(op) {
+  return uxPeriodMenuHtml(op, iaPeriodChip(op)).replace('<small>current period</small>', `<small>current period · ${snapText(op)}</small>`);
 }

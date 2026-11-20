@@ -94,13 +94,14 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
   /* IA-1c r1 (D-IA.36): an in-page link scrolls on the page it is on; Metro's no-recommendation decision, 1440 and 390 */
   const anchorTest = async () => { for (const w of [1440, 390]) { const p = await page('decision/ruiru-connector', { op: 'metro', q: '?state=no-recommendation', w, h: w === 390 ? 844 : 900 });
       if (PLANT === 'anchor') await p.evaluate(() => { iaInPage = () => false; });
+      if (PLANT === 'stickyh') await p.evaluate(() => { (0, eval)('iaInPage = ' + iaInPage.toString().replace('${hh}px', '0px')); }); /* D-IA.42: --ia-sticky-h forced to 0px; the section heading then lies under the sticky bar */
       const before = await p.evaluate(() => location.hash.split('?')[0]);
       await p.locator('#app a', { hasText: 'See the options' }).first().click(); await p.waitForTimeout(700);
       const r = await p.evaluate(() => { const h = document.querySelector('#app h1'), sec = document.getElementById('uxcards-ruiru-connector'), h2 = sec && sec.querySelector('h2'), sb = document.querySelector('.ux-dsticky.is-on'), sbBottom = sb && sb.getBoundingClientRect().top < innerHeight / 2 ? sb.getBoundingClientRect().bottom : 0, t = h2 ? h2.getBoundingClientRect().top : -1;
         return { path: location.hash.split('?')[0], h1: h ? h.textContent.trim() : '', nf: /Page not found/.test(document.getElementById('ia-root').innerText), focus: document.activeElement && document.activeElement.id, top: t, sbBottom, inView: t >= 0 && t < innerHeight, below: t >= sbBottom - 1 }; });
       ok(r.path === before && r.path === '#/decision/ruiru-connector' && !r.nf && r.h1 !== 'Page not found' && r.focus === 'uxcards-ruiru-connector' && r.below && r.inView, `in-page link at ${w}: "See the options" stays on #/decision/ruiru-connector (${r.path}), H1 "${r.h1.slice(0, 40)}", focus on ${r.focus || 'nothing'}, options heading at ${Math.round(r.top)} px (sticky bar bottom ${Math.round(r.sbBottom)}), not-found ${r.nf}`);
       await p.context().close(); } };
-  if (PLANT === 'anchor') { await anchorTest(); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
+  if (PLANT === 'anchor' || PLANT === 'stickyh') { await anchorTest(); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   await anchorTest(); if (process.env.UXI_ONLY === 'anchor') { await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   // 1 drawers on the Overview: open, focus, trap (every press, D-IA.31), Esc, return focus; all three operators
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });

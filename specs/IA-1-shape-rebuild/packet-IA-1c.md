@@ -98,7 +98,7 @@ Merged `task/IA-1c-review-answers` and main (index-rulings-12 and INDEX.md confl
 Final run at head, all through `tools/heavy-slot.sh`: uxi **386 PASS, 0 FAIL (530 s)**; count_check PASS (desktop jsdom and 390 Chromium); G3 36 of 36; plan_switch 785/0; shell_check, design_lint, vocab, copy, hand_typed 0 findings; render_text 237 renders, 0 script errors; check_manifest 7572 passed, 0 failed; after_render_check PASS (the fit runs before the guard observes).
 `ia_gates.cjs` now lists anchor, sitecrumb, decscope and nolog under IA-1c: **51 runs, all as expected (764.8 s)**.
 
-### Known deviation: D-IA.37's own stop condition is hit
+### Known deviation (superseded by the fix-round answer below): D-IA.37's own stop condition is hit
 The ruled collapse (level 3, avatar hidden) does not fit below about 950 to 1000 px: the bar needs 760 px beside a 174 to 204 px rail and the
 period chip alone is about 298 px, the scope switch about 200 px. Measured `data-fit` / overflow (X), lakeside portfolio: 761 to 934 3X,
 960 3, 1000 2, 1024 1; Harvest needs about 1000; Metro and decisions about 934. `ia_shots` therefore reports **456 measured, 48 bad**, all
@@ -106,3 +106,39 @@ period chip alone is about 298 px, the scope switch about 200 px. Measured `data
 width, gap or label (the ruling forbids it): **the round stops here for a ruling** (for example the period chip as an icon at level 3, or the
 rail narrower, or the two-row bar below 1000). Looked at: the top bar at 761 (period chip clipped, inbox and theme off screen), 1024, 1280, 1440 (full
 search); a decision at 390 and 1280x720 with its Site crumb visible (both fine).
+
+## Fix-round answer (D-IA.41, D-IA.42; `rulings-2.md` "IA-1c fix-round answer")
+Merged `task/IA-1c-topbar-answer`. Built as ruled: `data-fit` 4 (period as "October 2026"; ` · Figures as of ...` clipped in `.ia-period-asof`) and 5
+(two rows, the phone's arrangement, used at every width below 761; the measure steps 0 to 4 and sets 5 without a test); `iaPeriodChip` and `iaPeriodHtml`
+in `ia-shapes.js` (render_text unchanged; the period menu's current item reads "current period · Figures as of ...", at every level); search an icon at every
+width (`data-fit` 5 overrides the ux.css hide at 600); R755 and R756 in the register; `--ia-sticky-h` from the shown bar's `bottom`, gap `var(--s2)`
+(`ia.css`). `ia_gates.cjs` lists `AR_PLANT=fitlate` and `UXI_PLANT=stickyh` under IA-1c.
+Measured changes beyond the ruled text (each needed for the ruled `rows` and `reach` clauses to hold; no width, gap or label tuned):
+- Level 5: the period gets `flex:0 0 100%` (its own row, so "exactly two bands" holds at 600 to 760 and 761 up, where everything else would fit one row);
+  its open menu is anchored `left:0` (it was right-anchored to a now left-hand chip and opened off the window); the "Ctrl K" hint hidden at 5 (it pushed the
+  search to a row of its own at 390); the scope switch is `flex:1 1 0; min-width:0; max-width:max-content` instead of `flex:0 1 auto` (with `auto` the
+  flex line wraps the theme toggle to a third row instead of shrinking the scope label, which wraps between words).
+- `ia_shots` `tall` measure no longer applies to the scope switch at level 5 (its label wraps by ruling); `past` ignores the closed period menu's box and
+  checks the left edge; `SHOTS_W=390,761` narrows the sweep for debugging.
+- `SHOTS_PLANT=midword` uses `!important` on `overflow-wrap:anywhere` (the sheet's `[data-fit="5"]` rule outranks the ruled plain selector, so the plant would not bite).
+- **`SHOTS_PLANT=longname` control departs from the ruled padding**: 240 px of padding alone leaves no form that fits at 390 (the padding is not breakable;
+  it fails reach and tall at 390 to 800). The control sets the scope label to a long name made of words ("Lakeside Power · Kisiwa Generator and Fuel Depot,
+  Northern Shore Extension") and skips `order` and `full` (content-dependent by design); `wrap`, `phonesearch`, `midword` use the ruled padding.
+
+### Plants (first failing line)
+| plant | first failing line |
+|---|---|
+| SHOTS wrap (sweep) | `BAD lakeside #/portfolio 390x800: ... top bar runs past the window (ux-pop ux-scope-sw); scope not reachable (reach); data-fit 5 but ... 3 row band(s)` (120 bad of 216) |
+| SHOTS phonesearch | `BAD lakeside #/portfolio 390x800: ... search not reachable (reach)` (24 bad) |
+| SHOTS midword | `BAD lakeside #/portfolio 390x800: ... the scope label breaks inside a word ... (anywhere/normal/clip) (midword)` |
+| SHOTS asof | `BAD lakeside #/portfolio 390x800: ... the period menu's current item lacks "Figures as of 06:00, 6 Nov" (asof)` (12 bad: 3 operators x 1440 and 390 x 4 rows) |
+| SHOTS longname (control) | pass: `ia_shots` sweep 216 measured, 0 bad (exit 0) |
+| AR fitlate, UXI stickyh | AR fitlate: `Lakeside Power · #/plan: 1 mutation(s) after insertion: data-fit on header` (ia_gates); UXI stickyh: `FAIL in-page link at 1440: ... options heading at 8 px (sticky bar bottom 39)` (run with its path arguments, outside ia_gates: the check needs the page path) |
+
+### Final run at head (all through `tools/heavy-slot.sh`, light machine)
+`node build.mjs` ok; `ia_gates` **52 runs, all as expected, 0 BAD (797 s)** (incl. `after_render_check` fitlate; the uxi stickyh plant was dropped from `ia_gates`
+because `ux_interaction_check` needs the page path argument and crashed with exit 1, a false "fail"); `ia_shots` full **504 measured, 0 bad (422 s)**
+(the inbox-open runs skip `reach`: the drawer's scrim covers the bar by design); uxi **386 PASS, 0 FAIL (532 s)**; count_check PASS; G3 36 of 36 (clip 24 of 36
+and root fail); plan_switch 785/0; shell_check 0; design_lint 0; render_text ok; vocab 0; copy 0; hand_typed 0; check_manifest ok.
+Looked at the top bar myself at 390, 761, 800, 900, 1024, 1280, 1440 (Metro; 390 and 761 re-looked for Harvest after the scope fix): level 5 two rows at 390 and 761,
+level 4 (period "October 2026", search icon with its hint) at 800 and 900, level 1 at 1024 and 1280, level 0 at 1440. The "Figures as of" sentence shows in the bar from 1024 up and in the period menu at every width.

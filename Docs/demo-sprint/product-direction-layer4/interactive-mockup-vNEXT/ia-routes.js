@@ -161,7 +161,7 @@ function iaInPage(a) {
   if (!el || !app || !app.contains(el)) return false;
   /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so the target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom) */
   const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
-  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().height) + 8; if (!was) sb.classList.remove('is-on'); }
+  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
   document.documentElement.style.setProperty('--ia-sticky-h', `${hh}px`);
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
@@ -177,9 +177,10 @@ document.addEventListener('click', e => {
 /* D-IA.37: the top bar is one row from 761 px up; controls collapse in a fixed order (search to its icon, the inbox label, the avatar) and never truncate */
 function iaFitTopbar() {
   const tb = document.querySelector('.ia-frame .topbar'); if (!tb) return;
-  if (innerWidth < 761) { tb.removeAttribute('data-fit'); return; }
+  if (innerWidth < 761) { tb.dataset.fit = '5'; return; } /* D-IA.41: the phone is the final form, keyed the same way */
   const fits = () => tb.scrollWidth <= tb.clientWidth + 1;
-  tb.dataset.fit = '0'; for (let n = 1; n <= 3 && !fits(); n++) tb.dataset.fit = String(n);
+  tb.dataset.fit = '0'; for (let n = 1; n <= 4 && !fits(); n++) tb.dataset.fit = String(n);
+  if (!fits()) tb.dataset.fit = '5'; /* 5 is final: two rows, no test */
 }
 (function () {
   let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
