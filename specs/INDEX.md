@@ -28,7 +28,7 @@ finished work are in `archive/agent-history/`.
 | 3B1 | Structure registry; page P3B | rev 2, in_review | `3B1-structure-registry/spec.md` | 15 KB |
 | 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a in_review | `3C1-person-on-commands/spec.md` | 15 KB |
 | 
-| 3B3 | Structure read (evaluator) | live — handshake | `3B3-structure-read/spec.md` | — |
+| 3B3 | Structure read (evaluator) | rev 2, in_review | `3B3-structure-read/spec.md` | 30 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
 
 Finished, merged or superseded (folder kept as the record): `3C0a-operator-accounts/`, `CH-0/`, `CH-1a/`, `CH-1b/`, `CH-2/`, `CH-3/`, `CH-4/`, `CH-5a/`, `CH-5b/`, `CH-5c/`, `CH-5d/`, `CH-6/`, `CH-9/`, `CH-9b/`, `COV-PARTIAL/`, `DD-1/`, `DEMO-COMBINED/`, `DEMO-SPARSE/`, `FIX-COLD-DRAIN/`, `FUEL-1/`, `IDX-GAPS/`, `LINK-LINEAGE/`, `Lane-C/`, `Lane-T/`, `MD-0/`, `OUT-C/`, `OUT-D/`, `OUT-E/`, `OUT-W/`, `POLISH/`, `RECON-1/`, `SCN/`, `T1-heavy-tool-slot-pool/`, `TEST-drift/`, `W2-02/`, `W2-03/`, `W2-04/`, `W2-05a/`, `W2-05b/`, `W2-06/`, `W2-07/`, `W2-F/`, `W3-01/`, `W3-02/`, `W3-03/`, `W4-01/`, `W4-02/`, `W4-03/`, `W5-01/`, `W5-02/`, `W5-03/`, `W5-04/`, `W5-F1/`, `W6-01/`, `WALK1/`, `mockup-vnext-categories-snapshot/`, `mockup-vnext-demo-items/`, `mockup-vnext-professional/`.

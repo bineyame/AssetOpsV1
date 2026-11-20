@@ -1,5 +1,7 @@
 # 3B3: the structure read, Site and portfolio (implementer spec)
 
+Status: in_review (built on `task/3B3-structure-read`; packet `packet.md`).
+
 Architect (Claude), 2026-11-20. Rev 2: handshake round 1 folded in (`rulings.md`, "Handshake answers (round 1)"). Lane B, the unit after `3B1` (the schedule order is
 `3B1`, `3B3`, `3B2`).
 - **Structure:** page P3B (approved 20 Nov), `decision-loop-specification.md` §3 ("Evaluation"), and
