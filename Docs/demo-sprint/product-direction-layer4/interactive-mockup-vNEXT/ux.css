@@ -1,0 +1,616 @@
+/* ux.css: the UI/UX guide's visual system and components (Docs/design-system/uiux-guide.md §3-§8). Loaded LAST.
+   Colours come only from tokens (this file adds the guide's new ones); sizes come only from the type scale. */
+
+/* 1. Tokens added by the guide (§4.1-§4.3): light, then dark twice (system preference unless forced light; forced dark) */
+:root{
+  --rail-text-2:#b3bdd0; --text-3:#7a8699; --info:#0e6a8a; --info-soft:#e2f3f8; --info-line:#a9d7e6;
+  --series-1:#5b6f8f; --series-target:var(--text); --series-total:#9aa7bb; --hatch:#c8d0dc;
+  --on-accent:#ffffff; --fs-kpi:32px; --s7:48px; --s8:64px; --r3:12px; --ease:cubic-bezier(.2,.7,.2,1);
+}
+@media screen and (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --rail-text-2:#a9b3c6; --text-3:#7d8899; --info:#6cc4e0; --info-soft:#12303a; --info-line:#2b5f70;
+    --series-1:#8ea3c4; --series-total:#5d6a80; --hatch:#3d4859;
+  }
+}
+:root[data-theme="dark"]{
+  --rail-text-2:#a9b3c6; --text-3:#7d8899; --info:#6cc4e0; --info-soft:#12303a; --info-line:#2b5f70;
+  --series-1:#8ea3c4; --series-total:#5d6a80; --hatch:#3d4859;
+}
+
+/* 2. Shell (§3.1): review tooling kept to one quiet strip; rail to icons at 1024-1279 */
+.reviewbar{padding:4px var(--s4);gap:var(--s2);font-size:var(--fs-xs);min-height:0}
+.reviewbar .left>span{display:none}
+.reviewbar select,.reviewbar button{font-size:var(--fs-xs);padding:2px 8px;white-space:nowrap}
+@media (max-width:600px){.reviewbar .right>*:not(#screen-select){display:none}.reviewbar .left strong{display:none}}
+@media (min-width:1024px) and (max-width:1279px){
+  .shell{grid-template-columns:64px minmax(0,1fr)}
+  .rail{padding:var(--s4) var(--s1)}
+  .rail .eyebrow,.rail-footer{display:none}
+  .rail .brand{width:40px;overflow:hidden;white-space:nowrap;padding:0 var(--s3) var(--s3)}
+  .rail a{width:44px;overflow:hidden;white-space:nowrap;padding:8px 12px}
+}
+
+/* 3. Page heading and the page's one scope line (§6, U1, U2) */
+.page-heading h1{font-size:var(--fs-2xl);line-height:32px}
+.ux-scope{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:var(--s1);font-size:var(--fs-xs);color:var(--text-2)}
+.drawer .ux-scope{margin-top:var(--s4)}
+
+/* 4. Tabs with a phone Section menu (§3.5, U4) */
+.ux-tabmenu{display:none}
+@media (max-width:600px){
+  .ux-tabs>.tabs{display:none}
+  .ux-tabmenu{display:block;position:relative;margin:0 0 var(--s4)}
+  .ux-tabmenu summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:var(--s2);min-height:44px;padding:0 var(--s3);border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);font-weight:600;font-size:var(--fs-md)}
+  .ux-tabmenu summary::-webkit-details-marker{display:none}
+  .ux-tabmenu summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--text-2);border-bottom:2px solid var(--text-2);transform:rotate(45deg) translateY(-2px)}
+  .ux-tabmenu-k{color:var(--text-2);font-weight:400}
+  .ux-tabmenu nav{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow-md);padding:var(--s1)}
+  .ux-tabmenu nav a{padding:12px var(--s3);border-radius:var(--r1);color:var(--text);font-size:var(--fs-md)}
+  .ux-tabmenu nav a.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+}
+
+/* 5. L1: headline and KPI tiles (§4.5, §5) */
+.headline.ux-headline{background:none;border:0;box-shadow:none;padding:0;margin:0 0 var(--s4);font-size:var(--fs-xl);line-height:28px;font-weight:600;color:var(--text);max-width:90ch}
+.heroes.ux-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4);margin:0 0 var(--s5)}
+.ux-kpi{display:flex;flex-direction:column;gap:var(--s1);min-width:0;padding:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r2)}
+.ux-kpi-l{font-size:var(--fs-sm);font-weight:500;color:var(--text-2)}
+.ux-kpi-v{font-size:var(--fs-kpi);line-height:40px;font-weight:600;letter-spacing:-.4px;color:var(--text);font-variant-numeric:tabular-nums;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
+.ux-kpi-v small{font-size:var(--fs-md);font-weight:400;color:var(--text-2);letter-spacing:0}
+.ux-kpi-v .ev-num{font-size:inherit;font-weight:inherit;color:inherit}
+.ux-kpi-s{font-size:var(--fs-sm);color:var(--text-2)}
+.ux-bullet,.ux-meterbar{position:relative;height:8px;margin:var(--s1) 0;background:var(--surface-3);border-radius:4px}
+.ux-bullet-bar{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.ux-bullet-bar.is-bad{background:var(--bad)}.ux-bullet-bar.is-good{background:var(--good)}
+.ux-bullet-t{position:absolute;top:-4px;width:2px;height:16px;margin-left:-1px;background:var(--series-target)}
+.ux-meterbar span{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--series-1)}
+.ux-meterbar.is-near span,.ux-meterbar.is-full span{background:var(--warn)}
+
+/* 6. Certainty markers (§6, U1): the baseline is quiet text; exceptions carry one outlined marker */
+.ec.ec-rec,.ec.ec-der{background:none;border:0;padding:0;color:var(--text-2);font-weight:400;font-size:var(--fs-xs)}
+.ec.ec-mod,.ec.ec-est,.ec.ec-quo,.ec.ec-stake,.ec.ec-na,.ec.ec-ver,.ux-mark{display:inline-flex;align-items:center;gap:2px;background:none;color:var(--text-2);border:1px solid var(--line-strong);border-radius:999px;padding:0 6px;font-size:var(--fs-xs);line-height:18px;font-weight:500;white-space:nowrap;vertical-align:middle;letter-spacing:0}
+.ec.ec-mod::before,.ux-mark-mod::before{content:"○"}
+.ec.ec-est::before,.ux-mark-est::before{content:"~"}
+.ec.ec-stake::before,.ux-mark-stake::before{content:"◇"}
+.ec.ec-ver,.ux-mark-ver{color:var(--good);border-color:var(--good-line)}
+.ec.ec-ver::before,.ux-mark-ver::before{content:"✓"}
+.ec.ec-na,.ux-mark-na{border-style:dashed}
+.dv.dv-mark{background:none;border:0;padding:0 0 0 2px;color:var(--text-2);font-weight:600;font-size:var(--fs-xs);vertical-align:super;line-height:0}
+.dv-rest{color:var(--text-2);font-size:var(--fs-sm)}
+.dv.dv-assume{background:none;border:0;padding:0;color:var(--text-2);font-style:italic;font-size:var(--fs-sm);font-weight:400}
+
+/* 7. L2: main column and aside (§3.1 "8 + 4") */
+.ux-main-aside{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:var(--s4);align-items:start;margin-bottom:var(--s5)}
+.ux-main-aside>.panel,.ux-aside>.panel{margin-bottom:0}
+.ux-aside{display:flex;flex-direction:column;gap:var(--s4);min-width:0}
+.ux-count{display:inline-block;margin-left:var(--s1);padding:0 8px;border-radius:999px;background:var(--surface-3);color:var(--text-2);font-size:var(--fs-sm);font-weight:600;line-height:20px;vertical-align:2px}
+.ux-link{font-size:var(--fs-sm);font-weight:500;white-space:nowrap}
+.ux-more{margin:var(--s3) 0 0;font-size:var(--fs-sm)}
+.ux-eyebrow{font-size:var(--fs-xs);font-weight:500;color:var(--text-2);margin-bottom:var(--s1)}
+.ux-h3{font-size:var(--fs-sm);font-weight:600;margin:var(--s4) 0 var(--s2)}
+
+/* decision queue (§7.1) */
+.ux-queue{list-style:none;margin:0;padding:0}
+.ux-queue>li.ux-q{display:grid;grid-template-columns:minmax(150px,auto) minmax(0,1fr) minmax(170px,auto) auto;gap:var(--s2) var(--s4);align-items:center;padding:var(--s3) 0;border-top:1px solid var(--line);background:none}
+.ux-queue>li.ux-q:first-child{border-top:0}
+.ux-q-top{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.ux-q-site{font-size:var(--fs-md);font-weight:600}
+.ux-q-txt{font-size:var(--fs-md);line-height:20px;color:var(--text)}
+.ux-q-who .who{font-size:var(--fs-sm)}
+.ux-q-go.button{min-height:32px;padding:4px 14px;font-size:var(--fs-sm);font-weight:600;white-space:nowrap}
+.ux-chip.attn-k{display:inline-flex;align-items:center;gap:4px;width:auto;padding:2px 8px;border-radius:999px;font-size:var(--fs-xs);font-weight:600;line-height:18px;white-space:nowrap;border:1px solid transparent}
+.ux-chip.is-bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad-line)}
+.ux-chip.is-warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
+.ux-chip.is-info{background:var(--info-soft);color:var(--info);border-color:var(--info-line)}
+.ux-chip.is-neutral{background:var(--surface-2);color:var(--text-2);border-color:var(--line-strong)}
+.ux-chip.is-good{background:var(--good-soft);color:var(--good);border-color:var(--good-line)}
+.ux-empty{color:var(--text-2);font-size:var(--fs-md);padding:var(--s3) 0}
+
+/* plan card and insight */
+.ux-plan-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s2);margin-bottom:var(--s2)}
+.ux-plan-head h2{font-size:var(--fs-lg)}
+.ux-plan-who{font-size:var(--fs-sm);color:var(--text-2);margin:0 0 var(--s3)}
+.ux-moves{margin:0;padding-left:20px;font-size:var(--fs-sm);line-height:20px}
+.ux-moves li+li{margin-top:var(--s1)}
+.ux-moves small{color:var(--text-2);font-size:var(--fs-xs)}
+.ux-plan-go{display:flex;align-items:center;gap:var(--s4);margin-top:var(--s4)}
+.ux-insight h2{font-size:var(--fs-lg);margin-bottom:var(--s2)}
+.ux-insight p{font-size:var(--fs-sm);color:var(--text-2);line-height:20px;margin:0 0 var(--s2)}
+.ux-more-d{margin-top:var(--s3);font-size:var(--fs-sm)}
+.ux-more-d>summary{cursor:pointer;color:var(--accent);font-weight:500}
+
+/* 8. L3: charts (§5) */
+.ux-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s4);margin-bottom:var(--s5);align-items:start}
+.ux-two>.panel{margin-bottom:0}
+.ux-chart .panel-head p{color:var(--text-2)}
+.ux-wf,.ux-vc{list-style:none;margin:var(--s2) 0 0;padding:0}
+.ux-wf-row{display:grid;grid-template-columns:minmax(120px,1.1fr) 76px minmax(0,1.6fr);gap:var(--s3);align-items:center;padding:6px 0;font-size:var(--fs-sm)}
+.ux-wf-row.is-end{font-weight:600}
+.ux-wf-lab{min-width:0;overflow-wrap:anywhere}
+.ux-wf-h{display:block;font-size:var(--fs-xs);color:var(--text-2);font-weight:400}
+.ux-wf-val{text-align:right;font-variant-numeric:tabular-nums}
+.ux-wf-track{position:relative;height:20px;border-left:1px solid var(--line-strong)}
+.ux-wf-bar{position:absolute;top:4px;height:12px;border-radius:2px}
+.ux-wf-bar.is-total{background:var(--series-total)}
+.ux-wf-bar.is-actual{background:var(--series-1)}
+.ux-wf-bar.is-bad{background:var(--bad)}
+.ux-wf-bar.is-good{background:var(--good)}
+.ux-wf-bar.is-resid{background:repeating-linear-gradient(45deg,var(--hatch) 0 3px,transparent 3px 6px);border:1px solid var(--line-strong)}
+.ux-vc-stage{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(84px,auto) minmax(0,1.4fr);gap:var(--s3);align-items:center;padding:6px 0;font-size:var(--fs-sm)}
+.ux-vc-lab small{display:block;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-vc-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ux-vc-track{position:relative;height:20px}
+.ux-vc-bar{position:absolute;left:0;top:4px;height:12px;border-radius:2px;background:var(--series-1)}
+.ux-vc-stage.is-na .ux-vc-bar{background:none;border:1px dashed var(--line-strong)}
+.ux-vc-stage.is-na .ux-vc-val{font-weight:400;color:var(--text-2);white-space:normal}
+.ux-vc-leak{padding:0 0 2px var(--s3);font-size:var(--fs-xs);color:var(--text-2)}
+.ux-tableview{margin-top:var(--s3);border-top:1px solid var(--line);padding-top:var(--s3)}
+.ux-tableview>summary{cursor:pointer;color:var(--accent);font-size:var(--fs-sm);font-weight:500;width:max-content;max-width:100%}
+.ux-tableview-body{margin-top:var(--s3)}
+.ux-tableview-body>.panel,.ux-tableview-body .chainfig{border:0;box-shadow:none;padding:0;margin:0;background:none}
+
+/* category tiles and their drawers (§9, U5, U6: no category colour) */
+.ux-cats-wrap{margin-bottom:var(--s5)}
+.ux-row-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);flex-wrap:wrap;margin-bottom:var(--s3)}
+.ux-row-head h2{font-size:var(--fs-lg)}
+.ux-about{font-size:var(--fs-sm);max-width:75ch}
+.ux-about>summary{cursor:pointer;color:var(--accent);font-weight:500;text-align:right}
+.ux-about p{margin-top:var(--s2);color:var(--text-2);line-height:20px}
+.ux-cats.ocards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4)}
+.ux-cat{display:flex;flex-direction:column;gap:var(--s2);min-width:0;padding:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r2)}
+.ux-cat-h{display:flex;align-items:center;gap:var(--s2)}
+.ux-cat-h .icon{width:20px;height:20px;color:var(--text-2)}
+.ux-cat-h h3{font-size:var(--fs-md);font-weight:600}
+.ux-cat-pos{font-size:var(--fs-md);font-weight:500;line-height:20px;margin:0}
+.ux-cat-n{font-size:var(--fs-sm);color:var(--text-2);margin:0}
+.ux-open:not(.button){font:inherit;background:none;border:0;padding:0;cursor:pointer;color:var(--accent)}
+.ux-cat-go{margin-top:auto;align-self:flex-start;font-size:var(--fs-sm);font-weight:500;min-height:24px}
+.ocard[class*="lens-b-"]{border-top:1px solid var(--line)}
+.lens{background:none;border:0;color:var(--text-2);padding:0}
+
+/* 9. Side drawer (§8): in the page, closed = hidden from view and focus */
+.ux-drawer{position:fixed;inset:0;z-index:60;visibility:hidden;pointer-events:none}
+.ux-drawer[data-open="true"]{visibility:visible;pointer-events:auto}
+.ux-drawer-scrim{position:absolute;inset:0;background:var(--overlay);opacity:0;transition:opacity .18s var(--ease)}
+.ux-drawer[data-open="true"] .ux-drawer-scrim{opacity:1}
+.ux-drawer-panel{position:absolute;top:0;right:0;bottom:0;width:min(480px,100%);display:flex;flex-direction:column;background:var(--surface);box-shadow:var(--shadow-md);border-radius:var(--r3) 0 0 var(--r3);transform:translateX(24px);opacity:0;transition:transform .18s var(--ease),opacity .18s var(--ease)}
+.ux-drawer.is-wide .ux-drawer-panel{width:min(640px,100%)}
+.ux-drawer[data-open="true"] .ux-drawer-panel{transform:none;opacity:1}
+.ux-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);padding:var(--s4) var(--s5);border-bottom:1px solid var(--line)}
+.ux-drawer-head h2{font-size:var(--fs-lg)}
+.ux-x{width:40px;height:40px;border:1px solid var(--line);border-radius:var(--r1);background:var(--surface);color:var(--text);font-size:var(--fs-xl);line-height:1;cursor:pointer}
+.ux-drawer-body{overflow:auto;padding:var(--s5);flex:1}
+.ux-drawer-body .ocard{border:0;box-shadow:none;padding:0;background:none}
+.ux-drawer-body .ocard-h{display:none}
+body.ux-locked{overflow:hidden}
+@media (prefers-reduced-motion:reduce){.ux-drawer-scrim,.ux-drawer-panel{transition:none}}
+@media (max-width:600px){.ux-drawer-panel,.ux-drawer.is-wide .ux-drawer-panel{width:100%;border-radius:0}}
+
+/* 10. Collapsible L3 sections (§2) */
+details.panel.ux-disc{padding:0}
+details.ux-disc>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s4) var(--s5);min-height:56px}
+details.ux-disc>summary::-webkit-details-marker{display:none}
+.ux-disc-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ux-h2{font-size:var(--fs-lg);font-weight:600;color:var(--text)}
+.ux-disc-sub{font-size:var(--fs-sm);color:var(--text-2)}
+.ux-disc-cue{flex:none;width:10px;height:10px;border-right:2px solid var(--text-2);border-bottom:2px solid var(--text-2);transform:rotate(45deg);transition:transform .15s var(--ease)}
+details.ux-disc[open]>summary .ux-disc-cue{transform:rotate(225deg)}
+.ux-disc-body{padding:0 var(--s5) var(--s5)}
+details.ux-disc>summary:focus-visible,.ux-tableview>summary:focus-visible,.ux-about>summary:focus-visible,.ux-more-d>summary:focus-visible,.ux-tabmenu summary:focus-visible,.ux-open:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* 11. Decision page head (§7.2) and the options table's recommended row */
+.ux-dhead h2{font-size:var(--fs-xl);line-height:28px;margin-bottom:var(--s3)}
+.ux-dfacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4);margin:0}
+.ux-dfacts dt{font-size:var(--fs-sm);color:var(--text-2);margin-bottom:2px}
+.ux-dfacts dd{margin:0;font-size:var(--fs-lg);font-weight:600;font-variant-numeric:tabular-nums}
+.ux-dfacts dd small{display:block;font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
+.ux-dgo{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s4)}
+.opts tr.rec>th,.opts tr.rec>td{background:none}
+.opts tr.rec>th:first-child{box-shadow:inset 3px 0 0 var(--accent-solid)}
+.ux-choose-steps .who-decides{border:0;padding:0;box-shadow:none}
+
+/* 12. Breakpoints (§3.1) */
+@media (max-width:1279px){.heroes.ux-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ux-cats.ocards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1280px) and (max-width:1439px){.heroes.ux-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.ux-kpi-v{font-size:var(--fs-2xl);line-height:32px}}
+@media (max-width:1023px){.ux-main-aside,.ux-two{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"top top" "txt txt" "who go";gap:var(--s2) var(--s3)}
+  .ux-q-top{grid-area:top;flex-direction:row;align-items:center;gap:var(--s2)}
+  .ux-q-txt{grid-area:txt}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go}
+  .ux-dfacts{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:600px){
+  .heroes.ux-kpis{gap:var(--s2)}
+  .ux-kpi{padding:var(--s3)}
+  .ux-kpi-v{font-size:var(--fs-xl);line-height:28px}
+  .ux-kpi-s{font-size:var(--fs-xs)}
+  .headline.ux-headline{font-size:var(--fs-lg);line-height:24px}
+  .ux-cats.ocards{grid-template-columns:minmax(0,1fr)}
+  .ux-wf-row,.ux-vc-stage{grid-template-columns:minmax(0,1fr) 76px;gap:2px var(--s3)}
+  .ux-wf-track,.ux-vc-track{grid-column:1/-1}
+  details.ux-disc>summary{padding:var(--s3) var(--s4)}.ux-disc-body{padding:0 var(--s4) var(--s4)}
+}
+.ux-axis-note{margin:var(--s2) 0 0;font-size:var(--fs-xs);color:var(--text-2)}
+table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{background:none}
+.ux-aside .ux-chart .ux-vc-stage{grid-template-columns:minmax(0,1fr) auto;gap:2px var(--s3)}
+.ux-aside .ux-chart .ux-vc-track{grid-column:1/-1}
+/* phone header (§3.5): the top bar wraps instead of overlapping; the header stays compact so L1 and the queue start early */
+@media (max-width:600px){
+  .topbar{height:auto;min-height:48px;flex-wrap:wrap;gap:var(--s2);padding:var(--s2) var(--s4)}
+  .topbar .right{flex-wrap:wrap;gap:var(--s2);margin-left:auto}
+  .topbar .searchbox,.topbar .avatar{display:none}
+  .canvas .breadcrumbs{display:none}
+  .page-heading{margin-bottom:var(--s2)}
+  .page-heading p{font-size:var(--fs-sm)}
+  .ux-scope{gap:0 var(--s2)}
+  .ux-kpi-s+.ux-kpi-s{display:none}
+  .ux-kpi-l{font-size:var(--fs-xs)}
+  .heroes.ux-kpis{margin-bottom:var(--s4)}
+  .ux-tabmenu{margin-bottom:var(--s3)}
+}
+.ux-choose-steps .wd-steps{grid-template-columns:minmax(0,1fr)}
+
+/* ---- fix round 1 (design review of wave 1) ---- */
+/* queue with At stake and Due columns (finding 1) */
+.ux-qh,.ux-queue>li.ux-q{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(112px,1fr) 72px minmax(140px,1fr) auto;gap:var(--s2) var(--s4);align-items:center}
+.ux-qh{padding:0 0 var(--s2);border-bottom:1px solid var(--line);font-size:var(--fs-xs);font-weight:500;color:var(--text-2)}
+.ux-queue>li.ux-q{align-items:start}
+.ux-q-issue{min-width:0;display:flex;flex-direction:column;gap:4px}
+.ux-q-top{flex-direction:row;align-items:center;gap:var(--s2)}
+.ux-q-k{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ux-q-stake{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font-size:var(--fs-sm)}
+.ux-q-stake small{flex-basis:100%;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-q-v{font-weight:600;font-size:var(--fs-md);font-variant-numeric:tabular-nums}
+.ux-q-word{color:var(--text-2)}
+.ux-q-due{font-size:var(--fs-sm);font-weight:500;white-space:nowrap}
+.ux-q-go.button{align-self:center}
+.ux-skel{display:flex;flex-direction:column;gap:var(--s3);padding:var(--s3) 0}
+.ux-skel-row{display:block;height:44px;border-radius:var(--r1);background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));background-size:200% 100%;animation:ux-shimmer 1.4s linear infinite}
+@keyframes ux-shimmer{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.ux-skel-row{animation:none}}
+.ux-more-phone{display:none}
+@media (max-width:760px){
+  .ux-qh{display:none}
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"issue issue" "stake due" "who go"}
+  .ux-q-issue{grid-area:issue}.ux-q-stake{grid-area:stake}.ux-q-due{grid-area:due;justify-self:end}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go}
+  .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
+}
+@media (max-width:600px){
+  .ux-overview .ux-queue:not(.is-filtered)>li.ux-q:nth-child(n+4){display:none}
+  .ux-overview .ux-more-phone{display:block}
+}
+.ux-kpi-na{font-size:var(--fs-lg);font-weight:500;color:var(--text-2)}
+
+/* decision options: five columns, detail in a drawer; stacked cards on phone (finding 2) */
+table.ux-opts td,table.ux-opts th{min-width:0}
+table.ux-opts tbody th{min-width:200px}
+.ux-lim{display:inline-block;font-size:var(--fs-sm);font-weight:600;white-space:nowrap;margin-right:6px}
+.ux-lim.is-good{color:var(--good)}.ux-lim.is-bad{color:var(--bad)}.ux-lim.is-na{font-weight:400;color:var(--text-2);white-space:normal}
+.ux-optgo{font-size:var(--fs-sm);font-weight:500;white-space:nowrap;min-height:24px}
+.ux-optd{display:flex;flex-direction:column;gap:var(--s4);margin:0}
+.ux-optd dt{font-size:var(--fs-sm);color:var(--text-2);margin-bottom:4px}
+.ux-optd dd{margin:0;font-size:var(--fs-md)}
+.ux-optd .obl{display:flex;gap:6px;align-items:flex-start;margin-bottom:var(--s2)}
+@media (max-width:760px){
+  table.ux-opts thead{display:none}
+  table.ux-opts,table.ux-opts tbody,table.ux-opts tr,table.ux-opts tbody th,table.ux-opts td{display:block;width:auto}
+  table.ux-opts tr{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);margin-bottom:var(--s3);background:var(--surface)}
+  table.ux-opts tbody th{min-width:0;padding:0 0 var(--s2);border:0}
+  table.ux-opts td{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--s2);padding:4px 0;border:0}
+  table.ux-opts td::before{content:attr(data-label);font-size:var(--fs-xs);color:var(--text-2)}
+  .ux-opts-wrap,.scroll-region:has(table.ux-opts){overflow:visible}
+}
+.ux-chosen{gap:var(--s3)}
+.ux-chosen>span:not(.status-pill){font-size:var(--fs-md)}
+
+/* the plan: L1 band with the approval actions, one line per item (finding 6) */
+.ux-planband{margin-bottom:var(--s5)}
+.ux-planband .heroes.ux-kpis{margin-bottom:var(--s3)}
+.ux-planact{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
+.ux-note{font-size:var(--fs-sm);color:var(--text-2)}
+.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(130px,1.2fr) 64px 80px minmax(110px,1fr) 84px 16px;gap:var(--s3);align-items:center}
+.ux-itemh{padding:0 var(--s3) var(--s2);font-size:var(--fs-xs);font-weight:500;color:var(--text-2);border-bottom:1px solid var(--line)}
+details.ux-item{border-bottom:1px solid var(--line)}
+details.ux-item>summary{list-style:none;cursor:pointer;padding:var(--s3)}
+details.ux-item>summary::-webkit-details-marker{display:none}
+details.ux-item>summary:hover{background:var(--surface-2)}
+details.ux-item>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
+.ux-it-main{display:flex;flex-direction:column;min-width:0}
+.ux-it-main small{font-size:var(--fs-xs);color:var(--text-2)}
+.ux-it-main b{font-size:var(--fs-md);font-weight:600}
+.ux-it-c{font-size:var(--fs-sm);min-width:0}
+.ux-num{font-variant-numeric:tabular-nums}
+.ux-state{display:inline-block;padding:0 8px;border:1px solid var(--line-strong);border-radius:999px;font-size:var(--fs-xs);font-weight:500;line-height:20px}
+.ux-item-body{padding:0 var(--s3) var(--s4)}
+.ux-item-body>.plan-item{border:0;box-shadow:none;margin:0}
+@media (max-width:760px){
+  .ux-itemh{display:none}
+  .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 16px}
+  .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{grid-column:3;grid-row:1}
+  .ux-it-c::before{content:attr(data-k) ": ";color:var(--text-2);font-size:var(--fs-xs)}
+}
+
+/* ---- fix round 2 ---- */
+/* H1: a phone option card has two columns, label and value; the cell content is one wrapper in the value column */
+.ux-cell{min-width:0}
+@media (max-width:760px){table.ux-opts td>.ux-cell{grid-column:2}}
+/* H2: the recalculation notice on its own full-width row under the header */
+.ux-pending{margin:0 0 var(--s3)}
+.ux-pending .snap-pending{display:block}
+.ux-pending .badge{display:block;width:auto;white-space:normal;text-align:left;padding:var(--s2) var(--s3);border-radius:var(--r1);font-size:var(--fs-sm);font-weight:500;line-height:20px}
+/* M1: the waterfall's two panels */
+.ux-wf-k{font-size:var(--fs-xs);font-weight:500;color:var(--text-2);margin:var(--s3) 0 0}
+.ux-wf-steps .ux-wf-track{border-left:0}
+.ux-wf-mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-strong)}
+/* M2: no spaced capitals in the canvas (guide §4.2) */
+.canvas .eyebrow{text-transform:none;letter-spacing:0;font-size:var(--fs-xs);font-weight:500}
+.wd-by{display:block;margin-bottom:var(--s1)}
+/* M4: a short laptop (1280 x 720 class) keeps the first queue row above the fold */
+@media (min-width:1024px) and (max-height:820px){
+  .page-heading{margin-bottom:var(--s2)}
+  .page-heading p{margin-top:2px}
+  .ux-scope{margin-top:2px}
+  .canvas .breadcrumbs{margin-bottom:var(--s1)}
+  .canvas{padding-top:var(--s4)}
+  .headline.ux-headline{margin-bottom:var(--s3);font-size:var(--fs-lg);line-height:24px}
+  .heroes.ux-kpis{margin-bottom:var(--s4);gap:var(--s3)}
+  .ux-kpi{padding:var(--s3) var(--s4);gap:2px}
+  .ux-kpi-v{font-size:var(--fs-2xl);line-height:32px}
+  .ux-kpi-s+.ux-kpi-s{display:none}
+  .ux-overview .ux-queue-panel .panel-head p{display:none}
+  .tabs{margin-bottom:var(--s3)}
+}
+/* low: the decider's name never truncates */
+.ux-q-who .who{white-space:normal;display:inline;overflow:visible}
+.ux-q-who .who>span{white-space:nowrap}
+@media (min-width:1024px) and (max-height:820px){
+  .canvas .breadcrumbs{display:none}
+  .page-heading>div>p:not(.ux-scope){display:none} /* the operator and period are in the top bar */
+  .ux-main-aside{grid-template-columns:minmax(0,1fr)} /* the queue first, full width; the plan card follows */
+  .ux-queue>li.ux-q{padding:var(--s2) 0}
+  .ux-site-tiles .ux-kpi-s{display:none}
+}
+@media (min-width:1024px) and (max-height:820px){
+  .canvas{padding-top:var(--s3)}
+  .ux-kpi-v{font-size:var(--fs-xl);line-height:28px}
+  .heroes.ux-kpis{margin-bottom:var(--s3)}
+  .headline.ux-headline{margin-bottom:var(--s2)}
+  .tabs{margin-bottom:var(--s2)}
+  .ux-queue-panel .panel-head{margin-bottom:var(--s2)}
+  .ux-qh{padding-bottom:var(--s1)}
+}
+@media (min-width:1024px) and (max-height:820px){.ux-kpi{padding:var(--s2) var(--s4)}.tabs.subtabs{margin-top:0;margin-bottom:var(--s2)}}
+.ux-q-who .who>span{margin-left:4px}
+@media (max-width:760px){table.ux-opts tr.rec>th:first-child{box-shadow:none}table.ux-opts tr.rec{border-left:3px solid var(--accent-solid)}}
+
+/* ---- fix round 3 ---- */
+.ux-cat-st{margin:0}
+.ux-about-inline{margin-top:var(--s3);max-width:none}
+.ux-about-inline>summary{text-align:left}
+@media (max-width:600px){.ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}.ux-chart{overflow-wrap:anywhere}}
+/* ---- copy round 4 ---- */
+table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100%}
+
+/* ===== wave 2: Portfolio polish ===== */
+/* queue: title + scannable columns; explanation on demand; controls */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,2fr) 88px minmax(120px,1fr) 64px minmax(150px,auto) auto}
+.ux-q-title{font-size:var(--fs-md);font-weight:600;line-height:20px}
+.ux-q-top{flex-wrap:wrap}
+.ux-q-more{align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--accent);font:inherit;font-size:var(--fs-sm);cursor:pointer;min-height:24px}
+.ux-q-more::after{content:" ▾";font-size:var(--fs-xs)}
+.ux-q-more[aria-expanded="true"]::after{content:" ▴"}
+.ux-q-why{font-size:var(--fs-sm);color:var(--text-2);line-height:20px;max-width:70ch}
+.ux-q-why.is-collapsed{display:none}
+.ux-q-cert{font-size:var(--fs-xs)}
+.ux-q-site{font-size:var(--fs-sm);font-weight:500}
+.ux-q-who .who{white-space:nowrap}
+.ux-queue>li.ux-grp{padding:var(--s3) 0 var(--s1);border-top:1px solid var(--line)}
+.ux-queue>li.ux-grp h3{font-size:var(--fs-sm);font-weight:600;color:var(--text-2)}
+.ux-qtools{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s4);margin:0 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
+.ux-qtools label{display:inline-flex;align-items:center;gap:var(--s2)}
+.ux-qtools select{font:inherit;font-size:var(--fs-sm);color:var(--text);background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r1);padding:4px 8px;min-height:32px}
+.ux-qcount{margin-left:auto}
+@media (max-width:760px){
+  .ux-queue>li.ux-q{grid-template-areas:"issue issue" "site due" "stake stake" "who go"}
+  .ux-q-site{grid-area:site}
+  .ux-qtools label{flex:1 1 40%}.ux-qtools select{flex:1}.ux-qcount{margin-left:0}
+}
+/* KPI: the trend slot says when no history is loaded */
+.ux-trend{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--fs-xs);color:var(--text-2)}
+.ux-spark-na{display:inline-block;width:48px;height:12px;border-bottom:1px dashed var(--line-strong);transform:translateY(-3px)}
+/* value chain as leaks */
+.ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}
+.ux-vc-loss{display:grid;grid-template-columns:minmax(120px,1fr) minmax(110px,auto) minmax(0,1.2fr);gap:var(--s3);align-items:center;padding:4px 0 8px var(--s3);font-size:var(--fs-sm)}
+.ux-vc-loss .ux-vc-val{font-weight:600;color:var(--bad)}
+.ux-vc-loss .ux-vc-val small{display:block;font-weight:400;color:var(--text-2);font-size:var(--fs-xs)}
+.ux-vc-loss .ux-vc-bar{background:var(--bad)}
+@media (max-width:600px){.ux-vc-loss{grid-template-columns:minmax(0,1fr) auto}.ux-vc-loss .ux-vc-track{grid-column:1/-1}}
+/* outcome tiles: a visual, no empty space */
+.ux-cats.ocards{align-items:start}
+.ux-cat{gap:var(--s2)}
+.ux-cat-h{flex-wrap:wrap}
+.ux-cat-h .ux-cat-st{margin-left:auto}
+.ux-cat-go{margin-top:0}
+.ux-seg{display:flex;gap:4px;height:8px;margin:var(--s1) 0}
+.ux-seg span{flex:1;border-radius:2px}
+.ux-seg .is-bad{background:var(--bad)}.ux-seg .is-good{background:var(--good)}
+/* the bridge: each step links to its decision; detail on hover and focus */
+.ux-wf-row.is-link{display:block;padding:0;position:relative}
+.ux-wf-a{display:grid;grid-template-columns:minmax(120px,1.1fr) 76px minmax(0,1.6fr);gap:var(--s3);align-items:center;padding:6px var(--s1);margin:0 calc(-1 * var(--s1));border-radius:var(--r1);color:inherit;text-decoration:none}
+.ux-wf-a:hover,.ux-wf-a:focus-visible{background:var(--surface-2);text-decoration:none}
+.ux-wf-row{position:relative}
+.ux-tip{position:absolute;z-index:30;left:40%;bottom:calc(100% - 4px);max-width:320px;padding:var(--s2) var(--s3);border-radius:var(--r1);background:var(--text);color:var(--surface);font-size:var(--fs-xs);line-height:16px;box-shadow:var(--shadow-md);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s var(--ease)}
+.ux-wf-row:hover>.ux-tip,.ux-wf-row:focus-within>.ux-tip,.ux-wf-row:focus>.ux-tip{opacity:1;visibility:visible}
+@media (max-width:600px){.ux-wf-a{grid-template-columns:minmax(0,1fr) 76px}.ux-wf-a .ux-wf-track{grid-column:1/-1}.ux-tip{left:0}}
+@media (prefers-reduced-motion:reduce){.ux-tip{transition:none}}
+/* popovers: provenance, scope switcher, period */
+details.ux-pop{position:relative;display:inline-block}
+details.ux-pop>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:var(--s1);min-height:28px;border-radius:var(--r1)}
+details.ux-pop>summary::-webkit-details-marker{display:none}
+details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.ux-pop-menu{position:absolute;z-index:40;top:calc(100% + 6px);left:0;min-width:240px;max-width:min(360px,90vw);display:flex;flex-direction:column;gap:2px;padding:var(--s2);background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:var(--r2);box-shadow:var(--shadow-md);font-size:var(--fs-sm)}
+.ux-pop-menu a,.ux-pop-menu [role="menuitem"]{display:block;padding:8px var(--s3);border-radius:var(--r1);color:var(--text)}
+.ux-pop-menu a:hover{background:var(--surface-2);text-decoration:none}
+.ux-pop-menu [aria-current]{font-weight:600}
+.ux-pop-menu [aria-disabled="true"]{color:var(--text-2)}
+.ux-pop-menu small{display:block;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-prov{margin-top:var(--s1)}
+.ux-prov>summary{font-size:var(--fs-xs);color:var(--text-2);padding:0 2px}
+.ux-prov .ux-pop-menu p{margin:0 0 var(--s2);line-height:18px}
+.ux-prov .ux-pop-menu p:last-child{margin:0;color:var(--text-2)}
+.ux-scope-sw{margin-left:var(--s3)}
+.ux-scope-sw>summary{padding:4px 10px;border:1px solid var(--line-strong);font-size:var(--fs-sm);font-weight:500;background:var(--surface)}
+.ux-period>summary{padding:0}
+.ux-period .ux-pop-menu{left:auto;right:0}
+/* command search */
+.ux-cmd{position:fixed;inset:0;z-index:80;visibility:hidden}
+.ux-cmd[data-open="true"]{visibility:visible}
+.ux-cmd-scrim{position:absolute;inset:0;background:var(--overlay)}
+.ux-cmd-box{position:relative;margin:12vh auto 0;width:min(560px,calc(100% - 32px));background:var(--surface);border:1px solid var(--line);border-radius:var(--r3);box-shadow:var(--shadow-md);overflow:hidden}
+.ux-cmd-in{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--line);padding:var(--s4);font:inherit;font-size:var(--fs-lg);background:var(--surface);color:var(--text)}
+.ux-cmd-in:focus{outline:none}
+.ux-cmd-box:focus-within{outline:2px solid var(--focus);outline-offset:0}
+.ux-cmd-list{list-style:none;margin:0;padding:var(--s2);max-height:50vh;overflow:auto}
+.ux-cmd-list li{display:flex;justify-content:space-between;gap:var(--s3);padding:10px var(--s3);border-radius:var(--r1);cursor:pointer;font-size:var(--fs-md)}
+.ux-cmd-list li small{color:var(--text-2);font-size:var(--fs-xs)}
+.ux-cmd-list li[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+.ux-cmd-hint{margin:0;padding:var(--s2) var(--s4);border-top:1px solid var(--line);font-size:var(--fs-xs);color:var(--text-2)}
+.topbar .searchbox::after{content:"Ctrl K";margin-left:var(--s2);padding:0 6px;border:1px solid var(--line-strong);border-radius:4px;font-size:var(--fs-xs);color:var(--text-2)}
+/* a compact rail: same items, less height (the frame keeps its items; proposal U8 in the guide) */
+.rail{gap:var(--s2)}
+.rail a{padding:6px var(--s3);font-size:var(--fs-sm);min-height:32px;display:flex;align-items:center;gap:var(--s2)}
+.rail .rail-group .eyebrow{padding-top:var(--s1);font-size:var(--fs-xs);letter-spacing:.4px;opacity:.75}
+.rail .brand{padding-bottom:var(--s2)}
+@media (max-width:600px){.ux-scope-sw{margin-left:0}.ux-scope-sw>summary{padding:2px 8px}}
+/* the queue takes the full width (six columns need it); the plan card and the insight sit side by side under it */
+.ux-overview .ux-main-aside{grid-template-columns:minmax(0,1fr)}
+.ux-overview .ux-aside{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s4);align-items:start}
+@media (max-width:1023px){.ux-overview .ux-aside{grid-template-columns:minmax(0,1fr)}}
+.ux-meterbar.is-neutral span{background:var(--series-1)}
+/* fixed column tracks, so every row of the queue lines up */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 176px 84px 236px 84px}
+@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 84px 150px 72px 200px 80px}}
+@media (max-width:760px){.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto}}
+@media (min-width:1024px) and (max-height:820px){.ux-qh{display:none}.ux-qtools{margin-bottom:var(--s2)}.ux-queue>li.ux-q{padding:6px 0}}
+.ux-tip{left:auto;right:0;max-width:min(320px,90%)}
+.reviewbar .right{flex-wrap:wrap;justify-content:flex-end;min-width:0}.reviewbar{flex-wrap:wrap}
+@media (max-width:760px){.ux-q-who .who{white-space:normal}.ux-queue>li.ux-q{grid-template-areas:"issue issue" "site due" "stake stake" "who who" "go go"}.ux-q-go.button{justify-self:end}}
+
+/* ===== wave 2b fixes ===== */
+/* M1: the decider column has room, and a long role drops to a second line instead of running under Decide */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 76px minmax(170px,220px) 84px}
+@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 80px 140px 68px minmax(150px,180px) 78px}}
+.ux-q-who{min-width:0}
+.ux-q-who .who{white-space:normal}
+.ux-q-who .who>b,.ux-q-who .who>span{white-space:nowrap}
+.ux-q-top .ux-chip+.ux-chip{margin-left:-4px}
+.ux-q-issue-line{display:block;margin-top:4px}
+.ux-queue-wrap.is-dense .ux-queue>li.ux-q{padding:4px 0}
+.ux-queue-wrap.is-dense .ux-q-more{display:none}
+.ux-queue-wrap.is-dense .ux-q-stake small{display:none}
+.ux-qtools input[type="search"]{font:inherit;font-size:var(--fs-sm);color:var(--text);background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r1);padding:4px 8px;min-height:32px;width:150px}
+.ux-dense{gap:4px}
+/* the hero waterfall: steps float from the running total, a connector marks each running total, the break is drawn */
+.ux-hero{margin-bottom:var(--s5)}
+.ux-hero .ux-wf-row,.ux-hero .ux-wf-a{grid-template-columns:minmax(160px,1fr) 84px minmax(0,3fr)}
+.ux-hero .ux-wf-track{height:24px;border-left:0}
+.ux-hero .ux-wf-bar{top:4px;height:16px}
+.ux-wf-conn{position:absolute;top:-6px;height:12px;border-left:1px dashed var(--line-strong)}
+.ux-wf-break{position:absolute;left:0;top:2px;width:8px;height:20px;z-index:2;background:linear-gradient(135deg,transparent 40%,var(--surface) 40% 60%,transparent 60%)}
+.ux-wf-break.is-key{position:relative;display:inline-block;width:12px;height:12px;vertical-align:middle;background:linear-gradient(135deg,var(--series-total) 40%,var(--surface) 40% 60%,var(--series-total) 60%)}
+.ux-nw{white-space:nowrap}
+.ux-aside-stack{display:flex;flex-direction:column;gap:var(--s4)}
+.ux-overview .ux-two .ux-aside{display:flex}
+/* tiles: one-line headings at desktop widths, the link on a shared baseline */
+.ux-cats.ocards{align-items:stretch}
+@media (min-width:1280px){.ux-cat-h h3{white-space:nowrap}}
+.ux-cat-st{margin:0}
+.ux-cat-go{margin-top:auto}
+.ux-bullet-bar.is-warn{background:var(--warn)}
+/* quieter trend placeholders */
+.ux-spark-na{width:28px;border-bottom:1px dotted var(--line)}
+.ux-trend{color:var(--text-2);opacity:.85}
+/* one provenance control: the footer's demo-data line is in the popover */
+.screen-foot>span:first-child{display:none}
+.ux-sw-q{font:inherit;font-size:var(--fs-sm);width:100%;box-sizing:border-box;margin-bottom:var(--s1);padding:6px 8px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
+/* the queue lays itself out by the room it has (a container query), not by the window: in a side-by-side column it stacks */
+.ux-queue-wrap{container-type:inline-size}
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 88px minmax(170px,220px) 84px}
+.ux-q-due{white-space:normal}
+.ux-q-who .who>b{white-space:normal}
+@container (max-width:880px){
+  .ux-qh{display:none}
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"issue issue" "site due" "stake stake" "who go"}
+  .ux-q-issue{grid-area:issue}.ux-q-site{grid-area:site}.ux-q-stake{grid-area:stake}.ux-q-due{grid-area:due;justify-self:end}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go;justify-self:end}
+  .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
+}
+
+/* ===== wave 2c ===== */
+/* gap 3: chips on one line, the title on the next, every row the same left edge; one primary Decide */
+.ux-q-issue{gap:4px}
+.ux-q-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.ux-q-top .ux-chip+.ux-chip{margin-left:0}
+.ux-q-title{display:block}
+/* gap 5: numbers that open their working show it on hover and focus, not with a permanent dotted line */
+.ux-overview .ev-num,.ux-kpi .ev-num,.ux-chart .ev-num{text-decoration:none;cursor:pointer;border-radius:4px}
+.ux-overview .ev-num:hover,.ux-overview .ev-num:focus-visible,.ux-kpi .ev-num:hover,.ux-kpi .ev-num:focus-visible{text-decoration:underline;text-decoration-style:solid;text-underline-offset:4px}
+/* gap 5: a modelled figure never carries the weight of an actual */
+.ux-kpi.is-modelled{background:var(--surface-2);border-style:dashed}
+.ux-kpi.is-modelled .ux-kpi-v{font-size:var(--fs-2xl);line-height:32px;font-weight:500;color:var(--text-2)}
+/* gap 5: prose at 14 px; 12-13 px only for labels, units and notes */
+.ux-kpi-s,.ux-q-why,.ux-overview .panel-head p,.ux-q-title{font-size:var(--fs-md);line-height:20px}
+.ux-kpi-s .ux-trend{font-size:var(--fs-xs)}
+.ux-spark{display:inline-block;vertical-align:middle}
+.ux-spark path{fill:none;stroke:var(--series-1);stroke-width:1.5}
+/* gap 4: totals on a zero axis; the gap as the scale, steps grouped by heading */
+.ux-wf-totals{margin:var(--s2) 0 var(--s4)}
+.ux-wf-totals .ux-bullet{height:12px}
+.ux-wf-tl{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--text-2)}
+.ux-wf-tl b{color:var(--text);font-variant-numeric:tabular-nums}
+.ux-wf-scale{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);margin-left:calc(min(30%,260px) + 96px + 2 * var(--s3));font-size:var(--fs-xs);color:var(--text-2);border-bottom:1px solid var(--line-strong);padding-bottom:4px}
+.ux-wf-scale span:nth-child(2){text-align:center}
+.ux-hero .ux-wf-gapscale .ux-wf-row,.ux-hero .ux-wf-gapscale .ux-wf-a{grid-template-columns:min(30%,260px) 96px minmax(0,1fr)}
+.ux-wf-gapscale .ux-wf-track{border-left:1px solid var(--line);border-right:1px solid var(--line);height:24px}
+.ux-wf-gapscale .ux-wf-val small{display:block;font-size:var(--fs-xs);color:var(--text-2);font-weight:400}
+.ux-wf-group{display:flex;justify-content:space-between;max-width:calc(min(30%,260px) + 96px + var(--s3));padding:var(--s3) 0 2px;font-size:var(--fs-xs);font-weight:600;color:var(--text-2);border-top:1px solid var(--line)}
+.ux-wf-group:first-child{border-top:0}
+.ux-wf-gv{font-variant-numeric:tabular-nums}
+@media (max-width:600px){.ux-wf-scale{margin-left:0}.ux-hero .ux-wf-gapscale .ux-wf-row,.ux-hero .ux-wf-gapscale .ux-wf-a{grid-template-columns:minmax(0,1fr) 84px}.ux-wf-group{max-width:none}}
+/* gap 6: a slim, even outcomes strip */
+.ux-cats.ocards{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
+.ux-cat{padding:var(--s3) var(--s4);gap:6px}
+.ux-cat-pos{font-size:var(--fs-sm)}
+.ux-cat-n{display:none}
+.ux-more-tabs{margin:var(--s4) 0 0;font-size:var(--fs-sm);color:var(--text-2)}
+@media (max-width:1279px){.ux-cats.ocards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.ux-cats.ocards{grid-template-columns:minmax(0,1fr)}}
+.ux-cat-h{flex-wrap:nowrap;align-items:flex-start}
+.ux-cat-h h3{white-space:normal}
+@media (min-width:1280px){.ux-cat-h h3{white-space:normal}}
+
+/* ===== wave 2c fix round ===== */
+/* M1: Target and October sit at their scaled places on the track */
+.ux-wf-scale{display:block;position:relative;height:20px;border-bottom:1px solid var(--line-strong);padding:0}
+.ux-wf-mark{position:absolute;bottom:4px;transform:translateX(0);white-space:nowrap}
+.ux-wf-mark.is-end{transform:translateX(-100%)}
+.ux-wf-mark::after{content:"";position:absolute;left:0;bottom:-5px;height:6px;border-left:1px solid var(--text-2)}
+.ux-wf-mark.is-end::after{left:auto;right:0;border-left:0;border-right:1px solid var(--text-2)}
+.ux-wf-cap{margin:var(--s1) 0 0;font-size:var(--fs-xs);color:var(--text-2);margin-left:calc(min(30%,260px) + 96px + 2 * var(--s3))}
+.ux-wf-gapscale .ux-wf-track{overflow:visible}
+@media (max-width:600px){.ux-wf-cap{margin-left:0}}
+/* L1: on a narrow card an empty due cell is said to screen readers only */
+@container (max-width:880px){.ux-q-due.is-empty{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+/* L5: rail labels at AA; the footer has a solid backing */
+.rail .eyebrow,.rail .rail-group .eyebrow,.rail-footer,.rail-footer .eyebrow{color:var(--rail-text-2);opacity:1}
+.rail-footer{position:relative;z-index:1;background:var(--rail-bg)}
+/* the pending-recalculation notice with its on-request control (guide §6 freshness, §7.6) */
+.ux-pending{display:flex;flex-direction:column;gap:var(--s2)}
+.ux-recalc-row{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.ux-recalc.button{min-height:32px;padding:4px 14px;font-size:var(--fs-sm)}
+.ux-mockdev{font-size:var(--fs-xs);color:var(--rb-text);border:1px dashed var(--rb-line);border-radius:var(--r1);padding:0 6px}
+.ux-pending{flex-direction:row;align-items:center;gap:var(--s3)}
+.ux-pending .snap-pending{flex:1;min-width:0}
+.ux-recalc-row{flex:none;flex-direction:column;align-items:flex-end;gap:2px}
+@media (max-width:760px){.ux-pending{flex-direction:column;align-items:stretch}.ux-recalc-row{flex-direction:row;align-items:center}}
+@media (min-width:1024px) and (max-height:820px){.ux-pending{margin-bottom:var(--s2)}.ux-pending .badge{padding:4px var(--s3);line-height:18px}}
