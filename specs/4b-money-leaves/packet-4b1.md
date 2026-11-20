@@ -73,11 +73,39 @@ Spec `spec.md` rev 2 §2 and §2.7; rulings D-4B.1, .2, .10, .11, .16, .17. Non-
 | V5c | `weakest_origin` = alphabetical max | S6 both reordered pairs (`weakest_origin` assertions) |
 | V6 | MINI_GRID left at v2 | S8, S9 |
 | V16 | expression served for a `NOT_CALCULATED_YET` stated record | S10 |
-| V18 | `stated_by` allowed on any MONEY exponent | **none: 30 passed** (Q1) |
+| V18 | `stated_by` allowed on any MONEY exponent | none at first (Q1); after the fix round see the table below |
 
 Script and log: `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/36691a1d-3a44-455a-947e-9acaa1af47c0/scratchpad/probe4b1/`.
 
-## Mid-build count: 1
+## Fix round (mid-build Q1 answer, review r1; D-4B.18)
+
+Built: F1 (S8 `s8_money_sq`, `s8_money_kwh` added stated SUM rows plus controls without `stated_by`); F2 (a TARGET
+stated value `test_s1_stated_carried_as_target...`, S4's provenance, row 3's provenance); D-4B.18 (`ORIGIN_UNKNOWN`
+last in `ORIGIN_ORDER`; `_check_leaf` refuses valued, non-NEUTRAL, non-CALENDAR-row leaves and stated values with
+`origins == ()` as `STRUCTURE_ORIGIN`; `ProductLeafSource` snapshot and declared price return `("unknown",)`;
+`pack_leaves(origins=("source-emulated",))`; 3B3 test edits: `pack_leaves`, `:459`'s leaf, `test_t6_prices` and
+`test_t6_unserved_critical...` expect `("unknown",)`; S6 amended, S11 added). Review copied to `review-4b1.md`.
+
+Plants (each alone, 4b1 + 3B3 evaluate + 3B1 files, reverted; tree clean after):
+
+| # | Plant | Failed |
+|---|---|---|
+| V18 | any MONEY exponent | `test_s8_a_stated_node_must_be_exactly_money` both rows |
+| V18b | MONEY exponent 1, any unit | `...exactly_money[s8_money_kwh]` only |
+| F2a | row 1 `assumed_leaves` always `()` | TARGET test |
+| F2b | row 1 drops `missing` | TARGET test |
+| F2c | rows 3/4 provenance from the stated value | `test_s4_both_absent` (row 4 and row 3 asserts) |
+| V21 | `()` accepted | S11(a) all three |
+| V22 | `unknown` not last | S6 order, S11(b) |
+| V23 | exemption keyed on evidence (`DERIVED`) | S11(a) `outstanding` (S11(c) holds under it; not separately planted) |
+| V24a / V24b | snapshot / price leaf returns `()` | `test_t6_unserved...`, `test_t6_prices` and read tests |
+
+Runs at this revision (PYTHONPATH = this worktree's backend, contracts, simulator; modules verified to import from it):
+4b1 + 3B3 evaluate + 3B1, no DB: 191 passed (3 s); `test_3b3_structure_read_postgres.py` through
+`heavy-slot.sh --db` + `run-host-tests.ps1`: 5 passed (a bare pytest under the slot skipped all 5, since it sets no
+URL); fast check-all: all 40 guards passed (81 s).
+
+## Mid-build count: 1 (answered)
 
 Q1 (`mid-build-questions.md`): S8's plant "a copy of `revenue` with `MONEY / KWH`" cannot reach the unit rule.
 `check` is code-major; `MONEY / KWH` with `SUM` is refused by `STRUCTURE_COMPOSES` first, and with `NONE` it is
