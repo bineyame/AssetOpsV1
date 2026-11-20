@@ -57,6 +57,13 @@ FRONTEND_FULL = ["frontend/package.json", "frontend/package-lock.json", "fronten
                  "frontend/tsconfig*.json", "frontend/src/test/*"]
 
 
+# T2 (R8): changes that can affect simulator/tests and contracts/tests (run by check-all). `*` crosses `/`.
+NEUTRAL = ["simulator/*", "contracts/*", "tools/world_history.py", "tools/checks/neutral_tests.py",
+           "tools/checks/test_select_tests_neutral.py",
+           "Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml"]
+NEUTRAL_EXCLUDED = ["*.md", "*.egg-info/*"]
+
+
 def matches(path: str, patterns) -> bool:
     return any(fnmatch.fnmatch(path, p) for p in patterns)
 
@@ -193,8 +200,9 @@ def select(changed: list[str], graph=None) -> dict:
         frontend_command = "npx vitest related --run " + " ".join(c[len("frontend/"):] for c in frontend)  # unpooled, as above
     else:
         frontend_command = None
+    neutral = any(matches(c, NEUTRAL) and not matches(c, NEUTRAL_EXCLUDED) for c in changed)
     return {"mode": mode, "full_reasons": full_reasons, "changed": changed, "selected": selected,
-            "test_files_total": len(tests), "frontend": frontend_command}
+            "test_files_total": len(tests), "frontend": frontend_command, "neutral": neutral}
 
 
 def main() -> None:
@@ -215,6 +223,8 @@ def main() -> None:
     if result["mode"] == "selected":
         print("backend: pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\\run-backend-suite-in-container.ps1 -Tier fast -Targets '" +
               " ".join(result["selected"]) + "'")
+    if result["neutral"]:
+        print("neutral: python tools/checks/neutral_tests.py   (also run by check-all)")
     if result["frontend"]:
         print(f"frontend (in frontend/): ../tools/heavy-slot.sh -- {result['frontend']}")
 
