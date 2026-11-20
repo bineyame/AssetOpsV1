@@ -1,6 +1,6 @@
 # 3A3: emulated native exports and the source contract test (implementer spec)
 
-Status: **rev 2**, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-3A3.9 to D-3A3.12).
+Status: **in_review** (rev 2; packet `packet.md`), handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-3A3.9 to D-3A3.12).
 Questions: `handshake.md` before code, `mid-build-questions.md` during it. Reviewer: `reviewer-guide.md` (rev 2).
 Decisions with reasons: `rulings.md` (D-3A3.1 to D-3A3.12). **Builds after `RC4-F1`** (`specs/RC4-F1-database-name/`,
 D-RC4F1.1, D-RC4F1.2), which must merge first.
