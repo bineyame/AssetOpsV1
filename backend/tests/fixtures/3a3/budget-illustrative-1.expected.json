@@ -1,0 +1,13 @@
+[
+  {"format_version": 1, "kind": "BUDGET_LINE", "source_record_id": "KOBO-001-2026-10-revenue", "source_version": "1",
+   "site_code": "KOBO-001", "clocks": {"recognition_period": "2026-10"},
+   "body": {"line_ref": "revenue", "factor_id": "revenue", "value": "3420.00", "currency": "USD",
+            "version_ref": "budget-2026-v1"}},
+  {"format_version": 1, "kind": "BUDGET_LINE", "source_record_id": "KOBO-001-2026-10-billed_kwh",
+   "source_version": "1", "site_code": "KOBO-001", "clocks": {"recognition_period": "2026-10"},
+   "body": {"line_ref": "billed_kwh", "factor_id": "billed_kwh", "value": "8550", "version_ref": "budget-2026-v1"}},
+  {"format_version": 1, "kind": "BUDGET_LINE", "source_record_id": "ORG-2026-10-staff", "source_version": "1",
+   "clocks": {"recognition_period": "2026-10"},
+   "body": {"line_ref": "staff", "factor_id": "staff", "value": "1200.00", "currency": "USD",
+            "version_ref": "budget-2026-v1"}}
+]
