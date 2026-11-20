@@ -58,4 +58,5 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 144. `T2` neutral package tests in check-all · tools.md
 145. `2a` canonical format v1 and the leaf factor IDs · data.md
 146. `DS1b` generator canonical record writers · data.md
-147. `3C1a` the signed-in person on work and domain commands · work.md
+147. `3B1` the structure registry, mini-grid · data.md
+148. `3C1a` the signed-in person on work and domain commands · work.md

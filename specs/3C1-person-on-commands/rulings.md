@@ -151,3 +151,27 @@ proposed answer is the ruling.
   both.
 - **Why.** The work was about 5 units, and the trial-action part carries the R2, R3 and R7 changes. `3C0b`'s switch
   would otherwise refuse unsigned trial actions that have no person path.
+
+## Mid-build answers
+
+### Q1 (3C1a, §4 regression list): two older migration tests assume their own migration is head
+
+- **Ruling.** Yes, 3C1a edits exactly these two tests, and no others. "Must pass unchanged" in §4 means no assertion
+  is weakened or removed; it does not forbid fixing a test that measures "head" as if its own migration were head,
+  when the spec's required FK and column make that reading false. The other 12 swept files stay untouched.
+- **`test_3c0a_accounts_postgres.py::test_downgrade_refused_with_an_account_then_down_and_up`.** Change the one
+  statement to `TRUNCATE <same TABLES list> CASCADE`. Not "downgrade to 0062 first": that would run 0063's downgrade
+  (and its refusal) inside a test about 0062's refusal. TRUNCATE does not fire the append-only triggers, and the
+  referencing tables (`work_case` and the other eight) are empty in the test DB, so CASCADE removes no rows the test
+  relies on. Every assertion stays as written.
+- **`test_k2_fuel_records_postgres.py::test_migration_up_down_up_on_empty_table`.** Keep `up = shape(engine)` as the
+  head-shape and assert it as now, then:
+  1. before the first downgrade, `command.downgrade(config, MIGRATION)` and take `at_k2 = shape(engine)`;
+  2. `command.downgrade(config, PREVIOUS)`; compute every `cols - cols_down`, `indexes - indexes_down` and
+     `set(defs) - set(defs_down)` assertion from `at_k2`, not `up`; the expected sets are unchanged;
+  3. `command.upgrade(config, "head")` and keep the final `assert shape(engine) == up`, which still proves
+     down-and-up is lossless at head.
+  The test now says "k2's migration adds exactly these", true at any later head, and no assertion is loosened.
+- **Class and sweep.** A migration test must compare at its own revision, never at head. The builder's 14-file sweep
+  is the sweep; record in the packet that both files were edited, why, and that §4's list otherwise ran unchanged.
+  Add this to the reviewer guide as a checked item: no other test file in the diff.

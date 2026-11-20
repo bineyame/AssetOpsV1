@@ -110,3 +110,33 @@ proposed answer is the ruling. No High. The estimate stays 4 units.
 - **Ruling.** `check_at_start()` is called right after `install_handle_error_hook()`, through a function-local
   import, and raises `ConfigurationError` on failure.
 - **Why.** It runs before any router is built, and it stays a hunk apart from `3C1a`'s edits to `main.py`.
+
+## Review round 1 answers (3B1, 2026-11-20; `review.md`, ACCEPT with two Lows; merged at `e32a0eb19`)
+
+No fix round on 3B1. The items below are carried into the next lane-B specs, and each is named there as a done
+criterion.
+
+- **Ratified: the catalogue check runs against the whole catalogue.** It checks every structure key's leaves, not only
+  the registry under check. The implementer chose this without asking a mid-build question. It is the stricter
+  reading of R10 and costs nothing. The packet records it as 1 mid-build gap filled.
+- **Spec wording fixed.** The tolerance parity covers the Sites that declare a `fuel_balance` (Kobo and Kisiwa). Mto
+  declares none (T1 in spec §6).
+- **L1, carried to `3B3`.** The `STRUCTURE_TOLERANCE` check is hardened: `pct` must be a `Decimal`, finite and greater
+  than 0. A float, `Infinity`, `NaN` or a non-Decimal value gives `STRUCTURE_TOLERANCE <key>/<factor>`. 3B3 adds tests
+  for each case. 3B3 comes first because it is the first reader of the tolerance.
+- **L2, carried to `3B6`.** `check_all` refuses with `STRUCTURE_CATALOGUE <key>/-` when a `REGISTRIES` key differs from
+  its registry's `structure_key`. 3B6 adds the test when it brings the two new registries.
+- **Carried to `3B3`, which must settle what the `Expr` contract (D-3B1.8) leaves open:**
+  - **Decimal context.** 3B3 evaluates in a local `decimal.Context` with prec 34 and ROUND_HALF_EVEN, and never in the
+    global context. Money is quantised only when it is shown, never inside evaluation.
+  - **Division by zero.** It is never `inf` and never 0. The node's value is missing, with cause NOT_CALCULATED_YET,
+    and the `missing` field names the zero denominator. For example, `cost_per_departure_met` with no departures met.
+  - **`floor` and `ceil` on negatives.** They are mathematical: `floor(-1.5)` is -2 and `ceil(-1.5)` is -1, through
+    `Decimal.to_integral_value` with ROUND_FLOOR or ROUND_CEILING.
+  - **Option-only leaves** (`absent: OPTION_ONLY`). On the actual and target sides, the leaf is not applicable and adds
+    nothing to its parent. Its value is the literal the manifest's `factor_map` declares for it: `extra_l`,
+    `battery_throughput_kwh` and `collection_cost` are 0, and `model_factor` is 1. 3B3 gives the registry row a
+    `neutral` value for these leaves, and its T1 pins each one against `factor_map`. The leaf carries no `missing` entry. An option's evaluation
+    (step 6) supplies the value.
+  - **Parse once.** `FactorRow.children` and the parsed `Expr` are computed once per registry, in a cache built when
+    the registry is loaded, not on every access.

@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3A1.1 to D-3C1.13)
+# Decision index: Demo-sprint and later rulings (index only) (D-3A1.1 to D-IA.14)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -36,3 +36,32 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3C1.11` trial-action grant scope stays on the person path · live · specs/3C1-person-on-commands/rulings.md
 - `D-3C1.12` the person path opens no write closed today · live · specs/3C1-person-on-commands/rulings.md
 - `D-3C1.13` split 3C1a/3C1b; 3C0b depends on both · live · specs/3C1-person-on-commands/rulings.md
+- `D-3B3.1` One pure evaluator, with sources behind a port · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.2` Evidence order, and the weakest part wins · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.3` The source state of every leaf is a literal, and states the truth on 20 Nov · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.4` Only exact sources fill a leaf; a partial source does not · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.5` No route and no storage in 3B3 · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.6` Assumptions are carried and labelled; their value comes from 5a · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.7` Division by zero is missing, never infinite and never zero · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.8` The portfolio excludes a Site by name and sums only additive factors · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.9` The registry gains neutral, which makes MINI_GRID version 2 · live · specs/3B3-structure-read/rulings.md
+- `D-3B3.10` Months only, in the Site's calendar · live · specs/3B3-structure-read/rulings.md
+- `D-3B2.1` A pin is a code row keyed by mechanism · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.2` Cold and EV mechanisms wait in PENDING_PINS until 3B6 · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.3` The literal stays until 3B5 · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.4` UNEXPLAINED_FUEL reads under Optimize (design §2.0) · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.5` A pin may not sit on a total its children explain · live · specs/3B2-findings-pinned/rulings.md
+- `D-IA.1` The menu: six groups, thirteen items; Decisions and Plan under Work (supersedes design §2.8 frame rule) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.2` Portfolio tabs: Overview, Outcomes, Demand & capacity (supersedes the six-tab frame) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.3` Site tabs: six, the same on every vertical · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.4` Incidents and Maintenance stay two Work items (supersedes design §2.10 single Operations entry) · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.5` Assurance: Results, and Evidence & records · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.6` One scope switch: all Sites, a group, or one Site · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.7` Simulator Lab: developer role only · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.8` One object, one home, many scopes · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.9` Page or drawer, and one drill-down grammar · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.10` Guardrail G1: journeys within 3 clicks of the Portfolio · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.11` Guardrail G2: stop after the hub and decision shapes · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.12` Build by shape, in the order of the journeys · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.13` Start from the reviewed UI branch; no patching after render · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.14` The gates already earned stay · live · specs/IA-1-shape-rebuild/rulings.md
