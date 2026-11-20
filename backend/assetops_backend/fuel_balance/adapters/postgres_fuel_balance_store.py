@@ -218,6 +218,12 @@ class PostgresFuelBalanceStore:
             assert known_at.utcoffset() == timedelta(0)
             return work(_Tx(c, self._actions, self._fuel_records, tenant_id, site_id, known_at))
 
+    def read_at(self, tenant_id: UUID, site_id: UUID, known_at: datetime, work: Callable[[_Tx], Any]) -> Any:
+        """4d (spec §4.1): `work` over one `_Tx` pinned at `known_at`, in one REPEATABLE READ READ ONLY transaction
+        (assets, properties and fuel records on it; readings and the curve histories through the Action store's own
+        connection, pinned by `known_at`, P3). `lock` and `append` are never called through it."""
+        return self._read(lambda c: work(_Tx(c, self._actions, self._fuel_records, tenant_id, site_id, known_at)))
+
     def site_by_code(self, site_code: str) -> tuple[UUID, UUID] | None:
         with self._connect().connect() as c:
             rows = c.execute(text("SELECT tenant_id, id FROM site WHERE site_code_key = lower(:c)"),

@@ -655,3 +655,20 @@ def test_6_the_portfolio() -> None:
     assert diesel.effect == D("-600.00")  # -600.00000: mid-build question 1
     assert (diesel.k, diesel.n) == (1, 3)
     assert diesel.out == (("KISIWA-001", ("NOT_SPLIT",)), ("MTO-001", ("NOT_SPLIT",)))
+
+
+# =====================================================================================================================
+# Unit 3 (spec §4.3): test 10, the day state (pure)
+# =====================================================================================================================
+
+@pytest.mark.parametrize("facts, state", [
+    ((False, "CURRENT", True, 12), "UNAVAILABLE"), ((False, None, False, None), "UNAVAILABLE"),
+    ((True, None, False, 0), "NO_READINGS"), ((True, None, False, None), "NO_READINGS"),
+    ((True, "UNASSESSED", False, 12), "NOT_ASSESSED"), ((True, "CURRENT", True, 12), "ASSESSED"),
+    ((True, "STALE_PROJECTION", True, 12), "NOT_ASSESSED"), ((True, "FAILED", True, 12), "NOT_ASSESSED"),
+    ((True, "PENDING", True, 12), "NOT_ASSESSED"),
+])
+def test_10_day_state(facts: tuple, state: str) -> None:
+    from assetops_backend.structure.litres.inputs import day_state
+
+    assert day_state(*facts) == state
