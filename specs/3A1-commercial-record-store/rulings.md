@@ -128,3 +128,8 @@ proposed answer is the ruling. The estimate stays at 3 units.
   later one is renumbered on top of it at merge preparation. Tests read the head and `down_revision` from the
   migration modules, never a literal name.
 - **Why.** Two lanes add migrations at once (`3A1`, `3C1a`). A pinned name breaks the second merge.
+
+## Ratification of the three unstated choices (review r1, L2)
+
+Ratified in `specs/3A2-commercial-file-intake/rulings.md`: `ExistingRecord.provenances` (D-3A2.1), `StoreRefused`
+widened to every non-connection `DBAPIError` (D-3A2.2), `revision_no = None` for UNCHANGED (D-3A2.3).

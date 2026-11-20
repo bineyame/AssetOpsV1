@@ -1,7 +1,28 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3B3.11 to D-IA.20)
+# Decision index: Demo-sprint and later rulings (index only) (D-3A2.1 to D-IA.20)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
+- `D-3A2.1` 3A1's ExistingRecord.provenances ratified · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.2` Store errors: one scrubbed fault (500), connection errors 503 · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.3` An UNCHANGED outcome carries no revision number · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.4` Records enter the store only on acceptance, in one transaction with it · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.5` Pseudonymise at intake with a per-tenant key outside the database · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.6` RC4 in code: real-data switch if and only if the operator database · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.7` Readers are a port; 3A2 ships the canonical one, 3A6 adds profiles · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.8` Two paths: one Site, or the organisation · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.9` A signed-in person always, with the intake roles · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.10` The raw file is never kept · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.11` Migration 0065, renumbered at merge as D-3A1.12 · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A2.12` A submission must add or correct something · live · specs/3A2-commercial-file-intake/rulings.md
+- `D-3A4.1` Money by month is a read over latest revisions; nothing stored · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.2` Recognition month; a settlement without one by its Site-local settlement month · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.3` Never summed across currency, unit or evidence origin · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.4` Budget lines are listed, never summed · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.5` No record, no line; a recorded zero is shown · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.6` Out of date is a month stamp, not a table · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.7` known_at reads the month as it was known · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.8` The structure provider is 4b's, not 3A4's (amends 3B3 spec §0 note) · live · specs/3A4-amounts-by-month/rulings.md
+- `D-3A4.9` Exact sums, or an error · live · specs/3A4-amounts-by-month/rulings.md
 - `D-3B3.11` A leaf rests on its own record or a labelled declared value of the same quantity · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.12` A summed reading leaf needs a closed, fully covered month · live · specs/3B3-structure-read/rulings.md
 - `D-3B3.13` The portfolio excludes Sites per factor, by name · live · specs/3B3-structure-read/rulings.md
