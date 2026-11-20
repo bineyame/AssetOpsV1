@@ -71,6 +71,19 @@ def commercial_upload_settings(database_url: str | None) -> UploadSettings:
     return UploadSettings(key_dir or None, real_data)
 
 
+class OperatorDatabaseRefused(Exception):
+    """3A3 (spec §2.6; D-3A3.6): an `assetops_op*` database (any case). Carries no part of the URL."""
+
+
+def refuse_operator_database(url: str) -> None:
+    """3A3 (spec §2.6 step 2): before any connection, refuse a URL that does not name one database plainly
+    (`DatabaseTargetUnclear`, RC4-F1) or that names an operator's database (`OperatorDatabaseRefused`). Every non-app
+    caller of `build_commercial_uploads` calls this first (S1's allowlist)."""
+    target = database_target(url)
+    if is_operator_name(target.name):
+        raise OperatorDatabaseRefused()
+
+
 def build_commercial_uploads(database_url: str, settings: UploadSettings) -> CommercialUploads:
     if settings.key_dir is None:
         raise ConfigurationError("Commercial uploads need ASSETOPS_PSEUDONYM_KEY_DIR.")

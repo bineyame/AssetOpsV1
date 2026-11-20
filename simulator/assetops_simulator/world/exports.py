@@ -1,4 +1,4 @@
-"""3A3 (spec `specs/3A3-emulators-contract-test/spec.md` §2.5; D-3A3.4): emulated native exports for the deep-dive month.
+"""3A3 (spec `specs/3A3-emulators-contract-test/spec.md` §2.5; D-3A3.4): emulated native exports for October.
 
 For each mini-grid tenant (RC5) and the view's accounting period only, four native CSV files in the illustrative
 layouts of `assetops_contracts.native`: billing (forty customers per Site, kWh split evenly, remainder to the first

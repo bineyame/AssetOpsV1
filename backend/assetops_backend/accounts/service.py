@@ -19,7 +19,8 @@ from uuid import UUID, uuid4
 
 from assetops_backend.accounts import passwords
 from assetops_backend.accounts.model import (EXECUTIVE, LOCK_MINUTES, ONBOARDING, ROLES, SESSION_HOURS, SITE_ROLE,
-                                             Account, AccountRefused, GrantRow, PersonPrincipal, PersonView, SignedIn)
+                                             Account, AccountRefused, GrantRow, OnboardPerson, PersonPrincipal,
+                                             PersonView, SignedIn)
 from assetops_backend.accounts.store import AccountStore, StoreConflict
 
 #: The HTTP status each store refusal answers with.
@@ -211,6 +212,20 @@ class AccountService:
         if account is None:
             raise AccountRefused("PERSON_NOT_FOUND", 404)
         return account
+
+    def onboard_person(self, email: str) -> OnboardPerson | None:
+        """3A3 (spec §2.7): the person an email names, with their tenant's slug, status and held roles; None for a
+        malformed or unknown email. Reads only (the emulated-export loader's people step; `ON1` uses it too)."""
+        try:
+            _, key = passwords.normalise_email(email)
+        except AccountRefused:
+            return None
+        account = self._store.account_by_email_key(key)
+        if account is None:
+            return None
+        roles = frozenset((g.role, g.site_id) for g in self._store.held_grants(account.tenant_id, account.id))
+        return OnboardPerson(account.id, account.tenant_id, self._store.tenant_slug(account.tenant_id),
+                             account.display_name, self._store.current_status(account.id) == "ACTIVE", roles)
 
     def onboard_set_password(self, email: str, password: str) -> UUID:
         account = self._onboard_account(email)

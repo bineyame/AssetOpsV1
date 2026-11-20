@@ -162,6 +162,16 @@ class StoreRefused(Exception):
 # --- 3A2 (spec §2, §3.5, §4; D-3A2.4, D-3A2.13): uploads and their decisions -----------------------------------------
 
 @dataclass(frozen=True)
+class HeldUpload:
+    """3A3 (spec §2.8; D-3A3.11): an upload the tenant holds (no decision yet, or accepted)."""
+    upload_id: UUID
+    source_type: str
+    reader: str
+    file_sha256: str
+    waiting: bool
+
+
+@dataclass(frozen=True)
 class UploadRow:
     """Every column of `commercial_upload`; arrays as tuples. `site_id` None is the organisation path."""
     id: UUID

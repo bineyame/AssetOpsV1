@@ -38,6 +38,9 @@ class AccountStore(Protocol):
 
     def tenant(self, tenant_id: UUID) -> tuple[str, str] | None: ...
 
+    def tenant_slug(self, tenant_id: UUID) -> str | None:
+        """3A3 (spec §2.7): the tenant's slug, or None."""
+
     def site_id(self, tenant_id: UUID, site_code: str) -> UUID | None: ...
 
     def account_by_email_key(self, key: str) -> Account | None: ...

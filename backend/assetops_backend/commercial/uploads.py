@@ -23,8 +23,8 @@ from datetime import datetime
 from typing import Any, Callable
 from uuid import UUID, uuid4
 
-from assetops_backend.commercial.model import (Acceptance, UploadAlreadyDecided, UploadDecisionRow, UploadRecord,
-                                               UploadRow, UploadStale)
+from assetops_backend.commercial.model import (Acceptance, HeldUpload, UploadAlreadyDecided, UploadDecisionRow,
+                                               UploadRecord, UploadRow, UploadStale)
 from assetops_backend.commercial.pseudonym import (PseudonymKeyMissing, PseudonymKeys, PseudonymKeyUnusable,
                                                    cut_path, pseudonymise)
 from assetops_backend.commercial.readers import DEFAULT_READER, READERS, ReadContext, ReadResult, SourceReader
@@ -316,6 +316,10 @@ class CommercialUploads:
                 "preview": _counts(u.record_count, u.new_count, u.revised_count, u.unchanged_count, u.refused_count),
                 "months": [{"site_code": s, "period": p} for s, p in zip(u.month_site_code, u.month_period)],
                 **self._refusals(reader, u.row_map, refusals), "result": result}
+
+    def held(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
+        """3A3 (spec §2.8; D-3A3.11): every upload the tenant holds (not declined), one read, no write."""
+        return tuple(self._store.held_uploads(tenant_id))
 
     def list(self, tenant_id: UUID, scope: UploadScope) -> dict[str, Any]:
         records = self._store.uploads_in_scope(tenant_id, scope.site_id, MAX_LISTED)
