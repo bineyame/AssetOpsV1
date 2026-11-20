@@ -4,3 +4,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 
 - 2026-11-20 `owner-on1-roles-executive-approves-2026-11-20.md` Onboarding file proposes roles; the executive approves them at first sign-in (option A; keeps OD-14; supersedes D-ON1.3 default) · current
 - 2026-11-20 `owner-on1-approval-can-wait-2026-11-20.md` The ON1 approval step can wait if automatic approval for the demo saves time · current — Architect to re-scope ON1
+- 2026-11-20 `owner-rc4f1-guard-line-approved-2026-11-20.md` Approved one $pgReaders line for database_target.py (make_url only, never connects; D-RC4F1.3) · current
