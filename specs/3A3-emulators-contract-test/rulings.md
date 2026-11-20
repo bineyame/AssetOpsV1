@@ -139,6 +139,61 @@ risk", handshake answer R4); the fourth (a recreated key) is `ON1`'s, D-ON1.7.
 - **Why.** R10. Catching the attribute, not only the call, closes the bound-method alias at no cost; catching the
   import closes the class alias. Dynamic access is beyond an AST test and is left to review.
 
+## D-3A3.13 The budget's unit prices are the plan's own: plan money divided by plan quantity (review r1 F3)
+
+- **Ruling.** The budget file's `tariff` line is `p.revenue / p.billed_kwh` and its `diesel_price` line is
+  `p.diesel_cost / p.diesel_l`, in `Decimal(str(v))`. The budget-line code never reads `tenant.prices`; the price
+  list prices the actuals only (charges and fuel). The quotient must be exact: price cents whole and price × plan
+  quantity equal to plan money in cents, else `EMU_PLAN_PRICE <tenant>/<site> <field>` (exit 3 from the tool); it
+  stops, never rounds. A plan field absent writes no line, listed `PLAN_FIELD_ABSENT` (now the right source: the
+  plan); a plan quantity of 0 writes no price line, listed `PLAN_PRICE_UNDEFINED`. No check that the plan price
+  differs from the paid price: they are equal on today's manifest and that is a true budget. Independence is proved
+  by E10 instead. The manifest gains no plan price fields. The `written` keys (R6) are unchanged. On `view_v1.json`
+  the values are unchanged (Kobo 0.40/1.25, Kisiwa 0.55/1.30, Mto 0.40/1.25), so E6 and E7's SHA-256s must not move;
+  if they do, that is a defect.
+- **Label.** The line is a line of the (emulated) budget, so 5a's "Budget line for the month" is correct. Its origin
+  stays `source-emulated` off operator databases (D-3A3.10), so it is never shown as Recorded. Where the plan cannot
+  give a price, 5a's `AT_ACTUAL` assumption label applies as before.
+- **Why.** The owner's rule: a target with no line of its own is a labelled assumption. D2 copied the price that
+  priced the actual into a budget line, so the actual wore a target's label: no assumption shown, and the price
+  variance hidden (a fuel-price rise would read as no gap). The plan already states the price by its own arithmetic
+  (revenue = kWh × tariff; fuel cost = litres × price), so the quotient is the budget's line, exact and checkable by
+  hand (W2), and keeps the price-against-volume split the demo needs. Leaving the lines out is also honest but drops
+  a variance the budget does state; adding manifest fields states one fact twice, so they could contradict.
+- **Tests.** E8 gains `EMU_PLAN_PRICE`: Kobo plan `diesel_cost` "876.0" (876 / 700 is not whole cents), naming
+  `diesel_price`. New **E10** on a copy of `view_v1.json`: Kobo plan `revenue` "3505.5", `diesel_cost` "910.0",
+  `contribution` "1495.5"; price list and actuals unchanged. Expect Kobo budget `tariff` "0.41" and `diesel_price`
+  "1.30"; Kobo charges still 0.40 a kWh (sum 3458.00) and fuel 1.25 a litre (sum 1475.00); Kisiwa and Mto lines
+  unchanged. Same test: Mto plan `billed_kwh` 0 gives `billed_kwh` "0", no `tariff` line, listed
+  `PLAN_PRICE_UNDEFINED`; Mto plan `diesel_l` removed gives no `diesel_l` or `diesel_price` line, each listed
+  `PLAN_FIELD_ABSENT`.
+- **Plants that must fail.** V-F3a: the budget lines read `tenant.prices` (today's D2 code). E10 fails, writing
+  1.25 not 1.30. V-F3b: the lines use the actual (`a.revenue / a.billed_kwh`). E10 fails. V-F3c: the quotient is
+  rounded to cents instead of stopping. E8's `EMU_PLAN_PRICE` case fails.
+- **Class and sweep.** Class: a spec reads an input field that the fixture lacks, and the builder fills it in
+  silently. The defect is the spec's (§2.5 named `p.tariff_usd_per_kwh` and `p.diesel_usd_per_l`). I swept every
+  field §2.5 reads against `view_v1.json`, and these two are the only absent ones. From now on, the Architect checks
+  every fixture field a spec reads against the fixture before the handshake. A builder who meets a missing one
+  asks (RULES §4 item 7). `mid-build-questions.md` records this as Q1 (count 1).
+
+## D-3A3.14 Across runs: the submitter is never the acceptor, and the path is the reader (review r1 F1, F6; amends D-3A3.11)
+
+- **Ruling.** `HeldUpload` gains `submitted_by` (the person's ID). It is one more column in `_HELD` and in the
+  memory mirror. With `--accept-as`, the pre-submission pass treats an `ALREADY_WAITING` upload whose
+  `submitted_by` equals the acceptor's person ID as `PERSON_SAME_FOR_BOTH`, exit 2, before any submission or
+  decision. The check compares person IDs, not emails. Path: a source type's path is its **reader ID**. `_path`
+  (canonical against "native") is deleted. Two different reader IDs for one source type are `EXPORT_PATHS_MIXED`
+  within the directory and `EXPORT_PATH_SWITCHED` against held uploads.
+- **Why.** D-3A3.11's separation held inside one run only. Across runs, Fiona could submit and then accept (F1,
+  probed). That is the case OD-15 forbids. 3A6's profile readers are also "native", so canonical against native
+  would let one tenant take an expense ledger through two layouts and count O&M twice (F6, D-3A3.7's own reason).
+  The reader ID already sits on every held row, so closing the class now costs one comparison. Switching a tenant's
+  reader on purpose is a 3A6 act, ruled there.
+- **Tests and plants.** L6: run 1 `--submit-as fiona` (4 × WAITING); run 2 `--submit-as ana --accept-as fiona` gives
+  exit 2 `PERSON_SAME_FOR_BOTH`, the 4 uploads still waiting, no decision row. Plant: drop the check, and L6 fails.
+  L5 gains a case: the memory mirror holds an `expenses` upload with reader ID `profile-x`, and the directory holds
+  the illustrative expenses layout. Expect exit 2 `EXPORT_PATH_SWITCHED`. Plant: restore `_path`, and the case fails.
+
 ## Handshake answers (round 1)
 
 Architect (Claude), 2026-11-20, on `handshake.md` at `60710d425`. Folded into `spec.md` rev 2 and `reviewer-guide.md`
@@ -196,3 +251,39 @@ rev 2. Order changes: **RC4-F1** (`specs/RC4-F1-database-name/`) merges first; 3
   field "row 4" (the line where the reader stopped, R13).
 - **P11.** Accepted: E7 pins the SHA-256s of the files built from `view_v1.json`; the packet records, beside them,
   those of the runbook's YAML command if they differ, with the reason.
+
+## Review answers (r1)
+
+Architect (Claude), 2026-11-20, on `.agent/review-3A3-r1.md` (head `05f8a41ae`). One fix round on the branch (about
+0.5 unit, Sonnet, against this list), then a re-review of F1 to F6.
+
+- **F1 (Medium).** Confirmed as stated, as D-3A3.14: `submitted_by` on `HeldUpload`, `PERSON_SAME_FOR_BOTH` for an
+  `ALREADY_WAITING` upload the acceptor submitted, and L6. The sweep holds: the loader is the only scripted `decide`
+  caller.
+- **F2 (Medium).** Confirmed as stated, applying D-3A3.5 and §7 q2, q3:
+  - C8 adds, for every case, a row 3 with one cell too few (`NATIVE_ROW`, field "row 3") and a row 3 holding a NUL
+    (`NATIVE_CHARACTER`, "row 3"). Each refuses row 3 alone. The counts are the reviewer's `(3, 2, 0, 0, 1)` on a
+    three-data-row file; on any other golden, the counts are the golden's less the one refused row.
+  - C1 asserts that `counts.records` equals the golden's data rows.
+  - C3 adds the complement: every header not in `required_headers`, blanked, keeps row 2.
+  - A case with `mapped=None` fails the suite, so admission is never vacuous.
+  - Re-run plant A: it must fail.
+- **F3 (Medium).** D-3A3.13. D2 is withdrawn as a workaround. Budget prices come from plan money ÷ plan quantity,
+  exact, or `EMU_PLAN_PRICE`. E8 and E10 test this, and plants V-F3a to V-F3c must fail.
+- **F4 (Low).** Accepted as stated. S1 flags any import of `build_commercial_uploads` outside `BUILD_CALLERS`, and
+  `PLANTED` gains an alias source.
+- **F5 (Low).** Accepted as stated. The new L1 case uses `uploads=None, accounts=None`,
+  `ASSETOPS_REAL_OPERATOR_DATA=on` and URL `…rc4.invalid:1/assetops_op_x`, under the no-connect fixture. It expects
+  exit 2 `EMULATED_ON_OPERATOR_DATABASE`.
+- **F6 (Low).** Fixed now, not left as a residual: D-3A3.14 (the path is the reader ID).
+- **Residual: a DS1b record with no `site_code`, or with a Site outside the tenant.** Fixed now as the same class as
+  R6/R7: every kept DS1b record is either written or listed. Such a record is listed `SITE_NOT_IN_TENANT`. E9 gains
+  one planted record of each kind.
+- **Residual: non-C0 invisible characters** (U+0080 to U+009F, and U+FEFF or U+2028 inside a cell). Outside
+  D-3A3.9, and emulated files hold none. Queue default: `3A6` extends `NATIVE_CHARACTER` to them before any real
+  adapter is admitted. Not blocking.
+- **Mid-build count.** The packet's 0 becomes 1 (F3's spec gap, `mid-build-questions.md` Q1). The template defect
+  is mine. The fix is the fixture-field check in D-3A3.13 "Class and sweep".
+- **Owner to weigh in (not blocking).** D-3A3.13 chooses derived budget prices over leaving the lines out. If the
+  owner prefers no emulated price lines, the fallback is to delete the two lines. 5a then shows its `AT_ACTUAL`
+  assumption, and nothing else changes.
