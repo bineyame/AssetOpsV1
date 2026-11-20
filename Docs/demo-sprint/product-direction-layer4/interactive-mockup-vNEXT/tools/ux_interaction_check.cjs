@@ -245,5 +245,12 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const r = await p.evaluate(st => { const e = document.querySelector('.ux-queue-panel [role="status"]'); return e ? e.textContent.trim().slice(0, 60) || (st === 'loading' && e.querySelectorAll('.ux-skel-row').length + ' skeleton rows') : null; }, st);
     ok(!!r, `state=${st}: the queue shows its ${st} state (${r})`);
     await p.screenshot({ path: process.argv[3] + `/state-${st}-1440.png` }); await p.context().close(); }
+  // 8 overview trends (DS1m, R20): two sparklines from DERIVED.history, "against Sep", last point = the tile's headline
+  for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
+    const r = await p.evaluate(op => { const T = opTotals(op), k1 = OPS[op].kind === 'cost' ? 'cost' : 'contribution', s1 = uxHistory(op, k1), s2 = uxHistory(op, 'gap'), last = s => s ? s[s.length - 1].v : null, tr = [...document.querySelectorAll('.ux-overview .ux-kpi .ux-trend')].map(e => e.textContent.trim());
+      return { sparks: document.querySelectorAll('.ux-overview svg.ux-spark').length, sep: tr.filter(t => /against Sep/.test(t)).length, tr, a: [last(s1), T.actual], v: [last(s2), T.variance] }; }, op);
+    const eq = ([x, y]) => x !== null && Math.abs(x - y) < 0.005;
+    ok(r.sparks === 2 && r.sep === 2 && eq(r.a) && eq(r.v) && !p._errs.length, `${op} overview trends: ${r.sparks} sparklines, ${r.sep} "against Sep" (${r.tr.join(' | ')}); last points ${r.a[0]} = ${r.a[1]} and ${r.v[0]} = ${r.v[1]}`);
+    await p.context().close(); }
   await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0);
 })();
