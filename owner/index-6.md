@@ -28,3 +28,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-20 `owner-ia-direction-approved-2026-11-20.md` App-wide IA direction approved with two guardrails (executive journeys within 2–3 clicks of the Portfolio; hub and decision shapes shown as screens before the rest is built); proceed · current — governs the UI rebuild
 - 2026-11-20 `owner-claude-usage-efficiency-2026-11-20.md` Claude usage not efficient: fix it (coordinator tightened the dispatch rules in .ai/ROLE_CONFIG.md) · current — governs dispatch
 - 2026-11-20 `owner-k-of-n-sites-2026-11-20.md` Portfolio totals add the Sites that have the figure and show "k of n sites" with the missing ones named (confirms D-3B3.13; display for 3B5) · current
+- 2026-11-20 `owner-website-refresh-2026-11-20.md` Queue the website recommendation and copy-deck refresh (operations, missing-data honesty, new app structure); recommendation role only · current
