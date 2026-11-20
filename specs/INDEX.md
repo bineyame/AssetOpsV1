@@ -71,7 +71,7 @@ finished work are in `archive/agent-history/`.
 | BW1 | Non-screen build start: re-cut, waves (D-BW1.1-7) | live | `BW1-build-wave1/rulings.md` | small |
 | 2a | Canonical format v1, leaf factor IDs; lane B unit 1 | in_review | `2a-canonical-format/spec.md` | 30 KB |
 | 3C0a | Operator accounts and roles (API); lane C unit 1 | merged (773d9bafc) | `3C0a-operator-accounts/spec.md` | 35 KB |
-| DS1b | Generator canonical writers | live — rev 2 | `DS1b-canonical-writers/spec.md` | 20 KB |
+| DS1b | Generator canonical writers | in_review | `DS1b-canonical-writers/spec.md` | 20 KB |
 | T2 | Neutral package tests (check-all) | live — rev 2 | `T2-neutral-package-tests/spec.md` | small |
 | L4-OPS | Operations in the structure (OD-26, OD-28) | live — design rev 16.16 §2.10 | `L4-OPS/rulings.md` | 10 KB |
 | mockup-vnext-categories-snapshot | Mock-up vNEXT: the four headings and the snapshot "as of" (review packet) | finished — in the frozen pack | `mockup-vnext-categories-snapshot/packet.md` | small |
