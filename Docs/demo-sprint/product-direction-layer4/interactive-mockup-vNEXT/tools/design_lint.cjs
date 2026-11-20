@@ -27,7 +27,7 @@ for (const f of fs.readdirSync(root).filter(f => /^loop-.*\.js$/.test(f))) { con
 /* the comparator of a figure is its basis (D-RECON.6, review r2 H1): no typed "against no action / doing nothing" in page code
    outside the basis table (loop-decisions.js BASIS_*) and comments */
 for (const f of fs.readdirSync(root).filter(f => /^loop-.*\.js$/.test(f))) { const src = read(f).replace(/\/\*[\s\S]*?\*\//g, '').split('\n').filter(l => !/^\s*const BASIS_|^\s*\/\//.test(l)).join('\n') + (PLANT && f === 'loop-site.js' ? "\nconst x = 'Each option valued against no action';" : '');
-  const m = src.match(/against (?:no action|doing nothing)/g); if (m) fails.push(`${f}: ${m.length} comparator(s) typed by hand ("${m[0]}"); read it from the basis`); }
+  const m = src.match(/(?:against|compared? with|than) (?:no action|doing nothing)/gi); /* r3 L8: any typed comparator */ if (m) fails.push(`${f}: ${m.length} comparator(s) typed by hand ("${m[0]}"); read it from the basis`); }
 /* no dead declaration: the same property for the same selector list under the same condition, declared twice, leaves the earlier one dead (REVIEW-decision-page L1) */
 function deadDecls(css) {
   const t = css.replace(/\/\*[\s\S]*?\*\//g, ''), seen = new Map(), dead = [];

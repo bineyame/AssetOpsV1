@@ -282,18 +282,27 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
         const asks = ['choose', 'none'].includes(st.key), secs = [...document.querySelectorAll('.ux-dsecs > .ux-ans-sec')];
         const secOk = secs.length >= 4 && secs.every(x => (x.querySelector(':scope > summary .ux-ans')?.textContent.trim() || '').length > 8) && !document.querySelector('.ux-dsecs details details.ux-disc');
         const capOk = [...document.querySelectorAll('.canvas ul.list')].filter(u => !u.closest('.ux-drawer')).every(u => [...u.children].filter(li => !li.hidden).length <= 7);
-        return { secOk, capOk, nsec: secs.length, wantBase, q: h1 && (asks ? /^What should we do about .+\?$/ : /^[^?]+$/).test(h1.textContent.trim()) && !document.querySelector('.ux-dq') && !document.querySelector('.page-heading h1 + p, .page-heading .title-row + p'), prims, recBottom, stepsOk, steps: lis.map(l => l.t).join(' > '), grid, cards, base, oneRec, mock: /MOCK DEVIATION/.test(document.querySelector('.canvas').textContent), rb: /MOCK DEVIATION · decision page redesign/.test(document.querySelector('.reviewbar').textContent), h: innerHeight };
+        return { secOk, capOk, nsec: secs.length, wantBase, q: h1 && (asks ? /^What should we do about .+\?$/ : /^[^?]+$/).test(h1.textContent.trim()) && !document.querySelector('.ux-dq') && !document.querySelector('.page-heading h1 + p, .page-heading .title-row + p'), prims, recBottom, stepsOk, steps: lis.map(l => l.t).join(' > '), grid, cards, base, oneRec, mock: /MOCK DEVIATION/.test(document.querySelector('.canvas').textContent), rb: /MOCK DEVIATION D2 · decision page redesign/.test(document.querySelector('.reviewbar').textContent), h: innerHeight };
       }, id);
       ok(r.q && r.secOk && r.capOk && r.prims <= 1 && r.stepsOk && !r.grid && r.cards >= 2 && r.base === r.wantBase && r.oneRec && !r.mock && r.rb && (r.h > 720 || r.recBottom <= 720 || w < 600),
         `${op} ${id} at ${w}: the title is a question only while a choice waits, ${r.nsec} answer-titled sections (one level, lists capped at 7), ${r.prims} primary, status line "${r.steps}" follows the path, process grid not on the page, ${r.cards} option cards with one baseline, one Recommended, review mark in the review bar only${w === 1280 ? `, recommendation ends at ${r.recBottom} px (fold 720)` : ''}`);
       /* context that stays (long-page standard): after scrolling, the sticky bar shows the title, the state and the primary action
          (top at desktop, bottom on phone) and never covers the focused element (WCAG 2.4.11) */
-      if (w !== 1280) { await q.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await q.waitForTimeout(150);
-        const sb = await q.evaluate(st => { const b = document.querySelector('.ux-dsticky'), rc = document.querySelector('.ux-drec').getBoundingClientRect(); if (rc.bottom >= 0) return { short: true }; if (!b || !b.classList.contains('is-on')) return { on: false }; const r = b.getBoundingClientRect();
+      /* r3 M4: the sticky bar never covers the focused element: walk the whole tab order forwards and backwards with the sections
+         open, let each scroll settle, and test 2-D overlap against the bar (review tooling excluded), at 390, 1280 x 720 and 1440 */
+      { await q.evaluate(() => { document.querySelectorAll('.ux-dsecs > details').forEach(x => { x.open = true; }); window.scrollTo(0, document.documentElement.scrollHeight); }); await q.waitForTimeout(150);
+        const sb = await q.evaluate(() => { const b = document.querySelector('.ux-dsticky'), rc = document.querySelector('.ux-drec').getBoundingClientRect(); if (rc.bottom >= 0) return { short: true }; if (!b || !b.classList.contains('is-on')) return { on: false }; const r = b.getBoundingClientRect();
           return { on: true, top: Math.round(r.top), bottom: Math.round(r.bottom), h: innerHeight, pill: !!b.querySelector('.status-pill'), prim: !!b.querySelector('.button.primary') }; });
-        const cover = await (async () => { let bad = 0; for (let i = 0; i < 6; i++) { await q.keyboard.press('Shift+Tab'); bad += await q.evaluate(() => { const b = document.querySelector('.ux-dsticky.is-on'), e = document.activeElement; if (!b || !e || e === document.body || b.contains(e)) return 0; const r = b.getBoundingClientRect(), f = e.getBoundingClientRect(); return f.bottom > r.top && f.top < r.bottom ? 1 : 0; }); } return bad; })();
+        const covered = []; await q.evaluate(() => { window.scrollTo(0, 0); document.activeElement?.blur(); });
+        for (const key of [...Array(90).fill('Tab'), ...Array(40).fill('Shift+Tab')]) { await q.keyboard.press(key); await q.waitForTimeout(12);
+          const c = await q.evaluate(() => { const b = document.querySelector('.ux-dsticky.is-on'), e = document.activeElement; if (!b || !e || e === document.body || b.contains(e) || e.closest('.reviewbar, .ux-drawer')) return null;
+            const r = b.getBoundingClientRect(), f = e.getBoundingClientRect(); if (!f.width || !f.height) return null; const ox = Math.min(r.right, f.right) - Math.max(r.left, f.left), oy = Math.min(r.bottom, f.bottom) - Math.max(r.top, f.top);
+            /* a control must not be overlapped at all; a scrolling region taller than half the screen must keep most of its visible part clear (WCAG 2.4.11) */
+            const vis = Math.max(0, Math.min(f.bottom, innerHeight) - Math.max(f.top, 0)) * Math.max(0, Math.min(f.right, innerWidth) - Math.max(f.left, 0)), hit = Math.max(0, ox) * Math.max(0, oy);
+            const big = f.height > innerHeight / 2; return ox > 0 && oy > 0 && (!big || hit > vis * 0.5) ? (e.textContent || e.getAttribute('aria-label') || e.tagName).trim().slice(0, 40) : null; });
+          if (c) covered.push(c); }
         const want = await q.evaluate(id => uxDecState(id).key === 'choose', id);
-        ok(sb.short || sb.on && sb.pill && (!want || sb.prim) && (w < 600 ? sb.bottom === sb.h : sb.top === 0) && !cover, `${op} ${id} at ${w}: ${sb.short ? 'the page fits, so no sticky bar is needed' : `the sticky bar keeps the title, state${want ? ' and primary action' : ''} (${w < 600 ? 'bottom' : 'top'}), and covers no focused element`}`); }
+        ok((sb.short || sb.on && sb.pill && (!want || sb.prim) && (w < 600 ? sb.bottom === sb.h : sb.top <= 1)) && !covered.length, `${op} ${id} at ${w}: ${sb.short ? 'the page fits, so no sticky bar shows' : `the sticky bar keeps the title, state${want ? ' and primary action' : ''} (${w < 600 ? 'bottom' : 'top'})`}; a full focus walk finds ${covered.length ? `it covering "${covered[0]}" (${covered.length} times)` : 'no focused element under it'}`); }
       if (w === 1440) {
         /* each figure carries its own basis: the recommendation's and every card's qualifier equal the options table's (review r1 H1, L8) */
         await openAll(q); await q.waitForTimeout(80);
@@ -307,6 +316,22 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
           if (decBasis(d) !== 'NO_ACTION' && /against (?:no action|doing nothing)/i.test(document.querySelector('.canvas').textContent)) bad.push(`a typed "against no action" on a ${decBasis(d)} decision`);
           return { bad, dv, n: document.querySelectorAll('.ux-ocard:not(.is-base)').length };
         }, id);
+        /* r3 M1-M3: closed answers agree with their rows; do nothing is "the reference" only on a doing-nothing basis; the drawer's release
+           rule equals the dialog's */
+        const k = await q.evaluate(id => { const d = decById(id), bad = [], ans = l => { const s = [...document.querySelectorAll('.ux-ans-sec')].find(x => x.querySelector('.ux-h2').textContent.trim() === l); return s ? s.querySelector('.ux-ans').textContent : null; };
+          const cards = [...document.querySelectorAll('.ux-ocard')], base = cards.find(c => c.classList.contains('is-base')), rec = cards.find(c => c.classList.contains('is-rec')), other = cards.filter(c => c !== base && c !== rec);
+          const limOf = c => (c.querySelector('dl > div:nth-child(3) dd')?.textContent || ''), la = ans('Limits and cover') || '';
+          const nFail = other.filter(c => /Fails/.test(limOf(c))).length, mF = la.match(/(\d+) (?:other )?options? breaks?/), nUnk = other.filter(c => /Cannot be checked/.test(limOf(c))).length, mU = la.match(/(\d+) cannot be checked/);
+          if (la === null) bad.push('no Limits and cover section');
+          if (!/No limit applies to these options/.test(la)) { if ((mF ? +mF[1] : 0) !== nFail) bad.push(`Limits says ${mF ? mF[1] : 0} break, the cards show ${nFail}`); if ((mU ? +mU[1] : 0) !== nUnk) bad.push(`Limits says ${mU ? mU[1] : 0} unchecked, the cards show ${nUnk}`);
+            if (/doing nothing breaks/.test(la) !== !!(base && /Fails/.test(limOf(base)))) bad.push('Limits and the baseline card disagree');
+            if (rec && /keeps every limit/.test(la) && /Fails|Cannot be checked/.test(limOf(rec))) bad.push('the recommendation is said to keep every limit'); }
+          const oa = ans('All options in detail') || '', mR = oa.match(/(\d+) rejected or deferred/), nR = cards.filter(c => c !== base && /Rejected|Deferred/.test(c.querySelector('header').textContent)).length;
+          if ((mR ? +mR[1] : 0) !== nR) bad.push(`All options says ${mR ? mR[1] : 0} rejected or deferred, the cards show ${nR}`);
+          if (decBasis(d) !== 'NO_ACTION' && [...document.querySelectorAll('table.ux-opts tr[data-opt]')].some(tr => isNoAction(tr.dataset.opt) && /The reference/.test(tr.textContent))) bad.push('do nothing called the reference');
+          const rel = document.querySelector(`#uxhow-${id} [data-release-text]`), dlg = document.querySelector(`[id^="uxc-${id}-"] .ux-confirm`); if (rel && dlg) { const dd = [...dlg.querySelectorAll('div')].find(x => /^Approval/.test(x.querySelector('dt')?.textContent || ''))?.querySelector('dd')?.textContent.trim(); if (dd && dd !== rel.textContent.trim()) bad.push(`drawer release "${rel.textContent.trim().slice(0, 50)}" differs from the dialog`); }
+          return bad; }, id);
+        ok(!k.length, `${op} ${id}: closed answers agree with their rows; the reference matches the basis; How this works states the dialog's release rule (${k.join('; ') || 'all hold'})`);
         ok(!m.bad.length && m.dv, `${op} ${id}: the recommendation and ${m.n} card(s) state each figure's own basis, as the options table does${m.dv ? '' : '; the specific estimate note is lost'} (${m.bad.join('; ') || 'all match'})`);
       }
       await q.context().close(); }
@@ -399,7 +424,8 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
         if (st.open && st.done) drw++; if (st.hash !== h0) nav++; await p.keyboard.press('Escape'); await p.waitForTimeout(100); }
       await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150); const stickyOn = await p.evaluate(() => !!document.querySelector('.ux-dsticky.is-on .status-pill')); await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
       const phoneOk = w >= 600 || (!r.spark && r.words.length >= 1 && r.words.every(x => /against|not available yet/i.test(x))); /* G3: at least one trend, in words */
-      ok(r.ans && r.h1 === 1 && !r.ovf && phoneOk && !nav && stickyOn && (w !== 1440 || drw === Math.min(4, r.marks.length)), `${op} site/${sk} at ${w}: answer-titled sections, sticky context after scroll, one h1, no sideways scroll${w < 600 ? ', KPI trend in words without a sparkline' : ''}${w === 1440 ? `, ${drw} driver rows open their drawers in place` : ''}`);
+      const svc = await p.evaluate(() => { const s = [...document.querySelectorAll('.ux-ans-sec')].find(x => /Service and assets/.test(x.querySelector('.ux-h2').textContent)); if (!s) return false; const a = s.querySelector('.ux-ans').textContent, n = (s.innerHTML.match(/Above its target/g) || []).length; const m = a.match(/^(\d+) of/); return m ? +m[1] === n : n === 0; });
+      ok(svc && r.ans && r.h1 === 1 && !r.ovf && phoneOk && !nav && stickyOn && (w !== 1440 || drw === Math.min(4, r.marks.length)), `${op} site/${sk} at ${w}: answer-titled sections, sticky context after scroll, one h1, no sideways scroll${w < 600 ? ', KPI trend in words without a sparkline' : ''}${w === 1440 ? `, ${drw} driver rows open their drawers in place` : ''}`);
       await p.context().close(); }
     ok(shapes.size === 1, `Site pages: one section structure for every Site type (${[...shapes].join(' / ')})`); }
   /* the plan page: answer-titled sections, the approver's sticky bar, and Approve / Send back with the one feedback pattern */

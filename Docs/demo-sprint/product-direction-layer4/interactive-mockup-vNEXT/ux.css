@@ -688,15 +688,14 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-dhd .ux-how{align-self:flex-start;margin:0;font-size:var(--fs-sm)}
 .ux-drec-n.is-second{font-size:var(--fs-sm)}
 .ux-dsticky{display:none}
-.ux-dsticky.is-on{display:flex;position:fixed;top:0;left:204px;right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ux-dsticky.is-on{display:flex;position:fixed;top:0;left:0;right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
 .ux-dsticky-t{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ux-dsticky-n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .ux-dsticky-n small{color:var(--text-2)}
 .ux-dsticky .button{margin-left:auto}
 html.ux-has-sticky{scroll-padding-top:64px}
-@media (max-width:1100px){.ux-dsticky.is-on{left:174px}}
-@media (max-width:760px){.ux-dsticky.is-on{left:0}}
-@media (max-width:600px){.ux-dsticky.is-on{top:auto;bottom:0;border-top:1px solid var(--line);border-bottom:0;flex-wrap:wrap;row-gap:var(--s1);padding:var(--s2) var(--s4)}.ux-dsticky-t{flex:1 1 100%}.ux-dsticky-n{display:none}html.ux-has-sticky{scroll-padding-top:0;scroll-padding-bottom:120px}html.ux-has-sticky .canvas{padding-bottom:120px}}
+/* r3 L4: on a phone, two rows: the title and the action; the key figure and the state */
+@media (max-width:600px){.ux-dsticky.is-on{top:auto;bottom:0;border-top:1px solid var(--line);border-bottom:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px var(--s2);padding:var(--s2) var(--s3)}.ux-dsticky-t{grid-column:1/3;grid-row:1}.ux-dsticky-n{grid-column:1;grid-row:2;font-size:var(--fs-sm)}.ux-dsticky .status-pill{grid-column:2;grid-row:2;justify-self:start}.ux-dsticky .button,.ux-dsticky .ux-note{grid-column:3;margin-left:0}html.ux-has-sticky{scroll-padding-top:0;scroll-padding-bottom:96px}html.ux-has-sticky body{padding-bottom:96px}}
 /* the Site page: the outcome board, the help line; on a phone a KPI's trend is its words, not a sparkline (DS1 recommendation, G3) */
 .ux-site-board th small{display:block;font-weight:400;color:var(--text-2);font-size:var(--fs-xs)}
 .ux-site-board td,.ux-site-board th{vertical-align:top}

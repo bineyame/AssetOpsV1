@@ -488,8 +488,10 @@ function uxBrandSwitch() {
   const b = uxBrand();
   rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
   uxDecReviewMarks(rb);
-  /* MOCK DEVIATION D3 (RECON-1 item 2, accepted 20 Nov): the Grow tile shows its share of the gap, not the revenue bullet; the tie sits in its drawer */
-  if (/^#\/portfolio\/?$/.test(location.hash) || location.hash === '') rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="RECON-1 item 2: the Grow tile shows its share of the gap; the revenue tie is in the Grow drawer">MOCK DEVIATION D3 · Grow tile</span>');
+  /* MOCK DEVIATION D5, register R746: approvals and choices are kept for the browser tab only (one feedback pattern) */
+  if (/^#\/(?:decision\/|portfolio\/act-first\/plan)/.test(location.hash)) rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="Approve, Send back and Choose show their result for this browser tab only; nothing is recorded">MOCK DEVIATION D5 · kept in this demonstration</span>');
+  /* MOCK DEVIATION D2, improvement, register R743 (RECON-1 item 2, accepted 20 Nov): the Grow tile shows its share of the gap, not the revenue bullet; the tie sits in its drawer */
+  if (/^#\/portfolio\/?$/.test(location.hash) || location.hash === '') rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="RECON-1 item 2: the Grow tile shows its share of the gap; the revenue tie is in the Grow drawer">MOCK DEVIATION D2 · Grow tile</span>');
 }
 /* the decision page's review marks live in the review bar, never in the canvas (review r1 L4; same class as wave 2c L2), with the
    control for the fourth state's fixture on a decision waiting for a choice (review r1 L2) */
@@ -497,7 +499,7 @@ function uxDecReviewMarks(rb) {
   const m = location.hash.match(/^#\/decision\/([\w-]+)/); if (!m || !decById(m[1])) return;
   const id = m[1], st = uxDecState(id), href = `${location.pathname}${UX_NOREC ? '' : '?state=no-recommendation'}#/decision/${id}`;
   const ctl = st.key === 'choose' || UX_NOREC ? `<a class="ux-mockdev ux-rb-ctl" data-ux-norec href="${href}">${UX_NOREC ? 'Leave the preview' : 'Preview: no option recommended'}</a>` : '';
-  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION · decision page redesign${UX_NOREC ? ' · preview: no option recommended' : ''}</span>${ctl}`);
+  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION D2 · decision page redesign${UX_NOREC ? ' · preview: no option recommended' : ''}</span>${ctl}`);
 }
 document.addEventListener('change', e => { if (e.target.id !== 'ux-brand') return; try { localStorage.setItem('l4-brand', e.target.value); } catch (x) {} uxApplyBrand(); });
 
@@ -627,7 +629,7 @@ function uxDecStatus(id, st) {
 function uxNoRecReason(id) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), opts = d.opts.filter(o => !isNoAction(o)), n = k => opts.filter(o => uxDisp(o) === k).length;
   const rej = n('REJECTED'), def = n('DEFERRED'), other = opts.length - rej - def;
-  const parts = [rej ? `${num(rej)} ${rej === 1 ? 'is' : 'are'} rejected` : '', def ? `${num(def)} ${def === 1 ? 'is' : 'are'} deferred` : '', other ? `${num(other)} ${other === 1 ? 'is' : 'are'} allowed but none does better than doing nothing within the limits` : ''].filter(Boolean);
+  const parts = [rej ? `${num(rej)} ${rej === 1 ? 'is' : 'are'} rejected` : '', def ? `${num(def)} ${def === 1 ? 'is' : 'are'} deferred` : '', other ? `${num(other)} ${other === 1 ? 'is' : 'are'} allowed but none does better than ${(BASIS_WORDS[decBasis(d)] || 'against the reference').replace(/^against /, '')} within the limits` : ''].filter(Boolean);
   return `No option is recommended: of ${num(opts.length)} option${opts.length === 1 ? '' : 's'}, ${parts.join(' and ')}. ${who(op, D.p)} can still choose ${rej === opts.length ? 'to do nothing' : 'one, or none'}.`;
 }
 /* the question is the page's title (review r1 L5): the decision's name, as a question */
@@ -663,7 +665,10 @@ function uxDecisionPage(id, parts) {
   const pays = x ? whoPays(x) : '—';
   const noCost = /^\$0$/.test(String(wholeText(cv)).trim());
   /* a hero without a number shows the strongest fact the data holds (UX audit C17): the cover or credit at stake */
-  const SP = !money(ev) ? uxStakeParts(id) : {}, hero = SP.value ? `<p class="ux-drec-n"><b>${SP.value}</b> <span>${SP.note}</span></p>` : '';
+  const SP = !money(ev) ? uxStakeParts(id) : {}, heroNote = SP.note === 'cover kept claimable' ? 'of cover, claimable only with this evidence' : SP.note;
+  /* r3 L1: a hero states the strongest fact the data holds, with its marker: cover or credit at stake (not money); the opportunity in
+     its own unit; else the cost and who bears it. A category ("No saving claimed") never leads in display size */
+  const hero = SP.value ? `<p class="ux-drec-n"><b>${SP.value}</b> <span>${heroNote}</span> <span class="ux-chip is-neutral">At stake, not money</span></p>` : SP.wnote ? `<p class="ux-drec-n"><b>${SP.wnote}</b></p>` : !money(ev) && x && !noCost ? `<p class="ux-drec-n"><b>${wholeText(cv)}</b> <span>one-off${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}</span></p>` : '';
   const recNum = x ? `${hero}<p class="ux-drec-n${hero ? ' is-second' : ''}">${uxFigQ(hero ? wholeText(ev) : `<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) && BASIS_WORDS[optBasis(rec)] ? `<span class="ux-drec-c">, ${BASIS_WORDS[optBasis(rec)]}</span>` : ''}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
   let act = '';
   /* "Choose another option" only when another option can be chosen (review r2 M2 class) */
@@ -689,19 +694,30 @@ function uxDecisionPage(id, parts) {
   const evidence = uxDrawer(`uxev-${id}`, 'Evidence and records', `<ul class="list">${T.records.map(([k, l]) => `<li>${fig(k, l)}</li>`).join('')}</ul>${(d.rights || []).map(rightsPanel).join('')}`, true);
   /* answer-titled sections, one level (the long-page standard; UX audit #8): each heading says its answer while closed */
   const plain = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), first = s => (plain(s).match(/^.*?[.!?](?=\s|$)/) || [plain(s)])[0];
-  const failsOf = o => /obl-fail/.test(obligations(OPT[o])), fails = d.opts.filter(o => !isNoAction(o) && failsOf(o));
-  const limitsAns = x ? `${failsOf(rec) ? 'The recommendation breaks a limit' : 'The recommendation keeps every limit'}${fails.length ? `; ${num(fails.length)} option${fails.length === 1 ? ' breaks' : 's break'} one` : ', as every option does'}`
-    : `${fails.length ? `${num(fails.length)} option${fails.length === 1 ? ' breaks' : 's break'} a limit` : 'Every option keeps the limits'}`;
-  const costAns = x ? `${noCost ? 'No one-off cost' : `${wholeText(cv)} one-off${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}` : 'Each option’s cost is on its card';
-  const rejN = d.opts.filter(o => ['REJECTED', 'DEFERRED'].includes(uxDisp(o))).length, optN = d.opts.length;
+  /* every closed answer is derived from the rows its section and the cards show (review r3 M1): the baseline is left out only
+     where it is shown as the baseline; "cannot be checked yet" is said; the counts are the cards' */
+  const isBase = o => isNoAction(o) && decBasis(d) !== 'RESTORE_REFERENCE', lim = o => { const h = obligations(OPT[o]); return /obl-fail/.test(h) ? 'fail' : /obl-unknown/.test(h) ? 'unknown' : /obl-(?:pass|cost)/.test(h) ? 'pass' : 'none'; };
+  const optsShown = d.opts.filter(o => !isBase(o)), otherOpts = optsShown.filter(o => o !== rec), base = d.opts.find(isBase);
+  const oFail = otherOpts.filter(o => lim(o) === 'fail').length, oUnk = otherOpts.filter(o => lim(o) === 'unknown').length, recLim = x ? lim(rec) : null;
+  const limitsAns = d.opts.every(o => lim(o) === 'none') ? 'No limit applies to these options'
+    : [x ? { fail: 'The recommendation breaks a limit', unknown: 'The recommendation cannot be checked against every limit yet', pass: 'The recommendation keeps every limit', none: 'No limit applies to the recommendation' }[recLim] : '',
+       oFail ? `${num(oFail)} ${x ? 'other ' : ''}option${oFail === 1 ? ' breaks' : 's break'} one` : '', oUnk ? `${num(oUnk)} cannot be checked yet` : '', base && lim(base) === 'fail' ? 'doing nothing breaks one' : ''].filter(Boolean).join('; ');
+  const costAns = x ? `${noCost ? 'No one-off cost' : `${wholeText(cv)} one-off`}${!noCost && pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}` : 'Each option’s cost is on its card';
+  const rejN = optsShown.filter(o => ['REJECTED', 'DEFERRED'].includes(uxDisp(o))).length, optN = optsShown.length;
+  /* the closed "why" is the decision's own reason (WHY_PICK names which sentences of its reasoning carry it); model words are dropped */
+  const sentences = plain(T.why).split(/(?<=[.!?])\s+(?=[A-Z$0-9])/), whyAns = (WHY_PICK[id] || [0]).map(i => sentences[i] || '').join(' ').trim();
+  const plainAns = s => String(s).replace(/\b(\w+)-([\w-]+) (?:factor|driver)\b/g, (m, a, b) => `${a} ${b.replace(/-/g, ' ')}`).replace(/\b(factor|driver)(s?)\b/g, 'measure$2'); /* model words out of closed headings (r3 L3) */
+  const limitsBody = `${parts.protective ? `<p class="prose">${parts.protective}</p>` : ''}${parts.bound || ''}${parts.capacity || ''}${parts.protect || ''}${parts.cover || ''}` || `<ul class="list">${d.opts.map(o => `<li>${optLabel(o)}: ${uxOblSummary(obligations(OPT[o]))}</li>`).join('')}</ul>`;
+  const costBody = parts.costs || `<ul class="list">${d.opts.filter(o => !isBase(o)).map(o => { const [c] = optCost(OPT[o]), w = whoPays(OPT[o]); return `<li>${optLabel(o)}: ${wholeText(c)}${/^\$0$/.test(String(wholeText(c)).trim()) || w === '—' ? '' : `, ${uxLcFirst(w)}`}</li>`; }).join('')}</ul>`;
+  const verifyAns = T.verify[0] ? `First check: ${uxLcFirst(plain(T.verify[0][1]))}` : 'Three separate verdicts; none given yet';
   const sections = [
-    [st.key === 'none' ? 'Why no option is recommended' : 'Why we recommend it', x ? first(T.why) : plain(uxNoRecReason(id)), `<p class="prose">${T.why}</p><h3 class="ux-sub-h">What would change the recommendation</h3><ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`],
-    ['What it changes', first(T.change), `${parts.anchor}${parts.cf}${parts.restore || ''}`],
-    ['Limits and cover', limitsAns, `${parts.protective ? `<p class="prose">${parts.protective}</p>` : ''}${parts.bound || ''}${parts.capacity || ''}${parts.protect || ''}${parts.cover || ''}`],
-    ['Cost and who pays', costAns, parts.costs || `<p class="prose">${x ? `${optLabel(rec)}: ${costAns}.` : 'Each option’s one-off cost and who pays it are on its card.'}</p>`],
-    ['How we will check it worked', `Three separate verdicts, ${T.verify.map(([k]) => k.toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' and $1')}; none given yet`, parts.verify],
+    [st.key === 'none' ? 'Why no option is recommended' : 'Why we recommend it', x ? plainAns(whyAns) : `${num(rejN)} of ${num(optN)} options are rejected or deferred`, `<p class="prose">${T.why}</p><h3 class="ux-sub-h">What would change the recommendation</h3><ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`],
+    ['What it changes', plainAns(plain(T.change).split(/(?<=[.!?])\s+(?=[A-Z$0-9])/)[0]), `${parts.anchor}${parts.cf}${parts.restore || ''}`],
+    ['Limits and cover', limitsAns, limitsBody],
+    ['Cost and who pays', costAns, costBody],
+    ['How we will check it worked', verifyAns, parts.verify],
     ['All options in detail', `${num(optN)} option${optN === 1 ? '' : 's'}${BASIS_WORDS[decBasis(d)] ? ` ${BASIS_WORDS[decBasis(d)]}` : ''}${rejN ? `; ${num(rejN)} rejected or deferred, each with its reason` : ''}`, parts.comp]
-  ].filter(([, , b]) => plain(b));
+  ];
   const why = `<div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>`;
   /* how the product works lives in help, not in the decision path; who decides and approves stays on the page (meta line) */
   const howDrawer = uxDrawer(`uxhow-${id}`, 'How this works', `<div id="uxwho-${id}">${whoDecides(id)}</div>`, true);
@@ -718,7 +734,10 @@ function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => 
 /* an answer-titled section: the label and its answer, visible when closed */
 const uxSecA = (label, answer, body) => `<details class="panel ux-disc ux-ans-sec"><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
 /* the sticky bar shows once the recommendation card has scrolled under the top bar */
-function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec') || document.querySelector('.ux-kpis') || document.querySelector('[data-ux-sticky-anchor]'); if (!b || !r) return; const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on); }
+function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec') || document.querySelector('.ux-kpis') || document.querySelector('[data-ux-sticky-anchor]'); if (!b || !r) { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingTop = ''; document.documentElement.style.scrollPaddingBottom = ''; return; } const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on);
+  /* r3 L4: the bar starts where the rail ends, measured, never typed */ const rail = document.querySelector('.rail'), rr = rail && rail.getBoundingClientRect(); b.style.left = rr && rr.width > 0 && innerWidth > 600 ? `${Math.round(rr.right)}px` : '0px'; b.style.top = innerWidth > 600 ? `${Math.max(0, Math.round(document.querySelector('.reviewbar')?.getBoundingClientRect().bottom || 0))}px` : '';
+  /* the scroll padding is the bar's measured height, so a focused control is never left under it (WCAG 2.4.11) */
+  const bh = on ? Math.ceil(b.getBoundingClientRect().height) + 8 : 0, H = document.documentElement; if (innerWidth > 600) { H.style.scrollPaddingTop = bh ? `${bh}px` : ''; H.style.scrollPaddingBottom = ''; document.body.style.paddingBottom = ''; } else { H.style.scrollPaddingBottom = `${Math.max(bh, 112)}px`; H.style.scrollPaddingTop = ''; document.body.style.paddingBottom = `${Math.max(bh, 112)}px`; } } /* on a phone the page always reserves the bar's room, so its last control can scroll clear */
 window.addEventListener('scroll', uxStickyTick, { passive: true }); window.addEventListener('hashchange', () => setTimeout(uxStickyTick, 50));
 
 /* ===== empty states that name their data (placeholder audit, gap 4): a not-available state carries data-na-path; the check
@@ -801,6 +820,8 @@ function uxShell(s) {
     c.querySelectorAll('td').forEach(td => { const tw2 = document.createTreeWalker(td, NodeFilter.SHOW_TEXT); let last = null; while (tw2.nextNode()) if (tw2.currentNode.nodeValue.trim()) last = tw2.currentNode; if (last) last.nodeValue = last.nodeValue.replace(/\s*[·,]\s*$/, ''); });
     /* count tiles written for the three operators together cannot be read for one; the list under them is the count */
     c.querySelectorAll('.cards, .statusbar').forEach(k => { if ((k.querySelector('.metric') || k.classList.contains('statusbar')) && !k.closest('.ux-drawer') && /\d/.test(k.textContent)) k.remove(); });
+    /* a panel heading that claims every Site speaks for this operator's Sites once the list is scoped (r3 L6) */
+    if (records) c.querySelectorAll('.panel-head p, .panel-head h2').forEach(h => { if (/across all sites/i.test(h.textContent)) { h.textContent = h.textContent.replace(/across all sites/i, `Across ${poss} Sites`); h.dataset.uxAdded = ''; } });
     /* copy that describes navigation the product no longer offers goes with it (review M4) */
     c.querySelectorAll('p, .panel-head p, .notice').forEach(p => { if (/moves you to its own pages|pages are shown for|in this mock-up/i.test(p.textContent) && !p.querySelector('table')) p.remove(); });
     /* an emptied list never says "None" where the plan's store has rows (review H4): it lists them, from the store */
@@ -816,6 +837,7 @@ function uxShell(s) {
   /* the navigation never lists a v7.0 screen kept for review only */
   document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
   if (/^decision\/|^site\/|^portfolio\/act-first\/plan$/.test(s.id)) uxCapLists(c);
+  setTimeout(() => typeof uxStickyTick === 'function' && uxStickyTick(), 0);
   /* the product never navigates into a v7.0 screen kept for review only */
   c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
 }
@@ -910,7 +932,9 @@ function uxSitePage(sk, P) {
   const waiting = [...new Set(att.map(r => r[4]))].filter(id => uxDecState(id).key === 'choose'), B = uxSiteBoard(sk), A = uxSiteActions(sk), T = uxSiteTrend(sk);
   const plain = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
   const chain = uxChain(op, sk), chainAns = plain((chain.match(/<p>([\s\S]*?)<\/p>/) || [, ''])[1]);
-  const prot = att.filter(r => findingHeading(r) === 'protect'), protAns = prot.length ? `${num(prot.length)} issue${prot.length === 1 ? '' : 's'} open on service or assets (${uxAnd([...new Set(prot.map(r => plain(r[1]).toLowerCase()))])})` : 'No service limit or asset issue open';
+  /* r3 M1 class on the Site page: the answer is the rows its section shows (the measures table) */
+  const evN = o.vertical === 'ev', pm = protectOf(op).filter(m => !m.stake && !m.na), pAbove = pm.filter(m => (evN && m.nov ? pnum(m.sites[sk]) + pnum(m.nov[sk]) : pnum(m.sites[sk])) > 0).length; /* the same rule as the table's State column (pstate) */
+  const protAns = pm.length ? `${pAbove ? `${num(pAbove)} of ${num(pm.length)} measure${pm.length === 1 ? '' : 's'} above target` : `All ${num(pm.length)} measures at target`} in October${evN ? ' or November to date' : ''}` : 'No service measure declared';
   const sections = [
     ['What is driving the gap', B.answer, `${B.html}`],
     ['Where value leaks', chainAns, chain],

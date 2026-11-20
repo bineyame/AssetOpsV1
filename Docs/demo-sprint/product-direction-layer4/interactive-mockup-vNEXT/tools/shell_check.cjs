@@ -47,7 +47,7 @@ const STATUS = ['Off target', 'At its limit', 'Opportunity', 'Deadline', 'Not ex
       if (id === 'findings') { const sw = [...canvas.querySelectorAll('.ux-flist .ux-chip')].map(b => b.textContent.replace(/^\W+/, '').trim()).filter(x => !STATUS.includes(x)); if (sw.length) bad(`S6 a status word outside the one vocabulary "${sw[0]}"`); }
       /* S9 operator scope by data (review H3): every record row of a kept v7.0 list carries its Site, and it is this operator's */
       if (w.eval('UX_SCOPED').includes(id) && !s.loop && !s.opScoped) { const mine = w.eval(`OPS[${JSON.stringify(op)}].sites`);
-        const rows = [...canvas.querySelectorAll('tbody tr, ul li, ol li, article')].filter(e => !e.closest('.ux-drawer, .tabs, .chips'));
+        const rows = [...canvas.querySelectorAll('tbody tr, ul li, ol li, article, p, .notice')].filter(e => !e.closest('.ux-drawer, .tabs, .chips, .panel-head, .page-heading, .breadcrumbs, [data-ux-added]')); /* r3 L6: notes and paragraphs too */
         const recs = w.eval('UX_RECORD_LISTS').includes(id);
         const off = rows.filter(e => !e.closest('[data-ux-added]') && (!e.dataset.site || e.dataset.site.split(' ').some(x => (x === 'all' ? recs : !mine.includes(x)))));
         if (off.length) bad(`S9 ${off.length} row(s) without this operator's Site as data (${(off[0].dataset.site || 'no data-site')})`);
