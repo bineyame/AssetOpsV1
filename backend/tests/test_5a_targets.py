@@ -1,11 +1,10 @@
 """5a (spec `specs/5a-targets/spec.md` rev 2; rulings D-5A.1 to D-5A.15): the target side, read from budget lines.
 
-Unit 1 (spec §2): `BudgetLineReader`, tests 1, 2 and 10. The world is 3A4's `new_world` (imported, never edited);
+Unit 1 (spec §2): `BudgetLineReader`, tests 1 and 2 (test 10 stopped: `mid-build-questions.md` Q1). The world is 3A4's `new_world` (imported, never edited);
 every expected value is spec §5's hand-written literal (W2), never computed by the code under test.
 """
 from __future__ import annotations
 
-import copy
 import json
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -15,13 +14,11 @@ from uuid import UUID
 import pytest
 
 from assetops_backend.structure.targets.lines import BudgetLineReader, BudgetLines, TargetLine, UnusedLine
-from assetops_contracts.canonical import loads_canonical, parse_record
 from test_3a1_commercial_service import encode
 from test_3a4_commercial_months import new_world
 
 TREE = Path(__file__).resolve().parents[2]
 FIXTURE = TREE / "backend" / "tests" / "fixtures" / "targets_lakeside.json"
-DS1B_VIEW = TREE / "simulator" / "tests" / "world" / "fixtures" / "view_v1.json"
 MG = "MINI_GRID"
 OCT = "2026-10"
 V1, V2 = "budget-2026-v1", "budget-2026-v2"
@@ -231,21 +228,6 @@ def test_2_an_intake_that_is_gone_is_a_bug() -> None:  # spec §2 (P1): `None` r
         site(w, "KOBO-001")
 
 
-# --- test 10: DS1b parity ------------------------------------------------------------------------------------------
-
-def test_10_step_1_equals_what_ds1b_writes() -> None:
-    from assetops_simulator.world.history import generate_history
-    from assetops_simulator.world.records import build_records
-
-    view = json.loads(DS1B_VIEW.read_text(encoding="utf-8"))
-    built = build_records(copy.deepcopy(view), generate_history(view))
-    step = steps()[0]["batch"]
-    written = {}
-    for b in built.batches:
-        if (b.batch.tenant_code, b.batch.source_type) == ("lakeside-power", "budget_workbook"):
-            assert (b.batch.source_system, b.batch.provenance, b.batch.produced_at) == (
-                step["source_system"], step["provenance"], step["produced_at"])
-            written = {o.source_record_id: o for o in b.outcomes}
-    ours = {r["source_record_id"]: parse_record(loads_canonical(encode(r))) for r in step["records"]}
-    assert sorted(ours) == sorted(i for i in written if i.split(":")[2] == OCT and i.split(":")[3] == "plan")
-    assert all(ours[i] == written[i] for i in ours)
+# --- test 10: DS1b parity: stopped (mid-build-questions.md Q1) -------------------------------------------------------
+# Calling DS1b's `build_records` from `backend/tests` is a product-to-simulator import, which
+# `tools/checks/dependency-direction.ps1` refuses; the Architect rules where the parity test lives.
