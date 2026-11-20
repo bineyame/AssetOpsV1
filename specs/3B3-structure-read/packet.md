@@ -3,7 +3,7 @@
 Branch `task/3B3-structure-read` off `bf72c735d`, worktree `/opt/assetecon/AssetOpsV1-3b3`. Spec rev 2. Not merged.
 `USER_REVIEW_REQUIRED`: false. Review: discovery.
 
-Commits: `b934fd52f` code+tests; `590ca267f` guard fix + R7 test; `e480873eb` and the next one, bookkeeping.
+Commits: round 1 (this fix round) after merging `26dec2003`; `b934fd52f` code+tests; `590ca267f` guard fix + R7 test; `e480873eb` and the next one, bookkeeping.
 
 Module path: `<wt>/backend/assetops_backend/__init__.py`, `<wt>/contracts/assetops_contracts/__init__.py`.
 `fixtures` is a namespace package taking in main's `host/fixtures`; unused here.
@@ -26,12 +26,27 @@ Module path: `<wt>/backend/assetops_backend/__init__.py`, `<wt>/contracts/asseto
 - Focused: 143 passed (no DB); PG: 4 passed (`--db`, `assetops_test`).
 - select-tests: 326/524. Host run (no Docker), 1:33:51: 4137 passed, 32 failed, 11 errors. Base re-run of the
   failed files: same failures less 3, which pass alone on this branch (flakes). 11 errors: `TEMPLATE_STALE`.
-- check-all fast: exit 0, 79.5 s.
+- check-all fast (round 1): 40 guards passed, 78.0 s.
 
 ## Plants
 
 22 plants, each failed its test (checks off, bad rows, zero short cuts, open or partial month, blocks order,
 currency, `/0`, coverage rule).
+
+## Round 1 (Architect answers, rulings.md "Mid-build answers")
+
+| Answer | Status |
+|---|---|
+| Q1 5-arg `month_sum` | as built |
+| Q2 / D-3B3.17 | `month_sum` returns `unstated`; leaf drops those days, NOT_RECEIVED, `VALUE_NOT_STATED:n`; 3 tests (None, `{}`, PARTIAL listing) |
+| Q3 | 1 test: `now` one second before the window end (no value), at it (value) |
+| Q4 | `read.site_count` + `SiteCount`; test k + len(out) = n, cold room named out |
+| Deviation | `financials.composition.build_window_price_selection` (`select`, `dispose`); `structure/composition.py` uses only it; PG diesel-parity test and fake-store dispose test; deviation line removed |
+| 32 failing files | `/opt/assetecon/evidence/3B3/failing-files-branch-vs-base.md`: 29 identical at base; 3 flakes, rerun alone: pass |
+| Template | coordinator's; 11 errored tests still under Not verified |
+
+Plants (each failed its test, then reverted): unstated ignored (a gap day summed as 0); no dispose; closed
+`<` for `<=`; n = included; covered ignores unknown. Focused: 149 passed; PG 5 passed (`--db`).
 
 ## Mid-build: 4
 
@@ -39,8 +54,6 @@ Q1 `month_sum` 5-arg form; Q2 COMPLETE day with no value; Q3 "closed" clock; Q4 
 
 ## Deviations
 
-- Guard refuses adapter imports: prices via existing `financials.composition` builders (workaround; their
-  engines not disposed).
 - Neutral product keeps only the neutral's parts; portfolio `assumed_leaves` are `SITE:leaf`.
 
 ## Not verified
