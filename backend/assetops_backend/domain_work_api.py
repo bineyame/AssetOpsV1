@@ -37,7 +37,7 @@ from assetops_backend.work.domain_action import DomainIntentRefused
 from assetops_backend.work.domain_action_index import DomainActionReadService, parse_index_request
 from assetops_backend.work.domain_intent import DomainIntentService
 from assetops_backend.work.model import MESSAGES, WorkRefused, WorkStoreUnavailable
-from assetops_backend.work_api import WorkGate
+from assetops_backend.work_api import WorkGate, as_person
 
 _NOT_JSON = object()  # a body that is not JSON reaches the service as a non-object (422 after the write gate)
 
@@ -74,21 +74,23 @@ def build_domain_work_router(service: DomainIntentService | None, gate: WorkGate
         tenant_id, site_id, code, who, person = gate.command_scope(request, site_code, service is not None,
                                                                    "domain.create")
         body = await body_of(request)
-        return run(lambda: service.create_action(tenant_id, site_id, code, body, who, person=person))
+        return run(lambda: service.create_action(tenant_id, site_id, code, body, who, **as_person(person)))
 
     @router.post("/api/sites/{site_code}/domain-work/actions/{action_id}/intents")
     async def post_intent(request: Request, site_code: str, action_id: str) -> JSONResponse:
         tenant_id, site_id, code, who, person = gate.command_scope(request, site_code, service is not None,
                                                                    "domain.intent")
         body = await body_of(request)
-        return run(lambda: service.post_intent(tenant_id, site_id, code, action_id, body, who, person=person))
+        return run(lambda: service.post_intent(tenant_id, site_id, code, action_id, body, who,
+                                               **as_person(person)))
 
     @router.post("/api/sites/{site_code}/domain-work/actions/{action_id}/case-links")
     async def post_case_link(request: Request, site_code: str, action_id: str) -> JSONResponse:
         tenant_id, site_id, code, who, person = gate.command_scope(request, site_code, service is not None,
                                                                    "domain.case_link")
         body = await body_of(request)
-        return run(lambda: service.post_case_link(tenant_id, site_id, code, action_id, body, who, person=person))
+        return run(lambda: service.post_case_link(tenant_id, site_id, code, action_id, body, who,
+                                                  **as_person(person)))
 
     def read(work: Callable[[], dict[str, Any]], extra: dict[str, Any]) -> JSONResponse:
         try:

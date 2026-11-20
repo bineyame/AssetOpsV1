@@ -137,6 +137,11 @@ class WorkGate:
         return tenant_id, site_id, code, who, person
 
 
+def as_person(person: PersonActor | None) -> dict[str, PersonActor]:
+    """The service keyword for the person path only: today's path calls the service exactly as before (P6)."""
+    return {} if person is None else {"person": person}
+
+
 def _person_refusal(refused: PersonRefused, site_code: str) -> HTTPException:
     """The person step's refusals in this API's envelope (R9). A person of another tenant gets the unknown-Site 404,
     byte for byte (D-3C1.6)."""
@@ -216,37 +221,37 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
     async def create_case(request: Request, site_code: str) -> JSONResponse:
         tenant_id, site_id, who, person = open_scope(request, site_code, "work.case_create")
         body = await body_of(request)
-        return run(lambda: service.create_case(tenant_id, site_id, body, who, person=person))
+        return run(lambda: service.create_case(tenant_id, site_id, body, who, **as_person(person)))
 
     @router.post("/api/sites/{site_code}/work/cases/{case_id}/events")
     async def post_event(request: Request, site_code: str, case_id: str) -> JSONResponse:
         body = await body_of(request)  # 3C1a: the event kind keys the command's roles (§3); reading refuses nothing
         tenant_id, site_id, who, person = open_scope(request, site_code, case_event_command(body))
-        return run(lambda: service.post_event(tenant_id, site_id, case_id, body, who, person=person))
+        return run(lambda: service.post_event(tenant_id, site_id, case_id, body, who, **as_person(person)))
 
     @router.post("/api/sites/{site_code}/work/cases/{case_id}/revisions")
     async def post_revision(request: Request, site_code: str, case_id: str) -> JSONResponse:
         tenant_id, site_id, who, person = open_scope(request, site_code, "work.case_revision")
         body = await body_of(request)
-        return run(lambda: service.post_revision(tenant_id, site_id, case_id, body, who, person=person))
+        return run(lambda: service.post_revision(tenant_id, site_id, case_id, body, who, **as_person(person)))
 
     @router.post("/api/sites/{site_code}/work/cases/{case_id}/records")
     async def post_record(request: Request, site_code: str, case_id: str) -> JSONResponse:
         tenant_id, site_id, who, person = open_scope(request, site_code, "work.maintenance_record")
         body = await body_of(request)
-        return run(lambda: service.post_record(tenant_id, site_id, case_id, body, who, person=person))
+        return run(lambda: service.post_record(tenant_id, site_id, case_id, body, who, **as_person(person)))
 
     @router.post("/api/sites/{site_code}/work/plans")
     async def post_plan(request: Request, site_code: str) -> JSONResponse:
         tenant_id, site_id, who, person = open_scope(request, site_code, "work.maintenance_plan")
         body = await body_of(request)
-        return run(lambda: service.post_plan(tenant_id, site_id, body, who, person=person))
+        return run(lambda: service.post_plan(tenant_id, site_id, body, who, **as_person(person)))
 
     @router.post("/api/sites/{site_code}/work/operational-records")
     async def post_operational_record(request: Request, site_code: str) -> JSONResponse:
         tenant_id, site_id, who, person = open_scope(request, site_code, "work.operational_record")
         body = await body_of(request)
-        return run(lambda: service.post_operational_record(tenant_id, site_id, body, who, person=person))
+        return run(lambda: service.post_operational_record(tenant_id, site_id, body, who, **as_person(person)))
 
     @router.post("/api/sites/{site_code}/work/operational-entries")
     async def post_operational_entry(request: Request, site_code: str) -> JSONResponse:
@@ -266,7 +271,7 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
             validate_entry(body)
             zone, tank_id = site_context(tenant_id, site_id)
             command = compose_entry(body, zone, tank_id, with_actor=person is None)
-            return service.post_operational_record(tenant_id, site_id, command, who, person=person)
+            return service.post_operational_record(tenant_id, site_id, command, who, **as_person(person))
 
         return run(work)
 
