@@ -1,6 +1,6 @@
 # 3B7a: the frozen monthly snapshot (implementer spec)
 
-Status: in_review (units 1 to 3 on `task/3B7a-snapshot`; unit 0 merged). Rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)", D-3B7A.10 to D-3B7A.12).
+Status: in_review (units 1 to 3 on `task/3B7a-snapshot`; unit 0 merged). Rev 3: handshake round 1 answered (D-3B7A.10 to D-3B7A.12); mid-build round 1 answered (`rulings.md` "Mid-build answers (round 1)", D-3B7A.13 to D-3B7A.15).
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path (`two-week-build-plan.md` §0.1 row 10; D-BW1.8;
 OD-23). **2.75 units** (rev 1: 2.5; +0.25 for the code digest and the held kinds). Discovery review (W5): a new table, a new
 read the screen will use, and money figures served from storage.
@@ -14,7 +14,7 @@ read the screen will use, and money figures served from storage.
   (`TargetRead`, `SiteTargets`, `PortfolioTargets`, `BudgetLines`, `TargetLine`, `UnusedLine`, `TargetCheck`,
   `BudgetLineReader`), `3A4` (`CommercialMonths.site_month`, `.portfolio_month`, `.stale`, `MonthStamp`,
   `month_bounds`, `PORTFOLIO_ZONE`), `3A1` (`build_commercial_reads`).
-- **Decisions:** `rulings.md` (D-3B7A.1 to D-3B7A.12). **Reviewer guide:** `reviewer-guide.md`.
+- **Decisions:** `rulings.md` (D-3B7A.1 to D-3B7A.15). **Reviewer guide:** `reviewer-guide.md`.
 
 ## 0. Before you start
 
@@ -31,7 +31,8 @@ read the screen will use, and money figures served from storage.
 - **Collisions.** You own the new package `backend/assetops_backend/structure_snapshot/`, the CLI module, migration
   0066 and its guard block. The one edit to an existing module is §2.1 in `structure/read.py`, shared with `5b`:
   only unit 0 writes it (D-3B7A.10); `5b` unit 2 waits for it on `main` and its branch has no diff in that file. Migration number: renumber at merge preparation if another lands first (tests
-  read the head from the modules, as 0065).
+  assert their own chain link, never "is head", D-3B7A.14). The one edit outside the package: line 280 of
+  `tests/test_3a2_commercial_upload_postgres.py`, as `rulings.md` Q2 gives it, and no other line of that file.
 
 ## 1. Outcome and why
 
@@ -172,7 +173,7 @@ not match its digest")` (a bug or tampering, never served).
 month stamp covers (readings, declared prices); `3B7b`'s triggers 1 and 4 will cover them. The portfolio's
 `untracked` is `f"{code}:{leaf}"` over its Sites, in `asked` order then leaf order.
 
-### 2.5 `structure_snapshot/rules_digest.py`: the code that built it (D-3B7A.11)
+### 2.5 `structure_snapshot/adapters/code_digest.py`: the code that built it (D-3B7A.11, D-3B7A.13)
 
 ```python
 RULE_ROOTS = ("assetops_backend.structure_snapshot.composition",)
@@ -184,7 +185,8 @@ anywhere in the file, **including inside function bodies** (the compositions imp
 imports; it keeps names under `assetops_backend` whose file exists (`x.py` or `x/__init__.py`; for `from p import n`,
 `p.n` when it is a module, else `p`), and includes each package `__init__` on the way. Sorted module names.
 `rules_digest` is `sha256("\n".join(f"{name} {sha256(file bytes).hexdigest()}" for name in closure))`. The
-composition computes it once and passes the string to the builder and the read; tests pass literals.
+composition computes it once and passes the string to the builder and the read; tests pass literals. It reads files,
+so it is an adapter (D-3B7A.13): only `composition.py` imports it.
 
 ## 3. Unit 2: store, build and read, in memory (1 unit)
 
@@ -342,7 +344,7 @@ canonical JSON. No UPDATE, DELETE or TRUNCATE.
 `$structureSnapshotTables = @('structure_snapshot')` and its own counter `$structureSnapshotInsertsSeen`, as the sole
 runtime writer with the one plain-INSERT shape and its anti-vacuity count; added by one line of its own after line
 1046, `$pgWriters += $structureSnapshotWriter  # 3B7a: on its own line, as the account writer`; and, if the guard
-lists Postgres readers, to them. **`$snapshotWriter` (line 933, the chain day-snapshot writer) and its checks are
+lists Postgres readers, to them. Rule 2 is not changed (the digest is an adapter, D-3B7A.13). **`$snapshotWriter` (line 933, the chain day-snapshot writer) and its checks are
 not touched.** Show it failing on three plants (RULES §7): an `UPDATE structure_snapshot` in the adapter; an
 `INSERT INTO structure_snapshot` from another module; an `UPDATE site_day_snapshot` in
 `chain/adapters/postgres_snapshot_store.py` (the old rule still fails its own plant). This is an additive guard edit:
@@ -366,7 +368,8 @@ python -m assetops_backend.build_structure_snapshot verify --tenant SLUG --snaps
 `DATABASE_URL` from the environment, as 3A3's loader. One JSON line on stdout: build
 `{"as_of", "portfolio_snapshot_id", "sites": {code: id}, "excluded": [codes]}`; verify `{"snapshot_id", "matches",
 "differences": [...]}`. Exit 0 done (verify: matches); 2 refused before any work (`UNKNOWN_TENANT`, `BAD_MONTH`,
-`BAD_BUILT_BY`, no `DATABASE_URL`: `NO_DATABASE`); 3 `SNAPSHOT_EXISTS`; 4 verify differs. Refusals print `<CODE>
+`BAD_BUILT_BY`, no `DATABASE_URL`: `NO_DATABASE`; verify of an id that is not a portfolio snapshot of the tenant,
+including a Site row's id: `UNKNOWN_SNAPSHOT`, "No portfolio snapshot of this organisation has that id."); 3 `SNAPSHOT_EXISTS`; 4 verify differs. Refusals print `<CODE>
 <one sentence>` on stderr. Build's JSON line also carries `"rules_digest"`; verify's `"rules_changed"`. The runbook
 line (the analyst, after each accepted import, and after a deploy): `build --tenant <slug> --month <YYYY-MM> --by
 person:<their account id>` (D-3B7A.6). It goes in the packet; the coordinator adds it to
@@ -378,7 +381,8 @@ The world is 3A4's `new_world()` with, in order: every step of `money_leaves_lak
 `2026-11-06T09:00:00+00:00`, `service:test-4b`), then steps 1 and 2 of `targets_lakeside.json` (5a §5, their own
 `at` and `entered_by`). Sites `KOBO-001`, `KISIWA-001`, `MTO-001` as `SiteRef(tid, id, code, "MINIGRID",
 "Africa/Nairobi")`, in that order, plus `SiteRef(tid, UUID("3b7a0000-0000-4000-8000-000000000009"), "THIKA-001",
-"COLDCHAIN", "Africa/Nairobi")`. Actual side: 4b's test reader (`CommercialLeafSource(months, store, fallback())`,
+"COLDCHAIN", "Africa/Nairobi")` (synthetic: Lakeside has three Sites; this one tests whole-Site exclusion, so n = 4
+here only, D-3B7A.15). Actual side: 4b's test reader (`CommercialLeafSource(months, store, fallback())`,
 `StructureRead(src, stated=src)`); `lines = BudgetLineReader(months, store)`; targets: `TargetRead(lines, that
 read)`. Builder clock
 `AS_OF = 2026-11-20T08:00:00+00:00`, `built_by` `service:test-3b7a`, ids `UUID(int=n)` from a counter.
@@ -391,7 +395,7 @@ read)`. Builder clock
 | Kobo targets | `contribution` 1445.00 DECLARED; `checks == (TargetCheck("contribution", 1445.00, 1445.00, "USD", True),)` |
 | Kisiwa | actual `contribution` None, `missing_leaves == ("om",)`; target `contribution` −65.00; check `(-60.00, -65.00, False)` |
 | Mto | actual `contribution` None; target 915.00; `untracked == ("diesel_price",)` (the fallback's 1.30 assumption) |
-| Portfolio | `actual()` contribution 883.00, `site_count` 1 of 3; `targets()` contribution 2295.00, 3 of 3, `staff` 1450.00; `portfolio_lines.lines` one line, `staff` 1200.00; `sites_excluded == {"THIKA-001": ("STRUCTURE_NOT_DECLARED",)}`; `asked` the four codes |
+| Portfolio | `actual()` contribution 883.00, `site_count` k 1, n 4, `out` codes KISIWA-001, MTO-001, THIKA-001 (Thika's reasons `("STRUCTURE_NOT_DECLARED",)`); `targets()` contribution 2295.00, k 3, n 4, `out == (("THIKA-001", ("STRUCTURE_NOT_DECLARED",)),)`, `staff` 1450.00; `portfolio_lines.lines` one line, `staff` 1200.00; `sites_excluded == {"THIKA-001": ("STRUCTURE_NOT_DECLARED",)}`; `asked` the four codes |
 | Stamps | each Site row `(months.site_month(tid, id, "2026-10", known_at=AS_OF).stamp,)`; portfolio row `(months.portfolio_month(tid, "2026-10", known_at=AS_OF).stamp,)`; all rows `closed_at_build` True |
 
 **The late invoice** (`LATE`): `expense_ledger`, `lakeside-accounts`, `source-emulated`, record
@@ -471,8 +475,9 @@ actual `om` 700.00 RECORDED and `contribution` −250.00 RECORDED (4070.00 − 3
    first row survives; `tenant_sites("lakeside-power")` lists the three Sites by code.
 3. `build_structure_snapshot(url)` builds and serves Kobo's 883.00; `dispose()` runs. The command: `build` exits 0
    with one JSON line; a second `build` in the same second is not asserted (clock); `verify` exits 0; `--tenant nope`
-   exits 2 `UNKNOWN_TENANT`.
-4. Migration up, down (empty) and refusal (a row present), as 0065's test does.
+   exits 2 `UNKNOWN_TENANT`; `verify` with a Site row's id exits 2 `UNKNOWN_SNAPSHOT`.
+4. Migration up, down (empty) and refusal (a row present), as 0065's test does; it asserts its own link
+   `("0066_structure_snapshot", "0065_commercial_upload")`, never "is head" (D-3B7A.14).
 
 **Regression:** `test_3b3_structure_evaluate.py`, `test_4b1_stated_nodes.py`, `test_4b_money_leaves.py`,
 `test_5a_targets.py` (unchanged files, all green). Check-all once at the end (with the guard plants shown);

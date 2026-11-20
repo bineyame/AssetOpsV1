@@ -232,3 +232,100 @@ s.site_code)`), so they agree byte for byte.
   adds `RECORDS` with `changed_kinds` on a difference.
 - **Why.** 4b's "connected" test reads kinds held in any month (D-4B.5), so a Site's first record of a kind changes an
   earlier month's causes, words and (for `5b`) what can be carried, with no change of that month's stamp.
+
+## Mid-build answers (round 1)
+
+Architect (Claude), 2026-11-20, against `mid-build-questions.md` Q1 to Q3 and the packet's "Known deviations"
+(`task/3B7a-snapshot` at `0395c17c6`). Folded into `spec.md` rev 3 and `reviewer-guide.md`. New rulings D-3B7A.13 to
+D-3B7A.15 follow the answers.
+
+### Q1 (§2.5, §4.2): where the code digest lives (D-3B7A.13)
+
+- **Ruling: option (a).** `structure_snapshot/rules_digest.py` moves to `structure_snapshot/adapters/code_digest.py`,
+  same contents (`RULE_ROOTS`, `import_closure`, `rules_digest`), same signatures. Only `structure_snapshot/
+  composition.py` imports it, as today; `build.py` and `read.py` keep taking the digest as a string. Tests 10 and 11
+  follow the path. No guard rule changes.
+- **Why.** Reading source files from disk is technology, exactly what rule 2 keeps below the adapter line; the digest
+  is an input the composition reads once and hands down, the same shape as a store. Option (b) would make the guard
+  edit non-additive for one file and weaken rule 2's class (the next `pathlib` above the line would cite it). Option (c)
+  puts a 3B7a-only module outside its package and outside its domain entry. Precedent: ON1 mid-build Q2.
+- **Guard block: unchanged.** Parts (A) to (E) in `packet.md` "Guard" stand word for word as the final text the owner
+  approves (Q6). The move changes no line of it: the domain entry already says only the composition imports the
+  adapters, and rule 2 already exempts `adapters/`. The builder applies the block to the repo file only after the owner
+  approves, then re-runs check-all (0 failures expected) and the four guard plants, and shows (E) failing once (delete
+  the adapter's INSERT in a scratch copy): the packet says "not shown failing: (E)", which a reviewer must not accept.
+
+### Q2 (§0, §6): a migration test asserts its own chain link, never "is head" (D-3B7A.14)
+
+- **Ruling.** The class was ruled at 3C1 mid-build Q1 and fixed in 3C1a's L1 (`test_3c1a_person_work_postgres.py`
+  asserts `down_revision` through the script directory); it was not given an ID, so it recurred. It is now
+  D-3B7A.14.
+- **The one-line edit (allowed in 3B7a's scope).** `backend/tests/test_3a2_commercial_upload_postgres.py:280`:
+  `assert script.revision == ScriptDirectory.from_config(cfg).get_current_head()` becomes
+  `assert (script.revision, script.down_revision) == ("0065_commercial_upload", "0064_person_on_work")`.
+  No other line of that file changes; its down-and-up runs as now.
+- **Sweep (W6).** `grep -n "get_current_head" backend/tests/*.py` gives three: 3A1:437 compares the database's head
+  after upgrade with the directory's head (correct: "the database reached head"); 3A2:280 (above); and **this slice's
+  own** `test_3b7a_structure_snapshot_postgres.py:169`, the same defect, fixed the same way:
+  `assert (script.revision, script.down_revision) == ("0066_structure_snapshot", "0065_commercial_upload")` (both
+  literals change with the number if 0066 is renumbered at merge preparation, P1). The `alembic_head()` uses
+  (CH2, CH3, CH9, CH9b1, CC schema, mini depth probe, 3C1a) compare the database with the head: correct, untouched.
+  The packet records the sweep; the reviewer checks no other test file is in the diff.
+
+### Q3 (§4.4): `verify` of an id that is not a portfolio snapshot of the tenant
+
+- **Ruling: confirmed.** Exit 2, `UNKNOWN_SNAPSHOT No portfolio snapshot of this organisation has that id.`,
+  refused before any rebuild. The same code and words for a Site row's id and for another tenant's snapshot id (no
+  hint that the id exists elsewhere, as D-3C1.6). A malformed UUID stays argparse's exit 2. Added to §4.4 and to
+  Postgres test 3 (`verify` with a Site row's id).
+
+### Deviation: "1 of 3" and "3 of 3" in §5 (D-3B7A.15)
+
+- **n is every Site asked for.** D-3B3.13 (`SiteCount`: "n is every Site asked for"), the owner's k-of-n answer
+  (`owner/owner-k-of-n-sites-2026-11-20.md`) and D-5B.9 (`n = len(asked)`) agree; a Site of a type with no structure
+  is asked, counted in n and named in `out` with `STRUCTURE_NOT_DECLARED`. That is the honest reading: the total
+  covers k of the Sites the person asked about.
+- **Thika is not part of Lakeside.** Lakeside (`lakeside-power`) has three Sites: KOBO-001, KISIWA-001, MTO-001
+  (3A1's `SITES`; `tenant_sites` in Postgres test 2). The seed's Thika is `COLD-THIKA` of `harvest-cold`. §5's
+  `THIKA-001` is a synthetic cold-chain Site placed under Lakeside's tenant id in the no-database fixture only, to
+  exercise whole-Site exclusion. So in that fixture n = 4, and §5's "1 of 3" and "3 of 3" were a spec defect (the
+  Architect's), not a build fault.
+- **Literals (spec §5, rev 3).** `site_count(actual(), "contribution") == SiteCount(1, 4, out)` with `out` codes
+  `("KISIWA-001", "MTO-001", "THIKA-001")` and Thika's reasons `("STRUCTURE_NOT_DECLARED",)`;
+  `site_count(targets().structure, "contribution") == SiteCount(3, 4, (("THIKA-001", ("STRUCTURE_NOT_DECLARED",)),))`.
+  Tests assert k, n and `out` codes (not k alone): a test that checks k only cannot catch a wrong n, which is the
+  defect class here.
+- **Real Lakeside: n = 3.** The command builds over `tenant_sites` (three Sites), so every Lakeside snapshot's `asked`
+  has three codes, and the Postgres world asks three.
+- **5b: no edit.** 5b §5 asks Kobo, Kisiwa, Mto in that order: "1,443.00 against 2,295.00, −852.00, 3 of 3" and the
+  "2 of 3" Mto case are right. `task/5b-attribution-u23` needs no change.
+- **5c: no spec yet.** It inherits D-3B7A.15 through 5b (D-5B.12): n is `len(snapshot.asked)`, read from the
+  snapshot, never recomputed from the Sites with a structure; for Lakeside that is "of 3". Carried to 5c's spec
+  as a done question.
+
+### The other two deviations
+
+- **Command test lists Sites by code:** accepted; it is `tenant_sites`'s order (R11), and §5's order is the
+  no-database world's.
+- **`LATE` and the Mto charge `produced_at` = their ingest instant:** accepted; §5 did not fix it and no figure reads it.
+
+## D-3B7A.13 The code digest is an adapter
+
+- **Ruling.** `structure_snapshot/adapters/code_digest.py` reads the source files; only the composition imports it
+  and passes the digest string down. The persistence guard's rule 2 is unchanged.
+- **Why.** File reads are technology below the adapter line; a one-file exemption would weaken the rule for the
+  next case.
+
+## D-3B7A.14 A migration test asserts its own chain link, never that its migration is head
+
+- **Ruling.** A migration's test names its own `revision` and `down_revision`; "is head" is asserted only of the
+  database after an upgrade. Recorded from 3C1 mid-build Q1 and 3C1a's L1, now with an ID.
+- **Why.** "Is head" is true only until the next migration lands, so it breaks unrelated slices; the chain link is
+  true for good.
+
+## D-3B7A.15 A portfolio's n is every Site asked; Lakeside asks three
+
+- **Ruling.** n = `len(asked)`, Sites of a type with no structure included and named. Lakeside has three Sites; the
+  3B7a fixture's `THIKA-001` is synthetic, so that fixture alone has n = 4. 5b's "3 of 3" stands; 5c reads n from
+  the snapshot's `asked`.
+- **Why.** The owner's k-of-n answer and D-3B3.13 count the Sites asked; checking k alone hid a wrong n.

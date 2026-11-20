@@ -55,6 +55,11 @@ below failing its named test; the owner's approval of the additive guard edit re
 
 ## Class sweeps (W6)
 
+- *Mid-build round 1 (D-3B7A.13 to D-3B7A.15):* no `pathlib` or file read in `structure_snapshot/` outside
+  `adapters/`; the guard block in the repo file equals `packet.md` (A) to (E) and (E) is shown failing; the only test
+  file outside the slice in the diff is `test_3a2_commercial_upload_postgres.py`, line 280 only; no test asserts its
+  own migration "is head"; every k-of-n assertion checks k, n and the `out` codes.
+
 - *A stored figure served as current while out of date:* every path that returns `SERVED` computes `RECORDS` (stamps
   and kinds), `MONTH_CLOSED` and `RULES`.
 - *A figure recomputed on read:* every function reachable from `SnapshotRead` (grep its imports).
