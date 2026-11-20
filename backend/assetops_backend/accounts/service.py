@@ -24,7 +24,8 @@ from assetops_backend.accounts.store import AccountStore, StoreConflict
 
 #: The HTTP status each store refusal answers with.
 _CONFLICT_STATUS = {"ROLE_ALREADY_HELD": 409, "GRANT_ALREADY_REMOVED": 409, "LAST_EXECUTIVE": 409,
-                    "EMAIL_TAKEN": 409, "EXECUTIVE_EXISTS": 409, "ROLE_REQUIRED": 403}
+                    "EMAIL_TAKEN": 409, "EXECUTIVE_EXISTS": 409, "ROLE_REQUIRED": 403,
+                    "ACCOUNTS_STORE_REFUSED": 422}
 STATUSES = ("ACTIVE", "DISABLED")
 
 
@@ -46,6 +47,8 @@ def _uuid(value: UUID | str) -> UUID | None:
 
 
 def _conflict(conflict: StoreConflict, **params) -> AccountRefused:
+    if conflict.constraint is not None:
+        params = {**params, "constraint": conflict.constraint}
     return AccountRefused(conflict.code, _CONFLICT_STATUS.get(conflict.code, 409), params)
 
 
@@ -212,8 +215,11 @@ class AccountService:
     def onboard_set_password(self, email: str, password: str) -> UUID:
         account = self._onboard_account(email)
         passwords.check_policy(password)
-        self._store.set_credential(account.tenant_id, account.id, passwords.hash_password(password), self._clock(),
-                                   ONBOARDING)
+        try:
+            self._store.set_credential(account.tenant_id, account.id, passwords.hash_password(password),
+                                       self._clock(), ONBOARDING)
+        except StoreConflict as conflict:
+            raise _conflict(conflict) from None
         return account.id
 
     def onboard_set_status(self, email: str, status: str, reason: str | None) -> UUID:

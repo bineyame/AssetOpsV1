@@ -120,6 +120,20 @@ class PostgresAccountStore:
         self._engine.dispose()
 
     @contextmanager
+    def _begin(self, known: dict[str, str] | None = None) -> Iterator[Connection]:
+        """A write transaction. An integrity error leaves as a `StoreConflict` carrying only the constraint name: the
+        driver's message and `DETAIL` (which print the failing row) never survive, not as text, cause or context."""
+        try:
+            with self._engine.begin() as c:
+                yield c
+        except IntegrityError as error:
+            name = getattr(getattr(error.orig, "diag", None), "constraint_name", None)
+            code = (known or {}).get(name or "")
+            if code is not None:
+                raise StoreConflict(code) from None
+            raise StoreConflict("ACCOUNTS_STORE_REFUSED", name) from None
+
+    @contextmanager
     def _read(self) -> Iterator[Connection]:
         held = getattr(self._local, "connection", None)
         if held is not None:
@@ -207,7 +221,7 @@ class PostgresAccountStore:
 
     def guarded_attempt(self, key_sha256: str, now: datetime,
                         verify: Callable[[], tuple[bool, UUID | None]]) -> Attempt:
-        with self._engine.begin() as c:
+        with self._begin() as c:
             c.execute(_EMAIL_LOCK, {"key_sha256": key_sha256})
             failures = c.execute(_RECENT_FAILURES, {"k": key_sha256, "since": now - timedelta(minutes=LOCK_MINUTES),
                                                     "n": LOCK_FAILURES}).scalars().all()
@@ -226,19 +240,19 @@ class PostgresAccountStore:
 
     def add_session(self, id: UUID, tenant_id: UUID, person_id: UUID, token_sha256: str, created_at: datetime,
                     expires_at: datetime) -> None:
-        with self._engine.begin() as c:
+        with self._begin() as c:
             c.execute(_INSERT_SESSION, {"id": id, "tenant_id": tenant_id, "person_id": person_id,
                                         "token_sha256": token_sha256, "created_at": created_at,
                                         "expires_at": expires_at})
 
     def revoke(self, token_sha256: str, at: datetime) -> None:
-        with self._engine.begin() as c:
+        with self._begin() as c:
             c.execute(_REVOKE, {"at": at, "h": token_sha256})
 
     # --- grants -----------------------------------------------------------------------------------------------------
 
     def add_grant(self, row: GrantRow, actor_person_id: UUID) -> GrantRow:
-        with self._engine.begin() as c:
+        with self._begin() as c:
             self._lock_tenant(c, row.tenant_id)
             self._require_executive(c, row.tenant_id, actor_person_id)
             if c.execute(_HELD_SAME, {"t": row.tenant_id, "p": row.person_id, "role": row.role,
@@ -250,7 +264,7 @@ class PostgresAccountStore:
         return recorded
 
     def add_removal(self, row: GrantRow, actor_person_id: UUID) -> GrantRow:
-        with self._engine.begin() as c:
+        with self._begin() as c:
             self._lock_tenant(c, row.tenant_id)
             self._require_executive(c, row.tenant_id, actor_person_id)
             if c.execute(_REMOVED, {"g": row.grant_id}).first() is not None:
@@ -267,36 +281,31 @@ class PostgresAccountStore:
     def create_account(self, account: Account, password_hash: str, created_at: datetime, by: str,
                        executive_grant: GrantRow | None) -> None:
         key = account.email.lower()
-        try:
-            with self._engine.begin() as c:
-                if executive_grant is not None:
-                    self._lock_tenant(c, account.tenant_id)
-                if c.execute(_ACCOUNT_BY_KEY, {"k": key}).first() is not None:
-                    raise StoreConflict("EMAIL_TAKEN")
-                if executive_grant is not None and self._active_executives(c, account.tenant_id):
-                    raise StoreConflict("EXECUTIVE_EXISTS")
-                c.execute(_INSERT_ACCOUNT, {"id": account.id, "tenant_id": account.tenant_id, "email": account.email,
-                                            "email_key": key, "display_name": account.display_name,
-                                            "created_at": created_at, "created_by": by})
-                c.execute(_INSERT_CREDENTIAL, {"id": uuid4(), "tenant_id": account.tenant_id, "person_id": account.id,
-                                               "password_hash": password_hash, "set_at": created_at, "set_by": by})
-                c.execute(_INSERT_STATUS, {"id": uuid4(), "tenant_id": account.tenant_id, "person_id": account.id,
-                                           "status": "ACTIVE", "reason": None, "set_at": created_at, "set_by": by})
-                if executive_grant is not None:
-                    c.execute(_INSERT_GRANT, _grant_values(executive_grant))
-        except IntegrityError as error:
-            if "operator_account_email_key_key" in str(error.orig):
-                raise StoreConflict("EMAIL_TAKEN") from None
-            raise
+        with self._begin({"operator_account_email_key_key": "EMAIL_TAKEN"}) as c:
+            if executive_grant is not None:
+                self._lock_tenant(c, account.tenant_id)
+            if c.execute(_ACCOUNT_BY_KEY, {"k": key}).first() is not None:
+                raise StoreConflict("EMAIL_TAKEN")
+            if executive_grant is not None and self._active_executives(c, account.tenant_id):
+                raise StoreConflict("EXECUTIVE_EXISTS")
+            c.execute(_INSERT_ACCOUNT, {"id": account.id, "tenant_id": account.tenant_id, "email": account.email,
+                                        "email_key": key, "display_name": account.display_name,
+                                        "created_at": created_at, "created_by": by})
+            c.execute(_INSERT_CREDENTIAL, {"id": uuid4(), "tenant_id": account.tenant_id, "person_id": account.id,
+                                           "password_hash": password_hash, "set_at": created_at, "set_by": by})
+            c.execute(_INSERT_STATUS, {"id": uuid4(), "tenant_id": account.tenant_id, "person_id": account.id,
+                                       "status": "ACTIVE", "reason": None, "set_at": created_at, "set_by": by})
+            if executive_grant is not None:
+                c.execute(_INSERT_GRANT, _grant_values(executive_grant))
 
     def set_credential(self, tenant_id: UUID, person_id: UUID, password_hash: str, at: datetime, by: str) -> None:
-        with self._engine.begin() as c:
+        with self._begin() as c:
             c.execute(_INSERT_CREDENTIAL, {"id": uuid4(), "tenant_id": tenant_id, "person_id": person_id,
                                            "password_hash": password_hash, "set_at": at, "set_by": by})
 
     def set_status(self, tenant_id: UUID, person_id: UUID, status: str, reason: str | None, at: datetime,
                    by: str) -> None:
-        with self._engine.begin() as c:
+        with self._begin() as c:
             if status == "DISABLED":
                 self._lock_tenant(c, tenant_id)
                 active = self._active_executives(c, tenant_id)

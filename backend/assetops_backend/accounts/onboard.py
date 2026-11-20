@@ -22,8 +22,9 @@ from assetops_backend.config import database_url
 from assetops_backend.i18n import message, render
 
 
-def _refuse(code: str) -> int:
-    print(f"{code} {render(message('accounts.' + code.lower()), 'en')}", file=sys.stderr)
+def _refuse(code: str, constraint: str | None = None) -> int:
+    print(f"{code} {render(message('accounts.' + code.lower()), 'en')}" + (f" constraint={constraint}" if constraint else ""),
+          file=sys.stderr)
     return 2
 
 
@@ -65,7 +66,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         else:
             person = accounts.onboard_set_status(args.email, "ACTIVE", None)
     except AccountRefused as refused:
-        return _refuse(refused.code)
+        return _refuse(refused.code, refused.params.get("constraint"))
     print(person)
     return 0
 

@@ -287,19 +287,36 @@ def test_a_success_resets_the_count_in_postgres(world, accounts) -> None:
     assert not accounts.guarded_attempt(key, T0 + timedelta(minutes=6), lambda: (False, None)).locked
 
 
-def test_a_store_error_does_not_print_the_email(world, accounts) -> None:
-    """RV1-L2: `hide_parameters=True`; a CHECK failure carries no `[parameters: ...]` from SQLAlchemy."""
-    from sqlalchemy.exc import IntegrityError
+def test_an_integrity_error_leaves_the_store_as_a_bare_refusal(world, accounts, monkeypatch, capsys) -> None:
+    """RV1-L2b: a value the service would refuse (a padded name) reaches the database CHECK. The store answers
+    ACCOUNTS_STORE_REFUSED carrying only the constraint name: no cause, no driver text, no email."""
+    import traceback
+
+    from assetops_backend.accounts import onboard
     email = "leaky.person@acme.example"
-    with pytest.raises(IntegrityError) as failed:
+    with pytest.raises(StoreConflict) as failed:
         accounts.create_account(Account(uuid4(), world["acme"], email, " Padded "), hash_password(PW), T0,
                                 "service:onboarding", None)
-    text_of_error = str(failed.value)
-    assert "[SQL parameters hidden due to hide_parameters=True]" in text_of_error
-    # The bound values are not printed by SQLAlchemy. PostgreSQL's own `DETAIL: Failing row contains (...)` can still
-    # name the row; it is in the driver's message, outside what `hide_parameters` controls (reported to the Architect).
-    assert "[parameters:" not in text_of_error and "%(email)s" not in text_of_error.split("[SQL:")[0]
-    assert text_of_error.split("[SQL:")[1].count(email) == 0
+    error = failed.value
+    assert error.code == "ACCOUNTS_STORE_REFUSED" and error.constraint and "name" in error.constraint
+    assert error.__cause__ is None and error.__suppress_context__ is True
+    assert email not in "".join(traceback.format_exception(error)) and "DETAIL" not in str(error)
+    # The command: the same store refusal reaches its stderr as the code, the words and the constraint.
+    from assetops_backend.accounts.service import AccountService as Service
+    real = Service.onboard_create
+
+    def padded(self, tenant_slug, email_, display_name, password, *, executive):
+        monkeypatch.setattr(self._store, "create_account", lambda a, *rest: PostgresAccountStore.create_account(
+            self._store, Account(a.id, a.tenant_id, a.email, " Padded "), *rest))
+        return real(self, tenant_slug, email_, display_name, password, executive=executive)
+
+    monkeypatch.setattr(Service, "onboard_create", padded)
+    monkeypatch.setenv("DATABASE_URL", URL)
+    monkeypatch.setattr("sys.stdin", __import__("io").StringIO(PW + "\n"))
+    assert onboard.main(["create", "--tenant", "acme", "--email", email, "--name", "Pat"]) == 2
+    err = capsys.readouterr().err
+    assert err.startswith("ACCOUNTS_STORE_REFUSED The change was not saved: a value is not allowed. constraint=")
+    assert email not in err and "Traceback" not in err
 
 
 # --- lock proofs (R2) -------------------------------------------------------------------------------------------

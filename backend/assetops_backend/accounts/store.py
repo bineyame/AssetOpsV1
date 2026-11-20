@@ -17,9 +17,11 @@ class StoreConflict(Exception):
     """A write refused under the store's lock: ROLE_ALREADY_HELD, GRANT_ALREADY_REMOVED, LAST_EXECUTIVE, EMAIL_TAKEN
     or EXECUTIVE_EXISTS."""
 
-    def __init__(self, code: str) -> None:
+    def __init__(self, code: str, constraint: str | None = None) -> None:
         super().__init__(code)
         self.code = code
+        #: `ACCOUNTS_STORE_REFUSED` only: the database constraint's name, the one thing kept of the driver's error.
+        self.constraint = constraint
 
 
 @dataclass(frozen=True)
