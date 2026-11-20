@@ -144,7 +144,8 @@ UNCLEAR = ["postgresql+psycopg://u:p@rc4.invalid:1/assetops_test?dbname=assetops
 
 @pytest.mark.parametrize("url,code", [(u, "EMULATED_ON_OPERATOR_DATABASE") for u in OPERATOR]
                          + [(u, "DATABASE_URL_UNCLEAR") for u in UNCLEAR],
-                         ids=["op_pilot1", "OP_X", "opx", "query-dbname", "slash-query-dbname", "empty-name", "service"])
+                         ids=["op_pilot1", "OP_X", "opx", "query-dbname", "slash-query-dbname", "empty-name",
+                              "service"])
 def test_l1_operator_or_unclear_database_refused_before_anything(tmp_path, monkeypatch, capsys, url, code) -> None:
     monkeypatch.setenv("DATABASE_URL", url)
     uploads, accounts = Spy(), Spy()
@@ -154,7 +155,8 @@ def test_l1_operator_or_unclear_database_refused_before_anything(tmp_path, monke
     assert result == 2 and err.startswith(code + " ")
     assert uploads.touched == [] and accounts.touched == []
     if code == "EMULATED_ON_OPERATOR_DATABASE":
-        assert err.strip() == "EMULATED_ON_OPERATOR_DATABASE Emulated exports are never loaded into an operator's database."
+        assert err.strip() == ("EMULATED_ON_OPERATOR_DATABASE Emulated exports are never loaded into an operator's "
+                               "database.")
 
 
 def test_l1_pgdatabase_in_the_environment_is_unclear(tmp_path, monkeypatch, capsys) -> None:
