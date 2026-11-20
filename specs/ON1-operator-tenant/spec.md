@@ -1,11 +1,15 @@
 # ON1: an operator's tenant from one onboarding file (implementer spec)
 
-Status: **rev 2**, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-ON1.9 to D-ON1.14).
-**Owner answered D-ON1.9** (`owner/owner-on1-roles-executive-approves-2026-11-20.md`: "A, executive approves roles
-at first sign-in"): the file proposes roles; nothing is granted until the executive approves them when signing in.
-OD-14 holds; D-ON1.3 is superseded. Questions: `handshake.md` before code, `mid-build-questions.md` during it. Reviewer:
-`reviewer-guide.md` (rev 2). Decisions with reasons: `rulings.md` (D-ON1.1 to D-ON1.14). The runbook's text:
-`runbook.md` (rev 2, this folder), copied verbatim by the build.
+Status: **rev 3** (re-scope, D-ON1.15, D-ON1.16), on rev 2's handshake answers (D-ON1.9 to D-ON1.14). The owner
+chose option A (`owner/owner-on1-roles-executive-approves-2026-11-20.md`: "A, executive approves roles at first
+sign-in"), then allowed it to wait (`owner/owner-on1-approval-can-wait-2026-11-20.md`: "the approval step can wait if
+autoamtic approval for the demo saves us time"). Rev 3: **an emulated file's roles are granted automatically** at
+onboarding (`service:onboarding`); **a real file is refused** before any write until the queued unit `ON1b` builds
+option A (D-ON1.9, unchanged as the rule for real data). OD-14 is unchanged for real operators; rev 3 departs from it
+on emulated tenants only (D-ON1.15). Saving: 0.5 unit now (2.5 to 2.0), no migration, no change to sign-in, and the
+executive never signs in this fortnight (RC7 holds whole). Questions: `handshake.md` before code,
+`mid-build-questions.md` during it. Reviewer: `reviewer-guide.md` (rev 3). Decisions with reasons: `rulings.md`
+(D-ON1.1 to D-ON1.16). The runbook's text: `runbook.md` (rev 3, this folder), copied verbatim by the build.
 
 Architect (Claude), 2026-11-20. Lane A, the deep-dive path's unit 6 (`two-week-build-plan.md` §0.1 row 6; D-BW1.11;
 owner RC1 to RC9 accepted, `owner/owner-recut-decisions-rc1-rc9-2026-11-20.md`: RC4 real data only in its own
@@ -23,10 +27,12 @@ owner presents).
   `commercial/pseudonym_key.py` `main`; `commercial/uploads.py` step 7); `config.DEVELOPMENT_TENANT_SLUG`;
   `main.create_app` (`FoundationService(foundation_store, DEVELOPMENT_TENANT_SLUG, ...)`).
 
-Non-screen. **2.5 units, four commits**: the plan's 1.5, the served
-tenant and the erasure tombstone (D-ON1.5, D-ON1.7), the role proposals (D-ON1.9 A), the digest and separation
-(D-ON1.10), the demo pin (D-ON1.11). Owner decisions: OD-14 (the executive grants roles), RC2, RC4, RC5, RC7, and
-D-ON1.9's answer. Discovery review (W5): the real-data boundary (RC4), people and roles (OD-14), key erasure.
+Non-screen. **2.0 units, three commits**: the plan's 1.5, the served
+tenant and the erasure tombstone (D-ON1.5, D-ON1.7), the automatic grants for emulated files and the refusal of real
+ones (D-ON1.15), the digest and separation (D-ON1.10), the demo pin (D-ON1.11). Owner decisions: OD-14 (the executive
+grants roles; kept for real data by refusing it until `ON1b`), RC2, RC4, RC5, RC7, D-ON1.9's answer and its deferral.
+Discovery review (W5): the real-data boundary (RC4), people and roles (OD-14 on real data, D-ON1.15 on emulated),
+key erasure.
 
 ## 0. Before you start
 
@@ -43,22 +49,25 @@ D-ON1.9's answer. Discovery review (W5): the real-data boundary (RC4), people an
   test creates, names in a connection, or touches a database whose name starts with `assetops_op`** (D-ON1.6,
   D-ON1.12): the RC4 checks run on in-memory ports with names placed in `DATABASE_URL`, host `rc4.invalid` port 1,
   and the no-connect fixture of §6, so even a planted violation cannot reach a database. The runbook's
-  database steps are for the coordinator after a signed DPA; no agent runs them. Never ports 5490 or 8990, the
+  database steps are for the coordinator; no agent runs them. Never ports 5490 or 8990, the
   walkthrough DB or Docker.
-- **One migration:** `0066_role_proposal.py` (§3.3).
+- **No migration** (rev 3; `ON1b` brings the proposal tables).
 
 ## 1. Outcome and why
 
 A person in the Analyst role fills one onboarding file with the operator: the operator, its mini-grid Sites (code,
 name, time zone, location, lifecycle, installed components) and its people with their roles. One command checks it
 against the database and the switches and prints what it would create; the same command applies it: the tenant, its
-Sites through the existing Site import, the people's accounts, the executive's role, the other roles as proposals,
-and the tenant's pseudonym key. Re-running creates nothing more. No proposed role is granted until the operator's
-executive approves the roles they confirmed, at their sign-in (OD-14; owner answer to D-ON1.9). On an operator database (`assetops_op_<name>`) only a `real` file is admitted, and only with the
-real-data switch on and the server set to serve that tenant (RC4). The server serves the tenant named by
+Sites through the existing Site import, the people's accounts, the executive's role, the other roles, and the
+tenant's pseudonym key. Re-running creates nothing more. For an **emulated** file (rehearsal and demo tenants, never
+an operator database) the other roles are granted automatically by `service:onboarding` (D-ON1.15). A **real** file
+passes the real-data checks and is then refused before any write, until `ON1b` lets the operator's executive approve
+the roles at sign-in (OD-14; D-ON1.9). On an operator database (`assetops_op_<name>`) only a `real` file is admitted,
+and only with the real-data switch on and the server set to serve that tenant (RC4). The server serves the tenant named by
 `ASSETOPS_TENANT_SLUG`, so 3A2's Site path works for the operator's Sites. A key erased at the end of retention can
 never be recreated, so a re-sent file is refused in plain words instead of conflicting (3A2 residual). A runbook takes
-a person from the signed DPA to the first accepted export and to erasure.
+a person through the rehearsal to the first accepted export and to erasure, and names the real-operator steps that
+wait for `ON1b`.
 
 Why now: `DDR` rehearses on an onboarded tenant; the first real deep-dive needs one.
 
@@ -96,7 +105,7 @@ other field):
   case-insensitively (`ONBOARD_SITE_CODE`); the other site fields are passed to the Site document (§3.2) and judged by
   `parse_site_document` (`ONBOARD_SITE_INVALID`, `where` = `sites[i]`; the parser's message is neither printed nor
   kept, since it may quote a value).
-- `people` (the roles are **proposed**; D-ON1.9): 1 to 50 entries; `email` normalised by 3C0a's `passwords.normalise_email` (`ONBOARD_EMAIL`), unique by
+- `people` (granted automatically when `emulated`; a `real` file is refused at `check` step 3a, D-ON1.15): 1 to 50 entries; `email` normalised by 3C0a's `passwords.normalise_email` (`ONBOARD_EMAIL`), unique by
   key (`ONBOARD_EMAIL_DUPLICATE`); `name` 1 to 120 after strip (`ONBOARD_NAME`); `roles` 1 to 5 entries, each
   `{"role"}` or `{"role", "site"}`: role in `model.ROLES` (`ONBOARD_ROLE`); `site` present exactly for
   `SITE_MANAGER` and naming a file Site (`ONBOARD_ROLE_SITE`); no duplicate (role, site) for a person
@@ -107,7 +116,7 @@ other field):
   `OPERATOR_EXECUTIVE` (`ONBOARD_ROLES_SEPARATE people[i]`; D-ON1.10: the submitter never accepts).
 - **Roles digest** (D-ON1.10): `roles_digest(f) = sha256(json.dumps({"operator": slug, "people": [[email_key, name,
   sorted([role, site or ""] ...)] ... sorted by email_key]}, sort_keys=True, separators=(",", ":"),
-  ensure_ascii=False).encode("utf-8")).hexdigest()`. The executive confirms it in writing (runbook step 1).
+  ensure_ascii=False).encode("utf-8")).hexdigest()`. `apply` takes it as `--confirmed-digest` (runbook step 4); under `ON1b` the executive confirms it in writing.
 - Not collected (D-ON1.8): passwords, currency, tariff, loss band.
 
 ## 3. Rules
@@ -129,6 +138,8 @@ command's `commercial_upload_settings`, through RC4-F1, is the one decider; R14.
 2. `served_slug == f.slug` (`ONBOARD_TENANT_NOT_SERVED`).
 3. When real: `foundation.tenant_slugs()` is empty or exactly `(f.slug,)` (`ONBOARD_DATABASE_NOT_EMPTY`: one
    operator per operator database).
+3a. When real: `ONBOARD_REAL_AWAITS_APPROVAL` (D-ON1.15). Placed after steps 1 to 3 so the RC4 refusals are still
+   reached and tested; `ON1b` replaces this step with proposals.
 4. Tenant: `resolve_tenant(f.slug)`; absent is `create`; present with another name is `ONBOARD_TENANT_DIFFERS`; else
    `keep`. Key: absent tenant is `create`; else `keys.state(id)`: `ERASED` is `ONBOARD_KEY_ERASED`; `PRESENT` is
    `keep`; `MISSING` is `create`.
@@ -141,20 +152,20 @@ command's `commercial_upload_settings`, through RC4-F1, is the one decider; R14.
    or `None`; `None` too when the tenant is absent). When `current` is not `None`, the file's executive must be that
    person (`keep` with that `person_id`), else `ONBOARD_EXECUTIVE_DIFFERS people[i]`.
 7. Roles, each non-executive (person, role, site): held now (`onboard_person.roles`, the Site ID resolved through
-   `find_site`) or already proposed (`accounts.open_proposals(f.slug)`) is `keep`, else `propose`. Any `propose`
-   while `accounts.onboarding_open(f.slug)` is false is `ONBOARDING_CLOSED people[i]` (D-ON1.9, OD-14).
+   `find_site`) is `keep`, else `grant`. Any `grant` while `accounts.onboarding_open(f.slug)` is false is
+   `ONBOARDING_CLOSED people[i]` (D-ON1.15: once a person has granted a role, only people grant).
 
 `apply` checks `confirmed_digest == roles_digest(f)` first (`ONBOARD_DIGEST_DIFFERS`, exit 2), runs `check`, then in
-this order, each step only for `create`/`propose` entries: `ensure_tenant(f.slug, f.operator.name, now=clock())`;
+this order, each step only for `create`/`grant` entries: `ensure_tenant(f.slug, f.operator.name, now=clock())`;
 `import_site(foundation, tenant_slug=f.slug, configured_tenant_slug=f.slug, source=..., legacy_documents=(),
 clock=clock)` per Site (an `ImportConflict` is `ONBOARD_SITE_CHANGED`); `accounts.onboard_create(f.slug, email,
 name, secrets.token_urlsafe(32), executive=<holds OPERATOR_EXECUTIVE>)` per person (the password is never stored or
-shown, D-ON1.4); `accounts.onboard_propose(f.slug, email, role, site, file_sha256=roles_digest(f))` per proposal;
-`keys.create(tenant_id)`. A refusal mid-way stops; the steps done stay, and a rerun's `check` marks them `keep`.
+shown, D-ON1.4); `accounts.onboard_grant(f.slug, email, role, site)` per `grant` entry; `keys.create(tenant_id)`. A refusal mid-way stops; the steps done stay, and a rerun's `check` marks them `keep`.
 
 `Plan` (printed as one JSON object): `{"tenant": {"slug", "id" (null until it exists), "action"}, "sites":
 [{"code", "action"}], "people": [{"index", "action", "roles": [...]}], "roles": [{"index", "role", "site",
-"action"}], "key": "create" | "keep", "roles_digest": "<hex>"}`. No email, name or password is printed.
+"action"}], "key": "create" | "keep", "roles_digest": "<hex>"}`; a role's `action` is `grant` or `keep`. No email,
+name or password is printed.
 
 ### 3.2 The Site document (D-ON1.2)
 
@@ -167,57 +178,30 @@ separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest(), record=
 source=path), document_format="ASSETOPS_ONBOARDING_JSON")`. A Site's sha256 depends on its own entry only, so adding a
 Site later does not change the others.
 
-### 3.3 People, proposed roles and the executive's approval (D-ON1.9, D-ON1.4; 3C0a code)
+### 3.3 People and their roles (D-ON1.15, D-ON1.4; 3C0a code)
 
-- **Migration `0066_role_proposal.py`** (append-only, as 0062's account tables):
-  `role_proposal(id uuid PK, tenant_id uuid NOT NULL, person_id uuid NOT NULL, role text NOT NULL CHECK (role IN
-  ('FINANCE_AND_COMMERCIAL_LEAD', 'SITE_MANAGER', 'FIELD_TECHNICIAN', 'ANALYST')), site_id uuid NULL, file_sha256
-  text NOT NULL CHECK (file_sha256 ~ '^[0-9a-f]{64}$'), by_service text NOT NULL CHECK (by_service =
-  'service:onboarding'), at timestamptz NOT NULL)`, foreign keys `(tenant_id, person_id)` to `operator_account
-  (tenant_id, id)` and `(tenant_id, site_id)` to `site (tenant_id, id)`, `CHECK ((role = 'SITE_MANAGER') = (site_id
-  IS NOT NULL))`, unique index on `(tenant_id, person_id, role, COALESCE(site_id,
-  '00000000-0000-0000-0000-000000000000'::uuid))`.
-  `role_proposal_outcome(id uuid PK, tenant_id uuid NOT NULL, proposal_id uuid NOT NULL UNIQUE, outcome text NOT
-  NULL CHECK (outcome IN ('GRANTED', 'SKIPPED')), grant_id uuid NULL REFERENCES role_grant (id), reason text NULL
-  CHECK (reason IN ('NOT_ACTIVE', 'ALREADY_HELD')), by_person_id uuid NOT NULL, at timestamptz NOT NULL)`, foreign
-  keys `(tenant_id, proposal_id)` to `role_proposal (tenant_id, id)` (add `UNIQUE (tenant_id, id)` there) and
-  `(tenant_id, by_person_id)` to `operator_account`; `CHECK ((outcome = 'GRANTED') = (grant_id IS NOT NULL))`,
-  `CHECK ((outcome = 'SKIPPED') = (reason IS NOT NULL))`. Both tables refuse `UPDATE`, `DELETE` and `TRUNCATE` with
-  0062's trigger function pattern; both join 0062's `TABLES` grant list for the app role in the migration.
-  A proposal is **open** while it has no outcome row.
-- `AccountService.onboard_propose(tenant_slug, email, role, site_code, *, file_sha256) -> ProposalRow`, by
-  `ONBOARDING`. Refusals in order: `TENANT_NOT_FOUND` 404; `PERSON_NOT_FOUND` 404 (another tenant's too);
-  `ROLE_UNKNOWN` 422; `ONBOARD_EXECUTIVE_GRANT` 422 (the executive is granted only by `onboard_create(...,
-  executive=True)`); `ROLE_SITE_RULE` 422; `SITE_NOT_FOUND` 404; then the store's `ONBOARDING_CLOSED` 409 and
-  `ROLE_ALREADY_PROPOSED` 409 (the unique index). `ProposalRow(id, tenant_id, person_id, role, site_id, site_code,
-  file_sha256, at)` in `model.py`.
-- Store `add_role_proposal(row) -> ProposalRow`: one transaction under the tenant's role lock (`_lock_tenant`);
-  refuses `ONBOARDING_CLOSED` when `SELECT 1 FROM role_grant WHERE tenant_id = :t AND by_person_id IS NOT NULL
-  LIMIT 1` finds a row; then the plain `INSERT INTO role_proposal`. The in-memory store mirrors it.
-- Store `apply_role_proposals(tenant_id, executive_id, now) -> tuple[tuple[ProposalRow, GrantRow | None, str |
-  None], ...]`: one transaction under the tenant's role lock; for each open proposal in `(at, id)` order: the person
-  not `ACTIVE` is an outcome `SKIPPED NOT_ACTIVE`; the (role, site) already held is `SKIPPED ALREADY_HELD`; else a
-  plain `INSERT INTO role_grant` (action `GRANTED`, `by_person_id` = the executive, `by_service` NULL) and an outcome
-  `GRANTED` naming it. Returns each proposal with its grant or skip reason.
-- **Approval at sign-in** (`AccountService.sign_in(email, password, *, approve_roles: str | None = None)`; the
-  sign-in body gains an optional `"approve_roles"`, a 64-hex roles digest). After the attempt succeeds and before
-  `add_session`, when the account holds `OPERATOR_EXECUTIVE` (`held_grants`):
-  - `approve_roles` absent: nothing is granted; `SignedIn.awaiting` lists the open proposals.
-  - present and equal to the `file_sha256` of **every** open proposal of the tenant: `apply_role_proposals(tenant_id,
-    account.id, now)`; `SignedIn.granted` lists the granted rows.
-  - present and differing (or the tenant has proposals of two digests): `ROLES_DIGEST_DIFFERS` 409, no session,
-    nothing granted (the executive approves exactly the file they confirmed, or nothing).
-  - present from a person without `OPERATOR_EXECUTIVE`: `ROLE_REQUIRED` 403, no session.
-  The answer (`accounts_api.py`) gains `"roles_awaiting_approval": [{"name", "role", "site"}]` and
-  `"roles_granted": [{"name", "role", "site"}]` (each `[]` when none; both `[]` for anyone not the executive). A
-  store failure fails the sign-in (no session). Words (`accounts.reason.roles_digest_differs`): "These are not the
-  roles you confirmed. Nothing was granted." This is the executive's one sign-in the owner's answer requires (it
-  departs from RC7's "the executive does not sign in" for this act only; the owner presents everything else).
+- **No migration.** The grants are ordinary `role_grant` rows (0062): `by_service = 'service:onboarding'`,
+  `by_person_id` NULL, as the executive's own onboarding grant already is.
+- `AccountService.onboard_grant(tenant_slug, email, role, site_code) -> GrantRow`, by `ONBOARDING`. Refusals in order:
+  `TENANT_NOT_FOUND` 404; `PERSON_NOT_FOUND` 404 (another tenant's too, through `_onboard_account`); `ROLE_UNKNOWN`
+  422; `ONBOARD_EXECUTIVE_GRANT` 422 (the executive is granted only by `onboard_create(..., executive=True)`);
+  `ROLE_SITE_RULE` 422; `SITE_NOT_FOUND` 404; then the store's `ONBOARDING_CLOSED` 409, `ROLES_SEPARATE` 409 and
+  `ROLE_ALREADY_HELD` 409. The row: `GrantRow(row_id, row_id, tenant_id, person_id, display_name, role, site_id,
+  site_code, "GRANTED", None, None, ONBOARDING, clock())`.
+- Store `add_onboarding_grant(row) -> GrantRow`: one transaction under the tenant's role lock (`_lock_tenant`), in
+  this order: `ONBOARDING_CLOSED` when `SELECT 1 FROM role_grant WHERE tenant_id = :t AND by_person_id IS NOT NULL
+  LIMIT 1` finds a row; `ROLES_SEPARATE` when the role is `ANALYST` and the person holds `FINANCE_AND_COMMERCIAL_LEAD`
+  or `OPERATOR_EXECUTIVE`, or the role is `FINANCE_AND_COMMERCIAL_LEAD` and the person holds `ANALYST` (held by
+  `held_grants`' rule; the file rule `ONBOARD_ROLES_SEPARATE` already refuses this, the store is the backstop for the
+  class); `ROLE_ALREADY_HELD` by the existing `_HELD_SAME` read; then the existing `_INSERT_GRANT`. Returns
+  `grant_row(...)` as `add_grant` does. The in-memory store (`MemoryStore` in the 3C0a tests) mirrors it in the same
+  order.
 - `AccountService.onboarding_open(tenant_slug) -> bool` (store `person_grant_exists(tenant_id) -> bool`, the same
-  read outside a lock); `AccountService.open_proposals(tenant_slug) -> frozenset[tuple[UUID, str, UUID | None]]`
-  (store `open_proposals(tenant_id)`); `AccountService.executive_of(tenant_slug) -> UUID | None` (store
+  read outside a lock; an absent tenant is open); `AccountService.executive_of(tenant_slug) -> UUID | None` (store
   `executive_of(tenant_id)`: the person of a held `OPERATOR_EXECUTIVE` grant, by the rule `held_grants` uses; an
   absent tenant is `None`).
+- **Sign-in is not changed** (rev 2's `approve_roles` moves to `ON1b`). The executive's grant API (3C0a) is not
+  changed: a grant by a person closes onboarding, as before.
 - The command never sets a password. Each person's password is set afterwards with `python -m
   assetops_backend.accounts.onboard set-password --email ...` (3C0a §7), typed on stdin.
 
@@ -270,19 +254,16 @@ Site later does not change the others.
 | `backend/assetops_backend/onboard_operator.py` | the command (§5), `build_parser()`, `main(argv, *, onboarding=None)` |
 | `backend/assetops_backend/sites/foundation_records.py`, `adapters/postgres_foundation_store.py` | `FoundationStore.tenant_slugs() -> tuple[str, ...]` (`SELECT slug FROM tenant ORDER BY slug`) |
 | `backend/assetops_backend/sites/foundation_service.py`, `sites/cutover.py` | `tenant_slug` and `served_tenant_slug` properties (§3.4) |
-| `backend/migrations/versions/0066_role_proposal.py` | §3.3 |
-| `backend/assetops_backend/accounts/model.py`, `service.py`, `store.py`, `adapters/postgres_account_store.py` | `ProposalRow`, `SignedIn.granted`/`.awaiting`, `onboard_propose`, `onboarding_open`, `open_proposals`, `executive_of`, sign-in approval; store `add_role_proposal`, `apply_role_proposals`, `person_grant_exists`, `open_proposals`, `executive_of` (§3.3) |
-| `backend/assetops_backend/accounts_api.py` | sign-in body `approve_roles`; answer `roles_awaiting_approval`, `roles_granted` |
+| `backend/assetops_backend/accounts/service.py`, `store.py`, `adapters/postgres_account_store.py` | `onboard_grant`, `onboarding_open`, `executive_of`; store `add_onboarding_grant`, `person_grant_exists`, `executive_of` (§3.3). `model.py` and `accounts_api.py` unchanged |
 | `backend/assetops_backend/accounts/onboard.py` | `_parser` renamed `build_parser` (public); behaviour unchanged |
 | `backend/assetops_backend/config.py`, `main.py` | §3.4 |
 | `backend/assetops_backend/commercial/pseudonym.py`, `adapters/file_key_store.py`, `composition.py`, `pseudonym_key.py`, `uploads.py` | §3.5 |
-| `backend/assetops_backend/i18n/messages.py` | `commercial_upload.key_erased`, `accounts.reason.roles_digest_differs` (a `# ON1` block) |
+| `backend/assetops_backend/i18n/messages.py` | `commercial_upload.key_erased` (a `# ON1` block) |
 | `tools/demo_combined.py` | `Demo.env()` pins the demo tenant (§3.4) |
 | `tools/world_history.py` | a public `build_parser()` (the runbook test parses its line); behaviour unchanged |
-| `tools/checks/configuration-persistence.ps1` | the account-writer block registers the two plain `INSERT` shapes of §3.3 (§7) |
 | `Docs/engineering/operator-deep-dive-runbook.md` | `runbook.md` of this folder, verbatim from its first `#` heading |
 | `backend/tests/fixtures/on1/lakeside-power.onboarding.json` | the Lakeside rehearsal tenant (§6) |
-| `backend/tests/test_3c0a_accounts_service.py`, `test_3c0a_accounts_api.py` | `MemoryStore` gains the §3.3 store methods; a test asserting the whole sign-in body gains the two `[]` lists; no other expected value moves |
+| `backend/tests/test_3c0a_accounts_service.py` | `MemoryStore` gains the §3.3 store methods; no expected value moves |
 
 ## 5. The command (`python -m assetops_backend.onboard_operator`)
 
@@ -319,15 +300,16 @@ from `build_foundation_store(url)`, `build_account_service(url)`, `FileKeyFiles(
 | `ONBOARD_EMAIL_TAKEN` | This email belongs to another organisation. |
 | `ONBOARD_PERSON_DIFFERS` | This person already exists with another name, or is disabled. |
 | `ONBOARD_EXECUTIVE_DIFFERS` | This person is in the file as the executive but does not hold that role. |
+| `ONBOARD_REAL_AWAITS_APPROVAL` | A real operator is onboarded once its executive can approve the roles; that step is not built yet. |
 | `ONBOARDING_CLOSED` | The executive now grants roles; ask them to grant this one. |
-| `ROLE_ALREADY_PROPOSED` | This role is already proposed for this person. |
 | `ONBOARD_KEY_DIR_REQUIRED` | Name the key directory (--key-dir or ASSETOPS_PSEUDONYM_KEY_DIR). |
 | `ONBOARD_KEY_DIR` | The key directory must exist and be readable by its owner only. |
 | `ONBOARD_ROLES_SEPARATE` | The person who submits exports cannot also be the finance lead or the executive. |
 | `ONBOARD_DIGEST_DIFFERS` | This file is not the one the executive confirmed: its roles digest differs. |
 | `DATABASE_URL_REQUIRED`, `CONFIGURATION` | as 3C0a's command and the settings message |
 
-An `AccountRefused` or `KeyDirectoryMissing` in `apply` prints its code and exits 3.
+An `AccountRefused` (`ROLES_SEPARATE`, `ROLE_ALREADY_HELD` and the others of §3.3 are backstops) or
+`KeyDirectoryMissing` in `apply` prints its code and exits 3.
 
 ## 6. Tests
 
@@ -355,17 +337,15 @@ a name or an email changes, and does not change when a Site's components change.
 **Service, no database** (`backend/tests/test_on1_onboarding_service.py`), world: `InMemoryFoundationStore` (it
 gains `tenant_slugs`, the one edit to `foundation_fakes.py`) and a `MemoryStore` subclass whose `tenant_by_slug`,
 `tenant_slug` and `site_id` read the foundation fake; an in-memory `KeyFiles`; clock `2026-11-20T09:00:00+00:00`:
-1. `check` on an empty world: tenant, 3 Sites, 7 people, 6 roles `propose` and the key all `create`; the plan's
+1. `check` on an empty world: tenant, 3 Sites, 7 people, the key `create`, 6 roles `grant`; the plan's
    `roles_digest` is the pinned literal.
 2. `apply`: tenant `lakeside-power` named "Lakeside Power"; 3 imported Sites whose `site_import.source_path` is
-   `onboarding:lakeside-power/<code>`; 7 accounts; **1 grant** (Amina's executive grant by `service:onboarding`) and
-   **6 open proposals**; the key created; the plan printed holds no `@`.
-3. **Approval** (D-ON1.9): Peter's sign-in grants nothing; Joseph's sign-in with `approve_roles` is `ROLE_REQUIRED`
-   403; Amina's sign-in **without** `approve_roles` grants nothing and lists 6 `roles_awaiting_approval`; with a
-   wrong digest is `ROLES_DIGEST_DIFFERS` 409, no session, nothing granted; with the right digest grants 6 roles, each
-   `by_person_id` Amina, and lists them in `roles_granted`; then **7 grants**, no open proposal; Amina's next sign-in
-   grants nothing more. Before Amina's approval, `roles_of` gives Joseph no finance role and an upload `decide` by
-   Joseph is refused for want of the role.
+   `onboarding:lakeside-power/<code>`; 7 accounts; **7 grants**, every one `by_service` `service:onboarding` and
+   `by_person_id` NULL (Amina's executive grant and 6 others); the key created; the plan printed holds no `@`.
+3. **Real data waits for `ON1b`** (D-ON1.15): the fixture with `data` `real`, `real_data=True`, `served_slug`
+   `lakeside-power`, an empty world: `check` and `apply` are `ONBOARD_REAL_AWAITS_APPROVAL` and the fakes count no
+   write (no tenant, Site, account, grant or key). After test 2, `roles_of` gives Wanjiru `ANALYST` and Joseph
+   `FINANCE_AND_COMMERCIAL_LEAD`, and no person holds both a submitting and an accepting role.
 4. A second `apply` after test 2: every entry `keep`; no write (the fakes count writes).
 5. Partial run: the account store raises on the fourth `onboard_create`; the rerun completes and the end state equals
    test 2's.
@@ -374,20 +354,20 @@ gains `tenant_slugs`, the one edit to `foundation_fakes.py`) and a `MemoryStore`
    (`ONBOARD_EMAIL_TAKEN`); a file naming another person as executive on the applied tenant
    (`ONBOARD_EXECUTIVE_DIFFERS` at `check`, no write); `apply` with a digest one character off
    (`ONBOARD_DIGEST_DIFFERS`, no write).
-7. OD-14 kept: after Amina's approval (test 3), a file adding a role is `ONBOARDING_CLOSED`; a file with no new role
-   still applies (`keep`).
+7. Onboarding closes (D-ON1.15): after test 2, Amina grants Musa `ANALYST` through `AccountService.grant` (a
+   person-made grant); a file adding a role for Peter is `ONBOARDING_CLOSED people[3]` at `check`, no write; the
+   unchanged file still applies (`keep`).
 8. RC4 matrix (no connection; names only): `data` `real` with `real_data=False` and `emulated` with `real_data=True`
    are `ONBOARD_DATA_MISMATCH`; `served_slug` `demo` is `ONBOARD_TENANT_NOT_SERVED`; real with another tenant present
-   is `ONBOARD_DATABASE_NOT_EMPTY`; through the command's `main` with injected nothing: `DATABASE_URL`
+   is `ONBOARD_DATABASE_NOT_EMPTY`; real with all three right is `ONBOARD_REAL_AWAITS_APPROVAL` (test 3); through the
+   command's `main` with injected nothing: `DATABASE_URL`
    `.../assetops_test?dbname=assetops_op_x` and `.../` (no name) each exit 2 `CONFIGURATION` (RC4-F1), with the
    no-connect fixture never tripped.
 9. Key: `KeyFiles.state` `ERASED` is `ONBOARD_KEY_ERASED`, and `directory_ok()` false is `ONBOARD_KEY_DIR`, each
    before any write.
-10. `onboard_propose` refusals: `ONBOARD_EXECUTIVE_GRANT`, `ROLE_SITE_RULE`, `SITE_NOT_FOUND`,
-    `ROLE_ALREADY_PROPOSED`, `PERSON_NOT_FOUND` for another tenant's email.
-11. Skips: a proposed person disabled before approval is `SKIPPED NOT_ACTIVE`; `ALREADY_HELD` is tested on the
-    in-memory store directly (onboarding closes before the API could grant the same role): a held role with an open
-    proposal for it gives `SKIPPED ALREADY_HELD`.
+10. `onboard_grant` refusals, called directly after test 2: `ONBOARD_EXECUTIVE_GRANT` (Joseph as executive),
+    `ROLE_SITE_RULE`, `SITE_NOT_FOUND`, `PERSON_NOT_FOUND` for another tenant's email, `ROLE_ALREADY_HELD` (Joseph's
+    finance role again), `ROLES_SEPARATE` (Wanjiru given `FINANCE_AND_COMMERCIAL_LEAD`; Joseph given `ANALYST`).
 
 **Keys, no database** (`backend/tests/test_on1_key_erasure.py`, `tmp_path`):
 1. `erase` writes the tombstone (mode 0600) and removes the key: `Erased.`; a second `erase` prints `Already
@@ -415,9 +395,8 @@ gains `tenant_slugs`, the one edit to `foundation_fakes.py`) and a `MemoryStore`
    uvicorn line instead checks that its target is `assetops_backend.main:app` and that `main.py`'s AST assigns `app`
    at module level (no import). The ordered list of (program, sub-command) pairs must equal exactly:
    `onboard_operator digest`, `onboard_operator check`, `onboard_operator apply`, `accounts.onboard set-password`,
-   `uvicorn`, `onboard_operator digest`, `onboard_operator check`, `onboard_operator apply`,
-   `accounts.onboard set-password`, `uvicorn`, `world_history exports`, `load_emulated_exports`,
-   `commercial.pseudonym_key erase` (13 lines; a missing or extra line fails). The runbook equals `runbook.md` from
+   `world_history exports`, `load_emulated_exports`, `commercial.pseudonym_key erase` (7 lines; a missing or extra
+   line fails). Rev 3's runbook holds the rehearsal and erasure only; `ON1b` adds the real-operator lines back. The runbook equals `runbook.md` from
    its first heading.
 4. Demo pin: `Demo.env()` (built as `backend/tests/test_demo_combined_links.py` builds its `Demo`) with
    `ASSETOPS_TENANT_SLUG=lakeside-power`, `ASSETOPS_REAL_OPERATOR_DATA=on` and `ASSETOPS_PSEUDONYM_KEY_DIR=/k` in the
@@ -425,41 +404,37 @@ gains `tenant_slugs`, the one edit to `foundation_fakes.py`) and a `MemoryStore`
 
 **Postgres** (`backend/tests/test_on1_onboarding_postgres.py`, pooled `--db`, routed `*_test` only):
 1. `apply` of the fixture on an empty routed database with `ASSETOPS_TENANT_SLUG=lakeside-power` and keys in
-   `tmp_path`: the tenant, 3 Sites (and their `site_import` rows), 7 accounts, **1 grant row** (`service:onboarding`)
-   and **6 `role_proposal` rows**, no outcome row, and a key file. Amina signs in through the service with the
-   digest: **7 grant rows** (6 with `by_person_id` Amina), 6 outcome rows `GRANTED`. Then `create_app` serves
-   `KOBO-001` through `registry.ledger_scope`.
-2. A second `apply` writes no row (row counts of `tenant`, `site`, `operator_account`, `role_grant`,
-   `role_proposal`, `role_proposal_outcome` unchanged).
-3. Under the lock: a person-made grant inserted first makes `add_role_proposal` `ONBOARDING_CLOSED`; two concurrent
-   `apply_role_proposals` calls grant each proposal once (one gets every outcome, the other none).
-4. `UPDATE role_proposal` and `DELETE FROM role_proposal_outcome` are refused by the triggers.
-5. Then (3A3 seam, end to end): `load_emulated_exports` with the 3A3 emulator files for `lakeside-power`, Wanjiru
-   submitting and Joseph accepting: four ACCEPTED uploads on the onboarded Sites. Before Amina's approval the same
-   run is `PERSON_ROLE_REQUIRED`.
+   `tmp_path`: the tenant, 3 Sites (and their `site_import` rows), 7 accounts, **7 grant rows**, each `by_service`
+   `service:onboarding`, and a key file. Then `create_app` serves `KOBO-001` through `registry.ledger_scope`.
+2. A second `apply` writes no row (row counts of `tenant`, `site`, `operator_account`, `role_grant` unchanged).
+3. Under the lock: a person-made grant inserted first makes `add_onboarding_grant` `ONBOARDING_CLOSED`; two
+   concurrent `add_onboarding_grant` calls for the same (person, role) record one grant (the other is
+   `ROLE_ALREADY_HELD`); `ROLES_SEPARATE` is refused by the adapter when the file rule is bypassed.
+4. Then (3A3 seam, end to end): `load_emulated_exports` with the 3A3 emulator files for `lakeside-power`, Wanjiru
+   submitting and Joseph accepting: four ACCEPTED uploads on the onboarded Sites.
 
-**Regression beside them:** the 3C0a service, API and Postgres files (`build_parser` rename; the sign-in body's two
-lists; grants otherwise unchanged); the 3A2 service, API and Postgres files; 3A3's loader tests; RC4-F1's file; the
+**Regression beside them:** the 3C0a service, API and Postgres files (`build_parser` rename; nothing else moves); the 3A2 service, API and Postgres files; 3A3's loader tests; RC4-F1's file; the
 Site import tests (`test_s1_foundation_postgres.py`); `test_demo_combined_links.py`; `alembic heads` one head;
 check-all.
 
 ## 7. Guard
 
-`tools/checks/configuration-persistence.ps1`, the account-writer block: add `role_proposal` and
-`role_proposal_outcome` to `$accountTables` (one plain `INSERT INTO <table> (...) VALUES (...)` each, owned by
-`accounts/adapters/postgres_account_store.py`; the anti-vacuity count covers them). The under-lock `SELECT`s are
-reads. Show the guard failing on a planted `UPDATE role_proposal` in the account adapter, on a planted `INSERT INTO
-role_proposal` in `onboarding/service.py`, and on a planted `os.unlink` in `commercial/pseudonym_key.py`.
+`tools/checks/configuration-persistence.ps1` is **not changed** (rev 3): `add_onboarding_grant` reuses the
+registered `_INSERT_GRANT` shape of `role_grant`, owned by `accounts/adapters/postgres_account_store.py`; the
+under-lock `SELECT`s are reads. Show the guard failing on a planted `UPDATE role_grant` in the account adapter, on a
+planted `INSERT INTO role_grant` in `onboarding/service.py`, and on a planted `os.unlink` in
+`commercial/pseudonym_key.py`.
 
 ## 8. Done (questions; each can fail)
 
-1. Does one file create the tenant, its Sites (through the Site import), its people, the executive's grant, the
-   other roles as proposals, and the key, and does a rerun create nothing (service 1, 2, 4, 5; Postgres 1, 2)?
-2. Is **no proposed role granted until the executive approves it** at sign-in with the digest they confirmed, and
-   then granted as the executive's own act (service 3; Postgres 1, 3)?
+1. Does one emulated file create the tenant, its Sites (through the Site import), its people, every role in it
+   (by `service:onboarding`) and the key, and does a rerun create nothing (service 1, 2, 4, 5; Postgres 1, 2)?
+2. Is **a real file refused before any write** after the RC4 checks, so no role is granted on a real operator's
+   data until `ON1b` (service 3, 8)?
 3. Is a change to an existing tenant, Site, person or executive refused rather than applied, and is a file other
    than the confirmed one refused (service 6)?
-4. Are proposals closed once the executive has granted (OD-14; service 7, Postgres 3)?
+4. Do onboarding grants stop once a person has granted a role, also under concurrency, and does no person hold both
+   a submitting and an accepting role (service 7, 10; Postgres 3)?
 5. Is real data onboarded only into an `assetops_op_<name>` database with the switch on and the server serving that
    tenant, emulated data refused there, and can no test connect to any database while checking it (service 8,
    settings 2, the no-connect self-tests)?
@@ -481,13 +456,17 @@ Packet: `specs/ON1-operator-tenant/packet.md`.
 | Unit | Content | Commit |
 |---|---|---|
 | 0.5 | `operator_file.py` (with `roles_digest`, separation), the fixture, file tests | 1 |
-| 0.75 | `service.py`, `onboard_operator.py` (`digest`, `check`, `apply`), `tenant_slugs`, `executive_of`, `served_tenant_slug`, accessors and `create_app`; service 1, 2, 4 to 10, settings 1, 2; Postgres 2 | 2 |
-| 0.75 | Migration 0066, proposals, approval at sign-in, the API fields, the guard; service 3, 11; Postgres 1, 3, 4, 5; 3C0a regression | 3 |
-| 0.5 | Tombstone, `erase`, `key_state`, `directory_ok`, `PSEUDONYM_KEY_ERASED`; the demo pin; `world_history.build_parser`; key tests; the runbook copy and settings 3, 4; plants; check-all; packet | 4 |
+| 1.0 | `service.py` (with step 3a), `onboard_operator.py` (`digest`, `check`, `apply`), `tenant_slugs`, `onboard_grant`, `add_onboarding_grant`, `onboarding_open`, `executive_of`, `served_tenant_slug`, accessors and `create_app`; service 1 to 10, settings 1, 2; Postgres 1 to 4; 3C0a regression | 2 |
+| 0.5 | Tombstone, `erase`, `key_state`, `directory_ok`, `PSEUDONYM_KEY_ERASED`; the demo pin; `world_history.build_parser`; key tests; the runbook copy and settings 3, 4; plants; check-all; packet | 3 |
+
+Rev 2 was 2.5 units in four commits; the 0.5 saved is rev 2's commit 3 (migration 0066, proposals, approval at
+sign-in, the API fields, the guard edit) less the 0.25 the automatic grant and the real refusal cost (D-ON1.15).
 
 ## 10. Out of scope
 
-Creating, migrating or dropping any database (the coordinator, by the runbook, after the DPA); a screen for any of
+Onboarding a real operator: the executive's approval at sign-in, the proposal tables and the real-operator runbook
+steps are the queued unit **`ON1b`** (0.75 unit, D-ON1.16). Creating, migrating or dropping any database (the
+coordinator, by the runbook); a screen for any of
 this (`3C0b` and later); changing a Site, person or role after onboarding (the executive's grant API; Site changes
 through the Foundation); currency, tariff, diesel price and loss band (D-ON1.8); cold-room and EV operators (RC5);
 raw-file retention (3A2 queue Q2).
@@ -496,8 +475,9 @@ raw-file retention (3A2 queue Q2).
 
 | # | Question | Default applied |
 |---|---|---|
-| Q1 | Who grants the roles in the onboarding file? | **Answered by the owner** ("A, executive approves roles at first sign-in", `owner/owner-on1-roles-executive-approves-2026-11-20.md`): the file proposes; the executive approves at sign-in with the confirmed digest (D-ON1.9). D-ON1.3 superseded |
+| Q1 | Who grants the roles in the onboarding file? | **Answered by the owner** ("A, executive approves roles at first sign-in", `owner/owner-on1-roles-executive-approves-2026-11-20.md`), then allowed to wait ("the approval step can wait if autoamtic approval for the demo saves us time", `owner/owner-on1-approval-can-wait-2026-11-20.md`). Rev 3: emulated roles automatic; real files refused until `ON1b` builds A (D-ON1.15, D-ON1.16) |
 | Q2 | Erasure: delete the key and keep the database until retention ends, or both at once? | Both at the agreed term; deleting the key alone is allowed and is terminal for intake (D-ON1.7). **Owner to weigh in** on the retention term per operator |
 | Q3 | The tariff, declared diesel price and expected loss band in the onboarding file | Not collected: the tariff and prices arrive as the operator's own records (tariff sheet, budget lines, fuel invoices) through intake; the loss band waits for `4a`, which connects `technical_loss_kwh` |
 | Q4 | One operator per operator database | Yes (RC4: "its own database") |
-| Q5 | Later grants through the executive's API can still give one person both submit and accept roles | Not limited this fortnight (no grant screen); carried to `3C0b` with D-ON1.10 |
+| Q5 | Later grants through the executive's API can still give one person both submit and accept roles | Not limited this fortnight (no grant screen; onboarding's own grants refuse it, §3.3); carried to `3C0b` with D-ON1.10 |
+| Q6 | Defer option A to `ON1b` and refuse real operators until then? | **Yes** (D-ON1.15): 0.5 unit saved on lane A's path to `DDR`; no real export is planned this fortnight (`two-week-build-plan.md` "No real export yet"). **Owner to weigh in** only if a signed DPA could arrive before `ON1b` is built; default: `ON1b` is built as soon as a DPA is in sight, before any real file |

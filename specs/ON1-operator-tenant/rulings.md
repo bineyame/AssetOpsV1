@@ -1,7 +1,9 @@
 # ON1 rulings
 
 Architect (Claude), 2026-11-20. D-ON1.1 to D-ON1.8 are applied by `spec.md` rev 1; rev 2 applies D-ON1.9 to
-D-ON1.14 and the handshake answers below. **D-ON1.3 is superseded by D-ON1.9** (owner, 2026-11-20). D-ON1.7 settles the 3A2 review's residual
+D-ON1.14 and the handshake answers below; rev 3 applies D-ON1.15 and D-ON1.16 (the re-scope). **D-ON1.3 is
+superseded by D-ON1.9** (owner, 2026-11-20); **D-ON1.9 is deferred to the queued unit `ON1b`** for real data and
+replaced on emulated data by D-ON1.15 (owner, 2026-11-20). D-ON1.7 settles the 3A2 review's residual
 "a recreated key changes every pseudonym" (`specs/3A2-commercial-file-intake/review.md`, "Residual risk").
 
 ## D-ON1.1 One file, checked then applied, additive and re-runnable
@@ -81,7 +83,7 @@ D-ON1.14 and the handshake answers below. **D-ON1.3 is superseded by D-ON1.9** (
   has no reader), and a field collected with no reader is a value silently ignored. Records through intake keep the
   evidence word of their source. Recorded so `4a` and `5a` pick them up (queue Q3).
 
-## D-ON1.9 The file proposes roles; the executive approves them at sign-in (owner answer; supersedes D-ON1.3)
+## D-ON1.9 The file proposes roles; the executive approves them at sign-in (owner answer; supersedes D-ON1.3) — DEFERRED to `ON1b` by D-ON1.15 (still the rule for real data)
 
 - **Ruling.** The onboarding file names people and **proposes** their roles. `apply` creates the accounts and the
   executive's own grant (D-3C0A.7, unchanged) and records every other role as a `role_proposal` row (migration 0066,
@@ -219,3 +221,61 @@ answered D-ON1.9 during this round (A); no question is open.
 - **P7.** Accepted: `onboard_create`'s refusals stay as backstops (exit 3).
 - **P8.** Superseded by D-ON1.9: service 2 names "1 grant and 6 open proposals" after `apply`, service 3 "7 grants"
   after Amina's approval; Postgres 1 the same.
+
+## D-ON1.15 Re-scope: emulated roles granted automatically; real files refused until `ON1b` (rev 3)
+
+- **Ruling.** `apply` of an **emulated** file grants every role in it by `service:onboarding` (store
+  `add_onboarding_grant`, under the tenant's role lock), after the executive's own onboarding grant. Once any grant
+  by a person exists, onboarding grants stop (`ONBOARDING_CLOSED`). The submitter/accepter separation is checked
+  twice: the file (`ONBOARD_ROLES_SEPARATE`, D-ON1.10) and the store (`ROLES_SEPARATE`, the class backstop for every
+  onboarding grant). A **real** file passes `check`'s RC4 steps (data and switch agree, served tenant, one operator
+  per database) and is then refused, `ONBOARD_REAL_AWAITS_APPROVAL`, before any write. No migration; sign-in, the
+  grant API, the API answer and the persistence guard are not changed. The runbook keeps the rehearsal and erasure;
+  the real-operator steps go to `ON1b`. The digest (`--confirmed-digest`) stays on every `apply`, so the rehearsal
+  practises the real flow.
+- **Owner.** `owner/owner-on1-approval-can-wait-2026-11-20.md`, verbatim: "the approval step can wait if autoamtic
+  approval for the demo saves us time".
+- **Does it save time? Yes, enough.** Rev 2 was 2.5 units in four commits; rev 3 is **2.0 units in three commits**.
+  Rev 2's commit 3 (0.75: migration 0066 with two append-only tables and triggers, proposals, approval inside
+  sign-in, two answer fields, the guard edit, five tests) is replaced by 0.25 (one service method, one store method
+  reusing the registered grant insert, one check step, four tests). Beyond the units: no new alembic head while other
+  lanes migrate, no change to 3C0a's sign-in (a protected seam with its own regression), a smaller discovery review,
+  and the executive never signs in this fortnight, so RC7 ("the executive does not sign in") holds whole instead of
+  with rev 2's exception. The cost moves, it does not vanish: `ON1b` is 0.75 unit (D-ON1.16), so building both
+  costs 0.25 more than rev 2. That trade is right because ON1 sits on lane A's path to `DDR` (`two-week-build-plan.md`
+  §0.1 rows 6 and 14) and no real export is planned this fortnight (§ "No real export yet"), so `ON1b` is off the
+  critical path until a DPA is in sight. Had the saving been 0.25 or less, option A would have been kept as built.
+- **OD-14, said plainly.** For **real** operators OD-14 is unchanged: no real file can be applied, so no role on a
+  real operator's data is granted by anyone but, later, its executive (`ON1b`). For **emulated** tenants (the
+  rehearsal's Lakeside, fictional people, never an operator database) this design **departs from OD-14**: the
+  command grants the roles, as D-ON1.3 would have, recorded `by_service service:onboarding` so the record says so.
+  OD-14 exists so an operator's executive controls who sees the operator's data; an emulated tenant has no operator
+  and no real data, and the owner allowed automatic approval "for the demo". The owner's decision OD-14 itself is not
+  changed.
+- **Why nobody can self-grant on real data.** An emulated file cannot reach an operator database: `emulated` with the
+  switch on is `ONBOARD_DATA_MISMATCH`, and 3A2's settings (through RC4-F1) refuse an `assetops_op_` database with
+  the switch off. A real file is refused before any write. So the analyst who runs `apply` can grant themselves a
+  role only on an emulated tenant in a non-operator database. **Residual (W5 probe):** a person who labels a real
+  operator's file `emulated` and loads it into a non-operator database gets automatic grants; that act already
+  breaks RC4 (real data outside its own database, before a DPA), which no code can see, and is named in the runbook.
+  Under rev 2 the same mislabelled file still needed the executive's sign-in; the class is the RC4 breach, not the
+  grant.
+- **Rejected.** Real files grant only the executive and the executive grants the rest through 3C0a's grant API:
+  no new code, but it puts curl in an executive's hands (the reason D-ON1.3 gave) and the grant API does not enforce
+  the separation (queue Q5), so "no person holds both" would rest on a reader of the runbook. Refusing real files
+  keeps both guarantees in code.
+
+## D-ON1.16 Queued unit `ON1b`: the executive approves roles at sign-in (owner option A), for real operators
+
+- **Ruling.** `ON1b` is queued, **0.75 unit, one commit**, one migration (the next free number at build time): rev 2's
+  §3.3 proposal design as written in `spec.md` rev 2 (git `9630dbc1e`, §3.3, §4 rows for `accounts_api.py`, the
+  guard and messages, §6 service 3 and 11, Postgres 1, 3 and 4), applied to **real files only**: `check` step 3a
+  becomes "propose", the approval rides on sign-in with the confirmed digest, D-ON1.9's words. Emulated files stay
+  automatic (D-ON1.15). It also restores the real-operator runbook steps (rev 2's steps 1 to 9; the settings test's
+  list grows back to rev 2's 13 lines less the rehearsal's `uvicorn`, 12) and the executive's one sign-in, RC7's
+  exception.
+- **When.** Before the first real operator is onboarded: it is built as soon as a signed DPA is in sight, and the
+  coordinator creates no `assetops_op_` database before it merges. It has its own handshake and a discovery review
+  (OD-14 seam). Spec: written from rev 2's text when queued work is pulled; no new design is needed.
+- **Why.** The owner's answer A stands as the rule for real data; only its timing moves. Keeping the design whole in
+  rev 2's text makes the deferral cheap to undo.
