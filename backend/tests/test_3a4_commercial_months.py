@@ -215,6 +215,20 @@ def ingest_steps_from(w, start: int) -> list[UUID]:
     return [ingest_at(w, s["at"], s["batch"]) for s in steps()[start:]]
 
 
+def test_02_a_lone_correction_in_place_makes_the_stamp_stale(world) -> None:
+    """3A4 review L1: same month, same record set; only the correction's new revision differs (3B7a relies on it)."""
+    months, tid, kobo = world["months"], world["tid"], world["kobo"]
+    ingest_steps(world, 4)
+    stamp = months.site_month(tid, kobo, "2026-10").stamp
+    assert months.stale(tid, [stamp]) == ()
+    step = steps()[4]
+    lone = dict(step["batch"], records=[r for r in step["batch"]["records"]
+                                         if r["source_record_id"] == "KOBO-EX-FUEL-1028" and r["source_version"] == "2"])
+    assert len(lone["records"]) == 1
+    ingest_at(world, step["at"], lone)
+    assert months.stale(tid, [stamp]) == (stamp,)
+
+
 def test_02_stamps_go_stale_and_months_touched(world) -> None:
     months, tid, kobo = world["months"], world["tid"], world["kobo"]
     intakes = ingest_steps(world, 4)

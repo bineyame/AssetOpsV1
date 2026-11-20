@@ -59,6 +59,11 @@ _WORDS = {
 }
 
 
+def has_control_character(text: str) -> bool:
+    """F3: a character below U+0020 or U+007F (NUL included) is refused in the two free-text inputs."""
+    return any(ord(ch) < 0x20 or ord(ch) == 0x7F for ch in text)
+
+
 def reason_words(code: str) -> Message:
     return message(f"commercial_upload.reason.{code.lower()}")
 
@@ -114,8 +119,11 @@ def _file_refused(reader: SourceReader, code: str, path: str) -> UploadRefused:
                          message("commercial_upload.file_refused", field=field, reason=render(reason_words(code))))
 
 
-def _counts(records: int, new: int, revised: int, unchanged: int, refused: int) -> dict[str, int]:
-    return {"records": records, "new": new, "revised": revised, "unchanged": unchanged, "refused": refused}
+def _counts(records: int, new: int, revised: int, unchanged: int, refused: int) -> dict[str, Any]:
+    """D-3A2.18(a): the count sentence is served with the counts, wherever counts appear."""
+    words = message("commercial_upload.summary", new=new, revised=revised, unchanged=unchanged, refused=refused)
+    return {"records": records, "new": new, "revised": revised, "unchanged": unchanged, "refused": refused,
+            "words": words, "text": render(words)}
 
 
 def _person(person_id: UUID, name: str | None) -> dict[str, str | None]:
@@ -244,7 +252,8 @@ class CommercialUploads:
     def decide(self, tenant_id: UUID, scope: UploadScope, actor: Actor, upload_id: str, decision: str,
                reason: object = None) -> dict[str, Any]:
         if decision == "DECLINE":
-            if not isinstance(reason, str) or not 1 <= len(reason.strip()) <= MAX_REASON:
+            if (not isinstance(reason, str) or not 1 <= len(reason.strip()) <= MAX_REASON
+                    or has_control_character(reason)):
                 raise UploadRefused(422, "UPLOAD_DECISION_INVALID", {"field": "reason"})
             reason = reason.strip()
         elif decision == "ACCEPT":

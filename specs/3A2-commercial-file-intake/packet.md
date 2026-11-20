@@ -53,7 +53,7 @@ only, as expected), V15 (20), V16 (21), V17 (22), V18 (API 9). P2: without `CASC
 
 ## Mid-build questions: 2 (`mid-build-questions.md`)
 
-- Q1: §4 put file I/O, `pathlib` and SQLAlchemy names where guard rule 8 refuses them. I followed the evidence-domain
+- Both answered (D-3A2.17, D-3A2.18; fix round 1 below). Original text: Q1: §4 put file I/O, `pathlib` and SQLAlchemy names where guard rule 8 refuses them. I followed the evidence-domain
   precedent: the key files are in an adapter, re-exported by composition, with `key_dir: str | None`, plus one
   guard domain-entry line. Awaiting a ruling.
 - Q2: where `commercial_upload.summary` is served (not served now), and which words the access 401/403 carry
@@ -76,3 +76,33 @@ Full backend suite; a real `create_app` with a key directory against a database 
 the routes through `LocaleMiddleware` in another locale.
 
 USER_REVIEW_REQUIRED: not for this unit (non-screen). Q1, Q2 and Q6 are owner-queue defaults.
+
+
+## Fix round 1 (review.md r1 ACCEPT with findings; rulings D-3A2.16/17/18)
+
+- Merged `task/3A2-midbuild-answers` (spec rev 2.1) and `main` (3A4). Index conflicts kept both sides; 0065 still
+  chains on `0064_person_on_work`. `_scrubbed` now also decorates 3A4's `intake_revisions` and `site_zones` (the
+  existing `latest_revisions` already had it); svc 21 passes (D-3A2.16).
+- D-3A2.17 plant: an `os.open` appended to `commercial/uploads.py` fails `check-architecture` (configuration
+  persistence, rule 8: "Storage technology above the adapter layer ... uploads.py:354"); reverted, guard passes.
+- D-3A2.18: `Counts` (`_counts`) now carries `words` and `text` from `commercial_upload.summary`; the 401s carry
+  `person.person_required`, 403 role carries `person.person_role_required`, 403 `SITE_SCOPE_FORBIDDEN` carries new
+  `commercial_upload.site_forbidden` ("No access to Site {site_code}.", params `site_code`); the two copied keys are
+  deleted.
+- F1: `test_3b_every_pseudonymisation_row`, 15 cases (every §3.4 row and condition, plus the negatives and an
+  outside-table field), expected values from the §3.4 formula written out in the test. Plant "CHARGE METER subject
+  not pseudonymised" fails `[CHARGE meter]`; reverted.
+- F2: service `test_11b`, API `test_1c`, Postgres test 5 (a real second tenant): Kobo<->Kisiwa, Site<->organisation,
+  other tenant's real ID, byte-equal 404 bodies, no decision written. Plant "drop the Site check in `_load`" fails
+  both; reverted.
+- F3: a character below U+0020 or U+007F in `X-File-Name` or the decline reason is 422 (`UPLOAD_BAD_REQUEST`
+  `file_name`, `UPLOAD_DECISION_INVALID` `reason`); cases added to API 1/1b and service 11. Plant (detector always
+  False) fails 4 tests; reverted.
+- 3A4 L1 (`test_3a4_commercial_months.py`): `test_02_a_lone_correction_in_place_makes_the_stamp_stale`. Plant
+  "digest over `record_id` only" fails it and the formula test; reverted.
+- Reviews copied: `specs/3A2-commercial-file-intake/review.md` (3A4's `review.md` was already on main).
+- Runs (worktree PYTHONPATH verified: `assetops_backend`, `assetops_contracts` from `AssetOpsV1-3a2`): 3A2 service+API,
+  3A4 months, 3A1 service: 125 passed (10.7 s). 3A2 + 3A4 Postgres via `heavy-slot.sh --db` on `assetops_test`
+  (harness-routed run DBs): 49 passed, 0 skipped. Regression (3A1 Postgres, 3C0a x5, pg harness): 133 passed
+  (71 s). `check-architecture` and `check-agent-workflow` passed. Fast check-all: see the commit message / final
+  report.

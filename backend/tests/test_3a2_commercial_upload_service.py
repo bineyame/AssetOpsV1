@@ -342,6 +342,72 @@ def test_4_goldens_and_the_expense_categories() -> None:
         assert pseudonymise(record, KEY)["body"]["counterparty_ref"] == expected, category
 
 
+def _hm(cls: str, raw: str) -> str:
+    """The spec §3.4 formula, written out here so the test does not call the code under test."""
+    import hashlib
+    import hmac
+    return f"{cls}-" + hmac.new(KEY, f"{cls}\x1f{raw}".encode("utf-8"), hashlib.sha256).hexdigest()[:32]
+
+
+def _rec(kind: str, subject_kind: str | None = None, subject_ref: str | None = None, **body) -> dict:
+    out: dict = {"kind": kind, "other": "KEEP-ME", "body": {"note": "KEEP-ME", **body}}
+    if subject_kind is not None:
+        out["subject"] = {"kind": subject_kind, "ref": subject_ref}
+    return out
+
+
+#: (row label, record, [(path, class)] that must change, [path] that must stay raw), one case per spec §3.4 row/condition.
+_TABLE = [
+    ("CHARGE customer", _rec("CHARGE", "CUSTOMER", "R-SUBJ", account_ref="R-ACC"),
+     [("subject.ref", "C"), ("body.account_ref", "C")], []),
+    ("CHARGE meter", _rec("CHARGE", "METER", "R-SUBJ", account_ref="R-ACC"),
+     [("subject.ref", "M"), ("body.account_ref", "C")], []),
+    ("CHARGE site stays raw", _rec("CHARGE", "SITE", "R-SUBJ", account_ref="R-ACC"),
+     [("body.account_ref", "C")], ["subject.ref"]),
+    ("RECEIPT", _rec("RECEIPT", "CUSTOMER", "R-SUBJ", payer_ref="R-PAY"),
+     [("subject.ref", "C"), ("body.payer_ref", "C")], []),
+    ("ADJUSTMENT customer", _rec("ADJUSTMENT", "CUSTOMER", "R-SUBJ", authorised_by_ref="R-AUTH"),
+     [("subject.ref", "C"), ("body.authorised_by_ref", "P")], []),
+    ("ADJUSTMENT meter", _rec("ADJUSTMENT", "METER", "R-SUBJ", authorised_by_ref="R-AUTH"),
+     [("subject.ref", "M"), ("body.authorised_by_ref", "P")], []),
+    ("ADJUSTMENT site stays raw", _rec("ADJUSTMENT", "SITE", "R-SUBJ", authorised_by_ref="R-AUTH"),
+     [("body.authorised_by_ref", "P")], ["subject.ref"]),
+    ("EXPENSE staff", _rec("EXPENSE", category="STAFF", counterparty_ref="R-CP"),
+     [("body.counterparty_ref", "P")], []),
+    ("EXPENSE collection", _rec("EXPENSE", category="COLLECTION", counterparty_ref="R-CP"),
+     [("body.counterparty_ref", "P")], []),
+    ("EXPENSE fuel stays raw", _rec("EXPENSE", category="FUEL", counterparty_ref="R-CP"),
+     [], ["body.counterparty_ref"]),
+    ("STORAGE_MOVEMENT", _rec("STORAGE_MOVEMENT", customer_ref="R-CUST"), [("body.customer_ref", "C")], []),
+    ("CUSTOMER_METER_READ", _rec("CUSTOMER_METER_READ", "METER", "R-SUBJ", meter_ref="R-MT"),
+     [("subject.ref", "M"), ("body.meter_ref", "M")], []),
+    ("METER_ASSIGNMENT", _rec("METER_ASSIGNMENT", "METER", "R-SUBJ", meter_ref="R-MT", customer_ref="R-CUST"),
+     [("subject.ref", "M"), ("body.meter_ref", "M"), ("body.customer_ref", "C")], []),
+    ("FLEET_ROSTER", _rec("FLEET_ROSTER", tag_ref="R-TAG"), [("body.tag_ref", "P")], []),
+    ("all others", _rec("BUDGET_LINE", "SITE", "R-SUBJ", customer_ref="R-CUST", meter_ref="R-MT"),
+     [], ["subject.ref", "body.customer_ref", "body.meter_ref"]),
+]
+
+
+def _at(obj: dict, path: str):
+    for part in path.split("."):
+        obj = obj[part]
+    return obj
+
+
+@pytest.mark.parametrize("label,record,changed,raw", _TABLE, ids=[t[0] for t in _TABLE])
+def test_3b_every_pseudonymisation_row(label, record, changed, raw) -> None:
+    before = json.loads(json.dumps(record))
+    out = pseudonymise(record, KEY)
+    assert record == before  # not mutated
+    for path, cls in changed:
+        assert _at(out, path) == _hm(cls, _at(before, path)), (label, path)
+        assert _at(out, path) != _at(before, path)
+    for path in raw:
+        assert _at(out, path) == _at(before, path), (label, path)
+    assert out["other"] == "KEEP-ME" and out["body"]["note"] == "KEEP-ME"  # a field outside the table stays raw
+
+
 def test_5_a_refused_record_keeps_its_own_code(w) -> None:
     bad = envelope([receipt(payer=" C-0412"), charge()], source_type="billing_export", source_system="kobo-vending")
     answer = w.svc.check(w.tid, w.kobo, w.ana, encode(bad))
@@ -410,7 +476,7 @@ def test_10_provenance_cap(people) -> None:
 
 def test_11_decline(w) -> None:
     upload = submit(w, b_bill())
-    for reason in (None, "", "   ", "x" * 501, 5):
+    for reason in (None, "", "   ", "x" * 501, 5, "x\u0000y", "a\nb", "a\x7fb", "\x1bx"):
         error = refused(lambda: w.svc.decide(w.tid, w.kobo, w.fiona, upload["upload_id"], "DECLINE", reason))
         assert (error.code, error.params) == ("UPLOAD_DECISION_INVALID", {"field": "reason"})
     error = refused(lambda: w.svc.decide(w.tid, w.kobo, w.fiona, upload["upload_id"], "ACCEPT", "why"))
@@ -421,6 +487,32 @@ def test_11_decline(w) -> None:
     assert store_rows(w) == (0, 0, 0, 0, 1, 1)
     error = refused(lambda: accept(w, upload))
     assert (error.status, error.code) == (409, "UPLOAD_ALREADY_DECIDED")
+
+
+def test_11b_another_scope_or_tenant_is_not_found(w, people) -> None:
+    kisiwa = UploadScope(people.kisiwa, KISIWA)
+    kobo_up = submit(w, b_bill())
+    kisiwa_up = w.svc.submit(w.tid, kisiwa, w.ana, encode(envelope(
+        [charge("KISIWA-CH-0001", site=KISIWA)], source_type="billing_export", source_system="kobo-vending")),
+        file_name="k.json")
+    org_up = w.svc.submit(w.tid, w.org, w.ana, encode(b_budget()), file_name="b.json")
+    ids = [kobo_up["upload_id"], kisiwa_up["upload_id"], org_up["upload_id"]]
+    scopes = [w.kobo, kisiwa, w.org]
+    unknown = refused(lambda: w.svc.get(w.tid, w.kobo, str(uuid4())))
+    for i, scope in enumerate(scopes):
+        for j, upload_id in enumerate(ids):
+            if i == j:
+                assert w.svc.get(w.tid, scope, upload_id)["upload_id"] == upload_id
+                continue
+            for call in (lambda: w.svc.get(w.tid, scope, upload_id),
+                         lambda: w.svc.decide(w.tid, scope, w.fiona, upload_id, "ACCEPT")):
+                error = refused(call)
+                assert (error.status, error.code, error.params, error.words) == (
+                    unknown.status, "UPLOAD_NOT_FOUND", unknown.params, unknown.words), (i, j)
+    for scope in scopes:  # another tenant's real ID
+        for upload_id in ids:
+            assert refused(lambda: w.svc.get(people.beta, scope, upload_id)).code == "UPLOAD_NOT_FOUND"
+    assert store_rows(w)[-1] == 0  # no decision was written by any refused attempt
 
 
 def test_12_a_decision_between_the_outside_check_and_the_lock(w) -> None:

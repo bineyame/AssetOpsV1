@@ -30,7 +30,7 @@ from assetops_backend.accounts.permissions import PersonRefused, person_step, ro
 from assetops_backend.accounts.principal import person_from_request
 from assetops_backend.commercial.model import StoreRefused
 from assetops_backend.commercial.uploads import (MAX_UPLOAD_BYTES, Actor, CommercialUploads, UploadRefused,
-                                                 UploadScope)
+                                                 UploadScope, has_control_character)
 from assetops_backend.finding_api import Access, Scope, development_access
 from assetops_backend.i18n import Message, message, render
 from assetops_backend.reading_upload_api import _body_within
@@ -70,9 +70,12 @@ def _file_name(request: Request) -> str | None:
     if raw is None:
         return None
     try:
-        name = urllib.parse.unquote(raw, errors="strict").strip()
+        decoded = urllib.parse.unquote(raw, errors="strict")
     except UnicodeDecodeError:
         return None
+    if has_control_character(decoded):  # F3: never stored, never a store fault
+        return None
+    name = decoded.strip()
     if not 1 <= len(name) <= MAX_FILE_NAME or "/" in name or "\\" in name:
         return None
     return name
@@ -88,17 +91,18 @@ def build_commercial_upload_router(uploads: CommercialUploads | None, scope: Sco
         if refused.reason == "UNAVAILABLE":
             return _unavailable()
         if refused.reason == "PERSON_REQUIRED":
-            return _refusal(401, "PERSON_REQUIRED", message("commercial_upload.person_required"))
+            return _refusal(401, "PERSON_REQUIRED", message("person.person_required"))
         if refused.reason == "TENANT" and site_code is not None:
             return _site_not_found(site_code)
-        return _refusal(403, "PERSON_ROLE_REQUIRED", message("commercial_upload.role_required"), refused.params)
+        return _refusal(403, "PERSON_ROLE_REQUIRED", message("person.person_role_required"), refused.params)
 
     def open_site(request: Request, site_code: str, command: str) -> tuple[UUID, UploadScope, Actor] | JSONResponse:
         refusal = access(request, site_code)
         if refusal == 401:
-            return _refusal(401, "UNAUTHENTICATED", message("commercial_upload.person_required"))
+            return _refusal(401, "UNAUTHENTICATED", message("person.person_required"))
         if refusal == 403:
-            return _refusal(403, "SITE_SCOPE_FORBIDDEN", message("commercial_upload.role_required"))
+            return _refusal(403, "SITE_SCOPE_FORBIDDEN", message("commercial_upload.site_forbidden", site_code=site_code),
+                             {"site_code": site_code})
         try:
             found = scope(site_code)
         except unavailable:
@@ -127,11 +131,11 @@ def build_commercial_upload_router(uploads: CommercialUploads | None, scope: Sco
             except unavailable:
                 return _unavailable()
         if person is None:
-            return _refusal(401, "PERSON_REQUIRED", message("commercial_upload.person_required"))
+            return _refusal(401, "PERSON_REQUIRED", message("person.person_required"))
         for role in roles:
             if person.has_role(role, None):
                 return person.tenant_id, UploadScope(None, None), Actor(person.person_id, role)
-        return _refusal(403, "PERSON_ROLE_REQUIRED", message("commercial_upload.role_required"),
+        return _refusal(403, "PERSON_ROLE_REQUIRED", message("person.person_role_required"),
                         {"roles": list(roles)})
 
     async def run(work: Callable[[], dict[str, Any]], status: int) -> JSONResponse:

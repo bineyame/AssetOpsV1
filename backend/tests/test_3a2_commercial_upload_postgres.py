@@ -235,7 +235,7 @@ def test_7_a_read_data_error_leaves_scrubbed(w) -> None:
 
 # --- 5: the reads round-trip -----------------------------------------------------------------------------------
 
-def test_5_reads_round_trip(w) -> None:
+def test_5_reads_round_trip(w, engine) -> None:  # noqa: F811
     site = _submit(w)
     org = _submit(w, b_budget(), w["org"])
     w["svc"].decide(w["tid"], w["org"], w["amina"], org["upload_id"], "ACCEPT")
@@ -251,6 +251,9 @@ def test_5_reads_round_trip(w) -> None:
     assert [r.upload.id for r in w["store"].uploads_in_scope(w["tid"], None, 50)] == [accepted.upload.id]
     assert w["store"].uploads_in_scope(w["tid"], w["kisiwa_id"], 50) == ()
     assert w["store"].upload(uuid4(), record.upload.id) is None
+    other = Seeder(engine).add_tenant("beta")  # a real second tenant, a real upload ID
+    assert w["store"].upload(other, record.upload.id) is None
+    assert w["store"].upload(w["tid"], record.upload.id) is not None
     answer = w["svc"].get(w["tid"], w["org"], org["upload_id"])
     assert answer["state"] == "ACCEPTED" and answer["result"]["counts"] == answer["preview"]
     with pytest.raises(UploadRefused):

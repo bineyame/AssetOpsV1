@@ -126,7 +126,7 @@ def _request_steps(c, people, base) -> None:
     bad(post_file(c, people, "ana", base, dry="maybe"), "dry_run")
     bad(post_file(c, people, "ana", base, query="&file_name=x.json"), "file_name")
     bad(post_file(c, people, "ana", base, headers={"content-type": "application/json"}), "file_name")
-    for name in ("%FF", "a%2Fb.json", "a\\b.json", "%20%20", "x" * 201):
+    for name in ("%FF", "a%2Fb.json", "a\\b.json", "%20%20", "x" * 201, "a%00.json", "a%0A.json", "a%1B.json", "a%7F.json"):
         bad(post_file(c, people, "ana", base, headers={**NAME, "x-file-name": name}), "file_name")
     assert code(post_file(c, people, "ana", base, query="&reader=csv-v9")) == (422, "UPLOAD_READER_UNKNOWN")
     assert code(post_file(c, people, "ana", base, headers={**NAME, "content-type": "text/csv"})) == (
@@ -137,6 +137,31 @@ def _request_steps(c, people, base) -> None:
     assert code(c.post(f"{base}/{uuid4()}/decision", content=b"{}", headers=as_(people, "fiona"))) == (
         415, "JSON_REQUIRED")
     assert code(decide(c, people, "fiona", "not-a-uuid", {"decision": "ACCEPT"}, base)) == (404, "UPLOAD_NOT_FOUND")
+
+
+def test_1b_decline_reason_with_a_control_character(people) -> None:
+    c = client(people)
+    upload = post_file(c, people, "ana", dry="false").json()
+    for reason in ("x\u0000y", "x\ny"):
+        response = decide(c, people, "fiona", upload["upload_id"], {"decision": "DECLINE", "reason": reason})
+        assert code(response) == (422, "UPLOAD_DECISION_INVALID") and response.json()["params"] == {"field": "reason"}
+    assert c.get(f"{SITE}/{upload['upload_id']}", headers=as_(people, "fiona")).json()["state"] == "WAITING"
+
+
+def test_1c_another_Site_or_the_organisation_is_not_found(people) -> None:
+    c = client(people)
+    mine = post_file(c, people, "ana", dry="false").json()["upload_id"]
+    org = post_file(c, people, "fiona", ORG, obj=b_budget(), dry="false").json()["upload_id"]
+    unknown = c.get(f"{SITE}/{uuid4()}", headers=as_(people, "fiona"))
+    for via, upload_id in ((SITE, org), (ORG, mine)):
+        got = c.get(f"{via}/{upload_id}", headers=as_(people, "fiona"))
+        assert code(got) == (404, "UPLOAD_NOT_FOUND") and got.content == unknown.content
+        done = decide(c, people, "fiona", upload_id, {"decision": "ACCEPT"}, via)
+        assert code(done) == (404, "UPLOAD_NOT_FOUND") and done.content == unknown.content
+    foreign = c.get(f"{ORG}/{org}", headers=as_(people, "hugo"))  # another tenant's executive, a real ID here
+    assert code(foreign) == (404, "UPLOAD_NOT_FOUND") and foreign.content == unknown.content
+    assert code(decide(c, people, "hugo", org, {"decision": "ACCEPT"}, ORG)) == (404, "UPLOAD_NOT_FOUND")
+    assert c.get(f"{SITE}/{mine}", headers=as_(people, "fiona")).json()["state"] == "WAITING"
 
 
 # --- 2, 3, 4: roles, the person, the decision body -----------------------------------------------------------------
