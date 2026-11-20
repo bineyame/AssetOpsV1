@@ -3,7 +3,7 @@
  "steps": [
   {
    "at": "2026-11-06T09:00:00+00:00",
-   "entered_by": "loader:ds3",
+   "entered_by": "service:ds3-loader",
    "batch": {
     "format_version": 1,
     "tenant_code": "lakeside-power",

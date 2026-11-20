@@ -35,6 +35,7 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-5A.13` A blocked target is held but refused (NOT_CALCULATED_YET) and never computed instead · live · specs/5a-targets/rulings.md
 - `D-5A.14` The declarer is the intake of the line's latest revision; an unchanged re-upload does not re-declare · live · specs/5a-targets/rulings.md
 - `D-5A.15` A cost with no budget line is taken at its actual, labelled (owner Q7 default) · live · specs/5a-targets/rulings.md
+- `D-5A.16` An assumed target carries the origins of the values it is computed from; none is unknown · live · specs/5a-targets/rulings.md
 - `D-ON1.1` One onboarding file, checked then applied; additive, re-runnable, changes refused · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.2` Sites created through import_site from a generated Site document · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.3` File roles granted at onboarding by service:onboarding (refines D-3C0A.7) · superseded by D-ON1.9 · specs/ON1-operator-tenant/rulings.md
