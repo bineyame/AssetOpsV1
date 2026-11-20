@@ -393,3 +393,22 @@ should follow:
 - Lakeside: a chronic gap with a seasonal swing, worst in July.
 - Harvest Cold: building at Mwea and Kirinyaga.
 - Metro Bus: building at Embakasi, on plan at Kasarani, and a September dip at Ruiru.
+
+## MB6 (DS1p fix round 1, 2026-11-20): the plan-side `ASSUMPTION` leaf list
+
+- **The month's own list is correct.**
+  - The `ASSUMPTION` entry names the plan leaves with no target line whose actual value differs from the plan's.
+  - Mto's `unmapped_kwh` qualifies in October only because of October's meter swap (MAP-1). In history it is `zero`, as
+    is the plan's default, so no assumption is in play.
+  - Carrying October's list would label an assumption that the month does not make.
+- **H13's key: the built default, tightened.** A `leaves` subject matches by kind (`record_kind`, `cause`,
+  `carried_as`), **and the history list must be a subset of October's list**. No leaf may appear that October's target
+  side does not name.
+  - Every other subject matches whole.
+  - H4b keeps the exact per-month comparison of the full list against the independent model. Together the two checks
+    give completeness of kind, no stray leaves, and exactness.
+  - H13 does not re-derive the list itself: that would duplicate the helper's rule inside the check, which H4b already
+    covers independently.
+- **DS1p change:** add the subset condition to H13's `leaves` match, and plant a stray leaf (for example, add `om` to one
+  history plan list) to show it fails. No figure or file other than `check_manifest.py` changes. Then send DS1p to the
+  verification re-review.
