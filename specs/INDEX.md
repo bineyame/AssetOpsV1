@@ -21,7 +21,7 @@ finished work are in `archive/agent-history/`.
 | mockup-vnext-demo-items | Mock-up demo items | finished | `mockup-vnext-demo-items/packet.md` | small |
 | mockup-vnext-professional | Mock-up pass | superseded | `mockup-vnext-professional/packet.md` | small |
 | 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a merged | `3C1-person-on-commands/spec.md` | 15 KB |
-| RC4-F1 | The database a URL really connects to: one resolver for every RC4 decision (0.5 unit; merges before 3A3) | live — spec rev 1 | `RC4-F1-database-name/spec.md` | 11 KB |
+| RC4-F1 | The database a URL really connects to: one resolver for every RC4 decision (0.5 unit; merges before 3A3) | in_review — spec rev 1, packet | `RC4-F1-database-name/spec.md` | 11 KB |
 | 3A3 | Emulated native exports and the source contract test (3.25 units) | live — spec rev 2, handshake answered | `3A3-emulators-contract-test/spec.md` | 43 KB |
 | ON1 | Operator tenant from one onboarding file; emulated roles granted automatically, real files refused until ON1b; served tenant; key erasure; runbook (2.0 units) | live — spec rev 3 (re-scope), handshake answered | `ON1-operator-tenant/spec.md` | 40 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |

@@ -55,6 +55,8 @@ PY = Path(sys.executable)
 PW = os.environ.get("ASSETOPS_PG_PASSWORD", "assetops-local-dev")
 PG_PORT = os.environ.get("ASSETOPS_PG_PORT", "55432")
 PG_ADMIN = f"postgresql://assetops:{PW}@127.0.0.1:{PG_PORT}/assetops"
+#: RC4-F1 (D-RC4F1.2): libpq target variables the children never inherit; equal to the backend's `PG_TARGET_ENV`.
+PG_TARGET_ENV = ("PGDATABASE", "PGHOST", "PGHOSTADDR", "PGPORT", "PGSERVICE", "PGSERVICEFILE")
 DB_RE = re.compile(r"^assetops_(demo3|polish)_[a-z0-9]{1,20}_test$")
 WORK_PREFIXES = ("demo3", "polish")
 MARKER = ".demo3-combined-work"
@@ -850,6 +852,8 @@ class Demo:
     # ---- environment -------------------------------------------------------------------------------------------
     def env(self, *, keys: bool = False) -> dict[str, str]:
         out = dict(os.environ)
+        for k in PG_TARGET_ENV:
+            out.pop(k, None)
         parts = ["backend", "backend/tests", "contracts", "gateway", "simulator", "host", "host/tests",
                  "gateway/tests", "tools"]
         out["PYTHONPATH"] = os.pathsep.join(str(self.tree / p) for p in parts)

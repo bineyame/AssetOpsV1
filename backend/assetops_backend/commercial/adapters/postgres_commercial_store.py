@@ -26,7 +26,7 @@ from typing import Callable, Mapping, TypeVar
 from uuid import UUID
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Connection, make_url
+from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DBAPIError, InterfaceError, OperationalError
 
 from assetops_backend.commercial.model import (ExistingRecord, IntakeRow, IntakeSummary, Plan, RejectionRow,
@@ -36,11 +36,6 @@ from assetops_backend.commercial.model import (ExistingRecord, IntakeRow, Intake
 _F = TypeVar("_F", bound=Callable)
 #: D-3A2.2: a connection failure is retried, not scrubbed; the routes answer 503 for these.
 UNAVAILABLE = (OperationalError, InterfaceError)
-
-
-def database_name(url: str) -> str | None:
-    """The database name of a SQLAlchemy URL (the RC4 settings check reads it)."""
-    return make_url(url).database
 
 
 def _scrubbed(method: _F) -> _F:

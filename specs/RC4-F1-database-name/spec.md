@@ -1,6 +1,6 @@
 # RC4-F1: the database a URL really connects to (fix unit, implementer spec)
 
-Status: **rev 1**, 2026-11-20. Decisions with reasons: `rulings.md` (D-RC4F1.1, D-RC4F1.2). Questions during the
+Status: **in_review** (rev 2: mid-build answers), 2026-11-20. Decisions with reasons: `rulings.md` (D-RC4F1.1 to D-RC4F1.5). Questions during the
 build: `mid-build-questions.md`. No separate handshake: the 3A3 handshake raised it (3A3 R1, ON1 R4) and this spec
 answers it; a Sonnet reviewer may still ask before code (units of 2 or fewer, `.ai/ROLE_CONFIG.md`).
 
@@ -81,7 +81,8 @@ The reason never holds a value from the URL (it may hold a password); only a key
 - `adapters/postgres_commercial_store.database_name` is **deleted** (its one caller is the composition). 3A3's
   `refuse_operator_database` and ON1's onboarding use `database_target` (their specs rev 2 say so).
 - `chain/backfill.py` (same class, protects the walkthrough databases, not RC4): on a non-dry run with `url` set, the
-  protected check reads `database_target(url).name`; `DatabaseTargetUnclear` prints `Database URL is not plain
+  protected check reads `database_target(url).name` and also the injected reader's `database_name()`; either
+  protected refuses (D-RC4F1.4); `DatabaseTargetUnclear` prints `Database URL is not plain
   (<reason>); nothing was written.` and returns 2. With an injected reader and no `url`, `reader.database_name()` as
   today.
 - `tools/demo_combined.py` `Demo.env()`: after `out = dict(os.environ)`, pop every `PG_TARGET_ENV` name (a literal
@@ -103,7 +104,8 @@ query hole needs a hand-edited URL; none can reach an operator database or real 
 | `backend/assetops_backend/chain/backfill.py` | the protected check (§2.2) |
 | `tools/demo_combined.py` | `env()` pops `PG_TARGET_ENV` |
 
-No migration, no new guard, no message catalogue change (the settings refusal is a start-up `ConfigurationError`).
+No migration, one guard line (`database_target.py` in rule 8's `$pgReaders`, D-RC4F1.3; the coordinator adds it), no
+new guard, no message catalogue change (the settings refusal is a start-up `ConfigurationError`).
 
 ## 4. Tests (no database; every URL uses host `rc4.invalid` port 1 except where the host is the point)
 
@@ -137,7 +139,10 @@ No migration, no new guard, no message catalogue change (the settings refusal is
    (built as `backend/tests/test_demo_combined_links.py` builds its `Demo`) with `PGDATABASE`, `PGHOST`,
    `PGSERVICE` set by `monkeypatch` holds none of the six names.
 7. **No caller left:** an AST scan of `backend/assetops_backend` and `tools` finds no `make_url(...).database`
-   attribute read and no import of `database_name` from `postgres_commercial_store`.
+   attribute read and no import of `database_name` from `postgres_commercial_store`. One exemption, by path:
+   `tools/sweep-setup-cache.py` (backlog `RC4-F1-tools`), with a companion test that the scan sees its read (D-RC4F1.5).
+8. **Narrow admission (D-RC4F1.3):** `database_target.py`'s only driver import is `from sqlalchemy.engine import
+   make_url`, and it calls no `get_dialect`, `create_engine`, `create_connect_args` or `connect`.
 
 Regression beside them: `test_3a2_commercial_upload_api.py` (all), `test_3a2_commercial_upload_service.py`,
 `test_ch2_backfill_cli.py`, `test_demo_combined_links.py`, check-all. No Postgres file is needed: nothing connects.
@@ -154,6 +159,7 @@ Regression beside them: `test_3a2_commercial_upload_api.py` (all), `test_3a2_com
 | F6 | Backfill reads `reader.database_name()` when `url` is set | 5 |
 | F7 | `Demo.env()` keeps `PGDATABASE` | 6 |
 | F8 | Drop `NAME.fullmatch` | 3 (`NAME_NOT_PLAIN`) |
+| F9 | Add `import psycopg` to `database_target.py` | 8 |
 
 ## 6. Done (questions; each can fail)
 
