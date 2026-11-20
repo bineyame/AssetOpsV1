@@ -136,3 +136,33 @@ reviewed decision page; levels, one primary, the stepper, no tiles, no Verified 
   worth a look in IA-2d's drawer pass.
 - The act log persists in `uxMock()` for the tab; a long walkthrough grows "Since you last looked" without a cap (the 7-row cap is
   skipped inside drawers).
+# Review IA-1c r2 (verification re-review): decision shape, inbox, top bar
+
+Reviewer: fresh Claude (not the author). Depth: verification (W5). Branch task/IA-1c-decision, head c8464f0c5, diff c139ac40b..c8464f0c5, worktree /opt/assetecon/AssetOpsV1-ia1c (read only).
+
+## Summary (r2)
+- **Verdict: ACCEPT.** M1-M3, L1, L2 are fixed as classes (D-IA.36-42). No new Medium or High. Two Lows below, neither blocks the owner's G2 look.
+- Top bar reads deliberate at 390, 761, 800, 900, 1024, 1280, 1440 (looked at Metro portfolio and Lakeside decision): one row 761+, period short form at 761-900, search icon 1024-1280, full at 1440, two rows at 390 (phone form). No ellipsis, no clipped control, period menu opens inside the window.
+- Rerun: ia_gates 52 runs all as expected (771 s); ia_shots full 504 measured, 0 bad.
+- My plants: (1) iaFitTopbar without the two-row fallback (final level 4) bites in the sweep (5 BAD at 390-900); (2) level 5 period row (flex:0 0 100%) removed bites "data-fit 5 but 1 row band, not 2" (17 BAD at 390/761). A plant removing level 4 does NOT fail, correctly: level 5 is the fallback and still fits.
+- Builder's UXI_PLANT=stickyh rerun by me in a scratch copy: FAIL "options heading at 8 px (sticky bar bottom 39)".
+- Cited, not rerun: uxi 386/0, G3 36/36, plan_switch 785/0, check_manifest (builder, same head).
+
+## Findings fixed as classes
+- M1 (D-IA.36): iaInPage + capture listener, anchor gate and plant (SHAPE anchor, UXI anchor) in ia_gates. Fixed.
+- M2 (D-IA.37/41): measured collapse 0-5, ends in the phone's own form; gates past/reach/trunc/midword/rows/order/full/asof; plants fit, truncate, wrap, phonesearch, midword, asof. Fixed.
+- M3 (D-IA.38): keep rule + shape_check + ia_shots crumb measure + plants. Fixed.
+- L1 (D-IA.39): nolog and sitecrumb plants are in ia_gates and fail. L2 (D-IA.40): decscope plant fails. Fixed.
+
+## Builder's departures
+1. Level-5 CSS (period flex 100%, left-anchored menu, hidden Ctrl K hint, scope flex): accepted. Each is needed for the ruled rows/reach clauses; no width, gap or label tuned. Menu anchored left verified at 800 (opens inside window). Register R755/R756 cover it; the Architect should note the period-on-own-row detail in D-IA.41.
+2. longname control changed: accepted. The ruled control (240 px padding alone) cannot pass by construction: padding is not breakable. A long name made of words is the true control. Ask the Architect to amend the ruling text.
+3. midword plant with !important: accepted; needed because the sheet's [data-fit="5"] rule outranks a plain selector.
+4. stickyh plant outside ia_gates: accepted, **L-A (Low)**: ia_gates cannot pass the page-path argument, so this one plant is not in the standing list; run it by hand (it bites, above) or give ia_gates an args slot.
+5. Inbox-open shots skipping reach: accepted; the scrim covers the bar by design; the drawer panel-inside-window check still runs.
+
+## Low
+- **L-B**: at 390 the period chip sits alone on row 2 with empty space beside it (level 5, by ruling). Reads fine, not wasted effort to change; owner call at G2.
+
+## Could not verify
+layout-evidence.mjs (needs served ports, off limits); uxi, G3, plan_switch, check_manifest not rerun (cited).
