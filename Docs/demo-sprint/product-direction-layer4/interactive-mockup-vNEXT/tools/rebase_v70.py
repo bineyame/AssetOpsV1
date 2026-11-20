@@ -76,6 +76,8 @@ HOOKS = {
   ("href=\"previews/portfolio-previous.png\"", "href=\"../../../../frontend/mockups/v70/previews/portfolio-previous.png\""),
  ],
  'outcomes.js': [
+  # a row that does not apply says so with its own words (review r2 M3: the captive fleet's revenue)
+  ("if(x.st==='notyet')return `<div class=\"ob ob-later\">", "if(x.st==='na')return `<div class=\"ob ob-later\"><div class=\"ob-sum\">${obName(key,name,def)}<span class=\"oc-chip tone-none\">Not applicable</span><span class=\"ob-head muted\">${x.head}</span></div></div>`;\n if(x.st==='notyet')return `<div class=\"ob ob-later\">"),
   # an empty history says what it means (placeholder audit, 20 Nov): nothing yet, not "not available yet"
   ('<p class="ob-none">${NAY}</p>', '<p class="ob-none">Nothing yet</p>'),
   # design rev 16.9/16.10 §2.0 named change 1 (OD-21): contribution is the outcome above Grow and Optimize, not a Grow row

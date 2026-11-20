@@ -588,6 +588,7 @@ function uxCreators(op, d, oid) {
   if (uxCapital(op, oid) === 'expansion') return [[sm, 'the operational Actions'], [fin, 'any notice or claim']];
   if (uxChooserRole(d) === 'FINANCE_AND_COMMERCIAL_LEAD') return [[fin, 'the Actions']]; /* a money Finding's decision */
   if (k === 'STOPGAP_PLUS_CLAIM') return [[fin, 'the claim and its notice'], [sm, 'the operational Actions']];
+  if (k === 'SUPPLIER_REMEDY') return [[fin, 'the claim and notice Actions'], [sm, 'any operational step']]; /* r2 L5: a remedy's operational step is the Site manager's */
   if (UX_CLAIM_KINDS.includes(k)) return [[fin, k === 'COMMERCIAL_CORRECTION' ? 'the billing Actions' : 'the claim and notice Actions']];
   return [[sm, 'the Actions']];
 }
@@ -601,7 +602,7 @@ function uxCreatorText(op, d, oid) {
 /* the status line follows the real path (review r1 M2): a choice released at once never waited for approval; with nothing
    recommended, the first step says so */
 function uxDecSteps(id, st) {
-  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxRec(d), path = oid ? uxReleaseFor(op, oid).path : 'wait';
+  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxRec(d) || d.opts.find(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED'), /* r2 L2: with nothing recommended, the path of an option that can be chosen */ path = oid ? uxReleaseFor(op, oid).path : 'wait';
   const it = deciderOf(id).item ? itemOf(op, deciderOf(id).item) : null, atOnce = st.key === 'released' && it && releaseOf(op, it.item).at;
   const tail = atOnce || path === 'at' ? ['Released at once'] : path === 'none' ? ['Actions go ahead'] : ['Awaiting approval', 'Actions released'];
   const steps = [st.key === 'none' ? 'No option recommended' : 'Recommended', 'Chosen', ...tail];
@@ -647,10 +648,12 @@ function uxDecisionPage(id, parts) {
   const valued = d.opts.filter(o => money(optEffect(OPT[o])[0]) && !isNoAction(o)), classes = [...new Set(valued.map(o => optClass(OPT[o])))];
   const oneClass = classes.length === 1 ? classes[0] : null, anyDv = valued.some(o => DV_OPT[o] && String(DV_OPT[o]).startsWith(DVTEXT));
   const head = `<section class="ux-dhd" aria-label="Decision status"><p class="ux-dmeta"><span>${SK[d.site].name}</span><span>Decides: ${who(op, D.p)}</span><span>${due ? `Due ${fdate(due)}` : 'No deadline'}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span></p>
-  ${uxDecStatus(id, st)}</section>`;
+  ${uxDecStatus(id, st)}${uxOpener(`uxhow-${id}`, 'How this works', 'ux-link ux-how')}</section>`;
   const pays = x ? whoPays(x) : '—';
   const noCost = /^\$0$/.test(String(wholeText(cv)).trim());
-  const recNum = x ? `<p class="ux-drec-n">${uxFigQ(`<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) && BASIS_WORDS[optBasis(rec)] ? `<span class="ux-drec-c">, ${BASIS_WORDS[optBasis(rec)]}</span>` : ''}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
+  /* a hero without a number shows the strongest fact the data holds (UX audit C17): the cover or credit at stake */
+  const SP = !money(ev) ? uxStakeParts(id) : {}, hero = SP.value ? `<p class="ux-drec-n"><b>${SP.value}</b> <span>${SP.note}</span></p>` : '';
+  const recNum = x ? `${hero}<p class="ux-drec-n${hero ? ' is-second' : ''}">${uxFigQ(hero ? wholeText(ev) : `<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) && BASIS_WORDS[optBasis(rec)] ? `<span class="ux-drec-c">, ${BASIS_WORDS[optBasis(rec)]}</span>` : ''}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
   let act = '';
   /* "Choose another option" only when another option can be chosen (review r2 M2 class) */
   const others = d.opts.filter(o => o !== rec && !isNoAction(o) && uxDisp(o) !== 'REJECTED' && uxDisp(o) !== 'RECOMMENDED');
@@ -664,19 +667,48 @@ function uxDecisionPage(id, parts) {
   const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o) && decBasis(d) !== 'RESTORE_REFERENCE', k = uxDisp(o), q2 = uxQual(o);
     const mark = money(e2) && !isNo && (!oneClass || optClass(y) !== oneClass) ? uxMark(optClass(y)) : '';
     const dv = money(e2) && !isNo && DV_OPT[o] ? dvTag(DV_OPT[o]) : '';
-    const go = st.key === 'choose' && !isRec && !isNoAction(o) && k !== 'REJECTED' && k !== 'RECOMMENDED' ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
+    const go = (st.key === 'choose' || st.key === 'none') && !isRec && !isNoAction(o) && k !== 'REJECTED' && k !== 'RECOMMENDED' ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
     const why = UX_NOREC && k !== y.disposition ? 'Deferred for now.' : (k === 'REJECTED' || k === 'DEFERRED' || (k === 'RECOMMENDED' && !isRec)) ? optWhy(y) : '';
     const result = isNo ? `The baseline${q2 && q2 !== 'baseline' ? ` <small class="ux-ocard-q">${q2}</small>` : ''}` : `${uxFigQ(wholeText(e2), q2, 'ux-ocard-q')} ${mark}${dv ? ` ${dv}` : ''}`;
     return `<article class="ux-ocard${isRec ? ' is-rec' : ''}${isNo ? ' is-base' : ''}${o === chosen ? ' is-chosen' : ''}" data-opt-card="${o}"><header><h3>${optLabel(o)}</h3>${o === chosen ? '<span class="status-pill is-approved">Chosen</span>' : isNo ? '<span class="ux-chip is-neutral">The baseline</span>' : uxDispBadge(d, o)}</header>
      <dl><div><dt>Result</dt><dd>${result}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)} <small>${whoPays(y)}</small></dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
      ${why ? `<p class="ux-ocard-why">${why}</p>` : ''}${go}</article>`; }).join('');
   const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">${BASIS_CARDS[decBasis(d)]}</h2><span class="ux-note">${oneQual && /^(?:over|to) /.test(oneQual) ? `Each result ${uxLcFirst(oneQual).replace(/ against no action$/, '')}` : 'Each result as stated on its card'}${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
-  const dialogs = st.key === 'choose' ? d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
+  const dialogs = st.key === 'choose' || st.key === 'none' ? d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
   const evidence = uxDrawer(`uxev-${id}`, 'Evidence and records', `<ul class="list">${T.records.map(([k, l]) => `<li>${fig(k, l)}</li>`).join('')}</ul>${(d.rights || []).map(rightsPanel).join('')}`, true);
-  const why = secD('Why we recommend it', `<div class="grid2">${sec('The reasoning', `<p class="prose">${T.why}</p>`)}${sec('What would change the recommendation', `<ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`)}</div>${parts.inner}<div id="uxwho-${id}">${secD('Who chooses, who approves, and the Actions', whoDecides(id), 'The accountable role chooses; the plan’s approval releases what waits', st.key === 'released')}</div>`, 'The reasoning, what drives the result, limits, cover, who pays, verification and all options in detail');
+  /* answer-titled sections, one level (the long-page standard; UX audit #8): each heading says its answer while closed */
+  const plain = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), first = s => (plain(s).match(/^.*?[.!?](?=\s|$)/) || [plain(s)])[0];
+  const failsOf = o => /obl-fail/.test(obligations(OPT[o])), fails = d.opts.filter(o => !isNoAction(o) && failsOf(o));
+  const limitsAns = x ? `${failsOf(rec) ? 'The recommendation breaks a limit' : 'The recommendation keeps every limit'}${fails.length ? `; ${num(fails.length)} option${fails.length === 1 ? ' breaks' : 's break'} one` : ', as every option does'}`
+    : `${fails.length ? `${num(fails.length)} option${fails.length === 1 ? ' breaks' : 's break'} a limit` : 'Every option keeps the limits'}`;
+  const costAns = x ? `${noCost ? 'No one-off cost' : `${wholeText(cv)} one-off${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}` : 'Each option’s cost is on its card';
+  const rejN = d.opts.filter(o => ['REJECTED', 'DEFERRED'].includes(uxDisp(o))).length, optN = d.opts.length;
+  const sections = [
+    [st.key === 'none' ? 'Why no option is recommended' : 'Why we recommend it', x ? first(T.why) : plain(uxNoRecReason(id)), `<p class="prose">${T.why}</p><h3 class="ux-sub-h">What would change the recommendation</h3><ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`],
+    ['What it changes', first(T.change), `${parts.anchor}${parts.cf}${parts.restore || ''}`],
+    ['Limits and cover', limitsAns, `${parts.protective ? `<p class="prose">${parts.protective}</p>` : ''}${parts.bound || ''}${parts.capacity || ''}${parts.protect || ''}${parts.cover || ''}`],
+    ['Cost and who pays', costAns, parts.costs || `<p class="prose">${x ? `${optLabel(rec)}: ${costAns}.` : 'Each option’s one-off cost and who pays it are on its card.'}</p>`],
+    ['How we will check it worked', `Three separate verdicts, ${T.verify.map(([k]) => k.toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' and $1')}; none given yet`, parts.verify],
+    ['All options in detail', `${num(optN)} option${optN === 1 ? '' : 's'}${BASIS_WORDS[decBasis(d)] ? ` ${BASIS_WORDS[decBasis(d)]}` : ''}${rejN ? `; ${num(rejN)} rejected or deferred, each with its reason` : ''}`, parts.comp]
+  ].filter(([, , b]) => plain(b));
+  const why = `<div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>`;
+  /* how the product works lives in help, not in the decision path; who decides and approves stays on the page (meta line) */
+  const howDrawer = uxDrawer(`uxhow-${id}`, 'How this works', `<div id="uxwho-${id}">${whoDecides(id)}</div>`, true);
   const actsDrawer = chosen ? uxDrawer(`uxacts-${id}`, 'The Actions', actionsOf(op, chosen).length ? `<ul class="list">${actionsOf(op, chosen).map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner === a.created_by ? ', who owns it' : `, owned by ${who(op, a.owner)}`}, due ${fdate(a.due)}</small></li>`).join('')}</ul>` : `<p>${uxCreatorText(op, d, chosen)}</p>`) : '';
-  return `${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}`;
+  /* context that stays (the long-page standard): once the recommendation scrolls away, a slim bar keeps the title, the key figure, the
+     state and the primary action; on a phone it sits at the bottom */
+  const stickyAct = st.key === 'choose' ? uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary') : st.key === 'approval' ? link('portfolio/act-first/plan', 'Review the plan', 'button') : st.key === 'released' ? uxOpener(`uxacts-${id}`, 'See the Actions', 'button') : '';
+  const sticky = `<div class="ux-dsticky" role="region" aria-label="This decision" data-ux-sticky><span class="ux-dsticky-t">${d.q}</span><span class="ux-dsticky-n">${x ? (money(ev) ? `${wholeText(ev)} <small>${uxQual(rec)}</small>` : `<small>${plain(ev)}</small>`) : ''}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span>${stickyAct}</div>`;
+  return `${sticky}${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}${howDrawer}`;
 }
+/* lists are capped at 7 rows, then "Show all" (the long-page standard); option comparisons are tables and are never cut */
+function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => { if (ul.closest('.ux-drawer')) return; const li = [...ul.children].filter(x => x.tagName === 'LI'); if (li.length <= 7) return;
+  if (!ul.id) ul.id = `uxcap-${i}`; li.slice(7).forEach(x => { x.hidden = true; x.dataset.uxOver = ''; }); ul.insertAdjacentHTML('afterend', uxCapNote(li.length, 7, ul.id)); }); }
+/* an answer-titled section: the label and its answer, visible when closed */
+const uxSecA = (label, answer, body) => `<details class="panel ux-disc ux-ans-sec"><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
+/* the sticky bar shows once the recommendation card has scrolled under the top bar */
+function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec'); if (!b || !r) return; const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on); }
+window.addEventListener('scroll', uxStickyTick, { passive: true }); window.addEventListener('hashchange', () => setTimeout(uxStickyTick, 50));
 
 /* ===== empty states that name their data (placeholder audit, gap 4): a not-available state carries data-na-path; the check
    fails it when the data holds a value at that path ===== */
@@ -694,7 +726,7 @@ function uxBoardsFromData() {
     const ru = siteM('ruiru').period.actual; [, r] = row(BOARD.ev, 'Departures against the timetable'); if (r && ru.departures_required != null) { r[1] = `${num(ru.departures_met)} of ${num(ru.departures_required)} required departures met in October`; r[2] = 'Recorded'; }
     for (const k of Object.keys(BOARD.ev || {})) { const c = BOARD.ev[k] && BOARD.ev[k].contrib; if (Array.isArray(c)) BOARD.ev[k].contrib = c.filter(x => !/^Energy billed against metered/.test(x[0])); }
     if (BOARD.ev?.cost) BOARD.ev.cost.sub = 'A captive fleet is judged on charging cost per required departure met; it earns no tariff revenue';
-    if (BOARD.ev?.grow) { BOARD.ev.grow.head = 'Revenue not applicable: charging is a cost centre'; BOARD.ev.grow.st = 'notyet'; }
+    if (BOARD.ev?.grow) { BOARD.ev.grow.head = 'Revenue not applicable: charging is a cost centre'; BOARD.ev.grow.st = 'na'; } /* r2 M3 */
   } catch (e) { /* the boards keep their text if a read fails */ }
 }
 uxBoardsFromData.done = false;
@@ -755,6 +787,7 @@ function uxShell(s) {
   }
   /* the navigation never lists a v7.0 screen kept for review only */
   document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
+  if (/^decision\//.test(s.id)) uxCapLists(c);
   /* the product never navigates into a v7.0 screen kept for review only */
   c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
 }

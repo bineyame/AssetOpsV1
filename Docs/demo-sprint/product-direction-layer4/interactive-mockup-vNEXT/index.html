@@ -1427,6 +1427,22 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-cross small{display:block;color:var(--text-2);font-size:var(--fs-xs)}
 .ux-ctx{margin:var(--s2) 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
 .ux-flist>li[hidden]{display:none} /* review M3: "Show all" reveals what is held back */
+/* the decision page: answer-titled sections (the label and its answer, visible when closed) and the sticky context bar */
+.ux-ans{font-size:var(--fs-sm);color:var(--text-2);font-weight:400}
+.ux-dsecs{display:flex;flex-direction:column;gap:var(--s3)}
+.ux-sub-h{margin:var(--s4) 0 var(--s2);font-size:var(--fs-sm);font-weight:600}
+.ux-dhd .ux-how{align-self:flex-start;margin:0;font-size:var(--fs-sm)}
+.ux-drec-n.is-second{font-size:var(--fs-sm)}
+.ux-dsticky{display:none}
+.ux-dsticky.is-on{display:flex;position:fixed;top:0;left:204px;right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ux-dsticky-t{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ux-dsticky-n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ux-dsticky-n small{color:var(--text-2)}
+.ux-dsticky .button{margin-left:auto}
+html.ux-has-sticky{scroll-padding-top:64px}
+@media (max-width:1100px){.ux-dsticky.is-on{left:174px}}
+@media (max-width:760px){.ux-dsticky.is-on{left:0}}
+@media (max-width:600px){.ux-dsticky.is-on{top:auto;bottom:0;border-top:1px solid var(--line);border-bottom:0;flex-wrap:wrap;row-gap:var(--s1);padding:var(--s2) var(--s4)}.ux-dsticky-t{flex:1 1 100%}.ux-dsticky-n{display:none}html.ux-has-sticky{scroll-padding-top:0;scroll-padding-bottom:120px}html.ux-has-sticky .canvas{padding-bottom:120px}}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -1725,6 +1741,7 @@ function issueList(items){return items.length?`<ul class="ob-list">${items.map((
 function obCol(ic,title,body){return `<div class="ob-col"><h4>${colIcon(ic)}${title}</h4>${body}</div>`;}
 function obName(key,name,def){return `${catIcon(key)}<span class="ob-name">${name}<small>${def}</small></span>`;}
 function outcomeRow(d,key,name,def){const x=BOARD[d][key],tone=TONE[x.st],wk=`${d}:${key}`,parts=key==='grow'?GROW[d]:null;
+ if(x.st==='na')return `<div class="ob ob-later"><div class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-none">Not applicable</span><span class="ob-head muted">${x.head}</span></div></div>`;
  if(x.st==='notyet')return `<div class="ob ob-later"><div class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-none">Not measured yet</span><span class="ob-head muted">${x.sub}</span></div></div>`;
  const n=x.issues.length,h=x.hand.length;
  return `<details class="ob tone-${tone}" ${x.st==='needs'?'open':''}><summary class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-${tone}">${STATE[x.st]}</span><span class="ob-head"><span class="ob-val">${val(x.head)}</span>${WHY[wk]?whyBtn(wk):''}${DAYS[d]&&DAYS[d][key]?`<small class="ob-days">${DAYS[d][key]}</small>`:''}</span><span class="ob-counts">${n?`${n} issue${n>1?'s':''}`:'No open issues'}${h?` · ${h} in hand`:''}</span></summary>
@@ -3745,7 +3762,7 @@ function decText(d){const s=siteM(d.site),P=s.period,o=k=>OPT[k],e=k=>OPT[k].eco
  'ruiru-expansion':()=>{const a6=o('RUI-ABSORB6'),a10=o('RUI-ABSORB10'),a6p=DOPT('RUI-ABSORB6').params,b0=SN('ruiru'),b6=DOPT('RUI-ABSORB6').bound,b10=DOPT('RUI-ABSORB10').bound,per=b0.kwh_per_bus_night;return{
   factor:`A new demand factor: the city offers a route expansion of ${num(a6p.added_buses)} buses. Ruiru’s chargers were in use ${pct(P.actual.charger_hour_utilisation)} of nameplate charger-hours in October (${ruiruDeliverable()} of deliverable energy a night: the ${num(SN('ruiru').import_limit_kw)} kW import limit binds), and its peak import was ${P.actual.max_kw} kW of a ${s.physical.import_limit_kw} kW limit.`,
   change:'More buses raise the required-kWh factor; the import limit bounds the deliverable kWh a night.',
-  why:`With ${num(a6p.added_buses)} more buses Ruiru needs ${num(b6.required_kwh_night)} kWh a night against ${num(b6.deliverable_kwh_night)} kWh it can deliver, with no new chargers: the ${usd(DOPT('RUI-4CHARGERS').operator_one_off)} purchase of the 4-charger option is avoided (its evaluated one-off; avoided capital, not a saving in the books). Four more chargers would not raise the deliverable energy either: it stays ${num(DOPT('RUI-4CHARGERS').bound.deliverable_kwh_night)} kWh a night because the ${DOPT('RUI-4CHARGERS').bound.import_limit_kw} kW import limit binds. Ten more need ${num(b10.required_kwh_night)} kWh: more than the import limit allows.`,
+  why:`With ${num(a6p.added_buses)} more buses Ruiru needs ${num(b6.required_kwh_night)} kWh a night against ${num(b6.deliverable_kwh_night)} kWh it can deliver, with no new chargers and no departure missed. It is not valued: an expansion is listed beside the plan. The 4-charger option (rejected) would cost ${usd(DOPT('RUI-4CHARGERS').operator_one_off)} and add no capacity. Four more chargers would not raise the deliverable energy either: it stays ${num(DOPT('RUI-4CHARGERS').bound.deliverable_kwh_night)} kWh a night because the ${DOPT('RUI-4CHARGERS').bound.import_limit_kw} kW import limit binds. Ten more need ${num(b10.required_kwh_night)} kWh: more than the import limit allows.`,
   cf:[['Required kWh a night',`${num(b0.required_kwh_night)} (${num(b0.buses)} buses × ${num(per)})`,`${num(b6.required_kwh_night)} (${num(b6.required_kwh_night/per)} buses)`,`${num(b10.required_kwh_night)} (${num(b10.required_kwh_night/per)} buses)`],['Deliverable kWh a night',num(b0.deliverable_kwh_night),num(b6.deliverable_kwh_night),num(b10.deliverable_kwh_night)],['Required energy within what the import limit lets the chargers deliver',...[b0,b6,b10].map(b=>b.required_kwh_night<=b.deliverable_kwh_night?'yes':`no: ${num(Math.round(b.buses_short_per_night))} buses short a night`)]],cfHead:['Factor','No action',`${num(a6p.added_buses)} more buses`,`${num(DOPT('RUI-ABSORB10').params.added_buses)} more buses`],
   sens:['Ten buses would need a grid upgrade (about $45,000, an assumption) plus chargers: not modelled in this plan.'],
   verify:[['Operational',`All Ruiru departures met after the ${num(a6p.added_buses)} buses join; peak import stays under the limit`],['Economic','Utility invoices for the extra charging'],['Causal','Direct']],
@@ -3879,7 +3896,7 @@ function chainStages(op,sk){const o=OPS[op];let st;
    ['Billed',num(C.billed_kwh)+' kWh',`target ${num(C.plan_billed_kwh)} · Emulated`],['leak',''],['Revenue',usd(C.revenue),`target ${usd(C.plan_revenue)} · Emulated`],['leak',`in transit ${usd(C.in_transit)} · outstanding ${usd(C.outstanding)}`],['Cash collected',usd(C.collected),'Recorded']];}
  else if(o.vertical==='cold'){const t=o.t,C=sk?{capacity_crate_days:CAPCD(sk),occupied_crate_days:siteM(sk).period.actual.crate_days,plan_crate_days:siteM(sk).period.plan.crate_days,revenue:siteM(sk).period.actual.revenue,plan_revenue:siteM(sk).period.plan.revenue,collected:siteM(sk).period.actual.collected,outstanding:siteM(sk).period.actual.outstanding}:t.portfolio.chain;
   st=[['Capacity',num(C.capacity_crate_days)+' crate-days','Recorded'],['leak',`idle ${num(C.capacity_crate_days-C.occupied_crate_days)} crate-days`],['Occupied',num(C.occupied_crate_days)+' crate-days',`target ${num(C.plan_crate_days)} · Emulated`],['leak','none: ledger and invoices agree for October'],['Chargeable',num(C.revenue/t.prices.storage_usd_per_crate_day)+' crate-days','Calculated from records (ledger to invoice reconciliation)'],['leak','no ledger-to-invoice difference in October'],['Invoiced',usd(C.revenue),`target ${usd(C.plan_revenue)} · Emulated`],['leak',`outstanding ${usd(C.outstanding)}`],['Received',usd(C.collected),'Recorded']];}
- else {const C=sk?{delivered_kwh:siteM(sk).period.actual.kwh,departures_required:siteM(sk).period.actual.departures_required,departures_met:siteM(sk).period.actual.departures_met}:o.t.portfolio.chain;const dkn=k=>NV(k,'actual','deliverable_kwh_night'),dAll=OPS.metro.sites.map(dkn),dl=sk==='ruiru'?[`${num(dkn('ruiru'))} kWh a night`,`from the depot structure, at the ${siteM('ruiru').physical.import_limit_kw} kW import limit`]:sk==='kasarani'?[`${num(dkn('kasarani'))} kWh a night`,`October; since 1 Nov ${num(KN().deliverable_kwh_night)} of ${num(KN().required_kwh_night)} a night, calculated from records`]:sk?(dkn(sk)!=null?[`${num(dkn(sk))} kWh a night`,'from the depot structure']:['Not available yet','needs the depot charging model per night',`sites.metro-bus/${SK[sk].name}.actual.nodes.deliverable_kwh_night`]):(dAll.every(v=>v!=null)?[`${num(dAll.reduce((a,b)=>a+b,0))} kWh a night`,'the depots together, from each depot structure']:['Not available yet','needs the depot charging model per night']);
+ else {const C=sk?{delivered_kwh:siteM(sk).period.actual.kwh,departures_required:siteM(sk).period.actual.departures_required,departures_met:siteM(sk).period.actual.departures_met}:o.t.portfolio.chain;const dkn=k=>NV(k,'actual','deliverable_kwh_night'),dAll=OPS.metro.sites.map(dkn),dl=sk==='ruiru'?[`${num(dkn('ruiru'))} kWh a night`,`from the depot structure, at the ${siteM('ruiru').physical.import_limit_kw} kW import limit`]:sk==='kasarani'?[`${num(dkn('kasarani'))} kWh a night`,`October; since 1 Nov ${num(KN().deliverable_kwh_night)} of ${num(KN().required_kwh_night)} a night, calculated from records`]:sk?(dkn(sk)!=null?[`${num(dkn(sk))} kWh a night`,'from the depot structure']:['Not available yet','needs the depot charging model per night',`sites.metro-bus/${SK[sk].name}.actual.nodes.deliverable_kwh_night`]):(dAll.every(v=>v!=null)?[`${num(dAll.reduce((a,b)=>a+b,0))} kWh a night`,'the depots together, from each depot structure']:['Not available yet','needs the depot charging model per night',OPS.metro.sites.map(k=>`sites.metro-bus/${SK[k].name}.actual.nodes.deliverable_kwh_night`).join(' ')]); /* r2 L4: the sum's empty state names every depot's path */
   st=[['Deliverable energy',dl[0],dl[1],dl[0]==='Not available yet'?'na':'',dl[2]],['leak',''],['Delivered',num(C.delivered_kwh)+' kWh','Measured'],['leak',''],['Required departures',num(C.departures_required),'Emulated (roster)'],['leak',`missed in October: ${num(C.departures_required-C.departures_met)}`],['Departures met',num(C.departures_met),'Recorded'],['leak',''],['Revenue','Not applicable','charging is a cost centre','na']];}
  return st;}
 function chainStrip(op,sk){const o=OPS[op],st=chainStages(op,sk);
@@ -4421,7 +4438,7 @@ function whatChangedScreen(){const op=LS.op;
 
 /* ---------- Scope & coverage: by site × leaf factor ---------- */
 const MISSING_LEAVES = {
- lakeside:[['All sites','Usable capacity by time window','None missing: the calculation from the solar, battery and generator readings comes in a later release','The idle-capacity leak and any value of daytime headroom'],['Kobo','Battery cell temperature','Battery management system temperature log','A battery warranty claim'],['Kobo','Commissioning capacity test','Capacity test record (planned battery capacity test)','A battery warranty claim'],['Kisiwa','October maintenance-contract invoice','Service contractor invoice','The actual maintenance-contract line (carried at target) and the service-credit review'],['All sites','Target split of litres by reason','Targets below the site total','Target comparison below total litres (the split is compared with zero)']],
+ lakeside:[['Kobo','Battery cell temperature','Battery management system temperature log','A battery warranty claim'],['Kobo','Commissioning capacity test','Capacity test record (planned battery capacity test)','A battery warranty claim'],['Kisiwa','October maintenance-contract invoice','Service contractor invoice','The actual maintenance-contract line (carried at target) and the service-credit review'],['All sites','Target split of litres by reason','Targets below the site total','Target comparison below total litres (the split is compared with zero)']],
  harvest:[['Thika','October refrigeration service invoice','Service contractor invoice','The actual maintenance line (carried at target)'],['All rooms','Compatibility per batch (unbilled or incompatible occupancy)','Storage ledger with commodity and segregation fields','The occupied-to-chargeable check by batch (October’s ledger and invoices already agree)']],
  metro:[['Kasarani','October maintenance invoice','Service contractor invoice','The actual maintenance line (carried at target)'],['Ruiru','Target split by time of day','Targets below the site total',`Attribution of the ${usd(residualOf('metro').residual)} difference`],['Embakasi','Tariff applicability','Utility invoice with time-of-use lines','The schedule recommendation becoming unconditional'],['Embakasi, Kasarani','Deliverable energy a night (depot model)','Charger and import-limit configuration per depot','The deliverable-energy stage of the chain',['sites.metro-bus/Embakasi.actual.nodes.deliverable_kwh_night','sites.metro-bus/Kasarani.actual.nodes.deliverable_kwh_night']]]};
 const PILOT_AIM = {lakeside:'A deep-dive and pilot on contribution at your existing sites, without new generation capital, worked out from your own exports.',harvest:'A deep-dive and pilot on returns across physically similar cold rooms, and the lever that fits each room, worked out from your own exports.',metro:'A deep-dive and pilot on fleet charging cost against departure obligations with your existing chargers, and the faults that matter first, worked out from your own exports.'};
@@ -4431,7 +4448,7 @@ const PILOT_ASKS = {lakeside:['Energy management system export','Customer meter 
 function scopeScreen(){const op=LS.op,o=OPS[op],srcs=M.sources[{mini:'mini_grid',cold:'cold_chain',ev:'ev_depot'}[o.vertical]];
  const leafRows=[];o.sites.forEach(sk=>walk(tree(sk),n=>{if(!n.kids&&n.cls)leafRows.push([siteLink(sk),n.label,ec(n.cls),(SRCDEF[n.src]||SRCDEF.model)[0]]);}));protectOf(op).filter(m=>!m.stake).forEach(m=>leafRows.push(['All sites',`Protect: ${m.name}`,ec(m.class),idPlain(m.basis||'Fault logs, roster and records listed above')]));
  return `${sec('Coverage by site and leaf factor',region('Coverage by site and leaf factor',table(['Site','Leaf factor','Evidence','Source record'],leafRows)),`${pct(o.t.portfolio.coverage.cost_recorded_share,1)} of October cost rests on emulated records. Every leaf factor carries its evidence class in words.`)}
- ${sec('Not available yet, and what each missing record blocks',region('Missing records',table(['Site','Leaf factor','Record that would fill it','What it blocks'],MISSING_LEAVES[op].filter(r=>!(r[4]||[]).length||!r[4].every(p=>uxPathValue(p)!=null)).map(([a,b,c,d,pa])=>[a,`${b} <span data-na-path="${(pa||[]).join(' ')}">${ec('MISSING')}</span>`,c,d]))))}
+ ${sec('Not available yet, and what each missing record blocks',region('Missing records',table(['Site','Leaf factor','Record that would fill it','What it blocks'],MISSING_LEAVES[op].filter(r=>!(r[4]||[]).length||!r[4].every(p=>uxPathValue(p)!=null)).map(([a,b,c,d,pa])=>[a,`${b} <span data-na-path="${(pa||[]).join(' ')}">${ec('MISSING')}</span>`,c,d]))))}${op==='lakeside'?'<p class="note">Deferred: usable capacity by time window is calculated from the solar, battery and generator readings in a later release; it would fill the idle-capacity leak and any value of daytime headroom.</p>':''}
  ${sec('Where the data comes from, in order',`<ol class="list src-order"><li><b>First, an upload of your energy management system’s exports.</b> The files you already have, sent in as they are.</li><li><b>Then, a direct link to the energy management system.</b> The same records, arriving on their own once the system lets us connect.</li><li><b>Last, an edge gateway at the site.</b> A small device that reads the equipment itself, tested on the bench before any hardware is bought.</li></ol>`,'Each step adds to the one before; no step needs new equipment until the last.')}
  <div class="grid2">${sec('Sources connected in this demo',`<ul class="list">${[...srcs,...M.sources.all_verticals.filter(x=>!x.system.startsWith('cold:')||o.vertical==='cold')].map(x=>`<li>${plainSource(x)} <small class="cellnote">${PROV[x.provenance]}${x.cadence?' · '+x.cadence.replace(/min/g,'minute').replace(/ \(as the v7.0 probe TMP-003\)/,''):''}</small></li>`).join('')}</ul>`)}
  ${sec('A deep-dive and pilot on your data',`<p class="prose">After a first call on data privacy, processes and integrations, a deep-dive with your process owners, starting from exports you already have. The minimum ask for ${o.typeWord} is ${PILOT_ASKS[op].length} source categories.</p><p style="margin-top:12px">${btn('portfolio/scope/pilot','Open the pilot request',true)}</p>`)}</div>`;}
@@ -4511,7 +4528,7 @@ function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inP
  const item=D.item||d.opts.find(x=>inPlan.includes(x)),acts=item?actionsOf(op,item):[];
  const recTxt=rec?`<b>${optLabel(rec)}</b><small>Each option valued against no action. AssetOps recommends; your team decides and creates the Actions.</small>`:'<b>No option recommended</b><small>Each option valued against no action; none fits the limits better than the others.</small>';
  const it=D.item?itemOf(op,D.item):null;
- const chooseTxt=`${who(op,D.p)}<small>${D.item?`Chose ${optLabel(D.item)}, recorded under their name${it&&it.owner===it.chosen_by?', and so owns the item':''}.${it&&it.owner!==it.chosen_by?` Item owner: ${it.owner}.`:''}${it?` Item state: ${ITEM_STATE_WORD[it.item_state]||'not chosen yet'}.`:''}`:'Chooses an option, or none, and creates the Actions. Nothing chosen yet.'}</small>`;
+ const chooseTxt=`${who(op,D.p)}<small>${D.item?`Chose ${optLabel(D.item)}, recorded under their name${it&&it.owner===it.chosen_by?', and so owns the item':''}.${it&&it.owner!==it.chosen_by?` Item owner: ${it.owner}.`:''}${it?` Item state: ${ITEM_STATE_WORD[it.item_state]||'state not recorded'}.`:''}`:'Chooses an option, or none, and creates the Actions. Nothing chosen yet.'}</small>`;
  const oneBy=acts.length&&acts.every(a=>a.created_by===acts[0].created_by),actTxt=acts.length?`${oneBy?`<small class="wd-by">Created by ${who(op,acts[0].created_by)}</small>`:''}<ul class="wd-acts">${acts.map(a=>`<li>${a.action}<small>${oneBy?(a.owner===a.created_by?'Owned by the creator':`Owner ${who(op,a.owner)}`):a.owner===a.created_by?`Created by ${who(op,a.owner)}, who owns it`:`Created by ${who(op,a.created_by)} · owner ${who(op,a.owner)}`} · due ${fdate(a.due)}</small></li>`).join('')}</ul><small>Raised against this issue; counted in the plan on the item “${SHORT[item]||optLabel(item)}”.</small>`:it?.capital?`<b>None yet</b>${(it.actions_after_approval||[]).length?`<ul class="wd-acts">${it.actions_after_approval.map(a=>`<li>${a}<small>Created by ${who(op,it.owner)} after approval</small></li>`).join('')}</ul>`:''}<small>A capital item: ${it.owner} creates its Action only after ${execOf(op)?.name||'the operator executive'} approves the version that holds it.</small>`
   :'<b>None yet</b><small>Each Action is raised against this issue and counted in the plan on its item.</small>';
  let relTxt;
@@ -4525,19 +4542,12 @@ function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?
   return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="${BASIS_LABEL[optBasis(oid)]}"><div class="ux-cell">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${/^Not /.test(ev)?'':ec(optClass(x))}${DV_OPT[oid]&&!/^Not /.test(ev)?dvTag(DV_OPT[oid]):''}</div></td><td data-label="Limits"><div class="ux-cell">${uxOblSummary(obligations(x))}</div></td><td data-label="One-off cost · who pays"><div class="ux-cell">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></div></td><td data-label="Status"><div class="ux-cell">${chosenId===oid?`<span class="status-pill is-approved">Chosen</span><small class="cellnote">${recd?'Recommended by the system':''}</small>`:x.kind==='NO_ACTION'?`${badge('No change','outline')}<small class="cellnote">The reference</small>`:uxDispBadge(d,oid)}</div></td><td data-label="Details"><div class="ux-cell">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</div></td></tr>`;}).join('');
  const comp=`<table class="opts ux-opts"><thead><tr><th>Option</th><th>${BASIS_LABEL[decBasis(d)]}</th><th>Limits</th><th>One-off cost · who pays</th><th>Status</th><th><span class="vh">Details</span></th></tr></thead><tbody>${rows}</tbody></table>`;
  const cf=`<table class="cf"><thead><tr>${T.cfHead.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${T.cf.map(r=>`<tr><th scope="row">${r[0]}</th>${r.slice(1).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
- const inner=`<section class="panel anchor"><div class="eyebrow">What this decision changes</div><p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} target`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}</section>
- ${secD('All options in detail',region('Options compared',comp),`Same breakdown, period, prices and contracts for every option; the result is the change ${BASIS_WORDS[decBasis(d)]||'it brings'}, net of the one-off cost.`)}
- ${secD('How each option changes what drives the result',region('What each option changes',cf))}
- ${protectiveChoice(id)?`<section class="panel anchor"><div class="eyebrow">Protective choice</div><p class="prose">${protectiveChoice(id)}</p></section>`:''}
- ${boundTable(id)?secD('Which options keep this decision’s hard limits',boundTable(id),'An option that breaks a hard limit is not allowed.'):''}
- ${restoreTable(id)?secD('Restore dates and what sets them',restoreTable(id)):''}
- ${rightsCoverTable(id)?secD('Cover under each option',rightsCoverTable(id)):''}
- ${costLinesTable(id)?secD('Cost lines and who pays each',costLinesTable(id),'A warranty or contract decides who pays each cost; its status is shown in words.'):''}
- ${capacityTable(id)?secD('Capacity bound under each option',capacityTable(id),'Evaluated through the depot structure: required against deliverable energy a night, buses short, departures missed and cost per required departure met.'):''}
- ${protectEffectsFor(id).length?secD('How service and assets fare under each option',protectEffectsPanel(id),'Each option evaluated through the Protect structure over the stated horizon; the evidence class is in words.'):''}
- ${secD('Verification plan: three separate verdicts',`<div class="verdicts">${T.verify.map(([k,v])=>`<article><div class="eyebrow">${k} verdict</div>${badge('Not yet','amber')}<p>${v}</p></article>`).join('')}</div><p class="note">Three separate verdicts. A finished job does not prove the money arrived; money arriving does not prove the change caused it. Not proven yet is a verdict, not a pass.</p>`)}
-`;
- return uxDecisionPage(id,{inner});} /* the page itself: loop-ux.js uxDecisionPage */
+ /* the parts of the page, each answered in its own section heading (guide §7.2, the long-page standard) */
+ const parts={anchor:`<p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} target`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}`,
+  comp:region('Options compared',comp),cf:region('What each option changes',cf),protective:protectiveChoice(id),bound:boundTable(id),restore:restoreTable(id),
+  cover:rightsCoverTable(id),costs:costLinesTable(id),capacity:capacityTable(id),protect:protectEffectsFor(id).length?protectEffectsPanel(id):'',
+  verify:`<div class="verdicts">${T.verify.map(([k,v])=>`<article><div class="eyebrow">${k} verdict</div>${badge('Not yet','amber')}<p>${v}</p></article>`).join('')}</div><p class="note">Three separate verdicts. A finished job does not prove the money arrived; money arriving does not prove the change caused it. Not proven yet is a verdict, not a pass.</p>`};
+ return uxDecisionPage(id,parts);} /* the page itself: loop-ux.js uxDecisionPage */
 
 /* ---------- review drawer: what changed in this mock-up ---------- */
 function loopChanges(){drawer('What changed in this mock-up',`<p class="prose">The v7.0 shell and left menu are kept. The Portfolio keeps its six owner-approved tabs; their content now reads outcomes through their declared factors. Decisions open as drill-down pages. The demo operator selector sits in this review bar, not in the product. Every v7.0 screen stays reachable: names re-based (GreenHarvest is Thika, the Depot is Ruiru); the separate site Financials, Assumptions and Scenarios pages are merged into each site’s economics.</p>${table(['Status','Screens'],['Added','Changed','Merged','Preserved'].map(st=>[st,String(SCREENS.filter(s=>REG_STATUS(s)===st).length)]))}<p class="note">Full register: CHANGE-REGISTER.md in this folder. Not approved: awaits owner inspection.</p>`,true);}
@@ -5132,6 +5142,7 @@ function uxCreators(op, d, oid) {
   if (uxCapital(op, oid) === 'expansion') return [[sm, 'the operational Actions'], [fin, 'any notice or claim']];
   if (uxChooserRole(d) === 'FINANCE_AND_COMMERCIAL_LEAD') return [[fin, 'the Actions']]; /* a money Finding's decision */
   if (k === 'STOPGAP_PLUS_CLAIM') return [[fin, 'the claim and its notice'], [sm, 'the operational Actions']];
+  if (k === 'SUPPLIER_REMEDY') return [[fin, 'the claim and notice Actions'], [sm, 'any operational step']]; /* r2 L5: a remedy's operational step is the Site manager's */
   if (UX_CLAIM_KINDS.includes(k)) return [[fin, k === 'COMMERCIAL_CORRECTION' ? 'the billing Actions' : 'the claim and notice Actions']];
   return [[sm, 'the Actions']];
 }
@@ -5145,7 +5156,7 @@ function uxCreatorText(op, d, oid) {
 /* the status line follows the real path (review r1 M2): a choice released at once never waited for approval; with nothing
    recommended, the first step says so */
 function uxDecSteps(id, st) {
-  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxRec(d), path = oid ? uxReleaseFor(op, oid).path : 'wait';
+  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxRec(d) || d.opts.find(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED'), /* r2 L2: with nothing recommended, the path of an option that can be chosen */ path = oid ? uxReleaseFor(op, oid).path : 'wait';
   const it = deciderOf(id).item ? itemOf(op, deciderOf(id).item) : null, atOnce = st.key === 'released' && it && releaseOf(op, it.item).at;
   const tail = atOnce || path === 'at' ? ['Released at once'] : path === 'none' ? ['Actions go ahead'] : ['Awaiting approval', 'Actions released'];
   const steps = [st.key === 'none' ? 'No option recommended' : 'Recommended', 'Chosen', ...tail];
@@ -5191,10 +5202,12 @@ function uxDecisionPage(id, parts) {
   const valued = d.opts.filter(o => money(optEffect(OPT[o])[0]) && !isNoAction(o)), classes = [...new Set(valued.map(o => optClass(OPT[o])))];
   const oneClass = classes.length === 1 ? classes[0] : null, anyDv = valued.some(o => DV_OPT[o] && String(DV_OPT[o]).startsWith(DVTEXT));
   const head = `<section class="ux-dhd" aria-label="Decision status"><p class="ux-dmeta"><span>${SK[d.site].name}</span><span>Decides: ${who(op, D.p)}</span><span>${due ? `Due ${fdate(due)}` : 'No deadline'}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span></p>
-  ${uxDecStatus(id, st)}</section>`;
+  ${uxDecStatus(id, st)}${uxOpener(`uxhow-${id}`, 'How this works', 'ux-link ux-how')}</section>`;
   const pays = x ? whoPays(x) : '—';
   const noCost = /^\$0$/.test(String(wholeText(cv)).trim());
-  const recNum = x ? `<p class="ux-drec-n">${uxFigQ(`<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) && BASIS_WORDS[optBasis(rec)] ? `<span class="ux-drec-c">, ${BASIS_WORDS[optBasis(rec)]}</span>` : ''}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
+  /* a hero without a number shows the strongest fact the data holds (UX audit C17): the cover or credit at stake */
+  const SP = !money(ev) ? uxStakeParts(id) : {}, hero = SP.value ? `<p class="ux-drec-n"><b>${SP.value}</b> <span>${SP.note}</span></p>` : '';
+  const recNum = x ? `${hero}<p class="ux-drec-n${hero ? ' is-second' : ''}">${uxFigQ(hero ? wholeText(ev) : `<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) && BASIS_WORDS[optBasis(rec)] ? `<span class="ux-drec-c">, ${BASIS_WORDS[optBasis(rec)]}</span>` : ''}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
   let act = '';
   /* "Choose another option" only when another option can be chosen (review r2 M2 class) */
   const others = d.opts.filter(o => o !== rec && !isNoAction(o) && uxDisp(o) !== 'REJECTED' && uxDisp(o) !== 'RECOMMENDED');
@@ -5208,19 +5221,48 @@ function uxDecisionPage(id, parts) {
   const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o) && decBasis(d) !== 'RESTORE_REFERENCE', k = uxDisp(o), q2 = uxQual(o);
     const mark = money(e2) && !isNo && (!oneClass || optClass(y) !== oneClass) ? uxMark(optClass(y)) : '';
     const dv = money(e2) && !isNo && DV_OPT[o] ? dvTag(DV_OPT[o]) : '';
-    const go = st.key === 'choose' && !isRec && !isNoAction(o) && k !== 'REJECTED' && k !== 'RECOMMENDED' ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
+    const go = (st.key === 'choose' || st.key === 'none') && !isRec && !isNoAction(o) && k !== 'REJECTED' && k !== 'RECOMMENDED' ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
     const why = UX_NOREC && k !== y.disposition ? 'Deferred for now.' : (k === 'REJECTED' || k === 'DEFERRED' || (k === 'RECOMMENDED' && !isRec)) ? optWhy(y) : '';
     const result = isNo ? `The baseline${q2 && q2 !== 'baseline' ? ` <small class="ux-ocard-q">${q2}</small>` : ''}` : `${uxFigQ(wholeText(e2), q2, 'ux-ocard-q')} ${mark}${dv ? ` ${dv}` : ''}`;
     return `<article class="ux-ocard${isRec ? ' is-rec' : ''}${isNo ? ' is-base' : ''}${o === chosen ? ' is-chosen' : ''}" data-opt-card="${o}"><header><h3>${optLabel(o)}</h3>${o === chosen ? '<span class="status-pill is-approved">Chosen</span>' : isNo ? '<span class="ux-chip is-neutral">The baseline</span>' : uxDispBadge(d, o)}</header>
      <dl><div><dt>Result</dt><dd>${result}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)} <small>${whoPays(y)}</small></dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
      ${why ? `<p class="ux-ocard-why">${why}</p>` : ''}${go}</article>`; }).join('');
   const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">${BASIS_CARDS[decBasis(d)]}</h2><span class="ux-note">${oneQual && /^(?:over|to) /.test(oneQual) ? `Each result ${uxLcFirst(oneQual).replace(/ against no action$/, '')}` : 'Each result as stated on its card'}${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
-  const dialogs = st.key === 'choose' ? d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
+  const dialogs = st.key === 'choose' || st.key === 'none' ? d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
   const evidence = uxDrawer(`uxev-${id}`, 'Evidence and records', `<ul class="list">${T.records.map(([k, l]) => `<li>${fig(k, l)}</li>`).join('')}</ul>${(d.rights || []).map(rightsPanel).join('')}`, true);
-  const why = secD('Why we recommend it', `<div class="grid2">${sec('The reasoning', `<p class="prose">${T.why}</p>`)}${sec('What would change the recommendation', `<ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`)}</div>${parts.inner}<div id="uxwho-${id}">${secD('Who chooses, who approves, and the Actions', whoDecides(id), 'The accountable role chooses; the plan’s approval releases what waits', st.key === 'released')}</div>`, 'The reasoning, what drives the result, limits, cover, who pays, verification and all options in detail');
+  /* answer-titled sections, one level (the long-page standard; UX audit #8): each heading says its answer while closed */
+  const plain = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim(), first = s => (plain(s).match(/^.*?[.!?](?=\s|$)/) || [plain(s)])[0];
+  const failsOf = o => /obl-fail/.test(obligations(OPT[o])), fails = d.opts.filter(o => !isNoAction(o) && failsOf(o));
+  const limitsAns = x ? `${failsOf(rec) ? 'The recommendation breaks a limit' : 'The recommendation keeps every limit'}${fails.length ? `; ${num(fails.length)} option${fails.length === 1 ? ' breaks' : 's break'} one` : ', as every option does'}`
+    : `${fails.length ? `${num(fails.length)} option${fails.length === 1 ? ' breaks' : 's break'} a limit` : 'Every option keeps the limits'}`;
+  const costAns = x ? `${noCost ? 'No one-off cost' : `${wholeText(cv)} one-off${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}` : 'Each option’s cost is on its card';
+  const rejN = d.opts.filter(o => ['REJECTED', 'DEFERRED'].includes(uxDisp(o))).length, optN = d.opts.length;
+  const sections = [
+    [st.key === 'none' ? 'Why no option is recommended' : 'Why we recommend it', x ? first(T.why) : plain(uxNoRecReason(id)), `<p class="prose">${T.why}</p><h3 class="ux-sub-h">What would change the recommendation</h3><ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`],
+    ['What it changes', first(T.change), `${parts.anchor}${parts.cf}${parts.restore || ''}`],
+    ['Limits and cover', limitsAns, `${parts.protective ? `<p class="prose">${parts.protective}</p>` : ''}${parts.bound || ''}${parts.capacity || ''}${parts.protect || ''}${parts.cover || ''}`],
+    ['Cost and who pays', costAns, parts.costs || `<p class="prose">${x ? `${optLabel(rec)}: ${costAns}.` : 'Each option’s one-off cost and who pays it are on its card.'}</p>`],
+    ['How we will check it worked', `Three separate verdicts, ${T.verify.map(([k]) => k.toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' and $1')}; none given yet`, parts.verify],
+    ['All options in detail', `${num(optN)} option${optN === 1 ? '' : 's'}${BASIS_WORDS[decBasis(d)] ? ` ${BASIS_WORDS[decBasis(d)]}` : ''}${rejN ? `; ${num(rejN)} rejected or deferred, each with its reason` : ''}`, parts.comp]
+  ].filter(([, , b]) => plain(b));
+  const why = `<div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>`;
+  /* how the product works lives in help, not in the decision path; who decides and approves stays on the page (meta line) */
+  const howDrawer = uxDrawer(`uxhow-${id}`, 'How this works', `<div id="uxwho-${id}">${whoDecides(id)}</div>`, true);
   const actsDrawer = chosen ? uxDrawer(`uxacts-${id}`, 'The Actions', actionsOf(op, chosen).length ? `<ul class="list">${actionsOf(op, chosen).map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner === a.created_by ? ', who owns it' : `, owned by ${who(op, a.owner)}`}, due ${fdate(a.due)}</small></li>`).join('')}</ul>` : `<p>${uxCreatorText(op, d, chosen)}</p>`) : '';
-  return `${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}`;
+  /* context that stays (the long-page standard): once the recommendation scrolls away, a slim bar keeps the title, the key figure, the
+     state and the primary action; on a phone it sits at the bottom */
+  const stickyAct = st.key === 'choose' ? uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary') : st.key === 'approval' ? link('portfolio/act-first/plan', 'Review the plan', 'button') : st.key === 'released' ? uxOpener(`uxacts-${id}`, 'See the Actions', 'button') : '';
+  const sticky = `<div class="ux-dsticky" role="region" aria-label="This decision" data-ux-sticky><span class="ux-dsticky-t">${d.q}</span><span class="ux-dsticky-n">${x ? (money(ev) ? `${wholeText(ev)} <small>${uxQual(rec)}</small>` : `<small>${plain(ev)}</small>`) : ''}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span>${stickyAct}</div>`;
+  return `${sticky}${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}${howDrawer}`;
 }
+/* lists are capped at 7 rows, then "Show all" (the long-page standard); option comparisons are tables and are never cut */
+function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => { if (ul.closest('.ux-drawer')) return; const li = [...ul.children].filter(x => x.tagName === 'LI'); if (li.length <= 7) return;
+  if (!ul.id) ul.id = `uxcap-${i}`; li.slice(7).forEach(x => { x.hidden = true; x.dataset.uxOver = ''; }); ul.insertAdjacentHTML('afterend', uxCapNote(li.length, 7, ul.id)); }); }
+/* an answer-titled section: the label and its answer, visible when closed */
+const uxSecA = (label, answer, body) => `<details class="panel ux-disc ux-ans-sec"><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
+/* the sticky bar shows once the recommendation card has scrolled under the top bar */
+function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec'); if (!b || !r) return; const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on); }
+window.addEventListener('scroll', uxStickyTick, { passive: true }); window.addEventListener('hashchange', () => setTimeout(uxStickyTick, 50));
 
 /* ===== empty states that name their data (placeholder audit, gap 4): a not-available state carries data-na-path; the check
    fails it when the data holds a value at that path ===== */
@@ -5238,7 +5280,7 @@ function uxBoardsFromData() {
     const ru = siteM('ruiru').period.actual; [, r] = row(BOARD.ev, 'Departures against the timetable'); if (r && ru.departures_required != null) { r[1] = `${num(ru.departures_met)} of ${num(ru.departures_required)} required departures met in October`; r[2] = 'Recorded'; }
     for (const k of Object.keys(BOARD.ev || {})) { const c = BOARD.ev[k] && BOARD.ev[k].contrib; if (Array.isArray(c)) BOARD.ev[k].contrib = c.filter(x => !/^Energy billed against metered/.test(x[0])); }
     if (BOARD.ev?.cost) BOARD.ev.cost.sub = 'A captive fleet is judged on charging cost per required departure met; it earns no tariff revenue';
-    if (BOARD.ev?.grow) { BOARD.ev.grow.head = 'Revenue not applicable: charging is a cost centre'; BOARD.ev.grow.st = 'notyet'; }
+    if (BOARD.ev?.grow) { BOARD.ev.grow.head = 'Revenue not applicable: charging is a cost centre'; BOARD.ev.grow.st = 'na'; } /* r2 M3 */
   } catch (e) { /* the boards keep their text if a read fails */ }
 }
 uxBoardsFromData.done = false;
@@ -5299,6 +5341,7 @@ function uxShell(s) {
   }
   /* the navigation never lists a v7.0 screen kept for review only */
   document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
+  if (/^decision\//.test(s.id)) uxCapLists(c);
   /* the product never navigates into a v7.0 screen kept for review only */
   c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
 }
@@ -5381,7 +5424,7 @@ Object.keys(SK).forEach(sk=>{const st=SK[sk],op=st.op,sub=()=>`${st.type} · ${O
  if(!st.v70)['Foundation','Health','Performance','Findings','Work','Evidence'].forEach(tab=>addL(`site/${sk}/${tab.toLowerCase()}`,st.name,'Sites',tab,`${tab} views for ${st.name} (not built in this mock-up).`,()=>deepPlaceholder(sk,tab),{site:sk,siteTab:tab,stub:true,ltabs:()=>siteTabRow(sk,tab),crumbs,loopNotes,subtitle:sub()}));});
 
 /* Decisions: drill-down pages, not a menu */
-DEC.forEach(d=>addL(`decision/${d.id}`,d.q,'Portfolio','Decision',d.q,()=>decisionScreen(d.id),{site:d.site,h1:()=>uxDecQuestion(d),ltabs:()=>'',crumbs:()=>[['Portfolio','portfolio'],['Act first','portfolio/act-first'],[SK[d.site].name,`site/${d.site}`],['Decision']],loopNotes,
+DEC.forEach(d=>addL(`decision/${d.id}`,d.q,'Portfolio','Decision',d.q,()=>decisionScreen(d.id),{site:d.site,h1:()=>['choose','none'].includes(uxDecState(d.id).key)?uxDecQuestion(d):d.q, /* UX audit C17: a question only while a choice is waiting */ltabs:()=>'',crumbs:()=>[['Portfolio','portfolio'],['Act first','portfolio/act-first'],[SK[d.site].name,`site/${d.site}`],['Decision']],loopNotes,
  subtitle:`${SK[d.site].name} · ${OPS[SK[d.site].op].name} · options compared with no action`,actions:()=>btn(`site/${d.site}`,'Open site')}));
 
 window.mockupManifest = SCREENS.map(({render,ltabs,crumbs,actions,loopNotes:_l,...meta})=>({...meta,title:typeof meta.title==='string'?meta.title:'',layer4_status:REG_STATUS({...meta}),layer4_note:REG_NOTE({...meta})}));

@@ -156,6 +156,7 @@ function issueList(items){return items.length?`<ul class="ob-list">${items.map((
 function obCol(ic,title,body){return `<div class="ob-col"><h4>${colIcon(ic)}${title}</h4>${body}</div>`;}
 function obName(key,name,def){return `${catIcon(key)}<span class="ob-name">${name}<small>${def}</small></span>`;}
 function outcomeRow(d,key,name,def){const x=BOARD[d][key],tone=TONE[x.st],wk=`${d}:${key}`,parts=key==='grow'?GROW[d]:null;
+ if(x.st==='na')return `<div class="ob ob-later"><div class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-none">Not applicable</span><span class="ob-head muted">${x.head}</span></div></div>`;
  if(x.st==='notyet')return `<div class="ob ob-later"><div class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-none">Not measured yet</span><span class="ob-head muted">${x.sub}</span></div></div>`;
  const n=x.issues.length,h=x.hand.length;
  return `<details class="ob tone-${tone}" ${x.st==='needs'?'open':''}><summary class="ob-sum">${obName(key,name,def)}<span class="oc-chip tone-${tone}">${STATE[x.st]}</span><span class="ob-head"><span class="ob-val">${val(x.head)}</span>${WHY[wk]?whyBtn(wk):''}${DAYS[d]&&DAYS[d][key]?`<small class="ob-days">${DAYS[d][key]}</small>`:''}</span><span class="ob-counts">${n?`${n} issue${n>1?'s':''}`:'No open issues'}${h?` · ${h} in hand`:''}</span></summary>
