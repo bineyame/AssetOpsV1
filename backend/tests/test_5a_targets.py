@@ -226,8 +226,3 @@ def test_2_an_intake_that_is_gone_is_a_bug() -> None:  # spec §2 (P1): `None` r
     w["store"].intakes[:] = [i for i in w["store"].intakes if i.id != w["intakes"][0]]
     with pytest.raises(RuntimeError, match="budget line without its intake"):
         site(w, "KOBO-001")
-
-
-# --- test 10: DS1b parity: stopped (mid-build-questions.md Q1) -------------------------------------------------------
-# Calling DS1b's `build_records` from `backend/tests` is a product-to-simulator import, which
-# `tools/checks/dependency-direction.ps1` refuses; the Architect rules where the parity test lives.

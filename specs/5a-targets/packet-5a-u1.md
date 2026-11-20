@@ -3,7 +3,7 @@
 Implementer (Claude), 2026-11-20. Branch `task/5a-targets`, worktree `/opt/assetecon/AssetOpsV1-5a`, base `main`
 `880ba4dbf`. Spec `spec.md` rev 2 §2 and §5 (step 1 and 2), §6 tests 1, 2 and 10; rulings D-5A.1 to D-5A.4, D-5A.14.
 P5 approved: `owner/owner-p5-approved-and-defaults-2026-11-20.md` (D-5A.12 met). Units 2 and 3 not started (wait for
-`4b1`). **Mid-build questions: 1** (`mid-build-questions.md` Q1, test 10). USER_REVIEW_REQUIRED: false for unit 1
+`4b1`). **Mid-build questions: 1, answered** (`mid-build-questions.md` Q1, test 10 now in the simulator tests). USER_REVIEW_REQUIRED: false for unit 1
 (no screen; the target figures the owner judges come in units 2 and 3).
 
 ## Files
@@ -50,9 +50,13 @@ Module paths (PYTHONPATH = worktree backend, backend/tests, contracts, simulator
 
 ## Known deviations
 
-- Test 10 (DS1b parity) stopped: `backend/tests` may not import `assetops_simulator` (dependency-direction guard).
-  The fixture's step 1 was produced from `build_records` output and matches §5's six values; the parity assertion
-  waits for Q1's ruling (suggested home: `simulator/tests/world/`).
+- Test 10 (DS1b parity) moved by the Architect's Q1 answer (`rulings.md` "Mid-build answers") to
+  `simulator/tests/world/test_5a_fixture_parity.py` (4 tests a-d; reads the fixture by path, no backend import). The
+  backend stub is removed. No mismatch found, so no Q2. Plants (fixture edited, run, `git checkout` revert, tree
+  clean): P10a Kobo `om` value 601.00 fails (c); P10b drop one record fails (a); P10c rename one `source_record_id`
+  fails (b) (and (c) by KeyError). Run with PYTHONPATH = worktree backend, contracts, simulator (verified
+  `/opt/assetecon/AssetOpsV1-5a/...`): `simulator/tests/world` + `test_5a_targets.py` -> 140 passed; 5a + 3A4 + 3B3
+  (`test_3b3_window_price_selection.py` too) -> 111 passed.
 - Rule 1 "version_ref None with no lines": read as no candidates; with one version whose only lines are non-factors
   the version is still reported (conservative; no test depends on it).
 
@@ -62,3 +66,7 @@ Module paths (PYTHONPATH = worktree backend, backend/tests, contracts, simulator
 - Declarer join key `(factor_id, version_ref, line_ref, currency, provenance)`; two revisions on one key raise (cannot
   happen for a used line, since 3A4 would have grouped them as a duplicate).
 - Focus: rule order in `_classify`, the join, D-5A.14's behaviour.
+
+Update after Q1: fast check-all on the final tree -> `All 40 guards passed`, 76.8 s wall (an earlier run failed
+dependency-direction because the new file's docstring named the backend package after "imported from"; reworded, the
+guard unchanged).
