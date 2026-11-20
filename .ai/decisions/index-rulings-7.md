@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-3C0A.11)
+# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-DS1B.6)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -29,3 +29,10 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3C0A.10` Standard-library scrypt; no new dependency · live · specs/3C0a-operator-accounts/rulings.md
 - `D-2A.10` Canonical tests live in backend/tests so every merge's full tier runs them · live · specs/2a-canonical-format/rulings.md
 - `D-3C0A.11` Sign-in attempts: hashed key, no person on failure, purged after 30 days · live · specs/3C0a-operator-accounts/rulings.md
+- `D-BW1.7` Three lanes (owner item 3); P2 approved (item 2); the third lane opens with DS1b · live · specs/BW1-build-wave1/rulings.md
+- `D-DS1B.1` DS1b writes month cost lines and budget lines only · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.2` world/leaves.py keeps its record-field set; D-2A.8 amended · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.3` Zero liability writes no row; zero cost lines do · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.4` Budget lines follow the evaluator's first-present pass-through rule · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.5` DS1b records are source-emulated · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.6` DS1b tests in simulator/tests/world; merge gap is a tools item · live · specs/DS1b-canonical-writers/rulings.md

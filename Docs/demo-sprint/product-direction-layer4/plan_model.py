@@ -81,7 +81,7 @@ REVIEW_MIN = {"discovery": 45, "standard": 30}                  # W5: discovery 
 REREVIEW_MIN, REREVIEW_SHARE = 15, 0.5
 REVIEW_HOURS_A_DAY = 14   # assumption: hours a day the coordinator dispatches agents
 COMMIT_BY = 12            # committed = lands by day 12 at the planning pace (two days of reserve)
-BUILD_NOW = 2             # build lanes open on 20 Nov (coordinator): of W4's four, one runs the UI Architect's mock-up work and DS1m holds another
+BUILD_NOW = 3             # owner, 20 Nov (item 3: "accept"): three build lanes now, four later; the UI Architect's mock-up work holds the fourth
 SCREEN_RELEASE = 5.0      # ASSUMPTION: screen slices start once the Decision page, the Site page and the plan screen pass UI review (owner, 20 Nov), taken as the
                           # start of day 6; re-run the model on the day the review passes
 HANDSHAKE_LD = 0.1        # ASSUMPTION: lane-days per slice for the spec handshake's one combined round (RULES §4, items 1-7), the optimistic
@@ -178,7 +178,7 @@ PAGES = [("P1", "Steps 1 and 3C: the corrected figure; sign-in, roles and the pe
          ("P8", "Step 8: economic and causal verdicts", 0.25, False),
          ("P9", "Step 9: rights rows and the claim case; cold and EV records", 0.75, False)]
 # with_pack: True = approved with the pack (OD-20); "start" = asked of the owner with the non-screen build start, 20 Nov, and
-# scheduled as approved on day 1 (PENDING: if it is not approved when 2a's handshake ends, lane B builds DS2 first; D-BW1.1).
+# scheduled as approved on day 1. Approved by the owner, 20 Nov (item 2: "approved", owner/owner-answers-eight-open-questions-2026-11-20.md).
 PAGE = {p: dict(id=p, name=n, eff=e, with_pack=w) for p, n, e, w in PAGES}
 KEYS = ("id", "step", "construct", "name", "lane", "rng", "deps", "gate", "flags")
 IT = [dict(zip(KEYS, r)) for r in SLICES]
@@ -386,7 +386,7 @@ SIT, PLAN = best_sittings()
 SLIP = run(PACES["slip"], SIT)
 OBS = run(PACES["observed"], SIT)
 FOUR = run(PACES["plan"], SIT, n_build=N_POOLED)       # W4's four lanes, were the UI lane and DS1m's lane building
-THREE = run(PACES["plan"], SIT, n_build=3)             # a third build lane once DS1m frees its lane
+TWO_NOW = run(PACES["plan"], SIT, n_build=2)           # the two lanes of the first re-cut (20 Nov, before the owner's "3 now")
 NOHOLD = run(PACES["plan"], SIT, hold=0.0)             # the two lanes with no screen hold
 NO_REWORK = run(PACES["plan"], SIT, rework=0.0)
 LAND, LAND_SLIP, LAND_OBS = landed(PLAN), landed(SLIP), landed(OBS)
@@ -417,7 +417,7 @@ def owner_load(r):
         load[k] += 30 + 15 * len(pages); notes[k].append(f"sitting {n}")
     start = [p for p in PAGE if PAGE[p]["with_pack"] == "start"]
     if start:                         # P2, asked with the build start: read and approved on day 1, as a sitting's page is
-        load[1] += 35 * len(start); notes[1].insert(0, f"reads and approves {', '.join(start)} (asked with the build start)")
+        load[1] += 35 * len(start); notes[1].insert(0, f"reads and approves {', '.join(start)} (approved with the build start, 20 Nov)")
     load[13] += 30; notes[13].append("reads the day-14 pack")
     load[14] += 120; notes[14].append("walkthrough of the built screens and the next ranked list")
     return load, notes
@@ -486,7 +486,7 @@ def table_capacity():
             (f"Worst case, {N_POOLED} build lanes, heavy tools pooled", f"every agent resident; the two heavy slots full", f"{fmt(peak_gb(N_POOLED, True))} GB: margin {fmt(MARGIN)} GB to the budget ({fmt(MARGIN_HIGH)} GB in the pessimistic case)"),
             (f"Worst case, {N_UNPOOLED + 1} build lanes, not pooled", "check-all's two slots full, the database job beside them, every other agent running tsc", f"{fmt(peak_gb(N_UNPOOLED + 1, False))} GB: does not fit"),
             ("Build lanes the machine allows", "the largest count that fits, capped by W4 as amended", f"{N_POOLED} with the slot pool (merged, T1); {N_UNPOOLED} without"),
-            ("**Build lanes now**", "of those, one runs the UI Architect's mock-up work and DS1m holds another (coordinator, 20 Nov)", f"**{BUILD_NOW}**"),
+            ("**Build lanes now**", "owner, 20 Nov: three now, four later; the fourth runs the UI Architect's mock-up work", f"**{BUILD_NOW}**"),
             ("Screen hold", "screen slices wait until the Decision page, the Site page and the plan screen pass UI review (owner, 20 Nov)", f"assumed released at the start of day {int(SCREEN_RELEASE) + 1} (assumption; re-run when it passes)"),
             ("Spec handshake", "one combined Reviewer and Implementer round per slice before its code (RULES §4)", f"{fmt(HANDSHAKE_LD)} lane-days a slice (assumption)"),
             ("Observed pace", f"{OBS_MERGES} task merges in {fmt(OBS_SPAN_DAYS)} days, {fmt(OBS_OPEN)} branches open on average", f"{fmt(OBS_PACE)} units per lane-day"),
@@ -533,12 +533,13 @@ def table_pages():
     out = ["| Page | Covers | Architect lane-days | Approved |", "|---|---|---:|---|"]
     for p, n, e, w in PAGES:
         k = approval_day(p, SIT)
-        when = 'with the pack, before day 1' if w is True else 'asked with the build start, 20 Nov (pending)' if w == "start" else ('sitting ' + str(SIT.index(k) + 1) + ', day ' + str(k)) if k else 'after day 14'
+        when = 'with the pack, before day 1' if w is True else 'approved by the owner, 20 Nov (with the build start)' if w == "start" else ('sitting ' + str(SIT.index(k) + 1) + ', day ' + str(k)) if k else 'after day 14'
         out.append(f"| {p} | {n} | {fmt(e)} | {when} |")
     return "\n".join(out)
 
 
-LANE_NOW = {"SRC": "Lane A · sources, money, the person, decisions", "STR": "Lane B · structure, the plan's records, data tools, screens"}
+LANE_NOW = {"SRC": "Lane A · sources and money", "STR": "Lane B · structure, the plan's records, data tools, screens",
+            "DEC": "Lane C · the person, decisions, calibration"}
 LANES_NOW = BUILD_LANES[:BUILD_NOW]
 
 
@@ -559,7 +560,7 @@ def table_pace():
     out = ["| Case | Units landed by day 14 | Furthest step complete | Slices landed |", "|---|---:|---|---:|"]
     n_all = len(IT) - len(DONE)
     for n, r in (("slip pace (2 units a lane-day)", SLIP), (f"**planning pace (3), {BUILD_NOW} lanes**", PLAN), (f"observed pace ({fmt(OBS_PACE)})", OBS),
-                 ("planning pace, a third lane once DS1m frees it", THREE), (f"planning pace, all {N_POOLED} lanes building", FOUR),
+                 ("planning pace, 2 lanes (the first re-cut)", TWO_NOW), (f"planning pace, all {N_POOLED} lanes building", FOUR),
                  ("planning pace, no screen hold", NOHOLD), ("planning pace, no rework allowance", NO_REWORK)):
         f = furthest(r)
         out.append(f"| {n} | {fmt(landed_units(r))} | {STEP_NAME[f] if f else 'none'} | {len(landed(r) - DONE)} of {n_all} |")
