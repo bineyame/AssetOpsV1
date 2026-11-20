@@ -1192,8 +1192,9 @@ def entry_key(e):
 
 
 def entry_key13(e):
-    """H13: (subject, record_kind, cause, carried_as). MB6 (pending): a target-side `leaves` subject is keyed by its kind only,
-    because its leaf list is computed on each month's records (Mto's `unmapped_kwh` is split only in October)."""
+    """H13: (subject, record_kind, cause, carried_as). MB6 (ruled): a target-side `leaves` subject is keyed by its kind only,
+    because its leaf list is each month's own (Mto's `unmapped_kwh` is split only in October); H13 adds that the list is a
+    subset of October's, and H4b compares it exactly against the independent model."""
     subj = entry_subject(e)
     return (json.dumps({"leaves": None} if "leaves" in subj else subj, sort_keys=True, ensure_ascii=False),
             e.get("record_kind"), e.get("cause"), e.get("carried_as"))
@@ -1334,6 +1335,11 @@ def history_checks(doc, dv, root, path, im):
                     check(f"H13 {scope}: entries == October's same side less TARGET and conditions, plus {H['missing_cause']} "
                           f"(only history {sorted(set(got13) - set(want13))[:2]}; only October {sorted(set(want13) - set(got13))[:2]})",
                           got13 == want13)
+                    oct_leaves = {x for e in octe if "leaves" in e for x in e["leaves"]}
+                    for e in hs.get("missing") or []:
+                        if "leaves" in e:
+                            stray = sorted(set(e["leaves"]) - oct_leaves)
+                            check(f"H13 {scope}: {e.get('carried_as')} leaves are a subset of October's list (stray {stray})", not stray)
                     # H5: what history may not show
                     if V == "MINI_GRID" and side == "actual" and "diesel_l" in nodes:
                         check(f"H5 {scope}: unexplained_l {rec.get('unexplained_l')} <= 2% of diesel_l {nodes['diesel_l']}",

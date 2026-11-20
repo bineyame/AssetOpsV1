@@ -19,7 +19,9 @@ Not merged anywhere. `USER_REVIEW_REQUIRED: true` (spec header: new figures, see
   - `compute_history` computes the same entries its own way;
   - H4b, H12 and H13 added; H2's text follows MB3; the stale comment is fixed;
   - MB6 opened. |
-| (this) | Packet update. |
+| `f0c1a50ce` | Packet update. |
+| `b712a2067` | Merge of `main` (MB6 ruled). |
+| (this) | MB6: H13 also requires each `leaves` list to be a subset of October's list (`check_manifest.py` only); packet. |
 
 `git diff --stat 8375504a7..HEAD` lists only spec §3's DS1p files, plus `mid-build-questions.md` and this packet.
 
@@ -30,7 +32,8 @@ Not merged anywhere. `USER_REVIEW_REQUIRED: true` (spec header: new figures, see
 | Base after merge, in place (`8375504a7`) | **4465 passed, 0 failed** | 114 / 0 | ok |
 | `92a1c018b` (checks only) | 4746 passed (281 history), **460 failed**: H2 54, H3 159, H4 138, H5 21, H6 85, H7 3 | – | – |
 | `3938f2294` | 7153 passed (2688 history checks), 0 failed | 114 / 0 | ok |
-| Head (`2b00b837b`) | **7319 passed (2854 history checks), 0 failed**; 7319 − 2854 = 4465 | 114 / 0 | ok |
+| `2b00b837b` | 7319 passed (2854 history checks), 0 failed | 114 / 0 | ok |
+| Head (MB6) | **7334 passed (2869 history checks), 0 failed**; 7334 − 2869 = 4465 | 114 / 0 | ok |
 
 H1, H8, H9, H10 and H11 already passed at `92a1c018b`, because their inputs were already correct. Each one was shown
 failing on a planted case instead (below).
@@ -55,6 +58,7 @@ The clean run has 0 failures. Each plant fails its own check:
 | H4b | Ruiru July plan's RESIDUAL entry removed | `missing entries == independent (… only there [('plan', '{"leaves": ["kwh_2200_2400"]}' …` and `Ruiru's plan carries carried_as RESIDUAL` |
 | H12 | `NOT_IN_HISTORY` planted in `missing-records.json` (Kobo `usable_capacity`) | `missing-records.json causes are main causes only (bad ['NOT_IN_HISTORY'])` |
 | H13 | Embakasi August actual's tariff assumption dropped | `entries == October's same side less TARGET and conditions, plus NOT_IN_HISTORY (… only October [` |
+| H13 (subset) | `om` added to Kobo's August plan ASSUMPTION list | `ASSUMPTION leaves are a subset of October's list (stray ['om'])` |
 | H13 (MB6 off) | leaf lists keyed whole | 3 failures, Mto plan in July, August and September (`unmapped_kwh` is split only in October) |
 
 Evaluator refusals, each on one plant:
@@ -123,14 +127,13 @@ Example: Thika's `not_observed` is `cooling_available_minutes`,
 | History entries = October's same side less TARGET and conditions (M1, MB5) | H13 and H4b pass |
 | Simulated label (R8) | H7 passes; no `Recorded` in `history.json` or `derived["history"]` |
 | Tests | `PY -m pytest simulator/tests/world -q`: 90 passed in 3.07 s |
-| Fast check-all (heavy slot) | `All 37 guards passed`, 58 s wall, at `3938f2294`. Not rerun after fix round 1, which changed pack files only. |
+| Fast check-all (heavy slot) | `All 37 guards passed`, 145 s wall, at the MB6 head (58 s earlier, at `3938f2294`) |
 
-## Mid-build questions: 4 from DS1p (MB3-MB6; 6 in the folder)
+## Mid-build questions: 4 from DS1p (MB3-MB6), all ruled; 6 in the folder
 
-- MB3, MB4 and MB5 are ruled; the build follows the rulings.
-- **MB6 is open, from the fix round.** H13 keys a target-side `leaves` subject by its kind, because the helper computes
-  the list from each month's records. Mto's October list has `unmapped_kwh` from the incident and history does not.
-  H4b compares the full list against the independent model.
+- The build follows the rulings for MB3, MB4 and MB5.
+- **MB6:** each month's own leaf list is correct. H13 matches a `leaves` entry by kind and requires its list to be a
+  subset of October's. H4b keeps the exact list comparison against the independent model.
 
 ## Not verified or not done
 
