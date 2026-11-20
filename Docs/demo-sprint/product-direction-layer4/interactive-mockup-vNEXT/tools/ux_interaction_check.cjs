@@ -96,12 +96,12 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
       if (PLANT === 'anchor') await p.evaluate(() => { iaInPage = () => false; });
       const before = await p.evaluate(() => location.hash.split('?')[0]);
       await p.locator('#app a', { hasText: 'See the options' }).first().click(); await p.waitForTimeout(700);
-      const r = await p.evaluate(() => { const h = document.querySelector('#app h1'), sec = document.getElementById('uxcards-ruiru-connector'), h2 = sec && sec.querySelector('h2'), sb = document.querySelector('.ux-dsticky.is-on'), sbBottom = sb ? sb.getBoundingClientRect().bottom : 0, t = h2 ? h2.getBoundingClientRect().top : -1;
-        return { path: location.hash.split('?')[0], h1: h ? h.textContent.trim() : '', nf: /Page not found/.test(document.body.textContent), focus: document.activeElement && document.activeElement.id, top: t, sbBottom, inView: t >= 0 && t < innerHeight, below: t >= sbBottom - 1 }; });
+      const r = await p.evaluate(() => { const h = document.querySelector('#app h1'), sec = document.getElementById('uxcards-ruiru-connector'), h2 = sec && sec.querySelector('h2'), sb = document.querySelector('.ux-dsticky.is-on'), sbBottom = sb && sb.getBoundingClientRect().top < innerHeight / 2 ? sb.getBoundingClientRect().bottom : 0, t = h2 ? h2.getBoundingClientRect().top : -1;
+        return { path: location.hash.split('?')[0], h1: h ? h.textContent.trim() : '', nf: /Page not found/.test(document.getElementById('ia-root').innerText), focus: document.activeElement && document.activeElement.id, top: t, sbBottom, inView: t >= 0 && t < innerHeight, below: t >= sbBottom - 1 }; });
       ok(r.path === before && r.path === '#/decision/ruiru-connector' && !r.nf && r.h1 !== 'Page not found' && r.focus === 'uxcards-ruiru-connector' && r.below && r.inView, `in-page link at ${w}: "See the options" stays on #/decision/ruiru-connector (${r.path}), H1 "${r.h1.slice(0, 40)}", focus on ${r.focus || 'nothing'}, options heading at ${Math.round(r.top)} px (sticky bar bottom ${Math.round(r.sbBottom)}), not-found ${r.nf}`);
       await p.context().close(); } };
   if (PLANT === 'anchor') { await anchorTest(); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
-  await anchorTest();
+  await anchorTest(); if (process.env.UXI_ONLY === 'anchor') { await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   // 1 drawers on the Overview: open, focus, trap (every press, D-IA.31), Esc, return focus; all three operators
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {

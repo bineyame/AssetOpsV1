@@ -159,6 +159,10 @@ function iaInPage(a) {
   let id; try { id = decodeURIComponent(href.slice(1)); } catch (e) { return false; }
   const el = document.getElementById(id), app = document.getElementById('app');
   if (!el || !app || !app.contains(el)) return false;
+  /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so the target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom) */
+  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
+  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().height) + 8; if (!was) sb.classList.remove('is-on'); }
+  document.documentElement.style.setProperty('--ia-sticky-h', `${hh}px`);
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
   if (!el.matches('a[href],button,input,select,textarea,[tabindex]')) el.setAttribute('tabindex', '-1');

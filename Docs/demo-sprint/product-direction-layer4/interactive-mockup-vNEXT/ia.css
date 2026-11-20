@@ -58,4 +58,5 @@
 /* D-IA.38: a drill-down page (decision, record, asset) has only its crumbs as the way up, so they stay at every size */
 .ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{display:flex}
 @media (max-width:600px){.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{margin-bottom:var(--s1)}}
-/* D-IA.36: an in-page target stays below the sticky bar after the scroll */
+/* D-IA.36: an in-page target stays below the sticky bar after the scroll (iaInPage sets --ia-sticky-h to the bar's measured height) */
+.ux-ocards{scroll-margin-top:var(--ia-sticky-h,0px)}
