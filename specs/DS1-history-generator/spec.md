@@ -329,9 +329,11 @@ history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo o
 - `HISTORY_MONTHS`;
 - `HISTORY_MONEY_LEAVES`;
 - `HISTORY_NO_PLAN_VALUE`;
-- `HISTORY_FIELD history <field>`: a required `history` field is absent (review L4);
+- `HISTORY_FIELD history <field>`: a required `history` field is absent, or the `history` block itself
+  (`HISTORY_FIELD history history`) (review L4; fix-round item 3);
 - `HISTORY_NUMBER <scope_key|history> <field>`: a number that is not a finite decimal (NaN, Infinity, or text that is not
-  a decimal) (review L4).
+  a decimal) (review L4), or one whose `Decimal` `adjusted()` exponent is outside [-12, 12] or whose text exceeds 32
+  characters, checked before any `Fraction` conversion (fix-round item 4).
 
 An **absent** input value (`energy_model`, `physical`, room capacity, an October leaf an `anchor` names) is
 `HISTORY_RULE_REF`. `HISTORY_ANCHOR_ZERO` is only for a value that is present and zero.
