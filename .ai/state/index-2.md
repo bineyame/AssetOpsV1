@@ -77,3 +77,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 163. `5b` attribution units 2-3: carrying at the budget line, Site and portfolio bridges (k of n, SUM-only), pinned read · data.md
 164. `IA-1b` mock-up hub shape: Portfolio tabs and Site Overviews (IA-1 shape rebuild) · demo.md
 165. `4d` the monthly litre split: necessary, candidate and unexplained litres (Modelled) from dispatch-3.2 at the fuel curve and the dip balance · data.md
+166. `IA-1c` mock-up decision shape and the "Waiting for you" inbox (IA-1 shape rebuild) · demo.md

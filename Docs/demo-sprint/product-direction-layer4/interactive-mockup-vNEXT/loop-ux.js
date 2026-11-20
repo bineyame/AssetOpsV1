@@ -689,7 +689,9 @@ function uxChooseDialog(id, oid) {
 /* Confirm the choice uses the one feedback pattern (uxActDo): toast with Undo, then the decision's state changes on the page */
 function uxChooseAct(id, oid) { return { title: `Choose: ${optLabel(oid)}`, primary: 'Confirm the choice', body: '', apply: () => ({ chosen: { [id]: oid } }), toast: `${optLabel(oid)} chosen` }; }
 
-function uxDecisionPage(id, parts) {
+/* D-IA.22: the page's slots; uxDecisionPage joins them in today's order, and the decision shape places them in levels */
+function uxDecisionPage(id, parts) { const S = uxDecisionSlots(id, parts); return `${S.sticky}${S.head}${S.rec}${S.cards}${S.secs}${S.drawers}`; }
+function uxDecisionSlots(id, parts) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), st = uxDecState(id), rec = uxRec(d), x = rec ? OPT[rec] : null, T = decText(d);
   const due = ATTN[op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
   const ex = execOf(op), chosen = D.item || uxMock().chosen?.[id] || null;
@@ -763,7 +765,7 @@ function uxDecisionPage(id, parts) {
      state and the primary action; on a phone it sits at the bottom */
   const stickyAct = st.key === 'choose' ? uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary') : st.key === 'approval' ? link('portfolio/act-first/plan', 'Review the plan', 'button') : st.key === 'released' ? uxOpener(`uxacts-${id}`, 'See the Actions', 'button') : '';
   const sticky = `<div class="ux-dsticky" role="region" aria-label="This decision" data-ux-sticky><span class="ux-dsticky-t">${d.q}</span><span class="ux-dsticky-n">${x ? (money(ev) ? `${wholeText(ev)} <small>${uxQual(rec)}</small>` : `<small>${plain(ev)}</small>`) : ''}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span>${stickyAct}</div>`;
-  return `${sticky}${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}${howDrawer}`;
+  return { sticky, head, rec: recCard, cards: cardsSec, secs: why, drawers: `${dialogs}${evidence}${actsDrawer}${howDrawer}` };
 }
 /* lists are capped at 7 rows, then "Show all" (the long-page standard); option comparisons are tables and are never cut */
 function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => { if (ul.closest('.ux-drawer')) return; const li = [...ul.children].filter(x => x.tagName === 'LI'); if (li.length <= 7) return;
@@ -1044,6 +1046,10 @@ function uxActDo(key) {
   if (A.valid && !A.valid()) return; /* a required answer is missing: nothing is recorded */
   const patch = A.apply();
   const next = { ...before, plan: { ...(before.plan || {}), ...(patch.plan || {}) }, chosen: { ...(before.chosen || {}), ...(patch.chosen || {}) } };
+  /* D-IA.24: the act log ("Since you last looked"), newest first; by is who the act is recorded under (the decider for a choice, the
+     executive for the plan), at the wall-clock time; Undo restores the state before, so the entry goes with it */
+  const z = n => String(n).padStart(2, '0'), t = new Date(), by = name === 'choose' ? (deciderOf(args[0]).p || {}).name || '' : (execOf(LS.op) || {}).name || '';
+  next.log = [{ key, op: LS.op, by, at: `${t.getFullYear()}-${z(t.getMonth() + 1)}-${z(t.getDate())}T${z(t.getHours())}:${z(t.getMinutes())}:${z(t.getSeconds())}`, toast: A.toast }, ...(before.log || [])];
   uxMockSet(next); document.getElementById('uxact')?.remove(); document.querySelectorAll('.ux-drawer[data-open="true"]').forEach(d => uxClose(d));
   render(); uxFocusState(); uxToast(`${A.toast}. Shown in this demonstration only.`, () => { uxMockSet(before); render(); uxToast('Undone.'); uxFocusAction(key); });
 }

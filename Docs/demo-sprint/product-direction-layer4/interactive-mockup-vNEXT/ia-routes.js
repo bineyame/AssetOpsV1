@@ -1,6 +1,6 @@
 /* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
    insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
-const IA_LANDED = new Set(['IA-1a', 'IA-1b']);
+const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
@@ -20,7 +20,12 @@ const IA_ROUTES = [
   { id: 'portfolio/demand-and-capacity', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Demand & capacity', tabGroup: 'Portfolio',
     title: ctx => 'Demand & capacity', crumbs: ctx => [['Portfolio', 'portfolio'], ['Demand & capacity']], render: ctx => shapeHubDemand(ctx) },
   { id: 'site/:site', shape: 'hub', object: 'site', home: 'Sites', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Site',
-    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) }
+    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) },
+  /* IA-1c (spec §4, D-IA.26): the decision shape, every DEC entry of the operator's Sites. The H1 is the question while the decision waits
+     for a choice and its subject once chosen (C17, as reviewed); "Decisions" is text until IA-2b; the Site crumb is the way to the Site */
+  { id: 'decision/:dec', shape: 'decision', object: 'decision', home: 'Decisions', unit: 'IA-1c', tab: null, tabGroup: null,
+    title: ctx => { const d = decById(ctx.params.dec); return iaWaiting(d.id) ? uxDecQuestion(d) : d.q; },
+    crumbs: ctx => { const d = decById(ctx.params.dec); return [['Decisions'], [SK[d.site].name, `site/${d.site}`], [d.q]]; }, render: ctx => shapeDecisionPage(ctx) }
 ];
 /* the hub tab groups (spec §3.1), keyed by route.tabGroup; only landed tabs are drawn, and a group with one landed tab draws none */
 const IA_TAB_GROUPS = {
@@ -120,12 +125,22 @@ function IA_G1_SURFACES() {
     OPS[op].sites.forEach(sk => { const r = iaLargestAdverse(sk);
       out.push(r ? { op, surface: `${SK[sk].name} largest driver against target (${r.s.lab})`, route: `site/${sk}#drawer=${r.id}`, limit: 3, via: 'any' }
         : { op, surface: `${SK[sk].name} largest driver against target`, route: null, limit: 3, via: 'any', na: 'no driver against target' }); });
+    if (!IA_LANDED.has('IA-1c')) continue;
+    /* IA-1c (spec §6): every queue decision (1, via the Overview queue), every waiting decision and the proposed plan (2, via the inbox),
+       every plan item's decision (2) */
+    const q = d => decById(d).q;
+    iaQueueCap(uxMergeRows(ATTN[op]).map(m => m.d), 6).shown.forEach(d => out.push({ op, surface: `queue: ${q(d)}`, route: `decision/${d}`, limit: 1, via: 'queue' }));
+    iaDecIds(op, { kind: 'all' }).filter(iaWaiting).forEach(d => out.push({ op, surface: `waiting: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'inbox' }));
+    if (uxPlanState(op).state === 'PROPOSED') out.push({ op, surface: 'the proposed plan', route: 'plan', limit: 2, via: 'inbox' });
+    [...new Set(planCase(op).ids.map(id => DEC_SEE_ALSO[id] || (decOf(id) || {}).id).filter(Boolean))].forEach(d => out.push({ op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'any' }));
   }
   return out;
 }
 /* the context every route renders from */
+/* D-IA.40: the Site a route's object belongs to (a Site page's :site, a decision's Site); IA-2 adds its object parameters here */
+function iaParamSite(params) { if (!params) return null; if (params.site) return params.site; if (params.dec) { const d = decById(params.dec); return d ? d.site : null; } return null; }
 function iaCtx(path, params, query) {
-  const q = query || {}, sc = String(q.scope || (params && params.site ? `site:${params.site}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
+  const q = query || {}, ps = iaParamSite(params), sc = String(q.scope || (ps ? `site:${ps}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
   const sites = OPS[LS.op].sites, ok = kind === 'group' ? sites.some(k => iaVertical(k) === id) : kind === 'site' ? sites.includes(id) : false; /* D-IA.35 L4: a scope that matches no Site of this operator is all */
   return { op: LS.op, scope: ok ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
 }
@@ -136,3 +151,38 @@ function iaScreen(route, path) {
 }
 /* the palette lists only what is live, at its canonical address (R9) */
 function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
+
+/* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
+function iaInPage(a) {
+  const href = a.getAttribute('href') || '';
+  if (!href.startsWith('#') || href === '#' || href.startsWith('#/')) return false;
+  let id; try { id = decodeURIComponent(href.slice(1)); } catch (e) { return false; }
+  const el = document.getElementById(id), app = document.getElementById('app');
+  if (!el || !app || !app.contains(el)) return false;
+  /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so the target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom) */
+  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
+  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
+  document.documentElement.style.setProperty('--ia-sticky-h', `${hh}px`);
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+  if (!el.matches('a[href],button,input,select,textarea,[tabindex]')) el.setAttribute('tabindex', '-1');
+  el.focus({ preventScroll: true });
+  return true;
+}
+document.addEventListener('click', e => {
+  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+  if (a && iaInPage(a)) e.preventDefault();
+}, true);
+/* D-IA.37: the top bar is one row from 761 px up; controls collapse in a fixed order (search to its icon, the inbox label, the avatar) and never truncate */
+function iaFitTopbar() {
+  const tb = document.querySelector('.ia-frame .topbar'); if (!tb) return;
+  if (innerWidth < 761) { tb.dataset.fit = '5'; return; } /* D-IA.41: the phone is the final form, keyed the same way */
+  const fits = () => tb.scrollWidth <= tb.clientWidth + 1;
+  tb.dataset.fit = '0'; for (let n = 1; n <= 4 && !fits(); n++) tb.dataset.fit = String(n);
+  if (!fits()) tb.dataset.fit = '5'; /* 5 is final: two rows, no test */
+}
+(function () {
+  let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => iaFitTopbar());
+})();

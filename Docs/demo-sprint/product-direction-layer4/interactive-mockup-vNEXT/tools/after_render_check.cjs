@@ -2,7 +2,7 @@
    operator, the observer is attached through window.__iaInserted, straight after the one insertion, to the frame root it is
    handed; it waits for idle (2 animation frames + 300 ms) and dispatches no event. Any mutation fails, except a class change
    whose only changed token is is-on on [data-ux-sticky] or scrolls on .scroll-region.
-   Run: node tools/after_render_check.cjs   Plants: AR_PLANT=text|attr|late|replace (hosts: one route per shape per operator, D-IA.29; each must fail). */
+   Run: node tools/after_render_check.cjs   Plants: AR_PLANT=text|attr|late|replace|fitlate (hosts: one route per shape per operator, D-IA.29; each must fail). */
 const { boot, liveRoutes, OPS, sleep } = require('./ia_crawl.cjs');
 const PLANT = process.env.AR_PLANT || '';
 const PLANTS = {
@@ -12,6 +12,7 @@ const PLANTS = {
     const _b = iaBind; iaBind = route => { _b(route); setTimeout(() => { const rt = document.getElementById('ia-root'), n = rt.querySelector('[data-ar-plant]'), before = n && n.textContent; _pw(rt); if (!n || n.textContent === before) throw new Error('plant did not bite'); }, 0); }; }`,
   attr: `{ const _b = iaBind; iaBind = route => { _b(route); setTimeout(() => document.querySelector('#ia-root .canvas div').setAttribute('data-ar-plant', ''), 0); }; }`,
   replace: `{ const _b = iaBind; iaBind = route => { _b(route); setTimeout(() => { const rt = document.getElementById('ia-root'), c = rt.cloneNode(true); c.querySelector('h1').textContent = 'Rewritten after render'; rt.replaceWith(c); }, 0); }; }`,
+  fitlate: `{ const _b = iaBind; iaBind = route => { _b(route); setTimeout(() => iaFitTopbar(), 0); }; }`,
   late: `{ const _b = iaBind; iaBind = route => { _b(route); setTimeout(() => document.querySelector('#ia-root h1').appendChild(document.createTextNode(' late')), 250); }; }`
 };
 if (PLANT && !PLANTS[PLANT]) { console.error(`after_render_check: unknown plant ${PLANT}`); process.exit(2); }
