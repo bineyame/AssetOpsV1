@@ -1,6 +1,7 @@
 # 3A2: file intake of an operator's exports (implementer spec)
 
-Status: live, spec **rev 2** (handshake round 1 answered in `rulings.md`; `.ai/RULES.md` §4).
+Status: in_review, spec **rev 2** (handshake round 1 answered in `rulings.md`; `.ai/RULES.md` §4). Built on
+`task/3A2-commercial-file-intake`; packet `packet.md`; mid-build questions 2 (`mid-build-questions.md`).
 
 Architect (Claude), 2026-11-20. Lane A (sources), the deep-dive path's unit 2 (`two-week-build-plan.md` §0.1, row 2;
 D-BW1.8 to D-BW1.12; owner RC1 to RC9 accepted, `owner/owner-recut-decisions-rc1-rc9-2026-11-20.md`).
