@@ -6,6 +6,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import time
 from decimal import Decimal
 from fractions import Fraction
 
@@ -263,6 +264,22 @@ def _p_nan_leaf(v):
     site_of(v, "lakeside-power", "Kobo")["period"]["actual"]["staff"] = "NaN"
 
 
+def _p_no_history(v):
+    del v["history"]
+
+
+def _p_huge_leaf(v):
+    site_of(v, "lakeside-power", "Kobo")["period"]["actual"]["staff"] = "1e999999999"
+
+
+def _p_tiny_weight(v):
+    v["history"]["families"]["demand"]["season"]["short_rains"] = "1e-999999999"
+
+
+def _p_long_text(v):
+    site_of(v, "lakeside-power", "Kobo")["period"]["actual"]["staff"] = "1." + "0" * 40
+
+
 def _p_nan_capacity(v):
     tenant_of(v, "harvest-cold")["capacity_crates_per_room"] = "Infinity"
 
@@ -310,6 +327,10 @@ REFUSALS = [
     ("HISTORY_NUMBER", _p_text_token, f"{KOBO} unexplained_l"),
     ("HISTORY_NUMBER", _p_nan_leaf, f"{KOBO} staff"),
     ("HISTORY_NUMBER", _p_nan_capacity, f"{MWEA} crate_days"),
+    ("HISTORY_NUMBER", _p_huge_leaf, f"{KOBO} staff"),
+    ("HISTORY_NUMBER", _p_tiny_weight, "history demand"),
+    ("HISTORY_NUMBER", _p_long_text, f"{KOBO} staff"),
+    ("HISTORY_FIELD", _p_no_history, "history history"),
 ] + [("HISTORY_FIELD", _p_missing_field(f), f"history {f}") for f in REQUIRED]
 
 
@@ -320,6 +341,15 @@ def test_t8_refusals(view: dict, code: str, plant, text: str) -> None:
     with pytest.raises(ValueError) as caught:
         generate_history(view)
     assert str(caught.value) == f"{code} {text}"  # the full "<CODE> <scope> <leaf>" text
+
+
+@pytest.mark.parametrize("plant", [_p_huge_leaf, _p_tiny_weight], ids=["1e999999999", "1e-999999999"])
+def test_t8_extreme_exponent_refuses_fast(view: dict, plant) -> None:
+    plant(view)
+    started = time.monotonic()
+    with pytest.raises(ValueError, match=r"^HISTORY_NUMBER "):
+        generate_history(view)
+    assert time.monotonic() - started < 1.0
 
 
 def test_t8_missing_label_is_a_field_refusal(view: dict) -> None:
