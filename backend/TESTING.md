@@ -16,7 +16,7 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   root, the runner or a dependency manifest. Cite its output and the run's JUnit
   zero-skip check in the review packet. It covers `backend/tests` only. A
   change under `field/`, `host/` or `gateway/` also needs that package's own
-  tests (for example `tools\run-host-tests.ps1 -- host/tests/<file>`).
+  tests (for example `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- host/tests/<file>`).
 - **At every merge to main:** the full backend fast tier in Docker (build once,
   copy per test, below), the full frontend suite and check-all. Schema or shared
   plumbing merges add the slow tier.
@@ -33,11 +33,38 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   (or another Postgres-heavy agent) slows both and makes timing meaningless.
 - OPS-01's baseline and comparison runs are the one documented exception to
   "one full suite per slice".
-- `tools/check-all.ps1` is a separate required guard command; it does not run
-  pytest, and pytest does not replace it. Run guards directly, e.g.
-  `powershell -NoProfile -File tools\check-all.ps1` or
-  `tools\check-navigation-truthfulness.ps1`. Never pass an
+- `tools/check-all.ps1` is a separate required guard command; the backend
+  suite does not replace it. Run it directly:
+  `pwsh -NoProfile -File tools/check-all.ps1` (fast mode: guards 4 at a time,
+  about 40 s; the estate self-tests run only when the writer guard, its tests or
+  their anchor files change). `-Full` forces the estate self-tests (about 3 min);
+  a run at `main`'s tip is full by itself. At most 2 runs at once machine-wide:
+  a third waits for a slot (20 min limit, `-SlotWaitMinutes`); a guard is stopped
+  after 10 min (`-GuardTimeoutMinutes`; estate 20, `-EstateTimeoutMinutes`).
+  Every guard imports this tree's `backend` and `contracts` (PIPE-1). Never pass an
   execution-policy override (owner rule, 2026-10-30). Guards need an execution policy that allows local scripts. The Claude Code agent environment already provides one (`PSExecutionPolicyPreference`). In a plain shell the machine owner sets it once for their own account (CurrentUser). Agents must never set it or pass an override.
+
+## The heavy-tool slot pool (T1)
+
+The machine has no swap, so every heavy tool shares the same 2 slots that check-all takes
+(`<git common dir>/check-all-slots`, one pool for every checkout). Pooled: `tsc` (also `npm run typecheck` and
+`npm run build`), vitest, pytest with `ASSETOPS_TEST_DATABASE_URL` set, the container runners, browser captures
+and the heavy database jobs. Each refuses to start outside a held slot (exit 69, with the pooled form): the `tsc`
+shim in `node_modules/.bin`, `vite.config.ts`, both conftests, the runners, each capture script and each
+database entry point. Not pooled: check-all (it takes its own slot), servers, pytest without a database URL.
+
+- bash: `tools/heavy-slot.sh [--db] [--wait-seconds <n>] [--label <t>] -- <command>` (from `frontend/`:
+  `../tools/heavy-slot.sh -- npx vitest run <file>`). pwsh: `pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db]
+  [-SlotWaitSeconds <n>] -- <command>`; give a wrapped command `--name=value` forms.
+- `--db` (pwsh `-Db`) also takes `db-job.lock`, one heavy database job at a time: every `demo_combined.py`
+  `prepare`, `add-day`, `add-dates` or `tick`, and every run whose tier includes slow (it runs a prepare), so a
+  full or slow-tier suite run is `--db`. Put `--db` on the outermost wrapper; a nested one is refused.
+- `tools/heavy-slot.sh --status` names each slot's holder. A wait ends after 1200 s with exit 75.
+- Nesting is free: a pooled command that starts another pooled command (or check-all) takes nothing more.
+- Exit codes: the command's own, or 64 (usage), 69 (refused), 75 (no slot). A command that itself exits 64, 69
+  or 75 is told apart only by the wrapper's `heavy-slot:` line on stderr.
+- The `tsc` shim lives in `node_modules`, outside git; `npm ci` reinstalls it (`postinstall`), and on `main`
+  check-all `-Full` fails if it is missing (`node tools/heavy-slot-shims.mjs install frontend/node_modules`).
 
 ## The test database
 
@@ -139,28 +166,28 @@ server's `assetops_test` and refuses a directory or empty target (R2):
 $env:ASSETOPS_TEST_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe"  # or -Interpreter
 
 # S1 Foundation and bindings
-tools\run-host-tests.ps1 -- backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py backend/tests/test_s1_cutover.py backend/tests/test_s1_bindings.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py backend/tests/test_s1_cutover.py backend/tests/test_s1_bindings.py
 
 # S2 ingestion and evidence
-tools\run-host-tests.ps1 -- backend/tests/test_s2_evidence_ledger_postgres.py backend/tests/test_s2_gateway_access_postgres.py backend/tests/test_s2_site_evidence_postgres.py backend/tests/test_s2_registered_basis_postgres.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s2_evidence_ledger_postgres.py backend/tests/test_s2_gateway_access_postgres.py backend/tests/test_s2_site_evidence_postgres.py backend/tests/test_s2_registered_basis_postgres.py
 
 # S3 dispatch
-tools\run-host-tests.ps1 -- backend/tests/test_s3_dispatch_assessment_postgres.py backend/tests/test_s3_dispatch_read_postgres.py backend/tests/test_s3_demo_configuration.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s3_dispatch_assessment_postgres.py backend/tests/test_s3_dispatch_read_postgres.py backend/tests/test_s3_demo_configuration.py
 
 # S3-02a capability and claim-limit read
-tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py backend/tests/test_s3_claim_limit_postgres.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py backend/tests/test_s3_claim_limit_postgres.py
 
 # S4 Finding and money
-tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
 ```
 
-Pytest flags go after `--` (optional; it is dropped). From Git Bash use `powershell -NoProfile -File tools/run-host-tests.ps1 -- <file> -q` (the script has no common parameters, so `--`, `-q` and `-v` reach pytest); `ASSETOPS_HOST_DRY_RUN=1` prints the resolved targets and exits 3 without running anything; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
-the Windows port forward: `tools\run-backend-suite-in-container.ps1 -Targets
-'backend/tests/test_x_postgres.py backend/tests/test_y.py'`.
+Pytest flags go after `--` (optional; it is dropped). From Git Bash use `tools/heavy-slot.sh -- powershell -NoProfile -File tools/run-host-tests.ps1 -- <file> -q` (the script has no common parameters, so `--`, `-q` and `-v` reach pytest); `ASSETOPS_HOST_DRY_RUN=1` prints the resolved targets and exits 3 without running anything; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
+the Windows port forward: `pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-backend-suite-in-container.ps1
+-Targets 'backend/tests/test_x_postgres.py backend/tests/test_y.py'`.
 
 Complete suite: only in Docker (next section). The host fallback
-(`tools\run-host-tests.ps1 -AllowHostFull -- backend/tests -n 2 --dist loadfile
---no-loadscope-reorder -q --junitxml=.pytest-junit.xml`) is for a Docker outage
+(`pwsh -NoProfile -File tools/heavy-slot.ps1 -Db -- tools\run-host-tests.ps1 -AllowHostFull -- backend/tests -n 2
+--dist loadfile --no-loadscope-reorder -q --junitxml=.pytest-junit.xml`) is for a Docker outage
 only, and its packet says why.
 
 ### Before a long full run
@@ -202,10 +229,10 @@ whose message names `ASSETOPS_TEST_DATABASE_URL` means the database was unset.
 ## Full suite inside the Compose network (OPS-03)
 
 ```powershell
-tools\run-backend-suite-in-container.ps1                 # whole suite, dedicated test server, workers from free memory
-tools\run-backend-suite-in-container.ps1 -Tier fast      # everything but the slow tier
-tools\run-backend-suite-in-container.ps1 -Tier slow      # the slow tier only
-tools\run-backend-suite-in-container.ps1 -Workers 2 -CapMinutes 150 -Server shared
+pwsh -NoProfile -File tools/heavy-slot.ps1 -Db -- tools\run-backend-suite-in-container.ps1              # whole suite, dedicated test server, workers from free memory
+pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-backend-suite-in-container.ps1 -Tier fast       # everything but the slow tier
+pwsh -NoProfile -File tools/heavy-slot.ps1 -Db -- tools\run-backend-suite-in-container.ps1 -Tier slow   # the slow tier only
+pwsh -NoProfile -File tools/heavy-slot.ps1 -Db -- tools\run-backend-suite-in-container.ps1 -Workers 2 -CapMinutes 150 -Server shared
 ```
 
 PERF-01 options and records:
@@ -339,7 +366,7 @@ them out (`-m "not slow"`, a deselection, never a skip):
 - `test_s4_schedule_health_postgres.py::TestTickCost::test_measure_a_real_child_tick_over_one_and_four_sites` (about 150 s)
 - `test_s4_schedule_health_postgres.py::TestStaleWithoutJob::test_a_decision_after_the_db_cutoff_widening_a_pending_job_raises_s3_stale_no_job_until_requeued` (about 130 s; the 120 s stale wait)
 - `test_s4_schedule_tick_postgres.py::TestKillableStagesAndServerTimeouts::test_a_hung_stage_is_killed_its_job_lease_is_exposed_and_a_db_stall_is_a_typed_timeout` (about 140 s)
-- `test_demo_combined_postgres.py` (DEMO-SPARSE U6: one four-Site `tools/demo_combined.py prepare`, about 2.0-2.35 h (DIESEL-1-R3n),
+- `test_demo_combined_postgres.py` (DEMO-SPARSE U6: one four-Site `tools/demo_combined.py prepare`, about 2.0-2.35 h (DIESEL-1-R3n), so a run with it takes `tools/heavy-slot.sh --db --`,
   then the §5 acceptance rows on its own `assetops_demo3_t<run>_test` database)
 - `host/tests/test_field_modbus_tcp_acceptance_postgres.py`, both TEL acceptance tests (60x real time, 9-12 min each; not part of the backend suite)
 

@@ -32,7 +32,7 @@ const COLD_BOARD = boardBody({ site_code: "COLD-001", rows: boardRows().map((r) 
 const OLD_COLD_CARDS = ["[data-cold-card]", "[data-cold-card-link]", '[data-mock-deviation="R437"]'];
 
 /*
- * W2-04 commit 4: the five cold Site routes (`.agent/W2-04-build-spec.md` "v69 panel contract and UI" and the
+ * W2-04 commit 4: the five cold Site routes (`specs/W2-04/spec.md` "v69 panel contract and UI" and the
  * "Commit-4 copy ledger") keep their exact v69 panels in the stocked, empty (200 UNKNOWN), refused (403) and
  * unavailable (503) states, with the ledger's in-panel copy; a planted panel is rejected on every route.
  */

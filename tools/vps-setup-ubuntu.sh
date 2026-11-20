@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time setup of an Ubuntu VPS for AssetOps work (see .agent/vps-migration-plan.md).
+# One-time setup of an Ubuntu VPS for AssetOps work (see archive/agent-history/vps-migration-plan.md).
 # Installs: git, Docker Engine + compose plugin, Python 3.12 (+venv), Node 24, PowerShell 7, PostgreSQL 16 client.
 # Safe to re-run. Run as a sudo-capable user:  bash tools/vps-setup-ubuntu.sh
 set -euo pipefail
@@ -67,4 +67,4 @@ npm --version
 pwsh --version
 pg_restore --version
 echo
-echo "Next (see .agent/vps-migration-plan.md): clone the repo, 'docker compose up -d', create .venv and run npm ci in frontend/."
+echo "Next (see archive/agent-history/vps-migration-plan.md): clone the repo, 'docker compose up -d', create .venv and run npm ci in frontend/."

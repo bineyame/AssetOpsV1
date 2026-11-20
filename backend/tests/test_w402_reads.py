@@ -268,7 +268,7 @@ def test_minigrid_capabilities_order() -> None:
                     {"id": "renewable", "display_name": "Renewable"}, {"id": "backup", "display_name": "Backup"}]
 
 
-# --- q9 rulings (`.agent/W4-02-build-spec.md` "Run 9 rulings (q9)") ----------------------------------------------
+# --- q9 rulings (`specs/W4-02/rulings-3.md` "Run 9 rulings (q9)") ----------------------------------------------
 
 
 def test_q9_1_explicit_window_refusals() -> None:

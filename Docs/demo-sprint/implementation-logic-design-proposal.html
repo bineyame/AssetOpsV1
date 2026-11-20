@@ -2266,7 +2266,7 @@ export function routeFor(r: Ref): string {        // exhaustive switch; uses the
     <li>RC1, RC2; I-03.</li>
   </ul>
 </td><td><b>Reverse for joins.</b> Join on <code>thread_id</code> and keep the revision for audit (D2, OD-4, OD-9).</td></tr>
-<tr><td>P5</td><td><b>The opportunity is kept out of the Finding store.</b> W4-03 build spec (2026-10-21, <code>.agent/W4-03-build-spec.md:9-10</code>): "cannot be inserted with fabricated dispatch IDs … typed opportunity tables and union adapters". The union arm to the Opportunity lens was never built.</td><td>No fabricated ids; correct</td><td>
+<tr><td>P5</td><td><b>The opportunity is kept out of the Finding store.</b> W4-03 build spec (2026-10-21, <code>specs/W4-03/spec.md:9-10</code>): "cannot be inserted with fabricated dispatch IDs … typed opportunity tables and union adapters". The union arm to the Opportunity lens was never built.</td><td>No fabricated ids; correct</td><td>
   <ul>
     <li>The opportunity has no path to Findings, Portfolio or lenses (<code>B/estate/index.py:127-128</code>; <code>portfolio.py:344,646-647</code>).</li>
     <li>OUT-C noted "none exist now, so that list renders nothing" (<code>build-sheet-OUT-C.md:230-231</code>) and moved on.</li>
@@ -2285,13 +2285,13 @@ export function routeFor(r: Ref): string {        // exhaustive switch; uses the
     <li>RC1; most issues.</li>
   </ul>
 </td><td><b>Amend</b> (OD-9). Keep "no second store" for derived values; store identities and decisions.</td></tr>
-<tr><td>P7</td><td><b>OUT-E verification read-back as text.</b> <code>.agent/build-sheet-OUT-E.md:11-15</code>, rev 6 §4.4: "The reassessment and the before-and-after status are missing"; the step was built as Earlier and Assure lines.</td><td>The smallest slice that showed a result</td><td>
+<tr><td>P7</td><td><b>OUT-E verification read-back as text.</b> <code>specs/OUT-E/spec.md:11-15</code>, rev 6 §4.4: "The reassessment and the before-and-after status are missing"; the step was built as Earlier and Assure lines.</td><td>The smallest slice that showed a result</td><td>
   <ul>
     <li>The before/after on the same basis became prose. The verdict never touches state.</li>
     <li>RC3; I-01, I-02, I-12.</li>
   </ul>
 </td><td><b>Reverse.</b> Replaced by A5 and the <code>after</code> node.</td></tr>
-<tr><td>P8</td><td><b>OUT-W latest-event windows for the Cold lab and EV depot; Kobo stays on the UTC day of <code>to</code>.</b> <code>.agent/build-sheet-OUT-W.md</code> (2026-10-30, owner away, P-C1 option A)</td><td>Cold and EV boards not empty on a day window</td><td>
+<tr><td>P8</td><td><b>OUT-W latest-event windows for the Cold lab and EV depot; Kobo stays on the UTC day of <code>to</code>.</b> <code>specs/OUT-W/spec.md</code> (2026-10-30, owner away, P-C1 option A)</td><td>Cold and EV boards not empty on a day window</td><td>
   <ul>
     <li>One Portfolio window shows three time slices, and the Grow card shows one EV hour.</li>
     <li>RC4; I-04, I-05.</li>

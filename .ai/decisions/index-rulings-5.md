@@ -1,0 +1,60 @@
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-R3.7 to D-W1-9)
+
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
+
+- `D-R3.7` for owner review). The night re-check trigger now… · live · specs/OWN-GAPS/rulings-2.md:332
+- `D-R3.8` for owner review). A correction that moves a… · live · specs/OWN-GAPS/rulings-2.md:589
+- `D-R3.9` for owner review). Not changed now: a night… · live · specs/OWN-GAPS/rulings-2.md:594
+- `D-R3.10` for owner review). A problem with one night's… · live · specs/OWN-GAPS/rulings-2.md:598
+- `D-R4.1` for owner review). The Portfolio now reads "Pending"… · live · specs/OWN-GAPS/rulings-2.md:690
+- `D-R4.2` for owner review). Step 7 shows one real… · live · specs/OWN-GAPS/rulings-2.md:762
+- `D-R5.1` Cause of the G1 rehearsal failure: the tool… · live · specs/OWN-GAPS/rulings-3.md:184
+- `D-R5.2` Fix: before add-dates reports a day checked or… · live · specs/OWN-GAPS/rulings-3.md:188
+- `D-R5.3` The failing check (F-THREADS: no board may say… · live · specs/OWN-GAPS/rulings-3.md:192
+- `D-R5.4` Rehearsal: first on the failing clone (proves the… · live · specs/OWN-GAPS/rulings-3.md:194
+- `D-R5.5` The stale Kisiwa test count (12 → 13… · live · specs/OWN-GAPS/rulings-3.md:196
+- `D-R6.1` When the background schedule has stopped, the product… · live · specs/OWN-GAPS/rulings-3.md:330
+- `D-R6.2` The productive-use check now picks the study that… · live · specs/OWN-GAPS/rulings-3.md:333
+- `D-R6.3` A build's code folder is never replaced on… · live · specs/OWN-GAPS/rulings-3.md:336
+- `D-R6.4` Rehearsal keeps both fresh-clone runs (A: add and… · live · specs/OWN-GAPS/rulings-3.md:338
+- `D-UI.1` , look and layout specs. v7.2 is the… · live · archive/agent-history/architect-plan-pre-client-2026-11-10.md:141
+- `D-UI.2` , the theme and language choices are per-browser… · live · archive/agent-history/architect-plan-pre-client-2026-11-10.md:142
+- `D-UP.1` The field checker runs as a separate process.… · live · specs/OWN-GAPS/rulings-6.md:194
+- `D-UP.2` The demo upload gateway: real serve_tls, one Kobo… · live · specs/OWN-GAPS/rulings-6.md:198
+- `D-UP.3` "Analysed" is reachable. Positive binding is not required… · live · specs/OWN-GAPS/rulings-6.md:207
+- `D-UP.4` Entry: Kobo Health, as the mockup draws it.… · live · specs/OWN-GAPS/rulings-6.md:232
+- `D-UP.5` The body is raw text/csv, with ?file_name=. Accepted;… · live · specs/OWN-GAPS/rulings-6.md:234
+- `D-UP.6` The Excel BOM stays refused. The TEL-06 ENCODING… · live · specs/OWN-GAPS/rulings-6.md:243
+- `D-UP.7` The path takes the Site code (/api/sites/KOBO-001/reading-uploads), as… · live · specs/OWN-GAPS/rulings-6.md:245
+- `D-UP.8` Migration 0061_reading_upload with down_revision = 0059_site_period_read on the… · live · specs/OWN-GAPS/rulings-6.md:247
+- `D-UP.9` The extra columns are accepted, all append-only · live · specs/OWN-GAPS/rulings-6.md:249
+- `D-UP.10` The guard fix is correct: register the store,… · live · specs/OWN-GAPS/rulings-6.md:253
+- `D-UP.11` Process note and lane order · live · specs/OWN-GAPS/rulings-6.md:261
+- `D-UP.12` UP-1 review L2: a stale FAILED job must… · live · specs/OWN-GAPS/rulings-8.md:148
+- `D-UQFI.1` (read at the cited line) · live · architect-sequence-client-scope-2026-11-11.md:1434
+- `D-UQFI.2` Type scale and mapping · live · architect-sequence-client-scope-2026-11-11.md:1476
+- `D-UQFI.3` Style ratchet (shrink-only), tools/checks/style-ratchet.mjs · live · architect-sequence-client-scope-2026-11-11.md:1517
+- `D-UQFI.4` That example was a factual error: the six… · live · specs/OWN-GAPS/rulings-8.md:106
+- `D-UQFI.5` Collisions with work merging this week · live · architect-sequence-client-scope-2026-11-11.md:1554
+- `D-UQFI.6` Cold board: the panel rule wins; no collapse… · live · specs/OWN-GAPS/rulings-8.md:105
+- `D-UQFI.7` Figures: 20 px confirmed for UQ-FI-1/2; 30 px… · live · specs/OWN-GAPS/rulings-8.md:110
+- `D-UQFI.8` P3 headline: yes, build it only after SR-5… · live · specs/OWN-GAPS/rulings-8.md:114
+- `D-UQFI.9` primitives.css spacing: no, not for 17 Nov · live · specs/OWN-GAPS/rulings-8.md:117
+- `D-UQFI.10` Merge order: confirmed, with two additions · live · specs/OWN-GAPS/rulings-8.md:120
+- `D-UQFI.11` State set: the outcome state codes, as built.… · live · specs/OWN-GAPS/rulings-8.md:178
+- `D-UQFI.12` Portfolio card foot pill: leave it out for… · live · specs/OWN-GAPS/rulings-8.md:189
+- `D-UQFI.13` P5) Keep the page's own title, "Productive-use headroom… · live · specs/OWN-GAPS/rulings-8.md:255
+- `D-UQFI.14` P2) The h1 is the Site name; the… · live · specs/OWN-GAPS/rulings-8.md:258
+- `D-UQFI.15` P6) Keep the h1 "Findings". The All-lens panel… · live · specs/OWN-GAPS/rulings-8.md:260
+- `D-UQFI.16` P7) Keep the Site name as the h1… · live · specs/OWN-GAPS/rulings-8.md:263
+- `D-UQFI.17` P1) No Portfolio card collapse for 17 Nov,… · live · specs/OWN-GAPS/rulings-8.md:264
+- `D-UQFI.18` P3) Remove the body copy: it is a… · live · specs/OWN-GAPS/rulings-8.md:268
+- `D-W1-1` Depot tariff 0.30 USD per kWh, from the… · live · specs/WALK1/spec.md:351
+- `D-W1-2` Kobo productive-use price 0.25 USD per kWh, from… · live · specs/WALK1/spec.md:352
+- `D-W1-3` Kobo solar uncertainty 3 kW and retained margin… · live · specs/WALK1/spec.md:353
+- `D-W1-4` money is not summed over partly checked periods… · live · specs/WALK1/spec.md:354
+- `D-W1-5` idle-generator fuel rate stays parked (own slice after… · live · specs/WALK1/spec.md:355
+- `D-W1-6` for owner review. Below it, a single heavy… · live · specs/WALK1/spec.md:462
+- `D-W1-7` v6 model and publication v5), D-W1-8 (raw request)… · live · specs/WALK1/rulings.md:44
+- `D-W1-8` raw request) and D-W1-9 (all days behind the… · live · specs/WALK1/rulings.md:44
+- `D-W1-9` all days behind the identity gate, with fallback · live · specs/WALK1/rulings.md:44

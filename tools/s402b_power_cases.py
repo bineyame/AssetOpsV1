@@ -1,6 +1,6 @@
 """S4-02b phase 2a producer: `s4-finding-cases-v1` plus the authored power-mean demonstration case.
 
-Owner ruling `.agent/owner-S4-02b-money-demo-2026-10-14.md`. This runs `tools/s4_finding_cases.py` unchanged
+Owner ruling `owner/owner-S4-02b-money-demo-2026-10-14.md`. This runs `tools/s4_finding_cases.py` unchanged
 (the S4 Finding cases F01-F08 and the ordinary F01-gateway Lab case) into its OWN database
 `assetops_s402bcases` and work folder, then executes `backend/conversions/s4-power-demo-cases-v1.json`
 (`P01-power`, 2026-10-23) through the same deployment shape: authored public generator-controller ac-power

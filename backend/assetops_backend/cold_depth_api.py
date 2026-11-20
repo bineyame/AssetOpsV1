@@ -1,4 +1,4 @@
-"""W5-01 C1: the selected cold depth route (`.agent/W5-01-build-spec.md` "Shared selected read and guards").
+"""W5-01 C1: the selected cold depth route (`specs/W5-01/spec.md` "Shared selected read and guards").
 
 `GET /api/sites/{site_code}/cold/cooling` and `/cold/health` with optional paired strict UTC `from,to`
 (half-open, at most 31 days) and optional `known_at`, through the W2-04 cold Site gate

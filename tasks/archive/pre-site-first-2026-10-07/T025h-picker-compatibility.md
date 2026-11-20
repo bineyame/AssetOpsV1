@@ -30,7 +30,7 @@ that is guesswork per site. Rule: `D-2026-10-01-run-binds-scenario-to-site`
 
 ## Read for detail
 
-- `D-2026-10-01-run-binds-scenario-to-site`; `.agent/scenario-site-targeting-architect.md`
+- `D-2026-10-01-run-binds-scenario-to-site`; `archive/agent-history/scenario-site-targeting-architect.md`
   section 3, "The site picker when nothing is pre-selected", and section 4, S1b.
 - CODE_STATE `T025g` (picker, run setup) and `T026` (template v3, profile 5).
 - `backend/assetops_backend/runs/service.py` `RunSetupService.create_draft_run`;

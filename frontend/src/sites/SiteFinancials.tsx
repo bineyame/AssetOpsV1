@@ -52,7 +52,7 @@ import "./w1ux02-money.css";
  * Identifiers, digests and enum names sit in the closed exact-reference disclosures.
  *
  * Not built: the maintenance accrual consequence line, the Scenarios subtab, cash flow, FX and monthly
- * extrapolation (`.agent/S4-02b-review-packet.md`).
+ * extrapolation (`archive/agent-history/S4-02b-review-packet.md`).
  */
 
 export interface FinancialsLinks {

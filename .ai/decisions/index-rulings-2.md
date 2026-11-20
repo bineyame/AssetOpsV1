@@ -1,0 +1,54 @@
+# Decision index: Demo-sprint and later rulings (index only; text stays where it is until step 4) (D-SR.53 to D-AW-4)
+
+One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it; `live` does not mean it applies under the Layer 4 direction (see `.ai/START_HERE.md`). "in part?" marks a change found by search, to read at the cited line. A dated ID's date is its prefix. Bare file names without a folder are in `.ai/decisions/`. Top index: `INDEX.md`.
+
+- `D-SR.53` The rebuild test (interpretation 6 · live · specs/OWN-GAPS/rulings-7.md:290
+- `D-SR.54` Day-kind build time in the prepare and the… · live · specs/OWN-GAPS/rulings-7.md:293
+- `D-SR.55` SR-10k Q1-Q4 (Architect, Claude, 2026-11-12 night, owner-delegated, logged… · live · specs/OWN-GAPS/rulings-7.md:303
+- `D-SR.56` SR-6 review M2 and L1: the local-day grade… · live · specs/OWN-GAPS/rulings-7.md:314
+- `D-SR.57` SR-4c review L2, L3 and the two-declarer risk… · live · specs/OWN-GAPS/rulings-7.md:329
+- `D-SR.58` SR-11 Q1-Q3 (Architect, Claude, 2026-11-12 night, owner-delegated, logged… · withdrawn in part? see specs/OWN-GAPS/rulings-7.md:403 · specs/OWN-GAPS/rulings-7.md:348
+- `D-SR.59` SR-4a+b review H-1, L-1, L-4: short ranges on… · live · specs/OWN-GAPS/rulings-7.md:371
+- `D-SR.60` SR-11: start successes stay the hour-card sum; D-SR.58… · live · specs/OWN-GAPS/rulings-7.md:403
+- `D-SR.61` SR-4: negative-offset zones use the range's date strings… · live · specs/OWN-GAPS/rulings-7.md:426
+- `D-SR.62` SR-8 parity: the one-day read follows the stored… · live · specs/OWN-GAPS/rulings-7.md:436
+- `D-SR.63` The rows-on switch for the 17 Nov build… · live · specs/OWN-GAPS/rulings-7.md:460
+- `D-SR.64` F2: Cold/EV Finding detail reads its own episode · live · specs/OWN-GAPS/rulings-7.md:481
+- `D-SR.65` F1: Kisiwa Fuel nights · live · specs/OWN-GAPS/rulings-7.md:487
+- `D-SR.66` F3: Cold/EV financial assumptions. Corrects the D-SR.44 row · live · specs/OWN-GAPS/rulings-7.md:491
+- `D-SR.67` The evidence-migration 409 · live · specs/OWN-GAPS/rulings-7.md:495
+- `D-SR.68` SR-8: a day with no solar reading at… · live · specs/OWN-GAPS/rulings-7.md:502
+- `D-SR.69` KOBO-001 10-31: a story gap; the SR-10/11 head… · live · specs/OWN-GAPS/rulings-7.md:509
+- `D-SR.70` A day with no readings reads NO_DATA, stored… · live · specs/OWN-GAPS/rulings-7.md:528
+- `D-SR.71` The head gate follows the enqueue rule exactly… · live · specs/OWN-GAPS/rulings-7.md:548
+- `D-SR.72` NO_DATA days read one state (finding 3 · live · specs/OWN-GAPS/rulings-7.md:561
+- `D-SR.73` Estate "Current view" label after SR-4; R339 /… · live · specs/OWN-GAPS/rulings-7.md:581
+- `D-SR.74` Lane G: SR-12b Q1-Q3 and WARM-1 gate refusals… · live · specs/OWN-GAPS/rulings-8.md:1
+- `D-SR.75` AP-1 analytics readiness port sized; database stays PostgreSQL… · live · specs/OWN-GAPS/rulings-8.md:41
+- `D-SR.76` Lane K SR-8/SR-10 page questions (Architect, Claude, 2026-11-14,… · live · specs/OWN-GAPS/rulings-8.md:53
+- `D-SR.77` Lane H SR-5 questions; AP-1 size corrected (Architect,… · live · specs/OWN-GAPS/rulings-8.md:89
+- `D-SR.78` AP-1 builder questions (Architect, Claude, 2026-11-13, owner-delegated, logged… · live · specs/OWN-GAPS/rulings-8.md:128
+- `D-SR.79` AP-1 review H1 and Lows: where the stored… · live · specs/OWN-GAPS/rulings-8.md:199
+- `D-SR.80` AP-1 parity: what replaces it, the Kisiwa 409,… · live · specs/OWN-GAPS/rulings-8.md:276
+- `D-SR.81` CO-10 "16 min unknown": a reported charging state… · live · specs/OWN-GAPS/rulings-8.md:301
+- `D-SR.82` A range before the Site was imported reads… · live · specs/OWN-GAPS/rulings-8.md:321
+- `D-SR.83` Kisiwa/Kobo Overview and Finding-index reads become stored, prebuilt… · live · specs/OWN-GAPS/rulings-8.md:339
+- `D-SR.83a` The Overview's wall-clock fields go through the read-instant… · superseded in part? see specs/OWN-GAPS/rulings-9.md:1 · specs/OWN-GAPS/rulings-8.md:360
+- `D-SR.83b` The stored Overview carries schedule facts, not schedule… · live · specs/OWN-GAPS/rulings-9.md:1
+- `D-ANY.1` The full fix is BL-66, and it reverses… · live · specs/OWN-GAPS/rulings-4.md:235
+- `D-ANY.2` Pre-demo partial step: slice ANY-1 (boards), after FR-B · live · specs/OWN-GAPS/rulings-4.md:242
+- `D-ANY.3` No range-agnostic warm-up and no longer pre-load list · reversed in part? see architect-sequence-client-scope-2026-11-11.md:1163 · specs/OWN-GAPS/rulings-4.md:249
+- `D-ANY.4` Presenter rule until the fix lands · narrowed in part? see architect-sequence-client-scope-2026-11-11.md:1164 · specs/OWN-GAPS/rulings-4.md:254
+- `D-ANY.5` ANY-1 Phase 1 review M1/M2: period-row knowledge time… · live · specs/OWN-GAPS/rulings-5.md:516
+- `D-ANY.6` Tonight's speed build for the Thursday 12 Nov… · live · specs/OWN-GAPS/rulings-5.md:607
+- `D-ANY.6a` AR-2 rows path misses a recompute job created… · live · specs/OWN-GAPS/rulings-5.md:641
+- `D-ANY.6b` / D-E5.49a Tonight's build fails one check, CO-10… · live · specs/OWN-GAPS/rulings-5.md:655
+- `D-ANY.7` AR-4 claim-day rows vs D-ANY.5 (commit 5f82f5fa0, task/ANY-2-AR4 · live · specs/OWN-GAPS/rulings-6.md:38
+- `D-ANY.8` Order of the remaining any-range speed work for… · live · specs/OWN-GAPS/rulings-6.md:60
+- `D-ANY.9` AR-4: Portfolio consequence money, receipt-less productive rows, the… · live · specs/OWN-GAPS/rulings-6.md:79
+- `D-ANY.10` AR-4 client4 evidence: the before_build mismatch and the… · live · specs/OWN-GAPS/rulings-6.md:102
+- `D-ANY.11` DISP-1: the remaining dispatch-day lookups are Finding money… · live · specs/OWN-GAPS/rulings-6.md:171
+- `D-AW-1` owner-away decision; away log untracked · live · archive/agent-history/architect-handoff-demo-plan-2026-11-04.md:277
+- `D-AW-2` OD-P11/OD-P12, waiting on DD-0b; away log untracked · live · archive/agent-history/architect-handoff-demo-plan-2026-11-04.md:218
+- `D-AW-3` recurrence while CHANGE_APPLIED, waiting on MD-0; away log untracked · live · archive/agent-history/architect-handoff-demo-plan-2026-11-04.md:218
+- `D-AW-4` CH-6 split; away log untracked · live · archive/agent-history/architect-handoff-demo-plan-2026-11-04.md:212

@@ -1,6 +1,6 @@
 /*
  * W2-06 commit 5: the EV `sessions` and `ev-finding` screens. Everything is scoped to `[data-ev-view]`
- * (`.agent/W2-06-build-spec.md` "Commit 5": 6 px cell padding and 1.25 line height only in these EV panels,
+ * (`specs/W2-06/` "Commit 5": 6 px cell padding and 1.25 line height only in these EV panels,
  * mock column widths 20/16/12/13/22/17%, 1.8:1 paired panels, route-scoped outcome tones).
  */
 

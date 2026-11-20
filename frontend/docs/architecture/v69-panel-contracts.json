@@ -77,7 +77,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 routing only",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sites",
@@ -93,7 +93,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 routing only",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -109,7 +109,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -125,7 +125,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -141,7 +141,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -157,7 +157,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "mini",
@@ -173,7 +173,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S5-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "foundation",
@@ -189,7 +189,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 + S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "foundation",
@@ -205,7 +205,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 + S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "foundation",
@@ -221,7 +221,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-01 + S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -237,7 +237,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -253,7 +253,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -269,7 +269,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "readiness",
@@ -285,7 +285,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "changes",
@@ -301,7 +301,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01 + S6-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "changes",
@@ -317,7 +317,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01 + S6-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "dispatch",
@@ -333,7 +333,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "dispatch",
@@ -349,7 +349,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "dispatch",
@@ -365,7 +365,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "renewable",
@@ -426,7 +426,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "evidence",
@@ -442,7 +442,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "evidence",
@@ -458,7 +458,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -474,7 +474,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -490,7 +490,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -506,7 +506,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding",
@@ -522,7 +522,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01 + S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "analysis",
@@ -538,7 +538,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01 + S4-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "analysis",
@@ -554,7 +554,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01 + S4-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "analysis",
@@ -570,7 +570,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S3-01 + S4-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "financials",
@@ -586,7 +586,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "financials",
@@ -602,7 +602,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "financials",
@@ -618,7 +618,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assumptions",
@@ -634,7 +634,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assumptions",
@@ -650,7 +650,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assumptions",
@@ -666,7 +666,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "recommendation",
@@ -682,7 +682,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "recommendation",
@@ -698,7 +698,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "recommendation",
@@ -714,7 +714,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "verification",
@@ -730,7 +730,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "verification",
@@ -746,7 +746,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "verification",
@@ -762,7 +762,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "asset",
@@ -778,7 +778,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "asset",
@@ -794,7 +794,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "asset",
@@ -810,7 +810,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "health",
@@ -826,7 +826,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "health",
@@ -842,7 +842,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S7-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -858,7 +858,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -874,7 +874,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -890,7 +890,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "lab",
@@ -906,7 +906,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-01 + S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "cold",
@@ -1612,7 +1612,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "W1 S5-01 outline refinement; technical mapping unreviewed",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sitework",
@@ -1628,7 +1628,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sitework-incidents",
@@ -1674,7 +1674,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "evidence-analysis",
@@ -1690,7 +1690,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S2-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "assets",
@@ -2561,7 +2561,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "finding-evidence",
@@ -2577,7 +2577,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S4-01",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "alternatives",
@@ -2608,7 +2608,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "W1 S4-01 outline refinement; technical mapping unreviewed",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-overview",
@@ -2624,7 +2624,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S6-01 + S6-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-plan",
@@ -2640,7 +2640,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "W1 S6-02 outline refinement; technical mapping unreviewed",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-execution",
@@ -2656,7 +2656,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "W1 S6-01 outline refinement; technical mapping unreviewed",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-evidence",
@@ -2672,7 +2672,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "W1 S6-02 outline refinement; technical mapping unreviewed",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "action-history",
@@ -2688,7 +2688,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "W1 S6-01 outline refinement; technical mapping unreviewed",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "opportunity-finding",
@@ -2989,7 +2989,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "sld",
@@ -3005,7 +3005,7 @@
       "proposed_fidelity_tier": "Real with honest gaps",
       "task_or_lane": "S1-02",
       "tier_approval": "owner approved",
-      "tier_evidence": "../../../.agent/owner-W1-confirmation-2026-10-11.md"
+      "tier_evidence": "../../../owner/owner-W1-confirmation-2026-10-11.md"
     },
     {
       "screen_id": "cold-sld",

@@ -1,5 +1,5 @@
 /**
- * W6-01a A2: the global Incidents root (`.agent/W6-01-build-spec.md` section 2 and section 3.1 A2Q1-A2Q10, CL3-1).
+ * W6-01a A2: the global Incidents root (`specs/W6-01/` section 2 and section 3.1 A2Q1-A2Q10, CL3-1).
  * Typed responses only: the persisted positive, zero, historical, refused and cursor-changed states are captured
  * against the real API in `.agent/W6-01-evidence/A2/`; `No accessible Sites.` is proven here only (A1Q2 R4).
  */

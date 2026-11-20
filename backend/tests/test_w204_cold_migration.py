@@ -1,6 +1,6 @@
 """W2-04 commit 1: migration `0023_w2_cold_consequence` against Postgres.
 
-`.agent/W2-04-build-spec.md` "Money schema `0023` and rules": upgrade over existing mini-grid money keeps its rows,
+`specs/W2-04/spec.md` "Money schema `0023` and rules": upgrade over existing mini-grid money keeps its rows,
 constraints, triggers and reads byte-stable; the four cold consequence tables are tenant/Site scoped, append-only and
 unpriced by CHECK; dirty work is trigger-only (cold FindingRevision, cold episode revision, source-gate link) with
 the canonical dirty key; existing cold heads are backfilled once, idempotently; and downgrade refuses while any

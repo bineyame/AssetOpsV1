@@ -4,7 +4,7 @@ Status: in_review
 
 USER_REVIEW_REQUIRED: no (merges on review ACCEPT; walkthroughs deferred to the owner walkthrough after this round).
 
-Contract: `.agent/build-sheet-POLISH.md` §3 (record codes, ids, Finding titles), §3.1 "BE" rows, §5 Lane A PA-2,
+Contract: `specs/POLISH/` §3 (record codes, ids, Finding titles), §3.1 "BE" rows, §5 Lane A PA-2,
 Addendum 4 (titles) and Addendum 6 (PA-2 split and pre-flight rulings Q1, Q3, Q5, Q6, Q8, Q9, Q10). Branch
 `task/POLISH-PA-2a-server-copy`. PA-2b (Q2 preventive counts, Q4 asset labels, §1.4 backend) is a separate slice.
 

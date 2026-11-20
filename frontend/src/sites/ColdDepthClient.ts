@@ -1,5 +1,5 @@
 /**
- * W5-01a C2: read-only client for a cold-chain Site's two selected depth reads (`.agent/W5-01-build-spec.md`
+ * W5-01a C2: read-only client for a cold-chain Site's two selected depth reads (`specs/W5-01/`
  * "Shared selected read and guards", C1 "Cooling payload" and "Health read", C2 "DTO, label and link sources"):
  *
  *   GET /api/sites/{site_code}/cold/cooling

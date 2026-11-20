@@ -1,6 +1,6 @@
 ﻿"""W4-01 commit 1: migration `0027_w4_work_cases` against Postgres.
 
-`.agent/W4-01-build-spec.md` "Literal migration `0027_w4_work_cases`": eleven append-only, tenant/Site-scoped work
+`specs/W4-01/spec.md` "Literal migration `0027_w4_work_cases`": eleven append-only, tenant/Site-scoped work
 tables, one shared public-number sequence, one append-only trigger function, seven explicit indexes, and a guarded
 downgrade that refuses while any W4 work row exists (no CASCADE). Rows written here only exercise constraints; the
 product writer `work/adapters/postgres_work_store.py` arrives with commit 2.

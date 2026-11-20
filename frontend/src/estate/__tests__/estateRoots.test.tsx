@@ -1,5 +1,5 @@
 /**
- * W3-01 commit 3 named frontend tests (`.agent/W3-01-build-spec.md` "Fixtures and named proof"): the five estate
+ * W3-01 commit 3 named frontend tests (`specs/W3-01/spec.md` "Fixtures and named proof"): the five estate
  * roots under a local MemoryRouter (Lane A mounts the shell routes), against the v6.9 panel structure, with every
  * card, column, chip, link, empty/partial/historical/refusal string asserted.
  */

@@ -42,7 +42,7 @@ from assetops_backend.runs.refusals import RunSetupRefused  # noqa: E402
 from assetops_backend.state_refs import component_state  # noqa: E402
 
 LOG_FILE = REPO / "config" / "operational-actions" / "kisiwa-001-operational-actions-v1.yaml"
-F0_RESULT = REPO / ".agent" / "DIESEL-F0" / "probe-result.json"
+F0_RESULT = REPO / "host" / "fixtures" / "diesel-f0" / "probe-result.json"
 ACTIONS_SHA256 = "77777c82d82298ffba77a130f8d9ea2c6bb9a80c491ba4b2ac5248c4b735b634"
 KEY = {"log_id": "kisiwa-001-operational-actions", "log_version": 1}
 IMPORT_AT = datetime(2026, 9, 29, 9, 0, tzinfo=timezone.utc)

@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 const require = createRequire(import.meta.url);
+require(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../../tools/heavy_slot_check.cjs')).assertHeavySlot('browser capture'); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 const { chromium } = require(process.env.PW);
 const here = path.dirname(fileURLToPath(import.meta.url)), root = path.resolve(here, '..');
 const url = pathToFileURL(path.join(root, 'index.html')).href;

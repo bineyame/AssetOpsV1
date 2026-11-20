@@ -100,7 +100,7 @@ def test_a_registered_run_stages_source_specific_v3_batches_from_the_real_snapsh
     basis = draft.registered_basis
     assert view.status == "STAGED" and view.upload_state == "PENDING"
     assert view.snapshot_sha256 == basis.snapshot_sha256 and view.site_id == basis.site_record_id
-    # Open question `.agent/S2-01b-questions-2.md` Q1: a simulated reading whose
+    # Open question `archive/agent-history/S2-01b-questions-2.md` Q1: a simulated reading whose
     # exact value is a non-terminating ratio cannot be a V3 canonical decimal.
     # Fail-closed default: it is an inspectable INVALID_VALUE hold, never a
     # rounded (invented) reading, and it allocates no sequence.

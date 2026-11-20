@@ -44,7 +44,7 @@ function protectCard(op){const ms=protectOf(op),ev=OPS[op].vertical==='ev',lines
  const st=[];ms.filter(m=>m.stake).forEach(m=>{if(m.items)m.items.forEach(it=>{const k=siteKeyOf(op,it.site);st.push(`${rightName(SK[k].name,it.right)} ${typeof it.value==='number'?usd(it.value):it.value}`);});else Object.entries(m.sites).forEach(([k,v])=>{if(v)st.push(`${SK[k].name} ${m.name.toLowerCase()} ${usd(v)}`);});});
  ms.filter(m=>m.na).forEach(m=>lines.push([`${m.name}: not available yet (needs a failure-likelihood basis)`,'MISSING']));
  lines.push([`Listed, never summed: ${st.join('; ')}`,'EXPOSURE']);
- return {pos:`${above} of ${tot} measures above their target of 0${ev?' (October or November to date)':''}`,f:lines};}
+ return {pos:`${above?`${above} of ${tot} limits broken`:`All ${tot} limits held`}${ev?' (October or November to date)':' in October'}`,f:lines,broken:above,total:tot};}
 function protectCell(op,sk){const ms=protectOf(op).filter(m=>!m.stake&&!m.na),out=[];
  ms.forEach(m=>{const v=m.sites[sk],nv=m.nov?m.nov[sk]:undefined;if(pnum(v)>0||pnum(nv)>0)out.push(`${m.name}: ${pfmt(m,v)}${nv!==undefined?` (Oct) · ${pfmt(m,nv)} (to 6 Nov)`:''}`);});
  return out.length?out.join('<br>'):'<span class="muted">Every measure at its target of 0</span>';}

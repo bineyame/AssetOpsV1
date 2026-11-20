@@ -1,4 +1,4 @@
-"""W5-01b C4: authored cold scenario commands and the `cold-scenarios-1` list (`.agent/W5-01-build-spec.md` C4 card,
+"""W5-01b C4: authored cold scenario commands and the `cold-scenarios-1` list (`specs/W5-01/` C4 card,
 "C4 exact persisted schema and wire contract", "Reconciliation with C1q" and pre-flight rulings P-C4-6..23).
 
 Writes, after the router's gate: the server principal (`mini_decisions.scenarios.admit`), the actor policy

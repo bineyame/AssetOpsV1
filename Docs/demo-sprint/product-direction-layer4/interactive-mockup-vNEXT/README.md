@@ -13,6 +13,10 @@ node build.mjs                  # writes index.html; refuses a bundle containing
 
 Sources: re-based v7.0 files (all edits in `tools/rebase_v70.py`, log in `tools/rebase-log.txt`); new `economics.css`, `loop-core.js` (data, factor structures, evidence drawer, shell hooks), `loop-decisions.js` (options, rights, 14 decisions), `loop-protect.js` (Protect measures), `loop-portfolio.js` (six tabs, Sites, Financials, pilot), `loop-site.js` (site overview, economics, decision pages), `loop-init.js` (registration, change status).
 
+## UI/UX guide layer (wave 1)
+
+`ux.css` (loaded last) and `loop-ux.js` hold the components of the UI/UX guide (`Docs/design-system/uiux-guide.md`): KPI tiles, the decision queue, side drawers, collapsible sections, the bridge and value-chain charts, the phone Section menu. `build.mjs` maps every px font size to the guide's type scale (12, 13, 14, 16, 20, 24, 32) at build time, so the re-based v7.0 sheets stay byte-identical to their source. Gate G2: `node tools/design_lint.cjs` (plant test `LINT_PLANT=1`, must fail); the rendered part needs `/opt/assetecon/tools/pw/env.sh` sourced.
+
 ## Audit and screenshots
 
 ```

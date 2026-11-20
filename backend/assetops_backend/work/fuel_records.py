@@ -1,4 +1,4 @@
-"""DIESEL-K2 (`.agent/build-sheet-DIESEL-1.md` §9c.2): the as-known fuel records read, for K3.
+"""DIESEL-K2 (`specs/DIESEL-1/` §9c.2): the as-known fuel records read, for K3.
 
 A fuel record is a `FUEL_DELIVERY` or `TANK_DIP` operational record that names one fuel tank. The read selects every
 operational-record root of the Site recorded at or before `known_at`, at its latest version recorded at or before

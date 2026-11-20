@@ -1,6 +1,6 @@
 """W5-02a K1a: the domain Action command routes under `/api/sites/{site_code}/domain-work`.
 
-`.agent/W5-02-build-spec.md` "Command/read wire" and Architect pre-flight ruling A2:
+`specs/W5-02/` "Command/read wire" and Architect pre-flight ruling A2:
 
 - `POST /actions` - a cold domain Action root from one exact selected Finding (`domain-action-1`).
 - `POST /actions/{action_id}/intents` - a declared intent version (`domain-action-intent-1`).

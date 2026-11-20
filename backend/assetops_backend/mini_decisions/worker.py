@@ -1,4 +1,4 @@
-"""W4-03 unit 4: the five-day opportunity worker (`.agent/W4-03-build-spec.md` closure 2 Q4, closure 4 S1/S2/S5/S6,
+"""W4-03 unit 4: the five-day opportunity worker (`specs/W4-03/` closure 2 Q4, closure 4 S1/S2/S5/S6,
 u3 "Unit 4 dry-read").
 
     python -m assetops_backend.mini_decisions.worker run-pending [--limit N]

@@ -1,9 +1,9 @@
 """W3-03 run 0a: the Portfolio parser kind and its five-part cursor (pure; no storage).
 
-Spec: `.agent/W3-03-build-spec.md` Review closure 4, "B1/B2 — shared selection and sole editor". The Portfolio cursor
+Spec: `specs/W3-03/` Review closure 4, "B1/B2 — shared selection and sole editor". The Portfolio cursor
 is the Finding key set plus `kind`, with `state_filter` null and the marker
 [episode_start_or_null, site_code_key, site_id, finding_id, finding_revision_id]; existing roots keep their key sets
-and bytes (see `test_w302_estate_cursor.py`). Run-1b ruling Q-1b-1 (`.agent/W3-03-build-spec.md` "Run-1b rulings"):
+and bytes (see `test_w302_estate_cursor.py`). Run-1b ruling Q-1b-1 (`specs/W3-03/rulings-3.md` "Run-1b rulings"):
 the Portfolio cursor carries an HMAC-SHA-256 `mac` keyed by `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX`, verified before
 any payload field is trusted; the key is a fixed test-only value set with `monkeypatch`.
 """

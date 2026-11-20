@@ -1,7 +1,7 @@
 """CC-M (owner Q14): the mini scenario kind CHECK admits `PRODUCTIVE_USE_CONTRIBUTION`,
 the productive-use contribution what-if kind.
 
-`.agent/build-spec-commercial-2026-10-27.md` "CC-M". Chains to exactly `0035_w5_ev_work`. No new table, column or
+`specs/Lane-C/rulings.md` "CC-M". Chains to exactly `0035_w5_ev_work`. No new table, column or
 index: the named 0030 `mini_scenario_revision_kind_check` is dropped and recreated with the new kind added.
 
 Downgrade locks `mini_scenario_revision` in ACCESS EXCLUSIVE mode, refuses while any revision uses the new kind,

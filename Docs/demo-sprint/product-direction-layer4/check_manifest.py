@@ -794,7 +794,25 @@ def homes_selftest(doc):
 
 
 # ---------------- 9. the vertical factor map and the traceability file (owner, 19 Nov: vertical-factor-map.md) ----------------
-BRIEF = pathlib.Path(__file__).resolve().parents[3] / ".agent" / "AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md"
+_BRIEF_NAME = "AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md"
+
+
+def _find_brief():
+    """The owner's brief is untracked in the main checkout's .agent/; a linked worktree finds it via git's common dir."""
+    here = pathlib.Path(__file__).resolve().parents[3]
+    cands = [here / ".agent" / _BRIEF_NAME]
+    try:
+        import subprocess
+        common = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=here,
+                                capture_output=True, text=True).stdout.strip()
+        if common:
+            cands.append(pathlib.Path(common).parent / ".agent" / _BRIEF_NAME)
+    except OSError:
+        pass
+    return next((c for c in cands if c.is_file()), cands[0])
+
+
+BRIEF = _find_brief()
 MAP_DOC = "vertical-factor-map.md"
 TRACE = "outcome-lever-capability-traceability.csv"
 CSV_VERT = {"MINI_GRID": "MINI_GRID", "COLD_CHAIN": "COLD_CHAIN", "EV_DEPOT": "EV_DEPOT_CAPTIVE"}

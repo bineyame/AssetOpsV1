@@ -15,7 +15,7 @@ Sizing: publication-path hardening over an existing contract.
 ## Why this exists separately
 
 T026 originally carried this behavior in the critical path before the first
-Finding. `Docs/queue-review-feedback-verbatim.md` moved it here: gateway
+Finding. `Docs/archive/2026-09/queue-review-feedback-verbatim.md` moved it here: gateway
 recovery is a useful proof of architecture, but it is not what makes a former
 mini-grid operator say the Finding could help them.
 See `D-2026-09-24-queue-resequenced-for-demo`.
@@ -27,7 +27,7 @@ criteria rather than re-proving them. This task is allowed to end up small.
 healthy site, dispatch loss, fuel, opportunity, battery trajectory, reliability
 and verification. It does not need a gateway outage demonstration, and T036's
 claim-limited Lab case is served by the gap and delay T026 already delivers.
-Round two of `Docs/queue-review-feedback-verbatim.md` removed that gate: a
+Round two of `Docs/archive/2026-09/queue-review-feedback-verbatim.md` removed that gate: a
 deferred hardening item must not quietly become a gate on the product demo.
 The one case where it does precede T036 is if the client demo deliberately
 includes gateway-outage recovery as a proof story, which is a demo-content

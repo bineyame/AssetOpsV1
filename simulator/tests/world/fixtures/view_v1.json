@@ -1,0 +1,716 @@
+{
+ "accounting_period": "2026-10",
+ "as_of": "2026-11-06",
+ "currency": "USD",
+ "history": {
+  "anchor_period": "2026-10",
+  "day_classes": {
+   "SA": [
+    6
+   ],
+   "SU": [
+    7
+   ],
+   "WD": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ]
+  },
+  "families": {
+   "cooling": {
+    "day": {
+     "SA": "1.00",
+     "SU": "1.00",
+     "WD": "1.00"
+    },
+    "jitter": "0.01",
+    "season": {
+     "cool_dry": "0.97",
+     "short_rains": "1.00",
+     "warm_dry": "1.02"
+    }
+   },
+   "demand": {
+    "day": {
+     "SA": "0.97",
+     "SU": "0.90",
+     "WD": "1.00"
+    },
+    "jitter": "0.02",
+    "season": {
+     "cool_dry": "0.96",
+     "short_rains": "1.00",
+     "warm_dry": "1.00"
+    }
+   },
+   "flat": {
+    "day": {
+     "SA": "1",
+     "SU": "1",
+     "WD": "1"
+    },
+    "jitter": "0",
+    "season": {
+     "cool_dry": "1",
+     "short_rains": "1",
+     "warm_dry": "1"
+    }
+   },
+   "generator": {
+    "day": {
+     "SA": "0.97",
+     "SU": "0.90",
+     "WD": "1.00"
+    },
+    "jitter": "0.02",
+    "season": {
+     "cool_dry": "0.98",
+     "short_rains": "1.00",
+     "warm_dry": "0.93"
+    }
+   },
+   "solar_surplus": {
+    "day": {
+     "SA": "1.00",
+     "SU": "1.00",
+     "WD": "1.00"
+    },
+    "jitter": "0.06",
+    "season": {
+     "cool_dry": "0.80",
+     "short_rains": "1.00",
+     "warm_dry": "1.10"
+    }
+   }
+  },
+  "label": {
+   "evidence": "Simulated",
+   "provenance": "demo-simulated"
+  },
+  "missing_cause": "NOT_IN_HISTORY",
+  "money_leaves": [
+   "energy_cost",
+   "in_transit",
+   "liability",
+   "maint",
+   "maintenance",
+   "om",
+   "outstanding",
+   "staff",
+   "total"
+  ],
+  "months": {
+   "2026-07": 31,
+   "2026-08": 31,
+   "2026-09": 30
+  },
+  "rules": {
+   "COLD_CHAIN": {
+    "actual": {
+     "crate_days": "occupancy anchor anchor anchor",
+     "kwh": "cold_kwh cooling anchor anchor anchor",
+     "liability": "zero",
+     "maint": "plan_value",
+     "outstanding": "ratio crate_days",
+     "staff": "fixed"
+    },
+    "plan": {
+     "crate_days": "per_day",
+     "kwh": "per_day",
+     "liability": "fixed",
+     "maint": "fixed",
+     "staff": "fixed"
+    }
+   },
+   "EV_DEPOT": {
+    "actual": {
+     "kwh": "fleet_kwh",
+     "kwh_0000_0500": "rest offpeak_kwh kwh_2200_2400",
+     "kwh_2200_2400": "share offpeak_kwh anchor anchor anchor",
+     "maintenance": "plan_value",
+     "max_kw": "fixed",
+     "offpeak_kwh": "rest kwh peak_kwh",
+     "peak_kwh": "share kwh anchor anchor anchor"
+    },
+    "plan": {
+     "kwh": "per_day",
+     "maintenance": "fixed",
+     "max_kw": "fixed",
+     "offpeak_kwh": "rest kwh peak_kwh",
+     "peak_kwh": "share kwh anchor anchor anchor"
+    }
+   },
+   "MINI_GRID": {
+    "actual": {
+     "adjustments_kwh": "scale demand",
+     "candidate_l": "scale solar_surplus",
+     "delivered_kwh": "scale demand",
+     "expected_technical_loss_kwh": "scale demand",
+     "in_transit": "zero",
+     "necessary_l": "scale generator",
+     "om": "plan_value",
+     "outstanding": "scale demand",
+     "staff": "fixed",
+     "technical_loss_kwh": "scale demand",
+     "unbilled_mapping_kwh": "zero",
+     "unexplained_kwh": "scale demand",
+     "unexplained_l": "scale generator"
+    },
+    "plan": {
+     "billed_kwh": "per_day",
+     "diesel_l": "per_day",
+     "om": "fixed",
+     "staff": "fixed"
+    }
+   }
+  },
+  "seasons": {
+   "2026-07": "cool_dry",
+   "2026-08": "cool_dry",
+   "2026-09": "warm_dry",
+   "2026-10": "short_rains"
+  },
+  "shape_source": "synthetic",
+  "sites": {
+   "harvest-cold/Room A · Mwea": {
+    "actual": {
+     "crate_days": "occupancy 0.56 0.49 0.42"
+    }
+   },
+   "harvest-cold/Room B · Thika": {
+    "actual": {
+     "crate_days": "occupancy 0.68 0.71 0.70"
+    }
+   },
+   "harvest-cold/Room C · Kirinyaga": {
+    "actual": {
+     "crate_days": "occupancy 0.79 0.81 0.80",
+     "kwh": "cold_kwh cooling 1.05 1.10 1.17"
+    }
+   },
+   "lakeside-power/Kobo": {
+    "actual": {
+     "unexplained_l": "trend generator 0.10 0.10 0.10"
+    }
+   },
+   "metro-bus/Embakasi": {
+    "actual": {
+     "max_kw": "level flat 0.92 0.95 0.98",
+     "peak_kwh": "share kwh 0.36 0.43 0.49"
+    }
+   },
+   "metro-bus/Ruiru": {
+    "plan": {
+     "departures_required": "fleet_nights",
+     "energy_cost": "per_day",
+     "maintenance": "fixed",
+     "total": "sum energy_cost maintenance"
+    }
+   }
+  },
+  "version": 1
+ },
+ "manifest_version": 1,
+ "tenants": [
+  {
+   "prices": {
+    "battery_wear_usd_per_kwh_throughput": "0.08",
+    "diesel_usd_per_l": {
+     "Kisiwa": "1.3",
+     "Kobo": "1.25",
+     "Mto": "1.25"
+    },
+    "productive_tariff_usd_per_kwh": "0.3",
+    "tariff_usd_per_kwh": {
+     "Kisiwa": "0.55",
+     "Kobo": "0.4",
+     "Mto": "0.4"
+    }
+   },
+   "sites": [
+    {
+     "code": "KOBO-001",
+     "period": {
+      "actual": {
+       "adjustments_kwh": 45,
+       "billed_kwh": 8645,
+       "candidate_l": 330,
+       "collected": "3180.0",
+       "contribution": "883.0",
+       "delivered_kwh": 9100,
+       "diesel_cost": "1475.0",
+       "diesel_l": 1180,
+       "in_transit": "0.0",
+       "metered_kwh": 8690,
+       "necessary_l": 730,
+       "om": "600.0",
+       "outstanding": "278.0",
+       "revenue": "3458.0",
+       "staff": "500.0",
+       "technical_loss_kwh": 410,
+       "unexplained_l": 120
+      },
+      "coverage": {
+       "diesel": "RECORDED",
+       "om": "RECORDED",
+       "revenue": "RECORDED",
+       "staff": "RECORDED"
+      },
+      "plan": {
+       "billed_kwh": 8550,
+       "contribution": "1445.0",
+       "diesel_cost": "875.0",
+       "diesel_l": 700,
+       "om": "600.0",
+       "revenue": "3420.0",
+       "staff": "500.0"
+      }
+     },
+     "physical": {
+      "battery_kwh": 200,
+      "genset_kw": 40,
+      "inverter_ac_kw": 50,
+      "loads": {
+       "clinic_kw": 10,
+       "mill_kw": 40,
+       "residential_kw": 25
+      },
+      "min_runtime_min": 30,
+      "pcs_kw": 30,
+      "pv_kw": 60,
+      "reserve_soc_pct": 30,
+      "sfc_l_per_kwh": "0.3",
+      "start_soc_pct": 35,
+      "stop_soc_pct": 90
+     },
+     "site": "Kobo"
+    },
+    {
+     "code": "KISIWA-001",
+     "period": {
+      "actual": {
+       "adjustments_kwh": 30,
+       "billed_kwh": 7400,
+       "candidate_l": 0,
+       "collected": "3800.0",
+       "contribution": "-250.0",
+       "delivered_kwh": 7950,
+       "diesel_cost": "3120.0",
+       "diesel_l": 2400,
+       "in_transit": "0.0",
+       "metered_kwh": 7430,
+       "necessary_l": 2380,
+       "om": "700.0",
+       "outstanding": "270.0",
+       "revenue": "4070.0",
+       "staff": "500.0",
+       "technical_loss_kwh": 520,
+       "unexplained_l": 20
+      },
+      "coverage": {
+       "diesel": "RECORDED",
+       "om": "ESTIMATED",
+       "revenue": "RECORDED",
+       "staff": "RECORDED"
+      },
+      "plan": {
+       "billed_kwh": 7500,
+       "contribution": "-65.0",
+       "diesel_cost": "2990.0",
+       "diesel_l": 2300,
+       "om": "700.0",
+       "revenue": "4125.0",
+       "staff": "500.0"
+      }
+     },
+     "physical": {
+      "battery_kwh": 80,
+      "gensets": [
+       {
+        "id": "GEN-KS-01",
+        "kw": 60
+       },
+       {
+        "id": "GEN-KS-02",
+        "kw": 60
+       }
+      ],
+      "pv_kw": 30,
+      "reserve_soc_pct": 30,
+      "sfc_l_per_kwh": "0.31"
+     },
+     "site": "Kisiwa"
+    },
+    {
+     "code": "MTO-001",
+     "period": {
+      "actual": {
+       "adjustments_kwh": 40,
+       "billed_kwh": 5400,
+       "candidate_l": 0,
+       "collected": "1890.0",
+       "contribution": "810.0",
+       "delivered_kwh": 6000,
+       "diesel_cost": "400.0",
+       "diesel_l": 320,
+       "expected_technical_loss_kwh": 300,
+       "in_transit": "150.0",
+       "metered_kwh": 5580,
+       "necessary_l": 320,
+       "om": "500.0",
+       "outstanding": "120.0",
+       "revenue": "2160.0",
+       "staff": "450.0",
+       "unbilled_mapping_kwh": 140,
+       "unexplained_kwh": 120,
+       "unexplained_l": 0
+      },
+      "coverage": {
+       "diesel": "RECORDED",
+       "om": "RECORDED",
+       "revenue": "RECORDED",
+       "staff": "RECORDED"
+      },
+      "plan": {
+       "billed_kwh": 5600,
+       "contribution": "915.0",
+       "diesel_cost": "375.0",
+       "diesel_l": 300,
+       "om": "500.0",
+       "revenue": "2240.0",
+       "staff": "450.0"
+      }
+     },
+     "physical": {
+      "battery_kwh": 150,
+      "extra_l_basis": "design value from calibration spike M (Mto dispatch at half inverter capacity)",
+      "extra_l_per_day_at_half_inverter_capacity": 5,
+      "genset_kw": 30,
+      "inverters": [
+       {
+        "id": "INV-MT-01",
+        "kw": 25
+       },
+       {
+        "id": "INV-MT-02",
+        "kw": 25
+       }
+      ],
+      "pv_kw": 50,
+      "reserve_soc_pct": 30,
+      "sfc_l_per_kwh": "0.33"
+     },
+     "site": "Mto"
+    }
+   ],
+   "tenant": "lakeside-power",
+   "vertical": "MINI_GRID"
+  },
+  {
+   "capacity_crates_per_room": 400,
+   "energy_model": {
+    "base_kwh": 1550,
+    "form": "kWh_month = 1550 + 0.25 x crate_days at reference ambient 24 C (+2.5% per C above)",
+    "k_kwh_per_crate_day": "0.25",
+    "status": "[proposed] per-room normalisation; coefficients fitted on 60 days of meter + occupancy per room in a pilot",
+    "tolerance_pct": 5
+   },
+   "prices": {
+    "electricity_usd_per_kwh": "0.2",
+    "storage_usd_per_crate_day": "0.2"
+   },
+   "sites": [
+    {
+     "code": "COLD-MWEA",
+     "period": {
+      "actual": {
+       "collected": "820.0",
+       "contribution": "-12.0",
+       "crate_days": 4340,
+       "energy": "530.0",
+       "kwh": 2650,
+       "kwh_model": 2635,
+       "maint": "50.0",
+       "occupancy_pct": 35,
+       "outstanding": "48.0",
+       "revenue": "868.0",
+       "staff": "300.0"
+      },
+      "coverage": {
+       "energy": "RECORDED",
+       "maint": "RECORDED",
+       "revenue": "RECORDED",
+       "staff": "RECORDED"
+      },
+      "plan": {
+       "contribution": "456.0",
+       "crate_days": 7440,
+       "energy": "682.0",
+       "kwh": 3410,
+       "maint": "50.0",
+       "occupancy_pct": 60,
+       "revenue": "1488.0",
+       "staff": "300.0"
+      }
+     },
+     "site": "Room A · Mwea"
+    },
+    {
+     "code": "COLD-THIKA",
+     "period": {
+      "actual": {
+       "collected": "1650.0",
+       "contribution": "454.0",
+       "crate_days": 8680,
+       "energy": "744.0",
+       "kwh": 3720,
+       "kwh_model": 3720,
+       "liability": "108.0",
+       "maint": "80.0",
+       "occupancy_pct": 70,
+       "outstanding": "86.0",
+       "revenue": "1736.0",
+       "staff": "350.0"
+      },
+      "coverage": {
+       "energy": "RECORDED",
+       "liability": "RECORDED",
+       "maint": "ESTIMATED",
+       "revenue": "RECORDED",
+       "staff": "RECORDED"
+      },
+      "plan": {
+       "contribution": "562.0",
+       "crate_days": 8680,
+       "energy": "744.0",
+       "kwh": 3720,
+       "liability": "0.0",
+       "maint": "80.0",
+       "occupancy_pct": 70,
+       "revenue": "1736.0",
+       "staff": "350.0"
+      }
+     },
+     "site": "Room B · Thika"
+    },
+    {
+     "code": "COLD-KIRI",
+     "period": {
+      "actual": {
+       "collected": "1900.0",
+       "contribution": "504.0",
+       "crate_days": 9920,
+       "energy": "1000.0",
+       "kwh": 5000,
+       "kwh_model": 4030,
+       "maint": "80.0",
+       "occupancy_pct": 80,
+       "outstanding": "84.0",
+       "revenue": "1984.0",
+       "staff": "400.0"
+      },
+      "coverage": {
+       "energy": "RECORDED",
+       "maint": "RECORDED",
+       "revenue": "RECORDED",
+       "staff": "RECORDED"
+      },
+      "plan": {
+       "contribution": "698.0",
+       "crate_days": 9920,
+       "energy": "806.0",
+       "kwh": 4030,
+       "maint": "80.0",
+       "occupancy_pct": 80,
+       "revenue": "1984.0",
+       "staff": "400.0"
+      }
+     },
+     "site": "Room C · Kirinyaga"
+    }
+   ],
+   "tenant": "harvest-cold",
+   "vertical": "COLD_CHAIN"
+  },
+  {
+   "sites": [
+    {
+     "code": "EV-EMB",
+     "period": {
+      "actual": {
+       "demand_cost": "6000.0",
+       "departures_met": 620,
+       "departures_required": 620,
+       "energy_cost": "22144.8",
+       "kwh": 86800,
+       "kwh_0000_0500": 23560,
+       "kwh_2200_2400": 15500,
+       "maintenance": "600.0",
+       "max_kw": 500,
+       "note": "the 00:00-05:00 tier starts on 1 Nov 2026, so all October non-peak energy is billed at 0.12, including what charged after midnight",
+       "offpeak_cost": "4687.2",
+       "offpeak_kwh": 39060,
+       "peak_cost": "11457.6",
+       "peak_kwh": 47740,
+       "peak_share": "0.55",
+       "total": "22744.8"
+      },
+      "coverage": {
+       "demand": "RECORDED",
+       "energy": "RECORDED",
+       "maintenance": "RECORDED"
+      },
+      "plan": {
+       "demand_cost": "5400.0",
+       "departures_required": 620,
+       "energy_cost": "18940.8",
+       "kwh": 86800,
+       "maintenance": "600.0",
+       "max_kw": 450,
+       "offpeak_cost": "7291.2",
+       "offpeak_kwh": 60760,
+       "peak_cost": "6249.6",
+       "peak_kwh": 26040,
+       "peak_share": "0.3",
+       "total": "19540.8"
+      }
+     },
+     "physical": {
+      "buses": 20,
+      "charger_kw": 60,
+      "chargers": 10,
+      "departures": "05:30",
+      "import_limit_kw": 500,
+      "kwh_per_bus_night": 140,
+      "returns": "17:30-19:30",
+      "window_h": 12
+     },
+     "site": "Embakasi",
+     "tariff": {
+      "applicability": "[assumption] confirmed from the utility invoice in a pilot",
+      "contract": "C-114 commercial time-of-use + demand charge",
+      "demand_usd_per_kw_month": "12.0",
+      "offpeak": "all other hours at 0.12",
+      "peak": "18:00-22:00 at 0.24",
+      "prices": {
+       "demand_per_kw_month": "12.0",
+       "night_from_1_nov": "0.09",
+       "night_october": "0.12",
+       "offpeak": "0.12",
+       "peak": "0.24"
+      },
+      "super_offpeak": "00:00-05:00 at 0.09, effective from 2026-11-01 (new contract term; October billed at 0.12 in all non-peak hours)"
+     }
+    },
+    {
+     "code": "EV-KAS",
+     "period": {
+      "actual": {
+       "departures_met": 248,
+       "departures_required": 248,
+       "energy_cost": "5580.0",
+       "kwh": 37200,
+       "maintenance": "300.0",
+       "total": "5880.0"
+      },
+      "coverage": {
+       "energy": "RECORDED",
+       "maintenance": "ESTIMATED"
+      },
+      "plan": {
+       "departures_required": 248,
+       "energy_cost": "5580.0",
+       "kwh": 37200,
+       "maintenance": "300.0",
+       "total": "5880.0"
+      }
+     },
+     "physical": {
+      "buses": 8,
+      "charger_kw": 50,
+      "chargers": 4,
+      "import_limit_kw": 250,
+      "kwh_per_bus_night": 150,
+      "spare_buses": 1,
+      "window": "22:00-05:00",
+      "window_h": 7
+     },
+     "site": "Kasarani",
+     "tariff": {
+      "prices": {
+       "demand_per_kw_month": 0,
+       "night_from_1_nov": "0.15",
+       "night_october": "0.15",
+       "offpeak": "0.15",
+       "peak": "0.15"
+      },
+      "type": "FLAT",
+      "usd_per_kwh": "0.15"
+     }
+    },
+    {
+     "code": "EV-RUI",
+     "period": {
+      "actual": {
+       "charger_hour_utilisation": "0.34",
+       "demand_cost": "4560.0",
+       "departures_met": 434,
+       "departures_required": 434,
+       "energy_cost": "12580.32",
+       "kwh": 60760,
+       "maintenance": "500.0",
+       "max_kw": 380,
+       "offpeak_cost": "6562.08",
+       "offpeak_kwh": 54684,
+       "peak_cost": "1458.24",
+       "peak_kwh": 6076,
+       "total": "13080.32"
+      },
+      "coverage": {
+       "demand": "RECORDED",
+       "energy": "RECORDED",
+       "maintenance": "RECORDED"
+      },
+      "plan": {
+       "departures_required": 434,
+       "energy_cost": "12600.0",
+       "maintenance": "500.0",
+       "total": "13100.0"
+      }
+     },
+     "physical": {
+      "buses": 14,
+      "charger_kw": 60,
+      "charger_unit_cost": 15000,
+      "chargers": 12,
+      "import_limit_kw": 400,
+      "kwh_per_bus_night": 140,
+      "window": "21:00-05:00",
+      "window_h": 8
+     },
+     "site": "Ruiru",
+     "tariff": {
+      "contract": "C-117 time-of-use + demand charge (older contract, no 00:00-05:00 tier)",
+      "demand_usd_per_kw_month": "12.0",
+      "note": "moving Ruiru to the C-114 structure is a tariff lever (EV-L4) left for a later decision",
+      "offpeak": "0.12",
+      "peak": "18:00-22:00 at 0.24",
+      "prices": {
+       "demand_per_kw_month": "12.0",
+       "night_from_1_nov": "0.12",
+       "night_october": "0.12",
+       "offpeak": "0.12",
+       "peak": "0.24"
+      }
+     }
+    }
+   ],
+   "tenant": "metro-bus",
+   "vertical": "EV_DEPOT"
+  }
+ ],
+ "timezone_default": "Africa/Nairobi"
+}

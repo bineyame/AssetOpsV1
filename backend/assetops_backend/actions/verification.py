@@ -1,7 +1,7 @@
 """S6-02a: freeze a `reserve-trial-verification-1` plan, bind the later selection, and read plan and evidence.
 
-`D-2026-10-16-s6-verification` and `D-2026-10-16-s602-questions` (`.agent/architect-A-S6-verification-answers.md`,
-`.agent/architect-S6-02-answers.md`). A server-authorized SYSTEM demonstration command (capability command
+`D-2026-10-16-s6-verification` and `D-2026-10-16-s602-questions` (`archive/agent-history/architect-A-S6-verification-answers.md`,
+`archive/agent-history/architect-S6-02-answers.md`). A server-authorized SYSTEM demonstration command (capability command
 `VERIFY`) may freeze a plan or append the later selection binding; it never supplies a metric, verdict or event.
 Arithmetic lives in `verification_rules` (exact, pure); every row is written by the ninth writer
 (`adapters/postgres_action_store.py`) under the battery-scoped trial lock.

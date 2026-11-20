@@ -1,7 +1,7 @@
 /**
  * W3-01 commit 3: the four estate Finding lens roots (v6.9 `findings`, `findings-cost`, `findings-risks`,
  * `findings-opportunities`) read from `GET /api/estate/findings` (`estate-finding-index-2`). Copy and states follow
- * `.agent/W3-01-build-spec.md` "Per-screen panel/copy/layout dry-read", Review closure B3/B7/S19, Run 6 Blocker 2,
+ * `specs/W3-01/spec.md` "Per-screen panel/copy/layout dry-read", Review closure B3/B7/S19, Run 6 Blocker 2,
  * Run 8 rulings 3-5 and Run 12 ruling 3. Priority and confidence stay `Not assessed` in the row columns (the summary cards no longer show them, FC-1); Risks and Opportunities stay
  * honestly empty until a stored eligible kind exists. No mock ID, count, price or savings is rendered.
  */

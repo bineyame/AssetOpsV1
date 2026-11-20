@@ -216,7 +216,7 @@ class ColdProjection:
 
 
 class ColdAssessmentWorker:
-    """`cold-excursion/1` and `cold-start-response/1` projection (`.agent/W2-03-build-spec.md` commit 3).
+    """`cold-excursion/1` and `cold-start-response/1` projection (`specs/W2-03/spec.md` commit 3).
 
     One SQLAlchemy transaction per job (or explicit request) rechecks the lease, selects the effective
     configuration and S4-05 lineage, computes both analytics, persists their revisions, episodes and Findings and
@@ -308,7 +308,7 @@ class EvProjection:
 
 
 class EvAssessmentWorker:
-    """`ev-session/1` projection (`.agent/W2-06-build-spec.md` commit 3, Q10-Q13).
+    """`ev-session/1` projection (`specs/W2-06/` commit 3, Q10-Q13).
 
     One SQLAlchemy transaction per job (or explicit request) rechecks the lease, reads the committed watermark,
     the effective configuration, S4-05 class and clock attestations with the accepted rows, assesses, persists the

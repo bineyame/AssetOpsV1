@@ -55,7 +55,7 @@ class JsonSourceStages:
         #: stage instead of re-verifying every envelope; any other bytes - an
         #: edit, a truncation, another writer - are parsed and verified in
         #: full. Measured at the 8 h window: re-verification was most of a
-        #: step's staging cost (`.agent/T026-phase-1-handoff.md`).
+        #: step's staging cost (`archive/agent-history/T026-phase-1-handoff.md`).
         self._verified: dict[str, tuple[str, SourceStage]] = {}
 
     def path(self, run_id: str) -> Path:

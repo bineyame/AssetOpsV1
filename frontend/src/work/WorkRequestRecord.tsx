@@ -2,7 +2,7 @@
  * W6-01c C3: the work request Maintenance record (v6.9 `wr-record`, `index.html:969`), read from
  * `GET /api/work/requests/{case_id}?site_id={site_code}[&known_at=]` (`global-work-detail-1`). Mock order: breadcrumb,
  * heading with `Open site`, the `Context tabs` row, the date bar, the `wrHeader` mheader, the
- * `Maintenance record · activity` panel, then the Operational records notice. Copy follows `.agent/W6-01-build-spec.md`
+ * `Maintenance record · activity` panel, then the Operational records notice. Copy follows `specs/W6-01/`
  * "C1-C3 pre-flight rulings" P-C3-1..5 and P-X-1..3, which supersede the section 2 record rows and F5 `wr-record`.
  *
  * The table keeps the mock's four columns `Item, Detail, Status, Basis` and its six item labels for every selected

@@ -1,7 +1,7 @@
 """W5-04a V1: the EV domain Action contract without a database - closed dispatch, EV criteria/basis parsing, the
 readiness-28 neutral literals and refusal order, and the readiness-27/30 membership rules over a fake store.
 
-`.agent/W5-04-build-spec.md` "Frozen contract" and "V1 selection, clock and schema", readiness rulings 7, 9, 11, 12,
+`specs/W5-04/spec.md` "Frozen contract" and "V1 selection, clock and schema", readiness rulings 7, 9, 11, 12,
 27, 28 and 30, pre-flight 9-18. The fake transaction records every write so each refusal proves zero writes.
 """
 

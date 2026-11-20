@@ -1,6 +1,6 @@
 """S4-05a phase 2: the pure source provenance truth table (`evidence/source_provenance.py`).
 
-`tasks/S4-05-stored-demo-provenance.md` shared contract item 3; `.agent/architect-S4-05-answers.md` Q2 and
+`tasks/S4-05-stored-demo-provenance.md` shared contract item 3; `archive/agent-history/architect-S4-05-answers.md` Q2 and
 Follow-up M1; N-L2 (several run IDs are MIXED). Real-Postgres proof of the same rows is in
 `test_s405_resolver_postgres.py`; this file pins every per-ID broken detail and the reason precedence.
 """

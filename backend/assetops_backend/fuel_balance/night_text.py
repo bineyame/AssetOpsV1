@@ -1,4 +1,4 @@
-"""DIESEL-K5 (`.agent/build-sheet-DIESEL-1.md` §9l.2, ruling DIESEL-1-R3l): the Fuel page's night-mode wording.
+"""DIESEL-K5 (`specs/DIESEL-1/` §9l.2, ruling DIESEL-1-R3l): the Fuel page's night-mode wording.
 Pure, no I/O.
 
 Rules H1-H5 (§8.2); owner 2026-11-07: "'Unexplained fuel', never 'theft'". Every number a viewer reads is formatted

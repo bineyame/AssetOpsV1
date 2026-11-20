@@ -5,7 +5,7 @@ Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database (K1: `assetops_k1_
 KISIWA-001 is registered on Postgres by `tools/demo_combined_kisiwa.py` `register_in` on F0r's clock (import 09:00Z,
 conversion 09:30Z; everything recorded by 10:00Z), then `tools/probe_kisiwa_fuel.py` `build()` runs unedited with
 its `Registered` replaced by `KisiwaRegistered` (setup clock 11:00Z, product mini-grid v7). The result must equal the
-committed `.agent/DIESEL-F0/probe-result.json` except for the keys the ruling removes: the model lines, the
+committed `host/fixtures/diesel-f0/probe-result.json` except for the keys the ruling removes: the model lines, the
 registered-path record and the example report text; the fuel-level binding is compared on role, units and
 conversion only.
 """
@@ -31,7 +31,7 @@ pytestmark = pytest.mark.skipif(
     not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)"
 )
 
-REFERENCE = ROOT / ".agent" / "DIESEL-F0" / "probe-result.json"
+REFERENCE = ROOT / "host" / "fixtures" / "diesel-f0" / "probe-result.json"
 IMPORT_AT = datetime(2026, 9, 29, 9, 0, tzinfo=timezone.utc)
 INSTALL_AT = datetime(2026, 9, 29, 9, 30, tzinfo=timezone.utc)
 SETUP_AT = "2026-09-29T11:00:00Z"

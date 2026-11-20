@@ -4,7 +4,7 @@ Status: in_review
 
 USER_REVIEW_REQUIRED: no (merges on review ACCEPT; walkthroughs deferred to the owner walkthrough after this round).
 
-Contract: `.agent/build-sheet-POLISH.md` §1.3 (P-08), §3 "Lab Site names" and "Request narratives", §3.1 PA-3 rows,
+Contract: `specs/POLISH/` §1.3 (P-08), §3 "Lab Site names" and "Request narratives", §3.1 PA-3 rows,
 §4 (P-01/P-02), §5 Lane A PA-3, §6 D-3/D-5, §7 (R645, R646), Addendum 3 (rebuild DB and screen check), Addendum 5
 (Lab names are data, never exempt) and Addendum 9 (Q1-Q4). Branch `task/POLISH-PA-3-producers-rebuild` from main
 `c4a39b1dc`.

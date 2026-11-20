@@ -1,4 +1,4 @@
-"""DIESEL-K2 L2 (`.agent/build-sheet-DIESEL-1.md` §9c.2): fuel delivery and tank dip records over real Postgres.
+"""DIESEL-K2 L2 (`specs/DIESEL-1/` §9c.2): fuel delivery and tank dip records over real Postgres.
 
 Kobo is imported through `test_s1_bindings_postgres.imported`; its `fuel-tank` asset is `FUEL_TANK`. The work store runs
 on a `VirtualDbClock` (W401), so every command's `recorded_at` is known. Requires ASSETOPS_TEST_DATABASE_URL naming a

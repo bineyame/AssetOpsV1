@@ -59,7 +59,7 @@ def resolved_manifest(base: dict, story: dict) -> dict:
     return M
 
 
-#: Q1 ruling (`.agent/DEMO-SPARSE-preflight.md`): the two labelled demo configurations take effect at Kobo
+#: Q1 ruling (`archive/agent-history/DEMO-SPARSE-preflight.md`): the two labelled demo configurations take effect at Kobo
 #: commissioning instead of their build dates; values byte-identical, only `effective_from` moves.
 CONFIG_OFFSETS = {"properties": timedelta(minutes=10), "roles2": timedelta(minutes=10),
                   "roles3": timedelta(minutes=20), "known": timedelta(minutes=30),
@@ -619,6 +619,8 @@ def add_day(url: str, work: Path, planned: dict) -> dict:
 
 
 if __name__ == "__main__":
+    import heavy_slot_check  # T1 (spec §5.5): only when run as a script; children of a pooled prepare pass by ancestry
+    heavy_slot_check.require("database job", db=True)
     if len(sys.argv) == 5 and sys.argv[1] == "add-day":
         add_day(sys.argv[2], Path(sys.argv[3]), json.loads(sys.argv[4]))
         raise SystemExit(0)

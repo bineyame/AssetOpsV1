@@ -1,7 +1,7 @@
 /**
  * W4-01 commit 5: the v69 `sitework-incidents` and `sitework-maintenance`
  * screens over `GET /api/sites/{site}/work/{incidents|maintenance}`
- * (`.agent/W4-01-build-spec.md` B1/B9/B10, S19-S31, Run 7 commit-5 dry-read).
+ * (`specs/W4-01/` B1/B9/B10, S19-S31, Run 7 commit-5 dry-read).
  *
  * Both routes mount through the real `App`; `fetch` serves `site-work-index-1`
  * bodies with exactly the row keys the backend list tests assert

@@ -1,5 +1,5 @@
 /**
- * W6-01e E2: the global Operational records root (`.agent/W6-01-build-spec.md` section 2, section 3.1
+ * W6-01e E2: the global Operational records root (`specs/W6-01/` section 2, section 3.1
  * A2Q1-A2Q10/X1-X8/CL3-1/CL3-6 and the "E1-E2 pre-flight rulings" P-E2-1..8). Typed responses only: the persisted
  * positive, filtered, historical, zero, 503, 409 and long-body states are captured against the real API in
  * `.agent/W6-01-evidence/E2/`.

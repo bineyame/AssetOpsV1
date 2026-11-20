@@ -58,7 +58,7 @@ def _probe(value: str = "3.8", at: str = AT) -> DeviceReportV2:
 
 def _door(kind: str = "DOOR_OPEN", outcome: str = "OPEN", ordinal: int = 1) -> DeviceReportV2:
     # The gateway branch is tested with a V4-valid identifier; the `cold:`-prefixed generator form is an open
-    # question (the V4 identifier grammar has no ':'), see `.agent/W2-02-phase-3-handoff.md`.
+    # question (the V4 identifier grammar has no ':'), see `archive/agent-history/W2-02-phase-3-handoff.md`.
     event_id = f"cold-door-event-{ordinal}"
     return DeviceReportV2(
         report_key=cold_report_key(scenario_sha256=SCENARIO, device_id="door-sensor", signal_id="event",

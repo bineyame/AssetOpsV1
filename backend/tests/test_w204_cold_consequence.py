@@ -1,6 +1,6 @@
 """W2-04 commit 2: cold consequence revisions over the six registered W2-02 replays, through S2 and W2-03.
 
-`.agent/W2-04-build-spec.md` "Fixtures, named tests and guards" (`test_w204_cold_consequence.py`), "Money schema
+`specs/W2-04/spec.md` "Fixtures, named tests and guards" (`test_w204_cold_consequence.py`), "Money schema
 `0023` and rules" and Q4-Q6. Each case runs the W2-02 chain (gateway, Batch V2, ordinary S2 acceptance) and the
 W2-03 cold worker in a fresh private `*_test` database; the 0023 triggers enqueue the cold work and the W2-04
 worker derives from it. No accepted, assessment, Finding or consequence row is inserted by hand. Needs

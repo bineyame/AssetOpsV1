@@ -1,5 +1,10 @@
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+// T1 (spec §5.3): vitest refuses to start outside the heavy-tool slot pool. Typed like `apiPort` below: this
+// project has no @types/node, so the Node built-in is untyped here and `process` is read off globalThis.
+// @ts-expect-error -- node:module has no type declarations without @types/node; Node resolves it at config load.
+import { createRequire } from "node:module";
+if ((globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env?.VITEST) createRequire(import.meta.url)("../tools/heavy_slot_check.cjs").assertHeavySlot("vitest");
 
 /**
  * Dev-server configuration.

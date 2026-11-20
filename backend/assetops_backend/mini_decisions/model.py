@@ -1,4 +1,4 @@
-"""W4-03 unit 2a: the mini-decision refusal vocabulary (`.agent/W4-03-build-spec.md` "API, exact wire, ordering and
+"""W4-03 unit 2a: the mini-decision refusal vocabulary (`specs/W4-03/` "API, exact wire, ordering and
 errors", closure 1 Q1-Q3/Q12-Q16, closure 4 N8).
 
 `DecisionRefused` carries the code, HTTP status and API message of the error table. The W4-01 `WORK_*` codes stay

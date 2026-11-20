@@ -1,4 +1,4 @@
-"""W2-02 cold replay read (`.agent/W2-02-build-spec.md` "Commit (4) exact contract").
+"""W2-02 cold replay read (`specs/W2-02/spec.md` "Commit (4) exact contract").
 
 `ColdReplayService.replay` reads one explicitly selected, persisted cold run and the public transport that its
 `REGISTERED_SIMULATION` publications carried into the S2 ledger: publication IDs ordered by

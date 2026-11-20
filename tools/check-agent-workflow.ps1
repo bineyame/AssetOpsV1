@@ -24,6 +24,12 @@ $requiredFiles = @(
     ".ai/PLANNING_GUIDANCE.md",
     ".ai/ROLE_CONFIG.md",
     ".ai/DECISIONS.md",
+    ".ai/decisions/INDEX.md",
+    ".ai/state/INDEX.md",
+    "specs/INDEX.md",
+    "specs/CITATION_MAP.md",
+    "owner/INDEX.md",
+    ".agent/coordinator-handoff.md",
     ".ai/ARTIFACT_INDEX.md",
     ".claude/commands/assetops-architect.md",
     ".claude/commands/assetops-planner.md",
@@ -58,7 +64,7 @@ if (Test-Path -LiteralPath ".ai/START_HERE.md") {
 # Every agent reads .ai/ACTIVE_CONTEXT.md in full, so its growth is paid on
 # every task. It was trimmed once and grew back to nearly four times the
 # trimmed size in six slices, because per-slice records accumulated in it.
-# Those belong in .ai/CODE_STATE.md, which is read one entry at a time.
+# Those belong in the .ai/state/ area files, which are read one entry at a time.
 #
 # The cap is the file's own stated rule. Raising it is a decision to make
 # deliberately, not a way to land a task.
@@ -69,7 +75,7 @@ if (Test-Path -LiteralPath ".ai/ACTIVE_CONTEXT.md") {
     if ($activeContextLines -gt $activeContextLineCap) {
         Add-Failure (".ai/ACTIVE_CONTEXT.md is $activeContextLines lines, over " +
             "its $activeContextLineCap-line cap. It is a routing document: move " +
-            "per-slice records into .ai/CODE_STATE.md rather than raising the cap.")
+            "per-slice records into the .ai/state/ area files rather than raising the cap.")
     }
 }
 
@@ -132,6 +138,19 @@ foreach ($task in $taskFiles) {
 
     if ($content -notmatch "USER_REVIEW_REQUIRED:\s*(true|false)") {
         Add-Failure "$($task.Name) must declare USER_REVIEW_REQUIRED: true|false"
+    }
+}
+
+# Declutter step 4: the coordinator handoff is one current block of at most 2k
+# tokens (.ai/RULES.md section 9), replaced rather than appended; history goes to
+# .ai/history/. 8000 bytes is the 2k-token cap at 4 bytes per token.
+$handoffByteCap = 8000
+if (Test-Path -LiteralPath ".agent/coordinator-handoff.md") {
+    $handoffBytes = (Get-Item -LiteralPath ".agent/coordinator-handoff.md").Length
+    if ($handoffBytes -gt $handoffByteCap) {
+        Add-Failure (".agent/coordinator-handoff.md is $handoffBytes bytes, over its " +
+            "$handoffByteCap-byte (2k-token) cap. Replace the current block and move " +
+            "the old text to .ai/history/.")
     }
 }
 

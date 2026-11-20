@@ -1,6 +1,6 @@
 """W2-05a commit 5: migration `0024_w2_ev_config` against Postgres.
 
-`.agent/W2-05a-build-spec.md` Q7 and the property paragraph: the only schema change is the partial
+`specs/W2-05a/spec.md` Q7 and the property paragraph: the only schema change is the partial
 `(site_id, session_id, connector_id, source_time, id)` EV measurement index; the 0020 family CHECK and Foundation
 history are untouched; no new configuration table; downgrade refuses while EV measurements exist (deleting nothing),
 otherwise drops only the index. Requires ASSETOPS_TEST_DATABASE_URL.

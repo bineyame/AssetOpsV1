@@ -1,6 +1,6 @@
 """S4-05a phase 1: immutable pre-admission source publication and its batch link.
 
-`D-2026-10-15-s405-stored-demo-provenance` (`.agent/architect-S4-05-answers.md` Q1, rule 8, Follow-up M1).
+`D-2026-10-15-s405-stored-demo-provenance` (`archive/agent-history/architect-S4-05-answers.md` Q1, rule 8, Follow-up M1).
 Two insert-only tables, written at runtime only by the existing evidence-ledger writer
 (`evidence/adapters/postgres_evidence_ledger.py`); this migration owns their DDL and no ninth writer exists.
 

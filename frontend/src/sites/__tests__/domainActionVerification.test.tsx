@@ -1,5 +1,5 @@
 /**
- * W5-02c K4a (`.agent/W5-02c-K4-preflight-rulings.md` rulings 3-10; build spec "Action panels"): the loaded v69
+ * W5-02c K4a (`archive/agent-history/W5-02c-K4-preflight-rulings.md` rulings 3-10; build spec "Action panels"): the loaded v69
  * `cold-action` panels (`frontend/mockups/v69/index.html:742-746`), the selected Related activity branches, the
  * Inspect and source-Finding controls, the currentness placement and the untitled non-loaded state panel.
  */

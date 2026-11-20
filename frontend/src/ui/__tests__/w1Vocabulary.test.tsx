@@ -46,7 +46,7 @@ describe("W1 vocabulary set: raw-code pattern", () => {
     expect(forbiddenPhrases("Why the generator ran at 06:00")).toEqual(["ran"]);
   });
 
-  // W2-F q1 (.agent/W2-F-build-spec.md "Copy rulings (q1)").
+  // W2-F q1 (specs/W2-F/spec.md "Copy rulings (q1)").
   it("w2f_q1: only the exact Claim boundary heading is glossed; the ruled plain copy passes both sets", () => {
     expect(forbiddenPhrases("Claim boundary", "w1")).toEqual([]);
     expect(forbiddenPhrases("claim", "w1")).toContain("claim");

@@ -1,6 +1,6 @@
 """W4-03 unit 2a: pure Scenario assumption, decimal, currency and calculation rules.
 
-`.agent/W4-03-build-spec.md`: original "Scenario" domain paragraph; closure 1 Q7-Q11 (closed assumption keys,
+`specs/W4-03/`: original "Scenario" domain paragraph; closure 1 Q7-Q11 (closed assumption keys,
 calculation enum, decimal strings); closure 2 N1 (tariff unit is `<ISO 4217 code>/kWh`, the literal
 `ISO4217/kWh` is refused); closure 4 S8 (W4-02 physical numbers enter as `Decimal(str(value))`, normalized plain
 strings) and S16 (a scenario pins all five study tuples; arithmetic counts only the ELIGIBLE rows).

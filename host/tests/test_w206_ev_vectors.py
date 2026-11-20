@@ -1,4 +1,4 @@
-"""W2-06 R12 (`.agent/W2-06-build-spec.md` "R12: exact vector artifact (Q1-Q9)"): the producer side rerun.
+"""W2-06 R12 (`specs/W2-06/` "R12: exact vector artifact (Q1-Q9)"): the producer side rerun.
 
 `backend/tests/fixtures/w2/ev-w206-vectors.json` is written by the W2-05b Postgres replay test from the persisted
 publication -> batch -> disposition chain. This test reruns the public transform (`ev_reports`) for each of the six

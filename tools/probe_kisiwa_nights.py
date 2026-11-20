@@ -1,8 +1,8 @@
 """DIESEL-1 D0: the Kisiwa simulator trial. In memory; no database, no product code.
 
 Kisiwa's physical assumptions, runs, cuts, lever, night window, metric, nights judged, pass mark, gates and stops are
-DIESEL-1 §2 (`.agent/build-sheet-DIESEL-1.md` §2.2-§2.9, f755f085b), fixed before any run and never tuned. The Site
-is the draft template `.agent/DIESEL-D0/kisiwa-diesel-hybrid-60kw.draft.yaml` built through the product's own create
+DIESEL-1 §2 (`specs/DIESEL-1/` §2.2-§2.9, f755f085b), fixed before any run and never tuned. The Site
+is the draft template `host/fixtures/diesel-d0/kisiwa-diesel-hybrid-60kw.draft.yaml` built through the product's own create
 path (`host/tests/fixtures.py` `site_from_template`), run on `mini-grid` v6 at 5 minutes with Lab publication profile
 v3, as `tools/probe_kobo_nights.py` runs Kobo.
 
@@ -11,7 +11,7 @@ the generator stop setting 90 % (before), runs 6-9 with 60 % (after; a Site edit
 100 %, 1000 L, STOPPED; every later run starts at the previous run's measured end. Night k is 18:00 to 12:00 local,
 steps [36, 252) of run k. Nights 3-5 are judged against nights 6-8.
 
-`python tools/probe_kisiwa_nights.py` prints the result JSON; `--write` writes `.agent/DIESEL-D0/probe-result.json`
+`python tools/probe_kisiwa_nights.py` prints the result JSON; `--write` writes `host/fixtures/diesel-d0/probe-result.json`
 and prints the verdict line; `--check` exits 1 if the committed JSON differs from a fresh run (gate G6).
 """
 
@@ -34,8 +34,8 @@ sys.path.insert(0, str(ROOT / "host"))
 
 import yaml  # noqa: E402
 
-TEMPLATE = ROOT / ".agent" / "DIESEL-D0" / "kisiwa-diesel-hybrid-60kw.draft.yaml"
-RESULT = ROOT / ".agent" / "DIESEL-D0" / "probe-result.json"
+TEMPLATE = ROOT / "host" / "fixtures" / "diesel-d0" / "kisiwa-diesel-hybrid-60kw.draft.yaml"
+RESULT = ROOT / "host" / "fixtures" / "diesel-d0" / "probe-result.json"
 
 SOC, FUEL, GEN = "battery-state-of-charge@battery", "fuel-tank-volume@fuel-tank", "generator-state@generator"
 COLD_STORE = "load-demand@load-clinic"

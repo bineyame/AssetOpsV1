@@ -121,7 +121,7 @@ state not observed") and counts in the upper bound only.
 A Finding (type `generator-dispatch-interval`) is emitted for an interval whose
 claim level is Candidate avoidable or Indeterminate. A Necessary interval is an
 assessment without a Finding (it is shown by Dispatch, not raised as
-something to act on). Owner ruling 2026-10-03 (`.agent/owner-T028-phase-1-questions-2026-10-03.md`):
+something to act on). Owner ruling 2026-10-03 (`owner/owner-T028-phase-1-questions-2026-10-03.md`):
 Necessary intervals stay assessments without a Finding; they are listed on
 Performance > Dispatch, and the Findings indexes list Candidate avoidable and
 Indeterminate only.

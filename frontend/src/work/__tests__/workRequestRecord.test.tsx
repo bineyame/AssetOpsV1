@@ -1,5 +1,5 @@
 /**
- * W6-01c C3: the work request Maintenance record page (`wr-record`), against `.agent/W6-01-build-spec.md` "C1-C3
+ * W6-01c C3: the work request Maintenance record page (`wr-record`), against `specs/W6-01/` "C1-C3
  * pre-flight rulings" P-C3-1..5 (six mock rows per selected head, earlier versions, the REC notice and its staged
  * plain-text codes), A2Q7 (footer as Panel description), CL3-1 loading copy and R7 settling.
  */

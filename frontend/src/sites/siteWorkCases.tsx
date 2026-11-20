@@ -5,7 +5,7 @@
  *
  * The mock's three slots, in order and kept in every state: the status strip,
  * the one "{Incidents|Maintenance} at this site" panel and the context notice
- * (`.agent/W4-01-build-spec.md` "Per-panel copy and layout dry-read", B10,
+ * (`specs/W4-01/spec.md` "Per-panel copy and layout dry-read", B10,
  * S19-S31 and the Run 7 commit-5 dry-read).
  *
  * - The count comes from the full selected set (`total_count`), never from the

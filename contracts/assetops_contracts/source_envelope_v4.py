@@ -1,6 +1,6 @@
 """SourceEnvelope V4: ordinary source events and EV interval deltas (W2-00).
 
-`.agent/W2-technical-design-cold.md` section 1 and `D-2026-10-17-w2-00-answers`. V4 is a separate module so
+`archive/agent-history/W2-technical-design-cold.md` section 1 and `D-2026-10-17-w2-00-answers`. V4 is a separate module so
 the V3 parser (`source_envelope_v3`) and the shared measurement allowlist stay frozen byte for byte.
 
 V4 keeps V3's allocated message identity (`v3_message_id`), its canonical JSON, its UTC instants, exact

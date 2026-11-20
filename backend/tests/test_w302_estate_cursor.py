@@ -1,6 +1,6 @@
 """W3-02 commit 0a: shared estate parser kinds and the 3- and 5-part cursor markers (pure; no storage).
 
-Spec: `.agent/W3-02-build-spec.md` Review closure 4, "Shared parser, 3- and 5-part cursor, refusals (B1, S7-S8)".
+Spec: `specs/W3-02/` Review closure 4, "Shared parser, 3- and 5-part cursor, refusals (B1, S7-S8)".
 Finding/Action two-part cursors keep their emitted bytes; the new markers are unsigned (no tamper claim).
 """
 

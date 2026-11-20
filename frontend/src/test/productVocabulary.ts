@@ -1,6 +1,6 @@
 /**
  * The T028 product vocabulary guard (D-2026-10-04-plain-language-analysis-views,
- * `.agent/T028-architect-presentation.md` section 4).
+ * `archive/agent-history/T028-architect-presentation.md` section 4).
  *
  * It scans what a screen actually says - every rendered text node, including
  * text a backend delivered, graphics' captions, legends and `<title>`s - and

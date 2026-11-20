@@ -4,7 +4,7 @@ Status: done (merged to main 2026-10-19; rulings q1-q6; review ACCEPT-with-follo
 
 ## Binding design and dependencies
 
-`D-2026-10-17-w2-techdesign-ev` (amended), `.agent/W2-technical-design-ev.md` §§2–3,8 and `.agent/W2-05b-build-spec.md` bind this build. Requires merged W2-00 v4/Batch V2, W2-05a effective EV Foundation/bindings, W2-02 closed pack selection/DeviceReport v2/Lab Stage/Commit/replay pattern, registered Lab and SQLite outbox. The six cases use a new EV-LAB-001 registration, not the mock's illustrative counts/120 kWh/$36. OCPP 1.6J vendor peer, physical capture and attestation are pilot gates under the amended EV design; this slice does not invent a peer fixture.
+`D-2026-10-17-w2-techdesign-ev` (amended), `archive/agent-history/W2-technical-design-ev.md` §§2–3,8 and `specs/W2-05b/` bind this build. Requires merged W2-00 v4/Batch V2, W2-05a effective EV Foundation/bindings, W2-02 closed pack selection/DeviceReport v2/Lab Stage/Commit/replay pattern, registered Lab and SQLite outbox. The six cases use a new EV-LAB-001 registration, not the mock's illustrative counts/120 kWh/$36. OCPP 1.6J vendor peer, physical capture and attestation are pilot gates under the amended EV design; this slice does not invent a peer fixture.
 
 ## Phase 1 — deterministic pack, six cases and frozen identity
 

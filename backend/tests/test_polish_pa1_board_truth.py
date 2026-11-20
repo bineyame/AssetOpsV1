@@ -1,4 +1,4 @@
-"""POLISH PA-1 board truth (`.agent/build-sheet-POLISH.md` §1.1, §1.3 copy, §1.6, §1.7, §6 D-2, Addendum 2).
+"""POLISH PA-1 board truth (`specs/POLISH/` §1.1, §1.3 copy, §1.6, §1.7, §6 D-2, Addendum 2).
 
 - §1.1 (P-06, R626): a PRICED amount of zero reads "No fuel cost estimated: ..." with no money on the headline.
 - §1.6 (P-11, R635): the EV Optimize sentence names a tariff estimate only when Grow holds a priced tariff.

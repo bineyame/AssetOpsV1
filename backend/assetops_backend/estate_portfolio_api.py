@@ -4,7 +4,7 @@
 authentication (401 with `WWW-Authenticate: Bearer`) before any tenant lookup or parsing, then the strict shared
 parser, then one read-only snapshot with per-Site admission through the existing `access` seam. Every refusal is
 W3-01's `{code,message,rows:null,total_count:null}` body inside `detail` plus Portfolio's
-`value_cards:null,objectives:null,money:null` (`.agent/W3-03-build-spec.md` closure 1 refusals), including 401 and
+`value_cards:null,objectives:null,money:null` (`specs/W3-03/` closure 1 refusals), including 401 and
 503; no success field appears on an error.
 """
 

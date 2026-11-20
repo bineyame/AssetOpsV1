@@ -1,6 +1,6 @@
 """W2-03 commit 4: the selected cold reads over the registered W2-02 replays (authenticated Batch V2 intake).
 
-`.agent/W2-03-build-spec.md` "Commit 4 - selected reads" and the 2026-10-18 freshness amendment (probe recency at
+`specs/W2-03/spec.md` "Commit 4 - selected reads" and the 2026-10-18 freshness amendment (probe recency at
 the selected window's `to`). Each test opens a fresh W2-02 replay through `test_w203_cold_replay_postgres.opened`,
 runs the cold worker and reads through the router with the real `ColdReadService`. Needs
 `ASSETOPS_TEST_DATABASE_URL`; skipped (never passed) without it, except the pure currentness test.

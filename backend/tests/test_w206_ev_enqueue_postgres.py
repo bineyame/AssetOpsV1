@@ -1,5 +1,5 @@
 """W2-06 commit 3a: the 0025 deferred `enqueue_ev_assessment` constraint trigger and
-`PostgresAssessmentStore.ev_enqueue_configuration` (`.agent/W2-06-build-spec.md` "Q10-Q13: enqueue and worker").
+`PostgresAssessmentStore.ev_enqueue_configuration` (`specs/W2-06/` "Q10-Q13: enqueue and worker").
 
 Accepted rows are written in the S2 writer's shape (accepted row then its ACCEPTED disposition, one transaction) by
 cloning one accepted row of the mini-grid Site fixture; the trigger reads only role, family/kind, asset, session and

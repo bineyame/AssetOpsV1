@@ -1,4 +1,4 @@
-"""W2-02 cold replay route (`.agent/W2-02-build-spec.md` "Commit (4) exact contract").
+"""W2-02 cold replay route (`specs/W2-02/spec.md` "Commit (4) exact contract").
 
 `GET /api/sites/{site_code}/cold/replay?run_id=<id>` - mounted only under the Simulator Lab gate. The caller
 passes the existing Finding-route `Access` seam and a Lab owner-role check. Production composition has no owner

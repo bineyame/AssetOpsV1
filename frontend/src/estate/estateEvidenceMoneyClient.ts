@@ -1,6 +1,6 @@
 /**
  * W3-02 commit 2: the typed client for the estate Evidence root, `GET /api/estate/evidence`
- * (`estate-evidence-1`; `.agent/W3-02-build-spec.md` "Proof and builder handoff" literal wire vectors, closure 4
+ * (`estate-evidence-1`; `specs/W3-02/` "Proof and builder handoff" literal wire vectors, closure 4
  * "Wire, token, links, registry and mock"). It is separate from the W3-01 `EstateClient`, which stays unchanged.
  * Commit 4 adds the Financials read (`GET /api/estate/financials`, `estate-financials-1`) as its own
  * `EstateFinancialsClient`. The cursor is opaque and passed back unchanged.

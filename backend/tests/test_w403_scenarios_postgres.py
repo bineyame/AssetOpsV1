@@ -1,4 +1,4 @@
-"""W4-03 unit 2b: persisted mini scenarios over Postgres (`.agent/W4-03-build-spec.md` closure 1 Q1-Q3/Q12-Q16,
+"""W4-03 unit 2b: persisted mini scenarios over Postgres (`specs/W4-03/` closure 1 Q1-Q3/Q12-Q16,
 closure 2 Q1, closure 4 B2/S5/S9/S10/S15/S20/N6/N8, u2 narrative, u2b readings).
 
 The MG-W402-001 authored cases are accepted in process and selected by the W4-02 worker's `reconcile`, as in

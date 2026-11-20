@@ -13,7 +13,9 @@ contract-fixtures/telemetry/** -text
 # PERF-01: profiling runner script is executed by Linux sh
 tools/profile-tests-in-container.sh text eol=lf
 # DIESEL-1-R3e: Kisiwa probe evidence (pre-registered inputs and committed results) is LF on every host
-.agent/DIESEL-F0/* text eol=lf
-.agent/DIESEL-D0/* text eol=lf
+host/fixtures/diesel-f0/* text eol=lf
+host/fixtures/diesel-d0/* text eol=lf
 # DIESEL-1-R3f: operational-action logs are hashed as LF on every host
 config/operational-actions/* text eol=lf
+# DS1a: byte-pinned world generator fixture and golden digests (R24)
+simulator/tests/world/**/*.json text eol=lf

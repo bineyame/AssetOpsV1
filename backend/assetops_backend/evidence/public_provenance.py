@@ -1,7 +1,7 @@
 """W3-01 commit 1: the shared public `source_provenance` DTO boundary.
 
 `D-2026-10-20-shared-provenance-dto` with its review-closure and review-closure-2 amendments (`.ai/DECISIONS.md`)
-and `.agent/W3-01-build-spec.md` "Shared provenance DTO resolution", "Review closure" B8/B10 and "Review closure 2"
+and `specs/W3-01/` "Shared provenance DTO resolution", "Review closure" B8/B10 and "Review closure 2"
 D2/D6. One public wire shape across W1, cold and EV:
 
     {classification, state, source_ids, evidence_ids, basis_sha256, reasons[, detail]}
@@ -19,7 +19,7 @@ D2/D6. One public wire shape across W1, cold and EV:
 - `reasons` and the optional `detail` (the resolver's nine keys) are canonically sorted; `detail.reasons` equals
   the top-level `reasons`. Typed resolver extras are preserved.
 - A consequence keeps `SourceProvenanceResolver.consequence_revision`'s fail-closed Finding conflict.
-- Run 1 rulings (q1), `.agent/W3-01-build-spec.md`: ruling 2 fixes each represented row's selected-ID set (the
+- Run 1 rulings (q1), `specs/W3-01/`: ruling 2 fixes each represented row's selected-ID set (the
   `*_selection` helpers name them; the W1 Finding/consequence sets are derived here by default); ruling 4 is the
   selected-EV persisted-class adapter (`PublicProvenance.ev_selected`); ruling 5 the pending dual blocks
   (`dual_blocks`); ruling 6 the estate six-key projection (`estate_projection`, or `detail=False`).

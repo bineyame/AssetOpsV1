@@ -8,7 +8,7 @@
         [--to D|yesterday] [--kind K] [--dry-run] [--no-check]     (OWN-G1: catch the Sites up to yesterday)
     python tools/demo_combined.py --db assetops_demo3_main_test --work var/demo3_main drop
 
-Build sheet: `AssetOpsV1-plan2/.agent/build-sheet-DEMO-COMBINED.md` (rev 1 + Addendum 1). Every story instant comes
+Build sheet: `AssetOpsV1-plan2/specs/DEMO-COMBINED/spec.md` (rev 1 + Addendum 1). Every story instant comes
 from `backend/conversions/demo-combined-story-v1.json` resolved against one story day
 S = floor_utc_day(DB now at prepare) - 2 d (written to `<work>/story.json`); nothing reads `datetime.now()` for a
 story instant. The data is registered Lab simulation placed on a story calendar plus prepared example work records
@@ -2002,6 +2002,9 @@ def main(argv: list[str] | None = None) -> None:
     lf.add_argument("--hours", type=int, default=live_field.MAX_HOURS)
     sub.add_parser("drop")
     args = parser.parse_args(argv)
+    if args.cmd in ("prepare", "add-day", "add-dates", "tick", "after-children"):
+        import heavy_slot_check  # T1 (spec §5.5): in the dispatch, never at import time (tests import this module)
+        heavy_slot_check.require("database job", db=True)
     demo = Demo(args.db, args.work)
     if args.cmd == "prepare":
         sites = tuple(s for s in args.sites.split(",") if s)

@@ -1,6 +1,6 @@
 # OPS-02 — statement-level product writer guard
 
-Status: done, pending merge (2026-10-16: review ACCEPT after fix round; main `0d3114a3` merged in, rule 8 carries LR-01/S6-01a/S4-05a writer policy; merge evidence in packet "Merge with main"). Was in_review (built 2026-10-15 on `task/OPS-02-writer-guard-ast`; packet `.agent/OPS-02-review-packet.md`); activated 2026-10-15 from main `5bfff665` under the owner-absence work order; plan review ACCEPT `.agent/small-followons-plan-review.md`); was implementation-ready
+Status: done, pending merge (2026-10-16: review ACCEPT after fix round; main `0d3114a3` merged in, rule 8 carries LR-01/S6-01a/S4-05a writer policy; merge evidence in packet "Merge with main"). Was in_review (built 2026-10-15 on `task/OPS-02-writer-guard-ast`; packet `archive/agent-history/OPS-02-review-packet.md`); activated 2026-10-15 from main `5bfff665` under the owner-absence work order; plan review ACCEPT `archive/agent-history/small-followons-plan-review.md`); was implementation-ready
 Size: S; one build and one fresh independent review
 Branch when activated: `task/OPS-02-writer-guard-ast`, from merged main
 USER_REVIEW_REQUIRED: false (non-UI; guard and test-harness only)
@@ -8,12 +8,12 @@ Owner: architecture checks; S4-02d F-B carry
 
 ## Outcome and authority
 
-Rule 8 recognizes SQL writes as statements across Python string formatting and rejects writes outside the existing product writer boundaries. The proof closes `.agent/S4-02d-phase-2-review.md` F-B. This packet adds no registry node and does not authorize a new writer. Independent of unmerged LR-01/S5-01/S6-01/S4-05.
+Rule 8 recognizes SQL writes as statements across Python string formatting and rejects writes outside the existing product writer boundaries. The proof closes `archive/agent-history/S4-02d-phase-2-review.md` F-B. This packet adds no registry node and does not authorize a new writer. Independent of unmerged LR-01/S5-01/S6-01/S4-05.
 
 ## Code reality and boundary
 
 - `tools/checks/configuration-persistence.ps1:641-825` names eight PostgreSQL writers and applies `$sqlWrite`, target and per-writer tests line by line. The schedule store owns only four schedule tables and named mutable columns; assumption assignments permit only a set-once `recorded_to`; Finding/consequence inserts remain append-only. Preserve all writer/table/column boundaries and non-vacuity checks.
-- `.agent/S4-02d-phase-2-review.md:59-84,220` records 11 missed probe forms: three split literal statements (including schedule head and cursor), triple-quoted multiline, literal newline escape, two SQL-comment-separated forms, MERGE, SQLAlchemy Core update, Core delete, and lowercase COPY. The listed forms are the acceptance corpus; record each as an automated mutation probe against `tools/check-architecture.ps1`.
+- `archive/agent-history/S4-02d-phase-2-review.md:60-85,220` records 11 missed probe forms: three split literal statements (including schedule head and cursor), triple-quoted multiline, literal newline escape, two SQL-comment-separated forms, MERGE, SQLAlchemy Core update, Core delete, and lowercase COPY. The listed forms are the acceptance corpus; record each as an automated mutation probe against `tools/check-architecture.ps1`.
 - `backend/tests/conftest.py:103-116` configures xdist workers; `backend/tests/pg_harness.py:88-108` silently turns routing off for `ASSETOPS_TEST_TEMPLATE=0`. OPS-01 Low carry L1 requires an xdist usage error before worker DB mutation. This small check belongs here if it stays bounded.
 
 ## Build and acceptance
@@ -28,6 +28,6 @@ Focused checks: the guard mutation corpus, `tools/check-architecture.ps1`, `tool
 
 Recommendation: use a Python AST extractor called by the PowerShell guard for static strings and Core calls, preserving rule 8's policy tables; fail closed on unresolved writes. No policy change is requested. If a newly discovered dynamic form needs a legitimate exception, return the precise statement and table/column to the Architect before broadening ownership.
 
-## Coordinator note after plan review (`.agent/small-followons-plan-review.md`: ACCEPT)
+## Coordinator note after plan review (`archive/agent-history/small-followons-plan-review.md`: ACCEPT)
 
 Implementer carries (Low): the Python extractor must locate the interpreter as `tools/check-all.ps1` does and fail hard (not skip) when it cannot run; name where the 11-form probe set lives and automate it; LR-01 (unmerged) adds `source_clock_attestation` to the assessment writer's rule-8 tables - whichever merges second carries it; a full suite is warranted only by the OPS-01 L1 `conftest` change.

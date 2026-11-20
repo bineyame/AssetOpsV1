@@ -1,4 +1,4 @@
-"""W5-03b E5: the authored EV scenario command rules (`.agent/W5-03-build-spec.md` E5 card, "E5 exact persisted
+"""W5-03b E5: the authored EV scenario command rules (`specs/W5-03/` E5 card, "E5 exact persisted
 schema and wire contract" and "E5 consolidated correction").
 
 `ev-scenario-authored/1` allows one `kind`, `GROSS_TARIFF_CONTEXT`, whose only assumption object is

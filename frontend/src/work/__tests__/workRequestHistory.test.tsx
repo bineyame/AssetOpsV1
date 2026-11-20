@@ -1,5 +1,5 @@
 /**
- * W6-01d C4: the work request History (`.agent/W6-01-build-spec.md` "C4 pre-flight rulings" P-C4-1..22). Typed
+ * W6-01d C4: the work request History (`specs/W6-01/spec-3.md` "C4 pre-flight rulings" P-C4-1..22). Typed
  * responses only; the persisted current, historical, CANCEL, linked, stress and refusal states are captured against
  * the real API in `.agent/W6-01-evidence/C4/`.
  */

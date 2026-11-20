@@ -1,4 +1,4 @@
-"""W2-04 commit 3: the five cold Site reads (`.agent/W2-04-build-spec.md` "Five API reads", "Selection,
+"""W2-04 commit 3: the five cold Site reads (`specs/W2-04/spec.md` "Five API reads", "Selection,
 projection and capability", the commit-3 Architect ruling on source contact and the dry-read table).
 
 `ColdSiteReadService` is pure composition: it never imports a SQL driver. Every part of one response is read on
@@ -158,7 +158,7 @@ def _joined(sentences) -> str | None:
 def cooling_response_state(start: Any) -> str:
     """The W2-04 `COOLING_RESPONSE` capability state of a selected START assessment (or None): `CONTRADICTORY`
     if any chain result or step is CONTRADICTORY, else `LIMITED` when a chain exists, else `UNAVAILABLE`
-    (`.agent/W5-01-build-spec.md` "C1 public W2 helper", Q6)."""
+    (`specs/W5-01/` "C1 public W2 helper", Q6)."""
     chains = (start.result.get("chains") or []) if start else []
     if any(ch["result"] == "CONTRADICTORY" for ch in chains) or any(
             x["state"] == "CONTRADICTORY" for ch in chains for x in ch["steps"]):

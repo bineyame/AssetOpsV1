@@ -37,7 +37,7 @@ def load_selector():
 
 
 def recorded_failures(merge: str) -> set[str]:
-    diff = git("diff", f"{merge}^1", merge, "--", ".agent")
+    diff = git("diff", f"{merge}^1", merge, "--", ".agent", "specs")
     found = set()
     for line in diff.splitlines():
         if line.startswith("+") and re.search(r"fail", line, re.I):

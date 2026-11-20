@@ -4,11 +4,11 @@ Status: in_review
 USER_REVIEW_REQUIRED: false
 Lane: B (frontend and tools). Units: 6 (+0.5, Addendum 8 Q6). Branch `task/POLISH-PB-2-kobo-board`.
 
-The spec is `.agent/build-sheet-POLISH.md`: §1.1 (frontend money panel), §3 (record codes, ids), the Kobo and
+The spec is `specs/POLISH/`: §1.1 (frontend money panel), §3 (record codes, ids), the Kobo and
 Verification rows of §3.1, §5 Lane B "PB-2", §7 (R655, R656; close R626), Addendum 3 (captures), Addendum 4 (no
 run/ran/running), Addendum 5 (only `[data-technical-details]` hides ids), Addendum 7 (skip the rows done in PB-1) and
 Addendum 8 (PB-2 pre-flight rulings). This file states scope only; the sheet is the contract. Pre-flight answers are
-in Addendum 8 and the packet `.agent/POLISH-PB-2-packet.md`.
+in Addendum 8 and the packet `archive/agent-history/POLISH-PB-2-packet.md`.
 
 ## Scope
 

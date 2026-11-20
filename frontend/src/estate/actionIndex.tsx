@@ -1,6 +1,6 @@
 /**
  * W3-01 commit 3: the estate Actions root (v6.9 `actions`) read from `GET /api/estate/actions`
- * (`estate-action-index-1`). Copy follows `.agent/W3-01-build-spec.md` "Per-screen panel/copy/layout dry-read",
+ * (`estate-action-index-1`). Copy follows `specs/W3-01/spec.md` "Per-screen panel/copy/layout dry-read",
  * Review closure B4/B9/W9 and Run 6 readings 8-9: owner and due are `Not set`, the title is `Action {code}`, the
  * success criterion is `No success criterion recorded`, and `Verified` appears only for a surviving VERIFIED
  * resolution. No mock ACT number, Incident or Maintenance link is rendered.

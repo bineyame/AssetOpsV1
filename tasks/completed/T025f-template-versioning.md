@@ -25,7 +25,7 @@ lineage on runs and is only honest once lineage means one content.
 ## Read for detail
 
 - `D-2026-10-01-run-binds-scenario-to-site` (Versioning).
-- `.agent/scenario-site-targeting-architect.md` section 4, S0.
+- `archive/agent-history/scenario-site-targeting-architect.md` section 4, S0.
 - T020A's `hybrid-mini-grid-100kw` v2 bump as the precedent; shared checks in
   `tasks/README.md`.
 
@@ -76,7 +76,7 @@ exception stands).
 Fast lane: `USER_REVIEW_REQUIRED: false`, so no owner review was required and the
 slice merges on the reviewer's verdict.
 
-- Claude review (`.agent/T025f-claude-review.md`, commit `24f53f2`), a fresh
+- Claude review (`archive/agent-history/T025f-claude-review.md`, commit `24f53f2`), a fresh
   Claude reviewer under the temporary binding: ACCEPT WITH CARRIES.
 - Under `D-2026-09-22-milestone-speed-over-purity` every finding is carried, not
   fixed. Carries (F1 no frontend test for UNRECOGNISED_VERSION, F2 the "records

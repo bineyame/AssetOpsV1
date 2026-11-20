@@ -1,12 +1,12 @@
 """DIESEL-1 F0: the Kisiwa fuel-events probe. In memory; no database, no product code.
 
 The declared world, the `fuel-balance-1` parameters, the gates (F0a, F1-F10) and the stops are DIESEL-1-R2 §8.3
-with §8.2a (`.agent/build-sheet-DIESEL-1.md`, dc72cb72a), fixed before any run and never tuned. Kisiwa's physics are
+with §8.2a (`specs/DIESEL-1/`, dc72cb72a), fixed before any run and never tuned. Kisiwa's physics are
 D0's (§2.2), imported from `tools/probe_kisiwa_nights.py` and never edited: start fuel 700 L, stop 90 % throughout.
 
 OA-1: the scenario of every run is D0's `day_document` unchanged (weather and loads only). The fuel delivery, the
 unrecorded removal (with the sensor unplugged), the dips, the seal and the sensor-power fix are operational actions
-in `.agent/DIESEL-F0/kisiwa-001-operational-actions.draft.yaml`. `apply_actions` stands in for K0's run setup: it
+in `host/fixtures/diesel-f0/kisiwa-001-operational-actions.draft.yaml`. `apply_actions` stands in for K0's run setup: it
 adds each action's physical effect to the FROZEN run (a `FrozenCause`, and for the unplugged sensor a
 `FrozenReportingPathCondition`) with `dataclasses.replace`, origin `OPERATIONAL_ACTION` and the action's content
 hash carried in the event id and in `intervention_history`. No scenario entry is written.
@@ -20,7 +20,7 @@ DIESEL-1-R3/R3a (§9, §9a): every run is set up on the registered path (c): Kis
 in-memory Foundation store, the real `RegisteredLabBasis` over it. Tank level from a probe-local mini-grid v7
 identical in content to K1a's; product code has no v7 until K1a merges.
 
-`python tools/probe_kisiwa_fuel.py` prints the result JSON; `--write` writes `.agent/DIESEL-F0/probe-result.json`
+`python tools/probe_kisiwa_fuel.py` prints the result JSON; `--write` writes `host/fixtures/diesel-f0/probe-result.json`
 and prints the per-night line; `--check` exits 1 if the committed JSON differs from a fresh run (F8), or if the
 committed day handover differs from the projection of that fresh run.
 
@@ -55,9 +55,9 @@ from probe_kisiwa_nights import (  # noqa: E402  D0, imported, never edited
     FOUNDATION_VALID_FROM, FUEL, FUEL_LIMIT_NOTE, GEN, GENERATOR_FLOW, NIGHT, NO_LOAD_RATE, PROFILE, SFC, SITE_ID,
     SOC, STEPS_PER_RUN, STOP_BEFORE, day_document, dec, kisiwa_site, measure_night, stop_at)
 
-ACTIONS = ROOT / ".agent" / "DIESEL-F0" / "kisiwa-001-operational-actions.draft.yaml"
-RESULT = ROOT / ".agent" / "DIESEL-F0" / "probe-result.json"
-D0_TEMPLATE = ROOT / ".agent" / "DIESEL-D0" / "kisiwa-diesel-hybrid-60kw.draft.yaml"
+ACTIONS = ROOT / "host" / "fixtures" / "diesel-f0" / "kisiwa-001-operational-actions.draft.yaml"
+RESULT = ROOT / "host" / "fixtures" / "diesel-f0" / "probe-result.json"
+D0_TEMPLATE = ROOT / "host" / "fixtures" / "diesel-d0" / "kisiwa-diesel-hybrid-60kw.draft.yaml"
 
 RUN1_START = datetime(2026, 10, 1, 12, 0, tzinfo=timezone.utc)  # 15:00 local (UTC+3)
 RUNS = 10
@@ -70,7 +70,7 @@ TANK_SIGNAL = ("fuel-level-sensor", "fuel-level")
 REPORTING_STATE = "fuel-level-reporting-availability"
 REGISTERED_PROFILE = ("registered-kobo-publication", 5)
 TANK_CAPACITY_L = Fraction(1000)  # D0 §2.2 tank, the frozen fuel-tank-capacity (F11)
-D0_NIGHT_LITRES = Fraction(26057, 600)  # D0's measured night litres at stop 90 (.agent/DIESEL-D0/probe-result.json)
+D0_NIGHT_LITRES = Fraction(26057, 600)  # D0's measured night litres at stop 90 (host/fixtures/diesel-d0/probe-result.json)
 
 # --- fuel-balance-1 parameters (§8.3), declared before any run; any change is a new parameter version ---------------
 ACCURACY_L = Fraction(10)  # a = Foundation fuel-level-sensor-accuracy, GENERIC_DEFAULT (1 % of a 1000 L tank)
@@ -249,7 +249,7 @@ def _run_start(k: int) -> datetime:
     return RUN1_START + timedelta(days=k - 1)
 
 
-BINDINGS = ROOT / ".agent" / "DIESEL-F0" / "kisiwa-001-bindings.draft.json"
+BINDINGS = ROOT / "host" / "fixtures" / "diesel-f0" / "kisiwa-001-bindings.draft.json"
 IMPORT_AT = datetime(2026, 9, 29, 9, 0, tzinfo=timezone.utc)
 CONVERT_AT = datetime(2026, 9, 29, 9, 30, tzinfo=timezone.utc)
 IMPORT_PATH = "var/sites/kisiwa-001.yaml"

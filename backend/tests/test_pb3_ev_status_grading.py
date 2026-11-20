@@ -1,4 +1,4 @@
-"""PB-3 (D-E5.29 card, `.agent/architect-answer-non-kobo-sites-2026-11-10.md` PB-3): EV event-driven grading.
+"""PB-3 (D-E5.29 card, `archive/agent-history/architect-answer-non-kobo-sites-2026-11-10.md` PB-3): EV event-driven grading.
 
 For a metered-when-charging measure (`charging_kwh`), covered time is connector-status-known time: a connector
 whose reported state carries no energy (unplugged, plugged, authorizing, faulted) is known at zero energy; a charging

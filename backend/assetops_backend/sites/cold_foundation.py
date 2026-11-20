@@ -1,6 +1,6 @@
 """W2-01 COLDCHAIN Foundation rules, configuration readiness and the selected cold read.
 
-Binding contract: `.agent/W2-technical-design-cold.md` section 3 (`D-2026-10-17-w2-01-answers` A-I and the
+Binding contract: `archive/agent-history/W2-technical-design-cold.md` section 3 (`D-2026-10-17-w2-01-answers` A-I and the
 W2-02 channel closure) and the `GET /api/sites/{code}/cold/foundation` field row.
 
 Three separate things are kept separate here, as the design requires:

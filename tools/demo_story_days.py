@@ -1,6 +1,6 @@
 """DEMO-SPARSE: the sparse story calendar (`backend/conversions/demo-story-days-v1.json`) resolved to a build order.
 
-Build sheet `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` sections 2 and 3 U2. A day list names, per Site,
+Build sheet `AssetOpsV1-plan2/specs/DEMO-SPARSE/spec.md` sections 2 and 3 U2. A day list names, per Site,
 the story days that carry a registered Lab run (and the named `missing` days that carry none). Day offsets
 `S[+-]Nd` are relative to the story day S; each kind's times `D[+-]Nd HH:MM` (UTC) are relative to the entry's day.
 `resolve` returns every entry as a `DayRun`, ordered by `received_at` (the build order; a `missing` day has no

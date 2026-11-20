@@ -1,6 +1,6 @@
 """W2-07 commit 2: the pure EV gross tariff scenario (`ev-gross-tariff/1`), no SQL driver.
 
-`.agent/W2-07-build-spec.md` commit 1 "Use exact SHA row forms", "Commits 2-3" price state table and the
+`specs/W2-07/` commit 1 "Use exact SHA row forms", "Commits 2-3" price state table and the
 post-W2-06 reconciliation (exact selected `ev-session/1` window only), with the q1 R2 two-clock tariff contract,
 the R5 precedence table and R6 composition table, and the q3 R8 ruling and C1-C5 confirmations:
 

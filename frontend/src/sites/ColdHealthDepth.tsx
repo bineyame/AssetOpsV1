@@ -1,6 +1,6 @@
 /**
  * W5-01a C3: the cold Site Health page body (v6.9 `cold-health`), from the selected `/cold/health` depth read
- * (`.agent/W5-01-build-spec.md` literal ledger, C3 card, C3 Health DTO rendering and readiness pass 3).
+ * (`specs/W5-01/` literal ledger, C3 card, C3 Health DTO rendering and readiness pass 3).
  *
  * The server owns every condition string: card notes, observations and next evidence are the C1 `health.rows`
  * strings rendered verbatim. The UI maps only `condition_state` to the card value word. No value is a green or

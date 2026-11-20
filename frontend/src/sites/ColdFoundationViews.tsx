@@ -35,7 +35,7 @@ import "./w2-cold-foundation.css";
 /*
  * W2-01: the three Foundation views of a COLDCHAIN Site (`cold-foundation`, `cold-readiness`,
  * `cold-sld`), rendered from the selected cold configuration read in the v69 panel slots
- * (`.agent/W2-technical-design-cold.md` section 6 panel map; `D-2026-10-17-mockup-layout-spec`).
+ * (`archive/agent-history/W2-technical-design-cold.md` section 6 panel map; `D-2026-10-17-mockup-layout-spec`).
  * Configuration only: nothing here is a temperature, equipment-health or evidence claim.
  */
 

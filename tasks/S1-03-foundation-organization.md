@@ -5,8 +5,8 @@ USER_REVIEW_REQUIRED: true
 Milestone: S1 Foundation
 Depends on: S1-01 and S1-02 reviewed baseline at `d8dd3e9`
 Branch: task/S1-03-foundation-organization
-Trigger: owner UI feedback, `.agent/owner-S1-ui-feedback-2026-10-08.md` (verbatim)
-Authority: Codex Architect decision `D-2026-10-08-s1-foundation-organization`; full text `.agent/architect-S1-ui-organization-2026-10-08.md` (committed with this packet)
+Trigger: owner UI feedback, `owner/owner-S1-ui-feedback-2026-10-08.md` (verbatim)
+Authority: Codex Architect decision `D-2026-10-08-s1-foundation-organization`; full text `archive/agent-history/architect-S1-ui-organization-2026-10-08.md` (committed with this packet)
 
 ## Visible result
 

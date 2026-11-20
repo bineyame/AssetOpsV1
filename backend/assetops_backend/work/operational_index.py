@@ -1,6 +1,6 @@
 """W6-01e E1: the global Operational records selection behind `GET /api/work/operational-records`.
 
-`.agent/W6-01-build-spec.md` section 1 (operational row) and the "E1-E2 pre-flight rulings" P-E1-1..8. Inside the one
+`specs/W6-01/` section 1 (operational row) and the "E1-E2 pre-flight rulings" P-E1-1..8. Inside the one
 read-only snapshot `gx` of `GlobalWorkIndexService.read`, every authorized Site's operational-record roots whose root
 `occurred_at` is in `[from, to)` and that are recorded by K are selected at their last `(recorded_at, id)` head at K.
 The root keeps its REC code and window membership; the head supplies kind, body, case, reading fields, actor, state

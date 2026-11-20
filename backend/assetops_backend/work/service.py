@@ -1,4 +1,4 @@
-"""W4-01 commit 2: the work command service (`.agent/W4-01-build-spec.md` "Commit sequence" item 2).
+"""W4-01 commit 2: the work command service (`specs/W4-01/spec.md` "Commit sequence" item 2).
 
 The service owns validation, authorization, state reduction and exact-link checks; the store port runs each
 command in one SERIALIZABLE transaction (`WorkStore.transaction`) and hands back a transaction object whose reads

@@ -3,7 +3,7 @@
 `finding_episode.plan` skips a group when a window within the 20-minute continuity margin is missing or not
 CURRENT (or an episode's closure is not decidable). The pass was still recorded at the Site-wide selection seq,
 so `match_state` read the deferring window as matched and reads claimed complete discovery (S4-04 phase 1 H1,
-`.agent/S5-01-deferred-cluster-check.md`). The pass now carries the starts of the windows it deferred, and
+`archive/agent-history/S5-01-deferred-cluster-check.md`). The pass now carries the starts of the windows it deferred, and
 `match_state` reads such a window as not matched until a later pass matches it.
 
 `finding_match_pass` stays insert-only (0009 trigger); the column is written only by the existing Finding store

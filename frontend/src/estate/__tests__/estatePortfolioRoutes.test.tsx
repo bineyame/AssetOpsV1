@@ -1,5 +1,5 @@
 /**
- * W3-03 run 2 (Lane A integration): the `/portfolio` shell route and rail item (`.agent/W3-03-build-spec.md`
+ * W3-03 run 2 (Lane A integration): the `/portfolio` shell route and rail item (`specs/W3-03/`
  * closure 1 navigation, closure 4 S17/N9). Portfolio becomes the first live OPERATIONS root; the remaining
  * unavailable roots keep their closed multiset, and the estate Findings risk root still owns `/findings/risks`.
  */

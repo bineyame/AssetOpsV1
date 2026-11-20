@@ -1,6 +1,6 @@
 """W2-00: ordinary source events and EV interval deltas in accepted evidence.
 
-`.agent/W2-technical-design-cold.md` sections 1-2 and `D-2026-10-17-w2-00-answers` ruling 2.
+`archive/agent-history/W2-technical-design-cold.md` sections 1-2 and `D-2026-10-17-w2-00-answers` ruling 2.
 
 - `accepted_evidence` gains seven nullable typed event columns (`record_kind`, `event_id`, `correlation_id`,
   `session_id`, `connector_id`, `actor`, `outcome`); `measurement`, `conversion_kind`, `original_unit` and
