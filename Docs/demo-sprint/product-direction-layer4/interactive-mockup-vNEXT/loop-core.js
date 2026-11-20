@@ -305,7 +305,9 @@ const DEEP = {kobo:{Foundation:'foundation',Health:'health',Performance:'dispatc
  ruiru:{Foundation:'ev-foundation',Health:'ev-health',Performance:'sessions',Findings:'ev-findings',Work:'ev-work',Evidence:'ev-evidence'}};
 const tabRoute = (sk,tab) => tab==='Overview'?`site/${sk}`:tab==='Financials'?`site/${sk}/economics`:DEEP[sk]?DEEP[sk][tab]:`site/${sk}/${tab.toLowerCase()}`;
 function siteRoutes(domain){const sk=V70SITE[domain];return LOOP_SITE_TABS.map(t=>tabRoute(sk,t));}
-function siteTabRow(sk,active){return uxTabs(LOOP_SITE_TABS.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
+/* the Site tabs show only views built in the new model, the same for every Site (UX audit C4; owner: same for every Site type) */
+const LOOP_SITE_NAV=['Overview','Financials'];
+function siteTabRow(sk,active){return uxTabs(LOOP_SITE_NAV.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
 function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Choose a site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
 /* the calculated daily snapshot (design §2.8, OD-23; register call 19): each portfolio's record (MANIFEST.snapshot.portfolios)
    gives its "as of" time and whether a recalculation is pending, with what triggered it, when, and the Sites it affects. Every
@@ -325,7 +327,7 @@ function loopCrumbs(s){return `<div class="breadcrumbs">${s.crumbs(s).map(([t,id
 const GLOBAL_ROOTS=['Assets','Findings','Actions','Incidents','Maintenance','Operational records','Evidence','Settings'];
 function preBody(s){
  if(s.loop)return '';
- if(GLOBAL_ROOTS.includes(s.root)&&(!s.section||s.gtabs))return `<div class="slim-banner">${icon('info')}<p>Example items from the three demo operators shown together: Kobo (Lakeside Power), Thika (Harvest Cold Network) and Ruiru (Metro Bus Depots). A real operator sees only its own sites.</p></div>`;
+ /* UX audit C3: every surface is scoped to the active operator (uxShell), so no "shown together" banner */
  if(s.root==='Sites'&&s.section&&s.domain==='ev')return `<div class="slim-banner">${icon('info')}<p>Detailed views from the earlier demo: they show Ruiru’s charger 7 (connectors 1 and 2) on 6 Oct, with that example’s 2-connector, 80 kW set-up. Depot-wide figures (${num(SN('ruiru').chargers_installed)} chargers, ${num(SN('ruiru').import_limit_kw)} kW import limit) are on the ${link('site/ruiru','Ruiru overview')}.</p></div>`;
  if(s.id==='opportunity-finding'||s.id==='renewable')return `<div class="slim-banner">${icon('info')}<p>Spare daytime solar without a paying customer is capacity, not an opportunity value. The Portfolio shows it as capacity; only customer evidence makes it demand. ${link('portfolio/demand-and-capacity','Open Demand and capacity →')}</p></div>`;
  return '';}
@@ -335,7 +337,7 @@ function selectorLabel(p){const st=REG_STATUS(p);return `${st==='Merged'?'[Merge
 const ALIAS = {'portfolio/opportunity':'portfolio/demand-and-capacity',financials:'site/kobo/economics',assumptions:'site/kobo/economics',scenarios:'site/kobo/economics','cold-financials':'site/thika/economics','cold-assumptions':'site/thika/economics','cold-scenarios':'site/thika/economics','ev-financials':'site/ruiru/economics','ev-assumptions':'site/ruiru/economics','ev-scenarios':'site/ruiru/economics'};
 function resolveScreen(id){
  let target=id;if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
- const s=SCREENS.find(x=>x.id===target)||SCREENS[0];
+ const s=SCREENS.find(x=>x.id===target)||(target?SCREENS.find(x=>x.id==='not-found'):null)||SCREENS[0]; /* an unknown route says so (UX audit §3) */
  const op=s.site?SK[s.site].op:s.op?s.op:(s.section&&!s.gtabs&&DOMAIN_OP[s.domain]&&s.root!=='Portfolio')?DOMAIN_OP[s.domain]:null;
  if(op&&op!==LS.op)setOp(op);
  return s;}
@@ -403,7 +405,7 @@ function uxFixSigns(root){if(!root)return;const w=document.createTreeWalker(root
  for(let i=0;i<a.length-1;i++){const t=a[i],u=a[i+1],m=t.nodeValue.match(/\+\s*$/),k=u.nodeValue.match(/^\s*([+−])/);if(m&&k){if(k[1]==='−')t.nodeValue=t.nodeValue.replace(/\+(\s*)$/,'−$1');u.nodeValue=u.nodeValue.replace(/^(\s*)[+−]/,'$1');}}}
 function uxDedupeUnits(root){if(!root)return;root.querySelectorAll('small').forEach(sm=>{const p=sm.previousElementSibling;if(!p)return;const pt=p.textContent.trim().toLowerCase(),u=sm.textContent.trim(),head=u.split(/[,·]/)[0].trim();
  if(!head||!pt.endsWith(head.toLowerCase()))return;if(head===u){sm.remove();return;}const f=sm.firstChild;if(f&&f.nodeType===3&&f.nodeValue.includes(head))f.nodeValue=f.nodeValue.replace(head,'').replace(/^\s*[,·]\s*/,'');});} /* a name followed by its own unit drops the unit */
-function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxApplyBrand==='function'){uxApplyBrand();uxBrandSwitch();}if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
+function afterRender(s){if(s.loop||s.opScoped||(typeof uxInProduct==='function'&&uxInProduct(s))){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxShell==='function')uxShell(s);if(typeof uxApplyBrand==='function'){uxApplyBrand();uxBrandSwitch();}if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;

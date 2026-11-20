@@ -682,3 +682,60 @@ function uxBoardsFromData() {
 }
 uxBoardsFromData.done = false;
 uxBoardsFromData();
+
+/* ===== one shell model (UX audit C1, C3, C4; owner standing brief, RULES §6): the navigable product is the new model only.
+   One period (the period chip), one Site name (SK), one status vocabulary per object, one Finding and Action store (the plan's),
+   every surface scoped to the active operator. A v7.0 screen kept for review that is not converted leaves the navigation: the
+   product never links into it (it stays in the review bar's Screen index). ===== */
+const UX_SCOPED = ['sites', 'site-create-form', 'site-create-template', 'site-batch-upload', 'site-setup-history', 'assets', 'assets-warranty', 'incidents', 'maintenance', 'maintenance-preventive', 'oprecords', 'globalevidence', 'settings-policies', 'settings-tenant'];
+const uxInProduct = s => !!s && s.root !== 'Simulator Lab' && !s.stub && (s.loop || s.opScoped || UX_SCOPED.includes(s.id));
+/* an element's words with cell and tag boundaries kept (textContent runs "DC charger" and "Ruiru" together) */
+const uxWords = e => { const out = [], tw = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); while (tw.nextNode()) out.push(tw.currentNode.nodeValue); return out.join(' '); };
+const uxRouteOf = href => String(href || '').replace(/^#\//, '').split('?')[0];
+function uxIsClassic(id) { const s = SCREENS.find(x => x.id === id) || (typeof ALIAS !== 'undefined' && ALIAS[id] ? SCREENS.find(x => x.id === ALIAS[id]) : null); return !!s && s.root !== 'Simulator Lab' && !uxInProduct(s); }
+function uxShell(s) {
+  if (!uxInProduct(s)) return;
+  const c = document.querySelector('.canvas'); if (!c) return;
+  if (!s.loop && !s.opScoped) {
+    /* operator scope: a record that names another operator's Site is not this operator's (UX audit C3) */
+    const mine = OPS[LS.op].sites.map(k => SK[k].name), other = Object.keys(SK).filter(k => SK[k].op !== LS.op).map(k => SK[k].name);
+    const names = t => other.filter(n => new RegExp(`\\b${n}\\b`).test(t));
+    c.querySelectorAll('tbody tr, li, option, article').forEach(e => { if (e.closest('.ux-drawer')) return; const t = uxWords(e); if (names(t).length && !mine.some(n => new RegExp(`\\b${n}\\b`).test(t))) e.remove(); });
+    /* a list of Sites in one cell ("Thika · Kobo") keeps only this operator's */
+    const tw = document.createTreeWalker(c, NodeFilter.SHOW_TEXT), nodes = []; while (tw.nextNode()) nodes.push(tw.currentNode);
+    nodes.forEach(n => { const parts = n.nodeValue.split(' · ').map(x => x.trim()); if (parts.length > 1 && parts.every(x => mine.includes(x) || other.includes(x))) n.nodeValue = parts.filter(x => mine.includes(x)).join(' · '); });
+    c.querySelectorAll('tbody').forEach(tb => { if (!tb.querySelector('tr')) { const n = tb.closest('table')?.querySelectorAll('thead th').length || 1; tb.insertAdjacentHTML('beforeend', `<tr class="ux-none"><td colspan="${n}">None at ${OPS[LS.op].name}’s Sites in this demo.</td></tr>`); } });
+    /* a cell whose record code was put into words or unlinked does not end on a dangling separator */
+    c.querySelectorAll('td').forEach(td => { const tw2 = document.createTreeWalker(td, NodeFilter.SHOW_TEXT); let last = null; while (tw2.nextNode()) if (tw2.currentNode.nodeValue.trim()) last = tw2.currentNode; if (last) last.nodeValue = last.nodeValue.replace(/\s*[·,]\s*$/, ''); });
+    /* count tiles written for the three operators together cannot be read for one; the list under them is the count */
+    c.querySelectorAll('.cards, .statusbar').forEach(k => { if ((k.querySelector('.metric') || k.classList.contains('statusbar')) && !k.closest('.ux-drawer') && /\d/.test(k.textContent)) k.remove(); });
+  }
+  /* the navigation never lists a v7.0 screen kept for review only */
+  document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
+  /* the product never navigates into a v7.0 screen kept for review only */
+  c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
+}
+
+/* Findings and Actions read the one store the plan uses (UX audit C1.4): HC.findings with their issue words, and the plan's
+   Actions (demo_workflow.actions) with creator, owner, due date and release state */
+function uxFindingRows(op) {
+  const names = OPS[op].sites.map(k => SK[k].name), siteOf = f => String(f.site).replace(/^Room [A-C] · /, '');
+  return (HC.findings || []).filter(f => names.includes(siteOf(f))).map(f => {
+    const r = ATTN[op].find(r => r[5] === f.id), d = f.decision && decById(f.decision), st = d ? uxDecState(d.id) : null;
+    return { f, site: siteOf(f), tone: r ? r[0] : 'info', label: r ? r[1] : 'Linked', text: r ? r[3] : (d ? `${d.q}` : 'No issue text recorded'), heading: f.heading, d, st };
+  });
+}
+function uxCapNote(n, cap, id) { return n > cap ? `<button type="button" class="ux-link ux-showall" data-ux-showall="${id}" aria-expanded="false">Show all ${num(n)}</button>` : ''; }
+document.addEventListener('click', e => { const b = e.target.closest('[data-ux-showall]'); if (!b) return; const l = document.getElementById(b.dataset.uxShowall); if (!l) return; l.querySelectorAll('[data-ux-over]').forEach(x => { x.hidden = false; }); b.remove(); });
+function uxFindingsScreen() {
+  const op = LS.op, R = uxFindingRows(op), cap = 7, id = 'uxfl';
+  const rows = R.map((x, i) => `<li class="ux-fl"${i >= cap ? ' data-ux-over hidden' : ''}><span class="ux-fl-st">${uxChip(x.tone, x.label)}</span><span class="ux-fl-site">${x.site}</span><span class="ux-fl-t">${x.text}<small>${LENS[x.heading] ? LENS[x.heading][0] : ''}</small></span><span class="ux-fl-dec">${x.d ? `<span class="status-pill is-${x.st.key === 'released' ? 'approved' : x.st.key === 'approval' ? 'waiting' : 'proposed'}">${x.st.label}</span>${link(`decision/${x.d.id}`, `Open decision<span class="vh">: ${x.d.q}</span> →`)}` : '<span class="muted">No decision yet</span>'}</span></li>`).join('');
+  return `<section class="panel" aria-labelledby="uxfl-h"><div class="ux-row-head"><h2 id="uxfl-h">${num(R.length)} Finding${R.length === 1 ? '' : 's'} at ${OPS[op].name}’s Sites</h2><span class="ux-note">October 2026 · each with its decision</span></div>
+   ${R.length ? `<ul class="ux-flist" id="${id}" data-count="${R.length}">${rows}</ul>${uxCapNote(R.length, cap, id)}` : '<p class="ux-empty" role="status">No Findings at this operator’s Sites.</p>'}</section>`;
+}
+function uxActionsScreen() {
+  const op = LS.op, A = WF(op).actions || [], items = [...new Set(A.map(a => a.item))];
+  const groups = items.map(it => { const d = DEC.find(x => x.opts.includes(it)); return `<section class="panel ux-act-g" aria-label="${escapeHtml(String(itemName(op, it)))}"><div class="ux-row-head"><h3>${itemName(op, it)}</h3>${d ? link(`decision/${d.id}`, `Open decision<span class="vh">: ${d.q}</span> →`) : ''}</div>${actionRows(op, A.filter(a => a.item === it))}</section>`; }).join('');
+  return `<section aria-labelledby="uxal-h"><div class="ux-row-head"><h2 id="uxal-h" data-count="${A.length}">${num(A.length)} Action${A.length === 1 ? '' : 's'} under the plan</h2><span class="ux-note">Grouped by plan item · creator, owner, due date and release</span></div>${A.length ? groups : '<p class="ux-empty" role="status">No Actions created yet.</p>'}</section>`;
+}
+function uxNotFound() { return `<section class="panel ux-empty-page" role="status"><h2>This page does not exist</h2><p>The link may be out of date. ${link('portfolio', 'Go to the Portfolio →')}</p></section>`; }

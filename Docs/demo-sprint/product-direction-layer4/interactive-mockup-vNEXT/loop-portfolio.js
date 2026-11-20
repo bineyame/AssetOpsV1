@@ -1,5 +1,5 @@
 /* ===== Layer 4 rev 4 mock-up · Portfolio (six owner-approved tabs), Sites directory, Financials root, pilot request ===== */
-const PTABS = [['Overview','portfolio'],['Outcomes by site','portfolio/outcomes-by-site'],['Demand and capacity','portfolio/demand-and-capacity'],['Act first','portfolio/act-first'],['What changed','portfolio/what-changed'],['Scope & coverage','portfolio/scope']];
+const PTABS = [['Overview','portfolio'],['Outcomes by site','portfolio/outcomes-by-site'],['Demand and capacity','portfolio/demand-and-capacity'],['Act first','portfolio/act-first'],['Actions and verdicts','portfolio/what-changed'],['Scope & coverage','portfolio/scope']];
 const ptabs = s => uxTabs(PTABS,s.ptab||s.id); /* guide U4: a Section menu at phone width */
 const sec = (title,body,sub='',right='',id='') => `<section class="panel"${id?` id="${id}"`:''}><div class="panel-head"><div><h2>${title}</h2>${sub?`<p>${sub}</p>`:''}</div>${right}</div>${body}</section>`;
 const region = (label,html) => `<div class="table-wrap scroll-region" tabindex="0" role="region" aria-label="${escapeHtml(label)}">${html}</div>`;

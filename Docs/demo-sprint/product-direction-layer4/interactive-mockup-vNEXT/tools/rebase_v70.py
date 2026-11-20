@@ -33,7 +33,9 @@ HOOKS = {
   ("const body=(fid?affectsLine(fid):'')+", "const body=preBody(s)+(fid?affectsLine(fid):'')+"),
   ("${lab?'Simulator Lab · MG-DEMO-01':'Bineyame Operations'} <span class=\"muted\">/ Demo estate</span>",
    "${lab?'Simulator Lab · MG-DEMO-01':opName()} <span class=\"muted\">/ Demo operator</span>"),
-  ("${rangePicker(global?null:s.domain)}", "${s.loop?periodChip(s):rangePicker(global?null:s.domain)}"),
+  ("${rangePicker(global?null:s.domain)}", "${uxInProduct(s)?periodChip(s):rangePicker(global?null:s.domain)}"),  # one period model in the product (UX audit C1.1)
+  # operator scope (UX audit C3): a setup page never points at another operator's Site
+  ("These gaps become its Readiness list, as on ${link('readiness','Kobo › Readiness')}.", "These gaps become its Readiness list."),
   # the decision page's title is its question, with no repeated subtitle (REVIEW-decision-page L5)
   ("<h1>${s.title}</h1>", "<h1>${s.h1?s.h1(s):s.title}</h1>"),
   ("<p>${s.subtitle||s.question}</p></div><div class=\"heading-actions\">", "${s.h1?'':`<p>${s.subtitle||s.question}</p>`}</div><div class=\"heading-actions\">"),
@@ -87,10 +89,14 @@ STORE = [("assetops-v70-review-notes", "assetecon-layer4-review-notes"), ("Asset
 
 # Display names: one world (main design §6.2). Order matters (longest first).
 NAMES = [
- (r"GreenHarvest Cold Room", "Thika cold room"),
+ # one Site name everywhere: the name the product uses (SK), never a long form (UX audit C1.2)
+ (r"GreenHarvest Cold Room", "Thika"),
  (r"GreenHarvest", "Thika"),
- (r"Depot Charging Hub", "Ruiru depot"),
- (r"Depot charging hub", "Ruiru depot"),
+ (r"Depot Charging Hub", "Ruiru"),
+ (r"Depot charging hub", "Ruiru"),
+ (r"Kobo Mini-grid", "Kobo"),
+ (r"Thika cold room", "Thika"),
+ (r"Ruiru depot", "Ruiru"),
  (r"(?<!Westfield )\bDepot\b(?! auxiliary| attendant)", "Ruiru"),
  (r"MG-DEMO-01", "KOBO-001"),
  (r"CR-DEMO-01", "COLD-THIKA"),

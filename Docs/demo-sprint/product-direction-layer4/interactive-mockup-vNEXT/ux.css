@@ -662,3 +662,13 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-drv-h{margin:var(--s4) 0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--text-2)}
 .ux-drv-decs li{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:baseline}
 .ux-drv-top{margin-bottom:var(--s5);padding-bottom:var(--s4);border-bottom:1px solid var(--line)}
+/* one shell model: the Findings list, read from the plan's store; a link into a review-only screen reads as plain text */
+.ux-flist{list-style:none;margin:0;padding:0}
+.ux-flist>li{display:grid;grid-template-columns:132px 96px minmax(0,1fr) minmax(200px,auto);gap:var(--s3);align-items:start;padding:var(--s3) 0;border-top:1px solid var(--line)}
+.ux-flist>li:first-child{border-top:0}
+.ux-fl-t small{display:block;color:var(--text-2);font-size:var(--fs-xs)}
+.ux-fl-dec{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;justify-content:flex-end}
+@container (max-width:880px){.ux-flist>li{grid-template-columns:minmax(0,1fr) auto}.ux-fl-t,.ux-fl-dec{grid-column:1/-1;justify-content:flex-start}}
+@media (max-width:600px){.ux-flist>li{grid-template-columns:minmax(0,1fr) auto}.ux-fl-t,.ux-fl-dec{grid-column:1/-1;justify-content:flex-start}}
+.ux-act-g .ux-row-head h3{margin:0;font-size:var(--fs-md)}
+.ux-empty-page{padding:var(--s6)}
