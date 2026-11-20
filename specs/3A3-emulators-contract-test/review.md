@@ -237,3 +237,13 @@ state entries and the INDEX line.
 - A DS1b `EXPENSE` or `BUDGET_LINE` record with no `site_code`, or a Site outside the tenant's list, is kept but put in
   no file and not listed as unwritten (`exports.py`, `ds1b.get(("budget", s.code))`). None exists on today's
   manifest, so this is latent.
+# 3A3 review r2 (verification, head 56da8deba, diff 05f8a41ae..56da8deba): ACCEPT, no findings
+
+PYTHONPATH verified: assetops_backend, assetops_contracts, assetops_simulator all import from /opt/assetecon/AssetOpsV1-3a3.
+Own runs: backend 3A3 files (source_contract, load_emulated, single_writer) 123 passed; simulator test_3a3_exports 17 passed; check-architecture run.
+- F1 fixed as a class: HeldUpload.submitted_by, cross-run PERSON_SAME_FOR_BOTH by person ID before any write; plant (check disabled, scratch copy) fails only the new L6 test.
+- F2 fixed: C8 row-3 short and NUL cases, C1 records == golden rows, C3 optional-blank complement. Plant A (reader drops short and control-char rows) fails C8 on all 4 cases.
+- F3 fixed (D-3A3.13): plan money / plan qty, exact, EMU_PLAN_PRICE, PLAN_PRICE_UNDEFINED. Plants "price from actuals" and "price from tenant.prices" both fail E10 (and the first fails E8 plan-price).
+- F4 (S1 import flag + alias plant), F5 (composition-path L1), F6 (path = reader ID, L5 case), SITE_NOT_IN_TENANT (E9) all present with tests.
+- Deviation mapped=None: within intent. The assert is two-way: None iff the layout maps no column (LAYOUTS-derived), so a mapping layout with no case fails; only billing qualifies. Residual (Low): the "maps nothing" fact comes from the layout declaration, so a layout wrongly declaring no maps would hide; a new layout is reviewed in 3A6 anyway.
+Not verified: no DB, E6/E7 SHA pins beyond the passing suite.
