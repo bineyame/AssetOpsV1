@@ -1,8 +1,9 @@
 # 3A3: emulated native exports and the source contract test (implementer spec)
 
-Status: **rev 1**, spec handshake step 1 (`.ai/RULES.md` §4). Questions: `handshake.md` before code,
-`mid-build-questions.md` during it. Reviewer: `reviewer-guide.md`. Decisions with reasons: `rulings.md` (D-3A3.1 to
-D-3A3.8).
+Status: **rev 2**, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-3A3.9 to D-3A3.12).
+Questions: `handshake.md` before code, `mid-build-questions.md` during it. Reviewer: `reviewer-guide.md` (rev 2).
+Decisions with reasons: `rulings.md` (D-3A3.1 to D-3A3.12). **Builds after `RC4-F1`** (`specs/RC4-F1-database-name/`,
+D-RC4F1.1, D-RC4F1.2), which must merge first.
 
 Architect (Claude), 2026-11-20. Lane A (sources), the deep-dive path's unit 4 (`two-week-build-plan.md` §0.1 row 4;
 D-BW1.8 to D-BW1.12; owner RC1 to RC9 accepted, `owner/owner-recut-decisions-rc1-rc9-2026-11-20.md`; RC4 real data
@@ -15,18 +16,19 @@ only in its own database after a signed DPA; RC5 mini-grid only).
   (`commercial/readers.py`: `ReadResult`, `SourceReader`, `CanonicalJsonReader`, `READERS`, `DEFAULT_READER`;
   `commercial/uploads.py`: `CommercialUploads.check`, `.submit`, `.decide`, `UploadScope`, `Actor`, `UploadRefused`,
   `_check`; `commercial/pseudonym.py`: `PERSONAL_FIELDS`, `cut_path`; `commercial/composition.py`:
-  `commercial_upload_settings`, `build_commercial_uploads`, `build_commercial_records`;
-  `adapters/postgres_commercial_store.database_name`); `3C0a`/`3C1a` (`AccountService`, `roles_of`,
+  `commercial_upload_settings`, `build_commercial_uploads`, `build_commercial_records`); `RC4-F1`
+  (`database_target.database_target`, `DatabaseTargetUnclear`, `is_operator_name`); `3C0a`/`3C1a` (`AccountService`, `roles_of`,
   `COMMAND_ROLES`); `DS1b` (`simulator/assetops_simulator/world/records.py`: `build_records`, `money_text`,
   `batch_file_name`); `DS1` (`world/history.generate_history`, `world/months.period_end`, `tools/world_history.py`
   `load_view`, `_out_dir`).
 
-Non-screen. **3 units, four commits.** Discovery review (W5): a protected seam (who may write commercial records), the
+Non-screen. **3.25 units, four commits** (rev 2 adds the held-uploads read, the control-character rule and S1's
+reach). Discovery review (W5): a protected seam (who may write commercial records), the
 real-data boundary (R4) and a new shared contract.
 
 ## 0. Before you start
 
-- **Branch** `task/3A3-emulators-contract` off `main` after this spec branch merges; worktree
+- **Branch** `task/3A3-emulators-contract` off `main` after this spec branch and `RC4-F1` merge; worktree
   `/opt/assetecon/AssetOpsV1-3a3`. Code starts when the handshake has no open question.
 - **Python:** as 3A2 §0 (`PYTHONPATH` = worktree `backend:backend/tests:contracts:simulator:gateway:field:host:tools`,
   absolute; `/opt/assetecon/AssetOpsV1/.venv/bin/python`; the packet records `assetops_backend.__file__`,
@@ -36,8 +38,9 @@ real-data boundary (R4) and a new shared contract.
   (`_check`), `commercial/composition.py`; `tools/world_history.py`; `backend/tests/test_3a2_commercial_upload_service.py`
   lines 1 to 260 (the in-memory world, `UploadMemoryStore`, `People` use).
 - **Databases:** `*_test` only, through the harness; every Postgres run `tools/heavy-slot.sh --db -- <command>`. No
-  test names or creates a database whose name starts with `assetops_op`; the operator-database refusals are tested
-  with the name in `DATABASE_URL` and no connection (the refusal precedes every connection). Never ports 5490 or 8990,
+  test names in a connection, creates or touches a database whose name starts with `assetops_op`; the operator-database
+  refusals are tested with the name in `DATABASE_URL`, the host `rc4.invalid` port 1 (cannot resolve), and the
+  no-connect fixture of §5 (any connection attempt raises), so a planted violation cannot reach a real database. Never ports 5490 or 8990,
   the walkthrough DB or Docker. No real operator data anywhere (RC4).
 - **No migration.**
 - **Collisions.** `ON1` (lane A, next) edits `commercial/uploads.py`, `commercial/pseudonym.py`,
@@ -61,7 +64,7 @@ D-ON1.7).
 
 ### 2.1 One writer of commercial records (D-3A3.1)
 
-- `CommercialRecords.ingest` is called only by `commercial/uploads.py`. `CommercialRecords(...)` is constructed only
+- `CommercialRecords.ingest` is called only by `commercial/uploads.py` (S1's reach: D-3A3.12). `CommercialRecords(...)` is constructed only
   in `commercial/composition.py` (`build_commercial_uploads`). Delete `build_commercial_records` (no caller on `main`).
 - Every loader outside the HTTP app calls `build_commercial_uploads` and nothing below it. The callers of
   `build_commercial_uploads` are exactly `main.py` and `load_emulated_exports.py` (§3.6); a new caller is a reviewed
@@ -79,14 +82,13 @@ public names). Standard library plus `assetops_contracts.canonical` only.
 class Column:
     header: str                                    # exact header cell
     paths: tuple[str, ...]                         # canonical record paths the cell fills, e.g. ("subject.ref", "body.account_ref")
-    maps: Mapping[str, Mapping[str, str]] = {}     # path -> {native value: canonical value}; paths not in maps take the cell as is
+    maps: Mapping[str, Mapping[str, str]] = MappingProxyType({})   # path -> {native value: canonical value}; others take the cell as is
 
 @dataclass(frozen=True)
 class Layout:
     id: str                                        # reader id, also commercial_upload.reader
     source_type: str                               # a key of SOURCE_TYPES
     source_system: str
-    provenance: str                                # "source-emulated" for every layout in this unit
     columns: tuple[Column, ...]
     constants: Mapping[str, str]                   # path -> value, written on every record (rule C below)
     personal: frozenset[tuple[str, str]] = frozenset()   # extra (path, class) for 3A2's pseudonymise; empty here
@@ -96,17 +98,22 @@ class Layout:
 `source_version`, `site_code`, `kind`, `status`, `subject.kind`, `subject.ref`, `clocks.<clock>`, `amount.value`,
 `amount.currency`, `quantity.value`, `quantity.unit`, `body.<field>`.
 
-**Reading** `read_layout(layout, data: bytes, *, tenant_code: str, produced_at: str) -> NativeRead(obj, rows,
-refused)`, in this order:
+A `Layout` carries no provenance: the reader is told it (D-3A3.10).
+
+**Reading** `read_layout(layout, data: bytes, *, tenant_code: str, produced_at: str, provenance: str) ->
+NativeRead(obj, rows, refused)`, in this order:
 1. `data` without a leading UTF-8 BOM decodes as strict UTF-8, else `CanonicalRefused("NATIVE_ENCODING", "json")`.
 2. `csv.reader(io.StringIO(text, newline=""), dialect="excel", strict=True)`. A `csv.Error` at any point is
    `CanonicalRefused("NATIVE_ROW", f"row.{reader.line_num}")` (the file is refused).
 3. The first row must equal `[c.header for c in layout.columns]` exactly (order, case, spaces), else
    `CanonicalRefused("NATIVE_HEADER", "json")`. A file with no header row is the same.
 4. Every later row with zero cells is skipped. Each other row gives one record, in file order; its row number is
-   `reader.line_num` after reading it (the header is row 1).
+   `reader.line_num` after reading it (the header is row 1): the physical line on which the row ends, so a quoted
+   cell spanning lines gives its last line.
 5. A row whose cell count differs from the header's: the record is `{"format_version": 1}` and its index is refused
-   `("NATIVE_ROW", f"row.{n}")`.
+   `("NATIVE_ROW", f"row.{n}")`. Else a row any of whose cells holds a character of U+0000 to U+0008, U+000B, U+000C,
+   U+000E to U+001F or U+007F: the same placeholder, refused `("NATIVE_CHARACTER", f"row.{n}")` (D-3A3.9; tab, CR
+   and LF are text).
 6. Otherwise the record starts `{"format_version": 1}`; for each column, a cell equal to `""` writes nothing; any
    other cell writes each of its paths: `maps[path][cell]` when `path in maps` (a miss refuses the index
    `("NATIVE_VALUE", f"record.{path}")`, first miss only), else the cell unchanged (no trimming, no conversion: 2a
@@ -114,7 +121,7 @@ refused)`, in this order:
    `quantity`, `body`, `clocks`) also has a column path is written only when a column wrote into that object; every
    other constant is always written.
 7. `obj = {"format_version": 1, "tenant_code": tenant_code, "source_type": layout.source_type, "source_system":
-   layout.source_system, "provenance": layout.provenance, "produced_at": produced_at, "records": [...]}`.
+   layout.source_system, "provenance": provenance, "produced_at": produced_at, "records": [...]}`.
    `rows` is the tuple of row numbers; `refused` is a `MappingProxyType` `{index: (code, path)}`.
 
 **Rendering** `render_layout(layout, records: Sequence[Mapping]) -> bytes`: the header row, then one row per record
@@ -129,8 +136,8 @@ layout's; an absent path is `""`. Any disagreement, or a value that is not a `st
 
 ### 2.3 The four illustrative layouts (exact)
 
-Every layout: `provenance="source-emulated"`, `personal=frozenset()` (3A2's `PERSONAL_FIELDS` already covers their
-customer and staff refs).
+Every layout: `personal=frozenset()` (3A2's `PERSONAL_FIELDS` already covers their customer and staff refs). They
+are both the emulators' shape and the owner's reshaping template for real exports `3A6` cannot read (RC2; D-3A3.10).
 
 | Layout id | Source type, system | Constants |
 |---|---|---|
@@ -164,19 +171,21 @@ them.
 
 ### 2.4 The reader seam in 3A2 (D-3A3.3)
 
-- `commercial/readers.py`: new frozen `ReadContext(tenant_code: str, received_at: datetime)`. `SourceReader.read`
+- `commercial/readers.py`: new frozen `ReadContext(tenant_code: str, received_at: datetime, real_data: bool)`. `SourceReader.read`
   becomes `read(self, data: bytes, *, context: ReadContext) -> ReadResult`. `ReadResult` gains a last field
   `refused: Mapping[int, tuple[str, str]] = MappingProxyType({})`. `CanonicalJsonReader.read` accepts and ignores
   `context`.
 - New `LayoutReader(layout)`: `id = layout.id`, `media_types = frozenset({"text/csv"})`; `read` calls
   `read_layout(layout, data, tenant_code=context.tenant_code, produced_at=context.received_at.astimezone(timezone.utc)
-  .replace(microsecond=0).isoformat())` and returns `ReadResult(obj, rows, layout.personal, refused)`; `field_label`:
+  .replace(microsecond=0).isoformat(), provenance="observed-financial" if context.real_data else "source-emulated")`
+  and returns `ReadResult(obj, rows, layout.personal, refused)`; `field_label`:
   `json`, `batch` or a `json.` path is "the file"; `row.<n>` is "row <n>"; `record.<path>` is the header of the first
-  column whose paths hold `<path>`, else (a constant or an unmapped path) "the record"; anything else as
+  column one of whose paths equals `<path>` or begins with `<path>.` (so `record.quantity` is `kWh`), else (a constant or an unmapped path) "the record"; anything else as
   `CanonicalJsonReader`.
 - `READERS` = `canonical-json-v1` plus one `LayoutReader` per `LAYOUTS` value, in that order.
-- `CommercialUploads._check`: call `reader.read(data, context=ReadContext(self._store.tenant_slug(tenant_id),
-  self._clock()))`. After `parse_batch`, an index in `read.refused` is a refusal with the reader's `(code,
+- `CommercialUploads._check`: `slug = self._store.tenant_slug(tenant_id)`; `None` is `UPLOAD_TENANT_MISMATCH` before
+  reading (as the JSON reader's mismatch); then `reader.read(data, context=ReadContext(slug, self._clock(),
+  self._real_data))`. After `parse_batch`, an index in `read.refused` is a refusal with the reader's `(code,
   cut_path(code, path))` whatever 2a decided for it, and is not kept. An index in `read.refused` outside
   `range(len(records))` is 500 `COMMERCIAL_STORE_FAULT` (a reader bug). Nothing else in `_check` changes.
 
@@ -194,10 +203,19 @@ tuple[dict, ...], data: bytes)`; `file_name(f) = f"{f.tenant}.{f.key}.csv"`; `KE
 - **Reused from DS1b.** `build_records(view, history)`; take its batches whose tenant is in scope; of their records
   (`json.loads(to_canonical_json(batch))["records"]`) keep those with `clocks.recognition_period == month`:
   `EXPENSE` records go to `expenses`, `BUDGET_LINE` records to `budget`; any other kind is listed `(tenant, site_code,
-  month, kind, source_record_id, "NOT_IN_LAYOUT")`. DS1b's `unwritten` rows for the month and in-scope tenants are
-  carried as they are.
+  month, kind, source_record_id, "NOT_IN_LAYOUT")`, and so is a kept `EXPENSE` or `BUDGET_LINE` whose category or
+  factor is outside its layout's map (never a stop; a record the emulator builds itself that fails to render stays
+  `NATIVE_RENDER`). DS1b's `unwritten` rows for the month and in-scope tenants are carried **except** a row whose
+  `(tenant, site, month, side, field)` is in `written`, the set of keys the emulator emitted records for (actual
+  `billed_kwh`, `revenue` by charges; `collected`, `in_transit` by receipts; `diesel_l`, `diesel_cost` by fuel; plan
+  `revenue`, `diesel_cost`, `billed_kwh`, `diesel_l`, `tariff_usd_per_kwh`, `diesel_usd_per_l` by budget lines),
+  which is dropped; and the actual `outstanding` row of a Site whose charges and receipts were written, which is
+  re-reasoned `AS_UNPAID_CHARGES` (it is the charges not yet paid, never a record).
 - **New records** (all `format_version` 1, `source_version` "1", IDs `gen:<site>:<month>:<side>:<name>` as DS1b),
-  per Site with `a = period.actual`, `p = period.plan`, `cov = period.coverage`, prices `tenant.prices[...][site]`:
+  per Site with `a = period.actual`, `p = period.plan`, `cov = period.coverage`, prices
+  `tenant.prices[<price>][site["site"]]` (keyed by the Site's **name**, e.g. `Kobo`). **Numbers:** every figure is
+  `Decimal(str(v))`; cents are `value * 100`, which must be whole (`EMU_PRICE <tenant>/<site> <field>` for a price;
+  totals are checked in cents); `billed_kwh` and `diesel_l` must be whole (`EMU_QUANTITY <tenant>/<site> <field>`).
   - **Charges** (`billing`), when `cov.get("revenue") != "ESTIMATED"` and `a` has `billed_kwh` and `revenue`:
     `N = 40` customers `<site>-C-0001` … `-0040`; customer `i` gets `billed_kwh // N` kWh, plus 1 for `i <= billed_kwh
     % N`; amount cents = kWh × tariff cents (`tariff_usd_per_kwh` × 100, must be whole: `EMU_PRICE`); the sum must
@@ -237,9 +255,9 @@ submission or decision refused (files before it stay as they are).
 
 Order, each refusal printing `<CODE> <one sentence>` to stderr:
 1. `DATABASE_URL` unset: `DATABASE_URL_REQUIRED`, exit 2.
-2. `refuse_operator_database(url)` (new in `commercial/composition.py`): `database_name(url)` is `None` or
-   `name.lower().startswith("assetops_op")` raises `OperatorDatabaseRefused`: `EMULATED_ON_OPERATOR_DATABASE
-   Emulated exports are never loaded into an operator's database.`, exit 2. No connection has been made.
+2. `refuse_operator_database(url)` (below): an unclear URL is `DATABASE_URL_UNCLEAR`, an `assetops_op*` name (any
+   case) `OperatorDatabaseRefused`: `EMULATED_ON_OPERATOR_DATABASE Emulated exports are never loaded into an
+   operator's database.`; each exit 2. No connection has been made.
 3. `commercial_upload_settings(url)`; a `ConfigurationError` is `CONFIGURATION <its message>`, exit 2; `key_dir` None
    is `COMMERCIAL_UPLOAD_OFF`, exit 2.
 4. Files: `DIR` holds only regular files named `<SLUG>.<key>.csv` (`key` in `KEYS`) or `<SLUG>.<source_type>.json`
@@ -248,15 +266,26 @@ Order, each refusal printing `<CODE> <one sentence>` to stderr:
    `EXPORT_PATHS_MIXED <source_type>`, exit 2 (D-3A3.7). Order: CSVs in `KEYS` order, then JSONs by name.
 5. `accounts.onboard_person(email)` (new `AccountService` method, §2.7) for each email: not found, another tenant's,
    or not ACTIVE is `PERSON_NOT_FOUND`, exit 2. Role: the first of `roles_of("commercial.upload")` (resp.
-   `"commercial.upload_decision"`) the person holds; none is `PERSON_ROLE_REQUIRED`, exit 2.
+   `"commercial.upload_decision"`) the person holds; none is `PERSON_ROLE_REQUIRED`, exit 2. `--accept-as` naming the
+   same person as `--submit-as` is `PERSON_SAME_FOR_BOTH`, exit 2 (D-3A3.11).
+5b. `held = uploads.held(tenant_id)` (one read, §2.8). A file of source type `t` whose path (`native` for a layout
+   reader, `canonical` for `canonical-json-v1`) differs from the path of any held upload of type `t` is
+   `EXPORT_PATH_SWITCHED <t>`, exit 2 (D-3A3.7 across runs).
 6. Per file: `uploads.submit(tenant_id, UploadScope(None, None), Actor(pid, role), data, file_name=<name>,
-   reader_id=<id>, media_type="text/csv" or "application/json")`. `UPLOAD_NOTHING_NEW` prints the line with `state`
-   `NOTHING_NEW` and continues (a rerun is idempotent); any other `UploadRefused` is `<its code>`, exit 3. With
-   `--accept-as`, then `uploads.decide(..., "ACCEPT")`. Organisation scope always: the files hold every Site.
+   reader_id=<id>, media_type="text/csv" or "application/json")`, unless a held upload is waiting with the file's
+   SHA-256: then no submission, the line's `state` is `ALREADY_WAITING` and its `upload_id` that upload's.
+   `UPLOAD_NOTHING_NEW` prints the line with `state` `NOTHING_NEW` and continues; any other `UploadRefused` is `<its
+   code>`, exit 3. With `--accept-as`, the submitted or waiting upload is then decided `ACCEPT`, and the line gains
+   `"decided_by_script": true`. A rerun is idempotent with or without `--accept-as`. Organisation scope always: the
+   files hold every Site.
 
 `build_parser() -> argparse.ArgumentParser` is public (ON1's runbook test parses the runbook's lines with it).
 `main(argv, *, uploads=None, accounts=None)`: injected services skip step 3 and the composition (tests); steps 1, 2
-and 4 always run. The tenant is the submitter's `OnboardPerson.tenant_id`; a person whose `tenant_slug` is not
+and 4 always run. Step 2 is `refuse_operator_database(url)` (new in `commercial/composition.py`):
+`database_target(url)` (RC4-F1); `DatabaseTargetUnclear` is `DATABASE_URL_UNCLEAR <reason>` (`The database URL must
+name one database plainly.`), exit 2; then `is_operator_name(target.name)` is `EMULATED_ON_OPERATOR_DATABASE`, exit 2.
+A directory is one tenant's: `DS3` loads one directory per tenant (D-3A3.1).
+The tenant is the submitter's `OnboardPerson.tenant_id`; a person whose `tenant_slug` is not
 `--tenant` is `PERSON_NOT_FOUND` (step 5).
 
 ### 2.7 One account read (3C0a code)
@@ -267,6 +296,15 @@ tenant_slug, display_name, active: bool, roles: frozenset[tuple[str, UUID | None
 None` (adapter: `SELECT slug FROM tenant WHERE id = :t`; the in-memory store from its tenants). A malformed email is
 `None`. No write. (`ON1` uses the same method.)
 
+### 2.8 One read of what the tenant holds (3A2 code; D-3A3.11)
+
+`CommercialUploads.held(tenant_id) -> tuple[HeldUpload, ...]`, frozen `HeldUpload(upload_id: UUID, source_type: str,
+reader: str, file_sha256: str, waiting: bool)` in `commercial/model.py`, from the new store read
+`held_uploads(tenant_id)`: every upload of the tenant with no decision or an `ACCEPTED` one. Adapter: `SELECT u.id,
+u.source_type, u.reader, u.file_sha256, d.decision IS NULL AS waiting FROM commercial_upload u LEFT JOIN
+commercial_upload_decision d ON d.tenant_id = u.tenant_id AND d.upload_id = u.id WHERE u.tenant_id = :t AND
+(d.decision IS NULL OR d.decision = 'ACCEPTED') ORDER BY u.id`. The in-memory store mirrors it. No write.
+
 ## 3. Code
 
 | File | Holds |
@@ -274,10 +312,11 @@ None` (adapter: `SELECT slug FROM tenant WHERE id = :t`; the in-memory store fro
 | `contracts/assetops_contracts/native/__init__.py`, `layouts_v1.py` | §2.2, §2.3 |
 | `backend/assetops_backend/commercial/readers.py` | `ReadContext`, `ReadResult.refused`, `LayoutReader`, `READERS` (§2.4) |
 | `backend/assetops_backend/commercial/uploads.py` | `_check`: context and reader refusals (§2.4) |
-| `backend/assetops_backend/commercial/composition.py` | `refuse_operator_database`, `OperatorDatabaseRefused`; `build_commercial_records` deleted |
+| `backend/assetops_backend/commercial/composition.py` | `refuse_operator_database`, `OperatorDatabaseRefused` (on `database_target`); `build_commercial_records` deleted |
+| `backend/assetops_backend/commercial/model.py`, `store.py`, `adapters/postgres_commercial_store.py`, `uploads.py` | `HeldUpload`, `held_uploads`, `CommercialUploads.held` (§2.8) |
 | `backend/assetops_backend/load_emulated_exports.py` | §2.6 |
 | `backend/assetops_backend/accounts/service.py`, `store.py`, `model.py`, `adapters/postgres_account_store.py` | §2.7 (`OnboardPerson` in `model.py`) |
-| `backend/assetops_backend/i18n/messages.py` | a `# 3A3` block: the four reasons below |
+| `backend/assetops_backend/i18n/messages.py` | a `# 3A3` block: the five reasons below |
 | `simulator/assetops_simulator/world/exports.py`; `tools/world_history.py` | §2.5 |
 
 Reasons (`commercial_upload.reason.<code lower>`):
@@ -288,6 +327,7 @@ Reasons (`commercial_upload.reason.<code lower>`):
 | `NATIVE_HEADER` | the column headings are not the ones this layout reads, in this order. |
 | `NATIVE_ROW` | this row cannot be read: its cells do not line up with the headings. |
 | `NATIVE_VALUE` | this value is not one this layout knows. |
+| `NATIVE_CHARACTER` | this row holds a character that is not text (such as a NUL byte). |
 
 ## 4. Fixtures
 
@@ -309,13 +349,18 @@ produced by `read_layout`):
 
 `backend/tests/source_contracts.py` (not collected): `ContractCase(reader_id, golden, expected, required_headers:
 tuple[str, ...], amount_header: str, clock_header: str, bad_clock: str, revision_header: str | None, mapped: tuple[str,
-str] | None, personal_raw: tuple[str, ...], scope: "SITE" | "ORGANISATION")` and `CONTRACT_CASES`, one per layout
-(billing: required `Invoice no, Site, Billing month, Amount, Currency, Account`; amount `Amount`; clock `Period start`,
-bad clock `01/10/2026`;
-revision `Revision`; mapped none; raw `C-0412, C-0413, C-0901`; scope ORGANISATION — the same for the others with
-their headers: collections clock `Paid at`, bad `2026-10-30T19:00:00`, mapped `("Status", "Lost")`, no revision, raw
-the payers; expenses clock `Date`, bad `2026-10-11T09:00:00`, mapped `("Category", "Fuel")`, raw `payroll`; budget
-amount `Value`, clock `Month`, bad `Oct-2026`, mapped `("Line", "marketing")`, raw none). `3A6` appends its profile cases here.
+str] | None, personal_raw: tuple[str, ...], field_for: Mapping[str, str] = MappingProxyType({}))` and
+`CONTRACT_CASES`, one per layout (no scope field: every layout spans Sites, uploads go on the organisation path):
+
+| Case | `required_headers` (row 2 blanked, one at a time) | amount | clock, bad clock | revision | mapped | raw |
+|---|---|---|---|---|---|---|
+| billing | `Invoice no, Revision, Site, Account, Period start, Period end, Billing month, kWh, Amount, Currency, Tariff` | `Amount` | `Period start`, `01/10/2026` | `Revision` | none | `C-0412, C-0413, C-0901` |
+| collections | `Transaction ID, Site, Paid at, Month, Payer, Amount, Currency, Status` | `Amount` | `Paid at`, `2026-10-30T19:00:00` | none | `("Status", "Lost")` | `C-0412, C-0413, C-0901` |
+| expenses (row 2 is FUEL) | `Entry no, Revision, Site, Date, Month, Category, Supplier, Document, Litres, Amount, Currency, Status` | `Amount` | `Date`, `2026-10-11T09:00:00` | `Revision` | `("Category", "Fuel")` | `payroll` |
+| budget | `Line ID, Revision, Month, Line, Value, Budget version` (not `Site`: optional; not `Currency`: row 2 is the `revenue` node) | `Value` | `Month`, `Oct-2026` | `Revision` | `("Line", "marketing")` | none |
+
+`field_for` maps a blanked header to the header 2a's first refusal names when they differ (a 2a ordering fact the
+builder records with a one-line reason; empty unless a run shows one). `3A6` appends its profile cases here.
 
 ## 5. Tests
 
@@ -323,7 +368,8 @@ amount `Value`, clock `Month`, bad `Oct-2026`, mapped `("Line", "marketing")`, r
 1. Each golden reads to its expected records (dict equality) with rows `(2, 3, 4)` and no refusals; each expected list
    renders to the golden bytes.
 2. Header refusals: reordered, renamed (`kwh`), extra column, missing column, empty file: `NATIVE_HEADER json`. A BOM
-   is accepted; byte `0xFF` is `NATIVE_ENCODING`; a NUL byte is `NATIVE_ROW row.<n>`.
+   is accepted; byte `0xFF` is `NATIVE_ENCODING`. A NUL (`KOBO\x00-001` in row 3's `Site`), U+001F and U+007F each
+   refuse that row alone `NATIVE_CHARACTER row.3`, rows 2 and 4 standing; a tab inside a quoted cell is admitted.
 3. A row with one cell fewer is refused `NATIVE_ROW row.3` and the other rows stand; a blank row is skipped and row
    numbers stay physical.
 4. Map miss: `Category` `Fuel` is `NATIVE_VALUE record.body.category`; budget `Line` `marketing` is `NATIVE_VALUE
@@ -334,7 +380,7 @@ amount `Value`, clock `Month`, bad `Oct-2026`, mapped `("Line", "marketing")`, r
 
 **Service, no database** (`backend/tests/test_3a3_source_contract.py`; 3A2's in-memory world: `UploadMemoryStore`,
 `People`, key `bytes(range(32))`, `T_SUBMIT`), parametrised over `CONTRACT_CASES` (C) plus single tests:
-- C1 Check, submit, accept (Fiona) on the case's scope: all rows NEW; `months == [(site, "2026-10") ...]`; the stored
+- C1 Check, submit, accept (Fiona) on the organisation path: all rows NEW; `months == [(site, "2026-10") ...]`; the stored
   canonical records equal the expected records after 3A2's pseudonymisation (expected values pseudonymised in the
   test with the formula written out, as 3A2 svc 3b).
 - C2 Kinds: every stored kind is in `SOURCE_TYPES[case source type].kinds`.
@@ -347,14 +393,21 @@ amount `Value`, clock `Month`, bad `Oct-2026`, mapped `("Line", "marketing")`, r
   with a revision header, the same change at revision 2 is REVISED.
 - C7 Late record: the golden checked at `2026-11-06T09:00:00+00:00` names October only.
 - C8 Native refusals on the service: a reordered header is 422 `UPLOAD_FILE_REFUSED` with `field` "the file"; the
-  case's map miss is a row refusal with the header as `field`.
+  case's map miss is a row refusal with the header as `field`; (collections only) row 3's first cell replaced by
+  `"MM-0002` with no closing quote in the four-line file is 422 `UPLOAD_FILE_REFUSED` with `field` "row 4".
 - C9 Personal data: no `personal_raw` string appears in any stored string (upload batch, refusal arrays, canonical,
   rejection) or any response.
-- C10 Provenance: with `real_data=True` the case is 422 `UPLOAD_PROVENANCE_NOT_ALLOWED`.
+- C10 Provenance follows the database (D-3A3.10): with `real_data=False` the stored batch's provenance is
+  `source-emulated`; with `real_data=True` the case is accepted and stored `observed-financial`. Beside it, 3A2's
+  cap still holds for the canonical reader: a `source-emulated` JSON batch with `real_data=True` is 422
+  `UPLOAD_PROVENANCE_NOT_ALLOWED`.
 - S1 Single writer (`backend/tests/test_3a3_single_writer.py`, AST scan of `backend/assetops_backend`, `tools`,
   `host`, `simulator`, `gateway`, `field`, tests excluded): `CommercialRecords(` only in `commercial/composition.py`;
-  any `.ingest(` call in a module that imports from `assetops_backend.commercial` fails unless the module is
-  `commercial/uploads.py`;
+  in a module that imports from `assetops_backend.commercial`, other than `commercial/uploads.py` and
+  `commercial/service.py`, any `.ingest` attribute (called or not) and any `getattr(<x>, "ingest")` fail; an import
+  of the name `CommercialRecords` (aliased or not) outside `commercial/composition.py` and `commercial/uploads.py`
+  fails (D-3A3.12). The test also runs its scanner on four inline sources and expects each to fail: `CR(...)` after
+  `import ... CommercialRecords as CR`, `getattr(x, "ingest")(...)`, `r = svc.ingest; r(...)`, `svc.ingest(...)`;
   `build_commercial_uploads(` only in `main.py` and `load_emulated_exports.py`; `build_commercial_records` exists
   nowhere.
 - S2 `READERS` keys equal `{"canonical-json-v1"} | {c.reader_id for c in CONTRACT_CASES}`.
@@ -379,23 +432,40 @@ amount `Value`, clock `Month`, bad `Oct-2026`, mapped `("Line", "marketing")`, r
   `diesel_price` 1.25; KISIWA-001 `tariff` 0.55, `diesel_price` 1.30.
 - E7 Round trip: each file reads (`read_layout`) back to its records with no refusal; two runs give identical bytes;
   the packet records each file's SHA-256 and the test pins them.
-- E8 Planted manifest: revenue 3459.0 for Kobo raises `EMU_REVENUE`; `diesel_cost` 1476.0 raises `EMU_FUEL`.
+- E8 Planted manifest (one change each, on a copy of the fixture): Kobo revenue 3459.0 raises `EMU_REVENUE`;
+  `diesel_cost` 1476.0 `EMU_FUEL`; `collected` 3181.0 `EMU_COLLECTIONS`; `tariff_usd_per_kwh` 0.405 `EMU_PRICE`;
+  `billed_kwh` 8645.5 `EMU_QUANTITY`.
+- E9 Unwritten: no row's `(tenant, site, month, side, field)` is one the emulator wrote (no KOBO-001 October actual
+  `revenue`, `collected`, `in_transit`, `diesel_cost`, nor plan `revenue`, `diesel_cost`, `billed_kwh`, `diesel_l`);
+  KOBO-001 October actual `outstanding` is `AS_UNPAID_CHARGES`; KISIWA-001's `om` stays `ESTIMATED_NOT_RECEIVED`.
 
-**Loader, no database** (`backend/tests/test_3a3_load_emulated.py`, injected in-memory services):
-- L1 `DATABASE_URL` names `assetops_op_pilot1`, `ASSETOPS_OP_X`, `assetops_opx`, and a URL with no database: each
-  `EMULATED_ON_OPERATOR_DATABASE`, exit 2, and the injected services are never called (spies).
+**Loader, no database** (`backend/tests/test_3a3_load_emulated.py`, injected in-memory services). An autouse fixture
+makes `psycopg.connect`, `psycopg.Connection.connect` and `sqlalchemy.engine.Engine.connect` raise
+`AssertionError("connection attempted")`, and one test proves it (`create_engine("postgresql+psycopg://u:p@rc4.invalid:1/x").connect()`
+raises that error). Every URL uses host `rc4.invalid` port 1.
+- L1 `DATABASE_URL` path `assetops_op_pilot1`, `ASSETOPS_OP_X`, `assetops_opx`: each `EMULATED_ON_OPERATOR_DATABASE`;
+  `.../assetops_test?dbname=assetops_op_x`, `.../?dbname=assetops_op_x`, `.../` (empty name), `?service=x`, and a
+  plain `.../assetops_test` with `PGDATABASE=assetops_op_x` set: each `DATABASE_URL_UNCLEAR`; all exit 2 and the
+  injected services are never called (spies).
 - L2 The emulator's records (`build_exports` on the fixture manifest) for KOBO-001 and KISIWA-001 only, rendered by
   the test with `render_layout` into `tmp_path/acme.<key>.csv`, load with `--tenant acme`, Ana submitting and Fiona
   accepting: four ACCEPTED uploads; a rerun prints `NOTHING_NEW` four times.
 - L3 `EXPORT_FILE_UNKNOWN` (a `notes.txt`), `EXPORT_PATHS_MIXED` (`acme.budget.csv` with `acme.budget_workbook.json`),
-  `PERSON_NOT_FOUND` (Hugo of beta), `PERSON_ROLE_REQUIRED` (Peter submitting).
+  `PERSON_NOT_FOUND` (Hugo of beta), `PERSON_ROLE_REQUIRED` (Peter submitting), `PERSON_SAME_FOR_BOTH` (Fiona
+  submitting and accepting).
 - L4 A refused submission (a file with a reordered header) exits 3 after the earlier files were accepted.
+- L5 After L2's load, a directory holding `acme.budget_workbook.json` (a DS1b batch) is `EXPORT_PATH_SWITCHED
+  budget_workbook`, exit 2, nothing submitted.
+- L6 L2's files submitted without `--accept-as`; a rerun without it submits nothing and prints `ALREADY_WAITING` four
+  times with the first run's upload IDs; a rerun with `--accept-as` decides those four (`decided_by_script` true).
 
 **Postgres** (`backend/tests/test_3a3_load_emulated_postgres.py`, pooled `--db`, harness-routed `*_test` only):
 - P1 Tenant `acme`, Sites KOBO-001 and KISIWA-001, Ana and Fiona created through the 3C0a service on the routed DB;
   the loader (composition path, `DATABASE_URL` the routed URL, key in `tmp_path`) loads L2's files: four uploads,
   four decisions, the store's `latest_revisions` count equals the files' Kobo and Kisiwa rows; a rerun writes nothing.
 - P2 `onboard_person` round-trips roles and tenant slug.
+- P3 `held_uploads` after P1: four rows, none waiting; one more upload submitted and one declined: five rows, one
+  waiting (the declined one absent).
 
 **Regression beside them:** the 3A2 service, API and Postgres files (they must pass with `read(data, context=...)`),
 `test_3a1_commercial_service.py`, `test_3c0a_accounts_service.py`, `simulator/tests/world/` (DS1b's), check-all.
@@ -415,12 +485,15 @@ and `world/exports.py` write no configuration (the tool writes only into its out
 4. Do the emulated files total exactly the manifest's October figures per Site, write nothing ESTIMATED, and read
    back with no refusal (E2 to E7)?
 5. Is `CommercialRecords.ingest` reachable only through `CommercialUploads`, with `build_commercial_records` gone (S1)?
-6. Does the loader refuse every `assetops_op*` name, any case, and an unnamed database, before any connection or
-   service call (L1)?
+6. Does the loader refuse every `assetops_op*` name, any case, and every URL or environment RC4-F1 calls unclear
+   (no name, a query `dbname`, a `PG*` variable), before any connection or service call, with the no-connect fixture
+   in force (L1)?
 7. Is the same customer one pseudonym across billing and collections, and is no raw customer or staff ref stored or
    answered (S4, C9)?
 8. Does each planted violation in the reviewer guide fail its named test?
-9. Is nothing changed beyond §3's files, the fixtures and tests of §4 and §5, `source_contracts.py`, and the packet?
+9. Is nothing changed beyond §3's files, the fixtures and tests of §4 and §5, `source_contracts.py`,
+   `test_3a2_commercial_upload_service.py` (the `read` signature only), `test_3c0a_accounts_service.py` (`MemoryStore`
+   gains `tenant_slug`), and the packet?
 
 Packet: `specs/3A3-emulators-contract-test/packet.md` (module paths, file SHA-256s, plants, mid-build count).
 
@@ -430,8 +503,8 @@ Packet: `specs/3A3-emulators-contract-test/packet.md` (module paths, file SHA-25
 |---|---|---|
 | 1 | `native/layouts_v1.py`, the four layouts, goldens, contracts tests | 1 |
 | 0.75 | Reader seam (`ReadContext`, `refused`), `LayoutReader`, `READERS`, words, `build_commercial_records` deleted; `source_contracts.py`, C1 to C10, S1 to S5 | 2 |
-| 0.75 | `world/exports.py`, the `exports` tool command, E1 to E8 | 3 |
-| 0.5 | `onboard_person`, `refuse_operator_database`, the loader, L1 to L4, P1, P2; check-all; packet | 4 |
+| 0.75 | `world/exports.py`, the `exports` tool command, E1 to E9 | 3 |
+| 0.75 | `onboard_person`, `held`, `refuse_operator_database`, the loader, L1 to L6, P1 to P3; check-all; packet | 4 |
 
 ## 9. Out of scope
 
@@ -444,6 +517,6 @@ database.
 
 | # | Question | Default applied |
 |---|---|---|
-| Q1 | May the loader accept as the finance lead (`--accept-as`) on emulated data? | Yes, for emulated rehearsal and walkthrough tenants only (refused on operator databases, §2.6 step 2); the decision row names that person. **Owner to weigh in** if a person must click accept even in rehearsal |
+| Q1 | May the loader accept as the finance lead (`--accept-as`) on emulated data? | Yes, for emulated rehearsal and walkthrough tenants only (refused on operator databases, §2.6 step 2), never by the submitter; the decision row names that person and the output says the decision was scripted (D-3A3.11). **Owner to weigh in** if a person must click accept even in rehearsal; not blocking (a "no" removes `--accept-as` only) |
 | Q2 | The finance lead's one list of everything waiting across Sites | Later: with the upload list screen (next fortnight, with `3C0b`); a read `uploads_waiting(tenant_id, limit)` then. The rehearsal uses the loader's output and the organisation path (D-3A3.8) |
 | Q3 | Budget lines at node level (`revenue`, `fuel_cost`, `billed_kwh`, `diesel_l`) are carried as the budget states them | Yes; `5a` rules how targets read them |

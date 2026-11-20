@@ -21,8 +21,9 @@ finished work are in `archive/agent-history/`.
 | mockup-vnext-demo-items | Mock-up demo items | finished | `mockup-vnext-demo-items/packet.md` | small |
 | mockup-vnext-professional | Mock-up pass | superseded | `mockup-vnext-professional/packet.md` | small |
 | 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a merged | `3C1-person-on-commands/spec.md` | 15 KB |
-| 3A3 | Emulated native exports and the source contract test (3 units) | live — spec rev 1, handshake open | `3A3-emulators-contract-test/spec.md` | 36 KB |
-| ON1 | Operator tenant from one onboarding file; served tenant; key erasure; runbook (1.75 units) | live — spec rev 1, handshake open | `ON1-operator-tenant/spec.md` | 29 KB |
+| RC4-F1 | The database a URL really connects to: one resolver for every RC4 decision (0.5 unit; merges before 3A3) | live — spec rev 1 | `RC4-F1-database-name/spec.md` | 11 KB |
+| 3A3 | Emulated native exports and the source contract test (3.25 units) | live — spec rev 2, handshake answered | `3A3-emulators-contract-test/spec.md` | 43 KB |
+| ON1 | Operator tenant from one onboarding file; roles proposed, executive approves at sign-in; served tenant; key erasure; runbook (2.5 units) | live — spec rev 2, handshake answered | `ON1-operator-tenant/spec.md` | 40 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
 | IA-1 | Menu, page organization, shape rebuild | rev 3; IA-1a merged; IA-1b/IA-1c handshake answered (D-IA.21-30), IA-1b next | `IA-1-shape-rebuild/spec.md` | 45 KB |
 | 4b | Money leaves from records; stated headings (4b1 seam, 4b2 providers) | rev 3; 4b1 merged; 4b2 next | `4b-money-leaves/spec.md` | 31 KB |
