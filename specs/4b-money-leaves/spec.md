@@ -2,7 +2,7 @@
 
 Status: spec rev 3. Rev 2: handshake round 1 answered (D-4B.13 to D-4B.17). Rev 3: 4b1 review r1 answered
 (`rulings.md` "Review answers (r1)"; D-4B.18 origins, built in 4b1's fix round; §2.7 regression line corrected).
-4b1: merged. 4b2: in_review (`packet-4b2.md`, branch `task/4b2-money-providers`; mid-build Q2 open, default applied).
+4b1: merged. 4b2: in_review (`packet-4b2.md`, branch `task/4b2-money-providers`; mid-build Q2 answered).
 Code starts when the handshake has no open question (`.ai/RULES.md` §4).
 
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`3B3` → `3A4` → `4b` and `5a` → `5b` →
@@ -24,7 +24,7 @@ Non-screen. **2.5 units in two merges:** `4b1` (1 unit, the shared seam, reviewe
 ## 0. Before you start
 
 - **Branches.** `task/4b1-stated-nodes` off `main` (worktree `/opt/assetecon/AssetOpsV1-4b1`); after it merges,
-  `task/4b2-money-leaves` off `main` (worktree `/opt/assetecon/AssetOpsV1-4b2`). Code starts when the handshake
+  `task/4b2-money-providers` off `main` (worktree `/opt/assetecon/AssetOpsV1-4b2`). Code starts when the handshake
   has no open question.
 - **Python:** as 3B3 `spec.md` §0 (set `PYTHONPATH` for the worktree; the packet records the module paths).
 - **Read:** `rulings.md`; 3B3 `spec.md` §2 to §4 and `rulings.md` D-3B3.11 to D-3B3.17; 3A4 `spec.md` §3 and §4;
@@ -313,7 +313,7 @@ failure in any builder disposes the ones already built (3B3's L1 pattern).
 `source_version` `"1"`, every Site in `Africa/Nairobi`. Records are written in 3A4 §4's forms (CHARGE effective
 `2026-10-01` to `2026-11-01` and `recognition_period` `2026-10`; RECEIPT and EXPENSE `occurred_at` as stated and
 `recognition_period` `2026-10`; EXPENSE `counterparty_ref` `SUP-F` and `document_ref` = its ID) unless stated.
-All steps `at` `2026-11-06T09:00:00+00:00`, `entered_by` `"test:4b"`, `produced_at` `2026-11-05T09:00:00+03:00`.
+All steps `at` `2026-11-06T09:00:00+00:00`, `entered_by` `"service:test-4b"`, `produced_at` `2026-11-05T09:00:00+03:00`.
 
 | Batch (`source_type`, `source_system`, provenance) | Records |
 |---|---|
@@ -398,7 +398,7 @@ batches ingested with `ingest_at`'s pattern but each step's own `entered_by`.
    `sites["lakeside-power/Kobo"]["actual"]["nodes"]["contribution"]` (W2's independent check).
 2. §4.1 November reads, in this order. (i) `revenue` and `om` as §4.1 (`MONTH_OPEN`), and `diesel_price` the
    fallback's 1.30, `ESTIMATED` (no November fuel invoice yet). (ii) Ingest, at `2026-11-06T10:00:00+00:00` with
-   `entered_by` `"test:4b"`, batch B's envelope with `KOBO-EX-FUEL-1105` (EXPENSE KOBO-001,
+   `entered_by` `"service:test-4b"`, batch B's envelope with `KOBO-EX-FUEL-1105` (EXPENSE KOBO-001,
    `2026-11-05T11:00:00+03:00`, `recognition_period` `2026-11`, 130.00, 100 L, PAID, FUEL), and read again (a new
    context): `diesel_price` and `fuel_cost` have no value, `NOT_RECEIVED`, note `MONTH_OPEN`, each naming its
    `READ_AS` record; `diesel_price` is **not** the fallback's (D-4B.14).
@@ -461,7 +461,7 @@ Commands as 3B3 §6 with these files; check-all once at the end of each unit; `s
 7. Does a second read see a record ingested after the first?
 8. Is nothing changed outside: `structure/{registry,rows_mini_grid,check,evaluate,read,sources,money,composition}.py`,
    `commercial/composition.py`, the four version edits of §2.1 and the T6 table and body edits of §3.2 in the 3B1 and
-   3B3 tests, the fixture, the three new test files and the packets?
+   3B3 tests, the fixture, the three new test files, `simulator/tests/world/test_4b_fixture_parity.py` and the packets?
 
 Packets: `specs/4b-money-leaves/packet-4b1.md` and `packet-4b2.md`, each with module paths and the mid-build count.
 

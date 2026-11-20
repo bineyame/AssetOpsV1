@@ -78,7 +78,7 @@ def fixture_steps() -> list[dict]:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))["steps"]
 
 
-def ingest(w, at: str, batch: dict, entered_by: str = "test:4b"):
+def ingest(w, at: str, batch: dict, entered_by: str = "service:test-4b"):
     w["clock"].now = datetime.fromisoformat(at)
     result = w["svc"].ingest(w["tid"], encode(batch), entered_by=entered_by)
     assert result.state == "STORED" and all(o.outcome in ("NEW", "REVISED") for o in result.outcomes), result
@@ -400,6 +400,21 @@ def test_6_currencies_apart():
         assert got.value is None and got.evidence == "NOT_AVAILABLE", factor_id  # not the fallback's 1.30
         assert gap(got) == ("EXPENSE (FUEL)", CR, "NOT_CALCULATED_YET", words, "CURRENCY_MISMATCH:KES,USD"), \
             factor_id
+
+
+def test_6_recorded_zero_checks_currency_r9():
+    """R9: Kobo's `in_transit` is a recorded zero (all receipts COLLECTED); a KES receipt of the month still mixes."""
+    w = money_world()
+    kes = {"format_version": 1, "kind": "RECEIPT", "source_record_id": "KOBO-RC-KES", "source_version": "1",
+           "site_code": "KOBO-001",
+           "clocks": {"occurred_at": "2026-10-26T10:00:00+03:00", "recognition_period": "2026-10"},
+           "amount": {"value": "500.00", "currency": "KES"}, "status": "COLLECTED",
+           "body": {"payer_ref": "C-1001", "method": "MOBILE_MONEY"}}
+    ingest(w, LATER, envelope(0, [kes]))
+    read, _ = reader(w)
+    got = read.site(site(w, "KOBO-001"), "2026-10").values["in_transit"]
+    assert got.value is None
+    assert gap(got) == ("RECEIPT", CR, "NOT_CALCULATED_YET", RECEIPT_WORDS, "CURRENCY_MISMATCH:KES,USD")
 
 
 # ---------------------------------------------------------------- test 7: connected against received (D-4B.5)

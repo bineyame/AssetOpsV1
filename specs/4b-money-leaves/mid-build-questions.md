@@ -28,7 +28,7 @@ stated SUM nodes (`MONEY * MONEY`, `MONEY * KWH`) with controls; V18 and new V18
   spec fixes and I have not touched.
 
 
-## Q2 (4b2, spec §4.1 and §5 "Postgres" 1; fixture `entered_by`): OPEN, default applied
+## Q2 (4b2, spec §4.1 and §5 "Postgres" 1; fixture `entered_by`): ANSWERED
 
 - **What the spec fixes.** §4.1: every step `entered_by` `"test:4b"`; §5 test 2(ii) ingests with `"test:4b"`; §5
   "Postgres" 1 ingests §4.1 through `PostgresCommercialStore`.
@@ -36,6 +36,5 @@ stated SUM nodes (`MONEY * MONEY`, `MONEY * KWH`) with controls; V18 and new V18
   `^(service:[a-z][a-z0-9-]{0,62}|person:[0-9a-f-]{36})$`; Postgres refuses `"test:4b"` (`StoreRefused:
   commercial_intake_entered_by_check`, first Postgres run). The memory store does not check it.
 - **Stopped.** Nothing in the figures: `entered_by` enters no value, source or origin.
-- **Built (default applied, revocable).** The fixture and the no-database file keep `"test:4b"` as the spec writes
-  it; `test_4b_money_leaves_postgres.py` ingests the same steps with `PG_ENTERED_BY = "service:test-4b"`.
-- **Asked.** Keep this split, or change the spec literal (and the fixture) to `"service:test-4b"` everywhere?
+- **Built.** Fixture, both test files and spec §4.1/§5 use `"service:test-4b"`; `PG_ENTERED_BY` removed.
+- **Answered** (Architect, 5a Q2 ruling D-5A, applied here by class; see rulings.md "Review answers (r1)"): the fixture declarer is a `service:` name everywhere.

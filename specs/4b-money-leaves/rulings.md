@@ -262,3 +262,4 @@ Architect (Claude), 2026-11-20, on `.agent/review-4b1-r1.md` at `aa5e78036`. One
 - **F2.** Builder's, as the reviewer gives it (no ruling needed).
 - **Note to 5a.** Every valued `LeafValue` 5a builds (budget lines) names its line's record provenance; 5a's expected
   `contribution` origins `("source-emulated",)` hold because 3B3's `pack_leaves` now tags `("source-emulated",)`.
+- **F3 (fixture declarer literal).** Applies the 5a Q2 ruling (D-5A: the fixture declarer is a `service:` name everywhere) to 4b by class. `"test:4b"` becomes `"service:test-4b"` in the fixture, both test files and spec §4.1/§5; `PG_ENTERED_BY` is removed; mid-build Q2 is answered.

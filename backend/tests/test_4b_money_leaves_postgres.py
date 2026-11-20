@@ -4,9 +4,7 @@ Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database (the harness route
 otherwise. Run through `tools/heavy-slot.sh --db`. Sites by 3A4's `NairobiSeeder` (imported; 3A4's file is not
 edited). Expected values are spec §4.1's literals, asserted by the no-database file's checks (W2).
 
-Mid-build Q2 (open; default applied): the fixture's `entered_by` `"test:4b"` is refused by migration 0063's
-`commercial_intake_entered_by_check` (`service:<name>` or `person:<uuid>`), so Postgres ingests the same steps as
-`PG_ENTERED_BY`. `entered_by` enters no figure; the no-database file keeps the spec's literal.
+Mid-build Q2 (answered): the fixture declarer is `service:test-4b` everywhere (5a Q2 ruling, by class).
 """
 from __future__ import annotations
 
@@ -26,12 +24,9 @@ if URL:
     import test_4b_money_leaves as nodb
     from assetops_backend.structure.composition import build_structure_read
 
-PG_ENTERED_BY = "service:test-4b"
-
-
 def _ingest(w) -> None:
     for step in nodb.fixture_steps():
-        nodb.ingest(w, step["at"], step["batch"], PG_ENTERED_BY)
+        nodb.ingest(w, step["at"], step["batch"], step["entered_by"])
 
 
 def test_pg_1_the_fixture_through_postgres(pgworld):  # noqa: F811

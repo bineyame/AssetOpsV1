@@ -2,7 +2,7 @@
 
 Implementer (Claude), 2026-11-20. Branch `task/4b2-money-providers` off `main` `e88641e97` (4b1 merged); worktree
 `/opt/assetecon/AssetOpsV1-4b2`. Spec `spec.md` rev 3 §3 to §5; rulings D-4B.3 to .9, .12 to .15, .18; guide rev 3.
-Mid-build count: **1** (Q2, open, default applied). Not merged.
+Mid-build count: **1** (Q2, answered). Not merged.
 
 **Module paths** (`PYTHONPATH` = worktree `backend`, `contracts`, `simulator`): `assetops_backend` →
 `/opt/assetecon/AssetOpsV1-4b2/backend/assetops_backend/__init__.py`, `assetops_contracts` → `.../contracts/...`,
@@ -53,8 +53,7 @@ Mid-build count: **1** (Q2, open, default applied). Not merged.
 1. **Test 5 lives in `simulator/tests/world/test_4b_fixture_parity.py`**, not the backend file:
    `dependency-direction.ps1` bans `assetops_simulator` imports under `backend/` (first check-all failed on it).
    Same shape as 5a test 10. Outside done Q8's list by one file.
-2. **Mid-build Q2 (open, default applied):** migration 0063 refuses `entered_by` `"test:4b"`; the Postgres file ingests
-   the same steps as `"service:test-4b"`. No figure depends on it.
+2. **Mid-build Q2 (answered, 5a Q2 ruling by class):** fixture declarer is `"service:test-4b"` everywhere; `PG_ENTERED_BY` removed.
 3. Currency rule 4 runs only on money rows (`productive_kwh` has no currency, §3.4).
 
 ## Residual risk / review focus
@@ -64,4 +63,8 @@ Mid-build count: **1** (Q2, open, default applied). Not merged.
 - Overlap with the 5a units 2-3 lane (`/opt/assetecon/AssetOpsV1-5a2`): no code file shared (it touches
   `structure/targets/*`, `test_5a_*`); likely text conflicts only in `.ai/state/data.md` and `.ai/state/index-2.md`.
 
-USER_REVIEW_REQUIRED: not stated in the spec; non-screen. Q2 is for the Architect, not the owner.
+USER_REVIEW_REQUIRED: not stated in the spec; non-screen. Q2 is answered.
+
+## Fix round r1 (review ACCEPT with Lows; `review-4b2.md`)
+
+Main merged (state-index line renumbered 159). F1: `test_6_recorded_zero_checks_currency_r9` (KES receipt on a recorded zero). F3: `service:test-4b` by class (rulings.md). Docs: spec §0 branch, §6 Q8 parity file, Q2 answered. Run results below.
