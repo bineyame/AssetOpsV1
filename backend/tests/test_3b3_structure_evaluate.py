@@ -662,3 +662,30 @@ def test_t7_evidence_order():
     leaves = pack_leaves("Kobo")
     leaves["necessary_l"] = dataclasses.replace(leaves["necessary_l"], evidence="MODELLED")
     assert evaluate(MG, leaves)["diesel_l"].evidence == "MODELLED"
+
+
+# ---------------------------------------------------------------- coverage (R7)
+
+
+def test_r7_a_node_keeps_the_smallest_share_coverage_and_the_portfolio_sums_it():
+    from assetops_backend.structure.evaluate import Coverage
+
+    low = Coverage(20, 31, {"COMPLETE": 20, "NO_DATA": 11})
+    high = Coverage(30, 31, {"COMPLETE": 30, "PARTIAL": 1})
+    tie = Coverage(40, 62, {"COMPLETE": 40, "NO_DATA": 22})  # the same share as `low`, later in names() order
+    leaves = pack_leaves("Kobo")
+    leaves["delivered_kwh"] = dataclasses.replace(leaves["delivered_kwh"], coverage=high)
+    leaves["technical_loss_kwh"] = dataclasses.replace(leaves["technical_loss_kwh"], coverage=low)
+    leaves["unexplained_loss_kwh"] = dataclasses.replace(leaves["unexplained_loss_kwh"], coverage=tie)
+    kobo = evaluate(MG, leaves)
+    assert kobo["metered_kwh"].coverage is low
+    assert kobo["billed_kwh"].coverage is low and kobo["revenue"].coverage is low
+    assert kobo["diesel_l"].coverage is None
+    leaves = pack_leaves("Mto")
+    leaves["delivered_kwh"] = dataclasses.replace(leaves["delivered_kwh"], coverage=high)
+    per_site = {"Kobo": site_structure("Kobo", {**pack_leaves("Kobo"), "delivered_kwh": dataclasses.replace(
+        pack_leaves("Kobo")["delivered_kwh"], coverage=low)}), "Mto": site_structure("Mto", leaves),
+        "Kisiwa": site_structure("Kisiwa")}
+    summed = compose(MG, per_site).values["delivered_kwh"].value.coverage
+    assert (summed.covered, summed.expected) == (50, 62)
+    assert dict(summed.grades) == {"COMPLETE": 50, "NO_DATA": 11, "PARTIAL": 1}

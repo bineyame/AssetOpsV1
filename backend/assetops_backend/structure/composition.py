@@ -1,8 +1,11 @@
-"""3B3: composition for the structure read (spec §3, P2): the only structure module that names adapters.
+"""3B3: composition for the structure read (spec §3, P2). No route is added here (D-3B3.5).
 
-`build_structure_read(database_url)` wires `ProductLeafSource` to the snapshot store and to the declared prices,
-read as `financials/composition.py` reads them (`PostgresAssumptionStore.snapshot` and
-`fuel_cost.select_window_price(..., key=key, unit=unit_for(key))`). No route is added here (D-3B3.5).
+`build_structure_read(database_url)` wires `ProductLeafSource` to the snapshot store and to the declared prices.
+The adapters are reached only through their domains' compositions (the configuration-persistence guard: only
+`chain/composition.py` and `financials/composition.py` may import their adapters), so the prices come from the
+two existing window-price builders, each `PostgresAssumptionStore.snapshot` + `fuel_cost.select_window_price`
+with its key and stored unit: `build_trial_comparison_ports(...).price_selection` (diesel, `currency/L`) and
+`build_productive_price_selection` (productive use, `unit_for(PRODUCTIVE_PRICE_KEY)`).
 """
 
 from __future__ import annotations
@@ -27,25 +30,28 @@ def _utc_now() -> datetime:
 
 
 def build_structure_read(database_url: str | None) -> StructureReadService:
-    from assetops_backend.chain.adapters.postgres_snapshot_store import PostgresSnapshotStore
+    from assetops_backend.chain.composition import build_snapshot_store
     from assetops_backend.chain.reader import SnapshotReader
-    from assetops_backend.financials import fuel_cost
-    from assetops_backend.financials.adapters.postgres_assumption_store import PostgresAssumptionStore
-    from assetops_backend.financials.assumptions import unit_for
-    from assetops_backend.structure.sources import ProductLeafSource
+    from assetops_backend.financials.composition import (
+        build_productive_price_selection,
+        build_trial_comparison_ports,
+    )
+    from assetops_backend.structure.sources import PRICE_KEYS, ProductLeafSource
 
-    snapshots = PostgresSnapshotStore(database_url)
-    prices = PostgresAssumptionStore(database_url)
+    snapshots = build_snapshot_store(database_url)
+    if snapshots is None:
+        raise RuntimeError("DATABASE_URL is not set, so the structure read cannot reach its sources.")
+    diesel = build_trial_comparison_ports(database_url)
+    by_key = {PRICE_KEYS["diesel_price"]: diesel.price_selection,
+              PRICE_KEYS["productive_tariff"]: build_productive_price_selection(database_url)}
 
     def window_price(tenant_id: UUID, site_id: UUID, key: str, start: datetime, end: datetime,
                      known_at: datetime | None):
-        snap = prices.snapshot(tenant_id, site_id, key, known_at, 0, 1)
-        return fuel_cost.select_window_price(snap["timeline"], snap["cited"], start, end, key=key,
-                                             unit=unit_for(key))
+        return by_key[key](tenant_id, site_id, start, end, known_at)
 
     def dispose() -> None:
         snapshots.dispose()
-        prices.dispose()
+        getattr(diesel.store, "dispose", lambda: None)()
 
     source = ProductLeafSource(SnapshotReader(snapshots), window_price, _utc_now)
     return StructureReadService(StructureRead(source), dispose)
