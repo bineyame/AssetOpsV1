@@ -18,3 +18,5 @@ Count: **1** (reset for spec rev 2, 2026-11-20; Q1 raised in unit 1).
   names. The alternative is `LEAF` with reason None. `lowest` and `by_home` include a RESIDUAL either way.
 - **Asked.** Which pair does a RESIDUAL carry? `5c` reads `reason` to word each stop (D-5B.10), so the choice is
   user-visible.
+- **Answered** (Architect, 2026-11-20): D-5B.15 in `rulings.md`: `NOT_SPLIT` / `DETAIL_NOT_AVAILABLE`, as built; assert
+  the pair in test 3(a) and as a test 4 invariant.
