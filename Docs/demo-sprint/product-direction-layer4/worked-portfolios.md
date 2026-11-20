@@ -246,6 +246,8 @@ On every path the idle generator backs the daytime shortfall, so no hour is with
 
 **Mto billing.** Fixing the meter mapping restores 140 kWh × 0.40 = 56.00 a month of charges from the corrected billing run onward (12 × 56.00 = 672.00<!--rec--> over 12 months). It is not yet an evaluated option: the restored charges are listed beside the plan. That is a gap, not a rule: contribution is measured on what is billed, so restored billing moves it whether or not it is collected (design §2.0), and every decision is valued against no action (§2.4). Valuing it is queued with the other service-to-charge corrections (`decisions-register.md` §5, O3 data round); it needs no plan item, because it spends nothing. The meter audit (60, Declared input, paid from the routine O&M visit budget) looks for the 120 kWh lost beyond expected.
 
+**Mto losses.** Its own decision, apart from the billing fix (D-RECON.7). Its Finding is on energy delivered but not explained after expected losses (unexplained loss, Optimize), a different factor from the unmapped meters. Its options are the meter audit, recommended, done on the inverter visit and paid from the routine maintenance budget, and no action, the reference. It is not valued in money, because losses are not priced. The Site manager chooses.
+
 **Kobo battery BAT-001 warranty evidence.** There is no temperature record and no commissioning capacity test, so 64,000.00<!--fig:options.BAT-NOACT.rights.unclaimable_cover--> of cover cannot be claimed today.
 
 | Input | Figure | How it is known |
