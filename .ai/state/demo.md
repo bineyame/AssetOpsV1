@@ -223,3 +223,16 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   and their 10 plants. r5 G1 and L-a carried in `ux_interaction_check.cjs` (`UXI_PLANT=container`).
 - Open: G1 live surfaces from IA-1b; the empty hash still opens the legacy Portfolio; IA-1b adds hub tabs and
   `IA_G1_SURFACES`.
+
+## IA-1b - the hub shape: Portfolio tabs and Site Overviews (in review 20 Nov)
+
+- Mock-up only. Live: `portfolio`, `portfolio/outcomes`, `portfolio/demand-and-capacity`, `site/:site` (the operator's
+  Sites), all shape `hub` (`iaLevels`, `[data-level]` is `display: contents`); the empty hash opens `#/portfolio`.
+- Reused pages are split into parts proven byte-identical (`uxOverviewParts`, `uxSiteParts`, `siteOverviewP`;
+  `tools/parts_identity.cjs`); the one sticky fix (D-IA.22) shows only under `?state=no-recommendation` (Kisiwa).
+- New: `iaDecIds`, `iaWaiting`, `iaLargestAdverse`, `iaOutcomeTable` (pure, synthetic check), `IA_G1_SURFACES`; addresses
+  stay in the operator (D-IA.28); aliases `portfolio/outcomes-by-site`, `mini`/`cold`/`ev` live.
+- Gates: G1 measured (plan 1, Site Overviews 2, largest-driver drawers 3 or n/a); `count_check`,
+  `outcomes_table_check`; shape_check items 6-9; 34 runs in `ia_gates.cjs`.
+- Open: decision links render as text until IA-1c; the Overview is not filtered by the scope switch (only Outcomes is);
+  "View all", the row grammar and the Site tabs wait for IA-2.
