@@ -1,6 +1,7 @@
 # 4b: money leaves from records into the structure read (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-4B.13 to D-4B.17).
+Status: spec rev 3. Rev 2: handshake round 1 answered (D-4B.13 to D-4B.17). Rev 3: 4b1 review r1 answered
+(`rulings.md` "Review answers (r1)"; D-4B.18 origins, built in 4b1's fix round; §2.7 regression line corrected).
 4b1: in_review (`packet-4b1.md`, branch `task/4b1-money-leaves`; mid-build Q1 answered in `rulings.md`). 4b2: not started.
 Code starts when the handshake has no open question (`.ai/RULES.md` §4).
 
@@ -73,12 +74,17 @@ named? And, for the deep-dive: does Kobo's October contribution read 883.00, equ
 
 ### 2.2 Records (`structure/evaluate.py`)
 
-- `ORIGIN_ORDER = ("observed-financial", "field-integrated", "bench-tested", "source-emulated", "demo-simulated")`,
-  strongest first (a literal; a test proves it equals `commercial.months.PROVENANCE_ORDER` and, as a set,
-  `assetops_contracts.canonical.PROVENANCES`).
+- `ORIGIN_UNKNOWN = "unknown"` and `ORIGIN_ORDER = ("observed-financial", "field-integrated", "bench-tested",
+  "source-emulated", "demo-simulated", ORIGIN_UNKNOWN)`, strongest first (a literal; a test proves `ORIGIN_ORDER[:-1]`
+  equals `commercial.months.PROVENANCE_ORDER` and, as a set, `assetops_contracts.canonical.PROVENANCES`, and that
+  `ORIGIN_UNKNOWN` is not in `PROVENANCES`; D-4B.18). Both exported.
 - `LeafValue` gains `origins: tuple[str, ...] = ()` (last field). Every element must be in `ORIGIN_ORDER`, else
   `StructureError("STRUCTURE_ORIGIN", key, factor)` (a runtime code, beside `STRUCTURE_MISSING`); the tuple is
   stored in `ORIGIN_ORDER` order, without repeats (a caller passing another order is refused the same way).
+  **D-4B.18:** a leaf or stated value with `value is not None` must have non-empty `origins`, unless its evidence is
+  `NEUTRAL` or its row's `filled_by.family == "CALENDAR"`; else the same `STRUCTURE_ORIGIN`. The condition sits in
+  `_check_leaf`'s existing origin check (after the currency and evidence checks, so their codes are unchanged). The
+  evaluator never fills `ORIGIN_UNKNOWN` itself.
 - `FactorValue` gains, as the last fields with defaults: `origins: tuple[str, ...] = ()`, `stated: bool = False`,
   `computed: Decimal | None = None`, `detail_missing: tuple[str, ...] = ()`.
 - `weakest_origin(origins) -> str | None`: the element latest in `ORIGIN_ORDER`; `None` for `()`. Exported.
@@ -119,6 +125,8 @@ of `f"{site}:{leaf}"`; `stated = False`, `computed = None`. Nothing else changes
 ### 2.5 The read (`structure/read.py`, `structure/sources.py`)
 
 - `sources.py` adds `class StatedSource(Protocol): def stated(self, ctx: ReadContext, factor_id: str) -> LeafValue`.
+- `ProductLeafSource` (D-4B.18): `_unserved_critical`'s value and `_price`'s value pass
+  `origins=(ORIGIN_UNKNOWN,)`; `_period_days` (CALENDAR), the NEUTRAL leaf and every absent leaf keep `()`.
 - `StructureRead(sources, stated: StatedSource | None = None)`. `site()` passes `stated={row.factor_id:
   stated.stated(ctx, row.factor_id) for row in reg.rows if row.stated_by is not None}` when `stated` is given, else
   no `stated`. `portfolio()` is unchanged (it calls `site()`).
@@ -139,7 +147,7 @@ def build_commercial_reads(database_url: str) -> CommercialReads  # one Postgres
 ### 2.7 Tests for `4b1` (`backend/tests/test_4b1_stated_nodes.py`, no database; written first)
 
 Leaves are built with the builder 3B3's T1 uses for Kobo's actual side (imported from
-`test_3b3_structure_evaluate`, never edited; name it in the packet), then changed as stated.
+`test_3b3_structure_evaluate`; its only edit is D-4B.18's `origins` keyword (regression line below); name it in the packet), then changed as stated.
 - **S1 (stated governs).** `delivered_kwh` replaced by an absent HELD leaf (3B3 §3's form); `stated={"revenue":
   LeafValue(Decimal("3458.00"), "RECORDED", ("commercial:kobo-vending",), None, None, "USD",
   ("source-emulated",))}`. Then `revenue` is 3458.00, `RECORDED`, `stated` True, `computed` None, `missing_leaves`
@@ -158,12 +166,14 @@ Leaves are built with the builder 3B3's T1 uses for Kobo's actual side (imported
   `STRUCTURE_EVIDENCE` for a stated `NEUTRAL`; `STRUCTURE_ORIGIN` for origins `("emulated",)`, for
   `("source-emulated", "observed-financial")` and for `("demo-simulated", "source-emulated")` (wrong order; the last
   is alphabetical, so an alphabetical check accepts it).
-- **S6 (origins).** `ORIGIN_ORDER` equals `PROVENANCE_ORDER` and, as a set, `PROVENANCES`. With `om` origins
+- **S6 (origins).** `ORIGIN_ORDER[-1] == ORIGIN_UNKNOWN == "unknown"`; `ORIGIN_ORDER[:-1]` equals
+  `PROVENANCE_ORDER` and, as a set, `PROVENANCES`; `"unknown" not in PROVENANCES`. With `om` origins
   `("source-emulated",)` and `staff` `("observed-financial",)`, `cost_to_serve.origins == ("observed-financial",
   "source-emulated")` and `weakest_origin` of it is `"source-emulated"`. Two pairs whose alphabetical order differs
   from `ORIGIN_ORDER`: `om` `("demo-simulated",)` with `staff` `("source-emulated",)` gives `("source-emulated",
   "demo-simulated")` and `weakest_origin` `"demo-simulated"`; `om` `("field-integrated",)` with `staff`
-  `("observed-financial",)` gives `("observed-financial", "field-integrated")` and `"field-integrated"`. With `battery_throughput_kwh` NEUTRAL and
+  `("observed-financial",)`, over `pack_leaves("Kobo", origins=("observed-financial",))`, gives
+  `("observed-financial", "field-integrated")` and `"field-integrated"`. With `battery_throughput_kwh` NEUTRAL and
   `wear_rate` absent with origins `()`, and a planted `wear_rate` value with origins `("demo-simulated",)`,
   `battery_wear.origins == ()` and `battery_wear.detail_missing == ()` in both cases.
 - **S7 (compose).** Kobo stated as S1 and Kisiwa from the pack (no stated): `contribution`'s portfolio
@@ -173,6 +183,15 @@ Leaves are built with the builder 3B3's T1 uses for Kobo's actual side (imported
   `FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", None)` (a node, unit L, not money; the family is right, so only
   the unit refuses it), on two added stated SUM nodes that are not exactly money, `s8_money_sq = tariff * delivered_kwh * om` (`MONEY * MONEY`) and `s8_money_kwh = om * delivered_kwh` (`MONEY * KWH`), each with a control without `stated_by` (D-4B.17; mid-build Q1), on
   `contribution` with family `DECLARED`, and on a planted node with `composes="NONE"`. `CODES` has `STRUCTURE_STATED` right after `STRUCTURE_COMPOSES`.
+- **S11 (a valued part names its origin; D-4B.18).** (a) Over the pack's leaves, each refused with
+  `STRUCTURE_ORIGIN` and `factor_id` the planted ID: leaf `om` as `LeafValue(Decimal("600.00"), "MEASURED", ("x",),
+  None, None, "USD")` (origins `()`); leaf `outstanding` the same with evidence `DERIVED`; stated `revenue`
+  `LeafValue(Decimal("3458.00"), "RECORDED", ("commercial:kobo-vending",), None, None, "USD")` (origins `()`).
+  (b) `om` origins `("unknown",)`, `staff` `("observed-financial",)`: `cost_to_serve.origins ==
+  ("observed-financial", "source-emulated", "unknown")`, `weakest_origin` `"unknown"`; `om` `("demo-simulated",)`
+  and `staff` `("unknown",)`: `weakest_origin(cost_to_serve.origins) == "unknown"`. (c) Accepted with `()`: the pack's `period_days`
+  replaced by `LeafValue(Decimal(31), "DERIVED", ("calendar",), None, None, None)`, and every NEUTRAL pack leaf;
+  `asset_days_total.origins == ("source-emulated",)` (from `major_assets` only).
 - **S9 (read).** A fake `LeafSource` and a fake `StatedSource` that records the IDs it was asked: `StructureRead(...,
   stated=fake).site(...)` asks exactly `("revenue", "fuel_cost")` once each; without `stated` nothing is asked and
   the result equals 3B3's for the same leaves.
@@ -182,7 +201,11 @@ Leaves are built with the builder 3B3's T1 uses for Kobo's actual side (imported
   `missing.cause == "NOT_CALCULATED_YET"`, `missing.note == "CURRENCY_MISMATCH:KES,USD"`, `missing_leaves ==
   ("revenue",)`; `contribution` has no value.
 
-**Regression:** `test_3b3_structure_evaluate.py` (T1 to T7 green; only the `:366` edit),
+**Regression:** `test_3b3_structure_evaluate.py` (T1 to T7 green; its only edits are the two version edits of
+§2.1, `:366` and `:652`, and D-4B.18's: `pack_leaves` gains keyword `origins: tuple[str, ...] = ("source-emulated",)`
+given to every non-NEUTRAL valued leaf (NEUTRAL leaves keep `()`); `:459`'s `battery_throughput_kwh` gains
+`("source-emulated",)`; `test_t6_prices` and `test_t6_unserved_critical_needs_a_closed_fully_covered_month` expect
+`origins == (ORIGIN_UNKNOWN,)` on the value; `test_t6_period_days` is unchanged),
 `test_3b1_structure_registry.py`, and (pooled, `--db`) `test_3b3_structure_read_postgres.py`.
 
 ## 3. Unit `4b2`: the money leaves (1.5 units)
@@ -337,7 +360,7 @@ value: `Missing("EXPENSE (OM)", "COMMERCIAL_RECORD", "NOT_RECEIVED", None, ("cos
 **Expected, Mto `2026-10`:** om 500.00, staff 450.00. `revenue` no value, `missing` CHARGE `NOT_CONNECTED` (note
 None); `fuel_cost` no value, `missing` `EXPENSE (FUEL)` `NOT_RECEIVED` (EXPENSE is connected through O&M);
 `diesel_price` is the fallback's labelled assumption 1.30 (`ESTIMATED`, `carried_as` ASSUMPTION, sources
-`("assumption:4b000000-0000-4000-8000-000000000001",)`); `productive_kwh`, `in_transit` and `outstanding` no value,
+`("assumption:4b000000-0000-4000-8000-000000000001",)`, origins `("unknown",)`, D-4B.18); `productive_kwh`, `in_transit` and `outstanding` no value,
 `NOT_CONNECTED`, naming (kind, words, note): `productive_kwh` its `filled_by` (`"CHARGE (productive tariff class)"`,
 None, None); `in_transit` `RECEIPT_RECORD` (note None); `outstanding` `CHARGE_RECORD`, note `NEEDS:CHARGE`. `contribution.missing_leaves == ("adjustments_kwh", "candidate_l", "delivered_kwh", "fuel_cost",
 "necessary_l", "productive_kwh", "productive_tariff", "revenue", "tariff", "technical_loss_kwh", "unexplained_l",
@@ -453,7 +476,7 @@ accounts (`3A7`); cold-chain and EV leaves (RC5).
 
 | Unit | Content | Commits |
 |---|---|---|
-| `4b1` (1) | §2: registry v3 and `STRUCTURE_STATED`; evaluator `stated` (D-4B.16's blocking row), origins, `detail_missing`; compose; `StatedSource`; `build_commercial_reads`; §2.7 tests S1 to S10; packet. Reviewed and merged alone | 2 |
+| `4b1` (1) | §2: registry v3 and `STRUCTURE_STATED`; evaluator `stated` (D-4B.16's blocking row), origins, `detail_missing`; compose; `StatedSource`; `build_commercial_reads`; §2.7 tests S1 to S11 (S11 and the origin rule: D-4B.18, review r1); packet. Reviewed and merged alone | 2 |
 | `4b2` (1.5) | §3: `money.py` (with `READ_AS`), states, composition; §4 fixture; §5 tests 1 to 13; packet | 2 to 3 |
 
 ## 9. Decision queue (W3; defaults applied)
