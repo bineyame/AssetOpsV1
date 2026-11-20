@@ -93,7 +93,7 @@ Each fact lives in the store whose shape and life already fit it. One new store 
 
 **What is reused from today's intake.** The dry run that writes nothing; the size limit and receipt; the append-only trigger; per-row refusal that never sinks its siblings; tenant and Site from the credential (`evidence/ledger_service.py:194-211`). Money records enter only on the authenticated, Site-bound path. The unauthenticated legacy batch path (`evidence_api.py:201-204`) never accepts them.
 
-**Cached reads.** Every new table that feeds a cached route registers an input-change trigger, as today's cached responses require (`0047`), or the boards go stale silently. The same triggers drive the daily snapshot's rebuild (OD-23, design §2.8): a new or corrected record, a late reading, a re-issued invoice or an accepted import rebuilds the affected Sites and periods.
+**Cached reads.** Every new table that feeds a cached route registers an input-change trigger, as today's cached responses require (`0047`), or the boards go stale silently. The same triggers drive the daily snapshot's rebuild (OD-23, design §2.8): a new or corrected record, a late reading, a re-issued invoice or an accepted import marks the affected Sites and periods, which are rebuilt at the daily run or when a user asks (owner, 20 Nov).
 
 ## 5. Emulators and the contract test
 

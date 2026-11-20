@@ -334,7 +334,7 @@ Each leaf carries a shared factor ID, a period, a unit, a target, an evidence cl
 - It sits above the evidence ledger. The analyses (which stay) become the observers of its physical leaves.
 - **Named change (L1):** today's outcome map, a fixed list of signal-to-outcome rows, becomes rows of this structure. It keeps its code-registry form and start-up check, and the old literal is removed only after a parity test passes.
 - The site board's driver lines, written per vertical today, are generated from the structure.
-- **The evaluated structure is served from a calculated daily snapshot** (OD-23), recalculated when a defined trigger fires, never on a screen read (§2.8).
+- **The evaluated structure is served from a calculated daily snapshot** (OD-23), recalculated for the Sites and periods a defined trigger marks, at the daily run or when a user asks (for now; owner, 20 Nov), never on a screen read (§2.8).
 - **The same shape serves every vertical.** A cold room's contribution is chargeable crate-days × rate − cost to serve. A captive EV depot is judged on cost per required departure met, with revenue *not applicable*, never zero. Protect is a structure of measured factors too (unserved critical kWh, crate-minutes above limit, departures missed). Capital choices are options over a longer horizon. The three-vertical table is in `worked-portfolios.md` §1.0.
 
 **CH1: Findings pinned to their factors.**
@@ -758,7 +758,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 - *What exists today.* Stored route responses: a read route's served bytes are kept under a watermark of its inputs, and every input table writes an input-change row through triggers, so a changed input invalidates the stored response (`0047_chain_response.py:1-14`). It answers the owner's concern that Site and Portfolio pages load slowly (1 Nov walkthrough).
 - *What is required.* The structure read, the bridge and the Portfolio figures are served from a **calculated daily snapshot**: the evaluated structure for each Site and the portfolio, per day and per period. It is computed once and read by the UI, never recomputed on a screen read.
 - *Its record.* Each portfolio's snapshot records when it was computed ("as of", a date and time) and whether a recalculation is pending. A pending recalculation names the trigger that fired, when, and the Sites and periods it affects. In the demonstration, Lakeside and Metro Bus are current as of 06:00 on 6 Nov; at Harvest Cold, Thika's October service invoice arrived at 09:40, so Thika and the portfolio show the 06:00 figures and say a recalculation is pending (manifest `snapshot`, Architect's demo choice).
-- *Its recalculation triggers.* Only the affected Sites and periods, and the portfolio above them, are recalculated, when:
+- *Its recalculation triggers.* A trigger marks only the affected Sites and periods, and the portfolio above them, for recalculation. They are recalculated at the daily run, or earlier when a user asks (owner, 20 Nov: "once a day and on demand for now"). A trigger fires when:
   1. a new day of records becomes available (owner, 1 Nov: "when a new day is available, it should trigger a re-assessment");
   2. a record is added or corrected, including a late-arriving reading, a re-issued invoice or an accepted import (§2.3);
   3. a target or budget line changes (§2.2);
@@ -788,7 +788,7 @@ The frame stays: the rail with no new menu items, the six Portfolio tabs, the ra
 | Verification | Stays, plus CH4 | Cost 0; simulated evidence only: `verification.py:1167`; `verification_rules.py:688` | Economic and causal verdicts; field evidence |
 | Portfolio cards, Optimize figure, site board | Change (CH5) | Counts; one day over a period: `read.py:676-682` | Read from factors |
 | The four categories (catalogue) | Stay, re-grounded (OD-21) | Rows flagged from signals, not computed: `catalogue.py:43-68` | Each structure node carries one home category; the cards read the nodes under them (§2.0) |
-| Stored route responses, period read | Extended (OD-23) | Totals recomputed on read: `period_read.py:46-47`; slow pages (owner, 1 Nov) | A calculated daily snapshot, recalculated on named triggers, rebuildable and checked (§2.8) |
+| Stored route responses, period read | Extended (OD-23) | Totals recomputed on read: `period_read.py:46-47`; slow pages (owner, 1 Nov) | A calculated daily snapshot, marked by named triggers and recalculated at the daily run or on demand, rebuildable and checked (§2.8) |
 | Label "Actual against plan" | Changes (CH5, OD-6) | "Plan" would mean two things beside the new construct: `site_outcomes/mini.py:692` | Renamed "Actual against target" |
 
 **Delivery order** (shape approved by the owner, 19 Nov: the source emulators are built "in parallel with work related factor structure"):
@@ -874,7 +874,7 @@ D15 (the first change agreed at the end of the deep-dive) is pending; its contex
 | OD-20 | Approving the recreated pack also approves the structure of build steps 1 and 3C (same answer) | §2.9 |
 | OD-21 | The four outcome categories stay as the executive's headings over the factor-based outcomes: every structure node has one home category, and Findings, decisions, plan items and verdicts tie back through it ("a version of b basically", 19 Nov). As the brief defines them, Assure carries no money of its own and presents the governed, evidenced view (A1 to A5), and collection of billed value is Optimize (O3) (owner approval, 19 Nov: "yes, send it to the architect") | §2.0, Figure 1b; §2.1; §2.2; §2.8; §2.9 |
 | OD-22 | Operational integrations come in this order: EMS data upload and API first, then the edge gateway talking Modbus to hardware; Modbus stays in the emulation scope so the path is proven before hardware, and a BeagleBone Black running the edge gateway against the backend gateway is the hardware test (same record) | §2.3; §2.9, Figure 10 |
-| OD-23 | The UI reads a calculated daily snapshot of the structure, the bridge and the Portfolio figures, recalculated only when a defined trigger fires, with evidence class and provenance kept on every node (same record) | §2.1; §2.8; §2.9 |
+| OD-23 | The UI reads a calculated daily snapshot of the structure, the bridge and the Portfolio figures, recalculated for the Sites and periods a defined trigger marks, at the daily run or when a user asks (for now; owner, 20 Nov), with evidence class and provenance kept on every node (same record) | §2.1; §2.8; §2.9 |
 | OD-24 | Layer 4's evidence words replace the earlier four-level claim ladder; a simulated or emulated result is still never shown as Verified or realised (same record) | Rules |
 | OD-25 | A decision takes the heading of its Finding's factor, because that is where the executive met the problem; with no Finding behind it, it takes its lever's heading; each option's effects show under their own factors' headings, money counted once; every Finding-backed decision is checked for a Finding factor and lever under one heading (the coordinator's proposal, owner-approved, with the Architect's refinements) | §2.0; manifest `home_categories.decisions` |
 
