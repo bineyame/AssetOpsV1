@@ -287,10 +287,10 @@ function uxOverview(op) {
     : `Contribution is ${usdW(Math.abs(gap))} ${gap < 0 ? 'below' : 'above'} target in October; ${big[0] === 'optimize' ? 'cost and efficiency explain' : 'revenue explains'} ${usdW(Math.abs(big[1]))} of it.`;
   const resid = Math.abs(G.residual) > 0.005;
   const k1 = uxKpi(cost ? 'Charging and depot cost' : 'Contribution', fig(`port:${op}:actual`, usdW(T.actual)),
-    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, uxTrendNA(), `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost backed by records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
+    [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, uxTrendNA(op, cost ? 'cost' : 'contribution'), `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost backed by records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
   const k2 = uxKpi('Gap to target', fig(`port:${op}:variance`, usdW(T.variance, true)),
-    cost ? [`Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
-      : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
+    cost ? [`Optimize ${usdW(G.optimize, true)}`, uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
+      : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
     [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting approval · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi('Options’ value, 12 months', `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
@@ -365,7 +365,9 @@ function uxItemRow(op, id, f) {
    switcher and the period menu (guide §7.1, §8). Presentation only; every list is built from the data the screen shows. ===== */
 /* trend slot (guide §5, wave 2c): a sparkline of the months loaded and the change against last month. History is not loaded
    (proposal U9), so uxHistory returns null and the slot says so; nothing is ever drawn from invented months. */
-const uxHistory = (op, key) => null;
+/* U9 adopted (owner, 20 Nov): the history comes from the data lane's generator, evaluated like October, as
+   DERIVED.history[tenant].portfolio[key] = [{ m: 'Jul', v }, …] (keys: contribution or cost, gap). Until it exists, null. */
+const uxHistory = (op, key) => { const h = (typeof DERIVED !== 'undefined' && DERIVED.history) || null, t = OPS[op]?.t?.tenant; const s = h && h[t] && h[t].portfolio && h[t].portfolio[key]; return Array.isArray(s) && s.length >= 2 ? s : null; };
 function uxTrend(series, fmt = v => usdW(v, true)) {
   if (!Array.isArray(series) || series.length < 2) return '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
   const vs = series.map(p => p.v), mn = Math.min(...vs), mx = Math.max(...vs), w = 64, h = 16, X = i => (i / (vs.length - 1) * w).toFixed(1), Y = v => (h - 1 - (mx === mn ? h / 2 : (v - mn) / (mx - mn) * (h - 2))).toFixed(1);
@@ -444,7 +446,7 @@ function uxChrome(s) {
 /* ===== brand packs (guide §4.7): a configurable identity over the same tokens and components. Resolution order: the
    review-bar choice (mock tooling), then the tenant's setting (UX_BRAND_BY_TENANT, empty in the demo data), then neutral. ===== */
 const UX_BRANDS = { neutral: 'Neutral', 'east-africa': 'East Africa' }; /* add 'west-africa', 'southern-africa' … as packs in brand.css */
-const UX_BRAND_BY_TENANT = {};
+const UX_BRAND_BY_TENANT = { 'lakeside-power': 'east-africa', 'harvest-cold': 'east-africa', 'metro-bus': 'east-africa' }; /* U10 (owner, 20 Nov): the demo operators start in East Africa; Neutral stays the product default */
 function uxBrand() { let b = null; try { b = localStorage.getItem('l4-brand'); } catch (e) {} return UX_BRANDS[b] ? b : (UX_BRAND_BY_TENANT[OPS?.[LS?.op]?.t?.tenant] || 'neutral'); }
 function uxApplyBrand() { const b = uxBrand(); if (b === 'neutral') document.documentElement.removeAttribute('data-brand'); else document.documentElement.setAttribute('data-brand', b); }
 function uxBrandSwitch() {

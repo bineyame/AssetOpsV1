@@ -298,7 +298,7 @@ A brand pack is a named set of tokens, applied as `data-brand="<name>"` on the p
 
 - **East Africa**: a sunlit palette (sand surfaces; terracotta, ochre, deep indigo and earth accents) and accents from the region: kikoi and kanga stripe bands, a Maasai beadwork row, and the stud-and-link chain of Swahili-coast carved doors. The active rail item takes the pack's indigo. The accents are contemporary and sparing, never pictorial or a stereotype.
 - **To add a pack:** copy the three `east-africa` token blocks in `brand.css` under a new name (light, dark by preference, dark by choice), and register it in `UX_BRANDS` (`loop-ux.js`). No component or layout changes. Then run the contrast measure for the pack in light and dark: 0 text below AA.
-- **Resolution:** the tenant's setting (`UX_BRAND_BY_TENANT`), else Neutral. In the mock-up, a review-bar switch overrides it for comparison.
+- **Resolution:** the tenant's setting (`UX_BRAND_BY_TENANT`; the three demo operators start in East Africa, U10), else Neutral, the product default. In the mock-up, a review-bar switch overrides it for comparison.
 - **Heading typeface:** a pack may set `--font-heading`. East Africa uses an editorial serif stack (Iowan Old Style, Palatino or Georgia, with DejaVu Serif as the offline fallback), for headings only. Body text and figures stay in the system sans.
 - **Layout height:** a pack may add at most 32 px of decorative height (the band and the title rule); the brand-switch check asserts it.
 
@@ -723,7 +723,7 @@ Each proposal changes how a design rule is presented, not the rule itself. The A
 | **U4** | At phone width, a row of **more than 4 tabs becomes a "Section" menu button** (Carbon's tabs-to-dropdown pattern). Rows of 4 or fewer still wrap, as ruled. This replaces the post-W6 "wrap with complete labels" ruling only for rows of more than 4 tabs. | Six Portfolio tabs wrap to three rows at 390 and push L1 below the fold. | **Adopt** for vNEXT screens. |
 | **U5** | The Overview's "Factors needing attention" becomes the **decision queue** (the same rows, plus at stake, due date and who decides). The four category cards become **tiles with counts**; their factor lists move into a category drawer. (MOCK DEVIATION D2) | P1 and P3: the queue is the decision; prose lists do not scale. | **Adopt.** |
 | **U6** | Category headings carry **no colour of their own** (icon and name only), and violet leaves certainty. | Hue is reserved for status, so green, amber and red mean one thing. | **Adopt.** |
-| **U7** | RULES §6 cites this guide beside the builder decision guide, and the G2 to G4 gates join the screen-slice review. | Makes the bar enforceable on every screen. | **Adopt** after the owner reads this guide (memory: align before doc revision). |
+| **U7** (adopted 20 Nov; RULES §6 now cites this guide) | RULES §6 cites this guide beside the builder decision guide, and the G2 to G4 gates join the screen-slice review. | Makes the bar enforceable on every screen. | **Adopt** after the owner reads this guide (memory: align before doc revision). |
 
 ---
 
@@ -731,9 +731,9 @@ Each proposal changes how a design rule is presented, not the rule itself. The A
 
 | ID | Proposal | Why | Default |
 |---|---|---|---|
-| **U8** | Merge the rail's six legacy groups into four (Portfolio, Sites; Work: Findings, Actions, Incidents, Maintenance, Records; Evidence; Financials, Settings) and drop the group labels. Every destination stays. | The rail is the most dated element left. The frame rule forbids new menus, not fewer labels. | **Keep the items and labels for now**; visual compaction only, until the owner agrees. |
-| **U9** | Load the July to September ledger history the scenario already declares, so the trend slot and "against September" become real. | Time context is standard in executive products. Today it is honestly "not available yet". | **Adopt**, in the data lane, not in this screen step. |
-| **U10** | East Africa as the starting pack for the three demo operators, which are East African. Neutral stays the product default. | It shows the configurability and suits the demo audience. | **Adopt** after the owner compares the two packs in the shots. |
+| **U8** (settled 20 Nov: keep the six groups) | Merge the rail's six legacy groups into four (Portfolio, Sites; Work: Findings, Actions, Incidents, Maintenance, Records; Evidence; Financials, Settings) and drop the group labels. Every destination stays. | The rail is the most dated element left. The frame rule forbids new menus, not fewer labels. | **Keep the items and labels for now**; visual compaction only, until the owner agrees. |
+| **U9** (adopted 20 Nov) | Load the July to September ledger history the scenario already declares, so the trend slot and "against September" become real. | Time context is standard in executive products. Today it is honestly "not available yet". | **Adopt**, in the data lane, not in this screen step. |
+| **U10** (adopted 20 Nov) | East Africa as the starting pack for the three demo operators, which are East African. Neutral stays the product default. | It shows the configurability and suits the demo audience. | **Adopt** after the owner compares the two packs in the shots. |
 
 ## Appendix A. Applying the guide to the mock-up
 
@@ -755,6 +755,19 @@ Each proposal changes how a design rule is presented, not the rule itself. The A
 - The older v7.0 pages kept from the earlier mock-up still use system words ("Candidate avoidable", "Candidate runtime", "Factor"). The copy checks report them separately and do not fail on them; rewrite them in operator words.
 
 Each slice is specified by the Architect before code, under the handshake rule (RULES §4). G3 runs on the installed headless Chromium (§10.3).
+
+## Appendix A2. The history the trend slots read (U9, adopted)
+
+The history comes from the data lane's deterministic generator, never typed by hand, and is evaluated by the same structure evaluator as October, so a trend figure is computed the way the October figure is.
+- **Months:** 2026-07, 2026-08 and 2026-09 (October already exists). Monthly grain, with the right period days (31, 31, 30).
+- **Operators and Sites:** all three demo operators and all nine Sites: Lakeside Power (Kobo, Kisiwa, Mto), Harvest Cold Network (Rooms A to C: Mwea, Thika, Kirinyaga) and Metro Bus Depots (Kasarani, Embakasi, Ruiru).
+- **Input shape:** for each Site and month, a `period` block shaped exactly like October's in the demo scenario: `actual` and `plan` with the same leaf keys per vertical, plus `coverage` and `bridge`.
+  - Mini-grid leaf keys: delivered, metered, loss, adjustment and billed kWh; revenue, collected, in transit, outstanding; diesel litres split into necessary, candidate and unexplained; diesel cost, O&M, staff.
+  - Cold room leaf keys: crate-days, occupancy, revenue, collected, outstanding, model and metered kWh, energy, staff, maintenance.
+  - EV depot leaf keys: the same leaves its October block has.
+  - Proposed file: `history.json` beside the scenario, `{ "tenant": { "site": { "2026-07": { "plan": {…}, "actual": {…}, "coverage": {…}, "bridge": […] }, … } } }`.
+- **Output the mock-up reads:** `DERIVED.history[tenant].portfolio[key] = [{ "m": "Jul", "v": … }, …]`, with keys `contribution` (or `cost` for the depot operator) and `gap`, written by the evaluator next to `derived-values.json`. Site series take the same shape under `sites[site]`.
+- **Today's derivation cannot supply it.** `evaluate_structure.py` and `plan_model.py` evaluate October's records only. The scenario declares a four-month ledger span but carries no July to September values, so computing them now would mean inventing inputs. Until the file exists, every slot reads "Trend not available yet".
 
 ## Appendix B. Sources relied on
 

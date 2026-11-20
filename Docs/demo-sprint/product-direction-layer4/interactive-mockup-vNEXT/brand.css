@@ -71,3 +71,8 @@
 :root[data-brand="east-africa"] .rail{position:relative;isolation:isolate}
 :root[data-brand="east-africa"] .rail::before{content:"";position:absolute;left:0;right:0;bottom:var(--rail-foot-h,120px);height:30%;z-index:-1;pointer-events:none;background:var(--brand-rail-pattern);-webkit-mask-image:linear-gradient(to top,black 35%,transparent);mask-image:linear-gradient(to top,black 35%,transparent)} /* Swahili-door studs and lattice in the rail's empty lower part */
 :root[data-brand="east-africa"] .ux-headline{font-family:var(--font-heading);font-weight:600}
+/* a short laptop keeps the first decision above the fold: the pack's band and title rule step back */
+@media (min-width:1024px) and (max-height:820px){
+  :root[data-brand="east-africa"]{--brand-band-h:6px}
+  :root[data-brand="east-africa"] .page-heading h1::after{display:none}
+}

@@ -157,9 +157,9 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const after = await p.evaluate(() => ({ b: document.documentElement.getAttribute('data-brand'), bad: getComputedStyle(document.querySelector('.ux-chip.is-bad')).color, h: document.documentElement.scrollHeight, band: getComputedStyle(document.querySelector('.topbar'), '::after').backgroundImage !== 'none' }));
     await p.reload(); await p.waitForTimeout(400);
     const kept = await p.evaluate(() => document.documentElement.getAttribute('data-brand'));
-    ok(!before.b && after.b === 'east-africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) <= 32 && kept === 'east-africa', `brand switch: neutral to East Africa, motif band on, status colour unchanged, layout height within 32 px (a pack's band and heading rule) (${before.h} to ${after.h}), kept on reload`);
+    ok(before.b === 'east-africa' && after.b === 'east-africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) <= 32 && kept === 'east-africa', `brand: the demo operators start in East Africa (U10); the switch keeps it, motif band on, status colour unchanged, height within 32 px (${before.h} to ${after.h}), kept on reload`);
     await p.selectOption('#ux-brand', 'neutral'); await p.waitForTimeout(150);
-    ok(await p.evaluate(() => !document.documentElement.hasAttribute('data-brand')), 'brand switch: back to neutral');
+    ok(await p.evaluate(() => !document.documentElement.hasAttribute('data-brand')), 'brand switch: to Neutral, the product default');
     await p.context().close(); }
   // wave 2c classes: overview budget; queue alignment, titles, one primary, quiet blanks; the bridge on the gap's scale;
   // modelled weight; prose size; content in its tab; a distinguishable East Africa pack
@@ -186,7 +186,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     ok(await pd.evaluate(() => !!document.querySelector('[id^="uxv-h-"]')) && await po.evaluate(() => !!document.querySelector('.ux-insight')), 'content in its tab: value leaks on Demand and capacity, the insight on Outcomes by site');
     await pd.context().close(); await po.context().close(); }
   { const pn = await page('portfolio'), pe = await page('portfolio');
-    await pe.selectOption('#ux-brand', 'east-africa'); await pe.waitForTimeout(200);
+    await pn.selectOption('#ux-brand', 'neutral'); await pn.waitForTimeout(200); await pe.selectOption('#ux-brand', 'east-africa'); await pe.waitForTimeout(200);
     const a = await pn.evaluate(() => ({ f: getComputedStyle(document.querySelector('.page-heading h1')).fontFamily, band: parseFloat(getComputedStyle(document.querySelector('.topbar'), '::after').height) || 0, tab: getComputedStyle(document.querySelector('.tabs a.active')).color }));
     const b = await pe.evaluate(() => ({ f: getComputedStyle(document.querySelector('.page-heading h1')).fontFamily, band: parseFloat(getComputedStyle(document.querySelector('.topbar'), '::after').height) || 0, tab: getComputedStyle(document.querySelector('.tabs a.active')).color, rail: getComputedStyle(document.querySelector('.rail'), '::before').backgroundImage !== 'none' }));
     ok(a.f !== b.f && b.band >= 10 && a.tab !== b.tab && b.rail, `East Africa distinguishable: heading typeface, ${b.band} px textile band, active-tab colour, rail pattern`);
