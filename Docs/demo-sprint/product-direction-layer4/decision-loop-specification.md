@@ -76,6 +76,7 @@ erDiagram
 | `children` | Ordered (factor ID, sign) pairs; empty for a leaf |
 | `unit` | Units must compose; a product of kWh and price per kWh gives money |
 | `source_family` or `observer` | A leaf names the source family that evidences it (§2.3 of the design; `integration-design.md`) or the analysis that observes it |
+| `filled_by`, `absent` | A leaf names the record kind, reading role or observer that fills it, and what an absent record means: MISSING, ZERO_WHEN_HELD (a recorded zero only while that source is held for the period), OPTION_ONLY or NEVER_EMPTY (calendar). The demonstration's rows are the manifest's `empty_states.leaf_sources`; `structure-specification.md` §3.1 (`rev 16.13`) |
 | `vertical`, `business_model` | Which Sites the node exists for. A node that does not apply is *not applicable*, never zero |
 | `tolerance` | The OD-3 tolerance, in the factor's unit (§4) |
 | `levers` | The levers declared on the factor (§6) |
@@ -83,7 +84,7 @@ erDiagram
 | `money` | Whether the node carries money (a price × a quantity, or a money record). A money node's heading is Grow or Optimize; only a value *At stake, not money* may sit under Protect (design §2.0) |
 | `version` | Rows are versioned; a change is a new version |
 
-**Start-up check.** The process refuses to start if the structure is cyclic, a leaf has neither source nor observer, units do not compose, or a named observer does not exist at its version. This follows today's chain check (`chain/graph.py:132`, `:177`). It also refuses, naming the row (design §2.0, `rev 16.11` and `rev 16.12`):
+**Start-up check.** The process refuses to start if the structure is cyclic, a leaf has neither source nor observer, a leaf has no `absent`, a MISSING leaf would read a number when its record is absent, units do not compose, or a named observer does not exist at its version. This follows today's chain check (`chain/graph.py:132`, `:177`). It also refuses, naming the row (design §2.0, `rev 16.11` and `rev 16.12`):
 - a row with no `home_category` of its own, including a row that would take its parent's: a node is never placed by inheritance;
 - a `home_category` whose objective letter is another heading's (P1 under Optimize, for example);
 - a money node whose home is Protect or Assure, unless it is a value *At stake, not money*: so customer compensation and penalties can only be Optimize cost lines;
@@ -93,7 +94,7 @@ erDiagram
 
 **Evaluation.** One function evaluates a node for a Site and period on any side: actual, target, or an option's factors.
 - A leaf returns its value, evidence class and provenance.
-- A node combines its children by its kind. A missing child makes the node partial and names the missing record. It is never zero-filled (Rules 3).
+- A node combines its children by its kind. A missing child makes the node partial and names the missing record in the value's `missing` field: the record kind, its source family, the cause, how the value is carried (not at all, at target, as a labelled assumption, or in a residual) and the nodes it blocks (`integration-source-to-canonical-design.md` §6.2). It is never zero-filled (Rules 3).
 - A node's evidence class is the weakest of its children, and it lists every source beneath it (Rules 2).
 - No total is ever an input or typed. Evaluated values are served from the daily snapshot below (OD-23), which replaces today's compute-on-read (`chain/period_read.py:46-47`, `:139`) and is always rebuildable from records.
 - Portfolio nodes compose Site nodes as Σ amounts and Σ/Σ ratios. A Site that cannot be evaluated is excluded by name.
@@ -107,7 +108,7 @@ erDiagram
 - Assure reads no money of its own: it presents A1 (target against actual, sources, coverage), A2 (options' value and bounds), A3 (Actions and verdicts), A4 (the evidence kept; a packaged lender report is out of scope, OD-19) and A5 (contract notices and remedies). A verified operational change never establishes a realised saving, causation or audit certification by itself;
 - today's catalogue rows stay as each card's rows, re-grounded: "Site profitability" becomes the contribution the money headings explain; unexplained litres read under Optimize, with the Protect card linking the fuel-loss Finding without counting it; "Cash collected" moves from Grow to Optimize (O3) (design §2.0, named changes).
 
-**The daily snapshot (OD-23).** *Proposed* record `structure_snapshot`: tenant, Site or portfolio, day or period, the structure and rule versions, the input watermark, computed at, and per node its value, evidence class, provenance (record revisions), coverage, parts and partial or missing state.
+**The daily snapshot (OD-23).** *Proposed* record `structure_snapshot`: tenant, Site or portfolio, day or period, the structure and rule versions, the input watermark, computed at, and per node its value, evidence class, provenance (record revisions), coverage, parts and partial or missing state, with the `missing` field of each empty leaf stored unchanged.
 - Built once a day per Site and portfolio, and rebuilt only for the affected scope when a trigger fires: a new day of records; a record added or corrected (late reading, re-issued invoice, accepted import); a target or budget line changed; a setting changed (price, tariff, tolerance, threshold, switch, source mapping); a plan version approved or a plan change recorded; a new structure or rule version.
 - Triggers extend today's input-change log (`0047_chain_response.py`): each new input table registers its trigger, as `integration-design.md` §4 already requires.
 - Screens read the latest snapshot and show its "as of" time; while a rebuild is pending the screen says so.
@@ -121,6 +122,7 @@ erDiagram
 - Does Lakeside's portfolio contribution compose to 1,443.00<!--fig:portfolio.lakeside-power.actual.sums.contribution--> as a Σ over its three Sites?
 - Does a captive EV depot show revenue as *not applicable*, and never as zero?
 - With one leaf's record removed, is the node partial, with the missing record named?
+- Unknown is not zero: with Kobo's billing adjustments source not held for October, is `adjustments_kwh` missing with cause NOT_CONNECTED, rather than a recorded zero? With it held and no adjustment row, is it a recorded zero? Does Kisiwa's October O&M line carry its target with `missing` naming the October O&M invoice?
 - Does a structure with a unit mismatch stop the process at start-up?
 - Named, never inherited: with the `home_category` removed from Mto's unmapped-meters row, does the process refuse to start, rather than place unmapped meters under billed kWh's Grow?
 - No money under Protect or Assure: with Thika's customer compensation (`liability`) given the home Protect, does the process refuse to start, naming the row? With it under Optimize, does the Protect card show the nights without backup cover in its own unit and only link to the compensation?

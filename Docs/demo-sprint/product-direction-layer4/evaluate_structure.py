@@ -23,7 +23,8 @@ all the way down the structure, and holds no numbers of its own:
                 then the highest value, then the lowest spend (structure-specification.md §6). Switch cases, sensitivities, the
                 downside and owner-question variants re-run it.
 
-Writes derived-values.json (every figure with its formula). Run:  python3 evaluate_structure.py [manifest]
+Writes derived-values.json (every figure with its formula) and missing-records.json (the record behind every empty leaf,
+structure-specification.md §3.1). Run:  python3 evaluate_structure.py [manifest]
 """
 from __future__ import annotations
 
@@ -153,6 +154,25 @@ def add_business_days(d: dt.date, n: int) -> dt.date:
     return d
 
 
+def observe_side(S, FM, vert, t, s_, record, obs, incident, entitlement, period_days, period_end, as_of):
+    """M2 for one side of one site: leaf factors from the side's record, then every node bottom-up (P6, R2). Returns
+    (result, ctx, factors); factors is None when the side is not decomposed. October and the history (DS1) both call it."""
+    n = s_["site"]
+    ctx = {"as_of": as_of, "record": record, "prices": t.get("prices", {}), "physical": s_.get("physical", {}), "tariff": s_.get("tariff", {}),
+           "energy_model": t.get("energy_model", {}), "incident": incident, "entitlement": entitlement, "observations": obs,
+           "tenant": t, "site": n, "period_days": period_days, "period_end": period_end}
+    try:
+        env = Env(S[vert], {}, ctx)
+        fm = {**FM[vert], **(s_.get("factor_sources") or {})}   # a site may declare which of its records feeds a leaf
+        factors = {f: env.expr(x) for f, x in fm.items()}
+        env = Env(S[vert], factors, ctx)
+        nodes = env.all_nodes()
+        return {"status": "evaluated", "nodes": {nn: money(v) for nn, v in nodes.items()}}, ctx, factors
+    except Missing as m:
+        stated = record.get("contribution", record.get("total"))
+        return {"status": f"not decomposed: stated total (missing leaf {m})", "stated_total": stated}, ctx, None
+
+
 def main(path, variants=True) -> dict:
     doc = yaml.safe_load(open(path, encoding="utf-8")) if isinstance(path, (str, pathlib.Path)) else copy.deepcopy(path)
     S, FM, EV = doc["structures"], doc["factor_map"], doc["evaluation"]
@@ -185,22 +205,11 @@ def main(path, variants=True) -> dict:
             if "november_to_date" in obs:
                 sides.append(("november_to_date", obs["november_to_date"]))
             for k, record in sides:
-                ctx = {"as_of": doc["as_of"], "record": record, "prices": t.get("prices", {}), "physical": s_.get("physical", {}), "tariff": s_.get("tariff", {}),
-                       "energy_model": t.get("energy_model", {}), "incident": s_.get("incident", {}), "entitlement": s_.get("entitlement", {}), "observations": obs,
-                       "tenant": t, "site": n, "period_days": EV["period_days"], "period_end": record.get("period_end", EV["period_end"])}
-                try:
-                    env = Env(S[vert], {}, ctx)
-                    fm = {**FM[vert], **(s_.get("factor_sources") or {})}   # a site may declare which of its records feeds a leaf
-                    factors = {f: env.expr(x) for f, x in fm.items()}
-                    env = Env(S[vert], factors, ctx)
-                    nodes = env.all_nodes()
-                    res[k] = {"status": "evaluated", "nodes": {nn: money(v) for nn, v in nodes.items()}}
-                    if k == "actual":
-                        site_ctx[n], site_struct[n], site_base[n], site_vert[n], site_tenant[n] = ctx, S[vert], factors, vert, t["tenant"]
-                        site_ctx[n]["_rights"] = rights
-                except Missing as m:
-                    stated = record.get("contribution", record.get("total"))
-                    res[k] = {"status": f"not decomposed: stated total (missing leaf {m})", "stated_total": stated}
+                res[k], ctx, factors = observe_side(S, FM, vert, t, s_, record, obs, s_.get("incident", {}), s_.get("entitlement", {}),
+                                                    EV["period_days"], record.get("period_end", EV["period_end"]), doc["as_of"])
+                if k == "actual" and factors is not None:
+                    site_ctx[n], site_struct[n], site_base[n], site_vert[n], site_tenant[n] = ctx, S[vert], factors, vert, t["tenant"]
+                    site_ctx[n]["_rights"] = rights
             out["sites"][f"{t['tenant']}/{n}"] = res
 
     # ---------------- M3 Evaluate ----------------
@@ -605,6 +614,234 @@ def main(path, variants=True) -> dict:
     return out
 
 
+# ---------------- Empty states: the record behind every "not available yet" (rev 16.13; structure-specification.md §3.1) --------
+def leftmost(node):
+    """The first alternative of `a | b | c`: the leaf's own record."""
+    node = node.body if isinstance(node, ast.Expression) else node
+    while isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        node = node.left
+    return node
+
+
+def ancestors(struct, leaves):
+    """Nodes whose value rests on any of `leaves`, nearest first (breadth-first up the declared structure)."""
+    refs = {n: {x.id for x in ast.walk(ast.parse(str(e), mode="eval")) if isinstance(x, ast.Name)} for n, e in struct.items()}
+    out, frontier = [], list(leaves)
+    while frontier:
+        nxt = [n for n in struct if n not in out and n not in leaves and any(f in refs[n] for f in frontier)]
+        out += nxt
+        frontier = nxt
+    return out
+
+
+def leaf_values(struct, fm, ctx):
+    """Each leaf's value on one side (None when nothing fills it), and the leaves filled by their own record (leftmost)."""
+    vals, own = {}, set()
+    for f, x in fm.items():
+        try:
+            vals[f] = Env(struct, {}, ctx).expr(x)
+        except Missing:
+            vals[f] = None
+        try:
+            Env(struct, {}, ctx).ev(leftmost(ast.parse(str(x), mode="eval")))
+            own.add(f)
+        except Missing:
+            pass
+    return vals, own
+
+
+def missing_entry(side, subject, row, cause, carried_as, blocks, **extra):
+    e = {"side": side, **subject, "record_kind": row["kind"], "source_family": row["family"], "cause": cause,
+         "carried_as": carried_as, "blocks": blocks, "slice": row["slice"]}
+    if row.get("words"):
+        e["record_words"] = row["words"]
+    e.update(extra)
+    return e
+
+
+def unreceived_leaves(side, fm, vals, leaf_sources, struct):
+    """An observed side's entries: a leaf whose record is absent and that nothing else fills (missing_records and history)."""
+    return [missing_entry(side, {"leaf": f}, leaf_sources[f], "NOT_RECEIVED", None, ancestors(struct, [f])) for f in fm if vals[f] is None]
+
+
+def target_side_entries(doc, vert, fm, vals, own):
+    """The plan side's entries: not decomposed (RESIDUAL), or leaves without a target line of their own (ASSUMPTION).
+    `vals`/`own` hold the plan and actual sides' leaf_values (missing_records and the history, MB5)."""
+    S, ES = doc["structures"], doc["empty_states"]
+    LS, TS = ES["leaf_sources"], ES["target_side"]
+    row = {"kind": TS["kind"], "family": TS["family"], "slice": TS["slice"], "words": TS["words"]}
+    gone = [f for f in fm if vals["plan"][f] is None]
+    if gone:
+        return [missing_entry("plan", {"leaves": gone}, row, "NOT_RECEIVED", "RESIDUAL", ancestors(S[vert], gone))]
+    result = doc["chain_model"][vert]["result"]   # Protect and operations measures carry their own declared targets
+    split = [f for f in fm if f not in own["plan"] and LS[vert][f]["absent"] not in ("OPTION_ONLY", "NEVER_EMPTY")
+             and vals["actual"][f] is not None and vals["actual"][f] != vals["plan"][f] and result in ancestors(S[vert], [f])]
+    return [missing_entry("plan", {"leaves": split}, row, "NOT_RECEIVED", "ASSUMPTION", ancestors(S[vert], split),
+                          assumption=TS["assumption"])] if split else []
+
+
+def field_assumption_entries(ES, s_):
+    """Record fields marked as assumptions (actual side)."""
+    out = []
+    for path, ar in ES["assumptions"].items():
+        head, field = path.split(".")
+        if str((s_.get(head) or {}).get(field, "")).startswith("[assumption]"):
+            out.append(missing_entry("actual", {"field": path, "label": ar["label"]}, ar, "NOT_RECEIVED", "ASSUMPTION", ar["blocks"],
+                                     assumption=s_[head][field]))
+    return out
+
+
+def deferred_stage_entries(ES, vert):
+    """Stages the structure names but no slice of the fortnight builds (actual side)."""
+    return [missing_entry("actual", {"stage": st, "label": dr["label"]}, dr, dr["cause"], None, dr["blocks"], trigger=dr["trigger"])
+            for st, dr in ES["deferred_stages"].items() if dr["vertical"] == vert]
+
+
+def missing_records(doc) -> dict:
+    """One entry per leaf, condition, assumption or stage that is not available, with the record that would fill it (factor_value
+    `missing`, integration-source-to-canonical-design.md §6.2). Computed from empty_states and the records; holds no figure."""
+    S, FM, EV, ES = doc["structures"], doc["factor_map"], doc["evaluation"], doc["empty_states"]
+    LS, TS = ES["leaf_sources"], ES["target_side"]
+    out = {"as_of": doc["as_of"], "method": "derived by evaluate_structure.py missing_records() from empty_states and the site records; "
+           "slice and trigger are pack-only fields", "sites": {}}
+    for t in doc["tenants"]:
+        vert = "EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]
+        for s_ in t["sites"]:
+            n, obs, ents = s_["site"], s_.get("observations", {}), []
+            sides = [("plan", s_["period"]["plan"]), ("actual", {**s_["period"]["actual"], **obs.get("october", {})})]
+            if "november_to_date" in obs:
+                sides.append(("november_to_date", obs["november_to_date"]))
+            fm = {**FM[vert], **(s_.get("factor_sources") or {})}
+            vals, own = {}, {}
+            for k, record in sides:
+                ctx = {"as_of": doc["as_of"], "record": record, "prices": t.get("prices", {}), "physical": s_.get("physical", {}), "tariff": s_.get("tariff", {}),
+                       "energy_model": t.get("energy_model", {}), "incident": s_.get("incident", {}), "entitlement": s_.get("entitlement", {}), "observations": obs,
+                       "tenant": t, "site": n, "period_days": EV["period_days"], "period_end": record.get("period_end", EV["period_end"])}
+                vals[k], own[k] = leaf_values(S[vert], fm, ctx)
+            entry = missing_entry
+            # observed sides: a leaf whose record is absent and that nothing else fills
+            for k, _ in sides[1:]:
+                ents += unreceived_leaves(k, fm, vals[k], LS[vert], S[vert])
+            # the target side: not decomposed (residual), or leaves without a target line of their own (labelled assumption)
+            ents += target_side_entries(doc, vert, fm, vals, own)
+            # actual lines carried at target (coverage ESTIMATED)
+            for line, state in (s_["period"].get("coverage") or {}).items():
+                if state == "ESTIMATED":
+                    ents.append(entry("actual", {"leaf": line}, LS[vert][line], "NOT_RECEIVED", "TARGET", ancestors(S[vert], [line]),
+                                      **({"note": s_["period"]["coverage_note"]} if s_["period"].get("coverage_note") else {})))
+            # rights condition evidence
+            rights = ([s_["entitlement"]] if "entitlement" in s_ else []) + s_.get("entitlements", []) + \
+                     ([s_["incident"]["entitlement"]] if isinstance(s_.get("incident", {}).get("entitlement"), dict) else [])
+            for r in rights:
+                for c, state in (r.get("evidence") or {}).items():
+                    if state == "MISSING":
+                        cr = ES["conditions"][c]
+                        ents.append(entry("actual", {"right": r["asset"], "condition": c, "label": cr["label"]}, cr, cr["cause"], None,
+                                          [r["asset"]]))
+            # record fields marked as assumptions; stages the structure names but no slice of the fortnight builds
+            ents += field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
+            out["sites"][f"{t['tenant']}/{n}"] = ents
+    return out
+
+
+# ---------------- History: July to September (DS1 spec §8.1; D-DS1.4 to D-DS1.12) ----------------
+MONTH_ABBR = {"01": "Jan", "02": "Feb", "03": "Mar", "04": "Apr", "05": "May", "06": "Jun",
+              "07": "Jul", "08": "Aug", "09": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"}   # R25b: never strftime
+
+
+def load_history(path):
+    """history.json beside the manifest at `path`, money leaves as Decimal (cents / 100); None when the file is absent."""
+    hp = pathlib.Path(path).resolve().parent / "history.json"
+    if not hp.exists():
+        return None
+    doc = yaml.safe_load(open(path, encoding="utf-8"))
+    hist = json.loads(hp.read_text(encoding="utf-8"))
+    if hist["meta"]["anchor_period"] != doc["accounting_period"]:
+        raise ValueError(f"HISTORY_STALE anchor_period {hist['meta']['anchor_period']} != {doc['accounting_period']}")
+    want = {(t["tenant"], s_["site"]) for t in doc["tenants"] for s_ in t["sites"]}
+    got = {(t, n) for t, ss in hist["tenants"].items() for n in ss}
+    if want != got:
+        raise ValueError(f"HISTORY_STALE sites {sorted(want ^ got)}")
+    money_leaves = set(hist["meta"]["money_leaves"])
+    for ss in hist["tenants"].values():
+        for months in ss.values():
+            for blk in months.values():
+                for side in ("plan", "actual"):
+                    blk[side] = {k: (D(v) / 100 if k in money_leaves else v) for k, v in blk[side].items()}
+    return hist
+
+
+def evaluate_history(doc, hist, out) -> dict:
+    """M2 only, on each Site, history month and side, through observe_side; series of the actual side's outcome, July to
+    October (October copied from `out`). Nodes resting on a leaf October takes from observations are not observed (D-DS1.12)."""
+    S, FM, CM, ES = doc["structures"], doc["factor_map"], doc["chain_model"], doc["empty_states"]
+    H = doc["history"]
+    cause = H["missing_cause"]
+    months = sorted(hist["meta"]["months"])
+    allm = months + [doc["accounting_period"]]
+    res = {}
+    for t in doc["tenants"]:
+        tid = t["tenant"]
+        vert = "EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]
+        kind = "cost" if CM[vert].get("revenue") == "NOT_APPLICABLE" else "contribution"
+        outcome = "cost_to_serve" if kind == "cost" else "contribution"
+        sites = {}
+        for s_ in t["sites"]:
+            n = s_["site"]
+            key = f"{tid}/{n}"
+            fm = {**FM[vert], **(s_.get("factor_sources") or {})}
+            obs_keys = set((s_.get("observations") or {}).get("october", {}))
+            from_obs = [f for f, x in fm.items()
+                        if {a.attr for a in ast.walk(leftmost(ast.parse(str(x), mode="eval")))
+                            if isinstance(a, ast.Attribute) and isinstance(a.value, ast.Name) and a.value.id == "record"} & obs_keys]
+            periods, series, gap = {}, [], []
+            for mo in months:
+                blk = hist["tenants"][tid][n][mo]
+                periods[mo], seen, vals, own = {}, {}, {}, {}
+                for side in ("plan", "actual"):
+                    scope = f"{tid}/{n}/{mo}/{side}"
+                    r, ctx, _ = observe_side(S, FM, vert, t, s_, blk[side], {}, {}, {}, blk["period_days"], blk["period_end"], doc["as_of"])
+                    if r["status"] != out["sites"][key][side]["status"] or (r["status"] != "evaluated" and r["stated_total"] is None):
+                        raise ValueError(f"HISTORY_NOT_EVALUATED {scope}")
+                    seen[side] = r
+                    vals[side], own[side] = leaf_values(S[vert], fm, ctx)
+                for side in ("plan", "actual"):
+                    scope, r = f"{tid}/{n}/{mo}/{side}", seen[side]
+                    # (a) a leaf whose own record October takes from observations: missing, never 0 (shape and slice: missing_records')
+                    unobserved = [missing_entry(side, {"leaf": f}, ES["leaf_sources"][vert][f], cause, None, ancestors(S[vert], [f])) for f in from_obs]
+                    # (b) the entries October's same side gets, on the history records, less the October-only kinds (coverage
+                    # ESTIMATED and rights conditions; review DS1p M1, MB5)
+                    if side == "plan":
+                        missing = target_side_entries(doc, vert, fm, vals, own)
+                    else:
+                        missing = [e for e in unreceived_leaves(side, fm, vals[side], ES["leaf_sources"][vert], S[vert]) if e["leaf"] not in from_obs]
+                        missing += field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
+                    missing += unobserved
+                    not_obs = sorted({b for e in unobserved for b in e["blocks"]})
+                    if {"contribution", "cost_to_serve"} & set(not_obs):
+                        raise ValueError(f"HISTORY_OUTCOME_UNOBSERVED {scope}")
+                    side_out = {"status": r["status"]}
+                    if r["status"] == "evaluated":   # MB4: the observation leaves themselves leave `nodes` too
+                        side_out["nodes"] = {k: v for k, v in r["nodes"].items() if k not in not_obs and k not in from_obs}
+                    else:
+                        side_out["stated_total"], side_out["nodes"] = money(D(str(r["stated_total"]))), {}
+                    side_out["not_observed"], side_out["missing"] = not_obs, missing
+                    periods[mo][side] = side_out
+            for mo in allm:
+                if mo in periods:
+                    p_, a_ = periods[mo]["plan"], periods[mo]["actual"]
+                else:
+                    p_, a_ = out["sites"][key]["plan"], out["sites"][key]["actual"]
+                pv, av = [D(str(x["nodes"][outcome] if x["status"] == "evaluated" else x["stated_total"])) for x in (p_, a_)]
+                series.append({"m": MONTH_ABBR[mo[5:7]], "p": mo, "v": money(av)})
+                gap.append({"m": MONTH_ABBR[mo[5:7]], "p": mo, "v": money(pv - av if kind == "cost" else av - pv)})
+            sites[n] = {kind: series, "gap": gap, "periods": periods}
+        portfolio = {k: [{"m": MONTH_ABBR[mo[5:7]], "p": mo, "v": money(sum((D(str(x[k][i]["v"])) for x in sites.values()), D(0)))}
+                         for i, mo in enumerate(allm)] for k in (kind, "gap")}
+        res[tid] = {"kind": kind, "evidence": H["label"]["evidence"], "months": allm, "portfolio": portfolio, "sites": sites}
+    return res
+
+
 def patch_target(doc, path):
     """Resolve 'a.b[key=val].c' to (container, last key) for an owner-question patch."""
     parts = path.split(".")
@@ -624,5 +861,11 @@ if __name__ == "__main__":
     here = pathlib.Path(__file__).resolve().parent
     path = sys.argv[1] if len(sys.argv) > 1 else str(here / "demo-site-scenario-manifest.yaml")
     res = main(path)
+    hist = load_history(path)
+    if hist is not None:   # DS1: the July to September history, evaluated through the same structures
+        res["history"] = evaluate_history(yaml.safe_load(open(path, encoding="utf-8")), hist, res)
     (here / "derived-values.json").write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"derived-values.json written: {len(res['sites'])} sites, {len(res['options'])} options, {len(res['plans'])} plans")
+    mr = missing_records(yaml.safe_load(open(path, encoding="utf-8")))
+    (here / "missing-records.json").write_text(json.dumps(mr, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"missing-records.json written: {sum(len(v) for v in mr['sites'].values())} entries over {len(mr['sites'])} sites")

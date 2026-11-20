@@ -1,6 +1,6 @@
 # Structure specification (the contract every figure is computed under)
 
-**Layer 4 companion artifact 12 · rev 13 · AssetOps Architect (Claude) · 17 Nov 2026** · rev 13.1 (19 Nov): naming only, under the design's OD-6 (rev 16.7). No rule, path or meaning changed, so the independent model written from rev 13 stays valid.
+**Layer 4 companion artifact 12 · rev 13 · AssetOps Architect (Claude) · 17 Nov 2026** · rev 13.1 (19 Nov): naming only, under the design's OD-6 (rev 16.7). No rule, path or meaning changed, so the independent model written from rev 13 stays valid. · rev 13.2 (20 Nov, design pack rev 16.13): §3.1 added, empty leaves and the record behind each; no figure changed, and the independent model is untouched because §3.1 governs no figure.
 
 The owner's twelfth message asked for this order of work: write the whole structure specification first, then make the data, code and screens conform to it. This document is that specification. It contains no figures.
 
@@ -90,6 +90,37 @@ All arithmetic is decimal. Reported money and quantities are rounded half-even t
   - portfolio: Σ numerators / Σ denominators × `scale`;
   - both rounded to `decimals` (default 2);
   - if the entry has no `denominator`, the portfolio figure is the sum of the numerators.
+
+### 3.1 Empty leaves: what fills each, and what its absence means (rev 13.2)
+
+The release test "Unknown is not zero" asks that every missing leaf be shown as "not available yet" with the record that would fill it. This section makes that an output of the structure, not text on a screen. The declarations are the manifest's `empty_states`; the product carries them on its registry rows (`3B1` for mini-grid, `3B6` for cold rooms and EV depots).
+
+**Each leaf declares** (`empty_states.leaf_sources[V][leaf]`):
+
+| Field | Meaning |
+|---|---|
+| `family` | The source family: COMMERCIAL_RECORD, READING, OPERATIONAL_RECORD, OBSERVER, DECLARED, DOCUMENT or CALENDAR |
+| `kind` | The canonical record kind, reading role, observer or declared property that fills it |
+| `absent` | What an absent record means on an observed side. MISSING: not available. ZERO_WHEN_HELD: zero is a recorded fact only while the source that would record the event is held for the period; otherwise the leaf is MISSING. OPTION_ONLY: a factor only an option's changes move, so observed sides carry its identity value. NEVER_EMPTY: calendar only |
+| `slice` | The slice that makes the source reachable in the product. Pack-only, with `trigger` for a queued slice |
+
+**Rules.**
+1. **Observed sides** (`actual`, `november_to_date`). A MISSING leaf never reads a number literal: its expression may fall back only to another record. A ZERO_WHEN_HELD leaf reads 0 only when the event is absent from a held source. In the demonstration every declared source is held.
+2. **The target side.** A leaf that feeds the outcome and has no target line of its own takes its expression's fallback: the parent's target carried on its main factor, and zero for leaks and avoidable use. That value is an **assumption**, labelled with `empty_states.target_side.assumption`, and the record that would replace it is a target line per factor (`PLAN_LINE`, slice `5a`). A target side that cannot be resolved is not decomposed (§2.2), and its deviation sits in an explicit residual.
+3. **Lines carried at target.** An actual line whose coverage is ESTIMATED carries its target, evidence *Estimated*, and names the missing record.
+4. **Rights condition evidence** whose state is MISSING names its record (`empty_states.conditions`).
+5. **A record field marked "[assumption]"** names the record that would confirm it (`empty_states.assumptions`).
+6. **Value-chain stages and leaks.** Every stage and leak of `chain_model` is carried by nodes or leaves, by a potential entry, by a deferred stage, or by a reconciled zero (`empty_states.chain_nodes`). A deferred stage names its label, records, cause, what it blocks, its queued slice and its trigger (`empty_states.deferred_stages`). A reconciled zero names the two held records whose agreement makes the leak zero.
+
+**Output.** `evaluate_structure.py` writes `missing-records.json`, one list per Site. Each entry holds:
+- `side`, and its subject: `leaf`, `leaves` (a target-side group), `right` and `condition`, `field`, or `stage`;
+- `record_kind` and `source_family`, from the declaration;
+- `cause`: NOT_RECEIVED (the source is connected; no record for the period), NOT_CONNECTED (no intake of this source at this operator, or no such reading role), or NOT_CALCULATED_YET (records held; the calculation is in a queued slice);
+- `carried_as`: none (the value is not available), TARGET, ASSUMPTION (with its label) or RESIDUAL;
+- `blocks`: the nodes whose value rests on the leaves, nearest first, found breadth-first up the declared structure; a right's ID for a condition; the declared nodes or potential entries for a stage;
+- `record_words`, the plain words for the record, where declared; `slice`, and `trigger` for a deferred stage (pack-only).
+
+The product's read carries the same object as `missing` on each factor value (`integration-source-to-canonical-design.md` §6.2) and on each snapshot node.
 
 ---
 
@@ -240,3 +271,4 @@ For each `owner_question_variants[q][v].patch`:
   - Every written occurrence of a plan's or an option's evaluated money figure (with or without cents) and of an O2 percentage in a figure-bearing document is tagged.
 - **Rendered manifest strings.** A string in the manifest that is rendered on screen and states a figure the structure computes carries it as a `{fig:path}` placeholder, which the screen fills from the evaluation. The checker rejects such a string that states the figure as a literal.
 - **Screen code.** The screen code holds no literal equal to an evaluated figure, except the entries of a per-file, per-literal allow-list, each with a reason.
+- **Empty states (rev 13.2).** A screen shows "not available yet" only from an entry of `missing-records.json` (the product's `missing` field), with the record's words and what it blocks; never from a null alone, and never where the value exists. `check_manifest.py` `empty_states()` checks the declarations and the entries (§3.1).

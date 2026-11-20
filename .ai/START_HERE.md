@@ -7,7 +7,7 @@ Layer 4 product-direction design, which awaits owner decisions. Repo declutter
 in progress (step 5 of 5). Detail: `.ai/NOW.md`.
 
 Planning status: the S1-S7 queue is built; new product work waits on the owner's
-Layer 4 decisions (Q1-Q16, D1-D12). Demo-sprint fixes are sequenced by the
+Layer 4 decisions (open queue: `decisions-register.md` §5 in the pack). Demo-sprint fixes are sequenced by the
 coordinator (`.agent/coordinator-handoff.md`). To confirm: whether any
 demo-sprint unit is still open after the 17 Nov client demo.
 
@@ -21,12 +21,13 @@ demo-sprint unit is still open after the 17 Nov client demo.
   plus the demo-sprint rulings `.ai/NOW.md` names.
 - **Destination: Layer 4** (on branch `task/product-direction-layer4-design` until it merges to
   `main`). `Docs/demo-sprint/product-direction-layer4/` is
-  where the product is going. Entry point:
-  `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadmap.md`
-  (decisions in its §6; open questions in
-  `Docs/demo-sprint/product-direction-layer4/design-questions-and-decisions.md`).
-  It **supersedes S1-S7 once the owner approves Q1**. Until then it is a
-  design under review, not build authority.
+  where the product is going. Entry point: the design,
+  `Docs/demo-sprint/product-direction-layer4/layer4-transformation-design.md`;
+  decisions and the open queue with defaults in
+  `Docs/demo-sprint/product-direction-layer4/decisions-register.md`; the short
+  roadmap in `product-transition-and-roadmap.md` (rev 5). It **supersedes S1-S7
+  once the owner approves the pack**. Until then it is a design under review,
+  not build authority.
 - Lookup files in the pack (`derivation-register.md`,
   `outcome-lever-capability-traceability.csv`, the `.html` twins) are
   searched, never read whole.

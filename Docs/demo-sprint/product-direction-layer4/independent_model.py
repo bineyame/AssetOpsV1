@@ -1254,6 +1254,178 @@ def compute(manifest_path):
     return result
 
 
+# --------------------------------------------------------------------------------------------------------------
+# July to September history (DS1 spec §8.2; R12, R16). Written from the spec and history.json alone: it shares no
+# code or expression table with the evaluator. Each Site, side and month is evaluated through this model's own
+# leaf and structure path, with the month's period_days and period_end, and no incident, entitlement or observations.
+# --------------------------------------------------------------------------------------------------------------
+_MONTH_NAMES = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+
+def _left_alternative(tree):
+    node = tree.body if isinstance(tree, ast.Expression) else tree
+    while isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        node = node.left
+    return node
+
+
+def _record_names(node):
+    return {n.attr for n in ast.walk(node)
+            if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == "record"}
+
+
+def _names(expr):
+    return {n.id for n in ast.walk(_parse(str(expr))) if isinstance(n, ast.Name)}
+
+
+def _history_side(M, V, t, s, block, side, money_leaves):
+    rec = OrderedDict()
+    for k, v in block[side].items():
+        rec[k] = (Decimal(v) / Decimal(100)) if k in money_leaves else v
+    ctx = {"record": rec, "prices": t.get("prices"), "energy_model": t.get("energy_model"), "physical": s.get("physical"),
+           "tariff": s.get("tariff"), "tenant": t, "site": s["site"], "as_of": M.as_of,
+           "period_days": Decimal(block["period_days"]), "period_end": to_date(block["period_end"])}
+    ctx = {k: v for k, v in ctx.items() if v is not None}
+    leaves, missing = M.eval_leaves(V, s, ctx)
+    own = set()   # leaves whose first alternative (their own record) resolves
+    for name, expr in M.leaf_exprs(V, s).items():
+        try:
+            D(_ev(_left_alternative(_parse(str(expr))), ctx_resolver(ctx)))
+            own.add(name)
+        except (Unresolved, InvalidOperation):
+            pass
+    info = {"leaves": leaves, "unresolved": missing, "own": own}
+    if not missing:
+        try:
+            nodes = Env(ctx, M.structures[V], leaves).all_nodes()
+            allv = OrderedDict(nodes)
+            allv.update(leaves)
+            return {"status": "evaluated", "nodes": allv, **info}
+        except Unresolved:
+            pass
+    stated = rec.get("contribution", rec.get("total"))
+    return {"status": "not decomposed: stated total", "stated_total": D(stated) if stated is not None else None, **info}
+
+
+def _reach(refs, leaves):
+    """Structure nodes whose expression reaches any of `leaves`, directly or through another such node."""
+    hit = set()
+    while True:
+        more = {n for n, r in refs.items() if n not in hit and r & (set(leaves) | hit)}
+        if not more:
+            return hit
+        hit |= more
+
+
+def _history_missing(manifest, M, V, s, refs, fed, sides, cause):
+    """Each side's `missing` entries for one history month (review DS1p M1, L2; MB5), from the manifest's empty_states:
+    plan: the target side's RESIDUAL or ASSUMPTION; actual: unreceived leaves, field assumptions, deferred stages;
+    both: the observation-fed leaves (cause = history.missing_cause). October-only kinds (coverage ESTIMATED, rights
+    conditions) cannot occur. Entries are {side, subject, record_kind, source_family, cause, carried_as, blocks, slice}."""
+    ES = manifest["empty_states"]
+    LS, TS = ES["leaf_sources"][V], ES["target_side"]
+    order = list(M.leaf_exprs(V, s))
+
+    def ent(side, subject, kind, family, cause_, carried, blocks, slice_):
+        return {"side": side, "subject": subject, "record_kind": kind, "source_family": family, "cause": cause_,
+                "carried_as": carried, "blocks": sorted(blocks), "slice": slice_}
+    out = {"plan": [], "actual": []}
+    plan, act = sides["plan"], sides["actual"]
+    if plan["unresolved"]:
+        gone = [f for f in order if f in plan["unresolved"]]
+        out["plan"].append(ent("plan", {"leaves": gone}, TS["kind"], TS["family"], "NOT_RECEIVED", "RESIDUAL", _reach(refs, gone), TS["slice"]))
+    else:
+        result = manifest["chain_model"][V]["result"]
+        split = [f for f in order if f not in plan["own"] and LS[f]["absent"] not in ("OPTION_ONLY", "NEVER_EMPTY")
+                 and f in act["leaves"] and act["leaves"][f] != plan["leaves"][f] and result in _reach(refs, [f])]
+        if split:
+            out["plan"].append(ent("plan", {"leaves": split}, TS["kind"], TS["family"], "NOT_RECEIVED", "ASSUMPTION", _reach(refs, split), TS["slice"]))
+    for f in order:
+        if f in act["unresolved"] and f not in fed:
+            out["actual"].append(ent("actual", {"leaf": f}, LS[f]["kind"], LS[f]["family"], "NOT_RECEIVED", None, _reach(refs, [f]), LS[f]["slice"]))
+    for path, ar in ES["assumptions"].items():
+        head, field = path.split(".")
+        if str((s.get(head) or {}).get(field, "")).startswith("[assumption]"):
+            out["actual"].append(ent("actual", {"field": path, "label": ar["label"]}, ar["kind"], ar["family"], "NOT_RECEIVED", "ASSUMPTION",
+                                     ar["blocks"], ar["slice"]))
+    for st, dr in ES["deferred_stages"].items():
+        if dr["vertical"] == V:
+            out["actual"].append(ent("actual", {"stage": st, "label": dr["label"]}, dr["kind"], dr["family"], dr["cause"], None, dr["blocks"], dr["slice"]))
+    for side in ("plan", "actual"):
+        for f in sorted(fed):
+            out[side].append(ent(side, {"leaf": f}, LS[f]["kind"], LS[f]["family"], cause, None, _reach(refs, [f]), LS[f]["slice"]))
+    return out
+
+
+def compute_history(manifest_path):
+    import json
+    import os
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = yaml.safe_load(f)
+    with open(os.path.join(os.path.dirname(os.path.abspath(manifest_path)), "history.json"), "r", encoding="utf-8") as f:
+        hist = json.load(f)
+    money_leaves = set(hist["meta"]["money_leaves"])
+    months = list(hist["meta"]["months"]) + [manifest["accounting_period"]]
+    M = Model(copy.deepcopy(manifest))
+    out = OrderedDict([("months", months), ("tenants", OrderedDict())])
+    for tid, t in M.tenants.items():
+        V = M.vkey(t)
+        cost = manifest["chain_model"][V].get("revenue") == "NOT_APPLICABLE"
+        outcome = "cost_to_serve" if cost else "contribution"
+        struct = M.structures[V]
+        refs = {n: _names(e) for n, e in struct.items()}
+        tout = OrderedDict([("kind", "cost" if cost else "contribution"), ("sites", OrderedDict())])
+        for s in t["sites"]:
+            sname = s["site"]
+            obs_keys = set(((s.get("observations") or {}).get("october") or {}).keys())
+            fed = {leaf for leaf, e in M.leaf_exprs(V, s).items() if _record_names(_left_alternative(_parse(str(e)))) & obs_keys}
+            blocked = set()
+            while True:   # every node whose expression reaches a fed leaf or a blocked node
+                more = {n for n, r in refs.items() if n not in blocked and r & (fed | blocked)}
+                if not more:
+                    break
+                blocked |= more
+            periods, side_outcome = OrderedDict(), {}
+            for mo in months[:-1]:
+                block = hist["tenants"][tid][sname][mo]
+                periods[mo] = OrderedDict()
+                sides = {side: _history_side(M, V, t, s, block, side, money_leaves) for side in ("plan", "actual")}
+                miss = _history_missing(manifest, M, V, s, refs, fed, sides, hist["meta"]["missing_cause"])
+                for side in ("plan", "actual"):
+                    e = sides[side]
+                    if e["status"] == "evaluated":
+                        val = e["nodes"][outcome]
+                        nodes = OrderedDict((k, r2(v)) for k, v in e["nodes"].items() if k not in blocked and k not in fed)
+                        periods[mo][side] = {"status": e["status"], "nodes": nodes, "outcome": r2(val),
+                                             "not_observed": sorted(blocked)}
+                    else:
+                        val = e["stated_total"]
+                        periods[mo][side] = {"status": e["status"], "stated_total": r2(val), "outcome": r2(val),
+                                             "not_observed": sorted(blocked)}
+                    periods[mo][side]["missing"] = miss[side]
+                    side_outcome[(mo, side)] = r2(val)
+            for side, e in M.site_sides(sname).items():
+                if side in ("plan", "actual"):
+                    v = e["nodes"][outcome] if e["status"] == "evaluated" else e["stated_total"]
+                    side_outcome[(months[-1], side)] = r2(v)
+            series, gap = [], []
+            for mo in months:
+                a, p = D(side_outcome[(mo, "actual")]), D(side_outcome[(mo, "plan")])
+                label = _MONTH_NAMES[int(mo[5:7]) - 1]
+                series.append({"m": label, "p": mo, "v": r2(a)})
+                gap.append({"m": label, "p": mo, "v": r2(p - a if cost else a - p)})
+            tout["sites"][sname] = OrderedDict([("outcome", series), ("gap", gap), ("periods", periods),
+                                                ("observation_leaves", sorted(fed))])
+        port = OrderedDict([("outcome", []), ("gap", [])])
+        for i, mo in enumerate(months):
+            for key in ("outcome", "gap"):
+                total = sum((D(x[key][i]["v"]) for x in tout["sites"].values()), Decimal(0))
+                port[key].append({"m": _MONTH_NAMES[int(mo[5:7]) - 1], "p": mo, "v": r2(total)})
+        tout["portfolio"] = port
+        out["tenants"][tid] = tout
+    return out
+
+
 def _main(argv):
     import os
     path = argv[1] if len(argv) > 1 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "demo-site-scenario-manifest.yaml")
