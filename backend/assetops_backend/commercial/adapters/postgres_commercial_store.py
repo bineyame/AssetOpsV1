@@ -27,16 +27,7 @@ from assetops_backend.commercial.model import (ExistingRecord, IntakeRow, Intake
 
 _LOCK = text("SELECT pg_advisory_xact_lock(hashtextextended('commercial:' || CAST(:tenant_id AS text), 0))")
 
-_INSERT#: 3A4 (spec §2): an intake's revisions, byte-wise by (source_system, source_record_id); then the superseded ones.
-_INTAKE_REVISIONS = text(
-    "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
-    "WHERE v.tenant_id = :t AND v.intake_id = :i "
-    "ORDER BY r.source_system COLLATE \"C\", r.source_record_id COLLATE \"C\"")
-_REVISIONS_BY_ID = text(
-    "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
-    "WHERE v.tenant_id = :t AND v.id = ANY(:ids)")
-_SITE_ZONES = text("SELECT id, timezone FROM site WHERE tenant_id = :t")
-_INTAKE = text(
+_INSERT_INTAKE = text(
     "INSERT INTO commercial_intake (id, tenant_id, source_type, source_system, provenance, produced_at, batch_sha256, "
     "state, refusal_code, refusal_path, record_count, new_count, revised_count, unchanged_count, refused_count, "
     "entered_by, entered_at) VALUES (:id, :tenant_id, :source_type, :source_system, :provenance, :produced_at, "
@@ -86,6 +77,15 @@ _LATEST = text(
 _HISTORY = text(
     "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
     "WHERE v.tenant_id = :t AND v.record_id = :r ORDER BY v.revision_no")
+#: 3A4 (spec §2): an intake's revisions, byte-wise by (source_system, source_record_id); then the superseded ones.
+_INTAKE_REVISIONS = text(
+    "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
+    "WHERE v.tenant_id = :t AND v.intake_id = :i "
+    "ORDER BY r.source_system COLLATE \"C\", r.source_record_id COLLATE \"C\"")
+_REVISIONS_BY_ID = text(
+    "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
+    "WHERE v.tenant_id = :t AND v.id = ANY(:ids)")
+_SITE_ZONES = text("SELECT id, timezone FROM site WHERE tenant_id = :t")
 _INTAKE = text(
     "SELECT id, tenant_id, source_type, source_system, provenance, produced_at, batch_sha256, state, refusal_code, "
     "refusal_path, record_count, new_count, revised_count, unchanged_count, refused_count, entered_by, entered_at "
