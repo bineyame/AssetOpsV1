@@ -1,5 +1,7 @@
 # DS1b: the generator's canonical record writers (implementer spec)
 
+Status: in_review (built 2026-11-20 on `task/DS1b-canonical-writers`; packet `packet.md`).
+
 Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in; `rulings.md` "Handshake answers (round 1)", D-DS1B.7, D-DS1B.8). Rev 1 was spec handshake step 1 (`.ai/RULES.md` §4). Lane A (sources and money), first
 unit of the third build lane (owner, 20 Nov, item 3; `specs/BW1-build-wave1/rulings.md` D-BW1.7). Decisions with
 reasons: `rulings.md` (D-DS1B.1 to D-DS1B.8). Reviewer: `reviewer-guide.md`. Questions: `handshake.md`, then

@@ -1,7 +1,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "simulator"))
+REPOSITORY = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPOSITORY / "simulator"))
+sys.path.insert(0, str(REPOSITORY / "contracts"))  # DS1b P1: the canonical format from this tree
 
 # DS1 world history CLI (`specs/DS1-history-generator/spec.md` §4.1).
 #
@@ -12,12 +14,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "simulator"))
 #   generate --manifest M --out H       write the history file
 #   check    --manifest M --history H   exit 0 on identical bytes; otherwise print
 #                                       `DS1_CHECK_DIFF <scope_key>` (or `meta`) and exit 1
+#   records  --manifest M --out DIR     DS1b: write the canonical v1 batches and `unwritten.json` into a new
+#                                       or empty DIR outside the repository; exit 3 with `DS1B_*` on stderr
 
 import argparse  # noqa: E402
 import json  # noqa: E402
 
+from assetops_contracts.canonical import to_canonical_json  # noqa: E402
+
 from assetops_simulator.world.canonical import file_bytes, write_canonical_file  # noqa: E402
 from assetops_simulator.world.history import generate_history  # noqa: E402
+from assetops_simulator.world.records import batch_file_name, build_records  # noqa: E402
 from assetops_simulator.world.view import ManifestView  # noqa: E402
 
 
@@ -59,6 +66,33 @@ def _first_difference(expected: dict, found_bytes: bytes) -> str:
     return "meta"
 
 
+def _out_dir(out: Path) -> Path:
+    """DS1b P6: the records directory must resolve outside the repository and hold nothing yet."""
+    resolved = out.resolve()
+    if resolved == REPOSITORY or resolved.is_relative_to(REPOSITORY):
+        raise ValueError("DS1B_OUT inside-repository")
+    if resolved.exists() and (not resolved.is_dir() or any(resolved.iterdir())):
+        raise ValueError("DS1B_OUT not-empty")
+    return resolved
+
+
+def _records(manifest: Path, out: Path) -> int:
+    try:
+        target = _out_dir(out)
+        view = load_view(manifest)
+        result = build_records(view, generate_history(view))
+    except ValueError as error:
+        if not str(error).startswith("DS1B_"):
+            raise
+        print(error, file=sys.stderr)
+        return 3
+    target.mkdir(parents=True, exist_ok=True)
+    for batch in result.batches:
+        (target / batch_file_name(batch)).write_bytes(to_canonical_json(batch))
+    (target / "unwritten.json").write_bytes(file_bytes([list(row) for row in result.unwritten]))
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="world_history.py", description="DS1 world history generator")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -66,10 +100,15 @@ def main(argv: list[str]) -> int:
         command = commands.add_parser(name)
         command.add_argument("--manifest", required=True, type=Path)
         command.add_argument("--out", required=True, type=Path)
+    records = commands.add_parser("records", help="write the canonical v1 money records (DS1b)")
+    records.add_argument("--manifest", required=True, type=Path)
+    records.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
     check = commands.add_parser("check")
     check.add_argument("--manifest", required=True, type=Path)
     check.add_argument("--history", required=True, type=Path)
     args = parser.parse_args(argv)
+    if args.command == "records":
+        return _records(args.manifest, args.out)
 
     view = load_view(args.manifest)
     if args.command == "view":

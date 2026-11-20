@@ -1,7 +1,8 @@
-"""DS1a: the world generator's tests (spec `specs/DS1-history-generator/spec.md` §10).
+"""DS1a and DS1b: the world generator's tests (specs `specs/DS1-history-generator/spec.md` §10 and
+`specs/DS1b-canonical-writers/spec.md` §5).
 
-`--update-golden` rewrites `golden/history_v1.json`; nothing else does. A commit
-that uses it names the input that changed (spec §4.5).
+`--update-golden` rewrites `golden/history_v1.json` and `golden/records_v1.json`; nothing else does. A
+commit that uses it names the input that changed (spec §4.5).
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "--update-golden",
         action="store_true",
         default=False,
-        help="DS1a: rewrite simulator/tests/world/golden/history_v1.json from the fixture view",
+        help="DS1a/DS1b: rewrite simulator/tests/world/golden/history_v1.json and records_v1.json from the fixture view",
     )
 
 
