@@ -5,8 +5,9 @@ every level) and answers an `OperatorFile`, or raises `OnboardRefused(code, wher
 `sites[2].code`, never a value. `roles_digest` is what the executive confirms (D-ON1.10). `site_document` and
 `site_source` build the Site document the existing Site import takes (D-ON1.2).
 
-Structure (mid-build Q1, default): a value of the wrong JSON type for a container, an unknown or missing key, or a
-list outside its bounds (`sites` and `people` 1 to 50, `roles` 1 to 5) is `ONBOARD_FORMAT` at that object's path.
+Structure (D-ON1.18): `format` is read first; absent or not version 1 is `ONBOARD_FORMAT`. After that a container of
+the wrong JSON type, an unknown or missing key, or a list outside its bounds (`sites` and `people` 1 to 50, `roles`
+1 to 5) is `ONBOARD_STRUCTURE` at that object's path.
 """
 from __future__ import annotations
 
@@ -105,16 +106,16 @@ def _object_pairs(pairs: list[tuple[str, Any]]) -> dict:
 
 def _strict(value: Any, keys: tuple[str, ...], where: str | None, optional: tuple[str, ...] = ()) -> dict:
     if not isinstance(value, dict):
-        raise OnboardRefused("ONBOARD_FORMAT", where)
+        raise OnboardRefused("ONBOARD_STRUCTURE", where)
     present = set(value)
     if not set(keys) <= present or not present <= set(keys) | set(optional):
-        raise OnboardRefused("ONBOARD_FORMAT", where)
+        raise OnboardRefused("ONBOARD_STRUCTURE", where)
     return value
 
 
 def _list(value: Any, low: int, high: int, where: str) -> list:
     if not isinstance(value, list) or not low <= len(value) <= high:
-        raise OnboardRefused("ONBOARD_FORMAT", where)
+        raise OnboardRefused("ONBOARD_STRUCTURE", where)
     return value
 
 
@@ -170,7 +171,7 @@ def _sites(value: Any, operator: Operator, data: str) -> tuple[SiteEntry, ...]:
         seen.add(code.lower())
         components = entry["components"]
         if not isinstance(components, list):
-            raise OnboardRefused("ONBOARD_FORMAT", f"{where}.components")
+            raise OnboardRefused("ONBOARD_STRUCTURE", f"{where}.components")
         for j, component in enumerate(components):
             _strict(component, _COMPONENT, f"{where}.components[{j}]")
         sites.append(SiteEntry(i, code, entry))
@@ -242,9 +243,9 @@ def parse_operator_file(data: bytes) -> OperatorFile:
         unreadable = True
     if unreadable or not isinstance(doc, dict):
         raise OnboardRefused("ONBOARD_FILE")
-    _strict(doc, _TOP, None)
-    if doc["format"] != FORMAT:
+    if doc.get("format") != FORMAT:
         raise OnboardRefused("ONBOARD_FORMAT", "format")
+    _strict(doc, _TOP, None)
     if doc["data"] not in ("emulated", "real"):
         raise OnboardRefused("ONBOARD_DATA", "data")
     op = _strict(doc["operator"], _OPERATOR, "operator")

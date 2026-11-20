@@ -61,18 +61,18 @@ composes `FileKeyFiles`. All files are those of spec §4, plus §6's tests and f
   adds its own failure: `UPDATE role_grant` in the account adapter ("runs only its declared statements"),
   `INSERT INTO role_grant` in `onboarding/service.py` ("a second product database writer"), `os.unlink` in
   `pseudonym_key.py` ("write-capable call outside a user store adapter").
-- Fast check-all (`heavy-slot.sh -- pwsh tools/check-all.ps1`, 1m18s): **39 of 40 pass; 1 fails**:
-  configuration-persistence, `accounts/service.py:234: def onboarding_open(...)` (mid-build Q2). Agent workflow,
-  decision/state/spec/owner indexes and the other 13 architecture seams pass.
+- Fast check-all: **all 40 pass** (81.5 s wall).
 - Layout evidence: not run (no screen).
 
 ## Known deviations and open questions
 
-- **Q2 (open, stopped):** the spec's name `onboarding_open` matches the guard's bare `open\(` pattern; the guard is not
-  edited and not worked around. Options in `mid-build-questions.md` (rename, or narrow the pattern). Check-all stays
-  red on this one line until the Architect rules.
-- **Q1 (open, default built):** an unknown/missing key, a wrong container type or a list outside its bounds is
-  `ONBOARD_FORMAT` at that object's path (top level: no `where`).
+- **Fix round r1 (D-ON1.17 to .20, spec/runbook rev 3.1), done:** `onboarding_open` renamed `onboarding_may_grant` (5 references,
+  guard untouched); parser reads `format` first, structural errors are `ONBOARD_STRUCTURE` with its own sentence;
+  runbook recopied from its first heading; new test `test_2_a_tombstone_check_that_cannot_be_answered_fails_closed`
+  (os.lstat raises PermissionError; reviewer's plant A, `except OSError: return False`, now fails it, reverted).
+  Review copied to `review.md`. Runs: ON1 non-Postgres + 3C0a/3A2/3A3/RC4-F1 regression (non-Postgres) 416 passed
+  (72 s); ON1 Postgres file 5 passed (`heavy-slot.sh --db`, run-host-tests.ps1); check-all 40/40.
+- Q1 and Q2 are answered (D-ON1.18, D-ON1.17).
 - `site_source` validation also runs `plan_import` on a placeholder tenant so a Site the importer would refuse is
   `ONBOARD_SITE_INVALID` at parse time; no message is kept (raised outside the handler).
 - The command's exit-3 refusals for `AccountRefused` and key errors print the code alone (§5 gives no sentence).

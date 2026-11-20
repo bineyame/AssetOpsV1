@@ -155,7 +155,7 @@ class OperatorOnboarding:
                 plan.roles.append(_Role(person.index, role, site, "keep" if kept else "grant"))
                 if not kept and closed is None:
                     closed = f"people[{person.index}]"
-        if closed is not None and not self._accounts.onboarding_open(f.slug):
+        if closed is not None and not self._accounts.onboarding_may_grant(f.slug):
             raise OnboardRefused("ONBOARDING_CLOSED", closed)
         return plan
 

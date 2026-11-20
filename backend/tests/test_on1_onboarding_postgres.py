@@ -144,7 +144,7 @@ def test_p3_under_the_lock(onboarded, engine) -> None:  # noqa: F811
         boss = PersonPrincipal(amina.person_id, amina.tenant_id, "Amina", frozenset({(EXEC, None)}), uuid4(), NOW, NOW)
         musa = accounts.onboard_person("musa@lakeside-power.example")
         accounts.grant(boss, musa.person_id, ANALYST, None)
-        assert accounts.onboarding_open(SLUG) is False and accounts.executive_of(SLUG) == amina.person_id
+        assert accounts.onboarding_may_grant(SLUG) is False and accounts.executive_of(SLUG) == amina.person_id
         with pytest.raises(StoreConflict) as caught:
             pg.add_onboarding_grant(_row(accounts, "david@lakeside-power.example", "FIELD_TECHNICIAN"))
         assert caught.value.code == "ONBOARDING_CLOSED"

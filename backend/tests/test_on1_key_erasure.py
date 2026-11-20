@@ -204,3 +204,20 @@ def test_4_directory_ok(tmp_path, keys) -> None:
     loose.mkdir()
     os.chmod(loose, 0o750)
     assert not directory_ok(loose)
+
+
+def test_2_a_tombstone_check_that_cannot_be_answered_fails_closed(keys, monkeypatch) -> None:
+    """Review r1 F2 (plant A): `os.lstat` raising PermissionError must read as erased, never as no tombstone."""
+    tid = uuid4()
+    create_key_file(keys, tid)
+    real = os.lstat
+
+    def denied(path, *a, **k):
+        if str(path).endswith(".erased"):
+            raise PermissionError(13, "denied")
+        return real(path, *a, **k)
+
+    monkeypatch.setattr(os, "lstat", denied)
+    with pytest.raises(PseudonymKeyErased):
+        FileKeyStore(keys).key(tid)
+    assert key_state(keys, tid) == "ERASED"

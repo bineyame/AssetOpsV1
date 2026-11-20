@@ -31,6 +31,7 @@ KEY_DIR_ENV = "ASSETOPS_PSEUDONYM_KEY_DIR"
 SENTENCES = {
     "ONBOARD_FILE": "The onboarding file cannot be read as JSON.",
     "ONBOARD_FORMAT": "This is not an onboarding file of version 1.",
+    "ONBOARD_STRUCTURE": "This part of the file has a missing or unknown field, a field of the wrong kind, or too many or too few entries.",
     "ONBOARD_DATA": '"data" must be "emulated" or "real".',
     "ONBOARD_SLUG": 'The operator code must be lower-case letters, digits and hyphens, and not "demo".',
     "ONBOARD_NAME": "A name must be 1 to 120 characters with no surrounding spaces.",

@@ -231,7 +231,7 @@ class AccountService:
         except StoreConflict as conflict:
             raise _conflict(conflict, name=account.display_name) from None
 
-    def onboarding_open(self, tenant_slug: str) -> bool:
+    def onboarding_may_grant(self, tenant_slug: str) -> bool:
         """ON1 (D-ON1.15): onboarding grants are possible until a person has granted a role; an absent tenant is
         open."""
         tenant = self._store.tenant_by_slug(tenant_slug)

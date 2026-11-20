@@ -150,13 +150,20 @@ def test_an_unknown_key_at_each_level(level, where) -> None:
     for step in level:
         target = target[step]
     target["extra"] = 1
-    refused(doc, "ONBOARD_FORMAT", where or None)
+    refused(doc, "ONBOARD_STRUCTURE", where or None)
 
 
 def test_a_missing_key_is_refused() -> None:
     doc = raw()
     del doc["sites"][0]["locality"]
-    refused(doc, "ONBOARD_FORMAT", "sites[0]")
+    refused(doc, "ONBOARD_STRUCTURE", "sites[0]")
+
+
+def test_format_is_read_before_structure() -> None:
+    doc = raw()
+    del doc["format"]
+    doc["extra"] = 1
+    refused(doc, "ONBOARD_FORMAT", "format")
 
 
 def test_a_duplicate_json_key_is_refused() -> None:

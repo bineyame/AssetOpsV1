@@ -326,7 +326,7 @@ def test_7_onboarding_closes_after_a_person_made_grant(applied: World) -> None:
     amina, musa = w.person("Amina"), w.person("Musa")
     boss = PersonPrincipal(amina.person_id, amina.tenant_id, "Amina", frozenset({(EXEC, None)}), uuid4(), NOW, NOW)
     w.accounts.grant(boss, musa.person_id, ANALYST, None)
-    assert w.accounts.onboarding_open(SLUG) is False
+    assert w.accounts.onboarding_may_grant(SLUG) is False
     before = w.writes()
     doc = raw()
     doc["people"][3]["roles"].append({"role": "FIELD_TECHNICIAN"})
@@ -441,7 +441,7 @@ def test_10_the_store_refuses_onboarding_grants_once_closed(applied: World) -> N
     w.accounts.grant(boss, musa.person_id, "SITE_MANAGER", "MTO-001")
     _grant_refused(w, "musa@lakeside-power.example", "SITE_MANAGER", "KOBO-001", "ONBOARDING_CLOSED", 409)
     assert w.accounts.executive_of(SLUG) == amina.person_id and w.accounts.executive_of("nowhere") is None
-    assert w.accounts.onboarding_open("nowhere") is True
+    assert w.accounts.onboarding_may_grant("nowhere") is True
 
 
 # --- the command's words ---------------------------------------------------------------------------------------------
