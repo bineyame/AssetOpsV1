@@ -206,6 +206,41 @@ def test_s11a_a_valued_leaf_without_origins_is_refused(factor, leaf):
     assert _raises("STRUCTURE_ORIGIN", evaluate, MG, leaves).factor_id == factor
 
 
+def _valued_cases():
+    """R2-1: every valued leaf row that is not CALENDAR, money and non-money, in every registry, plus every stated node;
+    read from the registry so a new row is covered without a hand list."""
+    from assetops_backend.structure.registry import REGISTRIES
+    cases = []
+    for key, reg in REGISTRIES.items():
+        for row in reg.rows:
+            if row.is_leaf and not (row.filled_by is not None and row.filled_by.family == "CALENDAR"):
+                cases.append(pytest.param(key, row.factor_id, False, id=f"{key}-leaf-{row.factor_id}"))
+            if not row.is_leaf and row.stated_by is not None:
+                cases.append(pytest.param(key, row.factor_id, True, id=f"{key}-stated-{row.factor_id}"))
+    return cases
+
+
+@pytest.mark.parametrize("key, factor_id, stated", _valued_cases())
+def test_s11a_every_valued_part_with_empty_origins_is_refused(key, factor_id, stated):
+    from assetops_backend.structure.evaluate import _check_leaf, _check_stated, _money_dimension
+    from assetops_backend.structure.registry import REGISTRIES
+    reg = REGISTRIES[key]
+    row = reg.row(factor_id)
+    currency = "USD" if _money_dimension(row.unit) else None
+    leaf = LeafValue(Decimal("1.00"), "MEASURED", ("x",), None, None, currency, ())
+    err = _raises("STRUCTURE_ORIGIN", _check_stated, reg, {factor_id: leaf}) if stated else _raises(
+        "STRUCTURE_ORIGIN", _check_leaf, reg, factor_id, leaf)
+    assert err.factor_id == factor_id
+
+
+def test_s11a_the_registry_yields_money_and_non_money_leaves():
+    from assetops_backend.structure.evaluate import _money_dimension
+    from assetops_backend.structure.registry import REGISTRIES
+    rows = [REGISTRIES[p.values[0]].row(p.values[1]) for p in _valued_cases() if not p.values[2]]
+    assert any(_money_dimension(r.unit) for r in rows) and any(not _money_dimension(r.unit) for r in rows)
+    assert any(p.values[2] for p in _valued_cases())
+
+
 def test_s11a_a_valued_stated_value_without_origins_is_refused():
     value = LeafValue(Decimal("3458.00"), "RECORDED", ("commercial:kobo-vending",), None, None, "USD")
     assert _raises("STRUCTURE_ORIGIN", evaluate, MG, pack_leaves("Kobo"), {"revenue": value}).factor_id == "revenue"
