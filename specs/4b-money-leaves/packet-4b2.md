@@ -68,3 +68,5 @@ USER_REVIEW_REQUIRED: not stated in the spec; non-screen. Q2 is answered.
 ## Fix round r1 (review ACCEPT with Lows; `review-4b2.md`)
 
 Main merged (state-index line renumbered 159). F1: `test_6_recorded_zero_checks_currency_r9` (KES receipt on a recorded zero). F3: `service:test-4b` by class (rulings.md). Docs: spec §0 branch, §6 Q8 parity file, Q2 answered. Run results below.
+
+Runs at the fix-round commit (PYTHONPATH = worktree backend, contracts, simulator; modules resolve under the worktree): no-database 4b2, 4b1, 5a, 3B3 and parity tests 197 passed (3.9 s); 4b2 Postgres via heavy-slot --db + run-host-tests 2 passed (94 s); plant (recorded-zero basis drops KES) fails the new test, reverted; check-all fast 40 guards passed (125 s).
