@@ -7,7 +7,7 @@ const OPT_LABEL = {
  'KIS-REPAIR':'Repair generator 1 (alternator)','KIS-REPLACE':'Replace generator 1','KIS-BATT60':'Buy battery storage to cut generator hours','KIS-NOACT':'Do nothing: run every evening on one generator',
  'KIS-OM-REVIEW':'Send the response-time record for review, then request the credit if confirmed','KIS-OM-NOACT':'Do nothing: do not raise the late response',
  'MTO-HULLER':'Connect the cooperative’s rice huller (daytime)','MTO-WELDING':'Connect the evening welding workshop','MTO-DEMAND-NOACT':'Do nothing: no new connection',
- 'MTO-BILLING':'Fix the meter records so the 6 customers are billed','MTO-METER-AUDIT':'Check the meters for the energy not explained','MTO-BILLING-NOACT':'Do nothing: leave the meter records as they are',
+ 'MTO-BILLING':'Fix the meter records so the 6 customers are billed','MTO-METER-AUDIT':'Check the meters for the energy not explained','MTO-BILLING-NOACT':'Do nothing: leave the meter records as they are','MTO-LOSSES-NOACT':'Do nothing: leave the losses unexplained',
  'MTO-INV-CLAIM':'Claim the inverter under warranty and wait for the replacement','MTO-INV-BUYNOW':'Buy a replacement now, then claim the failed unit','MTO-INV-LOCAL':'Repair locally now','MTO-INV-NOACT':'Do nothing: run on one inverter',
  'MWEA-AGG':'Sign the aggregator’s off-season storage contract (Dec–Mar)','MWEA-COMPRESSOR':'Replace the compressor','MWEA-NOACT':'Do nothing',
  'THIKA-EPC-STOPGAP':'Night cover until the contractor replaces the start controller','THIKA-EPC-WAIT':'Wait for the contractor’s repair, with no cover','THIKA-SELF':'Buy and fit a start controller ourselves',
@@ -25,6 +25,7 @@ Object.keys(SK).forEach(sk=>{const s=siteM(sk),p=sitePath(sk);
 const SYN = (id,sk,path,extra) => OPT[id]={id,kind:'NO_ACTION',_site:sk,_synthetic:true,_path:path,...extra};
 SYN('MTO-DEMAND-NOACT','mto',`${sitePath('mto')}.decision`,{reason:'No connection cost and no new contribution; the cooperative’s letter of intent lapses on 30 Nov.'});
 SYN('MTO-BILLING-NOACT','mto',`${sitePath('mto')}.period.bridge[1]`,{effectMonthly:siteM('mto').period.bridge[1].amount,reason:'The 6 customers stay unbilled: −$56 a month, as in October.'});
+SYN('MTO-LOSSES-NOACT','mto',`${sitePath('mto')}.period`,{reason:'The losses stay unexplained; no meter is checked.'}); /* D-RECON.7 */
 SYN('RUI-NOACT','ruiru',`${sitePath('ruiru')}.decision`,{reason:'No cost; the city places the route elsewhere.'});
 SYN('KIS-OM-NOACT','kisiwa',`${sitePath('kisiwa')}.entitlements[1]`,{reason:'No credit is requested; nothing is recorded.'});
 SYN('RUI-CONN-NOACT','ruiru',`${sitePath('ruiru')}.incident`,{reason:'Connector 2 stays out of service; no departure depends on it, but the warranty claim is not made.'});
@@ -132,25 +133,42 @@ function optCost(o){
  if(o.kind==='COMMERCIAL_CORRECTION'||o.kind==='RIGHTS_REVIEW')return ['$0','office work'];
  if(o.id==='RUI-CONN-CLAIM')return ['$0','on the next routine visit'];
  return ['Not costed','rejected before costing'];}
+/* the comparator of a figure is its basis in the data (D-RECON.6, D-RECON.8; review r2 M1): every evaluated option carries
+   basis NO_ACTION, RESTORE_REFERENCE or NOT_VALUED; the page reads the words here and never types its own */
+const optBasis = id => ((typeof M!=='undefined'&&M.evaluation&&M.evaluation.options[id])||{}).basis||'NO_ACTION';
+const BASIS_WORDS = {NO_ACTION:'against doing nothing',RESTORE_REFERENCE:'against an immediate restore at no cost',NOT_VALUED:''};
+const BASIS_LABEL = {NO_ACTION:'Result against doing nothing',RESTORE_REFERENCE:'Cost to restore, against an immediate restore at no cost',NOT_VALUED:'Result'};
+const BASIS_CARDS = {NO_ACTION:'The options, against doing nothing',RESTORE_REFERENCE:'The options: cost to restore, against an immediate restore at no cost',NOT_VALUED:'The options'};
+/* a decision's basis is its options' (they share one); the no-action option of a restore-reference decision is not its baseline */
+const decBasis = d => { const b = d.opts.filter(o => !(OPT[o]?.kind==='NO_ACTION'||/NOACT|WAIT/.test(o))).map(optBasis); return b.includes('RESTORE_REFERENCE') ? 'RESTORE_REFERENCE' : b.length && b.every(x => x==='NOT_VALUED') ? 'NOT_VALUED' : 'NO_ACTION'; };
+/* context for a figure that is not valued (D-RECON.5): what the option fits, the rejected alternative it makes unnecessary, and
+   the factor change, each in its own unit; never a saving */
+function optContext(id){const o=OPT[id],d=DOPT(id),c=o&&o.capex_not_needed;if(!o||!d||!c)return [];const b=d.bound||{},miss=(d.protect||{}).departures_missed;
+ return [`Fits on the chargers in place: ${num(b.required_kwh_night)} of ${num(b.deliverable_kwh_night)} kWh a night, ${miss?`${num(miss)} departures missed`:'no departure missed'}.`,
+  `${optLabel(c.against)} instead (rejected) would cost ${usd(c.amount)} and add no capacity: the import limit binds.`,
+  `The energy bill rises by ${usd(-d.monthly_or_horizon_change)} a month for the added service.`];}
 function optEffect(o){const e=o.economics||{};
- const dd=o._derived;if(dd&&dd.valued_in_money&&dd.value!==null&&dd.months<=1&&!(o.safeguard&&o.safeguard.result==='FAIL'))return [usd(dd.value,true),dd.restore_date?`to the restore on ${fdate(dd.restore_date)}, against the reference`:'against the reference'];
+ /* the second part is the figure's period or meaning only; its comparator is its basis (BASIS_WORDS) */
+ if(optBasis(o.id)==='NOT_VALUED'&&o.disposition!=='REJECTED')return ['Not valued','an expansion is listed beside the plan'];
+ if(o.kind==='NO_ACTION'&&optBasis(o.id)==='RESTORE_REFERENCE'){const dd0=o._derived||{},en=siteM(o._site).entitlement;return ['Never restored',`the warranty lapses on ${fdate(en.notice_deadline)}, ${usd((dd0.rights||{}).cover_lost||0)} of cover lost, extra fuel runs on`];}
+ if(o.kind==='INVESTIGATION')return ['Not valued','losses are not priced'];
+ const dd=o._derived;if(dd&&dd.valued_in_money&&dd.value!==null&&dd.months<=1&&!(o.safeguard&&o.safeguard.result==='FAIL'))return [usd(dd.value,true),dd.restore_date?`to the restore on ${fdate(dd.restore_date)}`:'over the month'];
  if((o.safeguard||{}).result==='FAIL'&&!e.energy_cost_monthly)return ['Not valued','fails a limit, so it is not valued'];
  if(o.kind==='CAPEX'&&!e.net_12m&&o.net_12m===undefined)return ['Not valued',o.disposition==='DEFERRED'?'deferred before valuing':'rejected before valuing'];
- if(e.net_12m!==undefined)return [usd(e.net_12m,true),'over 12 months against no action'];
- if(o.net_12m!==undefined)return [usd(o.net_12m,true),'over 12 months against no action'];
+ if(e.net_12m!==undefined)return [usd(e.net_12m,true),'over 12 months'];
+ if(o.net_12m!==undefined)return [usd(o.net_12m,true),'over 12 months'];
  if(e.net_contract!==undefined)return [usd(e.net_contract,true),`over the ${e.months}-month contract`];
  if(e.charges_12m!==undefined)return [usd(e.charges_12m,true),'charges restored over 12 months (billed, not yet collected)'];
- if(e.net_monthly!==undefined)return [usd(e.net_monthly,true)+' a month','against no action'];
+ if(e.net_monthly!==undefined)return [usd(e.net_monthly,true)+' a month','each month'];
  if(o.id==='KIRI-NOACT'){const kn=DSITE('kirinyaga').actual.nodes;return ['$0',`the extra ${usd(kn.excess_kwh*kn.elec_price)} a month continues`];}
  if(e.energy_cost_monthly!==undefined&&o.kind==='NO_ACTION')return ['$0',`bill ${usd(e.energy_cost_monthly)} a month continues`];
  if(e.energy_cost_monthly!==undefined)return ['Not valued','bill '+usd(e.energy_cost_monthly)+' a month, but fails a limit'];
- if(o.avoided_capex!==undefined)return [usd(o.avoided_capex),'capital not spent (avoided, not a saving)'];
  if(o.expected_penalties!==undefined)return [usd(-o.expected_penalties),'likely further penalties'];
  if(o.effectMonthly!==undefined)return [usd(o.effectMonthly)+' a month','charges stay unbilled'];
  if(o.monthly_net===0||o.kind==='NO_ACTION')return ['$0','baseline'];
  if(['REPAIR','SUPPLIER_REMEDY','STOPGAP_PLUS_CLAIM','INVESTIGATION','RIGHTS_REVIEW'].includes(o.kind))return ['No saving claimed','a cost to keep service, evidence or rights'];
  return ['Not modelled','no money effect modelled'];}
-function optClass(o){if(optEffect(o)[0]==='Not valued')return o.forward_replay?'MODELLED':'NA';const c=o.economics?.class||o.avoided_capex_class;if(c)return c;if(o.kind==='NO_ACTION')return 'MODELLED';if(o.expected_penalties!==undefined)return 'MODELLED';return 'QUOTE';}
+function optClass(o){if(optEffect(o)[0]==='Not valued')return o.forward_replay?'MODELLED':'NA';const c=o.economics?.class;if(c)return c;if(o.kind==='NO_ACTION')return 'MODELLED';if(o.expected_penalties!==undefined)return 'MODELLED';return 'QUOTE';}
 function whoPays(o){if(optCost(o)[0]==='Not costed')return '—';if(o.residual_cost!==undefined){const cov=Object.values(DOPT(o.id)?.cost_lines||{}).filter(l=>l.covered_by&&l.operator_share===0).reduce((a,l)=>a+l.amount,0),cv=cov?`; the supplier bears ${usd(cov)} under warranty`:'';
   return o.kind==='STOPGAP_PLUS_CLAIM'?`We pay now${cv}: the supplier replaces the failed unit (it becomes a spare, not cash)`:o.kind==='SUPPLIER_REMEDY'?`We pay the cost shown${cv||': the supplier remedies the fault'}`:'We pay';}
  if(o.kind==='NO_ACTION')return '—';if(o.id==='MTO-HULLER')return 'We pay the connection contractor';if(o.id==='MTO-METER-AUDIT')return 'Routine maintenance budget';if(o.id==='KIS-REPAIR')return 'We pay: the warranty ended on 30 Jun 2026';return 'We pay';}
@@ -172,7 +190,7 @@ const SG = {MG5_DAWN_ADEQUACY:'battery at least 35% at 5 am, so the clinic and h
 const OBL = {
  'KOB-BATT100':[['unknown','Not checked: deferred before modelling']],'BAT-CLAIM-NOW':[['unknown','Warranty conditions cannot be checked yet: no capacity test, no temperature record']],
  'KIS-OM-REVIEW':[['pass','No operating effect']],'KIS-OM-NOACT':[['pass','No operating effect']],'MTO-DEMAND-NOACT':[['pass','No change']],
- 'MTO-BILLING':[['pass','No operating effect']],'MTO-METER-AUDIT':[['pass','Done on the inverter visit']],'MTO-BILLING-NOACT':[['pass','No operating effect']],'MTO-INV-LOCAL':[['fail','Opening the unit voids the warranty']],
+ 'MTO-BILLING':[['pass','No operating effect']],'MTO-METER-AUDIT':[['pass','Done on the inverter visit']],'MTO-BILLING-NOACT':[['pass','No operating effect']],'MTO-LOSSES-NOACT':[['pass','No operating effect']],'MTO-INV-LOCAL':[['fail','Opening the unit voids the warranty']],
  'MWEA-COMPRESSOR':[['pass','No change to temperature limits']],'MWEA-NOACT':[['pass','No change']],'KIRI-NOACT':[['pass','No change']],'EMB-NOACT':[['pass','Every departure met in October']],
  'KAS-SCHEDULE':[['pass','No effect: flat tariff']],'RUI-NOACT':[['pass','No change']],'RUI-CONN-CLAIM':[['pass','No departure depends on connector 2']],'RUI-CONN-NOACT':[['pass','No departure depends on connector 2']]};
 function obligations(o){const sg=o.safeguards||(o.safeguard?[o.safeguard]:null);let rows;const bc=boundCells(o.id);
@@ -229,7 +247,9 @@ const DEC = [
  {id:'kisiwa-genset',site:'kisiwa',q:'Kisiwa evening backup generator',node:'litres',opts:['KIS-REPAIR','KIS-REPLACE','KIS-BATT60','KIS-NOACT'],rights:['kisiwa-genset']},
  {id:'kisiwa-om',site:'kisiwa',q:'Kisiwa late repair response and service credit',node:'om',opts:['KIS-OM-REVIEW','KIS-OM-NOACT'],rights:['kisiwa-om']},
  {id:'mto-demand',site:'mto',q:'Mto new daytime demand',node:'billed',opts:['MTO-HULLER','MTO-WELDING','MTO-DEMAND-NOACT']},
- {id:'mto-billing',site:'mto',q:'Mto billing after the meter swap',node:'billed',opts:['MTO-BILLING','MTO-METER-AUDIT','MTO-BILLING-NOACT']},
+ {id:'mto-billing',site:'mto',q:'Mto billing after the meter swap',node:'billed',opts:['MTO-BILLING','MTO-BILLING-NOACT']},
+ /* D-RECON.7: the meter audit is its own decision on its own Finding (unexplained loss after expected losses, Optimize) */
+ {id:'mto-losses',site:'mto',q:'Mto energy not explained after expected losses',node:'lossx',opts:['MTO-METER-AUDIT','MTO-LOSSES-NOACT']},
  {id:'mto-inverter',site:'mto',q:'Mto inverter 2 restore path',node:null,opts:['MTO-INV-CLAIM','MTO-INV-BUYNOW','MTO-INV-LOCAL','MTO-INV-NOACT'],rights:['mto-inverter']},
  {id:'mwea-occupancy',site:'mwea',q:'Mwea occupancy',node:'cd',opts:['MWEA-AGG','MWEA-COMPRESSOR','MWEA-NOACT']},
  {id:'thika-backup',site:'thika',q:'Thika stock cover until the start controller is replaced',node:'liab',opts:['THIKA-EPC-STOPGAP','THIKA-EPC-WAIT','THIKA-SELF'],rights:['thika-epc','thika-insurance']},
@@ -288,11 +308,19 @@ function decText(d){const s=siteM(d.site),P=s.period,o=k=>OPT[k],e=k=>OPT[k].eco
  'mto-billing':()=>{const a=P.actual;return{
   factor:`Billed kWh: ${num(a.unbilled_mapping_kwh)} kWh was metered but not billed because 6 meters were swapped on 3 Oct and the meter register was not applied to billing. Separately, ${num(a.unexplained_kwh)} kWh is lost beyond expected losses: not priced, investigated, not called theft.`,
   change:'Fixing the register restores the billed-kWh factor; the meter check observes the losses factor that is not explained yet.',
-  why:`Fixing the records restores ${usd(o('MTO-BILLING').economics.charges_monthly)} a month of charges (${usd(o('MTO-BILLING').economics.charges_12m)} over 12 months). Billed is not collected: collection is a separate step, so these charges are listed beside the plan, not added. The meter check costs ${usd(o('MTO-METER-AUDIT').cost)} from the routine maintenance budget.`,
-  cf:[['kWh metered but not billed',`${num(SN('mto').unmapped_kwh)} a month`,'0'],['Losses beyond expected',`${num(SN('mto').unexplained_loss_kwh)} kWh, not priced`,'checked on the inverter visit'],['Charges',`${usd(-o('MTO-BILLING').economics.charges_monthly)} a month`,'restored (billed, not collected)']],cfHead:['Factor','No action','Fix records + meter check'],
+  why:`Fixing the records restores ${usd(o('MTO-BILLING').economics.charges_monthly)} a month of charges (${usd(o('MTO-BILLING').economics.charges_12m)} over 12 months). Billed is not collected: collection is a separate step, so these charges are listed beside the plan, not added. The losses that are not explained are a separate decision, with the meter check.`,
+  cf:[['kWh metered but not billed',`${num(SN('mto').unmapped_kwh)} a month`,'0'],['Charges',`${usd(-o('MTO-BILLING').economics.charges_monthly)} a month`,'restored (billed, not collected)']],cfHead:['Factor','No action','Fix the records'],
   sens:['Charges restored are listed, never added to the modelled plan total.'],
-  verify:[['Operational','Next bill run includes the 6 customers; unexplained kWh falls after the meter check'],['Economic','Charges appear in the November billing export; collections tracked separately'],['Causal','Direct: records corrected for named meters']],
-  records:[['node:mto:billed','Billed kWh and its parts'],['node:mto:lossx','Losses beyond expected'],['stake:charges','Charges restored']]};},
+  verify:[['Operational','Next bill run includes the 6 customers'],['Economic','Charges appear in the November billing export; collections tracked separately'],['Causal','Direct: records corrected for named meters']],
+  records:[['node:mto:billed','Billed kWh and its parts'],['stake:charges','Charges restored']]};},
+ 'mto-losses':()=>({
+  factor:`Losses beyond expected: ${num(SN('mto').unexplained_loss_kwh)} kWh delivered in October was not explained after expected network losses. It is not priced, it is investigated, and it is never called theft.`,
+  change:'The meter check observes the losses factor that is not explained yet; it prices nothing.',
+  why:`The meter check costs ${usd(o('MTO-METER-AUDIT').cost)} from the routine maintenance budget and is done on the inverter visit, so it uses no extra crew visit. It goes ahead beside the plan. Losses are not priced, so it is not valued in money.`,
+  cf:[['Losses beyond expected',`${num(SN('mto').unexplained_loss_kwh)} kWh, not explained`,'checked on the inverter visit'],['One-off cost','$0',`${usd(o('MTO-METER-AUDIT').cost)}, routine maintenance budget`]],cfHead:['Factor','No action','Meter check'],
+  sens:['If the check finds a fault in the network, the repair is a new decision, valued then.'],
+  verify:[['Operational','The meters are checked on the inverter visit; unexplained kWh falls in the following month'],['Economic','None claimed: losses are not priced'],['Causal','Direct: named meters checked']],
+  records:[['node:mto:lossx','Losses beyond expected']]}),
  'mto-inverter':()=>{const en=s.entitlement,c=o('MTO-INV-CLAIM'),b=o('MTO-INV-BUYNOW');return{
   factor:`Inverters in service: inverter 2 of 2 tripped and latched on ${fdate(en.occurrence.failed)}, so Mto runs at half its daytime inverter capacity. It is potentially covered by warranty to ${fdate(en.contract.term_end)}; notice is due by ${fdate(en.notice_deadline)}.`,
   change:'Each path restores the inverters-in-service factor on a different date and puts a different cost on the cost-bearer factor.',

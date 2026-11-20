@@ -56,14 +56,17 @@ function uxDue(decId, txt) {
 
 function uxStake(decId) {
   const p = uxStakeParts(decId);
-  return p.value ? `<span class="ux-q-v">${p.value}</span><small>${p.note}</small>` : p.word ? `<span class="ux-q-word">${p.word}</span>` : '<span class="muted">Not available yet</span>';
+  return p.value ? `<span class="ux-q-v">${p.value}</span><small>${p.note}</small>` : p.word ? `<span class="ux-q-word">${p.word}</span>${p.wnote ? `<small>${p.wnote}</small>` : ''}` : '<span class="muted">Not available yet</span>';
 }
 /* the at-stake figure in parts (value, note, certainty), so the row stays scannable and the certainty sits in the row's detail */
 function uxStakeParts(decId) {
   const d = decById(decId); if (!d) return {};
   const rec = uxRec(d), x = rec ? OPT[rec] : null, ev = x ? String(optEffect(x)[0]) : '';
-  if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec), capAv = x.avoided_capex != null && !/^[+−-]/.test(ev);
-    return { value: wholeText(ev), num: Number(ev.replace(/[^\d.−-]/g, '').replace('−', '-')) || 0, note: `${capAv ? 'capital avoided, not a saving' : uxQualShort(rec) || 'against doing nothing'} · ${inP ? 'in the plan' : 'not in the plan'}`, cls: optClass(x), dv: !!DV_OPT[rec], rec }; }
+  /* a figure that is not valued says so, with the opportunity in its own unit (D-RECON.5) */
+  if (rec && optBasis(rec) === 'NOT_VALUED' && uxDisp(rec) !== 'REJECTED') { const dd = DOPT(rec) || {}, miss = (dd.protect || {}).departures_missed;
+    return { word: `Not valued: ${uxCapital(SK[d.site].op, rec) || 'listed beside the plan'}`, wnote: dd.params?.added_buses ? `${num(dd.params.added_buses)} more buses offered; ${miss ? `${num(miss)} departures missed` : 'all departures met'}` : '', num: 0, rec }; }
+  if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec);
+    return { value: wholeText(ev), num: Number(ev.replace(/[^\d.−-]/g, '').replace('−', '-')) || 0, note: `${[uxQualShort(rec), BASIS_WORDS[optBasis(rec)]].filter(Boolean).join(', ')} · ${inP ? 'in the plan' : 'not in the plan'}`, cls: optClass(x), dv: !!DV_OPT[rec], rec }; }
   const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
   if (amt) return { value: wholeText(amt), num: Number(amt.replace(/[^\d.]/g, '')) || 0, note: /cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake', cls: 'EXPOSURE', rec };
   if (ev && !/^Not (valued|modelled)/i.test(ev)) return { word: ev, num: 0, rec };
@@ -80,16 +83,18 @@ function uxChain(op, sk) {
   const st = chainStages(op, sk), unitOf = v => /^\$/.test(v) ? '$' : (String(v).match(/(kWh|crate-days|L)\b/) || [, ''])[1], valOf = v => Number((String(v).match(/[\d,.]+/) || ['0'])[0].replace(/,/g, ''));
   const quiet = s => String(s || '').replace(/\s*·\s*(Emulated|Recorded|Measured)\b/g, '').replace(/^(Emulated|Recorded|Measured)$/, '');
   let prev = null; const leaks = [];
-  const rows = st.map(x => {
+  /* a leak is a loss only against a target (UX audit C2.4; X6): the stage after it is below its target; otherwise it is a step, drawn neutral */
+  const adverseAt = i => { const nx = st[i + 1], tm = nx && String(nx[2] || '').match(/target (\$?[\d,.]+)/); return tm ? { a: valOf(nx[1]), t: valOf(tm[1]), bad: valOf(nx[1]) < valOf(tm[1]) } : null; };
+  const rows = st.map((x, i) => {
     if (x[0] !== 'leak') { const na = x[3] === 'na' || !/\d/.test(x[1]); prev = na ? null : { v: valOf(x[1]), u: unitOf(x[1]), name: x[0] }; return { stage: x, na }; }
     const parts = String(x[1] || '').split(/\s*·\s*/).filter(Boolean).map(p => { const m = p.match(/^(.*?)(\$[\d,.]+|[\d,.]+\s*(?:kWh|crate-days|L)|\b\d[\d,.]*\b)\s*$/) || p.match(/^(.*?)(\$[\d,.]+|[\d,.]+\s*(?:kWh|crate-days|L))/);
-      if (!m || !prev) return { text: p }; const v = valOf(m[2]), pct = prev.v ? v / prev.v * 100 : null; const L = { text: p, label: m[1].replace(/[:\s]+$/, ''), amount: m[2].trim(), pct, of: prev.name.toLowerCase() }; leaks.push(L); return L; });
+      if (!m || !prev) return { text: p }; const v = valOf(m[2]), pct = prev.v ? v / prev.v * 100 : null; const L = { text: p, label: m[1].replace(/[:\s]+$/, ''), amount: m[2].trim(), pct, of: prev.name.toLowerCase(), adv: adverseAt(i) }; leaks.push(L); return L; });
     return { parts };
   });
-  const maxPct = Math.max(1, ...leaks.map(l => l.pct || 0)), top = [...leaks].sort((a, b) => (b.pct || 0) - (a.pct || 0))[0];
+  const maxPct = Math.max(1, ...leaks.map(l => l.pct || 0)), byPct = (a, b) => (b.pct || 0) - (a.pct || 0), topBad = leaks.filter(l => l.adv && l.adv.bad).sort(byPct)[0], top = topBad || [...leaks].sort(byPct)[0];
   const html = rows.map(r => r.stage ? `<li class="ux-vc-stage ${r.na ? 'is-na' : ''}"><span class="ux-vc-lab">${r.stage[0]}<small>${quiet(r.stage[2])}</small></span><span class="ux-vc-val">${r.stage[1]}</span></li>`
-    : (r.parts || []).map(p => p.pct != null ? `<li class="ux-vc-loss"><span class="ux-vc-lab"><span aria-hidden="true">↳</span> ${p.label || 'Lost'}</span><span class="ux-vc-val">${p.amount}<small>${p.pct < 0.05 ? 'none' : `${p.pct.toFixed(1)}% of ${p.of}`}</small></span><span class="ux-vc-track"><span class="ux-vc-bar" style="width:${Math.max(p.pct > 0.05 ? 1.5 : 0, p.pct / maxPct * 100).toFixed(1)}%"></span></span></li>` : `<li class="ux-vc-leak"><span aria-hidden="true">↳</span> ${p.text}</li>`).join('')).join('');
-  const title = top && top.pct > 0.05 ? `The biggest leak: ${top.label || 'lost'} ${top.amount}, ${top.pct.toFixed(1)}% of ${top.of}` : `${sk ? SK[sk].name : OPS[op].name}, October: no leak measured`;
+    : (r.parts || []).map(p => p.pct != null ? `<li class="ux-vc-loss"><span class="ux-vc-lab"><span aria-hidden="true">↳</span> ${p.label || 'Lost'}</span><span class="ux-vc-val">${p.amount}<small>${p.pct < 0.05 ? 'none' : `${p.pct.toFixed(1)}% of ${p.of}`}</small></span><span class="ux-vc-track"><span class="ux-vc-bar${p.adv && p.adv.bad ? ' is-bad' : ''}"${p.adv ? ` data-actual="${p.adv.a}" data-target="${p.adv.t}"` : ''} style="width:${Math.max(p.pct > 0.05 ? 1.5 : 0, p.pct / maxPct * 100).toFixed(1)}%"></span></span></li>` : `<li class="ux-vc-leak"><span aria-hidden="true">↳</span> ${p.text}</li>`).join('')).join('');
+  const title = topBad && topBad.pct > 0.05 ? `The biggest leak against target: ${topBad.label || 'lost'} ${topBad.amount}, ${topBad.pct.toFixed(1)}% of ${topBad.of}` : top && top.pct > 0.05 ? `No leak against target; the largest step: ${top.label || 'lost'} ${top.amount}, ${top.pct.toFixed(1)}% of ${top.of}` : `${sk ? SK[sk].name : OPS[op].name}, October: no leak measured`;
   return `<section class="panel ux-chart" aria-labelledby="uxv-h-${sk || op}"><div class="panel-head"><div><h2 id="uxv-h-${sk || op}">Where value leaks</h2><p>${title}</p></div></div><ol class="ux-vc">${html}</ol><p class="ux-axis-note">Loss bars are drawn against the largest loss; each says its share of the stage before it.</p>${uxTableView('Show the stages in detail', chainStrip(op, sk))}</section>`;
 }
 /* an outcome tile: its position, a target-against-actual visual and its counts (wave 2) */
@@ -103,7 +108,7 @@ function uxCatTile(op, k, C) {
      the gap and opens the same drawer as its chart group. Protect and Assure keep their own measures. */
   const g = (k === 'grow' || k === 'optimize') ? uxGapModel(op).groups.find(x => x.k === k) : null;
   if (g) { const M = uxGapModel(op);
-    return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos"><b>${usdW(g.sub, true)}</b> ${g.share != null ? `· ${g.share}% of what ${uxWidenWord(M)}` : '· an offset to the gap'}</p>${g.share != null ? `<div class="ux-meterbar" role="img" aria-label="${g.share}% of what ${uxWidenWord(M)}"><span style="width:${g.share}%"></span></div>` : ''}<p class="ux-cat-n">${num(g.steps.length)} driver${g.steps.length === 1 ? '' : 's'} · ${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View drivers<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`; }
+    return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos"><b${figA(k, op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `· ${g.share}% of what ${uxWidenWord(M)}` : '· an offset to the gap'}</p>${g.share != null ? `<div class="ux-meterbar" role="img" aria-label="${g.share}% of what ${uxWidenWord(M)}"><span style="width:${g.share}%"></span></div>` : ''}<p class="ux-cat-n">${num(g.steps.length)} driver${g.steps.length === 1 ? '' : 's'} · ${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View drivers<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`; }
   if (k === 'grow' && o.kind !== 'cost') { const a = sumNodes(op, 'actual', 'revenue'), t = sumNodes(op, 'plan', 'revenue'); vis = uxBullet(a, t, `Revenue ${usdW(a)} against a target of ${usdW(t)}`); }
   if (k === 'optimize') { const a = o.kind === 'cost' ? opTotals(op).actual : sumNodes(op, 'actual', 'cost_to_serve'), t = o.kind === 'cost' ? opTotals(op).plan : sumNodes(op, 'plan', 'cost_to_serve'); vis = uxBullet(a, t, `Cost ${usdW(a)} against a target of ${usdW(t)}`, true); }
   if (k === 'protect') { const pc = protectCard(op); vis = pc.total ? `<div class="ux-seg" role="img" aria-label="${num(pc.broken)} of ${num(pc.total)} limits broken">${Array.from({ length: pc.total }, (_, i) => `<span class="${i < pc.broken ? 'is-bad' : 'is-good'}"></span>`).join('')}</div>` : ''; }
@@ -217,8 +222,8 @@ function uxDriverBody(M, s) {
 /* the heading drawer's head (Grow, Optimize): the same shape, one level up; the heading's full card follows it */
 function uxHeadingTop(M, k) {
   const g = M.groups.find(x => x.k === k); if (!g) return '';
-  return `<section class="ux-drv-top" aria-label="${LENS[k][0]}: its share of the gap"><p class="ux-drv-amt"><b>${usdW(g.sub, true)}</b> ${g.share != null ? `${g.share}% of what ${uxWidenWord(M)}` : `offsets ${usdW(Math.abs(g.sub))} of it`}, October against target</p>
-   <h3 class="ux-drv-h">Its drivers, and what is being done</h3><ul class="list ux-drv-decs">${g.steps.map(s => `<li><span>${s.lab}: <b>${usdW(s.v, true)}</b></span> ${s.decs.length ? s.decs.map(dk => link(`decision/${dk}`, 'Open decision →')).join(' ') : '<span class="muted">No decision yet</span>'}</li>`).join('')}</ul></section>`;
+  return `<section class="ux-drv-top" aria-label="${LENS[k][0]}: its share of the gap"><p class="ux-drv-amt"><b${figA(k, M.op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `${g.share}% of what ${uxWidenWord(M)}` : `offsets ${usdW(Math.abs(g.sub))} of it`}, October against target</p>
+   ${reconTie(M.op, k)}<h3 class="ux-drv-h">Its drivers, and what is being done</h3><ul class="list ux-drv-decs">${g.steps.map(s => `<li><span>${s.lab}: <b>${usdW(s.v, true)}</b></span> ${s.decs.length ? s.decs.map(dk => link(`decision/${dk}`, 'Open decision →')).join(' ') : '<span class="muted">No decision yet</span>'}</li>`).join('')}</ul></section>`;
 }
 /* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale, each
    driver a step across it under its heading. One drill-down grammar (guide §8): a step opens its driver drawer and a heading opens
@@ -235,12 +240,12 @@ function uxBridge(op) {
       const inner = `<span class="ux-wf-lab">${s.lab}</span><span class="ux-wf-val" data-v="${s.v}" data-share="${s.share ?? ''}">${val}<small>${sh}</small></span><span class="ux-wf-track">${bar}</span>`;
       return `<li class="ux-wf-row is-step is-link"><button type="button" class="ux-wf-a" data-ux-drawer="${s.id}" aria-haspopup="dialog" aria-controls="${s.id}" aria-describedby="${tid}">${inner}</button><span class="ux-tip" role="tooltip" id="${tid}">${tip}</span></li>`;
     }).join('');
-    return `<li class="ux-wf-group" data-v="${g.sub}">${uxOpener(`uxd-${op}-${g.k}`, `<span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv">${usdW(g.sub, true)}</span>`, 'ux-wf-gbtn')}</li>${rows}`;
+    return `<li class="ux-wf-group" data-v="${g.sub}">${uxOpener(`uxd-${op}-${g.k}`, `<span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv"${figA(g.k, op, M.G[g.k])}>${usdW(g.sub, true)}</span>`, 'ux-wf-gbtn')}</li>${rows}`;
   }).join('');
   const drawers = M.groups.flatMap(g => g.steps.map(s => uxDrawer(s.id, s.lab, uxDriverBody(M, s)))).join('');
   const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(gapAbs)} over target`
-    : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(gapAbs)} gap`;
+    : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Grow revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(gapAbs)} gap`;
   const totals = `<div class="ux-wf-totals">${uxBullet(T.actual, T.plan, `${head} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost)}<div class="ux-wf-tl"><span>${head}, October <b>${usdW(T.actual)}</b></span><span>Target <b>${usdW(T.plan)}</b></span></div></div>`;
   return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step or a heading for what is behind it and the decision on it.</p></div></div>${totals}
  <div class="ux-wf-scale" aria-hidden="true"><span class="ux-wf-mark" style="left:${S(0).toFixed(2)}%">Target ${usdW(T.plan)}</span><span class="ux-wf-mark is-end" style="left:${S(100).toFixed(2)}%">October ${usdW(T.actual)}</span></div><p class="ux-wf-cap">The ${usdW(gapAbs)} ${cost ? 'difference' : 'gap'}, driver by driver. Shares are of what ${uxWidenWord(M)}; a step that works the other way is an offset.</p>
@@ -312,17 +317,17 @@ function uxOverview(op) {
   const budget = op === 'lakeside' ? LS.budget : M2.budget_usd_nov_dec, val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value;
   const gap = T.actual - T.plan, big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const hl = cost ? `Charging and depot cost is ${usdW(Math.abs(gap))} ${gap > 0 ? 'over' : 'under'} target in October; all ${num(Pp.departures_met)} required departures were met, at ${usd2(Pp.cost_per_departure_actual)} each.`
-    : `Contribution is ${usdW(Math.abs(gap))} ${gap < 0 ? 'below' : 'above'} target in October; ${big[0] === 'optimize' ? 'cost and efficiency explain' : 'revenue explains'} ${usdW(Math.abs(big[1]))} of it.`;
+    : `Contribution is ${usdW(Math.abs(gap))} ${gap < 0 ? 'below' : 'above'} target in October; ${big[0] === 'optimize' ? 'cost and efficiency explain' : 'Grow revenue explains'} ${usdW(Math.abs(big[1]))} of it.`;
   const resid = Math.abs(G.residual) > 0.005;
   const k1 = uxKpi(cost ? 'Charging and depot cost' : 'Contribution', fig(`port:${op}:actual`, usdW(T.actual)),
     [`Target ${usdW(T.plan)} · ${Math.round(T.actual / T.plan * 100)}% of target`, uxTrendNA(op, cost ? 'cost' : 'contribution'), `${fig(`port:${op}:cov`, pct(Pp.coverage.cost_recorded_share, 1))} of cost backed by records`], uxBullet(T.actual, T.plan, `${cost ? 'Cost' : 'Contribution'} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost));
-  const k2 = uxKpi('Gap to target', fig(`port:${op}:variance`, usdW(T.variance, true)),
-    cost ? [`Optimize ${usdW(G.optimize, true)}`, uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
-      : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
+  const k2 = uxKpi('Gap to target', figS('gap', op, T.variance, fig(`port:${op}:variance`, usdW(T.variance, true))),
+    cost ? [figS('optimize', op, G.optimize, `Optimize ${usdW(G.optimize, true)}`), uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
+      : [`${figS('grow', op, G.grow, `Grow ${usdW(G.grow, true)}`)} · ${figS('optimize', op, G.optimize, `Optimize ${usdW(G.optimize, true)}`)}`, uxTrendNA(op, 'gap'), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
     [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting approval · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
-  const k4 = uxKpi('Options’ value, 12 months', `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
-    [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : 'Valued options only; not realised until records show it'], '', 'is-modelled');
+  const k4 = uxKpi(PLAN_TOTAL_TITLE, `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
+    [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : planRestoreNote(op) || 'Valued options only; not realised until records show it'], '', 'is-modelled');
   const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
@@ -341,7 +346,7 @@ function uxSiteTiles(sk) {
   if (t.plan == null) return '';
   const cost = o.kind === 'cost';
   return `<div class="heroes ux-kpis">${uxKpi(cost ? 'Cost per required departure met' : 'Contribution', fig(`node:${sk}:root`, cost ? fmtU(t.actual, t.unit) : usdW(t.actual)), [`Target ${cost ? fmtU(t.plan, t.unit) : usdW(t.plan)}`, uxTrendNA(op, cost ? 'cost' : 'contribution', sk)], cost ? '' : uxBullet(t.actual, t.plan, `Contribution ${usdW(t.actual)} against a target of ${usdW(t.plan)}`))}
- ${uxKpi('Gap to target', usdW(s.period.variance, true), [cost ? 'on cost' : 'October', uxTrendNA(op, 'gap', sk)])}
+ ${uxKpi('Gap to target', figS('gap', sk, s.period.variance, usdW(s.period.variance, true)), [cost ? 'on cost' : 'October', uxTrendNA(op, 'gap', sk)])}
  ${(() => { const v = decs.map(d => [d, uxRec(d)]).filter(([, r]) => r && /^[+−-]?\$/.test(String(optEffect(OPT[r])[0])));
    return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, ${uxQual(v[0][1])}`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
  ${(() => { const st = decs.flatMap(uxRights).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+/) || [])[0];
@@ -364,7 +369,7 @@ function uxPlanBand(op, P, budget) {
   return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">
  ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
  ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
- ${uxKpi('Options’ value, 12 months', `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, ['Not realised until records show it'])}
+ ${uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it'])}
  </div><div class="ux-planact"><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this mock-up. It is recorded under the executive’s name and the time.</span></div></section>`;
 }
 const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>12-month result</span><span>State</span></div>';
@@ -453,7 +458,10 @@ function uxChrome(s) {
   name?.insertAdjacentHTML('afterend', `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${site ? SK[site]?.name || 'All sites' : 'All sites'} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><input type="search" class="ux-sw-q" placeholder="Type a Site name" aria-label="Filter Sites" autocomplete="off"><a role="menuitem" href="#/portfolio"${!site ? ' aria-current="page"' : ''}>All sites · ${OPS[op].name}</a>${OPS[op].sites.map(k => `<a role="menuitem" href="#/site/${k}"${site === k ? ' aria-current="page"' : ''}>${SK[k].name}</a>`).join('')}</div></details>`);
   const chip = bar.querySelector('.period-chip');
   if (chip && !chip.closest('.ux-period')) { const w = document.createElement('details'); w.className = 'ux-pop ux-period'; const sm = document.createElement('summary'); sm.setAttribute('aria-label', 'Period: October 2026. Choose a period'); chip.replaceWith(w); sm.appendChild(chip); w.appendChild(sm);
-    w.insertAdjacentHTML('beforeend', '<div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span><span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span><span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div>'); }
+    /* state-aware (review r2 L1): earlier months are listed from the loaded history; without it, said to be not available yet */
+    const H = typeof DERIVED !== 'undefined' && DERIVED.history ? DERIVED.history[OPS[LS.op].t.tenant] : null, past = H && Array.isArray(H.months) ? H.months.filter(m => m < '2026-10').reverse() : [];
+    const mw = ym => `${MONTHS[+ym.slice(5, 7) - 1]} ${ym.slice(0, 4)}`;
+    w.insertAdjacentHTML('beforeend', `<div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span>${past.length ? past.map(m => `<span role="menuitem" aria-disabled="true">${mw(m)} <small>shown in the trends</small></span>`).join('') : '<span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span>'}<span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div>`); }
 }
 
 /* ===== brand packs (guide §4.7): a configurable identity over the same tokens and components. Resolution order: the
@@ -616,7 +624,7 @@ function uxChooseDialog(id, oid) {
     : R.path === 'none' ? `${optLabel(oid)} spends no shared budget and no ${cw}, so it is not a plan item. Its Actions go ahead once created.`
     : R.inPlan ? `${optLabel(oid)} becomes a plan item; it is in the proposed plan.` : `${optLabel(oid)} becomes a plan item. It is not in the proposed plan, so the plan’s budget and ${cw} are checked when its Actions are created.`;
   return uxDrawer(`uxc-${id}-${oid}`, `Choose: ${optLabel(oid)}`, `<dl class="ux-confirm"><div><dt>What happens</dt><dd>${what}</dd></div>
-   <div><dt>Result against doing nothing</dt><dd>${uxFigQ(wholeText(ev), uxQual(oid), 'ux-confirm-q')}</dd></div>
+   <div><dt>${BASIS_LABEL[optBasis(oid)]}</dt><dd>${uxFigQ(wholeText(ev), uxQual(oid), 'ux-confirm-q')}${optContext(oid).length ? `<ul class="list ux-ctx">${optContext(oid).map(t => `<li>${t}</li>`).join('')}</ul>` : ''}</dd></div>
    <div><dt>Actions</dt><dd>${actHtml}</dd></div><div><dt>Approval</dt><dd>${R.text}.</dd></div><div><dt>Recorded under</dt><dd>${who(op, D.p)}, with the time.</dd></div></dl>
    <div class="ux-confirm-go"><button type="button" class="button primary" data-ux-confirm>Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div>`);
 }
@@ -635,25 +643,27 @@ function uxDecisionPage(id, parts) {
   ${uxDecStatus(id, st)}</section>`;
   const pays = x ? whoPays(x) : '—';
   const noCost = /^\$0$/.test(String(wholeText(cv)).trim());
-  const recNum = x ? `<p class="ux-drec-n">${uxFigQ(`<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
+  const recNum = x ? `<p class="ux-drec-n">${uxFigQ(`<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) && BASIS_WORDS[optBasis(rec)] ? `<span class="ux-drec-c">, ${BASIS_WORDS[optBasis(rec)]}</span>` : ''}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
   let act = '';
-  if (st.key === 'choose') act = `${uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary')}<a class="button" href="#uxcards-${id}">Choose another option</a>`;
+  /* "Choose another option" only when another option can be chosen (review r2 M2 class) */
+  const others = d.opts.filter(o => o !== rec && !isNoAction(o) && uxDisp(o) !== 'REJECTED' && uxDisp(o) !== 'RECOMMENDED');
+  if (st.key === 'choose') act = `${uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary')}${others.length ? `<a class="button" href="#uxcards-${id}">Choose another option</a>` : ''}`;
   else if (st.key === 'approval') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. Awaiting ${who(op, ex)}’s approval of the plan.</span>${link('portfolio/act-first/plan', 'Review the plan', 'button')}`;
   else if (st.key === 'released') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. ${releaseOf(op, chosen).at ? 'Released at once, within both thresholds.' : 'Released on the plan’s approval.'}</span>${uxOpener(`uxacts-${id}`, 'See the Actions', 'button')}`;
   else act = `<a class="button" href="#uxcards-${id}">See the options</a>`;
   const planNote = x && st.key === 'choose' ? uxPlanNote(op, rec) : '';
-  const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : 'Each option valued against doing nothing'}</h2>${recNum}${x ? '' : `<p class="ux-note">${uxNoRecReason(id)}</p>`}${planNote ? `<p class="ux-note">${planNote}</p>` : ''}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
+  const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : 'Each option valued against doing nothing'}</h2>${recNum}${x ? (optContext(rec).length ? `<ul class="list ux-ctx">${optContext(rec).map(c => `<li>${c}</li>`).join('')}</ul>` : '') : `<p class="ux-note">${uxNoRecReason(id)}</p>`}${planNote ? `<p class="ux-note">${planNote}</p>` : ''}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
   const quals = new Set(d.opts.filter(o => !isNoAction(o)).map(uxQual)), oneQual = quals.size === 1 ? [...quals][0] : null;
-  const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o), k = uxDisp(o), q2 = uxQual(o);
+  const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o) && decBasis(d) !== 'RESTORE_REFERENCE', k = uxDisp(o), q2 = uxQual(o);
     const mark = money(e2) && !isNo && (!oneClass || optClass(y) !== oneClass) ? uxMark(optClass(y)) : '';
     const dv = money(e2) && !isNo && DV_OPT[o] ? dvTag(DV_OPT[o]) : '';
-    const go = st.key === 'choose' && !isRec && !isNo && k !== 'REJECTED' ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
+    const go = st.key === 'choose' && !isRec && !isNoAction(o) && k !== 'REJECTED' && k !== 'RECOMMENDED' ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
     const why = UX_NOREC && k !== y.disposition ? 'Deferred for now.' : (k === 'REJECTED' || k === 'DEFERRED' || (k === 'RECOMMENDED' && !isRec)) ? optWhy(y) : '';
     const result = isNo ? `The baseline${q2 && q2 !== 'baseline' ? ` <small class="ux-ocard-q">${q2}</small>` : ''}` : `${uxFigQ(wholeText(e2), q2, 'ux-ocard-q')} ${mark}${dv ? ` ${dv}` : ''}`;
     return `<article class="ux-ocard${isRec ? ' is-rec' : ''}${isNo ? ' is-base' : ''}${o === chosen ? ' is-chosen' : ''}" data-opt-card="${o}"><header><h3>${optLabel(o)}</h3>${o === chosen ? '<span class="status-pill is-approved">Chosen</span>' : isNo ? '<span class="ux-chip is-neutral">The baseline</span>' : uxDispBadge(d, o)}</header>
      <dl><div><dt>Result</dt><dd>${result}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)} <small>${whoPays(y)}</small></dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
      ${why ? `<p class="ux-ocard-why">${why}</p>` : ''}${go}</article>`; }).join('');
-  const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">The options, against doing nothing</h2><span class="ux-note">${oneQual && /^(?:over|to) /.test(oneQual) ? `Each result ${uxLcFirst(oneQual).replace(/ against no action$/, '')}` : 'Each result as stated on its card'}${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
+  const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">${BASIS_CARDS[decBasis(d)]}</h2><span class="ux-note">${oneQual && /^(?:over|to) /.test(oneQual) ? `Each result ${uxLcFirst(oneQual).replace(/ against no action$/, '')}` : 'Each result as stated on its card'}${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
   const dialogs = st.key === 'choose' ? d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
   const evidence = uxDrawer(`uxev-${id}`, 'Evidence and records', `<ul class="list">${T.records.map(([k, l]) => `<li>${fig(k, l)}</li>`).join('')}</ul>${(d.rights || []).map(rightsPanel).join('')}`, true);
   const why = secD('Why we recommend it', `<div class="grid2">${sec('The reasoning', `<p class="prose">${T.why}</p>`)}${sec('What would change the recommendation', `<ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`)}</div>${parts.inner}<div id="uxwho-${id}">${secD('Who chooses, who approves, and the Actions', whoDecides(id), 'The accountable role chooses; the plan’s approval releases what waits', st.key === 'released')}</div>`, 'The reasoning, what drives the result, limits, cover, who pays, verification and all options in detail');
@@ -730,12 +740,12 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-ux-s
 function uxFindingsScreen() {
   const op = LS.op, R = uxFindingRows(op), cap = 7, id = 'uxfl';
   const rows = R.map((x, i) => `<li class="ux-fl"${i >= cap ? ' data-ux-over hidden' : ''}><span class="ux-fl-st">${uxChip(x.tone, x.label)}</span><span class="ux-fl-site">${x.site}</span><span class="ux-fl-t">${x.text}<small>${LENS[x.heading] ? LENS[x.heading][0] : ''}</small></span><span class="ux-fl-dec">${x.d ? `<span class="status-pill is-${x.st.key === 'released' ? 'approved' : x.st.key === 'approval' ? 'waiting' : 'proposed'}">${x.st.label}</span>${link(`decision/${x.d.id}`, `Open decision<span class="vh">: ${x.d.q}</span> →`)}` : '<span class="muted">No decision yet</span>'}</span></li>`).join('');
-  return `<section class="panel" aria-labelledby="uxfl-h"><div class="ux-row-head"><h2 id="uxfl-h">${num(R.length)} Finding${R.length === 1 ? '' : 's'} at ${OPS[op].name}’s Sites</h2><span class="ux-note">October 2026 · each with its decision</span></div>
-   ${R.length ? `<ul class="ux-flist" id="${id}" data-count="${R.length}">${rows}</ul>${uxCapNote(R.length, cap, id)}` : '<p class="ux-empty" role="status">No Findings at this operator’s Sites.</p>'}</section>`;
+  return `<section class="panel" aria-labelledby="uxfl-h"><div class="ux-row-head"><h2 id="uxfl-h" data-count="${R.length}" data-count-of=".ux-flist>li">${num(R.length)} Finding${R.length === 1 ? '' : 's'} at ${OPS[op].name}’s Sites</h2><span class="ux-note">October 2026 · each with its decision</span></div>
+   ${R.length ? `<ul class="ux-flist" id="${id}">${rows}</ul>${uxCapNote(R.length, cap, id)}` : '<p class="ux-empty" role="status">No Findings at this operator’s Sites.</p>'}</section>`;
 }
 function uxActionsScreen() {
   const op = LS.op, A = WF(op).actions || [], items = [...new Set(A.map(a => a.item))];
   const groups = items.map(it => { const d = DEC.find(x => x.opts.includes(it)); return `<section class="panel ux-act-g" aria-label="${escapeHtml(String(itemName(op, it)))}"><div class="ux-row-head"><h3>${itemName(op, it)}</h3>${d ? link(`decision/${d.id}`, `Open decision<span class="vh">: ${d.q}</span> →`) : ''}</div>${actionRows(op, A.filter(a => a.item === it))}</section>`; }).join('');
-  return `<section aria-labelledby="uxal-h"><div class="ux-row-head"><h2 id="uxal-h" data-count="${A.length}">${num(A.length)} Action${A.length === 1 ? '' : 's'} under the plan</h2><span class="ux-note">Grouped by plan item · creator, owner, due date and release</span></div>${A.length ? groups : '<p class="ux-empty" role="status">No Actions created yet.</p>'}</section>`;
+  return `<section aria-labelledby="uxal-h"><div class="ux-row-head"><h2 id="uxal-h" data-count="${A.length}" data-count-of=".action-list li:not(.action-list-head)">${num(A.length)} Action${A.length === 1 ? '' : 's'} under the plan</h2><span class="ux-note">Grouped by plan item · creator, owner, due date and release</span></div>${A.length ? groups : '<p class="ux-empty" role="status">No Actions created yet.</p>'}</section>`;
 }
 function uxNotFound() { return `<section class="panel ux-empty-page" role="status"><h2>This page does not exist</h2><p>The link may be out of date. ${link('portfolio', 'Go to the Portfolio →')}</p></section>`; }

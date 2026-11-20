@@ -672,3 +672,10 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 @media (max-width:600px){.ux-flist>li{grid-template-columns:minmax(0,1fr) auto}.ux-fl-t,.ux-fl-dec{grid-column:1/-1;justify-content:flex-start}}
 .ux-act-g .ux-row-head h3{margin:0;font-size:var(--fs-md)}
 .ux-empty-page{padding:var(--s6)}
+
+/* a leak is coloured as a loss only against a target (X6); the tie line between a statement line and its heading (D-RECON.2) */
+.ux-vc-loss .ux-vc-bar:not(.is-bad){background:var(--line-strong)}
+.ux-tie{margin:0 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
+.ux-tie small{display:block;font-size:var(--fs-xs)}
+.ux-cross small{display:block;color:var(--text-2);font-size:var(--fs-xs)}
+.ux-ctx{margin:var(--s2) 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}

@@ -48,7 +48,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const top3 = await p.evaluate(() => { const li = [...document.querySelectorAll('.ux-queue>li')]; return li.length; });
     ok(vis && at === '#/portfolio/act-first', 'phone: Section menu replaces the tab row and navigates');
     await p.goto(base + '#/portfolio'); await p.waitForTimeout(400);
-    const shown = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + ' / ' + (document.querySelector('.ux-more-phone')?.offsetParent ? 'link' : 'no link'));
+    const shown = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + ' / ' + ([...document.querySelectorAll('.ux-overview .ux-more')].some(e => e.offsetParent) ? 'link' : 'no link'));
     ok(shown === '3 / link', `phone overview: top 3 queue items and "View all" (${shown})`);
     const opt = await (async () => { await p.goto(base + '#/decision/kobo-generator'); await p.waitForTimeout(400); await openAll(p); await p.waitForTimeout(100); return p.evaluate(() => { const tr = document.querySelector('table.ux-opts tbody tr'); return getComputedStyle(tr).display === 'block' && document.documentElement.scrollWidth <= innerWidth; }); })();
     ok(opt, 'phone decision: options as stacked cards, no sideways page scroll');
@@ -260,15 +260,16 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
         /* one Recommended: on the cards, and in the table under Why */
         const chips = sel => [...document.querySelectorAll(sel)].filter(e => e.textContent.trim() === 'Recommended').length;
         const oneRec = chips('.ux-ocard header .badge') <= 1 && chips('table.ux-opts td[data-label="Status"] .badge') <= 1;
-        return { q: h1 && /^What should we do about .+\?$/.test(h1.textContent.trim()) && !document.querySelector('.ux-dq') && !document.querySelector('.page-heading h1 + p, .page-heading .title-row + p'), prims, recBottom, stepsOk, steps: lis.map(l => l.t).join(' > '), grid, cards, base, oneRec, mock: /MOCK DEVIATION/.test(document.querySelector('.canvas').textContent), rb: /MOCK DEVIATION · decision page redesign/.test(document.querySelector('.reviewbar').textContent), h: innerHeight };
+        const wantBase = decBasis(d) === 'RESTORE_REFERENCE' ? 0 : 1;
+        return { wantBase, q: h1 && /^What should we do about .+\?$/.test(h1.textContent.trim()) && !document.querySelector('.ux-dq') && !document.querySelector('.page-heading h1 + p, .page-heading .title-row + p'), prims, recBottom, stepsOk, steps: lis.map(l => l.t).join(' > '), grid, cards, base, oneRec, mock: /MOCK DEVIATION/.test(document.querySelector('.canvas').textContent), rb: /MOCK DEVIATION · decision page redesign/.test(document.querySelector('.reviewbar').textContent), h: innerHeight };
       }, id);
-      ok(r.q && r.prims <= 1 && r.stepsOk && !r.grid && r.cards >= 2 && r.base === 1 && r.oneRec && !r.mock && r.rb && (r.h > 720 || r.recBottom <= 720 || w < 600),
+      ok(r.q && r.prims <= 1 && r.stepsOk && !r.grid && r.cards >= 2 && r.base === r.wantBase && r.oneRec && !r.mock && r.rb && (r.h > 720 || r.recBottom <= 720 || w < 600),
         `${op} ${id} at ${w}: the question is the title, ${r.prims} primary, status line "${r.steps}" follows the path, process grid not on the page, ${r.cards} option cards with one baseline, one Recommended, review mark in the review bar only${w === 1280 ? `, recommendation ends at ${r.recBottom} px (fold 720)` : ''}`);
       if (w === 1440) {
         /* each figure carries its own basis: the recommendation's and every card's qualifier equal the options table's (review r1 H1, L8) */
         await openAll(q); await q.waitForTimeout(80);
         const m = await q.evaluate(id => {
-          const d = decById(id), rec = uxRec(d), tq = o => { const c = document.querySelector(`table.ux-opts tr[data-opt="${o}"] td[data-label="Result against no action"] .cellnote`); return c ? c.textContent.trim() : null; }, bad = [];
+          const d = decById(id), rec = uxRec(d), tq = o => { const c = document.querySelector(`table.ux-opts tr[data-opt="${o}"] td:nth-of-type(1) .cellnote`); return c ? c.textContent.trim() : null; }, bad = [];
           const rq = document.querySelector('.ux-drec-q');
           if (rec && (!rq || rq.textContent.trim() !== tq(rec))) bad.push(`recommendation "${rq && rq.textContent.trim()}" vs table "${tq(rec)}"`);
           for (const c of document.querySelectorAll('.ux-ocard:not(.is-base)')) { const o = c.dataset.optCard, cq = c.querySelector('.ux-ocard-q'); if (!cq || cq.textContent.trim() !== tq(o)) bad.push(`${optLabel(o)}: "${cq && cq.textContent.trim()}" vs "${tq(o)}"`); }
@@ -294,7 +295,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
           else if (!spend && !crew && !['CAPEX', 'DEMAND_CONNECTION'].includes(OPT[o].kind)) { if (!/not a plan item/.test(t) || /becomes a plan item/.test(t)) errs.push('a no-spend option called a plan item'); }
           if (!acts && (claim.includes(OPT[o].kind) || money.includes(OPT[o].kind) || chooser === 'FINANCE_AND_COMMERCIAL_LEAD') && !new RegExp(`${fin}\\s*creates`).test(t)) errs.push(`the finance lead (${fin}) is not named as creator`);
           if (!acts && !claim.includes(OPT[o].kind) && !money.includes(OPT[o].kind) && chooser === 'SITE_MANAGER' && !new RegExp(`${sm}\\s*creates`).test(t)) errs.push(`the Site manager (${sm}) is not named as creator`);
-          if (!/Result against doing nothing/.test(t) || !t.includes(uxQual(o))) errs.push('result without its basis');
+          if (!t.includes(BASIS_LABEL[optBasis(o)]) || !t.includes(uxQual(o))) errs.push('result without its basis');
           out.push(`${o}${errs.length ? ': ' + errs.join(', ') : ''}`); } }
       return out; });
     ok(R.length >= 5 && R.every(s => !s.includes(':')), `confirmation rules for ${R.length} choosable options: plan item only when it spends budget or a crew visit, an expansion beside the plan and after approval, the §8 creator named (${R.filter(s => s.includes(':')).join('; ') || 'all hold'})`);
@@ -315,6 +316,38 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     ok(!!ctl && r && r.pill === 'No option recommended' && r.cur === 'No option recommended' && !r.recChip && r.prim === 0 && /^No option is recommended: of \d+ options?, .+\. .+ can still choose/.test(r.why) && r.rb && !r.canvas,
       `fourth state: the review-bar control opens it; pill and current step say "No option recommended", no Recommended chip, no primary, the reason counts the options ("${r ? r.why.slice(0, 90) : 'control missing'}")`);
     await p.context().close(); }
+  // RECON-1 (D-RECON.3): every shared figure carries data-figure, data-scope and data-v; X1 identical across routes, X2 tied where a
+  // line and its heading differ, X3 adds up, X4 the demo cases, X5 counts equal their lists, X6 loss colour only against target, X7 words
+  { const all = [], bad = [];
+    for (const op of ['lakeside', 'harvest', 'metro']) {
+      const sites = await (async () => { const p = await page('portfolio', { op }); const s = await p.evaluate(op => OPS[op].sites, op); await p.context().close(); return s; })();
+      for (const r of ['portfolio', 'portfolio/outcomes-by-site', 'globalfinancials', 'sites', 'findings', 'actions', ...sites.flatMap(sk => [`site/${sk}`, `site/${sk}/economics`])]) {
+        const p = await page(r, { op });
+        const res = await p.evaluate(({ r, op }) => {
+          const label = (M.home_categories.reconciliation || {}).crossing_label || '', out = { figs: [], bad: [] };
+          document.querySelectorAll('.canvas [data-figure]').forEach(e => out.figs.push({ r, f: e.dataset.figure, s: e.dataset.scope, v: +e.dataset.v, t: e.textContent }));
+          const by = (f, s) => out.figs.filter(x => x.f === f && x.s === s);
+          for (const s of [...new Set(out.figs.map(x => x.s))]) for (const [L, H] of [['revenue_change', 'grow'], ['optimize', 'cost_change']]) {
+            const l = by(L, s)[0], h = by(H, s)[0]; if (l && h && Math.abs(l.v - h.v) > 0.005) { const x = by('metered_not_billed', s)[0];
+              if (!x || Math.abs(x.v - (L === 'revenue_change' ? l.v - h.v : l.v - h.v)) > 0.01 || !x.t.toLowerCase().includes(label.toLowerCase())) out.bad.push(`X2 ${r} ${s}: ${L} ${l.v} and ${H} ${h.v} differ, with no labelled ${label} line equal to the difference`); } }
+          document.querySelectorAll('.canvas [data-count]').forEach(e => { const n = document.querySelectorAll(e.dataset.countOf || '#none').length; if (+e.dataset.count !== n) out.bad.push(`X5 ${r}: count ${e.dataset.count} but ${n} in ${e.dataset.countOf}`); });
+          document.querySelectorAll('.canvas .is-bad[data-actual][data-target]').forEach(e => { if (+e.dataset.actual >= +e.dataset.target) out.bad.push(`X6 ${r}: a bar marked as a loss is at or above its target`); });
+          if (/(^|[.;]\s)Revenue explains/.test(document.querySelector('.canvas').textContent)) out.bad.push(`X7 ${r}: "Revenue explains" labels a Grow figure`);
+          return out; }, { r, op });
+        all.push(...res.figs.map(f => ({ ...f, op }))); bad.push(...res.bad); await p.context().close(); }
+    }
+    const key = f => `${f.f}|${f.s}`, seen = {};
+    all.forEach(f => { (seen[key(f)] = seen[key(f)] || []).push(f); });
+    Object.entries(seen).forEach(([k, fs]) => { const vs = [...new Set(fs.map(f => f.v))]; if (vs.length > 1) bad.push(`X1 ${k} differs: ${fs.map(f => `${f.r} ${f.v}`).join(', ')}`); });
+    const val = (f, s) => (seen[`${f}|${s}`] || [])[0]?.v;
+    for (const s of [...new Set(all.map(f => f.s))]) { const g = val('grow', s) ?? 0, o = val('optimize', s), gap = val('gap', s); if (o != null && gap != null && Math.abs(g + o - gap) > 0.02) bad.push(`X3 ${s}: grow ${g} + optimize ${o} is not the gap ${gap}`); }
+    const has = (op, r, f, s) => all.some(x => x.op === op && x.r === r && x.f === f && x.s === s && Math.abs(x.v) > 0.005);
+    if (!has('lakeside', 'portfolio', 'metered_not_billed', 'lakeside') || !has('lakeside', 'globalfinancials', 'metered_not_billed', 'lakeside') || !has('lakeside', 'site/mto/economics', 'metered_not_billed', 'mto')) bad.push('X4 Lakeside does not show the tie on the Portfolio, Financials and Mto economics');
+    if (all.some(x => x.op === 'harvest' && x.f === 'metered_not_billed' && Math.abs(x.v) > 0.005)) bad.push('X4 Harvest shows a crossing line');
+    if (all.some(x => x.op === 'metro' && ['revenue_change', 'grow'].includes(x.f))) bad.push('X4 Metro shows a revenue or Grow figure');
+    ok(all.length > 30 && !bad.length, `RECON-1 X1-X7: ${all.length} tagged figures on ${new Set(all.map(f => f.op + f.r)).size} routes agree, tie, add up and count (${bad.slice(0, 4).join('; ') || 'all hold'})`); }
+  { const p = await page('globalfinancials', { op: 'harvest' }); const t = await p.evaluate(() => [...document.querySelectorAll('.canvas table')].map(x => x.textContent).find(x => /Statement line/.test(x)) || '');
+    ok(/none this month/.test(t), 'X4 Harvest Financials: the crossing cell reads "none this month"'); await p.context().close(); }
   // empty states that name their data path fail when the data holds a value there (placeholder audit, gap 4)
   for (const [op, r] of [['metro', 'portfolio'], ['metro', 'portfolio/demand-and-capacity'], ['metro', 'portfolio/scope'], ['metro', 'site/embakasi'], ['metro', 'site/kasarani'], ['metro', 'site/ruiru'], ['lakeside', 'portfolio/scope'], ['lakeside', 'portfolio/demand-and-capacity'], ['harvest', 'portfolio/scope'], ['lakeside', 'mini'], ['lakeside', 'cold'], ['lakeside', 'ev']]) {
     const p = await page(r, { op });
