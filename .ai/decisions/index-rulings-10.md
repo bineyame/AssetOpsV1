@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-4B.1 to D-5A.12)
+# Decision index: Demo-sprint and later rulings (index only) (D-4B.1 to D-5A.15)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -14,6 +14,11 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-4B.10` MINI_GRID version 3, in place · live · specs/4b-money-leaves/rulings.md
 - `D-4B.11` detail_missing names what is not available below a value · live · specs/4b-money-leaves/rulings.md
 - `D-4B.12` One store read per Site-month read, never a cache across reads · live · specs/4b-money-leaves/rulings.md
+- `D-4B.13` An absent leaf names the record 4b reads for it (READ_AS), not always filled_by · live · specs/4b-money-leaves/rulings.md
+- `D-4B.14` The declared diesel price never stands in for fuel invoices, open month or closed (refines D-4B.6) · live · specs/4b-money-leaves/rulings.md
+- `D-4B.15` Fuel invoices with zero litres give no price · live · specs/4b-money-leaves/rulings.md
+- `D-4B.16` A held but refused stated record blocks its heading; the expression never replaces it (refines D-4B.1) · live · specs/4b-money-leaves/rulings.md
+- `D-4B.17` A stated node's unit is exactly money · live · specs/4b-money-leaves/rulings.md
 - `D-5A.1` Targets from budget lines; one budget version governs a Site-month · live · specs/5a-targets/rulings.md
 - `D-5A.2` The declarer is the person who loaded and accepted the line · live · specs/5a-targets/rulings.md
 - `D-5A.3` One line per factor; more is not available, never summed or picked · live · specs/5a-targets/rulings.md
@@ -26,3 +31,6 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-5A.10` On the target side too, unknown is never zero · live · specs/5a-targets/rulings.md
 - `D-5A.11` 5a's evaluation builds on 4b1, not on 4b's providers (refines D-BW1.10) · live · specs/5a-targets/rulings.md
 - `D-5A.12` 5a code starts after the owner approves P5 · live · specs/5a-targets/rulings.md
+- `D-5A.13` A blocked target is held but refused (NOT_CALCULATED_YET) and never computed instead · live · specs/5a-targets/rulings.md
+- `D-5A.14` The declarer is the intake of the line's latest revision; an unchanged re-upload does not re-declare · live · specs/5a-targets/rulings.md
+- `D-5A.15` A cost with no budget line is taken at its actual, labelled (owner Q7 default) · live · specs/5a-targets/rulings.md

@@ -95,3 +95,105 @@ Handshake answers go below, under "Handshake answers (round 1)".
   tuple. `StructureRead.site` builds a new context per call, so a later read always sees new records.
 - **Why.** About ten leaves and stated nodes read the same month; a cache keyed by equality would serve a stale month
   after an intake.
+
+## D-4B.13 An absent leaf names the record 4b reads for it, which may differ from the registry's `filled_by`
+
+- **Ruling.** The record an absent value names (`fb` in spec §3.3) is the row's `READ_AS` record (spec §3.4's
+  "Names" column): `stated_by` for the two stated nodes; `filled_by` for `om`, `staff`, `productive_kwh` and
+  `diesel_price`; for `in_transit` the literal `RECEIPT_RECORD`; for `outstanding` the record of the *failing* kind
+  (CHARGE → `CHARGE_RECORD`, RECEIPT → its `filled_by`), with note `NEEDS:<kind>` in cases 1 and 3. The registry is
+  unchanged: `in_transit`'s own record stays SETTLEMENT, named again when settlement matching is built (queue Q3).
+- **Why.** Handshake R2. Done Q3 asks for "its own record and a true cause": a gap must name the record that would
+  close it *in this build*. 4b reads money in transit from the receipt's status (D-4B.9), so "settlement statement not
+  connected" names a record nothing reads and sends the operator to the wrong file. Moving `filled_by` (option (a))
+  would state in the registry, and in 3B1's manifest, that the leaf's own record is a receipt, which is false once
+  matching exists; the substitute belongs to the reader that substitutes. `ProductLeafSource` (no commercial source at
+  all) keeps naming `filled_by`: with nothing connected, the registry's own record is the honest answer.
+
+## D-4B.14 The declared diesel price never stands in for fuel invoices, open month or closed (refines D-4B.6)
+
+- **Ruling.** `diesel_price` falls back to the declared price only when the month has no fuel *cost* line (EXPENSE
+  AMOUNT, category FUEL, INVOICED or PAID) or EXPENSE is not connected. A month with such a line and still open has no
+  price (`NOT_RECEIVED`, `MONTH_OPEN`), as every other 4b leaf (D-4B.4).
+- **Why.** Handshake R3. D-4B.6's own reason is "the assumption never hides records"; rev 1 let it hide November's
+  invoices. With no invoice, the declared price is not a partial sum (D-4B.4's reason does not apply), so it stays the
+  labelled fallback in an open month too.
+
+## D-4B.15 Fuel invoices with zero litres give no price
+
+- **Ruling.** When the month's fuel cost lines sum to 0 L, `diesel_price` has no value: `NOT_CALCULATED_YET`, note
+  `ZERO_DENOMINATOR:fuel_litres`. Never the fallback, since invoices exist (D-4B.14).
+- **Why.** Handshake R5. 2a allows a 0 L fuel line (a delivery fee); a division by zero is a refusal to compute, not
+  a reason to show the assumption.
+
+## D-4B.16 A stated record that is held but refused blocks its heading; the expression never replaces it (refines D-4B.1)
+
+- **Ruling.** A stated value with no value and cause `NOT_CALCULATED_YET` (records held that cannot be read: mixed
+  currency for 4b, a blocked budget line for 5a) gives the node no value, whatever the expression, in spec §2.3's
+  third row's form. Only `NOT_CONNECTED` or `NOT_RECEIVED` (nothing to read) lets the expression's value through.
+  `computed` is set only on the first row (a stated value with a value).
+- **Why.** Handshake R8 (and 5a's R6, the same class). Serving the expression would silently replace the operator's own
+  records with a figure that disagrees with them, the class D-4B.6 and D-5A.3 already refuse ("the assumption never
+  hides records"; "never picked"). Unreachable for MINI_GRID actuals until 4a and 4d, reachable now on the target side.
+
+## D-4B.17 A stated node's unit is exactly money
+
+- **Ruling.** `STRUCTURE_STATED` refuses `stated_by` on a row whose unit is not `Unit.is_money` (exactly `MONEY^1`).
+- **Why.** Handshake P4. `stated_by` names the record that states a node's *total*, and 4b sums records into it
+  (§3.4). A money-per-unit heading is a rate; a record stating it would need a division the seam does not define.
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-20, on `handshake.md` at `4da3a0dc6`. Each answer is folded into `spec.md` rev 2 and
+`reviewer-guide.md` rev 2. Every gate named below has a plant that fails it.
+
+- **R1 (High).** Accepted. S6 adds two pairs whose alphabetical and `ORIGIN_ORDER` orders differ: `om`
+  `("demo-simulated",)` with `staff` `("source-emulated",)` gives `cost_to_serve.origins == ("source-emulated",
+  "demo-simulated")` and `weakest_origin == "demo-simulated"`; `om` `("field-integrated",)` with `staff`
+  `("observed-financial",)` gives `("observed-financial", "field-integrated")` and `"field-integrated"`. S5 adds the
+  refusal of `("demo-simulated", "source-emulated")` (alphabetical, wrong in `ORIGIN_ORDER`). V5 names these three
+  assertions; the alphabetical plant fails all three, and a `weakest_origin` planted as the alphabetical maximum fails
+  both `weakest_origin` assertions.
+- **R2 (High).** Option (b), D-4B.13: §3.4 gains a "Names when absent" column (`READ_AS`), with literals `CHARGE_RECORD
+  = FilledBy("COMMERCIAL_RECORD", "CHARGE", "Billing export: the month's charges")` and `RECEIPT_RECORD =
+  FilledBy("COMMERCIAL_RECORD", "RECEIPT", "Receipts for the month, with their payment status")`. Test 7 asserts
+  `record_kind`, family, cause, words and note for both leaves in (a) and (b), and adds (c), Mto (neither CHARGE nor
+  RECEIPT): `outstanding` names CHARGE, `NOT_CONNECTED`, note `NEEDS:CHARGE`; `in_transit` names RECEIPT, note None.
+  Test 10 checks every absent value against `READ_AS`. Plant V19 (build `Missing` from `filled_by` for every leaf)
+  fails 7(a) and 7(c).
+- **R3 (High).** Accepted, D-4B.14: diesel_price has its own order of judgement (§3.3). Test 2 reads Kobo November
+  twice: (i) before any November fuel invoice, `diesel_price` is the fallback's 1.30, `ESTIMATED`; (ii) after
+  ingesting `KOBO-EX-FUEL-1105` (§5 test 2's literal), `diesel_price` and `fuel_cost` have no value, `NOT_RECEIVED`,
+  note `MONTH_OPEN`. V10 adds "fall back in an open month with invoices", failing 2(ii).
+- **R4 (Medium).** Kept, with a test that can fail: test 11(b) reads Kobo October inside
+  `decimal.localcontext(Context(prec=3))` and asserts `revenue`, `fuel_cost` and `outstanding` as `format(v, "f")`
+  text (`"3458.00"`, `"1475.00"`, `"278.00"`) and `diesel_price == Decimal("1.25")`. A sum under the ambient context
+  gives `3.46E+3`. If a 3A4 or 3B3 path fails under it, that is a mid-build question, not a reason to drop the test.
+- **R5 (Medium).** Accepted, D-4B.15; new test 12 (Mto with a 0 L fuel invoice). Plant V17.
+- **R6 (Low).** Accepted. V7 fails test 1 only. V11 fails test 7(b) and test 2(i) (`om` in November before the
+  invoice: judged by month, EXPENSE reads `NOT_CONNECTED`, not `MONTH_OPEN`).
+- **R7 (Low).** Accepted: new test 13, the L1 pattern (`test_3b3_structure_evaluate.py:784`): the commercial builder
+  raises, the snapshots and prices stores are each disposed once; a good build's `dispose()` disposes all three once.
+  Plant V20 (no disposal on the third builder's failure).
+- **R8 (Low).** The bullet defers to the table; D-4B.16: a refused stated record (`NOT_CALCULATED_YET`) blocks. New
+  4b1 test S10; plant V16.
+- **R9 (Low).** Accepted: for a recorded zero, the currency and step 4's check run over all AMOUNT lines of the needed
+  kind (any status); sources and origins over all lines of the needed kind, as rev 1.
+- **R10 (Low).** Accepted: test 1 reads `Docs/demo-sprint/product-direction-layer4/derived-values.json` (parsed with
+  `parse_float=Decimal`), `sites["lakeside-power/Kobo"]["actual"]["nodes"]["contribution"]`, and asserts it equals
+  Kobo's `contribution` value. The file today gives `883.0`.
+- **R11 (Low).** Accepted: the probe counts one `site_month` and one `latest_revisions` per Site read.
+- **R12 (Low).** Accepted: S8's `diesel_l` plant is `FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", None)`.
+- **P1 (Medium).** Accepted: `test_3b3_structure_evaluate.py:652` is the fourth version edit; §2.1's sweep is `grep -rn
+  '"MINI_GRID", 2\|version == 2' backend/tests`, whose only other hit is the unrelated
+  `test_s3_dispatch_assessment_postgres.py:455`. Done Q8 lists the four.
+- **P2 (Medium).** Accepted: 4b2 edits T6's table (`:69-80`) and its body (`:532-553`): the five new PROVIDED leaves
+  are checked against a per-leaf cause (`NOT_CONNECTED`, `filled_by`), and `PROVIDED_ELSE_ASSUMED` like `ASSUMED`.
+  Inside done Q8.
+- **P3 (Low).** Accepted: builds on `main` at `5a2ea9974`; `build_commercial_reads` goes beside 3A2's
+  `build_commercial_months`; no merge-order question remains for `composition.py`.
+- **P4 (Low).** `is_money`, D-4B.17. S8 adds a planted copy of `revenue` with `tariff`'s unit (`MONEY / KWH`); plant
+  V18 (any MONEY exponent) fails it.
+- **P5 (Low).** Confirmed: snapshots, prices, then commercial; the L1 test stays green unchanged.
+
+No change to scope or units: 4b1 gains S10 and the D-4B.17 check (inside its unit); 4b2 gains tests 12 and 13.

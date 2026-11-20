@@ -1,4 +1,6 @@
-# 5a reviewer guide (rev 1)
+# 5a reviewer guide (rev 2)
+
+Rev 2 folds in the handshake answers (`rulings.md` "Handshake answers (round 1)", D-5A.13 to D-5A.15).
 
 For the fresh Reviewer: first at the handshake (read `spec.md`, `rulings.md`, `structure-page-P5.md` and this guide;
 put questions in `handshake.md`), then at the review. Depth: discovery (W5): the first target figures, a new read
@@ -6,7 +8,8 @@ and the labelled-assumption rule the owner set.
 
 ## First checks
 
-1. **P5 approved** before any unit merged (D-5A.12); the packet cites the owner file.
+1. **P5 approved** (20 Nov, `owner/owner-p5-approved-and-defaults-2026-11-20.md`) before any code (D-5A.12); the
+   packet cites the owner file.
 2. **Scope.** Only `structure/targets/` (new), the fixture, `test_5a_targets.py`, `test_5a_targets_postgres.py` and
    the packet. No existing module edited; no migration.
 3. **Order.** Units 2 and 3 built after `4b1` merged; the branch merged `main` before unit 2.
@@ -31,19 +34,23 @@ set through `tools/heavy-slot.sh --db`, check-all, and every planted violation b
 | V7 | Add the operator-level line into the portfolio | test 6 (`staff` 1450.00) |
 | V8 | Solve the main factor without the linearity or slope test | test 5(b), 5(c) |
 | V9 | Take the declarer from the revision's source system, or drop the `person:` parse | test 1 |
-| V10 | Take an `AT_ACTUAL` target with the actual's evidence | test 3 (`diesel_price` ESTIMATED) |
+| V10 | Take an `AT_ACTUAL` target with the actual's evidence | test 3(a) (`productive_kwh`: RECORDED, not ESTIMATED), test 3(b) (`staff`) |
 | V11 | Read an absent actual as 0 under `AT_ACTUAL` | test 3 (`tariff` absent), test 8 |
 | V12 | Fall back to an assumption for a blocked factor | test 8 |
 | V13 | Compose the portfolio over all Sites with 0 for a missing one | test 7 |
+| V14 | Take the declarer from the latest intake touching the Site's budget lines, not the line's latest revision | test 1(b) |
+| V15 | Serve the computed expression for a blocked stated heading (or give a blocked factor cause `NOT_RECEIVED`) | test 8(c) |
 
 ## Probes
 
 - **No second figure.** The target contribution comes from `evaluate`, never from a line; the check only compares.
-- **Every absent target names `BUDGET_LINE`** with a note from the spec's closed set (`BUDGET_VERSIONS`,
+- **Every absent target names `BUDGET_LINE`**, cause `NOT_CALCULATED_YET` when blocked and `NOT_RECEIVED` otherwise,
+  with a note from the spec's closed set (`BUDGET_VERSIONS`,
   `DUPLICATE_DECLARATION`, `CURRENCY_MISSING`, `CURRENCY_ON_QUANTITY`, `TARGET_CURRENCY_UNKNOWN`,
   `ACTUAL_NOT_AVAILABLE`, `MAIN_FACTOR_UNSOLVED:`, `MAIN_FACTOR_NONLINEAR:`, `MAIN_FACTOR_ZERO_SLOPE:`, or None).
 - **Words.** The three assumption texts and `TARGET_WORDS` are the spec's literals, byte for byte.
-- **Reads.** One `site_month`, one `latest_revisions` and one `intake` per distinct intake per Site read.
+- **Reads.** One `site_month`, one `latest_revisions` and one `intake` per distinct intake per Site read; a `None`
+  intake raises.
 
 ## Class sweeps (W6)
 
@@ -54,4 +61,4 @@ set through `tools/heavy-slot.sh --db`, check-all, and every planted violation b
 ## Risks
 
 - `4b1`'s fields change after this builds on them: check `4b`'s rulings at review time.
-- The owner changes a P5 rule on day 3: the spec is revised first (D-5A.12).
+- The owner answers Q7 (a cost with no line) against the default: the rule table and test 3(b) change first.
