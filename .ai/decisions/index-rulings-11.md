@@ -1,11 +1,13 @@
 # Decision index: Demo-sprint and later rulings (index only) (D-ON1.9 to D-RC4F1.2)
 
-- `D-ON1.9` File proposes roles; nothing granted until the executive approves at sign-in with the confirmed digest (owner A) · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.9` File proposes roles; nothing granted until the executive approves at sign-in with the confirmed digest (owner A) · deferred to ON1b by D-ON1.15 (rule for real data) · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.10` Executive confirms a roles digest; apply refuses other files; submitter never accepter · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.11` Demo pins ASSETOPS_TENANT_SLUG=demo, drops operator settings; runbook uses subshells only · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.12` RC4 tests cannot connect: rc4.invalid host plus a no-connect fixture · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.13` Runbook test checks an exact command list; erasure deletes every copy · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.14` One lstat tombstone check, fails closed; erase always tombstones and unlinks · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.15` Rev 3: emulated roles granted automatically by service:onboarding; real files refused before any write until ON1b · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.16` Queued unit ON1b (0.75 unit): owner option A for real operators, built before any real file · live · specs/ON1-operator-tenant/rulings.md
 - `D-3A3.9` A row with a control character is refused alone (NATIVE_CHARACTER) · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.10` Layouts are also the owner's reshaping template; provenance follows the database · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.11` Loader reads held uploads once: path switch refused, waiting file not resent, submitter not accepter · live · specs/3A3-emulators-contract-test/rulings.md
