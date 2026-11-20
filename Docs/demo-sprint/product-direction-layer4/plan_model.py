@@ -129,7 +129,7 @@ SLICES = [
     ("3B7a", "3B", "B1", "Structure snapshot store (OD-23), the structure read served from it with its as of, and the rebuild check", "STR", (2.5, 2.5), ["3B3"], "P3B", "schema"),
     ("3B7b", "3B", "B1", "structure_dirty and triggers 1 to 6; recalculation pending; the worker at the daily run and on demand; Recalculate now on the pending note", "STR", (3, 3), ["3B7a"], "P3B", "schema screen"),
     ("3B6", "3B", "B1", "Cold-room and captive-EV structures declared and tested from the start (revenue not applicable, never zero)", "STR", (1, 2), ["3B1"], "P3B", ""),
-    ("3C0a", "3C", "CH2", "Operator accounts behind the API: email-and-password sign-in, one set per operator (OD-13); roles granted and removed by the executive, each change recorded (OD-14)", "DEC", (2, 2), [], "P1", "schema new"),   # D-BW1.3: 3C0 split; rev 16.12: no dependency on 1a
+    ("3C0a", "3C", "CH2", "Operator accounts behind the API: email-and-password sign-in, one set per operator (OD-13); roles granted and removed by the executive, each change recorded (OD-14)", "DEC", (2.5, 2.5), [], "P1", "schema new"),   # D-BW1.3: 3C0 split; 2.5 units (3C0a P14); rev 16.12: no dependency on 1a
     ("3C0b", "3C", "CH2", "The sign-in page and Organisation settings' roles on screen", "SCR", (1, 1), ["3C0a"], "P1", "new screen"),
     ("3C1", "3C", "CH2", "An authenticated user recorded on every command: trial, domain action and work case writes accept the person", "DEC", (2, 4), ["3C0a"], "P1", "schema new"),
     ("3C2", "3C", "CH2", "Every Action records creator, owner and due date; overdue computed as for maintenance schedules", "DEC", (2, 3), ["3C1"], "P1", "schema new"),

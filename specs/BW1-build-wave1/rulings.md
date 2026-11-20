@@ -84,10 +84,10 @@ Architect (Claude), 2026-11-20. The owner, 20 Nov: "yes, start the non-screen bu
   - On short lanes the must-keep set goes first, then delivery order, then the work a slice unlocks.
   - `T1` and `DS1` count as done before day 1.
 - **Why must-keep first.** Under delivery order alone, on two lanes `3B2` and `3C2` missed day 12 and the check
-  failed. Ranking must-keep first lands them all by day 12, at no cost in units (64 against 63.5). Calibration (step
+  failed. Ranking must-keep first lands them all by day 12, at no cost in units (64 against 63.5 before `3C0a` became 2.5 units). Calibration (step
   0) was ranked first only because it had a lane of its own; on two lanes it is gap work.
 - **Why the handshake time.** It is the pack's decision 6, the optimistic bias to correct at the re-cut. The value is
   an assumption, to be measured from `2a` and `3C0a`.
-- **Result.** At the planning pace the fortnight lands 64 units in 24 slices and completes step 3A (it was 111.5 units
-  and step 5 with four lanes and no data slices). Four lanes would land 114.5 and complete step 4; a third lane, once
-  DS1m frees one, lands 91. The screen hold costs nothing on two lanes.
+- **Result.** At the planning pace the fortnight lands 64.5 units in 24 slices (with `3C0a` at 2.5 units, 3C0a P14) and completes step 3A (it was 111.5 units
+  and step 5 with four lanes and no data slices). Four lanes would land 115 and complete step 4; a third lane, once
+  DS1m frees one, lands 91.5. The screen hold costs nothing on two lanes.

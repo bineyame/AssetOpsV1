@@ -1,6 +1,6 @@
 # 3C0a: operator accounts and roles behind the API (implementer spec)
 
-Architect (Claude), 2026-11-20. Rev 1, spec handshake step 1 (`.ai/RULES.md` §4). Lane A, first unit of the
+Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in: `rulings.md` "Handshake answers (round 1)", D-3C0A.11). Rev 1 was spec handshake step 1 (`.ai/RULES.md` §4). Lane A, first unit of the
 non-screen build (`specs/BW1-build-wave1/rulings.md` D-BW1.1, D-BW1.3). Decisions with reasons: `rulings.md`
 (D-3C0A.1 to D-3C0A.10). Reviewer: `reviewer-guide.md`. Questions: `handshake.md`, then `mid-build-questions.md`.
 
@@ -10,7 +10,7 @@ are `3C0b` (screen, held). Discovery review (W5: new schema, a security mechanis
 
 ## 0. Before you start
 
-- **Branch** `task/3C0a-operator-accounts` off `main` at or after `56300a810`; worktree
+- **Branch** `task/3C0a-operator-accounts` off `main` after the coordinator has merged `task/build-wave1-specs` (P1); worktree
   `/opt/assetecon/AssetOpsV1-3c0a`. Never work in `/opt/assetecon/AssetOpsV1`.
 - **Gate.** Code starts when the handshake has no open question. No owner sitting is needed (OD-20).
 - **Read:** this spec; `rulings.md`; `decision-loop-specification.md` §8 (in the pack); for style,
@@ -29,8 +29,9 @@ are `3C0b` (screen, held). Discovery review (W5: new schema, a security mechanis
 - **Migration number.** Write it as `0062_operator_accounts` (`down_revision = "0061_reading_upload"`). If another
   migration reaches `main` first, the coordinator renumbers at merge preparation (`delivery-plan.md` §2).
 - **Collisions.** The UI lanes and DS1m edit only `Docs/.../interactive-mockup-vNEXT/` and `Docs/design-system/`; no
-  overlap. `2a` (lane B) edits only `contracts/`; no overlap. You edit `backend/`, `host/lab_app.py`,
-  `tools/checks/configuration-persistence.ps1` and this folder's packet.
+  overlap. `2a` (lane B) edits only `contracts/`; no overlap. You edit `backend/` (not `host/lab_app.py`, P11),
+  `tools/checks/configuration-persistence.ps1`, this folder's packet and the finish bookkeeping (P15: the
+  `.ai/state/` entry and its index line, the `specs/INDEX.md` row).
 
 ## 1. Outcome and why
 
@@ -47,7 +48,8 @@ switch arrives with the sign-in page (D-BW1.3, `3C1` and `3C0b`), so today's scr
 ## 2. Records (migration `0062_operator_accounts`)
 
 `TABLES = ("operator_account", "account_credential", "account_status", "role_grant", "operator_session",
-"sign_in_attempt")`. The upgrade is exactly this SQL (the 0061 style: one `UPGRADE` string, `op.execute`):
+"sign_in_attempt")`. The upgrade is exactly this SQL (the 0061 style: one `UPGRADE` string, `op.execute`; a raw string
+`r"""..."""` as in 0001, because of the `\$` in the hash CHECK, P12):
 
 ```sql
 CREATE TABLE operator_account (
@@ -146,20 +148,30 @@ CREATE TRIGGER operator_session_revoke BEFORE UPDATE OR DELETE ON operator_sessi
     FOR EACH ROW EXECUTE FUNCTION operator_session_revoke_only();
 CREATE TABLE sign_in_attempt (
     id uuid PRIMARY KEY,
-    email_key text NOT NULL CHECK (char_length(email_key) BETWEEN 1 AND 320),
+    email_key_sha256 text NOT NULL CHECK (email_key_sha256 ~ '^[0-9a-f]{64}$'),
     at timestamptz NOT NULL,
     succeeded boolean NOT NULL,
     person_id uuid NULL REFERENCES operator_account (id),
-    CHECK (NOT succeeded OR person_id IS NOT NULL)
+    CHECK (succeeded = (person_id IS NOT NULL))
 );
-CREATE INDEX sign_in_attempt_email ON sign_in_attempt (email_key, at DESC);
+CREATE INDEX sign_in_attempt_email ON sign_in_attempt (email_key_sha256, at DESC);
+CREATE INDEX sign_in_attempt_at ON sign_in_attempt (at);
+CREATE FUNCTION sign_in_attempt_no_update() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    RAISE EXCEPTION 'sign_in_attempt rows are inserted and purged, never updated';
+END;
+$$;
+CREATE TRIGGER sign_in_attempt_no_update BEFORE UPDATE ON sign_in_attempt
+    FOR EACH ROW EXECUTE FUNCTION sign_in_attempt_no_update();
 ```
 
-Then, for each of `operator_account`, `account_credential`, `account_status`, `role_grant`, `sign_in_attempt`:
+Then, for each of `operator_account`, `account_credential`, `account_status`, `role_grant` (not `sign_in_attempt`,
+which is insert-and-purge, D-3C0A.11):
 `CREATE TRIGGER <table>_immutable BEFORE UPDATE OR DELETE ON <table> FOR EACH ROW EXECUTE FUNCTION
 ledger_append_only();` (the 0005 function). The downgrade follows 0061: `LOCK` every table, refuse with
 `RAISE EXCEPTION 'Downgrade of 0062_operator_accounts refused: accounts exist'` if `operator_account` has a row, then
-drop triggers, functions, indexes and tables in reverse order. The adapter writes every timestamp itself (from the
+drop triggers, indexes and tables in reverse order and exactly the functions `role_grant_removal_matches()`,
+`operator_session_revoke_only()` and `sign_in_attempt_no_update()`; never 0005's `ledger_append_only()` (R11). The adapter writes every timestamp itself (from the
 service clock); there are no column defaults.
 
 **Current state is derived, never stored** (D-3C0A.2): a person's password is the latest `account_credential` row by
@@ -171,32 +183,44 @@ row naming it.
 - **Roles** (codes as the manifest's `demo_workflow.tenants[].people`), in this order everywhere a list is sorted:
   `OPERATOR_EXECUTIVE`, `FINANCE_AND_COMMERCIAL_LEAD`, `SITE_MANAGER`, `FIELD_TECHNICIAN`, `ANALYST`. Only
   `SITE_MANAGER` carries a Site, and it must (D-3C0A.4). A person may hold several grants.
-- **Email.** Trimmed of surrounding whitespace, then it must match `^[^@\s]{1,64}@[^@\s]{1,255}$` and be at most 320
-  characters. `email_key = email.lower()`. Unique across all tenants (D-3C0A.3).
+- **Email.** Trimmed of surrounding whitespace, then it must `re.fullmatch` `[!-?A-~]{1,64}@[!-?A-~]{1,255}`
+  (printable ASCII, no `@`, space or control character on either side; R3) and be at most 320 characters.
+  `email_key = email.lower()`, which then equals Postgres `lower()`. Unique across all tenants (D-3C0A.3). The
+  attempt record stores `email_key_sha256 = sha256(email_key.encode("ascii")).hexdigest()`, never the key.
 - **Password** (set only by the onboarding command in this unit): 12 to 128 characters, not all whitespace, kept
   exactly as typed (no trimming or normalisation). Hash: `hashlib.scrypt(password.encode("utf-8"),
   salt=os.urandom(16), n=32768, r=8, p=1, maxmem=67108864, dklen=32)`, stored as
   `scrypt$32768$8$1$<salt>$<hash>` with unpadded URL-safe base64 (22 and 43 characters). Verify with
   `hmac.compare_digest`. A stored hash in any other form fails verification (it never raises). About 0.13 s per hash
   on this machine (measured 20 Nov).
-- **Sign-in.** Email and password. Every outcome writes one `sign_in_attempt` row, except a locked refusal (so a lock
-  cannot extend itself). Refused with one code and one body for an unknown email, a wrong password, a disabled
-  account or an account with no credential (D-3C0A.6); for an unknown email the service still verifies the password
-  against a fixed dummy hash (a module constant made once at import with a fixed salt), so timing does not tell.
-- **Lockout.** When the email key has 5 or more failed attempts with `at` in the last 15 minutes, sign-in is refused
-  as locked before the password is checked. `retry_minutes = ceil((t5 + 15 min - now) / 1 min)`, at least 1, where `t5`
-  is the earliest of the 5 most recent failures.
+- **Sign-in.** Email and password. Every refused path runs exactly one scrypt verification before answering: the
+  stored hash when one exists, else `DUMMY_HASH` (a module constant made once at import with a fixed salt); the
+  status check comes after it (R4). Refused with one code and one body for an unknown email, a malformed email, a
+  wrong password, a password over 128 characters (only its first 128 reach scrypt), a disabled account or an account
+  with no credential (D-3C0A.6).
+- **Attempt records** (D-3C0A.11). A malformed email writes no row. Every other outcome writes one row, except a
+  locked refusal (so a lock cannot extend itself): `person_id` only on a success, `NULL` on every failure. Each insert
+  runs, in its transaction, `DELETE FROM sign_in_attempt WHERE at < :before` with `:before = now - 30 days`.
+- **Lockout** (R5). Under a per-email advisory lock
+  (`pg_advisory_xact_lock(hashtextextended('sign_in:' || :key_sha256, 0))`), held across count, verification and
+  insert: when the key has 5 or more failures with `at` after the later of `now - 15 min` and the key's latest
+  success, sign-in is refused as locked before the password is checked. `retry_minutes = ceil((t5 + 15 min - now) /
+  1 min)`, at least 1, `t5` the earliest of the 5 most recent counted failures. An unknown email locks exactly as a
+  known one. A success resets the count.
 - **Session.** A token `secrets.token_urlsafe(32)`; only its SHA-256 hex is stored. It lasts 12 hours from sign-in,
-  absolute, not sliding. A session is valid while not expired, not revoked, and the account is ACTIVE. Sign-out
+  absolute, not sliding. A session is valid while not expired, not revoked, the account is ACTIVE, and its
+  `created_at` is not before the latest credential's `set_at` (a new password ends older sessions; R8). Sign-out
   revokes it (idempotent).
 - **Grant.** Only a person holding `OPERATOR_EXECUTIVE` grants or removes. The target person and Site must be the
   executive's own tenant's. A grant that is already held (same person, role, Site) is refused. A removal of a grant
   already removed is refused. Removing a held `OPERATOR_EXECUTIVE` grant is refused when it would leave the tenant
-  with no person holding that role on an ACTIVE account (D-3C0A.5). The executive may remove their own roles subject
-  to that rule.
-- **Concurrency.** Each grant and removal runs in one transaction that first takes
+  with no person holding that role on an ACTIVE account (D-3C0A.5); so is disabling the last ACTIVE executive (R7). The
+  executive may remove their own roles subject to that rule. A grant to a DISABLED account is allowed (P13).
+  `EXECUTIVE_EXISTS` counts held executive grants on ACTIVE accounts only.
+- **Concurrency** (R6). Four writes each run in one transaction that first takes
   `SELECT pg_advisory_xact_lock(hashtextextended('role_grant:' || CAST(:tenant_id AS text), 0))` and then re-checks its refusal
-  rules inside the transaction.
+  rules inside the transaction: a grant, a removal, `create_account` with an executive grant, and `set_status` to
+  DISABLED.
 - **Who did it.** A grant or removal by a person stores `by_person_id`; the onboarding command stores
   `by_service = 'service:onboarding'`. `created_by` and `set_by` are `person:<uuid>` or `service:onboarding`.
 
@@ -220,17 +244,23 @@ row naming it.
 `site_code_key`, as the existing Site lookups); `account_by_email_key(key) -> Account | None`;
 `account(tenant_id, person_id) -> Account | None`; `current_credential(person_id) -> str | None`;
 `current_status(person_id) -> str | None`; `held_grants(tenant_id, person_id) -> tuple[GrantRow, ...]`;
-`failures_since(key, since) -> tuple[datetime, ...]` (newest first); `add_attempt(key, at, succeeded, person_id)`;
+`guarded_attempt(key_sha256, now, verify: Callable[[], tuple[bool, UUID | None]]) -> Attempt` (R5: one transaction
+under the per-email lock: count, return `Attempt(locked=True, retry_at)` if locked, else call `verify`, insert the row
+(person only on success), purge rows older than 30 days, return `Attempt(locked=False, succeeded, person_id)`);
+`grant_row(tenant_id, grant_id) -> GrantRow | None` (P3);
 `add_session(id, tenant_id, person_id, token_sha256, created_at, expires_at)`;
 `session(token_sha256) -> tuple[UUID, UUID, UUID, datetime, datetime | None] | None` (id, tenant, person, expires,
 revoked); `revoke(token_sha256, at) -> None` (the one UPDATE; a no-op when already revoked);
-`people(tenant_id) -> tuple[PersonView, ...]` (by display name, then email); `grant_rows(tenant_id) -> tuple[GrantRow, ...]`
+`people(tenant_id) -> tuple[PersonView, ...]` (sorted in Python by `(display_name.casefold(), email_key)`, P13); `grant_rows(tenant_id) -> tuple[GrantRow, ...]`
 (newest first by `(at, id)`); `add_grant(row: GrantRow) -> GrantRow` (refuses `ROLE_ALREADY_HELD` by `StoreConflict`);
 `add_removal(row: GrantRow) -> GrantRow` (refuses `GRANT_ALREADY_REMOVED`, `LAST_EXECUTIVE`);
 `create_account(account, password_hash, created_at, by, executive_grant: GrantRow | None) -> None` (one
 transaction: the account, its credential, an ACTIVE status, and the optional first grant; refuses `EMAIL_TAKEN`,
-and `EXECUTIVE_EXISTS` when `executive_grant` is given and the tenant already has a held `OPERATOR_EXECUTIVE`);
-`set_credential(tenant_id, person_id, password_hash, at, by)`; `set_status(tenant_id, person_id, status, reason, at, by)`.
+and `EXECUTIVE_EXISTS` when `executive_grant` is given and the tenant already has a held `OPERATOR_EXECUTIVE` on an
+ACTIVE account; under the tenant lock);
+`set_credential(tenant_id, person_id, password_hash, at, by)`; `set_status(tenant_id, person_id, status, reason, at, by)`
+(DISABLED under the tenant lock; refuses `LAST_EXECUTIVE`, R7). The in-memory test store re-implements every refusal
+and uses a `threading.Lock` per key for `guarded_attempt`.
 
 ### 4.2 Service
 
@@ -238,8 +268,11 @@ and `EXECUTIVE_EXISTS` when `executive_grant` is given and the tenant already ha
 - `sign_in(email, password) -> SignedIn`; raises `AccountRefused` `SIGN_IN_REFUSED` (401) or `SIGN_IN_LOCKED` (429,
   `params={"minutes": n}`). `BAD_EMAIL` at sign-in is reported as `SIGN_IN_REFUSED` too.
 - `sign_out(token: str | None) -> None`.
+- `onboard_create(tenant_slug, email, display_name, password, *, executive: bool) -> UUID`,
+  `onboard_set_password(email, password) -> None`, `onboard_set_status(email, status, reason) -> None`: the
+  onboarding command's writes, each by `ONBOARDING` (P2); refusals as §7.
 - `resolve(token: str | None) -> PersonPrincipal | None`: `None` for no token, an unknown, expired or revoked
-  session, or an account that is not ACTIVE. Roles are read from the held grants at each call (OD-14: current grants
+  session, a session older than the latest credential, or an account that is not ACTIVE. Roles are read from the held grants at each call (OD-14: current grants
   at each command).
 - `people(principal) -> tuple[PersonView, ...]`, `grant_record(principal) -> tuple[GrantRow, ...]`: any signed-in
   person of the tenant (Organisation settings is read by every role).
@@ -251,15 +284,22 @@ and `EXECUTIVE_EXISTS` when `executive_grant` is given and the tenant already ha
 
 ## 5. HTTP routes (`accounts_api.py`, mounted in `create_app`)
 
-Every POST requires `Content-Type: application/json` (else 415 `JSON_REQUIRED`) and a JSON object body (else 422
-`ACCOUNTS_BAD_REQUEST`, `params={"field": <first missing or wrong key>}`); unknown body keys are refused the same way.
+Every route is `async`, reads the body with a 4 KiB limit, and calls the service through `run_in_threadpool` (R9;
+`reading_upload_api.py` precedent). Every POST, sign-out included, requires `Content-Type: application/json` (else 415
+`JSON_REQUIRED`) and a JSON object body (else 422 `ACCOUNTS_BAD_REQUEST`). `params.field` is `"body"` when the body is
+over 4 KiB, not JSON or not an object; otherwise the first unknown key in sorted order, then the first missing or
+wrongly typed key in the route's listed order (`site_code` may be absent or `null`; P6). **Order of refusals** (R13):
+503 `ACCOUNTS_UNAVAILABLE`, 415, 422, 401 `NOT_SIGNED_IN` (routes needing a session; sign-out never answers 401), then
+the service's order. Every response under `/api/auth/` and `/api/organisation/` carries `Cache-Control: no-store`.
+`sqlalchemy.exc.OperationalError` and `InterfaceError` from the store answer 503 `ACCOUNTS_UNAVAILABLE` (R14). The
+table's refusal column lists only the domain refusals.
 Every refusal body is `{"code", "message", "words"}` as the reading-upload routes (`message` rendered for the
 request's locale, `words` the `Message`). With `accounts` None every route answers 503 `ACCOUNTS_UNAVAILABLE`.
 
 | Route | Body | Success | Refusals |
 |---|---|---|---|
 | `POST /api/auth/sign-in` | `{"email", "password"}` (strings) | 200 `{"person": Person, "tenant": {"slug", "name"}, "session_expires_at"}` and the cookie | 401 `SIGN_IN_REFUSED`, 429 `SIGN_IN_LOCKED` |
-| `POST /api/auth/sign-out` | `{}` | 204 and the cookie cleared (`Max-Age=0`), with or without a session | none |
+| `POST /api/auth/sign-out` | `{}` | 204 and the cookie cleared with `set_cookie(value="", max_age=0)` and the same `HttpOnly`, `SameSite`, `Path` and `Secure` as sign-in (P9), with or without a session | none |
 | `GET /api/auth/me` | none | 200 as sign-in's body | 401 `NOT_SIGNED_IN` |
 | `GET /api/organisation/people` | none | 200 `{"people": [Person, ...]}` | 401 `NOT_SIGNED_IN` |
 | `GET /api/organisation/role-grants` | none | 200 `{"rows": [GrantRecord, ...]}` newest first | 401 `NOT_SIGNED_IN` |
@@ -273,14 +313,17 @@ request's locale, `words` the `Message`). With `accounts` None every route answe
 - A malformed `person_id` or `grant_id` (not a UUID) is 404, as not found.
 - **The cookie:** `assetops_session=<token>; HttpOnly; SameSite=Strict; Path=/api; Max-Age=43200`, plus `Secure` when
   `session_cookie_secure()` is true. Because unknown body keys are refused, a body that tries to name an actor is
-  refused too (the browser never names an actor; `financial_api.py` precedent).
+  refused too (the browser never names an actor; `financial_api.py` precedent). Starlette writes `SameSite=strict`;
+  tests compare attribute names and values case-insensitively (P9).
+- **Cross-site requests** (R12c): the defence is SameSite=Strict, the required JSON content type and the absence of
+  any CORS middleware. A later slice that adds CORS with credentials removes part of it and must say so.
 
 **Words** (add to `i18n/messages.py`, English, under one `# 3C0a` comment; keys `accounts.<code lower case>`):
 
 | Code | English |
 |---|---|
 | `SIGN_IN_REFUSED` | The email or password is not right. |
-| `SIGN_IN_LOCKED` | Too many attempts. Try again in {minutes} minutes. |
+| `SIGN_IN_LOCKED` | Too many attempts. Try again in a few minutes. (`minutes` stays in `params`, R15) |
 | `NOT_SIGNED_IN` | Sign in to continue. |
 | `ROLE_REQUIRED` | Only the operator executive can change roles. |
 | `ROLE_UNKNOWN` | That role does not exist. |
@@ -294,6 +337,14 @@ request's locale, `words` the `Message`). With `accounts` None every route answe
 | `JSON_REQUIRED` | Send the request as JSON. |
 | `ACCOUNTS_BAD_REQUEST` | The request is not complete: {field}. |
 | `ACCOUNTS_UNAVAILABLE` | Sign-in is not available on this server. |
+| `TENANT_NOT_FOUND` | No organisation has that code. |
+| `BAD_EMAIL` | That is not an email address. |
+| `EMAIL_TAKEN` | An account already uses that email. |
+| `PASSWORD_POLICY` | A password has 12 to 128 characters and is not only spaces. |
+| `EXECUTIVE_EXISTS` | This organisation already has an operator executive. |
+| `DATABASE_URL_REQUIRED` | Set DATABASE_URL to the product database. |
+
+21 codes in all (P4); the last six are the onboarding command's, rendered in English by it.
 
 ## 6. Composition
 
@@ -309,14 +360,15 @@ request's locale, `words` the `Message`). With `accounts` None every route answe
 ## 7. Onboarding command (`python -m assetops_backend.accounts.onboard`)
 
 Reads `DATABASE_URL` (`config.database_url()`; unset is exit 2 `DATABASE_URL_REQUIRED`). Passwords come from the first
-line of stdin (the trailing newline removed, nothing else). Success prints the person ID and exits 0; a refusal prints
+line of stdin (the trailing newline removed, nothing else). It imports only `composition.build_account_service` and
+calls the service's `onboard_*` methods (P2). Success prints the person ID and exits 0; a refusal prints
 `<CODE>` and one plain sentence to stderr and exits 2.
 
 | Sub-command | Does | Refusals |
 |---|---|---|
 | `create --tenant SLUG --email E --name N [--executive]` | creates the account, its credential and an ACTIVE status; with `--executive`, also the tenant's first `OPERATOR_EXECUTIVE` grant by `service:onboarding` | `TENANT_NOT_FOUND`, `BAD_EMAIL`, `EMAIL_TAKEN`, `PASSWORD_POLICY`, `EXECUTIVE_EXISTS` |
 | `set-password --email E` | a new credential row by `service:onboarding` | `PERSON_NOT_FOUND`, `PASSWORD_POLICY` |
-| `disable --email E --reason R` / `enable --email E` | a new status row | `PERSON_NOT_FOUND` |
+| `disable --email E --reason R` / `enable --email E` | a new status row | `PERSON_NOT_FOUND`; `disable` of the last ACTIVE executive `LAST_EXECUTIVE` (R7) |
 
 No other role is granted by the command: after onboarding, only the executive grants (OD-14; D-3C0A.7).
 
@@ -326,8 +378,10 @@ Register the account store in `tools/checks/configuration-persistence.ps1`, afte
 statement-shape style of the `$eventWriter` block: `$accountWriter =
 "$backendRoot/accounts/adapters/postgres_account_store.py"` is the sole runtime writer of the six tables, and runs
 only these shapes, each with an owner statement (anti-vacuity): one plain `INSERT INTO <table> (...) VALUES (...)`
-per table (no `ON CONFLICT`, no `SELECT` source), and `UPDATE operator_session SET revoked_at = :at WHERE
-token_sha256 = :h AND revoked_at IS NULL`. Show the guard failing on a planted `UPDATE role_grant` and on a planted
+per table (no `ON CONFLICT`, no `SELECT` source), `UPDATE operator_session SET revoked_at = :at WHERE
+token_sha256 = :h AND revoked_at IS NULL`, and `DELETE FROM sign_in_attempt WHERE at < :before` (D-3C0A.11). The
+advisory-lock `SELECT`s are reads, not write shapes. The registration touches the declaration, `$pgWriters`,
+`$pgWritesSeen`, `$pgDriverSeen`, the rule block and the anti-vacuity loop, as the existing writers do (P14). Show the guard failing on a planted `UPDATE role_grant` and on a planted
 `INSERT INTO role_grant` in a second module (RULES §7); record both in the packet.
 
 ## 9. Tests
@@ -335,32 +389,46 @@ token_sha256 = :h AND revoked_at IS NULL`. Show the guard failing on a planted `
 No-database files (not pooled; run while building):
 - `backend/tests/test_3c0a_passwords.py`: hash form (the CHECK regex); verify true, false; a tampered salt, hash or
   parameter fails; policy at 11, 12, 128, 129 characters and all-whitespace; `normalise_email` cases (trim, case key,
-  no `@`, two `@`, 321 characters).
+  no `@`, two `@`, 321 characters, a non-ASCII letter, a NUL, an inner space).
 - `backend/tests/test_3c0a_accounts_service.py`: an in-memory `AccountStore` written in the test file; a settable
-  clock. Sign-in success writes one succeeded attempt and a session; wrong password, unknown email, disabled account
-  and no credential each give `SIGN_IN_REFUSED` and one failed attempt; the unknown-email path calls
-  `verify_password` with `DUMMY_HASH` (patched spy); the 6th attempt after 5 failures is `SIGN_IN_LOCKED` with the
-  minutes of §3, writes no attempt, and sign-in works again once the window passes; `resolve` is `None` at 12 h
-  after sign-in, after sign-out, and for a disabled account; roles come from held grants at each call (grant then
-  remove: the next `resolve` lacks the role). Each grant and removal refusal of §4.2 in its order; the executive
-  removing their own role when another executive exists succeeds; record newest first.
-- `backend/tests/test_3c0a_accounts_api.py`: `TestClient(create_app(accounts=AccountService(<memory store>, ...)))`
-  with `DATABASE_URL` unset (monkeypatch). The cookie attributes, with `ASSETOPS_SESSION_COOKIE_SECURE` unset, `on`
+  clock. Sign-in success writes one succeeded attempt (with the person) and a session; wrong password, unknown email,
+  disabled account and no credential each give `SIGN_IN_REFUSED` and one failed attempt with no person; a malformed
+  email and a 129-character password give `SIGN_IN_REFUSED` (the malformed email writes no row); `verify_password`
+  is called exactly once on every one of these paths (patched spy; `DUMMY_HASH` where no stored hash); the 6th
+  attempt after 5 failures is `SIGN_IN_LOCKED` with the minutes of §3, writes no attempt, and sign-in works again once
+  the window passes; 4 failures, a success, 1 failure: not locked; an unknown email locks after 5 like a known one;
+  stored keys are hashes. `resolve` is `None` at 12 h after sign-in, after sign-out, for a disabled account, and after
+  a later `onboard_set_password`; roles come from held grants at each call (grant then remove: the next `resolve`
+  lacks the role). Each grant and removal refusal of §4.2 in its order; the executive removing their own role when
+  another executive exists succeeds; a grant to a DISABLED account succeeds; `onboard_set_status` DISABLED on the
+  last ACTIVE executive is `LAST_EXECUTIVE`; record newest first.
+- `backend/tests/test_3c0a_accounts_api.py`: `TestClient(create_app(accounts=AccountService(<memory store>, ...)),
+  base_url="https://testserver")` (http only for the `off` case; R12a) with `DATABASE_URL` unset (monkeypatch). The cookie attributes, with `ASSETOPS_SESSION_COOKIE_SECURE` unset, `on`
   and `off`; a bad value refuses `create_app`; identical 401 bodies for an unknown email and a wrong password; 415
-  for a form body; 422 for an unknown key (including `actor`); each route's success shape; `create_app()`
+  for a form body (sign-out included); 422 for an unknown key (including `actor`) and for a 5 KiB body; the refusal
+  order of §5 (a form body with no session is 415); `Cache-Control: no-store` on all seven routes; a store raising
+  `OperationalError` gives 503; each route's success shape; `create_app()`
   with neither accounts nor URL answers 503 on all seven routes.
 
 Postgres files (pooled):
 - `backend/tests/test_3c0a_accounts_postgres.py` (`store` and `engine` fixtures as `test_up1_reading_upload_postgres.py`):
-  the six tables, their triggers and indexes exist; UPDATE and DELETE refused on the five append-only tables; on
+  the six tables, their triggers and indexes exist; UPDATE and DELETE refused on the four append-only tables;
+  UPDATE refused and the purge DELETE accepted on `sign_in_attempt`; `guarded_attempt` purges a 31-day-old row; on
   `operator_session` only setting `revoked_at` once is accepted; each CHECK fails on a planted row (role and Site,
-  removal and `grant_id`, exactly one of `by_person_id` and `by_service`, `email_key`); the removal trigger refuses a
+  removal and `grant_id`, exactly one of `by_person_id` and `by_service`, `email_key`, `email_key_sha256`, success and
+  person); the removal trigger refuses a
   mismatched removal; the partial unique index refuses a second removal; `email_key` unique across two tenants; the
-  adapter's round trips for every port method; two threads removing the two last executives at once leave exactly
-  one `LAST_EXECUTIVE` refusal and one held executive; downgrade refused with an account present, and down then up
-  again on an empty clone.
-- `backend/tests/test_3c0a_onboard_postgres.py`: `create --executive` with the password on stdin, then
-  `EXECUTIVE_EXISTS` for a second `--executive`; `create` without it holds no role; `set-password` makes the next
+  adapter's round trips for every port method. **Lock proofs** (R2): the test takes the tenant lock on its own
+  connection, starts two threads, asserts after 0.5 s that both are still alive, commits, joins, and checks the
+  result, for two removals of the last two executives (one `LAST_EXECUTIVE`, one executive held), two identical grants
+  (one `ROLE_ALREADY_HELD`) and two `create_account` with an executive grant (one `EXECUTIVE_EXISTS`); the same shape
+  with the per-email lock for two `guarded_attempt` calls (both blocked, then serialised). Downgrade refused with an
+  account present; down then up again on an empty clone, and after the downgrade an 0005 trigger on an older table
+  still refuses an UPDATE (R11).
+- `backend/tests/test_3c0a_onboard_postgres.py`: the subprocess environment is built from scratch with
+  `DATABASE_URL` set to the `engine` fixture's routed URL, after asserting its database name ends `_test` and is not
+  `assetops_test` (R10); `create --executive` with the password on stdin, then `EXECUTIVE_EXISTS` for a second
+  `--executive`; `disable` of the only executive is `LAST_EXECUTIVE`; `create` without it holds no role; `set-password` makes the next
   sign-in use the new password; `disable` refuses sign-in; `EMAIL_TAKEN` across tenants; `TENANT_NOT_FOUND`.
 - Regression beside them: `backend/tests/test_pg_harness.py` and `backend/tests/test_up1_reading_upload_postgres.py`
   (the migration head and the 0061 downgrade still hold).
@@ -387,8 +455,10 @@ in the packet.
 2. Are an unknown email and a wrong password refused identically, and does the sixth attempt in 15 minutes lock?
 3. Is a role granted or removed only by a person holding `OPERATOR_EXECUTIVE`, inside their own tenant, and is every
    grant and removal a row with its person and time, newest first in the record?
-4. Can the tenant never be left without an executive, even with two removals at once?
-5. Are the five record tables append-only and the session table revoke-only, enforced by the database?
+4. Can the tenant never be left without an executive, by removal or by disabling, even with two writes at once, and
+   do the lock proofs show the writes waiting on the lock?
+5. Are the four record tables append-only, the session table revoke-only and the attempt table insert-and-purge
+   (hashed keys, no person on a failure, 30 days), enforced by the database?
 6. Is no existing route, command or screen changed (`git diff --stat main...HEAD` shows only §0's files)?
 7. Do the focused files, the regression pair and check-all pass, with the planted guard violations shown failing?
 
@@ -402,7 +472,7 @@ later); password reset by email; the demo people's accounts (`WK`, D-3C0A.8).
 
 ## 12. Sizing and commits
 
-2 units: up to six commits. Suggested: (1) migration and Postgres tests; (2) passwords, model, store port, adapter;
+2.5 units (P14; `plan_model.py` re-run): up to six commits. Suggested: (1) migration and Postgres tests; (2) passwords, model, store port, adapter;
 (3) service and its tests; (4) routes, words, composition and API tests; (5) onboarding command and its tests;
 (6) guard registration and planted proofs.
 
@@ -413,4 +483,5 @@ later); password reset by email; the demo people's accounts (`WK`, D-3C0A.8).
 | Q1 | Is 3C0a inside "non-screen work now"? | Yes (D-BW1.3); if the owner meant only data, engine and integrations, lane A takes `0K1` instead |
 | Q2 | Email unique across tenants, so sign-in needs no tenant field (D-3C0A.3) | Yes |
 | Q3 | 12-hour absolute sessions; lockout after 5 failures in 15 minutes | Yes; revisit at the pilot |
-| Q4 | `Secure` cookie by default; `off` only for local http | Yes; `3C0b` checks the walkthrough's address |
+| Q4 | `Secure` cookie by default; `off` only for local http | Yes; `3C0b` checks the walkthrough's address and that cookies are shared across ports on one host (R12b) |
+| Q5 | Accounts, credentials, statuses and grants are undeletable by design (D-3C0A.2); attempts are purged after 30 days | Accepted for the demo; erasure of a person's data is a pilot data-protection question |

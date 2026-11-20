@@ -1,6 +1,6 @@
 # 2a: canonical format version 1 and the leaf factor IDs (implementer spec)
 
-Architect (Claude), 2026-11-20. Rev 1, spec handshake step 1 (`.ai/RULES.md` §4). Lane B, first unit of the
+Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in: `rulings.md` "Handshake answers (round 1)", D-2A.10). Rev 1 was spec handshake step 1 (`.ai/RULES.md` §4). Lane B, first unit of the
 non-screen build (`specs/BW1-build-wave1/rulings.md` D-BW1.1). Decisions with their reasons: `rulings.md` (D-2A.1 to
 D-2A.9). Reviewer: `reviewer-guide.md`. Questions: `handshake.md` (before code), `mid-build-questions.md` (during).
 
@@ -8,7 +8,8 @@ Non-screen: no screen, route, store or migration changes. Discovery review (W5: 
 
 ## 0. Before you start
 
-- **Branch** `task/2a-canonical-format` off `main` at or after `56300a810`; worktree `/opt/assetecon/AssetOpsV1-2a`.
+- **Branch** `task/2a-canonical-format` off `main` after the coordinator has merged `task/build-wave1-specs` (P1);
+  worktree `/opt/assetecon/AssetOpsV1-2a`.
   Never work in `/opt/assetecon/AssetOpsV1` (the coordinator's `main` checkout).
 - **Gate.** Code starts when (a) the handshake has no open question and (b) the owner has approved §2, the step-2
   structure page `P2` (W1; asked 20 Nov). Until (b) you may write the tests (§9, commit 1) but not the code.
@@ -16,12 +17,14 @@ Non-screen: no screen, route, store or migration changes. Discovery review (W5: 
   `integration-source-to-canonical-design.md` §6.1, §6.4-§6.7 (search, do not read whole);
   `contracts/assetops_contracts/operational_records.py` (style); `simulator/assetops_simulator/world/leaves.py`;
   `specs/DS1-history-generator/rulings.md` D-DS1.1 and the L4 fix-round item 4 (the number bound reused in §6.3).
-- **Python:** `PY="env PYTHONPATH=/opt/assetecon/AssetOpsV1-2a/contracts /opt/assetecon/AssetOpsV1/.venv/bin/python"`
-  from the worktree root. The venv has `pytest` and `pyyaml` (the parity test needs `yaml`; it fails, never skips,
+- **Python:** `PYTHONPATH` as the lane rules (worktree `backend:backend/tests:contracts:...`, absolute) and
+  `/opt/assetecon/AssetOpsV1/.venv/bin/python`, from the worktree root. The venv has `pytest` and `pyyaml` (the parity test needs `yaml`; it fails, never skips,
   without it).
 - **Collisions.** None expected. The UI lanes (`task/uiux-decision-page`, `task/uiux-design-model`) and DS1m
   (`task/DS1-mockup-trends`) edit only `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/` and
-  `Docs/design-system/`. You edit only `contracts/` and this spec folder's packet. Do not edit the pack, the
+  `Docs/design-system/`. You edit only `contracts/assetops_contracts/canonical/`, the two `backend/tests/test_2a_*.py` files, the fixture in
+  `backend/tests/fixtures/`, this folder's packet and the finish bookkeeping (P10: the `.ai/state/` entry, its index
+  line, the `specs/INDEX.md` row). Do not edit the pack, the
   manifest or `simulator/` (the switch of `world/leaves.py` to this catalogue is DS1b's, D-2A.8).
 - **Databases:** none. No test here needs one, so nothing runs through `tools/heavy-slot.sh` except check-all
   (which takes its own slot). Never touch ports 5490 or 8990, the walkthrough DB or Docker.
@@ -75,14 +78,14 @@ New package `contracts/assetops_contracts/canonical/` (standard library only; D-
 | File | Holds |
 |---|---|
 | `__init__.py` | `FORMAT_VERSION = 1`; re-exports every public name below; a module docstring citing this spec |
-| `units.py` | `Unit`, the dimensions, `parse_unit`, the named units (§4) |
+| `units.py` | `Unit`, the dimensions, `parse_unit`, the named units, `QUANTITY_UNITS`, `BAND_UNITS` (§4) |
 | `factors.py` | `Factor`, `STRUCTURE_KEYS`, `LEAF_FACTORS`, `leaves_of`, `FACTOR_ID_PATTERN` (§5) |
-| `records_v1.py` | `KINDS`, `KIND_SPECS`, `CanonicalRecordV1`, `CanonicalBatchV1`, `BatchResult`, `CanonicalRefused`, `parse_record`, `parse_batch`, `to_canonical_json`, `record_digest`, `batch_digest` (§6, §8) |
+| `records_v1.py` | `KINDS`, `KIND_SPECS`, `CanonicalRecordV1`, `CanonicalBatchV1`, `BatchResult`, `CanonicalRefused`, `loads_canonical`, `parse_record`, `parse_batch`, `to_canonical_json`, `record_digest`, `batch_digest` (§6, §8) |
 | `sources_v1.py` | `SourceType`, `SOURCE_TYPES`, `EXISTING_FORMATS` (§7) |
 
-Tests: `contracts/tests/test_canonical_v1.py`, `contracts/tests/test_canonical_manifest_parity.py`, fixture
-`contracts/tests/fixtures/canonical_v1_examples.json` (a byte copy of this folder's `examples-v1.json.txt`). Add an empty
-`contracts/tests/fixtures/__init__.py` only if pytest needs it (it does not for a JSON file; do not add one).
+Tests (D-2A.10): `backend/tests/test_2a_canonical_v1.py`, `backend/tests/test_2a_canonical_manifest_parity.py`,
+fixture `backend/tests/fixtures/canonical_v1_examples.json` (a byte copy of this folder's `examples-v1.json.txt`).
+They live in `backend/tests` so that every merge's full fast tier runs them.
 
 This package is a protected seam from this unit on (D-2A.2): a change that alters what a valid record is, or a factor
 ID or unit, is a new format version, never an edit of version 1.
@@ -93,11 +96,16 @@ ID or unit, is a new format version, never an edit of version 1.
 - **`Unit`**: a frozen dataclass holding `exponents: tuple[tuple[str, int], ...]`, sorted by dimension name, zero
   exponents dropped. `ONE` has no exponents. Operators: `a * b`, `a / b` (exponents add or subtract), `==`, `hash`.
   `Unit.is_money` is true only for exactly `MONEY^1`. `str(unit)` is the canonical text below.
-- **Canonical text**: `"1"` for `ONE`; otherwise numerator dimensions joined by `*`, then, if any, `/` and the
-  denominator dimensions joined by `*`, each dimension repeated per exponent, in dimension-name order
+- **Canonical text**: `"1"` for `ONE`; otherwise the numerator dimensions joined by `*` (`1` when no exponent is
+  positive, so `1/DAY`), then, if any, `/` and the denominator dimensions joined by `*`, each dimension repeated per
+  exponent, in dimension-name order
   (`HOUR*MONEY/KWH`, `KWH/HOUR`, `MONEY/DAY`). `parse_unit(text)` accepts exactly this grammar
   (`^(1|D(\*D)*)(/D(\*D)*)?$`, `D` one of the six names) and returns the `Unit`; `parse_unit(str(u)) == u` for every
-  unit; anything else raises `ValueError("CANONICAL_UNIT <text>")`.
+  unit; it accepts a text only when `str(parse_unit(text)) == text`, so out-of-order, repeated, non-reduced
+  (`KWH*L/KWH`) and both-sides forms raise `ValueError("CANONICAL_UNIT <text>")` too.
+- **`QUANTITY_UNITS`** (`MappingProxyType`): `kWh` `KWH`, `kW` `KW`, `L` `L`, `crate` `ONE`, `crate_day` `DAY`.
+  **`BAND_UNITS`**: `per_kWh` `MONEY/KWH`, `per_crate_day` `MONEY/DAY`, `per_L` `MONEY/L`. These are the only bridge
+  from record units to catalogue units; `3A2`, `3B3` and `DS1b` use them and write no mapping of their own (R10).
 - **Named units:** `ONE`, `KWH`, `L`, `MONEY`, `DAY`, `HOUR`, `MINUTE`, `KW = KWH / HOUR`.
 - **Counts are dimensionless.** Assets, buses, chargers, crates, batches and visits are `ONE` with a display word. A
   night, a bus-night and a missed departure are `DAY` (one service day per vehicle; D-2A.4).
@@ -108,11 +116,13 @@ ID or unit, is a new format version, never an edit of version 1.
 
 - `STRUCTURE_KEYS = ("MINI_GRID", "COLD_CHAIN", "EV_DEPOT_CAPTIVE")`: the manifest's `structures` and `factor_map`
   keys (a tenant's `vertical` plus business model; `EV_DEPOT` captive is `EV_DEPOT_CAPTIVE`).
-- `FACTOR_ID_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,63}$")`: the syntax of every factor ID, leaf or node.
+- `FACTOR_ID_PATTERN = re.compile(r"[a-z][a-z0-9_]{0,63}", re.ASCII)`: the syntax of every factor ID, leaf or node,
+  always applied with `fullmatch` (R5).
 - `Factor`: frozen dataclass `id: str`, `structures: frozenset[str]`, `unit: Unit`, `display: str`; property
   `money -> bool` (`unit.is_money`).
 - `LEAF_FACTORS: Mapping[str, Factor]` (a `MappingProxyType`), in the table's order. `leaves_of(key)` returns the IDs
-  of one structure key in the table's order; an unknown key raises `KeyError`.
+  of one structure key in the table's order (not the manifest's order; the docstring says so, P9); an unknown key
+  raises `KeyError`.
 - The table is the whole catalogue: 73 IDs; 4 shared (`staff`, `outstanding`, `liability` across MG and CC with
   `MONEY`; `period_days` across MG and CC with `DAY`); 9 money leaves. It is typed into `factors.py` as one literal,
   row for row; the parity test (T1) compares it with the manifest, which it must not read at import time.
@@ -194,7 +204,9 @@ ID or unit, is a new format version, never an edit of version 1.
 | 73 | `penalty_rate` | EV | `MONEY/DAY` | per missed departure | no |
 
 MG = `MINI_GRID`, CC = `COLD_CHAIN`, EV = `EV_DEPOT_CAPTIVE`. Which source fills a leaf, and what its absence means
-(`filled_by`, `absent`), is the registry's (`3B1`, `3B6`), not this catalogue's (D-2A.3).
+(`filled_by`, `absent`), is the registry's (`3B1`, `3B6`), not this catalogue's (D-2A.3). `penalty_rate` (family
+DOCUMENT) takes its value from a person's reviewed contract-extraction rows, the rights register `9a` builds, not from
+a v1 record field; `contract_crate_days` and `contract_rate` are option-only (R11).
 
 ## 6. Canonical record v1 (`records_v1.py`)
 
@@ -217,6 +229,8 @@ A batch is one JSON object; every key below is required and no other key is allo
 Top-level keys (closed set; a key not listed is `CANONICAL_FORBIDDEN`): `format_version` (integer 1), `kind`,
 `source_record_id` (ref), `source_version` (ref, at most 64 characters), `site_code`, `subject`, `clocks`, `amount`,
 `quantity`, `status`, `body`. Absent optional keys are omitted, never `null` (a `null` anywhere is `CANONICAL_TYPE`).
+`format_version`, `kind`, `source_record_id`, `source_version`, `clocks` and `body` are required for every kind;
+`site_code`, `subject`, `amount`, `quantity` and `status` follow the kind's row (R4).
 
 - `site_code`: `^[A-Z0-9][A-Z0-9-]{0,63}$`. Required for every kind except `BUDGET_LINE` and `CONTRACT_DOCUMENT`,
   where omitting it means portfolio level.
@@ -235,7 +249,7 @@ Top-level keys (closed set; a key not listed is `CANONICAL_FORBIDDEN`): `format_
 
 | Type | Rule |
 |---|---|
-| decimal | a JSON string matching `^-?(0|[1-9][0-9]*)(\.[0-9]+)?$`, at most 32 characters, `Decimal(text).adjusted()` within [-12, 12] (the DS1 L4 bound); a JSON number, boolean or other string is `CANONICAL_NUMBER`. `-0` and `-0.00` are refused (`CANONICAL_NUMBER`) |
+| decimal | a JSON string matching `-?(0|[1-9][0-9]*)(\.[0-9]+)?` (fullmatch, ASCII); its canonical text is `format(d, "f")`, which equals the input for every accepted text (R2); at most 32 characters, `Decimal(text).adjusted()` within [-12, 12] (the DS1 L4 bound); a JSON number, boolean or other string is `CANONICAL_NUMBER`. `-0` and `-0.00` are refused (`CANONICAL_NUMBER`) |
 | sign | non-negative unless the table says "any sign"; "positive" means greater than zero (`CANONICAL_SIGN`) |
 | integer | a JSON integer (Python `int` and not `bool`), within the table's range (`CANONICAL_TYPE`, `CANONICAL_SIGN`) |
 | boolean | JSON `true` or `false` |
@@ -246,7 +260,12 @@ Top-level keys (closed set; a key not listed is `CANONICAL_FORBIDDEN`): `format_
 | period | `^\d{4}-(0[1-9]|1[0-2])$`, a calendar month in the Site's time zone; portfolio-level records use the calendar month as written |
 | local time | `^([01]\d|2[0-3]):[0-5]\d$`; a tariff band's `to` may also be `24:00` |
 
-Clock, date, period and time failures are `CANONICAL_CLOCK`.
+Clock, date, period and time failures are `CANONICAL_CLOCK`. Every pattern in this spec is ASCII (`[0-9]`, never a
+Unicode `\d`) and applied with `re.fullmatch` (R5). Any string anywhere holding a code point U+D800 to U+DFFF is
+`CANONICAL_REF` at its path; a ref also refuses U+0080 to U+009F; "whitespace" is `str.strip()`'s set; refs are
+compared as given, with no Unicode normalisation (R6). Instants are compared as moments, never as text; digests are
+of the text as sent, since the format never converts zones (R12). Tariff bands are wall-clock times; a
+daylight-saving day is the reader's (`3B3`) to resolve (R15).
 
 ### 6.4 The fourteen kinds
 
@@ -289,16 +308,20 @@ themselves, in the table's left-to-right order:
   `site_code: str | None`, `subject: tuple[str, str] | None`, `clocks: Mapping[str, str]`,
   `amount: tuple[Decimal, str] | None`, `quantity: tuple[Decimal, str] | None`, `status: str | None`,
   `body: Mapping[str, object]`. Mappings are `MappingProxyType`; set-lists are sorted tuples; instants keep their
-  canonical text (§6.3); decimals are `Decimal`; the original text of each decimal is kept for canonical output
-  (`Decimal("1.50")` prints `1.50`; never re-quantise).
+  canonical text (§6.3); decimals are `Decimal`, written out as `format(d, "f")`, never `str(d)` and never
+  re-quantised (R2).
 - `CanonicalBatchV1`: frozen dataclass `tenant_code`, `source_type`, `source_system`, `provenance`, `produced_at`.
 - `BatchResult`: frozen dataclass `batch: CanonicalBatchV1`, `outcomes: tuple[CanonicalRecordV1 | CanonicalRefused, ...]`
   in input order.
 - `CanonicalRefused(Exception)`: attributes `code` and `path`; `str()` is `f"{code} {path}"`. Paths are dotted from
-  `batch` or `record` with array indexes as `[n]`: `batch.records[3]`, `record.body.bands[1].to`.
+  `json`, `batch` or `record` with array indexes as `[n]`: `batch.source_type`, `record.body.bands[1].to`. A record
+  outcome's path always starts at `record` (P6).
 
 ### 6.6 Functions
 
+- `loads_canonical(data: bytes) -> object`: the one public entry for bytes (R7). Not UTF-8 or not JSON:
+  `CANONICAL_TYPE json`; a key repeated in one object: `CANONICAL_DUPLICATE json.<key>` (`object_pairs_hook`);
+  `NaN`, `Infinity`, `-Infinity`: `CANONICAL_NUMBER json` (`parse_constant`).
 - `parse_record(obj: object) -> CanonicalRecordV1`: validates one record object (already JSON-decoded) and raises the
   first `CanonicalRefused` in this order: `format_version`, `kind`, the top-level key set, `source_record_id`,
   `source_version`, `site_code`, `subject`, `clocks`, `amount`, `quantity`, `status`, `body` (its keys, then each
@@ -306,14 +329,17 @@ themselves, in the table's left-to-right order:
 - `parse_batch(obj: object) -> BatchResult`: an envelope failure raises `CanonicalRefused` with a `batch.` path;
   otherwise each record is parsed and its refusal is kept as that record's outcome, never stopping the others
   (intake's per-row rule, `integration-design.md` §4). Then: a record whose kind is not in its source type's kinds
-  becomes `CANONICAL_SOURCE_TYPE record.kind`; a second record with the same `(source_record_id, source_version)`
-  becomes `CANONICAL_DUPLICATE record.source_record_id` (the first stays valid).
+  becomes `CANONICAL_SOURCE_TYPE record.kind`; then, among records that parsed and passed the source-type check only, a
+  second record with the same `(source_record_id, source_version)` becomes `CANONICAL_DUPLICATE
+  record.source_record_id` (the first stays valid; a refused record claims no key, R13).
 - `to_canonical_json(x: CanonicalRecordV1 | BatchResult) -> bytes`: UTF-8 of
   `json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False)`, built from the parsed object (decimals
   as their kept text, instants canonical, set-lists sorted, bands sorted, absent keys omitted). For a `BatchResult`
-  the envelope and only the valid records, in input order. Parsing the output again gives an equal object, and its
-  canonical JSON is the same bytes.
-- `record_digest(r)` and `batch_digest(b)`: lower-case hex SHA-256 of `to_canonical_json`.
+  the envelope keys `format_version` (1), `tenant_code`, `source_type`, `source_system`, `provenance`, `produced_at`
+  and `records`, holding only the valid records, in input order. Round trip: the valid records re-parse to equal
+  records, in order, and give the same bytes (R8).
+- `record_digest(r)` and `batch_digest(b)`: lower-case hex SHA-256 of `to_canonical_json`; a batch digest covers the
+  valid records only (R8).
 
 ### 6.7 Refusal codes (closed list)
 
@@ -323,6 +349,32 @@ not allowed, including unknown keys), `CANONICAL_TYPE`, `CANONICAL_NUMBER`, `CAN
 departure, a register end or a ticket time out of order; bands overlapping), `CANONICAL_REF`, `CANONICAL_DUPLICATE`,
 `CANONICAL_FACTOR`, `CANONICAL_SOURCE_TYPE`, `CANONICAL_PROVENANCE`. No bare `KeyError`, `ValueError`,
 `TypeError` or `decimal.InvalidOperation` escapes `parse_record` or `parse_batch` for any JSON-decodable input.
+
+### 6.8 Which check gives which code (R3, P4, P5, P6)
+
+| Check | Code and path |
+|---|---|
+| Key set of the envelope, a record, `clocks`, `amount`, `quantity`, `subject`, `body` or a band | first unknown key in sorted order: `CANONICAL_FORBIDDEN <path>.<key>`; checked before any missing key |
+| A required key absent | `CANONICAL_FIELD <path>.<key>`, at that field's own step in §6.6's order |
+| `format_version` absent or not the integer 1 | `CANONICAL_VERSION <path>.format_version` |
+| `kind` absent / not a v1 kind | `CANONICAL_FIELD record.kind` / `CANONICAL_KIND record.kind` |
+| Wrong JSON type (object, array, string, boolean, integer place) | `CANONICAL_TYPE <path>`; a decimal place holding a non-string is `CANONICAL_NUMBER` |
+| A record element that is not an object | that record's outcome, `CANONICAL_TYPE record` |
+| Batch not an object / `records` not an array | `CANONICAL_TYPE batch` / `CANONICAL_TYPE batch.records` |
+| More than 10,000 records; `bands` empty or over 24; `receipts` empty; `pages` outside 1 to 10,000; `soc_pct` over 100 | `CANONICAL_RANGE <path>` |
+| Negative where not allowed; zero where "positive" | `CANONICAL_SIGN <path>` |
+| Whole number breached (`"120.5"` crates); decimal syntax, length or exponent | `CANONICAL_NUMBER <path>` |
+| Ref, `tenant_code`, `site_code`, `document_sha256` pattern or length (`band` 40, `reason_code` 40, `source_version` 64); surrogates | `CANONICAL_REF <path>` |
+| `factor_id` pattern; currency rule for a catalogue leaf | `CANONICAL_FACTOR <path>` |
+| An enum value outside its set, including `subject.kind` not allowed for the kind and `status` | `CANONICAL_ENUM <path>` |
+| `subject`, `status`, `amount` or `quantity` present where the row says F | `CANONICAL_FORBIDDEN record.<key>` |
+| Quantity unit wrong for the kind or `line_type`; band `unit` outside the three | `CANONICAL_UNIT <path>` |
+| Currency pattern (`amount.currency`, `body.currency`) | `CANONICAL_CURRENCY <path>` |
+| `STORAGE_MOVEMENT` `currency` without `rate` / `rate` without `currency` | `CANONICAL_FORBIDDEN record.body.currency` / `CANONICAL_FIELD record.body.currency` |
+| Duplicate band name; duplicate in a set of refs | `CANONICAL_DUPLICATE <path>` |
+| Ticket times before `occurred_at`; `departure_at` not after `return_at`; ranges out of order; bands overlapping | `CANONICAL_RANGE <path>` |
+| `restored_at` absent with status RESTORED | `CANONICAL_FIELD record.body.restored_at` |
+| Unknown `source_type`; bad `provenance`; `produced_at` | `CANONICAL_SOURCE_TYPE batch.source_type`; `CANONICAL_PROVENANCE batch.provenance`; `CANONICAL_CLOCK batch.produced_at` |
 
 ## 7. Source types v1 (`sources_v1.py`)
 
@@ -363,41 +415,51 @@ kind is emitted by at least one source type.
 
 ## 9. Tests (written first: commit 1)
 
-`contracts/tests/test_canonical_manifest_parity.py` (the independent check, W2: it reads only the pack manifest and
+`backend/tests/test_2a_canonical_manifest_parity.py` (the independent check, W2: it reads only the pack manifest and
 this package's public names):
-- **T1** For each structure key, the set of `leaves_of(key)` equals the manifest's `factor_map[key]` keys; no catalogue
-  ID is absent from every structure key.
+- **T1** For each structure key, the set of `leaves_of(key)` equals the manifest's `factor_map[key]` keys (sets, not
+  order); no catalogue ID is absent from every structure key.
 - **T2** Every ID that appears under more than one structure key is one `Factor` whose `structures` holds all of them.
 - **T3** Every `empty_states.leaf_sources` row whose family is `COMMERCIAL_RECORD` or `OPERATIONAL_RECORD` names, before
-  any ` (`, a kind in `KINDS` or `FUEL_DELIVERY`/`TANK_DIP`/`work case` (the existing operational kinds, listed in the
-  test as the allowed outside set); a `SERVICE_TICKET` row maps to the OPERATIONAL_RECORD family in `KIND_SPECS`.
-- **T4** Unit composition on the manifest's own node expressions, for these terms (hand-listed in the test): `tariff *
-  delivered_kwh`, `diesel_price * candidate_l`, `wear_rate * battery_throughput_kwh`, `reduced_days * hours_per_day`
-  (`HOUR`), `crate_days * rate`, `k_kwh_per_crate_day * crate_days` (`KWH`), `elec_price * excess_kwh`,
-  `period_days * minutes_per_day` (`MINUTE`), `chargers_in_service * charger_kw` equals `import_limit_kw`,
-  `charger_kw * window_h` equals `kwh_per_bus_night`, `peak_kwh * peak_price`, `max_kw * demand_rate`,
-  `spare_bus_nights * penalty_rate`, `buses * nights_in_period` equals `spare_bus_nights`. Money results are `MONEY`.
-  The test path is `Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml` from the repository
-  root (`Path(__file__).resolve().parents[2]`).
+  any ` (`, a kind in `KINDS` or one of the allowed outside set `FUEL_DELIVERY`, `TANK_DIP`, `work case` (the existing
+  operational kinds, listed in the test); a `SERVICE_TICKET` row maps to the OPERATIONAL_RECORD family in
+  `KIND_SPECS`; every `DOCUMENT` row names `CONTRACT_DOCUMENT`, a v1 kind (R11).
+- **T4** Unit composition, units only, on these hand-listed terms (the test does not assert they occur in the manifest,
+  P8): `tariff * delivered_kwh`, `diesel_price * candidate_l`, `battery_throughput_kwh * wear_rate`,
+  `reduced_days * hours_per_day` (`HOUR`), `crate_days * rate`, `k_kwh_per_crate_day * crate_days` (`KWH`),
+  `elec_price * excess_kwh`, `period_days * minutes_per_day` (`MINUTE`), `chargers_in_service * charger_kw` equals
+  `import_limit_kw`, `charger_kw * window_h` equals `kwh_per_bus_night`, `peak_kwh * peak_price`,
+  `max_kw * demand_rate`, `spare_bus_nights * penalty_rate`, `buses * nights_in_period` equals `spare_bus_nights`.
+  Money results are `MONEY`. The manifest path is
+  `Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml` from the repository root
+  (`Path(__file__).resolve().parents[2]`).
 
-`contracts/tests/test_canonical_v1.py`:
-- **T5** Every record of `canonical_v1_examples.json` parses through `parse_batch` with no refusal; all 14 kinds occur;
-  `to_canonical_json` of each `BatchResult` re-parses to an equal result and the same bytes; `record_digest` of the
-  first record is stable across two processes (`subprocess` with `PYTHONHASHSEED` 1 and 2).
-- **T6** One planted failure per code of §6.7, each a minimal edit of an example record, asserting the full
-  `str(refused)` (code and path). At least: `format_version: 2`; `kind: "INVOICE"`; an unknown top-level key;
+`backend/tests/test_2a_canonical_v1.py`:
+- **T5** Every record of `canonical_v1_examples.json` (17 batches, one per source type) parses through
+  `loads_canonical` and `parse_batch` with no refusal; all 14 kinds and all 17 source types occur; for every record,
+  `to_canonical_json` re-parses to an equal record **and the same bytes**; `record_digest` of the first record is
+  stable across two processes (`subprocess` with `PYTHONHASHSEED` 1 and 2). Decimal edge list (R2), each placed in an
+  ADJUSTMENT amount and round-tripped to identical bytes: `"1.50"`, `"0.0000001"`, `"0.000000000001"`,
+  `"1000000000000"`, `"-108.00"`; and refused with `CANONICAL_NUMBER`: `"0.0000000000001"`, `"10000000000000"`.
+- **T6** One planted failure per code of §6.7 and per row of §6.8, each a minimal edit of an example record, asserting
+  the full `str(refused)` (code and path). At least: `format_version: 2`; `kind: "INVOICE"`; an unknown top-level key;
   `amount.value: 8.4` (a JSON number); `"08.40"`; `"-0.00"`; `"1e3"`; a 33-character decimal; a RECEIPT amount `"0"`;
-  `currency: "usd"`; `quantity.unit: "MWh"`; a naive `occurred_at`; `recognition_period: "2026-13"`;
-  `effective_to` equal to `effective_from`; overlapping bands; a `band.to` of `24:00` as `from`; a ref with a
-  trailing space; a duplicate in `receipts`; `factor_id: "Diesel"`; a money leaf without `currency`; a non-money leaf
-  with `currency`; a `DEPARTURE` in a `service_tickets` batch; two records with the same `(id, version)`;
-  `provenance: "recorded"`; `null` for `site_code`; a CHARGE `FIXED` with a quantity; a REGISTER read without
-  `register_end`; an EXPENSE FUEL without quantity; `STORAGE_MOVEMENT` quantity `"120.5"`.
+  `currency: "usd"`; `quantity.unit: "MWh"`; a naive `occurred_at`; `recognition_period: "2026-13"`; a period in
+  Arabic-Indic digits; `effective_to` equal to `effective_from`; overlapping bands; a `band.to` of `24:00` as `from`; a
+  `per_L` band accepted; a ref with a trailing space; a ref holding U+0085; a lone surrogate in a ref; a duplicate in
+  `receipts`; `factor_id: "Diesel"` and `"diesel\n"`; a money leaf without `currency`; a non-money leaf with
+  `currency`; a `DEPARTURE` in a `service_tickets` batch; two records with the same `(id, version)`, and the same with
+  the first one refused (the second then valid); `provenance: "recorded"`; `null` for `site_code`; a CHARGE `FIXED`
+  with a quantity; a REGISTER read without `register_end`; an EXPENSE FUEL without quantity; `STORAGE_MOVEMENT`
+  quantity `"120.5"`; `pages: 0`; `soc_pct: "100.5"`; 10,001 records; a non-object record element; `return_at`
+  `2026-10-15T00:30:00+03:00` with `departure_at` `2026-10-14T22:00:00+00:00` (accepted: compared as moments);
+  `loads_canonical` on a repeated key, on `NaN` and on invalid UTF-8.
 - **T7** Robustness: 500 records generated by a seeded `random.Random(2026)` that mutates example records (drop a key,
-  change a type, insert a control character, swap a sign) never raise anything but `CanonicalRefused` from
-  `parse_record`.
-- **T8** `units`: `parse_unit(str(u)) == u` for every catalogue unit; `KW * HOUR == KWH`; `MONEY / MONEY == ONE`;
-  `parse_unit("MONEY*HOUR/KWH")` (numerator out of order) and `parse_unit("kWh")` raise `ValueError` with the code text.
+  change a type, insert a control character or a lone surrogate, swap a sign) never raise anything but
+  `CanonicalRefused` from `parse_record`, and `to_canonical_json` never raises on a record that parsed.
+- **T8** `units`: `parse_unit(str(u)) == u` for every catalogue unit; `str(ONE / DAY) == "1/DAY"`; `KW * HOUR == KWH`;
+  `MONEY / MONEY == ONE`; `parse_unit` refuses `"MONEY*HOUR/KWH"` (numerator out of order), `"KWH*L/KWH"`,
+  `"KWH/KWH"`, `"kWh"` and `""` with the code text; `QUANTITY_UNITS` and `BAND_UNITS` equal §4's lists.
 - **T9** Neutrality: importing `assetops_contracts.canonical` in a fresh subprocess adds no module outside the
   standard library and `assetops_contracts` to `sys.modules` (compare with `sys.stdlib_module_names`).
 - **T10** `SOURCE_TYPES`: every kind in `KINDS` is emitted by at least one source type; every source type's kinds are
@@ -406,11 +468,16 @@ this package's public names):
 Commands (no database; not pooled):
 ```bash
 cd /opt/assetecon/AssetOpsV1-2a
-env PYTHONPATH=$PWD/contracts /opt/assetecon/AssetOpsV1/.venv/bin/python -m pytest contracts/tests/test_canonical_v1.py contracts/tests/test_canonical_manifest_parity.py -q
-env PYTHONPATH=$PWD/contracts /opt/assetecon/AssetOpsV1/.venv/bin/python -m pytest contracts/tests -q   # regression: the package's existing tests
+export PYTHONPATH=$PWD/backend:$PWD/backend/tests:$PWD/contracts:$PWD/simulator:$PWD/gateway:$PWD/field:$PWD/host:$PWD/tools
+PY=/opt/assetecon/AssetOpsV1/.venv/bin/python
+$PY -m pytest backend/tests/test_2a_canonical_v1.py backend/tests/test_2a_canonical_manifest_parity.py -q
+$PY -m pytest contracts/tests -q               # regression: the package's existing tests
 pwsh -NoProfile -File tools/check-all.ps1      # fast mode, once, at the end; it takes its own slot
-python3 tools/select-tests.py --base main      # cite its output; it should select no backend file
+python3 tools/select-tests.py --base main      # cite its output
 ```
+`select-tests` answers "full" because of the fixture (run-time data the import graph cannot trace, P2). Do not run
+the full suite: no backend module reads the fixture, and the merge's full fast tier runs these tests. Say so in the
+packet.
 
 ## 10. Done (acceptance as questions)
 
@@ -421,7 +488,8 @@ python3 tools/select-tests.py --base main      # cite its output; it should sele
 4. Is canonical JSON byte-stable across processes, and does it round-trip (T5)?
 5. Does the package import nothing outside the standard library and itself (T9), and does check-all pass, including
    the dependency-direction guard?
-6. Is nothing outside `contracts/` and this spec folder changed (`git diff --stat main...HEAD`)?
+6. Is nothing outside §0's file list changed (`git diff --stat main...HEAD`), the finish bookkeeping excepted (P10)?
+7. Are the canonical tests in `backend/tests`, so the merge's full tier runs them (D-2A.10)?
 
 Packet: `specs/2a-canonical-format/packet.md` (at most 3k tokens; RULES §5), with the mid-build question count.
 
@@ -441,4 +509,4 @@ green. A third only for the review's fixes.
 |---|---|---|
 | Q1 | Approve §2 as structure page P2 | Approved when the owner says so; code waits (W1) |
 | Q2 | Are the six dimensions enough, with nights as days and counts dimensionless (D-2A.4)? | Yes. `3B1`'s unit check finds the cases they do not cover (literal `0` and `1` inside `min`, `max`) and the Architect rules them there |
-| Q3 | Budget lines may name a node, not only a leaf (D-2A.5) | Yes, as `decision-loop-specification.md` §5 allows targets above leaf level |
+| Q3 | Budget lines may name a node, not only a leaf (D-2A.5) | Yes, as `decision-loop-specification.md` §5 allows targets above leaf level. Cost: a mistyped node ID passes the format and is refused only at intake against the registry (`3A2`) |

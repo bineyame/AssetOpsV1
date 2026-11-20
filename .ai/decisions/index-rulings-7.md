@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-3C0A.10)
+# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-3C0A.11)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -27,3 +27,5 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3C0A.8` Demo people's accounts come with WK, after 3C0b · live · specs/3C0a-operator-accounts/rulings.md
 - `D-3C0A.9` The 3C1 seam is accounts.principal.person_from_request · live · specs/3C0a-operator-accounts/rulings.md
 - `D-3C0A.10` Standard-library scrypt; no new dependency · live · specs/3C0a-operator-accounts/rulings.md
+- `D-2A.10` Canonical tests live in backend/tests so every merge's full tier runs them · live · specs/2a-canonical-format/rulings.md
+- `D-3C0A.11` Sign-in attempts: hashed key, no person on failure, purged after 30 days · live · specs/3C0a-operator-accounts/rulings.md

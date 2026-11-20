@@ -1,5 +1,5 @@
 {
- "_note": "2a spec section 6.6: format fixtures, one valid record of each of the 14 kinds, in 13 batches. Copy unchanged to contracts/tests/fixtures/canonical_v1_examples.json. Values are illustrative format examples taken from the pack's traces; they are not demonstration figures and no figure check reads them.",
+ "_note": "2a spec section 6.6: format fixtures, one valid record of each of the 14 kinds, in 17 batches, one per source type. Copy unchanged to backend/tests/fixtures/canonical_v1_examples.json (rev 2, R1). Values are illustrative format examples taken from the pack's traces; they are not demonstration figures and no figure check reads them.",
  "batches": [
   {
    "format_version": 1,
@@ -578,6 +578,143 @@
       "block_met": false,
       "soc_pct": "61.5",
       "block_ref": "BLK-03"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "harvest-cold",
+   "source_type": "storage_rate_card",
+   "source_system": "harvest-rate-card",
+   "provenance": "source-emulated",
+   "produced_at": "2026-09-30T09:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "TARIFF_SCHEDULE",
+     "source_record_id": "RATE-CARD-2026",
+     "source_version": "1",
+     "site_code": "COLD-THIKA",
+     "clocks": {
+      "effective_from": "2026-01-01"
+     },
+     "body": {
+      "contract_ref": "RATE-CARD-2026",
+      "currency": "USD",
+      "bands": [
+       {
+        "band": "ALL",
+        "from": "00:00",
+        "to": "24:00",
+        "rate": "0.30",
+        "unit": "per_crate_day"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "tariff_sheet",
+   "source_system": "lakeside-tariffs",
+   "provenance": "source-emulated",
+   "produced_at": "2026-09-30T09:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "TARIFF_SCHEDULE",
+     "source_record_id": "TARIFF-KOBO-2026",
+     "source_version": "1",
+     "site_code": "KOBO-001",
+     "clocks": {
+      "effective_from": "2026-01-01",
+      "effective_to": "2027-01-01"
+     },
+     "body": {
+      "contract_ref": "TARIFF-KOBO-2026",
+      "currency": "USD",
+      "bands": [
+       {
+        "band": "ALL",
+        "from": "00:00",
+        "to": "24:00",
+        "rate": "0.38",
+        "unit": "per_kWh"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "harvest-cold",
+   "source_type": "electricity_bill",
+   "source_system": "kplc-thika",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-03T09:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "CHARGE",
+     "source_record_id": "KPLC-THIKA-2026-10",
+     "source_version": "1",
+     "site_code": "COLD-THIKA",
+     "subject": {
+      "kind": "SITE",
+      "ref": "COLD-THIKA"
+     },
+     "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "412.50",
+      "currency": "USD"
+     },
+     "quantity": {
+      "value": "2750",
+      "unit": "kWh"
+     },
+     "body": {
+      "account_ref": "KPLC-THIKA",
+      "line_type": "USAGE",
+      "tariff_code": "CI1"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "metro-bus",
+   "source_type": "penalty_statement",
+   "source_system": "ntsa-penalties",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-04T09:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "EXPENSE",
+     "source_record_id": "PEN-KAS-2026-10",
+     "source_version": "1",
+     "site_code": "EV-KAS",
+     "clocks": {
+      "occurred_at": "2026-11-03T12:00:00+03:00",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "240.00",
+      "currency": "USD"
+     },
+     "status": "INVOICED",
+     "body": {
+      "counterparty_ref": "TRANSPORT-AUTHORITY",
+      "category": "PENALTY",
+      "document_ref": "PEN-KAS-2026-10.pdf"
      }
     }
    ]
