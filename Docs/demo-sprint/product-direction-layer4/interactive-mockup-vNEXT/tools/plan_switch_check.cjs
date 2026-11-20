@@ -161,7 +161,8 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
     const exp = { grow: r2c(br.filter(b => GROW_DRIVERS.includes(b.driver)).reduce((a, b) => a + b.amount, 0)), optimize: r2c(br.filter(b => !GROW_DRIVERS.includes(b.driver)).reduce((a, b) => a + b.amount, 0)) };
     if (!br.length) exp.optimize = gap; // no bridge: the explicit residual on the cost leaf (Ruiru) is the whole gap
     for (const k of ['grow', 'optimize']) {
-      const lis = [...(card(k)?.querySelectorAll(`li[data-site="${sk}"][data-effect]`) || [])], got = r2c(lis.reduce((a, l) => a + +l.dataset.effect, 0));
+      /* the heading's effects, by Site: on its card, or (opened from the gap, one grammar) in its drivers' drawers */
+      const lis = [...(card(k)?.querySelectorAll(`li[data-site="${sk}"][data-effect]`) || []), ...d.querySelectorAll(`.ux-drawer[id^="uxdrv-${op}-${k}-"] li[data-site="${sk}"][data-effect]`)], got = r2c(lis.reduce((a, l) => a + +l.dataset.effect, 0));
       const n = br.length ? br.filter(b => GROW_DRIVERS.includes(b.driver) === (k === 'grow') && Math.abs(b.amount) > 0.004).length : (k === 'optimize' && Math.abs(gap) > 0.004 ? 1 : 0);
       ok(lis.length === n && Math.abs(got - exp[k]) < 0.005, `${op} ${sk}: ${k} card lists ${n} effect(s) summing ${exp[k]} (got ${lis.length}, ${got})`);
     }

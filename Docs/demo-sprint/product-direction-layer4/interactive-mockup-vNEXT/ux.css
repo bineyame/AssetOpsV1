@@ -679,3 +679,4 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-tie small{display:block;font-size:var(--fs-xs)}
 .ux-cross small{display:block;color:var(--text-2);font-size:var(--fs-xs)}
 .ux-ctx{margin:var(--s2) 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
+.ux-flist>li[hidden]{display:none} /* review M3: "Show all" reveals what is held back */

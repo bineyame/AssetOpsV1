@@ -291,7 +291,7 @@ function openEvidence(key){const r=evRecord(key);
  drawer(r.title,`<div class="evhead"><div class="evval">${r.value}</div>${ec(r.cls)}</div>
  <h3>What this is</h3><p>${r.def}</p>
  <h3>How it is worked out</h3><p>${r.formula}</p>${r.parts.length?`<div class="table-wrap scroll-region" tabindex="0" role="region" aria-label="Factors that compose it">${table(['Factor','Target','October','Effect on outcome','Evidence'],r.parts)}</div>`:''}
- <h3>Source records</h3><p><strong>${r.sys}</strong></p>${r.rows.length?`<div class="table-wrap scroll-region" tabindex="0" role="region" aria-label="Source record sample"><table class="srcrows"><thead><tr>${r.head.split(', ').map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${r.rows.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="note">Sample in the shape of the source record; customer-level rows are not reproduced in this mock-up.</p>`:''}
+ <h3>Source records</h3><p><strong>${r.sys}</strong></p>${r.rows.length?`<div class="table-wrap scroll-region" tabindex="0" role="region" aria-label="Source record sample"><table class="srcrows"><thead><tr>${r.head.split(', ').map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${r.rows.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="note">Sample in the shape of the source record; customer-level rows are not reproduced in this demonstration.</p>`:''}
  <h3>Period and clocks</h3>${kv(r.clocks)}
  <h3>Coverage</h3><p>${r.coverage}</p>
  <h3>Where the data came from</h3>${provChips(r.prov)}<p class="note">Demo data only: nothing here is field connected or from a client’s books.</p>
@@ -308,7 +308,7 @@ function siteRoutes(domain){const sk=V70SITE[domain];return LOOP_SITE_TABS.map(t
 /* the Site tabs show only views built in the new model, the same for every Site (UX audit C4; owner: same for every Site type) */
 const LOOP_SITE_NAV=['Overview','Financials'];
 function siteTabRow(sk,active){return uxTabs(LOOP_SITE_NAV.map(t=>[t,tabRoute(sk,t)]),tabRoute(sk,active));}
-function siteSwitch(s){const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Choose a site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
+function siteSwitch(s){if(typeof uxInProduct==='function'&&uxInProduct(s))return ''; /* one Site switcher: the scope menu (review L1) */const cur=s.site||V70SITE[s.domain],op=SK[cur].op;return `<label class="site-switch"><span class="sr-only">Site</span><select id="loop-site-switch" aria-label="Choose a site">${OPS[op].sites.map(k=>`<option value="${k}" ${k===cur?'selected':''}>${SK[k].name} · ${SK[k].type}</option>`).join('')}</select></label>`;}
 /* the calculated daily snapshot (design §2.8, OD-23; register call 19): each portfolio's record (MANIFEST.snapshot.portfolios)
    gives its "as of" time and whether a recalculation is pending, with what triggered it, when, and the Sites it affects. Every
    figure screen shows the "as of" time with the hour, and says so while a recalculation is pending. */
@@ -337,7 +337,7 @@ function selectorLabel(p){const st=REG_STATUS(p);return `${st==='Merged'?'[Merge
 const ALIAS = {'portfolio/opportunity':'portfolio/demand-and-capacity',financials:'site/kobo/economics',assumptions:'site/kobo/economics',scenarios:'site/kobo/economics','cold-financials':'site/thika/economics','cold-assumptions':'site/thika/economics','cold-scenarios':'site/thika/economics','ev-financials':'site/ruiru/economics','ev-assumptions':'site/ruiru/economics','ev-scenarios':'site/ruiru/economics'};
 function resolveScreen(id){
  let target=id;if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
- const s=SCREENS.find(x=>x.id===target)||(target?SCREENS.find(x=>x.id==='not-found'):null)||SCREENS[0]; /* an unknown route says so (UX audit §3) */
+ let s=SCREENS.find(x=>x.id===target)||(target?SCREENS.find(x=>x.id==='not-found'):null)||SCREENS[0];if(s.stub)s=SCREENS.find(x=>x.id==='not-found'); /* a stub route is not a page (review L6) */ /* an unknown route says so (UX audit §3) */
  const op=s.site?SK[s.site].op:s.op?s.op:(s.section&&!s.gtabs&&DOMAIN_OP[s.domain]&&s.root!=='Portfolio')?DOMAIN_OP[s.domain]:null;
  if(op&&op!==LS.op)setOp(op);
  return s;}
@@ -371,7 +371,7 @@ const PLAIN_WORDS=[
  [/\binverter inverter\b/g,'inverter'],
  [/\s?\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d|CN-\d{4}|PM-\d{4})\)/g,''],[/\((?:GEN-[A-Z]{2}-\d{2}|INV-[A-Z]{2}-\d{2}|BAT-\d{3}|CH-[A-Z]\d)[;,]\s*/g,'('],
  [/\b(generator|inverter|charger) (?:GEN-[A-Z]{2}-0?(\d)|INV-[A-Z]{2}-0?(\d)|CH-[A-Z](\d))\b/g,(m,w,a,b,c)=>`${w} ${a||b||c}`],
- [/\bGEN-KS-0?(\d)\b/g,'generator $1'],[/\bGEN-CR-01\b/g,'the backup generator'],[/\bINV-MT-0?(\d)\b/g,'inverter $1'],[/\bBAT-001\b/g,'the battery'],[/\bCH-[A-Z](\d)\b/g,'charger $1'],[/\s?\b(?:PM|CN)-\d{4}\b/g,''],
+ [/\b(?:GEN|INV|BAT|CMP|ATS|CHG)-[A-Z0-9]+(?:-\d+)?\s·\s(?=[A-Z])/g,''] /* an asset code before its own label says nothing more (review M4) */,[/\bFeature switches\b/g,'Features'],[/\bGuardrails\b/g,'Safety limits'],[/\bfeature switches\b/g,'features'],[/^Tenant$/g,'Organisation'],[/\bGEN-KS-0?(\d)\b/g,'generator $1'],[/\bGEN-CR-01\b/g,'the backup generator'],[/\bINV-MT-0?(\d)\b/g,'inverter $1'],[/\bBAT-001\b/g,'the battery'],[/\bCH-[A-Z](\d)\b/g,'charger $1'],[/\s?\b(?:PM|CN)-\d{4}\b/g,''],
  [/\ba right or an obligation\b/g,'a warranty, contract or service limit'],[/\bContract rights: who bears the cost\b/g,'Warranties and contracts: who pays'],[/\bcontract-rights\b/g,'warranty and contract'],
  [/\bwarranty and insurance rights\b/g,'warranty and insurance cover'],[/\bSide effect on rights\b/g,'Side effect on warranty cover'],[/\(rights value at stake\)/g,'(warranty value at stake)'],[/\bthe rights factor\b/g,'the warranty factor'],
  [/\ban obligation(['’]s)?\b/g,(m,p)=>p?'a service’s':'a service limit'],[/\bobligation window\b/g,'service window'],[/\bclaim-versus-buy switch\b/g,'claim-versus-buy choice'],[/\(see the switch on Act first\)/g,'(see the cases on the plan)'],[/\bbeside the switch\b/g,'beside the choice'],
@@ -405,10 +405,10 @@ function uxFixSigns(root){if(!root)return;const w=document.createTreeWalker(root
  for(let i=0;i<a.length-1;i++){const t=a[i],u=a[i+1],m=t.nodeValue.match(/\+\s*$/),k=u.nodeValue.match(/^\s*([+−])/);if(m&&k){if(k[1]==='−')t.nodeValue=t.nodeValue.replace(/\+(\s*)$/,'−$1');u.nodeValue=u.nodeValue.replace(/^(\s*)[+−]/,'$1');}}}
 function uxDedupeUnits(root){if(!root)return;root.querySelectorAll('small').forEach(sm=>{const p=sm.previousElementSibling;if(!p)return;const pt=p.textContent.trim().toLowerCase(),u=sm.textContent.trim(),head=u.split(/[,·]/)[0].trim();
  if(!head||!pt.endsWith(head.toLowerCase()))return;if(head===u){sm.remove();return;}const f=sm.firstChild;if(f&&f.nodeType===3&&f.nodeValue.includes(head))f.nodeValue=f.nodeValue.replace(head,'').replace(/^\s*[,·]\s*/,'');});} /* a name followed by its own unit drops the unit */
-function afterRender(s){if(s.loop||s.opScoped||(typeof uxInProduct==='function'&&uxInProduct(s))){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxShell==='function')uxShell(s);if(typeof uxApplyBrand==='function'){uxApplyBrand();uxBrandSwitch();}if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
+function afterRender(s){if(typeof uxShell==='function')uxShell(s); /* scope by data first, before words replace record keys */if(s.loop||s.opScoped||(typeof uxInProduct==='function'&&uxInProduct(s))){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxApplyBrand==='function'){uxApplyBrand();uxBrandSwitch();}if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
-function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
+function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope')||currentScreen().noFigures)return; /* a page with no figures has no figures note (review L2) */
  const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);
   /* MOCK DEVIATION D2 (improvement; marked in the review bar, not in the page), owner Q7 / OD-23: figures recalculate at the daily run or when someone asks */
   row.insertAdjacentHTML('beforeend','<div class="ux-recalc-row"><button type="button" class="button ux-recalc" data-ux-recalc>Recalculate now</button></div>');c.insertBefore(row,c.firstChild);}

@@ -108,7 +108,7 @@ function uxCatTile(op, k, C) {
      the gap and opens the same drawer as its chart group. Protect and Assure keep their own measures. */
   const g = (k === 'grow' || k === 'optimize') ? uxGapModel(op).groups.find(x => x.k === k) : null;
   if (g) { const M = uxGapModel(op);
-    return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos"><b${figA(k, op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `· ${g.share}% of what ${uxWidenWord(M)}` : '· an offset to the gap'}</p>${g.share != null ? `<div class="ux-meterbar" role="img" aria-label="${g.share}% of what ${uxWidenWord(M)}"><span style="width:${g.share}%"></span></div>` : ''}<p class="ux-cat-n">${num(g.steps.length)} driver${g.steps.length === 1 ? '' : 's'} · ${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View drivers<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`; }
+    return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-st">${g.sub < 0 ? uxChip('off', 'Off target') : uxChip('ok', 'On target')}</p><p class="ux-cat-pos"><b${figA(k, op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `· <span data-heading-share="${g.share}">${g.share}%</span> of what ${uxWidenWord(M)}${g.offset ? `; ${usdW(g.offset, true)} offsets` : ''}` : '· an offset to the gap'}</p>${g.share != null ? `<div class="ux-meterbar" role="img" aria-label="${g.share}% of what ${uxWidenWord(M)}"><span style="width:${g.share}%"></span></div>` : ''}<p class="ux-cat-n">${num(g.steps.length)} driver${g.steps.length === 1 ? '' : 's'} · ${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View drivers<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`; }
   if (k === 'grow' && o.kind !== 'cost') { const a = sumNodes(op, 'actual', 'revenue'), t = sumNodes(op, 'plan', 'revenue'); vis = uxBullet(a, t, `Revenue ${usdW(a)} against a target of ${usdW(t)}`); }
   if (k === 'optimize') { const a = o.kind === 'cost' ? opTotals(op).actual : sumNodes(op, 'actual', 'cost_to_serve'), t = o.kind === 'cost' ? opTotals(op).plan : sumNodes(op, 'plan', 'cost_to_serve'); vis = uxBullet(a, t, `Cost ${usdW(a)} against a target of ${usdW(t)}`, true); }
   if (k === 'protect') { const pc = protectCard(op); vis = pc.total ? `<div class="ux-seg" role="img" aria-label="${num(pc.broken)} of ${num(pc.total)} limits broken">${Array.from({ length: pc.total }, (_, i) => `<span class="${i < pc.broken ? 'is-bad' : 'is-good'}"></span>`).join('')}</div>` : ''; }
@@ -197,14 +197,20 @@ function uxGapModel(op) {
   const widens = v => Math.sign(v) === Math.sign(gapShown);
   const wl = all.filter(st => widens(disp(st))), wTot = wl.reduce((a, r) => a + Math.abs(disp(r)), 0) || 1;
   const sharesR = uxRoundTo(wl.map(r => Math.abs(disp(r)) / wTot * 100), 100), share = new Map(wl.map((r, i) => [r, sharesR[i]]));
-  const gw = groups.map((g, i) => [g.k, subs[i]]).filter(([, v]) => widens(v)), gTot = gw.reduce((a, [, v]) => a + Math.abs(v), 0) || 1;
-  const gShareR = uxRoundTo(gw.map(([, v]) => Math.abs(v) / gTot * 100), 100), gShare = new Map(gw.map(([k], i) => [k, gShareR[i]]));
-  groups.forEach((g, gi) => { g.sub = subs[gi]; g.share = gShare.has(g.k) ? gShare.get(g.k) : null;
+  /* one share basis for steps and headings (review H2): a heading's share is the sum of its widening steps' shares; its offsets are said */
+  groups.forEach((g, gi) => { g.sub = subs[gi]; const ws = g.rows.filter(r => share.has(r)); g.share = ws.length ? ws.reduce((a, r) => a + share.get(r), 0) : null;
+    g.offset = r2(g.rows.filter(r => !share.has(r)).reduce((a, r) => a + disp(r), 0));
     const vals = uxRoundTo(g.rows.map(r => disp(r)), subs[gi]);
     g.steps = g.rows.map((st, i) => {
-      const finds = (HC.findings || []).filter(f => names.includes(siteOf(f)) && (st.hkeys || []).includes(f.factor));
-      const decs = [...new Set(finds.map(f => f.decision).filter(d => d && decById(d)))];
+      /* what is being done on a driver (review H1): a decision whose Finding sits on the driver, or one of whose options moves it
+         (option_money_factors); a service-failure cost line is the money side of its Site's Protect measures, so their Findings link */
+      const stSites = Object.keys(st.by), stNames = stSites.map(k => SK[k].name), hk = st.hkeys || [], omf = HC.option_money_factors || {};
+      const svc = hk.some(h => (o.t.portfolio.service_cost_lines || []).some(l => l.node === h));
+      const moved = DEC.filter(d => stSites.includes(d.site) && d.opts.some(x => (omf[x] || []).some(f => hk.includes(f)))).map(d => d.id);
+      const finds = (HC.findings || []).filter(f => names.includes(siteOf(f)) && (hk.includes(f.factor) || (stNames.includes(siteOf(f)) && (moved.includes(f.decision) && f.heading === 'protect' || svc && f.heading === 'protect'))));
+      const decs = [...new Set([...finds.map(f => f.decision), ...moved].filter(d => d && decById(d)))];
       const nodes = Object.keys(st.by).flatMap(sk => effectsOf(sk).filter(n => n.lens === st.lens && (n.residual ? n.label : (GAP_WORD[n.hkey] || n.label)) === st.word).map(n => ({ sk, n, v: cost ? -dir * n.eff : n.eff })));
+      const nr = uxRoundTo(nodes.map(x => x.v), vals[i]); nodes.forEach((x, j) => { x.vr = nr[j]; }); /* evidence rounds to the step's shown value (review M2) */
       return { st, i, id: `uxdrv-${op}-${g.k}-${i}`, lab: GAP_SHORT[st.word] || st.word, v: vals[i], share: share.has(st) ? share.get(st) : null, pos: pos.get(st), finds, decs, nodes };
     }); });
   return { op, o, T, G, cost, groups, lo, hi, gapR, gapAbs: Math.abs(T.actual - T.plan) || 1 };
@@ -214,15 +220,16 @@ const uxWidenWord = M => M.cost ? 'raises the cost' : 'widens the gap';
 function uxDecLine(dk) { const d = decById(dk), st = uxDecState(dk); return `<li><span>${d.q}</span> <span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span> ${link(`decision/${dk}`, 'Open decision →')}</li>`; }
 function uxDriverBody(M, s) {
   const issue = f => { const r = ATTN[M.op].find(r => r[5] === f.id); return r ? r[3] : 'No issue text recorded'; };
+  const dirOf = v => Math.sign(v) === Math.sign(M.T.variance) ? 'widens' : 'offsets';
   return `<p class="ux-drv-amt"><b>${usdW(s.v, true)}</b> ${s.share != null ? `${s.share}% of what ${uxWidenWord(M)}` : `offsets ${usdW(Math.abs(s.v))} of it`}, October against target</p>
    <h3 class="ux-drv-h">What is behind it</h3>${s.finds.length ? `<ul class="list">${s.finds.map(f => `<li><b>${f.site}</b>: ${issue(f)}</li>`).join('')}</ul>` : '<p class="muted">No Finding names this driver yet.</p>'}
    <h3 class="ux-drv-h">What is being done</h3>${s.decs.length ? `<ul class="list ux-drv-decs">${s.decs.map(uxDecLine).join('')}</ul>` : '<p>No decision yet.</p>'}
-   <h3 class="ux-drv-h">Evidence</h3>${s.nodes.length ? `<ul class="list">${s.nodes.map(({ sk, n, v }) => `<li>${SK[sk].name}: ${fig(n.evd || `node:${sk}:${n.id}`, usdW(v, true))} ${ec(n.cls)}</li>`).join('')}</ul>` : '<p class="muted">Not available yet.</p>'}`;
+   <h3 class="ux-drv-h">Evidence</h3>${s.nodes.length ? `<ul class="list ux-drv-ev">${s.nodes.map(({ sk, n, vr }) => `<li data-site="${sk}" data-effect="${r2(n.eff)}">${SK[sk].name}: ${fig(n.evd || `node:${sk}:${n.id}`, usdW(vr, true))}${s.nodes.length > 1 && vr ? `, ${dirOf(vr)}` : ''} ${ec(n.cls)}</li>`).join('')}${s.nodes.length > 1 ? `<li class="ux-drv-sum"><b>Total ${usdW(s.v, true)}</b></li>` : ''}</ul>` : '<p class="muted">Not available yet.</p>'}`;
 }
 /* the heading drawer's head (Grow, Optimize): the same shape, one level up; the heading's full card follows it */
 function uxHeadingTop(M, k) {
   const g = M.groups.find(x => x.k === k); if (!g) return '';
-  return `<section class="ux-drv-top" aria-label="${LENS[k][0]}: its share of the gap"><p class="ux-drv-amt"><b${figA(k, M.op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `${g.share}% of what ${uxWidenWord(M)}` : `offsets ${usdW(Math.abs(g.sub))} of it`}, October against target</p>
+  return `<section class="ux-drv-top" aria-label="${LENS[k][0]}: its share of the gap"><p class="ux-drv-amt"><b${figA(k, M.op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `<span data-heading-share="${g.share}">${g.share}%</span> of what ${uxWidenWord(M)}${g.offset ? `; ${usdW(g.offset, true)} offsets` : ''}` : `offsets ${usdW(Math.abs(g.sub))} of it`}, October against target</p>
    ${reconTie(M.op, k)}<h3 class="ux-drv-h">Its drivers, and what is being done</h3><ul class="list ux-drv-decs">${g.steps.map(s => `<li><span>${s.lab}: <b>${usdW(s.v, true)}</b></span> ${s.decs.length ? s.decs.map(dk => link(`decision/${dk}`, 'Open decision →')).join(' ') : '<span class="muted">No decision yet</span>'}</li>`).join('')}</ul></section>`;
 }
 /* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale, each
@@ -303,7 +310,7 @@ const GAP_SHORT = { 'kWh sold (demand volume)': 'kWh sold', 'Fuel the generator 
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
   const about = 'The four headings sit over one structure: each factor under one heading, so no figure is counted twice and the headings are never added together. Grow and Optimize effects explain the contribution gap; cash collected sits under Optimize, outside that gap; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence, with the bridge, and adds no money.';
-  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><span class="ux-note">Each heading opens its drivers, Findings and plan items</span><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], `${uxHeadingTop(uxGapModel(op), k)}${categoryCard(op, k, C)}`, true)).join('')}</section>`;
+  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><span class="ux-note">Each heading opens its drivers, Findings and plan items</span><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], `${uxHeadingTop(uxGapModel(op), k)}${categoryCard(op, k, C, { fromGap: ['grow', 'optimize'].includes(k) })}`, true)).join('')}</section>`;
 }
 
 /* ---------- the plan card and the insight (L2 aside) ---------- */
@@ -370,7 +377,7 @@ function uxPlanBand(op, P, budget) {
  ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
  ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
  ${uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it'])}
- </div><div class="ux-planact"><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this mock-up. It is recorded under the executive’s name and the time.</span></div></section>`;
+ </div><div class="ux-planact"><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span><button type="button" class="button primary" aria-describedby="ux-nowire">Approve version ${num(S.version)}</button><button type="button" class="button" aria-describedby="ux-nowire">Send back with a trade-off</button><span id="ux-nowire" class="ux-note">Approving is not wired in this demonstration. It is recorded under the executive’s name and the time.</span></div></section>`;
 }
 const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>12-month result</span><span>State</span></div>';
 function uxItemRow(op, id, f) {
@@ -703,27 +710,62 @@ const uxInProduct = s => !!s && s.root !== 'Simulator Lab' && !s.stub && (s.loop
 const uxWords = e => { const out = [], tw = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); while (tw.nextNode()) out.push(tw.currentNode.nodeValue); return out.join(' '); };
 const uxRouteOf = href => String(href || '').replace(/^#\//, '').split('?')[0];
 function uxIsClassic(id) { const s = SCREENS.find(x => x.id === id) || (typeof ALIAS !== 'undefined' && ALIAS[id] ? SCREENS.find(x => x.id === ALIAS[id]) : null); return !!s && s.root !== 'Simulator Lab' && !uxInProduct(s); }
+/* the kept v7.0 records, by key (review H3: scope by data, not by rendered names): each record, asset or vendor key names the
+   Site(s) it belongs to. The v7.0 lists hold examples for one Site per operator (Kobo, Thika, Ruiru). */
+const V70_KEYS = {
+  kobo: ['BAT-001', 'GEN-001', 'INV-001', 'REC-305', 'REC-306', 'REC-307', 'CHG-019', 'ACT-048', 'ACT-049', 'F-104', 'F-109'],
+  thika: ['CMP-003', 'GEN-CR-01', 'ATS-CR-01', 'BAT-CR-01', 'INC-203', 'WR-011', 'WR-016', 'WR-019', 'REC-311', 'REC-312', 'REC-313', 'F-118', 'F-119', 'ACT-051'],
+  ruiru: ['CHG-001', 'CHG-002', 'WR-021', 'REC-320', 'REC-321', 'ACT-061', 'F-130']
+};
+const V70_VENDORS = { 'Northwind Storage': ['kobo', 'thika'], 'Kestrel Gensets': ['kobo', 'thika'], 'Polar Cooling Co': ['thika'], 'Ampere Charge Co': ['ruiru'] };
+const V70_RECORD = /\b(?:F|ACT|WR|INC|REC|CHG|PM)-\d{2,4}\b/g;
+function uxRowSites(e) {
+  const t = uxWords(e), out = new Set();
+  Object.entries(V70_KEYS).forEach(([sk, keys]) => { if (keys.some(k => t.includes(k))) out.add(sk); });
+  Object.entries(V70_VENDORS).forEach(([v, sks]) => { if (t.startsWith(v) || e.querySelector('td')?.textContent.trim().startsWith(v)) sks.forEach(s => out.add(s)); });
+  /* a row that carries no key may name its Site in its Site cell; the name is read only against the Site register (SK) */
+  if (!out.size) Object.keys(SK).forEach(sk => { if (new RegExp(`(^|[^A-Za-z])${SK[sk].name}([^A-Za-z]|$)`).test(t)) out.add(sk); });
+  return [...out];
+}
 function uxShell(s) {
   if (!uxInProduct(s)) return;
   const c = document.querySelector('.canvas'); if (!c) return;
   if (!s.loop && !s.opScoped) {
-    /* operator scope: a record that names another operator's Site is not this operator's (UX audit C3) */
-    const mine = OPS[LS.op].sites.map(k => SK[k].name), other = Object.keys(SK).filter(k => SK[k].op !== LS.op).map(k => SK[k].name);
-    const names = t => other.filter(n => new RegExp(`\\b${n}\\b`).test(t));
-    c.querySelectorAll('tbody tr, li, option, article').forEach(e => { if (e.closest('.ux-drawer')) return; const t = uxWords(e); if (names(t).length && !mine.some(n => new RegExp(`\\b${n}\\b`).test(t))) e.remove(); });
-    /* a list of Sites in one cell ("Thika · Kobo") keeps only this operator's */
+    const op = LS.op, mine = OPS[op].sites, oname = OPS[op].name, poss = uxPoss(oname);
+    /* every row gets its Site(s) as data; a row is this operator's only when all its Sites are */
+    c.querySelectorAll('tbody tr, ul li, ol li, option, article, p, .notice').forEach(e => { if (e.closest('.ux-drawer, .tabs, .chips')) return; const ss = uxRowSites(e); e.dataset.site = ss.length ? ss.join(' ') : 'all'; if (ss.length && !ss.every(x => mine.includes(x))) e.remove(); });
+    /* an asset code before its own label says nothing more (review M4); on a Site setup page an id is the form's subject */
+    const setup = /^site-(?:create|batch|setup)/.test(s.id), CODE = /^[A-Z]{2,4}(?:-[A-Z]{1,3})?-[A-Z0-9]{1,3}$/;
+    c.querySelectorAll('td, b, strong, code').forEach(b => { const t = b.textContent.trim(); if (!CODE.test(t)) return; if (setup) { b.dataset.subjectId = ''; return; }
+      const nx = b.nextSibling; if (b.tagName !== 'TD' && nx && nx.nodeType === 3 && /^\s*·\s*/.test(nx.nodeValue)) { nx.nodeValue = nx.nodeValue.replace(/^\s*·\s*/, ''); b.remove(); } });
+    /* a v7.0 record id is not this product's id (Findings and Actions read the plan's store) */
     const tw = document.createTreeWalker(c, NodeFilter.SHOW_TEXT), nodes = []; while (tw.nextNode()) nodes.push(tw.currentNode);
-    nodes.forEach(n => { const parts = n.nodeValue.split(' · ').map(x => x.trim()); if (parts.length > 1 && parts.every(x => mine.includes(x) || other.includes(x))) n.nodeValue = parts.filter(x => mine.includes(x)).join(' · '); });
-    c.querySelectorAll('tbody').forEach(tb => { if (!tb.querySelector('tr')) { const n = tb.closest('table')?.querySelectorAll('thead th').length || 1; tb.insertAdjacentHTML('beforeend', `<tr class="ux-none"><td colspan="${n}">None at ${OPS[LS.op].name}’s Sites in this demo.</td></tr>`); } });
-    /* a cell whose record code was put into words or unlinked does not end on a dangling separator */
+    nodes.forEach(n => { if (V70_RECORD.test(n.nodeValue)) { V70_RECORD.lastIndex = 0; const prose = !n.parentElement.closest('td, th, li'); n.nodeValue = n.nodeValue.replace(V70_RECORD, prose ? 'its record' : '').replace(/^\s*[·,]\s*/, '').replace(/(\s*[·,]\s*){2,}/g, ' · '); } V70_RECORD.lastIndex = 0; });
     c.querySelectorAll('td').forEach(td => { const tw2 = document.createTreeWalker(td, NodeFilter.SHOW_TEXT); let last = null; while (tw2.nextNode()) if (tw2.currentNode.nodeValue.trim()) last = tw2.currentNode; if (last) last.nodeValue = last.nodeValue.replace(/\s*[·,]\s*$/, ''); });
     /* count tiles written for the three operators together cannot be read for one; the list under them is the count */
     c.querySelectorAll('.cards, .statusbar').forEach(k => { if ((k.querySelector('.metric') || k.classList.contains('statusbar')) && !k.closest('.ux-drawer') && /\d/.test(k.textContent)) k.remove(); });
+    /* copy that describes navigation the product no longer offers goes with it (review M4) */
+    c.querySelectorAll('p, .panel-head p, .notice').forEach(p => { if (/moves you to its own pages|pages are shown for|in this mock-up/i.test(p.textContent) && !p.querySelector('table')) p.remove(); });
+    /* an emptied list never says "None" where the plan's store has rows (review H4): it lists them, from the store */
+    const store = uxStoreRows(s, op);
+    c.querySelectorAll('tbody').forEach(tb => { if (!tb.querySelector('tr')) { const n = tb.closest('table')?.querySelectorAll('thead th').length || 1; tb.insertAdjacentHTML('beforeend', `<tr class="ux-none" data-site="all" data-ux-added><td colspan="${n}">${store || `None recorded at ${poss} Sites.`}</td></tr>`); } });
+    /* the list says which Sites its records cover, from the data */
+    const covered = OPS[op].sites.filter(sk => c.querySelector(`[data-site~="${sk}"]`)), rest = mine.filter(sk => !covered.includes(sk));
+    if (rest.length) (c.querySelector('.page-heading') || c.querySelector('.breadcrumbs'))?.insertAdjacentHTML('afterend', `<p class="ux-scope-note" data-ux-added>${covered.length ? `These records cover ${covered.map(k => SK[k].name).join(' and ')}.` : 'No record here yet.'} For ${rest.map(k => SK[k].name).join(', ')}, see ${link('findings', 'Findings')} and ${link('actions', 'the plan’s Actions')}.</p>`);
   }
   /* the navigation never lists a v7.0 screen kept for review only */
   document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
   /* the product never navigates into a v7.0 screen kept for review only */
   c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
+}
+/* the possessive of a name ("Metro Bus Depots’", "Lakeside Power’s") (review L3) */
+const uxPoss = n => /s$/.test(n) ? `${n}’` : `${n}’s`;
+/* the store's rows for an emptied v7.0 list: failures and limits as Findings, repairs and upkeep as the plan's Actions */
+function uxStoreRows(s, op) {
+  const R = s.root;
+  if (R === 'Incidents') { const f = uxFindingRows(op).filter(x => x.heading === 'protect'); return f.length ? `Not recorded in this list. Open Findings on failures and limits:<ul class="list">${f.map(x => `<li data-site="${SK[Object.keys(SK).find(k => SK[k].name === x.site)] ? Object.keys(SK).find(k => SK[k].name === x.site) : 'all'}">${x.site}: ${x.text} ${x.d ? link(`decision/${x.d.id}`, 'Open decision →') : ''}</li>`).join('')}</ul>` : ''; }
+  if (R === 'Maintenance') { const A = (WF(op).actions || []).filter(a => ['REPAIR', 'SUPPLIER_REMEDY', 'STOPGAP_PLUS_CLAIM'].includes(OPT[a.item]?.kind)); return A.length ? `Not recorded in this list. Repairs in the plan:<ul class="list">${A.map(a => `<li data-site="${OPT[a.item]?._site || 'all'}">${a.action} (${who(op, a.owner)}, due ${fdate(a.due)})</li>`).join('')}</ul>${link('actions', 'See the plan’s Actions →')}` : ''; }
+  return '';
 }
 
 /* Findings and Actions read the one store the plan uses (UX audit C1.4): HC.findings with their issue words, and the plan's
@@ -740,7 +782,7 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-ux-s
 function uxFindingsScreen() {
   const op = LS.op, R = uxFindingRows(op), cap = 7, id = 'uxfl';
   const rows = R.map((x, i) => `<li class="ux-fl"${i >= cap ? ' data-ux-over hidden' : ''}><span class="ux-fl-st">${uxChip(x.tone, x.label)}</span><span class="ux-fl-site">${x.site}</span><span class="ux-fl-t">${x.text}<small>${LENS[x.heading] ? LENS[x.heading][0] : ''}</small></span><span class="ux-fl-dec">${x.d ? `<span class="status-pill is-${x.st.key === 'released' ? 'approved' : x.st.key === 'approval' ? 'waiting' : 'proposed'}">${x.st.label}</span>${link(`decision/${x.d.id}`, `Open decision<span class="vh">: ${x.d.q}</span> →`)}` : '<span class="muted">No decision yet</span>'}</span></li>`).join('');
-  return `<section class="panel" aria-labelledby="uxfl-h"><div class="ux-row-head"><h2 id="uxfl-h" data-count="${R.length}" data-count-of=".ux-flist>li">${num(R.length)} Finding${R.length === 1 ? '' : 's'} at ${OPS[op].name}’s Sites</h2><span class="ux-note">October 2026 · each with its decision</span></div>
+  return `<section class="panel" aria-labelledby="uxfl-h"><div class="ux-row-head"><h2 id="uxfl-h" data-count="${R.length}" data-count-of=".ux-flist>li">${num(R.length)} Finding${R.length === 1 ? '' : 's'} at ${uxPoss(OPS[op].name)} Sites</h2><span class="ux-note">October 2026 · each with its decision</span></div>
    ${R.length ? `<ul class="ux-flist" id="${id}">${rows}</ul>${uxCapNote(R.length, cap, id)}` : '<p class="ux-empty" role="status">No Findings at this operator’s Sites.</p>'}</section>`;
 }
 function uxActionsScreen() {

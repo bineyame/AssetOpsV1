@@ -160,6 +160,23 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const pd = await page('portfolio/demand-and-capacity', { op }); const vc = await pd.evaluate(() => [...document.querySelectorAll('.ux-vc-loss .ux-vc-bar')].filter(b => b.getBoundingClientRect().width > 1).length);
     const tiles = await p.evaluate(() => [...document.querySelectorAll('.ux-cat')].map(t => !!t.querySelector('.ux-bullet, .ux-seg, .ux-meterbar')));
     ok(tip, `${op} bridge: a step shows its detail on focus`);
+    /* review H1: every decision that moves a driver is named in its drawer: its Finding sits on the driver, an option's money factors
+       include it, or (a service-failure cost line) a Protect Finding at its Site; "No decision yet" only when none does */
+    const h1 = await p.evaluate(op => { const M = uxGapModel(op), omf = HC.option_money_factors || {}, svcN = (OPS[op].t.portfolio.service_cost_lines || []).map(l => l.node), bad = [];
+      M.groups.forEach(g => g.steps.forEach(s => { const hk = s.st.hkeys || [], sites = Object.keys(s.st.by), nm = sites.map(k => SK[k].name), siteOf = f => String(f.site).replace(/^Room [A-C] · /, '');
+        const want = new Set([...DEC.filter(d => sites.includes(d.site) && d.opts.some(x => (omf[x] || []).some(f => hk.includes(f)))).map(d => d.id),
+          ...(HC.findings || []).filter(f => nm.includes(siteOf(f)) && (hk.includes(f.factor) || (hk.some(h => svcN.includes(h)) && f.heading === 'protect'))).map(f => f.decision)].filter(Boolean));
+        const dr = document.getElementById(s.id), got = new Set([...dr.querySelectorAll('a[href^="#/decision/"]')].map(a => a.getAttribute('href').replace('#/decision/', '')));
+        const same = want.size === got.size && [...want].every(x => got.has(x)); if (!same || (!want.size && !/No decision yet/.test(dr.textContent))) bad.push(`${s.lab}: wants ${[...want].join('+') || 'none'}, shows ${[...got].join('+') || 'none'}`); }));
+      return bad; }, op);
+    ok(!h1.length, `${op} drivers: each drawer names every decision that moves its driver (${h1.join('; ') || 'all hold'})`);
+    /* review H2: one share basis; a heading's share is the sum of its steps' shares, the same on the tile, the drawer and the chart */
+    const h2 = await p.evaluate(() => { const bad = [], rows = [...document.querySelectorAll('.ux-hero .ux-wf>li')]; let k = null; const sum = {};
+      rows.forEach(li => { if (li.classList.contains('ux-wf-group')) { k = li.querySelector('[data-ux-drawer]').dataset.uxDrawer.split('-').pop(); sum[k] = 0; } else { const v = li.querySelector('.ux-wf-val'); if (v && v.dataset.share) sum[k] += +v.dataset.share; } });
+      Object.entries(sum).forEach(([k, s]) => { const tile = document.querySelector(`.ux-cat[data-tile="${k}"] [data-heading-share]`), dr = document.querySelector(`[id$="-${k}"].ux-drawer [data-heading-share]`);
+        const tv = tile ? +tile.dataset.headingShare : null, dv = dr ? +dr.dataset.headingShare : null; if ((tv !== null && tv !== s) || (dv !== null && dv !== s)) bad.push(`${k}: steps ${s}%, tile ${tv}%, drawer ${dv}%`); });
+      return bad; });
+    ok(!h2.length, `${op} shares: each heading's share equals the sum of its steps' on the tile, the drawer and the chart (${h2.join('; ') || 'all hold'})`);
     const noLeak = await pd.evaluate(() => /no leak measured/.test(document.querySelector('[id^="uxv-h-"]')?.parentElement?.textContent || '')); await pd.context().close();
     ok(vc >= 1 || noLeak, `${op} value chain: ${vc} loss bars drawn${noLeak ? ' (no leak measured, said in the title)' : ''}`);
     ok(tiles.filter(Boolean).length >= 3, `${op} outcome tiles: ${tiles.filter(Boolean).length} of 4 with a target-against-actual visual`);

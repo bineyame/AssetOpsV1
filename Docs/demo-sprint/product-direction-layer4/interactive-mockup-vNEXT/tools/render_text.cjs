@@ -24,7 +24,7 @@ function boot(op, hash) {
 function words(node) { const w = node.ownerDocument.defaultView, it = node.ownerDocument.createTreeWalker(node, w.NodeFilter.SHOW_TEXT); const a = []; let n; while ((n = it.nextNode())) a.push(n.nodeValue); return a.join(' '); }
 function visible(doc) {
   const c = doc.querySelector('#app').cloneNode(true);
-  c.querySelectorAll('.reviewbar, script, style, [hidden], .sr-only-tech').forEach(x => x.remove());
+  c.querySelectorAll('.reviewbar, script, style, [hidden], .sr-only-tech, [data-subject-id]').forEach(x => x.remove()); /* an id that is the subject of a setup form is the operator's own id, not a system code */
   // text plus the accessible names and titles a user meets
   const attrs = [...c.querySelectorAll('[aria-label],[title],[placeholder]')].map(e => [e.getAttribute('aria-label'), e.getAttribute('title'), e.getAttribute('placeholder')].filter(Boolean).join(' ')).join(' | ');
   const opts = [...c.querySelectorAll('option')].map(o => o.textContent).join(' | ');
@@ -48,7 +48,7 @@ for (const op of ONLY) for (const s of manifest) {
   CUR = s.id; const dom = boot(op, s.id); const w = dom.window, d = w.document;
   if (!d.querySelector('#app .canvas')) { errors.push({ op, id: s.id, e: 'no canvas' }); w.close(); continue; }
   const chrome = [...d.querySelectorAll('#app .rail, #app .topbar, #app footer, #app .tabs, #app .slim-banner')].map(words).join(' ').replace(/\s+/g, ' ');
-  const rec = { op, id: s.id, status: s.layer4_status, loop: !!(s.loop || s.opScoped), text: visible(d), chrome, drawers: [], segments: segments(d.querySelector('#app')) };
+  const rec = { op, id: s.id, status: s.layer4_status, loop: !!(s.loop || s.opScoped || w.eval('typeof uxInProduct==="function"&&uxInProduct(currentScreen())')) /* review H4: every navigable screen is held to the product's words */, text: visible(d), chrome, drawers: [], segments: segments(d.querySelector('#app')) };
   const nums = [...d.querySelectorAll('.ev-num')].slice(0, 4);
   for (const n of nums) { try { n.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); const dr = d.querySelector('#overlay .drawer, .drawer'); if (dr) { const c = dr.cloneNode(true); c.querySelectorAll('details.tech').forEach(x => x.remove()); rec.drawers.push(words(c).replace(/\s+/g, ' ')); rec.segments.push(...segments(dr)); } d.querySelector('#overlay').innerHTML = ''; } catch (e) {} }
   out.push(rec); w.close();
