@@ -4,6 +4,18 @@
 const { chromium } = require(process.env.PW);
 const base = 'file://' + process.argv[2];
 const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}`);
+/* review r4 H1 and r5 G1: the plan's item list, measured (cells never overlap or overflow; the row never overflows its own box) */
+const PLAN_LAYOUT = () => { const bad = [], inter = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1;
+      const head = document.querySelector('.ux-itemh'), card = !head || getComputedStyle(head).display === 'none'; let rows = 0;
+      const check = (el, name) => { const cs = [...el.children].filter(c => !c.classList.contains('ux-disc-cue') && getComputedStyle(c).display !== 'none'), rc = cs.map(c => c.getBoundingClientRect());
+        cs.forEach((c, i) => { if (c.scrollWidth > c.clientWidth + 1) bad.push(`${name}: cell ${i} text is wider than its cell`); for (let j = i + 1; j < cs.length; j++) if (inter(rc[i], rc[j])) bad.push(`${name}: cells ${i} and ${j} overlap`); }); return rc; };
+      if (head && !card) check(head, 'header');
+      document.querySelectorAll('summary.ux-itemrow').forEach(s => { rows++; const rc = check(s, s.parentElement.dataset.row); if (!card && rc[0].width < 160) bad.push(`${s.parentElement.dataset.row}: item cell ${Math.round(rc[0].width)} px`);
+        /* r5 G1: the row never overflows its own box, and its last cell ends inside its card */
+        if (s.scrollWidth > s.clientWidth + 1) bad.push(`${s.parentElement.dataset.row}: row ${s.scrollWidth} px wide in a ${s.clientWidth} px box`);
+        const box = (s.closest('.panel, .ux-items') || s).getBoundingClientRect(), last = rc.filter(r => r.width > 0).pop(); if (last && last.right > box.right + 1) bad.push(`${s.parentElement.dataset.row}: last cell ends at ${Math.round(last.right)}, past its card at ${Math.round(box.right)}`); });
+      return { rows, card, bad: [...new Set(bad)].slice(0, 3) }; };
+const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
   const openAll = p => p.evaluate(() => document.querySelectorAll('.canvas details').forEach(d => { d.open = true; }));
@@ -12,6 +24,10 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
        the page never scrolls sideways (.workspace clips), so the page's scrollWidth alone cannot fail */
     await ctx.addInitScript(() => { window.__ovf = () => { const out = []; for (const e of document.querySelectorAll('#app .canvas *')) { const a = e.getBoundingClientRect(); if (a.width <= 1 || a.height <= 1 || (a.right <= innerWidth + 1 && a.left >= -1)) continue; if (e.closest('.ux-drawer:not([data-open="true"]), [hidden], .vh')) continue;
       let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; return p; };
+  if (PLANT === 'container') { for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720]]) { const p = await page('plan', { op, w, h });
+      await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.constructor.name === 'CSSContainerRule' && r.containerName === 'uxitems') sh.deleteRule(i); } }); await p.waitForTimeout(150);
+      const lay = await p.evaluate(PLAN_LAYOUT); ok(lay.rows > 0 && !lay.bad.length, `plant container: ${op} plan at ${w}: ${lay.rows} rows${lay.bad.length ? `, ${lay.bad.join('; ')}` : ''}`); await p.context().close(); }
+    await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   // 1 drawers on the Overview: open, focus, trap, Esc, return focus
   { const p = await page('portfolio');
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {
@@ -71,7 +87,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     ok(r.cards === 4 && !r.bad.length, `phone decision cards: label and value columns consistent in ${r.cards} cards (${r.bad.join('; ') || 'no fault'})`);
     await p.context().close(); }
   // phone: no chip or pill extends past its card (copy review round 4)
-  for (const [op, r] of [['lakeside', 'decision/kobo-generator'], ['lakeside', 'decision/kisiwa-genset'], ['lakeside', 'decision/mto-inverter'], ['harvest', 'decision/mwea-occupancy'], ['lakeside', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first/plan']]) {
+  for (const [op, r] of [['lakeside', 'decision/kobo-generator'], ['lakeside', 'decision/kisiwa-genset'], ['lakeside', 'decision/mto-inverter'], ['harvest', 'decision/mwea-occupancy'], ['lakeside', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'plan']]) {
     const p = await page(r, { w: 390, h: 844, op });
     const bad = await p.evaluate(() => { const out = [];
       for (const e of document.querySelectorAll('#app .canvas .badge, #app .canvas .status-pill, #app .canvas .ux-chip, #app .canvas .ux-mark, #app .canvas .ec')) {
@@ -449,16 +465,10 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
      L4 no phrase said twice in a row; L5 the phone bar does not truncate its pill; L7 a focus walk under the plan's sticky bar */
   const WAIT = /awaiting approval|awaiting [^.]{0,40}approval|waiting for (?:the plan’s )?approval|Chosen · awaiting|Chosen · the plan was sent back/i;
   for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
-    const p = await page('portfolio/act-first/plan', { op, w, h });
+    const p = await page('plan', { op, w, h });
     const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4), ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth), chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, diff: /Changes since version/.test(document.body.textContent), crew: !!document.querySelector('[data-k="Visits"]') }; });
     /* H1: layout of the item list, measured, with its own proof that the set is not empty */
-    const lay = await p.evaluate(() => { const bad = [], inter = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1;
-      const head = document.querySelector('.ux-itemh'), card = !head || getComputedStyle(head).display === 'none'; let rows = 0;
-      const check = (el, name) => { const cs = [...el.children].filter(c => !c.classList.contains('ux-disc-cue') && getComputedStyle(c).display !== 'none'), rc = cs.map(c => c.getBoundingClientRect());
-        cs.forEach((c, i) => { if (c.scrollWidth > c.clientWidth + 1) bad.push(`${name}: cell ${i} text is wider than its cell`); for (let j = i + 1; j < cs.length; j++) if (inter(rc[i], rc[j])) bad.push(`${name}: cells ${i} and ${j} overlap`); }); return rc; };
-      if (head && !card) check(head, 'header');
-      document.querySelectorAll('summary.ux-itemrow').forEach(s => { rows++; const rc = check(s, s.parentElement.dataset.row); if (!card && rc[0].width < 160) bad.push(`${s.parentElement.dataset.row}: item cell ${Math.round(rc[0].width)} px`); });
-      return { rows, card, bad: [...new Set(bad)].slice(0, 3) }; });
+    const lay = await p.evaluate(PLAN_LAYOUT);
     /* L4 a phrase said twice in a row; L3 the vertical's word */
     const words = await p.evaluate(() => { const rep = []; document.querySelectorAll('summary.ux-itemrow').forEach(s => { const segs = s.innerText.split(/[\n,:;]| · /).map(x => x.replace(/\s+/g, ' ').trim()).filter(x => x.length >= 24); const seen = new Set(); for (const x of segs) { if (seen.has(x)) rep.push(x.slice(0, 40)); seen.add(x); } });
       const t = [...document.querySelectorAll('.ux-h2, th, .ux-itemh span, .ux-kpi-l, [data-k]')].map(e => e.textContent).join(' | '); /* the page's own labels, not the data's prose */ return { rep, crew: /\bcrews?\b/i.test(t), tech: /technician/i.test(t), op: OPS[LS.op].vertical, n: document.querySelectorAll('.ux-h2, th').length }; });
@@ -489,7 +499,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
       await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(400); const b = await ST(); if (b.chip !== 'PROPOSED') fails.push(`Undo gives ${b.chip}`); if (b.focus === 'BODY') fails.push('focus on the page body after Undo (M7)');
       /* M1: every page agrees with the approval */
       await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
-      const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'portfolio/what-changed', `decision/${dec}`, 'portfolio/act-first/plan'];
+      const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'portfolio/what-changed', `decision/${dec}`, 'plan'];
       for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300);
         const s = await p.evaluate(src => { const k = document.querySelector('.canvas').cloneNode(true); k.querySelectorAll('.ux-dsteps').forEach(x => x.remove()); /* the stage list names its steps */ const t = k.textContent.replace(/\s+/g, ' '), m = t.match(new RegExp('.{0,40}(?:' + src + ').{0,20}', 'i')); return { say: m ? m[0] : '', waiting: document.querySelectorAll('[data-release="WAITING"]').length }; }, WAIT.source);
         if (s.say || s.waiting) fails.push(`${rt} after Approve: "${s.say}" ${s.waiting} waiting pills`);
@@ -533,9 +543,9 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
   /* review r4 L6: at 1280 x 720 a tile's trend is shortened, never hidden */
   { let tiles = 0, hidden = [];
     for (const [op, sk] of [['lakeside', 'kobo'], ['lakeside', 'kisiwa'], ['lakeside', 'mto'], ['harvest', 'mwea'], ['harvest', 'thika'], ['harvest', 'kirinyaga'], ['metro', 'embakasi'], ['metro', 'kasarani'], ['metro', 'ruiru']]) { const p = await page(`site/${sk}`, { op, w: 1280, h: 720 });
-      const r = await p.evaluate(() => { const t = [...document.querySelectorAll('.ux-kpis .ux-kpi')].filter(k => k.querySelector('.ux-trend')); return { n: t.length, hid: t.filter(k => { const e = k.querySelector('.ux-kpi-s.has-trend'); return !e || e.offsetHeight === 0; }).length, sub: (() => { const e = document.querySelector('.page-heading>div>p:not(.ux-scope)'); return e ? e.offsetHeight === 0 : false; })() }; });
-      tiles += r.n; if (r.hid || r.sub) hidden.push(`${sk}${r.hid ? ` ${r.hid} trend(s)` : ''}${r.sub ? ' subtitle' : ''}`); await p.context().close(); }
-    ok(tiles >= 9 && !hidden.length, `Site pages at 1280 x 720: ${tiles} tile trends and the subtitle all show${hidden.length ? ` (HIDDEN: ${hidden.join('; ')})` : ''}`); }
+      const r = await p.evaluate(() => { const t = [...document.querySelectorAll('.ux-kpis .ux-kpi')].filter(k => k.querySelector('.ux-trend')); return { n: t.length, hid: t.filter(k => { const e = k.querySelector('.ux-kpi-s.has-trend'); return !e || e.offsetHeight === 0; }).length, clip: t.flatMap(k => [...k.querySelectorAll('.ux-kpi-s.has-trend, .ux-kpi-s.has-trend *')]).filter(e => e.offsetHeight > 0 && e.scrollWidth > e.clientWidth + 1).map(e => e.textContent.trim().slice(0, 40)), /* r5 L-a: shortened, never clipped */ sub: (() => { const e = document.querySelector('.page-heading>div>p:not(.ux-scope)'); return e ? e.offsetHeight === 0 : false; })() }; });
+      tiles += r.n; if (r.hid || r.sub || r.clip.length) hidden.push(`${sk}${r.hid ? ` ${r.hid} trend(s)` : ''}${r.sub ? ' subtitle' : ''}${r.clip.length ? ` clipped "${r.clip[0]}"` : ''}`); await p.context().close(); }
+    ok(tiles >= 9 && !hidden.length, `Site pages at 1280 x 720: ${tiles} tile trends and the subtitle all show, none clipped${hidden.length ? ` (HIDDEN OR CLIPPED: ${hidden.join('; ')})` : ''}`); }
   /* r2 M3: the captive fleet's revenue row says "Not applicable", in its own words */
   { const p = await page('ev', { op: 'metro' }); const t = await p.evaluate(() => document.querySelector('.canvas').textContent);
     ok(/Not applicable/.test(t) && /Revenue not applicable: charging is a cost centre/.test(t) && !/Grow revenue\s*Not measured yet/.test(t), 'EV board: the revenue row reads "Not applicable" with its reason'); await p.context().close(); }
@@ -556,7 +566,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const r = await p.evaluate(() => ({ h: Math.round(document.querySelector('.topbar').getBoundingClientRect().height), inBar: !!document.querySelector('.topbar .snap-pending'), row: !!document.querySelector('.canvas>.ux-pending .snap-pending'), ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth) }));
     ok(r.h <= 64 && !r.inBar && !r.ovf, `${op} header at 1440: one row (${r.h} px), notice ${r.row ? 'on its own row' : 'none'}, no overflow`); await p.context().close(); }
   // 5 heading order on the five screens
-  for (const r of ['portfolio', 'portfolio/act-first', 'portfolio/act-first/plan', 'decision/kobo-generator', 'site/kobo']) {
+  for (const r of ['portfolio', 'portfolio/act-first', 'plan', 'decision/kobo-generator', 'site/kobo']) {
     const p = await page(r);
     const hs = await p.evaluate(() => [...document.querySelectorAll('#app h1,#app h2,#app h3,#app h4')].filter(e => !e.closest('.reviewbar,.ux-drawer')).map(e => +e.tagName[1]));
     let skip = 0; for (let i = 1; i < hs.length; i++) if (hs[i] > hs[i - 1] + 1) skip++;

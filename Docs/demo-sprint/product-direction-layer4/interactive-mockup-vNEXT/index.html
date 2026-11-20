@@ -1440,7 +1440,7 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-dhd .ux-how{align-self:flex-start;margin:0;font-size:var(--fs-sm)}
 .ux-drec-n.is-second{font-size:var(--fs-sm)}
 .ux-dsticky{display:none}
-.ux-dsticky.is-on{display:flex;position:fixed;top:0;left:0;right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ux-dsticky.is-on{display:flex;position:fixed;top:var(--ux-sticky-top,0);left:var(--ux-sticky-left,0);right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
 .ux-dsticky-t{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ux-dsticky-n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .ux-dsticky-n small{color:var(--text-2)}
@@ -1481,6 +1481,23 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
   .ux-dsticky[aria-label="This plan"] .ux-note{grid-column:2/-1;grid-row:2}
   .ux-dsticky[aria-label="This plan"] .status-pill{grid-column:1/-1;grid-row:3;justify-self:start;white-space:normal}
 }
+
+/* IA-1 (spec §2.3): the frame. Group labels are title case in the markup, uppercase here; an unlanded rail item is an
+   unavailable root (the live product's NavRail rule): muted, its status in words, no link and no tab stop. */
+.ia-frame .rail .eyebrow{text-transform:uppercase}
+.ia-rail-unavailable{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s3);min-height:32px;font-size:var(--fs-sm);color:var(--rail-text-2);cursor:default}
+.ia-rail-text{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.ia-rail-status{font-size:var(--fs-xs);opacity:.85}
+.ia-rail-foot{margin-top:auto;padding-top:var(--s3);border-top:1px solid var(--rail-hover)}
+.ia-unlinked{color:inherit}
+/* the top bar holds on one line down to 1280 px (audit C15) */
+.ia-frame .topbar{flex-wrap:nowrap;gap:var(--s3)}
+.ia-frame .topbar .ux-scope-sw>summary,.ia-frame .topbar .searchbox{white-space:nowrap}
+.ia-frame .topbar .right{flex-wrap:nowrap;min-width:0}
+@media (max-width:1100px){.ia-rail-status{display:none}}
+@media (max-width:760px){.ia-frame .topbar{flex-wrap:wrap}.ia-frame .topbar .right{flex-wrap:wrap}}
+.reviewbar .ux-dev-sw{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.reviewbar .ux-rebuild{font-size:var(--fs-xs);opacity:.85}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -2773,7 +2790,7 @@ add('settings-policies','Settings','Settings','Operational policies','3.10 · de
 add('settings-tenant','Settings','Settings','Organisation settings','3.10 · demo scope','How is this organisation set up?',['TenantConfiguration'],settingsTenant,{book:false,gtabs:SET_GTABS,subtitle:'Organisation, users, roles and feature switches'});
 
 const ROOTS=[['Portfolio','portfolio','grid'],['Sites','sites','site'],['Assets','assets','asset'],['Findings','findings','finding'],['Actions','actions','action'],['Incidents','incidents','incident'],['Maintenance','maintenance','work'],['Operational records','oprecords','log'],['Evidence','globalevidence','evidence'],['Financials','globalfinancials','money'],['Settings','settings-policies','gear']];
-function currentScreen(){return resolveScreen(location.hash.replace(/^#\//,''));}
+function currentScreen(){return resolveScreen(typeof iaParse==='function'?iaParse(location.hash).path:location.hash.replace(/^#\//,''));} /* IA-1 (R7): the path, never the hash query */
 function siteRoutesV70(domain){return domain==='mini'?['mini','foundation','health','dispatch','sitefindings','sitework','financials','evidence']:[domain,`${domain}-foundation`,`${domain}-health`,SITES[domain].performance,`${domain}-findings`,`${domain}-work`,`${domain}-financials`,`${domain}-evidence`];}
 function tabRow(items,active,sub=false){return `<nav class="tabs ${sub?'subtabs':''}" aria-label="${sub?'Section views':'Context tabs'}">${items.map(([label,id])=>link(id,label,id===active?'active':'')).join('')}</nav>`;}
 function tabs(s){
@@ -2828,15 +2845,19 @@ function shell(s,book=false){
  const body=preBody(s)+(fid?affectsLine(fid):'')+(!book&&stage.view!=='populated'&&sensitive.includes(s.id)?variant(s):s.render());
  return `<div class="shell">${rail(s)}<main class="workspace"><header class="topbar"><div class="portfolio-name">${lab?'Simulator Lab · KOBO-001':opName()} <span class="muted">/ Demo operator</span></div><div class="right"><button class="searchbox" data-index>${icon('search')}Find a screen</button>${lab?`<span id="topbar-window">${SITES[s.domain].window}</span>`:`${s.root==='Sites'&&s.section&&!s.gtabs?siteSwitch(s):''}${uxInProduct(s)?periodChip(s):rangePicker(global?null:s.domain)}`}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas">${breadcrumbs(s)}<div class="page-heading"><div><div class="title-row"><h1>${s.h1?s.h1(s):s.title}</h1>${s.root==='Sites'&&s.section&&!s.gtabs&&!s.loop?provTag(s.domain):''}</div>${s.h1?'':`<p>${s.subtitle||s.question}</p>`}</div><div class="heading-actions">${s.actions?s.actions(s):!global&&!lab&&s.root!=='Sites'?btn(siteOverviewFor(s.domain),'Open site'):''}</div></div>${tabs(s)}${body}${footer()}</div></main></div>`;
 }
+/* the review bar (mock tooling, outside the frame): written for every route */
+function reviewBar(s){const dev=typeof iaDev!=='function'||iaDev();return `<div class="reviewbar"><div class="left">${icon('book')}<strong>LAYER 4 MOCK-UP REVIEW</strong><span>Not approved: awaits owner inspection · illustrative demo data</span></div><div class="right">${typeof uxReviewExtrasHtml==='function'?uxReviewExtrasHtml(location.hash):''}${reviewOperatorSelect()}<select aria-label="Choose review screen" id="screen-select">${SCREENS.filter(p=>dev||p.root!=='Simulator Lab').map(p=>`<option value="${p.id}" ${p.id===s.id?'selected':''}>${selectorLabel(p)}</option>`).join('')}</select><select aria-label="Example evidence state" id="view-select"><option value="populated" ${stage.view==='populated'?'selected':''}>Illustrative scenario</option><option value="limited" ${stage.view==='limited'?'selected':''}>Evidence-limited variant</option><option value="empty" ${stage.view==='empty'?'selected':''}>No evidence variant</option></select><button data-owner-decisions>Owner decisions (4)</button><button data-notes>Review notes</button><button data-loop-changes>What changed</button><a href="../../../../frontend/mockups/v70/AssetOps-v70-Screen-Review.pdf" target="_blank" rel="noopener">v7.0 PDF screen book ↗</a></div></div>`;}
 function render(){
  const s=currentScreen();document.querySelector('.conf-pop')?.remove();
  $('#overlay').innerHTML='';document.body.style.overflow='';
+ /* IA-1 (spec §2.1, §2.4): a landed IA route renders in the frame, through iaRender only */
+ if(typeof IA_ROUTES!=='undefined'){IA_ROUTE_ACTIVE=!!s.ia;if(s.ia&&!new URLSearchParams(location.search).has('book')){document.title=`${s.title} · ${OPS[LS.op].name}`;$('#app').innerHTML=`${reviewBar(s)}<div id="ia-root"></div>`;iaRender(s.ia,s.ctx);afterRender(s);window.mockupReady=true;return;}}
  document.title=`AssetOps · ${s.title}${s.section?' / '+s.section:''} · Screen review`;
  if(new URLSearchParams(location.search).has('book')){
   const pages=SCREENS.filter(x=>x.book!==false);
   $('#app').innerHTML=pages.map((p,i)=>`<article class="bookpage" id="book-${p.id}"><div class="book-heading"><strong>ASSETOPS · v7.0 ARCHITECTURE SCREEN REVIEW</strong><span>ILLUSTRATIVE MOCKUP · ${String(i+1).padStart(2,'0')} / ${pages.length}</span></div>${shell(p,true)}<div class="book-caption"><strong>Canonical basis:</strong> v6.9 ${p.anchor} · <strong>Question:</strong> ${p.question}<br><strong>Preserved:</strong> ${p.preserved}<br><strong>Adapted:</strong> ${p.adapted}<br><strong>Deferred:</strong> ${p.deferred}<br><strong>Content owners:</strong> ${p.models.join(' · ')} · <strong>Prototype route:</strong> #/${p.id}</div></article>`).join('');
  } else {
-  $('#app').innerHTML=`<div class="reviewbar"><div class="left">${icon('book')}<strong>LAYER 4 MOCK-UP REVIEW</strong><span>Not approved: awaits owner inspection · illustrative demo data</span></div><div class="right">${reviewOperatorSelect()}<select aria-label="Choose review screen" id="screen-select">${SCREENS.map(p=>`<option value="${p.id}" ${p.id===s.id?'selected':''}>${selectorLabel(p)}</option>`).join('')}</select><select aria-label="Example evidence state" id="view-select"><option value="populated" ${stage.view==='populated'?'selected':''}>Illustrative scenario</option><option value="limited" ${stage.view==='limited'?'selected':''}>Evidence-limited variant</option><option value="empty" ${stage.view==='empty'?'selected':''}>No evidence variant</option></select><button data-owner-decisions>Owner decisions (4)</button><button data-notes>Review notes</button><button data-loop-changes>What changed</button><a href="../../../../frontend/mockups/v70/AssetOps-v70-Screen-Review.pdf" target="_blank" rel="noopener">v7.0 PDF screen book ↗</a></div></div>${shell(s)}`;
+  $('#app').innerHTML=`${reviewBar(s)}${shell(s)}`;
  }
  if(typeof afterRender==='function')afterRender(s);
  window.mockupReady=true;
@@ -3325,8 +3346,13 @@ function selectorLabel(p){const st=REG_STATUS(p);return `${st==='Merged'?'[Merge
 /* routing: merged v7.0 screens resolve to the screen that absorbed them */
 const ALIAS = {'portfolio/opportunity':'portfolio/demand-and-capacity',financials:'site/kobo/economics',assumptions:'site/kobo/economics',scenarios:'site/kobo/economics','cold-financials':'site/thika/economics','cold-assumptions':'site/thika/economics','cold-scenarios':'site/thika/economics','ev-financials':'site/ruiru/economics','ev-assumptions':'site/ruiru/economics','ev-scenarios':'site/ruiru/economics'};
 function resolveScreen(id){
- let target=id;if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
- let s=SCREENS.find(x=>x.id===target)||(target?SCREENS.find(x=>x.id==='not-found'):null)||SCREENS[0];if(s.stub)s=SCREENS.find(x=>x.id==='not-found'); /* a stub route is not a page (review L6) */ /* an unknown route says so (UX audit §3) */
+ /* IA-1 (spec §2.2, P8): a live IA alias first, else ALIAS, never chained; a landed IA route renders in the frame */
+ const IA=typeof IA_ROUTES!=='undefined',iaT=IA?iaLiveAlias(id):null;
+ let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'','#/'+target+(q<0?'':location.hash.slice(q)));}catch{}}else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
+ if(IA&&target!=='not-found'){const m=iaLanded(target);if(m)return iaScreen(m.route,target);}
+ let s=SCREENS.find(x=>x.id===target)||(target?SCREENS.find(x=>x.id==='not-found'):null)||SCREENS[0];if(s.stub)s=SCREENS.find(x=>x.id==='not-found');
+ if(IA&&s.root==='Simulator Lab'&&!iaDev())s=SCREENS.find(x=>x.id==='not-found'); /* D-IA.7, D-IA.19: the Lab is behind the developer switch */
+ if(IA&&s.id==='not-found'){const m=iaLanded('not-found');if(m)return iaScreen(m.route,'not-found');} /* a stub route is not a page (review L6) */ /* an unknown route says so (UX audit §3) */
  const op=s.site?SK[s.site].op:s.op?s.op:(s.section&&!s.gtabs&&DOMAIN_OP[s.domain]&&s.root!=='Portfolio')?DOMAIN_OP[s.domain]:null;
  if(op&&op!==LS.op)setOp(op);
  return s;}
@@ -3394,11 +3420,13 @@ function uxFixSigns(root){if(!root)return;const w=document.createTreeWalker(root
  for(let i=0;i<a.length-1;i++){const t=a[i],u=a[i+1],m=t.nodeValue.match(/\+\s*$/),k=u.nodeValue.match(/^\s*([+−])/);if(m&&k){if(k[1]==='−')t.nodeValue=t.nodeValue.replace(/\+(\s*)$/,'−$1');u.nodeValue=u.nodeValue.replace(/^(\s*)[+−]/,'$1');}}}
 function uxDedupeUnits(root){if(!root)return;root.querySelectorAll('small').forEach(sm=>{const p=sm.previousElementSibling;if(!p)return;const pt=p.textContent.trim().toLowerCase(),u=sm.textContent.trim(),head=u.split(/[,·]/)[0].trim();
  if(!head||!pt.endsWith(head.toLowerCase()))return;if(head===u){sm.remove();return;}const f=sm.firstChild;if(f&&f.nodeType===3&&f.nodeValue.includes(head))f.nodeValue=f.nodeValue.replace(head,'').replace(/^\s*[,·]\s*/,'');});} /* a name followed by its own unit drops the unit */
-function afterRender(s){if(typeof uxShell==='function')uxShell(s); /* scope by data first, before words replace record keys */if(s.loop||s.opScoped||(typeof uxInProduct==='function'&&uxInProduct(s))){tagReplay(document.querySelector('.canvas'));uxScopeLine();plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxApplyBrand==='function'){uxApplyBrand();uxBrandSwitch();}if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
+/* IA-1 (D-IA.13): an IA route is finished before insertion; after it only the brand attribute and the scroll mark are applied */
+function brandAndListenersOnly(){if(typeof uxApplyBrand==='function')uxApplyBrand();document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
+function afterRender(s){if(typeof IA_ROUTE_ACTIVE!=='undefined'&&IA_ROUTE_ACTIVE)return brandAndListenersOnly();if(typeof uxShell==='function')uxShell(s); /* scope by data first, before words replace record keys */if(s.loop||s.opScoped||(typeof uxInProduct==='function'&&uxInProduct(s))){tagReplay(document.querySelector('.canvas'));uxScopeLine(document.querySelector('.canvas'),currentScreen());plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxApplyBrand==='function')uxApplyBrand();if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
-function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope')||currentScreen().noFigures)return; /* a page with no figures has no figures note (review L2) */
- const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);
+function uxScopeLine(root,screen){const c=root&&(root.matches&&root.matches('.canvas')?root:root.querySelector('.canvas')),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope')||(screen&&screen.noFigures))return; /* a page with no figures has no figures note (review L2) */
+ const pend=((c.closest&&c.closest('.shell'))||root).querySelector('.topbar .snap-pending'); /* IA-1 (P2): read from the root's own top bar */if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);
   /* MOCK DEVIATION D2 (improvement; marked in the review bar, not in the page), owner Q7 / OD-23: figures recalculate at the daily run or when someone asks */
   row.insertAdjacentHTML('beforeend','<div class="ux-recalc-row"><button type="button" class="button ux-recalc" data-ux-recalc>Recalculate now</button></div>');c.insertBefore(row,c.firstChild);}
  const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<details class="ux-pop ux-prov"><summary><span aria-hidden="true">ⓘ</span> About these figures${dv?' <span class="ux-prov-dag">· † design estimates</span>':''}</summary><div class="ux-pop-menu ux-scope" role="note"><p>Figures are recorded or measured unless marked; all are simulated demo data.</p>${dv?'<p><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</p>':''}${il.length?'<p>Names are illustrative.</p>':''}${[...c.querySelectorAll('.ux-prov-extra')].map(x=>`<p>${x.dataset.prov}</p>`).join('')}<p>Open any figure to see how it is worked out.</p></div></details>`);c.querySelectorAll('.ux-prov-extra').forEach(x=>x.remove());} /* wave 2: one quiet provenance control */
@@ -4381,7 +4409,8 @@ function approvalPanel(op,P,budget){const S0=PSTATE(),S=uxPlanState(op),W=waitin
  ${def||!pre?'':`<p class="notice">The case shown is not the proposed version. Version ${num(S0.version)} was proposed for the default switches; approving this case makes version ${num(S0.version+1)}.</p>`}
  <p class="note">Recorded under the executive’s name and the time. Sending it back returns each changed item to its creator with the reason.</p>
  <h3 class="h3s">Release thresholds</h3>${thresholdsKv(op)}${ILLUS}</section>`;}
-function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec;
+/* D-IA.20: the plan page in its parts; planScreen() joins them into exactly the reviewed string */
+function planParts(op){const o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec;
  const rows=P.ids.map(id=>{const x=OPT[id],[cv,cn]=optCost(x),[ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(x),d=DEC_SEE_ALSO[id]||decOf(id).id;
   const costc=id==='MTO-METER-AUDIT'?`${usd(OPT['MTO-METER-AUDIT'].cost)} <small class="cellnote">routine maintenance budget</small>`:`${fig(`opt:${id}:cost`,cv)} <small class="cellnote">${whoPays(x)}</small>`,effc=`${ev} <small class="cellnote">${en}</small>${ec(id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x))}${DV_OPT[id]?dvTag(DV_OPT[id]):''}`,cond=fx(x.condition);
   return uxItemRow(op,id,{site:SK[x._site].name,why:WHY_FIRST[id],label:optLabel(id),cost:id==='MTO-METER-AUDIT'?usd(OPT['MTO-METER-AUDIT'].cost):cv,result:ev,basis:[en,BASIS_WORDS[optBasis(id)]&&!String(en).includes(BASIS_WORDS[optBasis(id)])?BASIS_WORDS[optBasis(id)]:''].filter(Boolean).join(', '),cls:id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x)})+`<article class="plan-item" data-item="${id}"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header>${itemOwnerLine(op,id)}<dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div><div><dt>Effect under each heading</dt><dd>${byHeading(id)}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article></div></details>`;}).concat(proactiveOf(op).map(it=>uxItemRow(op,it.item,{site:SK[siteKeyOf(op,it.site)]?.name||it.site,why:'Declared work',label:it.label,cost:usd(it.planned_spend||0),result:'Upkeep, no value claimed',cls:''})+proactiveCard(op,it,P)+'</div></details>'));
@@ -4400,15 +4429,16 @@ function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.
  const paths=op==='lakeside'?sec('Two ways to restore Mto’s inverter, under this assumption',`<div class="paths">${[P.win,P.lose].filter(Boolean).map((x,i)=>`<div class="path ${i===0?'win':''}"><div class="eyebrow">${i===0?'In the plan':'Competing path'}</div><h3>${optLabel(x.id)}</h3>${kv([['Plan spend',usd(x.spend)],[PLAN_TOTAL_TITLE,usdW(x.value,true)],['Inverter back',fdate(DOPT(x.id).restore_date)],['Rice huller',x.huller?'Kept':cap(hullerCell(x.id))],['Fits the budget',x.spend<=budget?'Yes':'No']])}</div>`).join('')}</div><p class="note">${mtoCapacityLine()}</p>`,'Both paths shown side by side; the proposal takes the better one that fits; you choose.'):'';
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).concat(proactiveOf(op).map(it=>['Field work',`${SK[siteKeyOf(op,it.site)]?.name||it.site}: ${it.label}`,`${num(it.crew_visits||0)} ${it.crew_visits===1?crewOne(op):o.crewWord}${it.crew_month?` in ${monthOf(it.crew_month)}`:''}${it.service_date?`, on ${fdate(it.service_date)}`:''}`])).sort((a,b)=>a[0].localeCompare(b[0]));
  const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
- return `${uxPlanSticky(op,P,budget)}${uxPlanBand(op,P,budget)}<div class="layout-main-side"><div>
- ${sec(`The plan for ${periodWords()}: items and their Actions`,`<div class="ux-items">${uxItemHead()}${rows.join('')}</div>`+total+`<details class="ux-about ux-about-inline"><summary>How the plan is chosen</summary><p>One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.</p></details>`+ILLUS,`One option per decision, within the budget, ${o.crewWord}, deadlines and dependencies.`)}
+ return {sticky:uxPlanSticky(op,P,budget),band:uxPlanBand(op,P,budget),l2:`
+ ${sec(`The plan for ${periodWords()}: items and their Actions`,`<div class="ux-items">${uxItemHead()}${rows.join('')}</div>`+total+`<details class="ux-about ux-about-inline"><summary>How the plan is chosen</summary><p>One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.</p></details>`+ILLUS,`One option per decision, within the budget, ${o.crewWord}, deadlines and dependencies.`)}`,l3:`
  ${uxPlanDiff(op,P)}
  ${paths}
  <div class="grid2">${uxSecAx(`${cap(o.crewWord)} and remote changes`,region(`${cap(o.crewWord)} and remote changes`,table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.filter(r=>r[0]==='Field work').length)} field visits, ${num(fieldRows.filter(r=>r[0]!=='Field work').length)} remote, office or contractor`)}${uxSecAx('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
  ${uxSecAx('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options, each with its reason`)}
  ${op==='lakeside'?uxSecAx('All four cases of the two assumptions',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend',PLAN_TOTAL_TITLE],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
  ${gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):''}
- </div><aside class="side-panel">${approvalPanel(op,P,budget)}<section class="panel controls" aria-labelledby="sw-h"><h2 id="sw-h">Try another case</h2><p class="note">Change an assumption to see the plan worked out again.</p>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section></aside></div>`;}
+ `,aside:`${approvalPanel(op,P,budget)}<section class="panel controls" aria-labelledby="sw-h"><h2 id="sw-h">Try another case</h2><p class="note">Change an assumption to see the plan worked out again.</p>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section>`};}
+function planScreen(){const p=planParts(LS.op);return `${p.sticky}${p.band}<div class="layout-main-side"><div>${p.l2}${p.l3}</div><aside class="side-panel">${p.aside}</aside></div>`;}
 
 /* ---------- Outcomes by site: each outcome's factor structure by site ---------- */
 function lensGrid(op){const o=OPS[op];
@@ -5045,7 +5075,7 @@ function uxCommands() {
   o.sites.forEach(sk => out.push([SK[sk].name, 'Site', `site/${sk}`]));
   DEC.filter(d => SK[d.site].op === op).forEach(d => out.push([d.q, `Decision · ${SK[d.site].name}`, `decision/${d.id}`]));
   [['Financials', 'globalfinancials'], ['Findings', 'findings'], ['Actions', 'actions'], ['Evidence', 'globalevidence']].forEach(([l, id]) => out.push([l, 'Go to', id]));
-  return out;
+  return typeof IA_ROUTE_ACTIVE !== 'undefined' && IA_ROUTE_ACTIVE ? iaPaletteFilter(out) : out;
 }
 function uxPalette(open = true) {
   let d = document.getElementById('ux-cmd');
@@ -5082,13 +5112,21 @@ function uxChrome(s) {
   const bar = document.querySelector('.topbar'); if (!bar || bar.querySelector('.ux-scope-sw')) return;
   const op = LS.op, cur = s && (s.site || (s.crumbs && null)), name = bar.querySelector('.portfolio-name');
   const here = location.hash.replace(/^#\//, ''), site = (here.match(/^site\/([a-z]+)/) || [])[1];
-  name?.insertAdjacentHTML('afterend', `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${site ? SK[site]?.name || 'All sites' : 'All sites'} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><input type="search" class="ux-sw-q" placeholder="Type a Site name" aria-label="Filter Sites" autocomplete="off"><a role="menuitem" href="#/portfolio"${!site ? ' aria-current="page"' : ''}>All sites · ${OPS[op].name}</a>${OPS[op].sites.map(k => `<a role="menuitem" href="#/site/${k}"${site === k ? ' aria-current="page"' : ''}>${SK[k].name}</a>`).join('')}</div></details>`);
+  name?.insertAdjacentHTML('afterend', uxScopeSwitchHtml([[`All sites · ${OPS[op].name}`, '#/portfolio', !site], ...OPS[op].sites.map(k => [SK[k].name, `#/site/${k}`, site === k])], site ? SK[site]?.name || 'All sites' : 'All sites'));
   const chip = bar.querySelector('.period-chip');
-  if (chip && !chip.closest('.ux-period')) { const w = document.createElement('details'); w.className = 'ux-pop ux-period'; const sm = document.createElement('summary'); sm.setAttribute('aria-label', 'Period: October 2026. Choose a period'); chip.replaceWith(w); sm.appendChild(chip); w.appendChild(sm);
-    /* state-aware (review r2 L1): earlier months are listed from the loaded history; without it, said to be not available yet */
-    const H = typeof DERIVED !== 'undefined' && DERIVED.history ? DERIVED.history[OPS[LS.op].t.tenant] : null, past = H && Array.isArray(H.months) ? H.months.filter(m => m < '2026-10').reverse() : [];
-    const mw = ym => `${MONTHS[+ym.slice(5, 7) - 1]} ${ym.slice(0, 4)}`;
-    w.insertAdjacentHTML('beforeend', `<div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span>${past.length ? past.map(m => `<span role="menuitem" aria-disabled="true">${mw(m)} <small>shown in the trends</small></span>`).join('') : '<span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span>'}<span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div>`); }
+  if (chip && !chip.closest('.ux-period')) { const t = document.createElement('template'); t.innerHTML = uxPeriodMenuHtml(op, ''); const w = t.content.firstElementChild; chip.replaceWith(w); w.querySelector('summary').appendChild(chip); }
+}
+/* the scope switch's markup (one builder for the legacy chrome and the IA frame): entries are [label, href, current] */
+function uxScopeSwitchHtml(entries, label) {
+  return `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${label} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><input type="search" class="ux-sw-q" placeholder="Type a Site name" aria-label="Filter Sites" autocomplete="off">${entries.map(([l, href, cur]) => `<a role="menuitem" href="${href}"${cur ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</div></details>`;
+}
+/* the period as a menu around the period chip; chip defaults to the operator's chip */
+function uxPeriodMenuHtml(op, chip) {
+  if (chip === undefined) { const sk = OPS[op].sites[0]; chip = periodChip(sk ? { site: sk } : null); }
+  /* state-aware (review r2 L1): earlier months are listed from the loaded history; without it, said to be not available yet */
+  const H = typeof DERIVED !== 'undefined' && DERIVED.history ? DERIVED.history[OPS[op].t.tenant] : null, past = H && Array.isArray(H.months) ? H.months.filter(m => m < '2026-10').reverse() : [];
+  const mw = ym => `${MONTHS[+ym.slice(5, 7) - 1]} ${ym.slice(0, 4)}`;
+  return `<details class="ux-pop ux-period"><summary aria-label="Period: October 2026. Choose a period">${chip}</summary><div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span>${past.length ? past.map(m => `<span role="menuitem" aria-disabled="true">${mw(m)} <small>shown in the trends</small></span>`).join('') : '<span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span>'}<span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div></details>`;
 }
 
 /* ===== brand packs (guide §4.7): a configurable identity over the same tokens and components. Resolution order: the
@@ -5097,23 +5135,27 @@ const UX_BRANDS = { neutral: 'Neutral', 'east-africa': 'East Africa' }; /* add '
 const UX_BRAND_BY_TENANT = { 'lakeside-power': 'east-africa', 'harvest-cold': 'east-africa', 'metro-bus': 'east-africa' }; /* U10 (owner, 20 Nov): the demo operators start in East Africa; Neutral stays the product default */
 function uxBrand() { let b = null; try { b = localStorage.getItem('l4-brand'); } catch (e) {} return UX_BRANDS[b] ? b : (UX_BRAND_BY_TENANT[OPS?.[LS?.op]?.t?.tenant] || 'neutral'); }
 function uxApplyBrand() { const b = uxBrand(); if (b === 'neutral') document.documentElement.removeAttribute('data-brand'); else document.documentElement.setAttribute('data-brand', b); }
-function uxBrandSwitch() {
-  const rb = document.querySelector('.reviewbar .right'); if (!rb || rb.querySelector('.ux-brand-sw')) return;
-  const b = uxBrand();
-  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
-  uxDecReviewMarks(rb);
+/* the review bar's tools (mock tooling, written by render() for every route): the D2 and D5 marks, the decision marks, the brand
+   select, the developer switch (D-IA.7, D-IA.19) and what is still to be rebuilt. The order is the reviewed bar's. */
+function uxReviewExtrasHtml(hash) {
+  const b = uxBrand(), h = hash || '', out = [];
+  if (/^#\/portfolio\/?$/.test(h) || h === '') out.push('<span class="ux-mockdev" title="RECON-1 item 2: the Grow tile shows its share of the gap; the revenue tie is in the Grow drawer">MOCK DEVIATION D2 · Grow tile</span>');
   /* MOCK DEVIATION D5, register R746: approvals and choices are kept for the browser tab only (one feedback pattern) */
-  if (/^#\/(?:decision\/|portfolio\/act-first\/plan)/.test(location.hash)) rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="Approve, Send back and Choose show their result for this browser tab only; nothing is recorded">MOCK DEVIATION D5 · kept in this demonstration</span>');
-  /* MOCK DEVIATION D2, improvement, register R743 (RECON-1 item 2, accepted 20 Nov): the Grow tile shows its share of the gap, not the revenue bullet; the tie sits in its drawer */
-  if (/^#\/portfolio\/?$/.test(location.hash) || location.hash === '') rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="RECON-1 item 2: the Grow tile shows its share of the gap; the revenue tie is in the Grow drawer">MOCK DEVIATION D2 · Grow tile</span>');
+  if (/^#\/(?:decision\/|portfolio\/act-first\/plan|plan(?:$|\?))/.test(h)) out.push('<span class="ux-mockdev" title="Approve, Send back and Choose show their result for this browser tab only; nothing is recorded">MOCK DEVIATION D5 · kept in this demonstration</span>');
+  out.push(uxDecReviewMarks(h));
+  out.push(`<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
+  if (typeof IA_RAIL !== 'undefined') { const rest = IA_RAIL.filter(i => !IA_LANDED.has(i.unit)).map(i => i.label);
+    out.push(`<label class="ux-dev-sw"><input type="checkbox" data-ia-dev${iaDev() ? ' checked' : ''}> Developer access</label>${rest.length ? `<span class="ux-rebuild">Still to be rebuilt: ${rest.join(' · ')}</span>` : ''}`); }
+  return out.join('');
 }
+document.addEventListener('change', e => { if (!e.target.matches || !e.target.matches('[data-ia-dev]')) return; try { if (e.target.checked) sessionStorage.setItem('l4-dev', '1'); else sessionStorage.removeItem('l4-dev'); } catch (x) {} render(); });
 /* the decision page's review marks live in the review bar, never in the canvas (review r1 L4; same class as wave 2c L2), with the
    control for the fourth state's fixture on a decision waiting for a choice (review r1 L2) */
-function uxDecReviewMarks(rb) {
-  const m = location.hash.match(/^#\/decision\/([\w-]+)/); if (!m || !decById(m[1])) return;
+function uxDecReviewMarks(hash) {
+  const m = String(hash).match(/^#\/decision\/([\w-]+)/); if (!m || !decById(m[1])) return '';
   const id = m[1], st = uxDecState(id), href = `${location.pathname}${UX_NOREC ? '' : '?state=no-recommendation'}#/decision/${id}`;
   const ctl = st.key === 'choose' || UX_NOREC ? `<a class="ux-mockdev ux-rb-ctl" data-ux-norec href="${href}">${UX_NOREC ? 'Leave the preview' : 'Preview: no option recommended'}</a>` : '';
-  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION D2 · decision page redesign${UX_NOREC ? ' · preview: no option recommended' : ''}</span>${ctl}`);
+  return `<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION D2 · decision page redesign${UX_NOREC ? ' · preview: no option recommended' : ''}</span>${ctl}`;
 }
 document.addEventListener('change', e => { if (e.target.id !== 'ux-brand') return; try { localStorage.setItem('l4-brand', e.target.value); } catch (x) {} uxApplyBrand(); });
 
@@ -5350,7 +5392,7 @@ function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => 
 const uxSecA = (label, answer, body) => `<details class="panel ux-disc ux-ans-sec"><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
 /* the sticky bar shows once the recommendation card has scrolled under the top bar */
 function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec') || document.querySelector('.ux-kpis') || document.querySelector('[data-ux-sticky-anchor]'); if (!b || !r) { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingTop = ''; document.documentElement.style.scrollPaddingBottom = ''; return; } const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on);
-  /* r3 L4: the bar starts where the rail ends, measured, never typed */ const rail = document.querySelector('.rail'), rr = rail && rail.getBoundingClientRect(); b.style.left = rr && rr.width > 0 && innerWidth > 600 ? `${Math.round(rr.right)}px` : '0px'; b.style.top = innerWidth > 600 ? `${Math.max(0, Math.round(document.querySelector('.reviewbar')?.getBoundingClientRect().bottom || 0))}px` : '';
+  /* r3 L4: the bar starts where the rail ends, measured, never typed */ const rail = document.querySelector('.rail'), rr = rail && rail.getBoundingClientRect(); const HS = document.documentElement.style; /* IA-1a (D-IA.17): the measured offsets live on <html>, outside the frame */ HS.setProperty('--ux-sticky-left', rr && rr.width > 0 && innerWidth > 600 ? `${Math.round(rr.right)}px` : '0px'); if (innerWidth > 600) HS.setProperty('--ux-sticky-top', `${Math.max(0, Math.round(document.querySelector('.reviewbar')?.getBoundingClientRect().bottom || 0))}px`); else HS.removeProperty('--ux-sticky-top');
   /* the scroll padding is the bar's measured height, so a focused control is never left under it (WCAG 2.4.11) */
   const bh = on ? Math.ceil(b.getBoundingClientRect().height) + 8 : 0, H = document.documentElement; if (innerWidth > 600) { H.style.scrollPaddingTop = bh ? `${bh}px` : ''; H.style.scrollPaddingBottom = ''; document.body.style.paddingBottom = ''; } else { H.style.scrollPaddingBottom = `${Math.max(bh, 112)}px`; H.style.scrollPaddingTop = ''; document.body.style.paddingBottom = `${Math.max(bh, 112)}px`; } } /* on a phone the page always reserves the bar's room, so its last control can scroll clear */
 window.addEventListener('scroll', uxStickyTick, { passive: true }); window.addEventListener('hashchange', () => setTimeout(uxStickyTick, 50));
@@ -5638,6 +5680,181 @@ function uxPlanDiff(op, P) {
 }
 /* the approver's sticky bar: the plan, its spend, its state and Approve / Send back (one feedback pattern) */
 function uxPlanSticky(op, P, budget) { return `<div class="ux-dsticky" role="region" aria-label="This plan" data-ux-sticky><span class="ux-dsticky-t">The plan for ${periodWords()}</span><span class="ux-dsticky-n">${usdW(P.spend)} <small>of ${usdW(budget)}</small></span>${uxPlanStateChip(op)}${uxPlanActions(op)}</div>`; }
+
+/* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
+   insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
+const IA_LANDED = new Set(['IA-1a']);
+const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
+let IA_ROUTE_ACTIVE = false;
+/* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
+const iaLegacy = id => SCREENS.find(x => x.id === id);
+const IA_ROUTES = [
+  { id: 'plan', shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-1a', tab: null,
+    title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
+    crumbs: ctx => [['Plan']], render: ctx => shapePlanInterim(ctx) },
+  { id: 'not-found', shape: 'frame', object: null, home: null, unit: 'IA-1a', tab: null, noFigures: true,
+    title: ctx => iaLegacy('not-found').title, crumbs: ctx => [['Page not found']], render: ctx => shapeNotFound(ctx) }
+];
+/* old route -> new route; a value may be a function of the parameters. Live only once its target is a landed route. */
+const iaRecDecision = route => () => { const fid = OBJ[route], d = typeof DEC !== 'undefined' && DEC.find(x => x.finding === fid); return d ? `decision/${d.id}` : null; };
+const IA_ALIASES = {
+  'portfolio/outcomes-by-site': 'portfolio/outcomes',
+  'portfolio/act-first': () => IA_LANDED.has('IA-2b') ? 'decisions' : 'portfolio',
+  'portfolio/act-first/plan': 'plan',
+  'portfolio/what-changed': 'results',
+  'portfolio/scope': 'evidence', globalevidence: 'evidence',
+  oprecords: 'evidence/records',
+  mini: 'site/kobo', cold: 'site/thika', ev: 'site/ruiru',
+  'site/:site/economics': p => `site/${p.site}/financials`,
+  financials: 'site/kobo/financials', 'cold-financials': 'site/thika/financials', 'ev-financials': 'site/ruiru/financials',
+  recommendation: iaRecDecision('recommendation'), alternatives: iaRecDecision('alternatives'),
+  'cold-recommendation': iaRecDecision('cold-recommendation'), 'ev-recommendation': iaRecDecision('ev-recommendation'),
+  globalfinancials: 'financials',
+  'settings-policies': 'settings', 'settings-tenant': 'settings/organisation'
+};
+/* the menu (D-IA.1), in its order and with its labels; an item whose unit has not landed is an unavailable root */
+const IA_RAIL = [
+  { group: 'Operations', label: 'Portfolio', route: 'portfolio', unit: 'IA-1b', icon: 'grid' },
+  { group: 'Operations', label: 'Sites', route: 'sites', unit: 'IA-2b', icon: 'site' },
+  { group: 'Operations', label: 'Assets & cover', route: 'assets', unit: 'IA-2c', icon: 'asset' },
+  { group: 'Intelligence', label: 'Findings', route: 'findings', unit: 'IA-2b', icon: 'finding' },
+  { group: 'Work', label: 'Decisions', route: 'decisions', unit: 'IA-2b', icon: 'finding' },
+  { group: 'Work', label: 'Plan', route: 'plan', unit: 'IA-1a', icon: 'action' },
+  { group: 'Work', label: 'Actions', route: 'actions', unit: 'IA-2b', icon: 'action' },
+  { group: 'Work', label: 'Incidents', route: 'incidents', unit: 'IA-2c', icon: 'incident' },
+  { group: 'Work', label: 'Maintenance', route: 'maintenance', unit: 'IA-2c', icon: 'work' },
+  { group: 'Assurance', label: 'Results', route: 'results', unit: 'IA-2d', icon: 'evidence' },
+  { group: 'Assurance', label: 'Evidence & records', route: 'evidence', unit: 'IA-2d', icon: 'log' },
+  { group: 'Business', label: 'Financials', route: 'financials', unit: 'IA-2e', icon: 'money' },
+  { group: 'Admin', label: 'Settings', route: 'settings', unit: 'IA-2e', icon: 'settings' }
+];
+/* the address: #/route?scope=…&drawer=… (the hash); ?state= stays in location.search */
+function iaParse(hash) {
+  const h = String(hash || '').replace(/^#?\/?/, ''), i = h.indexOf('?'), path = i < 0 ? h : h.slice(0, i), qs = i < 0 ? '' : h.slice(i + 1);
+  const m = iaMatch(path);
+  return { path, params: m ? m.params : {}, query: Object.fromEntries(new URLSearchParams(qs)) };
+}
+/* a pattern against a path; a parameter is a known Site (:site) or decision (:dec) */
+function iaPattern(pat, path) {
+  const ps = pat.split('/'), xs = path.split('/'); if (ps.length !== xs.length) return null; const params = {};
+  for (let i = 0; i < ps.length; i++) {
+    if (ps[i] === ':site') { if (!SK[xs[i]]) return null; params.site = xs[i]; }
+    else if (ps[i] === ':dec') { if (!(typeof DEC !== 'undefined' && DEC.some(d => d.id === xs[i]))) return null; params.dec = xs[i]; }
+    else if (ps[i] !== xs[i]) return null;
+  }
+  return params;
+}
+function iaMatch(path) { for (const route of IA_ROUTES) { const params = iaPattern(route.id, path); if (params) return { route, params }; } return null; }
+/* a landed route (never not-found: it is reached only by a typed address) */
+function iaLanded(path) { const m = iaMatch(path); return m && IA_LANDED.has(m.route.unit) ? m : null; }
+/* the alias's target, only when that target is a landed route */
+function iaLiveAlias(path) {
+  for (const [k, v] of Object.entries(IA_ALIASES)) { const p = iaPattern(k, path); if (!p) continue;
+    const t = typeof v === 'function' ? v(p) : v; return t && iaLanded(t) && t !== 'not-found' ? t : null; }
+  return null;
+}
+function iaDev() { try { return sessionStorage.getItem('l4-dev') === '1'; } catch (e) { return false; } }
+/* D-IA.16: a landed route, a live alias, or the Lab under the developer switch; nothing else */
+function iaLive(href) {
+  const path = iaParse(href).path;
+  if (path === 'lab') return iaDev();
+  return !!((iaLanded(path) && path !== 'not-found') || iaLiveAlias(path));
+}
+/* a live alias's canonical address, keeping the hash query */
+function iaCanon(href) {
+  const h = String(href).replace(/^#?\/?/, ''), i = h.indexOf('?'), t = iaLiveAlias(i < 0 ? h : h.slice(0, i));
+  return t ? `#/${t}${i < 0 ? '' : h.slice(i)}` : String(href);
+}
+function iaStart() { return IA_LANDED.has('IA-1b') ? 'portfolio' : 'plan'; }
+/* the context every route renders from */
+function iaCtx(path, params, query) {
+  const q = query || {}, sc = String(q.scope || 'all'), [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
+  return { op: LS.op, scope: kind === 'group' || kind === 'site' ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
+}
+/* resolveScreen's view of a landed route: the screen object the review bar and the legacy helpers read */
+function iaScreen(route, path) {
+  const ctx = iaCtx(path, iaPattern(route.id, path), iaParse(location.hash).query);
+  return { id: path, ia: route, ctx, title: route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
+}
+/* the palette lists only what is live, at its canonical address (R9) */
+function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
+
+/* ===== IA-1 (spec §2.3, §2.4, §2.6): the frame, the one render path and the shapes. The markup is built as a string, finished on
+   a detached fragment (iaFinish) and inserted once; after insertion only listeners, focus and the sticky bar's layout tick run
+   (D-IA.13, D-IA.17). ===== */
+const IA_GROUP_WORD = { mini: 'Mini-grids', cold: 'Cold rooms', ev: 'EV depots' };
+const iaVertical = sk => SK[sk].type === 'Mini-grid' ? 'mini' : /^Cold room/.test(SK[sk].type) ? 'cold' : 'ev';
+/* the scope menu (D-IA.6): all Sites, a group (one per vertical the operator has), the Sites */
+function iaScopeEntries(ctx) {
+  const op = ctx.op, sites = OPS[op].sites, groups = [...new Set(sites.map(iaVertical))], here = `#/${ctx.path}`;
+  return [['All sites', `${here}?scope=all`, ctx.scope.kind === 'all'],
+    ...groups.map(g => [IA_GROUP_WORD[g], `${here}?scope=group:${g}`, ctx.scope.kind === 'group' && ctx.scope.id === g]),
+    ...sites.map(k => [SK[k].name, `#/site/${k}`, ctx.scope.kind === 'site' && ctx.scope.id === k])];
+}
+function iaScopeLabel(ctx) {
+  const s = ctx.scope, n = s.kind === 'group' ? IA_GROUP_WORD[s.id] : s.kind === 'site' && SK[s.id] ? SK[s.id].name : 'All sites';
+  return `${OPS[ctx.op].name} · ${n || 'All sites'}`;
+}
+/* the rail (D-IA.1, D-IA.9); an unlanded item copies the live product's unavailable root (NavRail.tsx, W1-UX-07) */
+function iaItemLanded(i) { return IA_LANDED.has(i.unit); }
+function iaRailHtml(route) {
+  const groups = [...new Set(IA_RAIL.map(i => i.group))];
+  const item = i => iaItemLanded(i) ? link(i.route, `${icon(i.icon)}${i.label}`, route.home === i.label ? 'active' : '')
+    : `<span class="ia-rail-unavailable" aria-label="${escapeHtml(i.label)}, Not available yet" data-rail-unavailable="${escapeHtml(i.label)}">${icon(i.icon)}<span class="ia-rail-text"><span class="ia-rail-label">${i.label}</span><span class="ia-rail-status" data-rail-status="unavailable">Not available yet</span></span></span>`;
+  const foot = iaDev() ? `<div class="rail-group ia-rail-foot" data-ia-footer><div class="eyebrow">Workspace</div>${link('lab', `${icon('evidence')}Simulator Lab`)}</div>` : '';
+  return `<nav class="rail" aria-label="Main menu"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div>${groups.map(g => `<div class="rail-group"><div class="eyebrow">${g}</div>${IA_RAIL.filter(i => i.group === g).map(item).join('')}</div>`).join('')}${foot}</nav>`;
+}
+/* tabs: only for a route with a tab, and only its landed tabs (spec §2.3); IA-1b adds the hub tab groups */
+const IA_TAB_GROUPS = {};
+function iaTabsHtml(route, ctx) {
+  const g = route.tab && IA_TAB_GROUPS[route.tabGroup || route.home]; if (!g) return '';
+  const tabs = g(ctx).filter(([, id]) => { const m = iaMatch(id); return m && IA_LANDED.has(m.route.unit); });
+  return tabs.length ? uxTabs(tabs, ctx.path) : '';
+}
+function iaFrame(route, ctx, body) {
+  const title = route.title(ctx), sub = route.subtitle ? route.subtitle(ctx) : '';
+  const crumbs = `<div class="breadcrumbs">${route.crumbs(ctx).map(([t, id]) => id ? link(id, t) : escapeHtml(t)).join('<span>›</span>')}</div>`;
+  return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}Search Sites, decisions and Findings</button>${uxPeriodMenuHtml(ctx.op)}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas">${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div></main></div>`;
+}
+/* D-IA.16: every link whose target is not live becomes text (its trailing arrow dropped); a tab to it is removed; a live alias
+   gets its target's canonical address. Runs first, on the detached fragment. */
+function iaUnlink(root) {
+  root.querySelectorAll('a[href^="#/"]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (iaLive(href)) { const c = iaCanon(href); if (c !== href) a.setAttribute('href', c); return; }
+    if (a.closest('.tabs, .ux-tabs, .ux-tabmenu')) { a.remove(); return; }
+    const sp = document.createElement('span'); sp.className = 'ia-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp);
+  });
+}
+/* today's finishing passes, in today's order, on the detached fragment */
+function iaFinish(root, route) {
+  iaUnlink(root);
+  uxCapLists(root);
+  tagReplay(root);
+  uxScopeLine(root, route);
+  plainWords(root);
+  uxDedupeUnits(root);
+  uxFixSigns(root);
+}
+function iaRender(route, ctx) {
+  const t = document.createElement('template'); t.innerHTML = iaFrame(route, ctx, route.render(ctx));
+  const frag = document.importNode(t.content, true);
+  iaFinish(frag, route);
+  const slot = document.getElementById('ia-root'); if (!slot) return; slot.replaceWith(frag);
+  const root = document.getElementById('ia-root');
+  if (typeof window.__iaInserted === 'function') window.__iaInserted(root);
+  iaBind(route);
+}
+/* after insertion: listeners, focus and the sticky bar's layout tick only */
+function iaBind(route) { setTimeout(() => typeof uxStickyTick === 'function' && uxStickyTick(), 0); }
+
+/* ---- shapes ---- */
+function shapeNotFound(ctx) { return `<section data-shape="frame">${uxNotFound()}</section>`; }
+/* spec §2.6 (D-IA.20): the reviewed plan page as one named interim, its parts placed in levels; it must not grow */
+function shapePlanInterim(ctx) {
+  const p = planParts(ctx.op);
+  return `<section data-shape="plan">${p.sticky}<div data-level="L1">${p.band}</div><div class="layout-main-side"><div><div data-level="L2">${p.l2}</div><div data-level="L3">${p.l3}</div></div><aside class="side-panel" data-level="L3">${p.aside}</aside></div></section>`;
+}
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */
 const V70IDS = new Set(SCREENS.map(s=>s.id));

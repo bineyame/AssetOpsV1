@@ -693,7 +693,7 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-dhd .ux-how{align-self:flex-start;margin:0;font-size:var(--fs-sm)}
 .ux-drec-n.is-second{font-size:var(--fs-sm)}
 .ux-dsticky{display:none}
-.ux-dsticky.is-on{display:flex;position:fixed;top:0;left:0;right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ux-dsticky.is-on{display:flex;position:fixed;top:var(--ux-sticky-top,0);left:var(--ux-sticky-left,0);right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
 .ux-dsticky-t{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ux-dsticky-n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .ux-dsticky-n small{color:var(--text-2)}

@@ -436,7 +436,7 @@ function uxCommands() {
   o.sites.forEach(sk => out.push([SK[sk].name, 'Site', `site/${sk}`]));
   DEC.filter(d => SK[d.site].op === op).forEach(d => out.push([d.q, `Decision · ${SK[d.site].name}`, `decision/${d.id}`]));
   [['Financials', 'globalfinancials'], ['Findings', 'findings'], ['Actions', 'actions'], ['Evidence', 'globalevidence']].forEach(([l, id]) => out.push([l, 'Go to', id]));
-  return out;
+  return typeof IA_ROUTE_ACTIVE !== 'undefined' && IA_ROUTE_ACTIVE ? iaPaletteFilter(out) : out;
 }
 function uxPalette(open = true) {
   let d = document.getElementById('ux-cmd');
@@ -473,13 +473,21 @@ function uxChrome(s) {
   const bar = document.querySelector('.topbar'); if (!bar || bar.querySelector('.ux-scope-sw')) return;
   const op = LS.op, cur = s && (s.site || (s.crumbs && null)), name = bar.querySelector('.portfolio-name');
   const here = location.hash.replace(/^#\//, ''), site = (here.match(/^site\/([a-z]+)/) || [])[1];
-  name?.insertAdjacentHTML('afterend', `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${site ? SK[site]?.name || 'All sites' : 'All sites'} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><input type="search" class="ux-sw-q" placeholder="Type a Site name" aria-label="Filter Sites" autocomplete="off"><a role="menuitem" href="#/portfolio"${!site ? ' aria-current="page"' : ''}>All sites · ${OPS[op].name}</a>${OPS[op].sites.map(k => `<a role="menuitem" href="#/site/${k}"${site === k ? ' aria-current="page"' : ''}>${SK[k].name}</a>`).join('')}</div></details>`);
+  name?.insertAdjacentHTML('afterend', uxScopeSwitchHtml([[`All sites · ${OPS[op].name}`, '#/portfolio', !site], ...OPS[op].sites.map(k => [SK[k].name, `#/site/${k}`, site === k])], site ? SK[site]?.name || 'All sites' : 'All sites'));
   const chip = bar.querySelector('.period-chip');
-  if (chip && !chip.closest('.ux-period')) { const w = document.createElement('details'); w.className = 'ux-pop ux-period'; const sm = document.createElement('summary'); sm.setAttribute('aria-label', 'Period: October 2026. Choose a period'); chip.replaceWith(w); sm.appendChild(chip); w.appendChild(sm);
-    /* state-aware (review r2 L1): earlier months are listed from the loaded history; without it, said to be not available yet */
-    const H = typeof DERIVED !== 'undefined' && DERIVED.history ? DERIVED.history[OPS[LS.op].t.tenant] : null, past = H && Array.isArray(H.months) ? H.months.filter(m => m < '2026-10').reverse() : [];
-    const mw = ym => `${MONTHS[+ym.slice(5, 7) - 1]} ${ym.slice(0, 4)}`;
-    w.insertAdjacentHTML('beforeend', `<div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span>${past.length ? past.map(m => `<span role="menuitem" aria-disabled="true">${mw(m)} <small>shown in the trends</small></span>`).join('') : '<span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span>'}<span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div>`); }
+  if (chip && !chip.closest('.ux-period')) { const t = document.createElement('template'); t.innerHTML = uxPeriodMenuHtml(op, ''); const w = t.content.firstElementChild; chip.replaceWith(w); w.querySelector('summary').appendChild(chip); }
+}
+/* the scope switch's markup (one builder for the legacy chrome and the IA frame): entries are [label, href, current] */
+function uxScopeSwitchHtml(entries, label) {
+  return `<details class="ux-pop ux-scope-sw"><summary aria-label="Choose the portfolio or a site">${label} <span aria-hidden="true">▾</span></summary><div class="ux-pop-menu" role="menu"><input type="search" class="ux-sw-q" placeholder="Type a Site name" aria-label="Filter Sites" autocomplete="off">${entries.map(([l, href, cur]) => `<a role="menuitem" href="${href}"${cur ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</div></details>`;
+}
+/* the period as a menu around the period chip; chip defaults to the operator's chip */
+function uxPeriodMenuHtml(op, chip) {
+  if (chip === undefined) { const sk = OPS[op].sites[0]; chip = periodChip(sk ? { site: sk } : null); }
+  /* state-aware (review r2 L1): earlier months are listed from the loaded history; without it, said to be not available yet */
+  const H = typeof DERIVED !== 'undefined' && DERIVED.history ? DERIVED.history[OPS[op].t.tenant] : null, past = H && Array.isArray(H.months) ? H.months.filter(m => m < '2026-10').reverse() : [];
+  const mw = ym => `${MONTHS[+ym.slice(5, 7) - 1]} ${ym.slice(0, 4)}`;
+  return `<details class="ux-pop ux-period"><summary aria-label="Period: October 2026. Choose a period">${chip}</summary><div class="ux-pop-menu" role="menu"><span role="menuitem" aria-current="true">October 2026 <small>current period</small></span>${past.length ? past.map(m => `<span role="menuitem" aria-disabled="true">${mw(m)} <small>shown in the trends</small></span>`).join('') : '<span role="menuitem" aria-disabled="true">September 2026 <small>not available yet</small></span>'}<span role="menuitem" aria-disabled="true">A custom range <small>not available yet</small></span></div></details>`;
 }
 
 /* ===== brand packs (guide §4.7): a configurable identity over the same tokens and components. Resolution order: the
@@ -488,23 +496,27 @@ const UX_BRANDS = { neutral: 'Neutral', 'east-africa': 'East Africa' }; /* add '
 const UX_BRAND_BY_TENANT = { 'lakeside-power': 'east-africa', 'harvest-cold': 'east-africa', 'metro-bus': 'east-africa' }; /* U10 (owner, 20 Nov): the demo operators start in East Africa; Neutral stays the product default */
 function uxBrand() { let b = null; try { b = localStorage.getItem('l4-brand'); } catch (e) {} return UX_BRANDS[b] ? b : (UX_BRAND_BY_TENANT[OPS?.[LS?.op]?.t?.tenant] || 'neutral'); }
 function uxApplyBrand() { const b = uxBrand(); if (b === 'neutral') document.documentElement.removeAttribute('data-brand'); else document.documentElement.setAttribute('data-brand', b); }
-function uxBrandSwitch() {
-  const rb = document.querySelector('.reviewbar .right'); if (!rb || rb.querySelector('.ux-brand-sw')) return;
-  const b = uxBrand();
-  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
-  uxDecReviewMarks(rb);
+/* the review bar's tools (mock tooling, written by render() for every route): the D2 and D5 marks, the decision marks, the brand
+   select, the developer switch (D-IA.7, D-IA.19) and what is still to be rebuilt. The order is the reviewed bar's. */
+function uxReviewExtrasHtml(hash) {
+  const b = uxBrand(), h = hash || '', out = [];
+  if (/^#\/portfolio\/?$/.test(h) || h === '') out.push('<span class="ux-mockdev" title="RECON-1 item 2: the Grow tile shows its share of the gap; the revenue tie is in the Grow drawer">MOCK DEVIATION D2 · Grow tile</span>');
   /* MOCK DEVIATION D5, register R746: approvals and choices are kept for the browser tab only (one feedback pattern) */
-  if (/^#\/(?:decision\/|portfolio\/act-first\/plan)/.test(location.hash)) rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="Approve, Send back and Choose show their result for this browser tab only; nothing is recorded">MOCK DEVIATION D5 · kept in this demonstration</span>');
-  /* MOCK DEVIATION D2, improvement, register R743 (RECON-1 item 2, accepted 20 Nov): the Grow tile shows its share of the gap, not the revenue bullet; the tie sits in its drawer */
-  if (/^#\/portfolio\/?$/.test(location.hash) || location.hash === '') rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="RECON-1 item 2: the Grow tile shows its share of the gap; the revenue tie is in the Grow drawer">MOCK DEVIATION D2 · Grow tile</span>');
+  if (/^#\/(?:decision\/|portfolio\/act-first\/plan|plan(?:$|\?))/.test(h)) out.push('<span class="ux-mockdev" title="Approve, Send back and Choose show their result for this browser tab only; nothing is recorded">MOCK DEVIATION D5 · kept in this demonstration</span>');
+  out.push(uxDecReviewMarks(h));
+  out.push(`<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
+  if (typeof IA_RAIL !== 'undefined') { const rest = IA_RAIL.filter(i => !IA_LANDED.has(i.unit)).map(i => i.label);
+    out.push(`<label class="ux-dev-sw"><input type="checkbox" data-ia-dev${iaDev() ? ' checked' : ''}> Developer access</label>${rest.length ? `<span class="ux-rebuild">Still to be rebuilt: ${rest.join(' · ')}</span>` : ''}`); }
+  return out.join('');
 }
+document.addEventListener('change', e => { if (!e.target.matches || !e.target.matches('[data-ia-dev]')) return; try { if (e.target.checked) sessionStorage.setItem('l4-dev', '1'); else sessionStorage.removeItem('l4-dev'); } catch (x) {} render(); });
 /* the decision page's review marks live in the review bar, never in the canvas (review r1 L4; same class as wave 2c L2), with the
    control for the fourth state's fixture on a decision waiting for a choice (review r1 L2) */
-function uxDecReviewMarks(rb) {
-  const m = location.hash.match(/^#\/decision\/([\w-]+)/); if (!m || !decById(m[1])) return;
+function uxDecReviewMarks(hash) {
+  const m = String(hash).match(/^#\/decision\/([\w-]+)/); if (!m || !decById(m[1])) return '';
   const id = m[1], st = uxDecState(id), href = `${location.pathname}${UX_NOREC ? '' : '?state=no-recommendation'}#/decision/${id}`;
   const ctl = st.key === 'choose' || UX_NOREC ? `<a class="ux-mockdev ux-rb-ctl" data-ux-norec href="${href}">${UX_NOREC ? 'Leave the preview' : 'Preview: no option recommended'}</a>` : '';
-  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION D2 · decision page redesign${UX_NOREC ? ' · preview: no option recommended' : ''}</span>${ctl}`);
+  return `<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION D2 · decision page redesign${UX_NOREC ? ' · preview: no option recommended' : ''}</span>${ctl}`;
 }
 document.addEventListener('change', e => { if (e.target.id !== 'ux-brand') return; try { localStorage.setItem('l4-brand', e.target.value); } catch (x) {} uxApplyBrand(); });
 
@@ -741,7 +753,7 @@ function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => 
 const uxSecA = (label, answer, body) => `<details class="panel ux-disc ux-ans-sec"><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
 /* the sticky bar shows once the recommendation card has scrolled under the top bar */
 function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec') || document.querySelector('.ux-kpis') || document.querySelector('[data-ux-sticky-anchor]'); if (!b || !r) { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingTop = ''; document.documentElement.style.scrollPaddingBottom = ''; return; } const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on);
-  /* r3 L4: the bar starts where the rail ends, measured, never typed */ const rail = document.querySelector('.rail'), rr = rail && rail.getBoundingClientRect(); b.style.left = rr && rr.width > 0 && innerWidth > 600 ? `${Math.round(rr.right)}px` : '0px'; b.style.top = innerWidth > 600 ? `${Math.max(0, Math.round(document.querySelector('.reviewbar')?.getBoundingClientRect().bottom || 0))}px` : '';
+  /* r3 L4: the bar starts where the rail ends, measured, never typed */ const rail = document.querySelector('.rail'), rr = rail && rail.getBoundingClientRect(); const HS = document.documentElement.style; /* IA-1a (D-IA.17): the measured offsets live on <html>, outside the frame */ HS.setProperty('--ux-sticky-left', rr && rr.width > 0 && innerWidth > 600 ? `${Math.round(rr.right)}px` : '0px'); if (innerWidth > 600) HS.setProperty('--ux-sticky-top', `${Math.max(0, Math.round(document.querySelector('.reviewbar')?.getBoundingClientRect().bottom || 0))}px`); else HS.removeProperty('--ux-sticky-top');
   /* the scroll padding is the bar's measured height, so a focused control is never left under it (WCAG 2.4.11) */
   const bh = on ? Math.ceil(b.getBoundingClientRect().height) + 8 : 0, H = document.documentElement; if (innerWidth > 600) { H.style.scrollPaddingTop = bh ? `${bh}px` : ''; H.style.scrollPaddingBottom = ''; document.body.style.paddingBottom = ''; } else { H.style.scrollPaddingBottom = `${Math.max(bh, 112)}px`; H.style.scrollPaddingTop = ''; document.body.style.paddingBottom = `${Math.max(bh, 112)}px`; } } /* on a phone the page always reserves the bar's room, so its last control can scroll clear */
 window.addEventListener('scroll', uxStickyTick, { passive: true }); window.addEventListener('hashchange', () => setTimeout(uxStickyTick, 50));

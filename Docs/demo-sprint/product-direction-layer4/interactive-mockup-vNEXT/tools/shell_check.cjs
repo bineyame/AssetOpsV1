@@ -68,7 +68,7 @@ const STATUS = ['Off target', 'At its limit', 'Opportunity', 'Deadline', 'Not ex
         if (n !== shown) bad(`S6 count ${n} but ${shown} listed`);
       }
       const links = [...doc.querySelectorAll('.rail a[href^="#/"], .tabs a[href^="#/"], .ux-tabmenu a[href^="#/"], .breadcrumbs a[href^="#/"], .canvas a[href^="#/"]')].filter(a => !a.closest('.rail-footer')).map(a => a.getAttribute('href').replace(/^#\//, '').split('?')[0]);
-      for (const l of links) { if (l && !/^lab/.test(l) && w.eval(`(()=>{const x=SCREENS.find(s=>s.id===${JSON.stringify(l)});return !x||x.stub})()`)) { bad(`S5 links to a page that is not built "#/${l}"`); continue; }
+      for (const l of links) { if (l && !/^lab/.test(l) && w.eval(`(()=>{const x=SCREENS.find(s=>s.id===${JSON.stringify(l)})||(typeof iaLanded==='function'&&iaLanded(${JSON.stringify(l)}.split('?')[0])?{}:null);return !x||x.stub})()`) /* IA-1a: a landed IA route is built */) { bad(`S5 links to a page that is not built "#/${l}"`); continue; }
         if (w.eval(`uxIsClassic(${JSON.stringify(l)})`)) { bad(`S7 links into a review-only screen "#/${l}"`); continue; } if (!seen.has(l) && l && !/^lab/.test(l)) { seen.add(l); queue.push(l); } }
     }
     seenAll[op] = seen.size;

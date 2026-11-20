@@ -12,7 +12,7 @@
 const fs = require('fs'), path = require('path');
 const root = path.resolve(__dirname, '..'), read = f => fs.readFileSync(path.join(root, f), 'utf8');
 const SCALE = [12, 13, 14, 16, 20, 24, 32], PLANT = !!process.env.LINT_PLANT, fails = [], notes = [];
-const ROUTES = ['portfolio', 'portfolio/act-first', 'portfolio/act-first/plan', 'decision/kobo-generator', 'site/kobo'];
+const ROUTES = ['portfolio', 'portfolio/act-first', 'plan', 'decision/kobo-generator', 'site/kobo'];
 let html = read('index.html');
 if (PLANT) html = html.replace('</style>', '.ux-headline{font-size:11px!important}</style>');
 const css = (html.match(/<style>([\s\S]*?)<\/style>/) || ['', ''])[1];

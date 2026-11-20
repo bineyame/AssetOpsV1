@@ -5,6 +5,8 @@
 #   npm install --prefix /tmp/pw playwright-core && npx --prefix /tmp/pw playwright install chromium
 #   CHROME=$(ls -d ~/.cache/ms-playwright/chromium-*/chrome-linux/chrome | tail -1) PW=/tmp/pw/node_modules/playwright-core tools/run-audit.sh --shots
 set -euo pipefail
+# IA-1 (R10): the shape, click-depth and after-render gates and their plants run first, so an unset CHROME cannot skip them
+(cd "$(dirname "$0")/.." && node tools/ia_gates.cjs)
 : "${CHROME:?Set CHROME}"; : "${PW:?Set PW}"
 if [ -n "${AUDIT_LD_LIBRARY_PATH:-}" ]; then export LD_LIBRARY_PATH="$AUDIT_LD_LIBRARY_PATH${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"; fi
 export CHROME PW

@@ -101,7 +101,7 @@ function actionsCheck(op, d, caseItems, label) {
   { const n = d.querySelectorAll('.action-list .state .status-pill').length; ok(n > 0, `${label}: ${n} release states shown`); }
 }
 // Lakeside: the four switch cases
-{ const dom = boot('lakeside', 'portfolio/act-first/plan'), w = dom.window, d = w.document;
+{ const dom = boot('lakeside', 'plan'), w = dom.window, d = w.document;
   for (const [k, c] of Object.entries(DV.plans['lakeside-power'].switch_cases)) {
     const [b, l] = k.split('/'); pick(w, 'sw-budget', b); pick(w, 'sw-loi', l === 'True' ? 'yes' : 'no');
     const meter = d.querySelector('.approval .meterhead strong')?.textContent, total = d.querySelector('.total strong')?.textContent;
@@ -112,7 +112,7 @@ function actionsCheck(op, d, caseItems, label) {
   }
   w.close(); }
 for (const [op, sw] of [['harvest', 'sw-agg'], ['metro', 'sw-tou']]) {
-  const dom = boot(op, 'portfolio/act-first/plan'), w = dom.window, d = w.document;
+  const dom = boot(op, 'plan'), w = dom.window, d = w.document;
   for (const [v, key] of [['yes', 'True'], ['no', 'False']]) {
     pick(w, sw, v); const c = DV.plans[T[op]].switch_cases[key];
     const meter = d.querySelector('.approval .meterhead strong')?.textContent;
@@ -123,8 +123,14 @@ for (const [op, sw] of [['harvest', 'sw-agg'], ['metro', 'sw-tou']]) {
   w.close(); }
 // Decision pages: who chooses is the item's stated chooser (items[].chosen_by), reached from each item card's decision link
 for (const op of ['lakeside', 'harvest', 'metro']) {
-  const dom = boot(op, 'portfolio/act-first/plan'), d = dom.window.document;
-  const links = (wfOf(op).items || []).map(it => [it, d.querySelector(`.plan-item[data-item="${it.item}"] .plan-item-link`)?.getAttribute('href')]).filter(([, h]) => h);
+  const dom = boot(op, 'plan'), d = dom.window.document;
+  /* IA-1a (D-IA.16, D-IA.20): the plan renders in the frame, where a link to a decision page that has not landed is plain text
+     until IA-1c. The decision links are read from the reviewed markup (planScreen(), byte-identical to the frame's parts), and
+     the frame must show each item's decision as a link to a live route or as unlinked text. */
+  const src = d.createElement('div'); src.innerHTML = dom.window.eval('planScreen()');
+  const links = (wfOf(op).items || []).map(it => [it, src.querySelector(`.plan-item[data-item="${it.item}"] .plan-item-link`)?.getAttribute('href')]).filter(([, h]) => h);
+  const shown = (wfOf(op).items || []).filter(it => it.kind !== 'PROACTIVE').filter(it => { const hd = d.querySelector(`#ia-root .plan-item[data-item="${it.item}"] .plan-item-head`); return hd && (hd.querySelector('a.plan-item-link[href^="#/decision/"]') || [...hd.querySelectorAll('.ia-unlinked')].some(x => x.textContent.trim() === 'Decision')); });
+  ok(shown.length === (wfOf(op).items || []).filter(i => i.kind !== 'PROACTIVE').length, `${op}: the frame names every chosen item's decision (${shown.length})`);
   dom.window.close();
   for (const [it, href] of links) {
     const dd = boot(op, href.replace(/^#\//, '')), wd = dd.window.document.querySelector('.who-decides .wd-steps li:nth-child(2)');
@@ -228,7 +234,7 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const gapsSeen = [];
   ok(gapsSeen.every(g => at.includes(g)) && (gapsSeen.length > 0) === at.includes('Not yet under a heading'), `${op}: rows with no registry row listed under Assure (${gapsSeen.join('; ') || 'none'})`);
   dom.window.close(); }
 // a money line takes its own factor's heading (§2.0): Kasarani's cover is a Protect decision, and its avoided penalties are Optimize
-{ const dv = DV.options['KAS-OEM-STOPGAP'], dom = boot('metro', 'portfolio/act-first/plan'), el = dom.window.document.querySelector('.plan-item[data-item="KAS-OEM-STOPGAP"]');
+{ const dv = DV.options['KAS-OEM-STOPGAP'], dom = boot('metro', 'plan'), el = dom.window.document.querySelector('.plan-item[data-item="KAS-OEM-STOPGAP"]');
   const o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent), p = squash(el?.querySelector('[data-heading="protect"]')?.textContent);
   ok(o.startsWith('Optimize cost and efficiency +') && o.includes(usd(dv.monthly_or_horizon_change)) && p && !/\$/.test(p), `Kasarani cover: Optimize +${dv.monthly_or_horizon_change} and a Protect line with no money (${o} | ${p})`);
   dom.window.close(); }
@@ -238,7 +244,7 @@ for (const dc of MAN.home_categories.decisions) { const op = Object.keys(T).find
   regs.forEach((rg, j) => { const t = squash(rg.textContent); ok(!/\$\s?\d/.test(t), `${dc.id}: Protect option table ${j + 1} shows no dollar figure${/\$\s?\d/.test(t) ? ' (' + t.match(/.{50}\$\s?\d.{10}/)?.[0] + ')' : ''}`); });
   dom.window.close(); }
 { const hu = MAN.tenants[0].sites.find(s => s.site === 'Mto').decision.options.find(o => o.id === 'MTO-HULLER').economics, cost = hu.fuel_monthly + hu.collection_cost_monthly;
-  for (const [hash, sel] of [['decision/mto-demand', '.opts tbody tr:first-child'], ['portfolio/act-first/plan', '.plan-item[data-item="MTO-HULLER"]']]) {
+  for (const [hash, sel] of [['decision/mto-demand', '.opts tbody tr:first-child'], ['plan', '.plan-item[data-item="MTO-HULLER"]']]) {
     const dom = boot('lakeside', hash), el = dom.window.document.querySelector(sel), g = squash(el?.querySelector('[data-heading="grow"]')?.textContent), o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent);
     ok(g.includes(usd(hu.revenue_monthly)) && g.startsWith('Grow revenue +') && o.includes(usd(cost)) && o.startsWith('Optimize cost and efficiency −'), `${hash}: huller Grow +${hu.revenue_monthly} and Optimize −${cost} (${g} | ${o})`);
     dom.window.close(); } }
@@ -310,7 +316,7 @@ ok(Object.keys(HC.option_money_factors).every(id => optSeen.has(id)), `every opt
 // (7) the Mto claim: its one-off is what the operator bears, the supplier's share is named, the extra fuel is an Optimize line,
 // and the option's value is the 12-month result, never a one-off cost
 { const dv = DV.options['MTO-INV-CLAIM'], cov = Object.values(dv.cost_lines).filter(l => l.covered_by && l.operator_share === 0).reduce((a, l) => a + l.amount, 0);
-  for (const [hash, sel] of [['portfolio/act-first/plan', '.plan-item[data-item="MTO-INV-CLAIM"]'], ['decision/mto-inverter', 'tr[data-opt="MTO-INV-CLAIM"]']]) {
+  for (const [hash, sel] of [['plan', '.plan-item[data-item="MTO-INV-CLAIM"]'], ['decision/mto-inverter', 'tr[data-opt="MTO-INV-CLAIM"]']]) {
     const dom = boot('lakeside', hash), el = dom.window.document.querySelector(sel), tx = squash(el?.textContent);
     const oneOff = hash.startsWith('decision') ? squash(el?.querySelector('td:nth-child(4)')?.textContent) : squash([...(el?.querySelectorAll('.plan-item-figs > div') || [])].find(x => /^One-off cost/.test(squash(x.querySelector('dt')?.textContent)))?.querySelector('dd')?.textContent);
     const o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent);
