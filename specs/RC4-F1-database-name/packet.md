@@ -42,14 +42,20 @@ Mid-build questions: **3** (`mid-build-questions.md`); Q3 is open and leaves che
 | F6 | 1: test 5 read-only row |
 | F7 | 1: test 6 |
 | F8 | 2: test 3 `NAME_NOT_PLAIN` (both) |
+| F9 | 1: test 8 (`import psycopg` appended to `database_target.py`) |
 
 ## Known deviations
 
 - Q1: backfill refuses if either the URL target or an injected reader names a protected database (CH-2 regression
   would otherwise fail; spec reads URL only).
 - Q2: test 7 exempts `tools/sweep-setup-cache.py` (backlog `RC4-F1-tools`); a companion test proves the scan sees it.
-- Q3: persistence guard refuses the spec's `make_url` import; guard not edited (permission refused); unruled.
+- Q3 (ruled D-RC4F1.3): guard line added by the coordinator (a577af40b); test 8 `test_8_admission_is_narrow` pins the admission narrow (one driver import, `sqlalchemy.engine.make_url`; no `get_dialect`/`create_engine`/`create_connect_args`/`connect` call).
+- Q2 (ruled): test 7 exemption names the full path `tools/sweep-setup-cache.py`.
 
 ## Review focus
 
 Rule order and reasons vs §2.1; no URL value in any reason (test 3 password); Q1-Q3 rulings.
+
+## Final run (rev 2)
+
+No DB: RC4-F1 + 3A2 api/service 119 passed. `heavy-slot.sh --db`, base `assetops_test` routed: 3A2 postgres 39 passed. check-all (fast): all 41 guards passed (40 plus the estate self-test it triggered), 252 s.
