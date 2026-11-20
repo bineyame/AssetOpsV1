@@ -1,5 +1,7 @@
 # T2: the neutral packages' tests run at every merge (implementer spec)
 
+Status: in_review
+
 Architect (Claude), 2026-11-20. **Rev 2**: handshake round 1 is folded in (`rulings.md` "Handshake answers (round
 1)", D-T2.2). Tools only, non-screen, **1 unit**. Rev 1 was 0.5; the self-test and the select-tests test added the
 rest. Decisions: D-T2.1, D-T2.2. Raised by DS1b's handshake R8, and a precondition of DS1b's merge. Standard review
