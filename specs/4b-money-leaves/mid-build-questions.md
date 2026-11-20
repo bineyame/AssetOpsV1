@@ -6,7 +6,10 @@ unit (`4b1` or `4b2`), the section, what is stopped, what is built, and what you
 
 Count: **1** (reset at spec rev 2, after handshake round 1; Q1 raised in the 4b1 build).
 
-## Q1 (4b1, spec §2.1 and §2.7 S8; D-4B.17; plant V18)
+## Q1 (4b1, spec §2.1 and §2.7 S8; D-4B.17; plant V18): ANSWERED
+
+**Answered** 2026-11-20 in `rulings.md` "Mid-build answers (round 1)": check order kept; two added non-money
+stated SUM nodes (`MONEY * MONEY`, `MONEY * KWH`) with controls; V18 and new V18b.
 
 - **What the spec fixes.** `STRUCTURE_STATED` runs right after `STRUCTURE_COMPOSES` and refuses `stated_by` on a row
   whose unit is not exactly money. S8 asks `check` to raise `STRUCTURE_STATED` on "a planted copy of `revenue` with

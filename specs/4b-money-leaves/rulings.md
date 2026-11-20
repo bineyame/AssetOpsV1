@@ -197,3 +197,24 @@ Architect (Claude), 2026-11-20, on `handshake.md` at `4da3a0dc6`. Each answer is
 - **P5 (Low).** Confirmed: snapshots, prices, then commercial; the L1 test stays green unchanged.
 
 No change to scope or units: 4b1 gains S10 and the D-4B.17 check (inside its unit); 4b2 gains tests 12 and 13.
+
+## Mid-build answers (round 1)
+
+Architect (Claude), 2026-11-20, on `mid-build-questions.md` Q1 at `aa5e78036`. No new decision: this fixes the test
+that carries D-4B.17. The discovery review of 4b1 (`.agent/review-4b1-r1.md`) did not exist when this was written.
+
+- **Q1 (4b1, S8 / V18).** Builder's diagnosis is right: `check` runs code by code (`CODES` order, R9), so a
+  `MONEY / KWH` row is refused by `STRUCTURE_COMPOSES` (D-3B3.14) or, with `NONE`, by the `composes` condition of
+  `STRUCTURE_STATED`; the unit condition never decides it. **The check order stays** (fixed by the spec; moving
+  `STRUCTURE_STATED` ahead of `STRUCTURE_COMPOSES` would change which code every existing bad registry reports).
+  **The plant changes**, by class: a stated node that passes every earlier check and is not exactly money. S8's
+  `MONEY / KWH` copy of `revenue` is replaced by two *added* rows (a test-local helper appends a copy of `revenue`'s
+  row with `dataclasses.replace`: new `factor_id`, `expression` and `unit`; `composes="SUM"`, `stated_by` revenue's
+  literal `FilledBy("COMMERCIAL_RECORD", "CHARGE", ...)`, every other field as `revenue`):
+  - `s8_money_sq = tariff * delivered_kwh * om`, unit `MONEY * MONEY` (MONEY exponent 2, no denominator);
+  - `s8_money_kwh = om * delivered_kwh`, unit `MONEY * KWH` (MONEY exponent 1 plus another dimension).
+  Each asserts `STRUCTURE_STATED` with `factor_id` equal to the planted ID, and a control asserts that the same two
+  rows *without* `stated_by` pass `STRUCTURE_STATED` (so the refusal is the unit, not the row: the control may stop
+  at a later code, never at `STRUCTURE_STATED` or an earlier one). Plants: **V18** (refuse only units with no MONEY
+  exponent) fails both; new **V18b** (accept a MONEY exponent of 1 whatever else the unit holds) fails
+  `s8_money_kwh`. The packet records both plants. `spec.md` S8 and `reviewer-guide.md` V18 are amended to match.

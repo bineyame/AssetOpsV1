@@ -41,7 +41,8 @@ regression set through `tools/heavy-slot.sh --db`, check-all, and every planted 
 | V15 | 4b2 | Give the portfolio total over all Sites, filling a missing Site with 0 | test 3 |
 | V16 | 4b1 | Serve the expression's value when the stated record is refused (`NOT_CALCULATED_YET`) | S10 |
 | V17 | 4b2 | Divide by zero litres, or fall back to the declared price on zero litres | test 12 |
-| V18 | 4b1 | Allow `stated_by` on any unit with a MONEY exponent | S8 (`revenue` copy with `MONEY / KWH`) |
+| V18 | 4b1 | Allow `stated_by` on any unit with a MONEY exponent | S8 (`s8_money_sq`, `s8_money_kwh`; mid-build Q1) |
+| V18b | 4b1 | Allow `stated_by` when MONEY's exponent is 1, whatever else the unit holds | S8 (`s8_money_kwh`) |
 | V19 | 4b2 | Build every absent `Missing` from `filled_by` (ignore `READ_AS`) | test 7(a), 7(c) (`in_transit` names SETTLEMENT; `outstanding` names RECEIPT) |
 | V20 | 4b2 | Leave earlier stores undisposed when the commercial builder fails | test 13 |
 

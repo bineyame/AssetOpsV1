@@ -1,7 +1,7 @@
 # 4b: money leaves from records into the structure read (implementer spec)
 
 Status: spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-4B.13 to D-4B.17).
-4b1: in_review (`packet-4b1.md`, branch `task/4b1-money-leaves`; mid-build Q1 open). 4b2: not started.
+4b1: in_review (`packet-4b1.md`, branch `task/4b1-money-leaves`; mid-build Q1 answered in `rulings.md`). 4b2: not started.
 Code starts when the handshake has no open question (`.ai/RULES.md` §4).
 
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`3B3` → `3A4` → `4b` and `5a` → `5b` →
@@ -171,7 +171,7 @@ Leaves are built with the builder 3B3's T1 uses for Kobo's actual side (imported
 - **S8 (registry).** `MG.version == 3`; exactly `revenue` and `fuel_cost` have `stated_by`, with the literals of
   §2.1. `STRUCTURE_STATED` is raised by `check` on planted copies: `stated_by` on `om` (a leaf), on `diesel_l` as
   `FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", None)` (a node, unit L, not money; the family is right, so only
-  the unit refuses it), on a planted copy of `revenue` with `tariff`'s unit `MONEY / KWH` (a rate, D-4B.17), on
+  the unit refuses it), on two added stated SUM nodes that are not exactly money, `s8_money_sq = tariff * delivered_kwh * om` (`MONEY * MONEY`) and `s8_money_kwh = om * delivered_kwh` (`MONEY * KWH`), each with a control without `stated_by` (D-4B.17; mid-build Q1), on
   `contribution` with family `DECLARED`, and on a planted node with `composes="NONE"`. `CODES` has `STRUCTURE_STATED` right after `STRUCTURE_COMPOSES`.
 - **S9 (read).** A fake `LeafSource` and a fake `StatedSource` that records the IDs it was asked: `StructureRead(...,
   stated=fake).site(...)` asks exactly `("revenue", "fuel_cost")` once each; without `stated` nothing is asked and
