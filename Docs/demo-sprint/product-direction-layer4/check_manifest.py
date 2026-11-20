@@ -42,6 +42,9 @@ and the manifest alone. Against that independent recomputation the checker compa
      evaluator's and the history's October gap (RC5); every shared headline figure reads one matrix term (RC6); a statement row and
      its line's heading shown on one route are tied, and each tie holds for every portfolio and Site (RC7). Runs after the history
      checks, so H9's baseline is unchanged. It proves itself on planted copies every run.
+ 13. option_basis(): every evaluation option names its basis, NO_ACTION, RESTORE_REFERENCE or NOT_VALUED (B1); RESTORE_REFERENCE
+     only where the decision's no-action option never restores (B2), and exactly where that holds and the decision is valued in money (B4, D-RECON.8); NOT_VALUED exactly on the comparator rows (B3) (design
+     rev 16.14 §2.4; ruling D-RECON.6). Runs after the history checks. It proves itself on planted copies every run.
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -230,8 +233,13 @@ def stated(doc, ref):
                 eq(f"stated {oid} buses short a night", row["buses_short"], e["bound"]["buses_short_per_night"])
             if "deliverable_kwh" in row and oid.startswith("RUI"):
                 eq(f"stated {oid} deliverable a night", row["deliverable_kwh"], e["bound"]["deliverable_kwh_night"])
-            if "avoided_capex" in row:
-                eq(f"stated {oid} avoided purchase = RUI-4CHARGERS one-off", row["avoided_capex"], O["RUI-4CHARGERS"]["operator_one_off"])
+            if "capex_not_needed" in row:   # D-RECON.5: the rejected purchase it makes unnecessary, as context, never a result
+                cn = row["capex_not_needed"]
+                alt = cn.get("against")
+                eq(f"stated {oid} capital not needed = {alt} one-off", cn.get("amount"), (O.get(alt) or {}).get("operator_one_off"))
+                dec = next((d for d in doc["plans"].get(tid, {}).get("decisions", []) if oid in d["options"]), None)
+                check(f"stated {oid} capital not needed: against {alt} is a REJECTED option of the same decision",
+                      dec is not None and alt in dec["options"] and alt != oid and (rows.get(alt) or {}).get("disposition") == "REJECTED")
             if "expected_penalties" in row:
                 eq(f"stated {oid} penalties", row["expected_penalties"], -D(str(e["monthly_or_horizon_change"])))
         for pe in t["portfolio"].get("protect_effects", []):
@@ -1181,11 +1189,19 @@ def empty_states(root, doc):
 # are the base commit's October digests (H8, H10). Lifetime (R14): the next slice that changes October replaces them in its diff.
 H8_DERIVED_SHA = "bfe2cbc54571963ea4f9c1ed18633dc84c6579a2fc1003bc51a7ff8d1ab3813a"   # derived-values.json at the DS1p base
 H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the DS1p base
-H10_MANIFEST_SHA = "09903eba1032bf6dc7b421c3c51855fe9fdb0929d090dda48a3c17d3d6dc2a85"  # the manifest at the DS1p base, plus
+H10_MANIFEST_SHA = "5407c9869fa319126d9305bf39d0600b340ef0e6a7dea01dd95418798236accb"  # the manifest at the DS1p base, plus
 # `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
 # view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
-H9_BASELINE = 4476   # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md): 4465, plus the
-                     # 11 figure anchors of design §2.0 "How the statement and the headings reconcile" (rev 16.14, D-RECON.4)
+# Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the
+# evaluator, the independent model or the history generator, and none inside view_digest: RUI-ABSORB6 `capex_not_needed`
+# replaces `avoided_capex` and the Metro listed key is renamed (D-RECON.5); every evaluation option gains `basis` (D-RECON.6);
+# the `mto-losses` decision and its `mto-unexplained-loss` Finding rows (D-RECON.7). derived-values.json, missing-records.json
+# and history.json stayed byte-identical after evaluate_structure.py. The RECON-1 base was 09903eba1032bf6dc7b421c3c51855fe9fdb0929d090dda48a3c17d3d6dc2a85.
+H9_BASELINE = 4503   # 4487 (confirmed, D-RECON.8) plus the 16 figure anchors of design Figure 1c (owner, 20 Nov: "yes, add the figure");
+                     # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md): 4465, plus the
+                     # 11 figure anchors of design §2.0 "How the statement and the headings reconcile" (rev 16.14, D-RECON.4),
+                     # plus 11 for D-RECON.5 and D-RECON.7: stated() checks capex_not_needed's `against` (+1), and homes() checks
+                     # the new decision mto-losses (6) and its Finding mto-unexplained-loss (3) and origin row (1). Section 13 runs after.
 H_RULE_BASES = ("share", "rest")   # MB3 (ruled): a base key a declared share/rest rule reads (EV `kwh`) is a generated record
 H_ENTRY_META = {"side", "record_kind", "source_family", "cause", "carried_as", "blocks", "slice", "record_words", "assumption", "trigger", "note"}
 
@@ -1631,6 +1647,58 @@ def reconciliation(doc, dv):
     return passes - n0
 
 
+# ---------------- 13. every option names its basis (design rev 16.14 §2.4; ruling D-RECON.6) ----------------
+BASES = ("NO_ACTION", "RESTORE_REFERENCE", "NOT_VALUED")
+
+
+def basis_problems(doc):
+    """[(label, ok)] for section 13. Every evaluation option declares a basis from BASES. The class rule: an option is
+    valued against its decision's no-action path, unless that no-action option never restores (restore: {date: none}),
+    where RESTORE_REFERENCE (an immediate restore at no operator cost) is allowed; NOT_VALUED is exactly the comparator rows."""
+    out = []
+    dec_of = {o: d for tp in doc["plans"].values() for d in tp["decisions"] for o in d["options"]}
+    EVO = doc["evaluation"]["options"]
+
+    def no_action(d):
+        return [o for o in d["options"] if (EVO.get(o) or {}).get("is_reference") or o.endswith("-NOACT")]
+    for oid, o in EVO.items():
+        b, d = o.get("basis"), dec_of.get(oid)
+        out.append((f"B1 option {oid} declares a basis from {BASES} ({b})", b in BASES))
+        if b == "RESTORE_REFERENCE":
+            na = no_action(d) if d else []
+            never = [n for n in na if str(((EVO[n].get("params") or {}).get("restore") or {}).get("date")) == "none"]
+            out.append((f"B2 option {oid} RESTORE_REFERENCE: its decision's no-action option never restores ({na})", bool(never)))
+        if d:   # B4 (D-RECON.8): RESTORE_REFERENCE exactly when no action never restores AND the decision is valued in money
+            never_d = any(str(((EVO.get(n, {}).get("params") or {}).get("restore") or {}).get("date")) == "none" for n in no_action(d))
+            out.append((f"B4 option {oid} {b}: RESTORE_REFERENCE exactly when its decision is valued ({d['kind']}) and its no-action option never restores ({never_d})",
+                        (b == "RESTORE_REFERENCE") == (never_d and d["kind"] == "valued")))
+        out.append((f"B3 option {oid} {b}: NOT_VALUED exactly when its decision is a comparator ({d and d['kind']})",
+                    (b == "NOT_VALUED") == bool(d and d["kind"] == "comparator")))
+    return out
+
+
+def option_basis(doc):
+    """Run section 13, then prove it on planted copies: a missing basis, RESTORE_REFERENCE where no action restores
+    (Kasarani: the supplier restores on its own date), and a valued option marked NOT_VALUED must each fail."""
+    import copy
+    n0 = passes
+    for label, ok in basis_problems(doc):
+        check(label, ok)
+
+    def planted(mutate, expect):
+        d = copy.deepcopy(doc)
+        mutate(d)
+        bad = [l for l, ok in basis_problems(d) if not ok]
+        check(f"B self-test: planted copy fails {expect} ({len(bad)} failing)", any(l.startswith(expect) for l in bad))
+    ev = lambda d: d["evaluation"]["options"]
+    planted(lambda d: ev(d)["KOB-STOPSOC"].pop("basis", None), "B1 option KOB-STOPSOC")
+    planted(lambda d: ev(d)["KAS-LOCAL"].__setitem__("basis", "RESTORE_REFERENCE"), "B2 option KAS-LOCAL")
+    planted(lambda d: ev(d)["KIS-REPAIR"].__setitem__("basis", "RESTORE_REFERENCE"), "B4 option KIS-REPAIR")   # protective: no money to label
+    planted(lambda d: ev(d)["MTO-INV-CLAIM"].__setitem__("basis", "NO_ACTION"), "B4 option MTO-INV-CLAIM")    # the converse
+    planted(lambda d: ev(d)["EMB-DEADLINE"].__setitem__("basis", "NOT_VALUED"), "B3 option EMB-DEADLINE")
+    return passes - n0
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
@@ -1663,6 +1731,7 @@ def main(path):
     alignment(root)
     nh = history_checks(doc, dv, root, path, im) if (root / "history.json").exists() else 0
     reconciliation(doc, dv)   # after the history checks, so H9's baseline (checks before them) is unchanged
+    option_basis(doc)         # after the history checks too (D-RECON.6)
     print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
         print("FAIL", f)

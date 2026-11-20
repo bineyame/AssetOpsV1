@@ -250,7 +250,7 @@ The demonstration arithmetic is fixed in `structure-specification.md` §5.
 - Is the Kisiwa genset decision under Protect, because its Finding is on evening hours without backup, although its options also move necessary litres, and does the repair option still show its fuel effect under Optimize?
 - Is Thika's backup decision under Protect, because its Finding is on nights without backup cover, and does its compensation stay an Optimize cost line, linked and not counted under Protect?
 - Is the Mto billing fix under Optimize, because its Finding is on unmapped meters, and is Kobo's stop-threshold decision under Optimize, on candidate litres?
-- For each of the fourteen demonstration decisions, does its heading match `home_categories.decisions`, and is there no decision under Assure?
+- For each of the fifteen demonstration decisions, does its heading match `home_categories.decisions`, and is there no decision under Assure?
 - At Mto, does the inverter claim show its extra fuel to the restore (−137.50<!--fig:options.MTO-INV-CLAIM.monthly_or_horizon_change-->) under Optimize and its one-off (230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off-->) as the one-off, never labelling the option's value (−367.50<!--fig:options.MTO-INV-CLAIM.value-->) as its one-off?
 
 ## 7. P: the plan

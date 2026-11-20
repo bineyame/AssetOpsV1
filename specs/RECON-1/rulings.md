@@ -213,6 +213,21 @@ Amounts are the evaluator's (`derived-values.json`), checked by `check_manifest.
   under "How everything else ties back": the meter audit answers the unexplained-loss Finding, Optimize.
   `worked-portfolios.md` §1 lists the decision.
 
+## D-RECON.8 The class rule's second condition: the decision is valued in money
+
+- **Ruling.** Option (b). RESTORE_REFERENCE applies exactly when two conditions hold: the decision's no-action option never
+  restores (`restore: {date: none}`), **and** the decision is valued in money (plan decision `kind: valued`). Otherwise the
+  basis is NO_ACTION (or NOT_VALUED for a comparator). Kisiwa's genset decision is `protective`. Its options carry no money
+  value whose basis could mislead: they are compared in their Protect measures (evening hours without backup) against no
+  action, and no action's never-ending loss is exactly what the redundancy bound rejects. So KIS-* stay NO_ACTION, and no
+  Kisiwa label changes.
+- **Check.** `check_manifest.py` section 13 gains B4, the converse: for every option, RESTORE_REFERENCE if and only if both
+  conditions hold. Two planted copies fail each run: KIS-REPAIR marked RESTORE_REFERENCE, and MTO-INV-CLAIM marked
+  NO_ACTION. That is 30 more checks, after the history checks, so H9 is unaffected by them.
+- **H9.** The data lane's re-base from 4476 to 4487 is confirmed: +1 for `stated()` on `capex_not_needed`'s `against`, and
+  +10 from `homes()` for `mto-losses` (decision 6, Finding 3, origin row 1). Figure 1c's 16 anchors then take it to 4503.
+- **Design.** §2.4's paragraph "The reference, when no action never ends" names the second condition.
+
 ## UI change list, for the UI Architect (mock-up `interactive-mockup-vNEXT`; this commit edits no mock-up file)
 
 **Reconciliation (D-RECON.1 to D-RECON.3).**

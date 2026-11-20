@@ -538,7 +538,11 @@ Every browser-driven command runs through the slot. From `interactive-mockup-vNE
 it, `sessionStorage l4-op`), at 1280×720, 1440×900 and 390×844, light and dark (the mock-up's own theme attribute; the
 packet names it).
 
-**G3 pass, per shot:**
+**G3 pass, amended by MB7** (`rulings.md`): at 1440×900 the trend is visible and not clipped; at 1280×720 and
+390×844 the slot is present in the DOM, hidden only by the mock-up's compact rule; page errors are 0 in all 18 shots.
+The criteria below are kept for the 1440×900 shots.
+
+**G3 pass, per shot (rev 2 text):**
 - page errors are 0;
 - each `.ux-kpi .ux-trend` on the overview is visible and not clipped by its tile;
 - at 1280×720 and 1440×900 it is inside the first viewport;

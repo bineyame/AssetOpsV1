@@ -688,7 +688,7 @@ tenants:
       thread: "City offers a route expansion: 6 more buses at Ruiru"
       origin: CUSTOMER_PROPOSAL
       options:
-        - {id: RUI-ABSORB6, kind: CAPACITY_USE, required_kwh: 2800, deliverable_kwh: 3200, capex: 0.00, avoided_capex: 60000.00, avoided_capex_class: MODELLED,
+        - {id: RUI-ABSORB6, kind: CAPACITY_USE, required_kwh: 2800, deliverable_kwh: 3200, capex: 0.00, capex_not_needed: {amount: 60000.00, against: RUI-4CHARGERS, class: QUOTE},
            disposition: RECOMMENDED, condition: "connector compatibility confirmed for the {fig:options.RUI-ABSORB6.params.added_buses} new buses"}
         - {id: RUI-ABSORB10, kind: CAPACITY_USE, required_kwh: 3360, deliverable_kwh: 3200, disposition: REJECTED, reason: "exceeds the {rec:tenants[metro-bus].sites[Ruiru].physical.import_limit_kw} kW import limit"}
         - {id: RUI-4CHARGERS, kind: CAPEX, capex: 60000.00, disposition: REJECTED, reason: "not needed for +{fig:options.RUI-ABSORB6.params.added_buses}; insufficient alone for +{fig:options.RUI-ABSORB10.params.added_buses} (grid upgrade ~45,000 [assumption])"}
@@ -773,7 +773,7 @@ tenants:
       unvalued_spend: 0.00             # rev 10: the Kasarani stopgap changes a money factor (penalties avoided), so it is valued
       modelled_12m_change: {EMB-DEADLINE: 95484.00, KAS-OEM-STOPGAP: 150.00, total: 95634.00, class: MODELLED}
       downside: {value: 150.00, sensitivity: "Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff)", class: MODELLED}
-      listed_not_summed: {RUI-ABSORB6_avoided_capex: 60000.00}
+      listed_not_summed: {RUI-4CHARGERS_capex_not_needed: 60000.00}
       technician_visits_used: 0
       priority_order: ["KAS-OEM-STOPGAP (departures at risk now)", "EMB-DEADLINE (largest money)", "RUI-ABSORB6 (contract decision)", "CH-R7 claim (no consequence)"]
       switches:
@@ -982,10 +982,14 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
   option_detail:   # rev 12 (L7): per-vertical detail nodes shown with an option (capacity check, unit cost, bills), declared here
     EV_DEPOT_CAPTIVE: {capacity: [required_kwh_night, supplied_kwh_night, deliverable_kwh_night, buses_short_per_night, max_kw, import_limit_kw],
                        option_nodes: {cost_per_departure_met: cost_per_departure_met, energy_bill_option: energy_cost}, reference_nodes: {energy_bill_reference: energy_cost}}
-  options:
+  options:   # basis (rev 16.14, ruling D-RECON.6): what the option's figure is measured against. NO_ACTION: the decision's no-action
+             # path; RESTORE_REFERENCE: an immediate restore at no operator cost (the "cost to restore"), allowed only where the
+             # decision's no-action option never restores (restore: {date: none}); NOT_VALUED: a comparator row, listed beside the plan.
+             # The evaluator does not read it; check_manifest.py option_basis() checks it.
     # ---------------- Lakeside Power ----------------
     KOB-STOPSOC:
       site: Kobo
+      basis: NO_ACTION
       months: 12
       params: {avoided_candidate_l: {value: 210, design_value: K}, added_throughput_kwh: {value: 150, design_value: K},
                dawn_days_below_35pct: {value: "row.forward_replay.soc_0500_below_35_days", design_value: K}}
@@ -994,12 +998,14 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}, feasible_fuel_160l: {params: {avoided_candidate_l: 160}}}
     KOB-RESERVE:
       site: Kobo
+      basis: NO_ACTION
       months: 12
       params: {avoided_candidate_l: {value: 20, design_value: K}, dawn_days_below_35pct: {value: "row.forward_replay.soc_0500_below_35_days", design_value: K}}
       changes: {candidate_l: "candidate_l - avoided_candidate_l", dawn_days_below: "dawn_days_below_35pct"}
       crew_visits: {value: 0, basis: "remote reconfiguration, as KOB-STOPSOC"}
     MTO-HULLER:
       site: Mto
+      basis: NO_ACTION
       months: 12
       params: {load_kw: "row.load.kw", load_hours_per_day: {value: 5, basis: "window 10:00-15:00"}, days: "row.load.days_per_month",
                added_fuel_l: {value: 68, design_value: M}, collection: "row.economics.collection_cost_monthly"}
@@ -1010,6 +1016,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}}
     MTO-WELDING:
       site: Mto
+      basis: NO_ACTION
       months: 12
       params: {load_kw: "row.load.kw", load_hours_per_day: {value: 3, basis: "window 18:00-21:00"}, days: "row.load.days_per_month", sfc: "physical.sfc_l_per_kwh"}
       changes: {delivered_kwh: "delivered_kwh + load_kw * load_hours_per_day * days", extra_l: "extra_l + load_kw * load_hours_per_day * days * sfc"}
@@ -1017,6 +1024,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "existing connection; no works"}
     KIS-BATT60:
       site: Kisiwa
+      basis: NO_ACTION
       months: 12
       params: {shifted_fuel_l: {value: 150, assumption: "no Kisiwa battery replay exists; deferred option; owner decision Q14"}}
       changes: {necessary_l: "necessary_l - shifted_fuel_l"}
@@ -1024,6 +1032,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "installation visit (assumption; no quote held)"}
     MTO-INV-CLAIM:
       site: Mto
+      basis: RESTORE_REFERENCE
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}}
       reference: "immediate restore at no operator cost"
       files_notice: {INV-MT-02: {date: as_of}}   # rev 12 (H1): notice filed now, before the 27 Nov deadline; the right stays live
@@ -1035,6 +1044,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {replacement_unit: {amount: 2600.00, covered_by: INV-MT-02}, shipping_failed_unit: 150.00, install: 80.00}
     MTO-INV-BUYNOW:
       site: Mto
+      basis: RESTORE_REFERENCE
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}}
       reference: "immediate restore at no operator cost"
       files_notice: {INV-MT-02: {date: as_of}}   # the failed unit is claimed now (the returned unit becomes a spare)
@@ -1044,6 +1054,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {replacement_unit_bought: 2600.00, install: 80.00, ship_failed_unit_for_claim: 150.00, install_returned_unit_as_spare: 80.00}
     MTO-INV-NOACT:
       site: Mto
+      basis: RESTORE_REFERENCE
       reference: "immediate restore at no operator cost"
       # rev 12 (H1): complete like the other two paths (extra fuel included) and files no notice: INV-MT-02 lapses on its 27 Nov deadline,
       # 2,600 of cover is lost, and the declared claimable_cover bound rejects it. No typed admissibility.
@@ -1052,6 +1063,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "no action"}
     MTO-INV-LOCAL:   # rev 13 (L3): evaluated like KAS-LOCAL, not a hand disposition
       site: Mto
+      basis: RESTORE_REFERENCE
       reference: "immediate restore at no operator cost"
       voids_rights: [INV-MT-02]
       params: {restore: {date: as_of, plus: ["local_repair_days"]}, local_repair_days: {value: 2, assumption: "a local technician opens and repairs the unit in 2 days; no quote held"},
@@ -1061,6 +1073,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "own crew visit with the technician"}
     KIS-REPAIR:
       site: Kisiwa
+      basis: NO_ACTION
       reference_option: KIS-NOACT
       reference: "no action"
       params: {restore: {date: "row.crew_visit", plus: ["repair_days"]}, repair_days: {value: 1, basis: "workshop estimate"}}
@@ -1068,6 +1081,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {alternator_repair: {amount: 1800.00, covered_by: GEN-KS-01}}
     KIS-REPLACE:
       site: Kisiwa
+      basis: NO_ACTION
       reference_option: KIS-NOACT
       reference: "no action"
       params: {restore: {date: as_of, plus: ["row.lead_time_days"]}}
@@ -1076,6 +1090,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "installation visit"}
     KIS-NOACT:
       site: Kisiwa
+      basis: NO_ACTION
       is_reference: true
       reference: "no action"
       params: {restore: {date: none}}
@@ -1083,16 +1098,19 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "no action"}
     BAT-EVIDENCE:
       site: Kobo
+      basis: NO_ACTION
       set_rights: {BAT-001: POTENTIALLY_COVERED}
       cost_lines: {capacity_test: 250.00, temperature_sensor: 180.00}
       rights_effect: "evaluated: unclaimable cover 64,000.00 -> 0 (claimable, at stake, listed); tracked assets with complete contract evidence 1 of 3 -> 2 of 3 (record count)"
     BAT-NOACT:
       site: Kobo
+      basis: NO_ACTION
       is_reference: true
       crew_visits: {value: 0, basis: "no action"}
     # ---------------- Harvest Cold Network ----------------
     MWEA-AGG:
       site: "Room A · Mwea"
+      basis: NO_ACTION
       months: 4
       params: {crates: {value: 150, basis: "draft contract"}, days: {value: 30, basis: "December-March, per month"}, contract_rate: {value: 0.18, basis: "draft contract"},
                handling: {value: 100.00, basis: "handling estimate"}}
@@ -1101,6 +1119,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       requires_switch: aggregator_signs   # the contract exists only if the aggregator signs (a person sets the switch)
     KIRI-REPAIR:
       site: "Room C · Kirinyaga"
+      basis: NO_ACTION
       months: 12
       params: {recovery_share: "row.recovery_share"}
       changes: {excess_kwh: "excess_kwh * (1 - recovery_share)"}
@@ -1109,6 +1128,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {kirinyaga_recovery_60pct: {params: {recovery_share: 0.60}}}
     KIRI-REPLACE:
       site: "Room C · Kirinyaga"
+      basis: NO_ACTION
       months: 12
       params: {new_unit_factor: {value: 0.95, assumption: "a new compressor runs 5% below the occupancy model (vendor datasheet)"}}
       changes: {excess_kwh: "0", model_factor: "new_unit_factor"}
@@ -1116,6 +1136,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "installation visit"}
     THIKA-EPC-WAIT:
       site: "Room B · Thika"
+      basis: NO_ACTION
       is_reference: true
       reference: "no action (wait for the supplier)"
       params: {restore: {date: "entitlement.remedy_scheduled", performed_under: "GEN-CR-01 start controller (backup generator)", if_not_covered: {date: as_of, plus: ["procurement_days"], crew_visits: {value: 1, basis: "own technician fits the controller"}}},
@@ -1125,6 +1146,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "supplier's technician"}
     THIKA-EPC-STOPGAP:
       site: "Room B · Thika"
+      basis: NO_ACTION
       reference_option: THIKA-EPC-WAIT
       reference: "no action (wait for the supplier)"
       params: {restore: {date: as_of}}
@@ -1132,6 +1154,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {sms_alarm_relay: 40.00, night_rota_labour: 60.00, controller_replacement: {amount: "entitlement.cover_value", covered_by: "GEN-CR-01 start controller (backup generator)"}}
     THIKA-SELF:
       site: "Room B · Thika"
+      basis: NO_ACTION
       reference_option: THIKA-EPC-WAIT
       reference: "no action (wait for the supplier)"
       params: {restore: {date: as_of, plus: ["procurement_days"]}, procurement_days: {value: 0, assumption: "controller held in local stock and fitted the same day; no quote held (rev 12, L3)"}}
@@ -1142,6 +1165,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
     # ---------------- Metro Bus Depots ----------------
     EMB-DEADLINE:
       site: Embakasi
+      basis: NO_ACTION
       months: 12
       reference_factors: {night_price: "tariff.prices.night_from_1_nov"}
       params: {max_kw_option: "row.max_kw", hours_before_midnight: {value: 2, basis: "22:00-24:00"}, hours_after_midnight: {value: 5, basis: "00:00-05:00 (to 05:15)"},
@@ -1152,6 +1176,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {flat_tariff: {factors: {peak_price: "offpeak_price", night_price: "offpeak_price", demand_rate: "0"}}}
     EMB-CHEAPEST:
       site: Embakasi
+      basis: NO_ACTION
       months: 12
       reference_factors: {night_price: "tariff.prices.night_from_1_nov"}
       params: {max_kw_option: "physical.import_limit_kw", hours_after_midnight: {value: 5, basis: "00:00-05:00"}}
@@ -1159,6 +1184,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "schedule configured remotely, as EMB-DEADLINE"}
     KAS-OEM-WAIT:
       site: Kasarani
+      basis: NO_ACTION
       is_reference: true
       reference: "no action (wait for the supplier)"
       params: {restore: {date: "entitlement.claim_events[0].at", business_days: "entitlement.contracts[1].restore_business_days", performed_under: CH-K2, if_not_covered: {date: as_of, plus: ["local_repair_days"]}},
@@ -1169,6 +1195,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "supplier's technician"}
     KAS-OEM-STOPGAP:
       site: Kasarani
+      basis: NO_ACTION
       reference_option: KAS-OEM-WAIT
       reference: "no action (wait for the supplier)"
       params: {restore: {date: "entitlement.claim_events[0].at", business_days: "entitlement.contracts[1].restore_business_days", performed_under: CH-K2, if_not_covered: {date: as_of, plus: ["local_repair_days"]}},
@@ -1180,6 +1207,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {buses_charged_at_ruiru: {amount: "covered_bus_nights * cost_per_bus_night"}, contactor_repair: {amount: "entitlement.cover_value", covered_by: CH-K2}}
     KAS-LOCAL:   # rev 12 (L4): evaluated, not narrated: a local repair restores sooner but voids the power-stage cover
       site: Kasarani
+      basis: NO_ACTION
       reference_option: KAS-OEM-WAIT
       reference: "no action (wait for the supplier)"
       voids_rights: [CH-K2]
@@ -1190,12 +1218,14 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "local electrician (contractor)"}
     RUI-ABSORB6:
       site: Ruiru
+      basis: NOT_VALUED
       months: 1
       params: {added_buses: {value: 6, basis: "city route offer"}}
       changes: {buses: "buses + added_buses", kwh_2200_2400: "kwh_2200_2400 + added_buses * kwh_per_bus_night * nights_in_period"}
       comparator: "service expansion: more departures, so cost rises; compared with buying 4 chargers (4 x physical.charger_unit_cost), listed not added"
     RUI-4CHARGERS:
       site: Ruiru
+      basis: NOT_VALUED
       months: 1
       params: {added_chargers: {value: 4, basis: "vendor proposal"}, unit_cost: "physical.charger_unit_cost"}
       changes: {chargers_in_service: "chargers_in_service + added_chargers", chargers_installed: "chargers_installed + added_chargers"}
@@ -1203,6 +1233,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       comparator: "capacity purchase compared with absorbing the expansion on existing chargers; listed, not added"
     RUI-ABSORB10:
       site: Ruiru
+      basis: NOT_VALUED
       months: 1
       params: {added_buses: {value: 10, basis: "city route offer, larger variant"}}
       changes: {buses: "buses + added_buses", kwh_2200_2400: "kwh_2200_2400 + added_buses * kwh_per_bus_night * nights_in_period"}
@@ -1531,6 +1562,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     - {id: mto-letter-of-intent, site: Mto, decision: mto-demand, origin: true, factor: letter_of_intent_demand, heading: grow}
     - {id: mto-unbilled, site: Mto, decision: mto-billing, origin: true, factor: unmapped_kwh, heading: optimize}
     - {id: mto-inverter-notice, site: Mto, decision: mto-inverter, origin: true, factor: cover_not_claimable, heading: protect}
+    - {id: mto-unexplained-loss, site: Mto, decision: mto-losses, origin: true, factor: unexplained_loss_kwh, heading: optimize}
     - {id: mwea-occupancy, site: "Room A · Mwea", decision: mwea-occupancy, origin: true, factor: crate_days, heading: grow}
     - {id: mwea-aggregator, site: "Room A · Mwea", decision: mwea-occupancy, origin: false, factor: contract_crate_days, heading: grow}
     - {id: thika-backup-start, site: "Room B · Thika", decision: thika-backup, origin: true, factor: nights_without_backup_cover, heading: protect}
@@ -1582,6 +1614,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     - {id: mto-demand, site: Mto, plan: mto_demand, finding: "Opportunity: the cooperative's signed letter of intent for a daytime rice huller", finding_factor: letter_of_intent_demand, lever: productive_kwh, heading: grow, chooser: SITE_MANAGER}
     - {id: mto-billing, site: Mto, finding: "Unbilled charges: kWh metered but not billed after the 3 Oct meter swap", finding_factor: unmapped_kwh, lever: unmapped_kwh, heading: optimize, chooser: FINANCE_AND_COMMERCIAL_LEAD}
     - {id: mto-inverter, site: Mto, plan: mto_inverter, finding: "Deadline on a right: inverter 2's warranty notice is due by 27 Nov", finding_factor: cover_not_claimable, lever: cover_not_claimable, heading: protect, chooser: SITE_MANAGER}
+    - {id: mto-losses, site: Mto, finding: "Losses beyond expected: kWh delivered but not explained after expected losses", finding_factor: unexplained_loss_kwh, lever: unexplained_loss_kwh, heading: optimize, chooser: SITE_MANAGER}
     - {id: mwea-occupancy, site: "Room A · Mwea", plan: mwea_occupancy, finding: "Off target: occupied crate-days below target", finding_factor: crate_days, lever: contract_crate_days, heading: grow, chooser: SITE_MANAGER}
     - {id: thika-backup, site: "Room B · Thika", plan: thika_backup, finding: "Limit breached: the backup start failed and a batch went above its limit", finding_factor: nights_without_backup_cover, lever: nights_without_backup_cover, heading: protect, chooser: SITE_MANAGER}
     - {id: kirinyaga-energy, site: "Room C · Kirinyaga", plan: kirinyaga_energy, finding: "Off target: electricity above what occupancy explains", finding_factor: excess_kwh, lever: excess_kwh, heading: optimize, chooser: SITE_MANAGER}
