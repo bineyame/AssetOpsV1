@@ -7,7 +7,11 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
   const openAll = p => p.evaluate(() => document.querySelectorAll('.canvas details').forEach(d => { d.open = true; }));
-  const page = async (hash, o = {}) => { const ctx = await b.newContext({ viewport: { width: o.w || 1440, height: o.h || 900 }, colorScheme: o.dark ? 'dark' : 'light', reducedMotion: o.rm ? 'reduce' : 'no-preference' }); if (o.op) await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, o.op); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; return p; };
+  const page = async (hash, o = {}) => { const ctx = await b.newContext({ viewport: { width: o.w || 1440, height: o.h || 900 }, colorScheme: o.dark ? 'dark' : 'light', reducedMotion: o.rm ? 'reduce' : 'no-preference' }); if (o.op) await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, o.op);
+    /* review Site M3: sideways overflow is any visible element in the canvas past the viewport outside its own scrolling frame;
+       the page never scrolls sideways (.workspace clips), so the page's scrollWidth alone cannot fail */
+    await ctx.addInitScript(() => { window.__ovf = () => { const out = []; for (const e of document.querySelectorAll('#app .canvas *')) { const a = e.getBoundingClientRect(); if (a.width <= 1 || a.height <= 1 || (a.right <= innerWidth + 1 && a.left >= -1)) continue; if (e.closest('.ux-drawer:not([data-open="true"]), [hidden], .vh')) continue;
+      let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; return p; };
   // 1 drawers on the Overview: open, focus, trap, Esc, return focus
   { const p = await page('portfolio');
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {
@@ -410,28 +414,38 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     ok(/none this month/.test(t), 'X4 Harvest Financials: the crossing cell reads "none this month"'); await p.context().close(); }
   /* the Site page (owner, 20 Nov): the same structure on every Site; answer-titled sections; a driver row opens its drawer in
      place and never navigates; counts from one source; the sticky bar; on a phone the KPI trend is words, not a sparkline */
-  { const sites = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] }, shapes = new Set();
+  { const sites = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] }, shapes = new Set(), opsAns = new Set();
     for (const [op, sks] of Object.entries(sites)) for (const sk of sks) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
       const p = await page(`site/${sk}`, { op, w, h });
       const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-dsecs > .ux-ans-sec')];
         return { labels: secs.map(s => s.querySelector('.ux-h2').textContent.trim()).filter(l => l !== 'Operations measures').join('|'), ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4),
           h1: document.querySelectorAll('h1').length, spark: [...document.querySelectorAll('.ux-kpi .ux-spark')].some(x => x.getBoundingClientRect().width > 0), words: [...document.querySelectorAll('.ux-kpi .ux-trend')].filter(x => x.getBoundingClientRect().height > 0).map(x => x.textContent.trim()),
-          ovf: document.documentElement.scrollWidth > innerWidth, marks: [...document.querySelectorAll('.ux-board-go')].map(b => b.dataset.uxDrawer) }; });
+          ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth), marks: [...document.querySelectorAll('.ux-board-go')].map(b => b.dataset.uxDrawer) }; });
       shapes.add(r.labels);
       let nav = 0, drw = 0; const h0 = await p.evaluate(() => location.hash);
-      if (w === 1440) for (const id of r.marks.slice(0, 4)) { await p.evaluate(id => { document.querySelector(`[data-ux-drawer="${id}"]`).click(); }, id); await p.waitForTimeout(150);
+      if (w === 1440) for (const id of r.marks.slice(0, 4)) { const found = await p.evaluate(id => { const b = document.querySelector(`[data-ux-drawer="${id}"]`); if (b) b.click(); return !!b; }, id); if (!found) { nav++; continue; } /* r1 L4: a row gone after navigating is a failure, not a crash */ await p.waitForTimeout(150);
         const st = await p.evaluate(id => ({ open: document.getElementById(id)?.dataset.open === 'true', hash: location.hash, done: /What is being done/.test(document.getElementById(id)?.textContent || '') }), id);
         if (st.open && st.done) drw++; if (st.hash !== h0) nav++; await p.keyboard.press('Escape'); await p.waitForTimeout(100); }
       await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150); const stickyOn = await p.evaluate(() => !!document.querySelector('.ux-dsticky.is-on .status-pill')); await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(100);
       const phoneOk = w >= 600 || (!r.spark && r.words.length >= 1 && r.words.every(x => /against|not available yet/i.test(x))); /* G3: at least one trend, in words */
+      /* review Site r1 classes: H1 a trend is the tile's measure; M1 state words; M2 the board adds to the gap */
+      const tru = await p.evaluate(sk => { const bad = [], tx = e => (e?.textContent || '').replace(/\s+/g, ' ').trim(), mon = s => { const m = String(s).match(/([+−-])?\$([\d,]+)/); return m ? (m[1] && m[1] !== '+' ? -1 : 1) * +m[2].replace(/,/g, '') : null; };
+        const k1 = document.querySelector('.ux-kpis .ux-kpi'); if (/per required departure/.test(tx(k1)) && [...k1.querySelectorAll('.ux-trend')].some(x => /^[+−-]\$/.test(tx(x)) || /^Cost /.test(tx(x)))) bad.push('H1 a per-departure tile carries a signed cost trend');
+        const ids = [...new Set(ATTN[SK[sk].op].filter(r => r[2] === sk).map(r => r[4]))], wait = ids.some(id => ['choose', 'none'].includes(uxDecState(id).key)), c = tx(document.querySelector('.canvas'));
+        if (!wait && /value if chosen|decisions? open\b|Needs a decision|\d+ open\b/.test(c)) bad.push('M1 "open" or "if chosen" with nothing to choose');
+        const cells = [...document.querySelectorAll('[data-board-v]')]; if (cells.length) { const shown = cells.reduce((a, e) => a + mon(e.textContent), 0), gk = [...document.querySelectorAll('.ux-kpis .ux-kpi')].find(k => /^Gap to target/.test(tx(k))), g = mon(tx(gk).replace(/^Gap to target/, '')); if (g !== null && shown !== g) bad.push(`M2 board ${shown} against gap ${g}`); }
+        const ops = [...document.querySelectorAll('.ux-ans-sec')].find(x => /Operations measures/.test(tx(x.querySelector('.ux-h2')))); return { bad, ops: ops ? tx(ops.querySelector('.ux-ans')) : null }; }, sk);
+      if (tru.ops) opsAns.add(tru.ops); if (tru.ops && !/\d|no operations measure/i.test(tru.ops)) tru.bad.push('M4 Operations answer has no figure');
+      ok(!tru.bad.length, `${op} site/${sk} at ${w}: the tile's trend is its own measure, state words match the decisions' states, the board adds to the gap${tru.ops ? ', the Operations answer is its rows' : ''} (${tru.bad.join('; ') || 'all hold'})`);
       const svc = await p.evaluate(() => { const s = [...document.querySelectorAll('.ux-ans-sec')].find(x => /Service and assets/.test(x.querySelector('.ux-h2').textContent)); if (!s) return false; const a = s.querySelector('.ux-ans').textContent, n = (s.innerHTML.match(/Above its target/g) || []).length; const m = a.match(/^(\d+) of/); return m ? +m[1] === n : n === 0; });
-      ok(svc && r.ans && r.h1 === 1 && !r.ovf && phoneOk && !nav && stickyOn && (w !== 1440 || drw === Math.min(4, r.marks.length)), `${op} site/${sk} at ${w}: answer-titled sections, sticky context after scroll, one h1, no sideways scroll${w < 600 ? ', KPI trend in words without a sparkline' : ''}${w === 1440 ? `, ${drw} driver rows open their drawers in place` : ''}`);
+      ok(svc && r.ans && r.h1 === 1 && !r.ovf && phoneOk && !nav && stickyOn && (w !== 1440 || drw === Math.min(4, r.marks.length)), `${op} site/${sk} at ${w}${r.ovf ? ` OVERFLOW ${r.ovf}` : ""}: answer-titled sections, sticky context after scroll, one h1, no sideways scroll${w < 600 ? ', KPI trend in words without a sparkline' : ''}${w === 1440 ? `, ${drw} driver rows open their drawers in place` : ''}`);
       await p.context().close(); }
-    ok(shapes.size === 1, `Site pages: one section structure for every Site type (${[...shapes].join(' / ')})`); }
+    ok(shapes.size === 1, `Site pages: one section structure for every Site type (${[...shapes].join(' / ')})`);
+    ok(opsAns.size > 2, `Site pages: the Operations answers differ with their measures (${opsAns.size} distinct)`); }
   /* the plan page: answer-titled sections, the approver's sticky bar, and Approve / Send back with the one feedback pattern */
   for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
     const p = await page('portfolio/act-first/plan', { op, w, h });
-    const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4), ovf: document.documentElement.scrollWidth > innerWidth, chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, diff: /Changes since version/.test(document.body.textContent), crew: !!document.querySelector('[data-k="Crew"]') }; });
+    const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4), ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth), chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, diff: /Changes since version/.test(document.body.textContent), crew: !!document.querySelector('[data-k="Crew"]') }; });
     await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150);
     const st = await p.evaluate(() => ({ on: !!document.querySelector('.ux-dsticky.is-on [data-plan-state]'), act: !!document.querySelector('.ux-dsticky.is-on [data-ux-act="approve-plan"]') }));
     let flow = true, desc = '';
@@ -459,11 +473,11 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
   // short laptop: the first queue row is above the fold at 1280 x 720 (guide §3.5)
   for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first']]) {
     const p = await page(r, { w: 1280, h: 720, op });
-    const y = await p.evaluate(() => { const li = document.querySelector('.ux-queue>li'); return li ? Math.round(li.getBoundingClientRect().bottom + scrollY) : null; }), ovf = await p.evaluate(() => document.documentElement.scrollWidth > innerWidth);
+    const y = await p.evaluate(() => { const li = document.querySelector('.ux-queue>li'); return li ? Math.round(li.getBoundingClientRect().bottom + scrollY) : null; }), ovf = await p.evaluate(() => (window.__ovf() || document.documentElement.scrollWidth > innerWidth));
     ok(y !== null && y <= 720 && !ovf, `${op} ${r} at 1280 x 720: first queue row ends at ${y} px (fold 720), no sideways scroll`); await p.context().close(); }
   // the header holds one row; a recalculation notice has its own row under it
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
-    const r = await p.evaluate(() => ({ h: Math.round(document.querySelector('.topbar').getBoundingClientRect().height), inBar: !!document.querySelector('.topbar .snap-pending'), row: !!document.querySelector('.canvas>.ux-pending .snap-pending'), ovf: document.documentElement.scrollWidth > innerWidth }));
+    const r = await p.evaluate(() => ({ h: Math.round(document.querySelector('.topbar').getBoundingClientRect().height), inBar: !!document.querySelector('.topbar .snap-pending'), row: !!document.querySelector('.canvas>.ux-pending .snap-pending'), ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth) }));
     ok(r.h <= 64 && !r.inBar && !r.ovf, `${op} header at 1440: one row (${r.h} px), notice ${r.row ? 'on its own row' : 'none'}, no overflow`); await p.context().close(); }
   // 5 heading order on the five screens
   for (const r of ['portfolio', 'portfolio/act-first', 'portfolio/act-first/plan', 'decision/kobo-generator', 'site/kobo']) {

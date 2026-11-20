@@ -326,8 +326,8 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-item-body>.plan-item{border:0;box-shadow:none;margin:0}
 @media (max-width:760px){
   .ux-itemh{display:none}
-  .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 16px}
-  .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{grid-column:3;grid-row:1}
+  .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}details.ux-item>summary.ux-itemrow{padding-right:calc(var(--s3) + 24px)}
+  .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{position:absolute;right:var(--s3);top:calc(var(--s3) + 4px)} /* the cue sits outside the grid so no cell lands in its 16px column */
   .ux-it-c::before{content:attr(data-k) ": ";color:var(--text-2);font-size:var(--fs-xs)}
 }
 
@@ -705,6 +705,9 @@ html.ux-has-sticky{scroll-padding-top:64px}
 .ux-sacts .ux-sact{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px var(--s3);align-items:start}
 .ux-sact-t{font-weight:600}
 .ux-sact small{grid-column:1;color:var(--text-2)}
+.ux-sact small .who{display:inline}.ux-sact small .who>b::after{margin-right:4px}.ux-sact-due{display:block} /* r1 L7: owner on one line, due date on the next */
+/* review Site L2: tile 3's option text keeps to two lines on a phone so the first queue card shows */
+@media (max-width:600px){.ux-kpi-clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
 .ux-sact .status-pill{grid-column:2;grid-row:1 / span 2;align-self:center}
 @media (max-width:600px){.ux-kpi-s.has-trend{display:block}} /* on a phone the trend stays, as words (the sparkline is hidden): DS1 recommendation, G3 */
 

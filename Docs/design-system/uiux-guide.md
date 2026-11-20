@@ -334,6 +334,7 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 - **Trend slot.** Each money tile reserves a trend line. Until earlier months are loaded it shows a dashed placeholder and "Trend not available yet", never an invented line.
 
 - **Displayed figures reconcile** (wave 2c ruling). Parts are rounded with the largest-remainder method, so the shown parts add up to the shown total: steps to their heading's subtotal, subtotals to the gap. Shares add to 100%. A check asserts it for every operator.
+- **A trend is its tile's measure** (Site r1). The line under a tile moves the tile's own figure; another measure names itself ("Monthly cost up $1,246 against Sep"). Cost moves up or down, never with a gain's sign.
 - **Shares are of what widens the gap.** A step that works the other way is an **offset**: it shows "offsets" and its amount, never a share. Example: Harvest's +$155 electricity effect.
 - **One sign rule per page:** every figure is its effect on the headline result. For a cost centre, a cost overrun is negative (worse), as the tile, the drawer and the Site rows show. The bridge follows the same rule (Metro: −$2,604, −$600, +$20).
 - **Scales hold their marks.** When offsetting steps run past the target or October, the track widens to the lowest and highest running total, and Target and October sit at their scaled places. A check asserts every bar ends inside its track.
@@ -482,6 +483,7 @@ There is no role switcher, role view or role filter (design §2.6; memory "no bo
 
 - Sentence case. Verbs on buttons ("Choose this option", "Approve plan", not "Submit"). Units on every number.
 - Lead with the answer: "Contribution is $852 below target", not "October contribution, composed from the sites' factors: …".
+- **State words come from the one state source** (Site r1). "Needs a decision", "open" and "value if chosen" only for decisions still to choose; others are counted by state ("2 decisions: 1 awaiting approval, 1 under way").
 - No system vocabulary (`vocab_check` enforces its list). Write the user's words instead:
 
 | Not this | This |
