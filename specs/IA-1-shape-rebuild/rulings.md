@@ -1,13 +1,14 @@
 # IA-1 rulings: the app-wide menu, page organization and the shape rebuild
 
-Architect (Claude), 2026-11-20. Each ruling gives its reason. D-IA.15 to D-IA.20 come from the handshake (round 1). Index lines are in
-`.ai/decisions/index-rulings-8.md` (D-IA.1 to D-IA.14) and `index-rulings-9.md` (D-IA.15 to D-IA.20). Owner sources, verbatim:
+Architect (Claude), 2026-11-20. Each ruling gives its reason. D-IA.15 to D-IA.20 come from the handshake (round 1), D-IA.21 to
+D-IA.30 from the IA-1b/IA-1c handshake. Index lines are in `.ai/decisions/index-rulings-8.md` (D-IA.1 to D-IA.14),
+`index-rulings-9.md` (D-IA.15 to D-IA.20) and `index-rulings-10.md` (D-IA.21 to D-IA.30). Owner sources, verbatim:
 - `owner/owner-app-wide-ia-proposal-2026-11-20.md` (the request);
 - `owner/owner-ia-proposal-answers-2026-11-20.md` (the answers to Q1 to Q9);
 - `owner/owner-ia-direction-approved-2026-11-20.md` (the approval and the two guardrails).
 
 The proposal is `Docs/design-system/ia-proposal/index.html`. Handshake answers go at the end of this file, under
-"Handshake answers (round 1)".
+"Handshake answers (round 1)" and "IA-1b/IA-1c handshake answers".
 
 **Scope (O1 boundary).** These rulings govern the Layer 4 destination: the vNEXT mock-up and the product screens
 built from it. The live product on `main` (`frontend/src`) keeps its rail and Site tabs until a product slice
@@ -207,7 +208,7 @@ builds this structure.
 |---|---|---|
 | IA-1a | Frame and gates | The menu, the top bar, the route and shape registry, aliases for old routes, the Lab gate (D-IA.19), and the G1, shape and after-render checks; the reviewed plan page as one named interim, so that IA-1b's plan tile has a live target (spec §2.6, D-IA.15) |
 | IA-1b | Hub | Portfolio's three tabs; the Overview of all 9 Sites |
-| IA-1c | Decision | All 14 decisions; the inbox drawer |
+| IA-1c | Decision | Every decision (15 today; P12, D-IA.26); the inbox drawer |
 | G2 stop | | The owner's input |
 | IA-2a | Plan | The plan page per operator |
 | IA-2b | List | Decisions, Findings, Actions and Sites |
@@ -463,3 +464,303 @@ A plant that the code under test already neutralises (R3, R4, R5) is not a plant
   `[['Page not found']]`, body from `uxNotFound`. Its Portfolio link is unlinked by `iaUnlink` until IA-1b.
 - **P10: adopted.** `ia.css` goes between `ux.css` and `brand.css`.
 - **P11: adopted.** The `scrolls` mark stays in `brandAndListenersOnly` and is the second allowed layout change.
+
+## IA-1b/IA-1c handshake answers
+
+This file is now at the 15k-token cap: later answers go to `rulings-2.md` (RULES §9).
+
+Answered once, 2026-11-20, against `main` at `e100640bf` (IA-1a merged) and `vNEXT/` as read there. Folded into `spec.md`
+rev 3 and `reviewer-guide.md` rev 3. Ten new rulings, D-IA.21 to D-IA.30, carry the answers; each names the question
+class it closes and the sweep. The governing reference for every screen below is the reviewed vNEXT page the unit
+reuses (`uxOverview`, `uxSitePage`, `uxDecisionPage`, `opportunityScreen`, `uxChain`, `uxInsight`); its content carries
+over, and only its placement in levels is the shape's (dispatch, 20 Nov). Where this departs from spec rev 2, the
+spec described a page that does not exist and the reviewed page wins.
+
+**The test every answer was held to** (unchanged from round 1): each gate fails on a named plant that reaches the code
+it guards, and `tools/ia_gates.cjs` (or, for a browser check, its own runner) fails if any plant passes.
+
+### D-IA.21 Drawers in IA-1 open in place; G1 counts the opener; every drawer address lands in IA-2d
+
+- **Ruling.**
+  - In IA-1 every drawer keeps the reviewed pattern: a `[data-ux-drawer]` button opens it in place (`uxOpen`), Esc
+    and the close button shut it. No drawer has an address in IA-1, the inbox included.
+  - **G1's graph** (click_depth_check) has two kinds of node: a page (its route) and a drawer (`<route>#drawer=<element
+    id>`). A page's edges are the `a[href^="#/"]` and `[data-ux-drawer]` openers inside its header tabs, its
+    `[data-level]` regions and the inbox control, **never inside any `.ux-drawer`**. An opener is an edge to the drawer
+    node it names. A drawer node's edges are the links and openers inside that drawer element only.
+  - `identity()` in `ia_crawl.cjs` keeps the value of `drawer` (other query keys stay key-only), so two drawers on one
+    page are two nodes when addresses arrive.
+  - **IA-2d** gives every drawer its address (`?drawer=<kind>:<id>`, stable ids), Back restoring it, and moves G1's
+    drawer nodes onto those hrefs. P5's "Back restores an open drawer" moves there.
+- **Why.** R16, R28. Addressing the inbox alone in IA-1c would build a second drawer mechanism beside the one IA-2d
+  builds for all drawers (W6: one mechanism per class). Counting an opener as an edge measures exactly the click
+  D-IA.10 counts ("opens a drawer"); excluding links inside drawers stops hidden content from lowering depths.
+- **Amends** spec rev 2 §4.3 (the inbox address) and the timing of D-IA.9's drawer address (its rule stands).
+- **Plants.** `G1_PLANT=driver` strips `data-ux-drawer` from the Site board's driver openers (the driver surfaces
+  become unreached; must fail). The edge reader gets its own self-test: a fixed DOM fixture (a level region with a
+  link A and an opener to drawer D; inside the closed D, a link B) must read as page → A, page → D and D → B, never
+  page → B. `G1_PLANT=hidden` removes the reader's `.ux-drawer` exclusion, and the fixture test must fail. (A plant on
+  the live Overview cannot do this job: the plan and the Sites stay reachable through other live links.)
+
+### D-IA.22 A reused page is split into parts proven byte-identical; the shape places the parts
+
+- **Ruling.**
+  - `uxOverview`, `uxSitePage` and `uxDecisionPage` each get a parts function, like `planParts` (D-IA.20):
+    `uxOverviewParts(op)`, `uxSiteParts(sk, P, qMax)`, `uxDecisionSlots(id, parts)`. The legacy function joins its
+    parts into exactly today's string. `siteOverview(sk)` and `decisionScreen(id)` keep their output; their part
+    builders are extracted as `siteOverviewP(sk)` (the `P` object) and `decisionParts(id)`.
+  - **Proof:** a node script compares the legacy function before and after the split, byte for byte, for every
+    operator, every Site and every decision, in the default state and under `?state=no-recommendation`, with
+    `UX_QN` reset to 0 before each call. The packet cites the counts.
+  - **Levels and drawers.** `iaLevels(shape, { cls, sticky, l1, l2, l3, drawers })` (used by `shapeHub` and
+    `shapeDecision`) returns `<section data-shape="<shape>" class="<cls>">{sticky}<div data-level="L1">…</div>
+    <div data-level="L2">…</div><div data-level="L3">…</div><div data-ia-drawers>…</div></section>`, omitting an
+    empty region. Drawers the reused function emits at the page's top level go in `[data-ia-drawers]`; a drawer
+    nested inside a section stays where the section puts it. In `ia.css`, `[data-shape="hub"] > [data-level],
+    [data-shape="decision"] > [data-level], [data-ia-drawers] { display: contents }`, so the reviewed layout is
+    unchanged to the pixel and the levels are structure only.
+  - **Top 3 at Site scope** (P17): `uxSiteParts(sk, P, qMax)` passes the queue the rows of its first `qMax` merged
+    decisions, as `uxOverview` does for 6; `uxSitePage` calls it with `Infinity`, the hub with 3.
+  - **One named fix in the split** (R20 class, below): the Site sticky's "Decide" targets the queue's own primary
+    (the first `choose` decision among the rows shown), not `waiting[0]`; with none, the sticky has no "Decide". The
+    byte-identity proof runs before this edit; the packet shows the one diff (it appears only when a `none` decision
+    or a hidden row leads, never in the default data).
+- **Why.** P14, P17, R20, R26. A wrapper around one string cannot place parts in levels; editing reviewed functions
+  without proof re-opens their review. `display: contents` keeps the screens the owner reviewed identical while the
+  gates read the structure.
+
+### D-IA.23 One primary rule: any `.primary`, one act identity, drawers excluded
+
+- **Ruling.** shape_check item 1's primary rule becomes:
+  - a primary is any `a.primary` or `button.primary`; one inside a `.ux-drawer` belongs to its dialog and is skipped;
+  - its **act** is `data-act`, else `data-ux-act`, else `drawer:<data-ux-drawer>`, else `href:<href>`; a primary
+    with none of these fails;
+  - at most one primary per `[data-level]` region;
+  - the **page primary** is the first primary inside a level region, in document order;
+  - a primary outside every region must sit in `[data-ux-sticky]` and have the page primary's act.
+- **Plants** (each must fail): `primary` now adds **two** `button.primary` with distinct acts to the host's L1 (the hub
+  has no L1 primary, so one would not bite); `noact` removes the act of the host's page primary (for a link, its
+  `href`); `linkprimary` adds two `a.button.primary` with distinct hrefs to the host's L2;
+  `decprimary` (IA-1c, host: the operator's first waiting decision; an operator without one, Harvest, skips the
+  plant) adds a second "Choose this" opener to its L1; `stickyact` (IA-1c, same host) points the sticky's opener at
+  another option's dialog.
+- **Hosts.** `primary`, `unlink`, `stub`, `selflink` and `linkprimary` run on `iaStart()`; `noact` on `plan` (in
+  IA-1b the Overview's "Decide" links are unlinked until decisions land, so its page has no primary to strip).
+- **Why.** R20, R27. The reviewed pages' primaries are link-styled (`Decide`) or openers (`Choose this`); a rule that
+  reads `button[data-act]` only fails them by construction or misses them. The confirm buttons belong to their
+  dialogs, as the one feedback pattern defines.
+
+### D-IA.24 One decision set, one waiting predicate; Choose changes the state, the row stays; the badge is "For you"
+
+- **Ruling.**
+  - **The set.** `iaDecIds(op, scope)`: the decision ids of `ATTN[op]` (`r[4]`), first appearance first, filtered
+    by scope (Site: `r[2]`; group: `iaVertical(r[2])`). It is the set every "Decisions" count already counts
+    (`uxDecCount`).
+  - **The predicate.** `iaWaiting(id)` is `['choose', 'none'].includes(uxDecState(id).key)`: a decision with
+    nothing recommended still waits for a choice ("can still choose one, or none"), and `uxStateCount` already counts
+    the two together. Every "waiting" figure is `iaDecIds` filtered by `iaWaiting`: the Overview and Site splits
+    (through `uxStateCount`, unchanged), Outcomes column 6, the Site sticky's pill, both inbox sections, the badge
+    and G1's "every decision waiting for a choice".
+  - **Choose** changes the decision's state on the page, in its queue row and in every count; the row stays in the
+    queue (the queue lists every open decision with its state, as reviewed). Undo restores all.
+  - **The inbox's sections:** "For you" holds the plan when `uxPlanState(op).state === 'PROPOSED'`, then every
+    waiting decision whose chooser (`HC.decisions[].chooser`) is `OPERATOR_EXECUTIVE`; "In your portfolio" holds
+    every other waiting decision. **The badge** is the count of "For you" (0: no badge). On the demo data: Lakeside
+    and Harvest 1 (the plan), Metro 2 (the plan and the Ruiru expansion).
+  - **Since you last looked** reads a new act log: `uxActDo` appends `{ key, op, by, at, toast }` to
+    `uxMock().log` (newest first; `by` is who the act is recorded under: the decider for a choice, the executive for
+    the plan; `at` the wall-clock ISO time). Undo restores the state before, so the entry goes with it. `chosen`
+    keeps its shape, so no reader changes. The snapshot line is `snapText(op)`, then `pendingText(op)` when
+    pending (existing strings).
+  - **Counts check** (`tools/count_check.cjs`, from IA-1b; the inbox and badge from IA-1c). Per operator, in three
+    states (default, `?state=no-recommendation`, and after one act: the first waiting decision chosen with its
+    recommendation, where one exists), it computes its own expected values from `ATTN[op]`, `uxDecState(id).key` and
+    `HC.decisions[].chooser` (never through `iaDecIds`, `iaWaiting` or the inbox builders) and asserts: the Overview
+    "Decisions" count and its waiting split; each Site page's count, split and sticky pill; Outcomes column 6 per
+    Site; (IA-1c) the badge, and the row sets of "For you" and "In your portfolio". Plants: `COUNT_PLANT=choose`
+    (`iaWaiting` drops `none`; bites under the no-recommendation state); `COUNT_PLANT=foryou` (IA-1c; "For you" drops
+    the plan).
+- **Why.** R19, R29, P20. The counts disagreed because three predicates existed; one predicate, and a check that
+  recomputes rather than reuses it, closes the class. Removing a chosen row would make the queue disagree with the
+  Site page's state split and lose the "Chosen · awaiting approval" step the reviewed pages show.
+- **P7 restated** (reviewer guide): a For-you decision (Metro, Ruiru expansion): the waiting counts and the badge drop
+  by one, the row stays with its new state, the inbox row moves to "Since you last looked"; a portfolio decision
+  (Lakeside, Kisiwa late repair): the same, the badge unchanged; the plan (approve on `#/plan`): the badge drops by
+  one. Undo restores each.
+- **P20 (who may choose).** Kept as reviewed: the viewer can choose on every decision in the demonstration, and the
+  dialog records the choice under the decider. Owner question OQ-IA.1 below.
+
+### D-IA.25 The hub: content per tab, the Overview budget, no self-links, no interim Act-first alias
+
+- **Ruling.**
+  - **Per tab (R25):**
+
+| Route | H1 · crumbs | L1 | L2 | L3 | Primary |
+|---|---|---|---|---|---|
+| `portfolio` | "Portfolio" · `[['Portfolio']]` | headline; the 4 tiles | the queue panel (top 6), without "Act first ›" and without the "View all" lines | the bridge; "By outcome" | the queue's (first `choose` row's "Decide"), as reviewed; none in IA-1b, where `iaUnlink` turns decision links into text until IA-1c |
+| `portfolio/outcomes` | "Outcomes" · `[['Portfolio','portfolio'],['Outcomes']]` | the headline (§3.3) | the Site table (D-IA.27) | `uxInsight(op)` | none |
+| `portfolio/demand-and-capacity` | "Demand & capacity" · `[['Portfolio','portfolio'],['Demand & capacity']]` | `uxChain(op)` (its heading and answer are the headline) | none | `opportunityScreen()`'s sections | none |
+| `site/:site` | the Site name, the legacy subtitle · `[['Sites'],[name]]` | the lead headline; `uxSiteTiles` | the queue (top 3) and "Actions in hand" (one block, as reviewed) | the seven sections; the help line | the queue's, repeated by the sticky |
+
+    `home` is "Portfolio" for the three tabs and "Sites" for a Site (unlanded: nothing lights). `tabGroup` is
+    "Portfolio" or "Site" (P18). A tab group with one landed tab draws no tab row, so IA-1b draws no Site tabs.
+    The hub root carries the reused page's class (`ux-overview` on `portfolio`), so its CSS and the uxi selectors hold.
+  - **Outcomes drops the per-heading tiles** of spec rev 2: the four headings already live once, as the Overview's
+    "By outcome" tiles; a second rendering is the C1 class. Column 5 names each Site's heading.
+  - **The overview budget (R17):** a block is a visible direct child of a `[data-level]` region of
+    `[data-shape="hub"]`, outside `.ux-drawer` and `[data-ia-drawers]`; on `portfolio` at most 6 blocks and the
+    hub section at most 2,500 px tall at 1440, on all three operators. The "More in the tabs" line is dropped (the
+    frame's tabs replace it, and it names the old "outcomes by site"): 5 blocks. uxi's assertion is retargeted, shown
+    failing first on `UXI_PLANT=block7` (a seventh block) and `UXI_PLANT=tall` (a 200 px block).
+  - **No gap-tile link.** Spec rev 2's "the gap tile links to `portfolio/outcomes`" is withdrawn: the Outcomes tab
+    sits one click away in the frame, and the link needed copy the spec forbade. The plan tile's "Review the plan"
+    is then the Overview's only content edge to the plan, so `G1_PLANT=tile` bites (the plan falls to depth 2).
+  - **No "View all" until IA-2b (R18).** The hub omits the "Act first ›" link and both "View all {n} in Act first"
+    lines; the panel heading's "Decisions {n}" and its split state the total. `MOCK DEVIATION D5` (resolving unit
+    IA-2b, which adds "View all {n}" to `decisions?scope=…`).
+  - **The interim alias `portfolio/act-first` → `portfolio` is withdrawn.** `portfolio/act-first` gets its alias
+    with IA-2b (→ `decisions`). An alias to the page that links it makes a self-link under a dead label.
+  - **Self-link gate.** shape_check asserts that no link inside a `[data-level]` region has, after `iaCanon`, the
+    current route's path and query (fragment-only `#…` links are not `#/` links). Plant `SHAPE_PLANT=selflink` adds
+    a link to the host route in its L2.
+- **Why.** R17, R18, R22, R25. The standing brief: each element is placed once, on purpose; a duplicate entry to the
+  same view (the more-tabs line, the gap-tile link) is the clutter the owner named.
+
+### D-IA.26 The decision page: the reviewed page placed in levels
+
+- **Ruling.** Element by element (`uxDecisionPage`):
+
+| Element | Place |
+|---|---|
+| The sticky bar | first, outside every level (`data-ux-sticky`) |
+| `head`: the meta line, the stepper (`uxDecStatus`), "How this works" | L1 |
+| `rec`: the recommendation card, its hero number(s), "Choose this" / "Choose another option" / "Review the plan" / "See the Actions" / "See the options", "Evidence and records" | L1 |
+| `cards`: the option cards | L2 |
+| `secs`: the six answer-titled sections, today's order (Why we recommend it, which holds "What would change the recommendation"; What it changes; Limits and cover; Cost and who pays; How we will check it worked; All options in detail) | L3 |
+| the choose dialogs, Evidence and records, The Actions, How this works | `[data-ia-drawers]` |
+
+  - **H1** (C17, as reviewed): the question (`uxDecQuestion(d)`) while `iaWaiting(id)`, the subject (`d.q`) once
+    chosen. The document title follows the H1. Spec rev 2's "subject without a question form" is withdrawn.
+  - **Stepper:** `uxDecSteps` as reviewed, path by path (a "none" first step; "Awaiting approval" for state
+    `approval` and its `draft` variant; "Released at once" or "Actions go ahead" on the short paths). "Verified" is
+    not shown: no verdict data exists before IA-2d's Results. Spec rev 2's fixed four words are withdrawn.
+  - **No tiles.** The hero (`ux-drec-n`) is the guide's one number, with its basis (cover at stake, the value against
+    its stated basis, or the cost and who pays) as reviewed. Spec rev 2's "up to 3 tiles" is withdrawn.
+  - **Breadcrumb** `[['Decisions'], [Site name, 'site/<key>'], [d.q]]`; "Decisions" is text until IA-2b. The Site
+    crumb is the way to the Site; spec rev 2's "Open site" is withdrawn (no new copy). `home: 'Decisions'`.
+  - Routes: `decision/:dec` for every `DEC` entry of the operator's Sites (15 today; P12).
+- **Why.** R21. The reviewed page already answers each question the spec tried to fix; the shape adds levels, not
+  new content.
+
+### D-IA.27 One adverse rule, the Outcomes table and its synthetic check
+
+- **Ruling.**
+  - **Adverse** is the bridge's own tone rule: a shown effect below zero (`vr < 0` in `uxSiteDriversShown`) works
+    against the result on every operator, cost included (the model already signs effects as their effect on the
+    headline result). `iaLargestAdverse(sk)`: the non-residual driver with the lowest `vr`, ties in board order; none
+    → `null`. Read by Outcomes column 5 and by `IA_G1_SURFACES`. On the demo data Kasarani and Ruiru have none; their
+    driver surface prints `n/a · no driver against target` and is not a surface.
+  - **A Site's gap** is `siteM(sk).period.variance` (negative = adverse on every operator), through the same
+    `figS('gap', sk, …)` call as the Site's gap tile. **Sort:** ascending gap, ties in `OPS[op].sites` order; Sites
+    without a target (`tree(sk).plan == null`) last, with "Not available yet" in columns 3 to 5, and not counted in
+    the headline's `m`.
+  - **One cap mechanism:** the table caps at 10 rows the way the Site board does (`data-ux-over hidden`, then
+    `uxCapNote(n, 10, id)`, "Show all {n}"). `uxCapLists` caps `ul.list` only, so the two never meet. The table is
+    grouped (one `tbody` per group, headed by the group word and its count) only when the scope holds more than 10
+    Sites in more than one group; the cap then applies per group.
+  - **The builder is pure:** `iaOutcomeTable(rows, { scope })`, rows `{ key, name, group, hasTarget, resultHtml,
+    gapHtml, gap, driverHtml, waiting }`. `tools/outcomes_table_check.cjs` (jsdom, from IA-1b) feeds it synthetic
+    rows: A, 12 Sites in one group (10 shown and "Show all 12"); B, 12 Sites in two groups of 7 and 5 (two groups, no
+    cap); C, B at `group:<the 7>` (7 rows); D, a Site without a target (last, outside `m`); and checks the sort.
+    Plants `OUT_PLANT=cap|group|scope|sort|notarget`, each disabling its rule.
+  - IA-2b's list component absorbs this table; its card names it.
+- **Why.** R23, R24. Every demo operator has 3 Sites of one vertical, so these rules are identity on the data and
+  only a synthetic list can fail them. One sign rule, the one the bridge draws, keeps the table and the bridge from
+  disagreeing.
+
+### D-IA.28 Addresses stay within the operator; an alias key never shadows a route
+
+- **Ruling.**
+  - `iaPattern` accepts `:site` only from `OPS[LS.op].sites` and `:dec` only from those Sites' `DEC` entries; the
+    crawl classifier applies the same restriction with its own code. A typed `#/site/<another operator's Site>` or
+    `#/decision/<another operator's decision>` shows not-found. Plant `SHAPE_PLANT=crossop` (`iaPattern` accepts any
+    Site).
+  - **Reserved paths:** every `IA_ROUTES` pattern, every `IA_RAIL` route and every route of every `IA_TAB_GROUPS`
+    entry for the operator's Sites. No `IA_ALIASES` key may match one (shape_check, static, from IA-1b). Plant
+    `SHAPE_PLANT=aliaskey` adds `IA_ALIASES['portfolio/outcomes'] = 'portfolio'`. The `financials` alias key is
+    removed (the legacy screen keeps its legacy `ALIAS` only); `globalfinancials` → `financials` stays.
+  - `mini`, `cold`, `ev` resolve to the operator's first Site of that group, or to no IA alias when it has none.
+  - **The `recommendation` aliases** (P13) are a fixed table, mapped from the v7.0 Findings they named (`OBJ`):
+    `recommendation`, `alternatives` (F-104, Kobo generator support) → `decision/kobo-generator`;
+    `cold-recommendation` (F-118, Thika backup response) → `decision/thika-backup`; `ev-recommendation` (F-130,
+    Ruiru charging session interrupted, the `ruiru-connector-fault` Finding) → `decision/ruiru-connector`. Under
+    another operator the target is not live, so the typed address falls back as any non-live alias does.
+    `iaRecDecision` is removed.
+- **Why.** R30, R31, P13. One shell (D-IA.14) and one object, one address (D-IA.8); the static assertion catches the
+  `financials` class before IA-2e lands it.
+
+### D-IA.29 Gate economy and the browser gates the hub needs
+
+- **Ruling.**
+  - **Hosts (R38).** A planted run visits only its plant's host: shape plants run items 1, 3 and 4 on the host and
+    the crawl to depth 0 (the host's own hrefs and the palette), the Lab plants item 5 only, `notfound` the typed
+    probe only; AR plants run on one route per shape per operator (`plan`, `portfolio`, `portfolio/outcomes`,
+    `portfolio/demand-and-capacity`, the first Site, from IA-1c the first decision); G1 and count plants run their
+    whole check. Unplanted runs cover every live route. shape_check item 1 runs, unplanted, in the three states of
+    D-IA.24.
+  - **G3 (R33):** `g3_trends.cjs`'s root is `#app [data-shape="hub"] [data-level="L1"]`, failing when absent (no
+    body fallback); it adds `t.scrollWidth <= t.clientWidth` on each `.ux-trend` at 390, 1280 and 1440. Plants
+    `G3_PLANT=clip` (CSS clips `.ux-trend` at 390) and `G3_PLANT=root` (the L1 region renamed). It joins spec §6 from
+    IA-1b (heavy slot).
+  - **Headline (R35):** at most 2 lines at 1440 and 1280, measured by `ia_shots.cjs`; `SHOTS_PLANT=headline` narrows
+    it to force a third line.
+  - **Landing (R34):** from IA-1b the empty hash renders `iaStart()`; shape_check asserts it. Plant
+    `SHAPE_PLANT=landing`.
+  - **Kept, not gated (R36):** Demand & capacity's welding hour bar (`bad`, evening diesel) and `capBars`' `over`
+    mark are reviewed content, not a deviation against target; spec rev 2's C11 clause is narrowed to "no new red".
+    Listed in the packet; revisited after G2.
+  - **Unmeasured at G2 (R37):** D-IA.10's "released Actions, filtered to the plan version" has no surface before
+    IA-2b; the packet says so.
+- **Why.** Each plant must still bite at its host; a whole-route rerun of every plant proves nothing more and costs
+  minutes per unit.
+
+### D-IA.30 The review bar's rebuild list is a popover, by design
+
+- **Ruling.** The review bar is mock tooling, not product copy, so spec §7 does not bind it. The popover is the
+  design: summary "Still to be rebuilt ({n})"; body "Still to be rebuilt: " and the unlanded rail items joined by
+  " · ", then, from IA-1b, a line "Site tabs: Operations · Performance · Financials · Evidence · Setup". `{n}` counts
+  both. IA-1a deviation 3 closes.
+- **Why.** R32. One line pushed the 1280 queue row below the fold; the popover keeps the list one click away.
+
+### Each question, once
+
+- **R16** D-IA.21. **R17** D-IA.25. **R18** D-IA.25. **R19** D-IA.24. **R20** D-IA.22, D-IA.23. **R21** D-IA.26.
+- **R22** D-IA.25 (H1, crumbs, home) and spec §3.3 (copy, per operator kind; the month is "October", from
+  `MANIFEST.accounting_period`, as the Overview reads; a Site without a target per D-IA.27; Demand & capacity's
+  headline is its chain's own).
+- **R23** D-IA.27. **R24** D-IA.27. **R25** D-IA.25. **R26** D-IA.22 (levels) and D-IA.25; the row grammar ("a row
+  has one target") is IA-2b's list component and its gate; until then the reviewed queue rows keep "Why" and the
+  action link: `MOCK DEVIATION D5` (resolving unit IA-2b).
+- **R27** D-IA.23. **R28** D-IA.21; the control is `button.ia-inbox[data-ia-inbox][data-ux-drawer="ia-inbox"]` in
+  the top bar between the period chip and the theme toggle; queue edges are the links in the Overview's L2
+  `.ux-queue`, inbox edges the control and `#ia-inbox a[data-ia-row]`; at 390 the label is visually hidden and the
+  icon and badge stay; the drawer is in the frame, closed, so the after-render check covers it on every route.
+- **R29** D-IA.24. **R30** D-IA.28. **R31** D-IA.28. **R32** D-IA.30. **R33** D-IA.29.
+- **R34** D-IA.29 (a done criterion for IA-1b). **R35** D-IA.29. **R36** D-IA.29. **R37** D-IA.29. **R38** D-IA.29.
+- **P12** every `DEC` entry (15 today); D-IA.12's "All 14 decisions" now reads "every decision". **P13** D-IA.28.
+- **P14** D-IA.22. **P15** `uxCapLists` stays in `iaFinish` on every IA route (one rule for every screen, D-IA.13);
+  the packet lists the `render_text` differences, and the overview budget is measured after it. **P16** adopted:
+  each retarget whose assertion changes is shown failing on a plant first (uxi budget, uxi block 8's "link / no
+  link", G3's root). **P17** D-IA.22. **P18** adopted (D-IA.25). **P19** no change: `uxFocusState` finds
+  `.ux-dmeta .status-pill` (kept in L1) or the H1; acts are user-caused. **P20** D-IA.24, OQ-IA.1.
+
+### Owner questions (W3; defaults applied)
+
+- **OQ-IA.1 Who may press "Choose this".** The demonstration lets the viewer (the executive) choose on every
+  decision and records the choice under the person who decides it (13 of 15 are the Site manager's). **Default:**
+  keep it, so the walkthrough can show the act on any decision. The alternative is that only the decider sees the
+  button and everyone else sees who decides.
+- **OQ-IA.2 What the "Waiting for you" badge counts.** **Default:** only what the executive decides: the plan
+  awaiting approval and decisions whose chooser is the executive (1 on Lakeside and Harvest, 2 on Metro). Other
+  waiting decisions are listed under "In your portfolio" without adding to the badge. The alternative counts every
+  waiting decision and the plan (4 on Lakeside), which makes the badge a portfolio count, not a personal one.

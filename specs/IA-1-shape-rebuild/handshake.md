@@ -293,6 +293,9 @@ alternative is to move it to a CSS-only rule.
 
 ## IA-1b/IA-1c reviewer questions
 
+**Answered** (Architect, 2026-11-20): `rulings.md`, "IA-1b/IA-1c handshake answers" (D-IA.21 to D-IA.30, OQ-IA.1 and
+OQ-IA.2), folded into `spec.md` rev 3 and `reviewer-guide.md` rev 3.
+
 Units IA-1b (hub) and IA-1c (decision, inbox), round 2 (one agent in both roles, 2026-11-20). Read on `main` at
 `e100640bf` (IA-1a merged): spec rev 2 §3, §4, §6; rulings D-IA.1 to D-IA.20; reviewer guide rev 2; packet and review
 of IA-1a; the two owner files of 20 Nov. Code: `vNEXT/` on the same head. Numbering continues from round 1. Severity as

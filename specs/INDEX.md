@@ -22,7 +22,7 @@ finished work are in `archive/agent-history/`.
 | mockup-vnext-professional | Mock-up pass | superseded | `mockup-vnext-professional/packet.md` | small |
 | 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a in_review | `3C1-person-on-commands/spec.md` | 15 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
-| IA-1 | Menu, page organization, shape rebuild | rev 2; IA-1a merged, IA-1b next | `IA-1-shape-rebuild/spec.md` | 22 KB |
+| IA-1 | Menu, page organization, shape rebuild | rev 3; IA-1a merged; IA-1b/IA-1c handshake answered (D-IA.21-30), IA-1b next | `IA-1-shape-rebuild/spec.md` | 45 KB |
 | 4b | Money leaves from records; stated headings (4b1 seam, 4b2 providers) | live — spec rev 1, handshake open | `4b-money-leaves/spec.md` | 31 KB |
 | 5a | Targets per factor, declarer recorded; page P5 | live — spec rev 1, handshake open; P5 for the owner (day 3) | `5a-targets/spec.md` | 24 KB |
 
