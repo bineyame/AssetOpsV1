@@ -20,7 +20,9 @@
    depth 0; the Lab plants item 5; notfound the typed probe; aliaskey item 7; crossop item 8; landing item 9.
    10 (IA-1b, D-IA.35 L4) a scope never empties by address: another vertical's group:<g> and another operator's site:<k> render all the operator's Sites on Outcomes.
    Run: node tools/shape_check.cjs   Plants: SHAPE_PLANT=foreignscope|unlink|stub|rail|palette|primary|lab|tabstop|notfound|noact|lablegacy|
-   selflink|aliaskey|crossop|linkprimary|landing|decprimary|stickyact (each must fail). */
+   selflink|aliaskey|crossop|linkprimary|landing|decprimary|stickyact|anchor|sitecrumb|decscope (each must fail). IA-1c r1 adds, in onPage and every state:
+   11 (D-IA.36) every a[href^="#"] that is not a #/ link names an element id on the page; 12 (D-IA.38) a decision's crumbs are "Decisions" text, the Site link, the subject text, and
+   .canvas carries data-ia-crumbs="keep"; 13 (D-IA.40) a site/* or decision/* page's scope reads <operator> · <Site> with that Site lit. */
 const { boot, classifier, identity, liveRoutes, hrefsOf, OPS } = require('./ia_crawl.cjs');
 const PLANT = process.env.SHAPE_PLANT || '';
 const fails = [], log = [];
@@ -45,9 +47,13 @@ const PLANTS = {
      "Choose this" opener in its L1; the sticky's opener pointed at another option's dialog */
   decprimary: `{ const r = IA_ROUTES.find(x => x.id === 'decision/:dec'), _r = r.render; r.render = ctx => { const d = decById(ctx.params.dec), o = d.opts.find(x => x !== uxRec(d) && !isNoAction(x)) || 'plant'; return _r(ctx).replace('<div data-level="L1">', '<div data-level="L1">' + uxOpener('uxc-' + d.id + '-' + o, 'Choose this', 'button primary')); }; }`,
   stickyact: `{ const r = IA_ROUTES.find(x => x.id === 'decision/:dec'), _r = r.render; r.render = ctx => { const h = _r(ctx), d = decById(ctx.params.dec), rec = uxRec(d), o = d.opts.find(x => x !== rec && !isNoAction(x)) || 'plant', i = h.indexOf('data-ux-sticky'), j = h.indexOf('</div>', i); return h.slice(0, i) + h.slice(i, j).replace('data-ux-drawer="uxc-' + d.id + '-' + rec + '"', 'data-ux-drawer="uxc-' + d.id + '-' + o + '"') + h.slice(j); }; }`,
+  /* IA-1c r1 (D-IA.36, D-IA.38, D-IA.40): a link to an id the page lacks; the decision's Site crumb as text; a decision scoped to All sites */
+  anchor: `{ ${atLevel("'decision/:dec'", ['L1', '<a href="#nowhere">x</a>'])} }`,
+  sitecrumb: `{ const r = IA_ROUTES.find(x => x.id === 'decision/:dec'); r.crumbs = ctx => { const d = decById(ctx.params.dec); return [['Decisions'], [SK[d.site].name], [d.q]]; }; }`,
+  decscope: `iaParamSite = p => p.site || null;`,
   foreignscope: `iaCtx = eval('(' + iaCtx.toString().replace("kind === 'group' ? sites.some(k => iaVertical(k) === id)", "kind === 'group' ? true") + ')');`
 };
-const HOSTED = ['unlink', 'stub', 'rail', 'palette', 'primary', 'tabstop', 'noact', 'selflink', 'linkprimary', 'decprimary', 'stickyact'], DEC_HOSTED = ['decprimary', 'stickyact'];
+const HOSTED = ['unlink', 'stub', 'rail', 'palette', 'primary', 'tabstop', 'noact', 'selflink', 'linkprimary', 'decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope'], DEC_HOSTED = ['decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope'];
 const ITEM = { lab: 5, lablegacy: 5, notfound: 'probe', aliaskey: 7, crossop: 8, landing: 9, foreignscope: 10 };
 if (PLANT && !PLANTS[PLANT]) { console.error(`shape_check: unknown plant ${PLANT}`); process.exit(2); }
 const all = !PLANT, runs = n => all || ITEM[PLANT] === n;
@@ -67,6 +73,19 @@ function onPage(B, r, bad, cls, state) {
   [...f.querySelectorAll('[data-level]')].forEach(rg => { const n = prim.filter(e => e.closest('[data-level]') === rg).length; if (n > 1) bad(`${tag}: ${n} primaries in one ${rg.dataset.level} region`); });
   const page = prim.find(e => e.closest('[data-level]')), pageAct = page ? actOf(page) : undefined;
   prim.filter(e => !e.closest('[data-level]')).forEach(e => { if (!e.closest('[data-ux-sticky]') || pageAct === undefined || actOf(e) !== pageAct) bad(`${tag}: a primary outside every level that is not the sticky repeat of the page primary (${say(e)})`); });
+  /* 11 (D-IA.36) an in-page link names an element of the page; 12 (D-IA.38) a decision's crumbs and 13 (D-IA.40) the scope of a Site's or a decision's page, in every state */
+  f.querySelectorAll('a[href^="#"]').forEach(a => { const h = a.getAttribute('href'); if (h.startsWith('#/')) return; let id = ''; try { id = decodeURIComponent(h.slice(1)); } catch (e) {} if (!id || !doc.getElementById(id)) bad(`${tag}: in-page link "${h}" names no element on the page`); });
+  if (/^decision\//.test(r.id)) {
+    const d = w.eval(`(() => { const x = decById(${JSON.stringify(r.id.slice(9))}); return { site: x.site, name: SK[x.site].name, q: x.q }; })()`), cr = f.querySelector('.canvas .breadcrumbs'), kids = cr ? [...cr.childNodes].filter(n => !(n.nodeType === 1 && n.tagName === 'SPAN')) : [];
+    const ok = kids.length === 3 && kids[0].nodeType === 3 && kids[0].textContent.trim() === 'Decisions' && kids[1].nodeType === 1 && kids[1].tagName === 'A' && kids[1].getAttribute('href') === `#/site/${d.site}` && kids[1].textContent.trim() === d.name && kids[2].nodeType === 3;
+    if (!ok) bad(`${tag}: the crumbs are not "Decisions" (text), a link #/site/${d.site} reading "${d.name}", then the subject (${kids.map(n => n.nodeType === 1 ? `<${n.tagName.toLowerCase()} ${n.getAttribute('href') || ''}>` : 'text').join(' ')})`);
+    if (!f.querySelector('.canvas[data-ia-crumbs="keep"]')) bad(`${tag}: .canvas does not carry data-ia-crumbs="keep"`);
+  }
+  if (/^(site|decision)\//.test(r.id) && r.id.split('/').length === 2) {
+    const site = r.id.startsWith('site/') ? r.id.split('/')[1] : w.eval(`decById(${JSON.stringify(r.id.slice(9))}).site`), want = w.eval(`OPS[LS.op].name + ' · ' + SK[${JSON.stringify(site)}].name`), sum = f.querySelector('.topbar .ux-scope-sw>summary'), lit = f.querySelector('.topbar .ux-scope-sw [aria-current="page"]');
+    if (!sum || !sum.textContent.trim().startsWith(want)) bad(`${tag}: the scope reads "${sum ? sum.textContent.trim() : ''}", not "${want}"`);
+    else if (!lit || lit.getAttribute('href') !== `#/site/${site}`) bad(`${tag}: the lit scope entry is not ${site}`);
+  }
   if (state) return { lv };
   const want = `${w.eval('currentScreen().title')} · ${B.opName}`; if (doc.title !== want) bad(`${tag}: document title "${doc.title}", not "${want}"`);
   /* 3 the rail */

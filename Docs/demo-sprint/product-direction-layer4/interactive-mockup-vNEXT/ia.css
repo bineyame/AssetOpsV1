@@ -48,10 +48,14 @@
 @media (max-width:760px){.ia-frame .topbar .right{display:contents}.ia-frame .topbar .ia-inbox{margin-left:auto}.ia-frame .topbar .ux-period{order:1}}
 /* IA-1c: with the inbox control in the top bar, the search box gives way first (its words end in an ellipsis) and the period chip stays on
    one line, so the bar holds on one line at 1280 */
-.ia-frame .topbar .searchbox{flex:0 1 auto;min-width:96px;overflow:hidden}
-.ia-frame .topbar .ia-search-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ia-frame .topbar .ux-period,.ia-frame .topbar .ux-period>summary,.ia-frame .topbar .period-chip,.ia-frame .topbar .avatar{flex:none;white-space:nowrap}
-/* below 1200 (where the one-line rule stops) the right group may take a second row; below 1024 the inbox label is visually hidden, as at
-   390, and the icon and badge stay */
-@media (max-width:1199px) and (min-width:761px){.ia-frame .topbar{flex-wrap:wrap;height:auto;row-gap:var(--s2,8px);padding-top:var(--s2,8px);padding-bottom:var(--s2,8px)}.ia-frame .topbar .right{margin-left:auto}}
-@media (max-width:1023px) and (min-width:761px){.ia-frame .ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.ia-frame .ia-inbox{padding:0 8px}}
+/* D-IA.37: from 761 px up the bar is one row and nothing shrinks; iaFitTopbar sets data-fit on the bar: 0 all full, 1 the search as its icon,
+   2 also the inbox label hidden (icon and badge stay), 3 also the avatar hidden */
+@media (min-width:761px){.ia-frame .topbar{flex-wrap:nowrap}.ia-frame .topbar .right{flex-wrap:nowrap}.ia-frame .topbar>*,.ia-frame .topbar .right>*{flex:none}.ia-frame .topbar .searchbox{display:flex}}
+.ia-frame .topbar[data-fit="1"] .ia-search-t,.ia-frame .topbar[data-fit="2"] .ia-search-t,.ia-frame .topbar[data-fit="3"] .ia-search-t,.ia-frame .topbar[data-fit="2"] .ia-inbox-label,.ia-frame .topbar[data-fit="3"] .ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="1"] .searchbox,.ia-frame .topbar[data-fit="2"] .searchbox,.ia-frame .topbar[data-fit="3"] .searchbox,.ia-frame .topbar[data-fit="2"] .ia-inbox,.ia-frame .topbar[data-fit="3"] .ia-inbox{padding:0 8px}
+.ia-frame .topbar[data-fit="3"] .avatar{display:none}
+/* D-IA.38: a drill-down page (decision, record, asset) has only its crumbs as the way up, so they stay at every size */
+.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{display:flex}
+@media (max-width:600px){.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{margin-bottom:var(--s1)}}
+/* D-IA.36: an in-page target stays below the sticky bar after the scroll */

@@ -8,7 +8,7 @@ const PLANTS = {
   'IA-1a': [['shape_check', 'SHAPE_PLANT', ['unlink', 'stub', 'rail', 'palette', 'primary', 'lab', 'tabstop', 'notfound', 'noact', 'lablegacy']], ['click_depth_check', 'G1_PLANT', ['engine']], ['after_render_check', 'AR_PLANT', ['text', 'attr', 'late', 'replace']]],
   'IA-1b': [['shape_check', 'SHAPE_PLANT', ['selflink', 'aliaskey', 'crossop', 'linkprimary', 'landing', 'foreignscope']], ['click_depth_check', 'G1_PLANT', ['tile', 'driver', 'hidden', 'details', 'closed', 'siteclosed']],
     ['count_check', 'COUNT_PLANT', ['choose', 'capsel', 'capmore', 'adverse', 'phone']], ['outcomes_table_check', 'OUT_PLANT', ['cap', 'group', 'scope', 'sort', 'notarget', 'headline']]],
-  'IA-1c': [['shape_check', 'SHAPE_PLANT', ['decprimary', 'stickyact']], ['click_depth_check', 'G1_PLANT', ['inbox']], ['count_check', 'COUNT_PLANT', ['foryou']]]
+  'IA-1c': [['shape_check', 'SHAPE_PLANT', ['decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope']], ['click_depth_check', 'G1_PLANT', ['inbox']], ['count_check', 'COUNT_PLANT', ['foryou', 'nolog']]]
 };
 const runs = [['shape_check', null, null], ['click_depth_check', null, null], ['after_render_check', null, null], ...(landed.has('IA-1b') ? [['count_check', null, null], ['outcomes_table_check', null, null]] : [])];
 for (const [unit, list] of Object.entries(PLANTS)) if (landed.has(unit)) for (const [check, env, names] of list) for (const n of names) runs.push([check, env, n]);

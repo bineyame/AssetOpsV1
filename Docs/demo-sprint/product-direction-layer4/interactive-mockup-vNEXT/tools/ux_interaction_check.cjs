@@ -19,7 +19,7 @@ const PLAN_LAYOUT = () => { const bad = [], inter = (a, b) => Math.min(a.right, 
         const box = (s.closest('.panel, .ux-items') || s).getBoundingClientRect(), last = rc.filter(r => r.width > 0).pop(); if (last && last.right > box.right + 1) bad.push(`${s.parentElement.dataset.row}: last cell ends at ${Math.round(last.right)}, past its card at ${Math.round(box.right)}`); });
       return { rows, card, bad: [...new Set(bad)].slice(0, 3) }; };
 let TEXT_OK = null; /* D-IA.35 L2: the text form of an unbuilt decision link counts only until IA-1c lands; expiry forces landed */
-const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
+const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPage returns false, the in-page link lands on not-found; UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
   /* D-IA.31: after every one of 30 Tab and 30 Shift+Tab presses the focus is inside the open drawer; returns the first leak or null */
@@ -91,6 +91,17 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       else ok(r.blocks <= 6 && r.h <= 2500, `plant ${PLANT}: ${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440`);
       await p.context().close(); }
     await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
+  /* IA-1c r1 (D-IA.36): an in-page link scrolls on the page it is on; Metro's no-recommendation decision, 1440 and 390 */
+  const anchorTest = async () => { for (const w of [1440, 390]) { const p = await page('decision/ruiru-connector', { op: 'metro', q: '?state=no-recommendation', w, h: w === 390 ? 844 : 900 });
+      if (PLANT === 'anchor') await p.evaluate(() => { iaInPage = () => false; });
+      const before = await p.evaluate(() => location.hash.split('?')[0]);
+      await p.locator('#app a', { hasText: 'See the options' }).first().click(); await p.waitForTimeout(700);
+      const r = await p.evaluate(() => { const h = document.querySelector('#app h1'), sec = document.getElementById('uxcards-ruiru-connector'), h2 = sec && sec.querySelector('h2'), sb = document.querySelector('.ux-dsticky.is-on'), sbBottom = sb ? sb.getBoundingClientRect().bottom : 0, t = h2 ? h2.getBoundingClientRect().top : -1;
+        return { path: location.hash.split('?')[0], h1: h ? h.textContent.trim() : '', nf: /Page not found/.test(document.body.textContent), focus: document.activeElement && document.activeElement.id, top: t, sbBottom, inView: t >= 0 && t < innerHeight, below: t >= sbBottom - 1 }; });
+      ok(r.path === before && r.path === '#/decision/ruiru-connector' && !r.nf && r.h1 !== 'Page not found' && r.focus === 'uxcards-ruiru-connector' && r.below && r.inView, `in-page link at ${w}: "See the options" stays on #/decision/ruiru-connector (${r.path}), H1 "${r.h1.slice(0, 40)}", focus on ${r.focus || 'nothing'}, options heading at ${Math.round(r.top)} px (sticky bar bottom ${Math.round(r.sbBottom)}), not-found ${r.nf}`);
+      await p.context().close(); } };
+  if (PLANT === 'anchor') { await anchorTest(); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
+  await anchorTest();
   // 1 drawers on the Overview: open, focus, trap (every press, D-IA.31), Esc, return focus; all three operators
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {

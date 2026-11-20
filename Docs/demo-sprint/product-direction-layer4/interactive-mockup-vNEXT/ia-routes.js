@@ -137,8 +137,10 @@ function IA_G1_SURFACES() {
   return out;
 }
 /* the context every route renders from */
+/* D-IA.40: the Site a route's object belongs to (a Site page's :site, a decision's Site); IA-2 adds its object parameters here */
+function iaParamSite(params) { if (!params) return null; if (params.site) return params.site; if (params.dec) { const d = decById(params.dec); return d ? d.site : null; } return null; }
 function iaCtx(path, params, query) {
-  const q = query || {}, sc = String(q.scope || (params && params.site ? `site:${params.site}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
+  const q = query || {}, ps = iaParamSite(params), sc = String(q.scope || (ps ? `site:${ps}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
   const sites = OPS[LS.op].sites, ok = kind === 'group' ? sites.some(k => iaVertical(k) === id) : kind === 'site' ? sites.includes(id) : false; /* D-IA.35 L4: a scope that matches no Site of this operator is all */
   return { op: LS.op, scope: ok ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
 }
@@ -149,3 +151,33 @@ function iaScreen(route, path) {
 }
 /* the palette lists only what is live, at its canonical address (R9) */
 function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
+
+/* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
+function iaInPage(a) {
+  const href = a.getAttribute('href') || '';
+  if (!href.startsWith('#') || href === '#' || href.startsWith('#/')) return false;
+  let id; try { id = decodeURIComponent(href.slice(1)); } catch (e) { return false; }
+  const el = document.getElementById(id), app = document.getElementById('app');
+  if (!el || !app || !app.contains(el)) return false;
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+  if (!el.matches('a[href],button,input,select,textarea,[tabindex]')) el.setAttribute('tabindex', '-1');
+  el.focus({ preventScroll: true });
+  return true;
+}
+document.addEventListener('click', e => {
+  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+  if (a && iaInPage(a)) e.preventDefault();
+}, true);
+/* D-IA.37: the top bar is one row from 761 px up; controls collapse in a fixed order (search to its icon, the inbox label, the avatar) and never truncate */
+function iaFitTopbar() {
+  const tb = document.querySelector('.ia-frame .topbar'); if (!tb) return;
+  if (innerWidth < 761) { tb.removeAttribute('data-fit'); return; }
+  const fits = () => tb.scrollWidth <= tb.clientWidth + 1;
+  tb.dataset.fit = '0'; for (let n = 1; n <= 3 && !fits(); n++) tb.dataset.fit = String(n);
+}
+(function () {
+  let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => iaFitTopbar());
+})();
