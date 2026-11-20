@@ -51,7 +51,12 @@ Sources:
 3. Those months evaluated through the same structures, as `derived-values.json` key `history`. The mock-up's
    `uxHistory` already reads it. Every node DS1 cannot know carries its `missing` record; none reads as zero (R7).
 
-*Serves the objective:* an executive sees whether a gap is new or has been building, which a single month cannot show.
+*Serves the objective:* an executive sees whether a gap is new, building or chronic, which a single month cannot show.
+The story per operator (review DS1p, for the demo script):
+- **Lakeside:** a chronic gap with a seasonal swing; July is the worst month, not October.
+- **Harvest Cold:** gaps building at Mwea (occupancy) and Kirinyaga (energy).
+- **Metro Bus:** cost building at Embakasi (peak charging); Kasarani is on plan every month; Ruiru's September dips
+  because a 30-day month prorates its bill-total plan while the demand charge is fixed.
 Every point is computed the way October is, from inputs labelled *Simulated*.
 
 ## 2. Rulings on the five questions (reasons in `rulings.md`)
@@ -200,7 +205,7 @@ Rules:
 
 `generate_history(view)`:
 1. **Validate** `history`:
-   - months: consecutive calendar months; each day count equals the calendar's; `anchor_period` is the month after the
+   - months: **exactly three** (the lists are read by position; review L3), consecutive calendar months; each day count equals the calendar's; `anchor_period` is the month after the
      last; the anchor is not in the set. Iterate in sorted order (R22). Refusal: `HISTORY_MONTHS`.
    - families and the rule grammar (§6.1);
    - every `sites:` override key names a real tenant and Site (`HISTORY_RULE_UNKNOWN`);
@@ -211,7 +216,8 @@ Rules:
    coverage: "RECORDED"}}`.
 3. **Assemble** §7.1.
 
-`generate_scope` does not check that the month belongs to the set. T9 uses that to generate `2026-10`, with
+`generate_scope` runs the same validation as `generate_history` (so it never raises a bare `KeyError`), except month-set
+membership: it does not check that the month belongs to the set. T9 uses that to generate `2026-10`, with
 `jitter=False`.
 
 ## 5. The `history:` block (DS1p appends it verbatim; DS1a's fixture uses the same bytes)
@@ -327,7 +333,18 @@ history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo o
 - `HISTORY_ANCHOR_ZERO`: a zero denominator in any `anchor`, `ratio`, `W(f, anchor)` or capacity (R3);
 - `HISTORY_MONTHS`;
 - `HISTORY_MONEY_LEAVES`;
-- `HISTORY_NO_PLAN_VALUE`.
+- `HISTORY_NO_PLAN_VALUE`;
+- `HISTORY_FIELD history <field>`: a required `history` field is absent, or the `history` block itself
+  (`HISTORY_FIELD history history`) (review L4; fix-round item 3);
+- `HISTORY_NUMBER <scope_key|history> <field>`: a number that is not a finite decimal (NaN, Infinity, or text that is not
+  a decimal) (review L4), or one whose `Decimal` `adjusted()` exponent is outside [-12, 12] or whose text exceeds 32
+  characters, checked before any `Fraction` conversion (fix-round item 4).
+
+An **absent** input value (`energy_model`, `physical`, room capacity, an October leaf an `anchor` names) is
+`HISTORY_RULE_REF`. `HISTORY_ANCHOR_ZERO` is only for a value that is present and zero.
+
+Refusals found before any scope, refusals that match no listed defect, and lists read for a month outside the set:
+see `rulings.md` "Mid-build answers" (MB1, MB2). Those texts are part of the spec.
 
 ### 6.2 Seasonality from day types (P5)
 
@@ -420,6 +437,9 @@ history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo o
      [leaf])` (the rev 16.13 helper).
    - **(b)** Every other entry `missing_records()` would give for an observed side, applied to the history record.
      Refactor its per-side part into a helper both call. `missing-records.json` stays byte-identical.
+   - Sides (MB5): (a) applies to plan and actual. The plan side also gets `missing_records()`'s target-side entries
+     (`RESIDUAL`, `ASSUMPTION`), and the actual side its observed-side entries. The (a) leaves themselves also leave
+     `nodes` (MB4). A history entry's cause is in the main causes ∪ {`history.missing_cause`} (check H12).
    - Nodes named in any (a) entry's `blocks` are removed from `periods.<side>.nodes` and listed under `"not_observed"`
      (sorted).
    - If `contribution` or `cost_to_serve` would be removed: refuse with `HISTORY_OUTCOME_UNOBSERVED`.
@@ -463,7 +483,7 @@ these checks consume `compute_history`. `documents()` excludes `doc["history"]` 
 | ID | Check |
 | --- | --- |
 | H1 | `period_days` and `period_end` are the calendar's |
-| H2 | Leaf sets: for an evaluated October side, history keys == the **first-present** `record.*` alternative of each factor-map leaf, among the keys of October's `period` side (observations excluded) (P1); for a non-decomposed side, history keys == October keys. Status equals October's. Every `zero`-rule incident leaf is 0 |
+| H2 | Leaf sets: for an evaluated October side, history keys == the **first-present** `record.*` alternative of each factor-map leaf, plus every base key a declared `share` or `rest` rule reads, among the keys of October's `period` side (observations excluded) (P1, MB3); for a non-decomposed side, history keys == October keys. Status equals October's. Every `zero`-rule incident leaf is 0 |
 | H3 | Independent == evaluator for every Site, side and month: status, outcome, and every node both list |
 | H4 | Not observed: the evaluator's `not_observed` per side equals the independent model's; no such node appears in `nodes`; each has a `missing` entry with cause `NOT_IN_HISTORY` naming it in `blocks` |
 | H5 | Mini-grid `unexplained_l <= 0.02 * nodes.diesel_l`. Cold, for `anchor` kWh rules: `abs(kwh - kwh_model) <= 0.05 * kwh_model`. Cold: `crate_days <= capacity * period_days`. EV: `buses_short_per_night == 0` |
@@ -472,6 +492,8 @@ these checks consume `compute_history`. `documents()` excludes `doc["history"]` 
 | H8 | October unchanged: `derived-values.json` minus `history`, dumped as the evaluator dumps, has the SHA-256 of the base commit's file (the constant is recorded in the check), and `missing-records.json` is byte-identical to the base's. Lifetime: the next slice that changes October replaces the constants in its own diff (R14) |
 | H9 | Baseline: the run prints `N checks passed (H history checks)` and 0 failed; N − H equals the baseline count in DS1p's packet, taken in place on its base after `merge main` |
 | H10 | Manifest: the SHA-256 of the bytes before the line `history:` equals the base manifest's SHA-256, and the rest parses to exactly one top-level key, `history`. Same lifetime rule as H8 |
+| H12 | Causes: every history `missing` cause is in the main causes ∪ {`history.missing_cause`}; every `missing-records.json` cause is in the main causes (MB5) |
+| H13 | Completeness: each history side's `missing` entries, keyed by (subject, `record_kind`, `cause`, `carried_as`), equal October's same-side entries minus `carried_as: TARGET` and the rights-condition entries, plus the `NOT_IN_HISTORY` entries. One entry shape throughout (review DS1p M1, L2) |
 | H11 | Freshness (R15): an independent 20-line re-implementation of §4.2 (allowlist, float `repr`, canonical bytes) recomputes `view_digest` from the manifest and equals `meta.view_digest`. A manifest edit without regenerating fails here |
 
 Each check is shown to fail on a planted case in the packet (W2; R25c order: `compute_history` and H1-H11 committed
@@ -538,7 +560,7 @@ expected value.
 | T5 | Allocation: sum preserved; tie to the lower index; refusals; exhaustive over totals 0..50 with 1 to 4 weights in {0,1,2,3}; `split_to_days` over 31 days |
 | T6 | No floats: the output holds only int/str/dict/list; `canonical_bytes` refuses a float; the view refuses a bool (`VIEW_TYPE`); greps in `world/**` find none of `\bfloat\(`, `^\s*(import|from)\s+(random|time|secrets)\b`, `\.(now|today|utcnow)\(`, `os\.environ|getenv` (R23) |
 | T7 | Months: 31, 31, 30; period ends; day classes Jul 23/4/4, Aug 21/5/5, Sep 22/4/4, Oct 22/5/4 |
-| T8 | Each refusal code in §6.1 raised by one planted case (one `HISTORY_ANCHOR_ZERO` case per rule); unknown leaf skipped |
+| T8 | Each refusal code in §6.1 raised by one planted case (one `HISTORY_ANCHOR_ZERO` case per rule), asserting the full text `<CODE> <scope> <leaf>`; also two months only, NaN, a missing `label`, `generate_scope` alone with no `jitter`; unknown leaf skipped |
 | T9 | `generate_scope(…, "2026-10", jitter=False)` returns October's leaf for every `scale`, `trend 1`, `level 1` and `anchor` rule |
 | T10 | CLI: `check` exits 0 on the generated file, and 1 with `DS1_CHECK_DIFF <scope>` after a one-byte change; `--manifest` accepts the `.json` fixture |
 
