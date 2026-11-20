@@ -8,6 +8,10 @@
 - `D-ON1.14` One lstat tombstone check, fails closed; erase always tombstones and unlinks · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.15` Rev 3: emulated roles granted automatically by service:onboarding; real files refused before any write until ON1b · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.16` Queued unit ON1b (0.75 unit): owner option A for real operators, built before any real file · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.17` onboarding_open renamed onboarding_may_grant; persistence guard unchanged · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.18` Structural refusals are ONBOARD_STRUCTURE; format read first, ONBOARD_FORMAT means not version 1 · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.19` Runbook step 4 split into four blocks; settings 3 command list unchanged · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.20` Test for _tombstoned failing closed when lstat raises PermissionError · live · specs/ON1-operator-tenant/rulings.md
 - `D-3A3.9` A row with a control character is refused alone (NATIVE_CHARACTER) · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.10` Layouts are also the owner's reshaping template; provenance follows the database · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.11` Loader reads held uploads once: path switch refused, waiting file not resent, submitter not accepter · live · specs/3A3-emulators-contract-test/rulings.md

@@ -1,4 +1,4 @@
-<!-- ON1 spec rev 3: verbatim source of Docs/engineering/operator-deep-dive-runbook.md (copied from the first heading). -->
+<!-- ON1 spec rev 3.1 (D-ON1.19): verbatim source of Docs/engineering/operator-deep-dive-runbook.md (copied from the first heading). -->
 # Operator deep-dive: onboarding a tenant, receiving exports, and erasure
 
 Who does what: the **coordinator** creates and deletes databases and keys (steps 2, 3 and 7); the **analyst** fills
@@ -53,24 +53,53 @@ created in step 4.
 
 ## 4. Digest, check and apply the onboarding file
 
+Four blocks, run in order. First the digest (it reads the file only, no settings):
+
 ```sh
 FILE=backend/tests/fixtures/on1/lakeside-power.onboarding.json
+python -m assetops_backend.onboard_operator digest --file "$FILE"
+```
+
+Set `DIGEST` to the value it printed (64 characters), on its own line: `DIGEST=` followed by that value. `apply`
+refuses any other file. Then check:
+
+```sh
 (
   export DATABASE_URL="postgresql+psycopg://assetops:$DB_PASSWORD@127.0.0.1:55432/assetops_rehearsal_$REHEARSAL"
   export ASSETOPS_TENANT_SLUG=lakeside-power ASSETOPS_PSEUDONYM_KEY_DIR="$KEY_DIR"
-  python -m assetops_backend.onboard_operator digest --file "$FILE"
   python -m assetops_backend.onboard_operator check --file "$FILE" --key-dir "$KEY_DIR"
+)
+```
+
+`check` prints what would be created and changes nothing; read it: the operator, each Site, each person (by position
+in the file), each role, the key and the roles digest (it must equal `DIGEST`). A refusal names its code and the place
+in the file; correct the file and start again from the digest. Then apply:
+
+```sh
+(
+  export DATABASE_URL="postgresql+psycopg://assetops:$DB_PASSWORD@127.0.0.1:55432/assetops_rehearsal_$REHEARSAL"
+  export ASSETOPS_TENANT_SLUG=lakeside-power ASSETOPS_PSEUDONYM_KEY_DIR="$KEY_DIR"
   python -m assetops_backend.onboard_operator apply --file "$FILE" --key-dir "$KEY_DIR" --confirmed-digest "$DIGEST"
+)
+```
+
+`apply` creates them, grants every role, and prints the same plan as done, with the tenant's `id` (keep it: it is
+`TENANT_ID` in step 7). Running `apply` again creates nothing more.
+
+Last, a password for each person who will sign in (for Lakeside: Amina, Wanjiru and Joseph). Run this block once per
+person, setting `EMAIL` to that person's email from the file each time; `set-password` asks for the password (12 to
+128 characters) on standard input:
+
+```sh
+EMAIL=amina@lakeside-power.example
+(
+  export DATABASE_URL="postgresql+psycopg://assetops:$DB_PASSWORD@127.0.0.1:55432/assetops_rehearsal_$REHEARSAL"
+  export ASSETOPS_TENANT_SLUG=lakeside-power ASSETOPS_PSEUDONYM_KEY_DIR="$KEY_DIR"
   python -m assetops_backend.accounts.onboard set-password --email "$EMAIL"
 )
 ```
 
-`DIGEST` is the value the `digest` line printed: `apply` refuses any other file. `check` prints what would be created
-and changes nothing; read it: the operator, each Site, each person (by position in the file), each role, the key and
-the roles digest. `apply` creates them, grants every role, and prints the same plan as done, with the tenant's `id`
-(keep it: it is `TENANT_ID` in step 7). Running `apply` again creates nothing more. A refusal names its code and the
-place in the file; correct the file and run `check` again. `set-password` asks for the password (12 to 128
-characters) on standard input; run it for each person who will sign in (for Lakeside: Amina, Wanjiru and Joseph).
+Then again with `EMAIL=wanjiru@lakeside-power.example` and with `EMAIL=joseph@lakeside-power.example`.
 
 ## 5. Do not change a tenant by editing the file
 

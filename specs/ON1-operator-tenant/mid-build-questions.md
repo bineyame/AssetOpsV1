@@ -6,7 +6,7 @@ the packet; a count above zero is a spec-template defect to fix.
 
 Count: **2** (reset at spec rev 2, 2026-11-20).
 
-## Q1 (spec §2): the code for a structural refusal (open; default built)
+## Q1 (spec §2): the code for a structural refusal (answered: D-ON1.18, `ONBOARD_STRUCTURE`)
 
 - **Section.** §2 says "an unknown or missing key is refused" at every level and gives `sites` 1 to 50, `people` 1 to
   50, `roles` 1 to 5, but names no code for an unknown or missing key, a container of the wrong JSON type, or a list
@@ -17,7 +17,7 @@ Count: **2** (reset at spec rev 2, 2026-11-20).
   wrong type inside a well-formed Site entry is `ONBOARD_SITE_INVALID` (the Site parser judges it).
 - **Ask.** Confirm `ONBOARD_FORMAT`, or name another code (for example a new `ONBOARD_STRUCTURE`).
 
-## Q2 (spec §3.3, §7): `onboarding_open` trips the persistence guard (open; stopped)
+## Q2 (spec §3.3, §7): `onboarding_open` trips the persistence guard (answered: D-ON1.17, renamed `onboarding_may_grant`)
 
 - **Section.** §3.3 names `AccountService.onboarding_open`; §7 says `tools/checks/configuration-persistence.ps1` is not
   changed. The guard's "storage technology above the adapter layer" list holds the bare pattern `open\(`, so the line
