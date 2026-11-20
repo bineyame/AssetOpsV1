@@ -1507,6 +1507,9 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 .reviewbar .ux-rebuild{position:relative;display:inline-block;line-height:16px}
 .reviewbar .ux-rebuild>summary{padding:0 4px;min-height:0;height:auto;border:0;background:none}
 .reviewbar .ux-rebuild .ux-pop-menu{right:0;left:auto;max-width:420px;white-space:normal}
+/* IA-1b (D-IA.22): levels are structure only, so the reviewed layout does not move */
+[data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
+.ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -3358,6 +3361,8 @@ function resolveScreen(id){
  /* IA-1 (spec §2.2, P8): a live IA alias first, else ALIAS, never chained; a landed IA route renders in the frame */
  const IA=typeof IA_ROUTES!=='undefined',iaT=IA?iaLiveAlias(id):null;
  let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'','#/'+target+(q<0?'':location.hash.slice(q)));}catch{}}else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
+ if(IA&&!target&&typeof iaLanding==='function'){const l=iaLanding(),m=l&&iaLanded(l);if(m)return iaScreen(m.route,l);} /* D-IA.29: the empty hash renders iaStart() */
+ if(IA&&typeof iaForeign==='function'&&iaForeign(target)){const m=iaLanded('not-found');if(m)return iaScreen(m.route,'not-found');} /* D-IA.28: another operator's Site or decision */
  if(IA&&target!=='not-found'){const m=iaLanded(target);if(m)return iaScreen(m.route,target);}
  let s=SCREENS.find(x=>x.id===target)||(target?SCREENS.find(x=>x.id==='not-found'):null)||SCREENS[0];if(s.stub)s=SCREENS.find(x=>x.id==='not-found');
  if(IA&&s.root==='Simulator Lab'&&!iaDev())s=SCREENS.find(x=>x.id==='not-found'); /* D-IA.7, D-IA.19: the Lab is behind the developer switch */
@@ -5171,7 +5176,9 @@ function uxReviewExtrasHtml(hash) {
   out.push(uxDecReviewMarks(h));
   out.push(`<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
   if (typeof IA_RAIL !== 'undefined') { const rest = IA_RAIL.filter(i => !IA_LANDED.has(i.unit)).map(i => i.label);
-    out.push(`<label class="ux-dev-sw"><input type="checkbox" data-ia-dev${iaDev() ? ' checked' : ''}> Developer access</label>${rest.length ? `<details class="ux-pop ux-rebuild"><summary>Still to be rebuilt (${rest.length})</summary><div class="ux-pop-menu" role="note">Still to be rebuilt: ${rest.join(' · ')}</div></details>` : ''}`); }
+    /* D-IA.30: from IA-1b the popover also lists the Site tabs still to be rebuilt; {n} counts both */
+    const sk = IA_LANDED.has('IA-1b') && OPS[LS.op].sites[0], tabs = sk ? IA_TAB_GROUPS.Site({ site: sk }).filter(([, id]) => !iaLanded(id)).map(([l]) => l) : [], n = rest.length + tabs.length;
+    out.push(`<label class="ux-dev-sw"><input type="checkbox" data-ia-dev${iaDev() ? ' checked' : ''}> Developer access</label>${n ? `<details class="ux-pop ux-rebuild"><summary>Still to be rebuilt (${n})</summary><div class="ux-pop-menu" role="note">${rest.length ? `Still to be rebuilt: ${rest.join(' · ')}` : ''}${tabs.length ? `<br>Site tabs: ${tabs.join(' · ')}` : ''}</div></details>` : ''}`); }
   return out.join('');
 }
 document.addEventListener('change', e => { if (!e.target.matches || !e.target.matches('[data-ia-dev]')) return; try { if (e.target.checked) sessionStorage.setItem('l4-dev', '1'); else sessionStorage.removeItem('l4-dev'); } catch (x) {} render(); });
@@ -5639,9 +5646,10 @@ function uxSiteParts(sk, P, qMax) {
     ['Every money line against target', t.plan != null ? `${t.label}: ${fmtU(t.actual, t.unit)} against ${fmtU(t.plan, t.unit)}` : t.label, P.breakdown],
     ['Limits and warranties', `${P.limits ? `${num(P.limits)} limit${P.limits === 1 ? '' : 's'} to keep` : 'No service limit declared'}; ${P.rights ? `${num(P.rights)} warrant${P.rights === 1 ? 'y or contract' : 'ies or contracts'}` : 'no warranty or contract open'}`, P.limitsHtml]
   ];
-  const first = waiting[0], sticky = `<div class="ux-dsticky" role="region" aria-label="This Site" data-ux-sticky><span class="ux-dsticky-t">${SK[sk].name}</span><span class="ux-dsticky-n">${t.plan != null ? `${usdW(siteM(sk).period.variance, true)} <small>against target</small>` : ''}</span><span class="status-pill is-${waiting.length ? 'proposed' : 'approved'}">${waiting.length ? `${num(waiting.length)} waiting for a choice` : `${num(nd)} decision${nd === 1 ? '' : 's'} in hand`}</span>${first ? link(`decision/${first}`, 'Decide', 'button primary') : ''}</div>`;
+  /* D-IA.22's one named fix: "Decide" targets the queue's own primary (the first choose decision among the rows shown), else none */
+  const shown = att.filter(r => uxMergeRows(att).slice(0, qMax).some(m => m.d === r[4])), first = (uxMergeRows(shown).find(m => uxDecState(m.d).key === 'choose') || {}).d, sticky = `<div class="ux-dsticky" role="region" aria-label="This Site" data-ux-sticky><span class="ux-dsticky-t">${SK[sk].name}</span><span class="ux-dsticky-n">${t.plan != null ? `${usdW(siteM(sk).period.variance, true)} <small>against target</small>` : ''}</span><span class="status-pill is-${waiting.length ? 'proposed' : 'approved'}">${waiting.length ? `${num(waiting.length)} waiting for a choice` : `${num(nd)} decision${nd === 1 ? '' : 's'} in hand`}</span>${first ? link(`decision/${first}`, 'Decide', 'button primary') : ''}</div>`;
   const lead = `<p class="headline ux-headline" data-ux-sticky-anchor>${P.lead}</p>`, tiles = uxSiteTiles(sk);
-  const queue = `<div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Decisions at this Site <span class="ux-count">${num(nd)}</span></h2><p data-ux-split>${uxStateCount(att.map(r => r[4]))}. One row each, with who decides.</p></div></div>${uxQueue(op, att.filter(r => uxMergeRows(att).slice(0, qMax).some(m => m.d === r[4])), '', nd)}</section></div>
+  const queue = `<div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Decisions at this Site <span class="ux-count">${num(nd)}</span></h2><p data-ux-split>${uxStateCount(att.map(r => r[4]))}. One row each, with who decides.</p></div></div>${uxQueue(op, shown, '', nd)}</section></div>
  <div class="ux-aside"><section class="panel" aria-labelledby="uxsa-h"><div class="panel-head"><div><h2 id="uxsa-h" data-count="${A.n}" data-count-of=".ux-site-acts .ux-sacts > li">Actions in hand <span class="ux-count">${num(A.n)}</span></h2><p>The plan’s Actions at this Site, with owner, due date and release.</p></div></div><div class="ux-site-acts">${A.html}</div></section></div></div>`;
   const secs = `<div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>`, drawers = `${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}`;
   const help = `<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
@@ -5719,7 +5727,7 @@ function uxPlanSticky(op, P, budget) { return `<div class="ux-dsticky" role="reg
 
 /* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
    insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
-const IA_LANDED = new Set(['IA-1a']);
+const IA_LANDED = new Set(['IA-1a', 'IA-1b']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
@@ -5729,22 +5737,37 @@ const IA_ROUTES = [
     title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
     crumbs: ctx => [['Plan']], render: ctx => shapePlanInterim(ctx) },
   { id: 'not-found', shape: 'frame', object: null, home: null, unit: 'IA-1a', tab: null, noFigures: true,
-    title: ctx => iaLegacy('not-found').title, crumbs: ctx => [['Page not found']], render: ctx => shapeNotFound(ctx) }
+    title: ctx => iaLegacy('not-found').title, crumbs: ctx => [['Page not found']], render: ctx => shapeNotFound(ctx) },
+  /* IA-1b (spec §3, D-IA.25): the hub shape. The three Portfolio tabs and every Site's Overview; titles and subtitles are the
+     reviewed screens' own */
+  { id: 'portfolio', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Portfolio',
+    title: ctx => 'Portfolio', subtitle: ctx => iaLegacy('portfolio').subtitle, crumbs: ctx => [['Portfolio']], render: ctx => shapeHubOverview(ctx) },
+  { id: 'portfolio/outcomes', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Outcomes', tabGroup: 'Portfolio',
+    title: ctx => 'Outcomes', crumbs: ctx => [['Portfolio', 'portfolio'], ['Outcomes']], render: ctx => shapeHubOutcomes(ctx) },
+  { id: 'portfolio/demand-and-capacity', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Demand & capacity', tabGroup: 'Portfolio',
+    title: ctx => 'Demand & capacity', crumbs: ctx => [['Portfolio', 'portfolio'], ['Demand & capacity']], render: ctx => shapeHubDemand(ctx) },
+  { id: 'site/:site', shape: 'hub', object: 'site', home: 'Sites', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Site',
+    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) }
 ];
-/* old route -> new route; a value may be a function of the parameters. Live only once its target is a landed route. */
-const iaRecDecision = route => () => { const fid = OBJ[route], d = typeof DEC !== 'undefined' && DEC.find(x => x.finding === fid); return d ? `decision/${d.id}` : null; };
+/* the hub tab groups (spec §3.1), keyed by route.tabGroup; only landed tabs are drawn, and a group with one landed tab draws none */
+const IA_TAB_GROUPS = {
+  Portfolio: ctx => [['Overview', 'portfolio'], ['Outcomes', 'portfolio/outcomes'], ['Demand & capacity', 'portfolio/demand-and-capacity']],
+  Site: ctx => [['Overview', `site/${ctx.site}`], ['Operations', `site/${ctx.site}/operations`], ['Performance', `site/${ctx.site}/performance`], ['Financials', `site/${ctx.site}/financials`], ['Evidence', `site/${ctx.site}/evidence`], ['Setup', `site/${ctx.site}/setup`]]
+};
+/* old route -> new route; a value may be a function of the parameters. Live only once its target is a landed route. An alias key never
+   matches a reserved path: an IA_ROUTES pattern, an IA_RAIL route or a tab route (D-IA.28; shape_check item 7). */
+const iaFirstOfGroup = g => () => { const k = OPS[LS.op].sites.find(x => iaVertical(x) === g); return k ? `site/${k}` : null; };
 const IA_ALIASES = {
   'portfolio/outcomes-by-site': 'portfolio/outcomes',
-  'portfolio/act-first': () => IA_LANDED.has('IA-2b') ? 'decisions' : 'portfolio',
   'portfolio/act-first/plan': 'plan',
   'portfolio/what-changed': 'results',
   'portfolio/scope': 'evidence', globalevidence: 'evidence',
   oprecords: 'evidence/records',
-  mini: 'site/kobo', cold: 'site/thika', ev: 'site/ruiru',
+  mini: iaFirstOfGroup('mini'), cold: iaFirstOfGroup('cold'), ev: iaFirstOfGroup('ev'),
   'site/:site/economics': p => `site/${p.site}/financials`,
-  financials: 'site/kobo/financials', 'cold-financials': 'site/thika/financials', 'ev-financials': 'site/ruiru/financials',
-  recommendation: iaRecDecision('recommendation'), alternatives: iaRecDecision('alternatives'),
-  'cold-recommendation': iaRecDecision('cold-recommendation'), 'ev-recommendation': iaRecDecision('ev-recommendation'),
+  'cold-financials': 'site/thika/financials', 'ev-financials': 'site/ruiru/financials',
+  recommendation: 'decision/kobo-generator', alternatives: 'decision/kobo-generator',
+  'cold-recommendation': 'decision/thika-backup', 'ev-recommendation': 'decision/ruiru-connector',
   globalfinancials: 'financials',
   'settings-policies': 'settings', 'settings-tenant': 'settings/organisation'
 };
@@ -5770,15 +5793,24 @@ function iaParse(hash) {
   const m = iaMatch(path);
   return { path, params: m ? m.params : {}, query: Object.fromEntries(new URLSearchParams(qs)) };
 }
-/* a pattern against a path; a parameter is a known Site (:site) or decision (:dec) */
-function iaPattern(pat, path) {
+/* a pattern against a path; a parameter is one of the operator's Sites (:site) or one of their decisions (:dec) (D-IA.28) */
+function iaSiteOk(k) { return !!SK[k] && OPS[LS.op].sites.includes(k); }
+function iaDecOk(id) { const d = typeof DEC !== 'undefined' && DEC.find(x => x.id === id); return !!d && iaSiteOk(d.site); }
+function iaPattern(pat, path, any = false) {
   const ps = pat.split('/'), xs = path.split('/'); if (ps.length !== xs.length) return null; const params = {};
   for (let i = 0; i < ps.length; i++) {
-    if (ps[i] === ':site') { if (!SK[xs[i]]) return null; params.site = xs[i]; }
-    else if (ps[i] === ':dec') { if (!(typeof DEC !== 'undefined' && DEC.some(d => d.id === xs[i]))) return null; params.dec = xs[i]; }
+    if (ps[i] === ':site') { if (!(any ? !!SK[xs[i]] : iaSiteOk(xs[i]))) return null; params.site = xs[i]; }
+    else if (ps[i] === ':dec') { if (!(any ? typeof DEC !== 'undefined' && DEC.some(d => d.id === xs[i]) : iaDecOk(xs[i]))) return null; params.dec = xs[i]; }
     else if (ps[i] !== xs[i]) return null;
   }
   return params;
+}
+/* another operator's Site or decision typed on an IA address (site/<k>, site/<k>/..., decision/<id>): it shows not-found (D-IA.28) */
+function iaForeign(path) {
+  const [a, b] = String(path).split('/');
+  if (a === 'site' && SK[b]) return !iaSiteOk(b);
+  if (a === 'decision' && typeof DEC !== 'undefined' && DEC.some(d => d.id === b)) return !iaDecOk(b);
+  return false;
 }
 function iaMatch(path) { for (const route of IA_ROUTES) { const params = iaPattern(route.id, path); if (params) return { route, params }; } return null; }
 /* a landed route (never not-found: it is reached only by a typed address) */
@@ -5802,6 +5834,22 @@ function iaCanon(href) {
   return t ? `#/${t}${i < 0 ? '' : h.slice(i)}` : String(href);
 }
 function iaStart() { return IA_LANDED.has('IA-1b') ? 'portfolio' : 'plan'; }
+/* the empty hash renders iaStart() from IA-1b (D-IA.29) */
+function iaLanding() { return IA_LANDED.has('IA-1b') ? iaStart() : null; }
+/* G1's surfaces per landed unit (spec §2.5, D-IA.21): { op, surface, route, limit, via }. A Site without a driver against target has no
+   driver surface: it is listed with route null and printed n/a. */
+function IA_G1_SURFACES() {
+  const out = [];
+  for (const op of Object.keys(OPS)) {
+    if (!IA_LANDED.has('IA-1b')) continue;
+    out.push({ op, surface: 'the plan', route: 'plan', limit: 1, via: 'any' });
+    OPS[op].sites.forEach(sk => out.push({ op, surface: `${SK[sk].name} Overview`, route: `site/${sk}`, limit: 2, via: 'any' }));
+    OPS[op].sites.forEach(sk => { const r = iaLargestAdverse(sk);
+      out.push(r ? { op, surface: `${SK[sk].name} largest driver against target (${r.s.lab})`, route: `site/${sk}#drawer=${r.id}`, limit: 3, via: 'any' }
+        : { op, surface: `${SK[sk].name} largest driver against target`, route: null, limit: 3, via: 'any', na: 'no driver against target' }); });
+  }
+  return out;
+}
 /* the context every route renders from */
 function iaCtx(path, params, query) {
   const q = query || {}, sc = String(q.scope || 'all'), [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
@@ -5840,12 +5888,11 @@ function iaRailHtml(route) {
   const foot = iaDev() ? `<div class="rail-group ia-rail-foot" data-ia-footer><div class="eyebrow">Workspace</div>${link('lab', `${icon('evidence')}Simulator Lab`)}</div>` : '';
   return `<nav class="rail" aria-label="Main menu"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div>${groups.map(g => `<div class="rail-group"><div class="eyebrow">${g}</div>${IA_RAIL.filter(i => i.group === g).map(item).join('')}</div>`).join('')}${foot}</nav>`;
 }
-/* tabs: only for a route with a tab, and only its landed tabs (spec §2.3); IA-1b adds the hub tab groups */
-const IA_TAB_GROUPS = {};
+/* tabs: only for a route with a tab, and only its landed tabs (spec §2.3); a group with one landed tab draws no row (spec §3.1) */
 function iaTabsHtml(route, ctx) {
   const g = route.tab && IA_TAB_GROUPS[route.tabGroup || route.home]; if (!g) return '';
   const tabs = g(ctx).filter(([, id]) => { const m = iaMatch(id); return m && IA_LANDED.has(m.route.unit); });
-  return tabs.length ? uxTabs(tabs, ctx.path) : '';
+  return tabs.length > 1 ? uxTabs(tabs, ctx.path) : '';
 }
 function iaFrame(route, ctx, body) {
   const title = route.title(ctx), sub = route.subtitle ? route.subtitle(ctx) : '';
@@ -5890,6 +5937,71 @@ function shapeNotFound(ctx) { return `<section data-shape="frame">${uxNotFound()
 function shapePlanInterim(ctx) {
   const p = planParts(ctx.op);
   return `<section data-shape="plan">${p.sticky}<div data-level="L1">${p.band}</div><div class="layout-main-side"><div><div data-level="L2">${p.l2}</div><div data-level="L3">${p.l3}</div></div><aside class="side-panel" data-level="L3">${p.aside}</aside></div></section>`;
+}
+
+/* ---- IA-1b: levels, the hub shape and its predicates (spec §3, D-IA.22, D-IA.24, D-IA.25, D-IA.27) ---- */
+/* the levels: structure only ([data-level] and [data-ia-drawers] are display: contents in ia.css); an empty slot omits its region */
+function iaLevels(shape, { cls = '', sticky = '', l1 = '', l2 = '', l3 = '', drawers = '' } = {}) {
+  const lv = (n, x) => x ? `<div data-level="${n}">${x}</div>` : '';
+  return `<section data-shape="${shape}"${cls ? ` class="${cls}"` : ''}>${sticky}${lv('L1', l1)}${lv('L2', l2)}${lv('L3', l3)}${drawers ? `<div data-ia-drawers>${drawers}</div>` : ''}</section>`;
+}
+function shapeHub(ctx, slots) { return iaLevels('hub', slots); }
+/* the one decision set: ATTN[op]'s decision ids, first appearance first, filtered by scope (a Site key, or { kind, id }) */
+function iaDecIds(op, scope) {
+  const sc = typeof scope === 'string' ? { kind: 'site', id: scope } : scope || { kind: 'all' };
+  const keep = r => sc.kind === 'site' ? r[2] === sc.id : sc.kind === 'group' ? iaVertical(r[2]) === sc.id : true;
+  return [...new Set(ATTN[op].filter(keep).map(r => r[4]))];
+}
+/* the one waiting predicate: a choice is waiting, with or without a recommendation */
+function iaWaiting(id) { return ['choose', 'none'].includes(uxDecState(id).key); }
+/* the largest driver against target: the bridge's tone rule (a shown effect below zero), the lowest, ties in board order; else null */
+function iaLargestAdverse(sk) {
+  let best = null; uxSiteDriversShown(sk).forEach(r => { if (!r.s.st.residual && r.vr < 0 && (!best || r.vr < best.vr)) best = r; });
+  return best;
+}
+const iaMonth = () => MONTHS[+String(MANIFEST.accounting_period).split('-')[1] - 1];
+/* the Outcomes table (D-IA.27): pure. rows { key, name, group, hasTarget, resultHtml, gapHtml, gap, driverHtml, waiting }. One row
+   per Site in scope, gap ascending (most adverse first), ties in the given order, Sites without a target last; capped at 10 the way
+   the Site board caps; grouped (one tbody per group, its word and count) only above 10 Sites in more than one group. */
+function iaOutcomeTable(rows, { scope = { kind: 'all' }, cost = false, id = 'ia-outcomes' } = {}) {
+  const inScope = rows.filter(r => scope.kind === 'site' ? r.key === scope.id : scope.kind === 'group' ? r.group === scope.id : true);
+  const sorted = inScope.map((r, i) => [r, i]).sort(([a, i], [b, j]) => (a.hasTarget !== b.hasTarget ? (a.hasTarget ? -1 : 1) : a.hasTarget ? a.gap - b.gap : 0) || i - j).map(([r]) => r);
+  const groups = [...new Set(sorted.map(r => r.group))], grouped = sorted.length > 10 && groups.length > 1, NA = '<span class="ux-kpi-na">Not available yet</span>';
+  const word = g => IA_GROUP_WORD[g] || g;
+  const row = (r, i) => `<tr data-site="${r.key}"${i >= 10 ? ' data-ux-over hidden' : ''}><th scope="row">${link(`site/${r.key}`, r.name)}</th><td>${word(r.group)}</td><td class="num">${r.hasTarget ? r.resultHtml : NA}</td><td class="num">${r.hasTarget ? r.gapHtml : NA}</td><td>${r.hasTarget ? r.driverHtml : NA}</td><td class="num">${num(r.waiting)}</td></tr>`;
+  const head = `<thead><tr><th>Site</th><th>Group</th><th>${cost ? 'Cost per required departure met' : 'Contribution'}</th><th>Gap to target</th><th>Largest driver against target</th><th>Waiting for a choice</th></tr></thead>`;
+  if (!grouped) return `<div class="table-wrap"><table class="ia-outcomes" id="${id}">${head}<tbody>${sorted.map(row).join('')}</tbody></table></div>${uxCapNote(sorted.length, 10, id)}`;
+  return `<div class="table-wrap"><table class="ia-outcomes ia-outcomes-grouped">${head}${groups.map(g => { const R = sorted.filter(r => r.group === g), gid = `${id}-${g}`;
+    return `<tbody id="${gid}" data-group="${g}"><tr class="ia-out-group"><th colspan="6" scope="rowgroup">${word(g)} <span class="ux-count">${num(R.length)}</span></th></tr>${R.map(row).join('')}${R.length > 10 ? `<tr><td colspan="6">${uxCapNote(R.length, 10, gid)}</td></tr>` : ''}</tbody>`; }).join('')}</table></div>`;
+}
+/* the Outcomes headline (spec §3.3): n counts Sites with a negative gap, m Sites with a target; pure */
+function iaOutcomeHeadline(rows, cost, mo) {
+  const T = rows.filter(r => r.hasTarget), n = T.filter(r => r.gap < 0).length;
+  return n ? `${num(n)} of ${num(T.length)} Sites are ${cost ? 'over' : 'below'} target in ${mo}` : `Every Site is on or ${cost ? 'under' : 'above'} target in ${mo}`;
+}
+/* one Outcomes row per Site of the operator, each figure through the Site page's own call */
+function iaOutcomeRows(op) {
+  const cost = OPS[op].kind === 'cost';
+  return OPS[op].sites.map(sk => { const s = siteM(sk), t = tree(sk), d = t.plan != null ? iaLargestAdverse(sk) : null;
+    const f = v => cost ? fmtU(v, t.unit) : usdW(v);
+    return { key: sk, name: SK[sk].name, group: iaVertical(sk), hasTarget: t.plan != null,
+      resultHtml: t.plan != null ? `${fig(`node:${sk}:root`, f(t.actual))} against a target of ${f(t.plan)}` : '',
+      gapHtml: t.plan != null ? figS('gap', sk, s.period.variance, usdW(s.period.variance, true)) : '', gap: s.period.variance,
+      driverHtml: d ? `${d.s.lab} ${usdW(d.vr, true)} <small>${LENS[d.k][0]}</small>` : cost ? 'No driver raises the cost' : 'No driver widens the gap',
+      waiting: iaDecIds(op, sk).filter(iaWaiting).length }; });
+}
+function shapeHubOverview(ctx) {
+  const P = uxOverviewParts(ctx.op);
+  return shapeHub(ctx, { cls: 'ux-overview', l1: `${P.headline}\n ${P.tiles}`, l2: P.queue('', ''), l3: `${P.bridge}\n ${P.cats}` });
+}
+function shapeHubOutcomes(ctx) {
+  const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeRows(op).filter(r => ctx.scope.kind === 'site' ? r.key === ctx.scope.id : ctx.scope.kind === 'group' ? r.group === ctx.scope.id : true);
+  return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaOutcomeTable(rows, { scope: ctx.scope, cost }), l3: uxInsight(op) });
+}
+function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: opportunityScreen() }); }
+function shapeHubSite(ctx) {
+  const sk = ctx.site, X = uxSiteParts(sk, siteOverviewP(sk), 3);
+  return shapeHub(ctx, { sticky: X.sticky, l1: `${X.lead}${X.tiles}`, l2: X.queue, l3: `${X.secs}${X.help}`, drawers: X.drawers });
 }
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */

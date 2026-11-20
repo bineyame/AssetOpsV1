@@ -23,3 +23,6 @@
 .reviewbar .ux-rebuild{position:relative;display:inline-block;line-height:16px}
 .reviewbar .ux-rebuild>summary{padding:0 4px;min-height:0;height:auto;border:0;background:none}
 .reviewbar .ux-rebuild .ux-pop-menu{right:0;left:auto;max-width:420px;white-space:normal}
+/* IA-1b (D-IA.22): levels are structure only, so the reviewed layout does not move */
+[data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
+.ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
