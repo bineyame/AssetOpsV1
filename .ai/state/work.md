@@ -111,3 +111,19 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   the rule inline from the history route (`_expected_link`).
 - Open: estate Finding->Action join stays exact (C5); R552 stays open until DEMO-SPARSE CO-1 passes on the combined
   dataset (DEMO-A edits `tools/demo_combined_finish.py` co1 after this merges).
+
+## 3C0a: operator accounts, sessions and role grants behind the API (2026-11-20, `task/3C0a-operator-accounts`, in review)
+
+- Migration `0062_operator_accounts`: `operator_account`, `account_credential`, `account_status`, `role_grant`
+  (append-only, 0005 trigger; a removal is a new row checked by `role_grant_removal_matches()`), `operator_session`
+  (revoke-only; token SHA-256 only) and `sign_in_attempt` (hashed email key, person only on success, purged after
+  30 days on every insert). Current password, status and held grants are derived from the latest rows.
+- `backend/assetops_backend/accounts/`: scrypt passwords, sign-in with one verification per path and a per-email
+  lockout (5 failures / 15 min) under an advisory lock, 12 h absolute sessions ended by a newer password (MB1),
+  grants and removals only by an OPERATOR_EXECUTIVE under a per-tenant lock (the tenant keeps one ACTIVE
+  executive), the onboarding command (`python -m assetops_backend.accounts.onboard`). Seven routes under
+  `/api/auth/` and `/api/organisation/` (`accounts_api.py`); `create_app(accounts=...)`.
+- Seam for `3C1`: `accounts.principal.person_from_request` (D-3C0A.9). No existing route or command reads a person
+  or is refused yet (D-3C0A.1).
+- Open: the sign-in page and Organisation settings (`3C0b`, held; the `Secure` cookie over the walkthrough's http
+  address is its question, Q4); recording the person on commands (`3C1`); erasure of a person's data (Q5, pilot).

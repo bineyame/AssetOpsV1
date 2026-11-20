@@ -15,7 +15,7 @@ open the named area file at that `## ` heading. Never read an area file whole.
 | `lab.md` | Simulator Lab: scenarios, runs, kernel, run store, gateway simulation | 26 | 207 KB |
 | `data.md` | ingestion, Site evidence, dispatch, claim limits, provenance | 15 | 41 KB |
 | `findings-money.md` | Findings, consequence and price, assumption history | 19 | 43 KB |
-| `work.md` | Actions, verification, Site and global work | 7 | 20 KB |
+| `work.md` | Actions, verification, Site and global work; operator accounts | 8 | 22 KB |
 | `cold-ev.md` | cold-chain and EV Sites | 8 | 18 KB |
 | `estate.md` | Portfolio, outcome board and matrix, coverage | 10 | 21 KB |
 | `demo.md` | combined demo dataset, polish passes, add-dates | 10 | 20 KB |
