@@ -54,3 +54,6 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-DS1.9` DS1 Harvest Cold after-recalculation state goes to 3B7b via a rolling: record · live · specs/DS1-history-generator/rulings.md
 - `D-DS1.10` DS1 evidence words Simulated/Emulated; coverage RECORDED is not one · live · specs/DS1-history-generator/rulings.md
 - `D-DS1.11` DS1 product series read is 3B7a; loading is DS3; no dependency on missing-record contract · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.12` DS1 history nodes carry the missing record (NOT_IN_HISTORY); no unknown reads as zero · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.13` DS1 DS1p based on the pack branch after 46b62c92b, main merged in · live · specs/DS1-history-generator/rulings.md
+- `D-DS1.14` DS1 units (integer at month grain) and estimate (4 units, DS1b 1) · live · specs/DS1-history-generator/rulings.md

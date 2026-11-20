@@ -1,6 +1,6 @@
 # DS1 handshake (one combined round, RULES §4 items 6-7)
 
-Status: **open**. Code waits until this round is closed.
+Status: **closed** (round 1 answered in `rulings.md`, "Handshake answers (round 1)"; spec rev 2). DS1a may start.
 
 How the round works:
 - The Reviewer (after reading `spec.md`, `reviewer-guide.md` and `rulings.md`) and the Implementer (after a pre-flight
